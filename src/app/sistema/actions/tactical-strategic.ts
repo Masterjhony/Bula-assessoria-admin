@@ -80,7 +80,7 @@ export async function createObjective(data: {
     .select()
     .single();
   if (error) throw new Error(error.message);
-  revalidatePath('/web-admin/projetos');
+  revalidatePath('/sistema/projetos');
   return result as TacticalObjective;
 }
 
@@ -93,7 +93,7 @@ export async function updateObjective(id: string, updates: Partial<TacticalObjec
     .select()
     .single();
   if (error) throw new Error(error.message);
-  revalidatePath('/web-admin/projetos');
+  revalidatePath('/sistema/projetos');
   return data as TacticalObjective;
 }
 
@@ -101,7 +101,7 @@ export async function deleteObjective(id: string) {
   const supabase = await createClient();
   const { error } = await supabase.from('tactical_objectives').delete().eq('id', id);
   if (error) throw new Error(error.message);
-  revalidatePath('/web-admin/projetos');
+  revalidatePath('/sistema/projetos');
 }
 
 // ─── Key Results ──────────────────────────────────────────────────────────────
@@ -116,7 +116,7 @@ export async function createKeyResult(data: {
     .select()
     .single();
   if (error) throw new Error(error.message);
-  revalidatePath('/web-admin/projetos');
+  revalidatePath('/sistema/projetos');
   return result as TacticalKeyResult;
 }
 
@@ -129,7 +129,7 @@ export async function updateKeyResult(id: string, updates: Partial<TacticalKeyRe
     .select()
     .single();
   if (error) throw new Error(error.message);
-  revalidatePath('/web-admin/projetos');
+  revalidatePath('/sistema/projetos');
   return data as TacticalKeyResult;
 }
 
@@ -137,7 +137,7 @@ export async function deleteKeyResult(id: string) {
   const supabase = await createClient();
   const { error } = await supabase.from('tactical_key_results').delete().eq('id', id);
   if (error) throw new Error(error.message);
-  revalidatePath('/web-admin/projetos');
+  revalidatePath('/sistema/projetos');
 }
 
 // ─── Task → KR Links ──────────────────────────────────────────────────────────
@@ -145,7 +145,7 @@ export async function deleteKeyResult(id: string) {
 export async function linkTaskToKR(taskId: string, krId: string) {
   const supabase = await createClient();
   await supabase.from('tactical_task_kr_links').upsert({ task_id: taskId, kr_id: krId });
-  revalidatePath('/web-admin/projetos');
+  revalidatePath('/sistema/projetos');
 }
 
 export async function unlinkTaskFromKR(taskId: string, krId: string) {
@@ -154,7 +154,7 @@ export async function unlinkTaskFromKR(taskId: string, krId: string) {
     .delete()
     .eq('task_id', taskId)
     .eq('kr_id', krId);
-  revalidatePath('/web-admin/projetos');
+  revalidatePath('/sistema/projetos');
 }
 
 export async function getTaskKRLinks(taskId: string): Promise<string[]> {
@@ -186,7 +186,7 @@ export async function createRisk(data: Omit<TacticalRisk, 'id' | 'created_at'>) 
     .select()
     .single();
   if (error) throw new Error(error.message);
-  revalidatePath('/web-admin/projetos');
+  revalidatePath('/sistema/projetos');
   return result as TacticalRisk;
 }
 
@@ -199,14 +199,14 @@ export async function updateRisk(id: string, updates: Partial<TacticalRisk>) {
     .select()
     .single();
   if (error) throw new Error(error.message);
-  revalidatePath('/web-admin/projetos');
+  revalidatePath('/sistema/projetos');
   return data as TacticalRisk;
 }
 
 export async function deleteRisk(id: string) {
   const supabase = await createClient();
   await supabase.from('tactical_risks').delete().eq('id', id);
-  revalidatePath('/web-admin/projetos');
+  revalidatePath('/sistema/projetos');
 }
 
 // ─── Members ──────────────────────────────────────────────────────────────────
@@ -237,7 +237,7 @@ export async function createMember(data: { name: string; role?: string; avatar_c
     .select()
     .single();
   if (error) throw new Error(error.message);
-  revalidatePath('/web-admin/projetos');
+  revalidatePath('/sistema/projetos');
   return result as TacticalMember;
 }
 
@@ -250,14 +250,14 @@ export async function updateMember(id: string, updates: Partial<TacticalMember>)
     .select()
     .single();
   if (error) throw new Error(error.message);
-  revalidatePath('/web-admin/projetos');
+  revalidatePath('/sistema/projetos');
   return data as TacticalMember;
 }
 
 export async function deleteMember(id: string) {
   const supabase = await createClient();
   await supabase.from('tactical_members').delete().eq('id', id);
-  revalidatePath('/web-admin/projetos');
+  revalidatePath('/sistema/projetos');
 }
 
 // ─── Strategic Flows ──────────────────────────────────────────────────────────
@@ -302,7 +302,7 @@ export async function createFlow(data: { name: string; description?: string }) {
     .select()
     .single();
   if (error) throw new Error(error.message);
-  revalidatePath('/web-admin/projetos');
+  revalidatePath('/sistema/projetos');
   return result as StrategicFlow;
 }
 
@@ -315,14 +315,14 @@ export async function updateFlow(id: string, updates: Partial<StrategicFlow>) {
     .select()
     .single();
   if (error) throw new Error(error.message);
-  revalidatePath('/web-admin/projetos');
+  revalidatePath('/sistema/projetos');
   return data as StrategicFlow;
 }
 
 export async function deleteFlow(id: string) {
   const supabase = await createClient();
   await supabase.from('strategic_flows').delete().eq('id', id);
-  revalidatePath('/web-admin/projetos');
+  revalidatePath('/sistema/projetos');
 }
 
 export async function createStage(data: {
@@ -335,7 +335,7 @@ export async function createStage(data: {
     .select()
     .single();
   if (error) throw new Error(error.message);
-  revalidatePath('/web-admin/projetos');
+  revalidatePath('/sistema/projetos');
   return result as StrategicStage;
 }
 
@@ -348,14 +348,14 @@ export async function updateStage(id: string, updates: Partial<StrategicStage>) 
     .select()
     .single();
   if (error) throw new Error(error.message);
-  revalidatePath('/web-admin/projetos');
+  revalidatePath('/sistema/projetos');
   return data as StrategicStage;
 }
 
 export async function deleteStage(id: string) {
   const supabase = await createClient();
   await supabase.from('strategic_stages').delete().eq('id', id);
-  revalidatePath('/web-admin/projetos');
+  revalidatePath('/sistema/projetos');
 }
 
 // ─── Decisions ────────────────────────────────────────────────────────────────
@@ -378,7 +378,7 @@ export async function createDecision(data: Omit<TacticalDecision, 'id' | 'create
     .select()
     .single();
   if (error) throw new Error(error.message);
-  revalidatePath('/web-admin/projetos');
+  revalidatePath('/sistema/projetos');
   return result as TacticalDecision;
 }
 
@@ -391,12 +391,12 @@ export async function updateDecision(id: string, updates: Partial<TacticalDecisi
     .select()
     .single();
   if (error) throw new Error(error.message);
-  revalidatePath('/web-admin/projetos');
+  revalidatePath('/sistema/projetos');
   return data as TacticalDecision;
 }
 
 export async function deleteDecision(id: string) {
   const supabase = await createClient();
   await supabase.from('tactical_decisions').delete().eq('id', id);
-  revalidatePath('/web-admin/projetos');
+  revalidatePath('/sistema/projetos');
 }

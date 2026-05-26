@@ -1,5 +1,17 @@
-import { PlaceholderPage } from '@/components/admin/PlaceholderPage'
+import { Suspense } from 'react'
+import { Loader2 } from 'lucide-react'
+import { AgendamentosClient } from '@/components/admin/agendamentos/AgendamentosClient'
 
-export default function Page() {
-  return <PlaceholderPage title="Agendamentos" phase="Fase 3" />
+export const dynamic = 'force-dynamic'
+
+export default function AgendamentosPage() {
+    return (
+        <Suspense fallback={
+            <div className="flex items-center justify-center py-24">
+                <Loader2 size={28} className="animate-spin text-[#A0792E]" />
+            </div>
+        }>
+            <AgendamentosClient />
+        </Suspense>
+    )
 }

@@ -116,7 +116,7 @@ export async function archiveTask(id: string) {
         throw new Error('Failed to archive task');
     }
 
-    revalidatePath('/web-admin/projetos');
+    revalidatePath('/sistema/projetos');
 }
 
 export async function unarchiveTask(id: string) {
@@ -133,7 +133,7 @@ export async function unarchiveTask(id: string) {
         throw new Error('Failed to unarchive task');
     }
 
-    revalidatePath('/web-admin/projetos');
+    revalidatePath('/sistema/projetos');
     return data as TacticalTask;
 }
 
@@ -163,7 +163,7 @@ export async function createTask(task: Omit<TacticalTask, 'id' | 'created_at'>) 
         throw new Error('Failed to create task');
     }
 
-    revalidatePath('/web-admin/projetos');
+    revalidatePath('/sistema/projetos');
     return data as TacticalTask;
 }
 
@@ -182,7 +182,7 @@ export async function updateTask(id: string, updates: Partial<TacticalTask>) {
         throw new Error('Failed to update task');
     }
 
-    revalidatePath('/web-admin/projetos');
+    revalidatePath('/sistema/projetos');
     return data;
 }
 
@@ -199,7 +199,7 @@ export async function moveTask(id: string, newStatus: string, newPosition: numbe
         throw new Error('Failed to move task');
     }
 
-    revalidatePath('/web-admin/projetos');
+    revalidatePath('/sistema/projetos');
 }
 
 export async function deleteTask(id: string) {
@@ -215,7 +215,7 @@ export async function deleteTask(id: string) {
         throw new Error('Failed to delete task');
     }
 
-    revalidatePath('/web-admin/projetos');
+    revalidatePath('/sistema/projetos');
 }
 
 export async function getProfiles() {
@@ -275,7 +275,7 @@ export async function createColumn(title: string) {
         throw new Error('Failed to create column');
     }
 
-    revalidatePath('/web-admin/projetos');
+    revalidatePath('/sistema/projetos');
     return data as TacticalColumn;
 }
 
@@ -293,7 +293,7 @@ export async function updateColumn(id: string, title: string) {
         throw new Error('Failed to update column');
     }
 
-    revalidatePath('/web-admin/projetos');
+    revalidatePath('/sistema/projetos');
     return data as TacticalColumn;
 }
 
@@ -309,7 +309,7 @@ export async function deleteColumn(id: string) {
         throw new Error('Failed to delete column');
     }
 
-    revalidatePath('/web-admin/projetos');
+    revalidatePath('/sistema/projetos');
 }
 
 // --- Comments Actions ---
@@ -351,7 +351,7 @@ export async function addComment(taskId: string, content: string) {
         throw new Error('Failed to add comment');
     }
 
-    revalidatePath('/web-admin/projetos');
+    revalidatePath('/sistema/projetos');
     return data as TacticalComment;
 }
 
@@ -401,7 +401,7 @@ export async function saveAttachmentRecord(
         throw new Error(`Failed to save attachment: ${error.message}`);
     }
 
-    revalidatePath('/web-admin/projetos');
+    revalidatePath('/sistema/projetos');
     return data as TacticalAttachment;
 }
 
@@ -427,5 +427,5 @@ export async function deleteAttachment(attachmentId: string, filePath: string) {
         throw new Error('Failed to delete attachment');
     }
 
-    revalidatePath('/web-admin/projetos');
+    revalidatePath('/sistema/projetos');
 }
