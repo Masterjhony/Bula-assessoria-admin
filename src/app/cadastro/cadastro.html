@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Bula Assessoria -- Criar Conta</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200&display=swap" rel="stylesheet">
+<link rel="icon" href="/logo-bula-remates-preto-_1_.svg" type="image/svg+xml">
+<style>
+*, *::before, *::after { margin:0; padding:0; box-sizing:border-box; }
+html, body { height:100%; }
+body { font-family:'Inter',-apple-system,sans-serif; -webkit-font-smoothing:antialiased; overflow:hidden; }
+.material-symbols-outlined { font-variation-settings:'FILL' 0,'wght' 300,'GRAD' 0,'opsz' 20; vertical-align:middle; }
+
+.login-page { display:flex; height:100vh; }
+
+.login-photo { flex:1; position:relative; overflow:hidden; display:flex; align-items:flex-end; }
+.login-photo img { position:absolute; inset:0; width:100%; height:100%; object-fit:cover; filter:brightness(0.55) saturate(0.8); }
+.login-photo-overlay { position:absolute; inset:0; background:linear-gradient(180deg, rgba(0,0,0,0.1) 0%, rgba(0,0,0,0.5) 60%, rgba(0,0,0,0.85) 100%); }
+.login-photo-content { position:relative; z-index:2; padding:48px; width:100%; }
+.login-photo-tagline { font-size:32px; font-weight:800; color:#fff; letter-spacing:-0.5px; line-height:1.2; margin-bottom:12px; }
+.login-photo-tagline span { color:#C8A96E; }
+.login-photo-sub { font-size:14px; color:rgba(255,255,255,0.6); font-weight:300; line-height:1.6; max-width:420px; }
+.login-photo-badge { position:absolute; top:36px; left:48px; z-index:2; display:flex; align-items:center; gap:8px; }
+.login-photo-badge-dot { width:8px; height:8px; border-radius:50%; background:#C8A96E; animation:pulse 2s infinite; }
+@keyframes pulse { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:0.5;transform:scale(1.3)} }
+.login-photo-badge-text { font-size:11px; color:rgba(255,255,255,0.5); letter-spacing:1px; text-transform:uppercase; font-weight:500; }
+
+.login-form-side { width:480px; flex-shrink:0; background:#0D0D0D; display:flex; flex-direction:column; align-items:center; justify-content:center; padding:48px; position:relative; overflow-y:auto; }
+.login-logo { height:70px; margin-bottom:28px; }
+.login-welcome { text-align:center; margin-bottom:28px; }
+.login-welcome h1 { font-size:22px; font-weight:700; color:#F5F5F5; margin-bottom:6px; }
+.login-welcome p { font-size:13px; color:#666; font-weight:300; }
+
+.login-form { width:100%; max-width:340px; }
+.form-group { margin-bottom:16px; }
+.form-label { font-size:11px; font-weight:500; color:#888; text-transform:uppercase; letter-spacing:0.8px; margin-bottom:6px; display:flex; align-items:center; gap:6px; }
+.form-label .material-symbols-outlined { font-size:15px; color:#555; }
+.form-input { width:100%; background:#141414; border:1px solid rgba(255,255,255,0.08); border-radius:10px; padding:14px 16px; font-family:inherit; font-size:14px; color:#F5F5F5; transition:all 0.2s; outline:none; }
+.form-input::placeholder { color:#444; }
+.form-input:focus { border-color:rgba(200,169,110,0.4); box-shadow:0 0 0 3px rgba(200,169,110,0.08); }
+
+.form-password-wrap { position:relative; }
+.form-password-wrap .form-input { padding-right:44px; }
+.form-eye { position:absolute; right:14px; top:50%; transform:translateY(-50%); background:none; border:none; color:#555; cursor:pointer; display:flex; padding:0; }
+.form-eye:hover { color:#C8A96E; }
+
+.btn-login { width:100%; background:#C8A96E; color:#111; border:none; padding:14px; border-radius:10px; font-family:inherit; font-size:14px; font-weight:700; cursor:pointer; transition:all 0.15s; display:flex; align-items:center; justify-content:center; gap:8px; letter-spacing:0.3px; margin-top:8px; }
+.btn-login:hover { background:#A68B4B; transform:translateY(-1px); box-shadow:0 4px 16px rgba(200,169,110,0.3); }
+.btn-login:disabled { pointer-events:none; opacity:0.7; }
+
+.login-divider { display:flex; align-items:center; gap:14px; margin:24px 0; width:100%; max-width:340px; }
+.login-divider::before, .login-divider::after { content:''; flex:1; height:1px; background:rgba(255,255,255,0.06); }
+.login-divider span { font-size:10px; color:#444; text-transform:uppercase; letter-spacing:1px; }
+
+.signup-link { text-align:center; width:100%; max-width:340px; }
+.signup-link p { font-size:13px; color:#555; }
+.signup-link a { color:#C8A96E; text-decoration:none; font-weight:600; transition:color 0.12s; }
+.signup-link a:hover { color:#A68B4B; }
+
+.login-footer { position:absolute; bottom:28px; text-align:center; }
+.login-footer p { font-size:10px; color:#333; }
+
+.form-error { background:rgba(192,80,77,0.08); border:1px solid rgba(192,80,77,0.2); border-radius:8px; padding:10px 14px; margin-bottom:16px; display:none; align-items:center; gap:8px; font-size:12px; color:#C0504D; width:100%; max-width:340px; }
+.form-error.show { display:flex; }
+.form-error .material-symbols-outlined { font-size:16px; flex-shrink:0; }
+
+.form-success { background:rgba(107,143,92,0.08); border:1px solid rgba(107,143,92,0.3); border-radius:8px; padding:14px; margin-bottom:16px; display:none; flex-direction:column; gap:6px; font-size:13px; color:#6B8F5C; width:100%; max-width:340px; text-align:center; }
+.form-success.show { display:flex; }
+.form-success strong { font-size:15px; }
+
+.spin { display:inline-block; width:16px; height:16px; border:2px solid #111; border-top-color:transparent; border-radius:50%; animation:spin 0.6s linear infinite; }
+@keyframes spin { to { transform:rotate(360deg); } }
+
+@media(max-width:900px) {
+  .login-photo { display:none; }
+  .login-form-side { width:100%; }
+}
+@media(max-width:480px) {
+  .login-form-side { padding:32px 24px; overflow-y:auto; }
+  .login-logo { height:60px; margin-bottom:20px; }
+}
+</style>
+</head>
+<body>
+<div class="login-page">
+  <div class="login-photo">
+    <img src="/bula/assets/img/login-bg.jpg" alt="">
+    <div class="login-photo-overlay"></div>
+    <div class="login-photo-badge">
+      <div class="login-photo-badge-dot"></div>
+      <div class="login-photo-badge-text">Bula Assessoria Pecuaria</div>
+    </div>
+    <div class="login-photo-content">
+      <div class="login-photo-tagline">A <span>maior assessoria</span><br>de leiloes do Brasil.</div>
+      <div class="login-photo-sub">Gerencie leiloes, acompanhe resultados e conecte-se com o mercado pecuario em um unico lugar.</div>
+    </div>
+  </div>
+
+  <div class="login-form-side">
+    <img src="/logo-bula-remates-branco-_1_.svg" alt="Bula Remates" class="login-logo">
+
+    <div class="login-welcome">
+      <h1>Criar conta</h1>
+      <p>Preencha os dados para acessar o sistema</p>
+    </div>
+
+    <div class="form-error" id="form-error">
+      <span class="material-symbols-outlined">error</span>
+      <span id="error-text">Erro ao criar conta.</span>
+    </div>
+
+    <div class="form-success" id="form-success">
+      <strong>Conta criada com sucesso!</strong>
+      <span>Verifique seu email para confirmar o cadastro, depois faca o login.</span>
+    </div>
+
+    <form class="login-form" id="signup-form" onsubmit="handleSignup(event)">
+      <div class="form-group">
+        <label class="form-label"><span class="material-symbols-outlined">person</span> Nome completo</label>
+        <input class="form-input" type="text" id="signup-name" placeholder="Seu nome" required>
+      </div>
+      <div class="form-group">
+        <label class="form-label"><span class="material-symbols-outlined">mail</span> Email</label>
+        <input class="form-input" type="email" id="signup-email" placeholder="seu@email.com" required>
+      </div>
+      <div class="form-group">
+        <label class="form-label"><span class="material-symbols-outlined">lock</span> Senha</label>
+        <div class="form-password-wrap">
+          <input class="form-input" type="password" id="signup-password" placeholder="Minimo 6 caracteres" required minlength="6">
+          <button type="button" class="form-eye" onclick="togglePassword('signup-password','eye-icon-1')">
+            <span class="material-symbols-outlined" id="eye-icon-1" style="font-size:18px">visibility_off</span>
+          </button>
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="form-label"><span class="material-symbols-outlined">lock_reset</span> Confirmar senha</label>
+        <div class="form-password-wrap">
+          <input class="form-input" type="password" id="signup-confirm" placeholder="Repita a senha" required>
+          <button type="button" class="form-eye" onclick="togglePassword('signup-confirm','eye-icon-2')">
+            <span class="material-symbols-outlined" id="eye-icon-2" style="font-size:18px">visibility_off</span>
+          </button>
+        </div>
+      </div>
+      <button type="submit" class="btn-login" id="btn-signup">
+        <span class="material-symbols-outlined">person_add</span> Criar conta
+      </button>
+    </form>
+
+    <div class="login-divider"><span>ou</span></div>
+
+    <div class="signup-link">
+      <p>Ja tem uma conta? <a href="/">Fazer login</a></p>
+    </div>
+
+    <div class="login-footer">
+      <p>Bula Assessoria Pecuaria &copy; 2026</p>
+    </div>
+  </div>
+</div>
+
+<script>
+function togglePassword(inputId, iconId) {
+  const input = document.getElementById(inputId);
+  const icon = document.getElementById(iconId);
+  if (input.type === 'password') {
+    input.type = 'text';
+    icon.textContent = 'visibility';
+  } else {
+    input.type = 'password';
+    icon.textContent = 'visibility_off';
+  }
+}
+
+async function handleSignup(e) {
+  e.preventDefault();
+  const btn = document.getElementById('btn-signup');
+  const errorBox = document.getElementById('form-error');
+  const errorText = document.getElementById('error-text');
+  const successBox = document.getElementById('form-success');
+
+  const password = document.getElementById('signup-password').value;
+  const confirm = document.getElementById('signup-confirm').value;
+
+  errorBox.classList.remove('show');
+  successBox.classList.remove('show');
+
+  if (password !== confirm) {
+    errorText.textContent = 'As senhas nao coincidem.';
+    errorBox.classList.add('show');
+    return;
+  }
+
+  btn.disabled = true;
+  btn.innerHTML = '<span class="spin"></span> Criando conta...';
+
+  try {
+    const res = await fetch('/api/bula/auth/signup', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        name: document.getElementById('signup-name').value,
+        email: document.getElementById('signup-email').value,
+        password,
+      }),
+    });
+
+    const data = await res.json();
+
+    if (!res.ok) {
+      errorText.textContent = data.error || 'Erro ao criar conta. Tente novamente.';
+      errorBox.classList.add('show');
+      btn.disabled = false;
+      btn.innerHTML = '<span class="material-symbols-outlined">person_add</span> Criar conta';
+      return;
+    }
+
+    document.getElementById('signup-form').style.display = 'none';
+    successBox.classList.add('show');
+    btn.disabled = false;
+    btn.innerHTML = '<span class="material-symbols-outlined">person_add</span> Criar conta';
+
+  } catch {
+    errorText.textContent = 'Erro de conexao. Tente novamente.';
+    errorBox.classList.add('show');
+    btn.disabled = false;
+    btn.innerHTML = '<span class="material-symbols-outlined">person_add</span> Criar conta';
+  }
+}
+</script>
+</body>
+</html>
