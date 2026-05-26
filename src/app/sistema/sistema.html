@@ -4230,6 +4230,169 @@
         display: none;
       }
     }
+
+    /* ── PROFILE / LOGOUT / NOTIF DROPDOWNS ── */
+    .topbar-profile {
+      display: flex; align-items: center; gap: 8px;
+      height: 36px; padding: 0 12px 0 6px;
+      background: var(--s2); border: 1px solid var(--border);
+      border-radius: 20px; cursor: pointer; color: var(--text);
+      font-size: 12px; font-weight: 600;
+      transition: all 0.15s; position: relative;
+    }
+    .topbar-profile:hover { background: var(--s3); }
+    .topbar-profile-av {
+      width: 26px; height: 26px; border-radius: 50%;
+      background: var(--gold); color: #111; font-weight: 700;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 11px; letter-spacing: 0.3px;
+    }
+    .topbar-profile-name { max-width: 110px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .topbar-profile-chev { font-size: 16px !important; color: var(--text3); }
+
+    .tb-dropdown {
+      position: absolute; top: 48px; right: 0; min-width: 220px;
+      background: var(--surface); border: 1px solid var(--border2);
+      border-radius: 12px; box-shadow: 0 12px 40px rgba(0,0,0,0.5);
+      padding: 8px; display: none; z-index: 200;
+    }
+    .tb-dropdown.open { display: block; }
+    .tb-dd-item {
+      display: flex; align-items: center; gap: 10px;
+      padding: 10px 12px; border-radius: 8px; cursor: pointer;
+      font-size: 13px; color: var(--text); transition: background 0.12s;
+    }
+    .tb-dd-item:hover { background: var(--s2); }
+    .tb-dd-item .material-symbols-outlined { font-size: 18px; color: var(--text3); }
+    .tb-dd-item.danger { color: var(--red); }
+    .tb-dd-item.danger .material-symbols-outlined { color: var(--red); }
+    .tb-dd-header {
+      padding: 10px 12px 6px;
+      font-size: 11px; color: var(--text3); text-transform: uppercase; letter-spacing: 0.5px;
+      border-bottom: 1px solid var(--border); margin-bottom: 4px;
+    }
+    .tb-dd-sub { font-size: 11px; color: var(--text3); font-weight: 400; margin-top: 2px; }
+
+    .notif-dropdown {
+      position: absolute; top: 48px; right: 56px; width: 340px; max-height: 480px;
+      background: var(--surface); border: 1px solid var(--border2);
+      border-radius: 12px; box-shadow: 0 12px 40px rgba(0,0,0,0.5);
+      display: none; z-index: 200; overflow: hidden; flex-direction: column;
+    }
+    .notif-dropdown.open { display: flex; }
+    .notif-hd {
+      padding: 14px 16px; border-bottom: 1px solid var(--border);
+      font-size: 13px; font-weight: 700; color: var(--text);
+      display: flex; align-items: center; justify-content: space-between;
+    }
+    .notif-hd-cnt { font-size: 10px; color: var(--gold); background: var(--gold-dim); padding: 3px 8px; border-radius: 10px; font-weight: 600; }
+    .notif-list { overflow-y: auto; flex: 1; }
+    .notif-item {
+      padding: 12px 16px; border-bottom: 1px solid var(--border);
+      display: flex; gap: 10px; cursor: pointer;
+      transition: background 0.12s;
+    }
+    .notif-item:hover { background: var(--s2); }
+    .notif-item:last-child { border-bottom: none; }
+    .notif-icon {
+      width: 32px; height: 32px; border-radius: 8px;
+      background: var(--gold-dim); color: var(--gold);
+      display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+    }
+    .notif-icon.blue { background: var(--blue-bg); color: var(--blue); }
+    .notif-icon.red { background: var(--red-bg); color: var(--red); }
+    .notif-icon.olive { background: var(--olive-bg); color: var(--olive); }
+    .notif-body { flex: 1; min-width: 0; }
+    .notif-title { font-size: 12px; font-weight: 600; color: var(--text); line-height: 1.4; margin-bottom: 2px; }
+    .notif-sub { font-size: 11px; color: var(--text3); line-height: 1.4; }
+    .notif-empty { padding: 40px 20px; text-align: center; color: var(--text3); font-size: 12px; }
+    .notif-empty .material-symbols-outlined { font-size: 32px; display: block; margin-bottom: 8px; color: var(--text4); }
+    .notif-btn.has-notif .notif-dot { background: var(--red); }
+
+    /* ── FORM MODAL (Novo Leilao, Novo Funil, etc.) ── */
+    .fm-overlay {
+      position: fixed; inset: 0;
+      background: rgba(0,0,0,0.6); backdrop-filter: blur(2px);
+      display: none; z-index: 300;
+    }
+    .fm-overlay.open { display: block; }
+    .form-modal {
+      position: fixed; top: 50%; left: 50%;
+      transform: translate(-50%, -50%);
+      width: 100%; max-width: 560px; max-height: 90vh;
+      background: var(--surface); border: 1px solid var(--border2);
+      border-radius: 16px; z-index: 301;
+      display: none; flex-direction: column; overflow: hidden;
+    }
+    .form-modal.open { display: flex; }
+    .fm-header {
+      padding: 20px 24px; border-bottom: 1px solid var(--border);
+      display: flex; align-items: center; justify-content: space-between;
+    }
+    .fm-title { font-size: 15px; font-weight: 700; color: var(--text); }
+    .fm-close {
+      width: 32px; height: 32px; display: flex; align-items: center; justify-content: center;
+      border-radius: 8px; cursor: pointer; color: var(--text3);
+    }
+    .fm-close:hover { background: var(--s2); color: var(--text); }
+    .fm-body {
+      padding: 20px 24px; overflow-y: auto; flex: 1;
+      display: flex; flex-direction: column; gap: 14px;
+    }
+    .fm-row2 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+    .fm-label {
+      font-size: 11px; color: var(--text3); font-weight: 500;
+      text-transform: uppercase; letter-spacing: 0.5px;
+      margin-bottom: 6px; display: flex; align-items: center; gap: 6px;
+    }
+    .fm-label .material-symbols-outlined { font-size: 14px; }
+    .fm-input, .fm-select, .fm-textarea {
+      width: 100%; background: var(--s2); border: 1px solid var(--border);
+      border-radius: 8px; padding: 10px 12px;
+      font-family: inherit; font-size: 13px; color: var(--text);
+      outline: none; transition: border 0.15s;
+    }
+    .fm-input:focus, .fm-select:focus, .fm-textarea:focus {
+      border-color: var(--gold);
+    }
+    .fm-textarea { resize: vertical; min-height: 72px; }
+    .fm-footer {
+      padding: 16px 24px; border-top: 1px solid var(--border);
+      display: flex; justify-content: flex-end; gap: 8px;
+    }
+    .fm-btn {
+      padding: 10px 18px; border-radius: 8px;
+      font-family: inherit; font-size: 13px; font-weight: 600; cursor: pointer;
+      border: 1px solid var(--border2); background: transparent; color: var(--text2);
+      transition: all 0.15s;
+    }
+    .fm-btn:hover { background: var(--s2); color: var(--text); }
+    .fm-btn-primary {
+      background: var(--gold); color: #111; border-color: var(--gold);
+    }
+    .fm-btn-primary:hover { background: var(--gold-dark); color: #111; }
+    .fm-btn:disabled { opacity: 0.5; pointer-events: none; }
+
+    .fm-etapas { display: flex; flex-direction: column; gap: 6px; }
+    .fm-etapa-row {
+      display: grid; grid-template-columns: 32px 1fr 32px; gap: 8px; align-items: center;
+    }
+    .fm-color-swatch {
+      width: 32px; height: 32px; border-radius: 8px; cursor: pointer;
+      border: 1px solid var(--border); position: relative;
+    }
+    .fm-color-swatch input { position: absolute; inset: 0; opacity: 0; cursor: pointer; }
+    .fm-etapa-del {
+      width: 32px; height: 32px; display: flex; align-items: center; justify-content: center;
+      border-radius: 8px; cursor: pointer; color: var(--text3); background: var(--s2);
+    }
+    .fm-etapa-del:hover { color: var(--red); background: var(--red-bg); }
+    .fm-add-row {
+      display: flex; align-items: center; gap: 6px;
+      padding: 8px 0; cursor: pointer;
+      font-size: 12px; color: var(--gold); font-weight: 600;
+    }
+    .fm-add-row:hover { color: var(--gold-dark); }
   </style>
 </head>
 
@@ -4275,10 +4438,48 @@
     <div class="theme-toggle" onclick="toggleTheme()" title="Alternar tema">
       <span class="material-symbols-outlined" id="theme-icon" style="font-size:18px">dark_mode</span>
     </div>
-    <div class="notif-btn">
+    <div class="notif-btn" id="notif-btn" onclick="toggleNotifDropdown(event)" title="Notificacoes">
       <span class="material-symbols-outlined" style="font-size:18px">notifications</span>
-      <div class="notif-dot"></div>
+      <div class="notif-dot" id="notif-dot" style="display:none"></div>
     </div>
+    <div class="notif-dropdown" id="notif-dropdown">
+      <div class="notif-hd">
+        <span>Notificacoes</span>
+        <span class="notif-hd-cnt" id="notif-count">0</span>
+      </div>
+      <div class="notif-list" id="notif-list"></div>
+    </div>
+    <div class="topbar-profile" id="topbar-profile" onclick="toggleProfileDropdown(event)" title="Perfil">
+      <div class="topbar-profile-av" id="topbar-profile-av">?</div>
+      <div class="topbar-profile-name" id="topbar-profile-name">--</div>
+      <span class="material-symbols-outlined topbar-profile-chev">expand_more</span>
+      <div class="tb-dropdown" id="profile-dropdown">
+        <div class="tb-dd-header">
+          <div id="dd-user-nome">--</div>
+          <div class="tb-dd-sub" id="dd-user-email">--</div>
+        </div>
+        <div class="tb-dd-item" onclick="event.stopPropagation();alert('Funcionalidade em breve.');closeAllDropdowns();">
+          <span class="material-symbols-outlined">person</span> Meu perfil
+        </div>
+        <div class="tb-dd-item" onclick="event.stopPropagation();alert('Va em Esqueci a senha na tela de login para redefinir.');closeAllDropdowns();">
+          <span class="material-symbols-outlined">lock</span> Trocar senha
+        </div>
+        <div class="tb-dd-item danger" onclick="event.stopPropagation();handleLogout()">
+          <span class="material-symbols-outlined">logout</span> Sair
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- FORM MODAL GENERICO -->
+  <div class="fm-overlay" id="fm-overlay" onclick="closeFormModal()"></div>
+  <div class="form-modal" id="form-modal">
+    <div class="fm-header">
+      <div class="fm-title" id="fm-title">Modal</div>
+      <div class="fm-close" onclick="closeFormModal()"><span class="material-symbols-outlined">close</span></div>
+    </div>
+    <div class="fm-body" id="fm-body"></div>
+    <div class="fm-footer" id="fm-footer"></div>
   </div>
 
   <!-- ═══════════════════════════════════════════════ -->
@@ -4808,7 +5009,7 @@
             <div class="leiloes-title">Agenda de Leiloes</div>
             <div class="leiloes-title-sub">Leiloes confirmados e seus checklists operacionais</div>
           </div>
-          <button class="btn-new"><span class="material-symbols-outlined">add</span> Novo Leilao</button>
+          <button class="btn-new" onclick="openNewLeilaoModal()"><span class="material-symbols-outlined">add</span> Novo Leilao</button>
         </div>
         <div class="leiloes-grid" id="leiloes-grid"></div>
       </div>
@@ -4863,7 +5064,7 @@
             <button class="vt-btn" onclick="toggleDriveView('list',this)" title="Lista"><span
                 class="material-symbols-outlined">view_list</span></button>
           </div>
-          <button class="btn-new"><span class="material-symbols-outlined">upload</span> Upload</button>
+          <button class="btn-new" onclick="alert('Upload de arquivos via Supabase Storage estara disponivel em breve. Por enquanto, gerencie pelo dashboard do Supabase.')"><span class="material-symbols-outlined">upload</span> Upload</button>
         </div>
 
         <div class="drive-kpis" id="drive-kpis"></div>
@@ -4999,6 +5200,381 @@
       }
     }
 
+    // ═════════════════════════════════════════════════
+    // USER PROFILE / LOGOUT / DROPDOWNS
+    // ═════════════════════════════════════════════════
+    let CURRENT_USER = null;
+
+    async function loadCurrentUser() {
+      try {
+        const res = await fetch('/api/bula/auth/me');
+        if (!res.ok) return null;
+        const u = await res.json();
+        CURRENT_USER = u;
+        document.getElementById('topbar-profile-av').textContent = u.iniciais || '?';
+        document.getElementById('topbar-profile-name').textContent = u.nome || u.email;
+        document.getElementById('dd-user-nome').textContent = u.nome || '';
+        document.getElementById('dd-user-email').textContent = u.email || '';
+        return u;
+      } catch { return null; }
+    }
+
+    function closeAllDropdowns() {
+      document.getElementById('profile-dropdown').classList.remove('open');
+      document.getElementById('notif-dropdown').classList.remove('open');
+    }
+
+    function toggleProfileDropdown(e) {
+      e.stopPropagation();
+      const dd = document.getElementById('profile-dropdown');
+      const notif = document.getElementById('notif-dropdown');
+      notif.classList.remove('open');
+      dd.classList.toggle('open');
+    }
+
+    function toggleNotifDropdown(e) {
+      e.stopPropagation();
+      const dd = document.getElementById('notif-dropdown');
+      const prof = document.getElementById('profile-dropdown');
+      prof.classList.remove('open');
+      if (!dd.classList.contains('open')) renderNotifications();
+      dd.classList.toggle('open');
+      document.getElementById('notif-btn').classList.remove('has-notif');
+      document.getElementById('notif-dot').style.display = 'none';
+    }
+
+    document.addEventListener('click', function (e) {
+      if (!e.target.closest('#topbar-profile') && !e.target.closest('#notif-btn') &&
+          !e.target.closest('#profile-dropdown') && !e.target.closest('#notif-dropdown')) {
+        closeAllDropdowns();
+      }
+    });
+
+    async function handleLogout() {
+      try {
+        await fetch('/api/bula/auth/signout', { method: 'POST' });
+      } catch { }
+      window.location.href = '/';
+    }
+
+    function renderNotifications() {
+      const items = [];
+      // Leiloes proximos (proximos 7 dias)
+      const now = new Date(); now.setHours(0, 0, 0, 0);
+      const in7 = new Date(now); in7.setDate(in7.getDate() + 7);
+      LEILOES.forEach(l => {
+        if (!l.data) return;
+        const dt = new Date(l.data + 'T12:00:00');
+        if (dt >= now && dt <= in7) {
+          const days = Math.ceil((dt - now) / 86400000);
+          items.push({
+            icon: 'event_note', cls: 'blue',
+            title: l.nome + ' em ' + days + (days === 1 ? ' dia' : ' dias'),
+            sub: fmtDateLong(l.data) + (l.local ? ' · ' + l.local : ''),
+          });
+        }
+      });
+      // Leads novos (status 'novo')
+      const novos = LEADS.filter(l => l.status === 'novo').slice(0, 5);
+      novos.forEach(l => {
+        items.push({
+          icon: 'person_add', cls: '',
+          title: 'Novo lead: ' + l.name,
+          sub: (l.regiao || '--') + ' · ' + (l.origem || 'Origem n/a'),
+        });
+      });
+      // Cards em atraso
+      const overdueCards = CARDS.filter(c => c.venc && new Date(c.venc) < now && c.col !== 'concluido');
+      overdueCards.slice(0, 3).forEach(c => {
+        items.push({
+          icon: 'warning', cls: 'red',
+          title: 'Card em atraso: ' + c.title,
+          sub: 'Venceu em ' + fmtDate(c.venc),
+        });
+      });
+
+      const list = document.getElementById('notif-list');
+      const cnt = document.getElementById('notif-count');
+      cnt.textContent = items.length;
+      if (!items.length) {
+        list.innerHTML = '<div class="notif-empty"><span class="material-symbols-outlined">notifications_off</span>Tudo em dia.</div>';
+        return;
+      }
+      list.innerHTML = items.map(i =>
+        '<div class="notif-item"><div class="notif-icon ' + i.cls + '"><span class="material-symbols-outlined">' + i.icon + '</span></div>' +
+        '<div class="notif-body"><div class="notif-title">' + i.title + '</div><div class="notif-sub">' + i.sub + '</div></div></div>'
+      ).join('');
+    }
+
+    function updateNotifBadge() {
+      const now = new Date(); now.setHours(0, 0, 0, 0);
+      const in7 = new Date(now); in7.setDate(in7.getDate() + 7);
+      const leiloesProx = LEILOES.filter(l => { const dt = new Date(l.data + 'T12:00:00'); return dt >= now && dt <= in7; }).length;
+      const novos = LEADS.filter(l => l.status === 'novo').length;
+      const overdueCards = CARDS.filter(c => c.venc && new Date(c.venc) < now && c.col !== 'concluido').length;
+      const total = leiloesProx + novos + overdueCards;
+      const dot = document.getElementById('notif-dot');
+      if (total > 0) {
+        dot.style.display = 'block';
+        if (overdueCards > 0) document.getElementById('notif-btn').classList.add('has-notif');
+      }
+    }
+
+    // ═════════════════════════════════════════════════
+    // FORM MODAL GENERICO (Novo Leilao, Novo Funil...)
+    // ═════════════════════════════════════════════════
+    function openFormModal(title, bodyHTML, footerHTML) {
+      document.getElementById('fm-title').textContent = title;
+      document.getElementById('fm-body').innerHTML = bodyHTML;
+      document.getElementById('fm-footer').innerHTML = footerHTML;
+      document.getElementById('fm-overlay').classList.add('open');
+      document.getElementById('form-modal').classList.add('open');
+    }
+    function closeFormModal() {
+      document.getElementById('fm-overlay').classList.remove('open');
+      document.getElementById('form-modal').classList.remove('open');
+    }
+
+    // ═════════════════════════════════════════════════
+    // NOVO LEILAO
+    // ═════════════════════════════════════════════════
+    function openNewLeilaoModal() {
+      const today = new Date().toISOString().split('T')[0];
+      const body = `
+        <div class="fm-row2">
+          <div><div class="fm-label"><span class="material-symbols-outlined">badge</span> Nome do leilao</div>
+            <input class="fm-input" id="nl-nome" placeholder="Ex: Nelore Cachoeirao"></div>
+          <div><div class="fm-label"><span class="material-symbols-outlined">event</span> Data</div>
+            <input class="fm-input" id="nl-data" type="date" value="${today}"></div>
+        </div>
+        <div class="fm-row2">
+          <div><div class="fm-label"><span class="material-symbols-outlined">schedule</span> Horario</div>
+            <input class="fm-input" id="nl-horario" placeholder="Ex: 14h00"></div>
+          <div><div class="fm-label"><span class="material-symbols-outlined">category</span> Tipo</div>
+            <input class="fm-input" id="nl-tipo" placeholder="Ex: Touros P.O."></div>
+        </div>
+        <div><div class="fm-label"><span class="material-symbols-outlined">location_on</span> Local</div>
+          <input class="fm-input" id="nl-local" placeholder="Ex: Campo Grande, MS"></div>
+        <div class="fm-row2">
+          <div><div class="fm-label"><span class="material-symbols-outlined">live_tv</span> Transmissao</div>
+            <input class="fm-input" id="nl-transmissao" placeholder="Ex: Canal Rural"></div>
+          <div><div class="fm-label"><span class="material-symbols-outlined">wifi</span> Modelo</div>
+            <select class="fm-select" id="nl-modelo">
+              <option value="">Selecione...</option>
+              <option value="PRESENCIAL">Presencial</option>
+              <option value="VIRTUAL">Virtual</option>
+              <option value="HIBRIDO">Hibrido</option>
+            </select></div>
+        </div>
+        <div class="fm-row2">
+          <div><div class="fm-label"><span class="material-symbols-outlined">gavel</span> Leiloeira</div>
+            <input class="fm-input" id="nl-leiloeira" placeholder="Ex: Programa Leiloes"></div>
+          <div><div class="fm-label"><span class="material-symbols-outlined">pets</span> Animais</div>
+            <input class="fm-input" id="nl-animais" type="number" min="0" value="0"></div>
+        </div>
+        <div class="fm-row2">
+          <div><div class="fm-label"><span class="material-symbols-outlined">payments</span> Expectativa (R$)</div>
+            <input class="fm-input" id="nl-expectativa" type="number" min="0" value="0"></div>
+          <div><div class="fm-label"><span class="material-symbols-outlined">flag</span> Meta Bula (R$)</div>
+            <input class="fm-input" id="nl-meta" type="number" min="0" value="0"></div>
+        </div>
+        <div><div class="fm-label"><span class="material-symbols-outlined">image</span> URL da imagem (opcional)</div>
+          <input class="fm-input" id="nl-img" placeholder="https://..."></div>
+      `;
+      const footer = `
+        <button class="fm-btn" onclick="closeFormModal()">Cancelar</button>
+        <button class="fm-btn fm-btn-primary" id="nl-save" onclick="createLeilao()">
+          <span class="material-symbols-outlined" style="font-size:16px">save</span> Criar leilao
+        </button>
+      `;
+      openFormModal('Novo leilao', body, footer);
+    }
+
+    async function createLeilao() {
+      const btn = document.getElementById('nl-save');
+      const nome = document.getElementById('nl-nome').value.trim();
+      const data = document.getElementById('nl-data').value;
+      if (!nome || !data) { alert('Nome e data sao obrigatorios.'); return; }
+      btn.disabled = true; btn.textContent = 'Criando...';
+      const payload = {
+        nome, data,
+        horario: document.getElementById('nl-horario').value.trim(),
+        tipo: document.getElementById('nl-tipo').value.trim(),
+        local: document.getElementById('nl-local').value.trim(),
+        transmissao: document.getElementById('nl-transmissao').value.trim(),
+        modelo: document.getElementById('nl-modelo').value,
+        leiloeira: document.getElementById('nl-leiloeira').value.trim(),
+        animais: parseInt(document.getElementById('nl-animais').value) || 0,
+        expectativa: parseFloat(document.getElementById('nl-expectativa').value) || 0,
+        meta_bula: parseFloat(document.getElementById('nl-meta').value) || 0,
+        img: document.getElementById('nl-img').value.trim(),
+        status: 'planejado',
+        assessores: [], tasks: [],
+      };
+      try {
+        const res = await fetch('/api/bula/leiloes', {
+          method: 'POST', headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload),
+        });
+        if (!res.ok) { const d = await res.json(); throw new Error(d.error || 'Erro'); }
+        const created = await res.json();
+        const data2 = await fetch('/api/bula/leiloes').then(r => r.json());
+        adaptLeiloes(Array.isArray(data2) ? data2 : []);
+        closeFormModal();
+        renderLeiloes();
+        showPage('leiloes');
+      } catch (e) {
+        alert('Falha ao criar leilao: ' + e.message);
+        btn.disabled = false; btn.innerHTML = '<span class="material-symbols-outlined" style="font-size:16px">save</span> Criar leilao';
+      }
+    }
+
+    // ═════════════════════════════════════════════════
+    // NOVO FUNIL
+    // ═════════════════════════════════════════════════
+    const FUNNEL_COLORS = ['#7CB9A8','#4A8FBF','#C8A96E','#D4A04C','#6B8F5C','#C0504D','#9C7CB9','#A88B5F'];
+    let nfEtapas = [];
+
+    function openNewFunnelModal() {
+      nfEtapas = [
+        { id: 'inicial', nome: 'Inicial', cor: FUNNEL_COLORS[0] },
+        { id: 'andamento', nome: 'Em andamento', cor: FUNNEL_COLORS[2] },
+        { id: 'fechado', nome: 'Fechado', cor: FUNNEL_COLORS[4] },
+      ];
+      const body = `
+        <div class="fm-row2">
+          <div><div class="fm-label"><span class="material-symbols-outlined">badge</span> Nome do funil</div>
+            <input class="fm-input" id="nf-nome" placeholder="Ex: Pos-Venda" oninput="nfSlugAuto()"></div>
+          <div><div class="fm-label"><span class="material-symbols-outlined">tag</span> Slug (URL)</div>
+            <input class="fm-input" id="nf-slug" placeholder="ex: pos-venda"></div>
+        </div>
+        <div><div class="fm-label"><span class="material-symbols-outlined">icons</span> Icone (Material Symbols)</div>
+          <input class="fm-input" id="nf-icone" placeholder="ex: groups, handshake, support_agent" value="tune"></div>
+        <div>
+          <div class="fm-label"><span class="material-symbols-outlined">list</span> Etapas do funil</div>
+          <div class="fm-etapas" id="nf-etapas"></div>
+          <div class="fm-add-row" onclick="addFunnelEtapa()">
+            <span class="material-symbols-outlined" style="font-size:16px">add</span> Adicionar etapa
+          </div>
+        </div>
+      `;
+      const footer = `
+        <button class="fm-btn" onclick="closeFormModal()">Cancelar</button>
+        <button class="fm-btn fm-btn-primary" id="nf-save" onclick="createFunnel()">
+          <span class="material-symbols-outlined" style="font-size:16px">save</span> Criar funil
+        </button>
+      `;
+      openFormModal('Novo funil', body, footer);
+      renderFunnelEtapas();
+    }
+
+    function nfSlugAuto() {
+      const nome = document.getElementById('nf-nome').value;
+      const slug = nome.toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '').replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
+      const slugField = document.getElementById('nf-slug');
+      if (!slugField.dataset.touched) slugField.value = slug;
+    }
+
+    function renderFunnelEtapas() {
+      const wrap = document.getElementById('nf-etapas');
+      wrap.innerHTML = nfEtapas.map((et, i) => `
+        <div class="fm-etapa-row">
+          <label class="fm-color-swatch" style="background:${et.cor}">
+            <input type="color" value="${et.cor}" onchange="updateFunnelEtapaColor(${i},this.value)">
+          </label>
+          <input class="fm-input" value="${et.nome}" oninput="updateFunnelEtapaName(${i},this.value)" placeholder="Nome da etapa">
+          <div class="fm-etapa-del" onclick="removeFunnelEtapa(${i})" title="Remover">
+            <span class="material-symbols-outlined" style="font-size:16px">delete</span>
+          </div>
+        </div>
+      `).join('');
+    }
+
+    function addFunnelEtapa() {
+      const cor = FUNNEL_COLORS[nfEtapas.length % FUNNEL_COLORS.length];
+      nfEtapas.push({ id: 'etapa' + (nfEtapas.length + 1), nome: 'Nova etapa', cor });
+      renderFunnelEtapas();
+    }
+    function removeFunnelEtapa(i) {
+      if (nfEtapas.length <= 1) { alert('O funil precisa ter pelo menos uma etapa.'); return; }
+      nfEtapas.splice(i, 1);
+      renderFunnelEtapas();
+    }
+    function updateFunnelEtapaName(i, val) { nfEtapas[i].nome = val; nfEtapas[i].id = val.toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '').replace(/[^a-z0-9]+/g, '_').replace(/^_|_$/g, '') || 'etapa' + (i + 1); }
+    function updateFunnelEtapaColor(i, val) { nfEtapas[i].cor = val; renderFunnelEtapas(); }
+
+    async function createFunnel() {
+      const nome = document.getElementById('nf-nome').value.trim();
+      let slug = document.getElementById('nf-slug').value.trim().toLowerCase();
+      const icone = document.getElementById('nf-icone').value.trim() || 'tune';
+      if (!nome) { alert('Nome obrigatorio.'); return; }
+      if (!slug) slug = nome.toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '').replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
+      const btn = document.getElementById('nf-save');
+      btn.disabled = true; btn.textContent = 'Criando...';
+      try {
+        const res = await fetch('/api/bula/crm/funis', {
+          method: 'POST', headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ slug, nome, icone, etapas: nfEtapas }),
+        });
+        if (!res.ok) { const d = await res.json(); throw new Error(d.error || 'Erro'); }
+        const data = await fetch('/api/bula/crm/funis').then(r => r.json());
+        adaptFunis(Array.isArray(data) ? data : []);
+        closeFormModal();
+        activeFunnel = slug;
+        renderCRM();
+      } catch (e) {
+        alert('Falha ao criar funil: ' + e.message);
+        btn.disabled = false; btn.innerHTML = '<span class="material-symbols-outlined" style="font-size:16px">save</span> Criar funil';
+      }
+    }
+
+    // ═════════════════════════════════════════════════
+    // DASHBOARD KPIs (a partir dos dados reais)
+    // ═════════════════════════════════════════════════
+    function renderDashboardKpis() {
+      const concluidos = LEILOES.filter(l => l.status === 'concluido' || l.realizadoBula > 0);
+      const totalVendido = concluidos.reduce((s, l) => s + (l.realizadoBula || 0), 0);
+      const totalAnimais = concluidos.reduce((s, l) => s + (l.animais || 0), 0);
+      const ticket = totalAnimais ? Math.round(totalVendido / totalAnimais) : 0;
+      const comissao = totalVendido * 0.03; // 3% taxa padrao
+
+      const dashSlim = document.querySelectorAll('#page-dashboard .sec-label');
+      // Slim row "Dados Gerais" (1o slim-row apos sec-label "Dados Gerais")
+      const slimRows = document.querySelectorAll('#page-dashboard .slim-row');
+      if (slimRows[0]) {
+        const valEls = slimRows[0].querySelectorAll('.slim-kpi-val');
+        if (valEls[0]) valEls[0].innerHTML = '<span class="cur">R$</span>' + fmtMoneyShort(totalVendido);
+        if (valEls[1]) valEls[1].innerHTML = '<span class="cur">R$</span>' + fmtMoneyShort(comissao);
+        if (valEls[2]) valEls[2].textContent = totalAnimais.toLocaleString('pt-BR');
+        if (valEls[3]) valEls[3].innerHTML = '<span class="cur">R$</span>' + (ticket >= 1000 ? (ticket / 1000).toFixed(1) + 'K' : ticket.toLocaleString('pt-BR'));
+        if (valEls[4]) valEls[4].textContent = concluidos.length;
+      }
+
+      // Marketing slim row (2o slim-row)
+      const totalLeads = LEADS.length;
+      const qualificados = LEADS.filter(l => l.status === 'qualificado').length;
+      const convPct = totalLeads ? Math.round(qualificados / totalLeads * 100) : 0;
+      const cpl = totalLeads ? Math.round(MKT_INVEST / totalLeads) : 0;
+      const cpmql = qualificados ? Math.round(MKT_INVEST / qualificados) : 0;
+      if (slimRows[1]) {
+        const valEls = slimRows[1].querySelectorAll('.slim-kpi-val');
+        const tagEls = slimRows[1].querySelectorAll('.slim-kpi-tag');
+        if (valEls[0]) valEls[0].textContent = totalLeads.toLocaleString('pt-BR');
+        if (valEls[1]) valEls[1].textContent = qualificados.toLocaleString('pt-BR');
+        if (tagEls[1]) tagEls[1].textContent = convPct + '% conv.';
+        if (valEls[2]) valEls[2].innerHTML = '<span class="cur">R$</span>' + fmtMoneyShort(MKT_INVEST);
+        if (valEls[3]) valEls[3].innerHTML = '<span class="cur">R$</span>' + (cpl >= 1000 ? (cpl / 1000).toFixed(1) + 'K' : cpl);
+        if (valEls[4]) valEls[4].innerHTML = '<span class="cur">R$</span>' + (cpmql >= 1000 ? (cpmql / 1000).toFixed(1) + 'K' : (cpmql || '--'));
+      }
+    }
+
+    function fmtMoneyShort(v) {
+      if (!v) return '0';
+      if (v >= 1000000) return (v / 1000000).toFixed(2) + 'M';
+      if (v >= 1000) return (v / 1000).toFixed(1) + 'K';
+      return v.toFixed(0);
+    }
+
     // ── Page navigation ──
     function showPage(id) {
       document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
@@ -5126,7 +5702,8 @@
     async function loadAllData() {
       showLoading();
       try {
-        const [membros, leiloes, cards, funis, leads, mktConfig] = await Promise.all([
+        const [me, membros, leiloes, cards, funis, leads, mktConfig] = await Promise.all([
+          loadCurrentUser(),
           fetch('/api/bula/membros').then(r => r.json()),
           fetch('/api/bula/leiloes').then(r => r.json()),
           fetch('/api/bula/projetos/cards').then(r => r.json()),
@@ -5140,6 +5717,11 @@
         adaptFunis(Array.isArray(funis) ? funis : []);
         adaptLeads(Array.isArray(leads) ? leads : []);
         MKT_INVEST = mktConfig?.investimento || 0;
+        if (CRM_FUNNELS.length && !CRM_FUNNELS.some(f => f.id === activeFunnel)) {
+          activeFunnel = CRM_FUNNELS[0].id;
+        }
+        renderDashboardKpis();
+        updateNotifBadge();
       } catch (e) {
         console.error('Erro ao carregar dados:', e);
       }
@@ -5653,7 +6235,7 @@
             const fi = FILE_ICONS[ft] || FILE_ICONS.other;
             const ext = f.name.split('.').pop().toUpperCase();
             const onclick = ft === 'image' ? 'onclick="openLightbox(\'' + f.name + '\')"' : '';
-            html += '<div class="dl-row" ' + onclick + '><div class="dl-name"><span class="material-symbols-outlined" style="color:' + fi.color + '">' + fi.icon + '</span><span>' + f.name + '</span></div><div class="dl-type">' + ext + '</div><div class="dl-size">' + f.size + '</div><div class="dl-date">' + f.date + '</div><div class="dl-action"><span class="material-symbols-outlined" title="Download">download</span></div></div>';
+            html += '<div class="dl-row" ' + onclick + '><div class="dl-name"><span class="material-symbols-outlined" style="color:' + fi.color + '">' + fi.icon + '</span><span>' + f.name + '</span></div><div class="dl-type">' + ext + '</div><div class="dl-size">' + f.size + '</div><div class="dl-date">' + f.date + '</div><div class="dl-action" onclick="event.stopPropagation();alert(\'Download disponivel quando integrar Supabase Storage.\')"><span class="material-symbols-outlined" title="Download">download</span></div></div>';
           });
           html += '</div>';
         }
@@ -5965,7 +6547,7 @@
       html += '<div class="cm-divider"></div>';
 
       // Attachments
-      html += '<div class="cm-section"><div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px"><div class="cm-label" style="margin-bottom:0"><span class="material-symbols-outlined">attach_file</span> Anexos</div><button class="cm-attach-btn"><span class="material-symbols-outlined">add</span> Adicionar arquivo</button></div>';
+      html += '<div class="cm-section"><div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px"><div class="cm-label" style="margin-bottom:0"><span class="material-symbols-outlined">attach_file</span> Anexos</div><button class="cm-attach-btn" onclick="alert(\'Anexo de arquivos sera integrado via Supabase Storage. Em breve!\')"><span class="material-symbols-outlined">add</span> Adicionar arquivo</button></div>';
       html += '<div class="cm-attach-empty">Nenhum anexo ainda.</div></div>';
 
       html += '<div class="cm-divider"></div>';
@@ -6114,7 +6696,7 @@
       CRM_FUNNELS.forEach(f => {
         html += '<button class="crm-funnel-tab' + (f.id === activeFunnel ? ' active' : '') + '" onclick="switchFunnel(\'' + f.id + '\')"><span class="material-symbols-outlined">' + f.icon + '</span>' + f.name + '</button>';
       });
-      html += '<button class="crm-add-funnel"><span class="material-symbols-outlined">add</span>Novo Funil</button>';
+      html += '<button class="crm-add-funnel" onclick="openNewFunnelModal()"><span class="material-symbols-outlined">add</span>Novo Funil</button>';
       document.getElementById('crm-funnel-bar').innerHTML = html;
     }
 
