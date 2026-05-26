@@ -45,37 +45,49 @@ npm run build
 npm start
 ```
 
-## API Backend
+## Backend (Supabase)
 
-As páginas chamam endpoints sob `/api/bula/*` (signin, signup, leilões, CRM, leads, etc.). Por padrão, há um **catch-all stub** em [src/app/api/bula/[...slug]/route.ts](src/app/api/bula/%5B...slug%5D/route.ts) que devolve **501 Not Implemented** com uma mensagem amigável.
+O backend roda em Supabase. Auth via cookie HTTP-only (definido pelo `@supabase/ssr` no signin) e dados em Postgres.
 
-Você tem duas opções para deixar a aplicação funcional:
+### Setup do projeto Supabase
 
-1. **Implementar as rotas localmente** — crie arquivos específicos em `src/app/api/bula/<rota>/route.ts`. Rotas específicas têm precedência sobre o catch-all.
-2. **Proxy para um backend externo** — substitua o catch-all por um handler que faz `fetch` para o seu serviço backend, ou configure `rewrites()` em `next.config.mjs`:
+1. Acesse https://supabase.com/dashboard e crie um **novo projeto** separado.
+2. Anote: **Project URL**, **anon key** e **service_role key** (Settings → API).
+3. No SQL Editor, abra um novo query e cole o conteúdo de [supabase/migrations/0001_init.sql](supabase/migrations/0001_init.sql). Rode.
+4. Em Authentication → Providers → Email, ative **Enable Email** e (opcionalmente) desative **Confirm email** se quiser pular o passo de verificação.
 
-```js
-// next.config.mjs
-const nextConfig = {
-  async rewrites() {
-    return [
-      { source: '/api/bula/:path*', destination: 'https://seu-backend.com/api/bula/:path*' },
-    ]
-  },
-}
+### Variáveis de ambiente
+
+Local (`.env.local`):
+
+```
+NEXT_PUBLIC_SUPABASE_URL=https://xxxx.supabase.co
+NEXT_PUBLIC_SUPABASE_ANON_KEY=...
+SUPABASE_SERVICE_ROLE_KEY=...
 ```
 
-### Endpoints usados pelo frontend
+Em produção (Vercel): adicione as três no painel **Settings → Environment Variables** e refaça o deploy.
 
-- `POST /api/bula/auth/signin`
-- `POST /api/bula/auth/signup`
-- `GET  /api/bula/membros`
-- `GET  /api/bula/leiloes`, `PATCH /api/bula/leiloes/:id`
-- `GET/POST/PATCH/DELETE /api/bula/projetos/cards`, `/:id`
-- `GET/POST/PATCH/DELETE /api/bula/crm/deals`, `/:id`
-- `GET  /api/bula/crm/funis`
-- `GET/PATCH /api/bula/leads`, `/:id`
-- `GET  /api/bula/marketing/config`
+### Endpoints implementados
+
+| Método | Rota | Descrição |
+|---|---|---|
+| POST | `/api/bula/auth/signin` | login (seta cookie) |
+| POST | `/api/bula/auth/signup` | cadastro (cria `profiles` via trigger) |
+| POST | `/api/bula/auth/signout` | logout |
+| GET | `/api/bula/membros` | lista profiles |
+| GET, POST | `/api/bula/leiloes` | listar / criar |
+| GET, PUT, PATCH, DELETE | `/api/bula/leiloes/:id` | CRUD individual |
+| GET, POST | `/api/bula/projetos/cards` | kanban projetos |
+| PUT, PATCH, DELETE | `/api/bula/projetos/cards/:id` | atualizar / remover card |
+| GET | `/api/bula/crm/funis` | funis + deals |
+| GET, POST | `/api/bula/crm/deals` | listar / criar |
+| PUT, PATCH, DELETE | `/api/bula/crm/deals/:id` | atualizar / remover |
+| GET, POST | `/api/bula/leads` | listar / criar |
+| POST, PUT, PATCH, DELETE | `/api/bula/leads/:id` | qualificar (POST cria deal no funil clientes) / editar / remover |
+| GET, PUT | `/api/bula/marketing/config` | investimento marketing (singleton) |
+
+Todas as rotas exceto `/auth/*` exigem cookie de sessão válido — retornam 401 se não autenticado.
 
 ## Assets
 

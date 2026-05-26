@@ -1,9 +1,13 @@
 import { readFileSync } from 'fs'
 import { join } from 'path'
+import { NextRequest, NextResponse } from 'next/server'
+import { requireUser } from '@/lib/supabase'
 
-export function GET() {
-    const html = readFileSync(join(process.cwd(), 'src/app/cadastro/cadastro.html'), 'utf-8')
-    return new Response(html, {
-        headers: { 'Content-Type': 'text/html; charset=utf-8' },
-    })
+export async function GET(req: NextRequest) {
+  const user = await requireUser().catch(() => null)
+  if (user) return NextResponse.redirect(new URL('/sistema', req.url))
+  const html = readFileSync(join(process.cwd(), 'src/app/cadastro/cadastro.html'), 'utf-8')
+  return new Response(html, {
+    headers: { 'Content-Type': 'text/html; charset=utf-8' },
+  })
 }
