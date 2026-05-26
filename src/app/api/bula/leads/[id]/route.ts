@@ -2,16 +2,16 @@ import { NextRequest } from 'next/server'
 import { requireUser, supabaseAdmin } from '@/lib/supabase'
 import { fail, ok, unauthorized } from '@/lib/respond'
 
-type Ctx = { params: { id: string } }
+type Ctx = { params: Promise<{ id: string }> }
 
-async function update(req: NextRequest, params: { id: string }) {
+async function update(req: NextRequest, id: string) {
   const user = await requireUser()
   if (!user) return unauthorized()
   const body = await req.json().catch(() => ({}))
   const { data, error } = await supabaseAdmin()
     .from('leads')
     .update(body)
-    .eq('id', params.id)
+    .eq('id', id)
     .select('*')
     .single()
   if (error) return fail(error.message, 400)
@@ -19,10 +19,12 @@ async function update(req: NextRequest, params: { id: string }) {
 }
 
 export async function PUT(req: NextRequest, { params }: Ctx) {
-  return update(req, params)
+  const { id } = await params
+  return update(req, id)
 }
 export async function PATCH(req: NextRequest, { params }: Ctx) {
-  return update(req, params)
+  const { id } = await params
+  return update(req, id)
 }
 
 // O frontend usa POST /api/bula/leads/:id quando qualifica um lead.
@@ -30,13 +32,14 @@ export async function PATCH(req: NextRequest, { params }: Ctx) {
 export async function POST(req: NextRequest, { params }: Ctx) {
   const user = await requireUser()
   if (!user) return unauthorized()
+  const { id } = await params
   const body = await req.json().catch(() => ({}))
   const admin = supabaseAdmin()
 
   const { data: lead, error: errLead } = await admin
     .from('leads')
     .update({ ...body, status: 'qualificado' })
-    .eq('id', params.id)
+    .eq('id', id)
     .select('*')
     .single()
   if (errLead) return fail(errLead.message, 400)
@@ -66,7 +69,8 @@ export async function POST(req: NextRequest, { params }: Ctx) {
 export async function DELETE(_: NextRequest, { params }: Ctx) {
   const user = await requireUser()
   if (!user) return unauthorized()
-  const { error } = await supabaseAdmin().from('leads').delete().eq('id', params.id)
+  const { id } = await params
+  const { error } = await supabaseAdmin().from('leads').delete().eq('id', id)
   if (error) return fail(error.message, 400)
   return ok({ ok: true })
 }

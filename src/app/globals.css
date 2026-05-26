@@ -1,0 +1,109 @@
+@import "tailwindcss";
+@variant dark (&:where([data-theme="dark"], [data-theme="dark"] *));
+
+/* ══════════════════════════════════════════════════════════
+   BULA ASSESSORIA — Brand tokens
+   Extraídos do sistema.html legado (paleta dourado/oliva).
+══════════════════════════════════════════════════════════ */
+:root {
+  --bg: #F5F3EF;
+  --surface: #FFFFFF;
+  --s2: #F0EDE8;
+  --s3: #E8E4DD;
+  --s4: #D8D4CC;
+  --s5: #C8C4BC;
+  --border: rgba(0, 0, 0, 0.06);
+  --border2: rgba(0, 0, 0, 0.10);
+  --text: #1A1A1A;
+  --text2: #555;
+  --text3: #999;
+  --text4: #BBB;
+  --gold: #A68B4B;
+  --gold-dim: rgba(166, 139, 75, 0.10);
+  --gold-dark: #8A7340;
+  --olive: #6B8F5C;
+  --olive-bg: rgba(107, 143, 92, 0.12);
+  --red: #C0504D;
+  --red-bg: rgba(192, 80, 77, 0.10);
+  --blue: #4A8FBF;
+  --blue-bg: rgba(74, 143, 191, 0.10);
+  --amber: #D4A843;
+  --amber-bg: rgba(212, 168, 67, 0.10);
+  --r: 10px;
+  --r-lg: 14px;
+}
+
+[data-theme="dark"] {
+  --bg: #0D0D0D;
+  --surface: #141414;
+  --s2: #1A1A1A;
+  --s3: #222;
+  --s4: #2A2A2A;
+  --s5: #333;
+  --border: rgba(255, 255, 255, 0.06);
+  --border2: rgba(255, 255, 255, 0.12);
+  --text: #F5F5F5;
+  --text2: #B0B0B0;
+  --text3: #666;
+  --text4: #444;
+  --gold: #C8A96E;
+  --gold-dim: rgba(200, 169, 110, 0.12);
+  --gold-dark: #A68B4B;
+}
+
+*,
+*::before,
+*::after {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  -webkit-tap-highlight-color: transparent;
+}
+
+html {
+  font-size: 14px;
+  height: 100%;
+  scroll-behavior: smooth;
+}
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  min-height: 100%;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+button {
+  font-family: inherit;
+  cursor: pointer;
+  background: none;
+  border: none;
+  color: inherit;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+input,
+textarea,
+select {
+  font-family: inherit;
+  font-size: inherit;
+  color: inherit;
+  background: transparent;
+  border: none;
+  outline: none;
+}
+
+/* Utility helpers used across admin pages */
+.muted { color: var(--text2); }
+.subtle { color: var(--text3); }
+.card-surface {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--r-lg);
+}

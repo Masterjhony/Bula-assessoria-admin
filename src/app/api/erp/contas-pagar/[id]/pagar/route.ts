@@ -1,13 +1,13 @@
 import { admin, fail, guard, ok, type NextRequest } from '@/lib/erp'
 
-type Ctx = { params: { id: string } }
+type Ctx = { params: Promise<{ id: string }> }
 
 // Registra pagamento: cria movimento bancario, gera lancamento contabil em
 // partidas dobradas (debita Fornecedores / credita Banco), atualiza status.
 export async function POST(req: NextRequest, ctx: Ctx) {
+  const { id } = await ctx.params
   const g = await guard(req); if (g.error) return g.error
   const body = await req.json().catch(() => ({}))
-  const id = ctx.params.id
   const sb = admin()
 
   const { data: titulo, error: errFetch } = await sb.from('erp_contas_pagar').select('*').eq('id', id).single()
@@ -115,8 +115,8 @@ export async function POST(req: NextRequest, ctx: Ctx) {
 
 // Estorno do pagamento
 export async function DELETE(req: NextRequest, ctx: Ctx) {
+  const { id } = await ctx.params
   const g = await guard(req); if (g.error) return g.error
-  const id = ctx.params.id
   const sb = admin()
   await sb.from('erp_movimentos_bancarios').delete().eq('conta_pagar_id', id)
   await sb.from('erp_lancamentos').update({ status: 'estornado' }).eq('conta_pagar_id', id)

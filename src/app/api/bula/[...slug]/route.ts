@@ -1,9 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server'
 
-type Ctx = { params: { slug: string[] } }
+type Ctx = { params: Promise<{ slug: string[] }> }
 
-function notImplemented(req: NextRequest, ctx: Ctx) {
-  const path = '/api/bula/' + (ctx.params.slug?.join('/') ?? '')
+async function notImplemented(req: NextRequest, ctx: Ctx) {
+  const { slug } = await ctx.params
+  const path = '/api/bula/' + (slug?.join('/') ?? '')
   return NextResponse.json(
     {
       error: 'API endpoint nao implementado neste projeto standalone.',

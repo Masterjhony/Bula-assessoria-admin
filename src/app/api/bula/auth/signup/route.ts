@@ -61,7 +61,7 @@ export async function POST(req: NextRequest) {
   } catch {}
 
   // Auto-signin: cria a sessao via cookie SSR para que o cliente ja entre logado.
-  const supa = supabaseFromCookies()
+  const supa = await supabaseFromCookies()
   const { error: errSign } = await supa.auth.signInWithPassword({ email, password })
   if (errSign) {
     // Conta foi criada com sucesso, mas autologin falhou. Cliente vai redirecionar para login.

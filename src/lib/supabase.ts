@@ -16,25 +16,33 @@ export function supabaseAdmin() {
   })
 }
 
-export function supabaseFromCookies() {
-  const store = cookies()
+export async function supabaseFromCookies() {
+  const store = await cookies()
   return createServerClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
     cookies: {
       get(name: string) {
         return store.get(name)?.value
       },
       set(name: string, value: string, options: CookieOptions) {
-        store.set({ name, value, ...options })
+        try {
+          store.set({ name, value, ...options })
+        } catch {
+          // Server Component cannot set cookies; middleware refresh handles it.
+        }
       },
       remove(name: string, options: CookieOptions) {
-        store.set({ name, value: '', ...options, maxAge: 0 })
+        try {
+          store.set({ name, value: '', ...options, maxAge: 0 })
+        } catch {
+          // Same as above.
+        }
       },
     },
   })
 }
 
 export async function requireUser() {
-  const supa = supabaseFromCookies()
+  const supa = await supabaseFromCookies()
   const { data, error } = await supa.auth.getUser()
   if (error || !data.user) return null
   return data.user

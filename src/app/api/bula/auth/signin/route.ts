@@ -9,7 +9,7 @@ export async function POST(req: NextRequest) {
   if (!email || !password) return fail('Email e senha sao obrigatorios.')
   if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) return fail('Email invalido.')
 
-  const supa = supabaseFromCookies()
+  const supa = await supabaseFromCookies()
   const { data, error } = await supa.auth.signInWithPassword({ email, password })
   if (error || !data.user) {
     const msg = error?.message || ''
