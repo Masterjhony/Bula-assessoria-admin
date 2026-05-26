@@ -5016,8 +5016,14 @@
 
       <!-- DETAIL VIEW -->
       <div id="leilao-detail" style="display:none;">
-        <div class="detail-back" onclick="closeLeilao()">
-          <span class="material-symbols-outlined">arrow_back</span> Voltar para Agenda
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;flex-wrap:wrap;gap:10px">
+          <div class="detail-back" onclick="closeLeilao()" style="margin:0">
+            <span class="material-symbols-outlined">arrow_back</span> Voltar para Agenda
+          </div>
+          <div style="display:flex;gap:8px">
+            <button class="fm-btn" onclick="openEditLeilaoModal()"><span class="material-symbols-outlined" style="font-size:15px">edit</span> Editar</button>
+            <button class="fm-btn" style="color:var(--red);border-color:rgba(192,80,77,0.3)" onclick="deleteCurrentLeilao()"><span class="material-symbols-outlined" style="font-size:15px">delete</span> Excluir</button>
+          </div>
         </div>
         <div class="detail-top">
           <div class="detail-img-wrap" id="detail-img"></div>
@@ -5162,6 +5168,10 @@
           <div class="proj-title">Marketing</div>
           <div class="proj-title-sub">Gestao de leads, scoring e qualificacao</div>
         </div>
+        <div class="proj-spacer"></div>
+        <button class="fm-btn" onclick="openInvestModal()">
+          <span class="material-symbols-outlined" style="font-size:15px">edit</span> Editar investimento
+        </button>
       </div>
 
       <div class="crm-kpis" id="mkt-kpis"></div>
@@ -5426,6 +5436,129 @@
       } catch (e) {
         alert('Falha ao criar leilao: ' + e.message);
         btn.disabled = false; btn.innerHTML = '<span class="material-symbols-outlined" style="font-size:16px">save</span> Criar leilao';
+      }
+    }
+
+    // ═════════════════════════════════════════════════
+    // EDITAR / EXCLUIR LEILAO
+    // ═════════════════════════════════════════════════
+    function openEditLeilaoModal() {
+      if (!currentLeilao) return;
+      const l = LEILOES.find(x => x.id === currentLeilao);
+      if (!l) return;
+      const body = `
+        <div class="fm-row2">
+          <div><div class="fm-label"><span class="material-symbols-outlined">badge</span> Nome</div>
+            <input class="fm-input" id="el-nome" value="${l.nome || ''}"></div>
+          <div><div class="fm-label"><span class="material-symbols-outlined">event</span> Data</div>
+            <input class="fm-input" id="el-data" type="date" value="${l.data || ''}"></div>
+        </div>
+        <div class="fm-row2">
+          <div><div class="fm-label"><span class="material-symbols-outlined">schedule</span> Horario</div>
+            <input class="fm-input" id="el-horario" value="${l.horario || ''}"></div>
+          <div><div class="fm-label"><span class="material-symbols-outlined">category</span> Tipo</div>
+            <input class="fm-input" id="el-tipo" value="${l.tipo || ''}"></div>
+        </div>
+        <div><div class="fm-label"><span class="material-symbols-outlined">location_on</span> Local</div>
+          <input class="fm-input" id="el-local" value="${l.local || ''}"></div>
+        <div class="fm-row2">
+          <div><div class="fm-label"><span class="material-symbols-outlined">live_tv</span> Transmissao</div>
+            <input class="fm-input" id="el-transmissao" value="${l.transmissao || ''}"></div>
+          <div><div class="fm-label"><span class="material-symbols-outlined">wifi</span> Modelo</div>
+            <select class="fm-select" id="el-modelo">
+              <option value=""${!l.modelo ? ' selected' : ''}>--</option>
+              <option value="PRESENCIAL"${l.modelo === 'PRESENCIAL' ? ' selected' : ''}>Presencial</option>
+              <option value="VIRTUAL"${l.modelo === 'VIRTUAL' ? ' selected' : ''}>Virtual</option>
+              <option value="HIBRIDO"${l.modelo === 'HIBRIDO' ? ' selected' : ''}>Hibrido</option>
+            </select></div>
+        </div>
+        <div class="fm-row2">
+          <div><div class="fm-label"><span class="material-symbols-outlined">gavel</span> Leiloeira</div>
+            <input class="fm-input" id="el-leiloeira" value="${l.leiloeira || ''}"></div>
+          <div><div class="fm-label"><span class="material-symbols-outlined">pets</span> Animais</div>
+            <input class="fm-input" id="el-animais" type="number" min="0" value="${l.animais || 0}"></div>
+        </div>
+        <div class="fm-row2">
+          <div><div class="fm-label"><span class="material-symbols-outlined">payments</span> Expectativa (R$)</div>
+            <input class="fm-input" id="el-expectativa" type="number" min="0" value="${l.expectativa || 0}"></div>
+          <div><div class="fm-label"><span class="material-symbols-outlined">flag</span> Meta Bula (R$)</div>
+            <input class="fm-input" id="el-meta" type="number" min="0" value="${l.metaBula || 0}"></div>
+        </div>
+        <div class="fm-row2">
+          <div><div class="fm-label"><span class="material-symbols-outlined">trending_up</span> Realizado (R$)</div>
+            <input class="fm-input" id="el-realizado" type="number" min="0" value="${l.realizadoBula || 0}"></div>
+          <div><div class="fm-label"><span class="material-symbols-outlined">task_alt</span> Status</div>
+            <select class="fm-select" id="el-status">
+              <option value="planejado"${l.status === 'planejado' ? ' selected' : ''}>Planejado</option>
+              <option value="confirmado"${l.status === 'confirmado' ? ' selected' : ''}>Confirmado</option>
+              <option value="concluido"${l.status === 'concluido' ? ' selected' : ''}>Concluido</option>
+              <option value="cancelado"${l.status === 'cancelado' ? ' selected' : ''}>Cancelado</option>
+            </select></div>
+        </div>
+        <div><div class="fm-label"><span class="material-symbols-outlined">image</span> URL da imagem</div>
+          <input class="fm-input" id="el-img" value="${l.img || ''}"></div>
+      `;
+      const footer = `
+        <button class="fm-btn" onclick="closeFormModal()">Cancelar</button>
+        <button class="fm-btn fm-btn-primary" id="el-save" onclick="saveLeilaoEdit()">
+          <span class="material-symbols-outlined" style="font-size:16px">save</span> Salvar
+        </button>
+      `;
+      openFormModal('Editar leilao', body, footer);
+    }
+
+    async function saveLeilaoEdit() {
+      if (!currentLeilao) return;
+      const btn = document.getElementById('el-save');
+      const payload = {
+        nome: document.getElementById('el-nome').value.trim(),
+        data: document.getElementById('el-data').value,
+        horario: document.getElementById('el-horario').value.trim(),
+        tipo: document.getElementById('el-tipo').value.trim(),
+        local: document.getElementById('el-local').value.trim(),
+        transmissao: document.getElementById('el-transmissao').value.trim(),
+        modelo: document.getElementById('el-modelo').value,
+        leiloeira: document.getElementById('el-leiloeira').value.trim(),
+        animais: parseInt(document.getElementById('el-animais').value) || 0,
+        expectativa: parseFloat(document.getElementById('el-expectativa').value) || 0,
+        meta_bula: parseFloat(document.getElementById('el-meta').value) || 0,
+        realizado_bula: parseFloat(document.getElementById('el-realizado').value) || 0,
+        status: document.getElementById('el-status').value,
+        img: document.getElementById('el-img').value.trim(),
+      };
+      btn.disabled = true; btn.textContent = 'Salvando...';
+      try {
+        const res = await fetch(`/api/bula/leiloes/${currentLeilao}`, {
+          method: 'PUT', headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload),
+        });
+        if (!res.ok) { const d = await res.json(); throw new Error(d.error || 'Erro'); }
+        const data = await fetch('/api/bula/leiloes').then(r => r.json());
+        const id = currentLeilao;
+        adaptLeiloes(Array.isArray(data) ? data : []);
+        closeFormModal();
+        renderLeiloes();
+        renderDashboardKpis();
+        openLeilao(id);
+      } catch (e) {
+        alert('Falha ao salvar: ' + e.message);
+        btn.disabled = false; btn.innerHTML = '<span class="material-symbols-outlined" style="font-size:16px">save</span> Salvar';
+      }
+    }
+
+    async function deleteCurrentLeilao() {
+      if (!currentLeilao) return;
+      if (!confirm('Tem certeza que deseja excluir este leilao? Esta acao nao pode ser desfeita.')) return;
+      try {
+        const res = await fetch(`/api/bula/leiloes/${currentLeilao}`, { method: 'DELETE' });
+        if (!res.ok) throw new Error('Erro ao excluir');
+        const data = await fetch('/api/bula/leiloes').then(r => r.json());
+        adaptLeiloes(Array.isArray(data) ? data : []);
+        closeLeilao();
+        renderLeiloes();
+        renderDashboardKpis();
+      } catch (e) {
+        alert('Falha ao excluir leilao: ' + e.message);
       }
     }
 
@@ -6583,6 +6716,11 @@
       const checks = document.querySelectorAll('.cm-person-check');
       card.resp = [];
       checks.forEach(cb => { if (cb.checked) card.resp.push({ n: cb.dataset.name, i: cb.dataset.ini }); });
+      const responsaveis = card.resp.map(r => ({ nome: r.n, iniciais: r.i }));
+      fetch(`/api/bula/projetos/cards/${id}`, {
+        method: 'PUT', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ responsaveis })
+      });
     }
 
     function addCheckItem(id) {
@@ -6701,12 +6839,10 @@
     }
 
     function renderCRMFilters() {
-      const people = ['todos', 'Bulinha', 'Peralta', 'Leo'];
-      let html = '';
-      people.forEach(p => {
-        const active = crmFilterPerson === p ? ' active' : '';
-        if (p === 'todos') html += '<button class="pf-btn' + active + '" onclick="filterCRM(\'todos\')">Todos</button>';
-        else html += '<button class="pf-btn' + active + '" onclick="filterCRM(\'' + p + '\')"><span class="person-av" style="width:18px;height:18px;font-size:8px">' + p[0] + '</span>' + p + '</button>';
+      let html = '<button class="pf-btn' + (crmFilterPerson === 'todos' ? ' active' : '') + '" onclick="filterCRM(\'todos\')">Todos</button>';
+      ALL_PEOPLE.forEach(p => {
+        const active = crmFilterPerson === p.n ? ' active' : '';
+        html += '<button class="pf-btn' + active + '" onclick="filterCRM(\'' + p.n + '\')"><span class="person-av" style="width:18px;height:18px;font-size:8px">' + p.i + '</span>' + p.n + '</button>';
       });
       document.getElementById('crm-filters').innerHTML = html;
     }
@@ -6923,7 +7059,12 @@
     function updateDealResp(id, name, ini) {
       const f = getActiveFunnel();
       const deal = f.deals.find(d => d.id === id);
-      if (deal) deal.resp = { n: name, i: ini };
+      if (!deal) return;
+      deal.resp = { n: name, i: ini };
+      fetch(`/api/bula/crm/deals/${id}`, {
+        method: 'PUT', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ assessor: { nome: name, iniciais: ini } })
+      });
     }
 
     function addDealActivity(id) {
@@ -6951,15 +7092,92 @@
       if (idx > -1) { f.deals.splice(idx, 1); closeDealModal(); }
     }
 
-    async function addNewDeal(stageId) {
+    function addNewDeal(stageId) {
       const f = getActiveFunnel();
-      const res = await fetch('/api/bula/crm/deals', {
-        method: 'POST', headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ funil_id: f._uuid, etapa_id: stageId || 'lead', nome: 'Novo negocio', localizacao: '', valor: 0, telefone: '', email: '', temperatura: 'morno', assessor_id: null, notas: '', timeline: [], dias_no_estagio: 0 })
-      });
-      const nd = await res.json();
-      f.deals.push({ id: nd.id, stage: nd.etapa_id, name: nd.nome, loc: nd.localizacao || '', valor: nd.valor || 0, tel: nd.telefone || '', email: nd.email || '', temp: nd.temperatura || 'morno', resp: { n: '--', i: '?' }, dias: 0, lastInteract: new Date().toLocaleDateString('pt-BR'), notes: '', timeline: [], _funil_uuid: f._uuid });
-      renderCRM();
+      if (!f) { alert('Nenhum funil ativo. Crie um funil primeiro.'); return; }
+      const defaultStage = stageId || (f.stages[0] && f.stages[0].id) || '';
+      const stageOpts = f.stages.map(s =>
+        `<option value="${s.id}"${s.id === defaultStage ? ' selected' : ''}>${s.name}</option>`
+      ).join('');
+      const peopleOpts = '<option value="">Sem responsavel</option>' + ALL_PEOPLE.map(p =>
+        `<option value="${p.n}">${p.n}</option>`
+      ).join('');
+      const body = `
+        <div><div class="fm-label"><span class="material-symbols-outlined">business</span> Contato / Fazenda</div>
+          <input class="fm-input" id="nd-nome" placeholder="Ex: Fazenda Santa Clara"></div>
+        <div class="fm-row2">
+          <div><div class="fm-label"><span class="material-symbols-outlined">phone</span> Telefone</div>
+            <input class="fm-input" id="nd-tel" placeholder="(67) 9..."></div>
+          <div><div class="fm-label"><span class="material-symbols-outlined">mail</span> Email</div>
+            <input class="fm-input" id="nd-email" placeholder="contato@..."></div>
+        </div>
+        <div class="fm-row2">
+          <div><div class="fm-label"><span class="material-symbols-outlined">location_on</span> Cidade / UF</div>
+            <input class="fm-input" id="nd-loc" placeholder="Campo Grande, MS"></div>
+          <div><div class="fm-label"><span class="material-symbols-outlined">payments</span> Valor estimado (R$)</div>
+            <input class="fm-input" id="nd-valor" type="number" min="0" value="0"></div>
+        </div>
+        <div class="fm-row2">
+          <div><div class="fm-label"><span class="material-symbols-outlined">flag</span> Estagio</div>
+            <select class="fm-select" id="nd-stage">${stageOpts}</select></div>
+          <div><div class="fm-label"><span class="material-symbols-outlined">thermostat</span> Temperatura</div>
+            <select class="fm-select" id="nd-temp">
+              <option value="frio">Frio</option>
+              <option value="morno" selected>Morno</option>
+              <option value="quente">Quente</option>
+            </select></div>
+        </div>
+        <div><div class="fm-label"><span class="material-symbols-outlined">person</span> Assessor responsavel</div>
+          <select class="fm-select" id="nd-resp">${peopleOpts}</select></div>
+        <div><div class="fm-label"><span class="material-symbols-outlined">notes</span> Anotacoes</div>
+          <textarea class="fm-textarea" id="nd-notas" placeholder="Observacoes..."></textarea></div>
+      `;
+      const footer = `
+        <button class="fm-btn" onclick="closeFormModal()">Cancelar</button>
+        <button class="fm-btn fm-btn-primary" id="nd-save" onclick="createDeal()">
+          <span class="material-symbols-outlined" style="font-size:16px">save</span> Criar negocio
+        </button>
+      `;
+      openFormModal('Novo negocio', body, footer);
+    }
+
+    async function createDeal() {
+      const f = getActiveFunnel();
+      if (!f) return;
+      const nome = document.getElementById('nd-nome').value.trim();
+      if (!nome) { alert('Informe o nome / fazenda do contato.'); return; }
+      const respName = document.getElementById('nd-resp').value;
+      const respPerson = ALL_PEOPLE.find(p => p.n === respName);
+      const payload = {
+        funil_id: f._uuid,
+        etapa_id: document.getElementById('nd-stage').value,
+        nome,
+        telefone: document.getElementById('nd-tel').value.trim(),
+        email: document.getElementById('nd-email').value.trim(),
+        localizacao: document.getElementById('nd-loc').value.trim(),
+        valor: parseFloat(document.getElementById('nd-valor').value) || 0,
+        temperatura: document.getElementById('nd-temp').value,
+        assessor: respPerson ? { nome: respPerson.n, iniciais: respPerson.i } : null,
+        notas: document.getElementById('nd-notas').value.trim(),
+        timeline: [],
+        dias_no_estagio: 0,
+      };
+      const btn = document.getElementById('nd-save');
+      btn.disabled = true; btn.textContent = 'Criando...';
+      try {
+        const res = await fetch('/api/bula/crm/deals', {
+          method: 'POST', headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload),
+        });
+        if (!res.ok) { const d = await res.json(); throw new Error(d.error || 'Erro'); }
+        const data = await fetch('/api/bula/crm/funis').then(r => r.json());
+        adaptFunis(Array.isArray(data) ? data : []);
+        closeFormModal();
+        renderCRM();
+      } catch (e) {
+        alert('Falha ao criar negocio: ' + e.message);
+        btn.disabled = false; btn.innerHTML = '<span class="material-symbols-outlined" style="font-size:16px">save</span> Criar negocio';
+      }
     }
 
     // ═════════════════════════════════════════════════
@@ -6995,6 +7213,42 @@
     const STATUS_LBL = { novo: 'Novo', atendimento: 'Em atendimento', qualificado: 'Qualificado', descartado: 'Descartado' };
     const STATUS_CLS = { novo: 'ls-novo', atendimento: 'ls-atendimento', qualificado: 'ls-qualificado', descartado: 'ls-descartado' };
     const ORIGEM_ICON = { Instagram: 'photo_camera', Facebook: 'thumb_up', 'Google Ads': 'search', WhatsApp: 'chat', Site: 'language' };
+
+    function openInvestModal() {
+      const body = `
+        <div><div class="fm-label"><span class="material-symbols-outlined">payments</span> Investimento total em marketing (R$)</div>
+          <input class="fm-input" id="inv-valor" type="number" min="0" step="100" value="${MKT_INVEST}">
+          <div style="font-size:11px;color:var(--text3);margin-top:8px">Esse valor eh usado no calculo de CPL e CPMQL.</div>
+        </div>
+      `;
+      const footer = `
+        <button class="fm-btn" onclick="closeFormModal()">Cancelar</button>
+        <button class="fm-btn fm-btn-primary" id="inv-save" onclick="saveInvest()">
+          <span class="material-symbols-outlined" style="font-size:16px">save</span> Salvar
+        </button>
+      `;
+      openFormModal('Editar investimento de marketing', body, footer);
+    }
+
+    async function saveInvest() {
+      const v = parseFloat(document.getElementById('inv-valor').value) || 0;
+      const btn = document.getElementById('inv-save');
+      btn.disabled = true; btn.textContent = 'Salvando...';
+      try {
+        const res = await fetch('/api/bula/marketing/config', {
+          method: 'PUT', headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ investimento: v })
+        });
+        if (!res.ok) { const d = await res.json(); throw new Error(d.error || 'Erro'); }
+        MKT_INVEST = v;
+        closeFormModal();
+        renderMarketing();
+        renderDashboardKpis();
+      } catch (e) {
+        alert('Falha ao salvar: ' + e.message);
+        btn.disabled = false; btn.innerHTML = '<span class="material-symbols-outlined" style="font-size:16px">save</span> Salvar';
+      }
+    }
 
     function renderMktKpis() {
       const total = LEADS.length;
