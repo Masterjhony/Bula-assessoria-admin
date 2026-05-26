@@ -1,0 +1,2002 @@
+<!DOCTYPE html>
+<html lang="pt-BR" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Bula ERP -- Financeiro & Contabil</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200&display=swap" rel="stylesheet">
+<link rel="icon" href="/logo-bula-remates-preto-_1_.svg" type="image/svg+xml">
+<style>
+:root {
+  --bg:#0D0D0D; --surface:#141414; --s2:#1A1A1A; --s3:#222; --s4:#2A2A2A; --s5:#333;
+  --border:rgba(255,255,255,0.06); --border2:rgba(255,255,255,0.12);
+  --text:#F5F5F5; --text2:#B0B0B0; --text3:#666; --text4:#444;
+  --gold:#C8A96E; --gold-dim:rgba(200,169,110,0.12); --gold-dark:#A68B4B;
+  --olive:#6B8F5C; --olive-bg:rgba(107,143,92,0.12);
+  --red:#C0504D; --red-bg:rgba(192,80,77,0.10);
+  --blue:#4A8FBF; --blue-bg:rgba(74,143,191,0.10);
+  --amber:#D4A843; --amber-bg:rgba(212,168,67,0.12);
+  --purple:#8B6FB5; --purple-bg:rgba(139,111,181,0.12);
+  --r:10px; --r-lg:14px;
+}
+[data-theme="light"] {
+  --bg:#F5F3EF; --surface:#FFFFFF; --s2:#F0EDE8; --s3:#E8E4DD; --s4:#D8D4CC; --s5:#C8C4BC;
+  --border:rgba(0,0,0,0.06); --border2:rgba(0,0,0,0.10);
+  --text:#1A1A1A; --text2:#555; --text3:#999; --text4:#BBB;
+  --gold:#A68B4B; --gold-dim:rgba(166,139,75,0.10); --gold-dark:#8A7340;
+}
+*,*::before,*::after { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
+html { font-size:14px; height:100%; }
+body { background:var(--bg); color:var(--text); font-family:'Inter',-apple-system,sans-serif; min-height:100%; -webkit-font-smoothing:antialiased; transition:background 0.3s,color 0.3s; overflow-x:hidden; }
+.material-symbols-outlined { font-variation-settings:'FILL' 0,'wght' 300,'GRAD' 0,'opsz' 20; font-size:20px; vertical-align:middle; }
+
+/* TOPBAR */
+.topbar { height:56px; background:var(--surface); border-bottom:1px solid var(--border); display:flex; align-items:center; padding:0 24px; gap:14px; position:sticky; top:0; z-index:100; }
+.topbar-logo { height:42px; filter:invert(1); transition:filter 0.3s; }
+[data-theme="light"] .topbar-logo { filter:none; }
+.topbar-title { font-size:13px; font-weight:600; color:var(--text); display:flex; align-items:center; gap:8px; padding-left:12px; border-left:1px solid var(--border); margin-left:6px; }
+.topbar-title-tag { font-size:9px; color:var(--gold); background:var(--gold-dim); padding:3px 8px; border-radius:6px; font-weight:700; letter-spacing:0.6px; text-transform:uppercase; }
+.topbar-spacer { flex:1; }
+.topbar-date { font-size:11px; color:var(--text3); background:var(--s2); border:1px solid var(--border); padding:5px 12px; border-radius:20px; }
+.icon-btn { width:36px; height:36px; background:var(--s2); border:1px solid var(--border); border-radius:var(--r); display:flex; align-items:center; justify-content:center; cursor:pointer; color:var(--text2); transition:all 0.15s; position:relative; }
+.icon-btn:hover { background:var(--s3); color:var(--gold); }
+.topbar-user { display:flex; align-items:center; gap:10px; padding:4px 14px 4px 4px; background:var(--s2); border:1px solid var(--border); border-radius:24px; cursor:pointer; transition:all 0.15s; }
+.topbar-user:hover { background:var(--s3); }
+.topbar-user-avatar { width:30px; height:30px; border-radius:50%; background:var(--gold); color:#0D0D0D; display:flex; align-items:center; justify-content:center; font-size:11px; font-weight:700; }
+.topbar-user-name { font-size:12px; font-weight:500; color:var(--text2); }
+
+/* LAYOUT */
+.layout { display:flex; min-height:calc(100vh - 56px); }
+.sidebar { width:240px; background:var(--surface); border-right:1px solid var(--border); padding:20px 0; flex-shrink:0; position:sticky; top:56px; height:calc(100vh - 56px); overflow-y:auto; transition:width 0.2s; }
+.sidebar.collapsed { width:64px; }
+.sidebar-section { padding:12px 18px 6px; font-size:9px; text-transform:uppercase; letter-spacing:1px; color:var(--text4); font-weight:600; }
+.sidebar.collapsed .sidebar-section { opacity:0; pointer-events:none; }
+.sidebar-item { display:flex; align-items:center; gap:12px; padding:10px 18px; color:var(--text2); cursor:pointer; font-size:12.5px; font-weight:500; transition:all 0.15s; border-left:2px solid transparent; }
+.sidebar-item:hover { background:var(--s2); color:var(--text); }
+.sidebar-item.active { color:var(--gold); background:var(--gold-dim); border-left-color:var(--gold); }
+.sidebar-item .material-symbols-outlined { font-size:18px; flex-shrink:0; }
+.sidebar.collapsed .sidebar-item span:not(.material-symbols-outlined) { display:none; }
+.sidebar-toggle { margin:8px 14px 16px; width:calc(100% - 28px); padding:8px; background:var(--s2); border:1px solid var(--border); border-radius:8px; color:var(--text3); cursor:pointer; display:flex; align-items:center; justify-content:center; gap:6px; font-size:11px; }
+.sidebar-toggle:hover { background:var(--s3); color:var(--gold); }
+
+/* MAIN */
+.main { flex:1; padding:24px 32px; min-width:0; max-width:100%; }
+.page-header { display:flex; align-items:flex-end; justify-content:space-between; margin-bottom:24px; gap:20px; flex-wrap:wrap; }
+.page-title { font-size:24px; font-weight:700; color:var(--text); letter-spacing:-0.5px; }
+.page-title small { font-size:12px; font-weight:400; color:var(--text3); margin-left:10px; }
+.page-actions { display:flex; gap:8px; align-items:center; flex-wrap:wrap; }
+
+/* BUTTONS */
+.btn { padding:9px 16px; border-radius:var(--r); font-family:inherit; font-size:12px; font-weight:600; cursor:pointer; display:inline-flex; align-items:center; gap:7px; transition:all 0.15s; border:1px solid var(--border2); background:var(--s2); color:var(--text); text-decoration:none; line-height:1; }
+.btn:hover { background:var(--s3); }
+.btn.btn-primary { background:var(--gold); color:#0D0D0D; border-color:var(--gold); }
+.btn.btn-primary:hover { background:var(--gold-dark); }
+.btn.btn-ghost { background:transparent; }
+.btn.btn-ghost:hover { background:var(--s2); }
+.btn.btn-danger { background:var(--red-bg); color:var(--red); border-color:rgba(192,80,77,0.3); }
+.btn.btn-danger:hover { background:var(--red); color:#fff; border-color:var(--red); }
+.btn.btn-success { background:var(--olive-bg); color:var(--olive); border-color:rgba(107,143,92,0.3); }
+.btn.btn-success:hover { background:var(--olive); color:#fff; border-color:var(--olive); }
+.btn.btn-sm { padding:6px 11px; font-size:11px; }
+.btn .material-symbols-outlined { font-size:16px; }
+
+/* CARDS */
+.card { background:var(--surface); border:1px solid var(--border); border-radius:var(--r-lg); padding:20px; }
+.card-title { font-size:11px; font-weight:600; color:var(--text3); text-transform:uppercase; letter-spacing:1px; margin-bottom:12px; display:flex; align-items:center; gap:6px; }
+.card-title .material-symbols-outlined { font-size:14px; color:var(--gold); }
+
+/* KPI grid */
+.kpi-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(220px,1fr)); gap:14px; margin-bottom:24px; }
+.kpi { background:var(--surface); border:1px solid var(--border); border-radius:var(--r-lg); padding:18px 20px; position:relative; overflow:hidden; transition:all 0.15s; }
+.kpi:hover { border-color:var(--border2); transform:translateY(-1px); }
+.kpi-icon { width:36px; height:36px; border-radius:10px; display:flex; align-items:center; justify-content:center; background:var(--gold-dim); color:var(--gold); margin-bottom:10px; }
+.kpi-icon .material-symbols-outlined { font-size:20px; }
+.kpi-label { font-size:10px; font-weight:600; color:var(--text3); text-transform:uppercase; letter-spacing:1px; }
+.kpi-value { font-size:22px; font-weight:700; color:var(--text); margin-top:5px; letter-spacing:-0.5px; }
+.kpi-sub { font-size:11px; color:var(--text3); margin-top:4px; display:flex; align-items:center; gap:4px; }
+.kpi-sub.up { color:var(--olive); }
+.kpi-sub.down { color:var(--red); }
+.kpi.danger .kpi-icon { background:var(--red-bg); color:var(--red); }
+.kpi.success .kpi-icon { background:var(--olive-bg); color:var(--olive); }
+.kpi.warn .kpi-icon { background:var(--amber-bg); color:var(--amber); }
+.kpi.info .kpi-icon { background:var(--blue-bg); color:var(--blue); }
+
+/* TABLE */
+.table-wrap { background:var(--surface); border:1px solid var(--border); border-radius:var(--r-lg); overflow:hidden; }
+.table-toolbar { display:flex; gap:10px; align-items:center; padding:14px 18px; border-bottom:1px solid var(--border); flex-wrap:wrap; }
+.table-search { flex:1; min-width:200px; max-width:340px; position:relative; }
+.table-search input { width:100%; padding:8px 12px 8px 34px; background:var(--s2); border:1px solid var(--border); border-radius:8px; color:var(--text); font-family:inherit; font-size:12px; outline:none; }
+.table-search .material-symbols-outlined { position:absolute; left:9px; top:50%; transform:translateY(-50%); font-size:16px; color:var(--text3); }
+.table-filter { background:var(--s2); border:1px solid var(--border); border-radius:8px; padding:7px 10px; color:var(--text2); font-size:11.5px; font-family:inherit; outline:none; cursor:pointer; }
+.table-wrap table { width:100%; border-collapse:collapse; }
+.table-wrap th { font-size:10px; text-transform:uppercase; letter-spacing:0.8px; color:var(--text3); font-weight:600; text-align:left; padding:12px 14px; border-bottom:1px solid var(--border); background:var(--s2); }
+.table-wrap td { font-size:12.5px; color:var(--text); padding:13px 14px; border-bottom:1px solid var(--border); vertical-align:middle; }
+.table-wrap tr:last-child td { border-bottom:none; }
+.table-wrap tr:hover td { background:var(--s2); }
+.table-wrap td .row-actions { display:flex; gap:4px; opacity:0; transition:opacity 0.15s; }
+.table-wrap tr:hover .row-actions { opacity:1; }
+.row-actions .icon-btn { width:28px; height:28px; }
+.row-actions .icon-btn .material-symbols-outlined { font-size:15px; }
+
+/* CHIPS */
+.chip { display:inline-flex; align-items:center; gap:5px; padding:3px 9px; border-radius:14px; font-size:10.5px; font-weight:600; }
+.chip.success { background:var(--olive-bg); color:var(--olive); }
+.chip.danger { background:var(--red-bg); color:var(--red); }
+.chip.warn { background:var(--amber-bg); color:var(--amber); }
+.chip.info { background:var(--blue-bg); color:var(--blue); }
+.chip.gold { background:var(--gold-dim); color:var(--gold); }
+.chip.muted { background:var(--s3); color:var(--text2); }
+.chip.purple { background:var(--purple-bg); color:var(--purple); }
+.chip-dot { width:6px; height:6px; border-radius:50%; background:currentColor; }
+
+/* MONEY */
+.money { font-variant-numeric:tabular-nums; font-weight:600; }
+.money.positive { color:var(--olive); }
+.money.negative { color:var(--red); }
+
+/* MODAL */
+.modal-backdrop { position:fixed; inset:0; background:rgba(0,0,0,0.6); backdrop-filter:blur(4px); z-index:200; display:none; align-items:center; justify-content:center; padding:24px; }
+.modal-backdrop.show { display:flex; }
+.modal { background:var(--surface); border:1px solid var(--border2); border-radius:var(--r-lg); width:100%; max-width:680px; max-height:90vh; display:flex; flex-direction:column; overflow:hidden; }
+.modal.wide { max-width:920px; }
+.modal-header { padding:18px 24px; border-bottom:1px solid var(--border); display:flex; align-items:center; gap:12px; }
+.modal-title { font-size:15px; font-weight:600; color:var(--text); flex:1; }
+.modal-body { padding:20px 24px; overflow-y:auto; flex:1; }
+.modal-footer { padding:14px 24px; border-top:1px solid var(--border); display:flex; gap:8px; justify-content:flex-end; }
+
+/* FORMS */
+.form-grid { display:grid; gap:14px; grid-template-columns:repeat(2,1fr); }
+.form-grid .full { grid-column:1/-1; }
+.field { display:flex; flex-direction:column; gap:5px; }
+.field label { font-size:10px; font-weight:600; color:var(--text3); text-transform:uppercase; letter-spacing:0.8px; }
+.field input, .field select, .field textarea { background:var(--s2); border:1px solid var(--border); border-radius:8px; padding:10px 12px; color:var(--text); font-family:inherit; font-size:12.5px; outline:none; transition:border 0.15s; width:100%; }
+.field input:focus, .field select:focus, .field textarea:focus { border-color:var(--gold); }
+.field textarea { resize:vertical; min-height:80px; }
+.field-row { display:flex; gap:8px; }
+.field-checkbox { display:flex; align-items:center; gap:8px; cursor:pointer; }
+.field-checkbox input { width:16px; height:16px; accent-color:var(--gold); }
+.field-checkbox span { font-size:12px; color:var(--text2); }
+
+/* CHARTS */
+.chart-wrap { background:var(--surface); border:1px solid var(--border); border-radius:var(--r-lg); padding:20px; margin-bottom:20px; }
+.chart-header { display:flex; justify-content:space-between; align-items:center; margin-bottom:16px; }
+.chart-title { font-size:13px; font-weight:600; color:var(--text); }
+.chart-canvas { width:100%; height:300px; position:relative; }
+svg.chart { width:100%; height:100%; display:block; }
+.grid-row { display:grid; grid-template-columns:2fr 1fr; gap:18px; margin-bottom:20px; }
+@media (max-width:1100px) { .grid-row { grid-template-columns:1fr; } }
+
+/* TREE plano de contas */
+.tree { font-size:12px; }
+.tree-node { padding:8px 12px; border-bottom:1px solid var(--border); display:flex; align-items:center; gap:10px; }
+.tree-node:hover { background:var(--s2); }
+.tree-toggle { width:18px; cursor:pointer; color:var(--text3); display:flex; align-items:center; justify-content:center; }
+.tree-toggle.empty { opacity:0; pointer-events:none; }
+.tree-codigo { font-family:'JetBrains Mono',monospace; font-size:11px; color:var(--gold); min-width:70px; }
+.tree-nome { flex:1; color:var(--text); }
+.tree-children { padding-left:24px; }
+.tree-saldo { font-variant-numeric:tabular-nums; color:var(--text2); min-width:140px; text-align:right; }
+
+/* TOAST */
+.toast-stack { position:fixed; top:80px; right:24px; z-index:300; display:flex; flex-direction:column; gap:8px; }
+.toast { background:var(--surface); border:1px solid var(--border2); padding:12px 16px; border-radius:8px; color:var(--text); display:flex; align-items:center; gap:10px; box-shadow:0 8px 24px rgba(0,0,0,0.3); animation:slidein 0.2s; min-width:260px; }
+.toast.success { border-left:3px solid var(--olive); }
+.toast.error { border-left:3px solid var(--red); }
+.toast.info { border-left:3px solid var(--blue); }
+@keyframes slidein { from { opacity:0; transform:translateX(20px); } to { opacity:1; transform:translateX(0); } }
+
+/* EMPTY STATE */
+.empty { padding:60px 24px; text-align:center; color:var(--text3); }
+.empty .material-symbols-outlined { font-size:48px; color:var(--text4); margin-bottom:12px; }
+.empty h3 { font-size:14px; color:var(--text2); margin-bottom:6px; font-weight:600; }
+.empty p { font-size:12px; }
+
+/* LOADING */
+.spinner { width:16px; height:16px; border:2px solid var(--gold); border-top-color:transparent; border-radius:50%; animation:spin 0.7s linear infinite; }
+@keyframes spin { to { transform:rotate(360deg); } }
+.skeleton { background:linear-gradient(90deg, var(--s2), var(--s3), var(--s2)); background-size:200% 100%; animation:shimmer 1.5s infinite; border-radius:6px; height:14px; }
+@keyframes shimmer { 0% { background-position:200% 0; } 100% { background-position:-200% 0; } }
+
+/* TABS */
+.tabs { display:flex; gap:2px; border-bottom:1px solid var(--border); margin-bottom:18px; }
+.tab { padding:9px 14px; font-size:12px; color:var(--text3); cursor:pointer; border-bottom:2px solid transparent; transition:all 0.15s; font-weight:500; background:transparent; border-top:none; border-left:none; border-right:none; font-family:inherit; }
+.tab:hover { color:var(--text2); }
+.tab.active { color:var(--gold); border-bottom-color:var(--gold); }
+
+/* PARTIDAS */
+.partidas-table { width:100%; }
+.partidas-table th { font-size:10px; text-transform:uppercase; color:var(--text3); padding:6px 8px; text-align:left; }
+.partidas-table td { padding:6px 4px; }
+.partida-row select, .partida-row input { padding:7px 9px; font-size:11.5px; }
+
+@media (max-width:900px) {
+  .sidebar { display:none; }
+  .main { padding:18px 14px; }
+  .form-grid { grid-template-columns:1fr; }
+}
+</style>
+</head>
+<body>
+
+<!-- TOPBAR -->
+<header class="topbar">
+  <img src="/logo-bula-remates-branco.png" alt="Bula" class="topbar-logo">
+  <div class="topbar-title">
+    Bula ERP
+    <span class="topbar-title-tag">Financeiro</span>
+  </div>
+  <div class="topbar-spacer"></div>
+  <div class="topbar-date" id="topbarDate"></div>
+  <button class="icon-btn" id="themeToggle" title="Tema">
+    <span class="material-symbols-outlined" id="themeIcon">dark_mode</span>
+  </button>
+  <a class="icon-btn" href="http://localhost:3000/sistema" title="Voltar ao sistema principal" target="_blank">
+    <span class="material-symbols-outlined">apps</span>
+  </a>
+  <button class="topbar-user" id="userBtn">
+    <div class="topbar-user-avatar" id="userAvatar">ER</div>
+    <div class="topbar-user-name" id="userName">Carregando...</div>
+  </button>
+</header>
+
+<div class="layout">
+  <!-- SIDEBAR -->
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-section">Visao Geral</div>
+    <div class="sidebar-item active" data-page="dashboard"><span class="material-symbols-outlined">dashboard</span><span>Dashboard</span></div>
+    <div class="sidebar-item" data-page="fluxo"><span class="material-symbols-outlined">show_chart</span><span>Fluxo de Caixa</span></div>
+
+    <div class="sidebar-section">Movimentacao</div>
+    <div class="sidebar-item" data-page="cp"><span class="material-symbols-outlined">payments</span><span>Contas a Pagar</span></div>
+    <div class="sidebar-item" data-page="cr"><span class="material-symbols-outlined">request_quote</span><span>Contas a Receber</span></div>
+    <div class="sidebar-item" data-page="bancos"><span class="material-symbols-outlined">account_balance</span><span>Contas Bancarias</span></div>
+    <div class="sidebar-item" data-page="conciliacao"><span class="material-symbols-outlined">fact_check</span><span>Conciliacao</span></div>
+
+    <div class="sidebar-section">Contabil</div>
+    <div class="sidebar-item" data-page="lancamentos"><span class="material-symbols-outlined">edit_note</span><span>Lancamentos</span></div>
+    <div class="sidebar-item" data-page="plano"><span class="material-symbols-outlined">account_tree</span><span>Plano de Contas</span></div>
+    <div class="sidebar-item" data-page="dre"><span class="material-symbols-outlined">analytics</span><span>DRE</span></div>
+    <div class="sidebar-item" data-page="balanco"><span class="material-symbols-outlined">balance</span><span>Balanco</span></div>
+
+    <div class="sidebar-section">Cadastros</div>
+    <div class="sidebar-item" data-page="clientes"><span class="material-symbols-outlined">groups</span><span>Clientes</span></div>
+    <div class="sidebar-item" data-page="fornecedores"><span class="material-symbols-outlined">local_shipping</span><span>Fornecedores</span></div>
+    <div class="sidebar-item" data-page="categorias"><span class="material-symbols-outlined">sell</span><span>Categorias</span></div>
+    <div class="sidebar-item" data-page="centros"><span class="material-symbols-outlined">apartment</span><span>Centros de Custo</span></div>
+    <div class="sidebar-item" data-page="notas"><span class="material-symbols-outlined">receipt_long</span><span>Notas Fiscais</span></div>
+    <div class="sidebar-item" data-page="empresa"><span class="material-symbols-outlined">business</span><span>Empresa</span></div>
+
+    <button class="sidebar-toggle" id="sidebarToggle"><span class="material-symbols-outlined">menu_open</span><span class="sb-toggle-label">Recolher</span></button>
+  </aside>
+
+  <!-- MAIN -->
+  <main class="main" id="main">
+    <div id="page"></div>
+  </main>
+</div>
+
+<!-- MODAIS / TOASTS -->
+<div class="modal-backdrop" id="modalRoot"></div>
+<div class="toast-stack" id="toastStack"></div>
+
+<script>
+/* ==========================================================================
+   STATE & UTILS
+   ========================================================================== */
+const state = {
+  page:'dashboard',
+  user:null,
+  dashboard:null,
+  bancos:[], categorias:[], centros:[], plano:[], pessoas:[],
+  cp:[], cr:[], movimentos:[], lancamentos:[], notas:[], empresas:[],
+  filters:{},
+};
+
+const fmtBRL = (n) => {
+  const v = Number(n||0);
+  return v.toLocaleString('pt-BR', { style:'currency', currency:'BRL' });
+};
+const fmtNum = (n) => Number(n||0).toLocaleString('pt-BR', { minimumFractionDigits:2, maximumFractionDigits:2 });
+const fmtDate = (s) => { if (!s) return '--'; const d = new Date(s+'T00:00:00'); return d.toLocaleDateString('pt-BR'); };
+const fmtDateShort = (s) => { if (!s) return '--'; const d = new Date(s+'T00:00:00'); return d.toLocaleDateString('pt-BR',{day:'2-digit',month:'2-digit'}); };
+const today = () => new Date().toISOString().slice(0,10);
+const escapeHtml = (s) => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const debounce = (fn,ms=200)=>{let t;return (...a)=>{clearTimeout(t);t=setTimeout(()=>fn(...a),ms)}};
+
+async function api(path, opts={}) {
+  const res = await fetch(path, {
+    headers:{ 'Content-Type':'application/json', ...(opts.headers||{}) },
+    ...opts,
+  });
+  let json = null;
+  try { json = await res.json(); } catch (_) {}
+  if (!res.ok) {
+    const msg = (json && json.error) || res.statusText || 'Erro';
+    throw new Error(msg);
+  }
+  return json;
+}
+
+function toast(message, type='info') {
+  const stack = document.getElementById('toastStack');
+  const el = document.createElement('div');
+  el.className = `toast ${type}`;
+  el.innerHTML = `<span class="material-symbols-outlined">${type==='success'?'check_circle':type==='error'?'error':'info'}</span><div>${escapeHtml(message)}</div>`;
+  stack.appendChild(el);
+  setTimeout(()=>{ el.style.opacity='0'; el.style.transform='translateX(20px)'; setTimeout(()=>el.remove(),250); }, 3200);
+}
+
+function openModal(html, opts={}) {
+  const root = document.getElementById('modalRoot');
+  root.innerHTML = `<div class="modal ${opts.wide?'wide':''}">${html}</div>`;
+  root.classList.add('show');
+  document.body.style.overflow = 'hidden';
+  root.onclick = (e) => { if (e.target === root) closeModal(); };
+}
+function closeModal() {
+  const root = document.getElementById('modalRoot');
+  root.classList.remove('show');
+  root.innerHTML = '';
+  document.body.style.overflow = '';
+}
+
+async function confirmAction(msg) {
+  return new Promise((resolve)=>{
+    openModal(`
+      <div class="modal-header"><div class="modal-title">Confirmar acao</div></div>
+      <div class="modal-body"><p style="color:var(--text2);font-size:13px;">${escapeHtml(msg)}</p></div>
+      <div class="modal-footer">
+        <button class="btn" onclick="window._confirm(false)">Cancelar</button>
+        <button class="btn btn-danger" onclick="window._confirm(true)">Confirmar</button>
+      </div>`);
+    window._confirm = (v)=>{ closeModal(); resolve(v); };
+  });
+}
+
+/* ==========================================================================
+   TOPBAR / THEME / USER
+   ========================================================================== */
+function setDate() {
+  const d = new Date();
+  document.getElementById('topbarDate').textContent =
+    d.toLocaleDateString('pt-BR', { weekday:'long', day:'2-digit', month:'long', year:'numeric' });
+}
+setDate();
+
+function applyTheme(t) {
+  document.documentElement.setAttribute('data-theme', t);
+  document.getElementById('themeIcon').textContent = t==='dark'?'dark_mode':'light_mode';
+  localStorage.setItem('erp-theme', t);
+}
+applyTheme(localStorage.getItem('erp-theme') || 'dark');
+document.getElementById('themeToggle').onclick = () => {
+  const cur = document.documentElement.getAttribute('data-theme');
+  applyTheme(cur==='dark'?'light':'dark');
+  if (state.page==='dashboard' || state.page==='fluxo' || state.page==='dre') render();
+};
+
+document.getElementById('sidebarToggle').onclick = () => {
+  document.getElementById('sidebar').classList.toggle('collapsed');
+};
+
+async function loadUser() {
+  try {
+    const u = await api('/api/bula/auth/me');
+    state.user = u.user || u;
+    const nome = (state.user?.nome || state.user?.email || 'Usuario').split('@')[0];
+    document.getElementById('userName').textContent = nome;
+    const initials = nome.split(' ').slice(0,2).map(p=>p[0]||'').join('').toUpperCase() || 'ER';
+    document.getElementById('userAvatar').textContent = initials;
+  } catch (_) {
+    document.getElementById('userName').textContent = 'Convidado';
+  }
+}
+
+document.getElementById('userBtn').onclick = async () => {
+  if (await confirmAction('Deseja sair do sistema?')) {
+    try { await api('/api/bula/auth/signout', { method:'POST' }); } catch(_) {}
+    window.location.href = '/';
+  }
+};
+
+/* ==========================================================================
+   NAV
+   ========================================================================== */
+document.querySelectorAll('.sidebar-item').forEach(el => {
+  el.onclick = () => navigate(el.dataset.page);
+});
+function navigate(page) {
+  state.page = page;
+  document.querySelectorAll('.sidebar-item').forEach(it => it.classList.toggle('active', it.dataset.page === page));
+  render();
+}
+
+/* ==========================================================================
+   DATA LOADERS
+   ========================================================================== */
+async function loadBase() {
+  const [bancos, categorias, centros, plano, pessoas] = await Promise.all([
+    api('/api/erp/contas-bancarias'),
+    api('/api/erp/categorias'),
+    api('/api/erp/centros-custo'),
+    api('/api/erp/plano-contas'),
+    api('/api/erp/pessoas'),
+  ]);
+  state.bancos = bancos;
+  state.categorias = categorias;
+  state.centros = centros;
+  state.plano = plano;
+  state.pessoas = pessoas;
+}
+
+/* ==========================================================================
+   RENDER ROUTER
+   ========================================================================== */
+async function render() {
+  const page = document.getElementById('page');
+  page.innerHTML = `<div class="card"><div class="skeleton" style="height:24px;margin-bottom:14px"></div><div class="skeleton" style="height:14px;width:60%"></div></div>`;
+  try {
+    await loadBase();
+    if (state.page === 'dashboard') return renderDashboard();
+    if (state.page === 'fluxo') return renderFluxo();
+    if (state.page === 'cp') return renderContas('pagar');
+    if (state.page === 'cr') return renderContas('receber');
+    if (state.page === 'bancos') return renderBancos();
+    if (state.page === 'conciliacao') return renderConciliacao();
+    if (state.page === 'lancamentos') return renderLancamentos();
+    if (state.page === 'plano') return renderPlano();
+    if (state.page === 'dre') return renderDRE();
+    if (state.page === 'balanco') return renderBalanco();
+    if (state.page === 'clientes') return renderPessoas('cliente');
+    if (state.page === 'fornecedores') return renderPessoas('fornecedor');
+    if (state.page === 'categorias') return renderCategorias();
+    if (state.page === 'centros') return renderCentros();
+    if (state.page === 'notas') return renderNotas();
+    if (state.page === 'empresa') return renderEmpresa();
+  } catch (e) {
+    page.innerHTML = `<div class="card" style="text-align:center"><span class="material-symbols-outlined" style="font-size:36px;color:var(--red)">error</span><h3 style="margin:8px 0">Erro ao carregar</h3><p style="color:var(--text3);font-size:12px">${escapeHtml(e.message)}</p></div>`;
+  }
+}
+
+/* ==========================================================================
+   SVG MINI CHART (linha)
+   ========================================================================== */
+function lineChart(serie, opts={}) {
+  if (!serie || !serie.length) return '<div class="empty"><span class="material-symbols-outlined">show_chart</span><p>Sem dados</p></div>';
+  const series = opts.series || [{ key:'valor', color:'#C8A96E', label:'Valor' }];
+  const w = opts.width || 800, h = opts.height || 240, pad = { t:20, r:14, b:30, l:54 };
+  const innerW = w - pad.l - pad.r, innerH = h - pad.t - pad.b;
+  const xs = serie.map(s => s.data);
+  let max = 0, min = 0;
+  for (const s of serie) for (const k of series) {
+    const v = Number(s[k.key]||0);
+    if (v > max) max = v;
+    if (v < min) min = v;
+  }
+  if (max === min) { max += 1; min -= 1; }
+  const range = max - min;
+  const xStep = innerW / Math.max(1, serie.length - 1);
+  const yScale = (v) => pad.t + innerH - ((v - min) / range) * innerH;
+
+  let svg = `<svg viewBox="0 0 ${w} ${h}" preserveAspectRatio="none" class="chart" xmlns="http://www.w3.org/2000/svg">`;
+  // grid
+  for (let i = 0; i <= 4; i++) {
+    const y = pad.t + (innerH/4)*i;
+    const val = max - (range/4)*i;
+    svg += `<line x1="${pad.l}" y1="${y}" x2="${w-pad.r}" y2="${y}" stroke="rgba(255,255,255,0.06)" stroke-dasharray="2 4"/>`;
+    svg += `<text x="${pad.l-6}" y="${y+3}" text-anchor="end" font-size="9" fill="#666">${fmtBRL(val).replace('R$','').trim()}</text>`;
+  }
+  // x labels (apenas alguns)
+  const stepLabel = Math.ceil(serie.length / 8);
+  serie.forEach((s, i) => {
+    if (i % stepLabel === 0 || i === serie.length - 1) {
+      const x = pad.l + i * xStep;
+      svg += `<text x="${x}" y="${h-10}" text-anchor="middle" font-size="9" fill="#666">${fmtDateShort(s.data)}</text>`;
+    }
+  });
+
+  for (const s of series) {
+    let d = '';
+    serie.forEach((p, i) => {
+      const x = pad.l + i * xStep;
+      const y = yScale(Number(p[s.key]||0));
+      d += (i === 0 ? `M${x} ${y}` : ` L${x} ${y}`);
+    });
+    svg += `<path d="${d}" fill="none" stroke="${s.color}" stroke-width="2"/>`;
+    if (s.fill) {
+      const lastX = pad.l + (serie.length-1) * xStep;
+      const firstX = pad.l;
+      const zero = yScale(0);
+      svg += `<path d="${d} L${lastX} ${zero} L${firstX} ${zero} Z" fill="${s.color}" opacity="0.08"/>`;
+    }
+  }
+  // legend
+  let lx = pad.l;
+  for (const s of series) {
+    svg += `<rect x="${lx}" y="${4}" width="9" height="9" fill="${s.color}" rx="2"/>`;
+    svg += `<text x="${lx+13}" y="${12}" font-size="10" fill="#999">${s.label}</text>`;
+    lx += 110;
+  }
+  svg += '</svg>';
+  return svg;
+}
+
+function barChart(items, opts={}) {
+  if (!items || !items.length) return '<div class="empty"><span class="material-symbols-outlined">bar_chart</span><p>Sem dados</p></div>';
+  const w = opts.width || 600, h = opts.height || 220, pad = { t:14, r:14, b:30, l:60 };
+  const innerW = w - pad.l - pad.r, innerH = h - pad.t - pad.b;
+  const max = Math.max(...items.map(i => Number(i.valor||0))) || 1;
+  const xStep = innerW / items.length;
+  const barW = xStep * 0.6;
+  let svg = `<svg viewBox="0 0 ${w} ${h}" class="chart" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">`;
+  for (let i = 0; i <= 4; i++) {
+    const y = pad.t + (innerH/4)*i;
+    const val = max - (max/4)*i;
+    svg += `<line x1="${pad.l}" y1="${y}" x2="${w-pad.r}" y2="${y}" stroke="rgba(255,255,255,0.06)" stroke-dasharray="2 4"/>`;
+    svg += `<text x="${pad.l-6}" y="${y+3}" text-anchor="end" font-size="9" fill="#666">${fmtBRL(val).replace('R$','').trim()}</text>`;
+  }
+  items.forEach((it, i) => {
+    const v = Number(it.valor||0);
+    const x = pad.l + i*xStep + (xStep - barW)/2;
+    const bh = (v/max) * innerH;
+    const y = pad.t + innerH - bh;
+    svg += `<rect x="${x}" y="${y}" width="${barW}" height="${bh}" fill="${opts.color||'#C8A96E'}" rx="2" opacity="0.9"/>`;
+    svg += `<text x="${x+barW/2}" y="${h-12}" text-anchor="middle" font-size="9" fill="#999">${escapeHtml((it.nome||'').slice(0,12))}</text>`;
+  });
+  svg += '</svg>';
+  return svg;
+}
+
+/* ==========================================================================
+   PAGE: DASHBOARD
+   ========================================================================== */
+async function renderDashboard() {
+  const d = await api('/api/erp/dashboard');
+  state.dashboard = d;
+  const html = `
+    <div class="page-header">
+      <div>
+        <div class="page-title">Dashboard <small>visao financeira</small></div>
+      </div>
+      <div class="page-actions">
+        <button class="btn" onclick="navigate('fluxo')"><span class="material-symbols-outlined">show_chart</span>Fluxo Detalhado</button>
+        <button class="btn btn-primary" onclick="openNovoTitulo()"><span class="material-symbols-outlined">add</span>Novo Titulo</button>
+      </div>
+    </div>
+
+    <div class="kpi-grid">
+      <div class="kpi success">
+        <div class="kpi-icon"><span class="material-symbols-outlined">account_balance_wallet</span></div>
+        <div class="kpi-label">Saldo em Bancos</div>
+        <div class="kpi-value money positive">${fmtBRL(d.saldo_total_bancos)}</div>
+        <div class="kpi-sub">${d.bancos.length} contas ativas</div>
+      </div>
+      <div class="kpi danger">
+        <div class="kpi-icon"><span class="material-symbols-outlined">trending_down</span></div>
+        <div class="kpi-label">A Pagar (em aberto)</div>
+        <div class="kpi-value money negative">${fmtBRL(d.a_pagar)}</div>
+        <div class="kpi-sub down">${fmtBRL(d.vencidos_pagar)} vencidos</div>
+      </div>
+      <div class="kpi info">
+        <div class="kpi-icon"><span class="material-symbols-outlined">trending_up</span></div>
+        <div class="kpi-label">A Receber (em aberto)</div>
+        <div class="kpi-value money positive">${fmtBRL(d.a_receber)}</div>
+        <div class="kpi-sub down">${fmtBRL(d.vencidos_receber)} vencidos</div>
+      </div>
+      <div class="kpi warn">
+        <div class="kpi-icon"><span class="material-symbols-outlined">insights</span></div>
+        <div class="kpi-label">Resultado do Mes</div>
+        <div class="kpi-value money ${d.resultado_mes>=0?'positive':'negative'}">${fmtBRL(d.resultado_mes)}</div>
+        <div class="kpi-sub">Previsto: ${fmtBRL(d.previsao_mes_entrada)} - ${fmtBRL(d.previsao_mes_saida)}</div>
+      </div>
+    </div>
+
+    <div class="grid-row">
+      <div class="chart-wrap">
+        <div class="chart-header">
+          <div class="chart-title">Movimentacao Bancaria - Ultimos 30 dias</div>
+          <div style="display:flex;gap:14px;font-size:11px;color:var(--text3)">
+            <span><span style="display:inline-block;width:8px;height:8px;background:#6B8F5C;border-radius:2px;margin-right:6px"></span>Entradas: ${fmtBRL(d.realizado_30_entradas)}</span>
+            <span><span style="display:inline-block;width:8px;height:8px;background:#C0504D;border-radius:2px;margin-right:6px"></span>Saidas: ${fmtBRL(d.realizado_30_saidas)}</span>
+          </div>
+        </div>
+        <div class="chart-canvas">
+          ${lineChart(d.serie_30d, { series:[
+            { key:'entrada', color:'#6B8F5C', label:'Entradas', fill:true },
+            { key:'saida', color:'#C0504D', label:'Saidas', fill:true },
+          ] })}
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-title"><span class="material-symbols-outlined">account_balance</span>Contas Bancarias</div>
+        ${d.bancos.length ? d.bancos.map(b => `
+          <div style="display:flex;justify-content:space-between;padding:10px 0;border-bottom:1px solid var(--border)">
+            <div>
+              <div style="font-size:12.5px;font-weight:600;color:var(--text)">${escapeHtml(b.nome)}</div>
+              <div style="font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:0.6px">${escapeHtml(b.tipo)}</div>
+            </div>
+            <div class="money ${Number(b.saldo_atual)>=0?'positive':'negative'}">${fmtBRL(b.saldo_atual)}</div>
+          </div>`).join('') : '<div class="empty"><p>Nenhuma conta cadastrada</p></div>'}
+        <button class="btn btn-ghost btn-sm" style="margin-top:10px;width:100%" onclick="navigate('bancos')">Ver todas</button>
+      </div>
+    </div>
+
+    <div class="grid-row" style="grid-template-columns:1fr 1fr">
+      <div class="card">
+        <div class="card-title"><span class="material-symbols-outlined">payments</span>Pagamentos do Periodo (30d)</div>
+        <div style="display:flex;align-items:baseline;gap:8px;margin-top:6px">
+          <div style="font-size:24px;font-weight:700">${fmtBRL(d.paid_30d)}</div>
+          <div style="font-size:11px;color:var(--text3)">pagos nos ultimos 30 dias</div>
+        </div>
+        <button class="btn btn-ghost btn-sm" style="margin-top:14px" onclick="navigate('cp')">Ver contas a pagar</button>
+      </div>
+      <div class="card">
+        <div class="card-title"><span class="material-symbols-outlined">request_quote</span>Recebimentos do Periodo (30d)</div>
+        <div style="display:flex;align-items:baseline;gap:8px;margin-top:6px">
+          <div style="font-size:24px;font-weight:700">${fmtBRL(d.received_30d)}</div>
+          <div style="font-size:11px;color:var(--text3)">recebidos nos ultimos 30 dias</div>
+        </div>
+        <button class="btn btn-ghost btn-sm" style="margin-top:14px" onclick="navigate('cr')">Ver contas a receber</button>
+      </div>
+    </div>
+  `;
+  document.getElementById('page').innerHTML = html;
+}
+
+/* ==========================================================================
+   PAGE: CONTAS A PAGAR / RECEBER
+   ========================================================================== */
+async function renderContas(modo) {
+  const isCP = modo === 'pagar';
+  const endpoint = isCP ? '/api/erp/contas-pagar' : '/api/erp/contas-receber';
+  const params = new URLSearchParams();
+  if (state.filters.status) params.set('status', state.filters.status);
+  if (state.filters.search) params.set('q', state.filters.search);
+  const list = await api(`${endpoint}?${params.toString()}`);
+  if (isCP) state.cp = list; else state.cr = list;
+
+  const calcRestante = (r) => Number(r.valor||0) - Number(r.desconto||0) + Number(r.juros||0) + Number(r.multa||0) - Number(isCP?r.valor_pago||0:r.valor_recebido||0);
+
+  const stTotals = list.reduce((acc, r) => {
+    const v = calcRestante(r);
+    if (r.status === 'vencido') acc.vencido += v;
+    else if (['aberto','parcial'].includes(r.status)) acc.aberto += v;
+    else if (['pago','recebido'].includes(r.status)) acc.pago += Number(isCP?r.valor_pago:r.valor_recebido)||0;
+    return acc;
+  }, { aberto:0, vencido:0, pago:0 });
+
+  const html = `
+    <div class="page-header">
+      <div>
+        <div class="page-title">${isCP?'Contas a Pagar':'Contas a Receber'} <small>${list.length} titulos</small></div>
+      </div>
+      <div class="page-actions">
+        <button class="btn btn-primary" onclick="openTitulo('${modo}')"><span class="material-symbols-outlined">add</span>Novo ${isCP?'Titulo a Pagar':'Titulo a Receber'}</button>
+      </div>
+    </div>
+
+    <div class="kpi-grid">
+      <div class="kpi warn">
+        <div class="kpi-icon"><span class="material-symbols-outlined">schedule</span></div>
+        <div class="kpi-label">Em Aberto</div>
+        <div class="kpi-value money">${fmtBRL(stTotals.aberto)}</div>
+      </div>
+      <div class="kpi danger">
+        <div class="kpi-icon"><span class="material-symbols-outlined">warning</span></div>
+        <div class="kpi-label">Vencidos</div>
+        <div class="kpi-value money negative">${fmtBRL(stTotals.vencido)}</div>
+      </div>
+      <div class="kpi success">
+        <div class="kpi-icon"><span class="material-symbols-outlined">check_circle</span></div>
+        <div class="kpi-label">${isCP?'Pago':'Recebido'}</div>
+        <div class="kpi-value money positive">${fmtBRL(stTotals.pago)}</div>
+      </div>
+    </div>
+
+    <div class="table-wrap">
+      <div class="table-toolbar">
+        <div class="table-search">
+          <span class="material-symbols-outlined">search</span>
+          <input type="text" placeholder="Buscar titulo..." value="${state.filters.search||''}" oninput="onFilterSearch(this.value)">
+        </div>
+        <select class="table-filter" onchange="onFilterStatus(this.value)">
+          <option value="">Todos os status</option>
+          <option value="aberto" ${state.filters.status==='aberto'?'selected':''}>Em aberto</option>
+          <option value="parcial" ${state.filters.status==='parcial'?'selected':''}>Parcial</option>
+          <option value="vencido" ${state.filters.status==='vencido'?'selected':''}>Vencido</option>
+          <option value="${isCP?'pago':'recebido'}" ${state.filters.status===(isCP?'pago':'recebido')?'selected':''}>${isCP?'Pago':'Recebido'}</option>
+        </select>
+      </div>
+      ${list.length === 0 ? `<div class="empty"><span class="material-symbols-outlined">${isCP?'payments':'request_quote'}</span><h3>Nenhum titulo cadastrado</h3><p>Clique em "Novo Titulo" para comecar.</p></div>` : `
+      <table>
+        <thead>
+          <tr>
+            <th>Descricao</th>
+            <th>${isCP?'Fornecedor':'Cliente'}</th>
+            <th>Categoria</th>
+            <th>Emissao</th>
+            <th>Vencimento</th>
+            <th style="text-align:right">Valor</th>
+            <th>Status</th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody>
+          ${list.map(r => `
+          <tr>
+            <td>
+              <div style="font-weight:600">${escapeHtml(r.descricao)}</div>
+              ${r.numero_documento?`<div style="font-size:10px;color:var(--text3)">Doc: ${escapeHtml(r.numero_documento)}</div>`:''}
+            </td>
+            <td>${escapeHtml((isCP?r.fornecedor:r.cliente)?.nome || '--')}</td>
+            <td>${r.categoria?`<span class="chip" style="background:${r.categoria.cor}22;color:${r.categoria.cor}">${escapeHtml(r.categoria.nome)}</span>`:'--'}</td>
+            <td>${fmtDate(r.emissao)}</td>
+            <td>${fmtDate(r.vencimento)}</td>
+            <td style="text-align:right" class="money ${isCP?'negative':'positive'}">${fmtBRL(r.valor)}</td>
+            <td>${statusChip(r.status)}</td>
+            <td>
+              <div class="row-actions">
+                ${['aberto','parcial','vencido'].includes(r.status) ? `<button class="icon-btn" title="Registrar ${isCP?'pagamento':'recebimento'}" onclick="openPagamento('${modo}','${r.id}')"><span class="material-symbols-outlined">attach_money</span></button>` : ''}
+                <button class="icon-btn" title="Editar" onclick="openTitulo('${modo}','${r.id}')"><span class="material-symbols-outlined">edit</span></button>
+                <button class="icon-btn" title="Excluir" onclick="deleteTitulo('${modo}','${r.id}')"><span class="material-symbols-outlined">delete</span></button>
+              </div>
+            </td>
+          </tr>`).join('')}
+        </tbody>
+      </table>`}
+    </div>
+  `;
+  document.getElementById('page').innerHTML = html;
+}
+
+function statusChip(s) {
+  const map = {
+    aberto:{c:'info',t:'Em aberto'},
+    parcial:{c:'warn',t:'Parcial'},
+    vencido:{c:'danger',t:'Vencido'},
+    pago:{c:'success',t:'Pago'},
+    recebido:{c:'success',t:'Recebido'},
+    cancelado:{c:'muted',t:'Cancelado'},
+  };
+  const m = map[s] || { c:'muted', t:s };
+  return `<span class="chip ${m.c}"><span class="chip-dot"></span>${m.t}</span>`;
+}
+
+const onFilterSearch = debounce((v)=>{ state.filters.search = v; render(); }, 350);
+function onFilterStatus(v) { state.filters.status = v; render(); }
+
+function openTitulo(modo, id) {
+  const isCP = modo === 'pagar';
+  const titulo = id ? (isCP?state.cp:state.cr).find(t => t.id === id) : null;
+  const opt = (arr, key, label, sel) => arr.map(a => `<option value="${a.id}" ${sel===a.id?'selected':''}>${escapeHtml((a[label]||a.nome))}${a.codigo?' ('+a.codigo+')':''}</option>`).join('');
+  const peopleType = isCP ? 'fornecedor' : 'cliente';
+  const people = state.pessoas.filter(p => isCP ? p.is_fornecedor : p.is_cliente);
+  const cats = state.categorias.filter(c => c.tipo === (isCP?'despesa':'receita'));
+  const html = `
+    <div class="modal-header"><div class="modal-title">${id?'Editar':'Novo'} titulo a ${isCP?'pagar':'receber'}</div><button class="icon-btn" onclick="closeModal()"><span class="material-symbols-outlined">close</span></button></div>
+    <div class="modal-body">
+      <form id="formTitulo" class="form-grid">
+        <div class="field full"><label>Descricao*</label><input name="descricao" required value="${escapeHtml(titulo?.descricao||'')}"></div>
+        <div class="field"><label>Valor (R$)*</label><input name="valor" type="number" step="0.01" min="0" required value="${titulo?.valor||''}"></div>
+        <div class="field"><label>${isCP?'Fornecedor':'Cliente'}</label>
+          <select name="${peopleType}_id"><option value="">--</option>${opt(people,'id','nome',titulo?.[`${peopleType}_id`])}</select>
+        </div>
+        <div class="field"><label>Categoria</label>
+          <select name="categoria_id"><option value="">--</option>${opt(cats,'id','nome',titulo?.categoria_id)}</select>
+        </div>
+        <div class="field"><label>Centro de Custo</label>
+          <select name="centro_custo_id"><option value="">--</option>${opt(state.centros,'id','nome',titulo?.centro_custo_id)}</select>
+        </div>
+        <div class="field"><label>Plano de Conta</label>
+          <select name="plano_conta_id"><option value="">--</option>${state.plano.filter(p=>p.natureza==='analitica').map(p=>`<option value="${p.id}" ${titulo?.plano_conta_id===p.id?'selected':''}>${p.codigo} - ${escapeHtml(p.nome)}</option>`).join('')}</select>
+        </div>
+        <div class="field"><label>Conta Bancaria (provavel)</label>
+          <select name="conta_bancaria_id"><option value="">--</option>${opt(state.bancos,'id','nome',titulo?.conta_bancaria_id)}</select>
+        </div>
+        <div class="field"><label>Emissao</label><input name="emissao" type="date" value="${titulo?.emissao||today()}"></div>
+        <div class="field"><label>Vencimento*</label><input name="vencimento" type="date" required value="${titulo?.vencimento||today()}"></div>
+        <div class="field"><label>Numero do Documento</label><input name="numero_documento" value="${escapeHtml(titulo?.numero_documento||'')}"></div>
+        <div class="field"><label>${isCP?'Forma de Pagamento':'Forma de Recebimento'}</label>
+          <select name="${isCP?'forma_pagamento':'forma_recebimento'}">
+            <option value="">--</option>
+            ${['pix','boleto','transferencia','cartao','dinheiro','cheque'].map(o=>`<option value="${o}" ${titulo?.[isCP?'forma_pagamento':'forma_recebimento']===o?'selected':''}>${o.charAt(0).toUpperCase()+o.slice(1)}</option>`).join('')}
+          </select>
+        </div>
+        ${!id?`
+        <div class="field"><label>Numero de Parcelas</label><input name="total_parcelas" type="number" min="1" max="60" value="1"></div>
+        <div class="field"><label>Recorrencia</label>
+          <select name="recorrencia">
+            <option value="nenhuma">Sem recorrencia</option>
+            <option value="mensal">Mensal</option>
+            <option value="bimestral">Bimestral</option>
+            <option value="trimestral">Trimestral</option>
+            <option value="semestral">Semestral</option>
+            <option value="anual">Anual</option>
+          </select>
+        </div>`:''}
+        <div class="field full"><label>Observacoes</label><textarea name="observacoes">${escapeHtml(titulo?.observacoes||'')}</textarea></div>
+      </form>
+    </div>
+    <div class="modal-footer">
+      <button class="btn" onclick="closeModal()">Cancelar</button>
+      <button class="btn btn-primary" onclick="saveTitulo('${modo}','${id||''}')"><span class="material-symbols-outlined">save</span>Salvar</button>
+    </div>`;
+  openModal(html, { wide:true });
+}
+
+async function saveTitulo(modo, id) {
+  const form = document.getElementById('formTitulo');
+  const data = Object.fromEntries(new FormData(form));
+  if (data.valor) data.valor = Number(data.valor);
+  if (data.total_parcelas) data.total_parcelas = Number(data.total_parcelas);
+  try {
+    if (id) await api(`/api/erp/contas-${modo}/${id}`, { method:'PATCH', body:JSON.stringify(data) });
+    else await api(`/api/erp/contas-${modo}`, { method:'POST', body:JSON.stringify(data) });
+    closeModal();
+    toast('Titulo salvo','success');
+    render();
+  } catch (e) { toast(e.message,'error'); }
+}
+
+async function deleteTitulo(modo, id) {
+  if (!await confirmAction('Excluir este titulo? Pagamentos vinculados tambem serao removidos.')) return;
+  try {
+    await api(`/api/erp/contas-${modo}/${id}`, { method:'DELETE' });
+    toast('Titulo excluido','success');
+    render();
+  } catch (e) { toast(e.message,'error'); }
+}
+
+function openPagamento(modo, id) {
+  const isCP = modo === 'pagar';
+  const titulo = (isCP?state.cp:state.cr).find(t => t.id === id);
+  if (!titulo) return;
+  const restante = Number(titulo.valor||0) - Number(titulo.desconto||0) + Number(titulo.juros||0) + Number(titulo.multa||0) - Number(isCP?titulo.valor_pago||0:titulo.valor_recebido||0);
+  const opt = (arr, sel) => arr.map(a => `<option value="${a.id}" ${sel===a.id?'selected':''}>${escapeHtml(a.nome)}</option>`).join('');
+  const html = `
+    <div class="modal-header"><div class="modal-title">${isCP?'Registrar Pagamento':'Registrar Recebimento'}</div><button class="icon-btn" onclick="closeModal()"><span class="material-symbols-outlined">close</span></button></div>
+    <div class="modal-body">
+      <div class="card" style="background:var(--s2);margin-bottom:14px">
+        <div style="font-size:13px;font-weight:600;margin-bottom:4px">${escapeHtml(titulo.descricao)}</div>
+        <div style="display:flex;gap:18px;font-size:11px;color:var(--text3)">
+          <div>Valor: <span class="money">${fmtBRL(titulo.valor)}</span></div>
+          <div>Restante: <span class="money ${isCP?'negative':'positive'}">${fmtBRL(restante)}</span></div>
+          <div>Venc: ${fmtDate(titulo.vencimento)}</div>
+        </div>
+      </div>
+      <form id="formPgto" class="form-grid">
+        <div class="field"><label>Valor ${isCP?'Pago':'Recebido'}*</label><input name="valor" type="number" step="0.01" min="0.01" max="${restante.toFixed(2)}" required value="${restante.toFixed(2)}"></div>
+        <div class="field"><label>Data*</label><input name="${isCP?'data_pagamento':'data_recebimento'}" type="date" required value="${today()}"></div>
+        <div class="field full"><label>Conta Bancaria*</label>
+          <select name="conta_bancaria_id" required><option value="">--</option>${opt(state.bancos, titulo.conta_bancaria_id)}</select>
+        </div>
+        <div class="field"><label>Juros</label><input name="juros" type="number" step="0.01" min="0" value="0"></div>
+        <div class="field"><label>Multa</label><input name="multa" type="number" step="0.01" min="0" value="0"></div>
+        <div class="field"><label>Desconto</label><input name="desconto" type="number" step="0.01" min="0" value="0"></div>
+        <div class="field"><label>${isCP?'Forma de Pagamento':'Forma de Recebimento'}</label>
+          <select name="${isCP?'forma_pagamento':'forma_recebimento'}">
+            ${['pix','boleto','transferencia','cartao','dinheiro','cheque'].map(o=>`<option value="${o}">${o.charAt(0).toUpperCase()+o.slice(1)}</option>`).join('')}
+          </select>
+        </div>
+        <div class="field full"><label>Observacoes</label><textarea name="observacoes"></textarea></div>
+      </form>
+    </div>
+    <div class="modal-footer">
+      <button class="btn" onclick="closeModal()">Cancelar</button>
+      <button class="btn btn-success" onclick="confirmarPagamento('${modo}','${id}')"><span class="material-symbols-outlined">check</span>Confirmar</button>
+    </div>`;
+  openModal(html, { wide:true });
+}
+
+async function confirmarPagamento(modo, id) {
+  const form = document.getElementById('formPgto');
+  const data = Object.fromEntries(new FormData(form));
+  ['valor','juros','multa','desconto'].forEach(k => { if (data[k]) data[k] = Number(data[k]); });
+  try {
+    await api(`/api/erp/contas-${modo}/${id}/${modo==='pagar'?'pagar':'receber'}`, { method:'POST', body:JSON.stringify(data) });
+    closeModal();
+    toast(`${modo==='pagar'?'Pagamento':'Recebimento'} registrado`,'success');
+    render();
+  } catch (e) { toast(e.message,'error'); }
+}
+
+function openNovoTitulo() {
+  // escolhe a pagar ou a receber
+  const html = `
+    <div class="modal-header"><div class="modal-title">Novo Titulo</div><button class="icon-btn" onclick="closeModal()"><span class="material-symbols-outlined">close</span></button></div>
+    <div class="modal-body" style="display:flex;gap:14px">
+      <button class="card" style="flex:1;cursor:pointer;text-align:left;border-color:var(--border)" onclick="closeModal();openTitulo('pagar')">
+        <div class="kpi-icon" style="background:var(--red-bg);color:var(--red)"><span class="material-symbols-outlined">payments</span></div>
+        <div style="font-size:14px;font-weight:600;margin-top:8px">Conta a Pagar</div>
+        <div style="font-size:11px;color:var(--text3);margin-top:4px">Despesas, fornecedores, obrigacoes</div>
+      </button>
+      <button class="card" style="flex:1;cursor:pointer;text-align:left;border-color:var(--border)" onclick="closeModal();openTitulo('receber')">
+        <div class="kpi-icon" style="background:var(--olive-bg);color:var(--olive)"><span class="material-symbols-outlined">request_quote</span></div>
+        <div style="font-size:14px;font-weight:600;margin-top:8px">Conta a Receber</div>
+        <div style="font-size:11px;color:var(--text3);margin-top:4px">Receitas, clientes, vendas</div>
+      </button>
+    </div>`;
+  openModal(html);
+}
+
+/* ==========================================================================
+   PAGE: CONTAS BANCARIAS
+   ========================================================================== */
+async function renderBancos() {
+  const bancos = state.bancos;
+  const total = bancos.reduce((s,b) => s + Number(b.saldo_atual||0), 0);
+  const html = `
+    <div class="page-header">
+      <div><div class="page-title">Contas Bancarias <small>${bancos.length} contas</small></div></div>
+      <div class="page-actions">
+        <button class="btn" onclick="openTransferencia()"><span class="material-symbols-outlined">swap_horiz</span>Transferencia</button>
+        <button class="btn" onclick="openMovimento()"><span class="material-symbols-outlined">add_circle</span>Lancamento Avulso</button>
+        <button class="btn btn-primary" onclick="openBanco()"><span class="material-symbols-outlined">add</span>Nova Conta</button>
+      </div>
+    </div>
+
+    <div class="kpi-grid">
+      <div class="kpi success">
+        <div class="kpi-icon"><span class="material-symbols-outlined">account_balance_wallet</span></div>
+        <div class="kpi-label">Saldo Total</div>
+        <div class="kpi-value money ${total>=0?'positive':'negative'}">${fmtBRL(total)}</div>
+      </div>
+    </div>
+
+    <div class="table-wrap">
+      ${bancos.length === 0 ? '<div class="empty"><span class="material-symbols-outlined">account_balance</span><h3>Nenhuma conta cadastrada</h3></div>' : `
+      <table>
+        <thead><tr><th>Nome</th><th>Banco</th><th>Agencia/Conta</th><th>Tipo</th><th style="text-align:right">Saldo Inicial</th><th style="text-align:right">Saldo Atual</th><th></th></tr></thead>
+        <tbody>
+          ${bancos.map(b => `
+          <tr>
+            <td><span class="chip-dot" style="background:${b.cor};display:inline-block;margin-right:8px"></span><strong>${escapeHtml(b.nome)}</strong></td>
+            <td>${escapeHtml(b.banco||'--')}</td>
+            <td>${escapeHtml((b.agencia||'')+(b.agencia&&b.conta?'/':'')+(b.conta||'')) || '--'}</td>
+            <td><span class="chip muted">${escapeHtml(b.tipo)}</span></td>
+            <td style="text-align:right" class="money">${fmtBRL(b.saldo_inicial)}</td>
+            <td style="text-align:right" class="money ${Number(b.saldo_atual)>=0?'positive':'negative'}">${fmtBRL(b.saldo_atual)}</td>
+            <td><div class="row-actions">
+              <button class="icon-btn" onclick="openBanco('${b.id}')"><span class="material-symbols-outlined">edit</span></button>
+              <button class="icon-btn" onclick="deleteBanco('${b.id}')"><span class="material-symbols-outlined">delete</span></button>
+            </div></td>
+          </tr>`).join('')}
+        </tbody>
+      </table>`}
+    </div>
+
+    <div class="card" style="margin-top:18px">
+      <div class="card-title"><span class="material-symbols-outlined">receipt_long</span>Movimentacoes Recentes</div>
+      <div id="movimentosLista"><div class="empty"><div class="spinner"></div></div></div>
+    </div>
+  `;
+  document.getElementById('page').innerHTML = html;
+  // carrega movimentos
+  try {
+    const m = await api('/api/erp/movimentos');
+    state.movimentos = m;
+    document.getElementById('movimentosLista').innerHTML = movimentosTable(m, false);
+  } catch (e) { document.getElementById('movimentosLista').innerHTML = `<div class="empty"><p>${escapeHtml(e.message)}</p></div>`; }
+}
+
+function movimentosTable(list, showConciliacao=false) {
+  if (!list.length) return '<div class="empty"><p>Sem movimentos</p></div>';
+  return `<table style="width:100%">
+    <thead><tr><th>Data</th><th>Conta</th><th>Descricao</th><th>Categoria</th><th style="text-align:right">Valor</th>${showConciliacao?'<th>Conciliado</th>':''}<th></th></tr></thead>
+    <tbody>
+      ${list.slice(0,80).map(m => `
+      <tr>
+        <td>${fmtDate(m.data)}</td>
+        <td><span class="chip-dot" style="background:${m.conta?.cor||'#888'};display:inline-block;margin-right:6px"></span>${escapeHtml(m.conta?.nome||'')}</td>
+        <td>${escapeHtml(m.descricao)}</td>
+        <td>${m.categoria?`<span class="chip" style="background:${m.categoria.cor}22;color:${m.categoria.cor}">${escapeHtml(m.categoria.nome)}</span>`:'--'}</td>
+        <td style="text-align:right" class="money ${m.tipo==='entrada'?'positive':'negative'}">${m.tipo==='entrada'?'+':'-'} ${fmtBRL(m.valor)}</td>
+        ${showConciliacao?`<td><label class="field-checkbox"><input type="checkbox" ${m.conciliado?'checked':''} onchange="toggleConciliacao('${m.id}',this.checked)"><span>${m.conciliado?'Sim':'Nao'}</span></label></td>`:''}
+        <td><div class="row-actions">
+          <button class="icon-btn" onclick="deleteMovimento('${m.id}')"><span class="material-symbols-outlined">delete</span></button>
+        </div></td>
+      </tr>`).join('')}
+    </tbody></table>`;
+}
+
+function openBanco(id) {
+  const b = id ? state.bancos.find(x => x.id === id) : null;
+  const html = `
+    <div class="modal-header"><div class="modal-title">${id?'Editar':'Nova'} Conta Bancaria</div><button class="icon-btn" onclick="closeModal()"><span class="material-symbols-outlined">close</span></button></div>
+    <div class="modal-body">
+      <form id="formBanco" class="form-grid">
+        <div class="field full"><label>Nome*</label><input name="nome" required value="${escapeHtml(b?.nome||'')}"></div>
+        <div class="field"><label>Banco</label><input name="banco" value="${escapeHtml(b?.banco||'')}"></div>
+        <div class="field"><label>Tipo</label>
+          <select name="tipo">
+            ${['corrente','poupanca','caixa','investimento','aplicacao'].map(o=>`<option value="${o}" ${b?.tipo===o?'selected':''}>${o.charAt(0).toUpperCase()+o.slice(1)}</option>`).join('')}
+          </select>
+        </div>
+        <div class="field"><label>Agencia</label><input name="agencia" value="${escapeHtml(b?.agencia||'')}"></div>
+        <div class="field"><label>Conta</label><input name="conta" value="${escapeHtml(b?.conta||'')}"></div>
+        <div class="field"><label>Saldo Inicial</label><input name="saldo_inicial" type="number" step="0.01" value="${b?.saldo_inicial||0}"></div>
+        <div class="field"><label>Cor</label><input name="cor" type="color" value="${b?.cor||'#4A8FBF'}"></div>
+        <div class="field full"><label>Observacoes</label><textarea name="observacoes">${escapeHtml(b?.observacoes||'')}</textarea></div>
+      </form>
+    </div>
+    <div class="modal-footer">
+      <button class="btn" onclick="closeModal()">Cancelar</button>
+      <button class="btn btn-primary" onclick="saveBanco('${id||''}')"><span class="material-symbols-outlined">save</span>Salvar</button>
+    </div>`;
+  openModal(html);
+}
+
+async function saveBanco(id) {
+  const data = Object.fromEntries(new FormData(document.getElementById('formBanco')));
+  if (data.saldo_inicial) data.saldo_inicial = Number(data.saldo_inicial);
+  try {
+    if (id) await api(`/api/erp/contas-bancarias/${id}`, { method:'PATCH', body:JSON.stringify(data) });
+    else await api('/api/erp/contas-bancarias', { method:'POST', body:JSON.stringify(data) });
+    closeModal(); toast('Conta salva','success'); render();
+  } catch (e) { toast(e.message,'error'); }
+}
+
+async function deleteBanco(id) {
+  if (!await confirmAction('Excluir esta conta? Movimentos vinculados serao removidos.')) return;
+  try { await api(`/api/erp/contas-bancarias/${id}`, { method:'DELETE' }); toast('Conta excluida','success'); render(); }
+  catch (e) { toast(e.message,'error'); }
+}
+
+function openTransferencia() {
+  const opt = (sel) => state.bancos.map(b => `<option value="${b.id}" ${sel===b.id?'selected':''}>${escapeHtml(b.nome)}</option>`).join('');
+  const html = `
+    <div class="modal-header"><div class="modal-title">Transferencia Entre Contas</div><button class="icon-btn" onclick="closeModal()"><span class="material-symbols-outlined">close</span></button></div>
+    <div class="modal-body">
+      <form id="formTransf" class="form-grid">
+        <div class="field"><label>Origem*</label><select name="origem_id" required>${opt()}</select></div>
+        <div class="field"><label>Destino*</label><select name="destino_id" required>${opt()}</select></div>
+        <div class="field"><label>Valor*</label><input name="valor" type="number" step="0.01" min="0.01" required></div>
+        <div class="field"><label>Data</label><input name="data" type="date" value="${today()}"></div>
+        <div class="field full"><label>Descricao</label><input name="descricao" placeholder="Transferencia entre contas"></div>
+      </form>
+    </div>
+    <div class="modal-footer">
+      <button class="btn" onclick="closeModal()">Cancelar</button>
+      <button class="btn btn-primary" onclick="confirmarTransferencia()"><span class="material-symbols-outlined">swap_horiz</span>Transferir</button>
+    </div>`;
+  openModal(html);
+}
+async function confirmarTransferencia() {
+  const data = Object.fromEntries(new FormData(document.getElementById('formTransf')));
+  data.valor = Number(data.valor);
+  try { await api('/api/erp/movimentos/transferencia', { method:'POST', body:JSON.stringify(data) }); closeModal(); toast('Transferencia realizada','success'); render(); }
+  catch (e) { toast(e.message,'error'); }
+}
+
+function openMovimento() {
+  const opt = (arr, sel) => arr.map(a => `<option value="${a.id}" ${sel===a.id?'selected':''}>${escapeHtml(a.nome)}</option>`).join('');
+  const html = `
+    <div class="modal-header"><div class="modal-title">Lancamento Avulso</div><button class="icon-btn" onclick="closeModal()"><span class="material-symbols-outlined">close</span></button></div>
+    <div class="modal-body">
+      <form id="formMov" class="form-grid">
+        <div class="field"><label>Tipo*</label>
+          <select name="tipo" required onchange="document.getElementById('movCatSel').innerHTML = filterCats(this.value)">
+            <option value="entrada">Entrada</option>
+            <option value="saida">Saida</option>
+          </select>
+        </div>
+        <div class="field"><label>Conta*</label><select name="conta_bancaria_id" required>${opt(state.bancos)}</select></div>
+        <div class="field"><label>Data*</label><input name="data" type="date" required value="${today()}"></div>
+        <div class="field"><label>Valor*</label><input name="valor" type="number" step="0.01" min="0.01" required></div>
+        <div class="field full"><label>Descricao*</label><input name="descricao" required></div>
+        <div class="field"><label>Categoria</label><select name="categoria_id" id="movCatSel">${filterCats('entrada')}</select></div>
+        <div class="field"><label>Centro de Custo</label><select name="centro_custo_id"><option value="">--</option>${opt(state.centros)}</select></div>
+        <div class="field full"><label>Observacoes</label><textarea name="observacoes"></textarea></div>
+      </form>
+    </div>
+    <div class="modal-footer">
+      <button class="btn" onclick="closeModal()">Cancelar</button>
+      <button class="btn btn-primary" onclick="saveMovimento()"><span class="material-symbols-outlined">save</span>Lancar</button>
+    </div>`;
+  openModal(html);
+}
+function filterCats(tipo) {
+  return '<option value="">--</option>' + state.categorias.filter(c => c.tipo === tipo).map(c => `<option value="${c.id}">${escapeHtml(c.nome)}</option>`).join('');
+}
+async function saveMovimento() {
+  const data = Object.fromEntries(new FormData(document.getElementById('formMov')));
+  data.valor = Number(data.valor);
+  try { await api('/api/erp/movimentos', { method:'POST', body:JSON.stringify(data) }); closeModal(); toast('Movimento lancado','success'); render(); }
+  catch (e) { toast(e.message,'error'); }
+}
+async function deleteMovimento(id) {
+  if (!await confirmAction('Excluir este movimento?')) return;
+  try { await api(`/api/erp/movimentos/${id}`, { method:'DELETE' }); toast('Movimento excluido','success'); render(); }
+  catch (e) { toast(e.message,'error'); }
+}
+
+/* ==========================================================================
+   PAGE: CONCILIACAO BANCARIA
+   ========================================================================== */
+async function renderConciliacao() {
+  const params = new URLSearchParams();
+  if (state.filters.conta) params.set('conta_bancaria_id', state.filters.conta);
+  if (state.filters.conciliado) params.set('conciliado', state.filters.conciliado);
+  const movs = await api(`/api/erp/movimentos?${params.toString()}`);
+  state.movimentos = movs;
+  const naoConciliados = movs.filter(m => !m.conciliado);
+  const conciliados = movs.filter(m => m.conciliado);
+  const totalNC = naoConciliados.reduce((s,m) => s + Number(m.valor||0)*(m.tipo==='entrada'?1:-1), 0);
+
+  const html = `
+    <div class="page-header">
+      <div><div class="page-title">Conciliacao Bancaria <small>${naoConciliados.length} pendentes / ${conciliados.length} ok</small></div></div>
+      <div class="page-actions">
+        <button class="btn" onclick="conciliarTodos()"><span class="material-symbols-outlined">done_all</span>Marcar Todos</button>
+      </div>
+    </div>
+
+    <div class="kpi-grid">
+      <div class="kpi warn">
+        <div class="kpi-icon"><span class="material-symbols-outlined">hourglass</span></div>
+        <div class="kpi-label">Movimentos Nao Conciliados</div>
+        <div class="kpi-value">${naoConciliados.length}</div>
+        <div class="kpi-sub">Saldo: ${fmtBRL(totalNC)}</div>
+      </div>
+      <div class="kpi success">
+        <div class="kpi-icon"><span class="material-symbols-outlined">check_circle</span></div>
+        <div class="kpi-label">Movimentos Conciliados</div>
+        <div class="kpi-value">${conciliados.length}</div>
+      </div>
+    </div>
+
+    <div class="table-wrap">
+      <div class="table-toolbar">
+        <select class="table-filter" onchange="state.filters.conta=this.value;render()">
+          <option value="">Todas as contas</option>
+          ${state.bancos.map(b => `<option value="${b.id}" ${state.filters.conta===b.id?'selected':''}>${escapeHtml(b.nome)}</option>`).join('')}
+        </select>
+        <select class="table-filter" onchange="state.filters.conciliado=this.value;render()">
+          <option value="">Todos</option>
+          <option value="false" ${state.filters.conciliado==='false'?'selected':''}>Nao conciliados</option>
+          <option value="true" ${state.filters.conciliado==='true'?'selected':''}>Conciliados</option>
+        </select>
+      </div>
+      ${movimentosTable(movs, true)}
+    </div>
+  `;
+  document.getElementById('page').innerHTML = html;
+}
+async function toggleConciliacao(id, val) {
+  try { await api(`/api/erp/movimentos/${id}/conciliar`, { method:'POST', body:JSON.stringify({ conciliado:val }) }); toast('Atualizado','success'); }
+  catch (e) { toast(e.message,'error'); render(); }
+}
+async function conciliarTodos() {
+  if (!await confirmAction('Marcar todos os movimentos visiveis como conciliados?')) return;
+  const ids = state.movimentos.filter(m => !m.conciliado).map(m => m.id);
+  for (const id of ids) {
+    try { await api(`/api/erp/movimentos/${id}/conciliar`, { method:'POST', body:JSON.stringify({ conciliado:true }) }); } catch(_) {}
+  }
+  toast('Movimentos conciliados','success');
+  render();
+}
+
+/* ==========================================================================
+   PAGE: LANCAMENTOS CONTABEIS
+   ========================================================================== */
+async function renderLancamentos() {
+  const list = await api('/api/erp/lancamentos');
+  state.lancamentos = list;
+  const html = `
+    <div class="page-header">
+      <div><div class="page-title">Lancamentos Contabeis <small>${list.length} lancamentos</small></div></div>
+      <div class="page-actions">
+        <button class="btn btn-primary" onclick="openLancamento()"><span class="material-symbols-outlined">add</span>Novo Lancamento</button>
+      </div>
+    </div>
+    <div class="table-wrap">
+      ${list.length === 0 ? '<div class="empty"><span class="material-symbols-outlined">edit_note</span><h3>Nenhum lancamento</h3></div>' : `
+      <table>
+        <thead><tr><th>N°</th><th>Data</th><th>Historico</th><th>Origem</th><th style="text-align:right">Valor</th><th>Status</th><th></th></tr></thead>
+        <tbody>
+          ${list.map(l => `
+          <tr>
+            <td><strong>${l.numero}</strong></td>
+            <td>${fmtDate(l.data)}</td>
+            <td>${escapeHtml(l.historico)}<div style="font-size:10px;color:var(--text3);margin-top:3px">${(l.partidas||[]).length} partidas</div></td>
+            <td><span class="chip muted">${escapeHtml(l.origem)}</span></td>
+            <td style="text-align:right" class="money">${fmtBRL(l.valor_total)}</td>
+            <td>${l.status==='estornado'?'<span class="chip danger">Estornado</span>':'<span class="chip success">Ativo</span>'}</td>
+            <td><div class="row-actions">
+              <button class="icon-btn" onclick="verLancamento('${l.id}')"><span class="material-symbols-outlined">visibility</span></button>
+              ${l.status==='ativo'?`<button class="icon-btn" onclick="estornarLancamento('${l.id}')"><span class="material-symbols-outlined">undo</span></button>`:''}
+            </div></td>
+          </tr>`).join('')}
+        </tbody>
+      </table>`}
+    </div>
+  `;
+  document.getElementById('page').innerHTML = html;
+}
+
+function openLancamento() {
+  const planoOpts = state.plano.filter(p => p.natureza === 'analitica').map(p => `<option value="${p.id}">${p.codigo} - ${escapeHtml(p.nome)}</option>`).join('');
+  const centroOpts = `<option value="">--</option>` + state.centros.map(c => `<option value="${c.id}">${c.codigo} - ${escapeHtml(c.nome)}</option>`).join('');
+  const partidaRow = (n=0) => `
+    <tr class="partida-row">
+      <td><select class="partida-conta"><option value="">Selecione...</option>${planoOpts}</select></td>
+      <td><select class="partida-centro">${centroOpts}</select></td>
+      <td><select class="partida-natureza"><option value="debito">Debito</option><option value="credito">Credito</option></select></td>
+      <td><input type="number" step="0.01" min="0" class="partida-valor" oninput="updateLancTotais()" style="width:120px;text-align:right" value="0"></td>
+      <td><input type="text" class="partida-hist" placeholder="historico (opcional)"></td>
+      <td><button class="icon-btn" onclick="this.closest('tr').remove();updateLancTotais()"><span class="material-symbols-outlined">close</span></button></td>
+    </tr>`;
+  const html = `
+    <div class="modal-header"><div class="modal-title">Novo Lancamento Contabil</div><button class="icon-btn" onclick="closeModal()"><span class="material-symbols-outlined">close</span></button></div>
+    <div class="modal-body">
+      <form id="formLanc" class="form-grid">
+        <div class="field"><label>Data*</label><input name="data" type="date" required value="${today()}"></div>
+        <div class="field"><label>Documento</label><input name="documento"></div>
+        <div class="field full"><label>Historico*</label><input name="historico" required></div>
+      </form>
+      <div style="margin-top:14px">
+        <div style="display:flex;justify-content:space-between;margin-bottom:8px"><div style="font-size:11px;text-transform:uppercase;color:var(--text3);letter-spacing:0.8px">Partidas</div><button class="btn btn-sm" onclick="document.getElementById('partidasBody').insertAdjacentHTML('beforeend', window._partidaRow());updateLancTotais()"><span class="material-symbols-outlined">add</span>Linha</button></div>
+        <table class="partidas-table" style="width:100%">
+          <thead><tr><th style="width:32%">Conta</th><th style="width:20%">C.Custo</th><th style="width:13%">Natureza</th><th style="width:14%;text-align:right">Valor</th><th>Historico</th><th></th></tr></thead>
+          <tbody id="partidasBody">${partidaRow()}${partidaRow()}</tbody>
+        </table>
+        <div id="lancTotais" style="display:flex;gap:18px;margin-top:12px;justify-content:flex-end;font-size:12px"></div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn" onclick="closeModal()">Cancelar</button>
+      <button class="btn btn-primary" onclick="saveLancamento()"><span class="material-symbols-outlined">save</span>Salvar</button>
+    </div>`;
+  openModal(html, { wide:true });
+  window._partidaRow = partidaRow;
+  updateLancTotais();
+}
+function updateLancTotais() {
+  let d = 0, c = 0;
+  document.querySelectorAll('#partidasBody .partida-row').forEach(r => {
+    const v = Number(r.querySelector('.partida-valor').value||0);
+    const n = r.querySelector('.partida-natureza').value;
+    if (n === 'debito') d += v; else c += v;
+  });
+  const diff = Math.abs(d - c);
+  document.getElementById('lancTotais').innerHTML = `
+    <div>Debitos: <strong class="money negative">${fmtBRL(d)}</strong></div>
+    <div>Creditos: <strong class="money positive">${fmtBRL(c)}</strong></div>
+    <div>Diferenca: <strong class="${diff<0.005?'money positive':'money negative'}">${fmtBRL(diff)}</strong></div>
+  `;
+}
+async function saveLancamento() {
+  const form = document.getElementById('formLanc');
+  const f = Object.fromEntries(new FormData(form));
+  const partidas = [];
+  document.querySelectorAll('#partidasBody .partida-row').forEach(r => {
+    const plano_conta_id = r.querySelector('.partida-conta').value;
+    const centro_custo_id = r.querySelector('.partida-centro').value || null;
+    const natureza = r.querySelector('.partida-natureza').value;
+    const valor = Number(r.querySelector('.partida-valor').value||0);
+    const historico_complementar = r.querySelector('.partida-hist').value;
+    if (plano_conta_id && valor > 0) partidas.push({ plano_conta_id, centro_custo_id, natureza, valor, historico_complementar });
+  });
+  if (partidas.length < 2) { toast('Adicione ao menos 2 partidas','error'); return; }
+  try {
+    await api('/api/erp/lancamentos', { method:'POST', body:JSON.stringify({ ...f, partidas }) });
+    closeModal(); toast('Lancamento criado','success'); render();
+  } catch (e) { toast(e.message,'error'); }
+}
+
+async function verLancamento(id) {
+  try {
+    const l = await api(`/api/erp/lancamentos/${id}`);
+    const partidas = (l.partidas||[]).map(p => `
+      <tr><td>${p.plano_conta?.codigo||'--'} ${escapeHtml(p.plano_conta?.nome||'')}</td>
+      <td>${escapeHtml(p.centro?.nome||'--')}</td>
+      <td>${p.natureza==='debito'?'<span class="chip danger">Debito</span>':'<span class="chip success">Credito</span>'}</td>
+      <td style="text-align:right" class="money">${fmtBRL(p.valor)}</td></tr>`).join('');
+    openModal(`
+      <div class="modal-header"><div class="modal-title">Lancamento N° ${l.numero}</div><button class="icon-btn" onclick="closeModal()"><span class="material-symbols-outlined">close</span></button></div>
+      <div class="modal-body">
+        <div class="form-grid">
+          <div class="field"><label>Data</label><div>${fmtDate(l.data)}</div></div>
+          <div class="field"><label>Valor Total</label><div class="money">${fmtBRL(l.valor_total)}</div></div>
+          <div class="field full"><label>Historico</label><div>${escapeHtml(l.historico)}</div></div>
+        </div>
+        <table class="partidas-table" style="width:100%;margin-top:14px"><thead><tr><th>Conta</th><th>C.Custo</th><th>Natureza</th><th style="text-align:right">Valor</th></tr></thead><tbody>${partidas}</tbody></table>
+      </div>
+      <div class="modal-footer"><button class="btn" onclick="closeModal()">Fechar</button></div>`, { wide:true });
+  } catch (e) { toast(e.message,'error'); }
+}
+async function estornarLancamento(id) {
+  if (!await confirmAction('Estornar este lancamento? Ele deixara de afetar relatorios.')) return;
+  try { await api(`/api/erp/lancamentos/${id}`, { method:'DELETE' }); toast('Lancamento estornado','success'); render(); }
+  catch (e) { toast(e.message,'error'); }
+}
+
+/* ==========================================================================
+   PAGE: PLANO DE CONTAS
+   ========================================================================== */
+function renderPlano() {
+  const tree = buildTree(state.plano);
+  const html = `
+    <div class="page-header">
+      <div><div class="page-title">Plano de Contas <small>${state.plano.length} contas</small></div></div>
+      <div class="page-actions">
+        <button class="btn btn-primary" onclick="openConta()"><span class="material-symbols-outlined">add</span>Nova Conta</button>
+      </div>
+    </div>
+    <div class="card" style="padding:0">
+      <div class="tree">${renderTree(tree, 0)}</div>
+    </div>
+  `;
+  document.getElementById('page').innerHTML = html;
+}
+function buildTree(list) {
+  const map = {};
+  list.forEach(c => { map[c.id] = { ...c, children:[] }; });
+  const roots = [];
+  list.forEach(c => {
+    if (c.parent_id && map[c.parent_id]) map[c.parent_id].children.push(map[c.id]);
+    else roots.push(map[c.id]);
+  });
+  const sortRec = (arr) => { arr.sort((a,b)=>a.codigo.localeCompare(b.codigo)); arr.forEach(x=>sortRec(x.children)); };
+  sortRec(roots);
+  return roots;
+}
+function renderTree(arr, depth) {
+  return arr.map(c => `
+    <div class="tree-node">
+      <div class="tree-toggle ${c.children.length?'':'empty'}">${c.children.length?'▸':''}</div>
+      <div class="tree-codigo">${c.codigo}</div>
+      <div class="tree-nome">${escapeHtml(c.nome)}</div>
+      <span class="chip ${c.tipo==='ativo'?'success':c.tipo==='passivo'?'danger':c.tipo==='patrimonio'?'purple':c.tipo==='receita'?'info':c.tipo==='despesa'?'warn':'muted'}">${c.tipo}</span>
+      <span class="chip muted">${c.natureza}</span>
+      <div class="row-actions">
+        <button class="icon-btn" onclick="openConta('${c.id}')"><span class="material-symbols-outlined">edit</span></button>
+        <button class="icon-btn" onclick="deleteConta('${c.id}')"><span class="material-symbols-outlined">delete</span></button>
+      </div>
+    </div>
+    ${c.children.length?`<div class="tree-children">${renderTree(c.children, depth+1)}</div>`:''}
+  `).join('');
+}
+
+function openConta(id) {
+  const c = id ? state.plano.find(x => x.id === id) : null;
+  const parentOpts = `<option value="">--Raiz--</option>` + state.plano.filter(p => p.natureza === 'sintetica').map(p => `<option value="${p.id}" ${c?.parent_id===p.id?'selected':''}>${p.codigo} - ${escapeHtml(p.nome)}</option>`).join('');
+  const html = `
+    <div class="modal-header"><div class="modal-title">${id?'Editar':'Nova'} Conta Contabil</div><button class="icon-btn" onclick="closeModal()"><span class="material-symbols-outlined">close</span></button></div>
+    <div class="modal-body">
+      <form id="formConta" class="form-grid">
+        <div class="field"><label>Codigo*</label><input name="codigo" required value="${escapeHtml(c?.codigo||'')}"></div>
+        <div class="field"><label>Nome*</label><input name="nome" required value="${escapeHtml(c?.nome||'')}"></div>
+        <div class="field"><label>Tipo*</label>
+          <select name="tipo" required>
+            ${['ativo','passivo','patrimonio','receita','despesa'].map(o=>`<option value="${o}" ${c?.tipo===o?'selected':''}>${o}</option>`).join('')}
+          </select>
+        </div>
+        <div class="field"><label>Natureza*</label>
+          <select name="natureza" required>
+            <option value="analitica" ${c?.natureza==='analitica'?'selected':''}>Analitica</option>
+            <option value="sintetica" ${c?.natureza==='sintetica'?'selected':''}>Sintetica</option>
+          </select>
+        </div>
+        <div class="field full"><label>Conta Pai</label><select name="parent_id">${parentOpts}</select></div>
+        <div class="field"><label>Grupo DRE</label>
+          <select name="dre_grupo">
+            <option value="">--</option>
+            ${['receita_bruta','deducao','custo','despesa_op','desp_fin','rec_fin','outros'].map(o=>`<option value="${o}" ${c?.dre_grupo===o?'selected':''}>${o}</option>`).join('')}
+          </select>
+        </div>
+      </form>
+    </div>
+    <div class="modal-footer">
+      <button class="btn" onclick="closeModal()">Cancelar</button>
+      <button class="btn btn-primary" onclick="saveConta('${id||''}')"><span class="material-symbols-outlined">save</span>Salvar</button>
+    </div>`;
+  openModal(html);
+}
+async function saveConta(id) {
+  const data = Object.fromEntries(new FormData(document.getElementById('formConta')));
+  if (!data.parent_id) data.parent_id = null;
+  try {
+    if (id) await api(`/api/erp/plano-contas/${id}`, { method:'PATCH', body:JSON.stringify(data) });
+    else await api('/api/erp/plano-contas', { method:'POST', body:JSON.stringify(data) });
+    closeModal(); toast('Conta salva','success'); render();
+  } catch (e) { toast(e.message,'error'); }
+}
+async function deleteConta(id) {
+  if (!await confirmAction('Excluir esta conta? Lancamentos vinculados podem ficar orfaos.')) return;
+  try { await api(`/api/erp/plano-contas/${id}`, { method:'DELETE' }); toast('Conta excluida','success'); render(); }
+  catch (e) { toast(e.message,'error'); }
+}
+
+/* ==========================================================================
+   PAGE: DRE
+   ========================================================================== */
+async function renderDRE() {
+  const inicio = new Date(); inicio.setDate(1);
+  const fim = new Date(inicio.getFullYear(), inicio.getMonth()+1, 0);
+  const from = state.filters.dreFrom || inicio.toISOString().slice(0,10);
+  const to = state.filters.dreTo || fim.toISOString().slice(0,10);
+  const regime = state.filters.dreRegime || 'caixa';
+  const d = await api(`/api/erp/dre?from=${from}&to=${to}&regime=${regime}`);
+
+  const html = `
+    <div class="page-header">
+      <div><div class="page-title">DRE <small>${fmtDate(from)} a ${fmtDate(to)} | regime ${regime}</small></div></div>
+      <div class="page-actions">
+        <input type="date" class="table-filter" value="${from}" onchange="state.filters.dreFrom=this.value;render()">
+        <input type="date" class="table-filter" value="${to}" onchange="state.filters.dreTo=this.value;render()">
+        <select class="table-filter" onchange="state.filters.dreRegime=this.value;render()">
+          <option value="caixa" ${regime==='caixa'?'selected':''}>Regime de Caixa</option>
+          <option value="competencia" ${regime==='competencia'?'selected':''}>Regime de Competencia</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="kpi-grid">
+      <div class="kpi success">
+        <div class="kpi-icon"><span class="material-symbols-outlined">trending_up</span></div>
+        <div class="kpi-label">Receitas</div>
+        <div class="kpi-value money positive">${fmtBRL(d.receitas)}</div>
+      </div>
+      <div class="kpi danger">
+        <div class="kpi-icon"><span class="material-symbols-outlined">trending_down</span></div>
+        <div class="kpi-label">Despesas</div>
+        <div class="kpi-value money negative">${fmtBRL(d.despesas)}</div>
+      </div>
+      <div class="kpi ${d.resultado>=0?'success':'danger'}">
+        <div class="kpi-icon"><span class="material-symbols-outlined">monitoring</span></div>
+        <div class="kpi-label">Resultado</div>
+        <div class="kpi-value money ${d.resultado>=0?'positive':'negative'}">${fmtBRL(d.resultado)}</div>
+      </div>
+      <div class="kpi info">
+        <div class="kpi-icon"><span class="material-symbols-outlined">percent</span></div>
+        <div class="kpi-label">Margem</div>
+        <div class="kpi-value">${(d.margem*100).toFixed(1)}%</div>
+      </div>
+    </div>
+
+    <div class="grid-row" style="grid-template-columns:1fr 1fr">
+      <div class="chart-wrap">
+        <div class="chart-header"><div class="chart-title">Receitas por Categoria</div></div>
+        <div class="chart-canvas">${barChart(d.grupos_receita.slice(0,8), { color:'#6B8F5C' })}</div>
+      </div>
+      <div class="chart-wrap">
+        <div class="chart-header"><div class="chart-title">Despesas por Categoria</div></div>
+        <div class="chart-canvas">${barChart(d.grupos_despesa.slice(0,8), { color:'#C0504D' })}</div>
+      </div>
+    </div>
+
+    <div class="grid-row" style="grid-template-columns:1fr 1fr">
+      <div class="card">
+        <div class="card-title"><span class="material-symbols-outlined">trending_up</span>Detalhe Receitas</div>
+        <table style="width:100%">
+          ${d.grupos_receita.map(g => `<tr><td style="padding:7px 0;border-bottom:1px solid var(--border)">${escapeHtml(g.nome)}</td><td style="text-align:right;padding:7px 0;border-bottom:1px solid var(--border)" class="money positive">${fmtBRL(g.valor)}</td></tr>`).join('') || '<tr><td colspan="2" style="text-align:center;color:var(--text3);padding:14px">Sem receitas no periodo</td></tr>'}
+          <tr><td style="padding:10px 0;font-weight:700">Total</td><td style="padding:10px 0;text-align:right;font-weight:700" class="money positive">${fmtBRL(d.receitas)}</td></tr>
+        </table>
+      </div>
+      <div class="card">
+        <div class="card-title"><span class="material-symbols-outlined">trending_down</span>Detalhe Despesas</div>
+        <table style="width:100%">
+          ${d.grupos_despesa.map(g => `<tr><td style="padding:7px 0;border-bottom:1px solid var(--border)">${escapeHtml(g.nome)}</td><td style="text-align:right;padding:7px 0;border-bottom:1px solid var(--border)" class="money negative">${fmtBRL(g.valor)}</td></tr>`).join('') || '<tr><td colspan="2" style="text-align:center;color:var(--text3);padding:14px">Sem despesas no periodo</td></tr>'}
+          <tr><td style="padding:10px 0;font-weight:700">Total</td><td style="padding:10px 0;text-align:right;font-weight:700" class="money negative">${fmtBRL(d.despesas)}</td></tr>
+        </table>
+      </div>
+    </div>
+  `;
+  document.getElementById('page').innerHTML = html;
+}
+
+/* ==========================================================================
+   PAGE: BALANCO
+   ========================================================================== */
+async function renderBalanco() {
+  const dataRef = state.filters.balDate || today();
+  const d = await api(`/api/erp/balanco?data=${dataRef}`);
+  const por = (tipo) => d.linhas.filter(l => l.tipo === tipo && l.natureza === 'analitica' && Math.abs(l.valor||0) > 0.005);
+  const ativo = por('ativo');
+  const passivo = por('passivo');
+  const patrimonio = por('patrimonio');
+  const totalAtivo = ativo.reduce((s,l)=>s+Number(l.valor||0),0);
+  const totalPP = passivo.concat(patrimonio).reduce((s,l)=>s+Number(l.valor||0),0);
+
+  const html = `
+    <div class="page-header">
+      <div><div class="page-title">Balanco Patrimonial <small>posicao em ${fmtDate(dataRef)}</small></div></div>
+      <div class="page-actions">
+        <input type="date" class="table-filter" value="${dataRef}" onchange="state.filters.balDate=this.value;render()">
+      </div>
+    </div>
+
+    <div class="kpi-grid">
+      <div class="kpi info">
+        <div class="kpi-icon"><span class="material-symbols-outlined">savings</span></div>
+        <div class="kpi-label">Ativo Total</div>
+        <div class="kpi-value money positive">${fmtBRL(totalAtivo)}</div>
+      </div>
+      <div class="kpi danger">
+        <div class="kpi-icon"><span class="material-symbols-outlined">credit_card</span></div>
+        <div class="kpi-label">Passivo Total</div>
+        <div class="kpi-value money negative">${fmtBRL(passivo.reduce((s,l)=>s+Number(l.valor||0),0))}</div>
+      </div>
+      <div class="kpi success">
+        <div class="kpi-icon"><span class="material-symbols-outlined">workspace_premium</span></div>
+        <div class="kpi-label">Patrimonio Liquido</div>
+        <div class="kpi-value money">${fmtBRL(patrimonio.reduce((s,l)=>s+Number(l.valor||0),0))}</div>
+      </div>
+      <div class="kpi warn">
+        <div class="kpi-icon"><span class="material-symbols-outlined">equalizer</span></div>
+        <div class="kpi-label">Resultado do Exercicio</div>
+        <div class="kpi-value money ${d.resultado>=0?'positive':'negative'}">${fmtBRL(d.resultado)}</div>
+      </div>
+    </div>
+
+    <div class="grid-row" style="grid-template-columns:1fr 1fr">
+      <div class="card">
+        <div class="card-title"><span class="material-symbols-outlined">savings</span>Ativo</div>
+        <table style="width:100%">
+          ${ativo.length ? ativo.map(l => `<tr><td style="padding:7px 0;border-bottom:1px solid var(--border)"><span style="color:var(--gold);margin-right:8px">${l.codigo}</span>${escapeHtml(l.nome)}</td><td style="text-align:right;padding:7px 0;border-bottom:1px solid var(--border)" class="money">${fmtBRL(l.valor)}</td></tr>`).join('') : '<tr><td colspan="2" style="text-align:center;color:var(--text3);padding:14px">Sem saldos</td></tr>'}
+          <tr><td style="padding:10px 0;font-weight:700">TOTAL DO ATIVO</td><td style="text-align:right;padding:10px 0;font-weight:700" class="money positive">${fmtBRL(totalAtivo)}</td></tr>
+        </table>
+      </div>
+      <div class="card">
+        <div class="card-title"><span class="material-symbols-outlined">credit_card</span>Passivo + Patrimonio</div>
+        <table style="width:100%">
+          ${passivo.length ? passivo.map(l => `<tr><td style="padding:7px 0;border-bottom:1px solid var(--border)"><span style="color:var(--red);margin-right:8px">${l.codigo}</span>${escapeHtml(l.nome)}</td><td style="text-align:right;padding:7px 0;border-bottom:1px solid var(--border)" class="money">${fmtBRL(l.valor)}</td></tr>`).join('') : ''}
+          ${patrimonio.length ? patrimonio.map(l => `<tr><td style="padding:7px 0;border-bottom:1px solid var(--border)"><span style="color:var(--purple);margin-right:8px">${l.codigo}</span>${escapeHtml(l.nome)}</td><td style="text-align:right;padding:7px 0;border-bottom:1px solid var(--border)" class="money">${fmtBRL(l.valor)}</td></tr>`).join('') : ''}
+          ${!passivo.length && !patrimonio.length ? '<tr><td colspan="2" style="text-align:center;color:var(--text3);padding:14px">Sem saldos</td></tr>' : ''}
+          <tr><td style="padding:10px 0;font-weight:700">TOTAL PASSIVO + PL</td><td style="text-align:right;padding:10px 0;font-weight:700" class="money negative">${fmtBRL(totalPP)}</td></tr>
+        </table>
+      </div>
+    </div>
+  `;
+  document.getElementById('page').innerHTML = html;
+}
+
+/* ==========================================================================
+   PAGE: FLUXO DE CAIXA
+   ========================================================================== */
+async function renderFluxo() {
+  const dias = state.filters.fluxoDias || 60;
+  const d = await api(`/api/erp/fluxo-caixa?dias=${dias}`);
+  const html = `
+    <div class="page-header">
+      <div><div class="page-title">Fluxo de Caixa <small>projecao ${dias} dias</small></div></div>
+      <div class="page-actions">
+        <select class="table-filter" onchange="state.filters.fluxoDias=Number(this.value);render()">
+          <option value="30" ${dias===30?'selected':''}>30 dias</option>
+          <option value="60" ${dias===60?'selected':''}>60 dias</option>
+          <option value="90" ${dias===90?'selected':''}>90 dias</option>
+          <option value="180" ${dias===180?'selected':''}>180 dias</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="kpi-grid">
+      <div class="kpi success">
+        <div class="kpi-icon"><span class="material-symbols-outlined">account_balance_wallet</span></div>
+        <div class="kpi-label">Saldo Hoje</div>
+        <div class="kpi-value money positive">${fmtBRL(d.saldo_atual)}</div>
+      </div>
+      <div class="kpi info">
+        <div class="kpi-icon"><span class="material-symbols-outlined">trending_up</span></div>
+        <div class="kpi-label">Entradas Previstas (${dias}d)</div>
+        <div class="kpi-value money positive">${fmtBRL(d.serie.reduce((s,r)=>s+r.entrada_prev,0))}</div>
+      </div>
+      <div class="kpi danger">
+        <div class="kpi-icon"><span class="material-symbols-outlined">trending_down</span></div>
+        <div class="kpi-label">Saidas Previstas (${dias}d)</div>
+        <div class="kpi-value money negative">${fmtBRL(d.serie.reduce((s,r)=>s+r.saida_prev,0))}</div>
+      </div>
+      <div class="kpi warn">
+        <div class="kpi-icon"><span class="material-symbols-outlined">flag</span></div>
+        <div class="kpi-label">Saldo Projetado Final</div>
+        <div class="kpi-value money ${(d.serie[d.serie.length-1]?.saldo||0)>=0?'positive':'negative'}">${fmtBRL(d.serie[d.serie.length-1]?.saldo||0)}</div>
+      </div>
+    </div>
+
+    <div class="chart-wrap">
+      <div class="chart-header"><div class="chart-title">Projecao de Saldo</div></div>
+      <div class="chart-canvas">${lineChart(d.serie, { series:[{ key:'saldo', color:'#C8A96E', label:'Saldo Projetado', fill:true }] })}</div>
+    </div>
+
+    <div class="chart-wrap">
+      <div class="chart-header"><div class="chart-title">Entradas vs Saidas</div></div>
+      <div class="chart-canvas">${lineChart(d.serie, { series:[
+        { key:'entrada_real', color:'#6B8F5C', label:'Entrada Real' },
+        { key:'saida_real', color:'#C0504D', label:'Saida Real' },
+        { key:'entrada_prev', color:'#4A8FBF', label:'Entrada Prev' },
+        { key:'saida_prev', color:'#D4A843', label:'Saida Prev' },
+      ] })}</div>
+    </div>
+  `;
+  document.getElementById('page').innerHTML = html;
+}
+
+/* ==========================================================================
+   PAGE: PESSOAS (CLIENTES/FORNECEDORES)
+   ========================================================================== */
+async function renderPessoas(tipo) {
+  const all = await api(`/api/erp/pessoas?tipo=${tipo}`);
+  const html = `
+    <div class="page-header">
+      <div><div class="page-title">${tipo==='cliente'?'Clientes':'Fornecedores'} <small>${all.length} cadastros</small></div></div>
+      <div class="page-actions">
+        <button class="btn btn-primary" onclick="openPessoa('${tipo}')"><span class="material-symbols-outlined">add</span>Novo ${tipo==='cliente'?'Cliente':'Fornecedor'}</button>
+      </div>
+    </div>
+    <div class="table-wrap">
+      ${all.length === 0 ? `<div class="empty"><span class="material-symbols-outlined">${tipo==='cliente'?'groups':'local_shipping'}</span><h3>Nenhum cadastro</h3></div>` : `
+      <table>
+        <thead><tr><th>Nome</th><th>Documento</th><th>Contato</th><th>Cidade/UF</th><th></th></tr></thead>
+        <tbody>
+          ${all.map(p => `
+          <tr>
+            <td><strong>${escapeHtml(p.nome)}</strong><div style="font-size:10px;color:var(--text3)">${escapeHtml(p.tipo==='pj'?'Pessoa Juridica':'Pessoa Fisica')}</div></td>
+            <td>${escapeHtml(p.documento||'--')}</td>
+            <td>${escapeHtml(p.email||'--')}<div style="font-size:10px;color:var(--text3)">${escapeHtml(p.telefone||'')}</div></td>
+            <td>${escapeHtml((p.cidade||'') + (p.cidade&&p.uf?'/':'') + (p.uf||''))||'--'}</td>
+            <td><div class="row-actions">
+              <button class="icon-btn" onclick="openPessoa('${tipo}','${p.id}')"><span class="material-symbols-outlined">edit</span></button>
+              <button class="icon-btn" onclick="deletePessoa('${p.id}')"><span class="material-symbols-outlined">delete</span></button>
+            </div></td>
+          </tr>`).join('')}
+        </tbody>
+      </table>`}
+    </div>
+  `;
+  document.getElementById('page').innerHTML = html;
+}
+function openPessoa(tipo, id) {
+  const p = id ? state.pessoas.find(x => x.id === id) : null;
+  const html = `
+    <div class="modal-header"><div class="modal-title">${id?'Editar':'Novo'} ${tipo==='cliente'?'Cliente':'Fornecedor'}</div><button class="icon-btn" onclick="closeModal()"><span class="material-symbols-outlined">close</span></button></div>
+    <div class="modal-body">
+      <form id="formPessoa" class="form-grid">
+        <div class="field"><label>Tipo</label>
+          <select name="tipo"><option value="pj" ${p?.tipo==='pj'?'selected':''}>Pessoa Juridica</option><option value="pf" ${p?.tipo==='pf'?'selected':''}>Pessoa Fisica</option></select>
+        </div>
+        <div class="field"><label>Documento (CPF/CNPJ)</label><input name="documento" value="${escapeHtml(p?.documento||'')}"></div>
+        <div class="field full"><label>Nome*</label><input name="nome" required value="${escapeHtml(p?.nome||'')}"></div>
+        <div class="field full"><label>Razao Social</label><input name="razao_social" value="${escapeHtml(p?.razao_social||'')}"></div>
+        <div class="field"><label>Email</label><input name="email" value="${escapeHtml(p?.email||'')}"></div>
+        <div class="field"><label>Telefone</label><input name="telefone" value="${escapeHtml(p?.telefone||'')}"></div>
+        <div class="field full"><label>Endereco</label><input name="endereco" value="${escapeHtml(p?.endereco||'')}"></div>
+        <div class="field"><label>Cidade</label><input name="cidade" value="${escapeHtml(p?.cidade||'')}"></div>
+        <div class="field"><label>UF</label><input name="uf" maxlength="2" value="${escapeHtml(p?.uf||'')}"></div>
+        <div class="field full"><label class="field-checkbox"><input type="checkbox" name="is_cliente" ${(p?.is_cliente || tipo==='cliente')?'checked':''}><span>E cliente</span></label></div>
+        <div class="field full"><label class="field-checkbox"><input type="checkbox" name="is_fornecedor" ${(p?.is_fornecedor || tipo==='fornecedor')?'checked':''}><span>E fornecedor</span></label></div>
+        <div class="field full"><label>Observacoes</label><textarea name="observacoes">${escapeHtml(p?.observacoes||'')}</textarea></div>
+      </form>
+    </div>
+    <div class="modal-footer">
+      <button class="btn" onclick="closeModal()">Cancelar</button>
+      <button class="btn btn-primary" onclick="savePessoa('${id||''}')"><span class="material-symbols-outlined">save</span>Salvar</button>
+    </div>`;
+  openModal(html, { wide:true });
+}
+async function savePessoa(id) {
+  const form = document.getElementById('formPessoa');
+  const fd = new FormData(form);
+  const data = Object.fromEntries(fd);
+  data.is_cliente = form.is_cliente.checked;
+  data.is_fornecedor = form.is_fornecedor.checked;
+  try {
+    if (id) await api(`/api/erp/pessoas/${id}`, { method:'PATCH', body:JSON.stringify(data) });
+    else await api('/api/erp/pessoas', { method:'POST', body:JSON.stringify(data) });
+    closeModal(); toast('Salvo','success'); render();
+  } catch (e) { toast(e.message,'error'); }
+}
+async function deletePessoa(id) {
+  if (!await confirmAction('Excluir este cadastro?')) return;
+  try { await api(`/api/erp/pessoas/${id}`, { method:'DELETE' }); toast('Excluido','success'); render(); }
+  catch (e) { toast(e.message,'error'); }
+}
+
+/* ==========================================================================
+   PAGE: CATEGORIAS
+   ========================================================================== */
+function renderCategorias() {
+  const html = `
+    <div class="page-header">
+      <div><div class="page-title">Categorias <small>${state.categorias.length} categorias</small></div></div>
+      <div class="page-actions">
+        <button class="btn btn-primary" onclick="openCategoria()"><span class="material-symbols-outlined">add</span>Nova Categoria</button>
+      </div>
+    </div>
+    <div class="grid-row" style="grid-template-columns:1fr 1fr">
+      ${['receita','despesa'].map(tipo => `
+        <div class="card">
+          <div class="card-title"><span class="material-symbols-outlined">${tipo==='receita'?'trending_up':'trending_down'}</span>${tipo==='receita'?'Receitas':'Despesas'}</div>
+          <div style="display:flex;flex-direction:column;gap:6px">
+            ${state.categorias.filter(c=>c.tipo===tipo).map(c => `
+              <div style="display:flex;align-items:center;gap:10px;padding:9px;background:var(--s2);border-radius:8px">
+                <div style="width:10px;height:10px;border-radius:50%;background:${c.cor}"></div>
+                <div style="flex:1;font-size:12px">${escapeHtml(c.nome)}</div>
+                <div class="row-actions" style="opacity:1">
+                  <button class="icon-btn" onclick="openCategoria('${c.id}')"><span class="material-symbols-outlined">edit</span></button>
+                  <button class="icon-btn" onclick="deleteCategoria('${c.id}')"><span class="material-symbols-outlined">delete</span></button>
+                </div>
+              </div>`).join('') || '<div style="text-align:center;color:var(--text3);font-size:12px;padding:14px">Nenhuma</div>'}
+          </div>
+        </div>`).join('')}
+    </div>
+  `;
+  document.getElementById('page').innerHTML = html;
+}
+function openCategoria(id) {
+  const c = id ? state.categorias.find(x => x.id === id) : null;
+  const planoOpts = `<option value="">--</option>` + state.plano.filter(p => p.natureza === 'analitica').map(p => `<option value="${p.id}" ${c?.plano_conta_id===p.id?'selected':''}>${p.codigo} - ${escapeHtml(p.nome)}</option>`).join('');
+  const html = `
+    <div class="modal-header"><div class="modal-title">${id?'Editar':'Nova'} Categoria</div><button class="icon-btn" onclick="closeModal()"><span class="material-symbols-outlined">close</span></button></div>
+    <div class="modal-body">
+      <form id="formCat" class="form-grid">
+        <div class="field"><label>Nome*</label><input name="nome" required value="${escapeHtml(c?.nome||'')}"></div>
+        <div class="field"><label>Tipo*</label>
+          <select name="tipo" required>
+            <option value="receita" ${c?.tipo==='receita'?'selected':''}>Receita</option>
+            <option value="despesa" ${c?.tipo==='despesa'?'selected':''}>Despesa</option>
+          </select>
+        </div>
+        <div class="field"><label>Cor</label><input type="color" name="cor" value="${c?.cor||'#C8A96E'}"></div>
+        <div class="field"><label>Plano de Conta</label><select name="plano_conta_id">${planoOpts}</select></div>
+      </form>
+    </div>
+    <div class="modal-footer">
+      <button class="btn" onclick="closeModal()">Cancelar</button>
+      <button class="btn btn-primary" onclick="saveCategoria('${id||''}')"><span class="material-symbols-outlined">save</span>Salvar</button>
+    </div>`;
+  openModal(html);
+}
+async function saveCategoria(id) {
+  const data = Object.fromEntries(new FormData(document.getElementById('formCat')));
+  if (!data.plano_conta_id) data.plano_conta_id = null;
+  try {
+    if (id) await api(`/api/erp/categorias/${id}`, { method:'PATCH', body:JSON.stringify(data) });
+    else await api('/api/erp/categorias', { method:'POST', body:JSON.stringify(data) });
+    closeModal(); toast('Salvo','success'); render();
+  } catch (e) { toast(e.message,'error'); }
+}
+async function deleteCategoria(id) {
+  if (!await confirmAction('Excluir esta categoria?')) return;
+  try { await api(`/api/erp/categorias/${id}`, { method:'DELETE' }); toast('Excluida','success'); render(); }
+  catch (e) { toast(e.message,'error'); }
+}
+
+/* ==========================================================================
+   PAGE: CENTROS DE CUSTO
+   ========================================================================== */
+function renderCentros() {
+  const html = `
+    <div class="page-header">
+      <div><div class="page-title">Centros de Custo <small>${state.centros.length} centros</small></div></div>
+      <div class="page-actions">
+        <button class="btn btn-primary" onclick="openCentro()"><span class="material-symbols-outlined">add</span>Novo Centro</button>
+      </div>
+    </div>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Codigo</th><th>Nome</th><th>Descricao</th><th></th></tr></thead>
+        <tbody>
+          ${state.centros.map(c => `
+          <tr>
+            <td><span style="font-family:monospace;color:var(--gold)">${escapeHtml(c.codigo)}</span></td>
+            <td><strong>${escapeHtml(c.nome)}</strong></td>
+            <td>${escapeHtml(c.descricao||'--')}</td>
+            <td><div class="row-actions">
+              <button class="icon-btn" onclick="openCentro('${c.id}')"><span class="material-symbols-outlined">edit</span></button>
+              <button class="icon-btn" onclick="deleteCentro('${c.id}')"><span class="material-symbols-outlined">delete</span></button>
+            </div></td>
+          </tr>`).join('')}
+        </tbody>
+      </table>
+    </div>
+  `;
+  document.getElementById('page').innerHTML = html;
+}
+function openCentro(id) {
+  const c = id ? state.centros.find(x => x.id === id) : null;
+  const html = `
+    <div class="modal-header"><div class="modal-title">${id?'Editar':'Novo'} Centro de Custo</div><button class="icon-btn" onclick="closeModal()"><span class="material-symbols-outlined">close</span></button></div>
+    <div class="modal-body">
+      <form id="formCC" class="form-grid">
+        <div class="field"><label>Codigo*</label><input name="codigo" required value="${escapeHtml(c?.codigo||'')}"></div>
+        <div class="field"><label>Nome*</label><input name="nome" required value="${escapeHtml(c?.nome||'')}"></div>
+        <div class="field full"><label>Descricao</label><textarea name="descricao">${escapeHtml(c?.descricao||'')}</textarea></div>
+      </form>
+    </div>
+    <div class="modal-footer">
+      <button class="btn" onclick="closeModal()">Cancelar</button>
+      <button class="btn btn-primary" onclick="saveCentro('${id||''}')"><span class="material-symbols-outlined">save</span>Salvar</button>
+    </div>`;
+  openModal(html);
+}
+async function saveCentro(id) {
+  const data = Object.fromEntries(new FormData(document.getElementById('formCC')));
+  try {
+    if (id) await api(`/api/erp/centros-custo/${id}`, { method:'PATCH', body:JSON.stringify(data) });
+    else await api('/api/erp/centros-custo', { method:'POST', body:JSON.stringify(data) });
+    closeModal(); toast('Salvo','success'); render();
+  } catch (e) { toast(e.message,'error'); }
+}
+async function deleteCentro(id) {
+  if (!await confirmAction('Excluir este centro?')) return;
+  try { await api(`/api/erp/centros-custo/${id}`, { method:'DELETE' }); toast('Excluido','success'); render(); }
+  catch (e) { toast(e.message,'error'); }
+}
+
+/* ==========================================================================
+   PAGE: NOTAS FISCAIS
+   ========================================================================== */
+async function renderNotas() {
+  const list = await api('/api/erp/notas-fiscais');
+  state.notas = list;
+  const html = `
+    <div class="page-header">
+      <div><div class="page-title">Notas Fiscais <small>${list.length} notas</small></div></div>
+      <div class="page-actions">
+        <button class="btn btn-primary" onclick="openNota()"><span class="material-symbols-outlined">add</span>Nova Nota</button>
+      </div>
+    </div>
+    <div class="table-wrap">
+      ${list.length === 0 ? '<div class="empty"><span class="material-symbols-outlined">receipt_long</span><h3>Sem notas registradas</h3></div>' : `
+      <table>
+        <thead><tr><th>Numero</th><th>Tipo</th><th>Emissao</th><th>Parte</th><th>CFOP</th><th style="text-align:right">Valor</th><th>Status</th><th></th></tr></thead>
+        <tbody>
+          ${list.map(n => `
+          <tr>
+            <td><strong>${escapeHtml(n.numero)}</strong> / ${escapeHtml(n.serie||'1')}</td>
+            <td><span class="chip ${n.tipo==='saida'?'info':'warn'}">${n.tipo}</span></td>
+            <td>${fmtDate(n.emissao)}</td>
+            <td>${escapeHtml(n.pessoa?.nome||'--')}</td>
+            <td>${escapeHtml(n.cfop||'--')}</td>
+            <td style="text-align:right" class="money">${fmtBRL(n.valor_total)}</td>
+            <td>${n.status==='emitida'?'<span class="chip success">Emitida</span>':n.status==='cancelada'?'<span class="chip danger">Cancelada</span>':'<span class="chip muted">'+n.status+'</span>'}</td>
+            <td><div class="row-actions">
+              <button class="icon-btn" onclick="openNota('${n.id}')"><span class="material-symbols-outlined">edit</span></button>
+              <button class="icon-btn" onclick="deleteNota('${n.id}')"><span class="material-symbols-outlined">delete</span></button>
+            </div></td>
+          </tr>`).join('')}
+        </tbody>
+      </table>`}
+    </div>
+  `;
+  document.getElementById('page').innerHTML = html;
+}
+function openNota(id) {
+  const n = id ? state.notas.find(x => x.id === id) : null;
+  const pessoaOpts = `<option value="">--</option>` + state.pessoas.map(p => `<option value="${p.id}" ${n?.pessoa_id===p.id?'selected':''}>${escapeHtml(p.nome)}</option>`).join('');
+  const html = `
+    <div class="modal-header"><div class="modal-title">${id?'Editar':'Nova'} Nota Fiscal</div><button class="icon-btn" onclick="closeModal()"><span class="material-symbols-outlined">close</span></button></div>
+    <div class="modal-body">
+      <form id="formNota" class="form-grid">
+        <div class="field"><label>Tipo*</label>
+          <select name="tipo" required>
+            <option value="saida" ${n?.tipo==='saida'?'selected':''}>Saida</option>
+            <option value="entrada" ${n?.tipo==='entrada'?'selected':''}>Entrada</option>
+          </select>
+        </div>
+        <div class="field"><label>Numero*</label><input name="numero" required value="${escapeHtml(n?.numero||'')}"></div>
+        <div class="field"><label>Serie</label><input name="serie" value="${escapeHtml(n?.serie||'1')}"></div>
+        <div class="field"><label>Emissao*</label><input type="date" name="emissao" required value="${n?.emissao||today()}"></div>
+        <div class="field full"><label>Parte (Cliente/Fornecedor)</label><select name="pessoa_id">${pessoaOpts}</select></div>
+        <div class="field"><label>Valor Total*</label><input type="number" step="0.01" name="valor_total" required value="${n?.valor_total||0}"></div>
+        <div class="field"><label>CFOP</label><input name="cfop" value="${escapeHtml(n?.cfop||'')}"></div>
+        <div class="field full"><label>Natureza da Operacao</label><input name="natureza_operacao" value="${escapeHtml(n?.natureza_operacao||'')}"></div>
+        <div class="field"><label>ICMS</label><input type="number" step="0.01" name="icms" value="${n?.icms||0}"></div>
+        <div class="field"><label>IPI</label><input type="number" step="0.01" name="ipi" value="${n?.ipi||0}"></div>
+        <div class="field"><label>PIS</label><input type="number" step="0.01" name="pis" value="${n?.pis||0}"></div>
+        <div class="field"><label>COFINS</label><input type="number" step="0.01" name="cofins" value="${n?.cofins||0}"></div>
+        <div class="field"><label>ISS</label><input type="number" step="0.01" name="iss" value="${n?.iss||0}"></div>
+        <div class="field full"><label>Chave de Acesso (44 digitos)</label><input name="chave_acesso" maxlength="44" value="${escapeHtml(n?.chave_acesso||'')}"></div>
+        <div class="field full"><label>Observacoes</label><textarea name="observacoes">${escapeHtml(n?.observacoes||'')}</textarea></div>
+      </form>
+    </div>
+    <div class="modal-footer">
+      <button class="btn" onclick="closeModal()">Cancelar</button>
+      <button class="btn btn-primary" onclick="saveNota('${id||''}')"><span class="material-symbols-outlined">save</span>Salvar</button>
+    </div>`;
+  openModal(html, { wide:true });
+}
+async function saveNota(id) {
+  const data = Object.fromEntries(new FormData(document.getElementById('formNota')));
+  ['valor_total','icms','ipi','pis','cofins','iss'].forEach(k=>{ if (data[k]) data[k]=Number(data[k]); });
+  if (!data.pessoa_id) data.pessoa_id = null;
+  try {
+    if (id) await api(`/api/erp/notas-fiscais/${id}`, { method:'PATCH', body:JSON.stringify(data) });
+    else await api('/api/erp/notas-fiscais', { method:'POST', body:JSON.stringify(data) });
+    closeModal(); toast('Nota salva','success'); render();
+  } catch (e) { toast(e.message,'error'); }
+}
+async function deleteNota(id) {
+  if (!await confirmAction('Excluir esta nota?')) return;
+  try { await api(`/api/erp/notas-fiscais/${id}`, { method:'DELETE' }); toast('Excluida','success'); render(); }
+  catch (e) { toast(e.message,'error'); }
+}
+
+/* ==========================================================================
+   PAGE: EMPRESA
+   ========================================================================== */
+async function renderEmpresa() {
+  const emps = await api('/api/erp/empresas');
+  state.empresas = emps;
+  const html = `
+    <div class="page-header">
+      <div><div class="page-title">Empresa</div></div>
+      <div class="page-actions">
+        <button class="btn btn-primary" onclick="openEmpresa()"><span class="material-symbols-outlined">add</span>Nova Empresa</button>
+      </div>
+    </div>
+    <div class="grid-row" style="grid-template-columns:repeat(auto-fit,minmax(280px,1fr))">
+      ${emps.map(e => `
+        <div class="card">
+          <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:12px">
+            <div>
+              <div style="font-size:14px;font-weight:700">${escapeHtml(e.nome_fantasia||e.razao_social)}</div>
+              <div style="font-size:11px;color:var(--text3);margin-top:2px">${escapeHtml(e.razao_social)}</div>
+            </div>
+            <div class="row-actions" style="opacity:1">
+              <button class="icon-btn" onclick="openEmpresa('${e.id}')"><span class="material-symbols-outlined">edit</span></button>
+            </div>
+          </div>
+          <div style="font-size:11px;color:var(--text2);line-height:1.7">
+            <div><strong>CNPJ:</strong> ${escapeHtml(e.cnpj||'--')}</div>
+            <div><strong>Regime:</strong> ${escapeHtml(e.regime_tributario)}</div>
+            <div><strong>Cidade:</strong> ${escapeHtml((e.cidade||'')+(e.cidade&&e.uf?'/':'')+(e.uf||''))}</div>
+            <div><strong>Email:</strong> ${escapeHtml(e.email||'--')}</div>
+            <div><strong>Telefone:</strong> ${escapeHtml(e.telefone||'--')}</div>
+          </div>
+        </div>`).join('')}
+    </div>
+  `;
+  document.getElementById('page').innerHTML = html;
+}
+function openEmpresa(id) {
+  const e = id ? state.empresas.find(x => x.id === id) : null;
+  const html = `
+    <div class="modal-header"><div class="modal-title">${id?'Editar':'Nova'} Empresa</div><button class="icon-btn" onclick="closeModal()"><span class="material-symbols-outlined">close</span></button></div>
+    <div class="modal-body">
+      <form id="formEmp" class="form-grid">
+        <div class="field full"><label>Razao Social*</label><input name="razao_social" required value="${escapeHtml(e?.razao_social||'')}"></div>
+        <div class="field"><label>Nome Fantasia</label><input name="nome_fantasia" value="${escapeHtml(e?.nome_fantasia||'')}"></div>
+        <div class="field"><label>CNPJ</label><input name="cnpj" value="${escapeHtml(e?.cnpj||'')}"></div>
+        <div class="field"><label>IE</label><input name="ie" value="${escapeHtml(e?.ie||'')}"></div>
+        <div class="field"><label>Regime Tributario</label>
+          <select name="regime_tributario">
+            ${['mei','simples','presumido','real'].map(o => `<option value="${o}" ${e?.regime_tributario===o?'selected':''}>${o}</option>`).join('')}
+          </select>
+        </div>
+        <div class="field full"><label>Endereco</label><input name="endereco" value="${escapeHtml(e?.endereco||'')}"></div>
+        <div class="field"><label>Cidade</label><input name="cidade" value="${escapeHtml(e?.cidade||'')}"></div>
+        <div class="field"><label>UF</label><input name="uf" maxlength="2" value="${escapeHtml(e?.uf||'')}"></div>
+        <div class="field"><label>CEP</label><input name="cep" value="${escapeHtml(e?.cep||'')}"></div>
+        <div class="field"><label>Email</label><input name="email" value="${escapeHtml(e?.email||'')}"></div>
+        <div class="field"><label>Telefone</label><input name="telefone" value="${escapeHtml(e?.telefone||'')}"></div>
+      </form>
+    </div>
+    <div class="modal-footer">
+      <button class="btn" onclick="closeModal()">Cancelar</button>
+      <button class="btn btn-primary" onclick="saveEmpresa('${id||''}')"><span class="material-symbols-outlined">save</span>Salvar</button>
+    </div>`;
+  openModal(html, { wide:true });
+}
+async function saveEmpresa(id) {
+  const data = Object.fromEntries(new FormData(document.getElementById('formEmp')));
+  try {
+    if (id) await api(`/api/erp/empresas/${id}`, { method:'PATCH', body:JSON.stringify(data) });
+    else await api('/api/erp/empresas', { method:'POST', body:JSON.stringify(data) });
+    closeModal(); toast('Salvo','success'); render();
+  } catch (e) { toast(e.message,'error'); }
+}
+
+/* ==========================================================================
+   BOOT
+   ========================================================================== */
+(async () => {
+  await loadUser();
+  render();
+})();
+</script>
+</body>
+</html>
