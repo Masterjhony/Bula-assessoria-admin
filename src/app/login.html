@@ -136,7 +136,7 @@ body { font-family:'Inter',-apple-system,sans-serif; -webkit-font-smoothing:anti
           <input type="checkbox" checked>
           <span>Lembrar-me</span>
         </label>
-        <a href="#" class="form-forgot">Esqueceu a senha?</a>
+        <a href="#" class="form-forgot" onclick="handleForgot(event)">Esqueceu a senha?</a>
       </div>
       <button type="submit" class="btn-login" id="btn-login">
         <span class="material-symbols-outlined">login</span> Entrar
@@ -204,6 +204,34 @@ async function handleLogin(e) {
     errorBox.classList.add('show');
     btn.disabled = false;
     btn.innerHTML = '<span class="material-symbols-outlined">login</span> Entrar';
+  }
+}
+
+async function handleForgot(e) {
+  e.preventDefault();
+  const emailField = document.getElementById('login-email');
+  const errorBox = document.getElementById('form-error');
+  const errorText = document.getElementById('error-text');
+  const email = (emailField.value || prompt('Digite seu email para receber o link de redefinicao:') || '').trim();
+  if (!email) return;
+  emailField.value = email;
+  errorBox.classList.remove('show');
+  try {
+    const res = await fetch('/api/bula/auth/forgot', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email }),
+    });
+    const data = await res.json();
+    if (!res.ok) {
+      errorText.textContent = data.error || 'Nao foi possivel enviar o link.';
+      errorBox.classList.add('show');
+      return;
+    }
+    alert('Se este email estiver cadastrado, voce vai receber um link para redefinir a senha em alguns minutos. Cheque tambem a caixa de spam.');
+  } catch {
+    errorText.textContent = 'Erro de conexao. Tente novamente.';
+    errorBox.classList.add('show');
   }
 }
 </script>

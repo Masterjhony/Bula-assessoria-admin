@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Bula Assessoria -- Redefinir senha</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" rel="stylesheet">
+<link rel="icon" href="/logo-bula-remates-preto-_1_.svg" type="image/svg+xml">
+<style>
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+html,body{height:100%}
+body{font-family:'Inter',-apple-system,sans-serif;background:#0D0D0D;color:#F5F5F5;display:flex;align-items:center;justify-content:center;padding:24px}
+.material-symbols-outlined{font-variation-settings:'FILL' 0,'wght' 300,'GRAD' 0,'opsz' 20;vertical-align:middle}
+.card{width:100%;max-width:380px;background:#0D0D0D;border:1px solid rgba(255,255,255,0.06);border-radius:16px;padding:36px 32px}
+.logo{height:60px;margin-bottom:24px;display:block;margin-left:auto;margin-right:auto}
+h1{font-size:20px;font-weight:700;text-align:center;margin-bottom:6px}
+.sub{font-size:13px;color:#666;text-align:center;margin-bottom:24px;font-weight:300}
+.group{margin-bottom:16px}
+.label{font-size:11px;font-weight:500;color:#888;text-transform:uppercase;letter-spacing:0.8px;margin-bottom:6px;display:flex;align-items:center;gap:6px}
+.input{width:100%;background:#141414;border:1px solid rgba(255,255,255,0.08);border-radius:10px;padding:14px 16px;font-family:inherit;font-size:14px;color:#F5F5F5;outline:none}
+.input:focus{border-color:rgba(200,169,110,0.4);box-shadow:0 0 0 3px rgba(200,169,110,0.08)}
+.btn{width:100%;background:#C8A96E;color:#111;border:none;padding:14px;border-radius:10px;font-family:inherit;font-size:14px;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;margin-top:8px}
+.btn:hover{background:#A68B4B}
+.btn:disabled{opacity:0.6;pointer-events:none}
+.msg{padding:10px 14px;border-radius:8px;font-size:12px;margin-bottom:14px;display:none;align-items:center;gap:8px}
+.msg.show{display:flex}
+.msg.err{background:rgba(192,80,77,0.08);border:1px solid rgba(192,80,77,0.2);color:#C0504D}
+.msg.ok{background:rgba(107,143,92,0.08);border:1px solid rgba(107,143,92,0.3);color:#6B8F5C}
+.link{display:block;text-align:center;margin-top:18px;font-size:12px;color:#C8A96E;text-decoration:none}
+.spin{display:inline-block;width:16px;height:16px;border:2px solid #111;border-top-color:transparent;border-radius:50%;animation:spin 0.6s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+</style>
+</head>
+<body>
+<div class="card">
+  <img class="logo" src="/logo-bula-remates-branco-_1_.svg" alt="Bula Remates">
+  <h1>Redefinir senha</h1>
+  <p class="sub">Escolha uma nova senha para sua conta</p>
+
+  <div id="msg-err" class="msg err"><span class="material-symbols-outlined" style="font-size:16px">error</span><span id="err-text"></span></div>
+  <div id="msg-ok" class="msg ok"><span class="material-symbols-outlined" style="font-size:16px">check_circle</span><span id="ok-text"></span></div>
+
+  <form id="form" onsubmit="handleReset(event)">
+    <div class="group">
+      <label class="label"><span class="material-symbols-outlined" style="font-size:15px">lock</span> Nova senha</label>
+      <input class="input" type="password" id="p1" required minlength="6" placeholder="Minimo 6 caracteres">
+    </div>
+    <div class="group">
+      <label class="label"><span class="material-symbols-outlined" style="font-size:15px">lock_reset</span> Confirme</label>
+      <input class="input" type="password" id="p2" required minlength="6" placeholder="Repita a nova senha">
+    </div>
+    <button class="btn" id="btn" type="submit"><span class="material-symbols-outlined" style="font-size:18px">save</span> Salvar nova senha</button>
+  </form>
+
+  <a class="link" href="/">Voltar para o login</a>
+</div>
+
+<script>
+const hash = new URLSearchParams(window.location.hash.replace(/^#/,''));
+const access_token = hash.get('access_token');
+const refresh_token = hash.get('refresh_token');
+const type = hash.get('type');
+const errBox = document.getElementById('msg-err');
+const errTxt = document.getElementById('err-text');
+const okBox = document.getElementById('msg-ok');
+const okTxt = document.getElementById('ok-text');
+
+if (type !== 'recovery' || !access_token || !refresh_token) {
+  document.getElementById('form').style.display = 'none';
+  errTxt.textContent = 'Link invalido ou expirado. Solicite um novo na tela de login.';
+  errBox.classList.add('show');
+}
+
+async function handleReset(e) {
+  e.preventDefault();
+  errBox.classList.remove('show');
+  okBox.classList.remove('show');
+  const p1 = document.getElementById('p1').value;
+  const p2 = document.getElementById('p2').value;
+  if (p1 !== p2) {
+    errTxt.textContent = 'As senhas nao coincidem.';
+    errBox.classList.add('show');
+    return;
+  }
+  const btn = document.getElementById('btn');
+  btn.disabled = true;
+  btn.innerHTML = '<span class="spin"></span> Salvando...';
+  try {
+    const res = await fetch('/api/bula/auth/reset', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ access_token, refresh_token, password: p1 }),
+    });
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.error || 'Erro ao redefinir.');
+    okTxt.textContent = 'Senha atualizada! Redirecionando para o login...';
+    okBox.classList.add('show');
+    document.getElementById('form').style.display = 'none';
+    setTimeout(() => { window.location.href = '/'; }, 1800);
+  } catch (err) {
+    errTxt.textContent = err.message || 'Erro ao redefinir.';
+    errBox.classList.add('show');
+    btn.disabled = false;
+    btn.innerHTML = '<span class="material-symbols-outlined" style="font-size:18px">save</span> Salvar nova senha';
+  }
+}
+</script>
+</body>
+</html>
