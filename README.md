@@ -1,29 +1,6 @@
 # web-bula
 
-Projeto Next.js (App Router) standalone com as páginas de login, cadastro e o sistema interno.
-
-## Estrutura
-
-```
-.
-├── public/                      # assets estáticos (logos, imagens) — veja public/README.md
-├── src/
-│   └── app/
-│       ├── route.ts             # GET /          -> serve login.html
-│       ├── login.html
-│       ├── cadastro/
-│       │   ├── route.ts         # GET /cadastro  -> serve cadastro.html
-│       │   └── cadastro.html
-│       ├── sistema/
-│       │   ├── route.ts         # GET /sistema   -> serve sistema.html
-│       │   └── sistema.html
-│       └── api/
-│           └── bula/[...slug]/route.ts  # catch-all stub p/ /api/bula/*
-├── next.config.mjs
-├── package.json
-├── tsconfig.json
-└── .gitignore
-```
+Painel administrativo Bula Assessoria — Next.js 16 + React 19 + Supabase. Migração funcional dos módulos do `formula_boi/web-admin`, mantendo o subdomínio `erp.localhost` para o ERP financeiro e `sistema-legacy/` para a SPA HTML original.
 
 ## Como rodar
 
@@ -32,11 +9,14 @@ npm install
 npm run dev
 ```
 
-A aplicação sobe em `http://localhost:3000`.
+Sobe em `http://localhost:3000`. Acesse:
 
-- `/` -> tela de login
-- `/cadastro` -> criação de conta
-- `/sistema` -> painel interno
+- `/` — login (legado HTML estático, `src/app/login.html`)
+- `/cadastro` — criação de conta (HTML)
+- `/sistema` — **painel admin React (novo)**
+- `/sistema-legacy` — SPA monolítica antiga (`sistema.html`, 7415 linhas)
+- `/erp` ou `erp.localhost` — ERP financeiro (`erp.html`)
+- `/reset-senha` — redefinição de senha
 
 ## Build / Produção
 
@@ -45,63 +25,149 @@ npm run build
 npm start
 ```
 
-## Backend (Supabase)
+## Módulos do painel `/sistema/*`
 
-O backend roda em Supabase. Auth via cookie HTTP-only (definido pelo `@supabase/ssr` no signin) e dados em Postgres.
+| Rota | Módulo | Status |
+|---|---|---|
+| `/sistema` | Dashboard | UI + dados reais (leilões + crm vazio) |
+| `/sistema/leiloes` | Leilões (5 sub-páginas: lista, fechamento, vendas/assessor, relatórios, equipe) | **Com dados migrados (184 registros)** |
+| `/sistema/projetos` (+/relatorios) | Kanban + Gantt + OKR + Strategy + Whiteboard | UI completa, banco vazio |
+| `/sistema/agenda` | Agenda Oficial (eventos internos vinculáveis) | UI completa, banco vazio |
+| `/sistema/agendamentos` | Bookings via Calendly→Google Calendar | UI completa, banco vazio |
+| `/sistema/okr` | OKR + KR + Risks + Decisions | UI completa, banco vazio |
+| `/sistema/contratos` | Upload PDF + status (sem ClickSign — fica só no fórmula) | UI completa, banco vazio |
+| `/sistema/analytics` | GA4 + PostHog | UI completa, depende de config |
+| `/sistema/ia` | Chat com GLM-4.7 + tool calling | UI completa, AllowedTables ainda aponta fórmula |
+| `/sistema/biblioteca-midia` | Supabase Storage + R2 | UI completa, R2 compartilhado |
+| `/sistema/users` | CRUD profiles | UI completa |
+| `/sistema/settings` | Configurações + atalhos | UI completa |
+| `/sistema/whatsapp` | Central WhatsApp (Inbox, Fluxo, Templates, Campanhas, Métricas, Conexão) | UI + schema; VPS Baileys NÃO conectado |
+| `/sistema/catalogos-whatsapp` | Detecção de PDFs em grupos | UI + schema; VPS NÃO conectado |
+| `/sistema/email` | Central de E-mail | UI completa, SMTP Hostinger |
+| `/sistema/crm` | Kanban + qualificação + funis | UI completa, banco vazio |
+| `/sistema/leads` | Leads simples | UI completa, banco vazio |
 
-### Setup do projeto Supabase
+## Migração `formula_boi` → `web-bula`
 
-1. Acesse https://supabase.com/dashboard e crie um **novo projeto** separado.
-2. Anote: **Project URL**, **anon key** e **service_role key** (Settings → API).
-3. No SQL Editor, abra um novo query e cole o conteúdo de [supabase/migrations/0001_init.sql](supabase/migrations/0001_init.sql). Rode.
-4. Em Authentication → Providers → Email, ative **Enable Email** e (opcionalmente) desative **Confirm email** se quiser pular o passo de verificação.
+Resumo do que foi feito (commits `Fase 0` a `Fase 8`):
 
-### Variáveis de ambiente
+- **Stack**: Next 14→16.1.4, React 18→19.2.3, Tailwind v4, +dnd-kit, framer-motion, excalidraw, xyflow, googleapis, jspdf, xlsx, posthog, R2, nodemailer, etc.
+- **12 migrations Supabase** (`supabase/migrations/0001`..`0012`) consolidando ~30 arquivos `database/*.sql` do fórmula, com FKs para tabelas inexistentes (products, breeders) cortadas e o CRM-leads criado como esqueleto na Fase 6 antes do Central WhatsApp.
+- **Dados migrados**: apenas Leilões (184 registros — bula_membros, bula_leiloes, bula_leilao_assessores, bula_acordos_criadores, bula_leilao_fechamento, leiloes_equipe, cronograma_leiloes, bula_comissoes_padrao_assessor).
+- **Cortes**:
+  - **ClickSign**: stubado em `src/app/sistema/actions/contracts.ts` (4 funções throw "ClickSign não disponível"). Continua exclusivo do fórmula.
+  - **VPS WhatsApp**: schema + UI prontos, mas o servidor Baileys não está conectado. Usuário vai montar servidor próprio.
+  - **products / product_reservations / breeders / reserva_kanban_columns**: tabelas do marketplace fórmula que não existem aqui. Widgets do Dashboard que dependiam disso renderizam zeros.
 
-Local (`.env.local`):
+### Backend (Supabase)
+
+Backend roda em Supabase próprio (`nfjkzigvxegnhaxxbevt`). Cookie HTTP-only via `@supabase/ssr`, dados em Postgres.
+
+Setup:
+
+1. https://supabase.com/dashboard → projeto novo
+2. Anote Project URL, anon key, service_role key (Settings → API).
+3. No SQL Editor, aplique sequencialmente todas as migrations em `supabase/migrations/`, OU use os scripts abaixo.
+4. Authentication → Providers → Email: ative.
+
+Variáveis de ambiente (`.env.local`):
 
 ```
 NEXT_PUBLIC_SUPABASE_URL=https://xxxx.supabase.co
 NEXT_PUBLIC_SUPABASE_ANON_KEY=...
 SUPABASE_SERVICE_ROLE_KEY=...
+DATABASE_URL=postgresql://...
+
+# Fase 4 (R2 + GA + GLM + PostHog — compartilhados com fórmula por padrão)
+GLM_API_KEY=...
+GLM_MODEL=glm-4.7
+R2_ACCOUNT_ID=...
+R2_ENDPOINT=...
+R2_BUCKET=...
+R2_PREFIX=libmedia/
+R2_ACCESS_KEY_ID=...
+R2_SECRET_ACCESS_KEY=...
+GOOGLE_GA4_PROPERTY_ID=...
+NEXT_PUBLIC_POSTHOG_KEY=...
+NEXT_PUBLIC_POSTHOG_HOST=https://us.i.posthog.com
+POSTHOG_PROJECT_ID=...
+
+# Fase 5 (SMTP — verificação signup + reset password + email marketing)
+SMTP_HOST=smtp.hostinger.com
+SMTP_PORT=465
+SMTP_USER=...
+SMTP_PASS=...
+SMTP_FROM=Bula Assessoria <...>
 ```
 
-Em produção (Vercel): adicione as três no painel **Settings → Environment Variables** e refaça o deploy.
+### Scripts disponíveis
 
-### Endpoints implementados
+```bash
+# Aplica TODAS as migrations (idempotente — IF NOT EXISTS / OR REPLACE)
+node scripts/apply-migration.mjs
 
-| Método | Rota | Descrição |
+# Aplica uma migration específica
+node scripts/apply-migration-single.mjs 0012_crm_dashboard.sql
+
+# Migra dados de Leilões do fórmula para o web-bula
+# (lê de ../formula_boi/formula_boi/.env.local)
+node scripts/migrate-leiloes-data.mjs --dry  # simula
+node scripts/migrate-leiloes-data.mjs        # grava (UPSERT)
+
+# Inspeciona schema das tabelas no Supabase do fórmula
+node scripts/inspect-source-schema.mjs cronograma_leiloes bula_leiloes
+```
+
+### Endpoints API (resumo)
+
+| Grupo | Quantidade | Exemplo |
 |---|---|---|
-| POST | `/api/bula/auth/signin` | login (seta cookie) |
-| POST | `/api/bula/auth/signup` | cadastro (cria `profiles` via trigger) |
-| POST | `/api/bula/auth/signout` | logout |
-| GET | `/api/bula/membros` | lista profiles |
-| GET, POST | `/api/bula/leiloes` | listar / criar |
-| GET, PUT, PATCH, DELETE | `/api/bula/leiloes/:id` | CRUD individual |
-| GET, POST | `/api/bula/projetos/cards` | kanban projetos |
-| PUT, PATCH, DELETE | `/api/bula/projetos/cards/:id` | atualizar / remover card |
-| GET | `/api/bula/crm/funis` | funis + deals |
-| GET, POST | `/api/bula/crm/deals` | listar / criar |
-| PUT, PATCH, DELETE | `/api/bula/crm/deals/:id` | atualizar / remover |
-| GET, POST | `/api/bula/leads` | listar / criar |
-| POST, PUT, PATCH, DELETE | `/api/bula/leads/:id` | qualificar (POST cria deal no funil clientes) / editar / remover |
-| GET, PUT | `/api/bula/marketing/config` | investimento marketing (singleton) |
+| `/api/bula/auth/*` | 5 | signin, signup, signout, me, forgot, reset |
+| `/api/bula/leiloes/*` | 4 | GET/POST + [id] + upload |
+| `/api/bula/fechamento/*` | 2 | GET/POST + [id] |
+| `/api/bula/cronograma/*` | 2 | GET/POST + [id] |
+| `/api/bula/crm/*` | 2 | deals, funis |
+| `/api/bula/leads/*` | 2 | GET/POST + [id] (POST = qualifica) |
+| `/api/bula/projetos/cards/*` | 2 | GET/POST + [id] |
+| `/api/bula/marketing/config` | 1 | GET/PUT singleton |
+| `/api/bula/membros` | 1 | GET |
+| `/api/leiloes/*` | 4 | equipe, relatórios, catalogo-upload |
+| `/api/agendamentos/*` | 4 | + settings + sync (Calendly) |
+| `/api/admin/users/*` | 3 | DELETE, reset-password, auth |
+| `/api/admin/auth/*` | 2 | send-code, verify-signup |
+| `/api/ai/*` | 2 | chat (GLM), test |
+| `/api/r2/*` | 5 | upload-url, download-url, delete, list, health |
+| `/api/whatsapp/*` | ~17 | central/* (templates, campaigns, flows, inbox, métricas) + inbound + group-* |
+| `/api/whatsapp-catalogos/*` | ~10 | groups, detections, active-groups, pause, webhook |
+| `/api/email/*` | ~11 | central/* + unsubscribe |
+| `/api/erp/*` | 16 | (pré-existente: financeiro/contábil) |
 
-Todas as rotas exceto `/auth/*` exigem cookie de sessão válido — retornam 401 se não autenticado.
+Todas exceto `/auth/*` e webhooks exigem cookie de sessão válido.
 
-## Assets
+## Assets em `public/`
 
-Coloque os arquivos abaixo em `public/` (veja [public/README.md](public/README.md)):
-
-- `logo-bula-remates-branco-_1_.svg`
-- `logo-bula-remates-preto-_1_.svg`
+- `logo-bula-remates-branco-_1_.svg`, `logo-bula-remates-preto-_1_.svg`
 - `bula/assets/img/login-bg.jpg`
+- `icon.svg` (favicon)
 
 ## Deploy
 
-Compatível com qualquer host que rode Next.js 14:
-- **Vercel** — `vercel deploy` (zero-config).
-- **VPS / Node** — `npm run build && npm start` atrás de um reverse proxy (nginx/caddy).
-- **Docker** — use a imagem `node:20-alpine`, copie o projeto, instale deps e rode `next start`.
+Compatível com qualquer host Next.js 16:
+- **Vercel**: `vercel deploy` (zero-config)
+- **VPS / Node**: `npm run build && npm start` atrás de nginx/caddy
+- **Docker**: `node:20-alpine`, copie projeto, install + `next start`
 
-Para apontar para um novo domínio, basta configurar o DNS apontando para o host. Não há referência hard-coded ao domínio antigo no código.
+## Coexistência com fórmula
+
+- Os dois sistemas operam em paralelo e **silos independentes** — Supabase próprio do web-bula (`nfjkzigvxegnhaxxbevt`), não compartilha dados com o fórmula (`hghtikjaqixglmpujbwj`).
+- Infraestrutura compartilhada por padrão (R2, GLM, PostHog, GA, SMTP, ClickSign — apenas no fórmula). Mude `.env.local` para silos completos.
+- Operações no `/sistema/*` do web-bula **NÃO** sincronizam para o fórmula e vice-versa.
+
+## O que falta (próximos passos sugeridos)
+
+- Conectar servidor Baileys próprio para Central WhatsApp + Catálogos
+- Adaptar `ALLOWED_TABLES` / `SYSTEM_PROMPT` em `/api/ai/chat/route.ts` para refletir tabelas reais do web-bula (`bula_leiloes`, `cronograma_leiloes`, `tactical_*`, etc.) ao invés de `products`/`breeders` do fórmula
+- Decidir destino do `/sistema-legacy` (manter durante adaptação ou remover)
+- Configurar Calendly + Google Calendar próprios para Agendamentos (se quiser usar)
+- Cadastrar usuários/perfis no Supabase do web-bula
+- Trocar paleta/branding se necessário (atualmente: tokens dourado/oliva extraídos do `sistema.html` legado)
