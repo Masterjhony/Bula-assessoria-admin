@@ -1,50 +1,22 @@
-import { NextRequest } from 'next/server'
-import { requireUser, supabaseAdmin } from '@/lib/supabase'
-import { fail, ok, unauthorized } from '@/lib/respond'
+import { getLeilao, updateLeilao, deleteLeilao } from '@/lib/bula/queries'
+import { NextResponse } from 'next/server'
 
-type Ctx = { params: Promise<{ id: string }> }
-
-export async function GET(_: NextRequest, { params }: Ctx) {
-  const { id } = await params
-  const user = await requireUser()
-  if (!user) return unauthorized()
-  const { data, error } = await supabaseAdmin()
-    .from('leiloes')
-    .select('*')
-    .eq('id', id)
-    .single()
-  if (error) return fail(error.message, 404)
-  return ok(data)
+export async function GET(_: Request, { params }: { params: Promise<{ id: string }> }) {
+    const { id } = await params
+    const leilao = await getLeilao(id)
+    if (!leilao) return NextResponse.json({ error: 'Not found' }, { status: 404 })
+    return NextResponse.json(leilao)
 }
 
-async function update(req: NextRequest, id: string) {
-  const user = await requireUser()
-  if (!user) return unauthorized()
-  const body = await req.json().catch(() => ({}))
-  const { data, error } = await supabaseAdmin()
-    .from('leiloes')
-    .update(body)
-    .eq('id', id)
-    .select('*')
-    .single()
-  if (error) return fail(error.message, 400)
-  return ok(data)
+export async function PUT(request: Request, { params }: { params: Promise<{ id: string }> }) {
+    const { id } = await params
+    const body = await request.json()
+    await updateLeilao(id, body)
+    return NextResponse.json({ ok: true })
 }
 
-export async function PUT(req: NextRequest, { params }: Ctx) {
-  const { id } = await params
-  return update(req, id)
-}
-export async function PATCH(req: NextRequest, { params }: Ctx) {
-  const { id } = await params
-  return update(req, id)
-}
-
-export async function DELETE(_: NextRequest, { params }: Ctx) {
-  const { id } = await params
-  const user = await requireUser()
-  if (!user) return unauthorized()
-  const { error } = await supabaseAdmin().from('leiloes').delete().eq('id', id)
-  if (error) return fail(error.message, 400)
-  return ok({ ok: true })
+export async function DELETE(_: Request, { params }: { params: Promise<{ id: string }> }) {
+    const { id } = await params
+    await deleteLeilao(id)
+    return NextResponse.json({ ok: true })
 }

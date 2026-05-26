@@ -1,27 +1,13 @@
-import { NextRequest } from 'next/server'
-import { requireUser, supabaseAdmin } from '@/lib/supabase'
-import { fail, ok, unauthorized } from '@/lib/respond'
+import { getLeiloes, createLeilao } from '@/lib/bula/queries'
+import { NextResponse } from 'next/server'
 
 export async function GET() {
-  const user = await requireUser()
-  if (!user) return unauthorized()
-  const { data, error } = await supabaseAdmin()
-    .from('leiloes')
-    .select('*')
-    .order('data', { ascending: true })
-  if (error) return fail(error.message, 500)
-  return ok(data || [])
+    const leiloes = await getLeiloes()
+    return NextResponse.json(leiloes)
 }
 
-export async function POST(req: NextRequest) {
-  const user = await requireUser()
-  if (!user) return unauthorized()
-  const body = await req.json().catch(() => ({}))
-  const { data, error } = await supabaseAdmin()
-    .from('leiloes')
-    .insert(body)
-    .select('*')
-    .single()
-  if (error) return fail(error.message, 400)
-  return ok(data)
+export async function POST(request: Request) {
+    const body = await request.json()
+    const leilao = await createLeilao(body)
+    return NextResponse.json(leilao, { status: 201 })
 }

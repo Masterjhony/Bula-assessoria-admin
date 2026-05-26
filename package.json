@@ -28,6 +28,7 @@
     "@types/node": "^20.14.10",
     "@types/react": "^19",
     "@types/react-dom": "^19",
+    "pg": "^8.21.0",
     "tailwindcss": "^4",
     "typescript": "^5.5.3"
   }
