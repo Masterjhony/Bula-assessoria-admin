@@ -113,7 +113,7 @@ body { font-family:'Inter',-apple-system,sans-serif; -webkit-font-smoothing:anti
 
     <div class="form-success" id="form-success">
       <strong>Conta criada com sucesso!</strong>
-      <span>Verifique seu email para confirmar o cadastro, depois faca o login.</span>
+      <span id="success-text">Redirecionando...</span>
     </div>
 
     <form class="login-form" id="signup-form" onsubmit="handleSignup(event)">
@@ -218,6 +218,14 @@ async function handleSignup(e) {
 
     document.getElementById('signup-form').style.display = 'none';
     successBox.classList.add('show');
+    const dest = window.location.host.toLowerCase().startsWith('erp.') ? '/erp' : '/sistema';
+    if (data.session) {
+      document.getElementById('success-text').textContent = 'Entrando no sistema...';
+      setTimeout(() => { window.location.href = dest; }, 900);
+    } else {
+      document.getElementById('success-text').textContent = 'Conta criada. Faca login para entrar.';
+      setTimeout(() => { window.location.href = '/'; }, 1800);
+    }
     btn.disabled = false;
     btn.innerHTML = '<span class="material-symbols-outlined">person_add</span> Criar conta';
 
