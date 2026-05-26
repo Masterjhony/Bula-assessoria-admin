@@ -1,11 +1,24 @@
-import { PlaceholderPage } from '@/components/admin/PlaceholderPage'
+import { Suspense } from 'react';
+import { Loader2 } from 'lucide-react';
+import { CRMDashboardClient } from '@/components/admin/crm/CRMDashboardClient';
+import { getLeads } from '@/app/sistema/actions/crm-leads';
+import { getCRMConfig } from '@/app/sistema/actions/crm-config';
 
-export default function Page() {
-  return (
-    <PlaceholderPage
-      title="CRM"
-      phase="Fase 8"
-      description="Será implementado na Fase 8 (UI + schema + APIs). Banco inicia vazio — sem migração de dados do Fórmula."
-    />
-  )
+export const dynamic = 'force-dynamic';
+
+export default async function CRMPage() {
+    const [leads, crmConfig] = await Promise.all([
+        getLeads(),
+        getCRMConfig(),
+    ]);
+
+    return (
+        <div className="h-full flex flex-col">
+            <div className="flex-1 overflow-hidden">
+                <Suspense fallback={<div className="flex items-center justify-center py-24"><Loader2 size={28} className="animate-spin text-[#A0792E]" /></div>}>
+                    <CRMDashboardClient initialLeads={leads || []} crmConfig={crmConfig} />
+                </Suspense>
+            </div>
+        </div>
+    );
 }
