@@ -1,851 +1,453 @@
-'use client';
+'use client'
 
-import { useEffect, useMemo, useState } from 'react';
-import Link from 'next/link';
+import { useEffect, useState } from 'react'
+import Link from 'next/link'
 import {
-    Gavel, Target, Trophy, PhoneCall, ListTodo,
-    Filter, ArrowRight, Download, MoreHorizontal,
-    Sparkles, CheckCircle2, Clock, MapPin,
-    TrendingUp, TrendingDown, Users, MessageSquare,
-    Medal, BarChart3, Package, Dna,
-} from 'lucide-react';
-import './dashboard.css';
+  Gavel, Target, Trophy, Medal, BarChart3, Calendar, MapPin,
+} from 'lucide-react'
 
-// ─── types ──────────────────────────────────────────────────────────────────
+// ─── Types (compatíveis com o page.tsx que injeta dados) ────────────────────
 
 export type ProximoLeilao = {
-    nome: string;
-    tipo: string | null;
-    animais: number;
-    meta_bula: number;
-    expectativa: number;
-    horario: string | null;
-    leiloeira: string | null;
-    local: string | null;
-    status: string;
-    data: string; // ISO YYYY-MM-DD
-    wk: string;   // Seg, Ter…
-    day: string;  // 28
-    mo: string;   // Abr
-    targetTs: number | null; // ms (hora do leilão) para countdown
-    diasParaProximo: number | null;
-};
+  nome: string
+  tipo: string | null
+  animais: number
+  meta_bula: number
+  expectativa: number
+  horario: string | null
+  leiloeira: string | null
+  local: string | null
+  status: string
+  data: string
+  wk: string
+  day: string
+  mo: string
+  targetTs: number | null
+  diasParaProximo: number | null
+}
 
 export type ProximoLeilaoRow = {
-    id: string;
-    d: string; m: string; wk: string;
-    title: string; type: string;
-    status: 'ok' | 'warn' | 'pend';
-    statusLabel: string;
-    pct: number;
-    animais: number;
-    expectativaLabel: string;
-};
+  id: string
+  d: string; m: string; wk: string
+  title: string; type: string
+  status: 'ok' | 'warn' | 'pend'
+  statusLabel: string
+  pct: number
+  animais: number
+  expectativaLabel: string
+}
 
-export type VgvPoint = { label: string; meta: number; vgv: number; prev: number };
-
-export type FunnelStep = { label: string; n: number; pct: number };
-
+export type VgvPoint = { label: string; meta: number; vgv: number; prev: number }
+export type FunnelStep = { label: string; n: number; pct: number }
 export type FeedItem = {
-    id: string;
-    kind: 'lead' | 'wpp' | 'fechamento' | 'task' | 'ai';
-    text: string;
-    when: string;
-};
-
+  id: string
+  kind: 'lead' | 'wpp' | 'fechamento' | 'task' | 'ai'
+  text: string
+  when: string
+}
 export type PerformanceData = {
-    ticketMedio: number;
-    maiorLance: number;
-    lotesVendidos: number;
-    lotesOfertados: number;
-    taxaConversao: number;
-    animaisVendidos: number;
-    compradoresUnicos: number;
-    estadosUnicos: number;
-};
-
-export type RegionItem = { uf: string; estado: string; vgv: number; lotes: number; pct: number };
-
-export type LeilaoTopItem = { nome: string; data: string; vgv: number; lotesVendidos: number; animais: number };
-export type CompradorItem = { fazenda: string; uf: string; vgv: number; lotes: number };
-export type LanceItem = { lote: string; fazenda: string; uf: string; vgv: number; leilao: string };
-
-export type CatCount = { label: string; count: number };
-export type ReservaStatusItem = { status: string; label: string; count: number; valor: number };
+  ticketMedio: number
+  maiorLance: number
+  lotesVendidos: number
+  lotesOfertados: number
+  taxaConversao: number
+  animaisVendidos: number
+  compradoresUnicos: number
+  estadosUnicos: number
+}
+export type RegionItem = { uf: string; estado: string; vgv: number; lotes: number; pct: number }
+export type LeilaoTopItem = { nome: string; data: string; vgv: number; lotesVendidos: number; animais: number }
+export type CompradorItem = { fazenda: string; uf: string; vgv: number; lotes: number }
+export type LanceItem = { lote: string; fazenda: string; uf: string; vgv: number; leilao: string }
+export type CatCount = { label: string; count: number }
+export type ReservaStatusItem = { status: string; label: string; count: number; valor: number }
 
 export type DashboardProps = {
-    today: string;
-    proximo: ProximoLeilao | null;
-    upcoming: ProximoLeilaoRow[];
-    kpi: {
-        upcomingCount: number;
-        confirmedCount: number;
-        totalMetaBula: number;
-        totalAnimaisUpcoming: number;
-        totalVgvFechado: number;
-        totalFechamentos: number;
-        activeLeads: number;
-        hotLeads: number;
-        totalLeads: number;
-        ticketMedio: number;
-        vgvSpark: number[];
-        metaSpark: number[];
-        leadsSpark: number[];
-    };
-    vgv: VgvPoint[];
-    funnel: FunnelStep[];
-    feed: FeedItem[];
-    performance: PerformanceData;
-    regions: RegionItem[];
-    rankings: {
-        topLeiloes: LeilaoTopItem[];
-        compradores: CompradorItem[];
-        lances: LanceItem[];
-    };
-    formula: {
-        produtosTotal: number;
-        produtosByCategory: CatCount[];
-        reservasAtivas: number;
-        reservasNovas: number;
-        reservasValor: number;
-        reservasByStatus: ReservaStatusItem[];
-    };
-    aiInsight: { projection: number; metaTotal: number; pct: number; hint: string };
-};
+  today: string
+  proximo: ProximoLeilao | null
+  upcoming: ProximoLeilaoRow[]
+  kpi: {
+    upcomingCount: number
+    confirmedCount: number
+    totalMetaBula: number
+    totalAnimaisUpcoming: number
+    totalVgvFechado: number
+    totalFechamentos: number
+    activeLeads: number
+    hotLeads: number
+    totalLeads: number
+    ticketMedio: number
+    vgvSpark: number[]
+    metaSpark: number[]
+    leadsSpark: number[]
+  }
+  vgv: VgvPoint[]
+  funnel: FunnelStep[]
+  feed: FeedItem[]
+  performance: PerformanceData
+  regions: RegionItem[]
+  rankings: {
+    topLeiloes: LeilaoTopItem[]
+    compradores: CompradorItem[]
+    lances: LanceItem[]
+  }
+  formula: {
+    produtosTotal: number
+    produtosByCategory: CatCount[]
+    reservasAtivas: number
+    reservasNovas: number
+    reservasValor: number
+    reservasByStatus: ReservaStatusItem[]
+  }
+  aiInsight: { projection: number; metaTotal: number; pct: number; hint: string }
+}
 
-// Item genérico de KPI — montado no root e passado ao componente <KPIs />.
-export type KpiItem = {
-    label: string;
-    val: string;
-    delta: string;
-    dir?: 'up' | 'down';
-    icon: React.ReactNode;
-    spark: number[];
-    color: string;
-    tone: string;
-    href: string;
-};
+// ─── Helpers ────────────────────────────────────────────────────────────────
 
-// ─── helpers ────────────────────────────────────────────────────────────────
-
-const fmtBRL = (v: number) => new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(v);
+const fmtBRL = (v: number) => new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(v)
 const fmtBRLCompact = (v: number) => {
-    const abs = Math.abs(v);
-    const sign = v < 0 ? '−' : '';
-    if (abs >= 1_000_000) return `${sign}R$ ${(abs / 1_000_000).toFixed(2).replace('.', ',')}M`;
-    if (abs >= 1_000) return `${sign}R$ ${(abs / 1_000).toFixed(0)}k`;
-    return fmtBRL(v);
-};
-const fmtNum = (v: number) => v.toLocaleString('pt-BR');
-const MONTH_ABBR = ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun', 'Jul', 'Ago', 'Set', 'Out', 'Nov', 'Dez'];
+  const abs = Math.abs(v)
+  const sign = v < 0 ? '−' : ''
+  if (abs >= 1_000_000) return `${sign}R$ ${(abs / 1_000_000).toFixed(2).replace('.', ',')}M`
+  if (abs >= 1_000) return `${sign}R$ ${(abs / 1_000).toFixed(0)}k`
+  return fmtBRL(v)
+}
+const fmtNum = (v: number) => v.toLocaleString('pt-BR')
 
 function useCountdown(target: number | null) {
-    const [now, setNow] = useState<number>(() => Date.now());
-    useEffect(() => {
-        if (target == null) return;
-        const id = setInterval(() => setNow(Date.now()), 1000);
-        return () => clearInterval(id);
-    }, [target]);
-    if (target == null) return { d: 0, h: 0, m: 0, s: 0, done: true };
-    const ms = Math.max(0, target - now);
-    return {
-        d: Math.floor(ms / 86400000),
-        h: Math.floor((ms % 86400000) / 3600000),
-        m: Math.floor((ms % 3600000) / 60000),
-        s: Math.floor((ms % 60000) / 1000),
-        done: ms === 0,
-    };
+  const [now, setNow] = useState<number>(() => Date.now())
+  useEffect(() => {
+    if (target == null) return
+    const id = setInterval(() => setNow(Date.now()), 1000)
+    return () => clearInterval(id)
+  }, [target])
+  if (target == null) return { d: 0, h: 0, m: 0, s: 0, done: true }
+  const ms = Math.max(0, target - now)
+  return {
+    d: Math.floor(ms / 86400000),
+    h: Math.floor((ms % 86400000) / 3600000),
+    m: Math.floor((ms % 3600000) / 60000),
+    s: Math.floor((ms % 60000) / 1000),
+    done: ms === 0,
+  }
 }
+const pad2 = (n: number) => String(n).padStart(2, '0')
 
-function pad2(n: number) { return String(n).padStart(2, '0'); }
-
-// ─── Sparkline ──────────────────────────────────────────────────────────────
-
-function Sparkline({ data, color, fill = true }: { data: number[]; color: string; fill?: boolean }) {
-    const w = 58, h = 22, pad = 2;
-    if (!data.length) return null;
-    const min = Math.min(...data), max = Math.max(...data);
-    const rng = max - min || 1;
-    const pts = data.map((v, i) => {
-        const x = pad + (i / Math.max(1, data.length - 1)) * (w - pad * 2);
-        const y = h - pad - ((v - min) / rng) * (h - pad * 2);
-        return [x, y] as const;
-    });
-    const path = pts.map((p, i) => (i === 0 ? 'M' : 'L') + p[0].toFixed(1) + ',' + p[1].toFixed(1)).join(' ');
-    const fillPath = path + ` L${pts[pts.length - 1][0]},${h} L${pts[0][0]},${h} Z`;
-    const gid = 'sp-' + color.replace(/[^a-z0-9]/gi, '');
-    return (
-        <svg className="dcl-spark" viewBox={`0 0 ${w} ${h}`} preserveAspectRatio="none">
-            <defs>
-                <linearGradient id={gid} x1="0" x2="0" y1="0" y2="1">
-                    <stop offset="0%" stopColor={color} stopOpacity="0.35" />
-                    <stop offset="100%" stopColor={color} stopOpacity="0" />
-                </linearGradient>
-            </defs>
-            {fill && <path d={fillPath} fill={`url(#${gid})`} />}
-            <path d={path} fill="none" stroke={color} strokeWidth="1.3" strokeLinecap="round" strokeLinejoin="round" />
-        </svg>
-    );
-}
-
-// ─── Hero ───────────────────────────────────────────────────────────────────
+// ─── Hero (próximo leilão) ──────────────────────────────────────────────────
 
 function Hero({ data }: { data: ProximoLeilao | null }) {
-    const { d, h, m, s, done } = useCountdown(data?.targetTs ?? null);
-    if (!data) {
-        return (
-            <div className="dcl-hero" style={{ gridTemplateColumns: '1fr', textAlign: 'center' }}>
-                <div>
-                    <div className="dcl-hero-tags"><span className="dcl-tag dcl-dim">Nenhum leilão próximo cadastrado</span></div>
-                    <h2 className="dcl-hero-title">Sem leilões agendados</h2>
-                    <p style={{ color: 'var(--dcl-ink-3)', fontSize: 13, marginTop: 4 }}>Adicione um novo evento na página de Leilões.</p>
-                </div>
-            </div>
-        );
-    }
-    const diasLabel = data.diasParaProximo === 0 ? 'hoje' : data.diasParaProximo === 1 ? 'amanhã' : `em ${data.diasParaProximo} dias`;
-    const statusMap: Record<string, { cls: string; label: string }> = {
-        confirmado: { cls: 'dcl-green', label: 'Confirmado' },
-        negociacao: { cls: 'dcl-dim', label: 'Em negociação' },
-        prospecto: { cls: 'dcl-dim', label: 'Prospecto' },
-    };
-    const st = statusMap[data.status] ?? statusMap.prospecto;
+  const { d, h, m, s, done } = useCountdown(data?.targetTs ?? null)
+
+  if (!data) {
     return (
-        <Link href="/leiloes" className="dcl-hero">
-            <div className="dcl-date-block">
-                <div className="dcl-wk">{data.wk}</div>
-                <div className="dcl-day">{data.day}</div>
-                <div className="dcl-mo">{data.mo}</div>
+      <div className="hero-banner">
+        <div className="hero-greeting">Próximo leilão</div>
+        <div className="hero-title">Nenhum leilão agendado.</div>
+        <div className="hero-sub">Cadastre um novo evento na página Leilões.</div>
+      </div>
+    )
+  }
+
+  const statusBadge =
+    data.status === 'confirmado' ? <span className="badge olive">Confirmado</span> :
+    data.status === 'negociacao' ? <span className="badge amber">Em negociação</span> :
+    <span className="badge">{data.status}</span>
+
+  const dias = data.diasParaProximo
+  const quando =
+    dias === 0 ? 'hoje' :
+    dias === 1 ? 'amanhã' :
+    typeof dias === 'number' && dias > 0 ? `em ${dias} dia${dias === 1 ? '' : 's'}` :
+    'há alguns dias'
+
+  return (
+    <div className="hero-banner">
+      <div className="flex flex-col lg:flex-row lg:items-start lg:justify-between gap-6 relative z-[1]">
+        <div className="flex gap-5">
+          <div
+            className="shrink-0 flex flex-col items-center justify-center text-center"
+            style={{
+              width: 84, height: 96,
+              borderRadius: 'var(--r-lg)',
+              background: 'linear-gradient(180deg, var(--gold) 0%, var(--gold-dark) 100%)',
+              color: '#1a1a1a',
+              boxShadow: '0 6px 18px rgba(166, 139, 75, 0.18)',
+            }}
+          >
+            <div className="text-[10px] font-bold uppercase tracking-wide opacity-70">{data.wk}</div>
+            <div className="text-3xl font-black leading-none my-1">{data.day}</div>
+            <div className="text-[10px] font-bold uppercase tracking-wide opacity-70">{data.mo}</div>
+          </div>
+          <div>
+            <div className="flex flex-wrap items-center gap-2 mb-2">
+              <span className="badge gold">
+                <Gavel size={11} /> Próximo leilão
+              </span>
+              {statusBadge}
+              <span className="badge">
+                <Calendar size={11} /> {quando}
+                {data.horario ? ` · ${data.horario}` : ''}
+              </span>
             </div>
-            <div className="dcl-hero-body">
-                <div className="dcl-hero-tags">
-                    <span className="dcl-tag dcl-gold"><Gavel size={11} /><span>Próximo leilão</span></span>
-                    <span className={`dcl-tag ${st.cls}`}>{data.status === 'confirmado' ? <CheckCircle2 size={11} /> : null}<span>{st.label}</span></span>
-                    {data.horario && (
-                        <span className="dcl-tag dcl-dim"><Clock size={11} />{diasLabel} · {data.horario}</span>
-                    )}
-                </div>
-                <h2 className="dcl-hero-title">
-                    {data.nome}
-                    {data.tipo && <span className="dcl-sub"> · {data.tipo}</span>}
-                </h2>
-                <div className="dcl-hero-meta">
-                    {data.animais > 0 && <><span>{fmtNum(data.animais)} animais catalogados</span><span className="dcl-dot" /></>}
-                    {data.meta_bula > 0 && <><span>Meta: {fmtBRLCompact(data.meta_bula)}</span><span className="dcl-dot" /></>}
-                    {data.expectativa > 0 && <><span>Expectativa: {fmtBRLCompact(data.expectativa)}</span><span className="dcl-dot" /></>}
-                    {data.leiloeira && <><span>{data.leiloeira}</span><span className="dcl-dot" /></>}
-                    {data.local && <span><MapPin size={12} style={{ verticalAlign: -2, marginRight: 4 }} />{data.local}</span>}
-                </div>
+            <div className="hero-title">
+              {data.nome}{data.tipo ? <span className="muted text-[16px] font-normal"> · {data.tipo}</span> : null}
             </div>
-            <div className="dcl-countdown">
-                <div className="dcl-cd-cell"><div className="dcl-n">{done ? '00' : pad2(d)}</div><div className="dcl-l">dias</div></div>
-                <div className="dcl-cd-cell"><div className="dcl-n">{done ? '00' : pad2(h)}</div><div className="dcl-l">horas</div></div>
-                <div className="dcl-cd-cell"><div className="dcl-n">{done ? '00' : pad2(m)}</div><div className="dcl-l">min</div></div>
-                <div className="dcl-cd-cell"><div className="dcl-n">{done ? '00' : pad2(s)}</div><div className="dcl-l">seg</div></div>
+            <div className="flex flex-wrap items-center gap-x-4 gap-y-1 mt-2 text-[12px] muted">
+              <span>{fmtNum(data.animais)} animais catalogados</span>
+              {data.meta_bula > 0 && <span>· Meta {fmtBRLCompact(data.meta_bula)}</span>}
+              {data.expectativa > 0 && <span>· Expectativa {fmtBRLCompact(data.expectativa)}</span>}
+              {data.leiloeira && <span>· {data.leiloeira}</span>}
             </div>
+            {data.local && (
+              <div className="flex items-center gap-1.5 mt-2 text-[12px] subtle">
+                <MapPin size={12} /> {data.local}
+              </div>
+            )}
+          </div>
+        </div>
+
+        {data.targetTs != null && !done && (
+          <div className="flex gap-2 shrink-0 self-start">
+            {[
+              { v: pad2(d), l: 'dias' },
+              { v: pad2(h), l: 'horas' },
+              { v: pad2(m), l: 'min' },
+              { v: pad2(s), l: 'seg' },
+            ].map(({ v, l }) => (
+              <div
+                key={l}
+                className="text-center px-2.5 py-2"
+                style={{
+                  minWidth: 56,
+                  borderRadius: 'var(--r)',
+                  background: 'var(--s2)',
+                  border: '1px solid var(--border)',
+                }}
+              >
+                <div className="text-xl font-black tabular-nums" style={{ letterSpacing: '-0.02em' }}>{v}</div>
+                <div className="text-[9px] uppercase tracking-wider subtle">{l}</div>
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
+    </div>
+  )
+}
+
+// ─── KPI row ────────────────────────────────────────────────────────────────
+
+type Kpi = { label: string; value: string; sub?: string; icon: React.ReactNode; href?: string }
+
+function KpiRow({ items }: { items: Kpi[] }) {
+  return (
+    <div className="slim-row">
+      {items.map((it, i) => (
+        <>
+          {it.href ? (
+            <Link key={`k-${i}`} href={it.href} className="slim-kpi block hover:bg-[var(--s2)] transition-colors">
+              <div className="flex items-center justify-center gap-1.5 mb-1.5 subtle">{it.icon}</div>
+              <div className="slim-kpi-val">{it.value}</div>
+              <div className="slim-kpi-lbl">{it.label}</div>
+              {it.sub && <div className="slim-kpi-tag">{it.sub}</div>}
+            </Link>
+          ) : (
+            <div key={`k-${i}`} className="slim-kpi">
+              <div className="flex items-center justify-center gap-1.5 mb-1.5 subtle">{it.icon}</div>
+              <div className="slim-kpi-val">{it.value}</div>
+              <div className="slim-kpi-lbl">{it.label}</div>
+              {it.sub && <div className="slim-kpi-tag">{it.sub}</div>}
+            </div>
+          )}
+          {i < items.length - 1 && <div key={`d-${i}`} className="slim-div" />}
+        </>
+      ))}
+    </div>
+  )
+}
+
+// ─── Próximos leilões (lista compacta) ──────────────────────────────────────
+
+function UpcomingList({ rows }: { rows: ProximoLeilaoRow[] }) {
+  if (rows.length === 0) {
+    return (
+      <div className="card">
+        <div className="card-h"><div className="card-t">Próximos leilões</div></div>
+        <div className="card-b subtle text-sm">Sem leilões agendados.</div>
+      </div>
+    )
+  }
+  return (
+    <div className="card card-p0">
+      <div className="card-h">
+        <div className="card-t">Próximos leilões</div>
+        <Link href="/sistema/leiloes" className="text-[11px] subtle hover:text-[var(--gold)] transition-colors">
+          ver todos →
         </Link>
-    );
+      </div>
+      <div className="card-b">
+        <table className="tbl">
+          <thead>
+            <tr>
+              <th style={{ width: 60 }}>Quando</th>
+              <th>Leilão</th>
+              <th className="text-right" style={{ width: 100 }}>Animais</th>
+              <th style={{ width: 130 }}>Status</th>
+            </tr>
+          </thead>
+          <tbody>
+            {rows.map(r => (
+              <tr key={r.id}>
+                <td>
+                  <div className="text-[15px] font-bold leading-none">{r.d}</div>
+                  <div className="text-[10px] uppercase tracking-wider subtle">{r.m}</div>
+                </td>
+                <td>
+                  <div className="font-semibold">{r.title}</div>
+                  <div className="text-[11px] subtle">{r.type || '—'}</div>
+                </td>
+                <td className="text-right tabular-nums">{fmtNum(r.animais)}</td>
+                <td>
+                  {r.status === 'ok' && <span className="badge olive">{r.statusLabel}</span>}
+                  {r.status === 'warn' && <span className="badge amber">{r.statusLabel}</span>}
+                  {r.status === 'pend' && <span className="badge">{r.statusLabel}</span>}
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  )
 }
 
-// ─── KPIs ───────────────────────────────────────────────────────────────────
+// ─── Performance card ───────────────────────────────────────────────────────
 
-const KPI_GOLD = '#C8A96E', KPI_GREEN = '#5db87a', KPI_BLUE = '#6a8fd4', KPI_VIOLET = '#9b86c4';
+function PerformanceCard({ p }: { p: PerformanceData }) {
+  const items = [
+    { l: 'Ticket médio', v: fmtBRLCompact(p.ticketMedio) },
+    { l: 'Maior lance', v: fmtBRLCompact(p.maiorLance) },
+    { l: 'Lotes vendidos', v: `${fmtNum(p.lotesVendidos)}/${fmtNum(p.lotesOfertados)}` },
+    { l: 'Conversão', v: `${p.taxaConversao.toFixed(1)}%` },
+    { l: 'Animais vendidos', v: fmtNum(p.animaisVendidos) },
+    { l: 'Compradores únicos', v: fmtNum(p.compradoresUnicos) },
+  ]
+  return (
+    <div className="card">
+      <div className="card-h"><div className="card-t">Performance · fechamentos</div></div>
+      <div className="card-b grid grid-cols-2 gap-x-4 gap-y-3">
+        {items.map(({ l, v }) => (
+          <div key={l}>
+            <div className="text-[10px] uppercase tracking-wider subtle mb-0.5">{l}</div>
+            <div className="text-[15px] font-bold tabular-nums">{v}</div>
+          </div>
+        ))}
+      </div>
+    </div>
+  )
+}
 
-function KPIs({ items }: { items: KpiItem[] }) {
-    return (
-        <div className="dcl-kpi-row">
+// ─── Atividade recente ──────────────────────────────────────────────────────
+
+function ActivityCard({ items, title, href }: { items: FeedItem[]; title: string; href: string }) {
+  return (
+    <div className="card">
+      <div className="card-h">
+        <div className="card-t">{title}</div>
+        {items.length > 0 && (
+          <Link href={href} className="text-[11px] subtle hover:text-[var(--gold)]">ver mais →</Link>
+        )}
+      </div>
+      <div className="card-b">
+        {items.length === 0 ? (
+          <div className="subtle text-sm">Sem atividade recente.</div>
+        ) : (
+          <ul className="space-y-2.5">
             {items.map(it => (
-                <Link key={it.label} href={it.href} className="dcl-kpi dcl-k-gold">
-                    <div className="dcl-kpi-head">
-                        <div className="dcl-kpi-label">{it.label}</div>
-                        <div className={`dcl-kpi-ic dcl-${it.tone}`}>{it.icon}</div>
-                    </div>
-                    <div className="dcl-kpi-val">{it.val}</div>
-                    <div className="dcl-kpi-delta">
-                        <span className={it.dir === 'down' ? 'dcl-delta-dn' : 'dcl-delta-up'}>
-                            {it.dir === 'down' ? <TrendingDown size={11} /> : <TrendingUp size={11} />}
-                        </span>
-                        <span>{it.delta}</span>
-                    </div>
-                    {it.spark?.length > 0 && <Sparkline data={it.spark} color={it.color} />}
-                </Link>
+              <li key={it.id} className="flex justify-between gap-3 text-sm">
+                <span className="line-clamp-2">{it.text}</span>
+                <span className="subtle text-[11px] shrink-0">{it.when}</span>
+              </li>
             ))}
-        </div>
-    );
+          </ul>
+        )}
+      </div>
+    </div>
+  )
 }
 
-// ─── VGV Chart ──────────────────────────────────────────────────────────────
+// ─── Top leilões por VGV ────────────────────────────────────────────────────
 
-function VGVChart({ data, totalMeta, totalVgv, projection }: { data: VgvPoint[]; totalMeta: number; totalVgv: number; projection: number }) {
-    const [hover, setHover] = useState<number | null>(null);
-    const safe = data.length ? data : [{ label: '—', meta: 0, vgv: 0, prev: 0 }];
-    const w = 820, h = 260, pad = { l: 48, r: 16, t: 16, b: 30 };
-    const innerW = w - pad.l - pad.r, innerH = h - pad.t - pad.b;
-    const allVals = safe.flatMap(p => [p.meta, p.vgv, p.prev]);
-    const rawMax = Math.max(...allVals, 0.1);
-    const max = Math.ceil(rawMax * 1.2 * 10) / 10;
-    const xFor = (i: number) => pad.l + (i / Math.max(1, safe.length - 1)) * innerW;
-    const yFor = (v: number) => pad.t + innerH - (v / max) * innerH;
-    const mkArea = (arr: number[]) => {
-        const p = arr.map((v, i) => (i === 0 ? 'M' : 'L') + xFor(i) + ',' + yFor(v)).join(' ');
-        return p + ` L${xFor(arr.length - 1)},${pad.t + innerH} L${xFor(0)},${pad.t + innerH} Z`;
-    };
-    const mkLine = (arr: number[]) => arr.map((v, i) => (i === 0 ? 'M' : 'L') + xFor(i) + ',' + yFor(v)).join(' ');
-    const yTicks = [0, max / 4, max / 2, (3 * max) / 4, max];
-    const meta = safe.map(p => p.meta);
-    const vgv = safe.map(p => p.vgv);
-    const prev = safe.map(p => p.prev);
-    const pctMeta = totalMeta > 0 ? (totalVgv / totalMeta) * 100 : 0;
-    const prevSum = prev.reduce((a, b) => a + b, 0);
-    const currSum = vgv.reduce((a, b) => a + b, 0);
-    const deltaPct = prevSum > 0 ? ((currSum - prevSum) / prevSum) * 100 : 0;
-
-    return (
-        <div className="dcl-card dcl-col-8">
-            <div className="dcl-card-head">
-                <div>
-                    <h3>Volume geral de vendas · R$</h3>
-                    <span className="dcl-sub">Meta confirmada vs VGV fechado · comparação com ano anterior</span>
-                </div>
-                <div className="dcl-row">
-                    <button className="dcl-timeframe" style={{ padding: 0 }}>
-                        <span style={{ padding: '6px 11px', fontSize: 12, color: 'var(--dcl-ink-2)' }}>6M</span>
-                    </button>
-                    <button className="dcl-link-btn" title="Exportar"><Download size={14} /></button>
-                    <button className="dcl-link-btn" title="Mais"><MoreHorizontal size={14} /></button>
-                </div>
-            </div>
-            <div className="dcl-chart-stats">
-                <div className="dcl-s">
-                    <div className="dcl-n">{fmtBRLCompact(totalMeta)}</div>
-                    <div className="dcl-l">Meta confirmada · acumulado</div>
-                    <div className="dcl-d" style={{ color: deltaPct >= 0 ? 'var(--dcl-green)' : 'var(--dcl-red)' }}>
-                        {deltaPct >= 0 ? '↑' : '↓'} {Math.abs(deltaPct).toFixed(1)}% vs período anterior
-                    </div>
-                </div>
-                <div className="dcl-s">
-                    <div className="dcl-n">{fmtBRLCompact(totalVgv)}</div>
-                    <div className="dcl-l">VGV fechado ({pctMeta.toFixed(0)}% da meta)</div>
-                    <div className="dcl-d" style={{ color: 'var(--dcl-gold)' }}>Projeção IA: {fmtBRLCompact(projection)}</div>
-                </div>
-                <div className="dcl-s" style={{ marginLeft: 'auto' }}>
-                    <div className="dcl-chart-legend" style={{ marginTop: 16 }}>
-                        <span><span className="dcl-sw" style={{ background: 'var(--dcl-gold)' }} />Meta</span>
-                        <span><span className="dcl-sw" style={{ background: '#6a8fd4' }} />VGV</span>
-                        <span><span className="dcl-sw" style={{ background: 'var(--dcl-ink-4)' }} />Ano anterior</span>
-                    </div>
-                </div>
-            </div>
-            <svg viewBox={`0 0 ${w} ${h}`} style={{ width: '100%', height: 260, display: 'block' }}
-                onMouseLeave={() => setHover(null)}
-                onMouseMove={(e) => {
-                    const rect = e.currentTarget.getBoundingClientRect();
-                    const x = ((e.clientX - rect.left) / rect.width) * w;
-                    const i = Math.round(((x - pad.l) / innerW) * (safe.length - 1));
-                    if (i >= 0 && i < safe.length) setHover(i);
-                }}>
-                <defs>
-                    <linearGradient id="dclGMeta" x1="0" x2="0" y1="0" y2="1">
-                        <stop offset="0%" stopColor="#C8A96E" stopOpacity="0.35" />
-                        <stop offset="100%" stopColor="#C8A96E" stopOpacity="0" />
-                    </linearGradient>
-                    <linearGradient id="dclGVgv" x1="0" x2="0" y1="0" y2="1">
-                        <stop offset="0%" stopColor="#6a8fd4" stopOpacity="0.25" />
-                        <stop offset="100%" stopColor="#6a8fd4" stopOpacity="0" />
-                    </linearGradient>
-                </defs>
-                {yTicks.map(t => (
-                    <g key={t}>
-                        <line x1={pad.l} x2={w - pad.r} y1={yFor(t)} y2={yFor(t)} style={{ stroke: 'var(--dcl-line)' }} strokeDasharray="2 4" />
-                        <text x={pad.l - 10} y={yFor(t) + 3} fontSize="10" textAnchor="end" fontFamily="var(--font-mono), ui-monospace, monospace" style={{ fill: 'var(--dcl-ink-3)' }}>{t >= 1 ? t.toFixed(1) + 'M' : (t * 1000).toFixed(0) + 'k'}</text>
-                    </g>
-                ))}
-                <path d={mkLine(prev)} fill="none" style={{ stroke: 'var(--dcl-ink-4)' }} strokeWidth="1.3" strokeDasharray="4 4" />
-                <path d={mkArea(vgv)} fill="url(#dclGVgv)" />
-                <path d={mkLine(vgv)} fill="none" stroke="#6a8fd4" strokeWidth="2" />
-                <path d={mkArea(meta)} fill="url(#dclGMeta)" />
-                <path d={mkLine(meta)} fill="none" stroke="#C8A96E" strokeWidth="2" />
-                {safe.map((_, i) => (
-                    <g key={i}>
-                        <circle cx={xFor(i)} cy={yFor(meta[i])} r={hover === i ? 4.5 : 2.5} fill="#C8A96E" />
-                        <circle cx={xFor(i)} cy={yFor(vgv[i])} r={hover === i ? 4 : 2.3} fill="#6a8fd4" />
-                    </g>
-                ))}
-                {safe.map((p, i) => (
-                    <text key={p.label + i} x={xFor(i)} y={h - 10} fontSize="11" textAnchor="middle" fontFamily="var(--font-mono), ui-monospace, monospace" style={{ fill: 'var(--dcl-ink-3)' }}>{p.label}</text>
-                ))}
-                {hover !== null && (
-                    <g>
-                        <line x1={xFor(hover)} x2={xFor(hover)} y1={pad.t} y2={pad.t + innerH} stroke="#C8A96E" strokeOpacity="0.35" strokeDasharray="2 3" />
-                        <g transform={`translate(${Math.min(xFor(hover) + 12, w - 170)}, ${pad.t + 8})`}>
-                            <rect width="156" height="68" rx="8" style={{ fill: 'var(--dcl-bg-card)', stroke: 'var(--dcl-line)' }} />
-                            <text x="12" y="20" fontSize="10.5" style={{ fill: 'var(--dcl-ink-3)', letterSpacing: '0.08em', textTransform: 'uppercase' }}>{safe[hover].label}</text>
-                            <circle cx="14" cy="37" r="3" fill="#C8A96E" />
-                            <text x="24" y="40" fontSize="11" style={{ fill: 'var(--dcl-ink-2)' }}>Meta</text>
-                            <text x="145" y="40" fontSize="11.5" textAnchor="end" fontFamily="var(--font-mono), ui-monospace, monospace" style={{ fill: 'var(--dcl-ink)' }}>{fmtBRLCompact(safe[hover].meta * 1_000_000)}</text>
-                            <circle cx="14" cy="55" r="3" fill="#6a8fd4" />
-                            <text x="24" y="58" fontSize="11" style={{ fill: 'var(--dcl-ink-2)' }}>VGV</text>
-                            <text x="145" y="58" fontSize="11.5" textAnchor="end" fontFamily="var(--font-mono), ui-monospace, monospace" style={{ fill: 'var(--dcl-ink)' }}>{fmtBRLCompact(safe[hover].vgv * 1_000_000)}</text>
-                        </g>
-                    </g>
-                )}
-            </svg>
-        </div>
-    );
+function TopLeiloes({ rows }: { rows: LeilaoTopItem[] }) {
+  return (
+    <div className="card card-p0">
+      <div className="card-h"><div className="card-t">Top leilões · VGV</div></div>
+      <div className="card-b">
+        {rows.length === 0 ? (
+          <div className="subtle text-sm">Sem fechamentos registrados.</div>
+        ) : (
+          <table className="tbl">
+            <thead><tr><th>Leilão</th><th className="text-right">Lotes</th><th className="text-right">VGV</th></tr></thead>
+            <tbody>
+              {rows.slice(0, 6).map(r => (
+                <tr key={r.nome + r.data}>
+                  <td>
+                    <div className="font-semibold">{r.nome}</div>
+                    <div className="text-[11px] subtle">{r.data.split('-').reverse().join('/')}</div>
+                  </td>
+                  <td className="text-right tabular-nums">{fmtNum(r.lotesVendidos)}</td>
+                  <td className="text-right font-bold tabular-nums">{fmtBRLCompact(r.vgv)}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        )}
+      </div>
+    </div>
+  )
 }
 
-// ─── AI Insight ─────────────────────────────────────────────────────────────
-
-function AIInsight({ ai }: { ai: DashboardProps['aiInsight'] }) {
-    const pct = Math.max(0, Math.min(120, ai.pct));
-    return (
-        <div className="dcl-card dcl-ai-card dcl-col-4">
-            <div className="dcl-ai-head">
-                <div className="dcl-ai-mark"><Sparkles size={14} /></div>
-                <div className="dcl-ai-title">Leitura <span className="dcl-serif">inteligente</span></div>
-                <span className="dcl-pill dcl-warn" style={{ marginLeft: 'auto' }}>Beta</span>
-            </div>
-            <div className="dcl-ai-body">
-                <p style={{ margin: '0 0 10px' }}>
-                    Com o ritmo atual, projeção de fechar <span className="dcl-hl">{fmtBRLCompact(ai.projection)}</span> no período — <span className="dcl-hl" style={{ color: ai.pct >= 100 ? 'var(--dcl-green)' : 'var(--dcl-red)' }}>{ai.pct >= 100 ? '+' : ''}{(ai.pct - 100).toFixed(1)}% vs meta</span>.
-                </p>
-                <p style={{ margin: 0, color: 'var(--dcl-ink-3)', fontSize: 12.5 }}>{ai.hint}</p>
-            </div>
-            <div className="dcl-ai-prog">
-                <div>
-                    <div className="dcl-ai-prog-label dcl-mono" style={{ marginBottom: 6 }}>Projeção · {Math.round(pct)}% da meta</div>
-                    <div style={{ position: 'relative', height: 8, borderRadius: 99, background: 'var(--dcl-bg-card-2)', overflow: 'hidden' }}>
-                        <div style={{ position: 'absolute', left: 0, top: 0, bottom: 0, width: `${Math.min(100, pct)}%`, background: 'linear-gradient(90deg,#6a8fd4,#C8A96E)', borderRadius: 99 }} />
-                        <div style={{ position: 'absolute', left: '100%', top: -4, bottom: -4, width: 1, background: 'var(--dcl-green)', transform: 'translateX(-1px)' }} />
-                    </div>
-                </div>
-            </div>
-            <div className="dcl-ai-chips">
-                <Link href="/leads" className="dcl-ai-chip">Ver leads sugeridos</Link>
-                <Link href="/leiloes" className="dcl-ai-chip">Simular cenário</Link>
-            </div>
-        </div>
-    );
-}
-
-// ─── Agenda ─────────────────────────────────────────────────────────────────
-
-function Agenda({ rows }: { rows: ProximoLeilaoRow[] }) {
-    return (
-        <div className="dcl-card dcl-col-8">
-            <div className="dcl-card-head">
-                <div>
-                    <h3>Próximos leilões</h3>
-                    <span className="dcl-sub">Preview dos {rows.length} próximos eventos</span>
-                </div>
-                <div className="dcl-row">
-                    <Link href="/leiloes" className="dcl-link-btn"><Filter size={13} /> Filtrar</Link>
-                    <Link href="/leiloes" className="dcl-link-btn">Ver agenda completa <ArrowRight size={13} /></Link>
-                </div>
-            </div>
-            {rows.length === 0 ? (
-                <div style={{ color: 'var(--dcl-ink-3)', fontSize: 13, padding: '18px 0' }}>Nenhum leilão agendado.</div>
-            ) : rows.map((r, i) => (
-                <Link href={`/leiloes/${r.id}`} key={r.id + i} className="dcl-agenda-row">
-                    <div className="dcl-agenda-date"><div className="dcl-d">{r.d}</div><div className="dcl-m">{r.m}</div></div>
-                    <div>
-                        <div className="dcl-agenda-title">
-                            {r.title}
-                            {i === 0 && <span className="dcl-pill dcl-warn" style={{ marginLeft: 10, verticalAlign: 2 }}>PRÓXIMO</span>}
-                        </div>
-                        <div className="dcl-agenda-meta">
-                            <span>{r.type || '—'}</span>
-                            <span className="dcl-dot" />
-                            <span className="dcl-mono">{fmtNum(r.animais)} animais</span>
-                            {r.expectativaLabel && (<><span className="dcl-dot" /><span>{r.expectativaLabel}</span></>)}
-                        </div>
-                    </div>
-                    <div className="dcl-agenda-bars">
-                        <div style={{ textAlign: 'right' }}>
-                            <div className="dcl-mono" style={{ fontSize: 11, color: 'var(--dcl-ink-2)' }}>{r.pct}%</div>
-                            <div className="dcl-bar-mini" style={{ marginTop: 4 }}><span style={{ width: r.pct + '%' }} /></div>
-                        </div>
-                        <span className={`dcl-pill dcl-${r.status}`}>{r.statusLabel}</span>
-                    </div>
-                </Link>
-            ))}
-        </div>
-    );
-}
-
-// ─── Funnel ─────────────────────────────────────────────────────────────────
-
-function Funnel({ steps, totalConv }: { steps: FunnelStep[]; totalConv: number }) {
-    return (
-        <div className="dcl-card dcl-col-4">
-            <div className="dcl-card-head">
-                <div>
-                    <h3>Funil de leads</h3>
-                    <span className="dcl-sub">Últimos leads · conversão {totalConv.toFixed(1)}%</span>
-                </div>
-                <Link href="/crm" className="dcl-link-btn"><ArrowRight size={14} /></Link>
-            </div>
-            <div className="dcl-funnel">
-                {steps.length === 0 ? (
-                    <div style={{ color: 'var(--dcl-ink-3)', fontSize: 13 }}>Sem dados de leads.</div>
-                ) : steps.map((s, i) => (
-                    <div key={s.label}>
-                        <div className="dcl-funnel-step">
-                            <div className="dcl-fn-label"><span>{s.label}</span></div>
-                            <div><span className="dcl-fn-label"><span className="dcl-cnt dcl-mono">{fmtNum(s.n)}</span></span></div>
-                        </div>
-                        <div className="dcl-fn-bar"><span style={{ width: Math.max(2, s.pct) + '%' }} /></div>
-                        <div className="dcl-fn-foot">
-                            <span className="dcl-fn-pct">{s.pct.toFixed(1)}%</span>
-                            {i > 0 && (
-                                <span className="dcl-fn-pct" style={{ color: 'var(--dcl-ink-4)' }}>
-                                    ↓ {fmtNum(Math.max(0, steps[i - 1].n - s.n))}
-                                </span>
-                            )}
-                        </div>
-                    </div>
-                ))}
-            </div>
-        </div>
-    );
-}
-
-// ─── Activity Feed ──────────────────────────────────────────────────────────
-
-function ActivityFeed({ items, href = '/leads' }: { items: FeedItem[]; href?: string }) {
-    const kindToDot: Record<FeedItem['kind'], { cls: string; icon: React.ReactNode }> = {
-        lead: { cls: 'dcl-b', icon: <PhoneCall size={11} /> },
-        wpp: { cls: 'dcl-g', icon: <MessageSquare size={11} /> },
-        fechamento: { cls: 'dcl-a', icon: <Gavel size={11} /> },
-        task: { cls: 'dcl-v', icon: <ListTodo size={11} /> },
-        ai: { cls: 'dcl-v', icon: <Sparkles size={11} /> },
-    };
-    return (
-        <div className="dcl-card dcl-col-8">
-            <div className="dcl-card-head">
-                <div>
-                    <h3>Atividade recente</h3>
-                    <span className="dcl-sub">
-                        <span className="dcl-status-pill" style={{ padding: '2px 8px', fontSize: 10.5 }}>
-                            <span className="dcl-ping" />em tempo real
-                        </span>
-                    </span>
-                </div>
-                <Link href={href} className="dcl-link-btn">Ver tudo <ArrowRight size={13} /></Link>
-            </div>
-            <div className="dcl-feed">
-                {items.length === 0 ? (
-                    <div style={{ color: 'var(--dcl-ink-3)', fontSize: 13, padding: '10px 0' }}>Nenhuma atividade recente.</div>
-                ) : items.map((f) => {
-                    const dot = kindToDot[f.kind];
-                    return (
-                        <div key={f.id} className="dcl-feed-item">
-                            <div className={`dcl-feed-dot ${dot.cls}`}>{dot.icon}</div>
-                            <div className="dcl-feed-text" dangerouslySetInnerHTML={{ __html: f.text }} />
-                            <div className="dcl-feed-time">{f.when}</div>
-                        </div>
-                    );
-                })}
-            </div>
-        </div>
-    );
-}
-
-// ─── Performance ────────────────────────────────────────────────────────────
-
-function Performance({ p }: { p: PerformanceData }) {
-    const conv = Math.max(0, Math.min(100, p.taxaConversao));
-    const stats: { label: string; value: string }[] = [
-        { label: 'Animais vendidos', value: fmtNum(p.animaisVendidos) },
-        { label: 'Compradores únicos', value: fmtNum(p.compradoresUnicos) },
-        { label: 'Estados alcançados', value: fmtNum(p.estadosUnicos) },
-        { label: 'Maior lance', value: fmtBRLCompact(p.maiorLance) },
-    ];
-    return (
-        <div className="dcl-card dcl-col-4">
-            <div className="dcl-card-head">
-                <div>
-                    <h3>Performance</h3>
-                    <span className="dcl-sub">Histórico de fechamentos</span>
-                </div>
-                <BarChart3 size={14} style={{ color: 'var(--dcl-gold)' }} />
-            </div>
-            <div style={{ marginBottom: 14 }}>
-                <div className="dcl-mono" style={{ fontSize: 11, color: 'var(--dcl-ink-3)', textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: 4 }}>
-                    Conversão de lotes
-                </div>
-                <div style={{ display: 'flex', alignItems: 'baseline', gap: 8 }}>
-                    <div className="dcl-mono" style={{ fontSize: 22, color: 'var(--dcl-ink)', fontWeight: 500 }}>{conv.toFixed(1)}%</div>
-                    <div style={{ fontSize: 11, color: 'var(--dcl-ink-3)' }}>{fmtNum(p.lotesVendidos)} de {fmtNum(p.lotesOfertados)} lotes</div>
-                </div>
-                <div style={{ position: 'relative', height: 6, borderRadius: 99, background: 'var(--dcl-bg-card-2)', overflow: 'hidden', marginTop: 8 }}>
-                    <div style={{ position: 'absolute', left: 0, top: 0, bottom: 0, width: `${conv}%`, background: 'linear-gradient(90deg,#6a8fd4,#C8A96E)', borderRadius: 99 }} />
-                </div>
-            </div>
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>
-                {stats.map(s => (
-                    <div key={s.label} style={{ padding: '10px 12px', borderRadius: 10, background: 'var(--dcl-bg-card-2)', border: '1px solid var(--dcl-line)' }}>
-                        <div style={{ fontSize: 10.5, color: 'var(--dcl-ink-3)', textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: 4 }}>{s.label}</div>
-                        <div className="dcl-mono" style={{ fontSize: 14, color: 'var(--dcl-ink)' }}>{s.value}</div>
-                    </div>
-                ))}
-            </div>
-        </div>
-    );
-}
-
-// ─── Regions ────────────────────────────────────────────────────────────────
-
-function RegionPanel({ regions }: { regions: RegionItem[] }) {
-    const max = Math.max(...regions.map(r => r.vgv), 1);
-    return (
-        <div className="dcl-card dcl-col-4">
-            <div className="dcl-card-head">
-                <div>
-                    <h3>Compradores por estado</h3>
-                    <span className="dcl-sub">VGV total realizado por UF</span>
-                </div>
-                <Link href="/leiloes/fechamento" className="dcl-link-btn"><MapPin size={14} /></Link>
-            </div>
-            {regions.length === 0 ? (
-                <div style={{ color: 'var(--dcl-ink-3)', fontSize: 13 }}>Sem dados regionais.</div>
-            ) : regions.slice(0, 8).map(r => {
-                const pct = (r.vgv / max) * 100;
-                return (
-                    <div key={r.uf} className="dcl-region-row">
-                        <div className="dcl-n">{r.estado || r.uf}</div>
-                        <div className="dcl-bar"><span style={{ width: pct + '%' }} /></div>
-                        <div className="dcl-v">{fmtBRLCompact(r.vgv)}</div>
-                    </div>
-                );
-            })}
-        </div>
-    );
-}
-
-// ─── Rankings (extras) ─────────────────────────────────────────────────────
-
-function RankLeiloes({ rows }: { rows: LeilaoTopItem[] }) {
-    const fmtShortDate = (iso: string) => {
-        if (!iso) return '';
-        const [, m, d] = iso.split('-').map(Number);
-        if (!m || !d) return '';
-        return `${String(d).padStart(2, '0')}/${MONTH_ABBR[m - 1]}`;
-    };
-    return (
-        <div className="dcl-card dcl-col-4">
-            <div className="dcl-card-head">
-                <div>
-                    <h3>Top leilões realizados</h3>
-                    <span className="dcl-sub">Maiores VGV no histórico de fechamentos</span>
-                </div>
-                <Trophy size={14} style={{ color: 'var(--dcl-gold)' }} />
-            </div>
-            {rows.length === 0 ? <div style={{ color: 'var(--dcl-ink-3)', fontSize: 13 }}>Sem dados.</div> : rows.map((r, i) => (
-                <div key={r.nome + i} className="dcl-rank-row">
-                    <div className={`dcl-rank-pos${i > 2 ? ' dcl-mut' : ''}`}>{i + 1}</div>
-                    <div>
-                        <div className="dcl-rank-name">{r.nome}</div>
-                        <div className="dcl-rank-meta">
-                            {r.data && <span>{fmtShortDate(r.data)}</span>}
-                            {r.data && <span className="dcl-dot" style={{ width: 3, height: 3, borderRadius: '50%', background: 'var(--dcl-ink-4)' }} />}
-                            <span>{fmtNum(r.lotesVendidos)} lotes · {fmtNum(r.animais)} animais</span>
-                        </div>
-                    </div>
-                    <div>
-                        <div className="dcl-rank-v">{fmtBRLCompact(r.vgv)}</div>
-                    </div>
-                </div>
-            ))}
-        </div>
-    );
-}
-
-function RankCompradores({ rows }: { rows: CompradorItem[] }) {
-    return (
-        <div className="dcl-card dcl-col-4">
-            <div className="dcl-card-head">
-                <div>
-                    <h3>Top compradores</h3>
-                    <span className="dcl-sub">Fazendas com maior VGV</span>
-                </div>
-                <Users size={14} style={{ color: 'var(--dcl-gold)' }} />
-            </div>
-            {rows.length === 0 ? <div style={{ color: 'var(--dcl-ink-3)', fontSize: 13 }}>Sem dados.</div> : rows.map((r, i) => (
-                <div key={r.fazenda + i} className="dcl-rank-row">
-                    <div className={`dcl-rank-pos${i > 2 ? ' dcl-mut' : ''}`}>{i + 1}</div>
-                    <div>
-                        <div className="dcl-rank-name">{r.fazenda}</div>
-                        <div className="dcl-rank-meta">
-                            {r.uf && <span>{r.uf}</span>}
-                            {r.uf && <span className="dcl-dot" style={{ width: 3, height: 3, borderRadius: '50%', background: 'var(--dcl-ink-4)' }} />}
-                            <span>{fmtNum(r.lotes)} lotes</span>
-                        </div>
-                    </div>
-                    <div>
-                        <div className="dcl-rank-v">{fmtBRLCompact(r.vgv)}</div>
-                    </div>
-                </div>
-            ))}
-        </div>
-    );
-}
-
-function RankLances({ rows }: { rows: LanceItem[] }) {
-    return (
-        <div className="dcl-card dcl-col-4">
-            <div className="dcl-card-head">
-                <div>
-                    <h3>Maiores lances</h3>
-                    <span className="dcl-sub">Arrematações de destaque</span>
-                </div>
-                <Medal size={14} style={{ color: 'var(--dcl-gold)' }} />
-            </div>
-            {rows.length === 0 ? <div style={{ color: 'var(--dcl-ink-3)', fontSize: 13 }}>Sem dados.</div> : rows.map((r, i) => (
-                <div key={r.lote + i} className="dcl-rank-row">
-                    <div className={`dcl-rank-pos${i > 2 ? ' dcl-mut' : ''}`}>{i + 1}</div>
-                    <div>
-                        <div className="dcl-rank-name">Lote {r.lote} · {r.fazenda}</div>
-                        <div className="dcl-rank-meta">
-                            <span>{r.leilao}</span>
-                            {r.uf && <><span className="dcl-dot" style={{ width: 3, height: 3, borderRadius: '50%', background: 'var(--dcl-ink-4)' }} /><span>{r.uf}</span></>}
-                        </div>
-                    </div>
-                    <div>
-                        <div className="dcl-rank-v">{fmtBRLCompact(r.vgv)}</div>
-                    </div>
-                </div>
-            ))}
-        </div>
-    );
-}
-
-// ─── Produtos & Reservas (legado, não aplicável ao web-bula) ──────────────────────────
-
-function ProdutosPanel({ items, total }: { items: CatCount[]; total: number }) {
-    const max = Math.max(...items.map(i => i.count), 1);
-    return (
-        <div className="dcl-card dcl-col-6">
-            <div className="dcl-card-head">
-                <div>
-                    <h3>Catálogo de produtos</h3>
-                    <span className="dcl-sub">{fmtNum(total)} cards · distribuição por categoria</span>
-                </div>
-                <Link href="/products" className="dcl-link-btn"><Dna size={14} /></Link>
-            </div>
-            {items.length === 0 ? (
-                <div style={{ color: 'var(--dcl-ink-3)', fontSize: 13, padding: '18px 0' }}>Nenhum produto cadastrado.</div>
-            ) : items.map(it => {
-                const pct = (it.count / max) * 100;
-                return (
-                    <div key={it.label} className="dcl-region-row">
-                        <div className="dcl-n">{it.label}</div>
-                        <div className="dcl-bar"><span style={{ width: pct + '%' }} /></div>
-                        <div className="dcl-v">{fmtNum(it.count)}</div>
-                    </div>
-                );
-            })}
-        </div>
-    );
-}
-
-function ReservasPanel({ items, total, valor }: { items: ReservaStatusItem[]; total: number; valor: number }) {
-    const max = Math.max(...items.map(i => i.count), 1);
-    return (
-        <div className="dcl-card dcl-col-6">
-            <div className="dcl-card-head">
-                <div>
-                    <h3>Reservas por etapa</h3>
-                    <span className="dcl-sub">{fmtNum(total)} ativas · {fmtBRLCompact(valor)} em valor</span>
-                </div>
-                <Link href="/reservas" className="dcl-link-btn"><ArrowRight size={14} /></Link>
-            </div>
-            {items.length === 0 ? (
-                <div style={{ color: 'var(--dcl-ink-3)', fontSize: 13, padding: '18px 0' }}>Nenhuma reserva ativa.</div>
-            ) : items.map(it => {
-                const pct = (it.count / max) * 100;
-                return (
-                    <div key={it.status} className="dcl-region-row">
-                        <div className="dcl-n">{it.label}</div>
-                        <div className="dcl-bar"><span style={{ width: pct + '%' }} /></div>
-                        <div className="dcl-v">{fmtNum(it.count)}</div>
-                    </div>
-                );
-            })}
-        </div>
-    );
-}
-
-// ─── Root ───────────────────────────────────────────────────────────────────
+// ─── Main ───────────────────────────────────────────────────────────────────
 
 export default function DashboardClient(props: DashboardProps) {
-    // Web-bula: dashboard único da Bula. Sem toggle de operação
-    // (a aba "Fórmula do Boi" do fórmula original foi removida — esse
-    // sistema atende só a Bula Assessoria).
+  const k = props.kpi
+  const feedFechamento = props.feed.filter(i => i.kind === 'fechamento').slice(0, 6)
+  const feedLeads = props.feed.filter(i => i.kind === 'lead').slice(0, 6)
 
-    const totalMeta = useMemo(() => props.vgv.reduce((s, p) => s + p.meta, 0) * 1_000_000, [props.vgv]);
-    const totalVgv = useMemo(() => props.vgv.reduce((s, p) => s + p.vgv, 0) * 1_000_000, [props.vgv]);
-    const totalFunnel = props.funnel[0]?.n ?? 0;
-    const totalClosed = props.funnel[props.funnel.length - 1]?.n ?? 0;
-    const convRate = totalFunnel > 0 ? (totalClosed / totalFunnel) * 100 : 0;
+  const kpis: Kpi[] = [
+    { label: 'Próx. leilões', value: String(k.upcomingCount), sub: `${k.confirmedCount} confirmado${k.confirmedCount === 1 ? '' : 's'}`, icon: <Gavel size={12} />, href: '/sistema/leiloes' },
+    { label: 'Meta confirmada', value: fmtBRLCompact(k.totalMetaBula), sub: `${fmtNum(k.totalAnimaisUpcoming)} animais`, icon: <Target size={12} />, href: '/sistema/leiloes' },
+    { label: 'VGV fechado', value: fmtBRLCompact(k.totalVgvFechado), sub: `${k.totalFechamentos} fechamento${k.totalFechamentos === 1 ? '' : 's'}`, icon: <Trophy size={12} />, href: '/sistema/leiloes/fechamento' },
+    { label: 'Ticket médio', value: fmtBRLCompact(k.ticketMedio), sub: 'Por lote vendido', icon: <BarChart3 size={12} />, href: '/sistema/leiloes/fechamento' },
+    { label: 'Fechamentos', value: String(k.totalFechamentos), sub: `${fmtNum(props.performance.animaisVendidos)} animais`, icon: <Medal size={12} />, href: '/sistema/leiloes/fechamento' },
+  ]
 
-    const k = props.kpi;
-    const f = props.formula;
-    const plural = (n: number) => (n === 1 ? '' : 's');
+  return (
+    <div className="space-y-6">
+      <div className="page-head">
+        <h1>
+          <small>Dashboard</small>
+          Visão geral
+          <span className="block text-[12px] font-normal subtle mt-2">{props.today}</span>
+        </h1>
+        <span className="badge olive"><span className="w-1.5 h-1.5 rounded-full bg-[var(--olive)]" /> Sistema ativo</span>
+      </div>
 
-    const bulaKpis: KpiItem[] = [
-        { label: 'Próx. leilões', val: String(k.upcomingCount), delta: `${k.confirmedCount} confirmado${plural(k.confirmedCount)}`, icon: <Gavel size={12} />, spark: k.metaSpark, color: KPI_GOLD, tone: 'gold', href: '/leiloes' },
-        { label: 'Meta confirmada', val: fmtBRLCompact(k.totalMetaBula), delta: `${fmtNum(k.totalAnimaisUpcoming)} animais`, icon: <Target size={12} />, spark: k.metaSpark, color: KPI_GREEN, tone: 'green', href: '/leiloes' },
-        { label: 'VGV fechado', val: fmtBRLCompact(k.totalVgvFechado), delta: `${k.totalFechamentos} fechamentos`, icon: <Trophy size={12} />, spark: k.vgvSpark, color: KPI_GOLD, tone: 'gold', href: '/leiloes/fechamento' },
-        { label: 'Ticket médio', val: fmtBRLCompact(k.ticketMedio), delta: 'Por lote vendido', icon: <BarChart3 size={12} />, spark: k.vgvSpark, color: KPI_VIOLET, tone: 'violet', href: '/leiloes/fechamento' },
-        { label: 'Fechamentos', val: String(k.totalFechamentos), delta: `${fmtNum(props.performance.animaisVendidos)} animais vendidos`, icon: <Medal size={12} />, spark: k.vgvSpark, color: KPI_BLUE, tone: 'blue', href: '/leiloes/fechamento' },
-    ];
+      <Hero data={props.proximo} />
 
-    const feedFechamento = props.feed.filter(i => i.kind === 'fechamento').slice(0, 7);
-    const feedLeads = props.feed.filter(i => i.kind === 'lead').slice(0, 7);
+      <KpiRow items={kpis} />
 
-    return (
-        <div className="dcl-root">
-            <div className="dcl-pagehead">
-                <div>
-                    <h1>Visão <span className="dcl-serif">geral</span></h1>
-                    <div className="dcl-sub">{props.today}</div>
-                </div>
-                <div className="dcl-pagehead-right">
-                    <div className="dcl-status-pill"><span className="dcl-ping" /> Sistema ativo</div>
-                </div>
-            </div>
+      <div className="g2">
+        <UpcomingList rows={props.upcoming} />
+        <PerformanceCard p={props.performance} />
+      </div>
 
-            <>
-                    <Hero data={props.proximo} />
-                    <KPIs items={bulaKpis} />
+      <div className="g2">
+        <ActivityCard items={feedFechamento} title="Últimos fechamentos" href="/sistema/leiloes/fechamento" />
+        <ActivityCard items={feedLeads} title="Leads recentes" href="/sistema/leads" />
+      </div>
 
-                    <div className="dcl-bento">
-                        <VGVChart data={props.vgv} totalMeta={totalMeta || props.kpi.totalMetaBula} totalVgv={totalVgv || props.kpi.totalVgvFechado} projection={props.aiInsight.projection} />
-                        <AIInsight ai={props.aiInsight} />
-                    </div>
-
-                    <div className="dcl-bento">
-                        <Agenda rows={props.upcoming} />
-                        <Performance p={props.performance} />
-                    </div>
-
-                    <div className="dcl-bento">
-                        <ActivityFeed items={feedFechamento} href="/leiloes/fechamento" />
-                        <RegionPanel regions={props.regions} />
-                    </div>
-
-                    <div className="dcl-bento">
-                        <RankLeiloes rows={props.rankings.topLeiloes} />
-                        <RankCompradores rows={props.rankings.compradores} />
-                        <RankLances rows={props.rankings.lances} />
-                    </div>
-
-                    <div className="dcl-bento">
-                        <Funnel steps={props.funnel} totalConv={convRate} />
-                        <ActivityFeed items={feedLeads} href="/sistema/leads" />
-                    </div>
-            </>
-        </div>
-    );
+      <TopLeiloes rows={props.rankings.topLeiloes} />
+    </div>
+  )
 }

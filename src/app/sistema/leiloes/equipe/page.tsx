@@ -1,6 +1,5 @@
 'use client'
 
-import '../../dashboard.css'
 import { useEffect, useState, useCallback } from 'react'
 import {
   Plus, Edit2, Trash2, X, Loader2, Save, Mail, Phone, AlertCircle,

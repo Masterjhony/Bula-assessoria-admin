@@ -45,7 +45,7 @@ export function TaskColumn({ id, title, tasks, onTaskClick, onAddTask, onUpdateC
     return (
         <div
             ref={setNodeRef}
-            className="w-[350px] shrink-0 flex flex-col gap-4 bg-gray-50/80 dark:bg-[#141414]/80 p-4 rounded-2xl border border-gray-200 dark:border-[#2A2A2A] max-h-full"
+            className="w-[280px] shrink-0 flex flex-col gap-3 bg-[var(--surface)] p-3.5 rounded-[var(--r-lg)] border border-[var(--border)] max-h-full"
         >
             <div className="flex items-center justify-between pointer-events-auto h-8 mb-1">
                 {isEditing ? (
@@ -106,7 +106,7 @@ export function TaskColumn({ id, title, tasks, onTaskClick, onAddTask, onUpdateC
                 </div>
             </div>
 
-            <div className="flex-1 overflow-y-auto overflow-x-hidden custom-scrollbar pr-2 pb-2 flex flex-col gap-3 min-h-[150px]">
+            <div className="flex-1 overflow-y-auto overflow-x-hidden custom-scrollbar pr-1 pb-2 flex flex-col gap-2.5 min-h-[120px]">
                 <SortableContext items={tasks.map(t => t.id)} strategy={verticalListSortingStrategy}>
                     {tasks.map((task) => (
                         <TaskCard
@@ -118,6 +118,14 @@ export function TaskColumn({ id, title, tasks, onTaskClick, onAddTask, onUpdateC
                         />
                     ))}
                 </SortableContext>
+                {tasks.length === 0 && (
+                    <button
+                        onClick={() => onAddTask(id)}
+                        className="flex-1 min-h-[120px] flex items-center justify-center text-[12px] subtle border border-dashed border-[var(--border)] rounded-[var(--r)] hover:border-[var(--gold)] hover:text-[var(--gold)] transition-colors"
+                    >
+                        + Adicionar tarefa
+                    </button>
+                )}
             </div>
         </div>
     );

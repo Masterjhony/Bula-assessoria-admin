@@ -1,6 +1,5 @@
 'use client'
 
-import '../../dashboard.css'
 import { Fragment, Suspense, useCallback, useEffect, useMemo, useState } from 'react'
 import Link from 'next/link'
 import { useSearchParams, useRouter, usePathname } from 'next/navigation'

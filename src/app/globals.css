@@ -2,8 +2,7 @@
 @variant dark (&:where([data-theme="dark"], [data-theme="dark"] *));
 
 /* ══════════════════════════════════════════════════════════
-   BULA ASSESSORIA — Brand tokens
-   Extraídos do sistema.html legado (paleta dourado/oliva).
+   BULA ASSESSORIA — design tokens (extraídos do sistema.html)
 ══════════════════════════════════════════════════════════ */
 :root {
   --bg: #F5F3EF;
@@ -51,9 +50,7 @@
   --gold-dark: #A68B4B;
 }
 
-*,
-*::before,
-*::after {
+*, *::before, *::after {
   margin: 0;
   padding: 0;
   box-sizing: border-box;
@@ -73,6 +70,7 @@ body {
   min-height: 100%;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  transition: background 0.3s, color 0.3s;
 }
 
 button {
@@ -88,9 +86,7 @@ a {
   text-decoration: none;
 }
 
-input,
-textarea,
-select {
+input, textarea, select {
   font-family: inherit;
   font-size: inherit;
   color: inherit;
@@ -99,11 +95,352 @@ select {
   outline: none;
 }
 
-/* Utility helpers used across admin pages */
+.material-symbols-outlined {
+  font-variation-settings: 'FILL' 0, 'wght' 300, 'GRAD' 0, 'opsz' 20;
+  font-size: 20px;
+  vertical-align: middle;
+}
+
+/* ══════════════════════════════════════════════════════════
+   Utility classes do sistema.html (replicadas para o Next app)
+   Use estas classes nas páginas React para manter consistência
+   visual com o painel legado.
+══════════════════════════════════════════════════════════ */
+
 .muted { color: var(--text2); }
 .subtle { color: var(--text3); }
+
 .card-surface {
   background: var(--surface);
   border: 1px solid var(--border);
   border-radius: var(--r-lg);
 }
+
+/* ── CARD (sistema.html) ── */
+.card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--r-lg);
+  overflow: hidden;
+  transition: background 0.3s;
+}
+.card-h {
+  padding: 13px 18px;
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.card-t {
+  font-size: 10px;
+  font-weight: 600;
+  color: var(--text3);
+  text-transform: uppercase;
+  letter-spacing: 0.8px;
+}
+.card-b {
+  padding: 16px 18px;
+}
+.card-p0 .card-b {
+  padding: 0;
+}
+
+/* ── SLIM KPIs row ── */
+.slim-row {
+  display: flex;
+  background: var(--surface);
+  border: 1px solid rgba(200, 169, 110, 0.25);
+  border-radius: var(--r-lg);
+  overflow: hidden;
+  margin-bottom: 20px;
+  position: relative;
+}
+.slim-row::before {
+  content: '';
+  position: absolute;
+  inset: -1px;
+  border-radius: var(--r-lg);
+  background: linear-gradient(135deg, rgba(200, 169, 110, 0.15), transparent 50%, rgba(200, 169, 110, 0.08));
+  pointer-events: none;
+  z-index: 0;
+}
+.slim-kpi {
+  flex: 1;
+  padding: 20px 16px;
+  text-align: center;
+  position: relative;
+  z-index: 1;
+}
+.slim-kpi-val {
+  font-size: 22px;
+  font-weight: 800;
+  color: var(--text);
+  letter-spacing: -0.5px;
+  line-height: 1;
+  margin-bottom: 5px;
+}
+.slim-kpi-val .cur {
+  font-size: 11px;
+  font-weight: 400;
+  color: var(--gold);
+}
+.slim-kpi-lbl {
+  font-size: 9px;
+  color: var(--text3);
+  letter-spacing: 0.3px;
+}
+.slim-kpi-tag {
+  font-size: 9px;
+  font-weight: 500;
+  color: var(--olive);
+  margin-top: 4px;
+}
+.slim-kpi-tag.down { color: var(--red); }
+.slim-div {
+  width: 1px;
+  background: rgba(200, 169, 110, 0.12);
+  z-index: 1;
+}
+@media (max-width: 768px) {
+  .slim-row { flex-wrap: wrap; }
+  .slim-kpi { flex: 1 1 30%; min-width: 100px; padding: 16px 12px; }
+  .slim-div { display: none; }
+  .slim-kpi-val { font-size: 18px; }
+}
+
+/* ── SECTION LABEL (com hairline depois) ── */
+.sec-label {
+  font-size: 10px;
+  font-weight: 600;
+  color: var(--text3);
+  text-transform: uppercase;
+  letter-spacing: 1.5px;
+  margin-bottom: 14px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.sec-label::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: var(--border);
+}
+
+/* ── HERO BANNER (próximo leilão, etc.) ── */
+.hero-banner {
+  border-radius: var(--r-lg);
+  padding: 28px 32px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  position: relative;
+  overflow: hidden;
+}
+.hero-banner::before {
+  content: '';
+  position: absolute;
+  top: -40px; right: -40px;
+  width: 200px; height: 200px;
+  background: radial-gradient(circle, var(--gold-dim) 0%, transparent 70%);
+  pointer-events: none;
+}
+.hero-banner::after {
+  content: '';
+  position: absolute;
+  bottom: -60px; left: -40px;
+  width: 180px; height: 180px;
+  background: radial-gradient(circle, rgba(200, 169, 110, 0.05) 0%, transparent 70%);
+  pointer-events: none;
+}
+.hero-title {
+  font-size: 20px;
+  font-weight: 700;
+  color: var(--text);
+  letter-spacing: -0.3px;
+  line-height: 1.4;
+}
+.hero-accent { color: var(--gold); }
+.hero-sub { font-size: 12px; color: var(--text3); margin-top: 6px; }
+.hero-greeting { font-size: 12px; color: var(--text3); margin-bottom: 8px; }
+
+/* ── GRIDS ── */
+.g2 { display: grid; grid-template-columns: 1fr; gap: 14px; }
+.g3 { display: grid; grid-template-columns: 1fr; gap: 14px; }
+@media (min-width: 768px) {
+  .g2 { grid-template-columns: 1fr 1fr; }
+  .g3 { grid-template-columns: 1fr 1fr 1fr; }
+}
+
+/* ── BADGES / PILLS ── */
+.badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 3px 9px;
+  border-radius: 999px;
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.2px;
+  background: var(--s2);
+  color: var(--text2);
+  border: 1px solid var(--border);
+}
+.badge.gold { background: var(--gold-dim); color: var(--gold); border-color: rgba(200, 169, 110, 0.25); }
+.badge.olive { background: var(--olive-bg); color: var(--olive); border-color: rgba(107, 143, 92, 0.25); }
+.badge.red { background: var(--red-bg); color: var(--red); border-color: rgba(192, 80, 77, 0.25); }
+.badge.amber { background: var(--amber-bg); color: var(--amber); border-color: rgba(212, 168, 67, 0.25); }
+.badge.blue { background: var(--blue-bg); color: var(--blue); border-color: rgba(74, 143, 191, 0.25); }
+
+/* ── BUTTONS ── */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  height: 36px;
+  padding: 0 14px;
+  border-radius: var(--r);
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.1px;
+  border: 1px solid var(--border);
+  background: var(--s2);
+  color: var(--text);
+  cursor: pointer;
+  transition: all 0.15s;
+}
+.btn:hover { background: var(--s3); }
+.btn.primary {
+  background: var(--gold);
+  border-color: var(--gold-dark);
+  color: var(--bg);
+}
+.btn.primary:hover { background: var(--gold-dark); }
+.btn.ghost { background: transparent; }
+.btn.ghost:hover { background: var(--s2); }
+.btn.danger { color: var(--red); border-color: rgba(192, 80, 77, 0.3); }
+.btn.danger:hover { background: var(--red-bg); }
+
+/* ── INPUT ── */
+.input, .textarea, .select {
+  width: 100%;
+  height: 36px;
+  padding: 0 12px;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: var(--r);
+  font-size: 13px;
+  color: var(--text);
+  transition: border-color 0.15s;
+}
+.textarea { height: auto; padding: 10px 12px; min-height: 80px; resize: vertical; }
+.input:focus, .textarea:focus, .select:focus {
+  border-color: var(--gold);
+  outline: none;
+}
+.input::placeholder, .textarea::placeholder { color: var(--text3); }
+.field-label {
+  font-size: 10px;
+  font-weight: 600;
+  color: var(--text3);
+  text-transform: uppercase;
+  letter-spacing: 0.8px;
+  margin-bottom: 6px;
+  display: block;
+}
+
+/* ── TABLE ── */
+.tbl {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13px;
+}
+.tbl thead th {
+  font-size: 10px;
+  font-weight: 600;
+  color: var(--text3);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  text-align: left;
+  padding: 10px 14px;
+  border-bottom: 1px solid var(--border);
+  background: var(--s2);
+}
+.tbl tbody td {
+  padding: 12px 14px;
+  border-bottom: 1px solid var(--border);
+  color: var(--text);
+}
+.tbl tbody tr:hover { background: var(--s2); }
+.tbl tbody tr:last-child td { border-bottom: none; }
+
+/* ── PAGE HEADER (h1 + subtitle) ── */
+.page-head {
+  margin-bottom: 24px;
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+.page-head h1 {
+  font-size: 24px;
+  font-weight: 700;
+  color: var(--text);
+  letter-spacing: -0.4px;
+  line-height: 1.2;
+}
+.page-head h1 small {
+  display: block;
+  font-size: 11px;
+  font-weight: 500;
+  color: var(--text3);
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+  margin-bottom: 8px;
+}
+.page-head .sub {
+  font-size: 12px;
+  color: var(--text2);
+  margin-top: 4px;
+}
+
+/* ══════════════════════════════════════════════════════════
+   Legacy .dcl-* aliases (compatibilidade com páginas que ainda
+   usam classes do antigo dashboard.css — devem migrar gradualmente
+   para as utilities acima). Mapeiam para os tokens da Bula.
+══════════════════════════════════════════════════════════ */
+.dcl-root {
+  color: var(--text);
+  background: transparent;
+}
+.dcl-pagehead {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  margin-bottom: 22px;
+  gap: 18px;
+  flex-wrap: wrap;
+}
+.dcl-pagehead h1 {
+  margin: 0 0 4px;
+  font-size: 24px;
+  font-weight: 700;
+  letter-spacing: -0.4px;
+  color: var(--text);
+}
+.dcl-pagehead .dcl-sub,
+.dcl-pagehead-right + .dcl-sub,
+.dcl-sub {
+  font-size: 12px;
+  color: var(--text2);
+  margin-top: 2px;
+}
+.dcl-pagehead-right { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+.dcl-serif { color: var(--gold); font-weight: 600; font-style: italic; }
+
+/* ── SCROLLBAR ── */
+::-webkit-scrollbar { width: 8px; height: 8px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--s4); border-radius: 4px; }
+::-webkit-scrollbar-thumb:hover { background: var(--s5); }

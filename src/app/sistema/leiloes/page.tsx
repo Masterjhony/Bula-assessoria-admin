@@ -1,6 +1,5 @@
 'use client'
 
-import '../dashboard.css'
 import { useState, useEffect, useCallback, useMemo } from 'react'
 import {
   Plus, Edit2, Trash2, X, ExternalLink, CalendarDays, Users, Tv, Tag,
@@ -1730,33 +1729,43 @@ export default function LeiloesPage() {
     <div className="space-y-6">
 
       {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4">
-        <div>
-          <h1 className="text-3xl font-black text-gray-900 dark:text-white uppercase tracking-tight">Leilões</h1>
-          <p className="text-gray-500 dark:text-gray-400 mt-1 text-sm">{merged.length} leilões na agenda 2026</p>
-        </div>
-        <div className="flex items-center gap-2">
-          <button onClick={() => { setEditBula(null); setShowBulaForm(true) }} className="flex items-center gap-2 px-5 py-2.5 bg-[#A68B4B] hover:bg-[#C8A96E] text-black rounded-xl font-semibold text-sm transition-colors shadow-lg shadow-[#A68B4B]/20">
-            <Plus size={16} /> Novo Leilão
-          </button>
-        </div>
+      <div className="page-head">
+        <h1>
+          <small>Leilões</small>
+          Agenda 2026
+          <span className="block text-[12px] font-normal subtle mt-2">{merged.length} {merged.length === 1 ? 'leilão' : 'leilões'} cadastrados</span>
+        </h1>
+        <button
+          onClick={() => { setEditBula(null); setShowBulaForm(true) }}
+          className="btn primary"
+        >
+          <Plus size={14} /> Novo leilão
+        </button>
       </div>
 
       <>
 
       {/* Stats */}
-      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-        {[
-          { label: 'Leilões', value: merged.length, accent: true },
-          { label: 'Animais', value: totalAnimais.toLocaleString('pt-BR') },
-          { label: 'Confirmados', value: confirmados },
-          { label: 'Presenciais / Expo', value: presenciais },
-        ].map(s => (
-          <div key={s.label} className={`px-5 py-4 rounded-2xl border text-center ${s.accent ? 'border-[#A68B4B]/30 bg-[#A68B4B]/8' : 'border-gray-100 dark:border-[#2A2A2A] bg-white dark:bg-[#141414]'}`}>
-            <p className={`text-2xl font-black leading-none mb-1 ${s.accent ? 'text-[#A68B4B]' : 'text-gray-900 dark:text-white'}`}>{s.value}</p>
-            <p className="text-[10px] text-gray-400 uppercase tracking-wider">{s.label}</p>
-          </div>
-        ))}
+      <div className="slim-row">
+        <div className="slim-kpi">
+          <div className="slim-kpi-val">{merged.length}</div>
+          <div className="slim-kpi-lbl">Leilões</div>
+        </div>
+        <div className="slim-div" />
+        <div className="slim-kpi">
+          <div className="slim-kpi-val tabular-nums">{totalAnimais.toLocaleString('pt-BR')}</div>
+          <div className="slim-kpi-lbl">Animais</div>
+        </div>
+        <div className="slim-div" />
+        <div className="slim-kpi">
+          <div className="slim-kpi-val">{confirmados}</div>
+          <div className="slim-kpi-lbl">Confirmados</div>
+        </div>
+        <div className="slim-div" />
+        <div className="slim-kpi">
+          <div className="slim-kpi-val">{presenciais}</div>
+          <div className="slim-kpi-lbl">Presenciais / Expo</div>
+        </div>
       </div>
 
       {/* Filters: search + advanced + view toggle */}
