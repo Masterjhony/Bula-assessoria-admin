@@ -92,7 +92,7 @@ body { font-family:'Inter',-apple-system,sans-serif; -webkit-font-smoothing:anti
 <body>
 <div class="login-page">
   <div class="login-photo">
-    <img src="/bula/assets/img/login-bg.jpg" alt="">
+    <img id="login-bg" src="/bula/assets/img/login-bg-admin.jpg" alt="">
     <div class="login-photo-overlay"></div>
     <div class="login-photo-badge">
       <div class="login-photo-badge-dot"></div>
@@ -105,7 +105,27 @@ body { font-family:'Inter',-apple-system,sans-serif; -webkit-font-smoothing:anti
   </div>
 
   <div class="login-form-side">
-    <img src="/logo-bula-remates-branco-_1_.svg" alt="Bula Remates" class="login-logo">
+    <img src="/logo-bula.png" alt="Bula" class="login-logo">
+    <script>
+      // Troca a foto de fundo dependendo do contexto (ERP vs Admin).
+      // ERP é detectado por subdomínio (erp.*) ou query (?ctx=erp).
+      (function () {
+        var host = (location.hostname || '').toLowerCase()
+        var isErp = host === 'erp.localhost' || host.startsWith('erp.') ||
+                    location.search.indexOf('ctx=erp') >= 0
+        if (isErp) {
+          var bg = document.getElementById('login-bg')
+          if (bg) bg.src = '/bula/assets/img/login-bg-erp.jpg'
+          // Também atualiza tagline e badge para contexto ERP
+          var badge = document.querySelector('.login-photo-badge-text')
+          if (badge) badge.textContent = 'Bula ERP'
+          var tagline = document.querySelector('.login-photo-tagline')
+          if (tagline) tagline.innerHTML = 'Gestão <span>financeira</span><br>e contábil da Bula.'
+          var sub = document.querySelector('.login-photo-sub')
+          if (sub) sub.textContent = 'Contês a pagar e receber, bancário, plano de contas e relatórios.'
+        }
+      })()
+    </script>
 
     <div class="login-welcome">
       <h1>Bem-vindo de volta</h1>

@@ -155,40 +155,13 @@ function AdminShell({ children }: { children: React.ReactNode }) {
         <div className="px-4 sm:px-6 lg:px-8">
           <div className="flex items-center h-[60px] lg:h-[68px] gap-3">
 
-            <Link
-              href="/sistema"
-              className="shrink-0 flex items-center gap-2"
-              style={{ color: 'var(--text)' }}
-            >
-              {/* Marca textual — SVG vetorial estava com path-fill preto, invisível no dark.
-                  Wordmark consistente com o brandbook Bula (gold + Inter). */}
-              <span
-                style={{
-                  fontSize: 18,
-                  fontWeight: 800,
-                  letterSpacing: '-0.02em',
-                  color: 'var(--text)',
-                  lineHeight: 1,
-                }}
-              >
-                Bula
-                <span style={{ color: 'var(--gold)' }}>.</span>
-              </span>
-              <span
-                className="hidden md:inline"
-                style={{
-                  fontSize: 10,
-                  fontWeight: 600,
-                  letterSpacing: '0.18em',
-                  color: 'var(--text3)',
-                  textTransform: 'uppercase',
-                  paddingLeft: 8,
-                  borderLeft: '1px solid var(--border2)',
-                  marginLeft: 2,
-                }}
-              >
-                Assessoria
-              </span>
+            <Link href="/sistema" className="shrink-0 flex items-center" aria-label="Bula Assessoria">
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img
+                src="/logo-bula.png"
+                alt="Bula Assessoria"
+                style={{ height: 64, width: 64, objectFit: 'contain', display: 'block' }}
+              />
             </Link>
 
             <div className="hidden lg:block h-7 w-px bg-[var(--border2)] mx-3" />
