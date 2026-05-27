@@ -7,7 +7,7 @@ import { usePathname, useRouter } from 'next/navigation'
 import {
   LayoutDashboard, LogOut, Menu, X, Users, Settings, Calendar,
   MessageCircle, FileText, Sparkles, Gavel, Shield, ChevronDown,
-  BarChart2, Target, BarChart3, FileBarChart, Briefcase, CalendarCheck,
+  BarChart2, Target, BarChart3,
   Mail, ImageIcon,
 } from 'lucide-react'
 import { createClient } from '@/utils/supabase/client'
@@ -32,8 +32,6 @@ const navConfig: NavEntry[] = [
     items: [
       { href: '/sistema/leiloes', label: 'Leilões', icon: Gavel },
       { href: '/sistema/leiloes/fechamento', label: 'Fechamento de Leilões', icon: BarChart3 },
-      { href: '/sistema/leiloes/vendas-por-assessor', label: 'Vendas por Assessor', icon: Briefcase },
-      { href: '/sistema/leiloes/relatorios', label: 'Relatórios', icon: FileBarChart },
       { href: '/sistema/leiloes/equipe', label: 'Equipe', icon: Users },
     ],
   },
@@ -41,11 +39,7 @@ const navConfig: NavEntry[] = [
     label: 'Operações', icon: Calendar,
     items: [
       { href: '/sistema/projetos', label: 'Projetos', icon: Calendar },
-      { href: '/sistema/agenda', label: 'Agenda Oficial', icon: CalendarCheck },
-      { href: '/sistema/agendamentos', label: 'Agendamentos', icon: CalendarCheck },
-      { href: '/sistema/projetos/relatorios', label: 'Relatórios', icon: FileBarChart },
       { href: '/sistema/okr', label: 'OKR', icon: Target },
-      { href: '/sistema/contratos', label: 'Contratos', icon: FileText },
     ],
   },
   {

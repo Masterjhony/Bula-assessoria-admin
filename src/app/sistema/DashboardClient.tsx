@@ -1,12 +1,18 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { Fragment, useEffect, useState, useTransition } from 'react'
 import Link from 'next/link'
+import { useRouter, usePathname, useSearchParams } from 'next/navigation'
 import {
-  Gavel, Target, Trophy, Medal, BarChart3, Calendar, MapPin,
+  Gavel, DollarSign, Calendar, MapPin, Filter, ChevronDown, User, X, Beef,
+  BarChart3, ShieldCheck,
 } from 'lucide-react'
 
-// ─── Types (compatíveis com o page.tsx que injeta dados) ────────────────────
+// ─── Types ──────────────────────────────────────────────────────────────────
+
+export type PeriodKey = 'this_month' | 'last_30d' | 'last_90d' | 'this_quarter' | 'this_year' | 'all' | 'custom'
+
+export type AssessorOption = { nome: string; count: number }
 
 export type ProximoLeilao = {
   nome: string
@@ -37,69 +43,38 @@ export type ProximoLeilaoRow = {
   expectativaLabel: string
 }
 
-export type VgvPoint = { label: string; meta: number; vgv: number; prev: number }
-export type FunnelStep = { label: string; n: number; pct: number }
 export type FeedItem = {
   id: string
   kind: 'lead' | 'wpp' | 'fechamento' | 'task' | 'ai'
   text: string
   when: string
 }
-export type PerformanceData = {
-  ticketMedio: number
-  maiorLance: number
-  lotesVendidos: number
-  lotesOfertados: number
-  taxaConversao: number
-  animaisVendidos: number
-  compradoresUnicos: number
-  estadosUnicos: number
-}
-export type RegionItem = { uf: string; estado: string; vgv: number; lotes: number; pct: number }
-export type LeilaoTopItem = { nome: string; data: string; vgv: number; lotesVendidos: number; animais: number }
-export type CompradorItem = { fazenda: string; uf: string; vgv: number; lotes: number }
-export type LanceItem = { lote: string; fazenda: string; uf: string; vgv: number; leilao: string }
-export type CatCount = { label: string; count: number }
-export type ReservaStatusItem = { status: string; label: string; count: number; valor: number }
 
 export type DashboardProps = {
   today: string
   proximo: ProximoLeilao | null
   upcoming: ProximoLeilaoRow[]
+  filters: {
+    period: PeriodKey
+    from: string
+    to: string
+    label: string
+    assessor: string
+    assessores: AssessorOption[]
+  }
   kpi: {
+    valorVendido: number
+    animaisVendidos: number
+    ticketMedio: number
+    coberturaMedia: number
+    fechamentosCount: number
     upcomingCount: number
     confirmedCount: number
-    totalMetaBula: number
-    totalAnimaisUpcoming: number
-    totalVgvFechado: number
-    totalFechamentos: number
     activeLeads: number
     hotLeads: number
     totalLeads: number
-    ticketMedio: number
-    vgvSpark: number[]
-    metaSpark: number[]
-    leadsSpark: number[]
   }
-  vgv: VgvPoint[]
-  funnel: FunnelStep[]
   feed: FeedItem[]
-  performance: PerformanceData
-  regions: RegionItem[]
-  rankings: {
-    topLeiloes: LeilaoTopItem[]
-    compradores: CompradorItem[]
-    lances: LanceItem[]
-  }
-  formula: {
-    produtosTotal: number
-    produtosByCategory: CatCount[]
-    reservasAtivas: number
-    reservasNovas: number
-    reservasValor: number
-    reservasByStatus: ReservaStatusItem[]
-  }
-  aiInsight: { projection: number; metaTotal: number; pct: number; hint: string }
 }
 
 // ─── Helpers ────────────────────────────────────────────────────────────────
@@ -113,6 +88,7 @@ const fmtBRLCompact = (v: number) => {
   return fmtBRL(v)
 }
 const fmtNum = (v: number) => v.toLocaleString('pt-BR')
+const fmtPct = (v: number) => `${(v * 100).toFixed(1)}%`
 
 function useCountdown(target: number | null) {
   const [now, setNow] = useState<number>(() => Date.now())
@@ -132,6 +108,169 @@ function useCountdown(target: number | null) {
   }
 }
 const pad2 = (n: number) => String(n).padStart(2, '0')
+
+// ─── Filter bar ─────────────────────────────────────────────────────────────
+
+const PERIOD_OPTIONS: { key: PeriodKey; label: string }[] = [
+  { key: 'this_month', label: 'Este mês' },
+  { key: 'last_30d', label: 'Últimos 30 dias' },
+  { key: 'last_90d', label: 'Últimos 90 dias' },
+  { key: 'this_quarter', label: 'Trimestre atual' },
+  { key: 'this_year', label: 'Este ano' },
+  { key: 'all', label: 'Todo o histórico' },
+]
+
+function FilterBar({
+  filters,
+}: { filters: DashboardProps['filters'] }) {
+  const router = useRouter()
+  const pathname = usePathname()
+  const search = useSearchParams()
+  const [, startTransition] = useTransition()
+  const [openPeriod, setOpenPeriod] = useState(false)
+  const [openAssessor, setOpenAssessor] = useState(false)
+  const [assessorQuery, setAssessorQuery] = useState('')
+
+  function setParam(patch: Record<string, string | null>) {
+    const sp = new URLSearchParams(search?.toString() || '')
+    for (const [k, v] of Object.entries(patch)) {
+      if (v === null || v === '') sp.delete(k)
+      else sp.set(k, v)
+    }
+    startTransition(() => {
+      router.push(`${pathname}?${sp.toString()}`, { scroll: false })
+    })
+  }
+
+  const currentPeriodLabel = PERIOD_OPTIONS.find(o => o.key === filters.period)?.label
+    ?? (filters.period === 'custom' ? 'Personalizado' : 'Este ano')
+
+  const assessoresFiltradas = filters.assessores.filter(a =>
+    !assessorQuery || a.nome.toLowerCase().includes(assessorQuery.toLowerCase())
+  )
+
+  return (
+    <div className="card">
+      <div className="card-b flex flex-wrap items-center gap-3">
+        <div className="flex items-center gap-1.5 text-[11px] uppercase tracking-wider subtle">
+          <Filter size={13} /> Filtros
+        </div>
+
+        {/* Período */}
+        <div className="relative">
+          <button
+            type="button"
+            onClick={() => { setOpenPeriod(v => !v); setOpenAssessor(false) }}
+            className="flex items-center gap-2 px-3 py-1.5 rounded-md border border-[var(--border)] bg-[var(--s2)] hover:bg-[var(--s3)] text-sm transition-colors"
+          >
+            <Calendar size={13} className="subtle" />
+            <span className="font-semibold">{currentPeriodLabel}</span>
+            <span className="subtle text-[11px]">· {filters.label}</span>
+            <ChevronDown size={13} className="subtle" />
+          </button>
+          {openPeriod && (
+            <>
+              <div className="fixed inset-0 z-40" onClick={() => setOpenPeriod(false)} />
+              <div className="absolute top-full left-0 mt-1 z-50 min-w-[200px] rounded-md border border-[var(--border)] bg-[var(--s1)] shadow-xl overflow-hidden">
+                {PERIOD_OPTIONS.map(opt => (
+                  <button
+                    key={opt.key}
+                    type="button"
+                    onClick={() => { setParam({ period: opt.key, from: null, to: null }); setOpenPeriod(false) }}
+                    className={`w-full text-left px-3 py-2 text-sm hover:bg-[var(--s2)] transition-colors ${filters.period === opt.key ? 'text-[var(--gold)] font-semibold' : ''}`}
+                  >
+                    {opt.label}
+                  </button>
+                ))}
+                <div className="border-t border-[var(--border)] p-2 space-y-1.5">
+                  <div className="text-[10px] uppercase tracking-wider subtle px-1">Personalizado</div>
+                  <div className="flex items-center gap-1.5">
+                    <input
+                      type="date"
+                      defaultValue={filters.from}
+                      onBlur={(e) => { if (e.target.value) setParam({ period: 'custom', from: e.target.value }) }}
+                      className="text-xs px-2 py-1 rounded border border-[var(--border)] bg-[var(--s2)] flex-1"
+                    />
+                    <span className="subtle text-[10px]">até</span>
+                    <input
+                      type="date"
+                      defaultValue={filters.to}
+                      onBlur={(e) => { if (e.target.value) setParam({ period: 'custom', to: e.target.value }) }}
+                      className="text-xs px-2 py-1 rounded border border-[var(--border)] bg-[var(--s2)] flex-1"
+                    />
+                  </div>
+                </div>
+              </div>
+            </>
+          )}
+        </div>
+
+        {/* Assessor */}
+        <div className="relative">
+          <button
+            type="button"
+            onClick={() => { setOpenAssessor(v => !v); setOpenPeriod(false) }}
+            className="flex items-center gap-2 px-3 py-1.5 rounded-md border border-[var(--border)] bg-[var(--s2)] hover:bg-[var(--s3)] text-sm transition-colors"
+          >
+            <User size={13} className="subtle" />
+            <span className="font-semibold">{filters.assessor || 'Todos os assessores'}</span>
+            <ChevronDown size={13} className="subtle" />
+          </button>
+          {openAssessor && (
+            <>
+              <div className="fixed inset-0 z-40" onClick={() => setOpenAssessor(false)} />
+              <div className="absolute top-full left-0 mt-1 z-50 min-w-[260px] rounded-md border border-[var(--border)] bg-[var(--s1)] shadow-xl overflow-hidden">
+                <div className="p-2 border-b border-[var(--border)]">
+                  <input
+                    type="text"
+                    placeholder="Buscar assessor..."
+                    value={assessorQuery}
+                    onChange={(e) => setAssessorQuery(e.target.value)}
+                    className="w-full text-xs px-2 py-1.5 rounded border border-[var(--border)] bg-[var(--s2)]"
+                  />
+                </div>
+                <div className="max-h-[280px] overflow-y-auto">
+                  <button
+                    type="button"
+                    onClick={() => { setParam({ assessor: null }); setOpenAssessor(false) }}
+                    className={`w-full text-left px-3 py-2 text-sm hover:bg-[var(--s2)] transition-colors ${!filters.assessor ? 'text-[var(--gold)] font-semibold' : ''}`}
+                  >
+                    Todos os assessores
+                  </button>
+                  {assessoresFiltradas.map(a => (
+                    <button
+                      key={a.nome}
+                      type="button"
+                      onClick={() => { setParam({ assessor: a.nome }); setOpenAssessor(false) }}
+                      className={`w-full text-left px-3 py-2 text-sm hover:bg-[var(--s2)] flex justify-between transition-colors ${filters.assessor === a.nome ? 'text-[var(--gold)] font-semibold' : ''}`}
+                    >
+                      <span>{a.nome}</span>
+                      <span className="subtle text-[11px]">{a.count}×</span>
+                    </button>
+                  ))}
+                  {assessoresFiltradas.length === 0 && (
+                    <div className="px-3 py-2 text-xs subtle">Nenhum assessor encontrado.</div>
+                  )}
+                </div>
+              </div>
+            </>
+          )}
+        </div>
+
+        {/* Limpar */}
+        {(filters.assessor || filters.period !== 'this_year') && (
+          <button
+            type="button"
+            onClick={() => setParam({ period: null, from: null, to: null, assessor: null })}
+            className="flex items-center gap-1.5 px-2 py-1.5 text-xs subtle hover:text-[var(--text)] transition-colors"
+          >
+            <X size={12} /> limpar
+          </button>
+        )}
+      </div>
+    </div>
+  )
+}
 
 // ─── Hero (próximo leilão) ──────────────────────────────────────────────────
 
@@ -235,7 +374,7 @@ function Hero({ data }: { data: ProximoLeilao | null }) {
   )
 }
 
-// ─── KPI row ────────────────────────────────────────────────────────────────
+// ─── KPI row (4 indicadores principais do briefing) ────────────────────────
 
 type Kpi = { label: string; value: string; sub?: string; icon: React.ReactNode; href?: string }
 
@@ -243,30 +382,30 @@ function KpiRow({ items }: { items: Kpi[] }) {
   return (
     <div className="slim-row">
       {items.map((it, i) => (
-        <>
+        <Fragment key={`kpi-${i}`}>
           {it.href ? (
-            <Link key={`k-${i}`} href={it.href} className="slim-kpi block hover:bg-[var(--s2)] transition-colors">
+            <Link href={it.href} className="slim-kpi block hover:bg-[var(--s2)] transition-colors">
               <div className="flex items-center justify-center gap-1.5 mb-1.5 subtle">{it.icon}</div>
               <div className="slim-kpi-val">{it.value}</div>
               <div className="slim-kpi-lbl">{it.label}</div>
               {it.sub && <div className="slim-kpi-tag">{it.sub}</div>}
             </Link>
           ) : (
-            <div key={`k-${i}`} className="slim-kpi">
+            <div className="slim-kpi">
               <div className="flex items-center justify-center gap-1.5 mb-1.5 subtle">{it.icon}</div>
               <div className="slim-kpi-val">{it.value}</div>
               <div className="slim-kpi-lbl">{it.label}</div>
               {it.sub && <div className="slim-kpi-tag">{it.sub}</div>}
             </div>
           )}
-          {i < items.length - 1 && <div key={`d-${i}`} className="slim-div" />}
-        </>
+          {i < items.length - 1 && <div className="slim-div" />}
+        </Fragment>
       ))}
     </div>
   )
 }
 
-// ─── Próximos leilões (lista compacta) ──────────────────────────────────────
+// ─── Próximos leilões (lista compacta — NÃO duplica fechamento) ────────────
 
 function UpcomingList({ rows }: { rows: ProximoLeilaoRow[] }) {
   if (rows.length === 0) {
@@ -321,32 +460,6 @@ function UpcomingList({ rows }: { rows: ProximoLeilaoRow[] }) {
   )
 }
 
-// ─── Performance card ───────────────────────────────────────────────────────
-
-function PerformanceCard({ p }: { p: PerformanceData }) {
-  const items = [
-    { l: 'Ticket médio', v: fmtBRLCompact(p.ticketMedio) },
-    { l: 'Maior lance', v: fmtBRLCompact(p.maiorLance) },
-    { l: 'Lotes vendidos', v: `${fmtNum(p.lotesVendidos)}/${fmtNum(p.lotesOfertados)}` },
-    { l: 'Conversão', v: `${p.taxaConversao.toFixed(1)}%` },
-    { l: 'Animais vendidos', v: fmtNum(p.animaisVendidos) },
-    { l: 'Compradores únicos', v: fmtNum(p.compradoresUnicos) },
-  ]
-  return (
-    <div className="card">
-      <div className="card-h"><div className="card-t">Performance · fechamentos</div></div>
-      <div className="card-b grid grid-cols-2 gap-x-4 gap-y-3">
-        {items.map(({ l, v }) => (
-          <div key={l}>
-            <div className="text-[10px] uppercase tracking-wider subtle mb-0.5">{l}</div>
-            <div className="text-[15px] font-bold tabular-nums">{v}</div>
-          </div>
-        ))}
-      </div>
-    </div>
-  )
-}
-
 // ─── Atividade recente ──────────────────────────────────────────────────────
 
 function ActivityCard({ items, title, href }: { items: FeedItem[]; title: string; href: string }) {
@@ -365,7 +478,7 @@ function ActivityCard({ items, title, href }: { items: FeedItem[]; title: string
           <ul className="space-y-2.5">
             {items.map(it => (
               <li key={it.id} className="flex justify-between gap-3 text-sm">
-                <span className="line-clamp-2">{it.text}</span>
+                <span className="line-clamp-2" dangerouslySetInnerHTML={{ __html: it.text }} />
                 <span className="subtle text-[11px] shrink-0">{it.when}</span>
               </li>
             ))}
@@ -376,50 +489,47 @@ function ActivityCard({ items, title, href }: { items: FeedItem[]; title: string
   )
 }
 
-// ─── Top leilões por VGV ────────────────────────────────────────────────────
-
-function TopLeiloes({ rows }: { rows: LeilaoTopItem[] }) {
-  return (
-    <div className="card card-p0">
-      <div className="card-h"><div className="card-t">Top leilões · VGV</div></div>
-      <div className="card-b">
-        {rows.length === 0 ? (
-          <div className="subtle text-sm">Sem fechamentos registrados.</div>
-        ) : (
-          <table className="tbl">
-            <thead><tr><th>Leilão</th><th className="text-right">Lotes</th><th className="text-right">VGV</th></tr></thead>
-            <tbody>
-              {rows.slice(0, 6).map(r => (
-                <tr key={r.nome + r.data}>
-                  <td>
-                    <div className="font-semibold">{r.nome}</div>
-                    <div className="text-[11px] subtle">{r.data.split('-').reverse().join('/')}</div>
-                  </td>
-                  <td className="text-right tabular-nums">{fmtNum(r.lotesVendidos)}</td>
-                  <td className="text-right font-bold tabular-nums">{fmtBRLCompact(r.vgv)}</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        )}
-      </div>
-    </div>
-  )
-}
-
 // ─── Main ───────────────────────────────────────────────────────────────────
 
 export default function DashboardClient(props: DashboardProps) {
   const k = props.kpi
-  const feedFechamento = props.feed.filter(i => i.kind === 'fechamento').slice(0, 6)
+  const f = props.filters
   const feedLeads = props.feed.filter(i => i.kind === 'lead').slice(0, 6)
 
+  // Sub-label dos KPIs — quando há assessor filtrado, indica o escopo.
+  const escopo = f.assessor
+    ? `Assessor: ${f.assessor}`
+    : `${k.fechamentosCount} fechamento${k.fechamentosCount === 1 ? '' : 's'}`
+
   const kpis: Kpi[] = [
-    { label: 'Próx. leilões', value: String(k.upcomingCount), sub: `${k.confirmedCount} confirmado${k.confirmedCount === 1 ? '' : 's'}`, icon: <Gavel size={12} />, href: '/sistema/leiloes' },
-    { label: 'Meta confirmada', value: fmtBRLCompact(k.totalMetaBula), sub: `${fmtNum(k.totalAnimaisUpcoming)} animais`, icon: <Target size={12} />, href: '/sistema/leiloes' },
-    { label: 'VGV fechado', value: fmtBRLCompact(k.totalVgvFechado), sub: `${k.totalFechamentos} fechamento${k.totalFechamentos === 1 ? '' : 's'}`, icon: <Trophy size={12} />, href: '/sistema/leiloes/fechamento' },
-    { label: 'Ticket médio', value: fmtBRLCompact(k.ticketMedio), sub: 'Por lote vendido', icon: <BarChart3 size={12} />, href: '/sistema/leiloes/fechamento' },
-    { label: 'Fechamentos', value: String(k.totalFechamentos), sub: `${fmtNum(props.performance.animaisVendidos)} animais`, icon: <Medal size={12} />, href: '/sistema/leiloes/fechamento' },
+    {
+      label: 'Valor vendido',
+      value: fmtBRLCompact(k.valorVendido),
+      sub: escopo,
+      icon: <DollarSign size={12} />,
+      href: '/sistema/leiloes/fechamento',
+    },
+    {
+      label: 'Animais vendidos',
+      value: fmtNum(k.animaisVendidos),
+      sub: escopo,
+      icon: <Beef size={12} />,
+      href: '/sistema/leiloes/fechamento',
+    },
+    {
+      label: 'Ticket médio',
+      value: fmtBRLCompact(k.ticketMedio),
+      sub: 'Por lote vendido',
+      icon: <BarChart3 size={12} />,
+      href: '/sistema/leiloes/fechamento',
+    },
+    {
+      label: 'Cobertura média',
+      value: fmtPct(k.coberturaMedia),
+      sub: 'Lotes vendidos / ofertados',
+      icon: <ShieldCheck size={12} />,
+      href: '/sistema/leiloes/fechamento',
+    },
   ]
 
   return (
@@ -435,19 +545,14 @@ export default function DashboardClient(props: DashboardProps) {
 
       <Hero data={props.proximo} />
 
+      <FilterBar filters={f} />
+
       <KpiRow items={kpis} />
 
       <div className="g2">
         <UpcomingList rows={props.upcoming} />
-        <PerformanceCard p={props.performance} />
-      </div>
-
-      <div className="g2">
-        <ActivityCard items={feedFechamento} title="Últimos fechamentos" href="/sistema/leiloes/fechamento" />
         <ActivityCard items={feedLeads} title="Leads recentes" href="/sistema/leads" />
       </div>
-
-      <TopLeiloes rows={props.rankings.topLeiloes} />
     </div>
   )
 }
