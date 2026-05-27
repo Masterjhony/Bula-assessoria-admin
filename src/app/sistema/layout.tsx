@@ -147,27 +147,24 @@ function AdminShell({ children }: { children: React.ReactNode }) {
           <div className="flex items-center h-[60px] lg:h-[68px] gap-2 sm:gap-3">
 
             <Link href="/sistema" className="shrink-0 flex items-center">
-              <div className="relative h-9 w-28 lg:h-10 lg:w-32">
-                <Image
-                  src="/logo-bula-remates-preto-_1_.svg"
-                  alt="Bula"
-                  fill
-                  className="object-contain dark:hidden"
-                  priority
-                />
-                <Image
-                  src="/logo-bula-remates-branco-_1_.svg"
-                  alt="Bula"
-                  fill
-                  className="object-contain hidden dark:block"
-                  priority
-                />
-              </div>
+              {/* SVG via <img> — next/image às vezes não carrega SVG estático sem unoptimized */}
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img
+                src="/logo-bula-remates-preto-_1_.svg"
+                alt="Bula"
+                className="h-8 lg:h-9 w-auto block dark:hidden"
+              />
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img
+                src="/logo-bula-remates-branco-_1_.svg"
+                alt="Bula"
+                className="h-8 lg:h-9 w-auto hidden dark:block"
+              />
             </Link>
 
-            <div className="hidden lg:block h-8 w-px bg-[rgba(200,169,110,0.25)] mx-1" />
+            <div className="hidden lg:block h-8 w-px bg-[rgba(200,169,110,0.25)] mx-2" />
 
-            <nav ref={navRef} className="hidden lg:flex items-center justify-center gap-0.5 flex-1">
+            <nav ref={navRef} className="hidden lg:flex items-stretch gap-1 ml-2 h-full">
               {navConfig.map((entry) => {
                 if (!isGroup(entry)) {
                   const Icon = entry.icon
@@ -176,14 +173,13 @@ function AdminShell({ children }: { children: React.ReactNode }) {
                     <Link
                       key={entry.href}
                       href={entry.href}
-                      className={`flex items-center gap-2 px-3.5 py-2 text-sm font-medium transition-all duration-150 ${
+                      className={`flex items-center gap-1.5 px-3 text-[12px] font-medium uppercase tracking-wide transition-colors border-b-2 ${
                         active
-                          ? 'bg-[#A68B4B] text-[#141414] shadow-[0_0_0_1px_rgba(200,169,110,0.35),0_0_24px_rgba(166,139,75,0.25)]'
-                          : 'text-gray-600 dark:text-[#F5F5F5]/70 hover:bg-gray-100 dark:hover:bg-[rgba(200,169,110,0.08)] hover:text-gray-900 dark:hover:text-[#C8A96E]'
+                          ? 'text-[var(--gold)] border-[var(--gold)]'
+                          : 'text-[var(--text3)] border-transparent hover:text-[var(--text2)]'
                       }`}
-                      style={{ borderRadius: 3 }}
                     >
-                      <Icon size={15} />
+                      <Icon size={14} />
                       <span>{entry.label}</span>
                     </Link>
                   )
@@ -194,19 +190,18 @@ function AdminShell({ children }: { children: React.ReactNode }) {
                 const open = openDropdown === entry.label
 
                 return (
-                  <div key={entry.label} className="relative">
+                  <div key={entry.label} className="relative flex items-stretch">
                     <button
                       onClick={() => setOpenDropdown(open ? null : entry.label)}
-                      className={`flex items-center gap-2 px-3.5 py-2 text-sm font-medium transition-all duration-150 ${
+                      className={`flex items-center gap-1.5 px-3 text-[12px] font-medium uppercase tracking-wide transition-colors border-b-2 ${
                         active
-                          ? 'bg-[#A68B4B] text-[#141414] shadow-[0_0_0_1px_rgba(200,169,110,0.35),0_0_24px_rgba(166,139,75,0.25)]'
-                          : 'text-gray-600 dark:text-[#F5F5F5]/70 hover:bg-gray-100 dark:hover:bg-[rgba(200,169,110,0.08)] hover:text-gray-900 dark:hover:text-[#C8A96E]'
+                          ? 'text-[var(--gold)] border-[var(--gold)]'
+                          : 'text-[var(--text3)] border-transparent hover:text-[var(--text2)]'
                       }`}
-                      style={{ borderRadius: 3 }}
                     >
-                      <Icon size={15} />
+                      <Icon size={14} />
                       <span>{entry.label}</span>
-                      <ChevronDown size={13} className={`transition-transform duration-200 ${open ? 'rotate-180' : ''} ${active ? 'text-black/60' : 'text-gray-400'}`} />
+                      <ChevronDown size={12} className={`transition-transform duration-200 ${open ? 'rotate-180' : ''}`} />
                     </button>
 
                     {open && (
@@ -439,8 +434,8 @@ function AdminShell({ children }: { children: React.ReactNode }) {
 
       <AdminBreadcrumbs />
 
-      <main className="flex-1 bg-white dark:bg-[#0D0D0D] overflow-auto p-4 sm:p-6 lg:p-8">
-        <div className="max-w-7xl mx-auto space-y-6 sm:space-y-8">{children}</div>
+      <main className="flex-1 overflow-auto" style={{ background: 'var(--bg)' }}>
+        <div className="mx-auto px-4 sm:px-6 lg:px-8 py-6 lg:py-8" style={{ maxWidth: 1600 }}>{children}</div>
       </main>
     </div>
   )

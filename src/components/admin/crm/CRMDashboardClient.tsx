@@ -159,75 +159,67 @@ export function CRMDashboardClient({ initialLeads, crmConfig: initialConfig }: C
     return (
         <div className={
             isFullscreen
-                ? 'fixed inset-0 z-[100] bg-white dark:bg-[#141414] w-screen h-screen flex flex-col overflow-hidden'
-                : 'flex flex-col h-full bg-white dark:bg-[#141414] rounded-2xl border border-gray-200 dark:border-[#2A2A2A] overflow-hidden'
+                ? 'fixed inset-0 z-[100] bg-[var(--bg)] w-screen h-screen flex flex-col overflow-hidden p-4'
+                : 'space-y-4'
         }>
             {/* Header */}
-            <div className="p-6 pb-0 shrink-0">
-                <p className="text-gray-500 text-sm mb-3">
-                    Concentre todo o ciclo de vendas aqui — qualifique novos leads, acompanhe o pipeline avançado e priorize quem mais importa.
-                </p>
-                <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-4">
+            <div className="page-head">
+                <h1>
+                    <small>CRM</small>
                     CRM de vendas
-                </h2>
+                    <span className="block text-[12px] font-normal subtle mt-2">
+                        Qualifique novos leads, acompanhe o pipeline avançado e priorize quem mais importa.
+                    </span>
+                </h1>
+            </div>
 
-                {/* Tabs & Controls */}
-                <div className="flex justify-between items-center border-b border-gray-200 dark:border-[#2A2A2A]">
-                    <div className="flex gap-1 overflow-x-auto scrollbar-hide">
-                        {views.map((view) => {
-                            const Icon = view.icon;
-                            const isActive = activeView === view.id;
-                            const isSpecial = view.id === 'configuracoes';
-                            const badge = (view as { badge?: number }).badge;
-                            return (
-                                <button
-                                    key={view.id}
-                                    onClick={() => setActiveView(view.id as ViewType)}
-                                    className={`flex items-center gap-2 px-4 py-2.5 text-sm font-medium transition-colors border-b-2 whitespace-nowrap ${
-                                        isActive
-                                            ? 'border-[#A68B4B] text-gray-900 dark:text-white bg-gray-50 dark:bg-[#1A1A1A]'
-                                            : 'border-transparent text-gray-500 hover:text-gray-700 dark:hover:text-gray-300 hover:bg-gray-50 dark:hover:bg-[#1A1A1A]'
-                                    } ${isSpecial && !isActive ? 'ml-1' : ''}`}
-                                >
-                                    <Icon size={15} />
-                                    {view.label}
-                                    {badge != null && badge > 0 && (
-                                        <span className={`ml-0.5 inline-flex items-center justify-center min-w-[18px] h-[18px] px-1.5 text-[10px] font-bold rounded-full ${
-                                            isActive ? 'bg-[#A68B4B] text-black' : 'bg-amber-500/20 text-amber-600 dark:text-amber-400'
-                                        }`}>
-                                            {badge}
-                                        </span>
-                                    )}
-                                    {view.id === 'configuracoes' && (
-                                        <span className="ml-0.5 w-1.5 h-1.5 rounded-full bg-gray-300 dark:bg-gray-600 inline-block" />
-                                    )}
-                                </button>
-                            );
-                        })}
-                    </div>
-
-                    <div className="flex items-center gap-2 pb-2 pr-2 shrink-0">
-                        <button
-                            onClick={() => setIsFullscreen(!isFullscreen)}
-                            className="p-2 text-gray-500 hover:text-gray-900 dark:hover:text-white rounded-lg hover:bg-gray-100 dark:hover:bg-[#2e2e2e] transition-colors"
-                            title={isFullscreen ? 'Sair da Tela Cheia' : 'Tela Cheia'}
-                        >
-                            {isFullscreen ? <Minimize2 size={18} /> : <Maximize2 size={18} />}
-                        </button>
-                        {!isSettings && (
+            {/* Tabs & Controls */}
+            <div className="flex justify-between items-center border-b border-[var(--border)]">
+                <div className="flex gap-1 overflow-x-auto scrollbar-hide">
+                    {views.map((view) => {
+                        const Icon = view.icon
+                        const isActive = activeView === view.id
+                        const badge = (view as { badge?: number }).badge
+                        return (
                             <button
-                                onClick={() => handleOpenNewLead()}
-                                className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-1.5 rounded-lg text-sm font-medium transition-colors flex items-center gap-1 shadow-sm"
+                                key={view.id}
+                                onClick={() => setActiveView(view.id as ViewType)}
+                                className={`flex items-center gap-2 px-3 py-2.5 text-[12px] font-medium uppercase tracking-wide whitespace-nowrap border-b-2 transition-colors ${
+                                    isActive
+                                        ? 'border-[var(--gold)] text-[var(--gold)]'
+                                        : 'border-transparent text-[var(--text3)] hover:text-[var(--text2)]'
+                                }`}
                             >
-                                Novo <Plus size={16} />
+                                <Icon size={14} />
+                                {view.label}
+                                {badge != null && badge > 0 && (
+                                    <span className="ml-0.5 inline-flex items-center justify-center min-w-[18px] h-[18px] px-1.5 text-[10px] font-bold rounded-full bg-[var(--amber-bg)] text-[var(--amber)]">
+                                        {badge}
+                                    </span>
+                                )}
                             </button>
-                        )}
-                    </div>
+                        )
+                    })}
+                </div>
+
+                <div className="flex items-center gap-2 shrink-0">
+                    <button
+                        onClick={() => setIsFullscreen(!isFullscreen)}
+                        className="btn ghost"
+                        title={isFullscreen ? 'Sair da tela cheia' : 'Tela cheia'}
+                    >
+                        {isFullscreen ? <Minimize2 size={14} /> : <Maximize2 size={14} />}
+                    </button>
+                    {!isSettings && (
+                        <button onClick={() => handleOpenNewLead()} className="btn primary">
+                            <Plus size={14} /> Novo
+                        </button>
+                    )}
                 </div>
             </div>
 
             {/* Content */}
-            <div className={`flex-1 ${isScrollable ? 'overflow-auto' : 'overflow-hidden'} p-6 bg-gray-50/50 dark:bg-[#0D0D0D]`}>
+            <div className={isScrollable ? '' : 'flex-1 min-h-[600px] overflow-hidden'}>
                 {activeView === 'qualificacao' && (
                     <CRMQualificacaoView
                         leads={leads}

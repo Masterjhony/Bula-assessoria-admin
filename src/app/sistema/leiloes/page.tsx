@@ -1682,7 +1682,7 @@ export default function LeiloesPage() {
   }
 
   // Stats
-  const totalAnimais = merged.reduce((s, l) => s + (l.animais || 0), 0)
+  const totalAnimais = merged.reduce((s, l) => s + (Number(l.animais) || 0), 0)
   const confirmados = merged.filter(l => l.status === 'confirmado').length
   const comImagem = merged.filter(l => l.img && l.img.startsWith('http')).length
   const presenciais = merged.filter(l => ['PRESENCIAL', 'EXPOGRANDE', 'EXPOZEBU'].includes(l.presencial?.toUpperCase() ?? '')).length
