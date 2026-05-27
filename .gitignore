@@ -24,3 +24,6 @@ tsconfig.tsbuildinfo
 
 .vercel
 qa-screenshots/
+
+# Planilhas internas (dados financeiros reais)
+*.xlsx
