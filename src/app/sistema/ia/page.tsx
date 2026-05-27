@@ -12,11 +12,11 @@ interface Message {
 }
 
 const SUGGESTED_PROMPTS = [
-    'Quantos produtos estão disponíveis para venda agora?',
-    'Quais são os leads mais recentes no CRM?',
-    'Mostre um resumo dos leads por status no pipeline',
-    'Quantos criadores estão cadastrados e quais são eles?',
-    'Quais tarefas do plano tático estão em aberto?',
+    'Quais leilões estão confirmados nos próximos 30 dias?',
+    'Mostre os fechamentos por VGV no último trimestre',
+    'Quais assessores tiveram melhor performance este mês?',
+    'Resuma os leads recentes do CRM por interesse',
+    'Quais tarefas de projetos estão atrasadas?',
     'Quantas mensagens WhatsApp foram enviadas este mês?',
 ];
 

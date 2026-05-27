@@ -379,18 +379,7 @@ export function ContractsView({ initialContracts }: Props) {
                         </button>
                     </div>
 
-                    {/* ClickSign import */}
-                    <button
-                        onClick={() => setCsImportOpen(true)}
-                        className="flex items-center gap-2 px-3.5 py-2 bg-white dark:bg-[#202020] border border-[#E4C99E]/20 text-gray-700 dark:text-[#F5F5F5] rounded-xl font-semibold text-sm hover:border-[#A68B4B]/40 hover:text-[#A68B4B] dark:hover:text-[#C8A96E] transition-all whitespace-nowrap shrink-0"
-                        title={csConn.ok === true ? 'ClickSign conectado' : csConn.ok === false ? `ClickSign: ${csConn.error}` : 'Verificando ClickSign…'}
-                    >
-                        <PlugZap size={14} />
-                        ClickSign
-                        <span
-                            className={`w-1.5 h-1.5 rounded-full ${csConn.ok === true ? 'bg-emerald-500 shadow-[0_0_6px_rgba(127,212,160,0.7)]' : csConn.ok === false ? 'bg-red-500' : 'bg-gray-400 animate-pulse'}`}
-                        />
-                    </button>
+                    {/* ClickSign cortado nesta versão — botão removido (fica só no fórmula). */}
 
                     {/* New contract */}
                     <button
