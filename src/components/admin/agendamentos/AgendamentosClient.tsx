@@ -419,7 +419,7 @@ function ConfiguracaoTab({ onOpenSettings }: { onOpenSettings: () => void }) {
                     Configure um cron externo (cron-job.org, GitHub Actions etc) chamando a cada 5min:
                 </p>
                 <code className="block px-3 py-2 bg-muted rounded-md text-xs break-all">
-                    GET https://admin.formuladoboi.com/api/agendamentos/sync<br />
+                    GET https://&lt;seu-dominio&gt;/api/agendamentos/sync<br />
                     Header: x-webhook-secret: ${'{WHATSAPP_GROUP_TASK_SECRET}'}
                 </code>
             </section>

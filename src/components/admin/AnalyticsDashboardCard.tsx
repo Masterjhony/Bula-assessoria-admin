@@ -25,8 +25,8 @@ export default function AnalyticsDashboardCard() {
 
     if (loading) {
         return (
-            <div className="bg-white dark:bg-[#1d1d1d] p-6 rounded-2xl border border-gray-200 dark:border-[#2e2e2e] shadow-xl animate-pulse">
-                <div className="flex justify-between items-start mb-6 border-b border-gray-200 dark:border-[#2e2e2e] pb-4">
+            <div className="bg-white dark:bg-[#141414] p-6 rounded-2xl border border-gray-200 dark:border-[#2A2A2A] shadow-xl animate-pulse">
+                <div className="flex justify-between items-start mb-6 border-b border-gray-200 dark:border-[#2A2A2A] pb-4">
                     <h2 className="text-lg font-bold text-gray-900 dark:text-white flex items-center gap-2">
                         <Activity className="w-5 h-5 text-blue-400" />
                         Google Analytics
@@ -48,8 +48,8 @@ export default function AnalyticsDashboardCard() {
     };
 
     return (
-        <div className="bg-white dark:bg-[#1d1d1d] p-6 rounded-2xl border border-gray-200 dark:border-[#2e2e2e] shadow-xl">
-            <div className="flex justify-between items-start mb-6 border-b border-gray-200 dark:border-[#2e2e2e] pb-4">
+        <div className="bg-white dark:bg-[#141414] p-6 rounded-2xl border border-gray-200 dark:border-[#2A2A2A] shadow-xl">
+            <div className="flex justify-between items-start mb-6 border-b border-gray-200 dark:border-[#2A2A2A] pb-4">
                 <h2 className="text-lg font-bold text-gray-900 dark:text-white flex items-center gap-2">
                     <Activity className="w-5 h-5 text-blue-400" />
                     Google Analytics
@@ -59,7 +59,7 @@ export default function AnalyticsDashboardCard() {
 
             <div className="grid grid-cols-2 gap-4">
                 {/* Users */}
-                <div className="p-4 bg-gray-50 dark:bg-[#262626] rounded-xl border border-gray-200 dark:border-[#2e2e2e] flex flex-col gap-1">
+                <div className="p-4 bg-gray-50 dark:bg-[#1A1A1A] rounded-xl border border-gray-200 dark:border-[#2A2A2A] flex flex-col gap-1">
                     <span className="text-gray-500 text-xs uppercase">Usuários Ativos</span>
                     <div className="flex items-end gap-2">
                         <span className="text-2xl font-bold text-gray-900 dark:text-white">{metrics?.activeUsers || 0}</span>
@@ -71,13 +71,13 @@ export default function AnalyticsDashboardCard() {
                 </div>
 
                 {/* Sessions */}
-                <div className="p-4 bg-gray-50 dark:bg-[#262626] rounded-xl border border-gray-200 dark:border-[#2e2e2e] flex flex-col gap-1">
+                <div className="p-4 bg-gray-50 dark:bg-[#1A1A1A] rounded-xl border border-gray-200 dark:border-[#2A2A2A] flex flex-col gap-1">
                     <span className="text-gray-500 text-xs uppercase">Sessões</span>
                     <span className="text-2xl font-bold text-gray-900 dark:text-white">{metrics?.sessions || 0}</span>
                 </div>
 
                 {/* Time */}
-                <div className="p-4 bg-gray-50 dark:bg-[#262626] rounded-xl border border-gray-200 dark:border-[#2e2e2e] flex flex-col gap-1 col-span-2">
+                <div className="p-4 bg-gray-50 dark:bg-[#1A1A1A] rounded-xl border border-gray-200 dark:border-[#2A2A2A] flex flex-col gap-1 col-span-2">
                     <span className="text-gray-500 text-xs uppercase">Tempo Médio de Engajamento</span>
                     <span className="text-2xl font-bold text-gray-900 dark:text-white">{formatTime(metrics?.averageSessionDuration || 0)}</span>
                 </div>

@@ -249,7 +249,7 @@ export async function generateTacticalPlanPDF(
     const M = 16
 
     // Brandbook palette
-    const BRONZE: [number, number, number] = [160, 121, 46]      // #A0792E
+    const BRONZE: [number, number, number] = [160, 121, 46]      // #A68B4B
     const BRONZE_700: [number, number, number] = [107, 79, 30]
     const BRONZE_300: [number, number, number] = [212, 168, 92]
     const BRONZE_100: [number, number, number] = [232, 203, 133]

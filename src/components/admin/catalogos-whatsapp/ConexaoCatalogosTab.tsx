@@ -154,7 +154,7 @@ export function ConexaoCatalogosTab() {
                             </h4>
                             <p className="text-sm text-muted-foreground max-w-md">
                                 {vpsError
-                                    ? `Falha ao falar com o servidor: ${vpsError}. Verifique o container formula_boi_whatsapp_catalogs no VPS.`
+                                    ? `Falha ao falar com o servidor: ${vpsError}. Verifique o container do servidor WhatsApp Catálogos.`
                                     : "Iniciando a sessão. O QR Code aparecerá em alguns segundos."}
                             </p>
                         </div>

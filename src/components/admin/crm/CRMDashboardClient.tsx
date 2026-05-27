@@ -159,8 +159,8 @@ export function CRMDashboardClient({ initialLeads, crmConfig: initialConfig }: C
     return (
         <div className={
             isFullscreen
-                ? 'fixed inset-0 z-[100] bg-white dark:bg-[#1d1d1d] w-screen h-screen flex flex-col overflow-hidden'
-                : 'flex flex-col h-full bg-white dark:bg-[#1d1d1d] rounded-2xl border border-gray-200 dark:border-[#2e2e2e] overflow-hidden'
+                ? 'fixed inset-0 z-[100] bg-white dark:bg-[#141414] w-screen h-screen flex flex-col overflow-hidden'
+                : 'flex flex-col h-full bg-white dark:bg-[#141414] rounded-2xl border border-gray-200 dark:border-[#2A2A2A] overflow-hidden'
         }>
             {/* Header */}
             <div className="p-6 pb-0 shrink-0">
@@ -172,7 +172,7 @@ export function CRMDashboardClient({ initialLeads, crmConfig: initialConfig }: C
                 </h2>
 
                 {/* Tabs & Controls */}
-                <div className="flex justify-between items-center border-b border-gray-200 dark:border-[#2e2e2e]">
+                <div className="flex justify-between items-center border-b border-gray-200 dark:border-[#2A2A2A]">
                     <div className="flex gap-1 overflow-x-auto scrollbar-hide">
                         {views.map((view) => {
                             const Icon = view.icon;
@@ -185,15 +185,15 @@ export function CRMDashboardClient({ initialLeads, crmConfig: initialConfig }: C
                                     onClick={() => setActiveView(view.id as ViewType)}
                                     className={`flex items-center gap-2 px-4 py-2.5 text-sm font-medium transition-colors border-b-2 whitespace-nowrap ${
                                         isActive
-                                            ? 'border-[#A0792E] text-gray-900 dark:text-white bg-gray-50 dark:bg-[#262626]'
-                                            : 'border-transparent text-gray-500 hover:text-gray-700 dark:hover:text-gray-300 hover:bg-gray-50 dark:hover:bg-[#262626]'
+                                            ? 'border-[#A68B4B] text-gray-900 dark:text-white bg-gray-50 dark:bg-[#1A1A1A]'
+                                            : 'border-transparent text-gray-500 hover:text-gray-700 dark:hover:text-gray-300 hover:bg-gray-50 dark:hover:bg-[#1A1A1A]'
                                     } ${isSpecial && !isActive ? 'ml-1' : ''}`}
                                 >
                                     <Icon size={15} />
                                     {view.label}
                                     {badge != null && badge > 0 && (
                                         <span className={`ml-0.5 inline-flex items-center justify-center min-w-[18px] h-[18px] px-1.5 text-[10px] font-bold rounded-full ${
-                                            isActive ? 'bg-[#A0792E] text-black' : 'bg-amber-500/20 text-amber-600 dark:text-amber-400'
+                                            isActive ? 'bg-[#A68B4B] text-black' : 'bg-amber-500/20 text-amber-600 dark:text-amber-400'
                                         }`}>
                                             {badge}
                                         </span>
@@ -227,7 +227,7 @@ export function CRMDashboardClient({ initialLeads, crmConfig: initialConfig }: C
             </div>
 
             {/* Content */}
-            <div className={`flex-1 ${isScrollable ? 'overflow-auto' : 'overflow-hidden'} p-6 bg-gray-50/50 dark:bg-[#161616]`}>
+            <div className={`flex-1 ${isScrollable ? 'overflow-auto' : 'overflow-hidden'} p-6 bg-gray-50/50 dark:bg-[#0D0D0D]`}>
                 {activeView === 'qualificacao' && (
                     <CRMQualificacaoView
                         leads={leads}

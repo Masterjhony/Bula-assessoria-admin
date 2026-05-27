@@ -89,13 +89,13 @@ function detectIndicators(obj: TacticalObjective, snapshot: OKRSnapshot): ChainI
         out.push({
             label: 'Leads · 30d', value: String(snapshot.leads.new30d),
             trend: snapshot.leads.prev30d > 0 ? snapshot.leads.trendDeltaPct : undefined,
-            href: '/crm', icon: <Users size={11} />, color: '#A0792E',
+            href: '/crm', icon: <Users size={11} />, color: '#A68B4B',
         });
     }
     if (has('mql', 'qualific')) {
         out.push({
             label: 'MQLs ativos', value: String(snapshot.leads.mqlActive),
-            href: '/crm', icon: <Crown size={11} />, color: '#D4A85C',
+            href: '/crm', icon: <Crown size={11} />, color: '#C8A96E',
         });
     }
     if (has('conver', 'fech', 'venda', 'cliente')) {
@@ -195,12 +195,12 @@ export function StrategyExecutionChain({ objectives, tasks, snapshot, doneStatus
         <div className="space-y-3">
             <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
-                    <Sparkles size={14} className="text-[#A0792E]" />
+                    <Sparkles size={14} className="text-[#A68B4B]" />
                     <h3 className="text-sm font-bold text-gray-900 dark:text-white">
                         Estratégia <span className="text-gray-300">→</span> Projetos <span className="text-gray-300">→</span> Tarefas <span className="text-gray-300">→</span> Indicadores
                     </h3>
                 </div>
-                <Link href="/okr?tab=okrs" className="text-[10px] font-bold uppercase tracking-wider text-[#A0792E] flex items-center gap-0.5 hover:underline">
+                <Link href="/okr?tab=okrs" className="text-[10px] font-bold uppercase tracking-wider text-[#A68B4B] flex items-center gap-0.5 hover:underline">
                     detalhar OKRs <ArrowRight size={10} />
                 </Link>
             </div>
@@ -222,7 +222,7 @@ export function StrategyExecutionChain({ objectives, tasks, snapshot, doneStatus
             {lanes.length > 5 && (
                 <p className="text-[10px] text-gray-400 text-center pt-1">
                     +{lanes.length - 5} objetivo(s) ocultos — veja todos em{' '}
-                    <Link href="/okr?tab=okrs" className="text-[#A0792E] underline">Objetivos</Link>
+                    <Link href="/okr?tab=okrs" className="text-[#A68B4B] underline">Objetivos</Link>
                 </p>
             )}
         </div>
@@ -255,7 +255,7 @@ function Lane({ lane }: { lane: LaneData }) {
 
     return (
         <div
-            className="rounded-xl border bg-white dark:bg-[#1B1B1B] overflow-hidden transition-colors"
+            className="rounded-xl border bg-white dark:bg-[#141414] overflow-hidden transition-colors"
             style={{
                 borderColor:
                     lane.status === 'behind' ? '#EF44444D'
@@ -311,7 +311,7 @@ function Lane({ lane }: { lane: LaneData }) {
                                             <span className="text-[10px] text-gray-700 dark:text-gray-300 truncate flex-1 leading-tight">{kr.title}</span>
                                             <span className="text-[10px] font-bold font-mono shrink-0" style={{ color: c }}>{p}%</span>
                                         </div>
-                                        <div className="h-1 bg-gray-100 dark:bg-[#262626] rounded-full overflow-hidden">
+                                        <div className="h-1 bg-gray-100 dark:bg-[#1A1A1A] rounded-full overflow-hidden">
                                             <div className="h-full rounded-full transition-all duration-500" style={{ width: `${p}%`, backgroundColor: c }} />
                                         </div>
                                     </div>
@@ -338,7 +338,7 @@ function Lane({ lane }: { lane: LaneData }) {
                         <div>
                             <div className="flex items-center gap-1.5 mb-2 flex-wrap">
                                 <Pill color="#10B981" label={`${lane.linkedDone} feita${lane.linkedDone !== 1 ? 's' : ''}`} icon={<CheckCircle2 size={9} />} />
-                                <Pill color="#A0792E" label={`${lane.linkedInProgress.length} em curso`} icon={<Briefcase size={9} />} />
+                                <Pill color="#A68B4B" label={`${lane.linkedInProgress.length} em curso`} icon={<Briefcase size={9} />} />
                                 {blockerCount > 0 && (
                                     <Pill color="#EF4444" label={`${blockerCount} atrasada${blockerCount !== 1 ? 's' : ''}`} icon={<Clock size={9} />} />
                                 )}
@@ -359,7 +359,7 @@ function Lane({ lane }: { lane: LaneData }) {
                                     </li>
                                 ))}
                             </ul>
-                            <Link href="/projetos" className="text-[9px] font-bold text-[#A0792E] hover:underline flex items-center gap-0.5 mt-1.5">
+                            <Link href="/projetos" className="text-[9px] font-bold text-[#A68B4B] hover:underline flex items-center gap-0.5 mt-1.5">
                                 abrir tarefas <ChevronRight size={9} />
                             </Link>
                         </div>
@@ -380,7 +380,7 @@ function Lane({ lane }: { lane: LaneData }) {
                                 <Link
                                     key={i}
                                     href={ind.href}
-                                    className="rounded-lg border border-gray-100 dark:border-[#2e2e2e] p-1.5 hover:bg-gray-50 dark:hover:bg-[#262626] transition-colors group"
+                                    className="rounded-lg border border-gray-100 dark:border-[#2A2A2A] p-1.5 hover:bg-gray-50 dark:hover:bg-[#1A1A1A] transition-colors group"
                                 >
                                     <div className="flex items-center gap-1 mb-0.5">
                                         <span style={{ color: ind.color }}>{ind.icon}</span>
@@ -474,7 +474,7 @@ function EmptyCell({ text, hint, cta, href }: { text: string; hint?: string; cta
             <p className="text-[10px] text-gray-400 dark:text-gray-500 font-medium">{text}</p>
             {hint && <p className="text-[9px] text-gray-300 dark:text-gray-600 mt-0.5 leading-tight">{hint}</p>}
             {cta && href && (
-                <Link href={href} className="text-[9px] font-bold text-[#A0792E] hover:underline mt-1.5 inline-flex items-center gap-0.5">
+                <Link href={href} className="text-[9px] font-bold text-[#A68B4B] hover:underline mt-1.5 inline-flex items-center gap-0.5">
                     {cta} <ChevronRight size={9} />
                 </Link>
             )}
@@ -485,7 +485,7 @@ function EmptyCell({ text, hint, cta, href }: { text: string; hint?: string; cta
 function ColHeader({ idx, label, hint }: { idx: number; label: string; hint: string }) {
     return (
         <div className="flex items-center gap-2">
-            <span className="w-4 h-4 rounded-md bg-[#A0792E]/10 text-[#A0792E] text-[9px] font-black flex items-center justify-center shrink-0">
+            <span className="w-4 h-4 rounded-md bg-[#A68B4B]/10 text-[#A68B4B] text-[9px] font-black flex items-center justify-center shrink-0">
                 {idx}
             </span>
             <div className="min-w-0">
@@ -509,11 +509,11 @@ function EmptyChainPreview({ snapshot }: { snapshot: OKRSnapshot }) {
         {
             label: 'Leads · 30d', value: String(snapshot.leads.new30d),
             trend: snapshot.leads.prev30d > 0 ? snapshot.leads.trendDeltaPct : undefined,
-            href: '/crm', icon: <Users size={11} />, color: '#A0792E',
+            href: '/crm', icon: <Users size={11} />, color: '#A68B4B',
         },
         {
             label: 'MQLs ativos', value: String(snapshot.leads.mqlActive),
-            href: '/crm', icon: <Crown size={11} />, color: '#D4A85C',
+            href: '/crm', icon: <Crown size={11} />, color: '#C8A96E',
         },
         {
             label: 'VGV · 90d', value: fmtBRL(snapshot.auctions.vgv90d),
@@ -530,14 +530,14 @@ function EmptyChainPreview({ snapshot }: { snapshot: OKRSnapshot }) {
             {/* Header */}
             <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
-                    <Sparkles size={14} className="text-[#A0792E]" />
+                    <Sparkles size={14} className="text-[#A68B4B]" />
                     <h3 className="text-sm font-bold text-gray-900 dark:text-white">
                         Estratégia <span className="text-gray-300">→</span> Projetos <span className="text-gray-300">→</span> Tarefas <span className="text-gray-300">→</span> Indicadores
                     </h3>
                 </div>
                 <Link
                     href="/okr?tab=okrs"
-                    className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-gradient-to-r from-[#A0792E] to-[#D4A85C] text-black rounded-lg font-bold text-[11px] hover:shadow-md transition-all"
+                    className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-gradient-to-r from-[#A68B4B] to-[#C8A96E] text-black rounded-lg font-bold text-[11px] hover:shadow-md transition-all"
                 >
                     <Plus size={12} /> Criar primeiro objetivo
                 </Link>
@@ -563,22 +563,22 @@ function EmptyChainPreview({ snapshot }: { snapshot: OKRSnapshot }) {
             </div>
 
             {/* Preview lane */}
-            <div className="rounded-xl border border-dashed border-gray-300 dark:border-[#363636] bg-white/50 dark:bg-[#1B1B1B]/60 overflow-hidden">
+            <div className="rounded-xl border border-dashed border-gray-300 dark:border-[#333] bg-white/50 dark:bg-[#141414]/60 overflow-hidden">
                 <div className="grid grid-cols-1 lg:grid-cols-[1.1fr_1.3fr_1.3fr_1.5fr] divide-y lg:divide-y-0 lg:divide-x divide-gray-100 dark:divide-[#262626]">
 
                     {/* Col 1 — CTA */}
                     <div className="p-3 relative border-l-[3px] border-l-gray-300 dark:border-l-[#3f3f3f]">
                         <span className="lg:hidden text-[9px] font-bold text-gray-400 uppercase tracking-widest">1. Estratégia</span>
                         <div className="flex flex-col items-start gap-2 mt-1 lg:mt-0">
-                            <div className="w-10 h-10 rounded-xl bg-[#A0792E]/10 border border-dashed border-[#A0792E]/40 flex items-center justify-center">
-                                <Target size={16} className="text-[#A0792E]" />
+                            <div className="w-10 h-10 rounded-xl bg-[#A68B4B]/10 border border-dashed border-[#A68B4B]/40 flex items-center justify-center">
+                                <Target size={16} className="text-[#A68B4B]" />
                             </div>
                             <p className="text-xs font-bold text-gray-700 dark:text-gray-300 leading-snug">
                                 Ex.: <span className="text-gray-400 dark:text-gray-500 italic">"Bater R$ 10M de VGV em Q2 2026"</span>
                             </p>
                             <Link
                                 href="/okr?tab=okrs"
-                                className="inline-flex items-center gap-1 text-[10px] font-bold text-[#A0792E] hover:underline"
+                                className="inline-flex items-center gap-1 text-[10px] font-bold text-[#A68B4B] hover:underline"
                             >
                                 <Plus size={10} /> Criar objetivo
                             </Link>
@@ -606,7 +606,7 @@ function EmptyChainPreview({ snapshot }: { snapshot: OKRSnapshot }) {
                                 <span className="inline-flex items-center gap-1 text-[9px] font-bold px-1.5 py-0.5 rounded-md font-mono text-emerald-600 bg-emerald-50 dark:bg-emerald-500/10">
                                     <CheckCircle2 size={9} /> 0 feitas
                                 </span>
-                                <span className="inline-flex items-center gap-1 text-[9px] font-bold px-1.5 py-0.5 rounded-md font-mono text-[#A0792E] bg-[#A0792E]/10">
+                                <span className="inline-flex items-center gap-1 text-[9px] font-bold px-1.5 py-0.5 rounded-md font-mono text-[#A68B4B] bg-[#A68B4B]/10">
                                     <Briefcase size={9} /> 0 em curso
                                 </span>
                             </div>
@@ -622,7 +622,7 @@ function EmptyChainPreview({ snapshot }: { snapshot: OKRSnapshot }) {
                             </ul>
                         </div>
                         <p className="text-[9px] text-gray-400 mt-2 leading-tight">
-                            Vincule tarefas a KRs no <Link href="/projetos" className="text-[#A0792E] hover:underline">plano tático</Link>.
+                            Vincule tarefas a KRs no <Link href="/projetos" className="text-[#A68B4B] hover:underline">plano tático</Link>.
                         </p>
                     </div>
 
@@ -634,7 +634,7 @@ function EmptyChainPreview({ snapshot }: { snapshot: OKRSnapshot }) {
                                 <Link
                                     key={i}
                                     href={ind.href}
-                                    className="rounded-lg border border-gray-100 dark:border-[#2e2e2e] bg-white dark:bg-[#1B1B1B] p-1.5 hover:bg-gray-50 dark:hover:bg-[#262626] transition-colors"
+                                    className="rounded-lg border border-gray-100 dark:border-[#2A2A2A] bg-white dark:bg-[#141414] p-1.5 hover:bg-gray-50 dark:hover:bg-[#1A1A1A] transition-colors"
                                 >
                                     <div className="flex items-center gap-1 mb-0.5">
                                         <span style={{ color: ind.color }}>{ind.icon}</span>
@@ -668,7 +668,7 @@ function GhostBar({ label }: { label: string }) {
                 <span className="text-[10px] text-gray-500 dark:text-gray-400 truncate flex-1 italic">{label}</span>
                 <span className="text-[10px] font-bold font-mono text-gray-300">—%</span>
             </div>
-            <div className="h-1 bg-gray-100 dark:bg-[#262626] rounded-full overflow-hidden" />
+            <div className="h-1 bg-gray-100 dark:bg-[#1A1A1A] rounded-full overflow-hidden" />
         </div>
     );
 }

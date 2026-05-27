@@ -48,7 +48,7 @@ export function CRMFunnelView({ leads, crmConfig, onConfigSaved }: CRMFunnelView
 
     return (
         <div className="space-y-5">
-            <div className="flex gap-1 border-b border-gray-200 dark:border-[#2e2e2e]">
+            <div className="flex gap-1 border-b border-gray-200 dark:border-[#2A2A2A]">
                 {subTabs.map(t => {
                     const Icon = t.icon;
                     const active = subTab === t.id;
@@ -58,7 +58,7 @@ export function CRMFunnelView({ leads, crmConfig, onConfigSaved }: CRMFunnelView
                             onClick={() => setSubTab(t.id)}
                             className={`flex items-center gap-2 px-4 py-2 text-sm font-medium border-b-2 -mb-px transition-colors ${
                                 active
-                                    ? 'border-[#A0792E] text-gray-900 dark:text-white'
+                                    ? 'border-[#A68B4B] text-gray-900 dark:text-white'
                                     : 'border-transparent text-gray-500 hover:text-gray-700 dark:hover:text-gray-300'
                             }`}
                         >

@@ -133,7 +133,7 @@ export default function IAPage() {
             <div className="flex items-center justify-between mb-6 shrink-0">
                 <div>
                     <h1 className="text-2xl font-bold text-gray-900 dark:text-white flex items-center gap-3">
-                        <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-[#A0792E] to-[#D4A85C] flex items-center justify-center shadow-lg shadow-[#A0792E]/30">
+                        <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-[#A68B4B] to-[#C8A96E] flex items-center justify-center shadow-lg shadow-[#A68B4B]/30">
                             <Sparkles size={20} className="text-black" />
                         </div>
                         Assistente IA
@@ -154,11 +154,11 @@ export default function IAPage() {
             </div>
 
             {/* Messages Area */}
-            <div className="flex-1 overflow-y-auto rounded-2xl bg-white dark:bg-[#1d1d1d] border border-gray-200 dark:border-[#2e2e2e] p-4 lg:p-6 space-y-4 scrollbar-thin scrollbar-thumb-gray-200 dark:scrollbar-thumb-[#2e2e2e] scrollbar-track-transparent">
+            <div className="flex-1 overflow-y-auto rounded-2xl bg-white dark:bg-[#141414] border border-gray-200 dark:border-[#2A2A2A] p-4 lg:p-6 space-y-4 scrollbar-thin scrollbar-thumb-gray-200 dark:scrollbar-thumb-[#2e2e2e] scrollbar-track-transparent">
                 {messages.length === 0 ? (
                     <div className="flex flex-col items-center justify-center h-full text-center px-4">
-                        <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-[#A0792E]/20 to-[#D4A85C]/10 flex items-center justify-center mb-4 border border-[#A0792E]/20">
-                            <Bot size={32} className="text-[#A0792E]" />
+                        <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-[#A68B4B]/20 to-[#C8A96E]/10 flex items-center justify-center mb-4 border border-[#A68B4B]/20">
+                            <Bot size={32} className="text-[#A68B4B]" />
                         </div>
                         <h2 className="text-lg font-semibold text-gray-800 dark:text-gray-200 mb-1">
                             Como posso ajudar?
@@ -171,9 +171,9 @@ export default function IAPage() {
                                 <button
                                     key={prompt}
                                     onClick={() => sendMessage(prompt)}
-                                    className="text-left px-4 py-3 rounded-xl border border-gray-200 dark:border-[#363636] bg-gray-50 dark:bg-[#262626] hover:border-[#A0792E]/50 hover:bg-[#A0792E]/5 text-sm text-gray-700 dark:text-gray-300 transition-all group"
+                                    className="text-left px-4 py-3 rounded-xl border border-gray-200 dark:border-[#333] bg-gray-50 dark:bg-[#1A1A1A] hover:border-[#A68B4B]/50 hover:bg-[#A68B4B]/5 text-sm text-gray-700 dark:text-gray-300 transition-all group"
                                 >
-                                    <span className="text-[#A0792E] mr-1 opacity-0 group-hover:opacity-100 transition-opacity">→</span>
+                                    <span className="text-[#A68B4B] mr-1 opacity-0 group-hover:opacity-100 transition-opacity">→</span>
                                     {prompt}
                                 </button>
                             ))}
@@ -187,7 +187,7 @@ export default function IAPage() {
                                 className={`flex gap-3 ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}
                             >
                                 {msg.role === 'assistant' && (
-                                    <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-[#A0792E] to-[#D4A85C] flex items-center justify-center shrink-0 mt-1 shadow-md shadow-[#A0792E]/20">
+                                    <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-[#A68B4B] to-[#C8A96E] flex items-center justify-center shrink-0 mt-1 shadow-md shadow-[#A68B4B]/20">
                                         <Sparkles size={14} className="text-black" />
                                     </div>
                                 )}
@@ -196,8 +196,8 @@ export default function IAPage() {
                                     <div
                                         className={`px-4 py-3 rounded-2xl text-sm leading-relaxed whitespace-pre-wrap break-words ${
                                             msg.role === 'user'
-                                                ? 'bg-gradient-to-br from-[#A0792E] to-[#9A7209] text-white rounded-tr-sm shadow-lg shadow-[#A0792E]/20'
-                                                : 'bg-gray-50 dark:bg-[#262626] text-gray-800 dark:text-gray-200 border border-gray-200 dark:border-[#363636] rounded-tl-sm'
+                                                ? 'bg-gradient-to-br from-[#A68B4B] to-[#9A7209] text-white rounded-tr-sm shadow-lg shadow-[#A68B4B]/20'
+                                                : 'bg-gray-50 dark:bg-[#1A1A1A] text-gray-800 dark:text-gray-200 border border-gray-200 dark:border-[#333] rounded-tl-sm'
                                         }`}
                                     >
                                         {msg.role === 'assistant'
@@ -210,7 +210,7 @@ export default function IAPage() {
                                             {formatTime(msg.timestamp)}
                                         </span>
                                         {msg.queriesMade !== undefined && msg.queriesMade > 0 && (
-                                            <span className="flex items-center gap-1 text-[10px] text-[#A0792E]/70">
+                                            <span className="flex items-center gap-1 text-[10px] text-[#A68B4B]/70">
                                                 <Database size={10} />
                                                 {msg.queriesMade} consulta{msg.queriesMade > 1 ? 's' : ''}
                                             </span>
@@ -238,15 +238,15 @@ export default function IAPage() {
 
                         {isLoading && (
                             <div className="flex gap-3 justify-start">
-                                <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-[#A0792E] to-[#D4A85C] flex items-center justify-center shrink-0 mt-1 animate-pulse">
+                                <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-[#A68B4B] to-[#C8A96E] flex items-center justify-center shrink-0 mt-1 animate-pulse">
                                     <Sparkles size={14} className="text-black" />
                                 </div>
-                                <div className="bg-gray-50 dark:bg-[#262626] border border-gray-200 dark:border-[#363636] rounded-2xl rounded-tl-sm px-4 py-3">
+                                <div className="bg-gray-50 dark:bg-[#1A1A1A] border border-gray-200 dark:border-[#333] rounded-2xl rounded-tl-sm px-4 py-3">
                                     <div className="flex items-center gap-2">
                                         <div className="flex gap-1">
-                                            <span className="w-2 h-2 rounded-full bg-[#A0792E] animate-bounce" style={{ animationDelay: '0ms' }} />
-                                            <span className="w-2 h-2 rounded-full bg-[#A0792E] animate-bounce" style={{ animationDelay: '150ms' }} />
-                                            <span className="w-2 h-2 rounded-full bg-[#A0792E] animate-bounce" style={{ animationDelay: '300ms' }} />
+                                            <span className="w-2 h-2 rounded-full bg-[#A68B4B] animate-bounce" style={{ animationDelay: '0ms' }} />
+                                            <span className="w-2 h-2 rounded-full bg-[#A68B4B] animate-bounce" style={{ animationDelay: '150ms' }} />
+                                            <span className="w-2 h-2 rounded-full bg-[#A68B4B] animate-bounce" style={{ animationDelay: '300ms' }} />
                                         </div>
                                         <span className="text-xs text-gray-400 dark:text-gray-500">Consultando banco de dados...</span>
                                     </div>
@@ -261,7 +261,7 @@ export default function IAPage() {
 
             {/* Input Area */}
             <div className="mt-4 shrink-0">
-                <div className="flex gap-3 items-end bg-white dark:bg-[#1d1d1d] border border-gray-200 dark:border-[#2e2e2e] rounded-2xl p-3 focus-within:border-[#A0792E]/50 transition-colors shadow-sm">
+                <div className="flex gap-3 items-end bg-white dark:bg-[#141414] border border-gray-200 dark:border-[#2A2A2A] rounded-2xl p-3 focus-within:border-[#A68B4B]/50 transition-colors shadow-sm">
                     <textarea
                         ref={inputRef}
                         value={input}
@@ -281,7 +281,7 @@ export default function IAPage() {
                     <button
                         onClick={() => sendMessage()}
                         disabled={!input.trim() || isLoading}
-                        className="w-9 h-9 rounded-xl bg-gradient-to-br from-[#A0792E] to-[#9A7209] flex items-center justify-center text-black transition-all hover:shadow-lg hover:shadow-[#A0792E]/30 disabled:opacity-40 disabled:cursor-not-allowed shrink-0"
+                        className="w-9 h-9 rounded-xl bg-gradient-to-br from-[#A68B4B] to-[#9A7209] flex items-center justify-center text-black transition-all hover:shadow-lg hover:shadow-[#A68B4B]/30 disabled:opacity-40 disabled:cursor-not-allowed shrink-0"
                     >
                         <Send size={16} />
                     </button>

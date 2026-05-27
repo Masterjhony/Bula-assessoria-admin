@@ -28,7 +28,7 @@ const TABS: { id: Tab; label: string; icon: typeof Inbox }[] = [
 export default function CentralWhatsAppPage() {
     // useSearchParams precisa estar dentro de Suspense (Next 16) para o build.
     return (
-        <Suspense fallback={<div className="flex items-center justify-center py-24"><Loader2 size={28} className="animate-spin text-[#A0792E]" /></div>}>
+        <Suspense fallback={<div className="flex items-center justify-center py-24"><Loader2 size={28} className="animate-spin text-[#A68B4B]" /></div>}>
             <CentralWhatsAppInner />
         </Suspense>
     )

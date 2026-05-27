@@ -54,7 +54,7 @@ export function renderPasswordResetEmail(link: string, fullName?: string) {
       <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="max-width:520px;background:#ffffff;border-radius:16px;overflow:hidden;border:1px solid #e5e5e5;">
         <tr><td style="background:#0a0a0a;padding:24px 32px;color:#ffffff;">
           <div style="font-size:18px;font-weight:700;letter-spacing:1px;text-transform:uppercase;">Fórmula do Boi</div>
-          <div style="font-size:12px;color:#A0792E;margin-top:4px;">Redefinição de senha</div>
+          <div style="font-size:12px;color:#A68B4B;margin-top:4px;">Redefinição de senha</div>
         </td></tr>
         <tr><td style="padding:32px;">
           <p style="margin:0 0 16px 0;font-size:15px;">${greeting}</p>
@@ -63,12 +63,12 @@ export function renderPasswordResetEmail(link: string, fullName?: string) {
             Clique no botão abaixo para criar uma nova senha. O link expira em <strong>1 hora</strong>.
           </p>
           <div style="text-align:center;margin:28px 0;">
-            <a href="${link}" style="display:inline-block;background:#A0792E;color:#ffffff;text-decoration:none;padding:14px 28px;border-radius:10px;font-weight:700;font-size:15px;">
+            <a href="${link}" style="display:inline-block;background:#A68B4B;color:#ffffff;text-decoration:none;padding:14px 28px;border-radius:10px;font-weight:700;font-size:15px;">
               Redefinir senha
             </a>
           </div>
           <p style="margin:24px 0 8px 0;font-size:12px;color:#666;">Ou copie e cole este link no navegador:</p>
-          <p style="margin:0;font-size:12px;color:#A0792E;word-break:break-all;">${link}</p>
+          <p style="margin:0;font-size:12px;color:#A68B4B;word-break:break-all;">${link}</p>
           <p style="margin:24px 0 0 0;font-size:13px;color:#666;line-height:1.5;">
             Se você não solicitou essa redefinição, ignore esta mensagem — sua senha continuará a mesma.
           </p>
@@ -92,7 +92,7 @@ export function renderVerificationCodeEmail(code: string, fullName?: string) {
       <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="max-width:520px;background:#ffffff;border-radius:16px;overflow:hidden;border:1px solid #e5e5e5;">
         <tr><td style="background:#0a0a0a;padding:24px 32px;color:#ffffff;">
           <div style="font-size:18px;font-weight:700;letter-spacing:1px;text-transform:uppercase;">Fórmula do Boi</div>
-          <div style="font-size:12px;color:#A0792E;margin-top:4px;">Painel Administrativo</div>
+          <div style="font-size:12px;color:#A68B4B;margin-top:4px;">Painel Administrativo</div>
         </td></tr>
         <tr><td style="padding:32px;">
           <p style="margin:0 0 16px 0;font-size:15px;">${greeting}</p>
@@ -101,7 +101,7 @@ export function renderVerificationCodeEmail(code: string, fullName?: string) {
             O código expira em <strong>10 minutos</strong>.
           </p>
           <div style="text-align:center;margin:24px 0;">
-            <div style="display:inline-block;font-family:'Courier New',monospace;font-size:36px;letter-spacing:12px;font-weight:700;color:#A0792E;background:#fff7e6;border:1px dashed #A0792E;padding:18px 28px;border-radius:12px;">
+            <div style="display:inline-block;font-family:'Courier New',monospace;font-size:36px;letter-spacing:12px;font-weight:700;color:#A68B4B;background:#fff7e6;border:1px dashed #A68B4B;padding:18px 28px;border-radius:12px;">
               ${code}
             </div>
           </div>

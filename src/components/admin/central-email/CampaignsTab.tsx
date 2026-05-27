@@ -375,7 +375,7 @@ export function CampaignsTab({ templates }: Props) {
                                 value={form.from_name}
                                 onChange={e => setForm({ ...form, from_name: e.target.value })}
                                 className="w-full px-3 py-2 text-sm border rounded-lg bg-background"
-                                placeholder="Fórmula do Boi <contato@formuladoboi.com>"
+                                placeholder="Bula Assessoria <contato@bula.example.com>"
                             />
                         </div>
                         <div>
@@ -384,7 +384,7 @@ export function CampaignsTab({ templates }: Props) {
                                 value={form.reply_to}
                                 onChange={e => setForm({ ...form, reply_to: e.target.value })}
                                 className="w-full px-3 py-2 text-sm border rounded-lg bg-background"
-                                placeholder="matheus@formuladoboi.com"
+                                placeholder="operador@bula.example.com"
                             />
                         </div>
                     </div>

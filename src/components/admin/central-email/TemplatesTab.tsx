@@ -171,7 +171,7 @@ export function TemplatesTab({ templates, onChange }: Props) {
                             value={form.subject}
                             onChange={e => setForm({ ...form, subject: e.target.value })}
                             className="w-full px-3 py-2 text-sm border rounded-lg bg-background"
-                            placeholder="Bem-vindo à Fórmula do Boi, {nome}"
+                            placeholder="Bem-vindo à Bula Assessoria, {nome}"
                         />
                     </div>
                     <div>

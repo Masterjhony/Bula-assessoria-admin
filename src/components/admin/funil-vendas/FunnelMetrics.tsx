@@ -69,7 +69,7 @@ export function FunnelMetrics({ leads, stages }: FunnelMetricsProps) {
             value: fmtBRL(weightedForecast),
             sub: 'valor × probabilidade',
             icon: TrendingUp,
-            color: 'text-[#A0792E] bg-[#A0792E]/10',
+            color: 'text-[#A68B4B] bg-[#A68B4B]/10',
         },
         {
             label: 'Taxa de conversão',
@@ -101,7 +101,7 @@ export function FunnelMetrics({ leads, stages }: FunnelMetricsProps) {
                 return (
                     <div
                         key={m.label}
-                        className="bg-white dark:bg-[#1d1d1d] border border-gray-200 dark:border-[#2e2e2e] rounded-2xl p-4"
+                        className="bg-white dark:bg-[#141414] border border-gray-200 dark:border-[#2A2A2A] rounded-2xl p-4"
                     >
                         <div className="flex items-start justify-between mb-2">
                             <span className="text-xs text-gray-500 font-medium">{m.label}</span>

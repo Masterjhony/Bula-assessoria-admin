@@ -249,7 +249,7 @@ function Hero({ data }: { data: ProximoLeilao | null }) {
 
 // ─── KPIs ───────────────────────────────────────────────────────────────────
 
-const KPI_GOLD = '#D4A85C', KPI_GREEN = '#5db87a', KPI_BLUE = '#6a8fd4', KPI_VIOLET = '#9b86c4';
+const KPI_GOLD = '#C8A96E', KPI_GREEN = '#5db87a', KPI_BLUE = '#6a8fd4', KPI_VIOLET = '#9b86c4';
 
 function KPIs({ items }: { items: KpiItem[] }) {
     return (
@@ -346,8 +346,8 @@ function VGVChart({ data, totalMeta, totalVgv, projection }: { data: VgvPoint[];
                 }}>
                 <defs>
                     <linearGradient id="dclGMeta" x1="0" x2="0" y1="0" y2="1">
-                        <stop offset="0%" stopColor="#D4A85C" stopOpacity="0.35" />
-                        <stop offset="100%" stopColor="#D4A85C" stopOpacity="0" />
+                        <stop offset="0%" stopColor="#C8A96E" stopOpacity="0.35" />
+                        <stop offset="100%" stopColor="#C8A96E" stopOpacity="0" />
                     </linearGradient>
                     <linearGradient id="dclGVgv" x1="0" x2="0" y1="0" y2="1">
                         <stop offset="0%" stopColor="#6a8fd4" stopOpacity="0.25" />
@@ -364,10 +364,10 @@ function VGVChart({ data, totalMeta, totalVgv, projection }: { data: VgvPoint[];
                 <path d={mkArea(vgv)} fill="url(#dclGVgv)" />
                 <path d={mkLine(vgv)} fill="none" stroke="#6a8fd4" strokeWidth="2" />
                 <path d={mkArea(meta)} fill="url(#dclGMeta)" />
-                <path d={mkLine(meta)} fill="none" stroke="#D4A85C" strokeWidth="2" />
+                <path d={mkLine(meta)} fill="none" stroke="#C8A96E" strokeWidth="2" />
                 {safe.map((_, i) => (
                     <g key={i}>
-                        <circle cx={xFor(i)} cy={yFor(meta[i])} r={hover === i ? 4.5 : 2.5} fill="#D4A85C" />
+                        <circle cx={xFor(i)} cy={yFor(meta[i])} r={hover === i ? 4.5 : 2.5} fill="#C8A96E" />
                         <circle cx={xFor(i)} cy={yFor(vgv[i])} r={hover === i ? 4 : 2.3} fill="#6a8fd4" />
                     </g>
                 ))}
@@ -376,11 +376,11 @@ function VGVChart({ data, totalMeta, totalVgv, projection }: { data: VgvPoint[];
                 ))}
                 {hover !== null && (
                     <g>
-                        <line x1={xFor(hover)} x2={xFor(hover)} y1={pad.t} y2={pad.t + innerH} stroke="#D4A85C" strokeOpacity="0.35" strokeDasharray="2 3" />
+                        <line x1={xFor(hover)} x2={xFor(hover)} y1={pad.t} y2={pad.t + innerH} stroke="#C8A96E" strokeOpacity="0.35" strokeDasharray="2 3" />
                         <g transform={`translate(${Math.min(xFor(hover) + 12, w - 170)}, ${pad.t + 8})`}>
                             <rect width="156" height="68" rx="8" style={{ fill: 'var(--dcl-bg-card)', stroke: 'var(--dcl-line)' }} />
                             <text x="12" y="20" fontSize="10.5" style={{ fill: 'var(--dcl-ink-3)', letterSpacing: '0.08em', textTransform: 'uppercase' }}>{safe[hover].label}</text>
-                            <circle cx="14" cy="37" r="3" fill="#D4A85C" />
+                            <circle cx="14" cy="37" r="3" fill="#C8A96E" />
                             <text x="24" y="40" fontSize="11" style={{ fill: 'var(--dcl-ink-2)' }}>Meta</text>
                             <text x="145" y="40" fontSize="11.5" textAnchor="end" fontFamily="var(--font-mono), ui-monospace, monospace" style={{ fill: 'var(--dcl-ink)' }}>{fmtBRLCompact(safe[hover].meta * 1_000_000)}</text>
                             <circle cx="14" cy="55" r="3" fill="#6a8fd4" />
@@ -415,7 +415,7 @@ function AIInsight({ ai }: { ai: DashboardProps['aiInsight'] }) {
                 <div>
                     <div className="dcl-ai-prog-label dcl-mono" style={{ marginBottom: 6 }}>Projeção · {Math.round(pct)}% da meta</div>
                     <div style={{ position: 'relative', height: 8, borderRadius: 99, background: 'var(--dcl-bg-card-2)', overflow: 'hidden' }}>
-                        <div style={{ position: 'absolute', left: 0, top: 0, bottom: 0, width: `${Math.min(100, pct)}%`, background: 'linear-gradient(90deg,#6a8fd4,#D4A85C)', borderRadius: 99 }} />
+                        <div style={{ position: 'absolute', left: 0, top: 0, bottom: 0, width: `${Math.min(100, pct)}%`, background: 'linear-gradient(90deg,#6a8fd4,#C8A96E)', borderRadius: 99 }} />
                         <div style={{ position: 'absolute', left: '100%', top: -4, bottom: -4, width: 1, background: 'var(--dcl-green)', transform: 'translateX(-1px)' }} />
                     </div>
                 </div>
@@ -579,7 +579,7 @@ function Performance({ p }: { p: PerformanceData }) {
                     <div style={{ fontSize: 11, color: 'var(--dcl-ink-3)' }}>{fmtNum(p.lotesVendidos)} de {fmtNum(p.lotesOfertados)} lotes</div>
                 </div>
                 <div style={{ position: 'relative', height: 6, borderRadius: 99, background: 'var(--dcl-bg-card-2)', overflow: 'hidden', marginTop: 8 }}>
-                    <div style={{ position: 'absolute', left: 0, top: 0, bottom: 0, width: `${conv}%`, background: 'linear-gradient(90deg,#6a8fd4,#D4A85C)', borderRadius: 99 }} />
+                    <div style={{ position: 'absolute', left: 0, top: 0, bottom: 0, width: `${conv}%`, background: 'linear-gradient(90deg,#6a8fd4,#C8A96E)', borderRadius: 99 }} />
                 </div>
             </div>
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>
@@ -720,7 +720,7 @@ function RankLances({ rows }: { rows: LanceItem[] }) {
     );
 }
 
-// ─── Produtos & Reservas (operação Fórmula do Boi) ──────────────────────────
+// ─── Produtos & Reservas (legado, não aplicável ao web-bula) ──────────────────────────
 
 function ProdutosPanel({ items, total }: { items: CatCount[]; total: number }) {
     const max = Math.max(...items.map(i => i.count), 1);
@@ -778,12 +778,10 @@ function ReservasPanel({ items, total, valor }: { items: ReservaStatusItem[]; to
 
 // ─── Root ───────────────────────────────────────────────────────────────────
 
-type OpView = 'bula' | 'formula';
-
 export default function DashboardClient(props: DashboardProps) {
-    // Operação visível: 'bula' (leilões — Bula × Fórmula do Boi) ou
-    // 'formula' (produtos, reservas e CRM — só Fórmula do Boi).
-    const [op, setOp] = useState<OpView>('bula');
+    // Web-bula: dashboard único da Bula. Sem toggle de operação
+    // (a aba "Fórmula do Boi" do fórmula original foi removida — esse
+    // sistema atende só a Bula Assessoria).
 
     const totalMeta = useMemo(() => props.vgv.reduce((s, p) => s + p.meta, 0) * 1_000_000, [props.vgv]);
     const totalVgv = useMemo(() => props.vgv.reduce((s, p) => s + p.vgv, 0) * 1_000_000, [props.vgv]);
@@ -803,14 +801,6 @@ export default function DashboardClient(props: DashboardProps) {
         { label: 'Fechamentos', val: String(k.totalFechamentos), delta: `${fmtNum(props.performance.animaisVendidos)} animais vendidos`, icon: <Medal size={12} />, spark: k.vgvSpark, color: KPI_BLUE, tone: 'blue', href: '/leiloes/fechamento' },
     ];
 
-    const formulaKpis: KpiItem[] = [
-        { label: 'Leads ativos', val: fmtNum(k.activeLeads), delta: `${k.hotLeads} quente${plural(k.hotLeads)}`, icon: <PhoneCall size={12} />, spark: k.leadsSpark, color: KPI_BLUE, tone: 'blue', href: '/leads' },
-        { label: 'Total de leads', val: fmtNum(k.totalLeads), delta: 'No CRM', icon: <Users size={12} />, spark: k.leadsSpark, color: KPI_VIOLET, tone: 'violet', href: '/crm' },
-        { label: 'Produtos', val: fmtNum(f.produtosTotal), delta: `${f.produtosByCategory.length} categoria${plural(f.produtosByCategory.length)}`, icon: <Dna size={12} />, spark: [], color: KPI_GOLD, tone: 'gold', href: '/products' },
-        { label: 'Reservas ativas', val: fmtNum(f.reservasAtivas), delta: fmtBRLCompact(f.reservasValor), icon: <Package size={12} />, spark: [], color: KPI_GREEN, tone: 'green', href: '/reservas' },
-        { label: 'Reservas novas', val: fmtNum(f.reservasNovas), delta: 'Aguardando contato', icon: <Package size={12} />, spark: [], color: KPI_GOLD, tone: 'gold', href: '/reservas' },
-    ];
-
     const feedFechamento = props.feed.filter(i => i.kind === 'fechamento').slice(0, 7);
     const feedLeads = props.feed.filter(i => i.kind === 'lead').slice(0, 7);
 
@@ -822,30 +812,11 @@ export default function DashboardClient(props: DashboardProps) {
                     <div className="dcl-sub">{props.today}</div>
                 </div>
                 <div className="dcl-pagehead-right">
-                    <div className="dcl-optoggle" role="tablist" aria-label="Operação">
-                        <button
-                            role="tab"
-                            aria-selected={op === 'bula'}
-                            className={op === 'bula' ? 'on' : ''}
-                            onClick={() => setOp('bula')}
-                        >
-                            Bula × Fórmula do Boi
-                        </button>
-                        <button
-                            role="tab"
-                            aria-selected={op === 'formula'}
-                            className={op === 'formula' ? 'on' : ''}
-                            onClick={() => setOp('formula')}
-                        >
-                            Fórmula do Boi
-                        </button>
-                    </div>
                     <div className="dcl-status-pill"><span className="dcl-ping" /> Sistema ativo</div>
                 </div>
             </div>
 
-            {op === 'bula' ? (
-                <>
+            <>
                     <Hero data={props.proximo} />
                     <KPIs items={bulaKpis} />
 
@@ -869,22 +840,12 @@ export default function DashboardClient(props: DashboardProps) {
                         <RankCompradores rows={props.rankings.compradores} />
                         <RankLances rows={props.rankings.lances} />
                     </div>
-                </>
-            ) : (
-                <>
-                    <KPIs items={formulaKpis} />
 
                     <div className="dcl-bento">
                         <Funnel steps={props.funnel} totalConv={convRate} />
-                        <ActivityFeed items={feedLeads} href="/leads" />
+                        <ActivityFeed items={feedLeads} href="/sistema/leads" />
                     </div>
-
-                    <div className="dcl-bento">
-                        <ProdutosPanel items={f.produtosByCategory} total={f.produtosTotal} />
-                        <ReservasPanel items={f.reservasByStatus} total={f.reservasAtivas} valor={f.reservasValor} />
-                    </div>
-                </>
-            )}
+            </>
         </div>
     );
 }

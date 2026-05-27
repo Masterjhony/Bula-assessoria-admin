@@ -181,7 +181,7 @@ export function CRMLeadsView({ leads, stages, onEditLead, onAddLead }: CRMLeadsV
         <div className="flex flex-col gap-4 h-full min-h-0">
             {/* Stats */}
             <div className="grid grid-cols-3 gap-3 shrink-0">
-                <div className="bg-white dark:bg-[#262626] rounded-xl border border-gray-200 dark:border-[#2e2e2e] p-4 flex items-center gap-3">
+                <div className="bg-white dark:bg-[#1A1A1A] rounded-xl border border-gray-200 dark:border-[#2A2A2A] p-4 flex items-center gap-3">
                     <div className="w-10 h-10 rounded-xl bg-blue-50 dark:bg-blue-500/10 flex items-center justify-center shrink-0">
                         <Users size={18} className="text-blue-500" />
                     </div>
@@ -190,7 +190,7 @@ export function CRMLeadsView({ leads, stages, onEditLead, onAddLead }: CRMLeadsV
                         <p className="text-xs text-gray-500">Total de leads</p>
                     </div>
                 </div>
-                <div className="bg-white dark:bg-[#262626] rounded-xl border border-gray-200 dark:border-[#2e2e2e] p-4 flex items-center gap-3">
+                <div className="bg-white dark:bg-[#1A1A1A] rounded-xl border border-gray-200 dark:border-[#2A2A2A] p-4 flex items-center gap-3">
                     <div className="w-10 h-10 rounded-xl bg-green-50 dark:bg-green-500/10 flex items-center justify-center shrink-0">
                         <Calendar size={18} className="text-green-500" />
                     </div>
@@ -199,7 +199,7 @@ export function CRMLeadsView({ leads, stages, onEditLead, onAddLead }: CRMLeadsV
                         <p className="text-xs text-gray-500">Hoje</p>
                     </div>
                 </div>
-                <div className="bg-white dark:bg-[#262626] rounded-xl border border-gray-200 dark:border-[#2e2e2e] p-4 flex items-center gap-3">
+                <div className="bg-white dark:bg-[#1A1A1A] rounded-xl border border-gray-200 dark:border-[#2A2A2A] p-4 flex items-center gap-3">
                     <div className="w-10 h-10 rounded-xl bg-orange-50 dark:bg-orange-500/10 flex items-center justify-center shrink-0">
                         <TrendingUp size={18} className="text-orange-500" />
                     </div>
@@ -220,13 +220,13 @@ export function CRMLeadsView({ leads, stages, onEditLead, onAddLead }: CRMLeadsV
                             placeholder="Buscar por nome, telefone, cidade, instagram..."
                             value={search}
                             onChange={e => setSearch(e.target.value)}
-                            className="w-full pl-9 pr-4 py-2.5 bg-white dark:bg-[#262626] border border-gray-200 dark:border-[#3f3f3f] rounded-xl text-sm focus:ring-2 focus:ring-[#A0792E] focus:border-transparent outline-none dark:text-white placeholder:text-gray-400"
+                            className="w-full pl-9 pr-4 py-2.5 bg-white dark:bg-[#1A1A1A] border border-gray-200 dark:border-[#333] rounded-xl text-sm focus:ring-2 focus:ring-[#A68B4B] focus:border-transparent outline-none dark:text-white placeholder:text-gray-400"
                         />
                     </div>
                     <select
                         value={filterStatus}
                         onChange={e => setFilterStatus(e.target.value)}
-                        className="px-4 py-2.5 bg-white dark:bg-[#262626] border border-gray-200 dark:border-[#3f3f3f] rounded-xl text-sm focus:ring-2 focus:ring-[#A0792E] focus:border-transparent outline-none dark:text-white"
+                        className="px-4 py-2.5 bg-white dark:bg-[#1A1A1A] border border-gray-200 dark:border-[#333] rounded-xl text-sm focus:ring-2 focus:ring-[#A68B4B] focus:border-transparent outline-none dark:text-white"
                     >
                         <option value="">Todos os status</option>
                         {stages.map(s => <option key={s} value={s}>{s}</option>)}
@@ -235,7 +235,7 @@ export function CRMLeadsView({ leads, stages, onEditLead, onAddLead }: CRMLeadsV
                         <select
                             value={filterEstado}
                             onChange={e => setFilterEstado(e.target.value)}
-                            className="px-4 py-2.5 bg-white dark:bg-[#262626] border border-gray-200 dark:border-[#3f3f3f] rounded-xl text-sm focus:ring-2 focus:ring-[#A0792E] focus:border-transparent outline-none dark:text-white"
+                            className="px-4 py-2.5 bg-white dark:bg-[#1A1A1A] border border-gray-200 dark:border-[#333] rounded-xl text-sm focus:ring-2 focus:ring-[#A68B4B] focus:border-transparent outline-none dark:text-white"
                         >
                             <option value="">Todos os estados</option>
                             {estados.map(e => <option key={e} value={e}>{e}</option>)}
@@ -244,12 +244,12 @@ export function CRMLeadsView({ leads, stages, onEditLead, onAddLead }: CRMLeadsV
                     <button
                         onClick={() => setShowAdvFilters(v => !v)}
                         className={`flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-medium border transition-all ${showAdvFilters || activeFiltersCount > 0
-                            ? 'border-[#A0792E] bg-[#A0792E]/10 text-[#A0792E]'
-                            : 'border-gray-200 dark:border-[#3f3f3f] text-gray-600 dark:text-gray-300 hover:border-[#A0792E]/40 hover:text-[#A0792E]'}`}
+                            ? 'border-[#A68B4B] bg-[#A68B4B]/10 text-[#A68B4B]'
+                            : 'border-gray-200 dark:border-[#333] text-gray-600 dark:text-gray-300 hover:border-[#A68B4B]/40 hover:text-[#A68B4B]'}`}
                     >
                         <SlidersHorizontal size={15} /> Filtros
                         {activeFiltersCount > 0 && (
-                            <span className="inline-flex items-center justify-center w-5 h-5 rounded-full bg-[#A0792E] text-white text-[10px] font-bold">
+                            <span className="inline-flex items-center justify-center w-5 h-5 rounded-full bg-[#A68B4B] text-white text-[10px] font-bold">
                                 {activeFiltersCount}
                             </span>
                         )}
@@ -258,7 +258,7 @@ export function CRMLeadsView({ leads, stages, onEditLead, onAddLead }: CRMLeadsV
                         onClick={() => exportLeadsCSV(filtered)}
                         disabled={filtered.length === 0}
                         title="Exportar leads filtrados em CSV"
-                        className="flex items-center gap-2 px-4 py-2.5 bg-white dark:bg-[#262626] border border-gray-200 dark:border-[#3f3f3f] rounded-xl text-sm font-medium text-gray-600 dark:text-gray-300 hover:border-[#A0792E] hover:text-[#A0792E] disabled:opacity-40 disabled:cursor-not-allowed transition-all"
+                        className="flex items-center gap-2 px-4 py-2.5 bg-white dark:bg-[#1A1A1A] border border-gray-200 dark:border-[#333] rounded-xl text-sm font-medium text-gray-600 dark:text-gray-300 hover:border-[#A68B4B] hover:text-[#A68B4B] disabled:opacity-40 disabled:cursor-not-allowed transition-all"
                     >
                         <Download size={15} /> Exportar
                     </button>
@@ -272,13 +272,13 @@ export function CRMLeadsView({ leads, stages, onEditLead, onAddLead }: CRMLeadsV
 
                 {/* Advanced filters panel */}
                 {showAdvFilters && (
-                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 p-4 rounded-2xl border border-gray-200 dark:border-[#2e2e2e] bg-gray-50/50 dark:bg-[#1B1B1B]">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 p-4 rounded-2xl border border-gray-200 dark:border-[#2A2A2A] bg-gray-50/50 dark:bg-[#141414]">
                         <div>
                             <label className="block text-[10px] font-bold uppercase tracking-wider text-gray-400 mb-1.5">Origem</label>
                             <select
                                 value={filterSource}
                                 onChange={e => setFilterSource(e.target.value)}
-                                className="w-full px-3 py-2 bg-white dark:bg-[#262626] border border-gray-200 dark:border-[#3f3f3f] rounded-lg text-sm dark:text-white focus:outline-none focus:border-[#A0792E]"
+                                className="w-full px-3 py-2 bg-white dark:bg-[#1A1A1A] border border-gray-200 dark:border-[#333] rounded-lg text-sm dark:text-white focus:outline-none focus:border-[#A68B4B]"
                             >
                                 <option value="">Todas</option>
                                 {sources.map(s => (
@@ -291,7 +291,7 @@ export function CRMLeadsView({ leads, stages, onEditLead, onAddLead }: CRMLeadsV
                             <select
                                 value={filterResponsavel}
                                 onChange={e => setFilterResponsavel(e.target.value)}
-                                className="w-full px-3 py-2 bg-white dark:bg-[#262626] border border-gray-200 dark:border-[#3f3f3f] rounded-lg text-sm dark:text-white focus:outline-none focus:border-[#A0792E]"
+                                className="w-full px-3 py-2 bg-white dark:bg-[#1A1A1A] border border-gray-200 dark:border-[#333] rounded-lg text-sm dark:text-white focus:outline-none focus:border-[#A68B4B]"
                             >
                                 <option value="">Todos</option>
                                 {responsaveis.map(r => <option key={r} value={r}>{r}</option>)}
@@ -302,7 +302,7 @@ export function CRMLeadsView({ leads, stages, onEditLead, onAddLead }: CRMLeadsV
                             <select
                                 value={filterCidade}
                                 onChange={e => setFilterCidade(e.target.value)}
-                                className="w-full px-3 py-2 bg-white dark:bg-[#262626] border border-gray-200 dark:border-[#3f3f3f] rounded-lg text-sm dark:text-white focus:outline-none focus:border-[#A0792E]"
+                                className="w-full px-3 py-2 bg-white dark:bg-[#1A1A1A] border border-gray-200 dark:border-[#333] rounded-lg text-sm dark:text-white focus:outline-none focus:border-[#A68B4B]"
                             >
                                 <option value="">Todas</option>
                                 {cidades.map(c => <option key={c} value={c}>{c}</option>)}
@@ -313,7 +313,7 @@ export function CRMLeadsView({ leads, stages, onEditLead, onAddLead }: CRMLeadsV
                             <select
                                 value={filterPrioridade}
                                 onChange={e => setFilterPrioridade(e.target.value)}
-                                className="w-full px-3 py-2 bg-white dark:bg-[#262626] border border-gray-200 dark:border-[#3f3f3f] rounded-lg text-sm dark:text-white focus:outline-none focus:border-[#A0792E]"
+                                className="w-full px-3 py-2 bg-white dark:bg-[#1A1A1A] border border-gray-200 dark:border-[#333] rounded-lg text-sm dark:text-white focus:outline-none focus:border-[#A68B4B]"
                             >
                                 <option value="">Todas</option>
                                 {prioridades.map(p => <option key={p} value={p}>{p}</option>)}
@@ -326,7 +326,7 @@ export function CRMLeadsView({ leads, stages, onEditLead, onAddLead }: CRMLeadsV
                                 value={filterBusca}
                                 onChange={e => setFilterBusca(e.target.value)}
                                 placeholder="Touro, embrião, fêmea P.O., bezerra..."
-                                className="w-full px-3 py-2 bg-white dark:bg-[#262626] border border-gray-200 dark:border-[#3f3f3f] rounded-lg text-sm dark:text-white focus:outline-none focus:border-[#A0792E]"
+                                className="w-full px-3 py-2 bg-white dark:bg-[#1A1A1A] border border-gray-200 dark:border-[#333] rounded-lg text-sm dark:text-white focus:outline-none focus:border-[#A68B4B]"
                             />
                         </div>
                         <div>
@@ -335,7 +335,7 @@ export function CRMLeadsView({ leads, stages, onEditLead, onAddLead }: CRMLeadsV
                                 type="date"
                                 value={filterDataDe}
                                 onChange={e => setFilterDataDe(e.target.value)}
-                                className="w-full px-3 py-2 bg-white dark:bg-[#262626] border border-gray-200 dark:border-[#3f3f3f] rounded-lg text-sm dark:text-white focus:outline-none focus:border-[#A0792E]"
+                                className="w-full px-3 py-2 bg-white dark:bg-[#1A1A1A] border border-gray-200 dark:border-[#333] rounded-lg text-sm dark:text-white focus:outline-none focus:border-[#A68B4B]"
                             />
                         </div>
                         <div>
@@ -344,7 +344,7 @@ export function CRMLeadsView({ leads, stages, onEditLead, onAddLead }: CRMLeadsV
                                 type="date"
                                 value={filterDataAte}
                                 onChange={e => setFilterDataAte(e.target.value)}
-                                className="w-full px-3 py-2 bg-white dark:bg-[#262626] border border-gray-200 dark:border-[#3f3f3f] rounded-lg text-sm dark:text-white focus:outline-none focus:border-[#A0792E]"
+                                className="w-full px-3 py-2 bg-white dark:bg-[#1A1A1A] border border-gray-200 dark:border-[#333] rounded-lg text-sm dark:text-white focus:outline-none focus:border-[#A68B4B]"
                             />
                         </div>
                         {activeFiltersCount > 0 && (
@@ -362,10 +362,10 @@ export function CRMLeadsView({ leads, stages, onEditLead, onAddLead }: CRMLeadsV
             </div>
 
             {/* Table */}
-            <div className="flex-1 min-h-0 bg-white dark:bg-[#262626] rounded-xl border border-gray-200 dark:border-[#2e2e2e] overflow-hidden flex flex-col">
+            <div className="flex-1 min-h-0 bg-white dark:bg-[#1A1A1A] rounded-xl border border-gray-200 dark:border-[#2A2A2A] overflow-hidden flex flex-col">
                 <div className="overflow-auto flex-1">
                     <table className="w-full text-sm">
-                        <thead className="sticky top-0 bg-gray-50 dark:bg-[#1d1d1d] border-b border-gray-200 dark:border-[#3f3f3f] z-10">
+                        <thead className="sticky top-0 bg-gray-50 dark:bg-[#141414] border-b border-gray-200 dark:border-[#333] z-10">
                             <tr>
                                 <th className="text-left px-5 py-3 text-xs font-semibold text-gray-500 uppercase whitespace-nowrap">Nome</th>
                                 <th className="text-left px-5 py-3 text-xs font-semibold text-gray-500 uppercase whitespace-nowrap">Contato</th>
@@ -454,7 +454,7 @@ export function CRMLeadsView({ leads, stages, onEditLead, onAddLead }: CRMLeadsV
                                         <td className="px-5 py-3.5">
                                             {lead.responsavel ? (
                                                 <div className="flex items-center gap-1.5">
-                                                    <div className="w-6 h-6 rounded-full bg-[#A0792E]/20 text-[#A0792E] text-xs font-bold flex items-center justify-center shrink-0">
+                                                    <div className="w-6 h-6 rounded-full bg-[#A68B4B]/20 text-[#A68B4B] text-xs font-bold flex items-center justify-center shrink-0">
                                                         {lead.responsavel.charAt(0).toUpperCase()}
                                                     </div>
                                                     <span className="text-xs text-gray-600 dark:text-gray-300 truncate max-w-[80px]">

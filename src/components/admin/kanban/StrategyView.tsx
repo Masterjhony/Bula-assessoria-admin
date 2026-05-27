@@ -32,7 +32,7 @@ interface StrategyViewProps {
 }
 
 const STAGE_COLORS = [
-    '#3B82F6', '#F59E0B', '#A0792E', '#EC4899',
+    '#3B82F6', '#F59E0B', '#A68B4B', '#EC4899',
     '#10B981', '#8B5CF6', '#EF4444', '#06B6D4',
 ];
 
@@ -70,7 +70,7 @@ export function StrategyView({
     const [addingStage, setAddingStage] = useState(false);
     const [newStageName, setNewStageName] = useState('');
     const [newStageWeight, setNewStageWeight] = useState(3);
-    const [newStageColor, setNewStageColor] = useState('#A0792E');
+    const [newStageColor, setNewStageColor] = useState('#A68B4B');
     const [assigningTaskId, setAssigningTaskId] = useState<string | null>(null);
 
     const activeFlow = flows.find(f => f.id === activeFlowId) ?? null;
@@ -208,7 +208,7 @@ export function StrategyView({
             ));
             setNewStageName('');
             setNewStageWeight(3);
-            setNewStageColor('#A0792E');
+            setNewStageColor('#A68B4B');
             setAddingStage(false);
         } catch (e) { console.error(e); }
     }
@@ -278,7 +278,7 @@ export function StrategyView({
             {/* ── Health Bar ─────────────────────────────────────────────── */}
             <div className="grid grid-cols-4 gap-3">
                 {/* Overall */}
-                <div className="col-span-1 bg-white dark:bg-[#262626] border border-gray-200 dark:border-[#2e2e2e] rounded-2xl p-4 flex flex-col items-center justify-center">
+                <div className="col-span-1 bg-white dark:bg-[#1A1A1A] border border-gray-200 dark:border-[#2A2A2A] rounded-2xl p-4 flex flex-col items-center justify-center">
                     <div className="relative w-16 h-16">
                         <svg viewBox="0 0 36 36" className="w-16 h-16 -rotate-90">
                             <circle cx="18" cy="18" r="15.9" fill="none" stroke="#e5e7eb" strokeWidth="3" className="dark:stroke-[#3f3f3f]" />
@@ -306,7 +306,7 @@ export function StrategyView({
                     { label: 'Estratégia', value: health.strategy, icon: <Target size={14} />, hint: 'progresso OKRs' },
                     { label: 'Consistência', value: health.consistency, icon: <Shield size={14} />, hint: `${health.overdueCount} atrasadas` },
                 ].map(({ label, value, icon, hint }) => (
-                    <div key={label} className="bg-white dark:bg-[#262626] border border-gray-200 dark:border-[#2e2e2e] rounded-2xl p-4">
+                    <div key={label} className="bg-white dark:bg-[#1A1A1A] border border-gray-200 dark:border-[#2A2A2A] rounded-2xl p-4">
                         <div className="flex items-center justify-between mb-2">
                             <div className="flex items-center gap-1.5 text-gray-500 dark:text-gray-400">
                                 {icon}
@@ -314,7 +314,7 @@ export function StrategyView({
                             </div>
                             <span className={`text-sm font-bold ${healthColor(value)}`}>{value}%</span>
                         </div>
-                        <div className="w-full bg-gray-100 dark:bg-[#1d1d1d] rounded-full h-2">
+                        <div className="w-full bg-gray-100 dark:bg-[#141414] rounded-full h-2">
                             <div className={`h-2 rounded-full transition-all ${healthBg(value)}`} style={{ width: `${value}%` }} />
                         </div>
                         <p className="text-[10px] text-gray-400 mt-1.5">{hint}</p>
@@ -331,8 +331,8 @@ export function StrategyView({
                             key={f.id}
                             onClick={() => setActiveFlowId(f.id)}
                             className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-all border ${f.id === activeFlowId
-                                ? 'bg-[#A0792E]/10 border-[#A0792E]/40 text-[#A0792E]'
-                                : 'bg-white dark:bg-[#262626] border-gray-200 dark:border-[#2e2e2e] text-gray-500 hover:text-gray-800 dark:hover:text-gray-300'
+                                ? 'bg-[#A68B4B]/10 border-[#A68B4B]/40 text-[#A68B4B]'
+                                : 'bg-white dark:bg-[#1A1A1A] border-gray-200 dark:border-[#2A2A2A] text-gray-500 hover:text-gray-800 dark:hover:text-gray-300'
                                 }`}
                         >
                             {f.name}
@@ -345,7 +345,7 @@ export function StrategyView({
                                 value={newFlowName}
                                 onChange={e => setNewFlowName(e.target.value)}
                                 placeholder="Nome do fluxo"
-                                className="text-sm px-2 py-1 border border-[#A0792E] rounded-lg bg-white dark:bg-[#1d1d1d] text-gray-900 dark:text-white outline-none w-36"
+                                className="text-sm px-2 py-1 border border-[#A68B4B] rounded-lg bg-white dark:bg-[#141414] text-gray-900 dark:text-white outline-none w-36"
                                 onKeyDown={e => { if (e.key === 'Enter') handleCreateFlow(); if (e.key === 'Escape') setCreatingFlow(false); }}
                             />
                             <button onClick={handleCreateFlow} className="text-emerald-500 hover:text-emerald-600"><Check size={15} /></button>
@@ -354,7 +354,7 @@ export function StrategyView({
                     ) : (
                         <button
                             onClick={() => setCreatingFlow(true)}
-                            className="flex items-center gap-1 px-2.5 py-1.5 rounded-lg text-sm text-gray-400 hover:text-gray-700 dark:hover:text-gray-300 border border-dashed border-gray-300 dark:border-[#3f3f3f] transition-all"
+                            className="flex items-center gap-1 px-2.5 py-1.5 rounded-lg text-sm text-gray-400 hover:text-gray-700 dark:hover:text-gray-300 border border-dashed border-gray-300 dark:border-[#333] transition-all"
                         >
                             <Plus size={13} /> Novo fluxo
                         </button>
@@ -365,8 +365,8 @@ export function StrategyView({
                         <button
                             onClick={() => setEditingFlow(!editingFlow)}
                             className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm border transition-all ${editingFlow
-                                ? 'bg-[#A0792E]/10 border-[#A0792E]/40 text-[#A0792E]'
-                                : 'bg-white dark:bg-[#262626] border-gray-200 dark:border-[#2e2e2e] text-gray-500 hover:text-gray-700 dark:hover:text-gray-300'
+                                ? 'bg-[#A68B4B]/10 border-[#A68B4B]/40 text-[#A68B4B]'
+                                : 'bg-white dark:bg-[#1A1A1A] border-gray-200 dark:border-[#2A2A2A] text-gray-500 hover:text-gray-700 dark:hover:text-gray-300'
                                 }`}
                         >
                             <Settings size={13} /> Editar
@@ -375,7 +375,7 @@ export function StrategyView({
                     {activeFlow && (
                         <button
                             onClick={() => handleDeleteFlow(activeFlow.id)}
-                            className="p-1.5 rounded-lg text-gray-400 hover:text-red-500 border border-gray-200 dark:border-[#2e2e2e] bg-white dark:bg-[#262626] transition-colors"
+                            className="p-1.5 rounded-lg text-gray-400 hover:text-red-500 border border-gray-200 dark:border-[#2A2A2A] bg-white dark:bg-[#1A1A1A] transition-colors"
                         >
                             <Trash2 size={13} />
                         </button>
@@ -384,7 +384,7 @@ export function StrategyView({
                         onClick={() => setCeoMode(!ceoMode)}
                         className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm font-medium border transition-all ${ceoMode
                             ? 'bg-amber-500/10 border-amber-500/40 text-amber-600 dark:text-amber-400'
-                            : 'bg-white dark:bg-[#262626] border-gray-200 dark:border-[#2e2e2e] text-gray-500 hover:text-gray-700 dark:hover:text-gray-300'
+                            : 'bg-white dark:bg-[#1A1A1A] border-gray-200 dark:border-[#2A2A2A] text-gray-500 hover:text-gray-700 dark:hover:text-gray-300'
                             }`}
                     >
                         <Eye size={13} /> CEO Mode
@@ -394,25 +394,25 @@ export function StrategyView({
 
             {/* ── Flow Editor ───────────────────────────────────────────── */}
             {editingFlow && activeFlow && (
-                <div className="bg-white dark:bg-[#262626] border border-[#A0792E]/30 rounded-2xl p-4">
+                <div className="bg-white dark:bg-[#1A1A1A] border border-[#A68B4B]/30 rounded-2xl p-4">
                     <h3 className="text-sm font-bold text-gray-700 dark:text-gray-300 mb-3">
                         Editar etapas — {activeFlow.name}
                     </h3>
                     <div className="space-y-2">
                         {stages.map((stage, idx) => (
-                            <div key={stage.id} className="flex items-center gap-2 p-2 rounded-lg bg-gray-50 dark:bg-[#1d1d1d]">
+                            <div key={stage.id} className="flex items-center gap-2 p-2 rounded-lg bg-gray-50 dark:bg-[#141414]">
                                 <div className="w-3 h-3 rounded-full shrink-0" style={{ backgroundColor: stage.color }} />
                                 {editingStageId === stage.id ? (
                                     <>
                                         <input
                                             value={stageEdits.name ?? stage.name}
                                             onChange={e => setStageEdits({ ...stageEdits, name: e.target.value })}
-                                            className="flex-1 text-sm px-2 py-1 rounded bg-white dark:bg-[#262626] border border-[#A0792E] outline-none text-gray-900 dark:text-white"
+                                            className="flex-1 text-sm px-2 py-1 rounded bg-white dark:bg-[#1A1A1A] border border-[#A68B4B] outline-none text-gray-900 dark:text-white"
                                         />
                                         <select
                                             value={stageEdits.weight ?? stage.weight}
                                             onChange={e => setStageEdits({ ...stageEdits, weight: Number(e.target.value) })}
-                                            className="text-xs px-2 py-1 rounded border border-gray-200 dark:border-[#3f3f3f] bg-white dark:bg-[#262626] text-gray-700 dark:text-gray-300"
+                                            className="text-xs px-2 py-1 rounded border border-gray-200 dark:border-[#333] bg-white dark:bg-[#1A1A1A] text-gray-700 dark:text-gray-300"
                                         >
                                             {[1, 2, 3, 4, 5].map(w => <option key={w} value={w}>Peso {w}</option>)}
                                         </select>
@@ -446,7 +446,7 @@ export function StrategyView({
                                             ><ChevronDown size={13} /></button>
                                             <button
                                                 onClick={() => { setEditingStageId(stage.id); setStageEdits({ name: stage.name, weight: stage.weight, color: stage.color }); }}
-                                                className="text-gray-400 hover:text-[#A0792E]"
+                                                className="text-gray-400 hover:text-[#A68B4B]"
                                             ><Edit2 size={13} /></button>
                                             <button onClick={() => handleDeleteStage(stage.id)} className="text-gray-400 hover:text-red-500"><Trash2 size={13} /></button>
                                         </div>
@@ -457,19 +457,19 @@ export function StrategyView({
 
                         {/* Add stage */}
                         {addingStage ? (
-                            <div className="flex items-center gap-2 p-2 rounded-lg border border-dashed border-[#A0792E]/40">
+                            <div className="flex items-center gap-2 p-2 rounded-lg border border-dashed border-[#A68B4B]/40">
                                 <input
                                     autoFocus
                                     value={newStageName}
                                     onChange={e => setNewStageName(e.target.value)}
                                     placeholder="Nome da etapa"
-                                    className="flex-1 text-sm px-2 py-1 rounded bg-white dark:bg-[#262626] border border-[#A0792E] outline-none text-gray-900 dark:text-white"
+                                    className="flex-1 text-sm px-2 py-1 rounded bg-white dark:bg-[#1A1A1A] border border-[#A68B4B] outline-none text-gray-900 dark:text-white"
                                     onKeyDown={e => { if (e.key === 'Enter') handleAddStage(); if (e.key === 'Escape') setAddingStage(false); }}
                                 />
                                 <select
                                     value={newStageWeight}
                                     onChange={e => setNewStageWeight(Number(e.target.value))}
-                                    className="text-xs px-2 py-1 rounded border border-gray-200 dark:border-[#3f3f3f] bg-white dark:bg-[#262626] text-gray-700 dark:text-gray-300"
+                                    className="text-xs px-2 py-1 rounded border border-gray-200 dark:border-[#333] bg-white dark:bg-[#1A1A1A] text-gray-700 dark:text-gray-300"
                                 >
                                     {[1, 2, 3, 4, 5].map(w => <option key={w} value={w}>Peso {w}</option>)}
                                 </select>
@@ -489,7 +489,7 @@ export function StrategyView({
                         ) : (
                             <button
                                 onClick={() => setAddingStage(true)}
-                                className="w-full flex items-center justify-center gap-1.5 py-2 rounded-lg border border-dashed border-gray-300 dark:border-[#3f3f3f] text-sm text-gray-400 hover:text-gray-700 dark:hover:text-gray-300 hover:border-[#A0792E]/40 transition-all"
+                                className="w-full flex items-center justify-center gap-1.5 py-2 rounded-lg border border-dashed border-gray-300 dark:border-[#333] text-sm text-gray-400 hover:text-gray-700 dark:hover:text-gray-300 hover:border-[#A68B4B]/40 transition-all"
                             >
                                 <Plus size={13} /> Adicionar etapa
                             </button>
@@ -536,7 +536,7 @@ export function StrategyView({
                                             ? 'bg-amber-50 dark:bg-amber-950/20 border-amber-400/50 shadow-md shadow-amber-200/20 dark:shadow-amber-900/20'
                                             : m.isBottleneck
                                                 ? 'bg-red-50 dark:bg-red-950/20 border-red-300/50'
-                                                : 'bg-white dark:bg-[#262626] border-gray-200 dark:border-[#2e2e2e]'
+                                                : 'bg-white dark:bg-[#1A1A1A] border-gray-200 dark:border-[#2A2A2A]'
                                             }`}>
 
                                             {/* Stage header */}
@@ -580,7 +580,7 @@ export function StrategyView({
                                             </div>
 
                                             {/* Progress bar */}
-                                            <div className="w-full bg-gray-100 dark:bg-[#1d1d1d] rounded-full h-1.5 mb-2">
+                                            <div className="w-full bg-gray-100 dark:bg-[#141414] rounded-full h-1.5 mb-2">
                                                 <div
                                                     className={`h-1.5 rounded-full transition-all ${healthBg(m.progress)}`}
                                                     style={{ width: `${m.progress}%` }}
@@ -672,9 +672,9 @@ export function StrategyView({
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
 
                         {/* Impact ranking */}
-                        <div className="bg-white dark:bg-[#262626] border border-gray-200 dark:border-[#2e2e2e] rounded-2xl p-4">
+                        <div className="bg-white dark:bg-[#1A1A1A] border border-gray-200 dark:border-[#2A2A2A] rounded-2xl p-4">
                             <div className="flex items-center gap-2 mb-3">
-                                <TrendingUp size={14} className="text-[#A0792E]" />
+                                <TrendingUp size={14} className="text-[#A68B4B]" />
                                 <h3 className="text-sm font-bold text-gray-700 dark:text-gray-300">Top Impacto</h3>
                                 <span className="text-[10px] text-gray-400">ICE × peso da etapa</span>
                             </div>
@@ -684,7 +684,7 @@ export function StrategyView({
                                 <div className="space-y-2">
                                     {impactRanking.map((item, i) => (
                                         <div key={item.task.id} className="flex items-center gap-3">
-                                            <span className={`text-xs font-bold w-4 shrink-0 ${i === 0 ? 'text-[#A0792E]' : 'text-gray-400'}`}>
+                                            <span className={`text-xs font-bold w-4 shrink-0 ${i === 0 ? 'text-[#A68B4B]' : 'text-gray-400'}`}>
                                                 {i + 1}
                                             </span>
                                             <div className="flex-1 min-w-0">
@@ -692,7 +692,7 @@ export function StrategyView({
                                                 <p className="text-[10px] text-gray-400">{item.task.status}</p>
                                             </div>
                                             <div className="text-right shrink-0">
-                                                <span className="text-sm font-bold text-[#A0792E]">{item.score}</span>
+                                                <span className="text-sm font-bold text-[#A68B4B]">{item.score}</span>
                                             </div>
                                         </div>
                                     ))}
@@ -701,7 +701,7 @@ export function StrategyView({
                         </div>
 
                         {/* Tasks without stage */}
-                        <div className="bg-white dark:bg-[#262626] border border-gray-200 dark:border-[#2e2e2e] rounded-2xl p-4">
+                        <div className="bg-white dark:bg-[#1A1A1A] border border-gray-200 dark:border-[#2A2A2A] rounded-2xl p-4">
                             <div className="flex items-center gap-2 mb-3">
                                 <AlertTriangle size={14} className={tasksWithoutStage.length > 0 ? 'text-amber-500' : 'text-gray-400'} />
                                 <h3 className="text-sm font-bold text-gray-700 dark:text-gray-300">Sem Etapa Estratégica</h3>
@@ -724,7 +724,7 @@ export function StrategyView({
                                             <select
                                                 value=""
                                                 onChange={e => { if (e.target.value) handleAssignTaskToStage(t.id, e.target.value); }}
-                                                className="text-[11px] px-1.5 py-0.5 rounded border border-gray-200 dark:border-[#3f3f3f] bg-white dark:bg-[#262626] text-gray-600 dark:text-gray-400 outline-none"
+                                                className="text-[11px] px-1.5 py-0.5 rounded border border-gray-200 dark:border-[#333] bg-white dark:bg-[#1A1A1A] text-gray-600 dark:text-gray-400 outline-none"
                                             >
                                                 <option value="">Atribuir etapa</option>
                                                 {stages.map(s => (

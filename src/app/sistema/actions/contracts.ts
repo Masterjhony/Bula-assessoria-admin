@@ -5,7 +5,7 @@ import { createClient as createAdminClient } from '@supabase/supabase-js'
 import { revalidatePath } from 'next/cache'
 
 // ClickSign foi cortado nesta versão do web-bula. A integração permanece
-// EXCLUSIVA do Fórmula do Boi. Aqui mantemos só upload manual de PDF +
+// EXCLUSIVA do sistema legado. Aqui mantemos só upload manual de PDF +
 // CRUD de status. Os types/funcs ClickSign existem como stubs apenas para
 // não quebrar a tipagem no ContractsView (que ainda exibe os campos).
 

@@ -24,7 +24,7 @@ export function FunnelSelector({ funnels, activeFunnelId, onSelect, counts = {} 
                         className={`group flex items-center gap-2.5 pl-3 pr-4 py-2 rounded-xl border transition-all text-sm font-medium ${
                             active
                                 ? 'bg-gray-900 dark:bg-white text-white dark:text-gray-900 border-gray-900 dark:border-white shadow-md'
-                                : 'bg-white dark:bg-[#1d1d1d] border-gray-200 dark:border-[#2e2e2e] text-gray-700 dark:text-gray-300 hover:border-gray-300 dark:hover:border-[#3f3f3f]'
+                                : 'bg-white dark:bg-[#141414] border-gray-200 dark:border-[#2A2A2A] text-gray-700 dark:text-gray-300 hover:border-gray-300 dark:hover:border-[#333]'
                         }`}
                     >
                         <span
@@ -36,7 +36,7 @@ export function FunnelSelector({ funnels, activeFunnelId, onSelect, counts = {} 
                         <span className={`text-xs px-1.5 py-0.5 rounded ${
                             active
                                 ? 'bg-white/20 dark:bg-gray-900/10'
-                                : 'bg-gray-100 dark:bg-[#262626] text-gray-500'
+                                : 'bg-gray-100 dark:bg-[#1A1A1A] text-gray-500'
                         }`}>{count}</span>
                         {active && <Check size={13} className="opacity-80" />}
                     </button>

@@ -64,11 +64,11 @@ export function CRMContactsHistory({ lead, onUpdated }: CRMContactsHistoryProps)
     };
 
     return (
-        <div className="border border-gray-200 dark:border-[#3f3f3f] rounded-xl overflow-hidden">
-            <div className="px-4 py-3 bg-gray-50 dark:bg-[#262626] border-b border-gray-200 dark:border-[#3f3f3f] flex items-center justify-between">
+        <div className="border border-gray-200 dark:border-[#333] rounded-xl overflow-hidden">
+            <div className="px-4 py-3 bg-gray-50 dark:bg-[#1A1A1A] border-b border-gray-200 dark:border-[#333] flex items-center justify-between">
                 <div className="flex items-center gap-2">
                     <span className="text-sm font-medium text-gray-700 dark:text-gray-300">📞 Histórico de contatos</span>
-                    <span className="text-[10px] font-bold uppercase tracking-wider text-[#A0792E] bg-[#A0792E]/10 px-2 py-0.5 rounded-full">
+                    <span className="text-[10px] font-bold uppercase tracking-wider text-[#A68B4B] bg-[#A68B4B]/10 px-2 py-0.5 rounded-full">
                         {history.length} contato{history.length !== 1 ? 's' : ''}
                     </span>
                 </div>
@@ -76,7 +76,7 @@ export function CRMContactsHistory({ lead, onUpdated }: CRMContactsHistoryProps)
                     <button
                         type="button"
                         onClick={() => setAdding(true)}
-                        className="flex items-center gap-1 px-2.5 py-1 rounded-lg text-xs font-bold text-[#A0792E] hover:bg-[#A0792E]/10 transition-colors"
+                        className="flex items-center gap-1 px-2.5 py-1 rounded-lg text-xs font-bold text-[#A68B4B] hover:bg-[#A68B4B]/10 transition-colors"
                     >
                         <Plus size={12} /> Registrar contato
                     </button>
@@ -84,14 +84,14 @@ export function CRMContactsHistory({ lead, onUpdated }: CRMContactsHistoryProps)
             </div>
 
             {adding && (
-                <div className="p-4 space-y-3 border-b border-gray-200 dark:border-[#3f3f3f] bg-[#A0792E]/5">
+                <div className="p-4 space-y-3 border-b border-gray-200 dark:border-[#333] bg-[#A68B4B]/5">
                     <div className="grid grid-cols-2 gap-3">
                         <div>
                             <label className="block text-xs font-medium text-gray-500 mb-1">Tipo</label>
                             <select
                                 value={type}
                                 onChange={e => setType(e.target.value as CRMContactEntry['type'])}
-                                className="w-full bg-white dark:bg-[#1B1B1B] border border-gray-200 dark:border-[#3f3f3f] rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-[#A0792E]"
+                                className="w-full bg-white dark:bg-[#141414] border border-gray-200 dark:border-[#333] rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-[#A68B4B]"
                             >
                                 {TYPE_OPTIONS.map(o => (
                                     <option key={o.value} value={o.value}>{o.label}</option>
@@ -104,7 +104,7 @@ export function CRMContactsHistory({ lead, onUpdated }: CRMContactsHistoryProps)
                                 type="datetime-local"
                                 value={date}
                                 onChange={e => setDate(e.target.value)}
-                                className="w-full bg-white dark:bg-[#1B1B1B] border border-gray-200 dark:border-[#3f3f3f] rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-[#A0792E]"
+                                className="w-full bg-white dark:bg-[#141414] border border-gray-200 dark:border-[#333] rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-[#A68B4B]"
                             />
                         </div>
                     </div>
@@ -115,7 +115,7 @@ export function CRMContactsHistory({ lead, onUpdated }: CRMContactsHistoryProps)
                             onChange={e => setNotes(e.target.value)}
                             rows={2}
                             placeholder="O que foi discutido, próximos passos…"
-                            className="w-full bg-white dark:bg-[#1B1B1B] border border-gray-200 dark:border-[#3f3f3f] rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-[#A0792E] resize-none"
+                            className="w-full bg-white dark:bg-[#141414] border border-gray-200 dark:border-[#333] rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-[#A68B4B] resize-none"
                         />
                     </div>
                     <div className="flex justify-end gap-2">
@@ -130,7 +130,7 @@ export function CRMContactsHistory({ lead, onUpdated }: CRMContactsHistoryProps)
                             type="button"
                             onClick={handleAdd}
                             disabled={saving}
-                            className="flex items-center gap-1.5 px-3 py-1.5 bg-[#A0792E] text-black text-xs font-bold rounded-lg hover:bg-[#D4A85C] transition-colors disabled:opacity-50"
+                            className="flex items-center gap-1.5 px-3 py-1.5 bg-[#A68B4B] text-black text-xs font-bold rounded-lg hover:bg-[#C8A96E] transition-colors disabled:opacity-50"
                         >
                             {saving ? <Loader2 size={12} className="animate-spin" /> : <Plus size={12} />}
                             Salvar contato
@@ -150,7 +150,7 @@ export function CRMContactsHistory({ lead, onUpdated }: CRMContactsHistoryProps)
                             const meta = TYPE_META[entry.type] ?? TYPE_META.outro;
                             const Icon = meta.icon;
                             return (
-                                <div key={entry.id} className="px-4 py-2.5 flex items-start gap-2.5 group hover:bg-gray-50 dark:hover:bg-[#262626]">
+                                <div key={entry.id} className="px-4 py-2.5 flex items-start gap-2.5 group hover:bg-gray-50 dark:hover:bg-[#1A1A1A]">
                                     <div className="w-7 h-7 rounded-lg bg-gray-100 dark:bg-[#2e2e2e] flex items-center justify-center flex-shrink-0">
                                         <Icon size={13} className={meta.color} />
                                     </div>

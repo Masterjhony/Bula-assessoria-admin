@@ -6,7 +6,7 @@ import { TacticalMember, createMember, updateMember, deleteMember } from '@/app/
 import { TacticalTask } from '@/app/sistema/actions/tactical-tasks';
 
 const AVATAR_COLORS = [
-    '#A0792E', '#D4A85C', '#3B82F6', '#10B981', '#EF4444',
+    '#A68B4B', '#C8A96E', '#3B82F6', '#10B981', '#EF4444',
     '#8B5CF6', '#F59E0B', '#EC4899', '#06B6D4', '#84CC16',
 ];
 
@@ -20,7 +20,7 @@ export function MembersView({ members, onMembersChange, tasks }: MembersViewProp
     const [isAdding, setIsAdding] = useState(false);
     const [newName, setNewName] = useState('');
     const [newRole, setNewRole] = useState('');
-    const [newColor, setNewColor] = useState('#A0792E');
+    const [newColor, setNewColor] = useState('#A68B4B');
     const [isSaving, setIsSaving] = useState(false);
 
     const [editingId, setEditingId] = useState<string | null>(null);
@@ -43,7 +43,7 @@ export function MembersView({ members, onMembersChange, tasks }: MembersViewProp
             onMembersChange([...members, created]);
             setNewName('');
             setNewRole('');
-            setNewColor('#A0792E');
+            setNewColor('#A68B4B');
             setIsAdding(false);
         } catch (e) { console.error(e); }
         finally { setIsSaving(false); }
@@ -94,7 +94,7 @@ export function MembersView({ members, onMembersChange, tasks }: MembersViewProp
                     return (
                         <div
                             key={member.id}
-                            className="bg-white dark:bg-[#262626] border border-gray-200 dark:border-[#2e2e2e] rounded-2xl p-5 flex flex-col gap-4 hover:border-[#A0792E]/40 transition-colors"
+                            className="bg-white dark:bg-[#1A1A1A] border border-gray-200 dark:border-[#2A2A2A] rounded-2xl p-5 flex flex-col gap-4 hover:border-[#A68B4B]/40 transition-colors"
                         >
                             {isEditing ? (
                                 <div className="flex flex-col gap-3">
@@ -114,18 +114,18 @@ export function MembersView({ members, onMembersChange, tasks }: MembersViewProp
                                         autoFocus
                                         value={editName}
                                         onChange={e => setEditName(e.target.value)}
-                                        className="w-full px-3 py-2 bg-gray-50 dark:bg-[#1d1d1d] border border-gray-200 dark:border-[#3f3f3f] rounded-lg text-sm outline-none focus:ring-2 focus:ring-[#A0792E] text-gray-900 dark:text-white"
+                                        className="w-full px-3 py-2 bg-gray-50 dark:bg-[#141414] border border-gray-200 dark:border-[#333] rounded-lg text-sm outline-none focus:ring-2 focus:ring-[#A68B4B] text-gray-900 dark:text-white"
                                         placeholder="Nome"
                                     />
                                     <input
                                         value={editRole}
                                         onChange={e => setEditRole(e.target.value)}
-                                        className="w-full px-3 py-2 bg-gray-50 dark:bg-[#1d1d1d] border border-gray-200 dark:border-[#3f3f3f] rounded-lg text-sm outline-none focus:ring-2 focus:ring-[#A0792E] text-gray-900 dark:text-white"
+                                        className="w-full px-3 py-2 bg-gray-50 dark:bg-[#141414] border border-gray-200 dark:border-[#333] rounded-lg text-sm outline-none focus:ring-2 focus:ring-[#A68B4B] text-gray-900 dark:text-white"
                                         placeholder="Função (ex: Dev, Growth)"
                                     />
                                     <div className="flex gap-2">
                                         <button onClick={() => handleUpdate(member.id)}
-                                            className="flex-1 flex items-center justify-center gap-1.5 py-2 bg-[#A0792E] text-black rounded-lg text-sm font-bold hover:bg-[#D4A85C] transition-colors">
+                                            className="flex-1 flex items-center justify-center gap-1.5 py-2 bg-[#A68B4B] text-black rounded-lg text-sm font-bold hover:bg-[#C8A96E] transition-colors">
                                             <Check size={14} /> Salvar
                                         </button>
                                         <button onClick={() => setEditingId(null)}
@@ -162,7 +162,7 @@ export function MembersView({ members, onMembersChange, tasks }: MembersViewProp
                                     </div>
 
                                     {/* Task stats */}
-                                    <div className="flex items-center gap-2 pt-3 border-t border-gray-100 dark:border-[#2e2e2e]">
+                                    <div className="flex items-center gap-2 pt-3 border-t border-gray-100 dark:border-[#2A2A2A]">
                                         <div className="flex-1 text-center">
                                             <p className="text-lg font-bold text-gray-900 dark:text-white">{open}</p>
                                             <p className="text-[10px] text-gray-400 uppercase tracking-wider">em aberto</p>
@@ -174,7 +174,7 @@ export function MembersView({ members, onMembersChange, tasks }: MembersViewProp
                                         </div>
                                         <div className="w-px h-8 bg-gray-100 dark:bg-[#2e2e2e]" />
                                         <div className="flex-1 text-center">
-                                            <p className="text-lg font-bold text-[#A0792E]">
+                                            <p className="text-lg font-bold text-[#A68B4B]">
                                                 {total > 0 ? Math.round(((total - open) / total) * 100) : 0}%
                                             </p>
                                             <p className="text-[10px] text-gray-400 uppercase tracking-wider">concluído</p>
@@ -206,7 +206,7 @@ export function MembersView({ members, onMembersChange, tasks }: MembersViewProp
 
                 {/* Add member card */}
                 {isAdding ? (
-                    <div className="bg-white dark:bg-[#262626] border border-[#A0792E]/40 rounded-2xl p-5 flex flex-col gap-3">
+                    <div className="bg-white dark:bg-[#1A1A1A] border border-[#A68B4B]/40 rounded-2xl p-5 flex flex-col gap-3">
                         <p className="text-sm font-semibold text-gray-900 dark:text-white">Novo membro</p>
                         {/* Color picker */}
                         <div className="flex gap-1.5 flex-wrap">
@@ -225,21 +225,21 @@ export function MembersView({ members, onMembersChange, tasks }: MembersViewProp
                             value={newName}
                             onChange={e => setNewName(e.target.value)}
                             onKeyDown={e => { if (e.key === 'Enter') handleAdd(); else if (e.key === 'Escape') setIsAdding(false); }}
-                            className="w-full px-3 py-2 bg-gray-50 dark:bg-[#1d1d1d] border border-gray-200 dark:border-[#3f3f3f] rounded-lg text-sm outline-none focus:ring-2 focus:ring-[#A0792E] text-gray-900 dark:text-white"
+                            className="w-full px-3 py-2 bg-gray-50 dark:bg-[#141414] border border-gray-200 dark:border-[#333] rounded-lg text-sm outline-none focus:ring-2 focus:ring-[#A68B4B] text-gray-900 dark:text-white"
                             placeholder="Nome *"
                         />
                         <input
                             value={newRole}
                             onChange={e => setNewRole(e.target.value)}
                             onKeyDown={e => { if (e.key === 'Enter') handleAdd(); }}
-                            className="w-full px-3 py-2 bg-gray-50 dark:bg-[#1d1d1d] border border-gray-200 dark:border-[#3f3f3f] rounded-lg text-sm outline-none focus:ring-2 focus:ring-[#A0792E] text-gray-900 dark:text-white"
+                            className="w-full px-3 py-2 bg-gray-50 dark:bg-[#141414] border border-gray-200 dark:border-[#333] rounded-lg text-sm outline-none focus:ring-2 focus:ring-[#A68B4B] text-gray-900 dark:text-white"
                             placeholder="Função (opcional)"
                         />
                         <div className="flex gap-2">
                             <button
                                 onClick={handleAdd}
                                 disabled={!newName.trim() || isSaving}
-                                className="flex-1 py-2 bg-[#A0792E] text-black rounded-lg text-sm font-bold hover:bg-[#D4A85C] disabled:opacity-50 transition-colors"
+                                className="flex-1 py-2 bg-[#A68B4B] text-black rounded-lg text-sm font-bold hover:bg-[#C8A96E] disabled:opacity-50 transition-colors"
                             >
                                 {isSaving ? 'Salvando...' : 'Adicionar'}
                             </button>
@@ -254,7 +254,7 @@ export function MembersView({ members, onMembersChange, tasks }: MembersViewProp
                 ) : (
                     <button
                         onClick={() => setIsAdding(true)}
-                        className="border-2 border-dashed border-gray-200 dark:border-[#2e2e2e] rounded-2xl p-5 flex flex-col items-center justify-center gap-2 text-gray-400 hover:border-[#A0792E]/50 hover:text-[#A0792E] transition-colors min-h-[120px]"
+                        className="border-2 border-dashed border-gray-200 dark:border-[#2A2A2A] rounded-2xl p-5 flex flex-col items-center justify-center gap-2 text-gray-400 hover:border-[#A68B4B]/50 hover:text-[#A68B4B] transition-colors min-h-[120px]"
                     >
                         <Plus size={20} />
                         <span className="text-sm font-medium">Adicionar membro</span>
@@ -276,7 +276,7 @@ export function MembersView({ members, onMembersChange, tasks }: MembersViewProp
 
 function StatCard({ label, value }: { label: string; value: number }) {
     return (
-        <div className="bg-white dark:bg-[#262626] border border-gray-200 dark:border-[#2e2e2e] rounded-xl p-4 text-center">
+        <div className="bg-white dark:bg-[#1A1A1A] border border-gray-200 dark:border-[#2A2A2A] rounded-xl p-4 text-center">
             <p className="text-2xl font-bold text-gray-900 dark:text-white">{value}</p>
             <p className="text-xs text-gray-400 mt-1">{label}</p>
         </div>

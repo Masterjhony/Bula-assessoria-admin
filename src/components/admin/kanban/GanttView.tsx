@@ -86,9 +86,9 @@ export function GanttView({ tasks, onTaskClick }: GanttViewProps) {
     }
 
     return (
-        <div className="w-full h-full bg-white dark:bg-[#262626] border border-gray-200 dark:border-[#3f3f3f] rounded-xl overflow-hidden flex flex-col shadow-sm">
+        <div className="w-full h-full bg-white dark:bg-[#1A1A1A] border border-gray-200 dark:border-[#333] rounded-xl overflow-hidden flex flex-col shadow-sm">
             {/* Toolbar Area */}
-            <div className="p-3 border-b border-gray-200 dark:border-[#3f3f3f] bg-gray-50/80 dark:bg-[#1d1d1d]/80 flex flex-wrap items-center justify-between gap-4 shrink-0">
+            <div className="p-3 border-b border-gray-200 dark:border-[#333] bg-gray-50/80 dark:bg-[#141414]/80 flex flex-wrap items-center justify-between gap-4 shrink-0">
 
                 {/* Month Navigation */}
                 <div className="flex items-center gap-2">
@@ -114,7 +114,7 @@ export function GanttView({ tasks, onTaskClick }: GanttViewProps) {
 
                     <div className="h-6 w-px bg-gray-300 dark:bg-[#3f3f3f] hidden sm:block"></div>
 
-                    <div className="flex items-center gap-1 bg-white dark:bg-[#262626] border border-gray-200 dark:border-[#3f3f3f] rounded-md p-1 shadow-sm">
+                    <div className="flex items-center gap-1 bg-white dark:bg-[#1A1A1A] border border-gray-200 dark:border-[#333] rounded-md p-1 shadow-sm">
                         <button
                             title="Diminuir Zoom"
                             onClick={() => setZoomLevel(Math.max(16, zoomLevel - 8))}
@@ -140,14 +140,14 @@ export function GanttView({ tasks, onTaskClick }: GanttViewProps) {
             <div className="flex-1 overflow-auto custom-scrollbar relative">
                 <div className="min-w-max">
                     {/* Header Timeline */}
-                    <div className="sticky top-0 bg-white/95 dark:bg-[#262626]/95 backdrop-blur-sm z-20 border-b border-gray-200 dark:border-[#3f3f3f] shadow-sm">
+                    <div className="sticky top-0 bg-white/95 dark:bg-[#1A1A1A]/95 backdrop-blur-sm z-20 border-b border-gray-200 dark:border-[#333] shadow-sm">
                         {/* Month Headers */}
-                        <div className="flex border-b border-gray-100 dark:border-[#2e2e2e]">
-                            <div className="w-64 shrink-0 border-r border-gray-200 dark:border-[#3f3f3f] bg-gray-50/80 dark:bg-[#1d1d1d]/80"></div>
+                        <div className="flex border-b border-gray-100 dark:border-[#2A2A2A]">
+                            <div className="w-64 shrink-0 border-r border-gray-200 dark:border-[#333] bg-gray-50/80 dark:bg-[#141414]/80"></div>
                             <div className="flex flex-1">
                                 {monthsHeaders.map((month, idx) => (
                                     <div key={idx}
-                                        className="py-1 px-3 text-xs font-bold text-gray-600 dark:text-gray-400 border-r border-gray-100 dark:border-[#2e2e2e]"
+                                        className="py-1 px-3 text-xs font-bold text-gray-600 dark:text-gray-400 border-r border-gray-100 dark:border-[#2A2A2A]"
                                         style={{ width: month.count * dayWidth }}
                                     >
                                         <div className="sticky left-[260px] inline-block">{month.label}</div>
@@ -158,7 +158,7 @@ export function GanttView({ tasks, onTaskClick }: GanttViewProps) {
 
                         {/* Days Headers */}
                         <div className="flex">
-                            <div className="w-64 shrink-0 border-r border-gray-200 dark:border-[#3f3f3f] p-3 font-semibold text-sm text-gray-700 dark:text-gray-300 flex items-end bg-gray-50/80 dark:bg-[#1d1d1d]/80 tracking-wide uppercase">
+                            <div className="w-64 shrink-0 border-r border-gray-200 dark:border-[#333] p-3 font-semibold text-sm text-gray-700 dark:text-gray-300 flex items-end bg-gray-50/80 dark:bg-[#141414]/80 tracking-wide uppercase">
                                 Tarefas Planejadas
                             </div>
                             <div className="flex flex-1">
@@ -170,18 +170,18 @@ export function GanttView({ tasks, onTaskClick }: GanttViewProps) {
                                         <div
                                             key={i}
                                             style={{ width: dayWidth }}
-                                            className={`shrink-0 border-r border-gray-100 dark:border-[#2e2e2e]/50 flex flex-col items-center justify-end pb-2 pt-1
-                                                ${isWeekend ? 'bg-gray-50/50 dark:bg-[#212121]/50' : ''}`}
+                                            className={`shrink-0 border-r border-gray-100 dark:border-[#2A2A2A]/50 flex flex-col items-center justify-end pb-2 pt-1
+                                                ${isWeekend ? 'bg-gray-50/50 dark:bg-[#141414]/50' : ''}`}
                                         >
                                             {!isSmallZoom && (
-                                                <span className={`text-[10px] uppercase font-bold ${isWeekend ? 'text-[#A0792E]/70' : 'text-gray-400'}`}>
+                                                <span className={`text-[10px] uppercase font-bold ${isWeekend ? 'text-[#A68B4B]/70' : 'text-gray-400'}`}>
                                                     {day.toLocaleDateString('pt-BR', { weekday: 'short' }).substring(0, 3)}
                                                 </span>
                                             )}
                                             <span className={`text-xs font-bold transition-all duration-200
                                                 ${isToday
-                                                    ? 'bg-[#A0792E] text-black w-6 h-6 rounded-full flex items-center justify-center mt-1 shadow-md scale-110'
-                                                    : `mt-1 ${isWeekend ? 'text-[#A0792E]/80' : 'text-gray-700 dark:text-gray-300'}`
+                                                    ? 'bg-[#A68B4B] text-black w-6 h-6 rounded-full flex items-center justify-center mt-1 shadow-md scale-110'
+                                                    : `mt-1 ${isWeekend ? 'text-[#A68B4B]/80' : 'text-gray-700 dark:text-gray-300'}`
                                                 }`}>
                                                 {day.getDate()}
                                             </span>
@@ -201,7 +201,7 @@ export function GanttView({ tasks, onTaskClick }: GanttViewProps) {
                             if (todayDiff >= 0 && todayDiff <= days.length) {
                                 return (
                                     <div
-                                        className="absolute top-0 bottom-0 border-l-[2px] border-[#A0792E]/50 border-dashed z-0 pointer-events-none"
+                                        className="absolute top-0 bottom-0 border-l-[2px] border-[#A68B4B]/50 border-dashed z-0 pointer-events-none"
                                         style={{ left: `${256 + (todayDiff * dayWidth) + (dayWidth / 2)}px` }}
                                     />
                                 );
@@ -230,20 +230,20 @@ export function GanttView({ tasks, onTaskClick }: GanttViewProps) {
                             const widthPx = durationDays * dayWidth;
 
                             return (
-                                <div key={task.id} className="flex border-b border-gray-100 dark:border-[#2e2e2e] hover:bg-gray-50/50 dark:hover:bg-[#262626]/80 transition-colors group relative z-10">
+                                <div key={task.id} className="flex border-b border-gray-100 dark:border-[#2A2A2A] hover:bg-gray-50/50 dark:hover:bg-[#1A1A1A]/80 transition-colors group relative z-10">
                                     {/* Task Info Sidebar */}
                                     <div
-                                        className="w-64 shrink-0 border-r border-gray-200 dark:border-[#3f3f3f] p-3 cursor-pointer bg-white dark:bg-[#262626]"
+                                        className="w-64 shrink-0 border-r border-gray-200 dark:border-[#333] p-3 cursor-pointer bg-white dark:bg-[#1A1A1A]"
                                         onClick={() => onTaskClick(task)}
                                     >
-                                        <p className="text-sm font-semibold text-gray-900 dark:text-gray-100 truncate group-hover:text-[#A0792E] transition-colors leading-snug" title={task.title}>
+                                        <p className="text-sm font-semibold text-gray-900 dark:text-gray-100 truncate group-hover:text-[#A68B4B] transition-colors leading-snug" title={task.title}>
                                             {task.title}
                                         </p>
                                         <div className="flex items-center gap-2 mt-1.5">
                                             {task.assignees && task.assignees.length > 0 && (
                                                 <div className="flex -space-x-1.5">
                                                     {task.assignees.slice(0, 3).map((a, i) => (
-                                                        <div key={i} className="w-5 h-5 rounded-full bg-gradient-to-br from-[#A0792E] to-[#9A7209] text-black text-[9px] flex items-center justify-center font-bold border border-white dark:border-[#262626]" title={a}>
+                                                        <div key={i} className="w-5 h-5 rounded-full bg-gradient-to-br from-[#A68B4B] to-[#9A7209] text-black text-[9px] flex items-center justify-center font-bold border border-white dark:border-[#262626]" title={a}>
                                                             {a.charAt(0).toUpperCase()}
                                                         </div>
                                                     ))}
@@ -263,7 +263,7 @@ export function GanttView({ tasks, onTaskClick }: GanttViewProps) {
                                             {days.map((day, i) => {
                                                 const isWeekend = day.getDay() === 0 || day.getDay() === 6;
                                                 return isWeekend ? (
-                                                    <div key={i} style={{ width: dayWidth, left: i * dayWidth }} className="absolute inset-y-0 bg-gray-50/50 dark:bg-[#212121]/50 border-r border-gray-100/50 dark:border-[#2e2e2e]/30" />
+                                                    <div key={i} style={{ width: dayWidth, left: i * dayWidth }} className="absolute inset-y-0 bg-gray-50/50 dark:bg-[#141414]/50 border-r border-gray-100/50 dark:border-[#2A2A2A]/30" />
                                                 ) : null;
                                             })}
                                         </div>

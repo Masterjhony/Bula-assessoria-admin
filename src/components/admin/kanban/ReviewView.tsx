@@ -88,7 +88,7 @@ function WeeklyReviewTab({ tasks, columns }: { tasks: TacticalTask[]; columns: T
   return (
     <div className="space-y-6">
       {/* Score */}
-      <div className="bg-white dark:bg-[#262626] rounded-2xl p-5 border border-gray-200 dark:border-[#2e2e2e]">
+      <div className="bg-white dark:bg-[#1A1A1A] rounded-2xl p-5 border border-gray-200 dark:border-[#2A2A2A]">
         <p className="text-xs text-gray-400 uppercase tracking-wider mb-1">Avaliação da Semana</p>
         <p className={`text-2xl font-bold ${score.color}`}>{score.label}</p>
         <p className="text-sm text-gray-500 mt-1">
@@ -96,7 +96,7 @@ function WeeklyReviewTab({ tasks, columns }: { tasks: TacticalTask[]; columns: T
         </p>
       </div>
 
-      <div className="bg-white dark:bg-[#262626] rounded-2xl p-5 border border-gray-200 dark:border-[#2e2e2e] space-y-5">
+      <div className="bg-white dark:bg-[#1A1A1A] rounded-2xl p-5 border border-gray-200 dark:border-[#2A2A2A] space-y-5">
         <Section
           icon={<CheckCircle2 size={15} />}
           label="Concluídas esta semana"
@@ -104,7 +104,7 @@ function WeeklyReviewTab({ tasks, columns }: { tasks: TacticalTask[]; columns: T
           color="text-emerald-600 dark:text-emerald-400"
           emptyMsg="Nenhuma tarefa concluída nos últimos 7 dias."
         />
-        <div className="border-t border-gray-100 dark:border-[#2e2e2e]" />
+        <div className="border-t border-gray-100 dark:border-[#2A2A2A]" />
         <Section
           icon={<Clock size={15} />}
           label="Atrasadas"
@@ -112,7 +112,7 @@ function WeeklyReviewTab({ tasks, columns }: { tasks: TacticalTask[]; columns: T
           color="text-red-600 dark:text-red-400"
           emptyMsg="Nenhuma tarefa atrasada. Ótimo!"
         />
-        <div className="border-t border-gray-100 dark:border-[#2e2e2e]" />
+        <div className="border-t border-gray-100 dark:border-[#2A2A2A]" />
         <Section
           icon={<XCircle size={15} />}
           label="Paradas há mais de 7 dias"
@@ -157,7 +157,7 @@ function RiskMatrix({ risks }: { risks: TacticalRisk[] }) {
   if (active.length === 0) return null;
 
   return (
-    <div className="bg-white dark:bg-[#222222] rounded-2xl border border-gray-200 dark:border-[#2e2e2e] p-4 mb-4">
+    <div className="bg-white dark:bg-[#222222] rounded-2xl border border-gray-200 dark:border-[#2A2A2A] p-4 mb-4">
       <p className="text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-3">
         Matriz de Risco — Probabilidade × Impacto
       </p>
@@ -270,26 +270,26 @@ function RisksTab({ risks, onRisksChange }: { risks: TacticalRisk[]; onRisksChan
   });
 
   const FormRow = () => (
-    <div className="bg-gray-50 dark:bg-[#1d1d1d] rounded-xl p-4 space-y-3 border border-[#A0792E]/30">
+    <div className="bg-gray-50 dark:bg-[#141414] rounded-xl p-4 space-y-3 border border-[#A68B4B]/30">
       <input
         autoFocus
         value={form.title}
         onChange={e => setForm(p => ({ ...p, title: e.target.value }))}
         placeholder="Título do risco"
-        className="w-full px-3 py-2 bg-white dark:bg-[#262626] border border-gray-200 dark:border-[#2e2e2e] rounded-lg text-sm outline-none focus:ring-2 focus:ring-[#A0792E] text-gray-900 dark:text-white"
+        className="w-full px-3 py-2 bg-white dark:bg-[#1A1A1A] border border-gray-200 dark:border-[#2A2A2A] rounded-lg text-sm outline-none focus:ring-2 focus:ring-[#A68B4B] text-gray-900 dark:text-white"
       />
       <textarea
         value={form.description}
         onChange={e => setForm(p => ({ ...p, description: e.target.value }))}
         placeholder="Descrição"
         rows={2}
-        className="w-full px-3 py-2 bg-white dark:bg-[#262626] border border-gray-200 dark:border-[#2e2e2e] rounded-lg text-sm outline-none focus:ring-2 focus:ring-[#A0792E] text-gray-900 dark:text-white resize-none"
+        className="w-full px-3 py-2 bg-white dark:bg-[#1A1A1A] border border-gray-200 dark:border-[#2A2A2A] rounded-lg text-sm outline-none focus:ring-2 focus:ring-[#A68B4B] text-gray-900 dark:text-white resize-none"
       />
       <div className="flex gap-3 flex-wrap">
         <div>
           <label className="text-xs text-gray-500 mb-1 block">Probabilidade</label>
           <select value={form.probability} onChange={e => setForm(p => ({ ...p, probability: e.target.value }))}
-            className="px-3 py-1.5 bg-white dark:bg-[#262626] border border-gray-200 dark:border-[#2e2e2e] rounded-lg text-sm outline-none text-gray-900 dark:text-white">
+            className="px-3 py-1.5 bg-white dark:bg-[#1A1A1A] border border-gray-200 dark:border-[#2A2A2A] rounded-lg text-sm outline-none text-gray-900 dark:text-white">
             <option value="baixa">Baixa</option>
             <option value="media">Média</option>
             <option value="alta">Alta</option>
@@ -298,7 +298,7 @@ function RisksTab({ risks, onRisksChange }: { risks: TacticalRisk[]; onRisksChan
         <div>
           <label className="text-xs text-gray-500 mb-1 block">Impacto</label>
           <select value={form.impact} onChange={e => setForm(p => ({ ...p, impact: e.target.value }))}
-            className="px-3 py-1.5 bg-white dark:bg-[#262626] border border-gray-200 dark:border-[#2e2e2e] rounded-lg text-sm outline-none text-gray-900 dark:text-white">
+            className="px-3 py-1.5 bg-white dark:bg-[#1A1A1A] border border-gray-200 dark:border-[#2A2A2A] rounded-lg text-sm outline-none text-gray-900 dark:text-white">
             <option value="baixo">Baixo</option>
             <option value="medio">Médio</option>
             <option value="alto">Alto</option>
@@ -307,7 +307,7 @@ function RisksTab({ risks, onRisksChange }: { risks: TacticalRisk[]; onRisksChan
         <div>
           <label className="text-xs text-gray-500 mb-1 block">Status</label>
           <select value={form.status} onChange={e => setForm(p => ({ ...p, status: e.target.value }))}
-            className="px-3 py-1.5 bg-white dark:bg-[#262626] border border-gray-200 dark:border-[#2e2e2e] rounded-lg text-sm outline-none text-gray-900 dark:text-white">
+            className="px-3 py-1.5 bg-white dark:bg-[#1A1A1A] border border-gray-200 dark:border-[#2A2A2A] rounded-lg text-sm outline-none text-gray-900 dark:text-white">
             <option value="active">Ativo</option>
             <option value="mitigated">Mitigado</option>
             <option value="accepted">Aceito</option>
@@ -319,10 +319,10 @@ function RisksTab({ risks, onRisksChange }: { risks: TacticalRisk[]; onRisksChan
         onChange={e => setForm(p => ({ ...p, mitigation: e.target.value }))}
         placeholder="Plano de mitigação"
         rows={2}
-        className="w-full px-3 py-2 bg-white dark:bg-[#262626] border border-gray-200 dark:border-[#2e2e2e] rounded-lg text-sm outline-none focus:ring-2 focus:ring-[#A0792E] text-gray-900 dark:text-white resize-none"
+        className="w-full px-3 py-2 bg-white dark:bg-[#1A1A1A] border border-gray-200 dark:border-[#2A2A2A] rounded-lg text-sm outline-none focus:ring-2 focus:ring-[#A68B4B] text-gray-900 dark:text-white resize-none"
       />
       <div className="flex gap-2">
-        <button onClick={handleSave} disabled={!form.title.trim()} className="px-4 py-2 bg-gradient-to-r from-[#A0792E] to-[#D4A85C] text-black rounded-lg text-sm font-bold disabled:opacity-50">
+        <button onClick={handleSave} disabled={!form.title.trim()} className="px-4 py-2 bg-gradient-to-r from-[#A68B4B] to-[#C8A96E] text-black rounded-lg text-sm font-bold disabled:opacity-50">
           <Check size={14} className="inline mr-1" /> Salvar
         </button>
         <button onClick={() => { setShowForm(false); setEditId(null); resetForm(); }} className="px-4 py-2 text-gray-500 hover:text-gray-900 dark:hover:text-white rounded-lg text-sm">
@@ -344,7 +344,7 @@ function RisksTab({ risks, onRisksChange }: { risks: TacticalRisk[]; onRisksChan
         </div>
         <button
           onClick={() => { setShowForm(true); setEditId(null); resetForm(); }}
-          className="flex items-center gap-1.5 px-3 py-2 bg-gradient-to-r from-[#A0792E] to-[#D4A85C] text-black rounded-xl text-sm font-bold"
+          className="flex items-center gap-1.5 px-3 py-2 bg-gradient-to-r from-[#A68B4B] to-[#C8A96E] text-black rounded-xl text-sm font-bold"
         >
           <Plus size={14} /> Novo Risco
         </button>
@@ -368,7 +368,7 @@ function RisksTab({ risks, onRisksChange }: { risks: TacticalRisk[]; onRisksChan
           return (
             <div key={r.id}>
               {editId === r.id && showForm ? <FormRow /> : (
-                <div className={`bg-white dark:bg-[#262626] rounded-xl p-4 border border-gray-200 dark:border-[#2e2e2e] ${r.status !== 'active' ? 'opacity-60' : ''}`}>
+                <div className={`bg-white dark:bg-[#1A1A1A] rounded-xl p-4 border border-gray-200 dark:border-[#2A2A2A] ${r.status !== 'active' ? 'opacity-60' : ''}`}>
                   <div className="flex items-start justify-between gap-2">
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center gap-2 flex-wrap mb-1">
@@ -388,7 +388,7 @@ function RisksTab({ risks, onRisksChange }: { risks: TacticalRisk[]; onRisksChan
                       )}
                     </div>
                     <div className="flex gap-1 shrink-0">
-                      <button onClick={() => handleEdit(r)} className="p-1.5 text-gray-300 hover:text-[#A0792E] transition-colors">
+                      <button onClick={() => handleEdit(r)} className="p-1.5 text-gray-300 hover:text-[#A68B4B] transition-colors">
                         <Edit2 size={14} />
                       </button>
                       <button onClick={() => handleDelete(r.id)} className="p-1.5 text-gray-300 hover:text-red-500 transition-colors">
@@ -443,42 +443,42 @@ function DecisionsTab({ decisions, onDecisionsChange }: { decisions: TacticalDec
   };
 
   const FormRow = () => (
-    <div className="bg-gray-50 dark:bg-[#1d1d1d] rounded-xl p-4 space-y-3 border border-[#A0792E]/30">
+    <div className="bg-gray-50 dark:bg-[#141414] rounded-xl p-4 space-y-3 border border-[#A68B4B]/30">
       <input
         autoFocus
         value={form.decision}
         onChange={e => setForm(p => ({ ...p, decision: e.target.value }))}
         placeholder="Decisão tomada"
-        className="w-full px-3 py-2 bg-white dark:bg-[#262626] border border-gray-200 dark:border-[#2e2e2e] rounded-lg text-sm outline-none focus:ring-2 focus:ring-[#A0792E] text-gray-900 dark:text-white"
+        className="w-full px-3 py-2 bg-white dark:bg-[#1A1A1A] border border-gray-200 dark:border-[#2A2A2A] rounded-lg text-sm outline-none focus:ring-2 focus:ring-[#A68B4B] text-gray-900 dark:text-white"
       />
       <textarea
         value={form.reason}
         onChange={e => setForm(p => ({ ...p, reason: e.target.value }))}
         placeholder="Motivo / contexto"
         rows={2}
-        className="w-full px-3 py-2 bg-white dark:bg-[#262626] border border-gray-200 dark:border-[#2e2e2e] rounded-lg text-sm outline-none focus:ring-2 focus:ring-[#A0792E] text-gray-900 dark:text-white resize-none"
+        className="w-full px-3 py-2 bg-white dark:bg-[#1A1A1A] border border-gray-200 dark:border-[#2A2A2A] rounded-lg text-sm outline-none focus:ring-2 focus:ring-[#A68B4B] text-gray-900 dark:text-white resize-none"
       />
       <textarea
         value={form.data_basis}
         onChange={e => setForm(p => ({ ...p, data_basis: e.target.value }))}
         placeholder="Base de dados / evidências usadas"
         rows={2}
-        className="w-full px-3 py-2 bg-white dark:bg-[#262626] border border-gray-200 dark:border-[#2e2e2e] rounded-lg text-sm outline-none focus:ring-2 focus:ring-[#A0792E] text-gray-900 dark:text-white resize-none"
+        className="w-full px-3 py-2 bg-white dark:bg-[#1A1A1A] border border-gray-200 dark:border-[#2A2A2A] rounded-lg text-sm outline-none focus:ring-2 focus:ring-[#A68B4B] text-gray-900 dark:text-white resize-none"
       />
       <textarea
         value={form.outcome}
         onChange={e => setForm(p => ({ ...p, outcome: e.target.value }))}
         placeholder="Resultado posterior (opcional — preencha depois)"
         rows={2}
-        className="w-full px-3 py-2 bg-white dark:bg-[#262626] border border-gray-200 dark:border-[#2e2e2e] rounded-lg text-sm outline-none focus:ring-2 focus:ring-[#A0792E] text-gray-900 dark:text-white resize-none"
+        className="w-full px-3 py-2 bg-white dark:bg-[#1A1A1A] border border-gray-200 dark:border-[#2A2A2A] rounded-lg text-sm outline-none focus:ring-2 focus:ring-[#A68B4B] text-gray-900 dark:text-white resize-none"
       />
       <div className="flex items-center gap-3">
         <label className="text-xs text-gray-500">Data:</label>
         <input type="date" value={form.decided_at} onChange={e => setForm(p => ({ ...p, decided_at: e.target.value }))}
-          className="px-3 py-1.5 bg-white dark:bg-[#262626] border border-gray-200 dark:border-[#2e2e2e] rounded-lg text-sm outline-none text-gray-900 dark:text-white" />
+          className="px-3 py-1.5 bg-white dark:bg-[#1A1A1A] border border-gray-200 dark:border-[#2A2A2A] rounded-lg text-sm outline-none text-gray-900 dark:text-white" />
       </div>
       <div className="flex gap-2">
-        <button onClick={handleSave} disabled={!form.decision.trim()} className="px-4 py-2 bg-gradient-to-r from-[#A0792E] to-[#D4A85C] text-black rounded-lg text-sm font-bold disabled:opacity-50">
+        <button onClick={handleSave} disabled={!form.decision.trim()} className="px-4 py-2 bg-gradient-to-r from-[#A68B4B] to-[#C8A96E] text-black rounded-lg text-sm font-bold disabled:opacity-50">
           <Check size={14} className="inline mr-1" /> Salvar
         </button>
         <button onClick={() => { setShowForm(false); setEditId(null); resetForm(); }} className="px-4 py-2 text-gray-500 hover:text-gray-900 dark:hover:text-white rounded-lg text-sm">
@@ -493,7 +493,7 @@ function DecisionsTab({ decisions, onDecisionsChange }: { decisions: TacticalDec
       <div className="flex justify-end">
         <button
           onClick={() => { setShowForm(true); setEditId(null); resetForm(); }}
-          className="flex items-center gap-1.5 px-3 py-2 bg-gradient-to-r from-[#A0792E] to-[#D4A85C] text-black rounded-xl text-sm font-bold"
+          className="flex items-center gap-1.5 px-3 py-2 bg-gradient-to-r from-[#A68B4B] to-[#C8A96E] text-black rounded-xl text-sm font-bold"
         >
           <Plus size={14} /> Registrar Decisão
         </button>
@@ -513,7 +513,7 @@ function DecisionsTab({ decisions, onDecisionsChange }: { decisions: TacticalDec
         {decisions.map(d => (
           <div key={d.id}>
             {editId === d.id && showForm ? <FormRow /> : (
-              <div className="bg-white dark:bg-[#262626] rounded-xl p-4 border border-gray-200 dark:border-[#2e2e2e]">
+              <div className="bg-white dark:bg-[#1A1A1A] rounded-xl p-4 border border-gray-200 dark:border-[#2A2A2A]">
                 <div className="flex items-start justify-between gap-2">
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-2 flex-wrap mb-1">
@@ -529,7 +529,7 @@ function DecisionsTab({ decisions, onDecisionsChange }: { decisions: TacticalDec
                     )}
                   </div>
                   <div className="flex gap-1 shrink-0">
-                    <button onClick={() => handleEdit(d)} className="p-1.5 text-gray-300 hover:text-[#A0792E] transition-colors">
+                    <button onClick={() => handleEdit(d)} className="p-1.5 text-gray-300 hover:text-[#A68B4B] transition-colors">
                       <Edit2 size={14} />
                     </button>
                     <button onClick={() => handleDelete(d.id)} className="p-1.5 text-gray-300 hover:text-red-500 transition-colors">
@@ -560,7 +560,7 @@ export function ReviewView({ tasks, columns, risks, decisions, onRisksChange, on
   return (
     <div className="h-full flex flex-col gap-4">
       {/* Sub-tabs */}
-      <div className="flex gap-1 bg-gray-100 dark:bg-[#262626] p-1 rounded-xl border border-gray-200 dark:border-[#2e2e2e] w-fit shrink-0">
+      <div className="flex gap-1 bg-gray-100 dark:bg-[#1A1A1A] p-1 rounded-xl border border-gray-200 dark:border-[#2A2A2A] w-fit shrink-0">
         {tabs.map(t => (
           <button
             key={t.key}

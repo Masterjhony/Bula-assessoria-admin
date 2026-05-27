@@ -208,10 +208,10 @@ export function OKRPageClient({
     ];
 
     return (
-        <div className="h-full flex flex-col bg-white dark:bg-[#1d1d1d] rounded-2xl border border-gray-200 dark:border-[#2A2A2A] overflow-hidden shadow-sm">
+        <div className="h-full flex flex-col bg-white dark:bg-[#141414] rounded-2xl border border-gray-200 dark:border-[#2A2A2A] overflow-hidden shadow-sm">
 
             {/* Gold accent line */}
-            <div className="h-[3px] bg-gradient-to-r from-[#A0792E] via-[#D4A85C] to-[#A0792E]/10 shrink-0" />
+            <div className="h-[3px] bg-gradient-to-r from-[#A68B4B] via-[#C8A96E] to-[#A68B4B]/10 shrink-0" />
 
             {/* Header */}
             <div className="px-6 pt-5 pb-0 shrink-0 border-b border-gray-100 dark:border-[#262626]">
@@ -220,15 +220,15 @@ export function OKRPageClient({
                     <div>
                         <div className="flex items-center gap-2 mb-1.5">
                             <span className="relative flex h-2 w-2">
-                                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#A0792E] opacity-60" />
-                                <span className="relative inline-flex rounded-full h-2 w-2 bg-[#A0792E]" />
+                                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#A68B4B] opacity-60" />
+                                <span className="relative inline-flex rounded-full h-2 w-2 bg-[#A68B4B]" />
                             </span>
-                            <span className="text-[10px] font-bold text-[#A0792E] uppercase tracking-[0.18em]">
+                            <span className="text-[10px] font-bold text-[#A68B4B] uppercase tracking-[0.18em]">
                                 Painel Estratégico
                             </span>
                         </div>
                         <h1 className="text-2xl font-black text-gray-900 dark:text-white tracking-tight leading-none">
-                            Fórmula do Boi
+                            Bula Assessoria
                         </h1>
                         <p className="text-sm text-gray-400 mt-1">
                             Visão executiva: estratégia → projetos → tarefas → indicadores em uma só tela.
@@ -317,8 +317,8 @@ export function OKRPageClient({
                             onClick={() => setTab(t.key)}
                             className={`relative flex items-center gap-2 px-5 py-3 text-sm font-semibold transition-all border-b-2 whitespace-nowrap ${
                                 tab === t.key
-                                    ? 'border-[#A0792E] text-[#A0792E] dark:text-[#D4A85C]'
-                                    : 'border-transparent text-gray-400 hover:text-gray-700 dark:hover:text-gray-300 hover:border-gray-200 dark:hover:border-[#363636]'
+                                    ? 'border-[#A68B4B] text-[#A68B4B] dark:text-[#C8A96E]'
+                                    : 'border-transparent text-gray-400 hover:text-gray-700 dark:hover:text-gray-300 hover:border-gray-200 dark:hover:border-[#333]'
                             }`}
                         >
                             {t.icon}
@@ -327,7 +327,7 @@ export function OKRPageClient({
                                 <span className={`text-[10px] font-bold px-1.5 py-0.5 rounded-full min-w-[18px] text-center leading-tight ${
                                     t.alertBadge
                                         ? 'bg-red-500/10 text-red-600 dark:text-red-400'
-                                        : 'bg-[#A0792E]/10 text-[#A0792E]'
+                                        : 'bg-[#A68B4B]/10 text-[#A68B4B]'
                                 }`}>
                                     {t.badge}
                                 </span>

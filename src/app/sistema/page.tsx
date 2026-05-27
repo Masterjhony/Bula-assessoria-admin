@@ -319,7 +319,7 @@ export default async function AdminDashboard() {
     feed.sort((a, b) => (a.when === 'agora' ? -1 : 0) - (b.when === 'agora' ? -1 : 0));
     const feedTop = feed;
 
-    // ── Produtos & Reservas (operação Fórmula do Boi) ───────────────────────
+    // ── Produtos & Reservas (legado, não aplicável ao web-bula) ───────────────────────
     const allProdutos = produtos ?? [];
     const produtoCatMap = new Map<string, number>();
     for (const p of allProdutos) {

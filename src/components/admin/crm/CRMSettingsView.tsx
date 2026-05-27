@@ -85,9 +85,9 @@ export function CRMSettingsView({ initialConfig, onConfigSaved }: CRMSettingsVie
         }
     };
 
-    const inputCls = 'px-3 py-2 text-sm bg-white dark:bg-[#262626] border border-gray-200 dark:border-[#3f3f3f] rounded-lg outline-none focus:ring-2 focus:ring-[#A0792E] dark:text-white';
+    const inputCls = 'px-3 py-2 text-sm bg-white dark:bg-[#1A1A1A] border border-gray-200 dark:border-[#333] rounded-lg outline-none focus:ring-2 focus:ring-[#A68B4B] dark:text-white';
     const btnSecondary = 'flex items-center gap-1.5 text-sm px-3 py-1.5 bg-gray-100 dark:bg-[#3f3f3f] hover:bg-gray-200 dark:hover:bg-[#444] rounded-lg text-gray-700 dark:text-gray-300 transition-colors font-medium';
-    const btnGold = 'flex items-center gap-1 px-3 py-2 bg-[#A0792E] hover:bg-[#9A7209] text-black text-sm font-semibold rounded-lg transition-colors';
+    const btnGold = 'flex items-center gap-1 px-3 py-2 bg-[#A68B4B] hover:bg-[#9A7209] text-black text-sm font-semibold rounded-lg transition-colors';
     const btnCancel = 'p-2 text-gray-400 hover:bg-gray-200 dark:hover:bg-[#3f3f3f] rounded-lg transition-colors';
 
     return (
@@ -103,8 +103,8 @@ export function CRMSettingsView({ initialConfig, onConfigSaved }: CRMSettingsVie
                 onConfigSaved={onConfigSaved}
             />
 
-            <div className="bg-white dark:bg-[#262626] rounded-2xl border border-gray-200 dark:border-[#2e2e2e] overflow-hidden">
-                <div className="px-6 py-4 border-b border-gray-200 dark:border-[#3f3f3f] flex items-center justify-between">
+            <div className="bg-white dark:bg-[#1A1A1A] rounded-2xl border border-gray-200 dark:border-[#2A2A2A] overflow-hidden">
+                <div className="px-6 py-4 border-b border-gray-200 dark:border-[#333] flex items-center justify-between">
                     <div>
                         <h3 className="font-semibold text-gray-900 dark:text-white">Responsáveis</h3>
                         <p className="text-xs text-gray-500 mt-0.5">Gerencie quem pode ser atribuído aos leads</p>
@@ -115,7 +115,7 @@ export function CRMSettingsView({ initialConfig, onConfigSaved }: CRMSettingsVie
                 </div>
 
                 {showNewResp && (
-                    <div className="px-6 py-4 bg-gray-50 dark:bg-[#1d1d1d] border-b border-gray-200 dark:border-[#3f3f3f]">
+                    <div className="px-6 py-4 bg-gray-50 dark:bg-[#141414] border-b border-gray-200 dark:border-[#333]">
                         <div className="flex gap-3 items-end flex-wrap">
                             <div className="flex-1 min-w-[140px]">
                                 <label className="text-xs font-medium text-gray-500 mb-1 block">Nome</label>
@@ -148,7 +148,7 @@ export function CRMSettingsView({ initialConfig, onConfigSaved }: CRMSettingsVie
                                             type="button"
                                             onClick={() => setNewRespColor(c.id)}
                                             title={c.label}
-                                            className={`w-6 h-6 rounded-full ${c.dot} transition-transform ${newRespColor === c.id ? 'scale-125 ring-2 ring-offset-2 ring-[#A0792E]' : 'hover:scale-110'}`}
+                                            className={`w-6 h-6 rounded-full ${c.dot} transition-transform ${newRespColor === c.id ? 'scale-125 ring-2 ring-offset-2 ring-[#A68B4B]' : 'hover:scale-110'}`}
                                         />
                                     ))}
                                 </div>
@@ -200,7 +200,7 @@ export function CRMSettingsView({ initialConfig, onConfigSaved }: CRMSettingsVie
                     className={`flex items-center gap-2 px-6 py-2.5 rounded-xl font-semibold text-sm transition-all shadow-lg disabled:opacity-50 ${
                         saved
                             ? 'bg-green-500 text-white shadow-green-500/20'
-                            : 'bg-gradient-to-r from-[#A0792E] to-[#D4A85C] hover:from-[#9A7209] hover:to-[#A0792E] text-black shadow-[#A0792E]/20'
+                            : 'bg-gradient-to-r from-[#A68B4B] to-[#C8A96E] hover:from-[#9A7209] hover:to-[#A68B4B] text-black shadow-[#A68B4B]/20'
                     }`}
                 >
                     {saved ? (

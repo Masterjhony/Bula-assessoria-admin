@@ -289,12 +289,12 @@ export function ContractsView({ initialContracts }: Props) {
     );
 
     return (
-        <div className="flex flex-1 min-h-0 h-full gap-0 overflow-hidden rounded-2xl border border-[#E8CB85]/20 dark:border-[#E8CB85]/14 bg-white dark:bg-[#161616] shadow-sm">
+        <div className="flex flex-1 min-h-0 h-full gap-0 overflow-hidden rounded-2xl border border-[#E4C99E]/20 dark:border-[#E4C99E]/14 bg-white dark:bg-[#0D0D0D] shadow-sm">
 
             {/* ── Sidebar ── */}
-            <aside className="w-56 shrink-0 flex flex-col bg-white dark:bg-[#1B1B1B] border-r border-[#E8CB85]/20 dark:border-[#E8CB85]/10">
+            <aside className="w-56 shrink-0 flex flex-col bg-white dark:bg-[#141414] border-r border-[#E4C99E]/20 dark:border-[#E4C99E]/10">
                 <div className="px-5 pt-6 pb-3">
-                    <p className="text-[10px] font-semibold uppercase tracking-[0.2em] text-[#A0792E]/70 dark:text-[#D4A85C]/60">Pastas</p>
+                    <p className="text-[10px] font-semibold uppercase tracking-[0.2em] text-[#A68B4B]/70 dark:text-[#C8A96E]/60">Pastas</p>
                 </div>
 
                 <nav className="flex flex-col gap-0.5 px-2">
@@ -323,13 +323,13 @@ export function ContractsView({ initialContracts }: Props) {
                 </nav>
 
                 {/* Bottom: valor + vencendo */}
-                <div className="mt-auto mx-3 mb-4 mt-4 rounded-xl bg-gradient-to-br from-[#E8CB85]/[0.08] via-[#A0792E]/[0.04] to-transparent border border-[#E8CB85]/20 dark:border-[#E8CB85]/12 p-4">
-                    <p className="text-[9px] font-semibold uppercase tracking-[0.18em] text-[#A0792E]/70 dark:text-[#D4A85C]/60 mb-1.5">Valor em Ativos</p>
-                    <p className="text-lg font-bold bg-gradient-to-r from-[#E8CB85] via-[#D4A85C] to-[#A0792E] bg-clip-text text-transparent leading-tight">
+                <div className="mt-auto mx-3 mb-4 mt-4 rounded-xl bg-gradient-to-br from-[#E4C99E]/[0.08] via-[#A68B4B]/[0.04] to-transparent border border-[#E4C99E]/20 dark:border-[#E4C99E]/12 p-4">
+                    <p className="text-[9px] font-semibold uppercase tracking-[0.18em] text-[#A68B4B]/70 dark:text-[#C8A96E]/60 mb-1.5">Valor em Ativos</p>
+                    <p className="text-lg font-bold bg-gradient-to-r from-[#E4C99E] via-[#C8A96E] to-[#A68B4B] bg-clip-text text-transparent leading-tight">
                         {formatCurrency(counts.valor)}
                     </p>
                     {counts.vencendo > 0 && (
-                        <div className="mt-2.5 pt-2.5 border-t border-[#E8CB85]/15 flex items-center gap-1.5 text-[11px] text-amber-500">
+                        <div className="mt-2.5 pt-2.5 border-t border-[#E4C99E]/15 flex items-center gap-1.5 text-[11px] text-amber-500">
                             <AlertTriangle size={11} />
                             <span>{counts.vencendo} vencendo em 30d</span>
                         </div>
@@ -338,22 +338,22 @@ export function ContractsView({ initialContracts }: Props) {
             </aside>
 
             {/* ── Main ── */}
-            <main className="flex-1 flex flex-col min-w-0 bg-gradient-to-b from-gray-50 to-white dark:from-[#161616] dark:to-[#1B1B1B]">
+            <main className="flex-1 flex flex-col min-w-0 bg-gradient-to-b from-gray-50 to-white dark:from-[#0D0D0D] dark:to-[#1B1B1B]">
 
                 {/* Toolbar */}
-                <div className="flex items-center gap-3 px-6 py-4 bg-white/95 dark:bg-[#1B1B1B]/95 backdrop-blur border-b border-[#E8CB85]/14 shrink-0">
+                <div className="flex items-center gap-3 px-6 py-4 bg-white/95 dark:bg-[#141414]/95 backdrop-blur border-b border-[#E4C99E]/14 shrink-0">
                     {/* Breadcrumb */}
                     <div className="flex items-center gap-1.5 text-sm text-gray-500 dark:text-[#9A928A] mr-2 shrink-0">
                         <span
-                            className="hover:text-[#A0792E] cursor-pointer transition-colors"
+                            className="hover:text-[#A68B4B] cursor-pointer transition-colors"
                             onClick={() => { setCurrentFolder('all'); setSearch(''); }}
                         >
                             Contratos
                         </span>
                         {currentFolder !== 'all' && (
                             <>
-                                <ChevronRight size={13} className="text-[#A0792E]/50" />
-                                <span className="text-gray-900 dark:text-[#F5F0E4] font-semibold">{currentFolder}</span>
+                                <ChevronRight size={13} className="text-[#A68B4B]/50" />
+                                <span className="text-gray-900 dark:text-[#F5F5F5] font-semibold">{currentFolder}</span>
                             </>
                         )}
                     </div>
@@ -365,16 +365,16 @@ export function ContractsView({ initialContracts }: Props) {
                             value={search}
                             onChange={e => setSearch(e.target.value)}
                             placeholder="Buscar por cliente ou título..."
-                            className="w-full pl-10 pr-4 py-2.5 text-sm bg-gray-50 dark:bg-[#202020] border border-[#E8CB85]/14 rounded-xl outline-none focus:border-[#A0792E]/40 focus:ring-2 focus:ring-[#A0792E]/15 text-gray-900 dark:text-[#F5F0E4] placeholder:text-gray-400 dark:placeholder:text-[#9A928A] transition-all"
+                            className="w-full pl-10 pr-4 py-2.5 text-sm bg-gray-50 dark:bg-[#202020] border border-[#E4C99E]/14 rounded-xl outline-none focus:border-[#A68B4B]/40 focus:ring-2 focus:ring-[#A68B4B]/15 text-gray-900 dark:text-[#F5F5F5] placeholder:text-gray-400 dark:placeholder:text-[#9A928A] transition-all"
                         />
                     </div>
 
                     {/* View toggle */}
-                    <div className="flex items-center bg-gray-100 dark:bg-[#202020] rounded-xl p-1 border border-[#E8CB85]/10">
-                        <button onClick={() => setViewMode('grid')} className={`p-1.5 rounded-lg transition-all ${viewMode === 'grid' ? 'bg-white dark:bg-[#2A2A2A] shadow-sm text-[#A0792E]' : 'text-gray-400 hover:text-gray-600 dark:hover:text-[#D4A85C]'}`}>
+                    <div className="flex items-center bg-gray-100 dark:bg-[#202020] rounded-xl p-1 border border-[#E4C99E]/10">
+                        <button onClick={() => setViewMode('grid')} className={`p-1.5 rounded-lg transition-all ${viewMode === 'grid' ? 'bg-white dark:bg-[#2A2A2A] shadow-sm text-[#A68B4B]' : 'text-gray-400 hover:text-gray-600 dark:hover:text-[#C8A96E]'}`}>
                             <Grid3X3 size={14} />
                         </button>
-                        <button onClick={() => setViewMode('list')} className={`p-1.5 rounded-lg transition-all ${viewMode === 'list' ? 'bg-white dark:bg-[#2A2A2A] shadow-sm text-[#A0792E]' : 'text-gray-400 hover:text-gray-600 dark:hover:text-[#D4A85C]'}`}>
+                        <button onClick={() => setViewMode('list')} className={`p-1.5 rounded-lg transition-all ${viewMode === 'list' ? 'bg-white dark:bg-[#2A2A2A] shadow-sm text-[#A68B4B]' : 'text-gray-400 hover:text-gray-600 dark:hover:text-[#C8A96E]'}`}>
                             <List size={14} />
                         </button>
                     </div>
@@ -382,7 +382,7 @@ export function ContractsView({ initialContracts }: Props) {
                     {/* ClickSign import */}
                     <button
                         onClick={() => setCsImportOpen(true)}
-                        className="flex items-center gap-2 px-3.5 py-2 bg-white dark:bg-[#202020] border border-[#E8CB85]/20 text-gray-700 dark:text-[#F5F0E4] rounded-xl font-semibold text-sm hover:border-[#A0792E]/40 hover:text-[#A0792E] dark:hover:text-[#D4A85C] transition-all whitespace-nowrap shrink-0"
+                        className="flex items-center gap-2 px-3.5 py-2 bg-white dark:bg-[#202020] border border-[#E4C99E]/20 text-gray-700 dark:text-[#F5F5F5] rounded-xl font-semibold text-sm hover:border-[#A68B4B]/40 hover:text-[#A68B4B] dark:hover:text-[#C8A96E] transition-all whitespace-nowrap shrink-0"
                         title={csConn.ok === true ? 'ClickSign conectado' : csConn.ok === false ? `ClickSign: ${csConn.error}` : 'Verificando ClickSign…'}
                     >
                         <PlugZap size={14} />
@@ -395,7 +395,7 @@ export function ContractsView({ initialContracts }: Props) {
                     {/* New contract */}
                     <button
                         onClick={openCreate}
-                        className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-[#E8CB85] via-[#D4A85C] to-[#A0792E] text-black rounded-xl font-bold text-sm hover:shadow-lg hover:shadow-[#A0792E]/30 transition-all hover:-translate-y-0.5 whitespace-nowrap shrink-0"
+                        className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-[#E4C99E] via-[#C8A96E] to-[#A68B4B] text-black rounded-xl font-bold text-sm hover:shadow-lg hover:shadow-[#A68B4B]/30 transition-all hover:-translate-y-0.5 whitespace-nowrap shrink-0"
                     >
                         <Plus size={15} /> Novo Contrato
                     </button>
@@ -407,15 +407,15 @@ export function ContractsView({ initialContracts }: Props) {
                     {/* Stats */}
                     <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
                         {[
-                            { label: counts.total,                      sub: 'Total',     accent: 'text-gray-900 dark:text-[#F5F0E4]',          icon: FileText,      iconBg: 'bg-gray-100 dark:bg-[#2A2A2A]',  iconColor: 'text-[#A0792E] dark:text-[#D4A85C]' },
+                            { label: counts.total,                      sub: 'Total',     accent: 'text-gray-900 dark:text-[#F5F5F5]',          icon: FileText,      iconBg: 'bg-gray-100 dark:bg-[#2A2A2A]',  iconColor: 'text-[#A68B4B] dark:text-[#C8A96E]' },
                             { label: counts.ativo,                       sub: 'Ativos',    accent: 'text-emerald-400',         icon: CheckCircle,   iconBg: 'bg-emerald-500/10',             iconColor: 'text-emerald-400' },
                             { label: counts.vencendo,                    sub: 'Vencendo',  accent: 'text-amber-400',           icon: Clock,         iconBg: 'bg-amber-500/10',               iconColor: 'text-amber-400' },
                             { label: counts.byStatus['Pendente'] ?? 0,   sub: 'Pendentes', accent: 'text-[#4A7FB8]',           icon: AlertTriangle, iconBg: 'bg-[#4A7FB8]/10',               iconColor: 'text-[#4A7FB8]' },
                         ].map((s, i) => {
                             const Icon = s.icon;
                             return (
-                                <div key={i} className="relative group bg-white dark:bg-[#202020] border border-[#E8CB85]/14 rounded-2xl p-4 hover:border-[#A0792E]/30 hover:shadow-lg hover:shadow-[#A0792E]/5 transition-all overflow-hidden">
-                                    <div className="absolute inset-0 bg-gradient-to-br from-[#E8CB85]/[0.04] via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
+                                <div key={i} className="relative group bg-white dark:bg-[#202020] border border-[#E4C99E]/14 rounded-2xl p-4 hover:border-[#A68B4B]/30 hover:shadow-lg hover:shadow-[#A68B4B]/5 transition-all overflow-hidden">
+                                    <div className="absolute inset-0 bg-gradient-to-br from-[#E4C99E]/[0.04] via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
                                     <div className="relative flex items-center gap-3">
                                         <div className={`w-10 h-10 rounded-xl ${s.iconBg} flex items-center justify-center shrink-0`}>
                                             <Icon size={18} className={s.iconColor} />
@@ -433,7 +433,7 @@ export function ContractsView({ initialContracts }: Props) {
                     {/* Root: folder cards */}
                     {isRoot && (
                         <div>
-                            <p className="text-[10px] font-semibold uppercase tracking-[0.2em] text-[#A0792E]/70 dark:text-[#D4A85C]/60 mb-3">Pastas</p>
+                            <p className="text-[10px] font-semibold uppercase tracking-[0.2em] text-[#A68B4B]/70 dark:text-[#C8A96E]/60 mb-3">Pastas</p>
                             <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">
                                 {STATUSES.map(status => {
                                     const cfg = STATUS_CONFIG[status];
@@ -442,17 +442,17 @@ export function ContractsView({ initialContracts }: Props) {
                                         <button
                                             key={status}
                                             onClick={() => setCurrentFolder(status)}
-                                            className="group relative flex flex-col gap-3 p-4 bg-white dark:bg-[#202020] border border-[#E8CB85]/14 rounded-2xl hover:border-[#A0792E]/40 hover:shadow-lg hover:shadow-[#A0792E]/8 hover:-translate-y-0.5 transition-all text-left overflow-hidden"
+                                            className="group relative flex flex-col gap-3 p-4 bg-white dark:bg-[#202020] border border-[#E4C99E]/14 rounded-2xl hover:border-[#A68B4B]/40 hover:shadow-lg hover:shadow-[#A68B4B]/8 hover:-translate-y-0.5 transition-all text-left overflow-hidden"
                                         >
-                                            <div className="absolute inset-0 bg-gradient-to-br from-[#E8CB85]/[0.06] via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
+                                            <div className="absolute inset-0 bg-gradient-to-br from-[#E4C99E]/[0.06] via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
                                             <div className="relative flex items-center justify-between">
-                                                <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-gray-100 to-gray-50 dark:from-[#2A2A2A] dark:to-[#161616] flex items-center justify-center group-hover:scale-105 transition-transform">
+                                                <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-gray-100 to-gray-50 dark:from-[#2A2A2A] dark:to-[#0D0D0D] flex items-center justify-center group-hover:scale-105 transition-transform">
                                                     <StatusIcon size={20} className={cfg.folderColor} />
                                                 </div>
-                                                <ChevronRight size={14} className="text-gray-300 dark:text-[#9A928A]/40 group-hover:text-[#A0792E] transition-colors" />
+                                                <ChevronRight size={14} className="text-gray-300 dark:text-[#9A928A]/40 group-hover:text-[#A68B4B] transition-colors" />
                                             </div>
                                             <div className="relative">
-                                                <p className="font-semibold text-gray-900 dark:text-[#F5F0E4] text-sm">{status}</p>
+                                                <p className="font-semibold text-gray-900 dark:text-[#F5F5F5] text-sm">{status}</p>
                                                 <p className="text-xs text-[#9A928A] mt-0.5">{counts.byStatus[status] ?? 0} contrato{(counts.byStatus[status] ?? 0) !== 1 ? 's' : ''}</p>
                                             </div>
                                         </button>
@@ -466,20 +466,20 @@ export function ContractsView({ initialContracts }: Props) {
                     {(!isRoot || search.trim()) && (
                         <div>
                             {!search.trim() && currentFolder !== 'all' && (
-                                <p className="text-[10px] font-semibold uppercase tracking-[0.2em] text-[#A0792E]/70 dark:text-[#D4A85C]/60 mb-3">{currentFolder}</p>
+                                <p className="text-[10px] font-semibold uppercase tracking-[0.2em] text-[#A68B4B]/70 dark:text-[#C8A96E]/60 mb-3">{currentFolder}</p>
                             )}
                             {search.trim() && (
-                                <p className="text-[10px] font-semibold uppercase tracking-[0.2em] text-[#A0792E]/70 dark:text-[#D4A85C]/60 mb-3">
-                                    Resultados para &ldquo;<span className="text-gray-900 dark:text-[#F5F0E4]">{search}</span>&rdquo;
+                                <p className="text-[10px] font-semibold uppercase tracking-[0.2em] text-[#A68B4B]/70 dark:text-[#C8A96E]/60 mb-3">
+                                    Resultados para &ldquo;<span className="text-gray-900 dark:text-[#F5F5F5]">{search}</span>&rdquo;
                                 </p>
                             )}
 
                             {filtered.length === 0 ? (
-                                <div className="flex flex-col items-center justify-center h-64 rounded-2xl border border-dashed border-[#E8CB85]/20 dark:border-[#E8CB85]/15 bg-gradient-to-br from-gray-50 to-white dark:from-[#202020] dark:to-[#1B1B1B] text-gray-500 dark:text-[#9A928A]">
+                                <div className="flex flex-col items-center justify-center h-64 rounded-2xl border border-dashed border-[#E4C99E]/20 dark:border-[#E4C99E]/15 bg-gradient-to-br from-gray-50 to-white dark:from-[#202020] dark:to-[#1B1B1B] text-gray-500 dark:text-[#9A928A]">
                                     <div className="w-14 h-14 rounded-2xl bg-gray-100 dark:bg-[#2A2A2A] flex items-center justify-center mb-4">
                                         <FileText size={22} className="text-gray-400 dark:text-[#9A928A]/60" />
                                     </div>
-                                    <p className="font-semibold text-sm text-gray-700 dark:text-[#F5F0E4]/80">Nenhum contrato encontrado</p>
+                                    <p className="font-semibold text-sm text-gray-700 dark:text-[#F5F5F5]/80">Nenhum contrato encontrado</p>
                                     <p className="text-xs mt-1 text-gray-500 dark:text-[#9A928A]">Crie um novo contrato ou importe do ClickSign.</p>
                                 </div>
                             ) : viewMode === 'grid' ? (
@@ -487,18 +487,18 @@ export function ContractsView({ initialContracts }: Props) {
                                     {filtered.map(c => <ContractCard key={c.id} contract={c} onEdit={openEdit} onDelete={handleDelete} />)}
                                 </div>
                             ) : (
-                                <div className="bg-white dark:bg-[#202020] border border-[#E8CB85]/20 dark:border-[#E8CB85]/14 rounded-2xl overflow-hidden">
+                                <div className="bg-white dark:bg-[#202020] border border-[#E4C99E]/20 dark:border-[#E4C99E]/14 rounded-2xl overflow-hidden">
                                     <table className="w-full min-w-[600px] text-sm">
                                         <thead>
-                                            <tr className="border-b border-[#E8CB85]/15 dark:border-[#E8CB85]/10 bg-gray-50 dark:bg-[#1B1B1B]">
+                                            <tr className="border-b border-[#E4C99E]/15 dark:border-[#E4C99E]/10 bg-gray-50 dark:bg-[#141414]">
                                                 {['Cliente', 'Título', 'Status', 'Vigência', 'Valor', 'Arquivo', ''].map(h => (
-                                                    <th key={h} className="text-left px-4 py-3 text-[10px] font-semibold text-[#A0792E]/70 dark:text-[#D4A85C]/60 uppercase tracking-[0.18em]">
+                                                    <th key={h} className="text-left px-4 py-3 text-[10px] font-semibold text-[#A68B4B]/70 dark:text-[#C8A96E]/60 uppercase tracking-[0.18em]">
                                                         {h}
                                                     </th>
                                                 ))}
                                             </tr>
                                         </thead>
-                                        <tbody className="divide-y divide-[#E8CB85]/8">
+                                        <tbody className="divide-y divide-[#E4C99E]/8">
                                             {filtered.map(c => <ContractRow key={c.id} contract={c} onEdit={openEdit} onDelete={handleDelete} />)}
                                         </tbody>
                                     </table>
@@ -512,12 +512,12 @@ export function ContractsView({ initialContracts }: Props) {
             {/* ── Modal ── */}
             {modalOpen && (
                 <div className="fixed inset-0 z-[200] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
-                    <div className="bg-white dark:bg-[#262626] w-full max-w-2xl rounded-2xl shadow-2xl border border-gray-200 dark:border-[#2e2e2e] flex flex-col max-h-[90vh]">
+                    <div className="bg-white dark:bg-[#1A1A1A] w-full max-w-2xl rounded-2xl shadow-2xl border border-gray-200 dark:border-[#2A2A2A] flex flex-col max-h-[90vh]">
 
-                        <div className="flex items-center justify-between px-6 py-5 border-b border-gray-100 dark:border-[#2e2e2e] shrink-0">
+                        <div className="flex items-center justify-between px-6 py-5 border-b border-gray-100 dark:border-[#2A2A2A] shrink-0">
                             <div className="flex items-center gap-3">
-                                <div className="p-2 bg-[#A0792E]/10 rounded-xl">
-                                    <FileText size={20} className="text-[#A0792E]" />
+                                <div className="p-2 bg-[#A68B4B]/10 rounded-xl">
+                                    <FileText size={20} className="text-[#A68B4B]" />
                                 </div>
                                 <h2 className="text-xl font-bold text-gray-900 dark:text-white">
                                     {editing ? 'Editar Contrato' : 'Novo Contrato'}
@@ -532,41 +532,41 @@ export function ContractsView({ initialContracts }: Props) {
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                 <div>
                                     <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2 flex items-center gap-1.5"><User size={13} /> Cliente</label>
-                                    <input type="text" value={form.client_name} onChange={e => setForm(f => ({ ...f, client_name: e.target.value }))} placeholder="Nome do cliente..." className="w-full px-4 py-3 bg-gray-50 dark:bg-[#1d1d1d] border border-gray-200 dark:border-[#2e2e2e] rounded-xl focus:ring-2 focus:ring-[#A0792E] focus:border-transparent outline-none text-gray-900 dark:text-white text-sm" />
+                                    <input type="text" value={form.client_name} onChange={e => setForm(f => ({ ...f, client_name: e.target.value }))} placeholder="Nome do cliente..." className="w-full px-4 py-3 bg-gray-50 dark:bg-[#141414] border border-gray-200 dark:border-[#2A2A2A] rounded-xl focus:ring-2 focus:ring-[#A68B4B] focus:border-transparent outline-none text-gray-900 dark:text-white text-sm" />
                                 </div>
                                 <div>
                                     <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2 flex items-center gap-1.5"><FileText size={13} /> Título do Contrato</label>
-                                    <input type="text" value={form.title} onChange={e => setForm(f => ({ ...f, title: e.target.value }))} placeholder="Ex: Contrato de Venda — Touro Prometeu..." className="w-full px-4 py-3 bg-gray-50 dark:bg-[#1d1d1d] border border-gray-200 dark:border-[#2e2e2e] rounded-xl focus:ring-2 focus:ring-[#A0792E] focus:border-transparent outline-none text-gray-900 dark:text-white text-sm" />
+                                    <input type="text" value={form.title} onChange={e => setForm(f => ({ ...f, title: e.target.value }))} placeholder="Ex: Contrato de Venda — Touro Prometeu..." className="w-full px-4 py-3 bg-gray-50 dark:bg-[#141414] border border-gray-200 dark:border-[#2A2A2A] rounded-xl focus:ring-2 focus:ring-[#A68B4B] focus:border-transparent outline-none text-gray-900 dark:text-white text-sm" />
                                 </div>
                             </div>
 
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                 <div>
                                     <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Status</label>
-                                    <select value={form.status} onChange={e => setForm(f => ({ ...f, status: e.target.value as Contract['status'] }))} className="w-full px-4 py-3 bg-gray-50 dark:bg-[#1d1d1d] border border-gray-200 dark:border-[#2e2e2e] rounded-xl focus:ring-2 focus:ring-[#A0792E] outline-none text-gray-900 dark:text-white text-sm">
+                                    <select value={form.status} onChange={e => setForm(f => ({ ...f, status: e.target.value as Contract['status'] }))} className="w-full px-4 py-3 bg-gray-50 dark:bg-[#141414] border border-gray-200 dark:border-[#2A2A2A] rounded-xl focus:ring-2 focus:ring-[#A68B4B] outline-none text-gray-900 dark:text-white text-sm">
                                         {STATUSES.map(s => <option key={s} value={s}>{s}</option>)}
                                     </select>
                                 </div>
                                 <div>
                                     <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2 flex items-center gap-1.5"><DollarSign size={13} /> Valor (R$)</label>
-                                    <input type="number" min="0" step="0.01" value={form.value ?? ''} onChange={e => setForm(f => ({ ...f, value: e.target.value ? parseFloat(e.target.value) : null }))} placeholder="0,00" className="w-full px-4 py-3 bg-gray-50 dark:bg-[#1d1d1d] border border-gray-200 dark:border-[#2e2e2e] rounded-xl focus:ring-2 focus:ring-[#A0792E] outline-none text-gray-900 dark:text-white text-sm" />
+                                    <input type="number" min="0" step="0.01" value={form.value ?? ''} onChange={e => setForm(f => ({ ...f, value: e.target.value ? parseFloat(e.target.value) : null }))} placeholder="0,00" className="w-full px-4 py-3 bg-gray-50 dark:bg-[#141414] border border-gray-200 dark:border-[#2A2A2A] rounded-xl focus:ring-2 focus:ring-[#A68B4B] outline-none text-gray-900 dark:text-white text-sm" />
                                 </div>
                             </div>
 
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                 <div>
                                     <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2 flex items-center gap-1.5"><Calendar size={13} /> Início da Vigência</label>
-                                    <input type="date" value={form.start_date ?? ''} onChange={e => setForm(f => ({ ...f, start_date: e.target.value || null }))} className="w-full px-4 py-3 bg-gray-50 dark:bg-[#1d1d1d] border border-gray-200 dark:border-[#2e2e2e] rounded-xl focus:ring-2 focus:ring-[#A0792E] outline-none text-gray-900 dark:text-white text-sm" />
+                                    <input type="date" value={form.start_date ?? ''} onChange={e => setForm(f => ({ ...f, start_date: e.target.value || null }))} className="w-full px-4 py-3 bg-gray-50 dark:bg-[#141414] border border-gray-200 dark:border-[#2A2A2A] rounded-xl focus:ring-2 focus:ring-[#A68B4B] outline-none text-gray-900 dark:text-white text-sm" />
                                 </div>
                                 <div>
                                     <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2 flex items-center gap-1.5"><Calendar size={13} /> Fim da Vigência</label>
-                                    <input type="date" value={form.end_date ?? ''} onChange={e => setForm(f => ({ ...f, end_date: e.target.value || null }))} className="w-full px-4 py-3 bg-gray-50 dark:bg-[#1d1d1d] border border-gray-200 dark:border-[#2e2e2e] rounded-xl focus:ring-2 focus:ring-[#A0792E] outline-none text-gray-900 dark:text-white text-sm" />
+                                    <input type="date" value={form.end_date ?? ''} onChange={e => setForm(f => ({ ...f, end_date: e.target.value || null }))} className="w-full px-4 py-3 bg-gray-50 dark:bg-[#141414] border border-gray-200 dark:border-[#2A2A2A] rounded-xl focus:ring-2 focus:ring-[#A68B4B] outline-none text-gray-900 dark:text-white text-sm" />
                                 </div>
                             </div>
 
                             <div>
                                 <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2 flex items-center gap-1.5"><StickyNote size={13} /> Observações</label>
-                                <textarea value={form.notes ?? ''} onChange={e => setForm(f => ({ ...f, notes: e.target.value || null }))} rows={3} placeholder="Detalhes adicionais sobre o contrato..." className="w-full px-4 py-3 bg-gray-50 dark:bg-[#1d1d1d] border border-gray-200 dark:border-[#2e2e2e] rounded-xl focus:ring-2 focus:ring-[#A0792E] outline-none text-gray-900 dark:text-white text-sm resize-none" />
+                                <textarea value={form.notes ?? ''} onChange={e => setForm(f => ({ ...f, notes: e.target.value || null }))} rows={3} placeholder="Detalhes adicionais sobre o contrato..." className="w-full px-4 py-3 bg-gray-50 dark:bg-[#141414] border border-gray-200 dark:border-[#2A2A2A] rounded-xl focus:ring-2 focus:ring-[#A68B4B] outline-none text-gray-900 dark:text-white text-sm resize-none" />
                             </div>
 
                             <div>
@@ -585,8 +585,8 @@ export function ContractsView({ initialContracts }: Props) {
                                         </button>
                                     </div>
                                 ) : (
-                                    <button type="button" onClick={() => fileInputRef.current?.click()} disabled={isUploading} className="w-full flex flex-col items-center gap-2 px-4 py-6 bg-gray-50 dark:bg-[#1d1d1d] border-2 border-dashed border-gray-200 dark:border-[#3f3f3f] rounded-xl hover:border-[#A0792E] hover:bg-[#A0792E]/5 transition-all disabled:opacity-50 cursor-pointer">
-                                        {isUploading ? <div className="w-6 h-6 border-2 border-[#A0792E]/30 border-t-[#A0792E] rounded-full animate-spin" /> : <Upload size={22} className="text-gray-400" />}
+                                    <button type="button" onClick={() => fileInputRef.current?.click()} disabled={isUploading} className="w-full flex flex-col items-center gap-2 px-4 py-6 bg-gray-50 dark:bg-[#141414] border-2 border-dashed border-gray-200 dark:border-[#333] rounded-xl hover:border-[#A68B4B] hover:bg-[#A68B4B]/5 transition-all disabled:opacity-50 cursor-pointer">
+                                        {isUploading ? <div className="w-6 h-6 border-2 border-[#A68B4B]/30 border-t-[#A68B4B] rounded-full animate-spin" /> : <Upload size={22} className="text-gray-400" />}
                                         <span className="text-sm text-gray-500">{isUploading ? 'Enviando...' : 'Clique para fazer upload do contrato (PDF)'}</span>
                                     </button>
                                 )}
@@ -595,7 +595,7 @@ export function ContractsView({ initialContracts }: Props) {
 
                             {/* ── ClickSign — assinatura eletrônica ── */}
                             {editing && (
-                                <div className="pt-4 border-t border-gray-100 dark:border-[#2e2e2e]">
+                                <div className="pt-4 border-t border-gray-100 dark:border-[#2A2A2A]">
                                     <div className="flex items-center gap-2 mb-3">
                                         <div className="p-1.5 bg-blue-500/10 rounded-lg">
                                             <PenLine size={14} className="text-blue-500" />
@@ -631,18 +631,18 @@ export function ContractsView({ initialContracts }: Props) {
                                 </div>
                             )}
                             {!editing && (
-                                <div className="pt-4 border-t border-gray-100 dark:border-[#2e2e2e] text-xs text-gray-500 dark:text-gray-400 flex items-center gap-2">
+                                <div className="pt-4 border-t border-gray-100 dark:border-[#2A2A2A] text-xs text-gray-500 dark:text-gray-400 flex items-center gap-2">
                                     <PenLine size={13} className="text-gray-400" />
                                     Salve o contrato e anexe o PDF para enviar para assinatura via ClickSign.
                                 </div>
                             )}
                         </div>
 
-                        <div className="flex justify-end gap-3 px-6 py-4 border-t border-gray-100 dark:border-[#2e2e2e] shrink-0">
+                        <div className="flex justify-end gap-3 px-6 py-4 border-t border-gray-100 dark:border-[#2A2A2A] shrink-0">
                             <button type="button" onClick={() => setModalOpen(false)} className="px-5 py-2.5 text-sm font-medium text-gray-600 dark:text-gray-400 bg-gray-100 dark:bg-[#2e2e2e] hover:bg-gray-200 dark:hover:bg-[#363636] rounded-xl transition-colors">
                                 Cancelar
                             </button>
-                            <button type="button" onClick={handleSave} disabled={isSaving || !form.client_name.trim() || !form.title.trim()} className="flex items-center gap-2 px-5 py-2.5 bg-gradient-to-r from-[#E8CB85] via-[#D4A85C] to-[#A0792E] text-black rounded-xl font-bold text-sm hover:shadow-lg hover:shadow-[#A0792E]/30 transition-all disabled:opacity-50 disabled:cursor-not-allowed">
+                            <button type="button" onClick={handleSave} disabled={isSaving || !form.client_name.trim() || !form.title.trim()} className="flex items-center gap-2 px-5 py-2.5 bg-gradient-to-r from-[#E4C99E] via-[#C8A96E] to-[#A68B4B] text-black rounded-xl font-bold text-sm hover:shadow-lg hover:shadow-[#A68B4B]/30 transition-all disabled:opacity-50 disabled:cursor-not-allowed">
                                 {isSaving ? <div className="w-4 h-4 border-2 border-black/30 border-t-black rounded-full animate-spin" /> : <Save size={15} />}
                                 {isSaving ? 'Salvando...' : 'Salvar'}
                             </button>
@@ -684,18 +684,18 @@ function SidebarItem({
             onClick={onClick}
             className={`relative flex items-center justify-between pl-4 pr-3 py-2.5 text-sm font-medium rounded-lg transition-all ${
                 active
-                    ? 'text-[#A0792E] dark:text-[#D4A85C] bg-gradient-to-r from-[#A0792E]/10 to-transparent'
-                    : 'text-gray-600 dark:text-[#9A928A] hover:text-gray-900 dark:hover:text-[#F5F0E4] hover:bg-gray-100 dark:hover:bg-[#262626]/40'
+                    ? 'text-[#A68B4B] dark:text-[#C8A96E] bg-gradient-to-r from-[#A68B4B]/10 to-transparent'
+                    : 'text-gray-600 dark:text-[#9A928A] hover:text-gray-900 dark:hover:text-[#F5F5F5] hover:bg-gray-100 dark:hover:bg-[#1A1A1A]/40'
             }`}
         >
-            {active && <span className="absolute left-0 top-1.5 bottom-1.5 w-[3px] rounded-full bg-gradient-to-b from-[#E8CB85] via-[#D4A85C] to-[#A0792E]" />}
+            {active && <span className="absolute left-0 top-1.5 bottom-1.5 w-[3px] rounded-full bg-gradient-to-b from-[#E4C99E] via-[#C8A96E] to-[#A68B4B]" />}
             <div className="flex items-center gap-2.5">
-                <span className={active ? 'text-[#A0792E] dark:text-[#D4A85C]' : 'text-gray-400 dark:text-[#9A928A]'}>{icon}</span>
+                <span className={active ? 'text-[#A68B4B] dark:text-[#C8A96E]' : 'text-gray-400 dark:text-[#9A928A]'}>{icon}</span>
                 {label}
             </div>
             <span className={`text-[10px] font-bold px-1.5 py-0.5 rounded-md ${
                 active
-                    ? 'bg-gradient-to-r from-[#D4A85C] to-[#A0792E] text-black'
+                    ? 'bg-gradient-to-r from-[#C8A96E] to-[#A68B4B] text-black'
                     : 'bg-gray-100 text-gray-500 dark:bg-[#2A2A2A] dark:text-[#9A928A]'
             }`}>
                 {count}
@@ -715,10 +715,10 @@ function ContractCard({ contract: c, onEdit, onDelete }: { contract: Contract; o
     return (
         <div
             onClick={() => onEdit(c)}
-            className="group relative bg-white dark:bg-[#202020] border border-[#E8CB85]/14 rounded-2xl p-4 hover:border-[#A0792E]/40 hover:shadow-lg hover:shadow-[#A0792E]/8 hover:-translate-y-0.5 transition-all cursor-pointer overflow-hidden"
+            className="group relative bg-white dark:bg-[#202020] border border-[#E4C99E]/14 rounded-2xl p-4 hover:border-[#A68B4B]/40 hover:shadow-lg hover:shadow-[#A68B4B]/8 hover:-translate-y-0.5 transition-all cursor-pointer overflow-hidden"
         >
             {/* Bronze hover sheen */}
-            <div className="absolute inset-0 bg-gradient-to-br from-[#E8CB85]/[0.04] via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none" />
+            <div className="absolute inset-0 bg-gradient-to-br from-[#E4C99E]/[0.04] via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none" />
 
             {/* Delete btn */}
             <button
@@ -730,11 +730,11 @@ function ContractCard({ contract: c, onEdit, onDelete }: { contract: Contract; o
 
             {/* Icon + title */}
             <div className="relative flex items-start gap-3 mb-3">
-                <div className="w-11 h-11 rounded-xl bg-gradient-to-br from-[#E8CB85]/15 via-[#A0792E]/10 to-transparent border border-[#E8CB85]/15 flex items-center justify-center shrink-0">
-                    <FileText size={18} className="text-[#D4A85C]" />
+                <div className="w-11 h-11 rounded-xl bg-gradient-to-br from-[#E4C99E]/15 via-[#A68B4B]/10 to-transparent border border-[#E4C99E]/15 flex items-center justify-center shrink-0">
+                    <FileText size={18} className="text-[#C8A96E]" />
                 </div>
                 <div className="flex-1 min-w-0 pt-0.5">
-                    <p className="font-semibold text-gray-900 dark:text-[#F5F0E4] text-sm truncate pr-6">{c.title}</p>
+                    <p className="font-semibold text-gray-900 dark:text-[#F5F5F5] text-sm truncate pr-6">{c.title}</p>
                     <p className="text-xs text-[#9A928A] truncate mt-0.5">{c.client_name}</p>
                 </div>
             </div>
@@ -746,7 +746,7 @@ function ContractCard({ contract: c, onEdit, onDelete }: { contract: Contract; o
                     {cfg.label}
                 </span>
                 {c.value && (
-                    <span className="text-xs font-bold bg-gradient-to-r from-[#D4A85C] to-[#A0792E] bg-clip-text text-transparent">
+                    <span className="text-xs font-bold bg-gradient-to-r from-[#C8A96E] to-[#A68B4B] bg-clip-text text-transparent">
                         {formatCurrency(c.value)}
                     </span>
                 )}
@@ -754,7 +754,7 @@ function ContractCard({ contract: c, onEdit, onDelete }: { contract: Contract; o
 
             {/* Dates */}
             {(c.start_date || c.end_date) && (
-                <div className="relative mt-2.5 pt-2.5 border-t border-[#E8CB85]/8 flex items-center gap-1 text-[11px] text-[#9A928A]">
+                <div className="relative mt-2.5 pt-2.5 border-t border-[#E4C99E]/8 flex items-center gap-1 text-[11px] text-[#9A928A]">
                     <Calendar size={10} />
                     <span>{formatDate(c.start_date)} → {formatDate(c.end_date)}</span>
                     {expiringSoon && (
@@ -773,14 +773,14 @@ function ContractCard({ contract: c, onEdit, onDelete }: { contract: Contract; o
                         target="_blank"
                         rel="noopener noreferrer"
                         onClick={e => e.stopPropagation()}
-                        className="flex items-center gap-1 text-[11px] text-[#9A928A] hover:text-[#D4A85C] transition-colors min-w-0"
+                        className="flex items-center gap-1 text-[11px] text-[#9A928A] hover:text-[#C8A96E] transition-colors min-w-0"
                     >
                         <ExternalLink size={10} className="shrink-0" />
                         <span className="truncate">{c.file_name || 'Ver arquivo'}</span>
                     </a>
                 ) : <span />}
                 {hasClickSign && (
-                    <span className="flex items-center gap-1 text-[10px] font-semibold text-[#D4A85C] bg-[#A0792E]/10 px-1.5 py-0.5 rounded-md border border-[#A0792E]/20 shrink-0">
+                    <span className="flex items-center gap-1 text-[10px] font-semibold text-[#C8A96E] bg-[#A68B4B]/10 px-1.5 py-0.5 rounded-md border border-[#A68B4B]/20 shrink-0">
                         <PenLine size={9} /> ClickSign
                     </span>
                 )}
@@ -801,7 +801,7 @@ function ContractRow({ contract: c, onEdit, onDelete }: { contract: Contract; on
         <tr onClick={() => onEdit(c)} className="hover:bg-gray-50 dark:hover:bg-[#191919] transition-colors cursor-pointer group">
             <td className="px-4 py-3.5">
                 <div className="flex items-center gap-2">
-                    <div className="w-7 h-7 rounded-full bg-gradient-to-br from-[#A0792E] to-[#9A7209] text-black text-xs flex items-center justify-center font-bold shrink-0">
+                    <div className="w-7 h-7 rounded-full bg-gradient-to-br from-[#A68B4B] to-[#9A7209] text-black text-xs flex items-center justify-center font-bold shrink-0">
                         {c.client_name.charAt(0).toUpperCase()}
                     </div>
                     <span className="font-semibold text-gray-900 dark:text-white truncate max-w-[130px]" title={c.client_name}>{c.client_name}</span>
@@ -832,7 +832,7 @@ function ContractRow({ contract: c, onEdit, onDelete }: { contract: Contract; on
                 </div>
             </td>
             <td className="px-4 py-3.5">
-                <span className={`font-semibold ${c.value ? 'text-[#A0792E]' : 'text-gray-400'}`}>{formatCurrency(c.value)}</span>
+                <span className={`font-semibold ${c.value ? 'text-[#A68B4B]' : 'text-gray-400'}`}>{formatCurrency(c.value)}</span>
             </td>
             <td className="px-4 py-3.5">
                 {c.file_url ? (
@@ -871,37 +871,37 @@ function ClickSignImportModal({
     return (
         <div className="fixed inset-0 z-[200] flex items-center justify-center p-4 bg-black/70 backdrop-blur-sm" onClick={onClose}>
             <div
-                className="bg-white dark:bg-[#1B1B1B] w-full max-w-3xl rounded-2xl shadow-2xl border border-[#E8CB85]/25 dark:border-[#E8CB85]/20 flex flex-col max-h-[85vh] overflow-hidden"
+                className="bg-white dark:bg-[#141414] w-full max-w-3xl rounded-2xl shadow-2xl border border-[#E4C99E]/25 dark:border-[#E4C99E]/20 flex flex-col max-h-[85vh] overflow-hidden"
                 onClick={e => e.stopPropagation()}
             >
                 {/* Header com gradiente bronze sutil */}
-                <div className="relative px-6 py-5 border-b border-[#E8CB85]/14 overflow-hidden">
-                    <div className="absolute inset-0 bg-gradient-to-r from-[#E8CB85]/[0.06] via-transparent to-transparent" />
+                <div className="relative px-6 py-5 border-b border-[#E4C99E]/14 overflow-hidden">
+                    <div className="absolute inset-0 bg-gradient-to-r from-[#E4C99E]/[0.06] via-transparent to-transparent" />
                     <div className="relative flex items-center justify-between">
                         <div className="flex items-center gap-3">
-                            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-[#E8CB85]/20 via-[#A0792E]/15 to-transparent flex items-center justify-center border border-[#E8CB85]/20">
-                                <PlugZap size={20} className="text-[#D4A85C]" />
+                            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-[#E4C99E]/20 via-[#A68B4B]/15 to-transparent flex items-center justify-center border border-[#E4C99E]/20">
+                                <PlugZap size={20} className="text-[#C8A96E]" />
                             </div>
                             <div>
-                                <h2 className="text-lg font-bold text-gray-900 dark:text-[#F5F0E4]">Documentos no ClickSign</h2>
+                                <h2 className="text-lg font-bold text-gray-900 dark:text-[#F5F5F5]">Documentos no ClickSign</h2>
                                 <p className="text-xs text-[#9A928A] mt-0.5">Importe contratos existentes ou acompanhe assinaturas em andamento.</p>
                             </div>
                         </div>
-                        <button onClick={onClose} className="text-[#9A928A] hover:text-gray-900 dark:text-[#F5F0E4] transition-colors p-1">
+                        <button onClick={onClose} className="text-[#9A928A] hover:text-gray-900 dark:text-[#F5F5F5] transition-colors p-1">
                             <X size={20} />
                         </button>
                     </div>
                 </div>
 
                 {/* Connection bar */}
-                <div className={`px-6 py-3 border-b border-[#E8CB85]/10 flex items-center gap-3 ${
+                <div className={`px-6 py-3 border-b border-[#E4C99E]/10 flex items-center gap-3 ${
                     conn.ok === true ? 'bg-emerald-500/[0.04]' : conn.ok === false ? 'bg-red-500/[0.04]' : 'bg-gray-50 dark:bg-[#2A2A2A]/30'
                 }`}>
                     <span className={`w-1.5 h-1.5 rounded-full ${
                         conn.ok === true ? 'bg-emerald-500 shadow-[0_0_6px_rgba(127,212,160,0.7)]' : conn.ok === false ? 'bg-red-500' : 'bg-gray-400 animate-pulse'
                     }`} />
                     <div className="flex-1 min-w-0">
-                        <p className="text-xs font-semibold text-gray-900 dark:text-[#F5F0E4]">
+                        <p className="text-xs font-semibold text-gray-900 dark:text-[#F5F5F5]">
                             {conn.ok === true ? 'Conectado ao ClickSign' : conn.ok === false ? 'Falha ao conectar com o ClickSign' : 'Verificando conexão…'}
                         </p>
                         {conn.ok === false && (
@@ -914,7 +914,7 @@ function ClickSignImportModal({
                     <button
                         type="button"
                         onClick={onTest}
-                        className="text-[11px] font-semibold text-[#9A928A] hover:text-[#D4A85C] transition-colors px-2"
+                        className="text-[11px] font-semibold text-[#9A928A] hover:text-[#C8A96E] transition-colors px-2"
                     >
                         Re-testar
                     </button>
@@ -923,17 +923,17 @@ function ClickSignImportModal({
                 {/* Documents */}
                 <div className="flex-1 overflow-y-auto custom-scrollbar p-6">
                     <div className="flex items-center justify-between mb-3">
-                        <p className="text-[10px] font-semibold uppercase tracking-[0.2em] text-[#A0792E]/70 dark:text-[#D4A85C]/60">
+                        <p className="text-[10px] font-semibold uppercase tracking-[0.2em] text-[#A68B4B]/70 dark:text-[#C8A96E]/60">
                             {docs.length > 0 ? `${docs.length} documento${docs.length !== 1 ? 's' : ''}` : 'Documentos'}
                         </p>
                         <button
                             type="button"
                             onClick={onReload}
                             disabled={loading}
-                            className="flex items-center gap-1.5 text-[11px] font-semibold text-[#9A928A] hover:text-[#D4A85C] transition-colors disabled:opacity-50"
+                            className="flex items-center gap-1.5 text-[11px] font-semibold text-[#9A928A] hover:text-[#C8A96E] transition-colors disabled:opacity-50"
                         >
                             {loading
-                                ? <div className="w-3 h-3 border-2 border-[#D4A85C]/30 border-t-[#D4A85C] rounded-full animate-spin" />
+                                ? <div className="w-3 h-3 border-2 border-[#C8A96E]/30 border-t-[#C8A96E] rounded-full animate-spin" />
                                 : <RefreshCw size={11} />}
                             Recarregar
                         </button>
@@ -941,7 +941,7 @@ function ClickSignImportModal({
 
                     {loading && docs.length === 0 ? (
                         <div className="flex flex-col items-center justify-center py-12 text-[#9A928A]">
-                            <div className="w-7 h-7 border-2 border-[#D4A85C]/30 border-t-[#D4A85C] rounded-full animate-spin mb-3" />
+                            <div className="w-7 h-7 border-2 border-[#C8A96E]/30 border-t-[#C8A96E] rounded-full animate-spin mb-3" />
                             <p className="text-sm">Carregando documentos…</p>
                         </div>
                     ) : conn.ok === false ? (
@@ -949,23 +949,23 @@ function ClickSignImportModal({
                             Não é possível listar documentos enquanto a conexão estiver com erro.
                         </div>
                     ) : docs.length === 0 ? (
-                        <div className="rounded-xl border border-dashed border-[#E8CB85]/20 dark:border-[#E8CB85]/15 bg-gray-50 dark:bg-[#202020]/40 py-10 flex flex-col items-center text-gray-500 dark:text-[#9A928A]">
+                        <div className="rounded-xl border border-dashed border-[#E4C99E]/20 dark:border-[#E4C99E]/15 bg-gray-50 dark:bg-[#202020]/40 py-10 flex flex-col items-center text-gray-500 dark:text-[#9A928A]">
                             <FileText size={28} className="mb-3 opacity-40" />
                             <p className="text-sm font-medium">Nenhum documento encontrado na conta ClickSign.</p>
                         </div>
                     ) : (
-                        <div className="rounded-xl border border-[#E8CB85]/20 dark:border-[#E8CB85]/14 bg-white dark:bg-[#202020] overflow-hidden divide-y divide-[#E8CB85]/15 dark:divide-[#E8CB85]/8">
+                        <div className="rounded-xl border border-[#E4C99E]/20 dark:border-[#E4C99E]/14 bg-white dark:bg-[#202020] overflow-hidden divide-y divide-[#E4C99E]/15 dark:divide-[#E4C99E]/8">
                             {docs.map(d => {
                                 const cfg = CLICKSIGN_STATUS_LABEL[d.status as string] || { label: d.status, color: 'bg-gray-100 text-gray-600 dark:bg-gray-800 dark:text-gray-300' };
                                 const filename = d.filename || (d.path ? d.path.split('/').pop() : null) || d.key;
                                 const isImported = importedKeys.has(d.key);
                                 return (
-                                    <div key={d.key} className="flex items-center gap-3 px-4 py-3 hover:bg-gray-50 dark:hover:bg-[#262626]/60 transition-colors">
+                                    <div key={d.key} className="flex items-center gap-3 px-4 py-3 hover:bg-gray-50 dark:hover:bg-[#1A1A1A]/60 transition-colors">
                                         <div className="w-9 h-9 rounded-lg bg-gray-100 dark:bg-[#2A2A2A] flex items-center justify-center shrink-0">
-                                            <FileText size={15} className="text-[#D4A85C]" />
+                                            <FileText size={15} className="text-[#C8A96E]" />
                                         </div>
                                         <div className="flex-1 min-w-0">
-                                            <p className="font-semibold text-gray-900 dark:text-[#F5F0E4] text-sm truncate">{filename}</p>
+                                            <p className="font-semibold text-gray-900 dark:text-[#F5F5F5] text-sm truncate">{filename}</p>
                                             <div className="flex items-center gap-2 mt-1 flex-wrap">
                                                 <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-semibold ${cfg.color}`}>
                                                     {cfg.label}
@@ -984,7 +984,7 @@ function ClickSignImportModal({
                                             href={`https://app.clicksign.com/documents/${d.key}`}
                                             target="_blank"
                                             rel="noopener noreferrer"
-                                            className="text-[11px] text-[#9A928A] hover:text-[#D4A85C] underline-offset-2 hover:underline shrink-0 px-2 transition-colors"
+                                            className="text-[11px] text-[#9A928A] hover:text-[#C8A96E] underline-offset-2 hover:underline shrink-0 px-2 transition-colors"
                                         >
                                             abrir
                                         </a>
@@ -997,10 +997,10 @@ function ClickSignImportModal({
                                                 type="button"
                                                 onClick={() => onImport(d.key)}
                                                 disabled={importing === d.key}
-                                                className="flex items-center gap-1.5 px-3 py-1.5 bg-gradient-to-r from-[#E8CB85]/15 to-[#A0792E]/15 hover:from-[#E8CB85]/25 hover:to-[#A0792E]/25 border border-[#E8CB85]/20 text-[#D4A85C] rounded-lg text-[11px] font-semibold transition-all shrink-0 disabled:opacity-50"
+                                                className="flex items-center gap-1.5 px-3 py-1.5 bg-gradient-to-r from-[#E4C99E]/15 to-[#A68B4B]/15 hover:from-[#E4C99E]/25 hover:to-[#A68B4B]/25 border border-[#E4C99E]/20 text-[#C8A96E] rounded-lg text-[11px] font-semibold transition-all shrink-0 disabled:opacity-50"
                                             >
                                                 {importing === d.key
-                                                    ? <div className="w-3 h-3 border-2 border-[#D4A85C]/30 border-t-[#D4A85C] rounded-full animate-spin" />
+                                                    ? <div className="w-3 h-3 border-2 border-[#C8A96E]/30 border-t-[#C8A96E] rounded-full animate-spin" />
                                                     : <CloudDownload size={12} />}
                                                 Importar
                                             </button>
@@ -1047,7 +1047,7 @@ function ClickSignSendBlock({
                     </button>
                 </div>
                 {signers.map((s, i) => (
-                    <div key={i} className="bg-gray-50 dark:bg-[#1d1d1d] border border-gray-200 dark:border-[#2e2e2e] rounded-xl p-3 space-y-2">
+                    <div key={i} className="bg-gray-50 dark:bg-[#141414] border border-gray-200 dark:border-[#2A2A2A] rounded-xl p-3 space-y-2">
                         <div className="flex items-center justify-between">
                             <span className="text-[11px] font-semibold text-gray-500 uppercase">Signatário {i + 1}</span>
                             {signers.length > 1 && (
@@ -1064,7 +1064,7 @@ function ClickSignSendBlock({
                                     placeholder="Nome completo *"
                                     value={s.name}
                                     onChange={e => updateSigner(i, { name: e.target.value })}
-                                    className="w-full pl-8 pr-3 py-2 text-sm bg-white dark:bg-[#262626] border border-gray-200 dark:border-[#2e2e2e] rounded-lg outline-none focus:ring-2 focus:ring-blue-500 text-gray-900 dark:text-white"
+                                    className="w-full pl-8 pr-3 py-2 text-sm bg-white dark:bg-[#1A1A1A] border border-gray-200 dark:border-[#2A2A2A] rounded-lg outline-none focus:ring-2 focus:ring-blue-500 text-gray-900 dark:text-white"
                                 />
                             </div>
                             <div className="relative">
@@ -1074,7 +1074,7 @@ function ClickSignSendBlock({
                                     placeholder="email@exemplo.com *"
                                     value={s.email}
                                     onChange={e => updateSigner(i, { email: e.target.value })}
-                                    className="w-full pl-8 pr-3 py-2 text-sm bg-white dark:bg-[#262626] border border-gray-200 dark:border-[#2e2e2e] rounded-lg outline-none focus:ring-2 focus:ring-blue-500 text-gray-900 dark:text-white"
+                                    className="w-full pl-8 pr-3 py-2 text-sm bg-white dark:bg-[#1A1A1A] border border-gray-200 dark:border-[#2A2A2A] rounded-lg outline-none focus:ring-2 focus:ring-blue-500 text-gray-900 dark:text-white"
                                 />
                             </div>
                             <div className="relative">
@@ -1084,7 +1084,7 @@ function ClickSignSendBlock({
                                     placeholder="+5511999999999"
                                     value={s.phone_number || ''}
                                     onChange={e => updateSigner(i, { phone_number: e.target.value })}
-                                    className="w-full pl-8 pr-3 py-2 text-sm bg-white dark:bg-[#262626] border border-gray-200 dark:border-[#2e2e2e] rounded-lg outline-none focus:ring-2 focus:ring-blue-500 text-gray-900 dark:text-white"
+                                    className="w-full pl-8 pr-3 py-2 text-sm bg-white dark:bg-[#1A1A1A] border border-gray-200 dark:border-[#2A2A2A] rounded-lg outline-none focus:ring-2 focus:ring-blue-500 text-gray-900 dark:text-white"
                                 />
                             </div>
                             <div className="relative">
@@ -1094,7 +1094,7 @@ function ClickSignSendBlock({
                                     placeholder="CPF (opcional)"
                                     value={s.documentation || ''}
                                     onChange={e => updateSigner(i, { documentation: e.target.value })}
-                                    className="w-full pl-8 pr-3 py-2 text-sm bg-white dark:bg-[#262626] border border-gray-200 dark:border-[#2e2e2e] rounded-lg outline-none focus:ring-2 focus:ring-blue-500 text-gray-900 dark:text-white"
+                                    className="w-full pl-8 pr-3 py-2 text-sm bg-white dark:bg-[#1A1A1A] border border-gray-200 dark:border-[#2A2A2A] rounded-lg outline-none focus:ring-2 focus:ring-blue-500 text-gray-900 dark:text-white"
                                 />
                             </div>
                         </div>
@@ -1131,7 +1131,7 @@ function ClickSignSendBlock({
                         type="date"
                         value={csDeadline}
                         onChange={e => setCsDeadline(e.target.value)}
-                        className="w-full px-3 py-2 text-sm bg-white dark:bg-[#262626] border border-gray-200 dark:border-[#2e2e2e] rounded-lg outline-none focus:ring-2 focus:ring-blue-500 text-gray-900 dark:text-white"
+                        className="w-full px-3 py-2 text-sm bg-white dark:bg-[#1A1A1A] border border-gray-200 dark:border-[#2A2A2A] rounded-lg outline-none focus:ring-2 focus:ring-blue-500 text-gray-900 dark:text-white"
                     />
                 </div>
                 <div className="flex items-end">
@@ -1154,7 +1154,7 @@ function ClickSignSendBlock({
                     value={csMessage}
                     onChange={e => setCsMessage(e.target.value)}
                     placeholder="Olá! Segue o contrato para assinatura."
-                    className="w-full px-3 py-2 text-sm bg-white dark:bg-[#262626] border border-gray-200 dark:border-[#2e2e2e] rounded-lg outline-none focus:ring-2 focus:ring-blue-500 text-gray-900 dark:text-white resize-none"
+                    className="w-full px-3 py-2 text-sm bg-white dark:bg-[#1A1A1A] border border-gray-200 dark:border-[#2A2A2A] rounded-lg outline-none focus:ring-2 focus:ring-blue-500 text-gray-900 dark:text-white resize-none"
                 />
             </div>
 
@@ -1208,7 +1208,7 @@ function ClickSignSentBlock({
             </div>
 
             {csSigners.length > 0 && (
-                <div className="bg-gray-50 dark:bg-[#1d1d1d] border border-gray-200 dark:border-[#2e2e2e] rounded-xl divide-y divide-gray-200 dark:divide-[#2e2e2e]">
+                <div className="bg-gray-50 dark:bg-[#141414] border border-gray-200 dark:border-[#2A2A2A] rounded-xl divide-y divide-gray-200 dark:divide-[#2e2e2e]">
                     {csSigners.map(s => (
                         <div key={s.key} className="flex items-center gap-3 px-3 py-2 text-sm">
                             <div className={`w-7 h-7 rounded-full flex items-center justify-center shrink-0 ${s.signed_at ? 'bg-emerald-500/20 text-emerald-600' : 'bg-amber-500/20 text-amber-600'}`}>

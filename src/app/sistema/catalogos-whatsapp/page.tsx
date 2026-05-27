@@ -21,7 +21,7 @@ export default function CatalogosWhatsAppPage() {
     return (
         <Suspense fallback={
             <div className="flex items-center justify-center py-24">
-                <Loader2 size={28} className="animate-spin text-[#A0792E]" />
+                <Loader2 size={28} className="animate-spin text-[#A68B4B]" />
             </div>
         }>
             <CatalogosWhatsAppInner />

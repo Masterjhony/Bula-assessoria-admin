@@ -45,7 +45,7 @@ export function TaskColumn({ id, title, tasks, onTaskClick, onAddTask, onUpdateC
     return (
         <div
             ref={setNodeRef}
-            className="w-[350px] shrink-0 flex flex-col gap-4 bg-gray-50/80 dark:bg-[#1d1d1d]/80 p-4 rounded-2xl border border-gray-200 dark:border-[#2e2e2e] max-h-full"
+            className="w-[350px] shrink-0 flex flex-col gap-4 bg-gray-50/80 dark:bg-[#141414]/80 p-4 rounded-2xl border border-gray-200 dark:border-[#2A2A2A] max-h-full"
         >
             <div className="flex items-center justify-between pointer-events-auto h-8 mb-1">
                 {isEditing ? (
@@ -71,7 +71,7 @@ export function TaskColumn({ id, title, tasks, onTaskClick, onAddTask, onUpdateC
                                 setEditTitle(title);
                             }
                         }}
-                        className="w-full px-2 py-1 text-sm bg-white dark:bg-[#1d1d1d] border border-[#A0792E] rounded focus:outline-none"
+                        className="w-full px-2 py-1 text-sm bg-white dark:bg-[#141414] border border-[#A68B4B] rounded focus:outline-none"
                     />
                 ) : (
                     <div className="flex items-center gap-2 group cursor-pointer" onClick={() => setIsEditing(true)}>

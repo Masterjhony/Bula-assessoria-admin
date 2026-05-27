@@ -467,7 +467,7 @@ export function TemplatesTab({ templates, onChange }: Props) {
                             <input
                                 value={form.poll_question ?? ''}
                                 onChange={e => setForm(f => ({ ...f, poll_question: e.target.value }))}
-                                placeholder="Pergunta (ex.: Qual segmento da Fórmula do Boi faz mais sentido?)"
+                                placeholder="Pergunta (ex.: Qual segmento da Bula faz mais sentido?)"
                                 className="w-full rounded-md border bg-background px-2 py-1.5 text-xs"
                             />
                             <div className="space-y-1.5">

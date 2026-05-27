@@ -218,10 +218,10 @@ export async function generateFechamentoPDF(
   const M = 16
 
   // Brandbook palette
-  const BRONZE: [number, number, number] = [160, 121, 46]      // #A0792E
+  const BRONZE: [number, number, number] = [160, 121, 46]      // #A68B4B
   const BRONZE_700: [number, number, number] = [107, 79, 30]   // #6B4F1E
-  const BRONZE_300: [number, number, number] = [212, 168, 92]  // #D4A85C
-  const BRONZE_100: [number, number, number] = [232, 203, 133] // #E8CB85
+  const BRONZE_300: [number, number, number] = [212, 168, 92]  // #C8A96E
+  const BRONZE_100: [number, number, number] = [232, 203, 133] // #E4C99E
   const PRETO: [number, number, number] = [0, 0, 0]
   const INK: [number, number, number] = [10, 10, 10]
   const INK2: [number, number, number] = [20, 20, 20]

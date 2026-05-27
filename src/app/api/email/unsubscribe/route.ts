@@ -22,12 +22,12 @@ function htmlResponse(body: string, status = 200) {
             .card{background:#fff;border:1px solid #e5e5e5;border-radius:16px;overflow:hidden;}
             .header{background:#0a0a0a;color:#fff;padding:24px 32px;}
             .brand{font-size:18px;font-weight:700;letter-spacing:1px;text-transform:uppercase;}
-            .sub{font-size:12px;color:#A0792E;margin-top:4px;}
+            .sub{font-size:12px;color:#A68B4B;margin-top:4px;}
             .body{padding:32px;font-size:15px;line-height:1.6;}
             .ok{color:#16a34a;font-weight:600;}
             .err{color:#dc2626;font-weight:600;}
             .foot{background:#fafafa;padding:16px 32px;border-top:1px solid #eee;font-size:12px;color:#888;text-align:center;}
-            a.btn{display:inline-block;margin-top:16px;background:#A0792E;color:#fff;text-decoration:none;padding:10px 18px;border-radius:8px;font-weight:600;font-size:14px;}
+            a.btn{display:inline-block;margin-top:16px;background:#A68B4B;color:#fff;text-decoration:none;padding:10px 18px;border-radius:8px;font-weight:600;font-size:14px;}
         </style></head><body><div class="wrap"><div class="card">
             <div class="header"><div class="brand">Fórmula do Boi</div><div class="sub">Preferências de e-mail</div></div>
             <div class="body">${body}</div>

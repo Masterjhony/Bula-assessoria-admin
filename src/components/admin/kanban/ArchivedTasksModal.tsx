@@ -44,7 +44,7 @@ export function ArchivedTasksModal({ isOpen, onClose, onRestore, onDelete, board
 
     if (!isOpen) return null;
 
-    const boardTasks = tasks.filter(t => (t.unidade ?? 'formula_boi') === board);
+    const boardTasks = tasks.filter(t => (t.unidade ?? 'bula_formula') === board);
     const filtered = search.trim()
         ? boardTasks.filter(t => t.title.toLowerCase().includes(search.toLowerCase()))
         : boardTasks;
@@ -75,8 +75,8 @@ export function ArchivedTasksModal({ isOpen, onClose, onRestore, onDelete, board
             className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm"
             onClick={(e) => { if (e.target === e.currentTarget) onClose(); }}
         >
-            <div className="bg-white dark:bg-[#262626] w-full max-w-2xl rounded-2xl shadow-2xl border border-gray-200 dark:border-[#2e2e2e] flex flex-col max-h-[90vh]">
-                <div className="flex items-center justify-between p-6 border-b border-gray-100 dark:border-[#2e2e2e] shrink-0">
+            <div className="bg-white dark:bg-[#1A1A1A] w-full max-w-2xl rounded-2xl shadow-2xl border border-gray-200 dark:border-[#2A2A2A] flex flex-col max-h-[90vh]">
+                <div className="flex items-center justify-between p-6 border-b border-gray-100 dark:border-[#2A2A2A] shrink-0">
                     <div>
                         <h2 className="text-xl font-bold text-gray-900 dark:text-white">Arquivados</h2>
                         <p className="text-xs text-gray-500 mt-1">
@@ -96,7 +96,7 @@ export function ArchivedTasksModal({ isOpen, onClose, onRestore, onDelete, board
                             value={search}
                             onChange={e => setSearch(e.target.value)}
                             placeholder="Buscar por título..."
-                            className="w-full pl-9 pr-3 py-2 bg-gray-50 dark:bg-[#1d1d1d] border border-gray-200 dark:border-[#2e2e2e] rounded-lg focus:ring-2 focus:ring-[#A0792E] focus:border-transparent outline-none text-sm text-gray-900 dark:text-white placeholder-gray-500"
+                            className="w-full pl-9 pr-3 py-2 bg-gray-50 dark:bg-[#141414] border border-gray-200 dark:border-[#2A2A2A] rounded-lg focus:ring-2 focus:ring-[#A68B4B] focus:border-transparent outline-none text-sm text-gray-900 dark:text-white placeholder-gray-500"
                         />
                     </div>
                 </div>
@@ -117,7 +117,7 @@ export function ArchivedTasksModal({ isOpen, onClose, onRestore, onDelete, board
                         filtered.map(task => (
                             <div
                                 key={task.id}
-                                className="flex items-center gap-3 p-3 bg-gray-50 dark:bg-[#1d1d1d] border border-gray-100 dark:border-[#2e2e2e] rounded-lg group hover:border-gray-200 dark:hover:border-[#3f3f3f] transition-colors"
+                                className="flex items-center gap-3 p-3 bg-gray-50 dark:bg-[#141414] border border-gray-100 dark:border-[#2A2A2A] rounded-lg group hover:border-gray-200 dark:hover:border-[#333] transition-colors"
                             >
                                 <div className="flex-1 min-w-0">
                                     <p className="text-sm font-medium text-gray-800 dark:text-gray-200 truncate">{task.title}</p>
@@ -133,7 +133,7 @@ export function ArchivedTasksModal({ isOpen, onClose, onRestore, onDelete, board
                                         type="button"
                                         onClick={() => handleRestore(task)}
                                         disabled={actingId === task.id}
-                                        className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-[#262626] border border-gray-200 dark:border-[#3f3f3f] rounded-md hover:border-[#A0792E]/40 hover:text-[#A0792E] transition-colors disabled:opacity-50"
+                                        className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-[#1A1A1A] border border-gray-200 dark:border-[#333] rounded-md hover:border-[#A68B4B]/40 hover:text-[#A68B4B] transition-colors disabled:opacity-50"
                                         title="Restaurar para o board"
                                     >
                                         <ArchiveRestore size={14} /> Restaurar

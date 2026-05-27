@@ -93,7 +93,7 @@ function normalize(s: string | null | undefined) {
   return (s ?? '').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/[^a-z0-9]/g, '')
 }
 
-const EMPRESA_BULA_FORMULA = 'Bula × Fórmula'
+const EMPRESA_BULA_FORMULA = 'Bula'
 function normalizeEmpresaGrupo(empresa: string | null | undefined): string {
   const e = (empresa ?? '').trim()
   if (!e) return 'Não informado'
@@ -386,7 +386,7 @@ function RelatoriosPageInner() {
           letter-spacing: -0.005em; text-decoration: none;
           transition: background .15s, border-color .15s;
         }
-        .rl-link:hover { background: rgba(212,168,92,0.14); border-color: rgba(212,168,92,0.45); }
+        .rl-link:hover { background: rgba(200, 169, 110,0.14); border-color: rgba(200, 169, 110,0.45); }
 
         /* Grouped report nav */
         .rl-nav {
@@ -395,7 +395,7 @@ function RelatoriosPageInner() {
           margin: 20px 0 26px;
           padding: 18px 20px 16px;
           background:
-            radial-gradient(1100px 220px at 0% 0%, rgba(212,168,92,0.07), transparent 55%),
+            radial-gradient(1100px 220px at 0% 0%, rgba(200, 169, 110,0.07), transparent 55%),
             var(--dcl-bg-card);
           border: 1px solid var(--dcl-line);
           border-radius: 16px;
@@ -479,17 +479,17 @@ function RelatoriosPageInner() {
 
         .rl-pill.rl-pill-on {
           color: var(--dcl-gold);
-          background: linear-gradient(135deg, rgba(212,168,92,0.18), rgba(212,168,92,0.05));
+          background: linear-gradient(135deg, rgba(200, 169, 110,0.18), rgba(200, 169, 110,0.05));
           border-color: var(--dcl-gold-line);
           box-shadow:
-            0 0 0 1px rgba(212,168,92,0.25) inset,
-            0 8px 22px -10px rgba(212,168,92,0.45);
+            0 0 0 1px rgba(200, 169, 110,0.25) inset,
+            0 8px 22px -10px rgba(200, 169, 110,0.45);
           transform: translateY(-1px);
         }
         .rl-pill.rl-pill-on .rl-pill-ico {
-          background: rgba(212,168,92,0.22);
+          background: rgba(200, 169, 110,0.22);
           color: var(--dcl-gold);
-          box-shadow: 0 0 0 1px rgba(212,168,92,0.18) inset;
+          box-shadow: 0 0 0 1px rgba(200, 169, 110,0.18) inset;
         }
         .rl-pill.rl-pill-on::after {
           content: '';
@@ -555,7 +555,7 @@ function RelatoriosPageInner() {
           font-size: 11px; color: var(--dcl-ink-3); margin-top: 4px;
         }
         .rl-stat.rl-stat-gold {
-          background: linear-gradient(135deg, rgba(212,168,92,0.10), rgba(212,168,92,0.02));
+          background: linear-gradient(135deg, rgba(200, 169, 110,0.10), rgba(200, 169, 110,0.02));
           border-color: var(--dcl-gold-line);
         }
         .rl-stat.rl-stat-gold .rl-stat-val { color: var(--dcl-gold); }
@@ -589,7 +589,7 @@ function RelatoriosPageInner() {
           padding: 12px 14px; font-size: 12.5px; color: var(--dcl-ink-2);
           border-top: 1px solid var(--dcl-line-soft); vertical-align: middle;
         }
-        .rl-table tbody tr:hover td { background: rgba(212,168,92,0.04); }
+        .rl-table tbody tr:hover td { background: rgba(200, 169, 110,0.04); }
         .rl-table .rl-num {
           font-family: var(--font-mono), ui-monospace, monospace;
           color: var(--dcl-ink); font-feature-settings: 'tnum';
@@ -860,7 +860,7 @@ function ReportPDFBrandbook({ data, period }: { data: Payload; period: string })
         .pdfb-card-head { display:flex; align-items:center; gap: 10px; flex-wrap: wrap; margin-bottom: 10px; }
         .pdfb-date {
           display:inline-flex; align-items:center; gap:5px;
-          background: rgba(212,168,92,0.10); color: var(--dcl-gold);
+          background: rgba(200, 169, 110,0.10); color: var(--dcl-gold);
           font-size: 11px; font-weight: 600; letter-spacing: 0.04em; text-transform: uppercase;
           padding: 4px 9px; border-radius: 6px;
         }
@@ -887,7 +887,7 @@ function ReportPDFBrandbook({ data, period }: { data: Payload; period: string })
           background: rgba(255,255,255,0.04); border: 1px solid var(--dcl-line);
           color: var(--dcl-ink-2);
         }
-        .pdfb-pill-more { color: var(--dcl-gold); border-color: rgba(212,168,92,0.4); }
+        .pdfb-pill-more { color: var(--dcl-gold); border-color: rgba(200, 169, 110,0.4); }
         .pdfb-btn {
           display:inline-flex; align-items:center; gap: 6px;
           background: var(--dcl-gold); color: #161616;
@@ -1216,7 +1216,7 @@ function ReportComissoes({ data, period }: { data: Payload; period: string }) {
       <SectionHead
         title="Relatório de"
         emphasis="comissões"
-        subtitle={`Receita Bula × Fórmula sobre VGV · ${period}`}
+        subtitle={`Receita Bula sobre VGV · ${period}`}
         onExport={exportCsv}
       />
 
@@ -1651,7 +1651,7 @@ function ReportAssessor({ data, period }: { data: Payload; period: string }) {
         :global(.rl-assessor-filter-select option) {
           background: var(--dcl-bg-card); color: var(--dcl-ink);
         }
-        .rl-row-open td { background: rgba(212,168,92,0.05); }
+        .rl-row-open td { background: rgba(200, 169, 110,0.05); }
         .rl-row-detail td { background: var(--dcl-bg-card-2); }
         .rl-detail-inner { padding: 14px 18px 18px; }
         .rl-detail-head {
@@ -2124,7 +2124,7 @@ function BarChartCard({ title, sub, items, valueFmt }: {
                 width: '70%', height: h,
                 background: 'linear-gradient(180deg, var(--dcl-gold), var(--dcl-gold-2))',
                 borderRadius: 4,
-                boxShadow: '0 0 0 1px rgba(212,168,92,0.25), 0 0 18px rgba(212,168,92,0.15)',
+                boxShadow: '0 0 0 1px rgba(200, 169, 110,0.25), 0 0 18px rgba(200, 169, 110,0.15)',
               }} />
               <div style={{ fontSize: 10, color: 'var(--dcl-ink-3)', letterSpacing: '0.06em', textTransform: 'uppercase' }}>{it.label}</div>
               {it.sub && <div style={{ fontSize: 9.5, color: 'var(--dcl-ink-4)' }}>{it.sub}</div>}

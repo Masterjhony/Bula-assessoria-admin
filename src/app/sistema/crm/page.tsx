@@ -15,7 +15,7 @@ export default async function CRMPage() {
     return (
         <div className="h-full flex flex-col">
             <div className="flex-1 overflow-hidden">
-                <Suspense fallback={<div className="flex items-center justify-center py-24"><Loader2 size={28} className="animate-spin text-[#A0792E]" /></div>}>
+                <Suspense fallback={<div className="flex items-center justify-center py-24"><Loader2 size={28} className="animate-spin text-[#A68B4B]" /></div>}>
                     <CRMDashboardClient initialLeads={leads || []} crmConfig={crmConfig} />
                 </Suspense>
             </div>

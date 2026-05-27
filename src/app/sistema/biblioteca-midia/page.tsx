@@ -66,7 +66,7 @@ function getExtension(name: string): string {
 
 function StatCard({ label, value, sub }: { label: string; value: string | number; sub?: string }) {
     return (
-        <div className="bg-white dark:bg-[#1d1d1d] border border-gray-200 dark:border-[#2e2e2e] rounded-2xl px-5 py-4 flex flex-col gap-1">
+        <div className="bg-white dark:bg-[#141414] border border-gray-200 dark:border-[#2A2A2A] rounded-2xl px-5 py-4 flex flex-col gap-1">
             <span className="text-xs text-gray-500 dark:text-gray-500 uppercase tracking-wider font-medium">{label}</span>
             <span className="text-2xl font-bold text-gray-900 dark:text-white">{value}</span>
             {sub && <span className="text-xs text-gray-400 dark:text-gray-600">{sub}</span>}
@@ -100,8 +100,8 @@ function FileIcon({ type, ext }: { type: FilterType; ext: string }) {
 function Toast({ message, type, onClose }: { message: string; type: 'success' | 'error'; onClose: () => void }) {
     return (
         <div className={`fixed bottom-6 right-6 z-50 flex items-center gap-3 px-5 py-3.5 rounded-2xl shadow-2xl border text-sm font-medium animate-in slide-in-from-bottom-4 duration-300 ${type === 'success'
-            ? 'bg-[#1d1d1d] border-emerald-500/30 text-emerald-400'
-            : 'bg-[#1d1d1d] border-red-500/30 text-red-400'
+            ? 'bg-[#141414] border-emerald-500/30 text-emerald-400'
+            : 'bg-[#141414] border-red-500/30 text-red-400'
             }`}>
             {type === 'success'
                 ? <Check size={16} className="shrink-0" />
@@ -272,7 +272,7 @@ export default function BibliotecaMidia() {
             {provider === 'supabase' && isDragging && (
                 <div className="fixed inset-0 z-40 bg-black/60 backdrop-blur-sm flex items-center justify-center pointer-events-none">
                     <div className="flex flex-col items-center gap-4 text-center">
-                        <div className="w-24 h-24 rounded-3xl bg-gradient-to-br from-[#A0792E] to-[#D4A85C] flex items-center justify-center shadow-2xl shadow-[#A0792E]/40">
+                        <div className="w-24 h-24 rounded-3xl bg-gradient-to-br from-[#A68B4B] to-[#C8A96E] flex items-center justify-center shadow-2xl shadow-[#A68B4B]/40">
                             <Upload size={44} className="text-black" />
                         </div>
                         <p className="text-2xl font-bold text-white">Solte para enviar</p>
@@ -296,7 +296,7 @@ export default function BibliotecaMidia() {
                         <button
                             onClick={fetchFiles}
                             disabled={loading}
-                            className="p-2.5 rounded-xl border border-gray-200 dark:border-[#2e2e2e] text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-[#262626] transition-all"
+                            className="p-2.5 rounded-xl border border-gray-200 dark:border-[#2A2A2A] text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-[#1A1A1A] transition-all"
                             title="Atualizar"
                         >
                             <RefreshCw size={16} className={loading ? 'animate-spin' : ''} />
@@ -304,7 +304,7 @@ export default function BibliotecaMidia() {
                         <button
                             onClick={() => fileInputRef.current?.click()}
                             disabled={uploading}
-                            className="flex items-center gap-2 px-5 py-2.5 rounded-xl bg-gradient-to-r from-[#A0792E] to-[#D4A85C] text-black font-semibold text-sm hover:opacity-90 transition-opacity shadow-lg shadow-[#A0792E]/20 disabled:opacity-60"
+                            className="flex items-center gap-2 px-5 py-2.5 rounded-xl bg-gradient-to-r from-[#A68B4B] to-[#C8A96E] text-black font-semibold text-sm hover:opacity-90 transition-opacity shadow-lg shadow-[#A68B4B]/20 disabled:opacity-60"
                         >
                             {uploading ? (
                                 <>
@@ -330,11 +330,11 @@ export default function BibliotecaMidia() {
             </div>
 
             {/* Provider selector */}
-            <div className="inline-flex items-center gap-1 bg-white dark:bg-[#1d1d1d] border border-gray-200 dark:border-[#2e2e2e] rounded-xl p-1">
+            <div className="inline-flex items-center gap-1 bg-white dark:bg-[#141414] border border-gray-200 dark:border-[#2A2A2A] rounded-xl p-1">
                 <button
                     onClick={() => setProvider('supabase')}
                     className={`flex items-center gap-2 px-4 py-2 rounded-lg text-xs font-medium transition-all ${provider === 'supabase'
-                        ? 'bg-gradient-to-r from-[#A0792E] to-[#D4A85C] text-black shadow-sm'
+                        ? 'bg-gradient-to-r from-[#A68B4B] to-[#C8A96E] text-black shadow-sm'
                         : 'text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white'
                         }`}
                 >
@@ -347,7 +347,7 @@ export default function BibliotecaMidia() {
                 <button
                     onClick={() => setProvider('r2')}
                     className={`flex items-center gap-2 px-4 py-2 rounded-lg text-xs font-medium transition-all ${provider === 'r2'
-                        ? 'bg-gradient-to-r from-[#A0792E] to-[#D4A85C] text-black shadow-sm'
+                        ? 'bg-gradient-to-r from-[#A68B4B] to-[#C8A96E] text-black shadow-sm'
                         : 'text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white'
                         }`}
                 >
@@ -393,7 +393,7 @@ export default function BibliotecaMidia() {
                         placeholder="Buscar arquivos..."
                         value={searchQuery}
                         onChange={e => setSearchQuery(e.target.value)}
-                        className="w-full pl-10 pr-4 py-2.5 rounded-xl bg-white dark:bg-[#1d1d1d] border border-gray-200 dark:border-[#2e2e2e] text-sm text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-600 focus:outline-none focus:border-[#A0792E]/50 transition-colors"
+                        className="w-full pl-10 pr-4 py-2.5 rounded-xl bg-white dark:bg-[#141414] border border-gray-200 dark:border-[#2A2A2A] text-sm text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-600 focus:outline-none focus:border-[#A68B4B]/50 transition-colors"
                     />
                     {searchQuery && (
                         <button onClick={() => setSearchQuery('')} className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300">
@@ -403,13 +403,13 @@ export default function BibliotecaMidia() {
                 </div>
 
                 {/* Filter tabs */}
-                <div className="flex items-center gap-1 bg-white dark:bg-[#1d1d1d] border border-gray-200 dark:border-[#2e2e2e] rounded-xl p-1">
+                <div className="flex items-center gap-1 bg-white dark:bg-[#141414] border border-gray-200 dark:border-[#2A2A2A] rounded-xl p-1">
                     {filterTabs.map(tab => (
                         <button
                             key={tab.id}
                             onClick={() => setFilterType(tab.id)}
                             className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-all whitespace-nowrap ${filterType === tab.id
-                                ? 'bg-gradient-to-r from-[#A0792E] to-[#D4A85C] text-black shadow-sm'
+                                ? 'bg-gradient-to-r from-[#A68B4B] to-[#C8A96E] text-black shadow-sm'
                                 : 'text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white'
                                 }`}
                         >
@@ -426,7 +426,7 @@ export default function BibliotecaMidia() {
                     <select
                         value={sortBy}
                         onChange={e => setSortBy(e.target.value as SortBy)}
-                        className="appearance-none pl-3 pr-8 py-2.5 rounded-xl bg-white dark:bg-[#1d1d1d] border border-gray-200 dark:border-[#2e2e2e] text-sm text-gray-700 dark:text-gray-300 focus:outline-none focus:border-[#A0792E]/50 cursor-pointer"
+                        className="appearance-none pl-3 pr-8 py-2.5 rounded-xl bg-white dark:bg-[#141414] border border-gray-200 dark:border-[#2A2A2A] text-sm text-gray-700 dark:text-gray-300 focus:outline-none focus:border-[#A68B4B]/50 cursor-pointer"
                     >
                         <option value="date_desc">Mais recentes</option>
                         <option value="date_asc">Mais antigos</option>
@@ -437,16 +437,16 @@ export default function BibliotecaMidia() {
                 </div>
 
                 {/* View toggle */}
-                <div className="flex items-center gap-1 bg-white dark:bg-[#1d1d1d] border border-gray-200 dark:border-[#2e2e2e] rounded-xl p-1">
+                <div className="flex items-center gap-1 bg-white dark:bg-[#141414] border border-gray-200 dark:border-[#2A2A2A] rounded-xl p-1">
                     <button
                         onClick={() => setViewMode('grid')}
-                        className={`p-2 rounded-lg transition-all ${viewMode === 'grid' ? 'bg-[#262626] text-white' : 'text-gray-400 hover:text-gray-700 dark:hover:text-gray-200'}`}
+                        className={`p-2 rounded-lg transition-all ${viewMode === 'grid' ? 'bg-[#1A1A1A] text-white' : 'text-gray-400 hover:text-gray-700 dark:hover:text-gray-200'}`}
                     >
                         <Grid3X3 size={16} />
                     </button>
                     <button
                         onClick={() => setViewMode('list')}
-                        className={`p-2 rounded-lg transition-all ${viewMode === 'list' ? 'bg-[#262626] text-white' : 'text-gray-400 hover:text-gray-700 dark:hover:text-gray-200'}`}
+                        className={`p-2 rounded-lg transition-all ${viewMode === 'list' ? 'bg-[#1A1A1A] text-white' : 'text-gray-400 hover:text-gray-700 dark:hover:text-gray-200'}`}
                     >
                         <List size={16} />
                     </button>
@@ -457,13 +457,13 @@ export default function BibliotecaMidia() {
             {loading ? (
                 <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
                     {Array.from({ length: 10 }).map((_, i) => (
-                        <div key={i} className="aspect-square rounded-2xl bg-gray-100 dark:bg-[#1d1d1d] animate-pulse" />
+                        <div key={i} className="aspect-square rounded-2xl bg-gray-100 dark:bg-[#141414] animate-pulse" />
                     ))}
                 </div>
             ) : displayFiles.length === 0 ? (
                 <div className="flex flex-col items-center justify-center py-24 gap-5 text-center">
-                    <div className="w-20 h-20 rounded-3xl bg-gradient-to-br from-[#A0792E]/15 to-[#D4A85C]/5 border border-[#A0792E]/15 flex items-center justify-center">
-                        <FolderOpen size={34} className="text-[#A0792E]/60" />
+                    <div className="w-20 h-20 rounded-3xl bg-gradient-to-br from-[#A68B4B]/15 to-[#C8A96E]/5 border border-[#A68B4B]/15 flex items-center justify-center">
+                        <FolderOpen size={34} className="text-[#A68B4B]/60" />
                     </div>
                     <div>
                         <p className="text-base font-semibold text-gray-700 dark:text-gray-300">
@@ -478,7 +478,7 @@ export default function BibliotecaMidia() {
                     {!(searchQuery || filterType !== 'all') && (
                         <button
                             onClick={() => fileInputRef.current?.click()}
-                            className="flex items-center gap-2 px-5 py-2.5 rounded-xl bg-gradient-to-r from-[#A0792E] to-[#D4A85C] text-black font-semibold text-sm hover:opacity-90 transition-opacity"
+                            className="flex items-center gap-2 px-5 py-2.5 rounded-xl bg-gradient-to-r from-[#A68B4B] to-[#C8A96E] text-black font-semibold text-sm hover:opacity-90 transition-opacity"
                         >
                             <Upload size={16} />
                             Enviar primeiro arquivo
@@ -497,7 +497,7 @@ export default function BibliotecaMidia() {
                         return (
                             <div
                                 key={file.name}
-                                className="group relative rounded-2xl overflow-hidden border border-gray-200 dark:border-[#2e2e2e] bg-white dark:bg-[#1d1d1d] hover:border-[#A0792E]/40 transition-all duration-200 hover:shadow-lg hover:shadow-[#A0792E]/5"
+                                className="group relative rounded-2xl overflow-hidden border border-gray-200 dark:border-[#2A2A2A] bg-white dark:bg-[#141414] hover:border-[#A68B4B]/40 transition-all duration-200 hover:shadow-lg hover:shadow-[#A68B4B]/5"
                             >
                                 {/* Thumbnail */}
                                 <div className="aspect-square relative bg-gray-50 dark:bg-[#191919] flex items-center justify-center overflow-hidden">
@@ -575,7 +575,7 @@ export default function BibliotecaMidia() {
                 </div>
             ) : (
                 /* List view */
-                <div className="bg-white dark:bg-[#1d1d1d] border border-gray-200 dark:border-[#2e2e2e] rounded-2xl overflow-hidden">
+                <div className="bg-white dark:bg-[#141414] border border-gray-200 dark:border-[#2A2A2A] rounded-2xl overflow-hidden">
                     <div className="grid grid-cols-[auto_1fr_auto_auto_auto] gap-0 text-xs font-semibold uppercase tracking-wider text-gray-400 dark:text-gray-600 px-5 py-3 border-b border-gray-100 dark:border-[#262626]">
                         <span className="w-10" />
                         <span>Nome</span>
@@ -595,7 +595,7 @@ export default function BibliotecaMidia() {
                                 className={`grid grid-cols-[auto_1fr_auto_auto_auto] gap-0 items-center px-5 py-3.5 hover:bg-gray-50 dark:hover:bg-[#191919] transition-colors ${idx < displayFiles.length - 1 ? 'border-b border-gray-100 dark:border-[#262626]' : ''}`}
                             >
                                 {/* Icon / thumb */}
-                                <div className="w-10 h-10 rounded-xl overflow-hidden bg-gray-100 dark:bg-[#262626] flex items-center justify-center shrink-0">
+                                <div className="w-10 h-10 rounded-xl overflow-hidden bg-gray-100 dark:bg-[#1A1A1A] flex items-center justify-center shrink-0">
                                     {isImage ? (
                                         // eslint-disable-next-line @next/next/no-img-element
                                         <img src={file.publicUrl} alt={file.name} className="w-full h-full object-cover" loading="lazy" />

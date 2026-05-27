@@ -26,7 +26,7 @@ export async function POST(req: Request) {
     nome,
     apelido: String(body.apelido ?? '').trim(),
     iniciais: String(body.iniciais ?? '').trim() || nome.split(/\s+/).map((p: string) => p[0] ?? '').join('').slice(0, 2).toUpperCase(),
-    cor: String(body.cor ?? '#A0792E'),
+    cor: String(body.cor ?? '#A68B4B'),
     empresa: String(body.empresa ?? ''),
     telefone: String(body.telefone ?? ''),
     email: String(body.email ?? ''),

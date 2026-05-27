@@ -157,13 +157,13 @@ export default function UsersPage() {
                         placeholder="Buscar por email..."
                         value={searchTerm}
                         onChange={(e) => setSearchTerm(e.target.value)}
-                        className="pl-9 pr-4 py-2 bg-white dark:bg-[#262626] border border-gray-200 dark:border-[#3f3f3f] rounded-lg text-gray-900 dark:text-white placeholder-gray-500 focus:outline-none focus:border-brand-gold w-full md:w-64"
+                        className="pl-9 pr-4 py-2 bg-white dark:bg-[#1A1A1A] border border-gray-200 dark:border-[#333] rounded-lg text-gray-900 dark:text-white placeholder-gray-500 focus:outline-none focus:border-[#C8A96E] w-full md:w-64"
                     />
                 </div>
             </div>
 
-            <div className="bg-white dark:bg-[#262626] rounded-xl border border-gray-200 dark:border-gray-800 shadow-sm overflow-visible">
-                <div className="p-4 border-b border-gray-200 dark:border-gray-800 bg-gray-50 dark:bg-[#1d1d1d] font-medium text-gray-500 dark:text-gray-400 grid grid-cols-[1fr_auto_auto_auto] gap-4 items-center">
+            <div className="bg-white dark:bg-[#1A1A1A] rounded-xl border border-gray-200 dark:border-gray-800 shadow-sm overflow-visible">
+                <div className="p-4 border-b border-gray-200 dark:border-gray-800 bg-gray-50 dark:bg-[#141414] font-medium text-gray-500 dark:text-gray-400 grid grid-cols-[1fr_auto_auto_auto] gap-4 items-center">
                     <div>Email / ID</div>
                     <div className="text-center w-32">Data Cadastro</div>
                     <div className="text-center w-24">Função</div>
@@ -186,7 +186,7 @@ export default function UsersPage() {
                             const isBusy = busyId === user.id;
                             const isMenuOpen = openMenu === user.id;
                             return (
-                                <div key={user.id} className="p-4 grid grid-cols-[1fr_auto_auto_auto] gap-4 items-center hover:bg-gray-50 dark:hover:bg-[#1d1d1d] transition-colors">
+                                <div key={user.id} className="p-4 grid grid-cols-[1fr_auto_auto_auto] gap-4 items-center hover:bg-gray-50 dark:hover:bg-[#141414] transition-colors">
                                     <div className="space-y-1 overflow-hidden">
                                         <div className="font-medium text-gray-900 dark:text-gray-100 flex items-center gap-2 truncate" title={user.email}>
                                             <div className="w-8 h-8 rounded-full bg-gray-100 dark:bg-gray-800 flex items-center justify-center flex-shrink-0 text-gray-500 dark:text-gray-400">
@@ -233,7 +233,7 @@ export default function UsersPage() {
 
                                         {isMenuOpen && (
                                             <div
-                                                className="absolute top-full right-0 mt-1 w-56 bg-white dark:bg-[#2B2B2B] border border-gray-200 dark:border-gray-700 rounded-xl shadow-2xl z-30 overflow-hidden"
+                                                className="absolute top-full right-0 mt-1 w-56 bg-white dark:bg-[#222] border border-gray-200 dark:border-gray-700 rounded-xl shadow-2xl z-30 overflow-hidden"
                                                 onClick={(e) => e.stopPropagation()}
                                             >
                                                 {user.role === 'user' ? (

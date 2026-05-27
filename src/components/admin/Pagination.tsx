@@ -46,7 +46,7 @@ export function Pagination({
     const goto = (n: number) => onPageChange(Math.min(safeTotalPages, Math.max(1, n)));
 
     return (
-        <div className="border-t border-gray-200 dark:border-[#3f3f3f] px-4 py-2.5 flex flex-wrap items-center justify-between gap-3">
+        <div className="border-t border-gray-200 dark:border-[#333] px-4 py-2.5 flex flex-wrap items-center justify-between gap-3">
             <span className="text-xs text-gray-500">
                 {summaryPrefix ?? `${totalItems} ${totalItems !== 1 ? itemLabel.plural : itemLabel.singular}`}
                 {hasPages && ` · página ${page} de ${safeTotalPages}`}
@@ -58,7 +58,7 @@ export function Pagination({
                     <select
                         value={pageSize}
                         onChange={e => onPageSizeChange(Number(e.target.value))}
-                        className="px-2 py-1 text-xs rounded-lg border border-gray-200 dark:border-[#3f3f3f] bg-white dark:bg-[#262626] text-gray-700 dark:text-gray-300 focus:outline-none focus:border-[#A0792E] cursor-pointer"
+                        className="px-2 py-1 text-xs rounded-lg border border-gray-200 dark:border-[#333] bg-white dark:bg-[#1A1A1A] text-gray-700 dark:text-gray-300 focus:outline-none focus:border-[#A68B4B] cursor-pointer"
                     >
                         {pageSizeOptions.map(opt => (
                             <option key={opt} value={opt}>{opt}</option>
@@ -72,7 +72,7 @@ export function Pagination({
                             onClick={() => goto(1)}
                             disabled={page === 1}
                             title="Primeira página"
-                            className="px-2 py-1 text-xs rounded-lg border border-gray-200 dark:border-[#3f3f3f] disabled:opacity-40 hover:bg-gray-50 dark:hover:bg-[#2e2e2e] transition-colors text-gray-600 dark:text-gray-300 inline-flex items-center"
+                            className="px-2 py-1 text-xs rounded-lg border border-gray-200 dark:border-[#333] disabled:opacity-40 hover:bg-gray-50 dark:hover:bg-[#2e2e2e] transition-colors text-gray-600 dark:text-gray-300 inline-flex items-center"
                         >
                             <ChevronsLeft size={14} />
                         </button>
@@ -80,7 +80,7 @@ export function Pagination({
                             onClick={() => goto(page - 1)}
                             disabled={page === 1}
                             title="Página anterior"
-                            className="px-2 py-1 text-xs rounded-lg border border-gray-200 dark:border-[#3f3f3f] disabled:opacity-40 hover:bg-gray-50 dark:hover:bg-[#2e2e2e] transition-colors text-gray-600 dark:text-gray-300 inline-flex items-center"
+                            className="px-2 py-1 text-xs rounded-lg border border-gray-200 dark:border-[#333] disabled:opacity-40 hover:bg-gray-50 dark:hover:bg-[#2e2e2e] transition-colors text-gray-600 dark:text-gray-300 inline-flex items-center"
                         >
                             <ChevronLeft size={14} />
                         </button>
@@ -90,8 +90,8 @@ export function Pagination({
                                 onClick={() => goto(p)}
                                 className={`w-7 h-7 text-xs rounded-lg border transition-colors ${
                                     p === page
-                                        ? 'bg-[#A0792E] border-[#A0792E] text-white font-medium'
-                                        : 'border-gray-200 dark:border-[#3f3f3f] text-gray-600 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-[#2e2e2e]'
+                                        ? 'bg-[#A68B4B] border-[#A68B4B] text-white font-medium'
+                                        : 'border-gray-200 dark:border-[#333] text-gray-600 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-[#2e2e2e]'
                                 }`}
                             >
                                 {p}
@@ -101,7 +101,7 @@ export function Pagination({
                             onClick={() => goto(page + 1)}
                             disabled={page === safeTotalPages}
                             title="Próxima página"
-                            className="px-2 py-1 text-xs rounded-lg border border-gray-200 dark:border-[#3f3f3f] disabled:opacity-40 hover:bg-gray-50 dark:hover:bg-[#2e2e2e] transition-colors text-gray-600 dark:text-gray-300 inline-flex items-center"
+                            className="px-2 py-1 text-xs rounded-lg border border-gray-200 dark:border-[#333] disabled:opacity-40 hover:bg-gray-50 dark:hover:bg-[#2e2e2e] transition-colors text-gray-600 dark:text-gray-300 inline-flex items-center"
                         >
                             <ChevronRight size={14} />
                         </button>
@@ -109,7 +109,7 @@ export function Pagination({
                             onClick={() => goto(safeTotalPages)}
                             disabled={page === safeTotalPages}
                             title="Última página"
-                            className="px-2 py-1 text-xs rounded-lg border border-gray-200 dark:border-[#3f3f3f] disabled:opacity-40 hover:bg-gray-50 dark:hover:bg-[#2e2e2e] transition-colors text-gray-600 dark:text-gray-300 inline-flex items-center"
+                            className="px-2 py-1 text-xs rounded-lg border border-gray-200 dark:border-[#333] disabled:opacity-40 hover:bg-gray-50 dark:hover:bg-[#2e2e2e] transition-colors text-gray-600 dark:text-gray-300 inline-flex items-center"
                         >
                             <ChevronsRight size={14} />
                         </button>

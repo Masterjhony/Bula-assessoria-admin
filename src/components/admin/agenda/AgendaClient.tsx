@@ -186,27 +186,27 @@ export function AgendaClient({ initialEvents, options }: Props) {
     return (
         <div className="flex flex-col h-full">
             {/* ── Header ──────────────────────────────────────────────────── */}
-            <div className="flex flex-col gap-3 pb-4 border-b border-gray-200/60 dark:border-[rgba(212,168,92,0.14)]">
+            <div className="flex flex-col gap-3 pb-4 border-b border-gray-200/60 dark:border-[rgba(200, 169, 110,0.14)]">
                 <div className="flex items-start justify-between gap-3 flex-wrap">
                     <div>
                         <p style={{
                             fontFamily: 'var(--font-mono), ui-monospace, monospace',
                             fontSize: 10, fontWeight: 600, letterSpacing: '0.24em',
-                            textTransform: 'uppercase', color: '#A0792E',
+                            textTransform: 'uppercase', color: '#A68B4B',
                         }}>
                             § Operações · Central temporal
                         </p>
-                        <h1 className="mt-1 text-2xl sm:text-3xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-gray-900 to-gray-600 dark:from-[#F5F0E4] dark:to-[#A0792E]" style={{ letterSpacing: '-0.02em' }}>
+                        <h1 className="mt-1 text-2xl sm:text-3xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-gray-900 to-gray-600 dark:from-[#F5F0E4] dark:to-[#A68B4B]" style={{ letterSpacing: '-0.02em' }}>
                             Agenda Oficial
                         </h1>
-                        <p className="mt-1 text-sm text-gray-500 dark:text-[#F5F0E4]/55">
+                        <p className="mt-1 text-sm text-gray-500 dark:text-[#F5F5F5]/55">
                             Tudo que tem data, prazo ou compromisso da empresa — ligado ao projeto, leilão, criador ou tarefa correspondente.
                         </p>
                     </div>
                     <button
                         onClick={() => { setCreating(true); setCreatePreset(cursor); }}
-                        className="inline-flex items-center gap-1.5 px-3.5 py-2 text-sm font-semibold bg-[#A0792E] hover:bg-[#8a661f] text-[#161616] transition-colors shrink-0"
-                        style={{ borderRadius: 3, boxShadow: '0 0 0 1px rgba(212,168,92,0.35), 0 8px 24px rgba(160,121,46,0.20)' }}
+                        className="inline-flex items-center gap-1.5 px-3.5 py-2 text-sm font-semibold bg-[#A68B4B] hover:bg-[#8a661f] text-[#161616] transition-colors shrink-0"
+                        style={{ borderRadius: 3, boxShadow: '0 0 0 1px rgba(200, 169, 110,0.35), 0 8px 24px rgba(166, 139, 75,0.20)' }}
                     >
                         <Plus size={15} /> Novo evento
                     </button>
@@ -215,22 +215,22 @@ export function AgendaClient({ initialEvents, options }: Props) {
                 {/* Toolbar */}
                 <div className="flex items-center justify-between gap-2 flex-wrap">
                     <div className="flex items-center gap-1.5">
-                        <button onClick={goToday} className="px-3 py-1.5 text-sm font-medium border border-gray-200 dark:border-[rgba(212,168,92,0.22)] hover:bg-gray-50 dark:hover:bg-[#232323] text-gray-700 dark:text-[#F5F0E4]/85 transition-colors" style={{ borderRadius: 3 }}>
+                        <button onClick={goToday} className="px-3 py-1.5 text-sm font-medium border border-gray-200 dark:border-[rgba(200, 169, 110,0.22)] hover:bg-gray-50 dark:hover:bg-[#232323] text-gray-700 dark:text-[#F5F5F5]/85 transition-colors" style={{ borderRadius: 3 }}>
                             Hoje
                         </button>
-                        <button onClick={goPrev} className="p-1.5 border border-gray-200 dark:border-[rgba(212,168,92,0.22)] hover:bg-gray-50 dark:hover:bg-[#232323] text-gray-600 dark:text-[#F5F0E4]/70 transition-colors" style={{ borderRadius: 3 }} aria-label="Anterior">
+                        <button onClick={goPrev} className="p-1.5 border border-gray-200 dark:border-[rgba(200, 169, 110,0.22)] hover:bg-gray-50 dark:hover:bg-[#232323] text-gray-600 dark:text-[#F5F5F5]/70 transition-colors" style={{ borderRadius: 3 }} aria-label="Anterior">
                             <ChevronLeft size={15} />
                         </button>
-                        <button onClick={goNext} className="p-1.5 border border-gray-200 dark:border-[rgba(212,168,92,0.22)] hover:bg-gray-50 dark:hover:bg-[#232323] text-gray-600 dark:text-[#F5F0E4]/70 transition-colors" style={{ borderRadius: 3 }} aria-label="Próximo">
+                        <button onClick={goNext} className="p-1.5 border border-gray-200 dark:border-[rgba(200, 169, 110,0.22)] hover:bg-gray-50 dark:hover:bg-[#232323] text-gray-600 dark:text-[#F5F5F5]/70 transition-colors" style={{ borderRadius: 3 }} aria-label="Próximo">
                             <ChevronRight size={15} />
                         </button>
-                        <h2 className="ml-2 text-base sm:text-lg font-bold text-gray-900 dark:text-[#F5F0E4] capitalize" style={{ letterSpacing: '-0.01em' }}>
+                        <h2 className="ml-2 text-base sm:text-lg font-bold text-gray-900 dark:text-[#F5F5F5] capitalize" style={{ letterSpacing: '-0.01em' }}>
                             {headerTitle}
                         </h2>
                     </div>
 
                     <div className="flex items-center gap-1.5">
-                        <div className="inline-flex p-0.5 bg-gray-100 dark:bg-[#232323] border border-gray-200 dark:border-[rgba(212,168,92,0.18)]" style={{ borderRadius: 3 }}>
+                        <div className="inline-flex p-0.5 bg-gray-100 dark:bg-[#232323] border border-gray-200 dark:border-[rgba(200, 169, 110,0.18)]" style={{ borderRadius: 3 }}>
                             {(Object.keys(VIEW_LABEL) as ViewMode[]).map(v => {
                                 const Icon = VIEW_LABEL[v].icon;
                                 const active = v === view;
@@ -238,7 +238,7 @@ export function AgendaClient({ initialEvents, options }: Props) {
                                     <button
                                         key={v}
                                         onClick={() => setView(v)}
-                                        className={`inline-flex items-center gap-1.5 px-2.5 py-1 text-xs font-medium transition-all ${active ? 'bg-[#A0792E] text-[#161616]' : 'text-gray-600 dark:text-[#F5F0E4]/70 hover:text-gray-900 dark:hover:text-[#D4A85C]'}`}
+                                        className={`inline-flex items-center gap-1.5 px-2.5 py-1 text-xs font-medium transition-all ${active ? 'bg-[#A68B4B] text-[#161616]' : 'text-gray-600 dark:text-[#F5F5F5]/70 hover:text-gray-900 dark:hover:text-[#C8A96E]'}`}
                                         style={{ borderRadius: 2 }}
                                     >
                                         <Icon size={12} />
@@ -250,12 +250,12 @@ export function AgendaClient({ initialEvents, options }: Props) {
 
                         <button
                             onClick={() => setShowFilters(s => !s)}
-                            className={`inline-flex items-center gap-1.5 px-2.5 py-1.5 text-xs font-medium border transition-colors ${showFilters || typeFilters.size > 0 || responsibleFilter ? 'bg-[rgba(160,121,46,0.12)] border-[#A0792E] text-[#A0792E]' : 'border-gray-200 dark:border-[rgba(212,168,92,0.22)] text-gray-600 dark:text-[#F5F0E4]/70 hover:bg-gray-50 dark:hover:bg-[#232323]'}`}
+                            className={`inline-flex items-center gap-1.5 px-2.5 py-1.5 text-xs font-medium border transition-colors ${showFilters || typeFilters.size > 0 || responsibleFilter ? 'bg-[rgba(166, 139, 75,0.12)] border-[#A68B4B] text-[#A68B4B]' : 'border-gray-200 dark:border-[rgba(200, 169, 110,0.22)] text-gray-600 dark:text-[#F5F5F5]/70 hover:bg-gray-50 dark:hover:bg-[#232323]'}`}
                             style={{ borderRadius: 3 }}
                         >
                             <Filter size={12} /> Filtros
                             {(typeFilters.size > 0 || responsibleFilter) && (
-                                <span className="ml-1 inline-flex items-center justify-center min-w-[16px] h-[16px] px-1 text-[10px] font-bold bg-[#A0792E] text-[#161616]" style={{ borderRadius: 2 }}>
+                                <span className="ml-1 inline-flex items-center justify-center min-w-[16px] h-[16px] px-1 text-[10px] font-bold bg-[#A68B4B] text-[#161616]" style={{ borderRadius: 2 }}>
                                     {typeFilters.size + (responsibleFilter ? 1 : 0)}
                                 </span>
                             )}
@@ -264,17 +264,17 @@ export function AgendaClient({ initialEvents, options }: Props) {
                 </div>
 
                 {showFilters && (
-                    <div className="rounded-none border border-gray-200 dark:border-[rgba(212,168,92,0.18)] bg-gray-50/60 dark:bg-[#181818] p-3 flex flex-col gap-2" style={{ borderRadius: 3 }}>
+                    <div className="rounded-none border border-gray-200 dark:border-[rgba(200, 169, 110,0.18)] bg-gray-50/60 dark:bg-[#181818] p-3 flex flex-col gap-2" style={{ borderRadius: 3 }}>
                         <div className="flex items-center justify-between gap-2 flex-wrap">
                             <p style={{
                                 fontFamily: 'var(--font-mono), ui-monospace, monospace',
                                 fontSize: 10, fontWeight: 600, letterSpacing: '0.22em',
-                                textTransform: 'uppercase', color: '#D4A85C',
+                                textTransform: 'uppercase', color: '#C8A96E',
                             }}>
                                 Filtrar por tipo
                             </p>
                             {(typeFilters.size > 0 || responsibleFilter) && (
-                                <button onClick={clearFilters} className="text-xs text-gray-500 hover:text-[#A0792E] inline-flex items-center gap-1">
+                                <button onClick={clearFilters} className="text-xs text-gray-500 hover:text-[#A68B4B] inline-flex items-center gap-1">
                                     <X size={11} /> Limpar filtros
                                 </button>
                             )}
@@ -290,7 +290,7 @@ export function AgendaClient({ initialEvents, options }: Props) {
                                         className="inline-flex items-center gap-1.5 px-2.5 py-1.5 text-xs font-medium transition-all"
                                         style={{
                                             borderRadius: 3,
-                                            border: `1px solid ${active ? t.color : 'rgba(160,121,46,0.18)'}`,
+                                            border: `1px solid ${active ? t.color : 'rgba(166, 139, 75,0.18)'}`,
                                             background: active ? `${t.color}1F` : 'transparent',
                                             color: active ? t.color : 'inherit',
                                             opacity: count === 0 ? 0.5 : 1,
@@ -310,14 +310,14 @@ export function AgendaClient({ initialEvents, options }: Props) {
                                 <p style={{
                                     fontFamily: 'var(--font-mono), ui-monospace, monospace',
                                     fontSize: 10, fontWeight: 600, letterSpacing: '0.22em',
-                                    textTransform: 'uppercase', color: '#D4A85C',
+                                    textTransform: 'uppercase', color: '#C8A96E',
                                 }}>
                                     Responsável
                                 </p>
                                 <select
                                     value={responsibleFilter}
                                     onChange={(e) => setResponsibleFilter(e.target.value)}
-                                    className="text-xs bg-white dark:bg-[#232323] border border-gray-200 dark:border-[rgba(212,168,92,0.18)] px-2 py-1 text-gray-900 dark:text-[#F5F0E4] focus:outline-none focus:border-[#A0792E]"
+                                    className="text-xs bg-white dark:bg-[#232323] border border-gray-200 dark:border-[rgba(200, 169, 110,0.18)] px-2 py-1 text-gray-900 dark:text-[#F5F5F5] focus:outline-none focus:border-[#A68B4B]"
                                     style={{ borderRadius: 3 }}
                                 >
                                     <option value="">— qualquer —</option>
@@ -395,13 +395,13 @@ function Sidebar({
             <MiniMonth cursor={cursor} setCursor={setCursor} />
 
             {/* Alerts */}
-            <div className="border border-gray-200 dark:border-[rgba(212,168,92,0.18)] bg-white dark:bg-[#1b1b1b]" style={{ borderRadius: 3 }}>
+            <div className="border border-gray-200 dark:border-[rgba(200, 169, 110,0.18)] bg-white dark:bg-[#141414]" style={{ borderRadius: 3 }}>
                 <div className="px-3 pt-2.5 pb-2 flex items-center gap-1.5">
-                    <AlertTriangle size={12} className="text-[#A0792E]" />
+                    <AlertTriangle size={12} className="text-[#A68B4B]" />
                     <p style={{
                         fontFamily: 'var(--font-mono), ui-monospace, monospace',
                         fontSize: 10, fontWeight: 600, letterSpacing: '0.22em',
-                        textTransform: 'uppercase', color: '#A0792E',
+                        textTransform: 'uppercase', color: '#A68B4B',
                     }}>
                         Alertas críticos
                     </p>
@@ -432,20 +432,20 @@ function Sidebar({
             </div>
 
             {/* Legend */}
-            <div className="border border-gray-200 dark:border-[rgba(212,168,92,0.18)] bg-white dark:bg-[#1b1b1b] px-3 py-2.5" style={{ borderRadius: 3 }}>
+            <div className="border border-gray-200 dark:border-[rgba(200, 169, 110,0.18)] bg-white dark:bg-[#141414] px-3 py-2.5" style={{ borderRadius: 3 }}>
                 <p className="mb-2" style={{
                     fontFamily: 'var(--font-mono), ui-monospace, monospace',
                     fontSize: 10, fontWeight: 600, letterSpacing: '0.22em',
-                    textTransform: 'uppercase', color: '#D4A85C',
+                    textTransform: 'uppercase', color: '#C8A96E',
                 }}>
                     Tipos
                 </p>
                 <ul className="space-y-1">
                     {EVENT_TYPES.map(t => (
-                        <li key={t.key} className="flex items-center gap-2 text-xs text-gray-700 dark:text-[#F5F0E4]/75">
+                        <li key={t.key} className="flex items-center gap-2 text-xs text-gray-700 dark:text-[#F5F5F5]/75">
                             <span className="w-2 h-2 rounded-full shrink-0" style={{ background: t.color }} />
                             <span className="flex-1 truncate">{t.label}</span>
-                            <span className="text-[10px] text-gray-400 dark:text-[#F5F0E4]/40 truncate">{t.description}</span>
+                            <span className="text-[10px] text-gray-400 dark:text-[#F5F5F5]/40 truncate">{t.description}</span>
                         </li>
                     ))}
                 </ul>
@@ -463,16 +463,16 @@ function AlertSection({
     last?: boolean;
 }) {
     return (
-        <div className={`px-3 py-2 ${last ? '' : 'border-b border-gray-100 dark:border-[rgba(212,168,92,0.10)]'}`}>
+        <div className={`px-3 py-2 ${last ? '' : 'border-b border-gray-100 dark:border-[rgba(200, 169, 110,0.10)]'}`}>
             <div className="flex items-center justify-between gap-2 mb-1.5">
                 <div className="flex items-center gap-1.5">
                     <span className="w-1.5 h-1.5" style={{ background: color }} />
-                    <span className="text-[11px] font-bold text-gray-800 dark:text-[#F5F0E4]/90">{title}</span>
+                    <span className="text-[11px] font-bold text-gray-800 dark:text-[#F5F5F5]/90">{title}</span>
                 </div>
-                <span className="text-[10px] font-bold text-gray-500 dark:text-[#F5F0E4]/55">{total}</span>
+                <span className="text-[10px] font-bold text-gray-500 dark:text-[#F5F5F5]/55">{total}</span>
             </div>
             {items.length === 0 ? (
-                <p className="text-[11px] italic text-gray-400 dark:text-[#F5F0E4]/40">Tudo certo</p>
+                <p className="text-[11px] italic text-gray-400 dark:text-[#F5F5F5]/40">Tudo certo</p>
             ) : (
                 <ul className="space-y-0.5">
                     {items.map(e => {
@@ -481,13 +481,13 @@ function AlertSection({
                             <li key={e.id}>
                                 <button
                                     onClick={() => openEvent(e.id)}
-                                    className="w-full text-left px-1.5 py-1 -mx-1.5 hover:bg-gray-50 dark:hover:bg-[rgba(212,168,92,0.06)] transition-colors flex items-start gap-1.5"
+                                    className="w-full text-left px-1.5 py-1 -mx-1.5 hover:bg-gray-50 dark:hover:bg-[rgba(200, 169, 110,0.06)] transition-colors flex items-start gap-1.5"
                                     style={{ borderRadius: 2 }}
                                 >
                                     <span className="w-1 h-1 mt-1.5 shrink-0" style={{ background: t.color }} />
                                     <div className="min-w-0 flex-1">
-                                        <p className="text-[11px] font-medium text-gray-800 dark:text-[#F5F0E4]/90 truncate" title={e.title}>{e.title}</p>
-                                        <p className="text-[10px] text-gray-500 dark:text-[#F5F0E4]/50">
+                                        <p className="text-[11px] font-medium text-gray-800 dark:text-[#F5F5F5]/90 truncate" title={e.title}>{e.title}</p>
+                                        <p className="text-[10px] text-gray-500 dark:text-[#F5F5F5]/50">
                                             {new Date(e.start_at).toLocaleDateString('pt-BR', { day: '2-digit', month: 'short' })}
                                             {!e.all_day ? ` · ${formatHora(new Date(e.start_at))}` : ''}
                                         </p>
@@ -513,20 +513,20 @@ function MiniMonth({ cursor, setCursor }: { cursor: Date; setCursor: (d: Date) =
     const today = startOfDay(new Date());
 
     return (
-        <div className="border border-gray-200 dark:border-[rgba(212,168,92,0.18)] bg-white dark:bg-[#1b1b1b] px-3 py-2.5" style={{ borderRadius: 3 }}>
+        <div className="border border-gray-200 dark:border-[rgba(200, 169, 110,0.18)] bg-white dark:bg-[#141414] px-3 py-2.5" style={{ borderRadius: 3 }}>
             <div className="flex items-center justify-between mb-2">
-                <button onClick={() => setView(v => addMonths(v, -1))} className="p-1 text-gray-400 hover:text-[#A0792E]"><ChevronLeft size={14} /></button>
-                <p className="text-xs font-bold text-gray-800 dark:text-[#F5F0E4]" style={{ letterSpacing: '-0.005em' }}>
-                    {MES_NOMES[view.getMonth()]} <span className="text-gray-400 dark:text-[#F5F0E4]/50">{view.getFullYear()}</span>
+                <button onClick={() => setView(v => addMonths(v, -1))} className="p-1 text-gray-400 hover:text-[#A68B4B]"><ChevronLeft size={14} /></button>
+                <p className="text-xs font-bold text-gray-800 dark:text-[#F5F5F5]" style={{ letterSpacing: '-0.005em' }}>
+                    {MES_NOMES[view.getMonth()]} <span className="text-gray-400 dark:text-[#F5F5F5]/50">{view.getFullYear()}</span>
                 </p>
-                <button onClick={() => setView(v => addMonths(v, 1))} className="p-1 text-gray-400 hover:text-[#A0792E]"><ChevronRight size={14} /></button>
+                <button onClick={() => setView(v => addMonths(v, 1))} className="p-1 text-gray-400 hover:text-[#A68B4B]"><ChevronRight size={14} /></button>
             </div>
 
             <div className="grid grid-cols-7 gap-0 mb-1">
                 {DIAS_CURTOS.map(d => (
                     <div key={d} className="text-center" style={{
                         fontFamily: 'var(--font-mono), ui-monospace, monospace',
-                        fontSize: 9, color: '#D4A85C', letterSpacing: '0.1em',
+                        fontSize: 9, color: '#C8A96E', letterSpacing: '0.1em',
                     }}>{d.charAt(0)}</div>
                 ))}
             </div>
@@ -541,12 +541,12 @@ function MiniMonth({ cursor, setCursor }: { cursor: Date; setCursor: (d: Date) =
                             onClick={() => setCursor(d)}
                             className={`aspect-square flex items-center justify-center text-[11px] font-medium transition-colors ${
                                 isSel
-                                    ? 'bg-[#A0792E] text-[#161616]'
+                                    ? 'bg-[#A68B4B] text-[#161616]'
                                     : isToday
-                                        ? 'text-[#A0792E] font-bold'
+                                        ? 'text-[#A68B4B] font-bold'
                                         : isCurMonth
-                                            ? 'text-gray-700 dark:text-[#F5F0E4]/85 hover:bg-gray-100 dark:hover:bg-[rgba(212,168,92,0.08)]'
-                                            : 'text-gray-300 dark:text-[#F5F0E4]/25 hover:bg-gray-50 dark:hover:bg-[rgba(212,168,92,0.04)]'
+                                            ? 'text-gray-700 dark:text-[#F5F5F5]/85 hover:bg-gray-100 dark:hover:bg-[rgba(200, 169, 110,0.08)]'
+                                            : 'text-gray-300 dark:text-[#F5F5F5]/25 hover:bg-gray-50 dark:hover:bg-[rgba(200, 169, 110,0.04)]'
                             }`}
                             style={{ borderRadius: 2 }}
                         >
@@ -574,13 +574,13 @@ function MonthView({
     const today = startOfDay(new Date());
 
     return (
-        <div className="flex flex-col flex-1 min-h-0 border border-gray-200 dark:border-[rgba(212,168,92,0.18)] bg-white dark:bg-[#161616] overflow-hidden" style={{ borderRadius: 3 }}>
-            <div className="grid grid-cols-7 border-b border-gray-200 dark:border-[rgba(212,168,92,0.18)]">
+        <div className="flex flex-col flex-1 min-h-0 border border-gray-200 dark:border-[rgba(200, 169, 110,0.18)] bg-white dark:bg-[#0D0D0D] overflow-hidden" style={{ borderRadius: 3 }}>
+            <div className="grid grid-cols-7 border-b border-gray-200 dark:border-[rgba(200, 169, 110,0.18)]">
                 {DIAS_CURTOS.map(d => (
                     <div key={d} className="px-3 py-2 text-center" style={{
                         fontFamily: 'var(--font-mono), ui-monospace, monospace',
                         fontSize: 10, fontWeight: 600, letterSpacing: '0.22em',
-                        textTransform: 'uppercase', color: '#D4A85C',
+                        textTransform: 'uppercase', color: '#C8A96E',
                     }}>{d}</div>
                 ))}
             </div>
@@ -596,17 +596,17 @@ function MonthView({
                     return (
                         <div
                             key={i}
-                            className={`relative border-r border-b border-gray-100 dark:border-[rgba(212,168,92,0.10)] p-1.5 flex flex-col gap-1 group ${(i + 1) % 7 === 0 ? 'border-r-0' : ''} ${i >= 35 ? 'border-b-0' : ''} ${isCurMonth ? 'bg-white dark:bg-[#161616]' : 'bg-gray-50/60 dark:bg-[#131313]'}`}
+                            className={`relative border-r border-b border-gray-100 dark:border-[rgba(200, 169, 110,0.10)] p-1.5 flex flex-col gap-1 group ${(i + 1) % 7 === 0 ? 'border-r-0' : ''} ${i >= 35 ? 'border-b-0' : ''} ${isCurMonth ? 'bg-white dark:bg-[#0D0D0D]' : 'bg-gray-50/60 dark:bg-[#131313]'}`}
                         >
                             <div className="flex items-center justify-between">
                                 <button
                                     onClick={() => onPickDay(d)}
                                     className={`inline-flex items-center justify-center min-w-[22px] h-[22px] px-1 text-xs font-bold transition-colors ${
                                         isToday
-                                            ? 'bg-[#A0792E] text-[#161616]'
+                                            ? 'bg-[#A68B4B] text-[#161616]'
                                             : isCurMonth
-                                                ? 'text-gray-800 dark:text-[#F5F0E4]/85 hover:text-[#A0792E]'
-                                                : 'text-gray-300 dark:text-[#F5F0E4]/25'
+                                                ? 'text-gray-800 dark:text-[#F5F5F5]/85 hover:text-[#A68B4B]'
+                                                : 'text-gray-300 dark:text-[#F5F5F5]/25'
                                     }`}
                                     style={{ borderRadius: 2 }}
                                 >
@@ -614,7 +614,7 @@ function MonthView({
                                 </button>
                                 <button
                                     onClick={() => onCreateOnDay(d)}
-                                    className="opacity-0 group-hover:opacity-100 transition-opacity p-0.5 text-gray-400 hover:text-[#A0792E]"
+                                    className="opacity-0 group-hover:opacity-100 transition-opacity p-0.5 text-gray-400 hover:text-[#A68B4B]"
                                     aria-label="Adicionar evento"
                                 >
                                     <Plus size={12} />
@@ -628,7 +628,7 @@ function MonthView({
                                 {overflow > 0 && (
                                     <button
                                         onClick={() => onPickDay(d)}
-                                        className="text-left text-[10px] text-gray-500 dark:text-[#F5F0E4]/55 hover:text-[#A0792E] px-1"
+                                        className="text-left text-[10px] text-gray-500 dark:text-[#F5F5F5]/55 hover:text-[#A68B4B] px-1"
                                     >
                                         +{overflow} mais
                                     </button>
@@ -686,8 +686,8 @@ function WeekView({
     const HOURS = Array.from({ length: 14 }, (_, i) => i + 7); // 7h..20h
 
     return (
-        <div className="flex flex-col flex-1 min-h-0 border border-gray-200 dark:border-[rgba(212,168,92,0.18)] bg-white dark:bg-[#161616] overflow-hidden" style={{ borderRadius: 3 }}>
-            <div className="grid grid-cols-[56px_repeat(7,1fr)] border-b border-gray-200 dark:border-[rgba(212,168,92,0.18)]">
+        <div className="flex flex-col flex-1 min-h-0 border border-gray-200 dark:border-[rgba(200, 169, 110,0.18)] bg-white dark:bg-[#0D0D0D] overflow-hidden" style={{ borderRadius: 3 }}>
+            <div className="grid grid-cols-[56px_repeat(7,1fr)] border-b border-gray-200 dark:border-[rgba(200, 169, 110,0.18)]">
                 <div />
                 {days.map(d => {
                     const isToday = sameDay(d, today);
@@ -695,16 +695,16 @@ function WeekView({
                         <button
                             key={d.toISOString()}
                             onClick={() => onCreateOnDay(d)}
-                            className={`px-2 py-2 text-center border-l border-gray-100 dark:border-[rgba(212,168,92,0.10)] hover:bg-gray-50 dark:hover:bg-[#232323] ${isToday ? 'bg-[rgba(160,121,46,0.06)]' : ''}`}
+                            className={`px-2 py-2 text-center border-l border-gray-100 dark:border-[rgba(200, 169, 110,0.10)] hover:bg-gray-50 dark:hover:bg-[#232323] ${isToday ? 'bg-[rgba(166, 139, 75,0.06)]' : ''}`}
                         >
                             <div style={{
                                 fontFamily: 'var(--font-mono), ui-monospace, monospace',
                                 fontSize: 9, letterSpacing: '0.2em',
-                                color: '#D4A85C', textTransform: 'uppercase',
+                                color: '#C8A96E', textTransform: 'uppercase',
                             }}>
                                 {DIAS_CURTOS[d.getDay()]}
                             </div>
-                            <div className={`mt-0.5 inline-flex items-center justify-center min-w-[26px] h-[26px] px-1.5 text-sm font-bold ${isToday ? 'bg-[#A0792E] text-[#161616]' : 'text-gray-800 dark:text-[#F5F0E4]/90'}`} style={{ borderRadius: 2 }}>
+                            <div className={`mt-0.5 inline-flex items-center justify-center min-w-[26px] h-[26px] px-1.5 text-sm font-bold ${isToday ? 'bg-[#A68B4B] text-[#161616]' : 'text-gray-800 dark:text-[#F5F5F5]/90'}`} style={{ borderRadius: 2 }}>
                                 {d.getDate()}
                             </div>
                         </button>
@@ -716,13 +716,13 @@ function WeekView({
                 <div className="grid grid-cols-[56px_repeat(7,1fr)] relative">
                     {HOURS.map(h => (
                         <div key={`h-${h}`} className="contents">
-                            <div className="px-2 py-1.5 text-right text-[10px] text-gray-400 dark:text-[#F5F0E4]/40 border-r border-gray-100 dark:border-[rgba(212,168,92,0.10)]">
+                            <div className="px-2 py-1.5 text-right text-[10px] text-gray-400 dark:text-[#F5F5F5]/40 border-r border-gray-100 dark:border-[rgba(200, 169, 110,0.10)]">
                                 {String(h).padStart(2, '0')}:00
                             </div>
                             {days.map(d => (
                                 <div
                                     key={`${d.toISOString()}-${h}`}
-                                    className="border-l border-b border-gray-100 dark:border-[rgba(212,168,92,0.08)] min-h-[44px] p-0.5"
+                                    className="border-l border-b border-gray-100 dark:border-[rgba(200, 169, 110,0.08)] min-h-[44px] p-0.5"
                                 />
                             ))}
                         </div>
@@ -789,12 +789,12 @@ function DayView({
     const HOURS = Array.from({ length: 16 }, (_, i) => i + 6); // 6..21
 
     return (
-        <div className="flex flex-col flex-1 min-h-0 border border-gray-200 dark:border-[rgba(212,168,92,0.18)] bg-white dark:bg-[#161616] overflow-hidden" style={{ borderRadius: 3 }}>
+        <div className="flex flex-col flex-1 min-h-0 border border-gray-200 dark:border-[rgba(200, 169, 110,0.18)] bg-white dark:bg-[#0D0D0D] overflow-hidden" style={{ borderRadius: 3 }}>
             {allDay.length > 0 && (
-                <div className="px-3 py-2 border-b border-gray-100 dark:border-[rgba(212,168,92,0.10)] flex items-center gap-2 flex-wrap">
+                <div className="px-3 py-2 border-b border-gray-100 dark:border-[rgba(200, 169, 110,0.10)] flex items-center gap-2 flex-wrap">
                     <span style={{
                         fontFamily: 'var(--font-mono), ui-monospace, monospace',
-                        fontSize: 9, color: '#D4A85C', letterSpacing: '0.2em', textTransform: 'uppercase',
+                        fontSize: 9, color: '#C8A96E', letterSpacing: '0.2em', textTransform: 'uppercase',
                     }}>Dia inteiro:</span>
                     {allDay.map(e => {
                         const t = EVENT_TYPES_MAP[e.event_type];
@@ -816,10 +816,10 @@ function DayView({
                 <div className="relative grid grid-cols-[56px_1fr]">
                     {HOURS.map(h => (
                         <div key={`h-${h}`} className="contents">
-                            <div className="px-2 py-1 text-right text-[10px] text-gray-400 dark:text-[#F5F0E4]/40 border-r border-gray-100 dark:border-[rgba(212,168,92,0.10)]">
+                            <div className="px-2 py-1 text-right text-[10px] text-gray-400 dark:text-[#F5F5F5]/40 border-r border-gray-100 dark:border-[rgba(200, 169, 110,0.10)]">
                                 {String(h).padStart(2, '0')}:00
                             </div>
-                            <div className="border-b border-gray-100 dark:border-[rgba(212,168,92,0.08)] min-h-[56px] p-0.5" />
+                            <div className="border-b border-gray-100 dark:border-[rgba(200, 169, 110,0.08)] min-h-[56px] p-0.5" />
                         </div>
                     ))}
 
@@ -860,8 +860,8 @@ function DayView({
                     {list.length === 0 && (
                         <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
                             <div className="text-center">
-                                <Sparkles size={20} className="mx-auto text-[#A0792E]/40 mb-2" />
-                                <p className="text-sm text-gray-400 dark:text-[#F5F0E4]/40">Nenhum compromisso para esse dia.</p>
+                                <Sparkles size={20} className="mx-auto text-[#A68B4B]/40 mb-2" />
+                                <p className="text-sm text-gray-400 dark:text-[#F5F5F5]/40">Nenhum compromisso para esse dia.</p>
                             </div>
                         </div>
                     )}
@@ -899,10 +899,10 @@ function ListView({
 
     if (grouped.length === 0) {
         return (
-            <div className="flex-1 flex items-center justify-center border border-gray-200 dark:border-[rgba(212,168,92,0.18)] bg-white dark:bg-[#161616]" style={{ borderRadius: 3 }}>
+            <div className="flex-1 flex items-center justify-center border border-gray-200 dark:border-[rgba(200, 169, 110,0.18)] bg-white dark:bg-[#0D0D0D]" style={{ borderRadius: 3 }}>
                 <div className="text-center">
-                    <CalIcon size={28} className="mx-auto text-[#A0792E]/40 mb-2" />
-                    <p className="text-sm text-gray-400 dark:text-[#F5F0E4]/40">Nenhum evento na agenda.</p>
+                    <CalIcon size={28} className="mx-auto text-[#A68B4B]/40 mb-2" />
+                    <p className="text-sm text-gray-400 dark:text-[#F5F5F5]/40">Nenhum evento na agenda.</p>
                 </div>
             </div>
         );
@@ -919,7 +919,7 @@ function ListView({
                         <div key={key}>
                             <div className="flex items-center gap-2 mb-2">
                                 <div
-                                    className={`inline-flex items-center justify-center min-w-[36px] h-[36px] px-2 ${isToday ? 'bg-[#A0792E] text-[#161616]' : 'bg-gray-100 dark:bg-[#232323] text-gray-800 dark:text-[#F5F0E4]/85'}`}
+                                    className={`inline-flex items-center justify-center min-w-[36px] h-[36px] px-2 ${isToday ? 'bg-[#A68B4B] text-[#161616]' : 'bg-gray-100 dark:bg-[#232323] text-gray-800 dark:text-[#F5F5F5]/85'}`}
                                     style={{ borderRadius: 3 }}
                                 >
                                     <div className="text-center leading-tight">
@@ -928,8 +928,8 @@ function ListView({
                                     </div>
                                 </div>
                                 <div>
-                                    <p className="text-sm font-bold text-gray-800 dark:text-[#F5F0E4]/90 capitalize">{formatDataLonga(date)}</p>
-                                    <p className="text-[10px] text-gray-500 dark:text-[#F5F0E4]/50">{list.length} {list.length === 1 ? 'evento' : 'eventos'}</p>
+                                    <p className="text-sm font-bold text-gray-800 dark:text-[#F5F5F5]/90 capitalize">{formatDataLonga(date)}</p>
+                                    <p className="text-[10px] text-gray-500 dark:text-[#F5F5F5]/50">{list.length} {list.length === 1 ? 'evento' : 'eventos'}</p>
                                 </div>
                             </div>
                             <ul className="space-y-1.5">
@@ -960,7 +960,7 @@ function ListRow({ event, onOpen, options }: { event: AgendaEvent; onOpen: () =>
         <li>
             <button
                 onClick={onOpen}
-                className="w-full text-left bg-white dark:bg-[#1b1b1b] border border-gray-200 dark:border-[rgba(212,168,92,0.18)] hover:border-[#A0792E] dark:hover:border-[#A0792E] transition-all px-3 py-2.5 flex items-start gap-3"
+                className="w-full text-left bg-white dark:bg-[#141414] border border-gray-200 dark:border-[rgba(200, 169, 110,0.18)] hover:border-[#A68B4B] dark:hover:border-[#A68B4B] transition-all px-3 py-2.5 flex items-start gap-3"
                 style={{ borderRadius: 3 }}
             >
                 <div
@@ -971,10 +971,10 @@ function ListRow({ event, onOpen, options }: { event: AgendaEvent; onOpen: () =>
                 </div>
                 <div className="flex-1 min-w-0">
                     <div className="flex items-start justify-between gap-2 flex-wrap">
-                        <p className="text-sm font-bold text-gray-900 dark:text-[#F5F0E4]" style={{ letterSpacing: '-0.005em' }}>{event.title}</p>
+                        <p className="text-sm font-bold text-gray-900 dark:text-[#F5F5F5]" style={{ letterSpacing: '-0.005em' }}>{event.title}</p>
                         <span className={`text-[10px] font-semibold px-1.5 py-0.5 ${s.badge}`} style={{ borderRadius: 2 }}>{s.label}</span>
                     </div>
-                    <div className="mt-1 flex flex-wrap items-center gap-x-3 gap-y-0.5 text-[11px] text-gray-500 dark:text-[#F5F0E4]/55">
+                    <div className="mt-1 flex flex-wrap items-center gap-x-3 gap-y-0.5 text-[11px] text-gray-500 dark:text-[#F5F5F5]/55">
                         <span className="inline-flex items-center gap-1"><Clock size={10} />{event.all_day ? 'Dia inteiro' : `${formatHora(start)}${end ? ` – ${formatHora(end)}` : ''}`}</span>
                         {event.location && <span className="inline-flex items-center gap-1"><MapPin size={10} />{event.location}</span>}
                         {responsible && <span className="inline-flex items-center gap-1"><User size={10} />{responsible}</span>}
@@ -986,8 +986,8 @@ function ListRow({ event, onOpen, options }: { event: AgendaEvent; onOpen: () =>
                     {linkSummary.length > 0 && (
                         <div className="mt-1.5 flex flex-wrap gap-1.5">
                             {linkSummary.map((l, i) => (
-                                <span key={i} className="inline-flex items-center gap-1 text-[10px] px-1.5 py-0.5 bg-gray-100 dark:bg-[#232323] text-gray-600 dark:text-[#F5F0E4]/65" style={{ borderRadius: 2 }}>
-                                    <l.icon size={10} className="text-[#A0792E]" />
+                                <span key={i} className="inline-flex items-center gap-1 text-[10px] px-1.5 py-0.5 bg-gray-100 dark:bg-[#232323] text-gray-600 dark:text-[#F5F5F5]/65" style={{ borderRadius: 2 }}>
+                                    <l.icon size={10} className="text-[#A68B4B]" />
                                     <span className="font-medium">{l.kind}:</span>
                                     <span className="truncate max-w-[160px]">{l.label}</span>
                                 </span>
@@ -995,7 +995,7 @@ function ListRow({ event, onOpen, options }: { event: AgendaEvent; onOpen: () =>
                         </div>
                     )}
                 </div>
-                <ExternalLink size={13} className="text-gray-300 dark:text-[#F5F0E4]/30 shrink-0 mt-1" />
+                <ExternalLink size={13} className="text-gray-300 dark:text-[#F5F5F5]/30 shrink-0 mt-1" />
             </button>
         </li>
     );

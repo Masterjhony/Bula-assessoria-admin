@@ -17,7 +17,7 @@ export interface EventTypeMeta {
 // Each type carries the brand gold as halo but uses a distinct accent so the
 // month grid stays readable.
 export const EVENT_TYPES: EventTypeMeta[] = [
-    { key: 'leilao',         label: 'Leilão',           short: 'LEI',  color: '#A0792E', icon: Gavel,         description: 'Pregão / dia do leilão' },
+    { key: 'leilao',         label: 'Leilão',           short: 'LEI',  color: '#A68B4B', icon: Gavel,         description: 'Pregão / dia do leilão' },
     { key: 'reuniao',        label: 'Reunião',          short: 'RNI',  color: '#4F46E5', icon: Users,         description: 'Reunião com criador, equipe ou parceiro' },
     { key: 'prazo',          label: 'Prazo',            short: 'PRZ',  color: '#DC2626', icon: Clock,         description: 'Entrega, deadline operacional' },
     { key: 'publicacao',     label: 'Publicação',       short: 'PUB',  color: '#0EA5E9', icon: Megaphone,     description: 'Post, disparo, anúncio agendado' },

@@ -44,7 +44,7 @@ const fmtBRLCompact = (v: number) => {
 const fmtNum = (v: number) => (v || 0).toLocaleString('pt-BR')
 const PCT = (v: number) => `${(v * 100).toFixed(1)}%`
 
-const EMPRESA_BULA_FORMULA = 'Bula × Fórmula'
+const EMPRESA_BULA_FORMULA = 'Bula'
 function normalizeEmpresaGrupo(empresa: string | null | undefined): string {
   const e = (empresa ?? '').trim()
   if (!e) return 'Não informado'
@@ -213,7 +213,7 @@ export default function VendasPorAssessorPage() {
 
       // ── Header ────────────────────────────────────────────────────────────
       // Faixa dourada superior
-      doc.setFillColor(160, 121, 46) // #A0792E
+      doc.setFillColor(160, 121, 46) // #A68B4B
       doc.rect(0, 0, pageW, 18, 'F')
       doc.setTextColor(255, 255, 255)
       doc.setFont('helvetica', 'bold')
@@ -235,7 +235,7 @@ export default function VendasPorAssessorPage() {
       doc.setFontSize(9.5)
       doc.setTextColor(110, 110, 110)
       const filtroLabel =
-        empresaFilter === 'bula_formula' ? 'Apenas Bula × Fórmula' :
+        empresaFilter === 'bula_formula' ? 'Apenas Bula' :
         empresaFilter === 'outras'       ? 'Apenas outras empresas' : 'Todas as empresas'
       const subt = `Base para conferência de bônus · ${assessores.length} assessores · ${filtroLabel}`
       doc.text(subt, M, 36.5)
@@ -459,7 +459,7 @@ export default function VendasPorAssessorPage() {
         doc.setFont('helvetica', 'normal')
         doc.setFontSize(7.5)
         doc.setTextColor(150, 150, 150)
-        doc.text(`Vendas por Assessor · Fórmula do Boi · Bula`, M, pageH - 6)
+        doc.text(`Vendas por Assessor · Bula Assessoria`, M, pageH - 6)
         doc.text(`Página ${i} de ${total}`, pageW - M, pageH - 6, { align: 'right' })
       }
 
@@ -497,7 +497,7 @@ export default function VendasPorAssessorPage() {
           <span className="vpa-filter-label">Empresa:</span>
           {([
             { key: 'todos',         label: 'Todas' },
-            { key: 'bula_formula',  label: 'Bula × Fórmula' },
+            { key: 'bula_formula',  label: 'Bula' },
             { key: 'outras',        label: 'Outras' },
           ] as const).map(opt => (
             <button
@@ -687,7 +687,7 @@ export default function VendasPorAssessorPage() {
           text-decoration: none;
           transition: background .15s, border-color .15s;
         }
-        .vpa-link:hover { background: rgba(212,168,92,0.14); border-color: rgba(212,168,92,0.45); }
+        .vpa-link:hover { background: rgba(200, 169, 110,0.14); border-color: rgba(200, 169, 110,0.45); }
 
         /* Toolbar */
         .vpa-toolbar {
@@ -708,7 +708,7 @@ export default function VendasPorAssessorPage() {
         }
         .vpa-filter-pill:hover { color: var(--dcl-ink); border-color: var(--dcl-gold-line); }
         .vpa-filter-on {
-          background: linear-gradient(135deg, rgba(212,168,92,0.18), rgba(212,168,92,0.05));
+          background: linear-gradient(135deg, rgba(200, 169, 110,0.18), rgba(200, 169, 110,0.05));
           border-color: var(--dcl-gold-line);
           color: var(--dcl-gold);
         }
@@ -723,11 +723,11 @@ export default function VendasPorAssessorPage() {
         }
         .vpa-btn:hover { border-color: var(--dcl-gold-line); color: var(--dcl-gold); }
         .vpa-btn-primary {
-          background: linear-gradient(135deg, rgba(212,168,92,0.18), rgba(212,168,92,0.05));
+          background: linear-gradient(135deg, rgba(200, 169, 110,0.18), rgba(200, 169, 110,0.05));
           border-color: var(--dcl-gold-line);
           color: var(--dcl-gold);
         }
-        .vpa-btn-primary:hover { background: rgba(212,168,92,0.22); }
+        .vpa-btn-primary:hover { background: rgba(200, 169, 110,0.22); }
         .vpa-btn:disabled { opacity: 0.5; cursor: not-allowed; }
         .vpa-spin { animation: vpa-spin 0.9s linear infinite; }
         @keyframes vpa-spin { to { transform: rotate(360deg); } }
@@ -755,7 +755,7 @@ export default function VendasPorAssessorPage() {
         }
         .vpa-stat-sub { font-size: 11px; color: var(--dcl-ink-3); margin-top: 4px; }
         .vpa-stat-gold {
-          background: linear-gradient(135deg, rgba(212,168,92,0.10), rgba(212,168,92,0.02));
+          background: linear-gradient(135deg, rgba(200, 169, 110,0.10), rgba(200, 169, 110,0.02));
           border-color: var(--dcl-gold-line);
         }
         .vpa-stat-gold .vpa-stat-val { color: var(--dcl-gold); }
@@ -819,8 +819,8 @@ export default function VendasPorAssessorPage() {
           color: var(--dcl-ink-2); vertical-align: middle;
         }
         .vpa-table tbody tr:last-child td { border-bottom: none; }
-        .vpa-table tbody tr:hover { background: rgba(212,168,92,0.04); }
-        .vpa-row-open td { background: rgba(212,168,92,0.06) !important; }
+        .vpa-table tbody tr:hover { background: rgba(200, 169, 110,0.04); }
+        .vpa-row-open td { background: rgba(200, 169, 110,0.06) !important; }
         .vpa-row-detail td { background: var(--dcl-bg-card-2) !important; }
         .vpa-totals td {
           background: var(--dcl-bg-card-2) !important;
@@ -846,7 +846,7 @@ export default function VendasPorAssessorPage() {
         }
         .vpa-bar > span {
           display: block; height: 100%;
-          background: linear-gradient(90deg, var(--dcl-gold), rgba(212,168,92,0.6));
+          background: linear-gradient(90deg, var(--dcl-gold), rgba(200, 169, 110,0.6));
           border-radius: 999px;
           transition: width .4s ease;
         }

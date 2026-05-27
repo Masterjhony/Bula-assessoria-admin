@@ -27,7 +27,7 @@ export function FunnelChart({ leads, stages }: FunnelChartProps) {
     const firstCount = byStage[0]?.count || 0;
 
     return (
-        <div className="bg-white dark:bg-[#1d1d1d] border border-gray-200 dark:border-[#2e2e2e] rounded-2xl p-6">
+        <div className="bg-white dark:bg-[#141414] border border-gray-200 dark:border-[#2A2A2A] rounded-2xl p-6">
             <div className="flex items-center justify-between mb-6">
                 <div>
                     <h3 className="text-lg font-bold text-gray-900 dark:text-white">Funil de Vendas</h3>
@@ -64,7 +64,7 @@ export function FunnelChart({ leads, stages }: FunnelChartProps) {
                                         {row.stage.name}
                                     </span>
                                 </div>
-                                <div className="flex-1 h-11 bg-gray-50 dark:bg-[#161616] rounded-lg overflow-hidden relative border border-gray-100 dark:border-[#262626]">
+                                <div className="flex-1 h-11 bg-gray-50 dark:bg-[#0D0D0D] rounded-lg overflow-hidden relative border border-gray-100 dark:border-[#262626]">
                                     <div
                                         className="h-full flex items-center px-3 transition-all duration-500"
                                         style={{

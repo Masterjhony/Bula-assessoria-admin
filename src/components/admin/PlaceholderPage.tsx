@@ -31,7 +31,7 @@ export function PlaceholderPage({ title, phase, description }: Props) {
           </h3>
           <p className="muted text-sm leading-relaxed">
             {description ||
-              `Este módulo está sendo migrado do sistema Fórmula do Boi. Será entregue na ${phase} da migração.`}
+              `Este módulo está em construção. Será entregue na ${phase} da migração.`}
           </p>
         </div>
       </div>

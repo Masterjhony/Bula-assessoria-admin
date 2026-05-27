@@ -27,18 +27,18 @@ type EquipeMembro = {
 type FormState = Omit<EquipeMembro, 'id' | 'created_at' | 'updated_at'>
 
 const EMPTY_FORM: FormState = {
-  nome: '', apelido: '', iniciais: '', cor: '#A0792E', empresa: '',
+  nome: '', apelido: '', iniciais: '', cor: '#A68B4B', empresa: '',
   telefone: '', email: '', foto_url: '', ativo: true, ordem: 999, observacao: '',
 }
 
-const COR_PRESETS = ['#4A8FBF', '#C8A96E', '#6B8F5C', '#A0792E', '#A864AE', '#D4707A', '#9B59B6', '#D4A843']
-const EMPRESA_PRESETS = ['Bula Assessoria', 'Bula Remates', 'Fórmula do Boi']
+const COR_PRESETS = ['#4A8FBF', '#C8A96E', '#6B8F5C', '#A68B4B', '#A864AE', '#D4707A', '#9B59B6', '#D4A843']
+const EMPRESA_PRESETS = ['Bula Assessoria', 'Bula Remates']
 
 function autoIniciais(nome: string): string {
   return nome.trim().split(/\s+/).map(p => p[0] ?? '').join('').slice(0, 2).toUpperCase()
 }
 
-const inputCls = "w-full px-3 py-2 rounded-xl border border-gray-200 dark:border-[#363636] bg-white dark:bg-[#161616] text-sm text-gray-800 dark:text-gray-200 placeholder-gray-400 focus:outline-none focus:border-[#A0792E] transition-colors"
+const inputCls = "w-full px-3 py-2 rounded-xl border border-gray-200 dark:border-[#333] bg-white dark:bg-[#0D0D0D] text-sm text-gray-800 dark:text-gray-200 placeholder-gray-400 focus:outline-none focus:border-[#A68B4B] transition-colors"
 const labelCls = "block text-[11px] font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400 mb-1"
 
 export default function EquipePage() {
@@ -80,13 +80,13 @@ export default function EquipePage() {
         <div className="dcl-pagehead-right">
           <button
             onClick={() => setShowInactive(s => !s)}
-            className="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-semibold text-gray-600 dark:text-gray-300 border border-gray-200 dark:border-[#363636] hover:bg-gray-50 dark:hover:bg-[#222222]"
+            className="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-semibold text-gray-600 dark:text-gray-300 border border-gray-200 dark:border-[#333] hover:bg-gray-50 dark:hover:bg-[#222222]"
           >
             <Power size={13} /> {showInactive ? 'Esconder inativos' : `Mostrar inativos (${items.length - ativos})`}
           </button>
           <button
             onClick={() => setCreating(true)}
-            className="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-semibold text-white bg-[#A0792E] hover:bg-[#8E6A28]"
+            className="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-semibold text-white bg-[#A68B4B] hover:bg-[#8E6A28]"
           >
             <Plus size={13} /> Novo assessor
           </button>
@@ -98,7 +98,7 @@ export default function EquipePage() {
         <StatCard icon={Users} label="Assessores ativos" value={ativos.toString()} />
         <StatCard icon={Hash} label="Total cadastrado" value={items.length.toString()} />
         <StatCard icon={Building2} label="Bula Assessoria" value={items.filter(i => i.ativo && i.empresa === 'Bula Assessoria').length.toString()} />
-        <StatCard icon={Building2} label="Fórmula do Boi" value={items.filter(i => i.ativo && i.empresa === 'Fórmula do Boi').length.toString()} />
+        <StatCard icon={Building2} label="Bula Remates" value={items.filter(i => i.ativo && i.empresa === 'Bula Remates').length.toString()} />
       </div>
 
       {/* Errors */}
@@ -111,11 +111,11 @@ export default function EquipePage() {
       {/* Loading */}
       {loading ? (
         <div className="flex items-center justify-center py-20">
-          <Loader2 size={28} className="animate-spin text-[#A0792E]" />
+          <Loader2 size={28} className="animate-spin text-[#A68B4B]" />
         </div>
       ) : visible.length === 0 ? (
         <div className="py-20 text-center text-sm text-gray-500 dark:text-gray-400">
-          Nenhum assessor cadastrado. Clique em <span className="font-semibold text-[#A0792E]">“Novo assessor”</span> para começar.
+          Nenhum assessor cadastrado. Clique em <span className="font-semibold text-[#A68B4B]">“Novo assessor”</span> para começar.
         </div>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
@@ -178,7 +178,7 @@ export default function EquipePage() {
 
 function StatCard({ icon: Icon, label, value }: { icon: React.ComponentType<{ size?: number; className?: string }>; label: string; value: string }) {
   return (
-    <div className="p-4 rounded-2xl bg-white dark:bg-[#1B1B1B] border border-gray-200 dark:border-[#2B2B2B]">
+    <div className="p-4 rounded-2xl bg-white dark:bg-[#141414] border border-gray-200 dark:border-[#2A2A2A]">
       <div className="flex items-center gap-2 text-[11px] uppercase tracking-wide text-gray-500 dark:text-gray-400 font-semibold">
         <Icon size={12} /> {label}
       </div>
@@ -190,7 +190,7 @@ function StatCard({ icon: Icon, label, value }: { icon: React.ComponentType<{ si
 function MembroCard({ membro, onEdit }: { membro: EquipeMembro; onEdit: () => void }) {
   return (
     <div
-      className={`p-4 rounded-2xl bg-white dark:bg-[#1B1B1B] border border-gray-200 dark:border-[#2B2B2B] hover:border-[#A0792E]/50 transition-colors cursor-pointer ${membro.ativo ? '' : 'opacity-60'}`}
+      className={`p-4 rounded-2xl bg-white dark:bg-[#141414] border border-gray-200 dark:border-[#2A2A2A] hover:border-[#A68B4B]/50 transition-colors cursor-pointer ${membro.ativo ? '' : 'opacity-60'}`}
       onClick={onEdit}
     >
       <div className="flex items-start gap-3">
@@ -213,14 +213,14 @@ function MembroCard({ membro, onEdit }: { membro: EquipeMembro; onEdit: () => vo
             <div className="text-xs text-gray-500 dark:text-gray-400 truncate">{membro.apelido}</div>
           )}
           {membro.empresa && (
-            <div className="mt-1 inline-flex items-center gap-1 text-[10px] uppercase font-bold px-2 py-0.5 rounded-full bg-[#A0792E]/10 text-[#A0792E]">
+            <div className="mt-1 inline-flex items-center gap-1 text-[10px] uppercase font-bold px-2 py-0.5 rounded-full bg-[#A68B4B]/10 text-[#A68B4B]">
               <Building2 size={10} /> {membro.empresa}
             </div>
           )}
         </div>
         <button
           onClick={(e) => { e.stopPropagation(); onEdit() }}
-          className="p-1.5 rounded-lg text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 hover:bg-gray-100 dark:hover:bg-[#262626]"
+          className="p-1.5 rounded-lg text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 hover:bg-gray-100 dark:hover:bg-[#1A1A1A]"
           aria-label="Editar"
         >
           <Edit2 size={14} />
@@ -276,11 +276,11 @@ function FormModal({
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
       <form
         onSubmit={handleSubmit}
-        className="w-full max-w-lg max-h-[90vh] overflow-y-auto rounded-2xl bg-white dark:bg-[#1B1B1B] border border-gray-200 dark:border-[#2B2B2B] shadow-2xl"
+        className="w-full max-w-lg max-h-[90vh] overflow-y-auto rounded-2xl bg-white dark:bg-[#141414] border border-gray-200 dark:border-[#2A2A2A] shadow-2xl"
       >
-        <div className="flex items-center justify-between p-5 border-b border-gray-200 dark:border-[#2B2B2B]">
+        <div className="flex items-center justify-between p-5 border-b border-gray-200 dark:border-[#2A2A2A]">
           <h2 className="font-semibold text-gray-800 dark:text-gray-100">{title}</h2>
-          <button type="button" onClick={onClose} className="p-1 rounded-lg hover:bg-gray-100 dark:hover:bg-[#262626]">
+          <button type="button" onClick={onClose} className="p-1 rounded-lg hover:bg-gray-100 dark:hover:bg-[#1A1A1A]">
             <X size={18} />
           </button>
         </div>
@@ -327,7 +327,7 @@ function FormModal({
               list="empresas-presets"
               value={form.empresa}
               onChange={e => set('empresa', e.target.value)}
-              className={inputCls} placeholder="Bula Assessoria, Fórmula do Boi…"
+              className={inputCls} placeholder="Bula Assessoria, Bula Remates…"
             />
             <datalist id="empresas-presets">
               {EMPRESA_PRESETS.map(e => <option key={e} value={e} />)}
@@ -340,12 +340,12 @@ function FormModal({
               <input
                 type="color" value={form.cor}
                 onChange={e => set('cor', e.target.value)}
-                className="w-10 h-10 rounded-lg border border-gray-200 dark:border-[#363636] cursor-pointer"
+                className="w-10 h-10 rounded-lg border border-gray-200 dark:border-[#333] cursor-pointer"
               />
               <input
                 value={form.cor}
                 onChange={e => set('cor', e.target.value)}
-                className={inputCls} placeholder="#A0792E"
+                className={inputCls} placeholder="#A68B4B"
               />
             </div>
             <div className="flex items-center gap-1.5 mt-2 flex-wrap">
@@ -364,7 +364,7 @@ function FormModal({
           <button
             type="button"
             onClick={() => setAdvanced(a => !a)}
-            className="text-xs font-semibold text-gray-500 dark:text-gray-400 inline-flex items-center gap-1 hover:text-[#A0792E]"
+            className="text-xs font-semibold text-gray-500 dark:text-gray-400 inline-flex items-center gap-1 hover:text-[#A68B4B]"
           >
             {advanced ? <ChevronUp size={12} /> : <ChevronDown size={12} />}
             Campos avançados
@@ -426,7 +426,7 @@ function FormModal({
           )}
         </div>
 
-        <div className="flex items-center justify-between gap-3 p-5 border-t border-gray-200 dark:border-[#2B2B2B]">
+        <div className="flex items-center justify-between gap-3 p-5 border-t border-gray-200 dark:border-[#2A2A2A]">
           {allowDelete && onDelete ? (
             <button
               type="button"
@@ -445,13 +445,13 @@ function FormModal({
           <div className="flex items-center gap-2">
             <button
               type="button" onClick={onClose}
-              className="px-3 py-2 rounded-xl text-xs font-semibold text-gray-600 dark:text-gray-300 border border-gray-200 dark:border-[#363636] hover:bg-gray-50 dark:hover:bg-[#222222]"
+              className="px-3 py-2 rounded-xl text-xs font-semibold text-gray-600 dark:text-gray-300 border border-gray-200 dark:border-[#333] hover:bg-gray-50 dark:hover:bg-[#222222]"
             >
               Cancelar
             </button>
             <button
               type="submit" disabled={saving || !form.nome.trim()}
-              className="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-semibold text-white bg-[#A0792E] hover:bg-[#8E6A28] disabled:opacity-50"
+              className="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-semibold text-white bg-[#A68B4B] hover:bg-[#8E6A28] disabled:opacity-50"
             >
               {saving ? <Loader2 size={13} className="animate-spin" /> : <Save size={13} />}
               Salvar

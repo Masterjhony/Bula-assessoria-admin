@@ -25,9 +25,9 @@ interface CRMModalProps {
 /** Cartão de seção do formulário — agrupa campos relacionados sob um cabeçalho com ícone. */
 function FormSection({ icon: Icon, title, children }: { icon: LucideIcon; title: string; children: React.ReactNode }) {
     return (
-        <section className="border border-gray-200 dark:border-[#3f3f3f] rounded-xl overflow-hidden">
-            <div className="flex items-center gap-2 px-4 py-3 bg-gray-50 dark:bg-[#262626] border-b border-gray-200 dark:border-[#3f3f3f]">
-                <Icon size={15} className="text-[#A0792E]" />
+        <section className="border border-gray-200 dark:border-[#333] rounded-xl overflow-hidden">
+            <div className="flex items-center gap-2 px-4 py-3 bg-gray-50 dark:bg-[#1A1A1A] border-b border-gray-200 dark:border-[#333]">
+                <Icon size={15} className="text-[#A68B4B]" />
                 <span className="text-sm font-semibold text-gray-700 dark:text-gray-300">{title}</span>
             </div>
             <div className="p-4 space-y-4">{children}</div>
@@ -126,21 +126,21 @@ export function CRMModal({ isOpen, onClose, lead, defaultStatus, defaultFunnelId
         }
     };
 
-    const inputClass = "w-full bg-gray-50 dark:bg-[#262626] border border-gray-200 dark:border-[#3f3f3f] rounded-xl px-4 py-3 text-gray-900 dark:text-white focus:ring-2 focus:ring-[#A0792E] focus:border-transparent transition-all";
+    const inputClass = "w-full bg-gray-50 dark:bg-[#1A1A1A] border border-gray-200 dark:border-[#333] rounded-xl px-4 py-3 text-gray-900 dark:text-white focus:ring-2 focus:ring-[#A68B4B] focus:border-transparent transition-all";
     const labelClass = "block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1";
 
     return (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
             <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={onClose} />
-            <div className="relative bg-white dark:bg-[#1d1d1d] w-full max-w-3xl max-h-[90vh] overflow-y-auto rounded-3xl border border-gray-200 dark:border-[#2e2e2e] shadow-2xl">
-                <div className="sticky top-0 bg-white/80 dark:bg-[#1d1d1d]/80 backdrop-blur-md p-6 border-b border-gray-200 dark:border-[#2e2e2e] flex justify-between items-start z-10">
+            <div className="relative bg-white dark:bg-[#141414] w-full max-w-3xl max-h-[90vh] overflow-y-auto rounded-3xl border border-gray-200 dark:border-[#2A2A2A] shadow-2xl">
+                <div className="sticky top-0 bg-white/80 dark:bg-[#141414]/80 backdrop-blur-md p-6 border-b border-gray-200 dark:border-[#2A2A2A] flex justify-between items-start z-10">
                     <div className="flex flex-col gap-1">
                         <div className="flex items-center gap-2">
                             <h2 className="text-xl font-bold dark:text-white">
                                 {lead ? 'Editar Lead' : 'Novo Lead'}
                             </h2>
                             {formData.is_preferencial && (
-                                <span className="inline-flex items-center gap-1 text-[10px] font-bold uppercase px-2 py-0.5 rounded-full bg-[#A0792E]/15 text-[#A0792E]">
+                                <span className="inline-flex items-center gap-1 text-[10px] font-bold uppercase px-2 py-0.5 rounded-full bg-[#A68B4B]/15 text-[#A68B4B]">
                                     <Crown size={10} /> Preferencial
                                 </span>
                             )}
@@ -295,17 +295,17 @@ export function CRMModal({ isOpen, onClose, lead, defaultStatus, defaultFunnelId
                                 onClick={() => setFormData({ ...formData, is_preferencial: !formData.is_preferencial })}
                                 className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl border transition-all ${
                                     formData.is_preferencial
-                                        ? 'border-[#A0792E]/50 bg-[#A0792E]/8 dark:bg-[#A0792E]/10'
-                                        : 'border-gray-200 dark:border-[#3f3f3f] bg-gray-50 dark:bg-[#262626] hover:border-[#A0792E]/30'
+                                        ? 'border-[#A68B4B]/50 bg-[#A68B4B]/8 dark:bg-[#A68B4B]/10'
+                                        : 'border-gray-200 dark:border-[#333] bg-gray-50 dark:bg-[#1A1A1A] hover:border-[#A68B4B]/30'
                                 }`}
                             >
                                 <span className={`w-9 h-9 rounded-lg flex items-center justify-center flex-shrink-0 ${
-                                    formData.is_preferencial ? 'bg-[#A0792E] text-black' : 'bg-gray-200 dark:bg-[#2e2e2e] text-gray-400'
+                                    formData.is_preferencial ? 'bg-[#A68B4B] text-black' : 'bg-gray-200 dark:bg-[#2e2e2e] text-gray-400'
                                 }`}>
                                     <Crown size={16} />
                                 </span>
                                 <div className="flex-1 text-left">
-                                    <p className={`text-sm font-bold ${formData.is_preferencial ? 'text-[#A0792E]' : 'text-gray-700 dark:text-gray-300'}`}>
+                                    <p className={`text-sm font-bold ${formData.is_preferencial ? 'text-[#A68B4B]' : 'text-gray-700 dark:text-gray-300'}`}>
                                         Lead preferencial
                                     </p>
                                     <p className="text-xs text-gray-500 dark:text-gray-400 leading-tight">
@@ -313,7 +313,7 @@ export function CRMModal({ isOpen, onClose, lead, defaultStatus, defaultFunnelId
                                     </p>
                                 </div>
                                 <div className={`w-10 h-6 rounded-full p-0.5 transition-colors flex-shrink-0 ${
-                                    formData.is_preferencial ? 'bg-[#A0792E]' : 'bg-gray-300 dark:bg-[#3f3f3f]'
+                                    formData.is_preferencial ? 'bg-[#A68B4B]' : 'bg-gray-300 dark:bg-[#3f3f3f]'
                                 }`}>
                                     <div className={`w-5 h-5 rounded-full bg-white shadow transition-transform ${
                                         formData.is_preferencial ? 'translate-x-4' : ''
@@ -476,8 +476,8 @@ export function CRMModal({ isOpen, onClose, lead, defaultStatus, defaultFunnelId
                                 </div>
                             </div>
 
-                            <div className="flex items-center gap-3 px-4 py-3 rounded-xl border border-[#A0792E]/30 bg-[#A0792E]/5">
-                                <span className="text-xs font-bold uppercase tracking-wider text-[#A0792E] flex-1">
+                            <div className="flex items-center gap-3 px-4 py-3 rounded-xl border border-[#A68B4B]/30 bg-[#A68B4B]/5">
+                                <span className="text-xs font-bold uppercase tracking-wider text-[#A68B4B] flex-1">
                                     MQL — Marketing Qualified Lead
                                     <span className="block font-normal normal-case text-[11px] text-gray-500 dark:text-gray-400 tracking-normal mt-0.5">
                                         Definido automaticamente quando o lead tem ≥100 cabeças. Você pode ajustar manualmente.
@@ -486,7 +486,7 @@ export function CRMModal({ isOpen, onClose, lead, defaultStatus, defaultFunnelId
                                 <button
                                     type="button"
                                     onClick={() => setFormData({ ...formData, is_mql: !formData.is_mql })}
-                                    className={`relative w-10 h-5 rounded-full transition-colors shrink-0 ${formData.is_mql ? 'bg-[#A0792E]' : 'bg-gray-300 dark:bg-[#3f3f3f]'}`}
+                                    className={`relative w-10 h-5 rounded-full transition-colors shrink-0 ${formData.is_mql ? 'bg-[#A68B4B]' : 'bg-gray-300 dark:bg-[#3f3f3f]'}`}
                                     aria-label="Alternar MQL"
                                 >
                                     <span className={`absolute top-0.5 left-0.5 w-4 h-4 bg-white rounded-full shadow transition-transform ${formData.is_mql ? 'translate-x-5' : ''}`} />
@@ -552,20 +552,20 @@ export function CRMModal({ isOpen, onClose, lead, defaultStatus, defaultFunnelId
                         )}
 
                         {/* Seção Origem (colapsável) */}
-                        <div className="border border-gray-200 dark:border-[#3f3f3f] rounded-xl overflow-hidden">
+                        <div className="border border-gray-200 dark:border-[#333] rounded-xl overflow-hidden">
                             <button
                                 type="button"
                                 onClick={() => setShowOrigemSection(!showOrigemSection)}
-                                className="w-full flex items-center justify-between px-4 py-3 bg-gray-50 dark:bg-[#262626] hover:bg-gray-100 dark:hover:bg-[#2e2e2e] transition-colors text-sm font-semibold text-gray-700 dark:text-gray-300"
+                                className="w-full flex items-center justify-between px-4 py-3 bg-gray-50 dark:bg-[#1A1A1A] hover:bg-gray-100 dark:hover:bg-[#2e2e2e] transition-colors text-sm font-semibold text-gray-700 dark:text-gray-300"
                             >
                                 <span className="flex items-center gap-2">
-                                    <BarChart3 size={15} className="text-[#A0792E]" />
+                                    <BarChart3 size={15} className="text-[#A68B4B]" />
                                     Origem / Campanha
                                 </span>
                                 {showOrigemSection ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
                             </button>
                             {showOrigemSection && (
-                                <div className="p-4 space-y-3 border-t border-gray-200 dark:border-[#3f3f3f]">
+                                <div className="p-4 space-y-3 border-t border-gray-200 dark:border-[#333]">
                                     <div className="grid grid-cols-2 gap-3">
                                         <div>
                                             <label className="block text-xs font-medium text-gray-500 mb-1">Source</label>
@@ -610,7 +610,7 @@ export function CRMModal({ isOpen, onClose, lead, defaultStatus, defaultFunnelId
                         </div>
                     </div>
 
-                    <div className="flex items-center justify-between pt-6 border-t border-gray-200 dark:border-[#2e2e2e]">
+                    <div className="flex items-center justify-between pt-6 border-t border-gray-200 dark:border-[#2A2A2A]">
                         {lead ? (
                             <button
                                 type="button"
@@ -635,7 +635,7 @@ export function CRMModal({ isOpen, onClose, lead, defaultStatus, defaultFunnelId
                             <button
                                 type="submit"
                                 disabled={isSaving}
-                                className="flex items-center gap-2 px-6 py-2.5 bg-gradient-to-r from-[#A0792E] to-[#D4A85C] hover:from-[#9A7209] hover:to-[#A0792E] text-black font-bold rounded-xl transition-all shadow-lg shadow-[#A0792E]/20 disabled:opacity-50"
+                                className="flex items-center gap-2 px-6 py-2.5 bg-gradient-to-r from-[#A68B4B] to-[#C8A96E] hover:from-[#9A7209] hover:to-[#A68B4B] text-black font-bold rounded-xl transition-all shadow-lg shadow-[#A68B4B]/20 disabled:opacity-50"
                             >
                                 <Save size={18} />
                                 {isSaving ? 'Salvando...' : 'Salvar'}

@@ -16,7 +16,7 @@ export default async function RelatoriosOperacionaisPage() {
         <div className="h-full min-h-[500px] flex flex-col pb-6">
             <Suspense fallback={
                 <div className="flex items-center justify-center py-24">
-                    <Loader2 size={28} className="animate-spin text-[#A0792E]" />
+                    <Loader2 size={28} className="animate-spin text-[#A68B4B]" />
                 </div>
             }>
                 <RelatoriosClient

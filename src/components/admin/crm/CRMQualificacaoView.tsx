@@ -159,21 +159,21 @@ export function CRMQualificacaoView({ leads, crmConfig, onLeadUpdated, onOpenLea
         }
     };
 
-    const inputCls = 'w-full px-2.5 py-1.5 text-sm rounded-lg border border-gray-200 dark:border-[#363636] bg-white dark:bg-[#1B1B1B] text-gray-900 dark:text-white placeholder-gray-400 focus:outline-none focus:border-[#A0792E] transition-colors';
+    const inputCls = 'w-full px-2.5 py-1.5 text-sm rounded-lg border border-gray-200 dark:border-[#333] bg-white dark:bg-[#141414] text-gray-900 dark:text-white placeholder-gray-400 focus:outline-none focus:border-[#A68B4B] transition-colors';
 
     return (
         <div className="flex flex-col gap-4 pb-2">
             {/* Header / KPIs */}
             <div className="grid grid-cols-2 md:grid-cols-6 gap-3">
                 {[
-                    { label: 'Aguardando qualificação', value: stats.total, icon: ListChecks, color: 'text-[#A0792E]', bg: 'bg-[#A0792E]/10' },
+                    { label: 'Aguardando qualificação', value: stats.total, icon: ListChecks, color: 'text-[#A68B4B]', bg: 'bg-[#A68B4B]/10' },
                     { label: 'MQLs (≥100 cab.)', value: stats.mqls, icon: Crown, color: 'text-fuchsia-600 dark:text-fuchsia-400', bg: 'bg-fuchsia-500/10' },
                     { label: 'Sem cabeçinhas', value: stats.semAnimais, icon: Beef, color: 'text-rose-500', bg: 'bg-rose-500/10' },
                     { label: 'Sem interesse', value: stats.semInteresse, icon: AlertCircle, color: 'text-amber-500', bg: 'bg-amber-500/10' },
                     { label: 'Sem localização', value: stats.semLocal, icon: MapPin, color: 'text-blue-500', bg: 'bg-blue-500/10' },
                     { label: 'Prontos p/ CRM', value: stats.completos, icon: Sparkles, color: 'text-emerald-500', bg: 'bg-emerald-500/10' },
                 ].map(({ label, value, icon: Icon, color, bg }) => (
-                    <div key={label} className="bg-white dark:bg-[#262626] rounded-xl border border-gray-200 dark:border-[#2e2e2e] p-4 flex items-center gap-3">
+                    <div key={label} className="bg-white dark:bg-[#1A1A1A] rounded-xl border border-gray-200 dark:border-[#2A2A2A] p-4 flex items-center gap-3">
                         <div className={`w-10 h-10 rounded-xl ${bg} flex items-center justify-center shrink-0`}>
                             <Icon size={18} className={color} />
                         </div>
@@ -193,23 +193,23 @@ export function CRMQualificacaoView({ leads, crmConfig, onLeadUpdated, onOpenLea
                     value={search}
                     onChange={e => setSearch(e.target.value)}
                     placeholder="Buscar por nome, telefone, cidade, interesse…"
-                    className="w-full pl-10 pr-4 py-2.5 rounded-xl border border-gray-200 dark:border-[#2e2e2e] bg-white dark:bg-[#262626] text-sm text-gray-800 dark:text-gray-200 placeholder-gray-400 focus:outline-none focus:border-[#A0792E]"
+                    className="w-full pl-10 pr-4 py-2.5 rounded-xl border border-gray-200 dark:border-[#2A2A2A] bg-white dark:bg-[#1A1A1A] text-sm text-gray-800 dark:text-gray-200 placeholder-gray-400 focus:outline-none focus:border-[#A68B4B]"
                 />
             </div>
 
             {/* Help message */}
-            <div className="flex items-start gap-2 px-4 py-3 rounded-xl bg-[#A0792E]/5 border border-[#A0792E]/20 text-xs text-gray-700 dark:text-gray-300">
-                <Sparkles size={14} className="text-[#A0792E] flex-shrink-0 mt-0.5" />
+            <div className="flex items-start gap-2 px-4 py-3 rounded-xl bg-[#A68B4B]/5 border border-[#A68B4B]/20 text-xs text-gray-700 dark:text-gray-300">
+                <Sparkles size={14} className="text-[#A68B4B] flex-shrink-0 mt-0.5" />
                 <p>
                     Os leads que entram pelo grupo de WhatsApp aparecem aqui para serem qualificados.
                     Preencha os campos obrigatórios (cabeçinhas, interesse, localização, contato) e clique em
-                    <span className="font-semibold text-[#A0792E]"> &ldquo;Mover para o CRM&rdquo;</span> quando o lead estiver pronto.
+                    <span className="font-semibold text-[#A68B4B]"> &ldquo;Mover para o CRM&rdquo;</span> quando o lead estiver pronto.
                 </p>
             </div>
 
             {/* Lista */}
             {qualificationLeads.length === 0 ? (
-                <div className="rounded-2xl border border-dashed border-gray-200 dark:border-[#363636] py-12 text-center text-gray-400">
+                <div className="rounded-2xl border border-dashed border-gray-200 dark:border-[#333] py-12 text-center text-gray-400">
                     <ListChecks size={32} className="mx-auto mb-2 opacity-40" />
                     <p className="text-sm">Nenhum lead aguardando qualificação.</p>
                 </div>
@@ -227,10 +227,10 @@ export function CRMQualificacaoView({ leads, crmConfig, onLeadUpdated, onOpenLea
                         // MQL ganha visual de prioridade — borda dourada e fundo levemente
                         // âmbar — para o operador identificar de relance quem atender primeiro.
                         const cardBorder = isMql
-                            ? 'border-[#A0792E]/60 bg-gradient-to-r from-[#A0792E]/[0.06] to-transparent ring-1 ring-[#A0792E]/30'
+                            ? 'border-[#A68B4B]/60 bg-gradient-to-r from-[#A68B4B]/[0.06] to-transparent ring-1 ring-[#A68B4B]/30'
                             : ready
                                 ? 'border-emerald-500/30 bg-emerald-500/5 dark:bg-emerald-500/[0.04]'
-                                : 'border-gray-200 dark:border-[#2e2e2e] bg-white dark:bg-[#262626]';
+                                : 'border-gray-200 dark:border-[#2A2A2A] bg-white dark:bg-[#1A1A1A]';
 
                         return (
                             <div
@@ -243,7 +243,7 @@ export function CRMQualificacaoView({ leads, crmConfig, onLeadUpdated, onOpenLea
                                         <div className="flex items-center gap-2 flex-wrap">
                                             {isMql && (
                                                 <span
-                                                    className="inline-flex items-center gap-1 text-[10px] font-extrabold uppercase px-2 py-0.5 rounded-full bg-gradient-to-r from-[#A0792E] to-[#D4A85C] text-black shadow-sm"
+                                                    className="inline-flex items-center gap-1 text-[10px] font-extrabold uppercase px-2 py-0.5 rounded-full bg-gradient-to-r from-[#A68B4B] to-[#C8A96E] text-black shadow-sm"
                                                     title="Marketing Qualified Lead — ≥100 cabeças. Prioridade de atendimento."
                                                 >
                                                     <Crown size={10} /> MQL
@@ -252,7 +252,7 @@ export function CRMQualificacaoView({ leads, crmConfig, onLeadUpdated, onOpenLea
                                             <button
                                                 type="button"
                                                 onClick={() => onOpenLead(lead)}
-                                                className="font-bold text-gray-900 dark:text-white text-base hover:text-[#A0792E] transition-colors leading-tight text-left"
+                                                className="font-bold text-gray-900 dark:text-white text-base hover:text-[#A68B4B] transition-colors leading-tight text-left"
                                             >
                                                 {lead.nome}
                                             </button>
@@ -301,7 +301,7 @@ export function CRMQualificacaoView({ leads, crmConfig, onLeadUpdated, onOpenLea
                                         type="button"
                                         onClick={() => qualificar(lead)}
                                         disabled={isMoving}
-                                        className="flex items-center gap-1.5 px-3 py-2 rounded-lg bg-gradient-to-r from-[#A0792E] to-[#D4A85C] text-black text-xs font-bold hover:shadow-md transition-all disabled:opacity-50 flex-shrink-0"
+                                        className="flex items-center gap-1.5 px-3 py-2 rounded-lg bg-gradient-to-r from-[#A68B4B] to-[#C8A96E] text-black text-xs font-bold hover:shadow-md transition-all disabled:opacity-50 flex-shrink-0"
                                         title="Mover para o CRM principal"
                                     >
                                         {isMoving ? <Loader2 size={12} className="animate-spin" /> : <ArrowRight size={12} />}
@@ -392,7 +392,7 @@ export function CRMQualificacaoView({ leads, crmConfig, onLeadUpdated, onOpenLea
                                     <button
                                         type="button"
                                         onClick={() => onOpenLead(lead)}
-                                        className="flex items-center gap-1 text-xs text-gray-500 hover:text-[#A0792E] transition-colors"
+                                        className="flex items-center gap-1 text-xs text-gray-500 hover:text-[#A68B4B] transition-colors"
                                     >
                                         Ver perfil completo <ChevronRight size={12} />
                                     </button>
@@ -402,7 +402,7 @@ export function CRMQualificacaoView({ leads, crmConfig, onLeadUpdated, onOpenLea
                     })}
 
                     {qualificationLeads.length > 0 && (
-                        <div className="rounded-xl border border-gray-200 dark:border-[#2e2e2e] bg-white dark:bg-[#262626]">
+                        <div className="rounded-xl border border-gray-200 dark:border-[#2A2A2A] bg-white dark:bg-[#1A1A1A]">
                             <Pagination
                                 page={page}
                                 totalPages={totalPages}

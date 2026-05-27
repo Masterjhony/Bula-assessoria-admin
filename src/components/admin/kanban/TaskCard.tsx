@@ -65,7 +65,7 @@ export function TaskCard({ task, onClick, allTasks = [], doneStatus }: TaskCardP
             <div
                 ref={setNodeRef}
                 style={style}
-                className="opacity-50 bg-[#262626] p-4 rounded-xl border-2 border-dashed border-[#A0792E]/50 h-[120px]"
+                className="opacity-50 bg-[#1A1A1A] p-4 rounded-xl border-2 border-dashed border-[#A68B4B]/50 h-[120px]"
             />
         );
     }
@@ -77,7 +77,7 @@ export function TaskCard({ task, onClick, allTasks = [], doneStatus }: TaskCardP
     const attachmentCount = task.tactical_task_attachments?.[0]?.count || 0;
 
     // Border color based on state
-    let borderClass = 'border-gray-200/80 dark:border-[#3f3f3f]/80 hover:border-[#A0792E]/60';
+    let borderClass = 'border-gray-200/80 dark:border-[#333]/80 hover:border-[#A68B4B]/60';
     if (isBlocked) borderClass = 'border-red-400/70 dark:border-red-500/50';
     else if (isOverdue) borderClass = 'border-red-300/70 dark:border-red-500/40';
     else if (isStale) borderClass = 'border-amber-300/70 dark:border-amber-500/40';
@@ -89,7 +89,7 @@ export function TaskCard({ task, onClick, allTasks = [], doneStatus }: TaskCardP
             {...attributes}
             {...listeners}
             onClick={() => onClick(task)}
-            className={`group relative bg-white dark:bg-[#262626] p-5 rounded-xl border ${borderClass} shadow-sm hover:shadow-lg transition-all duration-200 hover:-translate-y-0.5 cursor-grab active:cursor-grabbing flex flex-col gap-3`}
+            className={`group relative bg-white dark:bg-[#1A1A1A] p-5 rounded-xl border ${borderClass} shadow-sm hover:shadow-lg transition-all duration-200 hover:-translate-y-0.5 cursor-grab active:cursor-grabbing flex flex-col gap-3`}
         >
             {/* Status badges row */}
             {(isBlocked || isOverdue || isStale || task.whatsapp_group_id) && (
@@ -126,7 +126,7 @@ export function TaskCard({ task, onClick, allTasks = [], doneStatus }: TaskCardP
                 </span>
                 <div className="flex items-center gap-1.5">
                     {scoreUsed && (
-                        <div className="flex items-center gap-1 text-[10px] font-bold px-2 py-1 rounded-md bg-[#A0792E]/10 text-[#A0792E] border border-[#A0792E]/20">
+                        <div className="flex items-center gap-1 text-[10px] font-bold px-2 py-1 rounded-md bg-[#A68B4B]/10 text-[#A68B4B] border border-[#A68B4B]/20">
                             <Zap size={9} />
                             {score}
                         </div>
@@ -134,7 +134,7 @@ export function TaskCard({ task, onClick, allTasks = [], doneStatus }: TaskCardP
                     {task.due_date && (
                         <div className={`flex items-center gap-1.5 text-[11px] font-medium px-2 py-1 rounded-md border ${isOverdue
                             ? 'text-red-600 bg-red-50 border-red-200 dark:text-red-400 dark:bg-red-500/10 dark:border-red-500/20'
-                            : 'text-gray-500 dark:text-gray-400 bg-gray-50 dark:bg-[#2e2e2e] border-gray-100 dark:border-[#3f3f3f]'
+                            : 'text-gray-500 dark:text-gray-400 bg-gray-50 dark:bg-[#2e2e2e] border-gray-100 dark:border-[#333]'
                             }`}>
                             <Calendar size={12} />
                             <span>{new Date(task.due_date).toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit' })}</span>
@@ -154,7 +154,7 @@ export function TaskCard({ task, onClick, allTasks = [], doneStatus }: TaskCardP
             )}
 
             {(totalChecklists > 0 || commentCount > 0 || attachmentCount > 0 || (task.assignees && task.assignees.length > 0)) && (
-                <div className="flex items-center justify-between pt-2 border-t border-gray-100 dark:border-[#2e2e2e]">
+                <div className="flex items-center justify-between pt-2 border-t border-gray-100 dark:border-[#2A2A2A]">
                     <div className="flex items-center gap-1.5">
                         {totalChecklists > 0 && (
                             <div className={`flex items-center gap-1.5 text-[11px] font-bold px-2 py-1 rounded-md flex-shrink-0 transition-colors
@@ -185,7 +185,7 @@ export function TaskCard({ task, onClick, allTasks = [], doneStatus }: TaskCardP
                                 {uniqueAssignees.slice(0, 3).map((assignee, index) => (
                                     <div
                                         key={index}
-                                        className="w-6 h-6 rounded-full bg-gradient-to-br from-[#A0792E] to-[#9A7209] flex items-center justify-center text-[8px] font-bold text-black border border-[#262626] shrink-0 transform transition-transform hover:scale-110 hover:z-10"
+                                        className="w-6 h-6 rounded-full bg-gradient-to-br from-[#A68B4B] to-[#9A7209] flex items-center justify-center text-[8px] font-bold text-black border border-[#262626] shrink-0 transform transition-transform hover:scale-110 hover:z-10"
                                         title={assignee}
                                     >
                                         {assignee.charAt(0).toUpperCase()}

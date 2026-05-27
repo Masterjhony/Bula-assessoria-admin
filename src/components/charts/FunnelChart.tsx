@@ -1,10 +1,10 @@
 'use client';
 
 const BRAND = {
-    BRONZE: '#A0792E',
+    BRONZE: '#A68B4B',
     BRONZE_DEEP: '#6B4F1E',
     BRONZE_MID: '#8B6826',
-    BRONZE_PALE: '#D4A85C',
+    BRONZE_PALE: '#C8A96E',
     TECH_GREEN: '#7FD4A0',
     TECH_BLUE: '#1E3A5F',
     LOSS: '#A04545',

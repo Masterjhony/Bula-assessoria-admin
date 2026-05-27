@@ -331,11 +331,11 @@ function emptyForm(): FormState {
   return { nome: '', data: '', tipo: '', local: '', animais: 0, expectativa: 0, meta_bula: 0, realizado_bula: 0, status: 'confirmado', img: '', horario: '', transmissao: '', modelo: 'PRESENCIAL', leiloeira: 'BULA', condicao: '', frete_gratis: '', acordo_comissao: '', catalogo_url: '' }
 }
 
-const inputCls = "w-full px-3 py-2 rounded-xl border border-gray-200 dark:border-[#363636] bg-white dark:bg-[#161616] text-sm text-gray-800 dark:text-gray-200 placeholder-gray-400 focus:outline-none focus:border-[#A0792E] transition-colors"
+const inputCls = "w-full px-3 py-2 rounded-xl border border-gray-200 dark:border-[#333] bg-white dark:bg-[#0D0D0D] text-sm text-gray-800 dark:text-gray-200 placeholder-gray-400 focus:outline-none focus:border-[#A68B4B] transition-colors"
 
 // ── ChecklistPanel ────────────────────────────────────────────────────────────
 
-const GROUP_COLORS = ['#4A8FBF', '#C8A96E', '#6B8F5C', '#A0792E', '#A864AE', '#D4707A']
+const GROUP_COLORS = ['#4A8FBF', '#C8A96E', '#6B8F5C', '#A68B4B', '#A864AE', '#D4707A']
 
 type EquipeOption = { id: string; nome: string; iniciais: string; cor: string; empresa: string }
 
@@ -449,8 +449,8 @@ function ChecklistPanel({ leilao, onUpdate }: { leilao: BulaLeilao; onUpdate: (t
   return (
     <div className="space-y-4">
       <div className="flex items-center gap-3">
-        <div className="flex-1 bg-gray-100 dark:bg-[#262626] rounded-full h-2 overflow-hidden">
-          <div className="h-full rounded-full transition-all duration-500" style={{ width: `${pct}%`, background: pct === 100 ? '#22c55e' : 'linear-gradient(to right, #A0792E, #D4A85C)' }} />
+        <div className="flex-1 bg-gray-100 dark:bg-[#1A1A1A] rounded-full h-2 overflow-hidden">
+          <div className="h-full rounded-full transition-all duration-500" style={{ width: `${pct}%`, background: pct === 100 ? '#22c55e' : 'linear-gradient(to right, #A68B4B, #C8A96E)' }} />
         </div>
         <span className="text-xs font-semibold text-gray-500 w-14 text-right">{done}/{total} {saving && <Loader2 size={10} className="inline animate-spin ml-1" />}</span>
       </div>
@@ -458,8 +458,8 @@ function ChecklistPanel({ leilao, onUpdate }: { leilao: BulaLeilao; onUpdate: (t
         const isOpen = expanded.has(group.nome)
         const { done: gDone, total: gTotal } = groupProgress(group)
         return (
-          <div key={group.nome} className="rounded-xl border border-gray-100 dark:border-[#2e2e2e] overflow-hidden group/group">
-            <div className="w-full flex items-center gap-3 px-4 py-3 bg-gray-50 dark:bg-[#212121] hover:bg-gray-100 dark:hover:bg-[#262626] transition-colors">
+          <div key={group.nome} className="rounded-xl border border-gray-100 dark:border-[#2A2A2A] overflow-hidden group/group">
+            <div className="w-full flex items-center gap-3 px-4 py-3 bg-gray-50 dark:bg-[#141414] hover:bg-gray-100 dark:hover:bg-[#1A1A1A] transition-colors">
               <button type="button" onClick={() => setExpanded(prev => { const n = new Set(prev); n.has(group.nome) ? n.delete(group.nome) : n.add(group.nome); return n })} className="flex-1 flex items-center gap-3 text-left">
                 <span className="w-2.5 h-2.5 rounded-full flex-shrink-0" style={{ background: group.cor }} />
                 <div className="flex-1 min-w-0">
@@ -497,7 +497,7 @@ function ChecklistPanel({ leilao, onUpdate }: { leilao: BulaLeilao; onUpdate: (t
                             className="mt-0.5 flex-shrink-0"
                             title={task.done ? 'Marcar como pendente' : 'Marcar como concluído'}
                           >
-                            <span className={`w-4 h-4 rounded flex items-center justify-center border transition-all ${task.done ? 'bg-[#A0792E] border-[#A0792E]' : 'border-gray-200 dark:border-[#3f3f3f] hover:border-[#A0792E]/50'}`}>
+                            <span className={`w-4 h-4 rounded flex items-center justify-center border transition-all ${task.done ? 'bg-[#A68B4B] border-[#A68B4B]' : 'border-gray-200 dark:border-[#333] hover:border-[#A68B4B]/50'}`}>
                               {task.done && <Check size={10} className="text-black" />}
                             </span>
                           </button>
@@ -547,7 +547,7 @@ function ChecklistPanel({ leilao, onUpdate }: { leilao: BulaLeilao; onUpdate: (t
                             <button
                               type="button"
                               onClick={() => { setEditingTask(isEditing ? null : task.id); setNewAnexoLbl(''); setNewAnexoUrl(''); }}
-                              className="p-1 rounded text-gray-400 hover:text-[#A0792E] hover:bg-[#A0792E]/10 transition-all"
+                              className="p-1 rounded text-gray-400 hover:text-[#A68B4B] hover:bg-[#A68B4B]/10 transition-all"
                               title={isEditing ? 'Fechar detalhes' : 'Editar detalhes'}
                             >
                               {isEditing ? <ChevronUp size={12} /> : <ChevronDown size={12} />}
@@ -564,7 +564,7 @@ function ChecklistPanel({ leilao, onUpdate }: { leilao: BulaLeilao; onUpdate: (t
                         </div>
 
                         {isEditing && (
-                          <div className="mt-2.5 ml-6 p-3 rounded-lg bg-gray-50 dark:bg-[#1B1B1B] border border-gray-100 dark:border-[#2A2A2A] space-y-2.5">
+                          <div className="mt-2.5 ml-6 p-3 rounded-lg bg-gray-50 dark:bg-[#141414] border border-gray-100 dark:border-[#2A2A2A] space-y-2.5">
                             <div className="grid grid-cols-2 gap-2">
                               <div>
                                 <label className="block text-[9px] font-bold uppercase tracking-wider text-gray-400 mb-1">Responsável</label>
@@ -583,7 +583,7 @@ function ChecklistPanel({ leilao, onUpdate }: { leilao: BulaLeilao; onUpdate: (t
                                     })
                                   }}
                                   placeholder={equipe.length ? 'Selecione ou digite' : 'Nome do responsável'}
-                                  className="w-full px-2 py-1.5 text-xs rounded-md border border-gray-200 dark:border-[#363636] bg-white dark:bg-[#161616] text-gray-800 dark:text-gray-200 focus:outline-none focus:border-[#A0792E]"
+                                  className="w-full px-2 py-1.5 text-xs rounded-md border border-gray-200 dark:border-[#333] bg-white dark:bg-[#0D0D0D] text-gray-800 dark:text-gray-200 focus:outline-none focus:border-[#A68B4B]"
                                 />
                                 <datalist id={`equipe-options-${task.id}`}>
                                   {equipe.map(m => (
@@ -602,7 +602,7 @@ function ChecklistPanel({ leilao, onUpdate }: { leilao: BulaLeilao; onUpdate: (t
                                     if (e.target.value === (task.fim || '')) return
                                     patchTask(gi, ti, { fim: e.target.value })
                                   }}
-                                  className="w-full px-2 py-1.5 text-xs rounded-md border border-gray-200 dark:border-[#363636] bg-white dark:bg-[#161616] text-gray-800 dark:text-gray-200 focus:outline-none focus:border-[#A0792E]"
+                                  className="w-full px-2 py-1.5 text-xs rounded-md border border-gray-200 dark:border-[#333] bg-white dark:bg-[#0D0D0D] text-gray-800 dark:text-gray-200 focus:outline-none focus:border-[#A68B4B]"
                                 />
                               </div>
                             </div>
@@ -617,7 +617,7 @@ function ChecklistPanel({ leilao, onUpdate }: { leilao: BulaLeilao; onUpdate: (t
                                 }}
                                 placeholder="Anotação rápida…"
                                 rows={2}
-                                className="w-full px-2 py-1.5 text-xs rounded-md border border-gray-200 dark:border-[#363636] bg-white dark:bg-[#161616] text-gray-800 dark:text-gray-200 placeholder-gray-400 focus:outline-none focus:border-[#A0792E] resize-none"
+                                className="w-full px-2 py-1.5 text-xs rounded-md border border-gray-200 dark:border-[#333] bg-white dark:bg-[#0D0D0D] text-gray-800 dark:text-gray-200 placeholder-gray-400 focus:outline-none focus:border-[#A68B4B] resize-none"
                               />
                             </div>
 
@@ -625,9 +625,9 @@ function ChecklistPanel({ leilao, onUpdate }: { leilao: BulaLeilao; onUpdate: (t
                               <label className="block text-[9px] font-bold uppercase tracking-wider text-gray-400 mb-1">Anexos / Links</label>
                               <div className="space-y-1.5">
                                 {anexos.map((a, ai) => (
-                                  <div key={ai} className="flex items-center gap-2 px-2 py-1 rounded-md bg-white dark:bg-[#161616] border border-gray-100 dark:border-[#2A2A2A]">
-                                    <Link2 size={10} className="text-[#A0792E] flex-shrink-0" />
-                                    <a href={a.url} target="_blank" rel="noopener noreferrer" className="flex-1 text-xs text-gray-700 dark:text-gray-300 hover:text-[#A0792E] truncate">{a.lbl}</a>
+                                  <div key={ai} className="flex items-center gap-2 px-2 py-1 rounded-md bg-white dark:bg-[#0D0D0D] border border-gray-100 dark:border-[#2A2A2A]">
+                                    <Link2 size={10} className="text-[#A68B4B] flex-shrink-0" />
+                                    <a href={a.url} target="_blank" rel="noopener noreferrer" className="flex-1 text-xs text-gray-700 dark:text-gray-300 hover:text-[#A68B4B] truncate">{a.lbl}</a>
                                     <button type="button" onClick={() => removeAnexo(gi, ti, ai)} className="p-0.5 rounded text-gray-300 hover:text-red-500" title="Remover">
                                       <X size={10} />
                                     </button>
@@ -639,7 +639,7 @@ function ChecklistPanel({ leilao, onUpdate }: { leilao: BulaLeilao; onUpdate: (t
                                     value={editingTask === task.id ? newAnexoLbl : ''}
                                     onChange={e => setNewAnexoLbl(e.target.value)}
                                     placeholder="Rótulo"
-                                    className="flex-1 px-2 py-1 text-xs rounded-md border border-gray-200 dark:border-[#363636] bg-white dark:bg-[#161616] text-gray-800 dark:text-gray-200 placeholder-gray-400 focus:outline-none focus:border-[#A0792E]"
+                                    className="flex-1 px-2 py-1 text-xs rounded-md border border-gray-200 dark:border-[#333] bg-white dark:bg-[#0D0D0D] text-gray-800 dark:text-gray-200 placeholder-gray-400 focus:outline-none focus:border-[#A68B4B]"
                                   />
                                   <input
                                     type="url"
@@ -647,13 +647,13 @@ function ChecklistPanel({ leilao, onUpdate }: { leilao: BulaLeilao; onUpdate: (t
                                     onChange={e => setNewAnexoUrl(e.target.value)}
                                     placeholder="https://…"
                                     onKeyDown={e => { if (e.key === 'Enter') { e.preventDefault(); addAnexo(gi, ti) } }}
-                                    className="flex-[2] px-2 py-1 text-xs rounded-md border border-gray-200 dark:border-[#363636] bg-white dark:bg-[#161616] text-gray-800 dark:text-gray-200 placeholder-gray-400 focus:outline-none focus:border-[#A0792E]"
+                                    className="flex-[2] px-2 py-1 text-xs rounded-md border border-gray-200 dark:border-[#333] bg-white dark:bg-[#0D0D0D] text-gray-800 dark:text-gray-200 placeholder-gray-400 focus:outline-none focus:border-[#A68B4B]"
                                   />
                                   <button
                                     type="button"
                                     onClick={() => addAnexo(gi, ti)}
                                     disabled={!newAnexoLbl.trim() || !newAnexoUrl.trim()}
-                                    className="px-2 py-1 rounded-md text-xs font-bold text-[#A0792E] hover:bg-[#A0792E]/10 disabled:opacity-30 disabled:hover:bg-transparent transition-colors"
+                                    className="px-2 py-1 rounded-md text-xs font-bold text-[#A68B4B] hover:bg-[#A68B4B]/10 disabled:opacity-30 disabled:hover:bg-transparent transition-colors"
                                   >
                                     <Plus size={11} />
                                   </button>
@@ -684,7 +684,7 @@ function ChecklistPanel({ leilao, onUpdate }: { leilao: BulaLeilao; onUpdate: (t
                         {task.subs.map((sub, si) => (
                           <div key={si} className="flex items-center gap-2.5 group/sub">
                             <button type="button" onClick={() => toggle(gi, ti, si)} className="flex items-center gap-2.5 flex-1 text-left">
-                              <span className={`w-4 h-4 rounded flex items-center justify-center flex-shrink-0 border transition-all ${sub.done ? 'bg-[#A0792E] border-[#A0792E]' : 'border-gray-200 dark:border-[#3f3f3f] group-hover/sub:border-[#A0792E]/50'}`}>
+                              <span className={`w-4 h-4 rounded flex items-center justify-center flex-shrink-0 border transition-all ${sub.done ? 'bg-[#A68B4B] border-[#A68B4B]' : 'border-gray-200 dark:border-[#333] group-hover/sub:border-[#A68B4B]/50'}`}>
                                 {sub.done && <Check size={10} className="text-black" />}
                               </span>
                               <span className={`text-sm transition-colors ${sub.done ? 'line-through text-gray-400 dark:text-gray-600' : 'text-gray-700 dark:text-gray-300'}`}>{sub.lbl}</span>
@@ -713,12 +713,12 @@ function ChecklistPanel({ leilao, onUpdate }: { leilao: BulaLeilao; onUpdate: (t
                               }}
                               onBlur={() => { if (!newSubLbl.trim()) { setAddingSubAt(null) } }}
                               placeholder="Novo item…"
-                              className="flex-1 px-2 py-1 rounded-md border border-[#A0792E]/40 bg-white dark:bg-[#161616] text-sm text-gray-800 dark:text-gray-200 focus:outline-none focus:border-[#A0792E]"
+                              className="flex-1 px-2 py-1 rounded-md border border-[#A68B4B]/40 bg-white dark:bg-[#0D0D0D] text-sm text-gray-800 dark:text-gray-200 focus:outline-none focus:border-[#A68B4B]"
                             />
-                            <button type="button" onMouseDown={e => e.preventDefault()} onClick={() => addSub(gi, ti)} className="p-1 rounded text-[#A0792E] hover:bg-[#A0792E]/10">
+                            <button type="button" onMouseDown={e => e.preventDefault()} onClick={() => addSub(gi, ti)} className="p-1 rounded text-[#A68B4B] hover:bg-[#A68B4B]/10">
                               <Check size={12} />
                             </button>
-                            <button type="button" onMouseDown={e => e.preventDefault()} onClick={() => { setNewSubLbl(''); setAddingSubAt(null) }} className="p-1 rounded text-gray-400 hover:bg-gray-100 dark:hover:bg-[#262626]">
+                            <button type="button" onMouseDown={e => e.preventDefault()} onClick={() => { setNewSubLbl(''); setAddingSubAt(null) }} className="p-1 rounded text-gray-400 hover:bg-gray-100 dark:hover:bg-[#1A1A1A]">
                               <X size={12} />
                             </button>
                           </div>
@@ -726,7 +726,7 @@ function ChecklistPanel({ leilao, onUpdate }: { leilao: BulaLeilao; onUpdate: (t
                           <button
                             type="button"
                             onClick={() => { setNewSubLbl(''); setAddingSubAt({ gi, ti }) }}
-                            className="flex items-center gap-1.5 text-xs text-gray-400 hover:text-[#A0792E] transition-colors pl-6 pt-0.5"
+                            className="flex items-center gap-1.5 text-xs text-gray-400 hover:text-[#A68B4B] transition-colors pl-6 pt-0.5"
                           >
                             <Plus size={11} /> Adicionar item
                           </button>
@@ -737,7 +737,7 @@ function ChecklistPanel({ leilao, onUpdate }: { leilao: BulaLeilao; onUpdate: (t
                 })}
 
                 {/* Add new item */}
-                <div className="px-4 py-2.5 bg-gray-50/40 dark:bg-[#1B1B1B]/40">
+                <div className="px-4 py-2.5 bg-gray-50/40 dark:bg-[#141414]/40">
                   {addingTaskAt === gi ? (
                     <div className="flex items-center gap-2">
                       <input
@@ -751,12 +751,12 @@ function ChecklistPanel({ leilao, onUpdate }: { leilao: BulaLeilao; onUpdate: (t
                         }}
                         onBlur={() => { if (!newTaskNome.trim()) { setAddingTaskAt(null) } }}
                         placeholder="Nome do item…"
-                        className="flex-1 px-2.5 py-1.5 rounded-md border border-[#A0792E]/40 bg-white dark:bg-[#161616] text-sm text-gray-700 dark:text-gray-200 focus:outline-none focus:border-[#A0792E]"
+                        className="flex-1 px-2.5 py-1.5 rounded-md border border-[#A68B4B]/40 bg-white dark:bg-[#0D0D0D] text-sm text-gray-700 dark:text-gray-200 focus:outline-none focus:border-[#A68B4B]"
                       />
-                      <button type="button" onMouseDown={e => e.preventDefault()} onClick={() => addTask(gi)} className="p-1.5 rounded text-[#A0792E] hover:bg-[#A0792E]/10">
+                      <button type="button" onMouseDown={e => e.preventDefault()} onClick={() => addTask(gi)} className="p-1.5 rounded text-[#A68B4B] hover:bg-[#A68B4B]/10">
                         <Check size={13} />
                       </button>
-                      <button type="button" onMouseDown={e => e.preventDefault()} onClick={() => { setNewTaskNome(''); setAddingTaskAt(null) }} className="p-1.5 rounded text-gray-400 hover:bg-gray-100 dark:hover:bg-[#262626]">
+                      <button type="button" onMouseDown={e => e.preventDefault()} onClick={() => { setNewTaskNome(''); setAddingTaskAt(null) }} className="p-1.5 rounded text-gray-400 hover:bg-gray-100 dark:hover:bg-[#1A1A1A]">
                         <X size={13} />
                       </button>
                     </div>
@@ -764,7 +764,7 @@ function ChecklistPanel({ leilao, onUpdate }: { leilao: BulaLeilao; onUpdate: (t
                     <button
                       type="button"
                       onClick={() => { setNewTaskNome(''); setAddingTaskAt(gi) }}
-                      className="flex items-center gap-1.5 text-xs font-semibold uppercase tracking-wider text-gray-400 hover:text-[#A0792E] transition-colors"
+                      className="flex items-center gap-1.5 text-xs font-semibold uppercase tracking-wider text-gray-400 hover:text-[#A68B4B] transition-colors"
                     >
                       <Plus size={12} /> Novo item
                     </button>
@@ -778,20 +778,20 @@ function ChecklistPanel({ leilao, onUpdate }: { leilao: BulaLeilao; onUpdate: (t
 
       {/* Empty state */}
       {groups.length === 0 && !addingGroup && (
-        <div className="rounded-xl border border-dashed border-gray-200 dark:border-[#363636] px-4 py-6 text-center space-y-3">
+        <div className="rounded-xl border border-dashed border-gray-200 dark:border-[#333] px-4 py-6 text-center space-y-3">
           <p className="text-sm text-gray-500 dark:text-gray-400">Nenhum grupo de checklist criado.</p>
           <div className="flex flex-wrap items-center justify-center gap-2">
             <button
               type="button"
               onClick={restoreDefaults}
-              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-[#A0792E] hover:bg-[#D4A85C] text-black text-xs font-bold uppercase tracking-wider transition-colors"
+              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-[#A68B4B] hover:bg-[#C8A96E] text-black text-xs font-bold uppercase tracking-wider transition-colors"
             >
               <Check size={12} /> Usar checklist padrão
             </button>
             <button
               type="button"
               onClick={() => { setNewGroupNome(''); setAddingGroup(true) }}
-              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-gray-200 dark:border-[#363636] text-gray-500 dark:text-gray-400 hover:border-[#A0792E]/40 hover:text-[#A0792E] text-xs font-bold uppercase tracking-wider transition-colors"
+              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-gray-200 dark:border-[#333] text-gray-500 dark:text-gray-400 hover:border-[#A68B4B]/40 hover:text-[#A68B4B] text-xs font-bold uppercase tracking-wider transition-colors"
             >
               <Plus size={12} /> Criar grupo vazio
             </button>
@@ -801,7 +801,7 @@ function ChecklistPanel({ leilao, onUpdate }: { leilao: BulaLeilao; onUpdate: (t
 
       {/* Add new group */}
       {addingGroup ? (
-        <div className="flex items-center gap-2 px-4 py-3 rounded-xl border border-[#A0792E]/40 bg-[#A0792E]/5">
+        <div className="flex items-center gap-2 px-4 py-3 rounded-xl border border-[#A68B4B]/40 bg-[#A68B4B]/5">
           <span className="w-2.5 h-2.5 rounded-full flex-shrink-0" style={{ background: GROUP_COLORS[groups.length % GROUP_COLORS.length] }} />
           <input
             autoFocus
@@ -814,12 +814,12 @@ function ChecklistPanel({ leilao, onUpdate }: { leilao: BulaLeilao; onUpdate: (t
             }}
             onBlur={() => { if (!newGroupNome.trim()) { setAddingGroup(false) } }}
             placeholder="Nome do grupo (ex: Logística)…"
-            className="flex-1 px-2.5 py-1.5 rounded-md border border-[#A0792E]/40 bg-white dark:bg-[#161616] text-sm font-semibold text-gray-800 dark:text-gray-200 focus:outline-none focus:border-[#A0792E]"
+            className="flex-1 px-2.5 py-1.5 rounded-md border border-[#A68B4B]/40 bg-white dark:bg-[#0D0D0D] text-sm font-semibold text-gray-800 dark:text-gray-200 focus:outline-none focus:border-[#A68B4B]"
           />
-          <button type="button" onMouseDown={e => e.preventDefault()} onClick={addGroup} className="p-1.5 rounded text-[#A0792E] hover:bg-[#A0792E]/10">
+          <button type="button" onMouseDown={e => e.preventDefault()} onClick={addGroup} className="p-1.5 rounded text-[#A68B4B] hover:bg-[#A68B4B]/10">
             <Check size={13} />
           </button>
-          <button type="button" onMouseDown={e => e.preventDefault()} onClick={() => { setNewGroupNome(''); setAddingGroup(false) }} className="p-1.5 rounded text-gray-400 hover:bg-gray-100 dark:hover:bg-[#262626]">
+          <button type="button" onMouseDown={e => e.preventDefault()} onClick={() => { setNewGroupNome(''); setAddingGroup(false) }} className="p-1.5 rounded text-gray-400 hover:bg-gray-100 dark:hover:bg-[#1A1A1A]">
             <X size={13} />
           </button>
         </div>
@@ -827,7 +827,7 @@ function ChecklistPanel({ leilao, onUpdate }: { leilao: BulaLeilao; onUpdate: (t
         <button
           type="button"
           onClick={() => { setNewGroupNome(''); setAddingGroup(true) }}
-          className="w-full flex items-center justify-center gap-1.5 px-4 py-2.5 rounded-xl border border-dashed border-gray-200 dark:border-[#363636] text-xs font-bold uppercase tracking-wider text-gray-400 hover:border-[#A0792E]/40 hover:text-[#A0792E] hover:bg-[#A0792E]/5 transition-colors"
+          className="w-full flex items-center justify-center gap-1.5 px-4 py-2.5 rounded-xl border border-dashed border-gray-200 dark:border-[#333] text-xs font-bold uppercase tracking-wider text-gray-400 hover:border-[#A68B4B]/40 hover:text-[#A68B4B] hover:bg-[#A68B4B]/5 transition-colors"
         >
           <Plus size={12} /> Novo grupo
         </button>
@@ -855,15 +855,15 @@ function UnifiedDrawer({ leilao, onClose, onEdit, onDelete, onTasksUpdate }: {
     <div className="fixed inset-0 z-[60] flex items-center justify-center p-4 sm:p-6 leilao-modal-overlay" onClick={onClose}>
       <div className="absolute inset-0 bg-black/60 backdrop-blur-md" />
       <div
-        className="relative w-full max-w-2xl bg-white dark:bg-[#1d1d1d] rounded-3xl shadow-[0_20px_70px_-15px_rgba(0,0,0,0.5)] ring-1 ring-black/5 dark:ring-white/5 max-h-[90vh] overflow-hidden flex flex-col leilao-modal-card"
+        className="relative w-full max-w-2xl bg-white dark:bg-[#141414] rounded-3xl shadow-[0_20px_70px_-15px_rgba(0,0,0,0.5)] ring-1 ring-black/5 dark:ring-white/5 max-h-[90vh] overflow-hidden flex flex-col leilao-modal-card"
         onClick={e => e.stopPropagation()}
       >
 
         {/* Header */}
-        <div className="sticky top-0 z-10 bg-white dark:bg-[#1d1d1d] border-b border-gray-100 dark:border-[#2A2A2A] px-6 py-4 flex items-start gap-4">
-          <div className="flex flex-col items-center justify-center w-14 h-14 rounded-xl border border-[#A0792E]/30 bg-[#A0792E]/8 flex-shrink-0">
-            <span className="text-[#A0792E] font-black text-xl leading-none">{dt.dia}</span>
-            <span className="text-[#A0792E]/70 text-[10px] font-bold uppercase tracking-wider mt-0.5">{dt.mesNome.slice(0, 3)}</span>
+        <div className="sticky top-0 z-10 bg-white dark:bg-[#141414] border-b border-gray-100 dark:border-[#2A2A2A] px-6 py-4 flex items-start gap-4">
+          <div className="flex flex-col items-center justify-center w-14 h-14 rounded-xl border border-[#A68B4B]/30 bg-[#A68B4B]/8 flex-shrink-0">
+            <span className="text-[#A68B4B] font-black text-xl leading-none">{dt.dia}</span>
+            <span className="text-[#A68B4B]/70 text-[10px] font-bold uppercase tracking-wider mt-0.5">{dt.mesNome.slice(0, 3)}</span>
           </div>
           <div className="flex-1 min-w-0">
             <h2 className="font-black text-gray-900 dark:text-white text-lg leading-tight uppercase">{leilao.nome}</h2>
@@ -879,12 +879,12 @@ function UnifiedDrawer({ leilao, onClose, onEdit, onDelete, onTasksUpdate }: {
                   {isVirtual ? <Tv size={9} /> : <Users size={9} />} {modality}
                 </span>
               )}
-              <span className={`inline-flex items-center text-[9px] font-bold uppercase px-2 py-0.5 rounded-full ${leilao.source === 'bula' ? 'bg-[#A0792E]/10 text-[#A0792E]' : leilao.source === 'both' ? 'bg-purple-100 text-purple-600 dark:bg-purple-500/15 dark:text-purple-400' : 'bg-gray-100 text-gray-500 dark:bg-gray-500/15 dark:text-gray-400'}`}>
+              <span className={`inline-flex items-center text-[9px] font-bold uppercase px-2 py-0.5 rounded-full ${leilao.source === 'bula' ? 'bg-[#A68B4B]/10 text-[#A68B4B]' : leilao.source === 'both' ? 'bg-purple-100 text-purple-600 dark:bg-purple-500/15 dark:text-purple-400' : 'bg-gray-100 text-gray-500 dark:bg-gray-500/15 dark:text-gray-400'}`}>
                 {leilao.source === 'both' ? '✦ Detalhado' : leilao.source === 'bula' ? 'Bula' : 'Cronograma'}
               </span>
             </div>
           </div>
-          <button onClick={onClose} className="p-1.5 rounded-lg hover:bg-gray-100 dark:hover:bg-[#262626] text-gray-400 transition-colors flex-shrink-0"><X size={18} /></button>
+          <button onClick={onClose} className="p-1.5 rounded-lg hover:bg-gray-100 dark:hover:bg-[#1A1A1A] text-gray-400 transition-colors flex-shrink-0"><X size={18} /></button>
         </div>
 
         {/* Body */}
@@ -908,9 +908,9 @@ function UnifiedDrawer({ leilao, onClose, onEdit, onDelete, onTasksUpdate }: {
               { icon: MapPin, label: 'Local', value: leilao.local || '—' },
               { icon: FileText, label: 'Leiloeira', value: leilao.leiloeira || '—' },
             ].filter(i => i.value && i.value !== '—').map(({ icon: Icon, label, value }) => (
-              <div key={label} className="bg-gray-50 dark:bg-[#212121] rounded-xl p-3">
+              <div key={label} className="bg-gray-50 dark:bg-[#141414] rounded-xl p-3">
                 <div className="flex items-center gap-1.5 mb-1">
-                  <Icon size={11} className="text-[#A0792E]" />
+                  <Icon size={11} className="text-[#A68B4B]" />
                   <span className="text-[10px] font-semibold uppercase tracking-wider text-gray-400">{label}</span>
                 </div>
                 <p className="text-sm font-semibold text-gray-900 dark:text-white leading-snug">{value}</p>
@@ -933,7 +933,7 @@ function UnifiedDrawer({ leilao, onClose, onEdit, onDelete, onTasksUpdate }: {
                   { label: 'Contrato', value: leilao.contrato },
                   { label: 'Recebido', value: leilao.recebido },
                 ].filter(i => i.value).map(({ label, value }) => (
-                  <div key={label} className="bg-gray-50 dark:bg-[#212121] rounded-lg px-3 py-2">
+                  <div key={label} className="bg-gray-50 dark:bg-[#141414] rounded-lg px-3 py-2">
                     <p className="text-[9px] uppercase tracking-wider text-gray-400 font-semibold mb-0.5">{label}</p>
                     <p className="text-xs font-semibold text-gray-700 dark:text-gray-300">{value}</p>
                   </div>
@@ -955,9 +955,9 @@ function UnifiedDrawer({ leilao, onClose, onEdit, onDelete, onTasksUpdate }: {
                   { label: 'Meta Bula', value: fmtBrl(leilao.meta_bula) },
                   { label: 'Realizado', value: fmtBrl(leilao.realizado_bula) },
                 ].filter(i => i.value !== '—').map(({ label, value }) => (
-                  <div key={label} className="rounded-xl border border-[#A0792E]/15 bg-[#A0792E]/5 p-3 text-center">
-                    <p className="text-[9px] uppercase tracking-wider text-[#A0792E]/70 font-semibold mb-0.5">{label}</p>
-                    <p className="text-sm font-black text-[#A0792E]">{value}</p>
+                  <div key={label} className="rounded-xl border border-[#A68B4B]/15 bg-[#A68B4B]/5 p-3 text-center">
+                    <p className="text-[9px] uppercase tracking-wider text-[#A68B4B]/70 font-semibold mb-0.5">{label}</p>
+                    <p className="text-sm font-black text-[#A68B4B]">{value}</p>
                   </div>
                 ))}
               </div>
@@ -966,16 +966,16 @@ function UnifiedDrawer({ leilao, onClose, onEdit, onDelete, onTasksUpdate }: {
 
           {/* Catálogo */}
           {leilao.catalogo_url && (
-            <div className="flex items-center gap-3 px-4 py-3 rounded-xl border border-[#A0792E]/25 bg-[#A0792E]/5">
-              <BookOpen size={18} className="text-[#A0792E] flex-shrink-0" />
+            <div className="flex items-center gap-3 px-4 py-3 rounded-xl border border-[#A68B4B]/25 bg-[#A68B4B]/5">
+              <BookOpen size={18} className="text-[#A68B4B] flex-shrink-0" />
               <div className="flex-1 min-w-0">
-                <p className="text-sm font-semibold text-[#A0792E]">Catálogo disponível</p>
+                <p className="text-sm font-semibold text-[#A68B4B]">Catálogo disponível</p>
                 <p className="text-xs text-gray-400 truncate">{leilao.catalogo_url}</p>
               </div>
-              <a href={leilao.catalogo_url} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-[#A0792E]/10 hover:bg-[#A0792E]/20 text-[#A0792E] text-xs font-semibold transition-colors" title="Abrir">
+              <a href={leilao.catalogo_url} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-[#A68B4B]/10 hover:bg-[#A68B4B]/20 text-[#A68B4B] text-xs font-semibold transition-colors" title="Abrir">
                 <ExternalLink size={12} /> Abrir
               </a>
-              <a href={leilao.catalogo_url} download className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-[#A0792E] hover:bg-[#D4A85C] text-black text-xs font-semibold transition-colors" title="Baixar">
+              <a href={leilao.catalogo_url} download className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-[#A68B4B] hover:bg-[#C8A96E] text-black text-xs font-semibold transition-colors" title="Baixar">
                 <Download size={12} /> Baixar
               </a>
             </div>
@@ -994,11 +994,11 @@ function UnifiedDrawer({ leilao, onClose, onEdit, onDelete, onTasksUpdate }: {
         </div>
 
         {/* Footer */}
-        <div className="sticky bottom-0 bg-white dark:bg-[#1d1d1d] border-t border-gray-100 dark:border-[#2A2A2A] px-6 py-4 flex gap-3">
+        <div className="sticky bottom-0 bg-white dark:bg-[#141414] border-t border-gray-100 dark:border-[#2A2A2A] px-6 py-4 flex gap-3">
           <button onClick={onDelete} className="flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-medium text-red-500 hover:bg-red-50 dark:hover:bg-red-500/10 border border-red-100 dark:border-red-500/20 transition-colors">
             <Trash2 size={14} /> Excluir
           </button>
-          <button onClick={onEdit} className="flex-1 flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-[#A0792E] hover:bg-[#D4A85C] text-black text-sm font-semibold transition-colors">
+          <button onClick={onEdit} className="flex-1 flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-[#A68B4B] hover:bg-[#C8A96E] text-black text-sm font-semibold transition-colors">
             <Edit2 size={14} /> Editar
           </button>
         </div>
@@ -1064,7 +1064,7 @@ function FormModal({ initial, onClose, onSaved }: {
     finally { setSaving(false) }
   }
 
-  const iCls = "w-full px-3.5 py-2.5 rounded-xl border border-gray-200 dark:border-[#363636] bg-white dark:bg-[#161616] text-sm text-gray-800 dark:text-gray-200 placeholder-gray-400 focus:outline-none focus:border-[#A0792E] transition-colors"
+  const iCls = "w-full px-3.5 py-2.5 rounded-xl border border-gray-200 dark:border-[#333] bg-white dark:bg-[#0D0D0D] text-sm text-gray-800 dark:text-gray-200 placeholder-gray-400 focus:outline-none focus:border-[#A68B4B] transition-colors"
   const Field = ({ label, required, children }: { label: string; required?: boolean; children: React.ReactNode }) => (
     <div>
       <label className="block text-xs font-semibold uppercase tracking-wider text-gray-500 dark:text-gray-400 mb-1.5">{label}{required && <span className="text-red-400 ml-0.5">*</span>}</label>
@@ -1075,10 +1075,10 @@ function FormModal({ initial, onClose, onSaved }: {
   return (
     <div className="fixed inset-0 z-[70] flex items-center justify-center p-4" onClick={onClose}>
       <div className="absolute inset-0 bg-black/40 backdrop-blur-sm" />
-      <div className="relative w-full max-w-2xl bg-white dark:bg-[#1d1d1d] rounded-2xl shadow-2xl max-h-[92vh] flex flex-col overflow-hidden" onClick={e => e.stopPropagation()}>
+      <div className="relative w-full max-w-2xl bg-white dark:bg-[#141414] rounded-2xl shadow-2xl max-h-[92vh] flex flex-col overflow-hidden" onClick={e => e.stopPropagation()}>
         <div className="flex items-center justify-between px-6 py-5 border-b border-gray-100 dark:border-[#2A2A2A]">
           <h2 className="font-bold text-gray-900 dark:text-white text-lg">{isEdit ? 'Editar Leilão' : 'Novo Leilão'}</h2>
-          <button onClick={onClose} className="p-1.5 rounded-lg hover:bg-gray-100 dark:hover:bg-[#262626] text-gray-400 transition-colors"><X size={18} /></button>
+          <button onClick={onClose} className="p-1.5 rounded-lg hover:bg-gray-100 dark:hover:bg-[#1A1A1A] text-gray-400 transition-colors"><X size={18} /></button>
         </div>
         <form onSubmit={handleSubmit} className="flex-1 overflow-y-auto px-6 py-5 space-y-5">
           <div>
@@ -1095,8 +1095,8 @@ function FormModal({ initial, onClose, onSaved }: {
                   {uploading && <div className="absolute inset-0 bg-black/50 flex items-center justify-center"><Loader2 size={24} className="animate-spin text-white" /></div>}
                 </div>
               ) : (
-                <div className={`flex flex-col items-center justify-center h-36 rounded-xl border-2 border-dashed transition-colors ${uploading ? 'border-[#A0792E]/50 bg-[#A0792E]/5' : 'border-gray-200 dark:border-[#363636] hover:border-[#A0792E]/50 hover:bg-[#A0792E]/3'}`}>
-                  {uploading ? <Loader2 size={24} className="animate-spin text-[#A0792E]" /> : <><ImageIcon size={28} className="text-gray-300 dark:text-gray-700 mb-2" /><p className="text-sm font-semibold text-gray-400">Clique para adicionar capa</p><p className="text-xs text-gray-300 dark:text-gray-600 mt-0.5">JPG, PNG, WEBP</p></>}
+                <div className={`flex flex-col items-center justify-center h-36 rounded-xl border-2 border-dashed transition-colors ${uploading ? 'border-[#A68B4B]/50 bg-[#A68B4B]/5' : 'border-gray-200 dark:border-[#333] hover:border-[#A68B4B]/50 hover:bg-[#A68B4B]/3'}`}>
+                  {uploading ? <Loader2 size={24} className="animate-spin text-[#A68B4B]" /> : <><ImageIcon size={28} className="text-gray-300 dark:text-gray-700 mb-2" /><p className="text-sm font-semibold text-gray-400">Clique para adicionar capa</p><p className="text-xs text-gray-300 dark:text-gray-600 mt-0.5">JPG, PNG, WEBP</p></>}
                 </div>
               )}
             </label>
@@ -1132,21 +1132,21 @@ function FormModal({ initial, onClose, onSaved }: {
           <Field label="Local"><input className={iCls} value={form.local} onChange={e => set('local', e.target.value)} placeholder="Cidade / Fazenda" /></Field>
           <Field label="Catálogo (PDF)">
             {form.catalogo_url ? (
-              <div className="flex items-center gap-3 px-3.5 py-2.5 rounded-xl border border-[#A0792E]/30 bg-[#A0792E]/5">
-                <FileText size={18} className="text-[#A0792E] flex-shrink-0" />
+              <div className="flex items-center gap-3 px-3.5 py-2.5 rounded-xl border border-[#A68B4B]/30 bg-[#A68B4B]/5">
+                <FileText size={18} className="text-[#A68B4B] flex-shrink-0" />
                 <div className="flex-1 min-w-0">
-                  <p className="text-xs font-semibold text-[#A0792E]">Catálogo anexado</p>
+                  <p className="text-xs font-semibold text-[#A68B4B]">Catálogo anexado</p>
                   <p className="text-[11px] text-gray-400 truncate">{form.catalogo_url}</p>
                 </div>
-                <a href={form.catalogo_url} target="_blank" rel="noopener noreferrer" className="p-1.5 rounded-lg hover:bg-[#A0792E]/10 text-[#A0792E] transition-colors" title="Abrir"><ExternalLink size={14} /></a>
+                <a href={form.catalogo_url} target="_blank" rel="noopener noreferrer" className="p-1.5 rounded-lg hover:bg-[#A68B4B]/10 text-[#A68B4B] transition-colors" title="Abrir"><ExternalLink size={14} /></a>
                 <button type="button" onClick={() => set('catalogo_url', '')} className="p-1.5 rounded-lg hover:bg-red-50 dark:hover:bg-red-500/10 text-red-400 hover:text-red-600 transition-colors" title="Remover"><X size={14} /></button>
               </div>
             ) : (
               <div className="space-y-2">
-                <label className={`flex items-center justify-center gap-2 h-20 rounded-xl border-2 border-dashed cursor-pointer transition-colors ${uploadingCatalogo ? 'border-[#A0792E]/50 bg-[#A0792E]/5' : 'border-gray-200 dark:border-[#363636] hover:border-[#A0792E]/50 hover:bg-[#A0792E]/5'}`}>
+                <label className={`flex items-center justify-center gap-2 h-20 rounded-xl border-2 border-dashed cursor-pointer transition-colors ${uploadingCatalogo ? 'border-[#A68B4B]/50 bg-[#A68B4B]/5' : 'border-gray-200 dark:border-[#333] hover:border-[#A68B4B]/50 hover:bg-[#A68B4B]/5'}`}>
                   <input type="file" accept="application/pdf,.pdf" className="hidden" onChange={handleCatalogoUpload} disabled={uploadingCatalogo} />
                   {uploadingCatalogo
-                    ? <><Loader2 size={18} className="animate-spin text-[#A0792E]" /><span className="text-xs font-semibold text-[#A0792E]">Enviando…</span></>
+                    ? <><Loader2 size={18} className="animate-spin text-[#A68B4B]" /><span className="text-xs font-semibold text-[#A68B4B]">Enviando…</span></>
                     : <><Upload size={18} className="text-gray-400" /><span className="text-xs font-semibold text-gray-500 dark:text-gray-400">Anexar PDF do catálogo</span><span className="text-[10px] text-gray-300 dark:text-gray-600">(máx. 25MB)</span></>}
                 </label>
                 <div className="relative">
@@ -1178,8 +1178,8 @@ function FormModal({ initial, onClose, onSaved }: {
           {error && <div className="flex items-center gap-2 px-4 py-3 rounded-xl bg-red-50 dark:bg-red-500/10 text-red-600 dark:text-red-400 text-sm"><AlertCircle size={15} /> {error}</div>}
         </form>
         <div className="px-6 py-4 border-t border-gray-100 dark:border-[#2A2A2A] flex justify-end gap-3">
-          <button type="button" onClick={onClose} className="px-5 py-2.5 rounded-xl text-sm font-medium text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-[#262626] transition-colors">Cancelar</button>
-          <button onClick={handleSubmit} disabled={saving} className="flex items-center gap-2 px-6 py-2.5 rounded-xl bg-[#A0792E] hover:bg-[#D4A85C] text-black text-sm font-semibold disabled:opacity-50 transition-colors">
+          <button type="button" onClick={onClose} className="px-5 py-2.5 rounded-xl text-sm font-medium text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-[#1A1A1A] transition-colors">Cancelar</button>
+          <button onClick={handleSubmit} disabled={saving} className="flex items-center gap-2 px-6 py-2.5 rounded-xl bg-[#A68B4B] hover:bg-[#C8A96E] text-black text-sm font-semibold disabled:opacity-50 transition-colors">
             {saving && <Loader2 size={14} className="animate-spin" />}{isEdit ? 'Salvar alterações' : 'Criar leilão'}
           </button>
         </div>
@@ -1245,10 +1245,10 @@ function CronogramaFormModal({ initial, onClose, onSaved }: { initial: DbLeilao 
   return (
     <div className="fixed inset-0 z-[70] flex items-center justify-center p-4" onClick={onClose}>
       <div className="absolute inset-0 bg-black/40 backdrop-blur-sm" />
-      <div className="relative w-full max-w-3xl bg-white dark:bg-[#1d1d1d] rounded-2xl shadow-2xl max-h-[92vh] flex flex-col overflow-hidden" onClick={e => e.stopPropagation()}>
+      <div className="relative w-full max-w-3xl bg-white dark:bg-[#141414] rounded-2xl shadow-2xl max-h-[92vh] flex flex-col overflow-hidden" onClick={e => e.stopPropagation()}>
         <div className="flex items-center justify-between px-6 py-5 border-b border-gray-100 dark:border-[#2A2A2A]">
           <h2 className="font-bold text-gray-900 dark:text-white text-lg">{isEdit ? 'Editar Leilão' : 'Novo Leilão no Cronograma'}</h2>
-          <button onClick={onClose} className="p-1.5 rounded-lg hover:bg-gray-100 dark:hover:bg-[#262626] text-gray-400 transition-colors"><X size={18} /></button>
+          <button onClick={onClose} className="p-1.5 rounded-lg hover:bg-gray-100 dark:hover:bg-[#1A1A1A] text-gray-400 transition-colors"><X size={18} /></button>
         </div>
         <form onSubmit={handleSubmit} className="flex-1 overflow-y-auto px-6 py-5 space-y-4">
           <div>
@@ -1265,8 +1265,8 @@ function CronogramaFormModal({ initial, onClose, onSaved }: { initial: DbLeilao 
                   {uploading && <div className="absolute inset-0 bg-black/50 flex items-center justify-center"><Loader2 size={24} className="animate-spin text-white" /></div>}
                 </div>
               ) : (
-                <div className={`flex flex-col items-center justify-center h-36 rounded-xl border-2 border-dashed transition-colors ${uploading ? 'border-[#A0792E]/50 bg-[#A0792E]/5' : 'border-gray-200 dark:border-[#363636] hover:border-[#A0792E]/50 hover:bg-[#A0792E]/3'}`}>
-                  {uploading ? <Loader2 size={24} className="animate-spin text-[#A0792E]" /> : <><ImageIcon size={26} className="text-gray-300 dark:text-gray-700 mb-1.5" /><p className="text-sm font-semibold text-gray-400">Clique para adicionar capa</p><p className="text-xs text-gray-300 dark:text-gray-600 mt-0.5">JPG, PNG, WEBP</p></>}
+                <div className={`flex flex-col items-center justify-center h-36 rounded-xl border-2 border-dashed transition-colors ${uploading ? 'border-[#A68B4B]/50 bg-[#A68B4B]/5' : 'border-gray-200 dark:border-[#333] hover:border-[#A68B4B]/50 hover:bg-[#A68B4B]/3'}`}>
+                  {uploading ? <Loader2 size={24} className="animate-spin text-[#A68B4B]" /> : <><ImageIcon size={26} className="text-gray-300 dark:text-gray-700 mb-1.5" /><p className="text-sm font-semibold text-gray-400">Clique para adicionar capa</p><p className="text-xs text-gray-300 dark:text-gray-600 mt-0.5">JPG, PNG, WEBP</p></>}
                 </div>
               )}
             </label>
@@ -1316,21 +1316,21 @@ function CronogramaFormModal({ initial, onClose, onSaved }: { initial: DbLeilao 
           </div>
           <Field label="Catálogo (PDF)">
             {form.catalogo_url ? (
-              <div className="flex items-center gap-3 px-3.5 py-2.5 rounded-xl border border-[#A0792E]/30 bg-[#A0792E]/5">
-                <FileText size={18} className="text-[#A0792E] flex-shrink-0" />
+              <div className="flex items-center gap-3 px-3.5 py-2.5 rounded-xl border border-[#A68B4B]/30 bg-[#A68B4B]/5">
+                <FileText size={18} className="text-[#A68B4B] flex-shrink-0" />
                 <div className="flex-1 min-w-0">
-                  <p className="text-xs font-semibold text-[#A0792E]">Catálogo anexado</p>
+                  <p className="text-xs font-semibold text-[#A68B4B]">Catálogo anexado</p>
                   <p className="text-[11px] text-gray-400 truncate">{form.catalogo_url}</p>
                 </div>
-                <a href={form.catalogo_url || '#'} target="_blank" rel="noopener noreferrer" className="p-1.5 rounded-lg hover:bg-[#A0792E]/10 text-[#A0792E] transition-colors" title="Abrir"><ExternalLink size={14} /></a>
+                <a href={form.catalogo_url || '#'} target="_blank" rel="noopener noreferrer" className="p-1.5 rounded-lg hover:bg-[#A68B4B]/10 text-[#A68B4B] transition-colors" title="Abrir"><ExternalLink size={14} /></a>
                 <button type="button" onClick={() => set('catalogo_url', '')} className="p-1.5 rounded-lg hover:bg-red-50 dark:hover:bg-red-500/10 text-red-400 hover:text-red-600 transition-colors" title="Remover"><X size={14} /></button>
               </div>
             ) : (
               <div className="space-y-2">
-                <label className={`flex items-center justify-center gap-2 h-20 rounded-xl border-2 border-dashed cursor-pointer transition-colors ${uploadingCatalogo ? 'border-[#A0792E]/50 bg-[#A0792E]/5' : 'border-gray-200 dark:border-[#363636] hover:border-[#A0792E]/50 hover:bg-[#A0792E]/5'}`}>
+                <label className={`flex items-center justify-center gap-2 h-20 rounded-xl border-2 border-dashed cursor-pointer transition-colors ${uploadingCatalogo ? 'border-[#A68B4B]/50 bg-[#A68B4B]/5' : 'border-gray-200 dark:border-[#333] hover:border-[#A68B4B]/50 hover:bg-[#A68B4B]/5'}`}>
                   <input type="file" accept="application/pdf,.pdf" className="hidden" onChange={handleCatalogoUpload} disabled={uploadingCatalogo} />
                   {uploadingCatalogo
-                    ? <><Loader2 size={18} className="animate-spin text-[#A0792E]" /><span className="text-xs font-semibold text-[#A0792E]">Enviando…</span></>
+                    ? <><Loader2 size={18} className="animate-spin text-[#A68B4B]" /><span className="text-xs font-semibold text-[#A68B4B]">Enviando…</span></>
                     : <><Upload size={18} className="text-gray-400" /><span className="text-xs font-semibold text-gray-500 dark:text-gray-400">Anexar PDF do catálogo</span><span className="text-[10px] text-gray-300 dark:text-gray-600">(máx. 25MB)</span></>}
                 </label>
                 <div className="relative">
@@ -1343,8 +1343,8 @@ function CronogramaFormModal({ initial, onClose, onSaved }: { initial: DbLeilao 
           {error && <div className="flex items-center gap-2 px-4 py-3 rounded-xl bg-red-50 dark:bg-red-500/10 text-red-600 dark:text-red-400 text-sm"><AlertCircle size={15} /> {error}</div>}
         </form>
         <div className="px-6 py-4 border-t border-gray-100 dark:border-[#2A2A2A] flex justify-end gap-3">
-          <button type="button" onClick={onClose} className="px-5 py-2.5 rounded-xl text-sm font-medium text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-[#262626] transition-colors">Cancelar</button>
-          <button onClick={handleSubmit} disabled={saving} className="flex items-center gap-2 px-6 py-2.5 rounded-xl bg-[#A0792E] hover:bg-[#D4A85C] text-black text-sm font-semibold disabled:opacity-50 transition-colors">
+          <button type="button" onClick={onClose} className="px-5 py-2.5 rounded-xl text-sm font-medium text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-[#1A1A1A] transition-colors">Cancelar</button>
+          <button onClick={handleSubmit} disabled={saving} className="flex items-center gap-2 px-6 py-2.5 rounded-xl bg-[#A68B4B] hover:bg-[#C8A96E] text-black text-sm font-semibold disabled:opacity-50 transition-colors">
             {saving ? <Loader2 size={14} className="animate-spin" /> : <Save size={14} />}{isEdit ? 'Salvar alterações' : 'Adicionar leilão'}
           </button>
         </div>
@@ -1364,7 +1364,7 @@ function UnifiedCard({ leilao, selected, onClick }: { leilao: MergedLeilao; sele
   const modality = leilao.presencial?.toUpperCase() ?? ''
   const isVirtual = modality === 'VIRTUAL'
 
-  const base = `w-full text-left group rounded-2xl border transition-all duration-200 ${selected ? 'border-[#A0792E]/50 bg-[#A0792E]/5 dark:bg-[#A0792E]/8 shadow-md shadow-[#A0792E]/10' : 'border-gray-100 dark:border-[#2A2A2A] bg-white dark:bg-[#1d1d1d] hover:border-[#A0792E]/30 hover:shadow-sm'}`
+  const base = `w-full text-left group rounded-2xl border transition-all duration-200 ${selected ? 'border-[#A68B4B]/50 bg-[#A68B4B]/5 dark:bg-[#A68B4B]/8 shadow-md shadow-[#A68B4B]/10' : 'border-gray-100 dark:border-[#2A2A2A] bg-white dark:bg-[#141414] hover:border-[#A68B4B]/30 hover:shadow-sm'}`
 
   if (hasImage) {
     return (
@@ -1379,7 +1379,7 @@ function UnifiedCard({ leilao, selected, onClick }: { leilao: MergedLeilao; sele
             <span className="text-white/60 text-[8px] font-bold uppercase tracking-wide mt-0.5">{dt.mesNome.slice(0, 3)}</span>
           </div>
           {leilao.source === 'both' && (
-            <div className="absolute top-2 right-2 w-2 h-2 rounded-full bg-[#A0792E] shadow-[0_0_6px_rgba(160,121,46,0.8)]" />
+            <div className="absolute top-2 right-2 w-2 h-2 rounded-full bg-[#A68B4B] shadow-[0_0_6px_rgba(166, 139, 75,0.8)]" />
           )}
         </div>
 
@@ -1400,7 +1400,7 @@ function UnifiedCard({ leilao, selected, onClick }: { leilao: MergedLeilao; sele
           </div>
           <div className="flex flex-wrap items-center gap-x-3 gap-y-0.5">
             {(leilao.tipo || leilao.animais) && (
-              <span className="inline-flex items-center gap-1 text-[10px] font-bold uppercase text-[#A0792E]">
+              <span className="inline-flex items-center gap-1 text-[10px] font-bold uppercase text-[#A68B4B]">
                 <Tag size={9} /> {leilao.tipo}{leilao.animais ? <span className="text-gray-400 font-normal">· {leilao.animais} animais</span> : null}
               </span>
             )}
@@ -1413,8 +1413,8 @@ function UnifiedCard({ leilao, selected, onClick }: { leilao: MergedLeilao; sele
           )}
           {total > 0 && (
             <div className="flex items-center gap-2">
-              <div className="w-20 bg-gray-100 dark:bg-[#262626] rounded-full h-1 overflow-hidden">
-                <div className="h-full rounded-full transition-all" style={{ width: `${pct}%`, background: pct === 100 ? '#22c55e' : '#A0792E' }} />
+              <div className="w-20 bg-gray-100 dark:bg-[#1A1A1A] rounded-full h-1 overflow-hidden">
+                <div className="h-full rounded-full transition-all" style={{ width: `${pct}%`, background: pct === 100 ? '#22c55e' : '#A68B4B' }} />
               </div>
               <span className="text-[10px] text-gray-400">{done}/{total}</span>
               {pct === 100 && <CheckCircle2 size={11} className="text-emerald-500" />}
@@ -1424,8 +1424,8 @@ function UnifiedCard({ leilao, selected, onClick }: { leilao: MergedLeilao; sele
 
         {/* Right */}
         <div className="flex flex-col items-center justify-center gap-2 px-3 flex-shrink-0">
-          {leilao.catalogo_url && <span className="inline-flex items-center gap-1 text-[10px] text-[#A0792E] bg-[#A0792E]/10 px-2 py-1 rounded-lg"><BookOpen size={10} /> Catálogo</span>}
-          <ChevronRight size={15} className={`text-gray-300 dark:text-gray-700 transition-transform ${selected ? 'rotate-90 text-[#A0792E]' : 'group-hover:text-gray-500'}`} />
+          {leilao.catalogo_url && <span className="inline-flex items-center gap-1 text-[10px] text-[#A68B4B] bg-[#A68B4B]/10 px-2 py-1 rounded-lg"><BookOpen size={10} /> Catálogo</span>}
+          <ChevronRight size={15} className={`text-gray-300 dark:text-gray-700 transition-transform ${selected ? 'rotate-90 text-[#A68B4B]' : 'group-hover:text-gray-500'}`} />
         </div>
       </button>
     )
@@ -1434,9 +1434,9 @@ function UnifiedCard({ leilao, selected, onClick }: { leilao: MergedLeilao; sele
   return (
     <button onClick={onClick} className={`${base} grid grid-cols-[56px_1fr_auto] items-center gap-4 p-3.5`}>
       {/* Date badge */}
-      <div className={`flex flex-col items-center justify-center w-14 h-14 rounded-xl border flex-shrink-0 transition-colors ${selected ? 'border-[#A0792E]/40 bg-[#A0792E]/12' : 'border-[#A0792E]/20 bg-[#A0792E]/6 group-hover:border-[#A0792E]/35'}`}>
-        <span className="text-[#A0792E] font-black text-xl leading-none">{dt.dia}</span>
-        <span className="text-[#A0792E]/70 text-[9px] font-bold uppercase tracking-wider mt-0.5">{dt.mesNome.slice(0, 3)}</span>
+      <div className={`flex flex-col items-center justify-center w-14 h-14 rounded-xl border flex-shrink-0 transition-colors ${selected ? 'border-[#A68B4B]/40 bg-[#A68B4B]/12' : 'border-[#A68B4B]/20 bg-[#A68B4B]/6 group-hover:border-[#A68B4B]/35'}`}>
+        <span className="text-[#A68B4B] font-black text-xl leading-none">{dt.dia}</span>
+        <span className="text-[#A68B4B]/70 text-[9px] font-bold uppercase tracking-wider mt-0.5">{dt.mesNome.slice(0, 3)}</span>
       </div>
 
       {/* Content */}
@@ -1452,7 +1452,7 @@ function UnifiedCard({ leilao, selected, onClick }: { leilao: MergedLeilao; sele
         </div>
         <div className="flex flex-wrap items-center gap-x-3 gap-y-0.5">
           {(leilao.tipo || leilao.animais) && (
-            <span className="inline-flex items-center gap-1 text-[10px] font-bold uppercase text-[#A0792E]">
+            <span className="inline-flex items-center gap-1 text-[10px] font-bold uppercase text-[#A68B4B]">
               <Tag size={9} /> {leilao.tipo}{leilao.animais ? <span className="text-gray-400 font-normal">· {leilao.animais} animais</span> : null}
             </span>
           )}
@@ -1463,8 +1463,8 @@ function UnifiedCard({ leilao, selected, onClick }: { leilao: MergedLeilao; sele
         {leilao.comissao && <span className="text-[10px] text-gray-400">Comissão: {leilao.comissao}</span>}
         {total > 0 && (
           <div className="flex items-center gap-2">
-            <div className="flex-1 max-w-20 bg-gray-100 dark:bg-[#262626] rounded-full h-1 overflow-hidden">
-              <div className="h-full rounded-full" style={{ width: `${pct}%`, background: pct === 100 ? '#22c55e' : '#A0792E' }} />
+            <div className="flex-1 max-w-20 bg-gray-100 dark:bg-[#1A1A1A] rounded-full h-1 overflow-hidden">
+              <div className="h-full rounded-full" style={{ width: `${pct}%`, background: pct === 100 ? '#22c55e' : '#A68B4B' }} />
             </div>
             <span className="text-[10px] text-gray-400">{done}/{total}</span>
             {pct === 100 && <CheckCircle2 size={11} className="text-emerald-500" />}
@@ -1474,8 +1474,8 @@ function UnifiedCard({ leilao, selected, onClick }: { leilao: MergedLeilao; sele
 
       {/* Right */}
       <div className="flex flex-col items-center gap-2 flex-shrink-0">
-        {leilao.catalogo_url && <span className="inline-flex items-center gap-1 text-[10px] text-[#A0792E] bg-[#A0792E]/10 px-2 py-1 rounded-lg"><BookOpen size={10} /> Catálogo</span>}
-        <ChevronRight size={15} className={`text-gray-300 dark:text-gray-700 transition-transform ${selected ? 'rotate-90 text-[#A0792E]' : 'group-hover:text-gray-500'}`} />
+        {leilao.catalogo_url && <span className="inline-flex items-center gap-1 text-[10px] text-[#A68B4B] bg-[#A68B4B]/10 px-2 py-1 rounded-lg"><BookOpen size={10} /> Catálogo</span>}
+        <ChevronRight size={15} className={`text-gray-300 dark:text-gray-700 transition-transform ${selected ? 'rotate-90 text-[#A68B4B]' : 'group-hover:text-gray-500'}`} />
       </div>
     </button>
   )
@@ -1496,15 +1496,15 @@ function TableView({ rows, onEdit, onDelete }: { rows: MergedLeilao[]; onEdit: (
       {Object.entries(grupos).map(([mesKey, leiloes]) => (
         <div key={mesKey}>
           <div className="flex items-center gap-3 mb-3">
-            <CalendarDays size={14} className="text-[#A0792E] flex-shrink-0" />
-            <span className="text-[#A0792E] text-xs font-black uppercase tracking-[0.2em]">{MES_LABELS[mesKey.slice(5)] ?? mesKey} {mesKey.slice(0, 4)}</span>
-            <div className="flex-1 h-px bg-gradient-to-r from-[#A0792E]/20 to-transparent" />
+            <CalendarDays size={14} className="text-[#A68B4B] flex-shrink-0" />
+            <span className="text-[#A68B4B] text-xs font-black uppercase tracking-[0.2em]">{MES_LABELS[mesKey.slice(5)] ?? mesKey} {mesKey.slice(0, 4)}</span>
+            <div className="flex-1 h-px bg-gradient-to-r from-[#A68B4B]/20 to-transparent" />
             <span className="text-[10px] text-gray-400">{leiloes.length} leilão{leiloes.length !== 1 ? 'ões' : ''}</span>
           </div>
           <div className="overflow-x-auto rounded-2xl border border-gray-100 dark:border-[#2A2A2A]">
             <table className="w-full text-xs">
               <thead>
-                <tr className="bg-gray-50 dark:bg-[#212121] border-b border-gray-100 dark:border-[#2A2A2A]">
+                <tr className="bg-gray-50 dark:bg-[#141414] border-b border-gray-100 dark:border-[#2A2A2A]">
                   {['Data', 'Hora', 'Leilão', 'Criador', 'Modalidade', 'Leiloeira', 'Raça / Tipo', 'Qtd', 'Sexo', 'Comissão', 'Fat. Previsto', 'Fat. Realizado', ''].map(h => (
                     <th key={h} className="px-3 py-2.5 text-left font-semibold uppercase tracking-wider text-gray-400 whitespace-nowrap">{h}</th>
                   ))}
@@ -1515,12 +1515,12 @@ function TableView({ rows, onEdit, onDelete }: { rows: MergedLeilao[]; onEdit: (
                   const d = l.data
                   const modality = l.presencial?.toUpperCase() ?? ''
                   return (
-                    <tr key={l.id} className="group bg-white dark:bg-[#1d1d1d] hover:bg-[#A0792E]/3 transition-colors">
+                    <tr key={l.id} className="group bg-white dark:bg-[#141414] hover:bg-[#A68B4B]/3 transition-colors">
                       <td className="px-3 py-2.5 whitespace-nowrap">
                         <div className="flex items-center gap-2">
-                          <div className="flex flex-col items-center justify-center w-9 h-9 rounded-lg border border-[#A0792E]/20 bg-[#A0792E]/6 flex-shrink-0">
-                            <span className="text-[#A0792E] font-black text-sm leading-none">{d.slice(8)}</span>
-                            <span className="text-[#A0792E]/60 text-[7px] font-bold uppercase">{MES_LABELS[d.slice(5, 7)]?.slice(0, 3)}</span>
+                          <div className="flex flex-col items-center justify-center w-9 h-9 rounded-lg border border-[#A68B4B]/20 bg-[#A68B4B]/6 flex-shrink-0">
+                            <span className="text-[#A68B4B] font-black text-sm leading-none">{d.slice(8)}</span>
+                            <span className="text-[#A68B4B]/60 text-[7px] font-bold uppercase">{MES_LABELS[d.slice(5, 7)]?.slice(0, 3)}</span>
                           </div>
                           {l.dia_semana && <span className="text-gray-400 text-[10px]">{l.dia_semana.slice(0, 3)}</span>}
                         </div>
@@ -1552,7 +1552,7 @@ function TableView({ rows, onEdit, onDelete }: { rows: MergedLeilao[]; onEdit: (
                       <td className="px-3 py-2.5 whitespace-nowrap font-semibold text-gray-700 dark:text-gray-300">{fmtBrl(l.faturamento_realizado)}</td>
                       <td className="px-3 py-2.5 whitespace-nowrap">
                         <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-                          <button onClick={() => onEdit(l)} className="p-1.5 rounded-lg text-gray-400 hover:text-[#A0792E] hover:bg-[#A0792E]/10 transition-colors"><Edit2 size={12} /></button>
+                          <button onClick={() => onEdit(l)} className="p-1.5 rounded-lg text-gray-400 hover:text-[#A68B4B] hover:bg-[#A68B4B]/10 transition-colors"><Edit2 size={12} /></button>
                           <button onClick={() => onDelete(l)} className="p-1.5 rounded-lg text-gray-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-500/10 transition-colors"><Trash2 size={12} /></button>
                         </div>
                       </td>
@@ -1736,7 +1736,7 @@ export default function LeiloesPage() {
           <p className="text-gray-500 dark:text-gray-400 mt-1 text-sm">{merged.length} leilões na agenda 2026</p>
         </div>
         <div className="flex items-center gap-2">
-          <button onClick={() => { setEditBula(null); setShowBulaForm(true) }} className="flex items-center gap-2 px-5 py-2.5 bg-[#A0792E] hover:bg-[#D4A85C] text-black rounded-xl font-semibold text-sm transition-colors shadow-lg shadow-[#A0792E]/20">
+          <button onClick={() => { setEditBula(null); setShowBulaForm(true) }} className="flex items-center gap-2 px-5 py-2.5 bg-[#A68B4B] hover:bg-[#C8A96E] text-black rounded-xl font-semibold text-sm transition-colors shadow-lg shadow-[#A68B4B]/20">
             <Plus size={16} /> Novo Leilão
           </button>
         </div>
@@ -1752,8 +1752,8 @@ export default function LeiloesPage() {
           { label: 'Confirmados', value: confirmados },
           { label: 'Presenciais / Expo', value: presenciais },
         ].map(s => (
-          <div key={s.label} className={`px-5 py-4 rounded-2xl border text-center ${s.accent ? 'border-[#A0792E]/30 bg-[#A0792E]/8' : 'border-gray-100 dark:border-[#2A2A2A] bg-white dark:bg-[#1d1d1d]'}`}>
-            <p className={`text-2xl font-black leading-none mb-1 ${s.accent ? 'text-[#A0792E]' : 'text-gray-900 dark:text-white'}`}>{s.value}</p>
+          <div key={s.label} className={`px-5 py-4 rounded-2xl border text-center ${s.accent ? 'border-[#A68B4B]/30 bg-[#A68B4B]/8' : 'border-gray-100 dark:border-[#2A2A2A] bg-white dark:bg-[#141414]'}`}>
+            <p className={`text-2xl font-black leading-none mb-1 ${s.accent ? 'text-[#A68B4B]' : 'text-gray-900 dark:text-white'}`}>{s.value}</p>
             <p className="text-[10px] text-gray-400 uppercase tracking-wider">{s.label}</p>
           </div>
         ))}
@@ -1769,10 +1769,10 @@ export default function LeiloesPage() {
               value={busca}
               onChange={e => setBusca(e.target.value)}
               placeholder="Buscar por nome, criador, raça, leiloeira…"
-              className="w-full pl-9 pr-9 py-2 rounded-xl border border-gray-200 dark:border-[#363636] bg-white dark:bg-[#161616] text-sm text-gray-800 dark:text-gray-200 placeholder-gray-400 focus:outline-none focus:border-[#A0792E] transition-colors"
+              className="w-full pl-9 pr-9 py-2 rounded-xl border border-gray-200 dark:border-[#333] bg-white dark:bg-[#0D0D0D] text-sm text-gray-800 dark:text-gray-200 placeholder-gray-400 focus:outline-none focus:border-[#A68B4B] transition-colors"
             />
             {busca && (
-              <button onClick={() => setBusca('')} className="absolute right-2.5 top-1/2 -translate-y-1/2 p-0.5 rounded-md text-gray-400 hover:text-gray-600 hover:bg-gray-100 dark:hover:bg-[#262626]">
+              <button onClick={() => setBusca('')} className="absolute right-2.5 top-1/2 -translate-y-1/2 p-0.5 rounded-md text-gray-400 hover:text-gray-600 hover:bg-gray-100 dark:hover:bg-[#1A1A1A]">
                 <X size={13} />
               </button>
             )}
@@ -1780,11 +1780,11 @@ export default function LeiloesPage() {
 
           <button
             onClick={() => setShowAdvFilters(v => !v)}
-            className={`flex items-center gap-2 px-3 py-2 rounded-xl text-xs font-bold uppercase tracking-wider border transition-all ${showAdvFilters || activeFiltersCount > 0 ? 'border-[#A0792E] bg-[#A0792E]/10 text-[#A0792E]' : 'border-gray-200 dark:border-[#363636] text-gray-500 dark:text-gray-400 hover:border-[#A0792E]/40 hover:text-[#A0792E]'}`}
+            className={`flex items-center gap-2 px-3 py-2 rounded-xl text-xs font-bold uppercase tracking-wider border transition-all ${showAdvFilters || activeFiltersCount > 0 ? 'border-[#A68B4B] bg-[#A68B4B]/10 text-[#A68B4B]' : 'border-gray-200 dark:border-[#333] text-gray-500 dark:text-gray-400 hover:border-[#A68B4B]/40 hover:text-[#A68B4B]'}`}
           >
             <SlidersHorizontal size={13} /> Filtros
             {activeFiltersCount > 0 && (
-              <span className="inline-flex items-center justify-center w-4 h-4 rounded-full bg-[#A0792E] text-black text-[10px] font-black">{activeFiltersCount}</span>
+              <span className="inline-flex items-center justify-center w-4 h-4 rounded-full bg-[#A68B4B] text-black text-[10px] font-black">{activeFiltersCount}</span>
             )}
           </button>
 
@@ -1800,7 +1800,7 @@ export default function LeiloesPage() {
             onClick={handleSyncSheets}
             disabled={syncing}
             title="Sincronizar agenda e capas a partir da planilha do Google Sheets"
-            className="flex items-center gap-2 px-3 py-2 rounded-xl text-xs font-bold uppercase tracking-wider border border-gray-200 dark:border-[#363636] text-gray-600 dark:text-gray-300 hover:border-[#A0792E] hover:text-[#A0792E] disabled:opacity-40 disabled:cursor-not-allowed transition-all"
+            className="flex items-center gap-2 px-3 py-2 rounded-xl text-xs font-bold uppercase tracking-wider border border-gray-200 dark:border-[#333] text-gray-600 dark:text-gray-300 hover:border-[#A68B4B] hover:text-[#A68B4B] disabled:opacity-40 disabled:cursor-not-allowed transition-all"
           >
             {syncing ? <Loader2 size={13} className="animate-spin" /> : <RefreshCw size={13} />}
             {syncing ? 'Sincronizando…' : 'Sincronizar planilha'}
@@ -1810,16 +1810,16 @@ export default function LeiloesPage() {
             onClick={() => exportLeiloesCSV(filtered)}
             disabled={filtered.length === 0}
             title="Exportar leilões filtrados em CSV"
-            className="flex items-center gap-2 px-3 py-2 rounded-xl text-xs font-bold uppercase tracking-wider border border-gray-200 dark:border-[#363636] text-gray-600 dark:text-gray-300 hover:border-[#A0792E] hover:text-[#A0792E] disabled:opacity-40 disabled:cursor-not-allowed transition-all"
+            className="flex items-center gap-2 px-3 py-2 rounded-xl text-xs font-bold uppercase tracking-wider border border-gray-200 dark:border-[#333] text-gray-600 dark:text-gray-300 hover:border-[#A68B4B] hover:text-[#A68B4B] disabled:opacity-40 disabled:cursor-not-allowed transition-all"
           >
             <Download size={13} /> Exportar
           </button>
 
-          <div className="flex items-center gap-1 p-1 rounded-xl bg-gray-100 dark:bg-[#212121]">
-            <button onClick={() => setView('cards')} className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all ${view === 'cards' ? 'bg-white dark:bg-[#262626] text-gray-900 dark:text-white shadow-sm' : 'text-gray-500 dark:text-gray-400'}`}>
+          <div className="flex items-center gap-1 p-1 rounded-xl bg-gray-100 dark:bg-[#141414]">
+            <button onClick={() => setView('cards')} className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all ${view === 'cards' ? 'bg-white dark:bg-[#1A1A1A] text-gray-900 dark:text-white shadow-sm' : 'text-gray-500 dark:text-gray-400'}`}>
               <LayoutGrid size={13} /> Cards
             </button>
-            <button onClick={() => setView('tabela')} className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all ${view === 'tabela' ? 'bg-white dark:bg-[#262626] text-gray-900 dark:text-white shadow-sm' : 'text-gray-500 dark:text-gray-400'}`}>
+            <button onClick={() => setView('tabela')} className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all ${view === 'tabela' ? 'bg-white dark:bg-[#1A1A1A] text-gray-900 dark:text-white shadow-sm' : 'text-gray-500 dark:text-gray-400'}`}>
               <Table2 size={13} /> Tabela
             </button>
           </div>
@@ -1827,7 +1827,7 @@ export default function LeiloesPage() {
 
         {/* Advanced filters panel */}
         {showAdvFilters && (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 p-4 rounded-2xl border border-gray-100 dark:border-[#2A2A2A] bg-gray-50/50 dark:bg-[#1B1B1B] leilao-filters-panel">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 p-4 rounded-2xl border border-gray-100 dark:border-[#2A2A2A] bg-gray-50/50 dark:bg-[#141414] leilao-filters-panel">
             <div>
               <label className="block text-[10px] font-bold uppercase tracking-wider text-gray-400 mb-1.5">Modalidade</label>
               <select value={modalidadeFiltro} onChange={e => setModalidadeFiltro(e.target.value)} className={inputCls}>
@@ -1896,7 +1896,7 @@ export default function LeiloesPage() {
         {/* Month chips */}
         <div className="flex gap-2 flex-wrap">
           {meses.map(mes => (
-            <button key={mes} onClick={() => setMesFiltro(mes)} className={`px-4 py-1.5 rounded-full text-xs font-bold uppercase tracking-widest border transition-all ${mesFiltro === mes ? 'bg-[#A0792E] text-black border-[#A0792E]' : 'border-gray-200 dark:border-[#363636] text-gray-500 dark:text-gray-400 hover:border-[#A0792E]/40 hover:text-[#A0792E]'}`}>
+            <button key={mes} onClick={() => setMesFiltro(mes)} className={`px-4 py-1.5 rounded-full text-xs font-bold uppercase tracking-widest border transition-all ${mesFiltro === mes ? 'bg-[#A68B4B] text-black border-[#A68B4B]' : 'border-gray-200 dark:border-[#333] text-gray-500 dark:text-gray-400 hover:border-[#A68B4B]/40 hover:text-[#A68B4B]'}`}>
               {mes}
             </button>
           ))}
@@ -1906,7 +1906,7 @@ export default function LeiloesPage() {
       {/* Content */}
       {loading ? (
         <div className="flex items-center justify-center py-24">
-          <Loader2 size={28} className="animate-spin text-[#A0792E]" />
+          <Loader2 size={28} className="animate-spin text-[#A68B4B]" />
         </div>
       ) : filtered.length === 0 ? (
         <div className="flex flex-col items-center justify-center py-24 gap-3 text-center">
@@ -1920,9 +1920,9 @@ export default function LeiloesPage() {
           {Object.entries(grupos).map(([mes, events]) => (
             <div key={mes}>
               <div className="flex items-center gap-3 mb-4">
-                <CalendarDays size={14} className="text-[#A0792E] flex-shrink-0" />
-                <span className="text-[#A0792E] text-xs font-black uppercase tracking-[0.2em]">{mes}</span>
-                <div className="flex-1 h-px bg-gradient-to-r from-[#A0792E]/20 to-transparent" />
+                <CalendarDays size={14} className="text-[#A68B4B] flex-shrink-0" />
+                <span className="text-[#A68B4B] text-xs font-black uppercase tracking-[0.2em]">{mes}</span>
+                <div className="flex-1 h-px bg-gradient-to-r from-[#A68B4B]/20 to-transparent" />
                 <span className="text-[10px] text-gray-400">{events.length} evento{events.length > 1 ? 's' : ''}</span>
               </div>
               <div className="space-y-2.5">

@@ -69,7 +69,7 @@ export function CRMColumn({ id, title, leads, onLeadClick, onAddLead, onRename }
     return (
         <div
             ref={setNodeRef}
-            className="flex-1 min-w-[320px] flex flex-col gap-4 bg-gray-50 dark:bg-[#1d1d1d] p-4 rounded-2xl border border-gray-200 dark:border-[#2e2e2e]"
+            className="flex-1 min-w-[320px] flex flex-col gap-4 bg-gray-50 dark:bg-[#141414] p-4 rounded-2xl border border-gray-200 dark:border-[#2A2A2A]"
         >
             <div className="flex items-center justify-between">
                 <div className={`group/title px-3 py-1 rounded-full text-xs font-bold border flex w-full justify-between items-center gap-2 ${headerColor}`}>
@@ -123,7 +123,7 @@ export function CRMColumn({ id, title, leads, onLeadClick, onAddLead, onRename }
                         e.preventDefault();
                         onAddLead(id);
                     }}
-                    className="w-full py-3 mt-2 rounded-xl flex items-center justify-center gap-2 text-gray-400 dark:text-gray-500 hover:text-[#A0792E] hover:bg-[#A0792E]/5 border border-transparent hover:border-[#A0792E]/20 transition-all text-sm font-medium"
+                    className="w-full py-3 mt-2 rounded-xl flex items-center justify-center gap-2 text-gray-400 dark:text-gray-500 hover:text-[#A68B4B] hover:bg-[#A68B4B]/5 border border-transparent hover:border-[#A68B4B]/20 transition-all text-sm font-medium"
                 >
                     <Plus size={16} /> Nova página
                 </button>

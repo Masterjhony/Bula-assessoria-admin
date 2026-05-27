@@ -41,11 +41,10 @@ import {
 type ViewMode = 'kanban' | 'gantt' | 'whiteboard' | 'members';
 const VALID_VIEWS: ViewMode[] = ['kanban', 'gantt', 'whiteboard', 'members'];
 
-// Boards de projetos — um por operação. 'formula_boi' é o board legado (default).
-const BOARDS: { key: TacticalUnidade; label: string }[] = [
-    { key: 'formula_boi', label: 'Fórmula do Boi' },
-    { key: 'bula_formula', label: 'Bula × Fórmula do Boi' },
-];
+// Board único no web-bula. Mantemos o tipo TacticalUnidade compatível
+// com o schema do banco (que ainda aceita 'formula_boi' | 'bula_formula'
+// por causa da origem das migrations), mas a UI usa só um board "bula".
+const ACTIVE_BOARD: TacticalUnidade = 'bula_formula';
 
 interface KanbanBoardProps {
     initialTasks: TacticalTask[];
@@ -78,9 +77,8 @@ export function KanbanBoard({
     const rawView = searchParams.get('view');
     const viewMode: ViewMode = (rawView && (VALID_VIEWS as string[]).includes(rawView))
         ? (rawView as ViewMode) : 'kanban';
-    // `?board=bula_formula` controla a operação ativa; ausente = 'formula_boi'.
-    const board: TacticalUnidade = searchParams.get('board') === 'bula_formula'
-        ? 'bula_formula' : 'formula_boi';
+    // Board único no web-bula — sem switcher de operação.
+    const board: TacticalUnidade = ACTIVE_BOARD;
     const editingTaskId = searchParams.get('task');
     const editingTask = useMemo<TacticalTask | undefined>(
         () => (editingTaskId ? tasks.find(t => t.id === editingTaskId) : undefined),
@@ -108,16 +106,6 @@ export function KanbanBoard({
     const [isFullscreen, setIsFullscreen] = useState(false);
     const [isArchivedOpen, setIsArchivedOpen] = useState(false);
 
-    // Troca o board ativo. Zera o filtro de responsável (a lista de opções
-    // muda entre os boards) e fecha qualquer modal de tarefa do board anterior.
-    const setBoard = (next: TacticalUnidade) => {
-        setFilterAssignee('all');
-        updateUrl(p => {
-            if (next === 'formula_boi') p.delete('board'); else p.set('board', next);
-            p.delete('task');
-        });
-    };
-
     const doneStatus = useMemo(() =>
         columns.find(c =>
             c.title.toLowerCase().includes('complet') || c.title.toLowerCase().includes('conclu')
@@ -132,7 +120,7 @@ export function KanbanBoard({
 
     // Tarefas do board ativo — base de tudo que a tela mostra.
     const boardTasks = useMemo(
-        () => tasks.filter(t => (t.unidade ?? 'formula_boi') === board),
+        () => tasks.filter(t => (t.unidade ?? ACTIVE_BOARD) === board),
         [tasks, board]
     );
 
@@ -258,7 +246,7 @@ export function KanbanBoard({
             const changedTask = tasks.find(t => t.id === activeId);
             if (changedTask) {
                 const columnTasks = tasks.filter(t =>
-                    t.status === changedTask.status && (t.unidade ?? 'formula_boi') === board);
+                    t.status === changedTask.status && (t.unidade ?? ACTIVE_BOARD) === board);
                 const indexInColumn = columnTasks.findIndex(t => t.id === changedTask.id);
                 const prevTask = columnTasks[indexInColumn - 1];
                 const nextTask = columnTasks[indexInColumn + 1];
@@ -295,40 +283,14 @@ export function KanbanBoard({
     return (
         <div className={
             isFullscreen
-                ? "fixed inset-0 z-[100] bg-[#f9fafb] dark:bg-[#161616] p-6 w-screen h-screen flex flex-col overflow-hidden"
+                ? "fixed inset-0 z-[100] bg-[#f9fafb] dark:bg-[#0D0D0D] p-6 w-screen h-screen flex flex-col overflow-hidden"
                 : "h-full flex flex-col pt-4"
         }>
             {/* Toolbar */}
             <div className="flex flex-col gap-3 mb-4 shrink-0">
-                {/* Board selector — operação (Fórmula do Boi × Bula × Fórmula do Boi) */}
-                <div className="flex items-center gap-1.5">
-                    {BOARDS.map(b => {
-                        const count = tasks.filter(t => (t.unidade ?? 'formula_boi') === b.key).length;
-                        const active = board === b.key;
-                        return (
-                            <button
-                                key={b.key}
-                                onClick={() => setBoard(b.key)}
-                                className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-semibold border transition-all ${active
-                                    ? 'bg-[#A0792E] text-black border-[#A0792E] shadow-sm shadow-[#A0792E]/20'
-                                    : 'bg-white dark:bg-[#262626] border-gray-200 dark:border-[#2e2e2e] text-gray-500 hover:text-gray-800 dark:hover:text-gray-200'
-                                    }`}
-                            >
-                                {b.label}
-                                <span className={`text-[11px] font-bold px-1.5 py-0.5 rounded ${active
-                                    ? 'bg-black/15'
-                                    : 'bg-gray-100 dark:bg-[#2e2e2e] text-gray-500'
-                                    }`}>
-                                    {count}
-                                </span>
-                            </button>
-                        );
-                    })}
-                </div>
-
                 <div className="flex flex-wrap items-center justify-between gap-3">
                     {/* View Tabs */}
-                    <div className="flex gap-1 bg-gray-100 dark:bg-[#262626] p-1 rounded-xl border border-gray-200 dark:border-[#2e2e2e] overflow-x-auto">
+                    <div className="flex gap-1 bg-gray-100 dark:bg-[#1A1A1A] p-1 rounded-xl border border-gray-200 dark:border-[#2A2A2A] overflow-x-auto">
                         {viewTabs.map(tab => (
                             <button
                                 key={tab.key}
@@ -352,7 +314,7 @@ export function KanbanBoard({
                                     <select
                                         value={filterAssignee}
                                         onChange={e => setFilterAssignee(e.target.value)}
-                                        className="text-sm bg-white dark:bg-[#262626] border border-gray-200 dark:border-[#2e2e2e] rounded-lg px-3 py-1.5 text-gray-700 dark:text-gray-300 outline-none focus:ring-2 focus:ring-[#A0792E]"
+                                        className="text-sm bg-white dark:bg-[#1A1A1A] border border-gray-200 dark:border-[#2A2A2A] rounded-lg px-3 py-1.5 text-gray-700 dark:text-gray-300 outline-none focus:ring-2 focus:ring-[#A68B4B]"
                                     >
                                         <option value="all">Todos</option>
                                         {assigneeOptions.map(name => (
@@ -363,7 +325,7 @@ export function KanbanBoard({
                                 <select
                                     value={filterPriority}
                                     onChange={e => setFilterPriority(e.target.value)}
-                                    className="text-sm bg-white dark:bg-[#262626] border border-gray-200 dark:border-[#2e2e2e] rounded-lg px-3 py-1.5 text-gray-700 dark:text-gray-300 outline-none focus:ring-2 focus:ring-[#A0792E]"
+                                    className="text-sm bg-white dark:bg-[#1A1A1A] border border-gray-200 dark:border-[#2A2A2A] rounded-lg px-3 py-1.5 text-gray-700 dark:text-gray-300 outline-none focus:ring-2 focus:ring-[#A68B4B]"
                                 >
                                     <option value="all">Todas prioridades</option>
                                     <option value="Alta">Alta 🔥</option>
@@ -373,8 +335,8 @@ export function KanbanBoard({
                                 <button
                                     onClick={() => setFocusMode(!focusMode)}
                                     className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm font-medium border transition-all ${focusMode
-                                        ? 'bg-[#A0792E]/10 border-[#A0792E]/30 text-[#A0792E]'
-                                        : 'bg-white dark:bg-[#262626] border-gray-200 dark:border-[#2e2e2e] text-gray-500 hover:text-gray-700 dark:hover:text-gray-300'
+                                        ? 'bg-[#A68B4B]/10 border-[#A68B4B]/30 text-[#A68B4B]'
+                                        : 'bg-white dark:bg-[#1A1A1A] border-gray-200 dark:border-[#2A2A2A] text-gray-500 hover:text-gray-700 dark:hover:text-gray-300'
                                         }`}
                                     title="Modo Foco — apenas tarefas críticas"
                                 >
@@ -386,7 +348,7 @@ export function KanbanBoard({
                         {(viewMode === 'kanban' || viewMode === 'gantt') && (
                             <button
                                 onClick={() => setIsArchivedOpen(true)}
-                                className="flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium text-gray-500 hover:text-gray-900 dark:hover:text-white transition-colors rounded-lg bg-gray-100 dark:bg-[#262626] border border-gray-200 dark:border-[#2e2e2e]"
+                                className="flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium text-gray-500 hover:text-gray-900 dark:hover:text-white transition-colors rounded-lg bg-gray-100 dark:bg-[#1A1A1A] border border-gray-200 dark:border-[#2A2A2A]"
                                 title="Tarefas arquivadas"
                             >
                                 <Archive size={14} /> Arquivados
@@ -395,7 +357,7 @@ export function KanbanBoard({
 
                         <button
                             onClick={() => setIsFullscreen(!isFullscreen)}
-                            className="flex items-center justify-center p-1.5 text-gray-500 hover:text-gray-900 dark:hover:text-white transition-colors rounded-lg bg-gray-100 dark:bg-[#262626] border border-gray-200 dark:border-[#2e2e2e]"
+                            className="flex items-center justify-center p-1.5 text-gray-500 hover:text-gray-900 dark:hover:text-white transition-colors rounded-lg bg-gray-100 dark:bg-[#1A1A1A] border border-gray-200 dark:border-[#2A2A2A]"
                             title={isFullscreen ? "Sair da Tela Cheia" : "Tela Cheia"}
                         >
                             {isFullscreen ? <Minimize2 size={16} /> : <Maximize2 size={16} />}
@@ -404,7 +366,7 @@ export function KanbanBoard({
                         {(viewMode === 'kanban' || viewMode === 'gantt') && (
                             <button
                                 onClick={() => handleAddTask('A fazer')}
-                                className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-[#A0792E] to-[#D4A85C] text-black rounded-lg font-bold hover:shadow-lg hover:shadow-[#A0792E]/20 transition-all hover:-translate-y-0.5 whitespace-nowrap text-sm"
+                                className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-[#A68B4B] to-[#C8A96E] text-black rounded-lg font-bold hover:shadow-lg hover:shadow-[#A68B4B]/20 transition-all hover:-translate-y-0.5 whitespace-nowrap text-sm"
                             >
                                 <Plus size={16} /> Nova Tarefa
                             </button>
@@ -447,7 +409,7 @@ export function KanbanBoard({
                                 />
                             ))}
                             {/* New Column */}
-                            <div className="shrink-0 w-[320px] bg-gray-50 dark:bg-[#262626] rounded-2xl p-4 border border-gray-200 dark:border-[#2e2e2e] h-fit">
+                            <div className="shrink-0 w-[320px] bg-gray-50 dark:bg-[#1A1A1A] rounded-2xl p-4 border border-gray-200 dark:border-[#2A2A2A] h-fit">
                                 {isCreatingColumn ? (
                                     <input
                                         autoFocus
@@ -468,7 +430,7 @@ export function KanbanBoard({
                                             }
                                         }}
                                         onBlur={() => { setIsCreatingColumn(false); setNewColumnTitle(''); }}
-                                        className="w-full px-3 py-2 bg-white dark:bg-[#1d1d1d] border border-[#A0792E] rounded-lg focus:outline-none text-sm text-gray-900 dark:text-white"
+                                        className="w-full px-3 py-2 bg-white dark:bg-[#141414] border border-[#A68B4B] rounded-lg focus:outline-none text-sm text-gray-900 dark:text-white"
                                         placeholder="Nome da coluna..."
                                     />
                                 ) : (

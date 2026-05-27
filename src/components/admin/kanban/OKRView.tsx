@@ -16,7 +16,7 @@ import {
     Briefcase, Gavel, Activity, ArrowRight, Users, MessageSquare, Trophy,
 } from 'lucide-react';
 
-const COLORS = ['#A0792E', '#3B82F6', '#10B981', '#8B5CF6', '#EF4444', '#F59E0B', '#06B6D4'];
+const COLORS = ['#A68B4B', '#3B82F6', '#10B981', '#8B5CF6', '#EF4444', '#F59E0B', '#06B6D4'];
 const QUARTERS = ['Q1 2026', 'Q2 2026', 'Q3 2026', 'Q4 2026', 'Q1 2027'];
 
 // ── Quarter pacing ─────────────────────────────────────────────────────────────
@@ -166,7 +166,7 @@ function detectIndicatorsForObjective(obj: TacticalObjective, snapshot?: OKRSnap
             value: String(snapshot.leads.new30d),
             sub: `${snapshot.leads.newMonth} no mês · ${snapshot.leads.prev30d > 0 ? `${snapshot.leads.trendDeltaPct >= 0 ? '+' : ''}${snapshot.leads.trendDeltaPct.toFixed(0)}%` : ''}`,
             icon: <Users size={11} />,
-            color: '#A0792E',
+            color: '#A68B4B',
             href: '/crm',
         });
     }
@@ -176,7 +176,7 @@ function detectIndicatorsForObjective(obj: TacticalObjective, snapshot?: OKRSnap
             value: String(snapshot.leads.mqlActive),
             sub: `conversão ${snapshot.leads.mqlConvPct.toFixed(0)}%`,
             icon: <Activity size={11} />,
-            color: '#D4A85C',
+            color: '#C8A96E',
             href: '/crm',
         });
     }
@@ -371,7 +371,7 @@ export function OKRView({ objectives, onObjectivesChange, snapshot, tasks, doneS
             <div className="h-full flex flex-col">
                 <Header overallPct={0} onNew={() => setShowNewObj(true)} />
                 <div className="flex-1 flex flex-col items-center justify-center text-center">
-                    <div className="w-16 h-16 rounded-2xl bg-gray-100 dark:bg-[#262626] border border-gray-200 dark:border-[#2e2e2e] flex items-center justify-center mb-4">
+                    <div className="w-16 h-16 rounded-2xl bg-gray-100 dark:bg-[#1A1A1A] border border-gray-200 dark:border-[#2A2A2A] flex items-center justify-center mb-4">
                         <Target size={28} className="text-gray-300 dark:text-gray-600" />
                     </div>
                     <p className="font-semibold text-gray-500 dark:text-gray-400">Nenhum objetivo definido.</p>
@@ -409,11 +409,11 @@ export function OKRView({ objectives, onObjectivesChange, snapshot, tasks, doneS
 
             {/* Quarter timeline */}
             {globalPacing && objectives.length > 0 && (
-                <div className="bg-white dark:bg-[#222222] rounded-2xl border border-gray-200 dark:border-[#2e2e2e] p-4">
+                <div className="bg-white dark:bg-[#222222] rounded-2xl border border-gray-200 dark:border-[#2A2A2A] p-4">
                     <div className="flex items-center justify-between mb-2.5">
                         <div className="flex items-center gap-2">
                             <span className="text-xs font-bold text-gray-700 dark:text-gray-300">Q2 2026</span>
-                            <span className="text-[10px] text-gray-400 bg-gray-50 dark:bg-[#262626] px-2 py-0.5 rounded-full border border-gray-100 dark:border-[#363636]">
+                            <span className="text-[10px] text-gray-400 bg-gray-50 dark:bg-[#1A1A1A] px-2 py-0.5 rounded-full border border-gray-100 dark:border-[#333]">
                                 Dia {globalPacing.daysElapsed} de {globalPacing.totalDays}
                             </span>
                         </div>
@@ -429,7 +429,7 @@ export function OKRView({ objectives, onObjectivesChange, snapshot, tasks, doneS
                         </div>
                     </div>
                     {/* Stacked bar: time (gray) + OKR progress (colored) */}
-                    <div className="relative h-3 bg-gray-100 dark:bg-[#1d1d1d] rounded-full overflow-hidden">
+                    <div className="relative h-3 bg-gray-100 dark:bg-[#141414] rounded-full overflow-hidden">
                         <div className="absolute left-0 top-0 h-full bg-gray-200 dark:bg-[#363636] rounded-full transition-all"
                             style={{ width: `${globalPacing.pct}%` }} />
                         <div className={`absolute left-0 top-0 h-full rounded-full transition-all duration-700 ${overallPct >= globalPacing.pct - 10 ? 'bg-emerald-500' : overallPct >= globalPacing.pct - 25 ? 'bg-amber-500' : 'bg-red-500'}`}
@@ -473,7 +473,7 @@ export function OKRView({ objectives, onObjectivesChange, snapshot, tasks, doneS
 
                         return (
                             <div key={obj.id}
-                                className="bg-white dark:bg-[#222222] rounded-2xl border border-gray-200 dark:border-[#2e2e2e] overflow-hidden shadow-sm"
+                                className="bg-white dark:bg-[#222222] rounded-2xl border border-gray-200 dark:border-[#2A2A2A] overflow-hidden shadow-sm"
                                 style={{ borderLeftColor: obj.color, borderLeftWidth: '4px' }}
                             >
                                 {/* Objective header */}
@@ -494,7 +494,7 @@ export function OKRView({ objectives, onObjectivesChange, snapshot, tasks, doneS
                                                     {obj.title}
                                                 </h3>
                                                 <div className="flex items-center gap-2 shrink-0">
-                                                    <span className="text-xs text-gray-400 bg-gray-50 dark:bg-[#1d1d1d] px-2 py-0.5 rounded-md border border-gray-100 dark:border-[#363636] font-medium">
+                                                    <span className="text-xs text-gray-400 bg-gray-50 dark:bg-[#141414] px-2 py-0.5 rounded-md border border-gray-100 dark:border-[#333] font-medium">
                                                         {obj.quarter}
                                                     </span>
                                                     <span className={`flex items-center gap-1 text-[11px] font-bold px-2 py-0.5 rounded-full border ${cfg.bg} ${cfg.border} ${cfg.text}`}>
@@ -526,7 +526,7 @@ export function OKRView({ objectives, onObjectivesChange, snapshot, tasks, doneS
                                                             {obj.gap >= 0 ? '+' : ''}{obj.gap}pp
                                                         </div>
                                                     </div>
-                                                    <div className="relative h-2 bg-gray-100 dark:bg-[#1d1d1d] rounded-full overflow-hidden">
+                                                    <div className="relative h-2 bg-gray-100 dark:bg-[#141414] rounded-full overflow-hidden">
                                                         {/* Expected pace ghost */}
                                                         <div className="absolute top-0 left-0 h-full bg-gray-200 dark:bg-[#363636] rounded-full"
                                                             style={{ width: `${obj.pacing.pct}%` }} />
@@ -549,7 +549,7 @@ export function OKRView({ objectives, onObjectivesChange, snapshot, tasks, doneS
                                 {/* KR toggle strip */}
                                 <button
                                     onClick={() => toggleExpanded(obj.id)}
-                                    className="w-full px-5 py-2.5 flex items-center gap-2 bg-gray-50/80 dark:bg-[#1A1A1A]/80 border-t border-gray-100 dark:border-[#2A2A2A] hover:bg-gray-100 dark:hover:bg-[#262626] transition-colors"
+                                    className="w-full px-5 py-2.5 flex items-center gap-2 bg-gray-50/80 dark:bg-[#1A1A1A]/80 border-t border-gray-100 dark:border-[#2A2A2A] hover:bg-gray-100 dark:hover:bg-[#1A1A1A] transition-colors"
                                 >
                                     {isExpanded ? <ChevronDown size={13} className="text-gray-400" /> : <ChevronRight size={13} className="text-gray-400" />}
                                     <span className="text-xs text-gray-500 font-medium">
@@ -573,7 +573,7 @@ export function OKRView({ objectives, onObjectivesChange, snapshot, tasks, doneS
                                             const pct = kr.progress ?? 0;
                                             return (
                                                 <div key={kr.id}
-                                                    className="group bg-white dark:bg-[#222222] rounded-xl p-3.5 border border-gray-100 dark:border-[#2e2e2e] hover:border-gray-200 dark:hover:border-[#363636] transition-colors">
+                                                    className="group bg-white dark:bg-[#222222] rounded-xl p-3.5 border border-gray-100 dark:border-[#2A2A2A] hover:border-gray-200 dark:hover:border-[#333] transition-colors">
                                                     <div className="flex items-start gap-2.5">
                                                         <span className="text-[11px] font-bold text-gray-300 dark:text-gray-600 mt-0.5 w-4 shrink-0 text-right">
                                                             {idx + 1}
@@ -588,7 +588,7 @@ export function OKRView({ objectives, onObjectivesChange, snapshot, tasks, doneS
                                                                                 type="number" autoFocus
                                                                                 value={editKR.current}
                                                                                 onChange={e => setEditKR({ id: kr.id, current: e.target.value })}
-                                                                                className="w-16 px-2 py-1 text-xs bg-gray-50 dark:bg-[#1d1d1d] border border-[#A0792E] rounded-lg outline-none text-gray-900 dark:text-white"
+                                                                                className="w-16 px-2 py-1 text-xs bg-gray-50 dark:bg-[#141414] border border-[#A68B4B] rounded-lg outline-none text-gray-900 dark:text-white"
                                                                             />
                                                                             <span className="text-xs text-gray-400">/{kr.target_value}{kr.unit}</span>
                                                                             <button onClick={() => handleUpdateKRValue(kr, editKR.current)} className="text-emerald-500 hover:text-emerald-400"><Check size={13} /></button>
@@ -598,7 +598,7 @@ export function OKRView({ objectives, onObjectivesChange, snapshot, tasks, doneS
                                                                         <>
                                                                             <button
                                                                                 onClick={() => setEditKR({ id: kr.id, current: String(kr.current_value ?? 0) })}
-                                                                                className="text-xs text-gray-400 hover:text-[#A0792E] flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity"
+                                                                                className="text-xs text-gray-400 hover:text-[#A68B4B] flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity"
                                                                             >
                                                                                 <Edit2 size={10} />
                                                                                 {kr.current_value ?? 0}{kr.unit}/{kr.target_value}{kr.unit}
@@ -614,7 +614,7 @@ export function OKRView({ objectives, onObjectivesChange, snapshot, tasks, doneS
                                                                     )}
                                                                 </div>
                                                             </div>
-                                                            <div className="relative h-1.5 bg-gray-100 dark:bg-[#262626] rounded-full overflow-hidden">
+                                                            <div className="relative h-1.5 bg-gray-100 dark:bg-[#1A1A1A] rounded-full overflow-hidden">
                                                                 <div className={`absolute left-0 top-0 h-full rounded-full transition-all duration-500 ${barColor(pct)}`}
                                                                     style={{ width: `${pct}%` }} />
                                                             </div>
@@ -645,14 +645,14 @@ export function OKRView({ objectives, onObjectivesChange, snapshot, tasks, doneS
                                                         if (e.key === 'Escape') { setAddingKRForObj(null); setNewKRTitle(''); }
                                                     }}
                                                     placeholder="Ex: Atingir 50 leads qualificados/mês"
-                                                    className="flex-1 min-w-[200px] px-3 py-2 bg-white dark:bg-[#262626] border border-gray-200 dark:border-[#3f3f3f] rounded-lg text-sm outline-none focus:ring-2 focus:ring-[#A0792E] text-gray-900 dark:text-white"
+                                                    className="flex-1 min-w-[200px] px-3 py-2 bg-white dark:bg-[#1A1A1A] border border-gray-200 dark:border-[#333] rounded-lg text-sm outline-none focus:ring-2 focus:ring-[#A68B4B] text-gray-900 dark:text-white"
                                                 />
                                                 <input type="number" value={newKRTarget} onChange={e => setNewKRTarget(e.target.value)} placeholder="Meta"
-                                                    className="w-20 px-3 py-2 bg-white dark:bg-[#262626] border border-gray-200 dark:border-[#3f3f3f] rounded-lg text-sm outline-none focus:ring-2 focus:ring-[#A0792E] text-gray-900 dark:text-white" />
+                                                    className="w-20 px-3 py-2 bg-white dark:bg-[#1A1A1A] border border-gray-200 dark:border-[#333] rounded-lg text-sm outline-none focus:ring-2 focus:ring-[#A68B4B] text-gray-900 dark:text-white" />
                                                 <input value={newKRUnit} onChange={e => setNewKRUnit(e.target.value)} placeholder="Und."
-                                                    className="w-14 px-3 py-2 bg-white dark:bg-[#262626] border border-gray-200 dark:border-[#3f3f3f] rounded-lg text-sm outline-none focus:ring-2 focus:ring-[#A0792E] text-gray-900 dark:text-white" />
+                                                    className="w-14 px-3 py-2 bg-white dark:bg-[#1A1A1A] border border-gray-200 dark:border-[#333] rounded-lg text-sm outline-none focus:ring-2 focus:ring-[#A68B4B] text-gray-900 dark:text-white" />
                                                 <button onClick={() => handleAddKR(obj.id)} disabled={!newKRTitle.trim()}
-                                                    className="px-3 py-2 bg-[#A0792E] text-black rounded-lg text-sm font-bold disabled:opacity-50">
+                                                    className="px-3 py-2 bg-[#A68B4B] text-black rounded-lg text-sm font-bold disabled:opacity-50">
                                                     <Check size={14} />
                                                 </button>
                                                 <button onClick={() => { setAddingKRForObj(null); setNewKRTitle(''); }}
@@ -663,7 +663,7 @@ export function OKRView({ objectives, onObjectivesChange, snapshot, tasks, doneS
                                         ) : (
                                             <button
                                                 onClick={() => { setAddingKRForObj(obj.id); setNewKRTitle(''); }}
-                                                className="w-full flex items-center justify-center gap-1.5 py-2.5 rounded-xl border border-dashed border-gray-200 dark:border-[#333333] text-xs text-gray-400 hover:text-[#A0792E] hover:border-[#A0792E]/40 transition-all mt-0.5"
+                                                className="w-full flex items-center justify-center gap-1.5 py-2.5 rounded-xl border border-dashed border-gray-200 dark:border-[#333333] text-xs text-gray-400 hover:text-[#A68B4B] hover:border-[#A68B4B]/40 transition-all mt-0.5"
                                             >
                                                 <Plus size={13} /> Adicionar Resultado-Chave
                                             </button>
@@ -679,7 +679,7 @@ export function OKRView({ objectives, onObjectivesChange, snapshot, tasks, doneS
                 <div className="space-y-4">
 
                     {/* Overall health ring */}
-                    <div className="bg-white dark:bg-[#222222] rounded-2xl border border-gray-200 dark:border-[#2e2e2e] p-5">
+                    <div className="bg-white dark:bg-[#222222] rounded-2xl border border-gray-200 dark:border-[#2A2A2A] p-5">
                         <p className="text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-4">
                             Saúde dos OKRs
                         </p>
@@ -704,7 +704,7 @@ export function OKRView({ objectives, onObjectivesChange, snapshot, tasks, doneS
                                     <div className="w-2 h-2 rounded-full shrink-0" style={{ backgroundColor: obj.color }} />
                                     <div className="flex-1 min-w-0">
                                         <p className="text-[10px] text-gray-500 dark:text-gray-400 truncate mb-1">{obj.title}</p>
-                                        <div className="relative h-1.5 bg-gray-100 dark:bg-[#262626] rounded-full overflow-hidden">
+                                        <div className="relative h-1.5 bg-gray-100 dark:bg-[#1A1A1A] rounded-full overflow-hidden">
                                             <div className={`absolute left-0 top-0 h-full rounded-full transition-all ${barColor(obj.progress)}`}
                                                 style={{ width: `${obj.progress}%` }} />
                                         </div>
@@ -751,7 +751,7 @@ export function OKRView({ objectives, onObjectivesChange, snapshot, tasks, doneS
                     )}
 
                     {/* Status distribution */}
-                    <div className="bg-white dark:bg-[#222222] rounded-2xl border border-gray-200 dark:border-[#2e2e2e] p-4">
+                    <div className="bg-white dark:bg-[#222222] rounded-2xl border border-gray-200 dark:border-[#2A2A2A] p-4">
                         <p className="text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-3">
                             Distribuição de Status
                         </p>
@@ -770,7 +770,7 @@ export function OKRView({ objectives, onObjectivesChange, snapshot, tasks, doneS
                                                 </div>
                                                 <span className="text-xs font-bold text-gray-600 dark:text-gray-400">{cnt}/{total}</span>
                                             </div>
-                                            <div className="relative h-1.5 bg-gray-100 dark:bg-[#262626] rounded-full overflow-hidden">
+                                            <div className="relative h-1.5 bg-gray-100 dark:bg-[#1A1A1A] rounded-full overflow-hidden">
                                                 <div className="absolute left-0 top-0 h-full rounded-full transition-all duration-500"
                                                     style={{ width: `${pct}%`, backgroundColor: cfg.stroke }} />
                                             </div>
@@ -799,8 +799,8 @@ function Header({ overallPct, onNew, objCount }: { overallPct: number; onNew: ()
     return (
         <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
-                <div className="w-9 h-9 rounded-xl bg-[#A0792E]/10 border border-[#A0792E]/25 flex items-center justify-center shrink-0">
-                    <Target size={17} className="text-[#A0792E]" />
+                <div className="w-9 h-9 rounded-xl bg-[#A68B4B]/10 border border-[#A68B4B]/25 flex items-center justify-center shrink-0">
+                    <Target size={17} className="text-[#A68B4B]" />
                 </div>
                 <div>
                     <h2 className="font-bold text-gray-900 dark:text-white text-base">Objetivos & Resultados-Chave</h2>
@@ -815,7 +815,7 @@ function Header({ overallPct, onNew, objCount }: { overallPct: number; onNew: ()
             </div>
             <button
                 onClick={onNew}
-                className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-[#A0792E] to-[#D4A85C] text-black rounded-xl font-bold text-sm hover:shadow-lg hover:shadow-[#A0792E]/25 transition-all hover:-translate-y-0.5 shrink-0"
+                className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-[#A68B4B] to-[#C8A96E] text-black rounded-xl font-bold text-sm hover:shadow-lg hover:shadow-[#A68B4B]/25 transition-all hover:-translate-y-0.5 shrink-0"
             >
                 <Plus size={15} /> Novo Objetivo
             </button>
@@ -833,24 +833,24 @@ interface NewObjFormProps {
 
 function NewObjForm({ title, setTitle, desc, setDesc, quarter, setQuarter, color, setColor, onSave, onCancel }: NewObjFormProps) {
     return (
-        <div className="bg-white dark:bg-[#222222] rounded-2xl p-5 border border-[#A0792E]/30 shadow-lg space-y-4">
+        <div className="bg-white dark:bg-[#222222] rounded-2xl p-5 border border-[#A68B4B]/30 shadow-lg space-y-4">
             <h3 className="font-bold text-gray-900 dark:text-white flex items-center gap-2">
-                <Plus size={15} className="text-[#A0792E]" /> Novo Objetivo
+                <Plus size={15} className="text-[#A68B4B]" /> Novo Objetivo
             </h3>
             <input
                 autoFocus value={title} onChange={e => setTitle(e.target.value)}
                 onKeyDown={e => { if (e.key === 'Enter') onSave(); if (e.key === 'Escape') onCancel(); }}
                 placeholder="Ex: Dominar o mercado de genética Nelore PO no Triângulo Mineiro"
-                className="w-full px-4 py-3 bg-gray-50 dark:bg-[#1d1d1d] border border-gray-200 dark:border-[#363636] rounded-xl outline-none focus:ring-2 focus:ring-[#A0792E] text-sm text-gray-900 dark:text-white"
+                className="w-full px-4 py-3 bg-gray-50 dark:bg-[#141414] border border-gray-200 dark:border-[#333] rounded-xl outline-none focus:ring-2 focus:ring-[#A68B4B] text-sm text-gray-900 dark:text-white"
             />
             <textarea
                 value={desc} onChange={e => setDesc(e.target.value)}
                 placeholder="Descrição (opcional)" rows={2}
-                className="w-full px-4 py-3 bg-gray-50 dark:bg-[#1d1d1d] border border-gray-200 dark:border-[#363636] rounded-xl outline-none focus:ring-2 focus:ring-[#A0792E] text-sm text-gray-900 dark:text-white resize-none"
+                className="w-full px-4 py-3 bg-gray-50 dark:bg-[#141414] border border-gray-200 dark:border-[#333] rounded-xl outline-none focus:ring-2 focus:ring-[#A68B4B] text-sm text-gray-900 dark:text-white resize-none"
             />
             <div className="flex gap-4 flex-wrap items-center">
                 <select value={quarter} onChange={e => setQuarter(e.target.value)}
-                    className="px-3 py-2 bg-gray-50 dark:bg-[#1d1d1d] border border-gray-200 dark:border-[#363636] rounded-lg text-sm outline-none text-gray-900 dark:text-white">
+                    className="px-3 py-2 bg-gray-50 dark:bg-[#141414] border border-gray-200 dark:border-[#333] rounded-lg text-sm outline-none text-gray-900 dark:text-white">
                     {QUARTERS.map(q => <option key={q}>{q}</option>)}
                 </select>
                 <div className="flex items-center gap-2">
@@ -864,7 +864,7 @@ function NewObjForm({ title, setTitle, desc, setDesc, quarter, setQuarter, color
             </div>
             <div className="flex gap-2">
                 <button onClick={onSave} disabled={!title.trim()}
-                    className="px-4 py-2 bg-gradient-to-r from-[#A0792E] to-[#D4A85C] text-black rounded-lg font-bold text-sm disabled:opacity-50">
+                    className="px-4 py-2 bg-gradient-to-r from-[#A68B4B] to-[#C8A96E] text-black rounded-lg font-bold text-sm disabled:opacity-50">
                     Criar Objetivo
                 </button>
                 <button onClick={onCancel}
@@ -920,10 +920,10 @@ function ObjectiveOperationPanel({ objective, snapshot, tasks, doneStatus }: OpP
 
     if (!hasContent) {
         return (
-            <div className="mt-3 rounded-xl border border-dashed border-gray-200 dark:border-[#2e2e2e] p-3 text-center">
+            <div className="mt-3 rounded-xl border border-dashed border-gray-200 dark:border-[#2A2A2A] p-3 text-center">
                 <p className="text-[11px] text-gray-400">
                     Nenhuma tarefa, leilão ou indicador vinculado.{' '}
-                    <Link href="/projetos" className="text-[#A0792E] hover:underline">
+                    <Link href="/projetos" className="text-[#A68B4B] hover:underline">
                         Vincular tarefa
                     </Link>
                 </p>
@@ -936,13 +936,13 @@ function ObjectiveOperationPanel({ objective, snapshot, tasks, doneStatus }: OpP
 
             {/* Indicadores reais */}
             {indicators.length > 0 && (
-                <div className="bg-white dark:bg-[#262626] rounded-xl p-3 border border-gray-100 dark:border-[#2e2e2e]">
+                <div className="bg-white dark:bg-[#1A1A1A] rounded-xl p-3 border border-gray-100 dark:border-[#2A2A2A]">
                     <p className="text-[10px] font-bold text-gray-500 uppercase tracking-wider mb-2 flex items-center gap-1.5">
-                        <Activity size={11} className="text-[#A0792E]" /> Indicadores reais
+                        <Activity size={11} className="text-[#A68B4B]" /> Indicadores reais
                     </p>
                     <div className="grid grid-cols-2 gap-2">
                         {indicators.map((ind, i) => (
-                            <Link key={i} href={ind.href} className="flex items-center gap-2 p-2 rounded-lg border border-gray-100 dark:border-[#2e2e2e] hover:bg-gray-50 dark:hover:bg-[#1d1d1d] transition-colors">
+                            <Link key={i} href={ind.href} className="flex items-center gap-2 p-2 rounded-lg border border-gray-100 dark:border-[#2A2A2A] hover:bg-gray-50 dark:hover:bg-[#141414] transition-colors">
                                 <div className="w-7 h-7 rounded-lg flex items-center justify-center shrink-0"
                                     style={{ backgroundColor: `${ind.color}14`, color: ind.color }}>
                                     {ind.icon}
@@ -960,10 +960,10 @@ function ObjectiveOperationPanel({ objective, snapshot, tasks, doneStatus }: OpP
 
             {/* Projetos linkados (tasks) */}
             {linkedTasks.length > 0 && (
-                <div className="bg-white dark:bg-[#262626] rounded-xl p-3 border border-gray-100 dark:border-[#2e2e2e]">
+                <div className="bg-white dark:bg-[#1A1A1A] rounded-xl p-3 border border-gray-100 dark:border-[#2A2A2A]">
                     <div className="flex items-center justify-between mb-2">
                         <p className="text-[10px] font-bold text-gray-500 uppercase tracking-wider flex items-center gap-1.5">
-                            <Briefcase size={11} className="text-[#A0792E]" /> Projetos & Tarefas linkadas
+                            <Briefcase size={11} className="text-[#A68B4B]" /> Projetos & Tarefas linkadas
                         </p>
                         <div className="flex items-center gap-1.5 text-[9px]">
                             <span className="text-emerald-600 dark:text-emerald-400 font-bold">{linkedDone}/{linkedTasks.length}</span>
@@ -1000,9 +1000,9 @@ function ObjectiveOperationPanel({ objective, snapshot, tasks, doneStatus }: OpP
 
             {/* Leilões do trimestre */}
             {(quarterAuctions.length > 0 || quarterFechamentos.length > 0) && (
-                <div className="bg-white dark:bg-[#262626] rounded-xl p-3 border border-gray-100 dark:border-[#2e2e2e]">
+                <div className="bg-white dark:bg-[#1A1A1A] rounded-xl p-3 border border-gray-100 dark:border-[#2A2A2A]">
                     <p className="text-[10px] font-bold text-gray-500 uppercase tracking-wider mb-2 flex items-center gap-1.5">
-                        <Gavel size={11} className="text-[#A0792E]" /> Leilões do trimestre
+                        <Gavel size={11} className="text-[#A68B4B]" /> Leilões do trimestre
                     </p>
                     <ul className="space-y-1.5">
                         {quarterAuctions.slice(0, 3).map(l => (
@@ -1032,7 +1032,7 @@ function ObjectiveOperationPanel({ objective, snapshot, tasks, doneStatus }: OpP
                             </li>
                         ))}
                     </ul>
-                    <Link href="/leiloes" className="inline-flex items-center gap-0.5 mt-2 text-[10px] font-bold uppercase tracking-wider text-[#A0792E] hover:underline">
+                    <Link href="/leiloes" className="inline-flex items-center gap-0.5 mt-2 text-[10px] font-bold uppercase tracking-wider text-[#A68B4B] hover:underline">
                         Abrir leilões <ArrowRight size={10} />
                     </Link>
                 </div>

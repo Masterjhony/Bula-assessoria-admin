@@ -35,14 +35,14 @@ export function StageBreakdown({ leads, stages }: StageBreakdownProps) {
     );
 
     return (
-        <div className="bg-white dark:bg-[#1d1d1d] border border-gray-200 dark:border-[#2e2e2e] rounded-2xl overflow-hidden">
-            <div className="px-6 py-4 border-b border-gray-200 dark:border-[#2e2e2e]">
+        <div className="bg-white dark:bg-[#141414] border border-gray-200 dark:border-[#2A2A2A] rounded-2xl overflow-hidden">
+            <div className="px-6 py-4 border-b border-gray-200 dark:border-[#2A2A2A]">
                 <h3 className="text-lg font-bold text-gray-900 dark:text-white">Resumo por etapa</h3>
             </div>
             <div className="overflow-x-auto">
                 <table className="w-full text-sm">
                     <thead>
-                        <tr className="bg-gray-50 dark:bg-[#161616] text-left text-xs text-gray-500 uppercase tracking-wide">
+                        <tr className="bg-gray-50 dark:bg-[#0D0D0D] text-left text-xs text-gray-500 uppercase tracking-wide">
                             <th className="px-6 py-3 font-medium">Etapa</th>
                             <th className="px-6 py-3 font-medium text-right">Leads</th>
                             <th className="px-6 py-3 font-medium text-right">Probabilidade</th>
@@ -69,18 +69,18 @@ export function StageBreakdown({ leads, stages }: StageBreakdownProps) {
                                 <td className="px-6 py-3 text-right text-gray-500">{r.stage.probability ?? 0}%</td>
                                 <td className="px-6 py-3 text-right text-gray-900 dark:text-gray-100">{fmtBRL(r.value)}</td>
                                 <td className="px-6 py-3 text-right text-gray-500">{fmtBRL(r.avg)}</td>
-                                <td className="px-6 py-3 text-right font-semibold text-[#A0792E]">{fmtBRL(r.weighted)}</td>
+                                <td className="px-6 py-3 text-right font-semibold text-[#A68B4B]">{fmtBRL(r.weighted)}</td>
                             </tr>
                         ))}
                     </tbody>
                     <tfoot>
-                        <tr className="bg-gray-50 dark:bg-[#161616] font-semibold">
+                        <tr className="bg-gray-50 dark:bg-[#0D0D0D] font-semibold">
                             <td className="px-6 py-3 text-gray-700 dark:text-gray-300">Total</td>
                             <td className="px-6 py-3 text-right text-gray-900 dark:text-white">{totals.count}</td>
                             <td />
                             <td className="px-6 py-3 text-right text-gray-900 dark:text-white">{fmtBRL(totals.value)}</td>
                             <td />
-                            <td className="px-6 py-3 text-right text-[#A0792E]">{fmtBRL(totals.weighted)}</td>
+                            <td className="px-6 py-3 text-right text-[#A68B4B]">{fmtBRL(totals.weighted)}</td>
                         </tr>
                     </tfoot>
                 </table>

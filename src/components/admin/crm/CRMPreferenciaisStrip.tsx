@@ -47,10 +47,10 @@ export function CRMPreferenciaisStrip({ leads, crmConfig, onOpenLead }: CRMPrefe
     if (preferenciais.length === 0) return null;
 
     return (
-        <div className="rounded-2xl border border-[#A0792E]/30 bg-gradient-to-br from-[#A0792E]/8 via-[#A0792E]/3 to-transparent p-5 mb-4">
+        <div className="rounded-2xl border border-[#A68B4B]/30 bg-gradient-to-br from-[#A68B4B]/8 via-[#A68B4B]/3 to-transparent p-5 mb-4">
             <div className="flex items-center justify-between mb-3">
                 <div className="flex items-center gap-2.5">
-                    <div className="w-9 h-9 rounded-xl bg-[#A0792E] flex items-center justify-center shadow-md shadow-[#A0792E]/30">
+                    <div className="w-9 h-9 rounded-xl bg-[#A68B4B] flex items-center justify-center shadow-md shadow-[#A68B4B]/30">
                         <Crown size={16} className="text-black" />
                     </div>
                     <div>
@@ -60,7 +60,7 @@ export function CRMPreferenciaisStrip({ leads, crmConfig, onOpenLead }: CRMPrefe
                         </p>
                     </div>
                 </div>
-                <span className="text-[10px] font-bold uppercase tracking-wider text-[#A0792E] bg-[#A0792E]/10 px-2.5 py-1 rounded-full">
+                <span className="text-[10px] font-bold uppercase tracking-wider text-[#A68B4B] bg-[#A68B4B]/10 px-2.5 py-1 rounded-full">
                     {preferenciais.length} destacado{preferenciais.length > 1 ? 's' : ''}
                 </span>
             </div>
@@ -74,16 +74,16 @@ export function CRMPreferenciaisStrip({ leads, crmConfig, onOpenLead }: CRMPrefe
                             key={lead.id}
                             type="button"
                             onClick={() => onOpenLead(lead)}
-                            className="group text-left bg-white dark:bg-[#262626] border border-[#A0792E]/20 hover:border-[#A0792E]/60 hover:shadow-lg hover:shadow-[#A0792E]/10 rounded-xl p-3 transition-all"
+                            className="group text-left bg-white dark:bg-[#1A1A1A] border border-[#A68B4B]/20 hover:border-[#A68B4B]/60 hover:shadow-lg hover:shadow-[#A68B4B]/10 rounded-xl p-3 transition-all"
                         >
                             <div className="flex items-start gap-2">
-                                <div className="w-1 self-stretch rounded-full" style={{ background: stage?.color || '#A0792E' }} />
+                                <div className="w-1 self-stretch rounded-full" style={{ background: stage?.color || '#A68B4B' }} />
                                 <div className="flex-1 min-w-0 space-y-1">
                                     <div className="flex items-start justify-between gap-1">
                                         <p className="font-bold text-sm text-gray-900 dark:text-white leading-tight line-clamp-1">
                                             {lead.nome}
                                         </p>
-                                        {lead.is_preferencial && <Crown size={11} className="text-[#A0792E] flex-shrink-0 mt-0.5" />}
+                                        {lead.is_preferencial && <Crown size={11} className="text-[#A68B4B] flex-shrink-0 mt-0.5" />}
                                     </div>
 
                                     <div className="flex flex-wrap gap-1.5 text-[10px]">
@@ -113,11 +113,11 @@ export function CRMPreferenciaisStrip({ leads, crmConfig, onOpenLead }: CRMPrefe
                                     <div className="flex items-center justify-between pt-1">
                                         <span
                                             className="text-[9px] font-bold uppercase tracking-wider px-1.5 py-0.5 rounded"
-                                            style={{ background: (stage?.color || '#A0792E') + '20', color: stage?.color || '#A0792E' }}
+                                            style={{ background: (stage?.color || '#A68B4B') + '20', color: stage?.color || '#A68B4B' }}
                                         >
                                             {lead.status}
                                         </span>
-                                        <ChevronRight size={11} className="text-gray-400 group-hover:text-[#A0792E] transition-colors" />
+                                        <ChevronRight size={11} className="text-gray-400 group-hover:text-[#A68B4B] transition-colors" />
                                     </div>
                                 </div>
                             </div>

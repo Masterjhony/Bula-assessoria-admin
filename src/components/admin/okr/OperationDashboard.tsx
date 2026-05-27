@@ -13,15 +13,15 @@ import { TacticalTask, TacticalColumn } from '@/app/sistema/actions/tactical-tas
 import { StrategyExecutionChain } from '@/components/admin/okr/StrategyExecutionChain';
 
 const BRAND = {
-    BRONZE: '#A0792E',
+    BRONZE: '#A68B4B',
     BRONZE_DEEP: '#6B4F1E',
-    BRONZE_PALE: '#D4A85C',
+    BRONZE_PALE: '#C8A96E',
     TECH_GREEN: '#7FD4A0',
     TECH_BLUE: '#1E3A5F',
     LOSS: '#A04545',
 };
 
-const card = 'rounded-2xl border border-gray-200 dark:border-[#2A2A2A] bg-white dark:bg-[#1B1B1B]';
+const card = 'rounded-2xl border border-gray-200 dark:border-[#2A2A2A] bg-white dark:bg-[#141414]';
 const labelCls = 'text-[10px] font-bold uppercase tracking-widest text-gray-500 dark:text-gray-400';
 const dataCls = 'font-mono tabular-nums';
 
@@ -260,7 +260,7 @@ export function OperationDashboard({ snapshot, objectives, risks, tasks, columns
             </div>
 
             {/* ── Fio de ligação: Estratégia → Projetos → Tarefas → Indicadores ── */}
-            <section className="rounded-2xl border border-gray-200 dark:border-[#2A2A2A] bg-gradient-to-br from-white via-white to-[#A0792E]/[0.025] dark:from-[#1B1B1B] dark:via-[#1B1B1B] dark:to-[#A0792E]/[0.04] p-4 lg:p-5">
+            <section className="rounded-2xl border border-gray-200 dark:border-[#2A2A2A] bg-gradient-to-br from-white via-white to-[#A68B4B]/[0.025] dark:from-[#1B1B1B] dark:via-[#1B1B1B] dark:to-[#A68B4B]/[0.04] p-4 lg:p-5">
                 <StrategyExecutionChain
                     objectives={objectives}
                     tasks={tasks}
@@ -279,7 +279,7 @@ export function OperationDashboard({ snapshot, objectives, risks, tasks, columns
                                 <p className={labelCls}>Captação diária · 30 dias</p>
                                 <p className="text-sm font-semibold text-gray-900 dark:text-white mt-0.5">
                                     Pico:{' '}
-                                    <span className={`${dataCls} text-[#A0792E]`}>{Math.max(...leads.daily30d)}</span>
+                                    <span className={`${dataCls} text-[#A68B4B]`}>{Math.max(...leads.daily30d)}</span>
                                     {' '}leads/dia · Média:{' '}
                                     <span className={dataCls}>{(leads.daily30d.reduce((s, n) => s + n, 0) / 30).toFixed(1)}</span>
                                 </p>
@@ -393,7 +393,7 @@ export function OperationDashboard({ snapshot, objectives, risks, tasks, columns
                                             <span className={`text-[9px] ${dataCls} text-gray-500`}>{c.status}</span>
                                         </div>
                                         <div className="flex items-center gap-1.5">
-                                            <div className="flex-1 h-1 rounded-full bg-gray-100 dark:bg-[#262626] overflow-hidden">
+                                            <div className="flex-1 h-1 rounded-full bg-gray-100 dark:bg-[#1A1A1A] overflow-hidden">
                                                 <div className="h-full rounded-full" style={{ width: `${sentPct}%`, backgroundColor: BRAND.TECH_GREEN, opacity: 0.85 }} />
                                             </div>
                                             <span className={`text-[9px] ${dataCls} w-12 text-right text-gray-500`}>
@@ -487,7 +487,7 @@ function Bar({ label, value, suffix }: { label: string; value: number; suffix?: 
                     {suffix && <span className={`text-[9px] text-gray-400 ${dataCls}`}>{suffix}</span>}
                 </div>
             </div>
-            <div className="h-1.5 rounded-full bg-gray-100 dark:bg-[#262626] overflow-hidden">
+            <div className="h-1.5 rounded-full bg-gray-100 dark:bg-[#1A1A1A] overflow-hidden">
                 <div className="h-full rounded-full transition-all duration-700" style={{ width: `${clamped}%`, backgroundColor: color }} />
             </div>
         </div>

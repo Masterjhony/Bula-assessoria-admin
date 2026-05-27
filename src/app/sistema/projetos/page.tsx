@@ -14,7 +14,7 @@ export default async function TacticalPlanPage() {
     ]);
 
     return (
-        <div className="h-full min-h-[500px] flex flex-col resize-y overflow-auto border-b border-gray-200/50 dark:border-[#3f3f3f]/50 pb-2">
+        <div className="h-full min-h-[500px] flex flex-col resize-y overflow-auto border-b border-gray-200/50 dark:border-[#333]/50 pb-2">
             <div className="mb-6 flex justify-between items-end shrink-0">
                 <div>
                     <h1 className="text-3xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-gray-900 to-gray-600 dark:from-white dark:to-gray-400">
@@ -27,7 +27,7 @@ export default async function TacticalPlanPage() {
             </div>
 
             <div className="flex-1 overflow-hidden">
-                <Suspense fallback={<div className="flex items-center justify-center py-24"><Loader2 size={28} className="animate-spin text-[#A0792E]" /></div>}>
+                <Suspense fallback={<div className="flex items-center justify-center py-24"><Loader2 size={28} className="animate-spin text-[#A68B4B]" /></div>}>
                     <KanbanBoard
                         initialTasks={tasks || []}
                         initialColumns={columns || []}

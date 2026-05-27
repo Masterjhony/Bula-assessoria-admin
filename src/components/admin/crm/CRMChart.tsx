@@ -6,12 +6,12 @@ import { Users, TrendingUp, MapPin, Target, Activity, Filter } from 'lucide-reac
 import { FunnelChart } from '@/components/charts/FunnelChart';
 
 // ── Brandbook V1.0 ──────────────────────────────────────────────────────────────
-// Bronze 500 #A0792E principal · Tech Green #7FD4A0 (positivo) · Tech Blue #1E3A5F (dado)
+// Bronze 500 #A68B4B principal · Tech Green #7FD4A0 (positivo) · Tech Blue #1E3A5F (dado)
 const BRAND = {
-    BRONZE: '#A0792E',
+    BRONZE: '#A68B4B',
     BRONZE_DEEP: '#6B4F1E',
-    BRONZE_PALE: '#D4A85C',
-    BRONZE_LIGHT: '#E8CB85',
+    BRONZE_PALE: '#C8A96E',
+    BRONZE_LIGHT: '#E4C99E',
     TECH_GREEN: '#7FD4A0',
     TECH_BLUE: '#1E3A5F',
     LOSS: '#A04545',
@@ -31,7 +31,7 @@ const SOURCE_LABELS: Record<string, string> = {
     'google-ads': 'Google Ads', 'facebook-ads': 'Facebook Ads',
 };
 
-const card = 'rounded-2xl border border-gray-200 dark:border-[#2A2A2A] bg-white dark:bg-[#161616]';
+const card = 'rounded-2xl border border-gray-200 dark:border-[#2A2A2A] bg-white dark:bg-[#0D0D0D]';
 const labelCls = 'text-[10px] font-bold uppercase tracking-widest text-gray-500 dark:text-gray-400';
 const dataCls = 'font-mono tabular-nums';
 
@@ -57,7 +57,7 @@ function ConversionFunnel({ leads, stages }: { leads: CRMLead[]; stages: string[
                     <p className={labelCls}>Funil de Conversão</p>
                     <p className="text-sm font-semibold text-gray-900 dark:text-white mt-1">
                         {leads.length} leads no pipeline ·{' '}
-                        <span className={`${dataCls} text-[#A0792E]`}>{overall.toFixed(0)}%</span> conversão geral
+                        <span className={`${dataCls} text-[#A68B4B]`}>{overall.toFixed(0)}%</span> conversão geral
                     </p>
                 </div>
                 <div className="flex gap-2 text-[10px]">
@@ -283,14 +283,14 @@ export function CRMChart({ leads, stages }: CRMChartProps) {
                         <p className={labelCls}>Recorte mensal</p>
                         <p className="text-sm font-semibold text-gray-900 dark:text-white mt-0.5">Captação e desfecho do período</p>
                     </div>
-                    <div className="flex items-center gap-1 p-0.5 rounded-lg bg-gray-50 dark:bg-[#1d1d1d] border border-gray-100 dark:border-[#2A2A2A]">
+                    <div className="flex items-center gap-1 p-0.5 rounded-lg bg-gray-50 dark:bg-[#141414] border border-gray-100 dark:border-[#2A2A2A]">
                         {monthTabs.map((t, i) => (
                             <button
                                 key={i}
                                 onClick={() => setMonthOffset(i)}
                                 className={`px-3 py-1 text-[10px] font-bold uppercase tracking-wider rounded-md transition-all ${
                                     monthOffset === i
-                                        ? 'bg-white dark:bg-[#262626] text-[#A0792E] shadow-sm'
+                                        ? 'bg-white dark:bg-[#1A1A1A] text-[#A68B4B] shadow-sm'
                                         : 'text-gray-500 hover:text-gray-700 dark:hover:text-gray-300'
                                 }`}
                             >
@@ -302,12 +302,12 @@ export function CRMChart({ leads, stages }: CRMChartProps) {
                 <div className="grid grid-cols-2 sm:grid-cols-5 gap-3">
                     {([
                         { label: 'Novos', value: mStats.novos, accent: 'text-gray-900 dark:text-white' },
-                        { label: 'Em aberto', value: mStats.emAberto, accent: 'text-[#A0792E]' },
+                        { label: 'Em aberto', value: mStats.emAberto, accent: 'text-[#A68B4B]' },
                         { label: 'Fechados', value: mStats.fechados, accent: 'text-[#7FD4A0]' },
                         { label: 'Perdidos', value: mStats.perdidos, accent: 'text-[#A04545]' },
                         { label: 'Taxa', value: `${mStats.taxa}%`, accent: 'text-[#1E3A5F] dark:text-[#7FD4A0]' },
                     ]).map(({ label, value, accent }) => (
-                        <div key={label} className="rounded-lg bg-gray-50 dark:bg-[#1d1d1d] p-3 border border-gray-100 dark:border-[#2A2A2A]">
+                        <div key={label} className="rounded-lg bg-gray-50 dark:bg-[#141414] p-3 border border-gray-100 dark:border-[#2A2A2A]">
                             <p className={labelCls}>{label}</p>
                             <p className={`text-2xl font-bold mt-1 ${accent} ${dataCls}`}>{value}</p>
                         </div>
@@ -335,7 +335,7 @@ export function CRMChart({ leads, stages }: CRMChartProps) {
 
                 <div className={`${card} p-5`}>
                     <div className="flex items-center gap-2 mb-3">
-                        <Filter size={12} className="text-[#A0792E]" />
+                        <Filter size={12} className="text-[#A68B4B]" />
                         <p className={labelCls}>Origem</p>
                     </div>
                     {sourceCounts.length === 0 ? (
@@ -348,7 +348,7 @@ export function CRMChart({ leads, stages }: CRMChartProps) {
                                         <span className="text-gray-700 dark:text-gray-300 truncate max-w-[130px]">{src}</span>
                                         <span className={`text-gray-500 font-medium ${dataCls}`}>{count}</span>
                                     </div>
-                                    <div className="h-1.5 bg-gray-100 dark:bg-[#262626] rounded-full overflow-hidden">
+                                    <div className="h-1.5 bg-gray-100 dark:bg-[#1A1A1A] rounded-full overflow-hidden">
                                         <div className="h-full rounded-full" style={{ width: `${(count / maxSource) * 100}%`, backgroundColor: BRAND.BRONZE }} />
                                     </div>
                                 </div>
@@ -365,7 +365,7 @@ export function CRMChart({ leads, stages }: CRMChartProps) {
                         <p className={labelCls}>Atividade por responsável</p>
                         <p className="text-sm font-semibold text-gray-900 dark:text-white mt-0.5">Carteira ativa e produtividade</p>
                     </div>
-                    <Activity size={14} className="text-[#A0792E]" />
+                    <Activity size={14} className="text-[#A68B4B]" />
                 </div>
                 {responsaveis.length === 0 ? (
                     <p className="text-xs text-gray-400 py-4 text-center">Sem leads atribuídos</p>
@@ -386,7 +386,7 @@ export function CRMChart({ leads, stages }: CRMChartProps) {
                                 {responsaveis.map((r, i) => {
                                     const taxaResp = r.total > 0 ? Math.round((r.fechados / r.total) * 100) : 0;
                                     return (
-                                        <tr key={r.name} className="group hover:bg-gray-50 dark:hover:bg-[#1d1d1d] transition-colors">
+                                        <tr key={r.name} className="group hover:bg-gray-50 dark:hover:bg-[#141414] transition-colors">
                                             <td className="py-2.5">
                                                 <div className="flex items-center gap-2.5">
                                                     <div
@@ -407,12 +407,12 @@ export function CRMChart({ leads, stages }: CRMChartProps) {
                                             <td className="py-2.5 text-center">
                                                 <div className="flex items-center justify-center gap-2">
                                                     <span className={`text-sm font-bold text-gray-900 dark:text-white ${dataCls}`}>{r.total}</span>
-                                                    <div className="w-16 h-1 rounded-full bg-gray-100 dark:bg-[#262626] overflow-hidden">
+                                                    <div className="w-16 h-1 rounded-full bg-gray-100 dark:bg-[#1A1A1A] overflow-hidden">
                                                         <div className="h-full rounded-full" style={{ width: `${(r.total / maxRespTotal) * 100}%`, backgroundColor: BRAND.BRONZE }} />
                                                     </div>
                                                 </div>
                                             </td>
-                                            <td className={`py-2.5 text-center text-sm font-semibold ${dataCls} text-[#A0792E]`}>{r.abertos}</td>
+                                            <td className={`py-2.5 text-center text-sm font-semibold ${dataCls} text-[#A68B4B]`}>{r.abertos}</td>
                                             <td className={`py-2.5 text-center text-sm font-semibold ${dataCls} text-[#7FD4A0]`}>{r.fechados}</td>
                                             <td className={`py-2.5 text-right text-xs font-bold ${dataCls} text-gray-700 dark:text-gray-300`}>{fmtBRL(r.valor)}</td>
                                             <td className={`py-2.5 text-right text-[10px] text-gray-500 ${dataCls}`}>{fmtRelative(r.ultimoContato)}</td>
@@ -429,7 +429,7 @@ export function CRMChart({ leads, stages }: CRMChartProps) {
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
                 <div className={`${card} p-5`}>
                     <div className="flex items-center gap-2 mb-3">
-                        <MapPin size={12} className="text-[#A0792E]" />
+                        <MapPin size={12} className="text-[#A68B4B]" />
                         <p className={labelCls}>Distribuição por UF</p>
                     </div>
                     {topEstados.length === 0 ? (
@@ -441,7 +441,7 @@ export function CRMChart({ leads, stages }: CRMChartProps) {
                                     <div className="w-8 h-8 rounded-lg flex items-center justify-center shrink-0" style={{ backgroundColor: `${BRAND.BRONZE}14`, color: BRAND.BRONZE }}>
                                         <span className="text-[10px] font-black">{estado}</span>
                                     </div>
-                                    <div className="flex-1 h-1.5 bg-gray-100 dark:bg-[#262626] rounded-full overflow-hidden">
+                                    <div className="flex-1 h-1.5 bg-gray-100 dark:bg-[#1A1A1A] rounded-full overflow-hidden">
                                         <div className="h-full rounded-full" style={{ width: `${(count / maxEstado) * 100}%`, backgroundColor: BRAND.BRONZE }} />
                                     </div>
                                     <span className={`text-xs text-gray-500 w-8 text-right shrink-0 ${dataCls}`}>{count}</span>
@@ -453,7 +453,7 @@ export function CRMChart({ leads, stages }: CRMChartProps) {
 
                 <div className={`${card} p-5`}>
                     <div className="flex items-center gap-2 mb-3">
-                        <Target size={12} className="text-[#A0792E]" />
+                        <Target size={12} className="text-[#A68B4B]" />
                         <p className={labelCls}>Por prioridade</p>
                     </div>
                     {prioridades.length === 0 ? (
@@ -472,7 +472,7 @@ export function CRMChart({ leads, stages }: CRMChartProps) {
                                             </div>
                                             <span className={`text-gray-500 font-medium ${dataCls}`}>{count}</span>
                                         </div>
-                                        <div className="h-1.5 bg-gray-100 dark:bg-[#262626] rounded-full overflow-hidden">
+                                        <div className="h-1.5 bg-gray-100 dark:bg-[#1A1A1A] rounded-full overflow-hidden">
                                             <div className="h-full rounded-full" style={{ width: `${(count / maxP) * 100}%`, backgroundColor: color }} />
                                         </div>
                                     </div>

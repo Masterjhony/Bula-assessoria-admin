@@ -174,14 +174,14 @@ export function EventModal({ isOpen, event, presetDate, options, onClose, onSave
         <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/55 backdrop-blur-sm p-3 sm:p-6"
              onClick={(e) => { if (e.target === e.currentTarget) onClose(); }}>
             <div
-                className="relative w-full max-w-3xl max-h-[92vh] overflow-hidden flex flex-col bg-white dark:bg-[#1b1b1b] border border-gray-200 dark:border-[rgba(212,168,92,0.22)] shadow-2xl"
+                className="relative w-full max-w-3xl max-h-[92vh] overflow-hidden flex flex-col bg-white dark:bg-[#141414] border border-gray-200 dark:border-[rgba(200, 169, 110,0.22)] shadow-2xl"
                 style={{ borderRadius: 4 }}
             >
                 {/* Gold hairline */}
-                <span aria-hidden className="absolute top-0 left-0" style={{ width: 48, height: 1, background: '#A0792E' }} />
+                <span aria-hidden className="absolute top-0 left-0" style={{ width: 48, height: 1, background: '#A68B4B' }} />
 
                 {/* Header */}
-                <div className="flex items-start justify-between px-5 pt-5 pb-4 border-b border-gray-100 dark:border-[rgba(212,168,92,0.14)]">
+                <div className="flex items-start justify-between px-5 pt-5 pb-4 border-b border-gray-100 dark:border-[rgba(200, 169, 110,0.14)]">
                     <div className="flex items-start gap-3 min-w-0">
                         <div
                             className="shrink-0 mt-0.5 flex items-center justify-center"
@@ -193,16 +193,16 @@ export function EventModal({ isOpen, event, presetDate, options, onClose, onSave
                             <p style={{
                                 fontFamily: 'var(--font-mono), ui-monospace, monospace',
                                 fontSize: 9, fontWeight: 500, letterSpacing: '0.24em',
-                                textTransform: 'uppercase', color: '#D4A85C',
+                                textTransform: 'uppercase', color: '#C8A96E',
                             }}>
                                 {event ? 'Editar evento' : 'Novo evento'} · {typeMeta.short}
                             </p>
-                            <h2 className="mt-0.5 text-lg font-bold text-gray-900 dark:text-[#F5F0E4] truncate" style={{ letterSpacing: '-0.01em' }}>
+                            <h2 className="mt-0.5 text-lg font-bold text-gray-900 dark:text-[#F5F5F5] truncate" style={{ letterSpacing: '-0.01em' }}>
                                 {title || (event ? event.title : 'Novo evento na agenda')}
                             </h2>
                         </div>
                     </div>
-                    <button onClick={onClose} className="p-1.5 text-gray-400 hover:text-gray-700 dark:hover:text-[#D4A85C] transition-colors">
+                    <button onClick={onClose} className="p-1.5 text-gray-400 hover:text-gray-700 dark:hover:text-[#C8A96E] transition-colors">
                         <X size={18} />
                     </button>
                 </div>
@@ -222,7 +222,7 @@ export function EventModal({ isOpen, event, presetDate, options, onClose, onSave
                             value={title}
                             onChange={(e) => setTitle(e.target.value)}
                             placeholder="Ex.: Reunião com Fazenda Camparino — alinhamento do leilão"
-                            className="w-full px-3 py-2.5 bg-gray-50 dark:bg-[#232323] border border-gray-200 dark:border-[rgba(212,168,92,0.18)] text-gray-900 dark:text-[#F5F0E4] focus:outline-none focus:border-[#A0792E] text-base font-semibold"
+                            className="w-full px-3 py-2.5 bg-gray-50 dark:bg-[#232323] border border-gray-200 dark:border-[rgba(200, 169, 110,0.18)] text-gray-900 dark:text-[#F5F5F5] focus:outline-none focus:border-[#A68B4B] text-base font-semibold"
                             style={{ borderRadius: 3, letterSpacing: '-0.01em' }}
                         />
                         <textarea
@@ -230,7 +230,7 @@ export function EventModal({ isOpen, event, presetDate, options, onClose, onSave
                             onChange={(e) => setDescription(e.target.value)}
                             placeholder="Pauta, observações, contexto…"
                             rows={2}
-                            className="w-full px-3 py-2 bg-gray-50 dark:bg-[#232323] border border-gray-200 dark:border-[rgba(212,168,92,0.18)] text-sm text-gray-800 dark:text-[#F5F0E4]/90 focus:outline-none focus:border-[#A0792E] resize-none"
+                            className="w-full px-3 py-2 bg-gray-50 dark:bg-[#232323] border border-gray-200 dark:border-[rgba(200, 169, 110,0.18)] text-sm text-gray-800 dark:text-[#F5F5F5]/90 focus:outline-none focus:border-[#A68B4B] resize-none"
                             style={{ borderRadius: 3 }}
                         />
                     </div>
@@ -249,7 +249,7 @@ export function EventModal({ isOpen, event, presetDate, options, onClose, onSave
                                         className="flex items-center gap-1.5 px-2.5 py-1.5 text-xs font-medium transition-all"
                                         style={{
                                             borderRadius: 3,
-                                            border: `1px solid ${active ? t.color : 'rgba(160,121,46,0.18)'}`,
+                                            border: `1px solid ${active ? t.color : 'rgba(166, 139, 75,0.18)'}`,
                                             background: active ? `${t.color}1F` : 'transparent',
                                             color: active ? t.color : 'inherit',
                                         }}
@@ -272,7 +272,7 @@ export function EventModal({ isOpen, event, presetDate, options, onClose, onSave
                                     const v = e.target.value;
                                     setStartAt(allDay ? `${v}T00:00` : v);
                                 }}
-                                className="w-full bg-transparent text-sm text-gray-900 dark:text-[#F5F0E4] focus:outline-none"
+                                className="w-full bg-transparent text-sm text-gray-900 dark:text-[#F5F5F5] focus:outline-none"
                             />
                         </Field>
                         <Field icon={Clock} label="Término (opcional)">
@@ -283,18 +283,18 @@ export function EventModal({ isOpen, event, presetDate, options, onClose, onSave
                                     const v = e.target.value;
                                     setEndAt(allDay ? `${v}T23:59` : v);
                                 }}
-                                className="w-full bg-transparent text-sm text-gray-900 dark:text-[#F5F0E4] focus:outline-none"
+                                className="w-full bg-transparent text-sm text-gray-900 dark:text-[#F5F5F5] focus:outline-none"
                             />
                         </Field>
                     </div>
 
                     <div className="flex flex-wrap items-center gap-4">
-                        <label className="flex items-center gap-2 text-sm text-gray-700 dark:text-[#F5F0E4]/80">
+                        <label className="flex items-center gap-2 text-sm text-gray-700 dark:text-[#F5F5F5]/80">
                             <input
                                 type="checkbox"
                                 checked={allDay}
                                 onChange={(e) => setAllDay(e.target.checked)}
-                                className="accent-[#A0792E]"
+                                className="accent-[#A68B4B]"
                             />
                             Dia inteiro
                         </label>
@@ -304,7 +304,7 @@ export function EventModal({ isOpen, event, presetDate, options, onClose, onSave
                             <select
                                 value={priority}
                                 onChange={(e) => setPriority(e.target.value as AgendaEventPriority)}
-                                className="text-sm bg-gray-50 dark:bg-[#232323] border border-gray-200 dark:border-[rgba(212,168,92,0.18)] px-2 py-1 text-gray-900 dark:text-[#F5F0E4] focus:outline-none focus:border-[#A0792E]"
+                                className="text-sm bg-gray-50 dark:bg-[#232323] border border-gray-200 dark:border-[rgba(200, 169, 110,0.18)] px-2 py-1 text-gray-900 dark:text-[#F5F5F5] focus:outline-none focus:border-[#A68B4B]"
                                 style={{ borderRadius: 3 }}
                             >
                                 {(Object.keys(PRIORITY_LABELS) as AgendaEventPriority[]).map(p => (
@@ -318,7 +318,7 @@ export function EventModal({ isOpen, event, presetDate, options, onClose, onSave
                             <select
                                 value={status}
                                 onChange={(e) => setStatus(e.target.value as AgendaEventStatus)}
-                                className="text-sm bg-gray-50 dark:bg-[#232323] border border-gray-200 dark:border-[rgba(212,168,92,0.18)] px-2 py-1 text-gray-900 dark:text-[#F5F0E4] focus:outline-none focus:border-[#A0792E]"
+                                className="text-sm bg-gray-50 dark:bg-[#232323] border border-gray-200 dark:border-[rgba(200, 169, 110,0.18)] px-2 py-1 text-gray-900 dark:text-[#F5F5F5] focus:outline-none focus:border-[#A68B4B]"
                                 style={{ borderRadius: 3 }}
                             >
                                 {EVENT_STATUS.map(s => (
@@ -336,14 +336,14 @@ export function EventModal({ isOpen, event, presetDate, options, onClose, onSave
                                 value={location}
                                 onChange={(e) => setLocation(e.target.value)}
                                 placeholder="Ex.: Fazenda Camparino · Online · WhatsApp"
-                                className="w-full bg-transparent text-sm text-gray-900 dark:text-[#F5F0E4] focus:outline-none placeholder:text-gray-400"
+                                className="w-full bg-transparent text-sm text-gray-900 dark:text-[#F5F5F5] focus:outline-none placeholder:text-gray-400"
                             />
                         </Field>
                         <Field icon={Users} label="Responsável">
                             <select
                                 value={responsible}
                                 onChange={(e) => setResponsible(e.target.value)}
-                                className="w-full bg-transparent text-sm text-gray-900 dark:text-[#F5F0E4] focus:outline-none"
+                                className="w-full bg-transparent text-sm text-gray-900 dark:text-[#F5F5F5] focus:outline-none"
                             >
                                 <option value="">— sem responsável —</option>
                                 {options.members.map(m => (
@@ -358,12 +358,12 @@ export function EventModal({ isOpen, event, presetDate, options, onClose, onSave
                         <SectionLabel>
                             Vínculos
                             {linkedCount > 0 && (
-                                <span className="ml-2 inline-flex items-center justify-center min-w-[18px] h-[18px] px-1 text-[10px] font-bold bg-[#A0792E] text-[#161616]" style={{ borderRadius: 2 }}>
+                                <span className="ml-2 inline-flex items-center justify-center min-w-[18px] h-[18px] px-1 text-[10px] font-bold bg-[#A68B4B] text-[#161616]" style={{ borderRadius: 2 }}>
                                     {linkedCount}
                                 </span>
                             )}
                         </SectionLabel>
-                        <p className="text-xs text-gray-500 dark:text-[#F5F0E4]/55 mb-2">
+                        <p className="text-xs text-gray-500 dark:text-[#F5F5F5]/55 mb-2">
                             Amarre este evento a projetos, leilões ou tarefas — assim o contexto aparece em todos os lugares.
                         </p>
 
@@ -385,7 +385,7 @@ export function EventModal({ isOpen, event, presetDate, options, onClose, onSave
                                                     return next;
                                                 });
                                             }}
-                                            className="w-full bg-transparent text-sm text-gray-900 dark:text-[#F5F0E4] focus:outline-none"
+                                            className="w-full bg-transparent text-sm text-gray-900 dark:text-[#F5F5F5] focus:outline-none"
                                         >
                                             <option value="">—</option>
                                             {list.map(o => (
@@ -408,14 +408,14 @@ export function EventModal({ isOpen, event, presetDate, options, onClose, onSave
                             onChange={(e) => setNotes(e.target.value)}
                             placeholder="Checklists, ata curta, decisões…"
                             rows={3}
-                            className="w-full px-3 py-2 bg-gray-50 dark:bg-[#232323] border border-gray-200 dark:border-[rgba(212,168,92,0.18)] text-sm text-gray-800 dark:text-[#F5F0E4]/90 focus:outline-none focus:border-[#A0792E] resize-none"
+                            className="w-full px-3 py-2 bg-gray-50 dark:bg-[#232323] border border-gray-200 dark:border-[rgba(200, 169, 110,0.18)] text-sm text-gray-800 dark:text-[#F5F5F5]/90 focus:outline-none focus:border-[#A68B4B] resize-none"
                             style={{ borderRadius: 3 }}
                         />
                     </div>
                 </div>
 
                 {/* Footer */}
-                <div className="flex items-center justify-between gap-3 px-5 py-3.5 border-t border-gray-100 dark:border-[rgba(212,168,92,0.14)] bg-gray-50/60 dark:bg-[#181818]">
+                <div className="flex items-center justify-between gap-3 px-5 py-3.5 border-t border-gray-100 dark:border-[rgba(200, 169, 110,0.14)] bg-gray-50/60 dark:bg-[#181818]">
                     {event && onDelete ? (
                         confirmDelete ? (
                             <div className="flex items-center gap-2">
@@ -428,7 +428,7 @@ export function EventModal({ isOpen, event, presetDate, options, onClose, onSave
                                 >Sim, excluir</button>
                                 <button
                                     onClick={() => setConfirmDelete(false)}
-                                    className="px-2.5 py-1.5 text-xs text-gray-600 dark:text-[#F5F0E4]/60 hover:text-gray-900 dark:hover:text-[#F5F0E4]"
+                                    className="px-2.5 py-1.5 text-xs text-gray-600 dark:text-[#F5F5F5]/60 hover:text-gray-900 dark:hover:text-[#F5F5F5]"
                                 >Cancelar</button>
                             </div>
                         ) : (
@@ -447,13 +447,13 @@ export function EventModal({ isOpen, event, presetDate, options, onClose, onSave
                         <button
                             onClick={onClose}
                             disabled={busy}
-                            className="px-3 py-1.5 text-sm text-gray-700 dark:text-[#F5F0E4]/70 hover:bg-gray-100 dark:hover:bg-[#232323] transition-colors"
+                            className="px-3 py-1.5 text-sm text-gray-700 dark:text-[#F5F5F5]/70 hover:bg-gray-100 dark:hover:bg-[#232323] transition-colors"
                             style={{ borderRadius: 3 }}
                         >Cancelar</button>
                         <button
                             onClick={handleSave}
                             disabled={busy}
-                            className="inline-flex items-center gap-1.5 px-3.5 py-1.5 text-sm font-semibold bg-[#A0792E] hover:bg-[#8a661f] text-[#161616] transition-colors disabled:opacity-50"
+                            className="inline-flex items-center gap-1.5 px-3.5 py-1.5 text-sm font-semibold bg-[#A68B4B] hover:bg-[#8a661f] text-[#161616] transition-colors disabled:opacity-50"
                             style={{ borderRadius: 3 }}
                         >
                             {busy ? <Loader2 size={14} className="animate-spin" /> : <Save size={14} />}
@@ -471,7 +471,7 @@ function SectionLabel({ children }: { children: React.ReactNode }) {
         <p className="mb-2 flex items-center" style={{
             fontFamily: 'var(--font-mono), ui-monospace, monospace',
             fontSize: 10, fontWeight: 600, letterSpacing: '0.22em',
-            textTransform: 'uppercase', color: '#A0792E',
+            textTransform: 'uppercase', color: '#A68B4B',
         }}>
             {children}
         </p>
@@ -483,7 +483,7 @@ function SmallTag({ children }: { children: React.ReactNode }) {
         <span style={{
             fontFamily: 'var(--font-mono), ui-monospace, monospace',
             fontSize: 9, fontWeight: 600, letterSpacing: '0.20em',
-            textTransform: 'uppercase', color: '#D4A85C',
+            textTransform: 'uppercase', color: '#C8A96E',
         }}>{children}</span>
     );
 }
@@ -493,13 +493,13 @@ function Field({
 }: { icon: LucideIcon; label: string; children: React.ReactNode; compact?: boolean }) {
     return (
         <div
-            className={`bg-gray-50 dark:bg-[#232323] border border-gray-200 dark:border-[rgba(212,168,92,0.18)] focus-within:border-[#A0792E] ${compact ? 'px-2.5 py-1.5' : 'px-3 py-2'}`}
+            className={`bg-gray-50 dark:bg-[#232323] border border-gray-200 dark:border-[rgba(200, 169, 110,0.18)] focus-within:border-[#A68B4B] ${compact ? 'px-2.5 py-1.5' : 'px-3 py-2'}`}
             style={{ borderRadius: 3 }}
         >
             <div className="flex items-center gap-1.5 mb-0.5" style={{
                 fontFamily: 'var(--font-mono), ui-monospace, monospace',
                 fontSize: 9, fontWeight: 500, letterSpacing: '0.22em',
-                textTransform: 'uppercase', color: '#D4A85C',
+                textTransform: 'uppercase', color: '#C8A96E',
             }}>
                 <Icon size={11} />
                 {label}

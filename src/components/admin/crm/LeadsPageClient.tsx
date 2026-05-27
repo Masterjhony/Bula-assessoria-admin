@@ -51,10 +51,10 @@ export function LeadsPageClient({ initialLeads, crmConfig }: LeadsPageClientProp
     return (
         <div className={
             isFullscreen
-                ? 'fixed inset-0 z-[100] bg-white dark:bg-[#1d1d1d] w-screen h-screen flex flex-col overflow-hidden'
-                : 'flex flex-col h-full bg-white dark:bg-[#1d1d1d] rounded-2xl border border-gray-200 dark:border-[#2e2e2e] overflow-hidden'
+                ? 'fixed inset-0 z-[100] bg-white dark:bg-[#141414] w-screen h-screen flex flex-col overflow-hidden'
+                : 'flex flex-col h-full bg-white dark:bg-[#141414] rounded-2xl border border-gray-200 dark:border-[#2A2A2A] overflow-hidden'
         }>
-            <div className="p-6 pb-4 shrink-0 border-b border-gray-200 dark:border-[#2e2e2e]">
+            <div className="p-6 pb-4 shrink-0 border-b border-gray-200 dark:border-[#2A2A2A]">
                 <div className="flex items-start justify-between gap-4">
                     <div>
                         <p className="text-gray-500 text-sm mb-2 flex items-center gap-2">
@@ -78,7 +78,7 @@ export function LeadsPageClient({ initialLeads, crmConfig }: LeadsPageClientProp
                 </div>
             </div>
 
-            <div className="flex-1 overflow-auto p-6 bg-gray-50/50 dark:bg-[#161616]">
+            <div className="flex-1 overflow-auto p-6 bg-gray-50/50 dark:bg-[#0D0D0D]">
                 <CRMLeadsView
                     leads={leads}
                     stages={stages}

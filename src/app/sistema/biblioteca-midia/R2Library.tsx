@@ -55,8 +55,8 @@ const TTL_OPTIONS: { label: string; seconds: number }[] = [
 function Toast({ message, type, onClose }: { message: string; type: 'success' | 'error'; onClose: () => void }) {
     return (
         <div className={`fixed bottom-6 right-6 z-50 flex items-center gap-3 px-5 py-3.5 rounded-2xl shadow-2xl border text-sm font-medium animate-in slide-in-from-bottom-4 duration-300 ${type === 'success'
-            ? 'bg-[#1d1d1d] border-emerald-500/30 text-emerald-400'
-            : 'bg-[#1d1d1d] border-red-500/30 text-red-400'
+            ? 'bg-[#141414] border-emerald-500/30 text-emerald-400'
+            : 'bg-[#141414] border-red-500/30 text-red-400'
             }`}>
             {type === 'success'
                 ? <Check size={16} className="shrink-0" />
@@ -72,7 +72,7 @@ function Toast({ message, type, onClose }: { message: string; type: 'success' | 
 
 function StatCard({ label, value, sub }: { label: string; value: string | number; sub?: string }) {
     return (
-        <div className="bg-white dark:bg-[#1d1d1d] border border-gray-200 dark:border-[#2e2e2e] rounded-2xl px-5 py-4 flex flex-col gap-1">
+        <div className="bg-white dark:bg-[#141414] border border-gray-200 dark:border-[#2A2A2A] rounded-2xl px-5 py-4 flex flex-col gap-1">
             <span className="text-xs text-gray-500 uppercase tracking-wider font-medium">{label}</span>
             <span className="text-2xl font-bold text-gray-900 dark:text-white">{value}</span>
             {sub && <span className="text-xs text-gray-400 dark:text-gray-600">{sub}</span>}
@@ -268,7 +268,7 @@ export default function R2Library() {
                         placeholder="Buscar no R2..."
                         value={searchQuery}
                         onChange={e => setSearchQuery(e.target.value)}
-                        className="w-full pl-10 pr-4 py-2.5 rounded-xl bg-white dark:bg-[#1d1d1d] border border-gray-200 dark:border-[#2e2e2e] text-sm text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-600 focus:outline-none focus:border-[#A0792E]/50 transition-colors"
+                        className="w-full pl-10 pr-4 py-2.5 rounded-xl bg-white dark:bg-[#141414] border border-gray-200 dark:border-[#2A2A2A] text-sm text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-600 focus:outline-none focus:border-[#A68B4B]/50 transition-colors"
                     />
                     {searchQuery && (
                         <button onClick={() => setSearchQuery('')} className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300">
@@ -281,7 +281,7 @@ export default function R2Library() {
                     <select
                         value={sortBy}
                         onChange={e => setSortBy(e.target.value as SortBy)}
-                        className="appearance-none pl-3 pr-8 py-2.5 rounded-xl bg-white dark:bg-[#1d1d1d] border border-gray-200 dark:border-[#2e2e2e] text-sm text-gray-700 dark:text-gray-300 focus:outline-none focus:border-[#A0792E]/50 cursor-pointer"
+                        className="appearance-none pl-3 pr-8 py-2.5 rounded-xl bg-white dark:bg-[#141414] border border-gray-200 dark:border-[#2A2A2A] text-sm text-gray-700 dark:text-gray-300 focus:outline-none focus:border-[#A68B4B]/50 cursor-pointer"
                     >
                         <option value="date_desc">Mais recentes</option>
                         <option value="date_asc">Mais antigos</option>
@@ -294,7 +294,7 @@ export default function R2Library() {
                 <button
                     onClick={() => fetchList()}
                     disabled={loading}
-                    className="p-2.5 rounded-xl border border-gray-200 dark:border-[#2e2e2e] text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-[#262626] transition-all"
+                    className="p-2.5 rounded-xl border border-gray-200 dark:border-[#2A2A2A] text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-[#1A1A1A] transition-all"
                     title="Atualizar"
                 >
                     <RefreshCw size={16} className={loading ? 'animate-spin' : ''} />
@@ -303,7 +303,7 @@ export default function R2Library() {
                 <button
                     onClick={() => fileInputRef.current?.click()}
                     disabled={uploading}
-                    className="flex items-center gap-2 px-5 py-2.5 rounded-xl bg-gradient-to-r from-[#A0792E] to-[#D4A85C] text-black font-semibold text-sm hover:opacity-90 transition-opacity shadow-lg shadow-[#A0792E]/20 disabled:opacity-60"
+                    className="flex items-center gap-2 px-5 py-2.5 rounded-xl bg-gradient-to-r from-[#A68B4B] to-[#C8A96E] text-black font-semibold text-sm hover:opacity-90 transition-opacity shadow-lg shadow-[#A68B4B]/20 disabled:opacity-60"
                 >
                     {uploading && uploadProgress ? (
                         <>
@@ -339,17 +339,17 @@ export default function R2Library() {
 
             {/* Content — list view (R2 não tem thumb pública, lista é melhor) */}
             {loading ? (
-                <div className="bg-white dark:bg-[#1d1d1d] border border-gray-200 dark:border-[#2e2e2e] rounded-2xl">
+                <div className="bg-white dark:bg-[#141414] border border-gray-200 dark:border-[#2A2A2A] rounded-2xl">
                     {Array.from({ length: 6 }).map((_, i) => (
                         <div key={i} className="px-5 py-4 border-b border-gray-100 dark:border-[#262626] last:border-0">
-                            <div className="h-4 bg-gray-100 dark:bg-[#262626] rounded animate-pulse" />
+                            <div className="h-4 bg-gray-100 dark:bg-[#1A1A1A] rounded animate-pulse" />
                         </div>
                     ))}
                 </div>
             ) : display.length === 0 ? (
                 <div className="flex flex-col items-center justify-center py-24 gap-5 text-center">
-                    <div className="w-20 h-20 rounded-3xl bg-gradient-to-br from-[#A0792E]/15 to-[#D4A85C]/5 border border-[#A0792E]/15 flex items-center justify-center">
-                        <Cloud size={34} className="text-[#A0792E]/60" />
+                    <div className="w-20 h-20 rounded-3xl bg-gradient-to-br from-[#A68B4B]/15 to-[#C8A96E]/5 border border-[#A68B4B]/15 flex items-center justify-center">
+                        <Cloud size={34} className="text-[#A68B4B]/60" />
                     </div>
                     <div>
                         <p className="text-base font-semibold text-gray-700 dark:text-gray-300">
@@ -363,7 +363,7 @@ export default function R2Library() {
                     </div>
                 </div>
             ) : (
-                <div className="bg-white dark:bg-[#1d1d1d] border border-gray-200 dark:border-[#2e2e2e] rounded-2xl overflow-hidden">
+                <div className="bg-white dark:bg-[#141414] border border-gray-200 dark:border-[#2A2A2A] rounded-2xl overflow-hidden">
                     <div className="grid grid-cols-[auto_1fr_auto_auto_auto] gap-0 text-xs font-semibold uppercase tracking-wider text-gray-400 dark:text-gray-600 px-5 py-3 border-b border-gray-100 dark:border-[#262626]">
                         <span className="w-10" />
                         <span>Nome</span>
@@ -378,7 +378,7 @@ export default function R2Library() {
                                 key={obj.key}
                                 className={`grid grid-cols-[auto_1fr_auto_auto_auto] gap-0 items-center px-5 py-3.5 hover:bg-gray-50 dark:hover:bg-[#191919] transition-colors ${idx < display.length - 1 ? 'border-b border-gray-100 dark:border-[#262626]' : ''}`}
                             >
-                                <div className="w-10 h-10 rounded-xl bg-gray-100 dark:bg-[#262626] flex items-center justify-center shrink-0">
+                                <div className="w-10 h-10 rounded-xl bg-gray-100 dark:bg-[#1A1A1A] flex items-center justify-center shrink-0">
                                     <File size={18} className="text-gray-400" />
                                 </div>
                                 <div className="pl-4 min-w-0">
@@ -430,7 +430,7 @@ export default function R2Library() {
                             <button
                                 onClick={() => fetchList({ append: true, cursor: nextCursor })}
                                 disabled={loadingMore}
-                                className="text-xs font-medium text-[#A0792E] hover:text-[#D4A85C] disabled:opacity-50"
+                                className="text-xs font-medium text-[#A68B4B] hover:text-[#C8A96E] disabled:opacity-50"
                             >
                                 {loadingMore ? 'Carregando...' : 'Carregar mais'}
                             </button>
@@ -453,13 +453,13 @@ export default function R2Library() {
                     onClick={() => setLinkModal(null)}
                 >
                     <div
-                        className="w-full max-w-lg bg-[#191919] border border-[#2e2e2e] rounded-2xl p-6 flex flex-col gap-5"
+                        className="w-full max-w-lg bg-[#191919] border border-[#2A2A2A] rounded-2xl p-6 flex flex-col gap-5"
                         onClick={e => e.stopPropagation()}
                     >
                         <div className="flex items-center justify-between gap-3">
                             <div className="flex items-center gap-3 min-w-0">
-                                <div className="w-10 h-10 rounded-xl bg-[#A0792E]/10 border border-[#A0792E]/20 flex items-center justify-center shrink-0">
-                                    <Link2 size={18} className="text-[#A0792E]" />
+                                <div className="w-10 h-10 rounded-xl bg-[#A68B4B]/10 border border-[#A68B4B]/20 flex items-center justify-center shrink-0">
+                                    <Link2 size={18} className="text-[#A68B4B]" />
                                 </div>
                                 <div className="min-w-0">
                                     <p className="text-sm font-semibold text-white truncate">{linkModal.obj.name}</p>
@@ -484,8 +484,8 @@ export default function R2Library() {
                                         key={opt.seconds}
                                         onClick={() => generateLink(opt.seconds)}
                                         className={`py-2 rounded-lg text-xs font-medium transition-colors ${linkModal.ttl === opt.seconds && linkModal.url
-                                            ? 'bg-gradient-to-r from-[#A0792E] to-[#D4A85C] text-black'
-                                            : 'bg-[#262626] text-gray-300 hover:bg-[#2e2e2e]'
+                                            ? 'bg-gradient-to-r from-[#A68B4B] to-[#C8A96E] text-black'
+                                            : 'bg-[#1A1A1A] text-gray-300 hover:bg-[#2e2e2e]'
                                             }`}
                                     >
                                         {opt.label}
@@ -501,7 +501,7 @@ export default function R2Library() {
                             </div>
                         ) : linkModal.url ? (
                             <div className="space-y-3">
-                                <div className="bg-[#262626] border border-[#2e2e2e] rounded-xl p-3 break-all text-[11px] font-mono text-gray-300 max-h-32 overflow-auto">
+                                <div className="bg-[#1A1A1A] border border-[#2A2A2A] rounded-xl p-3 break-all text-[11px] font-mono text-gray-300 max-h-32 overflow-auto">
                                     {linkModal.url}
                                 </div>
                                 <div className="flex gap-2">
@@ -518,7 +518,7 @@ export default function R2Library() {
                                         href={linkModal.url}
                                         target="_blank"
                                         rel="noreferrer"
-                                        className="flex-1 flex items-center justify-center gap-2 py-2.5 rounded-xl bg-gradient-to-r from-[#A0792E] to-[#D4A85C] text-black text-sm font-semibold hover:opacity-90 transition-opacity"
+                                        className="flex-1 flex items-center justify-center gap-2 py-2.5 rounded-xl bg-gradient-to-r from-[#A68B4B] to-[#C8A96E] text-black text-sm font-semibold hover:opacity-90 transition-opacity"
                                     >
                                         <Download size={14} /> Abrir / Baixar
                                     </a>
