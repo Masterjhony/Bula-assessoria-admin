@@ -20,6 +20,13 @@ export async function updateSession(req: NextRequest) {
   const erp = isErpHost(host)
   const pathname = req.nextUrl.pathname
 
+  // Páginas em /sistema/* são servidas sem reescrita mesmo no subdomain
+  // ERP. Foi assim que o briefing 2026-05-27 acomodou "Contratos no ERP":
+  // a página vive em /sistema/contratos, fica acessível por erp.* e pelo
+  // domínio principal — a sessão Supabase atende os dois hosts.
+  const isSistemaPath =
+    pathname === '/sistema' || pathname.startsWith('/sistema/')
+
   // Build response (with ERP rewrite if applicable, same behavior as before)
   let res: NextResponse
   if (erp) {
@@ -28,6 +35,7 @@ export async function updateSession(req: NextRequest) {
       !pathname.startsWith('/api/') &&
       !pathname.startsWith('/erp') &&
       !pathname.startsWith('/_next') &&
+      !isSistemaPath &&
       pathname !== '/favicon.ico' &&
       !pathname.startsWith('/logo-') &&
       !pathname.startsWith('/bula/')
@@ -64,13 +72,13 @@ export async function updateSession(req: NextRequest) {
     data: { user },
   } = await supabase.auth.getUser()
 
-  // Protect /sistema and /sistema-legacy.
+  // Protect /sistema and /sistema-legacy (também quando vierem pelo host
+  // ERP, ex.: erp.bulaassessoria.com/sistema/contratos via sidebar).
   const isAdminPath =
-    pathname === '/sistema' ||
-    pathname.startsWith('/sistema/') ||
+    isSistemaPath ||
     pathname === '/sistema-legacy' ||
     pathname.startsWith('/sistema-legacy/')
-  if (!erp && isAdminPath && !user) {
+  if (isAdminPath && !user) {
     const url = req.nextUrl.clone()
     url.pathname = '/'
     url.searchParams.set('next', pathname)
@@ -78,7 +86,15 @@ export async function updateSession(req: NextRequest) {
   }
 
   // ERP routes (rewritten path starts with /erp) — only login is public.
-  if (erp && !pathname.startsWith('/login') && !isPublicPath(pathname) && !user) {
+  // Páginas em /sistema/* atendem o host ERP sem reescrita; o gate de
+  // autenticação acima já cobre esse caso.
+  if (
+    erp &&
+    !isSistemaPath &&
+    !pathname.startsWith('/login') &&
+    !isPublicPath(pathname) &&
+    !user
+  ) {
     const url = req.nextUrl.clone()
     url.pathname = '/login'
     return NextResponse.redirect(url)
