@@ -1,16 +1,13 @@
-import { notFound } from 'next/navigation'
 import { getContracts } from '@/app/sistema/actions/contracts'
 import { ContractsView } from '@/components/admin/kanban/ContractsView'
-import { getIsFinanceAdmin } from '@/lib/auth-helpers'
 
 export const dynamic = 'force-dynamic'
 
 export default async function ContratosPage() {
-  // Contratos foram movidos para o ERP (briefing 2026-05-27). A página
-  // segue acessível em /sistema/contratos para preservar links existentes,
-  // mas só renderiza para administradores financeiros — fora desse grupo
-  // retorna 404 para que a rota fique efetivamente privada.
-  if (!(await getIsFinanceAdmin())) notFound()
+  // Contratos foi movido para o ERP no briefing 2026-05-27. A URL segue em
+  // /sistema/contratos para reaproveitar layout e actions; o item só aparece
+  // no sidebar do ERP (não no menu público do /sistema), então fica privada
+  // por descoberta — qualquer usuário autenticado do painel pode acessar.
   const contracts = await getContracts()
   return <ContractsView initialContracts={contracts} />
 }

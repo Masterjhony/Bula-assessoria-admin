@@ -268,7 +268,7 @@ svg.chart { width:100%; height:100%; display:block; }
     <div class="sidebar-item" data-page="empresa"><span class="material-symbols-outlined">business</span><span>Empresa</span></div>
 
     <div class="sidebar-section">Juridico</div>
-    <a class="sidebar-item" href="/sistema/contratos" style="text-decoration:none;"><span class="material-symbols-outlined">description</span><span>Contratos</span></a>
+    <a class="sidebar-item" id="contratosLink" href="/sistema/contratos" style="text-decoration:none;"><span class="material-symbols-outlined">description</span><span>Contratos</span></a>
 
     <button class="sidebar-toggle" id="sidebarToggle"><span class="material-symbols-outlined">menu_open</span><span class="sb-toggle-label">Recolher</span></button>
   </aside>
@@ -407,6 +407,10 @@ document.getElementById('userBtn').onclick = async () => {
    NAV
    ========================================================================== */
 document.querySelectorAll('.sidebar-item').forEach(el => {
+  // Itens com data-page são páginas SPA do ERP. Os que não têm (ex: link
+  // externo "Contratos" -> /sistema/contratos) seguem o comportamento de
+  // âncora normal sem interceptação.
+  if (!el.dataset.page) return;
   el.onclick = () => navigate(el.dataset.page);
 });
 function navigate(page) {
@@ -414,6 +418,21 @@ function navigate(page) {
   document.querySelectorAll('.sidebar-item').forEach(it => it.classList.toggle('active', it.dataset.page === page));
   render();
 }
+
+/* Contratos vive em /sistema/contratos, fora do subdomínio erp.* — para o
+   link funcionar quando o usuário está em erp.bulaassessoria.com, reescreve
+   o href para o domínio principal (sem o prefixo "erp."). Em localhost o
+   middleware aceita o path nativamente, então o href cru já basta. */
+(function fixContratosLink() {
+  var link = document.getElementById('contratosLink');
+  if (!link) return;
+  var host = window.location.hostname;
+  if (host.indexOf('erp.') === 0) {
+    var mainHost = host.slice(4);
+    var port = window.location.port ? ':' + window.location.port : '';
+    link.href = window.location.protocol + '//' + mainHost + port + '/sistema/contratos';
+  }
+})();
 
 /* ==========================================================================
    DATA LOADERS
