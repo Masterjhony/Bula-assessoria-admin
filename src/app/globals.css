@@ -3,36 +3,10 @@
 
 /* ══════════════════════════════════════════════════════════
    BULA ASSESSORIA — design tokens (extraídos do sistema.html)
+   :root é dark por padrão (web-bula é predominantemente dark).
+   Light mode é opt-in via [data-theme="light"] no <html>.
 ══════════════════════════════════════════════════════════ */
-:root {
-  --bg: #F5F3EF;
-  --surface: #FFFFFF;
-  --s2: #F0EDE8;
-  --s3: #E8E4DD;
-  --s4: #D8D4CC;
-  --s5: #C8C4BC;
-  --border: rgba(0, 0, 0, 0.06);
-  --border2: rgba(0, 0, 0, 0.10);
-  --text: #1A1A1A;
-  --text2: #555;
-  --text3: #999;
-  --text4: #BBB;
-  --gold: #A68B4B;
-  --gold-dim: rgba(166, 139, 75, 0.10);
-  --gold-dark: #8A7340;
-  --olive: #6B8F5C;
-  --olive-bg: rgba(107, 143, 92, 0.12);
-  --red: #C0504D;
-  --red-bg: rgba(192, 80, 77, 0.10);
-  --blue: #4A8FBF;
-  --blue-bg: rgba(74, 143, 191, 0.10);
-  --amber: #D4A843;
-  --amber-bg: rgba(212, 168, 67, 0.10);
-  --r: 10px;
-  --r-lg: 14px;
-}
-
-[data-theme="dark"] {
+:root, [data-theme="dark"] {
   --bg: #0D0D0D;
   --surface: #141414;
   --s2: #1A1A1A;
@@ -48,13 +22,46 @@
   --gold: #C8A96E;
   --gold-dim: rgba(200, 169, 110, 0.12);
   --gold-dark: #A68B4B;
+  --olive: #6B8F5C;
+  --olive-bg: rgba(107, 143, 92, 0.12);
+  --red: #C0504D;
+  --red-bg: rgba(192, 80, 77, 0.10);
+  --blue: #4A8FBF;
+  --blue-bg: rgba(74, 143, 191, 0.10);
+  --amber: #D4A843;
+  --amber-bg: rgba(212, 168, 67, 0.10);
+  --r: 10px;
+  --r-lg: 14px;
+}
+
+[data-theme="light"] {
+  --bg: #F5F3EF;
+  --surface: #FFFFFF;
+  --s2: #F0EDE8;
+  --s3: #E8E4DD;
+  --s4: #D8D4CC;
+  --s5: #C8C4BC;
+  --border: rgba(0, 0, 0, 0.06);
+  --border2: rgba(0, 0, 0, 0.10);
+  --text: #1A1A1A;
+  --text2: #555;
+  --text3: #999;
+  --text4: #BBB;
+  --gold: #A68B4B;
+  --gold-dim: rgba(166, 139, 75, 0.10);
+  --gold-dark: #8A7340;
 }
 
 *, *::before, *::after {
-  margin: 0;
-  padding: 0;
   box-sizing: border-box;
   -webkit-tap-highlight-color: transparent;
+}
+
+/* Reset apenas para tags estruturais (NÃO universal — Tailwind padding/margin
+   precisa funcionar normalmente em elements como divs/buttons). */
+html, body, h1, h2, h3, h4, h5, h6, p, ul, ol, li, figure, blockquote, dl, dd {
+  margin: 0;
+  padding: 0;
 }
 
 html {
@@ -94,6 +101,11 @@ input, textarea, select {
   border: none;
   outline: none;
 }
+
+/* Logo Bula: SVG é preto. Como :root é dark, sempre inverte por padrão.
+   Light mode (opt-in) volta ao preto natural. */
+.bula-logo { filter: invert(1); transition: filter 0.3s; }
+[data-theme="light"] .bula-logo { filter: none; }
 
 .material-symbols-outlined {
   font-variation-settings: 'FILL' 0, 'wght' 300, 'GRAD' 0, 'opsz' 20;
@@ -391,13 +403,7 @@ input, textarea, select {
   line-height: 1.2;
 }
 .page-head h1 small {
-  display: block;
-  font-size: 11px;
-  font-weight: 500;
-  color: var(--text3);
-  letter-spacing: 0.5px;
-  text-transform: uppercase;
-  margin-bottom: 8px;
+  display: none; /* breadcrumb já mostra a seção — evita redundância */
 }
 .page-head .sub {
   font-size: 12px;

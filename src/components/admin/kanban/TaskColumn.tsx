@@ -33,11 +33,14 @@ export function TaskColumn({ id, title, tasks, onTaskClick, onAddTask, onUpdateC
 
     const isOverlay = false; // logic to check if being dragged over
 
+    // Cores discretas (tokens Bula). Antes usava saturação alta (red-500, etc.)
+    // que destoava da paleta dourado/oliva.
     const columnColors: Record<string, string> = {
-        'A fazer': 'bg-red-500/10 text-red-500 border-red-500/20',
-        'Em andamento': 'bg-yellow-500/10 text-yellow-500 border-yellow-500/20',
-        'Completa': 'bg-green-500/10 text-green-500 border-green-500/20',
-        'default': 'bg-gray-500/10 text-gray-500 border-gray-500/20'
+        'A fazer':     'bg-[var(--amber-bg)] text-[var(--amber)] border border-[rgba(212,168,67,0.25)]',
+        'Em andamento':'bg-[var(--blue-bg)] text-[var(--blue)] border border-[rgba(74,143,191,0.25)]',
+        'Completa':    'bg-[var(--olive-bg)] text-[var(--olive)] border border-[rgba(107,143,92,0.25)]',
+        'Idéias':      'bg-[var(--gold-dim)] text-[var(--gold)] border border-[rgba(200,169,110,0.25)]',
+        'default':     'bg-[var(--s2)] text-[var(--text2)] border border-[var(--border)]',
     };
 
     const headerColor = columnColors[title] || columnColors['default'];

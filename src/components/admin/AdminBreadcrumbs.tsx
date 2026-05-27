@@ -60,27 +60,22 @@ export function AdminBreadcrumbs() {
       className="border-b border-gray-200/60 dark:border-[rgba(200,169,110,0.10)] bg-white/40 dark:bg-[#141414]/40 backdrop-blur-sm"
     >
       <div className="px-3 sm:px-4 lg:px-6 py-2 flex items-center gap-2 text-xs overflow-x-auto">
-        {section && (
-          <span
-            className="hidden sm:inline-flex shrink-0 px-2 py-0.5 rounded-sm font-bold uppercase"
-            style={{
-              fontSize: 9,
-              letterSpacing: '0.18em',
-              color: '#C8A96E',
-              backgroundColor: 'rgba(200,169,110,0.10)',
-            }}
-          >
-            § {section}
-          </span>
-        )}
-
         <Link
           href={SISTEMA_PREFIX}
-          className="shrink-0 flex items-center gap-1.5 text-gray-400 hover:text-[#A68B4B] dark:hover:text-[#C8A96E] transition-colors"
+          className="shrink-0 flex items-center gap-1.5 text-[var(--text3)] hover:text-[var(--gold)] transition-colors"
           aria-label="Painel"
         >
           <Home size={12} />
         </Link>
+
+        {section && (
+          <>
+            <ChevronRight size={11} className="text-[var(--text4)] shrink-0" />
+            <span className="text-[var(--text3)] uppercase tracking-wide" style={{ fontSize: 10, letterSpacing: '0.12em' }}>
+              {section}
+            </span>
+          </>
+        )}
 
         {crumbs.map((c, i) => {
           const isLast = i === crumbs.length - 1
