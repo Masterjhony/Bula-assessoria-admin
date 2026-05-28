@@ -15,6 +15,7 @@ export type FechamentoAnalyticsItem = {
   nome: string
   data: string
   vgv_total: number
+  faturamento_total_leilao: number | null
   lotes_ofertados: number
   lotes_vendidos: number
   animais_vendidos: number
@@ -36,7 +37,15 @@ function fmtDate(iso: string) {
   const [y, m, d] = iso.split('-')
   return { dia: Number(d), mes: MES[m] ?? m, ano: y, full: `${Number(d)} ${MES[m] ?? m} ${y}` }
 }
-function coveragePct(vendidos: number, ofertados: number) {
+// Cobertura = % do faturamento total do leilão que a Bula cobriu.
+function coveragePct(f: { vgv_total?: number | null; faturamento_total_leilao?: number | null }) {
+  const vgv = Number(f.vgv_total ?? 0)
+  const fat = Number(f.faturamento_total_leilao ?? 0)
+  if (!fat || !vgv) return 0
+  return Math.round((vgv / fat) * 100)
+}
+// Aproveitamento dos lotes — métrica secundária.
+function lotesPct(vendidos: number, ofertados: number) {
   if (!ofertados) return 0
   return Math.round((vendidos / ofertados) * 100)
 }
@@ -137,22 +146,28 @@ function InsightsSection({ items }: { items: FechamentoAnalyticsItem[] }) {
     const totalAssessorVgv = [...assessorMap.values()].reduce((s, d) => s + d.vgv, 0)
     const maxAVgv = topAssessores[0]?.vgv || 1
 
-    // Cobertura por leilão (chronological)
-    const cobertura = sorted.map(f => ({
-      nome: f.nome,
-      data: f.data,
-      pct: coveragePct(f.lotes_vendidos, f.lotes_ofertados),
-      vendidos: f.lotes_vendidos,
-      ofertados: f.lotes_ofertados,
-    }))
-    const totalOfertados = items.reduce((s, f) => s + f.lotes_ofertados, 0)
-    const totalVendidos = items.reduce((s, f) => s + f.lotes_vendidos, 0)
-    const coberturaMedia = totalOfertados > 0 ? Math.round((totalVendidos / totalOfertados) * 100) : 0
+    // Cobertura por leilão (chronological) — % do faturamento do leilão que a Bula cobriu.
+    // Só entram itens com faturamento_total_leilao informado.
+    const cobertura = sorted
+      .filter(f => f.faturamento_total_leilao && f.vgv_total)
+      .map(f => ({
+        nome: f.nome,
+        data: f.data,
+        pct: coveragePct(f),
+        vgv: f.vgv_total,
+        fat: f.faturamento_total_leilao ?? 0,
+      }))
+    const totalFatLeilao = items.reduce((s, f) => s + (Number(f.faturamento_total_leilao) || 0), 0)
+    const totalVgv = items.reduce((s, f) => s + f.vgv_total, 0)
+    const coberturaMedia = totalFatLeilao > 0 ? Math.round((totalVgv / totalFatLeilao) * 100) : 0
     const coberturaAvgSimple = cobertura.length > 0
       ? Math.round(cobertura.reduce((s, c) => s + c.pct, 0) / cobertura.length)
       : 0
     const coberturaMin = cobertura.length ? Math.min(...cobertura.map(c => c.pct)) : 0
     const coberturaMax = cobertura.length ? Math.max(...cobertura.map(c => c.pct)) : 0
+    // Aproveitamento de lotes — métrica secundária mantida para contexto.
+    const totalOfertados = items.reduce((s, f) => s + f.lotes_ofertados, 0)
+    const totalVendidos = items.reduce((s, f) => s + f.lotes_vendidos, 0)
 
     return {
       sorted, maxVgv, maxIdx,
@@ -212,7 +227,7 @@ function InsightsSection({ items }: { items: FechamentoAnalyticsItem[] }) {
           {/* Bars */}
           <div className="relative flex items-end gap-2 h-full pb-7">
             {sorted.map((f, i) => {
-              const pct = coveragePct(f.lotes_vendidos, f.lotes_ofertados)
+              const pct = coveragePct(f)
               const barH = Math.max((f.vgv_total / maxVgv) * 100, 1.5)
               const dt = fmtDate(f.data)
               const color = pct >= 60 ? '#22c55e' : pct >= 30 ? '#A68B4B' : '#ef4444'
@@ -289,7 +304,7 @@ function InsightsSection({ items }: { items: FechamentoAnalyticsItem[] }) {
         <div className="flex items-center justify-between mb-5 flex-wrap gap-2">
           <div>
             <p className="text-xs font-black uppercase tracking-wider text-gray-900 dark:text-white">Cobertura média</p>
-            <p className="text-[10px] text-gray-400 mt-0.5">Lotes vendidos / ofertados por leilão</p>
+            <p className="text-[10px] text-gray-400 mt-0.5">VGV nosso / faturamento total do leilão</p>
           </div>
           <div className="flex items-center gap-3">
             <div className="text-right">
@@ -299,7 +314,7 @@ function InsightsSection({ items }: { items: FechamentoAnalyticsItem[] }) {
             <div className="text-right">
               <p className="text-[9px] font-bold uppercase tracking-widest text-gray-400">Média</p>
               <p className="text-2xl font-black text-[#A68B4B] tabular-nums leading-none">{coberturaMedia}%</p>
-              <p className="text-[9px] text-gray-500 tabular-nums mt-0.5">{totalVendidos}/{totalOfertados} lotes</p>
+              <p className="text-[9px] text-gray-500 tabular-nums mt-0.5">{cobertura.length} leilão(ões) com fat. informado · {totalVendidos}/{totalOfertados} lotes</p>
             </div>
             <div className="text-right">
               <p className="text-[9px] font-bold uppercase tracking-widest text-gray-400">Máx</p>
@@ -379,7 +394,7 @@ function InsightsSection({ items }: { items: FechamentoAnalyticsItem[] }) {
                   <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-1 bg-gray-900 dark:bg-[#0D0D0D] border border-gray-700 text-white text-[9px] rounded-lg px-2 py-1 whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-20 shadow-xl">
                     <p className="font-bold text-[#A68B4B]">{c.pct}%</p>
                     <p className="text-gray-300 max-w-[160px] truncate">{c.nome}</p>
-                    <p className="text-gray-500 tabular-nums">{c.vendidos}/{c.ofertados}</p>
+                    <p className="text-gray-500 tabular-nums">{R(c.vgv)} de {R(c.fat)}</p>
                   </div>
                 </div>
               )
@@ -628,7 +643,12 @@ export function LeiloesAnalyticsBlock({ items }: { items: FechamentoAnalyticsIte
   const totalAnimais = items.reduce((s, f) => s + (Number(f.animais_vendidos) || 0), 0)
   const totalLotesVendidos = items.reduce((s, f) => s + (Number(f.lotes_vendidos) || 0), 0)
   const totalLotesOfertados = items.reduce((s, f) => s + (Number(f.lotes_ofertados) || 0), 0)
-  const coberturaMedia = totalLotesOfertados ? Math.round((totalLotesVendidos / totalLotesOfertados) * 100) : 0
+  // Cobertura média ponderada: soma do VGV nosso / soma do faturamento total dos leilões
+  // (apenas leilões com faturamento_total_leilao informado entram na conta).
+  const itemsComFat = items.filter(f => (Number(f.faturamento_total_leilao) || 0) > 0)
+  const vgvComFat = itemsComFat.reduce((s, f) => s + f.vgv_total, 0)
+  const totalFatLeilao = itemsComFat.reduce((s, f) => s + (Number(f.faturamento_total_leilao) || 0), 0)
+  const coberturaMedia = totalFatLeilao ? Math.round((vgvComFat / totalFatLeilao) * 100) : 0
   const ticketMedioGeral = totalAnimais ? Math.round(totalVgv / totalAnimais) : 0
 
   return (

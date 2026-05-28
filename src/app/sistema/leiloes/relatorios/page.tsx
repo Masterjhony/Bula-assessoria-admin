@@ -26,7 +26,8 @@ type Lance = { lote: string; fazenda: string; comprador: string; uf: string; ass
 type Fechamento = {
   id: string; nome: string; data: string; local: string
   lotes_ofertados: number; lotes_vendidos: number; animais_vendidos: number
-  vgv_total: number; ticket_medio: number; maior_lance: number
+  vgv_total: number; faturamento_total_leilao: number | null
+  ticket_medio: number; maior_lance: number
   compradores_unicos: number; estados_alcancados: number
   por_assessor: Assessor[]; por_estado: Estado[]
   compradores: Comprador[]; lances: Lance[]
@@ -714,7 +715,11 @@ function ReportPDFBrandbook({ data, period }: { data: Payload; period: string })
   const totalVgv = list.reduce((s, f) => s + (f.vgv_total || 0), 0)
   const totalLotesVendidos = list.reduce((s, f) => s + (f.lotes_vendidos || 0), 0)
   const totalLotesOfertados = list.reduce((s, f) => s + (f.lotes_ofertados || 0), 0)
-  const coberturaMedia = totalLotesOfertados ? Math.round((totalLotesVendidos / totalLotesOfertados) * 100) : 0
+  // Cobertura média ponderada: VGV nosso / faturamento total leilão (só leilões com fat. informado).
+  const listComFat = list.filter(f => (f.faturamento_total_leilao || 0) > 0)
+  const vgvComFat = listComFat.reduce((s, f) => s + (f.vgv_total || 0), 0)
+  const fatTotal = listComFat.reduce((s, f) => s + (f.faturamento_total_leilao || 0), 0)
+  const coberturaMedia = fatTotal ? Math.round((vgvComFat / fatTotal) * 100) : 0
   const totalCompradores = list.reduce((s, f) => s + (f.compradores_unicos || 0), 0)
 
   async function handleDownload(f: Fechamento) {
@@ -744,7 +749,7 @@ function ReportPDFBrandbook({ data, period }: { data: Payload; period: string })
         <Stat
           label="Lotes vendidos"
           value={`${totalLotesVendidos}${totalLotesOfertados ? ` / ${totalLotesOfertados}` : ''}`}
-          sub={totalLotesOfertados ? `cobertura média ${coberturaMedia}%` : 'sem oferta registrada'}
+          sub={listComFat.length ? `cobertura média ${coberturaMedia}% (${listComFat.length} c/ fat.)` : 'sem fat. da leiloeira'}
         />
         <Stat
           label="Compradores"
@@ -773,7 +778,10 @@ function ReportPDFBrandbook({ data, period }: { data: Payload; period: string })
       ) : (
         <div className="pdfb-grid">
           {list.map(f => {
-            const cobertura = f.lotes_ofertados ? Math.round((f.lotes_vendidos / f.lotes_ofertados) * 100) : 0
+            const cobertura = (f.faturamento_total_leilao && f.vgv_total)
+              ? Math.round((f.vgv_total / f.faturamento_total_leilao) * 100)
+              : null
+            const lotesAprov = f.lotes_ofertados ? Math.round((f.lotes_vendidos / f.lotes_ofertados) * 100) : 0
             const assessores = Array.isArray(f.por_assessor) ? f.por_assessor : []
             const isBusy = busy === f.id
             return (
@@ -791,11 +799,11 @@ function ReportPDFBrandbook({ data, period }: { data: Payload; period: string })
                 <div className="pdfb-kpis">
                   <div className="pdfb-kpi">
                     <div className="pdfb-kpi-v">{fmtBRLCompact(f.vgv_total)}</div>
-                    <div className="pdfb-kpi-l">VGV</div>
+                    <div className="pdfb-kpi-l">VGV · cob {cobertura != null ? `${cobertura}%` : '—'}</div>
                   </div>
                   <div className="pdfb-kpi">
                     <div className="pdfb-kpi-v">{f.lotes_vendidos}<span className="pdfb-kpi-of"> / {f.lotes_ofertados || '—'}</span></div>
-                    <div className="pdfb-kpi-l">Lotes · {cobertura}%</div>
+                    <div className="pdfb-kpi-l">Lotes · {lotesAprov}%</div>
                   </div>
                   <div className="pdfb-kpi">
                     <div className="pdfb-kpi-v">{f.compradores_unicos || 0}</div>
@@ -1057,19 +1065,20 @@ function ReportComparativo({ data, period }: { data: Payload; period: string }) 
     return [...data.fechamentos].sort((a, b) => a.data.localeCompare(b.data))
   }, [data])
 
+  // Cobertura = VGV nosso / faturamento total do leilão.
+  const cobOf = (f: Fechamento) => (f.faturamento_total_leilao && f.vgv_total)
+    ? f.vgv_total / f.faturamento_total_leilao
+    : 0
   const topVgv = [...items].sort((a, b) => b.vgv_total - a.vgv_total).slice(0, 6)
-  const topCobertura = [...items].sort((a, b) => {
-    const ca = a.lotes_ofertados ? a.lotes_vendidos / a.lotes_ofertados : 0
-    const cb = b.lotes_ofertados ? b.lotes_vendidos / b.lotes_ofertados : 0
-    return cb - ca
-  }).slice(0, 6)
+  const topCobertura = [...items].sort((a, b) => cobOf(b) - cobOf(a)).slice(0, 6)
 
   const exportCsv = () => {
     const rows: (string | number)[][] = [
-      ['Leilão', 'Data', 'Local', 'VGV', 'Lotes vendidos', 'Lotes ofertados', 'Cobertura (%)', 'Animais', 'Ticket médio', 'Maior lance', 'Compradores únicos', 'Estados'],
+      ['Leilão', 'Data', 'Local', 'VGV nosso', 'Faturamento leiloeira', 'Cobertura (%)', 'Lotes vendidos', 'Lotes ofertados', 'Aproveit. lotes (%)', 'Animais', 'Ticket médio', 'Maior lance', 'Compradores únicos', 'Estados'],
       ...items.map(f => {
-        const cob = f.lotes_ofertados ? Math.round((f.lotes_vendidos / f.lotes_ofertados) * 100) : 0
-        return [f.nome, f.data, f.local, Math.round(f.vgv_total), f.lotes_vendidos, f.lotes_ofertados, cob, f.animais_vendidos, Math.round(f.ticket_medio), Math.round(f.maior_lance), f.compradores_unicos, f.estados_alcancados]
+        const cob = Math.round(cobOf(f) * 100)
+        const lotesPct = f.lotes_ofertados ? Math.round((f.lotes_vendidos / f.lotes_ofertados) * 100) : 0
+        return [f.nome, f.data, f.local, Math.round(f.vgv_total), Math.round(f.faturamento_total_leilao || 0), cob, f.lotes_vendidos, f.lotes_ofertados, lotesPct, f.animais_vendidos, Math.round(f.ticket_medio), Math.round(f.maior_lance), f.compradores_unicos, f.estados_alcancados]
       }),
     ]
     downloadCSV('relatorio-comparativo.csv', rows)
@@ -1105,16 +1114,16 @@ function ReportComparativo({ data, period }: { data: Payload; period: string }) 
             <div className="rl-card rl-c6">
               <div className="rl-card-head">
                 <div>
-                  <h3>Top 6 por taxa de venda</h3>
-                  <div className="rl-sub">Cobertura % (lotes vendidos / ofertados)</div>
+                  <h3>Top 6 por cobertura</h3>
+                  <div className="rl-sub">VGV nosso / faturamento total do leilão</div>
                 </div>
                 <Percent size={14} style={{ color: 'var(--dcl-gold)' }} />
               </div>
               <RankList items={topCobertura.map(f => {
-                const cob = f.lotes_ofertados ? f.lotes_vendidos / f.lotes_ofertados : 0
+                const cob = cobOf(f)
                 return {
-                  key: f.id, primary: f.nome, secondary: `${f.lotes_vendidos}/${f.lotes_ofertados} lotes`,
-                  value: PCT(cob), bar: cob,
+                  key: f.id, primary: f.nome, secondary: f.faturamento_total_leilao ? `de ${fmtBRLCompact(f.faturamento_total_leilao)}` : 'sem fat. da leiloeira',
+                  value: f.faturamento_total_leilao ? PCT(cob) : '—', bar: cob,
                 }
               })} />
             </div>
@@ -1146,7 +1155,8 @@ function ReportComparativo({ data, period }: { data: Payload; period: string }) 
                 </thead>
                 <tbody>
                   {items.map(f => {
-                    const cob = f.lotes_ofertados ? Math.round((f.lotes_vendidos / f.lotes_ofertados) * 100) : 0
+                    const cob = Math.round(cobOf(f) * 100)
+                    const hasFat = !!f.faturamento_total_leilao
                     return (
                       <tr key={f.id}>
                         <td style={{ maxWidth: 240 }}>
@@ -1157,12 +1167,16 @@ function ReportComparativo({ data, period }: { data: Payload; period: string }) 
                         <td className="rl-num rl-gold">{fmtBRLCompact(f.vgv_total)}</td>
                         <td className="rl-num">{f.lotes_vendidos}/{f.lotes_ofertados || '—'}</td>
                         <td>
-                          <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                            <div className="rl-bar" style={{ width: 60 }}>
-                              <span style={{ width: `${Math.min(100, cob)}%` }} />
+                          {hasFat ? (
+                            <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                              <div className="rl-bar" style={{ width: 60 }}>
+                                <span style={{ width: `${Math.min(100, cob)}%` }} />
+                              </div>
+                              <span className="rl-num" style={{ minWidth: 32, textAlign: 'right' }}>{cob}%</span>
                             </div>
-                            <span className="rl-num" style={{ minWidth: 32, textAlign: 'right' }}>{cob}%</span>
-                          </div>
+                          ) : (
+                            <span className="rl-dim">—</span>
+                          )}
                         </td>
                         <td className="rl-num">{fmtNum(f.animais_vendidos)}</td>
                         <td className="rl-num">{fmtBRL(f.ticket_medio)}</td>
@@ -1945,14 +1959,14 @@ function ReportCategoria({ data, period }: { data: Payload; period: string }) {
 
 function ReportRanking({ data, period }: { data: Payload; period: string }) {
   const items = data.fechamentos
+  // Cobertura = VGV nosso / faturamento total leilão.
+  const cobOf = (f: Fechamento) => (f.faturamento_total_leilao && f.vgv_total)
+    ? f.vgv_total / f.faturamento_total_leilao
+    : 0
   const topVgv = [...items].sort((a, b) => b.vgv_total - a.vgv_total).slice(0, 10)
   const topTicket = [...items].sort((a, b) => b.ticket_medio - a.ticket_medio).slice(0, 10)
   const topLance = [...items].sort((a, b) => b.maior_lance - a.maior_lance).slice(0, 10)
-  const topCobertura = [...items].sort((a, b) => {
-    const ca = a.lotes_ofertados ? a.lotes_vendidos / a.lotes_ofertados : 0
-    const cb = b.lotes_ofertados ? b.lotes_vendidos / b.lotes_ofertados : 0
-    return cb - ca
-  }).slice(0, 10)
+  const topCobertura = [...items].sort((a, b) => cobOf(b) - cobOf(a)).slice(0, 10)
 
   const exportCsv = () => {
     const rows: (string | number)[][] = [
@@ -1960,10 +1974,7 @@ function ReportRanking({ data, period }: { data: Payload; period: string }) {
       ...topVgv.map((f, i) => ['VGV', i + 1, f.nome, f.data, Math.round(f.vgv_total)]),
       ...topTicket.map((f, i) => ['Ticket médio', i + 1, f.nome, f.data, Math.round(f.ticket_medio)]),
       ...topLance.map((f, i) => ['Maior lance', i + 1, f.nome, f.data, Math.round(f.maior_lance)]),
-      ...topCobertura.map((f, i) => {
-        const pct = f.lotes_ofertados ? (f.lotes_vendidos / f.lotes_ofertados) * 100 : 0
-        return ['Cobertura', i + 1, f.nome, f.data, pct.toFixed(2)]
-      }),
+      ...topCobertura.map((f, i) => ['Cobertura', i + 1, f.nome, f.data, (cobOf(f) * 100).toFixed(2)]),
     ]
     downloadCSV('ranking-leiloes.csv', rows)
   }
@@ -2012,15 +2023,15 @@ function ReportRanking({ data, period }: { data: Payload; period: string }) {
           </div>
           <div className="rl-card rl-c6">
             <div className="rl-card-head">
-              <div><h3>Top 10 · Cobertura</h3><div className="rl-sub">Maior taxa de venda</div></div>
+              <div><h3>Top 10 · Cobertura</h3><div className="rl-sub">VGV nosso / faturamento total do leilão</div></div>
               <Percent size={14} style={{ color: 'var(--dcl-gold)' }} />
             </div>
             <RankList items={topCobertura.map(f => {
-              const cob = f.lotes_ofertados ? f.lotes_vendidos / f.lotes_ofertados : 0
+              const cob = cobOf(f)
               return {
                 key: f.id, primary: f.nome,
-                secondary: `${f.lotes_vendidos}/${f.lotes_ofertados} lotes`,
-                value: PCT(cob), bar: cob,
+                secondary: f.faturamento_total_leilao ? `de ${fmtBRLCompact(f.faturamento_total_leilao)}` : 'sem fat. da leiloeira',
+                value: f.faturamento_total_leilao ? PCT(cob) : '—', bar: cob,
               }
             })} />
           </div>

@@ -36,7 +36,8 @@ type Lance = {
 export type FechamentoForPDF = {
   id: string; nome: string; data: string; local?: string
   lotes_ofertados?: number; lotes_vendidos?: number; animais_vendidos?: number
-  vgv_total?: number; ticket_medio?: number; maior_lance?: number
+  vgv_total?: number; faturamento_total_leilao?: number | null
+  ticket_medio?: number; maior_lance?: number
   compradores_unicos?: number; estados_alcancados?: number
   por_assessor?: Assessor[]; por_estado?: Estado[]
   compradores?: Comprador[]; lances?: Lance[]
@@ -180,11 +181,14 @@ function buildBenchmark(fech: FechamentoForPDF, outros: FechamentoForPDF[]): Ben
   if (n === 0) return []
   const avg = (key: keyof FechamentoForPDF) =>
     validos.reduce((s, o) => s + (Number(o[key] as number) || 0), 0) / n
-  const cobAtual = (fech.lotes_ofertados || 0) > 0 ? (fech.lotes_vendidos || 0) / (fech.lotes_ofertados || 1) : 0
-  const cobMedia = validos.reduce((s, o) => {
-    const c = (o.lotes_ofertados || 0) > 0 ? (o.lotes_vendidos || 0) / (o.lotes_ofertados || 1) : 0
-    return s + c
-  }, 0) / n
+  // Cobertura = VGV nosso / faturamento total do leilão.
+  const cobOf = (o: FechamentoForPDF) => {
+    const v = Number(o.vgv_total) || 0
+    const f = Number(o.faturamento_total_leilao) || 0
+    return f > 0 && v > 0 ? v / f : 0
+  }
+  const cobAtual = cobOf(fech)
+  const cobMedia = validos.reduce((s, o) => s + cobOf(o), 0) / n
   return [
     { label: 'VGV total',           atual: fech.vgv_total || 0,           media: avg('vgv_total'),       unit: 'BRL', higherIsBetter: true },
     { label: 'Ticket médio',        atual: fech.ticket_medio || 0,        media: avg('ticket_medio'),    unit: 'BRL', higherIsBetter: true },

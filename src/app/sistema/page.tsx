@@ -139,7 +139,7 @@ export default async function AdminDashboard({ searchParams }: { searchParams?: 
             .select('id, nome, data, tipo, animais, expectativa, meta_bula, realizado_bula, status, horario, modelo, leiloeira, local, transmissao')
             .order('data', { ascending: true }),
         supabase.from('bula_leilao_fechamento')
-            .select('id, nome, data, local, lotes_ofertados, lotes_vendidos, animais_vendidos, vgv_total, ticket_medio, maior_lance, compradores_unicos, estados_alcancados, por_assessor, por_estado, compradores')
+            .select('id, nome, data, local, lotes_ofertados, lotes_vendidos, animais_vendidos, vgv_total, faturamento_total_leilao, ticket_medio, maior_lance, compradores_unicos, estados_alcancados, por_assessor, por_estado, compradores')
             .order('data', { ascending: false }),
     ]);
 
@@ -227,6 +227,7 @@ export default async function AdminDashboard({ searchParams }: { searchParams?: 
         nome: f.nome || '',
         data: f.data || '',
         vgv_total: Number(f.vgv_total) || 0,
+        faturamento_total_leilao: f.faturamento_total_leilao != null ? Number(f.faturamento_total_leilao) : null,
         lotes_ofertados: Number(f.lotes_ofertados) || 0,
         lotes_vendidos: Number(f.lotes_vendidos) || 0,
         animais_vendidos: Number(f.animais_vendidos) || 0,

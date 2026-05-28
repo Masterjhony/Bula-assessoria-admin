@@ -152,7 +152,18 @@ function fmtDate(iso: string) {
   return { dia: Number(d), mes: MES[m] ?? m, ano: y, full: `${Number(d)} ${MES[m] ?? m} ${y}` }
 }
 
-function coveragePct(vendidos: number, ofertados: number) {
+// Cobertura = % do faturamento total do leilão que a nossa equipe cobriu.
+// Fórmula: vgv_total (nossa cobertura) / faturamento_total_leilao (leiloeira).
+function coveragePct(f: { vgv_total?: number | null; faturamento_total_leilao?: number | null }) {
+  const vgv = Number(f.vgv_total ?? 0)
+  const fat = Number(f.faturamento_total_leilao ?? 0)
+  if (!fat || !vgv) return 0
+  return Math.round((vgv / fat) * 100)
+}
+
+// Aproveitamento de lotes = % de lotes vendidos sobre ofertados.
+// Usado em "Lotes Vendidos" como métrica secundária.
+function lotesPct(vendidos: number, ofertados: number) {
   if (!ofertados) return 0
   return Math.round((vendidos / ofertados) * 100)
 }
@@ -208,7 +219,7 @@ function FechamentoTable({ items, selectedId, onSelect }: {
         <tbody>
           {items.map(f => {
             const dt = fmtDate(f.data)
-            const pct = coveragePct(f.lotes_vendidos, f.lotes_ofertados)
+            const pct = coveragePct(f)
             const isSelected = selectedId === f.id
             const assessorNomes = (f.por_assessor ?? [])
               .map(a => a.nome)
@@ -235,12 +246,16 @@ function FechamentoTable({ items, selectedId, onSelect }: {
                   {f.lotes_vendidos}/{f.lotes_ofertados}
                 </td>
                 <td className="px-3 py-2.5 text-right tabular-nums">
-                  <span className={`inline-block px-1.5 py-0.5 rounded text-[10px] font-bold
-                    ${pct >= 60 ? 'bg-emerald-100 text-emerald-700 dark:bg-emerald-500/15 dark:text-emerald-300'
-                      : pct >= 30 ? 'bg-amber-100 text-amber-700 dark:bg-amber-500/15 dark:text-amber-300'
-                      : 'bg-gray-100 text-gray-600 dark:bg-[#1A1A1A] dark:text-gray-400'}`}>
-                    {pct}%
-                  </span>
+                  {f.faturamento_total_leilao ? (
+                    <span className={`inline-block px-1.5 py-0.5 rounded text-[10px] font-bold
+                      ${pct >= 60 ? 'bg-emerald-100 text-emerald-700 dark:bg-emerald-500/15 dark:text-emerald-300'
+                        : pct >= 30 ? 'bg-amber-100 text-amber-700 dark:bg-amber-500/15 dark:text-amber-300'
+                        : 'bg-gray-100 text-gray-600 dark:bg-[#1A1A1A] dark:text-gray-400'}`}>
+                      {pct}%
+                    </span>
+                  ) : (
+                    <span className="text-gray-300 dark:text-gray-600">—</span>
+                  )}
                 </td>
                 <td className="px-3 py-2.5 text-right tabular-nums text-gray-700 dark:text-gray-300">{f.animais_vendidos}</td>
                 <td className="px-3 py-2.5 text-right tabular-nums font-bold text-[#A68B4B]">{R(f.vgv_total)}</td>
@@ -268,7 +283,8 @@ function FechamentoTable({ items, selectedId, onSelect }: {
 
 function FechamentoCard({ f, selected, onClick }: { f: Fechamento; selected: boolean; onClick: () => void }) {
   const dt = fmtDate(f.data)
-  const pct = coveragePct(f.lotes_vendidos, f.lotes_ofertados)
+  const pct = coveragePct(f)
+  const lotesPctVal = lotesPct(f.lotes_vendidos, f.lotes_ofertados)
 
   return (
     <button
@@ -306,8 +322,9 @@ function FechamentoCard({ f, selected, onClick }: { f: Fechamento; selected: boo
           <div className="flex flex-wrap gap-x-4 gap-y-1">
             <span className="text-xs font-black text-[#A68B4B]">{R(f.vgv_total)}</span>
             <span className="text-[10px] text-gray-500">
-              {f.lotes_vendidos}/{f.lotes_ofertados} lotes <span className="font-semibold">{pct}%</span>
+              cobertura <span className="font-semibold">{f.faturamento_total_leilao ? `${pct}%` : '—'}</span>
             </span>
+            <span className="text-[10px] text-gray-400">{f.lotes_vendidos}/{f.lotes_ofertados} lotes · {lotesPctVal}%</span>
             <span className="text-[10px] text-gray-400">{f.animais_vendidos} animais</span>
           </div>
           <div className="flex gap-2 flex-wrap">
@@ -424,7 +441,8 @@ function FechamentoDrawer({ f, onClose, onEdit, onDelete }: {
   const canSeeFinance = useCanSeeFinance()
   const [tab, setTab] = useState<DrawerTab>('resumo')
   const dt = fmtDate(f.data)
-  const pct = coveragePct(f.lotes_vendidos, f.lotes_ofertados)
+  const pct = coveragePct(f)
+  const lotesPctVal = lotesPct(f.lotes_vendidos, f.lotes_ofertados)
   const maxVgv = f.por_assessor.length ? Math.max(...f.por_assessor.map(a => a.vgv)) : 1
   const maxVgvEstado = f.por_estado.length ? Math.max(...f.por_estado.map(e => e.vgv)) : 1
 
@@ -456,7 +474,7 @@ function FechamentoDrawer({ f, onClose, onEdit, onDelete }: {
               <div className="flex-1 max-w-32 bg-gray-100 dark:bg-[#1A1A1A] rounded-full h-1.5 overflow-hidden">
                 <div className="h-full rounded-full" style={{ width: `${pct}%`, background: pct >= 60 ? '#22c55e' : '#A68B4B' }} />
               </div>
-              <span className="text-[10px] font-bold text-gray-500">{f.lotes_vendidos}/{f.lotes_ofertados} lotes · {pct}%</span>
+              <span className="text-[10px] font-bold text-gray-500">cobertura {f.faturamento_total_leilao ? `${pct}%` : '—'} · {f.lotes_vendidos}/{f.lotes_ofertados} lotes</span>
             </div>
           </div>
           <button onClick={onClose} className="p-1.5 rounded-lg hover:bg-gray-100 dark:hover:bg-[#1A1A1A] text-gray-400 transition-colors flex-shrink-0">
@@ -493,7 +511,7 @@ function FechamentoDrawer({ f, onClose, onEdit, onDelete }: {
                   }] : []),
                   { icon: DollarSign, label: 'VGV Cobertura (Fórmula+Bula)', value: R(f.vgv_total) },
                   { icon: TrendingUp, label: 'Ticket Médio', value: R(f.ticket_medio) },
-                  { icon: BarChart3, label: 'Lotes Vendidos', value: `${f.lotes_vendidos}/${f.lotes_ofertados}`, sub: `${pct}% de cobertura` },
+                  { icon: BarChart3, label: 'Lotes Vendidos', value: `${f.lotes_vendidos}/${f.lotes_ofertados}`, sub: `${lotesPctVal}% dos lotes ofertados` },
                   { icon: Hash, label: 'Animais Vendidos', value: f.animais_vendidos.toString() },
                   { icon: Target, label: 'Maior Lance', value: f.maior_lance ? `R$ ${f.maior_lance.toLocaleString('pt-BR')}/parc.` : '—' },
                   { icon: Users, label: 'Compradores Únicos', value: f.compradores_unicos.toString(), sub: f.por_assessor.filter(a => a.nome).length ? `${f.por_assessor.reduce((s, a) => s + a.transacoes, 0)} transações` : undefined },
@@ -1397,8 +1415,7 @@ function FechamentoViewInner() {
   const sortedItems = useMemo(() => {
     const arr = [...filteredItems]
     if (sortBy === 'vgv') arr.sort((a, b) => b.vgv_total - a.vgv_total)
-    else if (sortBy === 'cobertura') arr.sort((a, b) =>
-      coveragePct(b.lotes_vendidos, b.lotes_ofertados) - coveragePct(a.lotes_vendidos, a.lotes_ofertados))
+    else if (sortBy === 'cobertura') arr.sort((a, b) => coveragePct(b) - coveragePct(a))
     else arr.sort((a, b) => new Date(b.data).getTime() - new Date(a.data).getTime())
     return arr
   }, [filteredItems, sortBy])
