@@ -1,5 +1,6 @@
 import { createClient } from '@/utils/supabase/server';
 import { normalizeAssessorNome } from '@/lib/assessor-normalize';
+import type { FechamentoAnalyticsItem } from './leiloes/LeiloesAnalyticsBlock';
 import DashboardClient, {
     type DashboardProps,
     type ProximoLeilao,
@@ -138,7 +139,7 @@ export default async function AdminDashboard({ searchParams }: { searchParams?: 
             .select('id, nome, data, tipo, animais, expectativa, meta_bula, realizado_bula, status, horario, modelo, leiloeira, local, transmissao')
             .order('data', { ascending: true }),
         supabase.from('bula_leilao_fechamento')
-            .select('id, nome, data, local, lotes_ofertados, lotes_vendidos, animais_vendidos, vgv_total, ticket_medio, maior_lance, compradores_unicos, estados_alcancados, por_assessor')
+            .select('id, nome, data, local, lotes_ofertados, lotes_vendidos, animais_vendidos, vgv_total, ticket_medio, maior_lance, compradores_unicos, estados_alcancados, por_assessor, por_estado, compradores')
             .order('data', { ascending: false }),
     ]);
 
@@ -150,8 +151,6 @@ export default async function AdminDashboard({ searchParams }: { searchParams?: 
     const upcomingLeiloes = allLeiloes
         .filter(l => (l.data ?? '') >= todayStr && l.status !== 'concluido')
         .sort((a, b) => (a.data ?? '').localeCompare(b.data ?? ''));
-
-    const confirmedCount = upcomingLeiloes.filter(l => l.status === 'confirmado').length;
 
     const proximoRaw = upcomingLeiloes[0] ?? null;
     const proxParsed = proximoRaw ? parseLeilaoDate(proximoRaw.data, proximoRaw.horario) : null;
@@ -209,78 +208,53 @@ export default async function AdminDashboard({ searchParams }: { searchParams?: 
         .map(([nome, count]) => ({ nome, count }))
         .sort((a, b) => a.nome.localeCompare(b.nome));
 
-    // ── Fechamentos filtrados pelo período ───────────────────────────────────
+    // ── Fechamentos filtrados pelo período + assessor ────────────────────────
+    // Filtro de assessor restringe QUAIS leilões entram (apenas aqueles em que
+    // o assessor participou). KPIs e gráficos seguem usando os totais do leilão
+    // inteiro — mesma semântica da página /sistema/leiloes/fechamento.
     const fechamentosPeriodo = allFechamentos.filter(f => {
         const d = f.data || '';
-        return d >= range.from && d <= range.to;
+        if (d < range.from || d > range.to) return false;
+        if (assessorFilter) {
+            return ((f.por_assessor ?? []) as Array<{ nome?: string }>)
+                .some(a => normalizeAssessorNome(a.nome) === assessorFilter);
+        }
+        return true;
     });
 
-    // ── Aplicar filtro de assessor (se houver) ──────────────────────────────
-    // Quando há assessor selecionado, agregamos APENAS o que esse assessor
-    // vendeu dentro de cada fechamento (somando os campos do por_assessor[]).
-    // Para cobertura média, mantemos a métrica do LEILÃO (lotes vendidos /
-    // ofertados do leilão inteiro), pois não há granularidade por assessor —
-    // o filtro restringe quais leilões entram no cálculo.
-    let totalVgv = 0;
-    let totalAnimais = 0;
-    let totalLotesVendidos = 0; // transações do assessor (ticket médio)
-    let coberturaLotesVendidos = 0; // lotes vendidos do leilão (cobertura)
-    let coberturaLotesOfertados = 0;
-
-    for (const f of fechamentosPeriodo) {
-        const lotesOf = Number(f.lotes_ofertados) || 0;
-        const lotesVe = Number(f.lotes_vendidos) || 0;
-
-        if (assessorFilter) {
-            let assessorVgv = 0;
-            let assessorAnimais = 0;
-            let assessorLotes = 0;
-            let participou = false;
-
-            for (const a of ((f.por_assessor ?? []) as Array<{ nome?: string; vgv?: number; animais?: number; transacoes?: number }>)) {
-                if (normalizeAssessorNome(a.nome) === assessorFilter) {
-                    assessorVgv += Number(a.vgv) || 0;
-                    assessorAnimais += Number(a.animais) || 0;
-                    assessorLotes += Number(a.transacoes) || 0;
-                    participou = true;
-                }
-            }
-
-            if (!participou) continue;
-
-            totalVgv += assessorVgv;
-            totalAnimais += assessorAnimais;
-            totalLotesVendidos += assessorLotes;
-            coberturaLotesVendidos += lotesVe;
-            coberturaLotesOfertados += lotesOf;
-        } else {
-            totalVgv += Number(f.vgv_total) || 0;
-            totalAnimais += Number(f.animais_vendidos) || 0;
-            totalLotesVendidos += lotesVe;
-            coberturaLotesVendidos += lotesVe;
-            coberturaLotesOfertados += lotesOf;
-        }
-    }
-
-    const ticketMedio = totalLotesVendidos > 0 ? totalVgv / totalLotesVendidos : 0;
-    // Cobertura média ponderada (alinhada com FechamentoView):
-    // totalVendidos / totalOfertados nos leilões dentro do filtro.
-    const coberturaMedia = coberturaLotesOfertados > 0
-        ? coberturaLotesVendidos / coberturaLotesOfertados
-        : 0;
-    const fechamentosCount = assessorFilter
-        ? fechamentosPeriodo.filter(f => (f.por_assessor ?? []).some((a: { nome?: string }) => normalizeAssessorNome(a.nome) === assessorFilter)).length
-        : fechamentosPeriodo.length;
-
-    // ── Leads / funnel (mantido — não duplica fechamento) ───────────────────
-    const allLeads = leads ?? [];
-    const totalLeads = allLeads.length;
-    const leadsByStatus: Record<string, number> = {};
-    for (const l of allLeads) leadsByStatus[l.status || 'Sem status'] = (leadsByStatus[l.status || 'Sem status'] || 0) + 1;
-    const hotLeads = allLeads.filter(l => l.prioridade === 'Alta').length;
-    const activeLeads = totalLeads - (leadsByStatus['Fechado'] || 0);
+    const fechamentoItems: FechamentoAnalyticsItem[] = fechamentosPeriodo.map(f => ({
+        id: String(f.id),
+        nome: f.nome || '',
+        data: f.data || '',
+        vgv_total: Number(f.vgv_total) || 0,
+        lotes_ofertados: Number(f.lotes_ofertados) || 0,
+        lotes_vendidos: Number(f.lotes_vendidos) || 0,
+        animais_vendidos: Number(f.animais_vendidos) || 0,
+        por_assessor: ((f.por_assessor ?? []) as Array<{ nome?: string; empresa?: string; vgv?: number; transacoes?: number; animais?: number }>).map(a => ({
+            nome: a.nome || '',
+            empresa: a.empresa || '',
+            vgv: Number(a.vgv) || 0,
+            transacoes: Number(a.transacoes) || 0,
+            animais: Number(a.animais) || 0,
+        })),
+        por_estado: ((f.por_estado ?? []) as Array<{ uf?: string; vgv?: number; lotes?: number; animais?: number }>).map(e => ({
+            uf: e.uf || '',
+            vgv: Number(e.vgv) || 0,
+            lotes: Number(e.lotes) || 0,
+            animais: Number(e.animais) || 0,
+        })),
+        compradores: ((f.compradores ?? []) as Array<{ fazenda?: string; cidade?: string; uf?: string; vgv?: number; lotes?: number; animais?: number }>).map(c => ({
+            fazenda: c.fazenda || '',
+            cidade: c.cidade || '',
+            uf: c.uf || '',
+            vgv: Number(c.vgv) || 0,
+            lotes: Number(c.lotes) || 0,
+            animais: Number(c.animais) || 0,
+        })),
+    }));
 
     // ── Feed (apenas leads — fechamentos individuais agora ficam só na página de fechamento) ─
+    const allLeads = leads ?? [];
     const feed: FeedItem[] = [];
     for (const l of allLeads.slice(0, 8)) {
         feed.push({
@@ -306,18 +280,7 @@ export default async function AdminDashboard({ searchParams }: { searchParams?: 
             assessor: assessorFilter,
             assessores: assessorOptions,
         },
-        kpi: {
-            valorVendido: totalVgv,
-            animaisVendidos: totalAnimais,
-            ticketMedio,
-            coberturaMedia,
-            fechamentosCount,
-            upcomingCount: upcomingLeiloes.length,
-            confirmedCount,
-            activeLeads,
-            hotLeads,
-            totalLeads,
-        },
+        fechamentoItems,
         feed,
     };
 

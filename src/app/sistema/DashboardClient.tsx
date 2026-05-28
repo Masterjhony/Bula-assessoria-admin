@@ -1,12 +1,12 @@
 'use client'
 
-import { Fragment, useEffect, useState, useTransition } from 'react'
+import { useEffect, useState, useTransition } from 'react'
 import Link from 'next/link'
 import { useRouter, usePathname, useSearchParams } from 'next/navigation'
 import {
-  Gavel, DollarSign, Calendar, MapPin, Filter, ChevronDown, User, X, Beef,
-  BarChart3, ShieldCheck,
+  Gavel, Calendar, MapPin, Filter, ChevronDown, User, X,
 } from 'lucide-react'
+import { LeiloesAnalyticsBlock, type FechamentoAnalyticsItem } from './leiloes/LeiloesAnalyticsBlock'
 
 // ─── Types ──────────────────────────────────────────────────────────────────
 
@@ -62,18 +62,7 @@ export type DashboardProps = {
     assessor: string
     assessores: AssessorOption[]
   }
-  kpi: {
-    valorVendido: number
-    animaisVendidos: number
-    ticketMedio: number
-    coberturaMedia: number
-    fechamentosCount: number
-    upcomingCount: number
-    confirmedCount: number
-    activeLeads: number
-    hotLeads: number
-    totalLeads: number
-  }
+  fechamentoItems: FechamentoAnalyticsItem[]
   feed: FeedItem[]
 }
 
@@ -88,7 +77,6 @@ const fmtBRLCompact = (v: number) => {
   return fmtBRL(v)
 }
 const fmtNum = (v: number) => v.toLocaleString('pt-BR')
-const fmtPct = (v: number) => `${(v * 100).toFixed(1)}%`
 
 function useCountdown(target: number | null) {
   const [now, setNow] = useState<number>(() => Date.now())
@@ -374,37 +362,6 @@ function Hero({ data }: { data: ProximoLeilao | null }) {
   )
 }
 
-// ─── KPI row (4 indicadores principais do briefing) ────────────────────────
-
-type Kpi = { label: string; value: string; sub?: string; icon: React.ReactNode; href?: string }
-
-function KpiRow({ items }: { items: Kpi[] }) {
-  return (
-    <div className="slim-row">
-      {items.map((it, i) => (
-        <Fragment key={`kpi-${i}`}>
-          {it.href ? (
-            <Link href={it.href} className="slim-kpi block hover:bg-[var(--s2)] transition-colors">
-              <div className="flex items-center justify-center gap-1.5 mb-1.5 subtle">{it.icon}</div>
-              <div className="slim-kpi-val">{it.value}</div>
-              <div className="slim-kpi-lbl">{it.label}</div>
-              {it.sub && <div className="slim-kpi-tag">{it.sub}</div>}
-            </Link>
-          ) : (
-            <div className="slim-kpi">
-              <div className="flex items-center justify-center gap-1.5 mb-1.5 subtle">{it.icon}</div>
-              <div className="slim-kpi-val">{it.value}</div>
-              <div className="slim-kpi-lbl">{it.label}</div>
-              {it.sub && <div className="slim-kpi-tag">{it.sub}</div>}
-            </div>
-          )}
-          {i < items.length - 1 && <div className="slim-div" />}
-        </Fragment>
-      ))}
-    </div>
-  )
-}
-
 // ─── Próximos leilões (lista compacta — NÃO duplica fechamento) ────────────
 
 function UpcomingList({ rows }: { rows: ProximoLeilaoRow[] }) {
@@ -492,45 +449,8 @@ function ActivityCard({ items, title, href }: { items: FeedItem[]; title: string
 // ─── Main ───────────────────────────────────────────────────────────────────
 
 export default function DashboardClient(props: DashboardProps) {
-  const k = props.kpi
   const f = props.filters
   const feedLeads = props.feed.filter(i => i.kind === 'lead').slice(0, 6)
-
-  // Sub-label dos KPIs — quando há assessor filtrado, indica o escopo.
-  const escopo = f.assessor
-    ? `Assessor: ${f.assessor}`
-    : `${k.fechamentosCount} fechamento${k.fechamentosCount === 1 ? '' : 's'}`
-
-  const kpis: Kpi[] = [
-    {
-      label: 'Valor vendido',
-      value: fmtBRLCompact(k.valorVendido),
-      sub: escopo,
-      icon: <DollarSign size={12} />,
-      href: '/sistema/leiloes/fechamento',
-    },
-    {
-      label: 'Animais vendidos',
-      value: fmtNum(k.animaisVendidos),
-      sub: escopo,
-      icon: <Beef size={12} />,
-      href: '/sistema/leiloes/fechamento',
-    },
-    {
-      label: 'Ticket médio',
-      value: fmtBRLCompact(k.ticketMedio),
-      sub: 'Por lote vendido',
-      icon: <BarChart3 size={12} />,
-      href: '/sistema/leiloes/fechamento',
-    },
-    {
-      label: 'Cobertura média',
-      value: fmtPct(k.coberturaMedia),
-      sub: 'Lotes vendidos / ofertados',
-      icon: <ShieldCheck size={12} />,
-      href: '/sistema/leiloes/fechamento',
-    },
-  ]
 
   return (
     <div className="space-y-6">
@@ -547,7 +467,7 @@ export default function DashboardClient(props: DashboardProps) {
 
       <FilterBar filters={f} />
 
-      <KpiRow items={kpis} />
+      <LeiloesAnalyticsBlock items={props.fechamentoItems} />
 
       <div className="g2">
         <UpcomingList rows={props.upcoming} />
