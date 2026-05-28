@@ -19,7 +19,6 @@ import {
   LayoutGrid, Table as TableIcon,
 } from 'lucide-react'
 import { normalizeAssessorNome } from '@/lib/assessor-normalize'
-import { resolverAcordo, calcularReceitaBulaEsperada, formatarAcordoCurto } from '@/lib/leilao-acordos'
 
 // ── Types ──────────────────────────────────────────────────────────────────────
 
@@ -198,10 +197,6 @@ function FechamentoTable({ items, selectedId, onSelect }: {
               { label: 'Animais', cls: 'text-right' },
               { label: 'VGV Cobertura', cls: 'text-right whitespace-nowrap' },
               { label: 'Fat. Leiloeira', cls: 'text-right whitespace-nowrap' },
-              ...(canSeeFinance ? [
-                { label: 'Fat. Bula (nosso)', cls: 'text-right whitespace-nowrap' },
-                { label: 'Lucro Bruto', cls: 'text-right whitespace-nowrap' },
-              ] : []),
               { label: 'Assessores', cls: 'text-left' },
             ].map(h => (
               <th key={h.label} className={`px-3 py-2.5 text-[9px] font-bold uppercase tracking-widest text-gray-500 dark:text-gray-400 ${h.cls}`}>
@@ -252,20 +247,6 @@ function FechamentoTable({ items, selectedId, onSelect }: {
                 <td className="px-3 py-2.5 text-right tabular-nums text-gray-700 dark:text-gray-300">
                   {f.faturamento_total_leilao ? R(f.faturamento_total_leilao) : <span className="text-gray-300 dark:text-gray-600">—</span>}
                 </td>
-                {canSeeFinance && (
-                  <td className="px-3 py-2.5 text-right tabular-nums text-gray-700 dark:text-gray-300">
-                    {f.receita_bula ? R(f.receita_bula) : <span className="text-gray-300 dark:text-gray-600">—</span>}
-                  </td>
-                )}
-                {canSeeFinance && (
-                  <td className="px-3 py-2.5 text-right tabular-nums">
-                    {f.sobra_bruta !== null && f.sobra_bruta !== undefined ? (
-                      <span className={f.sobra_bruta < 0 ? 'text-red-500 font-semibold' : 'text-emerald-600 dark:text-emerald-400 font-semibold'}>
-                        {R(f.sobra_bruta)}
-                      </span>
-                    ) : <span className="text-gray-300 dark:text-gray-600">—</span>}
-                  </td>
-                )}
                 <td className="px-3 py-2.5">
                   <div className="flex flex-wrap gap-1">
                     {assessorNomes.slice(0, 3).map(n => (
@@ -502,52 +483,6 @@ function FechamentoDrawer({ f, onClose, onEdit, onDelete }: {
           {/* ── RESUMO ── */}
           {tab === 'resumo' && (
             <div className="space-y-5">
-              {/* Bloco do Acordo Comercial — visível apenas para finance-admin (chefe).
-                  Assessores não veem o acordo nem a Receita Bula esperada. */}
-              {canSeeFinance && (() => {
-                const acordo = resolverAcordo(f)
-                const esperado = calcularReceitaBulaEsperada(acordo, f.faturamento_total_leilao, f.vgv_total)
-                if (!acordo) return null
-                const diff = esperado != null && f.receita_bula != null ? f.receita_bula - esperado : null
-                const ok = diff != null ? Math.abs(diff) < 1 : true
-                return (
-                  <div className="rounded-xl border border-[#A68B4B]/30 bg-gradient-to-br from-[#A68B4B]/10 to-[#A68B4B]/4 p-4">
-                    <div className="flex items-center justify-between gap-3 mb-2">
-                      <p className="text-[10px] font-bold uppercase tracking-widest text-[#A68B4B]">Acordo Comercial</p>
-                      <span className="inline-flex items-center px-2 py-0.5 rounded-md bg-[#A68B4B] text-black text-[10px] font-black tracking-wide">
-                        {formatarAcordoCurto(acordo)}
-                      </span>
-                    </div>
-                    <p className="text-sm text-gray-700 dark:text-gray-300 font-semibold leading-snug">{acordo.descricao}</p>
-                    {esperado != null && (
-                      <div className="mt-3 pt-3 border-t border-[#A68B4B]/20 text-[11px] space-y-1">
-                        {acordo.pct_faturamento != null && f.faturamento_total_leilao ? (
-                          <div className="flex justify-between text-gray-600 dark:text-gray-400 font-mono">
-                            <span>{(acordo.pct_faturamento * 100).toLocaleString('pt-BR', { maximumFractionDigits: 2 })}% × Fat. Leiloeira ({R(f.faturamento_total_leilao)})</span>
-                            <span className="font-bold text-gray-800 dark:text-gray-200">{R(acordo.pct_faturamento * f.faturamento_total_leilao)}</span>
-                          </div>
-                        ) : null}
-                        {acordo.pct_venda_cobertura != null && f.vgv_total ? (
-                          <div className="flex justify-between text-gray-600 dark:text-gray-400 font-mono">
-                            <span>{(acordo.pct_venda_cobertura * 100).toLocaleString('pt-BR', { maximumFractionDigits: 2 })}% × VGV Cobertura ({R(f.vgv_total)})</span>
-                            <span className="font-bold text-gray-800 dark:text-gray-200">{R(acordo.pct_venda_cobertura * f.vgv_total)}</span>
-                          </div>
-                        ) : null}
-                        <div className="flex justify-between border-t border-[#A68B4B]/20 pt-1.5 mt-1">
-                          <span className="font-bold text-[#A68B4B] uppercase tracking-widest text-[10px]">Receita Esperada</span>
-                          <span className="font-black text-[#A68B4B]">{R(esperado)}</span>
-                        </div>
-                        {!ok && diff != null && (
-                          <div className="mt-1 text-amber-600 dark:text-amber-400 font-bold">
-                            ⚠ Receita Bula lançada ({R(f.receita_bula!)}) diverge em {R(Math.abs(diff))}
-                          </div>
-                        )}
-                      </div>
-                    )}
-                  </div>
-                )
-              })()}
-
               <div className="grid grid-cols-2 gap-3">
                 {[
                   ...(f.faturamento_total_leilao ? [{
@@ -557,20 +492,19 @@ function FechamentoDrawer({ f, onClose, onEdit, onDelete }: {
                     sub: f.vgv_total ? `cobertura nossa: ${PCT(f.vgv_total / f.faturamento_total_leilao)} (${R(f.vgv_total)})` : 'total do leilão inteiro',
                   }] : []),
                   { icon: DollarSign, label: 'VGV Cobertura (Fórmula+Bula)', value: R(f.vgv_total) },
-                  ...(canSeeFinance && f.receita_bula ? [{ icon: TrendingUp, label: 'Faturamento Bula (nosso)', value: R(f.receita_bula), sub: 'receita a receber neste leilão', gold: true as const }] : []),
                   { icon: TrendingUp, label: 'Ticket Médio', value: R(f.ticket_medio) },
                   { icon: BarChart3, label: 'Lotes Vendidos', value: `${f.lotes_vendidos}/${f.lotes_ofertados}`, sub: `${pct}% de cobertura` },
                   { icon: Hash, label: 'Animais Vendidos', value: f.animais_vendidos.toString() },
                   { icon: Target, label: 'Maior Lance', value: f.maior_lance ? `R$ ${f.maior_lance.toLocaleString('pt-BR')}/parc.` : '—' },
                   { icon: Users, label: 'Compradores Únicos', value: f.compradores_unicos.toString(), sub: f.por_assessor.filter(a => a.nome).length ? `${f.por_assessor.reduce((s, a) => s + a.transacoes, 0)} transações` : undefined },
                   { icon: MapPin, label: 'Estados Alcançados', value: f.estados_alcancados.toString(), sub: f.por_estado.map(e => e.uf).join(' · ') || undefined },
-                ].map(({ icon: Icon, label, value, sub, gold }) => (
-                  <div key={label} className={`rounded-xl border p-3.5 ${gold ? 'border-[#A68B4B]/30 bg-[#A68B4B]/8' : 'border-gray-100 dark:border-[#2A2A2A] bg-gray-50 dark:bg-[#141414]'}`}>
+                ].map(({ icon: Icon, label, value, sub }) => (
+                  <div key={label} className="rounded-xl border p-3.5 border-gray-100 dark:border-[#2A2A2A] bg-gray-50 dark:bg-[#141414]">
                     <div className="flex items-center gap-1.5 mb-1.5">
-                      <Icon size={11} className={gold ? 'text-[#A68B4B]' : 'text-gray-400'} />
+                      <Icon size={11} className="text-gray-400" />
                       <span className="text-[9px] font-semibold uppercase tracking-wider text-gray-400">{label}</span>
                     </div>
-                    <p className={`text-lg font-black leading-tight ${gold ? 'text-[#A68B4B]' : 'text-gray-900 dark:text-white'}`}>{value}</p>
+                    <p className="text-lg font-black leading-tight text-gray-900 dark:text-white">{value}</p>
                     {sub && <p className="text-[9px] text-gray-400 mt-0.5">{sub}</p>}
                   </div>
                 ))}
@@ -1148,67 +1082,15 @@ function FechamentoFormModal({ initial, onClose, onSaved }: {
                 <FormField label="Ticket Médio (R$)"><input type="number" className={inputCls} value={form.ticket_medio || ''} onChange={e => set('ticket_medio', Number(e.target.value))} min={0} /></FormField>
                 <FormField label="Maior Lance (R$/parc.)"><input type="number" className={inputCls} value={form.maior_lance || ''} onChange={e => set('maior_lance', Number(e.target.value))} min={0} /></FormField>
               </div>
-              <div className="grid grid-cols-3 gap-3">
-                <FormField label="Faturamento Leiloeira (R$)"><input type="number" className={inputCls} value={form.faturamento_total_leilao ?? ''} onChange={e => set('faturamento_total_leilao', e.target.value === '' ? null : Number(e.target.value))} min={0} placeholder="total do leilão inteiro" /></FormField>
-                <FormField label="Faturamento Bula — nosso (R$)"><input type="number" className={inputCls} value={form.receita_bula ?? ''} onChange={e => set('receita_bula', e.target.value === '' ? null : Number(e.target.value))} min={0} placeholder="receita a receber" /></FormField>
-                <FormField label="Lucro Bruto (R$)"><input type="number" className={inputCls} value={form.sobra_bruta ?? ''} onChange={e => set('sobra_bruta', e.target.value === '' ? null : Number(e.target.value))} placeholder="receita − comissões" /></FormField>
-              </div>
-
-              {/* Acordo comercial — variável por leilão (F.xlsx) */}
-              <div className="rounded-xl border border-[#A68B4B]/25 bg-[#A68B4B]/5 p-4 space-y-3">
-                <p className="text-[11px] font-bold uppercase tracking-widest text-[#A68B4B]">Acordo comercial com o promotor</p>
-                <p className="text-[10px] text-gray-500 dark:text-gray-400 leading-relaxed">
-                  Cada leilão pode ter acordo diferente. Preencha um ou os dois percentuais conforme combinado e descreva o acordo livremente.
-                </p>
-                <FormField label="Descrição do acordo (texto livre)">
-                  <input
-                    className={inputCls}
-                    value={form.acordo_descricao ?? ''}
-                    onChange={e => set('acordo_descricao', e.target.value)}
-                    placeholder='Ex: "1% do faturamento total + 3% da venda da cobertura"'
-                  />
-                </FormField>
-                <div className="grid grid-cols-2 gap-3">
-                  <FormField label="% sobre Faturamento Leiloeira">
-                    <input
-                      type="number" step="0.001" min={0}
-                      className={inputCls}
-                      value={form.acordo_pct_faturamento != null ? (form.acordo_pct_faturamento * 100) : ''}
-                      onChange={e => set('acordo_pct_faturamento', e.target.value === '' ? null : Number(e.target.value) / 100)}
-                      placeholder="Ex: 0.33 → 0,33%"
-                    />
-                  </FormField>
-                  <FormField label="% sobre VGV Cobertura (venda)">
-                    <input
-                      type="number" step="0.001" min={0}
-                      className={inputCls}
-                      value={form.acordo_pct_venda_cobertura != null ? (form.acordo_pct_venda_cobertura * 100) : ''}
-                      onChange={e => set('acordo_pct_venda_cobertura', e.target.value === '' ? null : Number(e.target.value) / 100)}
-                      placeholder="Ex: 3 → 3%"
-                    />
-                  </FormField>
-                </div>
-                {(() => {
-                  const a = (form.acordo_pct_faturamento ?? 0) * (form.faturamento_total_leilao ?? 0)
-                  const b = (form.acordo_pct_venda_cobertura ?? 0) * (form.vgv_total ?? 0)
-                  const esperado = a + b
-                  if (!esperado) return null
-                  const diff = (form.receita_bula ?? 0) - esperado
-                  const ok = Math.abs(diff) < 1
-                  return (
-                    <div className={`text-[11px] px-3 py-2 rounded-lg border ${ok ? 'border-emerald-500/30 bg-emerald-500/8 text-emerald-600 dark:text-emerald-400' : 'border-amber-500/40 bg-amber-500/8 text-amber-700 dark:text-amber-400'}`}>
-                      <span className="font-bold">Receita esperada pelo acordo:</span>{' '}
-                      R$ {esperado.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
-                      {!ok && form.receita_bula != null && (
-                        <span className="ml-2 font-bold">⚠ diverge da Receita Bula lançada em R$ {Math.abs(diff).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</span>
-                      )}
-                    </div>
-                  )
-                })()}
-              </div>
+              <FormField label="Faturamento Leiloeira (R$)"><input type="number" className={inputCls} value={form.faturamento_total_leilao ?? ''} onChange={e => set('faturamento_total_leilao', e.target.value === '' ? null : Number(e.target.value))} min={0} placeholder="total do leilão inteiro" /></FormField>
               <div className="grid grid-cols-2 gap-3">
                 <FormField label="Compradores Únicos"><input type="number" className={inputCls} value={form.compradores_unicos || ''} onChange={e => set('compradores_unicos', Number(e.target.value))} min={0} /></FormField>
                 <FormField label="Estados Alcançados"><input type="number" className={inputCls} value={form.estados_alcancados || ''} onChange={e => set('estados_alcancados', Number(e.target.value))} min={0} /></FormField>
+              </div>
+
+              <div className="rounded-xl border border-gray-100 dark:border-[#2A2A2A] bg-gray-50 dark:bg-[#141414] p-3 text-[11px] text-gray-500 dark:text-gray-400 leading-relaxed">
+                <span className="font-bold text-gray-700 dark:text-gray-300">Acordo comercial, comissões, Faturamento Bula, Lucro Bruto:</span>{' '}
+                lançar em <a href="/sistema/leiloes/fechamento-financeiro" className="text-[#A68B4B] hover:underline font-semibold">Fechamento Leilões (ERP)</a>.
               </div>
               <FormField label="Observações">
                 <textarea className={`${inputCls} h-24 resize-none`} value={form.observacoes} onChange={e => set('observacoes', e.target.value)} placeholder="Notas sobre o fechamento..." />
