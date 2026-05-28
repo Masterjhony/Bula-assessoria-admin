@@ -146,10 +146,14 @@ function AdminShell({ children }: { children: React.ReactNode }) {
           borderBottom: '1px solid var(--border)',
         }}
       >
-        <div className="px-4 sm:px-6 lg:px-8">
-          <div className="flex items-center h-[88px] lg:h-[104px] gap-3">
+        <div className="px-4 sm:px-6 lg:px-8 overflow-visible">
+          <div className="flex items-center h-[64px] lg:h-[72px] gap-3">
 
-            <Link href="/sistema" className="shrink-0 flex items-center" aria-label="Bula Assessoria">
+            <Link
+              href="/sistema"
+              className="shrink-0 flex items-center self-stretch -my-4"
+              aria-label="Bula Assessoria"
+            >
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img
                 src="/logo-bula.png"
@@ -249,8 +253,9 @@ function AdminShell({ children }: { children: React.ReactNode }) {
               })}
             </nav>
 
-            <div className="flex items-center gap-1 sm:gap-1.5 ml-auto">
-              <GlobalSearch />
+            <GlobalSearch />
+
+            <div className="flex items-center gap-1 sm:gap-1.5 ml-auto md:ml-0 shrink-0">
               <ThemeToggle />
 
               <div ref={userRef} className="relative">
