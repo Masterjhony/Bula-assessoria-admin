@@ -147,7 +147,7 @@ function AdminShell({ children }: { children: React.ReactNode }) {
         }}
       >
         <div className="px-4 sm:px-6 lg:px-8">
-          <div className="flex items-center h-[76px] lg:h-[88px] gap-3">
+          <div className="flex items-center h-[88px] lg:h-[104px] gap-3">
 
             <Link href="/sistema" className="shrink-0 flex items-center" aria-label="Bula Assessoria">
               {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -155,7 +155,7 @@ function AdminShell({ children }: { children: React.ReactNode }) {
                 src="/logo-bula.png"
                 alt="Bula Assessoria"
                 className="invert dark:invert-0"
-                style={{ height: 84, width: 84, objectFit: 'contain' }}
+                style={{ height: 104, width: 104, objectFit: 'contain' }}
               />
             </Link>
 
