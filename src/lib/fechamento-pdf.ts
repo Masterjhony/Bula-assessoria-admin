@@ -245,7 +245,7 @@ export async function generateFechamentoPDF(
     svgUrlToPng('/brand/logo-bronze.svg', 800),
     // Logo Bula Assessoria Pecuária (peão + gado + lettering) — preta sobre transparente.
     // Convertemos pra branco preservando alpha pra usar sobre fundo preto.
-    pngUrlToWhiteMaskDataUrl('/bula/assets/img/logo-bula.png'),
+    pngUrlToWhiteMaskDataUrl('/logo-bula.png'),
   ])
 
   // ════════════ CAPA ════════════
