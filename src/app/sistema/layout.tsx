@@ -159,7 +159,7 @@ function AdminShell({ children }: { children: React.ReactNode }) {
               />
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img
-                src="/logo-bula-remates-branco-_1_.svg"
+                src="/logo-bula.png"
                 alt="Bula Assessoria"
                 className="hidden dark:block"
                 style={{ height: 84, width: 84, objectFit: 'contain' }}
