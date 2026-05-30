@@ -11,8 +11,6 @@ type Filtro = 'proximos' | 'realizados' | 'todos'
 
 const FILTROS: { id: Filtro; label: string }[] = [
     { id: 'proximos', label: 'Próximos' },
-    { id: 'realizados', label: 'Realizados' },
-    { id: 'todos', label: 'Todos' },
 ]
 
 export function AgendaGrid({ leiloes }: { leiloes: LeilaoPublico[] }) {

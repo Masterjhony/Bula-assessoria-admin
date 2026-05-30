@@ -93,7 +93,7 @@ export default async function AgendaPage() {
                         </h2>
                     </div>
                     <p className="max-w-lg text-sm leading-relaxed text-[#1E2519]/62">
-                        Eventos organizados por mês, com filtros para próximos, realizados e busca por nome ou local.
+                        Eventos futuros organizados por mês, com busca por nome, local ou leiloeira.
                     </p>
                 </div>
                 <AgendaGrid leiloes={leiloes} />

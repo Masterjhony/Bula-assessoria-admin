@@ -2,12 +2,12 @@ import { supabaseAdmin } from '@/lib/supabase'
 import type { BulaMembro, LeilaoStatus } from './types'
 
 /**
- * Leilão exposto na página pública (lp / agenda).
+ * Leilao exposto na pagina publica (lp / agenda).
  *
- * IMPORTANTE — fronteira de dados: esta página é VOLTADA AO CLIENTE.
- * Só expomos campos comerciais/operacionais públicos. Nunca incluir
+ * IMPORTANTE - fronteira de dados: esta pagina e voltada ao cliente.
+ * So expomos campos comerciais/operacionais publicos. Nunca incluir
  * dados financeiros internos (expectativa, meta_bula, realizado_bula,
- * acordo_comissao, comissões) — esses vivem apenas no painel/ERP.
+ * acordo_comissao, comissoes) - esses vivem apenas no painel/ERP.
  */
 export interface LeilaoPublico {
     id: string
@@ -28,13 +28,21 @@ export interface LeilaoPublico {
     assessores: BulaMembro[]
 }
 
-// Campos seguros para o público — explicitamente SEM colunas financeiras.
 const PUBLIC_COLS =
     'id, nome, data, horario, tipo, local, animais, modelo, leiloeira, condicao, frete_gratis, transmissao, catalogo_url, img, status'
 
-// Apenas eventos confirmados e concluídos aparecem publicamente.
-// Pipeline interno ("negociacao", "prospecto") nunca é exposto.
-const PUBLIC_STATUSES: LeilaoStatus[] = ['confirmado', 'concluido']
+const PUBLIC_STATUSES: LeilaoStatus[] = ['confirmado']
+
+function todaySaoPaulo(): string {
+    const parts = new Intl.DateTimeFormat('en-CA', {
+        timeZone: 'America/Sao_Paulo',
+        year: 'numeric',
+        month: '2-digit',
+        day: '2-digit',
+    }).formatToParts(new Date())
+    const get = (type: Intl.DateTimeFormatPartTypes) => parts.find((p) => p.type === type)?.value ?? ''
+    return `${get('year')}-${get('month')}-${get('day')}`
+}
 
 function mapAssessores(row: Record<string, unknown>): BulaMembro[] {
     const join = (row.bula_leilao_assessores as Array<{ bula_membros: BulaMembro }>) ?? []
@@ -47,6 +55,7 @@ export async function getLeiloesPublicos(): Promise<LeilaoPublico[]> {
         .from('bula_leiloes')
         .select(`${PUBLIC_COLS}, bula_leilao_assessores(bula_membros(id, nome, iniciais, cor))`)
         .in('status', PUBLIC_STATUSES)
+        .gte('data', todaySaoPaulo())
         .order('data', { ascending: true })
 
     if (error) {
@@ -67,6 +76,7 @@ export async function getLeilaoPublico(id: string): Promise<LeilaoPublico | null
         .select(`${PUBLIC_COLS}, bula_leilao_assessores(bula_membros(id, nome, iniciais, cor))`)
         .eq('id', id)
         .in('status', PUBLIC_STATUSES)
+        .gte('data', todaySaoPaulo())
         .maybeSingle()
 
     if (error || !data) {
