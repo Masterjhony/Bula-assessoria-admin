@@ -21,7 +21,12 @@ function isErpHost(host: string | null): boolean {
 function isLpHost(host: string | null): boolean {
   if (!host) return false
   const h = host.toLowerCase().split(':')[0]
-  return h === 'lp.localhost' || h.startsWith('lp.')
+  return (
+    h === 'lp.localhost' ||
+    h.startsWith('lp.') ||
+    h === 'bulaassessoria.com' ||
+    h === 'www.bulaassessoria.com'
+  )
 }
 
 export async function updateSession(req: NextRequest) {

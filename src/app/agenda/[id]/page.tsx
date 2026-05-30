@@ -56,29 +56,29 @@ export default async function LeilaoDetalhePage({ params }: { params: Promise<{ 
     ].filter(Boolean) as { icon: typeof CalendarDays; label: string; value: string }[]
 
     return (
-        <article className="mx-auto max-w-5xl px-5 sm:px-8 py-10 sm:py-14">
+        <article className="mx-auto max-w-5xl px-5 py-10 text-[#1E2519] sm:px-8 sm:py-14">
             {/* Voltar */}
             <Link
                 href="/agenda"
-                className="inline-flex items-center gap-2 text-sm text-white/50 transition-colors hover:text-[#C8A96E]"
+                className="inline-flex items-center gap-2 text-sm font-semibold text-[#1E2519]/55 transition-colors hover:text-[#355334]"
             >
                 <ArrowLeft className="h-4 w-4" /> Voltar à agenda
             </Link>
 
             {/* ── HERO ──────────────────────────────────────────── */}
-            <header className="mt-6 overflow-hidden rounded-3xl border border-white/[0.07] bg-[#141414]">
-                <div className="relative aspect-[21/9] w-full overflow-hidden bg-gradient-to-br from-[#1A1A1A] to-[#0D0D0D]">
+            <header className="mt-6 overflow-hidden rounded-lg border border-[#1E2519]/10 bg-[#FFF9EE] shadow-sm">
+                <div className="relative aspect-[21/9] w-full overflow-hidden bg-[#E8DDCC]">
                     {leilao.img ? (
                         <>
                             {/* eslint-disable-next-line @next/next/no-img-element */}
                             <img src={leilao.img} alt={leilao.nome} className="h-full w-full object-cover" />
-                            <div className="absolute inset-0 bg-gradient-to-t from-[#141414] via-[#141414]/30 to-transparent" />
+                            <div className="absolute inset-0 bg-gradient-to-t from-[#FFF9EE] via-[#FFF9EE]/18 to-transparent" />
                         </>
                     ) : (
                         <div className="flex h-full w-full items-center justify-center">
                             <div className="text-center">
-                                <div className="text-7xl font-extrabold leading-none text-[#C8A96E]">{p.dia}</div>
-                                <div className="mt-2 text-base font-semibold uppercase tracking-[4px] text-white/40">{p.mesAbrev}</div>
+                                <div className="text-7xl font-black leading-none text-[#A07732]">{p.dia}</div>
+                                <div className="mt-2 text-base font-bold uppercase tracking-[4px] text-[#1E2519]/45">{p.mesAbrev}</div>
                             </div>
                         </div>
                     )}
@@ -92,7 +92,7 @@ export default async function LeilaoDetalhePage({ params }: { params: Promise<{ 
                             {badge.label}
                         </span>
                         {countdown && (
-                            <span className="rounded-full bg-[#C8A96E] px-3 py-1.5 text-xs font-bold text-black">{countdown}</span>
+                            <span className="rounded-full bg-[#D9B86F] px-3 py-1.5 text-xs font-bold text-[#1E2519]">{countdown}</span>
                         )}
                         {ytId && (
                             <span className="inline-flex items-center gap-1.5 rounded-full bg-[#C0504D]/90 px-3 py-1.5 text-xs font-semibold text-white backdrop-blur-md">
@@ -104,10 +104,10 @@ export default async function LeilaoDetalhePage({ params }: { params: Promise<{ 
 
                 <div className="p-6 sm:p-9">
                     {leilao.tipo && (
-                        <span className="text-xs font-semibold uppercase tracking-[1.5px] text-[#C8A96E]">{leilao.tipo}</span>
+                        <span className="text-xs font-bold uppercase tracking-[1.5px] text-[#A07732]">{leilao.tipo}</span>
                     )}
                     <h1 className="mt-2 text-3xl sm:text-5xl font-extrabold leading-tight tracking-tight">{leilao.nome}</h1>
-                    <p className="mt-3 text-base text-white/55">
+                    <p className="mt-3 text-base font-medium text-[#1E2519]/58">
                         {dataPorExtenso(leilao.data)}{leilao.horario ? ` · ${leilao.horario}` : ''}
                     </p>
                 </div>
@@ -120,7 +120,7 @@ export default async function LeilaoDetalhePage({ params }: { params: Promise<{ 
                     {ytId ? (
                         <section>
                             <SectionLabel icon={Radio}>Transmissão ao vivo</SectionLabel>
-                            <div className="overflow-hidden rounded-2xl border border-white/[0.07] bg-black">
+                            <div className="overflow-hidden rounded-lg border border-[#1E2519]/10 bg-black shadow-sm">
                                 <div className="relative aspect-video">
                                     <iframe
                                         className="absolute inset-0 h-full w-full"
@@ -139,9 +139,9 @@ export default async function LeilaoDetalhePage({ params }: { params: Promise<{ 
                                 href={leilao.transmissao}
                                 target="_blank"
                                 rel="noopener noreferrer"
-                                className="inline-flex items-center gap-2 rounded-xl border border-white/[0.08] bg-[#141414] px-5 py-3.5 text-sm font-semibold text-white transition-colors hover:border-[#C8A96E]/40"
+                                className="inline-flex items-center gap-2 rounded-lg border border-[#1E2519]/10 bg-[#FFF9EE] px-5 py-3.5 text-sm font-bold text-[#1E2519] shadow-sm transition-colors hover:border-[#A07732]/40"
                             >
-                                <ExternalLink className="h-4 w-4 text-[#C8A96E]" />
+                                <ExternalLink className="h-4 w-4 text-[#A07732]" />
                                 Assistir transmissão
                             </a>
                         </section>
@@ -150,14 +150,14 @@ export default async function LeilaoDetalhePage({ params }: { params: Promise<{ 
                     {/* Informações */}
                     <section>
                         <SectionLabel icon={Tag}>Informações do remate</SectionLabel>
-                        <div className="grid gap-px overflow-hidden rounded-2xl border border-white/[0.07] bg-white/[0.07] sm:grid-cols-2">
+                        <div className="grid gap-px overflow-hidden rounded-lg border border-[#1E2519]/10 bg-[#1E2519]/10 shadow-sm sm:grid-cols-2">
                             {infos.map((info) => (
-                                <div key={info.label} className="bg-[#141414] p-5">
-                                    <div className="flex items-center gap-2 text-[11px] font-semibold uppercase tracking-[1px] text-white/40">
-                                        <info.icon className="h-3.5 w-3.5 text-[#C8A96E]" />
+                                <div key={info.label} className="bg-[#FFF9EE] p-5">
+                                    <div className="flex items-center gap-2 text-[11px] font-bold uppercase tracking-[1px] text-[#1E2519]/45">
+                                        <info.icon className="h-3.5 w-3.5 text-[#A07732]" />
                                         {info.label}
                                     </div>
-                                    <div className="mt-1.5 text-[15px] font-medium text-white">{info.value}</div>
+                                    <div className="mt-1.5 text-[15px] font-bold text-[#1E2519]">{info.value}</div>
                                 </div>
                             ))}
                         </div>
@@ -168,14 +168,14 @@ export default async function LeilaoDetalhePage({ params }: { params: Promise<{ 
                 <aside className="space-y-6">
                     {/* Catálogo */}
                     {leilao.catalogo_url && (
-                        <div className="rounded-2xl border border-[#C8A96E]/25 bg-gradient-to-br from-[#C8A96E]/[0.08] to-transparent p-6">
+                        <div className="rounded-lg border border-[#A07732]/25 bg-[#FFF9EE] p-6 shadow-sm">
                             <div className="flex items-center gap-2.5">
-                                <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-[#C8A96E]/15">
-                                    <BookOpen className="h-5 w-5 text-[#C8A96E]" />
+                                <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-[#D9B86F]/20">
+                                    <BookOpen className="h-5 w-5 text-[#A07732]" />
                                 </div>
                                 <div>
-                                    <h3 className="text-sm font-bold text-white">Catálogo do leilão</h3>
-                                    <p className="text-xs text-white/45">Confira os lotes</p>
+                                    <h3 className="text-sm font-black text-[#1E2519]">Catálogo do leilão</h3>
+                                    <p className="text-xs font-medium text-[#1E2519]/48">Confira os lotes</p>
                                 </div>
                             </div>
                             <div className="mt-4 flex flex-col gap-2">
@@ -183,14 +183,14 @@ export default async function LeilaoDetalhePage({ params }: { params: Promise<{ 
                                     href={leilao.catalogo_url}
                                     target="_blank"
                                     rel="noopener noreferrer"
-                                    className="inline-flex items-center justify-center gap-2 rounded-xl bg-[#C8A96E] px-4 py-2.5 text-sm font-bold text-black transition-all hover:brightness-110"
+                                    className="inline-flex items-center justify-center gap-2 rounded-lg bg-[#D9B86F] px-4 py-2.5 text-sm font-black text-[#1E2519] transition-all hover:brightness-105"
                                 >
                                     <ExternalLink className="h-4 w-4" /> Abrir catálogo
                                 </a>
                                 <a
                                     href={leilao.catalogo_url}
                                     download
-                                    className="inline-flex items-center justify-center gap-2 rounded-xl border border-white/[0.1] px-4 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-white/[0.05]"
+                                    className="inline-flex items-center justify-center gap-2 rounded-lg border border-[#1E2519]/10 px-4 py-2.5 text-sm font-bold text-[#1E2519] transition-colors hover:bg-[#1E2519]/5"
                                 >
                                     <Download className="h-4 w-4" /> Baixar PDF
                                 </a>
@@ -200,8 +200,8 @@ export default async function LeilaoDetalhePage({ params }: { params: Promise<{ 
 
                     {/* Assessores */}
                     {leilao.assessores.length > 0 && (
-                        <div className="rounded-2xl border border-white/[0.07] bg-[#141414] p-6">
-                            <h3 className="text-[11px] font-semibold uppercase tracking-[1.5px] text-white/40">
+                        <div className="rounded-lg border border-[#1E2519]/10 bg-[#FFF9EE] p-6 shadow-sm">
+                            <h3 className="text-[11px] font-bold uppercase tracking-[1.5px] text-[#A07732]">
                                 Assessoria responsável
                             </h3>
                             <ul className="mt-4 space-y-3">
@@ -213,7 +213,7 @@ export default async function LeilaoDetalhePage({ params }: { params: Promise<{ 
                                         >
                                             {a.iniciais}
                                         </span>
-                                        <span className="text-sm font-medium text-white">{a.nome}</span>
+                                        <span className="text-sm font-bold text-[#1E2519]">{a.nome}</span>
                                     </li>
                                 ))}
                             </ul>
@@ -221,9 +221,9 @@ export default async function LeilaoDetalhePage({ params }: { params: Promise<{ 
                                 href="https://wa.me/"
                                 target="_blank"
                                 rel="noopener noreferrer"
-                                className="mt-5 inline-flex w-full items-center justify-center gap-2 rounded-xl border border-white/[0.1] px-4 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-white/[0.05]"
+                                className="mt-5 inline-flex w-full items-center justify-center gap-2 rounded-lg border border-[#1E2519]/10 px-4 py-2.5 text-sm font-bold text-[#1E2519] transition-colors hover:bg-[#1E2519]/5"
                             >
-                                <Share2 className="h-4 w-4 text-[#C8A96E]" /> Falar com a assessoria
+                                <Share2 className="h-4 w-4 text-[#A07732]" /> Falar com a assessoria
                             </a>
                         </div>
                     )}
@@ -247,8 +247,8 @@ export default async function LeilaoDetalhePage({ params }: { params: Promise<{ 
 
 function SectionLabel({ icon: Icon, children }: { icon: typeof CalendarDays; children: React.ReactNode }) {
     return (
-        <h2 className="mb-4 flex items-center gap-2 text-[11px] font-semibold uppercase tracking-[1.5px] text-white/40">
-            <Icon className="h-4 w-4 text-[#C8A96E]" />
+        <h2 className="mb-4 flex items-center gap-2 text-[11px] font-bold uppercase tracking-[1.5px] text-[#A07732]">
+            <Icon className="h-4 w-4 text-[#A07732]" />
             {children}
         </h2>
     )
@@ -259,15 +259,15 @@ function OutroCard({ leilao }: { leilao: LeilaoPublico }) {
     return (
         <Link
             href={`/agenda/${leilao.id}`}
-            className="group flex items-center gap-4 rounded-2xl border border-white/[0.07] bg-[#141414] p-4 transition-all hover:-translate-y-0.5 hover:border-[#C8A96E]/40"
+            className="group flex items-center gap-4 rounded-lg border border-[#1E2519]/10 bg-[#FFF9EE] p-4 shadow-sm transition-all hover:-translate-y-0.5 hover:border-[#A07732]/40"
         >
-            <div className="flex h-14 w-14 shrink-0 flex-col items-center justify-center rounded-xl bg-[#0D0D0D]">
-                <span className="text-xl font-extrabold leading-none text-[#C8A96E]">{p.dia}</span>
-                <span className="text-[10px] font-semibold uppercase tracking-wider text-white/40">{p.mesAbrev}</span>
+            <div className="flex h-14 w-14 shrink-0 flex-col items-center justify-center rounded-lg bg-[#EFE5D7]">
+                <span className="text-xl font-black leading-none text-[#A07732]">{p.dia}</span>
+                <span className="text-[10px] font-bold uppercase tracking-wider text-[#1E2519]/45">{p.mesAbrev}</span>
             </div>
             <div className="min-w-0">
-                <h3 className="truncate text-sm font-bold text-white transition-colors group-hover:text-[#C8A96E]">{leilao.nome}</h3>
-                {leilao.local && <p className="mt-0.5 truncate text-xs text-white/45">{leilao.local}</p>}
+                <h3 className="truncate text-sm font-black text-[#1E2519] transition-colors group-hover:text-[#355334]">{leilao.nome}</h3>
+                {leilao.local && <p className="mt-0.5 truncate text-xs font-medium text-[#1E2519]/48">{leilao.local}</p>}
             </div>
         </Link>
     )
