@@ -15,9 +15,19 @@ function isErpHost(host: string | null): boolean {
   return h === 'erp.localhost' || h.startsWith('erp.')
 }
 
+// Subdomínio público de leilões (lp.* — "landing page" voltada ao cliente).
+// Mesma mecânica do ERP: o host reescreve para o prefixo de rota correspondente
+// (aqui, /agenda), mantendo as páginas em um único lugar no app.
+function isLpHost(host: string | null): boolean {
+  if (!host) return false
+  const h = host.toLowerCase().split(':')[0]
+  return h === 'lp.localhost' || h.startsWith('lp.')
+}
+
 export async function updateSession(req: NextRequest) {
   const host = req.headers.get('host')
   const erp = isErpHost(host)
+  const lp = !erp && isLpHost(host)
   const pathname = req.nextUrl.pathname
 
   // Páginas em /sistema/* são servidas sem reescrita mesmo no subdomain
@@ -41,6 +51,25 @@ export async function updateSession(req: NextRequest) {
       !pathname.startsWith('/bula/')
     ) {
       url.pathname = `/erp${pathname === '/' ? '' : pathname}`
+      res = NextResponse.rewrite(url, { request: req })
+    } else {
+      res = NextResponse.next({ request: req })
+    }
+  } else if (lp) {
+    // Host lp.* → tudo é servido a partir de /agenda. A página de leilões
+    // já vive em /agenda; aqui só prefixamos as rotas públicas. Caminhos que
+    // já começam com /agenda passam direto (links internos canônicos
+    // continuam funcionando tanto no subdomínio quanto no domínio principal).
+    const url = req.nextUrl.clone()
+    if (
+      !pathname.startsWith('/agenda') &&
+      !pathname.startsWith('/api/') &&
+      !pathname.startsWith('/_next') &&
+      pathname !== '/favicon.ico' &&
+      !pathname.startsWith('/logo-') &&
+      !pathname.startsWith('/bula/')
+    ) {
+      url.pathname = `/agenda${pathname === '/' ? '' : pathname}`
       res = NextResponse.rewrite(url, { request: req })
     } else {
       res = NextResponse.next({ request: req })
