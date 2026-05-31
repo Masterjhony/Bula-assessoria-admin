@@ -1,113 +1,86 @@
-# Checklist das demandas do Marcelo - sábado e domingo
+# Checklist geral - pedidos do Marcelo no WhatsApp
 
-Data de consolidação: 31/05/2026
+Consolidação: sábado 30/05 + domingo 31/05
 
 Projeto: Web Bula / Agenda pública de leilões
 
-Contato de origem: conversa com Marcelo Primo Carneiro no WhatsApp, incluindo mensagens de texto e áudios.
+Legenda:
 
-## Resumo para acompanhamento
+- [x] Feito
+- [ ] Pendente
+- [ ] Parcial: feito em parte, mas ainda precisa conferência ou complemento
 
-Este checklist consolida os pedidos levantados nas conversas de sábado e domingo e marca o que já foi executado nesta rodada do projeto `web-bula`. Os itens de Administrativo, Perfil / Imagem e Alinhamento foram deixados fora de execução por orientação expressa.
+## Agenda / Site da Bula
 
-## Sábado - pedidos iniciais
+- [x] **Feito** - Refazer/desenvolver a página da **Agenda de Leilões da Bula Assessoria**, igual/parecida com o modelo anterior.
+- [x] **Feito** - Corrigir a página antes de reenviar, porque Marcelo disse que estava "tudo errado".
+- [ ] **Parcial** - Manter a agenda/site no domínio principal. A rota `/agenda` foi implementada e enviada para `main`; falta validar o domínio final em produção.
+- [x] **Feito** - Ajustar identidade visual da página para **Bula preto e branco**.
+- [x] **Feito** - Remover cores que não são da marca.
+- [x] **Feito** - Trocar a foto ruim por uma foto/mídia melhor enviada por Marcelo.
+- [x] **Feito** - Usar o **vídeo de 0:27** enviado no domingo como fundo.
+- [x] **Feito** - Garantir que cada leilão/card/link tenha foto.
+- [x] **Feito** - Sempre colocar na agenda a **foto da arte** usada no leilão quando existir na planilha.
+- [x] **Feito** - Não deixar a página infinita; mostrar só o recorte da agenda atual.
+- [ ] **Pendente** - Confirmar para quem aponta o CTA/WhatsApp. Hoje o botão ainda usa link genérico.
+- [x] **Feito** - Criar etiquetas nos cards, por área, para permitir filtro.
+- [x] **Feito** - Corrigir o filtro que está "dando pau".
 
-### Agenda pública da Bula
+## Informações dos leilões
 
-- [x] Desenvolver uma página de front-end para a Bula Assessoria com a agenda de leilões, semelhante ao modelo que existia anteriormente.
-- [x] Montar a página pública de agenda com visual de marca, hero principal, listagem de leilões e navegação para detalhes.
-- [x] Organizar a agenda de forma consultável, com agrupamento por mês e leitura fácil dos próximos eventos.
-- [x] Criar filtros e busca para facilitar consulta por tipo de leilão, criatório, leiloeira, modalidade e condição comercial.
+- [x] **Feito** - Enriquecer as informações dos leilões com dados disponíveis de data, horário, criatório, local, modelo, leiloeira, condição e catálogo.
+- [ ] **Parcial** - Consultar mídias sociais dos criadores, planilha da Bula e outras fontes. A planilha e referências web pontuais foram usadas; ainda falta varredura completa de mídias sociais.
+- [ ] **Parcial** - Ler as artes dos leilões para extrair informações. As artes foram extraídas e usadas como capa; extração textual completa das artes ainda não foi feita.
+- [x] **Feito** - Verificar leilão faltando na agenda.
+- [x] **Feito** - Adicionar **18º Mega Leilão Nelore Pará**.
+- [x] **Feito** - Adicionar **Leilão Matrizes Santa Nice** no dia 6.
+- [ ] **Parcial** - Conferir **Katayama/Trilogia** como evento de 3 dias. A planilha atual sincronizada trouxe 2º e 3º dia; a arte indica 31/05, 01/06 e 02/06, então falta validação final do 1º dia na agenda.
+- [x] **Feito** - Colocar destaque: **"Compre Touros e Matrizes PO em 30X no Boleto e Frete Grátis"**.
+- [x] **Feito** - Criar faixa abaixo da sessão inicial com os **criatórios parceiros**.
+- [ ] **Parcial** - Buscar logos em PNG dos criatórios parceiros. Foram adicionadas referências oficiais quando encontradas, mas os logos oficiais ainda não foram baixados/salvos para todos.
 
-### Correção de dados e leilões faltantes
+## Planilha / Sincronização
 
-- [x] Validar se havia leilão faltando na agenda.
-- [x] Atualizar a base com a planilha vigente de 2026.
-- [x] Corrigir a leitura dos horários da planilha quando a coluna de horário vinha sem cabeçalho no arquivo exportado.
-- [x] Incluir os leilões novos que entraram na planilha após a versão local anterior.
-- [x] Remover da agenda pública o item antigo duplicado "TOUROS MATINHA", mantendo o "LEILÃO VIRTUAL TOUROS MATINHA" da planilha atual.
+- [x] **Feito** - Corrigir/implementar sincronização com a planilha.
+- [x] **Feito** - Validar por que Marcelo atualizou a planilha e o site não atualizou. A causa prática era a cópia local desatualizada e a sincronização não rodada após as mudanças.
+- [ ] **Parcial** - Revisar sincronização da agenda e dos fechamentos. A agenda foi sincronizada; fechamentos foram tratados em scripts/ajustes específicos, mas não houve revisão completa de todos os fechamentos.
+- [x] **Feito** - Conferir material encaminhado **"Faturamento LS Collection"** para registro de acordo.
 
-### Fotos, capas e links
+## Fechamentos / Lotes / Vendas
 
-- [x] Garantir que os leilões exibidos na agenda tenham imagem/foto de capa.
-- [x] Extrair as capas embutidas na planilha XLSX atualizada.
-- [x] Subir as capas extraídas para o storage.
-- [x] Preencher capas faltantes usando as imagens da planilha quando disponíveis.
-- [x] Criar capa institucional da Bula para os leilões sem flyer embutido na planilha, evitando cards vazios.
-- [x] Validar que os leilões públicos do período ficaram com zero capas faltantes.
+- [x] **Feito** - Separar fechamentos por leilão; não juntar dois leilões no mesmo fechamento.
+- [x] **Feito** - Fazer um fechamento por vez nos casos corrigidos.
+- [x] **Feito** - Lançar primeiro as vendas/lotes enviados.
+- [x] **Feito** - Depois ajustar a agenda.
+- [x] **Feito** - LS Now: lote 10 = **780**, em **30 pagamentos**.
+- [x] **Feito** - LS Now: lote 25 = **600**, em **30 pagamentos**.
+- [x] **Feito** - M5/bateria: **40 pagamentos somente para esse lote/bateria**.
+- [x] **Feito** - Conferir/lançar lotes **10, 25, 30, 31, 32 e M5**.
+- [x] **Feito** - Nelore Pará: regra geral de **30 parcelas**.
+- [ ] **Pendente** - Nelore Pará: exceção, **lote 5 em 40x**. Não localizado nos scripts finais conferidos.
+- [x] **Feito** - Colocar para o **Fábio** a venda que "deu BO".
+- [ ] **Pendente** - Conferir PDF/arquivo **"clientes touros NELORE PO"**.
 
-### Controle de andamento
+## Acordos / Comissões
 
-- [x] Criar checklist com marcação de itens concluídos para acompanhamento das demandas.
-- [x] Separar itens concluídos, fora de escopo e pendências.
-- [x] Gerar PDF de acompanhamento para envio ao chefe.
+- [x] **Feito** - Registrar acordo **LS Collection: 1% do faturamento total + 4% da venda**.
+- [x] **Feito** - Registrar acordo **Santa Nice: 5% da venda**.
+- [ ] **Parcial** - Registrar demais acordos/comissões já citados, incluindo caso de **3% da venda**. Há acordos registrados, mas falta auditoria completa de todos os citados.
+- [x] **Feito** - Montar controle de acordos por cliente/leilão.
+- [ ] **Pendente** - Mandar print para Marcelo mostrando essa organização.
+- [ ] **Pendente** - Sempre que Marcelo mandar novo leilão, verificar se cliente/acordo já existe; se não existir, cadastrar na hora. Precisa virar processo/rotina.
 
-## Domingo - validação e ajustes complementares
+## Correções do sistema / Relatórios
 
-### Planilha e consistência da agenda
+- [x] **Feito** - Corrigir nome duplicado do Fábio.
+- [ ] **Pendente** - Corrigir gráfico de cobertura que mostra só os primeiros 7 leilões.
+- [ ] **Pendente** - No mensal, mostrar todos os leilões do mês.
+- [ ] **Pendente** - No anual, mostrar média mensal de cobertura.
+- [x] **Feito** - Criar checklist/status com checks para marcar demandas concluídas.
 
-- [x] Baixar novamente a planilha do Google Drive porque houve alterações depois da última versão local.
-- [x] Colocar a planilha atualizada dentro do projeto.
-- [x] Rodar sincronização da agenda a partir da planilha atualizada.
-- [x] Revisar os leilões exibidos em `/agenda` contra a planilha.
-- [x] Garantir que os leilões exibidos estejam completos no banco e na página pública.
-- [x] Validar a agenda pública mostrando 23 leilões visíveis no período atual.
+## Validação já realizada
 
-### Hero banner e identidade visual
-
-- [x] Usar o vídeo informado do Cloudinary como hero banner da agenda.
-- [x] Aumentar a presença da logo da Bula no banner principal.
-- [x] Remover verde inadequado e ajustar a interface para uma linguagem mais próxima da marca.
-- [x] Corrigir a área visual clara/branca que não estava adequada no conjunto da página.
-- [x] Ajustar textos e visual para uma comunicação mais comercial e compatível com a Bula.
-
-### Botão e interface de contato
-
-- [x] Corrigir o botão "Fale com a Bula", que estava visualmente ruim e ilegível.
-- [x] Deixar o botão com contraste adequado, aparência mais limpa e melhor usabilidade.
-- [ ] Definir o número oficial do WhatsApp para substituir o link genérico `https://wa.me/`.
-
-### Criatórios parceiros
-
-- [x] Reformular a seção de criatórios parceiros porque a versão anterior estava visualmente fraca.
-- [x] Remover menções a "critérios identificados na planilha".
-- [x] Remover menções a "planilha" no texto público.
-- [x] Não mencionar "remates" na seção de criatórios parceiros.
-- [x] Exibir os criatórios de forma mais elegante e institucional.
-- [x] Buscar e vincular referências oficiais quando identificadas, como sites institucionais de criatórios.
-
-### Página de detalhes do leilão
-
-- [x] Criar página de detalhe para cada leilão da agenda.
-- [x] Garantir que a pessoa consiga ver a imagem de capa inteira na página de detalhe.
-- [x] Usar `object-contain` na capa completa para não cortar o flyer.
-- [x] Exibir informações completas do leilão quando disponíveis: data, horário, criatório, local, modelo, leiloeira, condição e catálogo.
-- [x] Validar a página de detalhe do leilão Katayama com a capa inteira carregando corretamente.
-
-### Capas faltantes no domingo
-
-- [x] Revisar novamente a questão das imagens.
-- [x] Identificar leilões sem capa após a sincronização.
-- [x] Preencher capas faltantes a partir das imagens embutidas na planilha.
-- [x] Gerar capas institucionais para leilões sem flyer disponível na planilha.
-- [x] Confirmar que nenhum leilão público do período ficou sem capa.
-
-## Itens fora de escopo por orientação
-
-- [ ] Administrativo - não executado nesta rodada por orientação.
-- [ ] Perfil / Imagem - não executado nesta rodada por orientação.
-- [ ] Alinhamento - não executado nesta rodada por orientação.
-
-## Pendências recomendadas
-
-- [ ] Definir o WhatsApp oficial da Bula para atualizar o botão "Fale com a Bula".
-- [ ] Homologar a agenda com Marcelo/cliente final.
-- [ ] Enriquecer futuramente a seção de criatórios com logos oficiais quando houver arquivos confiáveis.
-
-## Evidências do que foi feito
-
-- [x] Build final executado com sucesso com `npm run build`.
-- [x] Agenda validada localmente em `http://localhost:3010/agenda`.
-- [x] Página de detalhe validada localmente em `http://localhost:3010/agenda/63741134-3551-4678-839e-3226b3e1c91e`.
-- [x] Commit e push realizados na branch `main`.
-- [x] Commit publicado: `0b20b11 - Melhora agenda publica Bula`.
+- [x] **Feito** - Build final do projeto executado com sucesso.
+- [x] **Feito** - Agenda validada localmente em `http://localhost:3010/agenda`.
+- [x] **Feito** - Detalhe do leilão validado com imagem de capa completa.
+- [x] **Feito** - Alterações de código enviadas para o GitHub.
