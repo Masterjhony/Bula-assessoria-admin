@@ -13,6 +13,7 @@ import { AgendaGrid } from './AgendaGrid'
 import {
     parseData, dataPorExtenso, isFuturo, contagemRegressiva, youtubeId, WHATSAPP_CTA_URL,
 } from './helpers'
+import { CriatorioLogoTile } from './CriatorioLogoTile'
 
 export const revalidate = 120
 
@@ -221,12 +222,7 @@ function CriatoriosParceiros({ parceiros }: { parceiros: CriatorioParceiroPublic
                                 className="flex h-24 w-52 shrink-0 items-center justify-center rounded-md border border-white/10 bg-white px-5 transition-transform hover:-translate-y-0.5"
                                 aria-label={parceiro.siteUrl ? `Abrir referência de ${parceiro.nome}` : parceiro.nome}
                             >
-                                {parceiro.logo ? (
-                                            // eslint-disable-next-line @next/next/no-img-element
-                                    <img src={parceiro.logo} alt={parceiro.nome} className="max-h-16 max-w-40 object-contain" />
-                                        ) : (
-                                    <span className="text-center text-sm font-black leading-tight text-black">{parceiro.nome}</span>
-                                        )}
+                                <CriatorioLogoTile parceiro={parceiro} />
                             </a>
                         ))}
                     </div>
