@@ -1,3 +1,5 @@
+import { existsSync, readdirSync } from 'node:fs'
+import { extname, join, parse } from 'node:path'
 import { supabaseAdmin } from '@/lib/supabase'
 import type { BulaMembro, LeilaoStatus } from './types'
 
@@ -12,6 +14,7 @@ import type { BulaMembro, LeilaoStatus } from './types'
 export interface LeilaoPublico {
     id: string
     nome: string
+    criador: string | null
     data: string
     horario: string | null
     tipo: string | null
@@ -28,20 +31,122 @@ export interface LeilaoPublico {
     assessores: BulaMembro[]
 }
 
+export interface CriatorioParceiroPublico {
+    nome: string
+    slug: string
+    logo: string | null
+    siteUrl: string | null
+    totalLeiloes: number
+}
+
 const PUBLIC_COLS =
     'id, nome, data, horario, tipo, local, animais, modelo, leiloeira, condicao, frete_gratis, transmissao, catalogo_url, img, status'
 
-const PUBLIC_STATUSES: LeilaoStatus[] = ['confirmado']
+const PUBLIC_STATUSES: LeilaoStatus[] = ['confirmado', 'concluido']
+
+const CRIATORIO_REFERENCIAS: Record<string, { siteUrl: string }> = {
+    'fazenda camparino': { siteUrl: 'https://fazendacamparino.com.br/' },
+    'fazenda santa nice': { siteUrl: 'https://www.santanice.com.br/' },
+    'santa nice': { siteUrl: 'https://www.santanice.com.br/' },
+    'terra brava agropecuaria': { siteUrl: 'https://terrabrava.com.br/' },
+}
 
 function todaySaoPaulo(): string {
+    const { year, month, day } = datePartsSaoPaulo(new Date())
+    return `${year}-${month}-${day}`
+}
+
+function datePartsSaoPaulo(date: Date) {
     const parts = new Intl.DateTimeFormat('en-CA', {
         timeZone: 'America/Sao_Paulo',
         year: 'numeric',
         month: '2-digit',
         day: '2-digit',
-    }).formatToParts(new Date())
+    }).formatToParts(date)
     const get = (type: Intl.DateTimeFormatPartTypes) => parts.find((p) => p.type === type)?.value ?? ''
-    return `${get('year')}-${get('month')}-${get('day')}`
+    return { year: get('year'), month: get('month'), day: get('day') }
+}
+
+function currentMonthRangeSaoPaulo() {
+    const { year, month } = datePartsSaoPaulo(new Date())
+    const y = Number(year)
+    const m = Number(month)
+    const lastDay = new Date(y, m, 0).getDate()
+    return {
+        start: `${year}-${month}-01`,
+        end: `${year}-${month}-${String(lastDay).padStart(2, '0')}`,
+        year,
+        month,
+    }
+}
+
+function nextMonthRangeSaoPaulo() {
+    const { year, month } = datePartsSaoPaulo(new Date())
+    const current = new Date(Number(year), Number(month) - 1, 1)
+    const next = new Date(current.getFullYear(), current.getMonth() + 1, 1)
+    const nextYear = String(next.getFullYear())
+    const nextMonth = String(next.getMonth() + 1).padStart(2, '0')
+    const lastDay = new Date(next.getFullYear(), next.getMonth() + 1, 0).getDate()
+    return {
+        start: `${nextYear}-${nextMonth}-01`,
+        end: `${nextYear}-${nextMonth}-${String(lastDay).padStart(2, '0')}`,
+        year: nextYear,
+        month: nextMonth,
+    }
+}
+
+function publicAgendaRangeSaoPaulo() {
+    const today = todaySaoPaulo()
+    const current = currentMonthRangeSaoPaulo()
+    const next = nextMonthRangeSaoPaulo()
+    return {
+        start: today,
+        end: next.end,
+        current,
+        next,
+    }
+}
+
+function slugify(value: string): string {
+    return value
+        .normalize('NFD')
+        .replace(/[\u0300-\u036f]/g, '')
+        .toLowerCase()
+        .replace(/[^a-z0-9]+/g, '-')
+        .replace(/^-+|-+$/g, '')
+}
+
+function normalizeEventText(value: unknown): string {
+    return String(value ?? '')
+        .normalize('NFD')
+        .replace(/[\u0300-\u036f]/g, '')
+        .toLowerCase()
+        .replace(/[^a-z0-9]+/g, ' ')
+        .trim()
+}
+
+function eventKey(data: unknown, nome: unknown, hora: unknown): string {
+    return [
+        String(data ?? '').trim(),
+        normalizeEventText(nome),
+        normalizeEventText(hora),
+    ].join('|')
+}
+
+function logoForCriatorio(nome: string): string | null {
+    const slug = slugify(nome)
+    const dir = join(process.cwd(), 'public', 'criatorios')
+    if (!existsSync(dir)) return null
+    const file = readdirSync(dir).find((entry) => {
+        const ext = extname(entry).toLowerCase()
+        return ['.png', '.webp', '.jpg', '.jpeg', '.svg'].includes(ext) && parse(entry).name === slug
+    })
+    return file ? `/criatorios/${file}` : null
+}
+
+function referenceForCriatorio(nome: string): { siteUrl: string | null } {
+    const key = slugify(nome).replace(/-/g, ' ')
+    return { siteUrl: CRIATORIO_REFERENCIAS[key]?.siteUrl ?? null }
 }
 
 function mapAssessores(row: Record<string, unknown>): BulaMembro[] {
@@ -51,20 +156,46 @@ function mapAssessores(row: Record<string, unknown>): BulaMembro[] {
 
 export async function getLeiloesPublicos(): Promise<LeilaoPublico[]> {
     const supabase = supabaseAdmin()
+    const range = publicAgendaRangeSaoPaulo()
     const { data, error } = await supabase
         .from('bula_leiloes')
         .select(`${PUBLIC_COLS}, bula_leilao_assessores(bula_membros(id, nome, iniciais, cor))`)
         .in('status', PUBLIC_STATUSES)
-        .gte('data', todaySaoPaulo())
+        .gte('data', range.start)
+        .lte('data', range.end)
         .order('data', { ascending: true })
+        .order('horario', { ascending: true })
 
     if (error) {
         console.error('[public-leiloes] getLeiloesPublicos', error.message)
         return []
     }
 
+    const { data: cronoData, error: cronoError } = await supabase
+        .from('cronograma_leiloes')
+        .select('data, hora, nome, criador')
+        .gte('data', range.start)
+        .lte('data', range.end)
+
+    if (cronoError) {
+        console.error('[public-leiloes] getLeiloesPublicos criadores', cronoError.message)
+    }
+
+    const criadorByKey = new Map<string, string>()
+    for (const row of cronoData ?? []) {
+        const criador = String(row.criador || '').trim()
+        if (!criador) continue
+        criadorByKey.set(eventKey(row.data, row.nome, row.hora), criador)
+        const noHourKey = eventKey(row.data, row.nome, '')
+        if (!criadorByKey.has(noHourKey)) criadorByKey.set(noHourKey, criador)
+    }
+
     return (data ?? []).map((row: Record<string, unknown>) => ({
         ...(row as object),
+        criador:
+            criadorByKey.get(eventKey(row.data, row.nome, row.horario))
+            ?? criadorByKey.get(eventKey(row.data, row.nome, ''))
+            ?? null,
         assessores: mapAssessores(row),
     })) as unknown as LeilaoPublico[]
 }
@@ -76,7 +207,6 @@ export async function getLeilaoPublico(id: string): Promise<LeilaoPublico | null
         .select(`${PUBLIC_COLS}, bula_leilao_assessores(bula_membros(id, nome, iniciais, cor))`)
         .eq('id', id)
         .in('status', PUBLIC_STATUSES)
-        .gte('data', todaySaoPaulo())
         .maybeSingle()
 
     if (error || !data) {
@@ -84,8 +214,59 @@ export async function getLeilaoPublico(id: string): Promise<LeilaoPublico | null
         return null
     }
 
+    const { data: cronoRows, error: cronoError } = await supabase
+        .from('cronograma_leiloes')
+        .select('data, hora, nome, criador')
+        .eq('data', String(data.data))
+        .eq('nome', String(data.nome))
+
+    if (cronoError) {
+        console.error('[public-leiloes] getLeilaoPublico criador', cronoError.message)
+    }
+
+    const cronoMatch = (cronoRows ?? []).find((row) =>
+        eventKey(row.data, row.nome, row.hora) === eventKey(data.data, data.nome, data.horario),
+    ) ?? cronoRows?.[0]
+
     return {
         ...(data as object),
+        criador: String(cronoMatch?.criador || '').trim() || null,
         assessores: mapAssessores(data as Record<string, unknown>),
     } as unknown as LeilaoPublico
+}
+
+export async function getCriatoriosParceirosMes(): Promise<CriatorioParceiroPublico[]> {
+    const supabase = supabaseAdmin()
+    const range = publicAgendaRangeSaoPaulo()
+    const { data, error } = await supabase
+        .from('cronograma_leiloes')
+        .select('nome, criador, data')
+        .gte('data', range.start)
+        .lte('data', range.end)
+        .order('data', { ascending: true })
+
+    if (error) {
+        console.error('[public-leiloes] getCriatoriosParceirosMes', error.message)
+        return []
+    }
+
+    const map = new Map<string, { nome: string; totalLeiloes: number }>()
+    for (const row of data ?? []) {
+        const nome = String(row.criador || '').trim()
+        if (!nome) continue
+        const slug = slugify(nome)
+        const current = map.get(slug)
+        if (current) current.totalLeiloes += 1
+        else map.set(slug, { nome, totalLeiloes: 1 })
+    }
+
+    return [...map.entries()]
+        .map(([slug, item]) => ({
+            nome: item.nome,
+            slug,
+            logo: logoForCriatorio(item.nome),
+            siteUrl: referenceForCriatorio(item.nome).siteUrl,
+            totalLeiloes: item.totalLeiloes,
+        }))
+        .sort((a, b) => a.nome.localeCompare(b.nome, 'pt-BR'))
 }

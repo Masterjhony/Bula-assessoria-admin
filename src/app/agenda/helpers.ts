@@ -4,11 +4,15 @@ export const MES_NOMES = [
     '', 'Janeiro', 'Fevereiro', 'Março', 'Abril', 'Maio', 'Junho',
     'Julho', 'Agosto', 'Setembro', 'Outubro', 'Novembro', 'Dezembro',
 ]
+
 export const MES_ABREV = [
     '', 'JAN', 'FEV', 'MAR', 'ABR', 'MAI', 'JUN',
     'JUL', 'AGO', 'SET', 'OUT', 'NOV', 'DEZ',
 ]
-export const DIA_SEMANA = ['Domingo', 'Segunda', 'Terça', 'Quarta', 'Quinta', 'Sexta', 'Sábado']
+
+export const DIA_SEMANA = [
+    'Domingo', 'Segunda', 'Terça', 'Quarta', 'Quinta', 'Sexta', 'Sábado',
+]
 
 export interface DataPartes {
     dia: number
@@ -17,11 +21,11 @@ export interface DataPartes {
     mesAbrev: string
     diaSemana: string
     ano: number
-    /** Meia-noite local da data do leilão, para comparações de "futuro/passado". */
+    /** Meia-noite local da data do leilão, para comparações de futuro/passado. */
     time: number
 }
 
-/** Parseia 'YYYY-MM-DD' como data LOCAL (evita o shift de fuso do `new Date(iso)`). */
+/** Parseia 'YYYY-MM-DD' como data local para evitar shift de fuso do `new Date(iso)`. */
 export function parseData(iso: string): DataPartes {
     const [y, m, d] = (iso || '').split('-').map(Number)
     const dt = new Date(y, (m || 1) - 1, d || 1)
@@ -36,7 +40,7 @@ export function parseData(iso: string): DataPartes {
     }
 }
 
-/** Início do dia de hoje (local). */
+/** Início do dia de hoje, no fuso local do navegador/servidor. */
 export function hojeTime(): number {
     const n = new Date()
     return new Date(n.getFullYear(), n.getMonth(), n.getDate()).getTime()
@@ -76,13 +80,13 @@ export interface StatusBadge {
     dot: string
 }
 
-/** Rótulo público do leilão, levando a data em conta (confirmado pode já ter passado). */
+/** Rótulo público do leilão, levando a data em conta. */
 export function statusPublico(l: Pick<LeilaoPublico, 'status' | 'data'>): StatusBadge {
     const passado = !isFuturo(l.data)
     if (l.status === 'concluido' || (l.status === 'confirmado' && passado)) {
-        return { label: 'Realizado', fg: '#B0B0B0', bg: 'rgba(255,255,255,0.06)', dot: '#666' }
+        return { label: 'Realizado', fg: '#525252', bg: 'rgba(0,0,0,0.06)', dot: '#525252' }
     }
-    return { label: 'Confirmado', fg: '#6B8F5C', bg: 'rgba(107,143,92,0.14)', dot: '#6B8F5C' }
+    return { label: 'Confirmado', fg: '#ffffff', bg: '#000000', dot: '#ffffff' }
 }
 
 export function contagemRegressiva(iso: string): string | null {

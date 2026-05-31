@@ -85,7 +85,7 @@ function headerIndexes(headerRow) {
     sexo: ['SEXO'],
     condicao: ['CONDICAO'],
     frete_gratis: ['FRETE GRATIS'],
-    comissao: ['NEGOCIACAO DE COMISSAO', 'COMISSAO'],
+    comissao: ['NEGOCIACAO DE COMISSAO', 'COMISSAO', 'ACORDO'],
     contrato: ['CONTRATO'],
     faturamento_previsto: ['FATURAMENTO PREVISTO'],
     faturamento_realizado: ['FATURAMENTO REALIZADO'],
@@ -96,11 +96,16 @@ function headerIndexes(headerRow) {
     fechamento: ['FECHAMENTO'],
     fechamento_link: ['LINK'],
   }
-  return Object.fromEntries(
+  const indexes = Object.fromEntries(
     Object.entries(aliases)
       .map(([key, names]) => [key, header.findIndex((h) => names.includes(h))])
       .filter(([, idx]) => idx >= 0),
   )
+  // A planilha exportada pelo Google preserva a coluna de horário, mas em
+  // algumas abas o cabeçalho da coluna C vem vazio. O layout público da escala
+  // usa coluna C para horário nesses casos.
+  if (indexes.hora == null && header[2] === '') indexes.hora = 2
+  return indexes
 }
 
 function parseWorkbook(file) {

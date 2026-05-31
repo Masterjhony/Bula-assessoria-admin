@@ -1,35 +1,36 @@
 import type { Metadata } from 'next'
 import Link from 'next/link'
+import { MessageCircle } from 'lucide-react'
 
 export const metadata: Metadata = {
-    title: 'Agenda de Leilões — Bula Assessoria',
+    title: 'Agenda de Leilões | Bula Assessoria',
     description:
-        'Acompanhe a agenda de remates e leilões assessorados pela Bula Assessoria Pecuária: datas, catálogos, transmissões ao vivo e detalhes de cada evento.',
+        'Agenda dos principais leilões assessorados pela Bula Assessoria Pecuária, com touros, matrizes, catálogos, transmissões e informações comerciais.',
     openGraph: {
-        title: 'Agenda de Leilões — Bula Assessoria',
+        title: 'Agenda de Leilões | Bula Assessoria',
         description:
-            'Datas, catálogos e transmissões dos leilões assessorados pela Bula Assessoria Pecuária.',
+            'Touros e matrizes dos principais leilões do Brasil, com curadoria e assessoria comercial da Bula.',
         type: 'website',
     },
 }
 
 export default function AgendaLayout({ children }: { children: React.ReactNode }) {
     return (
-        <div className="min-h-screen flex flex-col" style={{ background: '#F7F1E8', color: '#1E2519' }}>
-            <header className="sticky top-0 z-50 border-b border-[#1E2519]/10 bg-[#F7F1E8]/88 backdrop-blur-xl">
-                <div className="mx-auto flex h-20 max-w-7xl items-center justify-between px-5 sm:px-8">
-                    <Link href="/agenda" className="flex items-center group">
+        <div className="flex min-h-screen flex-col bg-white text-black">
+            <header className="sticky top-0 z-50 border-b border-black/10 bg-white/92 backdrop-blur-xl">
+                <div className="mx-auto flex h-20 max-w-7xl items-center justify-between px-5 sm:h-24 sm:px-8">
+                    <Link href="/agenda" className="flex items-center group" aria-label="Bula Assessoria">
                         {/* eslint-disable-next-line @next/next/no-img-element */}
                         <img
                             src="/logo-bula-assessoria-dark.png"
                             alt="Bula Assessoria"
-                            className="h-14 w-auto object-contain transition-opacity group-hover:opacity-80 sm:h-16"
+                            className="h-14 w-auto object-contain transition-opacity group-hover:opacity-75 sm:h-20"
                         />
                     </Link>
-                    <nav className="flex items-center gap-2 text-[13px] font-semibold sm:text-sm">
+                    <nav className="flex items-center gap-2 text-[13px] font-bold sm:text-sm">
                         <Link
                             href="/agenda"
-                            className="rounded-lg px-3 py-2 text-[#1E2519]/70 transition-colors hover:bg-[#1E2519]/5 hover:text-[#1E2519]"
+                            className="rounded-md px-3 py-2 text-black/62 transition-colors hover:bg-black/5 hover:text-black"
                         >
                             Agenda
                         </Link>
@@ -37,9 +38,10 @@ export default function AgendaLayout({ children }: { children: React.ReactNode }
                             href="https://wa.me/"
                             target="_blank"
                             rel="noopener noreferrer"
-                            className="rounded-lg px-4 py-2.5 font-bold text-white shadow-sm transition-all hover:-translate-y-0.5 hover:shadow-md"
-                            style={{ background: '#355334', color: '#fff' }}
+                            className="inline-flex items-center gap-2 rounded-md border border-black px-4 py-2.5 font-black shadow-sm transition-all hover:-translate-y-0.5 hover:shadow-md sm:px-5"
+                            style={{ backgroundColor: '#000', color: '#fff' }}
                         >
+                            <MessageCircle className="h-4 w-4" />
                             Fale com a Bula
                         </a>
                     </nav>
@@ -48,49 +50,49 @@ export default function AgendaLayout({ children }: { children: React.ReactNode }
 
             <main className="flex-1">{children}</main>
 
-            <footer className="mt-20 border-t border-[#1E2519]/10 bg-[#EFE5D7]">
+            <footer className="mt-20 border-t border-white/10 bg-black text-white">
                 <div className="mx-auto grid max-w-7xl gap-8 px-5 py-12 sm:grid-cols-[1.5fr_1fr_1fr] sm:px-8">
                     <div>
                         {/* eslint-disable-next-line @next/next/no-img-element */}
                         <img
-                            src="/logo-bula-assessoria-dark.png"
+                            src="/logo-bula-assessoria-white.png"
                             alt="Bula Assessoria"
-                            className="mb-4 h-16 w-auto object-contain"
+                            className="mb-5 h-16 w-auto object-contain sm:h-20"
                         />
-                        <p className="max-w-xs text-sm leading-relaxed text-[#1E2519]/62">
-                            Assessoria pecuária especializada em remates e leilões de elite.
-                            Do catálogo à martelada, ao lado do criador.
+                        <p className="max-w-sm text-sm leading-relaxed text-white/62">
+                            Assessoria pecuária especializada em estratégias comerciais,
+                            apartações e compra de touros e matrizes nos principais leilões do Brasil.
                         </p>
                     </div>
                     <div>
-                        <h4 className="mb-4 text-[11px] font-bold uppercase tracking-[1.5px] text-[#A07732]">
+                        <h4 className="mb-4 text-[11px] font-black uppercase text-white/42">
                             Navegação
                         </h4>
-                        <ul className="space-y-2.5 text-sm text-[#1E2519]/62">
-                            <li><Link href="/agenda" className="transition-colors hover:text-[#355334]">Agenda de leilões</Link></li>
-                            <li><Link href="/agenda#proximos" className="transition-colors hover:text-[#355334]">Próximos remates</Link></li>
+                        <ul className="space-y-2.5 text-sm text-white/62">
+                            <li><Link href="/agenda" className="transition-colors hover:text-white">Agenda de leilões</Link></li>
+                            <li><Link href="/agenda#proximos" className="transition-colors hover:text-white">Próximos leilões</Link></li>
                         </ul>
                     </div>
                     <div>
-                        <h4 className="mb-4 text-[11px] font-bold uppercase tracking-[1.5px] text-[#A07732]">
+                        <h4 className="mb-4 text-[11px] font-black uppercase text-white/42">
                             Contato
                         </h4>
-                        <ul className="space-y-2.5 text-sm text-[#1E2519]/62">
+                        <ul className="space-y-2.5 text-sm text-white/62">
                             <li>
-                                <a href="https://wa.me/" target="_blank" rel="noopener noreferrer" className="transition-colors hover:text-[#355334]">
+                                <a href="https://wa.me/" target="_blank" rel="noopener noreferrer" className="transition-colors hover:text-white">
                                     WhatsApp
                                 </a>
                             </li>
                             <li>
-                                <a href="https://instagram.com/" target="_blank" rel="noopener noreferrer" className="transition-colors hover:text-[#355334]">
+                                <a href="https://instagram.com/" target="_blank" rel="noopener noreferrer" className="transition-colors hover:text-white">
                                     Instagram
                                 </a>
                             </li>
                         </ul>
                     </div>
                 </div>
-                <div className="border-t border-[#1E2519]/10">
-                    <div className="mx-auto max-w-7xl px-5 py-5 text-xs text-[#1E2519]/45 sm:px-8">
+                <div className="border-t border-white/10">
+                    <div className="mx-auto max-w-7xl px-5 py-5 text-xs text-white/42 sm:px-8">
                         © {new Date().getFullYear()} Bula Assessoria Pecuária. Todos os direitos reservados.
                     </div>
                 </div>
