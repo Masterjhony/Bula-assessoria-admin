@@ -7,6 +7,7 @@ Origem: WhatsApp com Marcelo Primo Carneiro, a partir do envio do checklist em P
 - [x] Transformar a secao de criatorios parceiros em uma faixa horizontal, nao em grade de cards.
 - [x] Fazer a faixa rolar automaticamente com as marcas dos criatorios.
 - [x] Usar arquivos PNG para as marcas exibidas na faixa.
+- [ ] Pegar imagens/logos oficiais dos criadores parceiros para substituir os tiles provisórios com iniciais.
 - [x] Melhorar a abertura da pagina de detalhe do leilao, deixando a arte/capa sem texto por cima.
 - [x] Manter acesso para abrir a capa completa do leilao em nova aba.
 - [x] Colocar o status "Confirmado" dentro de bloco cinza e com destaque verde.
