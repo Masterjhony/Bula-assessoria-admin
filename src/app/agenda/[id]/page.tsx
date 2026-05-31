@@ -3,11 +3,11 @@ import { notFound } from 'next/navigation'
 import type { Metadata } from 'next'
 import {
     ArrowLeft, BookOpen, CalendarDays, Clock, Download, ExternalLink, Gavel,
-    MapPin, Radio, Share2, Tag, Truck, Tv, Users,
+    MapPin, MessageCircle, Radio, Share2, Tag, Truck, Tv, Users,
 } from 'lucide-react'
 import { getLeilaoPublico, getLeiloesPublicos, type LeilaoPublico } from '@/lib/bula/public-leiloes'
 import {
-    contagemRegressiva, dataPorExtenso, isFuturo, parseData, statusPublico, youtubeId,
+    contagemRegressiva, dataPorExtenso, parseData, statusPublico, youtubeId, WHATSAPP_CTA_URL,
 } from '../helpers'
 
 export const revalidate = 120
@@ -51,8 +51,6 @@ export default async function LeilaoDetalhePage({ params }: { params: Promise<{ 
     const badge = statusPublico(leilao)
     const ytId = youtubeId(leilao.transmissao)
     const countdown = contagemRegressiva(leilao.data)
-    const realizado = !isFuturo(leilao.data) || leilao.status === 'concluido'
-
     const todos = await getLeiloesPublicos()
     const outros = todos
         .filter((item) => item.id !== leilao.id)
@@ -83,81 +81,99 @@ export default async function LeilaoDetalhePage({ params }: { params: Promise<{ 
                 </Link>
 
                 <header className="mt-6 overflow-hidden rounded-md border border-black/10 bg-white shadow-sm">
-                    <div className="relative min-h-[380px] overflow-hidden bg-black sm:min-h-[500px]">
-                        {leilao.img ? (
-                            <>
-                                {/* eslint-disable-next-line @next/next/no-img-element */}
-                                <img src={leilao.img} alt={leilao.nome} className="absolute inset-0 h-full w-full object-contain" />
-                                <div className="absolute inset-0 bg-gradient-to-t from-black via-black/42 to-black/18" />
-                            </>
-                        ) : (
-                            <div className="absolute inset-0 flex items-center justify-center bg-black text-white">
-                                <div className="text-center">
+                    <div className="grid lg:grid-cols-[minmax(0,1.15fr)_minmax(360px,0.85fr)]">
+                        <div className="relative flex min-h-[420px] items-center justify-center bg-black p-3 sm:min-h-[560px]">
+                            {leilao.img ? (
+                                // eslint-disable-next-line @next/next/no-img-element
+                                <img src={leilao.img} alt={leilao.nome} className="max-h-[78vh] w-full object-contain" />
+                            ) : (
+                                <div className="text-center text-white">
                                     {/* eslint-disable-next-line @next/next/no-img-element */}
                                     <img src="/logo-bula-assessoria-white.png" alt="" className="mx-auto mb-8 h-12 w-auto opacity-80" />
                                     <div className="text-8xl font-black leading-none">{p.dia}</div>
                                     <div className="mt-2 text-sm font-black uppercase text-white/45">{p.mesAbrev}</div>
                                 </div>
-                            </div>
-                        )}
+                            )}
+                        </div>
 
-                        <div className="absolute inset-x-0 bottom-0 p-5 text-white sm:p-8 lg:p-10">
+                        <div className="flex flex-col justify-between gap-8 p-6 sm:p-8 lg:p-10">
+                            <div>
+                                <div className="flex flex-wrap gap-2">
+                                    <span
+                                        className="inline-flex items-center gap-1.5 rounded-md border px-3 py-1.5 text-xs font-black shadow-sm"
+                                        style={{ color: badge.fg, background: badge.bg, borderColor: badge.dot === '#16a34a' ? 'rgba(22,101,52,0.18)' : 'rgba(0,0,0,0.08)' }}
+                                    >
+                                        <span className="h-1.5 w-1.5 rounded-full" style={{ background: badge.dot }} />
+                                        {badge.label}
+                                    </span>
+                                    {countdown && (
+                                        <span className="rounded-md bg-black px-3 py-1.5 text-xs font-black text-white shadow-sm">
+                                            {countdown}
+                                        </span>
+                                    )}
+                                    {ytId && (
+                                        <span className="inline-flex items-center gap-1.5 rounded-md bg-black px-3 py-1.5 text-xs font-black text-white shadow-sm">
+                                            <Radio className="h-3.5 w-3.5" />
+                                            Ao vivo
+                                        </span>
+                                    )}
+                                    {leilao.tipo && (
+                                        <span className="rounded-md border border-black/10 bg-black/[0.04] px-3 py-1.5 text-xs font-black uppercase text-black/62">
+                                            {leilao.tipo}
+                                        </span>
+                                    )}
+                                </div>
+
+                                <h1 className="mt-5 text-4xl font-black leading-[0.96] tracking-tight text-black sm:text-6xl">
+                                    {leilao.nome}
+                                </h1>
+                                <p className="mt-4 text-base font-semibold leading-relaxed text-black/62">
+                                    {dataPorExtenso(leilao.data)}
+                                    {leilao.horario ? ` às ${leilao.horario}` : ''}
+                                    {leilao.local ? ` | ${leilao.local}` : ''}
+                                </p>
+                            </div>
+
+                            <div className="grid gap-2 text-sm font-semibold text-black/62">
+                                {leilao.criador && (
+                                    <span className="inline-flex items-center gap-2">
+                                        <Users className="h-4 w-4 text-black" />
+                                        {leilao.criador}
+                                    </span>
+                                )}
+                                {!!leilao.animais && leilao.animais > 0 && (
+                                    <span className="inline-flex items-center gap-2">
+                                        <Users className="h-4 w-4 text-black" />
+                                        {leilao.animais} animais na oferta
+                                    </span>
+                                )}
+                            </div>
+
                             <div className="flex flex-wrap gap-2">
-                                <span
-                                    className="inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 text-xs font-black shadow-sm backdrop-blur-md"
-                                    style={{ color: badge.fg, background: badge.bg }}
+                                {leilao.img && (
+                                    <a
+                                        href={leilao.img}
+                                        target="_blank"
+                                        rel="noopener noreferrer"
+                                        className="inline-flex items-center justify-center gap-2 rounded-md border border-black/10 px-4 py-2.5 text-sm font-bold text-black transition-colors hover:bg-black/5"
+                                    >
+                                        <BookOpen className="h-4 w-4" />
+                                        Abrir capa completa
+                                    </a>
+                                )}
+                                <a
+                                    href={WHATSAPP_CTA_URL}
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    className="inline-flex items-center justify-center gap-2 rounded-md bg-black px-4 py-2.5 text-sm font-black text-white transition-colors hover:bg-neutral-800"
                                 >
-                                    <span className="h-1.5 w-1.5 rounded-full" style={{ background: badge.dot }} />
-                                    {badge.label}
-                                </span>
-                                {countdown && (
-                                    <span className="rounded-full bg-white px-3 py-1.5 text-xs font-black text-black shadow-sm">
-                                        {countdown}
-                                    </span>
-                                )}
-                                {ytId && (
-                                    <span className="inline-flex items-center gap-1.5 rounded-full bg-white px-3 py-1.5 text-xs font-black text-black shadow-sm">
-                                        <Radio className="h-3.5 w-3.5" />
-                                        Ao vivo
-                                    </span>
-                                )}
-                                {leilao.tipo && (
-                                    <span className="rounded-full border border-white/24 bg-white/10 px-3 py-1.5 text-xs font-black uppercase text-white shadow-sm backdrop-blur-md">
-                                        {leilao.tipo}
-                                    </span>
-                                )}
+                                    <MessageCircle className="h-4 w-4" />
+                                    Fale com um assessor
+                                </a>
                             </div>
-
-                            <h1 className="mt-5 max-w-4xl text-4xl font-black leading-[0.96] tracking-tight sm:text-6xl">
-                                {leilao.nome}
-                            </h1>
-                            <p className="mt-4 max-w-2xl text-base font-semibold text-white/72">
-                                {dataPorExtenso(leilao.data)}
-                                {leilao.horario ? ` às ${leilao.horario}` : ''}
-                                {leilao.local ? ` | ${leilao.local}` : ''}
-                            </p>
                         </div>
                     </div>
                 </header>
-
-                {leilao.img && (
-                    <section className="mt-8">
-                        <SectionLabel icon={BookOpen}>Imagem de capa</SectionLabel>
-                        <a
-                            href={leilao.img}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="block overflow-hidden rounded-md border border-black/10 bg-black p-3 shadow-sm transition-colors hover:border-black/25"
-                        >
-                            {/* eslint-disable-next-line @next/next/no-img-element */}
-                            <img
-                                src={leilao.img}
-                                alt={`Capa completa de ${leilao.nome}`}
-                                className="mx-auto max-h-[82vh] w-full object-contain"
-                            />
-                        </a>
-                    </section>
-                )}
 
                 <div className="mt-8 grid gap-8 lg:grid-cols-[minmax(0,1.6fr)_360px]">
                     <main className="space-y-8">
@@ -207,19 +223,35 @@ export default async function LeilaoDetalhePage({ params }: { params: Promise<{ 
                         </section>
 
                         <section className="rounded-md border border-black bg-black p-6 text-white shadow-sm sm:p-8">
-                            <div className="flex flex-col gap-5 sm:flex-row sm:items-center sm:justify-between">
+                            <div className="flex flex-col gap-5 lg:flex-row lg:items-center lg:justify-between">
                                 <div>
                                     <span className="text-[11px] font-black uppercase text-white/48">
                                         Condição em destaque
                                     </span>
                                     <h2 className="mt-2 text-2xl font-black tracking-tight sm:text-3xl">
-                                        Compre Touros e Matrizes PO em 30X no boleto e Frete Grátis
+                                        Quer comprar touros e matrizes?
                                     </h2>
+                                    <p className="mt-2 max-w-xl text-sm font-semibold leading-relaxed text-white/58">
+                                        Receba ofertas exclusivas no grupo de WhatsApp e fale com a equipe da Bula
+                                        para encontrar a melhor oportunidade no leilão.
+                                    </p>
                                 </div>
-                                <div className="flex flex-wrap gap-2">
-                                    <span className="rounded-full bg-white px-3 py-1 text-xs font-black text-black">PO</span>
-                                    <span className="rounded-full bg-white px-3 py-1 text-xs font-black text-black">30X</span>
-                                    <span className="rounded-full bg-white px-3 py-1 text-xs font-black text-black">Frete grátis</span>
+                                <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
+                                    <div className="flex flex-wrap gap-2">
+                                        <span className="rounded-full bg-white px-3 py-1 text-xs font-black text-black">PO</span>
+                                        <span className="rounded-full bg-white px-3 py-1 text-xs font-black text-black">30X</span>
+                                        <span className="rounded-full bg-white px-3 py-1 text-xs font-black text-black">Frete</span>
+                                    </div>
+                                    <a
+                                        href={WHATSAPP_CTA_URL}
+                                        target="_blank"
+                                        rel="noopener noreferrer"
+                                        className="inline-flex items-center justify-center gap-2 rounded-md bg-white px-4 py-2.5 text-sm font-black text-black transition-colors hover:bg-white/88"
+                                        style={{ color: '#050505' }}
+                                    >
+                                        <MessageCircle className="h-4 w-4" />
+                                        Grupo de WhatsApp
+                                    </a>
                                 </div>
                             </div>
                         </section>
@@ -263,12 +295,15 @@ export default async function LeilaoDetalhePage({ params }: { params: Promise<{ 
                             <span className="text-[11px] font-black uppercase text-black/45">Status</span>
                             <div className="mt-3 flex items-center justify-between gap-4">
                                 <div>
-                                    <p className="text-xl font-black text-black">{realizado ? 'Realizado' : 'Confirmado'}</p>
+                                    <p style={{ color: badge.fg }} className="text-xl font-black">{badge.label}</p>
                                     <p className="text-sm font-semibold text-black/50">{p.diaSemana}</p>
                                 </div>
-                                <div className="flex h-14 w-14 shrink-0 flex-col items-center justify-center rounded-md bg-black text-white">
+                                <div
+                                    className="flex h-14 w-14 shrink-0 flex-col items-center justify-center rounded-md border"
+                                    style={{ background: badge.bg, borderColor: badge.dot === '#16a34a' ? 'rgba(22,101,52,0.18)' : 'rgba(0,0,0,0.08)', color: badge.fg }}
+                                >
                                     <span className="text-xl font-black leading-none">{p.dia}</span>
-                                    <span className="text-[10px] font-black uppercase text-white/48">{p.mesAbrev}</span>
+                                    <span className="text-[10px] font-black uppercase opacity-65">{p.mesAbrev}</span>
                                 </div>
                             </div>
                         </div>
@@ -292,7 +327,7 @@ export default async function LeilaoDetalhePage({ params }: { params: Promise<{ 
                                     ))}
                                 </ul>
                                 <a
-                                    href="https://wa.me/"
+                                    href={WHATSAPP_CTA_URL}
                                     target="_blank"
                                     rel="noopener noreferrer"
                                     className="mt-5 inline-flex w-full items-center justify-center gap-2 rounded-md border border-black/10 px-4 py-2.5 text-sm font-bold text-black transition-colors hover:bg-black/5"

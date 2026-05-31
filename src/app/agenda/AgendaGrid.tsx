@@ -8,7 +8,7 @@ import {
     SlidersHorizontal, Tag, Truck, Users, X,
 } from 'lucide-react'
 import type { LeilaoPublico } from '@/lib/bula/public-leiloes'
-import { contagemRegressiva, isFuturo, parseData, youtubeId } from './helpers'
+import { contagemRegressiva, isFuturo, parseData, statusPublico, youtubeId } from './helpers'
 
 type FiltroArea = 'todos' | 'touros' | 'matrizes' | 'po' | 'corte' | 'virtual' | 'presencial' | 'frete'
 
@@ -200,6 +200,7 @@ function LeilaoCard({ leilao, index }: { leilao: LeilaoPublico; index: number })
     const countdown = contagemRegressiva(leilao.data)
     const tags = cardTags(leilao)
     const realizado = !isFuturo(leilao.data) || leilao.status === 'concluido'
+    const status = statusPublico(leilao)
 
     return (
         <motion.div
@@ -239,11 +240,12 @@ function LeilaoCard({ leilao, index }: { leilao: LeilaoPublico; index: number })
                     </div>
 
                     <div className="absolute right-3 top-3 flex flex-col items-end gap-1.5">
-                        <span className={`inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-[10px] font-bold shadow-sm backdrop-blur-md ${
-                            realizado ? 'bg-white/85 text-black/58' : 'bg-black text-white'
-                        }`}>
-                            <span className={`h-1.5 w-1.5 rounded-full ${realizado ? 'bg-black/35' : 'bg-white'}`} />
-                            {realizado ? 'Realizado' : 'Confirmado'}
+                        <span
+                            className="inline-flex items-center gap-1.5 rounded-md border px-2.5 py-1 text-[10px] font-bold shadow-sm backdrop-blur-md"
+                            style={{ color: status.fg, background: status.bg, borderColor: realizado ? 'rgba(0,0,0,0.08)' : 'rgba(22,101,52,0.18)' }}
+                        >
+                            <span className="h-1.5 w-1.5 rounded-full" style={{ background: status.dot }} />
+                            {status.label}
                         </span>
                         {aoVivo && (
                             <span className="inline-flex items-center gap-1 rounded-full bg-white px-2 py-0.5 text-[10px] font-bold text-black shadow-sm backdrop-blur-md">
@@ -302,7 +304,7 @@ function LeilaoCard({ leilao, index }: { leilao: LeilaoPublico; index: number })
                         <div className="flex min-w-0 flex-wrap items-center gap-3 text-[12px] font-semibold text-black/45">
                             {!!leilao.animais && leilao.animais > 0 && (
                                 <span className="inline-flex items-center gap-1.5">
-                                    <Users className="h-3.5 w-3.5" /> {leilao.animais}
+                                    <Users className="h-3.5 w-3.5" /> {leilao.animais} animais
                                 </span>
                             )}
                             {leilao.catalogo_url && (

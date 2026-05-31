@@ -46,6 +46,8 @@ const PUBLIC_STATUSES: LeilaoStatus[] = ['confirmado', 'concluido']
 
 const CRIATORIO_REFERENCIAS: Record<string, { siteUrl: string }> = {
     'fazenda camparino': { siteUrl: 'https://fazendacamparino.com.br/' },
+    'ls agropecuaria': { siteUrl: 'https://fazendals.com.br/' },
+    'nelore katayama': { siteUrl: 'https://www.katayamapecuaria.com.br/' },
     'fazenda santa nice': { siteUrl: 'https://www.santanice.com.br/' },
     'santa nice': { siteUrl: 'https://www.santanice.com.br/' },
     'terra brava agropecuaria': { siteUrl: 'https://terrabrava.com.br/' },

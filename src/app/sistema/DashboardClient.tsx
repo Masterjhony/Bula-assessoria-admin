@@ -138,7 +138,7 @@ function FilterBar({
   )
 
   return (
-    <div className="card">
+    <div className="card relative z-30" style={{ overflow: 'visible' }}>
       <div className="card-b flex flex-wrap items-center gap-3">
         <div className="flex items-center gap-1.5 text-[11px] uppercase tracking-wider subtle">
           <Filter size={13} /> Filtros

@@ -1,7 +1,7 @@
 import Link from 'next/link'
 import {
-    ArrowRight, BookOpen, CalendarDays, CheckCircle2, ExternalLink, MapPin, Radio, Search,
-    ShieldCheck, Truck, Users,
+    ArrowRight, BookOpen, CalendarDays, CheckCircle2, MapPin, Radio, Search,
+    MessageCircle, ShieldCheck, Truck, Users,
 } from 'lucide-react'
 import {
     getCriatoriosParceirosMes,
@@ -11,7 +11,7 @@ import {
 } from '@/lib/bula/public-leiloes'
 import { AgendaGrid } from './AgendaGrid'
 import {
-    parseData, dataPorExtenso, isFuturo, contagemRegressiva, youtubeId,
+    parseData, dataPorExtenso, isFuturo, contagemRegressiva, youtubeId, WHATSAPP_CTA_URL,
 } from './helpers'
 
 export const revalidate = 120
@@ -153,24 +153,37 @@ function OfferBand() {
                     <div>
                         <p className="text-[11px] font-bold uppercase text-white/42">Condição em destaque</p>
                         <h2 className="mt-1 text-xl font-black leading-tight sm:text-2xl">
-                            Compre Touros e Matrizes PO em 30X no boleto e Frete Grátis
+                            Quer comprar touros e matrizes?
                         </h2>
                         <p className="mt-2 max-w-2xl text-sm leading-relaxed text-white/58">
-                            Uma seleção comercial pensada para facilitar a compra e aproximar criadores
-                            dos animais certos em cada oportunidade.
+                            Receba ofertas exclusivas no grupo de WhatsApp da Bula, com seleção
+                            de oportunidades PO, condições comerciais e suporte dos assessores.
                         </p>
                     </div>
                 </div>
-                <div className="flex flex-wrap gap-2 text-xs font-bold uppercase text-white/72">
-                    <span className="inline-flex items-center gap-1.5 rounded-md border border-white/12 bg-white/6 px-3 py-2">
-                        <CheckCircle2 className="h-3.5 w-3.5" /> PO
-                    </span>
-                    <span className="inline-flex items-center gap-1.5 rounded-md border border-white/12 bg-white/6 px-3 py-2">
-                        <ShieldCheck className="h-3.5 w-3.5" /> Boleto 30X
-                    </span>
-                    <span className="inline-flex items-center gap-1.5 rounded-md border border-white/12 bg-white/6 px-3 py-2">
-                        <Truck className="h-3.5 w-3.5" /> Frete Grátis
-                    </span>
+                <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
+                    <div className="flex flex-wrap gap-2 text-xs font-bold uppercase text-white/72">
+                        <span className="inline-flex items-center gap-1.5 rounded-md border border-white/12 bg-white/6 px-3 py-2">
+                            <CheckCircle2 className="h-3.5 w-3.5" /> PO
+                        </span>
+                        <span className="inline-flex items-center gap-1.5 rounded-md border border-white/12 bg-white/6 px-3 py-2">
+                            <ShieldCheck className="h-3.5 w-3.5" /> 30X
+                        </span>
+                        <span className="inline-flex items-center gap-1.5 rounded-md border border-white/12 bg-white/6 px-3 py-2">
+                            <Truck className="h-3.5 w-3.5" /> Frete
+                        </span>
+                    </div>
+                    <a
+                        href={WHATSAPP_CTA_URL}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="inline-flex items-center justify-center gap-2 rounded-md bg-white px-5 py-3 text-sm font-black text-black transition-all hover:-translate-y-0.5 hover:bg-white/88"
+                        style={{ color: '#050505' }}
+                    >
+                        <MessageCircle className="h-4 w-4" />
+                        Grupo de WhatsApp
+                        <ArrowRight className="h-4 w-4" />
+                    </a>
                 </div>
             </div>
         </section>
@@ -179,71 +192,48 @@ function OfferBand() {
 
 function CriatoriosParceiros({ parceiros }: { parceiros: CriatorioParceiroPublico[] }) {
     if (parceiros.length === 0) return null
+    const faixa = [...parceiros, ...parceiros]
 
     return (
-        <section className="bg-black text-white">
-            <div className="mx-auto grid max-w-7xl gap-8 px-5 py-14 sm:px-8 lg:grid-cols-[0.82fr_1.18fr] lg:items-start">
-                <div>
-                    <p className="text-[11px] font-bold uppercase text-white/42">Rede de criatórios</p>
-                    <h2 className="mt-3 max-w-lg text-3xl font-black leading-tight sm:text-4xl">
-                        Criadores que fortalecem a agenda Bula
+        <section className="overflow-hidden bg-black py-14 text-white">
+            <div className="mx-auto max-w-7xl px-5 sm:px-8">
+                <div className="max-w-2xl">
+                    <p className="text-[11px] font-bold uppercase text-white/42">Marcas parceiras</p>
+                    <h2 className="mt-3 text-3xl font-black leading-tight sm:text-4xl">
+                        Criatórios presentes na agenda Bula
                     </h2>
-                    <p className="mt-4 max-w-md text-sm leading-relaxed text-white/58">
-                        Um acompanhamento próximo de selecionadores de todo o Brasil, unindo
-                        estratégia comercial, apartação e assessoria na compra de touros e matrizes.
+                    <p className="mt-4 text-sm leading-relaxed text-white/58">
+                        Uma faixa viva com as marcas que compõem a programação atual,
+                        reunindo selecionadores de referência em touros e matrizes.
                     </p>
-                    <div className="mt-6 inline-flex items-center gap-3 rounded-md border border-white/12 bg-white/6 px-4 py-3">
-                        <span className="text-2xl font-black leading-none">{parceiros.length}</span>
-                        <span className="text-xs font-bold uppercase leading-tight text-white/48">
-                            parceiros<br />na agenda
-                        </span>
-                    </div>
                 </div>
 
-                <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
-                    {parceiros.map((parceiro) => (
-                        <div
-                            key={parceiro.slug}
-                            className="group min-h-[132px] rounded-md border border-white/10 bg-white/[0.04] px-4 py-4 transition-colors hover:border-white/22 hover:bg-white/[0.07]"
-                        >
-                            <div className="flex h-full flex-col justify-between gap-4">
-                                <div className="flex items-center justify-between gap-3">
-                                    <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-md border border-white/12 bg-white/8 text-white">
-                                        {parceiro.logo ? (
+                <div className="relative mt-9 border-y border-white/10 py-5">
+                    <div className="pointer-events-none absolute inset-y-0 left-0 z-10 w-20 bg-gradient-to-r from-black to-transparent" />
+                    <div className="pointer-events-none absolute inset-y-0 right-0 z-10 w-20 bg-gradient-to-l from-black to-transparent" />
+                    <div className="bula-logo-marquee flex w-max gap-4">
+                        {faixa.map((parceiro, index) => (
+                            <a
+                                key={`${parceiro.slug}-${index}`}
+                                href={parceiro.siteUrl ?? undefined}
+                                target={parceiro.siteUrl ? '_blank' : undefined}
+                                rel={parceiro.siteUrl ? 'noopener noreferrer' : undefined}
+                                className="flex h-24 w-52 shrink-0 items-center justify-center rounded-md border border-white/10 bg-white px-5 transition-transform hover:-translate-y-0.5"
+                                aria-label={parceiro.siteUrl ? `Abrir referência de ${parceiro.nome}` : parceiro.nome}
+                            >
+                                {parceiro.logo ? (
                                             // eslint-disable-next-line @next/next/no-img-element
-                                            <img src={parceiro.logo} alt={parceiro.nome} className="max-h-8 max-w-9 object-contain" />
+                                    <img src={parceiro.logo} alt={parceiro.nome} className="max-h-16 max-w-40 object-contain" />
                                         ) : (
-                                            <span className="text-sm font-black">{iniciais(parceiro.nome)}</span>
+                                    <span className="text-center text-sm font-black leading-tight text-black">{parceiro.nome}</span>
                                         )}
-                                    </div>
-                                    <span className="h-px flex-1 bg-white/10" />
-                                </div>
-                                <div>
-                                    <p className="text-sm font-black leading-tight text-white">{parceiro.nome}</p>
-                                    {parceiro.siteUrl && (
-                                        <a
-                                            href={parceiro.siteUrl}
-                                            target="_blank"
-                                            rel="noopener noreferrer"
-                                            className="mt-2 inline-flex items-center gap-1.5 text-[11px] font-bold uppercase text-white/46 transition-colors hover:text-white"
-                                        >
-                                            Site oficial
-                                            <ExternalLink className="h-3 w-3" />
-                                        </a>
-                                    )}
-                                </div>
-                            </div>
-                        </div>
-                    ))}
+                            </a>
+                        ))}
+                    </div>
                 </div>
             </div>
         </section>
     )
-}
-
-function iniciais(nome: string): string {
-    const words = nome.split(/\s+/).filter(Boolean)
-    return words.slice(0, 2).map((w) => w[0]).join('').toUpperCase()
 }
 
 function DestaqueBanner({ leilao }: { leilao: LeilaoPublico }) {

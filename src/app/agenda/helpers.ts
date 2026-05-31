@@ -1,5 +1,8 @@
 import type { LeilaoPublico } from '@/lib/bula/public-leiloes'
 
+export const WHATSAPP_CTA_URL =
+    'https://wa.me/?text=Quero%20receber%20ofertas%20exclusivas%20de%20touros%20e%20matrizes%20PO'
+
 export const MES_NOMES = [
     '', 'Janeiro', 'Fevereiro', 'Março', 'Abril', 'Maio', 'Junho',
     'Julho', 'Agosto', 'Setembro', 'Outubro', 'Novembro', 'Dezembro',
@@ -86,7 +89,7 @@ export function statusPublico(l: Pick<LeilaoPublico, 'status' | 'data'>): Status
     if (l.status === 'concluido' || (l.status === 'confirmado' && passado)) {
         return { label: 'Realizado', fg: '#525252', bg: 'rgba(0,0,0,0.06)', dot: '#525252' }
     }
-    return { label: 'Confirmado', fg: '#ffffff', bg: '#000000', dot: '#ffffff' }
+    return { label: 'Confirmado', fg: '#166534', bg: '#f3f4f6', dot: '#16a34a' }
 }
 
 export function contagemRegressiva(iso: string): string | null {

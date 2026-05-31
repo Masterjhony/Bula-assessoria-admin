@@ -93,6 +93,19 @@ a {
   text-decoration: none;
 }
 
+@keyframes bula-logo-marquee {
+  from { transform: translateX(0); }
+  to { transform: translateX(-50%); }
+}
+
+.bula-logo-marquee {
+  animation: bula-logo-marquee 34s linear infinite;
+}
+
+.bula-logo-marquee:hover {
+  animation-play-state: paused;
+}
+
 input, textarea, select {
   font-family: inherit;
   font-size: inherit;
