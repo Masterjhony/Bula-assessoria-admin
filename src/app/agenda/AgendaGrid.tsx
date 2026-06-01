@@ -5,44 +5,24 @@ import Link from 'next/link'
 import { AnimatePresence, motion } from 'framer-motion'
 import {
     ArrowRight, BookOpen, CalendarDays, CalendarX2, MapPin, Radio, Search,
-    SlidersHorizontal, Tag, Truck, Users, X,
+    Tag, Truck, Users, X,
 } from 'lucide-react'
 import type { LeilaoPublico } from '@/lib/bula/public-leiloes'
 import { contagemRegressiva, isFuturo, parseData, statusPublico, youtubeId } from './helpers'
 
-type FiltroArea = 'todos' | 'touros' | 'matrizes' | 'po' | 'corte' | 'virtual' | 'presencial' | 'frete'
-
-const FILTROS_AREA: { id: FiltroArea; label: string }[] = [
-    { id: 'todos', label: 'Todos' },
-    { id: 'touros', label: 'Touros' },
-    { id: 'matrizes', label: 'Matrizes' },
-    { id: 'po', label: 'PO' },
-    { id: 'corte', label: 'Corte' },
-    { id: 'virtual', label: 'Virtual' },
-    { id: 'presencial', label: 'Presencial' },
-    { id: 'frete', label: 'Frete grátis' },
-]
-
 export function AgendaGrid({ leiloes }: { leiloes: LeilaoPublico[] }) {
-    const [area, setArea] = useState<FiltroArea>('todos')
     const [busca, setBusca] = useState('')
-
-    const contagens = useMemo(() => {
-        return Object.fromEntries(
-            FILTROS_AREA.map((f) => [f.id, leiloes.filter((l) => matchesArea(l, f.id)).length]),
-        ) as Record<FiltroArea, number>
-    }, [leiloes])
 
     const lista = useMemo(() => {
         const q = normalize(busca)
-        let arr = leiloes.filter((l) => matchesArea(l, area))
+        let arr = leiloes
 
         if (q) {
             arr = arr.filter((l) => normalize(searchableText(l)).includes(q))
         }
 
         return [...arr].sort((a, b) => parseData(a.data).time - parseData(b.data).time)
-    }, [leiloes, area, busca])
+    }, [leiloes, busca])
 
     const grupos = useMemo(() => {
         const map = new Map<string, {
@@ -81,54 +61,25 @@ export function AgendaGrid({ leiloes }: { leiloes: LeilaoPublico[] }) {
 
     return (
         <div>
-            <div className="flex flex-col gap-4 rounded-md border border-black/10 bg-white p-3 shadow-sm">
-                <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
-                    <div className="flex items-center gap-2 text-xs font-bold uppercase text-black/45">
-                        <SlidersHorizontal className="h-4 w-4" />
-                        Filtrar por área
-                    </div>
-
-                    <div className="relative lg:w-96">
-                        <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-black/34" />
-                        <input
-                            value={busca}
-                            onChange={(e) => setBusca(e.target.value)}
-                            placeholder="Buscar por nome, criatório, leiloeira..."
-                            className="w-full rounded-md border border-black/10 bg-white py-2.5 pl-10 pr-9 text-sm text-black shadow-sm placeholder:text-black/35 transition-colors focus:border-black/35 focus:outline-none"
-                        />
-                        {busca && (
-                            <button
-                                type="button"
-                                onClick={() => setBusca('')}
-                                className="absolute right-2.5 top-1/2 -translate-y-1/2 rounded p-1 text-black/35 hover:bg-black/5 hover:text-black"
-                                aria-label="Limpar busca"
-                            >
-                                <X className="h-3.5 w-3.5" />
-                            </button>
-                        )}
-                    </div>
-                </div>
-
-                <div className="flex gap-2 overflow-x-auto pb-1">
-                    {FILTROS_AREA.map((f) => (
+            <div className="rounded-md border border-black/10 bg-white p-3 shadow-sm">
+                <div className="relative">
+                    <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-black/34" />
+                    <input
+                        value={busca}
+                        onChange={(e) => setBusca(e.target.value)}
+                        placeholder="Buscar por nome, criatório, leiloeira, local..."
+                        className="w-full rounded-md border border-black/10 bg-white py-3 pl-10 pr-9 text-sm text-black shadow-sm placeholder:text-black/35 transition-colors focus:border-black/35 focus:outline-none"
+                    />
+                    {busca && (
                         <button
-                            key={f.id}
                             type="button"
-                            onClick={() => setArea(f.id)}
-                            className={`relative inline-flex min-w-fit items-center gap-2 rounded-md border px-3.5 py-2 text-[12px] font-bold transition-colors ${
-                                area === f.id
-                                    ? 'border-black bg-black text-white'
-                                    : 'border-black/10 bg-white text-black/62 hover:border-black/25 hover:text-black'
-                            }`}
+                            onClick={() => setBusca('')}
+                            className="absolute right-2.5 top-1/2 -translate-y-1/2 rounded p-1 text-black/35 hover:bg-black/5 hover:text-black"
+                            aria-label="Limpar busca"
                         >
-                            <span>{f.label}</span>
-                            <span className={`rounded-full px-1.5 py-0.5 text-[10px] ${
-                                area === f.id ? 'bg-white/15 text-white/72' : 'bg-black/5 text-black/45'
-                            }`}>
-                                {contagens[f.id]}
-                            </span>
+                            <X className="h-3.5 w-3.5" />
                         </button>
-                    ))}
+                    )}
                 </div>
             </div>
 
@@ -136,21 +87,6 @@ export function AgendaGrid({ leiloes }: { leiloes: LeilaoPublico[] }) {
                 <EstadoVazio temBusca={!!busca.trim()} />
             ) : (
                 <motion.div layout className="mt-7 space-y-10">
-                    <nav className="flex gap-2 overflow-x-auto pb-1">
-                        {grupos.map((grupo) => (
-                            <a
-                                key={grupo.key}
-                                href={`#mes-${grupo.key}`}
-                                className="inline-flex min-w-fit items-center gap-2 rounded-md border border-black/10 bg-white px-3.5 py-2 text-sm font-bold text-black shadow-sm transition-colors hover:border-black/25"
-                            >
-                                {grupo.label}
-                                <span className="rounded-full bg-black px-2 py-0.5 text-[11px] text-white">
-                                    {grupo.total}
-                                </span>
-                            </a>
-                        ))}
-                    </nav>
-
                     {grupos.map((grupo, grupoIndex) => (
                         <motion.section
                             layout
@@ -330,7 +266,7 @@ function LeilaoCard({ leilao, index }: { leilao: LeilaoPublico; index: number })
 
 function EstadoVazio({ temBusca }: { temBusca: boolean }) {
     const msg = temBusca
-        ? 'Nenhum leilão encontrado para essa busca ou filtro.'
+        ? 'Nenhum leilão encontrado para essa busca.'
         : 'Nenhum leilão cadastrado para o período da agenda.'
     return (
         <div className="mt-10 flex flex-col items-center justify-center rounded-md border border-dashed border-black/15 bg-white py-20 text-center">
@@ -354,19 +290,6 @@ function normalize(value?: string | null): string {
         .toLowerCase()
         .replace(/[^a-z0-9]+/g, ' ')
         .trim()
-}
-
-function matchesArea(l: LeilaoPublico, area: FiltroArea): boolean {
-    if (area === 'todos') return true
-    const text = normalize(searchableText(l))
-    if (area === 'touros') return /\b(touro|touros|macho|machos|reprodutor|reprodutores)\b/.test(text)
-    if (area === 'matrizes') return /\b(matriz|matrizes|femea|femeas|novilha|novilhas|doadora|doadoras)\b/.test(text)
-    if (area === 'po') return /\b(po|padrao|nelore)\b/.test(text)
-    if (area === 'corte') return /\b(corte|comercial)\b/.test(text)
-    if (area === 'virtual') return /\b(virtual|online)\b/.test(text)
-    if (area === 'presencial') return /\b(presencial|expo|expogrande|expozebu)\b/.test(text)
-    if (area === 'frete') return /\b(frete|gratis|gratuito)\b/.test(text)
-    return true
 }
 
 function cardTags(l: LeilaoPublico): string[] {

@@ -81,13 +81,17 @@ export default async function LeilaoDetalhePage({ params }: { params: Promise<{ 
                 </Link>
 
                 <header className="mt-6 overflow-hidden rounded-md border border-black/10 bg-white shadow-sm">
-                    <div className="grid lg:grid-cols-[minmax(0,1.15fr)_minmax(360px,0.85fr)]">
-                        <div className="relative flex min-h-[420px] items-center justify-center bg-black p-3 sm:min-h-[560px]">
+                    <div className="bg-black px-3 py-4 sm:px-5 sm:py-6">
+                        <div className="mx-auto flex max-w-4xl items-center justify-center">
                             {leilao.img ? (
                                 // eslint-disable-next-line @next/next/no-img-element
-                                <img src={leilao.img} alt={leilao.nome} className="max-h-[78vh] w-full object-contain" />
+                                <img
+                                    src={leilao.img}
+                                    alt={leilao.nome}
+                                    className="max-h-[calc(100svh-220px)] max-w-full rounded-sm object-contain sm:max-h-[calc(100svh-190px)]"
+                                />
                             ) : (
-                                <div className="text-center text-white">
+                                <div className="py-16 text-center text-white">
                                     {/* eslint-disable-next-line @next/next/no-img-element */}
                                     <img src="/logo-bula-assessoria-white.png" alt="" className="mx-auto mb-8 h-12 w-auto opacity-80" />
                                     <div className="text-8xl font-black leading-none">{p.dia}</div>
@@ -95,36 +99,38 @@ export default async function LeilaoDetalhePage({ params }: { params: Promise<{ 
                                 </div>
                             )}
                         </div>
+                    </div>
 
-                        <div className="flex flex-col justify-between gap-8 p-6 sm:p-8 lg:p-10">
+                    <div className="p-6 sm:p-8 lg:p-10">
+                        <div className="flex flex-wrap gap-2">
+                            <span
+                                className="inline-flex items-center gap-1.5 rounded-md border px-3 py-1.5 text-xs font-black shadow-sm"
+                                style={{ color: badge.fg, background: badge.bg, borderColor: badge.dot === '#16a34a' ? 'rgba(22,101,52,0.18)' : 'rgba(0,0,0,0.08)' }}
+                            >
+                                <span className="h-1.5 w-1.5 rounded-full" style={{ background: badge.dot }} />
+                                {badge.label}
+                            </span>
+                            {countdown && (
+                                <span className="rounded-md bg-black px-3 py-1.5 text-xs font-black text-white shadow-sm">
+                                    {countdown}
+                                </span>
+                            )}
+                            {ytId && (
+                                <span className="inline-flex items-center gap-1.5 rounded-md bg-black px-3 py-1.5 text-xs font-black text-white shadow-sm">
+                                    <Radio className="h-3.5 w-3.5" />
+                                    Ao vivo
+                                </span>
+                            )}
+                            {leilao.tipo && (
+                                <span className="rounded-md border border-black/10 bg-black/[0.04] px-3 py-1.5 text-xs font-black uppercase text-black/62">
+                                    {leilao.tipo}
+                                </span>
+                            )}
+                        </div>
+
+                        <div className="mt-5 grid gap-6 lg:grid-cols-[minmax(0,1fr)_auto] lg:items-end">
                             <div>
-                                <div className="flex flex-wrap gap-2">
-                                    <span
-                                        className="inline-flex items-center gap-1.5 rounded-md border px-3 py-1.5 text-xs font-black shadow-sm"
-                                        style={{ color: badge.fg, background: badge.bg, borderColor: badge.dot === '#16a34a' ? 'rgba(22,101,52,0.18)' : 'rgba(0,0,0,0.08)' }}
-                                    >
-                                        <span className="h-1.5 w-1.5 rounded-full" style={{ background: badge.dot }} />
-                                        {badge.label}
-                                    </span>
-                                    {countdown && (
-                                        <span className="rounded-md bg-black px-3 py-1.5 text-xs font-black text-white shadow-sm">
-                                            {countdown}
-                                        </span>
-                                    )}
-                                    {ytId && (
-                                        <span className="inline-flex items-center gap-1.5 rounded-md bg-black px-3 py-1.5 text-xs font-black text-white shadow-sm">
-                                            <Radio className="h-3.5 w-3.5" />
-                                            Ao vivo
-                                        </span>
-                                    )}
-                                    {leilao.tipo && (
-                                        <span className="rounded-md border border-black/10 bg-black/[0.04] px-3 py-1.5 text-xs font-black uppercase text-black/62">
-                                            {leilao.tipo}
-                                        </span>
-                                    )}
-                                </div>
-
-                                <h1 className="mt-5 text-4xl font-black leading-[0.96] tracking-tight text-black sm:text-6xl">
+                                <h1 className="max-w-4xl text-4xl font-black leading-[0.96] tracking-tight text-black sm:text-6xl">
                                     {leilao.nome}
                                 </h1>
                                 <p className="mt-4 text-base font-semibold leading-relaxed text-black/62">
@@ -132,24 +138,24 @@ export default async function LeilaoDetalhePage({ params }: { params: Promise<{ 
                                     {leilao.horario ? ` às ${leilao.horario}` : ''}
                                     {leilao.local ? ` | ${leilao.local}` : ''}
                                 </p>
+
+                                <div className="mt-5 flex flex-wrap gap-x-6 gap-y-2 text-sm font-semibold text-black/62">
+                                    {leilao.criador && (
+                                        <span className="inline-flex items-center gap-2">
+                                            <Users className="h-4 w-4 text-black" />
+                                            {leilao.criador}
+                                        </span>
+                                    )}
+                                    {!!leilao.animais && leilao.animais > 0 && (
+                                        <span className="inline-flex items-center gap-2">
+                                            <Users className="h-4 w-4 text-black" />
+                                            {leilao.animais} animais na oferta
+                                        </span>
+                                    )}
+                                </div>
                             </div>
 
-                            <div className="grid gap-2 text-sm font-semibold text-black/62">
-                                {leilao.criador && (
-                                    <span className="inline-flex items-center gap-2">
-                                        <Users className="h-4 w-4 text-black" />
-                                        {leilao.criador}
-                                    </span>
-                                )}
-                                {!!leilao.animais && leilao.animais > 0 && (
-                                    <span className="inline-flex items-center gap-2">
-                                        <Users className="h-4 w-4 text-black" />
-                                        {leilao.animais} animais na oferta
-                                    </span>
-                                )}
-                            </div>
-
-                            <div className="flex flex-wrap gap-2">
+                            <div className="flex flex-wrap gap-2 lg:justify-end">
                                 {leilao.img && (
                                     <a
                                         href={leilao.img}

@@ -110,8 +110,8 @@ export default async function AgendaPage() {
                         </h2>
                     </div>
                     <p className="max-w-lg text-sm leading-relaxed text-black/58">
-                        Encontre rapidamente os leilões por categoria, criatório,
-                        leiloeira, local ou condição comercial.
+                        Busque rapidamente por nome, criatório, leiloeira,
+                        local ou condição comercial.
                     </p>
                 </div>
                 <AgendaGrid leiloes={leiloes} />
