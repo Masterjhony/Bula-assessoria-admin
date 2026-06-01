@@ -1,8 +1,7 @@
-import { existsSync, readdirSync } from 'node:fs'
-import { extname, join, parse } from 'node:path'
 import { supabaseAdmin } from '@/lib/supabase'
 import type { BulaMembro, LeilaoStatus } from './types'
 import { isLeilaoAtivo } from './leilao-tempo'
+import { CRIATORIO_LOGOS } from './criatorio-logos'
 
 /**
  * Leilao exposto na pagina publica (lp / agenda).
@@ -142,13 +141,7 @@ function isActivePublicAgendaRow(row: Record<string, unknown>): boolean {
 
 function logoForCriatorio(nome: string): string | null {
     const slug = slugify(nome)
-    const dir = join(process.cwd(), 'public', 'criatorios')
-    if (!existsSync(dir)) return null
-    const file = readdirSync(dir).find((entry) => {
-        const ext = extname(entry).toLowerCase()
-        return ['.png', '.webp', '.jpg', '.jpeg', '.svg'].includes(ext) && parse(entry).name === slug
-    })
-    return file ? `/criatorios/${file}` : null
+    return CRIATORIO_LOGOS[slug]?.src ?? null
 }
 
 function referenceForCriatorio(nome: string): { siteUrl: string | null } {
