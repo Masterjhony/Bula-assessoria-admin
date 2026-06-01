@@ -5,7 +5,7 @@ import {
     ArrowLeft, ArrowRight, BookOpen, CalendarDays, Clock, Download, ExternalLink, Gavel,
     MapPin, MessageCircle, Radio, Share2, Tag, Truck, Tv, Users,
 } from 'lucide-react'
-import { getLeilaoPublico, getLeiloesPublicos, type LeilaoPublico } from '@/lib/bula/public-leiloes'
+import { getLeilaoPublico } from '@/lib/bula/public-leiloes'
 import {
     contagemRegressiva, dataPorExtenso, parseData, statusPublico, youtubeId, WHATSAPP_CTA_URL,
 } from '../helpers'
@@ -51,14 +51,6 @@ export default async function LeilaoDetalhePage({ params }: { params: Promise<{ 
     const badge = statusPublico(leilao)
     const ytId = youtubeId(leilao.transmissao)
     const countdown = contagemRegressiva(leilao.data)
-    const todos = await getLeiloesPublicos()
-    const agendaOrdenada = [...todos]
-        .sort((a, b) => parseData(a.data).time - parseData(b.data).time)
-    const atualIndex = agendaOrdenada.findIndex((item) => item.id === leilao.id)
-    const anterior = atualIndex > 0 ? agendaOrdenada[atualIndex - 1] : null
-    const proximo = atualIndex >= 0 && atualIndex < agendaOrdenada.length - 1
-        ? agendaOrdenada[atualIndex + 1]
-        : null
     const transmissaoUrl = leilao.transmissao?.trim() || null
 
     const infos = [
@@ -243,32 +235,39 @@ export default async function LeilaoDetalhePage({ params }: { params: Promise<{ 
                             </div>
                         </section>
 
-                        <section className="rounded-md border border-black bg-black p-6 text-white shadow-sm sm:p-8">
-                            <div className="flex flex-col gap-5 lg:flex-row lg:items-center lg:justify-between">
-                                <div>
-                                    <span className="text-[11px] font-black uppercase text-white/48">
+                        <section className="relative overflow-hidden rounded-2xl border border-black bg-black p-6 text-white shadow-sm sm:p-8 lg:p-10">
+                            <div
+                                aria-hidden
+                                className="pointer-events-none absolute -right-16 -top-20 h-56 w-56 rounded-full bg-white/[0.07] blur-3xl sm:-right-10"
+                            />
+                            <div
+                                aria-hidden
+                                className="pointer-events-none absolute -bottom-24 -left-16 h-56 w-56 rounded-full bg-white/[0.05] blur-3xl"
+                            />
+                            <div className="relative flex flex-col gap-7 lg:flex-row lg:items-center lg:justify-between lg:gap-10">
+                                <div className="min-w-0">
+                                    <span className="inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/[0.06] px-3 py-1 text-[11px] font-black uppercase tracking-wide text-white/70">
+                                        <MessageCircle className="h-3.5 w-3.5" />
                                         Grupo de WhatsApp
                                     </span>
-                                    <h2 className="mt-2 text-2xl font-black tracking-tight sm:text-3xl">
+                                    <h2 className="mt-4 text-2xl font-black leading-[1.05] tracking-tight sm:text-3xl lg:text-[2rem]">
                                         Entre no grupo da Bula
                                     </h2>
-                                    <p className="mt-2 max-w-xl text-sm font-semibold leading-relaxed text-white/58">
+                                    <p className="mt-3 max-w-xl text-sm font-semibold leading-relaxed text-white/60 sm:text-[15px]">
                                         Receba alertas de leilões, catálogos e condições comerciais direto no WhatsApp.
                                     </p>
                                 </div>
-                                <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
-                                    <a
-                                        href={WHATSAPP_CTA_URL}
-                                        target="_blank"
-                                        rel="noopener noreferrer"
-                                        className="inline-flex items-center justify-center gap-2 rounded-md bg-white px-5 py-3 text-sm font-black text-black transition-all hover:-translate-y-0.5 hover:bg-white/88"
-                                        style={{ color: '#050505' }}
-                                    >
-                                        <MessageCircle className="h-4 w-4" />
-                                        Entrar no grupo
-                                        <ArrowRight className="h-4 w-4" />
-                                    </a>
-                                </div>
+                                <a
+                                    href={WHATSAPP_CTA_URL}
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    className="group inline-flex w-full shrink-0 items-center justify-center gap-2 rounded-xl bg-white px-6 py-3.5 text-sm font-black text-black shadow-sm transition-all hover:-translate-y-0.5 hover:shadow-lg hover:shadow-white/10 active:translate-y-0 lg:w-auto"
+                                    style={{ color: '#050505' }}
+                                >
+                                    <MessageCircle className="h-4 w-4" />
+                                    Entrar no grupo
+                                    <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-0.5" />
+                                </a>
                             </div>
                         </section>
                     </main>
@@ -355,20 +354,6 @@ export default async function LeilaoDetalhePage({ params }: { params: Promise<{ 
                         )}
                     </aside>
                 </div>
-
-                {(anterior || proximo) && (
-                    <section className="mt-16">
-                        <SectionLabel icon={CalendarDays}>Navegar pela agenda</SectionLabel>
-                        <div className="grid gap-5 sm:grid-cols-2">
-                            {anterior ? (
-                                <AgendaNavCard direction="anterior" leilao={anterior} />
-                            ) : (
-                                <div className="hidden sm:block" />
-                            )}
-                            {proximo && <AgendaNavCard direction="proximo" leilao={proximo} />}
-                        </div>
-                    </section>
-                )}
             </div>
         </article>
     )
@@ -380,41 +365,5 @@ function SectionLabel({ icon: Icon, children }: { icon: typeof CalendarDays; chi
             <Icon className="h-4 w-4 text-black" />
             {children}
         </h2>
-    )
-}
-
-function AgendaNavCard({ direction, leilao }: { direction: 'anterior' | 'proximo'; leilao: LeilaoPublico }) {
-    const p = parseData(leilao.data)
-    const isAnterior = direction === 'anterior'
-
-    return (
-        <Link
-            href={`/agenda/${leilao.id}`}
-            className="group flex items-center gap-4 rounded-md border border-black/10 bg-white p-4 shadow-sm transition-all hover:-translate-y-0.5 hover:border-black/25"
-        >
-            {isAnterior && (
-                <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-md border border-black/10 text-black transition-colors group-hover:bg-black group-hover:text-white">
-                    <ArrowLeft className="h-4 w-4" />
-                </span>
-            )}
-            <div className="flex h-14 w-14 shrink-0 flex-col items-center justify-center rounded-md bg-black text-white">
-                <span className="text-xl font-black leading-none">{p.dia}</span>
-                <span className="text-[10px] font-black uppercase text-white/48">{p.mesAbrev}</span>
-            </div>
-            <div className="min-w-0">
-                <span className="text-[10px] font-black uppercase text-black/42">
-                    {isAnterior ? 'Leilão anterior' : 'Próximo leilão'}
-                </span>
-                <h3 className="truncate text-sm font-black text-black transition-colors group-hover:text-black/70">
-                    {leilao.nome}
-                </h3>
-                {leilao.local && <p className="mt-0.5 truncate text-xs font-semibold text-black/48">{leilao.local}</p>}
-            </div>
-            {!isAnterior && (
-                <span className="ml-auto flex h-10 w-10 shrink-0 items-center justify-center rounded-md border border-black/10 text-black transition-colors group-hover:bg-black group-hover:text-white">
-                    <ArrowRight className="h-4 w-4" />
-                </span>
-            )}
-        </Link>
     )
 }
