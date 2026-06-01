@@ -17,8 +17,7 @@ import { CriatorioLogoTile } from './CriatorioLogoTile'
 
 export const revalidate = 120
 
-const HERO_VIDEO =
-    'https://res.cloudinary.com/dny0ibgbn/video/upload/v1780252444/video_de_fundo_jmvezn.mp4'
+const HERO_IMAGE = '/agenda-oficial-bula.jpg'
 
 export default async function AgendaPage() {
     const [leiloes, criatorios] = await Promise.all([
@@ -37,14 +36,11 @@ export default async function AgendaPage() {
         <>
             <section className="relative min-h-[calc(100svh-96px)] overflow-hidden bg-black text-white">
                 <div className="absolute inset-0">
-                    <video
-                        src={HERO_VIDEO}
-                        className="h-full w-full object-cover"
-                        autoPlay
-                        muted
-                        loop
-                        playsInline
-                        preload="metadata"
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img
+                        src={HERO_IMAGE}
+                        alt=""
+                        className="h-full w-full object-cover object-[56%_center]"
                     />
                     <div className="absolute inset-0 bg-black/54" />
                     <div className="absolute inset-0 bg-[linear-gradient(90deg,rgba(0,0,0,0.98)_0%,rgba(0,0,0,0.78)_40%,rgba(0,0,0,0.30)_100%)]" />

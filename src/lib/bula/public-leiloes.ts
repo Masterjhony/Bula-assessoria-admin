@@ -43,6 +43,7 @@ const PUBLIC_COLS =
     'id, nome, data, horario, tipo, local, animais, modelo, leiloeira, condicao, frete_gratis, transmissao, catalogo_url, img, status'
 
 const PUBLIC_STATUSES: LeilaoStatus[] = ['confirmado', 'concluido']
+const FALLBACK_EVENT_ARCHIVE_MINUTES = 20 * 60
 
 const CRIATORIO_REFERENCIAS: Record<string, { siteUrl: string }> = {
     'fazenda camparino': { siteUrl: 'https://fazendacamparino.com.br/' },
@@ -56,6 +57,24 @@ const CRIATORIO_REFERENCIAS: Record<string, { siteUrl: string }> = {
 function todaySaoPaulo(): string {
     const { year, month, day } = datePartsSaoPaulo(new Date())
     return `${year}-${month}-${day}`
+}
+
+function nowSaoPaulo() {
+    const parts = new Intl.DateTimeFormat('en-CA', {
+        timeZone: 'America/Sao_Paulo',
+        year: 'numeric',
+        month: '2-digit',
+        day: '2-digit',
+        hour: '2-digit',
+        minute: '2-digit',
+        hour12: false,
+        hourCycle: 'h23',
+    }).formatToParts(new Date())
+    const get = (type: Intl.DateTimeFormatPartTypes) => parts.find((p) => p.type === type)?.value ?? ''
+    return {
+        date: `${get('year')}-${get('month')}-${get('day')}`,
+        minutes: Number(get('hour')) * 60 + Number(get('minute')),
+    }
 }
 
 function datePartsSaoPaulo(date: Date) {
@@ -135,6 +154,30 @@ function eventKey(data: unknown, nome: unknown, hora: unknown): string {
     ].join('|')
 }
 
+function parseHorarioMinutes(value: unknown): number | null {
+    const raw = String(value ?? '').trim()
+    const match = raw.match(/(\d{1,2})\s*(?::|h)\s*(\d{2})?/)
+    if (!match) return null
+    const hour = Number(match[1])
+    const minute = Number(match[2] ?? '0')
+    if (!Number.isFinite(hour) || !Number.isFinite(minute) || hour > 23 || minute > 59) {
+        return null
+    }
+    return hour * 60 + minute
+}
+
+function isActivePublicAgendaRow(row: Record<string, unknown>): boolean {
+    const data = String(row.data ?? '').slice(0, 10)
+    if (!data) return true
+    const now = nowSaoPaulo()
+    if (data < now.date) return false
+    if (data > now.date) return true
+
+    const minutes = parseHorarioMinutes(row.horario ?? row.hora)
+    if (minutes === null) return now.minutes < FALLBACK_EVENT_ARCHIVE_MINUTES
+    return minutes >= now.minutes
+}
+
 function logoForCriatorio(nome: string): string | null {
     const slug = slugify(nome)
     const dir = join(process.cwd(), 'public', 'criatorios')
@@ -184,22 +227,37 @@ export async function getLeiloesPublicos(): Promise<LeilaoPublico[]> {
     }
 
     const criadorByKey = new Map<string, string>()
+    const horaByKey = new Map<string, string>()
     for (const row of cronoData ?? []) {
         const criador = String(row.criador || '').trim()
-        if (!criador) continue
-        criadorByKey.set(eventKey(row.data, row.nome, row.hora), criador)
+        const hora = String(row.hora || '').trim()
+        if (criador) criadorByKey.set(eventKey(row.data, row.nome, row.hora), criador)
+        if (hora) horaByKey.set(eventKey(row.data, row.nome, row.hora), hora)
         const noHourKey = eventKey(row.data, row.nome, '')
-        if (!criadorByKey.has(noHourKey)) criadorByKey.set(noHourKey, criador)
+        if (criador && !criadorByKey.has(noHourKey)) criadorByKey.set(noHourKey, criador)
+        if (hora && !horaByKey.has(noHourKey)) horaByKey.set(noHourKey, hora)
     }
 
-    return (data ?? []).map((row: Record<string, unknown>) => ({
-        ...(row as object),
-        criador:
-            criadorByKey.get(eventKey(row.data, row.nome, row.horario))
-            ?? criadorByKey.get(eventKey(row.data, row.nome, ''))
-            ?? null,
-        assessores: mapAssessores(row),
-    })) as unknown as LeilaoPublico[]
+    return (data ?? [])
+        .map((row: Record<string, unknown>) => {
+            const cronoHora =
+                horaByKey.get(eventKey(row.data, row.nome, row.horario))
+                ?? horaByKey.get(eventKey(row.data, row.nome, ''))
+                ?? null
+            return {
+                ...row,
+                horario: String(row.horario || '').trim() || cronoHora,
+            }
+        })
+        .filter((row: Record<string, unknown>) => isActivePublicAgendaRow(row))
+        .map((row: Record<string, unknown>) => ({
+            ...(row as object),
+            criador:
+                criadorByKey.get(eventKey(row.data, row.nome, row.horario))
+                ?? criadorByKey.get(eventKey(row.data, row.nome, ''))
+                ?? null,
+            assessores: mapAssessores(row),
+        })) as unknown as LeilaoPublico[]
 }
 
 export async function getLeilaoPublico(id: string): Promise<LeilaoPublico | null> {
@@ -232,6 +290,9 @@ export async function getLeilaoPublico(id: string): Promise<LeilaoPublico | null
 
     return {
         ...(data as object),
+        horario: String((data as Record<string, unknown>).horario || '').trim()
+            || String(cronoMatch?.hora || '').trim()
+            || null,
         criador: String(cronoMatch?.criador || '').trim() || null,
         assessores: mapAssessores(data as Record<string, unknown>),
     } as unknown as LeilaoPublico
@@ -242,7 +303,7 @@ export async function getCriatoriosParceirosMes(): Promise<CriatorioParceiroPubl
     const range = publicAgendaRangeSaoPaulo()
     const { data, error } = await supabase
         .from('cronograma_leiloes')
-        .select('nome, criador, data')
+        .select('nome, criador, data, hora')
         .gte('data', range.start)
         .lte('data', range.end)
         .order('data', { ascending: true })
@@ -253,7 +314,8 @@ export async function getCriatoriosParceirosMes(): Promise<CriatorioParceiroPubl
     }
 
     const map = new Map<string, { nome: string; totalLeiloes: number }>()
-    for (const row of data ?? []) {
+    const activeRows = (data ?? []).filter((row: Record<string, unknown>) => isActivePublicAgendaRow(row))
+    for (const row of activeRows) {
         const nome = String(row.criador || '').trim()
         if (!nome) continue
         const slug = slugify(nome)
