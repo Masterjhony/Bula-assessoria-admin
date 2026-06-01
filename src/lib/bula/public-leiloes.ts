@@ -2,6 +2,7 @@ import { existsSync, readdirSync } from 'node:fs'
 import { extname, join, parse } from 'node:path'
 import { supabaseAdmin } from '@/lib/supabase'
 import type { BulaMembro, LeilaoStatus } from './types'
+import { isLeilaoAtivo } from './leilao-tempo'
 
 /**
  * Leilao exposto na pagina publica (lp / agenda).
@@ -42,8 +43,7 @@ export interface CriatorioParceiroPublico {
 const PUBLIC_COLS =
     'id, nome, data, horario, tipo, local, animais, modelo, leiloeira, condicao, frete_gratis, transmissao, catalogo_url, img, status'
 
-const PUBLIC_STATUSES: LeilaoStatus[] = ['confirmado', 'concluido']
-const FALLBACK_EVENT_ARCHIVE_MINUTES = 20 * 60
+const PUBLIC_STATUSES: LeilaoStatus[] = ['confirmado']
 
 const CRIATORIO_REFERENCIAS: Record<string, { siteUrl: string }> = {
     'fazenda camparino': { siteUrl: 'https://fazendacamparino.com.br/' },
@@ -57,24 +57,6 @@ const CRIATORIO_REFERENCIAS: Record<string, { siteUrl: string }> = {
 function todaySaoPaulo(): string {
     const { year, month, day } = datePartsSaoPaulo(new Date())
     return `${year}-${month}-${day}`
-}
-
-function nowSaoPaulo() {
-    const parts = new Intl.DateTimeFormat('en-CA', {
-        timeZone: 'America/Sao_Paulo',
-        year: 'numeric',
-        month: '2-digit',
-        day: '2-digit',
-        hour: '2-digit',
-        minute: '2-digit',
-        hour12: false,
-        hourCycle: 'h23',
-    }).formatToParts(new Date())
-    const get = (type: Intl.DateTimeFormatPartTypes) => parts.find((p) => p.type === type)?.value ?? ''
-    return {
-        date: `${get('year')}-${get('month')}-${get('day')}`,
-        minutes: Number(get('hour')) * 60 + Number(get('minute')),
-    }
 }
 
 function datePartsSaoPaulo(date: Date) {
@@ -154,28 +136,8 @@ function eventKey(data: unknown, nome: unknown, hora: unknown): string {
     ].join('|')
 }
 
-function parseHorarioMinutes(value: unknown): number | null {
-    const raw = String(value ?? '').trim()
-    const match = raw.match(/(\d{1,2})\s*(?::|h)\s*(\d{2})?/)
-    if (!match) return null
-    const hour = Number(match[1])
-    const minute = Number(match[2] ?? '0')
-    if (!Number.isFinite(hour) || !Number.isFinite(minute) || hour > 23 || minute > 59) {
-        return null
-    }
-    return hour * 60 + minute
-}
-
 function isActivePublicAgendaRow(row: Record<string, unknown>): boolean {
-    const data = String(row.data ?? '').slice(0, 10)
-    if (!data) return true
-    const now = nowSaoPaulo()
-    if (data < now.date) return false
-    if (data > now.date) return true
-
-    const minutes = parseHorarioMinutes(row.horario ?? row.hora)
-    if (minutes === null) return now.minutes < FALLBACK_EVENT_ARCHIVE_MINUTES
-    return minutes >= now.minutes
+    return isLeilaoAtivo(row.data, row.horario ?? row.hora)
 }
 
 function logoForCriatorio(nome: string): string | null {

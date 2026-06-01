@@ -2,6 +2,7 @@ import { createClient } from '@/utils/supabase/server'
 import type {
     BulaMembro, BulaLeilao, BulaCard, BulaFunil, BulaDeal, BulaLead, BulaMarketingConfig,
 } from './types'
+import { isLeilaoPassado, nowSaoPaulo } from './leilao-tempo'
 
 // ── Membros ──────────────────────────────────────────────
 
@@ -15,6 +16,7 @@ export async function getMembros(): Promise<BulaMembro[]> {
 
 export async function getLeiloes(): Promise<BulaLeilao[]> {
     const supabase = await createClient()
+    await autoConcluirLeiloesPassados(supabase)
     const { data: leiloes } = await supabase
         .from('bula_leiloes')
         .select(`*, bula_leilao_assessores(membro_id, bula_membros(id, nome, iniciais, cor))`)
@@ -24,6 +26,45 @@ export async function getLeiloes(): Promise<BulaLeilao[]> {
         ...l,
         assessores: ((l.bula_leilao_assessores as Array<{bula_membros: BulaMembro}>) ?? []).map((a) => a.bula_membros),
     })) as BulaLeilao[]
+}
+
+async function autoConcluirLeiloesPassados(supabase: Awaited<ReturnType<typeof createClient>>) {
+    const now = nowSaoPaulo()
+    const { error: olderError } = await supabase
+        .from('bula_leiloes')
+        .update({ status: 'concluido' })
+        .eq('status', 'confirmado')
+        .lt('data', now.date)
+
+    if (olderError) {
+        console.error('[bula_leiloes] autoConcluirLeiloesPassados antigos', olderError.message)
+    }
+
+    const { data: todayRows, error: todayError } = await supabase
+        .from('bula_leiloes')
+        .select('id, data, horario')
+        .eq('status', 'confirmado')
+        .eq('data', now.date)
+
+    if (todayError) {
+        console.error('[bula_leiloes] autoConcluirLeiloesPassados hoje', todayError.message)
+        return
+    }
+
+    const passedIds = (todayRows ?? [])
+        .filter((row) => isLeilaoPassado(row.data, row.horario, now))
+        .map((row) => row.id)
+
+    if (passedIds.length === 0) return
+
+    const { error: updateError } = await supabase
+        .from('bula_leiloes')
+        .update({ status: 'concluido' })
+        .in('id', passedIds)
+
+    if (updateError) {
+        console.error('[bula_leiloes] autoConcluirLeiloesPassados update hoje', updateError.message)
+    }
 }
 
 export async function getLeilao(id: string): Promise<BulaLeilao | null> {

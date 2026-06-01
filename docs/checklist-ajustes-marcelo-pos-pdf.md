@@ -20,7 +20,7 @@ Origem: WhatsApp com Marcelo Primo Carneiro, a partir do envio do checklist em P
 - [x] Remover os filtros da agenda publica e deixar somente a busca.
 - [x] Corrigir a pagina de detalhe do leilao que ficou bugada, deixando a capa inteira centralizada e sem corte.
 - [x] Usar a foto "Agenda Oficial Bula" enviada por Marcelo como imagem de preview ao compartilhar o link da agenda.
-- [x] Arquivar automaticamente na agenda publica os leiloes que ja passaram, mantendo apenas eventos ativos/futuros.
+- [x] Arquivar automaticamente na agenda publica os leiloes que ja passaram e marcar como **Concluido** no admin os confirmados que ficaram para tras.
 
 ## Conferencias e dados internos
 
