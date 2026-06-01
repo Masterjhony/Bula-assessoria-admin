@@ -45,6 +45,10 @@ const PUBLIC_COLS =
 
 const PUBLIC_STATUSES: LeilaoStatus[] = ['confirmado']
 
+function hasSupabaseAdminConfig(): boolean {
+    return Boolean(process.env.NEXT_PUBLIC_SUPABASE_URL && process.env.SUPABASE_SERVICE_ROLE_KEY)
+}
+
 const CRIATORIO_REFERENCIAS: Record<string, { siteUrl: string }> = {
     'fazenda camparino': { siteUrl: 'https://fazendacamparino.com.br/' },
     'ls agropecuaria': { siteUrl: 'https://fazendals.com.br/' },
@@ -162,6 +166,8 @@ function mapAssessores(row: Record<string, unknown>): BulaMembro[] {
 }
 
 export async function getLeiloesPublicos(): Promise<LeilaoPublico[]> {
+    if (!hasSupabaseAdminConfig()) return []
+
     const supabase = supabaseAdmin()
     const range = publicAgendaRangeSaoPaulo()
     const { data, error } = await supabase
@@ -223,6 +229,8 @@ export async function getLeiloesPublicos(): Promise<LeilaoPublico[]> {
 }
 
 export async function getLeilaoPublico(id: string): Promise<LeilaoPublico | null> {
+    if (!hasSupabaseAdminConfig()) return null
+
     const supabase = supabaseAdmin()
     const { data, error } = await supabase
         .from('bula_leiloes')
@@ -261,6 +269,8 @@ export async function getLeilaoPublico(id: string): Promise<LeilaoPublico | null
 }
 
 export async function getCriatoriosParceirosMes(): Promise<CriatorioParceiroPublico[]> {
+    if (!hasSupabaseAdminConfig()) return []
+
     const supabase = supabaseAdmin()
     const range = publicAgendaRangeSaoPaulo()
     const { data, error } = await supabase
