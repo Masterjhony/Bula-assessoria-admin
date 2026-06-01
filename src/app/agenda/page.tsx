@@ -192,8 +192,9 @@ function OfferBand() {
 }
 
 function CriatoriosParceiros({ parceiros }: { parceiros: CriatorioParceiroPublico[] }) {
-    if (parceiros.length === 0) return null
-    const faixa = [...parceiros, ...parceiros]
+    const parceirosComLogo = parceiros.filter((parceiro) => parceiro.logo)
+    if (parceirosComLogo.length === 0) return null
+    const faixa = [...parceirosComLogo, ...parceirosComLogo]
 
     return (
         <section className="overflow-hidden bg-black py-14 text-white">
@@ -213,7 +214,7 @@ function CriatoriosParceiros({ parceiros }: { parceiros: CriatorioParceiroPublic
                     <div className="pointer-events-none absolute inset-y-0 left-0 z-10 w-20 bg-gradient-to-r from-black to-transparent" />
                     <div className="pointer-events-none absolute inset-y-0 right-0 z-10 w-20 bg-gradient-to-l from-black to-transparent" />
                     <div className="bula-logo-marquee flex w-max gap-4">
-                        {faixa.map((parceiro, index) => (
+                        {faixa.map((parceiro, index) => parceiro.logo ? (
                             <a
                                 key={`${parceiro.slug}-${index}`}
                                 href={parceiro.siteUrl ?? undefined}
@@ -224,7 +225,7 @@ function CriatoriosParceiros({ parceiros }: { parceiros: CriatorioParceiroPublic
                             >
                                 <CriatorioLogoTile parceiro={parceiro} />
                             </a>
-                        ))}
+                        ) : null)}
                     </div>
                 </div>
             </div>
