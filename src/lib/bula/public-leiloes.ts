@@ -152,7 +152,7 @@ function logoForCriatorio(nome: string): string | null {
         const ext = extname(entry).toLowerCase()
         return ['.png', '.webp', '.jpg', '.jpeg', '.svg'].includes(ext) && parse(entry).name === slug
     })
-    return file ? `/criatorios/${file}` : null
+    return file ? `/marcas-criatorios/${file}` : null
 }
 
 function referenceForCriatorio(nome: string): { siteUrl: string | null } {
