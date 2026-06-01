@@ -86,30 +86,13 @@ function currentMonthRangeSaoPaulo() {
     }
 }
 
-function nextMonthRangeSaoPaulo() {
-    const { year, month } = datePartsSaoPaulo(new Date())
-    const current = new Date(Number(year), Number(month) - 1, 1)
-    const next = new Date(current.getFullYear(), current.getMonth() + 1, 1)
-    const nextYear = String(next.getFullYear())
-    const nextMonth = String(next.getMonth() + 1).padStart(2, '0')
-    const lastDay = new Date(next.getFullYear(), next.getMonth() + 1, 0).getDate()
-    return {
-        start: `${nextYear}-${nextMonth}-01`,
-        end: `${nextYear}-${nextMonth}-${String(lastDay).padStart(2, '0')}`,
-        year: nextYear,
-        month: nextMonth,
-    }
-}
-
 function publicAgendaRangeSaoPaulo() {
     const today = todaySaoPaulo()
     const current = currentMonthRangeSaoPaulo()
-    const next = nextMonthRangeSaoPaulo()
     return {
         start: today,
-        end: next.end,
+        end: current.end,
         current,
-        next,
     }
 }
 

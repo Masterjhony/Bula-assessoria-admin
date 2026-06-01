@@ -18,7 +18,7 @@ export function CriatorioLogoTile({ parceiro }: { parceiro: CriatorioParceiroPub
             <img
                 src={parceiro.logo}
                 alt={parceiro.nome}
-                className="max-h-16 max-w-40 object-contain"
+                className="max-h-20 max-w-40 object-contain"
                 loading="eager"
                 decoding="async"
                 onError={() => setErrored(true)}

@@ -2,7 +2,7 @@ import Link from 'next/link'
 import { notFound } from 'next/navigation'
 import type { Metadata } from 'next'
 import {
-    ArrowLeft, BookOpen, CalendarDays, Clock, Download, ExternalLink, Gavel,
+    ArrowLeft, ArrowRight, BookOpen, CalendarDays, Clock, Download, ExternalLink, Gavel,
     MapPin, MessageCircle, Radio, Share2, Tag, Truck, Tv, Users,
 } from 'lucide-react'
 import { getLeilaoPublico, getLeiloesPublicos, type LeilaoPublico } from '@/lib/bula/public-leiloes'
@@ -52,10 +52,14 @@ export default async function LeilaoDetalhePage({ params }: { params: Promise<{ 
     const ytId = youtubeId(leilao.transmissao)
     const countdown = contagemRegressiva(leilao.data)
     const todos = await getLeiloesPublicos()
-    const outros = todos
-        .filter((item) => item.id !== leilao.id)
+    const agendaOrdenada = [...todos]
         .sort((a, b) => parseData(a.data).time - parseData(b.data).time)
-        .slice(0, 3)
+    const atualIndex = agendaOrdenada.findIndex((item) => item.id === leilao.id)
+    const anterior = atualIndex > 0 ? agendaOrdenada[atualIndex - 1] : null
+    const proximo = atualIndex >= 0 && atualIndex < agendaOrdenada.length - 1
+        ? agendaOrdenada[atualIndex + 1]
+        : null
+    const transmissaoUrl = leilao.transmissao?.trim() || null
 
     const infos = [
         { icon: CalendarDays, label: 'Data', value: dataPorExtenso(leilao.data) },
@@ -80,18 +84,18 @@ export default async function LeilaoDetalhePage({ params }: { params: Promise<{ 
                     Voltar à agenda
                 </Link>
 
-                <header className="mt-6 overflow-hidden rounded-md border border-black/10 bg-white shadow-sm">
-                    <div className="bg-black px-3 py-4 sm:px-5 sm:py-6">
-                        <div className="mx-auto flex max-w-4xl items-center justify-center">
+                <header className="mt-6 grid overflow-hidden rounded-md border border-black/10 bg-white shadow-sm lg:grid-cols-[minmax(0,1.05fr)_minmax(360px,0.95fr)]">
+                    <div className="min-h-[320px] bg-neutral-100 sm:min-h-[440px] lg:min-h-[620px]">
+                        <div className="relative flex h-full min-h-[320px] items-center justify-center overflow-hidden sm:min-h-[440px] lg:min-h-[620px]">
                             {leilao.img ? (
                                 // eslint-disable-next-line @next/next/no-img-element
                                 <img
                                     src={leilao.img}
                                     alt={leilao.nome}
-                                    className="max-h-[calc(100svh-220px)] max-w-full rounded-sm object-contain sm:max-h-[calc(100svh-190px)]"
+                                    className="h-full w-full object-cover transition-transform duration-700 hover:scale-[1.025]"
                                 />
                             ) : (
-                                <div className="py-16 text-center text-white">
+                                <div className="flex h-full w-full items-center justify-center bg-black py-16 text-center text-white">
                                     {/* eslint-disable-next-line @next/next/no-img-element */}
                                     <img src="/logo-bula-assessoria-white.png" alt="" className="mx-auto mb-8 h-12 w-auto opacity-80" />
                                     <div className="text-8xl font-black leading-none">{p.dia}</div>
@@ -101,7 +105,7 @@ export default async function LeilaoDetalhePage({ params }: { params: Promise<{ 
                         </div>
                     </div>
 
-                    <div className="p-6 sm:p-8 lg:p-10">
+                    <div className="flex flex-col justify-between p-6 sm:p-8 lg:p-10">
                         <div className="flex flex-wrap gap-2">
                             <span
                                 className="inline-flex items-center gap-1.5 rounded-md border px-3 py-1.5 text-xs font-black shadow-sm"
@@ -115,7 +119,7 @@ export default async function LeilaoDetalhePage({ params }: { params: Promise<{ 
                                     {countdown}
                                 </span>
                             )}
-                            {ytId && (
+                            {transmissaoUrl && (
                                 <span className="inline-flex items-center gap-1.5 rounded-md bg-black px-3 py-1.5 text-xs font-black text-white shadow-sm">
                                     <Radio className="h-3.5 w-3.5" />
                                     Ao vivo
@@ -128,7 +132,7 @@ export default async function LeilaoDetalhePage({ params }: { params: Promise<{ 
                             )}
                         </div>
 
-                        <div className="mt-5 grid gap-6 lg:grid-cols-[minmax(0,1fr)_auto] lg:items-end">
+                        <div className="mt-5 flex flex-col gap-6">
                             <div>
                                 <h1 className="max-w-4xl text-4xl font-black leading-[0.96] tracking-tight text-black sm:text-6xl">
                                     {leilao.nome}
@@ -155,7 +159,18 @@ export default async function LeilaoDetalhePage({ params }: { params: Promise<{ 
                                 </div>
                             </div>
 
-                            <div className="flex flex-wrap gap-2 lg:justify-end">
+                            <div className="flex flex-wrap gap-2">
+                                {transmissaoUrl && (
+                                    <a
+                                        href={transmissaoUrl}
+                                        target="_blank"
+                                        rel="noopener noreferrer"
+                                        className="inline-flex items-center justify-center gap-2 rounded-md border border-black bg-black px-4 py-2.5 text-sm font-black text-white transition-all hover:-translate-y-0.5 hover:bg-neutral-800"
+                                    >
+                                        <Radio className="h-4 w-4" />
+                                        Assistir ao vivo
+                                    </a>
+                                )}
                                 {leilao.img && (
                                     <a
                                         href={leilao.img}
@@ -174,7 +189,7 @@ export default async function LeilaoDetalhePage({ params }: { params: Promise<{ 
                                     className="inline-flex items-center justify-center gap-2 rounded-md bg-black px-4 py-2.5 text-sm font-black text-white transition-colors hover:bg-neutral-800"
                                 >
                                     <MessageCircle className="h-4 w-4" />
-                                    Fale com um assessor
+                                    Entrar no grupo
                                 </a>
                             </div>
                         </div>
@@ -232,31 +247,26 @@ export default async function LeilaoDetalhePage({ params }: { params: Promise<{ 
                             <div className="flex flex-col gap-5 lg:flex-row lg:items-center lg:justify-between">
                                 <div>
                                     <span className="text-[11px] font-black uppercase text-white/48">
-                                        Condição em destaque
+                                        Grupo de WhatsApp
                                     </span>
                                     <h2 className="mt-2 text-2xl font-black tracking-tight sm:text-3xl">
-                                        Quer comprar touros e matrizes?
+                                        Entre no grupo da Bula
                                     </h2>
                                     <p className="mt-2 max-w-xl text-sm font-semibold leading-relaxed text-white/58">
-                                        Receba ofertas exclusivas no grupo de WhatsApp e fale com a equipe da Bula
-                                        para encontrar a melhor oportunidade no leilão.
+                                        Receba alertas de leilões, catálogos e condições comerciais direto no WhatsApp.
                                     </p>
                                 </div>
                                 <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
-                                    <div className="flex flex-wrap gap-2">
-                                        <span className="rounded-full bg-white px-3 py-1 text-xs font-black text-black">PO</span>
-                                        <span className="rounded-full bg-white px-3 py-1 text-xs font-black text-black">30X</span>
-                                        <span className="rounded-full bg-white px-3 py-1 text-xs font-black text-black">Frete</span>
-                                    </div>
                                     <a
                                         href={WHATSAPP_CTA_URL}
                                         target="_blank"
                                         rel="noopener noreferrer"
-                                        className="inline-flex items-center justify-center gap-2 rounded-md bg-white px-4 py-2.5 text-sm font-black text-black transition-colors hover:bg-white/88"
+                                        className="inline-flex items-center justify-center gap-2 rounded-md bg-white px-5 py-3 text-sm font-black text-black transition-all hover:-translate-y-0.5 hover:bg-white/88"
                                         style={{ color: '#050505' }}
                                     >
                                         <MessageCircle className="h-4 w-4" />
-                                        Grupo de WhatsApp
+                                        Entrar no grupo
+                                        <ArrowRight className="h-4 w-4" />
                                     </a>
                                 </div>
                             </div>
@@ -346,13 +356,16 @@ export default async function LeilaoDetalhePage({ params }: { params: Promise<{ 
                     </aside>
                 </div>
 
-                {outros.length > 0 && (
+                {(anterior || proximo) && (
                     <section className="mt-16">
-                        <SectionLabel icon={CalendarDays}>Outros leilões da agenda</SectionLabel>
-                        <div className="grid gap-5 sm:grid-cols-3">
-                            {outros.map((item) => (
-                                <OutroCard key={item.id} leilao={item} />
-                            ))}
+                        <SectionLabel icon={CalendarDays}>Navegar pela agenda</SectionLabel>
+                        <div className="grid gap-5 sm:grid-cols-2">
+                            {anterior ? (
+                                <AgendaNavCard direction="anterior" leilao={anterior} />
+                            ) : (
+                                <div className="hidden sm:block" />
+                            )}
+                            {proximo && <AgendaNavCard direction="proximo" leilao={proximo} />}
                         </div>
                     </section>
                 )}
@@ -370,24 +383,38 @@ function SectionLabel({ icon: Icon, children }: { icon: typeof CalendarDays; chi
     )
 }
 
-function OutroCard({ leilao }: { leilao: LeilaoPublico }) {
+function AgendaNavCard({ direction, leilao }: { direction: 'anterior' | 'proximo'; leilao: LeilaoPublico }) {
     const p = parseData(leilao.data)
+    const isAnterior = direction === 'anterior'
 
     return (
         <Link
             href={`/agenda/${leilao.id}`}
             className="group flex items-center gap-4 rounded-md border border-black/10 bg-white p-4 shadow-sm transition-all hover:-translate-y-0.5 hover:border-black/25"
         >
+            {isAnterior && (
+                <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-md border border-black/10 text-black transition-colors group-hover:bg-black group-hover:text-white">
+                    <ArrowLeft className="h-4 w-4" />
+                </span>
+            )}
             <div className="flex h-14 w-14 shrink-0 flex-col items-center justify-center rounded-md bg-black text-white">
                 <span className="text-xl font-black leading-none">{p.dia}</span>
                 <span className="text-[10px] font-black uppercase text-white/48">{p.mesAbrev}</span>
             </div>
             <div className="min-w-0">
+                <span className="text-[10px] font-black uppercase text-black/42">
+                    {isAnterior ? 'Leilão anterior' : 'Próximo leilão'}
+                </span>
                 <h3 className="truncate text-sm font-black text-black transition-colors group-hover:text-black/70">
                     {leilao.nome}
                 </h3>
                 {leilao.local && <p className="mt-0.5 truncate text-xs font-semibold text-black/48">{leilao.local}</p>}
             </div>
+            {!isAnterior && (
+                <span className="ml-auto flex h-10 w-10 shrink-0 items-center justify-center rounded-md border border-black/10 text-black transition-colors group-hover:bg-black group-hover:text-white">
+                    <ArrowRight className="h-4 w-4" />
+                </span>
+            )}
         </Link>
     )
 }

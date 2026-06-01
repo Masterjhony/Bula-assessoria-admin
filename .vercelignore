@@ -1,0 +1,14 @@
+.git
+.next
+.vercel
+node_modules
+work
+qa-screenshots
+
+.env
+.env.local
+.env.*.local
+
+*.xlsx
+*.pdf
+*.log
