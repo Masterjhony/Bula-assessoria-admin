@@ -1,6 +1,7 @@
 import type { Metadata } from 'next'
 import Link from 'next/link'
 import { MessageCircle } from 'lucide-react'
+import { WHATSAPP_CTA_URL } from './helpers'
 
 export const metadata: Metadata = {
     metadataBase: new URL('https://bulaassessoria.com'),
@@ -53,7 +54,7 @@ export default function AgendaLayout({ children }: { children: React.ReactNode }
                             Agenda
                         </Link>
                         <a
-                            href="https://wa.me/"
+                            href={WHATSAPP_CTA_URL}
                             target="_blank"
                             rel="noopener noreferrer"
                             className="inline-flex items-center gap-2 rounded-md border border-black px-4 py-2.5 font-black shadow-sm transition-all hover:-translate-y-0.5 hover:shadow-md sm:px-5"
@@ -97,7 +98,7 @@ export default function AgendaLayout({ children }: { children: React.ReactNode }
                         </h4>
                         <ul className="space-y-2.5 text-sm text-white/62">
                             <li>
-                                <a href="https://wa.me/" target="_blank" rel="noopener noreferrer" className="transition-colors hover:text-white">
+                                <a href={WHATSAPP_CTA_URL} target="_blank" rel="noopener noreferrer" className="transition-colors hover:text-white">
                                     WhatsApp
                                 </a>
                             </li>
