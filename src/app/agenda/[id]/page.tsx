@@ -178,7 +178,7 @@ export default async function LeilaoDetalhePage({ params }: { params: Promise<{ 
                                     href={WHATSAPP_CTA_URL}
                                     target="_blank"
                                     rel="noopener noreferrer"
-                                    className="inline-flex items-center justify-center gap-2 rounded-md bg-black px-4 py-2.5 text-sm font-black text-white transition-colors hover:bg-neutral-800"
+                                    className="inline-flex items-center justify-center gap-2 rounded-md bg-[#25D366] px-4 py-2.5 text-sm font-black text-white shadow-sm transition-colors hover:bg-[#1ebe5d]"
                                 >
                                     <MessageCircle className="h-4 w-4" />
                                     Entrar no grupo
