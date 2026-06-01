@@ -304,5 +304,6 @@ export async function getCriatoriosParceirosMes(): Promise<CriatorioParceiroPubl
             siteUrl: referenceForCriatorio(item.nome).siteUrl,
             totalLeiloes: item.totalLeiloes,
         }))
+        .filter((item) => item.logo)
         .sort((a, b) => a.nome.localeCompare(b.nome, 'pt-BR'))
 }
