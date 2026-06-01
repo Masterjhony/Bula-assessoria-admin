@@ -34,7 +34,7 @@ Legenda:
 - [x] **Feito** - Verificar leilão faltando na agenda.
 - [x] **Feito** - Adicionar **18º Mega Leilão Nelore Pará**.
 - [x] **Feito** - Adicionar **Leilão Matrizes Santa Nice** no dia 6.
-- [ ] **Parcial** - Conferir **Katayama/Trilogia** como evento de 3 dias. A planilha atual sincronizada trouxe 2º e 3º dia; a arte indica 31/05, 01/06 e 02/06, então falta validação final do 1º dia na agenda.
+- [x] **Feito** - Conferir **Katayama/Trilogia** como evento de 3 dias. O 1º dia, em 31/05 às 14:00, foi adicionado à agenda pública, ao cronograma/admin e à agenda interna com capa; 2º e 3º dias já estavam cadastrados.
 - [x] **Feito** - Colocar destaque: **"Compre Touros e Matrizes PO em 30X no Boleto e Frete Grátis"**.
 - [x] **Feito** - Criar faixa abaixo da sessão inicial com os **criatórios parceiros**.
 - [ ] **Parcial** - Buscar logos em PNG dos criatórios parceiros. Foram adicionadas referências oficiais quando encontradas, mas os logos oficiais ainda não foram baixados/salvos para todos.

@@ -15,6 +15,8 @@ Origem: WhatsApp com Marcelo Primo Carneiro, a partir do envio do checklist em P
 - [x] Usar a chamada "Quer comprar touros e matrizes? Receba ofertas exclusivas no grupo de WhatsApp".
 - [x] Deixar claro nos cards que o numero exibido se refere a animais.
 - [x] Corrigir o dropdown dos filtros do dashboard para nao ficar cortado dentro do card.
+- [x] Corrigir **Katayama Trilogia** para exibir tambem o 1º dia, em 31/05 as 14:00, alem dos dias 01/06 e 02/06.
+- [x] Cadastrar **Leilao Nelore Magda Na Origem** em 28/06 as 14:00, com capa enviada no WhatsApp.
 
 ## Conferencias e dados internos
 
