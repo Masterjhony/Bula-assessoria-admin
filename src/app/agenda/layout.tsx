@@ -3,6 +3,7 @@ import Link from 'next/link'
 import { MessageCircle } from 'lucide-react'
 
 export const metadata: Metadata = {
+    metadataBase: new URL('https://bulaassessoria.com'),
     title: 'Agenda de Leilões | Bula Assessoria',
     description:
         'Agenda dos principais leilões assessorados pela Bula Assessoria Pecuária, com touros, matrizes, catálogos, transmissões e informações comerciais.',
@@ -10,7 +11,24 @@ export const metadata: Metadata = {
         title: 'Agenda de Leilões | Bula Assessoria',
         description:
             'Touros e matrizes dos principais leilões do Brasil, com curadoria e assessoria comercial da Bula.',
+        url: 'https://bulaassessoria.com/agenda',
+        siteName: 'Bula Assessoria',
+        images: [
+            {
+                url: '/agenda-oficial-bula.jpg',
+                width: 396,
+                height: 600,
+                alt: 'Agenda Oficial Bula Assessoria Pecuária',
+            },
+        ],
         type: 'website',
+    },
+    twitter: {
+        card: 'summary_large_image',
+        title: 'Agenda de Leilões | Bula Assessoria',
+        description:
+            'Touros e matrizes dos principais leilões do Brasil, com curadoria e assessoria comercial da Bula.',
+        images: ['/agenda-oficial-bula.jpg'],
     },
 }
 

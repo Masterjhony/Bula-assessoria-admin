@@ -19,7 +19,7 @@ Origem: WhatsApp com Marcelo Primo Carneiro, a partir do envio do checklist em P
 - [x] Cadastrar **Leilao Nelore Magda Na Origem** em 28/06 as 14:00, com capa enviada no WhatsApp.
 - [x] Remover os filtros da agenda publica e deixar somente a busca.
 - [x] Corrigir a pagina de detalhe do leilao que ficou bugada, deixando a capa inteira centralizada e sem corte.
-- [x] Usar a foto "Agenda Oficial Bula" enviada por Marcelo como imagem oficial da agenda publica.
+- [x] Usar a foto "Agenda Oficial Bula" enviada por Marcelo como imagem de preview ao compartilhar o link da agenda.
 - [x] Arquivar automaticamente na agenda publica os leiloes que ja passaram, mantendo apenas eventos ativos/futuros.
 
 ## Conferencias e dados internos
