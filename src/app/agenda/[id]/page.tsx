@@ -169,6 +169,7 @@ export default async function LeilaoDetalhePage({ params }: { params: Promise<{ 
                                         target="_blank"
                                         rel="noopener noreferrer"
                                         className="inline-flex items-center justify-center gap-2 rounded-md border border-[#A68B4B]/40 px-4 py-2.5 text-sm font-bold text-[#8a7340] transition-colors hover:bg-[#A68B4B]/10"
+                                        style={{ color: '#8a7340' }}
                                     >
                                         <BookOpen className="h-4 w-4" />
                                         Abrir capa completa
@@ -179,6 +180,7 @@ export default async function LeilaoDetalhePage({ params }: { params: Promise<{ 
                                     target="_blank"
                                     rel="noopener noreferrer"
                                     className="inline-flex items-center justify-center gap-2 rounded-md bg-[#25D366] px-4 py-2.5 text-sm font-black text-white shadow-sm transition-colors hover:bg-[#1ebe5d]"
+                                    style={{ color: '#ffffff' }}
                                 >
                                     <MessageCircle className="h-4 w-4" />
                                     Entrar no grupo
@@ -262,6 +264,7 @@ export default async function LeilaoDetalhePage({ params }: { params: Promise<{ 
                                     target="_blank"
                                     rel="noopener noreferrer"
                                     className="group inline-flex w-full shrink-0 items-center justify-center gap-2 rounded-xl bg-white px-6 py-3.5 text-sm font-black text-[#075E54] shadow-sm transition-all hover:-translate-y-0.5 hover:shadow-lg hover:shadow-black/10 active:translate-y-0 lg:w-auto"
+                                    style={{ color: '#075E54' }}
                                 >
                                     <MessageCircle className="h-4 w-4" />
                                     Entrar no grupo
@@ -297,6 +300,7 @@ export default async function LeilaoDetalhePage({ params }: { params: Promise<{ 
                                         href={leilao.catalogo_url}
                                         download
                                         className="inline-flex items-center justify-center gap-2 rounded-md border border-[#A68B4B]/40 px-4 py-2.5 text-sm font-bold text-[#8a7340] transition-colors hover:bg-[#A68B4B]/10"
+                                        style={{ color: '#8a7340' }}
                                     >
                                         <Download className="h-4 w-4" />
                                         Baixar PDF
@@ -345,6 +349,7 @@ export default async function LeilaoDetalhePage({ params }: { params: Promise<{ 
                                     target="_blank"
                                     rel="noopener noreferrer"
                                     className="mt-5 inline-flex w-full items-center justify-center gap-2 rounded-md bg-[#25D366] px-4 py-2.5 text-sm font-black text-white shadow-sm transition-colors hover:bg-[#1ebe5d]"
+                                    style={{ color: '#ffffff' }}
                                 >
                                     <Share2 className="h-4 w-4" />
                                     Falar com a assessoria
