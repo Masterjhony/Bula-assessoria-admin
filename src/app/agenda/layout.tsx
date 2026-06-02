@@ -134,38 +134,38 @@ export default function AgendaLayout({ children }: { children: React.ReactNode }
                         </div>
                     </div>
                     <div>
-                        <h4 className="mb-6 text-[11px] font-black uppercase tracking-wider text-[#C8A96E]">
+                        <h4 className="mb-7 text-[13px] font-black uppercase tracking-wider text-[#C8A96E]">
                             Navegação
                         </h4>
-                        <ul className="space-y-5 text-sm text-white/62">
+                        <ul className="space-y-6 text-[15px] text-white/62">
                             <li>
                                 <Link href="/agenda" className="inline-flex items-center gap-2 transition-colors hover:text-[#C8A96E]">
-                                    <Calendar className="h-3.5 w-3.5 text-white/35" />
+                                    <Calendar className="h-4 w-4 text-white/35" />
                                     Agenda de leilões
                                 </Link>
                             </li>
                             <li>
                                 <Link href="/agenda#proximos" className="inline-flex items-center gap-2 transition-colors hover:text-[#C8A96E]">
-                                    <ArrowRight className="h-3.5 w-3.5 text-white/35" />
+                                    <ArrowRight className="h-4 w-4 text-white/35" />
                                     Próximos leilões
                                 </Link>
                             </li>
                         </ul>
                     </div>
                     <div>
-                        <h4 className="mb-6 text-[11px] font-black uppercase tracking-wider text-[#C8A96E]">
+                        <h4 className="mb-7 text-[13px] font-black uppercase tracking-wider text-[#C8A96E]">
                             Contato
                         </h4>
-                        <ul className="space-y-5 text-sm text-white/62">
+                        <ul className="space-y-6 text-[15px] text-white/62">
                             <li>
                                 <a href={WHATSAPP_CTA_URL} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-2 transition-colors hover:text-[#25D366]">
-                                    <MessageCircle className="h-3.5 w-3.5 text-white/35" />
+                                    <MessageCircle className="h-4 w-4 text-white/35" />
                                     WhatsApp · grupo de leilões
                                 </a>
                             </li>
                             <li>
                                 <a href="https://www.instagram.com/bulaassessoria/" target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-2 transition-colors hover:text-[#C8A96E]">
-                                    <Instagram className="h-3.5 w-3.5 text-white/35" />
+                                    <Instagram className="h-4 w-4 text-white/35" />
                                     Instagram
                                 </a>
                             </li>
