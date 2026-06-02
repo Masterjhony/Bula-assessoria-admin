@@ -5,7 +5,7 @@ import { useDroppable } from '@dnd-kit/core';
 import { SortableContext, verticalListSortingStrategy } from '@dnd-kit/sortable';
 import { TaskCard } from './TaskCard';
 import { TacticalTask } from '@/app/sistema/actions/tactical-tasks';
-import { Plus } from 'lucide-react';
+import { Plus, ChevronLeft, ChevronRight } from 'lucide-react';
 
 interface TaskColumnProps {
     id: string;
@@ -15,11 +15,17 @@ interface TaskColumnProps {
     onAddTask: (status: string) => void;
     onUpdateColumn?: (id: string, newTitle: string) => void;
     onDeleteColumn?: (id: string) => void;
+    /** UUID da coluna (para reordenacao — distinto de `id`, que é o título/status). */
+    columnId?: string;
+    /** Posicao atual da coluna e total, para habilitar/desabilitar as setas. */
+    index?: number;
+    total?: number;
+    onMoveColumn?: (columnId: string, dir: -1 | 1) => void;
     allTasks?: TacticalTask[];
     doneStatus?: string;
 }
 
-export function TaskColumn({ id, title, tasks, onTaskClick, onAddTask, onUpdateColumn, onDeleteColumn, allTasks = [], doneStatus }: TaskColumnProps) {
+export function TaskColumn({ id, title, tasks, onTaskClick, onAddTask, onUpdateColumn, onDeleteColumn, columnId, index, total, onMoveColumn, allTasks = [], doneStatus }: TaskColumnProps) {
     const [isEditing, setIsEditing] = useState(false);
     const [editTitle, setEditTitle] = useState(title);
 
@@ -45,10 +51,12 @@ export function TaskColumn({ id, title, tasks, onTaskClick, onAddTask, onUpdateC
 
     const headerColor = columnColors[title] || columnColors['default'];
 
+    const canReorder = onMoveColumn != null && columnId != null && typeof index === 'number' && typeof total === 'number';
+
     return (
         <div
             ref={setNodeRef}
-            className="w-[280px] shrink-0 flex flex-col gap-3 bg-[var(--surface)] p-3.5 rounded-[var(--r-lg)] border border-[var(--border)] max-h-full"
+            className="group/col w-[280px] shrink-0 flex flex-col gap-3 bg-[var(--surface)] p-3.5 rounded-[var(--r-lg)] border border-[var(--border)] max-h-full"
         >
             <div className="flex items-center justify-between pointer-events-auto h-8 mb-1">
                 {isEditing ? (
@@ -85,7 +93,27 @@ export function TaskColumn({ id, title, tasks, onTaskClick, onAddTask, onUpdateC
                     </div>
                 )}
 
-                <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                <div className="flex items-center gap-1 opacity-0 group-hover/col:opacity-100 focus-within:opacity-100 transition-opacity">
+                    {!isEditing && canReorder && (
+                        <>
+                            <button
+                                onClick={() => onMoveColumn!(columnId!, -1)}
+                                disabled={index === 0}
+                                className="w-6 h-6 rounded-full flex items-center justify-center text-gray-400 hover:bg-gray-200 dark:hover:bg-[#2e2e2e] hover:text-gray-700 dark:hover:text-white transition-all disabled:opacity-25 disabled:cursor-not-allowed disabled:hover:bg-transparent disabled:hover:text-gray-400"
+                                title="Mover coluna para a esquerda"
+                            >
+                                <ChevronLeft size={14} />
+                            </button>
+                            <button
+                                onClick={() => onMoveColumn!(columnId!, 1)}
+                                disabled={index === total! - 1}
+                                className="w-6 h-6 rounded-full flex items-center justify-center text-gray-400 hover:bg-gray-200 dark:hover:bg-[#2e2e2e] hover:text-gray-700 dark:hover:text-white transition-all disabled:opacity-25 disabled:cursor-not-allowed disabled:hover:bg-transparent disabled:hover:text-gray-400"
+                                title="Mover coluna para a direita"
+                            >
+                                <ChevronRight size={14} />
+                            </button>
+                        </>
+                    )}
                     {!isEditing && onDeleteColumn && tasks.length === 0 && (
                         <button
                             onClick={() => onDeleteColumn(id)}

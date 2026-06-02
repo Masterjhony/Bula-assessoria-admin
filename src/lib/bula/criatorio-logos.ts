@@ -36,3 +36,15 @@ export const CRIATORIO_LOGOS: Record<string, StaticImageData> = {
     'santa-nice': santaNice,
     'terra-brava-agropecuaria': terraBravaAgropecuaria,
 }
+
+/**
+ * Slugs cujo arquivo de logo e a versao "branca" (arte clara sobre fundo
+ * transparente), entregue pelo criatorio para uso em fundo escuro. Como a faixa
+ * de marcas renderiza os logos sobre tiles brancos, esses precisam de invert(1)
+ * no CSS para aparecerem em tom escuro - caso contrario ficariam invisiveis
+ * (branco sobre branco). Mantem a faixa consistente com os logos coloridos.
+ */
+export const CRIATORIO_LOGOS_CLAROS = new Set<string>([
+    'nelore-cachoeirao',
+    'nelore-tresmar',
+])

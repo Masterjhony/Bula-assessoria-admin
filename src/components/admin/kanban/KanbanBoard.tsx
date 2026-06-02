@@ -26,7 +26,7 @@ import { ArchivedTasksModal } from './ArchivedTasksModal';
 import {
     TacticalTask, TacticalColumn, TacticalUnidade,
     updateTask, createTask, moveTask, deleteTask,
-    createColumn, updateColumn, deleteColumn,
+    createColumn, updateColumn, deleteColumn, reorderColumns,
     archiveTask,
 } from '@/app/sistema/actions/tactical-tasks';
 import {
@@ -188,6 +188,22 @@ export function KanbanBoard({
 
     const handleRestoreTask = (task: TacticalTask) => {
         setTasks(prev => prev.some(t => t.id === task.id) ? prev : [...prev, task]);
+    };
+
+    // Move uma coluna para a esquerda (-1) ou direita (+1) e persiste a ordem.
+    const handleMoveColumn = async (colId: string, dir: -1 | 1) => {
+        const idx = columns.findIndex(c => c.id === colId);
+        const target = idx + dir;
+        if (idx < 0 || target < 0 || target >= columns.length) return;
+        const prev = columns;
+        const reordered = arrayMove(columns, idx, target);
+        setColumns(reordered); // otimista
+        try {
+            await reorderColumns(reordered.map(c => c.id));
+        } catch (e) {
+            console.error('Failed to reorder columns', e);
+            setColumns(prev); // rollback
+        }
     };
 
     const handleDeleteFromArchive = (taskId: string) => {
@@ -383,10 +399,14 @@ export function KanbanBoard({
                 {viewMode === 'kanban' && (
                     <DndContext sensors={sensors} collisionDetection={closestCorners} onDragStart={onDragStart} onDragOver={onDragOver} onDragEnd={onDragEnd}>
                         <div className="flex-1 flex gap-6 overflow-x-auto overflow-y-hidden custom-scrollbar pb-4 h-full snap-x pr-4">
-                            {columns.map(col => (
+                            {columns.map((col, colIndex) => (
                                 <TaskColumn
                                     key={col.id}
                                     id={col.title}
+                                    columnId={col.id}
+                                    index={colIndex}
+                                    total={columns.length}
+                                    onMoveColumn={handleMoveColumn}
                                     title={col.title}
                                     tasks={filteredTasks.filter(t => t.status === col.title)}
                                     onTaskClick={handleTaskClick}

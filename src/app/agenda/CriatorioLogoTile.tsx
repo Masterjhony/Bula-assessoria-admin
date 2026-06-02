@@ -19,6 +19,9 @@ export function CriatorioLogoTile({ parceiro }: { parceiro: CriatorioParceiroPub
                 src={parceiro.logo}
                 alt={parceiro.nome}
                 className="max-h-20 max-w-40 object-contain"
+                // Logos entregues em arte branca precisam de invert para
+                // aparecer sobre o tile branco da faixa de marcas.
+                style={parceiro.logoClaro ? { filter: 'invert(1)' } : undefined}
                 loading="eager"
                 decoding="async"
                 onError={() => setErrored(true)}

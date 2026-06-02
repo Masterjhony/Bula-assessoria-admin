@@ -97,7 +97,7 @@ export default async function LeilaoDetalhePage({ params }: { params: Promise<{ 
                         </div>
                     </div>
 
-                    <div className="flex flex-col justify-between p-6 sm:p-8 lg:p-10">
+                    <div className="flex flex-col justify-between gap-8 p-6 sm:p-8 lg:justify-center lg:p-10">
                         <div className="flex flex-wrap gap-2">
                             <span
                                 className="inline-flex items-center gap-1.5 rounded-md border px-3 py-1.5 text-xs font-black shadow-sm"
@@ -107,12 +107,12 @@ export default async function LeilaoDetalhePage({ params }: { params: Promise<{ 
                                 {badge.label}
                             </span>
                             {countdown && (
-                                <span className="rounded-md bg-black px-3 py-1.5 text-xs font-black text-white shadow-sm">
+                                <span className="rounded-md bg-[#A68B4B] px-3 py-1.5 text-xs font-black text-black shadow-sm">
                                     {countdown}
                                 </span>
                             )}
                             {transmissaoUrl && (
-                                <span className="inline-flex items-center gap-1.5 rounded-md bg-black px-3 py-1.5 text-xs font-black text-white shadow-sm">
+                                <span className="inline-flex items-center gap-1.5 rounded-md bg-[#C0504D] px-3 py-1.5 text-xs font-black text-white shadow-sm">
                                     <Radio className="h-3.5 w-3.5" />
                                     Ao vivo
                                 </span>
@@ -124,7 +124,7 @@ export default async function LeilaoDetalhePage({ params }: { params: Promise<{ 
                             )}
                         </div>
 
-                        <div className="mt-5 flex flex-col gap-6">
+                        <div className="flex flex-col gap-6">
                             <div>
                                 <h1 className="max-w-4xl text-4xl font-black leading-[0.96] tracking-tight text-black sm:text-6xl">
                                     {leilao.nome}
@@ -157,7 +157,7 @@ export default async function LeilaoDetalhePage({ params }: { params: Promise<{ 
                                         href={transmissaoUrl}
                                         target="_blank"
                                         rel="noopener noreferrer"
-                                        className="inline-flex items-center justify-center gap-2 rounded-md border border-black bg-black px-4 py-2.5 text-sm font-black text-white transition-all hover:-translate-y-0.5 hover:bg-neutral-800"
+                                        className="inline-flex items-center justify-center gap-2 rounded-md bg-[#A68B4B] px-4 py-2.5 text-sm font-black text-black shadow-sm transition-all hover:-translate-y-0.5 hover:bg-[#977c40] hover:text-white"
                                     >
                                         <Radio className="h-4 w-4" />
                                         Assistir ao vivo
@@ -168,7 +168,7 @@ export default async function LeilaoDetalhePage({ params }: { params: Promise<{ 
                                         href={leilao.img}
                                         target="_blank"
                                         rel="noopener noreferrer"
-                                        className="inline-flex items-center justify-center gap-2 rounded-md border border-black/10 px-4 py-2.5 text-sm font-bold text-black transition-colors hover:bg-black/5"
+                                        className="inline-flex items-center justify-center gap-2 rounded-md border border-[#A68B4B]/40 px-4 py-2.5 text-sm font-bold text-[#8a7340] transition-colors hover:bg-[#A68B4B]/10"
                                     >
                                         <BookOpen className="h-4 w-4" />
                                         Abrir capa completa
@@ -212,7 +212,7 @@ export default async function LeilaoDetalhePage({ params }: { params: Promise<{ 
                                     href={leilao.transmissao}
                                     target="_blank"
                                     rel="noopener noreferrer"
-                                    className="inline-flex items-center gap-2 rounded-md border border-black bg-black px-5 py-3 text-sm font-black text-white transition-colors hover:bg-neutral-800"
+                                    className="inline-flex items-center gap-2 rounded-md bg-[#A68B4B] px-5 py-3 text-sm font-black text-black shadow-sm transition-all hover:-translate-y-0.5 hover:bg-[#977c40] hover:text-white"
                                 >
                                     <ExternalLink className="h-4 w-4" />
                                     Assistir transmissão
@@ -235,7 +235,7 @@ export default async function LeilaoDetalhePage({ params }: { params: Promise<{ 
                             </div>
                         </section>
 
-                        <section className="relative overflow-hidden rounded-2xl border border-black bg-black p-6 text-white shadow-sm sm:p-8 lg:p-10">
+                        <section className="relative overflow-hidden rounded-2xl border border-[#0b5a4f] bg-gradient-to-br from-[#128C7E] to-[#075E54] p-6 text-white shadow-sm sm:p-8 lg:p-10">
                             <div
                                 aria-hidden
                                 className="pointer-events-none absolute -right-16 -top-20 h-56 w-56 rounded-full bg-white/[0.07] blur-3xl sm:-right-10"
@@ -261,8 +261,7 @@ export default async function LeilaoDetalhePage({ params }: { params: Promise<{ 
                                     href={WHATSAPP_CTA_URL}
                                     target="_blank"
                                     rel="noopener noreferrer"
-                                    className="group inline-flex w-full shrink-0 items-center justify-center gap-2 rounded-xl bg-white px-6 py-3.5 text-sm font-black text-black shadow-sm transition-all hover:-translate-y-0.5 hover:shadow-lg hover:shadow-white/10 active:translate-y-0 lg:w-auto"
-                                    style={{ color: '#050505' }}
+                                    className="group inline-flex w-full shrink-0 items-center justify-center gap-2 rounded-xl bg-white px-6 py-3.5 text-sm font-black text-[#075E54] shadow-sm transition-all hover:-translate-y-0.5 hover:shadow-lg hover:shadow-black/10 active:translate-y-0 lg:w-auto"
                                 >
                                     <MessageCircle className="h-4 w-4" />
                                     Entrar no grupo
@@ -276,7 +275,7 @@ export default async function LeilaoDetalhePage({ params }: { params: Promise<{ 
                         {leilao.catalogo_url && (
                             <div className="rounded-md border border-black/10 bg-white p-6 shadow-sm">
                                 <div className="flex items-center gap-3">
-                                    <div className="flex h-11 w-11 items-center justify-center rounded-md bg-black text-white">
+                                    <div className="flex h-11 w-11 items-center justify-center rounded-md bg-[#A68B4B] text-black">
                                         <BookOpen className="h-5 w-5" />
                                     </div>
                                     <div>
@@ -289,7 +288,7 @@ export default async function LeilaoDetalhePage({ params }: { params: Promise<{ 
                                         href={leilao.catalogo_url}
                                         target="_blank"
                                         rel="noopener noreferrer"
-                                        className="inline-flex items-center justify-center gap-2 rounded-md bg-black px-4 py-2.5 text-sm font-black text-white transition-colors hover:bg-neutral-800"
+                                        className="inline-flex items-center justify-center gap-2 rounded-md bg-[#A68B4B] px-4 py-2.5 text-sm font-black text-black transition-all hover:bg-[#977c40] hover:text-white"
                                     >
                                         <ExternalLink className="h-4 w-4" />
                                         Abrir catálogo
@@ -297,7 +296,7 @@ export default async function LeilaoDetalhePage({ params }: { params: Promise<{ 
                                     <a
                                         href={leilao.catalogo_url}
                                         download
-                                        className="inline-flex items-center justify-center gap-2 rounded-md border border-black/10 px-4 py-2.5 text-sm font-bold text-black transition-colors hover:bg-black/5"
+                                        className="inline-flex items-center justify-center gap-2 rounded-md border border-[#A68B4B]/40 px-4 py-2.5 text-sm font-bold text-[#8a7340] transition-colors hover:bg-[#A68B4B]/10"
                                     >
                                         <Download className="h-4 w-4" />
                                         Baixar PDF
@@ -345,7 +344,7 @@ export default async function LeilaoDetalhePage({ params }: { params: Promise<{ 
                                     href={WHATSAPP_CTA_URL}
                                     target="_blank"
                                     rel="noopener noreferrer"
-                                    className="mt-5 inline-flex w-full items-center justify-center gap-2 rounded-md border border-black/10 px-4 py-2.5 text-sm font-bold text-black transition-colors hover:bg-black/5"
+                                    className="mt-5 inline-flex w-full items-center justify-center gap-2 rounded-md bg-[#25D366] px-4 py-2.5 text-sm font-black text-white shadow-sm transition-colors hover:bg-[#1ebe5d]"
                                 >
                                     <Share2 className="h-4 w-4" />
                                     Falar com a assessoria

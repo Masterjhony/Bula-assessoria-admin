@@ -312,6 +312,32 @@ export async function deleteColumn(id: string) {
     revalidatePath('/sistema/projetos');
 }
 
+/**
+ * Reordena as colunas reescrevendo `position` (1000, 2000, 3000, …) na ordem
+ * recebida. Permite mover uma coluna criada pela UI (que sempre nasce no fim)
+ * para qualquer posicao — ex.: entre "Em andamento" e "Completa".
+ */
+export async function reorderColumns(orderedIds: string[]) {
+    const supabase = await createClient();
+
+    const results = await Promise.all(
+        orderedIds.map((id, index) =>
+            supabase
+                .from('tactical_kanban_columns')
+                .update({ position: (index + 1) * 1000 })
+                .eq('id', id),
+        ),
+    );
+
+    const failed = results.find((r) => r.error);
+    if (failed?.error) {
+        console.error('Error reordering columns:', failed.error);
+        throw new Error('Failed to reorder columns');
+    }
+
+    revalidatePath('/sistema/projetos');
+}
+
 // --- Comments Actions ---
 export async function getComments(taskId: string) {
     const supabase = await createClient();

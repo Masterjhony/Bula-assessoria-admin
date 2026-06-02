@@ -1,7 +1,7 @@
 import { supabaseAdmin } from '@/lib/supabase'
 import type { BulaMembro, LeilaoStatus } from './types'
 import { isLeilaoAtivo } from './leilao-tempo'
-import { CRIATORIO_LOGOS } from './criatorio-logos'
+import { CRIATORIO_LOGOS, CRIATORIO_LOGOS_CLAROS } from './criatorio-logos'
 
 /**
  * Leilao exposto na pagina publica (lp / agenda).
@@ -35,6 +35,8 @@ export interface CriatorioParceiroPublico {
     nome: string
     slug: string
     logo: string | null
+    /** Logo e arte branca (precisa invert no CSS para aparecer sobre tile claro). */
+    logoClaro: boolean
     siteUrl: string | null
     totalLeiloes: number
 }
@@ -277,6 +279,7 @@ export async function getCriatoriosParceirosMes(): Promise<CriatorioParceiroPubl
             nome: item.nome,
             slug,
             logo: logoForCriatorio(item.nome),
+            logoClaro: CRIATORIO_LOGOS_CLAROS.has(slug),
             siteUrl: referenceForCriatorio(item.nome).siteUrl,
             totalLeiloes: item.totalLeiloes,
         }))
