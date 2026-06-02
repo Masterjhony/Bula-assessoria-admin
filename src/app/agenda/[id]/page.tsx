@@ -207,19 +207,6 @@ export default async function LeilaoDetalhePage({ params }: { params: Promise<{ 
                                     </div>
                                 </div>
                             </section>
-                        ) : leilao.transmissao ? (
-                            <section>
-                                <SectionLabel icon={Radio}>Transmissão</SectionLabel>
-                                <a
-                                    href={leilao.transmissao}
-                                    target="_blank"
-                                    rel="noopener noreferrer"
-                                    className="inline-flex items-center gap-2 rounded-md bg-[#A68B4B] px-5 py-3 text-sm font-black text-black shadow-sm transition-all hover:-translate-y-0.5 hover:bg-[#977c40] hover:text-white"
-                                >
-                                    <ExternalLink className="h-4 w-4" />
-                                    Assistir transmissão
-                                </a>
-                            </section>
                         ) : null}
 
                         <section>
@@ -234,42 +221,6 @@ export default async function LeilaoDetalhePage({ params }: { params: Promise<{ 
                                         <div className="mt-2 text-[15px] font-black text-black">{info.value}</div>
                                     </div>
                                 ))}
-                            </div>
-                        </section>
-
-                        <section className="relative overflow-hidden rounded-2xl border border-[#0b5a4f] bg-gradient-to-br from-[#128C7E] to-[#075E54] p-6 text-white shadow-sm sm:p-8 lg:p-10">
-                            <div
-                                aria-hidden
-                                className="pointer-events-none absolute -right-16 -top-20 h-56 w-56 rounded-full bg-white/[0.07] blur-3xl sm:-right-10"
-                            />
-                            <div
-                                aria-hidden
-                                className="pointer-events-none absolute -bottom-24 -left-16 h-56 w-56 rounded-full bg-white/[0.05] blur-3xl"
-                            />
-                            <div className="relative flex flex-col gap-7 lg:flex-row lg:items-center lg:justify-between lg:gap-10">
-                                <div className="min-w-0">
-                                    <span className="inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/[0.06] px-3 py-1 text-[11px] font-black uppercase tracking-wide text-white/70">
-                                        <MessageCircle className="h-3.5 w-3.5" />
-                                        Grupo de WhatsApp
-                                    </span>
-                                    <h2 className="mt-4 text-2xl font-black leading-[1.05] tracking-tight sm:text-3xl lg:text-[2rem]">
-                                        Entre no grupo da Bula
-                                    </h2>
-                                    <p className="mt-3 max-w-xl text-sm font-semibold leading-relaxed text-white/60 sm:text-[15px]">
-                                        Receba alertas de leilões, catálogos e condições comerciais direto no WhatsApp.
-                                    </p>
-                                </div>
-                                <a
-                                    href={WHATSAPP_CTA_URL}
-                                    target="_blank"
-                                    rel="noopener noreferrer"
-                                    className="group inline-flex w-full shrink-0 items-center justify-center gap-2 rounded-xl bg-white px-6 py-3.5 text-sm font-black text-[#075E54] shadow-sm transition-all hover:-translate-y-0.5 hover:shadow-lg hover:shadow-black/10 active:translate-y-0 lg:w-auto"
-                                    style={{ color: '#075E54' }}
-                                >
-                                    <MessageCircle className="h-4 w-4" />
-                                    Entrar no grupo
-                                    <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-0.5" />
-                                </a>
                             </div>
                         </section>
                     </main>
@@ -358,6 +309,43 @@ export default async function LeilaoDetalhePage({ params }: { params: Promise<{ 
                         )}
                     </aside>
                 </div>
+
+                {/* CTA do grupo de WhatsApp — largura total abaixo do grid */}
+                <section className="relative mt-8 overflow-hidden rounded-2xl border border-[#0b5a4f] bg-gradient-to-br from-[#128C7E] to-[#075E54] p-6 text-white shadow-sm sm:p-8 lg:p-10">
+                    <div
+                        aria-hidden
+                        className="pointer-events-none absolute -right-16 -top-20 h-56 w-56 rounded-full bg-white/[0.07] blur-3xl sm:-right-10"
+                    />
+                    <div
+                        aria-hidden
+                        className="pointer-events-none absolute -bottom-24 -left-16 h-56 w-56 rounded-full bg-white/[0.05] blur-3xl"
+                    />
+                    <div className="relative flex flex-col gap-7 lg:flex-row lg:items-center lg:justify-between lg:gap-10">
+                        <div className="min-w-0">
+                            <span className="inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/[0.06] px-3 py-1 text-[11px] font-black uppercase tracking-wide text-white/70">
+                                <MessageCircle className="h-3.5 w-3.5" />
+                                Grupo de WhatsApp
+                            </span>
+                            <h2 className="mt-4 text-2xl font-black leading-[1.05] tracking-tight sm:text-3xl lg:text-[2rem]">
+                                Entre no grupo da Bula
+                            </h2>
+                            <p className="mt-3 max-w-xl text-sm font-semibold leading-relaxed text-white/60 sm:text-[15px]">
+                                Receba alertas de leilões, catálogos e condições comerciais direto no WhatsApp.
+                            </p>
+                        </div>
+                        <a
+                            href={WHATSAPP_CTA_URL}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="group inline-flex w-full shrink-0 items-center justify-center gap-2 rounded-xl bg-white px-6 py-3.5 text-sm font-black text-[#075E54] shadow-sm transition-all hover:-translate-y-0.5 hover:shadow-lg hover:shadow-black/10 active:translate-y-0 lg:w-auto"
+                            style={{ color: '#075E54' }}
+                        >
+                            <MessageCircle className="h-4 w-4" />
+                            Entrar no grupo
+                            <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-0.5" />
+                        </a>
+                    </div>
+                </section>
             </div>
         </article>
     )
