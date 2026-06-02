@@ -100,7 +100,7 @@ export default function AgendaLayout({ children }: { children: React.ReactNode }
                 </div>
 
                 {/* Corpo */}
-                <div className="mx-auto grid max-w-7xl gap-10 border-t border-white/10 px-5 py-14 sm:px-8 md:grid-cols-2 lg:grid-cols-[1.9fr_1fr_1.1fr]">
+                <div className="mx-auto grid max-w-7xl gap-10 border-t border-white/10 px-5 py-16 sm:px-8 md:grid-cols-2 lg:grid-cols-[1.5fr_1fr_1fr] lg:gap-x-20">
                     <div>
                         {/* eslint-disable-next-line @next/next/no-img-element */}
                         <img
@@ -123,7 +123,7 @@ export default function AgendaLayout({ children }: { children: React.ReactNode }
                                 <MessageCircle className="h-[18px] w-[18px]" />
                             </a>
                             <a
-                                href="https://instagram.com/"
+                                href="https://www.instagram.com/bulaassessoria/"
                                 target="_blank"
                                 rel="noopener noreferrer"
                                 aria-label="Instagram da Bula"
@@ -134,10 +134,10 @@ export default function AgendaLayout({ children }: { children: React.ReactNode }
                         </div>
                     </div>
                     <div>
-                        <h4 className="mb-4 text-[11px] font-black uppercase tracking-wider text-[#C8A96E]">
+                        <h4 className="mb-6 text-[11px] font-black uppercase tracking-wider text-[#C8A96E]">
                             Navegação
                         </h4>
-                        <ul className="space-y-3 text-sm text-white/62">
+                        <ul className="space-y-5 text-sm text-white/62">
                             <li>
                                 <Link href="/agenda" className="inline-flex items-center gap-2 transition-colors hover:text-[#C8A96E]">
                                     <Calendar className="h-3.5 w-3.5 text-white/35" />
@@ -153,10 +153,10 @@ export default function AgendaLayout({ children }: { children: React.ReactNode }
                         </ul>
                     </div>
                     <div>
-                        <h4 className="mb-4 text-[11px] font-black uppercase tracking-wider text-[#C8A96E]">
+                        <h4 className="mb-6 text-[11px] font-black uppercase tracking-wider text-[#C8A96E]">
                             Contato
                         </h4>
-                        <ul className="space-y-3 text-sm text-white/62">
+                        <ul className="space-y-5 text-sm text-white/62">
                             <li>
                                 <a href={WHATSAPP_CTA_URL} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-2 transition-colors hover:text-[#25D366]">
                                     <MessageCircle className="h-3.5 w-3.5 text-white/35" />
@@ -164,7 +164,7 @@ export default function AgendaLayout({ children }: { children: React.ReactNode }
                                 </a>
                             </li>
                             <li>
-                                <a href="https://instagram.com/" target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-2 transition-colors hover:text-[#C8A96E]">
+                                <a href="https://www.instagram.com/bulaassessoria/" target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-2 transition-colors hover:text-[#C8A96E]">
                                     <Instagram className="h-3.5 w-3.5 text-white/35" />
                                     Instagram
                                 </a>
