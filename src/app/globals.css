@@ -106,13 +106,22 @@ a {
   animation-play-state: paused;
 }
 
-input, textarea, select {
-  font-family: inherit;
-  font-size: inherit;
-  color: inherit;
-  background: transparent;
-  border: none;
-  outline: none;
+/* Reset de campos como DEFAULT, dentro de @layer base, para que utilitárias do
+   Tailwind (border, bg-*, rounded-*) e a classe .input consigam sobrescrever.
+   Sem o @layer, esta regra (sem camada) vencia as utilitárias e os campos
+   estilizados via Tailwind ficavam sem borda/fundo (ex.: modal de tarefas). */
+@layer base {
+  input, textarea, select {
+    font-family: inherit;
+    font-size: inherit;
+    color: inherit;
+    background: transparent;
+    outline: none;
+    /* Sem `border: none` aqui — isso fixaria border-style:none e impediria os
+       utilitários `border`/`border-*` do Tailwind de renderizarem. O Preflight
+       já zera a largura da borda por padrão, então campos sem estilo seguem
+       sem moldura; campos com utilitárias do Tailwind voltam a ter borda. */
+  }
 }
 
 .material-symbols-outlined {
