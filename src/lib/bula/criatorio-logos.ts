@@ -1,6 +1,6 @@
 import type { StaticImageData } from 'next/image'
 import fazendaCamparino from '../../../public/criatorios/fazenda-camparino.png'
-import fazendaJacamin from '../../../public/criatorios/fazenda-jacamin.png'
+import fazendaJacamim from '../../../public/criatorios/fazenda-jacamim.png'
 import lsAgropecuaria from '../../../public/criatorios/ls-agropecuaria.png'
 import neloreCachoeirao from '../../../public/criatorios/nelore-cachoeirao.png'
 import neloreFloc from '../../../public/criatorios/nelore-floc.png'
@@ -22,7 +22,7 @@ import terraBravaAgropecuaria from '../../../public/criatorios/terra-brava-agrop
  */
 export const CRIATORIO_LOGOS: Record<string, StaticImageData> = {
     'fazenda-camparino': fazendaCamparino,
-    'fazenda-jacamin': fazendaJacamin,
+    'fazenda-jacamim': fazendaJacamim,
     'ls-agropecuaria': lsAgropecuaria,
     'nelore-cachoeirao': neloreCachoeirao,
     'nelore-floc': neloreFloc,
