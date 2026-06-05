@@ -268,10 +268,10 @@ svg.chart { width:100%; height:100%; display:block; }
     <div class="sidebar-item" data-page="empresa"><span class="material-symbols-outlined">business</span><span>Empresa</span></div>
 
     <div class="sidebar-section">Leiloes</div>
-    <a class="sidebar-item" href="/sistema/leiloes/fechamento-financeiro" style="text-decoration:none;"><span class="material-symbols-outlined">gavel</span><span>Fechamento Leiloes</span></a>
+    <div class="sidebar-item" data-page="fechamento_leiloes"><span class="material-symbols-outlined">gavel</span><span>Fechamento Leiloes</span></div>
 
     <div class="sidebar-section">Juridico</div>
-    <a class="sidebar-item" href="/sistema/contratos" style="text-decoration:none;"><span class="material-symbols-outlined">description</span><span>Contratos</span></a>
+    <a class="sidebar-item" href="https://admin.bulaassessoria.com/sistema/contratos" target="_blank" style="text-decoration:none;"><span class="material-symbols-outlined">description</span><span>Contratos</span></a>
 
     <button class="sidebar-toggle" id="sidebarToggle"><span class="material-symbols-outlined">menu_open</span><span class="sb-toggle-label">Recolher</span></button>
   </aside>
@@ -464,6 +464,7 @@ async function render() {
     if (state.page === 'centros') return renderCentros();
     if (state.page === 'notas') return renderNotas();
     if (state.page === 'empresa') return renderEmpresa();
+    if (state.page === 'fechamento_leiloes') return renderFechamentoLeiloes();
   } catch (e) {
     page.innerHTML = `<div class="card" style="text-align:center"><span class="material-symbols-outlined" style="font-size:36px;color:var(--red)">error</span><h3 style="margin:8px 0">Erro ao carregar</h3><p style="color:var(--text3);font-size:12px">${escapeHtml(e.message)}</p></div>`;
   }
@@ -1998,6 +1999,312 @@ async function saveEmpresa(id) {
     else await api('/api/erp/empresas', { method:'POST', body:JSON.stringify(data) });
     closeModal(); toast('Salvo','success'); render();
   } catch (e) { toast(e.message,'error'); }
+}
+
+/* ==========================================================================
+   PAGE: FECHAMENTO DE LEILOES (ERP — restrito a diretoria)
+   Dados: GET /api/bula/fechamento (campos financeiros + por_assessor liberados
+   apenas para finance-admin). Espelha src/lib/leilao-acordos.ts.
+   ========================================================================== */
+const FL_MESES = ['Jan','Fev','Mar','Abr','Mai','Jun','Jul','Ago','Set','Out','Nov','Dez'];
+
+// Acordos canonicos — fallback p/ fechamentos antigos sem os campos no banco.
+// Snapshot 2026-05-15 da F.xlsx (mesmo mapa do src/lib/leilao-acordos.ts).
+const FL_ACORDOS = {
+  '145dbec3-8a8f-4463-8076-a2cca5be2876': { pct_faturamento:0.0033, descricao:'0,33% do faturamento total do leilao' },
+  '293de295-32b9-4256-976e-ef344b2667b8': { pct_faturamento:0.0033, descricao:'0,33% do faturamento total do leilao' },
+  'b6370f22-daa4-4f1c-b9a4-2511e5715c0a': { pct_faturamento:0.01,   descricao:'1% do faturamento total do leilao' },
+  '0e0eb3a2-6701-4662-9ae5-44172d3c8b72': { pct_venda_cobertura:0.05, descricao:'5% da venda da cobertura (Formula+Bula)' },
+  '3314a71a-dd01-423e-b559-9e9a49fdbf83': { pct_faturamento:0.015, pct_venda_cobertura:0.03, descricao:'1,5% do faturamento total + 3% da venda da cobertura' },
+  'b3d1c05c-2d37-4f9d-b1e4-a21c12540619': { pct_faturamento:0.01,   descricao:'1% do faturamento total do leilao' },
+  'a9f50214-603d-4580-b3be-602a7065ec37': { pct_faturamento:0.01, pct_venda_cobertura:0.03, descricao:'1% do faturamento total + 3% da venda da cobertura' },
+};
+
+function flResolverAcordo(f) {
+  if (f.acordo_descricao || f.acordo_pct_faturamento != null || f.acordo_pct_venda_cobertura != null) {
+    return {
+      pct_faturamento: f.acordo_pct_faturamento != null ? Number(f.acordo_pct_faturamento) : undefined,
+      pct_venda_cobertura: f.acordo_pct_venda_cobertura != null ? Number(f.acordo_pct_venda_cobertura) : undefined,
+      descricao: f.acordo_descricao || '—',
+    };
+  }
+  return FL_ACORDOS[f.id] || null;
+}
+function flReceitaEsperada(acordo, fatLeiloeira, vgvCob) {
+  if (!acordo) return null;
+  const a = (acordo.pct_faturamento && fatLeiloeira) ? acordo.pct_faturamento * fatLeiloeira : 0;
+  const b = (acordo.pct_venda_cobertura && vgvCob) ? acordo.pct_venda_cobertura * vgvCob : 0;
+  const t = a + b;
+  return t > 0 ? t : null;
+}
+function flAcordoCurto(acordo) {
+  if (!acordo) return '—';
+  const fat = acordo.pct_faturamento ? `${(acordo.pct_faturamento*100).toLocaleString('pt-BR',{maximumFractionDigits:2})}% fat.` : '';
+  const venda = acordo.pct_venda_cobertura ? `${(acordo.pct_venda_cobertura*100).toLocaleString('pt-BR',{maximumFractionDigits:2})}% venda` : '';
+  if (fat && venda) return `${fat} + ${venda}`;
+  return fat || venda || '—';
+}
+function flDataCurta(iso) {
+  const [y,m,d] = (iso||'').split('-');
+  return `${Number(d)||''} ${FL_MESES[(Number(m)||1)-1]||''}/${(y||'').slice(-2)}`;
+}
+
+function flFilteredRows() {
+  const all = state.fechamentos || [];
+  const f = state.filters;
+  const fMes = f.flMes||'', fAno = f.flAno||'', fSearch = (f.flSearch||'').toLowerCase(), fAcordo = f.flAcordo||'';
+  return all.filter(x => {
+    const [y,m] = (x.data||'').split('-');
+    if (fAno && y !== fAno) return false;
+    if (fMes && m !== fMes) return false;
+    if (fSearch && !((x.nome||'').toLowerCase().includes(fSearch) || (x.local||'').toLowerCase().includes(fSearch))) return false;
+    if (fAcordo) {
+      const tem = !!flResolverAcordo(x);
+      if (fAcordo === 'com' && !tem) return false;
+      if (fAcordo === 'sem' && tem) return false;
+    }
+    return true;
+  });
+}
+
+function flFilter(key, val) { state.filters[key] = val; renderFechamentoLeiloes(); }
+const flSearchInput = debounce((v)=>{ state.filters.flSearch = v; renderFechamentoLeiloes(); }, 300);
+function flClear() { ['flMes','flAno','flSearch','flAcordo'].forEach(k=>delete state.filters[k]); renderFechamentoLeiloes(); }
+function flReload() { state.fechamentos = null; renderFechamentoLeiloes(); }
+
+async function renderFechamentoLeiloes() {
+  if (!state.fechamentos) {
+    state.fechamentos = await api('/api/bula/fechamento');
+  }
+  const all = state.fechamentos || [];
+  const f = state.filters;
+  const fMes = f.flMes||'', fAno = f.flAno||'', fSearch = f.flSearch||'', fAcordo = f.flAcordo||'';
+  const anos = [...new Set(all.map(x => (x.data||'').slice(0,4)).filter(Boolean))].sort().reverse();
+  const rows = flFilteredRows();
+
+  // Detecta se os campos financeiros vieram (finance-admin). Se nao, avisa.
+  const semFinanceiro = all.length > 0 && all.every(x => x.receita_bula == null && x.comissao_assessoria == null && x.sobra_bruta == null);
+
+  const tot = rows.reduce((a,x) => {
+    a.vgv += Number(x.vgv_total)||0;
+    a.fat += Number(x.faturamento_total_leilao)||0;
+    a.receita += Number(x.receita_bula)||0;
+    a.comissao += Number(x.comissao_assessoria)||0;
+    a.lucro += Number(x.sobra_bruta)||0;
+    return a;
+  }, { vgv:0, fat:0, receita:0, comissao:0, lucro:0 });
+
+  const html = `
+    <div class="page-header">
+      <div>
+        <div class="page-title">Fechamento de Leiloes <small>${rows.length} de ${all.length} leiloes · dados restritos a diretoria</small></div>
+      </div>
+      <div class="page-actions">
+        <button class="btn btn-ghost btn-sm" onclick="flReload()"><span class="material-symbols-outlined">refresh</span>Atualizar</button>
+        <button class="btn btn-ghost btn-sm" onclick="flExportCSV()"><span class="material-symbols-outlined">download</span>Exportar CSV</button>
+      </div>
+    </div>
+
+    ${semFinanceiro ? `<div class="card" style="border-color:var(--amber-bg);background:var(--amber-bg);margin-bottom:18px;display:flex;gap:10px;align-items:center"><span class="material-symbols-outlined" style="color:var(--amber)">lock</span><div style="font-size:12px;color:var(--text2)">Campos financeiros ocultos: seu usuario nao tem permissao de diretoria (finance-admin). Os totais e comissoes aparecem zerados.</div></div>` : ''}
+
+    <div class="kpi-grid">
+      <div class="kpi info">
+        <div class="kpi-icon"><span class="material-symbols-outlined">paid</span></div>
+        <div class="kpi-label">VGV Cobertura</div>
+        <div class="kpi-value money">${fmtBRL(tot.vgv)}</div>
+        <div class="kpi-sub">Fat. leiloeira ${fmtBRL(tot.fat)}</div>
+      </div>
+      <div class="kpi success">
+        <div class="kpi-icon"><span class="material-symbols-outlined">account_balance_wallet</span></div>
+        <div class="kpi-label">Faturamento Bula</div>
+        <div class="kpi-value money">${fmtBRL(tot.receita)}</div>
+        <div class="kpi-sub">Receita a receber</div>
+      </div>
+      <div class="kpi warn">
+        <div class="kpi-icon"><span class="material-symbols-outlined">handshake</span></div>
+        <div class="kpi-label">Comissoes Assessoria</div>
+        <div class="kpi-value money">${fmtBRL(tot.comissao)}</div>
+        <div class="kpi-sub">Total pago a assessores</div>
+      </div>
+      <div class="kpi ${tot.lucro < 0 ? 'danger' : 'success'}">
+        <div class="kpi-icon"><span class="material-symbols-outlined">trending_up</span></div>
+        <div class="kpi-label">Lucro Bruto</div>
+        <div class="kpi-value money ${tot.lucro<0?'negative':'positive'}">${fmtBRL(tot.lucro)}</div>
+        <div class="kpi-sub">Faturamento − comissoes</div>
+      </div>
+    </div>
+
+    <div class="table-wrap">
+      <div class="table-toolbar">
+        <div class="table-search">
+          <span class="material-symbols-outlined">search</span>
+          <input type="text" placeholder="Buscar leilao..." value="${escapeHtml(fSearch)}" oninput="flSearchInput(this.value)">
+        </div>
+        <select class="table-filter" onchange="flFilter('flMes', this.value)">
+          <option value="">Todos os meses</option>
+          ${FL_MESES.map((nm,i)=>{ const mm=String(i+1).padStart(2,'0'); return `<option value="${mm}" ${fMes===mm?'selected':''}>${nm}</option>`; }).join('')}
+        </select>
+        <select class="table-filter" onchange="flFilter('flAno', this.value)">
+          <option value="">Todos os anos</option>
+          ${anos.map(a=>`<option value="${a}" ${fAno===a?'selected':''}>${a}</option>`).join('')}
+        </select>
+        <select class="table-filter" onchange="flFilter('flAcordo', this.value)">
+          <option value="">Acordo: todos</option>
+          <option value="com" ${fAcordo==='com'?'selected':''}>Com acordo</option>
+          <option value="sem" ${fAcordo==='sem'?'selected':''}>Sem acordo</option>
+        </select>
+        ${(fMes||fAno||fSearch||fAcordo)?`<button class="btn btn-ghost btn-sm" onclick="flClear()"><span class="material-symbols-outlined">filter_alt_off</span>Limpar</button>`:''}
+      </div>
+      ${rows.length === 0 ? `<div class="empty"><span class="material-symbols-outlined">gavel</span><h3>Nenhum fechamento</h3><p>Ajuste os filtros ou cadastre fechamentos no painel comercial.</p></div>` : `
+      <table>
+        <thead>
+          <tr>
+            <th>Data</th>
+            <th>Leilao</th>
+            <th style="text-align:right">VGV Cobertura</th>
+            <th style="text-align:right">Fat. Leiloeira</th>
+            <th>Acordo</th>
+            <th style="text-align:right">Receita Esperada</th>
+            <th style="text-align:right">Fat. Bula</th>
+            <th style="text-align:right">Comissao</th>
+            <th style="text-align:right">Lucro Bruto</th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody>
+          ${rows.map(x => {
+            const acordo = flResolverAcordo(x);
+            const esperado = flReceitaEsperada(acordo, Number(x.faturamento_total_leilao)||null, Number(x.vgv_total)||null);
+            const diff = (esperado != null && x.receita_bula != null) ? Number(x.receita_bula) - esperado : null;
+            const diverge = diff != null && Math.abs(diff) >= 1;
+            const nAss = (x.por_assessor||[]).filter(a=>a && a.nome).length;
+            const em = '<span style="color:var(--text4)">—</span>';
+            return `
+            <tr style="cursor:pointer" onclick="flOpenDetail('${x.id}')">
+              <td style="white-space:nowrap"><span style="color:var(--gold);font-weight:600">${flDataCurta(x.data)}</span></td>
+              <td><div style="font-weight:600">${escapeHtml(x.nome)}</div>${nAss?`<div style="font-size:10px;color:var(--text3)">${nAss} assessor${nAss>1?'es':''}</div>`:''}</td>
+              <td class="money" style="text-align:right;color:var(--gold)">${fmtBRL(x.vgv_total)}</td>
+              <td class="money" style="text-align:right">${x.faturamento_total_leilao!=null?fmtBRL(x.faturamento_total_leilao):em}</td>
+              <td>${acordo?`<span class="chip gold">${escapeHtml(flAcordoCurto(acordo))}</span>`:'<span class="chip muted">sem acordo</span>'}</td>
+              <td class="money" style="text-align:right">${esperado!=null?fmtBRL(esperado):em}</td>
+              <td class="money" style="text-align:right">${x.receita_bula!=null?`${fmtBRL(x.receita_bula)}${diverge?` <span title="Diverge ${fmtBRL(Math.abs(diff))} do acordo" style="color:var(--amber)">⚠</span>`:''}`:em}</td>
+              <td class="money" style="text-align:right">${x.comissao_assessoria!=null&&Number(x.comissao_assessoria)>0?fmtBRL(x.comissao_assessoria):em}</td>
+              <td class="money ${Number(x.sobra_bruta)<0?'negative':'positive'}" style="text-align:right">${x.sobra_bruta!=null?fmtBRL(x.sobra_bruta):em}</td>
+              <td><span class="material-symbols-outlined" style="color:var(--text4);font-size:18px">chevron_right</span></td>
+            </tr>`;
+          }).join('')}
+        </tbody>
+      </table>`}
+    </div>
+  `;
+  document.getElementById('page').innerHTML = html;
+}
+
+function flOpenDetail(id) {
+  const x = (state.fechamentos||[]).find(r => r.id === id);
+  if (!x) return;
+  const acordo = flResolverAcordo(x);
+  const esperado = flReceitaEsperada(acordo, Number(x.faturamento_total_leilao)||null, Number(x.vgv_total)||null);
+  const totalComissao = Number(x.comissao_assessoria)||0;
+  const ass = (x.por_assessor||[]).filter(a=>a && (a.nome || a.vgv)).slice().sort((a,b)=>(Number(b.vgv)||0)-(Number(a.vgv)||0));
+  const totalVgvAss = ass.reduce((s,a)=>s+(Number(a.vgv)||0),0);
+  const estados = (x.por_estado||[]).filter(e=>e && e.uf).slice().sort((a,b)=>(Number(b.vgv)||0)-(Number(a.vgv)||0));
+  const neg = v => Number(v)<0 ? 'negative' : 'positive';
+
+  const html = `
+    <div class="modal-header">
+      <div>
+        <div style="font-size:10px;font-weight:700;letter-spacing:1px;color:var(--gold);text-transform:uppercase">${flDataCurta(x.data)} · ${escapeHtml(x.local||'—')}</div>
+        <div class="modal-title">${escapeHtml(x.nome)}</div>
+      </div>
+      <button class="icon-btn" onclick="closeModal()"><span class="material-symbols-outlined">close</span></button>
+    </div>
+    <div class="modal-body">
+      <div class="card" style="border-color:var(--gold-dim);background:var(--gold-dim);margin-bottom:16px">
+        <div class="card-title"><span class="material-symbols-outlined">handshake</span>Acordo comercial</div>
+        <div style="font-size:13px;color:var(--text);font-weight:600">${acordo?escapeHtml(acordo.descricao):'Sem acordo cadastrado'}</div>
+        ${esperado!=null?`<div style="font-size:12px;color:var(--text2);margin-top:6px">Receita esperada pelo acordo: <strong class="money">${fmtBRL(esperado)}</strong>${x.receita_bula!=null&&Math.abs(Number(x.receita_bula)-esperado)>=1?` <span style="color:var(--amber)">· realizado diverge em ${fmtBRL(Math.abs(Number(x.receita_bula)-esperado))}</span>`:''}</div>`:''}
+      </div>
+
+      <div class="kpi-grid" style="margin-bottom:18px">
+        <div class="kpi"><div class="kpi-label">VGV Cobertura</div><div class="kpi-value money" style="font-size:18px;color:var(--gold)">${fmtBRL(x.vgv_total)}</div></div>
+        <div class="kpi"><div class="kpi-label">Fat. Leiloeira</div><div class="kpi-value money" style="font-size:18px">${x.faturamento_total_leilao!=null?fmtBRL(x.faturamento_total_leilao):'—'}</div></div>
+        <div class="kpi"><div class="kpi-label">Faturamento Bula</div><div class="kpi-value money" style="font-size:18px">${x.receita_bula!=null?fmtBRL(x.receita_bula):'—'}</div></div>
+        <div class="kpi"><div class="kpi-label">Comissao Assessoria</div><div class="kpi-value money" style="font-size:18px">${fmtBRL(totalComissao)}</div></div>
+        <div class="kpi"><div class="kpi-label">Lucro Bruto</div><div class="kpi-value money ${neg(x.sobra_bruta)}" style="font-size:18px">${x.sobra_bruta!=null?fmtBRL(x.sobra_bruta):'—'}</div></div>
+        <div class="kpi"><div class="kpi-label">Lotes / Animais</div><div class="kpi-value" style="font-size:18px">${x.lotes_vendidos||0}/${x.lotes_ofertados||0} · ${x.animais_vendidos||0}</div></div>
+      </div>
+
+      <div class="card-title" style="margin-bottom:8px"><span class="material-symbols-outlined">groups</span>Comissionamento por assessor</div>
+      ${ass.length===0?`<div class="empty" style="padding:24px"><p>Sem dados de assessores neste fechamento.</p></div>`:`
+      <div class="table-wrap" style="margin-bottom:6px">
+        <table>
+          <thead><tr><th>#</th><th>Assessor</th><th>Empresa</th><th style="text-align:right">Transacoes</th><th style="text-align:right">Animais</th><th style="text-align:right">VGV</th><th style="text-align:right">% do total</th><th style="text-align:right">Ticket Medio</th><th style="text-align:right">Comissao estimada</th></tr></thead>
+          <tbody>
+            ${ass.map((a,i)=>{
+              const vgv = Number(a.vgv)||0;
+              const share = totalVgvAss>0 ? vgv/totalVgvAss : 0;
+              const comissaoEst = totalComissao>0 ? totalComissao*share : 0;
+              return `<tr>
+                <td>${a.posicao||i+1}</td>
+                <td style="font-weight:600">${escapeHtml(a.nome||'—')}</td>
+                <td>${a.empresa?`<span class="chip muted">${escapeHtml(a.empresa)}</span>`:'—'}</td>
+                <td style="text-align:right">${a.transacoes||0}</td>
+                <td style="text-align:right">${a.animais||0}</td>
+                <td class="money" style="text-align:right;color:var(--gold)">${fmtBRL(vgv)}</td>
+                <td style="text-align:right">${(share*100).toLocaleString('pt-BR',{maximumFractionDigits:1})}%</td>
+                <td class="money" style="text-align:right">${fmtBRL(a.ticket_medio)}</td>
+                <td class="money" style="text-align:right">${totalComissao>0?fmtBRL(comissaoEst):'—'}</td>
+              </tr>`;
+            }).join('')}
+          </tbody>
+          ${totalComissao>0?`<tfoot><tr style="font-weight:700;border-top:2px solid var(--border2)"><td colspan="5">Total</td><td class="money" style="text-align:right">${fmtBRL(totalVgvAss)}</td><td style="text-align:right">100%</td><td></td><td class="money" style="text-align:right">${fmtBRL(totalComissao)}</td></tr></tfoot>`:''}
+        </table>
+      </div>
+      ${totalComissao>0?`<div style="font-size:10px;color:var(--text3);margin-bottom:16px">Comissao estimada = rateio do total pago (${fmtBRL(totalComissao)}) proporcional ao VGV de cada assessor.</div>`:'<div style="margin-bottom:16px"></div>'}`}
+
+      ${estados.length?`
+      <div class="card-title" style="margin-bottom:8px"><span class="material-symbols-outlined">public</span>Distribuicao por estado</div>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>UF</th><th>Estado</th><th style="text-align:right">Lotes</th><th style="text-align:right">Animais</th><th style="text-align:right">VGV</th><th style="text-align:right">% do total</th></tr></thead>
+          <tbody>
+            ${estados.map(e=>`<tr><td><strong>${escapeHtml(e.uf)}</strong></td><td>${escapeHtml(e.estado||'—')}</td><td style="text-align:right">${e.lotes||0}</td><td style="text-align:right">${e.animais||0}</td><td class="money" style="text-align:right">${fmtBRL(e.vgv)}</td><td style="text-align:right">${(Number(e.pct_total)||0).toLocaleString('pt-BR',{maximumFractionDigits:1})}%</td></tr>`).join('')}
+          </tbody>
+        </table>
+      </div>`:''}
+
+      ${x.observacoes?`<div style="margin-top:16px;font-size:12px;color:var(--text2)"><strong>Observacoes:</strong> ${escapeHtml(x.observacoes)}</div>`:''}
+    </div>
+    <div class="modal-footer">
+      <button class="btn" onclick="closeModal()">Fechar</button>
+    </div>`;
+  openModal(html, { wide:true });
+}
+
+function flExportCSV() {
+  const rows = flFilteredRows();
+  if (!rows.length) { toast('Nada para exportar','info'); return; }
+  const cell = v => `"${String(v==null?'':v).replace(/"/g,'""')}"`;
+  const head = ['Data','Leilao','Local','VGV Cobertura','Fat Leiloeira','Acordo','Receita Esperada','Fat Bula','Comissao','Lucro Bruto'];
+  const lines = [head.map(cell).join(';')];
+  for (const x of rows) {
+    const acordo = flResolverAcordo(x);
+    const esperado = flReceitaEsperada(acordo, Number(x.faturamento_total_leilao)||null, Number(x.vgv_total)||null);
+    lines.push([
+      x.data, x.nome, x.local||'', Number(x.vgv_total)||0,
+      x.faturamento_total_leilao!=null?Number(x.faturamento_total_leilao):'',
+      acordo?flAcordoCurto(acordo):'', esperado!=null?Math.round(esperado):'',
+      x.receita_bula!=null?Number(x.receita_bula):'', x.comissao_assessoria!=null?Number(x.comissao_assessoria):'',
+      x.sobra_bruta!=null?Number(x.sobra_bruta):'',
+    ].map(cell).join(';'));
+  }
+  const blob = new Blob(["﻿"+lines.join('\n')], { type:'text/csv;charset=utf-8' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url; a.download = 'fechamento-leiloes.csv'; a.click();
+  URL.revokeObjectURL(url);
+  toast('CSV exportado','success');
 }
 
 /* ==========================================================================
