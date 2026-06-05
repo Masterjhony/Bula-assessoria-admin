@@ -70,20 +70,25 @@ export async function updateSession(req: NextRequest) {
       res = NextResponse.next({ request: req })
     }
   } else if (lp) {
-    // Host lp.* → tudo é servido a partir de /agenda. A página de leilões
-    // já vive em /agenda; aqui só prefixamos as rotas públicas. Caminhos que
-    // já começam com /agenda passam direto (links internos canônicos
-    // continuam funcionando tanto no subdomínio quanto no domínio principal).
+    // Host lp.* (e bulaassessoria.com) → a raiz "/" serve a página
+    // institucional; a agenda de leilões vive em /agenda. Demais caminhos
+    // públicos seguem mapeando para /agenda (compat com links antigos).
+    // Caminhos canônicos (/institucional, /agenda) passam direto.
     const url = req.nextUrl.clone()
-    if (
+    if (pathname === '/') {
+      url.pathname = '/institucional'
+      res = NextResponse.rewrite(url, { request: req })
+    } else if (
+      !pathname.startsWith('/institucional') &&
       !pathname.startsWith('/agenda') &&
+      !pathname.startsWith('/criatorios') &&
       !pathname.startsWith('/api/') &&
       !pathname.startsWith('/_next') &&
       pathname !== '/favicon.ico' &&
       !pathname.startsWith('/logo-') &&
       !pathname.startsWith('/bula/')
     ) {
-      url.pathname = `/agenda${pathname === '/' ? '' : pathname}`
+      url.pathname = `/agenda${pathname}`
       res = NextResponse.rewrite(url, { request: req })
     } else {
       res = NextResponse.next({ request: req })

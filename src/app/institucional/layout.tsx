@@ -1,73 +1,70 @@
 import type { Metadata } from 'next'
 import Link from 'next/link'
 import { MessageCircle, Instagram, ArrowRight, Calendar } from 'lucide-react'
-import { WHATSAPP_CTA_URL } from './helpers'
+import { WHATSAPP_CTA_URL } from '../agenda/helpers'
 
 export const metadata: Metadata = {
     metadataBase: new URL('https://bulaassessoria.com'),
-    title: 'Agenda de Leilões | Bula Assessoria',
+    title: 'Bula Assessoria Pecuária | Do gado comercial ao Nelore PO',
     description:
-        'Agenda dos principais leilões assessorados pela Bula Assessoria Pecuária, com touros, matrizes, catálogos, transmissões e informações comerciais.',
+        'A Bula assessora pecuaristas na entrada no Nelore PO: escolha de genética, estratégia de arremate e condição comercial nos principais leilões do Brasil. Você não entra sozinho.',
     openGraph: {
-        title: 'Agenda de Leilões | Bula Assessoria',
+        title: 'Bula Assessoria Pecuária | Do gado comercial ao Nelore PO',
         description:
-            'Touros e matrizes dos principais leilões do Brasil, com curadoria e assessoria comercial da Bula.',
-        url: 'https://bulaassessoria.com/agenda',
+            'Assessoria especializada para quem quer entrar no Nelore PO com segurança: curadoria de genética, estratégia de arremate e suporte em cada lance.',
+        url: 'https://bulaassessoria.com/',
         siteName: 'Bula Assessoria',
         images: [
             {
                 url: '/agenda-oficial-bula-whatsapp.jpg',
                 width: 1200,
                 height: 1200,
-                alt: 'Agenda Oficial Bula Assessoria Pecuária',
+                alt: 'Bula Assessoria Pecuária',
             },
         ],
         type: 'website',
     },
     twitter: {
         card: 'summary_large_image',
-        title: 'Agenda de Leilões | Bula Assessoria',
+        title: 'Bula Assessoria Pecuária | Do gado comercial ao Nelore PO',
         description:
-            'Touros e matrizes dos principais leilões do Brasil, com curadoria e assessoria comercial da Bula.',
+            'Assessoria especializada para entrar no Nelore PO com segurança, curadoria de genética e estratégia de arremate.',
         images: ['/agenda-oficial-bula-whatsapp.jpg'],
     },
 }
 
-export default function AgendaLayout({ children }: { children: React.ReactNode }) {
+export default function InstitucionalLayout({ children }: { children: React.ReactNode }) {
     return (
-        <div className="flex min-h-screen flex-col bg-white text-black">
-            <header className="sticky top-0 z-50 border-b border-black/10 bg-white/92 backdrop-blur-xl">
+        <div className="flex min-h-screen flex-col bg-black text-white">
+            <header className="sticky top-0 z-50 border-b border-white/10 bg-black/80 backdrop-blur-xl">
                 <div className="mx-auto flex h-20 max-w-7xl items-center justify-between px-5 sm:h-24 sm:px-8">
-                    <Link href="/agenda" className="flex items-center group" aria-label="Bula Assessoria">
+                    <Link href="/" className="flex items-center group" aria-label="Bula Assessoria">
                         {/* eslint-disable-next-line @next/next/no-img-element */}
                         <img
-                            src="/logo-bula-assessoria-dark.png"
+                            src="/logo-bula-assessoria-white.png"
                             alt="Bula Assessoria"
                             className="h-14 w-auto object-contain transition-opacity group-hover:opacity-75 sm:h-20"
                         />
                     </Link>
-                    <nav className="flex items-center gap-2 text-[13px] font-bold sm:text-sm">
-                        <Link
-                            href="/"
-                            className="rounded-md px-3 py-2 text-black/62 transition-colors hover:bg-black/5 hover:text-black"
-                        >
-                            Início
-                        </Link>
+                    <nav className="flex items-center gap-1.5 text-[13px] font-bold sm:gap-2 sm:text-sm">
                         <Link
                             href="/agenda"
-                            className="rounded-md px-3 py-2 text-black/62 transition-colors hover:bg-black/5 hover:text-black"
+                            className="inline-flex items-center gap-1.5 rounded-md px-3 py-2 text-white/65 transition-colors hover:bg-white/8 hover:text-white"
                         >
-                            Agenda
+                            <Calendar className="h-4 w-4" />
+                            <span className="hidden xs:inline sm:inline">Agenda de leilões</span>
+                            <span className="xs:hidden sm:hidden">Agenda</span>
                         </Link>
                         <a
                             href={WHATSAPP_CTA_URL}
                             target="_blank"
                             rel="noopener noreferrer"
-                            className="inline-flex items-center gap-2 rounded-md border border-black px-4 py-2.5 font-black shadow-sm transition-all hover:-translate-y-0.5 hover:shadow-md sm:px-5"
-                            style={{ backgroundColor: '#000', color: '#fff' }}
+                            className="inline-flex items-center gap-2 rounded-md px-4 py-2.5 font-black shadow-sm transition-all hover:-translate-y-0.5 hover:bg-[#1ebe5d] sm:px-5"
+                            style={{ backgroundColor: '#25D366', color: '#ffffff' }}
                         >
                             <MessageCircle className="h-4 w-4" />
-                            Fale com a Bula
+                            <span className="hidden sm:inline">Entrar no grupo</span>
+                            <span className="sm:hidden">Grupo</span>
                         </a>
                     </nav>
                 </div>
