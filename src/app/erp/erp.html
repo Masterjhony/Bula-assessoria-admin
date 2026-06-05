@@ -269,6 +269,7 @@ svg.chart { width:100%; height:100%; display:block; }
 
     <div class="sidebar-section">Leiloes</div>
     <div class="sidebar-item" data-page="fechamento_leiloes"><span class="material-symbols-outlined">gavel</span><span>Fechamento Leiloes</span></div>
+    <div class="sidebar-item" data-page="comissionamento"><span class="material-symbols-outlined">real_estate_agent</span><span>Comissionamento</span></div>
 
     <div class="sidebar-section">Juridico</div>
     <a class="sidebar-item" href="https://admin.bulaassessoria.com/sistema/contratos" target="_blank" style="text-decoration:none;"><span class="material-symbols-outlined">description</span><span>Contratos</span></a>
@@ -465,6 +466,7 @@ async function render() {
     if (state.page === 'notas') return renderNotas();
     if (state.page === 'empresa') return renderEmpresa();
     if (state.page === 'fechamento_leiloes') return renderFechamentoLeiloes();
+    if (state.page === 'comissionamento') return renderComissionamento();
   } catch (e) {
     page.innerHTML = `<div class="card" style="text-align:center"><span class="material-symbols-outlined" style="font-size:36px;color:var(--red)">error</span><h3 style="margin:8px 0">Erro ao carregar</h3><p style="color:var(--text3);font-size:12px">${escapeHtml(e.message)}</p></div>`;
   }
@@ -2303,6 +2305,264 @@ function flExportCSV() {
   const url = URL.createObjectURL(blob);
   const a = document.createElement('a');
   a.href = url; a.download = 'fechamento-leiloes.csv'; a.click();
+  URL.revokeObjectURL(url);
+  toast('CSV exportado','success');
+}
+
+/* ==========================================================================
+   PAGE: COMISSIONAMENTO (ERP — por assessor, restrito a diretoria)
+   Agrega /api/bula/fechamento por assessor: rateia a comissao_assessoria de
+   cada leilao proporcional ao VGV do assessor (por_assessor) e detalha leiloes
+   e vendas individuais (lances) atribuidas a cada um.
+   ========================================================================== */
+const coNorm = s => (s||'').trim().toUpperCase();
+
+function coFilteredFechamentos() {
+  const all = state.fechamentos || [];
+  const f = state.filters;
+  const mes = f.coMes||'', ano = f.coAno||'';
+  return all.filter(x => {
+    const [y,m] = (x.data||'').split('-');
+    if (ano && y !== ano) return false;
+    if (mes && m !== mes) return false;
+    return true;
+  });
+}
+
+function coAggregate() {
+  const map = new Map();
+  for (const f of coFilteredFechamentos()) {
+    const totalComissao = Number(f.comissao_assessoria)||0;
+    const ass = (f.por_assessor||[]).filter(a => a && a.nome);
+    const totalVgv = ass.reduce((s,a)=>s+(Number(a.vgv)||0),0);
+    for (const a of ass) {
+      const key = coNorm(a.nome);
+      if (!key) continue;
+      const vgv = Number(a.vgv)||0;
+      const share = totalVgv>0 ? vgv/totalVgv : 0;
+      const comissao = totalComissao>0 ? totalComissao*share : 0;
+      let rec = map.get(key);
+      if (!rec) { rec = { key, nome:a.nome, empresas:new Set(), leiloes:[], vgv:0, comissao:0, transacoes:0, animais:0 }; map.set(key, rec); }
+      if (a.empresa) rec.empresas.add(a.empresa);
+      rec.vgv += vgv; rec.comissao += comissao;
+      rec.transacoes += Number(a.transacoes)||0; rec.animais += Number(a.animais)||0;
+      rec.leiloes.push({ id:f.id, nome:f.nome, data:f.data, local:f.local||'', vgv, share, comissao, transacoes:Number(a.transacoes)||0, animais:Number(a.animais)||0, semComissao: totalComissao<=0 });
+    }
+  }
+  return [...map.values()].map(r => ({ ...r, empresas:[...r.empresas] })).sort((a,b)=> b.comissao - a.comissao || b.vgv - a.vgv);
+}
+
+function coFilter(key, val) { state.filters[key] = val; renderComissionamento(); }
+const coSearchInput = debounce((v)=>{ state.filters.coSearch = v; renderComissionamento(); }, 300);
+function coClear() { ['coMes','coAno','coSearch','coEmpresa'].forEach(k=>delete state.filters[k]); renderComissionamento(); }
+
+async function renderComissionamento() {
+  if (!state.fechamentos) state.fechamentos = await api('/api/bula/fechamento');
+  const all = state.fechamentos || [];
+  const f = state.filters;
+  const mes=f.coMes||'', ano=f.coAno||'', search=f.coSearch||'', empresa=f.coEmpresa||'';
+  const anos = [...new Set(all.map(x=>(x.data||'').slice(0,4)).filter(Boolean))].sort().reverse();
+
+  let assessores = coAggregate();
+  const empresas = [...new Set(assessores.flatMap(a=>a.empresas))].sort();
+  const sNorm = coNorm(search);
+  if (sNorm) assessores = assessores.filter(a => coNorm(a.nome).includes(sNorm));
+  if (empresa) assessores = assessores.filter(a => a.empresas.includes(empresa));
+  state.coCache = assessores; // p/ drawer e CSV (mesma lista filtrada exibida)
+
+  const fechs = coFilteredFechamentos();
+  const tot = {
+    pagar: assessores.reduce((s,a)=>s+a.comissao,0),
+    vgv: assessores.reduce((s,a)=>s+a.vgv,0),
+    leiloes: new Set(assessores.flatMap(a=>a.leiloes.map(l=>l.id))).size,
+  };
+  const semComissao = fechs.length>0 && fechs.every(x => !(Number(x.comissao_assessoria)>0));
+  const maxC = assessores.reduce((m,a)=>Math.max(m,a.comissao),0) || 1;
+
+  const html = `
+    <div class="page-header">
+      <div>
+        <div class="page-title">Comissionamento <small>${assessores.length} assessores · valores a pagar por leilao e venda</small></div>
+      </div>
+      <div class="page-actions">
+        <button class="btn btn-ghost btn-sm" onclick="flReload()"><span class="material-symbols-outlined">refresh</span>Atualizar</button>
+        <button class="btn btn-ghost btn-sm" onclick="coExportCSV()"><span class="material-symbols-outlined">download</span>Exportar CSV</button>
+      </div>
+    </div>
+
+    ${semComissao ? `<div class="card" style="border-color:var(--amber-bg);background:var(--amber-bg);margin-bottom:18px;display:flex;gap:10px;align-items:center"><span class="material-symbols-outlined" style="color:var(--amber)">info</span><div style="font-size:12px;color:var(--text2)">Os leiloes filtrados nao tem comissao lancada — os valores a pagar aparecem zerados. Lance a comissao no Fechamento de Leiloes.</div></div>`:''}
+
+    <div class="kpi-grid">
+      <div class="kpi warn">
+        <div class="kpi-icon"><span class="material-symbols-outlined">payments</span></div>
+        <div class="kpi-label">Total a Pagar</div>
+        <div class="kpi-value money">${fmtBRL(tot.pagar)}</div>
+        <div class="kpi-sub">comissoes de assessoria</div>
+      </div>
+      <div class="kpi info">
+        <div class="kpi-icon"><span class="material-symbols-outlined">groups</span></div>
+        <div class="kpi-label">Assessores</div>
+        <div class="kpi-value">${assessores.length}</div>
+        <div class="kpi-sub">${tot.leiloes} leiloes</div>
+      </div>
+      <div class="kpi">
+        <div class="kpi-icon"><span class="material-symbols-outlined">paid</span></div>
+        <div class="kpi-label">VGV Intermediado</div>
+        <div class="kpi-value money" style="color:var(--gold)">${fmtBRL(tot.vgv)}</div>
+        <div class="kpi-sub">soma do VGV dos assessores</div>
+      </div>
+    </div>
+
+    <div class="table-wrap">
+      <div class="table-toolbar">
+        <div class="table-search">
+          <span class="material-symbols-outlined">search</span>
+          <input type="text" placeholder="Buscar assessor..." value="${escapeHtml(search)}" oninput="coSearchInput(this.value)">
+        </div>
+        <select class="table-filter" onchange="coFilter('coMes', this.value)">
+          <option value="">Todos os meses</option>
+          ${FL_MESES.map((nm,i)=>{ const mm=String(i+1).padStart(2,'0'); return `<option value="${mm}" ${mes===mm?'selected':''}>${nm}</option>`; }).join('')}
+        </select>
+        <select class="table-filter" onchange="coFilter('coAno', this.value)">
+          <option value="">Todos os anos</option>
+          ${anos.map(a=>`<option value="${a}" ${ano===a?'selected':''}>${a}</option>`).join('')}
+        </select>
+        <select class="table-filter" onchange="coFilter('coEmpresa', this.value)">
+          <option value="">Todas as empresas</option>
+          ${empresas.map(e=>`<option value="${escapeHtml(e)}" ${empresa===e?'selected':''}>${escapeHtml(e)}</option>`).join('')}
+        </select>
+        ${(mes||ano||search||empresa)?`<button class="btn btn-ghost btn-sm" onclick="coClear()"><span class="material-symbols-outlined">filter_alt_off</span>Limpar</button>`:''}
+      </div>
+      ${assessores.length===0?`<div class="empty"><span class="material-symbols-outlined">real_estate_agent</span><h3>Nenhum assessor</h3><p>Ajuste os filtros ou lance fechamentos com assessores.</p></div>`:`
+      <table>
+        <thead>
+          <tr>
+            <th>Assessor</th>
+            <th>Empresa</th>
+            <th style="text-align:right">Leiloes</th>
+            <th style="text-align:right">Vendas</th>
+            <th style="text-align:right">Animais</th>
+            <th style="text-align:right">VGV Intermediado</th>
+            <th style="text-align:right">Comissao a Pagar</th>
+            <th style="width:120px">Participacao</th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody>
+          ${assessores.map((a,i)=>`
+            <tr style="cursor:pointer" onclick="coOpenDetail(${i})">
+              <td style="font-weight:600">${escapeHtml(a.nome)}</td>
+              <td>${a.empresas.length?a.empresas.map(e=>`<span class="chip muted">${escapeHtml(e)}</span>`).join(' '):'—'}</td>
+              <td style="text-align:right">${a.leiloes.length}</td>
+              <td style="text-align:right">${a.transacoes}</td>
+              <td style="text-align:right">${a.animais}</td>
+              <td class="money" style="text-align:right;color:var(--gold)">${fmtBRL(a.vgv)}</td>
+              <td class="money" style="text-align:right;font-weight:700">${a.comissao>0?fmtBRL(a.comissao):'<span style="color:var(--text4)">—</span>'}</td>
+              <td><div style="height:7px;background:var(--s3);border-radius:4px;overflow:hidden"><div style="height:100%;width:${Math.round((a.comissao/maxC)*100)}%;background:var(--gold)"></div></div></td>
+              <td><span class="material-symbols-outlined" style="color:var(--text4);font-size:18px">chevron_right</span></td>
+            </tr>`).join('')}
+        </tbody>
+        <tfoot>
+          <tr style="font-weight:700;border-top:2px solid var(--border2)">
+            <td colspan="5">Total (${assessores.length} assessores)</td>
+            <td class="money" style="text-align:right">${fmtBRL(tot.vgv)}</td>
+            <td class="money" style="text-align:right">${fmtBRL(tot.pagar)}</td>
+            <td colspan="2"></td>
+          </tr>
+        </tfoot>
+      </table>`}
+    </div>
+  `;
+  document.getElementById('page').innerHTML = html;
+}
+
+function coOpenDetail(idx) {
+  const rec = (state.coCache||[])[idx];
+  if (!rec) return;
+  const leiloes = rec.leiloes.slice().sort((a,b)=> (b.data||'').localeCompare(a.data||''));
+
+  // Vendas (lances) atribuidas ao assessor, por leilao
+  const vendas = [];
+  for (const l of leiloes) {
+    const fech = (state.fechamentos||[]).find(x=>x.id===l.id);
+    if (!fech) continue;
+    for (const v of (fech.lances||[])) {
+      if (!v || coNorm(v.assessor) !== rec.key) continue;
+      vendas.push({ leilao:fech.nome, data:fech.data, lote:v.lote, comprador:v.comprador, uf:v.uf, animais:Number(v.animais)||0, vgv:Number(v.vgv)||0 });
+    }
+  }
+  vendas.sort((a,b)=> b.vgv - a.vgv);
+
+  const html = `
+    <div class="modal-header">
+      <div>
+        <div style="font-size:10px;font-weight:700;letter-spacing:1px;color:var(--gold);text-transform:uppercase">Comissionamento do assessor</div>
+        <div class="modal-title">${escapeHtml(rec.nome)} ${rec.empresas.map(e=>`<span class="chip muted" style="vertical-align:middle">${escapeHtml(e)}</span>`).join(' ')}</div>
+      </div>
+      <button class="icon-btn" onclick="closeModal()"><span class="material-symbols-outlined">close</span></button>
+    </div>
+    <div class="modal-body">
+      <div class="kpi-grid" style="margin-bottom:18px">
+        <div class="kpi warn"><div class="kpi-label">Total a Pagar</div><div class="kpi-value money" style="font-size:19px">${fmtBRL(rec.comissao)}</div></div>
+        <div class="kpi"><div class="kpi-label">VGV Intermediado</div><div class="kpi-value money" style="font-size:19px;color:var(--gold)">${fmtBRL(rec.vgv)}</div></div>
+        <div class="kpi"><div class="kpi-label">Leiloes</div><div class="kpi-value" style="font-size:19px">${leiloes.length}</div></div>
+        <div class="kpi"><div class="kpi-label">Vendas / Animais</div><div class="kpi-value" style="font-size:19px">${rec.transacoes} · ${rec.animais}</div></div>
+      </div>
+
+      <div class="card-title" style="margin-bottom:8px"><span class="material-symbols-outlined">gavel</span>A pagar por leilao</div>
+      <div class="table-wrap" style="margin-bottom:6px">
+        <table>
+          <thead><tr><th>Data</th><th>Leilao</th><th style="text-align:right">Vendas</th><th style="text-align:right">VGV</th><th style="text-align:right">% do leilao</th><th style="text-align:right">Comissao</th></tr></thead>
+          <tbody>
+            ${leiloes.map(l=>`<tr>
+              <td style="white-space:nowrap;color:var(--gold);font-weight:600">${flDataCurta(l.data)}</td>
+              <td>${escapeHtml(l.nome)}</td>
+              <td style="text-align:right">${l.transacoes}</td>
+              <td class="money" style="text-align:right">${fmtBRL(l.vgv)}</td>
+              <td style="text-align:right">${(l.share*100).toLocaleString('pt-BR',{maximumFractionDigits:1})}%</td>
+              <td class="money" style="text-align:right;font-weight:700">${l.comissao>0?fmtBRL(l.comissao):'<span style="color:var(--text4)" title="Leilao sem comissao lancada">—</span>'}</td>
+            </tr>`).join('')}
+          </tbody>
+          <tfoot><tr style="font-weight:700;border-top:2px solid var(--border2)"><td colspan="3">Total</td><td class="money" style="text-align:right">${fmtBRL(rec.vgv)}</td><td></td><td class="money" style="text-align:right">${fmtBRL(rec.comissao)}</td></tr></tfoot>
+        </table>
+      </div>
+      <div style="font-size:10px;color:var(--text3);margin-bottom:18px">Comissao por leilao = rateio do total pago no leilao proporcional ao VGV do assessor (por_assessor).</div>
+
+      <div class="card-title" style="margin-bottom:8px"><span class="material-symbols-outlined">sell</span>Vendas atribuidas ${vendas.length?`<span style="color:var(--text3);font-weight:400">(${vendas.length})</span>`:''}</div>
+      ${vendas.length===0?`<div class="empty" style="padding:24px"><p>Sem vendas individuais (lances) registradas para este assessor.</p></div>`:`
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Leilao</th><th>Lote</th><th>Comprador</th><th>UF</th><th style="text-align:right">Animais</th><th style="text-align:right">VGV</th></tr></thead>
+          <tbody>
+            ${vendas.map(v=>`<tr>
+              <td style="font-size:11px;color:var(--text2)">${escapeHtml(v.leilao)}</td>
+              <td>${escapeHtml(v.lote||'—')}</td>
+              <td>${escapeHtml(v.comprador||'—')}</td>
+              <td>${escapeHtml(v.uf||'—')}</td>
+              <td style="text-align:right">${v.animais||0}</td>
+              <td class="money" style="text-align:right">${fmtBRL(v.vgv)}</td>
+            </tr>`).join('')}
+          </tbody>
+        </table>
+      </div>`}
+    </div>
+    <div class="modal-footer"><button class="btn" onclick="closeModal()">Fechar</button></div>`;
+  openModal(html, { wide:true });
+}
+
+function coExportCSV() {
+  const assessores = state.coCache || [];
+  if (!assessores.length) { toast('Nada para exportar','info'); return; }
+  const cell = v => `"${String(v==null?'':v).replace(/"/g,'""')}"`;
+  const lines = [['Assessor','Empresa','Leilao','Data','VGV no leilao','% do leilao','Comissao'].map(cell).join(';')];
+  for (const a of assessores) {
+    for (const l of a.leiloes.slice().sort((x,y)=>(y.data||'').localeCompare(x.data||''))) {
+      lines.push([a.nome, a.empresas.join(' / '), l.nome, l.data, Math.round(l.vgv), (l.share*100).toFixed(1), Math.round(l.comissao)].map(cell).join(';'));
+    }
+  }
+  const blob = new Blob(["﻿"+lines.join('\n')], { type:'text/csv;charset=utf-8' });
+  const url = URL.createObjectURL(blob);
+  const aEl = document.createElement('a'); aEl.href=url; aEl.download='comissionamento-assessores.csv'; aEl.click();
   URL.revokeObjectURL(url);
   toast('CSV exportado','success');
 }
