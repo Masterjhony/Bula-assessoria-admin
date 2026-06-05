@@ -18,6 +18,12 @@ function stripFinanceFields(row: FechamentoRow): FechamentoRow {
   for (const k of FINANCE_FIELDS) {
     if (k in out) out[k] = null;
   }
+  // Comissão por assessor (por_assessor[].comissao) é sensível como o total.
+  if (Array.isArray(out.por_assessor)) {
+    out.por_assessor = (out.por_assessor as Array<Record<string, unknown>>).map((a) =>
+      a && typeof a === 'object' ? { ...a, comissao: null } : a
+    );
+  }
   return out;
 }
 

@@ -26,6 +26,9 @@ type Assessor = {
   posicao: number; nome: string; empresa: string
   transacoes: number; animais: number; vgv: number
   ticket_medio: number; pct_total: number
+  /** Comissão real paga a este assessor neste leilão (R$). Vazio/null = ratear
+   *  o total `comissao_assessoria` por VGV. Só finance-admin lê/grava. */
+  comissao?: number | null
 }
 
 type Estado = {
@@ -1123,6 +1126,7 @@ function FechamentoFormModal({ initial, onClose, onSaved }: {
                 <AddRowButton label="Adicionar assessor" onClick={() => addRow('por_assessor', {
                   posicao: form.por_assessor.length + 1, nome: '', empresa: '',
                   transacoes: 0, animais: 0, vgv: 0, ticket_medio: 0, pct_total: 0,
+                  comissao: null,
                 })} />
               </div>
               {form.por_assessor.length === 0 && <EmptyRows label="Nenhum assessor adicionado" />}
@@ -1136,7 +1140,8 @@ function FechamentoFormModal({ initial, onClose, onSaved }: {
                     <FormField label="Animais"><input type="number" className={inputCls} value={a.animais || ''} onChange={e => updateRow('por_assessor', i, { animais: Number(e.target.value) })} min={0} /></FormField>
                     <FormField label="VGV (R$)"><input type="number" className={inputCls} value={a.vgv || ''} onChange={e => updateRow('por_assessor', i, { vgv: Number(e.target.value) })} min={0} /></FormField>
                     <FormField label="Ticket Médio (R$)"><input type="number" className={inputCls} value={a.ticket_medio || ''} onChange={e => updateRow('por_assessor', i, { ticket_medio: Number(e.target.value) })} min={0} /></FormField>
-                    <FormField label="% Total (0–1)" className="md:col-span-4"><input type="number" step="0.01" className={inputCls} value={a.pct_total || ''} onChange={e => updateRow('por_assessor', i, { pct_total: Number(e.target.value) })} min={0} max={1} placeholder="Ex: 0.35 para 35%" /></FormField>
+                    <FormField label="Comissão real (R$)"><input type="number" step="0.01" className={inputCls} value={a.comissao ?? ''} onChange={e => updateRow('por_assessor', i, { comissao: e.target.value === '' ? null : Number(e.target.value) })} min={0} placeholder="vazio = ratear por VGV" /></FormField>
+                    <FormField label="% Total (0–1)" className="md:col-span-3"><input type="number" step="0.01" className={inputCls} value={a.pct_total || ''} onChange={e => updateRow('por_assessor', i, { pct_total: Number(e.target.value) })} min={0} max={1} placeholder="Ex: 0.35 para 35%" /></FormField>
                   </div>
                 </RowCard>
               ))}

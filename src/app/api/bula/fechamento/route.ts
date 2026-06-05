@@ -22,6 +22,14 @@ function stripFinanceFields(row: FechamentoRow): FechamentoRow {
   for (const k of FINANCE_FIELDS) {
     if (k in out) out[k] = null;
   }
+  // A comissão paga a cada assessor (por_assessor[].comissao) é tão sensível
+  // quanto o total: assessores não podem ver. Zera só esse campo, mantendo o
+  // resto da métrica de vendas (VGV, transações) que eles podem ver.
+  if (Array.isArray(out.por_assessor)) {
+    out.por_assessor = (out.por_assessor as Array<Record<string, unknown>>).map((a) =>
+      a && typeof a === 'object' ? { ...a, comissao: null } : a
+    );
+  }
   return out;
 }
 

@@ -2051,6 +2051,28 @@ function flDataCurta(iso) {
   return `${Number(d)||''} ${FL_MESES[(Number(m)||1)-1]||''}/${(y||'').slice(-2)}`;
 }
 
+// Comissao por assessor de UM fechamento. Usa o valor REAL informado
+// (por_assessor[].comissao) quando existe; os assessores sem valor recebem o
+// rateio do que sobra do total (comissao_assessoria − soma dos reais) por VGV.
+// Retorna a lista de assessores com _comissao, _real (bool) e _vgv.
+function flComissaoAssessores(f) {
+  const ass = (f.por_assessor||[]).filter(a => a && (a.nome || a.vgv));
+  const total = Number(f.comissao_assessoria)||0;
+  const isReal = a => a.comissao != null && a.comissao !== '' && !Number.isNaN(Number(a.comissao));
+  let realSum = 0, vgvNonReal = 0;
+  for (const a of ass) {
+    if (isReal(a)) realSum += Number(a.comissao);
+    else vgvNonReal += Number(a.vgv)||0;
+  }
+  const remaining = Math.max(0, total - realSum);
+  return ass.map(a => {
+    const vgv = Number(a.vgv)||0;
+    const real = isReal(a);
+    const comissao = real ? Number(a.comissao) : (vgvNonReal>0 ? remaining*(vgv/vgvNonReal) : 0);
+    return { ...a, _vgv:vgv, _real:real, _comissao:comissao };
+  });
+}
+
 function flFilteredRows() {
   const all = state.fechamentos || [];
   const f = state.filters;
@@ -2208,8 +2230,10 @@ function flOpenDetail(id) {
   const acordo = flResolverAcordo(x);
   const esperado = flReceitaEsperada(acordo, Number(x.faturamento_total_leilao)||null, Number(x.vgv_total)||null);
   const totalComissao = Number(x.comissao_assessoria)||0;
-  const ass = (x.por_assessor||[]).filter(a=>a && (a.nome || a.vgv)).slice().sort((a,b)=>(Number(b.vgv)||0)-(Number(a.vgv)||0));
-  const totalVgvAss = ass.reduce((s,a)=>s+(Number(a.vgv)||0),0);
+  const ass = flComissaoAssessores(x).sort((a,b)=> b._vgv - a._vgv);
+  const totalVgvAss = ass.reduce((s,a)=>s+a._vgv,0);
+  const somaComissao = ass.reduce((s,a)=>s+a._comissao,0);
+  const algumEstimado = ass.some(a=>!a._real);
   const estados = (x.por_estado||[]).filter(e=>e && e.uf).slice().sort((a,b)=>(Number(b.vgv)||0)-(Number(a.vgv)||0));
   const neg = v => Number(v)<0 ? 'negative' : 'positive';
 
@@ -2241,29 +2265,28 @@ function flOpenDetail(id) {
       ${ass.length===0?`<div class="empty" style="padding:24px"><p>Sem dados de assessores neste fechamento.</p></div>`:`
       <div class="table-wrap" style="margin-bottom:6px">
         <table>
-          <thead><tr><th>#</th><th>Assessor</th><th>Empresa</th><th style="text-align:right">Transacoes</th><th style="text-align:right">Animais</th><th style="text-align:right">VGV</th><th style="text-align:right">% do total</th><th style="text-align:right">Ticket Medio</th><th style="text-align:right">Comissao estimada</th></tr></thead>
+          <thead><tr><th>#</th><th>Assessor</th><th>Empresa</th><th style="text-align:right">Transacoes</th><th style="text-align:right">Animais</th><th style="text-align:right">VGV</th><th style="text-align:right">% do total</th><th style="text-align:right">Ticket Medio</th><th style="text-align:right">Comissao</th></tr></thead>
           <tbody>
             ${ass.map((a,i)=>{
-              const vgv = Number(a.vgv)||0;
-              const share = totalVgvAss>0 ? vgv/totalVgvAss : 0;
-              const comissaoEst = totalComissao>0 ? totalComissao*share : 0;
+              const share = totalVgvAss>0 ? a._vgv/totalVgvAss : 0;
+              const temComissao = a._comissao>0 || a._real;
               return `<tr>
                 <td>${a.posicao||i+1}</td>
                 <td style="font-weight:600">${escapeHtml(a.nome||'—')}</td>
                 <td>${a.empresa?`<span class="chip muted">${escapeHtml(a.empresa)}</span>`:'—'}</td>
                 <td style="text-align:right">${a.transacoes||0}</td>
                 <td style="text-align:right">${a.animais||0}</td>
-                <td class="money" style="text-align:right;color:var(--gold)">${fmtBRL(vgv)}</td>
+                <td class="money" style="text-align:right;color:var(--gold)">${fmtBRL(a._vgv)}</td>
                 <td style="text-align:right">${(share*100).toLocaleString('pt-BR',{maximumFractionDigits:1})}%</td>
                 <td class="money" style="text-align:right">${fmtBRL(a.ticket_medio)}</td>
-                <td class="money" style="text-align:right">${totalComissao>0?fmtBRL(comissaoEst):'—'}</td>
+                <td class="money" style="text-align:right">${temComissao?`${fmtBRL(a._comissao)} ${a._real?'<span class="chip success" style="padding:1px 6px" title="Comissao real informada">real</span>':'<span class="chip muted" style="padding:1px 6px" title="Rateio por VGV">est.</span>'}`:'—'}</td>
               </tr>`;
             }).join('')}
           </tbody>
-          ${totalComissao>0?`<tfoot><tr style="font-weight:700;border-top:2px solid var(--border2)"><td colspan="5">Total</td><td class="money" style="text-align:right">${fmtBRL(totalVgvAss)}</td><td style="text-align:right">100%</td><td></td><td class="money" style="text-align:right">${fmtBRL(totalComissao)}</td></tr></tfoot>`:''}
+          <tfoot><tr style="font-weight:700;border-top:2px solid var(--border2)"><td colspan="5">Total</td><td class="money" style="text-align:right">${fmtBRL(totalVgvAss)}</td><td style="text-align:right">100%</td><td></td><td class="money" style="text-align:right">${fmtBRL(somaComissao)}</td></tr></tfoot>
         </table>
       </div>
-      ${totalComissao>0?`<div style="font-size:10px;color:var(--text3);margin-bottom:16px">Comissao estimada = rateio do total pago (${fmtBRL(totalComissao)}) proporcional ao VGV de cada assessor.</div>`:'<div style="margin-bottom:16px"></div>'}`}
+      <div style="font-size:10px;color:var(--text3);margin-bottom:16px">${algumEstimado?`<strong>est.</strong> = rateio do que sobra do total (${fmtBRL(totalComissao)}) por VGV; <strong>real</strong> = valor informado no fechamento.`:'Comissoes informadas manualmente por assessor (valores reais).'}</div>`}
 
       ${estados.length?`
       <div class="card-title" style="margin-bottom:8px"><span class="material-symbols-outlined">public</span>Distribuicao por estado</div>
@@ -2333,20 +2356,19 @@ function coAggregate() {
   const map = new Map();
   for (const f of coFilteredFechamentos()) {
     const totalComissao = Number(f.comissao_assessoria)||0;
-    const ass = (f.por_assessor||[]).filter(a => a && a.nome);
-    const totalVgv = ass.reduce((s,a)=>s+(Number(a.vgv)||0),0);
-    for (const a of ass) {
+    const comAss = flComissaoAssessores(f); // ja resolve real-ou-rateio por leilao
+    const totalVgv = comAss.reduce((s,a)=>s+a._vgv,0);
+    for (const a of comAss) {
       const key = coNorm(a.nome);
       if (!key) continue;
-      const vgv = Number(a.vgv)||0;
-      const share = totalVgv>0 ? vgv/totalVgv : 0;
-      const comissao = totalComissao>0 ? totalComissao*share : 0;
+      const share = totalVgv>0 ? a._vgv/totalVgv : 0;
       let rec = map.get(key);
-      if (!rec) { rec = { key, nome:a.nome, empresas:new Set(), leiloes:[], vgv:0, comissao:0, transacoes:0, animais:0 }; map.set(key, rec); }
+      if (!rec) { rec = { key, nome:a.nome, empresas:new Set(), leiloes:[], vgv:0, comissao:0, transacoes:0, animais:0, temEstimado:false }; map.set(key, rec); }
       if (a.empresa) rec.empresas.add(a.empresa);
-      rec.vgv += vgv; rec.comissao += comissao;
+      rec.vgv += a._vgv; rec.comissao += a._comissao;
       rec.transacoes += Number(a.transacoes)||0; rec.animais += Number(a.animais)||0;
-      rec.leiloes.push({ id:f.id, nome:f.nome, data:f.data, local:f.local||'', vgv, share, comissao, transacoes:Number(a.transacoes)||0, animais:Number(a.animais)||0, semComissao: totalComissao<=0 });
+      if (!a._real && a._comissao>0) rec.temEstimado = true;
+      rec.leiloes.push({ id:f.id, nome:f.nome, data:f.data, local:f.local||'', vgv:a._vgv, share, comissao:a._comissao, real:a._real, transacoes:Number(a.transacoes)||0, animais:Number(a.animais)||0, semComissao: totalComissao<=0 && !a._real });
     }
   }
   return [...map.values()].map(r => ({ ...r, empresas:[...r.empresas] })).sort((a,b)=> b.comissao - a.comissao || b.vgv - a.vgv);
@@ -2457,7 +2479,7 @@ async function renderComissionamento() {
               <td style="text-align:right">${a.transacoes}</td>
               <td style="text-align:right">${a.animais}</td>
               <td class="money" style="text-align:right;color:var(--gold)">${fmtBRL(a.vgv)}</td>
-              <td class="money" style="text-align:right;font-weight:700">${a.comissao>0?fmtBRL(a.comissao):'<span style="color:var(--text4)">—</span>'}</td>
+              <td class="money" style="text-align:right;font-weight:700">${a.comissao>0?`${fmtBRL(a.comissao)}${a.temEstimado?' <span class="chip muted" style="padding:1px 5px;font-size:9px" title="Inclui valores estimados por rateio de VGV">est.</span>':''}`:'<span style="color:var(--text4)">—</span>'}</td>
               <td><div style="height:7px;background:var(--s3);border-radius:4px;overflow:hidden"><div style="height:100%;width:${Math.round((a.comissao/maxC)*100)}%;background:var(--gold)"></div></div></td>
               <td><span class="material-symbols-outlined" style="color:var(--text4);font-size:18px">chevron_right</span></td>
             </tr>`).join('')}
@@ -2520,13 +2542,13 @@ function coOpenDetail(idx) {
               <td style="text-align:right">${l.transacoes}</td>
               <td class="money" style="text-align:right">${fmtBRL(l.vgv)}</td>
               <td style="text-align:right">${(l.share*100).toLocaleString('pt-BR',{maximumFractionDigits:1})}%</td>
-              <td class="money" style="text-align:right;font-weight:700">${l.comissao>0?fmtBRL(l.comissao):'<span style="color:var(--text4)" title="Leilao sem comissao lancada">—</span>'}</td>
+              <td class="money" style="text-align:right;font-weight:700">${l.comissao>0?`${fmtBRL(l.comissao)} ${l.real?'<span class="chip success" style="padding:1px 6px" title="Comissao real informada">real</span>':'<span class="chip muted" style="padding:1px 6px" title="Rateio por VGV">est.</span>'}`:'<span style="color:var(--text4)" title="Leilao sem comissao lancada">—</span>'}</td>
             </tr>`).join('')}
           </tbody>
           <tfoot><tr style="font-weight:700;border-top:2px solid var(--border2)"><td colspan="3">Total</td><td class="money" style="text-align:right">${fmtBRL(rec.vgv)}</td><td></td><td class="money" style="text-align:right">${fmtBRL(rec.comissao)}</td></tr></tfoot>
         </table>
       </div>
-      <div style="font-size:10px;color:var(--text3);margin-bottom:18px">Comissao por leilao = rateio do total pago no leilao proporcional ao VGV do assessor (por_assessor).</div>
+      <div style="font-size:10px;color:var(--text3);margin-bottom:18px">${rec.temEstimado?'<strong>real</strong> = comissao informada no fechamento; <strong>est.</strong> = rateio do que sobra do total por VGV.':'Comissoes reais informadas por assessor no fechamento.'}</div>
 
       <div class="card-title" style="margin-bottom:8px"><span class="material-symbols-outlined">sell</span>Vendas atribuidas ${vendas.length?`<span style="color:var(--text3);font-weight:400">(${vendas.length})</span>`:''}</div>
       ${vendas.length===0?`<div class="empty" style="padding:24px"><p>Sem vendas individuais (lances) registradas para este assessor.</p></div>`:`
