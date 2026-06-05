@@ -35,12 +35,21 @@ export async function updateSession(req: NextRequest) {
   const lp = !erp && isLpHost(host)
   const pathname = req.nextUrl.pathname
 
-  // Páginas em /sistema/* são servidas sem reescrita mesmo no subdomain
-  // ERP. Foi assim que o briefing 2026-05-27 acomodou "Contratos no ERP":
-  // a página vive em /sistema/contratos, fica acessível por erp.* e pelo
-  // domínio principal — a sessão Supabase atende os dois hosts.
   const isSistemaPath =
     pathname === '/sistema' || pathname.startsWith('/sistema/')
+  const isLegacyPath =
+    pathname === '/sistema-legacy' || pathname.startsWith('/sistema-legacy/')
+
+  // O subdomínio erp.* serve APENAS o ERP financeiro (erp.html). O painel
+  // admin React vive em admin.bulaassessoria.com — quem cair em /sistema/*
+  // (ou /sistema-legacy/*) por aqui volta para o ERP. O link "Voltar ao
+  // sistema principal" no erp.html aponta para o host do admin.
+  if (erp && (isSistemaPath || isLegacyPath)) {
+    const url = req.nextUrl.clone()
+    url.pathname = '/'
+    url.search = ''
+    return NextResponse.redirect(url)
+  }
 
   // Build response (with ERP rewrite if applicable, same behavior as before)
   let res: NextResponse
@@ -106,12 +115,10 @@ export async function updateSession(req: NextRequest) {
     data: { user },
   } = await supabase.auth.getUser()
 
-  // Protect /sistema and /sistema-legacy (também quando vierem pelo host
-  // ERP, ex.: erp.bulaassessoria.com/sistema/contratos via sidebar).
-  const isAdminPath =
-    isSistemaPath ||
-    pathname === '/sistema-legacy' ||
-    pathname.startsWith('/sistema-legacy/')
+  // Protege /sistema e /sistema-legacy no host do admin
+  // (admin.bulaassessoria.com). No host erp.* esses caminhos já foram
+  // redirecionados para o ERP acima, então aqui só chegam fora do erp.*.
+  const isAdminPath = isSistemaPath || isLegacyPath
   if (isAdminPath && !user) {
     const url = req.nextUrl.clone()
     url.pathname = '/'
@@ -120,11 +127,8 @@ export async function updateSession(req: NextRequest) {
   }
 
   // ERP routes (rewritten path starts with /erp) — only login is public.
-  // Páginas em /sistema/* atendem o host ERP sem reescrita; o gate de
-  // autenticação acima já cobre esse caso.
   if (
     erp &&
-    !isSistemaPath &&
     !pathname.startsWith('/login') &&
     !isPublicPath(pathname) &&
     !user
