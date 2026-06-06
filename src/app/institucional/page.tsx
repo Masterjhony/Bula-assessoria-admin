@@ -1,14 +1,29 @@
 import Link from 'next/link'
 import {
-    ArrowRight, MessageCircle, Dna, Wallet, Eye, Target, Handshake, Gavel,
-    ShieldCheck, Users, Calendar, CheckCircle2,
+    ArrowRight,
+    BadgeCheck,
+    BookOpenCheck,
+    Calendar,
+    CheckCircle2,
+    CircleDollarSign,
+    ClipboardCheck,
+    Dna,
+    Eye,
+    Gavel,
+    Handshake,
+    MessageCircle,
+    PhoneCall,
+    Radar,
+    Route,
+    ShieldCheck,
+    Sparkles,
+    Target,
 } from 'lucide-react'
 import { WHATSAPP_CTA_URL } from '../agenda/helpers'
 
-const HERO_VIDEO =
-    'https://res.cloudinary.com/dny0ibgbn/video/upload/v1780252444/video_de_fundo_jmvezn.mp4'
+const HERO_IMAGE = '/institucional/camparino-ford-fiv.webp'
+const SELECTION_IMAGE = '/institucional/terra-brava-universo.jpg'
 
-// Marcas parceiras — logos estáticos servidos de /public/criatorios.
 const PARCEIROS: { nome: string; src: string }[] = [
     { nome: 'Camparino', src: '/criatorios/fazenda-camparino.png' },
     { nome: 'Jacamim', src: '/criatorios/fazenda-jacamim.png' },
@@ -26,241 +41,351 @@ const PARCEIROS: { nome: string; src: string }[] = [
 const DORES = [
     {
         icon: Dna,
-        titulo: 'Não sei ler a genética',
-        texto: 'EPDs, DEPs, CEIP, índices. Números que decidem o valor real do animal.',
+        titulo: 'Genética sem leitura',
+        texto: 'EPDs, DEPs, CEIP e índices viram uma tela cheia de números sem contexto.',
+        pergunta: 'Esse lote melhora o meu rebanho ou só impressiona no catálogo?',
     },
     {
-        icon: Wallet,
-        titulo: 'Tenho medo de pagar caro errado',
-        texto: 'Sem referência de mercado, o iniciante paga emoção, não valor.',
+        icon: CircleDollarSign,
+        titulo: 'Preço sem referência',
+        texto: 'No calor do arremate, o iniciante confunde oportunidade com emoção.',
+        pergunta: 'Até onde esse animal vale ir, antes de virar prejuízo?',
     },
     {
         icon: Eye,
-        titulo: 'Não conheço os bastidores do leilão',
-        texto: 'Apartação, condição comercial, quem é quem. O comprador desassistido sempre paga mais.',
+        titulo: 'Bastidor invisível',
+        texto: 'Apartação, condição comercial e reputação do criatório pesam no resultado.',
+        pergunta: 'Quem está comigo quando o lance sobe e a decisão aperta?',
     },
 ]
 
 const SOLUCOES = [
     {
-        icon: Dna,
+        icon: BookOpenCheck,
+        etapa: 'Antes',
         titulo: 'Curadoria de genética',
-        texto: 'Lemos EPDs, DEPs e CEIP por você. Selecionamos animais que fazem sentido pro seu objetivo, não só os que estão em destaque no catálogo.',
+        texto: 'Lemos EPDs, DEPs e CEIP por você. Selecionamos animais que fazem sentido para o seu objetivo, não só os que aparecem em destaque no catálogo.',
     },
     {
         icon: Target,
+        etapa: 'Durante',
         titulo: 'Estratégia de arremate',
-        texto: 'Definimos antes do leilão quanto vale cada lote e até onde ir. Você dá o lance com plano, não com adrenalina.',
+        texto: 'Definimos quanto cada lote vale e até onde ir. Você entra no leilão com plano, teto de compra e clareza do que realmente resolve o rebanho.',
     },
     {
         icon: Handshake,
-        titulo: 'Apartação e condição comercial',
-        texto: 'Negociamos as condições, organizamos a apartação e cuidamos do operacional. Você foca na decisão, a gente cuida do resto.',
+        etapa: 'Depois',
+        titulo: 'Operacional completo',
+        texto: 'Negociamos condições, organizamos apartação e acompanhamos o pós-arremate. A decisão é sua, mas o processo não fica solto.',
     },
     {
         icon: Gavel,
-        titulo: 'Acesso aos melhores leilões',
-        texto: 'Operamos nos principais leilões e criatórios de referência do Brasil. Você compra onde a elite compra.',
+        etapa: 'Acesso',
+        titulo: 'Leilões de referência',
+        texto: 'A Bula atua nos principais leilões e criatórios do Brasil. Você compra no ambiente da elite do Nelore PO com assessoria ao lado.',
+    },
+]
+
+const EQUIPE = [
+    {
+        nome: 'Assessoria Comercial',
+        funcao: 'Estratégia de lance, referência de preço e negociação.',
+        iniciais: 'CO',
+    },
+    {
+        nome: 'Assessoria Técnica',
+        funcao: 'Genética, avaliação de lote, DEP, EPD e objetivo de rebanho.',
+        iniciais: 'TE',
+    },
+    {
+        nome: 'Relacionamento e Pós-venda',
+        funcao: 'Apartação, condição comercial e acompanhamento depois do arremate.',
+        iniciais: 'PV',
     },
 ]
 
 const PASSOS = [
     {
         n: '01',
+        icon: MessageCircle,
         titulo: 'Entre no grupo',
-        texto: 'Você recebe as oportunidades selecionadas e fala direto com os assessores.',
+        texto: 'Você recebe oportunidades selecionadas e fala direto com os assessores.',
     },
     {
         n: '02',
+        icon: ClipboardCheck,
         titulo: 'A gente seleciona com você',
-        texto: 'Indicamos os animais certos pro seu objetivo e definimos a estratégia de cada leilão.',
+        texto: 'Indicamos animais alinhados ao seu objetivo e montamos a estratégia do leilão.',
     },
     {
         n: '03',
-        titulo: 'Você arremata com segurança',
-        texto: 'Damos suporte no lance, na apartação e em toda a condição comercial.',
+        icon: BadgeCheck,
+        titulo: 'Arremate com segurança',
+        texto: 'A Bula acompanha lance, apartação e condição comercial até a compra fechar.',
     },
 ]
 
-// Equipe — placeholders editáveis. Conteúdo real será preenchido depois.
-const EQUIPE = [
-    { nome: 'Assessor Comercial', funcao: 'Estratégia de arremate e negociação' },
-    { nome: 'Assessor Técnico', funcao: 'Genética, EPDs e seleção de animais' },
-    { nome: 'Assessor de Relacionamento', funcao: 'Apartação e condição comercial' },
+const HERO_METRICS = [
+    ['Lote', 'pré-selecionado'],
+    ['Genética', 'DEP · EPD · CEIP'],
+    ['Lance', 'teto de compra'],
 ]
 
 export default function InstitucionalPage() {
     return (
         <>
-            {/* 1. HERO */}
-            <section className="relative min-h-[calc(100svh-96px)] overflow-hidden bg-black text-white">
+            <section className="relative min-h-[calc(100svh-80px)] overflow-hidden bg-[#12100c] text-white sm:min-h-[calc(100svh-88px)]">
                 <div className="absolute inset-0">
-                    <video
-                        src={HERO_VIDEO}
-                        className="h-full w-full object-cover"
-                        autoPlay
-                        muted
-                        loop
-                        playsInline
-                        preload="metadata"
-                    />
-                    <div className="absolute inset-0 bg-black/58" />
-                    <div className="absolute inset-0 bg-[linear-gradient(90deg,rgba(0,0,0,0.98)_0%,rgba(0,0,0,0.80)_40%,rgba(0,0,0,0.32)_100%)]" />
-                    <div className="absolute inset-x-0 bottom-0 h-32 bg-gradient-to-t from-black to-transparent" />
+                    <div className="absolute inset-0 bg-[linear-gradient(110deg,#12100c_0%,#17130d_48%,#241b10_100%)]" />
+                    <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(18,16,12,0.1)_0%,rgba(18,16,12,0.04)_48%,#12100c_100%)]" />
+                    <div className="absolute inset-0 opacity-[0.14] [background-image:linear-gradient(rgba(214,179,106,.34)_1px,transparent_1px),linear-gradient(90deg,rgba(214,179,106,.20)_1px,transparent_1px)] [background-size:72px_72px]" />
                 </div>
 
-                <div className="relative mx-auto grid min-h-[calc(100svh-96px)] max-w-7xl content-center px-5 py-14 sm:px-8 lg:py-18">
+                <div className="relative mx-auto grid min-h-[calc(100svh-80px)] max-w-7xl gap-10 px-5 py-10 sm:min-h-[calc(100svh-88px)] sm:px-8 lg:grid-cols-[0.92fr_1.08fr] lg:items-center lg:py-14">
                     <div className="max-w-3xl">
                         {/* eslint-disable-next-line @next/next/no-img-element */}
                         <img
                             src="/logo-bula-assessoria-white.png"
                             alt="Bula Assessoria"
-                            className="h-20 w-auto sm:h-24 lg:h-28"
+                            className="h-16 w-auto sm:h-20 lg:h-20 xl:h-24"
                         />
-                        <div className="mt-8 inline-flex items-center gap-2 rounded-md border border-white/18 bg-white/9 px-3 py-1.5 text-[11px] font-bold uppercase tracking-wide text-white/82 backdrop-blur">
+                        <div className="mt-6 inline-flex items-center gap-2 rounded-md border border-[#d6b36a]/32 bg-[#d6b36a]/10 px-3 py-1.5 text-[11px] font-black uppercase tracking-[0.14em] text-[#e6c77c] backdrop-blur">
                             <ShieldCheck className="h-3.5 w-3.5" />
-                            Assessoria pecuária · Nelore PO
+                            Entrada assistida no PO
                         </div>
-                        <h1 className="mt-5 max-w-3xl text-5xl font-black leading-[0.96] tracking-tight text-white sm:text-7xl lg:text-8xl">
-                            Do gado comercial ao Nelore&nbsp;PO.
+                        <h1 className="mt-5 text-5xl font-black leading-[0.94] tracking-tight text-white sm:text-6xl lg:text-6xl xl:text-7xl 2xl:text-8xl">
+                            Do gado comercial ao Nelore PO.
                             <span className="block text-[#C8A96E]">Sem entrar sozinho.</span>
                         </h1>
-                        <p className="mt-6 max-w-2xl text-lg leading-relaxed text-white/76 sm:text-xl">
-                            A Bula assessora você na compra de touros e matrizes nos principais
-                            leilões do Brasil — escolha de genética, apartação e estratégia
-                            comercial ao seu lado em cada lance.
+                        <p className="mt-5 max-w-2xl text-lg leading-relaxed text-white/74 sm:text-xl">
+                            A Bula assessora você na compra de touros e matrizes nos principais leilões do Brasil:
+                            escolha de genética, apartação e estratégia comercial ao seu lado em cada lance.
                         </p>
 
-                        <div className="mt-8 flex flex-wrap gap-3">
-                            <a
-                                href={WHATSAPP_CTA_URL}
-                                target="_blank"
-                                rel="noopener noreferrer"
-                                className="group inline-flex items-center gap-2 rounded-md bg-[#25D366] px-6 py-3.5 text-sm font-black shadow-sm transition-all hover:-translate-y-0.5 hover:bg-[#1ebe5d]"
-                                style={{ color: '#ffffff' }}
-                            >
-                                <MessageCircle className="h-4 w-4" />
-                                Entrar no grupo de leilões
-                                <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-0.5" />
-                            </a>
+                        <div className="mt-7 flex flex-col gap-3 sm:flex-row sm:flex-wrap">
+                            <PrimaryWhatsAppCta label="Entrar no grupo de leilões" />
                             <Link
                                 href="/agenda"
-                                className="inline-flex items-center gap-2 rounded-md border border-white/28 bg-white/10 px-6 py-3.5 text-sm font-black text-white shadow-sm backdrop-blur transition-all hover:-translate-y-0.5 hover:bg-white/16"
+                                className="inline-flex items-center justify-center gap-2 rounded-md border border-[#d6b36a]/26 bg-[#201b13]/70 px-6 py-3.5 text-sm font-black text-white shadow-sm backdrop-blur transition-all hover:-translate-y-0.5 hover:border-[#d6b36a]/50 hover:bg-[#2a2318]"
                             >
                                 <Calendar className="h-4 w-4" />
                                 Ver agenda de leilões
                             </Link>
                         </div>
                     </div>
-                </div>
-            </section>
 
-            {/* 2. A DOR */}
-            <section className="bg-[#0A0A0A] py-20 sm:py-24">
-                <div className="mx-auto max-w-7xl px-5 sm:px-8">
-                    <div className="max-w-3xl">
-                        <span className="text-[11px] font-bold uppercase tracking-wider text-[#C8A96E]">
-                            O problema
-                        </span>
-                        <h2 className="mt-3 text-3xl font-black leading-[1.05] tracking-tight text-white sm:text-5xl">
-                            Entrar no PO sem assessoria é arriscar capital no escuro.
-                        </h2>
-                        <div className="mt-6 space-y-5 text-base leading-relaxed text-white/68 sm:text-lg">
-                            <p>
-                                Você já cria gado. Conhece o campo, entende de boi. Mas o Nelore PO
-                                é outro jogo: lê-se genética, não só a estampa do animal. Um lance
-                                errado custa caro — e ninguém entra num leilão de elite pela
-                                primeira vez sem se sentir exposto.
-                            </p>
-                            <p>
-                                A pergunta certa não é <em className="text-white/90 not-italic">“esse animal é bonito?”</em>.
-                                É <em className="text-white/90 not-italic">“esse animal vale o que estão pedindo, e ele
-                                resolve o que o meu rebanho precisa?”</em>. Responder isso sozinho,
-                                no calor do arremate, é onde o iniciante perde dinheiro.
+                    <div>
+                        <div className="ml-auto max-w-[720px] border border-[#d6b36a]/22 bg-[#17130d]/82 p-3 shadow-[0_30px_90px_-50px_rgba(0,0,0,0.9)] backdrop-blur-md sm:p-4">
+                            <figure className="bg-[#e8dfcf] p-2">
+                                {/* eslint-disable-next-line @next/next/no-img-element */}
+                                <img
+                                    src={HERO_IMAGE}
+                                    alt="Touro Nelore PO Ford FIV Camparino"
+                                    className="h-auto w-full object-contain"
+                                />
+                            </figure>
+                            <div className="mt-4 flex items-center justify-between gap-4 border-b border-[#d6b36a]/18 pb-5">
+                                <div>
+                                    <div className="text-[11px] font-black uppercase tracking-[0.22em] text-[#d6b36a]">
+                                        Mesa de compra
+                                    </div>
+                                    <p className="mt-2 text-sm font-semibold text-white/58">
+                                        Decisão antes da batida do martelo.
+                                    </p>
+                                </div>
+                                <span className="rounded-md border border-white/12 px-3 py-1.5 text-[10px] font-black uppercase tracking-[0.16em] text-white/52">
+                                    PO
+                                </span>
+                            </div>
+                            <div className="mt-5 grid gap-3">
+                                {HERO_METRICS.map(([title, label], index) => (
+                                    <div
+                                        key={title}
+                                        className="group grid grid-cols-[3rem_1fr_auto] items-center gap-4 border-b border-white/10 py-4 last:border-b-0"
+                                    >
+                                        <span className="text-3xl font-black text-[#d6b36a]/70">
+                                            {String(index + 1).padStart(2, '0')}
+                                        </span>
+                                        <div>
+                                            <p className="text-xl font-black leading-none text-white">{title}</p>
+                                            <p className="mt-1 text-sm font-semibold text-white/48">{label}</p>
+                                        </div>
+                                        <CheckCircle2 className="h-5 w-5 text-white/32 transition-colors group-hover:text-[#d6b36a]" />
+                                    </div>
+                                ))}
+                            </div>
+                            <p className="mt-6 text-sm leading-relaxed text-white/62">
+                                O objetivo não é “dar lance”. É saber quando entrar, quando parar e qual animal
+                                realmente leva seu rebanho para o próximo nível.
                             </p>
                         </div>
                     </div>
+                </div>
+            </section>
 
-                    <div className="mt-12 grid gap-4 sm:grid-cols-3">
-                        {DORES.map((d) => (
-                            <div
-                                key={d.titulo}
-                                className="rounded-xl border border-white/10 bg-white/[0.03] p-6 transition-colors hover:border-white/20"
-                            >
-                                <div className="flex h-11 w-11 items-center justify-center rounded-lg border border-white/12 bg-white/6 text-[#C8A96E]">
-                                    <d.icon className="h-5 w-5" />
-                                </div>
-                                <h3 className="mt-5 text-lg font-black text-white">{d.titulo}</h3>
-                                <p className="mt-2 text-sm leading-relaxed text-white/58">{d.texto}</p>
+            <section className="border-y border-[#d6b36a]/16 bg-[#1b170f] text-white">
+                <div className="mx-auto grid max-w-7xl gap-6 px-5 py-7 sm:px-8 lg:grid-cols-[0.9fr_1.1fr] lg:items-center">
+                    <div>
+                        <p className="text-[11px] font-black uppercase tracking-[0.18em] text-[#C8A96E]">
+                            Compra assistida
+                        </p>
+                        <h2 className="mt-2 text-2xl font-black leading-tight tracking-tight sm:text-3xl">
+                            O primeiro leilão de elite não precisa parecer um salto no escuro.
+                        </h2>
+                    </div>
+                    <div className="grid gap-3 sm:grid-cols-3">
+                        <SignalItem icon={Radar} label="Radar de oportunidades" />
+                        <SignalItem icon={Route} label="Plano antes do lance" />
+                        <SignalItem icon={PhoneCall} label="Assessor ao seu lado" />
+                    </div>
+                </div>
+            </section>
+
+            <section className="bg-[#12100c] py-20 text-white sm:py-24">
+                <div className="mx-auto max-w-7xl px-5 sm:px-8">
+                    <div className="grid gap-12 lg:grid-cols-[0.92fr_1.08fr] lg:items-end">
+                        <div>
+                            <SectionKicker>Mapa de risco</SectionKicker>
+                            <h2 className="mt-3 text-3xl font-black leading-[1.05] tracking-tight sm:text-5xl">
+                                Entrar no PO sem assessoria é arriscar capital no escuro.
+                            </h2>
+                            <div className="mt-6 space-y-5 text-base leading-relaxed text-white/66 sm:text-lg">
+                                <p>
+                                    Você já cria gado. Conhece o campo, entende de boi. Mas o Nelore PO é outro jogo:
+                                    lê-se genética, não só a estampa do animal. Um lance errado custa caro.
+                                </p>
+                                <p>
+                                    A pergunta certa não é <span className="font-semibold text-white">“esse animal é bonito?”</span>.
+                                    É <span className="font-semibold text-white">“esse animal vale o que estão pedindo e resolve o que meu rebanho precisa?”</span>.
+                                </p>
                             </div>
+                        </div>
+
+                        <div className="overflow-hidden rounded-md border border-[#d6b36a]/18 bg-[#17130d] p-3">
+                            <div className="bg-[#e8dfcf] p-2">
+                                {/* eslint-disable-next-line @next/next/no-img-element */}
+                                <img
+                                    src={SELECTION_IMAGE}
+                                    alt="Touro Nelore PO Universo Terra Brava"
+                                    className="h-auto w-full object-contain"
+                                    loading="lazy"
+                                />
+                            </div>
+                            <div className="border-t border-[#d6b36a]/18 px-4 py-5 sm:px-5">
+                                <p className="max-w-md text-2xl font-black leading-tight sm:text-3xl">
+                                    Animal de elite não se decide no impulso. A régua precisa estar pronta antes.
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div className="mt-12 grid gap-4 lg:grid-cols-3">
+                        {DORES.map((dor) => (
+                            <article key={dor.titulo} className="group border-t border-[#d6b36a]/22 bg-[#17130d]/38 p-5 pt-6">
+                                <div className="flex items-center gap-3">
+                                    <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-md border border-[#d6b36a]/22 bg-[#d6b36a]/8 text-[#d6b36a]">
+                                        <dor.icon className="h-5 w-5" />
+                                    </div>
+                                    <h3 className="text-xl font-black text-white">{dor.titulo}</h3>
+                                </div>
+                                <p className="mt-4 text-sm leading-relaxed text-white/58">{dor.texto}</p>
+                                <p className="mt-5 border-l border-[#d6b36a]/45 pl-4 text-sm font-semibold leading-relaxed text-white/78">
+                                    {dor.pergunta}
+                                </p>
+                            </article>
                         ))}
                     </div>
                 </div>
             </section>
 
-            {/* 3. A SOLUÇÃO */}
-            <section className="bg-black py-20 sm:py-24">
+            <section id="metodo" className="bg-[#17130d] py-20 text-white sm:py-28">
                 <div className="mx-auto max-w-7xl px-5 sm:px-8">
-                    <div className="max-w-3xl">
-                        <span className="text-[11px] font-bold uppercase tracking-wider text-[#C8A96E]">
-                            A Bula
-                        </span>
-                        <h2 className="mt-3 text-3xl font-black leading-[1.05] tracking-tight text-white sm:text-5xl">
-                            A Bula é quem te leva pra dentro do PO com segurança.
-                        </h2>
-                        <p className="mt-5 text-base leading-relaxed text-white/68 sm:text-lg">
-                            Não vendemos um animal. Construímos a sua entrada no Nelore PO com método.
-                        </p>
-                    </div>
-
-                    <div className="mt-12 grid gap-4 sm:grid-cols-2">
-                        {SOLUCOES.map((s) => (
-                            <div
-                                key={s.titulo}
-                                className="group flex gap-5 rounded-xl border border-white/10 bg-gradient-to-br from-white/[0.04] to-transparent p-6 transition-all hover:border-[#A68B4B]/35 sm:p-7"
-                            >
-                                <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-lg bg-[#C8A96E] text-black transition-transform group-hover:scale-105">
-                                    <s.icon className="h-6 w-6" />
-                                </div>
-                                <div>
-                                    <h3 className="text-xl font-black text-white">{s.titulo}</h3>
-                                    <p className="mt-2 text-sm leading-relaxed text-white/62 sm:text-[15px]">{s.texto}</p>
+                    <div className="grid gap-12 lg:grid-cols-[0.95fr_1.05fr] lg:items-start">
+                        <div className="lg:sticky lg:top-32">
+                            <SectionKicker>Método Bula</SectionKicker>
+                            <h2 className="mt-3 text-3xl font-black leading-[1.05] tracking-tight sm:text-5xl">
+                                A Bula te leva para dentro do PO com segurança.
+                            </h2>
+                            <p className="mt-5 max-w-xl text-base leading-relaxed text-white/66 sm:text-lg">
+                                Não vendemos um animal. Construímos sua entrada no Nelore PO com método: leitura técnica,
+                                estratégia comercial e acompanhamento humano.
+                            </p>
+                            <div className="mt-8 overflow-hidden rounded-md border border-[#d6b36a]/18 bg-[#12100c] p-3">
+                                <div className="bg-[#e8dfcf] p-2">
+                                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                                    <img
+                                        src={HERO_IMAGE}
+                                        alt="Touro Nelore PO Ford FIV Camparino"
+                                        className="h-auto w-full object-contain"
+                                        loading="lazy"
+                                    />
                                 </div>
                             </div>
-                        ))}
+                        </div>
+
+                        <div className="relative">
+                            <div className="absolute left-5 top-0 hidden h-full w-px bg-gradient-to-b from-[#d6b36a] via-white/14 to-transparent sm:block" />
+                            <div className="space-y-5">
+                                {SOLUCOES.map((solucao) => (
+                                    <article
+                                        key={solucao.titulo}
+                                        className="relative rounded-md border border-[#d6b36a]/14 bg-[#211b12] p-6 transition-colors hover:border-[#d6b36a]/40 sm:ml-14 sm:p-7"
+                                    >
+                                        <div className="absolute -left-[4.55rem] top-7 hidden h-10 w-10 items-center justify-center rounded-md border border-[#d6b36a]/40 bg-[#12100c] text-[#d6b36a] sm:flex">
+                                            <solucao.icon className="h-5 w-5" />
+                                        </div>
+                                        <div className="flex flex-wrap items-center gap-3">
+                                            <span className="rounded-md border border-[#d6b36a]/28 bg-[#d6b36a]/10 px-2.5 py-1 text-[10px] font-black uppercase tracking-[0.16em] text-[#d6b36a]">
+                                                {solucao.etapa}
+                                            </span>
+                                            <h3 className="text-2xl font-black leading-tight text-white">{solucao.titulo}</h3>
+                                        </div>
+                                        <p className="mt-4 text-sm leading-relaxed text-white/62 sm:text-[15px]">
+                                            {solucao.texto}
+                                        </p>
+                                    </article>
+                                ))}
+                            </div>
+                        </div>
                     </div>
                 </div>
             </section>
 
-            {/* 4. PROVA SOCIAL — MARCAS PARCEIRAS */}
-            <section className="overflow-hidden bg-[#0A0A0A] py-20 text-white sm:py-24">
+            <section className="overflow-hidden border-y border-[#d6b36a]/16 bg-[#12100c] py-20 text-white sm:py-24">
                 <div className="mx-auto max-w-7xl px-5 sm:px-8">
-                    <div className="max-w-2xl">
-                        <span className="text-[11px] font-bold uppercase tracking-wider text-[#C8A96E]">
-                            Marcas parceiras
-                        </span>
-                        <h2 className="mt-3 text-3xl font-black leading-tight tracking-tight sm:text-4xl">
-                            A elite do Nelore PO confia na Bula.
-                        </h2>
-                        <p className="mt-4 text-sm leading-relaxed text-white/60 sm:text-base">
-                            Operamos nos leilões dos criatórios e selecionadores de referência do país.
-                        </p>
+                    <div className="flex flex-col gap-6 lg:flex-row lg:items-end lg:justify-between">
+                        <div className="max-w-2xl">
+                        <SectionKicker>Ambiente de compra</SectionKicker>
+                            <h2 className="mt-3 text-3xl font-black leading-tight tracking-tight sm:text-5xl">
+                                A elite do Nelore PO confia na Bula.
+                            </h2>
+                            <p className="mt-4 text-base leading-relaxed text-white/60">
+                                Operamos nos leilões dos criatórios e selecionadores de referência do país.
+                            </p>
+                        </div>
+                        <Link
+                            href="/agenda"
+                            className="inline-flex w-fit items-center gap-2 rounded-md border border-[#d6b36a]/26 bg-[#1b170f] px-5 py-3 text-sm font-black text-white/82 transition-all hover:-translate-y-0.5 hover:border-[#d6b36a]/45 hover:text-white"
+                        >
+                            Ver agenda de leilões
+                            <ArrowRight className="h-4 w-4" />
+                        </Link>
                     </div>
 
                     <div className="relative mt-10 border-y border-white/10 py-6">
-                        <div className="pointer-events-none absolute inset-y-0 left-0 z-10 w-20 bg-gradient-to-r from-[#0A0A0A] to-transparent" />
-                        <div className="pointer-events-none absolute inset-y-0 right-0 z-10 w-20 bg-gradient-to-l from-[#0A0A0A] to-transparent" />
+                        <div className="pointer-events-none absolute inset-y-0 left-0 z-10 w-20 bg-gradient-to-r from-[#12100c] to-transparent" />
+                        <div className="pointer-events-none absolute inset-y-0 right-0 z-10 w-20 bg-gradient-to-l from-[#12100c] to-transparent" />
                         <div className="bula-logo-marquee flex w-max gap-4">
-                            {[...PARCEIROS, ...PARCEIROS].map((p, i) => (
+                            {[...PARCEIROS, ...PARCEIROS].map((parceiro, index) => (
                                 <div
-                                    key={`${p.nome}-${i}`}
+                                    key={`${parceiro.nome}-${index}`}
                                     className="flex h-24 w-52 shrink-0 items-center justify-center rounded-md border border-white/10 bg-white px-5"
-                                    aria-label={p.nome}
+                                    aria-label={parceiro.nome}
                                 >
                                     {/* eslint-disable-next-line @next/next/no-img-element */}
                                     <img
-                                        src={p.src}
-                                        alt={p.nome}
+                                        src={parceiro.src}
+                                        alt={parceiro.nome}
                                         loading="lazy"
                                         className="max-h-16 w-auto max-w-full object-contain"
                                     />
@@ -269,152 +394,158 @@ export default function InstitucionalPage() {
                         </div>
                     </div>
 
-                    <p className="mt-8 max-w-3xl text-base leading-relaxed text-white/68 sm:text-lg">
-                        Quando você compra com a Bula, está no mesmo ambiente onde os maiores
-                        criatórios do Brasil negociam. A diferença é que agora você tem quem te oriente.
+                    <p className="mt-8 max-w-3xl text-lg font-semibold leading-relaxed text-white/76">
+                        Quando você compra com a Bula, está no mesmo ambiente onde os maiores criatórios do Brasil negociam.
+                        A diferença é que agora você tem quem te oriente.
                     </p>
                 </div>
             </section>
 
-            {/* 5. A EQUIPE */}
-            <section className="bg-black py-20 sm:py-24">
+            <section id="equipe" className="bg-[#17130d] py-20 text-white sm:py-28">
                 <div className="mx-auto max-w-7xl px-5 sm:px-8">
-                    <div className="max-w-3xl">
-                        <span className="text-[11px] font-bold uppercase tracking-wider text-[#C8A96E]">
-                            A equipe
-                        </span>
-                        <h2 className="mt-3 text-3xl font-black leading-[1.05] tracking-tight text-white sm:text-5xl">
-                            Gente de verdade do seu lado — não um aplicativo.
-                        </h2>
-                        <p className="mt-5 text-base leading-relaxed text-white/68 sm:text-lg">
-                            A Bula é um time de assessores que vive de leilão. Estamos no campo, nas
-                            pistas e no telefone com você antes, durante e depois do arremate. Quando
-                            você entra no grupo, não fala com um robô: fala com quem entende de
-                            genética, de mercado e de negociação.
-                        </p>
-                    </div>
-
-                    <div className="mt-12 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-                        {EQUIPE.map((m, i) => (
-                            <div
-                                key={i}
-                                className="overflow-hidden rounded-xl border border-white/10 bg-white/[0.03]"
-                            >
-                                {/* Placeholder de foto — substituir por foto real do assessor */}
-                                <div className="flex aspect-[4/3] items-center justify-center border-b border-white/8 bg-gradient-to-br from-white/[0.06] to-transparent">
-                                    <Users className="h-10 w-10 text-white/20" />
-                                </div>
-                                <div className="p-5">
-                                    <h3 className="text-lg font-black text-white">{m.nome}</h3>
-                                    <p className="mt-1 text-sm text-white/55">{m.funcao}</p>
-                                </div>
+                    <div className="grid gap-12 lg:grid-cols-[0.95fr_1.05fr] lg:items-center">
+                        <div>
+                            <SectionKicker>A equipe</SectionKicker>
+                            <h2 className="mt-3 text-3xl font-black leading-[1.05] tracking-tight sm:text-5xl">
+                                Gente de verdade do seu lado, não um aplicativo.
+                            </h2>
+                            <p className="mt-5 text-base leading-relaxed text-white/66 sm:text-lg">
+                                A Bula é um time de assessores que vive de leilão. Estamos no campo, nas pistas
+                                e no telefone com você antes, durante e depois do arremate.
+                            </p>
+                            <div className="mt-8">
+                                <PrimaryWhatsAppCta label="Fale com um assessor" />
                             </div>
-                        ))}
-                    </div>
+                        </div>
 
-                    <div className="mt-10">
-                        <a
-                            href={WHATSAPP_CTA_URL}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="group inline-flex items-center gap-2 rounded-md bg-[#25D366] px-6 py-3.5 text-sm font-black shadow-sm transition-all hover:-translate-y-0.5 hover:bg-[#1ebe5d]"
-                            style={{ color: '#ffffff' }}
-                        >
-                            <MessageCircle className="h-4 w-4" />
-                            Fale com um assessor
-                            <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-0.5" />
-                        </a>
+                        <div className="grid gap-4 sm:grid-cols-3 lg:grid-cols-1">
+                            {EQUIPE.map((membro) => (
+                                <article
+                                    key={membro.nome}
+                                    className="grid gap-4 rounded-md border border-[#d6b36a]/14 bg-[#12100c] p-5 sm:grid-rows-[auto_1fr] lg:grid-cols-[5rem_1fr] lg:grid-rows-1 lg:items-center"
+                                >
+                                    <div className="flex h-20 w-20 items-center justify-center rounded-md border border-[#d6b36a]/28 bg-[#d6b36a]/10 text-xl font-black tracking-tight text-[#d6b36a]">
+                                        {membro.iniciais}
+                                    </div>
+                                    <div>
+                                        <h3 className="text-xl font-black leading-tight text-white">{membro.nome}</h3>
+                                        <p className="mt-2 text-sm leading-relaxed text-white/58">{membro.funcao}</p>
+                                    </div>
+                                </article>
+                            ))}
+                        </div>
                     </div>
                 </div>
             </section>
 
-            {/* 6. COMO FUNCIONA */}
-            <section className="bg-[#0A0A0A] py-20 sm:py-24">
+            <section className="bg-[#12100c] py-20 text-white sm:py-24">
                 <div className="mx-auto max-w-7xl px-5 sm:px-8">
                     <div className="max-w-3xl">
-                        <span className="text-[11px] font-bold uppercase tracking-wider text-[#C8A96E]">
-                            Como funciona
-                        </span>
-                        <h2 className="mt-3 text-3xl font-black leading-[1.05] tracking-tight text-white sm:text-5xl">
+                        <SectionKicker>Como funciona</SectionKicker>
+                        <h2 className="mt-3 text-3xl font-black leading-[1.05] tracking-tight sm:text-5xl">
                             Começar no PO é mais simples do que parece.
                         </h2>
                     </div>
 
-                    <div className="mt-12 grid gap-4 sm:grid-cols-3">
-                        {PASSOS.map((p) => (
-                            <div
-                                key={p.n}
-                                className="relative rounded-xl border border-white/10 bg-white/[0.03] p-7"
+                    <div className="mt-12 grid gap-4 lg:grid-cols-3">
+                        {PASSOS.map((passo) => (
+                            <article
+                                key={passo.n}
+                                className="relative min-h-72 overflow-hidden rounded-md border border-[#d6b36a]/14 bg-[#1b170f] p-7"
                             >
-                                <span className="text-5xl font-black leading-none text-[#C8A96E]/30">{p.n}</span>
-                                <h3 className="mt-4 text-xl font-black text-white">{p.titulo}</h3>
-                                <p className="mt-2 text-sm leading-relaxed text-white/60">{p.texto}</p>
-                            </div>
+                                <span className="absolute right-5 top-4 text-7xl font-black leading-none text-white/[0.045]">
+                                    {passo.n}
+                                </span>
+                                <div className="relative flex h-12 w-12 items-center justify-center rounded-md bg-[#d6b36a] text-[#151008]">
+                                    <passo.icon className="h-6 w-6" />
+                                </div>
+                                <h3 className="relative mt-8 text-2xl font-black leading-tight text-white">{passo.titulo}</h3>
+                                <p className="relative mt-3 text-sm leading-relaxed text-white/60">{passo.texto}</p>
+                            </article>
                         ))}
                     </div>
 
                     <div className="mt-10">
-                        <a
-                            href={WHATSAPP_CTA_URL}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="group inline-flex items-center gap-2 rounded-md bg-[#25D366] px-6 py-3.5 text-sm font-black shadow-sm transition-all hover:-translate-y-0.5 hover:bg-[#1ebe5d]"
-                            style={{ color: '#ffffff' }}
-                        >
-                            <MessageCircle className="h-4 w-4" />
-                            Entrar no grupo de leilões
-                            <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-0.5" />
-                        </a>
+                        <PrimaryWhatsAppCta label="Entrar no grupo de leilões" />
                     </div>
                 </div>
             </section>
 
-            {/* 7. CTA FINAL */}
-            <section className="relative overflow-hidden bg-black py-24 sm:py-28">
-                <div
-                    aria-hidden
-                    className="pointer-events-none absolute left-1/2 top-0 h-96 w-96 -translate-x-1/2 rounded-full bg-[#A68B4B]/12 blur-3xl"
-                />
-                <div className="relative mx-auto max-w-3xl px-5 text-center sm:px-8">
-                    <h2 className="text-3xl font-black leading-[1.05] tracking-tight text-white sm:text-5xl">
-                        Touros e matrizes dos melhores leilões, com quem entende do negócio.
-                    </h2>
-                    <p className="mx-auto mt-5 max-w-xl text-base leading-relaxed text-white/68 sm:text-lg">
-                        Entre no grupo e comece a comprar Nelore PO com assessoria de verdade ao seu lado.
-                    </p>
-                    <div className="mt-9 flex flex-wrap justify-center gap-3">
-                        <a
-                            href={WHATSAPP_CTA_URL}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="group inline-flex items-center gap-2 rounded-md bg-[#25D366] px-7 py-4 text-sm font-black shadow-sm transition-all hover:-translate-y-0.5 hover:bg-[#1ebe5d]"
-                            style={{ color: '#ffffff' }}
-                        >
-                            <MessageCircle className="h-4 w-4" />
-                            Entrar no grupo
-                            <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-0.5" />
-                        </a>
-                        <Link
-                            href="/agenda"
-                            className="inline-flex items-center gap-2 rounded-md border border-white/28 bg-white/8 px-7 py-4 text-sm font-black text-white transition-all hover:-translate-y-0.5 hover:bg-white/14"
-                        >
-                            <Calendar className="h-4 w-4" />
-                            Ver agenda de leilões
-                        </Link>
-                    </div>
-                    <div className="mt-8 flex flex-wrap items-center justify-center gap-x-6 gap-y-2 text-xs font-semibold uppercase tracking-wide text-white/40">
-                        <span className="inline-flex items-center gap-1.5">
-                            <CheckCircle2 className="h-3.5 w-3.5 text-[#C8A96E]" /> Curadoria de genética
-                        </span>
-                        <span className="inline-flex items-center gap-1.5">
-                            <CheckCircle2 className="h-3.5 w-3.5 text-[#C8A96E]" /> Estratégia de arremate
-                        </span>
-                        <span className="inline-flex items-center gap-1.5">
-                            <CheckCircle2 className="h-3.5 w-3.5 text-[#C8A96E]" /> Suporte em cada lance
-                        </span>
+            <section className="relative overflow-hidden bg-[#12100c] py-24 text-white sm:py-32">
+                <div className="absolute inset-0">
+                    <div className="absolute inset-0 bg-[linear-gradient(110deg,#12100c_0%,#17130d_52%,#261d12_100%)]" />
+                    <div className="absolute inset-0 opacity-[0.12] [background-image:linear-gradient(rgba(214,179,106,.28)_1px,transparent_1px),linear-gradient(90deg,rgba(214,179,106,.18)_1px,transparent_1px)] [background-size:72px_72px]" />
+                </div>
+
+                <div className="relative mx-auto max-w-7xl px-5 sm:px-8">
+                    <div className="max-w-3xl">
+                        <SectionKicker>Próximo passo</SectionKicker>
+                        <h2 className="mt-3 text-4xl font-black leading-[1.02] tracking-tight sm:text-6xl">
+                            Touros e matrizes dos melhores leilões, com quem entende do negócio.
+                        </h2>
+                        <p className="mt-6 max-w-2xl text-lg leading-relaxed text-white/70">
+                            Entre no grupo e comece a comprar Nelore PO com assessoria de verdade ao seu lado.
+                        </p>
+                        <div className="mt-9 flex flex-col gap-3 sm:flex-row sm:flex-wrap">
+                            <PrimaryWhatsAppCta label="Entrar no grupo" />
+                            <Link
+                                href="/agenda"
+                                className="inline-flex items-center justify-center gap-2 rounded-md border border-white/28 bg-white/8 px-7 py-4 text-sm font-black text-white transition-all hover:-translate-y-0.5 hover:bg-white/14"
+                            >
+                                <Calendar className="h-4 w-4" />
+                                Ver agenda de leilões
+                            </Link>
+                        </div>
+                        <div className="mt-8 flex flex-wrap gap-x-6 gap-y-2 text-xs font-semibold uppercase tracking-wide text-white/46">
+                            <ProofCheck label="Curadoria de genética" />
+                            <ProofCheck label="Estratégia de arremate" />
+                            <ProofCheck label="Suporte em cada lance" />
+                        </div>
                     </div>
                 </div>
             </section>
         </>
+    )
+}
+
+function SectionKicker({ children }: { children: React.ReactNode }) {
+    return (
+        <span className="inline-flex items-center gap-2 text-[11px] font-black uppercase tracking-[0.18em] text-[#d6b36a]">
+            <Sparkles className="h-3.5 w-3.5" />
+            {children}
+        </span>
+    )
+}
+
+function PrimaryWhatsAppCta({ label }: { label: string }) {
+    return (
+        <a
+            href={WHATSAPP_CTA_URL}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="group inline-flex items-center justify-center gap-2 rounded-md border border-[#d6b36a]/45 bg-[#d6b36a] px-6 py-3.5 text-sm font-black text-[#151008] shadow-sm transition-all hover:-translate-y-0.5 hover:bg-[#e7c77e] sm:px-7 sm:py-4"
+        >
+            <MessageCircle className="h-4 w-4" />
+            {label}
+            <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-0.5" />
+        </a>
+    )
+}
+
+function SignalItem({ icon: Icon, label }: { icon: typeof Radar; label: string }) {
+    return (
+        <div className="flex items-center gap-3 rounded-md border border-[#d6b36a]/16 bg-[#12100c]/72 px-4 py-3">
+            <Icon className="h-4 w-4 shrink-0 text-[#d6b36a]" />
+            <span className="text-sm font-black leading-tight text-white/82">{label}</span>
+        </div>
+    )
+}
+
+function ProofCheck({ label }: { label: string }) {
+    return (
+        <span className="inline-flex items-center gap-1.5">
+            <CheckCircle2 className="h-3.5 w-3.5 text-[#d6b36a]" />
+            {label}
+        </span>
     )
 }
