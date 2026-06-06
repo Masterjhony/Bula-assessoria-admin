@@ -78,6 +78,24 @@ export function youtubeId(url?: string | null): string | null {
     return null
 }
 
+/**
+ * Palavras de modalidade que vivem no campo `local` por herança da planilha
+ * (a coluna "presencial" alimenta modelo E local no sync). Não são endereços —
+ * não devem aparecer na linha de "Local" do card, senão duplicam a tag de
+ * modalidade (ex.: "VIRTUAL" como tag e de novo no pin de localização).
+ */
+const MODALIDADE_KEYWORDS = new Set([
+    'VIRTUAL', 'PRESENCIAL', 'HIBRIDO', 'EXPOGRANDE', 'EXPOZEBU',
+])
+
+/** Retorna o local apenas quando for um lugar real (não uma modalidade). */
+export function localExibivel(local?: string | null): string | null {
+    const v = (local ?? '').trim()
+    if (!v) return null
+    const norm = v.normalize('NFD').replace(/[̀-ͯ]/g, '').toUpperCase()
+    return MODALIDADE_KEYWORDS.has(norm) ? null : v
+}
+
 export interface StatusBadge {
     label: string
     fg: string

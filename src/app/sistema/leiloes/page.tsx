@@ -243,7 +243,9 @@ function mergeLeiloes(bula: (BulaLeilao & { catalogo_url?: string })[], crono: D
       dia_semana: c?.dia_semana, hora: c?.hora || b.horario,
       tipo: c?.raca || b.tipo, animais: b.animais || c?.qtd_animais || 0,
       sexo: c?.sexo, criador: c?.criador,
-      presencial: c?.presencial || b.modelo, leiloeira: c?.leiloeira || b.leiloeira,
+      // Modalidade: o registro Bula manda (e o que o form de edicao grava e o
+      // que a agenda publica le). Cronograma so entra como fallback.
+      presencial: b.modelo || c?.presencial, leiloeira: c?.leiloeira || b.leiloeira,
       img: (b.img && b.img.startsWith('http')) ? b.img : (c?.img || undefined),
       status: b.status, tasks: b.tasks,
       expectativa: b.expectativa, meta_bula: b.meta_bula, realizado_bula: b.realizado_bula,

@@ -8,7 +8,7 @@ import {
     Tag, Truck, Users, X,
 } from 'lucide-react'
 import type { LeilaoPublico } from '@/lib/bula/public-leiloes'
-import { contagemRegressiva, isFuturo, parseData, statusPublico, youtubeId } from './helpers'
+import { contagemRegressiva, isFuturo, localExibivel, parseData, statusPublico, youtubeId } from './helpers'
 
 export function AgendaGrid({ leiloes }: { leiloes: LeilaoPublico[] }) {
     const [busca, setBusca] = useState('')
@@ -222,10 +222,10 @@ function LeilaoCard({ leilao, index }: { leilao: LeilaoPublico; index: number })
                                 <span className="truncate">{leilao.criador}</span>
                             </div>
                         )}
-                        {leilao.local && (
+                        {localExibivel(leilao.local) && (
                             <div className="flex items-center gap-2">
                                 <MapPin className="h-3.5 w-3.5 shrink-0 text-black" />
-                                <span className="truncate">{leilao.local}</span>
+                                <span className="truncate">{localExibivel(leilao.local)}</span>
                             </div>
                         )}
                         {leilao.leiloeira && (

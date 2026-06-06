@@ -7,7 +7,7 @@ import {
 } from 'lucide-react'
 import { getLeilaoPublico } from '@/lib/bula/public-leiloes'
 import {
-    contagemRegressiva, dataPorExtenso, parseData, statusPublico, youtubeId, WHATSAPP_CTA_URL,
+    contagemRegressiva, dataPorExtenso, localExibivel, parseData, statusPublico, youtubeId, WHATSAPP_CTA_URL,
 } from '../helpers'
 
 export const revalidate = 120
@@ -26,7 +26,7 @@ export async function generateMetadata({ params }: { params: Promise<{ id: strin
     const description = [
         dataPorExtenso(leilao.data),
         leilao.criador,
-        leilao.local,
+        localExibivel(leilao.local),
         leilao.modelo,
         leilao.leiloeira,
     ].filter(Boolean).join(' | ')
@@ -52,12 +52,13 @@ export default async function LeilaoDetalhePage({ params }: { params: Promise<{ 
     const ytId = youtubeId(leilao.transmissao)
     const countdown = contagemRegressiva(leilao.data)
     const transmissaoUrl = leilao.transmissao?.trim() || null
+    const local = localExibivel(leilao.local)
 
     const infos = [
         { icon: CalendarDays, label: 'Data', value: dataPorExtenso(leilao.data) },
         leilao.horario ? { icon: Clock, label: 'Horário', value: leilao.horario } : null,
         leilao.criador ? { icon: Users, label: 'Criatório', value: leilao.criador } : null,
-        leilao.local ? { icon: MapPin, label: 'Local', value: leilao.local } : null,
+        local ? { icon: MapPin, label: 'Local', value: local } : null,
         leilao.modelo ? { icon: Tv, label: 'Modelo', value: leilao.modelo } : null,
         leilao.leiloeira ? { icon: Gavel, label: 'Leiloeira', value: leilao.leiloeira } : null,
         leilao.animais && leilao.animais > 0 ? { icon: Users, label: 'Animais', value: String(leilao.animais) } : null,
@@ -132,7 +133,7 @@ export default async function LeilaoDetalhePage({ params }: { params: Promise<{ 
                                 <p className="mt-4 text-base font-semibold leading-relaxed text-black/62">
                                     {dataPorExtenso(leilao.data)}
                                     {leilao.horario ? ` às ${leilao.horario}` : ''}
-                                    {leilao.local ? ` | ${leilao.local}` : ''}
+                                    {local ? ` | ${local}` : ''}
                                 </p>
 
                                 <div className="mt-5 flex flex-wrap gap-x-6 gap-y-2 text-sm font-semibold text-black/62">

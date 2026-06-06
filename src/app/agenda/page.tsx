@@ -11,7 +11,7 @@ import {
 } from '@/lib/bula/public-leiloes'
 import { AgendaGrid } from './AgendaGrid'
 import {
-    parseData, dataPorExtenso, isFuturo, contagemRegressiva, youtubeId, WHATSAPP_CTA_URL,
+    parseData, dataPorExtenso, isFuturo, contagemRegressiva, localExibivel, youtubeId, WHATSAPP_CTA_URL,
 } from './helpers'
 import { CriatorioLogoTile } from './CriatorioLogoTile'
 
@@ -269,10 +269,10 @@ function DestaqueBanner({ leilao }: { leilao: LeilaoPublico }) {
                                     {leilao.criador}
                                 </span>
                             )}
-                            {leilao.local && (
+                            {localExibivel(leilao.local) && (
                                 <span className="inline-flex items-center gap-2">
                                     <MapPin className="h-4 w-4 text-black" />
-                                    {leilao.local}
+                                    {localExibivel(leilao.local)}
                                 </span>
                             )}
                             {aoVivo && (

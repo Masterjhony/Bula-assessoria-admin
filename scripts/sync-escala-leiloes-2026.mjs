@@ -292,7 +292,10 @@ const cronogramaPayload = sourceRows.map((row, index) => {
     hora: row.hora,
     nome: row.nome,
     criador: row.criador,
-    presencial: row.presencial,
+    // Modalidade e editavel no painel admin (Modalidade/Modelo). A planilha so
+    // semeia o valor no primeiro insert; em registros ja existentes, preserva o
+    // que esta no banco para nao sobrescrever ajustes manuais a cada sync.
+    presencial: existing ? existing.presencial : row.presencial,
     leiloeira: row.leiloeira,
     raca: row.raca,
     qtd_animais: row.qtd_animais,
@@ -343,9 +346,15 @@ const { pairs: publicPairs, usedDb: usedPublic } = matchExisting(sourceRows, cur
 const publicPayload = sourceRows.map((row, index) => {
   const existing = publicPairs.get(index)
   const cronograma = syncedByKey.get(rowKey(row))
+  const pub = toPublicLeilao(row)
   return {
     id: existing?.id ?? randomUUID(),
-    ...toPublicLeilao(row),
+    ...pub,
+    // Modalidade/local sao editaveis no admin e lidos pela agenda publica.
+    // Em registros existentes, preserva o que esta no banco (edicao manual
+    // vence); a planilha so semeia esses campos no primeiro insert.
+    modelo: existing ? existing.modelo : pub.modelo,
+    local: existing ? existing.local : pub.local,
     img: existing?.img || cronograma?.img || '',
     catalogo_url: existing?.catalogo_url || cronograma?.catalogo_url || row.catalogo_url || null,
     transmissao: existing?.transmissao || '',
