@@ -41,21 +41,19 @@ export function CRMModal({ isOpen, onClose, lead, defaultStatus, defaultFunnelId
         nome: '',
         status: defaultStatus,
         funnel_id: defaultFunnelId || 'default',
-        valor_estimado: null,
-        probabilidade: null,
+        temperatura: '',
         prioridade: '',
         interesse: '',
         empresa: '',
-        telefone: '',
+        cpf: '',
+        inscricao_estadual: '',
         celular: '',
         responsavel: '',
-        instagram: '',
         estado: '',
         cidade: '',
         o_que_busca: '',
         quantidade_animais: '',
-        momento_pecuaria: '',
-        intencao_investimento: '',
+        operacao_pecuaria: '',
         assessoria: '',
         is_mql: false,
         is_preferencial: false,
@@ -76,19 +74,21 @@ export function CRMModal({ isOpen, onClose, lead, defaultStatus, defaultFunnelId
                 nome: '',
                 status: defaultStatus,
                 funnel_id: defaultFunnelId || 'default',
-                valor_estimado: null,
-                probabilidade: null,
+                temperatura: '',
                 prioridade: '',
                 interesse: '',
                 empresa: '',
-                telefone: '',
+                cpf: '',
+                inscricao_estadual: '',
                 celular: '',
                 responsavel: '',
-                instagram: '',
                 estado: '',
                 cidade: '',
                 o_que_busca: '',
                 quantidade_animais: '',
+                operacao_pecuaria: '',
+                assessoria: '',
+                is_mql: false,
                 is_preferencial: false,
             });
             setShowOrigemSection(false);
@@ -187,6 +187,29 @@ export function CRMModal({ isOpen, onClose, lead, defaultStatus, defaultFunnelId
                                 </div>
                             )}
 
+                            <div className="grid grid-cols-2 gap-4">
+                                <div>
+                                    <label className={labelClass}>CPF</label>
+                                    <input
+                                        type="text"
+                                        value={formData.cpf || ''}
+                                        onChange={e => setFormData({ ...formData, cpf: e.target.value })}
+                                        className={inputClass}
+                                        placeholder="000.000.000-00"
+                                    />
+                                </div>
+                                <div>
+                                    <label className={labelClass}>Inscrição Estadual</label>
+                                    <input
+                                        type="text"
+                                        value={formData.inscricao_estadual || ''}
+                                        onChange={e => setFormData({ ...formData, inscricao_estadual: e.target.value })}
+                                        className={inputClass}
+                                        placeholder="Nº da inscrição estadual"
+                                    />
+                                </div>
+                            </div>
+
                             <div>
                                 <label className={labelClass}>Responsável pela Conta</label>
                                 {responsaveis.length > 0 ? (
@@ -243,32 +266,18 @@ export function CRMModal({ isOpen, onClose, lead, defaultStatus, defaultFunnelId
 
                             <div className="grid grid-cols-2 gap-4">
                                 <div>
-                                    <label className={labelClass}>Valor estimado (R$)</label>
-                                    <input
-                                        type="number"
-                                        step="0.01"
-                                        min="0"
-                                        value={formData.valor_estimado ?? ''}
-                                        onChange={e => setFormData({ ...formData, valor_estimado: e.target.value === '' ? null : Number(e.target.value) })}
-                                        className={inputClass}
-                                        placeholder="Ex: 25000"
-                                    />
+                                    <label className={labelClass}>Temperatura do lead</label>
+                                    <select
+                                        value={formData.temperatura || ''}
+                                        onChange={e => setFormData({ ...formData, temperatura: e.target.value })}
+                                        className={`${inputClass} appearance-none`}
+                                    >
+                                        <option value="">— selecionar —</option>
+                                        <option value="frio">Frio</option>
+                                        <option value="morno">Morno</option>
+                                        <option value="quente">Quente</option>
+                                    </select>
                                 </div>
-                                <div>
-                                    <label className={labelClass}>Probabilidade (%)</label>
-                                    <input
-                                        type="number"
-                                        min="0"
-                                        max="100"
-                                        value={formData.probabilidade ?? ''}
-                                        onChange={e => setFormData({ ...formData, probabilidade: e.target.value === '' ? null : Number(e.target.value) })}
-                                        className={inputClass}
-                                        placeholder="Herda do estágio se vazio"
-                                    />
-                                </div>
-                            </div>
-
-                            <div className="grid grid-cols-2 gap-4">
                                 <div>
                                     <label className={labelClass}>Data estimada fechamento</label>
                                     <input
@@ -332,28 +341,6 @@ export function CRMModal({ isOpen, onClose, lead, defaultStatus, defaultFunnelId
                                         value={formData.celular || ''}
                                         onChange={e => setFormData({ ...formData, celular: e.target.value })}
                                         className={inputClass}
-                                    />
-                                </div>
-                                <div>
-                                    <label className={labelClass}>Telefone Fixo</label>
-                                    <input
-                                        type="text"
-                                        value={formData.telefone || ''}
-                                        onChange={e => setFormData({ ...formData, telefone: e.target.value })}
-                                        className={inputClass}
-                                    />
-                                </div>
-                            </div>
-
-                            <div className="grid grid-cols-2 gap-4">
-                                <div>
-                                    <label className={labelClass}>Instagram</label>
-                                    <input
-                                        type="text"
-                                        value={formData.instagram || ''}
-                                        onChange={e => setFormData({ ...formData, instagram: e.target.value })}
-                                        className={inputClass}
-                                        placeholder="@usuario"
                                     />
                                 </div>
                                 <div>
@@ -432,33 +419,20 @@ export function CRMModal({ isOpen, onClose, lead, defaultStatus, defaultFunnelId
                                 </div>
                             </div>
 
-                            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                                 <div>
-                                    <label className={labelClass}>Momento na pecuária</label>
+                                    <label className={labelClass}>Operação na pecuária</label>
                                     <select
-                                        value={formData.momento_pecuaria || ''}
-                                        onChange={e => setFormData({ ...formData, momento_pecuaria: e.target.value })}
+                                        value={formData.operacao_pecuaria || ''}
+                                        onChange={e => setFormData({ ...formData, operacao_pecuaria: e.target.value })}
                                         className={inputClass}
                                     >
                                         <option value="">— selecionar —</option>
-                                        <option value="nao-trabalho-quero-aprender">Quer aprender</option>
-                                        <option value="pecuaria-de-corte">Pecuária de corte</option>
-                                        <option value="corte-e-po">Corte + P.O.</option>
-                                        <option value="criador-renomado-po">Criador P.O.</option>
-                                    </select>
-                                </div>
-                                <div>
-                                    <label className={labelClass}>Intenção de investimento</label>
-                                    <select
-                                        value={formData.intencao_investimento || ''}
-                                        onChange={e => setFormData({ ...formData, intencao_investimento: e.target.value })}
-                                        className={inputClass}
-                                    >
-                                        <option value="">—</option>
-                                        <option value="ate-10k">Até R$ 10k</option>
-                                        <option value="10k-50k">R$ 10k – R$ 50k</option>
-                                        <option value="acima-50k">Acima de R$ 50k</option>
-                                        <option value="nao-sei">Ainda não sei</option>
+                                        <option value="cria-corte">Cria (corte)</option>
+                                        <option value="recria-corte">Recria (corte)</option>
+                                        <option value="engorda-corte">Engorda (corte)</option>
+                                        <option value="ciclo-completo-corte">Ciclo completo (corte)</option>
+                                        <option value="criador-gado-po">Criador de gado P.O.</option>
                                     </select>
                                 </div>
                                 <div>
