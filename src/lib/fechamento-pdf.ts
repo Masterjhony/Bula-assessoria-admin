@@ -41,22 +41,22 @@ export type FechamentoForPDF = {
   compradores_unicos?: number; estados_alcancados?: number
   por_assessor?: Assessor[]; por_estado?: Estado[]
   compradores?: Comprador[]; lances?: Lance[]
-  comissao_assessoria?: number; receita_bula?: number; sobra_bruta?: number
+  comissao_assessoria?: number | null; receita_bula?: number | null; sobra_bruta?: number | null
   observacoes?: string
 }
 
-const fmtBRL = (v: number | undefined) => {
+const fmtBRL = (v: number | null | undefined) => {
   const n = Number(v) || 0
   return 'R$ ' + n.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })
 }
-const fmtBRLCompact = (v: number | undefined) => {
+const fmtBRLCompact = (v: number | null | undefined) => {
   const n = Number(v) || 0
   if (n >= 1_000_000) return 'R$ ' + (n / 1_000_000).toFixed(2).replace('.', ',') + 'M'
   if (n >= 1_000) return 'R$ ' + (n / 1_000).toFixed(0) + 'k'
   return fmtBRL(n)
 }
-const fmtPct = (v: number | undefined) => ((Number(v) || 0) * 100).toFixed(1).replace('.', ',') + '%'
-const fmtNum = (v: number | undefined) => (Number(v) || 0).toLocaleString('pt-BR')
+const fmtPct = (v: number | null | undefined) => ((Number(v) || 0) * 100).toFixed(1).replace('.', ',') + '%'
+const fmtNum = (v: number | null | undefined) => (Number(v) || 0).toLocaleString('pt-BR')
 const fmtDateExt = (s: string) => {
   const meses = ['JAN','FEV','MAR','ABR','MAI','JUN','JUL','AGO','SET','OUT','NOV','DEZ']
   const [y, m, d] = String(s || '').slice(0, 10).split('-')

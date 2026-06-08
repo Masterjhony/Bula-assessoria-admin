@@ -16,7 +16,7 @@ import {
   MapPin, Users, TrendingUp, BarChart3, DollarSign,
   ChevronRight, Calendar, Target, Hash, Star,
   ArrowUp, ArrowDown, Minus, Dna,
-  LayoutGrid, Table as TableIcon,
+  LayoutGrid, Table as TableIcon, Download,
 } from 'lucide-react'
 import { normalizeAssessorNome } from '@/lib/assessor-normalize'
 
@@ -192,8 +192,12 @@ function emptyForm(): Omit<Fechamento, 'id' | 'created_at'> {
 
 // ── Table View ─────────────────────────────────────────────────────────────────
 
-function FechamentoTable({ items, selectedId, onSelect }: {
-  items: Fechamento[]; selectedId: string | null; onSelect: (id: string) => void
+function FechamentoTable({ items, selectedId, onSelect, onDownload, downloadingId }: {
+  items: Fechamento[]
+  selectedId: string | null
+  onSelect: (id: string) => void
+  onDownload?: (f: Fechamento) => void
+  downloadingId?: string | null
 }) {
   const canSeeFinance = useCanSeeFinance()
   if (!items.length) return null
@@ -212,6 +216,7 @@ function FechamentoTable({ items, selectedId, onSelect }: {
               { label: 'VGV Cobertura', cls: 'text-right whitespace-nowrap' },
               { label: 'Fat. Leiloeira', cls: 'text-right whitespace-nowrap' },
               { label: 'Assessores', cls: 'text-left' },
+              ...(canSeeFinance ? [{ label: 'Rel.', cls: 'text-center whitespace-nowrap' }] : []),
             ].map(h => (
               <th key={h.label} className={`px-3 py-2.5 text-[9px] font-bold uppercase tracking-widest text-gray-500 dark:text-gray-400 ${h.cls}`}>
                 {h.label}
@@ -275,6 +280,19 @@ function FechamentoTable({ items, selectedId, onSelect }: {
                     )}
                   </div>
                 </td>
+                {canSeeFinance && (
+                  <td className="px-3 py-2.5 text-center">
+                    <button
+                      type="button"
+                      onClick={(e) => { e.stopPropagation(); onDownload?.(f) }}
+                      disabled={downloadingId === f.id}
+                      title="Baixar relatório deste leilão"
+                      className="inline-flex h-8 w-8 items-center justify-center rounded-lg border border-gray-100 dark:border-[#333] text-gray-400 hover:border-[#A68B4B] hover:text-[#A68B4B] disabled:opacity-60 transition-colors"
+                    >
+                      {downloadingId === f.id ? <Loader2 size={13} className="animate-spin" /> : <Download size={13} />}
+                    </button>
+                  </td>
+                )}
               </tr>
             )
           })}
@@ -284,14 +302,29 @@ function FechamentoTable({ items, selectedId, onSelect }: {
   )
 }
 
-function FechamentoCard({ f, selected, onClick }: { f: Fechamento; selected: boolean; onClick: () => void }) {
+function FechamentoCard({ f, selected, onClick, onDownload, downloading }: {
+  f: Fechamento
+  selected: boolean
+  onClick: () => void
+  onDownload?: (f: Fechamento) => void
+  downloading?: boolean
+}) {
+  const canSeeFinance = useCanSeeFinance()
   const dt = fmtDate(f.data)
   const pct = coveragePct(f)
   const lotesPctVal = lotesPct(f.lotes_vendidos, f.lotes_ofertados)
 
   return (
-    <button
+    <div
+      role="button"
+      tabIndex={0}
       onClick={onClick}
+      onKeyDown={(e) => {
+        if (e.key === 'Enter' || e.key === ' ') {
+          e.preventDefault()
+          onClick()
+        }
+      }}
       className={`w-full text-left rounded-2xl border transition-all duration-200 overflow-hidden
         ${selected
           ? 'border-[#A68B4B]/50 bg-[#A68B4B]/5 dark:bg-[#A68B4B]/8 shadow-md shadow-[#A68B4B]/10'
@@ -339,9 +372,23 @@ function FechamentoCard({ f, selected, onClick }: { f: Fechamento; selected: boo
           </div>
         </div>
 
-        <ChevronRight size={15} className={`flex-shrink-0 self-center text-gray-300 dark:text-gray-700 transition-transform ${selected ? 'rotate-90 text-[#A68B4B]' : ''}`} />
+        <div className="flex flex-col items-center justify-center gap-2 self-center">
+          {canSeeFinance && (
+            <button
+              type="button"
+              onClick={(e) => { e.stopPropagation(); onDownload?.(f) }}
+              disabled={downloading}
+              title="Baixar relatório deste leilão"
+              aria-label={`Baixar relatório de ${f.nome}`}
+              className="flex h-8 w-8 items-center justify-center rounded-lg border border-gray-100 dark:border-[#333] bg-white/70 dark:bg-[#0D0D0D]/70 text-gray-400 hover:border-[#A68B4B] hover:text-[#A68B4B] disabled:opacity-60 transition-colors"
+            >
+              {downloading ? <Loader2 size={14} className="animate-spin" /> : <Download size={14} />}
+            </button>
+          )}
+          <ChevronRight size={15} className={`flex-shrink-0 text-gray-300 dark:text-gray-700 transition-transform ${selected ? 'rotate-90 text-[#A68B4B]' : ''}`} />
+        </div>
       </div>
-    </button>
+    </div>
   )
 }
 
@@ -438,8 +485,13 @@ function CatalogoTab({ lots }: { lots: LoteCatalogo[] }) {
 
 // ── Detail Drawer ──────────────────────────────────────────────────────────────
 
-function FechamentoDrawer({ f, onClose, onEdit, onDelete }: {
-  f: Fechamento; onClose: () => void; onEdit: () => void; onDelete: () => void
+function FechamentoDrawer({ f, onClose, onEdit, onDelete, onDownload, downloading }: {
+  f: Fechamento
+  onClose: () => void
+  onEdit: () => void
+  onDelete: () => void
+  onDownload?: (f: Fechamento) => void
+  downloading?: boolean
 }) {
   const canSeeFinance = useCanSeeFinance()
   const [tab, setTab] = useState<DrawerTab>('resumo')
@@ -480,6 +532,17 @@ function FechamentoDrawer({ f, onClose, onEdit, onDelete }: {
               <span className="text-[10px] font-bold text-gray-500">cobertura {f.faturamento_total_leilao ? `${pct}%` : '—'} · {f.lotes_vendidos}/{f.lotes_ofertados} lotes</span>
             </div>
           </div>
+          {canSeeFinance && (
+            <button
+              type="button"
+              onClick={() => onDownload?.(f)}
+              disabled={downloading}
+              title="Baixar relatório deste leilão"
+              className="p-1.5 rounded-lg border border-gray-100 dark:border-[#333] hover:border-[#A68B4B] text-gray-400 hover:text-[#A68B4B] transition-colors flex-shrink-0 disabled:opacity-60"
+            >
+              {downloading ? <Loader2 size={18} className="animate-spin" /> : <Download size={18} />}
+            </button>
+          )}
           <button onClick={onClose} className="p-1.5 rounded-lg hover:bg-gray-100 dark:hover:bg-[#1A1A1A] text-gray-400 transition-colors flex-shrink-0">
             <X size={18} />
           </button>
@@ -922,6 +985,13 @@ function FechamentoDrawer({ f, onClose, onEdit, onDelete }: {
         {/* Footer — só finance-admin pode editar/excluir (API também bloqueia) */}
         {canSeeFinance && (
           <div className="sticky bottom-0 bg-white dark:bg-[#141414] border-t border-gray-100 dark:border-[#2A2A2A] px-6 py-4 flex gap-3">
+            <button
+              onClick={() => onDownload?.(f)}
+              disabled={downloading}
+              className="flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-medium text-[#A68B4B] hover:bg-[#A68B4B]/10 border border-[#A68B4B]/25 transition-colors disabled:opacity-60"
+            >
+              {downloading ? <Loader2 size={14} className="animate-spin" /> : <Download size={14} />} Relatório
+            </button>
             <button onClick={onDelete} className="flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-medium text-red-500 hover:bg-red-50 dark:hover:bg-red-500/10 border border-red-100 dark:border-red-500/20 transition-colors">
               <Trash2 size={14} /> Excluir
             </button>
@@ -1323,6 +1393,7 @@ function FechamentoViewInner() {
   const [showForm, setShowForm] = useState(false)
   const [editItem, setEditItem] = useState<Fechamento | null>(null)
   const [deleting, setDeleting] = useState(false)
+  const [downloadingId, setDownloadingId] = useState<string | null>(null)
   const [sortBy, setSortBy] = useState<SortKey>('recent')
   const [filterDataInicio, setFilterDataInicio] = useState('')
   const [filterDataFim, setFilterDataFim] = useState('')
@@ -1424,6 +1495,20 @@ function FechamentoViewInner() {
     else arr.sort((a, b) => new Date(b.data).getTime() - new Date(a.data).getTime())
     return arr
   }, [filteredItems, sortBy])
+
+  const handleDownloadReport = useCallback(async (f: Fechamento) => {
+    if (!canSeeFinance || downloadingId) return
+    setDownloadingId(f.id)
+    try {
+      const { generateFechamentoPDF } = await import('@/lib/fechamento-pdf')
+      await generateFechamentoPDF(f, filteredItems.length ? filteredItems : items)
+    } catch (error) {
+      console.error('Erro ao gerar relatório de fechamento:', error)
+      alert('Não foi possível gerar o relatório deste leilão. Tente novamente em instantes.')
+    } finally {
+      setDownloadingId(null)
+    }
+  }, [canSeeFinance, downloadingId, filteredItems, items])
 
   return (
     <div className="space-y-6">
@@ -1596,6 +1681,8 @@ function FechamentoViewInner() {
                   f={f}
                   selected={selected?.id === f.id}
                   onClick={() => setSelectedId(selected?.id === f.id ? null : f.id)}
+                  onDownload={handleDownloadReport}
+                  downloading={downloadingId === f.id}
                 />
               ))}
             </div>
@@ -1604,6 +1691,8 @@ function FechamentoViewInner() {
               items={sortedItems}
               selectedId={selected?.id ?? null}
               onSelect={(id) => setSelectedId(selected?.id === id ? null : id)}
+              onDownload={handleDownloadReport}
+              downloadingId={downloadingId}
             />
           )}
         </>
@@ -1616,6 +1705,8 @@ function FechamentoViewInner() {
           onClose={() => setSelectedId(null)}
           onEdit={() => handleEdit(selected)}
           onDelete={handleDelete}
+          onDownload={handleDownloadReport}
+          downloading={downloadingId === selected.id}
         />
       )}
 
