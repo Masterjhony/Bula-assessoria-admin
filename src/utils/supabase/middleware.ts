@@ -70,14 +70,14 @@ export async function updateSession(req: NextRequest) {
       res = NextResponse.next({ request: req })
     }
   } else if (lp) {
-    // Host lp.* (e bulaassessoria.com) → a raiz "/" serve a página
-    // institucional; a agenda de leilões vive em /agenda. Demais caminhos
+    // Host lp.* (e bulaassessoria.com) → a raiz "/" redireciona para /agenda.
+    // Demais caminhos
     // públicos seguem mapeando para /agenda (compat com links antigos).
     // Caminhos canônicos (/institucional, /agenda) passam direto.
     const url = req.nextUrl.clone()
     if (pathname === '/') {
-      url.pathname = '/institucional'
-      res = NextResponse.rewrite(url, { request: req })
+      url.pathname = '/agenda'
+      res = NextResponse.redirect(url, 308)
     } else if (
       !pathname.startsWith('/institucional') &&
       !pathname.startsWith('/agenda') &&
