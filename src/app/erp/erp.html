@@ -269,6 +269,7 @@ svg.chart { width:100%; height:100%; display:block; }
 
     <div class="sidebar-section">Leiloes</div>
     <div class="sidebar-item" data-page="fechamento_leiloes"><span class="material-symbols-outlined">gavel</span><span>Fechamento Leiloes</span></div>
+    <div class="sidebar-item" data-page="acordos_comerciais"><span class="material-symbols-outlined">handshake</span><span>Acordos Comerciais</span></div>
     <div class="sidebar-item" data-page="comissionamento"><span class="material-symbols-outlined">real_estate_agent</span><span>Comissionamento</span></div>
 
     <div class="sidebar-section">Juridico</div>
@@ -466,6 +467,7 @@ async function render() {
     if (state.page === 'notas') return renderNotas();
     if (state.page === 'empresa') return renderEmpresa();
     if (state.page === 'fechamento_leiloes') return renderFechamentoLeiloes();
+    if (state.page === 'acordos_comerciais') return renderAcordosComerciais();
     if (state.page === 'comissionamento') return renderComissionamento();
   } catch (e) {
     page.innerHTML = `<div class="card" style="text-align:center"><span class="material-symbols-outlined" style="font-size:36px;color:var(--red)">error</span><h3 style="margin:8px 0">Erro ao carregar</h3><p style="color:var(--text3);font-size:12px">${escapeHtml(e.message)}</p></div>`;
@@ -2158,6 +2160,8 @@ async function renderFechamentoLeiloes() {
       </div>
     </div>
 
+    ${flLeiloeirasPanel(rows)}
+
     <div class="table-wrap">
       <div class="table-toolbar">
         <div class="table-search">
@@ -2247,9 +2251,14 @@ function flOpenDetail(id) {
     </div>
     <div class="modal-body">
       <div class="card" style="border-color:var(--gold-dim);background:var(--gold-dim);margin-bottom:16px">
-        <div class="card-title"><span class="material-symbols-outlined">handshake</span>Acordo comercial</div>
-        <div style="font-size:13px;color:var(--text);font-weight:600">${acordo?escapeHtml(acordo.descricao):'Sem acordo cadastrado'}</div>
-        ${esperado!=null?`<div style="font-size:12px;color:var(--text2);margin-top:6px">Receita esperada pelo acordo: <strong class="money">${fmtBRL(esperado)}</strong>${x.receita_bula!=null&&Math.abs(Number(x.receita_bula)-esperado)>=1?` <span style="color:var(--amber)">· realizado diverge em ${fmtBRL(Math.abs(Number(x.receita_bula)-esperado))}</span>`:''}</div>`:''}
+        <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:12px">
+          <div style="flex:1">
+            <div class="card-title"><span class="material-symbols-outlined">handshake</span>Acordo comercial</div>
+            <div style="font-size:13px;color:var(--text);font-weight:600">${acordo?escapeHtml(acordo.descricao):'Sem acordo cadastrado'}</div>
+            ${esperado!=null?`<div style="font-size:12px;color:var(--text2);margin-top:6px">Receita esperada pelo acordo: <strong class="money">${fmtBRL(esperado)}</strong>${x.receita_bula!=null&&Math.abs(Number(x.receita_bula)-esperado)>=1?` <span style="color:var(--amber)">· realizado diverge em ${fmtBRL(Math.abs(Number(x.receita_bula)-esperado))}</span>`:''}</div>`:''}
+          </div>
+          <button class="btn btn-ghost btn-sm" onclick="acOpenEditor('${x.id}')" title="Editar o acordo deste leilao"><span class="material-symbols-outlined">edit</span>Editar acordo</button>
+        </div>
       </div>
 
       <div class="kpi-grid" style="margin-bottom:18px">
@@ -2330,6 +2339,493 @@ function flExportCSV() {
   a.href = url; a.download = 'fechamento-leiloes.csv'; a.click();
   URL.revokeObjectURL(url);
   toast('CSV exportado','success');
+}
+
+/* --------------------------------------------------------------------------
+   Acordos por leiloeira (painel dentro de "Fechamento de Leiloes")
+   Agrupa os fechamentos por leiloeira e permite definir um acordo PADRAO que
+   e aplicado a todos os leiloes dela. O acordo continua editavel por leilao
+   no detalhe (botao "Editar acordo" -> acOpenEditor). Reaproveita os helpers
+   ac* da pagina "Acordos Comerciais".
+   -------------------------------------------------------------------------- */
+function flLeiloeiraResumo(name, list) {
+  const sigs = new Map();
+  let comAcordo = 0, pendencias = 0, esperado = 0;
+  for (const x of list) {
+    const ac = flResolverAcordo(x);
+    if (ac) {
+      comAcordo++;
+      const key = `${ac.pct_faturamento??''}|${ac.pct_venda_cobertura??''}`;
+      const cur = sigs.get(key) || { n:0, ac };
+      cur.n++; sigs.set(key, cur);
+    }
+    const meta = acRowMeta(x);
+    if (meta.label !== 'OK' && meta.label !== 'Padrao legado') pendencias++;
+    if (meta.esperado != null) esperado += Number(meta.esperado);
+  }
+  let acordo = null, varios = false;
+  if (sigs.size) {
+    const arr = [...sigs.values()].sort((a,b)=>b.n-a.n);
+    acordo = arr[0].ac;
+    varios = arr.length > 1;
+  }
+  return { name, count:list.length, comAcordo, pendencias, esperado, acordo, varios };
+}
+
+function flLeiloeirasPanel(rows) {
+  if (!rows.length) { state._flLeiloeiras = []; return ''; }
+  const groups = new Map();
+  for (const x of rows) {
+    const name = acLeiloeira(x);
+    if (!groups.has(name)) groups.set(name, []);
+    groups.get(name).push(x);
+  }
+  const resumos = [...groups.entries()]
+    .map(([name,list]) => flLeiloeiraResumo(name, list))
+    .sort((a,b)=> b.esperado - a.esperado || b.count - a.count);
+  state._flLeiloeiras = resumos;
+  const open = state.flLeiloeirasOpen !== false; // default aberto
+  const totalPend = resumos.reduce((s,r)=>s+r.pendencias,0);
+  return `
+    <div class="card" style="margin-bottom:18px;padding:0">
+      <div style="display:flex;justify-content:space-between;align-items:center;padding:14px 18px;cursor:pointer" onclick="flToggleLeiloeiras()">
+        <div style="display:flex;align-items:center;gap:10px">
+          <span class="material-symbols-outlined" style="color:var(--gold)">handshake</span>
+          <div>
+            <div style="font-weight:700;font-size:14px">Acordos por leiloeira</div>
+            <div style="font-size:11px;color:var(--text3)">${resumos.length} leiloeira(s) no filtro${totalPend?` · <span style="color:var(--amber)">${totalPend} pendencia(s)</span>`:''} · defina o acordo padrao e aplique a todos os leiloes</div>
+          </div>
+        </div>
+        <span class="material-symbols-outlined" style="color:var(--text3)">${open?'expand_less':'expand_more'}</span>
+      </div>
+      ${open ? `<div style="padding:0 18px 18px;display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:12px">
+        ${resumos.map((r,i)=>{
+          const regra = r.acordo ? `${acPctLabel(r.acordo.pct_faturamento)} fat. · ${acPctLabel(r.acordo.pct_venda_cobertura)} venda` : null;
+          return `<div class="card" style="margin:0;border-color:${r.pendencias?'var(--amber-bg)':'var(--border)'}">
+            <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:8px">
+              <div style="min-width:0">
+                <div style="font-weight:700;font-size:13px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis" title="${escapeHtml(r.name)}">${escapeHtml(r.name)}</div>
+                <div style="font-size:10px;color:var(--text3)">${r.count} leilao${r.count>1?'es':''} · ${r.comAcordo}/${r.count} com acordo</div>
+              </div>
+              <button class="icon-btn" title="Editar acordo da leiloeira" onclick="flOpenLeiloeiraEditor(${i})"><span class="material-symbols-outlined">edit</span></button>
+            </div>
+            <div style="margin-top:8px;min-height:22px">
+              ${regra ? `<span class="chip gold">${escapeHtml(regra)}</span>${r.varios?' <span class="chip warn" style="padding:1px 6px" title="Ha acordos diferentes entre os leiloes desta leiloeira">varios</span>':''}` : '<span class="chip muted">sem acordo</span>'}
+            </div>
+            <div style="margin-top:8px;display:flex;justify-content:space-between;align-items:baseline">
+              <span style="font-size:10px;color:var(--text3)">Receita esperada</span>
+              <span class="money" style="font-weight:700;color:var(--gold)">${fmtBRL(r.esperado)}</span>
+            </div>
+            ${r.pendencias?`<div style="font-size:10px;color:var(--amber);margin-top:4px"><span class="material-symbols-outlined" style="font-size:12px;vertical-align:-2px">priority_high</span> ${r.pendencias} pendencia(s)</div>`:''}
+          </div>`;
+        }).join('')}
+      </div>` : ''}
+    </div>`;
+}
+function flToggleLeiloeiras() {
+  state.flLeiloeirasOpen = (state.flLeiloeirasOpen === false);
+  renderFechamentoLeiloes();
+}
+
+function flOpenLeiloeiraEditor(i) {
+  const r = (state._flLeiloeiras||[])[i];
+  if (!r) return;
+  // Aplica a TODOS os fechamentos da leiloeira (nao apenas o filtro atual).
+  const list = (state.fechamentos||[]).filter(x => acLeiloeira(x) === r.name);
+  const ac = r.acordo || {};
+  const comCustom = list.filter(acHasDbAcordo).length;
+  const html = `
+    <div class="modal-header">
+      <div>
+        <div style="font-size:10px;font-weight:700;letter-spacing:1px;color:var(--gold);text-transform:uppercase">Acordo da leiloeira</div>
+        <div class="modal-title">${escapeHtml(r.name)}</div>
+      </div>
+      <button class="icon-btn" onclick="closeModal()"><span class="material-symbols-outlined">close</span></button>
+    </div>
+    <div class="modal-body">
+      <div style="font-size:12px;color:var(--text2);margin-bottom:14px">Este acordo sera aplicado a <strong>${list.length} fechamento(s)</strong> desta leiloeira.${comCustom?` <span style="color:var(--amber)">${comCustom} ja tem acordo proprio e sera sobrescrito.</span>`:''} Voce ainda pode ajustar um leilao especifico no detalhe dele.</div>
+      <form id="flLeilForm" class="form-grid">
+        <div class="field full">
+          <label>Descricao do acordo</label>
+          <textarea name="descricao" oninput="flLeilPreview(${i})" placeholder="Ex: 1% do faturamento total + 3% da venda da cobertura">${escapeHtml(ac.descricao||'')}</textarea>
+        </div>
+        <div class="field">
+          <label>% sobre faturamento da leiloeira</label>
+          <input name="pctFat" type="number" step="0.001" min="0" value="${ac.pct_faturamento!=null?Number(ac.pct_faturamento)*100:''}" oninput="flLeilPreview(${i})" placeholder="Ex: 1">
+        </div>
+        <div class="field">
+          <label>% sobre VGV da cobertura</label>
+          <input name="pctVenda" type="number" step="0.001" min="0" value="${ac.pct_venda_cobertura!=null?Number(ac.pct_venda_cobertura)*100:''}" oninput="flLeilPreview(${i})" placeholder="Ex: 3">
+        </div>
+      </form>
+      <div id="flLeilPreview" class="card" style="margin-top:16px;border-color:var(--gold-dim);background:var(--gold-dim)"></div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn" onclick="closeModal()">Cancelar</button>
+      <button class="btn btn-primary" onclick="flSaveLeiloeiraAcordo(${i})"><span class="material-symbols-outlined">save</span>Salvar e aplicar a ${list.length} leilao(oes)</button>
+    </div>`;
+  openModal(html, { wide:true });
+  flLeilPreview(i);
+}
+function flLeilReadForm() {
+  const form = document.getElementById('flLeilForm');
+  if (!form) return null;
+  return {
+    pctFat: acPct(form.pctFat.value),
+    pctVenda: acPct(form.pctVenda.value),
+    descricao: String(form.descricao.value||'').trim(),
+  };
+}
+function flLeilPreview(i) {
+  const r = (state._flLeiloeiras||[])[i];
+  const el = document.getElementById('flLeilPreview');
+  const p = flLeilReadForm();
+  if (!r || !el || !p) return;
+  const list = (state.fechamentos||[]).filter(x => acLeiloeira(x) === r.name);
+  let total = 0, comBase = 0;
+  for (const x of list) {
+    const e = acExpectedFromValues(p.pctFat, p.pctVenda, Number(x.faturamento_total_leilao)||0, Number(x.vgv_total)||0);
+    if (e != null) { total += e; comBase++; }
+  }
+  const semBase = p.pctFat != null ? list.filter(x => !(Number(x.faturamento_total_leilao)>0)).length : 0;
+  el.innerHTML = `
+    <div class="card-title"><span class="material-symbols-outlined">calculate</span>Previa (todos os leiloes da leiloeira)</div>
+    <div class="kpi-grid" style="margin-bottom:0;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px">
+      <div><div class="kpi-label">Regra</div><div style="font-weight:700;font-size:13px">${acPctLabel(p.pctFat)} fat. · ${acPctLabel(p.pctVenda)} venda</div></div>
+      <div><div class="kpi-label">Receita esperada total</div><div class="kpi-value money" style="font-size:18px;color:var(--gold)">${fmtBRL(total)}</div></div>
+      <div><div class="kpi-label">Leiloes com base</div><div class="kpi-value" style="font-size:18px">${comBase}/${list.length}</div></div>
+    </div>
+    ${semBase?`<div style="font-size:11px;color:var(--amber);margin-top:8px"><span class="material-symbols-outlined" style="font-size:13px;vertical-align:-2px">priority_high</span> ${semBase} leilao(oes) sem faturamento da leiloeira informado — receita nao calculada para eles.</div>`:''}`;
+}
+async function flSaveLeiloeiraAcordo(i) {
+  const r = (state._flLeiloeiras||[])[i];
+  const p = flLeilReadForm();
+  if (!r || !p) return;
+  if (p.pctFat == null && p.pctVenda == null && !p.descricao) {
+    toast('Informe ao menos um percentual ou a descricao do acordo','info');
+    return;
+  }
+  const list = (state.fechamentos||[]).filter(x => acLeiloeira(x) === r.name);
+  if (!list.length) return;
+  if (!window.confirm(`Aplicar este acordo a ${list.length} fechamento(s) da leiloeira "${r.name}"? Acordos individuais existentes serao sobrescritos.`)) return;
+  const payload = {
+    acordo_pct_faturamento: p.pctFat,
+    acordo_pct_venda_cobertura: p.pctVenda,
+    acordo_descricao: p.descricao || null,
+  };
+  try {
+    const saved = [];
+    for (const x of list) {
+      saved.push(await api(`/api/bula/fechamento/${x.id}`, { method:'PUT', body:JSON.stringify(payload) }));
+    }
+    state.fechamentos = (state.fechamentos||[]).map(x => saved.find(s=>s.id===x.id) || x);
+    closeModal();
+    toast(`Acordo aplicado a ${saved.length} fechamento(s) da leiloeira`, 'success');
+    renderFechamentoLeiloes();
+  } catch (e) {
+    toast(e.message || 'Erro ao salvar acordo da leiloeira', 'error');
+  }
+}
+
+/* ==========================================================================
+   PAGE: ACORDOS COMERCIAIS (ERP - leiloeiras/promotores)
+   Central de edicao dos acordos usados no Fechamento de Leiloes.
+   ========================================================================== */
+const acNorm = s => (s||'').trim().toLowerCase();
+const acRound = n => Math.round(Number(n||0) * 100) / 100;
+const acNumber = v => {
+  if (v == null || String(v).trim() === '') return null;
+  const n = Number(String(v).replace(',', '.'));
+  return Number.isFinite(n) ? n : null;
+};
+const acPct = v => {
+  const n = acNumber(v);
+  return n == null ? null : n / 100;
+};
+const acPctLabel = v => v == null ? '—' : `${(Number(v)*100).toLocaleString('pt-BR',{maximumFractionDigits:3})}%`;
+
+function acLeiloeira(f) {
+  return (f.leiloeira || f.criador || f.local || 'Sem leiloeira informada').trim();
+}
+function acHasDbAcordo(f) {
+  return !!(f.acordo_descricao || f.acordo_pct_faturamento != null || f.acordo_pct_venda_cobertura != null);
+}
+function acExpectedFromValues(pctFat, pctVenda, fatLeiloeira, vgvCobertura) {
+  const a = pctFat && fatLeiloeira ? Number(pctFat) * Number(fatLeiloeira) : 0;
+  const b = pctVenda && vgvCobertura ? Number(pctVenda) * Number(vgvCobertura) : 0;
+  const total = a + b;
+  return total > 0 ? acRound(total) : null;
+}
+function acRowMeta(f) {
+  const acordo = flResolverAcordo(f);
+  const esperado = acordo ? flReceitaEsperada(acordo, Number(f.faturamento_total_leilao)||null, Number(f.vgv_total)||null) : null;
+  const diff = esperado != null && f.receita_bula != null ? Number(f.receita_bula) - esperado : null;
+  if (!acordo) return { label:'Sem acordo', cls:'danger', icon:'report', esperado, diff };
+  if (acordo.pct_faturamento && !(Number(f.faturamento_total_leilao)>0)) return { label:'Falta fat. leiloeira', cls:'warn', icon:'priority_high', esperado, diff };
+  if (diff != null && Math.abs(diff) >= 1) return { label:'Divergente', cls:'warn', icon:'sync_problem', esperado, diff };
+  if (!acHasDbAcordo(f)) return { label:'Padrao legado', cls:'info', icon:'history', esperado, diff };
+  return { label:'OK', cls:'success', icon:'check_circle', esperado, diff };
+}
+function acFilteredRows() {
+  const all = state.fechamentos || [];
+  const f = state.filters;
+  const search = acNorm(f.acSearch||''), ano = f.acAno||'', leiloeira = f.acLeiloeira||'', status = f.acStatus||'';
+  return all.filter(x => {
+    const rowLeiloeira = acLeiloeira(x);
+    if (ano && (x.data||'').slice(0,4) !== ano) return false;
+    if (leiloeira && rowLeiloeira !== leiloeira) return false;
+    if (search && !acNorm(`${x.nome||''} ${x.local||''} ${rowLeiloeira}`).includes(search)) return false;
+    if (status) {
+      const meta = acRowMeta(x);
+      if (status === 'sem' && meta.label !== 'Sem acordo') return false;
+      if (status === 'falta_fat' && meta.label !== 'Falta fat. leiloeira') return false;
+      if (status === 'divergente' && meta.label !== 'Divergente') return false;
+      if (status === 'ok' && meta.label !== 'OK') return false;
+    }
+    return true;
+  });
+}
+function acFilter(key, val) { state.filters[key] = val; renderAcordosComerciais(); }
+const acSearchInput = debounce((v)=>{ state.filters.acSearch = v; renderAcordosComerciais(); }, 300);
+function acClear() { ['acSearch','acAno','acLeiloeira','acStatus'].forEach(k=>delete state.filters[k]); renderAcordosComerciais(); }
+
+async function renderAcordosComerciais() {
+  if (!state.fechamentos) state.fechamentos = await api('/api/bula/fechamento');
+  const all = state.fechamentos || [];
+  const rows = acFilteredRows();
+  const f = state.filters;
+  const anos = [...new Set(all.map(x => (x.data||'').slice(0,4)).filter(Boolean))].sort().reverse();
+  const leiloeiras = [...new Set(all.map(acLeiloeira))].sort((a,b)=>a.localeCompare(b,'pt-BR'));
+  const metas = rows.map(acRowMeta);
+  const tot = {
+    leiloeiras: new Set(rows.map(acLeiloeira)).size,
+    comAcordo: metas.filter(m=>m.label !== 'Sem acordo').length,
+    pendencias: metas.filter(m=>m.label !== 'OK' && m.label !== 'Padrao legado').length,
+    esperada: metas.reduce((s,m)=>s+Number(m.esperado||0),0),
+  };
+  const html = `
+    <div class="page-header">
+      <div>
+        <div class="page-title">Acordos Comerciais <small>${rows.length} de ${all.length} fechamentos · leiloeiras e promotores</small></div>
+      </div>
+      <div class="page-actions">
+        <button class="btn btn-ghost btn-sm" onclick="state.fechamentos=null; renderAcordosComerciais()"><span class="material-symbols-outlined">refresh</span>Atualizar</button>
+        <button class="btn btn-ghost btn-sm" onclick="navigate('fechamento_leiloes')"><span class="material-symbols-outlined">table_view</span>Fechamentos</button>
+      </div>
+    </div>
+
+    <div class="kpi-grid">
+      <div class="kpi info"><div class="kpi-icon"><span class="material-symbols-outlined">account_balance</span></div><div class="kpi-label">Leiloeiras</div><div class="kpi-value">${tot.leiloeiras}</div><div class="kpi-sub">no filtro atual</div></div>
+      <div class="kpi success"><div class="kpi-icon"><span class="material-symbols-outlined">handshake</span></div><div class="kpi-label">Com acordo</div><div class="kpi-value">${tot.comAcordo}</div><div class="kpi-sub">${rows.length ? Math.round((tot.comAcordo/rows.length)*100) : 0}% dos fechamentos</div></div>
+      <div class="kpi ${tot.pendencias?'warn':'success'}"><div class="kpi-icon"><span class="material-symbols-outlined">${tot.pendencias?'priority_high':'check_circle'}</span></div><div class="kpi-label">Pendencias</div><div class="kpi-value">${tot.pendencias}</div><div class="kpi-sub">sem acordo, sem base ou divergente</div></div>
+      <div class="kpi"><div class="kpi-icon"><span class="material-symbols-outlined">calculate</span></div><div class="kpi-label">Receita esperada</div><div class="kpi-value money" style="color:var(--gold)">${fmtBRL(tot.esperada)}</div><div class="kpi-sub">pelo acordo cadastrado</div></div>
+    </div>
+
+    <div class="table-wrap">
+      <div class="table-toolbar">
+        <div class="table-search">
+          <span class="material-symbols-outlined">search</span>
+          <input type="text" placeholder="Buscar leilao ou leiloeira..." value="${escapeHtml(f.acSearch||'')}" oninput="acSearchInput(this.value)">
+        </div>
+        <select class="table-filter" onchange="acFilter('acAno', this.value)">
+          <option value="">Todos os anos</option>
+          ${anos.map(a=>`<option value="${a}" ${f.acAno===a?'selected':''}>${a}</option>`).join('')}
+        </select>
+        <select class="table-filter" onchange="acFilter('acLeiloeira', this.value)">
+          <option value="">Todas as leiloeiras</option>
+          ${leiloeiras.map(l=>`<option value="${escapeHtml(l)}" ${f.acLeiloeira===l?'selected':''}>${escapeHtml(l)}</option>`).join('')}
+        </select>
+        <select class="table-filter" onchange="acFilter('acStatus', this.value)">
+          <option value="">Status: todos</option>
+          <option value="sem" ${f.acStatus==='sem'?'selected':''}>Sem acordo</option>
+          <option value="falta_fat" ${f.acStatus==='falta_fat'?'selected':''}>Falta fat. leiloeira</option>
+          <option value="divergente" ${f.acStatus==='divergente'?'selected':''}>Divergente</option>
+          <option value="ok" ${f.acStatus==='ok'?'selected':''}>OK</option>
+        </select>
+        ${(f.acSearch||f.acAno||f.acLeiloeira||f.acStatus)?`<button class="btn btn-ghost btn-sm" onclick="acClear()"><span class="material-symbols-outlined">filter_alt_off</span>Limpar</button>`:''}
+      </div>
+      ${rows.length===0?`<div class="empty"><span class="material-symbols-outlined">handshake</span><h3>Nenhum acordo encontrado</h3><p>Ajuste os filtros para localizar fechamentos.</p></div>`:`
+      <table>
+        <thead>
+          <tr>
+            <th>Leiloeira / Promotor</th>
+            <th>Leilao</th>
+            <th>Acordo</th>
+            <th style="text-align:right">Fat. Leiloeira</th>
+            <th style="text-align:right">VGV Cobertura</th>
+            <th style="text-align:right">Receita Esperada</th>
+            <th style="text-align:right">Fat. Bula</th>
+            <th>Status</th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody>
+          ${rows.map(x => {
+            const acordo = flResolverAcordo(x);
+            const meta = acRowMeta(x);
+            const regra = acordo ? `${acPctLabel(acordo.pct_faturamento)} fat. · ${acPctLabel(acordo.pct_venda_cobertura)} venda` : '—';
+            return `<tr style="cursor:pointer" onclick="acOpenEditor('${x.id}')">
+              <td><div style="font-weight:700">${escapeHtml(acLeiloeira(x))}</div><div style="font-size:10px;color:var(--text3)">${acHasDbAcordo(x)?'editavel no banco':'fallback / pendente'}</div></td>
+              <td><div style="font-weight:600">${escapeHtml(x.nome||'—')}</div><div style="font-size:10px;color:var(--text3)">${flDataCurta(x.data)} ${x.local?`· ${escapeHtml(x.local)}`:''}</div></td>
+              <td><span class="chip gold">${escapeHtml(regra)}</span><div style="font-size:10px;color:var(--text3);margin-top:4px;max-width:300px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${escapeHtml(acordo?.descricao||'Sem descricao')}</div></td>
+              <td class="money" style="text-align:right">${x.faturamento_total_leilao!=null?fmtBRL(x.faturamento_total_leilao):'<span style="color:var(--text4)">—</span>'}</td>
+              <td class="money" style="text-align:right;color:var(--gold)">${fmtBRL(x.vgv_total)}</td>
+              <td class="money" style="text-align:right">${meta.esperado!=null?fmtBRL(meta.esperado):'<span style="color:var(--text4)">—</span>'}</td>
+              <td class="money" style="text-align:right">${x.receita_bula!=null?fmtBRL(x.receita_bula):'<span style="color:var(--text4)">—</span>'}</td>
+              <td><span class="chip ${meta.cls}"><span class="material-symbols-outlined" style="font-size:13px">${meta.icon}</span>${meta.label}</span></td>
+              <td><button class="icon-btn" title="Editar acordo" onclick="event.stopPropagation(); acOpenEditor('${x.id}')"><span class="material-symbols-outlined">edit</span></button></td>
+            </tr>`;
+          }).join('')}
+        </tbody>
+      </table>`}
+    </div>
+  `;
+  document.getElementById('page').innerHTML = html;
+}
+
+function acOpenEditor(id) {
+  const x = (state.fechamentos||[]).find(r => r.id === id);
+  if (!x) return;
+  const acordo = flResolverAcordo(x) || {};
+  const meta = acRowMeta(x);
+  const html = `
+    <div class="modal-header">
+      <div>
+        <div style="font-size:10px;font-weight:700;letter-spacing:1px;color:var(--gold);text-transform:uppercase">${escapeHtml(acLeiloeira(x))} · ${flDataCurta(x.data)}</div>
+        <div class="modal-title">${escapeHtml(x.nome||'Editar acordo')}</div>
+      </div>
+      <button class="icon-btn" onclick="closeModal()"><span class="material-symbols-outlined">close</span></button>
+    </div>
+    <div class="modal-body">
+      <form id="acForm" class="form-grid">
+        <div class="field full">
+          <label>Descricao do acordo</label>
+          <textarea name="descricao" oninput="acUpdatePreview('${x.id}')" placeholder="Ex: 1% do faturamento total + 3% da venda da cobertura">${escapeHtml(acordo.descricao||'')}</textarea>
+        </div>
+        <div class="field">
+          <label>% sobre faturamento da leiloeira</label>
+          <input name="pctFat" type="number" step="0.001" min="0" value="${acordo.pct_faturamento!=null?Number(acordo.pct_faturamento)*100:''}" oninput="acUpdatePreview('${x.id}')" placeholder="Ex: 1">
+        </div>
+        <div class="field">
+          <label>% sobre VGV da cobertura</label>
+          <input name="pctVenda" type="number" step="0.001" min="0" value="${acordo.pct_venda_cobertura!=null?Number(acordo.pct_venda_cobertura)*100:''}" oninput="acUpdatePreview('${x.id}')" placeholder="Ex: 3">
+        </div>
+        <div class="field">
+          <label>Faturamento total leiloeira (R$)</label>
+          <input name="faturamento" type="number" step="0.01" min="0" value="${x.faturamento_total_leilao??''}" oninput="acUpdatePreview('${x.id}')">
+        </div>
+        <div class="field">
+          <label>VGV cobertura Bula (referencia)</label>
+          <input type="text" value="${fmtBRL(x.vgv_total)}" disabled>
+        </div>
+        <div class="field">
+          <label>Faturamento Bula (R$)</label>
+          <input name="receita" type="number" step="0.01" min="0" value="${x.receita_bula??''}" oninput="acUpdatePreview('${x.id}')">
+        </div>
+        <div class="field">
+          <label>Comissao assessoria (R$)</label>
+          <input name="comissao" type="number" step="0.01" min="0" value="${x.comissao_assessoria??''}" oninput="acUpdatePreview('${x.id}')">
+        </div>
+      </form>
+      <div id="acPreview" class="card" style="margin-top:16px;border-color:var(--gold-dim);background:var(--gold-dim)">
+        <div class="card-title"><span class="material-symbols-outlined">calculate</span>Previa do acordo</div>
+        <div style="font-size:12px;color:var(--text2)">Status atual: <span class="chip ${meta.cls}">${meta.label}</span></div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn" onclick="closeModal()">Cancelar</button>
+      <button class="btn btn-ghost" onclick="acFillReceitaEsperada('${x.id}')"><span class="material-symbols-outlined">auto_fix_high</span>Usar esperado</button>
+      <button class="btn" onclick="acSaveAcordo('${x.id}', true)"><span class="material-symbols-outlined">playlist_add_check</span>Salvar e aplicar na leiloeira</button>
+      <button class="btn btn-primary" onclick="acSaveAcordo('${x.id}', false)"><span class="material-symbols-outlined">save</span>Salvar acordo</button>
+    </div>`;
+  openModal(html, { wide:true });
+  acUpdatePreview(id);
+}
+
+function acReadForm(id) {
+  const x = (state.fechamentos||[]).find(r => r.id === id);
+  const form = document.getElementById('acForm');
+  if (!x || !form) return null;
+  const data = new FormData(form);
+  const pctFat = acPct(data.get('pctFat'));
+  const pctVenda = acPct(data.get('pctVenda'));
+  const fat = acNumber(data.get('faturamento'));
+  const receita = acNumber(data.get('receita'));
+  const comissao = acNumber(data.get('comissao'));
+  const esperado = acExpectedFromValues(pctFat, pctVenda, fat, Number(x.vgv_total)||0);
+  return {
+    row:x, pctFat, pctVenda, fat, receita, comissao, esperado,
+    descricao:String(data.get('descricao')||'').trim(),
+  };
+}
+function acUpdatePreview(id) {
+  const p = acReadForm(id);
+  const el = document.getElementById('acPreview');
+  if (!p || !el) return;
+  const diff = p.esperado != null && p.receita != null ? p.receita - p.esperado : null;
+  const lucro = p.receita != null || p.comissao != null ? acRound((p.receita||0) - (p.comissao||0)) : null;
+  el.innerHTML = `
+    <div class="card-title"><span class="material-symbols-outlined">calculate</span>Previa do acordo</div>
+    <div class="kpi-grid" style="margin-bottom:0;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px">
+      <div><div class="kpi-label">Receita esperada</div><div class="kpi-value money" style="font-size:18px;color:var(--gold)">${p.esperado!=null?fmtBRL(p.esperado):'—'}</div></div>
+      <div><div class="kpi-label">Faturamento Bula</div><div class="kpi-value money" style="font-size:18px">${p.receita!=null?fmtBRL(p.receita):'—'}</div></div>
+      <div><div class="kpi-label">Diferenca</div><div class="kpi-value money ${diff!=null&&Math.abs(diff)>=1?'negative':'positive'}" style="font-size:18px">${diff!=null?fmtBRL(diff):'—'}</div></div>
+      <div><div class="kpi-label">Lucro bruto</div><div class="kpi-value money ${lucro!=null&&lucro<0?'negative':'positive'}" style="font-size:18px">${lucro!=null?fmtBRL(lucro):'—'}</div></div>
+    </div>`;
+}
+function acFillReceitaEsperada(id) {
+  const p = acReadForm(id);
+  const form = document.getElementById('acForm');
+  if (!p || !form || p.esperado == null) { toast('Informe a regra e a base para calcular a receita esperada','info'); return; }
+  form.elements.receita.value = p.esperado;
+  acUpdatePreview(id);
+}
+function acPayloadFromForm(id, onlyAgreement=false) {
+  const p = acReadForm(id);
+  if (!p) return null;
+  const payload = {
+    acordo_pct_faturamento: p.pctFat,
+    acordo_pct_venda_cobertura: p.pctVenda,
+    acordo_descricao: p.descricao || null,
+  };
+  if (!onlyAgreement) {
+    payload.faturamento_total_leilao = p.fat;
+    payload.receita_bula = p.receita;
+    payload.comissao_assessoria = p.comissao;
+    payload.sobra_bruta = (p.receita != null || p.comissao != null) ? acRound((p.receita||0) - (p.comissao||0)) : null;
+  }
+  return payload;
+}
+async function acSaveAcordo(id, applyLeiloeira) {
+  const payload = acPayloadFromForm(id, false);
+  const agreementPayload = acPayloadFromForm(id, true);
+  const base = (state.fechamentos||[]).find(r => r.id === id);
+  if (!payload || !agreementPayload || !base) return;
+  const same = (state.fechamentos||[]).filter(r =>
+    r.id !== id && acLeiloeira(r) === acLeiloeira(base) && !acHasDbAcordo(r)
+  );
+  const updates = [{ row:base, payload }];
+  if (applyLeiloeira && same.length) {
+    const ok = window.confirm(`Aplicar esta regra tambem a ${same.length} fechamento(s) sem acordo da leiloeira "${acLeiloeira(base)}"?`);
+    if (!ok) return;
+    for (const row of same) updates.push({ row, payload: agreementPayload });
+  }
+  try {
+    const saved = [];
+    for (const u of updates) {
+      const row = await api(`/api/bula/fechamento/${u.row.id}`, { method:'PUT', body:JSON.stringify(u.payload) });
+      saved.push(row);
+    }
+    state.fechamentos = (state.fechamentos||[]).map(r => saved.find(s=>s.id===r.id) || r);
+    closeModal();
+    toast(updates.length>1 ? `${updates.length} acordos atualizados` : 'Acordo salvo', 'success');
+    // Re-renderiza a pagina ativa: o editor de acordo e reutilizado tanto na
+    // pagina "Acordos Comerciais" quanto no detalhe de "Fechamento de Leiloes".
+    if (state.page === 'fechamento_leiloes') renderFechamentoLeiloes();
+    else renderAcordosComerciais();
+  } catch (e) {
+    toast(e.message || 'Erro ao salvar acordo', 'error');
+  }
 }
 
 /* ==========================================================================
