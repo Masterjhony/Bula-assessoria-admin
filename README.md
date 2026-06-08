@@ -31,6 +31,7 @@ npm start
 |---|---|---|
 | `/sistema` | Dashboard | UI + dados reais (leilões + crm vazio) |
 | `/sistema/leiloes` | Leilões (5 sub-páginas: lista, fechamento, vendas/assessor, relatórios, equipe) | **Com dados migrados (184 registros)** |
+| `/erp` → Fechamento de Leilões | Tabela financeira por leilão: VGV, faturamento, acordo, receita, comissão, **imposto est. (18%)**, **despesas variáveis** e **lucro líquido** + painel **Acordos por leiloeira** | Restrito a finance-admin |
 | `/sistema/projetos` (+/relatorios) | Kanban + Gantt + OKR + Strategy + Whiteboard | UI completa, banco vazio |
 | `/sistema/agenda` | Agenda Oficial (eventos internos vinculáveis) | UI completa, banco vazio |
 | `/sistema/agendamentos` | Bookings via Calendly→Google Calendar | UI completa, banco vazio |
@@ -52,7 +53,7 @@ npm start
 Resumo do que foi feito (commits `Fase 0` a `Fase 8`):
 
 - **Stack**: Next 14→16.1.4, React 18→19.2.3, Tailwind v4, +dnd-kit, framer-motion, excalidraw, xyflow, googleapis, jspdf, xlsx, posthog, R2, nodemailer, etc.
-- **12 migrations Supabase** (`supabase/migrations/0001`..`0012`) consolidando ~30 arquivos `database/*.sql` do fórmula, com FKs para tabelas inexistentes (products, breeders) cortadas e o CRM-leads criado como esqueleto na Fase 6 antes do Central WhatsApp.
+- **15 migrations Supabase** (`supabase/migrations/0001`..`0015`) consolidando ~30 arquivos `database/*.sql` do fórmula, com FKs para tabelas inexistentes (products, breeders) cortadas e o CRM-leads criado como esqueleto na Fase 6 antes do Central WhatsApp. As mais recentes: `0013` fix de constraint de empresa, `0014` bucket de capas de leilão, `0015` campo `despesas_variaveis` no fechamento.
 - **Dados migrados**: apenas Leilões (184 registros — bula_membros, bula_leiloes, bula_leilao_assessores, bula_acordos_criadores, bula_leilao_fechamento, leiloes_equipe, cronograma_leiloes, bula_comissoes_padrao_assessor).
 - **Cortes**:
   - **ClickSign**: stubado em `src/app/sistema/actions/contracts.ts` (4 funções throw "ClickSign não disponível"). Continua exclusivo do fórmula.
@@ -117,6 +118,23 @@ node scripts/migrate-leiloes-data.mjs        # grava (UPSERT)
 # Inspeciona schema das tabelas no Supabase do fórmula
 node scripts/inspect-source-schema.mjs cronograma_leiloes bula_leiloes
 ```
+
+### Dados internos (não versionados)
+
+O repositório guarda **apenas código**. Dados financeiros/comerciais reais e
+artefatos gerados ficam **locais** (ver `.gitignore`) e não vão para o remoto:
+
+| Padrão | O que é |
+|---|---|
+| `*.xlsx`, `*.docx` | Planilhas e documentos internos (financeiro, escala) |
+| `/RELATORIO-*`, `/relatorios/` | Relatórios gerados (fechamento/financeiro) |
+| `/*.pdf` | Catálogos de leilão, contratos (drops na raiz) |
+| `/*.png`, `/*.jpg`, `/*.jpeg` | Mídias soltas na raiz (assets do app ficam em `public/`) |
+| `/prompt-*.md` | Anotações/prompts de desenvolvimento |
+| `scripts/_*` | Scripts de trabalho/scratch e seus dumps |
+
+> Os relatórios de fechamento (ex.: `RELATORIO-FECHAMENTO-MAIO-2026.md`) são
+> reprodutíveis a partir do banco — geram-se localmente quando necessário.
 
 ### Endpoints API (resumo)
 

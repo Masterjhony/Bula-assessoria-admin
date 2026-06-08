@@ -25,5 +25,31 @@ tsconfig.tsbuildinfo
 .vercel
 qa-screenshots/
 
-# Planilhas internas (dados financeiros reais)
+# ─────────────────────────────────────────────────────────────────────
+# Dados internos e artefatos gerados — NÃO devem ir para o remoto.
+# Contêm dados financeiros/comerciais reais (faturamentos, comissões,
+# clientes). O app só precisa de código; estes arquivos são insumos ou
+# saídas locais de trabalho.
+# ─────────────────────────────────────────────────────────────────────
+
+# Planilhas e documentos internos
 *.xlsx
+*.docx
+
+# Relatórios gerados (financeiro/fechamento) e a pasta de saída
+/RELATORIO-*
+/relatorios/
+
+# Catálogos, contratos e mídias soltas na raiz (drops internos).
+# Assets reais do app ficam versionados em public/ — por isso o ignore
+# é ancorado na raiz (leading slash) e não atinge public/.
+/*.pdf
+/*.png
+/*.jpg
+/*.jpeg
+
+# Anotações/prompts de desenvolvimento na raiz
+/prompt-*.md
+
+# Scripts de trabalho/scratch (convenção: prefixo "_") e seus dumps
+scripts/_*
