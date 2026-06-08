@@ -9,6 +9,7 @@ const FINANCE_FIELDS = [
   'acordo_pct_faturamento',
   'acordo_pct_venda_cobertura',
   'acordo_descricao',
+  'despesas_variaveis',
 ] as const;
 
 type FechamentoRow = Record<string, unknown>;

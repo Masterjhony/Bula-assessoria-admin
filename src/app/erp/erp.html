@@ -2053,6 +2053,15 @@ function flDataCurta(iso) {
   return `${Number(d)||''} ${FL_MESES[(Number(m)||1)-1]||''}/${(y||'').slice(-2)}`;
 }
 
+// Imposto estimado (18% sobre a receita Bula) + lucro liquido.
+// Lucro liquido = receita_bula − comissao − imposto(18%) − despesas_variaveis.
+const FL_IMPOSTO_PCT = 0.18;
+function flImposto(x) { return FL_IMPOSTO_PCT * (Number(x.receita_bula)||0); }
+function flDespesas(x) { return Number(x.despesas_variaveis)||0; }
+function flLucroLiquido(x) {
+  return (Number(x.receita_bula)||0) - (Number(x.comissao_assessoria)||0) - flImposto(x) - flDespesas(x);
+}
+
 // Comissao por assessor de UM fechamento. Usa o valor REAL informado
 // (por_assessor[].comissao) quando existe; os assessores sem valor recebem o
 // rateio do que sobra do total (comissao_assessoria − soma dos reais) por VGV.
@@ -2117,8 +2126,11 @@ async function renderFechamentoLeiloes() {
     a.receita += Number(x.receita_bula)||0;
     a.comissao += Number(x.comissao_assessoria)||0;
     a.lucro += Number(x.sobra_bruta)||0;
+    a.imposto += flImposto(x);
+    a.despesas += flDespesas(x);
+    a.lucroLiq += flLucroLiquido(x);
     return a;
-  }, { vgv:0, fat:0, receita:0, comissao:0, lucro:0 });
+  }, { vgv:0, fat:0, receita:0, comissao:0, lucro:0, imposto:0, despesas:0, lucroLiq:0 });
 
   const html = `
     <div class="page-header">
@@ -2158,6 +2170,18 @@ async function renderFechamentoLeiloes() {
         <div class="kpi-value money ${tot.lucro<0?'negative':'positive'}">${fmtBRL(tot.lucro)}</div>
         <div class="kpi-sub">Faturamento − comissoes</div>
       </div>
+      <div class="kpi">
+        <div class="kpi-icon"><span class="material-symbols-outlined">receipt_long</span></div>
+        <div class="kpi-label">Imposto est. (18%)</div>
+        <div class="kpi-value money">${fmtBRL(tot.imposto)}</div>
+        <div class="kpi-sub">18% sobre o Fat. Bula${tot.despesas>0?` · Desp. var. ${fmtBRL(tot.despesas)}`:''}</div>
+      </div>
+      <div class="kpi ${tot.lucroLiq < 0 ? 'danger' : 'success'}">
+        <div class="kpi-icon"><span class="material-symbols-outlined">savings</span></div>
+        <div class="kpi-label">Lucro Liquido</div>
+        <div class="kpi-value money ${tot.lucroLiq<0?'negative':'positive'}">${fmtBRL(tot.lucroLiq)}</div>
+        <div class="kpi-sub">Bruto − imposto − despesas var.</div>
+      </div>
     </div>
 
     ${flLeiloeirasPanel(rows)}
@@ -2196,6 +2220,9 @@ async function renderFechamentoLeiloes() {
             <th style="text-align:right">Fat. Bula</th>
             <th style="text-align:right">Comissao</th>
             <th style="text-align:right">Lucro Bruto</th>
+            <th style="text-align:right">Imposto (18%)</th>
+            <th style="text-align:right">Despesas Var.</th>
+            <th style="text-align:right">Lucro Liquido</th>
             <th></th>
           </tr>
         </thead>
@@ -2207,6 +2234,10 @@ async function renderFechamentoLeiloes() {
             const diverge = diff != null && Math.abs(diff) >= 1;
             const nAss = (x.por_assessor||[]).filter(a=>a && a.nome).length;
             const em = '<span style="color:var(--text4)">—</span>';
+            const temReceita = x.receita_bula!=null && Number(x.receita_bula)>0;
+            const imposto = flImposto(x);
+            const despesas = flDespesas(x);
+            const lucroLiq = flLucroLiquido(x);
             return `
             <tr style="cursor:pointer" onclick="flOpenDetail('${x.id}')">
               <td style="white-space:nowrap"><span style="color:var(--gold);font-weight:600">${flDataCurta(x.data)}</span></td>
@@ -2218,6 +2249,9 @@ async function renderFechamentoLeiloes() {
               <td class="money" style="text-align:right">${x.receita_bula!=null?`${fmtBRL(x.receita_bula)}${diverge?` <span title="Diverge ${fmtBRL(Math.abs(diff))} do acordo" style="color:var(--amber)">⚠</span>`:''}`:em}</td>
               <td class="money" style="text-align:right">${x.comissao_assessoria!=null&&Number(x.comissao_assessoria)>0?fmtBRL(x.comissao_assessoria):em}</td>
               <td class="money ${Number(x.sobra_bruta)<0?'negative':'positive'}" style="text-align:right">${x.sobra_bruta!=null?fmtBRL(x.sobra_bruta):em}</td>
+              <td class="money" style="text-align:right;color:var(--text2)">${temReceita?fmtBRL(imposto):em}</td>
+              <td class="money" style="text-align:right">${despesas>0?fmtBRL(despesas):em}</td>
+              <td class="money ${lucroLiq<0?'negative':'positive'}" style="text-align:right">${temReceita?fmtBRL(lucroLiq):em}</td>
               <td><span class="material-symbols-outlined" style="color:var(--text4);font-size:18px">chevron_right</span></td>
             </tr>`;
           }).join('')}
@@ -2267,6 +2301,9 @@ function flOpenDetail(id) {
         <div class="kpi"><div class="kpi-label">Faturamento Bula</div><div class="kpi-value money" style="font-size:18px">${x.receita_bula!=null?fmtBRL(x.receita_bula):'—'}</div></div>
         <div class="kpi"><div class="kpi-label">Comissao Assessoria</div><div class="kpi-value money" style="font-size:18px">${fmtBRL(totalComissao)}</div></div>
         <div class="kpi"><div class="kpi-label">Lucro Bruto</div><div class="kpi-value money ${neg(x.sobra_bruta)}" style="font-size:18px">${x.sobra_bruta!=null?fmtBRL(x.sobra_bruta):'—'}</div></div>
+        <div class="kpi"><div class="kpi-label">Imposto est. (18%)</div><div class="kpi-value money" style="font-size:18px;color:var(--text2)">${x.receita_bula!=null?fmtBRL(flImposto(x)):'—'}</div></div>
+        <div class="kpi"><div class="kpi-label">Despesas Variaveis</div><div class="kpi-value money" style="font-size:18px">${flDespesas(x)>0?fmtBRL(flDespesas(x)):'—'}</div></div>
+        <div class="kpi"><div class="kpi-label">Lucro Liquido</div><div class="kpi-value money ${neg(flLucroLiquido(x))}" style="font-size:18px">${x.receita_bula!=null?fmtBRL(flLucroLiquido(x)):'—'}</div></div>
         <div class="kpi"><div class="kpi-label">Lotes / Animais</div><div class="kpi-value" style="font-size:18px">${x.lotes_vendidos||0}/${x.lotes_ofertados||0} · ${x.animais_vendidos||0}</div></div>
       </div>
 
@@ -2320,17 +2357,20 @@ function flExportCSV() {
   const rows = flFilteredRows();
   if (!rows.length) { toast('Nada para exportar','info'); return; }
   const cell = v => `"${String(v==null?'':v).replace(/"/g,'""')}"`;
-  const head = ['Data','Leilao','Local','VGV Cobertura','Fat Leiloeira','Acordo','Receita Esperada','Fat Bula','Comissao','Lucro Bruto'];
+  const head = ['Data','Leilao','Local','VGV Cobertura','Fat Leiloeira','Acordo','Receita Esperada','Fat Bula','Comissao','Lucro Bruto','Imposto 18%','Despesas Variaveis','Lucro Liquido'];
   const lines = [head.map(cell).join(';')];
   for (const x of rows) {
     const acordo = flResolverAcordo(x);
     const esperado = flReceitaEsperada(acordo, Number(x.faturamento_total_leilao)||null, Number(x.vgv_total)||null);
+    const temReceita = x.receita_bula!=null && Number(x.receita_bula)>0;
     lines.push([
       x.data, x.nome, x.local||'', Number(x.vgv_total)||0,
       x.faturamento_total_leilao!=null?Number(x.faturamento_total_leilao):'',
       acordo?flAcordoCurto(acordo):'', esperado!=null?Math.round(esperado):'',
       x.receita_bula!=null?Number(x.receita_bula):'', x.comissao_assessoria!=null?Number(x.comissao_assessoria):'',
       x.sobra_bruta!=null?Number(x.sobra_bruta):'',
+      temReceita?Math.round(flImposto(x)):'', flDespesas(x)>0?flDespesas(x):'',
+      temReceita?Math.round(flLucroLiquido(x)):'',
     ].map(cell).join(';'));
   }
   const blob = new Blob(["﻿"+lines.join('\n')], { type:'text/csv;charset=utf-8' });
@@ -2726,6 +2766,10 @@ function acOpenEditor(id) {
           <label>Comissao assessoria (R$)</label>
           <input name="comissao" type="number" step="0.01" min="0" value="${x.comissao_assessoria??''}" oninput="acUpdatePreview('${x.id}')">
         </div>
+        <div class="field">
+          <label>Despesas variaveis (R$)</label>
+          <input name="despesas" type="number" step="0.01" min="0" value="${x.despesas_variaveis??''}" oninput="acUpdatePreview('${x.id}')">
+        </div>
       </form>
       <div id="acPreview" class="card" style="margin-top:16px;border-color:var(--gold-dim);background:var(--gold-dim)">
         <div class="card-title"><span class="material-symbols-outlined">calculate</span>Previa do acordo</div>
@@ -2752,9 +2796,10 @@ function acReadForm(id) {
   const fat = acNumber(data.get('faturamento'));
   const receita = acNumber(data.get('receita'));
   const comissao = acNumber(data.get('comissao'));
+  const despesas = acNumber(data.get('despesas'));
   const esperado = acExpectedFromValues(pctFat, pctVenda, fat, Number(x.vgv_total)||0);
   return {
-    row:x, pctFat, pctVenda, fat, receita, comissao, esperado,
+    row:x, pctFat, pctVenda, fat, receita, comissao, despesas, esperado,
     descricao:String(data.get('descricao')||'').trim(),
   };
 }
@@ -2764,6 +2809,8 @@ function acUpdatePreview(id) {
   if (!p || !el) return;
   const diff = p.esperado != null && p.receita != null ? p.receita - p.esperado : null;
   const lucro = p.receita != null || p.comissao != null ? acRound((p.receita||0) - (p.comissao||0)) : null;
+  const imposto = p.receita != null ? acRound(FL_IMPOSTO_PCT * (p.receita||0)) : null;
+  const lucroLiq = p.receita != null ? acRound((p.receita||0) - (p.comissao||0) - (imposto||0) - (p.despesas||0)) : null;
   el.innerHTML = `
     <div class="card-title"><span class="material-symbols-outlined">calculate</span>Previa do acordo</div>
     <div class="kpi-grid" style="margin-bottom:0;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px">
@@ -2771,6 +2818,8 @@ function acUpdatePreview(id) {
       <div><div class="kpi-label">Faturamento Bula</div><div class="kpi-value money" style="font-size:18px">${p.receita!=null?fmtBRL(p.receita):'—'}</div></div>
       <div><div class="kpi-label">Diferenca</div><div class="kpi-value money ${diff!=null&&Math.abs(diff)>=1?'negative':'positive'}" style="font-size:18px">${diff!=null?fmtBRL(diff):'—'}</div></div>
       <div><div class="kpi-label">Lucro bruto</div><div class="kpi-value money ${lucro!=null&&lucro<0?'negative':'positive'}" style="font-size:18px">${lucro!=null?fmtBRL(lucro):'—'}</div></div>
+      <div><div class="kpi-label">Imposto (18%)</div><div class="kpi-value money" style="font-size:18px;color:var(--text2)">${imposto!=null?fmtBRL(imposto):'—'}</div></div>
+      <div><div class="kpi-label">Lucro liquido</div><div class="kpi-value money ${lucroLiq!=null&&lucroLiq<0?'negative':'positive'}" style="font-size:18px">${lucroLiq!=null?fmtBRL(lucroLiq):'—'}</div></div>
     </div>`;
 }
 function acFillReceitaEsperada(id) {
@@ -2792,6 +2841,7 @@ function acPayloadFromForm(id, onlyAgreement=false) {
     payload.faturamento_total_leilao = p.fat;
     payload.receita_bula = p.receita;
     payload.comissao_assessoria = p.comissao;
+    payload.despesas_variaveis = p.despesas;
     payload.sobra_bruta = (p.receita != null || p.comissao != null) ? acRound((p.receita||0) - (p.comissao||0)) : null;
   }
   return payload;
