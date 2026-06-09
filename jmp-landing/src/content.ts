@@ -106,7 +106,7 @@ export const DEFAULT_CONTENT: JmpContent = {
       description: 'A Bula Assessoria foi responsável pelo aparte de 1.000 touros JMP.\nA cabeceira da safra!\nConfira as fotos e vídeos do aparte:',
       logoUrl: '/logo-touros-jmp.png',
       logoAlt: '10ª Leilão Nelore JMP — Touros',
-      youtubeUrl: '',
+      youtubeUrl: 'https://youtube.com/playlist?list=PLt9laFwNTQnq-2s4n0lImJfw22kC5V4kq',
       playlistTitle: 'Veja a playlist de vídeos do aparte:',
       playlistLabel: 'Playlist YouTube — touros',
       fotos: [
