@@ -72,10 +72,10 @@ export interface JmpContent {
 // dois últimos saem em data fixa (dia de cada leilão); os demais, N dias após
 // o cadastro.
 const DEFAULT_EMAIL_FLOW: JmpFlowEmail[] = [
-  { id: 'e1-boas-vindas', enabled: false, subject: 'Boas-vindas à Bula Assessoria', scheduleType: 'days', days: 1, date: '', sendHour: 9, attachments: [], body: 'Olá, {{nome}}!\n\n(edite este texto — apresentação da Bula Assessoria.)' },
-  { id: 'e2-know-how', enabled: false, subject: 'Nós apartamos o gado — temos o know-how pra te indicar', scheduleType: 'days', days: 2, date: '', sendHour: 9, attachments: [], body: 'Olá, {{nome}}!\n\n(edite este texto — autoridade/know-how.)' },
-  { id: 'e3-historia', enabled: false, subject: 'A história da Bula Assessoria com a JMP', scheduleType: 'days', days: 3, date: '', sendHour: 9, attachments: [], body: 'Olá, {{nome}}!\n\n(edite este texto — história Bula + JMP.)' },
-  { id: 'e4-chegando', enabled: false, subject: 'Está chegando o grande dia — Leilões JMP', scheduleType: 'date', days: 0, date: '2026-06-12', sendHour: 9, attachments: [], body: 'Olá, {{nome}}!\n\n(edite este texto — contagem regressiva.)' },
+  { id: 'e1-boas-vindas', enabled: false, subject: 'Boas-vindas à Bula Assessoria', scheduleType: 'days', days: 1, date: '', sendHour: 7, attachments: [], body: 'Olá, {{nome}}!\n\n(edite este texto — apresentação da Bula Assessoria.)' },
+  { id: 'e2-know-how', enabled: false, subject: 'Nós apartamos o gado — temos o know-how pra te indicar', scheduleType: 'days', days: 2, date: '', sendHour: 7, attachments: [], body: 'Olá, {{nome}}!\n\n(edite este texto — autoridade/know-how.)' },
+  { id: 'e3-historia', enabled: false, subject: 'A história da Bula Assessoria com a JMP', scheduleType: 'days', days: 3, date: '', sendHour: 7, attachments: [], body: 'Olá, {{nome}}!\n\n(edite este texto — história Bula + JMP.)' },
+  { id: 'e4-chegando', enabled: false, subject: 'Está chegando o grande dia — Leilões JMP', scheduleType: 'date', days: 0, date: '2026-06-12', sendHour: 7, attachments: [], body: 'Olá, {{nome}}!\n\n(edite este texto — contagem regressiva.)' },
   { id: 'e5-hoje-bezerras', enabled: false, subject: 'É hoje: Leilão de Bezerras JMP', scheduleType: 'date', days: 0, date: '2026-06-13', sendHour: 7, attachments: [], body: 'Olá, {{nome}}!\n\n(edite este texto — leilão de bezerras hoje.)' },
   { id: 'e6-hoje-touros', enabled: false, subject: 'É hoje: 10º Leilão de Touros JMP', scheduleType: 'date', days: 0, date: '2026-06-14', sendHour: 7, attachments: [], body: 'Olá, {{nome}}!\n\n(edite este texto — leilão de touros hoje.)' },
 ]
