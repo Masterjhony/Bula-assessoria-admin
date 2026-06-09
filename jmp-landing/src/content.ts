@@ -102,6 +102,8 @@ export const DEFAULT_CONTENT: JmpContent = {
       subheading: 'Sábado · 13 de Junho · 240 Bezerras FIV',
       heading: 'Aparte das Fêmeas',
       description: 'A Bula Assessoria foi responsável pelo aparte das 240 Bezerras PO do Nelore JMP.\n100% oriundas de FIV e apartado a cabeceira da safra.\nConfira as fotos e vídeos do aparte:',
+      logoUrl: '/logo-bezerras-jmp.png',
+      logoAlt: 'Bezerras Nelore JMP Premium — Leilão Virtual',
       youtubeUrl: '',
       playlistLabel: 'Playlist YouTube — fêmeas',
       fotos: [

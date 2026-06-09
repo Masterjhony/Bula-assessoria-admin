@@ -188,6 +188,8 @@ Bula Assessoria`,
       subheading: 'Sábado · 13 de Junho · 240 Bezerras FIV',
       heading: 'Aparte das Fêmeas',
       description: 'A Bula Assessoria foi responsável pelo aparte das 240 Bezerras PO do Nelore JMP.\n100% oriundas de FIV e apartado a cabeceira da safra.\nConfira as fotos e vídeos do aparte:',
+      logoUrl: '/logo-bezerras-jmp.png',
+      logoAlt: 'Bezerras Nelore JMP Premium — Leilão Virtual',
       youtubeUrl: '',
       playlistLabel: 'Playlist YouTube — fêmeas',
       fotos: [
@@ -321,8 +323,12 @@ export function sanitizeContent(raw: unknown): JmpContent {
     // `description` é campo novo: conteúdo já salvo não tem a chave. Quando
     // ausente (undefined), usa a copy padrão do bloco de mesmo id; quando o
     // admin salva (mesmo vazio), o valor explícito é preservado.
-    const defaultDesc = DEFAULT_JMP_CONTENT.blocks.find((d) => d.id === str(bo.id))?.description ?? ''
-    const description = typeof bo.description === 'string' ? bo.description : defaultDesc
+    const dflt = DEFAULT_JMP_CONTENT.blocks.find((d) => d.id === str(bo.id))
+    const description = typeof bo.description === 'string' ? bo.description : (dflt?.description ?? '')
+    // logoUrl/logoAlt seguem a mesma regra: ausente → default do bloco de mesmo
+    // id (faz a logo aparecer no conteúdo já salvo); presente → respeitado.
+    const logoUrl = typeof bo.logoUrl === 'string' ? bo.logoUrl : dflt?.logoUrl
+    const logoAlt = typeof bo.logoAlt === 'string' ? bo.logoAlt : dflt?.logoAlt
     const fotosRaw = Array.isArray(bo.fotos) ? bo.fotos : []
     const fotos: JmpFoto[] = fotosRaw
       .map((f) => {
@@ -343,8 +349,8 @@ export function sanitizeContent(raw: unknown): JmpContent {
       playlistLabel: str(bo.playlistLabel, 'Playlist YouTube'),
       fotos,
     }
-    if (typeof bo.logoUrl === 'string' && bo.logoUrl) block.logoUrl = bo.logoUrl
-    if (typeof bo.logoAlt === 'string' && bo.logoAlt) block.logoAlt = bo.logoAlt
+    if (logoUrl) block.logoUrl = logoUrl
+    if (logoAlt) block.logoAlt = logoAlt
     return block
   })
 
