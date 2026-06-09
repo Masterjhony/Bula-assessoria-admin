@@ -166,7 +166,7 @@ Bula Assessoria`,
       description: 'A Bula Assessoria foi responsável pelo aparte das 240 Bezerras PO do Nelore JMP.\n100% oriundas de FIV e apartado a cabeceira da safra.\nConfira as fotos e vídeos do aparte:',
       logoUrl: '/logo-bezerras-jmp.png',
       logoAlt: 'Bezerras Nelore JMP Premium — Leilão Virtual',
-      youtubeUrl: '',
+      youtubeUrl: 'https://youtube.com/playlist?list=PLt9laFwNTQnr4XjIq0ZC2SuMOwrNslpUL',
       playlistLabel: 'Playlist YouTube — fêmeas',
       fotos: [
         { src: '/galeria-femeas/IMG_0062.jpg', alt: 'Aparte das fêmeas — Leilão Nelore JMP' },
@@ -290,6 +290,10 @@ export function sanitizeContent(raw: unknown): JmpContent {
     // id (faz a logo aparecer no conteúdo já salvo); presente → respeitado.
     const logoUrl = typeof bo.logoUrl === 'string' ? bo.logoUrl : dflt?.logoUrl
     const logoAlt = typeof bo.logoAlt === 'string' ? bo.logoAlt : dflt?.logoAlt
+    // youtubeUrl já existia no seed como '' — aqui vazio também cai no default
+    // do bloco de mesmo id (faz a playlist aparecer no conteúdo já salvo);
+    // qualquer URL preenchida pelo admin é respeitada.
+    const youtubeUrl = (typeof bo.youtubeUrl === 'string' && bo.youtubeUrl) ? bo.youtubeUrl : (dflt?.youtubeUrl ?? '')
     const fotosRaw = Array.isArray(bo.fotos) ? bo.fotos : []
     const fotos: JmpFoto[] = fotosRaw
       .map((f) => {
@@ -306,7 +310,7 @@ export function sanitizeContent(raw: unknown): JmpContent {
       subheading: str(bo.subheading),
       heading: str(bo.heading),
       description,
-      youtubeUrl: str(bo.youtubeUrl),
+      youtubeUrl,
       playlistLabel: str(bo.playlistLabel, 'Playlist YouTube'),
       fotos,
     }
