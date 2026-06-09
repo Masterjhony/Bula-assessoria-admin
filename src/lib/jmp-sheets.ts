@@ -8,7 +8,7 @@ import { supabaseAdmin } from './supabase'
 const CONFIG_KEY = 'sheets'
 const TAB = 'Leads JMP'
 const SHARE_EMAIL = 'formuladoboi@gmail.com'
-const HEADER = ['Data', 'Nome', 'E-mail', 'WhatsApp', 'UF', 'Cidade', 'Momento', 'Cabeças', 'Interesse', 'Lead ID']
+const HEADER = ['Data', 'Nome', 'E-mail', 'WhatsApp', 'UF', 'Cidade', 'Momento', 'Cabeças', 'Interesse', 'Lead ID', 'Qtd. desejada']
 
 function getAuth() {
   const raw = process.env.GOOGLE_SERVICE_ACCOUNT_JSON
@@ -146,6 +146,7 @@ export interface SheetLead {
   momento: string | null
   cabecas: string | null
   interesse: string | null
+  oQueBusca?: string | null
   leadId?: string | null
   createdAt?: Date
 }
@@ -158,11 +159,23 @@ export async function appendLeadToSheet(lead: SheetLead): Promise<{ skipped: boo
   if (!auth) return { skipped: true, reason: 'no_credentials' }
 
   const sheets = google.sheets({ version: 'v4', auth })
+
+  // Planilhas criadas antes da coluna "Qtd. desejada" têm o cabeçalho curto —
+  // atualiza-o (best-effort) para que a coluna nova fique rotulada.
+  try {
+    const head = await sheets.spreadsheets.values.get({ spreadsheetId: info.spreadsheetId, range: `${TAB}!1:1` })
+    if ((head.data.values?.[0]?.length ?? 0) < HEADER.length) {
+      await sheets.spreadsheets.values.update({
+        spreadsheetId: info.spreadsheetId, range: `${TAB}!A1`, valueInputOption: 'RAW', requestBody: { values: [HEADER] },
+      })
+    }
+  } catch { /* não bloqueia o append do lead */ }
+
   const row = [
     fmtDate(lead.createdAt ?? new Date()),
     lead.nome, lead.email, lead.whatsapp,
     lead.uf ?? '', lead.cidade ?? '', lead.momento ?? '', lead.cabecas ?? '',
-    lead.interesse ?? '', lead.leadId ?? '',
+    lead.interesse ?? '', lead.leadId ?? '', lead.oQueBusca ?? '',
   ]
   await sheets.spreadsheets.values.append({
     spreadsheetId: info.spreadsheetId,

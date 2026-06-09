@@ -61,9 +61,46 @@ interface FormData {
   momento: string
   cabecas: string
   interesse: string
+  quantidade: string
 }
 
 type FieldKey = keyof FormData
+
+// ── Pergunta de quantidade, contextual ao interesse ────────────────────────
+// O substantivo e a concordância ("Quantos"/"Quantas") mudam conforme o que
+// o lead respondeu em "Seu Interesse".
+const INTERESSE_NOUN: Record<string, string> = {
+  embrioes: 'embriões',
+  semen: 'doses de sêmen',
+  'touros-po': 'touros',
+  'matrizes-po': 'matrizes',
+  'bezerras-po': 'bezerras',
+  'nao-sei': 'animais',
+}
+const INTERESSE_FEM = new Set(['semen', 'matrizes-po', 'bezerras-po'])
+
+const QTD_OPTIONS: { value: string; label: string }[] = [
+  { value: '1-5', label: '1 a 5' },
+  { value: '6-10', label: '6 a 10' },
+  { value: '11-20', label: '11 a 20' },
+  { value: '21-50', label: '21 a 50' },
+  { value: '50+', label: 'Mais de 50' },
+  { value: 'nao-sei', label: 'Ainda não sei' },
+]
+
+function qtdQuestion(interesse: string): string {
+  const noun = INTERESSE_NOUN[interesse] ?? 'animais'
+  return `${INTERESSE_FEM.has(interesse) ? 'Quantas' : 'Quantos'} ${noun} você precisa?`
+}
+
+/** Texto legível salvo no CRM/planilha (ex.: "21 a 50 touros"). */
+function qtdDescricao(interesse: string, quantidade: string): string {
+  if (!quantidade) return ''
+  const noun = INTERESSE_NOUN[interesse] ?? 'animais'
+  if (quantidade === 'nao-sei') return `Ainda não sabe quantos ${noun}`
+  const opt = QTD_OPTIONS.find((o) => o.value === quantidade)
+  return `${opt?.label ?? quantidade} ${noun}`
+}
 
 // ── Phone mask ─────────────────────────────────────────────────
 function applyPhoneMask(value: string): string {
@@ -92,6 +129,7 @@ function validateStep(step: number, data: FormData): Partial<FormData> {
     if (!data.momento) errors.momento = 'Selecione seu momento na pecuária.'
     if (!data.cabecas) errors.cabecas = 'Selecione a quantidade de cabeças.'
     if (!data.interesse) errors.interesse = 'Selecione seu interesse.'
+    if (data.interesse && !data.quantidade) errors.quantidade = 'Selecione a quantidade que você precisa.'
   }
   return errors
 }
@@ -99,10 +137,13 @@ function validateStep(step: number, data: FormData): Partial<FormData> {
 async function submitForm(data: FormData): Promise<void> {
   // Posta no endpoint público do projeto (Next) que grava em crm_leads.
   // Mesma origem da landing (jmp.bulaassessoria.com), então caminho relativo.
+  // `oQueBusca` é a quantidade desejada já em texto legível (contextual ao
+  // interesse) — vai para a coluna o_que_busca do CRM e para a planilha.
+  const payload = { ...data, oQueBusca: qtdDescricao(data.interesse, data.quantidade) }
   const res = await fetch('/api/jmp/lead', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(data),
+    body: JSON.stringify(payload),
   })
   if (!res.ok) throw new Error(`Falha ao enviar inscrição (${res.status})`)
 }
@@ -214,7 +255,7 @@ export function Form({ hero }: { hero: JmpHero }) {
   const [formData, setFormData] = useState<FormData>({
     nome: '', email: '', whatsapp: '',
     uf: '', cidade: '',
-    momento: '', cabecas: '', interesse: '',
+    momento: '', cabecas: '', interesse: '', quantidade: '',
   })
   const [errors, setErrors] = useState<Partial<FormData>>({})
   const [cities, setCities] = useState<string[]>([])
@@ -553,6 +594,23 @@ export function Form({ hero }: { hero: JmpHero }) {
                     </select>
                     {errors.interesse && <span className={errorClass}>{errors.interesse}</span>}
                   </div>
+                  {formData.interesse && (
+                    <div>
+                      <label className={labelClass}>{qtdQuestion(formData.interesse)} *</label>
+                      <select
+                        value={formData.quantidade}
+                        onChange={e => handleChange('quantidade', e.target.value)}
+                        className={`${inputBase(!!errors.quantidade)} appearance-none cursor-pointer`}
+                        style={selectStyle}
+                      >
+                        <option value="" style={{ background: '#111' }}>Selecione...</option>
+                        {QTD_OPTIONS.map(o => (
+                          <option key={o.value} value={o.value} style={{ background: '#111' }}>{o.label}</option>
+                        ))}
+                      </select>
+                      {errors.quantidade && <span className={errorClass}>{errors.quantidade}</span>}
+                    </div>
+                  )}
                 </div>
                 <div className="mt-6 flex gap-3">
                   <button onClick={() => goTo(2)} className={btnBack}>← Voltar</button>

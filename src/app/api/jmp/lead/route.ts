@@ -38,6 +38,9 @@ export async function POST(req: NextRequest) {
     momento_pecuaria: str(body.momento),
     quantidade_animais: str(body.cabecas),
     interesse: str(body.interesse),
+    // Quantidade que o lead precisa, já em texto legível e contextual ao
+    // interesse (ex.: "21 a 50 touros"). Montado na landing.
+    o_que_busca: str(body.oQueBusca),
     status: 'Lead',
     is_mql: true,
     origem: 'Landing JMP — Nelore 13/14 jun',
@@ -68,6 +71,7 @@ export async function POST(req: NextRequest) {
     momento: str(body.momento),
     cabecas: str(body.cabecas),
     interesse: str(body.interesse),
+    oQueBusca: str(body.oQueBusca),
   }
 
   // Conteúdo (templates de e-mail). Carregado uma vez para welcome + fluxo.
