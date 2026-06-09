@@ -218,7 +218,10 @@ async function handleSignup(e) {
 
     document.getElementById('signup-form').style.display = 'none';
     successBox.classList.add('show');
-    const dest = window.location.host.toLowerCase().startsWith('erp.') ? '/erp' : '/sistema';
+    var signupHost = window.location.host.toLowerCase();
+    const dest = signupHost.startsWith('adminjmp.') ? '/'
+      : signupHost.startsWith('erp.') ? '/erp'
+      : '/sistema';
     if (data.session) {
       document.getElementById('success-text').textContent = 'Entrando no sistema...';
       setTimeout(() => { window.location.href = dest; }, 900);
