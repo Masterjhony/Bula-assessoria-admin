@@ -350,6 +350,9 @@ const publicPayload = sourceRows.map((row, index) => {
   return {
     id: existing?.id ?? randomUUID(),
     ...pub,
+    // Vinculo explicito com a linha da planilha (mesma source row). Precisa,
+    // sem adivinhacao: o card e a edicao usam este id para parear.
+    cronograma_id: cronograma?.id ?? null,
     // Modalidade/local sao editaveis no admin e lidos pela agenda publica.
     // Em registros existentes, preserva o que esta no banco (edicao manual
     // vence); a planilha so semeia esses campos no primeiro insert.

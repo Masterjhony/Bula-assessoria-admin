@@ -72,6 +72,9 @@ export interface BulaLeilao {
     frete_gratis?: string
     acordo_comissao?: string
     catalogo_url?: string
+    /** Vínculo explícito com a linha da planilha (cronograma_leiloes). Quando
+     *  presente, o pareamento usa este id em vez da adivinhação por nome+data. */
+    cronograma_id?: string | null
 }
 
 // ── Projeto / Kanban ─────────────────────────────────────

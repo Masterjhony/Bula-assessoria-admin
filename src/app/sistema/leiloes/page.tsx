@@ -195,10 +195,31 @@ function diceSim(a: string, b: string): number {
  * janela de data, e cada registro é usado no máximo uma vez.
  */
 function mergeLeiloes(bula: (BulaLeilao & { catalogo_url?: string })[], crono: DbLeilao[]): MergedLeilao[] {
-  // 1. Pares candidatos (bula ↔ cronograma) pontuados por nome + data.
+  const pairCrono = new Map<number, number>()
+  const usedBula = new Set<number>()
+  const usedCrono = new Set<number>()
+
+  // 0. Vínculo explícito (bula_leiloes.cronograma_id) tem prioridade absoluta.
+  // É determinístico — sem risco de trocar/duplicar par. A adivinhação abaixo
+  // só cobre registros ainda sem vínculo (ex.: import novo da planilha).
+  const cronoIdxById = new Map<string, number>()
+  crono.forEach((c, ci) => cronoIdxById.set(c.id, ci))
+  bula.forEach((b, bi) => {
+    const ci = b.cronograma_id ? cronoIdxById.get(b.cronograma_id) : undefined
+    if (ci !== undefined && !usedCrono.has(ci)) {
+      pairCrono.set(bi, ci)
+      usedBula.add(bi)
+      usedCrono.add(ci)
+    }
+  })
+
+  // 1. Pares candidatos (bula ↔ cronograma) pontuados por nome + data — só para
+  // os que ainda não têm vínculo explícito.
   const cands: { bi: number; ci: number; score: number }[] = []
   bula.forEach((b, bi) => {
+    if (usedBula.has(bi)) return
     crono.forEach((c, ci) => {
+      if (usedCrono.has(ci)) return
       const dd = daysApart(b.data, c.data)
       if (dd > 14) return
       const nm = Math.max(
@@ -218,9 +239,6 @@ function mergeLeiloes(bula: (BulaLeilao & { catalogo_url?: string })[], crono: D
   })
   // 2. Pareamento guloso: maior pontuação primeiro, cada registro 1x só.
   cands.sort((x, y) => y.score - x.score)
-  const pairCrono = new Map<number, number>()
-  const usedBula = new Set<number>()
-  const usedCrono = new Set<number>()
   for (const cd of cands) {
     if (usedBula.has(cd.bi) || usedCrono.has(cd.ci)) continue
     usedBula.add(cd.bi)
@@ -1074,7 +1092,10 @@ function FormModal({ initial, cronoId, onClose, onSaved }: {
     setSaving(true); setError(null)
     try {
       if (isEdit) {
-        const res = await fetch(`/api/bula/leiloes/${initial!.id}`, { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(form) })
+        // Fixa o vínculo explícito com a planilha (se houver par), pro card parar
+        // de depender de adivinhação por nome a partir daqui.
+        const bulaBody = cronoId ? { ...form, cronograma_id: cronoId } : form
+        const res = await fetch(`/api/bula/leiloes/${initial!.id}`, { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(bulaBody) })
         if (!res.ok) throw new Error('Erro ao salvar')
         // Se este leilão também existe na planilha (cronograma_leiloes), o card do
         // admin e a agenda usam o nome/data/etc. do cronograma quando há par —
