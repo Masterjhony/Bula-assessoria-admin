@@ -31,9 +31,16 @@ export interface JmpBlock {
   fotos: JmpFoto[]
 }
 
+export interface JmpWelcomeEmail {
+  enabled: boolean
+  subject: string
+  body: string
+}
+
 export interface JmpContent {
   hero: { backgroundUrl: string; badge: string }
   whatsappGroupUrl: string
+  welcomeEmail: JmpWelcomeEmail
   blocks: JmpBlock[]
 }
 
@@ -47,6 +54,21 @@ export const DEFAULT_JMP_CONTENT: JmpContent = {
     badge: 'Vagas limitadas · 13 e 14 de Junho',
   },
   whatsappGroupUrl: 'https://chat.whatsapp.com/JYxJPWfkoHHLZfosHlywN9',
+  welcomeEmail: {
+    enabled: false,
+    subject: 'Sua inscricao no Nelore JMP foi recebida',
+    body: `Ola, {{nome}}!
+
+Recebemos sua inscricao para receber a assessoria da Bula no leilao Nelore JMP.
+
+Nossa equipe vai analisar seu perfil e chamar voce pelo WhatsApp {{whatsapp}} para orientar os proximos passos.
+
+Enquanto isso, entre no grupo oficial para acompanhar os avisos:
+{{whatsappGroupUrl}}
+
+Atenciosamente,
+Bula Assessoria`,
+  },
   blocks: [
     {
       id: 'aparte-femeas',
@@ -95,6 +117,7 @@ function str(v: unknown, fallback = ''): string {
 export function sanitizeContent(raw: unknown): JmpContent {
   const obj = (raw && typeof raw === 'object' ? raw : {}) as Record<string, unknown>
   const heroRaw = (obj.hero && typeof obj.hero === 'object' ? obj.hero : {}) as Record<string, unknown>
+  const welcomeEmailRaw = (obj.welcomeEmail && typeof obj.welcomeEmail === 'object' ? obj.welcomeEmail : {}) as Record<string, unknown>
   const blocksRaw = Array.isArray(obj.blocks) ? obj.blocks : []
 
   const blocks: JmpBlock[] = blocksRaw.map((b, i) => {
@@ -129,6 +152,13 @@ export function sanitizeContent(raw: unknown): JmpContent {
       badge: str(heroRaw.badge, DEFAULT_JMP_CONTENT.hero.badge),
     },
     whatsappGroupUrl: str(obj.whatsappGroupUrl, DEFAULT_JMP_CONTENT.whatsappGroupUrl),
+    welcomeEmail: {
+      enabled: typeof welcomeEmailRaw.enabled === 'boolean'
+        ? welcomeEmailRaw.enabled
+        : DEFAULT_JMP_CONTENT.welcomeEmail.enabled,
+      subject: str(welcomeEmailRaw.subject, DEFAULT_JMP_CONTENT.welcomeEmail.subject),
+      body: str(welcomeEmailRaw.body, DEFAULT_JMP_CONTENT.welcomeEmail.body),
+    },
     blocks: blocks.length ? blocks : DEFAULT_JMP_CONTENT.blocks,
   }
 }

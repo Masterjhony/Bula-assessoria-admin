@@ -3,7 +3,7 @@
 import { useEffect, useRef, useState } from 'react'
 import {
   Save, Upload, Trash2, Plus, ChevronUp, ChevronDown, ExternalLink,
-  LogOut, Loader2, ImageIcon, GripVertical, Eye,
+  LogOut, Loader2, ImageIcon, GripVertical, Eye, Mail,
 } from 'lucide-react'
 import { createClient } from '@/utils/supabase/client'
 import type { JmpContent, JmpBlock, JmpFoto } from '@/lib/jmp-content'
@@ -49,6 +49,23 @@ function Field({ label: l, value, onChange, placeholder, mono }: {
       <input
         className={`${input} ${mono ? 'font-mono text-xs' : ''}`}
         value={value}
+        placeholder={placeholder}
+        onChange={(e) => onChange(e.target.value)}
+      />
+    </div>
+  )
+}
+
+function TextArea({ label: l, value, onChange, placeholder, rows = 8 }: {
+  label: string; value: string; onChange: (v: string) => void; placeholder?: string; rows?: number
+}) {
+  return (
+    <div>
+      <label className={label}>{l}</label>
+      <textarea
+        className={`${input} min-h-32 resize-y leading-relaxed`}
+        value={value}
+        rows={rows}
         placeholder={placeholder}
         onChange={(e) => onChange(e.target.value)}
       />
@@ -312,6 +329,39 @@ export default function AdminJmpClient() {
               <Field label="Selo de urgência (badge)" value={content.hero.badge} onChange={(v) => set({ hero: { ...content.hero, badge: v } })} placeholder="Vagas limitadas · 13 e 14 de Junho" />
               <Field label="Link do grupo de WhatsApp" value={content.whatsappGroupUrl} onChange={(v) => set({ whatsappGroupUrl: v })} placeholder="https://chat.whatsapp.com/..." mono />
             </div>
+          </div>
+        </section>
+
+        <section className={card}>
+          <div className="flex items-center gap-3 border-b border-neutral-100 px-4 py-3">
+            <Mail className="h-4 w-4 text-neutral-500" />
+            <h2 className="text-sm font-bold">E-mail de boas-vindas</h2>
+            <label className="ml-auto inline-flex items-center gap-2 text-sm font-semibold text-neutral-700">
+              <input
+                type="checkbox"
+                className="h-4 w-4 rounded border-neutral-300"
+                checked={content.welcomeEmail.enabled}
+                onChange={(e) => set({ welcomeEmail: { ...content.welcomeEmail, enabled: e.target.checked } })}
+              />
+              Enviar
+            </label>
+          </div>
+          <div className="space-y-4 p-4">
+            <Field
+              label="Assunto"
+              value={content.welcomeEmail.subject}
+              onChange={(v) => set({ welcomeEmail: { ...content.welcomeEmail, subject: v } })}
+              placeholder="Sua inscricao no Nelore JMP foi recebida"
+            />
+            <TextArea
+              label="Mensagem"
+              value={content.welcomeEmail.body}
+              onChange={(v) => set({ welcomeEmail: { ...content.welcomeEmail, body: v } })}
+              rows={10}
+            />
+            <p className="text-xs text-neutral-500">
+              Variaveis: {'{{nome}}'}, {'{{email}}'}, {'{{whatsapp}}'}, {'{{uf}}'}, {'{{cidade}}'}, {'{{momento}}'}, {'{{cabecas}}'}, {'{{interesse}}'}, {'{{whatsappGroupUrl}}'}.
+            </p>
           </div>
         </section>
 
