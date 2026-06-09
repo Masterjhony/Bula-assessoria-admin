@@ -44,7 +44,7 @@ const supabase = createClient(SUPABASE_URL, SERVICE_KEY)
   const cfg = {
     public: true,
     fileSizeLimit: 10 * 1024 * 1024,
-    allowedMimeTypes: ['image/jpeg', 'image/jpg', 'image/png', 'image/webp', 'image/avif', 'image/gif'],
+    allowedMimeTypes: ['image/jpeg', 'image/jpg', 'image/png', 'image/webp', 'image/avif', 'image/gif', 'application/pdf'],
   }
   if (buckets?.some((b) => b.name === BUCKET)) {
     await supabase.storage.updateBucket(BUCKET, cfg)

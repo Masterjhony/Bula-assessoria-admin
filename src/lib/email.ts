@@ -24,14 +24,21 @@ function getTransporter(): nodemailer.Transporter {
     return cachedTransporter
 }
 
+export interface MailAttachment {
+    filename: string
+    /** URL pública (nodemailer baixa) ou caminho local. */
+    path: string
+}
+
 export interface SendMailOptions {
     to: string
     subject: string
     html: string
     text?: string
+    attachments?: MailAttachment[]
 }
 
-export async function sendMail({ to, subject, html, text }: SendMailOptions) {
+export async function sendMail({ to, subject, html, text, attachments }: SendMailOptions) {
     const transporter = getTransporter()
     const from = process.env.SMTP_FROM || `Fórmula do Boi <${process.env.SMTP_USER}>`
 
@@ -41,6 +48,7 @@ export async function sendMail({ to, subject, html, text }: SendMailOptions) {
         subject,
         html,
         text: text ?? html.replace(/<[^>]+>/g, ''),
+        ...(attachments && attachments.length ? { attachments } : {}),
     })
 }
 

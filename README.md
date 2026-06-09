@@ -69,6 +69,27 @@ login do sistema**.
 
 Produção: adicionar o domínio `adminjmp.bulaassessoria.com` no Vercel + DNS.
 
+#### E-mails, leads e uploads (painel adminjmp → aba "E-mails")
+
+- **Uploads** vão **direto do navegador para o Supabase Storage** via URL assinada
+  (`POST /api/jmp/upload-url` + `uploadToSignedUrl`), evitando o limite de ~4.5MB
+  das functions do Vercel. O bucket `jmp-landing` aceita imagens e PDF.
+- **E-mail de boas-vindas** (imediato, transacional) é enviado no cadastro
+  (`/api/jmp/lead` → `sendJmpWelcomeEmail`). Editável no painel, com anexos.
+- **Fluxo de e-mail marketing** (drip): cada e-mail tem assunto/corpo/anexos e
+  agendamento (`N dias após o cadastro` ou `data fixa` + hora BRT). Lead que entra
+  é inscrito em `jmp_email_queue`; o cron **`/api/jmp/email-cron`** envia os
+  vencidos. Acionado pelo cron do `vercel.json` (de hora em hora) — **requer
+  `CRON_SECRET` setado no Vercel** (o Vercel manda como Bearer). Os 6 e-mails da
+  campanha vêm pré-montados (desabilitados) em `DEFAULT_JMP_CONTENT.emailFlow`.
+- **Google Sheets**: botão "Conectar planilha" cria (ou conecta uma existente)
+  uma planilha e grava cada lead na aba `Leads JMP` (`/api/jmp/sheets`,
+  `src/lib/jmp-sheets.ts`). Usa `GOOGLE_SERVICE_ACCOUNT_JSON` (Sheets + Drive API
+  habilitadas). Se a service account não puder criar arquivos (cota de Drive),
+  use "usar planilha existente" e compartilhe a planilha com o e-mail da SA.
+- Tabelas: `jmp_email_queue`, `jmp_config` (migration `0017`). Templates de e-mail
+  usam `{{nome}}`, `{{whatsapp}}`, `{{whatsappGroupUrl}}`, etc.
+
 ## Build / Produção
 
 ```bash

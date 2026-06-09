@@ -31,18 +31,54 @@ export interface JmpBlock {
   fotos: JmpFoto[]
 }
 
+export interface JmpEmailAttachment {
+  name: string
+  url: string
+}
+
 export interface JmpWelcomeEmail {
   enabled: boolean
   subject: string
   body: string
+  attachments: JmpEmailAttachment[]
+}
+
+// Um e-mail do fluxo de marketing (drip). Disparado por agendamento relativo
+// ao cadastro (N dias depois) ou numa data fixa.
+export interface JmpFlowEmail {
+  id: string
+  enabled: boolean
+  subject: string
+  body: string
+  attachments: JmpEmailAttachment[]
+  /** 'days' = N dias após o cadastro; 'date' = data fixa (YYYY-MM-DD). */
+  scheduleType: 'days' | 'date'
+  days: number
+  date: string
+  /** Hora local (0–23) do envio. */
+  sendHour: number
 }
 
 export interface JmpContent {
   hero: { backgroundUrl: string; badge: string }
   whatsappGroupUrl: string
   welcomeEmail: JmpWelcomeEmail
+  emailFlow: JmpFlowEmail[]
   blocks: JmpBlock[]
 }
+
+// Fluxo de e-mail marketing pré-montado (estrutura dos 6 e-mails da campanha
+// JMP). Vem DESABILITADO — o painel adminjmp edita o texto e liga cada um. Os
+// dois últimos saem em data fixa (dia de cada leilão); os demais, N dias após
+// o cadastro.
+const DEFAULT_EMAIL_FLOW: JmpFlowEmail[] = [
+  { id: 'e1-boas-vindas', enabled: false, subject: 'Boas-vindas à Bula Assessoria', scheduleType: 'days', days: 1, date: '', sendHour: 9, attachments: [], body: 'Olá, {{nome}}!\n\n(edite este texto — apresentação da Bula Assessoria.)' },
+  { id: 'e2-know-how', enabled: false, subject: 'Nós apartamos o gado — temos o know-how pra te indicar', scheduleType: 'days', days: 2, date: '', sendHour: 9, attachments: [], body: 'Olá, {{nome}}!\n\n(edite este texto — autoridade/know-how.)' },
+  { id: 'e3-historia', enabled: false, subject: 'A história da Bula Assessoria com a JMP', scheduleType: 'days', days: 3, date: '', sendHour: 9, attachments: [], body: 'Olá, {{nome}}!\n\n(edite este texto — história Bula + JMP.)' },
+  { id: 'e4-chegando', enabled: false, subject: 'Está chegando o grande dia — Leilões JMP', scheduleType: 'date', days: 0, date: '2026-06-12', sendHour: 9, attachments: [], body: 'Olá, {{nome}}!\n\n(edite este texto — contagem regressiva.)' },
+  { id: 'e5-hoje-bezerras', enabled: false, subject: 'É hoje: Leilão de Bezerras JMP', scheduleType: 'date', days: 0, date: '2026-06-13', sendHour: 7, attachments: [], body: 'Olá, {{nome}}!\n\n(edite este texto — leilão de bezerras hoje.)' },
+  { id: 'e6-hoje-touros', enabled: false, subject: 'É hoje: 10º Leilão de Touros JMP', scheduleType: 'date', days: 0, date: '2026-06-14', sendHour: 7, attachments: [], body: 'Olá, {{nome}}!\n\n(edite este texto — leilão de touros hoje.)' },
+]
 
 // Conteúdo padrão = exatamente o que a página mostrava hardcoded. Serve de
 // fallback (registro ausente / API fora) e de base para o merge. As URLs aqui
@@ -68,7 +104,9 @@ Enquanto isso, entre no grupo oficial para acompanhar os avisos:
 
 Atenciosamente,
 Bula Assessoria`,
+    attachments: [],
   },
+  emailFlow: DEFAULT_EMAIL_FLOW,
   blocks: [
     {
       id: 'aparte-femeas',
@@ -107,6 +145,35 @@ Bula Assessoria`,
 
 function str(v: unknown, fallback = ''): string {
   return typeof v === 'string' ? v : fallback
+}
+
+function sanitizeAttachments(raw: unknown): JmpEmailAttachment[] {
+  if (!Array.isArray(raw)) return []
+  return raw
+    .map((a) => {
+      const ao = (a && typeof a === 'object' ? a : {}) as Record<string, unknown>
+      return { name: str(ao.name), url: str(ao.url) }
+    })
+    .filter((a) => a.url)
+    .map((a) => ({ name: a.name || a.url.split('/').pop() || 'anexo', url: a.url }))
+}
+
+function sanitizeFlowEmail(raw: unknown, i: number): JmpFlowEmail {
+  const o = (raw && typeof raw === 'object' ? raw : {}) as Record<string, unknown>
+  const scheduleType = o.scheduleType === 'date' ? 'date' : 'days'
+  const daysNum = Number(o.days)
+  const hourNum = Number(o.sendHour)
+  return {
+    id: str(o.id) || `email-${i + 1}`,
+    enabled: o.enabled === true,
+    subject: str(o.subject),
+    body: str(o.body),
+    attachments: sanitizeAttachments(o.attachments),
+    scheduleType,
+    days: Number.isFinite(daysNum) ? Math.max(0, Math.round(daysNum)) : 0,
+    date: str(o.date),
+    sendHour: Number.isFinite(hourNum) ? Math.min(23, Math.max(0, Math.round(hourNum))) : 9,
+  }
 }
 
 /**
@@ -158,7 +225,11 @@ export function sanitizeContent(raw: unknown): JmpContent {
         : DEFAULT_JMP_CONTENT.welcomeEmail.enabled,
       subject: str(welcomeEmailRaw.subject, DEFAULT_JMP_CONTENT.welcomeEmail.subject),
       body: str(welcomeEmailRaw.body, DEFAULT_JMP_CONTENT.welcomeEmail.body),
+      attachments: sanitizeAttachments(welcomeEmailRaw.attachments),
     },
+    emailFlow: Array.isArray(obj.emailFlow)
+      ? obj.emailFlow.map(sanitizeFlowEmail)
+      : DEFAULT_JMP_CONTENT.emailFlow,
     blocks: blocks.length ? blocks : DEFAULT_JMP_CONTENT.blocks,
   }
 }

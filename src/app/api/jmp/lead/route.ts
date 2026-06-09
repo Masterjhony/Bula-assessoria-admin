@@ -3,6 +3,8 @@ import { supabaseAdmin } from '@/lib/supabase'
 import { fail, ok } from '@/lib/respond'
 import { DEFAULT_JMP_CONTENT, sanitizeContent } from '@/lib/jmp-content'
 import { sendJmpWelcomeEmail } from '@/lib/jmp-welcome-email'
+import { enrollLeadInEmailFlow } from '@/lib/jmp-email-flow'
+import { appendLeadToSheet } from '@/lib/jmp-sheets'
 
 const CONTENT_TABLE = 'jmp_landing_content'
 const CONTENT_ROW_ID = 'default'
@@ -57,26 +59,43 @@ export async function POST(req: NextRequest) {
     return fail('Não foi possível registrar a inscrição.', 500)
   }
 
-  try {
-    const { data: contentRow } = await supabaseAdmin()
-      .from(CONTENT_TABLE)
-      .select('data')
-      .eq('id', CONTENT_ROW_ID)
-      .maybeSingle()
+  const leadCtx = {
+    nome,
+    email,
+    whatsapp,
+    uf: str(body.uf),
+    cidade: str(body.cidade),
+    momento: str(body.momento),
+    cabecas: str(body.cabecas),
+    interesse: str(body.interesse),
+  }
 
-    const content = contentRow?.data ? sanitizeContent(contentRow.data) : DEFAULT_JMP_CONTENT
-    await sendJmpWelcomeEmail(content, {
-      nome,
-      email,
-      whatsapp,
-      uf: str(body.uf),
-      cidade: str(body.cidade),
-      momento: str(body.momento),
-      cabecas: str(body.cabecas),
-      interesse: str(body.interesse),
-    })
-  } catch (mailErr) {
-    console.error('[JMP lead] welcome email failed:', mailErr)
+  // Conteúdo (templates de e-mail). Carregado uma vez para welcome + fluxo.
+  const { data: contentRow } = await supabaseAdmin()
+    .from(CONTENT_TABLE)
+    .select('data')
+    .eq('id', CONTENT_ROW_ID)
+    .maybeSingle()
+    .then((r) => r, () => ({ data: null }))
+  const content = contentRow?.data ? sanitizeContent(contentRow.data) : DEFAULT_JMP_CONTENT
+
+  // Cada efeito colateral é best-effort — nunca derruba o cadastro do lead.
+  try {
+    await sendJmpWelcomeEmail(content, leadCtx)
+  } catch (e) {
+    console.error('[JMP lead] welcome email failed:', e)
+  }
+
+  try {
+    await enrollLeadInEmailFlow(content, { ...leadCtx, leadId: data?.id ?? null })
+  } catch (e) {
+    console.error('[JMP lead] email flow enroll failed:', e)
+  }
+
+  try {
+    await appendLeadToSheet({ ...leadCtx, leadId: data?.id ?? null, createdAt: new Date() })
+  } catch (e) {
+    console.error('[JMP lead] sheets append failed:', e)
   }
 
   return ok({ id: data?.id })
