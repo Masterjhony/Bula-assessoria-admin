@@ -15,6 +15,17 @@ function isErpHost(host: string | null): boolean {
   return h === 'erp.localhost' || h.startsWith('erp.')
 }
 
+// Subdomínio público jmp.* (jmp.bulaassessoria.com) — landing de inscrições
+// "Nelore JMP". É uma SPA estática já buildada em public/jmp/ (Vite). O host
+// reescreve qualquer caminho para o prefixo /jmp, servindo os arquivos do
+// public. O formulário posta em /api/jmp/lead (público), por isso /api e
+// /_next ficam de fora do rewrite.
+function isJmpHost(host: string | null): boolean {
+  if (!host) return false
+  const h = host.toLowerCase().split(':')[0]
+  return h === 'jmp.localhost' || h.startsWith('jmp.')
+}
+
 // Subdomínio público de leilões (lp.* — "landing page" voltada ao cliente).
 // Mesma mecânica do ERP: o host reescreve para o prefixo de rota correspondente
 // (aqui, /agenda), mantendo as páginas em um único lugar no app.
@@ -32,7 +43,8 @@ function isLpHost(host: string | null): boolean {
 export async function updateSession(req: NextRequest) {
   const host = req.headers.get('host')
   const erp = isErpHost(host)
-  const lp = !erp && isLpHost(host)
+  const jmp = !erp && isJmpHost(host)
+  const lp = !erp && !jmp && isLpHost(host)
   const pathname = req.nextUrl.pathname
 
   const isSistemaPath =
@@ -65,6 +77,21 @@ export async function updateSession(req: NextRequest) {
       !pathname.startsWith('/bula/')
     ) {
       url.pathname = `/erp${pathname === '/' ? '' : pathname}`
+      res = NextResponse.rewrite(url, { request: req })
+    } else {
+      res = NextResponse.next({ request: req })
+    }
+  } else if (jmp) {
+    // Host jmp.* → serve a SPA estática em public/jmp. Tudo que não for API,
+    // asset interno do Next ou já-prefixado vira /jmp/<path>. A raiz aponta
+    // para o index.html do build.
+    const url = req.nextUrl.clone()
+    if (
+      !pathname.startsWith('/api/') &&
+      !pathname.startsWith('/_next') &&
+      !pathname.startsWith('/jmp/')
+    ) {
+      url.pathname = pathname === '/' ? '/jmp/index.html' : `/jmp${pathname}`
       res = NextResponse.rewrite(url, { request: req })
     } else {
       res = NextResponse.next({ request: req })

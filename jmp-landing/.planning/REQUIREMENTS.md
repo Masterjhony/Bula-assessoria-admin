@@ -1,0 +1,57 @@
+# Requirements — Nelore JMP Landing Page
+
+## v1 Requirements
+
+### LAYOUT
+- [x] **LAY-01**: Página single-scroll com header fixo contendo logo Bula Assessoria e botão WhatsApp
+- [x] **LAY-02**: Seção hero com imagem/vídeo de fundo do leilão JMP e overlay escuro (igual ao site da Bula)
+- [x] **LAY-03**: Seção formulário de inscrição centralizada, fundo branco ou neutro, responsiva
+- [x] **LAY-04**: Card destaque do leilão JMP com data, hora, local e imagem (Seção 2)
+- [x] **LAY-05**: Footer idêntico ao padrão Bula Assessoria (preto, logo branco, links, copyright)
+
+### FORMULÁRIO
+- [x] **FORM-01**: Campo Nome Completo (input texto, obrigatório)
+- [x] **FORM-02**: Campo Celular com máscara (XX) XXXXX-XXXX (obrigatório)
+- [x] **FORM-03**: Campo UF — select dropdown com todos os 27 estados brasileiros (obrigatório)
+- [x] **FORM-04**: Campo Cidade — input texto livre (obrigatório)
+- [x] **FORM-05**: Campo Interesse — select com opções: Touros, Matrizes, Embrião, Sêmen (obrigatório)
+- [x] **FORM-06**: Campo Tamanho do rebanho — select: "Até 50 cabeças", "51–200", "201–500", "501–1.000", "Acima de 1.000" (obrigatório)
+- [x] **FORM-07**: Validação de todos campos obrigatórios antes do submit; exibir erros inline
+- [x] **FORM-08**: Botão de submit com estado de loading durante processamento
+- [x] **FORM-09**: Após submit bem-sucedido: redirecionar para /obrigado-jmp.html (que redireciona ao WhatsApp com countdown de 5s)
+- [x] **FORM-10**: Função handleSubmit isolada e comentada como ponto de integração futura com Google Sheets
+
+### VISUAL
+- [x] **VIS-01**: Paleta: preto (#000), branco (#fff), dourado (#C8A96E), verde (#25D366)
+- [x] **VIS-02**: Fonte Inter (Google Fonts) em todos os pesos usados (400, 600, 700, 800/black)
+- [x] **VIS-03**: Ícones via lucide-react
+- [x] **VIS-04**: Hover animations: -translate-y-1, shadow transitions (igual ao site da Bula)
+- [x] **VIS-05**: Design responsivo mobile-first (breakpoints: sm 640px, lg 1024px)
+
+### TECH
+- [x] **TECH-01**: Projeto scaffolado com Vite + React 18 + Tailwind CSS v3
+- [x] **TECH-02**: Link do grupo WhatsApp configurável via constante no topo do componente (sem .env por enquanto)
+
+## v2 Requirements (Deferred)
+
+- Integração real com Google Sheets
+- Integração com Supabase para persistência de leads
+- Analytics / pixel de conversão
+- A/B test de headlines
+
+## Out of Scope
+
+- Backend / API própria — sem servidor
+- shadcn/ui — componentes manuais para controle total
+- Múltiplas páginas / rotas
+- Autenticação
+- SSR / Next.js
+
+## Traceability
+
+| REQ-ID | Phase | Status |
+|--------|-------|--------|
+| LAY-01 → LAY-05 | Phase 1 | Complete |
+| FORM-01 → FORM-10 | Phase 1 | Complete |
+| VIS-01 → VIS-05 | Phase 1 | Complete |
+| TECH-01 → TECH-02 | Phase 1 | Complete |

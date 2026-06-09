@@ -4,6 +4,7 @@
 node_modules
 work
 qa-screenshots
+jmp-landing
 
 .env
 .env.local

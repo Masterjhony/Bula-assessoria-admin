@@ -16,7 +16,31 @@ Sobe em `http://localhost:3000`. Acesse:
 - `/sistema` — **painel admin React (novo)**
 - `/sistema-legacy` — SPA monolítica antiga (`sistema.html`, 7415 linhas)
 - `/erp` ou `erp.localhost` — ERP financeiro (`erp.html`)
+- `jmp.localhost` — landing de inscrições **Nelore JMP** (SPA Vite estática, `public/jmp/`)
 - `/reset-senha` — redefinição de senha
+
+### Landing Nelore JMP (`jmp.bulaassessoria.com`)
+
+SPA Vite/React separada, com fonte em `jmp-landing/` e **build estático** servido de
+`public/jmp/`. O proxy (`src/utils/supabase/middleware.ts`) detecta o host `jmp.*` e
+reescreve qualquer caminho para o prefixo `/jmp`. O formulário posta em
+`POST /api/jmp/lead` (público, `src/app/api/jmp/lead/route.ts`), que grava direto em
+`crm_leads` (status `Lead`, `is_mql=true`, `source='jmp-landing'`) — sem disparar o
+welcome de WhatsApp.
+
+Para editar a landing e republicar:
+
+```bash
+cd jmp-landing
+npm install
+# edite src/…
+npm run build
+# copie o build para a pasta servida pelo Next:
+rm -rf ../public/jmp && cp -R dist/. ../public/jmp/
+```
+
+`jmp-landing/` fica fora do build do Next (excluído em `tsconfig.json` e `.vercelignore`);
+o que vai pra produção é apenas `public/jmp/`.
 
 ## Build / Produção
 

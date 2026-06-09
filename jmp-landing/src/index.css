@@ -1,0 +1,32 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+* {
+  box-sizing: border-box;
+}
+
+html {
+  scroll-padding-top: 80px;
+}
+
+@media (min-width: 640px) {
+  html {
+    scroll-padding-top: 96px;
+  }
+}
+
+.hide-scrollbar::-webkit-scrollbar { display: none; }
+.hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+
+.hero-bg {
+  background-attachment: scroll;
+}
+
+@media (min-width: 1024px) {
+  .hero-bg {
+    background-attachment: fixed;
+  }
+}

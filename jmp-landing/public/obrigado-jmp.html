@@ -1,0 +1,335 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Cadastro Realizado — 10º Leilão Nelore JMP</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --black: #000000;
+      --surface: #0A0A0A;
+      --surface-2: #141414;
+      --white: #FFFFFF;
+      --gray: #C8C8C8;
+      --gray-muted: #4A4A4A;
+      --green: #22C55E;
+      --border: rgba(255, 255, 255, 0.12);
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      background: var(--black);
+      color: var(--white);
+      font-family: 'Inter', sans-serif;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 24px 16px;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    /* Logo */
+    .logo-img {
+      height: 40px;
+      width: auto;
+      display: block;
+      margin-bottom: 32px;
+      filter: brightness(0) invert(1);
+      opacity: 0;
+      animation: fadeIn 0.4s ease forwards;
+    }
+
+    /* Card */
+    .card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 40px 32px;
+      max-width: 480px;
+      width: 100%;
+      text-align: center;
+      opacity: 0;
+      transform: scale(0.97);
+      animation: cardIn 0.5s ease 0.2s forwards;
+    }
+
+    /* Check icon */
+    .check-wrap {
+      width: 72px;
+      height: 72px;
+      background: var(--green);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0 auto 24px;
+      opacity: 0;
+      transform: scale(0);
+      animation: checkBounce 0.4s cubic-bezier(0.34, 1.56, 0.64, 1) 0.4s forwards;
+    }
+
+    .check-wrap svg {
+      width: 36px;
+      height: 36px;
+      stroke: var(--white);
+      stroke-width: 2.5;
+      fill: none;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+    }
+
+    /* Title */
+    .title {
+      font-size: 28px;
+      font-weight: 700;
+      line-height: 1.2;
+      margin-bottom: 12px;
+      opacity: 0;
+      transform: translateY(8px);
+      animation: slideUp 0.35s ease 0.6s forwards;
+    }
+
+    .title span { color: var(--white); }
+
+    /* Subtitle */
+    .subtitle {
+      font-size: 15px;
+      color: var(--gray);
+      line-height: 1.65;
+      margin-bottom: 28px;
+      opacity: 0;
+      transform: translateY(8px);
+      animation: slideUp 0.35s ease 0.7s forwards;
+    }
+
+    .subtitle strong { color: var(--white); font-weight: 600; }
+
+    /* Steps */
+    .steps {
+      background: var(--surface-2);
+      border-radius: 8px;
+      padding: 4px 0;
+      margin-bottom: 24px;
+      text-align: left;
+    }
+
+    .step {
+      display: flex;
+      gap: 14px;
+      align-items: flex-start;
+      padding: 14px 16px;
+      opacity: 0;
+      transform: translateX(-8px);
+    }
+
+    .step:not(:last-child) {
+      border-bottom: 1px solid rgba(255,255,255,0.05);
+    }
+
+    .step-num {
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      background: var(--white);
+      color: var(--black);
+      font-size: 13px;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      margin-top: 1px;
+    }
+
+    .step-content {}
+    .step-title {
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--white);
+      margin-bottom: 3px;
+    }
+
+    .step-desc {
+      font-size: 13px;
+      color: var(--gray-muted);
+      line-height: 1.5;
+    }
+
+    .step:nth-child(1) { animation: stepIn 0.35s ease 0.8s forwards; }
+    .step:nth-child(2) { animation: stepIn 0.35s ease 0.95s forwards; }
+    .step:nth-child(3) { animation: stepIn 0.35s ease 1.1s forwards; }
+
+    /* CTA Button */
+    .btn-wa {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      width: 100%;
+      background: var(--green);
+      color: var(--black);
+      font-family: 'Inter', sans-serif;
+      font-size: 15px;
+      font-weight: 700;
+      padding: 16px 24px;
+      border-radius: 8px;
+      border: none;
+      cursor: pointer;
+      text-decoration: none;
+      transition: filter 0.2s ease, transform 0.2s ease;
+      opacity: 0;
+      transform: translateY(8px);
+      animation: slideUp 0.35s ease 1.3s forwards;
+    }
+
+    .btn-wa:hover {
+      filter: brightness(1.1);
+      transform: scale(1.02);
+    }
+
+    .btn-wa svg {
+      width: 20px;
+      height: 20px;
+      flex-shrink: 0;
+    }
+
+    /* Countdown */
+    .countdown-text {
+      font-size: 13px;
+      color: var(--gray-muted);
+      margin-top: 14px;
+      opacity: 0;
+      animation: fadeIn 0.3s ease 1.5s forwards;
+    }
+
+    .countdown-text span {
+      color: rgba(255, 255, 255, 0.8);
+      font-weight: 600;
+      font-variant-numeric: tabular-nums;
+    }
+
+    /* Animations */
+    @keyframes fadeIn {
+      to { opacity: 1; }
+    }
+
+    @keyframes cardIn {
+      to { opacity: 1; transform: scale(1); }
+    }
+
+    @keyframes checkBounce {
+      to { opacity: 1; transform: scale(1); }
+    }
+
+    @keyframes slideUp {
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    @keyframes stepIn {
+      to { opacity: 1; transform: translateX(0); }
+    }
+
+    /* Mobile */
+    @media (max-width: 480px) {
+      .card { padding: 28px 20px; }
+      .title { font-size: 22px; }
+      .subtitle { font-size: 14px; }
+    }
+  </style>
+</head>
+<body>
+  <img class="logo-img" src="/logo_bula.PNG" alt="Bula Assessoria Pecuária" />
+
+  <div class="card">
+    <div class="check-wrap">
+      <svg viewBox="0 0 24 24">
+        <polyline points="20 6 9 17 4 12"></polyline>
+      </svg>
+    </div>
+
+    <h1 class="title">Cadastro <span>realizado!</span></h1>
+
+    <p class="subtitle">
+      Seu cadastro foi recebido pela Bula. Nossa equipe entrará em contato pelo
+      <strong>WhatsApp em breve</strong> para sua assessoria no leilão.
+    </p>
+
+    <div class="steps">
+      <div class="step">
+        <div class="step-num">1</div>
+        <div class="step-content">
+          <div class="step-title">Aguarde o contato da Bula</div>
+          <div class="step-desc">Nossa equipe analisará seu perfil e entrará em contato pelo WhatsApp.</div>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-num">2</div>
+        <div class="step-content">
+          <div class="step-title">Receba sua assessoria</div>
+          <div class="step-desc">Conversaremos sobre os melhores animais para o seu perfil antes do leilão.</div>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-num">3</div>
+        <div class="step-content">
+          <div class="step-title">Compre com segurança</div>
+          <div class="step-desc">Assessoria técnica completa — DAP, EPDs e melhoramento genético.</div>
+        </div>
+      </div>
+    </div>
+
+    <a
+      id="btn-wa"
+      href="https://chat.whatsapp.com/JYxJPWfkoHHLZfosHlywN9"
+      target="_blank"
+      rel="noopener noreferrer"
+      class="btn-wa"
+      onclick="handleBtnClick(this)"
+    >
+      <svg viewBox="0 0 24 24" fill="currentColor">
+        <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/>
+      </svg>
+      Entrar no Grupo do WhatsApp
+    </a>
+
+    <p class="countdown-text">
+      Entrando automaticamente em <span id="countdown">5</span>s…
+    </p>
+  </div>
+
+  <script>
+    const WA_URL = 'https://chat.whatsapp.com/JYxJPWfkoHHLZfosHlywN9';
+    let seconds = 5;
+    let redirectDone = false;
+
+    function handleBtnClick(el) {
+      redirectDone = true;
+      el.innerHTML = `
+        <svg viewBox="0 0 24 24" fill="currentColor" style="width:20px;height:20px">
+          <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/>
+        </svg>
+        Abrindo o WhatsApp…
+      `;
+    }
+
+    const timer = setInterval(function() {
+      seconds--;
+      const el = document.getElementById('countdown');
+      if (el) el.textContent = seconds;
+      if (seconds <= 0) {
+        clearInterval(timer);
+        if (!redirectDone) {
+          redirectDone = true;
+          window.location.href = WA_URL;
+        }
+      }
+    }, 1000);
+  </script>
+</body>
+</html>

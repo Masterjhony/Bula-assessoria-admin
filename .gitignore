@@ -36,6 +36,10 @@ qa-screenshots/
 *.xlsx
 *.docx
 
+# Drops/zip de código-fonte (ex.: pagina_forms-JMP.zip). O conteúdo já foi
+# integrado em jmp-landing/ + public/jmp/; o zip é só um insumo local.
+*.zip
+
 # Relatórios gerados (financeiro/fechamento) e a pasta de saída
 /RELATORIO-*
 /relatorios/

@@ -1,0 +1,592 @@
+import { useState, useEffect, useRef } from 'react'
+import { Loader2, Calendar, MapPin, CheckCircle2, ShieldCheck } from 'lucide-react'
+import { OBRIGADO_PAGE_URL } from '../constants'
+import bulaLogo from '../assets/logo-bula-trimmed.png'
+import jmpLogo from '../assets/jmp-logo.png'
+
+// ── UF Data ──────────────────────────────────────────────────
+const UF_OPTIONS: { name: string; sigla: string }[] = [
+  { name: 'Acre', sigla: 'AC' },
+  { name: 'Alagoas', sigla: 'AL' },
+  { name: 'Amapá', sigla: 'AP' },
+  { name: 'Amazonas', sigla: 'AM' },
+  { name: 'Bahia', sigla: 'BA' },
+  { name: 'Ceará', sigla: 'CE' },
+  { name: 'Distrito Federal', sigla: 'DF' },
+  { name: 'Espírito Santo', sigla: 'ES' },
+  { name: 'Goiás', sigla: 'GO' },
+  { name: 'Maranhão', sigla: 'MA' },
+  { name: 'Mato Grosso', sigla: 'MT' },
+  { name: 'Mato Grosso do Sul', sigla: 'MS' },
+  { name: 'Minas Gerais', sigla: 'MG' },
+  { name: 'Pará', sigla: 'PA' },
+  { name: 'Paraíba', sigla: 'PB' },
+  { name: 'Paraná', sigla: 'PR' },
+  { name: 'Pernambuco', sigla: 'PE' },
+  { name: 'Piauí', sigla: 'PI' },
+  { name: 'Rio de Janeiro', sigla: 'RJ' },
+  { name: 'Rio Grande do Norte', sigla: 'RN' },
+  { name: 'Rio Grande do Sul', sigla: 'RS' },
+  { name: 'Rondônia', sigla: 'RO' },
+  { name: 'Roraima', sigla: 'RR' },
+  { name: 'Santa Catarina', sigla: 'SC' },
+  { name: 'São Paulo', sigla: 'SP' },
+  { name: 'Sergipe', sigla: 'SE' },
+  { name: 'Tocantins', sigla: 'TO' },
+]
+
+// ── Types ──────────────────────────────────────────────────────
+interface FormData {
+  nome: string
+  email: string
+  whatsapp: string
+  uf: string
+  cidade: string
+  momento: string
+  cabecas: string
+  interesse: string
+}
+
+type FieldKey = keyof FormData
+
+// ── Phone mask ─────────────────────────────────────────────────
+function applyPhoneMask(value: string): string {
+  const digits = value.replace(/\D/g, '').slice(0, 11)
+  if (digits.length <= 2) return digits.length ? `(${digits}` : ''
+  if (digits.length <= 7) return `(${digits.slice(0, 2)}) ${digits.slice(2)}`
+  return `(${digits.slice(0, 2)}) ${digits.slice(2, 7)}-${digits.slice(7)}`
+}
+
+// ── Validation per step ────────────────────────────────────────
+function validateStep(step: number, data: FormData): Partial<FormData> {
+  const errors: Partial<FormData> = {}
+  if (step === 1) {
+    if (!data.nome.trim() || data.nome.trim().length < 3)
+      errors.nome = 'Preencha seu nome completo (mín. 3 caracteres).'
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(data.email))
+      errors.email = 'Informe um e-mail válido.'
+    if (data.whatsapp.replace(/\D/g, '').length < 10)
+      errors.whatsapp = 'Informe seu WhatsApp (mín. 10 dígitos).'
+  }
+  if (step === 2) {
+    if (!data.uf) errors.uf = 'Selecione seu estado.'
+    if (!data.cidade) errors.cidade = 'Selecione sua cidade.'
+  }
+  if (step === 3) {
+    if (!data.momento) errors.momento = 'Selecione seu momento na pecuária.'
+    if (!data.cabecas) errors.cabecas = 'Selecione a quantidade de cabeças.'
+    if (!data.interesse) errors.interesse = 'Selecione seu interesse.'
+  }
+  return errors
+}
+
+async function submitForm(data: FormData): Promise<void> {
+  // Posta no endpoint público do projeto (Next) que grava em crm_leads.
+  // Mesma origem da landing (jmp.bulaassessoria.com), então caminho relativo.
+  const res = await fetch('/api/jmp/lead', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(data),
+  })
+  if (!res.ok) throw new Error(`Falha ao enviar inscrição (${res.status})`)
+}
+
+// ── Shared style helpers ───────────────────────────────────────
+const inputBase = (hasError: boolean) =>
+  `w-full bg-white/5 border rounded-lg px-4 py-3.5 text-white text-base outline-none transition-all placeholder-white/30 ${
+    hasError ? 'border-red-400/70' : 'border-white/15 focus:border-white/50 focus:bg-white/8'
+  }`
+
+const selectStyle = {
+  backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%23ffffff' stroke-width='2' fill='none'/%3E%3C/svg%3E")`,
+  backgroundRepeat: 'no-repeat' as const,
+  backgroundPosition: 'right 16px center',
+  paddingRight: '42px',
+}
+
+const labelClass = 'block text-white/45 text-[10px] uppercase tracking-[2.5px] font-semibold mb-1.5'
+const errorClass = 'text-red-400 text-xs mt-1.5 block'
+const btnNext = 'flex-1 bg-white text-black font-black py-4 px-8 rounded-lg text-sm uppercase tracking-[2px] transition-all duration-200 hover:bg-white/90 hover:-translate-y-0.5 active:translate-y-0 cursor-pointer'
+const btnBack = 'border border-white/20 text-white/50 font-semibold py-4 px-6 rounded-lg text-sm uppercase tracking-[2px] transition-all duration-200 hover:border-white/40 hover:text-white/80 cursor-pointer'
+
+// ── UFCombobox ─────────────────────────────────────────────────
+interface UFComboboxProps {
+  value: string
+  onChange: (sigla: string) => void
+  hasError: boolean
+}
+
+function UFCombobox({ value, onChange, hasError }: UFComboboxProps) {
+  const selectedOption = UF_OPTIONS.find(u => u.sigla === value) ?? null
+  const [inputText, setInputText] = useState(
+    selectedOption ? `${selectedOption.name} (${selectedOption.sigla})` : ''
+  )
+  const [open, setOpen] = useState(false)
+  const containerRef = useRef<HTMLDivElement>(null)
+
+  useEffect(() => {
+    if (!value) setInputText('')
+    else {
+      const opt = UF_OPTIONS.find(u => u.sigla === value)
+      if (opt) setInputText(`${opt.name} (${opt.sigla})`)
+    }
+  }, [value])
+
+  useEffect(() => {
+    function handleClickOutside(e: MouseEvent) {
+      if (containerRef.current && !containerRef.current.contains(e.target as Node)) {
+        setOpen(false)
+        if (selectedOption) setInputText(`${selectedOption.name} (${selectedOption.sigla})`)
+        else setInputText('')
+      }
+    }
+    document.addEventListener('mousedown', handleClickOutside)
+    return () => document.removeEventListener('mousedown', handleClickOutside)
+  }, [selectedOption])
+
+  const filtered = UF_OPTIONS.filter(u => {
+    const q = inputText.toLowerCase()
+    return u.name.toLowerCase().includes(q) || u.sigla.toLowerCase().includes(q)
+  })
+
+  function handleInputChange(e: React.ChangeEvent<HTMLInputElement>) {
+    setInputText(e.target.value)
+    setOpen(true)
+    if (!e.target.value) onChange('')
+  }
+
+  function handleSelect(opt: { name: string; sigla: string }) {
+    onChange(opt.sigla)
+    setInputText(`${opt.name} (${opt.sigla})`)
+    setOpen(false)
+  }
+
+  return (
+    <div ref={containerRef} className="relative">
+      <input
+        type="text"
+        value={inputText}
+        onChange={handleInputChange}
+        onFocus={() => setOpen(true)}
+        placeholder="Digite ou selecione o estado"
+        autoComplete="off"
+        className={inputBase(hasError)}
+      />
+      {open && filtered.length > 0 && (
+        <ul className="absolute z-50 w-full mt-1 bg-[#1a1a1a] border border-white/15 rounded-lg shadow-2xl max-h-48 overflow-y-auto">
+          {filtered.map(opt => (
+            <li
+              key={opt.sigla}
+              onMouseDown={() => handleSelect(opt)}
+              className={`px-4 py-2.5 text-sm cursor-pointer text-white hover:bg-white/10 transition-colors ${
+                opt.sigla === value ? 'bg-white/10 font-semibold' : ''
+              }`}
+            >
+              {opt.name}{' '}
+              <span className="text-white/35">({opt.sigla})</span>
+            </li>
+          ))}
+        </ul>
+      )}
+    </div>
+  )
+}
+
+// ── Main Form ──────────────────────────────────────────────────
+export function Form() {
+  const [step, setStep] = useState(1)
+  const [formData, setFormData] = useState<FormData>({
+    nome: '', email: '', whatsapp: '',
+    uf: '', cidade: '',
+    momento: '', cabecas: '', interesse: '',
+  })
+  const [errors, setErrors] = useState<Partial<FormData>>({})
+  const [cities, setCities] = useState<string[]>([])
+  const [citiesLoading, setCitiesLoading] = useState(false)
+  const [loading, setLoading] = useState(false)
+  const [submitError, setSubmitError] = useState<string | null>(null)
+  const formCardRef = useRef<HTMLDivElement>(null)
+
+  useEffect(() => {
+    if (!formData.uf) { setCities([]); return }
+    let cancelled = false
+    setCitiesLoading(true)
+    setCities([])
+    fetch(`https://servicodados.ibge.gov.br/api/v1/localidades/estados/${formData.uf}/municipios`)
+      .then(r => r.json())
+      .then((data: { nome: string }[]) => {
+        if (cancelled) return
+        setCities(data.map(m => m.nome).sort((a, b) => a.localeCompare(b, 'pt-BR')))
+      })
+      .catch(() => { if (!cancelled) setCities([]) })
+      .finally(() => { if (!cancelled) setCitiesLoading(false) })
+    return () => { cancelled = true }
+  }, [formData.uf])
+
+  function handleChange(field: FieldKey, value: string) {
+    setFormData(prev => ({ ...prev, [field]: value }))
+    if (errors[field]) setErrors(prev => ({ ...prev, [field]: undefined }))
+  }
+
+  function handleUFChange(sigla: string) {
+    setFormData(prev => ({ ...prev, uf: sigla, cidade: '' }))
+    setErrors(prev => ({ ...prev, uf: undefined, cidade: undefined }))
+  }
+
+  function goTo(target: number) {
+    if (target > step) {
+      const stepErrors = validateStep(step, formData)
+      if (Object.keys(stepErrors).length > 0) { setErrors(stepErrors); return }
+    }
+    setErrors({})
+    setStep(target)
+    if (window.innerWidth < 1024) {
+      formCardRef.current?.scrollIntoView({ behavior: 'smooth', block: 'nearest' })
+    }
+  }
+
+  async function onSubmit() {
+    const stepErrors = validateStep(3, formData)
+    if (Object.keys(stepErrors).length > 0) { setErrors(stepErrors); return }
+    setLoading(true)
+    setSubmitError(null)
+    try {
+      await submitForm(formData)
+      window.location.href = OBRIGADO_PAGE_URL
+    } catch {
+      setSubmitError('Não conseguimos enviar sua inscrição. Verifique sua conexão e tente novamente.')
+      setLoading(false)
+    }
+  }
+
+  return (
+    <section id="inscricao" className="min-h-screen flex flex-col lg:flex-row">
+
+      {/* ── LEFT: Hero content ── */}
+      <div className="lg:w-[48%] bg-black/80 lg:bg-black/52 text-white flex flex-col justify-center px-8 py-14 lg:py-20 min-h-[320px]">
+        <div className="max-w-[380px] ml-auto mr-4 lg:mr-10">
+
+          {/* Bula + JMP identity */}
+          <div className="mb-10 flex items-center gap-5">
+            <img
+              src={bulaLogo}
+              alt="Bula"
+              className="h-14 w-auto object-contain sm:h-16"
+            />
+            <div className="h-10 w-px bg-white/30 sm:h-12" />
+            <img
+              src={jmpLogo}
+              alt="JMP"
+              className="h-14 w-auto object-contain sm:h-16"
+            />
+          </div>
+
+          {/* Urgency badge */}
+          <div className="inline-flex items-center gap-2 bg-white/10 border border-white/20 rounded-full px-4 py-1.5 mb-7">
+            <span className="h-1.5 w-1.5 rounded-full bg-white animate-pulse" />
+            <span className="text-white text-[11px] font-bold uppercase tracking-[2px]">
+              Vagas limitadas · 13 e 14 de Junho
+            </span>
+          </div>
+
+          {/* Main headline */}
+          <h1 className="text-[2.6rem] sm:text-5xl lg:text-[3.2rem] font-black leading-[1.02] text-white mb-5 tracking-tight">
+            Compre do leilão<br />apartado<br />pela Bula.
+          </h1>
+
+          {/* Value prop */}
+          <p className="text-white/65 text-[15px] leading-relaxed mb-8">
+            A Bula analisa os animais do leilão e te diz quais valem a pena comprar, antes do martelo cair.{' '}
+            <strong className="text-white font-semibold">Grátis. Sem compromisso.</strong>
+          </p>
+
+          {/* Benefits */}
+          <h2 className="text-white font-black uppercase text-xl sm:text-2xl leading-tight mb-6 tracking-tight">
+            1.000 Touros Apartados<br />pela Bula Assessoria
+          </h2>
+          <ul className="space-y-3 mb-10">
+            <li className="flex items-start gap-2.5">
+              <CheckCircle2 className="w-4 h-4 text-white/60 flex-shrink-0 mt-0.5" />
+              <span className="text-white/80 text-sm leading-snug">1.000 touros avaliados</span>
+            </li>
+            <li className="flex items-start gap-2.5">
+              <CheckCircle2 className="w-4 h-4 text-white/60 flex-shrink-0 mt-0.5" />
+              <span className="text-white font-bold text-base leading-snug">Compra em 30 parcelas</span>
+            </li>
+            <li className="flex items-start gap-2.5">
+              <CheckCircle2 className="w-4 h-4 text-white/60 flex-shrink-0 mt-0.5" />
+              <span className="text-white/80 text-sm leading-snug">Frete grátis</span>
+            </li>
+            <li className="flex items-start gap-2.5">
+              <CheckCircle2 className="w-4 h-4 text-white/60 flex-shrink-0 mt-0.5" />
+              <span className="text-white/80 text-sm leading-snug">Genética Nelore JMP</span>
+            </li>
+            <li className="flex items-start gap-2.5">
+              <CheckCircle2 className="w-4 h-4 text-white/60 flex-shrink-0 mt-0.5" />
+              <span className="text-white font-semibold text-sm leading-snug">Condição especial para renovar a bateria de touros</span>
+            </li>
+          </ul>
+
+          {/* Divider + stats */}
+          <div className="border-t border-white/12 pt-6">
+            <div className="flex items-center gap-6">
+              <div className="text-center">
+                <p className="text-white text-2xl font-black leading-none">1.000</p>
+                <p className="text-white/40 text-[11px] uppercase tracking-wider mt-1">Touros PO</p>
+              </div>
+              <div className="w-px h-10 bg-white/15" />
+              <div className="text-center">
+                <p className="text-white text-2xl font-black leading-none">240</p>
+                <p className="text-white/40 text-[11px] uppercase tracking-wider mt-1">Bezerras PO</p>
+              </div>
+              <div className="w-px h-10 bg-white/15" />
+              <div>
+                <p className="text-white/50 text-[11px] font-semibold uppercase tracking-wider leading-tight">
+                  Campo Grande/MS<br />
+                  <span className="text-white/35 font-normal normal-case tracking-normal">Terra Nova Eventos</span>
+                </p>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+      {/* ── RIGHT: Form ── */}
+      <div className="lg:w-[52%] bg-black/65 flex items-center justify-center px-6 py-12 lg:py-0 lg:pl-16 lg:pr-12">
+        <div id="inscricao-form" />
+        <div className="w-full max-w-[420px]">
+
+          {/* Form header */}
+          <div className="mb-7">
+            <p className="text-white/35 text-[10px] uppercase tracking-[3px] mb-2">Grátis · Sem compromisso</p>
+            <h2 className="text-white font-black text-2xl sm:text-3xl leading-tight">
+              Garanta sua vaga<br />
+              <span className="text-white/60 font-bold">no JMP 2026</span>
+            </h2>
+          </div>
+
+          {/* Progress dots */}
+          <div className="flex items-center gap-2 mb-6">
+            {[1, 2, 3].map(i => (
+              <div key={i} className="flex items-center gap-2">
+                <div
+                  className={`transition-all duration-300 rounded-full ${
+                    i < step
+                      ? 'h-2 w-2 bg-white'
+                      : i === step
+                      ? 'h-2 w-6 bg-white'
+                      : 'h-2 w-2 bg-white/20'
+                  }`}
+                />
+              </div>
+            ))}
+            <span className="ml-1 text-white/30 text-xs">{step}/3</span>
+          </div>
+
+          {/* Form card */}
+          <div ref={formCardRef} className="bg-white/5 border border-white/10 rounded-2xl p-6 sm:p-7 backdrop-blur-sm">
+
+            {/* Step 1 */}
+            {step === 1 && (
+              <>
+                <h3 className="text-white text-lg font-bold mb-1">Responda e receba ofertas!</h3>
+                <p className="text-white/35 text-sm mb-5">
+                  Voce recebe as ofertas pelo celular! Cadastre-se
+                </p>
+                <div className="space-y-4">
+                  <div>
+                    <label className={labelClass}>Nome Completo *</label>
+                    <input
+                      type="text"
+                      value={formData.nome}
+                      onChange={e => handleChange('nome', e.target.value)}
+                      placeholder="Seu nome completo"
+                      className={inputBase(!!errors.nome)}
+                    />
+                    {errors.nome && <span className={errorClass}>{errors.nome}</span>}
+                  </div>
+                  <div>
+                    <label className={labelClass}>E-mail *</label>
+                    <input
+                      type="email"
+                      value={formData.email}
+                      onChange={e => handleChange('email', e.target.value)}
+                      placeholder="seu@email.com"
+                      className={inputBase(!!errors.email)}
+                    />
+                    {errors.email && <span className={errorClass}>{errors.email}</span>}
+                  </div>
+                  <div>
+                    <label className={labelClass}>WhatsApp *</label>
+                    <input
+                      type="tel"
+                      value={formData.whatsapp}
+                      onChange={e => handleChange('whatsapp', applyPhoneMask(e.target.value))}
+                      placeholder="(31) 99999-9999"
+                      className={inputBase(!!errors.whatsapp)}
+                    />
+                    {errors.whatsapp && <span className={errorClass}>{errors.whatsapp}</span>}
+                  </div>
+                </div>
+                <div className="mt-6">
+                  <button onClick={() => goTo(2)} className={`${btnNext} w-full`}>
+                    Continuar →
+                  </button>
+                </div>
+              </>
+            )}
+
+            {/* Step 2 */}
+            {step === 2 && (
+              <>
+                <h3 className="text-white text-lg font-bold mb-1">Sua localização</h3>
+                <p className="text-white/35 text-sm mb-5">
+                  Queremos entender de onde você opera.
+                </p>
+                <div className="space-y-4">
+                  <div>
+                    <label className={labelClass}>Estado (UF) *</label>
+                    <UFCombobox value={formData.uf} onChange={handleUFChange} hasError={!!errors.uf} />
+                    {errors.uf && <span className={errorClass}>{errors.uf}</span>}
+                  </div>
+                  <div>
+                    <label className={labelClass}>Cidade *</label>
+                    {citiesLoading ? (
+                      <div className="w-full bg-white/5 border border-white/15 rounded-lg px-4 py-3.5 flex items-center gap-2 text-white/30">
+                        <Loader2 className="w-4 h-4 animate-spin text-white/50" />
+                        <span className="text-sm">Carregando municípios…</span>
+                      </div>
+                    ) : (
+                      <select
+                        value={formData.cidade}
+                        onChange={e => handleChange('cidade', e.target.value)}
+                        disabled={!formData.uf}
+                        className={`${inputBase(!!errors.cidade)} appearance-none cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed`}
+                        style={selectStyle}
+                      >
+                        <option value="" style={{ background: '#111' }}>
+                          {formData.uf ? 'Selecione sua cidade...' : 'Selecione o estado primeiro...'}
+                        </option>
+                        {cities.map(city => (
+                          <option key={city} value={city} style={{ background: '#111' }}>{city}</option>
+                        ))}
+                      </select>
+                    )}
+                    {errors.cidade && <span className={errorClass}>{errors.cidade}</span>}
+                  </div>
+                </div>
+                <div className="mt-6 flex gap-3">
+                  <button onClick={() => goTo(1)} className={btnBack}>← Voltar</button>
+                  <button onClick={() => goTo(3)} className={btnNext}>Continuar →</button>
+                </div>
+              </>
+            )}
+
+            {/* Step 3 */}
+            {step === 3 && (
+              <>
+                <h3 className="text-white text-lg font-bold mb-1">Seu perfil</h3>
+                <p className="text-white/35 text-sm mb-5">
+                  Quanto mais soubermos, melhor a indicação dos animais.
+                </p>
+                <div className="space-y-4">
+                  <div>
+                    <label className={labelClass}>Momento na Pecuária *</label>
+                    <select
+                      value={formData.momento}
+                      onChange={e => handleChange('momento', e.target.value)}
+                      className={`${inputBase(!!errors.momento)} appearance-none cursor-pointer`}
+                      style={selectStyle}
+                    >
+                      <option value="" style={{ background: '#111' }}>Selecione...</option>
+                      <option value="nao-trabalho-quero-aprender" style={{ background: '#111' }}>Não trabalho, quero aprender</option>
+                      <option value="pecuaria-de-corte" style={{ background: '#111' }}>Trabalho com pecuária de corte</option>
+                      <option value="corte-e-po" style={{ background: '#111' }}>Trabalho com corte e P.O.</option>
+                      <option value="criador-renomado-po" style={{ background: '#111' }}>Criador renomado de P.O.</option>
+                    </select>
+                    {errors.momento && <span className={errorClass}>{errors.momento}</span>}
+                  </div>
+                  <div>
+                    <label className={labelClass}>Quantidade de Cabeças *</label>
+                    <select
+                      value={formData.cabecas}
+                      onChange={e => handleChange('cabecas', e.target.value)}
+                      className={`${inputBase(!!errors.cabecas)} appearance-none cursor-pointer`}
+                      style={selectStyle}
+                    >
+                      <option value="" style={{ background: '#111' }}>Selecione...</option>
+                      <option value="nenhuma" style={{ background: '#111' }}>Nenhuma</option>
+                      <option value="0-50" style={{ background: '#111' }}>0–50</option>
+                      <option value="50-100" style={{ background: '#111' }}>50–100</option>
+                      <option value="100-300" style={{ background: '#111' }}>100–300</option>
+                      <option value="300-500" style={{ background: '#111' }}>300–500</option>
+                      <option value="500+" style={{ background: '#111' }}>500+</option>
+                    </select>
+                    {errors.cabecas && <span className={errorClass}>{errors.cabecas}</span>}
+                  </div>
+                  <div>
+                    <label className={labelClass}>Seu Interesse *</label>
+                    <select
+                      value={formData.interesse}
+                      onChange={e => handleChange('interesse', e.target.value)}
+                      className={`${inputBase(!!errors.interesse)} appearance-none cursor-pointer`}
+                      style={selectStyle}
+                    >
+                      <option value="" style={{ background: '#111' }}>Selecione...</option>
+                      <option value="embrioes" style={{ background: '#111' }}>Embriões</option>
+                      <option value="semen" style={{ background: '#111' }}>Sêmen</option>
+                      <option value="touros-po" style={{ background: '#111' }}>Touros P.O</option>
+                      <option value="matrizes-po" style={{ background: '#111' }}>Matrizes P.O</option>
+                      <option value="bezerras-po" style={{ background: '#111' }}>Bezerras P.O</option>
+                      <option value="nao-sei" style={{ background: '#111' }}>Não sei ainda</option>
+                    </select>
+                    {errors.interesse && <span className={errorClass}>{errors.interesse}</span>}
+                  </div>
+                </div>
+                <div className="mt-6 flex gap-3">
+                  <button onClick={() => goTo(2)} className={btnBack}>← Voltar</button>
+                  <button
+                    onClick={onSubmit}
+                    disabled={loading}
+                    className={`${btnNext} flex items-center justify-center gap-2 disabled:opacity-60`}
+                  >
+                    {loading ? (
+                      <><Loader2 className="w-4 h-4 animate-spin" />Enviando…</>
+                    ) : (
+                      'Quero minha assessoria grátis →'
+                    )}
+                  </button>
+                </div>
+                {submitError && (
+                  <span className={`${errorClass} text-center`}>{submitError}</span>
+                )}
+              </>
+            )}
+
+          </div>
+
+          {/* Trust signal */}
+          <div className="mt-4 flex items-center justify-center gap-1.5 text-white/30 text-xs">
+            <ShieldCheck className="w-3.5 h-3.5" />
+            <span>Grátis · Frete incluso · Sem compromisso · Dados protegidos</span>
+          </div>
+
+          {/* Event quick info */}
+          <div className="mt-5 flex items-center justify-center gap-4 text-white/25 text-[11px]">
+            <span className="inline-flex items-center gap-1.5">
+              <Calendar className="w-3 h-3" />
+              14 Jun · Domingo · 09h
+            </span>
+            <span className="w-px h-3 bg-white/15" />
+            <span className="inline-flex items-center gap-1.5">
+              <MapPin className="w-3 h-3" />
+              Campo Grande/MS
+            </span>
+          </div>
+
+        </div>
+      </div>
+    </section>
+  )
+}
