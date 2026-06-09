@@ -1,8 +1,24 @@
 import { useState, useEffect, useRef } from 'react'
 import { Loader2, Calendar, MapPin, CheckCircle2, ShieldCheck } from 'lucide-react'
 import { OBRIGADO_PAGE_URL } from '../constants'
+import type { JmpHero } from '../content'
 import bulaLogo from '../assets/logo-bula-trimmed.png'
 import jmpLogo from '../assets/jmp-logo.png'
+
+// Renderiza texto com quebras de linha (\n) preservando-as como <br/>.
+function MultiLine({ text }: { text: string }) {
+  const lines = text.split('\n')
+  return (
+    <>
+      {lines.map((line, i) => (
+        <span key={i}>
+          {line}
+          {i < lines.length - 1 && <br />}
+        </span>
+      ))}
+    </>
+  )
+}
 
 // ── UF Data ──────────────────────────────────────────────────
 const UF_OPTIONS: { name: string; sigla: string }[] = [
@@ -193,7 +209,7 @@ function UFCombobox({ value, onChange, hasError }: UFComboboxProps) {
 }
 
 // ── Main Form ──────────────────────────────────────────────────
-export function Form({ badge }: { badge: string }) {
+export function Form({ hero }: { hero: JmpHero }) {
   const [step, setStep] = useState(1)
   const [formData, setFormData] = useState<FormData>({
     nome: '', email: '', whatsapp: '',
@@ -285,67 +301,61 @@ export function Form({ badge }: { badge: string }) {
           <div className="inline-flex items-center gap-2 bg-white/10 border border-white/20 rounded-full px-4 py-1.5 mb-7">
             <span className="h-1.5 w-1.5 rounded-full bg-white animate-pulse" />
             <span className="text-white text-[11px] font-bold uppercase tracking-[2px]">
-              {badge}
+              {hero.badge}
             </span>
           </div>
 
           {/* Main headline */}
           <h1 className="text-[2.6rem] sm:text-5xl lg:text-[3.2rem] font-black leading-[1.02] text-white mb-5 tracking-tight">
-            Compre do leilão<br />apartado<br />pela Bula.
+            <MultiLine text={hero.headline} />
           </h1>
 
           {/* Value prop */}
           <p className="text-white/65 text-[15px] leading-relaxed mb-8">
-            A Bula analisa os animais do leilão e te diz quais valem a pena comprar, antes do martelo cair.{' '}
-            <strong className="text-white font-semibold">Grátis. Sem compromisso.</strong>
+            {hero.valueProp}{hero.valuePropStrong ? ' ' : ''}
+            {hero.valuePropStrong && (
+              <strong className="text-white font-semibold">{hero.valuePropStrong}</strong>
+            )}
           </p>
 
           {/* Benefits */}
-          <h2 className="text-white font-black uppercase text-xl sm:text-2xl leading-tight mb-6 tracking-tight">
-            1.000 Touros Apartados<br />pela Bula Assessoria
-          </h2>
+          {hero.benefitsTitle && (
+            <h2 className="text-white font-black uppercase text-xl sm:text-2xl leading-tight mb-6 tracking-tight">
+              <MultiLine text={hero.benefitsTitle} />
+            </h2>
+          )}
           <ul className="space-y-3 mb-10">
-            <li className="flex items-start gap-2.5">
-              <CheckCircle2 className="w-4 h-4 text-white/60 flex-shrink-0 mt-0.5" />
-              <span className="text-white/80 text-sm leading-snug">1.000 touros avaliados</span>
-            </li>
-            <li className="flex items-start gap-2.5">
-              <CheckCircle2 className="w-4 h-4 text-white/60 flex-shrink-0 mt-0.5" />
-              <span className="text-white font-bold text-base leading-snug">Compra em 30 parcelas</span>
-            </li>
-            <li className="flex items-start gap-2.5">
-              <CheckCircle2 className="w-4 h-4 text-white/60 flex-shrink-0 mt-0.5" />
-              <span className="text-white/80 text-sm leading-snug">Frete grátis</span>
-            </li>
-            <li className="flex items-start gap-2.5">
-              <CheckCircle2 className="w-4 h-4 text-white/60 flex-shrink-0 mt-0.5" />
-              <span className="text-white/80 text-sm leading-snug">Genética Nelore JMP</span>
-            </li>
-            <li className="flex items-start gap-2.5">
-              <CheckCircle2 className="w-4 h-4 text-white/60 flex-shrink-0 mt-0.5" />
-              <span className="text-white font-semibold text-sm leading-snug">Condição especial para renovar a bateria de touros</span>
-            </li>
+            {hero.benefits.map((b, i) => (
+              <li key={i} className="flex items-start gap-2.5">
+                <CheckCircle2 className="w-4 h-4 text-white/60 flex-shrink-0 mt-0.5" />
+                <span className={b.strong ? 'text-white font-bold text-base leading-snug' : 'text-white/80 text-sm leading-snug'}>{b.text}</span>
+              </li>
+            ))}
           </ul>
 
           {/* Divider + stats */}
           <div className="border-t border-white/12 pt-6">
             <div className="flex items-center gap-6">
-              <div className="text-center">
-                <p className="text-white text-2xl font-black leading-none">1.000</p>
-                <p className="text-white/40 text-[11px] uppercase tracking-wider mt-1">Touros PO</p>
-              </div>
-              <div className="w-px h-10 bg-white/15" />
-              <div className="text-center">
-                <p className="text-white text-2xl font-black leading-none">240</p>
-                <p className="text-white/40 text-[11px] uppercase tracking-wider mt-1">Bezerras PO</p>
-              </div>
-              <div className="w-px h-10 bg-white/15" />
-              <div>
-                <p className="text-white/50 text-[11px] font-semibold uppercase tracking-wider leading-tight">
-                  Campo Grande/MS<br />
-                  <span className="text-white/35 font-normal normal-case tracking-normal">Terra Nova Eventos</span>
-                </p>
-              </div>
+              {hero.stats.map((s, i) => (
+                <div key={i} className="flex items-center gap-6">
+                  {i > 0 && <div className="w-px h-10 bg-white/15" />}
+                  <div className="text-center">
+                    <p className="text-white text-2xl font-black leading-none">{s.value}</p>
+                    <p className="text-white/40 text-[11px] uppercase tracking-wider mt-1">{s.label}</p>
+                  </div>
+                </div>
+              ))}
+              {(hero.locationLine1 || hero.locationLine2) && (
+                <>
+                  <div className="w-px h-10 bg-white/15" />
+                  <div>
+                    <p className="text-white/50 text-[11px] font-semibold uppercase tracking-wider leading-tight">
+                      {hero.locationLine1}<br />
+                      <span className="text-white/35 font-normal normal-case tracking-normal">{hero.locationLine2}</span>
+                    </p>
+                  </div>
+                </>
+              )}
             </div>
           </div>
 

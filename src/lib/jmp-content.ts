@@ -31,6 +31,33 @@ export interface JmpBlock {
   fotos: JmpFoto[]
 }
 
+// Um item da lista de benefícios do hero ("flyer"). `strong` deixa em destaque.
+export interface JmpBenefit {
+  text: string
+  strong?: boolean
+}
+
+// Um número de destaque do rodapé do hero (ex.: "1.000" / "Touros PO").
+export interface JmpStat {
+  value: string
+  label: string
+}
+
+// Toda a parte textual do hero ("flyer") + a imagem de fundo. As quebras de
+// linha (\n) em headline/benefitsTitle viram <br/> na landing.
+export interface JmpHero {
+  backgroundUrl: string
+  badge: string
+  headline: string
+  valueProp: string
+  valuePropStrong: string
+  benefitsTitle: string
+  benefits: JmpBenefit[]
+  stats: JmpStat[]
+  locationLine1: string
+  locationLine2: string
+}
+
 export interface JmpEmailAttachment {
   name: string
   url: string
@@ -60,7 +87,7 @@ export interface JmpFlowEmail {
 }
 
 export interface JmpContent {
-  hero: { backgroundUrl: string; badge: string }
+  hero: JmpHero
   whatsappGroupUrl: string
   welcomeEmail: JmpWelcomeEmail
   emailFlow: JmpFlowEmail[]
@@ -84,11 +111,31 @@ const DEFAULT_EMAIL_FLOW: JmpFlowEmail[] = [
 // fallback (registro ausente / API fora) e de base para o merge. As URLs aqui
 // são relativas — resolvem no próprio host da landing. O seed inicial sobe
 // essas imagens para o Storage e grava URLs absolutas no registro.
+// Hero ("flyer") padrão = exatamente o que a landing mostrava hardcoded.
+const DEFAULT_HERO: JmpHero = {
+  backgroundUrl: '/foto-bulinha-bg.jpeg',
+  badge: 'Vagas limitadas · 13 e 14 de Junho',
+  headline: 'Compre do leilão\napartado\npela Bula.',
+  valueProp: 'A Bula analisa os animais do leilão e te diz quais valem a pena comprar, antes do martelo cair.',
+  valuePropStrong: 'Grátis. Sem compromisso.',
+  benefitsTitle: '1.000 Touros Apartados\npela Bula Assessoria',
+  benefits: [
+    { text: '1.000 touros avaliados' },
+    { text: 'Compra em 30 parcelas', strong: true },
+    { text: 'Frete grátis' },
+    { text: 'Genética Nelore JMP' },
+    { text: 'Condição especial para renovar a bateria de touros', strong: true },
+  ],
+  stats: [
+    { value: '1.000', label: 'Touros PO' },
+    { value: '240', label: 'Bezerras PO' },
+  ],
+  locationLine1: 'Campo Grande/MS',
+  locationLine2: 'Terra Nova Eventos',
+}
+
 export const DEFAULT_JMP_CONTENT: JmpContent = {
-  hero: {
-    backgroundUrl: '/foto-bulinha-bg.jpeg',
-    badge: 'Vagas limitadas · 13 e 14 de Junho',
-  },
+  hero: DEFAULT_HERO,
   whatsappGroupUrl: 'https://chat.whatsapp.com/JYxJPWfkoHHLZfosHlywN9',
   welcomeEmail: {
     enabled: false,
@@ -158,6 +205,46 @@ function sanitizeAttachments(raw: unknown): JmpEmailAttachment[] {
     .map((a) => ({ name: a.name || a.url.split('/').pop() || 'anexo', url: a.url }))
 }
 
+function sanitizeBenefits(raw: unknown): JmpBenefit[] {
+  if (!Array.isArray(raw)) return DEFAULT_HERO.benefits
+  const list = raw
+    .map((b) => {
+      const o = (b && typeof b === 'object' ? b : {}) as Record<string, unknown>
+      const benefit: JmpBenefit = { text: str(o.text) }
+      if (o.strong === true) benefit.strong = true
+      return benefit
+    })
+    .filter((b) => b.text)
+  return list.length ? list : DEFAULT_HERO.benefits
+}
+
+function sanitizeStats(raw: unknown): JmpStat[] {
+  if (!Array.isArray(raw)) return DEFAULT_HERO.stats
+  const list = raw
+    .map((s) => {
+      const o = (s && typeof s === 'object' ? s : {}) as Record<string, unknown>
+      return { value: str(o.value), label: str(o.label) }
+    })
+    .filter((s) => s.value || s.label)
+  return list.length ? list : DEFAULT_HERO.stats
+}
+
+function sanitizeHero(raw: unknown): JmpHero {
+  const o = (raw && typeof raw === 'object' ? raw : {}) as Record<string, unknown>
+  return {
+    backgroundUrl: str(o.backgroundUrl, DEFAULT_HERO.backgroundUrl),
+    badge: str(o.badge, DEFAULT_HERO.badge),
+    headline: str(o.headline, DEFAULT_HERO.headline),
+    valueProp: str(o.valueProp, DEFAULT_HERO.valueProp),
+    valuePropStrong: str(o.valuePropStrong, DEFAULT_HERO.valuePropStrong),
+    benefitsTitle: str(o.benefitsTitle, DEFAULT_HERO.benefitsTitle),
+    benefits: sanitizeBenefits(o.benefits),
+    stats: sanitizeStats(o.stats),
+    locationLine1: str(o.locationLine1, DEFAULT_HERO.locationLine1),
+    locationLine2: str(o.locationLine2, DEFAULT_HERO.locationLine2),
+  }
+}
+
 function sanitizeFlowEmail(raw: unknown, i: number): JmpFlowEmail {
   const o = (raw && typeof raw === 'object' ? raw : {}) as Record<string, unknown>
   const scheduleType = o.scheduleType === 'date' ? 'date' : 'days'
@@ -183,7 +270,6 @@ function sanitizeFlowEmail(raw: unknown, i: number): JmpFlowEmail {
  */
 export function sanitizeContent(raw: unknown): JmpContent {
   const obj = (raw && typeof raw === 'object' ? raw : {}) as Record<string, unknown>
-  const heroRaw = (obj.hero && typeof obj.hero === 'object' ? obj.hero : {}) as Record<string, unknown>
   const welcomeEmailRaw = (obj.welcomeEmail && typeof obj.welcomeEmail === 'object' ? obj.welcomeEmail : {}) as Record<string, unknown>
   const blocksRaw = Array.isArray(obj.blocks) ? obj.blocks : []
 
@@ -214,10 +300,7 @@ export function sanitizeContent(raw: unknown): JmpContent {
   })
 
   return {
-    hero: {
-      backgroundUrl: str(heroRaw.backgroundUrl, DEFAULT_JMP_CONTENT.hero.backgroundUrl),
-      badge: str(heroRaw.badge, DEFAULT_JMP_CONTENT.hero.badge),
-    },
+    hero: sanitizeHero(obj.hero),
     whatsappGroupUrl: str(obj.whatsappGroupUrl, DEFAULT_JMP_CONTENT.whatsappGroupUrl),
     welcomeEmail: {
       enabled: typeof welcomeEmailRaw.enabled === 'boolean'

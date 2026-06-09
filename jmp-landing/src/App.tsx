@@ -27,7 +27,7 @@ function App() {
             backgroundPosition: 'center',
           }}
         >
-          <Form badge={content.hero.badge} />
+          <Form hero={content.hero} />
         </div>
         <LeilaoSections blocks={content.blocks} />
       </main>

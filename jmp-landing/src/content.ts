@@ -9,6 +9,29 @@ export interface JmpFoto {
   objectPosition?: string
 }
 
+export interface JmpBenefit {
+  text: string
+  strong?: boolean
+}
+
+export interface JmpStat {
+  value: string
+  label: string
+}
+
+export interface JmpHero {
+  backgroundUrl: string
+  badge: string
+  headline: string
+  valueProp: string
+  valuePropStrong: string
+  benefitsTitle: string
+  benefits: JmpBenefit[]
+  stats: JmpStat[]
+  locationLine1: string
+  locationLine2: string
+}
+
 export interface JmpBlock {
   id: string
   flyerUrl: string
@@ -23,7 +46,7 @@ export interface JmpBlock {
 }
 
 export interface JmpContent {
-  hero: { backgroundUrl: string; badge: string }
+  hero: JmpHero
   whatsappGroupUrl: string
   blocks: JmpBlock[]
 }
@@ -32,6 +55,23 @@ export const DEFAULT_CONTENT: JmpContent = {
   hero: {
     backgroundUrl: '/foto-bulinha-bg.jpeg',
     badge: 'Vagas limitadas · 13 e 14 de Junho',
+    headline: 'Compre do leilão\napartado\npela Bula.',
+    valueProp: 'A Bula analisa os animais do leilão e te diz quais valem a pena comprar, antes do martelo cair.',
+    valuePropStrong: 'Grátis. Sem compromisso.',
+    benefitsTitle: '1.000 Touros Apartados\npela Bula Assessoria',
+    benefits: [
+      { text: '1.000 touros avaliados' },
+      { text: 'Compra em 30 parcelas', strong: true },
+      { text: 'Frete grátis' },
+      { text: 'Genética Nelore JMP' },
+      { text: 'Condição especial para renovar a bateria de touros', strong: true },
+    ],
+    stats: [
+      { value: '1.000', label: 'Touros PO' },
+      { value: '240', label: 'Bezerras PO' },
+    ],
+    locationLine1: 'Campo Grande/MS',
+    locationLine2: 'Terra Nova Eventos',
   },
   whatsappGroupUrl: 'https://chat.whatsapp.com/JYxJPWfkoHHLZfosHlywN9',
   blocks: [

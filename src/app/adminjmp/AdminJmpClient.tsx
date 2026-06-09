@@ -7,7 +7,7 @@ import {
   Image as ImageLucide, Table2, CheckCircle2, FileText, Clock, Calendar,
 } from 'lucide-react'
 import { createClient } from '@/utils/supabase/client'
-import type { JmpContent, JmpBlock, JmpFoto, JmpFlowEmail, JmpEmailAttachment } from '@/lib/jmp-content'
+import type { JmpContent, JmpBlock, JmpFoto, JmpFlowEmail, JmpEmailAttachment, JmpHero, JmpBenefit, JmpStat } from '@/lib/jmp-content'
 
 // ── upload: navegador → Supabase Storage direto (via URL assinada) ──────────
 async function uploadFile(file: File, folder: string): Promise<string> {
@@ -117,6 +117,65 @@ function ImageField({ label, url, folder, onChange, onClear, aspect = 'aspect-vi
         <input ref={ref} type="file" accept="image/*" className="hidden" onChange={(e) => pick(e.target.files?.[0])} />
       </div>
       {err && <p className="mt-1 text-xs text-red-600">{err}</p>}
+    </div>
+  )
+}
+
+// ── Benefits editor (lista de itens do hero/"flyer") ────────────────────────
+function BenefitsEditor({ benefits, onChange }: { benefits: JmpBenefit[]; onChange: (b: JmpBenefit[]) => void }) {
+  const patch = (i: number, p: Partial<JmpBenefit>) => onChange(benefits.map((b, idx) => (idx === i ? { ...b, ...p } : b)))
+  return (
+    <div>
+      <div className="mb-2 flex items-center justify-between">
+        <label className={lbl}>Lista de benefícios ({benefits.length})</label>
+        <button type="button" className={`${btn} bg-neutral-100 text-neutral-800 hover:bg-neutral-200`} onClick={() => onChange([...benefits, { text: '' }])}>
+          <Plus className="h-4 w-4" /> Adicionar item
+        </button>
+      </div>
+      {benefits.length === 0 ? (
+        <p className="rounded-lg border border-dashed border-neutral-300 bg-neutral-50 px-3 py-4 text-center text-sm text-neutral-400">Nenhum item.</p>
+      ) : (
+        <div className="space-y-2">
+          {benefits.map((b, i) => (
+            <div key={i} className="flex items-center gap-2">
+              <input className={`${input} flex-1`} placeholder="Texto do benefício" value={b.text} onChange={(e) => patch(i, { text: e.target.value })} />
+              <button type="button" onClick={() => patch(i, { strong: !b.strong })} title="Destaque (negrito)"
+                className={`shrink-0 rounded-lg border px-2.5 py-2 text-sm font-bold transition ${b.strong ? 'border-emerald-600 bg-emerald-50 text-emerald-700' : 'border-neutral-300 text-neutral-400 hover:bg-neutral-100'}`}>B</button>
+              <button type="button" className="shrink-0 rounded p-1 text-neutral-500 hover:bg-neutral-100" onClick={() => onChange(move(benefits, i, i - 1))}><ChevronUp className="h-4 w-4" /></button>
+              <button type="button" className="shrink-0 rounded p-1 text-neutral-500 hover:bg-neutral-100" onClick={() => onChange(move(benefits, i, i + 1))}><ChevronDown className="h-4 w-4" /></button>
+              <button type="button" className="shrink-0 rounded p-1 text-red-600 hover:bg-red-50" onClick={() => onChange(benefits.filter((_, idx) => idx !== i))}><Trash2 className="h-4 w-4" /></button>
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
+  )
+}
+
+// ── Stats editor (números de destaque do rodapé do hero) ────────────────────
+function StatsEditor({ stats, onChange }: { stats: JmpStat[]; onChange: (s: JmpStat[]) => void }) {
+  const patch = (i: number, p: Partial<JmpStat>) => onChange(stats.map((s, idx) => (idx === i ? { ...s, ...p } : s)))
+  return (
+    <div>
+      <div className="mb-2 flex items-center justify-between">
+        <label className={lbl}>Números de destaque ({stats.length})</label>
+        <button type="button" className={`${btn} bg-neutral-100 text-neutral-800 hover:bg-neutral-200`} onClick={() => onChange([...stats, { value: '', label: '' }])}>
+          <Plus className="h-4 w-4" /> Adicionar número
+        </button>
+      </div>
+      {stats.length > 0 && (
+        <div className="space-y-2">
+          {stats.map((s, i) => (
+            <div key={i} className="flex items-center gap-2">
+              <input className={`${input} w-28`} placeholder="1.000" value={s.value} onChange={(e) => patch(i, { value: e.target.value })} />
+              <input className={`${input} flex-1`} placeholder="Touros PO" value={s.label} onChange={(e) => patch(i, { label: e.target.value })} />
+              <button type="button" className="shrink-0 rounded p-1 text-neutral-500 hover:bg-neutral-100" onClick={() => onChange(move(stats, i, i - 1))}><ChevronUp className="h-4 w-4" /></button>
+              <button type="button" className="shrink-0 rounded p-1 text-neutral-500 hover:bg-neutral-100" onClick={() => onChange(move(stats, i, i + 1))}><ChevronDown className="h-4 w-4" /></button>
+              <button type="button" className="shrink-0 rounded p-1 text-red-600 hover:bg-red-50" onClick={() => onChange(stats.filter((_, idx) => idx !== i))}><Trash2 className="h-4 w-4" /></button>
+            </div>
+          ))}
+        </div>
+      )}
     </div>
   )
 }
@@ -424,6 +483,7 @@ export default function AdminJmpClient() {
   }
 
   const set = (p: Partial<JmpContent>) => setContent((c) => (c ? { ...c, ...p } : c))
+  const setHero = (p: Partial<JmpHero>) => setContent((c) => (c ? { ...c, hero: { ...c.hero, ...p } } : c))
   const setBlocks = (blocks: JmpBlock[]) => set({ blocks })
   const setFlow = (emailFlow: JmpFlowEmail[]) => set({ emailFlow })
 
@@ -471,12 +531,34 @@ export default function AdminJmpClient() {
         {tab === 'conteudo' && (
           <>
             <section className={card}>
-              <div className="border-b border-neutral-100 px-4 py-3"><h2 className="text-sm font-bold">Topo & Geral</h2></div>
-              <div className="grid gap-4 p-4 sm:grid-cols-2">
-                <ImageField label="Imagem de fundo (hero)" url={content.hero.backgroundUrl} folder="hero" onChange={(url) => set({ hero: { ...content.hero, backgroundUrl: url } })} />
-                <div className="flex flex-col gap-4">
-                  <Field label="Selo de urgência (badge)" value={content.hero.badge} onChange={(v) => set({ hero: { ...content.hero, badge: v } })} placeholder="Vagas limitadas · 13 e 14 de Junho" />
-                  <Field label="Link do grupo de WhatsApp" value={content.whatsappGroupUrl} onChange={(v) => set({ whatsappGroupUrl: v })} placeholder="https://chat.whatsapp.com/..." mono />
+              <div className="border-b border-neutral-100 px-4 py-3">
+                <h2 className="text-sm font-bold">Hero / Flyer (topo da landing)</h2>
+                <p className="text-xs text-neutral-500">Todo o texto do bloco principal — o que aparece no “flyer”. Use Enter para quebrar linha no título.</p>
+              </div>
+              <div className="space-y-4 p-4">
+                <div className="grid gap-4 sm:grid-cols-2">
+                  <ImageField label="Imagem de fundo (hero)" url={content.hero.backgroundUrl} folder="hero" onChange={(url) => setHero({ backgroundUrl: url })} />
+                  <div className="flex flex-col gap-4">
+                    <Field label="Selo de urgência (badge)" value={content.hero.badge} onChange={(v) => setHero({ badge: v })} placeholder="Vagas limitadas · 13 e 14 de Junho" />
+                    <Field label="Link do grupo de WhatsApp" value={content.whatsappGroupUrl} onChange={(v) => set({ whatsappGroupUrl: v })} placeholder="https://chat.whatsapp.com/..." mono />
+                  </div>
+                </div>
+
+                <TextArea label="Título principal (headline)" value={content.hero.headline} onChange={(v) => setHero({ headline: v })} rows={3} />
+                <div className="grid gap-4 sm:grid-cols-2">
+                  <TextArea label="Texto de valor (parágrafo)" value={content.hero.valueProp} onChange={(v) => setHero({ valueProp: v })} rows={3} />
+                  <Field label="Destaque ao fim do parágrafo (negrito)" value={content.hero.valuePropStrong} onChange={(v) => setHero({ valuePropStrong: v })} placeholder="Grátis. Sem compromisso." />
+                </div>
+
+                <TextArea label="Título dos benefícios" value={content.hero.benefitsTitle} onChange={(v) => setHero({ benefitsTitle: v })} rows={2} />
+                <BenefitsEditor benefits={content.hero.benefits} onChange={(benefits) => setHero({ benefits })} />
+
+                <div className="border-t border-neutral-100 pt-4">
+                  <StatsEditor stats={content.hero.stats} onChange={(stats) => setHero({ stats })} />
+                  <div className="mt-4 grid gap-4 sm:grid-cols-2">
+                    <Field label="Local — linha 1" value={content.hero.locationLine1} onChange={(v) => setHero({ locationLine1: v })} placeholder="Campo Grande/MS" />
+                    <Field label="Local — linha 2" value={content.hero.locationLine2} onChange={(v) => setHero({ locationLine2: v })} placeholder="Terra Nova Eventos" />
+                  </div>
                 </div>
               </div>
             </section>
