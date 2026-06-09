@@ -1008,6 +1008,25 @@ function UnifiedDrawer({ leilao, onClose, onEdit, onDelete, onTasksUpdate }: {
   )
 }
 
+// ── Field helpers (escopo de módulo) ───────────────────────────────────────────
+// Definidos fora dos modais de propósito: se ficassem dentro do corpo do
+// componente, cada render criaria uma função nova, o React remontaria o input e
+// o foco se perderia a cada tecla ("só dá pra digitar uma letra por vez").
+function FormField({ label, required, children }: { label: string; required?: boolean; children: React.ReactNode }) {
+  return (
+    <div>
+      <label className="block text-xs font-semibold uppercase tracking-wider text-gray-500 dark:text-gray-400 mb-1.5">{label}{required && <span className="text-red-400 ml-0.5">*</span>}</label>
+      {children}
+    </div>
+  )
+}
+
+function CronoField({ label, children }: { label: string; children: React.ReactNode }) {
+  return (
+    <div><label className="block text-[10px] font-semibold uppercase tracking-wider text-gray-500 dark:text-gray-400 mb-1">{label}</label>{children}</div>
+  )
+}
+
 // ── FormModal (bula_leiloes) ───────────────────────────────────────────────────
 
 function FormModal({ initial, onClose, onSaved }: {
@@ -1066,12 +1085,7 @@ function FormModal({ initial, onClose, onSaved }: {
   }
 
   const iCls = "w-full px-3.5 py-2.5 rounded-xl border border-gray-200 dark:border-[#333] bg-white dark:bg-[#0D0D0D] text-sm text-gray-800 dark:text-gray-200 placeholder-gray-400 focus:outline-none focus:border-[#A68B4B] transition-colors"
-  const Field = ({ label, required, children }: { label: string; required?: boolean; children: React.ReactNode }) => (
-    <div>
-      <label className="block text-xs font-semibold uppercase tracking-wider text-gray-500 dark:text-gray-400 mb-1.5">{label}{required && <span className="text-red-400 ml-0.5">*</span>}</label>
-      {children}
-    </div>
-  )
+  const Field = FormField
 
   return (
     <div className="fixed inset-0 z-[70] flex items-center justify-center p-4" onClick={onClose}>
@@ -1239,9 +1253,7 @@ function CronogramaFormModal({ initial, onClose, onSaved }: { initial: DbLeilao 
     finally { setSaving(false) }
   }
 
-  const Field = ({ label, children }: { label: string; children: React.ReactNode }) => (
-    <div><label className="block text-[10px] font-semibold uppercase tracking-wider text-gray-500 dark:text-gray-400 mb-1">{label}</label>{children}</div>
-  )
+  const Field = CronoField
 
   return (
     <div className="fixed inset-0 z-[70] flex items-center justify-center p-4" onClick={onClose}>
