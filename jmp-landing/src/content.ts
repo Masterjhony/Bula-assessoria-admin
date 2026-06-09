@@ -42,6 +42,8 @@ export interface JmpBlock {
   logoUrl?: string
   logoAlt?: string
   youtubeUrl?: string
+  /** Título exibido acima do player da playlist. */
+  playlistTitle?: string
   playlistLabel: string
   fotos: JmpFoto[]
 }
@@ -86,6 +88,7 @@ export const DEFAULT_CONTENT: JmpContent = {
       logoUrl: '/logo-bezerras-jmp.png',
       logoAlt: 'Bezerras Nelore JMP Premium — Leilão Virtual',
       youtubeUrl: 'https://youtube.com/playlist?list=PLt9laFwNTQnr4XjIq0ZC2SuMOwrNslpUL',
+      playlistTitle: 'Veja a playlist de vídeos do aparte:',
       playlistLabel: 'Playlist YouTube — fêmeas',
       fotos: [
         { src: '/galeria-femeas/IMG_0062.jpg', alt: 'Aparte das fêmeas — Leilão Nelore JMP' },
@@ -104,6 +107,7 @@ export const DEFAULT_CONTENT: JmpContent = {
       logoUrl: '/logo-touros-jmp.png',
       logoAlt: '10ª Leilão Nelore JMP — Touros',
       youtubeUrl: '',
+      playlistTitle: 'Veja a playlist de vídeos do aparte:',
       playlistLabel: 'Playlist YouTube — touros',
       fotos: [
         { src: '/galeria-touros/IMG_0003.jpg', alt: 'Aparte dos touros — Leilão Nelore JMP' },

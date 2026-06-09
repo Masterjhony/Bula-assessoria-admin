@@ -29,6 +29,8 @@ export interface JmpBlock {
   logoAlt?: string
   /** URL ou ID de vídeo/playlist do YouTube. Vazio = mostra placeholder. */
   youtubeUrl?: string
+  /** Título exibido acima do player da playlist. */
+  playlistTitle?: string
   playlistLabel: string
   fotos: JmpFoto[]
 }
@@ -167,6 +169,7 @@ Bula Assessoria`,
       logoUrl: '/logo-bezerras-jmp.png',
       logoAlt: 'Bezerras Nelore JMP Premium — Leilão Virtual',
       youtubeUrl: 'https://youtube.com/playlist?list=PLt9laFwNTQnr4XjIq0ZC2SuMOwrNslpUL',
+      playlistTitle: 'Veja a playlist de vídeos do aparte:',
       playlistLabel: 'Playlist YouTube — fêmeas',
       fotos: [
         { src: '/galeria-femeas/IMG_0062.jpg', alt: 'Aparte das fêmeas — Leilão Nelore JMP' },
@@ -185,6 +188,7 @@ Bula Assessoria`,
       logoUrl: '/logo-touros-jmp.png',
       logoAlt: '10ª Leilão Nelore JMP — Touros',
       youtubeUrl: '',
+      playlistTitle: 'Veja a playlist de vídeos do aparte:',
       playlistLabel: 'Playlist YouTube — touros',
       fotos: [
         { src: '/galeria-touros/IMG_0003.jpg', alt: 'Aparte dos touros — Leilão Nelore JMP' },
@@ -294,6 +298,7 @@ export function sanitizeContent(raw: unknown): JmpContent {
     // do bloco de mesmo id (faz a playlist aparecer no conteúdo já salvo);
     // qualquer URL preenchida pelo admin é respeitada.
     const youtubeUrl = (typeof bo.youtubeUrl === 'string' && bo.youtubeUrl) ? bo.youtubeUrl : (dflt?.youtubeUrl ?? '')
+    const playlistTitle = typeof bo.playlistTitle === 'string' ? bo.playlistTitle : (dflt?.playlistTitle ?? '')
     const fotosRaw = Array.isArray(bo.fotos) ? bo.fotos : []
     const fotos: JmpFoto[] = fotosRaw
       .map((f) => {
@@ -311,6 +316,7 @@ export function sanitizeContent(raw: unknown): JmpContent {
       heading: str(bo.heading),
       description,
       youtubeUrl,
+      playlistTitle,
       playlistLabel: str(bo.playlistLabel, 'Playlist YouTube'),
       fotos,
     }

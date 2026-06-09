@@ -14,20 +14,25 @@ function YoutubePlaceholder({ label }: { label: string }) {
   )
 }
 
-function YoutubeArea({ url, label }: { url?: string; label: string }) {
+function YoutubeArea({ url, label, title }: { url?: string; label: string; title?: string }) {
   const embed = youtubeEmbed(url)
   if (!embed) return <YoutubePlaceholder label={label} />
   return (
-    <div className="relative aspect-video w-full overflow-hidden rounded-xl bg-black">
-      <iframe
-        className="absolute inset-0 h-full w-full"
-        src={embed}
-        title={label}
-        loading="lazy"
-        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-        referrerPolicy="strict-origin-when-cross-origin"
-        allowFullScreen
-      />
+    <div>
+      {title && (
+        <h3 className="mb-3 text-base font-bold leading-snug text-white sm:text-lg">{title}</h3>
+      )}
+      <div className="relative aspect-video w-full overflow-hidden rounded-xl bg-black">
+        <iframe
+          className="absolute inset-0 h-full w-full"
+          src={embed}
+          title={title || label}
+          loading="lazy"
+          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+          referrerPolicy="strict-origin-when-cross-origin"
+          allowFullScreen
+        />
+      </div>
     </div>
   )
 }
@@ -73,7 +78,7 @@ function LeilaoBlock({ block }: { block: JmpBlock }) {
         )}
         <div className="grid items-start gap-5 md:grid-cols-2">
           <PhotoGallery fotos={block.fotos} />
-          <YoutubeArea url={block.youtubeUrl} label={block.playlistLabel} />
+          <YoutubeArea url={block.youtubeUrl} label={block.playlistLabel} title={block.playlistTitle} />
         </div>
       </div>
     </section>
