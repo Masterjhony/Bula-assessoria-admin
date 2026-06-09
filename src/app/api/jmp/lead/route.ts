@@ -74,6 +74,17 @@ export async function POST(req: NextRequest) {
     oQueBusca: str(body.oQueBusca),
   }
 
+  // Atribuição de campanha vinda dos criativos (Meta). Só usada na planilha —
+  // não vai para o insert em crm_leads (essas colunas não existem lá e
+  // quebrariam o cadastro). `ad-id` chega como ad_id (a landing normaliza).
+  const utm = {
+    utm_source: str(body.utm_source),
+    utm_medium: str(body.utm_medium),
+    utm_campaign: str(body.utm_campaign),
+    utm_content: str(body.utm_content),
+    ad_id: str(body.ad_id),
+  }
+
   // Conteúdo (templates de e-mail). Carregado uma vez para welcome + fluxo.
   const { data: contentRow } = await supabaseAdmin()
     .from(CONTENT_TABLE)
@@ -97,7 +108,7 @@ export async function POST(req: NextRequest) {
   }
 
   try {
-    await appendLeadToSheet({ ...leadCtx, leadId: data?.id ?? null, createdAt: new Date() })
+    await appendLeadToSheet({ ...leadCtx, ...utm, leadId: data?.id ?? null, createdAt: new Date() })
   } catch (e) {
     console.error('[JMP lead] sheets append failed:', e)
   }

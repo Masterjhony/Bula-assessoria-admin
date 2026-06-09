@@ -102,6 +102,43 @@ function qtdDescricao(interesse: string, quantidade: string): string {
   return `${opt?.label ?? quantidade} ${noun}`
 }
 
+// ── UTM / atribuição de campanha ───────────────────────────────
+// Os criativos chegam com ?utm_source=...&utm_medium=...&utm_campaign=...
+// &utm_content=...&ad-id=... (tudo após o "=" é variável). Capturamos na
+// primeira visita e guardamos em sessionStorage para sobreviver à troca de
+// passos e a uma eventual recarga — assim o lead carrega a origem certa mesmo
+// que o usuário navegue e a query string saia da URL.
+interface Utm {
+  utm_source: string
+  utm_medium: string
+  utm_campaign: string
+  utm_content: string
+  ad_id: string
+}
+const EMPTY_UTM: Utm = { utm_source: '', utm_medium: '', utm_campaign: '', utm_content: '', ad_id: '' }
+const UTM_STORAGE_KEY = 'jmp_utm'
+
+function captureUtms(): Utm {
+  try {
+    const p = new URLSearchParams(window.location.search)
+    const fromUrl: Utm = {
+      utm_source: p.get('utm_source') ?? '',
+      utm_medium: p.get('utm_medium') ?? '',
+      utm_campaign: p.get('utm_campaign') ?? '',
+      utm_content: p.get('utm_content') ?? '',
+      // O criativo manda ?ad-id=... (com hífen); aceitamos as duas grafias.
+      ad_id: p.get('ad-id') ?? p.get('ad_id') ?? '',
+    }
+    if (Object.values(fromUrl).some(Boolean)) {
+      sessionStorage.setItem(UTM_STORAGE_KEY, JSON.stringify(fromUrl))
+      return fromUrl
+    }
+    const stored = sessionStorage.getItem(UTM_STORAGE_KEY)
+    if (stored) return { ...EMPTY_UTM, ...JSON.parse(stored) }
+  } catch { /* sessionStorage indisponível — segue sem atribuição */ }
+  return EMPTY_UTM
+}
+
 // ── Phone mask ─────────────────────────────────────────────────
 function applyPhoneMask(value: string): string {
   const digits = value.replace(/\D/g, '').slice(0, 11)
@@ -134,12 +171,13 @@ function validateStep(step: number, data: FormData): Partial<FormData> {
   return errors
 }
 
-async function submitForm(data: FormData): Promise<void> {
+async function submitForm(data: FormData, utms: Utm): Promise<void> {
   // Posta no endpoint público do projeto (Next) que grava em crm_leads.
   // Mesma origem da landing (jmp.bulaassessoria.com), então caminho relativo.
   // `oQueBusca` é a quantidade desejada já em texto legível (contextual ao
   // interesse) — vai para a coluna o_que_busca do CRM e para a planilha.
-  const payload = { ...data, oQueBusca: qtdDescricao(data.interesse, data.quantidade) }
+  // Os utm_* + ad_id viajam junto para a automação da planilha (atribuição).
+  const payload = { ...data, ...utms, oQueBusca: qtdDescricao(data.interesse, data.quantidade) }
   const res = await fetch('/api/jmp/lead', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
@@ -263,6 +301,10 @@ export function Form({ hero }: { hero: JmpHero }) {
   const [loading, setLoading] = useState(false)
   const [submitError, setSubmitError] = useState<string | null>(null)
   const formCardRef = useRef<HTMLDivElement>(null)
+  // Atribuição de campanha capturada da URL de entrada (uma vez, no mount).
+  const utmRef = useRef<Utm>(EMPTY_UTM)
+
+  useEffect(() => { utmRef.current = captureUtms() }, [])
 
   useEffect(() => {
     if (!formData.uf) { setCities([]); return }
@@ -308,7 +350,7 @@ export function Form({ hero }: { hero: JmpHero }) {
     setLoading(true)
     setSubmitError(null)
     try {
-      await submitForm(formData)
+      await submitForm(formData, utmRef.current)
       window.location.href = OBRIGADO_PAGE_URL
     } catch {
       setSubmitError('Não conseguimos enviar sua inscrição. Verifique sua conexão e tente novamente.')

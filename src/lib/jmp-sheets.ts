@@ -8,7 +8,7 @@ import { supabaseAdmin } from './supabase'
 const CONFIG_KEY = 'sheets'
 const TAB = 'Leads JMP'
 const SHARE_EMAIL = 'formuladoboi@gmail.com'
-const HEADER = ['Data', 'Nome', 'E-mail', 'WhatsApp', 'UF', 'Cidade', 'Momento', 'Cabeças', 'Interesse', 'Lead ID', 'Qtd. desejada']
+const HEADER = ['Data', 'Nome', 'E-mail', 'WhatsApp', 'UF', 'Cidade', 'Momento', 'Cabeças', 'Interesse', 'Lead ID', 'Qtd. desejada', 'utm_source', 'utm_medium', 'utm_campaign', 'utm_content', 'ad-id']
 
 function getAuth() {
   const raw = process.env.GOOGLE_SERVICE_ACCOUNT_JSON
@@ -120,7 +120,7 @@ export async function connectExistingSheet(idOrUrl: string): Promise<SheetInfo> 
       requestBody: { requests: [{ addSheet: { properties: { title: TAB } } }] },
     })
   }
-  const head = await sheets.spreadsheets.values.get({ spreadsheetId: id, range: `${TAB}!A1:J1` })
+  const head = await sheets.spreadsheets.values.get({ spreadsheetId: id, range: `${TAB}!1:1` })
   if (!head.data.values?.length) {
     await sheets.spreadsheets.values.update({
       spreadsheetId: id, range: `${TAB}!A1`, valueInputOption: 'RAW', requestBody: { values: [HEADER] },
@@ -147,6 +147,11 @@ export interface SheetLead {
   cabecas: string | null
   interesse: string | null
   oQueBusca?: string | null
+  utm_source?: string | null
+  utm_medium?: string | null
+  utm_campaign?: string | null
+  utm_content?: string | null
+  ad_id?: string | null
   leadId?: string | null
   createdAt?: Date
 }
@@ -176,6 +181,8 @@ export async function appendLeadToSheet(lead: SheetLead): Promise<{ skipped: boo
     lead.nome, lead.email, lead.whatsapp,
     lead.uf ?? '', lead.cidade ?? '', lead.momento ?? '', lead.cabecas ?? '',
     lead.interesse ?? '', lead.leadId ?? '', lead.oQueBusca ?? '',
+    lead.utm_source ?? '', lead.utm_medium ?? '', lead.utm_campaign ?? '',
+    lead.utm_content ?? '', lead.ad_id ?? '',
   ]
   await sheets.spreadsheets.values.append({
     spreadsheetId: info.spreadsheetId,
