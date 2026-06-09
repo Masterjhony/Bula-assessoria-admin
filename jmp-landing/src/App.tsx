@@ -1,7 +1,6 @@
 import './index.css'
 import { useEffect, useState } from 'react'
 import { Form } from './components/Form'
-import { IntroSection } from './components/IntroSection'
 import { LeilaoSections } from './components/LeilaoSections'
 import { Footer } from './components/Footer'
 import { DEFAULT_CONTENT, fetchContent, type JmpContent } from './content'
@@ -30,7 +29,6 @@ function App() {
         >
           <Form hero={content.hero} />
         </div>
-        <IntroSection intro={content.intro} />
         <LeilaoSections blocks={content.blocks} />
       </main>
       <Footer />

@@ -60,16 +60,6 @@ export interface JmpHero {
   locationLine2: string
 }
 
-// Seção de oferta logo abaixo do hero/"flyer": título, parágrafo, linha de
-// destaque, bullets e linha final. \n no body vira parágrafo.
-export interface JmpIntro {
-  title: string
-  body: string
-  highlight: string
-  bullets: string[]
-  footer: string
-}
-
 export interface JmpEmailAttachment {
   name: string
   url: string
@@ -100,7 +90,6 @@ export interface JmpFlowEmail {
 
 export interface JmpContent {
   hero: JmpHero
-  intro: JmpIntro
   whatsappGroupUrl: string
   welcomeEmail: JmpWelcomeEmail
   emailFlow: JmpFlowEmail[]
@@ -147,21 +136,8 @@ const DEFAULT_HERO: JmpHero = {
   locationLine2: 'Terra Nova Eventos',
 }
 
-// Oferta padrão = a copy enviada pela JMP. Aparece logo abaixo do flyer.
-const DEFAULT_INTRO: JmpIntro = {
-  title: 'A melhor oferta do ano de animais PO do Nelore JMP',
-  body: 'A Bula Assessoria foi responsável por todo o aparte dos lotes dos leilões JMP que acontecerão no dia 13 e 14 de Junho.',
-  highlight: 'A única assessoria do Brasil que apartou e analisou no curral os animais JMP',
-  bullets: [
-    '30X no boleto e 40X no boleto (lotes múltiplos)',
-    'Frete Grátis para todo o Brasil',
-  ],
-  footer: '1.000 Touros PO | 240 Bezerras PO',
-}
-
 export const DEFAULT_JMP_CONTENT: JmpContent = {
   hero: DEFAULT_HERO,
-  intro: DEFAULT_INTRO,
   whatsappGroupUrl: 'https://chat.whatsapp.com/JYxJPWfkoHHLZfosHlywN9',
   welcomeEmail: {
     enabled: false,
@@ -275,21 +251,6 @@ function sanitizeHero(raw: unknown): JmpHero {
   }
 }
 
-// `intro` é seção nova: quando a chave está ausente no registro salvo, devolve
-// a oferta padrão inteira; quando o admin já salvou, preserva o que ele tem
-// (inclusive vazio — permite esconder a seção).
-function sanitizeIntro(raw: unknown): JmpIntro {
-  if (!raw || typeof raw !== 'object') return DEFAULT_INTRO
-  const o = raw as Record<string, unknown>
-  return {
-    title: str(o.title),
-    body: str(o.body),
-    highlight: str(o.highlight),
-    bullets: Array.isArray(o.bullets) ? o.bullets.map((b) => str(b)).filter(Boolean) : [],
-    footer: str(o.footer),
-  }
-}
-
 function sanitizeFlowEmail(raw: unknown, i: number): JmpFlowEmail {
   const o = (raw && typeof raw === 'object' ? raw : {}) as Record<string, unknown>
   const scheduleType = o.scheduleType === 'date' ? 'date' : 'days'
@@ -356,7 +317,6 @@ export function sanitizeContent(raw: unknown): JmpContent {
 
   return {
     hero: sanitizeHero(obj.hero),
-    intro: sanitizeIntro(obj.intro),
     whatsappGroupUrl: str(obj.whatsappGroupUrl, DEFAULT_JMP_CONTENT.whatsappGroupUrl),
     welcomeEmail: {
       enabled: typeof welcomeEmailRaw.enabled === 'boolean'

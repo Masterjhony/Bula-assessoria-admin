@@ -46,17 +46,8 @@ export interface JmpBlock {
   fotos: JmpFoto[]
 }
 
-export interface JmpIntro {
-  title: string
-  body: string
-  highlight: string
-  bullets: string[]
-  footer: string
-}
-
 export interface JmpContent {
   hero: JmpHero
-  intro: JmpIntro
   whatsappGroupUrl: string
   blocks: JmpBlock[]
 }
@@ -82,16 +73,6 @@ export const DEFAULT_CONTENT: JmpContent = {
     ],
     locationLine1: 'Campo Grande/MS',
     locationLine2: 'Terra Nova Eventos',
-  },
-  intro: {
-    title: 'A melhor oferta do ano de animais PO do Nelore JMP',
-    body: 'A Bula Assessoria foi responsável por todo o aparte dos lotes dos leilões JMP que acontecerão no dia 13 e 14 de Junho.',
-    highlight: 'A única assessoria do Brasil que apartou e analisou no curral os animais JMP',
-    bullets: [
-      '30X no boleto e 40X no boleto (lotes múltiplos)',
-      'Frete Grátis para todo o Brasil',
-    ],
-    footer: '1.000 Touros PO | 240 Bezerras PO',
   },
   whatsappGroupUrl: 'https://chat.whatsapp.com/JYxJPWfkoHHLZfosHlywN9',
   blocks: [
