@@ -42,8 +42,10 @@ export interface JmpBlock {
   logoUrl?: string
   logoAlt?: string
   youtubeUrl?: string
-  /** Título exibido acima do player da playlist. */
+  /** Título exibido acima da capa da playlist. */
   playlistTitle?: string
+  /** Imagem de capa da playlist (clicável → redireciona ao YouTube). */
+  playlistCoverUrl?: string
   playlistLabel: string
   fotos: JmpFoto[]
 }
@@ -89,6 +91,7 @@ export const DEFAULT_CONTENT: JmpContent = {
       logoAlt: 'Bezerras Nelore JMP Premium — Leilão Virtual',
       youtubeUrl: 'https://youtube.com/playlist?list=PLt9laFwNTQnr4XjIq0ZC2SuMOwrNslpUL',
       playlistTitle: 'Veja a playlist de vídeos do aparte:',
+      playlistCoverUrl: '/capa-playlist-femeas.jpg',
       playlistLabel: 'Playlist YouTube — fêmeas',
       fotos: [
         { src: '/galeria-femeas/IMG_0062.jpg', alt: 'Aparte das fêmeas — Leilão Nelore JMP' },
@@ -108,6 +111,7 @@ export const DEFAULT_CONTENT: JmpContent = {
       logoAlt: '10ª Leilão Nelore JMP — Touros',
       youtubeUrl: 'https://youtube.com/playlist?list=PLt9laFwNTQnq-2s4n0lImJfw22kC5V4kq',
       playlistTitle: 'Veja a playlist de vídeos do aparte:',
+      playlistCoverUrl: '/capa-playlist-touros.jpg',
       playlistLabel: 'Playlist YouTube — touros',
       fotos: [
         { src: '/galeria-touros/IMG_0003.jpg', alt: 'Aparte dos touros — Leilão Nelore JMP' },
@@ -140,4 +144,15 @@ export function youtubeEmbed(url?: string): string | null {
   const m = url.match(/(?:v=|youtu\.be\/|embed\/)([\w-]{11})/)
   const id = m ? m[1] : /^[\w-]{11}$/.test(url) ? url : null
   return id ? `https://www.youtube.com/embed/${id}` : null
+}
+
+/** Link público (no YouTube) para a playlist/vídeo; null se vazio/inválido. */
+export function youtubeLink(url?: string): string | null {
+  if (!url) return null
+  const list = url.match(/[?&]list=([\w-]+)/)
+  if (list) return `https://www.youtube.com/playlist?list=${list[1]}`
+  if (/^https?:\/\//.test(url)) return url
+  const m = url.match(/(?:v=|youtu\.be\/|embed\/)([\w-]{11})/)
+  const id = m ? m[1] : /^[\w-]{11}$/.test(url) ? url : null
+  return id ? `https://www.youtube.com/watch?v=${id}` : null
 }

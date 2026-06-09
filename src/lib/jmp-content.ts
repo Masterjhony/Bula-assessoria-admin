@@ -29,8 +29,10 @@ export interface JmpBlock {
   logoAlt?: string
   /** URL ou ID de vídeo/playlist do YouTube. Vazio = mostra placeholder. */
   youtubeUrl?: string
-  /** Título exibido acima do player da playlist. */
+  /** Título exibido acima da capa da playlist. */
   playlistTitle?: string
+  /** Imagem de capa da playlist (clicável → redireciona ao YouTube). */
+  playlistCoverUrl?: string
   playlistLabel: string
   fotos: JmpFoto[]
 }
@@ -170,6 +172,7 @@ Bula Assessoria`,
       logoAlt: 'Bezerras Nelore JMP Premium — Leilão Virtual',
       youtubeUrl: 'https://youtube.com/playlist?list=PLt9laFwNTQnr4XjIq0ZC2SuMOwrNslpUL',
       playlistTitle: 'Veja a playlist de vídeos do aparte:',
+      playlistCoverUrl: '/capa-playlist-femeas.jpg',
       playlistLabel: 'Playlist YouTube — fêmeas',
       fotos: [
         { src: '/galeria-femeas/IMG_0062.jpg', alt: 'Aparte das fêmeas — Leilão Nelore JMP' },
@@ -189,6 +192,7 @@ Bula Assessoria`,
       logoAlt: '10ª Leilão Nelore JMP — Touros',
       youtubeUrl: 'https://youtube.com/playlist?list=PLt9laFwNTQnq-2s4n0lImJfw22kC5V4kq',
       playlistTitle: 'Veja a playlist de vídeos do aparte:',
+      playlistCoverUrl: '/capa-playlist-touros.jpg',
       playlistLabel: 'Playlist YouTube — touros',
       fotos: [
         { src: '/galeria-touros/IMG_0003.jpg', alt: 'Aparte dos touros — Leilão Nelore JMP' },
@@ -299,6 +303,7 @@ export function sanitizeContent(raw: unknown): JmpContent {
     // qualquer URL preenchida pelo admin é respeitada.
     const youtubeUrl = (typeof bo.youtubeUrl === 'string' && bo.youtubeUrl) ? bo.youtubeUrl : (dflt?.youtubeUrl ?? '')
     const playlistTitle = typeof bo.playlistTitle === 'string' ? bo.playlistTitle : (dflt?.playlistTitle ?? '')
+    const playlistCoverUrl = typeof bo.playlistCoverUrl === 'string' ? bo.playlistCoverUrl : dflt?.playlistCoverUrl
     const fotosRaw = Array.isArray(bo.fotos) ? bo.fotos : []
     const fotos: JmpFoto[] = fotosRaw
       .map((f) => {
@@ -320,6 +325,7 @@ export function sanitizeContent(raw: unknown): JmpContent {
       playlistLabel: str(bo.playlistLabel, 'Playlist YouTube'),
       fotos,
     }
+    if (playlistCoverUrl) block.playlistCoverUrl = playlistCoverUrl
     if (logoUrl) block.logoUrl = logoUrl
     if (logoAlt) block.logoAlt = logoAlt
     return block

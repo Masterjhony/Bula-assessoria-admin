@@ -383,6 +383,7 @@ function BlockEditor({ block, index, total, onChange, onMove, onRemove }: {
             <Field label="Vídeo/playlist do YouTube (URL ou ID) — opcional" value={block.youtubeUrl ?? ''} onChange={(v) => set({ youtubeUrl: v })} placeholder="https://youtube.com/playlist?list=..." mono />
           </div>
           <Field label="Título acima da playlist" value={block.playlistTitle ?? ''} onChange={(v) => set({ playlistTitle: v })} placeholder="Veja a playlist de vídeos do aparte:" />
+          <ImageField label="Capa da playlist (clicável → abre a playlist no YouTube)" url={block.playlistCoverUrl} folder={`${folder}/capa-playlist`} onChange={(url) => set({ playlistCoverUrl: url })} onClear={() => set({ playlistCoverUrl: undefined })} />
           <TextArea label="Mensagem entre o flyer e as fotos (cada linha vira um parágrafo)" value={block.description ?? ''} onChange={(v) => set({ description: v })} rows={4} />
           <FotosEditor fotos={block.fotos} folder={`${folder}/galeria`} onChange={(fotos) => set({ fotos })} />
         </div>

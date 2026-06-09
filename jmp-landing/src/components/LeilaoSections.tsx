@@ -1,6 +1,6 @@
 import { PlayCircle } from 'lucide-react'
 import { PhotoGallery } from './PhotoGallery'
-import { youtubeEmbed, type JmpBlock } from '../content'
+import { youtubeEmbed, youtubeLink, type JmpBlock } from '../content'
 
 function YoutubePlaceholder({ label }: { label: string }) {
   return (
@@ -14,14 +14,47 @@ function YoutubePlaceholder({ label }: { label: string }) {
   )
 }
 
-function YoutubeArea({ url, label, title }: { url?: string; label: string; title?: string }) {
+function PlaylistTitle({ title }: { title?: string }) {
+  if (!title) return null
+  return <h3 className="mb-3 text-base font-bold leading-snug text-white sm:text-lg">{title}</h3>
+}
+
+function YoutubeArea({ url, label, title, coverUrl }: { url?: string; label: string; title?: string; coverUrl?: string }) {
+  const link = youtubeLink(url)
+
+  // Preferido: capa da playlist clicável → redireciona ao YouTube.
+  if (coverUrl && link) {
+    return (
+      <div>
+        <PlaylistTitle title={title} />
+        <a
+          href={link}
+          target="_blank"
+          rel="noreferrer"
+          aria-label={title || label}
+          className="group relative block aspect-video w-full overflow-hidden rounded-xl bg-black"
+        >
+          <img
+            src={coverUrl}
+            alt={title || label}
+            className="absolute inset-0 h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
+            loading="lazy"
+            decoding="async"
+          />
+          <span className="absolute inset-0 flex items-center justify-center bg-black/15 transition-colors duration-300 group-hover:bg-black/30">
+            <PlayCircle className="h-16 w-16 text-white drop-shadow-lg transition-transform duration-300 group-hover:scale-110" strokeWidth={1.5} />
+          </span>
+        </a>
+      </div>
+    )
+  }
+
+  // Fallback: player embutido (caso não haja capa definida).
   const embed = youtubeEmbed(url)
   if (!embed) return <YoutubePlaceholder label={label} />
   return (
     <div>
-      {title && (
-        <h3 className="mb-3 text-base font-bold leading-snug text-white sm:text-lg">{title}</h3>
-      )}
+      <PlaylistTitle title={title} />
       <div className="relative aspect-video w-full overflow-hidden rounded-xl bg-black">
         <iframe
           className="absolute inset-0 h-full w-full"
@@ -78,7 +111,7 @@ function LeilaoBlock({ block }: { block: JmpBlock }) {
         )}
         <div className="grid items-start gap-5 md:grid-cols-2">
           <PhotoGallery fotos={block.fotos} />
-          <YoutubeArea url={block.youtubeUrl} label={block.playlistLabel} title={block.playlistTitle} />
+          <YoutubeArea url={block.youtubeUrl} label={block.playlistLabel} title={block.playlistTitle} coverUrl={block.playlistCoverUrl} />
         </div>
       </div>
     </section>
