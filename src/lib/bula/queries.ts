@@ -101,7 +101,8 @@ export async function updateLeilao(id: string, patch: Partial<BulaLeilao & { ass
     const { assessor_ids, assessores, ...rest } = patch as Record<string, unknown>
 
     if (Object.keys(rest).length > 0) {
-        await supabase.from('bula_leiloes').update(rest).eq('id', id)
+        const { error } = await supabase.from('bula_leiloes').update(rest).eq('id', id)
+        if (error) throw error
     }
 
     if (Array.isArray(assessor_ids)) {

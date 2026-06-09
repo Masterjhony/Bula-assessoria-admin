@@ -1029,8 +1029,9 @@ function CronoField({ label, children }: { label: string; children: React.ReactN
 
 // ── FormModal (bula_leiloes) ───────────────────────────────────────────────────
 
-function FormModal({ initial, onClose, onSaved }: {
+function FormModal({ initial, cronoId, onClose, onSaved }: {
   initial: (BulaLeilao & { catalogo_url?: string }) | null
+  cronoId?: string | null
   onClose: () => void; onSaved: () => void
 }) {
   const isEdit = !!initial
@@ -1075,6 +1076,20 @@ function FormModal({ initial, onClose, onSaved }: {
       if (isEdit) {
         const res = await fetch(`/api/bula/leiloes/${initial!.id}`, { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(form) })
         if (!res.ok) throw new Error('Erro ao salvar')
+        // Se este leilão também existe na planilha (cronograma_leiloes), o card do
+        // admin e a agenda usam o nome/data/etc. do cronograma quando há par —
+        // sem propagar para lá a edição "não reflete". Só enviamos campos
+        // preenchidos para nunca apagar dados da planilha que o form não tem.
+        if (cronoId) {
+          const cronoPatch: Record<string, unknown> = { nome: form.nome.trim(), data: form.data }
+          if (form.horario?.trim()) cronoPatch.hora = form.horario.trim()
+          if (form.tipo?.trim()) cronoPatch.raca = form.tipo.trim()
+          if (form.leiloeira?.trim()) cronoPatch.leiloeira = form.leiloeira.trim()
+          if (form.modelo?.trim()) cronoPatch.presencial = form.modelo.trim()
+          if (form.animais) cronoPatch.qtd_animais = form.animais
+          const cronoRes = await fetch(`/api/bula/cronograma/${cronoId}`, { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(cronoPatch) })
+          if (!cronoRes.ok) throw new Error('Salvou no painel, mas falhou ao sincronizar com a agenda')
+        }
       } else {
         const res = await fetch('/api/bula/leiloes', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ ...form, tasks: DEFAULT_TASKS, assessor_ids: [] }) })
         if (!res.ok) throw new Error('Erro ao criar')
@@ -1603,6 +1618,7 @@ export default function LeiloesPage() {
   const [showBulaForm, setShowBulaForm] = useState(false)
   const [showCronoForm, setShowCronoForm] = useState(false)
   const [editBula, setEditBula] = useState<(BulaLeilao & { catalogo_url?: string }) | null>(null)
+  const [editBulaCronoId, setEditBulaCronoId] = useState<string | null>(null)
   const [editCrono, setEditCrono] = useState<DbLeilao | null>(null)
 
   // Sync from Google Sheets (workflow_dispatch via GitHub API)
@@ -1726,7 +1742,7 @@ export default function LeiloesPage() {
   const handleEdit = (l: MergedLeilao) => {
     if (l.bulaId) {
       const b = bulaLeiloes.find(b => b.id === l.bulaId)
-      if (b) { setEditBula(b); setShowBulaForm(true); return }
+      if (b) { setEditBula(b); setEditBulaCronoId(l.cronoId ?? null); setShowBulaForm(true); return }
     }
     if (l.cronoId) {
       const c = cronoLeiloes.find(c => c.id === l.cronoId)
@@ -1750,7 +1766,7 @@ export default function LeiloesPage() {
           <span className="block text-[12px] font-normal subtle mt-2">{merged.length} {merged.length === 1 ? 'leilão' : 'leilões'} cadastrados</span>
         </h1>
         <button
-          onClick={() => { setEditBula(null); setShowBulaForm(true) }}
+          onClick={() => { setEditBula(null); setEditBulaCronoId(null); setShowBulaForm(true) }}
           className="btn primary"
         >
           <Plus size={14} /> Novo leilão
@@ -1985,7 +2001,8 @@ export default function LeiloesPage() {
       {showBulaForm && (
         <FormModal
           initial={editBula}
-          onClose={() => { setShowBulaForm(false); setEditBula(null) }}
+          cronoId={editBulaCronoId}
+          onClose={() => { setShowBulaForm(false); setEditBula(null); setEditBulaCronoId(null) }}
           onSaved={() => { fetchAll(); setSelected(null) }}
         />
       )}
