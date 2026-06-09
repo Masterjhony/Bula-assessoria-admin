@@ -23,6 +23,8 @@ export interface JmpBlock {
   flyerAlt: string
   subheading: string
   heading: string
+  /** Copy entre o flyer e a galeria de fotos. \n vira parágrafo. */
+  description?: string
   logoUrl?: string
   logoAlt?: string
   /** URL ou ID de vídeo/playlist do YouTube. Vazio = mostra placeholder. */
@@ -161,6 +163,7 @@ Bula Assessoria`,
       flyerAlt: 'Leilão Virtual Bezerras Nelore JMP Premium · 13 de Junho',
       subheading: 'Sábado · 13 de Junho · 240 Bezerras FIV',
       heading: 'Aparte das Fêmeas',
+      description: 'A Bula Assessoria foi responsável pelo aparte das 240 Bezerras PO do Nelore JMP.\n100% oriundas de FIV e apartado a cabeceira da safra.\nConfira as fotos e vídeos do aparte:',
       youtubeUrl: '',
       playlistLabel: 'Playlist YouTube — fêmeas',
       fotos: [
@@ -176,6 +179,7 @@ Bula Assessoria`,
       flyerAlt: '10º Leilão Nelore JMP · 1000 Touros · 14 de Junho',
       subheading: 'Domingo · 14 de Junho · 1.000 Touros PO',
       heading: 'Aparte dos Touros',
+      description: 'A Bula Assessoria foi responsável pelo aparte de 1.000 touros JMP.\nA cabeceira da safra!\nConfira as fotos e vídeos do aparte:',
       logoUrl: '/logo-touros-jmp.png',
       logoAlt: '10ª Leilão Nelore JMP — Touros',
       youtubeUrl: '',
@@ -275,6 +279,11 @@ export function sanitizeContent(raw: unknown): JmpContent {
 
   const blocks: JmpBlock[] = blocksRaw.map((b, i) => {
     const bo = (b && typeof b === 'object' ? b : {}) as Record<string, unknown>
+    // `description` é campo novo: conteúdo já salvo não tem a chave. Quando
+    // ausente (undefined), usa a copy padrão do bloco de mesmo id; quando o
+    // admin salva (mesmo vazio), o valor explícito é preservado.
+    const defaultDesc = DEFAULT_JMP_CONTENT.blocks.find((d) => d.id === str(bo.id))?.description ?? ''
+    const description = typeof bo.description === 'string' ? bo.description : defaultDesc
     const fotosRaw = Array.isArray(bo.fotos) ? bo.fotos : []
     const fotos: JmpFoto[] = fotosRaw
       .map((f) => {
@@ -290,6 +299,7 @@ export function sanitizeContent(raw: unknown): JmpContent {
       flyerAlt: str(bo.flyerAlt),
       subheading: str(bo.subheading),
       heading: str(bo.heading),
+      description,
       youtubeUrl: str(bo.youtubeUrl),
       playlistLabel: str(bo.playlistLabel, 'Playlist YouTube'),
       fotos,

@@ -38,6 +38,7 @@ export interface JmpBlock {
   flyerAlt: string
   subheading: string
   heading: string
+  description?: string
   logoUrl?: string
   logoAlt?: string
   youtubeUrl?: string
@@ -81,6 +82,7 @@ export const DEFAULT_CONTENT: JmpContent = {
       flyerAlt: 'Leilão Virtual Bezerras Nelore JMP Premium · 13 de Junho',
       subheading: 'Sábado · 13 de Junho · 240 Bezerras FIV',
       heading: 'Aparte das Fêmeas',
+      description: 'A Bula Assessoria foi responsável pelo aparte das 240 Bezerras PO do Nelore JMP.\n100% oriundas de FIV e apartado a cabeceira da safra.\nConfira as fotos e vídeos do aparte:',
       youtubeUrl: '',
       playlistLabel: 'Playlist YouTube — fêmeas',
       fotos: [
@@ -96,6 +98,7 @@ export const DEFAULT_CONTENT: JmpContent = {
       flyerAlt: '10º Leilão Nelore JMP · 1000 Touros · 14 de Junho',
       subheading: 'Domingo · 14 de Junho · 1.000 Touros PO',
       heading: 'Aparte dos Touros',
+      description: 'A Bula Assessoria foi responsável pelo aparte de 1.000 touros JMP.\nA cabeceira da safra!\nConfira as fotos e vídeos do aparte:',
       logoUrl: '/logo-touros-jmp.png',
       logoAlt: '10ª Leilão Nelore JMP — Touros',
       youtubeUrl: '',

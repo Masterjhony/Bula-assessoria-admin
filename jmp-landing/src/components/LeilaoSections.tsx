@@ -33,8 +33,24 @@ function YoutubeArea({ url, label }: { url?: string; label: string }) {
 }
 
 function LeilaoBlock({ block }: { block: JmpBlock }) {
+  const descLines = (block.description ?? '').split('\n').map((l) => l.trim()).filter(Boolean)
   return (
     <section id={block.id} className="scroll-mt-24 bg-neutral-950">
+      {/* Título — acima do flyer */}
+      <div className="mx-auto max-w-7xl px-5 pt-14 sm:px-8 sm:pt-20">
+        {block.logoUrl && (
+          <img
+            src={block.logoUrl}
+            alt={block.logoAlt ?? block.heading}
+            className="mb-5 h-16 w-auto sm:h-20"
+            loading="lazy"
+            decoding="async"
+          />
+        )}
+        <p className="text-[11px] font-bold uppercase tracking-widest text-white/40">{block.subheading}</p>
+        <h2 className="mt-2 mb-8 text-3xl font-black tracking-tight text-white sm:text-4xl">{block.heading}</h2>
+      </div>
+
       {/* Flyer full-width */}
       {block.flyerUrl && (
         <img
@@ -46,21 +62,15 @@ function LeilaoBlock({ block }: { block: JmpBlock }) {
         />
       )}
 
-      {/* Galeria — fotos + playlist */}
+      {/* Copy + galeria — fotos + playlist */}
       <div className="mx-auto max-w-7xl px-5 sm:px-8 py-14 sm:py-20">
-        <div className="mb-8">
-          {block.logoUrl && (
-            <img
-              src={block.logoUrl}
-              alt={block.logoAlt ?? block.heading}
-              className="mb-5 h-16 w-auto sm:h-20"
-              loading="lazy"
-              decoding="async"
-            />
-          )}
-          <p className="text-[11px] font-bold uppercase tracking-widest text-white/40">{block.subheading}</p>
-          <h2 className="mt-2 text-3xl font-black tracking-tight text-white sm:text-4xl">{block.heading}</h2>
-        </div>
+        {descLines.length > 0 && (
+          <div className="mb-8 max-w-3xl space-y-2 text-base leading-relaxed text-white/70 sm:text-lg">
+            {descLines.map((line, i) => (
+              <p key={i}>{line}</p>
+            ))}
+          </div>
+        )}
         <div className="grid items-start gap-5 md:grid-cols-2">
           <PhotoGallery fotos={block.fotos} />
           <YoutubeArea url={block.youtubeUrl} label={block.playlistLabel} />

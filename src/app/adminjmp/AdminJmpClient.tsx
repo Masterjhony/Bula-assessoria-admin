@@ -382,6 +382,7 @@ function BlockEditor({ block, index, total, onChange, onMove, onRemove }: {
             <Field label="Texto alt do flyer" value={block.flyerAlt} onChange={(v) => set({ flyerAlt: v })} />
             <Field label="Vídeo do YouTube (URL ou ID) — opcional" value={block.youtubeUrl ?? ''} onChange={(v) => set({ youtubeUrl: v })} placeholder="https://youtube.com/watch?v=..." mono />
           </div>
+          <TextArea label="Mensagem entre o flyer e as fotos (cada linha vira um parágrafo)" value={block.description ?? ''} onChange={(v) => set({ description: v })} rows={4} />
           <FotosEditor fotos={block.fotos} folder={`${folder}/galeria`} onChange={(fotos) => set({ fotos })} />
         </div>
       )}
