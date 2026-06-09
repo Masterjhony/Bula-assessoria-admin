@@ -218,7 +218,10 @@ async function handleLogin(e) {
       return;
     }
 
-    window.location.href = window.location.host.toLowerCase().startsWith('erp.') ? '/erp' : '/sistema';
+    var loginHost = window.location.host.toLowerCase();
+    window.location.href = loginHost.startsWith('adminjmp.') ? '/'
+      : loginHost.startsWith('erp.') ? '/erp'
+      : '/sistema';
   } catch {
     errorText.textContent = 'Erro de conexao. Tente novamente.';
     errorBox.classList.add('show');

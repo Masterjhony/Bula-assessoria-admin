@@ -1,25 +1,6 @@
 import { PlayCircle } from 'lucide-react'
-import flyer13 from '../assets/flyer-13jun.png'
-import flyer14 from '../assets/flyer-14jun.png'
-import logoTouros from '../assets/logo-touros-jmp.png'
-import { PhotoGallery, type GaleriaFoto } from './PhotoGallery'
-
-// ── Fotos por leilão — edite estes arrays para trocar/adicionar fotos ─────────
-// Fêmeas: solte arquivos em public/galeria-femeas/ e referencie aqui.
-const FOTOS_FEMEAS: GaleriaFoto[] = [
-  { src: '/galeria-femeas/IMG_0062.jpg', alt: 'Aparte das fêmeas — Leilão Nelore JMP' },
-  { src: '/galeria-femeas/IMG_0106.jpg', alt: 'Aparte das fêmeas — Leilão Nelore JMP' },
-  { src: '/galeria-femeas/IMG_0109.jpg', alt: 'Aparte das fêmeas — Leilão Nelore JMP' },
-  { src: '/galeria-femeas/IMG_0117.jpg', alt: 'Aparte das fêmeas — Leilão Nelore JMP', objectPosition: 'top' },
-]
-
-// Touros: solte arquivos em public/galeria-touros/ e referencie aqui.
-const FOTOS_TOUROS: GaleriaFoto[] = [
-  { src: '/galeria-touros/IMG_0003.jpg', alt: 'Aparte dos touros — Leilão Nelore JMP' },
-  { src: '/galeria-touros/IMG_0006.jpg', alt: 'Aparte dos touros — Leilão Nelore JMP' },
-  { src: '/galeria-touros/IMG_0037.jpg', alt: 'Aparte dos touros — Leilão Nelore JMP' },
-  { src: '/galeria-touros/IMG_0059.jpg', alt: 'Aparte dos touros — Leilão Nelore JMP' },
-]
+import { PhotoGallery } from './PhotoGallery'
+import { youtubeEmbed, type JmpBlock } from '../content'
 
 function YoutubePlaceholder({ label }: { label: string }) {
   return (
@@ -33,88 +14,68 @@ function YoutubePlaceholder({ label }: { label: string }) {
   )
 }
 
-function LeilaoBlock({
-  id,
-  flyer,
-  flyerAlt,
-  heading,
-  subheading,
-  fotos,
-  playlistLabel,
-  logo,
-  logoAlt,
-}: {
-  id: string
-  flyer: string
-  flyerAlt: string
-  heading: string
-  subheading: string
-  fotos: GaleriaFoto[]
-  playlistLabel: string
-  logo?: string
-  logoAlt?: string
-}) {
+function YoutubeArea({ url, label }: { url?: string; label: string }) {
+  const embed = youtubeEmbed(url)
+  if (!embed) return <YoutubePlaceholder label={label} />
   return (
-    <section id={id} className="scroll-mt-24 bg-neutral-950">
-      {/* Flyer full-width */}
-      <img
-        src={flyer}
-        alt={flyerAlt}
-        className="block w-full h-auto"
+    <div className="relative aspect-video w-full overflow-hidden rounded-xl bg-black">
+      <iframe
+        className="absolute inset-0 h-full w-full"
+        src={embed}
+        title={label}
         loading="lazy"
-        decoding="async"
+        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+        referrerPolicy="strict-origin-when-cross-origin"
+        allowFullScreen
       />
+    </div>
+  )
+}
+
+function LeilaoBlock({ block }: { block: JmpBlock }) {
+  return (
+    <section id={block.id} className="scroll-mt-24 bg-neutral-950">
+      {/* Flyer full-width */}
+      {block.flyerUrl && (
+        <img
+          src={block.flyerUrl}
+          alt={block.flyerAlt}
+          className="block w-full h-auto"
+          loading="lazy"
+          decoding="async"
+        />
+      )}
 
       {/* Galeria — fotos + playlist */}
       <div className="mx-auto max-w-7xl px-5 sm:px-8 py-14 sm:py-20">
         <div className="mb-8">
-          {logo && (
+          {block.logoUrl && (
             <img
-              src={logo}
-              alt={logoAlt ?? heading}
+              src={block.logoUrl}
+              alt={block.logoAlt ?? block.heading}
               className="mb-5 h-16 w-auto sm:h-20"
               loading="lazy"
               decoding="async"
             />
           )}
-          <p className="text-[11px] font-bold uppercase tracking-widest text-white/40">{subheading}</p>
-          <h2 className="mt-2 text-3xl font-black tracking-tight text-white sm:text-4xl">{heading}</h2>
+          <p className="text-[11px] font-bold uppercase tracking-widest text-white/40">{block.subheading}</p>
+          <h2 className="mt-2 text-3xl font-black tracking-tight text-white sm:text-4xl">{block.heading}</h2>
         </div>
         <div className="grid items-start gap-5 md:grid-cols-2">
-          <PhotoGallery fotos={fotos} />
-          <YoutubePlaceholder label={playlistLabel} />
+          <PhotoGallery fotos={block.fotos} />
+          <YoutubeArea url={block.youtubeUrl} label={block.playlistLabel} />
         </div>
       </div>
     </section>
   )
 }
 
-export function LeilaoSections() {
+export function LeilaoSections({ blocks }: { blocks: JmpBlock[] }) {
   return (
     <>
-      {/* 1 — Flyer Bezerras + Galeria Fêmeas */}
-      <LeilaoBlock
-        id="aparte-femeas"
-        flyer={flyer13}
-        flyerAlt="Leilão Virtual Bezerras Nelore JMP Premium · 13 de Junho"
-        subheading="Sábado · 13 de Junho · 240 Bezerras FIV"
-        heading="Aparte das Fêmeas"
-        fotos={FOTOS_FEMEAS}
-        playlistLabel="Playlist YouTube — fêmeas"
-      />
-
-      {/* 2 — Flyer Touros + Galeria Touros */}
-      <LeilaoBlock
-        id="aparte-touros"
-        flyer={flyer14}
-        flyerAlt="10º Leilão Nelore JMP · 1000 Touros · 14 de Junho"
-        subheading="Domingo · 14 de Junho · 1.000 Touros PO"
-        heading="Aparte dos Touros"
-        fotos={FOTOS_TOUROS}
-        playlistLabel="Playlist YouTube — touros"
-        logo={logoTouros}
-        logoAlt="10ª Leilão Nelore JMP — Touros"
-      />
+      {blocks.map((block, i) => (
+        <LeilaoBlock key={block.id || i} block={block} />
+      ))}
     </>
   )
 }

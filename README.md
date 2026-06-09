@@ -42,6 +42,33 @@ rm -rf ../public/jmp && cp -R dist/. ../public/jmp/
 `jmp-landing/` fica fora do build do Next (excluído em `tsconfig.json` e `.vercelignore`);
 o que vai pra produção é apenas `public/jmp/`.
 
+> ⚠️ O Tailwind v4 do app principal **não** escaneia `jmp-landing/` nem `public/`
+> (`@source not` em `src/app/globals.css`) — eles têm Tailwind próprio e docs com
+> exemplos de classe que gerariam utilitários quebrados no CSS do app.
+
+### Conteúdo editável — painel `adminjmp.bulaassessoria.com`
+
+A landing JMP é **dinâmica**: a SPA lê `GET /api/jmp/content` em runtime e cai no
+default embutido se a API falhar. O conteúdo (flyers, galerias, textos do leilão,
+vídeos do YouTube, fundo, selo e link do WhatsApp) é gerenciado pelo painel servido
+em `adminjmp.*` (proxy reescreve o host → rota `/adminjmp`), **protegido pelo mesmo
+login do sistema**.
+
+- **Conteúdo**: 1 registro JSONB em `public.jmp_landing_content` (`id='default'`),
+  modelo em `src/lib/jmp-content.ts`.
+- **Imagens**: bucket público `jmp-landing` (Supabase Storage). Upload via
+  `POST /api/jmp/upload` (autenticado, service role).
+- **Salvar**: `POST /api/jmp/content` (autenticado). Leitura pública sem auth.
+- **Provisionar** (idempotente — cria bucket, tabela e semeia com as imagens atuais):
+  ```bash
+  node scripts/setup-jmp-landing.mjs
+  ```
+- Editar texto/dados não exige rebuild da SPA (vão pro banco). Só rebuilde a SPA
+  ao mexer em **código** dela. Ao trocar imagens default embutidas, atualize também
+  os arquivos em `jmp-landing/public/` (fallback).
+
+Produção: adicionar o domínio `adminjmp.bulaassessoria.com` no Vercel + DNS.
+
 ## Build / Produção
 
 ```bash

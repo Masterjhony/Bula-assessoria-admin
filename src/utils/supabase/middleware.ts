@@ -26,6 +26,15 @@ function isJmpHost(host: string | null): boolean {
   return h === 'jmp.localhost' || h.startsWith('jmp.')
 }
 
+// Subdomínio PRIVADO adminjmp.* (adminjmp.bulaassessoria.com) — painel que
+// gerencia o conteúdo da landing JMP (flyers, galerias, textos, vídeos). Serve
+// a rota /adminjmp do app Next, protegida pelo mesmo login do sistema.
+function isAdminJmpHost(host: string | null): boolean {
+  if (!host) return false
+  const h = host.toLowerCase().split(':')[0]
+  return h === 'adminjmp.localhost' || h.startsWith('adminjmp.')
+}
+
 // Subdomínio público de leilões (lp.* — "landing page" voltada ao cliente).
 // Mesma mecânica do ERP: o host reescreve para o prefixo de rota correspondente
 // (aqui, /agenda), mantendo as páginas em um único lugar no app.
@@ -43,8 +52,9 @@ function isLpHost(host: string | null): boolean {
 export async function updateSession(req: NextRequest) {
   const host = req.headers.get('host')
   const erp = isErpHost(host)
-  const jmp = !erp && isJmpHost(host)
-  const lp = !erp && !jmp && isLpHost(host)
+  const adminJmp = !erp && isAdminJmpHost(host)
+  const jmp = !erp && !adminJmp && isJmpHost(host)
+  const lp = !erp && !adminJmp && !jmp && isLpHost(host)
   const pathname = req.nextUrl.pathname
 
   const isSistemaPath =
@@ -77,6 +87,21 @@ export async function updateSession(req: NextRequest) {
       !pathname.startsWith('/bula/')
     ) {
       url.pathname = `/erp${pathname === '/' ? '' : pathname}`
+      res = NextResponse.rewrite(url, { request: req })
+    } else {
+      res = NextResponse.next({ request: req })
+    }
+  } else if (adminJmp) {
+    // Host adminjmp.* → rota /adminjmp do app Next. Tudo que não for API ou
+    // asset interno vira /adminjmp<path>. A proteção por login é aplicada
+    // abaixo (após getUser): sem usuário, serve o login da raiz.
+    const url = req.nextUrl.clone()
+    if (
+      !pathname.startsWith('/api/') &&
+      !pathname.startsWith('/_next') &&
+      !pathname.startsWith('/adminjmp')
+    ) {
+      url.pathname = `/adminjmp${pathname === '/' ? '' : pathname}`
       res = NextResponse.rewrite(url, { request: req })
     } else {
       res = NextResponse.next({ request: req })
@@ -168,6 +193,20 @@ export async function updateSession(req: NextRequest) {
     const url = req.nextUrl.clone()
     url.pathname = '/login'
     return NextResponse.redirect(url)
+  }
+
+  // adminjmp.* — privado. Sem usuário, serve o login da raiz (login.html); ao
+  // autenticar ele redireciona para '/', que neste host vira /adminjmp.
+  if (
+    adminJmp &&
+    !user &&
+    !pathname.startsWith('/api/') &&
+    !pathname.startsWith('/_next')
+  ) {
+    const url = req.nextUrl.clone()
+    url.pathname = '/'
+    url.search = ''
+    return NextResponse.rewrite(url, { request: req })
   }
 
   return res

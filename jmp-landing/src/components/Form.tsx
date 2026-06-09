@@ -193,7 +193,7 @@ function UFCombobox({ value, onChange, hasError }: UFComboboxProps) {
 }
 
 // ── Main Form ──────────────────────────────────────────────────
-export function Form() {
+export function Form({ badge }: { badge: string }) {
   const [step, setStep] = useState(1)
   const [formData, setFormData] = useState<FormData>({
     nome: '', email: '', whatsapp: '',
@@ -285,7 +285,7 @@ export function Form() {
           <div className="inline-flex items-center gap-2 bg-white/10 border border-white/20 rounded-full px-4 py-1.5 mb-7">
             <span className="h-1.5 w-1.5 rounded-full bg-white animate-pulse" />
             <span className="text-white text-[11px] font-bold uppercase tracking-[2px]">
-              Vagas limitadas · 13 e 14 de Junho
+              {badge}
             </span>
           </div>
 

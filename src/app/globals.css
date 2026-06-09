@@ -1,4 +1,10 @@
 @import "tailwindcss";
+/* Não escanear a SPA da landing JMP (jmp-landing/) nem os artefatos buildados
+   em public/: têm seu próprio Tailwind e contêm exemplos de classe em docs
+   (ex.: `bg-[url()]` num .md de planejamento) que gerariam utilitários
+   quebrados — como `background-image: url()` — no CSS do app principal. */
+@source not "../../jmp-landing";
+@source not "../../public";
 @variant dark (&:where([data-theme="dark"], [data-theme="dark"] *));
 
 /* ══════════════════════════════════════════════════════════

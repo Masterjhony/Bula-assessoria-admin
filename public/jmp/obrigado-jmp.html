@@ -304,9 +304,22 @@
   </div>
 
   <script>
-    const WA_URL = 'https://chat.whatsapp.com/JYxJPWfkoHHLZfosHlywN9';
+    let WA_URL = 'https://chat.whatsapp.com/JYxJPWfkoHHLZfosHlywN9';
     let seconds = 5;
     let redirectDone = false;
+
+    // Link do grupo é editável pelo painel adminjmp — busca o valor publicado
+    // e atualiza o botão. Em qualquer falha, mantém o fallback acima.
+    fetch('/api/jmp/content', { cache: 'no-store' })
+      .then(function (r) { return r.json(); })
+      .then(function (c) {
+        if (c && c.whatsappGroupUrl) {
+          WA_URL = c.whatsappGroupUrl;
+          var btn = document.getElementById('btn-wa');
+          if (btn) btn.setAttribute('href', WA_URL);
+        }
+      })
+      .catch(function () {});
 
     function handleBtnClick(el) {
       redirectDone = true;
