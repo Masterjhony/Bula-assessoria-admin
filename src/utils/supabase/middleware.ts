@@ -99,7 +99,8 @@ export async function updateSession(req: NextRequest) {
     if (
       !pathname.startsWith('/api/') &&
       !pathname.startsWith('/_next') &&
-      !pathname.startsWith('/adminjmp')
+      !pathname.startsWith('/adminjmp') &&
+      !(pathname !== '/' && isPublicPath(pathname))
     ) {
       url.pathname = `/adminjmp${pathname === '/' ? '' : pathname}`
       res = NextResponse.rewrite(url, { request: req })
@@ -200,6 +201,7 @@ export async function updateSession(req: NextRequest) {
   if (
     adminJmp &&
     !user &&
+    !(pathname !== '/' && isPublicPath(pathname)) &&
     !pathname.startsWith('/api/') &&
     !pathname.startsWith('/_next')
   ) {
