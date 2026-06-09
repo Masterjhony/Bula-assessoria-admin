@@ -7,7 +7,7 @@ import {
   Image as ImageLucide, Table2, CheckCircle2, FileText, Clock, Calendar,
 } from 'lucide-react'
 import { createClient } from '@/utils/supabase/client'
-import type { JmpContent, JmpBlock, JmpFoto, JmpFlowEmail, JmpEmailAttachment, JmpHero, JmpBenefit, JmpStat } from '@/lib/jmp-content'
+import type { JmpContent, JmpBlock, JmpFoto, JmpFlowEmail, JmpEmailAttachment, JmpHero, JmpBenefit, JmpStat, JmpIntro } from '@/lib/jmp-content'
 
 // ── upload: navegador → Supabase Storage direto (via URL assinada) ──────────
 async function uploadFile(file: File, folder: string): Promise<string> {
@@ -172,6 +172,32 @@ function StatsEditor({ stats, onChange }: { stats: JmpStat[]; onChange: (s: JmpS
               <button type="button" className="shrink-0 rounded p-1 text-neutral-500 hover:bg-neutral-100" onClick={() => onChange(move(stats, i, i - 1))}><ChevronUp className="h-4 w-4" /></button>
               <button type="button" className="shrink-0 rounded p-1 text-neutral-500 hover:bg-neutral-100" onClick={() => onChange(move(stats, i, i + 1))}><ChevronDown className="h-4 w-4" /></button>
               <button type="button" className="shrink-0 rounded p-1 text-red-600 hover:bg-red-50" onClick={() => onChange(stats.filter((_, idx) => idx !== i))}><Trash2 className="h-4 w-4" /></button>
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
+  )
+}
+
+// ── Bullets editor (lista simples de textos) ────────────────────────────────
+function BulletsEditor({ label, bullets, onChange }: { label: string; bullets: string[]; onChange: (b: string[]) => void }) {
+  return (
+    <div>
+      <div className="mb-2 flex items-center justify-between">
+        <label className={lbl}>{label} ({bullets.length})</label>
+        <button type="button" className={`${btn} bg-neutral-100 text-neutral-800 hover:bg-neutral-200`} onClick={() => onChange([...bullets, ''])}>
+          <Plus className="h-4 w-4" /> Adicionar item
+        </button>
+      </div>
+      {bullets.length > 0 && (
+        <div className="space-y-2">
+          {bullets.map((b, i) => (
+            <div key={i} className="flex items-center gap-2">
+              <input className={`${input} flex-1`} placeholder="Texto do item" value={b} onChange={(e) => onChange(bullets.map((x, idx) => (idx === i ? e.target.value : x)))} />
+              <button type="button" className="shrink-0 rounded p-1 text-neutral-500 hover:bg-neutral-100" onClick={() => onChange(move(bullets, i, i - 1))}><ChevronUp className="h-4 w-4" /></button>
+              <button type="button" className="shrink-0 rounded p-1 text-neutral-500 hover:bg-neutral-100" onClick={() => onChange(move(bullets, i, i + 1))}><ChevronDown className="h-4 w-4" /></button>
+              <button type="button" className="shrink-0 rounded p-1 text-red-600 hover:bg-red-50" onClick={() => onChange(bullets.filter((_, idx) => idx !== i))}><Trash2 className="h-4 w-4" /></button>
             </div>
           ))}
         </div>
@@ -485,6 +511,7 @@ export default function AdminJmpClient() {
 
   const set = (p: Partial<JmpContent>) => setContent((c) => (c ? { ...c, ...p } : c))
   const setHero = (p: Partial<JmpHero>) => setContent((c) => (c ? { ...c, hero: { ...c.hero, ...p } } : c))
+  const setIntro = (p: Partial<JmpIntro>) => setContent((c) => (c ? { ...c, intro: { ...c.intro, ...p } } : c))
   const setBlocks = (blocks: JmpBlock[]) => set({ blocks })
   const setFlow = (emailFlow: JmpFlowEmail[]) => set({ emailFlow })
 
@@ -561,6 +588,20 @@ export default function AdminJmpClient() {
                     <Field label="Local — linha 2" value={content.hero.locationLine2} onChange={(v) => setHero({ locationLine2: v })} placeholder="Terra Nova Eventos" />
                   </div>
                 </div>
+              </div>
+            </section>
+
+            <section className={card}>
+              <div className="border-b border-neutral-100 px-4 py-3">
+                <h2 className="text-sm font-bold">Oferta (abaixo do flyer)</h2>
+                <p className="text-xs text-neutral-500">Bloco de texto que aparece logo abaixo do flyer, antes dos leilões. Deixe tudo em branco para esconder.</p>
+              </div>
+              <div className="space-y-4 p-4">
+                <Field label="Título" value={content.intro.title} onChange={(v) => setIntro({ title: v })} placeholder="A melhor oferta do ano de animais PO do Nelore JMP" />
+                <TextArea label="Parágrafo (cada linha vira um parágrafo)" value={content.intro.body} onChange={(v) => setIntro({ body: v })} rows={3} />
+                <Field label="Linha de destaque (exibida em MAIÚSCULAS)" value={content.intro.highlight} onChange={(v) => setIntro({ highlight: v })} placeholder="A única assessoria do Brasil que apartou e analisou no curral os animais JMP" />
+                <BulletsEditor label="Itens (bullets)" bullets={content.intro.bullets} onChange={(bullets) => setIntro({ bullets })} />
+                <Field label="Linha final (resumo)" value={content.intro.footer} onChange={(v) => setIntro({ footer: v })} placeholder="1.000 Touros PO | 240 Bezerras PO" />
               </div>
             </section>
 
