@@ -1,6 +1,12 @@
 import { NextRequest } from 'next/server'
 import { supabaseAdmin } from '@/lib/supabase'
 import { fail, ok } from '@/lib/respond'
+import {
+  evaluateMql,
+  JMP_FUNNEL_ID,
+  DEFAULT_JMP_MQL_RULE,
+  type CRMMqlRule,
+} from '@/lib/crm-types'
 import { DEFAULT_JMP_CONTENT, sanitizeContent } from '@/lib/jmp-content'
 import { sendJmpWelcomeEmail } from '@/lib/jmp-welcome-email'
 import { enrollLeadInEmailFlow } from '@/lib/jmp-email-flow'
@@ -8,6 +14,24 @@ import { appendLeadToSheet } from '@/lib/jmp-sheets'
 
 const CONTENT_TABLE = 'jmp_landing_content'
 const CONTENT_ROW_ID = 'default'
+
+// Lê a regra de MQL do Funil JMP a partir do crm_config (site_settings). Como o
+// route roda com service role (sem getCRMConfig), busca direto. Qualquer falha
+// ou ausência cai no padrão ≥100 cabeças + tem IE.
+async function getJmpMqlRule(): Promise<CRMMqlRule> {
+  try {
+    const { data } = await supabaseAdmin()
+      .from('site_settings')
+      .select('value')
+      .eq('key', 'crm_config')
+      .maybeSingle()
+    const funnels = (data?.value as { funnels?: Array<{ id: string; mql_rule?: CRMMqlRule }> } | null)?.funnels
+    const jmp = funnels?.find((f) => f.id === JMP_FUNNEL_ID)
+    return jmp?.mql_rule ?? DEFAULT_JMP_MQL_RULE
+  } catch {
+    return DEFAULT_JMP_MQL_RULE
+  }
+}
 
 // Endpoint PÚBLICO da landing jmp.bulaassessoria.com (formulário Nelore JMP).
 // Não exige usuário autenticado: grava o lead direto em crm_leads via service
@@ -29,23 +53,38 @@ export async function POST(req: NextRequest) {
     return s.length ? s : null
   }
 
+  const cabecas = str(body.cabecas)
+  const temInscricaoEstadual = str(body.inscricaoEstadual)
+
+  // Regra de MQL do Funil JMP (editável nas Configurações do CRM, por funil).
+  // Best-effort: se a config não existir/falhar, cai no padrão (≥100 + tem IE).
+  const mqlRule = await getJmpMqlRule()
+  const isMql = evaluateMql(mqlRule, {
+    quantidade_animais: cabecas,
+    tem_inscricao_estadual: temInscricaoEstadual,
+  })
+
   const lead = {
     nome,
     email,
+    // Grava o WhatsApp em telefone E celular: o CRM (modal/cards) usa `celular`
+    // como contato principal — sem isso o número "não puxa" ao abrir o lead.
     telefone: whatsapp,
+    celular: whatsapp,
     estado: str(body.uf),
     cidade: str(body.cidade),
     momento_pecuaria: str(body.momento),
-    quantidade_animais: str(body.cabecas),
+    quantidade_animais: cabecas,
     interesse: str(body.interesse),
     // "Sim"/"Não" — se o lead tem inscrição estadual (pergunta obrigatória na
     // landing). Coluna distinta de inscricao_estadual (o número da IE).
-    tem_inscricao_estadual: str(body.inscricaoEstadual),
+    tem_inscricao_estadual: temInscricaoEstadual,
     // Quantidade que o lead precisa, já em texto legível e contextual ao
     // interesse (ex.: "21 a 50 touros"). Montado na landing.
     o_que_busca: str(body.oQueBusca),
     status: 'Lead',
-    is_mql: true,
+    funnel_id: JMP_FUNNEL_ID,
+    is_mql: isMql,
     origem: 'Landing JMP — Nelore 13/14 jun',
     source: 'jmp-landing',
     source_page: 'jmp.bulaassessoria.com',

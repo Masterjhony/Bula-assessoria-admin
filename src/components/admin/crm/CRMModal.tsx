@@ -5,6 +5,7 @@ import { X, Save, Trash2, ChevronDown, ChevronUp, Crown, User, TrendingUp, Phone
 import { CRMLead, deleteLead } from '@/app/sistema/actions/crm-leads';
 import { CRM_COLUMNS } from './CRMKanbanBoard';
 import type { CRMCustomField, CRMFunnel, CRMResponsavel } from '@/lib/crm-types';
+import { evaluateMql } from '@/lib/crm-types';
 import { CRMContactsHistory } from './CRMContactsHistory';
 
 interface CRMModalProps {
@@ -63,9 +64,17 @@ export function CRMModal({ isOpen, onClose, lead, defaultStatus, defaultFunnelId
     const [isDeleting, setIsDeleting] = useState(false);
     const [showOrigemSection, setShowOrigemSection] = useState(false);
 
+    // Regra de MQL do funil deste lead (cabeças + IE). Default: 'default'.
+    const mqlRule = funnels.find(f => f.id === (formData.funnel_id || 'default'))?.mql_rule;
+    const requireIe = !!mqlRule?.require_ie;
+    const minCabecas = mqlRule?.min_cabecas ?? 100;
+
     useEffect(() => {
         if (lead) {
-            setFormData(lead);
+            // `celular` é o contato principal do CRM. Leads vindos de integrações
+            // (ex.: landing JMP) gravam o número em `telefone` — sem este fallback
+            // o campo "puxa" vazio ao abrir o lead.
+            setFormData({ ...lead, celular: lead.celular || lead.telefone || '' });
             // Auto-expand origem section if lead has source data
             if (lead.source || lead.medium || lead.campaign) {
                 setShowOrigemSection(true);
@@ -213,7 +222,18 @@ export function CRMModal({ isOpen, onClose, lead, defaultStatus, defaultFunnelId
                                     <label className={labelClass}>Tem Inscrição Estadual?</label>
                                     <select
                                         value={formData.tem_inscricao_estadual || ''}
-                                        onChange={e => setFormData({ ...formData, tem_inscricao_estadual: e.target.value })}
+                                        onChange={e => {
+                                            const v = e.target.value;
+                                            setFormData({
+                                                ...formData,
+                                                tem_inscricao_estadual: v,
+                                                // IE entra no critério de MQL — recalcula junto.
+                                                is_mql: evaluateMql(mqlRule, {
+                                                    quantidade_animais: formData.quantidade_animais,
+                                                    tem_inscricao_estadual: v,
+                                                }),
+                                            });
+                                        }}
                                         className={inputClass}
                                     >
                                         <option value="">—</option>
@@ -421,10 +441,14 @@ export function CRMModal({ isOpen, onClose, lead, defaultStatus, defaultFunnelId
                                         value={formData.quantidade_animais || ''}
                                         onChange={e => {
                                             const v = e.target.value;
-                                            const MQL_FAIXAS = new Set(['100-300','300-500','500+','100 a 300','300 a 500','500 ou mais']);
-                                            const num = v.match(/^(\d+)\s*$/);
-                                            const isMqlNow = MQL_FAIXAS.has(v) || (num ? Number(num[1]) >= 100 : false);
-                                            setFormData({ ...formData, quantidade_animais: v, is_mql: isMqlNow });
+                                            setFormData({
+                                                ...formData,
+                                                quantidade_animais: v,
+                                                is_mql: evaluateMql(mqlRule, {
+                                                    quantidade_animais: v,
+                                                    tem_inscricao_estadual: formData.tem_inscricao_estadual,
+                                                }),
+                                            });
                                         }}
                                         className={inputClass}
                                         placeholder="0 a 100"
@@ -467,7 +491,7 @@ export function CRMModal({ isOpen, onClose, lead, defaultStatus, defaultFunnelId
                                 <span className="text-xs font-bold uppercase tracking-wider text-[#A68B4B] flex-1">
                                     MQL — Marketing Qualified Lead
                                     <span className="block font-normal normal-case text-[11px] text-gray-500 dark:text-gray-400 tracking-normal mt-0.5">
-                                        Definido automaticamente quando o lead tem ≥100 cabeças. Você pode ajustar manualmente.
+                                        Definido automaticamente quando o lead tem ≥{minCabecas} cabeças{requireIe ? ' e Inscrição Estadual' : ''}. Você pode ajustar manualmente.
                                     </span>
                                 </span>
                                 <button

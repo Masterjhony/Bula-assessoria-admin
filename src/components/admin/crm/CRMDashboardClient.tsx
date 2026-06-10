@@ -11,6 +11,7 @@ import { CRMModal } from './CRMModal';
 import { CRMSettingsView } from './CRMSettingsView';
 import { CRMQualificacaoView } from './CRMQualificacaoView';
 import { CRMPreferenciaisStrip } from './CRMPreferenciaisStrip';
+import { FunnelSelector } from '@/components/admin/funil-vendas/FunnelSelector';
 import {
     LayoutGrid, Plus, Maximize2, Minimize2, Settings, ListChecks,
 } from 'lucide-react';
@@ -41,6 +42,16 @@ export function CRMDashboardClient({ initialLeads, crmConfig: initialConfig }: C
     const rawView = searchParams.get('view');
     const activeView: ViewType = (rawView && (VALID_VIEWS as string[]).includes(rawView))
         ? (rawView as ViewType) : 'qualificacao';
+
+    // Funil ativo (deep-link `?funnel=<id>`). Default: primeiro funil da config.
+    const funnels = crmConfig.funnels;
+    const rawFunnel = searchParams.get('funnel');
+    const activeFunnel = useMemo(
+        () => funnels.find(f => f.id === rawFunnel) ?? funnels[0],
+        [funnels, rawFunnel]
+    );
+    const activeFunnelId = activeFunnel?.id ?? 'default';
+
     const editingLeadId = searchParams.get('lead');
     const editingLead = useMemo<CRMLead | undefined>(
         () => (editingLeadId ? leads.find(l => l.id === editingLeadId) : undefined),
@@ -58,6 +69,9 @@ export function CRMDashboardClient({ initialLeads, crmConfig: initialConfig }: C
     const setActiveView = (next: ViewType) => {
         updateUrl(p => { if (next === 'qualificacao') p.delete('view'); else p.set('view', next); });
     };
+    const setActiveFunnelId = (id: string) => {
+        updateUrl(p => { if (!id || id === funnels[0]?.id) p.delete('funnel'); else p.set('funnel', id); });
+    };
     const setEditingLeadId = (id: string | null) => {
         updateUrl(p => { if (id) p.set('lead', id); else p.delete('lead'); });
     };
@@ -66,22 +80,40 @@ export function CRMDashboardClient({ initialLeads, crmConfig: initialConfig }: C
         setEditingLeadId(null);
     };
 
-    const allStages = crmConfig.stages.map(s => s.name);
+    // Etapas vêm do funil ativo (cada funil tem seu próprio pipeline).
+    const funnelStages = activeFunnel?.stages ?? crmConfig.stages;
+    const allStages = funnelStages.map(s => s.name);
 
     // Etapas que aparecem no Kanban principal (exclui as marcadas como qualificação)
     const advancedStages = useMemo(
-        () => crmConfig.stages.filter(s => !isQualificationStage(s)).map(s => s.name),
-        [crmConfig.stages]
+        () => funnelStages.filter(s => !isQualificationStage(s)).map(s => s.name),
+        [funnelStages]
     );
 
     const qualificationStageNames = useMemo(
-        () => new Set(crmConfig.stages.filter(isQualificationStage).map(s => s.name)),
-        [crmConfig.stages]
+        () => new Set(funnelStages.filter(isQualificationStage).map(s => s.name)),
+        [funnelStages]
     );
 
+    // Leads do funil ativo (leads antigos sem funnel_id contam como 'default').
+    const funnelLeads = useMemo(
+        () => leads.filter(l => (l.funnel_id || 'default') === activeFunnelId),
+        [leads, activeFunnelId]
+    );
+
+    // Contagem de leads por funil — exibida nos chips do seletor.
+    const funnelCounts = useMemo(() => {
+        const counts: Record<string, number> = {};
+        for (const l of leads) {
+            const fid = l.funnel_id || 'default';
+            counts[fid] = (counts[fid] ?? 0) + 1;
+        }
+        return counts;
+    }, [leads]);
+
     const qualificationCount = useMemo(
-        () => leads.filter(l => qualificationStageNames.has(l.status)).length,
-        [leads, qualificationStageNames]
+        () => funnelLeads.filter(l => qualificationStageNames.has(l.status)).length,
+        [funnelLeads, qualificationStageNames]
     );
 
     const handleOpenNewLead = (status: string = advancedStages[0] || 'Qualificado') => {
@@ -140,10 +172,10 @@ export function CRMDashboardClient({ initialLeads, crmConfig: initialConfig }: C
         }
     };
 
-    // Leads que podem aparecer no kanban / listas (exclui qualificação)
+    // Leads que podem aparecer no kanban / listas (exclui qualificação) — já restritos ao funil ativo.
     const advancedLeads = useMemo(
-        () => leads.filter(l => !qualificationStageNames.has(l.status)),
-        [leads, qualificationStageNames]
+        () => funnelLeads.filter(l => !qualificationStageNames.has(l.status)),
+        [funnelLeads, qualificationStageNames]
     );
 
     const views = [
@@ -172,6 +204,16 @@ export function CRMDashboardClient({ initialLeads, crmConfig: initialConfig }: C
                     </span>
                 </h1>
             </div>
+
+            {/* Seletor de funil — só quando há mais de um funil configurado. */}
+            {funnels.length > 1 && (
+                <FunnelSelector
+                    funnels={funnels}
+                    activeFunnelId={activeFunnelId}
+                    onSelect={setActiveFunnelId}
+                    counts={funnelCounts}
+                />
+            )}
 
             {/* Tabs & Controls */}
             <div className="flex justify-between items-center border-b border-[var(--border)]">
@@ -222,8 +264,10 @@ export function CRMDashboardClient({ initialLeads, crmConfig: initialConfig }: C
             <div className={isScrollable ? '' : 'flex-1 min-h-[600px] overflow-hidden'}>
                 {activeView === 'qualificacao' && (
                     <CRMQualificacaoView
-                        leads={leads}
+                        leads={funnelLeads}
                         crmConfig={crmConfig}
+                        funnelStages={funnelStages}
+                        mqlRule={activeFunnel?.mql_rule}
                         onLeadUpdated={handleLeadUpdated}
                         onOpenLead={handleEditLead}
                     />
@@ -262,8 +306,9 @@ export function CRMDashboardClient({ initialLeads, crmConfig: initialConfig }: C
                 onClose={closeModal}
                 lead={editingLead}
                 defaultStatus={defaultStatus}
+                defaultFunnelId={activeFunnelId}
                 stages={allStages}
-                customFields={crmConfig.custom_fields}
+                customFields={activeFunnel?.custom_fields ?? crmConfig.custom_fields}
                 responsaveis={crmConfig.responsaveis}
                 funnels={crmConfig.funnels}
                 onSave={handleSaveLead}

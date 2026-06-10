@@ -3,6 +3,8 @@
 import { createClient } from '@/utils/supabase/server';
 import { revalidatePath } from 'next/cache';
 import { dispatchWelcome } from '@/lib/whatsapp';
+import { evaluateMql, JMP_FUNNEL_ID, DEFAULT_JMP_MQL_RULE } from '@/lib/crm-types';
+import { getCRMConfig } from './crm-config';
 
 export interface CRMContactEntry {
     id: string;              // uuid local
@@ -210,6 +212,58 @@ export async function moveLeadToFunnel(id: string, funnelId: string, newStatus: 
 
     revalidatePath('/web-admin/crm');
     revalidatePath('/web-admin/funil-vendas');
+}
+
+/**
+ * Reavalia os leads que vieram da landing JMP (source = 'jmp-landing'), corrigindo
+ * o histórico criado antes da regra de MQL: recalcula is_mql pela regra atual do
+ * Funil JMP, copia telefone → celular (contato principal do CRM) e atribui o
+ * funnel_id do Funil JMP. Idempotente — só grava nos leads que de fato mudam.
+ * Retorna quantos leads foram atualizados.
+ */
+export async function reavaliarLeadsJmp(): Promise<{ updated: number; total: number }> {
+    const supabase = await createClient();
+
+    const config = await getCRMConfig();
+    const rule = config.funnels.find(f => f.id === JMP_FUNNEL_ID)?.mql_rule ?? DEFAULT_JMP_MQL_RULE;
+
+    const { data, error } = await supabase
+        .from('crm_leads')
+        .select('id, telefone, celular, funnel_id, is_mql, quantidade_animais, tem_inscricao_estadual')
+        .eq('source', 'jmp-landing');
+
+    if (error) throw new Error(`Error fetching JMP leads: ${error.message}`);
+
+    const leads = (data ?? []) as Array<Pick<CRMLead,
+        'id' | 'telefone' | 'celular' | 'funnel_id' | 'is_mql' | 'quantidade_animais' | 'tem_inscricao_estadual'>>;
+
+    let updated = 0;
+    for (const lead of leads) {
+        const patch: Partial<CRMLead> = {};
+
+        const nextMql = evaluateMql(rule, {
+            quantidade_animais: lead.quantidade_animais,
+            tem_inscricao_estadual: lead.tem_inscricao_estadual,
+        });
+        if (!!lead.is_mql !== nextMql) patch.is_mql = nextMql;
+
+        if (!lead.celular && lead.telefone) patch.celular = lead.telefone;
+
+        if (lead.funnel_id !== JMP_FUNNEL_ID) patch.funnel_id = JMP_FUNNEL_ID;
+
+        if (Object.keys(patch).length === 0) continue;
+
+        const { error: updErr } = await supabase
+            .from('crm_leads')
+            .update(patch)
+            .eq('id', lead.id);
+        if (updErr) throw new Error(`Error updating lead ${lead.id}: ${updErr.message}`);
+        updated++;
+    }
+
+    revalidatePath('/web-admin/crm');
+    revalidatePath('/web-admin/funil-vendas');
+    return { updated, total: leads.length };
 }
 
 export async function recordContact(

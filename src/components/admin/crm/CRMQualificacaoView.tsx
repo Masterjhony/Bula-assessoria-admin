@@ -2,8 +2,8 @@
 
 import { useEffect, useMemo, useState } from 'react';
 import { CRMLead, updateLead } from '@/app/sistema/actions/crm-leads';
-import type { CRMConfig } from '@/lib/crm-types';
-import { isQualificationStage } from '@/lib/crm-types';
+import type { CRMConfig, CRMMqlRule, CRMStage } from '@/lib/crm-types';
+import { isQualificationStage, evaluateMql } from '@/lib/crm-types';
 import { Pagination } from '@/components/admin/Pagination';
 import {
     ChevronRight, Phone, Instagram, MapPin, Beef, Search,
@@ -28,6 +28,10 @@ function momentoLabel(v?: string | null): string | null {
 interface CRMQualificacaoViewProps {
     leads: CRMLead[];
     crmConfig: CRMConfig;
+    /** Etapas do funil ativo — definem quais leads estão "em qualificação". */
+    funnelStages?: CRMStage[];
+    /** Regra de MQL do funil ativo (mínimo de cabeças + exige IE). */
+    mqlRule?: CRMMqlRule;
     onLeadUpdated: (lead: CRMLead) => void;
     onOpenLead: (lead: CRMLead) => void;
 }
@@ -51,7 +55,7 @@ function missingFieldsCount(lead: CRMLead): number {
     return REQUIRED_FIELDS.reduce((acc, f) => acc + (fieldFilled(lead, f.key) ? 0 : 1), 0);
 }
 
-export function CRMQualificacaoView({ leads, crmConfig, onLeadUpdated, onOpenLead }: CRMQualificacaoViewProps) {
+export function CRMQualificacaoView({ leads, crmConfig, funnelStages, mqlRule, onLeadUpdated, onOpenLead }: CRMQualificacaoViewProps) {
     const [search, setSearch] = useState('');
     const [savingId, setSavingId] = useState<string | null>(null);
     const [qualifyingId, setQualifyingId] = useState<string | null>(null);
@@ -59,15 +63,20 @@ export function CRMQualificacaoView({ leads, crmConfig, onLeadUpdated, onOpenLea
     const [page, setPage] = useState(1);
     const [perPage, setPerPage] = useState(25);
 
+    const stages = funnelStages ?? crmConfig.stages;
+
     const qualificationStageNames = useMemo(
-        () => new Set(crmConfig.stages.filter(isQualificationStage).map(s => s.name)),
-        [crmConfig.stages]
+        () => new Set(stages.filter(isQualificationStage).map(s => s.name)),
+        [stages]
     );
 
     const firstAdvancedStage = useMemo(
-        () => crmConfig.stages.find(s => !isQualificationStage(s))?.name || 'Qualificado',
-        [crmConfig.stages]
+        () => stages.find(s => !isQualificationStage(s))?.name || 'Qualificado',
+        [stages]
     );
+
+    const minCabecas = mqlRule?.min_cabecas ?? 100;
+    const requireIe = !!mqlRule?.require_ie;
 
     const qualificationLeads = useMemo(() => {
         return leads
@@ -167,7 +176,7 @@ export function CRMQualificacaoView({ leads, crmConfig, onLeadUpdated, onOpenLea
             <div className="grid grid-cols-2 md:grid-cols-6 gap-3">
                 {[
                     { label: 'Aguardando qualificação', value: stats.total, icon: ListChecks, color: 'text-[#A68B4B]', bg: 'bg-[#A68B4B]/10' },
-                    { label: 'MQLs (≥100 cab.)', value: stats.mqls, icon: Crown, color: 'text-fuchsia-600 dark:text-fuchsia-400', bg: 'bg-fuchsia-500/10' },
+                    { label: `MQLs (≥${minCabecas} cab.${requireIe ? ' + I.E.' : ''})`, value: stats.mqls, icon: Crown, color: 'text-fuchsia-600 dark:text-fuchsia-400', bg: 'bg-fuchsia-500/10' },
                     { label: 'Sem cabeçinhas', value: stats.semAnimais, icon: Beef, color: 'text-rose-500', bg: 'bg-rose-500/10' },
                     { label: 'Sem interesse', value: stats.semInteresse, icon: AlertCircle, color: 'text-amber-500', bg: 'bg-amber-500/10' },
                     { label: 'Sem localização', value: stats.semLocal, icon: MapPin, color: 'text-blue-500', bg: 'bg-blue-500/10' },
@@ -244,7 +253,7 @@ export function CRMQualificacaoView({ leads, crmConfig, onLeadUpdated, onOpenLea
                                             {isMql && (
                                                 <span
                                                     className="inline-flex items-center gap-1 text-[10px] font-extrabold uppercase px-2 py-0.5 rounded-full bg-gradient-to-r from-[#A68B4B] to-[#C8A96E] text-black shadow-sm"
-                                                    title="Marketing Qualified Lead — ≥100 cabeças. Prioridade de atendimento."
+                                                    title={`Marketing Qualified Lead — ≥${minCabecas} cabeças${requireIe ? ' e com Inscrição Estadual' : ''}. Prioridade de atendimento.`}
                                                 >
                                                     <Crown size={10} /> MQL
                                                 </span>
@@ -268,6 +277,18 @@ export function CRMQualificacaoView({ leads, crmConfig, onLeadUpdated, onOpenLea
                                             {momentoLabel(lead.momento_pecuaria) && (
                                                 <span className="inline-flex items-center text-[10px] font-bold uppercase px-2 py-0.5 rounded-full bg-blue-500/10 text-blue-600 dark:text-blue-300">
                                                     {momentoLabel(lead.momento_pecuaria)}
+                                                </span>
+                                            )}
+                                            {lead.tem_inscricao_estadual && (
+                                                <span
+                                                    className={`inline-flex items-center text-[10px] font-bold uppercase px-2 py-0.5 rounded-full ${
+                                                        lead.tem_inscricao_estadual.trim().toLowerCase() === 'sim'
+                                                            ? 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400'
+                                                            : 'bg-gray-200 dark:bg-[#2e2e2e] text-gray-500 dark:text-gray-400'
+                                                    }`}
+                                                    title="Tem Inscrição Estadual?"
+                                                >
+                                                    I.E. {lead.tem_inscricao_estadual}
                                                 </span>
                                             )}
                                             {lead.source && (
@@ -344,13 +365,13 @@ export function CRMQualificacaoView({ leads, crmConfig, onLeadUpdated, onOpenLea
                                         onChange={v => updateDraft(lead.id, { quantidade_animais: v })}
                                         onBlur={v => {
                                             if (v === (lead.quantidade_animais || '')) return;
-                                            // Recalcula MQL pela mesma regra canônica do quiz/webhook.
-                                            const MQL_FAIXAS = new Set(['100-300','300-500','500+','100 a 300','300 a 500','500 ou mais']);
-                                            const num = v.match(/^(\d+)\s*$/);
-                                            const isMqlNow = MQL_FAIXAS.has(v) || (num ? Number(num[1]) >= 100 : false);
+                                            // Recalcula MQL pela regra do funil (cabeças + IE).
                                             persistField(lead, {
                                                 quantidade_animais: v || null,
-                                                is_mql: isMqlNow,
+                                                is_mql: evaluateMql(mqlRule, {
+                                                    quantidade_animais: v,
+                                                    tem_inscricao_estadual: lead.tem_inscricao_estadual,
+                                                }),
                                             });
                                         }}
                                         placeholder="500"
@@ -376,6 +397,24 @@ export function CRMQualificacaoView({ leads, crmConfig, onLeadUpdated, onOpenLea
                                             { value: 'pecuaria-de-corte', label: 'Corte' },
                                             { value: 'corte-e-po', label: 'Corte + P.O.' },
                                             { value: 'criador-renomado-po', label: 'Criador P.O.' },
+                                        ]}
+                                        inputCls={inputCls}
+                                    />
+                                    <SelectField
+                                        label="Tem I.E.?"
+                                        value={lDraft.tem_inscricao_estadual ?? lead.tem_inscricao_estadual ?? ''}
+                                        onChange={v => persistField(lead, {
+                                            tem_inscricao_estadual: v || null,
+                                            // IE entra no critério de MQL — recalcula junto.
+                                            is_mql: evaluateMql(mqlRule, {
+                                                quantidade_animais: lead.quantidade_animais,
+                                                tem_inscricao_estadual: v,
+                                            }),
+                                        })}
+                                        options={[
+                                            { value: '', label: '—' },
+                                            { value: 'Sim', label: 'Sim' },
+                                            { value: 'Não', label: 'Não' },
                                         ]}
                                         inputCls={inputCls}
                                     />

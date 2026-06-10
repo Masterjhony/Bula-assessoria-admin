@@ -2,7 +2,7 @@
 
 import { createClient } from '@/utils/supabase/server';
 import { revalidatePath } from 'next/cache';
-import { CRMConfig, CRMFunnel, DEFAULT_STAGES, DEFAULT_CRM_CONFIG } from '@/lib/crm-types';
+import { CRMConfig, CRMFunnel, DEFAULT_STAGES, DEFAULT_CRM_CONFIG, JMP_FUNNEL, JMP_FUNNEL_ID } from '@/lib/crm-types';
 
 export async function getCRMConfig(): Promise<CRMConfig> {
     const supabase = await createClient();
@@ -23,6 +23,13 @@ export async function getCRMConfig(): Promise<CRMConfig> {
     let funnels: CRMFunnel[] = config.funnels || [];
     if (funnels.length === 0) {
         funnels = [{ id: 'default', name: 'Pipeline Principal', color: 'yellow', stages, custom_fields }];
+    }
+
+    // Garante o Funil JMP (sistema): mesmo que o admin nunca o tenha salvo, ele
+    // precisa existir para o seletor de funil e para a regra de MQL dos leads da
+    // landing. Idempotente — só adiciona se ausente; preserva edições do admin.
+    if (!funnels.some(f => f.id === JMP_FUNNEL_ID)) {
+        funnels = [...funnels, JMP_FUNNEL];
     }
 
     return {

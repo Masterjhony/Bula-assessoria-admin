@@ -15,12 +15,25 @@ export interface CRMCustomField {
     required?: boolean;
 }
 
+/**
+ * Critério que define quando um lead deste funil é MQL (Marketing Qualified Lead).
+ * Editável por funil nas Configurações do CRM.
+ */
+export interface CRMMqlRule {
+    /** Mínimo de cabeças (piso da faixa) para o lead ser MQL. Default 100. */
+    min_cabecas?: number | null;
+    /** Se true, o lead só é MQL quando tem Inscrição Estadual ("Sim"). */
+    require_ie?: boolean;
+}
+
 export interface CRMFunnel {
     id: string;
     name: string;
     color?: string;
     stages: CRMStage[];
     custom_fields: CRMCustomField[];
+    /** Regra de MQL deste funil. Ausente = sem qualificação automática por regra. */
+    mql_rule?: CRMMqlRule;
 }
 
 export interface CRMResponsavel {
@@ -64,12 +77,64 @@ export const DEFAULT_FUNNEL: CRMFunnel = {
     custom_fields: [],
 };
 
+/** Regra de MQL padrão do Funil JMP: ≥100 cabeças E tem Inscrição Estadual. */
+export const DEFAULT_JMP_MQL_RULE: CRMMqlRule = { min_cabecas: 100, require_ie: true };
+
+/** Id fixo do funil que recebe os leads do formulário jmp.bulaassessoria.com. */
+export const JMP_FUNNEL_ID = 'funnel_jmp';
+
+/**
+ * Funil dedicado aos leads da landing JMP. É sempre garantido por getCRMConfig
+ * (mesmo que o admin nunca o tenha salvo), para que o seletor de funil e a regra
+ * de MQL existam de cara. As etapas espelham o pipeline padrão.
+ */
+export const JMP_FUNNEL: CRMFunnel = {
+    id: JMP_FUNNEL_ID,
+    name: 'Funil JMP',
+    color: 'green',
+    stages: DEFAULT_STAGES,
+    custom_fields: [],
+    mql_rule: DEFAULT_JMP_MQL_RULE,
+};
+
 export const DEFAULT_CRM_CONFIG: CRMConfig = {
     stages: DEFAULT_STAGES,
     custom_fields: [],
-    funnels: [DEFAULT_FUNNEL],
+    funnels: [DEFAULT_FUNNEL, JMP_FUNNEL],
     responsaveis: [],
 };
+
+/**
+ * Extrai o piso numérico de uma faixa de cabeças vinda do quiz/landing:
+ *   "100-300" → 100 · "500+" → 500 · "50-100" → 50 · "250" → 250 · "nenhuma" → 0
+ * Usa o primeiro número da string (o limite inferior da faixa), que é o valor
+ * conservador para comparar com o mínimo exigido.
+ */
+export function parseCabecasFloor(value?: string | null): number | null {
+    if (value == null) return null;
+    const v = String(value).trim().toLowerCase();
+    if (!v) return null;
+    if (v === 'nenhuma') return 0;
+    const m = v.match(/\d+/);
+    return m ? Number(m[0]) : null;
+}
+
+/**
+ * Avalia se um lead é MQL segundo a regra do funil.
+ * - cabeças: piso da faixa precisa ser ≥ min_cabecas (default 100)
+ * - IE: se require_ie, tem_inscricao_estadual precisa ser "Sim"
+ */
+export function evaluateMql(
+    rule: CRMMqlRule | undefined | null,
+    lead: { quantidade_animais?: string | null; tem_inscricao_estadual?: string | null }
+): boolean {
+    const min = rule?.min_cabecas ?? 100;
+    const floor = parseCabecasFloor(lead.quantidade_animais);
+    const hasHeads = floor != null && floor >= min;
+    const requireIe = rule?.require_ie ?? false;
+    const ieOk = !requireIe || (lead.tem_inscricao_estadual || '').trim().toLowerCase() === 'sim';
+    return hasHeads && ieOk;
+}
 
 export const STAGE_COLOR_HEX: Record<string, string> = {
     pink: '#ec4899',

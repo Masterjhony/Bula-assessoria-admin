@@ -6,8 +6,9 @@ import {
     ChevronUp, ChevronDown, ChevronRight, Eye, EyeOff,
 } from 'lucide-react';
 import { saveCRMConfig, renameStage } from '@/app/sistema/actions/crm-config';
-import type { CRMConfig, CRMCustomField, CRMFunnel, CRMStage } from '@/lib/crm-types';
-import { DEFAULT_STAGES, isQualificationStage } from '@/lib/crm-types';
+import { reavaliarLeadsJmp } from '@/app/sistema/actions/crm-leads';
+import type { CRMConfig, CRMCustomField, CRMFunnel, CRMMqlRule, CRMStage } from '@/lib/crm-types';
+import { DEFAULT_STAGES, isQualificationStage, JMP_FUNNEL_ID } from '@/lib/crm-types';
 
 interface FunnelsEditorProps {
     initialConfig: CRMConfig;
@@ -226,6 +227,30 @@ export function FunnelsEditor({ initialConfig, onConfigSaved }: FunnelsEditorPro
         setNewStageColor('blue');
         setNewStageProbability('');
         setShowNewStage(false);
+    };
+
+    const updateMqlRule = (funnelId: string, patch: Partial<CRMMqlRule>) => {
+        setFunnels(prev => prev.map(f =>
+            f.id === funnelId ? { ...f, mql_rule: { ...f.mql_rule, ...patch } } : f
+        ));
+    };
+
+    // Reavaliação dos leads do JMP (corrige MQL/telefone/funil dos já cadastrados).
+    const [reavaliando, setReavaliando] = useState(false);
+    const [reavaliouMsg, setReavaliouMsg] = useState<string | null>(null);
+
+    const handleReavaliarJmp = async () => {
+        setReavaliando(true);
+        setReavaliouMsg(null);
+        try {
+            const { updated, total } = await reavaliarLeadsJmp();
+            setReavaliouMsg(`${updated} de ${total} lead(s) do JMP atualizados.`);
+        } catch (e) {
+            const msg = e instanceof Error ? e.message : 'Erro ao reavaliar leads.';
+            setReavaliouMsg(msg);
+        } finally {
+            setReavaliando(false);
+        }
     };
 
     const deleteField = (funnelId: string, fieldId: string) => {
@@ -519,6 +544,55 @@ export function FunnelsEditor({ initialConfig, onConfigSaved }: FunnelsEditorPro
                                                     );
                                                 })}
                                             </div>
+                                        </div>
+
+                                        <div className="px-6 pt-3 pb-4 border-t border-gray-100 dark:border-[#2A2A2A]">
+                                            <p className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1">Critério de MQL</p>
+                                            <p className="text-[10px] text-gray-400 mb-3 leading-relaxed">
+                                                Um lead deste funil vira <span className="font-semibold">MQL</span> (prioridade de atendimento) automaticamente quando atende ao mínimo de cabeças e, se marcado, tem Inscrição Estadual.
+                                            </p>
+                                            <div className="bg-white dark:bg-[#1A1A1A] rounded-xl border border-gray-200 dark:border-[#333] p-4 flex flex-wrap items-end gap-4">
+                                                <div>
+                                                    <label className="text-xs font-medium text-gray-500 mb-1 block">Mínimo de cabeças</label>
+                                                    <input
+                                                        type="number"
+                                                        min={0}
+                                                        placeholder="100"
+                                                        value={funnel.mql_rule?.min_cabecas ?? ''}
+                                                        onChange={e => updateMqlRule(
+                                                            funnel.id,
+                                                            { min_cabecas: e.target.value === '' ? null : Number(e.target.value) }
+                                                        )}
+                                                        className={`${inputCls} w-32`}
+                                                    />
+                                                </div>
+                                                <label className="flex items-center gap-2 pb-2.5 cursor-pointer select-none">
+                                                    <input
+                                                        type="checkbox"
+                                                        checked={!!funnel.mql_rule?.require_ie}
+                                                        onChange={e => updateMqlRule(funnel.id, { require_ie: e.target.checked })}
+                                                        className="w-4 h-4 accent-[#A68B4B]"
+                                                    />
+                                                    <span className="text-sm text-gray-700 dark:text-gray-300">Exige Inscrição Estadual</span>
+                                                </label>
+                                            </div>
+
+                                            {funnel.id === JMP_FUNNEL_ID && (
+                                                <div className="mt-3 flex flex-wrap items-center gap-3">
+                                                    <button
+                                                        type="button"
+                                                        onClick={handleReavaliarJmp}
+                                                        disabled={reavaliando}
+                                                        className={`${btnSecondary} disabled:opacity-50`}
+                                                        title="Recalcula MQL, copia telefone → celular e atribui o Funil JMP aos leads da landing já cadastrados."
+                                                    >
+                                                        {reavaliando ? 'Reavaliando…' : 'Reavaliar leads do JMP'}
+                                                    </button>
+                                                    {reavaliouMsg && (
+                                                        <span className="text-xs text-gray-500 dark:text-gray-400">{reavaliouMsg}</span>
+                                                    )}
+                                                </div>
+                                            )}
                                         </div>
 
                                         <div className="px-6 pt-3 pb-4">
