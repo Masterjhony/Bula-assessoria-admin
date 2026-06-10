@@ -70,68 +70,70 @@ export function CRMKanbanBoard({ leads: externalLeads, stages, onEditLead, onAdd
         if (activeId === overId) return;
 
         const isActiveLead = active.data.current?.type === 'Lead';
+        if (!isActiveLead) return;
+
         const isOverLead = over.data.current?.type === 'Lead';
+        const isOverColumn = over.data.current?.type === 'Column';
 
-        if (isActiveLead && isOverLead) {
-            setLeads((prev) => {
-                const activeIndex = prev.findIndex((l) => l.id === activeId);
+        setLeads((prev) => {
+            // Guard: o dnd-kit pode disparar com um id ainda fora da lista durante o
+            // arrasto. Sem isso, prev[-1].status lançava TypeError e quebrava a tela.
+            const activeIndex = prev.findIndex((l) => l.id === activeId);
+            if (activeIndex === -1) return prev;
+            const activeLead = prev[activeIndex];
+
+            if (isOverLead) {
                 const overIndex = prev.findIndex((l) => l.id === overId);
-
-                if (prev[activeIndex].status !== prev[overIndex].status) {
+                if (overIndex === -1) return prev;
+                const overLead = prev[overIndex];
+                if (activeLead.status !== overLead.status) {
                     const updated = [...prev];
-                    updated[activeIndex].status = prev[overIndex].status;
+                    updated[activeIndex] = { ...activeLead, status: overLead.status };
                     return arrayMove(updated, activeIndex, overIndex);
                 }
                 return arrayMove(prev, activeIndex, overIndex);
-            });
-        }
+            }
 
-        const isOverColumn = over.data.current?.type === 'Column';
-
-        if (isActiveLead && isOverColumn) {
-            setLeads((prev) => {
-                const activeIndex = prev.findIndex((l) => l.id === activeId);
+            if (isOverColumn) {
                 const newStatus = overId as string;
-
-                if (prev[activeIndex].status !== newStatus) {
+                if (activeLead.status !== newStatus) {
                     const updated = [...prev];
-                    updated[activeIndex].status = newStatus;
-                    return arrayMove(updated, activeIndex, activeIndex);
+                    updated[activeIndex] = { ...activeLead, status: newStatus };
+                    return updated;
                 }
-                return prev;
-            });
-        }
+            }
+
+            return prev;
+        });
     };
 
     const onDragEnd = async (event: DragEndEvent) => {
         const { active, over } = event;
-
-        if (over) {
-            const activeId = active.id as string;
-            const currentLead = leads.find(l => l.id === activeId);
-
-            if (currentLead) {
-                const columnLeads = leads.filter(l => l.status === currentLead.status);
-                const indexInColumn = columnLeads.findIndex(l => l.id === currentLead.id);
-                const prevLead = columnLeads[indexInColumn - 1];
-                const nextLead = columnLeads[indexInColumn + 1];
-
-                let newPosition = currentLead.position || 1000;
-
-                if (!prevLead && !nextLead) {
-                    newPosition = 1000;
-                } else if (!prevLead) {
-                    newPosition = (nextLead?.position || 2000) / 2;
-                } else if (!nextLead) {
-                    newPosition = (prevLead?.position || 0) + 1000;
-                } else {
-                    newPosition = (prevLead.position + nextLead.position) / 2;
-                }
-
-                await onMoveLead(currentLead.id, currentLead.status, newPosition);
-            }
-        }
         setActiveLead(null);
+        if (!over) return;
+
+        const activeId = active.id as string;
+        const currentLead = leads.find(l => l.id === activeId);
+        if (!currentLead) return;
+
+        const columnLeads = leads.filter(l => l.status === currentLead.status);
+        const indexInColumn = columnLeads.findIndex(l => l.id === currentLead.id);
+        const prevLead = columnLeads[indexInColumn - 1];
+        const nextLead = columnLeads[indexInColumn + 1];
+
+        let newPosition = currentLead.position || 1000;
+
+        if (!prevLead && !nextLead) {
+            newPosition = 1000;
+        } else if (!prevLead) {
+            newPosition = (nextLead?.position || 2000) / 2;
+        } else if (!nextLead) {
+            newPosition = (prevLead?.position || 0) + 1000;
+        } else {
+            newPosition = (prevLead.position + nextLead.position) / 2;
+        }
+
+        await onMoveLead(currentLead.id, currentLead.status, newPosition);
     };
 
     const dropAnimation = {

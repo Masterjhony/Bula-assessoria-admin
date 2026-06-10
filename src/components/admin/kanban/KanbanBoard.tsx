@@ -224,63 +224,76 @@ export function KanbanBoard({
         if (activeId === overId) return;
 
         const isActiveTask = active.data.current?.type === 'Task';
-        const isOverTask = over.data.current?.type === 'Task';
         if (!isActiveTask) return;
 
-        if (isActiveTask && isOverTask) {
-            setTasks(tasks => {
-                const activeIndex = tasks.findIndex(t => t.id === activeId);
-                const overIndex = tasks.findIndex(t => t.id === overId);
-                if (tasks[activeIndex].status !== tasks[overIndex].status) {
-                    const updated = [...tasks];
-                    updated[activeIndex].status = tasks[overIndex].status;
+        const isOverTask = over.data.current?.type === 'Task';
+        const isOverColumn = over.data.current?.type === 'Column';
+
+        setTasks(prev => {
+            // Guard: durante o arrasto o dnd-kit pode disparar com um id que ainda
+            // não está na lista (reordenamento otimístico em andamento / nó transitório).
+            // Sem isso, prev[-1].status lançava TypeError e derrubava a tela.
+            const activeIndex = prev.findIndex(t => t.id === activeId);
+            if (activeIndex === -1) return prev;
+            const activeTask = prev[activeIndex];
+
+            // Sobre outro card: adota o status da coluna do card de destino e reordena.
+            if (isOverTask) {
+                const overIndex = prev.findIndex(t => t.id === overId);
+                if (overIndex === -1) return prev;
+                const overTask = prev[overIndex];
+                if (activeTask.status !== overTask.status) {
+                    // Novo objeto (sem mutar o estado) com o status de destino.
+                    const updated = [...prev];
+                    updated[activeIndex] = { ...activeTask, status: overTask.status };
                     return arrayMove(updated, activeIndex, overIndex);
                 }
-                return arrayMove(tasks, activeIndex, overIndex);
-            });
-        }
+                return arrayMove(prev, activeIndex, overIndex);
+            }
 
-        const isOverColumn = over.data.current?.type === 'Column';
-        if (isActiveTask && isOverColumn) {
-            setTasks(tasks => {
-                const activeIndex = tasks.findIndex(t => t.id === activeId);
+            // Sobre a área vazia de uma coluna: só troca o status (sem reordenar).
+            if (isOverColumn) {
                 const newStatus = overId as string;
-                if (tasks[activeIndex].status !== newStatus) {
-                    const updated = [...tasks];
-                    updated[activeIndex].status = newStatus;
-                    return arrayMove(updated, activeIndex, activeIndex);
+                if (activeTask.status !== newStatus) {
+                    const updated = [...prev];
+                    updated[activeIndex] = { ...activeTask, status: newStatus };
+                    return updated;
                 }
-                return tasks;
-            });
-        }
+            }
+
+            return prev;
+        });
     };
 
     const onDragEnd = async (event: DragEndEvent) => {
         const { active, over } = event;
-        if (over) {
-            const activeId = active.id as string;
-            const changedTask = tasks.find(t => t.id === activeId);
-            if (changedTask) {
-                const columnTasks = tasks.filter(t =>
-                    t.status === changedTask.status && (t.unidade ?? ACTIVE_BOARD) === board);
-                const indexInColumn = columnTasks.findIndex(t => t.id === changedTask.id);
-                const prevTask = columnTasks[indexInColumn - 1];
-                const nextTask = columnTasks[indexInColumn + 1];
-
-                let newPosition = changedTask.position;
-                if (!prevTask && !nextTask) newPosition = 1000;
-                else if (!prevTask) newPosition = (nextTask?.position || 2000) / 2;
-                else if (!nextTask) newPosition = (prevTask?.position || 0) + 1000;
-                else newPosition = (prevTask.position + nextTask.position) / 2;
-
-                try {
-                    await moveTask(changedTask.id, changedTask.status, newPosition);
-                } catch {
-                    setTasks(initialTasks);
-                }
-            }
-        }
         setActiveTask(null);
+        if (!over) return;
+
+        const activeId = active.id as string;
+        const changedTask = tasks.find(t => t.id === activeId);
+        if (!changedTask) return;
+
+        const columnTasks = tasks.filter(t =>
+            t.status === changedTask.status && (t.unidade ?? ACTIVE_BOARD) === board);
+        const indexInColumn = columnTasks.findIndex(t => t.id === changedTask.id);
+        const prevTask = columnTasks[indexInColumn - 1];
+        const nextTask = columnTasks[indexInColumn + 1];
+
+        let newPosition = changedTask.position;
+        if (!prevTask && !nextTask) newPosition = 1000;
+        else if (!prevTask) newPosition = (nextTask?.position || 2000) / 2;
+        else if (!nextTask) newPosition = (prevTask?.position || 0) + 1000;
+        else newPosition = (prevTask.position + nextTask.position) / 2;
+
+        try {
+            await moveTask(changedTask.id, changedTask.status, newPosition);
+            // Fixa a position calculada no estado otimístico (mantém a ordem após o reload).
+            setTasks(prev => prev.map(t => t.id === changedTask.id ? { ...t, position: newPosition } : t));
+        } catch (e) {
+            console.error('Failed to move task', e);
+            setTasks(initialTasks); // rollback para o estado do servidor
+        }
     };
 
     const dropAnimation = {
