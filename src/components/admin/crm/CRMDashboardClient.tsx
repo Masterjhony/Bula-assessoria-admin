@@ -162,10 +162,18 @@ export function CRMDashboardClient({ initialLeads, crmConfig: initialConfig }: C
     const handleRenameStage = async (oldName: string, newName: string) => {
         const trimmed = newName.trim();
         if (!trimmed || trimmed === oldName) return;
+        // Renomeia a etapa do funil ATIVO (identificada por id), nunca por nome global.
+        const stage = activeFunnel?.stages.find(s => s.name === oldName);
+        if (!stage) return;
         try {
-            const newConfig = await renameStage(oldName, trimmed);
+            const newConfig = await renameStage(activeFunnelId, stage.id, trimmed);
             setCrmConfig(newConfig);
-            setLeads(prev => prev.map(l => (l.status === oldName ? { ...l, status: trimmed } : l)));
+            // Migra os leads só do funil ativo (legados sem funnel_id contam como 'default').
+            setLeads(prev => prev.map(l =>
+                (l.status === oldName && (l.funnel_id || 'default') === activeFunnelId)
+                    ? { ...l, status: trimmed }
+                    : l
+            ));
         } catch (e) {
             const msg = e instanceof Error ? e.message : 'Erro ao renomear etapa.';
             alert(msg);

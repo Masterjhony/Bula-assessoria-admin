@@ -56,39 +56,58 @@ export async function saveCRMConfig(config: CRMConfig): Promise<void> {
 }
 
 /**
- * Renomeia uma etapa do CRM e propaga em duas direções:
- *  1. atualiza `crm_leads.status` (todos os leads que estavam na etapa antiga passam a apontar para o novo nome)
- *  2. renomeia o `name` da etapa em `crmConfig.stages` e em todos os funis (`funnels[*].stages`)
+ * Renomeia UMA etapa de UM funil específico (identificada por `funnelId` + `stageId`)
+ * e propaga em duas direções, sempre escopadas a esse funil:
+ *  1. atualiza `crm_leads.status` apenas dos leads daquele funil que estavam na etapa antiga
+ *  2. renomeia o `name` somente da etapa-alvo dentro daquele funil
  *
- * O `id` da etapa não muda — só o rótulo exibido. Como `crm_leads.status` guarda o nome,
- * a migração dos leads é necessária para a coluna não "sumir".
+ * Identificar por `id` (e não por nome) é essencial: funis diferentes podem ter etapas
+ * homônimas (ex.: "Lead" existe no Principal e no Funil JMP). A versão antiga renomeava
+ * por nome globalmente — o que vazava a renomeação para outros funis, migrava leads de
+ * todos os funis e ainda checava conflito contra o funil errado (gerava o falso
+ * "Já existe uma etapa chamada X" ao editar etapas do JMP).
+ *
+ * O `id` da etapa não muda — só o rótulo. Como `crm_leads.status` guarda o nome, a
+ * migração dos leads é necessária para a coluna não "sumir".
  */
-export async function renameStage(oldName: string, newName: string): Promise<CRMConfig> {
+export async function renameStage(funnelId: string, stageId: string, newName: string): Promise<CRMConfig> {
     const supabase = await createClient();
     const trimmed = newName.trim();
     const current = await getCRMConfig();
 
+    const funnel = current.funnels.find(f => f.id === funnelId);
+    if (!funnel) throw new Error('Funil não encontrado.');
+    const stage = funnel.stages.find(s => s.id === stageId);
+    if (!stage) throw new Error('Etapa não encontrada.');
+
+    const oldName = stage.name;
     if (!trimmed || trimmed === oldName) return current;
 
-    // Garante que o novo nome não conflite com outra etapa existente do funil principal
-    const exists = current.stages.some(s => s.name === trimmed && s.name !== oldName);
-    if (exists) {
-        throw new Error(`Já existe uma etapa chamada "${trimmed}".`);
-    }
+    // Conflito apenas dentro do MESMO funil — outros funis podem ter etapas homônimas.
+    const conflict = funnel.stages.some(s => s.id !== stageId && s.name === trimmed);
+    if (conflict) throw new Error(`Já existe uma etapa chamada "${trimmed}" neste funil.`);
 
-    const { error: leadsErr } = await supabase
-        .from('crm_leads')
-        .update({ status: trimmed })
-        .eq('status', oldName);
+    // Migra os leads DESTE funil que estavam na etapa antiga. O funil principal é o
+    // primeiro da lista; leads legados sem `funnel_id` pertencem a ele (mesma regra do
+    // CRMDashboardClient: `funnel_id || 'default'`).
+    const isPrincipal = current.funnels[0]?.id === funnelId;
+    let leadsQuery = supabase.from('crm_leads').update({ status: trimmed }).eq('status', oldName);
+    leadsQuery = isPrincipal
+        ? leadsQuery.or(`funnel_id.eq.${funnelId},funnel_id.is.null`)
+        : leadsQuery.eq('funnel_id', funnelId);
+    const { error: leadsErr } = await leadsQuery;
     if (leadsErr) throw new Error(`Error renaming lead statuses: ${leadsErr.message}`);
 
-    const renameInList = <T extends { name: string }>(stages: T[]) =>
-        stages.map(s => (s.name === oldName ? { ...s, name: trimmed } : s));
-
+    // Renomeia só a etapa-alvo (por id) no funil; mantém `stages` espelhando o principal.
+    const newFunnels = current.funnels.map(f =>
+        f.id === funnelId
+            ? { ...f, stages: f.stages.map(s => (s.id === stageId ? { ...s, name: trimmed } : s)) }
+            : f
+    );
     const newConfig: CRMConfig = {
         ...current,
-        stages: renameInList(current.stages),
-        funnels: current.funnels.map(f => ({ ...f, stages: renameInList(f.stages) })),
+        funnels: newFunnels,
+        stages: newFunnels[0]?.stages ?? current.stages,
     };
 
     const { error: cfgErr } = await supabase

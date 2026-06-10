@@ -179,6 +179,14 @@ export function FunnelsEditor({ initialConfig, onConfigSaved }: FunnelsEditorPro
         setStageDraft('');
     };
 
+    // Renomeia só a etapa-alvo (por id) dentro do funil informado.
+    const renameStageLocal = (funnelId: string, stageId: string, name: string) =>
+        setFunnels(prev => prev.map(f =>
+            f.id === funnelId
+                ? { ...f, stages: f.stages.map(s => (s.id === stageId ? { ...s, name } : s)) }
+                : f
+        ));
+
     const commitStageRename = async (funnelId: string, stage: CRMStage) => {
         const next = stageDraft.trim();
         const prevName = stage.name;
@@ -186,25 +194,31 @@ export function FunnelsEditor({ initialConfig, onConfigSaved }: FunnelsEditorPro
         setStageDraft('');
         if (!next || next === prevName) return;
 
+        // Conflito dentro do MESMO funil — feedback imediato, sem ida ao servidor.
+        const funnel = funnels.find(f => f.id === funnelId);
+        if (funnel?.stages.some(s => s.id !== stage.id && s.name === next)) {
+            alert(`Já existe uma etapa chamada "${next}" neste funil.`);
+            return;
+        }
+
         // Evita disparos duplicados (Enter dispara blur)
         if (stageRenamingRef.current) return;
         stageRenamingRef.current = true;
+
+        // Atualização otimista: a etapa aparece com o novo nome na hora; o servidor
+        // (que migra crm_leads.status e grava a config) roda em segundo plano.
+        renameStageLocal(funnelId, stage.id, next);
         try {
-            const newConfig = await renameStage(prevName, next);
-            // Sincroniza estado local: troca o nome da etapa em todos os funis (igual ao server)
-            setFunnels(prev => prev.map(f => ({
-                ...f,
-                stages: f.stages.map(s => s.name === prevName ? { ...s, name: next } : s),
-            })));
+            const newConfig = await renameStage(funnelId, stage.id, next);
             onConfigSaved(newConfig);
         } catch (e) {
+            // Reverte a renomeação otimista e avisa.
+            renameStageLocal(funnelId, stage.id, prevName);
             const msg = e instanceof Error ? e.message : 'Erro ao renomear etapa.';
             alert(msg);
         } finally {
             stageRenamingRef.current = false;
         }
-        // Suprimimos warning de unused param
-        void funnelId;
     };
 
     const addStage = (funnelId: string) => {
