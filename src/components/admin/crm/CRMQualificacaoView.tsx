@@ -8,7 +8,7 @@ import { Pagination } from '@/components/admin/Pagination';
 import {
     ChevronRight, Phone, Instagram, MapPin, Beef, Search,
     AlertCircle, ArrowRight, Loader2, Check, ListChecks, Sparkles,
-    Crown, Mail,
+    Crown, Mail, Archive,
 } from 'lucide-react';
 
 // Rótulos amigáveis para os enums de "momento na pecuária" vindos do quiz
@@ -34,6 +34,8 @@ interface CRMQualificacaoViewProps {
     mqlRule?: CRMMqlRule;
     onLeadUpdated: (lead: CRMLead) => void;
     onOpenLead: (lead: CRMLead) => void;
+    /** Arquiva o lead (soft-delete) — sai da qualificação e vai para a aba "Arquivados". */
+    onArchive: (lead: CRMLead) => void;
 }
 
 const REQUIRED_FIELDS: { key: keyof CRMLead; label: string }[] = [
@@ -55,7 +57,7 @@ function missingFieldsCount(lead: CRMLead): number {
     return REQUIRED_FIELDS.reduce((acc, f) => acc + (fieldFilled(lead, f.key) ? 0 : 1), 0);
 }
 
-export function CRMQualificacaoView({ leads, crmConfig, funnelStages, mqlRule, onLeadUpdated, onOpenLead }: CRMQualificacaoViewProps) {
+export function CRMQualificacaoView({ leads, crmConfig, funnelStages, mqlRule, onLeadUpdated, onOpenLead, onArchive }: CRMQualificacaoViewProps) {
     const [search, setSearch] = useState('');
     const [savingId, setSavingId] = useState<string | null>(null);
     const [qualifyingId, setQualifyingId] = useState<string | null>(null);
@@ -318,16 +320,26 @@ export function CRMQualificacaoView({ leads, crmConfig, funnelStages, mqlRule, o
                                         </div>
                                     </div>
 
-                                    <button
-                                        type="button"
-                                        onClick={() => qualificar(lead)}
-                                        disabled={isMoving}
-                                        className="flex items-center gap-1.5 px-3 py-2 rounded-lg bg-gradient-to-r from-[#A68B4B] to-[#C8A96E] text-black text-xs font-bold hover:shadow-md transition-all disabled:opacity-50 flex-shrink-0"
-                                        title="Mover para o CRM principal"
-                                    >
-                                        {isMoving ? <Loader2 size={12} className="animate-spin" /> : <ArrowRight size={12} />}
-                                        Mover para o CRM
-                                    </button>
+                                    <div className="flex items-center gap-2 flex-shrink-0">
+                                        <button
+                                            type="button"
+                                            onClick={() => onArchive(lead)}
+                                            className="flex items-center gap-1.5 px-3 py-2 rounded-lg bg-gray-100 dark:bg-[#2e2e2e] text-gray-600 dark:text-gray-300 border border-gray-200 dark:border-[#333] text-xs font-semibold hover:bg-gray-200 dark:hover:bg-[#3a3a3a] transition-colors"
+                                            title="Arquivar lead (sai da qualificação, vai para Arquivados)"
+                                        >
+                                            <Archive size={12} /> Arquivar
+                                        </button>
+                                        <button
+                                            type="button"
+                                            onClick={() => qualificar(lead)}
+                                            disabled={isMoving}
+                                            className="flex items-center gap-1.5 px-3 py-2 rounded-lg bg-gradient-to-r from-[#A68B4B] to-[#C8A96E] text-black text-xs font-bold hover:shadow-md transition-all disabled:opacity-50"
+                                            title="Mover para o CRM principal"
+                                        >
+                                            {isMoving ? <Loader2 size={12} className="animate-spin" /> : <ArrowRight size={12} />}
+                                            Mover para o CRM
+                                        </button>
+                                    </div>
                                 </div>
 
                                 {/* Quick fill grid */}

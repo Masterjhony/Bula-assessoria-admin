@@ -68,6 +68,9 @@ export interface CRMLead {
     contact_history?: CRMContactEntry[] | null;
     is_preferencial?: boolean | null;
     contact_count?: number | null;
+    // Arquivamento (soft-delete)
+    arquivado?: boolean | null;
+    arquivado_at?: string | null;
 }
 
 // Colunas reais da tabela crm_leads que o painel pode gravar. Qualquer chave
@@ -83,6 +86,7 @@ const WRITABLE_COLUMNS = new Set<string>([
     'source_page', 'source', 'medium', 'campaign', 'utm_content', 'utm_term',
     'gclid', 'fbclid', 'referrer', 'landing_url', 'email', 'notes', 'origem',
     'data_entrada', 'extra_data', 'contact_history', 'is_preferencial', 'contact_count',
+    'arquivado', 'arquivado_at',
 ]);
 
 /** Remove chaves que não são colunas graváveis (id/created_at/updated_at e campos só de UI). */
@@ -97,9 +101,12 @@ function sanitizeLeadData(data: Partial<CRMLead>): Partial<CRMLead> {
 export async function getLeads(funnelId?: string): Promise<CRMLead[]> {
     const supabase = await createClient();
 
+    // Leads arquivados ficam de fora de todas as telas operacionais — só aparecem
+    // na aba "Arquivados" (getArchivedLeads).
     let query = supabase
         .from('crm_leads')
         .select('*')
+        .eq('arquivado', false)
         .order('position', { ascending: true });
 
     if (funnelId) {
@@ -114,6 +121,54 @@ export async function getLeads(funnelId?: string): Promise<CRMLead[]> {
     }
 
     return data as CRMLead[];
+}
+
+/** Leads arquivados (soft-delete), mais recentes primeiro. Usado pela aba "Arquivados". */
+export async function getArchivedLeads(): Promise<CRMLead[]> {
+    const supabase = await createClient();
+
+    const { data, error } = await supabase
+        .from('crm_leads')
+        .select('*')
+        .eq('arquivado', true)
+        .order('arquivado_at', { ascending: false });
+
+    if (error) {
+        console.error('Error fetching archived CRM leads:', error);
+        return [];
+    }
+
+    return data as CRMLead[];
+}
+
+/** Arquiva um lead (soft-delete): some das telas operacionais, mas continua no banco. */
+export async function archiveLead(id: string): Promise<void> {
+    const supabase = await createClient();
+
+    const { error } = await supabase
+        .from('crm_leads')
+        .update({ arquivado: true, arquivado_at: new Date().toISOString() })
+        .eq('id', id);
+
+    if (error) throw new Error(`Error archiving lead: ${error.message}`);
+
+    revalidatePath('/web-admin/crm');
+    revalidatePath('/web-admin/funil-vendas');
+}
+
+/** Restaura um lead arquivado de volta para as telas operacionais. */
+export async function unarchiveLead(id: string): Promise<void> {
+    const supabase = await createClient();
+
+    const { error } = await supabase
+        .from('crm_leads')
+        .update({ arquivado: false, arquivado_at: null })
+        .eq('id', id);
+
+    if (error) throw new Error(`Error unarchiving lead: ${error.message}`);
+
+    revalidatePath('/web-admin/crm');
+    revalidatePath('/web-admin/funil-vendas');
 }
 
 export async function createLead(data: Partial<CRMLead>): Promise<CRMLead> {

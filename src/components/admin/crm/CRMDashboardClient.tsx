@@ -1,8 +1,11 @@
 'use client';
 
-import { useCallback, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useSearchParams, useRouter, usePathname } from 'next/navigation';
-import { CRMLead, updateLead, createLead, moveLead, deleteLead } from '@/app/sistema/actions/crm-leads';
+import {
+    CRMLead, updateLead, createLead, moveLead, deleteLead,
+    archiveLead, unarchiveLead, getArchivedLeads,
+} from '@/app/sistema/actions/crm-leads';
 import { renameStage } from '@/app/sistema/actions/crm-config';
 import type { CRMConfig } from '@/lib/crm-types';
 import { isQualificationStage } from '@/lib/crm-types';
@@ -10,10 +13,11 @@ import { CRMKanbanBoard } from './CRMKanbanBoard';
 import { CRMModal } from './CRMModal';
 import { CRMSettingsView } from './CRMSettingsView';
 import { CRMQualificacaoView } from './CRMQualificacaoView';
+import { CRMArquivadosView } from './CRMArquivadosView';
 import { CRMPreferenciaisStrip } from './CRMPreferenciaisStrip';
 import { FunnelSelector } from '@/components/admin/funil-vendas/FunnelSelector';
 import {
-    LayoutGrid, Plus, Maximize2, Minimize2, Settings, ListChecks,
+    LayoutGrid, Plus, Maximize2, Minimize2, Settings, ListChecks, Archive,
 } from 'lucide-react';
 
 interface CRMDashboardClientProps {
@@ -21,8 +25,8 @@ interface CRMDashboardClientProps {
     crmConfig: CRMConfig;
 }
 
-type ViewType = 'qualificacao' | 'kanban' | 'configuracoes';
-const VALID_VIEWS: ViewType[] = ['qualificacao', 'kanban', 'configuracoes'];
+type ViewType = 'qualificacao' | 'kanban' | 'arquivados' | 'configuracoes';
+const VALID_VIEWS: ViewType[] = ['qualificacao', 'kanban', 'arquivados', 'configuracoes'];
 
 export function CRMDashboardClient({ initialLeads, crmConfig: initialConfig }: CRMDashboardClientProps) {
     const [leads, setLeads] = useState<CRMLead[]>(initialLeads);
@@ -186,15 +190,80 @@ export function CRMDashboardClient({ initialLeads, crmConfig: initialConfig }: C
         [funnelLeads, qualificationStageNames]
     );
 
+    // ── Arquivados ──────────────────────────────────────────────
+    // Carregados sob demanda (a lista pode crescer e não é necessária no fluxo normal).
+    const [archivedLeads, setArchivedLeads] = useState<CRMLead[]>([]);
+    const [archivedLoaded, setArchivedLoaded] = useState(false);
+    const [archivedLoading, setArchivedLoading] = useState(false);
+
+    const loadArchived = useCallback(async () => {
+        setArchivedLoading(true);
+        try {
+            setArchivedLeads(await getArchivedLeads());
+            setArchivedLoaded(true);
+        } finally {
+            setArchivedLoading(false);
+        }
+    }, []);
+
+    useEffect(() => {
+        if (activeView === 'arquivados' && !archivedLoaded && !archivedLoading) {
+            void loadArchived();
+        }
+    }, [activeView, archivedLoaded, archivedLoading, loadArchived]);
+
+    // Arquivar: sai das telas operacionais; se a aba de arquivados já carregou, entra nela.
+    const handleArchiveLead = async (lead: CRMLead) => {
+        setLeads(prev => prev.filter(l => l.id !== lead.id));
+        if (archivedLoaded) {
+            const stamp = new Date().toISOString();
+            setArchivedLeads(prev => [{ ...lead, arquivado: true, arquivado_at: stamp }, ...prev]);
+        }
+        try {
+            await archiveLead(lead.id);
+        } catch (e) {
+            // Reverte: devolve o lead para a lista ativa.
+            setLeads(prev => [...prev, lead]);
+            setArchivedLeads(prev => prev.filter(l => l.id !== lead.id));
+            alert(e instanceof Error ? e.message : 'Erro ao arquivar lead.');
+        }
+    };
+
+    // Restaurar: volta para a lista ativa (Qualificação/CRM conforme o status atual).
+    const handleUnarchiveLead = async (lead: CRMLead) => {
+        setArchivedLeads(prev => prev.filter(l => l.id !== lead.id));
+        setLeads(prev => [...prev, { ...lead, arquivado: false, arquivado_at: null }]);
+        try {
+            await unarchiveLead(lead.id);
+        } catch (e) {
+            setArchivedLeads(prev => [lead, ...prev]);
+            setLeads(prev => prev.filter(l => l.id !== lead.id));
+            alert(e instanceof Error ? e.message : 'Erro ao restaurar lead.');
+        }
+    };
+
+    // Exclusão definitiva a partir da aba de arquivados.
+    const handleDeleteArchived = async (lead: CRMLead) => {
+        setArchivedLeads(prev => prev.filter(l => l.id !== lead.id));
+        try {
+            await deleteLead(lead.id);
+        } catch (e) {
+            setArchivedLeads(prev => [lead, ...prev]);
+            alert(e instanceof Error ? e.message : 'Erro ao excluir lead.');
+        }
+    };
+
     const views = [
         { id: 'qualificacao', label: 'Qualificação', icon: ListChecks, badge: qualificationCount },
         { id: 'kanban', label: 'CRM', icon: LayoutGrid },
+        { id: 'arquivados', label: 'Arquivados', icon: Archive },
         { id: 'configuracoes', label: 'Configurações', icon: Settings },
     ] as const;
 
     const isSettings = activeView === 'configuracoes';
     const isQualificacao = activeView === 'qualificacao';
-    const isScrollable = isSettings || isQualificacao;
+    const isArquivados = activeView === 'arquivados';
+    const isScrollable = isSettings || isQualificacao || isArquivados;
 
     return (
         <div className={
@@ -260,7 +329,7 @@ export function CRMDashboardClient({ initialLeads, crmConfig: initialConfig }: C
                     >
                         {isFullscreen ? <Minimize2 size={14} /> : <Maximize2 size={14} />}
                     </button>
-                    {!isSettings && (
+                    {!isSettings && !isArquivados && (
                         <button onClick={() => handleOpenNewLead()} className="btn primary">
                             <Plus size={14} /> Novo
                         </button>
@@ -277,6 +346,17 @@ export function CRMDashboardClient({ initialLeads, crmConfig: initialConfig }: C
                         funnelStages={funnelStages}
                         mqlRule={activeFunnel?.mql_rule}
                         onLeadUpdated={handleLeadUpdated}
+                        onOpenLead={handleEditLead}
+                        onArchive={handleArchiveLead}
+                    />
+                )}
+
+                {activeView === 'arquivados' && (
+                    <CRMArquivadosView
+                        leads={archivedLeads}
+                        loading={archivedLoading}
+                        onRestore={handleUnarchiveLead}
+                        onDelete={handleDeleteArchived}
                         onOpenLead={handleEditLead}
                     />
                 )}
