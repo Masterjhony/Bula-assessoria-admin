@@ -14,6 +14,10 @@ import {
   getJmpMetaAdsAnalytics,
   type JmpMetaAdsAnalytics,
 } from '@/actions/metaAds'
+import {
+  getJmpLeadQualificationAnalytics,
+  type JmpLeadQualificationAnalytics,
+} from '@/actions/jmpLeads'
 
 const POSTHOG_PROJECT_URL = 'https://us.posthog.com/project/430113'
 const POSTHOG_JMP_HEATMAP_URL = `${POSTHOG_PROJECT_URL}/heatmaps/Hzko8WZa?pageURL=https%3A%2F%2Fjmp.bulaassessoria.com%2F&dataUrl=https%3A%2F%2Fjmp.bulaassessoria.com%2F*`
@@ -130,6 +134,7 @@ export default function AdminJmpAnalytics() {
   const [configured, setConfigured] = useState(false)
   const [data, setData] = useState<JmpPostHogAnalytics | null>(null)
   const [metaAds, setMetaAds] = useState<JmpMetaAdsAnalytics | null>(null)
+  const [leadQualification, setLeadQualification] = useState<JmpLeadQualificationAnalytics | null>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
 
@@ -138,12 +143,14 @@ export default function AdminJmpAnalytics() {
       try {
         const ok = await isPosthogConfigured()
         setConfigured(ok)
-        const [posthogData, metaAdsData] = await Promise.all([
+        const [posthogData, metaAdsData, leadQualificationData] = await Promise.all([
           ok ? getJmpPosthogAnalytics() : Promise.resolve(null),
           getJmpMetaAdsAnalytics(),
+          getJmpLeadQualificationAnalytics(),
         ])
         if (ok) setData(posthogData)
         setMetaAds(metaAdsData)
+        setLeadQualification(leadQualificationData)
       } catch {
         setError('Nao foi possivel carregar as metricas do PostHog.')
       } finally {
@@ -288,6 +295,42 @@ export default function AdminJmpAnalytics() {
                   <div className="text-2xl font-black text-neutral-950">{formatNumber(data.summary.trackedClicks)}</div>
                 </div>
               </div>
+            </Panel>
+
+            <Panel title="Qualificacao dos leads" icon={<Users className="h-4 w-4" />}>
+              <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-4">
+                <RequestedMetric
+                  label="O que e MQL"
+                  value="Lead qualificado"
+                  source="CRM"
+                  hint={leadQualification?.mqlDefinition || 'MQL e o lead com perfil minimo para abordagem comercial.'}
+                />
+                <RequestedMetric
+                  label="MQLs gerados"
+                  value={leadQualification?.mqlLeads ?? 0}
+                  source="CRM"
+                  hint={`${formatPercent(leadQualification?.mqlRate ?? 0)} dos leads JMP dos ultimos 30 dias.`}
+                />
+                <RequestedMetric
+                  label="Leads com IE"
+                  value={leadQualification?.leadsWithIe ?? 0}
+                  source="CRM"
+                  hint={`${formatPercent(leadQualification?.ieRate ?? 0)} dos leads informaram Inscricao Estadual.`}
+                />
+                <RequestedMetric
+                  label="Com IE, nao MQL"
+                  value={leadQualification?.leadsWithIeNotMql ?? 0}
+                  source="CRM"
+                  hint="Leads que cairam com IE, mas nao bateram todos os criterios de MQL."
+                />
+              </div>
+
+              {leadQualification?.error && (
+                <div className="mt-4 rounded-xl border border-amber-200 bg-amber-50 p-4 text-sm text-amber-900">
+                  <p className="font-bold">Qualificacao CRM nao carregou.</p>
+                  <p className="mt-1">{leadQualification.error}</p>
+                </div>
+              )}
             </Panel>
 
             <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
