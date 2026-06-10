@@ -30,6 +30,7 @@ export interface CRMLead {
     // Identificação fiscal
     cpf?: string | null;
     inscricao_estadual?: string | null;
+    tem_inscricao_estadual?: string | null;
     // Funil de vendas
     funnel_id?: string | null;
     valor_estimado?: number | null;
@@ -73,7 +74,7 @@ export interface CRMLead {
 const WRITABLE_COLUMNS = new Set<string>([
     'nome', 'status', 'prioridade', 'interesse', 'empresa', 'ultimo_contato',
     'data_estimada_fechamento', 'telefone', 'celular', 'responsavel', 'position',
-    'cpf', 'inscricao_estadual',
+    'cpf', 'inscricao_estadual', 'tem_inscricao_estadual',
     'funnel_id', 'valor_estimado', 'probabilidade', 'temperatura',
     'instagram', 'estado', 'cidade', 'o_que_busca', 'quantidade_animais',
     'momento_pecuaria', 'operacao_pecuaria', 'intencao_investimento', 'assessoria', 'is_mql',

@@ -38,6 +38,9 @@ export async function POST(req: NextRequest) {
     momento_pecuaria: str(body.momento),
     quantidade_animais: str(body.cabecas),
     interesse: str(body.interesse),
+    // "Sim"/"Não" — se o lead tem inscrição estadual (pergunta obrigatória na
+    // landing). Coluna distinta de inscricao_estadual (o número da IE).
+    tem_inscricao_estadual: str(body.inscricaoEstadual),
     // Quantidade que o lead precisa, já em texto legível e contextual ao
     // interesse (ex.: "21 a 50 touros"). Montado na landing.
     o_que_busca: str(body.oQueBusca),
@@ -72,6 +75,7 @@ export async function POST(req: NextRequest) {
     cabecas: str(body.cabecas),
     interesse: str(body.interesse),
     oQueBusca: str(body.oQueBusca),
+    inscricaoEstadual: str(body.inscricaoEstadual),
   }
 
   // Atribuição de campanha vinda dos criativos (Meta). Só usada na planilha —

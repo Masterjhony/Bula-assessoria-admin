@@ -47,6 +47,7 @@ export function CRMModal({ isOpen, onClose, lead, defaultStatus, defaultFunnelId
         empresa: '',
         cpf: '',
         inscricao_estadual: '',
+        tem_inscricao_estadual: '',
         celular: '',
         responsavel: '',
         estado: '',
@@ -207,6 +208,18 @@ export function CRMModal({ isOpen, onClose, lead, defaultStatus, defaultFunnelId
                                         className={inputClass}
                                         placeholder="Nº da inscrição estadual"
                                     />
+                                </div>
+                                <div>
+                                    <label className={labelClass}>Tem Inscrição Estadual?</label>
+                                    <select
+                                        value={formData.tem_inscricao_estadual || ''}
+                                        onChange={e => setFormData({ ...formData, tem_inscricao_estadual: e.target.value })}
+                                        className={inputClass}
+                                    >
+                                        <option value="">—</option>
+                                        <option value="Sim">Sim</option>
+                                        <option value="Não">Não</option>
+                                    </select>
                                 </div>
                             </div>
 

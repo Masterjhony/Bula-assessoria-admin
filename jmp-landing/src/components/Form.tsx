@@ -62,6 +62,7 @@ interface FormData {
   cabecas: string
   interesse: string
   quantidade: string
+  inscricaoEstadual: string
 }
 
 type FieldKey = keyof FormData
@@ -167,6 +168,7 @@ function validateStep(step: number, data: FormData): Partial<FormData> {
     if (!data.cabecas) errors.cabecas = 'Selecione a quantidade de cabeças.'
     if (!data.interesse) errors.interesse = 'Selecione seu interesse.'
     if (data.interesse && !data.quantidade) errors.quantidade = 'Selecione a quantidade que você precisa.'
+    if (!data.inscricaoEstadual) errors.inscricaoEstadual = 'Informe se você tem inscrição estadual.'
   }
   return errors
 }
@@ -293,7 +295,7 @@ export function Form({ hero }: { hero: JmpHero }) {
   const [formData, setFormData] = useState<FormData>({
     nome: '', email: '', whatsapp: '',
     uf: '', cidade: '',
-    momento: '', cabecas: '', interesse: '', quantidade: '',
+    momento: '', cabecas: '', interesse: '', quantidade: '', inscricaoEstadual: '',
   })
   const [errors, setErrors] = useState<Partial<FormData>>({})
   const [cities, setCities] = useState<string[]>([])
@@ -617,6 +619,20 @@ export function Form({ hero }: { hero: JmpHero }) {
                       <option value="500+" style={{ background: '#111' }}>500+</option>
                     </select>
                     {errors.cabecas && <span className={errorClass}>{errors.cabecas}</span>}
+                  </div>
+                  <div>
+                    <label className={labelClass}>Tem Inscrição Estadual? *</label>
+                    <select
+                      value={formData.inscricaoEstadual}
+                      onChange={e => handleChange('inscricaoEstadual', e.target.value)}
+                      className={`${inputBase(!!errors.inscricaoEstadual)} appearance-none cursor-pointer`}
+                      style={selectStyle}
+                    >
+                      <option value="" style={{ background: '#111' }}>Selecione...</option>
+                      <option value="Sim" style={{ background: '#111' }}>Sim</option>
+                      <option value="Não" style={{ background: '#111' }}>Não</option>
+                    </select>
+                    {errors.inscricaoEstadual && <span className={errorClass}>{errors.inscricaoEstadual}</span>}
                   </div>
                   <div>
                     <label className={labelClass}>Seu Interesse *</label>
