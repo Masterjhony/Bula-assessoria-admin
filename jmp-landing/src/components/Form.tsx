@@ -2,6 +2,15 @@ import { useState, useEffect, useRef } from 'react'
 import { Loader2, Calendar, MapPin, CheckCircle2, ShieldCheck } from 'lucide-react'
 import { OBRIGADO_PAGE_URL } from '../constants'
 import type { JmpHero } from '../content'
+import {
+  trackFormFieldChanged,
+  trackFormStepCompleted,
+  trackFormStepViewed,
+  trackFormSubmitAttempt,
+  trackFormSubmitFailed,
+  trackFormSubmitted,
+  trackFormValidationFailed,
+} from '../analytics/posthog'
 import bulaLogo from '../assets/logo-bula-trimmed.png'
 import jmpLogo from '../assets/jmp-logo.png'
 
@@ -149,6 +158,24 @@ function applyPhoneMask(value: string): string {
 }
 
 // ── Validation per step ────────────────────────────────────────
+function analyticsProfile(data: FormData, utms: Utm) {
+  return {
+    uf: data.uf || undefined,
+    cidade: data.cidade || undefined,
+    momento: data.momento || undefined,
+    cabecas: data.cabecas || undefined,
+    interesse: data.interesse || undefined,
+    quantidade: data.quantidade || undefined,
+    inscricao_estadual: data.inscricaoEstadual || undefined,
+    has_utm: Object.values(utms).some(Boolean),
+    utm_source: utms.utm_source || undefined,
+    utm_medium: utms.utm_medium || undefined,
+    utm_campaign: utms.utm_campaign || undefined,
+    utm_content: utms.utm_content || undefined,
+    ad_id: utms.ad_id || undefined,
+  }
+}
+
 function validateStep(step: number, data: FormData): Partial<FormData> {
   const errors: Partial<FormData> = {}
   if (step === 1) {
@@ -309,6 +336,10 @@ export function Form({ hero }: { hero: JmpHero }) {
   useEffect(() => { utmRef.current = captureUtms() }, [])
 
   useEffect(() => {
+    trackFormStepViewed(step)
+  }, [step])
+
+  useEffect(() => {
     if (!formData.uf) { setCities([]); return }
     let cancelled = false
     setCitiesLoading(true)
@@ -326,18 +357,25 @@ export function Form({ hero }: { hero: JmpHero }) {
 
   function handleChange(field: FieldKey, value: string) {
     setFormData(prev => ({ ...prev, [field]: value }))
+    trackFormFieldChanged(field, step, Boolean(value))
     if (errors[field]) setErrors(prev => ({ ...prev, [field]: undefined }))
   }
 
   function handleUFChange(sigla: string) {
     setFormData(prev => ({ ...prev, uf: sigla, cidade: '' }))
+    trackFormFieldChanged('uf', step, Boolean(sigla))
     setErrors(prev => ({ ...prev, uf: undefined, cidade: undefined }))
   }
 
   function goTo(target: number) {
     if (target > step) {
       const stepErrors = validateStep(step, formData)
-      if (Object.keys(stepErrors).length > 0) { setErrors(stepErrors); return }
+      if (Object.keys(stepErrors).length > 0) {
+        setErrors(stepErrors)
+        trackFormValidationFailed(step, stepErrors as Record<string, boolean>)
+        return
+      }
+      trackFormStepCompleted(step)
     }
     setErrors({})
     setStep(target)
@@ -348,13 +386,20 @@ export function Form({ hero }: { hero: JmpHero }) {
 
   async function onSubmit() {
     const stepErrors = validateStep(3, formData)
-    if (Object.keys(stepErrors).length > 0) { setErrors(stepErrors); return }
+    if (Object.keys(stepErrors).length > 0) {
+      setErrors(stepErrors)
+      trackFormValidationFailed(3, stepErrors as Record<string, boolean>)
+      return
+    }
     setLoading(true)
     setSubmitError(null)
+    trackFormSubmitAttempt(analyticsProfile(formData, utmRef.current))
     try {
       await submitForm(formData, utmRef.current)
+      trackFormSubmitted(analyticsProfile(formData, utmRef.current))
       window.location.href = OBRIGADO_PAGE_URL
     } catch {
+      trackFormSubmitFailed('api_error')
       setSubmitError('Não conseguimos enviar sua inscrição. Verifique sua conexão e tente novamente.')
       setLoading(false)
     }

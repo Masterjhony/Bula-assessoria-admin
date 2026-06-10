@@ -12,4 +12,6 @@ jmp-landing
 
 *.xlsx
 *.pdf
+*.zip
+*.docx
 *.log

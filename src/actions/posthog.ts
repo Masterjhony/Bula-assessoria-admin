@@ -209,3 +209,238 @@ export async function getDeviceBreakdown(): Promise<DeviceRow[]> {
 export async function isPosthogConfigured(): Promise<boolean> {
     return isConfigured();
 }
+
+const JMP_LANDING_FILTER = `
+  AND (
+    properties.app = 'jmp-landing'
+    OR properties.landing = 'nelore-jmp'
+    OR properties.$host = 'jmp.bulaassessoria.com'
+  )
+`;
+
+export interface JmpPostHogSummary {
+    pageviews: number;
+    uniqueVisitors: number;
+    sessions: number;
+    avgTimeOnPageSeconds: number;
+    avgActiveSeconds: number;
+    avgScrollDepthPercent: number;
+    ctaClicks: number;
+    whatsappClicks: number;
+    formClicks: number;
+    socialClicks: number;
+    trackedClicks: number;
+    formStarts: number;
+    formSubmitAttempts: number;
+    formSubmissions: number;
+    formAbandonments: number;
+    recordingsAvailable: number;
+}
+
+export interface JmpPostHogDailyRow {
+    date: string;
+    pageviews: number;
+    visitors: number;
+    submissions: number;
+}
+
+export interface JmpPostHogEventRow {
+    event: string;
+    count: number;
+}
+
+export interface JmpPostHogStepRow {
+    step: number;
+    views: number;
+    completions: number;
+    validationFailures: number;
+}
+
+export interface JmpPostHogBreakdownRow {
+    label: string;
+    count: number;
+}
+
+export interface JmpPostHogAnalytics {
+    summary: JmpPostHogSummary;
+    daily: JmpPostHogDailyRow[];
+    events: JmpPostHogEventRow[];
+    formSteps: JmpPostHogStepRow[];
+    interests: JmpPostHogBreakdownRow[];
+    sources: JmpPostHogBreakdownRow[];
+    scrollDepths: JmpPostHogBreakdownRow[];
+}
+
+export async function getJmpPosthogAnalytics(): Promise<JmpPostHogAnalytics | null> {
+    if (!isConfigured()) return null;
+
+    const [
+        traffic,
+        engagement,
+        events,
+        daily,
+        steps,
+        interests,
+        sources,
+        scrollDepths,
+        recordings,
+    ] = await Promise.all([
+        runHogQL(`
+            SELECT
+                countIf(event = '$pageview') AS pageviews,
+                count(DISTINCT person_id) AS unique_visitors,
+                count(DISTINCT properties.$session_id) AS sessions
+            FROM events
+            WHERE timestamp >= now() - INTERVAL 30 DAY
+            ${JMP_LANDING_FILTER}
+        `),
+        runHogQL(`
+            SELECT
+                avg(toFloat(properties.seconds_on_page)) AS avg_time,
+                avg(toFloat(properties.active_seconds)) AS avg_active,
+                avg(toFloat(properties.max_scroll_depth_percent)) AS avg_scroll
+            FROM events
+            WHERE event = 'jmp_page_engagement'
+              AND timestamp >= now() - INTERVAL 30 DAY
+            ${JMP_LANDING_FILTER}
+        `),
+        runHogQL(`
+            SELECT event, count() AS c
+            FROM events
+            WHERE event LIKE 'jmp_%'
+              AND timestamp >= now() - INTERVAL 30 DAY
+            ${JMP_LANDING_FILTER}
+            GROUP BY event
+            ORDER BY c DESC
+            LIMIT 30
+        `),
+        runHogQL(`
+            SELECT
+                formatDateTime(timestamp, '%Y-%m-%d') AS day,
+                countIf(event = '$pageview') AS pageviews,
+                count(DISTINCT person_id) AS visitors,
+                countIf(event = 'jmp_form_submitted') AS submissions
+            FROM events
+            WHERE timestamp >= now() - INTERVAL 30 DAY
+            ${JMP_LANDING_FILTER}
+            GROUP BY day
+            ORDER BY day ASC
+        `),
+        runHogQL(`
+            SELECT toInt(properties.step) AS step, event, count() AS c
+            FROM events
+            WHERE event IN ('jmp_form_step_viewed', 'jmp_form_step_completed', 'jmp_form_validation_failed')
+              AND timestamp >= now() - INTERVAL 30 DAY
+            ${JMP_LANDING_FILTER}
+            GROUP BY step, event
+            ORDER BY step ASC
+        `),
+        runHogQL(`
+            SELECT properties.interesse AS label, count() AS c
+            FROM events
+            WHERE event = 'jmp_form_submitted'
+              AND timestamp >= now() - INTERVAL 30 DAY
+            ${JMP_LANDING_FILTER}
+            GROUP BY label
+            ORDER BY c DESC
+            LIMIT 10
+        `),
+        runHogQL(`
+            SELECT coalesce(properties.utm_source, '$direct') AS label, count() AS c
+            FROM events
+            WHERE event IN ('$pageview', 'jmp_form_submitted')
+              AND timestamp >= now() - INTERVAL 30 DAY
+            ${JMP_LANDING_FILTER}
+            GROUP BY label
+            ORDER BY c DESC
+            LIMIT 10
+        `),
+        runHogQL(`
+            SELECT concat(toString(toInt(properties.depth_percent)), '%') AS label, count() AS c
+            FROM events
+            WHERE event = 'jmp_scroll_depth_reached'
+              AND timestamp >= now() - INTERVAL 30 DAY
+            ${JMP_LANDING_FILTER}
+            GROUP BY label
+            ORDER BY toInt(replaceAll(label, '%', '')) ASC
+        `),
+        runHogQL(`
+            SELECT count(DISTINCT properties.$session_id)
+            FROM events
+            WHERE event = '$session_recording'
+              AND timestamp >= now() - INTERVAL 30 DAY
+            ${JMP_LANDING_FILTER}
+        `),
+    ]);
+
+    const trafficRow = traffic?.results?.[0] ?? [];
+    const engagementRow = engagement?.results?.[0] ?? [];
+    const eventCounts = new Map<string, number>(
+        (events?.results ?? []).map((r) => [String(r[0] ?? ''), Number(r[1] ?? 0)]),
+    );
+
+    const summary: JmpPostHogSummary = {
+        pageviews: Number(trafficRow[0] ?? 0),
+        uniqueVisitors: Number(trafficRow[1] ?? 0),
+        sessions: Number(trafficRow[2] ?? 0),
+        avgTimeOnPageSeconds: Number(engagementRow[0] ?? 0),
+        avgActiveSeconds: Number(engagementRow[1] ?? 0),
+        avgScrollDepthPercent: Number(engagementRow[2] ?? 0),
+        ctaClicks: eventCounts.get('jmp_cta_click') ?? 0,
+        whatsappClicks: eventCounts.get('jmp_whatsapp_click') ?? 0,
+        formClicks: eventCounts.get('jmp_form_click') ?? 0,
+        socialClicks: (eventCounts.get('jmp_youtube_click') ?? 0) + (eventCounts.get('jmp_instagram_click') ?? 0),
+        trackedClicks: (
+            (eventCounts.get('jmp_cta_click') ?? 0)
+            + (eventCounts.get('jmp_whatsapp_click') ?? 0)
+            + (eventCounts.get('jmp_form_click') ?? 0)
+            + (eventCounts.get('jmp_youtube_click') ?? 0)
+            + (eventCounts.get('jmp_instagram_click') ?? 0)
+        ),
+        formStarts: eventCounts.get('jmp_form_started') ?? 0,
+        formSubmitAttempts: eventCounts.get('jmp_form_submit_attempt') ?? 0,
+        formSubmissions: eventCounts.get('jmp_form_submitted') ?? 0,
+        formAbandonments: eventCounts.get('jmp_form_abandoned') ?? 0,
+        recordingsAvailable: Number(recordings?.results?.[0]?.[0] ?? 0),
+    };
+
+    const formStepMap = new Map<number, JmpPostHogStepRow>();
+    for (const row of steps?.results ?? []) {
+        const step = Number(row[0] ?? 0);
+        if (!step) continue;
+        const current = formStepMap.get(step) ?? { step, views: 0, completions: 0, validationFailures: 0 };
+        const event = String(row[1] ?? '');
+        const count = Number(row[2] ?? 0);
+        if (event === 'jmp_form_step_viewed') current.views = count;
+        if (event === 'jmp_form_step_completed') current.completions = count;
+        if (event === 'jmp_form_validation_failed') current.validationFailures = count;
+        formStepMap.set(step, current);
+    }
+
+    return {
+        summary,
+        daily: (daily?.results ?? []).map((r) => ({
+            date: String(r[0] ?? ''),
+            pageviews: Number(r[1] ?? 0),
+            visitors: Number(r[2] ?? 0),
+            submissions: Number(r[3] ?? 0),
+        })),
+        events: (events?.results ?? []).map((r) => ({
+            event: String(r[0] ?? ''),
+            count: Number(r[1] ?? 0),
+        })),
+        formSteps: Array.from(formStepMap.values()).sort((a, b) => a.step - b.step),
+        interests: (interests?.results ?? []).map((r) => ({
+            label: String(r[0] || 'Nao informado'),
+            count: Number(r[1] ?? 0),
+        })),
+        sources: (sources?.results ?? []).map((r) => ({
+            label: String(r[0] === '$direct' ? 'Direto/sem UTM' : r[0] || 'Nao informado'),
+            count: Number(r[1] ?? 0),
+        })),
+        scrollDepths: (scrollDepths?.results ?? []).map((r) => ({
+            label: String(r[0] ?? ''),
+            count: Number(r[1] ?? 0),
+        })),
+    };
+}

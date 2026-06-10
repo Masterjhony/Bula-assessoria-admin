@@ -5,6 +5,7 @@ import {
   Save, Upload, Trash2, Plus, ChevronUp, ChevronDown, ExternalLink,
   LogOut, Loader2, ImageIcon, GripVertical, Eye, Mail, Paperclip,
   Image as ImageLucide, Table2, CheckCircle2, FileText, Clock, Calendar,
+  BarChart3,
 } from 'lucide-react'
 import { createClient } from '@/utils/supabase/client'
 import type { JmpContent, JmpBlock, JmpFoto, JmpFlowEmail, JmpEmailAttachment, JmpHero, JmpBenefit, JmpStat } from '@/lib/jmp-content'
@@ -526,6 +527,9 @@ export default function AdminJmpClient() {
               <Icon className="h-4 w-4" /> {lbltxt}
             </button>
           ))}
+          <a href="/analytics" className="flex items-center gap-2 border-b-2 border-transparent px-3 py-2.5 text-sm font-semibold text-white/55 transition hover:text-white/80">
+            <BarChart3 className="h-4 w-4" /> Metricas
+          </a>
         </div>
         {msg && <div className={`px-4 py-2 text-center text-sm font-medium ${msg.kind === 'ok' ? 'bg-emerald-500 text-white' : 'bg-red-500 text-white'}`}>{msg.text}</div>}
       </header>
