@@ -2,6 +2,7 @@ import './index.css'
 import { useEffect, useState } from 'react'
 import { Form } from './components/Form'
 import { LeilaoSections } from './components/LeilaoSections'
+import { FloatingCTA } from './components/ParticipeCTA'
 import { Footer } from './components/Footer'
 import { DEFAULT_CONTENT, fetchContent, type JmpContent } from './content'
 
@@ -32,6 +33,7 @@ function App() {
         <LeilaoSections blocks={content.blocks} />
       </main>
       <Footer />
+      <FloatingCTA />
     </div>
   )
 }

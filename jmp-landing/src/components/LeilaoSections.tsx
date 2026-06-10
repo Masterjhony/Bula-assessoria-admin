@@ -1,5 +1,6 @@
 import { PlayCircle } from 'lucide-react'
 import { PhotoGallery } from './PhotoGallery'
+import { ParticipeCTA, ParticipeBand } from './ParticipeCTA'
 import { youtubeEmbed, youtubeLink, type JmpBlock } from '../content'
 
 function YoutubePlaceholder({ label }: { label: string }) {
@@ -113,6 +114,14 @@ function LeilaoBlock({ block }: { block: JmpBlock }) {
           <PhotoGallery fotos={block.fotos} />
           <YoutubeArea url={block.youtubeUrl} label={block.playlistLabel} title={block.playlistTitle} coverUrl={block.playlistCoverUrl} />
         </div>
+
+        {/* CTA da seção — leva ao formulário de inscrição */}
+        <div className="mt-12 flex flex-col items-center gap-3 border-t border-white/10 pt-10 text-center">
+          <p className="text-[11px] font-bold uppercase tracking-[3px] text-white/40">
+            Garanta sua vaga neste leilão
+          </p>
+          <ParticipeCTA />
+        </div>
       </div>
     </section>
   )
@@ -124,6 +133,8 @@ export function LeilaoSections({ blocks }: { blocks: JmpBlock[] }) {
       {blocks.map((block, i) => (
         <LeilaoBlock key={block.id || i} block={block} />
       ))}
+      {/* Fecho forte antes do rodapé */}
+      <ParticipeBand />
     </>
   )
 }
