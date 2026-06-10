@@ -1,9 +1,6 @@
 import './index.css'
 import { useEffect, useState } from 'react'
 import { Form } from './components/Form'
-import { LeilaoSections } from './components/LeilaoSections'
-import { FloatingCTA } from './components/ParticipeCTA'
-import { Footer } from './components/Footer'
 import { DEFAULT_CONTENT, fetchContent, type JmpContent } from './content'
 
 function App() {
@@ -18,7 +15,7 @@ function App() {
   }, [])
 
   return (
-    <div className="min-h-screen font-sans bg-white text-black">
+    <div className="min-h-screen font-sans bg-black text-white">
       <main>
         <div
           className="relative bg-black hero-bg"
@@ -30,10 +27,7 @@ function App() {
         >
           <Form hero={content.hero} />
         </div>
-        <LeilaoSections blocks={content.blocks} />
       </main>
-      <Footer />
-      <FloatingCTA />
     </div>
   )
 }

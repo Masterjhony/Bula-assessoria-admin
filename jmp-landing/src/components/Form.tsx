@@ -230,8 +230,11 @@ const selectStyle = {
 
 const labelClass = 'block text-white/45 text-[10px] uppercase tracking-[2.5px] font-semibold mb-1.5'
 const errorClass = 'text-red-400 text-xs mt-1.5 block'
-const btnNext = 'flex-1 bg-white text-black font-black py-4 px-8 rounded-lg text-sm uppercase tracking-[2px] transition-all duration-200 hover:bg-white/90 hover:-translate-y-0.5 active:translate-y-0 cursor-pointer'
+// "Continuar" — dourado Bula, em destaque sobre o card escuro do formulário.
+const btnNext = 'flex-1 bg-gradient-to-r from-[#B8860B] via-[#EBCB6E] to-[#B8860B] text-black font-black py-4 px-8 rounded-lg text-sm uppercase tracking-[2px] shadow-[0_8px_30px_-6px_rgba(201,162,75,0.6)] ring-1 ring-[#EBCB6E]/40 transition-all duration-200 hover:-translate-y-0.5 hover:brightness-110 active:translate-y-0 cursor-pointer'
 const btnBack = 'border border-white/20 text-white/50 font-semibold py-4 px-6 rounded-lg text-sm uppercase tracking-[2px] transition-all duration-200 hover:border-white/40 hover:text-white/80 cursor-pointer'
+// Botão final — o CTA principal da página: dourado, maior, com brilho e pulso.
+const btnSubmit = 'cta-shimmer cta-pulse relative overflow-hidden flex-1 bg-gradient-to-r from-[#B8860B] via-[#EBCB6E] to-[#B8860B] text-black font-black py-5 px-8 rounded-xl text-base uppercase tracking-[2.5px] shadow-[0_14px_44px_-6px_rgba(201,162,75,0.75)] ring-1 ring-[#EBCB6E]/50 transition-all duration-200 hover:-translate-y-0.5 hover:brightness-110 active:translate-y-0 cursor-pointer'
 
 // ── UFCombobox ─────────────────────────────────────────────────
 interface UFComboboxProps {
@@ -525,7 +528,7 @@ export function Form({ hero }: { hero: JmpHero }) {
           </div>
 
           {/* Form card */}
-          <div ref={formCardRef} className="bg-white/5 border border-white/10 rounded-2xl p-6 sm:p-7 backdrop-blur-sm">
+          <div ref={formCardRef} className="bg-neutral-900 border border-white/10 rounded-2xl p-6 sm:p-7 shadow-2xl shadow-black/60 ring-1 ring-white/5">
 
             {/* Step 1 */}
             {step === 1 && (
@@ -720,13 +723,15 @@ export function Form({ hero }: { hero: JmpHero }) {
                   <button
                     onClick={onSubmit}
                     disabled={loading}
-                    className={`${btnNext} flex items-center justify-center gap-2 disabled:opacity-60`}
+                    className={`${btnSubmit} flex items-center justify-center gap-2 disabled:opacity-60`}
                   >
-                    {loading ? (
-                      <><Loader2 className="w-4 h-4 animate-spin" />Enviando…</>
-                    ) : (
-                      'Quero minha assessoria grátis →'
-                    )}
+                    <span className="relative z-10 flex items-center justify-center gap-2">
+                      {loading ? (
+                        <><Loader2 className="w-5 h-5 animate-spin" />Enviando…</>
+                      ) : (
+                        'QUERO PARTICIPAR! →'
+                      )}
+                    </span>
                   </button>
                 </div>
                 {submitError && (
