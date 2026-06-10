@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { CRMLead, updateLead } from '@/app/sistema/actions/crm-leads';
 import type { CRMConfig, CRMMqlRule, CRMStage } from '@/lib/crm-types';
 import { isQualificationStage, evaluateMql } from '@/lib/crm-types';
@@ -60,10 +60,19 @@ function missingFieldsCount(lead: CRMLead): number {
 export function CRMQualificacaoView({ leads, crmConfig, funnelStages, mqlRule, onLeadUpdated, onOpenLead, onArchive }: CRMQualificacaoViewProps) {
     const [search, setSearch] = useState('');
     const [savingId, setSavingId] = useState<string | null>(null);
+    const [errorId, setErrorId] = useState<string | null>(null);
     const [qualifyingId, setQualifyingId] = useState<string | null>(null);
     const [draft, setDraft] = useState<Record<string, Partial<CRMLead>>>({});
     const [page, setPage] = useState(1);
     const [perPage, setPerPage] = useState(25);
+
+    // Ordem exibida, congelada entre edições. Só re-ordena quando a busca muda ou
+    // quando entram/saem leads — nunca quando um campo é salvo. Antes, salvar um
+    // campo recalculava is_mql / "campos faltando" (as chaves de ordenação) e o
+    // card "pulava" no meio da digitação, fazendo o clique seguinte errar o alvo
+    // ("salva às vezes / clicar duas vezes").
+    const orderRef = useRef<string[]>([]);
+    const prevSearchRef = useRef<string>('');
 
     const stages = funnelStages ?? crmConfig.stages;
 
@@ -81,7 +90,7 @@ export function CRMQualificacaoView({ leads, crmConfig, funnelStages, mqlRule, o
     const requireIe = !!mqlRule?.require_ie;
 
     const qualificationLeads = useMemo(() => {
-        return leads
+        const filtered = leads
             .filter(l => qualificationStageNames.has(l.status))
             .filter(l => {
                 if (!search) return true;
@@ -95,19 +104,39 @@ export function CRMQualificacaoView({ leads, crmConfig, funnelStages, mqlRule, o
                     l.o_que_busca?.toLowerCase().includes(q) ||
                     l.momento_pecuaria?.toLowerCase().includes(q)
                 );
-            })
-            .sort((a, b) => {
-                // 1) MQLs no topo — prioridade de atendimento.
-                if (!!a.is_mql !== !!b.is_mql) return a.is_mql ? -1 : 1;
-                // 2) Dentro do mesmo grupo, mais incompletos primeiro (ainda dependem da equipe pra ficarem prontos).
-                const ma = missingFieldsCount(a);
-                const mb = missingFieldsCount(b);
-                if (ma !== mb) return mb - ma;
-                // 3) Empate → mais recentes primeiro.
-                const da = a.data_entrada || a.created_at;
-                const db = b.data_entrada || b.created_at;
-                return (db || '').localeCompare(da || '');
             });
+
+        const comparator = (a: CRMLead, b: CRMLead) => {
+            // 1) MQLs no topo — prioridade de atendimento.
+            if (!!a.is_mql !== !!b.is_mql) return a.is_mql ? -1 : 1;
+            // 2) Dentro do mesmo grupo, mais incompletos primeiro (ainda dependem da equipe pra ficarem prontos).
+            const ma = missingFieldsCount(a);
+            const mb = missingFieldsCount(b);
+            if (ma !== mb) return mb - ma;
+            // 3) Empate → mais recentes primeiro.
+            const da = a.data_entrada || a.created_at;
+            const db = b.data_entrada || b.created_at;
+            return (db || '').localeCompare(da || '');
+        };
+
+        const byId = new Map(filtered.map(l => [l.id, l]));
+        const searchChanged = prevSearchRef.current !== search;
+        prevSearchRef.current = search;
+
+        let order: string[];
+        if (searchChanged || orderRef.current.length === 0) {
+            // Re-ordena por completo: primeira carga ou nova busca.
+            order = [...filtered].sort(comparator).map(l => l.id);
+        } else {
+            // Preserva a ordem atual dos leads já visíveis (editar um campo não
+            // reposiciona o card); leads novos entram ordenados no fim.
+            const kept = orderRef.current.filter(id => byId.has(id));
+            const known = new Set(kept);
+            const newcomers = filtered.filter(l => !known.has(l.id)).sort(comparator).map(l => l.id);
+            order = [...kept, ...newcomers];
+        }
+        orderRef.current = order;
+        return order.map(id => byId.get(id)!).filter(Boolean);
     }, [leads, qualificationStageNames, search]);
 
     // Reset pra primeira página sempre que filtros ou per-page mudam.
@@ -135,6 +164,7 @@ export function CRMQualificacaoView({ leads, crmConfig, funnelStages, mqlRule, o
 
     const persistField = async (lead: CRMLead, patch: Partial<CRMLead>) => {
         setSavingId(lead.id);
+        setErrorId(null);
         try {
             const updated = await updateLead(lead.id, patch);
             onLeadUpdated(updated);
@@ -149,6 +179,12 @@ export function CRMQualificacaoView({ leads, crmConfig, funnelStages, mqlRule, o
                 }
                 return { ...prev, [lead.id]: cur };
             });
+        } catch (e) {
+            // Mantém o valor digitado no draft (não some da tela) e sinaliza a falha,
+            // em vez de fingir que salvou. O operador pode sair do campo e voltar para
+            // tentar de novo.
+            console.error('Falha ao salvar campo do lead:', e);
+            setErrorId(lead.id);
         } finally {
             setSavingId(null);
         }
@@ -436,6 +472,10 @@ export function CRMQualificacaoView({ leads, crmConfig, funnelStages, mqlRule, o
                                     <div className="flex items-center gap-1.5 text-[10px] text-gray-400">
                                         {isSaving ? (
                                             <><Loader2 size={10} className="animate-spin" /> Salvando…</>
+                                        ) : errorId === lead.id ? (
+                                            <span className="inline-flex items-center gap-1 text-red-500 font-semibold">
+                                                <AlertCircle size={10} /> Erro ao salvar — clique no campo e tente de novo.
+                                            </span>
                                         ) : (
                                             <span>Edição inline · TAB para próximo · BLUR salva automaticamente</span>
                                         )}

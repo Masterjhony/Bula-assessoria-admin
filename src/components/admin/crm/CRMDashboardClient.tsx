@@ -134,16 +134,16 @@ export function CRMDashboardClient({ initialLeads, crmConfig: initialConfig }: C
     const handleSaveLead = async (leadData: Partial<CRMLead>) => {
         if (editingLead) {
             const updated = await updateLead(editingLead.id, leadData);
-            setLeads(leads.map(l => l.id === updated.id ? updated : l));
+            setLeads(prev => prev.map(l => l.id === updated.id ? updated : l));
             // editingLead é derivado de URL+leads, então atualiza sozinho.
         } else {
             const newLead = await createLead({ ...leadData, status: leadData.status || defaultStatus });
-            setLeads([...leads, newLead]);
+            setLeads(prev => [...prev, newLead]);
         }
     };
 
     const handleMoveLead = async (id: string, newStatus: string, newPosition: number) => {
-        setLeads(leads.map(l => l.id === id ? { ...l, status: newStatus, position: newPosition } : l));
+        setLeads(prev => prev.map(l => l.id === id ? { ...l, status: newStatus, position: newPosition } : l));
         try {
             await moveLead(id, newStatus, newPosition);
         } catch (error) {
