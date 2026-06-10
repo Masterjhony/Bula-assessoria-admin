@@ -40,8 +40,8 @@ const REQUIRED_FIELDS: { key: keyof CRMLead; label: string }[] = [
     { key: 'celular', label: 'Celular / WhatsApp' },
     { key: 'estado', label: 'Estado' },
     { key: 'cidade', label: 'Cidade' },
-    { key: 'quantidade_animais', label: 'Cabeçinhas' },
-    { key: 'o_que_busca', label: 'O que busca' },
+    { key: 'quantidade_animais', label: 'Cabeças' },
+    { key: 'o_que_busca', label: 'Interesse' },
 ];
 
 function fieldFilled(lead: CRMLead, key: keyof CRMLead): boolean {
@@ -177,7 +177,7 @@ export function CRMQualificacaoView({ leads, crmConfig, funnelStages, mqlRule, o
                 {[
                     { label: 'Aguardando qualificação', value: stats.total, icon: ListChecks, color: 'text-[#A68B4B]', bg: 'bg-[#A68B4B]/10' },
                     { label: `MQLs (≥${minCabecas} cab.${requireIe ? ' + I.E.' : ''})`, value: stats.mqls, icon: Crown, color: 'text-fuchsia-600 dark:text-fuchsia-400', bg: 'bg-fuchsia-500/10' },
-                    { label: 'Sem cabeçinhas', value: stats.semAnimais, icon: Beef, color: 'text-rose-500', bg: 'bg-rose-500/10' },
+                    { label: 'Sem cabeças', value: stats.semAnimais, icon: Beef, color: 'text-rose-500', bg: 'bg-rose-500/10' },
                     { label: 'Sem interesse', value: stats.semInteresse, icon: AlertCircle, color: 'text-amber-500', bg: 'bg-amber-500/10' },
                     { label: 'Sem localização', value: stats.semLocal, icon: MapPin, color: 'text-blue-500', bg: 'bg-blue-500/10' },
                     { label: 'Prontos p/ CRM', value: stats.completos, icon: Sparkles, color: 'text-emerald-500', bg: 'bg-emerald-500/10' },
@@ -211,7 +211,7 @@ export function CRMQualificacaoView({ leads, crmConfig, funnelStages, mqlRule, o
                 <Sparkles size={14} className="text-[#A68B4B] flex-shrink-0 mt-0.5" />
                 <p>
                     Os leads que entram pelo grupo de WhatsApp aparecem aqui para serem qualificados.
-                    Preencha os campos obrigatórios (cabeçinhas, interesse, localização, contato) e clique em
+                    Preencha os campos obrigatórios (cabeças, interesse, localização, contato) e clique em
                     <span className="font-semibold text-[#A68B4B]"> &ldquo;Mover para o CRM&rdquo;</span> quando o lead estiver pronto.
                 </p>
             </div>
@@ -360,7 +360,7 @@ export function CRMQualificacaoView({ leads, crmConfig, funnelStages, mqlRule, o
                                         missing={!fieldFilled(lead, 'cidade')}
                                     />
                                     <Field
-                                        label="Cabeçinhas"
+                                        label="Cabeças"
                                         value={lDraft.quantidade_animais ?? lead.quantidade_animais ?? ''}
                                         onChange={v => updateDraft(lead.id, { quantidade_animais: v })}
                                         onBlur={v => {
@@ -379,7 +379,7 @@ export function CRMQualificacaoView({ leads, crmConfig, funnelStages, mqlRule, o
                                         missing={!fieldFilled(lead, 'quantidade_animais')}
                                     />
                                     <Field
-                                        label="O que busca"
+                                        label="Interesse"
                                         value={lDraft.o_que_busca ?? lead.o_que_busca ?? ''}
                                         onChange={v => updateDraft(lead.id, { o_que_busca: v })}
                                         onBlur={v => v !== (lead.o_que_busca || '') && persistField(lead, { o_que_busca: v || null })}
