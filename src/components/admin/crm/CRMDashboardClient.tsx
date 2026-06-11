@@ -425,7 +425,7 @@ export function CRMDashboardClient({ initialLeads, crmConfig: initialConfig }: C
                         <div className="flex-1 min-h-0 overflow-hidden">
                             <CRMKanbanBoard
                                 leads={advancedLeads}
-                                stages={allStages}
+                                stages={advancedStages}
                                 onEditLead={handleEditLead}
                                 onAddLead={handleOpenNewLead}
                                 onMoveLead={handleMoveLead}

@@ -40,6 +40,8 @@ export function CRMCard({ lead, onClick, onCadastroApprovalChange }: CRMCardProp
             <div
                 ref={setNodeRef}
                 style={style}
+                data-crm-card-id={lead.id}
+                data-crm-card-status={lead.status}
                 className="opacity-30 border-2 border-dashed border-[#A68B4B] rounded-xl h-[120px]"
             />
         );
@@ -70,6 +72,8 @@ export function CRMCard({ lead, onClick, onCadastroApprovalChange }: CRMCardProp
         <div
             ref={setNodeRef}
             style={style}
+            data-crm-card-id={lead.id}
+            data-crm-card-status={lead.status}
             {...attributes}
             {...listeners}
             onClick={() => onClick(lead)}
@@ -127,7 +131,6 @@ export function CRMCard({ lead, onClick, onCadastroApprovalChange }: CRMCardProp
             {isCadastroStage && (
                 <button
                     type="button"
-                    onPointerDown={e => e.stopPropagation()}
                     onClick={handleCadastroApprovalClick}
                     disabled={!onCadastroApprovalChange || savingApproval}
                     title={cadastroAprovado ? 'Cadastro aprovado. Clique para remover a aprovação.' : 'Marcar cadastro como aprovado.'}

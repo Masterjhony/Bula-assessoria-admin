@@ -162,20 +162,30 @@ export function parseCabecasFloor(value?: string | null): number | null {
     return m ? Number(m[0]) : null;
 }
 
+export function hasStateRegistration(flag?: string | null, number?: string | null): boolean {
+    const normalizedFlag = String(flag ?? '').trim().toLowerCase();
+    const normalizedNumber = String(number ?? '').trim();
+    return normalizedFlag === 'sim' || normalizedNumber.length > 0;
+}
+
 /**
  * Avalia se um lead é MQL segundo a regra do funil.
  * - cabeças: piso da faixa precisa ser ≥ min_cabecas (default 100)
- * - IE: se require_ie, tem_inscricao_estadual precisa ser "Sim"
+ * - IE: por padrão exige "Tem I.E. = Sim" ou número de inscrição preenchido
  */
 export function evaluateMql(
     rule: CRMMqlRule | undefined | null,
-    lead: { quantidade_animais?: string | null; tem_inscricao_estadual?: string | null }
+    lead: {
+        quantidade_animais?: string | null;
+        tem_inscricao_estadual?: string | null;
+        inscricao_estadual?: string | null;
+    }
 ): boolean {
     const min = rule?.min_cabecas ?? 100;
     const floor = parseCabecasFloor(lead.quantidade_animais);
     const hasHeads = floor != null && floor >= min;
-    const requireIe = rule?.require_ie ?? false;
-    const ieOk = !requireIe || (lead.tem_inscricao_estadual || '').trim().toLowerCase() === 'sim';
+    const requireIe = rule?.require_ie ?? true;
+    const ieOk = !requireIe || hasStateRegistration(lead.tem_inscricao_estadual, lead.inscricao_estadual);
     return hasHeads && ieOk;
 }
 

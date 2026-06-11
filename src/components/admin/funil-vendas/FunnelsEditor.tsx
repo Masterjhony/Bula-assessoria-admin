@@ -563,7 +563,7 @@ export function FunnelsEditor({ initialConfig, onConfigSaved }: FunnelsEditorPro
                                         <div className="px-6 pt-3 pb-4 border-t border-gray-100 dark:border-[#2A2A2A]">
                                             <p className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1">Critério de MQL</p>
                                             <p className="text-[10px] text-gray-400 mb-3 leading-relaxed">
-                                                Um lead deste funil vira <span className="font-semibold">MQL</span> (prioridade de atendimento) automaticamente quando atende ao mínimo de cabeças e, se marcado, tem Inscrição Estadual.
+                                                Um lead deste funil vira <span className="font-semibold">MQL</span> (prioridade de atendimento) automaticamente quando tem no mínimo 100 cabeças e Inscrição Estadual.
                                             </p>
                                             <div className="bg-white dark:bg-[#1A1A1A] rounded-xl border border-gray-200 dark:border-[#333] p-4 flex flex-wrap items-end gap-4">
                                                 <div>
@@ -572,22 +572,21 @@ export function FunnelsEditor({ initialConfig, onConfigSaved }: FunnelsEditorPro
                                                         type="number"
                                                         min={0}
                                                         placeholder="100"
-                                                        value={funnel.mql_rule?.min_cabecas ?? ''}
-                                                        onChange={e => updateMqlRule(
-                                                            funnel.id,
-                                                            { min_cabecas: e.target.value === '' ? null : Number(e.target.value) }
-                                                        )}
-                                                        className={`${inputCls} w-32`}
+                                                        value={100}
+                                                        disabled
+                                                        onChange={() => updateMqlRule(funnel.id, { min_cabecas: 100 })}
+                                                        className={`${inputCls} w-32 opacity-70 cursor-not-allowed`}
                                                     />
                                                 </div>
                                                 <label className="flex items-center gap-2 pb-2.5 cursor-pointer select-none">
                                                     <input
                                                         type="checkbox"
-                                                        checked={!!funnel.mql_rule?.require_ie}
-                                                        onChange={e => updateMqlRule(funnel.id, { require_ie: e.target.checked })}
+                                                        checked={funnel.mql_rule?.require_ie ?? true}
+                                                        disabled
+                                                        onChange={() => updateMqlRule(funnel.id, { require_ie: true })}
                                                         className="w-4 h-4 accent-[#A68B4B]"
                                                     />
-                                                    <span className="text-sm text-gray-700 dark:text-gray-300">Exige Inscrição Estadual</span>
+                                                    <span className="text-sm text-gray-700 dark:text-gray-300">Inscrição Estadual obrigatória</span>
                                                 </label>
                                             </div>
 

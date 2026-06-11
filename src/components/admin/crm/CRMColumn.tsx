@@ -74,6 +74,7 @@ export function CRMColumn({ id, title, leads, onLeadClick, onAddLead, onRename, 
     return (
         <div
             ref={setNodeRef}
+            data-crm-column={id}
             className="flex-1 min-w-[320px] flex flex-col gap-4 bg-gray-50 dark:bg-[#141414] p-4 rounded-2xl border border-gray-200 dark:border-[#2A2A2A]"
         >
             <div className="flex items-center justify-between">

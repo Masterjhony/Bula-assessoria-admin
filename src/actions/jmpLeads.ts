@@ -86,6 +86,7 @@ export async function getJmpLeadQualificationAnalytics(): Promise<JmpLeadQualifi
         const isMql = (lead: JmpLeadRow) => evaluateMql(mqlRule, {
             quantidade_animais: lead.quantidade_animais,
             tem_inscricao_estadual: lead.tem_inscricao_estadual,
+            inscricao_estadual: lead.inscricao_estadual,
         });
         const leadsWithIe = rows.filter((lead) => hasStateRegistration(lead.tem_inscricao_estadual, lead.inscricao_estadual)).length;
         const mqlLeads = rows.filter(isMql).length;

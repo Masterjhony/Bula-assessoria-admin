@@ -87,7 +87,7 @@ export function CRMQualificacaoView({ leads, crmConfig, funnelStages, mqlRule, o
     );
 
     const minCabecas = mqlRule?.min_cabecas ?? 100;
-    const requireIe = !!mqlRule?.require_ie;
+    const requireIe = mqlRule?.require_ie ?? true;
 
     const qualificationLeads = useMemo(() => {
         const filtered = leads
@@ -419,6 +419,7 @@ export function CRMQualificacaoView({ leads, crmConfig, funnelStages, mqlRule, o
                                                 is_mql: evaluateMql(mqlRule, {
                                                     quantidade_animais: v,
                                                     tem_inscricao_estadual: lead.tem_inscricao_estadual,
+                                                    inscricao_estadual: lead.inscricao_estadual,
                                                 }),
                                             });
                                         }}
@@ -457,6 +458,7 @@ export function CRMQualificacaoView({ leads, crmConfig, funnelStages, mqlRule, o
                                             is_mql: evaluateMql(mqlRule, {
                                                 quantidade_animais: lead.quantidade_animais,
                                                 tem_inscricao_estadual: v,
+                                                inscricao_estadual: lead.inscricao_estadual,
                                             }),
                                         })}
                                         options={[

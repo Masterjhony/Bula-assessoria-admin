@@ -68,8 +68,17 @@ export function CRMModal({ isOpen, onClose, lead, defaultStatus, defaultFunnelId
 
     // Regra de MQL do funil deste lead (cabeças + IE). Default: 'default'.
     const mqlRule = funnels.find(f => f.id === (formData.funnel_id || 'default'))?.mql_rule;
-    const requireIe = !!mqlRule?.require_ie;
+    const requireIe = mqlRule?.require_ie ?? true;
     const minCabecas = mqlRule?.min_cabecas ?? 100;
+
+    const calculateMql = (patch: Partial<CRMLead> = {}) => {
+        const next = { ...formData, ...patch };
+        return evaluateMql(mqlRule, {
+            quantidade_animais: next.quantidade_animais,
+            tem_inscricao_estadual: next.tem_inscricao_estadual,
+            inscricao_estadual: next.inscricao_estadual,
+        });
+    };
 
     useEffect(() => {
         if (lead) {
@@ -116,7 +125,7 @@ export function CRMModal({ isOpen, onClose, lead, defaultStatus, defaultFunnelId
         e.preventDefault();
         setIsSaving(true);
         try {
-            await onSave(formData);
+            await onSave({ ...formData, is_mql: calculateMql() });
             onClose();
         } catch (error) {
             console.error('Failed to save lead:', error);
@@ -218,7 +227,14 @@ export function CRMModal({ isOpen, onClose, lead, defaultStatus, defaultFunnelId
                                     <input
                                         type="text"
                                         value={formData.inscricao_estadual || ''}
-                                        onChange={e => setFormData({ ...formData, inscricao_estadual: e.target.value })}
+                                        onChange={e => {
+                                            const v = e.target.value;
+                                            setFormData({
+                                                ...formData,
+                                                inscricao_estadual: v,
+                                                is_mql: calculateMql({ inscricao_estadual: v }),
+                                            });
+                                        }}
                                         className={inputClass}
                                         placeholder="Nº da inscrição estadual"
                                     />
@@ -236,6 +252,7 @@ export function CRMModal({ isOpen, onClose, lead, defaultStatus, defaultFunnelId
                                                 is_mql: evaluateMql(mqlRule, {
                                                     quantidade_animais: formData.quantidade_animais,
                                                     tem_inscricao_estadual: v,
+                                                    inscricao_estadual: formData.inscricao_estadual,
                                                 }),
                                             });
                                         }}
@@ -479,6 +496,7 @@ export function CRMModal({ isOpen, onClose, lead, defaultStatus, defaultFunnelId
                                                 is_mql: evaluateMql(mqlRule, {
                                                     quantidade_animais: v,
                                                     tem_inscricao_estadual: formData.tem_inscricao_estadual,
+                                                    inscricao_estadual: formData.inscricao_estadual,
                                                 }),
                                             });
                                         }}
@@ -523,17 +541,18 @@ export function CRMModal({ isOpen, onClose, lead, defaultStatus, defaultFunnelId
                                 <span className="text-xs font-bold uppercase tracking-wider text-[#A68B4B] flex-1">
                                     MQL — Marketing Qualified Lead
                                     <span className="block font-normal normal-case text-[11px] text-gray-500 dark:text-gray-400 tracking-normal mt-0.5">
-                                        Definido automaticamente quando o lead tem ≥{minCabecas} cabeças{requireIe ? ' e Inscrição Estadual' : ''}. Você pode ajustar manualmente.
+                                        Definido automaticamente quando o lead tem ≥{minCabecas} cabeças{requireIe ? ' e Inscrição Estadual' : ''}.
                                     </span>
                                 </span>
-                                <button
-                                    type="button"
-                                    onClick={() => setFormData({ ...formData, is_mql: !formData.is_mql })}
-                                    className={`relative w-10 h-5 rounded-full transition-colors shrink-0 ${formData.is_mql ? 'bg-[#A68B4B]' : 'bg-gray-300 dark:bg-[#3f3f3f]'}`}
-                                    aria-label="Alternar MQL"
+                                <span
+                                    className={`px-3 py-1 rounded-full text-[11px] font-extrabold uppercase border shrink-0 ${
+                                        calculateMql()
+                                            ? 'border-[#A68B4B]/40 bg-[#A68B4B]/15 text-[#A68B4B]'
+                                            : 'border-gray-200 dark:border-[#333] bg-gray-100 dark:bg-[#2e2e2e] text-gray-500 dark:text-gray-400'
+                                    }`}
                                 >
-                                    <span className={`absolute top-0.5 left-0.5 w-4 h-4 bg-white rounded-full shadow transition-transform ${formData.is_mql ? 'translate-x-5' : ''}`} />
-                                </button>
+                                    {calculateMql() ? 'MQL' : 'Não MQL'}
+                                </span>
                             </div>
                         </FormSection>
 

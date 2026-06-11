@@ -65,6 +65,12 @@ export function CRMKanbanBoard({ leads: externalLeads, stages, onEditLead, onAdd
         setLeads(next);
     };
 
+    const resetLocalLeads = () => {
+        leadsRef.current = externalLeads;
+        setLeads(externalLeads);
+        setActiveLead(null);
+    };
+
     const resolveOverStatus = (
         over: DragOverEvent['over'] | DragEndEvent['over'],
         snapshot: CRMLead[] = leadsRef.current
@@ -114,7 +120,7 @@ export function CRMKanbanBoard({ leads: externalLeads, stages, onEditLead, onAdd
         const isOverLead = over.data.current?.type === 'Lead';
         const isOverColumn = over.data.current?.type === 'Column';
 
-        setLeads((prev) => {
+        setLocalLeads((prev) => {
             // Guard: o dnd-kit pode disparar com um id ainda fora da lista durante o
             // arrasto. Sem isso, prev[-1].status lançava TypeError e quebrava a tela.
             const activeIndex = prev.findIndex((l) => l.id === activeId);
@@ -150,7 +156,10 @@ export function CRMKanbanBoard({ leads: externalLeads, stages, onEditLead, onAdd
     const onDragEnd = async (event: DragEndEvent) => {
         const { active, over } = event;
         setActiveLead(null);
-        if (!over) return;
+        if (!over) {
+            resetLocalLeads();
+            return;
+        }
 
         const activeId = active.id as string;
         const snapshot = leadsRef.current;
@@ -183,6 +192,10 @@ export function CRMKanbanBoard({ leads: externalLeads, stages, onEditLead, onAdd
         await onMoveLead(movedLead.id, movedLead.status, newPosition);
     };
 
+    const onDragCancel = () => {
+        resetLocalLeads();
+    };
+
     const dropAnimation = {
         sideEffects: defaultDropAnimationSideEffects({
             styles: { active: { opacity: '0.5' } },
@@ -200,6 +213,7 @@ export function CRMKanbanBoard({ leads: externalLeads, stages, onEditLead, onAdd
             onDragStart={onDragStart}
             onDragOver={onDragOver}
             onDragEnd={onDragEnd}
+            onDragCancel={onDragCancel}
         >
             <div className="flex gap-6 overflow-x-auto pb-4 h-full snap-x">
                 {columns.map((colId) => (

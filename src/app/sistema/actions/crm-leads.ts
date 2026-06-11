@@ -132,6 +132,33 @@ async function notifyAssessorIfNeeded(
     }
 }
 
+type MqlSource = Pick<CRMLead, 'quantidade_animais' | 'tem_inscricao_estadual' | 'inscricao_estadual' | 'funnel_id'>;
+
+async function withComputedMql(data: Partial<CRMLead>, previous?: Partial<MqlSource> | null): Promise<Partial<CRMLead>> {
+    const merged = { ...(previous || {}), ...data };
+    const config = await getCRMConfig();
+    const funnelId = merged.funnel_id || JMP_FUNNEL_ID;
+    const rule = config.funnels.find(f => f.id === funnelId)?.mql_rule ?? DEFAULT_JMP_MQL_RULE;
+    return {
+        ...data,
+        is_mql: evaluateMql(rule, {
+            quantidade_animais: merged.quantidade_animais,
+            tem_inscricao_estadual: merged.tem_inscricao_estadual,
+            inscricao_estadual: merged.inscricao_estadual,
+        }),
+    };
+}
+
+function shouldComputeMql(data: Partial<CRMLead>): boolean {
+    return (
+        'is_mql' in data ||
+        'quantidade_animais' in data ||
+        'tem_inscricao_estadual' in data ||
+        'inscricao_estadual' in data ||
+        'funnel_id' in data
+    );
+}
+
 export async function getLeads(funnelId?: string): Promise<CRMLead[]> {
     const supabase = await createClient();
 
@@ -207,7 +234,7 @@ export async function unarchiveLead(id: string): Promise<void> {
 
 export async function createLead(data: Partial<CRMLead>): Promise<CRMLead> {
     const supabase = await createClient();
-    const payload = sanitizeLeadData(data);
+    const payload = sanitizeLeadData(await withComputedMql(data));
     if (!payload.status) payload.status = CRM_STAGE_CONNECTION;
 
     const { data: newLead, error } = await supabase
@@ -239,13 +266,19 @@ export async function updateLead(id: string, data: Partial<CRMLead>): Promise<CR
 
     const { data: previous } = await supabase
         .from('crm_leads')
-        .select('status, responsavel, extra_data')
+        .select('status, responsavel, extra_data, quantidade_animais, tem_inscricao_estadual, inscricao_estadual, funnel_id')
         .eq('id', id)
         .single();
 
+    const payload = sanitizeLeadData(
+        shouldComputeMql(data)
+            ? await withComputedMql(data, previous as Partial<MqlSource> | null)
+            : data
+    );
+
     const { data: updatedLead, error } = await supabase
         .from('crm_leads')
-        .update(sanitizeLeadData(data))
+        .update(payload)
         .eq('id', id)
         .select()
         .single();
@@ -393,13 +426,13 @@ export async function reavaliarLeadsJmp(): Promise<{ updated: number; total: num
 
     const { data, error } = await supabase
         .from('crm_leads')
-        .select('id, telefone, celular, funnel_id, is_mql, quantidade_animais, tem_inscricao_estadual')
+        .select('id, telefone, celular, funnel_id, is_mql, quantidade_animais, tem_inscricao_estadual, inscricao_estadual')
         .eq('source', 'jmp-landing');
 
     if (error) throw new Error(`Error fetching JMP leads: ${error.message}`);
 
     const leads = (data ?? []) as Array<Pick<CRMLead,
-        'id' | 'telefone' | 'celular' | 'funnel_id' | 'is_mql' | 'quantidade_animais' | 'tem_inscricao_estadual'>>;
+        'id' | 'telefone' | 'celular' | 'funnel_id' | 'is_mql' | 'quantidade_animais' | 'tem_inscricao_estadual' | 'inscricao_estadual'>>;
 
     let updated = 0;
     for (const lead of leads) {
@@ -408,6 +441,7 @@ export async function reavaliarLeadsJmp(): Promise<{ updated: number; total: num
         const nextMql = evaluateMql(rule, {
             quantidade_animais: lead.quantidade_animais,
             tem_inscricao_estadual: lead.tem_inscricao_estadual,
+            inscricao_estadual: lead.inscricao_estadual,
         });
         if (!!lead.is_mql !== nextMql) patch.is_mql = nextMql;
 
