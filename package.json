@@ -6,7 +6,8 @@
     "dev": "next dev",
     "build": "next build --webpack",
     "start": "next start",
-    "lint": "next lint"
+    "lint": "next lint",
+    "whatsapp:reactivar": "powershell -ExecutionPolicy Bypass -File scripts/reactivate-crm-whatsapp.ps1"
   },
   "dependencies": {
     "@dnd-kit/core": "^6.3.1",
