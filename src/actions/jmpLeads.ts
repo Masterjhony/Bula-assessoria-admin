@@ -1,7 +1,12 @@
 'use server';
 
 import { supabaseAdmin } from '@/lib/supabase';
-import { DEFAULT_JMP_MQL_RULE } from '@/lib/crm-types';
+import {
+    DEFAULT_JMP_MQL_RULE,
+    JMP_FUNNEL_ID,
+    evaluateMql,
+    type CRMMqlRule,
+} from '@/lib/crm-types';
 
 const TIME_WINDOW_DAYS = 30;
 
@@ -32,9 +37,23 @@ export interface JmpLeadQualificationAnalytics {
 
 type JmpLeadRow = {
     id: string;
-    is_mql: boolean | null;
+    quantidade_animais: string | null;
     tem_inscricao_estadual: string | null;
     inscricao_estadual: string | null;
+}
+
+async function getJmpMqlRule(): Promise<CRMMqlRule> {
+    try {
+        const { data } = await supabaseAdmin()
+            .from('site_settings')
+            .select('value')
+            .eq('key', 'crm_config')
+            .maybeSingle();
+        const funnels = (data?.value as { funnels?: Array<{ id: string; mql_rule?: CRMMqlRule }> } | null)?.funnels;
+        return funnels?.find((f) => f.id === JMP_FUNNEL_ID)?.mql_rule ?? DEFAULT_JMP_MQL_RULE;
+    } catch {
+        return DEFAULT_JMP_MQL_RULE;
+    }
 }
 
 export async function getJmpLeadQualificationAnalytics(): Promise<JmpLeadQualificationAnalytics> {
@@ -53,9 +72,10 @@ export async function getJmpLeadQualificationAnalytics(): Promise<JmpLeadQualifi
     };
 
     try {
+        const mqlRule = await getJmpMqlRule();
         const { data, error } = await supabaseAdmin()
             .from('crm_leads')
-            .select('id, is_mql, tem_inscricao_estadual, inscricao_estadual')
+            .select('id, quantidade_animais, tem_inscricao_estadual, inscricao_estadual')
             .or('source.eq.jmp-landing,source_page.eq.jmp.bulaassessoria.com,origem.ilike.%Landing JMP%')
             .gte('data_entrada', base.since);
 
@@ -63,12 +83,17 @@ export async function getJmpLeadQualificationAnalytics(): Promise<JmpLeadQualifi
 
         const rows = (data ?? []) as JmpLeadRow[];
         const totalLeads = rows.length;
-        const mqlLeads = rows.filter((lead) => !!lead.is_mql).length;
+        const isMql = (lead: JmpLeadRow) => evaluateMql(mqlRule, {
+            quantidade_animais: lead.quantidade_animais,
+            tem_inscricao_estadual: lead.tem_inscricao_estadual,
+        });
         const leadsWithIe = rows.filter((lead) => hasStateRegistration(lead.tem_inscricao_estadual, lead.inscricao_estadual)).length;
-        const leadsWithIeNotMql = rows.filter((lead) => hasStateRegistration(lead.tem_inscricao_estadual, lead.inscricao_estadual) && !lead.is_mql).length;
+        const mqlLeads = rows.filter(isMql).length;
+        const leadsWithIeNotMql = rows.filter((lead) => hasStateRegistration(lead.tem_inscricao_estadual, lead.inscricao_estadual) && !isMql(lead)).length;
 
         return {
             ...base,
+            mqlDefinition: `MQL = lead qualificado pelo marketing. No Funil JMP, a regra atual e ${mqlRule.min_cabecas ?? 100}+ cabecas${mqlRule.require_ie ?? true ? ' e Inscricao Estadual = Sim' : ''}.`,
             totalLeads,
             mqlLeads,
             leadsWithIe,

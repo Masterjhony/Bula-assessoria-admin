@@ -309,7 +309,7 @@ export default function AdminJmpAnalytics() {
                   label="MQLs gerados"
                   value={leadQualification?.mqlLeads ?? 0}
                   source="CRM"
-                  hint={`${formatPercent(leadQualification?.mqlRate ?? 0)} dos leads JMP dos ultimos 30 dias.`}
+                  hint={`${formatPercent(leadQualification?.mqlRate ?? 0)} dos leads JMP dos ultimos 30 dias, recalculado pela regra atual.`}
                 />
                 <RequestedMetric
                   label="Leads com IE"
