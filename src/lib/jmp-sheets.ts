@@ -21,13 +21,30 @@ type HeaderLayout = {
   lastColumn: number
 }
 
+/**
+ * Interpreta o JSON da service account tolerando o formato "colado errado":
+ * o valor salvo no painel da Vercel pode vir com quebras de linha REAIS dentro
+ * da string do private_key (JSON inválido — foi a causa de a planilha parar de
+ * receber leads silenciosamente). Fallback: extrai client_email/private_key
+ * por regex direto do texto.
+ */
+function parseServiceAccount(raw: string): { client_email: string; private_key: string } | null {
+  try {
+    return JSON.parse(raw) as { client_email: string; private_key: string }
+  } catch { /* tenta o fallback abaixo */ }
+  const email = raw.match(/"client_email"\s*:\s*"([^"]+)"/)?.[1]
+  const key = raw.match(/"private_key"\s*:\s*"([\s\S]*?)"\s*[,}]/)?.[1]
+  if (!email || !key) return null
+  return { client_email: email, private_key: key }
+}
+
 function getAuth() {
   const raw = process.env.GOOGLE_SERVICE_ACCOUNT_JSON
   if (!raw) return null
-  let creds: { client_email: string; private_key: string }
-  try {
-    creds = JSON.parse(raw)
-  } catch {
+  const creds = parseServiceAccount(raw)
+  if (!creds) {
+    // Loga ALTO: sem isso a integração morre silenciosa e leads somem da planilha.
+    console.error('[jmp-sheets] GOOGLE_SERVICE_ACCOUNT_JSON inválido (JSON não parseia) — integração com a planilha DESATIVADA.')
     return null
   }
   return new google.auth.JWT({
@@ -566,7 +583,11 @@ export async function appendLeadToSheet(lead: SheetLead): Promise<{ skipped: boo
   const info = await getStoredInfo()
   if (!info) return { skipped: true, reason: 'not_provisioned' }
   const auth = getAuth()
-  if (!auth) return { skipped: true, reason: 'no_credentials' }
+  if (!auth) {
+    // Skip silencioso esconde perda de leads — deixa rastro no log.
+    console.error('[jmp-sheets] append PULADO (credenciais ausentes/inválidas) — lead não foi para a planilha:', lead.nome)
+    return { skipped: true, reason: 'no_credentials' }
+  }
 
   const sheets = google.sheets({ version: 'v4', auth })
 
