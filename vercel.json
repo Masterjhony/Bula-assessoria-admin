@@ -1,5 +1,6 @@
 {
   "crons": [
-    { "path": "/api/jmp/email-cron", "schedule": "0 11 * * *" }
+    { "path": "/api/jmp/email-cron", "schedule": "0 11 * * *" },
+    { "path": "/api/jmp/sheet-heal", "schedule": "30 11 * * *" }
   ]
 }

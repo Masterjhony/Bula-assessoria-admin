@@ -1,0 +1,29 @@
+# Auto-cura da planilha "Leads JMP" a cada 15 minutos.
+#
+# O Meta Ads despeja leads crus (desalinhados, a partir da coluna A) na mesma
+# aba que a landing usa. O app normaliza essas linhas quando chega lead da
+# landing ou quando alguém abre a Validação no admin — mas sem esses gatilhos
+# as linhas cruas ficam paradas. O plano Hobby da Vercel só permite cron
+# diário, então o agendamento de 15 min vive aqui.
+#
+# Secret necessário no repo: CRON_SECRET (mesmo valor da env de produção na
+# Vercel). O endpoint responde { ok: true, normalized: <n> }.
+name: JMP sheet heal
+
+on:
+  schedule:
+    - cron: '*/15 * * * *'
+  workflow_dispatch: {}
+
+jobs:
+  heal:
+    runs-on: ubuntu-latest
+    timeout-minutes: 3
+    steps:
+      - name: Chama /api/jmp/sheet-heal
+        run: |
+          response=$(curl -sS --fail-with-body --max-time 90 \
+            -H "Authorization: Bearer ${{ secrets.CRON_SECRET }}" \
+            https://admin.bulaassessoria.com/api/jmp/sheet-heal)
+          echo "$response"
+          echo "$response" | grep -q '"ok":true'
