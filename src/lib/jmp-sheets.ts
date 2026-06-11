@@ -663,7 +663,9 @@ export async function appendLeadToSheet(lead: SheetLead): Promise<{ skipped: boo
 
   // Auto-cura oportunista: cada lead da landing também realinha eventuais
   // linhas cruas que o Meta tenha despejado desde a última passagem.
-  void normalizeMetaRawRows()
+  // AWAIT obrigatório: em serverless (Vercel) trabalho não-aguardado é
+  // congelado quando a resposta sai — com `void` a normalização nunca rodava.
+  await normalizeMetaRawRows()
 
   return { skipped: false }
 }
