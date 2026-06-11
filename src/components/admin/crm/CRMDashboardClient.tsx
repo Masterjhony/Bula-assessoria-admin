@@ -49,7 +49,7 @@ export function CRMDashboardClient({ initialLeads, crmConfig: initialConfig }: C
 
     const rawView = searchParams.get('view');
     const activeView: ViewType = (rawView && (VALID_VIEWS as string[]).includes(rawView))
-        ? (rawView as ViewType) : 'kanban';
+        ? (rawView as ViewType) : 'qualificacao';
 
     // Funil ativo (deep-link `?funnel=<id>`). Default: primeiro funil da config.
     const funnels = crmConfig.funnels;
@@ -77,7 +77,7 @@ export function CRMDashboardClient({ initialLeads, crmConfig: initialConfig }: C
     }, [router, pathname, searchParams]);
 
     const setActiveView = (next: ViewType) => {
-        updateUrl(p => { if (next === 'kanban') p.delete('view'); else p.set('view', next); });
+        updateUrl(p => { if (next === 'qualificacao') p.delete('view'); else p.set('view', next); });
     };
     const setActiveFunnelId = (id: string) => {
         updateUrl(p => { if (!id || id === funnels[0]?.id) p.delete('funnel'); else p.set('funnel', id); });
@@ -422,7 +422,7 @@ export function CRMDashboardClient({ initialLeads, crmConfig: initialConfig }: C
                         <div className="flex-1 min-h-0 overflow-hidden">
                             <CRMKanbanBoard
                                 leads={advancedLeads}
-                                stages={advancedStages}
+                                stages={allStages}
                                 onEditLead={handleEditLead}
                                 onAddLead={handleOpenNewLead}
                                 onMoveLead={handleMoveLead}

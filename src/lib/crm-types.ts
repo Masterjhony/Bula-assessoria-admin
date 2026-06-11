@@ -59,14 +59,14 @@ export const CRM_STAGE_REGISTRATION = 'CADASTRO';
 export const CRM_STAGE_ASSESSORS = 'ASSESSORES';
 
 export const DEFAULT_STAGES: CRMStage[] = [
-    { id: 'conexao', name: CRM_STAGE_CONNECTION, color: 'blue', probability: 10 },
-    { id: 'qualificacao', name: CRM_STAGE_QUALIFICATION, color: 'orange', probability: 25 },
+    { id: 'conexao', name: CRM_STAGE_CONNECTION, color: 'blue', probability: 10, is_qualification: true },
+    { id: 'qualificacao', name: CRM_STAGE_QUALIFICATION, color: 'orange', probability: 25, is_qualification: true },
     { id: 'cadastro', name: CRM_STAGE_REGISTRATION, color: 'yellow', probability: 50 },
     { id: 'assessores', name: CRM_STAGE_ASSESSORS, color: 'green', probability: 75 },
 ];
 
 /** Flag heurística (caso o usuário tenha config legada sem is_qualification). */
-export const DEFAULT_QUALIFICATION_STAGE_IDS: string[] = [];
+export const DEFAULT_QUALIFICATION_STAGE_IDS = ['conexao', 'qualificacao', 'Lead', 'Sem Status'];
 
 /** Etapa que dispara a automação de encaminhamento do lead para o assessor. */
 export const ASSESSOR_NOTIFICATION_STAGE = CRM_STAGE_ASSESSORS;
