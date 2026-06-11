@@ -2,7 +2,7 @@
 
 import { useEffect, useMemo, useState } from 'react'
 import {
-  Activity, ArrowLeft, BarChart3, ExternalLink, FileText, Loader2,
+  Activity, ArrowLeft, BarChart3, Calendar, ExternalLink, FileText, Loader2,
   MessageCircle, MousePointerClick, Timer, TrendingUp, Users, Video, Zap,
 } from 'lucide-react'
 import {
@@ -22,6 +22,35 @@ import {
 const POSTHOG_PROJECT_URL = 'https://us.posthog.com/project/430113'
 const POSTHOG_JMP_HEATMAP_URL = `${POSTHOG_PROJECT_URL}/heatmaps/Hzko8WZa?pageURL=https%3A%2F%2Fjmp.bulaassessoria.com%2F&dataUrl=https%3A%2F%2Fjmp.bulaassessoria.com%2F*`
 const card = 'rounded-2xl border border-neutral-200/80 bg-white shadow-sm'
+
+// ── Seletor de período (dias-calendário no fuso de Brasília) ──
+type PeriodKey = 'hoje' | 'ontem' | '7d' | '14d' | '30d' | 'custom'
+
+const PERIOD_PRESETS: { key: PeriodKey; label: string }[] = [
+  { key: 'hoje', label: 'Hoje' },
+  { key: 'ontem', label: 'Ontem' },
+  { key: '7d', label: '7 dias' },
+  { key: '14d', label: '14 dias' },
+  { key: '30d', label: '30 dias' },
+  { key: 'custom', label: 'Personalizado' },
+]
+
+/** Data de hoje (YYYY-MM-DD) no fuso de Brasília. */
+function todaySp(): string {
+  return new Date().toLocaleDateString('en-CA', { timeZone: 'America/Sao_Paulo' })
+}
+
+/** Soma `days` a uma data YYYY-MM-DD (aritmética em UTC-meio-dia, imune a fuso). */
+function shiftDate(iso: string, days: number): string {
+  const d = new Date(`${iso}T12:00:00Z`)
+  d.setUTCDate(d.getUTCDate() + days)
+  return d.toISOString().slice(0, 10)
+}
+
+function formatDateBr(iso: string): string {
+  const [y, m, d] = iso.split('-')
+  return `${d}/${m}/${y}`
+}
 
 function formatNumber(value: number) {
   return value.toLocaleString('pt-BR')
@@ -138,27 +167,63 @@ export default function AdminJmpAnalytics() {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
 
+  // Período selecionado (presets ou intervalo personalizado).
+  const [period, setPeriod] = useState<PeriodKey>('30d')
+  const [customFrom, setCustomFrom] = useState(() => shiftDate(todaySp(), -6))
+  const [customTo, setCustomTo] = useState(() => todaySp())
+
+  const range = useMemo(() => {
+    const today = todaySp()
+    switch (period) {
+      case 'hoje': return { since: today, until: today }
+      case 'ontem': { const y = shiftDate(today, -1); return { since: y, until: y } }
+      case '7d': return { since: shiftDate(today, -6), until: today }
+      case '14d': return { since: shiftDate(today, -13), until: today }
+      case '30d': return { since: shiftDate(today, -29), until: today }
+      case 'custom': {
+        if (!/^\d{4}-\d{2}-\d{2}$/.test(customFrom) || !/^\d{4}-\d{2}-\d{2}$/.test(customTo)) return null
+        return customFrom <= customTo
+          ? { since: customFrom, until: customTo }
+          : { since: customTo, until: customFrom }
+      }
+    }
+  }, [period, customFrom, customTo])
+
+  const rangeLabel = useMemo(() => {
+    if (!range) return ''
+    return range.since === range.until
+      ? formatDateBr(range.since)
+      : `${formatDateBr(range.since)} a ${formatDateBr(range.until)}`
+  }, [range])
+
   useEffect(() => {
+    if (!range) return // intervalo personalizado incompleto — mantém os dados atuais
+    let cancelled = false
     async function load() {
+      setLoading(true)
+      setError(null)
       try {
         const ok = await isPosthogConfigured()
+        if (cancelled) return
         setConfigured(ok)
         const [posthogData, metaAdsData, leadQualificationData] = await Promise.all([
-          ok ? getJmpPosthogAnalytics() : Promise.resolve(null),
-          getJmpMetaAdsAnalytics(),
-          getJmpLeadQualificationAnalytics(),
+          ok ? getJmpPosthogAnalytics(range!) : Promise.resolve(null),
+          getJmpMetaAdsAnalytics(range!),
+          getJmpLeadQualificationAnalytics(range!),
         ])
+        if (cancelled) return
         if (ok) setData(posthogData)
         setMetaAds(metaAdsData)
         setLeadQualification(leadQualificationData)
       } catch {
-        setError('Nao foi possivel carregar as metricas do PostHog.')
+        if (!cancelled) setError('Nao foi possivel carregar as metricas do PostHog.')
       } finally {
-        setLoading(false)
+        if (!cancelled) setLoading(false)
       }
     }
     load()
-  }, [])
+    return () => { cancelled = true }
+  }, [range])
 
   const rates = useMemo(() => {
     if (!data) return null
@@ -201,9 +266,53 @@ export default function AdminJmpAnalytics() {
       </header>
 
       <main className="mx-auto max-w-6xl space-y-6 px-4 py-6">
-        <div>
-          <h2 className="text-2xl font-black text-neutral-950">Comportamento dos usuarios</h2>
-          <p className="mt-1 text-sm text-neutral-500">Ultimos 30 dias, filtrado por eventos da landing JMP.</p>
+        <div className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
+          <div>
+            <h2 className="text-2xl font-black text-neutral-950">Comportamento dos usuarios</h2>
+            <p className="mt-1 text-sm text-neutral-500">
+              {rangeLabel ? `Período: ${rangeLabel}` : 'Selecione o período'} · eventos da landing JMP.
+            </p>
+          </div>
+
+          {/* Seletor de período */}
+          <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
+            <div className="flex flex-wrap items-center gap-1 rounded-xl border border-neutral-200 bg-white p-1 shadow-sm">
+              {PERIOD_PRESETS.map((p) => (
+                <button
+                  key={p.key}
+                  type="button"
+                  onClick={() => setPeriod(p.key)}
+                  className={`rounded-lg px-3 py-1.5 text-xs font-bold transition ${
+                    period === p.key
+                      ? 'bg-[#102a1d] text-white'
+                      : 'text-neutral-600 hover:bg-neutral-100'
+                  }`}
+                >
+                  {p.label}
+                </button>
+              ))}
+            </div>
+            {period === 'custom' && (
+              <div className="flex items-center gap-2 rounded-xl border border-neutral-200 bg-white px-3 py-1.5 shadow-sm">
+                <Calendar className="h-4 w-4 text-neutral-400" />
+                <input
+                  type="date"
+                  value={customFrom}
+                  max={todaySp()}
+                  onChange={(e) => setCustomFrom(e.target.value)}
+                  className="bg-transparent text-sm font-semibold text-neutral-800 outline-none"
+                />
+                <span className="text-xs text-neutral-400">até</span>
+                <input
+                  type="date"
+                  value={customTo}
+                  max={todaySp()}
+                  onChange={(e) => setCustomTo(e.target.value)}
+                  className="bg-transparent text-sm font-semibold text-neutral-800 outline-none"
+                />
+              </div>
+            )}
+          </div>
         </div>
 
         {loading && (
@@ -244,7 +353,7 @@ export default function AdminJmpAnalytics() {
                 <RequestedMetric
                   label="Acessos na pagina"
                   value={data.summary.pageviews}
-                  hint={`${formatNumber(data.summary.uniqueVisitors)} visitantes e ${formatNumber(data.summary.sessions)} sessoes nos ultimos 30 dias.`}
+                  hint={`${formatNumber(data.summary.uniqueVisitors)} visitantes e ${formatNumber(data.summary.sessions)} sessoes no período.`}
                 />
                 <RequestedMetric
                   label="Leads gerados"
@@ -309,7 +418,7 @@ export default function AdminJmpAnalytics() {
                   label="MQLs gerados"
                   value={leadQualification?.mqlLeads ?? 0}
                   source="CRM"
-                  hint={`${formatPercent(leadQualification?.mqlRate ?? 0)} dos leads JMP dos ultimos 30 dias, recalculado pela regra atual.`}
+                  hint={`${formatPercent(leadQualification?.mqlRate ?? 0)} dos leads JMP do período, recalculado pela regra atual.`}
                 />
                 <RequestedMetric
                   label="Leads com IE"
@@ -330,6 +439,37 @@ export default function AdminJmpAnalytics() {
                   <p className="font-bold">Qualificacao CRM nao carregou.</p>
                   <p className="mt-1">{leadQualification.error}</p>
                 </div>
+              )}
+            </Panel>
+
+            <Panel title="Por dia" icon={<Calendar className="h-4 w-4" />}>
+              {data.daily.length ? (
+                <div className="overflow-x-auto">
+                  <table className="w-full text-sm">
+                    <thead>
+                      <tr className="border-b border-neutral-200 text-left text-xs font-bold uppercase tracking-wide text-neutral-500">
+                        <th className="py-2 pr-4">Data</th>
+                        <th className="py-2 pr-4 text-right">Acessos</th>
+                        <th className="py-2 pr-4 text-right">Visitantes</th>
+                        <th className="py-2 pr-4 text-right">Leads</th>
+                        <th className="py-2 text-right">Conv. acesso → lead</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {[...data.daily].reverse().map((row) => (
+                        <tr key={row.date} className="border-b border-neutral-100 last:border-0">
+                          <td className="py-2 pr-4 font-semibold text-neutral-800">{formatDateBr(row.date)}</td>
+                          <td className="py-2 pr-4 text-right font-mono">{formatNumber(row.pageviews)}</td>
+                          <td className="py-2 pr-4 text-right font-mono">{formatNumber(row.visitors)}</td>
+                          <td className="py-2 pr-4 text-right font-mono font-bold text-emerald-700">{formatNumber(row.submissions)}</td>
+                          <td className="py-2 text-right font-mono text-neutral-500">{formatPercent(pct(row.submissions, row.pageviews))}</td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              ) : (
+                <p className="py-6 text-center text-sm italic text-neutral-400">Sem dados no período selecionado</p>
               )}
             </Panel>
 

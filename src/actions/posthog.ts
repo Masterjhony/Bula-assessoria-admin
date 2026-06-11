@@ -218,6 +218,27 @@ const JMP_LANDING_FILTER = `
   )
 `;
 
+/** Período em dias-calendário no fuso de Brasília (YYYY-MM-DD, inclusivo). */
+export interface JmpAnalyticsRange {
+    since: string;
+    until: string;
+}
+
+const RANGE_DATE_RE = /^\d{4}-\d{2}-\d{2}$/;
+
+/**
+ * Cláusula de período das queries HogQL. Datas validadas por regex (nunca
+ * interpolar texto livre na query). Sem range → últimos 30 dias (comportamento
+ * original do painel).
+ */
+function jmpRangeFilter(range?: JmpAnalyticsRange): string {
+    if (range && RANGE_DATE_RE.test(range.since) && RANGE_DATE_RE.test(range.until)) {
+        return `timestamp >= toDateTime('${range.since} 00:00:00', 'America/Sao_Paulo')
+          AND timestamp < toDateTime('${range.until} 00:00:00', 'America/Sao_Paulo') + INTERVAL 1 DAY`;
+    }
+    return `timestamp >= now() - INTERVAL 30 DAY`;
+}
+
 export interface JmpPostHogSummary {
     pageviews: number;
     uniqueVisitors: number;
@@ -271,8 +292,9 @@ export interface JmpPostHogAnalytics {
     scrollDepths: JmpPostHogBreakdownRow[];
 }
 
-export async function getJmpPosthogAnalytics(): Promise<JmpPostHogAnalytics | null> {
+export async function getJmpPosthogAnalytics(range?: JmpAnalyticsRange): Promise<JmpPostHogAnalytics | null> {
     if (!isConfigured()) return null;
+    const RANGE = jmpRangeFilter(range);
 
     const [
         traffic,
@@ -291,7 +313,7 @@ export async function getJmpPosthogAnalytics(): Promise<JmpPostHogAnalytics | nu
                 count(DISTINCT person_id) AS unique_visitors,
                 count(DISTINCT properties.$session_id) AS sessions
             FROM events
-            WHERE timestamp >= now() - INTERVAL 30 DAY
+            WHERE ${RANGE}
             ${JMP_LANDING_FILTER}
         `),
         runHogQL(`
@@ -301,14 +323,14 @@ export async function getJmpPosthogAnalytics(): Promise<JmpPostHogAnalytics | nu
                 avg(toFloat(properties.max_scroll_depth_percent)) AS avg_scroll
             FROM events
             WHERE event = 'jmp_page_engagement'
-              AND timestamp >= now() - INTERVAL 30 DAY
+              AND ${RANGE}
             ${JMP_LANDING_FILTER}
         `),
         runHogQL(`
             SELECT event, count() AS c
             FROM events
             WHERE event LIKE 'jmp_%'
-              AND timestamp >= now() - INTERVAL 30 DAY
+              AND ${RANGE}
             ${JMP_LANDING_FILTER}
             GROUP BY event
             ORDER BY c DESC
@@ -316,12 +338,12 @@ export async function getJmpPosthogAnalytics(): Promise<JmpPostHogAnalytics | nu
         `),
         runHogQL(`
             SELECT
-                formatDateTime(timestamp, '%Y-%m-%d') AS day,
+                formatDateTime(timestamp, '%Y-%m-%d', 'America/Sao_Paulo') AS day,
                 countIf(event = '$pageview') AS pageviews,
                 count(DISTINCT person_id) AS visitors,
                 countIf(event = 'jmp_form_submitted') AS submissions
             FROM events
-            WHERE timestamp >= now() - INTERVAL 30 DAY
+            WHERE ${RANGE}
             ${JMP_LANDING_FILTER}
             GROUP BY day
             ORDER BY day ASC
@@ -330,7 +352,7 @@ export async function getJmpPosthogAnalytics(): Promise<JmpPostHogAnalytics | nu
             SELECT toInt(properties.step) AS step, event, count() AS c
             FROM events
             WHERE event IN ('jmp_form_step_viewed', 'jmp_form_step_completed', 'jmp_form_validation_failed')
-              AND timestamp >= now() - INTERVAL 30 DAY
+              AND ${RANGE}
             ${JMP_LANDING_FILTER}
             GROUP BY step, event
             ORDER BY step ASC
@@ -339,7 +361,7 @@ export async function getJmpPosthogAnalytics(): Promise<JmpPostHogAnalytics | nu
             SELECT properties.interesse AS label, count() AS c
             FROM events
             WHERE event = 'jmp_form_submitted'
-              AND timestamp >= now() - INTERVAL 30 DAY
+              AND ${RANGE}
             ${JMP_LANDING_FILTER}
             GROUP BY label
             ORDER BY c DESC
@@ -349,7 +371,7 @@ export async function getJmpPosthogAnalytics(): Promise<JmpPostHogAnalytics | nu
             SELECT coalesce(properties.utm_source, '$direct') AS label, count() AS c
             FROM events
             WHERE event IN ('$pageview', 'jmp_form_submitted')
-              AND timestamp >= now() - INTERVAL 30 DAY
+              AND ${RANGE}
             ${JMP_LANDING_FILTER}
             GROUP BY label
             ORDER BY c DESC
@@ -359,7 +381,7 @@ export async function getJmpPosthogAnalytics(): Promise<JmpPostHogAnalytics | nu
             SELECT concat(toString(toInt(properties.depth_percent)), '%') AS label, count() AS c
             FROM events
             WHERE event = 'jmp_scroll_depth_reached'
-              AND timestamp >= now() - INTERVAL 30 DAY
+              AND ${RANGE}
             ${JMP_LANDING_FILTER}
             GROUP BY label
             ORDER BY toInt(replaceAll(label, '%', '')) ASC
@@ -368,7 +390,7 @@ export async function getJmpPosthogAnalytics(): Promise<JmpPostHogAnalytics | nu
             SELECT count(DISTINCT properties.$session_id)
             FROM events
             WHERE event = '$session_recording'
-              AND timestamp >= now() - INTERVAL 30 DAY
+              AND ${RANGE}
             ${JMP_LANDING_FILTER}
         `),
     ]);

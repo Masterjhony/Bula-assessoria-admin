@@ -81,7 +81,16 @@ export async function isMetaAdsConfigured(): Promise<boolean> {
     return isConfigured();
 }
 
-export async function getJmpMetaAdsAnalytics(): Promise<JmpMetaAdsAnalytics> {
+/** Período em dias-calendário (YYYY-MM-DD, inclusivo). Sem range → últimos 30 dias. */
+export interface JmpMetaAdsRange {
+    since: string;
+    until: string;
+}
+
+const RANGE_DATE_RE = /^\d{4}-\d{2}-\d{2}$/;
+
+export async function getJmpMetaAdsAnalytics(range?: JmpMetaAdsRange): Promise<JmpMetaAdsAnalytics> {
+    const hasRange = Boolean(range && RANGE_DATE_RE.test(range.since) && RANGE_DATE_RE.test(range.until));
     const until = new Date();
     const since = addDays(until, -30);
     const base: JmpMetaAdsAnalytics = {
@@ -89,8 +98,8 @@ export async function getJmpMetaAdsAnalytics(): Promise<JmpMetaAdsAnalytics> {
         businessId: META_BUSINESS_ID,
         adAccountId: META_AD_ACCOUNT_ID,
         campaignIds: META_CAMPAIGN_IDS,
-        since: formatDate(since),
-        until: formatDate(until),
+        since: hasRange ? range!.since : formatDate(since),
+        until: hasRange ? range!.until : formatDate(until),
         impressions: 0,
         clicks: 0,
         linkClicks: 0,

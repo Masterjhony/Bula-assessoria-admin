@@ -56,12 +56,26 @@ async function getJmpMqlRule(): Promise<CRMMqlRule> {
     }
 }
 
-export async function getJmpLeadQualificationAnalytics(): Promise<JmpLeadQualificationAnalytics> {
+/** Período em dias-calendário no fuso de Brasília (YYYY-MM-DD, inclusivo). */
+export interface JmpLeadsRange {
+    since: string;
+    until: string;
+}
+
+const RANGE_DATE_RE = /^\d{4}-\d{2}-\d{2}$/;
+
+export async function getJmpLeadQualificationAnalytics(range?: JmpLeadsRange): Promise<JmpLeadQualificationAnalytics> {
+    const hasRange = Boolean(range && RANGE_DATE_RE.test(range.since) && RANGE_DATE_RE.test(range.until));
     const untilDate = new Date();
     const sinceDate = addDays(untilDate, -TIME_WINDOW_DAYS);
+    // Limites do dia no fuso de Brasília (UTC-3, sem horário de verão).
+    const sinceIso = hasRange ? `${range!.since}T00:00:00-03:00` : sinceDate.toISOString();
+    const untilIso = hasRange
+        ? addDays(new Date(`${range!.until}T00:00:00-03:00`), 1).toISOString()
+        : untilDate.toISOString();
     const base: JmpLeadQualificationAnalytics = {
-        since: sinceDate.toISOString(),
-        until: untilDate.toISOString(),
+        since: sinceIso,
+        until: untilIso,
         totalLeads: 0,
         mqlLeads: 0,
         leadsWithIe: 0,
@@ -77,7 +91,8 @@ export async function getJmpLeadQualificationAnalytics(): Promise<JmpLeadQualifi
             .from('crm_leads')
             .select('id, quantidade_animais, tem_inscricao_estadual, inscricao_estadual')
             .or('source.eq.jmp-landing,source_page.eq.jmp.bulaassessoria.com,origem.ilike.%Landing JMP%')
-            .gte('data_entrada', base.since);
+            .gte('data_entrada', base.since)
+            .lt('data_entrada', base.until);
 
         if (error) return { ...base, error: error.message };
 
