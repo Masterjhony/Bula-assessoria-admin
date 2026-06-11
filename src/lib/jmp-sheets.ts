@@ -616,12 +616,23 @@ export async function appendLeadToSheet(lead: SheetLead): Promise<{ skipped: boo
   set('ad-id', lead.ad_id)
   set('Inscrição Estadual', lead.inscricaoEstadual)
 
-  await sheets.spreadsheets.values.append({
+  // appendCells em vez de values.append: o append clássico usa "detecção de
+  // tabela" e, quando alguém deixa uma célula órfã abaixo da tabela, passa a
+  // gravar os leads deslocados (linhas distantes, colunas erradas) — foi assim
+  // que leads "sumiram" da planilha em 11/06. appendCells grava sempre após a
+  // última linha com dados da aba, alinhado à coluna A.
+  const sheetId = await getTabSheetId(sheets, info.spreadsheetId)
+  await sheets.spreadsheets.batchUpdate({
     spreadsheetId: info.spreadsheetId,
-    range: `${TAB}!A:${columnName(row.length)}`,
-    valueInputOption: 'RAW',
-    insertDataOption: 'INSERT_ROWS',
-    requestBody: { values: [row] },
+    requestBody: {
+      requests: [{
+        appendCells: {
+          sheetId,
+          rows: [{ values: row.map((v) => ({ userEnteredValue: { stringValue: String(v ?? '') } })) }],
+          fields: 'userEnteredValue',
+        },
+      }],
+    },
   })
 
   // Auto-cura oportunista: cada lead da landing também realinha eventuais
