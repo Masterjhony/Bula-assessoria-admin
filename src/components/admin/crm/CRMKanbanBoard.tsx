@@ -13,6 +13,7 @@ import {
     DragStartEvent,
     DragOverEvent,
     DragEndEvent,
+    MeasuringStrategy,
 } from '@dnd-kit/core';
 import { arrayMove, sortableKeyboardCoordinates } from '@dnd-kit/sortable';
 import { CRMColumn } from './CRMColumn';
@@ -210,6 +211,10 @@ export function CRMKanbanBoard({ leads: externalLeads, stages, onEditLead, onAdd
         <DndContext
             sensors={sensors}
             collisionDetection={closestCorners}
+            // Mede os droppables continuamente: as colunas têm altura variável e
+            // rolam, então rects medidos só no início do drag ficavam errados e o
+            // alvo da soltura era calculado fora do lugar.
+            measuring={{ droppable: { strategy: MeasuringStrategy.Always } }}
             onDragStart={onDragStart}
             onDragOver={onDragOver}
             onDragEnd={onDragEnd}

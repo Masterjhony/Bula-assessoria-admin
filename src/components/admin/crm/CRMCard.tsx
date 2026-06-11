@@ -116,7 +116,11 @@ export function CRMCardView({ lead, onCadastroApprovalChange, innerRef, style, o
             data-crm-card-status={lead.status}
             {...dragHandleProps}
             onClick={onClick}
-            className={`group relative bg-white dark:bg-[#1A1A1A] p-4 rounded-xl border shadow-sm hover:shadow-md transition-all cursor-grab active:cursor-grabbing flex flex-col gap-3 ${
+            // touch-none = touch-action: none. Sem isso, o navegador interpreta o
+            // arrasto sobre o card como rolagem/pan e cancela o gesto antes do
+            // PointerSensor ativar — o card "não arrasta" no mouse/touchpad real
+            // (embora funcione em testes sintéticos).
+            className={`group relative touch-none bg-white dark:bg-[#1A1A1A] p-4 rounded-xl border shadow-sm hover:shadow-md transition-all cursor-grab active:cursor-grabbing flex flex-col gap-3 ${
                 lead.is_preferencial
                     ? 'border-[#A68B4B]/50 hover:border-[#A68B4B]/80 ring-1 ring-[#A68B4B]/15'
                     : 'border-gray-200 dark:border-[#2A2A2A] hover:border-[#A68B4B]/50'

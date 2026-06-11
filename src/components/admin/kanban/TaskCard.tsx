@@ -127,7 +127,9 @@ export function TaskCardView({ task, allTasks = [], doneStatus, innerRef, style,
             style={style}
             {...dragHandleProps}
             onClick={onClick}
-            className={`group relative bg-white dark:bg-[#1A1A1A] p-5 rounded-xl border ${borderClass} shadow-sm hover:shadow-lg transition-all duration-200 hover:-translate-y-0.5 cursor-grab active:cursor-grabbing flex flex-col gap-3`}
+            // touch-none (touch-action: none): impede o navegador de tratar o
+            // arrasto como rolagem e cancelar o gesto antes do PointerSensor.
+            className={`group relative touch-none bg-white dark:bg-[#1A1A1A] p-5 rounded-xl border ${borderClass} shadow-sm hover:shadow-lg transition-all duration-200 hover:-translate-y-0.5 cursor-grab active:cursor-grabbing flex flex-col gap-3`}
         >
             {/* Status badges row */}
             {(isBlocked || isOverdue || isStale || task.whatsapp_group_id) && (

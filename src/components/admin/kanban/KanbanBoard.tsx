@@ -14,6 +14,7 @@ import {
     DragStartEvent,
     DragOverEvent,
     DragEndEvent,
+    MeasuringStrategy,
 } from '@dnd-kit/core';
 import { arrayMove, sortableKeyboardCoordinates } from '@dnd-kit/sortable';
 import { TaskColumn } from './TaskColumn';
@@ -410,7 +411,7 @@ export function KanbanBoard({
 
                 {/* KANBAN */}
                 {viewMode === 'kanban' && (
-                    <DndContext sensors={sensors} collisionDetection={closestCorners} onDragStart={onDragStart} onDragOver={onDragOver} onDragEnd={onDragEnd}>
+                    <DndContext sensors={sensors} collisionDetection={closestCorners} measuring={{ droppable: { strategy: MeasuringStrategy.Always } }} onDragStart={onDragStart} onDragOver={onDragOver} onDragEnd={onDragEnd}>
                         <div className="flex-1 flex gap-6 overflow-x-auto overflow-y-hidden custom-scrollbar pb-4 h-full snap-x pr-4">
                             {columns.map((col, colIndex) => (
                                 <TaskColumn
