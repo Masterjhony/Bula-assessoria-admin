@@ -462,34 +462,53 @@ function isMetaTestLead(p: RawMetaLead): boolean {
   return /test lead|dummy data/i.test([p.fullName, p.momento, p.email].join(' ')) || p.email === 'test@meta.com'
 }
 
-/** Monta a linha completa A..AN no layout padrão + metadados Meta. */
-function buildNormalizedMetaRow(p: RawMetaLead): string[] {
+/**
+ * Índice de um cabeçalho do bloco de metadados do Meta (S..AN por padrão)
+ * pelo nome exato; cai na posição legada se o cabeçalho não existir.
+ */
+function metaHeaderIndex(headerRow: string[], name: string, fallback: number): number {
+  const i = headerRow.findIndex((h) => String(h || '').trim().toLowerCase() === name)
+  return i >= 0 ? i : fallback
+}
+
+/**
+ * Monta a linha completa no layout padrão + metadados Meta. Resolve TODAS as
+ * colunas pelo cabeçalho (nunca por posição fixa) — mover/reordenar colunas
+ * na planilha não quebra a normalização.
+ */
+function buildNormalizedMetaRow(p: RawMetaLead, headerRow: string[], layout: HeaderLayout, width: number): string[] {
   const interesse = META_INTERESSE.get(p.interesse.toLowerCase()) || p.interesse
   // Interesse fora do vocabulário da landing (ex.: "sêmen"): mantém o rótulo
   // cru e a quantidade sem substantivo ("1 a 5").
   const noun = META_NOUN.get(interesse) || ''
   const qtdBase = META_QTD.get(p.qtd)
   const testPrefix = isMetaTestLead(p) ? '[TESTE META] ' : ''
-  const out = Array.from({ length: 40 }, () => '') // A..AN
-  out[0] = p.atendidoPor
-  out[1] = fmtDate(new Date(p.created))
-  out[2] = testPrefix + p.fullName
-  out[3] = p.email
-  out[4] = metaPhoneToWhatsApp(p.phone)
-  out[5] = metaStateToUF(p.state)
-  out[7] = META_MOMENTO.get(p.momento.toLowerCase()) || p.momento
-  out[8] = META_CABECAS.get(p.cabecas) || p.cabecas
-  out[9] = interesse
-  out[11] = qtdBase ? `${qtdBase}${noun ? ' ' + noun : ''}` : p.qtd
-  out[12] = p.platform
-  out[14] = p.campaignName
-  out[15] = p.adName
-  out[16] = p.adId
-  out[17] = p.temIe ? (p.temIe.toLowerCase() === 'sim' ? 'Sim' : 'Não') : ''
-  out[18] = p.id; out[19] = p.created; out[20] = p.adId; out[21] = p.adName
-  out[22] = p.adsetId; out[23] = p.adsetName; out[24] = p.campaignId; out[25] = p.campaignName
-  out[26] = p.formId; out[27] = p.formName; out[28] = p.isOrganic; out[29] = p.platform
-  out[39] = p.leadStatus
+  const out = Array.from({ length: width }, () => '')
+  const set = (header: HeaderName, value: string) => {
+    const index = layout.indexes.get(header)
+    if (index != null) out[index] = value
+  }
+  out[0] = p.atendidoPor // coluna manual "Atendido por" (sempre a primeira)
+  set('Data', fmtDate(new Date(p.created)))
+  set('Nome', testPrefix + p.fullName)
+  set('E-mail', p.email)
+  set('WhatsApp', metaPhoneToWhatsApp(p.phone))
+  set('UF', metaStateToUF(p.state))
+  set('Momento', META_MOMENTO.get(p.momento.toLowerCase()) || p.momento)
+  set('Cabeças', META_CABECAS.get(p.cabecas) || p.cabecas)
+  set('Interesse', interesse)
+  set('Qtd. desejada', qtdBase ? `${qtdBase}${noun ? ' ' + noun : ''}` : p.qtd)
+  set('utm_source', p.platform)
+  set('utm_campaign', p.campaignName)
+  set('utm_content', p.adName)
+  set('ad-id', p.adId)
+  set('Inscrição Estadual', p.temIe ? (p.temIe.toLowerCase() === 'sim' ? 'Sim' : 'Não') : '')
+  // Bloco de metadados do Meta (cabeçalhos próprios da integração)
+  const m = (name: string, fallback: number, value: string) => { out[metaHeaderIndex(headerRow, name, fallback)] = value }
+  m('id', 18, p.id); m('created_time', 19, p.created); m('ad_id', 20, p.adId); m('ad_name', 21, p.adName)
+  m('adset_id', 22, p.adsetId); m('adset_name', 23, p.adsetName); m('campaign_id', 24, p.campaignId); m('campaign_name', 25, p.campaignName)
+  m('form_id', 26, p.formId); m('form_name', 27, p.formName); m('is_organic', 28, p.isOrganic); m('platform', 29, p.platform)
+  m('lead_status', 39, p.leadStatus)
   return out
 }
 
@@ -505,9 +524,13 @@ export async function normalizeMetaRawRows(): Promise<number> {
     const auth = getAuth()
     if (!auth) return 0
     const sheets = google.sheets({ version: 'v4', auth })
+    const headerRow = await readHeaderRow(sheets, info.spreadsheetId)
+    const layout = getHeaderLayout(headerRow)
+    const width = Math.max(headerRow.length, layout.lastColumn, 40)
+    const endColumn = columnName(width)
     const res = await sheets.spreadsheets.values.get({
       spreadsheetId: info.spreadsheetId,
-      range: `${TAB}!A2:AN`,
+      range: `${TAB}!A2:${endColumn}`,
     })
     const values = (res.data.values ?? []) as string[][]
     const updates: { range: string; values: string[][] }[] = []
@@ -515,7 +538,10 @@ export async function normalizeMetaRawRows(): Promise<number> {
       const parsed = parseRawMetaLead(row)
       if (!parsed) return
       const rowNumber = index + 2
-      updates.push({ range: `${TAB}!A${rowNumber}:AN${rowNumber}`, values: [buildNormalizedMetaRow(parsed)] })
+      updates.push({
+        range: `${TAB}!A${rowNumber}:${endColumn}${rowNumber}`,
+        values: [buildNormalizedMetaRow(parsed, headerRow, layout, width)],
+      })
     })
     if (!updates.length) return 0
     await sheets.spreadsheets.values.batchUpdate({

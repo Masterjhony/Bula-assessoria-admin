@@ -46,8 +46,13 @@ const auth = new google.auth.JWT({
     scopes: ['https://www.googleapis.com/auth/spreadsheets.readonly'],
 })
 const sheets = google.sheets({ version: 'v4', auth })
-const res = await sheets.spreadsheets.values.get({ spreadsheetId: '1caFGyHlqF-fic0y5zsnO1GRty4J61upMcjVI8e8V5F8', range: 'Leads JMP!S2:T' })
-const rows = res.data.values ?? []
+const res = await sheets.spreadsheets.values.get({ spreadsheetId: '1caFGyHlqF-fic0y5zsnO1GRty4J61upMcjVI8e8V5F8', range: 'Leads JMP!A1:AZ' })
+const all = res.data.values ?? []
+const header = all[0] ?? []
+const norm = (v) => String(v || '').trim().toLowerCase()
+const idIdx = header.findIndex(h => norm(h) === 'id')
+const ctIdx = header.findIndex(h => norm(h) === 'created_time')
+const rows = all.slice(1).map(r => [r[idIdx >= 0 ? idIdx : 18], r[ctIdx >= 0 ? ctIdx : 19]])
 const today = new Date().toLocaleDateString('pt-BR', { timeZone: 'America/Sao_Paulo' })
 const metaToday = rows.filter(r => {
     const t = new Date(String(r[1] || ''))

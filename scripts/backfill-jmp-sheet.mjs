@@ -37,15 +37,25 @@ const { rows: crmLeads } = await db.query(`
     order by coalesce(data_entrada, created_at) asc
 `)
 
-// já presentes na planilha (Lead ID / email / fone)
-const res = await sheets.spreadsheets.values.get({ spreadsheetId, range: 'Leads JMP!A2:AN' })
-const rows = res.data.values ?? []
+// já presentes na planilha (Lead ID / email / fone) — colunas resolvidas pelo cabeçalho
+const res = await sheets.spreadsheets.values.get({ spreadsheetId, range: 'Leads JMP!A1:AZ' })
+const all = res.data.values ?? []
+const header = all[0] ?? []
+const rows = all.slice(1)
+const norm = (v) => String(v || '').normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase().replace(/[^a-z0-9]/g, '')
+const idx = (name, fallback) => { const i = header.findIndex(h => norm(h) === norm(name)); return i >= 0 ? i : fallback }
+const COL = {
+    data: idx('Data', 1), nome: idx('Nome', 2), email: idx('E-mail', 3), fone: idx('WhatsApp', 4),
+    uf: idx('UF', 5), cidade: idx('Cidade', 6), momento: idx('Momento', 7), cabecas: idx('Cabeças', 8),
+    interesse: idx('Interesse', 9), leadId: idx('Lead ID', 10), qtd: idx('Qtd. desejada', 11),
+    ie: idx('Inscrição Estadual', 17),
+}
 const digits = (v) => String(v || '').replace(/\D/g, '').replace(/^55/, '')
 const sheetIds = new Set(), sheetEmails = new Set(), sheetPhones = new Set()
 for (const r of rows) {
-    if (String(r[10] || '').trim()) sheetIds.add(String(r[10]).trim())
-    if (String(r[3] || '').trim()) sheetEmails.add(String(r[3]).trim().toLowerCase())
-    if (digits(r[4])) sheetPhones.add(digits(r[4]))
+    if (String(r[COL.leadId] || '').trim()) sheetIds.add(String(r[COL.leadId]).trim())
+    if (String(r[COL.email] || '').trim()) sheetEmails.add(String(r[COL.email]).trim().toLowerCase())
+    if (digits(r[COL.fone])) sheetPhones.add(digits(r[COL.fone]))
 }
 
 const fmt = (d) => new Intl.DateTimeFormat('pt-BR', { dateStyle: 'short', timeStyle: 'short', timeZone: 'America/Sao_Paulo' }).format(new Date(d))
@@ -59,20 +69,20 @@ const missing = crmLeads.filter(l => {
 
 console.log(`Leads a reimportar: ${missing.length}`)
 const newRows = missing.map(l => {
-    const out = Array.from({ length: 40 }, () => '')
-    out[1] = fmt(l.data_entrada || l.created_at)        // B Data
-    out[2] = l.nome || ''                               // C Nome
-    out[3] = l.email || ''                              // D E-mail
-    out[4] = l.celular || l.telefone || ''              // E WhatsApp
-    out[5] = l.estado || ''                             // F UF
-    out[6] = l.cidade || ''                             // G Cidade
-    out[7] = l.momento_pecuaria || ''                   // H Momento
-    out[8] = l.quantidade_animais || ''                 // I Cabeças
-    out[9] = l.interesse || ''                          // J Interesse
-    out[10] = l.id                                      // K Lead ID
-    out[11] = l.o_que_busca || ''                       // L Qtd. desejada
-    // M-Q (utm): irrecuperáveis — só existiam no corpo da requisição original
-    out[17] = l.tem_inscricao_estadual || ''            // R Inscrição Estadual
+    const out = Array.from({ length: Math.max(header.length, 40) }, () => '')
+    out[COL.data] = fmt(l.data_entrada || l.created_at)
+    out[COL.nome] = l.nome || ''
+    out[COL.email] = l.email || ''
+    out[COL.fone] = l.celular || l.telefone || ''
+    out[COL.uf] = l.estado || ''
+    out[COL.cidade] = l.cidade || ''
+    out[COL.momento] = l.momento_pecuaria || ''
+    out[COL.cabecas] = l.quantidade_animais || ''
+    out[COL.interesse] = l.interesse || ''
+    out[COL.leadId] = l.id
+    out[COL.qtd] = l.o_que_busca || ''
+    // utm: irrecuperáveis — só existiam no corpo da requisição original
+    out[COL.ie] = l.tem_inscricao_estadual || ''
     return out
 })
 newRows.forEach(r => console.log(`  + ${r[1]} — ${r[2]} (${r[3]})`))

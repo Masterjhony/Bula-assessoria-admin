@@ -33,15 +33,21 @@ const auth = new google.auth.JWT({
     scopes: ['https://www.googleapis.com/auth/spreadsheets.readonly'],
 })
 const sheets = google.sheets({ version: 'v4', auth })
-const res = await sheets.spreadsheets.values.get({ spreadsheetId, range: 'Leads JMP!A2:AN' })
-const rows = (res.data.values ?? [])
+const res = await sheets.spreadsheets.values.get({ spreadsheetId, range: 'Leads JMP!A1:AZ' })
+const allRows = (res.data.values ?? [])
+const header = allRows[0] ?? []
+const rows = allRows.slice(1)
+// Resolve colunas pelo cabeçalho (mover coluna na planilha não quebra o script)
+const norm = (v) => String(v || '').normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase().replace(/[^a-z0-9]/g, '')
+const idx = (name, fallback) => { const i = header.findIndex(h => norm(h) === norm(name)); return i >= 0 ? i : fallback }
+const COL = { email: idx('E-mail', 3), fone: idx('WhatsApp', 4), leadId: idx('Lead ID', 10), nome: idx('Nome', 2), metaId: idx('id', 18), created: idx('created_time', 19), plataforma: idx('platform', 29) }
 
 const digits = (v) => String(v || '').replace(/\D/g, '').replace(/^55/, '')
 const sheetIds = new Set(), sheetEmails = new Set(), sheetPhones = new Set()
 for (const r of rows) {
-    const leadId = String(r[10] || '').trim()       // K Lead ID
-    const email = String(r[3] || '').trim().toLowerCase() // D
-    const fone = digits(r[4])                        // E
+    const leadId = String(r[COL.leadId] || '').trim()
+    const email = String(r[COL.email] || '').trim().toLowerCase()
+    const fone = digits(r[COL.fone])
     if (leadId) sheetIds.add(leadId)
     if (email) sheetEmails.add(email)
     if (fone) sheetPhones.add(fone)
@@ -64,12 +70,12 @@ console.log(`\nResultado landing: ${missing.length === 0 ? 'NENHUM lead perdido 
 const cutoff = Date.now() - 24 * 3600 * 1000
 const metaArrivals = []
 for (const r of rows) {
-    const metaId = String(r[18] || '').trim()        // S id
-    const created = String(r[19] || '').trim()       // T created_time
+    const metaId = String(r[COL.metaId] || '').trim()
+    const created = String(r[COL.created] || '').trim()
     if (!metaId || !created) continue
     const t = new Date(created)
     if (!isNaN(t) && t.getTime() >= cutoff) {
-        metaArrivals.push({ t, nome: String(r[2] || '').trim(), plataforma: String(r[29] || r[12] || '').trim() })
+        metaArrivals.push({ t, nome: String(r[COL.nome] || '').trim(), plataforma: String(r[COL.plataforma] || '').trim() })
     }
 }
 metaArrivals.sort((a, b) => a.t - b.t)
