@@ -338,11 +338,190 @@ function isUnnormalizedMetaRow(row: string[], layout: HeaderLayout): boolean {
   return data.startsWith('l:') && /^\d{4}-\d{2}-\d{2}T/.test(nome)
 }
 
+// ─────────────────────────────────────────────────────────────────────────────
+// Normalização das linhas cruas do Meta Ads.
+//
+// O lead form do Meta (campanha "Leilão JMP") grava na MESMA aba, mas despeja
+// os 21 campos do seu schema (id, created_time, ad/adset/campaign, perguntas,
+// full_name, email, phone, state) a partir da coluna A — desalinhado do layout
+// padrão. A convenção correta (já usada nas linhas saudáveis) é:
+//   A–R  = dados padronizados, no mesmo vocabulário da landing
+//   S–AN = metadados do Meta (cabeçalhos próprios), lead_status em AN
+// `normalizeMetaRawRows` reescreve as linhas cruas in place (só valores —
+// formatação/cores e a coluna A "Atendido por" das demais linhas ficam
+// intactas). Chamado de forma oportunista em appendLeadToSheet e
+// readSheetLeadRows, então a planilha se "auto-cura" continuamente.
+// ─────────────────────────────────────────────────────────────────────────────
+
+const META_MOMENTO = new Map([
+  ['não_trabalho,_quero_aprender', 'nao-trabalho-quero-aprender'],
+  ['nao_trabalho,_quero_aprender', 'nao-trabalho-quero-aprender'],
+  ['trabalho_com_pecuária_de_corte', 'pecuaria-de-corte'],
+  ['trabalho_com_pecuaria_de_corte', 'pecuaria-de-corte'],
+  ['trabalho_com_corte_e_po', 'corte-e-po'],
+  ['sou_criador_renomado_de_po', 'criador-renomado-po'],
+])
+const META_CABECAS = new Map([
+  ['0-50', '0-50'], ['51-100', '50-100'], ['101-300', '100-300'],
+  ['301-500', '300-500'], ['500+', '500+'], ['nenhuma', 'nenhuma'],
+])
+const META_INTERESSE = new Map([
+  ['bezerras_po', 'bezerras-po'], ['touros_po', 'touros-po'],
+  ['matrizes_po', 'matrizes-po'], ['não_sei', 'nao-sei'], ['nao_sei', 'nao-sei'],
+])
+const META_NOUN = new Map([
+  ['bezerras-po', 'bezerras'], ['touros-po', 'touros'],
+  ['matrizes-po', 'matrizes'], ['nao-sei', 'animais'],
+])
+const META_QTD = new Map([
+  ['0-5', '1 a 5'], ['1-5', '1 a 5'], ['6-10', '6 a 10'],
+  ['11-20', '11 a 20'], ['21-50', '21 a 50'], ['50+', 'Mais de 50'],
+])
+const UF_BY_NAME = new Map(Object.entries({
+  'acre': 'AC', 'alagoas': 'AL', 'amapa': 'AP', 'amazonas': 'AM', 'bahia': 'BA', 'ceara': 'CE',
+  'distrito federal': 'DF', 'espirito santo': 'ES', 'goias': 'GO', 'maranhao': 'MA',
+  'mato grosso': 'MT', 'mato grosso do sul': 'MS', 'minas gerais': 'MG', 'para': 'PA',
+  'paraiba': 'PB', 'parana': 'PR', 'pernambuco': 'PE', 'piaui': 'PI', 'rio de janeiro': 'RJ',
+  'rio grande do norte': 'RN', 'rio grande do sul': 'RS', 'rondonia': 'RO', 'roraima': 'RR',
+  'santa catarina': 'SC', 'sao paulo': 'SP', 'sergipe': 'SE', 'tocantins': 'TO',
+}))
+
+function deaccent(s: string): string {
+  return String(s || '').normalize('NFD').replace(/[̀-ͯ]/g, '').trim()
+}
+
+function metaStateToUF(state: string): string {
+  const s = deaccent(state)
+  if (/^[A-Za-z]{2}$/.test(s)) return s.toUpperCase()
+  return UF_BY_NAME.get(s.toLowerCase()) || String(state || '').trim()
+}
+
+function metaPhoneToWhatsApp(raw: string): string {
+  const digits = String(raw || '').replace(/^p:/, '').replace(/\D/g, '').replace(/^55/, '')
+  if (digits.length === 11) return `(${digits.slice(0, 2)}) ${digits.slice(2, 7)}-${digits.slice(7)}`
+  if (digits.length === 10) return `(${digits.slice(0, 2)}) ${digits.slice(2, 6)}-${digits.slice(6)}`
+  return digits ? `(${digits.slice(0, 2)}) ${digits.slice(2)}` : ''
+}
+
+function stripPrefix(v: string, prefix: string): string {
+  return v.startsWith(prefix) ? v.slice(prefix.length) : v
+}
+
+interface RawMetaLead {
+  atendidoPor: string
+  id: string; created: string; adId: string; adName: string
+  adsetId: string; adsetName: string; campaignId: string; campaignName: string
+  formId: string; formName: string; isOrganic: string; platform: string
+  momento: string; cabecas: string; temIe: string; interesse: string; qtd: string
+  fullName: string; email: string; phone: string; state: string; leadStatus: string
+}
+
+/**
+ * Detecta e interpreta uma linha crua do Meta. O id "l:<n>" pode estar em A
+ * (linhas atuais) ou em B (linhas antigas, deslocadas quando a coluna
+ * "Atendido por" foi inserida — nesse caso A é preservada).
+ */
+function parseRawMetaLead(row: string[]): RawMetaLead | null {
+  let offset: number | null = null
+  let atendidoPor = ''
+  if (/^l:\d+/.test(String(row[0] ?? ''))) offset = 0
+  else if (/^l:\d+/.test(String(row[1] ?? ''))) { offset = 1; atendidoPor = String(row[0] ?? '').trim() }
+  if (offset == null) return null
+  const off = offset
+  const f = (i: number) => String(row[off + i] ?? '').trim()
+  if (!/^\d{4}-\d{2}-\d{2}T/.test(f(1))) return null
+  return {
+    atendidoPor,
+    id: stripPrefix(f(0), 'l:'), created: f(1), adId: stripPrefix(f(2), 'ag:'), adName: f(3),
+    adsetId: stripPrefix(f(4), 'as:'), adsetName: f(5), campaignId: stripPrefix(f(6), 'c:'), campaignName: f(7),
+    formId: stripPrefix(f(8), 'f:'), formName: f(9), isOrganic: f(10), platform: f(11),
+    momento: f(12), cabecas: f(13), temIe: f(14), interesse: f(15), qtd: f(16),
+    fullName: f(17), email: f(18), phone: f(19), state: f(20),
+    leadStatus: String(row[39] ?? '').trim() || f(21) || 'CREATED',
+  }
+}
+
+function isMetaTestLead(p: RawMetaLead): boolean {
+  return /test lead|dummy data/i.test([p.fullName, p.momento, p.email].join(' ')) || p.email === 'test@meta.com'
+}
+
+/** Monta a linha completa A..AN no layout padrão + metadados Meta. */
+function buildNormalizedMetaRow(p: RawMetaLead): string[] {
+  const interesse = META_INTERESSE.get(p.interesse.toLowerCase()) || p.interesse
+  // Interesse fora do vocabulário da landing (ex.: "sêmen"): mantém o rótulo
+  // cru e a quantidade sem substantivo ("1 a 5").
+  const noun = META_NOUN.get(interesse) || ''
+  const qtdBase = META_QTD.get(p.qtd)
+  const testPrefix = isMetaTestLead(p) ? '[TESTE META] ' : ''
+  const out = Array.from({ length: 40 }, () => '') // A..AN
+  out[0] = p.atendidoPor
+  out[1] = fmtDate(new Date(p.created))
+  out[2] = testPrefix + p.fullName
+  out[3] = p.email
+  out[4] = metaPhoneToWhatsApp(p.phone)
+  out[5] = metaStateToUF(p.state)
+  out[7] = META_MOMENTO.get(p.momento.toLowerCase()) || p.momento
+  out[8] = META_CABECAS.get(p.cabecas) || p.cabecas
+  out[9] = interesse
+  out[11] = qtdBase ? `${qtdBase}${noun ? ' ' + noun : ''}` : p.qtd
+  out[12] = p.platform
+  out[14] = p.campaignName
+  out[15] = p.adName
+  out[16] = p.adId
+  out[17] = p.temIe ? (p.temIe.toLowerCase() === 'sim' ? 'Sim' : 'Não') : ''
+  out[18] = p.id; out[19] = p.created; out[20] = p.adId; out[21] = p.adName
+  out[22] = p.adsetId; out[23] = p.adsetName; out[24] = p.campaignId; out[25] = p.campaignName
+  out[26] = p.formId; out[27] = p.formName; out[28] = p.isOrganic; out[29] = p.platform
+  out[39] = p.leadStatus
+  return out
+}
+
+/**
+ * Reescreve in place as linhas cruas do Meta no layout padrão. Best-effort:
+ * falha vira warn (nunca quebra o fluxo de quem chamou). Retorna quantas
+ * linhas foram normalizadas.
+ */
+export async function normalizeMetaRawRows(): Promise<number> {
+  try {
+    const info = await getStoredInfo()
+    if (!info) return 0
+    const auth = getAuth()
+    if (!auth) return 0
+    const sheets = google.sheets({ version: 'v4', auth })
+    const res = await sheets.spreadsheets.values.get({
+      spreadsheetId: info.spreadsheetId,
+      range: `${TAB}!A2:AN`,
+    })
+    const values = (res.data.values ?? []) as string[][]
+    const updates: { range: string; values: string[][] }[] = []
+    values.forEach((row, index) => {
+      const parsed = parseRawMetaLead(row)
+      if (!parsed) return
+      const rowNumber = index + 2
+      updates.push({ range: `${TAB}!A${rowNumber}:AN${rowNumber}`, values: [buildNormalizedMetaRow(parsed)] })
+    })
+    if (!updates.length) return 0
+    await sheets.spreadsheets.values.batchUpdate({
+      spreadsheetId: info.spreadsheetId,
+      requestBody: { valueInputOption: 'RAW', data: updates },
+    })
+    console.log(`[jmp-sheets] ${updates.length} linha(s) do Meta normalizadas na planilha`)
+    return updates.length
+  } catch (e) {
+    console.warn('[jmp-sheets] normalizeMetaRawRows falhou:', e instanceof Error ? e.message : e)
+    return 0
+  }
+}
+
 export async function readSheetLeadRows(): Promise<{ info: SheetInfo; rows: SheetLeadRow[] }> {
   const info = await getStoredInfo()
   if (!info) throw new Error('Planilha de leads JMP não conectada.')
   const auth = getAuth()
   if (!auth) throw new Error('GOOGLE_SERVICE_ACCOUNT_JSON ausente — configure a service account.')
+
+  // Auto-cura: realinha eventuais linhas cruas do Meta antes de ler, para que
+  // esses leads apareçam na Validação (e possam ser importados para o CRM).
+  await normalizeMetaRawRows()
 
   const sheets = google.sheets({ version: 'v4', auth })
   const headerRow = await readHeaderRow(sheets, info.spreadsheetId)
@@ -423,5 +602,10 @@ export async function appendLeadToSheet(lead: SheetLead): Promise<{ skipped: boo
     insertDataOption: 'INSERT_ROWS',
     requestBody: { values: [row] },
   })
+
+  // Auto-cura oportunista: cada lead da landing também realinha eventuais
+  // linhas cruas que o Meta tenha despejado desde a última passagem.
+  void normalizeMetaRawRows()
+
   return { skipped: false }
 }
