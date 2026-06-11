@@ -3,7 +3,13 @@
 import { createClient } from '@/utils/supabase/server';
 import { revalidatePath } from 'next/cache';
 import { dispatchWelcome } from '@/lib/whatsapp';
-import { evaluateMql, JMP_FUNNEL_ID, DEFAULT_JMP_MQL_RULE } from '@/lib/crm-types';
+import {
+    CRM_STAGE_CONNECTION,
+    DEFAULT_JMP_MQL_RULE,
+    evaluateMql,
+    JMP_FUNNEL_ID,
+    normalizeCRMStatus,
+} from '@/lib/crm-types';
 import { getCRMConfig } from './crm-config';
 import { maybeNotifyAssessorOnLeadStage } from '@/lib/crm-whatsapp-assessor';
 import { readSheetLeadRows, type SheetLeadRow } from '@/lib/jmp-sheets';
@@ -99,9 +105,18 @@ const WRITABLE_COLUMNS = new Set<string>([
 function sanitizeLeadData(data: Partial<CRMLead>): Partial<CRMLead> {
     const clean: Record<string, unknown> = {};
     for (const [key, value] of Object.entries(data)) {
-        if (WRITABLE_COLUMNS.has(key)) clean[key] = value;
+        if (!WRITABLE_COLUMNS.has(key)) continue;
+        clean[key] = key === 'status' ? normalizeCRMStatus(String(value || '')) : value;
     }
     return clean as Partial<CRMLead>;
+}
+
+function normalizeLeadRow<T extends CRMLead>(lead: T): T {
+    return { ...lead, status: normalizeCRMStatus(lead.status) };
+}
+
+function normalizeLeadRows(data: CRMLead[] | null | undefined): CRMLead[] {
+    return (data ?? []).map(lead => normalizeLeadRow(lead));
 }
 
 async function notifyAssessorIfNeeded(
@@ -139,7 +154,7 @@ export async function getLeads(funnelId?: string): Promise<CRMLead[]> {
         return [];
     }
 
-    return data as CRMLead[];
+    return normalizeLeadRows(data as CRMLead[]);
 }
 
 /** Leads arquivados (soft-delete), mais recentes primeiro. Usado pela aba "Arquivados". */
@@ -157,7 +172,7 @@ export async function getArchivedLeads(): Promise<CRMLead[]> {
         return [];
     }
 
-    return data as CRMLead[];
+    return normalizeLeadRows(data as CRMLead[]);
 }
 
 /** Arquiva um lead (soft-delete): some das telas operacionais, mas continua no banco. */
@@ -192,10 +207,12 @@ export async function unarchiveLead(id: string): Promise<void> {
 
 export async function createLead(data: Partial<CRMLead>): Promise<CRMLead> {
     const supabase = await createClient();
+    const payload = sanitizeLeadData(data);
+    if (!payload.status) payload.status = CRM_STAGE_CONNECTION;
 
     const { data: newLead, error } = await supabase
         .from('crm_leads')
-        .insert([sanitizeLeadData(data)])
+        .insert([payload])
         .select()
         .single();
 
@@ -214,7 +231,7 @@ export async function createLead(data: Partial<CRMLead>): Promise<CRMLead> {
 
     revalidatePath('/web-admin/crm');
     revalidatePath('/web-admin/funil-vendas');
-    return newLead as CRMLead;
+    return normalizeLeadRow(newLead as CRMLead);
 }
 
 export async function updateLead(id: string, data: Partial<CRMLead>): Promise<CRMLead> {
@@ -241,7 +258,7 @@ export async function updateLead(id: string, data: Partial<CRMLead>): Promise<CR
 
     revalidatePath('/web-admin/crm');
     revalidatePath('/web-admin/funil-vendas');
-    return updatedLead as CRMLead;
+    return normalizeLeadRow(updatedLead as CRMLead);
 }
 
 export async function deleteLead(id: string): Promise<void> {
@@ -262,6 +279,7 @@ export async function deleteLead(id: string): Promise<void> {
 
 export async function moveLead(id: string, newStatus: string, newPosition: number): Promise<void> {
     const supabase = await createClient();
+    const status = normalizeCRMStatus(newStatus);
 
     const { data: previous } = await supabase
         .from('crm_leads')
@@ -272,7 +290,7 @@ export async function moveLead(id: string, newStatus: string, newPosition: numbe
     const { error } = await supabase
         .from('crm_leads')
         .update({
-            status: newStatus,
+            status,
             position: newPosition
         })
         .eq('id', id);
@@ -296,6 +314,7 @@ export async function moveLead(id: string, newStatus: string, newPosition: numbe
 
 export async function moveLeadToFunnel(id: string, funnelId: string, newStatus: string): Promise<void> {
     const supabase = await createClient();
+    const status = normalizeCRMStatus(newStatus);
 
     const { data: previous } = await supabase
         .from('crm_leads')
@@ -307,7 +326,7 @@ export async function moveLeadToFunnel(id: string, funnelId: string, newStatus: 
         .from('crm_leads')
         .update({
             funnel_id: funnelId,
-            status: newStatus,
+            status,
         })
         .eq('id', id);
 
@@ -326,6 +345,37 @@ export async function moveLeadToFunnel(id: string, funnelId: string, newStatus: 
 
     revalidatePath('/web-admin/crm');
     revalidatePath('/web-admin/funil-vendas');
+}
+
+export async function setCadastroAprovado(id: string, aprovado: boolean): Promise<CRMLead> {
+    const supabase = await createClient();
+
+    const { data: existing, error: fetchErr } = await supabase
+        .from('crm_leads')
+        .select('extra_data')
+        .eq('id', id)
+        .single();
+
+    if (fetchErr) throw new Error(`Error fetching lead: ${fetchErr.message}`);
+
+    const extra = {
+        ...((existing?.extra_data || {}) as Record<string, unknown>),
+        cadastro_aprovado: aprovado,
+        cadastro_aprovado_at: aprovado ? new Date().toISOString() : null,
+    };
+
+    const { data: updated, error } = await supabase
+        .from('crm_leads')
+        .update({ extra_data: extra })
+        .eq('id', id)
+        .select()
+        .single();
+
+    if (error) throw new Error(`Error updating cadastro approval: ${error.message}`);
+
+    revalidatePath('/web-admin/crm');
+    revalidatePath('/web-admin/leads');
+    return normalizeLeadRow(updated as CRMLead);
 }
 
 /**
@@ -416,7 +466,7 @@ export async function recordContact(
 
     revalidatePath('/web-admin/crm');
     revalidatePath('/web-admin/leads');
-    return updated as CRMLead;
+    return normalizeLeadRow(updated as CRMLead);
 }
 
 export async function deleteContact(leadId: string, contactId: string): Promise<CRMLead> {
@@ -449,7 +499,7 @@ export async function deleteContact(leadId: string, contactId: string): Promise<
 
     revalidatePath('/web-admin/crm');
     revalidatePath('/web-admin/leads');
-    return updated as CRMLead;
+    return normalizeLeadRow(updated as CRMLead);
 }
 
 type CRMLeadMatchRow = Pick<CRMLead,
@@ -593,7 +643,7 @@ function sheetRowToLead(row: SheetLeadRow, isMql: boolean, position: number): Pa
         interesse: row.interesse,
         o_que_busca: row.oQueBusca,
         tem_inscricao_estadual: row.inscricaoEstadual,
-        status: 'Lead',
+        status: CRM_STAGE_CONNECTION,
         funnel_id: JMP_FUNNEL_ID,
         is_mql: isMql,
         origem: 'Planilha JMP — importação de validação',

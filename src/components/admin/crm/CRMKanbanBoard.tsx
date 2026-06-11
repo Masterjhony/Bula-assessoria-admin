@@ -18,6 +18,12 @@ import { arrayMove, sortableKeyboardCoordinates } from '@dnd-kit/sortable';
 import { CRMColumn } from './CRMColumn';
 import { CRMCard } from './CRMCard';
 import { CRMLead } from '@/app/sistema/actions/crm-leads';
+import {
+    CRM_STAGE_ASSESSORS,
+    CRM_STAGE_CONNECTION,
+    CRM_STAGE_QUALIFICATION,
+    CRM_STAGE_REGISTRATION,
+} from '@/lib/crm-types';
 import { createPortal } from 'react-dom';
 
 interface CRMKanbanBoardProps {
@@ -27,11 +33,17 @@ interface CRMKanbanBoardProps {
     onAddLead: (status: string) => void;
     onMoveLead: (id: string, newStatus: string, newPosition: number) => Promise<void>;
     onRenameStage?: (oldName: string, newName: string) => Promise<void>;
+    onCadastroApprovalChange?: (lead: CRMLead, aprovado: boolean) => Promise<void> | void;
 }
 
-export const CRM_COLUMNS = ['Lead', 'Qualificado', 'Proposta', 'Negociação', 'Fechado', 'Perdido', 'Sem Status'];
+export const CRM_COLUMNS = [
+    CRM_STAGE_CONNECTION,
+    CRM_STAGE_QUALIFICATION,
+    CRM_STAGE_REGISTRATION,
+    CRM_STAGE_ASSESSORS,
+];
 
-export function CRMKanbanBoard({ leads: externalLeads, stages, onEditLead, onAddLead, onMoveLead, onRenameStage }: CRMKanbanBoardProps) {
+export function CRMKanbanBoard({ leads: externalLeads, stages, onEditLead, onAddLead, onMoveLead, onRenameStage, onCadastroApprovalChange }: CRMKanbanBoardProps) {
     const columns = stages && stages.length > 0 ? stages : CRM_COLUMNS;
     const [leads, setLeads] = useState<CRMLead[]>(externalLeads);
     const [activeLead, setActiveLead] = useState<CRMLead | null>(null);
@@ -164,6 +176,7 @@ export function CRMKanbanBoard({ leads: externalLeads, stages, onEditLead, onAdd
                         onLeadClick={onEditLead}
                         onAddLead={onAddLead}
                         onRename={onRenameStage}
+                        onCadastroApprovalChange={onCadastroApprovalChange}
                     />
                 ))}
             </div>
@@ -174,6 +187,7 @@ export function CRMKanbanBoard({ leads: externalLeads, stages, onEditLead, onAdd
                         <CRMCard
                             lead={activeLead}
                             onClick={() => { }}
+                            onCadastroApprovalChange={onCadastroApprovalChange}
                         />
                     )}
                 </DragOverlay>,

@@ -1,6 +1,12 @@
 'use server';
 
 import { createClient } from '@/utils/supabase/server';
+import {
+    CRM_STAGE_ASSESSORS,
+    CRM_STAGE_QUALIFICATION,
+    CRM_STAGE_REGISTRATION,
+    normalizeCRMStatus,
+} from '@/lib/crm-types';
 
 // ── Types ───────────────────────────────────────────────────────────────────
 
@@ -80,7 +86,7 @@ export interface OKRSnapshot {
 // ── Helpers ─────────────────────────────────────────────────────────────────
 
 const DAY_MS = 86400000;
-const STALLED_STAGES = ['Qualificado', 'Proposta', 'Negociação'];
+const STALLED_STAGES = [CRM_STAGE_QUALIFICATION, CRM_STAGE_REGISTRATION];
 const STALLED_DAYS = 30;
 
 function startOfDay(d: Date) {
@@ -131,7 +137,10 @@ export async function getOKRSnapshot(): Promise<OKRSnapshot> {
         supabase.from('tactical_task_kr_links').select('task_id, kr_id'),
     ]);
 
-    const allLeads = leadsRes.data ?? [];
+    const allLeads = (leadsRes.data ?? []).map(lead => ({
+        ...lead,
+        status: normalizeCRMStatus(lead.status),
+    }));
     const allWpp = wppRes.data ?? [];
     const allLeiloes = leiloesRes.data ?? [];
     const allFechamentos = fechamentosRes.data ?? [];
@@ -154,15 +163,15 @@ export async function getOKRSnapshot(): Promise<OKRSnapshot> {
     const mqlAll = allLeads.filter(l => !!l.is_mql);
     const mqlTotal = mqlAll.length;
     const mql30d = mqlAll.filter(l => new Date(l.created_at) >= start30d).length;
-    const closed = allLeads.filter(l => l.status === 'Fechado').length;
-    const mqlClosed = mqlAll.filter(l => l.status === 'Fechado').length;
-    const mqlLost = mqlAll.filter(l => l.status === 'Perdido').length;
+    const closed = allLeads.filter(l => l.status === CRM_STAGE_ASSESSORS).length;
+    const mqlClosed = mqlAll.filter(l => l.status === CRM_STAGE_ASSESSORS).length;
+    const mqlLost = 0;
     const mqlActive = mqlTotal - mqlClosed - mqlLost;
     const mqlConvPct = mqlTotal > 0 ? (mqlClosed / mqlTotal) * 100 : 0;
     const conversionPct = total > 0 ? (closed / total) * 100 : 0;
 
     const pipelineValue = allLeads
-        .filter(l => l.status !== 'Fechado' && l.status !== 'Perdido')
+        .filter(l => l.status !== CRM_STAGE_ASSESSORS)
         .reduce((s, l) => s + (Number(l.valor_estimado) || 0), 0);
 
     const closingSoonCount = allLeads.filter(l => {
@@ -171,7 +180,7 @@ export async function getOKRSnapshot(): Promise<OKRSnapshot> {
         return diff >= 0 && diff <= 7;
     }).length;
 
-    const closedWithDates = allLeads.filter(l => l.status === 'Fechado' && l.created_at && l.updated_at);
+    const closedWithDates = allLeads.filter(l => l.status === CRM_STAGE_ASSESSORS && l.created_at && l.updated_at);
     const velocityDays = closedWithDates.length > 0
         ? closedWithDates.reduce((s, l) => {
             const days = (new Date(l.updated_at).getTime() - new Date(l.created_at).getTime()) / DAY_MS;

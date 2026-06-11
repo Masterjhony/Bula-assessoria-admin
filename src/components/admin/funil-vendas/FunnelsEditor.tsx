@@ -305,8 +305,8 @@ export function FunnelsEditor({ initialConfig, onConfigSaved }: FunnelsEditorPro
                 funnels,
                 responsaveis: initialConfig.responsaveis || [],
             };
-            await saveCRMConfig(config);
-            onConfigSaved(config);
+            const savedConfig = await saveCRMConfig(config);
+            onConfigSaved(savedConfig);
             setSaved(true);
             setTimeout(() => setSaved(false), 2500);
         } catch {

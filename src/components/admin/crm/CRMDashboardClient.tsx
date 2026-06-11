@@ -5,10 +5,10 @@ import { useSearchParams, useRouter, usePathname } from 'next/navigation';
 import {
     CRMLead, updateLead, createLead, moveLead, deleteLead,
     archiveLead, unarchiveLead, getArchivedLeads,
+    setCadastroAprovado,
 } from '@/app/sistema/actions/crm-leads';
-import { renameStage } from '@/app/sistema/actions/crm-config';
 import type { CRMConfig } from '@/lib/crm-types';
-import { isQualificationStage } from '@/lib/crm-types';
+import { CRM_STAGE_CONNECTION, isQualificationStage } from '@/lib/crm-types';
 import { CRMKanbanBoard } from './CRMKanbanBoard';
 import { CRMModal } from './CRMModal';
 import { CRMSettingsView } from './CRMSettingsView';
@@ -38,7 +38,7 @@ export function CRMDashboardClient({ initialLeads, crmConfig: initialConfig }: C
 
     // Modal "novo lead" (sem id) é estado local; edição é derivada de `?lead=<id>`.
     const [isCreatingLead, setIsCreatingLead] = useState(false);
-    const [defaultStatus, setDefaultStatus] = useState('Lead');
+    const [defaultStatus, setDefaultStatus] = useState(CRM_STAGE_CONNECTION);
     const [isFullscreen, setIsFullscreen] = useState(false);
 
     // Deep-link: `?view=<qualificacao|kanban|configuracoes>` controla a aba,
@@ -49,7 +49,7 @@ export function CRMDashboardClient({ initialLeads, crmConfig: initialConfig }: C
 
     const rawView = searchParams.get('view');
     const activeView: ViewType = (rawView && (VALID_VIEWS as string[]).includes(rawView))
-        ? (rawView as ViewType) : 'qualificacao';
+        ? (rawView as ViewType) : 'kanban';
 
     // Funil ativo (deep-link `?funnel=<id>`). Default: primeiro funil da config.
     const funnels = crmConfig.funnels;
@@ -77,7 +77,7 @@ export function CRMDashboardClient({ initialLeads, crmConfig: initialConfig }: C
     }, [router, pathname, searchParams]);
 
     const setActiveView = (next: ViewType) => {
-        updateUrl(p => { if (next === 'qualificacao') p.delete('view'); else p.set('view', next); });
+        updateUrl(p => { if (next === 'kanban') p.delete('view'); else p.set('view', next); });
     };
     const setActiveFunnelId = (id: string) => {
         updateUrl(p => { if (!id || id === funnels[0]?.id) p.delete('funnel'); else p.set('funnel', id); });
@@ -135,7 +135,7 @@ export function CRMDashboardClient({ initialLeads, crmConfig: initialConfig }: C
         [funnelLeads, qualificationStageNames]
     );
 
-    const handleOpenNewLead = (status: string = advancedStages[0] || 'Qualificado') => {
+    const handleOpenNewLead = (status: string = advancedStages[0] || CRM_STAGE_CONNECTION) => {
         setEditingLeadId(null);
         setDefaultStatus(status);
         setIsCreatingLead(true);
@@ -167,6 +167,26 @@ export function CRMDashboardClient({ initialLeads, crmConfig: initialConfig }: C
         }
     };
 
+    const handleCadastroApprovalChange = async (lead: CRMLead, aprovado: boolean) => {
+        const previous = lead;
+        const optimistic: CRMLead = {
+            ...lead,
+            extra_data: {
+                ...(lead.extra_data || {}),
+                cadastro_aprovado: aprovado,
+                cadastro_aprovado_at: aprovado ? new Date().toISOString() : null,
+            },
+        };
+        setLeads(prev => prev.map(l => l.id === lead.id ? optimistic : l));
+        try {
+            const updated = await setCadastroAprovado(lead.id, aprovado);
+            setLeads(prev => prev.map(l => l.id === updated.id ? updated : l));
+        } catch (e) {
+            setLeads(prev => prev.map(l => l.id === previous.id ? previous : l));
+            alert(e instanceof Error ? e.message : 'Erro ao atualizar aprovação do cadastro.');
+        }
+    };
+
     const handleDeleteLead = async (id: string) => {
         setLeads(leads.filter(l => l.id !== id));
         await deleteLead(id);
@@ -176,23 +196,6 @@ export function CRMDashboardClient({ initialLeads, crmConfig: initialConfig }: C
     const handleLeadUpdated = (lead: CRMLead) => {
         setLeads(prev => prev.map(l => l.id === lead.id ? lead : l));
         // editingLead é derivado, então atualiza sozinho quando `leads` muda.
-    };
-
-    const handleRenameStage = async (oldName: string, newName: string) => {
-        const trimmed = newName.trim();
-        if (!trimmed || trimmed === oldName) return;
-        // Renomeia a etapa do funil ATIVO (identificada por id), nunca por nome global.
-        const stage = activeFunnel?.stages.find(s => s.name === oldName);
-        if (!stage) return;
-        try {
-            const newConfig = await renameStage(activeFunnelId, stage.id, trimmed);
-            setCrmConfig(newConfig);
-            // Migra os leads só do funil ativo (legados sem funnel_id contam como 'default').
-            setLeads(prev => prev.map(l => l.status === oldName ? { ...l, status: trimmed } : l));
-        } catch (e) {
-            const msg = e instanceof Error ? e.message : 'Erro ao renomear etapa.';
-            alert(msg);
-        }
     };
 
     // Leads que podem aparecer no kanban / listas (exclui qualificação) — já restritos ao funil ativo.
@@ -423,7 +426,7 @@ export function CRMDashboardClient({ initialLeads, crmConfig: initialConfig }: C
                                 onEditLead={handleEditLead}
                                 onAddLead={handleOpenNewLead}
                                 onMoveLead={handleMoveLead}
-                                onRenameStage={handleRenameStage}
+                                onCadastroApprovalChange={handleCadastroApprovalChange}
                             />
                         </div>
                     </div>

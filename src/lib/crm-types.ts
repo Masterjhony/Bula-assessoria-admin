@@ -53,22 +53,58 @@ export interface CRMConfig {
     responsaveis: CRMResponsavel[];
 }
 
+export const CRM_STAGE_CONNECTION = 'CONEXÃO';
+export const CRM_STAGE_QUALIFICATION = 'QUALIFICAÇÃO';
+export const CRM_STAGE_REGISTRATION = 'CADASTRO';
+export const CRM_STAGE_ASSESSORS = 'ASSESSORES';
+
 export const DEFAULT_STAGES: CRMStage[] = [
-    { id: 'Lead', name: 'Lead', color: 'pink', probability: 10, is_qualification: true },
-    { id: 'Qualificado', name: 'Qualificado', color: 'orange', probability: 25 },
-    { id: 'Direcionamento Leilao', name: 'Direcionamento Leilão', color: 'cyan', probability: 35 },
-    { id: 'Proposta', name: 'Proposta', color: 'blue', probability: 50 },
-    { id: 'Negociação', name: 'Negociação', color: 'purple', probability: 75 },
-    { id: 'Fechado', name: 'Fechado', color: 'green', probability: 100 },
-    { id: 'Perdido', name: 'Perdido', color: 'red', probability: 0 },
-    { id: 'Sem Status', name: 'Sem Status', color: 'gray', probability: 0 },
+    { id: 'conexao', name: CRM_STAGE_CONNECTION, color: 'blue', probability: 10 },
+    { id: 'qualificacao', name: CRM_STAGE_QUALIFICATION, color: 'orange', probability: 25 },
+    { id: 'cadastro', name: CRM_STAGE_REGISTRATION, color: 'yellow', probability: 50 },
+    { id: 'assessores', name: CRM_STAGE_ASSESSORS, color: 'green', probability: 75 },
 ];
 
 /** Flag heurística (caso o usuário tenha config legada sem is_qualification). */
-export const DEFAULT_QUALIFICATION_STAGE_IDS = ['Lead', 'Sem Status'];
+export const DEFAULT_QUALIFICATION_STAGE_IDS: string[] = [];
 
 /** Etapa que dispara a automação de encaminhamento do lead para o assessor. */
-export const ASSESSOR_NOTIFICATION_STAGE = 'Direcionamento Leilão';
+export const ASSESSOR_NOTIFICATION_STAGE = CRM_STAGE_ASSESSORS;
+
+function normalizeStageLookup(value?: string | null): string {
+    return (value || '')
+        .normalize('NFD')
+        .replace(/[\u0300-\u036f]/g, '')
+        .trim()
+        .toLowerCase();
+}
+
+export function normalizeCRMStatus(status?: string | null): string {
+    const key = normalizeStageLookup(status);
+
+    if (!key || key === 'lead' || key === 'sem status' || key === 'conexao') {
+        return CRM_STAGE_CONNECTION;
+    }
+
+    if (key === 'qualificacao') return CRM_STAGE_QUALIFICATION;
+    if (key === 'cadastro' || key === 'qualificado') return CRM_STAGE_REGISTRATION;
+
+    if (
+        key === 'assessores' ||
+        key === 'direcionamento leilao' ||
+        key === 'proposta' ||
+        key === 'negociacao' ||
+        key === 'fechado'
+    ) {
+        return CRM_STAGE_ASSESSORS;
+    }
+
+    if (key === 'perdido') return CRM_STAGE_QUALIFICATION;
+
+    return DEFAULT_STAGES.some(stage => normalizeStageLookup(stage.name) === key)
+        ? status!.trim()
+        : CRM_STAGE_CONNECTION;
+}
 
 export function isQualificationStage(stage: CRMStage | undefined | null): boolean {
     if (!stage) return false;

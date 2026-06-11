@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import { CRMLead, updateLead, createLead, deleteLead } from '@/app/sistema/actions/crm-leads';
 import type { CRMConfig } from '@/lib/crm-types';
+import { CRM_STAGE_CONNECTION } from '@/lib/crm-types';
 import { CRMLeadsView } from './CRMLeadsView';
 import { CRMModal } from './CRMModal';
 import { Maximize2, Minimize2, Users } from 'lucide-react';
@@ -16,14 +17,14 @@ export function LeadsPageClient({ initialLeads, crmConfig }: LeadsPageClientProp
     const [leads, setLeads] = useState<CRMLead[]>(initialLeads);
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [editingLead, setEditingLead] = useState<CRMLead | undefined>(undefined);
-    const [defaultStatus, setDefaultStatus] = useState('Lead');
+    const [defaultStatus, setDefaultStatus] = useState(CRM_STAGE_CONNECTION);
     const [isFullscreen, setIsFullscreen] = useState(false);
 
     const stages = crmConfig.stages.map(s => s.name);
 
     const handleOpenNewLead = () => {
         setEditingLead(undefined);
-        setDefaultStatus(stages[0] || 'Lead');
+        setDefaultStatus(stages[0] || CRM_STAGE_CONNECTION);
         setIsModalOpen(true);
     };
 

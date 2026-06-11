@@ -35,6 +35,10 @@ const SOURCE_COLORS: Record<string, string> = {
 };
 
 const STAGE_COLORS: Record<string, string> = {
+    'CONEXÃO': 'bg-blue-100 text-blue-700 dark:bg-blue-500/20 dark:text-blue-300',
+    'QUALIFICAÇÃO': 'bg-orange-100 text-orange-700 dark:bg-orange-500/20 dark:text-orange-300',
+    'CADASTRO': 'bg-yellow-100 text-yellow-800 dark:bg-yellow-500/20 dark:text-yellow-300',
+    'ASSESSORES': 'bg-green-100 text-green-700 dark:bg-green-500/20 dark:text-green-300',
     Lead: 'bg-pink-100 text-pink-700 dark:bg-pink-500/20 dark:text-pink-300',
     Qualificado: 'bg-orange-100 text-orange-700 dark:bg-orange-500/20 dark:text-orange-300',
     Proposta: 'bg-blue-100 text-blue-700 dark:bg-blue-500/20 dark:text-blue-300',

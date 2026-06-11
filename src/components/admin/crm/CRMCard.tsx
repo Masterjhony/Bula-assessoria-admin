@@ -1,16 +1,20 @@
 'use client';
 
+import { useState, type MouseEvent } from 'react';
 import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 import { CRMLead } from '@/app/sistema/actions/crm-leads';
-import { Phone, Building, DollarSign, MapPin, Beef, MessageCircle, Crown, Search, Gauge, AlertTriangle } from 'lucide-react';
+import { CRM_STAGE_REGISTRATION } from '@/lib/crm-types';
+import { Phone, Building, DollarSign, MapPin, Beef, MessageCircle, Crown, Search, Gauge, AlertTriangle, CheckCircle2, Loader2 } from 'lucide-react';
 
 interface CRMCardProps {
     lead: CRMLead;
     onClick: (lead: CRMLead) => void;
+    onCadastroApprovalChange?: (lead: CRMLead, aprovado: boolean) => Promise<void> | void;
 }
 
-export function CRMCard({ lead, onClick }: CRMCardProps) {
+export function CRMCard({ lead, onClick, onCadastroApprovalChange }: CRMCardProps) {
+    const [savingApproval, setSavingApproval] = useState(false);
     const {
         attributes,
         listeners,
@@ -47,6 +51,20 @@ export function CRMCard({ lead, onClick }: CRMCardProps) {
     };
 
     const contatos = lead.contact_count ?? (lead.contact_history?.length ?? 0);
+    const isCadastroStage = lead.status === CRM_STAGE_REGISTRATION;
+    const cadastroAprovado = !!lead.extra_data?.cadastro_aprovado;
+
+    const handleCadastroApprovalClick = async (e: MouseEvent<HTMLButtonElement>) => {
+        e.preventDefault();
+        e.stopPropagation();
+        if (!onCadastroApprovalChange || savingApproval) return;
+        setSavingApproval(true);
+        try {
+            await onCadastroApprovalChange(lead, !cadastroAprovado);
+        } finally {
+            setSavingApproval(false);
+        }
+    };
 
     return (
         <div
@@ -104,6 +122,28 @@ export function CRMCard({ lead, onClick }: CRMCardProps) {
                         </span>
                     )}
                 </div>
+            )}
+
+            {isCadastroStage && (
+                <button
+                    type="button"
+                    onPointerDown={e => e.stopPropagation()}
+                    onClick={handleCadastroApprovalClick}
+                    disabled={!onCadastroApprovalChange || savingApproval}
+                    title={cadastroAprovado ? 'Cadastro aprovado. Clique para remover a aprovação.' : 'Marcar cadastro como aprovado.'}
+                    className={`inline-flex w-full items-center justify-center gap-1.5 rounded-lg border px-2.5 py-1.5 text-[11px] font-extrabold uppercase transition-all disabled:cursor-not-allowed disabled:opacity-70 ${
+                        cadastroAprovado
+                            ? 'border-emerald-500/30 bg-emerald-500/15 text-emerald-600 dark:text-emerald-400'
+                            : 'border-gray-200 bg-gray-50 text-gray-500 hover:border-emerald-500/30 hover:bg-emerald-500/10 hover:text-emerald-600 dark:border-[#333] dark:bg-[#141414] dark:text-gray-400 dark:hover:text-emerald-400'
+                    }`}
+                >
+                    {savingApproval ? (
+                        <Loader2 size={12} className="animate-spin" />
+                    ) : (
+                        <CheckCircle2 size={12} className={cadastroAprovado ? 'fill-emerald-500/20' : ''} />
+                    )}
+                    {cadastroAprovado ? 'Cadastro aprovado' : 'Aprovar cadastro'}
+                </button>
             )}
 
             {/* Cidade/Estado */}

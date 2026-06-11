@@ -14,9 +14,10 @@ interface CRMColumnProps {
     onLeadClick: (lead: CRMLead) => void;
     onAddLead: (status: string) => void;
     onRename?: (oldName: string, newName: string) => Promise<void>;
+    onCadastroApprovalChange?: (lead: CRMLead, aprovado: boolean) => Promise<void> | void;
 }
 
-export function CRMColumn({ id, title, leads, onLeadClick, onAddLead, onRename }: CRMColumnProps) {
+export function CRMColumn({ id, title, leads, onLeadClick, onAddLead, onRename, onCadastroApprovalChange }: CRMColumnProps) {
     const { setNodeRef } = useDroppable({
         id: id,
         data: {
@@ -41,6 +42,10 @@ export function CRMColumn({ id, title, leads, onLeadClick, onAddLead, onRename }
         'Sem Status': 'bg-gray-500/10 text-gray-500 border-gray-500/20',
         'Lead': 'bg-pink-500/10 text-pink-500 border-pink-500/20',
         'Qualificado': 'bg-orange-500/10 text-orange-500 border-orange-500/20',
+        'CONEXÃO': 'bg-blue-500/10 text-blue-500 border-blue-500/20',
+        'QUALIFICAÇÃO': 'bg-orange-500/10 text-orange-500 border-orange-500/20',
+        'CADASTRO': 'bg-yellow-500/10 text-yellow-600 dark:text-yellow-400 border-yellow-500/20',
+        'ASSESSORES': 'bg-green-500/10 text-green-500 border-green-500/20',
         'Proposta': 'bg-blue-500/10 text-blue-500 border-blue-500/20',
         'Negociação': 'bg-purple-500/10 text-purple-500 border-purple-500/20',
         'Fechado': 'bg-green-500/10 text-green-500 border-green-500/20',
@@ -113,6 +118,7 @@ export function CRMColumn({ id, title, leads, onLeadClick, onAddLead, onRename }
                             key={lead.id}
                             lead={lead}
                             onClick={onLeadClick}
+                            onCadastroApprovalChange={onCadastroApprovalChange}
                         />
                     ))}
                 </SortableContext>

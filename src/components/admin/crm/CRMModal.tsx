@@ -5,7 +5,7 @@ import { X, Save, Trash2, ChevronDown, ChevronUp, Crown, User, TrendingUp, Phone
 import { CRMLead, deleteLead } from '@/app/sistema/actions/crm-leads';
 import { CRM_COLUMNS } from './CRMKanbanBoard';
 import type { CRMCustomField, CRMFunnel, CRMResponsavel } from '@/lib/crm-types';
-import { evaluateMql } from '@/lib/crm-types';
+import { CRM_STAGE_CONNECTION, evaluateMql } from '@/lib/crm-types';
 import { CRMContactsHistory } from './CRMContactsHistory';
 
 interface CRMModalProps {
@@ -306,7 +306,7 @@ export function CRMModal({ isOpen, onClose, lead, defaultStatus, defaultFunnelId
                                 <div>
                                     <label className={labelClass}>Status</label>
                                     <select
-                                        value={formData.status || 'Lead'}
+                                        value={formData.status || CRM_STAGE_CONNECTION}
                                         onChange={e => setFormData({ ...formData, status: e.target.value })}
                                         className={`${inputClass} appearance-none`}
                                     >

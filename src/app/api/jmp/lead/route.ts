@@ -2,6 +2,7 @@ import { NextRequest } from 'next/server'
 import { supabaseAdmin } from '@/lib/supabase'
 import { fail, ok } from '@/lib/respond'
 import {
+  CRM_STAGE_CONNECTION,
   evaluateMql,
   JMP_FUNNEL_ID,
   DEFAULT_JMP_MQL_RULE,
@@ -82,7 +83,7 @@ export async function POST(req: NextRequest) {
     // Quantidade que o lead precisa, já em texto legível e contextual ao
     // interesse (ex.: "21 a 50 touros"). Montado na landing.
     o_que_busca: str(body.oQueBusca),
-    status: 'Lead',
+    status: CRM_STAGE_CONNECTION,
     funnel_id: JMP_FUNNEL_ID,
     is_mql: isMql,
     origem: 'Landing JMP — Nelore 13/14 jun',

@@ -3,45 +3,14 @@
 import { createClient } from '@/utils/supabase/server';
 import { revalidatePath } from 'next/cache';
 import {
-    ASSESSOR_NOTIFICATION_STAGE,
     CRMConfig,
     CRMCustomField,
     CRMFunnel,
     CRMResponsavel,
-    CRMStage,
     DEFAULT_CRM_CONFIG,
     DEFAULT_FUNNEL,
     DEFAULT_STAGES,
 } from '@/lib/crm-types';
-
-function mergeStages(funnels: CRMFunnel[], fallback: CRMStage[]): CRMStage[] {
-    const merged: CRMStage[] = [];
-    const seen = new Set<string>();
-
-    const add = (stage: CRMStage) => {
-        const key = (stage.name || stage.id).trim().toLowerCase();
-        if (!key || seen.has(key)) return;
-        seen.add(key);
-        merged.push(stage);
-    };
-
-    for (const stage of fallback) add(stage);
-    for (const funnel of funnels) {
-        for (const stage of funnel.stages || []) add(stage);
-    }
-
-    if (!merged.some(s => s.name === ASSESSOR_NOTIFICATION_STAGE)) {
-        const idx = Math.max(0, merged.findIndex(s => s.name === 'Qualificado'));
-        merged.splice(idx + 1, 0, {
-            id: 'Direcionamento Leilao',
-            name: ASSESSOR_NOTIFICATION_STAGE,
-            color: 'cyan',
-            probability: 35,
-        });
-    }
-
-    return merged.length ? merged : DEFAULT_STAGES;
-}
 
 function mergeCustomFields(funnels: CRMFunnel[], fallback: CRMCustomField[]): CRMCustomField[] {
     const merged: CRMCustomField[] = [];
@@ -72,14 +41,11 @@ function normalizeResponsaveis(responsaveis?: CRMResponsavel[]): CRMResponsavel[
 function normalizeUnifiedConfig(raw: Partial<CRMConfig> | CRMConfig | null | undefined): CRMConfig {
     const storedFunnels = raw?.funnels?.length ? raw.funnels : [];
     const base = storedFunnels[0] ?? DEFAULT_FUNNEL;
-    const fallbackStages = base.stages?.length
-        ? base.stages
-        : (raw?.stages?.length ? raw.stages : DEFAULT_STAGES);
     const fallbackFields = base.custom_fields?.length
         ? base.custom_fields
         : (raw?.custom_fields || []);
 
-    const stages = mergeStages(storedFunnels, fallbackStages);
+    const stages = DEFAULT_STAGES;
     const custom_fields = mergeCustomFields(storedFunnels, fallbackFields);
     const legacyName = base.name === 'Funil JMP' || base.name === 'Pipeline Principal';
 
@@ -114,7 +80,7 @@ export async function getCRMConfig(): Promise<CRMConfig> {
     return normalizeUnifiedConfig(data.value as Partial<CRMConfig>);
 }
 
-export async function saveCRMConfig(config: CRMConfig): Promise<void> {
+export async function saveCRMConfig(config: CRMConfig): Promise<CRMConfig> {
     const supabase = await createClient();
     const normalized = normalizeUnifiedConfig(config);
 
@@ -129,6 +95,7 @@ export async function saveCRMConfig(config: CRMConfig): Promise<void> {
 
     revalidatePath('/web-admin/crm');
     revalidatePath('/sistema/crm');
+    return normalized;
 }
 
 /**

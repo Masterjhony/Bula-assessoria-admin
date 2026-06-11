@@ -3,7 +3,7 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { CRMLead, updateLead } from '@/app/sistema/actions/crm-leads';
 import type { CRMConfig, CRMMqlRule, CRMStage } from '@/lib/crm-types';
-import { isQualificationStage, evaluateMql } from '@/lib/crm-types';
+import { CRM_STAGE_REGISTRATION, isQualificationStage, evaluateMql } from '@/lib/crm-types';
 import { Pagination } from '@/components/admin/Pagination';
 import {
     ChevronRight, Phone, Instagram, MapPin, Beef, Search,
@@ -82,7 +82,7 @@ export function CRMQualificacaoView({ leads, crmConfig, funnelStages, mqlRule, o
     );
 
     const firstAdvancedStage = useMemo(
-        () => stages.find(s => !isQualificationStage(s))?.name || 'Qualificado',
+        () => stages.find(s => !isQualificationStage(s))?.name || CRM_STAGE_REGISTRATION,
         [stages]
     );
 
