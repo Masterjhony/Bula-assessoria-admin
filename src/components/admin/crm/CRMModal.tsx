@@ -49,6 +49,8 @@ export function CRMModal({ isOpen, onClose, lead, defaultStatus, defaultFunnelId
         cpf: '',
         inscricao_estadual: '',
         tem_inscricao_estadual: '',
+        score_serasa: null,
+        pendencias_financeiras: '',
         celular: '',
         responsavel: '',
         estado: '',
@@ -90,6 +92,9 @@ export function CRMModal({ isOpen, onClose, lead, defaultStatus, defaultFunnelId
                 empresa: '',
                 cpf: '',
                 inscricao_estadual: '',
+                tem_inscricao_estadual: '',
+                score_serasa: null,
+                pendencias_financeiras: '',
                 celular: '',
                 responsavel: '',
                 estado: '',
@@ -241,18 +246,45 @@ export function CRMModal({ isOpen, onClose, lead, defaultStatus, defaultFunnelId
                                         <option value="Não">Não</option>
                                     </select>
                                 </div>
+                                <div>
+                                    <label className={labelClass}>Score Serasa</label>
+                                    <input
+                                        type="number"
+                                        min={0}
+                                        max={1000}
+                                        value={formData.score_serasa ?? ''}
+                                        onChange={e => setFormData({
+                                            ...formData,
+                                            score_serasa: e.target.value === '' ? null : Number(e.target.value),
+                                        })}
+                                        className={inputClass}
+                                        placeholder="0 a 1000"
+                                    />
+                                </div>
+                                <div>
+                                    <label className={labelClass}>Pendências financeiras no nome?</label>
+                                    <select
+                                        value={formData.pendencias_financeiras || ''}
+                                        onChange={e => setFormData({ ...formData, pendencias_financeiras: e.target.value || null })}
+                                        className={inputClass}
+                                    >
+                                        <option value="">—</option>
+                                        <option value="Sim">Sim</option>
+                                        <option value="Não">Não</option>
+                                    </select>
+                                </div>
                             </div>
 
                             <div>
-                                <label className={labelClass}>Responsável pela Conta</label>
+                                <label className={labelClass}>Usuário da equipe</label>
                                 {responsaveis.length > 0 ? (
                                     <select
                                         value={formData.responsavel || ''}
                                         onChange={e => setFormData({ ...formData, responsavel: e.target.value })}
                                         className={inputClass}
                                     >
-                                        <option value="">Selecionar responsável...</option>
-                                        {responsaveis.map(r => (
+                                        <option value="">Selecionar usuário...</option>
+                                        {responsaveis.filter(r => r.active !== false).map(r => (
                                             <option key={r.id} value={r.name}>{r.name}</option>
                                         ))}
                                     </select>

@@ -3,7 +3,7 @@
 import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 import { CRMLead } from '@/app/sistema/actions/crm-leads';
-import { Phone, Building, DollarSign, MapPin, Beef, MessageCircle, Crown, Search } from 'lucide-react';
+import { Phone, Building, DollarSign, MapPin, Beef, MessageCircle, Crown, Search, Gauge, AlertTriangle } from 'lucide-react';
 
 interface CRMCardProps {
     lead: CRMLead;
@@ -82,6 +82,25 @@ export function CRMCard({ lead, onClick }: CRMCardProps) {
                     {lead.o_que_busca && (
                         <span className="inline-flex items-center gap-1 text-[10px] font-bold px-2 py-0.5 rounded-full bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 max-w-full">
                             <Search size={10} /> <span className="truncate max-w-[140px]">{lead.o_que_busca}</span>
+                        </span>
+                    )}
+                </div>
+            )}
+
+            {(lead.score_serasa != null || lead.pendencias_financeiras) && (
+                <div className="flex flex-wrap gap-1.5">
+                    {lead.score_serasa != null && (
+                        <span className="inline-flex items-center gap-1 text-[10px] font-bold px-2 py-0.5 rounded-full bg-sky-500/10 text-sky-600 dark:text-sky-400">
+                            <Gauge size={10} /> Serasa {lead.score_serasa}
+                        </span>
+                    )}
+                    {lead.pendencias_financeiras && (
+                        <span className={`inline-flex items-center gap-1 text-[10px] font-bold px-2 py-0.5 rounded-full ${
+                            lead.pendencias_financeiras === 'Sim'
+                                ? 'bg-red-500/10 text-red-600 dark:text-red-400'
+                                : 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400'
+                        }`}>
+                            <AlertTriangle size={10} /> Pend. {lead.pendencias_financeiras}
                         </span>
                     )}
                 </div>

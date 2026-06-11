@@ -40,7 +40,10 @@ export interface CRMResponsavel {
     id: string;
     name: string;
     email?: string;
+    whatsapp?: string;
+    role?: string;
     color?: string;
+    active?: boolean;
 }
 
 export interface CRMConfig {
@@ -53,6 +56,7 @@ export interface CRMConfig {
 export const DEFAULT_STAGES: CRMStage[] = [
     { id: 'Lead', name: 'Lead', color: 'pink', probability: 10, is_qualification: true },
     { id: 'Qualificado', name: 'Qualificado', color: 'orange', probability: 25 },
+    { id: 'Direcionamento Leilao', name: 'Direcionamento Leilão', color: 'cyan', probability: 35 },
     { id: 'Proposta', name: 'Proposta', color: 'blue', probability: 50 },
     { id: 'Negociação', name: 'Negociação', color: 'purple', probability: 75 },
     { id: 'Fechado', name: 'Fechado', color: 'green', probability: 100 },
@@ -63,25 +67,32 @@ export const DEFAULT_STAGES: CRMStage[] = [
 /** Flag heurística (caso o usuário tenha config legada sem is_qualification). */
 export const DEFAULT_QUALIFICATION_STAGE_IDS = ['Lead', 'Sem Status'];
 
+/** Etapa que dispara a automação de encaminhamento do lead para o assessor. */
+export const ASSESSOR_NOTIFICATION_STAGE = 'Direcionamento Leilão';
+
 export function isQualificationStage(stage: CRMStage | undefined | null): boolean {
     if (!stage) return false;
     if (typeof stage.is_qualification === 'boolean') return stage.is_qualification;
     return DEFAULT_QUALIFICATION_STAGE_IDS.includes(stage.id);
 }
 
-export const DEFAULT_FUNNEL: CRMFunnel = {
-    id: 'default',
-    name: 'Pipeline Principal',
-    color: 'yellow',
-    stages: DEFAULT_STAGES,
-    custom_fields: [],
-};
-
 /** Regra de MQL padrão do Funil JMP: ≥100 cabeças E tem Inscrição Estadual. */
 export const DEFAULT_JMP_MQL_RULE: CRMMqlRule = { min_cabecas: 100, require_ie: true };
 
-/** Id fixo do funil que recebe os leads do formulário jmp.bulaassessoria.com. */
-export const JMP_FUNNEL_ID = 'funnel_jmp';
+export const DEFAULT_FUNNEL: CRMFunnel = {
+    id: 'default',
+    name: 'Funil Unificado',
+    color: 'yellow',
+    stages: DEFAULT_STAGES,
+    custom_fields: [],
+    mql_rule: DEFAULT_JMP_MQL_RULE,
+};
+
+/**
+ * Id do funil que recebe os leads da landing JMP. Mantido como alias por
+ * compatibilidade com imports antigos, mas agora tudo entra no funil unificado.
+ */
+export const JMP_FUNNEL_ID = 'default';
 
 /**
  * Funil dedicado aos leads da landing JMP. É sempre garantido por getCRMConfig
@@ -89,18 +100,14 @@ export const JMP_FUNNEL_ID = 'funnel_jmp';
  * de MQL existam de cara. As etapas espelham o pipeline padrão.
  */
 export const JMP_FUNNEL: CRMFunnel = {
+    ...DEFAULT_FUNNEL,
     id: JMP_FUNNEL_ID,
-    name: 'Funil JMP',
-    color: 'green',
-    stages: DEFAULT_STAGES,
-    custom_fields: [],
-    mql_rule: DEFAULT_JMP_MQL_RULE,
 };
 
 export const DEFAULT_CRM_CONFIG: CRMConfig = {
     stages: DEFAULT_STAGES,
     custom_fields: [],
-    funnels: [DEFAULT_FUNNEL, JMP_FUNNEL],
+    funnels: [DEFAULT_FUNNEL],
     responsaveis: [],
 };
 

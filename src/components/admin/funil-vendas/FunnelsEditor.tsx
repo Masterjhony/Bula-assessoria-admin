@@ -326,15 +326,15 @@ export function FunnelsEditor({ initialConfig, onConfigSaved }: FunnelsEditorPro
             <div className="bg-white dark:bg-[#1A1A1A] rounded-2xl border border-gray-200 dark:border-[#2A2A2A] overflow-hidden">
                 <div className="px-6 py-4 border-b border-gray-200 dark:border-[#333] flex items-center justify-between">
                     <div>
-                        <h3 className="font-semibold text-gray-900 dark:text-white">Funis de Venda</h3>
-                        <p className="text-xs text-gray-500 mt-0.5">Crie e configure seus pipelines, etapas e campos personalizados</p>
+                        <h3 className="font-semibold text-gray-900 dark:text-white">Funil unificado</h3>
+                        <p className="text-xs text-gray-500 mt-0.5">Configure etapas, regra de MQL e campos personalizados do CRM</p>
                     </div>
-                    <button onClick={() => setShowNewFunnel(v => !v)} className={btnSecondary}>
-                        <Plus size={14} /> Novo funil
-                    </button>
+                    <span className="text-[10px] font-bold uppercase tracking-wider px-2.5 py-1 rounded-full bg-[#A68B4B]/10 text-[#A68B4B]">
+                        único
+                    </span>
                 </div>
 
-                {showNewFunnel && (
+                {false && showNewFunnel && (
                     <div className="px-6 py-4 bg-gray-50 dark:bg-[#141414] border-b border-gray-200 dark:border-[#333]">
                         <div className="flex gap-3 items-end flex-wrap">
                             <div className="flex-1 min-w-[160px]">

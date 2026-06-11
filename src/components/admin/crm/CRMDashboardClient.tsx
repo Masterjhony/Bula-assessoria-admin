@@ -15,9 +15,13 @@ import { CRMSettingsView } from './CRMSettingsView';
 import { CRMQualificacaoView } from './CRMQualificacaoView';
 import { CRMArquivadosView } from './CRMArquivadosView';
 import { CRMPreferenciaisStrip } from './CRMPreferenciaisStrip';
-import { FunnelSelector } from '@/components/admin/funil-vendas/FunnelSelector';
+import { CRMLeadsView } from './CRMLeadsView';
+import { CRMTeamView } from './CRMTeamView';
+import { CRMWhatsappView } from './CRMWhatsappView';
+import { CRMValidationView } from './CRMValidationView';
 import {
     LayoutGrid, Plus, Maximize2, Minimize2, Settings, ListChecks, Archive,
+    Users, MessageCircle, FileSpreadsheet, ClipboardList,
 } from 'lucide-react';
 
 interface CRMDashboardClientProps {
@@ -25,8 +29,8 @@ interface CRMDashboardClientProps {
     crmConfig: CRMConfig;
 }
 
-type ViewType = 'qualificacao' | 'kanban' | 'arquivados' | 'configuracoes';
-const VALID_VIEWS: ViewType[] = ['qualificacao', 'kanban', 'arquivados', 'configuracoes'];
+type ViewType = 'qualificacao' | 'kanban' | 'lista' | 'validacao' | 'arquivados' | 'equipe' | 'whatsapp' | 'configuracoes';
+const VALID_VIEWS: ViewType[] = ['qualificacao', 'kanban', 'lista', 'validacao', 'arquivados', 'equipe', 'whatsapp', 'configuracoes'];
 
 export function CRMDashboardClient({ initialLeads, crmConfig: initialConfig }: CRMDashboardClientProps) {
     const [leads, setLeads] = useState<CRMLead[]>(initialLeads);
@@ -55,6 +59,8 @@ export function CRMDashboardClient({ initialLeads, crmConfig: initialConfig }: C
         [funnels, rawFunnel]
     );
     const activeFunnelId = activeFunnel?.id ?? 'default';
+    const rawUsuario = searchParams.get('usuario') || '';
+    const usuarioFilter = rawUsuario;
 
     const editingLeadId = searchParams.get('lead');
     const editingLead = useMemo<CRMLead | undefined>(
@@ -75,6 +81,9 @@ export function CRMDashboardClient({ initialLeads, crmConfig: initialConfig }: C
     };
     const setActiveFunnelId = (id: string) => {
         updateUrl(p => { if (!id || id === funnels[0]?.id) p.delete('funnel'); else p.set('funnel', id); });
+    };
+    const setUsuarioFilter = (value: string) => {
+        updateUrl(p => { if (value) p.set('usuario', value); else p.delete('usuario'); });
     };
     const setEditingLeadId = (id: string | null) => {
         updateUrl(p => { if (id) p.set('lead', id); else p.delete('lead'); });
@@ -99,10 +108,16 @@ export function CRMDashboardClient({ initialLeads, crmConfig: initialConfig }: C
         [funnelStages]
     );
 
-    // Leads do funil ativo (leads antigos sem funnel_id contam como 'default').
+    const usuarios = useMemo(
+        () => crmConfig.responsaveis.filter(r => r.active !== false),
+        [crmConfig.responsaveis]
+    );
+
+    // CRM unificado: todos os leads ativos entram no mesmo funil. O filtro por
+    // usuário é aplicado por cima para qualificação, lista e kanban.
     const funnelLeads = useMemo(
-        () => leads.filter(l => (l.funnel_id || 'default') === activeFunnelId),
-        [leads, activeFunnelId]
+        () => leads.filter(l => !usuarioFilter || l.responsavel === usuarioFilter),
+        [leads, usuarioFilter]
     );
 
     // Contagem de leads por funil — exibida nos chips do seletor.
@@ -173,11 +188,7 @@ export function CRMDashboardClient({ initialLeads, crmConfig: initialConfig }: C
             const newConfig = await renameStage(activeFunnelId, stage.id, trimmed);
             setCrmConfig(newConfig);
             // Migra os leads só do funil ativo (legados sem funnel_id contam como 'default').
-            setLeads(prev => prev.map(l =>
-                (l.status === oldName && (l.funnel_id || 'default') === activeFunnelId)
-                    ? { ...l, status: trimmed }
-                    : l
-            ));
+            setLeads(prev => prev.map(l => l.status === oldName ? { ...l, status: trimmed } : l));
         } catch (e) {
             const msg = e instanceof Error ? e.message : 'Erro ao renomear etapa.';
             alert(msg);
@@ -256,14 +267,22 @@ export function CRMDashboardClient({ initialLeads, crmConfig: initialConfig }: C
     const views = [
         { id: 'qualificacao', label: 'Qualificação', icon: ListChecks, badge: qualificationCount },
         { id: 'kanban', label: 'CRM', icon: LayoutGrid },
+        { id: 'lista', label: 'Leads', icon: ClipboardList },
+        { id: 'validacao', label: 'Validação', icon: FileSpreadsheet },
         { id: 'arquivados', label: 'Arquivados', icon: Archive },
+        { id: 'equipe', label: 'Equipe', icon: Users },
+        { id: 'whatsapp', label: 'WhatsApp', icon: MessageCircle },
         { id: 'configuracoes', label: 'Configurações', icon: Settings },
     ] as const;
 
     const isSettings = activeView === 'configuracoes';
     const isQualificacao = activeView === 'qualificacao';
     const isArquivados = activeView === 'arquivados';
-    const isScrollable = isSettings || isQualificacao || isArquivados;
+    const isValidation = activeView === 'validacao';
+    const isEquipe = activeView === 'equipe';
+    const isWhatsapp = activeView === 'whatsapp';
+    const isScrollable = isSettings || isQualificacao || isArquivados || isValidation || isEquipe || isWhatsapp;
+    const canCreateLead = activeView === 'qualificacao' || activeView === 'kanban' || activeView === 'lista';
 
     return (
         <div className={
@@ -282,15 +301,31 @@ export function CRMDashboardClient({ initialLeads, crmConfig: initialConfig }: C
                 </h1>
             </div>
 
-            {/* Seletor de funil — só quando há mais de um funil configurado. */}
-            {funnels.length > 1 && (
-                <FunnelSelector
-                    funnels={funnels}
-                    activeFunnelId={activeFunnelId}
-                    onSelect={setActiveFunnelId}
-                    counts={funnelCounts}
-                />
-            )}
+            <div className="flex flex-wrap items-center justify-between gap-3">
+                <div className="flex items-center gap-2 text-xs text-[var(--text3)]">
+                    <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full border border-[var(--border)] bg-[var(--s2)]">
+                        Funil unificado
+                    </span>
+                    {usuarioFilter && (
+                        <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full border border-[#A68B4B]/30 bg-[#A68B4B]/10 text-[#A68B4B]">
+                            Usuário: {usuarioFilter}
+                        </span>
+                    )}
+                </div>
+                <label className="flex items-center gap-2 text-xs text-[var(--text3)]">
+                    <Users size={14} />
+                    <select
+                        value={usuarioFilter}
+                        onChange={e => setUsuarioFilter(e.target.value)}
+                        className="px-3 py-2 rounded-lg border border-[var(--border)] bg-[var(--s1)] text-sm text-[var(--text)] outline-none focus:border-[var(--gold)]"
+                    >
+                        <option value="">Todos os usuários</option>
+                        {usuarios.map(user => (
+                            <option key={user.id} value={user.name}>{user.name}</option>
+                        ))}
+                    </select>
+                </label>
+            </div>
 
             {/* Tabs & Controls */}
             <div className="flex justify-between items-center border-b border-[var(--border)]">
@@ -329,7 +364,7 @@ export function CRMDashboardClient({ initialLeads, crmConfig: initialConfig }: C
                     >
                         {isFullscreen ? <Minimize2 size={14} /> : <Maximize2 size={14} />}
                     </button>
-                    {!isSettings && !isArquivados && (
+                    {canCreateLead && (
                         <button onClick={() => handleOpenNewLead()} className="btn primary">
                             <Plus size={14} /> Novo
                         </button>
@@ -349,6 +384,19 @@ export function CRMDashboardClient({ initialLeads, crmConfig: initialConfig }: C
                         onOpenLead={handleEditLead}
                         onArchive={handleArchiveLead}
                     />
+                )}
+
+                {activeView === 'lista' && (
+                    <CRMLeadsView
+                        leads={funnelLeads}
+                        stages={allStages}
+                        onEditLead={handleEditLead}
+                        onAddLead={() => handleOpenNewLead()}
+                    />
+                )}
+
+                {activeView === 'validacao' && (
+                    <CRMValidationView />
                 )}
 
                 {activeView === 'arquivados' && (
@@ -386,6 +434,17 @@ export function CRMDashboardClient({ initialLeads, crmConfig: initialConfig }: C
                         initialConfig={crmConfig}
                         onConfigSaved={(config) => setCrmConfig(config)}
                     />
+                )}
+
+                {activeView === 'equipe' && (
+                    <CRMTeamView
+                        initialConfig={crmConfig}
+                        onConfigSaved={(config) => setCrmConfig(config)}
+                    />
+                )}
+
+                {activeView === 'whatsapp' && (
+                    <CRMWhatsappView />
                 )}
             </div>
 

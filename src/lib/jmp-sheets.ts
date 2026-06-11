@@ -157,6 +157,74 @@ export interface SheetLead {
   createdAt?: Date
 }
 
+export interface SheetLeadRow {
+  rowNumber: number
+  data: string
+  nome: string
+  email: string
+  whatsapp: string
+  uf: string | null
+  cidade: string | null
+  momento: string | null
+  cabecas: string | null
+  interesse: string | null
+  leadId: string | null
+  oQueBusca: string | null
+  utm_source: string | null
+  utm_medium: string | null
+  utm_campaign: string | null
+  utm_content: string | null
+  ad_id: string | null
+  inscricaoEstadual: string | null
+}
+
+function cell(row: string[], idx: number): string {
+  return String(row[idx] ?? '').trim()
+}
+
+function blankToNull(v: string): string | null {
+  return v.trim() ? v.trim() : null
+}
+
+export async function readSheetLeadRows(): Promise<{ info: SheetInfo; rows: SheetLeadRow[] }> {
+  const info = await getStoredInfo()
+  if (!info) throw new Error('Planilha de leads JMP não conectada.')
+  const auth = getAuth()
+  if (!auth) throw new Error('GOOGLE_SERVICE_ACCOUNT_JSON ausente — configure a service account.')
+
+  const sheets = google.sheets({ version: 'v4', auth })
+  const res = await sheets.spreadsheets.values.get({
+    spreadsheetId: info.spreadsheetId,
+    range: `${TAB}!A2:Q`,
+  })
+
+  const values = (res.data.values ?? []) as string[][]
+  const rows = values
+    .map((row, index) => ({
+      rowNumber: index + 2,
+      data: cell(row, 0),
+      nome: cell(row, 1),
+      email: cell(row, 2),
+      whatsapp: cell(row, 3),
+      uf: blankToNull(cell(row, 4)),
+      cidade: blankToNull(cell(row, 5)),
+      momento: blankToNull(cell(row, 6)),
+      cabecas: blankToNull(cell(row, 7)),
+      interesse: blankToNull(cell(row, 8)),
+      leadId: blankToNull(cell(row, 9)),
+      oQueBusca: blankToNull(cell(row, 10)),
+      utm_source: blankToNull(cell(row, 11)),
+      utm_medium: blankToNull(cell(row, 12)),
+      utm_campaign: blankToNull(cell(row, 13)),
+      utm_content: blankToNull(cell(row, 14)),
+      ad_id: blankToNull(cell(row, 15)),
+      inscricaoEstadual: blankToNull(cell(row, 16)),
+    }))
+    .filter(row => row.nome || row.email || row.whatsapp)
+
+  return { info, rows }
+}
+
 /** Acrescenta o lead na planilha. Só grava se a planilha já foi conectada. */
 export async function appendLeadToSheet(lead: SheetLead): Promise<{ skipped: boolean; reason?: string }> {
   const info = await getStoredInfo()

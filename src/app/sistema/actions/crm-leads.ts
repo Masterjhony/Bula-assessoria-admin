@@ -5,6 +5,9 @@ import { revalidatePath } from 'next/cache';
 import { dispatchWelcome } from '@/lib/whatsapp';
 import { evaluateMql, JMP_FUNNEL_ID, DEFAULT_JMP_MQL_RULE } from '@/lib/crm-types';
 import { getCRMConfig } from './crm-config';
+import { maybeNotifyAssessorOnLeadStage } from '@/lib/crm-whatsapp-assessor';
+import { readSheetLeadRows, type SheetLeadRow } from '@/lib/jmp-sheets';
+import { normalizePhone, phoneVariants } from '@/lib/whatsapp-central';
 
 export interface CRMContactEntry {
     id: string;              // uuid local
@@ -33,6 +36,8 @@ export interface CRMLead {
     cpf?: string | null;
     inscricao_estadual?: string | null;
     tem_inscricao_estadual?: string | null;
+    score_serasa?: number | null;
+    pendencias_financeiras?: string | null;
     // Funil de vendas
     funnel_id?: string | null;
     valor_estimado?: number | null;
@@ -80,6 +85,7 @@ const WRITABLE_COLUMNS = new Set<string>([
     'nome', 'status', 'prioridade', 'interesse', 'empresa', 'ultimo_contato',
     'data_estimada_fechamento', 'telefone', 'celular', 'responsavel', 'position',
     'cpf', 'inscricao_estadual', 'tem_inscricao_estadual',
+    'score_serasa', 'pendencias_financeiras',
     'funnel_id', 'valor_estimado', 'probabilidade', 'temperatura',
     'instagram', 'estado', 'cidade', 'o_que_busca', 'quantidade_animais',
     'momento_pecuaria', 'operacao_pecuaria', 'intencao_investimento', 'assessoria', 'is_mql',
@@ -96,6 +102,19 @@ function sanitizeLeadData(data: Partial<CRMLead>): Partial<CRMLead> {
         if (WRITABLE_COLUMNS.has(key)) clean[key] = value;
     }
     return clean as Partial<CRMLead>;
+}
+
+async function notifyAssessorIfNeeded(
+    supabase: Awaited<ReturnType<typeof createClient>>,
+    lead: CRMLead,
+    previous?: Pick<CRMLead, 'status' | 'responsavel' | 'extra_data'> | null,
+) {
+    try {
+        const config = await getCRMConfig();
+        await maybeNotifyAssessorOnLeadStage(supabase as any, config, lead, previous);
+    } catch (e) {
+        console.warn('[CRM] Falha ao notificar assessor no WhatsApp:', e instanceof Error ? e.message : e);
+    }
 }
 
 export async function getLeads(funnelId?: string): Promise<CRMLead[]> {
@@ -184,6 +203,8 @@ export async function createLead(data: Partial<CRMLead>): Promise<CRMLead> {
         throw new Error(`Error creating lead: ${error.message}`);
     }
 
+    await notifyAssessorIfNeeded(supabase, newLead as CRMLead, null);
+
     if (data.telefone) {
         // Fire and forget welcome (dedup + opt-out + log centralizados em dispatchWelcome)
         dispatchWelcome(data.telefone, data.nome || 'Amigo(a)', 'admin-manual', { lead_id: newLead?.id }).catch((e: unknown) => {
@@ -199,6 +220,12 @@ export async function createLead(data: Partial<CRMLead>): Promise<CRMLead> {
 export async function updateLead(id: string, data: Partial<CRMLead>): Promise<CRMLead> {
     const supabase = await createClient();
 
+    const { data: previous } = await supabase
+        .from('crm_leads')
+        .select('status, responsavel, extra_data')
+        .eq('id', id)
+        .single();
+
     const { data: updatedLead, error } = await supabase
         .from('crm_leads')
         .update(sanitizeLeadData(data))
@@ -209,6 +236,8 @@ export async function updateLead(id: string, data: Partial<CRMLead>): Promise<CR
     if (error) {
         throw new Error(`Error updating lead: ${error.message}`);
     }
+
+    await notifyAssessorIfNeeded(supabase, updatedLead as CRMLead, previous as Pick<CRMLead, 'status' | 'responsavel' | 'extra_data'> | null);
 
     revalidatePath('/web-admin/crm');
     revalidatePath('/web-admin/funil-vendas');
@@ -234,6 +263,12 @@ export async function deleteLead(id: string): Promise<void> {
 export async function moveLead(id: string, newStatus: string, newPosition: number): Promise<void> {
     const supabase = await createClient();
 
+    const { data: previous } = await supabase
+        .from('crm_leads')
+        .select('status, responsavel, extra_data')
+        .eq('id', id)
+        .single();
+
     const { error } = await supabase
         .from('crm_leads')
         .update({
@@ -246,12 +281,27 @@ export async function moveLead(id: string, newStatus: string, newPosition: numbe
         throw new Error(`Error moving lead: ${error.message}`);
     }
 
+    const { data: lead } = await supabase
+        .from('crm_leads')
+        .select('*')
+        .eq('id', id)
+        .single();
+    if (lead) {
+        await notifyAssessorIfNeeded(supabase, lead as CRMLead, previous as Pick<CRMLead, 'status' | 'responsavel' | 'extra_data'> | null);
+    }
+
     revalidatePath('/web-admin/crm');
     revalidatePath('/web-admin/funil-vendas');
 }
 
 export async function moveLeadToFunnel(id: string, funnelId: string, newStatus: string): Promise<void> {
     const supabase = await createClient();
+
+    const { data: previous } = await supabase
+        .from('crm_leads')
+        .select('status, responsavel, extra_data')
+        .eq('id', id)
+        .single();
 
     const { error } = await supabase
         .from('crm_leads')
@@ -263,6 +313,15 @@ export async function moveLeadToFunnel(id: string, funnelId: string, newStatus: 
 
     if (error) {
         throw new Error(`Error moving lead to funnel: ${error.message}`);
+    }
+
+    const { data: lead } = await supabase
+        .from('crm_leads')
+        .select('*')
+        .eq('id', id)
+        .single();
+    if (lead) {
+        await notifyAssessorIfNeeded(supabase, lead as CRMLead, previous as Pick<CRMLead, 'status' | 'responsavel' | 'extra_data'> | null);
     }
 
     revalidatePath('/web-admin/crm');
@@ -391,4 +450,270 @@ export async function deleteContact(leadId: string, contactId: string): Promise<
     revalidatePath('/web-admin/crm');
     revalidatePath('/web-admin/leads');
     return updated as CRMLead;
+}
+
+type CRMLeadMatchRow = Pick<CRMLead,
+    'id' | 'nome' | 'email' | 'telefone' | 'celular' | 'estado' | 'cidade' |
+    'quantidade_animais' | 'o_que_busca' | 'created_at' | 'extra_data'>;
+
+export interface MissingSheetLead {
+    rowNumber: number;
+    nome: string;
+    email: string;
+    whatsapp: string;
+    cidade: string | null;
+    uf: string | null;
+    leadId: string | null;
+    reason: string;
+}
+
+export interface IncompleteSheetLead {
+    rowNumber: number;
+    leadId: string;
+    nome: string;
+    missingFields: string[];
+}
+
+export interface CRMLeadSheetValidation {
+    sheetUrl: string | null;
+    totalSheetRows: number;
+    totalCrmLeads: number;
+    missing: MissingSheetLead[];
+    incomplete: IncompleteSheetLead[];
+}
+
+function normalizeEmail(email?: string | null): string {
+    return String(email || '').trim().toLowerCase();
+}
+
+function leadPhoneKeys(phone?: string | null): string[] {
+    const normalized = normalizePhone(phone || '');
+    if (normalized) return phoneVariants(normalized);
+    const raw = String(phone || '').replace(/\D/g, '');
+    return raw ? [raw] : [];
+}
+
+function findCrmMatch(row: SheetLeadRow, crmLeads: CRMLeadMatchRow[]): CRMLeadMatchRow | null {
+    if (row.leadId) {
+        const byId = crmLeads.find(l => {
+            const importData = l.extra_data?.sheet_validation_import;
+            return l.id === row.leadId || importData?.sheetLeadId === row.leadId;
+        });
+        if (byId) return byId;
+    }
+
+    const rowPhones = new Set(leadPhoneKeys(row.whatsapp));
+    if (rowPhones.size > 0) {
+        const byPhone = crmLeads.find(l => {
+            const keys = [...leadPhoneKeys(l.celular), ...leadPhoneKeys(l.telefone)];
+            return keys.some(k => rowPhones.has(k));
+        });
+        if (byPhone) return byPhone;
+    }
+
+    const email = normalizeEmail(row.email);
+    if (email) {
+        const byEmail = crmLeads.find(l => normalizeEmail(l.email) === email);
+        if (byEmail) return byEmail;
+    }
+
+    return null;
+}
+
+function missingCrmFields(row: SheetLeadRow, lead: CRMLeadMatchRow): string[] {
+    const missing: string[] = [];
+    if (row.whatsapp && !lead.celular && !lead.telefone) missing.push('WhatsApp');
+    if (row.uf && !lead.estado) missing.push('UF');
+    if (row.cidade && !lead.cidade) missing.push('Cidade');
+    if (row.cabecas && !lead.quantidade_animais) missing.push('Cabeças');
+    if (row.oQueBusca && !lead.o_que_busca) missing.push('Interesse');
+    return missing;
+}
+
+export async function validateLeadsAgainstSheet(): Promise<CRMLeadSheetValidation> {
+    const supabase = await createClient();
+    const [{ info, rows }, crmRes] = await Promise.all([
+        readSheetLeadRows(),
+        supabase
+            .from('crm_leads')
+            .select('id, nome, email, telefone, celular, estado, cidade, quantidade_animais, o_que_busca, created_at, extra_data'),
+    ]);
+
+    if (crmRes.error) throw new Error(`Error fetching CRM leads: ${crmRes.error.message}`);
+    const crmLeads = (crmRes.data ?? []) as CRMLeadMatchRow[];
+
+    const missing: MissingSheetLead[] = [];
+    const incomplete: IncompleteSheetLead[] = [];
+
+    for (const row of rows) {
+        const match = findCrmMatch(row, crmLeads);
+        if (!match) {
+            missing.push({
+                rowNumber: row.rowNumber,
+                nome: row.nome,
+                email: row.email,
+                whatsapp: row.whatsapp,
+                cidade: row.cidade,
+                uf: row.uf,
+                leadId: row.leadId,
+                reason: row.leadId ? 'Lead ID ausente no CRM' : 'Telefone/e-mail não encontrado no CRM',
+            });
+            continue;
+        }
+        const fields = missingCrmFields(row, match);
+        if (fields.length > 0) {
+            incomplete.push({
+                rowNumber: row.rowNumber,
+                leadId: match.id,
+                nome: match.nome || row.nome,
+                missingFields: fields,
+            });
+        }
+    }
+
+    return {
+        sheetUrl: info.url,
+        totalSheetRows: rows.length,
+        totalCrmLeads: crmLeads.length,
+        missing,
+        incomplete,
+    };
+}
+
+function sheetRowToLead(row: SheetLeadRow, isMql: boolean, position: number): Partial<CRMLead> {
+    return {
+        nome: row.nome || row.email || row.whatsapp || `Lead planilha linha ${row.rowNumber}`,
+        email: row.email || null,
+        telefone: row.whatsapp || null,
+        celular: row.whatsapp || null,
+        estado: row.uf,
+        cidade: row.cidade,
+        momento_pecuaria: row.momento,
+        quantidade_animais: row.cabecas,
+        interesse: row.interesse,
+        o_que_busca: row.oQueBusca,
+        tem_inscricao_estadual: row.inscricaoEstadual,
+        status: 'Lead',
+        funnel_id: JMP_FUNNEL_ID,
+        is_mql: isMql,
+        origem: 'Planilha JMP — importação de validação',
+        source: 'jmp-sheet-repair',
+        source_page: 'Leads JMP',
+        data_entrada: new Date().toISOString(),
+        position,
+        extra_data: {
+            sheet_validation_import: {
+                rowNumber: row.rowNumber,
+                sheetLeadId: row.leadId,
+                sheetDate: row.data,
+                importedAt: new Date().toISOString(),
+            },
+            utm: {
+                source: row.utm_source,
+                medium: row.utm_medium,
+                campaign: row.utm_campaign,
+                content: row.utm_content,
+                ad_id: row.ad_id,
+            },
+        },
+    };
+}
+
+export async function importMissingLeadsFromSheet(): Promise<{ created: number; validation: CRMLeadSheetValidation }> {
+    const supabase = await createClient();
+    const [{ rows }, validation, config] = await Promise.all([
+        readSheetLeadRows(),
+        validateLeadsAgainstSheet(),
+        getCRMConfig(),
+    ]);
+
+    if (validation.missing.length === 0) return { created: 0, validation };
+
+    const missingRows = new Map(validation.missing.map(m => [m.rowNumber, m]));
+    const mqlRule = config.funnels[0]?.mql_rule ?? DEFAULT_JMP_MQL_RULE;
+
+    const { data: maxPosRows } = await supabase
+        .from('crm_leads')
+        .select('position')
+        .order('position', { ascending: false })
+        .limit(1);
+    let position = Number(maxPosRows?.[0]?.position ?? 0);
+
+    const payload = rows
+        .filter(row => missingRows.has(row.rowNumber))
+        .map(row => {
+            position += 1000;
+            return sanitizeLeadData(sheetRowToLead(row, evaluateMql(mqlRule, {
+                quantidade_animais: row.cabecas,
+                tem_inscricao_estadual: row.inscricaoEstadual,
+            }), position));
+        });
+
+    const { error } = await supabase.from('crm_leads').insert(payload);
+    if (error) throw new Error(`Error importing sheet leads: ${error.message}`);
+
+    revalidatePath('/sistema/crm');
+    revalidatePath('/web-admin/crm');
+    return {
+        created: payload.length,
+        validation: await validateLeadsAgainstSheet(),
+    };
+}
+
+type TestLeadCandidate = Pick<CRMLead, 'id' | 'nome' | 'email' | 'telefone' | 'celular' | 'empresa' | 'notes'>;
+
+function stripAccents(value: string): string {
+    return value.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase();
+}
+
+function isFakePhone(phone?: string | null): boolean {
+    const digits = String(phone || '').replace(/\D/g, '');
+    if (digits.length < 8) return false;
+    const noCountry = digits.startsWith('55') ? digits.slice(2) : digits;
+    if (/^(\d)\1{7,}$/.test(noCountry)) return true;
+    return /(12345678|123456789|987654321|00000000|11111111|99999999)/.test(noCountry);
+}
+
+function isClearlyTestLead(lead: TestLeadCandidate): boolean {
+    const text = stripAccents([
+        lead.nome,
+        lead.email,
+        lead.empresa,
+        lead.notes,
+    ].filter(Boolean).join(' '));
+    const name = stripAccents(lead.nome || '').replace(/\s+/g, '');
+    const email = normalizeEmail(lead.email);
+    const localPart = email.split('@')[0] || '';
+
+    if (/\b(teste|test|asdf|fulano|ciclano|beltrano)\b/.test(text)) return true;
+    if (name.length >= 4 && /^([a-z])\1+$/.test(name)) return true;
+    if (localPart && /^(teste|test|asdf|fulano|ciclano|beltrano)([._-]?\d*)?$/.test(localPart)) return true;
+    if (email.endsWith('@example.com') || email.endsWith('@teste.com') || email.endsWith('@test.com')) return true;
+    return isFakePhone(lead.celular) || isFakePhone(lead.telefone);
+}
+
+export async function archiveObviousTestLeads(): Promise<{ archived: number; leads: Array<{ id: string; nome: string }> }> {
+    const supabase = await createClient();
+    const { data, error } = await supabase
+        .from('crm_leads')
+        .select('id, nome, email, telefone, celular, empresa, notes')
+        .eq('arquivado', false);
+    if (error) throw new Error(`Error fetching test leads: ${error.message}`);
+
+    const candidates = ((data ?? []) as TestLeadCandidate[]).filter(isClearlyTestLead);
+    if (candidates.length === 0) return { archived: 0, leads: [] };
+
+    const stamp = new Date().toISOString();
+    const { error: updateError } = await supabase
+        .from('crm_leads')
+        .update({ arquivado: true, arquivado_at: stamp })
+        .in('id', candidates.map(c => c.id));
+    if (updateError) throw new Error(`Error archiving test leads: ${updateError.message}`);
+
+    revalidatePath('/sistema/crm');
+    revalidatePath('/web-admin/crm');
+    return {
+        archived: candidates.length,
+        leads: candidates.map(c => ({ id: c.id, nome: c.nome })),
+    };
 }

@@ -79,6 +79,70 @@ function exportLeadsCSV(rows: CRMLead[]) {
     URL.revokeObjectURL(url);
 }
 
+type ExportField = {
+    id: string;
+    label: string;
+    value: (lead: CRMLead) => string | number | boolean;
+};
+
+const EXPORT_FIELDS: ExportField[] = [
+    { id: 'nome', label: 'Nome', value: l => l.nome || '' },
+    { id: 'empresa', label: 'Empresa/Fazenda', value: l => l.empresa || '' },
+    { id: 'status', label: 'Status', value: l => l.status || '' },
+    { id: 'usuario', label: 'Usuário', value: l => l.responsavel || '' },
+    { id: 'prioridade', label: 'Prioridade', value: l => l.prioridade || '' },
+    { id: 'temperatura', label: 'Temperatura', value: l => l.temperatura || '' },
+    { id: 'telefone', label: 'Telefone', value: l => l.telefone || '' },
+    { id: 'celular', label: 'Celular/WhatsApp', value: l => l.celular || '' },
+    { id: 'email', label: 'E-mail', value: l => l.email || '' },
+    { id: 'instagram', label: 'Instagram', value: l => l.instagram || '' },
+    { id: 'cidade', label: 'Cidade', value: l => l.cidade || '' },
+    { id: 'estado', label: 'Estado', value: l => l.estado || '' },
+    { id: 'cpf', label: 'CPF', value: l => l.cpf || '' },
+    { id: 'ie', label: 'Inscrição Estadual', value: l => l.inscricao_estadual || '' },
+    { id: 'tem_ie', label: 'Tem I.E.', value: l => l.tem_inscricao_estadual || '' },
+    { id: 'score_serasa', label: 'Score Serasa', value: l => l.score_serasa ?? '' },
+    { id: 'pendencias_financeiras', label: 'Pendências financeiras', value: l => l.pendencias_financeiras || '' },
+    { id: 'o_que_busca', label: 'O que busca', value: l => l.o_que_busca || '' },
+    { id: 'quantidade_animais', label: 'Quantidade animais', value: l => l.quantidade_animais || '' },
+    { id: 'momento_pecuaria', label: 'Momento pecuária', value: l => l.momento_pecuaria || '' },
+    { id: 'operacao_pecuaria', label: 'Operação pecuária', value: l => l.operacao_pecuaria || '' },
+    { id: 'interesse', label: 'Interesse', value: l => l.interesse || '' },
+    { id: 'assessoria', label: 'Assessoria', value: l => l.assessoria || '' },
+    { id: 'mql', label: 'MQL', value: l => l.is_mql ? 'Sim' : 'Não' },
+    { id: 'preferencial', label: 'Preferencial', value: l => l.is_preferencial ? 'Sim' : 'Não' },
+    { id: 'valor_estimado', label: 'Valor estimado', value: l => l.valor_estimado ?? '' },
+    { id: 'probabilidade', label: 'Probabilidade', value: l => l.probabilidade ?? '' },
+    { id: 'origem', label: 'Origem', value: l => l.origem || l.source || '' },
+    { id: 'source_page', label: 'Source page', value: l => l.source_page || '' },
+    { id: 'source', label: 'Source', value: l => l.source || '' },
+    { id: 'medium', label: 'Medium', value: l => l.medium || '' },
+    { id: 'campaign', label: 'Campanha', value: l => l.campaign || '' },
+    { id: 'utm_content', label: 'UTM content', value: l => l.utm_content || '' },
+    { id: 'utm_term', label: 'UTM term', value: l => l.utm_term || '' },
+    { id: 'gclid', label: 'GCLID', value: l => l.gclid || '' },
+    { id: 'fbclid', label: 'FBCLID', value: l => l.fbclid || '' },
+    { id: 'landing_url', label: 'Landing URL', value: l => l.landing_url || '' },
+    { id: 'ultimo_contato', label: 'Último contato', value: l => l.ultimo_contato ? new Date(l.ultimo_contato).toLocaleDateString('pt-BR') : '' },
+    { id: 'data_estimada_fechamento', label: 'Data estimada fechamento', value: l => l.data_estimada_fechamento ? new Date(l.data_estimada_fechamento).toLocaleDateString('pt-BR') : '' },
+    { id: 'data_entrada', label: 'Data entrada', value: l => l.data_entrada ? new Date(l.data_entrada).toLocaleDateString('pt-BR') : '' },
+    { id: 'created_at', label: 'Criado em', value: l => l.created_at ? new Date(l.created_at).toLocaleDateString('pt-BR') : '' },
+    { id: 'notes', label: 'Notas', value: l => l.notes || '' },
+];
+
+async function exportLeadsXLSX(rows: CRMLead[], selectedIds: string[]) {
+    const XLSX = await import('xlsx');
+    const fields = EXPORT_FIELDS.filter(f => selectedIds.includes(f.id));
+    const data = rows.map(lead => Object.fromEntries(fields.map(field => [field.label, field.value(lead)])));
+    const ws = XLSX.utils.json_to_sheet(data);
+    ws['!cols'] = fields.map(field => ({
+        wch: Math.max(field.label.length + 2, ...data.map(row => String(row[field.label] ?? '').length + 2), 12),
+    }));
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, 'Leads');
+    XLSX.writeFile(wb, `leads-${new Date().toISOString().slice(0, 10)}.xlsx`);
+}
+
 export function CRMLeadsView({ leads, stages, onEditLead, onAddLead }: CRMLeadsViewProps) {
     const [search, setSearch] = useState('');
     const [filterStatus, setFilterStatus] = useState('');
@@ -91,6 +155,9 @@ export function CRMLeadsView({ leads, stages, onEditLead, onAddLead }: CRMLeadsV
     const [filterDataDe, setFilterDataDe] = useState('');
     const [filterDataAte, setFilterDataAte] = useState('');
     const [showAdvFilters, setShowAdvFilters] = useState(true);
+    const [showExportFields, setShowExportFields] = useState(false);
+    const [selectedExportFields, setSelectedExportFields] = useState<string[]>(() => EXPORT_FIELDS.slice(0, 24).map(f => f.id));
+    const [isExporting, setIsExporting] = useState(false);
     const [page, setPage] = useState(1);
     const [perPage, setPerPage] = useState(25);
 
@@ -174,6 +241,22 @@ export function CRMLeadsView({ leads, stages, onEditLead, onAddLead }: CRMLeadsV
         setFilterBusca(''); setFilterDataDe(''); setFilterDataAte('');
     };
 
+    const toggleExportField = (id: string) => {
+        setSelectedExportFields(prev =>
+            prev.includes(id) ? prev.filter(x => x !== id) : [...prev, id]
+        );
+    };
+
+    const handleExport = async () => {
+        if (filtered.length === 0 || selectedExportFields.length === 0) return;
+        setIsExporting(true);
+        try {
+            await exportLeadsXLSX(filtered, selectedExportFields);
+        } finally {
+            setIsExporting(false);
+        }
+    };
+
     const totalPages = Math.max(1, Math.ceil(filtered.length / perPage));
     const paginated = filtered.slice((page - 1) * perPage, page * perPage);
 
@@ -255,12 +338,12 @@ export function CRMLeadsView({ leads, stages, onEditLead, onAddLead }: CRMLeadsV
                         )}
                     </button>
                     <button
-                        onClick={() => exportLeadsCSV(filtered)}
+                        onClick={() => setShowExportFields(v => !v)}
                         disabled={filtered.length === 0}
-                        title="Exportar leads filtrados em CSV"
+                        title="Exportar leads filtrados em Excel"
                         className="flex items-center gap-2 px-4 py-2.5 bg-white dark:bg-[#1A1A1A] border border-gray-200 dark:border-[#333] rounded-xl text-sm font-medium text-gray-600 dark:text-gray-300 hover:border-[#A68B4B] hover:text-[#A68B4B] disabled:opacity-40 disabled:cursor-not-allowed transition-all"
                     >
-                        <Download size={15} /> Exportar
+                        <Download size={15} /> Excel
                     </button>
                     <button
                         onClick={onAddLead}
@@ -287,7 +370,7 @@ export function CRMLeadsView({ leads, stages, onEditLead, onAddLead }: CRMLeadsV
                             </select>
                         </div>
                         <div>
-                            <label className="block text-[10px] font-bold uppercase tracking-wider text-gray-400 mb-1.5">Responsável</label>
+                            <label className="block text-[10px] font-bold uppercase tracking-wider text-gray-400 mb-1.5">Usuário</label>
                             <select
                                 value={filterResponsavel}
                                 onChange={e => setFilterResponsavel(e.target.value)}
@@ -359,6 +442,46 @@ export function CRMLeadsView({ leads, stages, onEditLead, onAddLead }: CRMLeadsV
                         )}
                     </div>
                 )}
+
+                {showExportFields && (
+                    <div className="p-4 rounded-2xl border border-[#A68B4B]/30 bg-white dark:bg-[#141414]">
+                        <div className="flex items-center justify-between gap-3 mb-3">
+                            <div>
+                                <p className="text-sm font-bold text-gray-900 dark:text-white">Campos da exportação</p>
+                                <p className="text-xs text-gray-500">{filtered.length} lead(s) filtrado(s)</p>
+                            </div>
+                            <div className="flex flex-wrap gap-2">
+                                <button type="button" onClick={() => setSelectedExportFields(EXPORT_FIELDS.map(f => f.id))} className="px-3 py-1.5 text-xs rounded-lg border border-gray-200 dark:border-[#333] text-gray-500 hover:text-[#A68B4B]">
+                                    Todos
+                                </button>
+                                <button type="button" onClick={() => setSelectedExportFields(EXPORT_FIELDS.slice(0, 12).map(f => f.id))} className="px-3 py-1.5 text-xs rounded-lg border border-gray-200 dark:border-[#333] text-gray-500 hover:text-[#A68B4B]">
+                                    Básicos
+                                </button>
+                                <button
+                                    type="button"
+                                    onClick={handleExport}
+                                    disabled={isExporting || selectedExportFields.length === 0}
+                                    className="flex items-center gap-1.5 px-3 py-1.5 text-xs rounded-lg bg-[#A68B4B] text-black font-bold disabled:opacity-50"
+                                >
+                                    <Download size={13} /> {isExporting ? 'Exportando...' : 'Exportar .xlsx'}
+                                </button>
+                            </div>
+                        </div>
+                        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-2">
+                            {EXPORT_FIELDS.map(field => (
+                                <label key={field.id} className="flex items-center gap-2 px-2.5 py-2 rounded-lg border border-gray-100 dark:border-[#2A2A2A] text-xs text-gray-600 dark:text-gray-300 hover:border-[#A68B4B]/40 cursor-pointer">
+                                    <input
+                                        type="checkbox"
+                                        checked={selectedExportFields.includes(field.id)}
+                                        onChange={() => toggleExportField(field.id)}
+                                        className="w-3.5 h-3.5 accent-[#A68B4B]"
+                                    />
+                                    <span className="truncate">{field.label}</span>
+                                </label>
+                            ))}
+                        </div>
+                    </div>
+                )}
             </div>
 
             {/* Table */}
@@ -374,7 +497,7 @@ export function CRMLeadsView({ leads, stages, onEditLead, onAddLead }: CRMLeadsV
                                 <th className="text-left px-5 py-3 text-xs font-semibold text-gray-500 uppercase whitespace-nowrap">O que busca</th>
                                 <th className="text-left px-5 py-3 text-xs font-semibold text-gray-500 uppercase whitespace-nowrap">Status</th>
                                 <th className="text-left px-5 py-3 text-xs font-semibold text-gray-500 uppercase whitespace-nowrap">Entrada</th>
-                                <th className="text-left px-5 py-3 text-xs font-semibold text-gray-500 uppercase whitespace-nowrap">Responsável</th>
+                                <th className="text-left px-5 py-3 text-xs font-semibold text-gray-500 uppercase whitespace-nowrap">Usuário</th>
                             </tr>
                         </thead>
                         <tbody className="divide-y divide-gray-100 dark:divide-[#2e2e2e]">
