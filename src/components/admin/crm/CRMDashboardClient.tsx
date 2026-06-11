@@ -198,12 +198,6 @@ export function CRMDashboardClient({ initialLeads, crmConfig: initialConfig }: C
         // editingLead é derivado, então atualiza sozinho quando `leads` muda.
     };
 
-    // Leads do CRM/Kanban (exclui Entrada Leads) — já restritos ao funil ativo.
-    const advancedLeads = useMemo(
-        () => funnelLeads.filter(l => !qualificationStageNames.has(l.status)),
-        [funnelLeads, qualificationStageNames]
-    );
-
     // ── Arquivados ──────────────────────────────────────────────
     // Carregados sob demanda (a lista pode crescer e não é necessária no fluxo normal).
     const [archivedLeads, setArchivedLeads] = useState<CRMLead[]>([]);
@@ -418,13 +412,13 @@ export function CRMDashboardClient({ initialLeads, crmConfig: initialConfig }: C
                 {activeView === 'kanban' && (
                     <div className="flex flex-col h-full min-h-0">
                         <CRMPreferenciaisStrip
-                            leads={advancedLeads}
+                            leads={funnelLeads}
                             crmConfig={crmConfig}
                             onOpenLead={handleEditLead}
                         />
                         <div className="flex-1 min-h-0 overflow-hidden">
                             <CRMKanbanBoard
-                                leads={advancedLeads}
+                                leads={funnelLeads}
                                 stages={allStages}
                                 onEditLead={handleEditLead}
                                 onAddLead={handleOpenNewLead}
