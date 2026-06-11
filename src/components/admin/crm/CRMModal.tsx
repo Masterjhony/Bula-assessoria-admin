@@ -520,6 +520,7 @@ export function CRMModal({ isOpen, onClose, lead, defaultStatus, defaultFunnelId
                                         <option value="engorda-corte">Engorda (corte)</option>
                                         <option value="ciclo-completo-corte">Ciclo completo (corte)</option>
                                         <option value="criador-gado-po">Criador de gado P.O.</option>
+                                        <option value="leite">Leite</option>
                                     </select>
                                 </div>
                                 <div>
