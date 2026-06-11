@@ -420,12 +420,16 @@ export function Form({ hero }: { hero: JmpHero }) {
             <img
               src={bulaLogo}
               alt="Bula"
+              width={494}
+              height={308}
               className="h-14 w-auto object-contain sm:h-16"
             />
             <div className="h-10 w-px bg-white/30 sm:h-12" />
             <img
               src={jmpLogo}
               alt="JMP"
+              width={269}
+              height={149}
               className="h-14 w-auto object-contain sm:h-16"
             />
           </div>

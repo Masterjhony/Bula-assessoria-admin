@@ -1,4 +1,9 @@
-import posthog from 'posthog-js'
+// posthog-js (~200 KiB) é carregado sob demanda via import() dentro de
+// initJmpAnalytics — assim ele NÃO entra no bundle crítico da página e não
+// concorre com o primeiro paint. Até carregar, `ph` é null e todo capture é
+// no-op (safeCapture já guarda por analyticsReady).
+type Posthog = typeof import('posthog-js').default
+let ph: Posthog | null = null
 
 const POSTHOG_KEY = import.meta.env.VITE_POSTHOG_KEY || 'phc_xARtaJasktizrT8W5HFNpjyYzzx3hhubLCKrG9MMPnFg'
 const POSTHOG_HOST = import.meta.env.VITE_POSTHOG_HOST || 'https://us.i.posthog.com'
@@ -39,13 +44,13 @@ const timeMilestones = [15, 30, 60, 120, 300]
 
 declare global {
   interface Window {
-    posthog?: typeof posthog
+    posthog?: Posthog
   }
 }
 
 function safeCapture(event: string, properties: Record<string, unknown> = {}, options?: CaptureOptions) {
-  if (!analyticsReady) return
-  posthog.capture(event, { ...APP_PROPS, ...properties }, options)
+  if (!analyticsReady || !ph) return
+  ph.capture(event, { ...APP_PROPS, ...properties }, options)
 }
 
 function readCampaignProperties() {
@@ -228,12 +233,17 @@ function sendFinalEngagement() {
   }
 }
 
-export function initJmpAnalytics() {
+export async function initJmpAnalytics() {
   if (analyticsReady || typeof window === 'undefined') return
+  // Marca cedo para evitar dupla inicialização se chamado duas vezes seguidas
+  // (o import() é assíncrono e poderia reentrar).
+  analyticsReady = true
 
-  window.posthog = posthog
+  const mod = await import('posthog-js')
+  ph = mod.default
+  window.posthog = ph
 
-  posthog.init(POSTHOG_KEY, {
+  ph.init(POSTHOG_KEY, {
     api_host: POSTHOG_HOST,
     ui_host: POSTHOG_UI_HOST,
     defaults: '2026-01-30',
@@ -249,8 +259,8 @@ export function initJmpAnalytics() {
     session_recording: {
       maskAllInputs: true,
     },
-    loaded: () => {
-      posthog.capture('jmp_landing_loaded', {
+    loaded: (loaded) => {
+      loaded.capture('jmp_landing_loaded', {
         ...currentPathProps(),
         ...APP_PROPS,
         ...readCampaignProperties(),
@@ -258,12 +268,11 @@ export function initJmpAnalytics() {
     },
   })
 
-  posthog.register({
+  ph.register({
     ...APP_PROPS,
     environment: import.meta.env.MODE,
   })
 
-  analyticsReady = true
   bindBehaviorTracking()
 }
 

@@ -1,5 +1,5 @@
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap');
-
+/* A fonte Inter é carregada via <link> não-bloqueante no index.html (antes era
+   um @import aqui, que bloqueava a renderização). */
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
