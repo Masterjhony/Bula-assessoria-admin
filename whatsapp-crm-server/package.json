@@ -1,0 +1,13 @@
+{
+  "name": "web-bula-whatsapp-crm-server",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "dependencies": {
+    "@whiskeysockets/baileys": "7.0.0-rc13",
+    "qrcode": "1.5.4"
+  }
+}
