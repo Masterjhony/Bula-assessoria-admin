@@ -154,20 +154,54 @@ export function CRMKanbanBoard({ leads: externalLeads, stages, onEditLead, onAdd
         });
     };
 
+    /**
+     * Coluna onde o card foi SOLTO de verdade: hit-test no DOM usando o
+     * retângulo final do card flutuante. Lê a geometria viva da página no
+     * instante do drop, então é imune a medições defasadas do dnd-kit (a
+     * causa de "arrasto até a coluna, solto e o card volta pra origem").
+     */
+    const resolveDropColumnFromRect = (active: DragEndEvent['active']): string | null => {
+        if (typeof document === 'undefined') return null;
+        const translated = active.rect.current?.translated;
+        if (!translated) return null;
+        const cx = translated.left + translated.width / 2;
+        const cy = translated.top + translated.height / 2;
+        const cols = Array.from(document.querySelectorAll<HTMLElement>('[data-crm-column]'));
+        const hit =
+            cols.find(el => {
+                const r = el.getBoundingClientRect();
+                return cx >= r.left && cx <= r.right && cy >= r.top && cy <= r.bottom;
+            }) ??
+            // Solto acima/abaixo do quadro mas alinhado a uma coluna → vale a
+            // faixa horizontal (intenção clara de "naquela coluna").
+            cols.find(el => {
+                const r = el.getBoundingClientRect();
+                return cx >= r.left && cx <= r.right;
+            });
+        const colId = hit?.getAttribute('data-crm-column');
+        return colId && columns.includes(colId) ? colId : null;
+    };
+
     const onDragEnd = async (event: DragEndEvent) => {
         const { active, over } = event;
         setActiveLead(null);
-        if (!over) {
-            resetLocalLeads();
-            return;
-        }
 
         const activeId = active.id as string;
         const snapshot = leadsRef.current;
         const leadFromDrag = active.data.current?.lead as CRMLead | undefined;
         const currentLead = snapshot.find(l => l.id === activeId) ?? leadFromDrag;
         if (!currentLead) return;
-        const newStatus = resolveOverStatus(over, snapshot) ?? currentLead.status;
+
+        // Ordem de confiança para decidir a coluna destino:
+        // 1) hit-test do DOM (onde o card flutuante REALMENTE está ao soltar);
+        // 2) alvo informado pelo dnd-kit;
+        // 3) o estado visual local (o que o onDragOver já aplicou e o usuário vê).
+        // NUNCA resetamos para a coluna de origem aqui — soltar sempre commita o
+        // que está na tela. O único caminho de reverter é onDragCancel (Esc).
+        const newStatus =
+            resolveDropColumnFromRect(active) ??
+            resolveOverStatus(over, snapshot) ??
+            currentLead.status;
         const movedLead = currentLead.status === newStatus ? currentLead : { ...currentLead, status: newStatus };
 
         const orderedLeads = snapshot.some(l => l.id === movedLead.id && l.status === movedLead.status)

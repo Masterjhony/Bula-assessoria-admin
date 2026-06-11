@@ -158,12 +158,16 @@ export function CRMDashboardClient({ initialLeads, crmConfig: initialConfig }: C
     };
 
     const handleMoveLead = async (id: string, newStatus: string, newPosition: number) => {
+        const previous = leads.find(l => l.id === id);
         setLeads(prev => prev.map(l => l.id === id ? { ...l, status: newStatus, position: newPosition } : l));
         try {
             await moveLead(id, newStatus, newPosition);
         } catch (error) {
+            // Reverte e MOSTRA o erro. Recarregar a página aqui mascarava a
+            // causa e, para o usuário, parecia que "o card voltou sozinho".
             console.error('Failed to move lead:', error);
-            window.location.reload();
+            if (previous) setLeads(prev => prev.map(l => l.id === id ? previous : l));
+            alert(`Não foi possível mover o lead: ${error instanceof Error ? error.message : 'erro desconhecido'}`);
         }
     };
 

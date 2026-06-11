@@ -267,10 +267,12 @@ export function KanbanBoard({
     };
 
     const onDragEnd = async (event: DragEndEvent) => {
-        const { active, over } = event;
+        const { active } = event;
         setActiveTask(null);
-        if (!over) return;
 
+        // Não depende do `over` do dnd-kit: o onDragOver já posicionou a tarefa
+        // na coluna que o usuário está vendo — soltar sempre persiste esse
+        // estado visual (sair sem salvar fazia o card "voltar" no reload).
         const activeId = active.id as string;
         const changedTask = tasks.find(t => t.id === activeId);
         if (!changedTask) return;
