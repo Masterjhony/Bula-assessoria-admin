@@ -46,14 +46,23 @@ export function CRMCard({ lead, onClick, onCadastroApprovalChange }: CRMCardProp
     };
 
     if (isDragging) {
+        // Placeholder com a MESMA altura do card (conteúdo invisível). Um
+        // placeholder de altura fixa encolhia/crescia a coluna ao pegar o card,
+        // deslocando o layout; com os rects do dnd-kit medidos durante o arrasto
+        // isso fazia o alvo da soltura virar vazio (over=null) e o card "voltava
+        // pro lugar". Mantendo a altura, não há deslocamento.
         return (
             <div
                 ref={setNodeRef}
                 style={style}
                 data-crm-card-id={lead.id}
                 data-crm-card-status={lead.status}
-                className="opacity-30 border-2 border-dashed border-[#A68B4B] rounded-xl h-[120px]"
-            />
+                className="rounded-xl border-2 border-dashed border-[#A68B4B] bg-[#A68B4B]/5"
+            >
+                <div className="invisible" aria-hidden>
+                    <CRMCardView lead={lead} onCadastroApprovalChange={onCadastroApprovalChange} />
+                </div>
+            </div>
         );
     }
 

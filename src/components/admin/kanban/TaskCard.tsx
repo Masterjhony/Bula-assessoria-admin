@@ -47,12 +47,19 @@ export function TaskCard({ task, onClick, allTasks = [], doneStatus }: TaskCardP
     };
 
     if (isDragging) {
+        // Placeholder com a MESMA altura da tarefa (conteúdo invisível) — evita
+        // o deslocamento de layout que zerava o alvo da soltura (over=null) e
+        // fazia o card "voltar pro lugar".
         return (
             <div
                 ref={setNodeRef}
                 style={style}
-                className="opacity-50 bg-[#1A1A1A] p-4 rounded-xl border-2 border-dashed border-[#A68B4B]/50 h-[120px]"
-            />
+                className="rounded-xl border-2 border-dashed border-[#A68B4B]/50 bg-[#A68B4B]/5"
+            >
+                <div className="invisible" aria-hidden>
+                    <TaskCardView task={task} allTasks={allTasks} doneStatus={doneStatus} />
+                </div>
+            </div>
         );
     }
 
