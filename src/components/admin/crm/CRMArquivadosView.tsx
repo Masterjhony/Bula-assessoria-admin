@@ -69,7 +69,7 @@ export function CRMArquivadosView({ leads, loading, onRestore, onDelete, onOpenL
             <div className="flex items-start gap-2 px-4 py-3 rounded-xl bg-gray-500/5 border border-gray-300/30 dark:border-[#333] text-xs text-gray-700 dark:text-gray-300">
                 <Archive size={14} className="text-gray-400 flex-shrink-0 mt-0.5" />
                 <p>
-                    Leads arquivados ficam fora da Qualificação e do CRM, mas continuam guardados aqui.
+                    Leads arquivados ficam fora da Entrada Leads e do CRM, mas continuam guardados aqui.
                     Use <span className="font-semibold">Restaurar</span> para devolvê-los ao fluxo, ou
                     <span className="font-semibold"> Excluir</span> para apagar de vez (sem volta).
                 </p>
@@ -165,7 +165,7 @@ export function CRMArquivadosView({ leads, loading, onRestore, onDelete, onOpenL
                                         onClick={() => handleRestore(lead)}
                                         disabled={isBusy}
                                         className="flex items-center gap-1.5 px-3 py-2 rounded-lg bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/30 text-xs font-bold hover:bg-emerald-500/20 transition-colors disabled:opacity-50"
-                                        title="Restaurar lead (volta para a Qualificação/CRM)"
+                                        title="Restaurar lead (volta para a Entrada Leads/CRM)"
                                     >
                                         {isBusy ? <Loader2 size={12} className="animate-spin" /> : <ArchiveRestore size={12} />}
                                         Restaurar

@@ -478,7 +478,7 @@ export function FunnelsEditor({ initialConfig, onConfigSaved }: FunnelsEditorPro
                                             )}
 
                                             <p className="text-[10px] text-gray-400 mb-2 leading-relaxed">
-                                                Clique no nome da etapa para renomeá-la — leads existentes são migrados automaticamente. Use o botão à direita para escolher se a etapa aparece como coluna no <span className="font-semibold">CRM</span> ou só na fila de <span className="font-semibold">Qualificação</span>.
+                                                Clique no nome da etapa para renomeá-la — leads existentes são migrados automaticamente. Use o botão à direita para escolher se a etapa aparece como coluna no <span className="font-semibold">CRM</span> ou só na fila de <span className="font-semibold">Entrada Leads</span>.
                                             </p>
 
                                             <div className="bg-white dark:bg-[#1A1A1A] rounded-xl border border-gray-200 dark:border-[#333] divide-y divide-gray-100 dark:divide-[#2e2e2e] overflow-hidden">
@@ -533,7 +533,7 @@ export function FunnelsEditor({ initialConfig, onConfigSaved }: FunnelsEditorPro
                                                             </div>
                                                             <button
                                                                 onClick={() => toggleStageVisibility(funnel.id, stage.id)}
-                                                                title={hidden ? 'Etapa só na fila de Qualificação. Clique para mostrar como coluna no CRM.' : 'Etapa visível como coluna no CRM. Clique para mover para a fila de Qualificação.'}
+                                                                title={hidden ? 'Etapa só na fila de Entrada Leads. Clique para mostrar como coluna no CRM.' : 'Etapa visível como coluna no CRM. Clique para mover para a fila de Entrada Leads.'}
                                                                 className={`flex items-center gap-1 ml-2 text-[10px] font-semibold px-2 py-1 rounded-md border transition-colors ${
                                                                     hidden
                                                                         ? 'border-gray-200 dark:border-[#333] bg-gray-50 dark:bg-[#141414] text-gray-500 dark:text-gray-400 hover:border-[#A68B4B]/40'
@@ -541,7 +541,7 @@ export function FunnelsEditor({ initialConfig, onConfigSaved }: FunnelsEditorPro
                                                                 }`}
                                                             >
                                                                 {hidden ? <EyeOff size={11} /> : <Eye size={11} />}
-                                                                {hidden ? 'Qualificação' : 'CRM'}
+                                                                {hidden ? 'Entrada' : 'CRM'}
                                                             </button>
                                                             <div className="flex gap-0.5 ml-auto opacity-0 group-hover/row:opacity-100 transition-opacity">
                                                                 <button onClick={() => moveStage(funnel.id, idx, -1)} disabled={idx === 0} className="p-1 rounded hover:bg-gray-200 dark:hover:bg-[#3f3f3f] disabled:opacity-25 text-gray-500 transition-colors" title="Subir">

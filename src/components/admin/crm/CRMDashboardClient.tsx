@@ -97,7 +97,7 @@ export function CRMDashboardClient({ initialLeads, crmConfig: initialConfig }: C
     const funnelStages = activeFunnel?.stages ?? crmConfig.stages;
     const allStages = funnelStages.map(s => s.name);
 
-    // Etapas que aparecem no Kanban principal (exclui as marcadas como qualificação)
+    // Etapas que aparecem no Kanban principal (exclui as marcadas como Entrada Leads).
     const advancedStages = useMemo(
         () => funnelStages.filter(s => !isQualificationStage(s)).map(s => s.name),
         [funnelStages]
@@ -114,7 +114,7 @@ export function CRMDashboardClient({ initialLeads, crmConfig: initialConfig }: C
     );
 
     // CRM unificado: todos os leads ativos entram no mesmo funil. O filtro por
-    // usuário é aplicado por cima para qualificação, lista e kanban.
+    // usuário é aplicado por cima para Entrada Leads, lista e kanban.
     const funnelLeads = useMemo(
         () => leads.filter(l => !usuarioFilter || l.responsavel === usuarioFilter),
         [leads, usuarioFilter]
@@ -198,7 +198,7 @@ export function CRMDashboardClient({ initialLeads, crmConfig: initialConfig }: C
         // editingLead é derivado, então atualiza sozinho quando `leads` muda.
     };
 
-    // Leads que podem aparecer no kanban / listas (exclui qualificação) — já restritos ao funil ativo.
+    // Leads que podem aparecer no kanban / listas (exclui Entrada Leads) — já restritos ao funil ativo.
     const advancedLeads = useMemo(
         () => funnelLeads.filter(l => !qualificationStageNames.has(l.status)),
         [funnelLeads, qualificationStageNames]
@@ -243,7 +243,7 @@ export function CRMDashboardClient({ initialLeads, crmConfig: initialConfig }: C
         }
     };
 
-    // Restaurar: volta para a lista ativa (Qualificação/CRM conforme o status atual).
+    // Restaurar: volta para a lista ativa (Entrada Leads/CRM conforme o status atual).
     const handleUnarchiveLead = async (lead: CRMLead) => {
         setArchivedLeads(prev => prev.filter(l => l.id !== lead.id));
         setLeads(prev => [...prev, { ...lead, arquivado: false, arquivado_at: null }]);
@@ -268,7 +268,7 @@ export function CRMDashboardClient({ initialLeads, crmConfig: initialConfig }: C
     };
 
     const views = [
-        { id: 'qualificacao', label: 'Qualificação', icon: ListChecks, badge: qualificationCount },
+        { id: 'qualificacao', label: 'Entrada Leads', icon: ListChecks, badge: qualificationCount },
         { id: 'kanban', label: 'CRM', icon: LayoutGrid },
         { id: 'lista', label: 'Leads', icon: ClipboardList },
         { id: 'validacao', label: 'Validação', icon: FileSpreadsheet },
@@ -286,6 +286,9 @@ export function CRMDashboardClient({ initialLeads, crmConfig: initialConfig }: C
     const isWhatsapp = activeView === 'whatsapp';
     const isScrollable = isSettings || isQualificacao || isArquivados || isValidation || isEquipe || isWhatsapp;
     const canCreateLead = activeView === 'qualificacao' || activeView === 'kanban' || activeView === 'lista';
+    const handleNewLeadClick = () => {
+        handleOpenNewLead(activeView === 'qualificacao' ? CRM_STAGE_CONNECTION : undefined);
+    };
 
     return (
         <div className={
@@ -368,7 +371,7 @@ export function CRMDashboardClient({ initialLeads, crmConfig: initialConfig }: C
                         {isFullscreen ? <Minimize2 size={14} /> : <Maximize2 size={14} />}
                     </button>
                     {canCreateLead && (
-                        <button onClick={() => handleOpenNewLead()} className="btn primary">
+                        <button onClick={handleNewLeadClick} className="btn primary">
                             <Plus size={14} /> Novo
                         </button>
                     )}

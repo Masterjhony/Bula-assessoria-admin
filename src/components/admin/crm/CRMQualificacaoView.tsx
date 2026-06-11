@@ -12,7 +12,7 @@ import {
 } from 'lucide-react';
 
 // Rótulos amigáveis para os enums de "momento na pecuária" vindos do quiz
-// (`public/lp/index.html`) — exibidos como badge na lista da qualificação.
+// (`public/lp/index.html`) — exibidos como badge na lista de entrada.
 const MOMENTO_LABELS: Record<string, string> = {
     'nao-trabalho-quero-aprender': 'Quer aprender',
     'pecuaria-de-corte':           'Corte',
@@ -28,13 +28,13 @@ function momentoLabel(v?: string | null): string | null {
 interface CRMQualificacaoViewProps {
     leads: CRMLead[];
     crmConfig: CRMConfig;
-    /** Etapas do funil ativo — definem quais leads estão "em qualificação". */
+    /** Etapas do funil ativo — definem quais leads estão na Entrada Leads. */
     funnelStages?: CRMStage[];
     /** Regra de MQL do funil ativo (mínimo de cabeças + exige IE). */
     mqlRule?: CRMMqlRule;
     onLeadUpdated: (lead: CRMLead) => void;
     onOpenLead: (lead: CRMLead) => void;
-    /** Arquiva o lead (soft-delete) — sai da qualificação e vai para a aba "Arquivados". */
+    /** Arquiva o lead (soft-delete) — sai da Entrada Leads e vai para a aba "Arquivados". */
     onArchive: (lead: CRMLead) => void;
 }
 
@@ -213,7 +213,7 @@ export function CRMQualificacaoView({ leads, crmConfig, funnelStages, mqlRule, o
             {/* Header / KPIs */}
             <div className="grid grid-cols-2 md:grid-cols-6 gap-3">
                 {[
-                    { label: 'Aguardando qualificação', value: stats.total, icon: ListChecks, color: 'text-[#A68B4B]', bg: 'bg-[#A68B4B]/10' },
+                    { label: 'Entrada Leads', value: stats.total, icon: ListChecks, color: 'text-[#A68B4B]', bg: 'bg-[#A68B4B]/10' },
                     { label: `MQLs (≥${minCabecas} cab.${requireIe ? ' + I.E.' : ''})`, value: stats.mqls, icon: Crown, color: 'text-fuchsia-600 dark:text-fuchsia-400', bg: 'bg-fuchsia-500/10' },
                     { label: 'Sem cabeças', value: stats.semAnimais, icon: Beef, color: 'text-rose-500', bg: 'bg-rose-500/10' },
                     { label: 'Sem interesse', value: stats.semInteresse, icon: AlertCircle, color: 'text-amber-500', bg: 'bg-amber-500/10' },
@@ -258,7 +258,7 @@ export function CRMQualificacaoView({ leads, crmConfig, funnelStages, mqlRule, o
             {qualificationLeads.length === 0 ? (
                 <div className="rounded-2xl border border-dashed border-gray-200 dark:border-[#333] py-12 text-center text-gray-400">
                     <ListChecks size={32} className="mx-auto mb-2 opacity-40" />
-                    <p className="text-sm">Nenhum lead aguardando qualificação.</p>
+                    <p className="text-sm">Nenhum lead na Entrada Leads.</p>
                 </div>
             ) : (
                 <div className="space-y-3">
@@ -361,7 +361,7 @@ export function CRMQualificacaoView({ leads, crmConfig, funnelStages, mqlRule, o
                                             type="button"
                                             onClick={() => onArchive(lead)}
                                             className="flex items-center gap-1.5 px-3 py-2 rounded-lg bg-gray-100 dark:bg-[#2e2e2e] text-gray-600 dark:text-gray-300 border border-gray-200 dark:border-[#333] text-xs font-semibold hover:bg-gray-200 dark:hover:bg-[#3a3a3a] transition-colors"
-                                            title="Arquivar lead (sai da qualificação, vai para Arquivados)"
+                                            title="Arquivar lead (sai da Entrada Leads, vai para Arquivados)"
                                         >
                                             <Archive size={12} /> Arquivar
                                         </button>
