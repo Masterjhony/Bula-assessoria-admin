@@ -17,7 +17,7 @@ import {
 } from '@dnd-kit/core';
 import { arrayMove, sortableKeyboardCoordinates } from '@dnd-kit/sortable';
 import { TaskColumn } from './TaskColumn';
-import { TaskCard } from './TaskCard';
+import { TaskCardView } from './TaskCard';
 import { TaskModal } from './TaskModal';
 import { GanttView } from './GanttView';
 import { WhiteboardView } from './WhiteboardView';
@@ -480,7 +480,7 @@ export function KanbanBoard({
 
                         {createPortal(
                             <DragOverlay dropAnimation={dropAnimation}>
-                                {activeTask && <TaskCard task={activeTask} onClick={() => {}} allTasks={boardTasks} doneStatus={doneStatus} />}
+                                {activeTask && <TaskCardView task={activeTask} allTasks={boardTasks} doneStatus={doneStatus} />}
                             </DragOverlay>,
                             document.body
                         )}

@@ -1,5 +1,6 @@
 'use client';
 
+import type { CSSProperties, Ref } from 'react';
 import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 import { Calendar, CheckSquare, MessageSquare, Paperclip, Zap, Link, AlertTriangle, Clock, Smartphone } from 'lucide-react';
@@ -19,6 +20,14 @@ function iceScore(t: TacticalTask) {
     return i * c * e;
 }
 
+/**
+ * Wrapper sortable da tarefa. Delega o visual para `TaskCardView`.
+ *
+ * IMPORTANTE: o `DragOverlay` (em KanbanBoard) deve renderizar o `TaskCardView`
+ * puro — nunca este componente. Renderizar o `TaskCard` no overlay registrava
+ * um segundo sortable com o MESMO id da tarefa arrastada, sob o cursor, fazendo
+ * a colisão apontar para o próprio card e impedindo mover entre colunas.
+ */
 export function TaskCard({ task, onClick, allTasks = [], doneStatus }: TaskCardProps) {
     const {
         setNodeRef,
@@ -37,6 +46,46 @@ export function TaskCard({ task, onClick, allTasks = [], doneStatus }: TaskCardP
         transition,
     };
 
+    if (isDragging) {
+        return (
+            <div
+                ref={setNodeRef}
+                style={style}
+                className="opacity-50 bg-[#1A1A1A] p-4 rounded-xl border-2 border-dashed border-[#A68B4B]/50 h-[120px]"
+            />
+        );
+    }
+
+    return (
+        <TaskCardView
+            task={task}
+            allTasks={allTasks}
+            doneStatus={doneStatus}
+            innerRef={setNodeRef}
+            style={style}
+            onClick={() => onClick(task)}
+            dragHandleProps={{ ...attributes, ...listeners }}
+        />
+    );
+}
+
+interface TaskCardViewProps {
+    task: TacticalTask;
+    allTasks?: TacticalTask[];
+    doneStatus?: string;
+    /** Ref do nó raiz (setNodeRef do sortable). Ausente no DragOverlay. */
+    innerRef?: Ref<HTMLDivElement>;
+    style?: CSSProperties;
+    onClick?: () => void;
+    /** attributes + listeners do dnd-kit. Ausentes no DragOverlay. */
+    dragHandleProps?: Record<string, unknown>;
+}
+
+/**
+ * Parte visual da tarefa, SEM nenhum hook de DnD. Usado pelo `TaskCard`
+ * (passando ref/listeners) e pelo `DragOverlay` (apresentacional puro).
+ */
+export function TaskCardView({ task, allTasks = [], doneStatus, innerRef, style, onClick, dragHandleProps }: TaskCardViewProps) {
     const priorityColor = {
         'Alta': 'bg-red-50 text-red-600 border-red-200 dark:bg-red-500/10 dark:text-red-400 dark:border-red-500/20',
         'Média': 'bg-amber-50 text-amber-600 border-amber-200 dark:bg-amber-500/10 dark:text-amber-400 dark:border-amber-500/20',
@@ -60,16 +109,6 @@ export function TaskCard({ task, onClick, allTasks = [], doneStatus }: TaskCardP
     const score = iceScore(task);
     const scoreUsed = (task.ice_impact ?? 5) !== 5 || (task.ice_confidence ?? 5) !== 5 || (task.ice_ease ?? 5) !== 5;
 
-    if (isDragging) {
-        return (
-            <div
-                ref={setNodeRef}
-                style={style}
-                className="opacity-50 bg-[#1A1A1A] p-4 rounded-xl border-2 border-dashed border-[#A68B4B]/50 h-[120px]"
-            />
-        );
-    }
-
     const totalChecklists = task.checklists?.length || 0;
     const completedChecklists = task.checklists?.filter(c => c.completed).length || 0;
     const isChecklistComplete = totalChecklists > 0 && completedChecklists === totalChecklists;
@@ -84,11 +123,10 @@ export function TaskCard({ task, onClick, allTasks = [], doneStatus }: TaskCardP
 
     return (
         <div
-            ref={setNodeRef}
+            ref={innerRef}
             style={style}
-            {...attributes}
-            {...listeners}
-            onClick={() => onClick(task)}
+            {...dragHandleProps}
+            onClick={onClick}
             className={`group relative bg-white dark:bg-[#1A1A1A] p-5 rounded-xl border ${borderClass} shadow-sm hover:shadow-lg transition-all duration-200 hover:-translate-y-0.5 cursor-grab active:cursor-grabbing flex flex-col gap-3`}
         >
             {/* Status badges row */}

@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, type MouseEvent } from 'react';
+import { useState, type CSSProperties, type MouseEvent, type Ref } from 'react';
 import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 import { CRMLead } from '@/app/sistema/actions/crm-leads';
@@ -13,8 +13,18 @@ interface CRMCardProps {
     onCadastroApprovalChange?: (lead: CRMLead, aprovado: boolean) => Promise<void> | void;
 }
 
+/**
+ * Wrapper sortable do card. Registra o lead como draggable/droppable no
+ * dnd-kit e delega a parte visual para `CRMCardView`.
+ *
+ * IMPORTANTE: o `DragOverlay` (em CRMKanbanBoard) deve renderizar o
+ * `CRMCardView` puro — nunca este componente. Renderizar o `CRMCard` no
+ * overlay registrava um segundo sortable com o MESMO id do card arrastado,
+ * posicionado sob o cursor; a colisão (`closestCorners`) passava a apontar o
+ * próprio card como alvo (`over.id === active.id`) e o `onDragOver` retornava
+ * cedo, impedindo mover cards entre colunas.
+ */
 export function CRMCard({ lead, onClick, onCadastroApprovalChange }: CRMCardProps) {
-    const [savingApproval, setSavingApproval] = useState(false);
     const {
         attributes,
         listeners,
@@ -47,6 +57,36 @@ export function CRMCard({ lead, onClick, onCadastroApprovalChange }: CRMCardProp
         );
     }
 
+    return (
+        <CRMCardView
+            lead={lead}
+            onCadastroApprovalChange={onCadastroApprovalChange}
+            innerRef={setNodeRef}
+            style={style}
+            onClick={() => onClick(lead)}
+            dragHandleProps={{ ...attributes, ...listeners }}
+        />
+    );
+}
+
+interface CRMCardViewProps {
+    lead: CRMLead;
+    onCadastroApprovalChange?: (lead: CRMLead, aprovado: boolean) => Promise<void> | void;
+    /** Ref do nó raiz (setNodeRef do sortable). Ausente no DragOverlay. */
+    innerRef?: Ref<HTMLDivElement>;
+    style?: CSSProperties;
+    onClick?: () => void;
+    /** attributes + listeners do dnd-kit. Ausentes no DragOverlay. */
+    dragHandleProps?: Record<string, unknown>;
+}
+
+/**
+ * Parte visual do card, SEM nenhum hook de DnD. Usado tanto pelo `CRMCard`
+ * (passando ref/listeners) quanto pelo `DragOverlay` (apresentacional puro).
+ */
+export function CRMCardView({ lead, onCadastroApprovalChange, innerRef, style, onClick, dragHandleProps }: CRMCardViewProps) {
+    const [savingApproval, setSavingApproval] = useState(false);
+
     const priorityColors: Record<string, string> = {
         'Alta': 'bg-red-500/10 text-red-500 border-red-500/20',
         'Baixa': 'bg-blue-500/10 text-blue-500 border-blue-500/20',
@@ -70,13 +110,12 @@ export function CRMCard({ lead, onClick, onCadastroApprovalChange }: CRMCardProp
 
     return (
         <div
-            ref={setNodeRef}
+            ref={innerRef}
             style={style}
             data-crm-card-id={lead.id}
             data-crm-card-status={lead.status}
-            {...attributes}
-            {...listeners}
-            onClick={() => onClick(lead)}
+            {...dragHandleProps}
+            onClick={onClick}
             className={`group relative bg-white dark:bg-[#1A1A1A] p-4 rounded-xl border shadow-sm hover:shadow-md transition-all cursor-grab active:cursor-grabbing flex flex-col gap-3 ${
                 lead.is_preferencial
                     ? 'border-[#A68B4B]/50 hover:border-[#A68B4B]/80 ring-1 ring-[#A68B4B]/15'

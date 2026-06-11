@@ -16,7 +16,7 @@ import {
 } from '@dnd-kit/core';
 import { arrayMove, sortableKeyboardCoordinates } from '@dnd-kit/sortable';
 import { CRMColumn } from './CRMColumn';
-import { CRMCard } from './CRMCard';
+import { CRMCardView } from './CRMCard';
 import { CRMLead } from '@/app/sistema/actions/crm-leads';
 import {
     CRM_STAGE_ASSESSORS,
@@ -233,9 +233,8 @@ export function CRMKanbanBoard({ leads: externalLeads, stages, onEditLead, onAdd
             {typeof window === 'object' && createPortal(
                 <DragOverlay dropAnimation={dropAnimation}>
                     {activeLead && (
-                        <CRMCard
+                        <CRMCardView
                             lead={activeLead}
-                            onClick={() => { }}
                             onCadastroApprovalChange={onCadastroApprovalChange}
                         />
                     )}
