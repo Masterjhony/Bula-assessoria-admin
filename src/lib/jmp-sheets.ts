@@ -8,7 +8,18 @@ import { supabaseAdmin } from './supabase'
 const CONFIG_KEY = 'sheets'
 const TAB = 'Leads JMP'
 const SHARE_EMAIL = 'formuladoboi@gmail.com'
-const HEADER = ['Data', 'Nome', 'E-mail', 'WhatsApp', 'UF', 'Cidade', 'Momento', 'Cabeças', 'Interesse', 'Lead ID', 'Qtd. desejada', 'utm_source', 'utm_medium', 'utm_campaign', 'utm_content', 'ad-id', 'Inscrição Estadual']
+const MANUAL_HEADER = 'Atendido por'
+const HEADER = ['Data', 'Nome', 'E-mail', 'WhatsApp', 'UF', 'Cidade', 'Momento', 'Cabeças', 'Interesse', 'Lead ID', 'Qtd. desejada', 'utm_source', 'utm_medium', 'utm_campaign', 'utm_content', 'ad-id', 'Inscrição Estadual'] as const
+const SHEET_HEADER = [MANUAL_HEADER, ...HEADER] as const
+const HEADER_READ_COLUMNS = 64
+
+type SheetsClient = ReturnType<typeof google.sheets>
+type HeaderName = (typeof HEADER)[number]
+type HeaderLayout = {
+  headerRow: string[]
+  indexes: Map<HeaderName, number>
+  lastColumn: number
+}
 
 function getAuth() {
   const raw = process.env.GOOGLE_SERVICE_ACCOUNT_JSON
@@ -27,6 +38,141 @@ function getAuth() {
       'https://www.googleapis.com/auth/drive',
     ],
   })
+}
+
+function columnName(index: number): string {
+  let n = index
+  let name = ''
+  while (n > 0) {
+    const mod = (n - 1) % 26
+    name = String.fromCharCode(65 + mod) + name
+    n = Math.floor((n - 1) / 26)
+  }
+  return name
+}
+
+function normalizeHeaderText(value: string): string {
+  return String(value || '')
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .toLowerCase()
+    .replace(/[^a-z0-9]/g, '')
+}
+
+const HEADER_ALIASES = new Map<string, HeaderName>(
+  HEADER.map((header) => [normalizeHeaderText(header), header]),
+)
+
+HEADER_ALIASES.set('email', 'E-mail')
+HEADER_ALIASES.set('whats', 'WhatsApp')
+HEADER_ALIASES.set('whatsapp', 'WhatsApp')
+HEADER_ALIASES.set('leadid', 'Lead ID')
+HEADER_ALIASES.set('qtd', 'Qtd. desejada')
+HEADER_ALIASES.set('qtddesejada', 'Qtd. desejada')
+HEADER_ALIASES.set('quantidadedesejada', 'Qtd. desejada')
+HEADER_ALIASES.set('adid', 'ad-id')
+HEADER_ALIASES.set('inscricaoestadual', 'Inscrição Estadual')
+
+function resolveHeaderName(value: string): HeaderName | null {
+  return HEADER_ALIASES.get(normalizeHeaderText(value)) ?? null
+}
+
+function isManualHeader(value: string): boolean {
+  return normalizeHeaderText(value) === normalizeHeaderText(MANUAL_HEADER)
+}
+
+function getHeaderLayout(headerRow: string[]): HeaderLayout {
+  const indexes = new Map<HeaderName, number>()
+  headerRow.forEach((value, index) => {
+    const header = resolveHeaderName(value)
+    if (header && !indexes.has(header)) indexes.set(header, index)
+  })
+
+  const maxHeaderIndex = Math.max(-1, ...Array.from(indexes.values()))
+  return {
+    headerRow,
+    indexes,
+    lastColumn: Math.max(headerRow.length, maxHeaderIndex + 1, SHEET_HEADER.length),
+  }
+}
+
+async function readHeaderRow(sheets: SheetsClient, spreadsheetId: string): Promise<string[]> {
+  const res = await sheets.spreadsheets.values.get({
+    spreadsheetId,
+    range: `${TAB}!A1:${columnName(HEADER_READ_COLUMNS)}1`,
+  })
+  return ((res.data.values?.[0] ?? []) as unknown[]).map((value) => String(value ?? '').trim())
+}
+
+async function updateHeaderRow(sheets: SheetsClient, spreadsheetId: string, headerRow: string[]): Promise<void> {
+  await sheets.spreadsheets.values.update({
+    spreadsheetId,
+    range: `${TAB}!A1:${columnName(headerRow.length)}1`,
+    valueInputOption: 'RAW',
+    requestBody: { values: [headerRow] },
+  })
+}
+
+async function getTabSheetId(sheets: SheetsClient, spreadsheetId: string): Promise<number> {
+  const meta = await sheets.spreadsheets.get({ spreadsheetId, includeGridData: false })
+  const tab = meta.data.sheets?.find((sheet) => sheet.properties?.title === TAB)
+  const sheetId = tab?.properties?.sheetId
+  if (sheetId == null) throw new Error(`Aba "${TAB}" não encontrada.`)
+  return sheetId
+}
+
+function isLegacyHeaderStartingAtColumnA(headerRow: string[]): boolean {
+  return HEADER.slice(0, 3).every((header, index) => resolveHeaderName(headerRow[index] ?? '') === header)
+}
+
+async function ensureSheetLayout(sheets: SheetsClient, spreadsheetId: string): Promise<HeaderLayout> {
+  let headerRow = await readHeaderRow(sheets, spreadsheetId)
+
+  if (!headerRow.some(Boolean)) {
+    const initial = [...SHEET_HEADER]
+    await updateHeaderRow(sheets, spreadsheetId, initial)
+    return getHeaderLayout(initial)
+  }
+
+  if (isLegacyHeaderStartingAtColumnA(headerRow)) {
+    const sheetId = await getTabSheetId(sheets, spreadsheetId)
+    await sheets.spreadsheets.batchUpdate({
+      spreadsheetId,
+      requestBody: {
+        requests: [{
+          insertDimension: {
+            range: { sheetId, dimension: 'COLUMNS', startIndex: 0, endIndex: 1 },
+            inheritFromBefore: false,
+          },
+        }],
+      },
+    })
+    headerRow = await readHeaderRow(sheets, spreadsheetId)
+  }
+
+  const nextHeader = [...headerRow]
+  if (!nextHeader[0]?.trim() || isManualHeader(nextHeader[0])) {
+    nextHeader[0] = MANUAL_HEADER
+  }
+
+  let layout = getHeaderLayout(nextHeader)
+  for (const [index, header] of HEADER.entries()) {
+    if (layout.indexes.has(header)) continue
+
+    const preferredIndex = index + 1
+    if (!String(nextHeader[preferredIndex] ?? '').trim()) {
+      nextHeader[preferredIndex] = header
+    } else {
+      nextHeader.push(header)
+    }
+    layout = getHeaderLayout(nextHeader)
+  }
+
+  if (nextHeader.join('\u0000') !== headerRow.join('\u0000')) {
+    await updateHeaderRow(sheets, spreadsheetId, nextHeader)
+  }
+
+  return getHeaderLayout(nextHeader)
 }
 
 export interface SheetInfo {
@@ -72,7 +218,7 @@ export async function getOrCreateSheet(): Promise<SheetInfo> {
     spreadsheetId,
     range: `${TAB}!A1`,
     valueInputOption: 'RAW',
-    requestBody: { values: [HEADER] },
+    requestBody: { values: [[...SHEET_HEADER]] },
   })
 
   // Compartilha como editor com o dono (best-effort — não falha a criação).
@@ -120,12 +266,7 @@ export async function connectExistingSheet(idOrUrl: string): Promise<SheetInfo> 
       requestBody: { requests: [{ addSheet: { properties: { title: TAB } } }] },
     })
   }
-  const head = await sheets.spreadsheets.values.get({ spreadsheetId: id, range: `${TAB}!1:1` })
-  if (!head.data.values?.length) {
-    await sheets.spreadsheets.values.update({
-      spreadsheetId: id, range: `${TAB}!A1`, valueInputOption: 'RAW', requestBody: { values: [HEADER] },
-    })
-  }
+  await ensureSheetLayout(sheets, id)
   const url = `https://docs.google.com/spreadsheets/d/${id}`
   await supabaseAdmin().from('jmp_config').upsert({ key: CONFIG_KEY, value: { spreadsheetId: id, url }, updated_at: new Date().toISOString() })
   return { spreadsheetId: id, url }
@@ -186,6 +327,17 @@ function blankToNull(v: string): string | null {
   return v.trim() ? v.trim() : null
 }
 
+function cellByHeader(row: string[], layout: HeaderLayout, header: HeaderName): string {
+  const index = layout.indexes.get(header)
+  return index == null ? '' : cell(row, index)
+}
+
+function isUnnormalizedMetaRow(row: string[], layout: HeaderLayout): boolean {
+  const data = cellByHeader(row, layout, 'Data')
+  const nome = cellByHeader(row, layout, 'Nome')
+  return data.startsWith('l:') && /^\d{4}-\d{2}-\d{2}T/.test(nome)
+}
+
 export async function readSheetLeadRows(): Promise<{ info: SheetInfo; rows: SheetLeadRow[] }> {
   const info = await getStoredInfo()
   if (!info) throw new Error('Planilha de leads JMP não conectada.')
@@ -193,32 +345,37 @@ export async function readSheetLeadRows(): Promise<{ info: SheetInfo; rows: Shee
   if (!auth) throw new Error('GOOGLE_SERVICE_ACCOUNT_JSON ausente — configure a service account.')
 
   const sheets = google.sheets({ version: 'v4', auth })
+  const headerRow = await readHeaderRow(sheets, info.spreadsheetId)
+  const layout = getHeaderLayout(headerRow)
+  const endColumn = columnName(Math.max(layout.lastColumn, HEADER_READ_COLUMNS))
   const res = await sheets.spreadsheets.values.get({
     spreadsheetId: info.spreadsheetId,
-    range: `${TAB}!A2:Q`,
+    range: `${TAB}!A2:${endColumn}`,
   })
 
   const values = (res.data.values ?? []) as string[][]
   const rows = values
-    .map((row, index) => ({
-      rowNumber: index + 2,
-      data: cell(row, 0),
-      nome: cell(row, 1),
-      email: cell(row, 2),
-      whatsapp: cell(row, 3),
-      uf: blankToNull(cell(row, 4)),
-      cidade: blankToNull(cell(row, 5)),
-      momento: blankToNull(cell(row, 6)),
-      cabecas: blankToNull(cell(row, 7)),
-      interesse: blankToNull(cell(row, 8)),
-      leadId: blankToNull(cell(row, 9)),
-      oQueBusca: blankToNull(cell(row, 10)),
-      utm_source: blankToNull(cell(row, 11)),
-      utm_medium: blankToNull(cell(row, 12)),
-      utm_campaign: blankToNull(cell(row, 13)),
-      utm_content: blankToNull(cell(row, 14)),
-      ad_id: blankToNull(cell(row, 15)),
-      inscricaoEstadual: blankToNull(cell(row, 16)),
+    .map((row, index) => ({ row, rowNumber: index + 2 }))
+    .filter(({ row }) => !isUnnormalizedMetaRow(row, layout))
+    .map(({ row, rowNumber }) => ({
+      rowNumber,
+      data: cellByHeader(row, layout, 'Data'),
+      nome: cellByHeader(row, layout, 'Nome'),
+      email: cellByHeader(row, layout, 'E-mail'),
+      whatsapp: cellByHeader(row, layout, 'WhatsApp'),
+      uf: blankToNull(cellByHeader(row, layout, 'UF')),
+      cidade: blankToNull(cellByHeader(row, layout, 'Cidade')),
+      momento: blankToNull(cellByHeader(row, layout, 'Momento')),
+      cabecas: blankToNull(cellByHeader(row, layout, 'Cabeças')),
+      interesse: blankToNull(cellByHeader(row, layout, 'Interesse')),
+      leadId: blankToNull(cellByHeader(row, layout, 'Lead ID')),
+      oQueBusca: blankToNull(cellByHeader(row, layout, 'Qtd. desejada')),
+      utm_source: blankToNull(cellByHeader(row, layout, 'utm_source')),
+      utm_medium: blankToNull(cellByHeader(row, layout, 'utm_medium')),
+      utm_campaign: blankToNull(cellByHeader(row, layout, 'utm_campaign')),
+      utm_content: blankToNull(cellByHeader(row, layout, 'utm_content')),
+      ad_id: blankToNull(cellByHeader(row, layout, 'ad-id')),
+      inscricaoEstadual: blankToNull(cellByHeader(row, layout, 'Inscrição Estadual')),
     }))
     .filter(row => row.nome || row.email || row.whatsapp)
 
@@ -234,29 +391,35 @@ export async function appendLeadToSheet(lead: SheetLead): Promise<{ skipped: boo
 
   const sheets = google.sheets({ version: 'v4', auth })
 
-  // Planilhas criadas antes da coluna "Qtd. desejada" têm o cabeçalho curto —
-  // atualiza-o (best-effort) para que a coluna nova fique rotulada.
-  try {
-    const head = await sheets.spreadsheets.values.get({ spreadsheetId: info.spreadsheetId, range: `${TAB}!1:1` })
-    if ((head.data.values?.[0]?.length ?? 0) < HEADER.length) {
-      await sheets.spreadsheets.values.update({
-        spreadsheetId: info.spreadsheetId, range: `${TAB}!A1`, valueInputOption: 'RAW', requestBody: { values: [HEADER] },
-      })
-    }
-  } catch { /* não bloqueia o append do lead */ }
+  const layout = await ensureSheetLayout(sheets, info.spreadsheetId)
+  const row = Array.from({ length: layout.lastColumn }, () => '')
+  const set = (header: HeaderName, value: string | null | undefined) => {
+    const index = layout.indexes.get(header)
+    if (index != null) row[index] = value ?? ''
+  }
 
-  const row = [
-    fmtDate(lead.createdAt ?? new Date()),
-    lead.nome, lead.email, lead.whatsapp,
-    lead.uf ?? '', lead.cidade ?? '', lead.momento ?? '', lead.cabecas ?? '',
-    lead.interesse ?? '', lead.leadId ?? '', lead.oQueBusca ?? '',
-    lead.utm_source ?? '', lead.utm_medium ?? '', lead.utm_campaign ?? '',
-    lead.utm_content ?? '', lead.ad_id ?? '', lead.inscricaoEstadual ?? '',
-  ]
+  set('Data', fmtDate(lead.createdAt ?? new Date()))
+  set('Nome', lead.nome)
+  set('E-mail', lead.email)
+  set('WhatsApp', lead.whatsapp)
+  set('UF', lead.uf)
+  set('Cidade', lead.cidade)
+  set('Momento', lead.momento)
+  set('Cabeças', lead.cabecas)
+  set('Interesse', lead.interesse)
+  set('Lead ID', lead.leadId)
+  set('Qtd. desejada', lead.oQueBusca)
+  set('utm_source', lead.utm_source)
+  set('utm_medium', lead.utm_medium)
+  set('utm_campaign', lead.utm_campaign)
+  set('utm_content', lead.utm_content)
+  set('ad-id', lead.ad_id)
+  set('Inscrição Estadual', lead.inscricaoEstadual)
+
   await sheets.spreadsheets.values.append({
     spreadsheetId: info.spreadsheetId,
-    range: `${TAB}!A1`,
-    valueInputOption: 'USER_ENTERED',
+    range: `${TAB}!A:${columnName(row.length)}`,
+    valueInputOption: 'RAW',
     insertDataOption: 'INSERT_ROWS',
     requestBody: { values: [row] },
   })
