@@ -4,7 +4,7 @@ import { createClient } from '@/utils/supabase/server';
 import { revalidatePath } from 'next/cache';
 import { dispatchWelcome } from '@/lib/whatsapp';
 import {
-    CRM_STAGE_CONNECTION,
+    CRM_STAGE_ENTRY,
     DEFAULT_JMP_MQL_RULE,
     evaluateMql,
     JMP_FUNNEL_ID,
@@ -235,7 +235,7 @@ export async function unarchiveLead(id: string): Promise<void> {
 export async function createLead(data: Partial<CRMLead>): Promise<CRMLead> {
     const supabase = await createClient();
     const payload = sanitizeLeadData(await withComputedMql(data));
-    if (!payload.status) payload.status = CRM_STAGE_CONNECTION;
+    if (!payload.status) payload.status = CRM_STAGE_ENTRY;
 
     const { data: newLead, error } = await supabase
         .from('crm_leads')
@@ -677,7 +677,7 @@ function sheetRowToLead(row: SheetLeadRow, isMql: boolean, position: number): Pa
         interesse: row.interesse,
         o_que_busca: row.oQueBusca,
         tem_inscricao_estadual: row.inscricaoEstadual,
-        status: CRM_STAGE_CONNECTION,
+        status: CRM_STAGE_ENTRY,
         funnel_id: JMP_FUNNEL_ID,
         is_mql: isMql,
         origem: 'Planilha JMP — importação de validação',

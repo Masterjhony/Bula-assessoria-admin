@@ -53,20 +53,25 @@ export interface CRMConfig {
     responsaveis: CRMResponsavel[];
 }
 
+/** Fila pré-CRM (página "Entrada Leads"). Não aparece como coluna no Kanban. */
+export const CRM_STAGE_ENTRY = 'ENTRADA';
 export const CRM_STAGE_CONNECTION = 'CONEXÃO';
 export const CRM_STAGE_QUALIFICATION = 'QUALIFICAÇÃO';
 export const CRM_STAGE_REGISTRATION = 'CADASTRO';
 export const CRM_STAGE_ASSESSORS = 'ASSESSORES';
 
 export const DEFAULT_STAGES: CRMStage[] = [
-    { id: 'conexao', name: CRM_STAGE_CONNECTION, color: 'blue', probability: 10, is_qualification: true },
+    // Entrada Leads: triagem pré-CRM (is_qualification). Ao "Mover para o CRM" o
+    // lead sai daqui e cai em CONEXÃO — a primeira coluna do Kanban.
+    { id: 'entrada', name: CRM_STAGE_ENTRY, color: 'gray', probability: 5, is_qualification: true },
+    { id: 'conexao', name: CRM_STAGE_CONNECTION, color: 'blue', probability: 10, is_qualification: false },
     { id: 'qualificacao', name: CRM_STAGE_QUALIFICATION, color: 'orange', probability: 25, is_qualification: false },
     { id: 'cadastro', name: CRM_STAGE_REGISTRATION, color: 'yellow', probability: 50 },
     { id: 'assessores', name: CRM_STAGE_ASSESSORS, color: 'green', probability: 75 },
 ];
 
 /** Flag heurística (caso o usuário tenha config legada sem is_qualification). */
-export const DEFAULT_QUALIFICATION_STAGE_IDS = ['conexao', 'Lead', 'Sem Status'];
+export const DEFAULT_QUALIFICATION_STAGE_IDS = ['entrada', 'Lead', 'Sem Status'];
 
 /** Etapa que dispara a automação de encaminhamento do lead para o assessor. */
 export const ASSESSOR_NOTIFICATION_STAGE = CRM_STAGE_ASSESSORS;
@@ -82,10 +87,12 @@ function normalizeStageLookup(value?: string | null): string {
 export function normalizeCRMStatus(status?: string | null): string {
     const key = normalizeStageLookup(status);
 
-    if (!key || key === 'lead' || key === 'sem status' || key === 'conexao') {
-        return CRM_STAGE_CONNECTION;
+    // Vazio ou rótulos legados de captação → fila pré-CRM (Entrada Leads).
+    if (!key || key === 'lead' || key === 'sem status' || key === 'entrada') {
+        return CRM_STAGE_ENTRY;
     }
 
+    if (key === 'conexao') return CRM_STAGE_CONNECTION;
     if (key === 'qualificacao') return CRM_STAGE_QUALIFICATION;
     if (key === 'cadastro' || key === 'qualificado') return CRM_STAGE_REGISTRATION;
 
@@ -103,7 +110,7 @@ export function normalizeCRMStatus(status?: string | null): string {
 
     return DEFAULT_STAGES.some(stage => normalizeStageLookup(stage.name) === key)
         ? status!.trim()
-        : CRM_STAGE_CONNECTION;
+        : CRM_STAGE_ENTRY;
 }
 
 export function isQualificationStage(stage: CRMStage | undefined | null): boolean {

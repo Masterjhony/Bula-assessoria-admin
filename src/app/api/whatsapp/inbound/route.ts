@@ -25,7 +25,7 @@ import { readPauseState } from '@/lib/whatsapp-pause'
 import { handleCampaignReply } from '@/lib/whatsapp-campaign-reply'
 import { loadActiveFlowWithSettings } from '@/lib/whatsapp-flows'
 import { isWithinAllowedHours } from '@/lib/whatsapp-flow-settings'
-import { CRM_STAGE_CONNECTION } from '@/lib/crm-types'
+import { CRM_STAGE_ENTRY } from '@/lib/crm-types'
 
 export const maxDuration = 30
 
@@ -70,7 +70,7 @@ async function createLeadFromInbound(
             telefone: phone,
             origem: 'whatsapp-central',
             stage: 'novo',
-            status: CRM_STAGE_CONNECTION,
+            status: CRM_STAGE_ENTRY,
             source: 'whatsapp',
             medium: 'inbound',
             campaign: 'central-whatsapp',

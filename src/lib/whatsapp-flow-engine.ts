@@ -29,7 +29,7 @@ import {
     type Classification,
     type Interesse,
 } from './whatsapp-central'
-import { CRM_STAGE_CONNECTION, CRM_STAGE_QUALIFICATION, normalizeCRMStatus } from './crm-types'
+import { CRM_STAGE_ENTRY, CRM_STAGE_CONNECTION, normalizeCRMStatus } from './crm-types'
 
 /**
  * Override de slugs por audiência. Quando o lead carrega `ACADEMIA_TAG`,
@@ -626,7 +626,8 @@ async function applyInteresseAction(supabase: SupabaseClient, lead: LeadShape, i
         tags_whatsapp: [...tags],
         last_whatsapp_at: new Date().toISOString(),
     }
-    if (normalizeCRMStatus(lead.status) === CRM_STAGE_CONNECTION) update.status = CRM_STAGE_QUALIFICATION
+    // Demonstrou interesse no WhatsApp → entra no CRM na primeira etapa (CONEXÃO).
+    if (normalizeCRMStatus(lead.status) === CRM_STAGE_ENTRY) update.status = CRM_STAGE_CONNECTION
     await supabase.from('crm_leads').update(update).eq('id', lead.id)
     lead.interesse_principal = interesse
     lead.tags_whatsapp = [...tags]

@@ -8,7 +8,7 @@ import {
     setCadastroAprovado,
 } from '@/app/sistema/actions/crm-leads';
 import type { CRMConfig } from '@/lib/crm-types';
-import { CRM_STAGE_CONNECTION, isQualificationStage } from '@/lib/crm-types';
+import { CRM_STAGE_ENTRY, CRM_STAGE_CONNECTION, isQualificationStage } from '@/lib/crm-types';
 import { CRMKanbanBoard } from './CRMKanbanBoard';
 import { CRMModal } from './CRMModal';
 import { CRMSettingsView } from './CRMSettingsView';
@@ -198,6 +198,13 @@ export function CRMDashboardClient({ initialLeads, crmConfig: initialConfig }: C
         // editingLead é derivado, então atualiza sozinho quando `leads` muda.
     };
 
+    // Leads do Kanban (CONEXÃO → ASSESSORES) — exclui a fila Entrada Leads
+    // (ENTRADA). Já restritos ao funil/usuário ativo.
+    const advancedLeads = useMemo(
+        () => funnelLeads.filter(l => !qualificationStageNames.has(l.status)),
+        [funnelLeads, qualificationStageNames]
+    );
+
     // ── Arquivados ──────────────────────────────────────────────
     // Carregados sob demanda (a lista pode crescer e não é necessária no fluxo normal).
     const [archivedLeads, setArchivedLeads] = useState<CRMLead[]>([]);
@@ -281,7 +288,7 @@ export function CRMDashboardClient({ initialLeads, crmConfig: initialConfig }: C
     const isScrollable = isSettings || isQualificacao || isArquivados || isValidation || isEquipe || isWhatsapp;
     const canCreateLead = activeView === 'qualificacao' || activeView === 'kanban' || activeView === 'lista';
     const handleNewLeadClick = () => {
-        handleOpenNewLead(activeView === 'qualificacao' ? CRM_STAGE_CONNECTION : undefined);
+        handleOpenNewLead(activeView === 'qualificacao' ? CRM_STAGE_ENTRY : undefined);
     };
 
     return (
@@ -412,14 +419,14 @@ export function CRMDashboardClient({ initialLeads, crmConfig: initialConfig }: C
                 {activeView === 'kanban' && (
                     <div className="flex flex-col h-full min-h-0">
                         <CRMPreferenciaisStrip
-                            leads={funnelLeads}
+                            leads={advancedLeads}
                             crmConfig={crmConfig}
                             onOpenLead={handleEditLead}
                         />
                         <div className="flex-1 min-h-0 overflow-hidden">
                             <CRMKanbanBoard
-                                leads={funnelLeads}
-                                stages={allStages}
+                                leads={advancedLeads}
+                                stages={advancedStages}
                                 onEditLead={handleEditLead}
                                 onAddLead={handleOpenNewLead}
                                 onMoveLead={handleMoveLead}
