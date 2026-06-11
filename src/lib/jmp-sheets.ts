@@ -349,10 +349,8 @@ function cellByHeader(row: string[], layout: HeaderLayout, header: HeaderName): 
   return index == null ? '' : cell(row, index)
 }
 
-function isUnnormalizedMetaRow(row: string[], layout: HeaderLayout): boolean {
-  const data = cellByHeader(row, layout, 'Data')
-  const nome = cellByHeader(row, layout, 'Nome')
-  return data.startsWith('l:') && /^\d{4}-\d{2}-\d{2}T/.test(nome)
+function isUnnormalizedMetaRow(row: string[]): boolean {
+  return parseRawMetaLead(row) != null
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -578,7 +576,7 @@ export async function readSheetLeadRows(): Promise<{ info: SheetInfo; rows: Shee
   const values = (res.data.values ?? []) as string[][]
   const rows = values
     .map((row, index) => ({ row, rowNumber: index + 2 }))
-    .filter(({ row }) => !isUnnormalizedMetaRow(row, layout))
+    .filter(({ row }) => !isUnnormalizedMetaRow(row))
     .map(({ row, rowNumber }) => ({
       rowNumber,
       data: cellByHeader(row, layout, 'Data'),
