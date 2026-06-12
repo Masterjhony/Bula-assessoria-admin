@@ -129,15 +129,17 @@ export async function resolveStepContent(
  */
 export function renderForRecipient(
     content: ResolvedStepContent,
-    recipient: { id: string; phone: string; name: string | null },
-): { recipient_id: string; phone: string; message: string; caption: string | null } {
+    recipient: { id: string; lead_id?: string | null; phone: string; name: string | null },
+): { recipient_id: string; lead_id?: string | null; phone: string; name: string | null; message: string; caption: string | null } {
     const vars = {
         nome: firstName(recipient.name) || 'amigo(a)',
         name: recipient.name || '',
     }
     return {
         recipient_id: recipient.id,
+        lead_id: recipient.lead_id ?? null,
         phone: recipient.phone,
+        name: recipient.name,
         message: content.body ? renderTemplate(content.body, vars) : '',
         caption: content.caption ? renderTemplate(content.caption, vars) : null,
     }

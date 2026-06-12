@@ -5,6 +5,8 @@ node_modules
 work
 qa-screenshots
 jmp-landing
+.codex-dev
+.codex-remote-attachments
 
 .env
 .env.local

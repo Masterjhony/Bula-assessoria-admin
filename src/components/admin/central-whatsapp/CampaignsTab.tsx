@@ -1,6 +1,6 @@
 "use client"
 
-import { useEffect, useState } from "react"
+import { useEffect, useMemo, useState } from "react"
 import {
     Plus, Send, Loader2, AlertCircle, CheckCircle2,
     Megaphone, Trash2, RefreshCw, ImageIcon, X, Pencil,
@@ -12,6 +12,12 @@ import { useR2Upload, type MediaType } from "./useR2Upload"
 
 interface Props {
     templates: Template[]
+    audiencePreset?: {
+        label: string
+        segment: Record<string, unknown>
+        defaultName?: string
+        defaultDescription?: string
+    }
 }
 
 const STATUS_LABELS: Record<Campaign["status"], string> = {
@@ -29,7 +35,17 @@ const STATUS_COLORS: Record<Campaign["status"], string> = {
     erro: "bg-red-500/15 text-red-600 dark:text-red-400",
 }
 
-export function CampaignsTab({ templates }: Props) {
+function segmentMatchesPreset(segment: Record<string, unknown>, preset?: Props["audiencePreset"]): boolean {
+    if (!preset) return true
+    if (preset.segment.jmp_landing === true) {
+        return segment.jmp_landing === true ||
+            segment.source === "jmp-landing" ||
+            segment.source_page === "jmp.bulaassessoria.com"
+    }
+    return Object.entries(preset.segment).every(([key, value]) => segment[key] === value)
+}
+
+export function CampaignsTab({ templates, audiencePreset }: Props) {
     const [list, setList] = useState<Campaign[]>([])
     const [loading, setLoading] = useState(true)
     const [editingId, setEditingId] = useState<string | "new" | null>(null)
@@ -67,6 +83,11 @@ export function CampaignsTab({ templates }: Props) {
         await fetch(`/api/whatsapp/central/campaigns/${id}`, { method: "DELETE" })
         fetchList()
     }
+
+    const visibleList = useMemo(
+        () => list.filter(c => segmentMatchesPreset((c.segment ?? {}) as Record<string, unknown>, audiencePreset)),
+        [list, audiencePreset],
+    )
 
     return (
         <div className="space-y-4">
@@ -110,6 +131,7 @@ export function CampaignsTab({ templates }: Props) {
                 <CampaignForm
                     editingId={editingId === "new" ? null : editingId}
                     templates={templates}
+                    audiencePreset={audiencePreset}
                     onClose={() => setEditingId(null)}
                     onSaved={() => {
                         setEditingId(null)
@@ -123,14 +145,14 @@ export function CampaignsTab({ templates }: Props) {
                     <div className="p-10 flex justify-center">
                         <Loader2 className="h-5 w-5 animate-spin text-muted-foreground" />
                     </div>
-                ) : list.length === 0 ? (
+                ) : visibleList.length === 0 ? (
                     <div className="p-10 text-center text-sm text-muted-foreground space-y-2">
                         <Megaphone className="h-8 w-8 mx-auto opacity-40" />
                         <p>Nenhuma campanha criada ainda.</p>
                     </div>
                 ) : (
                     <div className="divide-y">
-                        {list.map(c => (
+                        {visibleList.map(c => (
                             <div key={c.id} className="px-5 py-4 flex items-center gap-4">
                                 <div className="flex-1 min-w-0">
                                     <div className="flex items-center gap-2 flex-wrap">
@@ -243,15 +265,21 @@ const EMPTY_FORM: CampaignFormState = {
 }
 
 function CampaignForm({
-    editingId, templates, onClose, onSaved,
+    editingId, templates, audiencePreset, onClose, onSaved,
 }: {
     editingId: string | null   // null = create, string = edit
     templates: Template[]
+    audiencePreset?: Props["audiencePreset"]
     onClose: () => void
     onSaved: () => void
 }) {
     const isEdit = !!editingId
-    const [form, setForm] = useState<CampaignFormState>(EMPTY_FORM)
+    const initialForm = useMemo<CampaignFormState>(() => ({
+        ...EMPTY_FORM,
+        name: audiencePreset?.defaultName ?? EMPTY_FORM.name,
+        description: audiencePreset?.defaultDescription ?? EMPTY_FORM.description,
+    }), [audiencePreset])
+    const [form, setForm] = useState<CampaignFormState>(initialForm)
     const [steps, setSteps] = useState<CampaignStep[]>([])
     const [preview, setPreview] = useState<{ total: number; sample: { nome: string; telefone: string }[] } | null>(null)
     const [loading, setLoading] = useState(false)
@@ -306,7 +334,7 @@ function CampaignForm({
     }, [isEdit, editingId])
 
     function buildSegment() {
-        const seg: Record<string, unknown> = {}
+        const seg: Record<string, unknown> = { ...(audiencePreset?.segment ?? {}) }
         if (form.interesseGroup) {
             const g = INTERESSE_GROUPS.find(x => x.label === form.interesseGroup)
             if (g) seg.interesse_principal = g.ids.length === 1 ? g.ids[0] : g.ids

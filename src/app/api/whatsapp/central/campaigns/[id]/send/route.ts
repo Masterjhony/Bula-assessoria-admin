@@ -21,6 +21,10 @@ import {
     resolveStepContent,
     type DelayUnit,
 } from '@/lib/whatsapp-campaign-step'
+import {
+    isWhatsappCloudApiConfigured,
+    sendCampaignViaCloudApi,
+} from '@/lib/whatsapp-cloud-api'
 
 const WHATSAPP_SERVER_URL = process.env.WHATSAPP_SERVER_URL || 'http://localhost:3001'
 
@@ -116,7 +120,7 @@ export async function POST(
     const { data: insertedRecipients, error: rErr } = await supabase
         .from('whatsapp_campaign_recipients')
         .insert(rows)
-        .select('id, phone, name')
+        .select('id, lead_id, phone, name')
     if (rErr) {
         return NextResponse.json({ error: rErr.message }, { status: 500 })
     }
@@ -147,29 +151,67 @@ export async function POST(
     // Renderiza por destinatário e dispara o passo 0 no VPS
     const renderedRecipients = (insertedRecipients ?? []).map(r => renderForRecipient(step0, r))
 
-    try {
-        await fetch(`${WHATSAPP_SERVER_URL}/campaign-send`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-                campaign_id: id,
-                recipients: renderedRecipients,
-                media: step0.media,
-                poll: step0.poll,
-            }),
-            signal: AbortSignal.timeout(30000),
+    let cloudSummary: Awaited<ReturnType<typeof sendCampaignViaCloudApi>> | null = null
+    if (isWhatsappCloudApiConfigured()) {
+        cloudSummary = await sendCampaignViaCloudApi(supabase, {
+            campaignId: id,
+            recipients: renderedRecipients,
+            media: step0.media,
+            poll: step0.poll,
+            templateName: step0.template_slug,
+            completeAfterSend: !firstFollowUp,
         })
-    } catch (e: unknown) {
+
+        const finalStatus = cloudSummary.sent === 0
+            ? 'erro'
+            : firstFollowUp
+                ? 'enviando'
+                : 'concluida'
+
         await supabase
             .from('whatsapp_campaigns')
-            .update({ status: 'erro' })
+            .update({
+                status: finalStatus,
+                sent_count: cloudSummary.sent,
+                failed_count: cloudSummary.failed,
+                ...(finalStatus === 'concluida' || finalStatus === 'erro' ? { finished_at: new Date().toISOString() } : {}),
+            })
             .eq('id', id)
-        return NextResponse.json({ error: e instanceof Error ? e.message : 'Falha ao enviar para o VPS' }, { status: 502 })
+
+        if (cloudSummary.sent === 0 && cloudSummary.failed > 0) {
+            return NextResponse.json(
+                { error: cloudSummary.results[0]?.error ?? 'Falha ao enviar pela WhatsApp Cloud API', cloud: cloudSummary },
+                { status: 502 }
+            )
+        }
+    } else {
+        try {
+            await fetch(`${WHATSAPP_SERVER_URL}/campaign-send`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    campaign_id: id,
+                    recipients: renderedRecipients,
+                    media: step0.media,
+                    poll: step0.poll,
+                }),
+                signal: AbortSignal.timeout(30000),
+            })
+        } catch (e: unknown) {
+            await supabase
+                .from('whatsapp_campaigns')
+                .update({ status: 'erro' })
+                .eq('id', id)
+            return NextResponse.json({ error: e instanceof Error ? e.message : 'Falha ao enviar para o VPS' }, { status: 502 })
+        }
     }
 
     return NextResponse.json({
         success: true,
         queued: renderedRecipients.length,
+        sent: cloudSummary?.sent,
+        failed: cloudSummary?.failed,
+        channel: cloudSummary ? 'cloud_api' : 'vps',
         audience_tag: audienceTagged.tag,
         audience_tagged: audienceTagged.updated,
         has_media: !!step0.media,

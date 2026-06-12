@@ -5,10 +5,11 @@ import {
   Save, Upload, Trash2, Plus, ChevronUp, ChevronDown, ExternalLink,
   LogOut, Loader2, ImageIcon, GripVertical, Eye, Mail, Paperclip,
   Image as ImageLucide, Table2, CheckCircle2, FileText, Clock, Calendar,
-  BarChart3,
+  BarChart3, MessageSquare,
 } from 'lucide-react'
 import { createClient } from '@/utils/supabase/client'
 import type { JmpContent, JmpBlock, JmpFoto, JmpFlowEmail, JmpEmailAttachment, JmpHero, JmpBenefit, JmpStat } from '@/lib/jmp-content'
+import JmpWhatsAppTab from './JmpWhatsAppTab'
 
 // ── upload: navegador → Supabase Storage direto (via URL assinada) ──────────
 async function uploadFile(file: File, folder: string): Promise<string> {
@@ -461,7 +462,7 @@ export default function AdminJmpClient() {
   const [content, setContent] = useState<JmpContent | null>(null)
   const [loadErr, setLoadErr] = useState<string | null>(null)
   const [saving, setSaving] = useState(false)
-  const [tab, setTab] = useState<'conteudo' | 'emails'>('conteudo')
+  const [tab, setTab] = useState<'conteudo' | 'emails' | 'whatsapp'>('conteudo')
   const [msg, setMsg] = useState<{ kind: 'ok' | 'err'; text: string } | null>(null)
 
   useEffect(() => {
@@ -518,7 +519,7 @@ export default function AdminJmpClient() {
           </div>
           <a href="https://jmp.bulaassessoria.com" target="_blank" rel="noreferrer" className={`${btn} text-white/80 hover:bg-white/10`}><Eye className="h-4 w-4" /> Ver landing <ExternalLink className="h-3 w-3" /></a>
           <button onClick={logout} className={`${btn} text-white/80 hover:bg-white/10`}><LogOut className="h-4 w-4" /> Sair</button>
-          {SaveBtn}
+          {tab !== 'whatsapp' && SaveBtn}
         </div>
         {/* Tabs */}
         <div className="mx-auto flex max-w-5xl gap-1 px-3">
@@ -527,6 +528,9 @@ export default function AdminJmpClient() {
               <Icon className="h-4 w-4" /> {lbltxt}
             </button>
           ))}
+          <button onClick={() => setTab('whatsapp')} className={`flex items-center gap-2 border-b-2 px-3 py-2.5 text-sm font-semibold transition ${tab === 'whatsapp' ? 'border-emerald-400 text-white' : 'border-transparent text-white/55 hover:text-white/80'}`}>
+            <MessageSquare className="h-4 w-4" /> WhatsApp & fluxo
+          </button>
           <a href="/analytics" className="flex items-center gap-2 border-b-2 border-transparent px-3 py-2.5 text-sm font-semibold text-white/55 transition hover:text-white/80">
             <BarChart3 className="h-4 w-4" /> Metricas
           </a>
@@ -626,7 +630,11 @@ export default function AdminJmpClient() {
           </>
         )}
 
-        <div className="flex justify-end pb-10">{SaveBtn}</div>
+        {tab === 'whatsapp' && (
+          <JmpWhatsAppTab />
+        )}
+
+        {tab !== 'whatsapp' && <div className="flex justify-end pb-10">{SaveBtn}</div>}
       </main>
     </div>
   )

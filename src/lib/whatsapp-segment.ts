@@ -8,6 +8,7 @@
  *   interesse_principal: string | string[]
  *   stage: string | string[]
  *   status: string | string[]
+ *   jmp_landing: true          (leads da landing JMP)
  *   has_phone: true (default — sempre)
  *   tags_whatsapp_includes: string  (procura na coluna jsonb)
  *   updated_after: ISO date         (leads modificados depois de X)
@@ -19,6 +20,9 @@ export interface SegmentFilters {
     interesse_principal?: string | string[]
     stage?: string | string[]
     status?: string | string[]
+    jmp_landing?: boolean
+    source?: string | string[]
+    source_page?: string | string[]
     has_phone?: boolean
     tags_whatsapp_includes?: string
     updated_after?: string
@@ -35,6 +39,17 @@ export async function resolveSegment(
         .not('telefone', 'is', null)
         .neq('telefone', '')
 
+    if (segment.jmp_landing) {
+        q = q.or('source.eq.jmp-landing,source_page.eq.jmp.bulaassessoria.com,origem.ilike.%Landing JMP%')
+    }
+    if (segment.source) {
+        if (Array.isArray(segment.source)) q = q.in('source', segment.source)
+        else q = q.eq('source', segment.source)
+    }
+    if (segment.source_page) {
+        if (Array.isArray(segment.source_page)) q = q.in('source_page', segment.source_page)
+        else q = q.eq('source_page', segment.source_page)
+    }
     if (segment.interesse_principal) {
         if (Array.isArray(segment.interesse_principal)) {
             q = q.in('interesse_principal', segment.interesse_principal)

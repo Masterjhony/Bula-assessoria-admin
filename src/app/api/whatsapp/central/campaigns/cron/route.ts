@@ -30,6 +30,10 @@ import {
     resolveStepContent,
     type DelayUnit,
 } from '@/lib/whatsapp-campaign-step'
+import {
+    isWhatsappCloudApiConfigured,
+    sendCampaignViaCloudApi,
+} from '@/lib/whatsapp-cloud-api'
 
 export const maxDuration = 60
 
@@ -165,6 +169,7 @@ async function processRecipient(
 
     const rendered = renderForRecipient(content, {
         id: recipient.id,
+        lead_id: recipient.lead_id,
         phone: recipient.phone,
         name: recipient.name,
     })
@@ -195,6 +200,19 @@ async function processRecipient(
     // Envia pro VPS — uma chamada por recipient (cron evita atrasar lotes
     // grandes esperando uma única latência longa do VPS). Concorrência
     // controlada pelo BATCH_SIZE acima.
+    if (isWhatsappCloudApiConfigured()) {
+        const cloud = await sendCampaignViaCloudApi(supabase, {
+            campaignId: recipient.campaign_id,
+            recipients: [rendered],
+            media: content.media,
+            poll: content.poll,
+            templateName: content.template_slug,
+            completeAfterSend: !nextStep,
+        })
+        if (cloud.sent === 0) {
+            return { sent: false, stopped: 'send_failed' }
+        }
+    } else {
     try {
         await fetch(`${WHATSAPP_SERVER_URL}/campaign-send`, {
             method: 'POST',
@@ -215,6 +233,7 @@ async function processRecipient(
             .from('whatsapp_campaign_recipients')
             .update({ error_msg: `step ${stepIdx} falhou: ${e instanceof Error ? e.message : 'erro'}` })
             .eq('id', recipient.id)
+    }
     }
 
     // Se este foi o último step, marca como completed
