@@ -1,16 +1,19 @@
 'use server'
 
 import { createClient } from '@/utils/supabase/server'
+import { revalidatePath } from 'next/cache'
 import type { CRMLead, CRMContactEntry } from './crm-leads'
 import { recordContact } from './crm-leads'
-import type {
-  Cliente, CompraHist, InteracaoHist, Interesse, ClienteStatus, PerfilConsumo,
+import {
+  type Cliente, type CompraHist, type InteracaoHist, type Interesse,
+  type ClienteStatus, type PerfilConsumo, clienteMatchKey,
 } from '@/lib/clientes'
 
 // ─────────────────────────────────────────────────────────────────────────────
-// Clientes/compradores REAIS = agregação dos arremates em `bula_leilao_fechamento`
-// (campo `compradores[]`), enriquecidos com os dados de relacionamento do CRM
-// (`crm_leads`): telefone, e-mail, histórico de contatos e vínculo para o card.
+// Clientes/compradores = agregação dos arremates em `bula_leilao_fechamento`
+// (campo `compradores[]`), enriquecidos com o CRM (`crm_leads`) e sobrepostos
+// pelos cadastros/edições manuais (`clientes`) + interações persistidas
+// (`cliente_interacoes`). Tudo unificado pela chave normalizada do nome.
 // ─────────────────────────────────────────────────────────────────────────────
 
 // shape gravado em bula_leilao_fechamento.compradores[]
@@ -30,13 +33,40 @@ type LeadRow = Pick<CRMLead,
   'temperatura' | 'prioridade' | 'interesse' | 'o_que_busca' | 'cidade' |
   'estado' | 'data_estimada_fechamento' | 'contact_history'>
 
-const DIACRITICS_RE = new RegExp('[\\u0300-\\u036f]', 'g')
-const nameKey = (s: string | null | undefined) =>
-  String(s ?? '').normalize('NFD').replace(DIACRITICS_RE, '').toLowerCase().replace(/[^a-z0-9]+/g, ' ').trim()
+type ClienteRow = {
+  id: string; match_key: string; nome: string
+  responsavel: string | null; telefone: string | null; email: string | null
+  cidade: string | null; uf: string | null; perfil: string | null; status: string | null
+  recorrente: boolean | null; interesses: unknown; tags: unknown
+  observacoes: string | null; preferencias: string | null
+  proximo_followup: string | null; crm_lead_id: string | null
+}
+
+type InteracaoRow = {
+  id: string; cliente_key: string; tipo: string | null
+  responsavel: string | null; nota: string | null; data: string | null
+}
+
+const nameKey = clienteMatchKey
 
 const CONTACT_TIPO: Record<CRMContactEntry['type'], InteracaoHist['tipo']> = {
   ligacao: 'Ligação', whatsapp: 'WhatsApp', email: 'E-mail', visita: 'Visita', outro: 'Reunião',
 }
+const TIPO_TO_TYPE: Record<InteracaoHist['tipo'], CRMContactEntry['type']> = {
+  Ligação: 'ligacao', WhatsApp: 'whatsapp', 'E-mail': 'email', Visita: 'visita', Reunião: 'outro',
+}
+
+// ── coerções seguras (dados vindos do banco em jsonb/text) ──
+const VALID_PERFIL: PerfilConsumo[] = ['Premium', 'Recorrente', 'Ocasional', 'Novo']
+const VALID_STATUS: ClienteStatus[] = ['ativo', 'quente', 'frio', 'inativo']
+const VALID_INTERESSE: Interesse[] = ['Sêmen', 'Embriões', 'Touros', 'Matrizes', 'Leilões']
+const VALID_TIPO: InteracaoHist['tipo'][] = ['WhatsApp', 'Ligação', 'E-mail', 'Visita', 'Reunião']
+
+const asPerfil = (v: unknown): PerfilConsumo => (VALID_PERFIL.includes(v as PerfilConsumo) ? (v as PerfilConsumo) : 'Novo')
+const asStatus = (v: unknown): ClienteStatus => (VALID_STATUS.includes(v as ClienteStatus) ? (v as ClienteStatus) : 'quente')
+const asTipo = (v: unknown): InteracaoHist['tipo'] => (VALID_TIPO.includes(v as InteracaoHist['tipo']) ? (v as InteracaoHist['tipo']) : 'WhatsApp')
+const asInteresses = (v: unknown): Interesse[] => (Array.isArray(v) ? v.filter((x): x is Interesse => VALID_INTERESSE.includes(x as Interesse)) : [])
+const asStrArr = (v: unknown): string[] => (Array.isArray(v) ? v.map((x) => String(x)).filter(Boolean) : [])
 
 function descCompra(lotes: number, animais: number): string {
   const parts: string[] = []
@@ -71,7 +101,7 @@ function deriveInteresses(lead?: LeadRow): Interesse[] {
   return [...set]
 }
 
-function mapInteracoes(lead?: LeadRow): InteracaoHist[] {
+function mapLeadInteracoes(lead?: LeadRow): InteracaoHist[] {
   const history = Array.isArray(lead?.contact_history) ? (lead!.contact_history as CRMContactEntry[]) : []
   return history
     .map((e, i) => ({
@@ -87,9 +117,11 @@ function mapInteracoes(lead?: LeadRow): InteracaoHist[] {
 const brl0 = (n: number) =>
   new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL', maximumFractionDigits: 0 }).format(n)
 
+const totalDe = (c: Cliente) => c.compras.reduce((s, x) => s + x.valor, 0)
+
 /**
- * Agrega os compradores reais de todos os fechamentos e cruza com o CRM.
- * Retorna [] se não houver dados (a página decide o fallback de demonstração).
+ * Lista unificada de clientes: compradores dos fechamentos + CRM + cadastros
+ * manuais + interações persistidas. Retorna [] se não houver compradores.
  */
 export async function getClientes(): Promise<Cliente[]> {
   const supabase = await createClient()
@@ -107,19 +139,47 @@ export async function getClientes(): Promise<Cliente[]> {
 
   if (fechRes.error) {
     console.error('[clientes] erro ao ler fechamentos:', fechRes.error.message)
-    return []
   }
+
+  // Tabelas do módulo CLIENTES podem ainda não existir (migration 0028 não
+  // aplicada) — degrada para vazio sem quebrar a página.
+  const [clienteRes, interRes] = await Promise.all([
+    supabase.from('clientes').select('*'),
+    supabase.from('cliente_interacoes').select('id, cliente_key, tipo, responsavel, nota, data'),
+  ])
+  if (clienteRes.error) console.warn('[clientes] tabela clientes indisponível:', clienteRes.error.message)
+  if (interRes.error) console.warn('[clientes] tabela cliente_interacoes indisponível:', interRes.error.message)
 
   const fechamentos = (fechRes.data ?? []) as FechamentoRow[]
   const leads = (leadsRes.data ?? []) as LeadRow[]
+  const clienteRows = (clienteRes.data ?? []) as ClienteRow[]
+  const interacaoRows = (interRes.data ?? []) as InteracaoRow[]
 
-  // índice de leads por nome/empresa para o vínculo com o CRM
+  // índices de leads para o vínculo com o CRM
   const leadByName = new Map<string, LeadRow>()
+  const leadById = new Map<string, LeadRow>()
   for (const l of leads) {
+    leadById.set(l.id, l)
     for (const nm of [l.nome, l.empresa]) {
       const k = nameKey(nm)
       if (k && !leadByName.has(k)) leadByName.set(k, l)
     }
+  }
+
+  // interações persistidas, agrupadas pela chave do cliente
+  const interByKey = new Map<string, InteracaoHist[]>()
+  for (const r of interacaoRows) {
+    const k = r.cliente_key
+    if (!k) continue
+    const arr = interByKey.get(k) ?? []
+    arr.push({
+      id: r.id,
+      data: String(r.data || '').slice(0, 10),
+      tipo: asTipo(r.tipo),
+      responsavel: r.responsavel || 'Equipe',
+      nota: r.nota || '—',
+    })
+    interByKey.set(k, arr)
   }
 
   // agrega compradores entre todos os leilões
@@ -161,7 +221,8 @@ export async function getClientes(): Promise<Cliente[]> {
     }
   }
 
-  const clientes: Cliente[] = []
+  // mapa unificado por chave (derivados dos fechamentos)
+  const byKey = new Map<string, Cliente>()
   for (const e of agg.values()) {
     const lead = leadByName.get(e.key) || (e.comprador ? leadByName.get(nameKey(e.comprador)) : undefined)
 
@@ -183,12 +244,11 @@ export async function getClientes(): Promise<Cliente[]> {
     if (numFech >= 3) tags.push('Multi-leilão')
     if (lead) tags.push('No CRM')
 
-    const interacoes = mapInteracoes(lead)
     const responsavel = e.comprador && nameKey(e.comprador) !== e.key
       ? e.comprador
       : (lead?.nome && nameKey(lead.nome) !== e.key ? lead.nome : e.nome)
 
-    clientes.push({
+    byKey.set(e.key, {
       id: `fech-${e.key.replace(/\s+/g, '-')}`,
       nome: e.nome,
       responsavel,
@@ -206,31 +266,190 @@ export async function getClientes(): Promise<Cliente[]> {
       preferencias: `Histórico de arremates em leilões da JMP/Bula.${recorrente ? ' Comprador recorrente.' : ''}`,
       proximoFollowup: lead?.data_estimada_fechamento ? String(lead.data_estimada_fechamento).slice(0, 10) : undefined,
       compras: e.compras,
-      interacoes,
+      interacoes: mapLeadInteracoes(lead),
       crmLeadId: lead?.id,
+      matchKey: e.key,
       origem: 'fechamento',
     })
   }
 
-  clientes.sort((a, b) => b.compras.reduce((s, x) => s + x.valor, 0) - a.compras.reduce((s, x) => s + x.valor, 0))
-  return clientes
+  // sobrepõe / adiciona cadastros manuais (tabela clientes)
+  for (const row of clienteRows) {
+    const key = row.match_key
+    if (!key) continue
+    const existing = byKey.get(key)
+    const manualInteresses = asInteresses(row.interesses)
+    const manualTags = asStrArr(row.tags)
+    const linkedLead = row.crm_lead_id ? leadById.get(row.crm_lead_id) : undefined
+
+    if (existing) {
+      // overlay: dados manuais não-vazios vencem; compras/derivados preservados
+      byKey.set(key, {
+        ...existing,
+        nome: row.nome || existing.nome,
+        responsavel: row.responsavel || existing.responsavel,
+        telefone: (row.telefone || existing.telefone || '').trim(),
+        email: row.email || existing.email,
+        cidade: row.cidade || existing.cidade,
+        uf: (row.uf || existing.uf || '—').toUpperCase(),
+        perfil: row.perfil ? asPerfil(row.perfil) : existing.perfil,
+        status: row.status ? asStatus(row.status) : existing.status,
+        interesses: manualInteresses.length ? [...new Set([...existing.interesses, ...manualInteresses])] : existing.interesses,
+        tags: manualTags.length ? [...new Set([...existing.tags, ...manualTags])] : existing.tags,
+        observacoes: row.observacoes || existing.observacoes,
+        preferencias: row.preferencias || existing.preferencias,
+        proximoFollowup: row.proximo_followup ? String(row.proximo_followup).slice(0, 10) : existing.proximoFollowup,
+        crmLeadId: existing.crmLeadId || row.crm_lead_id || undefined,
+        clienteRowId: row.id,
+      })
+    } else {
+      const lead = linkedLead || leadByName.get(key)
+      byKey.set(key, {
+        id: `cli-${row.id}`,
+        nome: row.nome,
+        responsavel: row.responsavel || lead?.nome || row.nome,
+        telefone: (row.telefone || lead?.celular || lead?.telefone || '').trim(),
+        email: row.email || lead?.email || undefined,
+        cidade: row.cidade || lead?.cidade || '—',
+        uf: (row.uf || lead?.estado || '—').toUpperCase(),
+        perfil: asPerfil(row.perfil),
+        interesses: manualInteresses.length ? manualInteresses : ['Leilões'],
+        status: asStatus(row.status),
+        recorrente: !!row.recorrente,
+        tags: manualTags,
+        observacoes: row.observacoes || 'Cliente cadastrado manualmente.',
+        preferencias: row.preferencias || undefined,
+        proximoFollowup: row.proximo_followup ? String(row.proximo_followup).slice(0, 10) : undefined,
+        compras: [],
+        interacoes: mapLeadInteracoes(lead),
+        crmLeadId: row.crm_lead_id || lead?.id,
+        matchKey: key,
+        clienteRowId: row.id,
+        origem: 'manual',
+      })
+    }
+  }
+
+  // anexa interações persistidas e ordena
+  for (const cliente of byKey.values()) {
+    const persisted = cliente.matchKey ? interByKey.get(cliente.matchKey) ?? [] : []
+    if (persisted.length) {
+      cliente.interacoes = [...cliente.interacoes, ...persisted]
+    }
+    cliente.interacoes.sort((a, b) => b.data.localeCompare(a.data))
+  }
+
+  return [...byKey.values()].sort((a, b) => totalDe(b) - totalDe(a))
+}
+
+// ── input do cadastro manual ──
+export interface NovoClienteInput {
+  nome: string
+  responsavel?: string
+  telefone?: string
+  email?: string
+  cidade?: string
+  uf?: string
+  perfil?: PerfilConsumo
+  status?: ClienteStatus
+  interesses?: Interesse[]
+  observacoes?: string
 }
 
 /**
- * Registra uma interação no histórico de contatos do lead vinculado no CRM.
- * Usado pelo botão "Registrar interação" quando o cliente tem `crmLeadId`.
+ * Cadastra (ou atualiza, por nome normalizado) um cliente manual.
+ * Faz upsert em `clientes` usando `match_key` como chave de deduplicação.
  */
-export async function registrarInteracaoCliente(
-  leadId: string,
-  entry: { tipo: InteracaoHist['tipo']; responsavel: string; nota: string },
-): Promise<void> {
-  const TIPO_TO_TYPE: Record<InteracaoHist['tipo'], CRMContactEntry['type']> = {
-    Ligação: 'ligacao', WhatsApp: 'whatsapp', 'E-mail': 'email', Visita: 'visita', Reunião: 'outro',
+export async function createCliente(input: NovoClienteInput): Promise<Cliente> {
+  const supabase = await createClient()
+  const match_key = clienteMatchKey(input.nome)
+  if (!match_key) throw new Error('Nome do cliente é obrigatório.')
+
+  const payload = {
+    match_key,
+    nome: input.nome.trim(),
+    responsavel: (input.responsavel ?? '').trim(),
+    telefone: (input.telefone ?? '').trim(),
+    email: (input.email ?? '').trim(),
+    cidade: (input.cidade ?? '').trim(),
+    uf: (input.uf ?? '').trim().toUpperCase(),
+    perfil: input.perfil ?? 'Novo',
+    status: input.status ?? 'quente',
+    interesses: input.interesses ?? [],
+    observacoes: (input.observacoes ?? '').trim(),
   }
-  await recordContact(leadId, {
-    type: TIPO_TO_TYPE[entry.tipo],
-    date: new Date().toISOString(),
-    notes: entry.nota,
-    by: entry.responsavel,
+
+  const { data, error } = await supabase
+    .from('clientes')
+    .upsert(payload, { onConflict: 'match_key' })
+    .select()
+    .single()
+
+  if (error) throw new Error(`Erro ao salvar cliente: ${error.message}`)
+  revalidatePath('/sistema/clientes')
+
+  const row = data as ClienteRow
+  return {
+    id: `cli-${row.id}`,
+    nome: row.nome,
+    responsavel: row.responsavel || row.nome,
+    telefone: (row.telefone || '').trim(),
+    email: row.email || undefined,
+    cidade: row.cidade || '—',
+    uf: (row.uf || '—').toUpperCase(),
+    perfil: asPerfil(row.perfil),
+    interesses: asInteresses(row.interesses),
+    status: asStatus(row.status),
+    recorrente: !!row.recorrente,
+    tags: asStrArr(row.tags),
+    observacoes: row.observacoes || undefined,
+    preferencias: row.preferencias || undefined,
+    proximoFollowup: row.proximo_followup ? String(row.proximo_followup).slice(0, 10) : undefined,
+    compras: [],
+    interacoes: [],
+    crmLeadId: row.crm_lead_id || undefined,
+    matchKey: row.match_key,
+    clienteRowId: row.id,
+    origem: 'manual',
+  }
+}
+
+// ── input do registro de interação ──
+export interface RegistrarInteracaoInput {
+  matchKey: string
+  clienteRowId?: string
+  crmLeadId?: string
+  tipo: InteracaoHist['tipo']
+  responsavel: string
+  nota: string
+}
+
+/**
+ * Registra uma interação. Quando o cliente está vinculado a um lead do CRM,
+ * grava no `contact_history` do lead; caso contrário, persiste em
+ * `cliente_interacoes` (anexada pela chave do cliente, mesmo derivado).
+ */
+export async function registrarInteracao(input: RegistrarInteracaoInput): Promise<void> {
+  const supabase = await createClient()
+
+  if (input.crmLeadId) {
+    await recordContact(input.crmLeadId, {
+      type: TIPO_TO_TYPE[input.tipo],
+      date: new Date().toISOString(),
+      notes: input.nota,
+      by: input.responsavel,
+    })
+    revalidatePath('/sistema/clientes')
+    return
+  }
+
+  const { error } = await supabase.from('cliente_interacoes').insert({
+    cliente_key: input.matchKey,
+    cliente_id: input.clienteRowId ?? null,
+    tipo: input.tipo,
+    responsavel: input.responsavel,
+    nota: input.nota,
   })
+  if (error) throw new Error(`Erro ao registrar interação: ${error.message}`)
+  revalidatePath('/sistema/clientes')
 }

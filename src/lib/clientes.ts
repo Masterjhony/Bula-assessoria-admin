@@ -51,8 +51,23 @@ export interface Cliente {
   interacoes: InteracaoHist[]
   // Vínculo com o CRM (quando o comprador também é um lead cadastrado).
   crmLeadId?: string
-  // De onde o registro veio: agregado dos fechamentos ou do CRM.
-  origem?: 'fechamento' | 'crm'
+  // Chave normalizada (nome) usada para deduplicar fechamentos × cadastro manual
+  // e para anexar interações persistidas.
+  matchKey?: string
+  // id da linha em `public.clientes` quando o cliente foi cadastrado/editado à mão.
+  clienteRowId?: string
+  // De onde o registro veio: agregado dos fechamentos, cadastrado à mão, ou só CRM.
+  origem?: 'fechamento' | 'manual' | 'crm'
+}
+
+// Normaliza um nome para a chave de deduplicação/anexo (sem acentos, minúsculo).
+export function clienteMatchKey(nome: string | null | undefined): string {
+  return String(nome ?? '')
+    .normalize('NFD')
+    .replace(new RegExp('[\\u0300-\\u036f]', 'g'), '')
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, ' ')
+    .trim()
 }
 
 // Métricas derivadas para não duplicar fonte de verdade.

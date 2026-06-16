@@ -12,7 +12,7 @@ import {
   type InteracaoHist, clienteMetrics, brl, brlCompact, fmtDate, timeAgo,
   waLink, INTERESSES, PERFIS,
 } from '@/lib/clientes'
-import { registrarInteracaoCliente } from '@/app/sistema/actions/clientes'
+import { createCliente, registrarInteracao, type NovoClienteInput } from '@/app/sistema/actions/clientes'
 
 const crmLeadHref = (id: string) => `/sistema/crm?lead=${encodeURIComponent(id)}`
 
@@ -420,25 +420,38 @@ export function ClientesClient({ initialClientes }: { initialClientes: Cliente[]
     flash(`Exportados ${filtered.length} clientes para CSV.`)
   }, [filtered, flash])
 
-  const addCliente = (c: Cliente) => {
-    setClientes((prev) => [c, ...prev])
+  // Cadastro manual: persiste em `clientes` (upsert por nome normalizado) e
+  // funde no estado por matchKey (pode sobrepor um comprador derivado).
+  const addCliente = async (input: NovoClienteInput) => {
+    const saved = await createCliente(input)
+    setClientes((prev) => {
+      const idx = prev.findIndex((c) => c.matchKey && c.matchKey === saved.matchKey)
+      if (idx === -1) return [saved, ...prev]
+      const next = [...prev]
+      // preserva compras/interações já derivadas; aplica os campos manuais salvos
+      next[idx] = { ...prev[idx], ...saved, compras: prev[idx].compras, interacoes: prev[idx].interacoes }
+      return next
+    })
     setShowNovo(false)
-    flash(`Cliente "${c.nome}" cadastrado.`)
+    flash(`Cliente "${saved.nome}" salvo.`)
   }
 
   const addInteracao = (clienteId: string, it: InteracaoHist) => {
     setClientes((prev) => prev.map((c) => (c.id === clienteId ? { ...c, interacoes: [it, ...c.interacoes] } : c)))
     setSelected((prev) => (prev && prev.id === clienteId ? { ...prev, interacoes: [it, ...prev.interacoes] } : prev))
     setInteracaoTarget(null)
-    // Persiste no CRM quando o cliente está vinculado a um lead.
+
     const cli = clientes.find((c) => c.id === clienteId)
-    if (cli?.crmLeadId) {
-      registrarInteracaoCliente(cli.crmLeadId, { tipo: it.tipo, responsavel: it.responsavel, nota: it.nota })
-        .then(() => flash('Interação registrada e sincronizada no CRM.'))
-        .catch(() => flash('Interação registrada localmente (falha ao sincronizar no CRM).'))
-    } else {
-      flash('Interação registrada.')
-    }
+    if (!cli?.matchKey) { flash('Interação registrada.'); return }
+
+    registrarInteracao({
+      matchKey: cli.matchKey,
+      clienteRowId: cli.clienteRowId,
+      crmLeadId: cli.crmLeadId,
+      tipo: it.tipo, responsavel: it.responsavel, nota: it.nota,
+    })
+      .then(() => flash(cli.crmLeadId ? 'Interação registrada e sincronizada no CRM.' : 'Interação registrada.'))
+      .catch(() => flash('Interação registrada localmente (falha ao salvar no servidor).'))
   }
 
   // mantém o drawer sincronizado quando a lista muda.
@@ -630,8 +643,8 @@ export function ClientesClient({ initialClientes }: { initialClientes: Cliente[]
       )}
 
       {/* modais */}
-      {showNovo && <NovoClienteModal onClose={() => setShowNovo(false)} onCreate={addCliente} existingCount={clientes.length} />}
-      {showImport && <ImportModal onClose={() => setShowImport(false)} onConfirm={(n) => { setShowImport(false); flash(`${n} clientes prontos para importar (mock).`) }} />}
+      {showNovo && <NovoClienteModal onClose={() => setShowNovo(false)} onCreate={addCliente} />}
+      {showImport && <ImportModal onClose={() => setShowImport(false)} onConfirm={(n) => { setShowImport(false); flash(`${n} registros lidos. Importação em lote ainda não persiste — use "Novo cliente" por enquanto.`) }} />}
       {interacaoTarget && (
         <RegistrarInteracaoModal
           cliente={interacaoTarget}
@@ -661,7 +674,7 @@ export function ClientesClient({ initialClientes }: { initialClientes: Cliente[]
 }
 
 // ── modal: novo cliente ─────────────────────────────────────────────────────────
-function NovoClienteModal({ onClose, onCreate, existingCount }: { onClose: () => void; onCreate: (c: Cliente) => void; existingCount: number }) {
+function NovoClienteModal({ onClose, onCreate }: { onClose: () => void; onCreate: (input: NovoClienteInput) => Promise<void> }) {
   const [nome, setNome] = useState('')
   const [responsavel, setResponsavel] = useState('')
   const [telefone, setTelefone] = useState('')
@@ -672,32 +685,43 @@ function NovoClienteModal({ onClose, onCreate, existingCount }: { onClose: () =>
   const [status, setStatus] = useState<ClienteStatus>('quente')
   const [interesses, setInteresses] = useState<Interesse[]>([])
   const [obs, setObs] = useState('')
+  const [saving, setSaving] = useState(false)
+  const [erro, setErro] = useState<string | null>(null)
 
   const toggleInteresse = (i: Interesse) =>
     setInteresses((prev) => (prev.includes(i) ? prev.filter((x) => x !== i) : [...prev, i]))
 
   const valid = nome.trim() && telefone.trim()
 
-  const submit = () => {
-    if (!valid) return
-    onCreate({
-      id: `c-new-${existingCount + 1}-${nome.length}`,
-      nome: nome.trim(), responsavel: responsavel.trim() || nome.trim(),
-      telefone: telefone.trim(), email: email.trim() || undefined,
-      cidade: cidade.trim() || '—', uf: uf.trim().toUpperCase() || '—',
-      perfil, status, interesses, recorrente: false,
-      tags: ['Novo'], observacoes: obs.trim() || undefined,
-      compras: [], interacoes: [],
-    })
+  const submit = async () => {
+    if (!valid || saving) return
+    setSaving(true)
+    setErro(null)
+    try {
+      await onCreate({
+        nome: nome.trim(),
+        responsavel: responsavel.trim(),
+        telefone: telefone.trim(),
+        email: email.trim(),
+        cidade: cidade.trim(),
+        uf: uf.trim().toUpperCase(),
+        perfil, status, interesses,
+        observacoes: obs.trim(),
+      })
+    } catch (e) {
+      setErro(e instanceof Error ? e.message : 'Falha ao salvar o cliente.')
+      setSaving(false)
+    }
   }
 
   return (
     <Modal
       title="Novo cliente" wide onClose={onClose}
       footer={<>
-        <button className="btn ghost" onClick={onClose}>Cancelar</button>
-        <button className="btn primary" onClick={submit} disabled={!valid} style={{ opacity: valid ? 1 : 0.5 }}>
-          <UserPlus size={14} /> Cadastrar
+        {erro && <span className="text-[12px] mr-auto self-center" style={{ color: 'var(--red)' }}>{erro}</span>}
+        <button className="btn ghost" onClick={onClose} disabled={saving}>Cancelar</button>
+        <button className="btn primary" onClick={submit} disabled={!valid || saving} style={{ opacity: valid && !saving ? 1 : 0.5 }}>
+          <UserPlus size={14} /> {saving ? 'Salvando…' : 'Cadastrar'}
         </button>
       </>}
     >
@@ -767,7 +791,7 @@ function RegistrarInteracaoModal({ cliente, onClose, onSave }: { cliente: Client
     if (!nota.trim()) return
     onSave(cliente.id, {
       id: `it-${cliente.id}-${cliente.interacoes.length + 1}`,
-      data: '2026-06-16',
+      data: new Date().toISOString().slice(0, 10),
       tipo, responsavel: responsavel.trim() || 'Equipe', nota: nota.trim(),
     })
   }
