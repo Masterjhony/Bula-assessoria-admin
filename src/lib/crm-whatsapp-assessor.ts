@@ -1,8 +1,7 @@
 import type { SupabaseClient } from '@supabase/supabase-js';
 import { ASSESSOR_NOTIFICATION_STAGE, type CRMConfig, type CRMResponsavel } from '@/lib/crm-types';
 import { normalizePhone } from '@/lib/whatsapp-central';
-
-const WHATSAPP_SERVER_URL = process.env.WHATSAPP_SERVER_URL || 'http://localhost:3001';
+import { sendOutbound } from '@/lib/whatsapp-gateway';
 
 type LeadForAssessor = {
     id: string;
@@ -125,39 +124,26 @@ export async function maybeNotifyAssessorOnLeadStage(
     }
 
     const message = leadMessage(lead, user);
-    let sent = false;
-    let queued = false;
-    let reason: string | undefined;
 
-    try {
-        const waRes = await fetch(`${WHATSAPP_SERVER_URL}/send-direct`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ phone, message }),
-            signal: AbortSignal.timeout(15000),
-        });
-        const waBody = await waRes.json().catch(() => ({}));
-        sent = waRes.ok && !!(waBody.sent || waBody.success);
-        queued = waRes.ok && !!waBody.queued;
-        if (!sent && !queued) reason = waBody.error || waBody.reason || `http_${waRes.status}`;
-    } catch (e) {
-        reason = e instanceof Error ? e.message : 'vps_unreachable';
-    }
-
-    const status = sent ? 'sent' : queued ? 'queued' : 'failed';
-
-    await supabase.from('whatsapp_messages').insert({
-        phone,
-        name: user.name,
-        body: message,
-        direction: 'outbound',
-        status,
+    // Encaminhamento de assessor é transacional/interno: força Baileys e pula
+    // guard rails (não é marketing, vai pro número do próprio assessor). O
+    // gateway é dono do log em whatsapp_messages — não logamos aqui de novo.
+    const result = await sendOutbound(supabase, {
+        to: { phone, leadId: lead.id, name: user.name },
+        text: message,
+        intent: 'assessor',
+        channelHint: 'baileys',
         origin: 'crm-assessor',
-        bot_step: 'assessor-notification',
-        lead_id: lead.id,
+        botStep: 'assessor-notification',
+        skipGuardrails: true,
     });
 
-    if (sent || queued) {
+    const delivered = result.status === 'sent' || result.status === 'queued';
+    const status: 'sent' | 'queued' | 'failed' =
+        result.status === 'sent' ? 'sent' : result.status === 'queued' ? 'queued' : 'failed';
+    const reason = delivered ? undefined : result.reason;
+
+    if (delivered) {
         const extra = { ...(lead.extra_data || {}) } as Record<string, unknown>;
         const notifications = {
             ...((extra.assessor_notifications || {}) as Record<string, unknown>),
@@ -174,5 +160,5 @@ export async function maybeNotifyAssessorOnLeadStage(
         await supabase.from('crm_leads').update({ extra_data: extra }).eq('id', lead.id);
     }
 
-    return { attempted: true, sent: sent || queued, status, reason };
+    return { attempted: true, sent: delivered, status, reason };
 }

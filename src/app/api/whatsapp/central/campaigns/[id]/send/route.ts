@@ -25,8 +25,14 @@ import {
     isWhatsappCloudApiConfigured,
     sendCampaignViaCloudApi,
 } from '@/lib/whatsapp-cloud-api'
-
-const WHATSAPP_SERVER_URL = process.env.WHATSAPP_SERVER_URL || 'http://localhost:3001'
+import {
+    loadGuardrails,
+    optedOutPhoneSet,
+    dailyCount,
+    effectiveDailyCap,
+    incrementDailyCountBy,
+} from '@/lib/whatsapp-guardrails'
+import { WHATSAPP_SERVER_URL, vpsHeaders } from '@/lib/whatsapp-vps'
 
 export async function POST(
     _req: NextRequest,
@@ -87,17 +93,66 @@ export async function POST(
         return NextResponse.json({ error: e instanceof Error ? e.message : 'Erro ao resolver segmento' }, { status: 500 })
     }
 
+    // ── Guard rails de massa ────────────────────────────────────────────────
+    // O canal de massa é Cloud quando configurada (não toma ban), senão VPS.
+    const channel: 'cloud' | 'baileys' = isWhatsappCloudApiConfigured() ? 'cloud' : 'baileys'
+    const guardrails = await loadGuardrails(supabase)
+    const tz = guardrails.business_hours.timezone
+
+    // 1) Opt-out por número (complementa o filtro por flag do resolveSegment):
+    //    remove quem está em whatsapp_optouts mesmo sem o lead estar marcado.
+    let optoutSkipped = 0
+    if (guardrails.enabled) {
+        const optedOut = await optedOutPhoneSet(supabase, recipients.map(r => r.telefone))
+        if (optedOut.size > 0) {
+            const before = recipients.length
+            recipients = recipients.filter(r => !optedOut.has(r.telefone))
+            optoutSkipped = before - recipients.length
+        }
+    }
+
     if (recipients.length === 0) {
         await supabase
             .from('whatsapp_campaigns')
             .update({
                 status: 'concluida',
                 total_recipients: 0,
+                optout_skip_count: optoutSkipped,
                 started_at: new Date().toISOString(),
                 finished_at: new Date().toISOString(),
             })
             .eq('id', id)
-        return NextResponse.json({ success: true, queued: 0, message: 'Segmento sem leads — campanha marcada como concluída.' })
+        return NextResponse.json({
+            success: true,
+            queued: 0,
+            optout_skipped: optoutSkipped,
+            message: optoutSkipped > 0
+                ? 'Todos os destinatários estão em opt-out — campanha concluída sem envios.'
+                : 'Segmento sem leads — campanha marcada como concluída.',
+        })
+    }
+
+    // 2) Cap diário: não deixa a campanha estourar o orçamento do dia do canal.
+    //    Em vez de enviar parcial (e deixar o operador no escuro), recusa com a
+    //    sobra exata para ele reduzir o segmento ou ajustar o cap.
+    if (guardrails.enabled) {
+        const used = await dailyCount(supabase, channel, tz)
+        const cap = effectiveDailyCap(guardrails, channel)
+        const remaining = Math.max(0, cap - used)
+        if (recipients.length > remaining) {
+            return NextResponse.json(
+                {
+                    error: `Campanha tem ${recipients.length} destinatários, mas restam só ${remaining} envios hoje no canal ${channel} (cap ${cap}, já usados ${used}). Reduza o segmento ou ajuste o cap nos guard rails.`,
+                    blocked_by: 'daily_cap',
+                    channel,
+                    recipients: recipients.length,
+                    remaining,
+                    cap,
+                    used,
+                },
+                { status: 429 },
+            )
+        }
     }
 
     // Materializa recipients. current_step=1 indica que o passo 0 vai ser
@@ -144,6 +199,7 @@ export async function POST(
         .update({
             status: 'enviando',
             total_recipients: recipients.length,
+            optout_skip_count: optoutSkipped,
             started_at: now.toISOString(),
         })
         .eq('id', id)
@@ -178,6 +234,11 @@ export async function POST(
             })
             .eq('id', id)
 
+        // Contabiliza no orçamento diário do canal (cap/warmup).
+        if (cloudSummary.sent > 0) {
+            await incrementDailyCountBy(supabase, 'cloud', cloudSummary.sent, tz)
+        }
+
         if (cloudSummary.sent === 0 && cloudSummary.failed > 0) {
             return NextResponse.json(
                 { error: cloudSummary.results[0]?.error ?? 'Falha ao enviar pela WhatsApp Cloud API', cloud: cloudSummary },
@@ -188,7 +249,7 @@ export async function POST(
         try {
             await fetch(`${WHATSAPP_SERVER_URL}/campaign-send`, {
                 method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
+                headers: vpsHeaders({ 'Content-Type': 'application/json' }),
                 body: JSON.stringify({
                     campaign_id: id,
                     recipients: renderedRecipients,
@@ -197,6 +258,10 @@ export async function POST(
                 }),
                 signal: AbortSignal.timeout(30000),
             })
+            // O VPS envia de forma assíncrona; contabilizamos o lote entregue
+            // à fila (aproximação conservadora — protege o número subestimando
+            // o orçamento restante, nunca o contrário).
+            await incrementDailyCountBy(supabase, 'baileys', renderedRecipients.length, tz)
         } catch (e: unknown) {
             await supabase
                 .from('whatsapp_campaigns')
@@ -211,6 +276,7 @@ export async function POST(
         queued: renderedRecipients.length,
         sent: cloudSummary?.sent,
         failed: cloudSummary?.failed,
+        optout_skipped: optoutSkipped,
         channel: cloudSummary ? 'cloud_api' : 'vps',
         audience_tag: audienceTagged.tag,
         audience_tagged: audienceTagged.updated,

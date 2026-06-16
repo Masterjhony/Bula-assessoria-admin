@@ -77,7 +77,16 @@ export interface Template {
     poll_question: string | null
     poll_options: string[]              // sempre array, default []
     poll_selectable_count: number       // default 1
+    // Ciclo de aprovação na Meta (Cloud API). LOCAL = nunca submetido.
+    meta_template_id: string | null
+    meta_status: 'LOCAL' | 'PENDING' | 'APPROVED' | 'REJECTED' | 'PAUSED' | 'DISABLED'
+    meta_category: string | null
+    meta_language: string | null
+    meta_rejected_reason: string | null
+    meta_synced_at: string | null
 }
+
+export type MetaTemplateStatus = Template['meta_status']
 
 export interface Campaign {
     id: string

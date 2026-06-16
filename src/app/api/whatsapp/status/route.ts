@@ -1,11 +1,11 @@
 import { NextResponse } from 'next/server'
-
-const WHATSAPP_SERVER_URL = process.env.WHATSAPP_SERVER_URL || 'http://localhost:3001'
+import { WHATSAPP_SERVER_URL, vpsHeaders } from '@/lib/whatsapp-vps'
 
 export async function GET() {
   try {
     const res = await fetch(`${WHATSAPP_SERVER_URL}/status`, {
       cache: 'no-store',
+      headers: vpsHeaders(),
       signal: AbortSignal.timeout(8000),
     })
 

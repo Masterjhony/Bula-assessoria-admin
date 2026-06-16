@@ -3,9 +3,33 @@
 import { useState, useRef } from "react"
 import {
     Plus, Save, Trash2, Archive, AlertCircle, CheckCircle2, Loader2, Edit3,
-    ImageIcon, Vote, Upload, X,
+    ImageIcon, Vote, Upload, X, UploadCloud, RefreshCw, ShieldCheck, Clock, ShieldX,
 } from "lucide-react"
-import type { Template } from "./types"
+import type { Template, MetaTemplateStatus } from "./types"
+
+type MetaCategory = "MARKETING" | "UTILITY" | "AUTHENTICATION"
+
+const META_CATEGORY_BY_LOCAL: Record<string, MetaCategory> = {
+    encaminhamento: "UTILITY",
+    optout: "UTILITY",
+    follow_up: "UTILITY",
+}
+
+function metaBadge(status: MetaTemplateStatus) {
+    switch (status) {
+        case "APPROVED":
+            return { label: "aprovado Meta", cls: "text-green-600 dark:text-green-400 bg-green-500/10", Icon: ShieldCheck }
+        case "PENDING":
+            return { label: "pendente Meta", cls: "text-amber-600 dark:text-amber-400 bg-amber-500/10", Icon: Clock }
+        case "REJECTED":
+            return { label: "rejeitado Meta", cls: "text-red-600 dark:text-red-400 bg-red-500/10", Icon: ShieldX }
+        case "PAUSED":
+        case "DISABLED":
+            return { label: status.toLowerCase(), cls: "text-muted-foreground bg-muted", Icon: ShieldX }
+        default:
+            return null // LOCAL = sem badge (só Baileys)
+    }
+}
 
 const CATEGORIES = [
     { id: "welcome", label: "Boas-vindas" },
@@ -69,6 +93,59 @@ export function TemplatesTab({ templates, onChange }: Props) {
     const [uploading, setUploading] = useState(false)
     const [feedback, setFeedback] = useState<{ type: "ok" | "err"; msg: string } | null>(null)
     const fileInputRef = useRef<HTMLInputElement | null>(null)
+    const [submitId, setSubmitId] = useState<string | null>(null)
+    const [submitCategory, setSubmitCategory] = useState<MetaCategory>("MARKETING")
+    const [submitting, setSubmitting] = useState(false)
+    const [syncing, setSyncing] = useState(false)
+
+    function startSubmit(t: Template) {
+        setSubmitId(t.id)
+        setSubmitCategory(META_CATEGORY_BY_LOCAL[t.category] ?? "MARKETING")
+        setFeedback(null)
+    }
+
+    async function confirmSubmit(t: Template) {
+        setSubmitting(true)
+        setFeedback(null)
+        try {
+            const res = await fetch(`/api/whatsapp/central/templates/${t.id}/submit`, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ meta_category: submitCategory }),
+            })
+            const data = await res.json()
+            if (!res.ok) {
+                setFeedback({ type: "err", msg: data.error ?? "Falha ao submeter à Meta" })
+                return
+            }
+            setFeedback({ type: "ok", msg: `Submetido à Meta como "${data.meta_name}" — aguardando aprovação.` })
+            setSubmitId(null)
+            onChange()
+        } catch (e: unknown) {
+            setFeedback({ type: "err", msg: e instanceof Error ? e.message : "Erro" })
+        } finally {
+            setSubmitting(false)
+        }
+    }
+
+    async function syncStatuses() {
+        setSyncing(true)
+        setFeedback(null)
+        try {
+            const res = await fetch(`/api/whatsapp/central/templates/sync`, { method: "POST" })
+            const data = await res.json()
+            if (!res.ok) {
+                setFeedback({ type: "err", msg: data.error ?? "Falha ao sincronizar" })
+                return
+            }
+            setFeedback({ type: "ok", msg: `Status sincronizado (${data.updated} atualizado(s)).` })
+            onChange()
+        } catch (e: unknown) {
+            setFeedback({ type: "err", msg: e instanceof Error ? e.message : "Erro" })
+        } finally {
+            setSyncing(false)
+        }
+    }
 
     function startNew() {
         setEditing(null)
@@ -272,12 +349,23 @@ export function TemplatesTab({ templates, onChange }: Props) {
                     <p className="text-sm text-muted-foreground">
                         {templates.length} template(s) ativos. Use <code>{"{nome}"}</code> nas mensagens para inserir o nome do lead.
                     </p>
-                    <button
-                        onClick={startNew}
-                        className="flex items-center gap-1.5 text-sm bg-primary text-primary-foreground px-3 py-1.5 rounded-lg hover:opacity-90"
-                    >
-                        <Plus className="h-3.5 w-3.5" /> Novo template
-                    </button>
+                    <div className="flex items-center gap-2">
+                        <button
+                            onClick={syncStatuses}
+                            disabled={syncing}
+                            className="flex items-center gap-1.5 text-xs border px-2.5 py-1.5 rounded-lg hover:bg-muted disabled:opacity-50"
+                            title="Atualiza o status de aprovação Meta dos templates submetidos"
+                        >
+                            {syncing ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <RefreshCw className="h-3.5 w-3.5" />}
+                            Sincronizar status
+                        </button>
+                        <button
+                            onClick={startNew}
+                            className="flex items-center gap-1.5 text-sm bg-primary text-primary-foreground px-3 py-1.5 rounded-lg hover:opacity-90"
+                        >
+                            <Plus className="h-3.5 w-3.5" /> Novo template
+                        </button>
+                    </div>
                 </div>
 
                 {Object.keys(grouped).length === 0 && (
@@ -295,15 +383,21 @@ export function TemplatesTab({ templates, onChange }: Props) {
                                 {cat.label}
                             </p>
                             <div className="bg-card text-card-foreground rounded-xl border divide-y">
-                                {list.map(t => (
+                                {list.map(t => {
+                                    const badge = metaBadge(t.meta_status)
+                                    // Só dá pra submeter à Meta templates com corpo de texto
+                                    // (mídia/enquete não são submissíveis aqui) e que não estão
+                                    // já pendentes/aprovados.
+                                    const canSubmit = !!t.body?.trim() &&
+                                        (t.meta_status === "LOCAL" || t.meta_status === "REJECTED")
+                                    return (
                                     <div
                                         key={t.id}
-                                        className={`px-4 py-3 flex items-start gap-3 ${
-                                            editing?.id === t.id ? "bg-primary/5 dark:bg-primary/10" : ""
-                                        }`}
+                                        className={editing?.id === t.id ? "bg-primary/5 dark:bg-primary/10" : ""}
                                     >
+                                      <div className="px-4 py-3 flex items-start gap-3">
                                         <div className="flex-1 min-w-0">
-                                            <div className="flex items-center gap-1.5">
+                                            <div className="flex items-center gap-1.5 flex-wrap">
                                                 <p className="font-semibold text-sm">{t.title}</p>
                                                 {t.media_url && (
                                                     <span className="inline-flex items-center gap-0.5 text-[9px] uppercase tracking-wider text-blue-600 dark:text-blue-400 bg-blue-500/10 px-1.5 py-0.5 rounded">
@@ -315,6 +409,11 @@ export function TemplatesTab({ templates, onChange }: Props) {
                                                         <Vote className="h-2.5 w-2.5" /> enquete
                                                     </span>
                                                 )}
+                                                {badge && (
+                                                    <span className={`inline-flex items-center gap-0.5 text-[9px] uppercase tracking-wider px-1.5 py-0.5 rounded ${badge.cls}`}>
+                                                        <badge.Icon className="h-2.5 w-2.5" /> {badge.label}
+                                                    </span>
+                                                )}
                                             </div>
                                             <p className="text-xs text-muted-foreground line-clamp-2 whitespace-pre-wrap mt-0.5">
                                                 {t.body || (t.media_url ? '(somente mídia)' : '(somente enquete)')}
@@ -322,6 +421,11 @@ export function TemplatesTab({ templates, onChange }: Props) {
                                             <p className="text-[10px] text-muted-foreground mt-1">
                                                 slug: <code>{t.slug}</code> · usado {t.usage_count}×
                                             </p>
+                                            {t.meta_status === "REJECTED" && t.meta_rejected_reason && (
+                                                <p className="text-[10px] text-red-600 dark:text-red-400 mt-0.5">
+                                                    Meta rejeitou: {t.meta_rejected_reason}
+                                                </p>
+                                            )}
                                         </div>
                                         <div className="flex flex-col items-end gap-1 flex-shrink-0">
                                             <button
@@ -331,6 +435,15 @@ export function TemplatesTab({ templates, onChange }: Props) {
                                             >
                                                 <Edit3 className="h-3.5 w-3.5" />
                                             </button>
+                                            {canSubmit && (
+                                                <button
+                                                    onClick={() => startSubmit(t)}
+                                                    className="text-xs text-muted-foreground hover:text-primary p-1 rounded hover:bg-muted"
+                                                    title="Submeter à Meta para aprovação (libera uso em massa pela Cloud API)"
+                                                >
+                                                    <UploadCloud className="h-3.5 w-3.5" />
+                                                </button>
+                                            )}
                                             <button
                                                 onClick={() => handleArchive(t.id)}
                                                 className="text-xs text-muted-foreground hover:text-red-600 p-1 rounded hover:bg-muted"
@@ -339,8 +452,38 @@ export function TemplatesTab({ templates, onChange }: Props) {
                                                 <Archive className="h-3.5 w-3.5" />
                                             </button>
                                         </div>
+                                      </div>
+                                      {submitId === t.id && (
+                                        <div className="px-4 pb-3 -mt-1 flex flex-wrap items-center gap-2 bg-primary/5 dark:bg-primary/10">
+                                            <span className="text-[11px] text-muted-foreground">Categoria Meta:</span>
+                                            <select
+                                                value={submitCategory}
+                                                onChange={e => setSubmitCategory(e.target.value as MetaCategory)}
+                                                className="rounded-md border bg-background px-2 py-1 text-xs"
+                                            >
+                                                <option value="MARKETING">Marketing</option>
+                                                <option value="UTILITY">Utilidade</option>
+                                                <option value="AUTHENTICATION">Autenticação</option>
+                                            </select>
+                                            <button
+                                                onClick={() => confirmSubmit(t)}
+                                                disabled={submitting}
+                                                className="text-xs bg-primary text-primary-foreground px-2.5 py-1 rounded-md disabled:opacity-50 flex items-center gap-1"
+                                            >
+                                                {submitting ? <Loader2 className="h-3 w-3 animate-spin" /> : <UploadCloud className="h-3 w-3" />}
+                                                Submeter
+                                            </button>
+                                            <button
+                                                onClick={() => setSubmitId(null)}
+                                                className="text-xs border px-2.5 py-1 rounded-md hover:bg-muted"
+                                            >
+                                                Cancelar
+                                            </button>
+                                        </div>
+                                      )}
                                     </div>
-                                ))}
+                                    )
+                                })}
                             </div>
                         </div>
                     )

@@ -1,12 +1,13 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { X, Save, Trash2, ChevronDown, ChevronUp, Crown, User, TrendingUp, Phone, Target, SlidersHorizontal, BarChart3, type LucideIcon } from 'lucide-react';
+import { X, Save, Trash2, ChevronDown, ChevronUp, Crown, User, TrendingUp, Phone, Target, SlidersHorizontal, BarChart3, MessageCircle, type LucideIcon } from 'lucide-react';
 import { CRMLead, deleteLead } from '@/app/sistema/actions/crm-leads';
 import { CRM_COLUMNS } from './CRMKanbanBoard';
 import type { CRMCustomField, CRMFunnel, CRMResponsavel } from '@/lib/crm-types';
 import { CRM_STAGE_CONNECTION, evaluateMql } from '@/lib/crm-types';
 import { CRMContactsHistory } from './CRMContactsHistory';
+import { CRMConversationDrawer } from './CRMConversationDrawer';
 
 interface CRMModalProps {
     isOpen: boolean;
@@ -65,6 +66,11 @@ export function CRMModal({ isOpen, onClose, lead, defaultStatus, defaultFunnelId
     const [isSaving, setIsSaving] = useState(false);
     const [isDeleting, setIsDeleting] = useState(false);
     const [showOrigemSection, setShowOrigemSection] = useState(false);
+    const [showWhatsapp, setShowWhatsapp] = useState(false);
+
+    // Telefone do lead para a conversa (celular é o principal; telefone é o
+    // fallback de integrações como a landing JMP).
+    const waPhone = (lead?.celular || lead?.telefone || formData.celular || '').trim();
 
     // Regra de MQL do funil deste lead (cabeças + IE). Default: 'default'.
     const mqlRule = funnels.find(f => f.id === (formData.funnel_id || 'default'))?.mql_rule;
@@ -175,10 +181,31 @@ export function CRMModal({ isOpen, onClose, lead, defaultStatus, defaultFunnelId
                             </p>
                         )}
                     </div>
-                    <button onClick={onClose} className="p-2 hover:bg-gray-100 dark:hover:bg-[#2e2e2e] rounded-full transition-colors text-gray-500">
-                        <X size={20} />
-                    </button>
+                    <div className="flex items-center gap-1">
+                        {lead?.id && waPhone && (
+                            <button
+                                type="button"
+                                onClick={() => setShowWhatsapp(true)}
+                                className="flex items-center gap-1.5 px-3 py-2 rounded-full text-xs font-bold text-green-600 dark:text-green-400 hover:bg-green-500/10 transition-colors"
+                                title="Abrir conversa de WhatsApp"
+                            >
+                                <MessageCircle size={16} /> WhatsApp
+                            </button>
+                        )}
+                        <button onClick={onClose} className="p-2 hover:bg-gray-100 dark:hover:bg-[#2e2e2e] rounded-full transition-colors text-gray-500">
+                            <X size={20} />
+                        </button>
+                    </div>
                 </div>
+
+                {showWhatsapp && lead?.id && waPhone && (
+                    <CRMConversationDrawer
+                        leadId={lead.id}
+                        phone={waPhone}
+                        name={lead.nome || formData.nome || null}
+                        onClose={() => setShowWhatsapp(false)}
+                    />
+                )}
 
                 <form onSubmit={handleSubmit} className="p-6 space-y-6">
                     <div className="space-y-4">

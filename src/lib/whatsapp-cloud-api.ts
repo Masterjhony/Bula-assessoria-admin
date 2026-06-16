@@ -167,6 +167,34 @@ export async function fetchWhatsappCloudTemplates(): Promise<WhatsappCloudTempla
         }))
 }
 
+export interface WhatsappCloudTemplateFull {
+    id: string
+    name: string
+    status: string
+    category: string
+    language: string
+    rejected_reason: string | null
+}
+
+/** Lista os templates da Meta com os campos de status (inclui rejected_reason). */
+export async function fetchWhatsappCloudTemplatesFull(): Promise<WhatsappCloudTemplateFull[]> {
+    const config = getWhatsappCloudConfig()
+    if (!config.businessAccountId) return []
+    const fields = 'id,name,status,category,language,rejected_reason'
+    const json = await metaFetch(`/${config.businessAccountId}/message_templates?fields=${fields}&limit=200`)
+    const rows = (json as { data?: Array<Record<string, unknown>> }).data ?? []
+    return rows
+        .filter(r => r.id && r.name)
+        .map(r => ({
+            id: String(r.id),
+            name: String(r.name),
+            status: String(r.status ?? ''),
+            category: String(r.category ?? ''),
+            language: String(r.language ?? ''),
+            rejected_reason: r.rejected_reason ? String(r.rejected_reason) : null,
+        }))
+}
+
 function variableNamesFromBody(body: string): string[] {
     const names = new Set<string>()
     if (/\{nome\}/i.test(body) || /\{\{\s*1\s*\}\}/.test(body)) names.add('nome')
@@ -200,6 +228,124 @@ export async function syncWhatsappCloudTemplatesToLocal(
 
     if (error) throw new Error(error.message)
     return { synced: rows.length, approved: approved.length, skipped: templates.length - approved.length, templates }
+}
+
+// ── Submissão de templates à Meta (ciclo de aprovação) ─────────────────────
+
+/** Converte um slug em nome de template válido na Meta (a-z0-9_, minúsculo). */
+export function metaTemplateName(slug: string): string {
+    return slug
+        .toLowerCase()
+        .normalize('NFD').replace(/[̀-ͯ]/g, '')
+        .replace(/[^a-z0-9_]+/g, '_')
+        .replace(/^_+|_+$/g, '')
+        .slice(0, 480) || 'template'
+}
+
+/**
+ * Converte o corpo "interno" (com {nome}/{name}) para o formato posicional da
+ * Meta ({{1}}...). Devolve o texto convertido e a lista ordenada de variáveis,
+ * para montar o `example.body_text` exigido pela Meta em templates com variável.
+ */
+export function toMetaBody(body: string): { text: string; variables: string[] } {
+    const variables: string[] = []
+    const map = new Map<string, number>()
+    const text = body.replace(/\{(\w+)\}/g, (_m, name: string) => {
+        const key = name.toLowerCase()
+        if (!map.has(key)) {
+            map.set(key, map.size + 1)
+            variables.push(key)
+        }
+        return `{{${map.get(key)}}}`
+    })
+    return { text, variables }
+}
+
+const EXAMPLE_VALUES: Record<string, string> = {
+    nome: 'João', name: 'João', leilao_nome: 'Leilão Fórmula do Boi',
+    leilao_data: '20/06', leilao_link: 'https://formuladoboi.com/agenda', interesse: 'touros',
+}
+
+export interface CreateMetaTemplateResult {
+    id: string
+    status: string
+    category: string
+}
+
+/**
+ * Cria/submete um template à Meta para aprovação.
+ * POST /{WABA_ID}/message_templates. Retorna o id e o status inicial (geralmente
+ * PENDING). Lança erro com a mensagem da Meta se a submissão for rejeitada na hora.
+ */
+export async function createWhatsappCloudTemplate(input: {
+    name: string
+    category: 'MARKETING' | 'UTILITY' | 'AUTHENTICATION'
+    language: string
+    body: string
+}): Promise<CreateMetaTemplateResult> {
+    const config = getWhatsappCloudConfig()
+    if (!config.businessAccountId) throw new Error('WHATSAPP_CLOUD_BUSINESS_ACCOUNT_ID ausente.')
+
+    const { text, variables } = toMetaBody(input.body)
+    const bodyComponent: Record<string, unknown> = { type: 'BODY', text }
+    if (variables.length > 0) {
+        bodyComponent.example = {
+            body_text: [variables.map(v => EXAMPLE_VALUES[v] || 'exemplo')],
+        }
+    }
+
+    const payload = {
+        name: input.name,
+        category: input.category,
+        language: input.language,
+        components: [bodyComponent],
+    }
+
+    const json = await metaFetch(`/${config.businessAccountId}/message_templates`, {
+        method: 'POST',
+        body: JSON.stringify(payload),
+    }, 30000) as { id?: string; status?: string; category?: string }
+
+    if (!json.id) throw new Error('Meta não retornou id do template.')
+    return { id: json.id, status: json.status ?? 'PENDING', category: json.category ?? input.category }
+}
+
+/**
+ * Sincroniza o status Meta dos templates locais que já foram submetidos
+ * (meta_template_id não nulo). Casa pelo nome do template na Meta.
+ */
+export async function syncMetaTemplateStatuses(
+    supabase: SupabaseClient,
+): Promise<{ updated: number; statuses: Record<string, string> }> {
+    const metaTemplates = await fetchWhatsappCloudTemplatesFull()
+    const byName = new Map(metaTemplates.map(t => [t.name, t]))
+
+    const { data: locals } = await supabase
+        .from('whatsapp_templates')
+        .select('id, slug, meta_template_id, meta_status')
+        .not('meta_template_id', 'is', null)
+
+    let updated = 0
+    const statuses: Record<string, string> = {}
+    for (const local of locals ?? []) {
+        const metaName = metaTemplateName((local as { slug: string }).slug)
+        const meta = byName.get(metaName)
+        if (!meta) continue
+        const newStatus = (meta.status || 'PENDING').toUpperCase()
+        statuses[metaName] = newStatus
+        const { error } = await supabase
+            .from('whatsapp_templates')
+            .update({
+                meta_status: newStatus,
+                meta_category: meta.category || null,
+                meta_language: meta.language || null,
+                meta_rejected_reason: newStatus === 'REJECTED' ? (meta.rejected_reason || 'rejeitado') : null,
+                meta_synced_at: new Date().toISOString(),
+            })
+            .eq('id', (local as { id: string }).id)
+        if (!error) updated++
+    }
+    return { updated, statuses }
 }
 
 function appendPoll(message: string, poll?: CloudCampaignPoll | null): string {
@@ -299,6 +445,46 @@ function shortError(error: unknown): string {
     return msg.length > 500 ? `${msg.slice(0, 497)}...` : msg
 }
 
+/**
+ * Envio unitário pela Cloud API — usado pelo gateway (whatsapp-gateway.ts) para
+ * mensagens 1:1 (resposta do CRM fora da janela de 24h, template para contato
+ * frio). NÃO toca em whatsapp_campaign_recipients nem loga em whatsapp_messages:
+ * quem chama (o gateway) é dono do log unificado.
+ */
+export async function sendSingleViaCloudApi(input: {
+    to: string
+    name?: string | null
+    text?: string | null
+    templateName?: string | null
+    templateLanguage?: string | null
+}): Promise<{ ok: boolean; messageId?: string; error?: string }> {
+    if (!isWhatsappCloudApiConfigured()) {
+        return { ok: false, error: 'WhatsApp Cloud API não configurada.' }
+    }
+    const to = normalizePhone(input.to)
+    if (!to) return { ok: false, error: 'Telefone inválido.' }
+
+    const recipient: CloudCampaignRecipient = {
+        recipient_id: 'single',
+        phone: to,
+        name: input.name ?? null,
+        message: input.text ?? '',
+    }
+
+    try {
+        const payload = buildMessagePayload({
+            to,
+            recipient,
+            templateName: input.templateName ?? null,
+            templateLanguage: input.templateLanguage ?? null,
+        })
+        const messageId = await postCloudMessage(payload)
+        return { ok: true, messageId }
+    } catch (e) {
+        return { ok: false, error: shortError(e) }
+    }
+}
+
 export async function sendCampaignViaCloudApi(
     supabase: SupabaseClient,
     input: CloudCampaignSendInput,
@@ -351,6 +537,8 @@ export async function sendCampaignViaCloudApi(
                 reason: messageId ?? null,
                 lead_id: recipient.lead_id ?? null,
                 direction: 'outbound',
+                channel: 'cloud',
+                intent: 'campaign',
                 body: recipient.message || recipient.caption || null,
                 origin: input.origin || 'campanha',
                 campaign_id: input.campaignId,
@@ -373,6 +561,8 @@ export async function sendCampaignViaCloudApi(
                 error_msg: error,
                 lead_id: recipient.lead_id ?? null,
                 direction: 'outbound',
+                channel: 'cloud',
+                intent: 'campaign',
                 body: recipient.message || recipient.caption || null,
                 origin: input.origin || 'campanha',
                 campaign_id: input.campaignId,

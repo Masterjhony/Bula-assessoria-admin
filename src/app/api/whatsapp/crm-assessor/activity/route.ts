@@ -1,8 +1,7 @@
 import { NextResponse } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
 import { requireAdmin } from '@/lib/auth-helpers'
-
-const WHATSAPP_SERVER_URL = process.env.WHATSAPP_SERVER_URL || 'http://localhost:3001'
+import { WHATSAPP_SERVER_URL, vpsHeaders } from '@/lib/whatsapp-vps'
 
 type Row = {
     id: string
@@ -18,6 +17,7 @@ async function fetchServer(path: string, timeoutMs = 3000): Promise<unknown | nu
     try {
         const res = await fetch(`${WHATSAPP_SERVER_URL}${path}`, {
             cache: 'no-store',
+            headers: vpsHeaders(),
             signal: AbortSignal.timeout(timeoutMs),
         })
         if (!res.ok) return null

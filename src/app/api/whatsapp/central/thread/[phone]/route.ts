@@ -9,8 +9,7 @@ import { createClient } from '@supabase/supabase-js'
 import { requireAdmin } from '@/lib/auth-helpers'
 import { normalizePhone, phoneVariants } from '@/lib/whatsapp-central'
 import { ensureAudienceTagForTemplate } from '@/lib/whatsapp-audience-tags'
-
-const WHATSAPP_SERVER_URL = process.env.WHATSAPP_SERVER_URL || 'http://localhost:3001'
+import { WHATSAPP_SERVER_URL, vpsHeaders } from '@/lib/whatsapp-vps'
 
 export async function GET(
     _req: NextRequest,
@@ -90,7 +89,7 @@ export async function POST(
     // Dispara via VPS
     const waRes = await fetch(`${WHATSAPP_SERVER_URL}/send-direct`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: vpsHeaders({ 'Content-Type': 'application/json' }),
         body: JSON.stringify({ phone, message }),
         signal: AbortSignal.timeout(15000),
     })

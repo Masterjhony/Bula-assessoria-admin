@@ -120,4 +120,5 @@ export function normalizeMediaAndPoll(input: TemplateMediaPollInput): Normalized
 export const TEMPLATE_SELECT_COLUMNS =
     'id, slug, title, category, body, variables, archived, usage_count, updated_at, ' +
     'media_url, media_type, media_mime, media_filename, media_caption, ' +
-    'poll_question, poll_options, poll_selectable_count'
+    'poll_question, poll_options, poll_selectable_count, ' +
+    'meta_template_id, meta_status, meta_category, meta_language, meta_rejected_reason, meta_synced_at'
