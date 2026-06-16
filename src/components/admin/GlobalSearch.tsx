@@ -2,12 +2,13 @@
 
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { useRouter } from 'next/navigation'
-import { Search, Gavel, BarChart3, Users, Building2, Loader2 } from 'lucide-react'
+import { Search, Gavel, BarChart3, Users, Building2, Loader2, Contact } from 'lucide-react'
 
 type Hit = { id: string; label: string; sub?: string; href: string }
 type Payload = {
   leiloes: Hit[]
   fechamentos: Hit[]
+  clientes: Hit[]
   leads: Hit[]
   empresas: Hit[]
 }
@@ -19,6 +20,7 @@ const GROUPS: Array<{
 }> = [
   { key: 'leiloes',     label: 'Leilões',     icon: Gavel },
   { key: 'fechamentos', label: 'Fechamentos', icon: BarChart3 },
+  { key: 'clientes',    label: 'Clientes',    icon: Contact },
   { key: 'leads',       label: 'Leads',       icon: Users },
   { key: 'empresas',    label: 'Empresas',    icon: Building2 },
 ]
@@ -140,7 +142,7 @@ export function GlobalSearch() {
           onChange={e => { setQ(e.target.value); setOpen(true) }}
           onFocus={() => setOpen(true)}
           onKeyDown={onKeyDown}
-          placeholder="Buscar leilões, fechamentos, leads, empresas…"
+          placeholder="Buscar leilões, fechamentos, clientes, leads…"
           className="flex-1 bg-transparent outline-none border-0 text-xs placeholder:text-[var(--text3)]"
           style={{ color: 'var(--text)' }}
         />

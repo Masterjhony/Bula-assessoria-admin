@@ -14,7 +14,7 @@ import {
 } from '@/lib/clientes'
 import { createCliente, registrarInteracao, updateClienteCampos, type NovoClienteInput } from '@/app/sistema/actions/clientes'
 
-type CamposPatch = { observacoes?: string; preferenciasCategorias?: PreferenciaCategoria[] }
+type CamposPatch = { observacoes?: string; preferenciasCategorias?: PreferenciaCategoria[]; tags?: string[] }
 
 const crmLeadHref = (id: string) => `/sistema/crm?lead=${encodeURIComponent(id)}`
 
@@ -66,18 +66,30 @@ function DetailDrawer({
   const m = clienteMetrics(cliente)
   const sm = STATUS_META[cliente.status]
 
-  // estado de edição (notas + preferências), ressincronizado ao trocar de cliente
+  // estado de edição (notas + preferências + tags), ressincronizado ao trocar de cliente
   const [obs, setObs] = useState(cliente.observacoes ?? '')
   const [prefs, setPrefs] = useState<PreferenciaCategoria[]>(cliente.preferenciasCategorias ?? [])
+  const [tagList, setTagList] = useState<string[]>(cliente.tags)
+  const [tagInput, setTagInput] = useState('')
   const [savingObs, setSavingObs] = useState(false)
   const [savingPrefs, setSavingPrefs] = useState(false)
+  const [savingTags, setSavingTags] = useState(false)
   useEffect(() => {
     setObs(cliente.observacoes ?? '')
     setPrefs(cliente.preferenciasCategorias ?? [])
-  }, [cliente.id, cliente.observacoes, cliente.preferenciasCategorias])
+    setTagList(cliente.tags)
+    setTagInput('')
+  }, [cliente.id, cliente.observacoes, cliente.preferenciasCategorias, cliente.tags])
 
   const obsDirty = obs.trim() !== (cliente.observacoes ?? '').trim()
   const prefsDirty = JSON.stringify(prefs) !== JSON.stringify(cliente.preferenciasCategorias ?? [])
+  const tagsDirty = JSON.stringify(tagList) !== JSON.stringify(cliente.tags)
+
+  const addTag = () => {
+    const t = tagInput.trim()
+    if (t && !tagList.includes(t)) setTagList([...tagList, t])
+    setTagInput('')
+  }
 
   const salvarObs = async () => {
     setSavingObs(true)
@@ -86,6 +98,10 @@ function DetailDrawer({
   const salvarPrefs = async () => {
     setSavingPrefs(true)
     try { await onSaveCampos(cliente, { preferenciasCategorias: prefs }) } finally { setSavingPrefs(false) }
+  }
+  const salvarTags = async () => {
+    setSavingTags(true)
+    try { await onSaveCampos(cliente, { tags: tagList }) } finally { setSavingTags(false) }
   }
 
   // Esc fecha o card.
@@ -203,6 +219,14 @@ function DetailDrawer({
                 <FieldLabel icon={Heart}>Categorias de interesse</FieldLabel>
                 <div className="flex flex-wrap gap-1.5">
                   {cliente.interesses.map((i) => <Badge key={i} tone="gold">{i}</Badge>)}
+                </div>
+              </div>
+              <div>
+                <FieldLabel icon={ListChecks}>Preferências de compra</FieldLabel>
+                <div className="flex flex-wrap gap-1.5">
+                  {(cliente.preferenciasCategorias?.length ?? 0) > 0
+                    ? cliente.preferenciasCategorias!.map((p) => <Badge key={p} tone="olive">{p}</Badge>)
+                    : <span className="text-[12px]" style={{ color: 'var(--text3)' }}>Nenhuma — registre na aba “Preferências”.</span>}
                 </div>
               </div>
               <div>
@@ -332,8 +356,33 @@ function DetailDrawer({
               </div>
               <div>
                 <FieldLabel icon={Tag}>Tags</FieldLabel>
-                <div className="flex flex-wrap gap-1.5">
-                  {cliente.tags.length ? cliente.tags.map((t) => <Badge key={t} tone="">{t}</Badge>) : <span className="text-[12px]" style={{ color: 'var(--text3)' }}>Sem tags</span>}
+                <div className="flex flex-wrap gap-1.5 mb-2 min-h-[26px]">
+                  {tagList.length === 0 && <span className="text-[12px]" style={{ color: 'var(--text3)' }}>Sem tags</span>}
+                  {tagList.map((t) => (
+                    <span key={t} className="badge" style={{ paddingRight: 4 }}>
+                      {t}
+                      <button onClick={() => setTagList(tagList.filter((x) => x !== t))} className="ml-0.5 inline-flex items-center hover:opacity-70" aria-label={`Remover ${t}`}>
+                        <X size={11} />
+                      </button>
+                    </span>
+                  ))}
+                </div>
+                <div className="flex gap-2">
+                  <input
+                    className="input"
+                    value={tagInput}
+                    onChange={(e) => setTagInput(e.target.value)}
+                    onKeyDown={(e) => { if (e.key === 'Enter') { e.preventDefault(); addTag() } }}
+                    placeholder="Nova tag e Enter…"
+                  />
+                  <button className="btn shrink-0" onClick={addTag} disabled={!tagInput.trim()} style={{ opacity: tagInput.trim() ? 1 : 0.5 }}>
+                    <Plus size={14} /> Add
+                  </button>
+                </div>
+                <div className="flex justify-end mt-2">
+                  <button className="btn primary" onClick={salvarTags} disabled={!tagsDirty || savingTags} style={{ opacity: tagsDirty && !savingTags ? 1 : 0.5 }}>
+                    <Check size={14} /> {savingTags ? 'Salvando…' : 'Salvar tags'}
+                  </button>
                 </div>
               </div>
             </div>
@@ -408,6 +457,13 @@ export function ClientesClient({ initialClientes }: { initialClientes: Cliente[]
   const [fStatus, setFStatus] = useState<'' | ClienteStatus>('')
   const [fPerfil, setFPerfil] = useState<'' | PerfilConsumo>('')
   const [fInteresse, setFInteresse] = useState<'' | Interesse>('')
+  const [fPreferencia, setFPreferencia] = useState<'' | PreferenciaCategoria>('')
+
+  // Deep-link da busca global: /sistema/clientes?q=<nome> pré-filtra a lista.
+  useEffect(() => {
+    const q = new URLSearchParams(window.location.search).get('q')
+    if (q) setBusca(q)
+  }, [])
 
   const [showNovo, setShowNovo] = useState(false)
   const [showImport, setShowImport] = useState(false)
@@ -444,10 +500,11 @@ export function ClientesClient({ initialClientes }: { initialClientes: Cliente[]
         if (fStatus && c.status !== fStatus) return false
         if (fPerfil && c.perfil !== fPerfil) return false
         if (fInteresse && !c.interesses.includes(fInteresse)) return false
+        if (fPreferencia && !(c.preferenciasCategorias ?? []).includes(fPreferencia)) return false
         return true
       })
       .sort((a, b) => b.m.totalComprado - a.m.totalComprado)
-  }, [enriched, busca, fCidade, fStatus, fPerfil, fInteresse])
+  }, [enriched, busca, fCidade, fStatus, fPerfil, fInteresse, fPreferencia])
 
   // ── KPIs ────────────────────────────────────────────────────────────────────
   const kpis = useMemo(() => {
@@ -461,8 +518,8 @@ export function ClientesClient({ initialClientes }: { initialClientes: Cliente[]
     return { total, ativos, recorrentes, volume, ticket, ultimaCompra }
   }, [enriched])
 
-  const hasFilter = busca || fCidade || fStatus || fPerfil || fInteresse
-  const clearFilters = () => { setBusca(''); setFCidade(''); setFStatus(''); setFPerfil(''); setFInteresse('') }
+  const hasFilter = busca || fCidade || fStatus || fPerfil || fInteresse || fPreferencia
+  const clearFilters = () => { setBusca(''); setFCidade(''); setFStatus(''); setFPerfil(''); setFInteresse(''); setFPreferencia('') }
 
   // ── ações ─────────────────────────────────────────────────────────────────────
   const exportCSV = useCallback(() => {
@@ -526,6 +583,7 @@ export function ClientesClient({ initialClientes }: { initialClientes: Cliente[]
       ...c,
       ...(patch.observacoes !== undefined ? { observacoes: patch.observacoes } : {}),
       ...(patch.preferenciasCategorias !== undefined ? { preferenciasCategorias: patch.preferenciasCategorias } : {}),
+      ...(patch.tags !== undefined ? { tags: patch.tags } : {}),
     })
     setClientes((prev) => prev.map((c) => (c.id === cliente.id ? apply(c) : c)))
     setSelected((prev) => (prev && prev.id === cliente.id ? apply(prev) : prev))
@@ -535,6 +593,7 @@ export function ClientesClient({ initialClientes }: { initialClientes: Cliente[]
         nome: cliente.nome,
         observacoes: patch.observacoes,
         preferenciasCategorias: patch.preferenciasCategorias,
+        tags: patch.tags,
       })
       flash('Alterações salvas.')
     } catch {
@@ -610,6 +669,10 @@ export function ClientesClient({ initialClientes }: { initialClientes: Cliente[]
             <select className="select lg:w-[140px]" value={fInteresse} onChange={(e) => setFInteresse(e.target.value as Interesse | '')}>
               <option value="">Interesse</option>
               {INTERESSES.map((i) => <option key={i} value={i}>{i}</option>)}
+            </select>
+            <select className="select lg:w-[150px]" value={fPreferencia} onChange={(e) => setFPreferencia(e.target.value as PreferenciaCategoria | '')}>
+              <option value="">Preferência</option>
+              {PREFERENCIA_CATEGORIAS.map((p) => <option key={p} value={p}>{p}</option>)}
             </select>
             {hasFilter && (
               <button className="btn ghost shrink-0" onClick={clearFilters} title="Limpar filtros">
