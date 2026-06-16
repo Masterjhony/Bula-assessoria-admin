@@ -217,7 +217,7 @@ export default function VendasPorAssessorPage() {
       doc.setTextColor(255, 255, 255)
       doc.setFont('helvetica', 'bold')
       doc.setFontSize(13)
-      doc.text('FÓRMULA DO BOI · BULA', M, 11.5)
+      doc.text('BULA ASSESSORIA', M, 11.5)
 
       doc.setFont('helvetica', 'normal')
       doc.setFontSize(9)

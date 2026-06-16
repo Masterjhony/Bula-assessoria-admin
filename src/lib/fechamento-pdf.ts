@@ -262,55 +262,38 @@ export async function generateFechamentoPDF(
   doc.setFont('helvetica', 'bold')
   doc.setFontSize(7.5)
   doc.setTextColor(...BRONZE_300)
-  doc.text('FÓRMULA DO BOI · BULA ASSESSORIA', M + 5, 20)
+  doc.text('BULA ASSESSORIA', M + 5, 20)
   doc.setFont('helvetica', 'normal')
   doc.setTextColor(...GRAY_400)
   doc.text('§ FECHAMENTO DE LEILÃO', PW - M, 20, { align: 'right' })
 
-  // Co-branding — Fórmula bull + divisor + Bula Assessoria (lado a lado)
+  // Marca — logo Bula Assessoria centralizado
   const brandY = 38
-  const brandH = 24
-  const bullW = brandH * (360 / 200) // bull: ratio 1.8:1
+  const brandH = 26
   // Bula Assessoria — usa ratio real do PNG carregado (lockup horizontal) com fallback
   const bulaRatio = bulaWhite ? (bulaWhite.w / bulaWhite.h) : 2.66
   const bulaW = brandH * bulaRatio
-  const dividerW = 14
-  const totalW = bullW + dividerW + bulaW
-  const groupX = (PW - totalW) / 2
-
-  if (bullWhite) {
-    doc.addImage(bullWhite, 'PNG', groupX, brandY, bullW, brandH, undefined, 'FAST')
-  }
-
-  // Divisor central — linha vertical fina + "×" bronze
-  const divX = groupX + bullW + dividerW / 2
-  doc.setDrawColor(...BRONZE_700)
-  doc.setLineWidth(0.3)
-  doc.line(divX, brandY + 4, divX, brandY + brandH - 4)
-  doc.setFont('helvetica', 'normal')
-  doc.setFontSize(8)
-  doc.setTextColor(...BRONZE)
-  doc.text('×', divX, brandY + brandH / 2 + 1, { align: 'center' })
+  const bulaX = (PW - bulaW) / 2
 
   if (bulaWhite) {
-    doc.addImage(bulaWhite.data, 'PNG', groupX + bullW + dividerW, brandY, bulaW, brandH, undefined, 'FAST')
+    doc.addImage(bulaWhite.data, 'PNG', bulaX, brandY, bulaW, brandH, undefined, 'FAST')
   } else {
     // Fallback texto
     doc.setFont('helvetica', 'bold')
-    doc.setFontSize(13)
+    doc.setFontSize(15)
     doc.setTextColor(...BRANCO)
-    doc.text('BULA', groupX + bullW + dividerW + bulaW / 2, brandY + brandH / 2 + 2, { align: 'center' })
+    doc.text('BULA', PW / 2, brandY + brandH / 2, { align: 'center' })
     doc.setFont('helvetica', 'normal')
     doc.setFontSize(7)
     doc.setTextColor(...BRONZE_300)
-    doc.text('ASSESSORIA PECUÁRIA', groupX + bullW + dividerW + bulaW / 2, brandY + brandH / 2 + 7, { align: 'center', charSpace: 0.3 })
+    doc.text('ASSESSORIA PECUÁRIA', PW / 2, brandY + brandH / 2 + 6, { align: 'center', charSpace: 0.3 })
   }
 
-  // Wordmark "FÓRMULA DO BOI · BULA ASSESSORIA"
+  // Wordmark
   doc.setFont('helvetica', 'bold')
   doc.setFontSize(10)
   doc.setTextColor(...BRONZE_300)
-  doc.text('FÓRMULA DO BOI  ×  BULA ASSESSORIA', PW / 2, brandY + brandH + 7, { align: 'center', charSpace: 0.4 })
+  doc.text('BULA ASSESSORIA', PW / 2, brandY + brandH + 7, { align: 'center', charSpace: 0.4 })
 
   // Linha bronze decorativa
   doc.setDrawColor(...BRONZE)
@@ -410,7 +393,7 @@ export async function generateFechamentoPDF(
   doc.setFont('helvetica', 'normal')
   doc.setFontSize(6.5)
   doc.setTextColor(...GRAY_400)
-  doc.text('● FÓRMULA DO BOI BRAND GUIDELINES V1.0  ·  CONFIDENCIAL · USO INTERNO', M, PH - 12)
+  doc.text('● BULA ASSESSORIA  ·  CONFIDENCIAL · USO INTERNO', M, PH - 12)
   doc.setFont('helvetica', 'bold')
   doc.setTextColor(...BRONZE)
   doc.text('§ CAPA  ·  01', PW - M, PH - 12, { align: 'right' })
@@ -448,19 +431,17 @@ export async function generateFechamentoPDF(
     // Header preto fino
     doc.setFillColor(...PRETO)
     doc.rect(0, 0, PW, 14, 'F')
-    // Bull bronze pequeno (à esquerda)
-    if (bullBronze) {
-      const bw = 7
-      const bh = bw * (200 / 360)
-      doc.addImage(bullBronze, 'PNG', M, (14 - bh) / 2, bw, bh, undefined, 'FAST')
+    // Logo Bula pequeno (à esquerda)
+    if (bulaWhite) {
+      const bh = 7
+      const bw = bh * (bulaWhite.w / bulaWhite.h)
+      doc.addImage(bulaWhite.data, 'PNG', M, (14 - bh) / 2, bw, bh, undefined, 'FAST')
     } else {
-      doc.setFillColor(...BRONZE)
-      doc.rect(M, 5.5, 3.5, 3.5, 'F')
+      doc.setFont('helvetica', 'bold')
+      doc.setFontSize(7.5)
+      doc.setTextColor(...BRONZE_300)
+      doc.text('BULA ASSESSORIA', M, 8.5, { charSpace: 0.2 })
     }
-    doc.setFont('helvetica', 'bold')
-    doc.setFontSize(7.5)
-    doc.setTextColor(...BRONZE_300)
-    doc.text('FÓRMULA DO BOI · BULA ASSESSORIA', M + 10, 8.5, { charSpace: 0.2 })
     doc.setFont('helvetica', 'normal')
     doc.setTextColor(...GRAY_400)
     doc.text(`§ ${nomeSecao.toUpperCase()}`, PW - M, 8.5, { align: 'right' })
@@ -959,7 +940,10 @@ export async function generateFechamentoPDF(
   const safeDate = String(fech.data || '').slice(0, 10).replace(/-/g, '')
   doc.save(`Fechamento_${safeName}_${safeDate}.pdf`)
 
-  // Reduz lint warning sobre wordmarkBronze não usado (reservado pra v2 com lockup)
+  // Reduz lint warning sobre logos não usados (bull/wordmark Fórmula do Boi removidos
+  // do cabeçalho — relatório passou a usar somente a marca Bula Assessoria)
+  void bullWhite
+  void bullBronze
   void wordmarkBronze
   void GRAY_100
 }
