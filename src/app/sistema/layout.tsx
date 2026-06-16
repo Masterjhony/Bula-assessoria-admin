@@ -8,7 +8,7 @@ import {
   LayoutDashboard, LogOut, Menu, X, Users, Settings, Calendar,
   MessageCircle, FileText, Sparkles, Gavel, Shield, ChevronDown,
   BarChart2, Target, BarChart3,
-  Mail, ImageIcon,
+  Mail, ImageIcon, Contact,
 } from 'lucide-react'
 import { createClient } from '@/utils/supabase/client'
 import { ThemeProvider } from '@/components/theme-provider'
@@ -26,6 +26,7 @@ function isGroup(e: NavEntry): e is NavGroup {
 
 const navConfig: NavEntry[] = [
   { href: '/sistema', label: 'Dashboard', icon: LayoutDashboard },
+  { href: '/sistema/clientes', label: 'Clientes', icon: Contact },
   { href: '/sistema/crm', label: 'CRM', icon: Users },
   {
     label: 'Leilões', icon: Gavel,

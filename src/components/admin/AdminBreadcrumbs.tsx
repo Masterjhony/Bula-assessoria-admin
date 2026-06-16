@@ -11,6 +11,7 @@ const ROUTE_MAP: Record<string, { label: string; section?: string }> = {
   dashboard: { label: 'Dashboard' },
   analytics: { label: 'Analytics', section: 'Ferramentas' },
   'biblioteca-midia': { label: 'Biblioteca de Mídia', section: 'Ferramentas' },
+  clientes: { label: 'Clientes' },
   contratos: { label: 'Contratos', section: 'ERP' },
   crm: { label: 'CRM' },
   ia: { label: 'IA Mapeamento', section: 'Ferramentas' },
