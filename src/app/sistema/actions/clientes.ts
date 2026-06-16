@@ -6,7 +6,8 @@ import type { CRMLead, CRMContactEntry } from './crm-leads'
 import { recordContact } from './crm-leads'
 import {
   type Cliente, type CompraHist, type InteracaoHist, type Interesse,
-  type ClienteStatus, type PerfilConsumo, clienteMatchKey,
+  type ClienteStatus, type PerfilConsumo, type PreferenciaCategoria,
+  clienteMatchKey,
 } from '@/lib/clientes'
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -39,6 +40,7 @@ type ClienteRow = {
   cidade: string | null; uf: string | null; perfil: string | null; status: string | null
   recorrente: boolean | null; interesses: unknown; tags: unknown
   observacoes: string | null; preferencias: string | null
+  preferencias_categorias: unknown
   proximo_followup: string | null; crm_lead_id: string | null
 }
 
@@ -60,12 +62,14 @@ const TIPO_TO_TYPE: Record<InteracaoHist['tipo'], CRMContactEntry['type']> = {
 const VALID_PERFIL: PerfilConsumo[] = ['Premium', 'Recorrente', 'Ocasional', 'Novo']
 const VALID_STATUS: ClienteStatus[] = ['ativo', 'quente', 'frio', 'inativo']
 const VALID_INTERESSE: Interesse[] = ['Sêmen', 'Embriões', 'Touros', 'Matrizes', 'Leilões']
+const VALID_PREF_CAT: PreferenciaCategoria[] = ['Bezerros', 'Novilhas', 'Vacas', 'Touros', 'Embriões', 'Sêmen']
 const VALID_TIPO: InteracaoHist['tipo'][] = ['WhatsApp', 'Ligação', 'E-mail', 'Visita', 'Reunião']
 
 const asPerfil = (v: unknown): PerfilConsumo => (VALID_PERFIL.includes(v as PerfilConsumo) ? (v as PerfilConsumo) : 'Novo')
 const asStatus = (v: unknown): ClienteStatus => (VALID_STATUS.includes(v as ClienteStatus) ? (v as ClienteStatus) : 'quente')
 const asTipo = (v: unknown): InteracaoHist['tipo'] => (VALID_TIPO.includes(v as InteracaoHist['tipo']) ? (v as InteracaoHist['tipo']) : 'WhatsApp')
 const asInteresses = (v: unknown): Interesse[] => (Array.isArray(v) ? v.filter((x): x is Interesse => VALID_INTERESSE.includes(x as Interesse)) : [])
+const asPrefCats = (v: unknown): PreferenciaCategoria[] => (Array.isArray(v) ? v.filter((x): x is PreferenciaCategoria => VALID_PREF_CAT.includes(x as PreferenciaCategoria)) : [])
 const asStrArr = (v: unknown): string[] => (Array.isArray(v) ? v.map((x) => String(x)).filter(Boolean) : [])
 
 function descCompra(lotes: number, animais: number): string {
@@ -298,6 +302,7 @@ export async function getClientes(): Promise<Cliente[]> {
         tags: manualTags.length ? [...new Set([...existing.tags, ...manualTags])] : existing.tags,
         observacoes: row.observacoes || existing.observacoes,
         preferencias: row.preferencias || existing.preferencias,
+        preferenciasCategorias: asPrefCats(row.preferencias_categorias),
         proximoFollowup: row.proximo_followup ? String(row.proximo_followup).slice(0, 10) : existing.proximoFollowup,
         crmLeadId: existing.crmLeadId || row.crm_lead_id || undefined,
         clienteRowId: row.id,
@@ -319,6 +324,7 @@ export async function getClientes(): Promise<Cliente[]> {
         tags: manualTags,
         observacoes: row.observacoes || 'Cliente cadastrado manualmente.',
         preferencias: row.preferencias || undefined,
+        preferenciasCategorias: asPrefCats(row.preferencias_categorias),
         proximoFollowup: row.proximo_followup ? String(row.proximo_followup).slice(0, 10) : undefined,
         compras: [],
         interacoes: mapLeadInteracoes(lead),
@@ -451,5 +457,48 @@ export async function registrarInteracao(input: RegistrarInteracaoInput): Promis
     nota: input.nota,
   })
   if (error) throw new Error(`Erro ao registrar interação: ${error.message}`)
+  revalidatePath('/sistema/clientes')
+}
+
+// ── edição de campos (notas, preferências, tags) ──
+export interface UpdateClienteCamposInput {
+  matchKey: string
+  nome: string // usado quando ainda não existe linha (insere o overlay)
+  observacoes?: string
+  preferencias?: string
+  preferenciasCategorias?: PreferenciaCategoria[]
+  tags?: string[]
+}
+
+/**
+ * Edita campos do cliente (observações, preferências, tags). Funciona tanto
+ * para clientes manuais quanto para compradores derivados de fechamentos:
+ * faz UPDATE na linha de `clientes` se existir, senão cria o overlay
+ * (INSERT com match_key + nome + os campos editados).
+ */
+export async function updateClienteCampos(input: UpdateClienteCamposInput): Promise<void> {
+  const supabase = await createClient()
+  if (!input.matchKey) throw new Error('Cliente inválido.')
+
+  const patch: Record<string, unknown> = {}
+  if (input.observacoes !== undefined) patch.observacoes = input.observacoes
+  if (input.preferencias !== undefined) patch.preferencias = input.preferencias
+  if (input.preferenciasCategorias !== undefined) patch.preferencias_categorias = input.preferenciasCategorias.filter((c) => VALID_PREF_CAT.includes(c))
+  if (input.tags !== undefined) patch.tags = input.tags
+  if (Object.keys(patch).length === 0) return
+
+  const { data: existing } = await supabase
+    .from('clientes')
+    .select('id')
+    .eq('match_key', input.matchKey)
+    .maybeSingle()
+
+  if (existing) {
+    const { error } = await supabase.from('clientes').update(patch).eq('match_key', input.matchKey)
+    if (error) throw new Error(`Erro ao salvar: ${error.message}`)
+  } else {
+    const { error } = await supabase.from('clientes').insert({ match_key: input.matchKey, nome: input.nome, ...patch })
+    if (error) throw new Error(`Erro ao salvar: ${error.message}`)
+  }
   revalidatePath('/sistema/clientes')
 }

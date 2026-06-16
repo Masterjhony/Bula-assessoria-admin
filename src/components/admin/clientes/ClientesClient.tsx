@@ -5,14 +5,16 @@ import {
   Users, UserPlus, Upload, Download, Search, MessageCircle, Phone, Mail,
   MapPin, Tag, X, Star, Flame, Snowflake, MinusCircle, ShoppingCart,
   History, Heart, FileText, CalendarClock, ChevronRight, Repeat, TrendingUp,
-  Plus, Filter, ListChecks, ExternalLink,
+  Plus, Filter, ListChecks, ExternalLink, Check, Pencil,
 } from 'lucide-react'
 import {
   type Cliente, type ClienteStatus, type Interesse, type PerfilConsumo,
-  type InteracaoHist, clienteMetrics, brl, brlCompact, fmtDate, timeAgo,
-  waLink, INTERESSES, PERFIS,
+  type InteracaoHist, type PreferenciaCategoria, clienteMetrics, brl, brlCompact,
+  fmtDate, timeAgo, waLink, INTERESSES, PERFIS, PREFERENCIA_CATEGORIAS,
 } from '@/lib/clientes'
-import { createCliente, registrarInteracao, type NovoClienteInput } from '@/app/sistema/actions/clientes'
+import { createCliente, registrarInteracao, updateClienteCampos, type NovoClienteInput } from '@/app/sistema/actions/clientes'
+
+type CamposPatch = { observacoes?: string; preferenciasCategorias?: PreferenciaCategoria[] }
 
 const crmLeadHref = (id: string) => `/sistema/crm?lead=${encodeURIComponent(id)}`
 
@@ -53,17 +55,40 @@ function Kpi({ value, cur, label, tag, tagDown }: { value: string; cur?: string;
 type DrawerTab = 'cadastro' | 'compras' | 'interacoes' | 'preferencias' | 'observacoes'
 
 function DetailDrawer({
-  cliente, onClose, onRegistrarInteracao,
+  cliente, onClose, onRegistrarInteracao, onSaveCampos,
 }: {
   cliente: Cliente
   onClose: () => void
   onRegistrarInteracao: (c: Cliente) => void
+  onSaveCampos: (c: Cliente, patch: CamposPatch) => Promise<void>
 }) {
   const [tab, setTab] = useState<DrawerTab>('cadastro')
   const m = clienteMetrics(cliente)
   const sm = STATUS_META[cliente.status]
 
-  // Esc fecha o drawer.
+  // estado de edição (notas + preferências), ressincronizado ao trocar de cliente
+  const [obs, setObs] = useState(cliente.observacoes ?? '')
+  const [prefs, setPrefs] = useState<PreferenciaCategoria[]>(cliente.preferenciasCategorias ?? [])
+  const [savingObs, setSavingObs] = useState(false)
+  const [savingPrefs, setSavingPrefs] = useState(false)
+  useEffect(() => {
+    setObs(cliente.observacoes ?? '')
+    setPrefs(cliente.preferenciasCategorias ?? [])
+  }, [cliente.id, cliente.observacoes, cliente.preferenciasCategorias])
+
+  const obsDirty = obs.trim() !== (cliente.observacoes ?? '').trim()
+  const prefsDirty = JSON.stringify(prefs) !== JSON.stringify(cliente.preferenciasCategorias ?? [])
+
+  const salvarObs = async () => {
+    setSavingObs(true)
+    try { await onSaveCampos(cliente, { observacoes: obs.trim() }) } finally { setSavingObs(false) }
+  }
+  const salvarPrefs = async () => {
+    setSavingPrefs(true)
+    try { await onSaveCampos(cliente, { preferenciasCategorias: prefs }) } finally { setSavingPrefs(false) }
+  }
+
+  // Esc fecha o card.
   useEffect(() => {
     const h = (e: KeyboardEvent) => { if (e.key === 'Escape') onClose() }
     document.addEventListener('keydown', h)
@@ -79,11 +104,11 @@ function DetailDrawer({
   ]
 
   return (
-    <div className="fixed inset-0 z-[60] flex justify-end">
+    <div className="fixed inset-0 z-[60] flex items-center justify-center p-4">
       <div className="absolute inset-0 bg-black/55 backdrop-blur-[2px] animate-[fadeIn_.15s_ease]" onClick={onClose} />
       <aside
-        className="relative h-full w-full max-w-[560px] flex flex-col shadow-2xl shadow-black/40 animate-[slideIn_.22s_cubic-bezier(.22,1,.36,1)]"
-        style={{ background: 'var(--surface)', borderLeft: '1px solid var(--border2)' }}
+        className="relative w-full max-w-[620px] max-h-[90vh] flex flex-col shadow-2xl shadow-black/40 animate-[popIn_.18s_ease] overflow-hidden"
+        style={{ background: 'var(--surface)', border: '1px solid var(--border2)', borderRadius: 14 }}
       >
         {/* header */}
         <div className="px-6 pt-5 pb-4" style={{ borderBottom: '1px solid var(--border)' }}>
@@ -247,10 +272,40 @@ function DetailDrawer({
             <div className="space-y-4">
               <div>
                 <FieldLabel icon={Heart}>Preferências de compra</FieldLabel>
-                <p className="text-[13px] leading-relaxed" style={{ color: 'var(--text2)' }}>{cliente.preferencias || 'Sem preferências registradas.'}</p>
+                <p className="text-[11px] mb-2" style={{ color: 'var(--text3)' }}>Selecione as categorias que este cliente costuma comprar.</p>
+                <select
+                  className="select"
+                  value=""
+                  onChange={(e) => {
+                    const v = e.target.value as PreferenciaCategoria
+                    if (v && !prefs.includes(v)) setPrefs([...prefs, v])
+                    e.currentTarget.value = ''
+                  }}
+                >
+                  <option value="">+ Adicionar preferência…</option>
+                  {PREFERENCIA_CATEGORIAS.filter((c) => !prefs.includes(c)).map((c) => (
+                    <option key={c} value={c}>{c}</option>
+                  ))}
+                </select>
+                <div className="flex flex-wrap gap-1.5 mt-3 min-h-[26px]">
+                  {prefs.length === 0 && <span className="text-[12px]" style={{ color: 'var(--text3)' }}>Nenhuma preferência registrada.</span>}
+                  {prefs.map((c) => (
+                    <span key={c} className="badge gold" style={{ paddingRight: 4 }}>
+                      {c}
+                      <button onClick={() => setPrefs(prefs.filter((x) => x !== c))} className="ml-0.5 inline-flex items-center hover:opacity-70" aria-label={`Remover ${c}`}>
+                        <X size={11} />
+                      </button>
+                    </span>
+                  ))}
+                </div>
+                <div className="flex justify-end mt-3">
+                  <button className="btn primary" onClick={salvarPrefs} disabled={!prefsDirty || savingPrefs} style={{ opacity: prefsDirty && !savingPrefs ? 1 : 0.5 }}>
+                    <Check size={14} /> {savingPrefs ? 'Salvando…' : 'Salvar preferências'}
+                  </button>
+                </div>
               </div>
               <div>
-                <FieldLabel icon={ListChecks}>Categorias de interesse</FieldLabel>
+                <FieldLabel icon={ListChecks}>Categorias de interesse (do histórico)</FieldLabel>
                 <div className="flex flex-wrap gap-1.5">
                   {cliente.interesses.map((i) => <Badge key={i} tone="gold">{i}</Badge>)}
                 </div>
@@ -261,8 +316,19 @@ function DetailDrawer({
           {tab === 'observacoes' && (
             <div className="space-y-4">
               <div>
-                <FieldLabel icon={FileText}>Observações comerciais</FieldLabel>
-                <p className="text-[13px] leading-relaxed" style={{ color: 'var(--text2)' }}>{cliente.observacoes || 'Sem observações.'}</p>
+                <FieldLabel icon={Pencil}>Observações comerciais</FieldLabel>
+                <textarea
+                  className="textarea"
+                  value={obs}
+                  onChange={(e) => setObs(e.target.value)}
+                  placeholder="Escreva anotações comerciais sobre o cliente…"
+                  style={{ minHeight: 120 }}
+                />
+                <div className="flex justify-end mt-2">
+                  <button className="btn primary" onClick={salvarObs} disabled={!obsDirty || savingObs} style={{ opacity: obsDirty && !savingObs ? 1 : 0.5 }}>
+                    <Check size={14} /> {savingObs ? 'Salvando…' : 'Salvar notas'}
+                  </button>
+                </div>
               </div>
               <div>
                 <FieldLabel icon={Tag}>Tags</FieldLabel>
@@ -454,6 +520,28 @@ export function ClientesClient({ initialClientes }: { initialClientes: Cliente[]
       .catch(() => flash('Interação registrada localmente (falha ao salvar no servidor).'))
   }
 
+  // Edição de campos (notas / preferências) com update otimista + persistência.
+  const saveCampos = async (cliente: Cliente, patch: CamposPatch) => {
+    const apply = (c: Cliente): Cliente => ({
+      ...c,
+      ...(patch.observacoes !== undefined ? { observacoes: patch.observacoes } : {}),
+      ...(patch.preferenciasCategorias !== undefined ? { preferenciasCategorias: patch.preferenciasCategorias } : {}),
+    })
+    setClientes((prev) => prev.map((c) => (c.id === cliente.id ? apply(c) : c)))
+    setSelected((prev) => (prev && prev.id === cliente.id ? apply(prev) : prev))
+    try {
+      await updateClienteCampos({
+        matchKey: cliente.matchKey || '',
+        nome: cliente.nome,
+        observacoes: patch.observacoes,
+        preferenciasCategorias: patch.preferenciasCategorias,
+      })
+      flash('Alterações salvas.')
+    } catch {
+      flash('Falha ao salvar no servidor.')
+    }
+  }
+
   // mantém o drawer sincronizado quando a lista muda.
   useEffect(() => {
     if (selected) {
@@ -639,6 +727,7 @@ export function ClientesClient({ initialClientes }: { initialClientes: Cliente[]
           cliente={selected}
           onClose={() => setSelected(null)}
           onRegistrarInteracao={(c) => setInteracaoTarget(c)}
+          onSaveCampos={saveCampos}
         />
       )}
 

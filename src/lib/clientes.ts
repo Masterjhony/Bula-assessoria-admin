@@ -8,10 +8,13 @@
 export type ClienteStatus = 'ativo' | 'quente' | 'frio' | 'inativo'
 export type PerfilConsumo = 'Premium' | 'Recorrente' | 'Ocasional' | 'Novo'
 export type Interesse = 'Sêmen' | 'Embriões' | 'Touros' | 'Matrizes' | 'Leilões'
+// Preferências de compra do cliente (categorias de animal/genética).
+export type PreferenciaCategoria = 'Bezerros' | 'Novilhas' | 'Vacas' | 'Touros' | 'Embriões' | 'Sêmen'
 
 export const INTERESSES: Interesse[] = ['Sêmen', 'Embriões', 'Touros', 'Matrizes', 'Leilões']
 export const STATUSES: ClienteStatus[] = ['ativo', 'quente', 'frio', 'inativo']
 export const PERFIS: PerfilConsumo[] = ['Premium', 'Recorrente', 'Ocasional', 'Novo']
+export const PREFERENCIA_CATEGORIAS: PreferenciaCategoria[] = ['Bezerros', 'Novilhas', 'Vacas', 'Touros', 'Embriões', 'Sêmen']
 
 export interface CompraHist {
   id: string
@@ -46,6 +49,8 @@ export interface Cliente {
   tags: string[]
   observacoes?: string
   preferencias?: string
+  // Preferências de compra estruturadas (multi-seleção).
+  preferenciasCategorias?: PreferenciaCategoria[]
   proximoFollowup?: string
   compras: CompraHist[]
   interacoes: InteracaoHist[]
