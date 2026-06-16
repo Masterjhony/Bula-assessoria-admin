@@ -11,18 +11,32 @@ export async function GET(req: NextRequest) {
   const sp = req.nextUrl.searchParams
   const status = sp.get('status')
   const fornecedor = sp.get('fornecedor_id')
+  const categoria = sp.get('categoria_id')
+  const centro = sp.get('centro_custo_id')
+  const leilao = sp.get('leilao')
   const from = sp.get('from')
   const to = sp.get('to')
   const search = sp.get('q') || ''
+  // escapa caracteres que quebram o filtro ilike do PostgREST (vírgula/parênteses)
+  const safe = (s: string) => s.replace(/[(),%]/g, ' ').trim()
   let q = admin()
     .from('erp_contas_pagar')
     .select('*, fornecedor:erp_pessoas!fornecedor_id(id,nome), categoria:erp_categorias!categoria_id(id,nome,cor), centro:erp_centros_custo!centro_custo_id(id,nome,codigo), conta:erp_contas_bancarias!conta_bancaria_id(id,nome)')
     .order('vencimento')
   if (status) q = q.eq('status', status)
   if (fornecedor) q = q.eq('fornecedor_id', fornecedor)
+  if (categoria) q = q.eq('categoria_id', categoria)
+  if (centro) q = q.eq('centro_custo_id', centro)
   if (from) q = q.gte('vencimento', from)
   if (to) q = q.lte('vencimento', to)
-  if (search) q = q.or(`descricao.ilike.%${search}%,numero_documento.ilike.%${search}%,observacoes.ilike.%${search}%`)
+  if (leilao) {
+    const l = safe(leilao)
+    q = q.or(`descricao.ilike.%${l}%,numero_documento.ilike.%${l}%,observacoes.ilike.%${l}%`)
+  }
+  if (search) {
+    const s = safe(search)
+    q = q.or(`descricao.ilike.%${s}%,numero_documento.ilike.%${s}%,observacoes.ilike.%${s}%`)
+  }
   const { data, error } = await q
   if (error) return fail(error.message, 500)
   await admin().rpc('erp_atualizar_vencidos')

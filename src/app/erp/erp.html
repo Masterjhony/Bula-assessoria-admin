@@ -676,6 +676,11 @@ async function renderContas(modo) {
   const params = new URLSearchParams();
   if (state.filters.status) params.set('status', state.filters.status);
   if (state.filters.search) params.set('q', state.filters.search);
+  if (state.filters.from) params.set('from', state.filters.from);
+  if (state.filters.to) params.set('to', state.filters.to);
+  if (isCP && state.filters.categoria_id) params.set('categoria_id', state.filters.categoria_id);
+  if (isCP && state.filters.centro_custo_id) params.set('centro_custo_id', state.filters.centro_custo_id);
+  if (isCP && state.filters.leilao) params.set('leilao', state.filters.leilao);
   const list = await api(`${endpoint}?${params.toString()}`);
   if (isCP) state.cp = list; else state.cr = list;
 
@@ -688,6 +693,18 @@ async function renderContas(modo) {
     else if (['pago','recebido'].includes(r.status)) acc.pago += Number(isCP?r.valor_pago:r.valor_recebido)||0;
     return acc;
   }, { aberto:0, vencido:0, pago:0 });
+
+  // Total do recorte atual (soma dos valores filtrados) e quebra por centro de custo
+  const totalFiltro = list.reduce((s, r) => s + Number(r.valor||0), 0);
+  const byCentro = {};
+  if (isCP) {
+    for (const r of list) {
+      const nome = r.centro?.nome || 'Sem centro de custo';
+      byCentro[nome] = (byCentro[nome] || 0) + Number(r.valor||0);
+    }
+  }
+  const centrosResumo = Object.entries(byCentro).sort((a,b)=>b[1]-a[1]);
+  const hasFiltros = !!(state.filters.categoria_id || state.filters.centro_custo_id || state.filters.leilao || state.filters.from || state.filters.to || state.filters.status || state.filters.search);
 
   const html = `
     <div class="page-header">
@@ -715,10 +732,23 @@ async function renderContas(modo) {
         <div class="kpi-label">${isCP?'Pago':'Recebido'}</div>
         <div class="kpi-value money positive">${fmtBRL(stTotals.pago)}</div>
       </div>
+      <div class="kpi">
+        <div class="kpi-icon"><span class="material-symbols-outlined">functions</span></div>
+        <div class="kpi-label">Total no filtro <small>(${list.length})</small></div>
+        <div class="kpi-value money">${fmtBRL(totalFiltro)}</div>
+      </div>
     </div>
 
+    ${isCP && centrosResumo.length ? `
+    <div class="cc-resumo" style="display:flex;flex-wrap:wrap;gap:8px;margin:0 0 14px">
+      ${centrosResumo.map(([nome,val]) => `
+        <button class="chip" style="cursor:pointer;background:var(--surface2,#1b1b1b);border:1px solid var(--border,#333)" title="Filtrar por este centro de custo" onclick="onFilterCentroNome('${escapeHtml(nome).replace(/'/g,"\\'")}')">
+          <span style="opacity:.7">${escapeHtml(nome)}</span> &nbsp;<strong class="money negative">${fmtBRL(val)}</strong>
+        </button>`).join('')}
+    </div>` : ''}
+
     <div class="table-wrap">
-      <div class="table-toolbar">
+      <div class="table-toolbar" style="flex-wrap:wrap;gap:8px;align-items:center">
         <div class="table-search">
           <span class="material-symbols-outlined">search</span>
           <input type="text" placeholder="Buscar titulo..." value="${state.filters.search||''}" oninput="onFilterSearch(this.value)">
@@ -730,6 +760,20 @@ async function renderContas(modo) {
           <option value="vencido" ${state.filters.status==='vencido'?'selected':''}>Vencido</option>
           <option value="${isCP?'pago':'recebido'}" ${state.filters.status===(isCP?'pago':'recebido')?'selected':''}>${isCP?'Pago':'Recebido'}</option>
         </select>
+        ${isCP ? `
+        <input class="table-filter" type="text" placeholder="Leilão (ex: JMP)" value="${escapeHtml(state.filters.leilao||'')}" oninput="onFilterLeilao(this.value)" style="min-width:130px">
+        <select class="table-filter" onchange="onFilterCentro(this.value)">
+          <option value="">Todos os centros de custo</option>
+          ${state.centros.map(c=>`<option value="${c.id}" ${state.filters.centro_custo_id===c.id?'selected':''}>${c.codigo} - ${escapeHtml(c.nome)}</option>`).join('')}
+        </select>
+        <select class="table-filter" onchange="onFilterCategoria(this.value)">
+          <option value="">Todas as categorias</option>
+          ${state.categorias.filter(c=>c.tipo==='despesa').map(c=>`<option value="${c.id}" ${state.filters.categoria_id===c.id?'selected':''}>${escapeHtml(c.nome)}</option>`).join('')}
+        </select>
+        <label class="table-filter" style="display:flex;align-items:center;gap:4px">Venc. de <input type="date" value="${state.filters.from||''}" onchange="onFilterDataDe(this.value)" style="border:0;background:transparent;color:inherit"></label>
+        <label class="table-filter" style="display:flex;align-items:center;gap:4px">até <input type="date" value="${state.filters.to||''}" onchange="onFilterDataAte(this.value)" style="border:0;background:transparent;color:inherit"></label>
+        ` : ''}
+        ${hasFiltros ? `<button class="btn btn-ghost" onclick="limparFiltros()" title="Limpar filtros"><span class="material-symbols-outlined">filter_alt_off</span>Limpar</button>` : ''}
       </div>
       ${list.length === 0 ? `<div class="empty"><span class="material-symbols-outlined">${isCP?'payments':'request_quote'}</span><h3>Nenhum titulo cadastrado</h3><p>Clique em "Novo Titulo" para comecar.</p></div>` : `
       <table>
@@ -738,6 +782,7 @@ async function renderContas(modo) {
             <th>Descricao</th>
             <th>${isCP?'Fornecedor':'Cliente'}</th>
             <th>Categoria</th>
+            ${isCP?'<th>Centro de Custo</th>':''}
             <th>Emissao</th>
             <th>Vencimento</th>
             <th style="text-align:right">Valor</th>
@@ -754,6 +799,7 @@ async function renderContas(modo) {
             </td>
             <td>${escapeHtml((isCP?r.fornecedor:r.cliente)?.nome || '--')}</td>
             <td>${r.categoria?`<span class="chip" style="background:${r.categoria.cor}22;color:${r.categoria.cor}">${escapeHtml(r.categoria.nome)}</span>`:'--'}</td>
+            ${isCP?`<td>${r.centro?`<span class="chip" style="background:#8B5A2B22;color:#C8A96E" title="${escapeHtml(r.centro.nome)}">${escapeHtml(r.centro.codigo||'')} ${escapeHtml(r.centro.nome)}</span>`:'<span style="color:var(--text3)">--</span>'}</td>`:''}
             <td>${fmtDate(r.emissao)}</td>
             <td>${fmtDate(r.vencimento)}</td>
             <td style="text-align:right" class="money ${isCP?'negative':'positive'}">${fmtBRL(r.valor)}</td>
@@ -788,6 +834,19 @@ function statusChip(s) {
 
 const onFilterSearch = debounce((v)=>{ state.filters.search = v; render(); }, 350);
 function onFilterStatus(v) { state.filters.status = v; render(); }
+function onFilterCategoria(v) { state.filters.categoria_id = v || ''; render(); }
+function onFilterCentro(v) { state.filters.centro_custo_id = v || ''; render(); }
+function onFilterCentroNome(nome) {
+  const c = state.centros.find(x => x.nome === nome);
+  if (c) { state.filters.centro_custo_id = c.id; render(); }
+}
+const onFilterLeilao = debounce((v)=>{ state.filters.leilao = v; render(); }, 350);
+function onFilterDataDe(v) { state.filters.from = v || ''; render(); }
+function onFilterDataAte(v) { state.filters.to = v || ''; render(); }
+function limparFiltros() {
+  state.filters = {};
+  render();
+}
 
 function openTitulo(modo, id) {
   const isCP = modo === 'pagar';
@@ -2896,8 +2955,9 @@ const coNorm = s => (s||'').trim().toUpperCase();
 function coFilteredFechamentos() {
   const all = state.fechamentos || [];
   const f = state.filters;
-  const mes = f.coMes||'', ano = f.coAno||'';
+  const mes = f.coMes||'', ano = f.coAno||'', leilao = f.coLeilao||'';
   return all.filter(x => {
+    if (leilao && x.id !== leilao) return false;
     const [y,m] = (x.data||'').split('-');
     if (ano && y !== ano) return false;
     if (mes && m !== mes) return false;
@@ -2929,14 +2989,15 @@ function coAggregate() {
 
 function coFilter(key, val) { state.filters[key] = val; renderComissionamento(); }
 const coSearchInput = debounce((v)=>{ state.filters.coSearch = v; renderComissionamento(); }, 300);
-function coClear() { ['coMes','coAno','coSearch','coEmpresa'].forEach(k=>delete state.filters[k]); renderComissionamento(); }
+function coClear() { ['coMes','coAno','coSearch','coEmpresa','coLeilao'].forEach(k=>delete state.filters[k]); renderComissionamento(); }
 
 async function renderComissionamento() {
   if (!state.fechamentos) state.fechamentos = await api('/api/bula/fechamento');
   const all = state.fechamentos || [];
   const f = state.filters;
-  const mes=f.coMes||'', ano=f.coAno||'', search=f.coSearch||'', empresa=f.coEmpresa||'';
+  const mes=f.coMes||'', ano=f.coAno||'', search=f.coSearch||'', empresa=f.coEmpresa||'', leilaoSel=f.coLeilao||'';
   const anos = [...new Set(all.map(x=>(x.data||'').slice(0,4)).filter(Boolean))].sort().reverse();
+  const leiloesOpts = [...all].sort((a,b)=>(b.data||'').localeCompare(a.data||''));
 
   let assessores = coAggregate();
   const empresas = [...new Set(assessores.flatMap(a=>a.empresas))].sort();
@@ -3006,7 +3067,11 @@ async function renderComissionamento() {
           <option value="">Todas as empresas</option>
           ${empresas.map(e=>`<option value="${escapeHtml(e)}" ${empresa===e?'selected':''}>${escapeHtml(e)}</option>`).join('')}
         </select>
-        ${(mes||ano||search||empresa)?`<button class="btn btn-ghost btn-sm" onclick="coClear()"><span class="material-symbols-outlined">filter_alt_off</span>Limpar</button>`:''}
+        <select class="table-filter" onchange="coFilter('coLeilao', this.value)" style="max-width:240px">
+          <option value="">Todos os leiloes</option>
+          ${leiloesOpts.map(x=>`<option value="${x.id}" ${leilaoSel===x.id?'selected':''}>${escapeHtml(x.nome)}</option>`).join('')}
+        </select>
+        ${(mes||ano||search||empresa||leilaoSel)?`<button class="btn btn-ghost btn-sm" onclick="coClear()"><span class="material-symbols-outlined">filter_alt_off</span>Limpar</button>`:''}
       </div>
       ${assessores.length===0?`<div class="empty"><span class="material-symbols-outlined">real_estate_agent</span><h3>Nenhum assessor</h3><p>Ajuste os filtros ou lance fechamentos com assessores.</p></div>`:`
       <table>
