@@ -82,7 +82,7 @@ export function CRMTeamView({ initialConfig, onConfigSaved }: CRMTeamViewProps) 
     const inputCls = 'w-full px-3 py-2 text-sm bg-white dark:bg-[#141414] border border-gray-200 dark:border-[#333] rounded-lg outline-none focus:ring-2 focus:ring-[#A68B4B] dark:text-white';
 
     return (
-        <div className="max-w-5xl space-y-4 pb-8">
+        <div className="max-w-5xl mx-auto space-y-4 pb-8">
             <div className="flex items-center justify-between gap-3">
                 <div className="flex items-center gap-2 text-xs text-gray-500">
                     <UserRound size={14} />
