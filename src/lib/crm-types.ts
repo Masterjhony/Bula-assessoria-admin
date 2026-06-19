@@ -67,7 +67,9 @@ export const DEFAULT_STAGES: CRMStage[] = [
     { id: 'conexao', name: CRM_STAGE_CONNECTION, color: 'blue', probability: 10, is_qualification: false },
     { id: 'qualificacao', name: CRM_STAGE_QUALIFICATION, color: 'orange', probability: 25, is_qualification: false },
     { id: 'cadastro', name: CRM_STAGE_REGISTRATION, color: 'yellow', probability: 50 },
-    { id: 'assessores', name: CRM_STAGE_ASSESSORS, color: 'green', probability: 75 },
+    // ASSESSORES foi extinta: o lead aprovado no CADASTRO vira cliente e é
+    // arquivado (sai do Kanban) — ver crm-to-clientes-sync. O CADASTRO é a
+    // última etapa do pipeline.
 ];
 
 /** Flag heurística (caso o usuário tenha config legada sem is_qualification). */
@@ -96,6 +98,8 @@ export function normalizeCRMStatus(status?: string | null): string {
     if (key === 'qualificacao') return CRM_STAGE_QUALIFICATION;
     if (key === 'cadastro' || key === 'qualificado') return CRM_STAGE_REGISTRATION;
 
+    // ASSESSORES extinta: status legados avançados caem no CADASTRO (última
+    // etapa). Leads que estavam em ASSESSORES são arquivados pela migração.
     if (
         key === 'assessores' ||
         key === 'direcionamento leilao' ||
@@ -103,7 +107,7 @@ export function normalizeCRMStatus(status?: string | null): string {
         key === 'negociacao' ||
         key === 'fechado'
     ) {
-        return CRM_STAGE_ASSESSORS;
+        return CRM_STAGE_REGISTRATION;
     }
 
     if (key === 'perdido') return CRM_STAGE_QUALIFICATION;

@@ -20,7 +20,6 @@ import { CRMColumn } from './CRMColumn';
 import { CRMCardView } from './CRMCard';
 import { CRMLead } from '@/app/sistema/actions/crm-leads';
 import {
-    CRM_STAGE_ASSESSORS,
     CRM_STAGE_CONNECTION,
     CRM_STAGE_QUALIFICATION,
     CRM_STAGE_REGISTRATION,
@@ -41,7 +40,6 @@ export const CRM_COLUMNS = [
     CRM_STAGE_CONNECTION,
     CRM_STAGE_QUALIFICATION,
     CRM_STAGE_REGISTRATION,
-    CRM_STAGE_ASSESSORS,
 ];
 
 export function CRMKanbanBoard({ leads: externalLeads, stages, onEditLead, onAddLead, onMoveLead, onRenameStage, onCadastroApprovalChange }: CRMKanbanBoardProps) {
