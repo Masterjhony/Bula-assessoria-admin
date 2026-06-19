@@ -101,6 +101,18 @@ export interface Cliente {
   operacaoPecuaria?: string
   // Documentos anexados (carregados sob demanda no drawer).
   documentos?: ClienteDocumento[]
+  // Agregados carregados junto da lista (para cards/tabela/lista).
+  docsCount?: number
+  leiloeirasAprovadas?: number
+}
+
+// Prontidão do cliente para cadastro em leiloeiras.
+export type ClienteReadiness = 'apto' | 'pendente' | 'sem-dados'
+
+export const READINESS_META: Record<ClienteReadiness, { label: string; tone: string }> = {
+  apto: { label: 'Apto', tone: 'olive' },
+  pendente: { label: 'Pendente', tone: 'amber' },
+  'sem-dados': { label: 'Sem dados', tone: '' },
 }
 
 // Normaliza um nome para a chave de deduplicação/anexo (sem acentos, minúsculo).
@@ -198,4 +210,15 @@ export const fmtCpf = (cpf?: string) => {
   const d = onlyDigits(cpf ?? '')
   if (d.length !== 11) return cpf || '—'
   return `${d.slice(0, 3)}.${d.slice(3, 6)}.${d.slice(6, 9)}-${d.slice(9)}`
+}
+
+// Classifica a prontidão do cliente para cadastro em leiloeiras.
+export function clienteReadiness(c: Cliente): ClienteReadiness {
+  if (isClienteCadastroApto({ scoreFaixa: c.scoreFaixa, scoreCredito: c.scoreCredito, temIE: c.temInscricaoEstadual })) {
+    return 'apto'
+  }
+  const semScore = c.scoreCredito == null && !c.scoreFaixa
+  const semIE = !c.temInscricaoEstadual && !c.inscricaoEstadual
+  if (semScore && semIE) return 'sem-dados'
+  return 'pendente'
 }

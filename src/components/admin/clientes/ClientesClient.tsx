@@ -7,13 +7,15 @@ import {
   History, Heart, FileText, CalendarClock, ChevronRight, Repeat, TrendingUp,
   Plus, Filter, ListChecks, ExternalLink, Check, Pencil,
   ShieldCheck, RefreshCw, FileBadge, Gavel, CalendarCheck, Trash2, Send, AlertTriangle, IdCard,
+  LayoutGrid, Table as TableIcon, List,
 } from 'lucide-react'
 import {
   type Cliente, type ClienteStatus, type Interesse, type PerfilConsumo,
   type InteracaoHist, type PreferenciaCategoria, type ScoreFaixa,
-  type ClienteDocumento, clienteMetrics, brl, brlCompact,
+  type ClienteDocumento, type ClienteReadiness, clienteMetrics, brl, brlCompact,
   fmtDate, timeAgo, waLink, INTERESSES, PERFIS, PREFERENCIA_CATEGORIAS,
   scoreToFaixa, SCORE_FAIXA_META, fmtCpf, isClienteCadastroApto,
+  clienteReadiness, READINESS_META,
 } from '@/lib/clientes'
 import {
   createCliente, registrarInteracao, updateClienteCampos,
@@ -939,6 +941,43 @@ function Modal({ title, onClose, children, footer, wide }: { title: string; onCl
   )
 }
 
+// ── selo de score (faixa) reutilizável ───────────────────────────────────────
+function ScoreSelo({ cliente }: { cliente: Cliente }) {
+  if (cliente.scoreCredito == null) return <span style={{ color: 'var(--text3)' }}>Score —</span>
+  const faixa = cliente.scoreFaixa || scoreToFaixa(cliente.scoreCredito)
+  if (!faixa) return <span className="font-semibold" style={{ color: 'var(--text)' }}>Score {cliente.scoreCredito}</span>
+  return <Badge tone={SCORE_FAIXA_META[faixa].tone}>Score {cliente.scoreCredito} · {SCORE_FAIXA_META[faixa].label}</Badge>
+}
+
+// Indicador ✓/✗ enxuto.
+function Ok({ ok }: { ok: boolean }) {
+  return ok
+    ? <Check size={11} style={{ color: 'var(--olive)', display: 'inline' }} />
+    : <X size={11} style={{ color: 'var(--text3)', display: 'inline' }} />
+}
+
+const hasIE = (c: Cliente) => c.temInscricaoEstadual === 'Sim' || !!c.inscricaoEstadual
+
+// Cabeçalho de tabela clicável p/ ordenar.
+function SortTh({
+  label, col, sort, onSort, align,
+}: {
+  label: string
+  col: 'nome' | 'total' | 'score' | 'interacao'
+  sort: { key: string; dir: 'asc' | 'desc' }
+  onSort: (k: 'nome' | 'total' | 'score' | 'interacao') => void
+  align?: 'right'
+}) {
+  const active = sort.key === col
+  return (
+    <th style={{ textAlign: align, cursor: 'pointer', userSelect: 'none' }} onClick={() => onSort(col)}>
+      <span className="inline-flex items-center gap-1" style={{ color: active ? 'var(--gold)' : undefined }}>
+        {label}{active ? (sort.dir === 'asc' ? ' ▲' : ' ▼') : ''}
+      </span>
+    </th>
+  )
+}
+
 // ── componente principal ──────────────────────────────────────────────────────
 export function ClientesClient({ initialClientes, vgvSummary }: { initialClientes: Cliente[]; vgvSummary?: ClientesVgvSummary }) {
   const [clientes, setClientes] = useState<Cliente[]>(initialClientes)
@@ -949,6 +988,23 @@ export function ClientesClient({ initialClientes, vgvSummary }: { initialCliente
   const [fPerfil, setFPerfil] = useState<'' | PerfilConsumo>('')
   const [fInteresse, setFInteresse] = useState<'' | Interesse>('')
   const [fPreferencia, setFPreferencia] = useState<'' | PreferenciaCategoria>('')
+  const [fReadiness, setFReadiness] = useState<'' | ClienteReadiness>('')
+
+  // Modo de exibição (cards / tabela / lista) — default cards, persistido em localStorage.
+  const [viewMode, setViewMode] = useState<'cards' | 'tabela' | 'lista'>('cards')
+  useEffect(() => {
+    const v = localStorage.getItem('clientes:viewMode')
+    if (v === 'cards' || v === 'tabela' || v === 'lista') setViewMode(v)
+  }, [])
+  const setView = (mode: 'cards' | 'tabela' | 'lista') => {
+    setViewMode(mode)
+    try { localStorage.setItem('clientes:viewMode', mode) } catch { /* ignora storage indisponível */ }
+  }
+
+  // Ordenação compartilhada pelos três modos (cabeçalhos da tabela controlam).
+  const [sort, setSort] = useState<{ key: 'nome' | 'total' | 'score' | 'interacao'; dir: 'asc' | 'desc' }>({ key: 'total', dir: 'desc' })
+  const toggleSort = (key: 'nome' | 'total' | 'score' | 'interacao') =>
+    setSort((prev) => (prev.key === key ? { key, dir: prev.dir === 'asc' ? 'desc' : 'asc' } : { key, dir: key === 'nome' ? 'asc' : 'desc' }))
 
   // Deep-link da busca global: /sistema/clientes?q=<nome> pré-filtra a lista.
   useEffect(() => {
@@ -992,10 +1048,24 @@ export function ClientesClient({ initialClientes, vgvSummary }: { initialCliente
         if (fPerfil && c.perfil !== fPerfil) return false
         if (fInteresse && !c.interesses.includes(fInteresse)) return false
         if (fPreferencia && !(c.preferenciasCategorias ?? []).includes(fPreferencia)) return false
+        if (fReadiness && clienteReadiness(c) !== fReadiness) return false
         return true
       })
-      .sort((a, b) => b.m.totalComprado - a.m.totalComprado)
-  }, [enriched, busca, fCidade, fStatus, fPerfil, fInteresse, fPreferencia])
+  }, [enriched, busca, fCidade, fStatus, fPerfil, fInteresse, fPreferencia, fReadiness])
+
+  // Lista ordenada usada por todos os modos de exibição.
+  const displayed = useMemo(() => {
+    const sign = sort.dir === 'asc' ? 1 : -1
+    return [...filtered].sort((a, b) => {
+      switch (sort.key) {
+        case 'nome': return sign * a.c.nome.localeCompare(b.c.nome, 'pt-BR')
+        case 'score': return sign * ((a.c.scoreCredito ?? -1) - (b.c.scoreCredito ?? -1))
+        case 'interacao': return sign * (a.m.ultimaInteracao ?? '').localeCompare(b.m.ultimaInteracao ?? '')
+        case 'total':
+        default: return sign * (a.m.totalComprado - b.m.totalComprado)
+      }
+    })
+  }, [filtered, sort])
 
   // ── KPIs ────────────────────────────────────────────────────────────────────
   const kpis = useMemo(() => {
@@ -1006,11 +1076,12 @@ export function ClientesClient({ initialClientes, vgvSummary }: { initialCliente
     const numCompras = enriched.reduce((s, { m }) => s + m.numCompras, 0)
     const ticket = numCompras ? Math.round(volume / numCompras) : 0
     const ultimaCompra = enriched.map(({ m }) => m.ultimaCompra).filter(Boolean).sort().at(-1) as string | undefined
-    return { total, ativos, recorrentes, volume, ticket, ultimaCompra }
+    const aptos = enriched.filter(({ c }) => clienteReadiness(c) === 'apto').length
+    return { total, ativos, recorrentes, volume, ticket, ultimaCompra, aptos }
   }, [enriched])
 
-  const hasFilter = busca || fCidade || fStatus || fPerfil || fInteresse || fPreferencia
-  const clearFilters = () => { setBusca(''); setFCidade(''); setFStatus(''); setFPerfil(''); setFInteresse(''); setFPreferencia('') }
+  const hasFilter = busca || fCidade || fStatus || fPerfil || fInteresse || fPreferencia || fReadiness
+  const clearFilters = () => { setBusca(''); setFCidade(''); setFStatus(''); setFPerfil(''); setFInteresse(''); setFPreferencia(''); setFReadiness('') }
 
   // ── ações ─────────────────────────────────────────────────────────────────────
   const exportCSV = useCallback(() => {
@@ -1119,6 +1190,33 @@ export function ClientesClient({ initialClientes, vgvSummary }: { initialCliente
           <p className="sub">Central de compradores · agregados dos fechamentos e vinculados ao CRM</p>
         </div>
         <div className="flex items-center gap-2 flex-wrap">
+          <div className="flex items-center" style={{ border: '1px solid var(--border2)', borderRadius: 8, padding: 2, gap: 2 }}>
+            {([
+              { mode: 'cards', icon: LayoutGrid, label: 'Cards' },
+              { mode: 'tabela', icon: TableIcon, label: 'Tabela' },
+              { mode: 'lista', icon: List, label: 'Lista' },
+            ] as const).map(({ mode, icon: Icon, label }) => {
+              const active = viewMode === mode
+              return (
+                <button
+                  key={mode}
+                  className="btn ghost"
+                  onClick={() => setView(mode)}
+                  title={label}
+                  aria-label={label}
+                  aria-pressed={active}
+                  style={{
+                    height: 30, padding: '0 10px', fontSize: 12, borderRadius: 6,
+                    color: active ? 'var(--gold)' : 'var(--text3)',
+                    border: `1px solid ${active ? 'var(--gold-dark)' : 'transparent'}`,
+                    background: active ? 'var(--gold-dim)' : 'transparent',
+                  }}
+                >
+                  <Icon size={14} /> {label}
+                </button>
+              )
+            })}
+          </div>
           <button className="btn" onClick={() => setShowImport(true)}><Upload size={14} /> Importar</button>
           <button className="btn" onClick={exportCSV}><Download size={14} /> Exportar</button>
           <button className="btn primary" onClick={() => setShowNovo(true)}><UserPlus size={14} /> Novo cliente</button>
@@ -1132,6 +1230,8 @@ export function ClientesClient({ initialClientes, vgvSummary }: { initialCliente
         <Kpi value={String(kpis.ativos)} label="Clientes ativos" tag={`${kpis.total ? Math.round((kpis.ativos / kpis.total) * 100) : 0}% da base`} />
         <div className="slim-div" />
         <Kpi value={String(kpis.recorrentes)} label="Compradores recorrentes" tag="recompram" />
+        <div className="slim-div" />
+        <Kpi value={String(kpis.aptos)} label="Aptos para cadastro" tag={`${kpis.total ? Math.round((kpis.aptos / kpis.total) * 100) : 0}% da base`} />
         <div className="slim-div" />
         <Kpi value={kpis.ticket ? brlCompact(kpis.ticket).replace('R$', '').trim() : '—'} cur="R$" label="Ticket médio" />
         <div className="slim-div" />
@@ -1177,6 +1277,12 @@ export function ClientesClient({ initialClientes, vgvSummary }: { initialCliente
               <option value="">Preferência</option>
               {PREFERENCIA_CATEGORIAS.map((p) => <option key={p} value={p}>{p}</option>)}
             </select>
+            <select className="select lg:w-[140px]" value={fReadiness} onChange={(e) => setFReadiness(e.target.value as ClienteReadiness | '')}>
+              <option value="">Prontidão</option>
+              <option value="apto">Apto</option>
+              <option value="pendente">Pendente</option>
+              <option value="sem-dados">Sem dados</option>
+            </select>
             {hasFilter && (
               <button className="btn ghost shrink-0" onClick={clearFilters} title="Limpar filtros">
                 <X size={14} /> Limpar
@@ -1185,107 +1291,249 @@ export function ClientesClient({ initialClientes, vgvSummary }: { initialCliente
           </div>
           <div className="flex items-center gap-1.5 mt-3 text-[11px]" style={{ color: 'var(--text3)' }}>
             <Filter size={12} />
-            <span><b style={{ color: 'var(--text2)' }}>{filtered.length}</b> de {clientes.length} clientes</span>
+            <span><b style={{ color: 'var(--text2)' }}>{displayed.length}</b> de {clientes.length} clientes</span>
           </div>
         </div>
       </div>
 
-      {/* tabela */}
-      <div className="card card-p0">
-        <div className="card-b" style={{ padding: 0, overflowX: 'auto' }}>
-          <table className="tbl">
-            <thead>
-              <tr>
-                <th>Cliente</th>
-                <th>Telefone / WhatsApp</th>
-                <th>Cidade / UF</th>
-                <th>Perfil</th>
-                <th>Interesses</th>
-                <th style={{ textAlign: 'right' }}>Total comprado</th>
-                <th>Última interação</th>
-                <th>Status</th>
-                <th style={{ width: 40 }}></th>
-              </tr>
-            </thead>
-            <tbody>
-              {filtered.map(({ c, m }) => {
-                const sm = STATUS_META[c.status]
-                return (
-                  <tr key={c.id} onClick={() => setSelected(c)} style={{ cursor: 'pointer' }}>
-                    <td>
-                      <div className="flex items-center gap-2.5">
-                        <div
-                          className="shrink-0 flex items-center justify-center font-bold text-[12px]"
-                          style={{ width: 34, height: 34, borderRadius: 8, color: 'var(--bg)', background: 'linear-gradient(135deg, #C8A96E 0%, #A68B4B 100%)' }}
-                        >
-                          {c.nome.charAt(0).toUpperCase()}
-                        </div>
-                        <div className="min-w-0">
-                          <div className="font-semibold flex items-center gap-1.5" style={{ color: 'var(--text)' }}>
-                            <span className="truncate max-w-[180px]">{c.nome}</span>
-                            {c.recorrente && <Repeat size={12} style={{ color: 'var(--gold)' }} aria-label="Recorrente" />}
-                            {c.crmLeadId && (
-                              <a
-                                href={crmLeadHref(c.crmLeadId)}
-                                onClick={(e) => e.stopPropagation()}
-                                title="Ver lead no CRM"
-                                className="inline-flex items-center"
-                                style={{ color: 'var(--olive)' }}
-                              >
-                                <ExternalLink size={12} />
-                              </a>
-                            )}
-                          </div>
-                          <div className="text-[11px] truncate max-w-[180px]" style={{ color: 'var(--text3)' }}>{c.responsavel}</div>
-                        </div>
-                      </div>
-                    </td>
-                    <td>
-                      {c.telefone ? (
-                        <a
-                          href={waLink(c.telefone)} target="_blank" rel="noopener noreferrer"
-                          onClick={(e) => e.stopPropagation()}
-                          className="inline-flex items-center gap-1.5 hover:underline"
-                          style={{ color: 'var(--text2)' }}
-                        >
-                          <MessageCircle size={13} style={{ color: 'var(--olive)' }} />
-                          {c.telefone}
-                        </a>
-                      ) : (
-                        <span style={{ color: 'var(--text3)' }}>—</span>
-                      )}
-                    </td>
-                    <td style={{ color: 'var(--text2)' }}>{c.cidade} / {c.uf}</td>
-                    <td><Badge tone={PERFIL_BADGE[c.perfil]}>{c.perfil}</Badge></td>
-                    <td>
-                      <div className="flex flex-wrap gap-1 max-w-[180px]">
-                        {c.interesses.slice(0, 2).map((i) => <Badge key={i} tone="gold">{i}</Badge>)}
-                        {c.interesses.length > 2 && <Badge tone="">+{c.interesses.length - 2}</Badge>}
-                      </div>
-                    </td>
-                    <td style={{ textAlign: 'right' }}>
-                      <div className="font-bold" style={{ color: m.totalComprado ? 'var(--text)' : 'var(--text3)' }}>{m.totalComprado ? brl(m.totalComprado) : '—'}</div>
-                      <div className="text-[10px]" style={{ color: 'var(--text3)' }}>{m.numCompras} {m.numCompras === 1 ? 'compra' : 'compras'}</div>
-                    </td>
-                    <td>
-                      <span style={{ color: 'var(--text2)' }}>{timeAgo(m.ultimaInteracao)}</span>
-                    </td>
-                    <td><Badge tone={sm.badge}><sm.icon size={10} />{sm.label}</Badge></td>
-                    <td><ChevronRight size={15} style={{ color: 'var(--text4)' }} /></td>
-                  </tr>
-                )
-              })}
-              {filtered.length === 0 && (
-                <tr>
-                  <td colSpan={9}>
-                    <EmptyState icon={Users} text={hasFilter ? 'Nenhum cliente encontrado com esses filtros.' : 'Nenhum comprador encontrado nos fechamentos ainda.'} />
-                  </td>
-                </tr>
-              )}
-            </tbody>
-          </table>
+      {/* ── modos de exibição ── */}
+      {displayed.length === 0 ? (
+        <div className="card card-p0">
+          <div className="card-b" style={{ padding: 0 }}>
+            <EmptyState icon={Users} text={hasFilter ? 'Nenhum cliente encontrado com esses filtros.' : 'Nenhum comprador encontrado nos fechamentos ainda.'} />
+          </div>
         </div>
-      </div>
+      ) : viewMode === 'cards' ? (
+        /* ── CARDS ── */
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill,minmax(300px,1fr))', gap: 12 }}>
+          {displayed.map(({ c, m }) => {
+            const r = clienteReadiness(c)
+            const sm = STATUS_META[c.status]
+            return (
+              <div key={c.id} className="card" style={{ cursor: 'pointer' }} onClick={() => setSelected(c)}>
+                <div className="card-b" style={{ padding: 14 }}>
+                  {/* header */}
+                  <div className="flex items-start gap-2.5">
+                    <div
+                      className="shrink-0 flex items-center justify-center font-bold text-[12px]"
+                      style={{ width: 36, height: 36, borderRadius: 8, color: 'var(--bg)', background: 'linear-gradient(135deg, #C8A96E 0%, #A68B4B 100%)' }}
+                    >
+                      {c.nome.charAt(0).toUpperCase()}
+                    </div>
+                    <div className="min-w-0 flex-1">
+                      <div className="font-semibold flex items-center gap-1.5" style={{ color: 'var(--text)' }}>
+                        <span className="truncate">{c.nome}</span>
+                        {c.recorrente && <Repeat size={12} style={{ color: 'var(--gold)' }} aria-label="Recorrente" />}
+                        {c.crmLeadId && (
+                          <a href={crmLeadHref(c.crmLeadId)} onClick={(e) => e.stopPropagation()} title="Ver lead no CRM" className="inline-flex items-center" style={{ color: 'var(--olive)' }}>
+                            <ExternalLink size={12} />
+                          </a>
+                        )}
+                      </div>
+                      <div className="flex items-center gap-1.5 mt-1.5 flex-wrap">
+                        <Badge tone={PERFIL_BADGE[c.perfil]}>{c.perfil}</Badge>
+                        <Badge tone={sm.badge}><sm.icon size={10} />{sm.label}</Badge>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div style={{ height: 1, background: 'var(--border)', margin: '12px 0' }} />
+
+                  {/* score + prontidão */}
+                  <div className="flex items-center justify-between gap-2 flex-wrap text-[12px]">
+                    <ScoreSelo cliente={c} />
+                    <Badge tone={READINESS_META[r].tone}>{READINESS_META[r].label}</Badge>
+                  </div>
+
+                  {/* CPF / I.E. / Docs */}
+                  <div className="flex items-center gap-2 mt-2 text-[11px]" style={{ color: 'var(--text3)' }}>
+                    <span className="inline-flex items-center gap-1">CPF <Ok ok={!!c.cpf} /></span>
+                    <span>·</span>
+                    <span className="inline-flex items-center gap-1">I.E. <Ok ok={hasIE(c)} /></span>
+                    <span>·</span>
+                    <span>Docs {c.docsCount ?? 0}</span>
+                  </div>
+
+                  <div style={{ height: 1, background: 'var(--border)', margin: '12px 0' }} />
+
+                  {/* total + leiloeiras */}
+                  <div className="flex items-center justify-between gap-2 text-[12px]">
+                    <span>
+                      <b style={{ color: 'var(--text)' }}>{brlCompact(m.totalComprado)}</b>
+                      <span style={{ color: 'var(--text3)' }}> · {m.numCompras} {m.numCompras === 1 ? 'compra' : 'compras'}</span>
+                    </span>
+                    <span style={{ color: 'var(--text3)' }}>Leiloeiras: {c.leiloeirasAprovadas ?? 0}</span>
+                  </div>
+
+                  {/* ações */}
+                  <div className="flex items-center gap-2 mt-3">
+                    {c.telefone && (
+                      <a
+                        href={waLink(c.telefone)} target="_blank" rel="noopener noreferrer"
+                        onClick={(e) => e.stopPropagation()}
+                        className="btn ghost flex-1"
+                        style={{ height: 30, fontSize: 12, color: 'var(--olive)' }}
+                      >
+                        <MessageCircle size={13} /> WhatsApp
+                      </a>
+                    )}
+                    <button className="btn flex-1" onClick={(e) => { e.stopPropagation(); setSelected(c) }} style={{ height: 30, fontSize: 12 }}>
+                      Abrir <ChevronRight size={13} />
+                    </button>
+                  </div>
+                </div>
+              </div>
+            )
+          })}
+        </div>
+      ) : viewMode === 'tabela' ? (
+        /* ── TABELA ── */
+        <div className="card card-p0">
+          <div className="card-b" style={{ padding: 0, overflowX: 'auto' }}>
+            <table className="tbl">
+              <thead>
+                <tr>
+                  <SortTh label="Cliente" col="nome" sort={sort} onSort={toggleSort} />
+                  <th>Telefone / WhatsApp</th>
+                  <th>Cidade / UF</th>
+                  <th>Perfil</th>
+                  <SortTh label="Score" col="score" sort={sort} onSort={toggleSort} />
+                  <th>Cadastro</th>
+                  <th style={{ textAlign: 'right' }}>Leiloeiras</th>
+                  <SortTh label="Total comprado" col="total" sort={sort} onSort={toggleSort} align="right" />
+                  <SortTh label="Última interação" col="interacao" sort={sort} onSort={toggleSort} />
+                  <th>Status</th>
+                  <th style={{ width: 40 }}></th>
+                </tr>
+              </thead>
+              <tbody>
+                {displayed.map(({ c, m }) => {
+                  const sm = STATUS_META[c.status]
+                  const r = clienteReadiness(c)
+                  return (
+                    <tr key={c.id} onClick={() => setSelected(c)} style={{ cursor: 'pointer' }}>
+                      <td>
+                        <div className="flex items-center gap-2.5">
+                          <div
+                            className="shrink-0 flex items-center justify-center font-bold text-[12px]"
+                            style={{ width: 34, height: 34, borderRadius: 8, color: 'var(--bg)', background: 'linear-gradient(135deg, #C8A96E 0%, #A68B4B 100%)' }}
+                          >
+                            {c.nome.charAt(0).toUpperCase()}
+                          </div>
+                          <div className="min-w-0">
+                            <div className="font-semibold flex items-center gap-1.5" style={{ color: 'var(--text)' }}>
+                              <span className="truncate max-w-[180px]">{c.nome}</span>
+                              {c.recorrente && <Repeat size={12} style={{ color: 'var(--gold)' }} aria-label="Recorrente" />}
+                              {c.crmLeadId && (
+                                <a
+                                  href={crmLeadHref(c.crmLeadId)}
+                                  onClick={(e) => e.stopPropagation()}
+                                  title="Ver lead no CRM"
+                                  className="inline-flex items-center"
+                                  style={{ color: 'var(--olive)' }}
+                                >
+                                  <ExternalLink size={12} />
+                                </a>
+                              )}
+                            </div>
+                            <div className="text-[11px] truncate max-w-[180px]" style={{ color: 'var(--text3)' }}>{c.responsavel}</div>
+                          </div>
+                        </div>
+                      </td>
+                      <td>
+                        {c.telefone ? (
+                          <a
+                            href={waLink(c.telefone)} target="_blank" rel="noopener noreferrer"
+                            onClick={(e) => e.stopPropagation()}
+                            className="inline-flex items-center gap-1.5 hover:underline"
+                            style={{ color: 'var(--text2)' }}
+                          >
+                            <MessageCircle size={13} style={{ color: 'var(--olive)' }} />
+                            {c.telefone}
+                          </a>
+                        ) : (
+                          <span style={{ color: 'var(--text3)' }}>—</span>
+                        )}
+                      </td>
+                      <td style={{ color: 'var(--text2)' }}>{c.cidade} / {c.uf}</td>
+                      <td><Badge tone={PERFIL_BADGE[c.perfil]}>{c.perfil}</Badge></td>
+                      <td><ScoreSelo cliente={c} /></td>
+                      <td>
+                        <div className="flex items-center gap-1.5">
+                          <Badge tone={READINESS_META[r].tone}>{READINESS_META[r].label}</Badge>
+                          <span className="inline-flex items-center gap-1 text-[11px]" style={{ color: 'var(--text3)' }}>I.E. <Ok ok={hasIE(c)} /></span>
+                        </div>
+                      </td>
+                      <td style={{ textAlign: 'right', color: 'var(--text2)' }}>{c.leiloeirasAprovadas ?? 0}</td>
+                      <td style={{ textAlign: 'right' }}>
+                        <div className="font-bold" style={{ color: m.totalComprado ? 'var(--text)' : 'var(--text3)' }}>{m.totalComprado ? brl(m.totalComprado) : '—'}</div>
+                        <div className="text-[10px]" style={{ color: 'var(--text3)' }}>{m.numCompras} {m.numCompras === 1 ? 'compra' : 'compras'}</div>
+                      </td>
+                      <td>
+                        <span style={{ color: 'var(--text2)' }}>{timeAgo(m.ultimaInteracao)}</span>
+                      </td>
+                      <td><Badge tone={sm.badge}><sm.icon size={10} />{sm.label}</Badge></td>
+                      <td><ChevronRight size={15} style={{ color: 'var(--text4)' }} /></td>
+                    </tr>
+                  )
+                })}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      ) : (
+        /* ── LISTA ── */
+        <div className="card card-p0">
+          <div className="card-b" style={{ padding: 0 }}>
+            {displayed.map(({ c, m }, idx) => {
+              const r = clienteReadiness(c)
+              const faixa = c.scoreFaixa || scoreToFaixa(c.scoreCredito)
+              return (
+                <div
+                  key={c.id}
+                  onClick={() => setSelected(c)}
+                  className="flex items-center gap-3 px-4 py-3"
+                  style={{ cursor: 'pointer', borderTop: idx === 0 ? 'none' : '1px solid var(--border)' }}
+                >
+                  <div
+                    className="shrink-0 flex items-center justify-center font-bold text-[12px]"
+                    style={{ width: 34, height: 34, borderRadius: 8, color: 'var(--bg)', background: 'linear-gradient(135deg, #C8A96E 0%, #A68B4B 100%)' }}
+                  >
+                    {c.nome.charAt(0).toUpperCase()}
+                  </div>
+                  <div className="min-w-0 flex-1">
+                    <div className="flex items-center gap-1.5">
+                      <span className="font-semibold truncate" style={{ color: 'var(--text)' }}>{c.nome}</span>
+                      {c.recorrente && <Repeat size={12} style={{ color: 'var(--gold)' }} aria-label="Recorrente" />}
+                      {c.crmLeadId && (
+                        <a href={crmLeadHref(c.crmLeadId)} onClick={(e) => e.stopPropagation()} title="Ver lead no CRM" className="inline-flex items-center" style={{ color: 'var(--olive)' }}>
+                          <ExternalLink size={12} />
+                        </a>
+                      )}
+                      <Badge tone={PERFIL_BADGE[c.perfil]}>{c.perfil}</Badge>
+                      <Badge tone={READINESS_META[r].tone}>{READINESS_META[r].label}</Badge>
+                    </div>
+                    <div className="flex items-center gap-2 mt-1 text-[11px] flex-wrap" style={{ color: 'var(--text3)' }}>
+                      <span>{faixa ? `Score ${SCORE_FAIXA_META[faixa].label}` : 'Score —'}</span>
+                      <span>·</span>
+                      <span className="inline-flex items-center gap-1">I.E. <Ok ok={hasIE(c)} /></span>
+                      <span>·</span>
+                      <span>Docs {c.docsCount ?? 0}</span>
+                      <span>·</span>
+                      <span>Leiloeiras {c.leiloeirasAprovadas ?? 0}</span>
+                    </div>
+                  </div>
+                  <div className="text-right shrink-0">
+                    <div className="font-bold text-[13px]" style={{ color: m.totalComprado ? 'var(--text)' : 'var(--text3)' }}>{m.totalComprado ? brlCompact(m.totalComprado) : '—'}</div>
+                    <div className="text-[10px]" style={{ color: 'var(--text3)' }}>{m.numCompras} {m.numCompras === 1 ? 'compra' : 'compras'}</div>
+                  </div>
+                  <ChevronRight size={15} className="shrink-0" style={{ color: 'var(--text4)' }} />
+                </div>
+              )
+            })}
+          </div>
+        </div>
+      )}
 
       {/* drawer */}
       {selected && (

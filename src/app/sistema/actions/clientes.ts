@@ -180,9 +180,11 @@ export async function getClientes(): Promise<Cliente[]> {
 
   // Tabelas do módulo CLIENTES podem ainda não existir (migration 0028 não
   // aplicada) — degrada para vazio sem quebrar a página.
-  const [clienteRes, interRes] = await Promise.all([
+  const [clienteRes, interRes, docsRes, leiloeiraRes] = await Promise.all([
     supabase.from('clientes').select('*'),
     supabase.from('cliente_interacoes').select('id, cliente_key, tipo, responsavel, nota, data'),
+    supabase.from('cliente_documentos').select('cliente_key'),
+    supabase.from('cliente_leiloeira_cadastro').select('cliente_key, status'),
   ])
   if (clienteRes.error) console.warn('[clientes] tabela clientes indisponível:', clienteRes.error.message)
   if (interRes.error) console.warn('[clientes] tabela cliente_interacoes indisponível:', interRes.error.message)
@@ -191,6 +193,18 @@ export async function getClientes(): Promise<Cliente[]> {
   const leads = (leadsRes.data ?? []) as LeadRow[]
   const clienteRows = (clienteRes.data ?? []) as ClienteRow[]
   const interacaoRows = (interRes.data ?? []) as InteracaoRow[]
+
+  // agregados por chave do cliente (para os modos cards/tabela/lista)
+  const docsCountByKey = new Map<string, number>()
+  for (const r of (docsRes.data ?? []) as { cliente_key: string }[]) {
+    if (r.cliente_key) docsCountByKey.set(r.cliente_key, (docsCountByKey.get(r.cliente_key) ?? 0) + 1)
+  }
+  const leiloeirasAprovadasByKey = new Map<string, number>()
+  for (const r of (leiloeiraRes.data ?? []) as { cliente_key: string; status: string | null }[]) {
+    if (r.cliente_key && r.status === 'aprovado') {
+      leiloeirasAprovadasByKey.set(r.cliente_key, (leiloeirasAprovadasByKey.get(r.cliente_key) ?? 0) + 1)
+    }
+  }
 
   // índices de leads para o vínculo com o CRM
   const leadByName = new Map<string, LeadRow>()
@@ -372,13 +386,17 @@ export async function getClientes(): Promise<Cliente[]> {
     }
   }
 
-  // anexa interações persistidas e ordena
+  // anexa interações persistidas + agregados (docs/leiloeiras) e ordena
   for (const cliente of byKey.values()) {
     const persisted = cliente.matchKey ? interByKey.get(cliente.matchKey) ?? [] : []
     if (persisted.length) {
       cliente.interacoes = [...cliente.interacoes, ...persisted]
     }
     cliente.interacoes.sort((a, b) => b.data.localeCompare(a.data))
+    if (cliente.matchKey) {
+      cliente.docsCount = docsCountByKey.get(cliente.matchKey) ?? 0
+      cliente.leiloeirasAprovadas = leiloeirasAprovadasByKey.get(cliente.matchKey) ?? 0
+    }
   }
 
   return [...byKey.values()].sort((a, b) => totalDe(b) - totalDe(a))
