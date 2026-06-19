@@ -104,6 +104,12 @@ a {
   to { transform: translateX(-50%); }
 }
 
+/* Drawer lateral (detalhe do cliente) deslizando da direita. */
+@keyframes slideInRight {
+  from { transform: translateX(28px); opacity: 0; }
+  to { transform: translateX(0); opacity: 1; }
+}
+
 .bula-logo-marquee {
   animation: bula-logo-marquee 34s linear infinite;
 }

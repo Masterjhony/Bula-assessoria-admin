@@ -306,11 +306,11 @@ function DetailDrawer({
   ]
 
   return (
-    <div className="fixed inset-0 z-[60] flex items-center justify-center p-4">
+    <div className="fixed inset-0 z-[60] flex items-stretch justify-end">
       <div className="absolute inset-0 bg-black/55 backdrop-blur-[2px] animate-[fadeIn_.15s_ease]" onClick={onClose} />
       <aside
-        className="relative w-full max-w-[620px] max-h-[90vh] flex flex-col shadow-2xl shadow-black/40 animate-[popIn_.18s_ease] overflow-hidden"
-        style={{ background: 'var(--surface)', border: '1px solid var(--border2)', borderRadius: 14 }}
+        className="relative w-full max-w-[900px] h-full flex flex-col shadow-2xl shadow-black/40 animate-[slideInRight_.22s_ease] overflow-hidden"
+        style={{ background: 'var(--surface)', borderLeft: '1px solid var(--border2)' }}
       >
         {/* header */}
         <div className="px-6 pt-5 pb-4" style={{ borderBottom: '1px solid var(--border)' }}>
@@ -372,28 +372,33 @@ function DetailDrawer({
           )}
         </div>
 
-        {/* tabs */}
-        <div className="flex gap-1 px-4 pt-3 overflow-x-auto" style={{ borderBottom: '1px solid var(--border)' }}>
-          {tabs.map((t) => {
-            const active = tab === t.id
-            return (
-              <button
-                key={t.id}
-                onClick={() => setTab(t.id)}
-                className="flex items-center gap-1.5 px-3 py-2 text-[12px] font-semibold whitespace-nowrap transition-colors"
-                style={{
-                  color: active ? 'var(--gold)' : 'var(--text3)',
-                  borderBottom: `2px solid ${active ? 'var(--gold)' : 'transparent'}`,
-                }}
-              >
-                <t.icon size={13} /> {t.label}
-              </button>
-            )
-          })}
-        </div>
+        {/* corpo: trilha de abas (vertical no desktop) + conteúdo */}
+        <div className="flex flex-1 min-h-0 flex-col md:flex-row">
+          {/* trilha de abas */}
+          <nav
+            className="flex md:flex-col gap-1 p-3 md:w-[210px] md:shrink-0 overflow-x-auto md:overflow-y-auto"
+            style={{ borderBottom: '1px solid var(--border)' }}
+          >
+            {tabs.map((t) => {
+              const active = tab === t.id
+              return (
+                <button
+                  key={t.id}
+                  onClick={() => setTab(t.id)}
+                  className="flex items-center gap-2 px-3 py-2 rounded-lg text-[12.5px] font-semibold whitespace-nowrap transition-colors md:w-full shrink-0"
+                  style={{
+                    color: active ? 'var(--gold)' : 'var(--text2)',
+                    background: active ? 'var(--gold-dim)' : 'transparent',
+                  }}
+                >
+                  <t.icon size={14} /> {t.label}
+                </button>
+              )
+            })}
+          </nav>
 
-        {/* body */}
-        <div className="flex-1 overflow-y-auto px-6 py-5">
+          {/* conteúdo */}
+          <div className="flex-1 min-w-0 overflow-y-auto px-6 py-5" style={{ borderLeft: '1px solid var(--border)' }}>
           {tab === 'cadastro' && (
             <div className="space-y-4">
               <InfoRow icon={Phone} label="Telefone / WhatsApp" value={cliente.telefone || '— (sem telefone no CRM)'} />
@@ -758,6 +763,7 @@ function DetailDrawer({
               </div>
             </div>
           )}
+          </div>
         </div>
       </aside>
 
