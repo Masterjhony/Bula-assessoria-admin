@@ -12,6 +12,8 @@ import {
 } from '@/lib/crm-types';
 import { getCRMConfig } from './crm-config';
 import { maybeNotifyAssessorOnLeadStage } from '@/lib/crm-whatsapp-assessor';
+import { maybeRunCreditCheck } from '@/lib/crm-credit-automation';
+import { syncLeadToClientes } from '@/lib/crm-to-clientes-sync';
 import { readSheetLeadRows, type SheetLeadRow } from '@/lib/jmp-sheets';
 import { normalizePhone, phoneVariants } from '@/lib/whatsapp-central';
 
@@ -129,6 +131,34 @@ async function notifyAssessorIfNeeded(
         await maybeNotifyAssessorOnLeadStage(supabase as any, config, lead, previous);
     } catch (e) {
         console.warn('[CRM] Falha ao notificar assessor no WhatsApp:', e instanceof Error ? e.message : e);
+    }
+}
+
+// Dispara a consulta de score/protestos quando o lead entra na QUALIFICAÇÃO
+// (ver crm-credit-automation). Best-effort: não derruba a ação que chamou.
+async function runCreditCheckIfNeeded(
+    supabase: Awaited<ReturnType<typeof createClient>>,
+    lead: CRMLead,
+    previous?: Pick<CRMLead, 'status'> | null,
+) {
+    try {
+        await maybeRunCreditCheck(supabase as any, lead as any, previous as any);
+    } catch (e) {
+        console.warn('[CRM] Falha na automação de crédito:', e instanceof Error ? e.message : e);
+    }
+}
+
+// Quando o lead chega na etapa CADASTRO já aprovado, vira cliente e é arquivado
+// no CRM (ver crm-to-clientes-sync). Best-effort.
+async function syncLeadToClientesIfApproved(
+    supabase: Awaited<ReturnType<typeof createClient>>,
+    lead: CRMLead,
+    force = false,
+) {
+    try {
+        await syncLeadToClientes(supabase as any, lead as any, { force });
+    } catch (e) {
+        console.warn('[CRM] Falha ao migrar lead para Clientes:', e instanceof Error ? e.message : e);
     }
 }
 
@@ -288,6 +318,7 @@ export async function updateLead(id: string, data: Partial<CRMLead>): Promise<CR
     }
 
     await notifyAssessorIfNeeded(supabase, updatedLead as CRMLead, previous as Pick<CRMLead, 'status' | 'responsavel' | 'extra_data'> | null);
+    await runCreditCheckIfNeeded(supabase, updatedLead as CRMLead, previous as Pick<CRMLead, 'status'> | null);
 
     revalidatePath('/web-admin/crm');
     revalidatePath('/web-admin/funil-vendas');
@@ -339,6 +370,8 @@ export async function moveLead(id: string, newStatus: string, newPosition: numbe
         .single();
     if (lead) {
         await notifyAssessorIfNeeded(supabase, lead as CRMLead, previous as Pick<CRMLead, 'status' | 'responsavel' | 'extra_data'> | null);
+        await runCreditCheckIfNeeded(supabase, lead as CRMLead, previous as Pick<CRMLead, 'status'> | null);
+        await syncLeadToClientesIfApproved(supabase, lead as CRMLead);
     }
 
     revalidatePath('/web-admin/crm');
@@ -374,6 +407,8 @@ export async function moveLeadToFunnel(id: string, funnelId: string, newStatus: 
         .single();
     if (lead) {
         await notifyAssessorIfNeeded(supabase, lead as CRMLead, previous as Pick<CRMLead, 'status' | 'responsavel' | 'extra_data'> | null);
+        await runCreditCheckIfNeeded(supabase, lead as CRMLead, previous as Pick<CRMLead, 'status'> | null);
+        await syncLeadToClientesIfApproved(supabase, lead as CRMLead);
     }
 
     revalidatePath('/web-admin/crm');
@@ -406,8 +441,14 @@ export async function setCadastroAprovado(id: string, aprovado: boolean): Promis
 
     if (error) throw new Error(`Error updating cadastro approval: ${error.message}`);
 
+    // Aprovação manual: migra o lead para Clientes e arquiva no CRM.
+    if (aprovado) {
+        await syncLeadToClientesIfApproved(supabase, updated as CRMLead, true);
+    }
+
     revalidatePath('/web-admin/crm');
     revalidatePath('/web-admin/leads');
+    revalidatePath('/sistema/clientes');
     return normalizeLeadRow(updated as CRMLead);
 }
 

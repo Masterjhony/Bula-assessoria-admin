@@ -6,13 +6,26 @@ import {
   MapPin, Tag, X, Star, Flame, Snowflake, MinusCircle, ShoppingCart,
   History, Heart, FileText, CalendarClock, ChevronRight, Repeat, TrendingUp,
   Plus, Filter, ListChecks, ExternalLink, Check, Pencil,
+  ShieldCheck, RefreshCw, FileBadge, Gavel, CalendarCheck, Trash2, Send, AlertTriangle, IdCard,
 } from 'lucide-react'
 import {
   type Cliente, type ClienteStatus, type Interesse, type PerfilConsumo,
-  type InteracaoHist, type PreferenciaCategoria, clienteMetrics, brl, brlCompact,
+  type InteracaoHist, type PreferenciaCategoria, type ScoreFaixa,
+  type ClienteDocumento, clienteMetrics, brl, brlCompact,
   fmtDate, timeAgo, waLink, INTERESSES, PERFIS, PREFERENCIA_CATEGORIAS,
+  scoreToFaixa, SCORE_FAIXA_META, fmtCpf, isClienteCadastroApto,
 } from '@/lib/clientes'
-import { createCliente, registrarInteracao, updateClienteCampos, type NovoClienteInput } from '@/app/sistema/actions/clientes'
+import {
+  createCliente, registrarInteracao, updateClienteCampos,
+  consultarScoreCliente, updateClienteCadastro,
+  listClienteDocumentos, uploadClienteDocumento, getClienteDocumentoUrl, deleteClienteDocumento,
+  getAgendaMatchesForCliente, submitClienteLeiloeiras,
+  type NovoClienteInput, type ClientesVgvSummary,
+} from '@/app/sistema/actions/clientes'
+import { getLeiloeiras, getClienteLeiloeiraStatus, setClienteLeiloeiraStatus } from '@/app/sistema/actions/leiloeiras'
+import {
+  type Leiloeira, type ClienteLeiloeiraStatus, type CadastroStatus, CADASTRO_STATUS_META,
+} from '@/lib/leiloeiras'
 
 type CamposPatch = { observacoes?: string; preferenciasCategorias?: PreferenciaCategoria[]; tags?: string[] }
 
@@ -52,19 +65,40 @@ function Kpi({ value, cur, label, tag, tagDown }: { value: string; cur?: string;
 }
 
 // ── drawer de detalhe ──────────────────────────────────────────────────────────
-type DrawerTab = 'cadastro' | 'compras' | 'interacoes' | 'preferencias' | 'observacoes'
+type DrawerTab = 'cadastro' | 'compras' | 'interacoes' | 'preferencias' | 'documentos' | 'leiloeiras' | 'recomendados' | 'observacoes'
+
+type AgendaMatch = Awaited<ReturnType<typeof getAgendaMatchesForCliente>>[number]
+
+// Formata bytes em unidade legível (B / KB / MB).
+function fmtBytes(n: number): string {
+  if (!n || n < 1024) return `${n || 0} B`
+  if (n < 1024 * 1024) return `${(n / 1024).toFixed(1)} KB`
+  return `${(n / (1024 * 1024)).toFixed(1)} MB`
+}
+
+const DOC_TIPOS: { value: string; label: string }[] = [
+  { value: 'cpf', label: 'CPF' },
+  { value: 'comprovante', label: 'Comprovante' },
+  { value: 'ie', label: 'Inscrição Estadual' },
+  { value: 'contrato', label: 'Contrato' },
+  { value: 'outro', label: 'Outro' },
+]
 
 function DetailDrawer({
-  cliente, onClose, onRegistrarInteracao, onSaveCampos,
+  cliente, onClose, onRegistrarInteracao, onSaveCampos, onApplyCadastro, flash,
 }: {
   cliente: Cliente
   onClose: () => void
   onRegistrarInteracao: (c: Cliente) => void
   onSaveCampos: (c: Cliente, patch: CamposPatch) => Promise<void>
+  onApplyCadastro: (clienteId: string, patch: Partial<Cliente>) => void
+  flash: (msg: string) => void
 }) {
   const [tab, setTab] = useState<DrawerTab>('cadastro')
   const m = clienteMetrics(cliente)
   const sm = STATUS_META[cliente.status]
+  const matchKey = cliente.matchKey || ''
+  const hasMatchKey = !!matchKey
 
   // estado de edição (notas + preferências + tags), ressincronizado ao trocar de cliente
   const [obs, setObs] = useState(cliente.observacoes ?? '')
@@ -80,6 +114,153 @@ function DetailDrawer({
     setTagList(cliente.tags)
     setTagInput('')
   }, [cliente.id, cliente.observacoes, cliente.preferenciasCategorias, cliente.tags])
+
+  // ── cadastro (CPF / I.E. / momento) + score ──
+  const [editCadastro, setEditCadastro] = useState(false)
+  const [consultando, setConsultando] = useState(false)
+
+  // ── documentos (carregados sob demanda) ──
+  const [docs, setDocs] = useState<ClienteDocumento[]>(cliente.documentos ?? [])
+  const [docsLoading, setDocsLoading] = useState(false)
+  const [docsLoaded, setDocsLoaded] = useState(false)
+  useEffect(() => {
+    if (tab !== 'documentos' || docsLoaded || !hasMatchKey) return
+    setDocsLoading(true)
+    listClienteDocumentos(matchKey)
+      .then((d) => { setDocs(d); setDocsLoaded(true) })
+      .catch(() => flash('Falha ao carregar documentos.'))
+      .finally(() => setDocsLoading(false))
+  }, [tab, docsLoaded, hasMatchKey, matchKey, flash])
+  useEffect(() => { setDocs(cliente.documentos ?? []); setDocsLoaded(false) }, [cliente.id]) // eslint-disable-line react-hooks/exhaustive-deps
+
+  // ── leiloeiras (carregadas sob demanda) ──
+  const [leiloeiras, setLeiloeiras] = useState<Leiloeira[]>([])
+  const [leilStatus, setLeilStatus] = useState<ClienteLeiloeiraStatus[]>([])
+  const [leilLoading, setLeilLoading] = useState(false)
+  const [leilLoaded, setLeilLoaded] = useState(false)
+  const [enviandoLeil, setEnviandoLeil] = useState(false)
+  useEffect(() => { setLeilLoaded(false); setLeilStatus([]) }, [cliente.id])
+  useEffect(() => {
+    if (tab !== 'leiloeiras' || leilLoaded || !hasMatchKey) return
+    setLeilLoading(true)
+    Promise.all([getLeiloeiras(), getClienteLeiloeiraStatus(matchKey)])
+      .then(([ls, st]) => { setLeiloeiras(ls); setLeilStatus(st); setLeilLoaded(true) })
+      .catch(() => flash('Falha ao carregar leiloeiras.'))
+      .finally(() => setLeilLoading(false))
+  }, [tab, leilLoaded, hasMatchKey, matchKey, flash])
+
+  // ── leilões recomendados (carregados sob demanda) ──
+  const [matches, setMatches] = useState<AgendaMatch[]>([])
+  const [matchesLoading, setMatchesLoading] = useState(false)
+  const [matchesLoaded, setMatchesLoaded] = useState(false)
+  useEffect(() => { setMatchesLoaded(false); setMatches([]) }, [cliente.id])
+  useEffect(() => {
+    if (tab !== 'recomendados' || matchesLoaded) return
+    setMatchesLoading(true)
+    getAgendaMatchesForCliente(cliente)
+      .then((r) => { setMatches(r); setMatchesLoaded(true) })
+      .catch(() => flash('Falha ao carregar leilões da agenda.'))
+      .finally(() => setMatchesLoading(false))
+  }, [tab, matchesLoaded, cliente, flash])
+
+  // Consulta de score/protestos (botão na aba Dados).
+  const consultarScore = async () => {
+    if (!cliente.cpf || !hasMatchKey || consultando) return
+    setConsultando(true)
+    try {
+      const r = await consultarScoreCliente(matchKey, cliente.nome, cliente.cpf)
+      if (r.pending) {
+        flash(r.message || 'Consulta de score pendente.')
+      } else {
+        onApplyCadastro(cliente.id, {
+          scoreCredito: r.score ?? undefined,
+          scoreFaixa: r.faixa,
+          protestos: r.protestos,
+        })
+        flash('Score atualizado.')
+      }
+    } catch {
+      flash('Falha ao consultar score.')
+    } finally {
+      setConsultando(false)
+    }
+  }
+
+  // Upload de documento.
+  const onUploadDoc = async (file: File, tipo: string) => {
+    if (!hasMatchKey) return
+    const fd = new FormData()
+    fd.append('file', file)
+    fd.append('matchKey', matchKey)
+    fd.append('nome', file.name)
+    fd.append('tipo', tipo)
+    try {
+      const doc = await uploadClienteDocumento(fd)
+      setDocs((prev) => [doc, ...prev])
+      flash('Documento enviado.')
+    } catch {
+      flash('Falha ao enviar documento.')
+    }
+  }
+
+  const abrirDoc = async (path: string) => {
+    try {
+      const url = await getClienteDocumentoUrl(path)
+      window.open(url, '_blank', 'noopener,noreferrer')
+    } catch {
+      flash('Falha ao gerar link do documento.')
+    }
+  }
+
+  const excluirDoc = async (doc: ClienteDocumento) => {
+    if (!window.confirm(`Excluir o documento "${doc.nomeArquivo}"?`)) return
+    try {
+      await deleteClienteDocumento(doc.id, doc.path)
+      setDocs((prev) => prev.filter((d) => d.id !== doc.id))
+      flash('Documento excluído.')
+    } catch {
+      flash('Falha ao excluir documento.')
+    }
+  }
+
+  // Marca/desmarca cadastro aprovado em uma leiloeira.
+  const toggleLeilAprovado = async (leiloeiraId: string, aprovar: boolean) => {
+    if (!hasMatchKey) return
+    const next: CadastroStatus = aprovar ? 'aprovado' : 'pendente'
+    setLeilStatus((prev) => {
+      const others = prev.filter((s) => s.leiloeiraId !== leiloeiraId)
+      return [...others, { leiloeiraId, status: next }]
+    })
+    try {
+      await setClienteLeiloeiraStatus(matchKey, leiloeiraId, next)
+    } catch {
+      flash('Falha ao atualizar status na leiloeira.')
+    }
+  }
+
+  const enviarCadastro = async (leiloeiraIds?: string[]) => {
+    if (!hasMatchKey || enviandoLeil) return
+    setEnviandoLeil(true)
+    try {
+      const r = await submitClienteLeiloeiras(matchKey, leiloeiraIds)
+      const skippedMsg = r.skipped.length ? ` · Ignorados: ${r.skipped.map((s) => `${s.leiloeira} (${s.reason})`).join(', ')}` : ''
+      flash(`Enviados: ${r.sent}${skippedMsg}`)
+      // recarrega status p/ refletir 'enviado'
+      try { setLeilStatus(await getClienteLeiloeiraStatus(matchKey)) } catch { /* mantém otimista */ }
+    } catch {
+      flash('Falha ao enviar cadastro às leiloeiras.')
+    } finally {
+      setEnviandoLeil(false)
+    }
+  }
+
+  const scoreFaixa: ScoreFaixa = cliente.scoreFaixa || scoreToFaixa(cliente.scoreCredito)
+  const numProtestos = cliente.protestos?.length ?? 0
+  const cadastroApto = isClienteCadastroApto({
+    scoreFaixa,
+    scoreCredito: cliente.scoreCredito,
+    temIE: cliente.temInscricaoEstadual,
+  })
 
   const obsDirty = obs.trim() !== (cliente.observacoes ?? '').trim()
   const prefsDirty = JSON.stringify(prefs) !== JSON.stringify(cliente.preferenciasCategorias ?? [])
@@ -116,6 +297,9 @@ function DetailDrawer({
     { id: 'compras', label: `Compras (${m.numCompras})`, icon: ShoppingCart },
     { id: 'interacoes', label: `Interações (${cliente.interacoes.length})`, icon: History },
     { id: 'preferencias', label: 'Preferências', icon: Heart },
+    { id: 'documentos', label: 'Documentos', icon: FileBadge },
+    { id: 'leiloeiras', label: 'Leiloeiras', icon: Gavel },
+    { id: 'recomendados', label: 'Leilões', icon: CalendarCheck },
     { id: 'observacoes', label: 'Notas', icon: FileText },
   ]
 
@@ -215,6 +399,62 @@ function DetailDrawer({
               <InfoRow icon={MapPin} label="Cidade / UF" value={`${cliente.cidade} — ${cliente.uf}`} />
               <InfoRow icon={Users} label="Responsável" value={cliente.responsavel} />
               <InfoRow icon={TrendingUp} label="Perfil de consumo" value={cliente.perfil} />
+
+              {/* ── cadastro p/ leiloeiras ── */}
+              <div className="pt-2" style={{ borderTop: '1px solid var(--border)' }}>
+                <div className="flex items-center justify-between mb-2">
+                  <FieldLabel icon={IdCard}>Cadastro para leiloeiras</FieldLabel>
+                  <button className="btn ghost" style={{ height: 28, padding: '0 10px', fontSize: 12 }} onClick={() => setEditCadastro(true)}>
+                    <Pencil size={13} /> Editar cadastro
+                  </button>
+                </div>
+                <div className="space-y-3">
+                  <InfoRow icon={IdCard} label="CPF" value={cliente.cpf ? fmtCpf(cliente.cpf) : '—'} />
+                  <div className="flex items-start gap-3">
+                    <FileBadge size={15} className="mt-0.5 shrink-0" style={{ color: 'var(--gold)' }} />
+                    <div className="min-w-0">
+                      <div className="text-[10px] uppercase tracking-wide" style={{ color: 'var(--text3)', letterSpacing: '0.06em' }}>Inscrição Estadual</div>
+                      <div className="text-[13px] mt-0.5 break-words flex items-center gap-2" style={{ color: 'var(--text)' }}>
+                        {cliente.inscricaoEstadual || '—'}
+                        {cliente.temInscricaoEstadual === 'Sim' && <Badge tone="olive"><Check size={10} />Tem I.E.</Badge>}
+                      </div>
+                    </div>
+                  </div>
+                  <div className="flex items-start gap-3">
+                    <ShieldCheck size={15} className="mt-0.5 shrink-0" style={{ color: 'var(--gold)' }} />
+                    <div className="min-w-0 flex-1">
+                      <div className="text-[10px] uppercase tracking-wide" style={{ color: 'var(--text3)', letterSpacing: '0.06em' }}>Score de crédito</div>
+                      <div className="text-[13px] mt-1 flex items-center gap-2 flex-wrap">
+                        {scoreFaixa
+                          ? <><Badge tone={SCORE_FAIXA_META[scoreFaixa].tone}>{SCORE_FAIXA_META[scoreFaixa].label}</Badge>
+                            {cliente.scoreCredito != null && <span className="font-bold" style={{ color: 'var(--text)' }}>{cliente.scoreCredito}</span>}</>
+                          : <span style={{ color: 'var(--text3)' }}>Não consultado</span>}
+                        <button
+                          className="btn ghost"
+                          style={{ height: 26, padding: '0 9px', fontSize: 11, opacity: cliente.cpf && hasMatchKey && !consultando ? 1 : 0.5 }}
+                          onClick={consultarScore}
+                          disabled={!cliente.cpf || !hasMatchKey || consultando}
+                          title={cliente.cpf ? 'Consultar score de crédito' : 'Informe um CPF para consultar'}
+                        >
+                          <RefreshCw size={12} /> {consultando ? 'Consultando…' : 'Consultar score'}
+                        </button>
+                      </div>
+                      {cadastroApto && <div className="text-[11px] mt-1.5 inline-flex items-center gap-1" style={{ color: 'var(--olive)' }}><ShieldCheck size={12} />Apto para cadastro</div>}
+                    </div>
+                  </div>
+                  <div className="flex items-start gap-3">
+                    <AlertTriangle size={15} className="mt-0.5 shrink-0" style={{ color: 'var(--gold)' }} />
+                    <div className="min-w-0">
+                      <div className="text-[10px] uppercase tracking-wide" style={{ color: 'var(--text3)', letterSpacing: '0.06em' }}>Protestos</div>
+                      <div className="text-[13px] mt-0.5 font-semibold" style={{ color: numProtestos ? 'var(--red)' : 'var(--olive)' }}>
+                        {numProtestos ? `${numProtestos} ${numProtestos === 1 ? 'protesto' : 'protestos'}` : 'Sem protestos'}
+                      </div>
+                    </div>
+                  </div>
+                  <InfoRow icon={TrendingUp} label="Momento na pecuária" value={cliente.momentoPecuaria || '—'} />
+                </div>
+              </div>
+
               <div>
                 <FieldLabel icon={Heart}>Categorias de interesse</FieldLabel>
                 <div className="flex flex-wrap gap-1.5">
@@ -337,6 +577,135 @@ function DetailDrawer({
             </div>
           )}
 
+          {tab === 'documentos' && (
+            <div className="space-y-4">
+              {!hasMatchKey && (
+                <div className="text-[12px] px-3 py-2.5 rounded-lg" style={{ background: 'var(--gold-dim)', border: '1px solid rgba(200,169,110,0.25)', color: 'var(--text2)' }}>
+                  Cliente sem chave de cadastro — salve-o via “Novo cliente” para anexar documentos.
+                </div>
+              )}
+              {hasMatchKey && <DocUploader onUpload={onUploadDoc} />}
+              {docsLoading && <p className="text-[12px]" style={{ color: 'var(--text3)' }}>Carregando documentos…</p>}
+              {!docsLoading && docs.length === 0 && <EmptyState icon={FileBadge} text="Nenhum documento anexado." />}
+              <div className="space-y-2">
+                {docs.map((d) => {
+                  const tipoMeta = DOC_TIPOS.find((t) => t.value === d.tipo)
+                  return (
+                    <div key={d.id} className="card" style={{ borderRadius: 10 }}>
+                      <div className="card-b flex items-center gap-3" style={{ padding: 12 }}>
+                        <FileBadge size={18} className="shrink-0" style={{ color: 'var(--gold)' }} />
+                        <div className="min-w-0 flex-1">
+                          <div className="text-[13px] font-semibold truncate" style={{ color: 'var(--text)' }}>{d.nomeArquivo}</div>
+                          <div className="flex items-center gap-2 mt-1 flex-wrap">
+                            <Badge tone="blue">{tipoMeta?.label ?? d.tipo}</Badge>
+                            <span className="text-[11px]" style={{ color: 'var(--text3)' }}>{fmtBytes(d.tamanhoBytes)}</span>
+                            <span className="text-[11px]" style={{ color: 'var(--text3)' }}>· {fmtDate(d.createdAt.slice(0, 10))}</span>
+                          </div>
+                        </div>
+                        <button className="btn ghost shrink-0" style={{ height: 30, padding: '0 10px', fontSize: 12 }} onClick={() => abrirDoc(d.path)}>
+                          <ExternalLink size={13} /> Abrir
+                        </button>
+                        <button className="btn ghost shrink-0" style={{ width: 30, padding: 0, color: 'var(--red)' }} onClick={() => excluirDoc(d)} aria-label="Excluir documento">
+                          <Trash2 size={14} />
+                        </button>
+                      </div>
+                    </div>
+                  )
+                })}
+              </div>
+            </div>
+          )}
+
+          {tab === 'leiloeiras' && (
+            <div className="space-y-4">
+              {!hasMatchKey && (
+                <div className="text-[12px] px-3 py-2.5 rounded-lg" style={{ background: 'var(--gold-dim)', border: '1px solid rgba(200,169,110,0.25)', color: 'var(--text2)' }}>
+                  Cliente sem chave de cadastro — salve-o via “Novo cliente” para gerir leiloeiras.
+                </div>
+              )}
+              {hasMatchKey && (
+                <div className="flex items-center justify-between gap-2">
+                  <FieldLabel icon={Gavel}>Cadastro nas leiloeiras</FieldLabel>
+                  <button
+                    className="btn primary"
+                    style={{ height: 30, padding: '0 12px', fontSize: 12, opacity: enviandoLeil ? 0.5 : 1 }}
+                    onClick={() => enviarCadastro()}
+                    disabled={enviandoLeil}
+                    title="Enviar cadastro a todas as leiloeiras elegíveis"
+                  >
+                    <Send size={13} /> {enviandoLeil ? 'Enviando…' : 'Enviar a todas'}
+                  </button>
+                </div>
+              )}
+              {leilLoading && <p className="text-[12px]" style={{ color: 'var(--text3)' }}>Carregando leiloeiras…</p>}
+              {hasMatchKey && !leilLoading && leiloeiras.length === 0 && <EmptyState icon={Gavel} text="Nenhuma leiloeira cadastrada." />}
+              <div className="space-y-2">
+                {leiloeiras.map((l) => {
+                  const st = leilStatus.find((s) => s.leiloeiraId === l.id)?.status ?? 'pendente'
+                  const meta = CADASTRO_STATUS_META[st]
+                  const aprovado = st === 'aprovado'
+                  return (
+                    <div key={l.id} className="card" style={{ borderRadius: 10 }}>
+                      <div className="card-b" style={{ padding: 12 }}>
+                        <div className="flex items-center justify-between gap-3">
+                          <div className="min-w-0">
+                            <div className="text-[13px] font-semibold truncate" style={{ color: 'var(--text)' }}>{l.nome}</div>
+                            <div className="mt-1"><Badge tone={meta.tone}>{meta.label}</Badge></div>
+                          </div>
+                          <div className="flex items-center gap-2 shrink-0">
+                            <label className="flex items-center gap-1.5 text-[12px] cursor-pointer" style={{ color: 'var(--text2)' }}>
+                              <input type="checkbox" checked={aprovado} onChange={(e) => toggleLeilAprovado(l.id, e.target.checked)} />
+                              Aprovado
+                            </label>
+                            <button
+                              className="btn ghost"
+                              style={{ height: 28, padding: '0 10px', fontSize: 11, opacity: enviandoLeil ? 0.5 : 1 }}
+                              onClick={() => enviarCadastro([l.id])}
+                              disabled={enviandoLeil}
+                            >
+                              <Send size={12} /> Enviar
+                            </button>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  )
+                })}
+              </div>
+            </div>
+          )}
+
+          {tab === 'recomendados' && (
+            <div className="space-y-3">
+              {matchesLoading && <p className="text-[12px]" style={{ color: 'var(--text3)' }}>Buscando leilões na agenda…</p>}
+              {!matchesLoading && matches.length === 0 && <EmptyState icon={CalendarCheck} text="Nenhum leilão compatível na agenda." />}
+              {matches.map((mt) => (
+                <div key={mt.leilao.id} className="card" style={{ borderRadius: 10 }}>
+                  <div className="card-b" style={{ padding: 14 }}>
+                    <div className="flex items-start justify-between gap-3">
+                      <div className="min-w-0">
+                        <div className="text-[13px] font-semibold" style={{ color: 'var(--text)' }}>{mt.leilao.nome}</div>
+                        <div className="flex items-center gap-2 mt-1 flex-wrap text-[11px]" style={{ color: 'var(--text3)' }}>
+                          <span className="inline-flex items-center gap-1"><CalendarClock size={12} />{fmtDate(mt.leilao.data)}</span>
+                          {mt.leilao.horario && <span>· {mt.leilao.horario}</span>}
+                          {mt.leilao.leiloeira && <span>· {mt.leilao.leiloeira}</span>}
+                          {mt.leilao.local && <span>· {mt.leilao.local}</span>}
+                        </div>
+                        <div className="flex flex-wrap gap-1.5 mt-2">
+                          {mt.motivos.map((mo) => <Badge key={mo} tone="olive">{mo}</Badge>)}
+                        </div>
+                      </div>
+                      <div className="text-right shrink-0">
+                        <div className="text-[14px] font-extrabold" style={{ color: 'var(--gold)' }}>{mt.score}</div>
+                        <div className="text-[10px] mt-0.5" style={{ color: 'var(--text3)' }}>aderência</div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+
           {tab === 'observacoes' && (
             <div className="space-y-4">
               <div>
@@ -389,7 +758,129 @@ function DetailDrawer({
           )}
         </div>
       </aside>
+
+      {editCadastro && (
+        <EditCadastroModal
+          cliente={cliente}
+          hasMatchKey={hasMatchKey}
+          onClose={() => setEditCadastro(false)}
+          onApplyCadastro={onApplyCadastro}
+          flash={flash}
+        />
+      )}
     </div>
+  )
+}
+
+// ── uploader de documento (input file + tipo) ──
+function DocUploader({ onUpload }: { onUpload: (file: File, tipo: string) => Promise<void> }) {
+  const [file, setFile] = useState<File | null>(null)
+  const [tipo, setTipo] = useState('outro')
+  const [busy, setBusy] = useState(false)
+
+  const submit = async () => {
+    if (!file || busy) return
+    setBusy(true)
+    try { await onUpload(file, tipo); setFile(null) } finally { setBusy(false) }
+  }
+
+  return (
+    <div className="card" style={{ borderRadius: 10 }}>
+      <div className="card-b space-y-2.5" style={{ padding: 12 }}>
+        <FieldLabel icon={Upload}>Anexar documento</FieldLabel>
+        <div className="flex flex-col sm:flex-row gap-2">
+          <input
+            type="file"
+            className="input flex-1"
+            style={{ paddingTop: 6 }}
+            onChange={(e) => setFile(e.target.files?.[0] ?? null)}
+          />
+          <select className="select sm:w-[160px]" value={tipo} onChange={(e) => setTipo(e.target.value)}>
+            {DOC_TIPOS.map((t) => <option key={t.value} value={t.value}>{t.label}</option>)}
+          </select>
+          <button className="btn primary shrink-0" onClick={submit} disabled={!file || busy} style={{ opacity: file && !busy ? 1 : 0.5 }}>
+            <Upload size={14} /> {busy ? 'Enviando…' : 'Upload'}
+          </button>
+        </div>
+      </div>
+    </div>
+  )
+}
+
+// ── modal: editar cadastro p/ leiloeiras (CPF / I.E. / momento) ──
+function EditCadastroModal({
+  cliente, hasMatchKey, onClose, onApplyCadastro, flash,
+}: {
+  cliente: Cliente
+  hasMatchKey: boolean
+  onClose: () => void
+  onApplyCadastro: (clienteId: string, patch: Partial<Cliente>) => void
+  flash: (msg: string) => void
+}) {
+  const [cpf, setCpf] = useState(cliente.cpf ?? '')
+  const [ie, setIe] = useState(cliente.inscricaoEstadual ?? '')
+  const [temIe, setTemIe] = useState(cliente.temInscricaoEstadual === 'Sim' ? 'Sim' : (cliente.temInscricaoEstadual === 'Não' ? 'Não' : ''))
+  const [momento, setMomento] = useState(cliente.momentoPecuaria ?? '')
+  const [saving, setSaving] = useState(false)
+  const [erro, setErro] = useState<string | null>(null)
+
+  const submit = async () => {
+    if (saving) return
+    setSaving(true)
+    setErro(null)
+    const patch: Partial<Cliente> = {
+      cpf: cpf.trim(),
+      inscricaoEstadual: ie.trim(),
+      temInscricaoEstadual: temIe,
+      momentoPecuaria: momento.trim(),
+    }
+    onApplyCadastro(cliente.id, patch)
+    try {
+      await updateClienteCadastro({
+        matchKey: cliente.matchKey || '',
+        nome: cliente.nome,
+        cpf: cpf.trim(),
+        inscricaoEstadual: ie.trim(),
+        temInscricaoEstadual: temIe,
+        momentoPecuaria: momento.trim(),
+      })
+      flash('Cadastro atualizado.')
+      onClose()
+    } catch (e) {
+      setErro(e instanceof Error ? e.message : 'Falha ao salvar o cadastro.')
+      setSaving(false)
+    }
+  }
+
+  return (
+    <Modal
+      title="Editar cadastro" onClose={onClose}
+      footer={<>
+        {erro && <span className="text-[12px] mr-auto self-center" style={{ color: 'var(--red)' }}>{erro}</span>}
+        <button className="btn ghost" onClick={onClose} disabled={saving}>Cancelar</button>
+        <button className="btn primary" onClick={submit} disabled={saving} style={{ opacity: saving ? 0.5 : 1 }}>
+          <Check size={14} /> {saving ? 'Salvando…' : 'Salvar'}
+        </button>
+      </>}
+    >
+      {!hasMatchKey && (
+        <p className="text-[12px] mb-3 px-3 py-2 rounded-lg" style={{ background: 'var(--gold-dim)', border: '1px solid rgba(200,169,110,0.25)', color: 'var(--text2)' }}>
+          Cliente sem chave de cadastro — as alterações não serão persistidas.
+        </p>
+      )}
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+        <Field label="CPF"><input className="input" value={cpf} onChange={(e) => setCpf(e.target.value)} placeholder="000.000.000-00" /></Field>
+        <Field label="Tem Inscrição Estadual?">
+          <select className="select" value={temIe} onChange={(e) => setTemIe(e.target.value)}>
+            <option value="">—</option>
+            <option value="Sim">Sim</option>
+            <option value="Não">Não</option>
+          </select>
+        </Field>
+        <Field label="Inscrição Estadual" full><input className="input" value={ie} onChange={(e) => setIe(e.target.value)} placeholder="Número da I.E." /></Field>
+        <Field label="Momento na pecuária" full><input className="input" value={momento} onChange={(e) => setMomento(e.target.value)} placeholder="Ex.: recria, engorda, cria…" /></Field>
+      </div>
+    </Modal>
   )
 }
 
@@ -449,7 +940,7 @@ function Modal({ title, onClose, children, footer, wide }: { title: string; onCl
 }
 
 // ── componente principal ──────────────────────────────────────────────────────
-export function ClientesClient({ initialClientes }: { initialClientes: Cliente[] }) {
+export function ClientesClient({ initialClientes, vgvSummary }: { initialClientes: Cliente[]; vgvSummary?: ClientesVgvSummary }) {
   const [clientes, setClientes] = useState<Cliente[]>(initialClientes)
   const [selected, setSelected] = useState<Cliente | null>(null)
   const [busca, setBusca] = useState('')
@@ -601,6 +1092,13 @@ export function ClientesClient({ initialClientes }: { initialClientes: Cliente[]
     }
   }
 
+  // Atualização otimista de campos de cadastro (CPF/I.E./score/protestos/momento)
+  // disparada pelo drawer; a persistência fica a cargo de quem chama (modal/score).
+  const applyCadastro = useCallback((clienteId: string, patch: Partial<Cliente>) => {
+    setClientes((prev) => prev.map((c) => (c.id === clienteId ? { ...c, ...patch } : c)))
+    setSelected((prev) => (prev && prev.id === clienteId ? { ...prev, ...patch } : prev))
+  }, [])
+
   // mantém o drawer sincronizado quando a lista muda.
   useEffect(() => {
     if (selected) {
@@ -637,7 +1135,12 @@ export function ClientesClient({ initialClientes }: { initialClientes: Cliente[]
         <div className="slim-div" />
         <Kpi value={kpis.ticket ? brlCompact(kpis.ticket).replace('R$', '').trim() : '—'} cur="R$" label="Ticket médio" />
         <div className="slim-div" />
-        <Kpi value={brlCompact(kpis.volume).replace('R$', '').trim()} cur="R$" label="Volume total comprado" />
+        <Kpi
+          value={brlCompact(vgvSummary ? vgvSummary.vgvTotalLeiloes : kpis.volume).replace('R$', '').trim()}
+          cur="R$"
+          label="VGV Total (leilões)"
+          tag={vgvSummary ? `${Math.round(vgvSummary.cobertura * 100)}% atribuído a compradores` : 'arremates'}
+        />
         <div className="slim-div" />
         <Kpi value={kpis.ultimaCompra ? fmtDate(kpis.ultimaCompra) : '—'} label="Última compra" tag={timeAgo(kpis.ultimaCompra)} />
       </div>
@@ -791,6 +1294,8 @@ export function ClientesClient({ initialClientes }: { initialClientes: Cliente[]
           onClose={() => setSelected(null)}
           onRegistrarInteracao={(c) => setInteracaoTarget(c)}
           onSaveCampos={saveCampos}
+          onApplyCadastro={applyCadastro}
+          flash={flash}
         />
       )}
 
@@ -837,6 +1342,9 @@ function NovoClienteModal({ onClose, onCreate }: { onClose: () => void; onCreate
   const [status, setStatus] = useState<ClienteStatus>('quente')
   const [interesses, setInteresses] = useState<Interesse[]>([])
   const [obs, setObs] = useState('')
+  const [cpf, setCpf] = useState('')
+  const [ie, setIe] = useState('')
+  const [momento, setMomento] = useState('')
   const [saving, setSaving] = useState(false)
   const [erro, setErro] = useState<string | null>(null)
 
@@ -859,6 +1367,10 @@ function NovoClienteModal({ onClose, onCreate }: { onClose: () => void; onCreate
         uf: uf.trim().toUpperCase(),
         perfil, status, interesses,
         observacoes: obs.trim(),
+        cpf: cpf.trim() || undefined,
+        inscricaoEstadual: ie.trim() || undefined,
+        temInscricaoEstadual: ie.trim() ? 'Sim' : undefined,
+        momentoPecuaria: momento.trim() || undefined,
       })
     } catch (e) {
       setErro(e instanceof Error ? e.message : 'Falha ao salvar o cliente.')
@@ -882,6 +1394,9 @@ function NovoClienteModal({ onClose, onCreate }: { onClose: () => void; onCreate
         <Field label="Responsável"><input className="input" value={responsavel} onChange={(e) => setResponsavel(e.target.value)} placeholder="Nome do contato" /></Field>
         <Field label="Telefone / WhatsApp *"><input className="input" value={telefone} onChange={(e) => setTelefone(e.target.value)} placeholder="(00) 90000-0000" /></Field>
         <Field label="E-mail"><input className="input" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="email@dominio.com" /></Field>
+        <Field label="CPF"><input className="input" value={cpf} onChange={(e) => setCpf(e.target.value)} placeholder="000.000.000-00" /></Field>
+        <Field label="Inscrição Estadual"><input className="input" value={ie} onChange={(e) => setIe(e.target.value)} placeholder="Número da I.E." /></Field>
+        <Field label="Momento na pecuária" full><input className="input" value={momento} onChange={(e) => setMomento(e.target.value)} placeholder="Ex.: recria, engorda, cria…" /></Field>
         <div className="grid grid-cols-3 gap-2">
           <Field label="Cidade"><input className="input" value={cidade} onChange={(e) => setCidade(e.target.value)} /></Field>
           <Field label="UF"><input className="input" value={uf} maxLength={2} onChange={(e) => setUf(e.target.value)} /></Field>

@@ -7,7 +7,8 @@ import { recordContact } from './crm-leads'
 import {
   type Cliente, type CompraHist, type InteracaoHist, type Interesse,
   type ClienteStatus, type PerfilConsumo, type PreferenciaCategoria,
-  clienteMatchKey,
+  type ScoreFaixa, type Protesto, type ClienteDocumento,
+  clienteMatchKey, scoreToFaixa, onlyDigits,
 } from '@/lib/clientes'
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -32,7 +33,9 @@ type FechamentoRow = {
 type LeadRow = Pick<CRMLead,
   'id' | 'nome' | 'empresa' | 'telefone' | 'celular' | 'email' | 'status' |
   'temperatura' | 'prioridade' | 'interesse' | 'o_que_busca' | 'cidade' |
-  'estado' | 'data_estimada_fechamento' | 'contact_history'>
+  'estado' | 'data_estimada_fechamento' | 'contact_history' |
+  'cpf' | 'inscricao_estadual' | 'tem_inscricao_estadual' | 'score_serasa' |
+  'pendencias_financeiras' | 'momento_pecuaria' | 'operacao_pecuaria'>
 
 type ClienteRow = {
   id: string; match_key: string; nome: string
@@ -42,6 +45,10 @@ type ClienteRow = {
   observacoes: string | null; preferencias: string | null
   preferencias_categorias: unknown
   proximo_followup: string | null; crm_lead_id: string | null
+  cpf: string | null; inscricao_estadual: string | null; tem_inscricao_estadual: string | null
+  score_credito: number | null; score_faixa: string | null; score_consultado_at: string | null
+  protestos: unknown; protestos_consultado_at: string | null
+  momento_pecuaria: string | null; operacao_pecuaria: string | null
 }
 
 type InteracaoRow = {
@@ -71,6 +78,32 @@ const asTipo = (v: unknown): InteracaoHist['tipo'] => (VALID_TIPO.includes(v as 
 const asInteresses = (v: unknown): Interesse[] => (Array.isArray(v) ? v.filter((x): x is Interesse => VALID_INTERESSE.includes(x as Interesse)) : [])
 const asPrefCats = (v: unknown): PreferenciaCategoria[] => (Array.isArray(v) ? v.filter((x): x is PreferenciaCategoria => VALID_PREF_CAT.includes(x as PreferenciaCategoria)) : [])
 const asStrArr = (v: unknown): string[] => (Array.isArray(v) ? v.map((x) => String(x)).filter(Boolean) : [])
+const asProtestos = (v: unknown): Protesto[] => (Array.isArray(v) ? (v as Protesto[]) : [])
+
+const VALID_SCORE_FAIXA: ScoreFaixa[] = ['baixo', 'regular', 'razoavel', 'bom', 'otimo']
+const asFaixa = (v: unknown): ScoreFaixa => (VALID_SCORE_FAIXA.includes(v as ScoreFaixa) ? (v as ScoreFaixa) : '')
+
+// Funde os dados de cadastro (CPF/I.E./score/protestos): a linha manual de
+// `clientes` vence; o lead do CRM preenche o que faltar (já tem esses campos).
+function cadastroFields(row: ClienteRow | undefined, lead: LeadRow | undefined): Partial<Cliente> {
+  const score = row?.score_credito ?? lead?.score_serasa ?? undefined
+  const faixa = asFaixa(row?.score_faixa) || scoreToFaixa(score ?? null)
+  const cpf = (row?.cpf || lead?.cpf || '').trim()
+  const ie = (row?.inscricao_estadual || lead?.inscricao_estadual || '').trim()
+  const temIE = (row?.tem_inscricao_estadual || lead?.tem_inscricao_estadual || (ie ? 'Sim' : '')).trim()
+  return {
+    cpf: cpf || undefined,
+    inscricaoEstadual: ie || undefined,
+    temInscricaoEstadual: temIE || undefined,
+    scoreCredito: typeof score === 'number' ? score : undefined,
+    scoreFaixa: faixa || undefined,
+    scoreConsultadoAt: row?.score_consultado_at || undefined,
+    protestos: asProtestos(row?.protestos),
+    protestosConsultadoAt: row?.protestos_consultado_at || undefined,
+    momentoPecuaria: (row?.momento_pecuaria || lead?.momento_pecuaria || '').trim() || undefined,
+    operacaoPecuaria: (row?.operacao_pecuaria || lead?.operacao_pecuaria || '').trim() || undefined,
+  }
+}
 
 function descCompra(lotes: number, animais: number): string {
   const parts: string[] = []
@@ -137,7 +170,7 @@ export async function getClientes(): Promise<Cliente[]> {
       .order('data', { ascending: false }),
     supabase
       .from('crm_leads')
-      .select('id, nome, empresa, telefone, celular, email, status, temperatura, prioridade, interesse, o_que_busca, cidade, estado, data_estimada_fechamento, contact_history')
+      .select('id, nome, empresa, telefone, celular, email, status, temperatura, prioridade, interesse, o_que_busca, cidade, estado, data_estimada_fechamento, contact_history, cpf, inscricao_estadual, tem_inscricao_estadual, score_serasa, pendencias_financeiras, momento_pecuaria, operacao_pecuaria')
       .eq('arquivado', false),
   ])
 
@@ -274,6 +307,7 @@ export async function getClientes(): Promise<Cliente[]> {
       crmLeadId: lead?.id,
       matchKey: e.key,
       origem: 'fechamento',
+      ...cadastroFields(undefined, lead),
     })
   }
 
@@ -306,6 +340,7 @@ export async function getClientes(): Promise<Cliente[]> {
         proximoFollowup: row.proximo_followup ? String(row.proximo_followup).slice(0, 10) : existing.proximoFollowup,
         crmLeadId: existing.crmLeadId || row.crm_lead_id || undefined,
         clienteRowId: row.id,
+        ...cadastroFields(row, linkedLead || leadByName.get(key)),
       })
     } else {
       const lead = linkedLead || leadByName.get(key)
@@ -332,6 +367,7 @@ export async function getClientes(): Promise<Cliente[]> {
         matchKey: key,
         clienteRowId: row.id,
         origem: 'manual',
+        ...cadastroFields(row, lead),
       })
     }
   }
@@ -348,6 +384,40 @@ export async function getClientes(): Promise<Cliente[]> {
   return [...byKey.values()].sort((a, b) => totalDe(b) - totalDe(a))
 }
 
+// ─────────────────────────────────────────────────────────────────────────────
+// Resumo de VGV para reconciliar o KPI da página Clientes com o dashboard.
+// `vgvTotalLeiloes` = soma de `bula_leilao_fechamento.vgv_total` (base
+// autoritativa, idêntica à do dashboard em "all-time"). `vgvAtribuido` = soma de
+// `compradores[].vgv` (detalhamento por comprador, que pode estar incompleto).
+// A razão atribuído/total é a "cobertura": revela leilões com VGV mas sem
+// detalhamento de comprador, em vez de deixar a divergência silenciosa.
+// ─────────────────────────────────────────────────────────────────────────────
+export interface ClientesVgvSummary {
+  vgvTotalLeiloes: number
+  vgvAtribuido: number
+  cobertura: number // 0..1
+}
+
+export async function getClientesVgvSummary(): Promise<ClientesVgvSummary> {
+  const supabase = await createClient()
+  const { data, error } = await supabase
+    .from('bula_leilao_fechamento')
+    .select('vgv_total, compradores')
+  if (error) {
+    console.warn('[clientes] erro ao somar VGV:', error.message)
+    return { vgvTotalLeiloes: 0, vgvAtribuido: 0, cobertura: 0 }
+  }
+
+  let vgvTotalLeiloes = 0
+  let vgvAtribuido = 0
+  for (const f of (data ?? []) as { vgv_total: number | null; compradores: CompradorRow[] | null }[]) {
+    vgvTotalLeiloes += Number(f.vgv_total) || 0
+    for (const c of f.compradores ?? []) vgvAtribuido += Number(c.vgv) || 0
+  }
+  const cobertura = vgvTotalLeiloes > 0 ? Math.min(1, vgvAtribuido / vgvTotalLeiloes) : 0
+  return { vgvTotalLeiloes, vgvAtribuido, cobertura }
+}
+
 // ── input do cadastro manual ──
 export interface NovoClienteInput {
   nome: string
@@ -360,6 +430,11 @@ export interface NovoClienteInput {
   status?: ClienteStatus
   interesses?: Interesse[]
   observacoes?: string
+  // dados de cadastro p/ leiloeiras (opcionais no cadastro manual)
+  cpf?: string
+  inscricaoEstadual?: string
+  temInscricaoEstadual?: string
+  momentoPecuaria?: string
 }
 
 /**
@@ -383,6 +458,10 @@ export async function createCliente(input: NovoClienteInput): Promise<Cliente> {
     status: input.status ?? 'quente',
     interesses: input.interesses ?? [],
     observacoes: (input.observacoes ?? '').trim(),
+    cpf: onlyDigits(input.cpf ?? ''),
+    inscricao_estadual: (input.inscricaoEstadual ?? '').trim(),
+    tem_inscricao_estadual: (input.temInscricaoEstadual ?? (input.inscricaoEstadual ? 'Sim' : '')).trim(),
+    momento_pecuaria: (input.momentoPecuaria ?? '').trim(),
   }
 
   const { data, error } = await supabase
@@ -417,6 +496,7 @@ export async function createCliente(input: NovoClienteInput): Promise<Cliente> {
     matchKey: row.match_key,
     clienteRowId: row.id,
     origem: 'manual',
+    ...cadastroFields(row, undefined),
   }
 }
 
@@ -501,4 +581,214 @@ export async function updateClienteCampos(input: UpdateClienteCamposInput): Prom
     if (error) throw new Error(`Erro ao salvar: ${error.message}`)
   }
   revalidatePath('/sistema/clientes')
+}
+
+// ── edição dos dados de cadastro (CPF, I.E., score, protestos) ──
+export interface UpdateClienteCadastroInput {
+  matchKey: string
+  nome: string
+  cpf?: string
+  inscricaoEstadual?: string
+  temInscricaoEstadual?: string
+  scoreCredito?: number | null
+  scoreFaixa?: ScoreFaixa
+  protestos?: Protesto[]
+  momentoPecuaria?: string
+  operacaoPecuaria?: string
+}
+
+/**
+ * Grava os dados de cadastro do cliente (overlay em `clientes` por match_key).
+ * Faz UPDATE se a linha existir, senão INSERT. Marca os timestamps de consulta
+ * quando score/protestos vêm preenchidos.
+ */
+export async function updateClienteCadastro(input: UpdateClienteCadastroInput): Promise<void> {
+  const supabase = await createClient()
+  if (!input.matchKey) throw new Error('Cliente inválido.')
+
+  const patch: Record<string, unknown> = {}
+  if (input.cpf !== undefined) patch.cpf = onlyDigits(input.cpf)
+  if (input.inscricaoEstadual !== undefined) patch.inscricao_estadual = input.inscricaoEstadual.trim()
+  if (input.temInscricaoEstadual !== undefined) patch.tem_inscricao_estadual = input.temInscricaoEstadual.trim()
+  if (input.scoreCredito !== undefined && input.scoreCredito !== null) {
+    patch.score_credito = input.scoreCredito
+    patch.score_faixa = input.scoreFaixa || scoreToFaixa(input.scoreCredito)
+    patch.score_consultado_at = new Date().toISOString()
+  }
+  if (input.protestos !== undefined) {
+    patch.protestos = input.protestos
+    patch.protestos_consultado_at = new Date().toISOString()
+  }
+  if (input.momentoPecuaria !== undefined) patch.momento_pecuaria = input.momentoPecuaria.trim()
+  if (input.operacaoPecuaria !== undefined) patch.operacao_pecuaria = input.operacaoPecuaria.trim()
+  if (Object.keys(patch).length === 0) return
+
+  const { data: existing } = await supabase.from('clientes').select('id').eq('match_key', input.matchKey).maybeSingle()
+  if (existing) {
+    const { error } = await supabase.from('clientes').update(patch).eq('match_key', input.matchKey)
+    if (error) throw new Error(`Erro ao salvar cadastro: ${error.message}`)
+  } else {
+    const { error } = await supabase.from('clientes').insert({ match_key: input.matchKey, nome: input.nome, ...patch })
+    if (error) throw new Error(`Erro ao salvar cadastro: ${error.message}`)
+  }
+  revalidatePath('/sistema/clientes')
+}
+
+// ── documentos do cliente (bucket privado cliente-documentos) ──
+const DOCS_BUCKET = 'cliente-documentos'
+
+function mapDocRow(r: {
+  id: string; tipo: string | null; nome_arquivo: string; path: string
+  tamanho_bytes: number | null; content_type: string | null; created_at: string
+}): ClienteDocumento {
+  return {
+    id: r.id,
+    tipo: r.tipo || 'outro',
+    nomeArquivo: r.nome_arquivo,
+    path: r.path,
+    tamanhoBytes: Number(r.tamanho_bytes) || 0,
+    contentType: r.content_type || '',
+    createdAt: r.created_at,
+  }
+}
+
+export async function listClienteDocumentos(matchKey: string): Promise<ClienteDocumento[]> {
+  if (!matchKey) return []
+  const supabase = await createClient()
+  const { data, error } = await supabase
+    .from('cliente_documentos')
+    .select('id, tipo, nome_arquivo, path, tamanho_bytes, content_type, created_at')
+    .eq('cliente_key', matchKey)
+    .order('created_at', { ascending: false })
+  if (error) {
+    console.warn('[clientes] tabela cliente_documentos indisponível:', error.message)
+    return []
+  }
+  return (data ?? []).map(mapDocRow)
+}
+
+/** Upload de um documento. Recebe FormData { file, matchKey, nome, tipo }. */
+export async function uploadClienteDocumento(formData: FormData): Promise<ClienteDocumento> {
+  const supabase = await createClient()
+  const file = formData.get('file') as File | null
+  const matchKey = String(formData.get('matchKey') || '')
+  const nome = String(formData.get('nome') || '')
+  const tipo = String(formData.get('tipo') || 'outro')
+  if (!file || !matchKey) throw new Error('Arquivo e cliente são obrigatórios.')
+
+  const ext = file.name.includes('.') ? file.name.slice(file.name.lastIndexOf('.')) : ''
+  const path = `${matchKey.replace(/\s+/g, '-')}/${crypto.randomUUID()}${ext}`
+
+  const { error: upErr } = await supabase.storage
+    .from(DOCS_BUCKET)
+    .upload(path, file, { contentType: file.type || undefined, upsert: false })
+  if (upErr) throw new Error(`Falha ao subir documento: ${upErr.message}`)
+
+  const { data, error } = await supabase
+    .from('cliente_documentos')
+    .insert({
+      cliente_key: matchKey,
+      tipo,
+      nome_arquivo: file.name,
+      path,
+      tamanho_bytes: file.size,
+      content_type: file.type || '',
+    })
+    .select('id, tipo, nome_arquivo, path, tamanho_bytes, content_type, created_at')
+    .single()
+  if (error) {
+    // rollback do arquivo se o metadado falhar
+    await supabase.storage.from(DOCS_BUCKET).remove([path])
+    throw new Error(`Falha ao salvar documento: ${error.message}`)
+  }
+  revalidatePath('/sistema/clientes')
+  return mapDocRow(data)
+}
+
+/** Gera uma signed URL (1h) para baixar/visualizar o documento privado. */
+export async function getClienteDocumentoUrl(path: string): Promise<string> {
+  const supabase = await createClient()
+  const { data, error } = await supabase.storage.from(DOCS_BUCKET).createSignedUrl(path, 3600)
+  if (error || !data?.signedUrl) throw new Error('Falha ao gerar link do documento.')
+  return data.signedUrl
+}
+
+export async function deleteClienteDocumento(id: string, path: string): Promise<void> {
+  const supabase = await createClient()
+  await supabase.storage.from(DOCS_BUCKET).remove([path])
+  const { error } = await supabase.from('cliente_documentos').delete().eq('id', id)
+  if (error) throw new Error(`Falha ao excluir documento: ${error.message}`)
+  revalidatePath('/sistema/clientes')
+}
+
+// ── consulta manual de score/protestos para um cliente (botão no drawer) ──
+export interface ConsultarScoreResult {
+  pending: boolean
+  score: number | null
+  faixa: ScoreFaixa
+  protestos: Protesto[]
+  message?: string
+}
+
+export async function consultarScoreCliente(matchKey: string, nome: string, cpf: string): Promise<ConsultarScoreResult> {
+  const { consultarCredito } = await import('@/lib/credit-score-provider')
+  const report = await consultarCredito(cpf)
+  if (!report.pending) {
+    await updateClienteCadastro({
+      matchKey,
+      nome,
+      cpf,
+      scoreCredito: report.score,
+      scoreFaixa: report.faixa,
+      protestos: report.protestos,
+    })
+  }
+  return {
+    pending: report.pending,
+    score: report.score,
+    faixa: report.faixa,
+    protestos: report.protestos,
+    message: report.message,
+  }
+}
+
+// ── match da agenda de leilões com o cliente (aba "Leilões recomendados") ──
+export async function getAgendaMatchesForCliente(cliente: Cliente) {
+  const supabase = await createClient()
+  const { matchAgendaToCliente } = await import('@/lib/cliente-agenda-match')
+  const today = new Date().toISOString().slice(0, 10)
+  const { data, error } = await supabase
+    .from('bula_leiloes')
+    .select('id, nome, data, tipo, local, leiloeira, horario, status')
+    .gte('data', today)
+    .order('data', { ascending: true })
+  if (error) {
+    console.warn('[clientes] agenda indisponível:', error.message)
+    return []
+  }
+  const leiloes = (data ?? [])
+    .filter((l: { status?: string | null }) => !/cancel/i.test(String(l.status || '')))
+    .map((l: Record<string, unknown>) => ({
+      id: String(l.id),
+      nome: String(l.nome || 'Leilão'),
+      data: String(l.data || '').slice(0, 10),
+      tipo: l.tipo ? String(l.tipo) : undefined,
+      local: l.local ? String(l.local) : undefined,
+      leiloeira: l.leiloeira ? String(l.leiloeira) : undefined,
+      horario: l.horario ? String(l.horario) : undefined,
+      status: l.status ? String(l.status) : undefined,
+    }))
+  return matchAgendaToCliente(cliente, leiloes)
+}
+
+// ── disparo manual de submissão para leiloeiras (aba Leiloeiras do drawer) ──
+export async function submitClienteLeiloeiras(
+  matchKey: string,
+  leiloeiraIds?: string[],
+): Promise<{ sent: number; attempted: number; skipped: { leiloeira: string; reason: string }[] }> {
+  const supabase = await createClient()
+  const { submitClienteToLeiloeiras } = await import('@/lib/leiloeira-submission')
+  const r = await submitClienteToLeiloeiras(supabase as never, matchKey, leiloeiraIds)
+  revalidatePath('/sistema/clientes')
+  return r
 }

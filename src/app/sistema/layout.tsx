@@ -26,7 +26,13 @@ function isGroup(e: NavEntry): e is NavGroup {
 
 const navConfig: NavEntry[] = [
   { href: '/sistema', label: 'Dashboard', icon: LayoutDashboard },
-  { href: '/sistema/clientes', label: 'Clientes', icon: Contact },
+  {
+    label: 'Clientes', icon: Contact,
+    items: [
+      { href: '/sistema/clientes', label: 'Clientes', icon: Contact },
+      { href: '/sistema/clientes/cadastro-leiloeiras', label: 'Cadastro Leiloeiras', icon: Gavel },
+    ],
+  },
   { href: '/sistema/crm', label: 'CRM', icon: Users },
   {
     label: 'Leilões', icon: Gavel,

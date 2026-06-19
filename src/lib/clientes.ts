@@ -34,6 +34,30 @@ export interface InteracaoHist {
   nota: string
 }
 
+// Faixa de score de crédito (modelo Serasa-like 0..1000).
+export type ScoreFaixa = 'baixo' | 'regular' | 'razoavel' | 'bom' | 'otimo' | ''
+
+// Um protesto encontrado no nome/CPF (origem: provedor de crédito).
+export interface Protesto {
+  cartorio?: string
+  cidade?: string
+  uf?: string
+  valor?: number
+  data?: string // ISO yyyy-mm-dd
+  titulo?: string
+}
+
+// Documento anexado ao cliente (metadados; arquivo no bucket cliente-documentos).
+export interface ClienteDocumento {
+  id: string
+  tipo: string // cpf | comprovante | ie | contrato | outro
+  nomeArquivo: string
+  path: string
+  tamanhoBytes: number
+  contentType: string
+  createdAt: string
+}
+
 export interface Cliente {
   id: string
   nome: string
@@ -63,6 +87,20 @@ export interface Cliente {
   clienteRowId?: string
   // De onde o registro veio: agregado dos fechamentos, cadastrado à mão, ou só CRM.
   origem?: 'fechamento' | 'manual' | 'crm'
+
+  // ── Dados de cadastro p/ leiloeiras (overlay manual / vindo do CRM) ──
+  cpf?: string
+  inscricaoEstadual?: string
+  temInscricaoEstadual?: string // 'Sim' | 'Não' | ''
+  scoreCredito?: number // 0..1000
+  scoreFaixa?: ScoreFaixa
+  scoreConsultadoAt?: string
+  protestos?: Protesto[]
+  protestosConsultadoAt?: string
+  momentoPecuaria?: string
+  operacaoPecuaria?: string
+  // Documentos anexados (carregados sob demanda no drawer).
+  documentos?: ClienteDocumento[]
 }
 
 // Normaliza um nome para a chave de deduplicação/anexo (sem acentos, minúsculo).
@@ -127,3 +165,37 @@ export function timeAgo(iso?: string, refIso?: string): string {
 
 export const onlyDigits = (s: string) => s.replace(/\D/g, '')
 export const waLink = (telefone: string) => `https://wa.me/55${onlyDigits(telefone)}`
+
+// ── score de crédito ─────────────────────────────────────────────────────────
+// Mapeia um score 0..1000 para a faixa qualitativa (modelo Serasa-like).
+export function scoreToFaixa(score?: number | null): ScoreFaixa {
+  if (score == null || Number.isNaN(score)) return ''
+  if (score < 300) return 'baixo'
+  if (score < 500) return 'regular'
+  if (score < 700) return 'razoavel'
+  if (score < 850) return 'bom'
+  return 'otimo'
+}
+
+export const SCORE_FAIXA_META: Record<Exclude<ScoreFaixa, ''>, { label: string; tone: string }> = {
+  baixo: { label: 'Baixo', tone: 'red' },
+  regular: { label: 'Regular', tone: 'amber' },
+  razoavel: { label: 'Razoável', tone: 'blue' },
+  bom: { label: 'Bom', tone: 'olive' },
+  otimo: { label: 'Ótimo', tone: 'gold' },
+}
+
+// Critério de "cadastro aprovado": score razoável-pra-cima E tem Inscrição Estadual.
+// Usado tanto na exibição (Clientes) quanto na automação CRM→Clientes.
+const FAIXAS_APROVADAS: ScoreFaixa[] = ['razoavel', 'bom', 'otimo']
+export function isClienteCadastroApto(opts: { scoreFaixa?: ScoreFaixa; scoreCredito?: number | null; temIE?: string | null }): boolean {
+  const faixa = opts.scoreFaixa || scoreToFaixa(opts.scoreCredito)
+  const temIE = String(opts.temIE ?? '').trim().toLowerCase() === 'sim'
+  return FAIXAS_APROVADAS.includes(faixa) && temIE
+}
+
+export const fmtCpf = (cpf?: string) => {
+  const d = onlyDigits(cpf ?? '')
+  if (d.length !== 11) return cpf || '—'
+  return `${d.slice(0, 3)}.${d.slice(3, 6)}.${d.slice(6, 9)}-${d.slice(9)}`
+}
