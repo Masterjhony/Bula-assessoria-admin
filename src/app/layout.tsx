@@ -1,6 +1,7 @@
 import type { Metadata, Viewport } from 'next'
 import './globals.css'
 import { ServiceWorkerRegister } from '@/components/pwa/ServiceWorkerRegister'
+import { InstallPrompt } from '@/components/pwa/InstallPrompt'
 
 export const metadata: Metadata = {
   title: 'Bula Assessoria',
@@ -45,6 +46,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       <body>
         {children}
         <ServiceWorkerRegister />
+        <InstallPrompt />
       </body>
     </html>
   )

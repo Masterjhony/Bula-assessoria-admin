@@ -2,6 +2,7 @@ import type { Metadata } from 'next'
 import Link from 'next/link'
 import { MessageCircle, Instagram, ArrowRight, Calendar } from 'lucide-react'
 import { WHATSAPP_CTA_URL } from '../agenda/helpers'
+import { InstallButton } from '@/components/pwa/InstallButton'
 
 export const metadata: Metadata = {
     metadataBase: new URL('https://bulaassessoria.com'),
@@ -67,6 +68,13 @@ export default function InstitucionalLayout({ children }: { children: React.Reac
                             <span className="hidden xs:inline sm:inline">Agenda de leilões</span>
                             <span className="xs:hidden sm:hidden">Agenda</span>
                         </Link>
+                        <InstallButton
+                            className="inline-flex items-center gap-2 rounded-md px-3 py-2 text-white/72 transition-colors hover:bg-white/7 hover:text-white sm:px-3"
+                            label="Baixar app"
+                            tone="dark"
+                            align="right"
+                            hideLabelOnMobile
+                        />
                         <a
                             href={WHATSAPP_CTA_URL}
                             target="_blank"

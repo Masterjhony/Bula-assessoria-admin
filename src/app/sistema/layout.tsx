@@ -15,6 +15,7 @@ import { ThemeProvider } from '@/components/theme-provider'
 import { ThemeToggle } from '@/components/theme-toggle'
 import { GlobalSearch } from '@/components/admin/GlobalSearch'
 import { AdminBreadcrumbs } from '@/components/admin/AdminBreadcrumbs'
+import { InstallButton } from '@/components/pwa/InstallButton'
 
 type NavItem = { href: string; label: string; icon: React.ElementType }
 type NavGroup = { label: string; icon: React.ElementType; items: NavItem[] }
@@ -263,6 +264,12 @@ function AdminShell({ children }: { children: React.ReactNode }) {
             <GlobalSearch />
 
             <div className="flex items-center gap-1 sm:gap-1.5 ml-auto md:ml-0 shrink-0">
+              <InstallButton
+                className="hidden lg:inline-flex items-center gap-1.5 rounded-full border border-[var(--gold)]/40 px-3 py-1.5 text-[11px] font-semibold uppercase tracking-wide text-[var(--gold)] transition-colors hover:bg-[var(--gold)]/10"
+                label="Baixar app"
+                tone="dark"
+                align="right"
+              />
               <ThemeToggle />
 
               <div ref={userRef} className="relative">
@@ -428,6 +435,12 @@ function AdminShell({ children }: { children: React.ReactNode }) {
               })}
 
               <div className="pt-3 mt-2 border-t border-gray-100 dark:border-[#2A2A2A] space-y-1">
+                <InstallButton
+                  className="flex items-center gap-3 w-full px-4 py-3 text-sm font-medium text-[#A68B4B] hover:bg-[#A68B4B]/5 rounded-xl transition-all"
+                  label="Baixar app"
+                  tone="dark"
+                  align="left"
+                />
                 <button
                   onClick={handleSignOut}
                   className="flex items-center gap-3 w-full px-4 py-3 text-sm text-red-500 hover:bg-red-50 dark:hover:bg-red-500/10 rounded-xl transition-all"
