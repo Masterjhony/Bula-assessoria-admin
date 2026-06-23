@@ -1,5 +1,6 @@
 'use client'
 
+import Link from 'next/link'
 import { useEffect, useMemo, useState } from 'react'
 import {
   Activity, ArrowLeft, BarChart3, Calendar, ExternalLink, FileText, Loader2,
@@ -249,9 +250,9 @@ export default function AdminJmpAnalytics() {
     <div className="min-h-screen bg-neutral-100 text-neutral-900">
       <header className="sticky top-0 z-20 border-b border-black/20 bg-[#102a1d] text-white shadow-sm">
         <div className="mx-auto flex max-w-6xl items-center gap-3 px-4 py-3">
-          <a href="/" className="inline-flex items-center gap-2 rounded-lg px-3 py-2 text-sm font-semibold text-white/75 transition hover:bg-white/10 hover:text-white">
+          <Link href="/" className="inline-flex items-center gap-2 rounded-lg px-3 py-2 text-sm font-semibold text-white/75 transition hover:bg-white/10 hover:text-white">
             <ArrowLeft className="h-4 w-4" /> Painel
-          </a>
+          </Link>
           <div className="flex-1">
             <h1 className="text-base font-black tracking-tight">Metricas JMP</h1>
             <p className="text-xs text-white/60">PostHog da landing jmp.bulaassessoria.com</p>

@@ -1,13 +1,14 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { X, Save, Trash2, ChevronDown, ChevronUp, Crown, User, TrendingUp, Phone, Target, SlidersHorizontal, BarChart3, MessageCircle, type LucideIcon } from 'lucide-react';
+import { X, Save, Trash2, ChevronDown, ChevronUp, Crown, User, TrendingUp, Phone, Target, SlidersHorizontal, BarChart3, MessageCircle, FileText, type LucideIcon } from 'lucide-react';
 import { CRMLead, deleteLead } from '@/app/sistema/actions/crm-leads';
 import { CRM_COLUMNS } from './CRMKanbanBoard';
 import type { CRMCustomField, CRMFunnel, CRMResponsavel } from '@/lib/crm-types';
 import { CRM_STAGE_CONNECTION, evaluateMql } from '@/lib/crm-types';
 import { CRMContactsHistory } from './CRMContactsHistory';
 import { CRMConversationDrawer } from './CRMConversationDrawer';
+import { CRMLeadDocumentos } from './CRMLeadDocumentos';
 
 interface CRMModalProps {
     isOpen: boolean;
@@ -633,6 +634,13 @@ export function CRMModal({ isOpen, onClose, lead, defaultStatus, defaultFunnelId
                                         )}
                                     </div>
                                 ))}
+                            </FormSection>
+                        )}
+
+                        {/* Documentos (apenas em edição — precisa de lead persistido) */}
+                        {lead?.id && (
+                            <FormSection icon={FileText} title="Documentos">
+                                <CRMLeadDocumentos leadId={lead.id} />
                             </FormSection>
                         )}
 

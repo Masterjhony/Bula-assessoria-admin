@@ -5,6 +5,10 @@ import { revalidatePath } from 'next/cache';
 import { dispatchWelcome } from '@/lib/whatsapp';
 import {
     CRM_STAGE_ENTRY,
+    CRM_STAGE_CONNECTION,
+    CRM_STAGE_QUALIFICATION,
+    CRM_STAGE_INFO_CAPTURED,
+    CRM_STAGE_REGISTRATION,
     DEFAULT_JMP_MQL_RULE,
     evaluateMql,
     JMP_FUNNEL_ID,
@@ -12,9 +16,13 @@ import {
 } from '@/lib/crm-types';
 import { getCRMConfig } from './crm-config';
 import { maybeNotifyAssessorOnLeadStage } from '@/lib/crm-whatsapp-assessor';
+import { maybeRunStateRegistrationCheck } from '@/lib/crm-state-registration-automation';
 import { maybeRunCreditCheck } from '@/lib/crm-credit-automation';
 import { syncLeadToClientes } from '@/lib/crm-to-clientes-sync';
-import { readSheetLeadRows, type SheetLeadRow } from '@/lib/jmp-sheets';
+import {
+    readSheetLeadRows, readSheetLeadRowsWithColor, readCadastroSheetRows,
+    type SheetLeadRow, type SheetColor, type CadastroSheetRow,
+} from '@/lib/jmp-sheets';
 import { normalizePhone, phoneVariants } from '@/lib/whatsapp-central';
 
 export interface CRMContactEntry {
@@ -148,6 +156,22 @@ async function runCreditCheckIfNeeded(
     }
 }
 
+// Consulta I.E. por CPF/UF quando o lead entra na QUALIFICACAO.
+// Best-effort e economica: por padrao consulta apenas a UF do lead.
+async function runStateRegistrationCheckIfNeeded(
+    supabase: Awaited<ReturnType<typeof createClient>>,
+    lead: CRMLead,
+    previous?: Pick<CRMLead, 'status'> | null,
+) {
+    try {
+        const config = await getCRMConfig();
+        const rule = config.funnels.find(f => f.id === (lead.funnel_id || JMP_FUNNEL_ID))?.mql_rule ?? DEFAULT_JMP_MQL_RULE;
+        await maybeRunStateRegistrationCheck(supabase as any, lead as any, previous as any, rule);
+    } catch (e) {
+        console.warn('[CRM] Falha na automacao de I.E.:', e instanceof Error ? e.message : e);
+    }
+}
+
 // Quando o lead chega na etapa CADASTRO já aprovado, vira cliente e é arquivado
 // no CRM (ver crm-to-clientes-sync). Best-effort.
 async function syncLeadToClientesIfApproved(
@@ -278,6 +302,8 @@ export async function createLead(data: Partial<CRMLead>): Promise<CRMLead> {
     }
 
     await notifyAssessorIfNeeded(supabase, newLead as CRMLead, null);
+    await runStateRegistrationCheckIfNeeded(supabase, newLead as CRMLead, null);
+    await runCreditCheckIfNeeded(supabase, newLead as CRMLead, null);
 
     if (data.telefone) {
         // Fire and forget welcome (dedup + opt-out + log centralizados em dispatchWelcome)
@@ -318,6 +344,7 @@ export async function updateLead(id: string, data: Partial<CRMLead>): Promise<CR
     }
 
     await notifyAssessorIfNeeded(supabase, updatedLead as CRMLead, previous as Pick<CRMLead, 'status' | 'responsavel' | 'extra_data'> | null);
+    await runStateRegistrationCheckIfNeeded(supabase, updatedLead as CRMLead, previous as Pick<CRMLead, 'status'> | null);
     await runCreditCheckIfNeeded(supabase, updatedLead as CRMLead, previous as Pick<CRMLead, 'status'> | null);
 
     revalidatePath('/web-admin/crm');
@@ -370,6 +397,7 @@ export async function moveLead(id: string, newStatus: string, newPosition: numbe
         .single();
     if (lead) {
         await notifyAssessorIfNeeded(supabase, lead as CRMLead, previous as Pick<CRMLead, 'status' | 'responsavel' | 'extra_data'> | null);
+        await runStateRegistrationCheckIfNeeded(supabase, lead as CRMLead, previous as Pick<CRMLead, 'status'> | null);
         await runCreditCheckIfNeeded(supabase, lead as CRMLead, previous as Pick<CRMLead, 'status'> | null);
         await syncLeadToClientesIfApproved(supabase, lead as CRMLead);
     }
@@ -407,6 +435,7 @@ export async function moveLeadToFunnel(id: string, funnelId: string, newStatus: 
         .single();
     if (lead) {
         await notifyAssessorIfNeeded(supabase, lead as CRMLead, previous as Pick<CRMLead, 'status' | 'responsavel' | 'extra_data'> | null);
+        await runStateRegistrationCheckIfNeeded(supabase, lead as CRMLead, previous as Pick<CRMLead, 'status'> | null);
         await runCreditCheckIfNeeded(supabase, lead as CRMLead, previous as Pick<CRMLead, 'status'> | null);
         await syncLeadToClientesIfApproved(supabase, lead as CRMLead);
     }
@@ -785,6 +814,238 @@ export async function importMissingLeadsFromSheet(): Promise<{ created: number; 
     };
 }
 
+// ─────────────────────────────────────────────────────────────────────────────
+// Sincronização planilha → CRM por COR (aba "Leads JMP") + cadastros prontos
+// (aba "Cadastro JMP"). Mapa de cores:
+//   branco/sem cor → ENTRADA · vermelho → CONEXÃO · amarelo → QUALIFICAÇÃO ·
+//   verde → INFORMAÇÕES CAPTADAS. "Cadastro JMP" → CADASTRO (e, aprovado, cliente).
+// Preserva movimentos MANUAIS no CRM: a cor só sobrescreve o status quando o lead
+// ainda está onde a última sincronização o colocou (extra_data.sheet_color_status).
+// ─────────────────────────────────────────────────────────────────────────────
+
+function colorToStatus(color: SheetColor): string {
+    switch (color) {
+        case 'red': return CRM_STAGE_CONNECTION;
+        case 'yellow': return CRM_STAGE_QUALIFICATION;
+        case 'green': return CRM_STAGE_INFO_CAPTURED;
+        default: return CRM_STAGE_ENTRY; // branco / sem preenchimento
+    }
+}
+
+const SHEET_COLOR_LABEL: Record<SheetColor, string> = {
+    none: 'Sem cor (não contatado)',
+    red: 'Vermelho (não respondeu)',
+    yellow: 'Amarelo (respondeu)',
+    green: 'Verde (dados enviados)',
+};
+
+type ColorSyncMatchRow = Pick<CRMLead,
+    'id' | 'nome' | 'email' | 'telefone' | 'celular' | 'status' | 'extra_data'>;
+
+export interface CRMColorSyncChange {
+    leadId: string;
+    rowNumber: number;
+    nome: string;
+    color: SheetColor;
+    colorLabel: string;
+    fromStatus: string;
+    toStatus: string;
+}
+
+export interface CRMColorSyncResult {
+    sheetUrl: string | null;
+    applied: boolean;
+    totalSheetRows: number;
+    totalColored: number;
+    /** Mudanças de status propostas (dry-run) ou aplicadas. */
+    changes: CRMColorSyncChange[];
+    /** Leads cuja cor diverge do status, mas foram preservados (movidos à mão). */
+    skippedManual: number;
+    /** Linhas coloridas sem correspondência no CRM (importar pelo fluxo padrão). */
+    unmatchedColored: number;
+    cadastros: { matched: number; created: number; aprovados: number };
+}
+
+function matchByContact<T extends { email?: string | null; telefone?: string | null; celular?: string | null }>(
+    email: string | null,
+    phone: string | null,
+    leads: T[],
+): T | null {
+    const phones = new Set(leadPhoneKeys(phone));
+    if (phones.size > 0) {
+        const byPhone = leads.find(l => {
+            const keys = [...leadPhoneKeys(l.celular), ...leadPhoneKeys(l.telefone)];
+            return keys.some(k => phones.has(k));
+        });
+        if (byPhone) return byPhone;
+    }
+    const e = normalizeEmail(email);
+    if (e) {
+        const byEmail = leads.find(l => normalizeEmail(l.email) === e);
+        if (byEmail) return byEmail;
+    }
+    return null;
+}
+
+/**
+ * Sincroniza o status dos leads a partir das cores da planilha e processa os
+ * cadastros prontos. Com `apply=false` (default) faz dry-run: não grava nada,
+ * só devolve o diff para revisão. Com `apply=true` aplica as mudanças.
+ */
+export async function syncSheetColorsToCrm(apply = false): Promise<CRMColorSyncResult> {
+    const supabase = await createClient();
+
+    const [{ info, rows }, cadastro, crmRes] = await Promise.all([
+        readSheetLeadRowsWithColor(),
+        readCadastroSheetRows().catch(() => ({ info: null, rows: [] as CadastroSheetRow[] })),
+        supabase.from('crm_leads').select('id, nome, email, telefone, celular, status, extra_data'),
+    ]);
+    if (crmRes.error) throw new Error(`Error fetching CRM leads: ${crmRes.error.message}`);
+    const crmLeads = (crmRes.data ?? []) as ColorSyncMatchRow[];
+
+    const changes: CRMColorSyncChange[] = [];
+    // Atualizações em extra_data para gravar a "baseline" da cor (sheet_color_status).
+    const baselineUpdates = new Map<string, { status?: string; extra_data: Record<string, any> }>();
+    let skippedManual = 0;
+    let unmatchedColored = 0;
+    let totalColored = 0;
+
+    for (const row of rows) {
+        if (row.color !== 'none') totalColored += 1;
+        const match = matchByContact(row.email, row.whatsapp, crmLeads)
+            ?? (row.leadId ? crmLeads.find(l => l.id === row.leadId || l.extra_data?.sheet_validation_import?.sheetLeadId === row.leadId) ?? null : null);
+        if (!match) {
+            if (row.color !== 'none') unmatchedColored += 1;
+            continue;
+        }
+
+        const mapped = colorToStatus(row.color);
+        const current = normalizeCRMStatus(match.status);
+        const prevSynced: string | undefined = match.extra_data?.sheet_color_status;
+
+        if (current === mapped) {
+            // Já está na etapa da cor — só garante a baseline.
+            if (prevSynced !== mapped) {
+                baselineUpdates.set(match.id, {
+                    extra_data: { ...(match.extra_data || {}), sheet_color_status: mapped },
+                });
+            }
+            continue;
+        }
+
+        const safeToUpdate = prevSynced ? current === prevSynced : current === CRM_STAGE_ENTRY;
+        if (!safeToUpdate) {
+            // Lead foi movido manualmente desde a última sincronização — preserva.
+            skippedManual += 1;
+            continue;
+        }
+
+        changes.push({
+            leadId: match.id,
+            rowNumber: row.rowNumber,
+            nome: match.nome || row.nome,
+            color: row.color,
+            colorLabel: SHEET_COLOR_LABEL[row.color],
+            fromStatus: current,
+            toStatus: mapped,
+        });
+        baselineUpdates.set(match.id, {
+            status: mapped,
+            extra_data: { ...(match.extra_data || {}), sheet_color_status: mapped },
+        });
+    }
+
+    // ── Cadastros prontos (aba "Cadastro JMP") ──────────────────────────────
+    let cadMatched = 0;
+    let cadCreated = 0;
+    let cadAprovados = 0;
+
+    if (apply) {
+        // Aplica as mudanças de status/baseline da aba de cores.
+        for (const [id, patch] of baselineUpdates) {
+            const { error } = await supabase.from('crm_leads').update(patch).eq('id', id);
+            if (error) console.warn('[CRM] Falha ao sincronizar cor do lead', id, error.message);
+        }
+
+        // Processa cadastros prontos: garante o lead em CADASTRO + tenta virar cliente.
+        let position = Number(
+            (await supabase.from('crm_leads').select('position').order('position', { ascending: false }).limit(1)).data?.[0]?.position ?? 0,
+        );
+        for (const c of cadastro.rows) {
+            const match = matchByContact(c.email, c.whatsapp, crmLeads);
+            let leadId: string;
+            if (match) {
+                cadMatched += 1;
+                const patch = sanitizeLeadData({
+                    status: CRM_STAGE_REGISTRATION,
+                    cpf: c.cpf ?? undefined,
+                    inscricao_estadual: c.inscricaoEstadual ?? undefined,
+                    tem_inscricao_estadual: c.inscricaoEstadual ? 'Sim' : undefined,
+                });
+                await supabase.from('crm_leads').update(patch).eq('id', match.id);
+                leadId = match.id;
+            } else {
+                position += 1000;
+                const insertData = sanitizeLeadData({
+                    nome: c.nome,
+                    email: c.email,
+                    telefone: c.whatsapp,
+                    celular: c.whatsapp,
+                    estado: c.uf,
+                    cidade: c.cidade,
+                    cpf: c.cpf,
+                    inscricao_estadual: c.inscricaoEstadual,
+                    tem_inscricao_estadual: c.inscricaoEstadual ? 'Sim' : null,
+                    quantidade_animais: c.cabecas,
+                    o_que_busca: c.interesse,
+                    momento_pecuaria: c.momento,
+                    status: CRM_STAGE_REGISTRATION,
+                    funnel_id: JMP_FUNNEL_ID,
+                    origem: 'Planilha JMP — aba Cadastro',
+                    source: 'jmp-cadastro-sheet',
+                    source_page: 'Cadastro JMP',
+                    data_entrada: new Date().toISOString(),
+                    position,
+                });
+                const { data: created, error } = await supabase.from('crm_leads').insert(insertData).select('*').single();
+                if (error || !created) { console.warn('[CRM] Falha ao criar lead de cadastro', error?.message); continue; }
+                cadCreated += 1;
+                leadId = (created as CRMLead).id;
+            }
+
+            // Tenta migrar para Clientes respeitando a regra de aprovação (sem forçar).
+            const { data: full } = await supabase.from('crm_leads').select('*').eq('id', leadId).single();
+            if (full) {
+                const before = (full as CRMLead).arquivado;
+                await syncLeadToClientesIfApproved(supabase, normalizeLeadRow(full as CRMLead));
+                if (!before) {
+                    const { data: after } = await supabase.from('crm_leads').select('arquivado').eq('id', leadId).single();
+                    if (after?.arquivado) cadAprovados += 1;
+                }
+            }
+        }
+
+        revalidatePath('/sistema/crm');
+        revalidatePath('/web-admin/crm');
+    } else {
+        // Dry-run: apenas conta os cadastros que casam para informar o operador.
+        for (const c of cadastro.rows) {
+            if (matchByContact(c.email, c.whatsapp, crmLeads)) cadMatched += 1;
+        }
+    }
+
+    return {
+        sheetUrl: info?.url ?? null,
+        applied: apply,
+        totalSheetRows: rows.length,
+        totalColored,
+        changes,
+        skippedManual,
+        unmatchedColored,
+        cadastros: { matched: cadMatched, created: cadCreated, aprovados: cadAprovados },
+    };
+}
+
 type TestLeadCandidate = Pick<CRMLead, 'id' | 'nome' | 'email' | 'telefone' | 'celular' | 'empresa' | 'notes'>;
 
 function stripAccents(value: string): string {
@@ -841,4 +1102,104 @@ export async function archiveObviousTestLeads(): Promise<{ archived: number; lea
         archived: candidates.length,
         leads: candidates.map(c => ({ id: c.id, nome: c.nome })),
     };
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Documentos anexados aos cards do CRM. Reaproveita o bucket privado
+// `cliente-documentos` (policies em 0034) com prefixo de path crm-leads/<id>/.
+// Metadados na tabela crm_lead_documentos (0037). Download via signed URL.
+// ─────────────────────────────────────────────────────────────────────────────
+
+const LEAD_DOCS_BUCKET = 'cliente-documentos';
+
+export interface LeadDocumento {
+    id: string;
+    tipo: string;
+    nomeArquivo: string;
+    path: string;
+    tamanhoBytes: number;
+    contentType: string;
+    createdAt: string;
+}
+
+function mapLeadDocRow(r: {
+    id: string; tipo: string | null; nome_arquivo: string; path: string;
+    tamanho_bytes: number | null; content_type: string | null; created_at: string;
+}): LeadDocumento {
+    return {
+        id: r.id,
+        tipo: r.tipo || 'outro',
+        nomeArquivo: r.nome_arquivo,
+        path: r.path,
+        tamanhoBytes: Number(r.tamanho_bytes) || 0,
+        contentType: r.content_type || '',
+        createdAt: r.created_at,
+    };
+}
+
+export async function listLeadDocumentos(leadId: string): Promise<LeadDocumento[]> {
+    if (!leadId) return [];
+    const supabase = await createClient();
+    const { data, error } = await supabase
+        .from('crm_lead_documentos')
+        .select('id, tipo, nome_arquivo, path, tamanho_bytes, content_type, created_at')
+        .eq('lead_id', leadId)
+        .order('created_at', { ascending: false });
+    if (error) {
+        console.warn('[CRM] tabela crm_lead_documentos indisponível:', error.message);
+        return [];
+    }
+    return (data ?? []).map(mapLeadDocRow);
+}
+
+/** Upload de um documento do lead. FormData { file, leadId, nome, tipo }. */
+export async function uploadLeadDocumento(formData: FormData): Promise<LeadDocumento> {
+    const supabase = await createClient();
+    const file = formData.get('file') as File | null;
+    const leadId = String(formData.get('leadId') || '');
+    const tipo = String(formData.get('tipo') || 'outro');
+    if (!file || !leadId) throw new Error('Arquivo e lead são obrigatórios.');
+
+    const ext = file.name.includes('.') ? file.name.slice(file.name.lastIndexOf('.')) : '';
+    const path = `crm-leads/${leadId}/${crypto.randomUUID()}${ext}`;
+
+    const { error: upErr } = await supabase.storage
+        .from(LEAD_DOCS_BUCKET)
+        .upload(path, file, { contentType: file.type || undefined, upsert: false });
+    if (upErr) throw new Error(`Falha ao subir documento: ${upErr.message}`);
+
+    const { data, error } = await supabase
+        .from('crm_lead_documentos')
+        .insert({
+            lead_id: leadId,
+            tipo,
+            nome_arquivo: file.name,
+            path,
+            tamanho_bytes: file.size,
+            content_type: file.type || '',
+        })
+        .select('id, tipo, nome_arquivo, path, tamanho_bytes, content_type, created_at')
+        .single();
+    if (error) {
+        await supabase.storage.from(LEAD_DOCS_BUCKET).remove([path]); // rollback
+        throw new Error(`Falha ao salvar documento: ${error.message}`);
+    }
+    revalidatePath('/sistema/crm');
+    return mapLeadDocRow(data);
+}
+
+/** Signed URL (1h) para baixar/visualizar o documento privado do lead. */
+export async function getLeadDocumentoUrl(path: string): Promise<string> {
+    const supabase = await createClient();
+    const { data, error } = await supabase.storage.from(LEAD_DOCS_BUCKET).createSignedUrl(path, 3600);
+    if (error || !data?.signedUrl) throw new Error('Falha ao gerar link do documento.');
+    return data.signedUrl;
+}
+
+export async function deleteLeadDocumento(id: string, path: string): Promise<void> {
+    const supabase = await createClient();
+    await supabase.storage.from(LEAD_DOCS_BUCKET).remove([path]);
+    const { error } = await supabase.from('crm_lead_documentos').delete().eq('id', id);
+    if (error) throw new Error(`Falha ao excluir documento: ${error.message}`);
+    revalidatePath('/sistema/crm');
 }

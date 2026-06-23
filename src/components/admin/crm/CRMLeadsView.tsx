@@ -1,8 +1,8 @@
 'use client';
 
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import { CRMLead } from '@/app/sistema/actions/crm-leads';
-import { Search, Phone, MapPin, Calendar, Instagram, TrendingUp, Users, Plus, Download, SlidersHorizontal, X } from 'lucide-react';
+import { Search, Phone, MapPin, Calendar, Instagram, TrendingUp, Users, Plus, Download, SlidersHorizontal, X, Crown, ArrowRight, Archive, Loader2, Check } from 'lucide-react';
 import { Pagination } from '@/components/admin/Pagination';
 
 interface CRMLeadsViewProps {
@@ -10,6 +10,27 @@ interface CRMLeadsViewProps {
     stages: string[];
     onEditLead: (lead: CRMLead) => void;
     onAddLead: () => void;
+    /** Status que representam a fila pré-CRM (Entrada Leads). Leads nestes status
+     *  exibem o botão "Enviar para o CRM"; os demais aparecem como "No CRM". */
+    qualificationStatuses?: string[];
+    /** Move o lead da Entrada para a primeira coluna do Kanban (CONEXÃO). */
+    onMoveToCrm?: (lead: CRMLead) => Promise<void> | void;
+    /** Arquiva o lead (soft-delete). */
+    onArchive?: (lead: CRMLead) => Promise<void> | void;
+}
+
+// Campos mínimos para um lead estar "pronto" para o CRM. Espelha a Entrada Leads.
+const REQUIRED_FIELDS: (keyof CRMLead)[] = ['celular', 'estado', 'cidade', 'quantidade_animais', 'o_que_busca'];
+
+function fieldFilled(lead: CRMLead, key: keyof CRMLead): boolean {
+    const v = lead[key];
+    if (v == null) return false;
+    if (typeof v === 'string') return v.trim().length > 0;
+    return true;
+}
+
+function missingFieldsCount(lead: CRMLead): number {
+    return REQUIRED_FIELDS.reduce((acc, k) => acc + (fieldFilled(lead, k) ? 0 : 1), 0);
 }
 
 const SOURCE_LABELS: Record<string, string> = {
@@ -35,9 +56,12 @@ const SOURCE_COLORS: Record<string, string> = {
 };
 
 const STAGE_COLORS: Record<string, string> = {
-    'CONEXÃO': 'bg-blue-100 text-blue-700 dark:bg-blue-500/20 dark:text-blue-300',
-    'QUALIFICAÇÃO': 'bg-orange-100 text-orange-700 dark:bg-orange-500/20 dark:text-orange-300',
-    'CADASTRO': 'bg-yellow-100 text-yellow-800 dark:bg-yellow-500/20 dark:text-yellow-300',
+    'ENTRADA': 'bg-gray-100 text-gray-600 dark:bg-gray-500/20 dark:text-gray-300',
+    'CONEXÃO': 'bg-red-100 text-red-700 dark:bg-red-500/20 dark:text-red-300',
+    'QUALIFICAÇÃO': 'bg-yellow-100 text-yellow-800 dark:bg-yellow-500/20 dark:text-yellow-300',
+    'INFORMAÇÕES CAPTADAS': 'bg-green-100 text-green-700 dark:bg-green-500/20 dark:text-green-300',
+    'CADASTRO': 'bg-cyan-100 text-cyan-700 dark:bg-cyan-500/20 dark:text-cyan-300',
+    'PERDIDOS': 'bg-gray-200 text-gray-500 dark:bg-gray-600/30 dark:text-gray-400',
     'ASSESSORES': 'bg-green-100 text-green-700 dark:bg-green-500/20 dark:text-green-300',
     Lead: 'bg-pink-100 text-pink-700 dark:bg-pink-500/20 dark:text-pink-300',
     Qualificado: 'bg-orange-100 text-orange-700 dark:bg-orange-500/20 dark:text-orange-300',
@@ -147,8 +171,11 @@ async function exportLeadsXLSX(rows: CRMLead[], selectedIds: string[]) {
     XLSX.writeFile(wb, `leads-${new Date().toISOString().slice(0, 10)}.xlsx`);
 }
 
-export function CRMLeadsView({ leads, stages, onEditLead, onAddLead }: CRMLeadsViewProps) {
+export function CRMLeadsView({ leads, stages, onEditLead, onAddLead, qualificationStatuses, onMoveToCrm, onArchive }: CRMLeadsViewProps) {
+    const entryStatuses = useMemo(() => new Set(qualificationStatuses ?? []), [qualificationStatuses]);
+    const [movingId, setMovingId] = useState<string | null>(null);
     const [search, setSearch] = useState('');
+    const [mqlOnly, setMqlOnly] = useState(false);
     const [filterStatus, setFilterStatus] = useState('');
     const [filterEstado, setFilterEstado] = useState('');
     const [filterCidade, setFilterCidade] = useState('');
@@ -201,8 +228,17 @@ export function CRMLeadsView({ leads, stages, onEditLead, onAddLead }: CRMLeadsV
         [leads]
     );
 
-    const filtered = useMemo(() => {
+    const mqlCount = useMemo(() => leads.filter(l => l.is_mql).length, [leads]);
+
+    // Volta para a 1ª página sempre que um filtro muda (evita ficar numa página
+    // inexistente). Fica no efeito — chamar setPage dentro do useMemo dispara um
+    // setState durante o render.
+    useEffect(() => {
         setPage(1);
+    }, [search, mqlOnly, filterStatus, filterEstado, filterCidade, filterSource,
+        filterResponsavel, filterPrioridade, filterBusca, filterDataDe, filterDataAte]);
+
+    const filtered = useMemo(() => {
         const dataDe = filterDataDe ? new Date(filterDataDe + 'T00:00:00') : null;
         const dataAte = filterDataAte ? new Date(filterDataAte + 'T23:59:59') : null;
         const buscaQ = filterBusca.toLowerCase();
@@ -216,6 +252,7 @@ export function CRMLeadsView({ leads, stages, onEditLead, onAddLead }: CRMLeadsV
                 lead.cidade?.toLowerCase().includes(q) ||
                 lead.empresa?.toLowerCase().includes(q) ||
                 lead.instagram?.toLowerCase().includes(q);
+            const matchMql = !mqlOnly || !!lead.is_mql;
             const matchStatus = !filterStatus || lead.status === filterStatus;
             const matchEstado = !filterEstado || lead.estado === filterEstado;
             const matchCidade = !filterCidade || lead.cidade === filterCidade;
@@ -228,10 +265,10 @@ export function CRMLeadsView({ leads, stages, onEditLead, onAddLead }: CRMLeadsV
             const dt = lead.data_entrada || lead.created_at;
             const d = dt ? new Date(dt) : null;
             const matchData = (!dataDe || (d && d >= dataDe)) && (!dataAte || (d && d <= dataAte));
-            return matchSearch && matchStatus && matchEstado && matchCidade
+            return matchSearch && matchMql && matchStatus && matchEstado && matchCidade
                 && matchSource && matchResp && matchPrio && matchBusca && matchData;
         });
-    }, [leads, search, filterStatus, filterEstado, filterCidade, filterSource,
+    }, [leads, search, mqlOnly, filterStatus, filterEstado, filterCidade, filterSource,
         filterResponsavel, filterPrioridade, filterBusca, filterDataDe, filterDataAte]);
 
     const activeFiltersCount =
@@ -261,13 +298,23 @@ export function CRMLeadsView({ leads, stages, onEditLead, onAddLead }: CRMLeadsV
         }
     };
 
+    const handleMove = async (lead: CRMLead) => {
+        if (!onMoveToCrm) return;
+        setMovingId(lead.id);
+        try {
+            await onMoveToCrm(lead);
+        } finally {
+            setMovingId(null);
+        }
+    };
+
     const totalPages = Math.max(1, Math.ceil(filtered.length / perPage));
     const paginated = filtered.slice((page - 1) * perPage, page * perPage);
 
     return (
         <div className="flex flex-col gap-4 h-full min-h-0">
             {/* Stats */}
-            <div className="grid grid-cols-3 gap-3 shrink-0">
+            <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 shrink-0">
                 <div className="bg-white dark:bg-[#1A1A1A] rounded-xl border border-gray-200 dark:border-[#2A2A2A] p-4 flex items-center gap-3">
                     <div className="w-10 h-10 rounded-xl bg-blue-50 dark:bg-blue-500/10 flex items-center justify-center shrink-0">
                         <Users size={18} className="text-blue-500" />
@@ -295,6 +342,22 @@ export function CRMLeadsView({ leads, stages, onEditLead, onAddLead }: CRMLeadsV
                         <p className="text-xs text-gray-500">Últimos 7 dias</p>
                     </div>
                 </div>
+                <button
+                    type="button"
+                    onClick={() => setMqlOnly(v => !v)}
+                    title="Filtrar apenas leads MQL"
+                    className={`rounded-xl border p-4 flex items-center gap-3 text-left transition-all ${mqlOnly
+                        ? 'border-[#A68B4B] bg-[#A68B4B]/10'
+                        : 'border-gray-200 dark:border-[#2A2A2A] bg-white dark:bg-[#1A1A1A] hover:border-[#A68B4B]/40'}`}
+                >
+                    <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-[#A68B4B]/20 to-[#C8A96E]/10 flex items-center justify-center shrink-0">
+                        <Crown size={18} className="text-[#A68B4B]" />
+                    </div>
+                    <div>
+                        <p className="text-2xl font-bold text-gray-900 dark:text-white">{mqlCount}</p>
+                        <p className="text-xs text-gray-500">{mqlOnly ? 'MQL (filtrando)' : 'MQL'}</p>
+                    </div>
+                </button>
             </div>
 
             {/* Search + filters */}
@@ -502,6 +565,9 @@ export function CRMLeadsView({ leads, stages, onEditLead, onAddLead }: CRMLeadsV
                                 <th className="text-left px-5 py-3 text-xs font-semibold text-gray-500 uppercase whitespace-nowrap">Status</th>
                                 <th className="text-left px-5 py-3 text-xs font-semibold text-gray-500 uppercase whitespace-nowrap">Entrada</th>
                                 <th className="text-left px-5 py-3 text-xs font-semibold text-gray-500 uppercase whitespace-nowrap">Usuário</th>
+                                {(onMoveToCrm || onArchive) && (
+                                    <th className="text-right px-5 py-3 text-xs font-semibold text-gray-500 uppercase whitespace-nowrap">Ações</th>
+                                )}
                             </tr>
                         </thead>
                         <tbody className="divide-y divide-gray-100 dark:divide-[#2e2e2e]">
@@ -511,17 +577,41 @@ export function CRMLeadsView({ leads, stages, onEditLead, onAddLead }: CRMLeadsV
                                 const sourceColor = SOURCE_COLORS[src] || 'bg-gray-100 text-gray-600 dark:bg-gray-500/20 dark:text-gray-300';
                                 const stageColor = STAGE_COLORS[lead.status] || 'bg-gray-100 text-gray-600 dark:bg-gray-500/20 dark:text-gray-300';
                                 const dateStr = lead.data_entrada || lead.created_at;
+                                const isEntry = entryStatuses.has(lead.status);
+                                const missing = missingFieldsCount(lead);
+                                const isMoving = movingId === lead.id;
 
                                 return (
                                     <tr
                                         key={lead.id}
                                         onClick={() => onEditLead(lead)}
-                                        className="hover:bg-gray-50 dark:hover:bg-[#2e2e2e] cursor-pointer transition-colors"
+                                        className={`hover:bg-gray-50 dark:hover:bg-[#2e2e2e] cursor-pointer transition-colors ${lead.is_mql ? 'bg-[#A68B4B]/[0.04]' : ''}`}
                                     >
                                         <td className="px-5 py-3.5">
-                                            <div className="font-medium text-gray-900 dark:text-white leading-tight">{lead.nome}</div>
+                                            <div className="flex items-center gap-1.5 flex-wrap">
+                                                {lead.is_mql && (
+                                                    <span
+                                                        className="inline-flex items-center gap-1 text-[9px] font-extrabold uppercase px-1.5 py-0.5 rounded-full bg-gradient-to-r from-[#A68B4B] to-[#C8A96E] text-black shadow-sm shrink-0"
+                                                        title="Marketing Qualified Lead — prioridade de atendimento"
+                                                    >
+                                                        <Crown size={9} /> MQL
+                                                    </span>
+                                                )}
+                                                <span className="font-medium text-gray-900 dark:text-white leading-tight">{lead.nome}</span>
+                                            </div>
                                             {lead.empresa && (
                                                 <div className="text-xs text-gray-400 mt-0.5 truncate max-w-[160px]">{lead.empresa}</div>
+                                            )}
+                                            {isEntry && (
+                                                missing === 0 ? (
+                                                    <span className="inline-flex items-center gap-1 mt-1 text-[9px] font-bold uppercase px-1.5 py-0.5 rounded-full bg-emerald-500/15 text-emerald-600 dark:text-emerald-400">
+                                                        <Check size={9} /> Completo
+                                                    </span>
+                                                ) : (
+                                                    <span className="inline-flex items-center mt-1 text-[9px] font-bold uppercase px-1.5 py-0.5 rounded-full bg-amber-500/15 text-amber-600 dark:text-amber-400">
+                                                        {missing} dado{missing > 1 ? 's' : ''} faltando
+                                                    </span>
+                                                )
                                             )}
                                         </td>
                                         <td className="px-5 py-3.5">
@@ -592,6 +682,40 @@ export function CRMLeadsView({ leads, stages, onEditLead, onAddLead }: CRMLeadsV
                                                 <span className="text-gray-300 dark:text-gray-600">—</span>
                                             )}
                                         </td>
+                                        {(onMoveToCrm || onArchive) && (
+                                            <td className="px-5 py-3.5 whitespace-nowrap" onClick={e => e.stopPropagation()}>
+                                                <div className="flex items-center justify-end gap-1.5">
+                                                    {onMoveToCrm && (
+                                                        isEntry ? (
+                                                            <button
+                                                                type="button"
+                                                                onClick={() => handleMove(lead)}
+                                                                disabled={isMoving}
+                                                                title="Enviar para o CRM (move para CONEXÃO)"
+                                                                className="flex items-center gap-1 px-2.5 py-1.5 rounded-lg bg-gradient-to-r from-[#A68B4B] to-[#C8A96E] text-black text-[11px] font-bold hover:shadow-md transition-all disabled:opacity-50"
+                                                            >
+                                                                {isMoving ? <Loader2 size={11} className="animate-spin" /> : <ArrowRight size={11} />}
+                                                                Enviar p/ CRM
+                                                            </button>
+                                                        ) : (
+                                                            <span className="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-lg bg-gray-100 dark:bg-[#2e2e2e] text-gray-400 text-[11px] font-semibold">
+                                                                <Check size={11} /> No CRM
+                                                            </span>
+                                                        )
+                                                    )}
+                                                    {onArchive && (
+                                                        <button
+                                                            type="button"
+                                                            onClick={() => onArchive(lead)}
+                                                            title="Arquivar lead"
+                                                            className="flex items-center justify-center w-8 h-8 rounded-lg bg-gray-100 dark:bg-[#2e2e2e] text-gray-500 dark:text-gray-400 border border-gray-200 dark:border-[#333] hover:bg-gray-200 dark:hover:bg-[#3a3a3a] transition-colors"
+                                                        >
+                                                            <Archive size={13} />
+                                                        </button>
+                                                    )}
+                                                </div>
+                                            </td>
+                                        )}
                                     </tr>
                                 );
                             })}

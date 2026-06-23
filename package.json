@@ -6,7 +6,7 @@
     "dev": "next dev",
     "build": "next build --webpack",
     "start": "next start",
-    "lint": "next lint",
+    "lint": "eslint .",
     "whatsapp:reactivar": "powershell -ExecutionPolicy Bypass -File scripts/reactivate-crm-whatsapp.ps1"
   },
   "dependencies": {
@@ -38,10 +38,13 @@
     "xlsx": "^0.18.5"
   },
   "devDependencies": {
+    "@eslint/eslintrc": "^3.3.5",
     "@tailwindcss/postcss": "^4",
     "@types/node": "^20.14.10",
     "@types/react": "^19",
     "@types/react-dom": "^19",
+    "eslint": "^9.39.4",
+    "eslint-config-next": "^16.1.4",
     "pg": "^8.21.0",
     "playwright": "^1.60.0",
     "tailwindcss": "^4",

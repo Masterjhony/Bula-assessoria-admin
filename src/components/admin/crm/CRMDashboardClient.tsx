@@ -8,19 +8,19 @@ import {
     setCadastroAprovado,
 } from '@/app/sistema/actions/crm-leads';
 import type { CRMConfig } from '@/lib/crm-types';
-import { CRM_STAGE_ENTRY, CRM_STAGE_CONNECTION, isQualificationStage } from '@/lib/crm-types';
+import { CRM_STAGE_CONNECTION, isQualificationStage } from '@/lib/crm-types';
 import { CRMKanbanBoard } from './CRMKanbanBoard';
 import { CRMModal } from './CRMModal';
 import { CRMSettingsView } from './CRMSettingsView';
-import { CRMQualificacaoView } from './CRMQualificacaoView';
 import { CRMArquivadosView } from './CRMArquivadosView';
 import { CRMPreferenciaisStrip } from './CRMPreferenciaisStrip';
 import { CRMLeadsView } from './CRMLeadsView';
 import { CRMTeamView } from './CRMTeamView';
 import { CRMWhatsappView } from './CRMWhatsappView';
+import { CRMValidationView } from './CRMValidationView';
 import {
-    LayoutGrid, Plus, Maximize2, Minimize2, Settings, ListChecks, Archive,
-    Users, MessageCircle, ClipboardList,
+    LayoutGrid, Plus, Maximize2, Minimize2, Settings, Archive,
+    Users, MessageCircle, ClipboardList, FileSpreadsheet,
 } from 'lucide-react';
 
 interface CRMDashboardClientProps {
@@ -28,8 +28,8 @@ interface CRMDashboardClientProps {
     crmConfig: CRMConfig;
 }
 
-type ViewType = 'qualificacao' | 'kanban' | 'lista' | 'arquivados' | 'equipe' | 'whatsapp' | 'configuracoes';
-const VALID_VIEWS: ViewType[] = ['qualificacao', 'kanban', 'lista', 'arquivados', 'equipe', 'whatsapp', 'configuracoes'];
+type ViewType = 'lista' | 'kanban' | 'arquivados' | 'equipe' | 'whatsapp' | 'planilha' | 'configuracoes';
+const VALID_VIEWS: ViewType[] = ['lista', 'kanban', 'arquivados', 'equipe', 'whatsapp', 'planilha', 'configuracoes'];
 
 export function CRMDashboardClient({ initialLeads, crmConfig: initialConfig }: CRMDashboardClientProps) {
     const [leads, setLeads] = useState<CRMLead[]>(initialLeads);
@@ -47,8 +47,11 @@ export function CRMDashboardClient({ initialLeads, crmConfig: initialConfig }: C
     const pathname = usePathname();
 
     const rawView = searchParams.get('view');
-    const activeView: ViewType = (rawView && (VALID_VIEWS as string[]).includes(rawView))
-        ? (rawView as ViewType) : 'qualificacao';
+    // A aba "Entrada Leads" foi fundida na tabela unificada (lista). Mantém o
+    // alias do deep-link antigo `?view=qualificacao` apontando para a lista.
+    const normalizedView = rawView === 'qualificacao' ? 'lista' : rawView;
+    const activeView: ViewType = (normalizedView && (VALID_VIEWS as string[]).includes(normalizedView))
+        ? (normalizedView as ViewType) : 'lista';
 
     // Funil ativo (deep-link `?funnel=<id>`). Default: primeiro funil da config.
     const funnels = crmConfig.funnels;
@@ -76,7 +79,7 @@ export function CRMDashboardClient({ initialLeads, crmConfig: initialConfig }: C
     }, [router, pathname, searchParams]);
 
     const setActiveView = (next: ViewType) => {
-        updateUrl(p => { if (next === 'qualificacao') p.delete('view'); else p.set('view', next); });
+        updateUrl(p => { if (next === 'lista') p.delete('view'); else p.set('view', next); });
     };
     const setActiveFunnelId = (id: string) => {
         updateUrl(p => { if (!id || id === funnels[0]?.id) p.delete('funnel'); else p.set('funnel', id); });
@@ -201,6 +204,23 @@ export function CRMDashboardClient({ initialLeads, crmConfig: initialConfig }: C
         // editingLead é derivado, então atualiza sozinho quando `leads` muda.
     };
 
+    // Primeira coluna do Kanban (CONEXÃO) — destino do "Enviar para o CRM".
+    const firstAdvancedStage = advancedStages[0] || CRM_STAGE_CONNECTION;
+
+    // "Enviar para o CRM": move o lead da Entrada (ENTRADA) para a primeira
+    // coluna do Kanban. Disponível em cada linha da tabela unificada.
+    const handleMoveToCrm = async (lead: CRMLead) => {
+        const previous = lead;
+        setLeads(prev => prev.map(l => l.id === lead.id ? { ...l, status: firstAdvancedStage } : l));
+        try {
+            const updated = await updateLead(lead.id, { status: firstAdvancedStage });
+            setLeads(prev => prev.map(l => l.id === updated.id ? updated : l));
+        } catch (e) {
+            setLeads(prev => prev.map(l => l.id === previous.id ? previous : l));
+            alert(e instanceof Error ? e.message : 'Erro ao enviar o lead para o CRM.');
+        }
+    };
+
     // Leads do Kanban (CONEXÃO → ASSESSORES) — exclui a fila Entrada Leads
     // (ENTRADA). Já restritos ao funil/usuário ativo.
     const advancedLeads = useMemo(
@@ -272,24 +292,24 @@ export function CRMDashboardClient({ initialLeads, crmConfig: initialConfig }: C
     };
 
     const views = [
-        { id: 'qualificacao', label: 'Entrada Leads', icon: ListChecks, badge: qualificationCount },
+        { id: 'lista', label: 'Leads', icon: ClipboardList, badge: qualificationCount },
         { id: 'kanban', label: 'CRM', icon: LayoutGrid },
-        { id: 'lista', label: 'Leads', icon: ClipboardList },
         { id: 'arquivados', label: 'Arquivados', icon: Archive },
         { id: 'equipe', label: 'Equipe', icon: Users },
         { id: 'whatsapp', label: 'WhatsApp', icon: MessageCircle },
+        { id: 'planilha', label: 'Planilha', icon: FileSpreadsheet },
         { id: 'configuracoes', label: 'Configurações', icon: Settings },
     ] as const;
 
     const isSettings = activeView === 'configuracoes';
-    const isQualificacao = activeView === 'qualificacao';
     const isArquivados = activeView === 'arquivados';
     const isEquipe = activeView === 'equipe';
     const isWhatsapp = activeView === 'whatsapp';
-    const isScrollable = isSettings || isQualificacao || isArquivados || isEquipe || isWhatsapp;
-    const canCreateLead = activeView === 'qualificacao' || activeView === 'kanban' || activeView === 'lista';
+    const isPlanilha = activeView === 'planilha';
+    const isScrollable = isSettings || isArquivados || isEquipe || isWhatsapp || isPlanilha;
+    const canCreateLead = activeView === 'kanban' || activeView === 'lista';
     const handleNewLeadClick = () => {
-        handleOpenNewLead(activeView === 'qualificacao' ? CRM_STAGE_ENTRY : undefined);
+        handleOpenNewLead();
     };
 
     return (
@@ -382,24 +402,15 @@ export function CRMDashboardClient({ initialLeads, crmConfig: initialConfig }: C
 
             {/* Content */}
             <div className={isScrollable ? '' : 'flex-1 min-h-[600px] overflow-hidden'}>
-                {activeView === 'qualificacao' && (
-                    <CRMQualificacaoView
-                        leads={funnelLeads}
-                        crmConfig={crmConfig}
-                        funnelStages={funnelStages}
-                        mqlRule={activeFunnel?.mql_rule}
-                        onLeadUpdated={handleLeadUpdated}
-                        onOpenLead={handleEditLead}
-                        onArchive={handleArchiveLead}
-                    />
-                )}
-
                 {activeView === 'lista' && (
                     <CRMLeadsView
                         leads={funnelLeads}
                         stages={allStages}
                         onEditLead={handleEditLead}
                         onAddLead={() => handleOpenNewLead()}
+                        qualificationStatuses={Array.from(qualificationStageNames)}
+                        onMoveToCrm={handleMoveToCrm}
+                        onArchive={handleArchiveLead}
                     />
                 )}
 
@@ -449,6 +460,10 @@ export function CRMDashboardClient({ initialLeads, crmConfig: initialConfig }: C
 
                 {activeView === 'whatsapp' && (
                     <CRMWhatsappView />
+                )}
+
+                {activeView === 'planilha' && (
+                    <CRMValidationView />
                 )}
             </div>
 

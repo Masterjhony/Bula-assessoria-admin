@@ -22,7 +22,9 @@ import { CRMLead } from '@/app/sistema/actions/crm-leads';
 import {
     CRM_STAGE_CONNECTION,
     CRM_STAGE_QUALIFICATION,
+    CRM_STAGE_INFO_CAPTURED,
     CRM_STAGE_REGISTRATION,
+    CRM_STAGE_LOST,
 } from '@/lib/crm-types';
 import { createPortal } from 'react-dom';
 
@@ -39,7 +41,9 @@ interface CRMKanbanBoardProps {
 export const CRM_COLUMNS = [
     CRM_STAGE_CONNECTION,
     CRM_STAGE_QUALIFICATION,
+    CRM_STAGE_INFO_CAPTURED,
     CRM_STAGE_REGISTRATION,
+    CRM_STAGE_LOST,
 ];
 
 export function CRMKanbanBoard({ leads: externalLeads, stages, onEditLead, onAddLead, onMoveLead, onRenameStage, onCadastroApprovalChange }: CRMKanbanBoardProps) {

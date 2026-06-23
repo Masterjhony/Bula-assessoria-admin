@@ -602,6 +602,179 @@ export async function readSheetLeadRows(): Promise<{ info: SheetInfo; rows: Shee
   return { info, rows }
 }
 
+// ─────────────────────────────────────────────────────────────────────────────
+// Leitura das CORES de fundo da aba "Leads JMP" + da aba "Cadastro JMP".
+//
+// A equipe pinta a linha de cada lead conforme o estágio do atendimento:
+//   • sem cor (branco) → não entrou em contato ainda  → ENTRADA
+//   • vermelho         → não respondeu                → CONEXÃO
+//   • amarelo          → respondeu                    → QUALIFICAÇÃO
+//   • verde            → enviou os dados p/ cadastro   → INFORMAÇÕES CAPTADAS
+// A aba "Cadastro JMP" tem os cadastros já prontos → CADASTRO (e, aprovado, vira
+// cliente). Estas funções alimentam a sincronização planilha → CRM.
+// ─────────────────────────────────────────────────────────────────────────────
+
+export const CADASTRO_TAB = 'Cadastro JMP'
+
+export type SheetColor = 'none' | 'red' | 'yellow' | 'green'
+export interface SheetLeadRowColored extends SheetLeadRow {
+  color: SheetColor
+}
+
+type CellData = {
+  effectiveFormat?: { backgroundColor?: { red?: number; green?: number; blue?: number } | null } | null
+  userEnteredFormat?: { backgroundColorStyle?: { rgbColor?: { red?: number; green?: number; blue?: number } | null } | null } | null
+}
+
+/** Classifica um RGB (0..1) em vermelho/amarelo/verde com tolerância a tons pastel. */
+function classifyFill(c?: { red?: number; green?: number; blue?: number } | null): SheetColor {
+  if (!c) return 'none'
+  const r = c.red ?? 1, g = c.green ?? 1, b = c.blue ?? 1
+  if (r > 0.92 && g > 0.92 && b > 0.92) return 'none'   // branco / sem preenchimento
+  if (r > 0.6 && g < 0.6 && b < 0.6) return 'red'        // vermelho
+  if (r > 0.6 && g > 0.6 && b < 0.6) return 'yellow'     // amarelo
+  if (g > 0.55 && r < 0.78 && b < 0.7) return 'green'    // verde
+  return 'none'
+}
+
+function classifyCell(cell?: CellData): SheetColor {
+  if (!cell) return 'none'
+  const bg = cell.effectiveFormat?.backgroundColor ?? cell.userEnteredFormat?.backgroundColorStyle?.rgbColor
+  return classifyFill(bg)
+}
+
+/**
+ * Lê as linhas da aba "Leads JMP" junto com a cor de fundo de cada linha. Usa a
+ * cor da célula "Nome"; se ela estiver branca, varre A..R pela primeira célula
+ * colorida (a equipe às vezes pinta só uma coluna). Reaproveita readSheetLeadRows
+ * (que auto-cura linhas do Meta) e casa as cores por número de linha.
+ */
+export async function readSheetLeadRowsWithColor(): Promise<{ info: SheetInfo; rows: SheetLeadRowColored[] }> {
+  const { info, rows } = await readSheetLeadRows()
+  const auth = getAuth()
+  if (!auth) return { info, rows: rows.map(r => ({ ...r, color: 'none' as SheetColor })) }
+
+  const sheets = google.sheets({ version: 'v4', auth })
+  const headerRow = await readHeaderRow(sheets, info.spreadsheetId)
+  const layout = getHeaderLayout(headerRow)
+  const nameIdx = layout.indexes.get('Nome') ?? 1
+  const width = Math.max(layout.lastColumn, 18)
+  const endColumn = columnName(width)
+
+  const grid = await sheets.spreadsheets.get({
+    spreadsheetId: info.spreadsheetId,
+    ranges: [`${TAB}!A2:${endColumn}`],
+    fields: 'sheets(data(rowData(values(effectiveFormat(backgroundColor),userEnteredFormat(backgroundColorStyle)))))',
+  })
+  const rowData = grid.data.sheets?.[0]?.data?.[0]?.rowData ?? []
+  const colorByRow = new Map<number, SheetColor>()
+  rowData.forEach((rd, index) => {
+    const cells = (rd.values ?? []) as CellData[]
+    let color = classifyCell(cells[nameIdx])
+    if (color === 'none') {
+      for (let i = 0; i < Math.min(cells.length, 18); i++) {
+        const c = classifyCell(cells[i])
+        if (c !== 'none') { color = c; break }
+      }
+    }
+    colorByRow.set(index + 2, color)
+  })
+
+  return { info, rows: rows.map(r => ({ ...r, color: colorByRow.get(r.rowNumber) ?? 'none' })) }
+}
+
+export interface CadastroSheetRow {
+  rowNumber: number
+  nome: string
+  email: string | null
+  whatsapp: string | null
+  uf: string | null
+  cidade: string | null
+  cpf: string | null
+  inscricaoEstadual: string | null
+  cabecas: string | null
+  interesse: string | null
+  momento: string | null
+}
+
+// Aba "Cadastro JMP": layout livre (montado pela equipe). Resolvemos cada campo
+// pelo cabeçalho, tolerando variações de nome — não dependemos de posição fixa.
+const CADASTRO_FIELD_ALIASES: Record<keyof Omit<CadastroSheetRow, 'rowNumber'>, string[]> = {
+  nome: ['nome', 'nomecompleto', 'cliente', 'razaosocial'],
+  email: ['email'],
+  whatsapp: ['whatsapp', 'whats', 'telefone', 'celular', 'contato', 'fone'],
+  uf: ['uf', 'estado'],
+  cidade: ['cidade', 'municipio'],
+  cpf: ['cpf', 'cpfcnpj', 'cnpj', 'documento'],
+  inscricaoEstadual: ['inscricaoestadual', 'ie', 'inscestadual', 'inscricao'],
+  cabecas: ['cabecas', 'quantidadeanimais', 'qtdanimais', 'rebanho', 'animais'],
+  interesse: ['interesse', 'oquebusca', 'busca'],
+  momento: ['momento', 'momentopecuaria'],
+}
+
+function resolveCadastroLayout(headerRow: string[]): Map<keyof Omit<CadastroSheetRow, 'rowNumber'>, number> {
+  const normalized = headerRow.map(normalizeHeaderText)
+  const map = new Map<keyof Omit<CadastroSheetRow, 'rowNumber'>, number>()
+  for (const [field, aliases] of Object.entries(CADASTRO_FIELD_ALIASES) as [keyof Omit<CadastroSheetRow, 'rowNumber'>, string[]][]) {
+    const idx = normalized.findIndex(h => h && aliases.some(a => h === a || h.startsWith(a)))
+    if (idx >= 0) map.set(field, idx)
+  }
+  return map
+}
+
+/**
+ * Lê os cadastros prontos da aba "Cadastro JMP". Retorna [] se a aba não existir
+ * ou a planilha não estiver conectada (best-effort — nunca quebra o chamador).
+ */
+export async function readCadastroSheetRows(): Promise<{ info: SheetInfo | null; rows: CadastroSheetRow[] }> {
+  const info = await getStoredInfo()
+  if (!info) return { info: null, rows: [] }
+  const auth = getAuth()
+  if (!auth) return { info, rows: [] }
+
+  const sheets = google.sheets({ version: 'v4', auth })
+  // A aba pode não existir ainda — confirma antes de ler.
+  const meta = await sheets.spreadsheets.get({ spreadsheetId: info.spreadsheetId, includeGridData: false })
+  const hasTab = meta.data.sheets?.some(s => s.properties?.title === CADASTRO_TAB)
+  if (!hasTab) return { info, rows: [] }
+
+  const headerRes = await sheets.spreadsheets.values.get({
+    spreadsheetId: info.spreadsheetId,
+    range: `${CADASTRO_TAB}!A1:${columnName(HEADER_READ_COLUMNS)}1`,
+  })
+  const headerRow = ((headerRes.data.values?.[0] ?? []) as unknown[]).map(v => String(v ?? '').trim())
+  const layout = resolveCadastroLayout(headerRow)
+  if (!layout.has('nome')) return { info, rows: [] }
+
+  const endColumn = columnName(Math.max(headerRow.length, HEADER_READ_COLUMNS))
+  const res = await sheets.spreadsheets.values.get({
+    spreadsheetId: info.spreadsheetId,
+    range: `${CADASTRO_TAB}!A2:${endColumn}`,
+  })
+  const values = (res.data.values ?? []) as string[][]
+  const get = (row: string[], field: keyof Omit<CadastroSheetRow, 'rowNumber'>): string => {
+    const idx = layout.get(field)
+    return idx == null ? '' : cell(row, idx)
+  }
+  const rows = values
+    .map((row, index) => ({
+      rowNumber: index + 2,
+      nome: get(row, 'nome'),
+      email: blankToNull(get(row, 'email')),
+      whatsapp: blankToNull(get(row, 'whatsapp')),
+      uf: blankToNull(get(row, 'uf')),
+      cidade: blankToNull(get(row, 'cidade')),
+      cpf: blankToNull(get(row, 'cpf')),
+      inscricaoEstadual: blankToNull(get(row, 'inscricaoEstadual')),
+      cabecas: blankToNull(get(row, 'cabecas')),
+      interesse: blankToNull(get(row, 'interesse')),
+      momento: blankToNull(get(row, 'momento')),
+    }))
+    .filter(r => r.nome)
+
+  return { info, rows }
+}
+
 /** Acrescenta o lead na planilha. Só grava se a planilha já foi conectada. */
 export async function appendLeadToSheet(lead: SheetLead): Promise<{ skipped: boolean; reason?: string }> {
   const info = await getStoredInfo()

@@ -57,19 +57,26 @@ export interface CRMConfig {
 export const CRM_STAGE_ENTRY = 'ENTRADA';
 export const CRM_STAGE_CONNECTION = 'CONEXÃO';
 export const CRM_STAGE_QUALIFICATION = 'QUALIFICAÇÃO';
+/** Lead respondeu e enviou os dados para cadastro (verde na planilha). Antes de CADASTRO. */
+export const CRM_STAGE_INFO_CAPTURED = 'INFORMAÇÕES CAPTADAS';
 export const CRM_STAGE_REGISTRATION = 'CADASTRO';
+/** Etapa terminal: lead perdido. Não flui para clientes. */
+export const CRM_STAGE_LOST = 'PERDIDOS';
 export const CRM_STAGE_ASSESSORS = 'ASSESSORES';
 
 export const DEFAULT_STAGES: CRMStage[] = [
     // Entrada Leads: triagem pré-CRM (is_qualification). Ao "Mover para o CRM" o
     // lead sai daqui e cai em CONEXÃO — a primeira coluna do Kanban.
     { id: 'entrada', name: CRM_STAGE_ENTRY, color: 'gray', probability: 5, is_qualification: true },
-    { id: 'conexao', name: CRM_STAGE_CONNECTION, color: 'blue', probability: 10, is_qualification: false },
-    { id: 'qualificacao', name: CRM_STAGE_QUALIFICATION, color: 'orange', probability: 25, is_qualification: false },
-    { id: 'cadastro', name: CRM_STAGE_REGISTRATION, color: 'yellow', probability: 50 },
-    // ASSESSORES foi extinta: o lead aprovado no CADASTRO vira cliente e é
-    // arquivado (sai do Kanban) — ver crm-to-clientes-sync. O CADASTRO é a
-    // última etapa do pipeline.
+    // Cores espelham a planilha "Leads JMP": vermelho (não respondeu) = CONEXÃO,
+    // amarelo (respondeu) = QUALIFICAÇÃO, verde (enviou dados) = INFORMAÇÕES CAPTADAS.
+    { id: 'conexao', name: CRM_STAGE_CONNECTION, color: 'red', probability: 10, is_qualification: false },
+    { id: 'qualificacao', name: CRM_STAGE_QUALIFICATION, color: 'yellow', probability: 25, is_qualification: false },
+    { id: 'informacoes-captadas', name: CRM_STAGE_INFO_CAPTURED, color: 'green', probability: 40, is_qualification: false },
+    { id: 'cadastro', name: CRM_STAGE_REGISTRATION, color: 'cyan', probability: 50 },
+    // PERDIDOS é a etapa terminal (última). O lead aprovado no CADASTRO vira
+    // cliente e é arquivado (sai do Kanban) — ver crm-to-clientes-sync.
+    { id: 'perdidos', name: CRM_STAGE_LOST, color: 'gray', probability: 0, is_qualification: false },
 ];
 
 /** Flag heurística (caso o usuário tenha config legada sem is_qualification). */
@@ -96,6 +103,10 @@ export function normalizeCRMStatus(status?: string | null): string {
 
     if (key === 'conexao') return CRM_STAGE_CONNECTION;
     if (key === 'qualificacao') return CRM_STAGE_QUALIFICATION;
+    if (key === 'informacoes captadas' || key === 'informacoes-captadas' || key === 'informacoes') {
+        return CRM_STAGE_INFO_CAPTURED;
+    }
+    if (key === 'perdidos' || key === 'perdido') return CRM_STAGE_LOST;
     if (key === 'cadastro' || key === 'qualificado') return CRM_STAGE_REGISTRATION;
 
     // ASSESSORES extinta: status legados avançados caem no CADASTRO (última
@@ -109,8 +120,6 @@ export function normalizeCRMStatus(status?: string | null): string {
     ) {
         return CRM_STAGE_REGISTRATION;
     }
-
-    if (key === 'perdido') return CRM_STAGE_QUALIFICATION;
 
     return DEFAULT_STAGES.some(stage => normalizeStageLookup(stage.name) === key)
         ? status!.trim()
