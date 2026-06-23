@@ -306,6 +306,7 @@ const state = {
   bancos:[], categorias:[], centros:[], plano:[], pessoas:[],
   cp:[], cr:[], movimentos:[], lancamentos:[], notas:[], empresas:[],
   filters:{},
+  concSel:{},
 };
 
 const fmtBRL = (n) => {
@@ -425,11 +426,23 @@ document.querySelectorAll('.sidebar-item').forEach(el => {
   if (!el.dataset.page) return;
   el.onclick = () => navigate(el.dataset.page);
 });
+// Cada pagina tem uma URL propria via hash (#conciliacao, #dre, ...). Isso
+// torna as paginas linkaveis/favoritaveis e habilita voltar/avancar do browser.
+const ERP_PAGES = new Set([...document.querySelectorAll('.sidebar-item[data-page]')].map(e => e.dataset.page));
 function navigate(page) {
+  const target = ERP_PAGES.has(page) ? page : 'dashboard';
+  // Mudar o hash dispara o handler hashchange -> applyPage. Se ja estamos no
+  // hash alvo (ex: clique repetido), aplica direto.
+  if (('#' + target) === location.hash) applyPage(target);
+  else location.hash = target;
+}
+function applyPage(page) {
+  if (!ERP_PAGES.has(page)) page = 'dashboard';
   state.page = page;
   document.querySelectorAll('.sidebar-item').forEach(it => it.classList.toggle('active', it.dataset.page === page));
   render();
 }
+window.addEventListener('hashchange', () => applyPage((location.hash || '').replace(/^#/, '') || 'dashboard'));
 
 /* ==========================================================================
    DATA LOADERS
@@ -1058,14 +1071,14 @@ async function renderBancos() {
   try {
     const m = await api('/api/erp/movimentos');
     state.movimentos = m;
-    document.getElementById('movimentosLista').innerHTML = movimentosTable(m, false);
+    document.getElementById('movimentosLista').innerHTML = movimentosTable(m);
   } catch (e) { document.getElementById('movimentosLista').innerHTML = `<div class="empty"><p>${escapeHtml(e.message)}</p></div>`; }
 }
 
-function movimentosTable(list, showConciliacao=false) {
+function movimentosTable(list) {
   if (!list.length) return '<div class="empty"><p>Sem movimentos</p></div>';
   return `<table style="width:100%">
-    <thead><tr><th>Data</th><th>Conta</th><th>Descricao</th><th>Categoria</th><th style="text-align:right">Valor</th>${showConciliacao?'<th>Conciliado</th>':''}<th></th></tr></thead>
+    <thead><tr><th>Data</th><th>Conta</th><th>Descricao</th><th>Categoria</th><th style="text-align:right">Valor</th><th></th></tr></thead>
     <tbody>
       ${list.slice(0,80).map(m => `
       <tr>
@@ -1074,7 +1087,6 @@ function movimentosTable(list, showConciliacao=false) {
         <td>${escapeHtml(m.descricao)}</td>
         <td>${m.categoria?`<span class="chip" style="background:${m.categoria.cor}22;color:${m.categoria.cor}">${escapeHtml(m.categoria.nome)}</span>`:'--'}</td>
         <td style="text-align:right" class="money ${m.tipo==='entrada'?'positive':'negative'}">${m.tipo==='entrada'?'+':'-'} ${fmtBRL(m.valor)}</td>
-        ${showConciliacao?`<td><label class="field-checkbox"><input type="checkbox" ${m.conciliado?'checked':''} onchange="toggleConciliacao('${m.id}',this.checked)"><span>${m.conciliado?'Sim':'Nao'}</span></label></td>`:''}
         <td><div class="row-actions">
           <button class="icon-btn" onclick="deleteMovimento('${m.id}')"><span class="material-symbols-outlined">delete</span></button>
         </div></td>
@@ -1196,67 +1208,215 @@ async function deleteMovimento(id) {
 /* ==========================================================================
    PAGE: CONCILIACAO BANCARIA
    ========================================================================== */
+// Status de conciliacao em 3 estados. Espelha a derivacao do backend para a UI
+// continuar coerente mesmo antes da migration 0035 ser aplicada.
+const CONC_STATUS_META = {
+  pendente:     { label:'Pendente',     cor:'#C0504D', icon:'hourglass' },
+  classificado: { label:'Classificado', cor:'#D4A843', icon:'auto_awesome' },
+  conciliado:   { label:'Conciliado',   cor:'#6B8F5C', icon:'verified' },
+};
+const CONC_ORIGEM_LABEL = {
+  importacao_sicoob_2026:'Extrato Sicoob', importacao_ofx:'OFX', manual:'Manual',
+  pagamento:'Pagamento', recebimento:'Recebimento', transferencia:'Transferencia',
+};
+function concStatus(m){
+  if (m.status_conciliacao) return m.status_conciliacao;
+  if (m.conta_pagar_id || m.conta_receber_id) return 'conciliado';
+  return m.conciliado ? 'classificado' : 'pendente';
+}
+function concObsField(obs, key){ const r=String(obs||'').match(new RegExp(key+':\\s*([^|]+)')); return r?r[1].trim():''; }
+function concConfianca(m){ return (concObsField(m.observacoes,'Confianca')||'').toLowerCase(); }
+function concOrigem(m){
+  if (m.conta_pagar_id || m.conta_receber_id) return 'Casou titulo';
+  return CONC_ORIGEM_LABEL[m.origem] || m.origem || '--';
+}
+function concGetMov(id){ return (state.movimentos||[]).find(m => m.id === id); }
+function concFiltered(){
+  const q = (state.filters.busca||'').trim().toLowerCase();
+  const st = state.filters.status||'';
+  return (state.movimentos||[]).filter(m => {
+    if (st && concStatus(m) !== st) return false;
+    if (q){
+      const hay = `${m.descricao||''} ${m.categoria?.nome||''} ${m.observacoes||''} ${m.valor||''}`.toLowerCase();
+      if (!hay.includes(q)) return false;
+    }
+    return true;
+  });
+}
+
 async function renderConciliacao() {
   const params = new URLSearchParams();
   if (state.filters.conta) params.set('conta_bancaria_id', state.filters.conta);
-  if (state.filters.conciliado) params.set('conciliado', state.filters.conciliado);
   const movs = await api(`/api/erp/movimentos?${params.toString()}`);
   state.movimentos = movs;
-  const naoConciliados = movs.filter(m => !m.conciliado);
-  const conciliados = movs.filter(m => m.conciliado);
-  const totalNC = naoConciliados.reduce((s,m) => s + Number(m.valor||0)*(m.tipo==='entrada'?1:-1), 0);
+  state.concSel = {};
+  paintConc();
+}
 
+function paintConc(){
+  const all = state.movimentos || [];
+  const counts = { pendente:0, classificado:0, conciliado:0 };
+  for (const m of all) counts[concStatus(m)]++;
+  const list = concFiltered();
+  const selIds = Object.keys(state.concSel||{}).filter(id => state.concSel[id]);
+  const kpi = (key) => {
+    const meta = CONC_STATUS_META[key];
+    const active = state.filters.status===key;
+    return `<div class="kpi" style="cursor:pointer;${active?`outline:2px solid ${meta.cor};outline-offset:-1px`:''}" onclick="state.filters.status = state.filters.status==='${key}'?'':'${key}'; paintConc()">
+      <div class="kpi-icon"><span class="material-symbols-outlined" style="color:${meta.cor}">${meta.icon}</span></div>
+      <div class="kpi-label">${meta.label}</div>
+      <div class="kpi-value">${counts[key]}</div>
+    </div>`;
+  };
   const html = `
     <div class="page-header">
-      <div><div class="page-title">Conciliacao Bancaria <small>${naoConciliados.length} pendentes / ${conciliados.length} ok</small></div></div>
+      <div><div class="page-title">Conciliacao Bancaria <small>${counts.pendente} pendentes · ${counts.classificado} classificados · ${counts.conciliado} conciliados</small></div></div>
       <div class="page-actions">
-        <button class="btn" onclick="conciliarTodos()"><span class="material-symbols-outlined">done_all</span>Marcar Todos</button>
+        <button class="btn" onclick="openMovimento()"><span class="material-symbols-outlined">add</span>Lancamento</button>
       </div>
     </div>
-
-    <div class="kpi-grid">
-      <div class="kpi warn">
-        <div class="kpi-icon"><span class="material-symbols-outlined">hourglass</span></div>
-        <div class="kpi-label">Movimentos Nao Conciliados</div>
-        <div class="kpi-value">${naoConciliados.length}</div>
-        <div class="kpi-sub">Saldo: ${fmtBRL(totalNC)}</div>
-      </div>
-      <div class="kpi success">
-        <div class="kpi-icon"><span class="material-symbols-outlined">check_circle</span></div>
-        <div class="kpi-label">Movimentos Conciliados</div>
-        <div class="kpi-value">${conciliados.length}</div>
-      </div>
-    </div>
+    <div class="kpi-grid">${kpi('pendente')}${kpi('classificado')}${kpi('conciliado')}</div>
 
     <div class="table-wrap">
-      <div class="table-toolbar">
-        <select class="table-filter" onchange="state.filters.conta=this.value;render()">
+      <div class="table-toolbar" style="flex-wrap:wrap;gap:8px;align-items:center">
+        <input class="table-filter" style="min-width:240px;flex:1" placeholder="Buscar descricao, valor, contraparte..." value="${escapeHtml(state.filters.busca||'')}" oninput="state.filters.busca=this.value; paintConcTableOnly()">
+        <select class="table-filter" onchange="state.filters.conta=this.value; renderConciliacao()">
           <option value="">Todas as contas</option>
           ${state.bancos.map(b => `<option value="${b.id}" ${state.filters.conta===b.id?'selected':''}>${escapeHtml(b.nome)}</option>`).join('')}
         </select>
-        <select class="table-filter" onchange="state.filters.conciliado=this.value;render()">
-          <option value="">Todos</option>
-          <option value="false" ${state.filters.conciliado==='false'?'selected':''}>Nao conciliados</option>
-          <option value="true" ${state.filters.conciliado==='true'?'selected':''}>Conciliados</option>
+        <select class="table-filter" onchange="state.filters.status=this.value; paintConc()">
+          <option value="">Todos os status</option>
+          ${['pendente','classificado','conciliado'].map(s => `<option value="${s}" ${state.filters.status===s?'selected':''}>${CONC_STATUS_META[s].label}</option>`).join('')}
         </select>
+        ${selIds.length ? `
+          <span style="font-size:11.5px;color:var(--text2);white-space:nowrap">${selIds.length} selec.</span>
+          <select class="table-filter" onchange="if(this.value){bulkSetCategoria(this.value);this.value=''}">
+            <option value="">Categoria em lote...</option>
+            ${state.categorias.map(c => `<option value="${c.id}">${escapeHtml(c.nome)}</option>`).join('')}
+          </select>
+          <button class="btn" onclick="bulkSetStatus('conciliado')"><span class="material-symbols-outlined">verified</span>Conciliar</button>
+          <button class="btn" onclick="bulkSetStatus('pendente')"><span class="material-symbols-outlined">undo</span>Pendente</button>
+        ` : ''}
       </div>
-      ${movimentosTable(movs, true)}
+      <div id="concTableWrap">${concTable(list)}</div>
     </div>
   `;
   document.getElementById('page').innerHTML = html;
 }
-async function toggleConciliacao(id, val) {
-  try { await api(`/api/erp/movimentos/${id}/conciliar`, { method:'POST', body:JSON.stringify({ conciliado:val }) }); toast('Atualizado','success'); }
-  catch (e) { toast(e.message,'error'); render(); }
+
+function paintConcTableOnly(){
+  const wrap = document.getElementById('concTableWrap');
+  if (wrap) wrap.innerHTML = concTable(concFiltered());
 }
-async function conciliarTodos() {
-  if (!await confirmAction('Marcar todos os movimentos visiveis como conciliados?')) return;
-  const ids = state.movimentos.filter(m => !m.conciliado).map(m => m.id);
-  for (const id of ids) {
-    try { await api(`/api/erp/movimentos/${id}/conciliar`, { method:'POST', body:JSON.stringify({ conciliado:true }) }); } catch(_) {}
+
+function concTable(list){
+  if (!list.length) return '<div class="empty"><p>Nenhum movimento</p></div>';
+  const allSel = list.length > 0 && list.every(m => state.concSel[m.id]);
+  return `<table style="width:100%">
+    <thead><tr>
+      <th style="width:34px"><input type="checkbox" ${allSel?'checked':''} onchange="toggleSelAll(this.checked)"></th>
+      <th>Data</th><th>Descricao</th><th>Categoria</th><th>Origem / Confianca</th>
+      <th style="text-align:right">Valor</th><th>Status</th>
+    </tr></thead>
+    <tbody>${list.slice(0,300).map(m => concRow(m)).join('')}</tbody>
+  </table>${list.length>300?`<div style="text-align:center;color:var(--text3);font-size:11px;padding:8px">Mostrando 300 de ${list.length}. Refine a busca.</div>`:''}`;
+}
+
+function concRow(m){
+  const st = concStatus(m);
+  const meta = CONC_STATUS_META[st];
+  const tipoCat = m.tipo==='entrada'?'receita':'despesa';
+  const cats = state.categorias.filter(c => c.tipo===tipoCat);
+  if (m.categoria_id && m.categoria && !cats.some(c => c.id===m.categoria_id)) cats.unshift(m.categoria);
+  const conf = concConfianca(m);
+  const confCor = conf==='alta'?'#6B8F5C':conf==='media'?'#D4A843':conf==='baixa'?'#C0504D':'#888';
+  const catSel = `<select onchange="onConcCatChange('${m.id}', this.value)" style="background:var(--s2);border:1px solid var(--border2);border-radius:6px;color:var(--text);font-size:11.5px;padding:4px 6px;max-width:180px">
+    <option value="" ${!m.categoria_id?'selected':''}>-- sem categoria --</option>
+    ${cats.map(c => `<option value="${c.id}" ${m.categoria_id===c.id?'selected':''}>${escapeHtml(c.nome)}</option>`).join('')}
+    <option value="__new__">+ Nova categoria...</option>
+  </select>`;
+  return `<tr style="${state.concSel[m.id]?'background:var(--gold-dim)':''}">
+    <td><input type="checkbox" ${state.concSel[m.id]?'checked':''} onchange="toggleSel('${m.id}',this.checked)"></td>
+    <td style="white-space:nowrap">${fmtDate(m.data)}</td>
+    <td>${escapeHtml(m.descricao||'')}</td>
+    <td>${catSel}</td>
+    <td><div style="display:flex;flex-direction:column;gap:3px;align-items:flex-start">
+      <span style="font-size:11px;color:var(--text2)">${escapeHtml(concOrigem(m))}</span>
+      ${conf?`<span class="chip" style="background:${confCor}22;color:${confCor};font-size:9.5px;padding:1px 6px">conf. ${conf}</span>`:''}
+    </div></td>
+    <td style="text-align:right;white-space:nowrap" class="money ${m.tipo==='entrada'?'positive':'negative'}">${m.tipo==='entrada'?'+':'-'} ${fmtBRL(m.valor)}</td>
+    <td><span class="chip" style="background:${meta.cor}22;color:${meta.cor};cursor:pointer" onclick="cycleConcStatus('${m.id}')" title="Clique para alternar status">${meta.label}</span></td>
+  </tr>`;
+}
+
+function toggleSel(id, val){ if(val) state.concSel[id]=true; else delete state.concSel[id]; paintConc(); }
+function toggleSelAll(val){
+  for (const m of concFiltered()){ if(val) state.concSel[m.id]=true; else delete state.concSel[m.id]; }
+  paintConc();
+}
+
+async function onConcCatChange(id, val){
+  if (val==='__new__'){ const m=concGetMov(id); paintConcTableOnly(); return novaCategoriaInline(id, m?.tipo); }
+  await setMovCategoria(id, val || null);
+}
+async function setMovCategoria(id, categoria_id){
+  try {
+    await api(`/api/erp/movimentos/${id}`, { method:'PATCH', body:JSON.stringify({ categoria_id }) });
+    const m = concGetMov(id);
+    if (m){ m.categoria_id = categoria_id; m.categoria = state.categorias.find(c => c.id===categoria_id) || null; }
+    toast('Categoria atualizada','success');
+    paintConc();
+  } catch(e){ toast(e.message,'error'); paintConc(); }
+}
+
+async function setConcStatus(id, status){
+  try {
+    await api(`/api/erp/movimentos/${id}/conciliar`, { method:'POST', body:JSON.stringify({ status }) });
+    const m = concGetMov(id);
+    if (m){ m.status_conciliacao = status; m.conciliado = status!=='pendente'; }
+    paintConc();
+  } catch(e){ toast(e.message,'error'); paintConc(); }
+}
+function cycleConcStatus(id){
+  const m = concGetMov(id); if(!m) return;
+  const order = ['pendente','classificado','conciliado'];
+  setConcStatus(id, order[(order.indexOf(concStatus(m))+1)%order.length]);
+}
+
+async function bulkSetCategoria(categoria_id){
+  const ids = Object.keys(state.concSel).filter(id => state.concSel[id]);
+  if (!ids.length) return;
+  for (const id of ids){
+    try {
+      await api(`/api/erp/movimentos/${id}`, { method:'PATCH', body:JSON.stringify({ categoria_id }) });
+      const m = concGetMov(id); if(m){ m.categoria_id=categoria_id; m.categoria=state.categorias.find(c=>c.id===categoria_id)||null; }
+    } catch(_){}
   }
-  toast('Movimentos conciliados','success');
-  render();
+  toast(`${ids.length} movimento(s) atualizado(s)`,'success');
+  paintConc();
+}
+async function bulkSetStatus(status){
+  const ids = Object.keys(state.concSel).filter(id => state.concSel[id]);
+  if (!ids.length) return;
+  if (!await confirmAction(`Marcar ${ids.length} movimento(s) como "${CONC_STATUS_META[status].label}"?`)) return;
+  for (const id of ids){
+    try {
+      await api(`/api/erp/movimentos/${id}/conciliar`, { method:'POST', body:JSON.stringify({ status }) });
+      const m = concGetMov(id); if(m){ m.status_conciliacao=status; m.conciliado=status!=='pendente'; }
+    } catch(_){}
+  }
+  state.concSel = {};
+  toast('Movimentos atualizados','success');
+  paintConc();
+}
+
+function novaCategoriaInline(movId, tipo){
+  openCategoria(null, async (cat) => {
+    try { state.categorias = await api('/api/erp/categorias'); } catch(_){}
+    if (cat && cat.id) await setMovCategoria(movId, cat.id);
+    else paintConc();
+  });
+  setTimeout(() => { const sel=document.querySelector('#formCat select[name="tipo"]'); if(sel) sel.value=(tipo==='entrada'?'receita':'despesa'); }, 0);
 }
 
 /* ==========================================================================
@@ -1806,7 +1966,10 @@ function renderCategorias() {
   `;
   document.getElementById('page').innerHTML = html;
 }
-function openCategoria(id) {
+function openCategoria(id, onSaved) {
+  // onSaved (opcional): callback chamado com a categoria salva em vez de
+  // recarregar a pagina inteira. Usado pela criacao inline na Conciliacao.
+  state._catOnSaved = onSaved || null;
   const c = id ? state.categorias.find(x => x.id === id) : null;
   const planoOpts = `<option value="">--</option>` + state.plano.filter(p => p.natureza === 'analitica').map(p => `<option value="${p.id}" ${c?.plano_conta_id===p.id?'selected':''}>${p.codigo} - ${escapeHtml(p.nome)}</option>`).join('');
   const html = `
@@ -1834,9 +1997,12 @@ async function saveCategoria(id) {
   const data = Object.fromEntries(new FormData(document.getElementById('formCat')));
   if (!data.plano_conta_id) data.plano_conta_id = null;
   try {
-    if (id) await api(`/api/erp/categorias/${id}`, { method:'PATCH', body:JSON.stringify(data) });
-    else await api('/api/erp/categorias', { method:'POST', body:JSON.stringify(data) });
-    closeModal(); toast('Salvo','success'); render();
+    const saved = id
+      ? await api(`/api/erp/categorias/${id}`, { method:'PATCH', body:JSON.stringify(data) })
+      : await api('/api/erp/categorias', { method:'POST', body:JSON.stringify(data) });
+    const cb = state._catOnSaved; state._catOnSaved = null;
+    closeModal(); toast('Salvo','success');
+    if (cb) cb(saved); else render();
   } catch (e) { toast(e.message,'error'); }
 }
 async function deleteCategoria(id) {
@@ -3212,7 +3378,8 @@ function coExportCSV() {
    ========================================================================== */
 (async () => {
   await loadUser();
-  render();
+  // Inicia na pagina indicada pela URL (#pagina), caindo no dashboard.
+  applyPage((location.hash || '').replace(/^#/, '') || 'dashboard');
 })();
 </script>
 </body>
