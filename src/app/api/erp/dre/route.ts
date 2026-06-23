@@ -10,6 +10,12 @@ export async function GET(req: NextRequest) {
   // DRE pelo regime de competencia: soma dos titulos (cp/cr) com vencimento no periodo
   // ou pelo regime de caixa: soma de movimentos com data no periodo.
   const regime = (sp.get('regime') || 'caixa') as 'caixa' | 'competencia'
+  const nonOperationalCategory = (name: string) =>
+    name
+      .normalize('NFD')
+      .replace(/[\u0300-\u036f]/g, '')
+      .toLowerCase()
+      .includes('transferencias internas')
 
   let receitas = 0
   let despesas = 0
@@ -25,6 +31,7 @@ export async function GET(req: NextRequest) {
       .in('tipo', ['entrada', 'saida'])
     for (const m of (movs || []) as { tipo: string; valor: number; categoria?: { nome?: string; tipo?: string } }[]) {
       const cat = m.categoria?.nome || (m.tipo === 'entrada' ? 'Outras Receitas' : 'Outras Despesas')
+      if (nonOperationalCategory(cat)) continue
       if (m.tipo === 'entrada') {
         receitas += Number(m.valor || 0)
         porCategoriaReceita[cat] = { nome: cat, valor: (porCategoriaReceita[cat]?.valor || 0) + Number(m.valor || 0) }
