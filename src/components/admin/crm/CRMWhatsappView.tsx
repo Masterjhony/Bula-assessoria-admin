@@ -465,7 +465,12 @@ export function CRMWhatsappView() {
                     <h3 className="font-semibold flex items-center gap-2">
                         <UserCheck className="h-4 w-4" /> Encaminhamento para assessor
                     </h3>
-                    <span className="text-xs px-2 py-0.5 rounded-full border border-green-500/40 bg-green-500/10 text-green-400">ativo</span>
+                    <span className="text-xs px-2 py-0.5 rounded-full border border-muted bg-muted text-muted-foreground">desativado</span>
+                </div>
+                <div className="px-6 pt-3 -mb-1">
+                    <p className="text-[11px] text-muted-foreground">
+                        Desativado por enquanto — apenas a mensagem de boas-vindas dispara para leads novos. Os números abaixo são histórico.
+                    </p>
                 </div>
                 <div className="px-6 py-5 grid grid-cols-2 md:grid-cols-4 gap-3 text-sm">
                     <div className="space-y-0.5">

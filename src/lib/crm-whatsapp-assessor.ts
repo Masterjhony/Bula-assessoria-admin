@@ -29,6 +29,12 @@ type LeadForAssessor = {
 
 type PreviousLeadState = Pick<LeadForAssessor, 'status' | 'responsavel' | 'extra_data'> | null | undefined;
 
+// Encaminhamento da ficha do lead para o WhatsApp do assessor: DESATIVADO por
+// decisão do dono ("não vamos usar isso por enquanto"). Hoje só a mensagem
+// automática de boas-vindas opera (ver src/lib/crm-welcome.ts). Para religar,
+// basta voltar este flag para true.
+const ASSESSOR_FORWARDING_ENABLED = false;
+
 type DispatchResult =
     | { attempted: false; reason: string }
     | { attempted: true; sent: boolean; status: 'sent' | 'queued' | 'failed'; reason?: string };
@@ -111,6 +117,7 @@ export async function maybeNotifyAssessorOnLeadStage(
     lead: LeadForAssessor,
     previous?: PreviousLeadState,
 ): Promise<DispatchResult> {
+    if (!ASSESSOR_FORWARDING_ENABLED) return { attempted: false, reason: 'forwarding_disabled' };
     if (!shouldDispatch(lead, previous)) return { attempted: false, reason: 'stage_not_entered' };
 
     const user = findUser(config, lead);
