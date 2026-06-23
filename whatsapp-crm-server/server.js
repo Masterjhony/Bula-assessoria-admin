@@ -117,14 +117,27 @@ function buildContents(item) {
   return contents
 }
 
-async function sendItem(item) {
-  if (!socket || connectionStatus !== 'connected') throw new Error('whatsapp_disconnected')
+/**
+ * Resolve o JID de destino de um item da fila.
+ *  - item.jid presente → destino explícito (grupo `...@g.us` ou JID pronto).
+ *    Sem checagem onWhatsApp (grupos não respondem a ela).
+ *  - senão → número individual: normaliza, confirma que existe no WhatsApp.
+ */
+async function resolveJid(item) {
+  if (item.jid) {
+    return String(item.jid).includes('@') ? String(item.jid) : `${item.jid}@g.us`
+  }
   const normalized = normalizePhone(item.phone)
   if (!normalized) throw new Error('invalid_phone')
-
   const jid = `${normalized}@s.whatsapp.net`
   const exists = await socket.onWhatsApp(jid)
   if (!exists?.[0]?.exists) throw new Error('not_on_whatsapp')
+  return jid
+}
+
+async function sendItem(item) {
+  if (!socket || connectionStatus !== 'connected') throw new Error('whatsapp_disconnected')
+  const jid = await resolveJid(item)
 
   const contents = buildContents(item)
   if (contents.length === 0) throw new Error('empty_message')
@@ -139,11 +152,12 @@ async function processQueue() {
   try {
     while (queue.length > 0) {
       const item = queue.shift()
+      const label = item.jid || normalizePhone(item.phone)
       try {
         await sendItem(item)
-        console.log(`[crm-whatsapp] enviado para ${normalizePhone(item.phone)}`)
+        console.log(`[crm-whatsapp] enviado para ${label}`)
       } catch (error) {
-        console.error(`[crm-whatsapp] falha ao enviar para ${normalizePhone(item.phone)}:`, error.message)
+        console.error(`[crm-whatsapp] falha ao enviar para ${label}:`, error.message)
       }
       if (queue.length > 0) await sleep(jitter())
     }
@@ -297,6 +311,43 @@ const server = http.createServer(async (req, res) => {
       queue.push({ phone, message, media: body.media || null, poll: body.poll || null })
       void processQueue()
       json(res, 200, { queued: true, position: queue.length })
+      return
+    }
+
+    // Lista os grupos de que a sessão participa — usado para descobrir o JID
+    // (`...@g.us`) do grupo destino antes de enviar.
+    if (req.method === 'GET' && url.pathname === '/groups') {
+      if (!socket || connectionStatus !== 'connected') {
+        json(res, 503, { error: 'whatsapp_disconnected' })
+        return
+      }
+      try {
+        const participating = await socket.groupFetchAllParticipating()
+        const groups = Object.values(participating || {}).map(g => ({
+          id: g.id,
+          subject: g.subject || '',
+          size: Array.isArray(g.participants) ? g.participants.length : (g.size ?? null),
+        }))
+        json(res, 200, { groups })
+      } catch (error) {
+        json(res, 500, { error: error instanceof Error ? error.message : String(error) })
+      }
+      return
+    }
+
+    // Envia para um grupo. Aceita `groupId` (JID `...@g.us` ou só o id antes do @).
+    if (req.method === 'POST' && url.pathname === '/send-group') {
+      const body = await readJson(req)
+      const rawId = String(body.groupId || body.jid || '').trim()
+      const message = String(body.message || '').trim()
+      if (!rawId || (!message && !body.media)) {
+        json(res, 400, { error: 'groupId e (message ou media) são obrigatórios' })
+        return
+      }
+      const jid = rawId.includes('@') ? rawId : `${rawId}@g.us`
+      queue.push({ jid, message, media: body.media || null, poll: body.poll || null })
+      void processQueue()
+      json(res, 200, { queued: true, position: queue.length, jid })
       return
     }
 

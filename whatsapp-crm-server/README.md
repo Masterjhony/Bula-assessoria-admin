@@ -8,6 +8,8 @@ Endpoints:
 - `GET /status`: status da sessão e QR Code.
 - `GET /queue`: tamanho da fila.
 - `POST /send-direct`: envia mensagem livre `{ "phone": "...", "message": "..." }`.
+- `GET /groups`: lista os grupos de que a sessão participa (`{ id, subject, size }`) — para descobrir o JID do grupo.
+- `POST /send-group`: envia para um grupo `{ "groupId": "...@g.us", "message": "..." }` (sem checagem onWhatsApp).
 
 Uso local:
 
