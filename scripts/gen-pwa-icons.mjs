@@ -1,7 +1,7 @@
 // Gera os ícones do PWA a partir da logo "Bula Assessoria Pecuária".
-// Renderiza um quadrado com fundo verde da marca + wordmark branca centralizada
+// Renderiza um quadrado com fundo preto da marca + wordmark branca centralizada
 // via Playwright (screenshot) → garante ícones quadrados nítidos em todos os
-// tamanhos exigidos (manifest + apple-touch).
+// tamanhos exigidos (manifest + apple-touch). Cores da empresa: preto e branco.
 import { chromium } from 'playwright'
 import { readFileSync, writeFileSync } from 'node:fs'
 import { fileURLToPath } from 'node:url'
@@ -10,8 +10,8 @@ import { dirname, resolve } from 'node:path'
 const __dirname = dirname(fileURLToPath(import.meta.url))
 const root = resolve(__dirname, '..')
 
-// Verde profundo da marca (fundo) + logo branca por cima.
-const BRAND = '#1d2c1d'
+// Preto da marca (fundo) + logo branca por cima.
+const BRAND = '#000000'
 const logoWhite = readFileSync(resolve(root, 'public/logo-bula-assessoria-white.png')).toString('base64')
 const logoDataUrl = `data:image/png;base64,${logoWhite}`
 
