@@ -2,7 +2,7 @@
 
 import { createClient } from '@/utils/supabase/server';
 import { revalidatePath } from 'next/cache';
-import { dispatchWelcome } from '@/lib/whatsapp';
+import { dispatchCrmWelcome } from '@/lib/crm-welcome';
 import {
     CRM_STAGE_ENTRY,
     CRM_STAGE_CONNECTION,
@@ -305,10 +305,17 @@ export async function createLead(data: Partial<CRMLead>): Promise<CRMLead> {
     await runStateRegistrationCheckIfNeeded(supabase, newLead as CRMLead, null);
     await runCreditCheckIfNeeded(supabase, newLead as CRMLead, null);
 
-    if (data.telefone) {
-        // Fire and forget welcome (dedup + opt-out + log centralizados em dispatchWelcome)
-        dispatchWelcome(data.telefone, data.nome || 'Amigo(a)', 'admin-manual', { lead_id: newLead?.id }).catch((e: unknown) => {
-            console.error('[CRM Action] Failed to send WhatsApp message:', e);
+    const welcomePhone = newLead?.celular || newLead?.telefone || data.telefone;
+    if (welcomePhone) {
+        // Mensagem automática de boas-vindas pelo número conectado (Baileys).
+        // Fire-and-forget: dedup 24h + opt-out + log centralizados no gateway.
+        dispatchCrmWelcome(supabase as any, {
+            phone: welcomePhone,
+            nome: newLead?.nome || data.nome,
+            leadId: newLead?.id,
+            origin: 'crm-manual',
+        }).catch((e: unknown) => {
+            console.error('[CRM Action] Falha ao enviar boas-vindas no WhatsApp:', e);
         });
     }
 

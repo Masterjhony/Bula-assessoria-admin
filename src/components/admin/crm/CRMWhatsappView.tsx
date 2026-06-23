@@ -10,10 +10,12 @@ import {
     ExternalLink,
     FileText,
     Inbox,
+    Loader2,
     Megaphone,
     MessageCircle,
-    QrCode,
+    MessageSquareText,
     RefreshCw,
+    Save,
     Send,
     ShieldCheck,
     Smartphone,
@@ -65,6 +67,11 @@ type CockpitData = {
         baileys: { daily_cap: number; min_delay_ms: number; max_delay_ms: number; warmup_started_on: string | null };
         cloud: { daily_cap: number };
     };
+};
+
+type WelcomeConfig = {
+    enabled: boolean;
+    message: string;
 };
 
 const CENTRAL_LINKS: { tab: string; label: string; icon: typeof Inbox }[] = [
@@ -136,6 +143,12 @@ export function CRMWhatsappView() {
     const [loading, setLoading] = useState(true);
     const [activityLoading, setActivityLoading] = useState(true);
 
+    // Mensagem automática de boas-vindas (editável aqui).
+    const [welcome, setWelcome] = useState<WelcomeConfig | null>(null);
+    const [welcomeSaving, setWelcomeSaving] = useState(false);
+    const [welcomeSavedAt, setWelcomeSavedAt] = useState<number | null>(null);
+    const [welcomeError, setWelcomeError] = useState<string | null>(null);
+
     const fetchCockpit = useCallback(async () => {
         try {
             const res = await fetch('/api/whatsapp/cockpit', { cache: 'no-store' });
@@ -158,6 +171,15 @@ export function CRMWhatsappView() {
         }
     }, []);
 
+    const fetchWelcome = useCallback(async () => {
+        try {
+            const res = await fetch('/api/whatsapp/crm-welcome', { cache: 'no-store' });
+            if (res.ok) setWelcome(await res.json());
+        } catch {
+            // mantém vazio; o card mostra carregando
+        }
+    }, []);
+
     const refreshAll = useCallback(() => {
         void fetchCockpit();
         void fetchActivity();
@@ -165,10 +187,33 @@ export function CRMWhatsappView() {
 
     useEffect(() => {
         refreshAll();
+        void fetchWelcome();
         const t1 = setInterval(fetchCockpit, 6000);
         const t2 = setInterval(fetchActivity, 15000);
         return () => { clearInterval(t1); clearInterval(t2); };
-    }, [fetchCockpit, fetchActivity, refreshAll]);
+    }, [fetchCockpit, fetchActivity, fetchWelcome, refreshAll]);
+
+    const saveWelcome = useCallback(async (next: WelcomeConfig) => {
+        setWelcomeSaving(true);
+        setWelcomeError(null);
+        try {
+            const res = await fetch('/api/whatsapp/crm-welcome', {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(next),
+            });
+            if (!res.ok) {
+                const err = await res.json().catch(() => ({}));
+                throw new Error(err.error || `Erro ${res.status}`);
+            }
+            setWelcome(await res.json());
+            setWelcomeSavedAt(Date.now());
+        } catch (e) {
+            setWelcomeError(e instanceof Error ? e.message : 'Falha ao salvar.');
+        } finally {
+            setWelcomeSaving(false);
+        }
+    }, []);
 
     const b = cockpit?.baileys;
     const c = cockpit?.cloud;
@@ -284,6 +329,71 @@ export function CRMWhatsappView() {
 
                         {c && <UsageBar today={c.today} cap={c.cap} />}
                     </div>
+                </div>
+            </div>
+
+            {/* Mensagem automática de boas-vindas */}
+            <div className="bg-card text-card-foreground rounded-xl border overflow-hidden">
+                <div className="px-5 py-3 border-b flex items-center justify-between gap-3">
+                    <h3 className="font-semibold flex items-center gap-2 text-sm">
+                        <MessageSquareText className="h-4 w-4" /> Mensagem automática de boas-vindas
+                    </h3>
+                    {welcome && (
+                        <button
+                            type="button"
+                            onClick={() => saveWelcome({ enabled: !welcome.enabled, message: welcome.message })}
+                            disabled={welcomeSaving}
+                            className={`relative inline-flex h-5 w-9 items-center rounded-full transition disabled:opacity-50 ${
+                                welcome.enabled ? 'bg-green-500' : 'bg-muted'
+                            }`}
+                            aria-label={welcome.enabled ? 'Desativar' : 'Ativar'}
+                        >
+                            <span className={`inline-block h-4 w-4 transform rounded-full bg-white shadow transition ${
+                                welcome.enabled ? 'translate-x-4' : 'translate-x-0.5'
+                            }`} />
+                        </button>
+                    )}
+                </div>
+                <div className="p-5 space-y-3">
+                    <p className="text-[11px] text-muted-foreground">
+                        Disparada automaticamente pelo número conectado (Baileys) para <b>todo lead novo</b> que entra no CRM.
+                        Use <code className="px-1 rounded bg-muted">{'{nome}'}</code> para inserir o primeiro nome do lead.
+                        Cada número recebe no máximo uma vez por dia (anti-duplicidade).
+                    </p>
+                    {!welcome ? (
+                        <div className="flex justify-center py-8"><Loader2 className="h-5 w-5 animate-spin text-muted-foreground" /></div>
+                    ) : (
+                        <>
+                            <textarea
+                                value={welcome.message}
+                                onChange={(e) => setWelcome({ ...welcome, message: e.target.value })}
+                                rows={14}
+                                disabled={!welcome.enabled}
+                                className="w-full rounded-lg border bg-background px-3 py-2 text-sm font-mono leading-relaxed resize-y focus:outline-none focus:ring-2 focus:ring-primary/40 disabled:opacity-60"
+                                placeholder="Olá, {nome}! Tudo bem?…"
+                            />
+                            <div className="flex items-center justify-between gap-3">
+                                <div className="text-[11px] min-h-[16px]">
+                                    {welcomeError ? (
+                                        <span className="text-red-500 flex items-center gap-1"><XCircle className="h-3 w-3" /> {welcomeError}</span>
+                                    ) : welcomeSavedAt ? (
+                                        <span className="text-green-500 flex items-center gap-1"><CheckCircle2 className="h-3 w-3" /> Salvo</span>
+                                    ) : !welcome.enabled ? (
+                                        <span className="text-amber-500 flex items-center gap-1"><AlertCircle className="h-3 w-3" /> Disparo desativado</span>
+                                    ) : null}
+                                </div>
+                                <button
+                                    type="button"
+                                    onClick={() => saveWelcome(welcome)}
+                                    disabled={welcomeSaving}
+                                    className="inline-flex items-center gap-1.5 rounded-lg bg-primary px-3.5 py-1.5 text-xs font-medium text-primary-foreground hover:opacity-90 disabled:opacity-50"
+                                >
+                                    {welcomeSaving ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Save className="h-3.5 w-3.5" />}
+                                    Salvar mensagem
+                                </button>
+                            </div>
+                        </>
+                    )}
                 </div>
             </div>
 

@@ -46,6 +46,17 @@ Typecheck e `next build` limpos.
   no `.env.local`. **Token Meta fornecido está EXPIRADO** (era embedded-signup,
   curto) — trocar por um **System User token permanente** e replicar na Vercel.
 
+- ✅ **Boas-vindas automáticas (editável no cockpit):**
+  - `src/lib/crm-welcome.ts` — `dispatchCrmWelcome` (dedup 24h + render `{nome}` +
+    `sendOutbound` canal Baileys, `botStep='welcome'`); config em
+    `site_settings.crm_whatsapp_welcome` (`{ enabled, message }`), sem migration.
+  - `GET/PUT /api/whatsapp/crm-welcome` + editor na `CRMWhatsappView` (toggle +
+    textarea + salvar). **Caminho único**: substitui o welcome antigo via VPS
+    `/send` + `render-welcome` (o `server.js` atual nem expõe `/send`).
+  - Disparado nos pontos de criação em tempo real: `createLead` (cadastro manual)
+    e `POST /api/jmp/lead` (landing). Importações em massa da planilha NÃO
+    disparam (são backfill de histórico — evita mensagear contatos antigos).
+
 ### Refinamentos conhecidos (não bloqueiam)
 
 - Jitter real no loop de massa do Baileys vive no VPS (4s fixo hoje); o helper

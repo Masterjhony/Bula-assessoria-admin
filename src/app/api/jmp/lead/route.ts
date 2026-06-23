@@ -12,6 +12,7 @@ import { DEFAULT_JMP_CONTENT, sanitizeContent } from '@/lib/jmp-content'
 import { sendJmpWelcomeEmail } from '@/lib/jmp-welcome-email'
 import { enrollLeadInEmailFlow } from '@/lib/jmp-email-flow'
 import { appendLeadToSheet } from '@/lib/jmp-sheets'
+import { dispatchCrmWelcome } from '@/lib/crm-welcome'
 
 const CONTENT_TABLE = 'jmp_landing_content'
 const CONTENT_ROW_ID = 'default'
@@ -155,6 +156,19 @@ export async function POST(req: NextRequest) {
     await appendLeadToSheet({ ...leadCtx, ...utm, leadId: data?.id ?? null, createdAt: new Date() })
   } catch (e) {
     console.error('[JMP lead] sheets append failed:', e)
+  }
+
+  // Boas-vindas automáticas no WhatsApp pelo número conectado (Baileys).
+  // Best-effort: nunca derruba o cadastro do lead.
+  try {
+    await dispatchCrmWelcome(supabaseAdmin(), {
+      phone: whatsapp,
+      nome,
+      leadId: data?.id ?? null,
+      origin: 'jmp-landing',
+    })
+  } catch (e) {
+    console.error('[JMP lead] whatsapp welcome failed:', e)
   }
 
   return ok({ id: data?.id })
