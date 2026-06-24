@@ -294,6 +294,7 @@ svg.chart { width:100%; height:100%; display:block; }
     <div class="sidebar-item" data-page="cp"><span class="material-symbols-outlined">payments</span><span>Contas a Pagar</span></div>
     <div class="sidebar-item" data-page="cr"><span class="material-symbols-outlined">request_quote</span><span>Contas a Receber</span></div>
     <div class="sidebar-item" data-page="bancos"><span class="material-symbols-outlined">account_balance</span><span>Contas Bancarias</span></div>
+    <div class="sidebar-item" data-page="cartoes"><span class="material-symbols-outlined">credit_card</span><span>Cartoes de Credito</span></div>
     <div class="sidebar-item" data-page="conciliacao"><span class="material-symbols-outlined">fact_check</span><span>Conciliacao</span></div>
 
     <div class="sidebar-section">Contabil</div>
@@ -338,7 +339,7 @@ const state = {
   user:null,
   dashboard:null,
   bancos:[], categorias:[], centros:[], plano:[], pessoas:[],
-  cp:[], cr:[], movimentos:[], lancamentos:[], notas:[], empresas:[],
+  cp:[], cr:[], movimentos:[], lancamentos:[], notas:[], empresas:[], cartoes:[],
   filters:{},
   concSel:{},
 };
@@ -556,6 +557,7 @@ async function render() {
     if (state.page === 'cp') return renderContas('pagar');
     if (state.page === 'cr') return renderContas('receber');
     if (state.page === 'bancos') return renderBancos();
+    if (state.page === 'cartoes') return renderCartoes();
     if (state.page === 'conciliacao') return renderConciliacao();
     if (state.page === 'lancamentos') return renderLancamentos();
     if (state.page === 'plano') return renderPlano();
@@ -1323,6 +1325,199 @@ function concFiltered(){
     }
     return true;
   });
+}
+
+/* ==========================================================================
+   CARTOES DE CREDITO
+   ========================================================================== */
+const MES_NOME = ['','Jan','Fev','Mar','Abr','Mai','Jun','Jul','Ago','Set','Out','Nov','Dez'];
+function compLabel(c){ if(!c) return '--'; const [y,m]=c.split('-'); return `${MES_NOME[Number(m)]||m}/${y}`; }
+function bandeiraIcon(b){ const n=(b||'').toLowerCase(); if(n.includes('master')) return 'Mastercard'; if(n.includes('visa')) return 'Visa'; if(n.includes('elo')) return 'Elo'; return b||'Cartao'; }
+
+async function renderCartoes() {
+  document.getElementById('page').innerHTML = '<div class="empty"><div class="spinner"></div></div>';
+  let cartoes;
+  try { cartoes = await api('/api/erp/cartoes'); }
+  catch(e){ document.getElementById('page').innerHTML = `<div class="empty"><p>${escapeHtml(e.message)}</p></div>`; return; }
+  state.cartoes = cartoes;
+
+  const limiteTotal = cartoes.reduce((s,c)=>s+Number(c.limite_credito||0),0);
+  const dispTotal = cartoes.reduce((s,c)=>s+Number(c.limite_disponivel||0),0);
+  const dividaTotal = cartoes.reduce((s,c)=>s+Number(c.divida_consolidada||0),0);
+  const usadoTotal = limiteTotal - dispTotal;
+
+  const cardHtml = (c) => {
+    const lim = Number(c.limite_credito||0), disp = Number(c.limite_disponivel||0);
+    const usado = lim - disp; const pct = lim>0 ? Math.min(100, Math.round(usado/lim*100)) : 0;
+    const cor = c.cor || '#7C3AED';
+    const barColor = pct>=90?'#C0504D':(pct>=70?'#D4A843':'#6B8F5C');
+    return `
+    <div class="card" style="border-top:3px solid ${cor};cursor:pointer" onclick="openCartaoFaturas('${c.id}')">
+      <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:8px">
+        <div>
+          <div style="font-weight:700;font-size:15px">${escapeHtml(c.apelido)}</div>
+          <div class="muted" style="font-size:12px">${escapeHtml(bandeiraIcon(c.bandeira))} •••• ${escapeHtml(c.final||'')}</div>
+        </div>
+        <span class="material-symbols-outlined" style="color:${cor}">credit_card</span>
+      </div>
+      <div style="margin:14px 0 6px;display:flex;justify-content:space-between;font-size:12px">
+        <span class="muted">Utilizado ${pct}%</span>
+        <span class="money">${fmtBRL(usado)} / ${fmtBRL(lim)}</span>
+      </div>
+      <div style="height:8px;border-radius:6px;background:#e9ecef;overflow:hidden">
+        <div style="height:100%;width:${pct}%;background:${barColor}"></div>
+      </div>
+      <div style="display:flex;justify-content:space-between;margin-top:12px;gap:8px;flex-wrap:wrap">
+        <div><div class="muted" style="font-size:11px">Disponivel</div><div class="money positive">${fmtBRL(disp)}</div></div>
+        <div><div class="muted" style="font-size:11px">Divida consolidada</div><div class="money negative">${fmtBRL(c.divida_consolidada)}</div></div>
+        <div><div class="muted" style="font-size:11px">Vencimento</div><div>dia ${c.vencimento_dia||'--'}${c.debito_automatico?' • deb.auto':''}</div></div>
+      </div>
+    </div>`;
+  };
+
+  document.getElementById('page').innerHTML = `
+    <div class="page-header">
+      <div><div class="page-title">Cartoes de Credito <small>${cartoes.length} cartoes</small></div></div>
+      <div class="page-actions">
+        <button class="btn btn-primary" onclick="openCartao()"><span class="material-symbols-outlined">add</span>Novo Cartao</button>
+      </div>
+    </div>
+    <div class="kpi-grid">
+      <div class="kpi"><div class="kpi-icon"><span class="material-symbols-outlined">credit_card</span></div><div class="kpi-label">Limite Total</div><div class="kpi-value money">${fmtBRL(limiteTotal)}</div></div>
+      <div class="kpi success"><div class="kpi-icon"><span class="material-symbols-outlined">savings</span></div><div class="kpi-label">Disponivel</div><div class="kpi-value money positive">${fmtBRL(dispTotal)}</div></div>
+      <div class="kpi"><div class="kpi-icon"><span class="material-symbols-outlined">shopping_cart</span></div><div class="kpi-label">Utilizado</div><div class="kpi-value money">${fmtBRL(usadoTotal)}</div></div>
+      <div class="kpi danger"><div class="kpi-icon"><span class="material-symbols-outlined">account_balance_wallet</span></div><div class="kpi-label">Divida Consolidada</div><div class="kpi-value money negative">${fmtBRL(dividaTotal)}</div></div>
+    </div>
+    ${cartoes.length===0 ? '<div class="empty"><span class="material-symbols-outlined">credit_card</span><h3>Nenhum cartao cadastrado</h3></div>' :
+      `<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:16px">${cartoes.map(cardHtml).join('')}</div>`}
+    <div class="card" style="margin-top:18px">
+      <div class="card-title"><span class="material-symbols-outlined">donut_small</span>Gasto por Categoria (compras)</div>
+      <div id="cartaoCategorias"><div class="empty"><div class="spinner"></div></div></div>
+    </div>
+  `;
+
+  // spend by category
+  try {
+    const lancs = await api('/api/erp/cartao-lancamentos');
+    const agg = {};
+    for (const l of lancs.filter(x=>x.tipo==='compra')) { const n=l.categoria?.nome||'Sem categoria'; const cor=l.categoria?.cor||'#888'; (agg[n]=agg[n]||{v:0,cor}); agg[n].v+=Number(l.valor); }
+    const arr = Object.entries(agg).map(([k,v])=>({nome:k,...v})).sort((a,b)=>b.v-a.v);
+    const max = arr.length?arr[0].v:1;
+    document.getElementById('cartaoCategorias').innerHTML = arr.length? `<div style="display:flex;flex-direction:column;gap:8px">${arr.map(a=>`
+      <div style="display:flex;align-items:center;gap:10px">
+        <div style="width:170px;font-size:13px">${escapeHtml(a.nome)}</div>
+        <div style="flex:1;height:18px;background:#f1f3f5;border-radius:5px;overflow:hidden"><div style="height:100%;width:${Math.max(2,Math.round(a.v/max*100))}%;background:${a.cor}"></div></div>
+        <div class="money" style="width:120px;text-align:right;font-size:13px">${fmtBRL(a.v)}</div>
+      </div>`).join('')}</div>` : '<div class="empty"><p>Sem lancamentos</p></div>';
+  } catch(e){ document.getElementById('cartaoCategorias').innerHTML = `<div class="empty"><p>${escapeHtml(e.message)}</p></div>`; }
+}
+
+async function openCartaoFaturas(cartaoId) {
+  openModal('<div class="modal-body"><div class="empty"><div class="spinner"></div></div></div>');
+  const c = await api(`/api/erp/cartoes/${cartaoId}`);
+  const fats = (c.faturas||[]).sort((a,b)=>b.competencia.localeCompare(a.competencia));
+  const statusChip = (s)=>({paga:'<span class="chip" style="background:#6B8F5C22;color:#6B8F5C">paga</span>',aberta:'<span class="chip" style="background:#D4A84322;color:#A8791F">aberta</span>',atrasada:'<span class="chip" style="background:#C0504D22;color:#C0504D">atrasada</span>'}[s]||`<span class="chip muted">${escapeHtml(s||'')}</span>`);
+  openModal(`
+    <div class="modal-header"><div class="modal-title">${escapeHtml(c.apelido)} — Faturas</div><button class="icon-btn" onclick="closeModal()"><span class="material-symbols-outlined">close</span></button></div>
+    <div class="modal-body">
+      <div style="display:flex;gap:18px;flex-wrap:wrap;margin-bottom:14px;font-size:13px">
+        <div><span class="muted">Bandeira:</span> ${escapeHtml(bandeiraIcon(c.bandeira))} •••• ${escapeHtml(c.final||'')}</div>
+        <div><span class="muted">Limite:</span> ${fmtBRL(c.limite_credito)}</div>
+        <div><span class="muted">Disponivel:</span> ${fmtBRL(c.limite_disponivel)}</div>
+        <div><span class="muted">Paga por:</span> ${escapeHtml(c.conta_pagamento?.nome||'--')}</div>
+      </div>
+      <table style="width:100%">
+        <thead><tr><th>Competencia</th><th>Vencimento</th><th style="text-align:right">Total</th><th style="text-align:right">Minimo</th><th>Status</th><th>Pago em</th><th></th></tr></thead>
+        <tbody>${fats.map(f=>`
+          <tr style="cursor:pointer" onclick="openFatura('${f.id}')">
+            <td><strong>${compLabel(f.competencia)}</strong></td>
+            <td>${fmtDate(f.data_vencimento)}</td>
+            <td style="text-align:right" class="money">${fmtBRL(f.total_fatura)}</td>
+            <td style="text-align:right" class="money muted">${fmtBRL(f.pagamento_minimo)}</td>
+            <td>${statusChip(f.status)} ${f.movimento_id?'<span class="material-symbols-outlined" title="Conciliada com extrato" style="font-size:16px;color:#6B8F5C;vertical-align:middle">link</span>':''}</td>
+            <td>${fmtDate(f.data_pagamento)}</td>
+            <td><span class="material-symbols-outlined">chevron_right</span></td>
+          </tr>`).join('')}</tbody>
+      </table>
+    </div>
+    <div class="modal-footer"><button class="btn" onclick="openCartao('${c.id}')"><span class="material-symbols-outlined">edit</span>Editar Cartao</button><button class="btn btn-primary" onclick="closeModal()">Fechar</button></div>
+  `);
+}
+
+async function openFatura(faturaId) {
+  openModal('<div class="modal-body"><div class="empty"><div class="spinner"></div></div></div>');
+  const f = await api(`/api/erp/cartao-faturas/${faturaId}`);
+  const lancs = f.lancamentos||[];
+  // group by portador
+  const groups = {};
+  for (const l of lancs){ const k=`${l.portador||'CONTA'}${l.portador_final?' ('+l.portador_final+')':''}`; (groups[k]=groups[k]||[]).push(l); }
+  const tipoChip = (t)=>{ const map={compra:'#5C6B7A',pagamento:'#4A8FBF',estorno:'#6B8F5C',anuidade:'#996633',seguro:'#8B5A2B',encargo:'#C0504D'}; return `<span class="chip" style="background:${map[t]||'#888'}22;color:${map[t]||'#888'}">${escapeHtml(t)}</span>`; };
+  const groupHtml = Object.entries(groups).map(([k,items])=>{
+    const tot = items.reduce((s,l)=>s+Number(l.valor),0);
+    return `<div style="margin-top:10px">
+      <div style="display:flex;justify-content:space-between;font-weight:700;font-size:13px;padding:6px 0;border-bottom:1px solid #e9ecef">
+        <span><span class="material-symbols-outlined" style="font-size:16px;vertical-align:middle">person</span> ${escapeHtml(k)}</span>
+        <span class="money">${fmtBRL(tot)}</span>
+      </div>
+      <table style="width:100%;font-size:12.5px"><tbody>
+        ${items.map(l=>`<tr>
+          <td style="width:48px;color:#888">${escapeHtml(l.data_compra||'')}</td>
+          <td>${escapeHtml(l.descricao)}${l.parcela?` <span class="muted">(${escapeHtml(l.parcela)})</span>`:''}</td>
+          <td>${l.categoria?`<span class="chip" style="background:${l.categoria.cor}22;color:${l.categoria.cor}">${escapeHtml(l.categoria.nome)}</span>`:tipoChip(l.tipo)}</td>
+          <td style="text-align:right" class="money ${Number(l.valor)<0?'positive':''}">${fmtBRL(l.valor)}</td>
+        </tr>`).join('')}
+      </tbody></table>
+    </div>`;
+  }).join('');
+  openModal(`
+    <div class="modal-header"><div class="modal-title">Fatura ${compLabel(f.competencia)} — ${escapeHtml(f.cartao?.apelido||'')}</div><button class="icon-btn" onclick="closeModal()"><span class="material-symbols-outlined">close</span></button></div>
+    <div class="modal-body">
+      <div class="kpi-grid" style="grid-template-columns:repeat(4,1fr);margin-bottom:6px">
+        <div class="kpi"><div class="kpi-label">Saldo Anterior</div><div class="kpi-value money" style="font-size:16px">${fmtBRL(f.saldo_anterior)}</div></div>
+        <div class="kpi"><div class="kpi-label">Debitos</div><div class="kpi-value money" style="font-size:16px">${fmtBRL(f.debitos)}</div></div>
+        <div class="kpi"><div class="kpi-label">Encargos</div><div class="kpi-value money" style="font-size:16px">${fmtBRL(f.encargos)}</div></div>
+        <div class="kpi"><div class="kpi-label">Total da Fatura</div><div class="kpi-value money" style="font-size:16px">${fmtBRL(f.total_fatura)}</div></div>
+      </div>
+      <div class="muted" style="font-size:12px;margin:4px 0 8px">
+        Venc. ${fmtDate(f.data_vencimento)} • ${f.status==='paga'?`Paga em ${fmtDate(f.data_pagamento)} (${fmtBRL(f.valor_pago)})`:'Em aberto'} ${f.movimento_id?'• conciliada com extrato Sicoob':''} • ${lancs.length} lancamentos
+      </div>
+      ${groupHtml||'<div class="empty"><p>Sem lancamentos</p></div>'}
+    </div>
+    <div class="modal-footer"><button class="btn btn-primary" onclick="closeModal()">Fechar</button></div>
+  `);
+}
+
+function openCartao(id) {
+  const c = id ? (state.cartoes||[]).find(x=>x.id===id) : null;
+  openModal(`
+    <div class="modal-header"><div class="modal-title">${id?'Editar':'Novo'} Cartao</div><button class="icon-btn" onclick="closeModal()"><span class="material-symbols-outlined">close</span></button></div>
+    <div class="modal-body"><form id="formCartao" class="form-grid">
+      <div class="field full"><label>Apelido*</label><input name="apelido" required value="${escapeHtml(c?.apelido||'')}"></div>
+      <div class="field"><label>Bandeira</label><input name="bandeira" value="${escapeHtml(c?.bandeira||'')}"></div>
+      <div class="field"><label>Final</label><input name="final" value="${escapeHtml(c?.final||'')}"></div>
+      <div class="field"><label>Conta-cartao</label><input name="conta_cartao" value="${escapeHtml(c?.conta_cartao||'')}"></div>
+      <div class="field"><label>Banco</label><input name="banco" value="${escapeHtml(c?.banco||'Sicoob')}"></div>
+      <div class="field"><label>Limite de Credito</label><input name="limite_credito" type="number" step="0.01" value="${c?.limite_credito||0}"></div>
+      <div class="field"><label>Limite Disponivel</label><input name="limite_disponivel" type="number" step="0.01" value="${c?.limite_disponivel||0}"></div>
+      <div class="field"><label>Divida Consolidada</label><input name="divida_consolidada" type="number" step="0.01" value="${c?.divida_consolidada||0}"></div>
+      <div class="field"><label>Dia Vencimento</label><input name="vencimento_dia" type="number" value="${c?.vencimento_dia||''}"></div>
+      <div class="field"><label>Cor</label><input name="cor" type="color" value="${c?.cor||'#7C3AED'}"></div>
+      <div class="field"><label>Debito Automatico</label><select name="debito_automatico"><option value="true" ${c?.debito_automatico?'selected':''}>Sim</option><option value="false" ${!c?.debito_automatico?'selected':''}>Nao</option></select></div>
+      <div class="field full"><label>Observacoes</label><textarea name="observacoes">${escapeHtml(c?.observacoes||'')}</textarea></div>
+    </form></div>
+    <div class="modal-footer"><button class="btn" onclick="closeModal()">Cancelar</button><button class="btn btn-primary" onclick="saveCartao('${id||''}')"><span class="material-symbols-outlined">save</span>Salvar</button></div>
+  `);
+}
+
+async function saveCartao(id) {
+  const data = Object.fromEntries(new FormData(document.getElementById('formCartao')));
+  ['limite_credito','limite_disponivel','divida_consolidada','vencimento_dia'].forEach(k=>{ if(data[k]!=='') data[k]=Number(data[k]); else data[k]=null; });
+  data.debito_automatico = data.debito_automatico==='true';
+  try {
+    if (id) await api(`/api/erp/cartoes/${id}`, { method:'PATCH', body:JSON.stringify(data) });
+    else await api('/api/erp/cartoes', { method:'POST', body:JSON.stringify(data) });
+    closeModal(); toast('Cartao salvo','success'); render();
+  } catch(e){ toast(e.message,'error'); }
 }
 
 async function renderConciliacao() {
