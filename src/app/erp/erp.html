@@ -296,6 +296,7 @@ svg.chart { width:100%; height:100%; display:block; }
     <div class="sidebar-item" data-page="bancos"><span class="material-symbols-outlined">account_balance</span><span>Contas Bancarias</span></div>
     <div class="sidebar-item" data-page="cartoes"><span class="material-symbols-outlined">credit_card</span><span>Cartoes de Credito</span></div>
     <div class="sidebar-item" data-page="conciliacao"><span class="material-symbols-outlined">fact_check</span><span>Conciliacao</span></div>
+    <div class="sidebar-item" data-page="fila_conciliacao"><span class="material-symbols-outlined">rule</span><span>Fila de Conciliacao</span></div>
 
     <div class="sidebar-section">Contabil</div>
     <div class="sidebar-item" data-page="lancamentos"><span class="material-symbols-outlined">edit_note</span><span>Lancamentos</span></div>
@@ -559,6 +560,7 @@ async function render() {
     if (state.page === 'bancos') return renderBancos();
     if (state.page === 'cartoes') return renderCartoes();
     if (state.page === 'conciliacao') return renderConciliacao();
+    if (state.page === 'fila_conciliacao') return renderFilaConciliacao();
     if (state.page === 'lancamentos') return renderLancamentos();
     if (state.page === 'plano') return renderPlano();
     if (state.page === 'dre') return renderDRE();
@@ -1518,6 +1520,69 @@ async function saveCartao(id) {
     else await api('/api/erp/cartoes', { method:'POST', body:JSON.stringify(data) });
     closeModal(); toast('Cartao salvo','success'); render();
   } catch(e){ toast(e.message,'error'); }
+}
+
+/* ==========================================================================
+   FILA DE CONCILIACAO SUGERIDA (titulo aberto <-> movimento do extrato)
+   ========================================================================== */
+async function renderFilaConciliacao() {
+  document.getElementById('page').innerHTML = '<div class="empty"><div class="spinner"></div></div>';
+  let d;
+  try { d = await api('/api/erp/conciliacao-sugestoes'); }
+  catch(e){ document.getElementById('page').innerHTML = `<div class="empty"><p>${escapeHtml(e.message)}</p></div>`; return; }
+  state.filaConc = d;
+  const aba = state.filters.filaAba || 'receber';
+  const lista = aba==='receber' ? d.receber : d.pagar;
+
+  const cardItem = (it) => {
+    const top = it.sugestoes[0];
+    const cls = top.score>=80?'#6B8F5C':(top.score>=65?'#D4A843':'#C0504D');
+    return `
+    <div class="card" style="margin-bottom:10px" id="fila-${it.tipo}-${it.titulo_id}">
+      <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:12px;flex-wrap:wrap">
+        <div style="flex:1;min-width:240px">
+          <div style="font-weight:700">${escapeHtml(it.titulo_descricao)}</div>
+          <div class="muted" style="font-size:12px">${it.tipo==='receber'?'A receber':'A pagar'} · ${escapeHtml(it.titulo_status)} · venc. ${fmtDate(it.vencimento)}</div>
+        </div>
+        <div class="money" style="font-size:17px;font-weight:700">${fmtBRL(it.titulo_valor)}</div>
+      </div>
+      <div style="margin-top:10px;display:flex;flex-direction:column;gap:6px">
+        ${it.sugestoes.map((s,i)=>`
+        <div style="display:flex;align-items:center;gap:10px;padding:8px 10px;border:1px solid var(--border);border-radius:8px;background:${i===0?'var(--bg2)':'transparent'}">
+          <span class="chip" style="background:${cls}22;color:${cls};min-width:54px;text-align:center">${s.score}</span>
+          <div style="flex:1;min-width:200px">
+            <div style="font-size:13px">${fmtDate(s.data)} · <strong>${escapeHtml((s.conta||'').split(' ')[0])}</strong> · ${escapeHtml(String(s.descricao_extrato).slice(0,46))}</div>
+            <div class="muted" style="font-size:11px">${escapeHtml(s.evidencia)}</div>
+          </div>
+          <button class="btn btn-primary btn-sm" onclick="filaAplicar('${it.tipo==='receber'?'CR':'CP'}','${it.titulo_id}','${s.movimento_id}',this)"><span class="material-symbols-outlined">check</span>Vincular</button>
+        </div>`).join('')}
+      </div>
+    </div>`;
+  };
+
+  document.getElementById('page').innerHTML = `
+    <div class="page-header">
+      <div><div class="page-title">Fila de Conciliacao <small>sugestoes de baixa por valor + data + texto · revise e aprove</small></div></div>
+      <div class="page-actions"><button class="btn btn-ghost btn-sm" onclick="state.filaConc=null;renderFilaConciliacao()"><span class="material-symbols-outlined">refresh</span>Atualizar</button></div>
+    </div>
+    <div class="table-toolbar" style="margin-bottom:14px">
+      <button class="btn ${aba==='receber'?'btn-primary':'btn-ghost'} btn-sm" onclick="state.filters.filaAba='receber';renderFilaConciliacao()">A Receber (${d.resumo.receber})</button>
+      <button class="btn ${aba==='pagar'?'btn-primary':'btn-ghost'} btn-sm" onclick="state.filters.filaAba='pagar';renderFilaConciliacao()">A Pagar (${d.resumo.pagar})</button>
+    </div>
+    <div style="font-size:12px;color:var(--text3);margin-bottom:12px">Score: <span style="color:#6B8F5C">≥80 forte</span> · <span style="color:#A8791F">65-79 provavel</span> · <span style="color:#C0504D">&lt;65 fraco (conferir comprovante)</span>. Ao vincular, o titulo e baixado e o movimento marcado como conciliado.</div>
+    ${lista.length===0 ? '<div class="empty"><span class="material-symbols-outlined">task_alt</span><h3>Nada sugerido</h3><p>Sem movimentos do extrato compativeis com titulos em aberto.</p></div>' : lista.map(cardItem).join('')}
+  `;
+}
+
+async function filaAplicar(tipo, tituloId, movId, btn){
+  if(btn){ btn.disabled=true; btn.innerHTML='<span class="material-symbols-outlined">hourglass_empty</span>'; }
+  try{
+    await api('/api/erp/conciliacao-sugestoes/aplicar',{method:'POST',body:JSON.stringify({tipo,titulo_id:tituloId,movimento_id:movId})});
+    toast('Vinculo aplicado e titulo baixado','success');
+    const el=document.getElementById(`fila-${tipo==='CR'?'receber':'pagar'}-${tituloId}`);
+    if(el){ el.style.transition='opacity .3s'; el.style.opacity='.4'; el.querySelectorAll('button').forEach(b=>b.disabled=true); }
+    state.fechamentos=null; state.recebimentos=null; // invalida cache da tela de fechamento
+  }catch(e){ toast(e.message,'error'); if(btn){ btn.disabled=false; btn.innerHTML='<span class="material-symbols-outlined">check</span>Vincular'; } }
 }
 
 async function renderConciliacao() {
