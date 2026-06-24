@@ -149,6 +149,12 @@ export function CRMWhatsappView() {
     const [welcomeSavedAt, setWelcomeSavedAt] = useState<number | null>(null);
     const [welcomeError, setWelcomeError] = useState<string | null>(null);
 
+    // Conectar por número de telefone (alternativa ao QR).
+    const [pairPhoneInput, setPairPhoneInput] = useState('');
+    const [pairing, setPairing] = useState(false);
+    const [pairCode, setPairCode] = useState<string | null>(null);
+    const [pairError, setPairError] = useState<string | null>(null);
+
     const fetchCockpit = useCallback(async () => {
         try {
             const res = await fetch('/api/whatsapp/cockpit', { cache: 'no-store' });
@@ -192,6 +198,31 @@ export function CRMWhatsappView() {
         const t2 = setInterval(fetchActivity, 15000);
         return () => { clearInterval(t1); clearInterval(t2); };
     }, [fetchCockpit, fetchActivity, fetchWelcome, refreshAll]);
+
+    const requestPairing = useCallback(async () => {
+        setPairing(true);
+        setPairError(null);
+        setPairCode(null);
+        try {
+            const res = await fetch('/api/whatsapp/pair', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ phone: pairPhoneInput }),
+            });
+            const data = await res.json().catch(() => ({}));
+            if (data.pairing_code) {
+                setPairCode(data.pairing_code as string);
+            } else if (!res.ok) {
+                throw new Error(data.error || data.message || `Erro ${res.status}`);
+            } else {
+                setPairError(data.message || 'Código sendo gerado — tente de novo em alguns segundos.');
+            }
+        } catch (e) {
+            setPairError(e instanceof Error ? e.message : 'Falha ao gerar código.');
+        } finally {
+            setPairing(false);
+        }
+    }, [pairPhoneInput]);
 
     const saveWelcome = useCallback(async (next: WelcomeConfig) => {
         setWelcomeSaving(true);
@@ -284,6 +315,45 @@ export function CRMWhatsappView() {
                                 <span className="inline-flex items-center gap-0.5 text-amber-500"><Clock className="h-3 w-3" /> aquecimento ativo</span>
                             )}
                         </div>
+
+                        {/* Conectar por número (alternativa ao QR) */}
+                        {b && b.reachable && b.status !== 'connected' && (
+                            <div className="rounded-lg border bg-muted/30 p-3 space-y-2">
+                                <p className="text-[11px] font-medium flex items-center gap-1.5">
+                                    <Smartphone className="h-3 w-3" /> Conectar por número (sem QR)
+                                </p>
+                                {pairCode ? (
+                                    <div className="space-y-1">
+                                        <p className="text-[11px] text-muted-foreground">
+                                            No celular: <b>WhatsApp → Aparelhos conectados → Conectar com número de telefone</b> e digite:
+                                        </p>
+                                        <p className="text-2xl font-bold tracking-[0.25em] tabular-nums text-center select-all py-1">{pairCode}</p>
+                                        <p className="text-[10px] text-muted-foreground text-center">O código expira em ~1 min. Se falhar, gere outro.</p>
+                                    </div>
+                                ) : (
+                                    <>
+                                        <div className="flex items-center gap-2">
+                                            <input
+                                                value={pairPhoneInput}
+                                                onChange={(e) => setPairPhoneInput(e.target.value)}
+                                                placeholder="DDD + número (ex: 67998894887)"
+                                                inputMode="numeric"
+                                                className="flex-1 rounded-md border bg-background px-2.5 py-1.5 text-xs focus:outline-none focus:ring-2 focus:ring-primary/40"
+                                            />
+                                            <button
+                                                type="button"
+                                                onClick={requestPairing}
+                                                disabled={pairing || pairPhoneInput.replace(/\D/g, '').length < 10}
+                                                className="inline-flex items-center gap-1.5 rounded-md bg-primary px-3 py-1.5 text-xs font-medium text-primary-foreground hover:opacity-90 disabled:opacity-50"
+                                            >
+                                                {pairing ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Smartphone className="h-3.5 w-3.5" />} Gerar código
+                                            </button>
+                                        </div>
+                                        {pairError && <p className="text-[11px] text-red-500">{pairError}</p>}
+                                    </>
+                                )}
+                            </div>
+                        )}
                     </div>
                 </div>
 

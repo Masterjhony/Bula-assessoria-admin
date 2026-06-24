@@ -37,6 +37,13 @@ let currentQrDataUrl = null
 let processing = false
 const queue = []
 
+// Pareamento por código de telefone (alternativa ao QR). Quando `pairPhone`
+// está setado e a sessão ainda não foi registrada, o socket pede um código de
+// 8 caracteres que o usuário digita no WhatsApp (Aparelhos conectados →
+// Conectar com número de telefone).
+let pairPhone = null
+let pairingCode = null
+
 function json(res, statusCode, body) {
   res.writeHead(statusCode, {
     'Content-Type': 'application/json; charset=utf-8',
@@ -232,6 +239,21 @@ async function startSocket() {
 
   socket.ev.on('creds.update', saveCreds)
 
+  // Se há um número aguardando pareamento e a sessão ainda não foi registrada,
+  // pede o código (em vez do QR). Pequeno atraso para o socket abrir o ws.
+  if (pairPhone && !socket.authState.creds.registered) {
+    setTimeout(async () => {
+      try {
+        const code = await socket.requestPairingCode(pairPhone)
+        pairingCode = code
+        console.log(`[crm-whatsapp] pairing code para ${pairPhone}: ${code}`)
+      } catch (error) {
+        pairingCode = null
+        console.error('[crm-whatsapp] requestPairingCode falhou:', error.message)
+      }
+    }, 3000)
+  }
+
   socket.ev.on('connection.update', async update => {
     const { connection, lastDisconnect, qr } = update
     if (qr) {
@@ -244,6 +266,8 @@ async function startSocket() {
       connectionStatus = 'connected'
       currentQr = null
       currentQrDataUrl = null
+      pairPhone = null
+      pairingCode = null
       console.log('[crm-whatsapp] conectado')
       void processQueue()
     }
@@ -301,7 +325,31 @@ const server = http.createServer(async (req, res) => {
     const url = new URL(req.url || '/', `http://${req.headers.host || 'localhost'}`)
 
     if (req.method === 'GET' && url.pathname === '/status') {
-      json(res, 200, { status: connectionStatus, qr: currentQrDataUrl })
+      json(res, 200, { status: connectionStatus, qr: currentQrDataUrl, pairing_code: pairingCode })
+      return
+    }
+
+    // Pareamento por número: gera um código de 8 caracteres para digitar no
+    // WhatsApp (Aparelhos conectados → Conectar com número). Alternativa ao QR.
+    if (req.method === 'POST' && url.pathname === '/pair') {
+      const body = await readJson(req)
+      const phone = normalizePhone(body.phone)
+      if (!phone) { json(res, 400, { error: 'phone obrigatório (com DDD)' }); return }
+      if (connectionStatus === 'connected') { json(res, 409, { error: 'sessão já conectada' }); return }
+
+      // Recomeça com credenciais limpas para garantir uma sessão não-registrada
+      // (requestPairingCode só funciona antes do registro).
+      pairPhone = phone
+      pairingCode = null
+      try { await rm(AUTH_DIR, { recursive: true, force: true }) } catch { /* dir pode não existir */ }
+      if (socket) { try { socket.end() } catch { /* ignore */ } socket = null }
+      connectionStatus = 'connecting'
+      void startSocket().catch(error => console.error('[crm-whatsapp] pair restart:', error.message))
+
+      // Aguarda o código ser gerado (até ~13s).
+      for (let i = 0; i < 26; i++) { if (pairingCode) break; await sleep(500) }
+      if (pairingCode) { json(res, 200, { pairing_code: pairingCode, phone: pairPhone }); return }
+      json(res, 202, { pending: true, message: 'código sendo gerado; consulte /status' })
       return
     }
     if (req.method === 'GET' && (url.pathname === '/queue' || url.pathname === '/health')) {

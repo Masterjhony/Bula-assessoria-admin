@@ -36,6 +36,25 @@ export async function fetchVpsGroups(): Promise<VpsGroup[]> {
     return Array.isArray(body.groups) ? (body.groups as VpsGroup[]) : []
 }
 
+/** Solicita um código de pareamento por número (alternativa ao QR). */
+export async function pairVpsPhone(
+    phone: string,
+): Promise<{ pairing_code?: string; pending?: boolean; error?: string }> {
+    try {
+        const res = await fetch(`${WHATSAPP_SERVER_URL}/pair`, {
+            method: 'POST',
+            headers: vpsHeaders({ 'Content-Type': 'application/json' }),
+            body: JSON.stringify({ phone }),
+            signal: AbortSignal.timeout(20000),
+        })
+        const body = await res.json().catch(() => ({}))
+        if (!res.ok) return { error: String(body.error || `http_${res.status}`) }
+        return { pairing_code: body.pairing_code, pending: body.pending }
+    } catch (e) {
+        return { error: e instanceof Error ? e.message : 'vps_unreachable' }
+    }
+}
+
 /** Enfileira uma mensagem de texto para um grupo. `groupId` = JID ou id antes do @. */
 export async function sendVpsGroup(
     groupId: string,

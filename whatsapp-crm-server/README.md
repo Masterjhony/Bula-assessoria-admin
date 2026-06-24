@@ -10,6 +10,7 @@ Endpoints:
 - `POST /send-direct`: envia mensagem livre `{ "phone": "...", "message": "..." }`.
 - `GET /groups`: lista os grupos de que a sessão participa (`{ id, subject, size }`) — para descobrir o JID do grupo.
 - `POST /send-group`: envia para um grupo `{ "groupId": "...@g.us", "message": "..." }` (sem checagem onWhatsApp).
+- `POST /pair`: conecta por número (alternativa ao QR) `{ "phone": "5567..." }` → retorna `{ "pairing_code": "XXXXXXXX" }` para digitar no WhatsApp (Aparelhos conectados → Conectar com número).
 
 Uso local:
 
