@@ -1,19 +1,28 @@
 /**
  * /api/whatsapp/central/thread/[phone]
- *   GET  → histórico completo de mensagens com este número + dados do lead
- *   POST → envia mensagem manual para este número (opera o envio direto via VPS)
+ *   GET  → histórico completo de mensagens + dados do lead + status da janela 24h
+ *   POST → envia mensagem manual (SDR) pela API oficial, via o gateway:
+ *            { message }      → texto livre (só dentro da janela de 24h)
+ *            { template_id }  → template aprovado da Meta (reabre fora da janela)
+ *
+ * O gateway (sendOutbound) decide o canal e aplica as regras: dentro de 24h vai
+ * texto livre pela Cloud; fora, exige template aprovado. Por isso o SDR opera
+ * 100% pela API oficial sem precisar pensar em canal.
  */
 
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
 import { requireAdmin } from '@/lib/auth-helpers'
-import { normalizePhone, phoneVariants } from '@/lib/whatsapp-central'
+import { normalizePhone, phoneVariants, renderTemplate, firstName } from '@/lib/whatsapp-central'
 import { ensureAudienceTagForTemplate } from '@/lib/whatsapp-audience-tags'
-import { WHATSAPP_SERVER_URL, vpsHeaders } from '@/lib/whatsapp-vps'
+import { metaTemplateName } from '@/lib/whatsapp-cloud-api'
+import { sendOutbound } from '@/lib/whatsapp-gateway'
+
+const WINDOW_MS = 24 * 3_600_000
 
 export async function GET(
     _req: NextRequest,
-    { params }: { params: Promise<{ phone: string }> }
+    { params }: { params: Promise<{ phone: string }> },
 ) {
     const auth = await requireAdmin()
     if (!auth.ok) return NextResponse.json({ error: auth.error }, { status: auth.status })
@@ -24,12 +33,12 @@ export async function GET(
 
     const supabase = createClient(
         process.env.NEXT_PUBLIC_SUPABASE_URL!,
-        process.env.SUPABASE_SERVICE_ROLE_KEY!
+        process.env.SUPABASE_SERVICE_ROLE_KEY!,
     )
 
     const variants = phoneVariants(phone)
 
-    const [messagesRes, leadRes] = await Promise.all([
+    const [messagesRes, leadRes, lastInboundRes] = await Promise.all([
         supabase
             .from('whatsapp_messages')
             .select('id, phone, name, body, direction, status, origin, bot_step, campaign_id, template_id, created_at')
@@ -42,17 +51,35 @@ export async function GET(
             .in('telefone', variants)
             .order('created_at', { ascending: false })
             .limit(1),
+        // Última inbound de verdade (a lista acima vem em ordem crescente e pode
+        // estar truncada em 500) — é o que define a janela de 24h.
+        supabase
+            .from('whatsapp_messages')
+            .select('created_at')
+            .in('phone', variants)
+            .eq('direction', 'inbound')
+            .order('created_at', { ascending: false })
+            .limit(1),
     ])
+
+    const lastInboundAt = lastInboundRes.data?.[0]?.created_at ?? null
+    const sessionOpen = lastInboundAt ? Date.now() - new Date(lastInboundAt).getTime() < WINDOW_MS : false
+    const windowExpiresAt = lastInboundAt
+        ? new Date(new Date(lastInboundAt).getTime() + WINDOW_MS).toISOString()
+        : null
 
     return NextResponse.json({
         messages: messagesRes.data ?? [],
         lead: leadRes.data?.[0] ?? null,
+        session_open: sessionOpen,
+        last_inbound_at: lastInboundAt,
+        window_expires_at: windowExpiresAt,
     })
 }
 
 export async function POST(
     req: NextRequest,
-    { params }: { params: Promise<{ phone: string }> }
+    { params }: { params: Promise<{ phone: string }> },
 ) {
     const auth = await requireAdmin()
     if (!auth.ok) return NextResponse.json({ error: auth.error }, { status: auth.status })
@@ -61,19 +88,16 @@ export async function POST(
     const phone = normalizePhone(decodeURIComponent(rawPhone))
     if (!phone) return NextResponse.json({ error: 'phone inválido' }, { status: 400 })
 
-    let body: { message: string; template_id?: string }
+    let body: { message?: string; template_id?: string }
     try { body = await req.json() } catch {
         return NextResponse.json({ error: 'Invalid JSON' }, { status: 400 })
     }
-    const message = (body.message || '').trim()
-    if (!message) return NextResponse.json({ error: 'message obrigatório' }, { status: 400 })
 
     const supabase = createClient(
         process.env.NEXT_PUBLIC_SUPABASE_URL!,
-        process.env.SUPABASE_SERVICE_ROLE_KEY!
+        process.env.SUPABASE_SERVICE_ROLE_KEY!,
     )
 
-    // Verifica opt-out — bloqueia envio manual também (compliance)
     const { data: lead } = await supabase
         .from('crm_leads')
         .select('id, nome, optout_whatsapp')
@@ -83,57 +107,89 @@ export async function POST(
         .single()
 
     if (lead?.optout_whatsapp) {
-        return NextResponse.json({ error: 'Lead em opt-out — envio manual bloqueado.' }, { status: 409 })
+        return NextResponse.json({ error: 'Lead em opt-out — envio bloqueado.' }, { status: 409 })
     }
 
-    // Dispara via VPS
-    const waRes = await fetch(`${WHATSAPP_SERVER_URL}/send-direct`, {
-        method: 'POST',
-        headers: vpsHeaders({ 'Content-Type': 'application/json' }),
-        body: JSON.stringify({ phone, message }),
-        signal: AbortSignal.timeout(15000),
-    })
-    const waBody = await waRes.json().catch(() => ({}))
-    const sent = waRes.ok && (waBody.queued || waBody.sent)
+    // Monta o envio: template aprovado (reabre janela) ou texto livre (dentro de 24h)
+    let text: string | null = (body.message || '').trim() || null
+    let templateName: string | null = null
+    let templateLanguage: string | null = null
+    let templateSlug: string | null = null
 
-    void supabase.from('whatsapp_messages').insert({
-        phone,
-        name: lead?.nome ?? phone,
-        body: message,
-        direction: 'outbound',
-        status: sent ? 'sent' : 'failed',
-        origin: 'manual',
-        lead_id: lead?.id ?? null,
-        template_id: body.template_id ?? null,
-    })
-
-    if (lead) {
-        void supabase
-            .from('crm_leads')
-            .update({
-                last_whatsapp_at: new Date().toISOString(),
-                ultimo_contato: new Date().toISOString(),
-            })
-            .eq('id', lead.id)
-    }
-
-    // Se a mensagem manual usou um template iniciador de fluxo (welcome
-    // institucional), garantimos a tag de audiência no lead — assim a próxima
-    // resposta dele cai no mapeamento numérico correto.
-    if (lead && body.template_id) {
-        const { data: tpl } = await supabase
+    if (body.template_id) {
+        const { data: tpl, error: tErr } = await supabase
             .from('whatsapp_templates')
-            .select('slug')
+            .select('slug, body, meta_status, meta_language')
             .eq('id', body.template_id)
             .single()
-        if (tpl?.slug) {
-            try {
-                await ensureAudienceTagForTemplate(supabase, [lead.id], tpl.slug)
-            } catch (e) {
-                console.warn('[thread/send] ensureAudienceTagForTemplate falhou:', e instanceof Error ? e.message : e)
-            }
+        if (tErr || !tpl) {
+            return NextResponse.json({ error: 'Template não encontrado.' }, { status: 404 })
+        }
+        if (tpl.meta_status !== 'APPROVED') {
+            return NextResponse.json(
+                { error: `Template ainda não aprovado pela Meta (status: ${tpl.meta_status}). Só templates APPROVED podem reabrir uma conversa.` },
+                { status: 409 },
+            )
+        }
+        templateSlug = tpl.slug
+        templateName = metaTemplateName(tpl.slug)
+        templateLanguage = tpl.meta_language || 'pt_BR'
+        // Texto renderizado só para exibição no histórico (a Meta envia pelo template).
+        text = renderTemplate(tpl.body || '', { nome: firstName(lead?.nome), name: lead?.nome })
+    }
+
+    if (!text && !templateName) {
+        return NextResponse.json({ error: 'Escreva uma mensagem ou escolha um template.' }, { status: 400 })
+    }
+
+    const result = await sendOutbound(supabase, {
+        to: { phone, leadId: lead?.id ?? null, name: lead?.nome ?? null },
+        text,
+        templateName,
+        templateLanguage,
+        intent: 'crm_reply',
+        channelHint: 'auto',
+        origin: 'inbox-sdr',
+    })
+
+    // Mensagens manuais usando template iniciador garantem a tag de audiência —
+    // assim a próxima resposta do lead cai no mapeamento numérico correto.
+    if (lead && templateSlug && (result.status === 'sent' || result.status === 'queued')) {
+        try {
+            await ensureAudienceTagForTemplate(supabase, [lead.id], templateSlug)
+        } catch (e) {
+            console.warn('[thread/send] ensureAudienceTagForTemplate falhou:', e instanceof Error ? e.message : e)
         }
     }
 
-    return NextResponse.json({ success: !!sent, ...waBody })
+    if (lead && (result.status === 'sent' || result.status === 'queued')) {
+        void supabase
+            .from('crm_leads')
+            .update({ ultimo_contato: new Date().toISOString() })
+            .eq('id', lead.id)
+    }
+
+    // Traduz o resultado do gateway em resposta amigável para o inbox.
+    if (result.status === 'sent' || result.status === 'queued') {
+        return NextResponse.json({ success: true, channel: result.channel, status: result.status })
+    }
+
+    if (result.status === 'held' && result.reason === 'outside_24h_needs_template') {
+        return NextResponse.json(
+            { error: 'A janela de 24h fechou. Para reabrir a conversa, escolha um template aprovado.', code: 'needs_template' },
+            { status: 409 },
+        )
+    }
+
+    const friendly: Record<string, string> = {
+        optout: 'Lead em opt-out — envio bloqueado.',
+        cloud_not_configured: 'API oficial não configurada (faltam as variáveis WHATSAPP_CLOUD_*).',
+        invalid_phone: 'Telefone inválido.',
+        outside_business_hours: 'Fora do horário comercial configurado.',
+        daily_cap_reached: 'Limite diário de envios atingido.',
+        duplicate: 'Mensagem duplicada (enviada recentemente).',
+    }
+    const reason = result.reason || 'send_failed'
+    const httpStatus = result.status === 'failed' ? 502 : 409
+    return NextResponse.json({ error: friendly[reason] ?? `Não foi possível enviar (${reason}).`, code: reason }, { status: httpStatus })
 }

@@ -114,10 +114,16 @@ function resolveChannel(
         case 'crm_reply':
         case 'bot':
         default:
-            if (isSessionOpen) return { channel: 'baileys' }
-            if (req.templateName) {
-                return cloudConfigured ? { channel: 'cloud' } : { channel: null, reason: 'cloud_not_configured' }
+            // Política "100% oficial para o SDR": quando a Cloud está
+            // configurada, toda resposta do CRM/bot sai pela API oficial —
+            // texto livre dentro da janela de 24h, template para reabrir fora
+            // dela. O Baileys só entra como fallback se a Cloud não existir.
+            if (cloudConfigured) {
+                if (isSessionOpen) return { channel: 'cloud' }
+                if (req.templateName) return { channel: 'cloud' }
+                return { channel: null, reason: 'outside_24h_needs_template' }
             }
+            if (isSessionOpen) return { channel: 'baileys' }
             return { channel: null, reason: 'outside_24h_needs_template' }
     }
 }

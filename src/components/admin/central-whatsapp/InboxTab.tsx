@@ -4,6 +4,7 @@ import { useEffect, useMemo, useState } from "react"
 import {
     Search, MessageSquare, User, Send, AlertCircle, CheckCircle2, Clock,
     UserPlus, BellOff, Bell, Hand, Sparkles, Tag, Loader2, GraduationCap,
+    Lock, ShieldCheck,
 } from "lucide-react"
 import {
     INTERESSE_LABELS,
@@ -41,6 +42,16 @@ function formatPhone(phone: string) {
     return phone
 }
 
+/** Tempo restante até a janela de 24h fechar, em formato curto (ex: "3h 12min"). */
+function windowRemaining(expires: string) {
+    const diff = new Date(expires).getTime() - Date.now()
+    if (diff <= 0) return "instantes"
+    const h = Math.floor(diff / 3_600_000)
+    const m = Math.floor((diff % 3_600_000) / 60000)
+    if (h > 0) return `${h}h${m > 0 ? ` ${m}min` : ""}`
+    return `${m}min`
+}
+
 export function InboxTab({ templates }: { templates: Template[] }) {
     const [filter, setFilter] = useState<Filter>("todos")
     const [search, setSearch] = useState("")
@@ -51,10 +62,18 @@ export function InboxTab({ templates }: { templates: Template[] }) {
     const [thread, setThread] = useState<ThreadMessage[]>([])
     const [threadLead, setThreadLead] = useState<ThreadLead | null>(null)
     const [loadingThread, setLoadingThread] = useState(false)
+    // Janela de conversação de 24h (regra da API oficial): dentro dela o SDR
+    // responde texto livre; fora, só template aprovado reabre a conversa.
+    const [sessionOpen, setSessionOpen] = useState(false)
+    const [windowExpiresAt, setWindowExpiresAt] = useState<string | null>(null)
 
     const [composer, setComposer] = useState("")
     const [sending, setSending] = useState(false)
+    const [sendingTemplate, setSendingTemplate] = useState(false)
     const [feedback, setFeedback] = useState<{ type: "ok" | "err"; msg: string } | null>(null)
+
+    // Só templates aprovados pela Meta podem ser disparados como template oficial.
+    const approvedTemplates = useMemo(() => templates.filter(t => t.meta_status === "APPROVED"), [templates])
 
     async function fetchInbox() {
         setLoadingList(true)
@@ -79,9 +98,13 @@ export function InboxTab({ templates }: { templates: Template[] }) {
             const data = await res.json()
             setThread(data.messages ?? [])
             setThreadLead(data.lead ?? null)
+            setSessionOpen(!!data.session_open)
+            setWindowExpiresAt(data.window_expires_at ?? null)
         } catch {
             setThread([])
             setThreadLead(null)
+            setSessionOpen(false)
+            setWindowExpiresAt(null)
         } finally {
             setLoadingThread(false)
         }
@@ -147,6 +170,32 @@ export function InboxTab({ templates }: { templates: Template[] }) {
             setFeedback({ type: "err", msg: e instanceof Error ? e.message : "Erro inesperado" })
         } finally {
             setSending(false)
+        }
+    }
+
+    // Dispara um template APROVADO como mensagem de template oficial — o único
+    // caminho válido para reabrir uma conversa fora da janela de 24h.
+    async function handleSendTemplate(tplId: string) {
+        if (!selectedPhone || sendingTemplate) return
+        setSendingTemplate(true)
+        setFeedback(null)
+        try {
+            const res = await fetch(`/api/whatsapp/central/thread/${encodeURIComponent(selectedPhone)}`, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ template_id: tplId }),
+            })
+            const data = await res.json()
+            if (!res.ok) {
+                setFeedback({ type: "err", msg: data.error ?? "Falha ao enviar template" })
+            } else {
+                setFeedback({ type: "ok", msg: "Template enviado pela API oficial." })
+                fetchThread(selectedPhone)
+            }
+        } catch (e: unknown) {
+            setFeedback({ type: "err", msg: e instanceof Error ? e.message : "Erro inesperado" })
+        } finally {
+            setSendingTemplate(false)
         }
     }
 
@@ -362,46 +411,110 @@ export function InboxTab({ templates }: { templates: Template[] }) {
                                     {feedback.msg}
                                 </p>
                             )}
-                            <div className="flex items-center gap-2">
-                                <select
-                                    onChange={e => {
-                                        if (e.target.value) {
-                                            applyTemplate(e.target.value)
-                                            e.target.value = ""
-                                        }
-                                    }}
-                                    className="text-xs px-2 py-1.5 rounded-md border bg-background"
-                                    defaultValue=""
-                                >
-                                    <option value="">Inserir template…</option>
-                                    {templates.map(t => (
-                                        <option key={t.id} value={t.id}>
-                                            [{t.category}] {t.title}
-                                        </option>
-                                    ))}
-                                </select>
-                                <span className="text-[10px] text-muted-foreground">
-                                    {`Variáveis: {nome}`}
-                                </span>
-                            </div>
-                            <div className="flex gap-2 items-end">
-                                <textarea
-                                    value={composer}
-                                    onChange={e => setComposer(e.target.value)}
-                                    rows={2}
-                                    placeholder={threadLead?.optout_whatsapp ? "Lead em opt-out — envio bloqueado." : "Digite uma mensagem…"}
-                                    disabled={!!threadLead?.optout_whatsapp}
-                                    className="flex-1 rounded-md border bg-background px-3 py-2 text-sm resize-y disabled:opacity-50 focus:outline-none focus:ring-2 focus:ring-primary/40"
-                                />
-                                <button
-                                    onClick={handleSend}
-                                    disabled={!composer.trim() || sending || !!threadLead?.optout_whatsapp}
-                                    className="bg-primary text-primary-foreground px-4 py-2 rounded-md text-sm font-medium disabled:opacity-50 flex items-center gap-1.5"
-                                >
-                                    {sending ? <Loader2 className="h-4 w-4 animate-spin" /> : <Send className="h-4 w-4" />}
-                                    Enviar
-                                </button>
-                            </div>
+
+                            {/* Status da janela de 24h — diz ao SDR o que ele pode enviar agora */}
+                            {threadLead?.optout_whatsapp ? (
+                                <div className="flex items-center gap-2 text-xs rounded-md px-2.5 py-2 bg-red-500/10 text-red-600 dark:text-red-400">
+                                    <BellOff className="h-3.5 w-3.5 flex-shrink-0" />
+                                    Lead em opt-out — envios bloqueados.
+                                </div>
+                            ) : sessionOpen ? (
+                                <div className="flex items-center gap-2 text-xs rounded-md px-2.5 py-2 bg-emerald-500/10 text-emerald-700 dark:text-emerald-400">
+                                    <ShieldCheck className="h-3.5 w-3.5 flex-shrink-0" />
+                                    <span>
+                                        Janela aberta — responda à vontade pela <strong>API oficial</strong>.
+                                        {windowExpiresAt && <> Fecha em {windowRemaining(windowExpiresAt)}.</>}
+                                    </span>
+                                </div>
+                            ) : (
+                                <div className="flex items-start gap-2 text-xs rounded-md px-2.5 py-2 bg-amber-500/10 text-amber-700 dark:text-amber-400">
+                                    <Lock className="h-3.5 w-3.5 flex-shrink-0 mt-0.5" />
+                                    <span>Passaram-se mais de 24h desde a última resposta. Para reabrir a conversa, envie um <strong>template aprovado</strong> abaixo.</span>
+                                </div>
+                            )}
+
+                            {/* Dentro da janela: texto livre (com atalho para inserir template no texto) */}
+                            {!threadLead?.optout_whatsapp && sessionOpen && (
+                                <>
+                                    <div className="flex items-center gap-2">
+                                        <select
+                                            onChange={e => {
+                                                if (e.target.value) {
+                                                    applyTemplate(e.target.value)
+                                                    e.target.value = ""
+                                                }
+                                            }}
+                                            className="text-xs px-2 py-1.5 rounded-md border bg-background"
+                                            defaultValue=""
+                                        >
+                                            <option value="">Inserir template no texto…</option>
+                                            {templates.map(t => (
+                                                <option key={t.id} value={t.id}>
+                                                    [{t.category}] {t.title}
+                                                </option>
+                                            ))}
+                                        </select>
+                                        <span className="text-[10px] text-muted-foreground">
+                                            {`Variáveis: {nome}`}
+                                        </span>
+                                    </div>
+                                    <div className="flex gap-2 items-end">
+                                        <textarea
+                                            value={composer}
+                                            onChange={e => setComposer(e.target.value)}
+                                            rows={2}
+                                            placeholder="Digite uma mensagem…"
+                                            className="flex-1 rounded-md border bg-background px-3 py-2 text-sm resize-y focus:outline-none focus:ring-2 focus:ring-primary/40"
+                                        />
+                                        <button
+                                            onClick={handleSend}
+                                            disabled={!composer.trim() || sending}
+                                            className="bg-primary text-primary-foreground px-4 py-2 rounded-md text-sm font-medium disabled:opacity-50 flex items-center gap-1.5"
+                                        >
+                                            {sending ? <Loader2 className="h-4 w-4 animate-spin" /> : <Send className="h-4 w-4" />}
+                                            Enviar
+                                        </button>
+                                    </div>
+                                </>
+                            )}
+
+                            {/* Fora da janela: só um template aprovado reabre a conversa */}
+                            {!threadLead?.optout_whatsapp && !sessionOpen && (
+                                <div className="space-y-1.5">
+                                    {approvedTemplates.length === 0 ? (
+                                        <p className="text-[11px] text-muted-foreground">
+                                            Nenhum template aprovado disponível. Crie e submeta um na aba <strong>Templates</strong> — a aprovação da Meta leva de minutos a algumas horas.
+                                        </p>
+                                    ) : (
+                                        <>
+                                            <select
+                                                value=""
+                                                disabled={sendingTemplate}
+                                                onChange={e => {
+                                                    if (e.target.value) {
+                                                        handleSendTemplate(e.target.value)
+                                                        e.target.value = ""
+                                                    }
+                                                }}
+                                                className="w-full text-sm px-2 py-2 rounded-md border bg-background disabled:opacity-50 focus:outline-none focus:ring-2 focus:ring-primary/40"
+                                            >
+                                                <option value="">
+                                                    {sendingTemplate ? "Enviando template…" : "Escolher template aprovado para reabrir…"}
+                                                </option>
+                                                {approvedTemplates.map(t => (
+                                                    <option key={t.id} value={t.id}>
+                                                        {t.title}
+                                                    </option>
+                                                ))}
+                                            </select>
+                                            <p className="text-[10px] text-muted-foreground flex items-center gap-1">
+                                                {sendingTemplate && <Loader2 className="h-3 w-3 animate-spin" />}
+                                                Enviado oficialmente pela Meta. Quando o cliente responder, a janela reabre e você volta a digitar livremente.
+                                            </p>
+                                        </>
+                                    )}
+                                </div>
+                            )}
                         </div>
                     </>
                 )}
