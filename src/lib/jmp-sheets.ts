@@ -744,12 +744,41 @@ function buildPerpetuoRow(p: RawMetaLead, headerRow: string[]): string[] {
   return headerRow.map(h => values.get(normalizeHeaderText(h)) ?? '')
 }
 
+/** Núcleo do telefone (8 últimos dígitos, sem DDI) para dedup tolerante. */
+function phoneNucleo(raw: string): string {
+  const d = String(raw || '').replace(/\D/g, '').replace(/^55/, '')
+  return d.length >= 8 ? d.slice(-8) : ''
+}
+function emailKey(raw: string): string {
+  return String(raw || '').trim().toLowerCase()
+}
+
 /**
- * Espelha os leads crus do Meta da aba "Cópia de LEADS BULA" para a aba
- * organizada "LEADS BULA - PERPETUO" (cria a aba/cabeçalho se faltar). Só
- * ACRESCENTA leads cujo `id` ainda não está lá — idempotente, preserva
- * "Atendido por" e edições manuais. Best-effort no que toca a auth/planilha;
- * lança em erro de Sheets pra o cron logar.
+ * Mapeia uma linha que NÃO veio do form do Meta (já em layout por cabeçalho na
+ * bruta — Instagram Direct e quaisquer manuais) para o layout do PERPETUO,
+ * casando coluna por nome de cabeçalho. As colunas exclusivas do Meta (id,
+ * metadados, perguntas cruas) ficam vazias.
+ */
+function buildRowFromHeaderedSource(srcRow: string[], srcHeader: string[], dstHeader: string[]): string[] {
+  const values = new Map<string, string>()
+  srcHeader.forEach((h, i) => {
+    const key = normalizeHeaderText(h)
+    if (key && !values.has(key)) values.set(key, String(srcRow[i] ?? '').trim())
+  })
+  return dstHeader.map(h => values.get(normalizeHeaderText(h)) ?? '')
+}
+
+/**
+ * Espelha TODOS os leads da aba "Cópia de LEADS BULA" para a aba organizada
+ * "LEADS BULA - PERPETUO" (cria a aba/cabeçalho se faltar):
+ *   • linhas no formato cru do Meta (l:<id>) → parseadas e normalizadas;
+ *   • demais linhas (Instagram Direct e quaisquer manuais já em layout por
+ *     coluna) → mapeadas por cabeçalho.
+ * Só ACRESCENTA o que ainda não está lá — idempotente por `id` do Meta e, na
+ * falta dele, por e-mail/telefone (consolida o mesmo lead em 1 linha mesmo que
+ * tenha chegado por canais diferentes). Preserva "Atendido por" e edições
+ * manuais (nunca reescreve linha existente). Lança em erro de Sheets p/ o cron
+ * logar; auth/planilha ausente degrada pra no-op.
  */
 export async function syncBulaLeadsToPerpetuoTab(): Promise<{
   appended: number; total: number; skipped: number; reason?: string
@@ -764,14 +793,14 @@ export async function syncBulaLeadsToPerpetuoTab(): Promise<{
   const titles = (meta.data.sheets ?? []).map(s => s.properties?.title)
   if (!titles.includes(LEADS_BULA_TAB)) return { appended: 0, total: 0, skipped: 0, reason: 'source_tab_missing' }
 
-  // 1. Lê o cru da aba do Meta e interpreta só as linhas no formato do Meta.
-  const srcRes = await sheets.spreadsheets.values.get({
+  // 1. Lê a bruta COM cabeçalho (preciso dele p/ as linhas que já chegam em
+  //    layout por coluna, como as do Instagram Direct).
+  const srcAll = ((await sheets.spreadsheets.values.get({
     spreadsheetId: info.spreadsheetId,
-    range: `${LEADS_BULA_TAB}!A2:${columnName(HEADER_READ_COLUMNS)}`,
-  })
-  const parsed = ((srcRes.data.values ?? []) as string[][])
-    .map(parseRawMetaLead)
-    .filter((p): p is RawMetaLead => p != null)
+    range: `${LEADS_BULA_TAB}!A1:${columnName(HEADER_READ_COLUMNS)}`,
+  })).data.values ?? []) as string[][]
+  const srcHeader = (srcAll[0] ?? []).map(v => String(v ?? '').trim())
+  const srcRows = srcAll.slice(1).filter(r => r.some(c => String(c ?? '').trim()))
 
   // 2. Garante a aba de destino + cabeçalho (só escreve o header se estiver vazio).
   if (!titles.includes(LEADS_BULA_PERPETUO_TAB)) {
@@ -791,33 +820,56 @@ export async function syncBulaLeadsToPerpetuoTab(): Promise<{
     })
   }
 
-  // 3. Dedup pelo `id` do Meta. Sem coluna `id` no destino não dá pra deduplicar
-  //    com segurança — aborta antes de duplicar tudo a cada execução.
-  const idCol = header.findIndex(h => normalizeHeaderText(h) === 'id')
-  if (idCol < 0) {
-    console.warn('[jmp-sheets] PERPETUO sem coluna "id" no cabeçalho — sync abortado pra não duplicar.')
-    return { appended: 0, total: parsed.length, skipped: parsed.length, reason: 'no_id_column' }
+  // 3. Índices de dedup/validação no layout do PERPETUO (resolvidos por nome).
+  const normHeader = header.map(normalizeHeaderText)
+  const idCol = normHeader.indexOf('id')
+  const nomeCol = normHeader.indexOf('nome')
+  const emailCols = normHeader.flatMap((h, i) => h === 'email' ? [i] : [])      // "E-mail" e "email"
+  const phoneCols = normHeader.flatMap((h, i) => (h === 'whatsapp' || h === 'phone') ? [i] : [])
+  const identity = (row: string[]) => {
+    const id = idCol >= 0 ? String(row[idCol] ?? '').trim() : ''
+    let email = ''
+    for (const i of emailCols) { const v = emailKey(String(row[i] ?? '')); if (v) { email = v; break } }
+    let phone = ''
+    for (const i of phoneCols) { const v = phoneNucleo(String(row[i] ?? '')); if (v) { phone = v; break } }
+    const nome = nomeCol >= 0 ? String(row[nomeCol] ?? '').trim() : ''
+    return { id, email, phone, nome }
   }
 
+  // 4. Identidades já presentes no PERPETUO (idempotência entre execuções).
   const endCol = columnName(Math.max(header.length, HEADER_READ_COLUMNS))
-  const dstRes = await sheets.spreadsheets.values.get({
+  const dstRows = ((await sheets.spreadsheets.values.get({
     spreadsheetId: info.spreadsheetId,
     range: `${LEADS_BULA_PERPETUO_TAB}!A2:${endCol}`,
-  })
-  const existing = new Set<string>()
-  for (const r of (dstRes.data.values ?? []) as string[][]) {
-    const id = String(r[idCol] ?? '').trim()
-    if (id) existing.add(id)
+  })).data.values ?? []) as string[][]
+  const seenId = new Set<string>(), seenEmail = new Set<string>(), seenPhone = new Set<string>()
+  for (const r of dstRows) {
+    const k = identity(r)
+    if (k.id) seenId.add(k.id)
+    if (k.email) seenEmail.add(k.email)
+    if (k.phone) seenPhone.add(k.phone)
   }
 
-  // 4. Acrescenta só os novos (dedup também dentro do mesmo lote).
-  const seen = new Set(existing)
-  const fresh = parsed.filter(p => {
-    if (seen.has(p.id)) return false
-    seen.add(p.id)
-    return true
-  })
-  if (!fresh.length) return { appended: 0, total: parsed.length, skipped: parsed.length }
+  // 5. Monta cada candidata (Meta cru → parse; demais → mapeia por cabeçalho) e
+  //    acrescenta só as inéditas (dedup por id OU e-mail OU telefone).
+  const fresh: string[][] = []
+  let total = 0
+  for (const raw of srcRows) {
+    const metaLead = parseRawMetaLead(raw)
+    const candidate = metaLead
+      ? buildPerpetuoRow(metaLead, header)
+      : buildRowFromHeaderedSource(raw, srcHeader, header)
+    const k = identity(candidate)
+    if (!k.nome && !k.email && !k.phone) continue // linha sem lead reconhecível
+    total++
+    if ((k.id && seenId.has(k.id)) || (k.email && seenEmail.has(k.email)) || (k.phone && seenPhone.has(k.phone))) continue
+    if (k.id) seenId.add(k.id)
+    if (k.email) seenEmail.add(k.email)
+    if (k.phone) seenPhone.add(k.phone)
+    fresh.push(candidate)
+  }
+
+  if (!fresh.length) return { appended: 0, total, skipped: total }
 
   const sheetId = await getTabSheetId(sheets, info.spreadsheetId, LEADS_BULA_PERPETUO_TAB)
   await sheets.spreadsheets.batchUpdate({
@@ -826,16 +878,14 @@ export async function syncBulaLeadsToPerpetuoTab(): Promise<{
       requests: [{
         appendCells: {
           sheetId,
-          rows: fresh.map(p => ({
-            values: buildPerpetuoRow(p, header).map(v => ({ userEnteredValue: { stringValue: String(v ?? '') } })),
-          })),
+          rows: fresh.map(r => ({ values: r.map(v => ({ userEnteredValue: { stringValue: String(v ?? '') } })) })),
           fields: 'userEnteredValue',
         },
       }],
     },
   })
-  console.log(`[jmp-sheets] PERPETUO: ${fresh.length} lead(s) novos espelhados (de ${parsed.length} no cru)`)
-  return { appended: fresh.length, total: parsed.length, skipped: parsed.length - fresh.length }
+  console.log(`[jmp-sheets] PERPETUO: ${fresh.length} lead(s) novos espelhados (de ${total} na bruta)`)
+  return { appended: fresh.length, total, skipped: total - fresh.length }
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
