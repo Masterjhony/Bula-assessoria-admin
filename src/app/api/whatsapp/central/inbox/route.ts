@@ -49,7 +49,7 @@ export async function GET(req: NextRequest) {
     // ranking das conversas mais recentes sem precisar de função SQL custom.
     const { data: messages, error: msgErr } = await supabase
         .from('whatsapp_messages')
-        .select('id, phone, name, direction, body, status, lead_id, created_at')
+        .select('id, phone, name, direction, body, status, lead_id, created_at, origin, intent')
         .not('phone', 'is', null)
         .order('created_at', { ascending: false })
         .limit(1000)
@@ -64,6 +64,9 @@ export async function GET(req: NextRequest) {
     }>()
     for (const m of messages ?? []) {
         if (!m.phone) continue
+        // Notificações internas para assessores não são conversas de cliente —
+        // ficam fora do inbox (a telemetria delas vive no cockpit "Status").
+        if (m.origin === 'crm-assessor' || m.intent === 'assessor') continue
         const existing = byPhone.get(m.phone)
         if (!existing) {
             byPhone.set(m.phone, {
