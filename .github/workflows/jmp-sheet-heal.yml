@@ -12,7 +12,10 @@ name: JMP sheet heal
 
 on:
   schedule:
-    - cron: '*/15 * * * *'
+    # 5 min é o piso prático do agendador do GitHub Actions — valores menores
+    # (*/2 etc.) não são honrados e ainda atrasam sob carga. Repo público =
+    # Actions gratuito/ilimitado, então a frequência não gera custo.
+    - cron: '*/5 * * * *'
   workflow_dispatch: {}
 
 jobs:
