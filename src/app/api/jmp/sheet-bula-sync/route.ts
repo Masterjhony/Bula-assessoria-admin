@@ -22,8 +22,15 @@ async function run(req: NextRequest) {
   if (!authorized(req)) {
     return NextResponse.json({ error: 'unauthorized' }, { status: 401 })
   }
-  const result = await importMissingLeadsFromBulaSheet()
-  return NextResponse.json({ ok: true, ...result })
+  try {
+    const result = await importMissingLeadsFromBulaSheet()
+    return NextResponse.json({ ok: true, ...result })
+  } catch (e) {
+    // Sem isso o cron só vê "500" e o erro real fica escondido nos logs.
+    const message = e instanceof Error ? e.message : String(e)
+    console.error('[sheet-bula-sync] falhou:', message)
+    return NextResponse.json({ ok: false, error: message }, { status: 500 })
+  }
 }
 
 export async function GET(req: NextRequest) {
