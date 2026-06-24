@@ -843,10 +843,12 @@ export async function importMissingLeadsFromSheet(): Promise<{ created: number; 
 // Ingestão da aba "Cópia de LEADS BULA" → CRM.
 //
 // Essa aba recebe os leads do formulário Meta "BULA PERPETUO" (mesmo dump cru da
-// "Leads JMP"). Diferente da sync por COR, aqui só CRIAMOS no CRM os leads que
-// ainda não existem (casados por telefone/e-mail), entrando em ENTRADA. NÃO
-// reescrevemos a planilha (a aba é mantida pela equipe). Idempotente: rodar de
-// novo não duplica. Pensado para o cron de 15 min (mesmo do sheet-heal).
+// "Leads JMP"), MAS também contém um bloco de histórico antigo já normalizado
+// (colado pela equipe) que NÃO deve entrar no CRM. Por isso lemos só as linhas
+// no formato cru do Meta (onlyMetaForm) — os leads que de fato chegam pelo
+// formulário. Aqui só CRIAMOS no CRM os que ainda não existem (casados por
+// telefone/e-mail), entrando em ENTRADA. NÃO reescrevemos a planilha (mantida
+// pela equipe). Idempotente: rodar de novo não duplica. Roda no cron de 15 min.
 // ─────────────────────────────────────────────────────────────────────────────
 
 function leadContactKey(row: SheetLeadRow): string | null {
@@ -864,7 +866,7 @@ function isObviousTestSheetLead(row: SheetLeadRow): boolean {
 export async function importMissingLeadsFromBulaSheet(): Promise<{ created: number; total: number; matched: number; skippedTest: number }> {
     const supabase = await createClient();
     const [{ rows }, config] = await Promise.all([
-        readSecondaryTabLeadRows(LEADS_BULA_TAB),
+        readSecondaryTabLeadRows(LEADS_BULA_TAB, { onlyMetaForm: true }),
         getCRMConfig(),
     ]);
 

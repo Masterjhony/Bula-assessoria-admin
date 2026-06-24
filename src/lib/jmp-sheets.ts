@@ -620,8 +620,16 @@ export async function readSheetLeadRows(): Promise<{ info: SheetInfo; rows: Shee
  * é mantida pela equipe e pode ter outras automações/colunas que não devemos
  * tocar. Linhas cruas do Meta são normalizadas em memória. Retorna [] se a aba
  * não existir ou a planilha/credenciais não estiverem configuradas.
+ *
+ * `onlyMetaForm`: considera APENAS as linhas no formato cru do Meta (id `l:<n>`
+ * + timestamp ISO), ou seja, os leads que CHEGAM pelo formulário do Meta —
+ * ignorando blocos de histórico antigo já normalizados que a equipe tenha
+ * colado na aba. Use quando a aba mistura "leads chegando" com histórico.
  */
-export async function readSecondaryTabLeadRows(tab: string): Promise<{ info: SheetInfo | null; rows: SheetLeadRow[] }> {
+export async function readSecondaryTabLeadRows(
+  tab: string,
+  opts: { onlyMetaForm?: boolean } = {},
+): Promise<{ info: SheetInfo | null; rows: SheetLeadRow[] }> {
   const info = await getStoredInfo()
   if (!info) return { info: null, rows: [] }
   const auth = getAuth()
@@ -638,7 +646,8 @@ export async function readSecondaryTabLeadRows(tab: string): Promise<{ info: She
     spreadsheetId: info.spreadsheetId,
     range: `${tab}!A2:${endColumn}`,
   })
-  const values = (res.data.values ?? []) as string[][]
+  let values = (res.data.values ?? []) as string[][]
+  if (opts.onlyMetaForm) values = values.filter(row => parseRawMetaLead(row) != null)
   return { info, rows: mapSheetValuesToLeadRows(values, headerRow, layout) }
 }
 
