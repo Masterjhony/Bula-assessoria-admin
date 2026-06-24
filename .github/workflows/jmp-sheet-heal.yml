@@ -37,3 +37,13 @@ jobs:
             https://admin.bulaassessoria.com/api/jmp/sheet-bula-sync)
           echo "$response"
           echo "$response" | grep -q '"ok":true'
+
+      # Espelha o cru da "Cópia de LEADS BULA" para a aba organizada
+      # "LEADS BULA - PERPETUO" (append-only, idempotente pelo `id` do Meta).
+      - name: Chama /api/jmp/sheet-perpetuo
+        run: |
+          response=$(curl -sS --fail-with-body --max-time 90 \
+            -H "Authorization: Bearer ${{ secrets.CRON_SECRET }}" \
+            https://admin.bulaassessoria.com/api/jmp/sheet-perpetuo)
+          echo "$response"
+          echo "$response" | grep -q '"ok":true'

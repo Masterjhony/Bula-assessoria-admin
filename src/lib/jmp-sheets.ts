@@ -11,6 +11,11 @@ const TAB = 'Leads JMP'
 // layout cru da "Leads JMP" (cabeçalho padrão + bloco de metadados do Meta).
 // Só LEMOS dela (sem reescrever) para alimentar o CRM.
 export const LEADS_BULA_TAB = 'Cópia de LEADS BULA'
+// Aba "organizada" para onde despejamos, em layout limpo e fixo, cada lead que
+// chega cru na "Cópia de LEADS BULA". O conector do Meta não tem como entregar
+// formatado, então o app reescreve em colunas estáveis aqui (append-only,
+// idempotente por `id`). Ver syncBulaLeadsToPerpetuoTab().
+export const LEADS_BULA_PERPETUO_TAB = 'LEADS BULA - PERPETUO'
 const SHARE_EMAIL = 'formuladoboi@gmail.com'
 const MANUAL_HEADER = 'Atendido por'
 const HEADER = ['Data', 'Nome', 'E-mail', 'WhatsApp', 'UF', 'Cidade', 'Momento', 'Cabeças', 'Interesse', 'Lead ID', 'Qtd. desejada', 'utm_source', 'utm_medium', 'utm_campaign', 'utm_content', 'ad-id', 'Inscrição Estadual'] as const
@@ -134,11 +139,11 @@ async function updateHeaderRow(sheets: SheetsClient, spreadsheetId: string, head
   })
 }
 
-async function getTabSheetId(sheets: SheetsClient, spreadsheetId: string): Promise<number> {
+async function getTabSheetId(sheets: SheetsClient, spreadsheetId: string, tab: string = TAB): Promise<number> {
   const meta = await sheets.spreadsheets.get({ spreadsheetId, includeGridData: false })
-  const tab = meta.data.sheets?.find((sheet) => sheet.properties?.title === TAB)
-  const sheetId = tab?.properties?.sheetId
-  if (sheetId == null) throw new Error(`Aba "${TAB}" não encontrada.`)
+  const found = meta.data.sheets?.find((sheet) => sheet.properties?.title === tab)
+  const sheetId = found?.properties?.sheetId
+  if (sheetId == null) throw new Error(`Aba "${tab}" não encontrada.`)
   return sheetId
 }
 
@@ -649,6 +654,188 @@ export async function readSecondaryTabLeadRows(
   let values = (res.data.values ?? []) as string[][]
   if (opts.onlyMetaForm) values = values.filter(row => parseRawMetaLead(row) != null)
   return { info, rows: mapSheetValuesToLeadRows(values, headerRow, layout) }
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Espelho organizado: "Cópia de LEADS BULA" (cru) → "LEADS BULA - PERPETUO".
+//
+// O conector do Meta despeja os leads crus/desalinhados e — segundo quem
+// configura o Meta — não há como entregar formatado. Em vez de tentar "curar"
+// a aba bruta (que a equipe e o próprio Meta mexem), reescrevemos cada lead em
+// uma aba dedicada, com layout fixo e legível. Append-only e idempotente pelo
+// `id` do Meta: rodar de novo nunca duplica, e a coluna "Atendido por" (e
+// qualquer edição da equipe nas linhas já existentes) fica intacta.
+//
+// Layout exato definido pelo dono (40 colunas A..AN): bloco padrão legível +
+// metadados crus do Meta + perguntas cruas do formulário + flags.
+// ─────────────────────────────────────────────────────────────────────────────
+
+const PERPETUO_HEADER = [
+  'Atendido por', 'Data', 'Nome', 'E-mail', 'WhatsApp', 'UF', 'Cidade', 'Momento', 'Cabeças',
+  'Inscrição Estadual', 'Interesse', 'Lead ID', 'Qtd. desejada', 'utm_source', 'utm_medium',
+  'utm_campaign', 'utm_content', 'ad-id', 'id', 'created_time', 'ad_id', 'ad_name', 'adset_id',
+  'adset_name', 'campaign_id', 'campaign_name', 'form_id', 'form_name', 'is_organic', 'platform',
+  'seu_momento_na_pecuaria', 'você_tem_inscrição_estadual?', 'qual_o_seu_interesse?',
+  'de_acordo_com_seu_interesse,_qual_a_quantidade_de_animais_desejada?',
+  'full_name', 'email', 'phone', 'state', 'lead de teste', 'lead_status',
+] as const
+
+/**
+ * Valores de uma linha do PERPETUO, indexados pelo cabeçalho NORMALIZADO — assim
+ * a escrita resolve por nome de coluna (reordenar colunas na aba não quebra).
+ * O bloco "legível" reusa exatamente a mesma normalização da auto-cura; as
+ * colunas cruas (seu_momento_na_pecuaria, full_name, phone, ...) recebem o valor
+ * original do Meta, sem transformar.
+ */
+function buildPerpetuoValues(p: RawMetaLead): Map<string, string> {
+  const interesse = META_INTERESSE.get(p.interesse.toLowerCase()) || p.interesse
+  const noun = META_NOUN.get(interesse) || ''
+  const qtdBase = META_QTD.get(p.qtd)
+  const test = isMetaTestLead(p)
+  const testPrefix = test ? '[TESTE META] ' : ''
+  const entries: [string, string][] = [
+    ['Atendido por', p.atendidoPor],
+    ['Data', fmtDate(new Date(p.created))],
+    ['Nome', testPrefix + p.fullName],
+    ['E-mail', p.email],
+    ['WhatsApp', metaPhoneToWhatsApp(p.phone)],
+    ['UF', metaStateToUF(p.state)],
+    ['Cidade', ''],
+    ['Momento', META_MOMENTO.get(p.momento.toLowerCase()) || p.momento],
+    ['Cabeças', META_CABECAS.get(p.cabecas) || p.cabecas],
+    ['Inscrição Estadual', p.temIe ? (p.temIe.toLowerCase() === 'sim' ? 'Sim' : 'Não') : ''],
+    ['Interesse', interesse],
+    ['Lead ID', p.id],
+    ['Qtd. desejada', qtdBase ? `${qtdBase}${noun ? ' ' + noun : ''}` : p.qtd],
+    ['utm_source', p.platform],
+    ['utm_medium', ''],
+    ['utm_campaign', p.campaignName],
+    ['utm_content', p.adName],
+    ['ad-id', p.adId],
+    ['id', p.id],
+    ['created_time', p.created],
+    ['ad_id', p.adId],
+    ['ad_name', p.adName],
+    ['adset_id', p.adsetId],
+    ['adset_name', p.adsetName],
+    ['campaign_id', p.campaignId],
+    ['campaign_name', p.campaignName],
+    ['form_id', p.formId],
+    ['form_name', p.formName],
+    ['is_organic', p.isOrganic],
+    ['platform', p.platform],
+    ['seu_momento_na_pecuaria', p.momento],
+    ['você_tem_inscrição_estadual?', p.temIe],
+    ['qual_o_seu_interesse?', p.interesse],
+    ['de_acordo_com_seu_interesse,_qual_a_quantidade_de_animais_desejada?', p.qtd],
+    ['full_name', p.fullName],
+    ['email', p.email],
+    ['phone', p.phone],
+    ['state', p.state],
+    ['lead de teste', test ? 'Sim' : 'Não'],
+    ['lead_status', p.leadStatus],
+  ]
+  return new Map(entries.map(([k, v]) => [normalizeHeaderText(k), v ?? '']))
+}
+
+/** Monta a linha alinhada ao cabeçalho REAL da aba (colunas faltantes viram ''). */
+function buildPerpetuoRow(p: RawMetaLead, headerRow: string[]): string[] {
+  const values = buildPerpetuoValues(p)
+  return headerRow.map(h => values.get(normalizeHeaderText(h)) ?? '')
+}
+
+/**
+ * Espelha os leads crus do Meta da aba "Cópia de LEADS BULA" para a aba
+ * organizada "LEADS BULA - PERPETUO" (cria a aba/cabeçalho se faltar). Só
+ * ACRESCENTA leads cujo `id` ainda não está lá — idempotente, preserva
+ * "Atendido por" e edições manuais. Best-effort no que toca a auth/planilha;
+ * lança em erro de Sheets pra o cron logar.
+ */
+export async function syncBulaLeadsToPerpetuoTab(): Promise<{
+  appended: number; total: number; skipped: number; reason?: string
+}> {
+  const info = await getStoredInfo()
+  if (!info) return { appended: 0, total: 0, skipped: 0, reason: 'not_provisioned' }
+  const auth = getAuth()
+  if (!auth) return { appended: 0, total: 0, skipped: 0, reason: 'no_credentials' }
+
+  const sheets = google.sheets({ version: 'v4', auth })
+  const meta = await sheets.spreadsheets.get({ spreadsheetId: info.spreadsheetId, includeGridData: false })
+  const titles = (meta.data.sheets ?? []).map(s => s.properties?.title)
+  if (!titles.includes(LEADS_BULA_TAB)) return { appended: 0, total: 0, skipped: 0, reason: 'source_tab_missing' }
+
+  // 1. Lê o cru da aba do Meta e interpreta só as linhas no formato do Meta.
+  const srcRes = await sheets.spreadsheets.values.get({
+    spreadsheetId: info.spreadsheetId,
+    range: `${LEADS_BULA_TAB}!A2:${columnName(HEADER_READ_COLUMNS)}`,
+  })
+  const parsed = ((srcRes.data.values ?? []) as string[][])
+    .map(parseRawMetaLead)
+    .filter((p): p is RawMetaLead => p != null)
+
+  // 2. Garante a aba de destino + cabeçalho (só escreve o header se estiver vazio).
+  if (!titles.includes(LEADS_BULA_PERPETUO_TAB)) {
+    await sheets.spreadsheets.batchUpdate({
+      spreadsheetId: info.spreadsheetId,
+      requestBody: { requests: [{ addSheet: { properties: { title: LEADS_BULA_PERPETUO_TAB } } }] },
+    })
+  }
+  let header = await readHeaderRow(sheets, info.spreadsheetId, LEADS_BULA_PERPETUO_TAB)
+  if (!header.some(Boolean)) {
+    header = [...PERPETUO_HEADER]
+    await sheets.spreadsheets.values.update({
+      spreadsheetId: info.spreadsheetId,
+      range: `${LEADS_BULA_PERPETUO_TAB}!A1:${columnName(header.length)}1`,
+      valueInputOption: 'RAW',
+      requestBody: { values: [header] },
+    })
+  }
+
+  // 3. Dedup pelo `id` do Meta. Sem coluna `id` no destino não dá pra deduplicar
+  //    com segurança — aborta antes de duplicar tudo a cada execução.
+  const idCol = header.findIndex(h => normalizeHeaderText(h) === 'id')
+  if (idCol < 0) {
+    console.warn('[jmp-sheets] PERPETUO sem coluna "id" no cabeçalho — sync abortado pra não duplicar.')
+    return { appended: 0, total: parsed.length, skipped: parsed.length, reason: 'no_id_column' }
+  }
+
+  const endCol = columnName(Math.max(header.length, HEADER_READ_COLUMNS))
+  const dstRes = await sheets.spreadsheets.values.get({
+    spreadsheetId: info.spreadsheetId,
+    range: `${LEADS_BULA_PERPETUO_TAB}!A2:${endCol}`,
+  })
+  const existing = new Set<string>()
+  for (const r of (dstRes.data.values ?? []) as string[][]) {
+    const id = String(r[idCol] ?? '').trim()
+    if (id) existing.add(id)
+  }
+
+  // 4. Acrescenta só os novos (dedup também dentro do mesmo lote).
+  const seen = new Set(existing)
+  const fresh = parsed.filter(p => {
+    if (seen.has(p.id)) return false
+    seen.add(p.id)
+    return true
+  })
+  if (!fresh.length) return { appended: 0, total: parsed.length, skipped: parsed.length }
+
+  const sheetId = await getTabSheetId(sheets, info.spreadsheetId, LEADS_BULA_PERPETUO_TAB)
+  await sheets.spreadsheets.batchUpdate({
+    spreadsheetId: info.spreadsheetId,
+    requestBody: {
+      requests: [{
+        appendCells: {
+          sheetId,
+          rows: fresh.map(p => ({
+            values: buildPerpetuoRow(p, header).map(v => ({ userEnteredValue: { stringValue: String(v ?? '') } })),
+          })),
+          fields: 'userEnteredValue',
+        },
+      }],
+    },
+  })
+  console.log(`[jmp-sheets] PERPETUO: ${fresh.length} lead(s) novos espelhados (de ${parsed.length} no cru)`)
+  return { appended: fresh.length, total: parsed.length, skipped: parsed.length - fresh.length }
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
