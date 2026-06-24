@@ -2613,12 +2613,59 @@ function flFilteredRows() {
 function flFilter(key, val) { state.filters[key] = val; renderFechamentoLeiloes(); }
 const flSearchInput = debounce((v)=>{ state.filters.flSearch = v; renderFechamentoLeiloes(); }, 300);
 function flClear() { ['flMes','flAno','flSearch','flAcordo'].forEach(k=>delete state.filters[k]); renderFechamentoLeiloes(); }
-function flReload() { state.fechamentos = null; renderFechamentoLeiloes(); }
+function flReload() { state.fechamentos = null; state.recebimentos = null; renderFechamentoLeiloes(); }
+
+function flRecebChip(id) {
+  const r = (state.recebMap||{})[id];
+  if (!r || !Number(r.titulos)) return '<span class="chip muted" title="Sem titulo financeiro vinculado">—</span>';
+  const ext = r.tem_extrato_vinculado ? ' <span class="material-symbols-outlined" title="Conciliado com extrato bancario" style="font-size:14px;color:#6B8F5C;vertical-align:middle">link</span>' : '';
+  const dt = r.ultima_data_recebimento ? ` ${flDataCurta(r.ultima_data_recebimento)}` : '';
+  if (r.todos_recebidos) return `<span class="chip" style="background:#6B8F5C22;color:#4d7a3e">recebido${dt}</span>${ext}`;
+  if (r.algum_recebido) return `<span class="chip" style="background:#D4A84322;color:#A8791F">parcial${dt}</span>${ext}`;
+  return '<span class="chip" style="background:#5C6B7A22;color:#5C6B7A">a receber</span>';
+}
+
+function flRecebimentoSection(id) {
+  const r = (state.recebMap||{})[id];
+  if (!r || !Number(r.titulos)) {
+    return `<div class="card" style="margin-bottom:18px;background:var(--bg2)"><div class="card-title"><span class="material-symbols-outlined">account_balance</span>Recebimento</div><div style="font-size:12px;color:var(--text3)">Nenhum titulo financeiro (conta a receber) vinculado a este fechamento. Use o modulo Contas a Receber para vincular.</div></div>`;
+  }
+  const tit = r.titulos_detalhe || [];
+  const stChip = (s) => ({recebido:'#6B8F5C', vencido:'#C0504D', aberto:'#5C6B7A', parcial:'#D4A843'}[s]||'#888');
+  return `
+    <div class="card" style="margin-bottom:18px">
+      <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px">
+        <div class="card-title" style="margin:0"><span class="material-symbols-outlined">account_balance</span>Recebimento da comissao</div>
+        <div style="font-size:12px;color:var(--text2)">Receita: <strong class="money">${fmtBRL(r.receita_titulos)}</strong> · Recebido: <strong class="money" style="color:#4d7a3e">${fmtBRL(r.recebido)}</strong> ${r.tem_extrato_vinculado?'<span class="chip" style="background:#6B8F5C22;color:#4d7a3e">conciliado c/ extrato</span>':''}</div>
+      </div>
+      <div class="table-wrap" style="margin-top:10px">
+        <table>
+          <thead><tr><th>Titulo</th><th>NF/Doc</th><th style="text-align:right">Valor</th><th>Status</th><th>Recebido em</th><th>Extrato</th></tr></thead>
+          <tbody>
+            ${tit.map(t=>`<tr>
+              <td>${escapeHtml(String(t.descricao||'').slice(0,42))}</td>
+              <td style="font-size:11px;color:var(--text3)">${escapeHtml(t.numero_documento||'—')}</td>
+              <td class="money" style="text-align:right">${fmtBRL(t.valor)}</td>
+              <td><span class="chip" style="background:${stChip(t.status)}22;color:${stChip(t.status)}">${escapeHtml(t.status)}</span></td>
+              <td>${t.data_recebimento?flDataCurta(t.data_recebimento):'—'}</td>
+              <td>${t.extrato?`<span title="${escapeHtml(t.extrato.conta)}" style="color:#4d7a3e;font-size:11px"><span class="material-symbols-outlined" style="font-size:14px;vertical-align:middle">link</span> ${escapeHtml(String(t.extrato.conta||'').split(' ')[0])} ${flDataCurta(t.extrato.data)}</span>`:'<span style="color:var(--text4)">—</span>'}</td>
+            </tr>`).join('')}
+          </tbody>
+        </table>
+      </div>
+    </div>`;
+}
 
 async function renderFechamentoLeiloes() {
   if (!state.fechamentos) {
     state.fechamentos = await api('/api/bula/fechamento');
   }
+  if (!state.recebimentos) {
+    try { state.recebimentos = await api('/api/bula/fechamento-recebimentos'); }
+    catch(_) { state.recebimentos = []; }
+  }
+  state.recebMap = {};
+  for (const r of (state.recebimentos||[])) state.recebMap[r.fechamento_id] = r;
   const all = state.fechamentos || [];
   const f = state.filters;
   const fMes = f.flMes||'', fAno = f.flAno||'', fSearch = f.flSearch||'', fAcordo = f.flAcordo||'';
@@ -2731,6 +2778,7 @@ async function renderFechamentoLeiloes() {
             <th style="text-align:right">Imposto (18%)</th>
             <th style="text-align:right">Despesas Var.</th>
             <th style="text-align:right">Lucro Liquido</th>
+            <th>Recebimento</th>
             <th></th>
           </tr>
         </thead>
@@ -2760,6 +2808,7 @@ async function renderFechamentoLeiloes() {
               <td class="money" style="text-align:right;color:var(--text2)">${temReceita?fmtBRL(imposto):em}</td>
               <td class="money" style="text-align:right">${despesas>0?fmtBRL(despesas):em}</td>
               <td class="money ${lucroLiq<0?'negative':'positive'}" style="text-align:right">${temReceita?fmtBRL(lucroLiq):em}</td>
+              <td style="white-space:nowrap">${flRecebChip(x.id)}</td>
               <td><span class="material-symbols-outlined" style="color:var(--text4);font-size:18px">chevron_right</span></td>
             </tr>`;
           }).join('')}
@@ -2814,6 +2863,8 @@ function flOpenDetail(id) {
         <div class="kpi"><div class="kpi-label">Lucro Liquido</div><div class="kpi-value money ${neg(flLucroLiquido(x))}" style="font-size:18px">${x.receita_bula!=null?fmtBRL(flLucroLiquido(x)):'—'}</div></div>
         <div class="kpi"><div class="kpi-label">Lotes / Animais</div><div class="kpi-value" style="font-size:18px">${x.lotes_vendidos||0}/${x.lotes_ofertados||0} · ${x.animais_vendidos||0}</div></div>
       </div>
+
+      ${flRecebimentoSection(x.id)}
 
       <div class="card-title" style="margin-bottom:8px"><span class="material-symbols-outlined">groups</span>Comissionamento por assessor</div>
       ${ass.length===0?`<div class="empty" style="padding:24px"><p>Sem dados de assessores neste fechamento.</p></div>`:`
