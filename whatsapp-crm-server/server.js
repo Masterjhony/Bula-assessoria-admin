@@ -1,4 +1,5 @@
 import http from 'node:http'
+import { rm } from 'node:fs/promises'
 import makeWASocket, {
   Browsers,
   DisconnectReason,
@@ -254,8 +255,22 @@ async function startSocket() {
       const loggedOut = statusCode === DisconnectReason.loggedOut
       connectionStatus = 'disconnected'
       socket = null
+      currentQr = null
+      currentQrDataUrl = null
       console.log(`[crm-whatsapp] desconectado${loggedOut ? ' (logout)' : ''}`)
-      if (!loggedOut) {
+      if (loggedOut) {
+        // Sessão encerrada no aparelho: as credenciais em disco ficam inválidas.
+        // Sem zerá-las, o socket nunca pede um QR novo e a sessão fica presa em
+        // "disconnected". Limpa o auth e recomeça para gerar um QR fresco.
+        rm(AUTH_DIR, { recursive: true, force: true })
+          .catch(error => console.error('[crm-whatsapp] limpar auth pós-logout:', error.message))
+          .finally(() => {
+            setTimeout(() => {
+              connectionStatus = 'connecting'
+              void startSocket().catch(error => console.error('[crm-whatsapp] restart pós-logout:', error))
+            }, 1500)
+          })
+      } else {
         setTimeout(() => {
           connectionStatus = 'connecting'
           void startSocket().catch(error => console.error('[crm-whatsapp] reconnect:', error))
