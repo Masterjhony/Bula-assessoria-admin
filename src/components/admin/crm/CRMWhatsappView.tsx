@@ -23,6 +23,8 @@ import {
     Workflow,
     XCircle,
 } from 'lucide-react';
+import { InboxTab } from '@/components/admin/central-whatsapp/InboxTab';
+import type { Template } from '@/components/admin/central-whatsapp/types';
 
 type ActivityRow = {
     id: string;
@@ -149,6 +151,11 @@ export function CRMWhatsappView() {
     const [welcomeSavedAt, setWelcomeSavedAt] = useState<number | null>(null);
     const [welcomeError, setWelcomeError] = useState<string | null>(null);
 
+    // Operação de conversas: sub-view (conversas/status) e canal selecionado.
+    const [view, setView] = useState<'conversas' | 'status'>('conversas');
+    const [channel, setChannel] = useState<'oficial' | 'baileys'>('oficial');
+    const [templates, setTemplates] = useState<Template[]>([]);
+
     // Conectar por número de telefone (alternativa ao QR).
     const [pairPhoneInput, setPairPhoneInput] = useState('');
     const [pairing, setPairing] = useState(false);
@@ -198,6 +205,20 @@ export function CRMWhatsappView() {
         const t2 = setInterval(fetchActivity, 15000);
         return () => { clearInterval(t1); clearInterval(t2); };
     }, [fetchCockpit, fetchActivity, fetchWelcome, refreshAll]);
+
+    // Templates (para o inbox, incluindo os aprovados pela Meta).
+    useEffect(() => {
+        let cancelled = false;
+        (async () => {
+            try {
+                const res = await fetch('/api/whatsapp/central/templates');
+                if (!res.ok || cancelled) return;
+                const data = await res.json();
+                if (!cancelled) setTemplates(data.templates ?? []);
+            } catch { /* silencioso — inbox funciona sem templates */ }
+        })();
+        return () => { cancelled = true; };
+    }, []);
 
     const requestPairing = useCallback(async () => {
         setPairing(true);
@@ -254,20 +275,70 @@ export function CRMWhatsappView() {
         : 0;
 
     return (
-        <div className="max-w-5xl mx-auto space-y-5 pb-8">
-            <div className="flex items-center justify-between gap-3">
-                <div className="flex items-center gap-2 text-xs text-gray-500">
-                    <MessageCircle size={14} />
-                    <span>Cockpit de WhatsApp — saúde dos dois canais, guard rails e atalhos da Central.</span>
+        <div className={view === 'conversas' ? 'space-y-4 pb-8' : 'max-w-5xl mx-auto space-y-5 pb-8'}>
+            {/* Sub-navegação (Conversas / Status) + seletor de canal */}
+            <div className="flex flex-wrap items-center justify-between gap-3">
+                <div className="inline-flex rounded-lg border p-0.5 bg-muted/40 text-sm">
+                    <button
+                        type="button"
+                        onClick={() => setView('conversas')}
+                        className={`px-3 py-1.5 rounded-md flex items-center gap-1.5 transition-colors ${
+                            view === 'conversas' ? 'bg-card shadow-sm font-medium' : 'text-muted-foreground hover:text-foreground'
+                        }`}
+                    >
+                        <MessageCircle size={14} /> Conversas
+                    </button>
+                    <button
+                        type="button"
+                        onClick={() => setView('status')}
+                        className={`px-3 py-1.5 rounded-md flex items-center gap-1.5 transition-colors ${
+                            view === 'status' ? 'bg-card shadow-sm font-medium' : 'text-muted-foreground hover:text-foreground'
+                        }`}
+                    >
+                        <ShieldCheck size={14} /> Status &amp; configuração
+                    </button>
                 </div>
-                <button
-                    type="button"
-                    onClick={refreshAll}
-                    className="inline-flex items-center gap-1.5 rounded-md border px-2.5 py-1.5 text-xs hover:bg-muted"
-                >
-                    <RefreshCw size={13} /> Atualizar
-                </button>
+
+                {view === 'conversas' ? (
+                    <div className="inline-flex rounded-lg border p-0.5 bg-muted/40 text-sm">
+                        <button
+                            type="button"
+                            onClick={() => setChannel('oficial')}
+                            className={`px-3 py-1.5 rounded-md flex items-center gap-1.5 transition-colors ${
+                                channel === 'oficial' ? 'bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 font-medium' : 'text-muted-foreground hover:text-foreground'
+                            }`}
+                            title="Enviar pela API oficial da Meta (regras de janela de 24h e templates aprovados)"
+                        >
+                            <Cloud size={14} /> API oficial
+                        </button>
+                        <button
+                            type="button"
+                            onClick={() => setChannel('baileys')}
+                            className={`px-3 py-1.5 rounded-md flex items-center gap-1.5 transition-colors ${
+                                channel === 'baileys' ? 'bg-amber-500/15 text-amber-600 dark:text-amber-400 font-medium' : 'text-muted-foreground hover:text-foreground'
+                            }`}
+                            title="Enviar pelo número conectado via Baileys (texto livre, sem janela de 24h)"
+                        >
+                            <Smartphone size={14} /> Baileys
+                        </button>
+                    </div>
+                ) : (
+                    <button
+                        type="button"
+                        onClick={refreshAll}
+                        className="inline-flex items-center gap-1.5 rounded-md border px-2.5 py-1.5 text-xs hover:bg-muted"
+                    >
+                        <RefreshCw size={13} /> Atualizar
+                    </button>
+                )}
             </div>
+
+            {view === 'conversas' && (
+                <InboxTab templates={templates} channel={channel} />
+            )}
+
+            {view === 'status' && (
+            <div className="space-y-5">
 
             {/* Dois canais lado a lado */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -596,6 +667,8 @@ export function CRMWhatsappView() {
                     </ul>
                 )}
             </div>
+            </div>
+            )}
         </div>
     );
 }

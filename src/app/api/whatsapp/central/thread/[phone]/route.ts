@@ -88,10 +88,14 @@ export async function POST(
     const phone = normalizePhone(decodeURIComponent(rawPhone))
     if (!phone) return NextResponse.json({ error: 'phone inválido' }, { status: 400 })
 
-    let body: { message?: string; template_id?: string }
+    let body: { message?: string; template_id?: string; channel?: 'oficial' | 'baileys' }
     try { body = await req.json() } catch {
         return NextResponse.json({ error: 'Invalid JSON' }, { status: 400 })
     }
+
+    // Seletor de canal do inbox: 'baileys' força o número Baileys (texto livre,
+    // sem janela de 24h); 'oficial'/ausente deixa o gateway decidir (Cloud).
+    const channelHint = body.channel === 'baileys' ? 'baileys' : 'auto'
 
     const supabase = createClient(
         process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -148,7 +152,7 @@ export async function POST(
         templateName,
         templateLanguage,
         intent: 'crm_reply',
-        channelHint: 'auto',
+        channelHint,
         origin: 'inbox-sdr',
     })
 

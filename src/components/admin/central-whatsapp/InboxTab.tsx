@@ -4,7 +4,7 @@ import { useEffect, useMemo, useState } from "react"
 import {
     Search, MessageSquare, User, Send, AlertCircle, CheckCircle2, Clock,
     UserPlus, BellOff, Bell, Hand, Sparkles, Tag, Loader2, GraduationCap,
-    Lock, ShieldCheck,
+    Lock, ShieldCheck, Smartphone,
 } from "lucide-react"
 import {
     INTERESSE_LABELS,
@@ -52,7 +52,9 @@ function windowRemaining(expires: string) {
     return `${m}min`
 }
 
-export function InboxTab({ templates }: { templates: Template[] }) {
+export function InboxTab({ templates, channel = "oficial" }: { templates: Template[]; channel?: "oficial" | "baileys" }) {
+    // No canal Baileys não existe janela de 24h nem template: texto livre sempre.
+    const officialMode = channel === "oficial"
     const [filter, setFilter] = useState<Filter>("todos")
     const [search, setSearch] = useState("")
     const [conversations, setConversations] = useState<InboxConversation[]>([])
@@ -156,7 +158,7 @@ export function InboxTab({ templates }: { templates: Template[] }) {
             const res = await fetch(`/api/whatsapp/central/thread/${encodeURIComponent(selectedPhone)}`, {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ message: composer.trim() }),
+                body: JSON.stringify({ message: composer.trim(), channel }),
             })
             const data = await res.json()
             if (!res.ok) {
@@ -183,7 +185,7 @@ export function InboxTab({ templates }: { templates: Template[] }) {
             const res = await fetch(`/api/whatsapp/central/thread/${encodeURIComponent(selectedPhone)}`, {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ template_id: tplId }),
+                body: JSON.stringify({ template_id: tplId, channel }),
             })
             const data = await res.json()
             if (!res.ok) {
@@ -412,11 +414,16 @@ export function InboxTab({ templates }: { templates: Template[] }) {
                                 </p>
                             )}
 
-                            {/* Status da janela de 24h — diz ao SDR o que ele pode enviar agora */}
+                            {/* Status do canal/janela — diz ao SDR o que ele pode enviar agora */}
                             {threadLead?.optout_whatsapp ? (
                                 <div className="flex items-center gap-2 text-xs rounded-md px-2.5 py-2 bg-red-500/10 text-red-600 dark:text-red-400">
                                     <BellOff className="h-3.5 w-3.5 flex-shrink-0" />
                                     Lead em opt-out — envios bloqueados.
+                                </div>
+                            ) : !officialMode ? (
+                                <div className="flex items-center gap-2 text-xs rounded-md px-2.5 py-2 bg-amber-500/10 text-amber-700 dark:text-amber-400">
+                                    <Smartphone className="h-3.5 w-3.5 flex-shrink-0" />
+                                    <span>Canal <strong>Baileys</strong> — texto livre liberado (sem a trava de 24h da Meta).</span>
                                 </div>
                             ) : sessionOpen ? (
                                 <div className="flex items-center gap-2 text-xs rounded-md px-2.5 py-2 bg-emerald-500/10 text-emerald-700 dark:text-emerald-400">
@@ -433,8 +440,8 @@ export function InboxTab({ templates }: { templates: Template[] }) {
                                 </div>
                             )}
 
-                            {/* Dentro da janela: texto livre (com atalho para inserir template no texto) */}
-                            {!threadLead?.optout_whatsapp && sessionOpen && (
+                            {/* Texto livre: sempre no Baileys; na API oficial só dentro da janela de 24h */}
+                            {!threadLead?.optout_whatsapp && (officialMode ? sessionOpen : true) && (
                                 <>
                                     <div className="flex items-center gap-2">
                                         <select
@@ -478,8 +485,8 @@ export function InboxTab({ templates }: { templates: Template[] }) {
                                 </>
                             )}
 
-                            {/* Fora da janela: só um template aprovado reabre a conversa */}
-                            {!threadLead?.optout_whatsapp && !sessionOpen && (
+                            {/* API oficial fora da janela: só um template aprovado reabre a conversa */}
+                            {!threadLead?.optout_whatsapp && officialMode && !sessionOpen && (
                                 <div className="space-y-1.5">
                                     {approvedTemplates.length === 0 ? (
                                         <p className="text-[11px] text-muted-foreground">
