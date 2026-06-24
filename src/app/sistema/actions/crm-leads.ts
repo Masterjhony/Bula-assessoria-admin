@@ -1,6 +1,7 @@
 'use server';
 
 import { createClient } from '@/utils/supabase/server';
+import { supabaseAdmin } from '@/lib/supabase';
 import { revalidatePath } from 'next/cache';
 import { dispatchCrmWelcome } from '@/lib/crm-welcome';
 import {
@@ -864,7 +865,9 @@ function isObviousTestSheetLead(row: SheetLeadRow): boolean {
 }
 
 export async function importMissingLeadsFromBulaSheet(): Promise<{ created: number; total: number; matched: number; skippedTest: number }> {
-    const supabase = await createClient();
+    // Service-role: roda no cron (sem sessão de usuário), então o client SSR
+    // seria barrado pelo RLS de crm_leads no INSERT. supabaseAdmin ignora RLS.
+    const supabase = supabaseAdmin();
     const [{ rows }, config] = await Promise.all([
         readSecondaryTabLeadRows(LEADS_BULA_TAB, { onlyMetaForm: true }),
         getCRMConfig(),
