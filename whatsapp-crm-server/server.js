@@ -24,6 +24,11 @@ const MAX_DELAY_MS = Number(process.env.MAX_DELAY_MS || 25000)
 // invalidar antes, é limite do lado do WhatsApp, não desta config.
 const QR_TIMEOUT_MS = Number(process.env.QR_TIMEOUT_MS || 180000)
 
+// Tolerância a latência alta (ex.: Starlink na roça): aumenta os timeouts do
+// handshake/queries do Baileys para não estourar antes de a rede lenta responder.
+const CONNECT_TIMEOUT_MS = Number(process.env.CONNECT_TIMEOUT_MS || 60000)
+const QUERY_TIMEOUT_MS = Number(process.env.QUERY_TIMEOUT_MS || 120000)
+
 // Webhook de inbound: o Next (Central WhatsApp) roda o fluxo do bot e devolve a
 // resposta. Sem NEXT_API_URL+WEBHOOK_SECRET, a sessão só envia (não responde).
 const NEXT_API_URL = (process.env.NEXT_API_URL || '').replace(/\/$/, '')
@@ -241,6 +246,10 @@ async function startSocket() {
     browser: Browsers.macOS('Bula CRM'),
     printQRInTerminal: false,
     qrTimeout: QR_TIMEOUT_MS,
+    connectTimeoutMs: CONNECT_TIMEOUT_MS,
+    defaultQueryTimeoutMs: QUERY_TIMEOUT_MS,
+    keepAliveIntervalMs: 25000,
+    retryRequestDelayMs: 500,
     version,
   })
 
