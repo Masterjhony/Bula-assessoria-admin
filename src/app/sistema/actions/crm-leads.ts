@@ -21,6 +21,7 @@ import { maybeRunCreditCheck } from '@/lib/crm-credit-automation';
 import { syncLeadToClientes } from '@/lib/crm-to-clientes-sync';
 import {
     readSheetLeadRows, readSheetLeadRowsWithColor, readCadastroSheetRows,
+    readSecondaryTabLeadRows, LEADS_BULA_TAB,
     type SheetLeadRow, type SheetColor, type CadastroSheetRow,
 } from '@/lib/jmp-sheets';
 import { normalizePhone, phoneVariants } from '@/lib/whatsapp-central';
@@ -741,7 +742,24 @@ export async function validateLeadsAgainstSheet(): Promise<CRMLeadSheetValidatio
     };
 }
 
-function sheetRowToLead(row: SheetLeadRow, isMql: boolean, position: number): Partial<CRMLead> {
+interface SheetLeadSourceMeta {
+    origem: string;
+    source: string;
+    sourcePage: string;
+}
+
+const DEFAULT_SHEET_LEAD_SOURCE: SheetLeadSourceMeta = {
+    origem: 'Planilha JMP — importação de validação',
+    source: 'jmp-sheet-repair',
+    sourcePage: 'Leads JMP',
+};
+
+function sheetRowToLead(
+    row: SheetLeadRow,
+    isMql: boolean,
+    position: number,
+    sourceMeta: SheetLeadSourceMeta = DEFAULT_SHEET_LEAD_SOURCE,
+): Partial<CRMLead> {
     return {
         nome: row.nome || row.email || row.whatsapp || `Lead planilha linha ${row.rowNumber}`,
         email: row.email || null,
@@ -757,9 +775,9 @@ function sheetRowToLead(row: SheetLeadRow, isMql: boolean, position: number): Pa
         status: CRM_STAGE_ENTRY,
         funnel_id: JMP_FUNNEL_ID,
         is_mql: isMql,
-        origem: 'Planilha JMP — importação de validação',
-        source: 'jmp-sheet-repair',
-        source_page: 'Leads JMP',
+        origem: sourceMeta.origem,
+        source: sourceMeta.source,
+        source_page: sourceMeta.sourcePage,
         data_entrada: new Date().toISOString(),
         position,
         extra_data: {
@@ -819,6 +837,90 @@ export async function importMissingLeadsFromSheet(): Promise<{ created: number; 
         created: payload.length,
         validation: await validateLeadsAgainstSheet(),
     };
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Ingestão da aba "Cópia de LEADS BULA" → CRM.
+//
+// Essa aba recebe os leads do formulário Meta "BULA PERPETUO" (mesmo dump cru da
+// "Leads JMP"). Diferente da sync por COR, aqui só CRIAMOS no CRM os leads que
+// ainda não existem (casados por telefone/e-mail), entrando em ENTRADA. NÃO
+// reescrevemos a planilha (a aba é mantida pela equipe). Idempotente: rodar de
+// novo não duplica. Pensado para o cron de 15 min (mesmo do sheet-heal).
+// ─────────────────────────────────────────────────────────────────────────────
+
+function leadContactKey(row: SheetLeadRow): string | null {
+    const phone = leadPhoneKeys(row.whatsapp)[0];
+    if (phone) return `tel:${phone}`;
+    const email = normalizeEmail(row.email);
+    if (email) return `email:${email}`;
+    return null;
+}
+
+function isObviousTestSheetLead(row: SheetLeadRow): boolean {
+    return /^\[TESTE META\]/i.test(row.nome || '') || normalizeEmail(row.email) === 'test@meta.com';
+}
+
+export async function importMissingLeadsFromBulaSheet(): Promise<{ created: number; total: number; matched: number; skippedTest: number }> {
+    const supabase = await createClient();
+    const [{ rows }, config] = await Promise.all([
+        readSecondaryTabLeadRows(LEADS_BULA_TAB),
+        getCRMConfig(),
+    ]);
+
+    const realRows = rows.filter(r => !isObviousTestSheetLead(r));
+    const skippedTest = rows.length - realRows.length;
+    if (realRows.length === 0) return { created: 0, total: rows.length, matched: 0, skippedTest };
+
+    const { data: crm, error: crmError } = await supabase
+        .from('crm_leads')
+        .select('id, nome, email, telefone, celular, estado, cidade, quantidade_animais, o_que_busca, created_at, extra_data');
+    if (crmError) throw new Error(`Error fetching CRM leads: ${crmError.message}`);
+    const crmLeads = (crm ?? []) as CRMLeadMatchRow[];
+
+    const sourceMeta: SheetLeadSourceMeta = {
+        origem: 'Planilha — Cópia de LEADS BULA (Meta BULA PERPETUO)',
+        source: 'jmp-bula-perpetuo-sheet',
+        sourcePage: LEADS_BULA_TAB,
+    };
+    const mqlRule = config.funnels[0]?.mql_rule ?? DEFAULT_JMP_MQL_RULE;
+
+    // Leads ainda sem correspondência no CRM. Dedup também DENTRO do lote (a
+    // mesma pessoa pode aparecer 2x na planilha) para não criar cards repetidos.
+    const seenInBatch = new Set<string>();
+    const missing = realRows.filter(row => {
+        if (findCrmMatch(row, crmLeads)) return false;
+        const key = leadContactKey(row);
+        if (key) {
+            if (seenInBatch.has(key)) return false;
+            seenInBatch.add(key);
+        }
+        return true;
+    });
+    const matched = realRows.length - missing.length;
+    if (missing.length === 0) return { created: 0, total: realRows.length, matched, skippedTest };
+
+    const { data: maxPosRows } = await supabase
+        .from('crm_leads')
+        .select('position')
+        .order('position', { ascending: false })
+        .limit(1);
+    let position = Number(maxPosRows?.[0]?.position ?? 0);
+
+    const payload = missing.map(row => {
+        position += 1000;
+        return sanitizeLeadData(sheetRowToLead(row, evaluateMql(mqlRule, {
+            quantidade_animais: row.cabecas,
+            tem_inscricao_estadual: row.inscricaoEstadual,
+        }), position, sourceMeta));
+    });
+
+    const { error } = await supabase.from('crm_leads').insert(payload);
+    if (error) throw new Error(`Error importing Bula sheet leads: ${error.message}`);
+
+    revalidatePath('/sistema/crm');
+    revalidatePath('/web-admin/crm');
+    return { created: payload.length, total: realRows.length, matched, skippedTest };
 }
 
 // ─────────────────────────────────────────────────────────────────────────────

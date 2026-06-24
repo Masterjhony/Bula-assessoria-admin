@@ -27,3 +27,13 @@ jobs:
             https://admin.bulaassessoria.com/api/jmp/sheet-heal)
           echo "$response"
           echo "$response" | grep -q '"ok":true'
+
+      # Aba "Cópia de LEADS BULA" (Meta "BULA PERPETUO") → CRM. Cria os leads
+      # ainda inexistentes em ENTRADA (idempotente, não reescreve a planilha).
+      - name: Chama /api/jmp/sheet-bula-sync
+        run: |
+          response=$(curl -sS --fail-with-body --max-time 90 \
+            -H "Authorization: Bearer ${{ secrets.CRON_SECRET }}" \
+            https://admin.bulaassessoria.com/api/jmp/sheet-bula-sync)
+          echo "$response"
+          echo "$response" | grep -q '"ok":true'

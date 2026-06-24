@@ -7,6 +7,10 @@ import { supabaseAdmin } from './supabase'
 
 const CONFIG_KEY = 'sheets'
 const TAB = 'Leads JMP'
+// Aba "cópia" que recebe os leads do formulário Meta "BULA PERPETUO" — mesmo
+// layout cru da "Leads JMP" (cabeçalho padrão + bloco de metadados do Meta).
+// Só LEMOS dela (sem reescrever) para alimentar o CRM.
+export const LEADS_BULA_TAB = 'Cópia de LEADS BULA'
 const SHARE_EMAIL = 'formuladoboi@gmail.com'
 const MANUAL_HEADER = 'Atendido por'
 const HEADER = ['Data', 'Nome', 'E-mail', 'WhatsApp', 'UF', 'Cidade', 'Momento', 'Cabeças', 'Interesse', 'Lead ID', 'Qtd. desejada', 'utm_source', 'utm_medium', 'utm_campaign', 'utm_content', 'ad-id', 'Inscrição Estadual'] as const
@@ -113,10 +117,10 @@ function getHeaderLayout(headerRow: string[]): HeaderLayout {
   }
 }
 
-async function readHeaderRow(sheets: SheetsClient, spreadsheetId: string): Promise<string[]> {
+async function readHeaderRow(sheets: SheetsClient, spreadsheetId: string, tab: string = TAB): Promise<string[]> {
   const res = await sheets.spreadsheets.values.get({
     spreadsheetId,
-    range: `${TAB}!A1:${columnName(HEADER_READ_COLUMNS)}1`,
+    range: `${tab}!A1:${columnName(HEADER_READ_COLUMNS)}1`,
   })
   return ((res.data.values?.[0] ?? []) as unknown[]).map((value) => String(value ?? '').trim())
 }
@@ -349,10 +353,6 @@ function cellByHeader(row: string[], layout: HeaderLayout, header: HeaderName): 
   return index == null ? '' : cell(row, index)
 }
 
-function isUnnormalizedMetaRow(row: string[]): boolean {
-  return parseRawMetaLead(row) != null
-}
-
 // ─────────────────────────────────────────────────────────────────────────────
 // Normalização das linhas cruas do Meta Ads.
 //
@@ -554,29 +554,20 @@ export async function normalizeMetaRawRows(): Promise<number> {
   }
 }
 
-export async function readSheetLeadRows(): Promise<{ info: SheetInfo; rows: SheetLeadRow[] }> {
-  const info = await getStoredInfo()
-  if (!info) throw new Error('Planilha de leads JMP não conectada.')
-  const auth = getAuth()
-  if (!auth) throw new Error('GOOGLE_SERVICE_ACCOUNT_JSON ausente — configure a service account.')
-
-  // Auto-cura: realinha eventuais linhas cruas do Meta antes de ler, para que
-  // esses leads apareçam na Validação (e possam ser importados para o CRM).
-  await normalizeMetaRawRows()
-
-  const sheets = google.sheets({ version: 'v4', auth })
-  const headerRow = await readHeaderRow(sheets, info.spreadsheetId)
-  const layout = getHeaderLayout(headerRow)
-  const endColumn = columnName(Math.max(layout.lastColumn, HEADER_READ_COLUMNS))
-  const res = await sheets.spreadsheets.values.get({
-    spreadsheetId: info.spreadsheetId,
-    range: `${TAB}!A2:${endColumn}`,
-  })
-
-  const values = (res.data.values ?? []) as string[][]
-  const rows = values
-    .map((row, index) => ({ row, rowNumber: index + 2 }))
-    .filter(({ row }) => !isUnnormalizedMetaRow(row))
+/**
+ * Converte as linhas cruas da aba (matriz de valores) em SheetLeadRow. Linha
+ * crua do Meta é normalizada EM MEMÓRIA (sem reescrever a planilha); linha já no
+ * layout padrão segue como está. Em ambos os casos a leitura é por cabeçalho,
+ * nunca por posição fixa — mover colunas na planilha não quebra a leitura.
+ */
+function mapSheetValuesToLeadRows(values: string[][], headerRow: string[], layout: HeaderLayout): SheetLeadRow[] {
+  const width = Math.max(headerRow.length, layout.lastColumn, 40)
+  return values
+    .map((raw, index) => {
+      const parsed = parseRawMetaLead(raw)
+      const row = parsed ? buildNormalizedMetaRow(parsed, headerRow, layout, width) : raw
+      return { row, rowNumber: index + 2 }
+    })
     .map(({ row, rowNumber }) => ({
       rowNumber,
       data: cellByHeader(row, layout, 'Data'),
@@ -598,8 +589,57 @@ export async function readSheetLeadRows(): Promise<{ info: SheetInfo; rows: Shee
       inscricaoEstadual: blankToNull(cellByHeader(row, layout, 'Inscrição Estadual')),
     }))
     .filter(row => row.nome || row.email || row.whatsapp)
+}
 
-  return { info, rows }
+export async function readSheetLeadRows(): Promise<{ info: SheetInfo; rows: SheetLeadRow[] }> {
+  const info = await getStoredInfo()
+  if (!info) throw new Error('Planilha de leads JMP não conectada.')
+  const auth = getAuth()
+  if (!auth) throw new Error('GOOGLE_SERVICE_ACCOUNT_JSON ausente — configure a service account.')
+
+  // Auto-cura: realinha eventuais linhas cruas do Meta antes de ler, para que
+  // esses leads apareçam na Validação (e possam ser importados para o CRM).
+  await normalizeMetaRawRows()
+
+  const sheets = google.sheets({ version: 'v4', auth })
+  const headerRow = await readHeaderRow(sheets, info.spreadsheetId)
+  const layout = getHeaderLayout(headerRow)
+  const endColumn = columnName(Math.max(layout.lastColumn, HEADER_READ_COLUMNS))
+  const res = await sheets.spreadsheets.values.get({
+    spreadsheetId: info.spreadsheetId,
+    range: `${TAB}!A2:${endColumn}`,
+  })
+
+  const values = (res.data.values ?? []) as string[][]
+  return { info, rows: mapSheetValuesToLeadRows(values, headerRow, layout) }
+}
+
+/**
+ * Lê leads de uma aba SECUNDÁRIA que recebe os mesmos dumps crus do Meta que a
+ * "Leads JMP" (mesmo cabeçalho/layout), porém SEM reescrever a planilha — a aba
+ * é mantida pela equipe e pode ter outras automações/colunas que não devemos
+ * tocar. Linhas cruas do Meta são normalizadas em memória. Retorna [] se a aba
+ * não existir ou a planilha/credenciais não estiverem configuradas.
+ */
+export async function readSecondaryTabLeadRows(tab: string): Promise<{ info: SheetInfo | null; rows: SheetLeadRow[] }> {
+  const info = await getStoredInfo()
+  if (!info) return { info: null, rows: [] }
+  const auth = getAuth()
+  if (!auth) return { info, rows: [] }
+
+  const sheets = google.sheets({ version: 'v4', auth })
+  const meta = await sheets.spreadsheets.get({ spreadsheetId: info.spreadsheetId, includeGridData: false })
+  if (!meta.data.sheets?.some(s => s.properties?.title === tab)) return { info, rows: [] }
+
+  const headerRow = await readHeaderRow(sheets, info.spreadsheetId, tab)
+  const layout = getHeaderLayout(headerRow)
+  const endColumn = columnName(Math.max(layout.lastColumn, HEADER_READ_COLUMNS))
+  const res = await sheets.spreadsheets.values.get({
+    spreadsheetId: info.spreadsheetId,
+    range: `${tab}!A2:${endColumn}`,
+  })
+  const values = (res.data.values ?? []) as string[][]
+  return { info, rows: mapSheetValuesToLeadRows(values, headerRow, layout) }
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
