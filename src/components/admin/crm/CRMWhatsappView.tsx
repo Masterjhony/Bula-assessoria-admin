@@ -325,10 +325,10 @@ export function CRMWhatsappView() {
                                 {pairCode ? (
                                     <div className="space-y-1">
                                         <p className="text-[11px] text-muted-foreground">
-                                            No celular: <b>WhatsApp → Aparelhos conectados → Conectar com número de telefone</b> e digite:
+                                            No WhatsApp <b>do número informado</b> (no aparelho dele): <b>Aparelhos conectados → Conectar com número de telefone</b> e digite:
                                         </p>
                                         <p className="text-2xl font-bold tracking-[0.25em] tabular-nums text-center select-all py-1">{pairCode}</p>
-                                        <p className="text-[10px] text-muted-foreground text-center">O código expira em ~1 min. Se falhar, gere outro.</p>
+                                        <p className="text-[10px] text-muted-foreground text-center">Expira em ~3 min — digite logo, com WiFi estável. Se falhar, gere outro.</p>
                                     </div>
                                 ) : (
                                     <>
