@@ -18,6 +18,12 @@ const AUTH_DIR = process.env.AUTH_DIR || './auth'
 const MIN_DELAY_MS = Number(process.env.MIN_DELAY_MS || process.env.DELAY_BETWEEN_SENDS_MS || 8000)
 const MAX_DELAY_MS = Number(process.env.MAX_DELAY_MS || 25000)
 
+// Tempo de vida do QR / código de pareamento antes do Baileys rotacionar a ref
+// (e invalidar o código atual). Default do Baileys é 60s; subimos para dar mais
+// folga em conexões lentas. OBS: o WhatsApp pode ter um teto próprio — se ele
+// invalidar antes, é limite do lado do WhatsApp, não desta config.
+const QR_TIMEOUT_MS = Number(process.env.QR_TIMEOUT_MS || 180000)
+
 // Webhook de inbound: o Next (Central WhatsApp) roda o fluxo do bot e devolve a
 // resposta. Sem NEXT_API_URL+WEBHOOK_SECRET, a sessão só envia (não responde).
 const NEXT_API_URL = (process.env.NEXT_API_URL || '').replace(/\/$/, '')
@@ -234,6 +240,7 @@ async function startSocket() {
     auth: state,
     browser: Browsers.macOS('Bula CRM'),
     printQRInTerminal: false,
+    qrTimeout: QR_TIMEOUT_MS,
     version,
   })
 
