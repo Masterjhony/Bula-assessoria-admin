@@ -154,6 +154,14 @@ body { background:var(--bg); color:var(--text); font-family:'Inter',-apple-syste
 .chip.muted { background:var(--s3); color:var(--text2); }
 .chip.purple { background:var(--purple-bg); color:var(--purple); }
 .chip-dot { width:6px; height:6px; border-radius:50%; background:currentColor; }
+/* Chips de resumo por centro de custo (theme-aware, claro/escuro) */
+.cc-chip { cursor:pointer; background:var(--s2); border:1px solid var(--border); color:var(--text2); padding:5px 11px; border-radius:16px; font-size:10.5px; font-weight:600; display:inline-flex; align-items:center; gap:7px; transition:all .15s; font-family:inherit; line-height:1.4; }
+.cc-chip:hover { background:var(--s3); border-color:var(--border2); transform:translateY(-1px); }
+.cc-chip .cc-l { color:var(--text3); font-weight:500; }
+.cc-chip .cc-v { color:var(--text); font-weight:700; }
+.cc-chip.alert { background:var(--amber-bg); border-color:rgba(212,168,67,0.35); }
+.cc-chip.alert .cc-l, .cc-chip.alert .cc-v, .cc-chip.alert .material-symbols-outlined { color:var(--amber); }
+.cc-chip .material-symbols-outlined { font-size:13px; }
 
 /* MONEY */
 .money { font-variant-numeric:tabular-nums; font-weight:600; }
@@ -843,10 +851,12 @@ async function renderContas(modo) {
 
     ${isCP && centrosResumo.length ? `
     <div class="cc-resumo" style="display:flex;flex-wrap:wrap;gap:8px;margin:0 0 14px">
-      ${centrosResumo.map(([nome,val]) => `
-        <button class="chip" style="cursor:pointer;background:var(--surface2,#1b1b1b);border:1px solid var(--border,#333)" title="Filtrar por este centro de custo" onclick="onFilterCentroNome('${escapeHtml(nome).replace(/'/g,"\\'")}')">
-          <span style="opacity:.7">${escapeHtml(nome)}</span> &nbsp;<strong class="money negative">${fmtBRL(val)}</strong>
-        </button>`).join('')}
+      ${centrosResumo.map(([nome,val]) => {
+        const alerta = /sem centro/i.test(nome);
+        return `<button class="cc-chip${alerta?' alert':''}" title="${alerta?'Titulos sem centro de custo atribuido — clique para revisar':'Filtrar por este centro de custo'}" onclick="onFilterCentroNome('${escapeHtml(nome).replace(/'/g,"\\'")}')">
+          ${alerta?'<span class="material-symbols-outlined">help</span>':''}<span class="cc-l">${escapeHtml(nome)}</span><span class="cc-v money">${fmtBRL(val)}</span>
+        </button>`;
+      }).join('')}
     </div>` : ''}
 
     <div class="table-wrap">
@@ -2145,7 +2155,49 @@ async function renderBalanco() {
    ========================================================================== */
 async function renderFluxo() {
   const dias = state.filters.fluxoDias || 60;
-  const d = await api(`/api/erp/fluxo-caixa?dias=${dias}`);
+  const [d, cp, cr] = await Promise.all([
+    api(`/api/erp/fluxo-caixa?dias=${dias}`),
+    api('/api/erp/contas-pagar'),
+    api('/api/erp/contas-receber'),
+  ]);
+  const serie = d.serie || [];
+  const entradas = serie.reduce((s,r)=>s+Number(r.entrada_prev||0),0);
+  const saidas = serie.reduce((s,r)=>s+Number(r.saida_prev||0),0);
+  const resultado = entradas - saidas;
+  const saldoFinal = serie[serie.length-1]?.saldo ?? d.saldo_atual ?? 0;
+  // menor saldo projetado no periodo (alerta de aperto de caixa)
+  let menor = { saldo: Infinity, data: null };
+  for (const r of serie) if (Number(r.saldo) < menor.saldo) menor = { saldo: Number(r.saldo), data: r.data };
+  if (!isFinite(menor.saldo)) menor = { saldo: saldoFinal, data: null };
+
+  const fdc = (x) => (typeof flDataCurta==='function' ? flDataCurta(x) : (x||'—'));
+  const aberto = (r) => ['aberto','vencido','parcial'].includes(r.status);
+  const restante = (r,isCP)=> Number(r.valor||0)-Number(r.desconto||0)+Number(r.juros||0)+Number(r.multa||0)-Number(isCP?r.valor_pago||0:r.valor_recebido||0);
+  const prox = (list,isCP) => list.filter(aberto).filter(r=>r.vencimento).sort((a,b)=>(a.vencimento||'').localeCompare(b.vencimento||''));
+  const proxCR = prox(cr,false), proxCP = prox(cp,true);
+  const totCR = proxCR.reduce((s,r)=>s+restante(r,false),0);
+  const totCP = proxCP.reduce((s,r)=>s+restante(r,true),0);
+  const hoje = new Date().toISOString().slice(0,10);
+  const venceuChip = (r)=> r.status==='vencido' ? '<span class="chip danger" style="padding:0 6px">vencido</span>' : (r.vencimento && r.vencimento<=hoje ? '<span class="chip warn" style="padding:0 6px">hoje</span>' : '');
+
+  // resumo semanal (blocos de 7 dias da serie)
+  const semanas = [];
+  for (let i=0;i<serie.length;i+=7) {
+    const ch = serie.slice(i,i+7); if (!ch.length) continue;
+    semanas.push({
+      ini: ch[0].data, fim: ch[ch.length-1].data,
+      ent: ch.reduce((s,r)=>s+Number(r.entrada_real||0)+Number(r.entrada_prev||0),0),
+      sai: ch.reduce((s,r)=>s+Number(r.saida_real||0)+Number(r.saida_prev||0),0),
+      saldo: Number(ch[ch.length-1].saldo||0),
+    });
+  }
+
+  const linhaTitulo = (r,isCP) => `<tr>
+    <td style="white-space:nowrap;color:var(--gold);font-weight:600">${fdc(r.vencimento)}</td>
+    <td><div style="max-width:240px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${escapeHtml(r.descricao||'—')}</div></td>
+    <td style="text-align:right" class="money ${isCP?'negative':'positive'}">${fmtBRL(restante(r,isCP))} ${venceuChip(r)}</td>
+  </tr>`;
+
   const html = `
     <div class="page-header">
       <div><div class="page-title">Fluxo de Caixa <small>projecao ${dias} dias</small></div></div>
@@ -2159,37 +2211,68 @@ async function renderFluxo() {
       </div>
     </div>
 
-    <div class="kpi-grid">
-      <div class="kpi success">
-        <div class="kpi-icon"><span class="material-symbols-outlined">account_balance_wallet</span></div>
-        <div class="kpi-label">Saldo Hoje</div>
-        <div class="kpi-value money positive">${fmtBRL(d.saldo_atual)}</div>
+    <div class="kpi-grid" style="grid-template-columns:repeat(auto-fit,minmax(180px,1fr))">
+      <div class="kpi success"><div class="kpi-icon"><span class="material-symbols-outlined">account_balance_wallet</span></div>
+        <div class="kpi-label">Saldo Hoje</div><div class="kpi-value money ${Number(d.saldo_atual)>=0?'positive':'negative'}">${fmtBRL(d.saldo_atual)}</div></div>
+      <div class="kpi info"><div class="kpi-icon"><span class="material-symbols-outlined">trending_up</span></div>
+        <div class="kpi-label">Entradas Previstas (${dias}d)</div><div class="kpi-value money positive">${fmtBRL(entradas)}</div></div>
+      <div class="kpi danger"><div class="kpi-icon"><span class="material-symbols-outlined">trending_down</span></div>
+        <div class="kpi-label">Saidas Previstas (${dias}d)</div><div class="kpi-value money negative">${fmtBRL(saidas)}</div></div>
+      <div class="kpi ${resultado>=0?'success':'danger'}"><div class="kpi-icon"><span class="material-symbols-outlined">${resultado>=0?'savings':'priority_high'}</span></div>
+        <div class="kpi-label">Resultado do Periodo</div><div class="kpi-value money ${resultado>=0?'positive':'negative'}">${fmtBRL(resultado)}</div></div>
+      <div class="kpi warn"><div class="kpi-icon"><span class="material-symbols-outlined">flag</span></div>
+        <div class="kpi-label">Saldo Projetado Final</div><div class="kpi-value money ${saldoFinal>=0?'positive':'negative'}">${fmtBRL(saldoFinal)}</div></div>
+    </div>
+
+    ${menor.data && menor.saldo < 0 ? `<div class="card" style="margin-top:14px;border-color:rgba(192,80,77,0.4);background:var(--red-bg)">
+      <div style="display:flex;align-items:center;gap:10px;color:var(--red);font-size:12px;font-weight:600">
+        <span class="material-symbols-outlined">warning</span>Caixa fica negativo em ${fdc(menor.data)} (menor saldo projetado: ${fmtBRL(menor.saldo)}). Antecipe recebimentos ou renegocie vencimentos.</div>
+    </div>` : ''}
+
+    ${state.bancos && state.bancos.length ? `
+    <div class="card" style="margin-top:16px">
+      <div class="card-title"><span class="material-symbols-outlined">account_balance</span>Posicao por Conta Bancaria</div>
+      <div style="display:flex;flex-wrap:wrap;gap:10px">
+        ${state.bancos.map(b=>`<div style="flex:1;min-width:170px;border:1px solid var(--border);border-radius:var(--r);padding:12px 14px;background:var(--s2)">
+          <div style="font-size:11px;color:var(--text3);margin-bottom:4px">${escapeHtml(b.nome||'—')}</div>
+          <div class="money ${Number(b.saldo_atual)>=0?'positive':'negative'}" style="font-size:17px;font-weight:700">${fmtBRL(b.saldo_atual)}</div>
+        </div>`).join('')}
       </div>
-      <div class="kpi info">
-        <div class="kpi-icon"><span class="material-symbols-outlined">trending_up</span></div>
-        <div class="kpi-label">Entradas Previstas (${dias}d)</div>
-        <div class="kpi-value money positive">${fmtBRL(d.serie.reduce((s,r)=>s+r.entrada_prev,0))}</div>
+    </div>` : ''}
+
+    <div class="chart-wrap" style="margin-top:16px">
+      <div class="chart-header"><div class="chart-title">Projecao de Saldo (${dias} dias)</div></div>
+      <div class="chart-canvas">${lineChart(serie, { series:[{ key:'saldo', color:'#C8A96E', label:'Saldo Projetado', fill:true }] })}</div>
+    </div>
+
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(320px,1fr));gap:16px;margin-top:16px">
+      <div class="card">
+        <div class="card-title"><span class="material-symbols-outlined">request_quote</span>Proximos a Receber <span style="margin-left:auto;color:var(--olive);font-weight:700">${fmtBRL(totCR)}</span></div>
+        ${proxCR.length ? `<div class="table-wrap" style="border:none"><table><tbody>${proxCR.slice(0,8).map(r=>linhaTitulo(r,false)).join('')}</tbody></table></div>${proxCR.length>8?`<div style="font-size:10px;color:var(--text3);margin-top:6px">+${proxCR.length-8} titulos a receber</div>`:''}` : '<div class="empty" style="padding:18px"><p>Nada a receber em aberto.</p></div>'}
       </div>
-      <div class="kpi danger">
-        <div class="kpi-icon"><span class="material-symbols-outlined">trending_down</span></div>
-        <div class="kpi-label">Saidas Previstas (${dias}d)</div>
-        <div class="kpi-value money negative">${fmtBRL(d.serie.reduce((s,r)=>s+r.saida_prev,0))}</div>
-      </div>
-      <div class="kpi warn">
-        <div class="kpi-icon"><span class="material-symbols-outlined">flag</span></div>
-        <div class="kpi-label">Saldo Projetado Final</div>
-        <div class="kpi-value money ${(d.serie[d.serie.length-1]?.saldo||0)>=0?'positive':'negative'}">${fmtBRL(d.serie[d.serie.length-1]?.saldo||0)}</div>
+      <div class="card">
+        <div class="card-title"><span class="material-symbols-outlined">payments</span>Proximos a Pagar <span style="margin-left:auto;color:var(--red);font-weight:700">${fmtBRL(totCP)}</span></div>
+        ${proxCP.length ? `<div class="table-wrap" style="border:none"><table><tbody>${proxCP.slice(0,8).map(r=>linhaTitulo(r,true)).join('')}</tbody></table></div>${proxCP.length>8?`<div style="font-size:10px;color:var(--text3);margin-top:6px">+${proxCP.length-8} titulos a pagar</div>`:''}` : '<div class="empty" style="padding:18px"><p>Nada a pagar em aberto.</p></div>'}
       </div>
     </div>
 
-    <div class="chart-wrap">
-      <div class="chart-header"><div class="chart-title">Projecao de Saldo</div></div>
-      <div class="chart-canvas">${lineChart(d.serie, { series:[{ key:'saldo', color:'#C8A96E', label:'Saldo Projetado', fill:true }] })}</div>
-    </div>
+    ${semanas.length ? `<div class="card" style="margin-top:16px">
+      <div class="card-title"><span class="material-symbols-outlined">calendar_view_week</span>Resumo Semanal</div>
+      <div class="table-wrap" style="border:none"><table>
+        <thead><tr><th>Semana</th><th style="text-align:right">Entradas</th><th style="text-align:right">Saidas</th><th style="text-align:right">Liquido</th><th style="text-align:right">Saldo Final</th></tr></thead>
+        <tbody>${semanas.map(w=>{const liq=w.ent-w.sai;return `<tr>
+          <td style="white-space:nowrap;color:var(--text2)">${fdc(w.ini)} – ${fdc(w.fim)}</td>
+          <td class="money positive" style="text-align:right">${fmtBRL(w.ent)}</td>
+          <td class="money negative" style="text-align:right">${fmtBRL(w.sai)}</td>
+          <td class="money ${liq>=0?'positive':'negative'}" style="text-align:right">${fmtBRL(liq)}</td>
+          <td class="money ${w.saldo>=0?'positive':'negative'}" style="text-align:right;font-weight:700">${fmtBRL(w.saldo)}</td>
+        </tr>`;}).join('')}</tbody>
+      </table></div>
+    </div>` : ''}
 
-    <div class="chart-wrap">
+    <div class="chart-wrap" style="margin-top:16px">
       <div class="chart-header"><div class="chart-title">Entradas vs Saidas</div></div>
-      <div class="chart-canvas">${lineChart(d.serie, { series:[
+      <div class="chart-canvas">${lineChart(serie, { series:[
         { key:'entrada_real', color:'#6B8F5C', label:'Entrada Real' },
         { key:'saida_real', color:'#C0504D', label:'Saida Real' },
         { key:'entrada_prev', color:'#4A8FBF', label:'Entrada Prev' },
