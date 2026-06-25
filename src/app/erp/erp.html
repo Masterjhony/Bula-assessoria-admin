@@ -312,6 +312,9 @@ svg.chart { width:100%; height:100%; display:block; }
     <div class="sidebar-item" data-page="notas"><span class="material-symbols-outlined">receipt_long</span><span>Notas Fiscais</span></div>
     <div class="sidebar-item" data-page="empresa"><span class="material-symbols-outlined">business</span><span>Empresa</span></div>
 
+    <div class="sidebar-section">Pessoal</div>
+    <div class="sidebar-item" data-page="folha"><span class="material-symbols-outlined">badge</span><span>Folha &amp; Comissoes</span></div>
+
     <div class="sidebar-section">Leiloes</div>
     <div class="sidebar-item" data-page="fechamento_leiloes"><span class="material-symbols-outlined">gavel</span><span>Fechamento Leiloes</span></div>
     <div class="sidebar-item" data-page="acordos_comerciais"><span class="material-symbols-outlined">handshake</span><span>Acordos Comerciais</span></div>
@@ -574,6 +577,7 @@ async function render() {
     if (state.page === 'fechamento_leiloes') return renderFechamentoLeiloes();
     if (state.page === 'acordos_comerciais') return renderAcordosComerciais();
     if (state.page === 'comissionamento') return renderComissionamento();
+    if (state.page === 'folha') return renderFolha();
   } catch (e) {
     page.innerHTML = `<div class="card" style="text-align:center"><span class="material-symbols-outlined" style="font-size:36px;color:var(--red)">error</span><h3 style="margin:8px 0">Erro ao carregar</h3><p style="color:var(--text3);font-size:12px">${escapeHtml(e.message)}</p></div>`;
   }
@@ -3763,6 +3767,117 @@ function coExportCSV() {
   const aEl = document.createElement('a'); aEl.href=url; aEl.download='comissionamento-assessores.csv'; aEl.click();
   URL.revokeObjectURL(url);
   toast('CSV exportado','success');
+}
+
+/* ==========================================================================
+   FOLHA & COMISSOES
+   ========================================================================== */
+// Estrutura fixa (aba "Folha & Comissoes" do workbook FINANCEIRO BULA 2026).
+const FOLHA_ESTRUTURA = [
+  { nome:'Fabio Omenna',  funcao:'Assessor Comercial',      fixo:11700, comissao:'3,00%' },
+  { nome:'Douglas Bispo', funcao:'Assessor Comercial',      fixo:3600,  comissao:'2,00%' },
+  { nome:'Leonardo',      funcao:'Assessor Tecnico',        fixo:13500, comissao:'2,00%' },
+  { nome:'Gustavo Rusa',  funcao:'Parceiro',                fixo:0,     comissao:'5,00%' },
+  { nome:'Joao Eduardo',  funcao:'Tecnologia e Financeiro', fixo:3000,  comissao:'—' },
+  { nome:'Joao Gabriel',  funcao:'Marketing',               fixo:2000,  comissao:'—' },
+  { nome:'Joao Antonio',  funcao:'SDR',                     fixo:2000,  comissao:'+ R$ 2.000 (SDR)' },
+];
+
+async function renderFolha() {
+  const cps = await api('/api/erp/contas-pagar');
+  const isFolha = (r) => /^folha/i.test(r.descricao||'') || /folha/i.test(r.categoria?.nome||'');
+  const isComissao = (r) => /comiss[aã]o/i.test(r.descricao||'') || /comiss[aã]o/i.test(r.categoria?.nome||'');
+  const folha = cps.filter(isFolha);
+  const comissoes = cps.filter(r => isComissao(r) && !isFolha(r));
+
+  const mesLabel = (r) => {
+    const m = /(Janeiro|Fevereiro|Mar[cç]o|Abril|Maio|Junho|Julho|Agosto|Setembro|Outubro|Novembro|Dezembro)\s*\/?\s*(20\d\d)?/i.exec(r.descricao||'');
+    if (m) return `${m[1].replace('ç','c')}/${m[2]||'2026'}`;
+    return (r.vencimento||r.emissao||'—').slice(0,7);
+  };
+  const byMes = {};
+  for (const r of folha) { const k = mesLabel(r); (byMes[k] = byMes[k] || []).push(r); }
+  const meses = Object.entries(byMes).sort((a,b)=> (b[1][0].vencimento||'').localeCompare(a[1][0].vencimento||''));
+
+  const totalFixo = FOLHA_ESTRUTURA.reduce((s,e)=>s+e.fixo,0);
+  const headcount = FOLHA_ESTRUTURA.filter(e=>e.fixo>0).length;
+  const comAberto = comissoes.filter(r=>['aberto','vencido','parcial'].includes(r.status)).reduce((s,r)=>s+Number(r.valor||0),0);
+  const comTotal = comissoes.reduce((s,r)=>s+Number(r.valor||0),0);
+  const stChip = (s)=> ({pago:'success',recebido:'success',aberto:'muted',vencido:'danger',parcial:'warn'}[s]||'muted');
+
+  const html = `
+    <div class="page-header">
+      <div><div class="page-title">Folha &amp; Comissoes <small>${headcount} colaboradores</small></div></div>
+    </div>
+
+    <div class="kpi-grid">
+      <div class="kpi"><div class="kpi-icon"><span class="material-symbols-outlined">badge</span></div>
+        <div class="kpi-label">Folha Fixa Mensal</div><div class="kpi-value money">${fmtBRL(totalFixo)}</div></div>
+      <div class="kpi"><div class="kpi-icon"><span class="material-symbols-outlined">groups</span></div>
+        <div class="kpi-label">Colaboradores (folha)</div><div class="kpi-value">${headcount}</div></div>
+      <div class="kpi warn"><div class="kpi-icon"><span class="material-symbols-outlined">real_estate_agent</span></div>
+        <div class="kpi-label">Comissoes a Pagar</div><div class="kpi-value money">${fmtBRL(comAberto)}</div></div>
+      <div class="kpi"><div class="kpi-icon"><span class="material-symbols-outlined">payments</span></div>
+        <div class="kpi-label">Comissoes (total lancado)</div><div class="kpi-value money">${fmtBRL(comTotal)}</div></div>
+    </div>
+
+    <div class="card" style="margin-top:16px">
+      <div class="card-title"><span class="material-symbols-outlined">diversity_3</span>Estrutura de Folha &amp; Comissoes</div>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Colaborador</th><th>Funcao</th><th style="text-align:right">Salario Fixo</th><th style="text-align:right">Comissao</th></tr></thead>
+          <tbody>
+            ${FOLHA_ESTRUTURA.map(e=>`<tr>
+              <td style="font-weight:600">${escapeHtml(e.nome)}</td>
+              <td style="color:var(--text2)">${escapeHtml(e.funcao)}</td>
+              <td class="money" style="text-align:right">${e.fixo?fmtBRL(e.fixo):'<span style="color:var(--text4)">—</span>'}</td>
+              <td style="text-align:right;color:var(--gold);font-weight:600">${escapeHtml(e.comissao)}</td>
+            </tr>`).join('')}
+          </tbody>
+          <tfoot><tr style="font-weight:700;border-top:2px solid var(--border2)"><td colspan="2">Total folha fixa</td><td class="money" style="text-align:right">${fmtBRL(totalFixo)}</td><td></td></tr></tfoot>
+        </table>
+      </div>
+      <div style="font-size:10px;color:var(--text3);margin-top:6px">Fixo (folha) + variavel (% comissao) sao despesas separadas: a base do % nao e o VGV do fechamento. Gustavo Rusa e parceiro (so comissao).</div>
+    </div>
+
+    <div class="card" style="margin-top:16px">
+      <div class="card-title"><span class="material-symbols-outlined">event_repeat</span>Folha lancada (contas a pagar)</div>
+      ${meses.length===0 ? `<div class="empty" style="padding:24px"><p>Nenhuma folha lancada ainda. Lance pela pagina Contas a Pagar (categoria Folha de Pagamento).</p></div>` :
+      meses.map(([mes,items])=>{
+        const tot = items.reduce((s,r)=>s+Number(r.valor||0),0);
+        return `<div style="margin-bottom:10px">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin:6px 0">
+            <strong style="color:var(--gold)">${escapeHtml(mes)}</strong>
+            <span class="money" style="font-weight:700">${fmtBRL(tot)}</span>
+          </div>
+          <div class="table-wrap"><table>
+            <thead><tr><th>Colaborador / Descricao</th><th>Vencimento</th><th style="text-align:right">Valor</th><th style="text-align:center">Status</th></tr></thead>
+            <tbody>${items.sort((a,b)=>Number(b.valor||0)-Number(a.valor||0)).map(r=>`<tr>
+              <td>${escapeHtml(r.descricao||'—')}</td>
+              <td style="white-space:nowrap;color:var(--text2)">${escapeHtml(flDataCurta?flDataCurta(r.vencimento):(r.vencimento||'—'))}</td>
+              <td class="money" style="text-align:right">${fmtBRL(r.valor)}</td>
+              <td style="text-align:center"><span class="chip ${stChip(r.status)}" style="padding:1px 7px">${escapeHtml(r.status||'—')}</span></td>
+            </tr>`).join('')}</tbody>
+          </table></div>
+        </div>`;
+      }).join('')}
+    </div>
+
+    <div class="card" style="margin-top:16px">
+      <div class="card-title"><span class="material-symbols-outlined">real_estate_agent</span>Comissoes a pagar (assessores / parceiros) ${comissoes.length?`<span style="color:var(--text3);font-weight:400">(${comissoes.length})</span>`:''}</div>
+      ${comissoes.length===0 ? `<div class="empty" style="padding:24px"><p>Sem comissoes lancadas.</p></div>` : `
+      <div class="table-wrap"><table>
+        <thead><tr><th>Descricao</th><th>Vencimento</th><th style="text-align:right">Valor</th><th style="text-align:center">Status</th></tr></thead>
+        <tbody>${comissoes.sort((a,b)=>(b.vencimento||'').localeCompare(a.vencimento||'')).map(r=>`<tr>
+          <td>${escapeHtml(r.descricao||'—')}</td>
+          <td style="white-space:nowrap;color:var(--text2)">${escapeHtml(flDataCurta?flDataCurta(r.vencimento):(r.vencimento||'—'))}</td>
+          <td class="money" style="text-align:right">${fmtBRL(r.valor)}</td>
+          <td style="text-align:center"><span class="chip ${stChip(r.status)}" style="padding:1px 7px">${escapeHtml(r.status||'—')}</span></td>
+        </tr>`).join('')}</tbody>
+        <tfoot><tr style="font-weight:700;border-top:2px solid var(--border2)"><td colspan="2">Total</td><td class="money" style="text-align:right">${fmtBRL(comTotal)}</td><td></td></tr></tfoot>
+      </table></div>`}
+    </div>`;
+  document.getElementById('page').innerHTML = html;
 }
 
 /* ==========================================================================
