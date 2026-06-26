@@ -389,9 +389,16 @@ function buildMessagePayload(input: {
     poll?: CloudCampaignPoll | null
     templateName?: string | null
     templateLanguage?: string | null
+    /** Valores explícitos das variáveis do corpo do template ({{1}}, {{2}}…).
+     *  Quando informado, tem prioridade sobre a derivação a partir do texto —
+     *  permite logar um corpo já renderizado (sem {{n}}) e ainda assim mandar
+     *  os parâmetros corretos pra Meta. */
+    templateParams?: string[] | null
 }): Record<string, unknown> {
     if (input.templateName) {
-        const parameters = templateBodyParameters(input.recipient)
+        const parameters = input.templateParams && input.templateParams.length > 0
+            ? input.templateParams.map(text => ({ type: 'text' as const, text }))
+            : templateBodyParameters(input.recipient)
         const template: Record<string, unknown> = {
             name: input.templateName,
             language: { code: input.templateLanguage || 'pt_BR' },
@@ -457,6 +464,7 @@ export async function sendSingleViaCloudApi(input: {
     text?: string | null
     templateName?: string | null
     templateLanguage?: string | null
+    templateParams?: string[] | null
 }): Promise<{ ok: boolean; messageId?: string; error?: string }> {
     if (!isWhatsappCloudApiConfigured()) {
         return { ok: false, error: 'WhatsApp Cloud API não configurada.' }
@@ -477,6 +485,7 @@ export async function sendSingleViaCloudApi(input: {
             recipient,
             templateName: input.templateName ?? null,
             templateLanguage: input.templateLanguage ?? null,
+            templateParams: input.templateParams ?? null,
         })
         const messageId = await postCloudMessage(payload)
         return { ok: true, messageId }

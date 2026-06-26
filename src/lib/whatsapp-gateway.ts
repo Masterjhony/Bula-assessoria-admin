@@ -50,6 +50,10 @@ export interface OutboundRequest {
     /** Nome do template Meta (envio Cloud para contato frio). */
     templateName?: string | null
     templateLanguage?: string | null
+    /** Valores das variáveis do corpo do template ({{1}}…). Quando informado,
+     *  `text` pode ser o corpo já renderizado (para log/cockpit) sem afetar o
+     *  que a Meta recebe. */
+    templateParams?: string[] | null
     intent: OutboundIntent
     /** 'auto' (default) deixa a política decidir; força um canal específico se quiser. */
     channelHint?: Channel | 'auto'
@@ -166,6 +170,7 @@ async function sendViaCloud(input: {
     text?: string | null
     templateName?: string | null
     templateLanguage?: string | null
+    templateParams?: string[] | null
 }): Promise<{ status: 'sent' | 'failed'; messageId?: string; error?: string }> {
     const r = await sendSingleViaCloudApi({
         to: input.phone,
@@ -173,6 +178,7 @@ async function sendViaCloud(input: {
         text: input.text,
         templateName: input.templateName,
         templateLanguage: input.templateLanguage,
+        templateParams: input.templateParams,
     })
     return r.ok ? { status: 'sent', messageId: r.messageId } : { status: 'failed', error: r.error }
 }
@@ -276,6 +282,7 @@ export async function sendOutbound(
             text: req.text,
             templateName: req.templateName,
             templateLanguage: req.templateLanguage,
+            templateParams: req.templateParams,
         })
 
     const status: OutboundStatus = transport.status // 'sent' | 'queued' | 'failed'
