@@ -1,7 +1,8 @@
 'use client';
 
 import { useState, useRef, useEffect } from 'react';
-import { Send, Sparkles, Trash2, Database, Copy, Check, Bot } from 'lucide-react';
+import Link from 'next/link';
+import { Send, Sparkles, Trash2, Database, Copy, Check, Bot, FileVideo } from 'lucide-react';
 
 interface Message {
     id: string;
@@ -142,15 +143,24 @@ export default function IAPage() {
                         Consultas em tempo real ao banco de dados
                     </p>
                 </div>
-                {messages.length > 0 && (
-                    <button
-                        onClick={() => setMessages([])}
-                        className="flex items-center gap-2 px-4 py-2 text-sm text-gray-500 hover:text-red-500 dark:text-gray-400 dark:hover:text-red-400 hover:bg-red-50 dark:hover:bg-red-500/10 rounded-xl transition-all"
+                <div className="flex items-center gap-2">
+                    <Link
+                        href="/sistema/ia/leiloes"
+                        className="flex items-center gap-2 px-4 py-2 text-sm rounded-xl border border-[#A68B4B]/40 text-[#A68B4B] hover:bg-[#A68B4B]/10 transition-all"
                     >
-                        <Trash2 size={16} />
-                        <span className="hidden sm:inline">Limpar conversa</span>
-                    </button>
-                )}
+                        <FileVideo size={16} />
+                        <span className="hidden sm:inline">Análise de Leilões</span>
+                    </Link>
+                    {messages.length > 0 && (
+                        <button
+                            onClick={() => setMessages([])}
+                            className="flex items-center gap-2 px-4 py-2 text-sm text-gray-500 hover:text-red-500 dark:text-gray-400 dark:hover:text-red-400 hover:bg-red-50 dark:hover:bg-red-500/10 rounded-xl transition-all"
+                        >
+                            <Trash2 size={16} />
+                            <span className="hidden sm:inline">Limpar conversa</span>
+                        </button>
+                    )}
+                </div>
             </div>
 
             {/* Messages Area */}
