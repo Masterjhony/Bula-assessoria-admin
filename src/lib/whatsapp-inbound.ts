@@ -73,9 +73,20 @@ export async function createLeadFromInbound(
     return lead as LeadShape
 }
 
+export interface InboundMedia {
+    /** Key do objeto no R2 (resolvida em signed URL na hora de exibir). */
+    url: string
+    type: 'audio' | 'image' | 'video' | 'document'
+    mime?: string | null
+    filename?: string | null
+}
+
 export function logInbound(
     supabase: SupabaseClient,
-    args: { phone: string; name: string; body: string; lead_id: string | null; message_id?: string | null; channel?: string | null },
+    args: {
+        phone: string; name: string; body: string; lead_id: string | null
+        message_id?: string | null; channel?: string | null; media?: InboundMedia | null
+    },
 ) {
     void supabase
         .from('whatsapp_messages')
@@ -89,6 +100,10 @@ export function logInbound(
             channel: args.channel ?? null,
             reason: args.message_id ?? null,
             lead_id: args.lead_id,
+            media_url: args.media?.url ?? null,
+            media_type: args.media?.type ?? null,
+            media_mime: args.media?.mime ?? null,
+            media_filename: args.media?.filename ?? null,
         })
         .then(({ error }) => {
             if (error) console.warn('[Inbound] log inbound:', error.message)
@@ -124,7 +139,10 @@ export type InboundOutcome =
  */
 export async function processInboundMessage(
     supabase: SupabaseClient,
-    input: { phone: string; senderName?: string; text: string; messageId?: string | null; channel?: string | null },
+    input: {
+        phone: string; senderName?: string; text: string
+        messageId?: string | null; channel?: string | null; media?: InboundMedia | null
+    },
 ): Promise<InboundOutcome> {
     const { phone, text } = input
     const senderName = (input.senderName || '').trim()
@@ -142,6 +160,7 @@ export async function processInboundMessage(
         lead_id: lead?.id ?? null,
         message_id: input.messageId ?? null,
         channel: input.channel ?? null,
+        media: input.media ?? null,
     })
 
     if (lead) {

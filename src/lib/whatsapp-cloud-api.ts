@@ -144,6 +144,33 @@ export async function fetchWhatsappCloudPhoneNumber(): Promise<Record<string, un
     return await metaFetch(`/${config.phoneNumberId}?fields=${fields}`) as Record<string, unknown>
 }
 
+/**
+ * Baixa uma mídia recebida (inbound) da Cloud API. São dois passos na Graph:
+ *   1. GET /{media-id}        → metadados, incluindo a `url` temporária
+ *   2. GET <url>              → bytes (a URL exige o mesmo Bearer token)
+ * Retorna os bytes + o mime real. Mídia da Meta expira em ~5 min na URL, mas o
+ * media-id vive ~30 dias — por isso baixamos no momento do webhook.
+ */
+export async function downloadWhatsappCloudMedia(
+    mediaId: string,
+): Promise<{ data: ArrayBuffer; mime: string }> {
+    const config = getWhatsappCloudConfig()
+    if (!config.accessToken) throw new Error('WHATSAPP_CLOUD_ACCESS_TOKEN ausente.')
+
+    const meta = await metaFetch(`/${mediaId}`) as { url?: string; mime_type?: string }
+    if (!meta?.url) throw new Error(`Mídia ${mediaId} sem url na resposta da Meta.`)
+
+    // O download NÃO passa pelo graphBase (a url já é absoluta) e precisa do
+    // header de auth — sem ele a Meta devolve 401.
+    const res = await fetch(meta.url, {
+        headers: { Authorization: `Bearer ${config.accessToken}` },
+        signal: AbortSignal.timeout(25000),
+    })
+    if (!res.ok) throw new Error(`Download da mídia ${mediaId} falhou: HTTP ${res.status}`)
+    const data = await res.arrayBuffer()
+    return { data, mime: meta.mime_type || res.headers.get('content-type') || 'application/octet-stream' }
+}
+
 function bodyFromTemplate(row: MetaTemplateRow): string {
     const body = row.components?.find(c => String(c.type ?? '').toUpperCase() === 'BODY')
     return body?.text ?? ''

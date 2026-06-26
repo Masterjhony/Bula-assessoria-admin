@@ -31,6 +31,11 @@ export interface ThreadMessage {
     campaign_id: string | null
     template_id: string | null
     created_at: string
+    // Mídia recebida (inbound). media_url já vem como signed URL pronta para uso.
+    media_url: string | null
+    media_type: 'audio' | 'image' | 'video' | 'document' | null
+    media_mime: string | null
+    media_filename: string | null
 }
 
 export interface ThreadLead {

@@ -4,7 +4,7 @@ import { useEffect, useMemo, useState } from "react"
 import {
     Search, MessageSquare, User, Send, AlertCircle, CheckCircle2, Clock,
     UserPlus, BellOff, Bell, Hand, Sparkles, Tag, Loader2, GraduationCap,
-    Lock, ShieldCheck, Smartphone,
+    Lock, ShieldCheck, Smartphone, FileText, Download,
 } from "lucide-react"
 import {
     INTERESSE_LABELS,
@@ -16,6 +16,57 @@ import {
 import { ACADEMIA_TAG } from "@/lib/whatsapp-central"
 
 type Filter = "todos" | "aguardando" | "handoff" | "optout" | "interesse"
+
+// Placeholders de texto que o webhook grava para mídia — quando há player/preview
+// renderizado, escondemos esse texto redundante.
+const MEDIA_PLACEHOLDERS = new Set(["[áudio]", "[imagem]", "[vídeo]", "[documento]"])
+
+/** Renderiza a mídia recebida no balão: player de áudio/vídeo, imagem ou link. */
+function MediaContent({
+    url, type, mime, filename,
+}: {
+    url: string
+    type: "audio" | "image" | "video" | "document"
+    mime: string | null
+    filename: string | null
+}) {
+    if (type === "audio") {
+        return (
+            // eslint-disable-next-line jsx-a11y/media-has-caption
+            <audio controls preload="none" className="max-w-full my-1" src={url}>
+                <source src={url} type={mime || undefined} />
+            </audio>
+        )
+    }
+    if (type === "image") {
+        return (
+            <a href={url} target="_blank" rel="noopener noreferrer">
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img src={url} alt={filename || "imagem"} className="rounded-md max-h-64 my-1 object-contain" />
+            </a>
+        )
+    }
+    if (type === "video") {
+        return (
+            // eslint-disable-next-line jsx-a11y/media-has-caption
+            <video controls preload="none" className="rounded-md max-h-64 max-w-full my-1" src={url} />
+        )
+    }
+    // documento
+    return (
+        <a
+            href={url}
+            target="_blank"
+            rel="noopener noreferrer"
+            download={filename || undefined}
+            className="inline-flex items-center gap-2 my-1 rounded-md border px-2.5 py-1.5 text-xs hover:bg-muted"
+        >
+            <FileText className="h-4 w-4 shrink-0" />
+            <span className="truncate max-w-[180px]">{filename || "documento"}</span>
+            <Download className="h-3.5 w-3.5 shrink-0 opacity-70" />
+        </a>
+    )
+}
 
 const FILTERS: { id: Filter; label: string }[] = [
     { id: "todos", label: "Todos" },
@@ -362,9 +413,17 @@ export function InboxTab({ templates, channel = "oficial" }: { templates: Templa
                                                     : "bg-primary text-primary-foreground"
                                             }`}
                                         >
-                                            {m.body ? (
+                                            {m.media_url && m.media_type && (
+                                                <MediaContent
+                                                    url={m.media_url}
+                                                    type={m.media_type}
+                                                    mime={m.media_mime}
+                                                    filename={m.media_filename}
+                                                />
+                                            )}
+                                            {m.body && !(m.media_url && MEDIA_PLACEHOLDERS.has(m.body)) ? (
                                                 m.body
-                                            ) : m.direction === "outbound" && m.bot_step === "welcome" ? (
+                                            ) : m.media_url ? null : m.direction === "outbound" && m.bot_step === "welcome" ? (
                                                 <span className="opacity-70 italic">
                                                     Welcome enviado — template renderizado pelo bot (ver na aba Templates).
                                                 </span>

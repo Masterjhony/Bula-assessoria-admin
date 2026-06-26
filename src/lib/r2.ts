@@ -217,6 +217,34 @@ export async function getR2UploadUrl(
     return { url: signed.url, key: Key };
 }
 
+/**
+ * Sobe bytes direto para o R2 a partir do servidor (ex.: mídia inbound do
+ * WhatsApp baixada da Graph API). Diferente de `getR2UploadUrl` (presigned PUT
+ * para o browser), aqui o próprio server assina e entrega o corpo. Retorna a
+ * key completa (já com prefixo) para gravar no banco.
+ */
+export async function putR2Object(
+    rawKey: string,
+    body: ArrayBuffer | Uint8Array,
+    opts?: { contentType?: string }
+): Promise<{ key: string }> {
+    const Key = resolveR2Key(rawKey);
+    const u = `${getBucketUrl()}/${encodeKey(Key)}`;
+    // cast: o lib do TS tipa Uint8Array como genérico sobre ArrayBufferLike
+    // (que inclui SharedArrayBuffer, não-BlobPart); aqui é sempre buffer comum.
+    const blob = new Blob([body as BlobPart], opts?.contentType ? { type: opts.contentType } : undefined);
+    const res = await getClient().fetch(u, {
+        method: 'PUT',
+        body: blob,
+        headers: opts?.contentType ? { 'Content-Type': opts.contentType } : {},
+    });
+    if (!res.ok) {
+        const text = await res.text();
+        throw new Error(`R2 put falhou (${res.status}): ${text.slice(0, 200)}`);
+    }
+    return { key: Key };
+}
+
 export async function deleteR2Object(rawKey: string): Promise<void> {
     const Key = resolveR2Key(rawKey);
     const u = `${getBucketUrl()}/${encodeKey(Key)}`;

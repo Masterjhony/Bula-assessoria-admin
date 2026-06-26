@@ -22,8 +22,10 @@ import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
 import crypto from 'crypto'
 import { normalizePhone } from '@/lib/whatsapp-central'
-import { processInboundMessage, inboundAlreadyProcessed } from '@/lib/whatsapp-inbound'
+import { processInboundMessage, inboundAlreadyProcessed, type InboundMedia } from '@/lib/whatsapp-inbound'
 import { sendOutbound } from '@/lib/whatsapp-gateway'
+import { downloadWhatsappCloudMedia } from '@/lib/whatsapp-cloud-api'
+import { putR2Object } from '@/lib/r2'
 
 export const maxDuration = 30
 
@@ -69,6 +71,7 @@ function signatureValid(rawBody: string, header: string | null): boolean {
 }
 
 // ── Extração do texto de cada tipo de mensagem ──────────────────────────────
+type MetaMediaObj = { id?: string; mime_type?: string; caption?: string; filename?: string; voice?: boolean }
 type MetaMessage = {
     from?: string
     id?: string
@@ -80,9 +83,11 @@ type MetaMessage = {
         button_reply?: { title?: string; id?: string }
         list_reply?: { title?: string; id?: string }
     }
-    image?: { caption?: string }
-    video?: { caption?: string }
-    document?: { caption?: string; filename?: string }
+    image?: MetaMediaObj
+    video?: MetaMediaObj
+    audio?: MetaMediaObj
+    document?: MetaMediaObj
+    sticker?: MetaMediaObj
 }
 
 function extractText(m: MetaMessage): string {
@@ -99,6 +104,52 @@ function extractText(m: MetaMessage): string {
         case 'contacts': return '[contato]'
         case 'sticker': return '[figurinha]'
         default: return ''
+    }
+}
+
+// Tipos de mídia que baixamos e guardamos. 'sticker' fica de fora (webp animado,
+// pouco útil no histórico) — vira só o placeholder de texto.
+const MEDIA_KINDS = ['audio', 'image', 'video', 'document'] as const
+type MediaKind = (typeof MEDIA_KINDS)[number]
+
+function extractMediaRef(m: MetaMessage): { kind: MediaKind; id: string; mime?: string; filename?: string } | null {
+    if (!MEDIA_KINDS.includes(m.type as MediaKind)) return null
+    const obj = (m as Record<string, MetaMediaObj | undefined>)[m.type!]
+    if (!obj?.id) return null
+    return { kind: m.type as MediaKind, id: obj.id, mime: obj.mime_type, filename: obj.filename }
+}
+
+// Extensão a partir do mime (cai num default por tipo quando a Meta não manda).
+function extFromMime(mime: string | undefined, kind: MediaKind): string {
+    const m = (mime || '').split(';')[0].trim()
+    const map: Record<string, string> = {
+        'audio/ogg': 'ogg', 'audio/mpeg': 'mp3', 'audio/mp4': 'm4a', 'audio/amr': 'amr', 'audio/aac': 'aac',
+        'image/jpeg': 'jpg', 'image/png': 'png', 'image/webp': 'webp',
+        'video/mp4': 'mp4', 'video/3gpp': '3gp',
+        'application/pdf': 'pdf',
+    }
+    if (map[m]) return map[m]
+    const fallback: Record<MediaKind, string> = { audio: 'ogg', image: 'jpg', video: 'mp4', document: 'bin' }
+    return fallback[kind]
+}
+
+/**
+ * Baixa a mídia da Graph API e sobe pro R2. Retorna a referência pra gravar no
+ * banco, ou null se falhar (o inbound segue com o placeholder de texto).
+ */
+async function ingestInboundMedia(m: MetaMessage, phone: string): Promise<InboundMedia | null> {
+    const ref = extractMediaRef(m)
+    if (!ref) return null
+    try {
+        const { data, mime } = await downloadWhatsappCloudMedia(ref.id)
+        const ext = extFromMime(ref.mime || mime, ref.kind)
+        const safeId = (m.id || ref.id).replace(/[^a-zA-Z0-9._-]/g, '_').slice(0, 80)
+        const key = `wa-inbound/${phone}/${safeId}.${ext}`
+        const { key: storedKey } = await putR2Object(key, data, { contentType: ref.mime || mime })
+        return { url: storedKey, type: ref.kind, mime: ref.mime || mime, filename: ref.filename ?? null }
+    } catch (e) {
+        console.error('[cloud-webhook] falha ao ingerir mídia inbound:', e instanceof Error ? e.message : e)
+        return null
     }
 }
 
@@ -149,12 +200,17 @@ export async function POST(req: NextRequest) {
 
                     if (await inboundAlreadyProcessed(supabase, msg.id)) continue
 
+                    // Mídia (áudio/imagem/vídeo/documento): baixa da Graph API e
+                    // guarda no R2 antes de registrar, pra ficar acessível no inbox.
+                    const media = await ingestInboundMedia(msg, phone)
+
                     const outcome = await processInboundMessage(supabase, {
                         phone,
                         senderName,
                         text,
                         messageId: msg.id ?? null,
                         channel: 'cloud',
+                        media,
                     })
 
                     if (outcome.kind === 'reply') {

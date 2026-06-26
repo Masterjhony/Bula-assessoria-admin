@@ -17,6 +17,7 @@ import { normalizePhone, phoneVariants, renderTemplate, firstName } from '@/lib/
 import { ensureAudienceTagForTemplate } from '@/lib/whatsapp-audience-tags'
 import { metaTemplateName } from '@/lib/whatsapp-cloud-api'
 import { sendOutbound } from '@/lib/whatsapp-gateway'
+import { getR2DownloadUrl } from '@/lib/r2'
 
 const WINDOW_MS = 24 * 3_600_000
 
@@ -41,7 +42,7 @@ export async function GET(
     const [messagesRes, leadRes, lastInboundRes] = await Promise.all([
         supabase
             .from('whatsapp_messages')
-            .select('id, phone, name, body, direction, status, origin, bot_step, campaign_id, template_id, created_at')
+            .select('id, phone, name, body, direction, status, origin, bot_step, campaign_id, template_id, created_at, media_url, media_type, media_mime, media_filename')
             .in('phone', variants)
             .order('created_at', { ascending: true })
             .limit(500),
@@ -68,8 +69,22 @@ export async function GET(
         ? new Date(new Date(lastInboundAt).getTime() + WINDOW_MS).toISOString()
         : null
 
+    // Resolve a key do R2 (media_url) em signed URL na hora de exibir. URL vale
+    // 6h — o inbox recarrega a thread ao abrir, então sempre vem uma URL fresca.
+    const messages = await Promise.all(
+        (messagesRes.data ?? []).map(async (m) => {
+            if (!m.media_url) return m
+            try {
+                const signed = await getR2DownloadUrl(m.media_url, { expiresInSeconds: 6 * 3600 })
+                return { ...m, media_url: signed }
+            } catch {
+                return { ...m, media_url: null }
+            }
+        }),
+    )
+
     return NextResponse.json({
-        messages: messagesRes.data ?? [],
+        messages,
         lead: leadRes.data?.[0] ?? null,
         session_open: sessionOpen,
         last_inbound_at: lastInboundAt,
