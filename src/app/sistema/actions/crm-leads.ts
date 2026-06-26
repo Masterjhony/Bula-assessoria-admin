@@ -920,8 +920,32 @@ export async function importMissingLeadsFromBulaSheet(): Promise<{ created: numb
         }), position, sourceMeta));
     });
 
-    const { error } = await supabase.from('crm_leads').insert(payload);
+    const { data: inserted, error } = await supabase
+        .from('crm_leads')
+        .insert(payload)
+        .select('id, nome, celular, telefone');
     if (error) throw new Error(`Error importing Bula sheet leads: ${error.message}`);
+
+    // Welcome automático (API oficial) para cada lead novo da planilha. Antes
+    // só o cadastro manual (createLead) e a landing JMP disparavam — então os
+    // leads que chegam pela planilha (a esmagadora maioria) nunca recebiam a 1ª
+    // mensagem. Awaited (não fire-and-forget): a rota do cron retorna logo após,
+    // e em serverless um promise solto seria cortado antes de enviar. O dispatch
+    // já tem dedup de 24h e respeita opt-out, então é idempotente e seguro.
+    for (const lead of inserted ?? []) {
+        const welcomePhone = lead.celular || lead.telefone;
+        if (!welcomePhone) continue;
+        try {
+            await dispatchCrmWelcome(supabase as any, {
+                phone: welcomePhone,
+                nome: lead.nome,
+                leadId: lead.id,
+                origin: 'crm-sheet-import',
+            });
+        } catch (e) {
+            console.error('[sheet-import] Falha ao enviar boas-vindas:', e);
+        }
+    }
 
     revalidatePath('/sistema/crm');
     revalidatePath('/web-admin/crm');
