@@ -35,6 +35,29 @@ export interface CRMContactEntry {
     by?: string | null;      // responsável que fez o contato
 }
 
+/** Prévia enxuta de uma mensagem de WhatsApp para exibir no card do lead. */
+export interface CRMWhatsappMessagePreview {
+    id: string;
+    direction: 'inbound' | 'outbound' | string;
+    body: string | null;
+    created_at: string;
+    media_type?: string | null;
+    status?: string | null;
+}
+
+/**
+ * Resumo das conversas de WhatsApp do lead (mensagens trocadas pelo cockpit
+ * /sistema/crm?view=whatsapp). Derivado — não é coluna de crm_leads; é montado
+ * em getLeads/getArchivedLeads a partir de whatsapp_messages.
+ */
+export interface CRMLeadWhatsapp {
+    count: number;                            // mensagens encontradas (janela recente)
+    last_at: string | null;                  // ISO da última mensagem
+    last_direction: 'inbound' | 'outbound' | string | null;
+    inbound_pending: number;                 // recebidas após a última enviada
+    messages: CRMWhatsappMessagePreview[];   // últimas mensagens, ordem cronológica
+}
+
 export interface CRMLead {
     id: string;
     nome: string;
@@ -91,6 +114,8 @@ export interface CRMLead {
     contact_history?: CRMContactEntry[] | null;
     is_preferencial?: boolean | null;
     contact_count?: number | null;
+    // Conversas de WhatsApp (derivado, não persiste em crm_leads)
+    whatsapp?: CRMLeadWhatsapp | null;
     // Arquivamento (soft-delete)
     arquivado?: boolean | null;
     arquivado_at?: string | null;
@@ -215,6 +240,100 @@ function shouldComputeMql(data: Partial<CRMLead>): boolean {
     );
 }
 
+/** Quantas mensagens recentes manter, por lead, para a prévia do card. */
+const WHATSAPP_PREVIEW_PER_LEAD = 3;
+/** Teto de mensagens varridas numa única consulta ao enriquecer os cards. */
+const WHATSAPP_SCAN_LIMIT = 4000;
+
+/**
+ * Enriquece os leads com um resumo das conversas de WhatsApp (últimas mensagens
+ * + contadores), em UMA consulta a whatsapp_messages. As mensagens são casadas
+ * ao lead por lead_id (quando gravado) ou por telefone normalizado.
+ * Best-effort: qualquer erro devolve os leads sem o resumo.
+ */
+async function attachWhatsappSummaries(
+    supabase: Awaited<ReturnType<typeof createClient>>,
+    leads: CRMLead[],
+): Promise<CRMLead[]> {
+    if (!leads.length) return leads;
+
+    // Índices para casar mensagem -> lead.
+    const leadById = new Map<string, CRMLead>(leads.map(l => [l.id, l]));
+    const leadByPhoneVariant = new Map<string, string>();
+    for (const l of leads) {
+        for (const raw of [l.celular, l.telefone]) {
+            const norm = raw ? normalizePhone(raw) : null;
+            if (!norm) continue;
+            for (const v of phoneVariants(norm)) {
+                if (!leadByPhoneVariant.has(v)) leadByPhoneVariant.set(v, l.id);
+            }
+        }
+    }
+
+    const { data, error } = await supabase
+        .from('whatsapp_messages')
+        .select('id, lead_id, phone, body, direction, status, created_at, media_type')
+        .order('created_at', { ascending: false })
+        .limit(WHATSAPP_SCAN_LIMIT);
+
+    if (error || !data) return leads;
+
+    // Acumula por lead. Como vem em ordem decrescente, os primeiros itens são os
+    // mais recentes — mantemos só as últimas N por lead para a prévia.
+    type Acc = { msgs: CRMWhatsappMessagePreview[]; count: number; lastAt: string | null; lastDir: string | null; inboundPending: number; sawOutbound: boolean };
+    const acc = new Map<string, Acc>();
+
+    for (const m of data as Array<Record<string, any>>) {
+        let leadId: string | undefined =
+            m.lead_id && leadById.has(m.lead_id) ? m.lead_id : undefined;
+        if (!leadId && m.phone) {
+            for (const v of phoneVariants(String(m.phone))) {
+                const hit = leadByPhoneVariant.get(v);
+                if (hit) { leadId = hit; break; }
+            }
+        }
+        if (!leadId) continue;
+
+        let a = acc.get(leadId);
+        if (!a) {
+            a = { msgs: [], count: 0, lastAt: null, lastDir: null, inboundPending: 0, sawOutbound: false };
+            acc.set(leadId, a);
+        }
+        a.count++;
+        if (!a.lastAt) { a.lastAt = m.created_at; a.lastDir = m.direction ?? null; }
+        // inbound_pending = recebidas após a última enviada (varrendo do mais recente).
+        if (!a.sawOutbound) {
+            if (m.direction === 'outbound') a.sawOutbound = true;
+            else if (m.direction === 'inbound') a.inboundPending++;
+        }
+        if (a.msgs.length < WHATSAPP_PREVIEW_PER_LEAD) {
+            a.msgs.push({
+                id: m.id,
+                direction: m.direction ?? 'outbound',
+                body: m.body ?? null,
+                created_at: m.created_at,
+                media_type: m.media_type ?? null,
+                status: m.status ?? null,
+            });
+        }
+    }
+
+    return leads.map(l => {
+        const a = acc.get(l.id);
+        if (!a) return { ...l, whatsapp: null };
+        return {
+            ...l,
+            whatsapp: {
+                count: a.count,
+                last_at: a.lastAt,
+                last_direction: a.lastDir,
+                inbound_pending: a.inboundPending,
+                messages: a.msgs.slice().reverse(), // cronológico (antigo -> recente)
+            },
+        };
+    });
+}
+
 export async function getLeads(funnelId?: string): Promise<CRMLead[]> {
     const supabase = await createClient();
 
@@ -237,7 +356,7 @@ export async function getLeads(funnelId?: string): Promise<CRMLead[]> {
         return [];
     }
 
-    return normalizeLeadRows(data as CRMLead[]);
+    return attachWhatsappSummaries(supabase, normalizeLeadRows(data as CRMLead[]));
 }
 
 /** Leads arquivados (soft-delete), mais recentes primeiro. Usado pela aba "Arquivados". */
@@ -255,7 +374,7 @@ export async function getArchivedLeads(): Promise<CRMLead[]> {
         return [];
     }
 
-    return normalizeLeadRows(data as CRMLead[]);
+    return attachWhatsappSummaries(supabase, normalizeLeadRows(data as CRMLead[]));
 }
 
 /** Arquiva um lead (soft-delete): some das telas operacionais, mas continua no banco. */
