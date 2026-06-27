@@ -182,6 +182,10 @@ export function CRMLeadsView({ leads, stages, onEditLead, onAddLead, qualificati
     const [filterSource, setFilterSource] = useState('');
     const [filterResponsavel, setFilterResponsavel] = useState('');
     const [filterPrioridade, setFilterPrioridade] = useState('');
+    const [filterCampanha, setFilterCampanha] = useState('');
+    const [filterTemperatura, setFilterTemperatura] = useState('');
+    const [filterCadastro, setFilterCadastro] = useState(''); // '' | 'completo' | 'incompleto'
+    const [filterContato, setFilterContato] = useState('');   // '' | 'com' | 'sem'
     const [filterBusca, setFilterBusca] = useState('');
     const [filterDataDe, setFilterDataDe] = useState('');
     const [filterDataAte, setFilterDataAte] = useState('');
@@ -196,16 +200,6 @@ export function CRMLeadsView({ leads, stages, onEditLead, onAddLead, qualificati
     today.setHours(0, 0, 0, 0);
     const weekStart = new Date(today);
     weekStart.setDate(today.getDate() - 7);
-
-    const todayCount = leads.filter(l => {
-        const d = l.data_entrada || l.created_at;
-        return d && new Date(d) >= today;
-    }).length;
-
-    const weekCount = leads.filter(l => {
-        const d = l.data_entrada || l.created_at;
-        return d && new Date(d) >= weekStart;
-    }).length;
 
     const estados = useMemo(
         () => [...new Set(leads.map(l => l.estado).filter(Boolean) as string[])].sort(),
@@ -227,8 +221,14 @@ export function CRMLeadsView({ leads, stages, onEditLead, onAddLead, qualificati
         () => [...new Set(leads.map(l => l.prioridade).filter(Boolean) as string[])].sort(),
         [leads]
     );
-
-    const mqlCount = useMemo(() => leads.filter(l => l.is_mql).length, [leads]);
+    const temperaturas = useMemo(
+        () => [...new Set(leads.map(l => l.temperatura).filter(Boolean) as string[])].sort(),
+        [leads]
+    );
+    const campanhas = useMemo(
+        () => [...new Set(leads.map(l => l.campaign).filter(Boolean) as string[])].sort(),
+        [leads]
+    );
 
     // Volta para a 1ª página sempre que um filtro muda (evita ficar numa página
     // inexistente). Fica no efeito — chamar setPage dentro do useMemo dispara um
@@ -236,9 +236,14 @@ export function CRMLeadsView({ leads, stages, onEditLead, onAddLead, qualificati
     useEffect(() => {
         setPage(1);
     }, [search, mqlOnly, filterStatus, filterEstado, filterCidade, filterSource,
-        filterResponsavel, filterPrioridade, filterBusca, filterDataDe, filterDataAte]);
+        filterResponsavel, filterPrioridade, filterCampanha, filterTemperatura, filterCadastro,
+        filterContato, filterBusca, filterDataDe, filterDataAte]);
 
-    const filtered = useMemo(() => {
+    // baseFiltered aplica TODOS os filtros, exceto o toggle de MQL. Os cards do
+    // painel (Total/Hoje/7 dias/MQL) são calculados sobre este conjunto, então
+    // refletem proporcionalmente o que está filtrado. A tabela usa `filtered`,
+    // que é baseFiltered + o recorte de MQL quando o card de MQL está ativo.
+    const baseFiltered = useMemo(() => {
         const dataDe = filterDataDe ? new Date(filterDataDe + 'T00:00:00') : null;
         const dataAte = filterDataAte ? new Date(filterDataAte + 'T23:59:59') : null;
         const buscaQ = filterBusca.toLowerCase();
@@ -252,34 +257,80 @@ export function CRMLeadsView({ leads, stages, onEditLead, onAddLead, qualificati
                 lead.cidade?.toLowerCase().includes(q) ||
                 lead.empresa?.toLowerCase().includes(q) ||
                 lead.instagram?.toLowerCase().includes(q);
-            const matchMql = !mqlOnly || !!lead.is_mql;
             const matchStatus = !filterStatus || lead.status === filterStatus;
             const matchEstado = !filterEstado || lead.estado === filterEstado;
             const matchCidade = !filterCidade || lead.cidade === filterCidade;
             const matchSource = !filterSource || lead.source === filterSource;
             const matchResp = !filterResponsavel || lead.responsavel === filterResponsavel;
             const matchPrio = !filterPrioridade || lead.prioridade === filterPrioridade;
+            const matchCampanha = !filterCampanha || lead.campaign === filterCampanha;
+            const matchTemp = !filterTemperatura || lead.temperatura === filterTemperatura;
+            const isComplete = missingFieldsCount(lead) === 0;
+            const matchCadastro = !filterCadastro
+                || (filterCadastro === 'completo' ? isComplete : !isComplete);
+            const hasContato = !!(lead.celular || lead.telefone);
+            const matchContato = !filterContato
+                || (filterContato === 'com' ? hasContato : !hasContato);
             const matchBusca = !filterBusca ||
                 (lead.o_que_busca?.toLowerCase().includes(buscaQ)) ||
                 (lead.interesse?.toLowerCase().includes(buscaQ));
             const dt = lead.data_entrada || lead.created_at;
             const d = dt ? new Date(dt) : null;
             const matchData = (!dataDe || (d && d >= dataDe)) && (!dataAte || (d && d <= dataAte));
-            return matchSearch && matchMql && matchStatus && matchEstado && matchCidade
-                && matchSource && matchResp && matchPrio && matchBusca && matchData;
+            return matchSearch && matchStatus && matchEstado && matchCidade
+                && matchSource && matchResp && matchPrio && matchCampanha && matchTemp
+                && matchCadastro && matchContato && matchBusca && matchData;
         });
-    }, [leads, search, mqlOnly, filterStatus, filterEstado, filterCidade, filterSource,
-        filterResponsavel, filterPrioridade, filterBusca, filterDataDe, filterDataAte]);
+    }, [leads, search, filterStatus, filterEstado, filterCidade, filterSource,
+        filterResponsavel, filterPrioridade, filterCampanha, filterTemperatura, filterCadastro,
+        filterContato, filterBusca, filterDataDe, filterDataAte]);
+
+    const filtered = useMemo(
+        () => mqlOnly ? baseFiltered.filter(l => !!l.is_mql) : baseFiltered,
+        [baseFiltered, mqlOnly]
+    );
+
+    // Estatísticas proporcionais ao recorte atual. Total/Hoje/7 dias descrevem os
+    // leads efetivamente mostrados (filtered); MQL conta quantos MQL existem no
+    // recorte de filtros (baseFiltered), independente do toggle de MQL estar ligado.
+    const todayCount = useMemo(() => filtered.filter(l => {
+        const d = l.data_entrada || l.created_at;
+        return d && new Date(d) >= today;
+    }).length, [filtered]);
+    const weekCount = useMemo(() => filtered.filter(l => {
+        const d = l.data_entrada || l.created_at;
+        return d && new Date(d) >= weekStart;
+    }).length, [filtered]);
+    const mqlCount = useMemo(() => baseFiltered.filter(l => l.is_mql).length, [baseFiltered]);
 
     const activeFiltersCount =
         (filterStatus ? 1 : 0) + (filterEstado ? 1 : 0) + (filterCidade ? 1 : 0) +
         (filterSource ? 1 : 0) + (filterResponsavel ? 1 : 0) + (filterPrioridade ? 1 : 0) +
-        (filterBusca ? 1 : 0) + (filterDataDe ? 1 : 0) + (filterDataAte ? 1 : 0);
+        (filterCampanha ? 1 : 0) + (filterTemperatura ? 1 : 0) + (filterCadastro ? 1 : 0) +
+        (filterContato ? 1 : 0) + (filterBusca ? 1 : 0) + (filterDataDe ? 1 : 0) + (filterDataAte ? 1 : 0);
+
+    // Conjunto está recortado em relação ao total? (inclui busca e o toggle de MQL)
+    const isFiltering = activeFiltersCount > 0 || !!search || mqlOnly;
 
     const clearFilters = () => {
         setFilterStatus(''); setFilterEstado(''); setFilterCidade('');
         setFilterSource(''); setFilterResponsavel(''); setFilterPrioridade('');
+        setFilterCampanha(''); setFilterTemperatura(''); setFilterCadastro(''); setFilterContato('');
         setFilterBusca(''); setFilterDataDe(''); setFilterDataAte('');
+    };
+
+    const setDatePreset = (days: number) => {
+        const end = new Date();
+        const start = new Date();
+        start.setDate(end.getDate() - days);
+        const fmt = (d: Date) => {
+            const y = d.getFullYear();
+            const m = String(d.getMonth() + 1).padStart(2, '0');
+            const day = String(d.getDate()).padStart(2, '0');
+            return `${y}-${m}-${day}`;
+        };
+        setFilterDataDe(fmt(start));
+        setFilterDataAte(fmt(end));
     };
 
     const toggleExportField = (id: string) => {
@@ -320,8 +371,10 @@ export function CRMLeadsView({ leads, stages, onEditLead, onAddLead, qualificati
                         <Users size={18} className="text-blue-500" />
                     </div>
                     <div>
-                        <p className="text-2xl font-bold text-gray-900 dark:text-white">{leads.length}</p>
-                        <p className="text-xs text-gray-500">Total de leads</p>
+                        <p className="text-2xl font-bold text-gray-900 dark:text-white">{filtered.length}</p>
+                        <p className="text-xs text-gray-500">
+                            {isFiltering ? `de ${leads.length} no total` : 'Total de leads'}
+                        </p>
                     </div>
                 </div>
                 <div className="bg-white dark:bg-[#1A1A1A] rounded-xl border border-gray-200 dark:border-[#2A2A2A] p-4 flex items-center gap-3">
@@ -330,7 +383,7 @@ export function CRMLeadsView({ leads, stages, onEditLead, onAddLead, qualificati
                     </div>
                     <div>
                         <p className="text-2xl font-bold text-gray-900 dark:text-white">{todayCount}</p>
-                        <p className="text-xs text-gray-500">Hoje</p>
+                        <p className="text-xs text-gray-500">{isFiltering ? 'Hoje (no filtro)' : 'Hoje'}</p>
                     </div>
                 </div>
                 <div className="bg-white dark:bg-[#1A1A1A] rounded-xl border border-gray-200 dark:border-[#2A2A2A] p-4 flex items-center gap-3">
@@ -339,7 +392,7 @@ export function CRMLeadsView({ leads, stages, onEditLead, onAddLead, qualificati
                     </div>
                     <div>
                         <p className="text-2xl font-bold text-gray-900 dark:text-white">{weekCount}</p>
-                        <p className="text-xs text-gray-500">Últimos 7 dias</p>
+                        <p className="text-xs text-gray-500">{isFiltering ? '7 dias (no filtro)' : 'Últimos 7 dias'}</p>
                     </div>
                 </div>
                 <button
@@ -355,7 +408,9 @@ export function CRMLeadsView({ leads, stages, onEditLead, onAddLead, qualificati
                     </div>
                     <div>
                         <p className="text-2xl font-bold text-gray-900 dark:text-white">{mqlCount}</p>
-                        <p className="text-xs text-gray-500">{mqlOnly ? 'MQL (filtrando)' : 'MQL'}</p>
+                        <p className="text-xs text-gray-500">
+                            {mqlOnly ? 'MQL (filtrando)' : isFiltering ? 'MQL no filtro' : 'MQL'}
+                        </p>
                     </div>
                 </button>
             </div>
@@ -469,6 +524,56 @@ export function CRMLeadsView({ leads, stages, onEditLead, onAddLead, qualificati
                                 {prioridades.map(p => <option key={p} value={p}>{p}</option>)}
                             </select>
                         </div>
+                        {campanhas.length > 0 && (
+                            <div className="lg:col-span-2">
+                                <label className="block text-[10px] font-bold uppercase tracking-wider text-gray-400 mb-1.5">Campanha</label>
+                                <select
+                                    value={filterCampanha}
+                                    onChange={e => setFilterCampanha(e.target.value)}
+                                    className="w-full px-3 py-2 bg-white dark:bg-[#1A1A1A] border border-gray-200 dark:border-[#333] rounded-lg text-sm dark:text-white focus:outline-none focus:border-[#A68B4B]"
+                                >
+                                    <option value="">Todas</option>
+                                    {campanhas.map(c => <option key={c} value={c}>{c}</option>)}
+                                </select>
+                            </div>
+                        )}
+                        {temperaturas.length > 0 && (
+                            <div>
+                                <label className="block text-[10px] font-bold uppercase tracking-wider text-gray-400 mb-1.5">Temperatura</label>
+                                <select
+                                    value={filterTemperatura}
+                                    onChange={e => setFilterTemperatura(e.target.value)}
+                                    className="w-full px-3 py-2 bg-white dark:bg-[#1A1A1A] border border-gray-200 dark:border-[#333] rounded-lg text-sm dark:text-white focus:outline-none focus:border-[#A68B4B]"
+                                >
+                                    <option value="">Todas</option>
+                                    {temperaturas.map(t => <option key={t} value={t}>{t}</option>)}
+                                </select>
+                            </div>
+                        )}
+                        <div>
+                            <label className="block text-[10px] font-bold uppercase tracking-wider text-gray-400 mb-1.5">Cadastro</label>
+                            <select
+                                value={filterCadastro}
+                                onChange={e => setFilterCadastro(e.target.value)}
+                                className="w-full px-3 py-2 bg-white dark:bg-[#1A1A1A] border border-gray-200 dark:border-[#333] rounded-lg text-sm dark:text-white focus:outline-none focus:border-[#A68B4B]"
+                            >
+                                <option value="">Todos</option>
+                                <option value="completo">Completo</option>
+                                <option value="incompleto">Incompleto</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label className="block text-[10px] font-bold uppercase tracking-wider text-gray-400 mb-1.5">Contato</label>
+                            <select
+                                value={filterContato}
+                                onChange={e => setFilterContato(e.target.value)}
+                                className="w-full px-3 py-2 bg-white dark:bg-[#1A1A1A] border border-gray-200 dark:border-[#333] rounded-lg text-sm dark:text-white focus:outline-none focus:border-[#A68B4B]"
+                            >
+                                <option value="">Todos</option>
+                                <option value="com">Com telefone/WhatsApp</option>
+                                <option value="sem">Sem telefone/WhatsApp</option>
+                            </select>
+                        </div>
                         <div className="lg:col-span-2">
                             <label className="block text-[10px] font-bold uppercase tracking-wider text-gray-400 mb-1.5">O que busca / interesse</label>
                             <input
@@ -497,16 +602,43 @@ export function CRMLeadsView({ leads, stages, onEditLead, onAddLead, qualificati
                                 className="w-full px-3 py-2 bg-white dark:bg-[#1A1A1A] border border-gray-200 dark:border-[#333] rounded-lg text-sm dark:text-white focus:outline-none focus:border-[#A68B4B]"
                             />
                         </div>
-                        {activeFiltersCount > 0 && (
-                            <div className="lg:col-span-4 flex justify-end">
+                        <div className="lg:col-span-4 flex items-center justify-between gap-2 flex-wrap">
+                            <div className="flex items-center gap-1.5 flex-wrap">
+                                <span className="text-[10px] font-bold uppercase tracking-wider text-gray-400">Período:</span>
+                                {[
+                                    { label: 'Hoje', days: 0 },
+                                    { label: '7 dias', days: 7 },
+                                    { label: '30 dias', days: 30 },
+                                    { label: '90 dias', days: 90 },
+                                ].map(p => (
+                                    <button
+                                        key={p.label}
+                                        type="button"
+                                        onClick={() => setDatePreset(p.days)}
+                                        className="px-2.5 py-1 text-xs rounded-lg border border-gray-200 dark:border-[#333] text-gray-600 dark:text-gray-300 hover:border-[#A68B4B] hover:text-[#A68B4B] transition-colors"
+                                    >
+                                        {p.label}
+                                    </button>
+                                ))}
+                                {(filterDataDe || filterDataAte) && (
+                                    <button
+                                        type="button"
+                                        onClick={() => { setFilterDataDe(''); setFilterDataAte(''); }}
+                                        className="px-2 py-1 text-xs rounded-lg text-gray-400 hover:text-red-500 transition-colors"
+                                    >
+                                        limpar datas
+                                    </button>
+                                )}
+                            </div>
+                            {activeFiltersCount > 0 && (
                                 <button
                                     onClick={clearFilters}
                                     className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold text-gray-500 hover:text-red-500 transition-colors"
                                 >
                                     <X size={13} /> Limpar filtros
                                 </button>
-                            </div>
-                        )}
+                            )}
+                        </div>
                     </div>
                 )}
 
