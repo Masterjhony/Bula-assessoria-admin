@@ -526,9 +526,18 @@ export function InboxTab({ templates, channel = "oficial" }: { templates: Templa
                                                             filename={m.media_filename}
                                                         />
                                                     )}
-                                                    {m.body && !(m.media_url && MEDIA_PLACEHOLDERS.has(m.body)) ? (
+                                                    {!m.media_url && m.media_type && (
+                                                        <div className="my-1 inline-flex max-w-full items-start gap-2 rounded-md border border-amber-500/30 bg-amber-500/10 px-2.5 py-1.5 text-xs text-amber-800 dark:text-amber-200">
+                                                            <AlertCircle className="mt-0.5 h-3.5 w-3.5 shrink-0" />
+                                                            <span>
+                                                                {m.media_type === "audio" ? "Áudio recebido, mas o arquivo ainda não foi recuperado." : "Mídia recebida, mas o arquivo ainda não foi recuperado."}
+                                                                {m.media_ingest_error ? ` (${m.media_ingest_error})` : ""}
+                                                            </span>
+                                                        </div>
+                                                    )}
+                                                    {m.body && !((m.media_url || m.media_type) && MEDIA_PLACEHOLDERS.has(m.body)) ? (
                                                         m.body
-                                                    ) : m.media_url ? null : m.direction === "outbound" && m.bot_step === "welcome" ? (
+                                                    ) : (m.media_url || m.media_type) ? null : m.direction === "outbound" && m.bot_step === "welcome" ? (
                                                         <span className="opacity-80 italic">
                                                             Welcome enviado — template renderizado pelo bot (ver na aba Templates).
                                                         </span>

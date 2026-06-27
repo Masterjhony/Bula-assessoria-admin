@@ -133,10 +133,15 @@ function extFromMime(mime: string | undefined, kind: MediaKind): string {
     return fallback[kind]
 }
 
+function shortError(error: unknown): string {
+    const msg = error instanceof Error ? error.message : String(error)
+    return msg.length > 500 ? `${msg.slice(0, 497)}...` : msg
+}
+
 /**
  * Baixa a mídia da Graph API e sobe pro Supabase Storage (bucket privado
- * whatsapp-media). Retorna o path pra gravar no banco, ou null se falhar (o
- * inbound segue com o placeholder de texto).
+ * whatsapp-media). Mesmo se falhar, retorna o media_meta_id para permitir
+ * reprocessamento posterior enquanto a Meta ainda retiver a mídia.
  */
 async function ingestInboundMedia(
     supabase: SupabaseClient,
@@ -145,6 +150,15 @@ async function ingestInboundMedia(
 ): Promise<InboundMedia | null> {
     const ref = extractMediaRef(m)
     if (!ref) return null
+    const base: InboundMedia = {
+        url: null,
+        type: ref.kind,
+        mime: ref.mime ?? null,
+        filename: ref.filename ?? null,
+        metaId: ref.id,
+        ingestError: null,
+        ingestedAt: null,
+    }
     try {
         const { data, mime } = await downloadWhatsappCloudMedia(ref.id)
         const ext = extFromMime(ref.mime || mime, ref.kind)
@@ -155,10 +169,11 @@ async function ingestInboundMedia(
             .from(WHATSAPP_MEDIA_BUCKET)
             .upload(path, Buffer.from(data), { contentType, upsert: true })
         if (error) throw new Error(error.message)
-        return { url: path, type: ref.kind, mime: contentType, filename: ref.filename ?? null }
+        return { ...base, url: path, mime: contentType, ingestedAt: new Date().toISOString() }
     } catch (e) {
-        console.error('[cloud-webhook] falha ao ingerir mídia inbound:', e instanceof Error ? e.message : e)
-        return null
+        const message = shortError(e)
+        console.error('[cloud-webhook] falha ao ingerir mídia inbound:', message)
+        return { ...base, ingestError: message }
     }
 }
 

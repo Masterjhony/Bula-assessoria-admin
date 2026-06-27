@@ -78,10 +78,14 @@ export const WHATSAPP_MEDIA_BUCKET = 'whatsapp-media'
 
 export interface InboundMedia {
     /** Path no bucket whatsapp-media (resolvido em signed URL na hora de exibir). */
-    url: string
+    url: string | null
     type: 'audio' | 'image' | 'video' | 'document'
     mime?: string | null
     filename?: string | null
+    /** ID da midia no payload da Meta (audio.id/image.id/etc.), usado em recovery. */
+    metaId?: string | null
+    ingestError?: string | null
+    ingestedAt?: string | null
 }
 
 export function logInbound(
@@ -107,6 +111,9 @@ export function logInbound(
             media_type: args.media?.type ?? null,
             media_mime: args.media?.mime ?? null,
             media_filename: args.media?.filename ?? null,
+            media_meta_id: args.media?.metaId ?? null,
+            media_ingest_error: args.media?.ingestError ?? null,
+            media_ingested_at: args.media?.ingestedAt ?? null,
         })
         .then(({ error }) => {
             if (error) console.warn('[Inbound] log inbound:', error.message)

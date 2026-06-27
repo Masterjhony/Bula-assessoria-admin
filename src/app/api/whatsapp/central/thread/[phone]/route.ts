@@ -42,7 +42,7 @@ export async function GET(
     const [messagesRes, leadRes, lastInboundRes] = await Promise.all([
         supabase
             .from('whatsapp_messages')
-            .select('id, phone, name, body, direction, status, origin, bot_step, campaign_id, template_id, created_at, media_url, media_type, media_mime, media_filename')
+            .select('id, phone, name, body, direction, status, origin, bot_step, campaign_id, template_id, created_at, media_url, media_type, media_mime, media_filename, media_meta_id, media_ingest_error')
             .in('phone', variants)
             .order('created_at', { ascending: true })
             .limit(500),

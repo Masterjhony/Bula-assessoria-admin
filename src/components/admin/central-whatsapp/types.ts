@@ -36,6 +36,8 @@ export interface ThreadMessage {
     media_type: 'audio' | 'image' | 'video' | 'document' | null
     media_mime: string | null
     media_filename: string | null
+    media_meta_id: string | null
+    media_ingest_error: string | null
 }
 
 export interface ThreadLead {
