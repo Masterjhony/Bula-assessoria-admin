@@ -4,10 +4,10 @@ import { useState, useMemo, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import {
   FileVideo, RefreshCw, X, Play, CheckCircle2, Clock, AlertCircle,
-  Loader2, ExternalLink, Sparkles, TrendingUp, Users, Tag,
+  Loader2, ExternalLink, Sparkles, TrendingUp, Users, Tag, Eye, Mic, AlertTriangle,
 } from 'lucide-react'
 import type { LeilaoAnaliseRow } from '@/lib/leilao-analise'
-import type { Relatorio } from '@/lib/videoextrator'
+import { parseProcedencia, type Relatorio } from '@/lib/videoextrator'
 
 function brl(n: number | null | undefined): string {
   if (n == null) return '—'
@@ -332,7 +332,26 @@ function RelatorioModal({ leilaoId, nome, onClose }: { leilaoId: string; nome: s
                 <ListaTop titulo="Top assessorias" icon={Users} itens={(rel.top_assessorias || []).map((c) => ({ nome: c.nome, valor: `${c.quantidade} lote(s)` }))} />
               </div>
 
-              <h3 className="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">Lotes ({rel.lotes?.length || 0})</h3>
+              {(() => {
+                const procs = (rel.lotes || []).map((l) => parseProcedencia(l.qa_flags))
+                const nDesacordo = procs.filter((p) => p.desacordo).length
+                const nVisual = procs.filter((p) => p.fonte === 'fusao').length
+                return (
+                  <div className="flex flex-wrap items-center gap-2 mb-2">
+                    <h3 className="text-sm font-semibold text-gray-700 dark:text-gray-300">Lotes ({rel.lotes?.length || 0})</h3>
+                    {nVisual > 0 && (
+                      <span className="inline-flex items-center gap-1 text-[11px] px-2 py-0.5 rounded-full bg-violet-500/10 text-violet-500 border border-violet-500/30">
+                        <Eye size={11} /> {nVisual} com leitura da tarja
+                      </span>
+                    )}
+                    {nDesacordo > 0 && (
+                      <span className="inline-flex items-center gap-1 text-[11px] px-2 py-0.5 rounded-full bg-amber-500/10 text-amber-500 border border-amber-500/30">
+                        <AlertTriangle size={11} /> {nDesacordo} desacordo áudio↔vídeo (revisar)
+                      </span>
+                    )}
+                  </div>
+                )
+              })()}
               <div className="overflow-x-auto rounded-xl border border-gray-200 dark:border-[#2A2A2A]">
                 <table className="w-full text-xs">
                   <thead>
@@ -340,28 +359,34 @@ function RelatorioModal({ leilaoId, nome, onClose }: { leilaoId: string; nome: s
                       <th className="px-3 py-2 font-medium">#</th>
                       <th className="px-3 py-2 font-medium">Descrição / Animal</th>
                       <th className="px-3 py-2 font-medium">Comprador</th>
-                      <th className="px-3 py-2 font-medium">Assessoria</th>
                       <th className="px-3 py-2 font-medium text-right">Valor</th>
+                      <th className="px-3 py-2 font-medium text-center">Parc.</th>
+                      <th className="px-3 py-2 font-medium">Fonte</th>
                       <th className="px-3 py-2 font-medium">Status</th>
                     </tr>
                   </thead>
                   <tbody>
-                    {(rel.lotes || []).map((l) => (
-                      <tr key={l.id} className="border-b border-gray-100 dark:border-[#222]">
+                    {(rel.lotes || []).map((l) => {
+                      const proc = parseProcedencia(l.qa_flags)
+                      return (
+                      <tr key={l.id} className={`border-b border-gray-100 dark:border-[#222] ${proc.desacordo ? 'bg-amber-500/5' : ''}`}>
                         <td className="px-3 py-2 text-gray-400">{l.numero_lote}</td>
-                        <td className="px-3 py-2 max-w-[220px] truncate text-gray-700 dark:text-gray-200" title={l.descricao_lote || l.nome_animal || ''}>
+                        <td className="px-3 py-2 max-w-[200px] truncate text-gray-700 dark:text-gray-200" title={l.descricao_lote || l.nome_animal || ''}>
                           {l.nome_animal || l.descricao_lote || '—'}
                         </td>
-                        <td className="px-3 py-2 text-gray-600 dark:text-gray-300">{l.comprador || '—'}</td>
-                        <td className="px-3 py-2 text-gray-500 dark:text-gray-400">{l.assessoria_comprador || l.assessoria || '—'}</td>
+                        <td className="px-3 py-2 text-gray-600 dark:text-gray-300 max-w-[150px] truncate" title={l.comprador || ''}>{l.comprador || '—'}</td>
                         <td className="px-3 py-2 text-right font-medium text-gray-800 dark:text-gray-100">{brl(l.valor_final)}</td>
+                        <td className="px-3 py-2 text-center text-gray-500 dark:text-gray-400">{l.total_parcelas || '—'}</td>
+                        <td className="px-3 py-2">
+                          <FonteBadge proc={proc} conf={l.confianca} />
+                        </td>
                         <td className="px-3 py-2">
                           <span className={l.motivo === 'VENDIDO' ? 'text-emerald-500' : 'text-gray-400'}>
                             {l.motivo === 'VENDIDO' ? 'Vendido' : 'Não vendido'}
                           </span>
                         </td>
                       </tr>
-                    ))}
+                    )})}
                   </tbody>
                 </table>
               </div>
@@ -382,6 +407,29 @@ function Stat({ icon: Icon, label, valor, hint }: { icon: React.ElementType; lab
       <p className="text-lg font-bold text-gray-900 dark:text-white mt-0.5">{valor}</p>
       {hint && <p className="text-[10px] text-gray-400">{hint}</p>}
     </div>
+  )
+}
+
+function FonteBadge({ proc, conf }: { proc: ReturnType<typeof parseProcedencia>; conf: number | null }) {
+  const pct = conf != null ? Math.round(conf * 100) : null
+  if (proc.desacordo) {
+    return (
+      <span className="inline-flex items-center gap-1 text-[10px] px-1.5 py-0.5 rounded bg-amber-500/10 text-amber-500 border border-amber-500/30" title="Áudio e vídeo divergiram no valor; ficou com a leitura da tarja.">
+        <AlertTriangle size={10} /> desacordo{pct != null ? ` · ${pct}%` : ''}
+      </span>
+    )
+  }
+  if (proc.fonte === 'fusao') {
+    return (
+      <span className="inline-flex items-center gap-1 text-[10px] px-1.5 py-0.5 rounded bg-violet-500/10 text-violet-500 border border-violet-500/30" title="Campos rígidos lidos da tarja (vídeo); comprador do áudio.">
+        <Eye size={10} /> tarja{pct != null ? ` · ${pct}%` : ''}
+      </span>
+    )
+  }
+  return (
+    <span className="inline-flex items-center gap-1 text-[10px] px-1.5 py-0.5 rounded bg-gray-500/10 text-gray-400 border border-gray-500/20" title="Extraído só do áudio/transcrição.">
+      <Mic size={10} /> áudio{pct != null ? ` · ${pct}%` : ''}
+    </span>
   )
 }
 

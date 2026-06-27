@@ -33,6 +33,30 @@ export interface RelatorioLote {
   motivo: string | null // VENDIDO | NAO_VENDIDO
   peso_kg: number | null
   confianca: number | null
+  qa_flags: string | null // JSON { fonte, src:{campo:[fontes]}, flags:[...] }
+}
+
+export interface LoteProcedencia {
+  fonte: string | null // 'fusao' | 'audio'
+  desacordo: boolean // cross_modal_disagreement em algum campo
+  fontesPorCampo: Record<string, string[]>
+  flags: string[]
+}
+
+/** Decodifica qa_flags (procedência por campo + flags). Tolerante a formato. */
+export function parseProcedencia(qaFlags: string | null | undefined): LoteProcedencia {
+  const out: LoteProcedencia = { fonte: null, desacordo: false, fontesPorCampo: {}, flags: [] }
+  if (!qaFlags) return out
+  try {
+    const j = JSON.parse(qaFlags)
+    out.fonte = j.fonte ?? null
+    out.fontesPorCampo = j.src ?? {}
+    out.flags = Array.isArray(j.flags) ? j.flags : []
+    out.desacordo = out.flags.some((f) => f.startsWith('cross_modal_disagreement'))
+  } catch {
+    // qa_flags antigo (string livre) — ignora.
+  }
+  return out
 }
 
 export interface Relatorio {
