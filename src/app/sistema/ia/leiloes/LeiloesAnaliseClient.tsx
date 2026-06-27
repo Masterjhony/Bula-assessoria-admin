@@ -51,7 +51,7 @@ export default function LeiloesAnaliseClient({
   const [syncing, setSyncing] = useState(false)
   const [urlInputs, setUrlInputs] = useState<Record<string, string>>({})
   const [msg, setMsg] = useState<string | null>(null)
-  const [relatorioOpen, setRelatorioOpen] = useState<{ id: string; nome: string } | null>(null)
+  const [relatorioOpen, setRelatorioOpen] = useState<{ id: string; nome: string; analise: typeof rows[number]['analise'] } | null>(null)
 
   const resumo = useMemo(() => {
     const c = { total: rows.length, analisado: 0, processando: 0, sugestao: 0, sem: 0 }
@@ -204,14 +204,21 @@ export default function LeiloesAnaliseClient({
                     </td>
                     <td className="px-4 py-3 hidden lg:table-cell text-gray-500 dark:text-gray-400 whitespace-nowrap">
                       {e === 'concluido' && row.analise ? (
-                        <span>{row.analise.total_vendidos ?? 0}/{row.analise.total_lotes ?? 0} lotes · {brl(row.analise.volume_total)}</span>
+                        <div className="flex items-center gap-2">
+                          <span>{row.analise.total_vendidos ?? 0}/{row.analise.total_lotes ?? 0} lotes · {brl(row.analise.volume_total)}</span>
+                          {row.analise.indice_assertividade != null && (
+                            <span className={`text-[10px] px-1.5 py-0.5 rounded-full border ${assertCls(row.analise.indice_assertividade)}`} title="Assertividade vs fechamento da Bula">
+                              {Math.round(row.analise.indice_assertividade)}%
+                            </span>
+                          )}
+                        </div>
                       ) : '—'}
                     </td>
                     <td className="px-4 py-3">
                       <div className="flex items-center justify-end gap-2">
                         {e === 'concluido' && (
                           <button
-                            onClick={() => setRelatorioOpen({ id, nome: row.leilao.nome })}
+                            onClick={() => setRelatorioOpen({ id, nome: row.leilao.nome, analise: row.analise })}
                             className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs bg-[#A68B4B] text-black font-semibold hover:bg-[#C8A96E] transition-all"
                           >
                             <ExternalLink size={13} /> Ver relatório
@@ -266,6 +273,7 @@ export default function LeiloesAnaliseClient({
         <RelatorioModal
           leilaoId={relatorioOpen.id}
           nome={relatorioOpen.nome}
+          analise={relatorioOpen.analise}
           onClose={() => setRelatorioOpen(null)}
         />
       )}
@@ -282,7 +290,7 @@ function CardResumo({ label, valor, cor }: { label: string; valor: number; cor?:
   )
 }
 
-function RelatorioModal({ leilaoId, nome, onClose }: { leilaoId: string; nome: string; onClose: () => void }) {
+function RelatorioModal({ leilaoId, nome, analise, onClose }: { leilaoId: string; nome: string; analise: LeilaoAnaliseRow['analise']; onClose: () => void }) {
   const [rel, setRel] = useState<Relatorio | null>(null)
   const [loading, setLoading] = useState(true)
   const [erro, setErro] = useState<string | null>(null)
@@ -331,6 +339,10 @@ function RelatorioModal({ leilaoId, nome, onClose }: { leilaoId: string; nome: s
                 <ListaTop titulo="Top compradores" icon={Users} itens={(rel.top_compradores || []).map((c) => ({ nome: c.nome, valor: brl(c.volume) }))} />
                 <ListaTop titulo="Top assessorias" icon={Users} itens={(rel.top_assessorias || []).map((c) => ({ nome: c.nome, valor: `${c.quantidade} lote(s)` }))} />
               </div>
+
+              {analise?.assertividade && analise.indice_assertividade != null && (
+                <AssertividadeBlock indice={analise.indice_assertividade} a={analise.assertividade} />
+              )}
 
               {(() => {
                 const procs = (rel.lotes || []).map((l) => parseProcedencia(l.qa_flags))
@@ -406,6 +418,47 @@ function Stat({ icon: Icon, label, valor, hint }: { icon: React.ElementType; lab
       </div>
       <p className="text-lg font-bold text-gray-900 dark:text-white mt-0.5">{valor}</p>
       {hint && <p className="text-[10px] text-gray-400">{hint}</p>}
+    </div>
+  )
+}
+
+function assertCls(indice: number): string {
+  if (indice >= 80) return 'bg-emerald-500/10 text-emerald-500 border-emerald-500/30'
+  if (indice >= 50) return 'bg-amber-500/10 text-amber-500 border-amber-500/30'
+  return 'bg-red-500/10 text-red-500 border-red-500/30'
+}
+
+function AssertividadeBlock({ indice, a }: { indice: number; a: NonNullable<LeilaoAnaliseRow['analise']>['assertividade'] }) {
+  if (!a) return null
+  const erros = (a.per_buyer || []).filter((b) => !b.encontrado || b.valor_bate === false)
+  return (
+    <div className="mb-6 rounded-xl border border-gray-200 dark:border-[#2A2A2A] p-4">
+      <div className="flex flex-wrap items-center gap-3 mb-3">
+        <h3 className="text-sm font-semibold text-gray-700 dark:text-gray-300">Assertividade vs fechamento da Bula</h3>
+        <span className={`text-xs px-2 py-0.5 rounded-full border font-semibold ${assertCls(indice)}`}>{Math.round(indice)}%</span>
+        <span className="text-[11px] text-gray-400">
+          compradores {a.compradores_encontrados}/{a.gold_compradores}
+          {a.buyer_recall_pct != null && ` · recall ${Math.round(a.buyer_recall_pct)}%`}
+          {a.value_accuracy_pct != null && ` · valor ${Math.round(a.value_accuracy_pct)}%`}
+        </span>
+      </div>
+      {erros.length === 0 ? (
+        <p className="text-xs text-emerald-500">Todos os compradores do fechamento foram encontrados. ✓</p>
+      ) : (
+        <div>
+          <p className="text-[11px] uppercase tracking-wide text-gray-400 mb-1">Onde errou ({erros.length})</p>
+          <div className="space-y-1">
+            {erros.slice(0, 12).map((b, i) => (
+              <div key={i} className="flex items-center justify-between text-xs px-3 py-1.5 rounded-lg bg-gray-50 dark:bg-[#1A1A1A]">
+                <span className="truncate text-gray-700 dark:text-gray-200 max-w-[55%]" title={b.gold_comprador}>{b.gold_comprador}</span>
+                <span className={b.encontrado ? 'text-amber-500' : 'text-red-500'}>
+                  {b.encontrado ? `valor diverge (extr ~${brl(b.extr_valor_estimado)} vs ${brl(b.gold_vgv)})` : 'não encontrado'}
+                </span>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
     </div>
   )
 }

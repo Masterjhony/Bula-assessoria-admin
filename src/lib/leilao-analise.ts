@@ -20,6 +20,28 @@ export interface AgendaLeilao {
   local: string | null
 }
 
+export interface AssertividadeBuyer {
+  gold_comprador: string
+  gold_vgv: number
+  encontrado: boolean
+  extr_comprador: string | null
+  extr_valor_estimado: number
+  valor_bate: boolean | null
+  match_score: number
+}
+
+export interface Assertividade {
+  fechamento: string
+  buyer_recall_pct: number | null
+  value_accuracy_pct: number | null
+  value_aggregate_pct: number | null
+  gold_compradores: number
+  compradores_encontrados: number
+  gold_vgv_total: number | null
+  extr_vgv_estimado: number | null
+  per_buyer: AssertividadeBuyer[]
+}
+
 export interface AnaliseVinculo {
   video_id: string | null
   video_url: string | null
@@ -29,6 +51,8 @@ export interface AnaliseVinculo {
   total_vendidos: number | null
   volume_total: number | null
   sincronizado_em: string | null
+  indice_assertividade: number | null
+  assertividade: Assertividade | null
 }
 
 export interface LeilaoAnaliseRow {
@@ -63,7 +87,7 @@ export async function montarLeiloesAnalise(
 
   const { data: vincRows } = await supabase
     .from('bula_leilao_video_analise')
-    .select('leilao_id, video_id, video_url, status, match_tipo, total_lotes, total_vendidos, volume_total, sincronizado_em')
+    .select('leilao_id, video_id, video_url, status, match_tipo, total_lotes, total_vendidos, volume_total, sincronizado_em, indice_assertividade, assertividade')
   const vinculos = new Map<string, AnaliseVinculo & { leilao_id: string }>()
   for (const v of vincRows ?? []) vinculos.set(v.leilao_id, v as AnaliseVinculo & { leilao_id: string })
 
@@ -105,6 +129,8 @@ export async function montarLeiloesAnalise(
           match_tipo: 'auto',
           ...snap,
           sincronizado_em: new Date().toISOString(),
+          indice_assertividade: null,
+          assertividade: null,
         }
         novosAuto.push({
           leilao_id: leilao.id,
