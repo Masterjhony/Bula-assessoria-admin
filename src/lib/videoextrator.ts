@@ -132,3 +132,30 @@ export function dispararAnalise(
     body: JSON.stringify({ url }),
   })
 }
+
+export interface AtividadeEvento {
+  ts: string
+  tipo: string // descoberta | sem_match | analise | erro | indice | feedback | sync | info
+  msg: string
+  [k: string]: unknown
+}
+
+export interface FilaItem {
+  video_id: string
+  title: string | null
+  channel_key: string | null
+  status: string // pending | processing | done | error | skipped
+  last_error?: string | null
+  updated_at?: string | null
+}
+
+export interface Atividade {
+  eventos: AtividadeEvento[]
+  fila: FilaItem[]
+  stats: { pending?: number; processing?: number; done?: number; error?: number; total?: number }
+}
+
+/** Feed de andamento do loop autônomo + estado da fila. */
+export function getAtividade(limit = 60): Promise<Atividade> {
+  return call<Atividade>(`/api/atividade?limit=${limit}`)
+}

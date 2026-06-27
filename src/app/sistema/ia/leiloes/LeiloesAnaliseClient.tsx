@@ -5,9 +5,10 @@ import { useRouter } from 'next/navigation'
 import {
   FileVideo, RefreshCw, X, Play, CheckCircle2, Clock, AlertCircle,
   Loader2, ExternalLink, Sparkles, TrendingUp, Users, Tag, Eye, Mic, AlertTriangle,
+  Activity, Search, GraduationCap, Gauge, ChevronDown,
 } from 'lucide-react'
 import type { LeilaoAnaliseRow } from '@/lib/leilao-analise'
-import { parseProcedencia, type Relatorio } from '@/lib/videoextrator'
+import { parseProcedencia, type Relatorio, type Atividade, type AtividadeEvento } from '@/lib/videoextrator'
 
 function brl(n: number | null | undefined): string {
   if (n == null) return '—'
@@ -155,6 +156,8 @@ export default function LeiloesAnaliseClient({
         <CardResumo label="Sem vídeo" valor={resumo.sem} cor="text-gray-400" />
       </div>
 
+      <AtividadePanel />
+
       {erro && (
         <div className="mb-4 px-4 py-3 rounded-xl bg-red-500/10 border border-red-500/30 text-sm text-red-500">
           {erro}
@@ -278,6 +281,124 @@ export default function LeiloesAnaliseClient({
         />
       )}
     </div>
+  )
+}
+
+function tempoRel(iso: string): string {
+  const t = Date.parse(iso)
+  if (Number.isNaN(t)) return ''
+  const s = Math.floor((Date.now() - t) / 1000)
+  if (s < 60) return 'agora'
+  if (s < 3600) return `${Math.floor(s / 60)}min atrás`
+  if (s < 86400) return `${Math.floor(s / 3600)}h atrás`
+  return `${Math.floor(s / 86400)}d atrás`
+}
+
+const EVENTO_META: Record<string, { Icon: React.ElementType; cls: string }> = {
+  descoberta: { Icon: Search, cls: 'text-sky-500' },
+  analise: { Icon: CheckCircle2, cls: 'text-emerald-500' },
+  indice: { Icon: Gauge, cls: 'text-[#A68B4B]' },
+  feedback: { Icon: GraduationCap, cls: 'text-violet-500' },
+  sem_match: { Icon: AlertCircle, cls: 'text-gray-400' },
+  erro: { Icon: AlertTriangle, cls: 'text-red-500' },
+  sync: { Icon: RefreshCw, cls: 'text-gray-400' },
+}
+
+function AtividadePanel() {
+  const [open, setOpen] = useState(true)
+  const [data, setData] = useState<Atividade | null>(null)
+  const [erro, setErro] = useState<string | null>(null)
+
+  useEffect(() => {
+    if (!open) return
+    let alive = true
+    const load = () => {
+      fetch('/api/sistema/ia/leiloes/status')
+        .then(async (r) => {
+          const d = await r.json()
+          if (!r.ok) throw new Error(d.error || `Erro ${r.status}`)
+          return d as Atividade
+        })
+        .then((d) => { if (alive) { setData(d); setErro(null) } })
+        .catch((e) => { if (alive) setErro(e.message) })
+    }
+    load()
+    const id = setInterval(load, 15000) // auto-refresh a cada 15s
+    return () => { alive = false; clearInterval(id) }
+  }, [open])
+
+  const s = data?.stats || {}
+  const processando = (data?.fila || []).filter((f) => f.status === 'processing')
+
+  return (
+    <div className="mb-6 rounded-2xl border border-gray-200 dark:border-[#2A2A2A] bg-white dark:bg-[#141414] overflow-hidden">
+      <button
+        onClick={() => setOpen((o) => !o)}
+        className="w-full flex items-center gap-2 px-4 py-3 text-left hover:bg-gray-50 dark:hover:bg-[#1A1A1A] transition-colors"
+      >
+        <Activity size={16} className="text-[#A68B4B]" />
+        <span className="text-sm font-semibold text-gray-800 dark:text-gray-200">Atividade do sistema</span>
+        {open && <span className="flex items-center gap-1 text-[10px] text-gray-400"><span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" /> ao vivo</span>}
+        <div className="ml-auto flex items-center gap-2">
+          <ChipFila label="na fila" valor={s.pending} cor="text-amber-500" />
+          <ChipFila label="processando" valor={processando.length} cor="text-sky-500" />
+          <ChipFila label="prontos" valor={s.done} cor="text-emerald-500" />
+          <ChipFila label="erros" valor={s.error} cor="text-red-400" />
+          <ChevronDown size={16} className={`text-gray-400 transition-transform ${open ? 'rotate-180' : ''}`} />
+        </div>
+      </button>
+
+      {open && (
+        <div className="border-t border-gray-200 dark:border-[#2A2A2A] p-4">
+          {erro && <p className="text-xs text-red-500 mb-2">VPS: {erro}</p>}
+          {processando.length > 0 && (
+            <div className="mb-3 flex items-center gap-2 text-xs text-sky-500">
+              <Loader2 size={13} className="animate-spin" />
+              Analisando agora: <span className="font-medium truncate max-w-[60%]">{processando[0].title || processando[0].video_id}</span>
+            </div>
+          )}
+          {!data && !erro && <div className="py-6 flex justify-center"><Loader2 className="animate-spin text-[#A68B4B]" size={20} /></div>}
+          {data && (
+            <div className="space-y-1 max-h-72 overflow-y-auto">
+              {(data.eventos || []).length === 0 && (
+                <p className="text-xs text-gray-400 py-4 text-center">Sem eventos ainda. O sistema roda a cada poucos minutos.</p>
+              )}
+              {(data.eventos || []).map((e: AtividadeEvento, i) => {
+                const meta = EVENTO_META[e.tipo] || EVENTO_META.sync
+                return (
+                  <div key={i} className="flex items-start gap-2 text-xs px-2 py-1.5 rounded-lg hover:bg-gray-50 dark:hover:bg-[#1A1A1A]">
+                    <meta.Icon size={13} className={`${meta.cls} mt-0.5 shrink-0`} />
+                    <span className="text-gray-700 dark:text-gray-300 flex-1">{e.msg}</span>
+                    <span className="text-gray-400 dark:text-gray-600 whitespace-nowrap">{tempoRel(e.ts)}</span>
+                  </div>
+                )
+              })}
+            </div>
+          )}
+          {/* erros recentes da fila */}
+          {(data?.fila || []).some((f) => f.status === 'error') && (
+            <div className="mt-3 pt-3 border-t border-gray-100 dark:border-[#222]">
+              <p className="text-[10px] uppercase tracking-wide text-gray-400 mb-1">Erros recentes na fila</p>
+              {(data?.fila || []).filter((f) => f.status === 'error').slice(0, 4).map((f) => (
+                <div key={f.video_id} className="flex items-center justify-between text-[11px] text-gray-500 dark:text-gray-400 px-2 py-1">
+                  <span className="truncate max-w-[55%]" title={f.title || ''}>{f.title || f.video_id}</span>
+                  <span className="text-red-400 truncate max-w-[40%]" title={f.last_error || ''}>{(f.last_error || '').slice(0, 40) || 'erro'}</span>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+      )}
+    </div>
+  )
+}
+
+function ChipFila({ label, valor, cor }: { label: string; valor?: number; cor: string }) {
+  if (valor == null) return null
+  return (
+    <span className="hidden sm:inline-flex items-center gap-1 text-[11px] text-gray-400">
+      <span className={`font-bold ${cor}`}>{valor}</span> {label}
+    </span>
   )
 }
 
