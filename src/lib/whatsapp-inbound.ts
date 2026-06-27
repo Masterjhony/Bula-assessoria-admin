@@ -73,8 +73,11 @@ export async function createLeadFromInbound(
     return lead as LeadShape
 }
 
+/** Bucket privado do Supabase Storage onde mora a mídia inbound do WhatsApp. */
+export const WHATSAPP_MEDIA_BUCKET = 'whatsapp-media'
+
 export interface InboundMedia {
-    /** Key do objeto no R2 (resolvida em signed URL na hora de exibir). */
+    /** Path no bucket whatsapp-media (resolvido em signed URL na hora de exibir). */
     url: string
     type: 'audio' | 'image' | 'video' | 'document'
     mime?: string | null

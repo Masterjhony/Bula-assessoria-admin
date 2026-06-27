@@ -17,7 +17,7 @@ import { normalizePhone, phoneVariants, renderTemplate, firstName } from '@/lib/
 import { ensureAudienceTagForTemplate } from '@/lib/whatsapp-audience-tags'
 import { metaTemplateName } from '@/lib/whatsapp-cloud-api'
 import { sendOutbound } from '@/lib/whatsapp-gateway'
-import { getR2DownloadUrl } from '@/lib/r2'
+import { WHATSAPP_MEDIA_BUCKET } from '@/lib/whatsapp-inbound'
 
 const WINDOW_MS = 24 * 3_600_000
 
@@ -69,17 +69,16 @@ export async function GET(
         ? new Date(new Date(lastInboundAt).getTime() + WINDOW_MS).toISOString()
         : null
 
-    // Resolve a key do R2 (media_url) em signed URL na hora de exibir. URL vale
-    // 6h — o inbox recarrega a thread ao abrir, então sempre vem uma URL fresca.
+    // Resolve o path no bucket whatsapp-media (media_url) em signed URL na hora
+    // de exibir. URL vale 6h — o inbox recarrega a thread ao abrir, então sempre
+    // vem uma URL fresca.
     const messages = await Promise.all(
         (messagesRes.data ?? []).map(async (m) => {
             if (!m.media_url) return m
-            try {
-                const signed = await getR2DownloadUrl(m.media_url, { expiresInSeconds: 6 * 3600 })
-                return { ...m, media_url: signed }
-            } catch {
-                return { ...m, media_url: null }
-            }
+            const { data: signed } = await supabase.storage
+                .from(WHATSAPP_MEDIA_BUCKET)
+                .createSignedUrl(m.media_url, 6 * 3600)
+            return { ...m, media_url: signed?.signedUrl ?? null }
         }),
     )
 

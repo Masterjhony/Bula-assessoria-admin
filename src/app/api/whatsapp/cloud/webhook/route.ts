@@ -22,10 +22,10 @@ import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
 import crypto from 'crypto'
 import { normalizePhone } from '@/lib/whatsapp-central'
-import { processInboundMessage, inboundAlreadyProcessed, type InboundMedia } from '@/lib/whatsapp-inbound'
+import { processInboundMessage, inboundAlreadyProcessed, WHATSAPP_MEDIA_BUCKET, type InboundMedia } from '@/lib/whatsapp-inbound'
 import { sendOutbound } from '@/lib/whatsapp-gateway'
 import { downloadWhatsappCloudMedia } from '@/lib/whatsapp-cloud-api'
-import { putR2Object } from '@/lib/r2'
+import type { SupabaseClient } from '@supabase/supabase-js'
 
 export const maxDuration = 30
 
@@ -134,19 +134,28 @@ function extFromMime(mime: string | undefined, kind: MediaKind): string {
 }
 
 /**
- * Baixa a mídia da Graph API e sobe pro R2. Retorna a referência pra gravar no
- * banco, ou null se falhar (o inbound segue com o placeholder de texto).
+ * Baixa a mídia da Graph API e sobe pro Supabase Storage (bucket privado
+ * whatsapp-media). Retorna o path pra gravar no banco, ou null se falhar (o
+ * inbound segue com o placeholder de texto).
  */
-async function ingestInboundMedia(m: MetaMessage, phone: string): Promise<InboundMedia | null> {
+async function ingestInboundMedia(
+    supabase: SupabaseClient,
+    m: MetaMessage,
+    phone: string,
+): Promise<InboundMedia | null> {
     const ref = extractMediaRef(m)
     if (!ref) return null
     try {
         const { data, mime } = await downloadWhatsappCloudMedia(ref.id)
         const ext = extFromMime(ref.mime || mime, ref.kind)
         const safeId = (m.id || ref.id).replace(/[^a-zA-Z0-9._-]/g, '_').slice(0, 80)
-        const key = `wa-inbound/${phone}/${safeId}.${ext}`
-        const { key: storedKey } = await putR2Object(key, data, { contentType: ref.mime || mime })
-        return { url: storedKey, type: ref.kind, mime: ref.mime || mime, filename: ref.filename ?? null }
+        const path = `${phone}/${safeId}.${ext}`
+        const contentType = ref.mime || mime
+        const { error } = await supabase.storage
+            .from(WHATSAPP_MEDIA_BUCKET)
+            .upload(path, Buffer.from(data), { contentType, upsert: true })
+        if (error) throw new Error(error.message)
+        return { url: path, type: ref.kind, mime: contentType, filename: ref.filename ?? null }
     } catch (e) {
         console.error('[cloud-webhook] falha ao ingerir mídia inbound:', e instanceof Error ? e.message : e)
         return null
@@ -202,7 +211,7 @@ export async function POST(req: NextRequest) {
 
                     // Mídia (áudio/imagem/vídeo/documento): baixa da Graph API e
                     // guarda no R2 antes de registrar, pra ficar acessível no inbox.
-                    const media = await ingestInboundMedia(msg, phone)
+                    const media = await ingestInboundMedia(supabase, msg, phone)
 
                     const outcome = await processInboundMessage(supabase, {
                         phone,
