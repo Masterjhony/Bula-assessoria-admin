@@ -4,6 +4,7 @@ import { useCallback, useEffect, useState } from 'react';
 import {
     AlertCircle,
     BarChart3,
+    Bot,
     CheckCircle2,
     Clock,
     Cloud,
@@ -74,6 +75,15 @@ type CockpitData = {
 type WelcomeConfig = {
     enabled: boolean;
     message: string;
+};
+
+type ConciergeConfig = {
+    enabled: boolean;
+    model: string;
+    persona: string;
+    api_configured?: boolean;
+    default_model?: string;
+    default_persona?: string;
 };
 
 const CENTRAL_LINKS: { tab: string; label: string; icon: typeof Inbox }[] = [
@@ -151,6 +161,12 @@ export function CRMWhatsappView() {
     const [welcomeSavedAt, setWelcomeSavedAt] = useState<number | null>(null);
     const [welcomeError, setWelcomeError] = useState<string | null>(null);
 
+    // Atendimento automático por IA (concierge de qualificação).
+    const [concierge, setConcierge] = useState<ConciergeConfig | null>(null);
+    const [conciergeSaving, setConciergeSaving] = useState(false);
+    const [conciergeSavedAt, setConciergeSavedAt] = useState<number | null>(null);
+    const [conciergeError, setConciergeError] = useState<string | null>(null);
+
     // Operação de conversas: sub-view (conversas/status) e canal selecionado.
     const [view, setView] = useState<'conversas' | 'status'>('conversas');
     const [channel, setChannel] = useState<'oficial' | 'baileys'>('oficial');
@@ -193,6 +209,15 @@ export function CRMWhatsappView() {
         }
     }, []);
 
+    const fetchConcierge = useCallback(async () => {
+        try {
+            const res = await fetch('/api/whatsapp/concierge', { cache: 'no-store' });
+            if (res.ok) setConcierge(await res.json());
+        } catch {
+            // mantém vazio
+        }
+    }, []);
+
     const refreshAll = useCallback(() => {
         void fetchCockpit();
         void fetchActivity();
@@ -201,10 +226,11 @@ export function CRMWhatsappView() {
     useEffect(() => {
         refreshAll();
         void fetchWelcome();
+        void fetchConcierge();
         const t1 = setInterval(fetchCockpit, 6000);
         const t2 = setInterval(fetchActivity, 15000);
         return () => { clearInterval(t1); clearInterval(t2); };
-    }, [fetchCockpit, fetchActivity, fetchWelcome, refreshAll]);
+    }, [fetchCockpit, fetchActivity, fetchWelcome, fetchConcierge, refreshAll]);
 
     // Templates (para o inbox, incluindo os aprovados pela Meta).
     useEffect(() => {
@@ -264,6 +290,29 @@ export function CRMWhatsappView() {
             setWelcomeError(e instanceof Error ? e.message : 'Falha ao salvar.');
         } finally {
             setWelcomeSaving(false);
+        }
+    }, []);
+
+    const saveConcierge = useCallback(async (next: { enabled: boolean; model: string; persona: string }) => {
+        setConciergeSaving(true);
+        setConciergeError(null);
+        try {
+            const res = await fetch('/api/whatsapp/concierge', {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(next),
+            });
+            if (!res.ok) {
+                const err = await res.json().catch(() => ({}));
+                throw new Error(err.error || `Erro ${res.status}`);
+            }
+            const saved = await res.json();
+            setConcierge(prev => ({ ...(prev ?? {} as ConciergeConfig), ...saved }));
+            setConciergeSavedAt(Date.now());
+        } catch (e) {
+            setConciergeError(e instanceof Error ? e.message : 'Falha ao salvar.');
+        } finally {
+            setConciergeSaving(false);
         }
     }, []);
 
@@ -531,6 +580,92 @@ export function CRMWhatsappView() {
                                 >
                                     {welcomeSaving ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Save className="h-3.5 w-3.5" />}
                                     Salvar mensagem
+                                </button>
+                            </div>
+                        </>
+                    )}
+                </div>
+            </div>
+
+            {/* Atendimento automático por IA (concierge) */}
+            <div className="bg-card text-card-foreground rounded-xl border overflow-hidden">
+                <div className="px-5 py-3 border-b flex items-center justify-between gap-3">
+                    <h3 className="font-semibold flex items-center gap-2 text-sm">
+                        <Bot className="h-4 w-4" /> Atendimento automático (IA)
+                    </h3>
+                    {concierge && (
+                        <button
+                            type="button"
+                            onClick={() => saveConcierge({ enabled: !concierge.enabled, model: concierge.model, persona: concierge.persona })}
+                            disabled={conciergeSaving || (!concierge.enabled && !concierge.api_configured)}
+                            className={`relative inline-flex h-5 w-9 items-center rounded-full transition disabled:opacity-50 ${
+                                concierge.enabled ? 'bg-green-500' : 'bg-muted'
+                            }`}
+                            aria-label={concierge.enabled ? 'Desativar' : 'Ativar'}
+                            title={!concierge.api_configured ? 'Configure OPENROUTER_API_KEY para ativar' : undefined}
+                        >
+                            <span className={`inline-block h-4 w-4 transform rounded-full bg-white shadow transition ${
+                                concierge.enabled ? 'translate-x-4' : 'translate-x-0.5'
+                            }`} />
+                        </button>
+                    )}
+                </div>
+                <div className="p-5 space-y-3">
+                    <p className="text-[11px] text-muted-foreground">
+                        Depois do template de abertura, a IA conduz a conversa de qualificação (intenção → interesse → habilitação),
+                        pede e recebe os documentos, atualiza os campos do lead no CRM e, ao receber a documentação, marca
+                        <b> Em análise cadastral</b> e passa para um humano. Responde sempre pela <b>API oficial</b> dentro da janela de 24h.
+                    </p>
+                    {!concierge ? (
+                        <div className="flex justify-center py-8"><Loader2 className="h-5 w-5 animate-spin text-muted-foreground" /></div>
+                    ) : (
+                        <>
+                            {!concierge.api_configured && (
+                                <div className="flex items-start gap-2 text-xs rounded-md px-2.5 py-2 bg-amber-500/10 text-amber-700 dark:text-amber-400">
+                                    <AlertCircle className="h-3.5 w-3.5 flex-shrink-0 mt-0.5" />
+                                    <span>Falta a variável <code>OPENROUTER_API_KEY</code> no ambiente. Sem ela a IA fica desligada e o fluxo legado assume.</span>
+                                </div>
+                            )}
+                            <div className="space-y-1">
+                                <label className="text-[10px] uppercase tracking-wider text-muted-foreground">Modelo (OpenRouter)</label>
+                                <input
+                                    value={concierge.model}
+                                    onChange={(e) => setConcierge({ ...concierge, model: e.target.value })}
+                                    placeholder={concierge.default_model || 'google/gemini-2.5-flash'}
+                                    className="w-full rounded-md border bg-background px-3 py-1.5 text-sm font-mono focus:outline-none focus:ring-2 focus:ring-primary/40"
+                                />
+                                <p className="text-[10px] text-muted-foreground">
+                                    Vazio = padrão (<code>{concierge.default_model || 'google/gemini-2.5-flash'}</code>). Ex.: <code>openai/gpt-4o-mini</code>, <code>deepseek/deepseek-chat</code>.
+                                </p>
+                            </div>
+                            <div className="space-y-1">
+                                <label className="text-[10px] uppercase tracking-wider text-muted-foreground">Instruções / persona (opcional)</label>
+                                <textarea
+                                    value={concierge.persona}
+                                    onChange={(e) => setConcierge({ ...concierge, persona: e.target.value })}
+                                    rows={8}
+                                    placeholder={'Vazio = usa a persona padrão da Bula (voz do João, funil guiado por lacunas).'}
+                                    className="w-full rounded-lg border bg-background px-3 py-2 text-xs font-mono leading-relaxed resize-y focus:outline-none focus:ring-2 focus:ring-primary/40"
+                                />
+                            </div>
+                            <div className="flex items-center justify-between gap-3">
+                                <div className="text-[11px] min-h-[16px]">
+                                    {conciergeError ? (
+                                        <span className="text-red-500 flex items-center gap-1"><XCircle className="h-3 w-3" /> {conciergeError}</span>
+                                    ) : conciergeSavedAt ? (
+                                        <span className="text-green-500 flex items-center gap-1"><CheckCircle2 className="h-3 w-3" /> Salvo</span>
+                                    ) : !concierge.enabled ? (
+                                        <span className="text-amber-500 flex items-center gap-1"><AlertCircle className="h-3 w-3" /> IA desligada — fluxo legado ativo</span>
+                                    ) : null}
+                                </div>
+                                <button
+                                    type="button"
+                                    onClick={() => saveConcierge({ enabled: concierge.enabled, model: concierge.model, persona: concierge.persona })}
+                                    disabled={conciergeSaving}
+                                    className="inline-flex items-center gap-1.5 rounded-lg bg-primary px-3.5 py-1.5 text-xs font-medium text-primary-foreground hover:opacity-90 disabled:opacity-50"
+                                >
+                                    {conciergeSaving ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Save className="h-3.5 w-3.5" />}
+                                    Salvar
                                 </button>
                             </div>
                         </>

@@ -18,6 +18,32 @@ import { ACADEMIA_TAG } from "@/lib/whatsapp-central"
 
 type Filter = "todos" | "aguardando" | "handoff" | "optout" | "interesse"
 
+/** Documento do lead (cadastro formal ou mídia recebida no WhatsApp). */
+type LeadDocItem = {
+    source: "cadastro" | "whatsapp"
+    id: string
+    messageId?: string
+    name: string
+    tipo: string
+    url: string | null
+    mime: string | null
+    size: number | null
+    createdAt: string
+    canAttach: boolean
+}
+
+const DOC_TIPO_LABELS: Record<string, string> = {
+    ie: "Inscrição Estadual",
+    cpf: "CPF / CNPJ",
+    comprovante: "Comprovante",
+    contrato: "Contrato",
+    foto: "Foto",
+    documento: "Documento",
+    outro: "Outro",
+}
+
+const DOC_TIPO_OPTIONS = ["ie", "cpf", "comprovante", "contrato", "outro"] as const
+
 // Placeholders de texto que o webhook grava para mídia — quando há player/preview
 // renderizado, escondemos esse texto redundante.
 const MEDIA_PLACEHOLDERS = new Set(["[áudio]", "[imagem]", "[vídeo]", "[documento]"])
@@ -205,7 +231,12 @@ export function InboxTab({ templates, channel = "oficial" }: { templates: Templa
     const [feedback, setFeedback] = useState<{ type: "ok" | "err"; msg: string } | null>(null)
 
     // Aba do painel lateral do lead (apenas apresentação — não afeta automações).
-    const [leadTab, setLeadTab] = useState<"detalhes" | "atividades" | "historico">("detalhes")
+    const [leadTab, setLeadTab] = useState<"detalhes" | "atividades" | "historico" | "documentos">("detalhes")
+
+    // Documentos do lead (cadastro + mídias recebidas). Carregados sob demanda.
+    const [docs, setDocs] = useState<LeadDocItem[]>([])
+    const [docsLoading, setDocsLoading] = useState(false)
+    const [docBusy, setDocBusy] = useState<string | null>(null)
 
     // Só templates aprovados pela Meta podem ser disparados como template oficial.
     const approvedTemplates = useMemo(() => templates.filter(t => t.meta_status === "APPROVED"), [templates])
@@ -245,6 +276,53 @@ export function InboxTab({ templates, channel = "oficial" }: { templates: Templa
         }
     }
 
+    async function fetchDocs(phone: string) {
+        setDocsLoading(true)
+        try {
+            const res = await fetch(`/api/whatsapp/lead-documents/${encodeURIComponent(phone)}`)
+            const data = await res.json()
+            setDocs(data.documents ?? [])
+        } catch {
+            setDocs([])
+        } finally {
+            setDocsLoading(false)
+        }
+    }
+
+    async function attachDoc(messageId: string) {
+        if (!selectedPhone) return
+        setDocBusy(messageId)
+        try {
+            const res = await fetch(`/api/whatsapp/lead-documents/${encodeURIComponent(selectedPhone)}`, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ action: "attach", messageId }),
+            })
+            const data = await res.json()
+            if (!res.ok) setFeedback({ type: "err", msg: data.error ?? "Falha ao anexar" })
+            else { setFeedback({ type: "ok", msg: "Anexado ao cadastro do lead." }); await fetchDocs(selectedPhone) }
+        } catch (e: unknown) {
+            setFeedback({ type: "err", msg: e instanceof Error ? e.message : "Erro inesperado" })
+        } finally {
+            setDocBusy(null)
+        }
+    }
+
+    async function setDocTipo(id: string, tipo: string) {
+        if (!selectedPhone) return
+        setDocBusy(id)
+        try {
+            const res = await fetch(`/api/whatsapp/lead-documents/${encodeURIComponent(selectedPhone)}`, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ action: "set_tipo", id, tipo }),
+            })
+            if (res.ok) await fetchDocs(selectedPhone)
+        } catch { /* silencioso */ } finally {
+            setDocBusy(null)
+        }
+    }
+
     useEffect(() => { fetchInbox() }, [filter])
     useEffect(() => {
         const t = setTimeout(fetchInbox, 300)
@@ -257,8 +335,14 @@ export function InboxTab({ templates, channel = "oficial" }: { templates: Templa
     useEffect(() => {
         // Ao trocar de conversa, recarrega a thread e volta para a aba Detalhes.
         setLeadTab("detalhes")
+        setDocs([])
         if (selectedPhone) fetchThread(selectedPhone)
     }, [selectedPhone])
+
+    useEffect(() => {
+        // Carrega os documentos só quando a aba Documentos é aberta.
+        if (selectedPhone && leadTab === "documentos") fetchDocs(selectedPhone)
+    }, [selectedPhone, leadTab])
 
     const selected = useMemo(
         () => conversations.find(c => c.phone === selectedPhone) ?? null,
@@ -745,6 +829,7 @@ export function InboxTab({ templates, channel = "oficial" }: { templates: Templa
                                 {([
                                     { id: "detalhes", label: "Detalhes", icon: Info },
                                     { id: "atividades", label: "Atividades", icon: Activity },
+                                    { id: "documentos", label: "Docs", icon: FileText },
                                     { id: "historico", label: "Histórico", icon: Clock },
                                 ] as const).map(t => {
                                     const Icon = t.icon
@@ -903,6 +988,95 @@ export function InboxTab({ templates, channel = "oficial" }: { templates: Templa
                                                     </div>
                                                 </li>
                                             ))}
+                                        </ul>
+                                    )}
+                                </div>
+                            )}
+
+                            {leadTab === "documentos" && (
+                                <div className="space-y-2">
+                                    <div className="flex items-center justify-between">
+                                        <p className="text-[10px] uppercase tracking-wider text-muted-foreground">Documentos do lead</p>
+                                        <button
+                                            onClick={() => selectedPhone && fetchDocs(selectedPhone)}
+                                            className="text-[10px] text-muted-foreground hover:text-foreground"
+                                        >
+                                            atualizar
+                                        </button>
+                                    </div>
+                                    {docsLoading ? (
+                                        <div className="flex justify-center py-8"><Loader2 className="h-4 w-4 animate-spin text-muted-foreground" /></div>
+                                    ) : docs.length === 0 ? (
+                                        <p className="text-xs text-muted-foreground py-6 text-center">
+                                            Nenhum documento ainda. Quando o lead enviar a inscrição estadual, CPF/CNPJ ou comprovantes pelo WhatsApp, eles aparecem aqui.
+                                        </p>
+                                    ) : (
+                                        <ul className="space-y-2">
+                                            {docs.map(d => {
+                                                const isImage = (d.mime || "").startsWith("image/") || d.tipo === "foto"
+                                                return (
+                                                    <li key={`${d.source}-${d.id}`} className="rounded-lg border p-2.5 space-y-2">
+                                                        <div className="flex items-start gap-2">
+                                                            {isImage && d.url ? (
+                                                                <a href={d.url} target="_blank" rel="noopener noreferrer" className="shrink-0">
+                                                                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                                                                    <img src={d.url} alt={d.name} className="h-12 w-12 rounded object-cover border" />
+                                                                </a>
+                                                            ) : (
+                                                                <FileText className="h-5 w-5 shrink-0 text-muted-foreground mt-0.5" />
+                                                            )}
+                                                            <div className="min-w-0 flex-1">
+                                                                <p className="text-xs font-medium truncate">{d.name}</p>
+                                                                <div className="flex items-center gap-1.5 mt-0.5">
+                                                                    <span className="text-[10px] px-1.5 py-0.5 rounded-full bg-muted text-muted-foreground">
+                                                                        {DOC_TIPO_LABELS[d.tipo] ?? d.tipo}
+                                                                    </span>
+                                                                    <span className="text-[10px] text-muted-foreground">{timeAgo(d.createdAt)}</span>
+                                                                    {d.source === "cadastro" && (
+                                                                        <span className="text-[10px] text-emerald-600 dark:text-emerald-400">no cadastro</span>
+                                                                    )}
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                        <div className="flex items-center gap-1.5 flex-wrap">
+                                                            {d.url && (
+                                                                <a
+                                                                    href={d.url}
+                                                                    target="_blank"
+                                                                    rel="noopener noreferrer"
+                                                                    download={d.name}
+                                                                    className="inline-flex items-center gap-1 text-[11px] rounded-md border px-2 py-1 hover:bg-muted"
+                                                                >
+                                                                    <Download className="h-3 w-3" /> Abrir / baixar
+                                                                </a>
+                                                            )}
+                                                            {d.source === "whatsapp" && d.canAttach && d.messageId && (
+                                                                <button
+                                                                    onClick={() => attachDoc(d.messageId!)}
+                                                                    disabled={docBusy === d.messageId}
+                                                                    className="inline-flex items-center gap-1 text-[11px] rounded-md border px-2 py-1 hover:bg-emerald-50 dark:hover:bg-emerald-500/10 hover:text-emerald-600 disabled:opacity-50"
+                                                                    title="Salva como documento formal do lead (aparece no cadastro)"
+                                                                >
+                                                                    {docBusy === d.messageId ? <Loader2 className="h-3 w-3 animate-spin" /> : <UserPlus className="h-3 w-3" />}
+                                                                    Anexar ao cadastro
+                                                                </button>
+                                                            )}
+                                                            {d.source === "cadastro" && (
+                                                                <select
+                                                                    value={DOC_TIPO_OPTIONS.includes(d.tipo as typeof DOC_TIPO_OPTIONS[number]) ? d.tipo : "outro"}
+                                                                    disabled={docBusy === d.id}
+                                                                    onChange={e => setDocTipo(d.id, e.target.value)}
+                                                                    className="text-[11px] px-1.5 py-1 rounded-md border bg-background"
+                                                                >
+                                                                    {DOC_TIPO_OPTIONS.map(t => (
+                                                                        <option key={t} value={t}>{DOC_TIPO_LABELS[t]}</option>
+                                                                    ))}
+                                                                </select>
+                                                            )}
+                                                        </div>
+                                                    </li>
+                                                )
+                                            })}
                                         </ul>
                                     )}
                                 </div>

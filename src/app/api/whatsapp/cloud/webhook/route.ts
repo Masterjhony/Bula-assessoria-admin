@@ -23,6 +23,7 @@ import { createClient } from '@supabase/supabase-js'
 import crypto from 'crypto'
 import { normalizePhone } from '@/lib/whatsapp-central'
 import { processInboundMessage, inboundAlreadyProcessed, WHATSAPP_MEDIA_BUCKET, type InboundMedia } from '@/lib/whatsapp-inbound'
+import { promoteWhatsappMediaToLeadDoc } from '@/lib/whatsapp-lead-documents'
 import { sendOutbound } from '@/lib/whatsapp-gateway'
 import { downloadWhatsappCloudMedia } from '@/lib/whatsapp-cloud-api'
 import type { SupabaseClient } from '@supabase/supabase-js'
@@ -236,6 +237,21 @@ export async function POST(req: NextRequest) {
                         channel: 'cloud',
                         media,
                     })
+
+                    // Documento (PDF etc.) recebido → vira documento formal do
+                    // lead (crm_lead_documentos), visível no card e na aba
+                    // "Documentos" do inbox. Fotos ficam para anexar sob demanda.
+                    if (media?.type === 'document' && media.url && outcome.lead?.id) {
+                        await promoteWhatsappMediaToLeadDoc(supabase, {
+                            leadId: outcome.lead.id,
+                            mediaPath: media.url,
+                            filename: media.filename,
+                            mime: media.mime,
+                            caption: text,
+                        }).catch(err =>
+                            console.warn('[cloud-webhook] promover documento falhou:', err instanceof Error ? err.message : err),
+                        )
+                    }
 
                     if (outcome.kind === 'reply') {
                         // Cliente acabou de escrever → janela de 24h aberta →

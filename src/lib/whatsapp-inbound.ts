@@ -10,12 +10,13 @@
  */
 
 import type { SupabaseClient } from '@supabase/supabase-js'
-import { phoneVariants } from './whatsapp-central'
+import { phoneVariants, classifyMessage } from './whatsapp-central'
 import { runFlow, type LeadShape } from './whatsapp-flow-engine'
 import { readPauseState } from './whatsapp-pause'
 import { handleCampaignReply } from './whatsapp-campaign-reply'
 import { loadActiveFlowWithSettings } from './whatsapp-flows'
 import { isWithinAllowedHours } from './whatsapp-flow-settings'
+import { loadConciergeConfig, runConcierge } from './whatsapp-concierge'
 import { CRM_STAGE_ENTRY } from './crm-types'
 
 const LEAD_FIELDS =
@@ -197,6 +198,34 @@ export async function processInboundMessage(
     // Fora do horário permitido (no fuso do fluxo) logamos mas não respondemos.
     if (!isWithinAllowedHours(settings)) {
         return { kind: 'silent', reason: 'outside_allowed_hours', lead }
+    }
+
+    // ── Concierge de qualificação (IA) — LINHA ÚNICA de automação ────────────
+    // Quando ligado no cockpit, a IA é a *única* automação que conversa com o
+    // lead: o grafo legado (keyword→triagem, menu de interesses, etc.) NÃO roda
+    // junto, para não enviar mensagem duplicada/desorganizada. Exceções que
+    // permanecem por serem compliance, não marketing:
+    //   • opt-out determinístico ("parar"/"sair") → tratado pelo grafo;
+    //   • lead já em handoff humano ou opt-out → ninguém automatiza (humano trata).
+    const conciergeConfig = await loadConciergeConfig(supabase)
+    const isOptoutMsg = classifyMessage(text, { tags: lead?.tags_whatsapp ?? [] }).kind === 'optout'
+
+    if (conciergeConfig.enabled) {
+        // Opt-out segue pelo grafo (lane de opt-out). Demais casos: só a IA.
+        if (lead && !lead.optout_whatsapp && !lead.handoff_humano && !isOptoutMsg) {
+            const c = await runConcierge(supabase, {
+                lead, phone, senderName, text, media: input.media ?? null, config: conciergeConfig,
+            })
+            if (c.handled && !c.silent) {
+                return { kind: 'reply', reply: c.reply, bot_step: c.botStep, lead }
+            }
+            // Silêncio (resposta vazia/opt-out) OU IA indisponível (sem chave/erro):
+            // NÃO caímos no grafo legado — mantemos uma linha só. Welcome (novo
+            // lead) e opt-out seguem nos seus próprios caminhos.
+            return { kind: 'silent', reason: c.handled ? `concierge_${c.reason}` : `concierge_unhandled_${c.reason}`, lead }
+        }
+        // opt-out / handoff / opt-out msg: deixa o grafo cuidar do opt-out;
+        // handoff já cai em silêncio nas lanes do grafo.
     }
 
     const result = await runFlow(graph, { phone, senderName, text, lead })
