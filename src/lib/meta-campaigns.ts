@@ -35,24 +35,28 @@ export interface MetaCampaignsSnapshot {
 }
 
 export const META_CAMPAIGNS: MetaCampaignsSnapshot = {
-    updatedAt: '2026-06-27',
+    // Métricas de entrega (spend/impressões/alcance/cliques/ctr/cpc/cpm) puxadas
+    // ao vivo do conector da Meta em 28/06/2026 (date_preset=maximum). Leads/MQL/
+    // interesses são do último cruzamento por formulário/planilha — por isso o CPL
+    // (= spend ÷ leads) usa o investimento atual sobre essa contagem de leads.
+    updatedAt: '2026-06-28',
     account: 'CA2 - Bula 360',
     campaigns: [
         {
             id: '120248414742440708',
             name: 'LEADS - FORMS INST MAGDA Macho',
             status: 'ACTIVE',
-            start: '2026-06-25',
-            spend: 552.90,
+            start: '2026-06-23',
+            spend: 1196.40,
             leads: 96,
             mql: 12,
-            impressions: 45598,
-            reach: 37766,
-            clicks: 859,
-            ctr: 1.88,
-            cpc: 0.64,
-            cpm: 12.13,
-            cpl: 5.76,
+            impressions: 127343,
+            reach: 87476,
+            clicks: 2890,
+            ctr: 2.27,
+            cpc: 0.41,
+            cpm: 9.40,
+            cpl: 12.46,
             interesses: [
                 { label: 'Bezerras P.O.', n: 42 },
                 { label: 'Não sei ainda', n: 42 },
@@ -66,10 +70,10 @@ export const META_CAMPAIGNS: MetaCampaignsSnapshot = {
             name: 'LEADS - FORMS INST PERPETUO',
             status: 'PAUSED',
             start: '2026-06-23',
-            spend: 307.39,
+            spend: 307.54,
             leads: 174,
             mql: 9,
-            impressions: 29261,
+            impressions: 29274,
             reach: 20344,
             clicks: 899,
             ctr: 3.07,

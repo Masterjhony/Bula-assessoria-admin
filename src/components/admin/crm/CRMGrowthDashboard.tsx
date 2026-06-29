@@ -1,6 +1,6 @@
 'use client';
 
-import { useMemo } from 'react';
+import { useMemo, useState } from 'react';
 import Link from 'next/link';
 import {
     Users, Crown, TrendingUp, TrendingDown, CheckCircle2, XCircle,
@@ -102,7 +102,18 @@ interface Props {
 export function CRMGrowthDashboard({ leads, archived, crmConfig }: Props) {
     const stages = crmConfig.funnels[0]?.stages ?? crmConfig.stages;
     const media = META_CAMPAIGNS;
-    const mediaTotals = useMemo(() => metaCampaignTotals(media), [media]);
+
+    // Filtro da seção de mídia por campanha — recalcula chips, funil e a lista
+    // a partir do subconjunto selecionado. (Filtro por período exige a
+    // integração ao vivo do Meta; o snapshot atual é acumulado/lifetime.)
+    const [campaignFilter, setCampaignFilter] = useState<string>('all');
+    const filteredSnap = useMemo(
+        () => (campaignFilter === 'all'
+            ? media
+            : { ...media, campaigns: media.campaigns.filter(c => c.id === campaignFilter) }),
+        [media, campaignFilter],
+    );
+    const mediaTotals = useMemo(() => metaCampaignTotals(filteredSnap), [filteredSnap]);
 
     const m = useMemo(() => {
         const total = leads.length;
@@ -293,9 +304,26 @@ export function CRMGrowthDashboard({ leads, archived, crmConfig }: Props) {
                         <Megaphone size={16} className="text-[#A68B4B]" />
                         <h2 className="text-sm font-semibold text-gray-900 dark:text-white">Mídia &amp; Aquisição — Meta Ads</h2>
                     </div>
-                    <span className="text-[10px] text-gray-400">
-                        {media.account} · {mediaTotals.campaignCount} campanhas ({mediaTotals.activeCount} ativa{mediaTotals.activeCount !== 1 ? 's' : ''}) · atualizado {new Date(media.updatedAt).toLocaleDateString('pt-BR')}
-                    </span>
+                    <div className="flex items-center gap-2 flex-wrap">
+                        <div className="flex items-center gap-1.5">
+                            <Filter size={13} className="text-gray-400" />
+                            <select
+                                value={campaignFilter}
+                                onChange={e => setCampaignFilter(e.target.value)}
+                                className="text-[11px] rounded-lg border border-gray-200 dark:border-[#2A2A2A] bg-white dark:bg-[#1A1A1A] px-2 py-1 text-gray-700 dark:text-gray-200 focus:outline-none focus:ring-2 focus:ring-[#A68B4B]/40 max-w-[220px]"
+                            >
+                                <option value="all">Todas as campanhas ({media.campaigns.length})</option>
+                                {media.campaigns.map(c => (
+                                    <option key={c.id} value={c.id}>
+                                        {c.status === 'ACTIVE' ? '● ' : '○ '}{c.name}
+                                    </option>
+                                ))}
+                            </select>
+                        </div>
+                        <span className="text-[10px] text-gray-400">
+                            {media.account} · atualizado {new Date(media.updatedAt).toLocaleDateString('pt-BR')}
+                        </span>
+                    </div>
                 </div>
 
                 <div className="grid grid-cols-2 sm:grid-cols-3 xl:grid-cols-6 gap-2.5 mb-5">
@@ -323,7 +351,7 @@ export function CRMGrowthDashboard({ leads, archived, crmConfig }: Props) {
                     <div>
                         <h3 className="text-[11px] font-bold uppercase tracking-widest text-gray-500 mb-3">Desempenho por campanha</h3>
                         <div className="space-y-2.5">
-                            {media.campaigns.map(c => (
+                            {filteredSnap.campaigns.map(c => (
                                 <div key={c.id} className="rounded-xl border border-gray-100 dark:border-[#2A2A2A] p-3">
                                     <div className="flex items-center justify-between gap-2 mb-2">
                                         <span className="text-xs font-semibold text-gray-800 dark:text-gray-100 truncate">{c.name}</span>
