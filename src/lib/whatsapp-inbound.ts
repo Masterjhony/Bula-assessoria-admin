@@ -140,6 +140,33 @@ export async function inboundAlreadyProcessed(
     return !!data?.length
 }
 
+/**
+ * Esta inbound (wamid) ainda é a mais recente deste número? Usada pela janela de
+ * "pensar" do concierge: se chegou mensagem mais nova durante a espera, a atual
+ * é descartada para que só a última responda. Sem messageId (ex.: Baileys), não
+ * há como comparar → assume que sim (responde).
+ */
+async function isLatestInbound(
+    supabase: SupabaseClient,
+    phone: string,
+    messageId: string | null,
+): Promise<boolean> {
+    if (!messageId) return true
+    const variants = phoneVariants(phone)
+    if (variants.length === 0) return true
+    const { data } = await supabase
+        .from('whatsapp_messages')
+        .select('reason')
+        .in('phone', variants)
+        .eq('direction', 'inbound')
+        .order('created_at', { ascending: false })
+        .limit(1)
+    const latestWamid = data?.[0]?.reason
+    // Se a última inbound registrada é esta mesma (ou não há wamid p/ comparar),
+    // seguimos. Caso contrário, uma mais nova chegou → descartamos esta.
+    return !latestWamid || latestWamid === messageId
+}
+
 export type InboundOutcome =
     | { kind: 'silent'; reason: string; lead: LeadShape | null }
     | { kind: 'reply'; reply: string; bot_step?: string; lead: LeadShape | null }
@@ -213,6 +240,18 @@ export async function processInboundMessage(
     if (conciergeConfig.enabled) {
         // Opt-out segue pelo grafo (lane de opt-out). Demais casos: só a IA.
         if (lead && !lead.optout_whatsapp && !lead.handoff_humano && !isOptoutMsg) {
+            // Janela de "pensar": espera um tempo antes de responder pra agrupar
+            // mensagens enviadas em sequência. Se durante a espera chegar uma
+            // inbound mais nova deste número, esta é descartada (a mais nova
+            // responde por todas, com o histórico completo) — evita responder a
+            // cada balão e deixa a resposta mais assertiva.
+            const waitMs = Math.max(0, (conciergeConfig.thinkingSeconds ?? 0) * 1000)
+            if (waitMs > 0) {
+                await new Promise(r => setTimeout(r, waitMs))
+                if (!(await isLatestInbound(supabase, phone, input.messageId ?? null))) {
+                    return { kind: 'silent', reason: 'concierge_debounced', lead }
+                }
+            }
             const c = await runConcierge(supabase, {
                 lead, phone, senderName, text, media: input.media ?? null, config: conciergeConfig,
             })

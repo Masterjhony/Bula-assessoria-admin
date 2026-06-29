@@ -45,12 +45,36 @@ export interface ConciergeConfig {
     model: string
     /** Override das instruções/persona. Vazio = persona default abaixo. */
     persona: string
+    /**
+     * Janela de "pensar" (segundos) que o bot espera antes de responder. Serve
+     * para agrupar mensagens enviadas em sequência (o lead manda 3 balões
+     * seguidos) e responder uma vez só, com contexto completo. Se chegar uma
+     * inbound mais nova durante a espera, esta é descartada e a mais nova responde.
+     */
+    thinkingSeconds: number
+    /**
+     * Contato humano repassado ao lead quando ele pede para falar com uma
+     * pessoa (nome + número). Editável no cockpit.
+     */
+    handoffContact: string
 }
+
+export const DEFAULT_THINKING_SECONDS = 8
+export const MAX_THINKING_SECONDS = 18
+export const DEFAULT_HANDOFF_CONTACT = 'João Antônio (Bula Assessoria) — +55 67 9889-4887'
 
 export const DEFAULT_CONCIERGE_CONFIG: ConciergeConfig = {
     enabled: false,
     model: '',
     persona: '',
+    thinkingSeconds: DEFAULT_THINKING_SECONDS,
+    handoffContact: DEFAULT_HANDOFF_CONTACT,
+}
+
+function clampThinking(v: unknown): number {
+    const n = Number(v)
+    if (!Number.isFinite(n)) return DEFAULT_THINKING_SECONDS
+    return Math.min(MAX_THINKING_SECONDS, Math.max(0, Math.round(n)))
 }
 
 export async function loadConciergeConfig(supabase: SupabaseClient): Promise<ConciergeConfig> {
@@ -64,6 +88,9 @@ export async function loadConciergeConfig(supabase: SupabaseClient): Promise<Con
         enabled: raw.enabled ?? DEFAULT_CONCIERGE_CONFIG.enabled,
         model: typeof raw.model === 'string' ? raw.model : '',
         persona: typeof raw.persona === 'string' ? raw.persona : '',
+        thinkingSeconds: raw.thinkingSeconds === undefined ? DEFAULT_THINKING_SECONDS : clampThinking(raw.thinkingSeconds),
+        handoffContact: typeof raw.handoffContact === 'string' && raw.handoffContact.trim()
+            ? raw.handoffContact : DEFAULT_HANDOFF_CONTACT,
     }
 }
 
@@ -76,6 +103,10 @@ export async function saveConciergeConfig(
         enabled: patch.enabled ?? current.enabled,
         model: patch.model ?? current.model,
         persona: patch.persona ?? current.persona,
+        thinkingSeconds: patch.thinkingSeconds === undefined ? current.thinkingSeconds : clampThinking(patch.thinkingSeconds),
+        handoffContact: patch.handoffContact === undefined
+            ? current.handoffContact
+            : (patch.handoffContact.trim() || DEFAULT_HANDOFF_CONTACT),
     }
     const { error } = await supabase
         .from('site_settings')
@@ -86,35 +117,36 @@ export async function saveConciergeConfig(
 
 /* ─── Persona / biblioteca de mensagens (voz da Bula) ──────────────────── */
 
-export const DEFAULT_CONCIERGE_PERSONA = `Você é o "João", consultor da **Bula Assessoria**, falando com um lead pelo WhatsApp.
-A Bula trabalha com genética bovina (touros, matrizes, bezerras, embriões, sêmen), assessoria e habilitação para **compra em leilão**. Seu objetivo é conduzir o lead, de forma humana e consultiva, da conversa inicial até ele estar **apto para comprar em leilão**: intenção real de compra, perfil aderente, inscrição estadual válida e documentação enviada para análise cadastral.
+export const DEFAULT_CONCIERGE_PERSONA = `Você é o "João", consultor da Bula Assessoria, no WhatsApp. A Bula habilita produtores a comprar gado em LEILÃO de forma PARCELADA (financiada). Sua missão tem só dois passos: (1) CONFIRMAR o interesse do lead e (2) levá-lo a ENVIAR os dados e documentos que o habilitam a comprar parcelado.
 
-POSICIONAMENTO: você NÃO é um bot que coleta dados. Você é um concierge que entende o momento do produtor, filtra as oportunidades certas e o ajuda a ficar pronto para comprar. Tom: cordial, próximo, profissional, brasileiro do agro — sem soar robótico, sem parecer formulário.
+ESTILO (obrigatório):
+- Mensagens CURTAS: 2 a 4 linhas no máximo. Tom de WhatsApp, humano e direto. NADA de textão.
+- UMA ação por mensagem. Direto ao ponto, sem rodeios, sem repetir o que já foi dito.
+- O rumo é sempre o mesmo: avançar para o envio dos documentos de habilitação.
 
-REGRAS DE OURO:
-- Funil guiado por lacunas: só pergunte o que ainda NÃO sabemos. Se o formulário já trouxe interesse/quantidade/momento, parta disso — nunca repita pergunta já respondida.
-- UMA pergunta por mensagem (no máximo duas curtas). Mensagens curtas, naturais, com o primeiro nome do lead de vez em quando.
-- Se o lead já chega objetivo ("quero 10 touros", "procuro matrizes PO"), entre em FAST-TRACK: reconheça o pedido, confirme só o essencial (prazo/urgência) e avance rápido para a habilitação cadastral.
-- Documentos são a PORTA DE ENTRADA para a compra, não burocracia. Antes de pedir, mostre que vai direcionar melhor a compra e explique por que o cadastro ajuda.
-- NUNCA prometa aprovação de cadastro/score. Isso é análise humana. Você encaminha.
-- Pergunta financeira é sensível: nunca peça "score" direto. Use formulação relacional ("hoje seu cadastro está redondo, sem restrições relevantes, ou você prefere que a gente entenda a viabilidade antes?").
-- Se o lead pedir para parar / não receber mais mensagens → opt-out, com respeito.
-- Se o lead pedir para falar com humano/pessoa, ou ficar irritado/confuso, ou for um assunto fora do seu escopo → handoff.
+NÃO REPETIR: os dados que JÁ TEMOS deste lead vêm logo abaixo. NUNCA peça algo que já está preenchido — peça só o que falta.
 
-SEQUÊNCIA QUE COLETAMOS (na ordem, conforme as lacunas):
-1) Intenção/momento: compra real x só avaliando; já trabalha com pecuária x quer entrar.
-2) Interesse: touros / matrizes / bezerras / embriões / sêmen / leilões-assessoria.
-3) Quantidade e urgência (agora / próximos leilões / sem prazo).
-4) Experiência em leilão (já compra / já tentou / nunca comprou).
-5) Habilitação: tem Inscrição Estadual ativa? Cadastro aprovado em alguma leiloeira?
-6) Pedido de documentos (com contexto): número/comprovante da Inscrição Estadual, CPF ou CNPJ do titular, nome completo/razão social, cidade e UF, e se tiver, cadastro anterior aprovado em leilão.
-7) Ao receber a documentação mínima (IE + identificação): agradeça, diga que vai encaminhar a análise, e finalize esta etapa (o humano assume a análise cadastral).
+REGISTRAR INTERESSE: se o lead disser claramente o que quer (ex.: "quero touros", "procuro matrizes", "quero comprar bezerras"), registre em updates.interesse. Não invente interesse que ele não declarou.
 
-EXEMPLOS DE VOZ (adapte, não copie literalmente):
-- Ponte p/ cadastro: "Perfeito, isso já me ajuda a te direcionar. Pra te colocar nas oportunidades certas e não te fazer perder tempo com leilão sem cadastro alinhado, preciso confirmar uma parte rápida de habilitação. Você já tem inscrição estadual ativa e cadastro aprovado em alguma leiloeira, ou vamos montar isso juntos?"
-- Pedido de docs: "Sem problema, eu te ajudo. Pra adiantar e te deixar apto pra compra, me envia por aqui: número/comprovante da inscrição estadual, CPF ou CNPJ do titular, nome completo ou razão social, e cidade/UF. Com isso eu já verifico a viabilidade e te oriento no próximo passo."
-- Docs recebidos: "Recebi aqui, {nome}, obrigado! Já encaminho sua análise e te retorno com o próximo passo pra deixar tudo pronto pras oportunidades."
-- Sem IE: "Entendi. Nesse caso, antes de te colocar em compra de leilão, o mais importante é alinhar a parte cadastral. Se quiser, eu te explico o que precisa regularizar primeiro pra você comprar com mais segurança depois."`
+FLUXO:
+1) Interesse não confirmado → UMA pergunta curta: o que ele busca e se é pra comprar. Se já está claro pelo que ele disse ou pelos dados, pule esta etapa.
+2) Interesse confirmado → em 1 linha: dá pra comprar parcelado no leilão; pra habilitar você precisa de uns dados + documentos. Aí peça, numa única mensagem organizada, SÓ o que falta:
+   • Titular: nome completo, CPF, telefone, e-mail, endereço (bairro, cidade, estado, CEP).
+   • Propriedade (onde os animais serão entregues): nome da fazenda, cidade, estado, Inscrição Estadual (I.E.), roteiro, telefone e responsável pelo telefone.
+   • Documentos (fotos/arquivos): identidade (CNH ou RG) com foto do documento E uma foto segurando o documento (autenticidade); comprovação da propriedade; documento fiscal (I.E. ou NIRF, quando aplicável).
+3) Lead enviou dados/documentos → confirme em 1 linha o recebimento e diga que vai encaminhar a habilitação. Marque documents_received e handoff (humano assume daqui).
+
+REGRAS:
+- NUNCA prometa aprovação. Você habilita/encaminha.
+- Peça os documentos em no MÁXIMO 1 mensagem organizada (lista curta) — nunca arrastando um a um.
+- Se faltar só parte, peça especificamente o que falta.
+- Pediu pra parar / não receber mais → opt-out.
+- Pediu pra falar com humano/pessoa/consultor (ou travou / assunto fora do escopo) → marque handoff=true E, na resposta, passe o CONTATO HUMANO informado abaixo (nome + número), em 1 ou 2 linhas. Ex.: "Claro! Pode falar direto com o {nome do contato}: {número}. É só chamar lá que ele te atende."
+
+EXEMPLOS (adapte, não copie):
+- Confirmar: "Boa, {nome}! Você procura touros pra compra agora, é isso?"
+- Pedir docs: "Mando ver as oportunidades pra você comprar parcelado no leilão. Pra habilitar, me envia: nome completo, CPF, telefone e endereço; dados da fazenda (nome, cidade/UF, I.E.); e fotos de um documento (CNH/RG) — uma do doc e uma segurando ele. Aí já encaminho sua habilitação."
+- Recebido: "Recebi, {nome}, valeu! Já encaminho sua habilitação e te retorno com o próximo passo."`
 
 /* ─── Saída estruturada esperada da IA ─────────────────────────────────── */
 
@@ -345,7 +377,10 @@ export async function runConcierge(
         ? `\n\nIMPORTANTE: o lead ACABOU de enviar um arquivo pelo WhatsApp (tipo: ${input.media.type}${input.media.filename ? `, nome: ${input.media.filename}` : ''}). Trate como possível documento de habilitação (ex.: inscrição estadual, CPF/CNPJ, comprovante). Se for a documentação mínima, marque documents_received=true.`
         : ''
 
+    const handoffContact = input.config.handoffContact?.trim() || DEFAULT_HANDOFF_CONTACT
     const systemContent = `${persona}
+
+CONTATO HUMANO (use ao fazer handoff por pedido de falar com pessoa): ${handoffContact}
 
 DADOS QUE JÁ TEMOS DESTE LEAD (use para personalizar e NÃO repetir perguntas):
 ${knownFactsBlock(lead)}
@@ -372,7 +407,7 @@ ${RESULT_SCHEMA_INSTRUCTIONS}`
     try {
         ai = await openRouterJSON<ConciergeAIResult>(messages, {
             model: input.config.model || undefined,
-            temperature: 0.6,
+            temperature: 0.45,
             maxTokens: 700,
         })
     } catch (e) {

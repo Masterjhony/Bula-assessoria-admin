@@ -34,7 +34,7 @@ export async function PUT(req: NextRequest) {
     const auth = await requireAdmin()
     if (!auth.ok) return NextResponse.json({ error: auth.error }, { status: auth.status })
 
-    let body: { enabled?: unknown; model?: unknown; persona?: unknown }
+    let body: { enabled?: unknown; model?: unknown; persona?: unknown; thinkingSeconds?: unknown; handoffContact?: unknown }
     try { body = await req.json() } catch {
         return NextResponse.json({ error: 'JSON inválido' }, { status: 400 })
     }
@@ -47,11 +47,19 @@ export async function PUT(req: NextRequest) {
     if (body.persona !== undefined && typeof body.persona !== 'string') {
         return NextResponse.json({ error: 'persona deve ser texto' }, { status: 400 })
     }
+    if (body.thinkingSeconds !== undefined && typeof body.thinkingSeconds !== 'number') {
+        return NextResponse.json({ error: 'thinkingSeconds deve ser número' }, { status: 400 })
+    }
+    if (body.handoffContact !== undefined && typeof body.handoffContact !== 'string') {
+        return NextResponse.json({ error: 'handoffContact deve ser texto' }, { status: 400 })
+    }
 
     const saved = await saveConciergeConfig(admin(), {
         enabled: body.enabled as boolean | undefined,
         model: body.model as string | undefined,
         persona: body.persona as string | undefined,
+        thinkingSeconds: body.thinkingSeconds as number | undefined,
+        handoffContact: body.handoffContact as string | undefined,
     })
     return NextResponse.json({ ...saved, api_configured: isOpenRouterConfigured(), default_model: DEFAULT_OPENROUTER_MODEL })
 }

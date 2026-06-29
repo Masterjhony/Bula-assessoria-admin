@@ -81,6 +81,8 @@ type ConciergeConfig = {
     enabled: boolean;
     model: string;
     persona: string;
+    thinkingSeconds: number;
+    handoffContact: string;
     api_configured?: boolean;
     default_model?: string;
     default_persona?: string;
@@ -293,7 +295,7 @@ export function CRMWhatsappView() {
         }
     }, []);
 
-    const saveConcierge = useCallback(async (next: { enabled: boolean; model: string; persona: string }) => {
+    const saveConcierge = useCallback(async (next: { enabled: boolean; model: string; persona: string; thinkingSeconds: number; handoffContact: string }) => {
         setConciergeSaving(true);
         setConciergeError(null);
         try {
@@ -596,7 +598,7 @@ export function CRMWhatsappView() {
                     {concierge && (
                         <button
                             type="button"
-                            onClick={() => saveConcierge({ enabled: !concierge.enabled, model: concierge.model, persona: concierge.persona })}
+                            onClick={() => saveConcierge({ enabled: !concierge.enabled, model: concierge.model, persona: concierge.persona, thinkingSeconds: concierge.thinkingSeconds, handoffContact: concierge.handoffContact })}
                             disabled={conciergeSaving || (!concierge.enabled && !concierge.api_configured)}
                             className={`relative inline-flex h-5 w-9 items-center rounded-full transition disabled:opacity-50 ${
                                 concierge.enabled ? 'bg-green-500' : 'bg-muted'
@@ -638,6 +640,30 @@ export function CRMWhatsappView() {
                                     Vazio = padrão (<code>{concierge.default_model || 'google/gemini-2.5-flash'}</code>). Ex.: <code>openai/gpt-4o-mini</code>, <code>deepseek/deepseek-chat</code>.
                                 </p>
                             </div>
+                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                                <div className="space-y-1">
+                                    <label className="text-[10px] uppercase tracking-wider text-muted-foreground">Janela de resposta (segundos)</label>
+                                    <input
+                                        type="number"
+                                        min={0}
+                                        max={18}
+                                        value={concierge.thinkingSeconds}
+                                        onChange={(e) => setConcierge({ ...concierge, thinkingSeconds: Math.max(0, Math.min(18, Number(e.target.value) || 0)) })}
+                                        className="w-full rounded-md border bg-background px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-primary/40"
+                                    />
+                                    <p className="text-[10px] text-muted-foreground">Tempo que o bot espera antes de responder (agrupa mensagens em sequência). 0–18s.</p>
+                                </div>
+                                <div className="space-y-1">
+                                    <label className="text-[10px] uppercase tracking-wider text-muted-foreground">Contato humano (handoff)</label>
+                                    <input
+                                        value={concierge.handoffContact}
+                                        onChange={(e) => setConcierge({ ...concierge, handoffContact: e.target.value })}
+                                        placeholder="João Antônio — +55 67 9889-4887"
+                                        className="w-full rounded-md border bg-background px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-primary/40"
+                                    />
+                                    <p className="text-[10px] text-muted-foreground">Repassado ao lead quando ele pede pra falar com uma pessoa.</p>
+                                </div>
+                            </div>
                             <div className="space-y-1">
                                 <label className="text-[10px] uppercase tracking-wider text-muted-foreground">Instruções / persona (opcional)</label>
                                 <textarea
@@ -660,7 +686,7 @@ export function CRMWhatsappView() {
                                 </div>
                                 <button
                                     type="button"
-                                    onClick={() => saveConcierge({ enabled: concierge.enabled, model: concierge.model, persona: concierge.persona })}
+                                    onClick={() => saveConcierge({ enabled: concierge.enabled, model: concierge.model, persona: concierge.persona, thinkingSeconds: concierge.thinkingSeconds, handoffContact: concierge.handoffContact })}
                                     disabled={conciergeSaving}
                                     className="inline-flex items-center gap-1.5 rounded-lg bg-primary px-3.5 py-1.5 text-xs font-medium text-primary-foreground hover:opacity-90 disabled:opacity-50"
                                 >
