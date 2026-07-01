@@ -938,7 +938,7 @@ function UnifiedDrawer({ leilao, onClose, onEdit, onDelete, onTasksUpdate }: {
           </div>
 
           {/* Extras */}
-          {(leilao.transmissao || leilao.sexo || leilao.condicao || leilao.frete_gratis || leilao.acordo_comissao || leilao.comissao) && (
+          {(leilao.transmissao || leilao.sexo || leilao.condicao || leilao.frete_gratis) && (
             <div className="space-y-2">
               <p className="text-[10px] font-semibold uppercase tracking-wider text-gray-400">Detalhes</p>
               <div className="grid grid-cols-2 gap-2">
@@ -947,8 +947,7 @@ function UnifiedDrawer({ leilao, onClose, onEdit, onDelete, onTasksUpdate }: {
                   { label: 'Sexo', value: leilao.sexo },
                   { label: 'Condição', value: leilao.condicao },
                   { label: 'Frete grátis', value: leilao.frete_gratis },
-                  { label: 'Comissão Bula', value: leilao.acordo_comissao },
-                  { label: 'Negociação', value: leilao.comissao },
+                  // Acordo/comissão saiu do admin — passou a viver só no ERP.
                   { label: 'Contrato', value: leilao.contrato },
                   { label: 'Recebido', value: leilao.recebido },
                 ].filter(i => i.value).map(({ label, value }) => (
@@ -1215,10 +1214,9 @@ function FormModal({ initial, cronoId, onClose, onSaved }: {
               ))}
             </div>
           </div>
-          <div className="grid grid-cols-3 gap-3">
+          <div className="grid grid-cols-2 gap-3">
             <Field label="Condição"><input className={iCls} value={form.condicao} onChange={e => set('condicao', e.target.value)} placeholder="Ex: 30(2+2+…)" /></Field>
             <Field label="Frete grátis"><input className={iCls} value={form.frete_gratis} onChange={e => set('frete_gratis', e.target.value)} placeholder="Ex: Brasil inteiro" /></Field>
-            <Field label="Comissão"><input className={iCls} value={form.acordo_comissao} onChange={e => set('acordo_comissao', e.target.value)} placeholder="Ex: 8% comprador" /></Field>
           </div>
           {isEdit && initial && (
             <div className="pt-1 border-t border-gray-100 dark:border-[#2A2A2A]">

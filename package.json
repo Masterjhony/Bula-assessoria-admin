@@ -23,6 +23,7 @@
     "clsx": "^2.1.1",
     "dotenv": "^17.2.3",
     "fast-xml-parser": "^5.8.0",
+    "fflate": "^0.8.2",
     "framer-motion": "^12.40.0",
     "googleapis": "^171.4.0",
     "jspdf": "^4.2.1",
@@ -34,6 +35,7 @@
     "posthog-node": "^5.35.4",
     "react": "19.2.3",
     "react-dom": "19.2.3",
+    "sharp": "^0.34.0",
     "tailwind-merge": "^3.4.0",
     "xlsx": "^0.18.5"
   },

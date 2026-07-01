@@ -1,11 +1,13 @@
 import { readFileSync, readdirSync } from 'node:fs'
 import { basename, join } from 'node:path'
-import { randomUUID } from 'node:crypto'
+import { randomUUID, createHash } from 'node:crypto'
 import { createClient } from '@supabase/supabase-js'
+import { unzipSync, strFromU8 } from 'fflate'
 import XLSX from 'xlsx'
 
 const dry = process.argv.includes('--dry')
 const keepExtras = process.argv.includes('--keep-extras')
+const skipImages = process.argv.includes('--skip-images')
 const explicitFile = process.argv.find((arg) => arg.endsWith('.xlsx'))
 const sourceFile = explicitFile ?? readdirSync('.').find((f) => f.startsWith('ESCALA') && f.endsWith('.xlsx'))
 
@@ -70,6 +72,68 @@ function clean(value) {
   return String(value ?? '').trim()
 }
 
+function slug(value) {
+  return strip(value).toLowerCase().replace(/\s+/g, '-').replace(/^-+|-+$/g, '') || 'leilao'
+}
+
+// Colunas de checklist que o chefe mantem na planilha (formato novo, ex.: JUNHO).
+// Chave = cabecalho normalizado (strip); label = como aparece no checklist do sistema.
+const CHECKLIST_COLUMNS = [
+  ['CATALOGO', 'Catálogo'],
+  ['VIDEOS CURRAL', 'Vídeos de curral'],
+  ['LOGO PNG', 'Logo (PNG)'],
+  ['AVALIACAO', 'Avaliação'],
+  ['DIVULGACAO CLIENTES PERFIL', 'Divulgação: clientes perfil'],
+  ['DIVULGACAO GRUPO', 'Divulgação: grupo'],
+  ['DIVULGACAO INSTAGRAM', 'Divulgação: Instagram'],
+  ['LEILAO REALIZADO', 'Leilão realizado'],
+  ['FECHAMENTO REALIZADO', 'Fechamento realizado'],
+  ['CONTAS A RECEBER E A PAGAR', 'Contas a receber e a pagar'],
+]
+const CHECKLIST_GROUP = 'Produção & Divulgação'
+
+function truthy(value) {
+  return /^(TRUE|VERDADEIRO|SIM|X|✓|OK)$/i.test(String(value ?? '').trim())
+}
+
+function checklistIndexes(headerRow) {
+  const header = headerRow.map(strip)
+  const cols = []
+  for (const [key, label] of CHECKLIST_COLUMNS) {
+    const idx = header.indexOf(key)
+    if (idx >= 0) cols.push({ idx, label, key })
+  }
+  return cols
+}
+
+// Constroi o grupo de checklist a partir das colunas TRUE/FALSE da linha.
+function checklistFromRow(row, checklistCols) {
+  // So consideramos "checklist da planilha" quando a aba usa o bloco completo
+  // (varias colunas de divulgacao/producao, ex.: JUNHO). Uma coluna solta de
+  // CATALOGO nas abas antigas nao e checklist.
+  if (checklistCols.length < 3) return null
+  const tasks = checklistCols.map(({ idx, label, key }) => ({
+    id: `plan-${slug(key)}`,
+    nome: label,
+    ini: '',
+    fim: '',
+    resp: { ini: '', nome: '' },
+    subs: [],
+    done: truthy(row[idx]),
+    observacao: '',
+    anexos: [],
+  }))
+  return { nome: CHECKLIST_GROUP, cor: '#111827', subtitulo: 'Sincronizado da planilha', origem: 'planilha', tasks }
+}
+
+// Mescla o grupo da planilha preservando grupos criados manualmente no sistema.
+function mergeChecklist(existing, planGroup) {
+  const base = Array.isArray(existing) ? existing : []
+  if (!planGroup) return base
+  const kept = base.filter((g) => g && g.nome !== CHECKLIST_GROUP && g.origem !== 'planilha')
+  return [...kept, planGroup]
+}
+
 function headerIndexes(headerRow) {
   const header = headerRow.map(strip)
   const aliases = {
@@ -112,10 +176,14 @@ function parseWorkbook(file) {
   const wb = XLSX.readFile(file, { raw: false, cellDates: true })
   const rows = []
 
-  for (const sheetName of wb.SheetNames) {
+  for (let sheetIndex = 0; sheetIndex < wb.SheetNames.length; sheetIndex += 1) {
+    const sheetName = wb.SheetNames[sheetIndex]
     const sheet = wb.Sheets[sheetName]
-    const data = XLSX.utils.sheet_to_json(sheet, { header: 1, defval: '', raw: false, blankrows: false })
+    // blankrows: true garante que o indice do array == linha absoluta (0-based)
+    // da planilha, necessario para casar as imagens (ancoradas por linha).
+    const data = XLSX.utils.sheet_to_json(sheet, { header: 1, defval: '', raw: false, blankrows: true })
     const idx = headerIndexes(data[1] ?? [])
+    const checklistCols = checklistIndexes(data[1] ?? [])
     const year = sheetYear(sheetName)
 
     for (let i = 2; i < data.length; i += 1) {
@@ -145,7 +213,11 @@ function parseWorkbook(file) {
         comissao_receber: clean(row[idx.comissao_receber]),
         recebido: clean(row[idx.recebido]),
         catalogo_url: clean(row[idx.catalogo_url]),
+        checklist: checklistFromRow(row, checklistCols),
         sheet_name: sheetName,
+        sheet_index: sheetIndex,
+        abs_row: i,
+        image_url: null,
         sheet_row: i + 1,
       })
     }
@@ -157,6 +229,111 @@ function parseWorkbook(file) {
 
 function rowKey(row) {
   return `${row.data}|${compact(row.hora)}|${compact(row.nome)}|${compact(row.criador)}`
+}
+
+// ---------------------------------------------------------------------------
+// Extracao das capas embutidas no .xlsx (imagens ancoradas por linha).
+// O Google exporta cada capa como um drawing ancorado na linha do leilao.
+// ---------------------------------------------------------------------------
+function buildSheetFileMap(zip) {
+  const wbXml = strFromU8(zip['xl/workbook.xml'])
+  const relsXml = strFromU8(zip['xl/_rels/workbook.xml.rels'])
+  const relTarget = {}
+  for (const m of relsXml.matchAll(/Id="(rId\d+)"[^>]*Target="([^"]+)"/g)) relTarget[m[1]] = m[2]
+  const map = {} // sheetName -> "xl/worksheets/sheetN.xml"
+  for (const m of wbXml.matchAll(/<sheet[^>]*name="([^"]+)"[^>]*r:id="(rId\d+)"/g)) {
+    const target = relTarget[m[2]]
+    if (target) map[m[1]] = target.startsWith('xl/') ? target : `xl/${target.replace(/^\.\.\//, '')}`
+  }
+  return map
+}
+
+function sheetImageAnchors(zip, wsFile) {
+  const wsRelsPath = wsFile.replace(/xl\/worksheets\/(.+)$/, 'xl/worksheets/_rels/$1.rels')
+  if (!zip[wsRelsPath]) return []
+  const drawTarget = strFromU8(zip[wsRelsPath]).match(/Target="([^"]*drawing\d+\.xml)"/)?.[1]
+  if (!drawTarget) return []
+  const drawFile = `xl/drawings/${basename(drawTarget)}`
+  if (!zip[drawFile]) return []
+  const drawNo = basename(drawTarget).match(/drawing(\d+)\.xml/)?.[1]
+  const drawRelsPath = `xl/drawings/_rels/drawing${drawNo}.xml.rels`
+  const relMap = {}
+  if (zip[drawRelsPath]) {
+    for (const m of strFromU8(zip[drawRelsPath]).matchAll(/Id="(rId\d+)"[^>]*Target="([^"]+)"/g)) {
+      relMap[m[1]] = `xl/media/${basename(m[2])}`
+    }
+  }
+  const xml = strFromU8(zip[drawFile])
+  const anchors = []
+  for (const a of xml.split(/<xdr:(?:two|one)CellAnchor/).slice(1)) {
+    const row = a.match(/<xdr:from>[\s\S]*?<xdr:row>(\d+)<\/xdr:row>/)
+    const embed = a.match(/r:embed="(rId\d+)"/)
+    if (row && embed && relMap[embed[1]]) anchors.push({ row: Number(row[1]), media: relMap[embed[1]] })
+  }
+  return anchors
+}
+
+async function processImage(bytes, ext) {
+  // Comprime as capas (algumas passam de 1,5 MB) mantendo qualidade de card.
+  try {
+    const sharp = (await import('sharp')).default
+    const out = await sharp(Buffer.from(bytes))
+      .rotate()
+      .resize({ width: 1080, withoutEnlargement: true })
+      .webp({ quality: 80 })
+      .toBuffer()
+    return { buffer: out, ext: 'webp', contentType: 'image/webp' }
+  } catch {
+    const ct = ext === 'png' ? 'image/png' : ext === 'jpg' || ext === 'jpeg' ? 'image/jpeg' : 'application/octet-stream'
+    return { buffer: Buffer.from(bytes), ext, contentType: ct }
+  }
+}
+
+// Sobe as capas para o bucket leilao-covers e preenche row.image_url.
+// Deduplica por conteudo (mesmo flyer reaproveitado em varios leiloes).
+async function attachImages(sourceRows, file) {
+  const zip = unzipSync(new Uint8Array(readFileSync(file)))
+  const sheetFileMap = buildSheetFileMap(zip)
+  // (sheet_index, abs_row) -> media path dentro do zip
+  const byRow = new Map()
+  const wb = XLSX.readFile(file, { bookSheets: true })
+  wb.SheetNames.forEach((name, index) => {
+    const wsFile = sheetFileMap[name]
+    if (!wsFile) return
+    for (const anchor of sheetImageAnchors(zip, wsFile)) {
+      byRow.set(`${index}|${anchor.row}`, anchor.media)
+    }
+  })
+
+  const uploadedByHash = new Map() // hash -> public url
+  let uploaded = 0
+  let reused = 0
+  for (const row of sourceRows) {
+    const media = byRow.get(`${row.sheet_index}|${row.abs_row}`)
+    if (!media || !zip[media]) continue
+    const bytes = zip[media]
+    const hash = createHash('sha1').update(Buffer.from(bytes)).digest('hex').slice(0, 10)
+    if (uploadedByHash.has(hash)) {
+      row.image_url = uploadedByHash.get(hash)
+      reused += 1
+      continue
+    }
+    const srcExt = (media.split('.').pop() || 'png').toLowerCase()
+    const { buffer, ext, contentType } = await processImage(bytes, srcExt)
+    const path = `escala-2026/${row.data}-${slug(row.nome)}-${hash}.${ext}`
+    if (!dry) {
+      const { error } = await supabase.storage
+        .from('leilao-covers')
+        .upload(path, buffer, { contentType, upsert: true, cacheControl: '31536000' })
+      if (error && !/exists/i.test(error.message)) throw error
+    }
+    const { data: pub } = supabase.storage.from('leilao-covers').getPublicUrl(path)
+    row.image_url = pub.publicUrl
+    uploadedByHash.set(hash, pub.publicUrl)
+    uploaded += 1
+  }
+  const withImg = sourceRows.filter((r) => r.image_url).length
+  console.log(`Capas: ${uploaded} enviadas, ${reused} reaproveitadas, ${withImg} leiloes com capa da planilha`)
 }
 
 function grams(value) {
@@ -273,6 +450,24 @@ console.log(`Fonte: ${basename(sourceFile)}`)
 console.log(`Linhas de leilao na planilha: ${sourceRows.length}`)
 console.log(`Modo: ${dry ? 'dry-run' : 'escrita real'}${keepExtras ? ' (mantendo extras)' : ''}`)
 
+if (!skipImages) {
+  await attachImages(sourceRows, sourceFile)
+} else {
+  console.log('Capas: pulado (--skip-images)')
+}
+
+if (process.env.DEBUG_SYNC) {
+  const withChk = sourceRows.filter((r) => r.checklist)
+  console.log(`\n[DEBUG] leiloes com checklist da planilha: ${withChk.length}`)
+  for (const r of withChk.slice(0, 2)) {
+    console.log(`  ${r.data} ${r.nome}`)
+    for (const t of r.checklist.tasks) console.log(`    [${t.done ? 'x' : ' '}] ${t.nome}`)
+  }
+  console.log('\n[DEBUG] amostra de capas:')
+  for (const r of sourceRows.filter((r) => r.image_url).slice(0, 4)) console.log(`  ${r.data} ${r.nome} -> ${r.image_url}`)
+  console.log('')
+}
+
 const { data: currentRows, error: cronoError } = await supabase
   .from('cronograma_leiloes')
   .select('*')
@@ -308,7 +503,8 @@ const cronogramaPayload = sourceRows.map((row, index) => {
     comissao_receber: row.comissao_receber,
     recebido: row.recebido,
     catalogo_url: row.catalogo_url || existing?.catalogo_url || null,
-    img: existing?.img ?? null,
+    // A capa da planilha vence; sem capa na planilha, preserva a atual.
+    img: row.image_url || existing?.img || null,
   }
 })
 
@@ -358,10 +554,13 @@ const publicPayload = sourceRows.map((row, index) => {
     // vence); a planilha so semeia esses campos no primeiro insert.
     modelo: existing ? existing.modelo : pub.modelo,
     local: existing ? existing.local : pub.local,
-    img: existing?.img || cronograma?.img || '',
+    // A capa da planilha vence; sem capa nova, preserva a atual (admin/cronograma).
+    img: row.image_url || existing?.img || cronograma?.img || '',
     catalogo_url: existing?.catalogo_url || cronograma?.catalogo_url || row.catalogo_url || null,
     transmissao: existing?.transmissao || '',
-    tasks: existing?.tasks ?? [],
+    // Checklist da planilha entra como grupo "Produção & Divulgação",
+    // preservando grupos criados manualmente no sistema.
+    tasks: mergeChecklist(existing?.tasks ?? [], row.checklist),
   }
 })
 const extraPublic = (currentPublic ?? []).filter((_, index) => !usedPublic.has(index))
