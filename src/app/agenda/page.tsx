@@ -11,7 +11,7 @@ import {
 } from '@/lib/bula/public-leiloes'
 import { AgendaGrid } from './AgendaGrid'
 import {
-    parseData, dataPorExtenso, isFuturo, contagemRegressiva, localExibivel, youtubeId, WHATSAPP_CTA_URL,
+    parseData, hojeTime, dataPorExtenso, isFuturo, contagemRegressiva, localExibivel, youtubeId, WHATSAPP_CTA_URL,
 } from './helpers'
 import { CriatorioLogoTile } from './CriatorioLogoTile'
 
@@ -30,7 +30,15 @@ export default async function AgendaPage() {
         .filter((l) => isFuturo(l.data) && l.status === 'confirmado')
         .sort((a, b) => parseData(a.data).time - parseData(b.data).time)
     const destaque = proximos[0] ?? leiloes[0] ?? null
-    const totalAnimais = leiloes.reduce((sum, l) => sum + (l.animais || 0), 0)
+    // Criatórios distintos na agenda — métrica confiável (a soma de "animais" fica
+    // vazia na maioria dos leilões, então não vira estatística de topo).
+    const criatoriosNaAgenda = new Set(
+        leiloes.map((l) => (l.criador || '').trim().toUpperCase()).filter(Boolean),
+    ).size
+    // Dias até o próximo leilão confirmado.
+    const proximoDias = proximos[0]
+        ? Math.max(0, Math.round((parseData(proximos[0].data).time - hojeTime()) / 86_400_000))
+        : null
     const agendaLabel = labelPeriodo(leiloes)
 
     return (
@@ -83,8 +91,11 @@ export default async function AgendaPage() {
 
                         <div className="mt-10 grid max-w-2xl grid-cols-3 overflow-hidden rounded-md border border-white/12 bg-white/9 backdrop-blur">
                             <HeroMetric value={leiloes.length} label={leiloes.length === 1 ? 'leilão na agenda' : 'leilões na agenda'} />
-                            <HeroMetric value={totalAnimais || '—'} label="animais na agenda" />
-                            <HeroMetric value={proximos.length} label={proximos.length === 1 ? 'próximo evento' : 'próximos eventos'} />
+                            <HeroMetric value={criatoriosNaAgenda || '—'} label={criatoriosNaAgenda === 1 ? 'criatório' : 'criatórios'} />
+                            <HeroMetric
+                                value={proximoDias === null ? '—' : proximoDias === 0 ? 'Hoje' : proximoDias}
+                                label={proximoDias === null || proximoDias === 0 ? 'próximo leilão' : proximoDias === 1 ? 'dia p/ o próximo' : 'dias p/ o próximo'}
+                            />
                         </div>
                     </div>
                 </div>
@@ -178,12 +189,12 @@ function OfferBand() {
                         href={WHATSAPP_CTA_URL}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="inline-flex items-center justify-center gap-2 rounded-md bg-white px-5 py-3 text-sm font-black text-black transition-all hover:-translate-y-0.5 hover:bg-white/88"
+                        className="inline-flex w-full items-center justify-center gap-2 whitespace-nowrap rounded-md bg-white px-5 py-3 text-sm font-black text-black shadow-sm transition-all hover:-translate-y-0.5 hover:bg-white/88 sm:w-auto"
                         style={{ color: '#050505' }}
                     >
-                        <MessageCircle className="h-4 w-4" />
+                        <MessageCircle className="h-4 w-4 shrink-0" />
                         Grupo de WhatsApp
-                        <ArrowRight className="h-4 w-4" />
+                        <ArrowRight className="h-4 w-4 shrink-0" />
                     </a>
                 </div>
             </div>

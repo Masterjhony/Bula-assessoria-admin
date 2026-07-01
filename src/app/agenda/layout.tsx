@@ -47,16 +47,16 @@ export default function AgendaLayout({ children }: { children: React.ReactNode }
                             className="h-14 w-auto object-contain transition-opacity group-hover:opacity-75 sm:h-20"
                         />
                     </Link>
-                    <nav className="flex items-center gap-2 text-[13px] font-bold sm:text-sm">
+                    <nav className="flex items-center gap-1 text-[13px] font-bold sm:gap-2 sm:text-sm">
                         <Link
                             href="/"
-                            className="rounded-md px-3 py-2 text-black/62 transition-colors hover:bg-black/5 hover:text-black"
+                            className="rounded-md px-2.5 py-2 text-black/62 transition-colors hover:bg-black/5 hover:text-black sm:px-3"
                         >
                             Início
                         </Link>
                         <Link
                             href="/agenda"
-                            className="rounded-md px-3 py-2 text-black/62 transition-colors hover:bg-black/5 hover:text-black"
+                            className="rounded-md px-2.5 py-2 text-black/62 transition-colors hover:bg-black/5 hover:text-black sm:px-3"
                         >
                             Agenda
                         </Link>
@@ -71,11 +71,12 @@ export default function AgendaLayout({ children }: { children: React.ReactNode }
                             href={WHATSAPP_CTA_URL}
                             target="_blank"
                             rel="noopener noreferrer"
-                            className="inline-flex items-center gap-2 rounded-md border border-black px-4 py-2.5 font-black shadow-sm transition-all hover:-translate-y-0.5 hover:shadow-md sm:px-5"
+                            className="inline-flex shrink-0 items-center gap-2 whitespace-nowrap rounded-md border border-black px-3 py-2.5 font-black shadow-sm transition-all hover:-translate-y-0.5 hover:shadow-md sm:px-5"
                             style={{ backgroundColor: '#000', color: '#fff' }}
                         >
-                            <MessageCircle className="h-4 w-4" />
-                            Fale com a Bula
+                            <MessageCircle className="h-4 w-4 shrink-0" />
+                            <span className="sm:hidden">WhatsApp</span>
+                            <span className="hidden sm:inline">Fale com a Bula</span>
                         </a>
                     </nav>
                 </div>
