@@ -1,10 +1,10 @@
 'use client';
 
-import { useMemo } from 'react';
+import { useMemo, useState } from 'react';
 import { CRMLead } from '@/app/sistema/actions/crm-leads';
 import type { CRMConfig } from '@/lib/crm-types';
 import { isQualificationStage, getStageColorHex } from '@/lib/crm-types';
-import { Crown, Beef, MapPin, Phone, ChevronRight } from 'lucide-react';
+import { Crown, Beef, MapPin, Phone, ChevronRight, ChevronDown, ChevronUp } from 'lucide-react';
 
 interface CRMPreferenciaisStripProps {
     leads: CRMLead[];
@@ -19,6 +19,8 @@ function parseAnimaisCount(s?: string | null): number {
 }
 
 export function CRMPreferenciaisStrip({ leads, crmConfig, onOpenLead }: CRMPreferenciaisStripProps) {
+    // Recolhido por padrão — o usuário expande quando quiser ver os destacados.
+    const [expanded, setExpanded] = useState(false);
     const stageMap = useMemo(() => {
         const m = new Map<string, { color: string; isQualification: boolean }>();
         for (const s of crmConfig.stages) m.set(s.name, { color: getStageColorHex(s.color), isQualification: isQualificationStage(s) });
@@ -48,23 +50,34 @@ export function CRMPreferenciaisStrip({ leads, crmConfig, onOpenLead }: CRMPrefe
 
     return (
         <div className="rounded-2xl border border-[#A68B4B]/30 bg-gradient-to-br from-[#A68B4B]/8 via-[#A68B4B]/3 to-transparent p-5 mb-4">
-            <div className="flex items-center justify-between mb-3">
+            <button
+                type="button"
+                onClick={() => setExpanded(v => !v)}
+                className={`w-full flex items-center justify-between ${expanded ? 'mb-3' : ''}`}
+                aria-expanded={expanded}
+            >
                 <div className="flex items-center gap-2.5">
                     <div className="w-9 h-9 rounded-xl bg-[#A68B4B] flex items-center justify-center shadow-md shadow-[#A68B4B]/30">
                         <Crown size={16} className="text-black" />
                     </div>
-                    <div>
+                    <div className="text-left">
                         <h3 className="text-sm font-black uppercase tracking-wider text-gray-900 dark:text-white">Leads preferenciais</h3>
                         <p className="text-[10px] text-gray-500 dark:text-gray-400">
                             Maiores e mais quentes — atendimento prioritário
                         </p>
                     </div>
                 </div>
-                <span className="text-[10px] font-bold uppercase tracking-wider text-[#A68B4B] bg-[#A68B4B]/10 px-2.5 py-1 rounded-full">
-                    {preferenciais.length} destacado{preferenciais.length > 1 ? 's' : ''}
-                </span>
-            </div>
+                <div className="flex items-center gap-2">
+                    <span className="text-[10px] font-bold uppercase tracking-wider text-[#A68B4B] bg-[#A68B4B]/10 px-2.5 py-1 rounded-full">
+                        {preferenciais.length} destacado{preferenciais.length > 1 ? 's' : ''}
+                    </span>
+                    {expanded
+                        ? <ChevronUp size={16} className="text-[#A68B4B]" />
+                        : <ChevronDown size={16} className="text-[#A68B4B]" />}
+                </div>
+            </button>
 
+            {expanded && (
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-2.5">
                 {preferenciais.map(lead => {
                     const stage = stageMap.get(lead.status);
@@ -125,6 +138,7 @@ export function CRMPreferenciaisStrip({ leads, crmConfig, onOpenLead }: CRMPrefe
                     );
                 })}
             </div>
+            )}
         </div>
     );
 }
