@@ -1742,6 +1742,9 @@ function concCard(m){
         <span class="cc-origem">${escapeHtml(concOrigem(m))}</span>
         ${conf?`<span class="chip" style="background:${confCor}22;color:${confCor};font-size:9.5px;padding:1px 6px">conf. ${conf}</span>`:''}
         ${catSel}
+        ${(m.conta_pagar_id||m.conta_receber_id)
+          ? `<span class="chip" style="background:#6B8F5C22;color:#6B8F5C;font-size:9.5px;cursor:pointer" title="Vinculado a um título (baixado). Clique para desvincular." onclick="desvincularTitulo('${m.id}')"><span class="material-symbols-outlined" style="font-size:12px;vertical-align:-2px">link</span> ${m.conta_pagar_id?'conta a pagar':'conta a receber'}</span>`
+          : `<button onclick="openVincularTitulo('${m.id}')" style="background:none;border:1px solid var(--border2);border-radius:6px;color:var(--text2);font-size:10.5px;padding:2px 8px;cursor:pointer;display:inline-flex;align-items:center;gap:4px"><span class="material-symbols-outlined" style="font-size:13px">add_link</span>Vincular título</button>`}
       </div>
     </div>
     <div class="cc-right">
@@ -1751,6 +1754,63 @@ function concCard(m){
   </div>`;
 }
 
+// ── Vincular movimento a título (CR/CP) direto do card ──────────────────────
+function openVincularTitulo(movId){
+  const m = concGetMov(movId); if(!m) return;
+  const isCP = m.tipo==='saida';
+  const html = `<div class="modal-header"><div class="modal-title">Vincular a ${isCP?'Conta a Pagar':'Conta a Receber'}</div><button class="icon-btn" onclick="closeModal()"><span class="material-symbols-outlined">close</span></button></div>
+  <div class="modal-body">
+    <div style="background:var(--s2);border:1px solid var(--border2);border-radius:8px;padding:10px 12px;margin-bottom:12px;font-size:12px">
+      <b>${escapeHtml((m.pessoa&&m.pessoa.nome)||'(sem destinatário)')}</b> · ${fmtDate(m.data)} · <span style="color:${isCP?'#C0504D':'#6B8F5C'};font-weight:700">${isCP?'-':'+'} ${fmtBRL(m.valor)}</span><br>
+      <span style="color:var(--text3)">${escapeHtml(m.descricao||'')}</span>
+    </div>
+    <input id="vincBusca" class="table-filter" style="width:100%;margin-bottom:10px" placeholder="Buscar título por descrição, valor, documento..." oninput="renderVincList('${movId}')">
+    <div id="vincList" style="max-height:360px;overflow:auto"><div class="empty"><div class="spinner"></div></div></div>
+  </div>`;
+  openModal(html, {wide:true});
+  api(isCP?'/api/erp/contas-pagar':'/api/erp/contas-receber')
+    .then((list)=>{ window.__vinc = (list||[]).filter(t=>['aberto','vencido','parcial'].includes(t.status)); renderVincList(movId); })
+    .catch((e)=>{ const el=document.getElementById('vincList'); if(el) el.innerHTML=`<div class="empty"><p>${escapeHtml(e.message)}</p></div>`; });
+}
+function renderVincList(movId){
+  const m = concGetMov(movId); if(!m) return;
+  const isCP = m.tipo==='saida';
+  const mc = Math.round(Number(m.valor)*100);
+  const q = (document.getElementById('vincBusca')?.value||'').trim().toLowerCase();
+  let list = (window.__vinc||[]).slice().sort((a,b)=> Math.abs(Math.round(a.valor*100)-mc) - Math.abs(Math.round(b.valor*100)-mc) || String(a.vencimento).localeCompare(String(b.vencimento)));
+  if(q) list = list.filter(t=>`${t.descricao||''} ${t.valor} ${t.numero_documento||''}`.toLowerCase().includes(q));
+  const el = document.getElementById('vincList'); if(!el) return;
+  if(!list.length){ el.innerHTML='<div class="empty"><p>Nenhum título em aberto</p></div>'; return; }
+  el.innerHTML = list.slice(0,80).map((t)=>{
+    const same = Math.round(t.valor*100)===mc;
+    return `<div style="display:flex;align-items:center;gap:10px;padding:9px 6px;border-bottom:1px solid var(--border)">
+      <div style="flex:1;min-width:0">
+        <div style="font-size:12.5px;color:var(--text)">${escapeHtml(t.descricao||'--')} ${same?'<span class="chip" style="background:#6B8F5C22;color:#6B8F5C;font-size:9px;padding:0 6px">valor exato</span>':''}</div>
+        <div style="font-size:11px;color:var(--text3)">Venc. ${fmtDate(t.vencimento)} · ${t.status}${t.numero_documento?' · '+escapeHtml(t.numero_documento):''}</div>
+      </div>
+      <div style="font-weight:700;white-space:nowrap;font-variant-numeric:tabular-nums">${fmtBRL(t.valor)}</div>
+      <button class="btn btn-primary btn-sm" onclick="vincularTitulo('${isCP?'CP':'CR'}','${t.id}','${movId}',this)">Vincular</button>
+    </div>`;
+  }).join('') + (list.length>80?`<div style="text-align:center;color:var(--text3);font-size:11px;padding:8px">Mostrando 80 de ${list.length}. Refine a busca.</div>`:'');
+}
+async function vincularTitulo(tipo, tituloId, movId, btn){
+  if(btn){ btn.disabled=true; btn.textContent='...'; }
+  try{
+    await api('/api/erp/conciliacao-sugestoes/aplicar',{method:'POST',body:JSON.stringify({tipo,titulo_id:tituloId,movimento_id:movId})});
+    const m = concGetMov(movId);
+    if(m){ if(tipo==='CP') m.conta_pagar_id=tituloId; else m.conta_receber_id=tituloId; m.conciliado=true; m.status_conciliacao='conciliado'; }
+    closeModal(); toast('Título vinculado e baixado','success'); paintConc();
+  }catch(e){ toast(e.message,'error'); if(btn){ btn.disabled=false; btn.textContent='Vincular'; } }
+}
+async function desvincularTitulo(movId){
+  const m = concGetMov(movId); if(!m) return;
+  if(!await confirmAction('Desvincular este movimento do título? O título volta para "em aberto".')) return;
+  try{
+    await api(`/api/erp/movimentos/${movId}/conciliar`,{method:'POST',body:JSON.stringify({status:'classificado', desvincular:true})});
+    if(m){ m.conta_pagar_id=null; m.conta_receber_id=null; m.conciliado=false; m.status_conciliacao='classificado'; }
+    toast('Desvinculado','success'); paintConc();
+  }catch(e){ toast(e.message,'error'); }
+}
 function toggleSel(id, val){ if(val) state.concSel[id]=true; else delete state.concSel[id]; paintConc(); }
 function toggleSelAll(val){
   for (const m of concFiltered()){ if(val) state.concSel[m.id]=true; else delete state.concSel[m.id]; }

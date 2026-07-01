@@ -10,6 +10,18 @@ export async function POST(req: NextRequest, ctx: Ctx) {
   const g = await guard(req); if (g.error) return g.error
   const body = await req.json().catch(() => ({}))
 
+  // Desvincular: solta o movimento do título e reabre o título.
+  if (body.desvincular) {
+    const sb = admin()
+    const { data: mov, error: em } = await sb.from('erp_movimentos_bancarios').select('id,conta_receber_id,conta_pagar_id').eq('id', id).single()
+    if (em) return fail(em.message, 404)
+    if (mov.conta_receber_id) await sb.from('erp_contas_receber').update({ status: 'aberto', data_recebimento: null, valor_recebido: 0, forma_recebimento: null }).eq('id', mov.conta_receber_id)
+    if (mov.conta_pagar_id) await sb.from('erp_contas_pagar').update({ status: 'aberto', data_pagamento: null, valor_pago: 0, forma_pagamento: null }).eq('id', mov.conta_pagar_id)
+    const { data, error } = await sb.from('erp_movimentos_bancarios').update({ conta_receber_id: null, conta_pagar_id: null, conciliado: false, status_conciliacao: 'classificado' }).eq('id', id).select('*').single()
+    if (error) return fail(error.message, 400)
+    return ok({ ...data, status_conciliacao: 'classificado' })
+  }
+
   // Aceita tanto o novo formato { status } quanto o legado { conciliado }.
   let status: Status | null = STATUSES.includes(body.status) ? body.status : null
   if (!status) {
