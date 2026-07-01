@@ -25,7 +25,7 @@ export async function GET(req: NextRequest) {
   const status = sp.get('status') // pendente | classificado | conciliado
   let q = admin()
     .from('erp_movimentos_bancarios')
-    .select('*, conta:erp_contas_bancarias!conta_bancaria_id(id,nome,cor), categoria:erp_categorias!categoria_id(id,nome,cor), pessoa:erp_pessoas!pessoa_id(id,nome)')
+    .select('*, conta:erp_contas_bancarias!conta_bancaria_id(id,nome,cor), categoria:erp_categorias!categoria_id(id,nome,cor), pessoa:erp_pessoas!pessoa_id(id,nome,documento,tipo)')
     .order('data', { ascending: false })
     .order('created_at', { ascending: false })
     .limit(500)
