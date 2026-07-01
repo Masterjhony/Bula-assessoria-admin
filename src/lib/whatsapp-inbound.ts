@@ -17,6 +17,7 @@ import { handleCampaignReply } from './whatsapp-campaign-reply'
 import { loadActiveFlowWithSettings } from './whatsapp-flows'
 import { isWithinAllowedHours } from './whatsapp-flow-settings'
 import { loadConciergeConfig, runConcierge } from './whatsapp-concierge'
+import { transcribeAudioOpenRouter } from './openrouter'
 import { CRM_STAGE_ENTRY } from './crm-types'
 
 const LEAD_FIELDS =
@@ -87,6 +88,35 @@ export interface InboundMedia {
     metaId?: string | null
     ingestError?: string | null
     ingestedAt?: string | null
+}
+
+/**
+ * Transcreve o áudio inbound (baixa do bucket whatsapp-media e manda pro modelo
+ * multimodal via OpenRouter). Best-effort: retorna null em qualquer erro — o
+ * inbound segue sem transcrição (lead fica "aguardando", como antes).
+ */
+async function transcribeInboundAudio(
+    supabase: SupabaseClient,
+    media: InboundMedia,
+): Promise<string | null> {
+    if (!media.url) return null
+    try {
+        const { data, error } = await supabase.storage.from(WHATSAPP_MEDIA_BUCKET).download(media.url)
+        if (error || !data) return null
+        const buf = Buffer.from(await data.arrayBuffer())
+        const mime = (media.mime || '').toLowerCase()
+        const format = mime.includes('ogg') ? 'ogg'
+            : (mime.includes('mpeg') || mime.includes('mp3')) ? 'mp3'
+            : mime.includes('wav') ? 'wav'
+            : 'ogg'
+        const text = await transcribeAudioOpenRouter(buf.toString('base64'), format, {
+            signal: AbortSignal.timeout(30000),
+        })
+        return text || null
+    } catch (e) {
+        console.warn('[Inbound] transcrição de áudio falhou:', e instanceof Error ? e.message : e)
+        return null
+    }
 }
 
 export function logInbound(
@@ -182,8 +212,16 @@ export async function processInboundMessage(
         messageId?: string | null; channel?: string | null; media?: InboundMedia | null
     },
 ): Promise<InboundOutcome> {
-    const { phone, text } = input
+    const { phone } = input
     const senderName = (input.senderName || '').trim()
+    let text = input.text || ''
+
+    // Áudio → a IA só entende texto: transcreve e usa como a mensagem. Assim o
+    // log (inbox) e o concierge recebem o conteúdo falado em vez de "[áudio]".
+    if (input.media?.type === 'audio') {
+        const transcript = await transcribeInboundAudio(supabase, input.media)
+        if (transcript) text = transcript
+    }
 
     let lead = await findLeadByPhone(supabase, phone)
     if (!lead) {
