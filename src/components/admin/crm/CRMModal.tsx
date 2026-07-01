@@ -1,8 +1,8 @@
 'use client';
 
 import { useState, useEffect, useRef } from 'react';
-import { X, Save, Trash2, ChevronDown, ChevronUp, Crown, User, TrendingUp, Phone, Target, SlidersHorizontal, BarChart3, MessageCircle, FileText, History, Loader2, Beef, Gauge, Thermometer, Send, MapPin, type LucideIcon } from 'lucide-react';
-import { CRMLead, deleteLead } from '@/app/sistema/actions/crm-leads';
+import { X, Save, Trash2, Trophy, ChevronDown, ChevronUp, Crown, User, TrendingUp, Phone, Target, SlidersHorizontal, BarChart3, MessageCircle, FileText, History, Loader2, Beef, Gauge, Thermometer, Send, MapPin, type LucideIcon } from 'lucide-react';
+import { CRMLead, deleteLead, marcarLeadGanho } from '@/app/sistema/actions/crm-leads';
 import { CRM_COLUMNS } from './CRMKanbanBoard';
 import type { CRMCustomField, CRMFunnel, CRMResponsavel } from '@/lib/crm-types';
 import { CRM_STAGE_CONNECTION, evaluateMql } from '@/lib/crm-types';
@@ -198,6 +198,7 @@ export function CRMModal({ isOpen, onClose, lead, defaultStatus, defaultFunnelId
     });
     const [isSaving, setIsSaving] = useState(false);
     const [isDeleting, setIsDeleting] = useState(false);
+    const [isGanhando, setIsGanhando] = useState(false);
     const [showOrigemSection, setShowOrigemSection] = useState(false);
     const [showWhatsapp, setShowWhatsapp] = useState(false);
     const [tab, setTab] = useState<DrawerTab>('dados');
@@ -298,6 +299,24 @@ export function CRMModal({ isOpen, onClose, lead, defaultStatus, defaultFunnelId
             alert('Erro ao deletar lead.');
         } finally {
             setIsDeleting(false);
+        }
+    };
+
+    // GANHO: encerra o lead no funil → arquiva no CRM e cria cliente na aba Clientes.
+    const handleGanho = async () => {
+        if (!lead) return;
+        if (!window.confirm('Marcar como GANHO?\n\nO lead sai do funil (arquivado) e vira cliente na aba Clientes.')) return;
+        setIsGanhando(true);
+        try {
+            const r = await marcarLeadGanho(lead.id);
+            if (!r.ok) { alert(r.error || 'Não foi possível marcar como ganho.'); return; }
+            onClose();
+            window.location.reload();
+        } catch (error) {
+            console.error('Failed to mark ganho:', error);
+            alert('Erro ao marcar como ganho.');
+        } finally {
+            setIsGanhando(false);
         }
     };
 
@@ -977,15 +996,27 @@ export function CRMModal({ isOpen, onClose, lead, defaultStatus, defaultFunnelId
                     {/* ───────── Rodapé ───────── */}
                     <div className="flex items-center justify-between gap-3 px-6 py-4 border-t border-gray-200 dark:border-[#2A2A2A]">
                         {lead ? (
-                            <button
-                                type="button"
-                                onClick={handleDelete}
-                                disabled={isDeleting}
-                                className="flex items-center gap-2 px-4 py-2 text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-500/10 rounded-xl transition-colors font-medium text-sm"
-                            >
-                                <Trash2 size={18} />
-                                {isDeleting ? 'Apagando...' : 'Apagar'}
-                            </button>
+                            <div className="flex items-center gap-2">
+                                <button
+                                    type="button"
+                                    onClick={handleDelete}
+                                    disabled={isDeleting}
+                                    className="flex items-center gap-2 px-4 py-2 text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-500/10 rounded-xl transition-colors font-medium text-sm"
+                                >
+                                    <Trash2 size={18} />
+                                    {isDeleting ? 'Apagando...' : 'Apagar'}
+                                </button>
+                                <button
+                                    type="button"
+                                    onClick={handleGanho}
+                                    disabled={isGanhando}
+                                    title="Ganho: sai do funil (arquivado) e vira cliente na aba Clientes"
+                                    className="flex items-center gap-2 px-4 py-2 text-green-700 dark:text-green-400 hover:bg-green-50 dark:hover:bg-green-500/10 rounded-xl transition-colors font-semibold text-sm disabled:opacity-50"
+                                >
+                                    <Trophy size={18} />
+                                    {isGanhando ? 'Processando...' : 'Ganho'}
+                                </button>
+                            </div>
                         ) : (
                             <div />
                         )}

@@ -63,7 +63,7 @@ export interface SyncResult {
 export async function syncLeadToClientes(
   supabase: SupabaseClient,
   lead: LeadLike,
-  opts: { force?: boolean } = {},
+  opts: { force?: boolean; notifyLeiloeiras?: boolean; status?: string } = {},
 ): Promise<SyncResult> {
   if (lead.arquivado) return { synced: false, reason: 'lead já arquivado' }
   if (!opts.force && !isRegistration(lead.status)) return { synced: false, reason: 'fora da etapa CADASTRO' }
@@ -82,7 +82,7 @@ export async function syncLeadToClientes(
     email: (lead.email || '').trim(),
     cidade: (lead.cidade || '').trim(),
     uf: (lead.estado || '').trim().toUpperCase(),
-    status: 'ativo',
+    status: opts.status ?? 'ativo',
     cpf: (lead.cpf || '').replace(/\D/g, ''),
     inscricao_estadual: (lead.inscricao_estadual || '').trim(),
     tem_inscricao_estadual: (lead.tem_inscricao_estadual || '').trim(),
@@ -106,13 +106,16 @@ export async function syncLeadToClientes(
     .eq('id', lead.id)
   if (arErr) console.warn('[CRM→Clientes] falha ao arquivar lead:', arErr.message)
 
-  // Dispara submissão para as leiloeiras (best-effort).
+  // Dispara submissão para as leiloeiras (best-effort). Pode ser desligado
+  // (ex.: botão de "ganho" manual, enquanto o cadastro das leiloeiras não existe).
   let emailsSent = 0
-  try {
-    const r = await submitClienteToLeiloeiras(supabase, match_key)
-    emailsSent = r.sent
-  } catch (e) {
-    console.warn('[CRM→Clientes] falha na submissão p/ leiloeiras:', e instanceof Error ? e.message : e)
+  if (opts.notifyLeiloeiras !== false) {
+    try {
+      const r = await submitClienteToLeiloeiras(supabase, match_key)
+      emailsSent = r.sent
+    } catch (e) {
+      console.warn('[CRM→Clientes] falha na submissão p/ leiloeiras:', e instanceof Error ? e.message : e)
+    }
   }
 
   return { synced: true, matchKey: match_key, emailsSent }

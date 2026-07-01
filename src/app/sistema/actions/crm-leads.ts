@@ -1408,3 +1408,44 @@ export async function sweepInactiveLeadsToLost(): Promise<{ moved: number; scann
 
     return { moved: ids.length, scanned: candidates.length, ids };
 }
+
+// ── Botão de GANHO ─────────────────────────────────────────────────────────
+// Encerra o trabalho do lead no funil: cria/atualiza o cliente na aba Clientes
+// (status "quente" = potencial recém-ganho) e ARQUIVA o lead no CRM (sai do
+// Kanban). Manual por enquanto — o operador clica quando o lead já enviou IE +
+// documento e o score foi obtido. NÃO dispara e-mail p/ leiloeiras (o cadastro
+// das leiloeiras ainda não existe; fica para o fluxo de cadastro/aprovação).
+export async function marcarLeadGanho(
+    leadId: string,
+): Promise<{ ok: boolean; error?: string; matchKey?: string }> {
+    const supabase = await createClient();
+    const { data: lead, error } = await supabase.from('crm_leads').select('*').eq('id', leadId).single();
+    if (error || !lead) return { ok: false, error: 'Lead não encontrado' };
+
+    // Auditoria (mesma trilha stage_history da IA): registra o ganho antes de arquivar.
+    const prevExtra = (lead.extra_data ?? {}) as Record<string, unknown>;
+    const rawHist = prevExtra.stage_history;
+    const history = Array.isArray(rawHist) ? [...rawHist] : [];
+    history.unshift({
+        from: lead.status,
+        to: 'GANHO',
+        reason: 'ganho manual — enviado para Clientes',
+        by: 'usuario',
+        at: new Date().toISOString(),
+    });
+    await supabase
+        .from('crm_leads')
+        .update({ extra_data: { ...prevExtra, stage_history: history.slice(0, 30), ganho_at: new Date().toISOString() } })
+        .eq('id', leadId);
+
+    const result = await syncLeadToClientes(supabase, lead as Parameters<typeof syncLeadToClientes>[1], {
+        force: true,
+        notifyLeiloeiras: false,
+        status: 'quente',
+    });
+    if (!result.synced) return { ok: false, error: result.reason || 'Falha ao mover para Clientes' };
+
+    revalidatePath('/sistema/crm');
+    revalidatePath('/sistema/clientes');
+    return { ok: true, matchKey: result.matchKey };
+}
