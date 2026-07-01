@@ -227,8 +227,11 @@ export function CRMModal({ isOpen, onClose, lead, defaultStatus, defaultFunnelId
             // (ex.: landing JMP) gravam o número em `telefone` — sem este fallback
             // o campo "puxa" vazio ao abrir o lead.
             setFormData({ ...lead, celular: lead.celular || lead.telefone || '' });
-            // Auto-expand origem section if lead has source data
-            if (lead.source || lead.medium || lead.campaign) {
+            // Auto-expand origem section if lead has source data OR dados de rastreio
+            // da planilha (lead_id/ad-id/data) que hoje ficam presos no extra_data.
+            if (lead.source || lead.medium || lead.campaign
+                || lead.extra_data?.utm?.ad_id
+                || lead.extra_data?.sheet_validation_import) {
                 setShowOrigemSection(true);
             }
         } else {
@@ -658,6 +661,16 @@ export function CRMModal({ isOpen, onClose, lead, defaultStatus, defaultFunnelId
 
                                 {/* ───── Contato ───── */}
                                 <FormSection icon={Phone} title="Contato">
+                                    <div>
+                                        <label className={labelClass}>E-mail</label>
+                                        <input
+                                            type="email"
+                                            value={formData.email || ''}
+                                            onChange={e => setFormData({ ...formData, email: e.target.value })}
+                                            className={inputClass}
+                                            placeholder="email@exemplo.com"
+                                        />
+                                    </div>
                                     <div className="grid grid-cols-2 gap-4">
                                         <div>
                                             <label className={labelClass}>Celular / WhatsApp</label>
@@ -904,6 +917,39 @@ export function CRMModal({ isOpen, onClose, lead, defaultStatus, defaultFunnelId
                                                     value={formData.source_page || ''}
                                                     onChange={e => setFormData({ ...formData, source_page: e.target.value })}
                                                     className={inputClass}
+                                                />
+                                            </div>
+                                            {/* Rastreio da planilha — só leitura (vem do import, não editar à mão). */}
+                                            <div className="grid grid-cols-2 gap-3">
+                                                <div>
+                                                    <label className="block text-xs font-medium text-gray-500 mb-1">Lead ID (planilha)</label>
+                                                    <input
+                                                        type="text"
+                                                        value={formData.extra_data?.sheet_validation_import?.sheetLeadId || ''}
+                                                        readOnly
+                                                        className={`${inputClass} opacity-70`}
+                                                        placeholder="—"
+                                                    />
+                                                </div>
+                                                <div>
+                                                    <label className="block text-xs font-medium text-gray-500 mb-1">Anúncio (ad-id)</label>
+                                                    <input
+                                                        type="text"
+                                                        value={formData.extra_data?.utm?.ad_id || ''}
+                                                        readOnly
+                                                        className={`${inputClass} opacity-70`}
+                                                        placeholder="—"
+                                                    />
+                                                </div>
+                                            </div>
+                                            <div>
+                                                <label className="block text-xs font-medium text-gray-500 mb-1">Data original (planilha)</label>
+                                                <input
+                                                    type="text"
+                                                    value={formData.extra_data?.sheet_validation_import?.sheetDate || ''}
+                                                    readOnly
+                                                    className={`${inputClass} opacity-70`}
+                                                    placeholder="—"
                                                 />
                                             </div>
                                         </div>
