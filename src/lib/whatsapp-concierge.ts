@@ -355,7 +355,9 @@ async function loadThreadHistory(
     const msgs: ChatMessage[] = []
     for (const r of rows) {
         const body = (r.body || '').trim()
-        const mediaTag = r.media_type ? `[${r.media_type} recebido]` : ''
+        // Áudio é transcrito no inbound (o texto falado já vem em `body`), então
+        // NÃO marcamos como mídia/anexo — senão a IA confunde voz com documento.
+        const mediaTag = (r.media_type && r.media_type !== 'audio') ? `[${r.media_type} recebido]` : ''
         const content = [body, mediaTag].filter(Boolean).join(' ').trim()
         if (!content) continue
         msgs.push({ role: r.direction === 'inbound' ? 'user' : 'assistant', content })
@@ -399,7 +401,11 @@ export async function runConcierge(
     const persona = input.config.persona?.trim() || DEFAULT_CONCIERGE_PERSONA
     const fname = firstName(lead.nome) || input.senderName || ''
 
-    const mediaNote = input.media
+    // Só imagem/vídeo/documento contam como possível documento de habilitação.
+    // Áudio é MENSAGEM DE VOZ (já transcrita para texto no inbound) — nunca deve
+    // ser interpretado como documento, senão a IA responde "encaminhei sua
+    // habilitação" para um simples áudio (bug real observado).
+    const mediaNote = (input.media && input.media.type !== 'audio')
         ? `\n\nIMPORTANTE: o lead ACABOU de enviar um arquivo pelo WhatsApp (tipo: ${input.media.type}${input.media.filename ? `, nome: ${input.media.filename}` : ''}). Trate como possível documento de habilitação (ex.: inscrição estadual, CPF/CNPJ, comprovante). Se for a documentação mínima, marque documents_received=true.`
         : ''
 
