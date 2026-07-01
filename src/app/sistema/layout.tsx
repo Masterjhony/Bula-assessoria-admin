@@ -7,7 +7,7 @@ import { usePathname, useRouter } from 'next/navigation'
 import {
   LayoutDashboard, LogOut, Menu, X, Users, Settings, Calendar,
   MessageCircle, FileText, Sparkles, Gavel, Shield, ChevronDown,
-  BarChart2, Target, BarChart3,
+  BarChart2, Target, BarChart3, Megaphone,
   Mail, ImageIcon, Contact, FileVideo,
 } from 'lucide-react'
 import { createClient } from '@/utils/supabase/client'
@@ -39,6 +39,7 @@ const navConfig: NavEntry[] = [
     items: [
       { href: '/sistema/crm/dashboard', label: 'Dashboard', icon: BarChart3 },
       { href: '/sistema/crm', label: 'CRM', icon: Users },
+      { href: '/sistema/crm/campanhas', label: 'Campanhas', icon: Megaphone },
     ],
   },
   {
