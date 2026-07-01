@@ -10,6 +10,7 @@ import {
     CRM_STAGE_QUALIFICATION,
     CRM_STAGE_INFO_CAPTURED,
     CRM_STAGE_REGISTRATION,
+    CRM_STAGE_LOST,
     DEFAULT_JMP_MQL_RULE,
     evaluateMql,
     JMP_FUNNEL_ID,
@@ -1340,4 +1341,70 @@ export async function deleteLeadDocumento(id: string, path: string): Promise<voi
     const { error } = await supabase.from('crm_lead_documentos').delete().eq('id', id);
     if (error) throw new Error(`Falha ao excluir documento: ${error.message}`);
     revalidatePath('/sistema/crm');
+}
+
+// ── Sweep de inatividade → PERDIDOS ────────────────────────────────────────
+// Regra definida com o cliente: lead que RESPONDEU ao menos uma vez, ficou
+// >=14 dias sem responder e já recebeu >=3 tentativas (mensagens nossas) vai
+// para PERDIDOS. Roda como cron (service role). Leads que NUNCA responderam NÃO
+// são perdidos aqui — são o backlog a ser trabalhado. Handoff humano e opt-out
+// são preservados. Grava stage_history (mesma auditoria da IA).
+const INACTIVITY_DAYS = 14;
+const INACTIVITY_MIN_ATTEMPTS = 3;
+
+export async function sweepInactiveLeadsToLost(): Promise<{ moved: number; scanned: number; ids: string[] }> {
+    const supabase = supabaseAdmin();
+    const cutoffIso = new Date(Date.now() - INACTIVITY_DAYS * 86_400_000).toISOString();
+
+    const { data: candidates, error } = await supabase
+        .from('crm_leads')
+        .select('id, status, extra_data, handoff_humano, optout_whatsapp')
+        .in('status', [CRM_STAGE_CONNECTION, CRM_STAGE_QUALIFICATION])
+        .eq('arquivado', false)
+        .limit(1000);
+    if (error || !candidates) return { moved: 0, scanned: 0, ids: [] };
+
+    const ids: string[] = [];
+    for (const lead of candidates as Array<{
+        id: string; status: string; extra_data: Record<string, unknown> | null;
+        handoff_humano: boolean | null; optout_whatsapp: boolean | null;
+    }>) {
+        if (lead.handoff_humano || lead.optout_whatsapp) continue;
+
+        const [outboundRes, inboundRes] = await Promise.all([
+            supabase.from('whatsapp_messages').select('id', { count: 'exact', head: true })
+                .eq('lead_id', lead.id).eq('direction', 'outbound'),
+            supabase.from('whatsapp_messages').select('created_at')
+                .eq('lead_id', lead.id).eq('direction', 'inbound')
+                .order('created_at', { ascending: false }).limit(1).maybeSingle(),
+        ]);
+
+        const attempts = outboundRes.count ?? 0;
+        if (attempts < INACTIVITY_MIN_ATTEMPTS) continue;
+
+        // "Sem resposta há 14 dias": precisa ter respondido ao menos uma vez e a
+        // última resposta ser mais antiga que o corte. Sem inbound = nunca
+        // respondeu (backlog) → não perde aqui.
+        const lastInboundAt = inboundRes.data?.created_at ?? null;
+        if (!lastInboundAt || lastInboundAt > cutoffIso) continue;
+
+        const prevExtra = (lead.extra_data ?? {}) as Record<string, unknown>;
+        const rawHist = prevExtra.stage_history;
+        const history = Array.isArray(rawHist) ? [...rawHist] : [];
+        history.unshift({
+            from: lead.status,
+            to: CRM_STAGE_LOST,
+            reason: `sem resposta há ${INACTIVITY_DAYS}+ dias após ${attempts} tentativas`,
+            by: 'sistema',
+            at: new Date().toISOString(),
+        });
+
+        const { error: upErr } = await supabase
+            .from('crm_leads')
+            .update({ status: CRM_STAGE_LOST, extra_data: { ...prevExtra, stage_history: history.slice(0, 30) } })
+            .eq('id', lead.id);
+        if (!upErr) ids.push(lead.id);
+    }
+
+    return { moved: ids.length, scanned: candidates.length, ids };
 }
