@@ -29,8 +29,10 @@ import { isOpenRouterConfigured, openRouterJSON, type ChatMessage } from './open
 import type { InboundMedia } from './whatsapp-inbound'
 import type { LeadShape } from './whatsapp-flow-engine'
 import {
+    CRM_STAGE_CONNECTION,
     CRM_STAGE_QUALIFICATION,
     CRM_STAGE_INFO_CAPTURED,
+    CRM_STAGE_LOST,
     normalizeCRMStatus,
 } from './crm-types'
 
@@ -198,20 +200,44 @@ const STATUS_ORDER = [
     'ENTRADA', 'CONEXÃO', 'QUALIFICAÇÃO', 'INFORMAÇÕES CAPTADAS', 'CADASTRO', 'PERDIDOS',
 ]
 
-function stageToStatus(stage: ConciergeStage | undefined): string | null {
-    switch (stage) {
-        case 'diagnostico':
-        case 'interesse':
-        case 'pre_qualificacao':
-        case 'documentos_solicitados':
-        case 'pendencia':
-            return CRM_STAGE_QUALIFICATION
-        case 'documentos_parciais':
-        case 'em_analise':
-            return CRM_STAGE_INFO_CAPTURED
-        default:
-            return null
+/**
+ * Decide a etapa do lead a partir dos DADOS coletados — não do "feeling" do LLM.
+ * Regras de negócio (definidas com o cliente):
+ *   • nao_apto                         → PERDIDOS
+ *   • interesse + IE + ≥1 documento    → INFORMAÇÕES CAPTADAS
+ *   • qualquer dado de qualificação    → QUALIFICAÇÃO
+ *   • apenas respondeu                 → CONEXÃO
+ * Nunca propõe CADASTRO (decisão humana). O motivo volta junto para auditoria.
+ * Combinado com maxStatus() (só avança), isto vira um "piso" por etapa: previne
+ * pular a qualificação e torna a classificação previsível/auditável.
+ */
+function computeStageFromData(input: {
+    aiStage: ConciergeStage | undefined
+    hasInteresse: boolean
+    hasIe: boolean
+    hasDoc: boolean
+    hasAnyQualData: boolean
+}): { status: string; reason: string } {
+    if (input.aiStage === 'nao_apto') {
+        return { status: CRM_STAGE_LOST, reason: 'IA classificou o lead como não apto' }
     }
+    if (input.hasInteresse && input.hasIe && input.hasDoc) {
+        return { status: CRM_STAGE_INFO_CAPTURED, reason: 'interesse + IE + documento recebidos' }
+    }
+    if (input.hasAnyQualData) {
+        return { status: CRM_STAGE_QUALIFICATION, reason: 'coletando dados de qualificação' }
+    }
+    return { status: CRM_STAGE_CONNECTION, reason: 'lead respondeu (conexão)' }
+}
+
+/** Conta documentos reais já recebidos do lead (crm_lead_documentos, migration 0037). */
+async function countLeadDocuments(supabase: SupabaseClient, leadId: string): Promise<number> {
+    const { count, error } = await supabase
+        .from('crm_lead_documentos')
+        .select('id', { count: 'exact', head: true })
+        .eq('lead_id', leadId)
+    if (error) return 0
+    return count ?? 0
 }
 
 function maxStatus(current: string, candidate: string): string {
@@ -481,13 +507,38 @@ async function applyConciergeEffects(
         update.tem_inscricao_estadual = 'Não'
     }
 
-    // Avanço de etapa (só para frente, no máximo até INFORMAÇÕES CAPTADAS).
-    const candidate = stageToStatus(ai.stage)
-    if (candidate) {
-        const advanced = maxStatus(lead.status || 'ENTRADA', candidate)
-        if (normalizeCRMStatus(advanced) !== normalizeCRMStatus(lead.status || '')) {
-            update.status = advanced
-        }
+    // Avanço de etapa DETERMINÍSTICO: a etapa é decidida pelos dados coletados,
+    // não pelo "feeling" do LLM (o ai.stage só entra para o caso nao_apto). Isso
+    // evita pular a qualificação e torna a classificação previsível/auditável.
+    const hasInteresse = Boolean(
+        update.interesse_principal || lead.interesse_principal || lead.interesse || lead.o_que_busca,
+    )
+    const hasIe = update.tem_inscricao_estadual === 'Sim'
+        || Boolean(update.inscricao_estadual)
+        || lead.tem_inscricao_estadual === 'Sim'
+        || Boolean(lead.inscricao_estadual)
+    const hasDoc = (await countLeadDocuments(supabase, lead.id)) >= 1
+    const hasAnyQualData = hasInteresse || hasIe
+        || Boolean(update.quantidade_animais || lead.quantidade_animais)
+        || Boolean(update.estado || lead.estado)
+        || Boolean(nextExtra.objetivo_compra_resumido || nextExtra.urgencia_compra)
+
+    const target = computeStageFromData({ aiStage: ai.stage, hasInteresse, hasIe, hasDoc, hasAnyQualData })
+    const advanced = maxStatus(lead.status || 'ENTRADA', target.status)
+    if (normalizeCRMStatus(advanced) !== normalizeCRMStatus(lead.status || '')) {
+        update.status = advanced
+        // Auditoria estruturada da mudança de etapa (base do fluxograma/gestão do
+        // chefe): quem moveu, de/para, por quê e quando. Mantém as últimas 30.
+        const rawHist = nextExtra.stage_history
+        const history = Array.isArray(rawHist) ? [...rawHist] : []
+        history.unshift({
+            from: lead.status || 'ENTRADA',
+            to: advanced,
+            reason: target.reason,
+            by: 'ia',
+            at: new Date().toISOString(),
+        })
+        nextExtra.stage_history = history.slice(0, 30)
     }
 
     // Handoff → humano assume; bot para de responder esse lead.
