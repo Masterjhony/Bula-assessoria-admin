@@ -1333,8 +1333,10 @@ function concGetMov(id){ return (state.movimentos||[]).find(m => m.id === id); }
 function concFiltered(){
   const q = (state.filters.busca||'').trim().toLowerCase();
   const st = state.filters.status||'';
+  const tp = state.filters.tipoMov||'';
   return (state.movimentos||[]).filter(m => {
     if (st && concStatus(m) !== st) return false;
+    if (tp && m.tipo !== tp) return false;
     if (q){
       const hay = `${m.descricao||''} ${m.pessoa?.nome||''} ${m.pessoa?.documento||''} ${m.categoria?.nome||''} ${m.observacoes||''} ${m.valor||''}`.toLowerCase();
       if (!hay.includes(q)) return false;
@@ -1612,6 +1614,8 @@ function paintConc(){
   const all = state.movimentos || [];
   const counts = { pendente:0, classificado:0, conciliado:0 };
   for (const m of all) counts[concStatus(m)]++;
+  const tot = { entrada:0, saida:0, transferencia:0 };
+  for (const m of all) tot[m.tipo] = (tot[m.tipo]||0) + Number(m.valor);
   const list = concFiltered();
   const selIds = Object.keys(state.concSel||{}).filter(id => state.concSel[id]);
   const kpi = (key) => {
@@ -1625,7 +1629,14 @@ function paintConc(){
   };
   const html = `
     <div class="page-header">
-      <div><div class="page-title">Conciliacao Bancaria <small>${counts.pendente} pendentes · ${counts.classificado} classificados · ${counts.conciliado} conciliados</small></div></div>
+      <div><div class="page-title">Conciliacao Bancaria <small>${counts.pendente} pendentes · ${counts.classificado} classificados · ${counts.conciliado} conciliados</small></div>
+        <div style="font-size:12px;margin-top:4px;display:flex;gap:14px;flex-wrap:wrap">
+          <span style="color:#6B8F5C">▲ Entradas ${fmtBRL(tot.entrada)}</span>
+          <span style="color:#C0504D">▼ Saídas ${fmtBRL(tot.saida)}</span>
+          <span style="color:#3B82F6">⇄ Transferências ${fmtBRL(tot.transferencia)}</span>
+          <span style="color:var(--text2)">= Resultado ${fmtBRL(tot.entrada - tot.saida)}</span>
+        </div>
+      </div>
       <div class="page-actions">
         <button class="btn" onclick="openMovimento()"><span class="material-symbols-outlined">add</span>Lancamento</button>
       </div>
@@ -1642,6 +1653,10 @@ function paintConc(){
         <select class="table-filter" onchange="state.filters.status=this.value; paintConc()">
           <option value="">Todos os status</option>
           ${['pendente','classificado','conciliado'].map(s => `<option value="${s}" ${state.filters.status===s?'selected':''}>${CONC_STATUS_META[s].label}</option>`).join('')}
+        </select>
+        <select class="table-filter" onchange="state.filters.tipoMov=this.value; paintConc()">
+          <option value="">Entradas + Saídas + Transf.</option>
+          ${[['entrada','Só entradas'],['saida','Só saídas'],['transferencia','Só transferências']].map(([v,l]) => `<option value="${v}" ${state.filters.tipoMov===v?'selected':''}>${l}</option>`).join('')}
         </select>
         ${selIds.length ? `
           <span style="font-size:11.5px;color:var(--text2);white-space:nowrap">${selIds.length} selec.</span>
@@ -1680,11 +1695,11 @@ const CC_STYLE = `<style>
   .cc{display:flex;align-items:flex-start;gap:12px;background:var(--surface);border:1px solid var(--border2);border-left:3px solid var(--border2);border-radius:10px;padding:12px 14px;transition:background .12s}
   .cc:hover{background:var(--s2)}
   .cc.sel{background:var(--gold-dim);border-color:var(--gold)}
-  .cc.cc-in{border-left-color:#6B8F5C}.cc.cc-out{border-left-color:#C0504D}
+  .cc.cc-in{border-left-color:#6B8F5C}.cc.cc-out{border-left-color:#C0504D}.cc.cc-transf{border-left-color:#3B82F6}
   .cc-chk{margin-top:4px;flex:0 0 auto}
   .cc-ic{width:30px;height:30px;border-radius:8px;display:flex;align-items:center;justify-content:center;flex:0 0 auto;margin-top:1px}
   .cc-ic .material-symbols-outlined{font-size:18px}
-  .cc-ic.in{background:#6B8F5C22;color:#6B8F5C}.cc-ic.out{background:#C0504D22;color:#C0504D}
+  .cc-ic.in{background:#6B8F5C22;color:#6B8F5C}.cc-ic.out{background:#C0504D22;color:#C0504D}.cc-ic.transf{background:#3B82F622;color:#3B82F6}
   .cc-main{flex:1;min-width:0}
   .cc-top{display:flex;align-items:baseline;gap:8px;flex-wrap:wrap}
   .cc-rot{font-size:10px;text-transform:uppercase;letter-spacing:.5px;color:var(--text3)}
@@ -1714,10 +1729,16 @@ function concCard(m){
   const st = concStatus(m);
   const meta = CONC_STATUS_META[st];
   const isEnt = m.tipo==='entrada';
-  const cats = state.categorias.filter(c => c.tipo===(isEnt?'receita':'despesa'));
+  const isTransf = m.tipo==='transferencia';
+  const cats = isTransf ? state.categorias.slice() : state.categorias.filter(c => c.tipo===(isEnt?'receita':'despesa'));
   if (m.categoria_id && m.categoria && !cats.some(c => c.id===m.categoria_id)) cats.unshift(m.categoria);
   const conf = concConfianca(m);
   const confCor = conf==='alta'?'#6B8F5C':conf==='media'?'#D4A843':conf==='baixa'?'#C0504D':'#888';
+  const cor = isTransf ? '#3B82F6' : isEnt ? '#6B8F5C' : '#C0504D';
+  const cls = isTransf ? 'cc-transf' : isEnt ? 'cc-in' : 'cc-out';
+  const icClass = isTransf ? 'transf' : isEnt ? 'in' : 'out';
+  const icon = isTransf ? 'swap_horiz' : isEnt ? 'south_west' : 'north_east';
+  const sinal = isTransf ? '' : isEnt ? '+ ' : '- ';
   const catSel = `<select onchange="onConcCatChange('${m.id}', this.value)" style="background:var(--surface);border:1px solid var(--border2);border-radius:6px;color:var(--text);font-size:11px;padding:3px 6px;max-width:200px">
     <option value="" ${!m.categoria_id?'selected':''}>-- sem categoria --</option>
     ${cats.map(c => `<option value="${c.id}" ${m.categoria_id===c.id?'selected':''}>${escapeHtml(c.nome)}</option>`).join('')}
@@ -1725,14 +1746,16 @@ function concCard(m){
   </select>`;
   const nome = m.pessoa && m.pessoa.nome;
   const doc = m.pessoa && m.pessoa.documento;
-  const rot = isEnt ? 'Recebido de' : 'Pago a';
-  const dest = nome
-    ? `<span class="cc-rot">${rot}</span><span class="cc-dest">${escapeHtml(nome)}</span>${doc?`<span class="cc-doc">${escapeHtml(doc)}</span>`:''}`
-    : `<span class="cc-dest none">Sem destinatario identificado</span>`;
+  const rot = isTransf ? 'Transferência entre contas' : isEnt ? 'Recebido de' : 'Pago a';
+  const dest = isTransf
+    ? `<span class="cc-rot">Transferência entre contas</span><span class="cc-dest" style="color:#3B82F6">${escapeHtml(nome||'contas próprias / investimento')}</span>`
+    : (nome
+      ? `<span class="cc-rot">${rot}</span><span class="cc-dest">${escapeHtml(nome)}</span>${doc?`<span class="cc-doc">${escapeHtml(doc)}</span>`:''}`
+      : `<span class="cc-dest none">Sem destinatario identificado</span>`);
   const ref = concRef(m);
-  return `<div class="cc ${isEnt?'cc-in':'cc-out'} ${state.concSel[m.id]?'sel':''}">
+  return `<div class="cc ${cls} ${state.concSel[m.id]?'sel':''}">
     <input class="cc-chk" type="checkbox" ${state.concSel[m.id]?'checked':''} onchange="toggleSel('${m.id}',this.checked)">
-    <div class="cc-ic ${isEnt?'in':'out'}"><span class="material-symbols-outlined">${isEnt?'south_west':'north_east'}</span></div>
+    <div class="cc-ic ${icClass}"><span class="material-symbols-outlined">${icon}</span></div>
     <div class="cc-main">
       <div class="cc-top">${dest}</div>
       <div class="cc-sub" title="${escapeHtml(m.descricao||'')}">${escapeHtml(m.descricao||'--')}</div>
@@ -1742,13 +1765,15 @@ function concCard(m){
         <span class="cc-origem">${escapeHtml(concOrigem(m))}</span>
         ${conf?`<span class="chip" style="background:${confCor}22;color:${confCor};font-size:9.5px;padding:1px 6px">conf. ${conf}</span>`:''}
         ${catSel}
-        ${(m.conta_pagar_id||m.conta_receber_id)
+        ${isTransf
+          ? `<span class="chip" style="background:#3B82F622;color:#3B82F6;font-size:9.5px" title="Não entra no resultado de entradas/saídas"><span class="material-symbols-outlined" style="font-size:12px;vertical-align:-2px">swap_horiz</span> não afeta resultado</span>`
+          : (m.conta_pagar_id||m.conta_receber_id)
           ? `<span class="chip" style="background:#6B8F5C22;color:#6B8F5C;font-size:9.5px;cursor:pointer" title="Vinculado a um título (baixado). Clique para desvincular." onclick="desvincularTitulo('${m.id}')"><span class="material-symbols-outlined" style="font-size:12px;vertical-align:-2px">link</span> ${m.conta_pagar_id?'conta a pagar':'conta a receber'}</span>`
           : `<button onclick="openVincularTitulo('${m.id}')" style="background:none;border:1px solid var(--border2);border-radius:6px;color:var(--text2);font-size:10.5px;padding:2px 8px;cursor:pointer;display:inline-flex;align-items:center;gap:4px"><span class="material-symbols-outlined" style="font-size:13px">add_link</span>Vincular título</button>`}
       </div>
     </div>
     <div class="cc-right">
-      <div class="cc-val" style="color:${isEnt?'#6B8F5C':'#C0504D'}">${isEnt?'+':'-'} ${fmtBRL(m.valor)}</div>
+      <div class="cc-val" style="color:${cor}">${sinal}${fmtBRL(m.valor)}</div>
       <span class="chip" style="background:${meta.cor}22;color:${meta.cor};cursor:pointer" onclick="cycleConcStatus('${m.id}')" title="Clique para alternar status">${meta.label}</span>
     </div>
   </div>`;

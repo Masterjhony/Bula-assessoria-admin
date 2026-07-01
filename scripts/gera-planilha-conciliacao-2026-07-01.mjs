@@ -13,9 +13,11 @@ const env = Object.fromEntries(readFileSync(join(root, '.env.local'), 'utf-8').s
   .filter((l) => l && !l.startsWith('#') && l.includes('=')).map((l) => { const i = l.indexOf('='); return [l.slice(0, i).trim(), l.slice(i + 1).trim().replace(/^"|"$/g, '')] }))
 const sb = createClient(env.NEXT_PUBLIC_SUPABASE_URL, env.SUPABASE_SERVICE_ROLE_KEY, { auth: { autoRefreshToken: false, persistSession: false } })
 const SICOOB = 'e0eca43c-1a2c-4077-ab54-801eb5d692e7'
-const OUT = 'C:/Users/Notebook-Acer/Desktop/Conciliacao Bancaria Bula - 01-07-2026.xlsx'
+const OUT = 'C:/Users/Notebook-Acer/Desktop/Conciliacao Bancaria Bula - 01-07-2026 (v2 - com transferencias).xlsx'
 
-const DARK = 'FF111827', GRAY = 'FF374151', LIGHT = 'FFF3F4F6', GREEN = 'FF1E7D46', RED = 'FFB91C1C', AMBER = 'FFB45309', BORDER = 'FFD1D5DB'
+const DARK = 'FF111827', GRAY = 'FF374151', LIGHT = 'FFF3F4F6', GREEN = 'FF1E7D46', RED = 'FFB91C1C', AMBER = 'FFB45309', BLUE = 'FF2563EB', BORDER = 'FFD1D5DB'
+const tipoLabel = { entrada: 'Entrada', saida: 'Saída', transferencia: 'Transferência' }
+const tipoCor = { entrada: GREEN, saida: RED, transferencia: BLUE }
 const money = 'R$ #,##0.00'
 const dref = (m, t) => t
 
@@ -74,6 +76,8 @@ function headerRow(ws, rowIdx, cols) {
     ['% identificado', sic.length ? withP(sic) / sic.length : 0, scr.length ? withP(scr) / scr.length : 0, movs.length ? withP(movs) / movs.length : 0],
     ['Entradas (R$)', sum(sic, 'entrada'), sum(scr, 'entrada'), sum(movs, 'entrada')],
     ['Saídas (R$)', sum(sic, 'saida'), sum(scr, 'saida'), sum(movs, 'saida')],
+    ['Resultado (Entradas − Saídas)', sum(sic,'entrada')-sum(sic,'saida'), sum(scr,'entrada')-sum(scr,'saida'), sum(movs,'entrada')-sum(movs,'saida')],
+    ['Transferências entre contas (R$)', sum(sic, 'transferencia'), sum(scr, 'transferencia'), sum(movs, 'transferencia')],
     [],
     ['Títulos (contas a receber/pagar)', '', '', ''],
     ['Contas a Receber — abertas', (crAll || []).filter((t) => t.status !== 'recebido').length, '', ''],
@@ -82,11 +86,11 @@ function headerRow(ws, rowIdx, cols) {
     ['Pessoas cadastradas (contrapartes)', new Set(movs.filter(m=>m.pessoa).map(m=>m.pessoa.nome)).size, '', ''],
   ]
   let r = 3
-  for (const row of rows) { const rr = ws.getRow(r); row.forEach((v, i) => rr.getCell(i + 1).value = v); if (r === 4 || r === 11) headerRowInline(rr); r++ }
+  for (const row of rows) { const rr = ws.getRow(r); row.forEach((v, i) => rr.getCell(i + 1).value = v); if (r === 4 || r === 13) headerRowInline(rr); r++ }
   // formatos
   ws.getRow(7).eachCell((c, i) => { if (i > 1) c.numFmt = '0.0%' })
-  ;[8, 9].forEach((rn) => ws.getRow(rn).eachCell((c, i) => { if (i > 1) c.numFmt = money }))
-  ws.getCell('A19').value = 'Como usar: a aba "Pontos a Validar" traz o que precisa de decisão sua/da financeira hoje. "Movimentos" tem tudo, com filtro. Verde = entrada, vermelho = saída.'
+  ;[8, 9, 10, 11].forEach((rn) => ws.getRow(rn).eachCell((c, i) => { if (i > 1) c.numFmt = money }))
+  ws.getCell('A19').value = 'Como usar: a aba "Pontos a Validar" traz o que precisa de decisão sua/da financeira hoje. "Movimentos" tem tudo, com filtro. Verde = entrada · vermelho = saída · azul = transferência entre contas (não entra no resultado).'
   ws.mergeCells('A19:D21'); ws.getCell('A19').alignment = { wrapText: true, vertical: 'top' }; ws.getCell('A19').font = { color: { argb: 'FF374151' } }
   function headerRowInline(rr) { rr.eachCell((c) => { c.font = { bold: true, color: { argb: 'FFFFFFFF' } }; c.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: GRAY } } }) }
 }
@@ -122,9 +126,9 @@ function headerRow(ws, rowIdx, cols) {
     const rr = ws.getRow(r)
     rr.getCell(1).value = new Date(m.data + 'T00:00:00'); rr.getCell(1).numFmt = 'dd/mm/yyyy'
     rr.getCell(2).value = banco(m)
-    rr.getCell(3).value = m.tipo === 'entrada' ? 'Entrada' : 'Saída'
-    rr.getCell(3).font = { color: { argb: m.tipo === 'entrada' ? GREEN : RED }, bold: true }
-    const vc = rr.getCell(4); vc.value = (m.tipo === 'entrada' ? 1 : -1) * Number(m.valor); vc.numFmt = money; vc.font = { color: { argb: m.tipo === 'entrada' ? GREEN : RED } }
+    rr.getCell(3).value = tipoLabel[m.tipo] || m.tipo
+    rr.getCell(3).font = { color: { argb: tipoCor[m.tipo] || GRAY }, bold: true }
+    const vc = rr.getCell(4); vc.value = (m.tipo === 'saida' ? -1 : 1) * Number(m.valor); vc.numFmt = money; vc.font = { color: { argb: tipoCor[m.tipo] || GRAY } }
     rr.getCell(5).value = (m.pessoa && m.pessoa.nome) || '(sem contraparte)'
     if (!m.pessoa) rr.getCell(5).font = { italic: true, color: { argb: 'FF9CA3AF' } }
     rr.getCell(6).value = (m.pessoa && m.pessoa.documento) || ''
@@ -139,48 +143,37 @@ function headerRow(ws, rowIdx, cols) {
   ws.autoFilter = { from: { row: 2, column: 1 }, to: { row: 2, column: 10 } }
 }
 
-// ===== 3.5) FLUXO DE CAIXA MENSAL =====
-const isInterno = (m) => /Aplicacao Financeira|Resgate Aplicacao|Transferencias Internas|Integralizacao Capital/i.test((m.categoria && m.categoria.nome) || '') || /RESG\.APLIC|APLICACAO FINANCEIRA|INTEGR\.CAPITAL|DB\.TR\.C\.DIF\.TIT|TRANSF/i.test(m.descricao || '')
+// ===== 3.5) FLUXO DE CAIXA MENSAL (3 baldes: entradas / saídas / transferências) =====
 {
   const ws = wb.addWorksheet('Fluxo Mensal', { views: [{ state: 'frozen', ySplit: 2 }] })
-  ws.columns = [{ width: 14 }, { width: 18 }, { width: 18 }, { width: 18 }, { width: 4 }, { width: 18 }, { width: 18 }, { width: 20 }]
-  titleBar(ws, 'Fluxo de caixa mensal — 2026 (jan a jun)', 8)
-  headerRow(ws, 2, ['Mês', 'Entradas', 'Saídas', 'Resultado', '', 'Operacional Entr.', 'Operacional Saíd.', 'Resultado operac.'])
+  ws.columns = [{ width: 14 }, { width: 18 }, { width: 18 }, { width: 18 }, { width: 4 }, { width: 20 }, { width: 20 }]
+  titleBar(ws, 'Fluxo de caixa mensal — 2026 (jan a jun)', 7)
+  headerRow(ws, 2, ['Mês', 'Entradas', 'Saídas', 'Resultado (E−S)', '', 'Transferências (vol.)', 'Resultado acum.'])
   const meses = ['2026-01', '2026-02', '2026-03', '2026-04', '2026-05', '2026-06']
   const nomeMes = { '2026-01': 'Janeiro', '2026-02': 'Fevereiro', '2026-03': 'Março', '2026-04': 'Abril', '2026-05': 'Maio', '2026-06': 'Junho' }
-  let r = 3
-  let accOp = 0
+  const soma = (list, t) => list.filter((m) => m.tipo === t).reduce((s, m) => s + +m.valor, 0)
+  let r = 3, acc = 0
   for (const mm of meses) {
     const list = movs.filter((m) => String(m.data).slice(0, 7) === mm)
-    const ent = list.filter((m) => m.tipo === 'entrada').reduce((s, m) => s + +m.valor, 0)
-    const sai = list.filter((m) => m.tipo === 'saida').reduce((s, m) => s + +m.valor, 0)
-    const op = list.filter((m) => !isInterno(m))
-    const entO = op.filter((m) => m.tipo === 'entrada').reduce((s, m) => s + +m.valor, 0)
-    const saiO = op.filter((m) => m.tipo === 'saida').reduce((s, m) => s + +m.valor, 0)
-    accOp += entO - saiO
+    const ent = soma(list, 'entrada'), sai = soma(list, 'saida'), tr = soma(list, 'transferencia')
+    acc += ent - sai
     const rr = ws.getRow(r)
     rr.getCell(1).value = nomeMes[mm]
     rr.getCell(2).value = ent; rr.getCell(3).value = sai; rr.getCell(4).value = ent - sai
-    rr.getCell(6).value = entO; rr.getCell(7).value = saiO; rr.getCell(8).value = entO - saiO
-    ;[2, 3, 4, 6, 7, 8].forEach((ci) => rr.getCell(ci).numFmt = money)
+    rr.getCell(6).value = tr; rr.getCell(7).value = acc
+    ;[2, 3, 4, 6, 7].forEach((ci) => rr.getCell(ci).numFmt = money)
+    rr.getCell(2).font = { color: { argb: GREEN } }; rr.getCell(3).font = { color: { argb: RED } }; rr.getCell(6).font = { color: { argb: BLUE } }
     rr.getCell(4).font = { bold: true, color: { argb: (ent - sai) >= 0 ? GREEN : RED } }
-    rr.getCell(8).font = { bold: true, color: { argb: (entO - saiO) >= 0 ? GREEN : RED } }
     r++
   }
-  // total
   const rt = ws.getRow(r)
-  rt.getCell(1).value = 'TOTAL jan–jun'; rt.font = { bold: true }
-  const totEnt = movs.filter(m=>m.tipo==='entrada').reduce((s,m)=>s+ +m.valor,0)
-  const totSai = movs.filter(m=>m.tipo==='saida').reduce((s,m)=>s+ +m.valor,0)
-  const opAll = movs.filter(m=>!isInterno(m))
-  const totEntO = opAll.filter(m=>m.tipo==='entrada').reduce((s,m)=>s+ +m.valor,0)
-  const totSaiO = opAll.filter(m=>m.tipo==='saida').reduce((s,m)=>s+ +m.valor,0)
-  rt.getCell(2).value = totEnt; rt.getCell(3).value = totSai; rt.getCell(4).value = totEnt-totSai
-  rt.getCell(6).value = totEntO; rt.getCell(7).value = totSaiO; rt.getCell(8).value = totEntO-totSaiO
-  ;[2,3,4,6,7,8].forEach((ci)=>{rt.getCell(ci).numFmt=money; rt.getCell(ci).font={bold:true}}); rt.eachCell((c)=>c.fill={type:'pattern',pattern:'solid',fgColor:{argb:LIGHT}})
+  rt.getCell(1).value = 'TOTAL jan–jun'
+  const tEnt = soma(movs, 'entrada'), tSai = soma(movs, 'saida'), tTr = soma(movs, 'transferencia')
+  rt.getCell(2).value = tEnt; rt.getCell(3).value = tSai; rt.getCell(4).value = tEnt - tSai; rt.getCell(6).value = tTr; rt.getCell(7).value = tEnt - tSai
+  ;[2, 3, 4, 6, 7].forEach((ci) => { rt.getCell(ci).numFmt = money; rt.getCell(ci).font = { bold: true } }); rt.eachCell((c) => c.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: LIGHT } })
   r += 2
-  ws.getCell(`A${r}`).value = '"Operacional" exclui aplicações/resgates financeiros e transferências entre contas próprias (movimentos que não são de fato entrada/saída de caixa do negócio).'
-  ws.mergeCells(`A${r}:H${r+1}`); ws.getCell(`A${r}`).alignment = { wrapText: true, vertical: 'top' }; ws.getCell(`A${r}`).font = { italic: true, color: { argb: 'FF6B7280' } }
+  ws.getCell(`A${r}`).value = 'Transferências entre contas (Bula↔Bula, aplicação/resgate de investimento) NÃO entram no resultado — só andam entre as contas do grupo. O "Resultado (E−S)" é o caixa operacional do negócio.'
+  ws.mergeCells(`A${r}:G${r + 1}`); ws.getCell(`A${r}`).alignment = { wrapText: true, vertical: 'top' }; ws.getCell(`A${r}`).font = { italic: true, color: { argb: 'FF6B7280' } }
 }
 
 // ===== 3.6) RESUMO POR CATEGORIA =====
@@ -204,7 +197,7 @@ const isInterno = (m) => /Aplicacao Financeira|Resgate Aplicacao|Transferencias 
   titleBar(ws, 'Classificação de contrapartes — recorrência e natureza', 9)
   headerRow(ws, 2, ['Contraparte', 'Categoria predominante', 'Transações', 'Meses', 'Recorrência', 'Natureza', 'Entradas (R$)', 'Saídas (R$)', 'Observação'])
   const g = new Map()
-  for (const m of movs.filter((x) => x.pessoa)) {
+  for (const m of movs.filter((x) => x.pessoa && x.tipo !== 'transferencia')) {
     const k = m.pessoa.nome
     const c = g.get(k) || { ent: 0, sai: 0, n: 0, datas: [], valores: [], cats: {} }
     if (m.tipo === 'entrada') c.ent += +m.valor; else c.sai += +m.valor
