@@ -3,10 +3,12 @@
 import { useEffect, useState } from "react"
 import {
     Users, MessageSquare, MessageCircle, Hand, BellOff, Megaphone, Sparkles, Tag, Loader2,
+    Clock, Bot, DollarSign,
 } from "lucide-react"
 import { INTERESSE_LABELS, type CentralMetrics } from "./types"
 
 const ICONS = {
+    leads_aguardando_resposta: Clock,
     novos_contatos_7d: Users,
     leads_com_interesse: Tag,
     aguardando_humano: Hand,
@@ -17,6 +19,7 @@ const ICONS = {
 } as const
 
 const LABELS: Record<keyof typeof ICONS, string> = {
+    leads_aguardando_resposta: "Leads aguardando resposta",
     novos_contatos_7d: "Novos contatos (7d)",
     leads_com_interesse: "Leads com interesse identificado",
     aguardando_humano: "Em atendimento humano",
@@ -68,6 +71,40 @@ export function MetricsTab() {
                         </div>
                     )
                 })}
+            </div>
+
+            {/* Custos — WhatsApp é ESTIMATIVA; IA é real (log de uso). */}
+            <div>
+                <h3 className="font-semibold flex items-center gap-2 mb-2">
+                    <DollarSign className="h-4 w-4" /> Custos de atendimento
+                </h3>
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+                    <div className="bg-card text-card-foreground rounded-xl border p-4 flex items-start gap-3">
+                        <div className="bg-primary/10 p-2 rounded-lg flex-shrink-0"><MessageSquare className="h-4 w-4 text-primary" /></div>
+                        <div>
+                            <p className="text-xs text-muted-foreground">Gasto WhatsApp (30d) · estimado</p>
+                            <p className="text-2xl font-bold tabular-nums">US$ {data.gasto_whatsapp_estimado_30d.toFixed(2)}</p>
+                            <p className="text-[11px] text-muted-foreground mt-0.5">{data.wa_conversas_empresa_30d} conversas × US$ {data.wa_tarifa_usd.toFixed(2)}</p>
+                        </div>
+                    </div>
+                    <div className="bg-card text-card-foreground rounded-xl border p-4 flex items-start gap-3">
+                        <div className="bg-primary/10 p-2 rounded-lg flex-shrink-0"><Bot className="h-4 w-4 text-primary" /></div>
+                        <div>
+                            <p className="text-xs text-muted-foreground">Gasto IA (30d)</p>
+                            <p className="text-2xl font-bold tabular-nums">US$ {data.gasto_ia_30d.toFixed(2)}</p>
+                        </div>
+                    </div>
+                    <div className="bg-card text-card-foreground rounded-xl border p-4 flex items-start gap-3">
+                        <div className="bg-primary/10 p-2 rounded-lg flex-shrink-0"><Bot className="h-4 w-4 text-primary" /></div>
+                        <div>
+                            <p className="text-xs text-muted-foreground">Gasto IA (hoje)</p>
+                            <p className="text-2xl font-bold tabular-nums">US$ {data.gasto_ia_hoje.toFixed(2)}</p>
+                        </div>
+                    </div>
+                </div>
+                <p className="text-[11px] text-muted-foreground mt-2">
+                    WhatsApp é estimativa (conversas iniciadas pela empresa × tarifa média); o valor faturado oficial fica no WhatsApp Manager. IA é o custo real logado por chamada (conta a partir de agora).
+                </p>
             </div>
 
             <div className="bg-card text-card-foreground rounded-xl border p-5">

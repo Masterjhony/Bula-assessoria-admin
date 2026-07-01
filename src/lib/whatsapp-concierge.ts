@@ -441,6 +441,7 @@ ${RESULT_SCHEMA_INSTRUCTIONS}`
             model: input.config.model || undefined,
             temperature: 0.45,
             maxTokens: 700,
+            logKind: 'concierge',
         })
     } catch (e) {
         console.warn('[concierge] OpenRouter falhou:', e instanceof Error ? e.message : e)

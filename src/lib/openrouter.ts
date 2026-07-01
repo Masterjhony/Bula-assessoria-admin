@@ -12,7 +12,34 @@
  * caller deve degradar com elegância (o concierge cai em silêncio / fallback).
  */
 
+import { supabaseAdmin } from './supabase'
+
 const OPENROUTER_URL = 'https://openrouter.ai/api/v1/chat/completions'
+
+/**
+ * Loga (best-effort) o uso de uma chamada de IA em `ai_usage_log` (migration
+ * 0043) — alimenta as métricas de gasto de IA. Fire-and-forget: nunca lança nem
+ * atrasa a resposta; ignora se a tabela ainda não existir.
+ */
+function logAiUsage(model: string, kind: string, usage: unknown): void {
+    const u = (usage ?? {}) as {
+        prompt_tokens?: number; completion_tokens?: number; total_tokens?: number; cost?: number
+    }
+    if (u.total_tokens == null && u.cost == null) return
+    void (async () => {
+        try {
+            await supabaseAdmin().from('ai_usage_log').insert({
+                provider: 'openrouter',
+                model,
+                kind,
+                prompt_tokens: u.prompt_tokens ?? null,
+                completion_tokens: u.completion_tokens ?? null,
+                total_tokens: u.total_tokens ?? null,
+                cost_usd: typeof u.cost === 'number' ? u.cost : null,
+            })
+        } catch { /* best-effort: tabela pode não existir ainda */ }
+    })()
+}
 
 /** Modelo default — bom custo/benefício para PT-BR + JSON estruturado. */
 export const DEFAULT_OPENROUTER_MODEL = process.env.OPENROUTER_MODEL || 'google/gemini-2.5-flash'
@@ -34,6 +61,8 @@ export interface OpenRouterOptions {
     json?: boolean
     /** AbortSignal opcional para timeout do caller. */
     signal?: AbortSignal
+    /** Rótulo do uso para as métricas de gasto de IA (ex.: 'concierge'). */
+    logKind?: string
 }
 
 /**
@@ -52,6 +81,7 @@ export async function openRouterChat(
         messages,
         temperature: opts.temperature ?? 0.6,
         max_tokens: opts.maxTokens ?? 900,
+        usage: { include: true }, // pede tokens+custo na resposta (p/ métricas)
     }
     if (opts.json) body.response_format = { type: 'json_object' }
 
@@ -75,7 +105,9 @@ export async function openRouterChat(
 
     const data = (await res.json()) as {
         choices?: Array<{ message?: { content?: string } }>
+        usage?: unknown
     }
+    logAiUsage(String(body.model), opts.logKind || 'chat', data.usage)
     return data.choices?.[0]?.message?.content ?? ''
 }
 
@@ -109,6 +141,7 @@ export async function transcribeAudioOpenRouter(
     const body = {
         model: opts.model || DEFAULT_OPENROUTER_MODEL,
         temperature: 0,
+        usage: { include: true },
         messages: [{
             role: 'user',
             content: [
@@ -133,7 +166,8 @@ export async function transcribeAudioOpenRouter(
         const detail = await res.text().catch(() => '')
         throw new Error(`OpenRouter STT ${res.status}: ${detail.slice(0, 200)}`)
     }
-    const data = (await res.json()) as { choices?: Array<{ message?: { content?: string } }> }
+    const data = (await res.json()) as { choices?: Array<{ message?: { content?: string } }>; usage?: unknown }
+    logAiUsage(opts.model || DEFAULT_OPENROUTER_MODEL, 'transcription', data.usage)
     return (data.choices?.[0]?.message?.content ?? '').trim()
 }
 

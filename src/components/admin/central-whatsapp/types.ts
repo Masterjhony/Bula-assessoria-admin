@@ -158,6 +158,13 @@ export interface CentralMetrics {
     mensagens_enviadas_hoje: number
     mensagens_recebidas_hoje: number
     campanhas_disparadas_30d: number
+    leads_aguardando_resposta: number
+    // Custos: WhatsApp é ESTIMATIVA (conversas iniciadas × tarifa); IA é real (log).
+    wa_conversas_empresa_30d: number
+    gasto_whatsapp_estimado_30d: number
+    gasto_ia_30d: number
+    gasto_ia_hoje: number
+    wa_tarifa_usd: number
     distribuicao_interesse: Record<string, number>
 }
 

@@ -25,6 +25,7 @@ import {
     XCircle,
 } from 'lucide-react';
 import { InboxTab } from '@/components/admin/central-whatsapp/InboxTab';
+import { MetricsTab } from '@/components/admin/central-whatsapp/MetricsTab';
 import type { Template } from '@/components/admin/central-whatsapp/types';
 
 type ActivityRow = {
@@ -170,7 +171,7 @@ export function CRMWhatsappView() {
     const [conciergeError, setConciergeError] = useState<string | null>(null);
 
     // Operação de conversas: sub-view (conversas/status) e canal selecionado.
-    const [view, setView] = useState<'conversas' | 'status'>('conversas');
+    const [view, setView] = useState<'conversas' | 'status' | 'metricas'>('conversas');
     const [channel, setChannel] = useState<'oficial' | 'baileys'>('oficial');
     const [templates, setTemplates] = useState<Template[]>([]);
 
@@ -348,6 +349,15 @@ export function CRMWhatsappView() {
                     >
                         <ShieldCheck size={14} /> Status &amp; configuração
                     </button>
+                    <button
+                        type="button"
+                        onClick={() => setView('metricas')}
+                        className={`px-3 py-1.5 rounded-md flex items-center gap-1.5 transition-colors ${
+                            view === 'metricas' ? 'bg-card shadow-sm font-medium' : 'text-muted-foreground hover:text-foreground'
+                        }`}
+                    >
+                        <BarChart3 size={14} /> Métricas
+                    </button>
                 </div>
 
                 {view === 'conversas' ? (
@@ -387,6 +397,8 @@ export function CRMWhatsappView() {
             {view === 'conversas' && (
                 <InboxTab templates={templates} channel={channel} />
             )}
+
+            {view === 'metricas' && <MetricsTab />}
 
             {view === 'status' && (
             <div className="space-y-5">
