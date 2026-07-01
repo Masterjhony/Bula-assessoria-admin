@@ -91,6 +91,10 @@ const CHECKLIST_COLUMNS = [
   ['CONTAS A RECEBER E A PAGAR', 'Contas a receber e a pagar'],
 ]
 const CHECKLIST_GROUP = 'Produção & Divulgação'
+// Abas sem o bloco de checklist (ex.: julho em diante) recebem o mesmo
+// checklist em branco, para a equipe preencher pelo sistema. Não semeia meses
+// já passados/concluidos.
+const SEED_CHECKLIST_FROM = '2026-07-01'
 
 function truthy(value) {
   return /^(TRUE|VERDADEIRO|SIM|X|✓|OK)$/i.test(String(value ?? '').trim())
@@ -126,12 +130,38 @@ function checklistFromRow(row, checklistCols) {
   return { nome: CHECKLIST_GROUP, cor: '#111827', subtitulo: 'Sincronizado da planilha', origem: 'planilha', tasks }
 }
 
-// Mescla o grupo da planilha preservando grupos criados manualmente no sistema.
-function mergeChecklist(existing, planGroup) {
+// Checklist padrao (mesmos itens de junho) todo desmarcado, para abas que nao
+// trazem o bloco na planilha.
+function blankChecklistGroup() {
+  const tasks = CHECKLIST_COLUMNS.map(([key, label]) => ({
+    id: `plan-${slug(key)}`,
+    nome: label,
+    ini: '',
+    fim: '',
+    resp: { ini: '', nome: '' },
+    subs: [],
+    done: false,
+    observacao: '',
+    anexos: [],
+  }))
+  return { nome: CHECKLIST_GROUP, cor: '#111827', subtitulo: 'Checklist padrão', origem: 'seed', tasks }
+}
+
+// Regras de checklist no bula_leiloes.tasks:
+// - aba com bloco de checklist (junho): a planilha é a fonte, sobrescreve o grupo;
+// - aba sem bloco, leilão de julho em diante: semeia o checklist em branco UMA vez
+//   (só se ainda não existir), preservando o que a equipe marcar depois;
+// - sempre preserva grupos criados manualmente (outros nomes).
+function mergeChecklist(existing, row) {
   const base = Array.isArray(existing) ? existing : []
-  if (!planGroup) return base
-  const kept = base.filter((g) => g && g.nome !== CHECKLIST_GROUP && g.origem !== 'planilha')
-  return [...kept, planGroup]
+  if (row.checklist) {
+    const kept = base.filter((g) => g && g.nome !== CHECKLIST_GROUP)
+    return [...kept, row.checklist]
+  }
+  if (row.data >= SEED_CHECKLIST_FROM && !base.some((g) => g && g.nome === CHECKLIST_GROUP)) {
+    return [...base, blankChecklistGroup()]
+  }
+  return base
 }
 
 function headerIndexes(headerRow) {
@@ -558,9 +588,9 @@ const publicPayload = sourceRows.map((row, index) => {
     img: row.image_url || existing?.img || cronograma?.img || '',
     catalogo_url: existing?.catalogo_url || cronograma?.catalogo_url || row.catalogo_url || null,
     transmissao: existing?.transmissao || '',
-    // Checklist da planilha entra como grupo "Produção & Divulgação",
-    // preservando grupos criados manualmente no sistema.
-    tasks: mergeChecklist(existing?.tasks ?? [], row.checklist),
+    // Checklist "Produção & Divulgação": junho vem da planilha; julho em diante
+    // recebe o mesmo checklist em branco (semeado uma vez). Preserva grupos manuais.
+    tasks: mergeChecklist(existing?.tasks ?? [], row),
   }
 })
 const extraPublic = (currentPublic ?? []).filter((_, index) => !usedPublic.has(index))
