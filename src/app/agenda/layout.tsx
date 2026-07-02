@@ -17,7 +17,7 @@ export const metadata: Metadata = {
         siteName: 'Bula Assessoria',
         images: [
             {
-                url: '/agenda-oficial-bula-whatsapp.jpg',
+                url: '/agenda-oficial-bula-whatsapp-v2.jpg',
                 width: 1200,
                 height: 1200,
                 alt: 'Agenda Oficial Bula Assessoria Pecuária',
@@ -30,7 +30,7 @@ export const metadata: Metadata = {
         title: 'Agenda de Leilões | Bula Assessoria',
         description:
             'Touros e matrizes dos principais leilões do Brasil, com curadoria e assessoria comercial da Bula.',
-        images: ['/agenda-oficial-bula-whatsapp.jpg'],
+        images: ['/agenda-oficial-bula-whatsapp-v2.jpg'],
     },
 }
 
