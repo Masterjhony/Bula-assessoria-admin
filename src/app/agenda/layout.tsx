@@ -2,7 +2,6 @@ import type { Metadata } from 'next'
 import Link from 'next/link'
 import { MessageCircle, Instagram, ArrowRight, Calendar } from 'lucide-react'
 import { WHATSAPP_CTA_URL } from './helpers'
-import { InstallButton } from '@/components/pwa/InstallButton'
 
 export const metadata: Metadata = {
     metadataBase: new URL('https://bulaassessoria.com'),
@@ -36,8 +35,10 @@ export const metadata: Metadata = {
 
 export default function AgendaLayout({ children }: { children: React.ReactNode }) {
     return (
-        <div className="agenda-page-bg flex min-h-screen flex-col text-white">
-            <header className="sticky top-0 z-50 border-b border-white/10 bg-[#0A0A0A]/85 backdrop-blur-xl">
+        <div className="agenda-page-bg relative flex min-h-screen flex-col text-white">
+            {/* Header transparente, flutuando sobre o hero (igual ao Claude Design) —
+                sem barra/borda. Some ao rolar, é intencional. */}
+            <header className="absolute inset-x-0 top-0 z-30">
                 <div className="mx-auto flex h-20 max-w-7xl items-center justify-between px-5 sm:h-24 sm:px-8">
                     <Link href="/agenda" className="flex items-center group" aria-label="Bula Assessoria">
                         {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -47,36 +48,25 @@ export default function AgendaLayout({ children }: { children: React.ReactNode }
                             className="h-14 w-auto object-contain transition-opacity group-hover:opacity-75 sm:h-20"
                         />
                     </Link>
-                    <nav className="flex items-center gap-1 text-[13px] font-bold sm:gap-2 sm:text-sm">
-                        <Link
-                            href="/"
-                            className="rounded-md px-2.5 py-2 text-white/60 transition-colors hover:bg-white/5 hover:text-white sm:px-3"
-                        >
-                            Início
-                        </Link>
-                        <Link
-                            href="/agenda"
-                            className="rounded-md px-2.5 py-2 text-white/60 transition-colors hover:bg-white/5 hover:text-white sm:px-3"
-                        >
+                    <nav className="flex items-center gap-[clamp(14px,2.4vw,34px)]">
+                        <Link href="/agenda#agenda" className="agenda-nav-link hidden sm:inline" style={{ fontFamily: "'Inter',sans-serif", fontSize: '11px', fontWeight: 500, letterSpacing: '0.2em', textTransform: 'uppercase', color: 'rgba(255,255,255,0.6)' }}>
                             Agenda
                         </Link>
-                        <InstallButton
-                            className="inline-flex items-center gap-2 rounded-md border border-white/15 px-3 py-2.5 text-white/70 transition-colors hover:bg-white/5 hover:text-white sm:px-4"
-                            label="Baixar app"
-                            tone="dark"
-                            align="right"
-                            hideLabelOnMobile
-                        />
+                        <Link href="/agenda#sobre" className="agenda-nav-link hidden sm:inline" style={{ fontFamily: "'Inter',sans-serif", fontSize: '11px', fontWeight: 500, letterSpacing: '0.2em', textTransform: 'uppercase', color: 'rgba(255,255,255,0.6)' }}>
+                            Sobre
+                        </Link>
+                        <Link href="/agenda#contato" className="agenda-nav-link hidden sm:inline" style={{ fontFamily: "'Inter',sans-serif", fontSize: '11px', fontWeight: 500, letterSpacing: '0.2em', textTransform: 'uppercase', color: 'rgba(255,255,255,0.6)' }}>
+                            Contato
+                        </Link>
                         <a
                             href={WHATSAPP_CTA_URL}
                             target="_blank"
                             rel="noopener noreferrer"
-                            className="inline-flex shrink-0 items-center gap-2 whitespace-nowrap rounded-md px-3 py-2.5 font-black shadow-sm transition-all hover:-translate-y-0.5 hover:bg-white sm:px-5"
-                            style={{ backgroundColor: '#fff', color: '#0A0A0A' }}
+                            className="agenda-nav-cta inline-flex shrink-0 items-center gap-2 whitespace-nowrap"
+                            style={{ fontFamily: "'Oswald',sans-serif", fontWeight: 600, fontSize: '12px', letterSpacing: '0.16em', textTransform: 'uppercase', color: '#fff', border: '1px solid rgba(255,255,255,0.3)', padding: '11px 20px' }}
                         >
                             <MessageCircle className="h-4 w-4 shrink-0" />
-                            <span className="sm:hidden">WhatsApp</span>
-                            <span className="hidden sm:inline">Fale com a Bula</span>
+                            WhatsApp
                         </a>
                     </nav>
                 </div>
@@ -84,36 +74,7 @@ export default function AgendaLayout({ children }: { children: React.ReactNode }
 
             <main className="flex-1">{children}</main>
 
-            <footer className="mt-20 bg-[#0A0A0A] text-white">
-                {/* Faixa de CTA — acento dourado cirúrgico da marca (brandbook) */}
-                <div className="relative overflow-hidden border-t border-[#C9A84C]/25">
-                    <div
-                        aria-hidden
-                        className="pointer-events-none absolute -left-24 -top-28 h-72 w-72 rounded-full bg-[#C9A84C]/8 blur-3xl"
-                    />
-                    <div className="relative mx-auto flex max-w-7xl flex-col gap-6 px-5 py-12 sm:px-8 lg:flex-row lg:items-center lg:justify-between lg:gap-10">
-                        <div className="max-w-xl">
-                            <p className="text-[11px] font-black uppercase tracking-[0.22em] text-[#C9A84C]">
-                                Bula Assessoria Pecuária
-                            </p>
-                            <h3 className="font-display mt-3 text-3xl uppercase leading-[0.98] tracking-tight sm:text-[2.5rem]">
-                                Touros e matrizes dos melhores leilões, com quem entende do negócio.
-                            </h3>
-                            <p className="mt-3 text-sm text-white/45">A assessoria do boiadeiro(a).</p>
-                        </div>
-                        <a
-                            href={WHATSAPP_CTA_URL}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="group inline-flex shrink-0 items-center justify-center gap-2 rounded-md bg-white px-6 py-3.5 text-sm font-black shadow-sm transition-all hover:-translate-y-0.5 hover:bg-white/90"
-                            style={{ color: '#0A0A0A' }}
-                        >
-                            <MessageCircle className="h-4 w-4" />
-                            Entrar no grupo
-                            <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-0.5" />
-                        </a>
-                    </div>
-                </div>
+            <footer className="mt-0 bg-[#0A0A0A] text-white">
 
                 {/* Corpo */}
                 <div className="mx-auto grid max-w-7xl gap-10 border-t border-white/10 px-5 py-16 sm:px-8 md:grid-cols-2 lg:grid-cols-[1.5fr_1fr_1fr] lg:gap-x-20">

@@ -38,9 +38,11 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap"
           rel="stylesheet"
         />
-        {/* Oswald — voz condensada da marca (brandbook Bula) para títulos em caixa alta. */}
+        {/* Oswald — voz condensada da marca (brandbook Bula) para títulos em caixa alta.
+            Pinyon Script (slogan cursivo dourado) + IBM Plex Mono (numerais dos serviços)
+            reproduzem o design da /agenda gerado no Claude Design. */}
         <link
-          href="https://fonts.googleapis.com/css2?family=Oswald:wght@500;600;700&display=swap"
+          href="https://fonts.googleapis.com/css2?family=Oswald:wght@400;500;600;700&family=Pinyon+Script&family=IBM+Plex+Mono:wght@400;500&display=swap"
           rel="stylesheet"
         />
         <link

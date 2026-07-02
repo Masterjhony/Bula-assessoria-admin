@@ -1,207 +1,174 @@
 import Link from 'next/link'
-import { ArrowRight, CheckCircle2, MessageCircle, ShieldCheck, Truck } from 'lucide-react'
-import {
-    getCriatoriosParceirosMes,
-    getLeiloesPublicos,
-    type CriatorioParceiroPublico,
-    type LeilaoPublico,
-} from '@/lib/bula/public-leiloes'
+import { getLeiloesPublicos, type LeilaoPublico } from '@/lib/bula/public-leiloes'
 import { AgendaGrid } from './AgendaGrid'
-import {
-    parseData, hojeTime, dataPorExtenso, isFuturo, contagemRegressiva, localExibivel, youtubeId, WHATSAPP_CTA_URL,
-} from './helpers'
-import { CriatorioLogoTile } from './CriatorioLogoTile'
+import { HeroVideo } from './HeroVideo'
+import { parseData, isFuturo, WHATSAPP_CTA_URL } from './helpers'
 
 export const revalidate = 120
 
 const HERO_VIDEO =
     'https://res.cloudinary.com/dny0ibgbn/video/upload/v1780252444/video_de_fundo_jmvezn.mp4'
 
-export default async function AgendaPage() {
-    const [leiloes, criatorios] = await Promise.all([
-        getLeiloesPublicos(),
-        getCriatoriosParceirosMes(),
-    ])
+const GOLD = '#C9A84C'
+const OSWALD = "'Oswald', sans-serif"
+const INTER = "'Inter', sans-serif"
+const SCRIPT = "'Pinyon Script', cursive"
+const MONO = "'IBM Plex Mono', monospace"
 
-    // Mesma lógica de sempre — não altera quais leilões aparecem nem a ordem.
+export default async function AgendaPage() {
+    const leiloes = await getLeiloesPublicos()
+
+    // Mesma lógica/ordem de sempre — os leilões e a ordem não mudam.
     const proximos = leiloes
         .filter((l) => isFuturo(l.data) && l.status === 'confirmado')
         .sort((a, b) => parseData(a.data).time - parseData(b.data).time)
     const destaque = proximos[0] ?? leiloes[0] ?? null
-    // Criatórios distintos na agenda — métrica confiável (a soma de "animais" fica
-    // vazia na maioria dos leilões, então não vira estatística de topo).
-    const criatoriosNaAgenda = new Set(
-        leiloes.map((l) => (l.criador || '').trim().toUpperCase()).filter(Boolean),
-    ).size
-    // Dias até o próximo leilão confirmado.
-    const proximoDias = proximos[0]
-        ? Math.max(0, Math.round((parseData(proximos[0].data).time - hojeTime()) / 86_400_000))
-        : null
     const agendaLabel = labelPeriodo(leiloes)
 
-    // Dados derivados do leilão em destaque (herói editorial).
-    const destaqueMeta = destaque
-        ? [
-              dataPorExtenso(destaque.data),
-              destaque.horario || null,
-              destaque.modelo || localExibivel(destaque.local) || null,
-              destaque.criador || null,
-          ].filter(Boolean) as string[]
-        : []
-    const destaqueAoVivo = destaque ? !!youtubeId(destaque.transmissao) : false
-    const destaqueCountdown = destaque ? contagemRegressiva(destaque.data) : null
+    // Dados do leilão em destaque para o hero (mapeados dos campos reais).
+    const dp = destaque ? parseData(destaque.data) : null
+    const dateLabel = dp
+        ? `${String(dp.dia).padStart(2, '0')}.${String(dp.mesNum).padStart(2, '0')}.${dp.ano}`
+        : ''
+    const modalidade = (destaque?.modelo || destaque?.local || '').trim()
+    const isAoVivo = destaque
+        ? (!!destaque.transmissao?.trim() || /virtual|online|ao vivo|live/i.test(modalidade))
+        : false
+    // Só a modalidade real (VIRTUAL/PRESENCIAL/local) no hero — a leiloeira/criador
+    // já aparecem nos cards; evita jogar valor genérico (ex.: "PROGRAMA LEILÕES") aqui.
+    const placeLabel = modalidade
+    const heroSub = destaque
+        ? (destaque.animais && destaque.animais > 0
+            ? `${destaque.animais} animais na oferta — curadoria de genética, avaliação de lote e apoio no arremate.`
+            : 'Curadoria de genética, avaliação de lote e apoio no arremate.')
+        : 'Touros e matrizes dos principais leilões do Brasil, com curadoria de genética e apoio no arremate.'
 
     return (
         <>
-            <section className="relative min-h-[calc(100svh-96px)] overflow-hidden bg-[#0A0A0A] text-white">
-                <div className="absolute inset-0">
-                    <video
-                        src={HERO_VIDEO}
-                        className="h-full w-full object-cover"
-                        autoPlay
-                        muted
-                        loop
-                        playsInline
-                        preload="metadata"
-                    />
-                    <div className="absolute inset-0 bg-black/62" />
-                    <div className="absolute inset-0 bg-[linear-gradient(90deg,rgba(0,0,0,0.97)_0%,rgba(0,0,0,0.74)_44%,rgba(0,0,0,0.24)_100%)]" />
-                    {/* Grão sutil — "textura do campo" do brandbook. */}
-                    <div className="absolute inset-0 opacity-60 bg-[repeating-linear-gradient(135deg,rgba(255,255,255,0.028)_0px,rgba(255,255,255,0.028)_1px,transparent_1px,transparent_7px)]" />
-                    <div className="absolute inset-x-0 bottom-0 h-40 bg-gradient-to-t from-[#0A0A0A] to-transparent" />
-                </div>
+            {/* ===== HERO ===== */}
+            <section
+                id="top"
+                style={{ position: 'relative', minHeight: '100svh', display: 'flex', alignItems: 'flex-end', overflow: 'hidden', background: '#0A0A0A' }}
+            >
+                <HeroVideo src={HERO_VIDEO} />
+                <div style={{ position: 'absolute', inset: 0, background: 'rgba(10,10,10,0.55)' }} />
+                <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(180deg,rgba(10,10,10,0.55) 0%,rgba(10,10,10,0.12) 36%,rgba(10,10,10,0.5) 66%,rgba(10,10,10,0.96) 100%)' }} />
+                <div style={{ position: 'absolute', inset: 0, opacity: 0.5, backgroundImage: 'repeating-linear-gradient(135deg,rgba(255,255,255,0.03) 0px,rgba(255,255,255,0.03) 1px,transparent 1px,transparent 7px)' }} />
 
-                {/* Selo circular editorial — dourado cirúrgico. */}
-                {destaque && (
-                    <div className="pointer-events-none absolute right-10 top-1/2 hidden -translate-y-1/2 lg:flex">
-                        <div className="flex h-40 w-40 flex-col items-center justify-center rounded-full border border-[#C9A84C]/45 text-center">
-                            <span className="text-[10px] font-black uppercase tracking-[0.28em] text-[#C9A84C]">Destaque</span>
-                            <span className="mt-1.5 text-[9px] font-semibold uppercase leading-relaxed tracking-[0.2em] text-white/55">
-                                Próximo<br />leilão
-                            </span>
-                        </div>
+                <div style={{ position: 'relative', zIndex: 10, width: '100%', maxWidth: '1280px', margin: '0 auto', padding: 'clamp(28px,5vw,64px) clamp(20px,5vw,64px) clamp(40px,6vw,80px)' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '14px', marginBottom: '22px' }}>
+                        <span style={{ width: '34px', height: '1px', background: GOLD }} />
+                        <span style={{ fontFamily: OSWALD, fontWeight: 500, fontSize: '12px', letterSpacing: '0.3em', textTransform: 'uppercase', color: GOLD }}>
+                            {destaque ? 'Próximo Leilão · Em Destaque' : `Agenda · ${agendaLabel}`}
+                        </span>
                     </div>
-                )}
-
-                <div className="relative mx-auto grid min-h-[calc(100svh-96px)] max-w-7xl content-center px-5 py-16 sm:px-8 lg:py-20">
-                    <div className="max-w-4xl">
-                        <div className="flex flex-wrap items-center gap-3 text-[11px] font-bold uppercase tracking-[0.2em] text-[#C9A84C]">
-                            <span className="h-px w-10 bg-[#C9A84C]" />
-                            {destaque ? 'Próximo leilão · Em destaque' : `Agenda ${agendaLabel}`}
-                            {destaqueCountdown && (
-                                <span className="rounded-full border border-[#C9A84C]/35 bg-[#C9A84C]/12 px-2.5 py-1 text-[10px] tracking-normal text-[#E8DBB8]">
-                                    {destaqueCountdown}
+                    <h1 style={{ fontFamily: OSWALD, fontWeight: 700, textTransform: 'uppercase', fontSize: 'clamp(38px,9vw,116px)', lineHeight: 0.9, letterSpacing: '-0.01em', margin: '0 0 26px', maxWidth: '16ch', textWrap: 'balance' }}>
+                        {destaque ? destaque.nome : 'Agenda Bula Assessoria'}
+                    </h1>
+                    {destaque && (
+                        <div style={{ display: 'flex', alignItems: 'center', gap: 'clamp(12px,2.4vw,26px)', flexWrap: 'wrap', marginBottom: '22px' }}>
+                            <span style={{ fontFamily: OSWALD, fontWeight: 600, fontSize: 'clamp(15px,1.6vw,19px)', letterSpacing: '0.1em' }}>{dp?.diaSemana} · {dateLabel}</span>
+                            {destaque.horario?.trim() && (<><Dot /><span style={{ fontFamily: OSWALD, fontWeight: 600, fontSize: 'clamp(15px,1.6vw,19px)', letterSpacing: '0.1em' }}>{destaque.horario}</span></>)}
+                            {placeLabel && (<><Dot /><span style={{ fontFamily: OSWALD, fontWeight: 500, fontSize: 'clamp(15px,1.6vw,19px)', letterSpacing: '0.1em', color: 'rgba(255,255,255,0.85)' }}>{placeLabel}</span></>)}
+                            {isAoVivo && (
+                                <span style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', fontFamily: OSWALD, fontWeight: 600, fontSize: '12px', letterSpacing: '0.18em', color: GOLD, border: '1px solid rgba(201,168,76,0.4)', padding: '6px 12px' }}>
+                                    <span style={{ width: '7px', height: '7px', borderRadius: '50%', background: GOLD }} />AO VIVO
                                 </span>
                             )}
                         </div>
+                    )}
+                    <p style={{ fontFamily: INTER, fontSize: 'clamp(15px,1.5vw,18px)', lineHeight: 1.55, color: 'rgba(255,255,255,0.72)', maxWidth: '52ch', margin: '0 0 34px' }}>{heroSub}</p>
+                    <div style={{ display: 'flex', gap: '14px', flexWrap: 'wrap' }}>
+                        <a href={WHATSAPP_CTA_URL} target="_blank" rel="noopener noreferrer" className="agenda-btn-white" style={{ fontFamily: OSWALD, fontWeight: 600, fontSize: '14px', letterSpacing: '0.14em', textTransform: 'uppercase', color: '#0A0A0A', background: '#fff', textDecoration: 'none', padding: '16px 30px' }}>Falar no WhatsApp</a>
+                        {destaque && <Link href={`/agenda/${destaque.id}`} className="agenda-btn-outline" style={{ fontFamily: OSWALD, fontWeight: 600, fontSize: '14px', letterSpacing: '0.14em', textTransform: 'uppercase', color: '#fff', textDecoration: 'none', padding: '16px 30px', border: '1px solid rgba(255,255,255,0.35)' }}>Ver Detalhes →</Link>}
+                    </div>
+                </div>
+            </section>
 
-                        {destaque ? (
-                            <>
-                                <h1 className="font-display mt-5 text-6xl uppercase leading-[0.88] tracking-tight text-white sm:text-8xl lg:text-[7.5rem]">
-                                    {destaque.nome}
-                                </h1>
-                                <div className="mt-6 flex flex-wrap items-center gap-x-4 gap-y-2 text-sm font-semibold text-white/85 sm:text-[15px]">
-                                    {destaqueMeta.map((part, i) => (
-                                        <span key={part} className="inline-flex items-center gap-4">
-                                            {i > 0 && <span className="text-[#C9A84C]">·</span>}
-                                            <span className={i === 0 ? 'text-white' : ''}>{part}</span>
-                                        </span>
-                                    ))}
-                                    {destaqueAoVivo && (
-                                        <span className="inline-flex items-center gap-1.5 rounded-md border border-[#C9A84C]/40 bg-[#C9A84C]/12 px-2.5 py-1 text-[11px] font-bold uppercase text-[#E8DBB8]">
-                                            <span className="h-1.5 w-1.5 rounded-full bg-[#C9A84C]" />
-                                            Ao vivo
-                                        </span>
-                                    )}
-                                </div>
-                                <p className="mt-6 max-w-2xl text-lg leading-relaxed text-white/70">
-                                    Curadoria de genética, avaliação de lote e apoio no arremate —
-                                    a assessoria do boiadeiro(a).
-                                </p>
-                                <div className="mt-8 flex flex-wrap gap-3">
-                                    <a
-                                        href={WHATSAPP_CTA_URL}
-                                        target="_blank"
-                                        rel="noopener noreferrer"
-                                        className="inline-flex items-center gap-2 rounded-md bg-white px-5 py-3 text-sm font-black shadow-sm transition-all hover:-translate-y-0.5 hover:bg-white/90"
-                                        style={{ color: '#0A0A0A' }}
-                                    >
-                                        <MessageCircle className="h-4 w-4" />
-                                        Falar no WhatsApp
-                                    </a>
-                                    <Link
-                                        href={`/agenda/${destaque.id}`}
-                                        className="inline-flex items-center gap-2 rounded-md border border-white/28 bg-white/5 px-5 py-3 text-sm font-black text-white backdrop-blur transition-all hover:-translate-y-0.5 hover:border-[#C9A84C]/60 hover:bg-white/10"
-                                    >
-                                        Ver detalhes
-                                        <ArrowRight className="h-4 w-4" />
-                                    </Link>
-                                </div>
-                            </>
-                        ) : (
-                            <>
-                                <h1 className="font-display mt-5 text-6xl uppercase leading-[0.9] tracking-tight text-white sm:text-8xl lg:text-[7.5rem]">
-                                    Agenda Bula Assessoria
-                                </h1>
-                                <p className="mt-6 max-w-2xl text-lg leading-relaxed text-white/74 sm:text-xl">
-                                    Touros e matrizes dos principais leilões do Brasil, com estratégia
-                                    comercial, apartações e apoio na escolha de genética de ponta.
-                                </p>
-                                <div className="mt-8 flex flex-wrap gap-3">
-                                    <Link
-                                        href="#proximos"
-                                        className="inline-flex items-center gap-2 rounded-md border border-white/28 bg-white/10 px-5 py-3 text-sm font-black text-white shadow-sm backdrop-blur transition-all hover:-translate-y-0.5 hover:bg-white/16"
-                                    >
-                                        Ver programação
-                                        <ArrowRight className="h-4 w-4" />
-                                    </Link>
-                                </div>
-                            </>
-                        )}
-
-                        <div className="mt-12 grid max-w-2xl grid-cols-3 overflow-hidden rounded-md border border-white/12 bg-white/[0.06] backdrop-blur">
-                            <HeroMetric value={leiloes.length} label={leiloes.length === 1 ? 'leilão na agenda' : 'leilões na agenda'} />
-                            <HeroMetric value={criatoriosNaAgenda || '—'} label={criatoriosNaAgenda === 1 ? 'criatório' : 'criatórios'} />
-                            <HeroMetric
-                                value={proximoDias === null ? '—' : proximoDias === 0 ? 'Hoje' : proximoDias}
-                                label={proximoDias === null || proximoDias === 0 ? 'próximo leilão' : proximoDias === 1 ? 'dia p/ o próximo' : 'dias p/ o próximo'}
-                            />
+            {/* ===== AGENDA ===== */}
+            <section id="agenda" style={{ padding: 'clamp(56px,8vw,110px) clamp(20px,5vw,64px)', borderTop: '1px solid rgba(255,255,255,0.08)' }}>
+                <div style={{ maxWidth: '1280px', margin: '0 auto' }}>
+                    <div style={{ display: 'flex', alignItems: 'flex-end', justifyContent: 'space-between', gap: '30px', flexWrap: 'wrap', marginBottom: 'clamp(28px,4vw,44px)' }}>
+                        <div>
+                            <div style={{ display: 'flex', alignItems: 'center', gap: '14px', marginBottom: '16px' }}>
+                                <span style={{ width: '34px', height: '1px', background: GOLD }} />
+                                <span style={{ fontFamily: OSWALD, fontWeight: 500, fontSize: '12px', letterSpacing: '0.3em', textTransform: 'uppercase', color: GOLD }}>Agenda · {agendaLabel}</span>
+                            </div>
+                            <h2 style={{ fontFamily: OSWALD, fontWeight: 700, textTransform: 'uppercase', fontSize: 'clamp(36px,6vw,72px)', lineHeight: 0.92, letterSpacing: '-0.01em', margin: 0 }}>Agenda de Leilões</h2>
+                        </div>
+                        <div style={{ fontFamily: OSWALD, fontWeight: 500, fontSize: '14px', letterSpacing: '0.2em', color: 'rgba(255,255,255,0.5)', textTransform: 'uppercase', paddingBottom: '8px' }}>
+                            {String(leiloes.length).padStart(2, '0')} {leiloes.length === 1 ? 'evento na agenda' : 'eventos na agenda'}
                         </div>
                     </div>
+                    <AgendaGrid leiloes={leiloes} />
                 </div>
             </section>
 
-            <OfferBand />
-            <CriatoriosParceiros parceiros={criatorios} />
-
-            <section id="proximos" className="mx-auto max-w-7xl px-5 sm:px-8 mt-16 sm:mt-20">
-                <div className="mb-7 flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
-                    <div>
-                        <span className="flex items-center gap-3 text-[11px] font-bold uppercase tracking-[0.2em] text-[#C9A84C]">
-                            <span className="h-px w-10 bg-[#C9A84C]" />
-                            Calendário de leilões
-                        </span>
-                        <h2 className="font-display mt-3 text-4xl uppercase tracking-tight text-white sm:text-5xl">
-                            Programação {agendaLabel}
-                        </h2>
-                    </div>
-                    <p className="max-w-lg text-sm leading-relaxed text-white/55">
-                        Busque rapidamente por nome, criatório, leiloeira,
-                        local ou condição comercial.
-                    </p>
-                </div>
-                <AgendaGrid leiloes={leiloes} />
-            </section>
+            <Sobre />
+            <Contato />
         </>
     )
 }
 
-function HeroMetric({ value, label }: { value: number | string; label: string }) {
+function Dot() {
+    return <span style={{ width: '5px', height: '5px', background: 'rgba(255,255,255,0.4)', borderRadius: '50%' }} />
+}
+
+function Sobre() {
+    const services = [
+        { n: '01', label: 'Seleção de Lotes' },
+        { n: '02', label: 'Avaliação Genética' },
+        { n: '03', label: 'Lance Assistido' },
+        { n: '04', label: 'Estratégia Comercial' },
+    ]
     return (
-        <div className="border-r border-white/12 px-4 py-4 last:border-r-0">
-            <div className="font-display text-3xl leading-none text-white">{value}</div>
-            <div className="mt-1 text-[10px] font-semibold uppercase tracking-wide text-white/52">{label}</div>
-        </div>
+        <section id="sobre" style={{ padding: 'clamp(56px,8vw,120px) clamp(20px,5vw,64px)', borderTop: '1px solid rgba(255,255,255,0.08)' }}>
+            <div style={{ maxWidth: '1280px', margin: '0 auto', display: 'grid', gridTemplateColumns: 'repeat(auto-fit,minmax(320px,1fr))', gap: 'clamp(36px,6vw,90px)', alignItems: 'start' }}>
+                <div>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '14px', marginBottom: '22px' }}>
+                        <span style={{ width: '34px', height: '1px', background: GOLD }} />
+                        <span style={{ fontFamily: OSWALD, fontWeight: 500, fontSize: '12px', letterSpacing: '0.3em', textTransform: 'uppercase', color: GOLD }}>A Assessoria</span>
+                    </div>
+                    <h2 style={{ fontFamily: OSWALD, fontWeight: 700, textTransform: 'uppercase', fontSize: 'clamp(30px,4.4vw,58px)', lineHeight: 0.98, letterSpacing: '-0.01em', margin: '0 0 30px' }}>Do curral ao<br />lance certo.</h2>
+                    <p style={{ fontFamily: SCRIPT, fontSize: 'clamp(30px,4vw,46px)', lineHeight: 1, color: GOLD, margin: 0 }}>A assessoria do boiadeiro(a).</p>
+                </div>
+                <div>
+                    <p style={{ fontFamily: INTER, fontSize: 'clamp(15px,1.5vw,17px)', lineHeight: 1.7, color: 'rgba(255,255,255,0.72)', margin: '0 0 22px' }}>
+                        Acompanhamento completo na compra de touros e matrizes Nelore PO em leilões.
+                        Selecionamos os melhores lotes, avaliamos genética e fenótipo e conduzimos o
+                        lance ao seu lado — presencial ou virtual.
+                    </p>
+                    <p style={{ fontFamily: INTER, fontSize: 'clamp(15px,1.5vw,17px)', lineHeight: 1.7, color: 'rgba(255,255,255,0.72)', margin: '0 0 36px' }}>
+                        Da análise ao martelo, você compra com segurança e critério de
+                        quem entende de curral.
+                    </p>
+                    <div style={{ display: 'flex', flexDirection: 'column' }}>
+                        {services.map((s) => (
+                            <div key={s.n} style={{ display: 'flex', alignItems: 'baseline', gap: '18px', padding: '16px 0', borderTop: '1px solid rgba(255,255,255,0.1)' }}>
+                                <span style={{ fontFamily: MONO, fontSize: '12px', color: GOLD }}>{s.n}</span>
+                                <span style={{ fontFamily: OSWALD, fontWeight: 500, fontSize: 'clamp(15px,1.7vw,19px)', letterSpacing: '0.12em', textTransform: 'uppercase' }}>{s.label}</span>
+                            </div>
+                        ))}
+                    </div>
+                </div>
+            </div>
+        </section>
+    )
+}
+
+function Contato() {
+    return (
+        <section id="contato" style={{ padding: 'clamp(56px,8vw,110px) clamp(20px,5vw,64px)', borderTop: '1px solid rgba(201,168,76,0.35)' }}>
+            <div style={{ maxWidth: '1000px', margin: '0 auto', display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center', gap: '28px' }}>
+                <span style={{ fontFamily: OSWALD, fontWeight: 500, fontSize: '12px', letterSpacing: '0.3em', textTransform: 'uppercase', color: GOLD }}>Vamos negociar?</span>
+                <h2 style={{ fontFamily: OSWALD, fontWeight: 700, textTransform: 'uppercase', fontSize: 'clamp(38px,7vw,84px)', lineHeight: 0.9, letterSpacing: '-0.01em', margin: 0, maxWidth: '18ch', textWrap: 'balance' }}>
+                    Fale com a Bula antes do próximo lance
+                </h2>
+                <a href={WHATSAPP_CTA_URL} target="_blank" rel="noopener noreferrer" className="agenda-btn-white" style={{ fontFamily: OSWALD, fontWeight: 600, fontSize: '15px', letterSpacing: '0.14em', textTransform: 'uppercase', color: '#0A0A0A', background: '#fff', textDecoration: 'none', padding: '18px 40px', marginTop: '6px' }}>
+                    Chamar no WhatsApp
+                </a>
+            </div>
+        </section>
     )
 }
 
@@ -217,97 +184,4 @@ function labelPeriodo(leiloes: LeilaoPublico[]) {
         return `${first.mesNome} e ${last.mesNome} ${first.ano}`
     }
     return `${first.mesNome} ${first.ano} a ${last.mesNome} ${last.ano}`
-}
-
-function OfferBand() {
-    return (
-        <section className="border-y border-white/10 bg-black text-white">
-            <div className="mx-auto flex max-w-7xl flex-col gap-4 px-5 py-6 sm:px-8 lg:flex-row lg:items-center lg:justify-between">
-                <div className="flex items-start gap-3">
-                    <div className="mt-0.5 flex h-10 w-10 shrink-0 items-center justify-center rounded-md border border-white/14 bg-white/8 text-white">
-                        <Truck className="h-5 w-5" />
-                    </div>
-                    <div>
-                        <p className="text-[11px] font-bold uppercase tracking-[0.14em] text-[#C9A84C]">Condição em destaque</p>
-                        <h2 className="font-display mt-1 text-2xl uppercase leading-[0.98] sm:text-3xl">
-                            Quer comprar touros e matrizes?
-                        </h2>
-                        <p className="mt-2 max-w-2xl text-sm leading-relaxed text-white/58">
-                            Receba ofertas exclusivas no grupo de WhatsApp da Bula, com seleção
-                            de oportunidades PO, condições comerciais e suporte dos assessores.
-                        </p>
-                    </div>
-                </div>
-                <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
-                    <div className="flex flex-wrap gap-2 text-xs font-bold uppercase text-white/72">
-                        <span className="inline-flex items-center gap-1.5 rounded-md border border-white/12 bg-white/6 px-3 py-2">
-                            <CheckCircle2 className="h-3.5 w-3.5" /> PO
-                        </span>
-                        <span className="inline-flex items-center gap-1.5 rounded-md border border-white/12 bg-white/6 px-3 py-2">
-                            <ShieldCheck className="h-3.5 w-3.5" /> 30X
-                        </span>
-                        <span className="inline-flex items-center gap-1.5 rounded-md border border-white/12 bg-white/6 px-3 py-2">
-                            <Truck className="h-3.5 w-3.5" /> Frete
-                        </span>
-                    </div>
-                    <a
-                        href={WHATSAPP_CTA_URL}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="inline-flex w-full items-center justify-center gap-2 whitespace-nowrap rounded-md bg-white px-5 py-3 text-sm font-black text-black shadow-sm transition-all hover:-translate-y-0.5 hover:bg-white/88 sm:w-auto"
-                        style={{ color: '#050505' }}
-                    >
-                        <MessageCircle className="h-4 w-4 shrink-0" />
-                        Grupo de WhatsApp
-                        <ArrowRight className="h-4 w-4 shrink-0" />
-                    </a>
-                </div>
-            </div>
-        </section>
-    )
-}
-
-function CriatoriosParceiros({ parceiros }: { parceiros: CriatorioParceiroPublico[] }) {
-    const parceirosComLogo = parceiros.filter((parceiro) => parceiro.logo)
-    if (parceirosComLogo.length === 0) return null
-    const faixa = [...parceirosComLogo, ...parceirosComLogo]
-
-    return (
-        <section className="overflow-hidden bg-black py-14 text-white">
-            <div className="mx-auto max-w-7xl px-5 sm:px-8">
-                <div className="max-w-2xl">
-                    <p className="flex items-center gap-3 text-[11px] font-bold uppercase tracking-[0.2em] text-[#C9A84C]">
-                        <span className="h-px w-10 bg-[#C9A84C]" />
-                        Marcas parceiras
-                    </p>
-                    <h2 className="font-display mt-3 text-3xl uppercase leading-[0.98] sm:text-4xl">
-                        Criatórios presentes na agenda Bula
-                    </h2>
-                    <p className="mt-4 text-sm leading-relaxed text-white/58">
-                        Uma faixa viva com as marcas que compõem a programação atual,
-                        reunindo selecionadores de referência em touros e matrizes.
-                    </p>
-                </div>
-
-                <div className="relative mt-9 border-y border-white/10 py-5">
-                    <div className="pointer-events-none absolute inset-y-0 left-0 z-10 w-20 bg-gradient-to-r from-black to-transparent" />
-                    <div className="pointer-events-none absolute inset-y-0 right-0 z-10 w-20 bg-gradient-to-l from-black to-transparent" />
-                    <div className="bula-logo-marquee flex w-max gap-4">
-                        {faixa.map((parceiro, index) => parceiro.logo ? (
-                            <a
-                                key={`${parceiro.slug}-${index}`}
-                                href={parceiro.siteUrl ?? undefined}
-                                target={parceiro.siteUrl ? '_blank' : undefined}
-                                rel={parceiro.siteUrl ? 'noopener noreferrer' : undefined}
-                                className="flex h-24 w-52 shrink-0 items-center justify-center rounded-md border border-white/10 bg-white px-5 transition-transform hover:-translate-y-0.5"
-                                aria-label={parceiro.siteUrl ? `Abrir referência de ${parceiro.nome}` : parceiro.nome}
-                            >
-                                <CriatorioLogoTile parceiro={parceiro} />
-                            </a>
-                        ) : null)}
-                    </div>
-                </div>
-            </div>
-        </section>
-    )
 }

@@ -143,6 +143,16 @@ a {
   );
 }
 
+/* Botões/links da agenda (usam inline style, então o hover vem daqui). */
+.agenda-btn-white { transition: background 0.25s ease; }
+.agenda-btn-white:hover { background: #C9A84C !important; }
+.agenda-btn-outline { transition: border-color 0.25s ease, background 0.25s ease; }
+.agenda-btn-outline:hover { border-color: #fff !important; background: rgba(255, 255, 255, 0.06); }
+.agenda-nav-link { transition: color 0.2s ease; }
+.agenda-nav-link:hover { color: #fff !important; }
+.agenda-nav-cta { transition: all 0.25s ease; }
+.agenda-nav-cta:hover { background: #C9A84C !important; border-color: #C9A84C !important; color: #0A0A0A !important; }
+
 /* Reset de campos como DEFAULT, dentro de @layer base, para que utilitárias do
    Tailwind (border, bg-*, rounded-*) e a classe .input consigam sobrescrever.
    Sem o @layer, esta regra (sem camada) vencia as utilitárias e os campos

@@ -3,7 +3,7 @@ import { notFound } from 'next/navigation'
 import type { Metadata } from 'next'
 import {
     ArrowLeft, ArrowRight, BookOpen, CalendarDays, Clock, Download, ExternalLink, Gavel,
-    MapPin, MessageCircle, Radio, Share2, Tag, Truck, Tv, Users,
+    MapPin, MessageCircle, Radio, Share2, Tag, Tv, Users,
 } from 'lucide-react'
 import { getLeilaoPublico } from '@/lib/bula/public-leiloes'
 import {
@@ -63,12 +63,11 @@ export default async function LeilaoDetalhePage({ params }: { params: Promise<{ 
         leilao.leiloeira ? { icon: Gavel, label: 'Leiloeira', value: leilao.leiloeira } : null,
         leilao.animais && leilao.animais > 0 ? { icon: Users, label: 'Animais', value: String(leilao.animais) } : null,
         leilao.condicao ? { icon: Tag, label: 'Condição', value: leilao.condicao } : null,
-        leilao.frete_gratis ? { icon: Truck, label: 'Frete grátis', value: leilao.frete_gratis } : null,
     ].filter(Boolean) as InfoItem[]
 
     return (
         <article className="bg-[#0A0A0A] text-white">
-            <div className="mx-auto max-w-6xl px-5 py-8 sm:px-8 sm:py-12">
+            <div className="mx-auto max-w-6xl px-5 pt-28 pb-10 sm:px-8 sm:pt-32 sm:pb-14">
                 <Link
                     href="/agenda"
                     className="inline-flex items-center gap-2 rounded-md border border-white/12 bg-[#141414] px-3 py-2 text-sm font-bold text-white/64 transition-colors hover:border-[#C9A84C]/40 hover:text-white"

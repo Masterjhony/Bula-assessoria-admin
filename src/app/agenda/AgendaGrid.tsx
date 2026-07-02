@@ -5,7 +5,7 @@ import Link from 'next/link'
 import { AnimatePresence, motion } from 'framer-motion'
 import {
     ArrowRight, BookOpen, CalendarDays, CalendarX2, MapPin, Radio, Search,
-    Tag, Truck, Users, X,
+    Tag, Users, X,
 } from 'lucide-react'
 import type { LeilaoPublico } from '@/lib/bula/public-leiloes'
 import { contagemRegressiva, isFuturo, localExibivel, parseData, statusPublico, youtubeId } from './helpers'
@@ -249,11 +249,6 @@ function LeilaoCard({ leilao, index }: { leilao: LeilaoPublico; index: number })
                                     <BookOpen className="h-3.5 w-3.5" /> Catálogo
                                 </span>
                             )}
-                            {(leilao.frete_gratis || normalize(leilao.condicao).includes('frete')) && (
-                                <span className="inline-flex items-center gap-1.5">
-                                    <Truck className="h-3.5 w-3.5" /> Frete
-                                </span>
-                            )}
                         </div>
                         <span className="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-md bg-white text-[#0A0A0A] transition-colors group-hover:bg-[#C9A84C]">
                             <ArrowRight className="h-4 w-4" />
@@ -298,7 +293,6 @@ function cardTags(l: LeilaoPublico): string[] {
         l.tipo,
         l.modelo,
         l.condicao,
-        l.frete_gratis ? 'Frete grátis' : null,
         normalize(l.condicao).includes('30') ? '30X boleto' : null,
         l.leiloeira,
     ]
