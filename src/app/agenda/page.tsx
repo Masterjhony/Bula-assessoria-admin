@@ -1,8 +1,5 @@
 import Link from 'next/link'
-import {
-    ArrowRight, BookOpen, CalendarDays, CheckCircle2, MapPin, Radio, Search,
-    MessageCircle, ShieldCheck, Truck, Users,
-} from 'lucide-react'
+import { ArrowRight, CheckCircle2, MessageCircle, ShieldCheck, Truck } from 'lucide-react'
 import {
     getCriatoriosParceirosMes,
     getLeiloesPublicos,
@@ -26,6 +23,7 @@ export default async function AgendaPage() {
         getCriatoriosParceirosMes(),
     ])
 
+    // Mesma lógica de sempre — não altera quais leilões aparecem nem a ordem.
     const proximos = leiloes
         .filter((l) => isFuturo(l.data) && l.status === 'confirmado')
         .sort((a, b) => parseData(a.data).time - parseData(b.data).time)
@@ -41,9 +39,21 @@ export default async function AgendaPage() {
         : null
     const agendaLabel = labelPeriodo(leiloes)
 
+    // Dados derivados do leilão em destaque (herói editorial).
+    const destaqueMeta = destaque
+        ? [
+              dataPorExtenso(destaque.data),
+              destaque.horario || null,
+              destaque.modelo || localExibivel(destaque.local) || null,
+              destaque.criador || null,
+          ].filter(Boolean) as string[]
+        : []
+    const destaqueAoVivo = destaque ? !!youtubeId(destaque.transmissao) : false
+    const destaqueCountdown = destaque ? contagemRegressiva(destaque.data) : null
+
     return (
         <>
-            <section className="relative min-h-[calc(100svh-96px)] overflow-hidden bg-black text-white">
+            <section className="relative min-h-[calc(100svh-96px)] overflow-hidden bg-[#0A0A0A] text-white">
                 <div className="absolute inset-0">
                     <video
                         src={HERO_VIDEO}
@@ -54,42 +64,102 @@ export default async function AgendaPage() {
                         playsInline
                         preload="metadata"
                     />
-                    <div className="absolute inset-0 bg-black/54" />
-                    <div className="absolute inset-0 bg-[linear-gradient(90deg,rgba(0,0,0,0.98)_0%,rgba(0,0,0,0.78)_40%,rgba(0,0,0,0.30)_100%)]" />
-                    <div className="absolute inset-x-0 bottom-0 h-32 bg-gradient-to-t from-black to-transparent" />
+                    <div className="absolute inset-0 bg-black/62" />
+                    <div className="absolute inset-0 bg-[linear-gradient(90deg,rgba(0,0,0,0.97)_0%,rgba(0,0,0,0.74)_44%,rgba(0,0,0,0.24)_100%)]" />
+                    {/* Grão sutil — "textura do campo" do brandbook. */}
+                    <div className="absolute inset-0 opacity-60 bg-[repeating-linear-gradient(135deg,rgba(255,255,255,0.028)_0px,rgba(255,255,255,0.028)_1px,transparent_1px,transparent_7px)]" />
+                    <div className="absolute inset-x-0 bottom-0 h-40 bg-gradient-to-t from-[#0A0A0A] to-transparent" />
                 </div>
 
-                <div className="relative mx-auto grid min-h-[calc(100svh-96px)] max-w-7xl content-center px-5 py-14 sm:px-8 lg:py-18">
-                    <div className="max-w-3xl">
-                        {/* eslint-disable-next-line @next/next/no-img-element */}
-                        <img
-                            src="/logo-bula-assessoria-white.png"
-                            alt="Bula Assessoria"
-                            className="h-20 w-auto sm:h-24 lg:h-28"
-                        />
-                        <div className="mt-8 inline-flex items-center gap-2 rounded-md border border-white/18 bg-white/9 px-3 py-1.5 text-[11px] font-bold uppercase text-white/82 backdrop-blur">
-                            <span className="h-1.5 w-1.5 rounded-full bg-white" />
-                            Agenda {agendaLabel}
+                {/* Selo circular editorial — dourado cirúrgico. */}
+                {destaque && (
+                    <div className="pointer-events-none absolute right-10 top-1/2 hidden -translate-y-1/2 lg:flex">
+                        <div className="flex h-40 w-40 flex-col items-center justify-center rounded-full border border-[#C9A84C]/45 text-center">
+                            <span className="text-[10px] font-black uppercase tracking-[0.28em] text-[#C9A84C]">Destaque</span>
+                            <span className="mt-1.5 text-[9px] font-semibold uppercase leading-relaxed tracking-[0.2em] text-white/55">
+                                Próximo<br />leilão
+                            </span>
                         </div>
-                        <h1 className="mt-5 max-w-3xl text-5xl font-black leading-[0.96] text-white sm:text-7xl lg:text-8xl">
-                            Agenda Bula Assessoria
-                        </h1>
-                        <p className="mt-6 max-w-2xl text-lg leading-relaxed text-white/74 sm:text-xl">
-                            Touros e matrizes dos principais leilões do Brasil, com estratégia
-                            comercial, apartações e apoio na escolha de genética de ponta.
-                        </p>
+                    </div>
+                )}
 
-                        <div className="mt-8 flex flex-wrap gap-3">
-                            <Link
-                                href="#proximos"
-                                className="inline-flex items-center gap-2 rounded-md border border-white/28 bg-white/10 px-5 py-3 text-sm font-black text-white shadow-sm backdrop-blur transition-all hover:-translate-y-0.5 hover:bg-white/16"
-                            >
-                                Ver programação
-                                <ArrowRight className="h-4 w-4" />
-                            </Link>
+                <div className="relative mx-auto grid min-h-[calc(100svh-96px)] max-w-7xl content-center px-5 py-16 sm:px-8 lg:py-20">
+                    <div className="max-w-4xl">
+                        <div className="flex flex-wrap items-center gap-3 text-[11px] font-bold uppercase tracking-[0.2em] text-[#C9A84C]">
+                            <span className="h-px w-10 bg-[#C9A84C]" />
+                            {destaque ? 'Próximo leilão · Em destaque' : `Agenda ${agendaLabel}`}
+                            {destaqueCountdown && (
+                                <span className="rounded-full border border-[#C9A84C]/35 bg-[#C9A84C]/12 px-2.5 py-1 text-[10px] tracking-normal text-[#E8DBB8]">
+                                    {destaqueCountdown}
+                                </span>
+                            )}
                         </div>
 
-                        <div className="mt-10 grid max-w-2xl grid-cols-3 overflow-hidden rounded-md border border-white/12 bg-white/9 backdrop-blur">
+                        {destaque ? (
+                            <>
+                                <h1 className="font-display mt-5 text-6xl uppercase leading-[0.88] tracking-tight text-white sm:text-8xl lg:text-[7.5rem]">
+                                    {destaque.nome}
+                                </h1>
+                                <div className="mt-6 flex flex-wrap items-center gap-x-4 gap-y-2 text-sm font-semibold text-white/85 sm:text-[15px]">
+                                    {destaqueMeta.map((part, i) => (
+                                        <span key={part} className="inline-flex items-center gap-4">
+                                            {i > 0 && <span className="text-[#C9A84C]">·</span>}
+                                            <span className={i === 0 ? 'text-white' : ''}>{part}</span>
+                                        </span>
+                                    ))}
+                                    {destaqueAoVivo && (
+                                        <span className="inline-flex items-center gap-1.5 rounded-md border border-[#C9A84C]/40 bg-[#C9A84C]/12 px-2.5 py-1 text-[11px] font-bold uppercase text-[#E8DBB8]">
+                                            <span className="h-1.5 w-1.5 rounded-full bg-[#C9A84C]" />
+                                            Ao vivo
+                                        </span>
+                                    )}
+                                </div>
+                                <p className="mt-6 max-w-2xl text-lg leading-relaxed text-white/70">
+                                    Curadoria de genética, avaliação de lote e apoio no arremate —
+                                    a assessoria do boiadeiro(a).
+                                </p>
+                                <div className="mt-8 flex flex-wrap gap-3">
+                                    <a
+                                        href={WHATSAPP_CTA_URL}
+                                        target="_blank"
+                                        rel="noopener noreferrer"
+                                        className="inline-flex items-center gap-2 rounded-md bg-white px-5 py-3 text-sm font-black shadow-sm transition-all hover:-translate-y-0.5 hover:bg-white/90"
+                                        style={{ color: '#0A0A0A' }}
+                                    >
+                                        <MessageCircle className="h-4 w-4" />
+                                        Falar no WhatsApp
+                                    </a>
+                                    <Link
+                                        href={`/agenda/${destaque.id}`}
+                                        className="inline-flex items-center gap-2 rounded-md border border-white/28 bg-white/5 px-5 py-3 text-sm font-black text-white backdrop-blur transition-all hover:-translate-y-0.5 hover:border-[#C9A84C]/60 hover:bg-white/10"
+                                    >
+                                        Ver detalhes
+                                        <ArrowRight className="h-4 w-4" />
+                                    </Link>
+                                </div>
+                            </>
+                        ) : (
+                            <>
+                                <h1 className="font-display mt-5 text-6xl uppercase leading-[0.9] tracking-tight text-white sm:text-8xl lg:text-[7.5rem]">
+                                    Agenda Bula Assessoria
+                                </h1>
+                                <p className="mt-6 max-w-2xl text-lg leading-relaxed text-white/74 sm:text-xl">
+                                    Touros e matrizes dos principais leilões do Brasil, com estratégia
+                                    comercial, apartações e apoio na escolha de genética de ponta.
+                                </p>
+                                <div className="mt-8 flex flex-wrap gap-3">
+                                    <Link
+                                        href="#proximos"
+                                        className="inline-flex items-center gap-2 rounded-md border border-white/28 bg-white/10 px-5 py-3 text-sm font-black text-white shadow-sm backdrop-blur transition-all hover:-translate-y-0.5 hover:bg-white/16"
+                                    >
+                                        Ver programação
+                                        <ArrowRight className="h-4 w-4" />
+                                    </Link>
+                                </div>
+                            </>
+                        )}
+
+                        <div className="mt-12 grid max-w-2xl grid-cols-3 overflow-hidden rounded-md border border-white/12 bg-white/[0.06] backdrop-blur">
                             <HeroMetric value={leiloes.length} label={leiloes.length === 1 ? 'leilão na agenda' : 'leilões na agenda'} />
                             <HeroMetric value={criatoriosNaAgenda || '—'} label={criatoriosNaAgenda === 1 ? 'criatório' : 'criatórios'} />
                             <HeroMetric
@@ -104,23 +174,18 @@ export default async function AgendaPage() {
             <OfferBand />
             <CriatoriosParceiros parceiros={criatorios} />
 
-            {destaque && (
-                <section className="mx-auto max-w-7xl px-5 sm:px-8 -mt-6 relative z-10">
-                    <DestaqueBanner leilao={destaque} />
-                </section>
-            )}
-
-            <section id="proximos" className="mx-auto max-w-7xl px-5 sm:px-8 mt-14 sm:mt-18">
+            <section id="proximos" className="mx-auto max-w-7xl px-5 sm:px-8 mt-16 sm:mt-20">
                 <div className="mb-7 flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
                     <div>
-                        <span className="text-[11px] font-bold uppercase text-black/55">
+                        <span className="flex items-center gap-3 text-[11px] font-bold uppercase tracking-[0.2em] text-[#C9A84C]">
+                            <span className="h-px w-10 bg-[#C9A84C]" />
                             Calendário de leilões
                         </span>
-                        <h2 className="mt-2 text-3xl font-black tracking-tight text-black sm:text-4xl">
+                        <h2 className="font-display mt-3 text-4xl uppercase tracking-tight text-white sm:text-5xl">
                             Programação {agendaLabel}
                         </h2>
                     </div>
-                    <p className="max-w-lg text-sm leading-relaxed text-black/58">
+                    <p className="max-w-lg text-sm leading-relaxed text-white/55">
                         Busque rapidamente por nome, criatório, leiloeira,
                         local ou condição comercial.
                     </p>
@@ -134,8 +199,8 @@ export default async function AgendaPage() {
 function HeroMetric({ value, label }: { value: number | string; label: string }) {
     return (
         <div className="border-r border-white/12 px-4 py-4 last:border-r-0">
-            <div className="text-2xl font-black leading-none text-white">{value}</div>
-            <div className="mt-1 text-[10px] font-semibold uppercase text-white/52">{label}</div>
+            <div className="font-display text-3xl leading-none text-white">{value}</div>
+            <div className="mt-1 text-[10px] font-semibold uppercase tracking-wide text-white/52">{label}</div>
         </div>
     )
 }
@@ -163,8 +228,8 @@ function OfferBand() {
                         <Truck className="h-5 w-5" />
                     </div>
                     <div>
-                        <p className="text-[11px] font-bold uppercase text-white/42">Condição em destaque</p>
-                        <h2 className="mt-1 text-xl font-black leading-tight sm:text-2xl">
+                        <p className="text-[11px] font-bold uppercase tracking-[0.14em] text-[#C9A84C]">Condição em destaque</p>
+                        <h2 className="font-display mt-1 text-2xl uppercase leading-[0.98] sm:text-3xl">
                             Quer comprar touros e matrizes?
                         </h2>
                         <p className="mt-2 max-w-2xl text-sm leading-relaxed text-white/58">
@@ -211,8 +276,11 @@ function CriatoriosParceiros({ parceiros }: { parceiros: CriatorioParceiroPublic
         <section className="overflow-hidden bg-black py-14 text-white">
             <div className="mx-auto max-w-7xl px-5 sm:px-8">
                 <div className="max-w-2xl">
-                    <p className="text-[11px] font-bold uppercase text-white/42">Marcas parceiras</p>
-                    <h2 className="mt-3 text-3xl font-black leading-tight sm:text-4xl">
+                    <p className="flex items-center gap-3 text-[11px] font-bold uppercase tracking-[0.2em] text-[#C9A84C]">
+                        <span className="h-px w-10 bg-[#C9A84C]" />
+                        Marcas parceiras
+                    </p>
+                    <h2 className="font-display mt-3 text-3xl uppercase leading-[0.98] sm:text-4xl">
                         Criatórios presentes na agenda Bula
                     </h2>
                     <p className="mt-4 text-sm leading-relaxed text-white/58">
@@ -241,99 +309,5 @@ function CriatoriosParceiros({ parceiros }: { parceiros: CriatorioParceiroPublic
                 </div>
             </div>
         </section>
-    )
-}
-
-function DestaqueBanner({ leilao }: { leilao: LeilaoPublico }) {
-    const p = parseData(leilao.data)
-    const countdown = contagemRegressiva(leilao.data)
-    const aoVivo = !!youtubeId(leilao.transmissao)
-
-    return (
-        <Link
-            href={`/agenda/${leilao.id}`}
-            className="group block overflow-hidden rounded-md border border-black/10 bg-white text-black shadow-[0_22px_60px_-38px_rgba(0,0,0,0.55)] transition-all hover:-translate-y-1 hover:border-black/25"
-        >
-            <div className="grid lg:grid-cols-[0.95fr_1.05fr]">
-                <div className="flex flex-col justify-center p-6 sm:p-8 lg:min-h-[360px] lg:p-10">
-                    <div>
-                        <div className="flex flex-wrap items-center gap-2 text-[11px] font-bold uppercase text-black/52">
-                            <span className="h-1.5 w-1.5 rounded-full bg-black" />
-                            Destaque do mês
-                            {countdown && (
-                                <span className="rounded-full bg-black px-2.5 py-1 text-[11px] normal-case text-white">
-                                    {countdown}
-                                </span>
-                            )}
-                        </div>
-                        <h3 className="mt-4 text-3xl font-black leading-tight text-black sm:text-5xl">
-                            {leilao.nome}
-                        </h3>
-                        <div className="mt-5 flex flex-wrap gap-x-6 gap-y-3 text-sm font-medium text-black/62">
-                            <span className="inline-flex items-center gap-2">
-                                <CalendarDays className="h-4 w-4 text-black" />
-                                {dataPorExtenso(leilao.data)}{leilao.horario ? ` · ${leilao.horario}` : ''}
-                            </span>
-                            {leilao.criador && (
-                                <span className="inline-flex items-center gap-2">
-                                    <Users className="h-4 w-4 text-black" />
-                                    {leilao.criador}
-                                </span>
-                            )}
-                            {localExibivel(leilao.local) && (
-                                <span className="inline-flex items-center gap-2">
-                                    <MapPin className="h-4 w-4 text-black" />
-                                    {localExibivel(leilao.local)}
-                                </span>
-                            )}
-                            {aoVivo && (
-                                <span className="inline-flex items-center gap-2 text-black">
-                                    <Radio className="h-4 w-4" />
-                                    Transmissão ao vivo
-                                </span>
-                            )}
-                        </div>
-                    </div>
-                    <div className="mt-8 flex flex-wrap items-center gap-3">
-                        <span className="inline-flex items-center gap-2 rounded-md bg-black px-5 py-3 text-sm font-black text-white transition-all group-hover:gap-3">
-                            Ver detalhes
-                            <ArrowRight className="h-4 w-4" />
-                        </span>
-                        {!!leilao.animais && leilao.animais > 0 && (
-                            <span className="inline-flex items-center gap-2 text-sm font-semibold text-black/55">
-                                <Users className="h-4 w-4 text-black" /> {leilao.animais} animais
-                            </span>
-                        )}
-                        {leilao.catalogo_url && (
-                            <span className="inline-flex items-center gap-2 text-sm font-semibold text-black/55">
-                                <BookOpen className="h-4 w-4 text-black" /> Catálogo disponível
-                            </span>
-                        )}
-                    </div>
-                </div>
-
-                <div className="relative min-h-[260px] overflow-hidden bg-neutral-100 lg:min-h-[360px]">
-                    {leilao.img ? (
-                        <>
-                            {/* eslint-disable-next-line @next/next/no-img-element */}
-                            <img
-                                src={leilao.img}
-                                alt={leilao.nome}
-                                className="absolute inset-0 h-full w-full object-cover transition-transform duration-700 group-hover:scale-105"
-                            />
-                            <div className="absolute inset-0 bg-gradient-to-r from-white/30 via-transparent to-transparent lg:from-transparent" />
-                        </>
-                    ) : (
-                        <div className="flex h-full min-h-[260px] w-full items-center justify-center bg-black">
-                            <div className="text-center text-white">
-                                <Search className="mx-auto mb-4 h-7 w-7 text-white/44" />
-                                <div className="text-7xl font-black leading-none">{p.dia}</div>
-                                <div className="mt-1 text-sm font-bold uppercase text-white/45">{p.mesAbrev}</div>
-                            </div>
-                        </div>
-                    )}
-                </div>
-            </div>
-        </Link>
     )
 }

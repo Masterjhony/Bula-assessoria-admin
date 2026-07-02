@@ -61,20 +61,20 @@ export function AgendaGrid({ leiloes }: { leiloes: LeilaoPublico[] }) {
 
     return (
         <div>
-            <div className="rounded-md border border-black/10 bg-white p-3 shadow-sm">
+            <div className="rounded-md border border-white/10 bg-[#141414] p-3">
                 <div className="relative">
-                    <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-black/34" />
+                    <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-white/35" />
                     <input
                         value={busca}
                         onChange={(e) => setBusca(e.target.value)}
                         placeholder="Buscar por nome, criatório, leiloeira, local..."
-                        className="w-full rounded-md border border-black/10 bg-white py-3 pl-10 pr-9 text-sm text-black shadow-sm placeholder:text-black/35 transition-colors focus:border-black/35 focus:outline-none"
+                        className="w-full rounded-md border border-white/10 bg-[#0A0A0A] py-3 pl-10 pr-9 text-sm text-white placeholder:text-white/35 transition-colors focus:border-[#C9A84C]/50 focus:outline-none"
                     />
                     {busca && (
                         <button
                             type="button"
                             onClick={() => setBusca('')}
-                            className="absolute right-2.5 top-1/2 -translate-y-1/2 rounded p-1 text-black/35 hover:bg-black/5 hover:text-black"
+                            className="absolute right-2.5 top-1/2 -translate-y-1/2 rounded p-1 text-white/40 hover:bg-white/5 hover:text-white"
                             aria-label="Limpar busca"
                         >
                             <X className="h-3.5 w-3.5" />
@@ -97,16 +97,16 @@ export function AgendaGrid({ leiloes }: { leiloes: LeilaoPublico[] }) {
                             animate={{ opacity: 1, y: 0 }}
                             transition={{ duration: 0.28, delay: Math.min(grupoIndex * 0.04, 0.18) }}
                         >
-                            <div className="mb-4 flex flex-col gap-2 border-b border-black/10 pb-4 sm:flex-row sm:items-end sm:justify-between">
+                            <div className="mb-4 flex flex-col gap-2 border-b border-white/10 pb-4 sm:flex-row sm:items-end sm:justify-between">
                                 <div>
-                                    <span className="text-[11px] font-bold uppercase text-black/48">
+                                    <span className="text-[11px] font-bold uppercase tracking-[0.12em] text-[#C9A84C]">
                                         {grupo.periodo}
                                     </span>
-                                    <h3 className="mt-1 text-2xl font-black tracking-tight text-black sm:text-3xl">
+                                    <h3 className="font-display mt-1 text-2xl uppercase tracking-tight text-white sm:text-3xl">
                                         {grupo.label}
                                     </h3>
                                 </div>
-                                <span className="text-sm font-semibold text-black/50">
+                                <span className="text-sm font-semibold text-white/45">
                                     {grupo.total} {grupo.total === 1 ? 'evento no período' : 'eventos no período'}
                                 </span>
                             </div>
@@ -148,9 +148,9 @@ function LeilaoCard({ leilao, index }: { leilao: LeilaoPublico; index: number })
         >
             <Link
                 href={`/agenda/${leilao.id}`}
-                className="group flex h-full flex-col overflow-hidden rounded-md border border-black/10 bg-white shadow-sm transition-all duration-300 hover:-translate-y-1 hover:border-black/25 hover:shadow-[0_24px_48px_-34px_rgba(0,0,0,0.55)]"
+                className="group flex h-full flex-col overflow-hidden rounded-md border border-white/10 bg-[#141414] transition-all duration-300 hover:-translate-y-1 hover:border-[#C9A84C]/35 hover:shadow-[0_28px_60px_-38px_rgba(0,0,0,0.9)]"
             >
-                <div className="relative aspect-[16/10] overflow-hidden bg-neutral-100">
+                <div className="relative aspect-[16/10] overflow-hidden bg-black">
                     {leilao.img ? (
                         // eslint-disable-next-line @next/next/no-img-element
                         <img
@@ -163,35 +163,36 @@ function LeilaoCard({ leilao, index }: { leilao: LeilaoPublico; index: number })
                             <div className="text-center">
                                 {/* eslint-disable-next-line @next/next/no-img-element */}
                                 <img src="/logo-bula-assessoria-white.png" alt="" className="mx-auto mb-4 h-7 w-auto opacity-80" />
-                                <div className="text-5xl font-black leading-none">{p.dia}</div>
+                                <div className="font-display text-6xl leading-none text-[#C9A84C]">{p.dia}</div>
                                 <div className="mt-1 text-xs font-bold uppercase text-white/40">{p.mesAbrev}</div>
                             </div>
                         </div>
                     )}
-                    <div className="absolute inset-x-0 bottom-0 h-20 bg-gradient-to-t from-black/52 to-transparent" />
+                    <div className="absolute inset-x-0 bottom-0 h-20 bg-gradient-to-t from-black/70 to-transparent" />
 
-                    <div className="absolute left-3 top-3 flex flex-col items-center rounded-md bg-white/94 px-3 py-1.5 shadow-sm backdrop-blur-md">
-                        <span className="text-lg font-black leading-none text-black">{p.dia}</span>
-                        <span className="text-[10px] font-bold uppercase text-black/48">{p.mesAbrev}</span>
+                    {/* Bloco de data em preto, dia em dourado (anatomia do card — brandbook). */}
+                    <div className="absolute left-3 top-3 flex flex-col items-center rounded-md border border-white/10 bg-[#0A0A0A]/85 px-3 py-1.5 shadow-sm backdrop-blur-md">
+                        <span className="font-display text-xl leading-none text-[#C9A84C]">{p.dia}</span>
+                        <span className="text-[10px] font-bold uppercase text-white/55">{p.mesAbrev}</span>
                     </div>
 
                     <div className="absolute right-3 top-3 flex flex-col items-end gap-1.5">
                         <span
                             className="inline-flex items-center gap-1.5 rounded-md border px-2.5 py-1 text-[10px] font-bold shadow-sm backdrop-blur-md"
-                            style={{ color: status.fg, background: status.bg, borderColor: realizado ? 'rgba(0,0,0,0.08)' : 'rgba(22,101,52,0.18)' }}
+                            style={{ color: status.fg, background: status.bg, borderColor: realizado ? 'rgba(255,255,255,0.12)' : 'rgba(201,168,76,0.28)' }}
                         >
                             <span className="h-1.5 w-1.5 rounded-full" style={{ background: status.dot }} />
                             {status.label}
                         </span>
                         {aoVivo && (
-                            <span className="inline-flex items-center gap-1 rounded-full bg-white px-2 py-0.5 text-[10px] font-bold text-black shadow-sm backdrop-blur-md">
+                            <span className="inline-flex items-center gap-1 rounded-full bg-white px-2 py-0.5 text-[10px] font-bold text-[#0A0A0A] shadow-sm backdrop-blur-md">
                                 <Radio className="h-3 w-3" /> Ao vivo
                             </span>
                         )}
                     </div>
 
                     {countdown && (
-                        <span className="absolute bottom-3 left-3 rounded-full bg-white px-2.5 py-1 text-[10px] font-black text-black shadow-sm">
+                        <span className="absolute bottom-3 left-3 rounded-full border border-[#C9A84C]/35 bg-[#0A0A0A]/85 px-2.5 py-1 text-[10px] font-black text-[#E8DBB8] shadow-sm backdrop-blur-md">
                             {countdown}
                         </span>
                     )}
@@ -200,44 +201,44 @@ function LeilaoCard({ leilao, index }: { leilao: LeilaoPublico; index: number })
                 <div className="flex flex-1 flex-col p-5">
                     <div className="mb-3 flex flex-wrap gap-1.5">
                         {tags.slice(0, 4).map((tag) => (
-                            <span key={tag} className="inline-flex items-center gap-1 rounded border border-black/10 px-2 py-1 text-[10px] font-bold uppercase text-black/58">
+                            <span key={tag} className="inline-flex items-center gap-1 rounded border border-white/12 px-2 py-1 text-[10px] font-bold uppercase text-white/55">
                                 <Tag className="h-3 w-3" />
                                 {tag}
                             </span>
                         ))}
                     </div>
 
-                    <h3 className="text-xl font-black leading-tight text-black transition-colors group-hover:text-black/70">
+                    <h3 className="font-display text-2xl uppercase leading-[0.95] text-white transition-colors group-hover:text-[#E8DBB8]">
                         {leilao.nome}
                     </h3>
 
-                    <div className="mt-4 space-y-2.5 text-[13px] font-medium text-black/58">
+                    <div className="mt-4 space-y-2.5 text-[13px] font-medium text-white/58">
                         <div className="flex items-center gap-2">
-                            <CalendarDays className="h-3.5 w-3.5 shrink-0 text-black" />
+                            <CalendarDays className="h-3.5 w-3.5 shrink-0 text-[#C9A84C]" />
                             <span>{p.diaSemana}{leilao.horario ? ` · ${leilao.horario}` : ''}</span>
                         </div>
                         {leilao.criador && (
                             <div className="flex items-center gap-2">
-                                <Users className="h-3.5 w-3.5 shrink-0 text-black" />
+                                <Users className="h-3.5 w-3.5 shrink-0 text-white/45" />
                                 <span className="truncate">{leilao.criador}</span>
                             </div>
                         )}
                         {localExibivel(leilao.local) && (
                             <div className="flex items-center gap-2">
-                                <MapPin className="h-3.5 w-3.5 shrink-0 text-black" />
+                                <MapPin className="h-3.5 w-3.5 shrink-0 text-white/45" />
                                 <span className="truncate">{localExibivel(leilao.local)}</span>
                             </div>
                         )}
                         {leilao.leiloeira && (
                             <div className="flex items-center gap-2">
-                                <Users className="h-3.5 w-3.5 shrink-0 text-black" />
+                                <Users className="h-3.5 w-3.5 shrink-0 text-white/45" />
                                 <span className="truncate">{leilao.leiloeira}</span>
                             </div>
                         )}
                     </div>
 
-                    <div className="mt-5 flex items-center justify-between border-t border-black/10 pt-4">
-                        <div className="flex min-w-0 flex-wrap items-center gap-3 text-[12px] font-semibold text-black/45">
+                    <div className="mt-5 flex items-center justify-between border-t border-white/10 pt-4">
+                        <div className="flex min-w-0 flex-wrap items-center gap-3 text-[12px] font-semibold text-white/45">
                             {!!leilao.animais && leilao.animais > 0 && (
                                 <span className="inline-flex items-center gap-1.5">
                                     <Users className="h-3.5 w-3.5" /> {leilao.animais} animais
@@ -254,7 +255,7 @@ function LeilaoCard({ leilao, index }: { leilao: LeilaoPublico; index: number })
                                 </span>
                             )}
                         </div>
-                        <span className="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-md bg-black text-white transition-colors group-hover:bg-black/75">
+                        <span className="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-md bg-white text-[#0A0A0A] transition-colors group-hover:bg-[#C9A84C]">
                             <ArrowRight className="h-4 w-4" />
                         </span>
                     </div>
@@ -269,9 +270,9 @@ function EstadoVazio({ temBusca }: { temBusca: boolean }) {
         ? 'Nenhum leilão encontrado para essa busca.'
         : 'Nenhum leilão cadastrado para o período da agenda.'
     return (
-        <div className="mt-10 flex flex-col items-center justify-center rounded-md border border-dashed border-black/15 bg-white py-20 text-center">
-            <CalendarX2 className="h-10 w-10 text-black/22" />
-            <p className="mt-4 max-w-sm text-sm text-black/52">{msg}</p>
+        <div className="mt-10 flex flex-col items-center justify-center rounded-md border border-dashed border-white/15 bg-[#141414] py-20 text-center">
+            <CalendarX2 className="h-10 w-10 text-white/25" />
+            <p className="mt-4 max-w-sm text-sm text-white/52">{msg}</p>
         </div>
     )
 }

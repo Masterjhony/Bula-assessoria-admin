@@ -36,13 +36,13 @@ export const metadata: Metadata = {
 
 export default function AgendaLayout({ children }: { children: React.ReactNode }) {
     return (
-        <div className="flex min-h-screen flex-col bg-white text-black">
-            <header className="sticky top-0 z-50 border-b border-black/10 bg-white/92 backdrop-blur-xl">
+        <div className="agenda-page-bg flex min-h-screen flex-col text-white">
+            <header className="sticky top-0 z-50 border-b border-white/10 bg-[#0A0A0A]/85 backdrop-blur-xl">
                 <div className="mx-auto flex h-20 max-w-7xl items-center justify-between px-5 sm:h-24 sm:px-8">
                     <Link href="/agenda" className="flex items-center group" aria-label="Bula Assessoria">
                         {/* eslint-disable-next-line @next/next/no-img-element */}
                         <img
-                            src="/logo-bula-assessoria-dark.png"
+                            src="/logo-bula-assessoria-white.png"
                             alt="Bula Assessoria"
                             className="h-14 w-auto object-contain transition-opacity group-hover:opacity-75 sm:h-20"
                         />
@@ -50,20 +50,20 @@ export default function AgendaLayout({ children }: { children: React.ReactNode }
                     <nav className="flex items-center gap-1 text-[13px] font-bold sm:gap-2 sm:text-sm">
                         <Link
                             href="/"
-                            className="rounded-md px-2.5 py-2 text-black/62 transition-colors hover:bg-black/5 hover:text-black sm:px-3"
+                            className="rounded-md px-2.5 py-2 text-white/60 transition-colors hover:bg-white/5 hover:text-white sm:px-3"
                         >
                             Início
                         </Link>
                         <Link
                             href="/agenda"
-                            className="rounded-md px-2.5 py-2 text-black/62 transition-colors hover:bg-black/5 hover:text-black sm:px-3"
+                            className="rounded-md px-2.5 py-2 text-white/60 transition-colors hover:bg-white/5 hover:text-white sm:px-3"
                         >
                             Agenda
                         </Link>
                         <InstallButton
-                            className="inline-flex items-center gap-2 rounded-md border border-black/15 px-3 py-2.5 text-black/70 transition-colors hover:bg-black/5 hover:text-black sm:px-4"
+                            className="inline-flex items-center gap-2 rounded-md border border-white/15 px-3 py-2.5 text-white/70 transition-colors hover:bg-white/5 hover:text-white sm:px-4"
                             label="Baixar app"
-                            tone="light"
+                            tone="dark"
                             align="right"
                             hideLabelOnMobile
                         />
@@ -71,8 +71,8 @@ export default function AgendaLayout({ children }: { children: React.ReactNode }
                             href={WHATSAPP_CTA_URL}
                             target="_blank"
                             rel="noopener noreferrer"
-                            className="inline-flex shrink-0 items-center gap-2 whitespace-nowrap rounded-md border border-black px-3 py-2.5 font-black shadow-sm transition-all hover:-translate-y-0.5 hover:shadow-md sm:px-5"
-                            style={{ backgroundColor: '#000', color: '#fff' }}
+                            className="inline-flex shrink-0 items-center gap-2 whitespace-nowrap rounded-md px-3 py-2.5 font-black shadow-sm transition-all hover:-translate-y-0.5 hover:bg-white sm:px-5"
+                            style={{ backgroundColor: '#fff', color: '#0A0A0A' }}
                         >
                             <MessageCircle className="h-4 w-4 shrink-0" />
                             <span className="sm:hidden">WhatsApp</span>
@@ -84,28 +84,29 @@ export default function AgendaLayout({ children }: { children: React.ReactNode }
 
             <main className="flex-1">{children}</main>
 
-            <footer className="mt-20 bg-black text-white">
-                {/* Faixa de CTA — acento dourado da marca */}
-                <div className="relative overflow-hidden border-t border-[#A68B4B]/25">
+            <footer className="mt-20 bg-[#0A0A0A] text-white">
+                {/* Faixa de CTA — acento dourado cirúrgico da marca (brandbook) */}
+                <div className="relative overflow-hidden border-t border-[#C9A84C]/25">
                     <div
                         aria-hidden
-                        className="pointer-events-none absolute -left-24 -top-28 h-72 w-72 rounded-full bg-[#A68B4B]/10 blur-3xl"
+                        className="pointer-events-none absolute -left-24 -top-28 h-72 w-72 rounded-full bg-[#C9A84C]/8 blur-3xl"
                     />
-                    <div className="relative mx-auto flex max-w-7xl flex-col gap-6 px-5 py-10 sm:px-8 lg:flex-row lg:items-center lg:justify-between lg:gap-10">
+                    <div className="relative mx-auto flex max-w-7xl flex-col gap-6 px-5 py-12 sm:px-8 lg:flex-row lg:items-center lg:justify-between lg:gap-10">
                         <div className="max-w-xl">
-                            <p className="text-[11px] font-black uppercase tracking-[0.18em] text-[#C8A96E]">
+                            <p className="text-[11px] font-black uppercase tracking-[0.22em] text-[#C9A84C]">
                                 Bula Assessoria Pecuária
                             </p>
-                            <h3 className="mt-3 text-2xl font-black leading-[1.1] tracking-tight sm:text-3xl">
+                            <h3 className="font-display mt-3 text-3xl uppercase leading-[0.98] tracking-tight sm:text-[2.5rem]">
                                 Touros e matrizes dos melhores leilões, com quem entende do negócio.
                             </h3>
+                            <p className="mt-3 text-sm text-white/45">A assessoria do boiadeiro(a).</p>
                         </div>
                         <a
                             href={WHATSAPP_CTA_URL}
                             target="_blank"
                             rel="noopener noreferrer"
-                            className="group inline-flex shrink-0 items-center justify-center gap-2 rounded-xl bg-[#25D366] px-6 py-3.5 text-sm font-black shadow-sm transition-all hover:-translate-y-0.5 hover:bg-[#1ebe5d]"
-                            style={{ color: '#ffffff' }}
+                            className="group inline-flex shrink-0 items-center justify-center gap-2 rounded-md bg-white px-6 py-3.5 text-sm font-black shadow-sm transition-all hover:-translate-y-0.5 hover:bg-white/90"
+                            style={{ color: '#0A0A0A' }}
                         >
                             <MessageCircle className="h-4 w-4" />
                             Entrar no grupo
@@ -133,7 +134,7 @@ export default function AgendaLayout({ children }: { children: React.ReactNode }
                                 target="_blank"
                                 rel="noopener noreferrer"
                                 aria-label="WhatsApp da Bula"
-                                className="flex h-10 w-10 items-center justify-center rounded-full border border-white/12 text-white/70 transition-all hover:-translate-y-0.5 hover:border-[#25D366] hover:text-[#25D366]"
+                                className="flex h-10 w-10 items-center justify-center rounded-full border border-white/12 text-white/70 transition-all hover:-translate-y-0.5 hover:border-[#C9A84C] hover:text-[#C9A84C]"
                             >
                                 <MessageCircle className="h-[18px] w-[18px]" />
                             </a>
@@ -142,25 +143,25 @@ export default function AgendaLayout({ children }: { children: React.ReactNode }
                                 target="_blank"
                                 rel="noopener noreferrer"
                                 aria-label="Instagram da Bula"
-                                className="flex h-10 w-10 items-center justify-center rounded-full border border-white/12 text-white/70 transition-all hover:-translate-y-0.5 hover:border-[#C8A96E] hover:text-[#C8A96E]"
+                                className="flex h-10 w-10 items-center justify-center rounded-full border border-white/12 text-white/70 transition-all hover:-translate-y-0.5 hover:border-[#C9A84C] hover:text-[#C9A84C]"
                             >
                                 <Instagram className="h-[18px] w-[18px]" />
                             </a>
                         </div>
                     </div>
                     <div>
-                        <h4 className="mb-7 text-[13px] font-black uppercase tracking-wider text-[#C8A96E]">
+                        <h4 className="mb-7 text-[13px] font-black uppercase tracking-wider text-[#C9A84C]">
                             Navegação
                         </h4>
                         <ul className="space-y-6 text-[15px] text-white/62">
                             <li>
-                                <Link href="/agenda" className="inline-flex items-center gap-2 transition-colors hover:text-[#C8A96E]">
+                                <Link href="/agenda" className="inline-flex items-center gap-2 transition-colors hover:text-[#C9A84C]">
                                     <Calendar className="h-4 w-4 text-white/35" />
                                     Agenda de leilões
                                 </Link>
                             </li>
                             <li>
-                                <Link href="/agenda#proximos" className="inline-flex items-center gap-2 transition-colors hover:text-[#C8A96E]">
+                                <Link href="/agenda#proximos" className="inline-flex items-center gap-2 transition-colors hover:text-[#C9A84C]">
                                     <ArrowRight className="h-4 w-4 text-white/35" />
                                     Próximos leilões
                                 </Link>
@@ -168,18 +169,18 @@ export default function AgendaLayout({ children }: { children: React.ReactNode }
                         </ul>
                     </div>
                     <div>
-                        <h4 className="mb-7 text-[13px] font-black uppercase tracking-wider text-[#C8A96E]">
+                        <h4 className="mb-7 text-[13px] font-black uppercase tracking-wider text-[#C9A84C]">
                             Contato
                         </h4>
                         <ul className="space-y-6 text-[15px] text-white/62">
                             <li>
-                                <a href={WHATSAPP_CTA_URL} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-2 transition-colors hover:text-[#25D366]">
+                                <a href={WHATSAPP_CTA_URL} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-2 transition-colors hover:text-[#C9A84C]">
                                     <MessageCircle className="h-4 w-4 text-white/35" />
                                     WhatsApp · grupo de leilões
                                 </a>
                             </li>
                             <li>
-                                <a href="https://www.instagram.com/bulaassessoria/" target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-2 transition-colors hover:text-[#C8A96E]">
+                                <a href="https://www.instagram.com/bulaassessoria/" target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-2 transition-colors hover:text-[#C9A84C]">
                                     <Instagram className="h-4 w-4 text-white/35" />
                                     Instagram
                                 </a>

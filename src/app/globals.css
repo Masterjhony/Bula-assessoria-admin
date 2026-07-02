@@ -118,6 +118,31 @@ a {
   animation-play-state: paused;
 }
 
+/* ── Brandbook Bula: voz condensada (Oswald, caixa alta, "direta como no curral").
+   Usada só em títulos/labels de display da agenda pública; corpo segue em Inter. */
+.font-display {
+  font-family: 'Oswald', 'Inter', system-ui, sans-serif;
+  font-weight: 700;
+  letter-spacing: 0.005em;
+}
+.font-display-tight {
+  font-family: 'Oswald', 'Inter', system-ui, sans-serif;
+  font-weight: 600;
+}
+
+/* Fundo da agenda pública: preto puro + grão diagonal discreto ("textura do
+   campo" do brandbook). Seções com fundo próprio (bg-black/#141414) cobrem. */
+.agenda-page-bg {
+  background-color: #0A0A0A;
+  background-image: repeating-linear-gradient(
+    135deg,
+    rgba(255, 255, 255, 0.013) 0px,
+    rgba(255, 255, 255, 0.013) 1px,
+    transparent 1px,
+    transparent 9px
+  );
+}
+
 /* Reset de campos como DEFAULT, dentro de @layer base, para que utilitárias do
    Tailwind (border, bg-*, rounded-*) e a classe .input consigam sobrescrever.
    Sem o @layer, esta regra (sem camada) vencia as utilitárias e os campos

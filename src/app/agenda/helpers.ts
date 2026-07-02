@@ -103,13 +103,28 @@ export interface StatusBadge {
     dot: string
 }
 
-/** Rótulo público do leilão, levando a data em conta. */
+/**
+ * Rótulo público do leilão, levando a data em conta.
+ * Paleta do brandbook Bula: interface sóbria (preto/grafite/branco). O verde
+ * saiu da UI (fora da paleta); "Confirmado" ganha o dourado fosco cirúrgico
+ * (#C9A84C) como selo, e "Realizado" fica no cinza discreto.
+ */
 export function statusPublico(l: Pick<LeilaoPublico, 'status' | 'data'>): StatusBadge {
     const passado = !isFuturo(l.data)
     if (l.status === 'concluido' || (l.status === 'confirmado' && passado)) {
-        return { label: 'Realizado', fg: '#525252', bg: 'rgba(0,0,0,0.06)', dot: '#525252' }
+        return {
+            label: 'Realizado',
+            fg: 'rgba(255,255,255,0.55)',
+            bg: 'rgba(255,255,255,0.06)',
+            dot: 'rgba(255,255,255,0.4)',
+        }
     }
-    return { label: 'Confirmado', fg: '#166534', bg: '#f3f4f6', dot: '#16a34a' }
+    return {
+        label: 'Confirmado',
+        fg: '#E8DBB8',
+        bg: 'rgba(201,168,76,0.12)',
+        dot: '#C9A84C',
+    }
 }
 
 export function contagemRegressiva(iso: string): string | null {
