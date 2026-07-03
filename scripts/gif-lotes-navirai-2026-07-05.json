@@ -1,0 +1,720 @@
+{
+  "leilao": "Leilão Naviraí Matrizes 2026 (05/07)",
+  "slug": "navirai-matrizes-2026-07-05",
+  "phone": "553194149161",
+  "contato": "Marcelo Primo Carneiro",
+  "gifs_dir": "C:\\Users\\Notebook-Acer\\AppData\\Local\\Temp\\claude\\F--Projetos-Desktop-web-bula\\c07dcd12-705e-4d83-8be6-70947b85c3d9\\scratchpad\\gifs",
+  "condicoes": {
+    "linhaPagamento": "30x no boleto (2+2+2+2+2+20) • Frete grátis",
+    "linhaFecho": "Garanta o seu no privado!"
+  },
+  "lotes": [
+    {
+      "lote": 2,
+      "nome": "9807 DE NAVIRAÍ",
+      "rg": "CSCC9807",
+      "nascimento": "07/12/2024",
+      "idade": "1 ANO 6 M",
+      "categoria": "SOLTEIRA",
+      "peso_atual_kg": 450,
+      "pai": "B7906 FIV DA S.NICE",
+      "mgte": {
+        "valor": "22,30",
+        "top": "15"
+      },
+      "iqg": {
+        "valor": "17,31",
+        "top": "15"
+      },
+      "iabcz": {
+        "valor": "17,06",
+        "deca": "1",
+        "p": "6"
+      },
+      "prenhe_de": "PARA TERRA BOA",
+      "previsao_parto": "03/12/2026",
+      "cria": null,
+      "obs": null,
+      "youtube": "https://www.youtube.com/watch?v=zsZLsXFZUrk&list=PLG-aOwQ6ifTzwR-NNHb0HLIfftKZfcH8G",
+      "drive": "https://drive.google.com/drive/folders/1WuBvEqN0NDoxIEY8g2W4BxMXwv2HvTna?usp=drive_link",
+      "mae": "8108 FIV DE NAVIRAÍ",
+      "media_url": "https://nfjkzigvxegnhaxxbevt.supabase.co/storage/v1/object/public/lote-gifs/navirai-matrizes-2026-07-05/lote002.mp4"
+    },
+    {
+      "lote": 3,
+      "nome": "9811 DE NAVIRAÍ",
+      "rg": "CSCC9811",
+      "nascimento": "09/12/2024",
+      "idade": "1 ANO 6 M",
+      "categoria": "SOLTEIRA",
+      "peso_atual_kg": 570,
+      "pai": "ROLEX FIV TERRA BRAVA",
+      "mgte": {
+        "valor": "29,53",
+        "top": "3"
+      },
+      "iqg": {
+        "valor": "32,96",
+        "top": "1"
+      },
+      "iabcz": {
+        "valor": "26,09",
+        "deca": "1",
+        "p": "0,5"
+      },
+      "prenhe_de": "NAVIRAÍ FIV BURI",
+      "previsao_parto": "31/10/2026",
+      "cria": null,
+      "obs": null,
+      "youtube": "https://www.youtube.com/watch?v=YmArHgjFYNI&list=PLG-aOwQ6ifTzwR-NNHb0HLIfftKZfcH8G&index=3&pp=iAQB",
+      "drive": "https://drive.google.com/drive/folders/1hR8ZRsege8fyxgDXrFCNmluFEgddIOxO?usp=drive_link",
+      "mae": "NAVIRAÍ FIV 17072-17",
+      "media_url": "https://nfjkzigvxegnhaxxbevt.supabase.co/storage/v1/object/public/lote-gifs/navirai-matrizes-2026-07-05/lote003.mp4"
+    },
+    {
+      "lote": 4,
+      "nome": "9849 FIV DE NAVIRAÍ",
+      "rg": "CSCC9849",
+      "nascimento": "06/12/2024",
+      "idade": "1 ANO 6 M",
+      "categoria": "SOLTEIRA",
+      "peso_atual_kg": 515,
+      "pai": "COMANDER FIV DA JACAMIM",
+      "mgte": {
+        "valor": "27,18",
+        "top": "6"
+      },
+      "iqg": {
+        "valor": "24,13",
+        "top": "5"
+      },
+      "iabcz": {
+        "valor": "22,31",
+        "deca": "1",
+        "p": "2"
+      },
+      "prenhe_de": "PARA TERRA BOA",
+      "previsao_parto": "31/10/2026",
+      "cria": null,
+      "obs": null,
+      "youtube": "https://www.youtube.com/watch?v=nPDm0hp_mwY&list=PLG-aOwQ6ifTzwR-NNHb0HLIfftKZfcH8G&index=4&pp=iAQB",
+      "drive": "https://drive.google.com/drive/folders/11_ot3O4MjQ54ZVJBIqh0jXNc6_4zcIbh?usp=drive_link",
+      "mae": "7662 DE NAVIRAÍ",
+      "media_url": "https://nfjkzigvxegnhaxxbevt.supabase.co/storage/v1/object/public/lote-gifs/navirai-matrizes-2026-07-05/lote004.mp4"
+    },
+    {
+      "lote": 5,
+      "nome": "9851 FIV DE NAVIRAÍ",
+      "rg": "CSCC9851",
+      "nascimento": "07/12/2024",
+      "idade": "1 ANO 6 M",
+      "categoria": "SOLTEIRA",
+      "peso_atual_kg": 610,
+      "pai": "NAVIRAÍ FIV BARÃO",
+      "mgte": {
+        "valor": "29,37",
+        "top": "3"
+      },
+      "iqg": {
+        "valor": "31,78",
+        "top": "1"
+      },
+      "iabcz": {
+        "valor": "25,13",
+        "deca": "1",
+        "p": "1"
+      },
+      "prenhe_de": "PARA TERRA BOA",
+      "previsao_parto": "07/02/2027",
+      "cria": null,
+      "obs": null,
+      "youtube": "https://www.youtube.com/watch?v=UYzz2jfXNjM&list=PLG-aOwQ6ifTzwR-NNHb0HLIfftKZfcH8G&index=5&pp=iAQB0gcJCU4LAYcqIYzv",
+      "drive": "https://drive.google.com/drive/folders/1t5CJ5Q_3T59MbGVN0X2EPlehyBbsL2UQ?usp=drive_link",
+      "mae": "8229 FIV DE NAVIRAÍ",
+      "media_url": "https://nfjkzigvxegnhaxxbevt.supabase.co/storage/v1/object/public/lote-gifs/navirai-matrizes-2026-07-05/lote005.mp4"
+    },
+    {
+      "lote": 11,
+      "nome": "9692 DE NAVIRAÍ",
+      "rg": "CSCC9692",
+      "nascimento": "02/11/2024",
+      "idade": "1 ANO 7 M",
+      "categoria": "SOLTEIRA",
+      "peso_atual_kg": 620,
+      "pai": "B4549 FIV DA EAO",
+      "mgte": {
+        "valor": "31,29",
+        "top": "1"
+      },
+      "iqg": {
+        "valor": "40,98",
+        "top": "0,1"
+      },
+      "iabcz": {
+        "valor": "28,29",
+        "deca": "1",
+        "p": "0,5"
+      },
+      "prenhe_de": "DOM FIV DE NAVIRAÍ",
+      "previsao_parto": "07/02/2027",
+      "cria": null,
+      "obs": null,
+      "youtube": "https://www.youtube.com/watch?v=NfmE8rastNs&list=PLG-aOwQ6ifTzwR-NNHb0HLIfftKZfcH8G&index=9&pp=iAQB",
+      "drive": "https://drive.google.com/drive/folders/1GRPgmRQFCA_UAW9LZ7RW4vy3h0EZZLnR?usp=drive_link",
+      "mae": "8237 FIV DE NAVIRAÍ",
+      "media_url": "https://nfjkzigvxegnhaxxbevt.supabase.co/storage/v1/object/public/lote-gifs/navirai-matrizes-2026-07-05/lote011.mp4"
+    },
+    {
+      "lote": 21,
+      "nome": "8561 DE NAV.",
+      "rg": "CSCF8561",
+      "nascimento": "14/10/2024",
+      "idade": "1 ANO 8 M",
+      "categoria": "SOLTEIRA",
+      "peso_atual_kg": 528,
+      "pai": "V8 DE NAV.",
+      "mgte": {
+        "valor": "22,11",
+        "top": "15"
+      },
+      "iqg": {
+        "valor": "13,57",
+        "top": "24,0"
+      },
+      "iabcz": {
+        "valor": "17,76",
+        "deca": "1",
+        "p": "5"
+      },
+      "prenhe_de": "LANDROVER DA XARAES",
+      "previsao_parto": "10/12/2026",
+      "cria": null,
+      "obs": null,
+      "youtube": "https://www.youtube.com/watch?v=zsZLsXFZUrk&list=PLG-aOwQ6ifTzwR-NNHb0HLIfftKZfcH8G",
+      "drive": "https://drive.google.com/drive/folders/1DLjhS2eVRiuSXkydE5uqw4Y-pXpvUNNI?usp=sharing",
+      "mae": "6678 DE NAV.",
+      "media_url": "https://nfjkzigvxegnhaxxbevt.supabase.co/storage/v1/object/public/lote-gifs/navirai-matrizes-2026-07-05/lote021.mp4"
+    },
+    {
+      "lote": 27,
+      "nome": "1623 FIV DE NAVIRAÍ",
+      "rg": "CSCR1623",
+      "nascimento": "21/09/2024",
+      "idade": "1 ANO 9 M",
+      "categoria": "SOLTEIRA",
+      "peso_atual_kg": 520,
+      "pai": "V8 DE NAV.",
+      "mgte": {
+        "valor": "27,90",
+        "top": "5"
+      },
+      "iqg": {
+        "valor": "23,63",
+        "top": "6"
+      },
+      "iabcz": {
+        "valor": "19,48",
+        "deca": "1",
+        "p": "4"
+      },
+      "prenhe_de": "PARA TERRA BOA",
+      "previsao_parto": "03/12/2026",
+      "cria": null,
+      "obs": null,
+      "youtube": "https://www.youtube.com/watch?v=YP252FLaSzs&list=PLG-aOwQ6ifTzwR-NNHb0HLIfftKZfcH8G&index=18&pp=iAQB",
+      "drive": "https://drive.google.com/drive/folders/1MlnYQGYcu9IbcMkf92yB34zQhhJh8UlY?usp=drive_link",
+      "mae": "495 FIV DE NAVIRAÍ",
+      "media_url": "https://nfjkzigvxegnhaxxbevt.supabase.co/storage/v1/object/public/lote-gifs/navirai-matrizes-2026-07-05/lote027.mp4"
+    },
+    {
+      "lote": 29,
+      "nome": "1679 FIV DE NAVIRAÍ",
+      "rg": "CSCR1679",
+      "nascimento": "16/09/2024",
+      "idade": "1 ANO 9 M",
+      "categoria": "SOLTEIRA",
+      "peso_atual_kg": 630,
+      "pai": "BARU FIV DE NAVIRAÍ",
+      "mgte": {
+        "valor": "30,49",
+        "top": "2"
+      },
+      "iqg": {
+        "valor": "27,95",
+        "top": "3"
+      },
+      "iabcz": {
+        "valor": "19,83",
+        "deca": "1",
+        "p": "3"
+      },
+      "prenhe_de": "PARA TERRA BOA",
+      "previsao_parto": "31/10/2026",
+      "cria": null,
+      "obs": null,
+      "youtube": "https://www.youtube.com/watch?v=dJuBU6TETEQ&list=PLG-aOwQ6ifTzwR-NNHb0HLIfftKZfcH8G&index=20&pp=iAQB",
+      "drive": "https://drive.google.com/drive/folders/1RTdvBUdDD2HAErDx7aEwbsbUT4ChnlsL?usp=drive_link",
+      "mae": "BRETEIRA DE NAVIRAÍ",
+      "media_url": "https://nfjkzigvxegnhaxxbevt.supabase.co/storage/v1/object/public/lote-gifs/navirai-matrizes-2026-07-05/lote029.mp4"
+    },
+    {
+      "lote": 30,
+      "nome": "NAVIRAÍ 23172-24",
+      "rg": "CSCN23172",
+      "nascimento": "26/08/2024",
+      "idade": "1 ANO 10 M",
+      "categoria": "SOLTEIRA",
+      "peso_atual_kg": 750,
+      "pai": "TREM BALA FIV DA EAO",
+      "mgte": {
+        "valor": "26,43",
+        "top": "7"
+      },
+      "iqg": {
+        "valor": "31,53",
+        "top": "2"
+      },
+      "iabcz": {
+        "valor": "25,32",
+        "deca": "1",
+        "p": "1"
+      },
+      "prenhe_de": "GREGO FC CACHOEIRÃO",
+      "previsao_parto": "15/08/2026",
+      "cria": null,
+      "obs": null,
+      "youtube": "https://www.youtube.com/watch?v=TlGEI3di0OQ&list=PLG-aOwQ6ifTzwR-NNHb0HLIfftKZfcH8G&index=21&pp=iAQB",
+      "drive": "https://drive.google.com/drive/folders/15epbRhN4W9etzl9pJw4I-9Cw471HyBPI?usp=drive_link",
+      "mae": "NAVIRAÍ FIV 992-21",
+      "media_url": "https://nfjkzigvxegnhaxxbevt.supabase.co/storage/v1/object/public/lote-gifs/navirai-matrizes-2026-07-05/lote030.mp4"
+    },
+    {
+      "lote": 43,
+      "nome": "NAVIRAÍ 22956-24",
+      "rg": "CSCN22956",
+      "nascimento": "21/07/2024",
+      "idade": "1 ANO 11 M",
+      "categoria": "SOLTEIRA",
+      "peso_atual_kg": 626,
+      "pai": "VISUAL DE NAVIRAÍ",
+      "mgte": {
+        "valor": "29,76",
+        "top": "3"
+      },
+      "iqg": {
+        "valor": "32,60",
+        "top": "1"
+      },
+      "iabcz": {
+        "valor": "28,41",
+        "deca": "1",
+        "p": "0,5"
+      },
+      "prenhe_de": "LANDROVER DA XARAES",
+      "previsao_parto": "08/11/2026",
+      "cria": null,
+      "obs": null,
+      "youtube": "https://www.youtube.com/watch?v=Klayv9edZG0&list=PLG-aOwQ6ifTzwR-NNHb0HLIfftKZfcH8G&index=27&pp=iAQB",
+      "drive": "https://drive.google.com/drive/folders/1Zp94bsBcXKjSEWeBf4a4R2n15ExIGRdf?usp=drive_link",
+      "mae": "NAVIRAÍ FIV 21079-21",
+      "media_url": "https://nfjkzigvxegnhaxxbevt.supabase.co/storage/v1/object/public/lote-gifs/navirai-matrizes-2026-07-05/lote043.mp4"
+    },
+    {
+      "lote": 44,
+      "nome": "8276 DE NAV.",
+      "rg": "CSCF8276",
+      "nascimento": "18/07/2024",
+      "idade": "1 ANO 11 M",
+      "categoria": "SOLTEIRA",
+      "peso_atual_kg": 570,
+      "pai": "V8 DE NAV.",
+      "mgte": {
+        "valor": "20,29",
+        "top": "19"
+      },
+      "iqg": {
+        "valor": "23,62",
+        "top": "6,0"
+      },
+      "iabcz": {
+        "valor": "15,39",
+        "deca": "1",
+        "p": "8"
+      },
+      "prenhe_de": "LANDROVER DA XARAES",
+      "previsao_parto": "29/10/2026",
+      "cria": null,
+      "obs": null,
+      "youtube": "https://www.youtube.com/watch?v=zsZLsXFZUrk&list=PLG-aOwQ6ifTzwR-NNHb0HLIfftKZfcH8G",
+      "drive": "https://drive.google.com/drive/folders/1k8lrD7crZr7Mlyzxy5N6JzzFHeKDc_tc?usp=sharing",
+      "mae": "5069 DE NAV.",
+      "media_url": "https://nfjkzigvxegnhaxxbevt.supabase.co/storage/v1/object/public/lote-gifs/navirai-matrizes-2026-07-05/lote044.mp4"
+    },
+    {
+      "lote": 69,
+      "nome": "8000 DE NAV.",
+      "rg": "CSCF8000",
+      "nascimento": "28/10/2023",
+      "idade": "2 ANO 7 M",
+      "categoria": "SOLTEIRA",
+      "peso_atual_kg": 690,
+      "pai": "CONCEITO FIV DA S.NICE",
+      "mgte": {
+        "valor": "23,59",
+        "top": "12"
+      },
+      "iqg": {
+        "valor": "33,18",
+        "top": "1,0"
+      },
+      "iabcz": {
+        "valor": "26,09",
+        "deca": "1",
+        "p": "0,5"
+      },
+      "prenhe_de": "LANDROVER DA XARAES",
+      "previsao_parto": "29/10/2026",
+      "cria": null,
+      "obs": null,
+      "youtube": "https://www.youtube.com/watch?v=zsZLsXFZUrk&list=PLG-aOwQ6ifTzwR-NNHb0HLIfftKZfcH8G",
+      "drive": "https://drive.google.com/drive/folders/1jEiaghFTvQvFq59XXR_k7CMI9nx5CPAa?usp=sharing",
+      "mae": "3135 FIV DE NAV.",
+      "media_url": "https://nfjkzigvxegnhaxxbevt.supabase.co/storage/v1/object/public/lote-gifs/navirai-matrizes-2026-07-05/lote069.mp4"
+    },
+    {
+      "lote": 77,
+      "nome": "8956 DE NAVIRAÍ",
+      "rg": "CSCC8956",
+      "nascimento": "06/09/2023",
+      "idade": "2 ANO 9 M",
+      "categoria": "SOLTEIRA",
+      "peso_atual_kg": 704,
+      "pai": "V8 DE NAV.",
+      "mgte": {
+        "valor": "23,41",
+        "top": "13"
+      },
+      "iqg": {
+        "valor": "28,90",
+        "top": "2"
+      },
+      "iabcz": {
+        "valor": "20,13",
+        "deca": "1",
+        "p": "3"
+      },
+      "prenhe_de": "NAVIRAÍ FIV CRONOS",
+      "previsao_parto": "17/11/2026",
+      "cria": null,
+      "obs": null,
+      "youtube": "https://www.youtube.com/watch?v=zsZLsXFZUrk&list=PLG-aOwQ6ifTzwR-NNHb0HLIfftKZfcH8G",
+      "drive": "https://drive.google.com/drive/folders/1NOZuSbnwS42vtL3E0XKmunjEzOhX-gEB?usp=drive_link",
+      "mae": "220 FIV DE NAVIRAÍ",
+      "media_url": "https://nfjkzigvxegnhaxxbevt.supabase.co/storage/v1/object/public/lote-gifs/navirai-matrizes-2026-07-05/lote077.mp4"
+    },
+    {
+      "lote": 59,
+      "nome": "9267 FIV DE NAVIRAÍ",
+      "rg": "CSCC9267",
+      "nascimento": "13/12/2023",
+      "idade": "2 ANO 6 M",
+      "categoria": "PARIDA",
+      "peso_atual_kg": 686,
+      "pai": "TREM BALA FIV DA EAO",
+      "mgte": {
+        "valor": "28,29",
+        "top": "4"
+      },
+      "iqg": {
+        "valor": "26,04",
+        "top": "4"
+      },
+      "iabcz": {
+        "valor": "23,97",
+        "deca": "1",
+        "p": "1"
+      },
+      "prenhe_de": "KODIAK FIV CAMPARINO",
+      "previsao_parto": "10/11/2026",
+      "cria": {
+        "rg": "CSCC10189",
+        "nascimento": "11/10/2025",
+        "idade": "8M",
+        "sexo": "MACHO",
+        "peso_kg": 348,
+        "pai": "KODIAK CAMPARINO"
+      },
+      "obs": null,
+      "youtube": "https://www.youtube.com/watch?v=ThHnWONoMIw&list=PLG-aOwQ6ifTzwR-NNHb0HLIfftKZfcH8G&index=31&pp=iAQB",
+      "drive": "https://drive.google.com/drive/folders/19NmdyCrAbT3HHG3hRQnHREEgZyD8qZs3?usp=drive_link",
+      "mae": "SORAIA DE NAVIRAÍ",
+      "media_url": "https://nfjkzigvxegnhaxxbevt.supabase.co/storage/v1/object/public/lote-gifs/navirai-matrizes-2026-07-05/lote059.mp4"
+    },
+    {
+      "lote": 67,
+      "nome": "9156 FIV DE NAVIRAÍ",
+      "rg": "CSCC9156",
+      "nascimento": "05/11/2023",
+      "idade": "2 ANO 7 M",
+      "categoria": "PARIDA",
+      "peso_atual_kg": 638,
+      "pai": "APOLO FIV DE NAVIRAÍ",
+      "mgte": {
+        "valor": "32,02",
+        "top": "0,5"
+      },
+      "iqg": {
+        "valor": "26,35",
+        "top": "4"
+      },
+      "iabcz": {
+        "valor": "24,69",
+        "deca": "1",
+        "p": "1"
+      },
+      "prenhe_de": "DOMENICO FIV DE NAVIRAÍ",
+      "previsao_parto": "15/10/2026",
+      "cria": {
+        "rg": "CSCC10132",
+        "nascimento": "25/09/2025",
+        "idade": "9M",
+        "sexo": "MACHO",
+        "peso_kg": 380,
+        "pai": "VIGOR DA BAMBU"
+      },
+      "obs": null,
+      "youtube": "https://www.youtube.com/watch?v=y-ZJhf-uUzY&list=PLG-aOwQ6ifTzwR-NNHb0HLIfftKZfcH8G&index=34&pp=iAQB",
+      "drive": "https://drive.google.com/drive/folders/1SzUzGYOZBNch7xi4WL6vgsE-hYMvLJoI?usp=drive_link",
+      "mae": "7934 FIV DE NAVIRAÍ",
+      "media_url": "https://nfjkzigvxegnhaxxbevt.supabase.co/storage/v1/object/public/lote-gifs/navirai-matrizes-2026-07-05/lote067.mp4"
+    },
+    {
+      "lote": 73,
+      "nome": "9015 DE NAVIRAÍ",
+      "rg": "CSCC9015",
+      "nascimento": "30/09/2023",
+      "idade": "2 ANO 8 M",
+      "categoria": "PARIDA",
+      "peso_atual_kg": 660,
+      "pai": "261 FIV DE NAVIRAÍ",
+      "mgte": {
+        "valor": "25,75",
+        "top": "9"
+      },
+      "iqg": {
+        "valor": "29,43",
+        "top": "2"
+      },
+      "iabcz": {
+        "valor": "22,54",
+        "deca": "1",
+        "p": "2"
+      },
+      "prenhe_de": "BRAMADERO FIV DE NAVIRAÍ",
+      "previsao_parto": "15/01/2027",
+      "cria": {
+        "rg": "CSCC10207",
+        "nascimento": "22/10/2025",
+        "idade": "8M",
+        "sexo": "FEMEA",
+        "peso_kg": 275,
+        "pai": "VIGOR DA BAMBU"
+      },
+      "obs": null,
+      "youtube": "https://www.youtube.com/watch?v=zsZLsXFZUrk&list=PLG-aOwQ6ifTzwR-NNHb0HLIfftKZfcH8G",
+      "drive": "https://drive.google.com/drive/folders/1AWCN7p5FiHFbrztSYBnleCl1b_uo8-S3?usp=drive_link",
+      "mae": "291 FIV DE NAVIRAÍ",
+      "media_url": "https://nfjkzigvxegnhaxxbevt.supabase.co/storage/v1/object/public/lote-gifs/navirai-matrizes-2026-07-05/lote073.mp4"
+    },
+    {
+      "lote": 86,
+      "nome": "8612 FIV DE NAVIRAÍ",
+      "rg": "CSCC8612",
+      "nascimento": "04/01/2023",
+      "idade": "3 ANO 5 M",
+      "categoria": "PARIDA",
+      "peso_atual_kg": 760,
+      "pai": "UZI DE NAVIRAÍ",
+      "mgte": {
+        "valor": "26,6",
+        "top": "7"
+      },
+      "iqg": {
+        "valor": "21,62",
+        "top": "8"
+      },
+      "iabcz": {
+        "valor": "24,73",
+        "deca": "1",
+        "p": "1"
+      },
+      "prenhe_de": "DOMENICO FIV DE NAVIRAÍ",
+      "previsao_parto": "20/12/2026",
+      "cria": {
+        "rg": "CSCC10362",
+        "nascimento": "02/12/2025",
+        "idade": "6M",
+        "sexo": "MACHO",
+        "peso_kg": 266,
+        "pai": "NAVIRAÍ CONDE"
+      },
+      "obs": null,
+      "youtube": "https://www.youtube.com/watch?v=0XU9lI1YHKo&list=PLG-aOwQ6ifTzwR-NNHb0HLIfftKZfcH8G&index=38&pp=iAQB",
+      "drive": "https://drive.google.com/drive/folders/17SR7rB3X5ZGgpaOxGn2kb4mDTel1ebml?usp=drive_link",
+      "mae": "6857 FIV DE NAVIRAÍ",
+      "media_url": "https://nfjkzigvxegnhaxxbevt.supabase.co/storage/v1/object/public/lote-gifs/navirai-matrizes-2026-07-05/lote086.mp4"
+    },
+    {
+      "lote": 87,
+      "nome": "8487 DE NAVIRAÍ",
+      "rg": "CSCC8487",
+      "nascimento": "30/11/2022",
+      "idade": "3 ANO 6 M",
+      "categoria": "PARIDA",
+      "peso_atual_kg": 692,
+      "pai": "261 FIV DE NAVIRAÍ",
+      "mgte": {
+        "valor": "26,02",
+        "top": "8"
+      },
+      "iqg": {
+        "valor": "24,98",
+        "top": "5"
+      },
+      "iabcz": {
+        "valor": "20,87",
+        "deca": "1",
+        "p": "3"
+      },
+      "prenhe_de": "VISUAL DE NAVIRAÍ",
+      "previsao_parto": "17/11/2026",
+      "cria": {
+        "rg": "CSCC10116",
+        "nascimento": "19/09/2025",
+        "idade": "9M",
+        "sexo": "FEMEA",
+        "peso_kg": 332,
+        "pai": "VISUAL DE NAVIRAÍ"
+      },
+      "obs": null,
+      "youtube": "https://www.youtube.com/watch?v=AZcKGt9mwaI&list=PLG-aOwQ6ifTzwR-NNHb0HLIfftKZfcH8G&index=39&pp=iAQB",
+      "drive": "https://drive.google.com/drive/folders/1CMpXxzqjqcJCStQ4i9gv3kM9l4IWsBeA?usp=drive_link",
+      "mae": "7316 FIV DE NAVIRAÍ",
+      "media_url": "https://nfjkzigvxegnhaxxbevt.supabase.co/storage/v1/object/public/lote-gifs/navirai-matrizes-2026-07-05/lote087.mp4"
+    },
+    {
+      "lote": 91,
+      "nome": "8343 DE NAVIRAÍ",
+      "rg": "CSCC8343",
+      "nascimento": "20/10/2022",
+      "idade": "3 ANO 8 M",
+      "categoria": "PARIDA",
+      "peso_atual_kg": 632,
+      "pai": "VIP FIV DE NAVIRAÍ",
+      "mgte": {
+        "valor": "23,51",
+        "top": "12"
+      },
+      "iqg": {
+        "valor": "23,02",
+        "top": "6"
+      },
+      "iabcz": {
+        "valor": "14,27",
+        "deca": "1",
+        "p": "10"
+      },
+      "prenhe_de": "VISUAL DE NAVIRAÍ",
+      "previsao_parto": "15/10/2026",
+      "cria": {
+        "rg": "CSCC10107",
+        "nascimento": "16/09/2025",
+        "idade": "9M",
+        "sexo": "MACHO",
+        "peso_kg": 416,
+        "pai": "FNAN BRIOSO"
+      },
+      "obs": null,
+      "youtube": "https://www.youtube.com/watch?v=S7ZbWD7mhR8&list=PLG-aOwQ6ifTzwR-NNHb0HLIfftKZfcH8G&index=41&pp=iAQB",
+      "drive": "https://drive.google.com/drive/folders/1yHqgxfMmi7Wz9mndU7TQeDiHCQTX_H3B?usp=drive_link",
+      "mae": "7352 DE NAVIRAÍ",
+      "media_url": "https://nfjkzigvxegnhaxxbevt.supabase.co/storage/v1/object/public/lote-gifs/navirai-matrizes-2026-07-05/lote091.mp4"
+    },
+    {
+      "lote": 93,
+      "nome": "NAVIRAÍ FIV 21456-22",
+      "rg": "CSCN21456",
+      "nascimento": "02/08/2022",
+      "idade": "3 ANO 10 M",
+      "categoria": "PARIDA",
+      "peso_atual_kg": 730,
+      "pai": "UTAM DE NAVIRAÍ",
+      "mgte": {
+        "valor": "27,31",
+        "top": "6"
+      },
+      "iqg": {
+        "valor": "28,27",
+        "top": "3"
+      },
+      "iabcz": {
+        "valor": "26,95",
+        "deca": "1",
+        "p": "0,5"
+      },
+      "prenhe_de": "DUELO FIV DE NAVIRAÍ",
+      "previsao_parto": "10/11/2026",
+      "cria": {
+        "rg": "CSCC10267",
+        "nascimento": "28/10/2025",
+        "idade": "7M",
+        "sexo": "MACHO",
+        "peso_kg": 348,
+        "pai": "NAVIRAÍ CZAR"
+      },
+      "obs": null,
+      "youtube": "https://www.youtube.com/watch?v=o2kXQtngJV4&list=PLG-aOwQ6ifTzwR-NNHb0HLIfftKZfcH8G&index=43&pp=iAQB",
+      "drive": "https://drive.google.com/drive/folders/1f0GQcaMA9Yrk7q-4ux85hyl2bV0akNW0?usp=drive_link",
+      "mae": "NAVIRAÍ 15957-16",
+      "media_url": "https://nfjkzigvxegnhaxxbevt.supabase.co/storage/v1/object/public/lote-gifs/navirai-matrizes-2026-07-05/lote093.mp4"
+    },
+    {
+      "lote": 94,
+      "nome": "NAVIRAÍ 21152-22",
+      "rg": "CSCN21152",
+      "nascimento": "04/02/2022",
+      "idade": "4 ANO 4 M",
+      "categoria": "PARIDA",
+      "peso_atual_kg": 790,
+      "pai": "URCO FIV DE NAV.",
+      "mgte": {
+        "valor": "23,79",
+        "top": "12"
+      },
+      "iqg": {
+        "valor": "19,43",
+        "top": "11"
+      },
+      "iabcz": {
+        "valor": "15,11",
+        "deca": "1",
+        "p": "8"
+      },
+      "prenhe_de": "DILUVIO FIV JMP",
+      "previsao_parto": "10/11/2026",
+      "cria": {
+        "rg": "CSCC10298",
+        "nascimento": "05/11/2025",
+        "idade": "7M",
+        "sexo": "MACHO",
+        "peso_kg": 300,
+        "pai": "HANDI MAT"
+      },
+      "obs": null,
+      "youtube": "https://www.youtube.com/watch?v=toKRxHqhDcc&list=PLG-aOwQ6ifTzwR-NNHb0HLIfftKZfcH8G&index=44&pp=iAQB",
+      "drive": "https://drive.google.com/drive/folders/1mwxIFqDmhppC-cr80Rd0QjONVWQC9-0H?usp=drive_link",
+      "mae": "NAVIRAÍ FIV 13243-13",
+      "media_url": "https://nfjkzigvxegnhaxxbevt.supabase.co/storage/v1/object/public/lote-gifs/navirai-matrizes-2026-07-05/lote094.mp4"
+    }
+  ]
+}

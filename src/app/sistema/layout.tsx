@@ -8,7 +8,7 @@ import {
   LayoutDashboard, LogOut, Menu, X, Users, Settings, Calendar,
   MessageCircle, FileText, Sparkles, Gavel, Shield, ChevronDown,
   BarChart2, Target, BarChart3, Megaphone,
-  Mail, ImageIcon, Contact, FileVideo,
+  Mail, ImageIcon, Contact, FileVideo, Clapperboard,
 } from 'lucide-react'
 import { createClient } from '@/utils/supabase/client'
 import { ThemeProvider } from '@/components/theme-provider'
@@ -63,6 +63,7 @@ const navConfig: NavEntry[] = [
       { href: '/sistema/analytics', label: 'Analytics', icon: BarChart2 },
       { href: '/sistema/ia', label: 'IA Mapeamento', icon: Sparkles },
       { href: '/sistema/ia/leiloes', label: 'Análise de Leilões', icon: FileVideo },
+      { href: '/sistema/gif-lotes', label: 'GIF de Lotes', icon: Clapperboard },
       { href: '/sistema/biblioteca-midia', label: 'Biblioteca de Mídia', icon: ImageIcon },
     ],
   },

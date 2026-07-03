@@ -116,7 +116,12 @@ function buildContents(item) {
     const type = ['image', 'video', 'audio', 'document'].includes(media.type) ? media.type : 'document'
     const content = { caption: media.caption || message || undefined }
     if (type === 'image') content.image = { url: media.url }
-    else if (type === 'video') content.video = { url: media.url }
+    else if (type === 'video') {
+      content.video = { url: media.url }
+      // `gif: true` → o WhatsApp exibe o vídeo como GIF (loop, sem som).
+      // Usado pela página GIF de Lotes (divulgação de lotes de leilão).
+      if (media.gif) content.gifPlayback = true
+    }
     else if (type === 'audio') { content.audio = { url: media.url }; delete content.caption }
     else { content.document = { url: media.url }; content.fileName = media.filename || 'arquivo'; content.mimetype = media.mime || 'application/octet-stream' }
     contents.push(content)
@@ -272,6 +277,17 @@ async function startSocket() {
 
   socket.ev.on('connection.update', async update => {
     const { connection, lastDisconnect, qr } = update
+    // Log detalhado do handshake (diagnóstico de vínculo). Vai para
+    // /var/log/whatsapp-crm.log (StandardOutput do systemd).
+    console.log(`[conn] ${new Date().toISOString()} ` + JSON.stringify({
+      connection,
+      hasQr: !!qr,
+      isNewLogin: update.isNewLogin,
+      receivedPendingNotifications: update.receivedPendingNotifications,
+      isOnline: update.isOnline,
+      statusCode: lastDisconnect?.error?.output?.statusCode ?? null,
+      err: lastDisconnect?.error?.message ?? null,
+    }))
     if (qr) {
       connectionStatus = 'qr'
       currentQr = qr
@@ -317,6 +333,19 @@ async function startSocket() {
         }, 3000)
       }
     }
+  })
+
+  // Sincronização de histórico: indica que o vínculo avançou para a fase de
+  // sync (o "pesado"). Se aparece progresso, o link em si funcionou.
+  socket.ev.on('messaging-history.set', ({ chats, contacts, messages, isLatest, progress, syncType }) => {
+    console.log(`[history] ${new Date().toISOString()} ` + JSON.stringify({
+      chats: chats?.length ?? 0,
+      contacts: contacts?.length ?? 0,
+      messages: messages?.length ?? 0,
+      progress: progress ?? null,
+      isLatest: isLatest ?? null,
+      syncType: syncType ?? null,
+    }))
   })
 
   socket.ev.on('messages.upsert', async ({ messages, type }) => {

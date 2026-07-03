@@ -15,6 +15,7 @@ const ROUTE_MAP: Record<string, { label: string; section?: string }> = {
   contratos: { label: 'Contratos', section: 'ERP' },
   crm: { label: 'CRM' },
   ia: { label: 'IA Mapeamento', section: 'Ferramentas' },
+  'gif-lotes': { label: 'GIF de Lotes', section: 'Ferramentas' },
   leiloes: { label: 'Leilões' },
   fechamento: { label: 'Fechamento', section: 'Leilões' },
   equipe: { label: 'Equipe', section: 'Leilões' },
