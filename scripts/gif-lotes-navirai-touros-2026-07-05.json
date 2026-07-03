@@ -1,0 +1,155 @@
+{
+  "leilao": "Leilão Naviraí Touros 2026 (05/07)",
+  "slug": "navirai-touros-2026-07-05",
+  "group_id": "120363426815790951@g.us",
+  "contato": "Grupo Workflows e Validações",
+  "gifs_dir": "C:\\Users\\Notebook-Acer\\AppData\\Local\\Temp\\claude\\F--Projetos-Desktop-web-bula\\c07dcd12-705e-4d83-8be6-70947b85c3d9\\scratchpad\\rep-gifs",
+  "media_width": 480,
+  "media_height": 270,
+  "condicoes": {
+    "linhaPagamento": "30x no boleto (2+2+2+2+2+20) • Frete grátis",
+    "linhaFecho": "Garanta o seu no privado!"
+  },
+  "lotes": [
+    {
+      "lote": 1,
+      "nome": "9879 FIV DE NAVIRAÍ",
+      "rg": "CSCC9879",
+      "nascimento": "18/12/2024",
+      "idade": "1 ANO 6 M",
+      "peso_atual_kg": 750,
+      "mgte": {
+        "valor": "27,77",
+        "top": "5"
+      },
+      "iqg": {
+        "valor": "34,78",
+        "top": "0,5"
+      },
+      "iabcz": {
+        "valor": "25,97",
+        "deca": "1",
+        "p": "0,5"
+      },
+      "destaques": "INDICADO PARA NOVILHAS",
+      "youtube": "https://www.youtube.com/watch?v=eCYOygHbPPY&list=PLLTLwo7BoCWw&index=2&pp=iAQB",
+      "pai": "NAVIRAÍ FIV BARÃO",
+      "mae": "BRETEIRA DE NAVIRAÍ",
+      "categoria": "TOURO",
+      "prenhe_de": null,
+      "cria": null
+    },
+    {
+      "lote": 4,
+      "nome": "9749 FIV DE NAVIRAÍ",
+      "rg": "CSCC9749",
+      "nascimento": "29/10/2024",
+      "idade": "1 ANO 7 M",
+      "peso_atual_kg": 750,
+      "mgte": {
+        "valor": "32,42",
+        "top": "0,5"
+      },
+      "iqg": {
+        "valor": "29,13",
+        "top": "2"
+      },
+      "iabcz": {
+        "valor": "25,85",
+        "deca": "1",
+        "p": "0,5"
+      },
+      "destaques": "null",
+      "youtube": "https://www.youtube.com/watch?v=Mrlr1s-3xWE&list=PLLTLwo7BoCWw&index=4&pp=iAQB",
+      "pai": "COMANDER FIV DA JACAMIM",
+      "mae": "8224 FIV DE NAVIRAÍ",
+      "categoria": "TOURO",
+      "prenhe_de": null,
+      "cria": null
+    },
+    {
+      "lote": 10,
+      "nome": "NAVIRAÍ FIV 1968-24",
+      "rg": "CSCK1968",
+      "nascimento": "01/10/2024",
+      "idade": "1 ANO 8 M",
+      "peso_atual_kg": 720,
+      "mgte": {
+        "valor": "27,49",
+        "top": "6"
+      },
+      "iqg": {
+        "valor": "28,23",
+        "top": "3"
+      },
+      "iabcz": {
+        "valor": "23,3",
+        "deca": "1",
+        "p": "2"
+      },
+      "destaques": "null",
+      "youtube": "https://www.youtube.com/watch?v=fw2CDD4v_G4&list=PLLTLwo7BoCWw&index=8&pp=iAQB",
+      "pai": "MAGO DA S.NICE",
+      "mae": "NAVIRAÍ FIV 20705-21",
+      "categoria": "TOURO",
+      "prenhe_de": null,
+      "cria": null
+    },
+    {
+      "lote": 40,
+      "nome": "NAVIRAÍ 22801-24",
+      "rg": "CSCN22801",
+      "nascimento": "10/07/2024",
+      "idade": "1 ANO 11 M",
+      "peso_atual_kg": 783,
+      "mgte": {
+        "valor": "31,64",
+        "top": "1"
+      },
+      "iqg": {
+        "valor": "32,7",
+        "top": "1"
+      },
+      "iabcz": {
+        "valor": "24,63",
+        "deca": "1",
+        "p": "1"
+      },
+      "destaques": "null",
+      "youtube": "https://www.youtube.com/watch?v=A5s1Au8Bmfk&list=PLLTLwo7BoCWw&index=26&pp=iAQB",
+      "pai": "ROLEX FIV TERRA BRAVA",
+      "mae": "NAVIRAÍ 19716-20",
+      "categoria": "TOURO",
+      "prenhe_de": null,
+      "cria": null
+    },
+    {
+      "lote": 41,
+      "nome": "NAVIRAÍ 22838-24",
+      "rg": "CSCN22838",
+      "nascimento": "09/07/2024",
+      "idade": "1 ANO 11 M",
+      "peso_atual_kg": 683,
+      "mgte": {
+        "valor": "20,22",
+        "top": "19"
+      },
+      "iqg": {
+        "valor": "23,68",
+        "top": "6"
+      },
+      "iabcz": {
+        "valor": "18,44",
+        "deca": "1",
+        "p": "4"
+      },
+      "destaques": "MÃE PRECOCE, AVÓ PRECOCE",
+      "youtube": "https://www.youtube.com/watch?v=pjX7uZmKD7w&list=PLLTLwo7BoCWw&index=27&pp=iAQB",
+      "pai": "MAXIMO DO MORRO",
+      "mae": "NAVIRAÍ 21598-22",
+      "categoria": "TOURO",
+      "prenhe_de": null,
+      "cria": null
+    }
+  ]
+}
