@@ -9,8 +9,29 @@ import {
   Search, SlidersHorizontal, Download, RefreshCw,
 } from 'lucide-react'
 import type { BulaLeilao, LeilaoGrupo, LeilaoTask } from '@/lib/bula/types'
+import { createClient as createBrowserSupabase } from '@/utils/supabase/client'
 
 // ── Helpers ──────────────────────────────────────────────────────────────────
+
+// Upload de catálogo direto do navegador → Supabase Storage, sem passar pela
+// rota /api. A função serverless da Vercel tem limite de ~4.5MB no corpo da
+// requisição, e catálogos de leilão costumam ter 6–10MB, então o upload pelo
+// proxy falhava silenciosamente (413). O bucket `leilao-catalogos` é público e
+// tem policy de INSERT para usuário autenticado (migration 0018).
+async function uploadCatalogoDireto(file: File): Promise<string> {
+  if (file.type !== 'application/pdf' && !file.name.toLowerCase().endsWith('.pdf')) {
+    throw new Error('Apenas PDF é permitido')
+  }
+  if (file.size > 25 * 1024 * 1024) throw new Error('Arquivo acima de 25MB')
+  const safeName = file.name.toLowerCase().replace(/[^a-z0-9.\-_]+/g, '-').replace(/-+/g, '-').replace(/^-|-$/g, '')
+  const path = `${Date.now()}-${Math.random().toString(36).slice(2)}-${safeName || 'catalogo.pdf'}`
+  const supabase = createBrowserSupabase()
+  const { error } = await supabase.storage
+    .from('leilao-catalogos')
+    .upload(path, file, { contentType: 'application/pdf', upsert: false })
+  if (error) throw new Error(error.message)
+  return supabase.storage.from('leilao-catalogos').getPublicUrl(path).data.publicUrl
+}
 
 const MES_NAMES = ['', 'Janeiro', 'Fevereiro', 'Março', 'Abril', 'Maio', 'Junho',
   'Julho', 'Agosto', 'Setembro', 'Outubro', 'Novembro', 'Dezembro']
@@ -1078,11 +1099,9 @@ function FormModal({ initial, cronoId, onClose, onSaved }: {
     const file = e.target.files?.[0]; if (!file) return
     setUploadingCatalogo(true); setError(null)
     try {
-      const fd = new FormData(); fd.append('file', file)
-      const res = await fetch('/api/leiloes/catalogo-upload', { method: 'POST', body: fd })
-      const json = await res.json()
-      if (json.url) set('catalogo_url', json.url); else setError(json.error || 'Erro ao enviar catálogo')
-    } catch { setError('Erro ao enviar catálogo') } finally { setUploadingCatalogo(false); e.target.value = '' }
+      const url = await uploadCatalogoDireto(file)
+      set('catalogo_url', url)
+    } catch (err) { setError(err instanceof Error ? err.message : 'Erro ao enviar catálogo') } finally { setUploadingCatalogo(false); e.target.value = '' }
   }
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -1266,11 +1285,9 @@ function CronogramaFormModal({ initial, onClose, onSaved }: { initial: DbLeilao 
     const file = e.target.files?.[0]; if (!file) return
     setUploadingCatalogo(true); setError(null)
     try {
-      const fd = new FormData(); fd.append('file', file)
-      const res = await fetch('/api/leiloes/catalogo-upload', { method: 'POST', body: fd })
-      const json = await res.json()
-      if (json.url) set('catalogo_url', json.url); else setError(json.error || 'Erro ao enviar catálogo')
-    } catch { setError('Erro ao enviar catálogo') } finally { setUploadingCatalogo(false); e.target.value = '' }
+      const url = await uploadCatalogoDireto(file)
+      set('catalogo_url', url)
+    } catch (err) { setError(err instanceof Error ? err.message : 'Erro ao enviar catálogo') } finally { setUploadingCatalogo(false); e.target.value = '' }
   }
 
   const handleSubmit = async (e: React.FormEvent) => {
