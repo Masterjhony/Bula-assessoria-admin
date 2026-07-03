@@ -121,7 +121,12 @@ for (const l of lots) {
     body: JSON.stringify({
       ...dest,
       message: '',
-      media: { type: 'video', url: mediaUrl, caption, gif: true },
+      media: {
+        type: 'video', url: mediaUrl, caption, gif: true,
+        // dimensões dos clipes gerados (480x270 16:9) — iOS precisa do aspect
+        width: l.media_width || job.media_width || 480,
+        height: l.media_height || job.media_height || 270,
+      },
     }),
   })
   const body = await res.json().catch(() => ({}))

@@ -20,6 +20,9 @@ interface SendItem {
   caption: string
   media_url?: string | null
   media_type?: 'video' | 'image' | null
+  /** Dimensões do vídeo — sem elas o iOS renderiza o GIF com aspect errado. */
+  media_width?: number | null
+  media_height?: number | null
 }
 
 export async function GET() {
@@ -67,6 +70,8 @@ export async function POST(request: Request) {
           caption: item.caption,
           // vídeo curto exibido como GIF no WhatsApp (loop, sem som)
           ...(item.media_type !== 'image' ? { gif: true } : {}),
+          ...(item.media_width ? { width: item.media_width } : {}),
+          ...(item.media_height ? { height: item.media_height } : {}),
         }
       : null
     const payload: Record<string, unknown> = groupId

@@ -121,6 +121,11 @@ function buildContents(item) {
       // `gif: true` → o WhatsApp exibe o vídeo como GIF (loop, sem som).
       // Usado pela página GIF de Lotes (divulgação de lotes de leilão).
       if (media.gif) content.gifPlayback = true
+      // Dimensões explícitas: sem elas (e sem thumbnail) o iOS renderiza o
+      // vídeo com proporção errada, cortando o quadro. O ffmpeg no VPS já
+      // gera a thumbnail; width/height reforçam o aspect no proto.
+      if (media.width) content.width = Number(media.width)
+      if (media.height) content.height = Number(media.height)
     }
     else if (type === 'audio') { content.audio = { url: media.url }; delete content.caption }
     else { content.document = { url: media.url }; content.fileName = media.filename || 'arquivo'; content.mimetype = media.mime || 'application/octet-stream' }
