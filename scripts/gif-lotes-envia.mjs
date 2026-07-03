@@ -1,6 +1,6 @@
 // Envia GIFs de lotes (vídeo ~6s + legenda juntos) pelo Baileys (VPS).
 //
-// Job = JSON com { phone, leilao, gifs_dir, lotes: [...] } — ver
+// Job = JSON com { phone OU group_id, leilao, gifs_dir, lotes: [...] } — ver
 // scripts/gif-lotes-navirai-2026-07-05.json como exemplo. Os MP4s são
 // enviados ao bucket público `lote-gifs` e o VPS recebe a URL + caption.
 //
@@ -113,11 +113,13 @@ for (const l of lots) {
 
   if (uploadOnly) { console.log(`lote ${l.lote}: ${mediaUrl}`); continue }
 
-  const res = await fetch(`${VPS}/send-direct`, {
+  const endpoint = job.group_id ? '/send-group' : '/send-direct'
+  const dest = job.group_id ? { groupId: job.group_id } : { phone: job.phone }
+  const res = await fetch(`${VPS}${endpoint}`, {
     method: 'POST',
     headers: VPS_HEADERS,
     body: JSON.stringify({
-      phone: job.phone,
+      ...dest,
       message: '',
       media: { type: 'video', url: mediaUrl, caption, gif: true },
     }),
@@ -128,7 +130,7 @@ for (const l of lots) {
   if (ok) enviados++
 
   await supabase.from('whatsapp_messages').insert({
-    phone: job.phone,
+    phone: job.group_id || job.phone,
     name: job.contato || 'Contato',
     body: `[gif-lotes L${l.lote}] ${caption.slice(0, 400)}`,
     direction: 'outbound',
