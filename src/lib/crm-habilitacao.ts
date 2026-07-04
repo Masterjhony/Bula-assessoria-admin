@@ -1,0 +1,166 @@
+/**
+ * Checklist de HABILITAÇÃO do lead — fonte única de verdade sobre "o que falta"
+ * para o cadastro em leiloeiras (comprar parcelado em leilão).
+ *
+ * É usado em três lugares, sempre com a MESMA regra:
+ *   • Concierge IA — o checklist é injetado no prompt ("já temos X, falta Y"),
+ *     então a IA nunca pede o que já foi coletado e sabe exatamente o próximo
+ *     passo (assertividade vem daqui, não do "feeling" do modelo);
+ *   • Lógica determinística de etapas — INFORMAÇÕES CAPTADAS/pronto-para-
+ *     cadastro é decidido por dados, auditável;
+ *   • UI (inbox/cockpit/card do CRM) — o humano vê o progresso da conversa.
+ *
+ * Os campos do titular vivem nas colunas reais de `crm_leads`; os da
+ * propriedade e o "recibo semântico" dos documentos vivem em `extra_data`
+ * (padrão do projeto). Documentos têm dupla checagem: a IA marca o que
+ * reconheceu (`docs_recebidos`), mas só conta se existir arquivo REAL em
+ * `crm_lead_documentos` — o modelo não consegue "inventar" documento.
+ */
+
+export type ChecklistGroup = 'titular' | 'propriedade' | 'documentos'
+
+export interface ChecklistItem {
+    key: string
+    /** Rótulo curto exibido na UI e no prompt da IA. */
+    label: string
+    group: ChecklistGroup
+    done: boolean
+    /** Valor já coletado (quando aplicável), para exibição. */
+    value?: string
+}
+
+export interface HabilitacaoChecklist {
+    items: ChecklistItem[]
+    done: number
+    total: number
+    /** true quando TODOS os itens estão ok e há ≥2 arquivos reais. */
+    complete: boolean
+    missingLabels: string[]
+}
+
+/** Tipos semânticos de documento que a IA pode marcar como recebidos. */
+export const DOC_TIPOS_SEMANTICOS = [
+    'identidade',            // foto da CNH/RG
+    'identidade_selfie',     // foto segurando o documento (autenticidade)
+    'comprovante_propriedade',
+    'ie_nirf',               // cartão/comprovante de I.E. ou NIRF
+] as const
+export type DocTipoSemantico = (typeof DOC_TIPOS_SEMANTICOS)[number]
+
+export interface HabilitacaoInput {
+    nome?: string | null
+    cpf?: string | null
+    telefone?: string | null
+    celular?: string | null
+    email?: string | null
+    inscricao_estadual?: string | null
+    tem_inscricao_estadual?: string | null
+    extra_data?: Record<string, unknown> | null
+    /** Quantos arquivos reais existem em crm_lead_documentos. */
+    docsCount: number
+    /** Tipos (heurísticos) dos arquivos reais: 'ie' | 'cpf' | 'comprovante' | ... */
+    docTipos?: string[]
+}
+
+const digits = (v: unknown) => String(v ?? '').replace(/\D/g, '')
+const str = (v: unknown) => String(v ?? '').trim()
+
+function xd(input: HabilitacaoInput, key: string): string {
+    return str((input.extra_data ?? {})[key])
+}
+
+function docsRecebidos(input: HabilitacaoInput): Set<string> {
+    const raw = (input.extra_data ?? {}).docs_recebidos
+    const set = new Set<string>()
+    if (Array.isArray(raw)) for (const d of raw) set.add(String(d))
+    return set
+}
+
+/**
+ * Calcula o checklist de habilitação a partir do estado atual do lead.
+ * Determinístico e barato — pode rodar a cada mensagem.
+ */
+export function computeHabilitacaoChecklist(input: HabilitacaoInput): HabilitacaoChecklist {
+    const semantic = docsRecebidos(input)
+    const tipos = new Set((input.docTipos ?? []).map(t => String(t)))
+    const temArquivoReal = input.docsCount >= 1
+
+    const nome = str(input.nome)
+    const cpf = digits(input.cpf)
+    const fone = str(input.celular) || str(input.telefone)
+    const email = str(input.email)
+    const endereco = xd(input, 'endereco_titular')
+    const fazendaNome = xd(input, 'fazenda_nome')
+    const fazendaCidade = xd(input, 'fazenda_cidade')
+    const fazendaUf = xd(input, 'fazenda_uf')
+    const ie = str(input.inscricao_estadual)
+    const temIe = str(input.tem_inscricao_estadual).toLowerCase() === 'sim'
+
+    // Documentos: a marcação semântica da IA só vale com arquivo real por trás.
+    const docIdentidade = temArquivoReal && (semantic.has('identidade') || tipos.has('cpf'))
+    const docSelfie = temArquivoReal && semantic.has('identidade_selfie')
+    const docFiscal = temArquivoReal && (
+        semantic.has('comprovante_propriedade') || semantic.has('ie_nirf')
+        || tipos.has('ie') || tipos.has('comprovante')
+    )
+
+    const items: ChecklistItem[] = [
+        { key: 'nome_completo', label: 'Nome completo', group: 'titular', done: /\S+\s+\S+/.test(nome), value: nome || undefined },
+        { key: 'cpf', label: 'CPF', group: 'titular', done: cpf.length === 11, value: cpf || undefined },
+        { key: 'telefone', label: 'Telefone', group: 'titular', done: fone.length >= 8, value: fone || undefined },
+        { key: 'email', label: 'E-mail', group: 'titular', done: email.includes('@'), value: email || undefined },
+        { key: 'endereco', label: 'Endereço do titular (cidade/UF/CEP)', group: 'titular', done: endereco.length >= 8, value: endereco || undefined },
+
+        { key: 'fazenda_nome', label: 'Nome da fazenda (entrega)', group: 'propriedade', done: fazendaNome.length >= 2, value: fazendaNome || undefined },
+        {
+            key: 'fazenda_local', label: 'Cidade/UF da fazenda', group: 'propriedade',
+            done: fazendaCidade.length >= 2 && fazendaUf.length === 2,
+            value: fazendaCidade ? `${fazendaCidade}${fazendaUf ? '/' + fazendaUf : ''}` : undefined,
+        },
+        {
+            key: 'inscricao_estadual', label: 'Inscrição Estadual (ou NIRF)', group: 'propriedade',
+            done: ie.length >= 3 || temIe,
+            value: ie || (temIe ? 'Tem (nº pendente)' : undefined),
+        },
+
+        { key: 'doc_identidade', label: 'Foto da CNH/RG', group: 'documentos', done: docIdentidade },
+        { key: 'doc_identidade_selfie', label: 'Foto segurando o documento', group: 'documentos', done: docSelfie },
+        { key: 'doc_fiscal', label: 'Comprovante da propriedade / I.E. / NIRF', group: 'documentos', done: docFiscal },
+    ]
+
+    const done = items.filter(i => i.done).length
+    const complete = done === items.length && input.docsCount >= 2
+    return {
+        items,
+        done,
+        total: items.length,
+        complete,
+        missingLabels: items.filter(i => !i.done).map(i => i.label),
+    }
+}
+
+const GROUP_LABEL: Record<ChecklistGroup, string> = {
+    titular: 'Dados do titular',
+    propriedade: 'Dados da propriedade',
+    documentos: 'Documentos',
+}
+
+/**
+ * Bloco de texto do checklist para o prompt da IA: o que JÁ TEMOS (com valor)
+ * e o que FALTA, agrupado. É isto que impede a IA de repetir perguntas e a faz
+ * pedir exatamente o próximo item.
+ */
+export function checklistPromptBlock(cl: HabilitacaoChecklist): string {
+    const lines: string[] = []
+    for (const group of ['titular', 'propriedade', 'documentos'] as ChecklistGroup[]) {
+        const items = cl.items.filter(i => i.group === group)
+        lines.push(`${GROUP_LABEL[group]}:`)
+        for (const i of items) {
+            lines.push(i.done ? `  ✔ ${i.label}${i.value ? `: ${i.value}` : ''}` : `  ✘ FALTA — ${i.label}`)
+        }
+    }
+    lines.push(cl.complete
+        ? 'CHECKLIST COMPLETO: não peça mais nada; confirme e informe que a habilitação foi encaminhada.'
+        : `Progresso: ${cl.done}/${cl.total}. Peça SOMENTE itens marcados com ✘, priorizando dados antes de documentos.`)
+    return lines.join('\n')
+}

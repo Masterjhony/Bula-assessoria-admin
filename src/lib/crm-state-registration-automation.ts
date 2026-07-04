@@ -1,6 +1,8 @@
 import type { SupabaseClient } from '@supabase/supabase-js'
 import {
   CRM_STAGE_QUALIFICATION,
+  CRM_STAGE_INFO_CAPTURED,
+  CRM_STAGE_REGISTRATION,
   DEFAULT_JMP_MQL_RULE,
   evaluateMql,
   normalizeCRMStatus,
@@ -28,8 +30,16 @@ type PreviousLike = { status?: string | null } | null | undefined
 
 const RECHECK_DAYS = 30
 
+// Como no crédito: a I.E. continua necessária depois da QUALIFICAÇÃO — lead
+// que avança direto (movido pela IA) também dispara a consulta.
+const IE_STAGES = new Set([
+  CRM_STAGE_QUALIFICATION,
+  CRM_STAGE_INFO_CAPTURED,
+  CRM_STAGE_REGISTRATION,
+])
+
 function isQualification(status: string): boolean {
-  return normalizeCRMStatus(status) === CRM_STAGE_QUALIFICATION
+  return IE_STAGES.has(normalizeCRMStatus(status))
 }
 
 function recentlyChecked(extra: Record<string, unknown> | null | undefined): boolean {

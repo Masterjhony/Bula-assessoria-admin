@@ -44,6 +44,33 @@ const DOC_TIPO_LABELS: Record<string, string> = {
 
 const DOC_TIPO_OPTIONS = ["ie", "cpf", "comprovante", "contrato", "outro"] as const
 
+/** Progresso da habilitação (o mesmo checklist que guia a IA — /api/whatsapp/habilitacao). */
+type HabilitacaoData = {
+    lead: {
+        id: string
+        status: string
+        urgencia: string | null
+        proximaAcao: string | null
+        cadastroStatus: string | null
+        score: number | null
+        pendencias: string | null
+    } | null
+    checklist: {
+        items: { key: string; label: string; group: "titular" | "propriedade" | "documentos"; done: boolean; value?: string }[]
+        done: number
+        total: number
+        complete: boolean
+        missingLabels: string[]
+    }
+    stageHistory: { from: string; to: string; reason: string; by: string; at: string }[]
+}
+
+const HABILITACAO_GROUP_LABELS: Record<string, string> = {
+    titular: "Titular",
+    propriedade: "Propriedade",
+    documentos: "Documentos",
+}
+
 // Placeholders de texto que o webhook grava para mídia — quando há player/preview
 // renderizado, escondemos esse texto redundante.
 const MEDIA_PLACEHOLDERS = new Set(["[áudio]", "[imagem]", "[vídeo]", "[documento]"])
@@ -238,6 +265,9 @@ export function InboxTab({ templates, channel = "oficial" }: { templates: Templa
     const [docsLoading, setDocsLoading] = useState(false)
     const [docBusy, setDocBusy] = useState<string | null>(null)
 
+    // Progresso da habilitação (o mesmo checklist que guia a IA do concierge).
+    const [habilitacao, setHabilitacao] = useState<HabilitacaoData | null>(null)
+
     // Só templates aprovados pela Meta podem ser disparados como template oficial.
     const approvedTemplates = useMemo(() => templates.filter(t => t.meta_status === "APPROVED"), [templates])
 
@@ -273,6 +303,16 @@ export function InboxTab({ templates, channel = "oficial" }: { templates: Templa
             setWindowExpiresAt(null)
         } finally {
             setLoadingThread(false)
+        }
+    }
+
+    async function fetchHabilitacao(phone: string) {
+        try {
+            const res = await fetch(`/api/whatsapp/habilitacao/${encodeURIComponent(phone)}`)
+            const data = await res.json()
+            setHabilitacao(data?.checklist ? (data as HabilitacaoData) : null)
+        } catch {
+            setHabilitacao(null)
         }
     }
 
@@ -336,7 +376,11 @@ export function InboxTab({ templates, channel = "oficial" }: { templates: Templa
         // Ao trocar de conversa, recarrega a thread e volta para a aba Detalhes.
         setLeadTab("detalhes")
         setDocs([])
-        if (selectedPhone) fetchThread(selectedPhone)
+        setHabilitacao(null)
+        if (selectedPhone) {
+            fetchThread(selectedPhone)
+            fetchHabilitacao(selectedPhone)
+        }
     }, [selectedPhone])
 
     useEffect(() => {
@@ -864,6 +908,63 @@ export function InboxTab({ templates, channel = "oficial" }: { templates: Templa
                                             </div>
                                         )}
                                     </div>
+
+                                    {/* Habilitação — mesmo checklist que guia a IA do concierge */}
+                                    {habilitacao?.checklist && (
+                                        <div className="space-y-2 border-t pt-3">
+                                            <div className="flex items-center justify-between">
+                                                <p className="text-[10px] uppercase tracking-wider text-muted-foreground">Habilitação p/ compra</p>
+                                                <span className={`text-[11px] font-medium ${habilitacao.checklist.complete ? "text-emerald-600 dark:text-emerald-400" : "text-muted-foreground"}`}>
+                                                    {habilitacao.checklist.done}/{habilitacao.checklist.total}
+                                                </span>
+                                            </div>
+                                            <div className="h-1.5 rounded-full bg-muted overflow-hidden">
+                                                <div
+                                                    className={`h-full rounded-full transition-all ${habilitacao.checklist.complete ? "bg-emerald-500" : "bg-amber-500"}`}
+                                                    style={{ width: `${Math.round((habilitacao.checklist.done / Math.max(1, habilitacao.checklist.total)) * 100)}%` }}
+                                                />
+                                            </div>
+                                            {(["titular", "propriedade", "documentos"] as const).map(group => (
+                                                <div key={group} className="space-y-0.5">
+                                                    <p className="text-[10px] text-muted-foreground mt-1">{HABILITACAO_GROUP_LABELS[group]}</p>
+                                                    {habilitacao.checklist.items.filter(i => i.group === group).map(i => (
+                                                        <div key={i.key} className="flex items-start gap-1.5 text-xs">
+                                                            {i.done
+                                                                ? <CheckCircle2 className="h-3.5 w-3.5 text-emerald-500 shrink-0 mt-0.5" />
+                                                                : <AlertCircle className="h-3.5 w-3.5 text-amber-500 shrink-0 mt-0.5" />}
+                                                            <span className={i.done ? "" : "text-muted-foreground"}>
+                                                                {i.label}
+                                                                {i.done && i.value ? <span className="text-muted-foreground"> · {i.value}</span> : null}
+                                                            </span>
+                                                        </div>
+                                                    ))}
+                                                </div>
+                                            ))}
+                                            {habilitacao.lead?.score != null && (
+                                                <p className="text-xs"><strong>Score:</strong> {habilitacao.lead.score}{habilitacao.lead.pendencias ? ` · ${habilitacao.lead.pendencias}` : ""}</p>
+                                            )}
+                                            {habilitacao.checklist.complete && (
+                                                <p className="text-[11px] text-emerald-600 dark:text-emerald-400 font-medium">
+                                                    ✓ Pronto para revisão humana — aprovar cadastro no CRM.
+                                                </p>
+                                            )}
+                                        </div>
+                                    )}
+
+                                    {/* Últimas movimentações de etapa (auditoria da IA) */}
+                                    {(habilitacao?.stageHistory?.length ?? 0) > 0 && (
+                                        <div className="space-y-1.5 border-t pt-3">
+                                            <p className="text-[10px] uppercase tracking-wider text-muted-foreground">Movimentações de etapa</p>
+                                            <ul className="space-y-1">
+                                                {habilitacao!.stageHistory.slice(0, 4).map((h, i) => (
+                                                    <li key={i} className="text-[11px] text-muted-foreground">
+                                                        <span className="font-medium text-foreground">{h.from} → {h.to}</span>
+                                                        {" "}· {h.reason} <span className="opacity-70">({h.by === "ia" ? "IA" : h.by} · {timeAgo(h.at)})</span>
+                                                    </li>
+                                                ))}
+                                            </ul>
+                                        </div>
+                                    )}
 
                                     <div className="space-y-1.5 border-t pt-3">
                                         <p className="text-[10px] uppercase tracking-wider text-muted-foreground">Atribuição</p>

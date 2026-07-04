@@ -20,6 +20,7 @@ type ClienteRow = {
   cpf: string | null; inscricao_estadual: string | null; tem_inscricao_estadual: string | null
   score_credito: number | null; score_faixa: string | null
   momento_pecuaria: string | null; operacao_pecuaria: string | null
+  crm_lead_id: string | null
 }
 
 type LeiloeiraRow = {
@@ -81,7 +82,7 @@ export async function submitClienteToLeiloeiras(
 
   const { data: cliData } = await supabase
     .from('clientes')
-    .select('match_key, nome, responsavel, telefone, email, cidade, uf, cpf, inscricao_estadual, tem_inscricao_estadual, score_credito, score_faixa, momento_pecuaria, operacao_pecuaria')
+    .select('match_key, nome, responsavel, telefone, email, cidade, uf, cpf, inscricao_estadual, tem_inscricao_estadual, score_credito, score_faixa, momento_pecuaria, operacao_pecuaria, crm_lead_id')
     .eq('match_key', matchKey)
     .maybeSingle()
   const cli = cliData as ClienteRow | null
@@ -107,13 +108,27 @@ export async function submitClienteToLeiloeiras(
       .map((s: { leiloeira_id: string }) => s.leiloeira_id),
   )
 
-  // links de documentos (signed URLs)
+  // links de documentos (signed URLs): documentos do CLIENTE + documentos que o
+  // LEAD enviou pelo WhatsApp (crm_lead_documentos — mesma infra/bucket). Sem a
+  // união, os docs coletados pela IA na conversa não chegavam às leiloeiras.
+  const docRefs: { nome_arquivo: string; path: string }[] = []
   const { data: docsData } = await supabase
     .from('cliente_documentos')
     .select('nome_arquivo, path')
     .eq('cliente_key', matchKey)
+  docRefs.push(...((docsData ?? []) as { nome_arquivo: string; path: string }[]))
+  if (cli.crm_lead_id) {
+    const { data: leadDocs } = await supabase
+      .from('crm_lead_documentos')
+      .select('nome_arquivo, path')
+      .eq('lead_id', cli.crm_lead_id)
+    docRefs.push(...((leadDocs ?? []) as { nome_arquivo: string; path: string }[]))
+  }
   const docs: { nome: string; url: string }[] = []
-  for (const d of (docsData ?? []) as { nome_arquivo: string; path: string }[]) {
+  const seenDocs = new Set<string>()
+  for (const d of docRefs) {
+    if (!d.path || seenDocs.has(d.nome_arquivo)) continue
+    seenDocs.add(d.nome_arquivo)
     const { data: signed } = await supabase.storage.from(DOCS_BUCKET).createSignedUrl(d.path, 7 * 86400)
     if (signed?.signedUrl) docs.push({ nome: d.nome_arquivo, url: signed.signedUrl })
   }

@@ -11,6 +11,7 @@ import type { SupabaseClient } from '@supabase/supabase-js'
 import { CRM_STAGE_REGISTRATION, normalizeCRMStatus } from '@/lib/crm-types'
 import { clienteMatchKey, scoreToFaixa, isClienteCadastroApto } from '@/lib/clientes'
 import { submitClienteToLeiloeiras } from '@/lib/leiloeira-submission'
+import { notifyTeamGroup } from '@/lib/whatsapp-team-notify'
 
 type LeadLike = {
   id: string
@@ -113,10 +114,32 @@ export async function syncLeadToClientes(
     try {
       const r = await submitClienteToLeiloeiras(supabase, match_key)
       emailsSent = r.sent
+
+      // Rastro auditável do envio na ficha do cliente (aba de interações).
+      if (r.attempted > 0 || r.skipped.length > 0) {
+        const partes: string[] = []
+        if (r.sent > 0) partes.push(`enviado para ${r.sent} leiloeira(s)`)
+        for (const s of r.skipped) partes.push(`${s.leiloeira}: ${s.reason}`)
+        await supabase.from('cliente_interacoes').insert({
+          cliente_key: match_key,
+          tipo: 'E-mail',
+          responsavel: 'Sistema',
+          nota: `Cadastro em leiloeiras — ${partes.join(' · ')}`,
+        })
+      }
     } catch (e) {
       console.warn('[CRM→Clientes] falha na submissão p/ leiloeiras:', e instanceof Error ? e.message : e)
     }
   }
+
+  // Aviso interno: cadastro aprovado virou cliente (com o resultado dos e-mails).
+  void notifyTeamGroup(supabase, [
+    '🏁 *Cadastro aprovado — lead virou cliente*',
+    `${nome}${payload.telefone ? ` — ${payload.telefone}` : ''}`,
+    emailsSent > 0
+      ? `Cadastro enviado por e-mail para ${emailsSent} leiloeira(s).`
+      : 'Nenhum e-mail de leiloeira enviado (sem leiloeira elegível ou já enviado).',
+  ].join('\n')).catch(() => { /* best-effort */ })
 
   return { synced: true, matchKey: match_key, emailsSent }
 }

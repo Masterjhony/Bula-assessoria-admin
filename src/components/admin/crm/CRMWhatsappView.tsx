@@ -84,6 +84,7 @@ type ConciergeConfig = {
     persona: string;
     thinkingSeconds: number;
     handoffContact: string;
+    notifyGroupId: string;
     api_configured?: boolean;
     default_model?: string;
     default_persona?: string;
@@ -296,7 +297,7 @@ export function CRMWhatsappView() {
         }
     }, []);
 
-    const saveConcierge = useCallback(async (next: { enabled: boolean; model: string; persona: string; thinkingSeconds: number; handoffContact: string }) => {
+    const saveConcierge = useCallback(async (next: { enabled: boolean; model: string; persona: string; thinkingSeconds: number; handoffContact: string; notifyGroupId: string }) => {
         setConciergeSaving(true);
         setConciergeError(null);
         try {
@@ -610,7 +611,7 @@ export function CRMWhatsappView() {
                     {concierge && (
                         <button
                             type="button"
-                            onClick={() => saveConcierge({ enabled: !concierge.enabled, model: concierge.model, persona: concierge.persona, thinkingSeconds: concierge.thinkingSeconds, handoffContact: concierge.handoffContact })}
+                            onClick={() => saveConcierge({ enabled: !concierge.enabled, model: concierge.model, persona: concierge.persona, thinkingSeconds: concierge.thinkingSeconds, handoffContact: concierge.handoffContact, notifyGroupId: concierge.notifyGroupId ?? '' })}
                             disabled={conciergeSaving || (!concierge.enabled && !concierge.api_configured)}
                             className={`relative inline-flex h-5 w-9 items-center rounded-full transition disabled:opacity-50 ${
                                 concierge.enabled ? 'bg-green-500' : 'bg-muted'
@@ -677,6 +678,29 @@ export function CRMWhatsappView() {
                                 </div>
                             </div>
                             <div className="space-y-1">
+                                <label className="text-[10px] uppercase tracking-wider text-muted-foreground">Grupo de avisos internos (Baileys)</label>
+                                <input
+                                    value={concierge.notifyGroupId ?? ''}
+                                    onChange={(e) => setConcierge({ ...concierge, notifyGroupId: e.target.value })}
+                                    placeholder="1203630XXXXXXXXX@g.us"
+                                    className="w-full rounded-md border bg-background px-3 py-1.5 text-sm font-mono focus:outline-none focus:ring-2 focus:ring-primary/40"
+                                />
+                                <p className="text-[10px] text-muted-foreground">
+                                    ID do grupo do WhatsApp da equipe que recebe os avisos das automações (habilitação completa,
+                                    cadastro enviado às leiloeiras) pelo número conectado. Vazio = avisos desligados.
+                                </p>
+                            </div>
+                            <div className="rounded-md border bg-muted/30 px-3 py-2 space-y-1">
+                                <p className="text-[10px] uppercase tracking-wider text-muted-foreground">Como a IA move as etapas (regra fixa, auditável)</p>
+                                <p className="text-[11px] text-muted-foreground leading-relaxed">
+                                    A etapa é decidida pelos <b>dados coletados</b>, nunca pelo &ldquo;feeling&rdquo; do modelo, e o lead <b>só avança</b>:
+                                    respondeu → <b>CONEXÃO</b> · informou qualquer dado de qualificação → <b>QUALIFICAÇÃO</b> (dispara consulta de
+                                    score/I.E. se houver CPF) · checklist de habilitação completo, ou interesse + I.E. + documento → <b>INFORMAÇÕES CAPTADAS</b>
+                                    (avisa o grupo interno) · <b>CADASTRO</b> e aprovação são sempre decisão humana; ao aprovar, o cliente é criado e o
+                                    cadastro segue por e-mail às leiloeiras. Cada movimentação fica registrada no lead com o motivo.
+                                </p>
+                            </div>
+                            <div className="space-y-1">
                                 <label className="text-[10px] uppercase tracking-wider text-muted-foreground">Instruções / persona (opcional)</label>
                                 <textarea
                                     value={concierge.persona}
@@ -698,7 +722,7 @@ export function CRMWhatsappView() {
                                 </div>
                                 <button
                                     type="button"
-                                    onClick={() => saveConcierge({ enabled: concierge.enabled, model: concierge.model, persona: concierge.persona, thinkingSeconds: concierge.thinkingSeconds, handoffContact: concierge.handoffContact })}
+                                    onClick={() => saveConcierge({ enabled: concierge.enabled, model: concierge.model, persona: concierge.persona, thinkingSeconds: concierge.thinkingSeconds, handoffContact: concierge.handoffContact, notifyGroupId: concierge.notifyGroupId ?? '' })}
                                     disabled={conciergeSaving}
                                     className="inline-flex items-center gap-1.5 rounded-lg bg-primary px-3.5 py-1.5 text-xs font-medium text-primary-foreground hover:opacity-90 disabled:opacity-50"
                                 >

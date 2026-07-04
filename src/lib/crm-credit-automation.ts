@@ -11,7 +11,12 @@
 // ─────────────────────────────────────────────────────────────────────────────
 
 import type { SupabaseClient } from '@supabase/supabase-js'
-import { CRM_STAGE_QUALIFICATION, normalizeCRMStatus } from '@/lib/crm-types'
+import {
+  CRM_STAGE_QUALIFICATION,
+  CRM_STAGE_INFO_CAPTURED,
+  CRM_STAGE_REGISTRATION,
+  normalizeCRMStatus,
+} from '@/lib/crm-types'
 import { consultarCredito, type CreditReport } from '@/lib/credit-score-provider'
 import type { Protesto } from '@/lib/clientes'
 
@@ -29,8 +34,17 @@ type PreviousLike = { status?: string | null } | null | undefined
 // Reconsulta no máximo 1×/14 dias, salvo se a etapa acabou de virar QUALIFICAÇÃO.
 const RECHECK_DAYS = 14
 
+// O score é necessário da QUALIFICAÇÃO até a aprovação do CADASTRO — um lead
+// que avança direto (ex.: movido pela IA com checklist completo) também precisa
+// da consulta, senão chega na aprovação sem score.
+const CREDIT_STAGES = new Set([
+  CRM_STAGE_QUALIFICATION,
+  CRM_STAGE_INFO_CAPTURED,
+  CRM_STAGE_REGISTRATION,
+])
+
 function isQualification(status: string): boolean {
-  return normalizeCRMStatus(status) === CRM_STAGE_QUALIFICATION
+  return CREDIT_STAGES.has(normalizeCRMStatus(status))
 }
 
 function recentlyChecked(extra: Record<string, unknown> | null | undefined): boolean {
@@ -94,9 +108,14 @@ export async function maybeRunCreditCheck(
 
   const report = await consultarCredito(String(lead.cpf))
   const summary = protestosSummary(report)
+  const { data: current } = await supabase
+    .from('crm_leads')
+    .select('extra_data, contact_history')
+    .eq('id', lead.id)
+    .single()
 
   const extra = {
-    ...((lead.extra_data || {}) as Record<string, unknown>),
+    ...(((current?.extra_data as Record<string, unknown> | null) || lead.extra_data || {}) as Record<string, unknown>),
     credito: {
       score: report.score,
       faixa: report.faixa,
@@ -109,7 +128,7 @@ export async function maybeRunCreditCheck(
 
   const patch: Record<string, unknown> = {
     extra_data: extra,
-    contact_history: appendNote(lead.contact_history, summary),
+    contact_history: appendNote(current?.contact_history ?? lead.contact_history, summary),
   }
   if (!report.pending) {
     if (report.score != null) patch.score_serasa = report.score

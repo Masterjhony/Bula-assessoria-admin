@@ -29,10 +29,20 @@ import { isOpenRouterConfigured, openRouterJSON, type ChatMessage } from './open
 import type { InboundMedia } from './whatsapp-inbound'
 import type { LeadShape } from './whatsapp-flow-engine'
 import {
+    computeHabilitacaoChecklist,
+    checklistPromptBlock,
+    DOC_TIPOS_SEMANTICOS,
+} from './crm-habilitacao'
+import { promoteWhatsappMediaToLeadDoc, type LeadDocTipo } from './whatsapp-lead-documents'
+import { maybeRunCreditCheck } from './crm-credit-automation'
+import { maybeRunStateRegistrationCheck } from './crm-state-registration-automation'
+import { notifyTeamGroup } from './whatsapp-team-notify'
+import {
     CRM_STAGE_CONNECTION,
     CRM_STAGE_QUALIFICATION,
     CRM_STAGE_INFO_CAPTURED,
     CRM_STAGE_LOST,
+    DEFAULT_JMP_MQL_RULE,
     normalizeCRMStatus,
 } from './crm-types'
 
@@ -59,6 +69,12 @@ export interface ConciergeConfig {
      * pessoa (nome + número). Editável no cockpit.
      */
     handoffContact: string
+    /**
+     * ID do grupo interno do WhatsApp (via Baileys) que recebe os avisos de
+     * automação — habilitação completa, cadastro enviado às leiloeiras.
+     * Vazio = avisos desligados. Editável no cockpit.
+     */
+    notifyGroupId: string
 }
 
 export const DEFAULT_THINKING_SECONDS = 8
@@ -71,6 +87,7 @@ export const DEFAULT_CONCIERGE_CONFIG: ConciergeConfig = {
     persona: '',
     thinkingSeconds: DEFAULT_THINKING_SECONDS,
     handoffContact: DEFAULT_HANDOFF_CONTACT,
+    notifyGroupId: '',
 }
 
 function clampThinking(v: unknown): number {
@@ -93,6 +110,7 @@ export async function loadConciergeConfig(supabase: SupabaseClient): Promise<Con
         thinkingSeconds: raw.thinkingSeconds === undefined ? DEFAULT_THINKING_SECONDS : clampThinking(raw.thinkingSeconds),
         handoffContact: typeof raw.handoffContact === 'string' && raw.handoffContact.trim()
             ? raw.handoffContact : DEFAULT_HANDOFF_CONTACT,
+        notifyGroupId: typeof raw.notifyGroupId === 'string' ? raw.notifyGroupId.trim() : '',
     }
 }
 
@@ -109,6 +127,9 @@ export async function saveConciergeConfig(
         handoffContact: patch.handoffContact === undefined
             ? current.handoffContact
             : (patch.handoffContact.trim() || DEFAULT_HANDOFF_CONTACT),
+        notifyGroupId: patch.notifyGroupId === undefined
+            ? current.notifyGroupId
+            : patch.notifyGroupId.trim(),
     }
     const { error } = await supabase
         .from('site_settings')
@@ -119,36 +140,44 @@ export async function saveConciergeConfig(
 
 /* ─── Persona / biblioteca de mensagens (voz da Bula) ──────────────────── */
 
-export const DEFAULT_CONCIERGE_PERSONA = `Você é o "João", consultor da Bula Assessoria, no WhatsApp. A Bula habilita produtores a comprar gado em LEILÃO de forma PARCELADA (financiada). Sua missão tem só dois passos: (1) CONFIRMAR o interesse do lead e (2) levá-lo a ENVIAR os dados e documentos que o habilitam a comprar parcelado.
+export const DEFAULT_CONCIERGE_PERSONA = `Você é o "João", consultor da Bula Assessoria, no WhatsApp. A Bula habilita produtores a comprar gado em LEILÃO de forma PARCELADA (financiada). Sua missão: CONFIRMAR o interesse do lead e conduzi-lo, sem enrolação, até completar o CHECKLIST DE HABILITAÇÃO (dados + documentos). O checklist atualizado vem logo abaixo — ele é o seu mapa: peça SEMPRE e SOMENTE o que está marcado como FALTA.
 
 ESTILO (obrigatório):
 - Mensagens CURTAS: 2 a 4 linhas no máximo. Tom de WhatsApp, humano e direto. NADA de textão.
-- UMA ação por mensagem. Direto ao ponto, sem rodeios, sem repetir o que já foi dito.
-- O rumo é sempre o mesmo: avançar para o envio dos documentos de habilitação.
+- UMA ação/pedido claro por mensagem. Sem rodeios, sem repetir o que já foi dito.
+- NOME COM PARCIMÔNIA: use o primeiro nome só na abertura ou num toque pontual — nunca em mensagens seguidas, nunca abrindo toda resposta. Na dúvida, fale direto (2ª pessoa), sem vocativo.
+- Sempre feche com o próximo passo concreto (o item do checklist que falta), a não ser que o checklist esteja completo.
 
-NÃO REPETIR: os dados que JÁ TEMOS deste lead vêm logo abaixo. NUNCA peça algo que já está preenchido — peça só o que falta.
+FLUXO (siga na ordem; pule etapas que o checklist mostra como resolvidas):
+1) INTERESSE não confirmado → UMA pergunta curta: o que ele busca (touros, matrizes, bezerras...) e se é pra comprar. Registre em updates.interesse.
+2) Interesse confirmado → apresente o caminho em 1 linha ("dá pra comprar parcelado direto no leilão; pra te habilitar preciso de uns dados rápidos") e peça, numa ÚNICA mensagem organizada, os DADOS que faltam (titular e propriedade) — sem documentos ainda.
+3) Dados essenciais ok (nome, CPF, fazenda, I.E.) → peça os DOCUMENTOS que faltam numa única mensagem: foto da CNH/RG, foto segurando o documento, comprovante da propriedade / I.E. / NIRF.
+4) Chegou documento/dado parcial → confirme em 1 linha O QUE recebeu e peça especificamente SÓ o que ainda falta (olhe o checklist).
+5) CHECKLIST COMPLETO → confirme o recebimento, diga que a habilitação já foi encaminhada para análise e que retornamos em breve. Marque documents_received=true e handoff=true. NÃO peça mais nada.
 
-REGISTRAR INTERESSE: se o lead disser claramente o que quer (ex.: "quero touros", "procuro matrizes", "quero comprar bezerras"), registre em updates.interesse. Não invente interesse que ele não declarou.
+OBJEÇÕES (responda curto e volte pro fluxo):
+- "Não tenho Inscrição Estadual" → sem drama: dá pra habilitar como produtor com NIRF, ou orientamos a tirar a I.E. (é rápido). Registre ie_status=nao_tem e siga o resto do checklist.
+- "Quanto custa / qual o juro?" → o parcelamento é direto com a leiloeira, condição sai no leilão (ex.: 30x). NUNCA prometa taxa, desconto ou aprovação. Volte pro checklist.
+- Desconfiança ("é golpe?") → normal. Ofereça o contato humano (abaixo) e o site da Bula; sem pressão. Não insista em documento enquanto a pessoa estiver desconfiada.
+- "Só estou olhando / mais pra frente" → registre urgencia_compra e diga que deixar a habilitação pronta não custa nada e evita perder lote bom; se recusar, não force (proxima_acao='follow-up').
+- Assunto fora do escopo (venda de gado, parceria, cobrança...) → handoff=true com o contato humano.
 
-FLUXO:
-1) Interesse não confirmado → UMA pergunta curta: o que ele busca e se é pra comprar. Se já está claro pelo que ele disse ou pelos dados, pule esta etapa.
-2) Interesse confirmado → em 1 linha: dá pra comprar parcelado no leilão; pra habilitar você precisa de uns dados + documentos. Aí peça, numa única mensagem organizada, SÓ o que falta:
-   • Titular: nome completo, CPF, telefone, e-mail, endereço (bairro, cidade, estado, CEP).
-   • Propriedade (onde os animais serão entregues): nome da fazenda, cidade, estado, Inscrição Estadual (I.E.), roteiro, telefone e responsável pelo telefone.
-   • Documentos (fotos/arquivos): identidade (CNH ou RG) com foto do documento E uma foto segurando o documento (autenticidade); comprovação da propriedade; documento fiscal (I.E. ou NIRF, quando aplicável).
-3) Lead enviou dados/documentos → confirme em 1 linha o recebimento e diga que vai encaminhar a habilitação. Marque documents_received e handoff (humano assume daqui).
+REGISTRO (tão importante quanto responder): TODO dado que o lead informar deve ir em "updates" — CPF, e-mail, endereço, nome/cidade/UF da fazenda, I.E., quantidade de animais, urgência. O que você não registrar, o sistema perde. Não invente nem "complete" dados que o lead não disse.
+Quando o lead enviar arquivo/foto, marque em updates.documentos_recebidos o que ele representa: "identidade" (CNH/RG), "identidade_selfie" (segurando o doc), "comprovante_propriedade", "ie_nirf". Áudio NUNCA é documento (é mensagem de voz, já transcrita).
 
-REGRAS:
-- NUNCA prometa aprovação. Você habilita/encaminha.
-- Peça os documentos em no MÁXIMO 1 mensagem organizada (lista curta) — nunca arrastando um a um.
-- Se faltar só parte, peça especificamente o que falta.
-- Pediu pra parar / não receber mais → opt-out.
-- Pediu pra falar com humano/pessoa/consultor (ou travou / assunto fora do escopo) → marque handoff=true E, na resposta, passe o CONTATO HUMANO informado abaixo (nome + número), em 1 ou 2 linhas. Ex.: "Claro! Pode falar direto com o {nome do contato}: {número}. É só chamar lá que ele te atende."
+REGRAS DURAS:
+- NUNCA prometa aprovação, prazo de aprovação, taxa ou desconto. Você habilita/encaminha; a análise é humana.
+- Não peça item que o checklist mostra como ✔.
+- Documentos: peça em no máximo 1 mensagem organizada — nunca arrastando um a um.
+- Pediu pra parar / não receber mais → optout=true, sem resposta ou uma despedida de 1 linha.
+- Pediu pra falar com humano/pessoa/consultor (ou travou) → handoff=true E passe o CONTATO HUMANO abaixo (nome + número) em 1-2 linhas.
 
-EXEMPLOS (adapte, não copie):
-- Confirmar: "Boa, {nome}! Você procura touros pra compra agora, é isso?"
-- Pedir docs: "Mando ver as oportunidades pra você comprar parcelado no leilão. Pra habilitar, me envia: nome completo, CPF, telefone e endereço; dados da fazenda (nome, cidade/UF, I.E.); e fotos de um documento (CNH/RG) — uma do doc e uma segurando ele. Aí já encaminho sua habilitação."
-- Recebido: "Recebi, {nome}, valeu! Já encaminho sua habilitação e te retorno com o próximo passo."`
+EXEMPLOS (adapte, não copie — o nome NÃO aparece em toda mensagem):
+- Abertura: "Boa, {nome}! Você procura touros pra compra agora, é isso?"
+- Pedir dados: "Show. Pra te habilitar a comprar parcelado no leilão eu preciso de: seu CPF, e-mail, e o nome e cidade/UF da fazenda onde entrega. Tem a Inscrição Estadual dela?"
+- Pedir docs: "Falta pouco: me manda uma foto da CNH ou RG, uma foto sua segurando o documento e o comprovante da I.E. (ou NIRF). Aí eu já encaminho sua habilitação."
+- Parcial: "Recebi a CNH, valeu! Agora só falta a foto segurando o documento e o comprovante da I.E."
+- Completo: "Perfeito, documentação completa! Já encaminhei sua habilitação pra análise e te retorno em breve com o próximo passo."`
 
 /* ─── Saída estruturada esperada da IA ─────────────────────────────────── */
 
@@ -177,6 +206,16 @@ interface ConciergeUpdates {
     estado?: string | null
     cidade?: string | null
     inscricao_estadual?: string | null
+    // Dados do cadastro/habilitação (colunas reais ou extra_data)
+    nome_completo?: string | null
+    cpf?: string | null
+    email?: string | null
+    endereco_titular?: string | null
+    fazenda_nome?: string | null
+    fazenda_cidade?: string | null
+    fazenda_uf?: string | null
+    /** Tipos semânticos dos documentos recebidos nesta troca. */
+    documentos_recebidos?: string[] | null
 }
 
 interface ConciergeAIResult {
@@ -204,6 +243,7 @@ const STATUS_ORDER = [
  * Decide a etapa do lead a partir dos DADOS coletados — não do "feeling" do LLM.
  * Regras de negócio (definidas com o cliente):
  *   • nao_apto                         → PERDIDOS
+ *   • checklist de habilitação completo → INFORMAÇÕES CAPTADAS
  *   • interesse + IE + ≥1 documento    → INFORMAÇÕES CAPTADAS
  *   • qualquer dado de qualificação    → QUALIFICAÇÃO
  *   • apenas respondeu                 → CONEXÃO
@@ -217,9 +257,13 @@ function computeStageFromData(input: {
     hasIe: boolean
     hasDoc: boolean
     hasAnyQualData: boolean
+    checklistComplete: boolean
 }): { status: string; reason: string } {
     if (input.aiStage === 'nao_apto') {
         return { status: CRM_STAGE_LOST, reason: 'IA classificou o lead como não apto' }
+    }
+    if (input.checklistComplete) {
+        return { status: CRM_STAGE_INFO_CAPTURED, reason: 'checklist de habilitação completo' }
     }
     if (input.hasInteresse && input.hasIe && input.hasDoc) {
         return { status: CRM_STAGE_INFO_CAPTURED, reason: 'interesse + IE + documento recebidos' }
@@ -230,14 +274,25 @@ function computeStageFromData(input: {
     return { status: CRM_STAGE_CONNECTION, reason: 'lead respondeu (conexão)' }
 }
 
-/** Conta documentos reais já recebidos do lead (crm_lead_documentos, migration 0037). */
-async function countLeadDocuments(supabase: SupabaseClient, leadId: string): Promise<number> {
-    const { count, error } = await supabase
+/** Documentos reais já recebidos do lead (crm_lead_documentos, migration 0037). */
+async function loadLeadDocs(
+    supabase: SupabaseClient,
+    leadId: string,
+): Promise<{ count: number; tipos: string[] }> {
+    const { data, error } = await supabase
         .from('crm_lead_documentos')
-        .select('id', { count: 'exact', head: true })
+        .select('tipo')
         .eq('lead_id', leadId)
-    if (error) return 0
-    return count ?? 0
+    if (error || !data) return { count: 0, tipos: [] }
+    return { count: data.length, tipos: data.map(d => String(d.tipo || 'outro')) }
+}
+
+/** Mapeia o tipo semântico reconhecido pela IA → tipo do doc formal do lead. */
+const SEMANTIC_TO_DOC_TIPO: Record<string, LeadDocTipo> = {
+    identidade: 'cpf',
+    identidade_selfie: 'cpf',
+    comprovante_propriedade: 'comprovante',
+    ie_nirf: 'ie',
 }
 
 function maxStatus(current: string, candidate: string): string {
@@ -252,12 +307,15 @@ function maxStatus(current: string, candidate: string): string {
 
 // Colunas do lead úteis para a IA personalizar (além das do LeadShape).
 const CONCIERGE_LEAD_FIELDS =
-    'id, nome, telefone, estado, cidade, interesse, interesse_principal, o_que_busca, quantidade_animais, momento_pecuaria, tem_inscricao_estadual, inscricao_estadual, status, tags_whatsapp, optout_whatsapp, handoff_humano, contact_history, extra_data'
+    'id, nome, telefone, celular, email, cpf, estado, cidade, interesse, interesse_principal, o_que_busca, quantidade_animais, momento_pecuaria, tem_inscricao_estadual, inscricao_estadual, status, tags_whatsapp, optout_whatsapp, handoff_humano, contact_history, extra_data'
 
 interface FullLead {
     id: string
     nome: string | null
     telefone: string | null
+    celular: string | null
+    email: string | null
+    cpf: string | null
     estado: string | null
     cidade: string | null
     interesse: string | null
@@ -324,7 +382,15 @@ const RESULT_SCHEMA_INSTRUCTIONS = `Responda SOMENTE com um objeto JSON válido 
     "quantidade_animais": "string|null",
     "estado": "UF|null",
     "cidade": "string|null",
-    "inscricao_estadual": "string|null"
+    "inscricao_estadual": "string|null",
+    "nome_completo": "string|null",   // nome completo do titular, quando o lead informar
+    "cpf": "string|null",             // só os 11 dígitos que o lead informou
+    "email": "string|null",
+    "endereco_titular": "string|null",   // endereço do titular num texto só (rua, bairro, cidade/UF, CEP)
+    "fazenda_nome": "string|null",       // nome da fazenda/propriedade de entrega
+    "fazenda_cidade": "string|null",
+    "fazenda_uf": "UF|null",
+    "documentos_recebidos": ["identidade" | "identidade_selfie" | "comprovante_propriedade" | "ie_nirf"] // ou null
   }
 }
 Inclua em "updates" apenas os campos que você descobriu/confirmou nesta troca; omita ou use null para o resto. Não invente dados que o lead não disse.`
@@ -401,6 +467,21 @@ export async function runConcierge(
     const persona = input.config.persona?.trim() || DEFAULT_CONCIERGE_PERSONA
     const fname = firstName(lead.nome) || input.senderName || ''
 
+    // Checklist de habilitação (estado atual) — o "mapa" injetado no prompt.
+    const docs = await loadLeadDocs(supabase, lead.id)
+    const checklist = computeHabilitacaoChecklist({
+        nome: lead.nome,
+        cpf: lead.cpf,
+        telefone: lead.telefone,
+        celular: lead.celular,
+        email: lead.email,
+        inscricao_estadual: lead.inscricao_estadual,
+        tem_inscricao_estadual: lead.tem_inscricao_estadual,
+        extra_data: lead.extra_data,
+        docsCount: docs.count,
+        docTipos: docs.tipos,
+    })
+
     // Só imagem/vídeo/documento contam como possível documento de habilitação.
     // Áudio é MENSAGEM DE VOZ (já transcrita para texto no inbound) — nunca deve
     // ser interpretado como documento, senão a IA responde "encaminhei sua
@@ -414,10 +495,13 @@ export async function runConcierge(
 
 CONTATO HUMANO (use ao fazer handoff por pedido de falar com pessoa): ${handoffContact}
 
+CHECKLIST DE HABILITAÇÃO (estado atual — seu mapa; peça só o que está com ✘):
+${checklistPromptBlock(checklist)}
+
 DADOS QUE JÁ TEMOS DESTE LEAD (use para personalizar e NÃO repetir perguntas):
 ${knownFactsBlock(lead)}
 
-O primeiro nome do lead é "${fname || 'desconhecido'}" — use {nome} mentalmente, mas escreva o nome real na resposta.${mediaNote}
+O primeiro nome do lead é "${fname || 'desconhecido'}". USE O NOME COM PARCIMÔNIA: chamar a pessoa pelo nome toda hora soa robótico e forçado. Como regra, só use o nome quando for realmente natural — na saudação de abertura ou num momento pontual pra dar um toque humano — e, mesmo assim, não em mensagens seguidas. Na dúvida, NÃO use o nome; fale direto com a pessoa (2ª pessoa) sem vocativo. Nunca comece toda resposta com o nome.${mediaNote}
 
 ${RESULT_SCHEMA_INSTRUCTIONS}`
 
@@ -451,7 +535,10 @@ ${RESULT_SCHEMA_INSTRUCTIONS}`
 
     // Aplica efeitos no CRM (best-effort).
     try {
-        await applyConciergeEffects(supabase, lead, ai)
+        await applyConciergeEffects(supabase, lead, ai, {
+            media: input.media ?? null,
+            docs,
+        })
     } catch (e) {
         console.warn('[concierge] aplicar efeitos falhou:', e instanceof Error ? e.message : e)
     }
@@ -472,16 +559,18 @@ async function applyConciergeEffects(
     supabase: SupabaseClient,
     lead: FullLead,
     ai: ConciergeAIResult,
+    ctx: { media: InboundMedia | null; docs: { count: number; tipos: string[] } },
 ): Promise<void> {
     const u = ai.updates ?? {}
     const prevExtra = (lead.extra_data ?? {}) as Record<string, unknown>
     const nextExtra: Record<string, unknown> = { ...prevExtra }
 
-    // Campos de qualificação vivem em extra_data (sem migração — segue o padrão
-    // de "schema drift" do projeto).
+    // Campos de qualificação/habilitação vivem em extra_data (sem migração —
+    // segue o padrão de "schema drift" do projeto).
     const xdKeys: (keyof ConciergeUpdates)[] = [
         'objetivo_compra_resumido', 'urgencia_compra', 'experiencia_leilao',
         'ie_status', 'cadastro_status', 'score_status', 'motivo_pendencia', 'proxima_acao',
+        'endereco_titular', 'fazenda_nome', 'fazenda_cidade', 'fazenda_uf',
     ]
     for (const k of xdKeys) {
         const v = u[k]
@@ -490,6 +579,37 @@ async function applyConciergeEffects(
     if (ai.stage) nextExtra.qualificacao_step = ai.stage
     if (typeof ai.fast_track === 'boolean') nextExtra.fast_track = ai.fast_track
     nextExtra.concierge_last_at = new Date().toISOString()
+
+    // Documentos reconhecidos pela IA (tipos semânticos) — união com os já vistos.
+    const semanticNew = (Array.isArray(u.documentos_recebidos) ? u.documentos_recebidos : [])
+        .map(d => String(d))
+        .filter(d => (DOC_TIPOS_SEMANTICOS as readonly string[]).includes(d))
+    if (semanticNew.length) {
+        const prevDocs = Array.isArray(prevExtra.docs_recebidos)
+            ? prevExtra.docs_recebidos.map(d => String(d)) : []
+        nextExtra.docs_recebidos = [...new Set([...prevDocs, ...semanticNew])]
+    }
+
+    // A mídia desta mensagem, quando reconhecida como documento, vira doc formal
+    // do lead (crm_lead_documentos) com o tipo certo. Sem isso, FOTOS (CNH,
+    // selfie com doc — o grosso da habilitação) nunca contavam como documento:
+    // o webhook só promove `document` (PDF).
+    let docsCount = ctx.docs.count
+    const docTipos = [...ctx.docs.tipos]
+    if (ctx.media && ctx.media.type !== 'audio' && ctx.media.url && semanticNew.length) {
+        const tipo: LeadDocTipo = SEMANTIC_TO_DOC_TIPO[semanticNew[0]] ?? 'outro'
+        const promoted = await promoteWhatsappMediaToLeadDoc(supabase, {
+            leadId: lead.id,
+            mediaPath: ctx.media.url,
+            filename: ctx.media.filename,
+            mime: ctx.media.mime,
+            tipo,
+        }).catch(() => null)
+        if (promoted) {
+            docsCount++
+            docTipos.push(promoted.tipo)
+        }
+    }
 
     const update: Record<string, unknown> = {
         extra_data: nextExtra,
@@ -513,6 +633,45 @@ async function applyConciergeEffects(
     } else if (u.ie_status === 'nao_tem') {
         update.tem_inscricao_estadual = 'Não'
     }
+    // Dados do titular: CPF/e-mail só preenchem vazio (não sobrescrevem um valor
+    // já validado por humano); o nome só melhora (nunca troca um nome completo).
+    const cpfDigits = String(u.cpf ?? '').replace(/\D/g, '')
+    if (cpfDigits.length === 11 && !String(lead.cpf ?? '').replace(/\D/g, '')) {
+        update.cpf = cpfDigits
+    }
+    const email = String(u.email ?? '').trim()
+    if (email.includes('@') && !String(lead.email ?? '').trim()) {
+        update.email = email
+    }
+    const nomeCompleto = String(u.nome_completo ?? '').trim()
+    if (/\S+\s+\S+/.test(nomeCompleto) && !/\S+\s+\S+/.test(String(lead.nome ?? '').trim())) {
+        update.nome = nomeCompleto
+    }
+
+    // Checklist recalculado com o estado PÓS-updates — vai para extra_data
+    // (UI do inbox/CRM lê daqui) e decide a etapa.
+    const checklist = computeHabilitacaoChecklist({
+        nome: (update.nome as string) ?? lead.nome,
+        cpf: (update.cpf as string) ?? lead.cpf,
+        telefone: lead.telefone,
+        celular: lead.celular,
+        email: (update.email as string) ?? lead.email,
+        inscricao_estadual: (update.inscricao_estadual as string) ?? lead.inscricao_estadual,
+        tem_inscricao_estadual: (update.tem_inscricao_estadual as string) ?? lead.tem_inscricao_estadual,
+        extra_data: nextExtra,
+        docsCount,
+        docTipos,
+    })
+    nextExtra.habilitacao = {
+        done: checklist.done,
+        total: checklist.total,
+        complete: checklist.complete,
+        missing: checklist.missingLabels,
+        at: new Date().toISOString(),
+    }
+    if (checklist.complete && nextExtra.cadastro_status !== 'em_analise') {
+        nextExtra.cadastro_status = 'em_analise'
+    }
 
     // Avanço de etapa DETERMINÍSTICO: a etapa é decidida pelos dados coletados,
     // não pelo "feeling" do LLM (o ai.stage só entra para o caso nao_apto). Isso
@@ -524,15 +683,19 @@ async function applyConciergeEffects(
         || Boolean(update.inscricao_estadual)
         || lead.tem_inscricao_estadual === 'Sim'
         || Boolean(lead.inscricao_estadual)
-    const hasDoc = (await countLeadDocuments(supabase, lead.id)) >= 1
+    const hasDoc = docsCount >= 1
     const hasAnyQualData = hasInteresse || hasIe
         || Boolean(update.quantidade_animais || lead.quantidade_animais)
         || Boolean(update.estado || lead.estado)
         || Boolean(nextExtra.objetivo_compra_resumido || nextExtra.urgencia_compra)
 
-    const target = computeStageFromData({ aiStage: ai.stage, hasInteresse, hasIe, hasDoc, hasAnyQualData })
+    const target = computeStageFromData({
+        aiStage: ai.stage, hasInteresse, hasIe, hasDoc, hasAnyQualData,
+        checklistComplete: checklist.complete,
+    })
     const advanced = maxStatus(lead.status || 'ENTRADA', target.status)
-    if (normalizeCRMStatus(advanced) !== normalizeCRMStatus(lead.status || '')) {
+    const stageChanged = normalizeCRMStatus(advanced) !== normalizeCRMStatus(lead.status || '')
+    if (stageChanged) {
         update.status = advanced
         // Auditoria estruturada da mudança de etapa (base do fluxograma/gestão do
         // chefe): quem moveu, de/para, por quê e quando. Mantém as últimas 30.
@@ -546,6 +709,15 @@ async function applyConciergeEffects(
             at: new Date().toISOString(),
         })
         nextExtra.stage_history = history.slice(0, 30)
+    }
+
+    // Aviso interno (uma vez por lead): habilitação completa → equipe revisa e
+    // aprova o cadastro no CRM. Flag marcada ANTES do update p/ não duplicar.
+    const shouldNotifyTeam =
+        (checklist.complete || normalizeCRMStatus(advanced) === CRM_STAGE_INFO_CAPTURED)
+        && !prevExtra.habilitacao_notificada_at
+    if (shouldNotifyTeam) {
+        nextExtra.habilitacao_notificada_at = new Date().toISOString()
     }
 
     // Handoff → humano assume; bot para de responder esse lead.
@@ -580,4 +752,50 @@ async function applyConciergeEffects(
     }
 
     await supabase.from('crm_leads').update(update).eq('id', lead.id)
+
+    // ── Automações pós-etapa (as mesmas do moveLead manual) ────────────────
+    // Sem isto, lead movido PELA IA nunca disparava consulta de crédito/I.E.
+    const statusAfter = normalizeCRMStatus((update.status as string) || lead.status || '')
+    const leadAfter = {
+        id: lead.id,
+        status: statusAfter,
+        cpf: (update.cpf as string) ?? lead.cpf,
+        estado: (update.estado as string) ?? lead.estado,
+        inscricao_estadual: (update.inscricao_estadual as string) ?? lead.inscricao_estadual,
+        tem_inscricao_estadual: (update.tem_inscricao_estadual as string) ?? lead.tem_inscricao_estadual,
+        extra_data: nextExtra,
+        contact_history: (update.contact_history as unknown) ?? lead.contact_history,
+    }
+    const previous = { status: lead.status }
+    try {
+        await maybeRunCreditCheck(supabase, leadAfter, previous)
+    } catch (e) {
+        console.warn('[concierge] automação de crédito falhou:', e instanceof Error ? e.message : e)
+    }
+    try {
+        await maybeRunStateRegistrationCheck(supabase, leadAfter, previous, DEFAULT_JMP_MQL_RULE)
+    } catch (e) {
+        console.warn('[concierge] automação de I.E. falhou:', e instanceof Error ? e.message : e)
+    }
+
+    // Aviso no grupo interno (best-effort, depois do update pra não atrasar nada
+    // crítico). O flag habilitacao_notificada_at já foi gravado junto do update.
+    if (shouldNotifyTeam) {
+        const nome = (update.nome as string) || lead.nome || lead.telefone || 'Lead'
+        const fone = lead.celular || lead.telefone || ''
+        const interesse = (update.interesse_principal as string) || lead.interesse_principal || lead.o_que_busca || '—'
+        const faltam = checklist.missingLabels.length
+            ? `Faltam: ${checklist.missingLabels.join(', ')}`
+            : 'Checklist completo'
+        const r = await notifyTeamGroup(supabase, [
+            '✅ *Habilitação captada pela IA*',
+            `${nome}${fone ? ` — ${fone}` : ''}`,
+            `Interesse: ${interesse} · Docs: ${docsCount} arquivo(s) · ${checklist.done}/${checklist.total} itens`,
+            faltam,
+            'Próximo passo: revisar e aprovar o cadastro no CRM.',
+        ].join('\n'))
+        if (!r.sent && r.reason !== 'no_group_configured') {
+            console.warn('[concierge] aviso ao grupo falhou:', r.reason)
+        }
+    }
 }
