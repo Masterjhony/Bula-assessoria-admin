@@ -19,7 +19,7 @@ import {
 } from '@/lib/clientes'
 import {
   createCliente, registrarInteracao, updateClienteCampos,
-  consultarScoreCliente, updateClienteCadastro,
+  consultarScoreCliente, consultarInscricaoEstadualCliente, updateClienteCadastro,
   listClienteDocumentos, uploadClienteDocumento, getClienteDocumentoUrl, deleteClienteDocumento,
   getAgendaMatchesForCliente, submitClienteLeiloeiras,
   type NovoClienteInput, type ClientesVgvSummary,
@@ -120,6 +120,7 @@ function DetailDrawer({
   // ── cadastro (CPF / I.E. / momento) + score ──
   const [editCadastro, setEditCadastro] = useState(false)
   const [consultando, setConsultando] = useState(false)
+  const [consultandoIe, setConsultandoIe] = useState(false)
 
   // ── documentos (carregados sob demanda) ──
   const [docs, setDocs] = useState<ClienteDocumento[]>(cliente.documentos ?? [])
@@ -166,6 +167,27 @@ function DetailDrawer({
   }, [tab, matchesLoaded, cliente, flash])
 
   // Consulta de score/protestos (botão na aba Dados).
+  const consultarIe = async () => {
+    if (!cliente.cpf || !hasMatchKey || consultandoIe) return
+    setConsultandoIe(true)
+    try {
+      const r = await consultarInscricaoEstadualCliente(matchKey, cliente.nome, cliente.cpf, cliente.uf)
+      if (r.pending) {
+        flash(r.message || 'Consulta de I.E. pendente.')
+      } else {
+        onApplyCadastro(cliente.id, {
+          inscricaoEstadual: r.inscricaoEstadual || '',
+          temInscricaoEstadual: r.temInscricaoEstadual,
+        })
+        flash(r.inscricaoEstadual ? 'I.E. atualizada.' : 'Nenhuma I.E. encontrada.')
+      }
+    } catch {
+      flash('Falha ao consultar I.E.')
+    } finally {
+      setConsultandoIe(false)
+    }
+  }
+
   const consultarScore = async () => {
     if (!cliente.cpf || !hasMatchKey || consultando) return
     setConsultando(true)
@@ -421,9 +443,18 @@ function DetailDrawer({
                     <FileBadge size={15} className="mt-0.5 shrink-0" style={{ color: 'var(--gold)' }} />
                     <div className="min-w-0">
                       <div className="text-[10px] uppercase tracking-wide" style={{ color: 'var(--text3)', letterSpacing: '0.06em' }}>Inscrição Estadual</div>
-                      <div className="text-[13px] mt-0.5 break-words flex items-center gap-2" style={{ color: 'var(--text)' }}>
+                      <div className="text-[13px] mt-0.5 break-words flex items-center gap-2 flex-wrap" style={{ color: 'var(--text)' }}>
                         {cliente.inscricaoEstadual || '—'}
                         {cliente.temInscricaoEstadual === 'Sim' && <Badge tone="olive"><Check size={10} />Tem I.E.</Badge>}
+                        <button
+                          className="btn ghost"
+                          style={{ height: 26, padding: '0 9px', fontSize: 11, opacity: cliente.cpf && hasMatchKey && !consultandoIe ? 1 : 0.5 }}
+                          onClick={consultarIe}
+                          disabled={!cliente.cpf || !hasMatchKey || consultandoIe}
+                          title={cliente.cpf ? 'Consultar I.E. por CPF e UF' : 'Informe um CPF para consultar'}
+                        >
+                          <RefreshCw size={12} /> {consultandoIe ? 'Consultando...' : 'Consultar I.E.'}
+                        </button>
                       </div>
                     </div>
                   </div>

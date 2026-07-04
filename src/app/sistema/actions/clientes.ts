@@ -771,6 +771,44 @@ export async function consultarScoreCliente(matchKey: string, nome: string, cpf:
 }
 
 // ── match da agenda de leilões com o cliente (aba "Leilões recomendados") ──
+export interface ConsultarInscricaoEstadualResult {
+  pending: boolean
+  inscricaoEstadual: string | null
+  temInscricaoEstadual: 'Sim' | 'Não' | ''
+  uf: string | null
+  message?: string
+}
+
+export async function consultarInscricaoEstadualCliente(
+  matchKey: string,
+  nome: string,
+  cpf: string,
+  uf?: string,
+): Promise<ConsultarInscricaoEstadualResult> {
+  const { consultarInscricaoEstadualPorCpf } = await import('@/lib/state-registration-provider')
+  const report = await consultarInscricaoEstadualPorCpf({
+    cpf,
+    uf,
+    allowAllStates: process.env.FISCALAPI_IE_ALL_STATES === 'true',
+  })
+  if (!report.pending) {
+    await updateClienteCadastro({
+      matchKey,
+      nome,
+      cpf,
+      inscricaoEstadual: report.inscricaoEstadual || '',
+      temInscricaoEstadual: report.temInscricaoEstadual,
+    })
+  }
+  return {
+    pending: report.pending,
+    inscricaoEstadual: report.inscricaoEstadual,
+    temInscricaoEstadual: report.temInscricaoEstadual,
+    uf: report.uf,
+    message: report.message,
+  }
+}
+
 export async function getAgendaMatchesForCliente(cliente: Cliente) {
   const supabase = await createClient()
   const { matchAgendaToCliente } = await import('@/lib/cliente-agenda-match')
