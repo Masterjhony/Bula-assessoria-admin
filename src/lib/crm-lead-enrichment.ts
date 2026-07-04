@@ -46,6 +46,40 @@ const ACTIVE_STAGES = new Set([
   CRM_STAGE_REGISTRATION,
 ])
 
+// Conectivos ignorados na comparação de nomes.
+const NAME_STOPWORDS = new Set(['de', 'da', 'do', 'dos', 'das', 'e'])
+
+function nameTokens(name: string): string[] {
+  return String(name || '')
+    .normalize('NFD')
+    .replace(/[̀-ͯ]/g, '')
+    .toUpperCase()
+    .replace(/[^A-Z\s]/g, ' ')
+    .split(/\s+/)
+    .filter(t => t.length >= 2 && !NAME_STOPWORDS.has(t.toLowerCase()))
+}
+
+/**
+ * O telefone da base pode pertencer a OUTRA pessoa (número trocou de dono,
+ * é de um familiar, o lead cadastrou nº de terceiro). Só confiamos no CPF
+ * enriquecido se o nome retornado casar com o do lead:
+ *   • lead precisa ter ≥2 tokens de nome (nomes só de 1 palavra são ambíguos);
+ *   • ≥2 tokens do lead precisam aparecer no nome retornado (match exato ou
+ *     prefixo ≥4 chars, p/ pegar Fred→Frederico).
+ * Sem isso, metade dos enriquecimentos gravaria a pessoa errada no card.
+ */
+export function nameMatchesEnriched(leadName: string, returnedName: string): boolean {
+  const a = nameTokens(leadName)
+  const b = nameTokens(returnedName)
+  if (a.length < 2 || b.length === 0) return false
+  let matched = 0
+  for (const t of a) {
+    const hit = b.some(x => x === t || (t.length >= 4 && x.startsWith(t)) || (x.length >= 4 && t.startsWith(x)))
+    if (hit) matched++
+  }
+  return matched >= 2
+}
+
 function recentlyTried(extra: Record<string, unknown> | null | undefined): boolean {
   const enr = (extra?.enriquecimento || null) as { consultedAt?: string } | null
   if (!enr?.consultedAt) return false
@@ -104,6 +138,12 @@ export async function maybeEnrichLeadFromPhone(
     .eq('id', lead.id)
     .single()
 
+  const leadNome = String(current?.nome ?? lead.nome ?? '')
+  // Só confia no CPF se o nome retornado casar (o telefone pode ser de outra
+  // pessoa). Sem match → NÃO grava CPF; guarda como "suspeito" p/ revisão.
+  const nameOk = Boolean(r.cpf && r.nome && nameMatchesEnriched(leadNome, r.nome))
+  const acceptCpf = !r.pending && r.cpf && nameOk
+
   const extra: Record<string, unknown> = {
     ...(((current?.extra_data as Record<string, unknown> | null) || lead.extra_data || {}) as Record<string, unknown>),
     enriquecimento: {
@@ -111,27 +151,38 @@ export async function maybeEnrichLeadFromPhone(
       consultedAt: new Date().toISOString(),
       pending: r.pending,
       cpfEncontrado: Boolean(r.cpf),
-      rendaFaixa: r.rendaFaixa,
-      endereco: r.endereco,
+      nomeConfere: nameOk,
+      nomeRetornado: r.cpf ? r.nome : null,
+      rendaFaixa: acceptCpf ? r.rendaFaixa : null,
+      endereco: acceptCpf ? r.endereco : null,
       message: r.message,
     },
+  }
+  // CPF achado mas de OUTRA pessoa: registra p/ auditoria, não usa.
+  if (r.cpf && !nameOk) {
+    extra.enriquecimento_suspeito = {
+      cpf: r.cpf,
+      nomeRetornado: r.nome,
+      motivo: 'nome retornado não confere com o lead (telefone pode ser de terceiro)',
+      at: new Date().toISOString(),
+    }
   }
 
   const note = r.pending
     ? `Enriquecimento pendente: ${r.message || 'erro na consulta'}`
-    : r.cpf
-      ? `Enriquecimento (telefone→CPF): CPF localizado${r.nome ? ` · ${r.nome}` : ''}${r.rendaFaixa ? ` · renda ${r.rendaFaixa}` : ''}`
-      : 'Enriquecimento: nenhum CPF encontrado para este telefone.'
+    : acceptCpf
+      ? `Enriquecimento (telefone→CPF): CPF localizado e nome confere${r.rendaFaixa ? ` · renda ${r.rendaFaixa}` : ''}`
+      : r.cpf
+        ? `Enriquecimento: telefone retornou "${r.nome}", que NÃO confere com o lead — CPF não aplicado (revisar).`
+        : 'Enriquecimento: nenhum CPF encontrado para este telefone.'
 
   const patch: Record<string, unknown> = {
     extra_data: extra,
     contact_history: appendNote(current?.contact_history ?? lead.contact_history, note),
   }
-  if (!r.pending && r.cpf) {
+  if (acceptCpf) {
     patch.cpf = r.cpf
     // Preenche só o que está vazio — dado digitado por humano/lead prevalece.
-    const nomeAtual = String(current?.nome ?? lead.nome ?? '').trim()
-    if (r.nome && !/\S+\s+\S+/.test(nomeAtual)) patch.nome = r.nome
     if (r.email && !String(current?.email ?? lead.email ?? '').trim()) patch.email = r.email
     if (r.endereco && !extra.endereco_titular) {
       extra.endereco_titular = r.endereco
@@ -141,5 +192,6 @@ export async function maybeEnrichLeadFromPhone(
   const { error } = await supabase.from('crm_leads').update(patch).eq('id', lead.id)
   if (error) console.warn('[CRM] Falha ao gravar enriquecimento:', error.message)
 
-  return { attempted: true, cpf: !r.pending ? r.cpf : null, reason: r.message }
+  // Só devolve o CPF para cascatear (I.E./crédito) quando o nome confere.
+  return { attempted: true, cpf: acceptCpf ? r.cpf : null, reason: r.message }
 }
