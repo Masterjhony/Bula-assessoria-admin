@@ -43,8 +43,8 @@ const CC_ASSESSORES = '52dd8ed0-0c0a-4524-86bd-01dc121487b3' // COM02
 // Cobertura Bula (parcela × 30)
 const lots = [
   { lote: '24', parcela: 680, assessor: 'Fábio Omena', fornId: '1739c44b-b46a-4c1d-8adf-f6509fb44891', comprador: 'Sr Adenilson Tedesco', fazenda: 'Fazenda Montana', cidade: 'Tomé Açu', uf: 'PA' },
-  { lote: '17', parcela: 530, assessor: 'Fábio Omena', fornId: '1739c44b-b46a-4c1d-8adf-f6509fb44891', comprador: 'Sr Adenilson Tedesco', fazenda: 'Fazenda Montana', cidade: 'Tomé Açu', uf: 'PA' },
-  { lote: '23', parcela: 530, assessor: 'Fábio Omena', fornId: '1739c44b-b46a-4c1d-8adf-f6509fb44891', comprador: 'Sr Adenilson Tedesco', fazenda: 'Fazenda Montana', cidade: 'Tomé Açu', uf: 'PA' },
+  { lote: '17', parcela: 530, assessor: 'Douglas Bispo', fornId: '25642186-16ad-4306-9eb7-8f3372b63f00', comprador: 'Sr Adenilson Tedesco', fazenda: 'Fazenda Montana', cidade: 'Tomé Açu', uf: 'PA' },
+  { lote: '23', parcela: 530, assessor: 'Douglas Bispo', fornId: '25642186-16ad-4306-9eb7-8f3372b63f00', comprador: 'Sr Adenilson Tedesco', fazenda: 'Fazenda Montana', cidade: 'Tomé Açu', uf: 'PA' },
   { lote: '11', parcela: 510, assessor: 'Douglas Bispo', fornId: '25642186-16ad-4306-9eb7-8f3372b63f00', comprador: 'Ricardo Brasileiro', fazenda: 'Fazenda Terra Santa', cidade: 'Tucumã', uf: 'PA' },
   { lote: '13', parcela: 510, assessor: 'Douglas Bispo', fornId: '25642186-16ad-4306-9eb7-8f3372b63f00', comprador: 'Ricardo Brasileiro', fazenda: 'Fazenda Terra Santa', cidade: 'Tucumã', uf: 'PA' },
   { lote: '30', parcela: 470, assessor: 'Fábio Omena', fornId: '1739c44b-b46a-4c1d-8adf-f6509fb44891', comprador: 'Nelore Lima', fazenda: 'Fazenda seu Luiz', cidade: 'Carmelópolis', uf: 'CE' },
