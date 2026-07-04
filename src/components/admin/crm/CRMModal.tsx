@@ -1,8 +1,9 @@
 'use client';
 
 import { useState, useEffect, useRef } from 'react';
-import { X, Save, Trash2, Trophy, ChevronDown, ChevronUp, Crown, User, TrendingUp, Phone, Target, SlidersHorizontal, BarChart3, MessageCircle, FileText, History, Loader2, Beef, Gauge, Thermometer, Send, MapPin, type LucideIcon } from 'lucide-react';
-import { CRMLead, deleteLead, marcarLeadGanho } from '@/app/sistema/actions/crm-leads';
+import { X, Save, Trash2, Trophy, ChevronDown, ChevronUp, Crown, User, TrendingUp, Phone, Target, SlidersHorizontal, BarChart3, MessageCircle, FileText, History, Loader2, Beef, Gauge, Thermometer, Send, MapPin, ClipboardCheck, type LucideIcon } from 'lucide-react';
+import { CRMLead, deleteLead, marcarLeadGanho, listLeadDocumentos } from '@/app/sistema/actions/crm-leads';
+import { computeHabilitacaoChecklist } from '@/lib/crm-habilitacao';
 import { CRM_COLUMNS } from './CRMKanbanBoard';
 import type { CRMCustomField, CRMFunnel, CRMResponsavel } from '@/lib/crm-types';
 import { CRM_STAGE_CONNECTION, evaluateMql } from '@/lib/crm-types';
@@ -203,9 +204,42 @@ export function CRMModal({ isOpen, onClose, lead, defaultStatus, defaultFunnelId
     const [showWhatsapp, setShowWhatsapp] = useState(false);
     const [tab, setTab] = useState<DrawerTab>('dados');
 
+    // Documentos do lead (contagem/tipos) — alimentam o checklist de habilitação.
+    const [docsInfo, setDocsInfo] = useState<{ count: number; tipos: string[] }>({ count: 0, tipos: [] });
+    useEffect(() => {
+        let active = true;
+        if (lead?.id && isOpen) {
+            listLeadDocumentos(lead.id)
+                .then(d => { if (active) setDocsInfo({ count: d.length, tipos: d.map(x => x.tipo || 'outro') }); })
+                .catch(() => { if (active) setDocsInfo({ count: 0, tipos: [] }); });
+        } else {
+            setDocsInfo({ count: 0, tipos: [] });
+        }
+        return () => { active = false; };
+    }, [lead?.id, isOpen]);
+
     // Telefone do lead para a conversa (celular é o principal; telefone é o
     // fallback de integrações como a landing JMP).
     const waPhone = (lead?.celular || lead?.telefone || formData.celular || '').trim();
+
+    // Checklist de habilitação calculado AO VIVO dos dados do card — o que o
+    // formulário de entrada capturou já conta antes de a IA atender; a IA e o
+    // humano vão completando os buracos (mesma régua de src/lib/crm-habilitacao).
+    const xdata = (formData.extra_data ?? {}) as Record<string, any>;
+    const setXd = (key: string, value: string) =>
+        setFormData({ ...formData, extra_data: { ...(formData.extra_data ?? {}), [key]: value } });
+    const habChecklist = computeHabilitacaoChecklist({
+        nome: formData.nome,
+        cpf: formData.cpf,
+        telefone: (formData as any).telefone ?? lead?.telefone,
+        celular: formData.celular,
+        email: (formData as any).email,
+        inscricao_estadual: formData.inscricao_estadual,
+        tem_inscricao_estadual: formData.tem_inscricao_estadual,
+        extra_data: xdata,
+        docsCount: docsInfo.count,
+        docTipos: docsInfo.tipos,
+    });
 
     // Regra de MQL do funil deste lead (cabeças + IE). Default: 'default'.
     const mqlRule = funnels.find(f => f.id === (formData.funnel_id || 'default'))?.mql_rule;
@@ -448,6 +482,105 @@ export function CRMModal({ isOpen, onClose, lead, defaultStatus, defaultFunnelId
                         <div className="flex-1 min-w-0 overflow-y-auto px-6 py-5">
                             {/* Aba: Dados (formulário) */}
                             <div className={tab === 'dados' ? 'space-y-4' : 'hidden'}>
+                                {/* ───── Habilitação p/ compra ─────
+                                    Régua única (crm-habilitacao): formulário de entrada
+                                    preenche na criação, IA e humano completam depois. */}
+                                <FormSection icon={ClipboardCheck} title={`Habilitação p/ compra — ${habChecklist.done}/${habChecklist.total}`}>
+                                    <div className="h-1.5 rounded-full bg-gray-200 dark:bg-[#333] overflow-hidden">
+                                        <div
+                                            className={`h-full rounded-full transition-all ${habChecklist.complete ? 'bg-emerald-500' : 'bg-amber-500'}`}
+                                            style={{ width: `${Math.round((habChecklist.done / Math.max(1, habChecklist.total)) * 100)}%` }}
+                                        />
+                                    </div>
+                                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                                        {([['titular', 'Titular'], ['propriedade', 'Propriedade'], ['documentos', 'Documentos']] as const).map(([group, label]) => (
+                                            <div key={group} className="space-y-1">
+                                                <p className="text-[10px] uppercase tracking-wider text-gray-400">{label}</p>
+                                                {habChecklist.items.filter(i => i.group === group).map(i => (
+                                                    <div key={i.key} className="flex items-start gap-1.5 text-xs">
+                                                        <span className={i.done ? 'text-emerald-500' : 'text-amber-500'}>{i.done ? '✓' : '•'}</span>
+                                                        <span className={i.done ? 'text-gray-700 dark:text-gray-300' : 'text-gray-400'} title={i.value || undefined}>{i.label}</span>
+                                                    </div>
+                                                ))}
+                                            </div>
+                                        ))}
+                                    </div>
+                                    {habChecklist.complete && (
+                                        <p className="text-xs font-medium text-emerald-600 dark:text-emerald-400">
+                                            ✓ Checklist completo — pronto para aprovação do cadastro.
+                                        </p>
+                                    )}
+                                    <div className="grid grid-cols-2 gap-4">
+                                        <div className="col-span-2">
+                                            <label className={labelClass}>Endereço do titular</label>
+                                            <input
+                                                type="text"
+                                                value={xdata.endereco_titular || ''}
+                                                onChange={e => setXd('endereco_titular', e.target.value)}
+                                                className={inputClass}
+                                                placeholder="Rua, bairro, cidade/UF, CEP"
+                                            />
+                                        </div>
+                                        <div>
+                                            <label className={labelClass}>Fazenda (entrega)</label>
+                                            <input
+                                                type="text"
+                                                value={xdata.fazenda_nome || ''}
+                                                onChange={e => setXd('fazenda_nome', e.target.value)}
+                                                className={inputClass}
+                                                placeholder="Nome da fazenda"
+                                            />
+                                        </div>
+                                        <div className="grid grid-cols-3 gap-2">
+                                            <div className="col-span-2">
+                                                <label className={labelClass}>Cidade da fazenda</label>
+                                                <input
+                                                    type="text"
+                                                    value={xdata.fazenda_cidade || ''}
+                                                    onChange={e => setXd('fazenda_cidade', e.target.value)}
+                                                    className={inputClass}
+                                                    placeholder="Cidade"
+                                                />
+                                            </div>
+                                            <div>
+                                                <label className={labelClass}>UF</label>
+                                                <input
+                                                    type="text"
+                                                    maxLength={2}
+                                                    value={xdata.fazenda_uf || ''}
+                                                    onChange={e => setXd('fazenda_uf', e.target.value.toUpperCase())}
+                                                    className={inputClass}
+                                                    placeholder="UF"
+                                                />
+                                            </div>
+                                        </div>
+                                    </div>
+                                    {(xdata.urgencia_compra || xdata.objetivo_compra_resumido || xdata.proxima_acao) && (
+                                        <div className="flex flex-wrap gap-1.5 text-[11px]">
+                                            {xdata.urgencia_compra && (
+                                                <span className="px-2 py-0.5 rounded-full bg-amber-500/10 text-amber-700 dark:text-amber-400">Urgência: {String(xdata.urgencia_compra).replace(/_/g, ' ')}</span>
+                                            )}
+                                            {xdata.objetivo_compra_resumido && (
+                                                <span className="px-2 py-0.5 rounded-full bg-gray-100 dark:bg-[#222] text-gray-600 dark:text-gray-300">Objetivo: {String(xdata.objetivo_compra_resumido)}</span>
+                                            )}
+                                            {xdata.proxima_acao && (
+                                                <span className="px-2 py-0.5 rounded-full bg-sky-500/10 text-sky-700 dark:text-sky-400">Próx. ação: {String(xdata.proxima_acao)}</span>
+                                            )}
+                                        </div>
+                                    )}
+                                    {Array.isArray(xdata.stage_history) && xdata.stage_history.length > 0 && (
+                                        <div className="space-y-1 pt-1 border-t border-gray-100 dark:border-[#2a2a2a]">
+                                            <p className="text-[10px] uppercase tracking-wider text-gray-400">Movimentações de etapa</p>
+                                            {xdata.stage_history.slice(0, 4).map((h: any, i: number) => (
+                                                <p key={i} className="text-[11px] text-gray-500 dark:text-gray-400">
+                                                    <span className="font-medium text-gray-700 dark:text-gray-300">{h.from} → {h.to}</span>
+                                                    {' '}· {h.reason} ({h.by === 'ia' ? 'IA' : h.by}{h.at ? ` · ${new Date(h.at).toLocaleString('pt-BR', { day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' })}` : ''})
+                                                </p>
+                                            ))}
+                                        </div>
+                                    )}
+                                </FormSection>
+
                                 {/* ───── Identificação ───── */}
                                 <FormSection icon={User} title="Identificação">
                                     <div>
