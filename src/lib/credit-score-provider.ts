@@ -120,6 +120,41 @@ class StubCreditProvider implements CreditProvider {
   }
 }
 
+// Direct Data: score QUOD (/api/Score) + protestos IEPTB Online — o relatório
+// completo numa passada. `pending` quando AMBAS as consultas falharem; se só
+// uma falhar, entrega a outra com a ressalva na mensagem.
+class DirectdCreditProvider implements CreditProvider {
+  name = 'directd'
+  configured = true
+  async consultarCpf(cpf: string): Promise<CreditReport> {
+    const digits = onlyDigits(cpf)
+    if (digits.length !== 11) return stubReport('CPF inválido (precisa de 11 dígitos).')
+    const { consultarScoreDirectd, consultarProtestosDirectd } = await import('@/lib/directd-provider')
+    const [s, p] = await Promise.all([
+      consultarScoreDirectd(digits),
+      consultarProtestosDirectd(digits),
+    ])
+    if (s.pending && p.pending) {
+      return stubReport(`Direct Data indisponível: ${s.message || p.message || 'erro'}`)
+    }
+    const notes: string[] = []
+    if (s.pending) notes.push(`score pendente (${s.message || 'erro'})`)
+    if (p.pending) notes.push(`protestos pendentes (${p.message || 'erro'})`)
+    return {
+      score: s.score,
+      faixa: scoreToFaixa(s.score),
+      protestos: p.protestos.map((x) => ({
+        cartorio: x.cartorio, cidade: x.cidade, uf: x.uf,
+        valor: x.valor, data: x.data, titulo: x.titulo,
+      })),
+      provider: this.name,
+      consultedAt: new Date().toISOString(),
+      pending: false,
+      message: notes.length ? `Parcial: ${notes.join('; ')}` : 'Score QUOD + protestos IEPTB (Direct Data).',
+    }
+  }
+}
+
 // Infosimples: protestos REAIS via CENPROT (ieptb/protestos). Score de bureau
 // (Serasa/SPC) não é oferecido — devolvemos score null com protestos válidos,
 // que é o dado que pesa na aprovação manual. `pending` só quando a consulta
@@ -157,6 +192,9 @@ export function getCreditProvider(): CreditProvider {
   const url = process.env.CREDIT_PROVIDER_URL || ''
   const token = process.env.CREDIT_PROVIDER_TOKEN || ''
   if (url && token) return new HttpCreditProvider(url, token)
+  // Direct Data na frente: é o único com score de bureau (QUOD) + protestos
+  // sem exigir habilitação/GOV.BR. Infosimples fica de fallback (protestos).
+  if (process.env.DIRECTD_TOKEN) return new DirectdCreditProvider()
   if (process.env.INFOSIMPLES_TOKEN) return new InfosimplesCreditProvider()
   return new StubCreditProvider()
 }

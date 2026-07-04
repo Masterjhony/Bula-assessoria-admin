@@ -36,6 +36,7 @@ import {
 import { promoteWhatsappMediaToLeadDoc, type LeadDocTipo } from './whatsapp-lead-documents'
 import { maybeRunCreditCheck } from './crm-credit-automation'
 import { maybeRunStateRegistrationCheck } from './crm-state-registration-automation'
+import { maybeEnrichLeadFromPhone } from './crm-lead-enrichment'
 import { notifyTeamGroup } from './whatsapp-team-notify'
 import {
     CRM_STAGE_CONNECTION,
@@ -759,6 +760,10 @@ async function applyConciergeEffects(
     const leadAfter = {
         id: lead.id,
         status: statusAfter,
+        nome: (update.nome as string) ?? lead.nome,
+        telefone: lead.telefone,
+        celular: lead.celular,
+        email: (update.email as string) ?? lead.email,
         cpf: (update.cpf as string) ?? lead.cpf,
         estado: (update.estado as string) ?? lead.estado,
         inscricao_estadual: (update.inscricao_estadual as string) ?? lead.inscricao_estadual,
@@ -767,6 +772,16 @@ async function applyConciergeEffects(
         contact_history: (update.contact_history as unknown) ?? lead.contact_history,
     }
     const previous = { status: lead.status }
+    // Enriquecimento pelo telefone (descobre CPF sem pedir) — antes de
+    // crédito/I.E. para o CPF descoberto cascatear no mesmo passo.
+    if (!leadAfter.cpf) {
+        try {
+            const r = await maybeEnrichLeadFromPhone(supabase, leadAfter)
+            if (r.cpf) leadAfter.cpf = r.cpf
+        } catch (e) {
+            console.warn('[concierge] enriquecimento falhou:', e instanceof Error ? e.message : e)
+        }
+    }
     try {
         await maybeRunCreditCheck(supabase, leadAfter, previous)
     } catch (e) {

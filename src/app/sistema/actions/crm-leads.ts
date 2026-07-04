@@ -145,6 +145,23 @@ async function notifyAssessorIfNeeded(
     }
 }
 
+// Enriquecimento pelo telefone (Direct Data): descobre CPF/e-mail sem pedir ao
+// lead. Roda ANTES das consultas de I.E./crédito — o CPF descoberto retorna no
+// lead para cascatear às automações seguintes no mesmo passo. Best-effort.
+async function runLeadEnrichmentIfNeeded(
+    supabase: Awaited<ReturnType<typeof createClient>>,
+    lead: CRMLead,
+): Promise<CRMLead> {
+    try {
+        const { maybeEnrichLeadFromPhone } = await import('@/lib/crm-lead-enrichment');
+        const r = await maybeEnrichLeadFromPhone(supabase as any, lead as any);
+        if (r.cpf) return { ...lead, cpf: r.cpf };
+    } catch (e) {
+        console.warn('[CRM] Falha na automação de enriquecimento:', e instanceof Error ? e.message : e);
+    }
+    return lead;
+}
+
 // Dispara a consulta de score/protestos quando o lead entra na QUALIFICAÇÃO
 // (ver crm-credit-automation). Best-effort: não derruba a ação que chamou.
 async function runCreditCheckIfNeeded(
@@ -305,8 +322,9 @@ export async function createLead(data: Partial<CRMLead>): Promise<CRMLead> {
     }
 
     await notifyAssessorIfNeeded(supabase, newLead as CRMLead, null);
-    await runStateRegistrationCheckIfNeeded(supabase, newLead as CRMLead, null);
-    await runCreditCheckIfNeeded(supabase, newLead as CRMLead, null);
+    const enrichedNew = await runLeadEnrichmentIfNeeded(supabase, newLead as CRMLead);
+    await runStateRegistrationCheckIfNeeded(supabase, enrichedNew, null);
+    await runCreditCheckIfNeeded(supabase, enrichedNew, null);
 
     const welcomePhone = newLead?.celular || newLead?.telefone || data.telefone;
     if (welcomePhone) {
@@ -354,8 +372,9 @@ export async function updateLead(id: string, data: Partial<CRMLead>): Promise<CR
     }
 
     await notifyAssessorIfNeeded(supabase, updatedLead as CRMLead, previous as Pick<CRMLead, 'status' | 'responsavel' | 'extra_data'> | null);
-    await runStateRegistrationCheckIfNeeded(supabase, updatedLead as CRMLead, previous as Pick<CRMLead, 'status'> | null);
-    await runCreditCheckIfNeeded(supabase, updatedLead as CRMLead, previous as Pick<CRMLead, 'status'> | null);
+    const enrichedUpd = await runLeadEnrichmentIfNeeded(supabase, updatedLead as CRMLead);
+    await runStateRegistrationCheckIfNeeded(supabase, enrichedUpd, previous as Pick<CRMLead, 'status'> | null);
+    await runCreditCheckIfNeeded(supabase, enrichedUpd, previous as Pick<CRMLead, 'status'> | null);
 
     revalidatePath('/web-admin/crm');
     revalidatePath('/web-admin/funil-vendas');
@@ -407,9 +426,10 @@ export async function moveLead(id: string, newStatus: string, newPosition: numbe
         .single();
     if (lead) {
         await notifyAssessorIfNeeded(supabase, lead as CRMLead, previous as Pick<CRMLead, 'status' | 'responsavel' | 'extra_data'> | null);
-        await runStateRegistrationCheckIfNeeded(supabase, lead as CRMLead, previous as Pick<CRMLead, 'status'> | null);
-        await runCreditCheckIfNeeded(supabase, lead as CRMLead, previous as Pick<CRMLead, 'status'> | null);
-        await syncLeadToClientesIfApproved(supabase, lead as CRMLead);
+        const enriched = await runLeadEnrichmentIfNeeded(supabase, lead as CRMLead);
+        await runStateRegistrationCheckIfNeeded(supabase, enriched, previous as Pick<CRMLead, 'status'> | null);
+        await runCreditCheckIfNeeded(supabase, enriched, previous as Pick<CRMLead, 'status'> | null);
+        await syncLeadToClientesIfApproved(supabase, enriched);
     }
 
     revalidatePath('/web-admin/crm');
@@ -445,9 +465,10 @@ export async function moveLeadToFunnel(id: string, funnelId: string, newStatus: 
         .single();
     if (lead) {
         await notifyAssessorIfNeeded(supabase, lead as CRMLead, previous as Pick<CRMLead, 'status' | 'responsavel' | 'extra_data'> | null);
-        await runStateRegistrationCheckIfNeeded(supabase, lead as CRMLead, previous as Pick<CRMLead, 'status'> | null);
-        await runCreditCheckIfNeeded(supabase, lead as CRMLead, previous as Pick<CRMLead, 'status'> | null);
-        await syncLeadToClientesIfApproved(supabase, lead as CRMLead);
+        const enriched = await runLeadEnrichmentIfNeeded(supabase, lead as CRMLead);
+        await runStateRegistrationCheckIfNeeded(supabase, enriched, previous as Pick<CRMLead, 'status'> | null);
+        await runCreditCheckIfNeeded(supabase, enriched, previous as Pick<CRMLead, 'status'> | null);
+        await syncLeadToClientesIfApproved(supabase, enriched);
     }
 
     revalidatePath('/web-admin/crm');

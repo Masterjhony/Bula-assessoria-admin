@@ -208,10 +208,34 @@ export async function consultarInscricaoEstadualPorCpf(input: {
     return makeReport({ pending: true, message: 'UF ausente; consulta de I.E. nao executada.' })
   }
 
-  // Infosimples exige UF (não tem varredura nacional numa chamada só).
-  if (!process.env.FISCALAPI_API_KEY && process.env.INFOSIMPLES_TOKEN) {
+  // Sem FiscalAPI: Direct Data (Sintegra) na frente, Infosimples de fallback.
+  // Ambos exigem UF (não têm varredura nacional numa chamada só).
+  if (!process.env.FISCALAPI_API_KEY && (process.env.DIRECTD_TOKEN || process.env.INFOSIMPLES_TOKEN)) {
     if (!uf) {
-      return makeReport({ provider: 'infosimples', pending: true, message: 'UF ausente; consulta Sintegra nao executada.' })
+      return makeReport({ provider: 'directd/infosimples', pending: true, message: 'UF ausente; consulta Sintegra nao executada.' })
+    }
+    if (process.env.DIRECTD_TOKEN) {
+      const { consultarSintegraDirectd } = await import('@/lib/directd-provider')
+      const d = await consultarSintegraDirectd(cpf, uf)
+      if (!d.pending) {
+        const results: StateRegistrationRecord[] = d.ie ? [{
+          inscricao_estadual: d.ie,
+          razao_social: d.nome || undefined,
+          situacao_ie: d.situacao || undefined,
+          uf_ie: d.uf || uf,
+        }] : []
+        return makeReport({
+          provider: 'directd',
+          inscricaoEstadual: d.ie,
+          temInscricaoEstadual: d.ie ? 'Sim' : 'Não',
+          uf: d.uf || uf,
+          results,
+        })
+      }
+      // Direct Data falhou → tenta Infosimples se existir; senão reporta pendente.
+      if (!process.env.INFOSIMPLES_TOKEN) {
+        return makeReport({ provider: 'directd', uf, pending: true, message: d.message })
+      }
     }
     return consultarViaInfosimples(cpf, uf)
   }
