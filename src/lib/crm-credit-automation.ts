@@ -12,6 +12,8 @@
 
 import type { SupabaseClient } from '@supabase/supabase-js'
 import {
+  CRM_STAGE_ENTRY,
+  CRM_STAGE_CONNECTION,
   CRM_STAGE_QUALIFICATION,
   CRM_STAGE_INFO_CAPTURED,
   CRM_STAGE_REGISTRATION,
@@ -34,10 +36,13 @@ type PreviousLike = { status?: string | null } | null | undefined
 // Reconsulta no máximo 1×/14 dias, salvo se a etapa acabou de virar QUALIFICAÇÃO.
 const RECHECK_DAYS = 14
 
-// O score é necessário da QUALIFICAÇÃO até a aprovação do CADASTRO — um lead
-// que avança direto (ex.: movido pela IA com checklist completo) também precisa
-// da consulta, senão chega na aprovação sem score.
+// Dispara em QUALQUER etapa ativa (só PERDIDOS fica de fora): assim que o CPF
+// existe — venha do formulário, da importação, do humano no card ou da IA — a
+// consulta roda e o card já nasce enriquecido, antes mesmo do atendimento.
+// Custo controlado pelos outros gates: CPF válido + recheck ≤1×/14 dias.
 const CREDIT_STAGES = new Set([
+  CRM_STAGE_ENTRY,
+  CRM_STAGE_CONNECTION,
   CRM_STAGE_QUALIFICATION,
   CRM_STAGE_INFO_CAPTURED,
   CRM_STAGE_REGISTRATION,

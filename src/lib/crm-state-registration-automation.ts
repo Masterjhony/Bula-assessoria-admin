@@ -1,5 +1,7 @@
 import type { SupabaseClient } from '@supabase/supabase-js'
 import {
+  CRM_STAGE_ENTRY,
+  CRM_STAGE_CONNECTION,
   CRM_STAGE_QUALIFICATION,
   CRM_STAGE_INFO_CAPTURED,
   CRM_STAGE_REGISTRATION,
@@ -30,9 +32,12 @@ type PreviousLike = { status?: string | null } | null | undefined
 
 const RECHECK_DAYS = 30
 
-// Como no crédito: a I.E. continua necessária depois da QUALIFICAÇÃO — lead
-// que avança direto (movido pela IA) também dispara a consulta.
+// Como no crédito: qualquer etapa ativa (só PERDIDOS de fora) — assim que o
+// CPF aparece, a I.E. é buscada e preenche o card antes mesmo do atendimento.
+// Gates de custo: CPF válido + só quando a I.E. ainda não existe + 1×/30 dias.
 const IE_STAGES = new Set([
+  CRM_STAGE_ENTRY,
+  CRM_STAGE_CONNECTION,
   CRM_STAGE_QUALIFICATION,
   CRM_STAGE_INFO_CAPTURED,
   CRM_STAGE_REGISTRATION,
