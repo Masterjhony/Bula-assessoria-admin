@@ -165,6 +165,34 @@ async function fiscalApiGet(path: string, params: Record<string, string>): Promi
   return res.json()
 }
 
+// Caminho Infosimples (sintegra/unificada): consulta por CPF + UF. Usado quando
+// INFOSIMPLES_TOKEN está definido e a FiscalAPI não está (a FiscalAPI, quando
+// configurada, mantém a precedência para não mudar comportamento existente).
+async function consultarViaInfosimples(cpf: string, uf: string): Promise<StateRegistrationReport> {
+  const { consultarSintegraInfosimples } = await import('@/lib/infosimples-provider')
+  const r = await consultarSintegraInfosimples(cpf, uf)
+  if (r.pending) {
+    return makeReport({ provider: 'infosimples', uf, pending: true, message: r.message })
+  }
+  const results: StateRegistrationRecord[] = r.records.map((rec) => ({
+    inscricao_estadual: rec.inscricao_estadual,
+    razao_social: rec.razao_social,
+    situacao_ie: rec.situacao_ie,
+    uf_ie: rec.uf_ie || uf,
+    tipo_ie: rec.tipo_ie,
+    municipio: rec.municipio,
+    situacao_cadastral: rec.situacao_cadastral,
+  }))
+  const best = pickBestResult(results)
+  return makeReport({
+    provider: 'infosimples',
+    inscricaoEstadual: best?.inscricao_estadual || null,
+    temInscricaoEstadual: best?.inscricao_estadual ? 'Sim' : 'Não',
+    uf: best?.uf_ie || uf,
+    results,
+  })
+}
+
 export async function consultarInscricaoEstadualPorCpf(input: {
   cpf: string
   uf?: string | null
@@ -178,6 +206,14 @@ export async function consultarInscricaoEstadualPorCpf(input: {
   const uf = normalizeUf(input.uf)
   if (!uf && !input.allowAllStates) {
     return makeReport({ pending: true, message: 'UF ausente; consulta de I.E. nao executada.' })
+  }
+
+  // Infosimples exige UF (não tem varredura nacional numa chamada só).
+  if (!process.env.FISCALAPI_API_KEY && process.env.INFOSIMPLES_TOKEN) {
+    if (!uf) {
+      return makeReport({ provider: 'infosimples', pending: true, message: 'UF ausente; consulta Sintegra nao executada.' })
+    }
+    return consultarViaInfosimples(cpf, uf)
   }
 
   try {

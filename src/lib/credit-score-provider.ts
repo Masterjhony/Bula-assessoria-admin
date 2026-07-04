@@ -116,7 +116,40 @@ class StubCreditProvider implements CreditProvider {
   name = 'stub'
   configured = false
   async consultarCpf(): Promise<CreditReport> {
-    return stubReport('Provedor de crédito não configurado (defina CREDIT_PROVIDER_URL/TOKEN).')
+    return stubReport('Provedor de crédito não configurado (defina CREDIT_PROVIDER_URL/TOKEN ou INFOSIMPLES_TOKEN).')
+  }
+}
+
+// Infosimples: protestos REAIS via CENPROT (ieptb/protestos). Score de bureau
+// (Serasa/SPC) não é oferecido — devolvemos score null com protestos válidos,
+// que é o dado que pesa na aprovação manual. `pending` só quando a consulta
+// em si falhou (aí não gravamos "sem protestos" indevidamente).
+class InfosimplesCreditProvider implements CreditProvider {
+  name = 'infosimples'
+  configured = true
+  async consultarCpf(cpf: string): Promise<CreditReport> {
+    const digits = onlyDigits(cpf)
+    if (digits.length !== 11) return stubReport('CPF inválido (precisa de 11 dígitos).')
+    const { consultarProtestosInfosimples } = await import('@/lib/infosimples-provider')
+    const r = await consultarProtestosInfosimples(digits)
+    return {
+      score: null,
+      faixa: '',
+      protestos: r.protestos.map((p) => ({
+        cartorio: p.cartorio,
+        cidade: p.cidade,
+        uf: p.uf,
+        valor: p.valor,
+        data: p.data,
+        titulo: p.titulo,
+      })),
+      provider: this.name,
+      consultedAt: new Date().toISOString(),
+      pending: r.pending,
+      message: r.pending
+        ? r.message
+        : 'Protestos via CENPROT (Infosimples). Score de bureau não disponível neste provedor.',
+    }
   }
 }
 
@@ -124,6 +157,7 @@ export function getCreditProvider(): CreditProvider {
   const url = process.env.CREDIT_PROVIDER_URL || ''
   const token = process.env.CREDIT_PROVIDER_TOKEN || ''
   if (url && token) return new HttpCreditProvider(url, token)
+  if (process.env.INFOSIMPLES_TOKEN) return new InfosimplesCreditProvider()
   return new StubCreditProvider()
 }
 
