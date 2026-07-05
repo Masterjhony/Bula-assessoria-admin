@@ -348,7 +348,7 @@ export function CRMWhatsappView() {
                             view === 'status' ? 'bg-card shadow-sm font-medium' : 'text-muted-foreground hover:text-foreground'
                         }`}
                     >
-                        <ShieldCheck size={14} /> Status &amp; configuração
+                        <ShieldCheck size={14} /> Status<span className="hidden sm:inline">&nbsp;&amp; configuração</span>
                     </button>
                     <button
                         type="button"

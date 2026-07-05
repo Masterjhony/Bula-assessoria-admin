@@ -5,7 +5,7 @@ import {
     Search, MessageSquare, Send, AlertCircle, CheckCircle2, Clock,
     UserPlus, BellOff, Bell, Hand, Sparkles, Tag, Loader2, GraduationCap,
     Lock, ShieldCheck, Smartphone, FileText, Download, MessageCircle,
-    ExternalLink, Activity, Info, ChevronDown,
+    ExternalLink, Activity, Info, ChevronDown, ArrowLeft,
 } from "lucide-react"
 import {
     INTERESSE_LABELS,
@@ -259,6 +259,10 @@ export function InboxTab({ templates, channel = "oficial" }: { templates: Templa
 
     // Aba do painel lateral do lead (apenas apresentação — não afeta automações).
     const [leadTab, setLeadTab] = useState<"detalhes" | "atividades" | "historico" | "documentos">("detalhes")
+    // No mobile a lista, a conversa e o painel do lead viram telas separadas
+    // (uma por vez). Este flag controla se o painel do lead está aberto no mobile;
+    // no desktop (lg+) os três aparecem lado a lado e ele é ignorado.
+    const [showLeadInfo, setShowLeadInfo] = useState(false)
 
     // Documentos do lead (cadastro + mídias recebidas). Carregados sob demanda.
     const [docs, setDocs] = useState<LeadDocItem[]>([])
@@ -377,6 +381,7 @@ export function InboxTab({ templates, channel = "oficial" }: { templates: Templa
         setLeadTab("detalhes")
         setDocs([])
         setHabilitacao(null)
+        setShowLeadInfo(false) // no mobile, ao abrir uma conversa cai na tela da thread
         if (selectedPhone) {
             fetchThread(selectedPhone)
             fetchHabilitacao(selectedPhone)
@@ -480,9 +485,9 @@ export function InboxTab({ templates, channel = "oficial" }: { templates: Templa
     const lastMsgAt = thread.length ? thread[thread.length - 1].created_at : threadLead?.last_whatsapp_at ?? null
 
     return (
-        <div className="grid grid-cols-1 lg:grid-cols-[340px_1fr_320px] gap-3 h-[calc(100vh-220px)] min-h-[520px]">
-            {/* ───── Lista de conversas ───── */}
-            <div className="flex flex-col bg-card text-card-foreground border rounded-xl overflow-hidden">
+        <div className="flex flex-col lg:grid lg:grid-cols-[340px_1fr_320px] gap-3 h-[calc(100dvh-180px)] min-h-[460px] lg:h-[calc(100vh-220px)] lg:min-h-[520px]">
+            {/* ───── Lista de conversas ───── (mobile: some quando há conversa aberta) */}
+            <div className={`${selectedPhone ? "hidden" : "flex"} lg:flex flex-1 min-h-0 lg:flex-none flex-col bg-card text-card-foreground border rounded-xl overflow-hidden`}>
                 <div className="px-3 py-3 border-b space-y-2.5">
                     <div className="relative">
                         <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-muted-foreground" />
@@ -571,8 +576,8 @@ export function InboxTab({ templates, channel = "oficial" }: { templates: Templa
                 </div>
             </div>
 
-            {/* ───── Thread ───── */}
-            <div className="flex flex-col bg-card text-card-foreground border rounded-xl overflow-hidden">
+            {/* ───── Thread ───── (mobile: só com conversa aberta e painel do lead fechado) */}
+            <div className={`${selectedPhone && !showLeadInfo ? "flex" : "hidden"} lg:flex flex-1 min-h-0 flex-col bg-card text-card-foreground border rounded-xl overflow-hidden`}>
                 {!selectedPhone ? (
                     <div className="flex-1 flex flex-col items-center justify-center text-center p-10 gap-3 text-muted-foreground">
                         <MessageSquare className="h-10 w-10 opacity-40" />
@@ -582,6 +587,14 @@ export function InboxTab({ templates, channel = "oficial" }: { templates: Templa
                     <>
                         <div className="px-4 py-3 border-b flex items-center justify-between gap-3">
                             <div className="flex items-center gap-3 min-w-0">
+                                <button
+                                    type="button"
+                                    onClick={() => setSelectedPhone(null)}
+                                    className="lg:hidden -ml-1 p-1.5 rounded-md hover:bg-muted shrink-0"
+                                    aria-label="Voltar para a lista de conversas"
+                                >
+                                    <ArrowLeft className="h-4 w-4" />
+                                </button>
                                 <Avatar name={headerName} seed={selectedPhone} size={40} online={!!threadLead?.handoff_humano} />
                                 <div className="min-w-0">
                                     <div className="flex items-center gap-2">
@@ -605,9 +618,18 @@ export function InboxTab({ templates, channel = "oficial" }: { templates: Templa
                                         className="text-xs flex items-center gap-1.5 rounded-md border px-2.5 py-1.5 hover:bg-muted transition-colors"
                                     >
                                         <ExternalLink className="h-3.5 w-3.5" />
-                                        Abrir no CRM
+                                        <span className="hidden sm:inline">Abrir no CRM</span>
                                     </a>
                                 )}
+                                {/* Mobile: abre o painel de detalhes do lead como tela cheia */}
+                                <button
+                                    type="button"
+                                    onClick={() => setShowLeadInfo(true)}
+                                    className="lg:hidden text-xs flex items-center gap-1.5 rounded-md border px-2.5 py-1.5 hover:bg-muted transition-colors"
+                                    aria-label="Ver detalhes do lead"
+                                >
+                                    <Info className="h-3.5 w-3.5" />
+                                </button>
                             </div>
                         </div>
 
@@ -839,8 +861,20 @@ export function InboxTab({ templates, channel = "oficial" }: { templates: Templa
                 )}
             </div>
 
-            {/* ───── Painel lateral do lead ───── */}
-            <div className="bg-card text-card-foreground border rounded-xl overflow-hidden flex flex-col">
+            {/* ───── Painel lateral do lead ───── (mobile: tela cheia via botão de info) */}
+            <div className={`${showLeadInfo ? "flex" : "hidden"} lg:flex flex-1 min-h-0 bg-card text-card-foreground border rounded-xl overflow-hidden flex-col`}>
+                {/* Mobile: barra para voltar à conversa */}
+                <div className="lg:hidden flex items-center gap-2 px-3 py-2 border-b shrink-0">
+                    <button
+                        type="button"
+                        onClick={() => setShowLeadInfo(false)}
+                        className="p-1.5 rounded-md hover:bg-muted"
+                        aria-label="Voltar para a conversa"
+                    >
+                        <ArrowLeft className="h-4 w-4" />
+                    </button>
+                    <span className="text-sm font-medium">Detalhes do lead</span>
+                </div>
                 {!selectedPhone ? (
                     <div className="p-6 text-xs text-muted-foreground">
                         Selecione uma conversa para ver os detalhes do lead.
