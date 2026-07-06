@@ -22,11 +22,17 @@ export async function GET(req: NextRequest) {
     sb.from('erp_contas_bancarias').select('id,nome,saldo_atual,cor,tipo,ativo').eq('ativo', true).order('nome'),
     sb.from('erp_contas_pagar').select('valor,desconto,juros,multa,valor_pago,status').gte('vencimento', inicioIso).lte('vencimento', fimIso),
     sb.from('erp_contas_receber').select('valor,desconto,juros,multa,valor_recebido,status').gte('vencimento', inicioIso).lte('vencimento', fimIso),
-    sb.from('erp_movimentos_bancarios').select('data,tipo,valor').gte('data', inicio30Iso).lte('data', hoje),
+    sb.from('erp_movimentos_bancarios').select('data,tipo,valor,categoria_id').gte('data', inicio30Iso).lte('data', hoje),
     sb.from('erp_lancamentos').select('*, partidas:erp_lancamento_partidas(*)').order('data', { ascending: false }).limit(5),
     sb.from('erp_contas_pagar').select('valor_pago').gte('data_pagamento', inicio30Iso).eq('status', 'pago'),
     sb.from('erp_contas_receber').select('valor_recebido').gte('data_recebimento', inicio30Iso).eq('status', 'recebido'),
   ])
+
+  // transferencias entre contas proprias nao sao entrada/saida de caixa
+  const { data: catsTransf } = await sb.from('erp_categorias').select('id').ilike('nome', 'Transferencias Internas%')
+  const transfIds = new Set((catsTransf || []).map((c: { id: string }) => c.id))
+  const mov30Fluxo = ((mov30.data || []) as { data: string; tipo: string; valor: number; categoria_id: string | null }[])
+    .filter((m) => !(m.categoria_id && transfIds.has(m.categoria_id)))
 
   const sumDue = (rows: { valor: number; desconto: number; juros: number; multa: number; valor_pago?: number; valor_recebido?: number }[] | null | undefined, key: 'valor_pago' | 'valor_recebido') => {
     if (!rows) return 0
@@ -41,8 +47,8 @@ export async function GET(req: NextRequest) {
   const previsaoMesSaida = sumDue(mesPagar.data, 'valor_pago')
   const previsaoMesEntrada = sumDue(mesReceber.data, 'valor_recebido')
 
-  const realizado30Entradas = (mov30.data || []).filter((m: { tipo: string }) => m.tipo === 'entrada').reduce((s: number, m: { valor: number }) => s + Number(m.valor || 0), 0)
-  const realizado30Saidas = (mov30.data || []).filter((m: { tipo: string }) => m.tipo === 'saida').reduce((s: number, m: { valor: number }) => s + Number(m.valor || 0), 0)
+  const realizado30Entradas = mov30Fluxo.filter((m) => m.tipo === 'entrada').reduce((s, m) => s + Number(m.valor || 0), 0)
+  const realizado30Saidas = mov30Fluxo.filter((m) => m.tipo === 'saida').reduce((s, m) => s + Number(m.valor || 0), 0)
 
   // Serie diaria 30 dias (movimentos)
   const serie: Record<string, { data: string; entrada: number; saida: number }> = {}
@@ -51,7 +57,7 @@ export async function GET(req: NextRequest) {
     const k = d.toISOString().slice(0, 10)
     serie[k] = { data: k, entrada: 0, saida: 0 }
   }
-  for (const m of (mov30.data || []) as { data: string; tipo: string; valor: number }[]) {
+  for (const m of mov30Fluxo) {
     const k = m.data
     if (!serie[k]) continue
     if (m.tipo === 'entrada') serie[k].entrada += Number(m.valor || 0)
