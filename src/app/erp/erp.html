@@ -168,6 +168,49 @@ body { background:var(--bg); color:var(--text); font-family:'Inter',-apple-syste
 .money.positive { color:var(--olive); }
 .money.negative { color:var(--red); }
 
+/* AGING (faixas de atraso) — chips filtráveis */
+.age-row { display:flex; flex-wrap:wrap; gap:8px; margin:0 0 14px; }
+.age-chip { cursor:pointer; background:var(--surface); border:1px solid var(--border); border-radius:12px; padding:8px 13px; display:flex; flex-direction:column; gap:2px; min-width:118px; transition:all .15s; font-family:inherit; text-align:left; position:relative; }
+.age-chip:hover { border-color:var(--border2); transform:translateY(-1px); }
+.age-chip.active { border-color:var(--gold); box-shadow:inset 0 0 0 1px var(--gold); }
+.age-chip .age-l { font-size:9.5px; font-weight:700; text-transform:uppercase; letter-spacing:.6px; color:var(--text3); display:flex; align-items:center; gap:5px; }
+.age-chip .age-l .dot { width:7px; height:7px; border-radius:50%; background:currentColor; }
+.age-chip .age-v { font-size:14px; font-weight:700; color:var(--text); font-variant-numeric:tabular-nums; }
+.age-chip .age-n { font-size:10px; color:var(--text3); }
+.age-chip.c-ok .age-l { color:var(--olive); }
+.age-chip.c-vencer .age-l { color:var(--blue); }
+.age-chip.c-30 .age-l { color:var(--amber); }
+.age-chip.c-60 .age-l { color:#d98a3d; }
+.age-chip.c-90 .age-l { color:var(--red); }
+.age-chip.c-90p .age-l { color:#b3261e; }
+
+/* Cabeçalho de tabela ordenável */
+.table-wrap th.sortable { cursor:pointer; user-select:none; white-space:nowrap; }
+.table-wrap th.sortable:hover { color:var(--text2); }
+.table-wrap th.sortable .sort-i { font-size:13px; vertical-align:-3px; opacity:.85; margin-left:2px; }
+.table-wrap th.sortable.on { color:var(--gold); }
+
+/* Seleção em lote */
+.sel-cell { width:34px; text-align:center; }
+.sel-cell input, .table-wrap th.sel-cell input { cursor:pointer; width:15px; height:15px; accent-color:var(--gold); }
+.table-wrap tr.selected td { background:var(--gold-dim) !important; }
+.bulk-bar { display:flex; align-items:center; gap:12px; padding:10px 18px; background:var(--gold-dim); border-bottom:1px solid var(--border); flex-wrap:wrap; }
+.bulk-bar .bulk-info { font-size:12px; font-weight:600; color:var(--text); }
+.bulk-bar .bulk-info small { color:var(--text3); font-weight:500; }
+
+/* Linha de grupo (agrupamento) */
+.grp-row td { background:var(--s2); font-weight:700; font-size:11px; text-transform:uppercase; letter-spacing:.5px; color:var(--text2); padding:9px 14px; }
+.grp-row .grp-tot { float:right; font-weight:700; }
+
+/* Badge de dias em atraso / a vencer */
+.atraso { display:inline-block; margin-top:2px; font-size:9.5px; font-weight:700; padding:1px 6px; border-radius:8px; letter-spacing:.3px; }
+.atraso.late { background:var(--red-bg); color:var(--red); }
+.atraso.due-soon { background:var(--amber-bg); color:var(--amber); }
+.atraso.ok { background:var(--s3); color:var(--text3); }
+
+/* Rodapé de totais */
+.table-foot td { font-weight:700; font-size:12px; background:var(--s2); border-top:2px solid var(--border); color:var(--text); }
+
 /* MODAL */
 .modal-backdrop { position:fixed; inset:0; background:rgba(0,0,0,0.6); backdrop-filter:blur(4px); z-index:200; display:none; align-items:center; justify-content:center; padding:24px; }
 .modal-backdrop.show { display:flex; }
@@ -401,6 +444,7 @@ const state = {
   cp:[], cr:[], movimentos:[], lancamentos:[], notas:[], empresas:[], cartoes:[],
   filters:{},
   concSel:{},
+  contasSel:new Set(),
 };
 
 const fmtBRL = (n) => {
@@ -848,37 +892,184 @@ async function renderContas(modo) {
   if (isCP && state.filters.categoria_id) params.set('categoria_id', state.filters.categoria_id);
   if (isCP && state.filters.centro_custo_id) params.set('centro_custo_id', state.filters.centro_custo_id);
   if (isCP && state.filters.leilao) params.set('leilao', state.filters.leilao);
-  const list = await api(`${endpoint}?${params.toString()}`);
-  if (isCP) state.cp = list; else state.cr = list;
+  const listAll = await api(`${endpoint}?${params.toString()}`);
+  if (isCP) state.cp = listAll; else state.cr = listAll;
 
   const calcRestante = (r) => Number(r.valor||0) - Number(r.desconto||0) + Number(r.juros||0) + Number(r.multa||0) - Number(isCP?r.valor_pago||0:r.valor_recebido||0);
+  const isOpen = (r) => ['aberto','parcial','vencido'].includes(r.status);
+  const isDone = (r) => ['pago','recebido'].includes(r.status);
+  const hojeMs = new Date(today()+'T00:00:00').getTime();
+  const diasAtraso = (venc) => venc ? Math.round((hojeMs - new Date(venc+'T00:00:00').getTime())/86400000) : null; // >0 atrasado
+  const parceiro = (r) => (isCP?r.fornecedor:r.cliente)?.nome || '';
 
-  const stTotals = list.reduce((acc, r) => {
-    const v = calcRestante(r);
-    if (r.status === 'vencido') acc.vencido += v;
-    else if (['aberto','parcial'].includes(r.status)) acc.aberto += v;
-    else if (['pago','recebido'].includes(r.status)) acc.pago += Number(isCP?r.valor_pago:r.valor_recebido)||0;
-    return acc;
-  }, { aberto:0, vencido:0, pago:0 });
+  // ---- filtros client-side (categoria/cliente disponíveis também no CR) ----
+  const fCat = state.filters.categoria_id;
+  const fParc = state.filters.parceiro_id;
+  const fAge = state.filters.aging; // vencer | d30 | d60 | d90 | d90p | ok
+  const agingBucket = (r) => {
+    if (isDone(r)) return 'ok';
+    const d = diasAtraso(r.vencimento);
+    if (d == null || d <= 0) return 'vencer';
+    if (d <= 30) return 'd30';
+    if (d <= 60) return 'd60';
+    if (d <= 90) return 'd90';
+    return 'd90p';
+  };
 
-  // Total do recorte atual (soma dos valores filtrados) e quebra por centro de custo
-  const totalFiltro = list.reduce((s, r) => s + Number(r.valor||0), 0);
-  const byCentro = {};
-  if (isCP) {
-    for (const r of list) {
-      const nome = r.centro?.nome || 'Sem centro de custo';
-      byCentro[nome] = (byCentro[nome] || 0) + Number(r.valor||0);
+  let list = listAll.filter(r => {
+    if (fCat && r.categoria_id !== fCat) return false;
+    if (fParc && (isCP?r.fornecedor_id:r.cliente_id) !== fParc) return false;
+    if (fAge && agingBucket(r) !== fAge) return false;
+    return true;
+  });
+
+  // ---- ordenação ----
+  const sortKey = state.filters.sort || 'vencimento';
+  const sortDir = state.filters.sortDir || 'asc';
+  const sortVal = (r) => {
+    switch (sortKey) {
+      case 'descricao': return (r.descricao||'').toLowerCase();
+      case 'parceiro': return parceiro(r).toLowerCase();
+      case 'categoria': return (r.categoria?.nome||'').toLowerCase();
+      case 'emissao': return r.emissao||'';
+      case 'valor': return Number(r.valor||0);
+      case 'restante': return calcRestante(r);
+      case 'status': return r.status||'';
+      default: return r.vencimento||'';
     }
+  };
+  list = [...list].sort((a,b)=>{
+    const va=sortVal(a), vb=sortVal(b);
+    let c = (typeof va==='number' && typeof vb==='number') ? va-vb : String(va).localeCompare(String(vb),'pt-BR');
+    return sortDir==='desc' ? -c : c;
+  });
+
+  // ---- KPIs (sobre a lista já filtrada) ----
+  let kAberto=0, kAbertoN=0, kVenc=0, kVencN=0, kDone=0, kDoneN=0, kAtrasoSum=0, totalFiltro=0;
+  for (const r of list) {
+    totalFiltro += Number(r.valor||0);
+    if (r.status === 'vencido') { kVenc += calcRestante(r); kVencN++; const d=diasAtraso(r.vencimento); if(d>0) kAtrasoSum+=d; }
+    else if (['aberto','parcial'].includes(r.status)) { kAberto += calcRestante(r); kAbertoN++; }
+    else if (isDone(r)) { kDone += Number(isCP?r.valor_pago:r.valor_recebido)||0; kDoneN++; }
   }
+  const emAbertoTotal = kAberto + kVenc;
+  const totalGeral = emAbertoTotal + kDone;
+  const pctRecebido = totalGeral > 0 ? Math.round((kDone/totalGeral)*100) : 0;
+  const atrasoMedio = kVencN > 0 ? Math.round(kAtrasoSum/kVencN) : 0;
+
+  // ---- aging (calculado sobre listAll pós-server, ignorando o filtro de aging) ----
+  const baseAging = listAll.filter(r => {
+    if (fCat && r.categoria_id !== fCat) return false;
+    if (fParc && (isCP?r.fornecedor_id:r.cliente_id) !== fParc) return false;
+    return true;
+  });
+  const buckets = { vencer:{v:0,n:0}, d30:{v:0,n:0}, d60:{v:0,n:0}, d90:{v:0,n:0}, d90p:{v:0,n:0}, ok:{v:0,n:0} };
+  for (const r of baseAging) {
+    const b = agingBucket(r);
+    buckets[b].v += (b==='ok') ? (Number(isCP?r.valor_pago:r.valor_recebido)||0) : calcRestante(r);
+    buckets[b].n++;
+  }
+  const ageDefs = [
+    { k:'vencer', cls:'c-vencer', label:'A vencer' },
+    { k:'d30',    cls:'c-30',     label:'1–30 dias' },
+    { k:'d60',    cls:'c-60',     label:'31–60 dias' },
+    { k:'d90',    cls:'c-90',     label:'61–90 dias' },
+    { k:'d90p',   cls:'c-90p',    label:'+90 dias' },
+    { k:'ok',     cls:'c-ok',     label:isCP?'Pagos':'Recebidos' },
+  ];
+
+  // ---- pessoas para o filtro de cliente/fornecedor (só quem aparece na lista) ----
+  const parcMap = new Map();
+  for (const r of listAll) {
+    const p = isCP?r.fornecedor:r.cliente;
+    if (p && !parcMap.has(p.id)) parcMap.set(p.id, p.nome);
+  }
+  const parcOpts = [...parcMap.entries()].sort((a,b)=>String(a[1]).localeCompare(String(b[1]),'pt-BR'));
+
+  // ---- centros resumo (CP) ----
+  const byCentro = {};
+  if (isCP) for (const r of list) { const nome = r.centro?.nome || 'Sem centro de custo'; byCentro[nome] = (byCentro[nome]||0) + Number(r.valor||0); }
   const centrosResumo = Object.entries(byCentro).sort((a,b)=>b[1]-a[1]);
-  const hasFiltros = !!(state.filters.categoria_id || state.filters.centro_custo_id || state.filters.leilao || state.filters.from || state.filters.to || state.filters.status || state.filters.search);
+
+  const hasFiltros = !!(fCat || fParc || fAge || state.filters.centro_custo_id || state.filters.leilao || state.filters.from || state.filters.to || state.filters.status || state.filters.search);
+
+  // ---- seleção em lote ----
+  const idsVisiveis = list.map(r=>r.id);
+  state.contasSel = new Set([...state.contasSel].filter(id => idsVisiveis.includes(id)));
+  const selCount = state.contasSel.size;
+  const selRows = list.filter(r=>state.contasSel.has(r.id));
+  const selTotal = selRows.reduce((s,r)=>s+calcRestante(r),0);
+  const selAbertas = selRows.filter(isOpen);
+  const allSel = idsVisiveis.length>0 && selCount===idsVisiveis.length;
+
+  const sortIco = (k) => sortKey===k ? `<span class="material-symbols-outlined sort-i">${sortDir==='asc'?'arrow_upward':'arrow_downward'}</span>` : '';
+  const th = (k,label,extra='') => `<th class="sortable ${sortKey===k?'on':''}" ${extra} onclick="sortContas('${k}')">${label}${sortIco(k)}</th>`;
+
+  // ---- agrupamento ----
+  const grp = state.filters.groupBy || '';
+  const grpKey = (r) => {
+    if (grp==='parceiro') return parceiro(r) || '— sem '+(isCP?'fornecedor':'cliente')+' —';
+    if (grp==='categoria') return r.categoria?.nome || '— sem categoria —';
+    if (grp==='mes') { const v=r.vencimento; if(!v) return '— sem vencimento —'; const d=new Date(v+'T00:00:00'); return d.toLocaleDateString('pt-BR',{month:'long',year:'numeric'}); }
+    return '';
+  };
+  const nCols = isCP ? 11 : 10;
+
+  const rowHtml = (r) => {
+    const d = isOpen(r) ? diasAtraso(r.vencimento) : null;
+    let atraso = '';
+    if (isOpen(r) && d != null) {
+      if (d > 0) atraso = `<span class="atraso late">${d}d em atraso</span>`;
+      else if (d >= -7) atraso = `<span class="atraso due-soon">${d===0?'vence hoje':'vence em '+(-d)+'d'}</span>`;
+      else atraso = `<span class="atraso ok">em ${-d}d</span>`;
+    }
+    const rest = calcRestante(r);
+    const parcInfo = (r.total_parcelas>1) ? `<span class="chip muted" style="font-size:9px;padding:1px 6px" title="Parcela">${r.parcela}/${r.total_parcelas}</span>` : '';
+    return `
+      <tr class="${state.contasSel.has(r.id)?'selected':''}">
+        <td class="sel-cell"><input type="checkbox" ${state.contasSel.has(r.id)?'checked':''} onchange="toggleSelConta('${r.id}',this.checked)"></td>
+        <td>
+          <div style="font-weight:600;display:flex;align-items:center;gap:6px">${escapeHtml(r.descricao)} ${parcInfo}</div>
+          ${r.numero_documento?`<div style="font-size:10px;color:var(--text3)">Doc: ${escapeHtml(r.numero_documento)}</div>`:''}
+        </td>
+        <td>${escapeHtml(parceiro(r) || '--')}</td>
+        <td>${r.categoria?`<span class="chip" style="background:${r.categoria.cor}22;color:${r.categoria.cor}">${escapeHtml(r.categoria.nome)}</span>`:'--'}</td>
+        ${isCP?`<td>${r.centro?`<span class="chip" style="background:#8B5A2B22;color:#C8A96E" title="${escapeHtml(r.centro.nome)}">${escapeHtml(r.centro.codigo||'')} ${escapeHtml(r.centro.nome)}</span>`:'<span style="color:var(--text3)">--</span>'}</td>`:''}
+        <td>${fmtDate(r.emissao)}</td>
+        <td>${fmtDate(r.vencimento)}${atraso?`<div>${atraso}</div>`:''}</td>
+        <td style="text-align:right" class="money">${fmtBRL(r.valor)}</td>
+        <td style="text-align:right" class="money ${isOpen(r)&&rest>0?(isCP?'negative':'positive'):''}">${isOpen(r)?fmtBRL(rest):'<span style="color:var(--text3)">--</span>'}</td>
+        <td>${statusChip(r.status)}</td>
+        <td>
+          <div class="row-actions">
+            ${isOpen(r) ? `<button class="icon-btn" title="Registrar ${isCP?'pagamento':'recebimento'}" onclick="openPagamento('${modo}','${r.id}')"><span class="material-symbols-outlined">attach_money</span></button>` : ''}
+            <button class="icon-btn" title="Editar" onclick="openTitulo('${modo}','${r.id}')"><span class="material-symbols-outlined">edit</span></button>
+            <button class="icon-btn" title="Excluir" onclick="deleteTitulo('${modo}','${r.id}')"><span class="material-symbols-outlined">delete</span></button>
+          </div>
+        </td>
+      </tr>`;
+  };
+
+  let bodyRows = '';
+  if (grp) {
+    const groups = new Map();
+    for (const r of list) { const k = grpKey(r); if (!groups.has(k)) groups.set(k, []); groups.get(k).push(r); }
+    for (const [k, rows] of groups) {
+      const sub = rows.reduce((s,r)=>s+Number(r.valor||0),0);
+      bodyRows += `<tr class="grp-row"><td colspan="${nCols}">${escapeHtml(k)} <small style="color:var(--text3);font-weight:600">· ${rows.length}</small><span class="grp-tot money">${fmtBRL(sub)}</span></td></tr>`;
+      bodyRows += rows.map(rowHtml).join('');
+    }
+  } else {
+    bodyRows = list.map(rowHtml).join('');
+  }
 
   const html = `
     <div class="page-header">
       <div>
-        <div class="page-title">${isCP?'Contas a Pagar':'Contas a Receber'} <small>${list.length} titulos</small></div>
+        <div class="page-title">${isCP?'Contas a Pagar':'Contas a Receber'} <small>${list.length}${list.length!==listAll.length?' de '+listAll.length:''} titulos</small></div>
       </div>
       <div class="page-actions">
+        <button class="btn" onclick="exportContasCsv('${modo}')" title="Exportar a lista filtrada para CSV"><span class="material-symbols-outlined">download</span>Exportar CSV</button>
         <button class="btn btn-primary" onclick="openTitulo('${modo}')"><span class="material-symbols-outlined">add</span>Novo ${isCP?'Titulo a Pagar':'Titulo a Receber'}</button>
       </div>
     </div>
@@ -887,23 +1078,36 @@ async function renderContas(modo) {
       <div class="kpi warn">
         <div class="kpi-icon"><span class="material-symbols-outlined">schedule</span></div>
         <div class="kpi-label">Em Aberto</div>
-        <div class="kpi-value money">${fmtBRL(stTotals.aberto)}</div>
+        <div class="kpi-value money">${fmtBRL(emAbertoTotal)}</div>
+        <div class="kpi-sub">${kAbertoN+kVencN} titulos ${isCP?'a pagar':'a receber'}</div>
       </div>
       <div class="kpi danger">
         <div class="kpi-icon"><span class="material-symbols-outlined">warning</span></div>
         <div class="kpi-label">Vencidos</div>
-        <div class="kpi-value money negative">${fmtBRL(stTotals.vencido)}</div>
+        <div class="kpi-value money negative">${fmtBRL(kVenc)}</div>
+        <div class="kpi-sub down">${kVencN} titulos${atrasoMedio?` · ${atrasoMedio}d de atraso médio`:''}</div>
       </div>
       <div class="kpi success">
         <div class="kpi-icon"><span class="material-symbols-outlined">check_circle</span></div>
         <div class="kpi-label">${isCP?'Pago':'Recebido'}</div>
-        <div class="kpi-value money positive">${fmtBRL(stTotals.pago)}</div>
+        <div class="kpi-value money positive">${fmtBRL(kDone)}</div>
+        <div class="kpi-sub up">${pctRecebido}% do total · ${kDoneN} titulos</div>
       </div>
-      <div class="kpi">
+      <div class="kpi info">
         <div class="kpi-icon"><span class="material-symbols-outlined">functions</span></div>
         <div class="kpi-label">Total no filtro <small>(${list.length})</small></div>
         <div class="kpi-value money">${fmtBRL(totalFiltro)}</div>
+        <div class="kpi-sub">Ticket médio ${fmtBRL(list.length?totalFiltro/list.length:0)}</div>
       </div>
+    </div>
+
+    <div class="age-row">
+      ${ageDefs.map(a=>`
+        <button class="age-chip ${a.cls} ${fAge===a.k?'active':''}" onclick="onFilterAging('${a.k}')" title="Filtrar por esta faixa">
+          <span class="age-l"><span class="dot"></span>${a.label}</span>
+          <span class="age-v">${fmtBRL(buckets[a.k].v)}</span>
+          <span class="age-n">${buckets[a.k].n} titulo${buckets[a.k].n===1?'':'s'}</span>
+        </button>`).join('')}
     </div>
 
     ${isCP && centrosResumo.length ? `
@@ -920,7 +1124,7 @@ async function renderContas(modo) {
       <div class="table-toolbar" style="flex-wrap:wrap;gap:8px;align-items:center">
         <div class="table-search">
           <span class="material-symbols-outlined">search</span>
-          <input type="text" placeholder="Buscar titulo..." value="${state.filters.search||''}" oninput="onFilterSearch(this.value)">
+          <input type="text" placeholder="Buscar por descrição, documento..." value="${escapeHtml(state.filters.search||'')}" oninput="onFilterSearch(this.value)">
         </div>
         <select class="table-filter" onchange="onFilterStatus(this.value)">
           <option value="">Todos os status</option>
@@ -929,59 +1133,73 @@ async function renderContas(modo) {
           <option value="vencido" ${state.filters.status==='vencido'?'selected':''}>Vencido</option>
           <option value="${isCP?'pago':'recebido'}" ${state.filters.status===(isCP?'pago':'recebido')?'selected':''}>${isCP?'Pago':'Recebido'}</option>
         </select>
-        ${isCP ? `
-        <input class="table-filter" type="text" placeholder="Leilão (ex: JMP)" value="${escapeHtml(state.filters.leilao||'')}" oninput="onFilterLeilao(this.value)" style="min-width:130px">
-        <select class="table-filter" onchange="onFilterCentro(this.value)">
-          <option value="">Todos os centros de custo</option>
-          ${state.centros.map(c=>`<option value="${c.id}" ${state.filters.centro_custo_id===c.id?'selected':''}>${c.codigo} - ${escapeHtml(c.nome)}</option>`).join('')}
+        <select class="table-filter" onchange="onFilterParceiro(this.value)" title="${isCP?'Fornecedor':'Cliente'}">
+          <option value="">${isCP?'Todos os fornecedores':'Todos os clientes'}</option>
+          ${parcOpts.map(([id,nome])=>`<option value="${id}" ${fParc===id?'selected':''}>${escapeHtml(nome)}</option>`).join('')}
         </select>
         <select class="table-filter" onchange="onFilterCategoria(this.value)">
           <option value="">Todas as categorias</option>
-          ${state.categorias.filter(c=>c.tipo==='despesa').map(c=>`<option value="${c.id}" ${state.filters.categoria_id===c.id?'selected':''}>${escapeHtml(c.nome)}</option>`).join('')}
+          ${state.categorias.filter(c=>c.tipo===(isCP?'despesa':'receita')).map(c=>`<option value="${c.id}" ${fCat===c.id?'selected':''}>${escapeHtml(c.nome)}</option>`).join('')}
+        </select>
+        ${isCP ? `
+        <input class="table-filter" type="text" placeholder="Leilão (ex: JMP)" value="${escapeHtml(state.filters.leilao||'')}" oninput="onFilterLeilao(this.value)" style="min-width:120px">
+        <select class="table-filter" onchange="onFilterCentro(this.value)">
+          <option value="">Todos os centros de custo</option>
+          ${state.centros.map(c=>`<option value="${c.id}" ${state.filters.centro_custo_id===c.id?'selected':''}>${c.codigo} - ${escapeHtml(c.nome)}</option>`).join('')}
+        </select>` : ''}
+        <select class="table-filter" onchange="onVencPreset(this.value)" title="Período de vencimento">
+          <option value="">Período…</option>
+          <option value="overdue">Vencidos</option>
+          <option value="today">Vence hoje</option>
+          <option value="week">Próximos 7 dias</option>
+          <option value="month">Este mês</option>
+          <option value="30">Próximos 30 dias</option>
+          <option value="year">Este ano</option>
         </select>
         <label class="table-filter" style="display:flex;align-items:center;gap:4px">Venc. de <input type="date" value="${state.filters.from||''}" onchange="onFilterDataDe(this.value)" style="border:0;background:transparent;color:inherit"></label>
         <label class="table-filter" style="display:flex;align-items:center;gap:4px">até <input type="date" value="${state.filters.to||''}" onchange="onFilterDataAte(this.value)" style="border:0;background:transparent;color:inherit"></label>
-        ` : ''}
+        <select class="table-filter" onchange="onGroupBy(this.value)" title="Agrupar">
+          <option value="">Sem agrupamento</option>
+          <option value="parceiro" ${grp==='parceiro'?'selected':''}>Agrupar por ${isCP?'fornecedor':'cliente'}</option>
+          <option value="categoria" ${grp==='categoria'?'selected':''}>Agrupar por categoria</option>
+          <option value="mes" ${grp==='mes'?'selected':''}>Agrupar por mês</option>
+        </select>
         ${hasFiltros ? `<button class="btn btn-ghost" onclick="limparFiltros()" title="Limpar filtros"><span class="material-symbols-outlined">filter_alt_off</span>Limpar</button>` : ''}
       </div>
-      ${list.length === 0 ? `<div class="empty"><span class="material-symbols-outlined">${isCP?'payments':'request_quote'}</span><h3>Nenhum titulo cadastrado</h3><p>Clique em "Novo Titulo" para comecar.</p></div>` : `
+      ${selCount>0 ? `
+      <div class="bulk-bar">
+        <span class="bulk-info">${selCount} selecionado${selCount>1?'s':''} <small>· restante ${fmtBRL(selTotal)}</small></span>
+        ${selAbertas.length>0 ? `<button class="btn btn-success btn-sm" onclick="openBulkPagamento('${modo}')"><span class="material-symbols-outlined">done_all</span>${isCP?'Pagar':'Receber'} em lote (${selAbertas.length})</button>` : ''}
+        <button class="btn btn-sm" onclick="exportContasCsv('${modo}',true)"><span class="material-symbols-outlined">download</span>Exportar selecionados</button>
+        <button class="btn btn-danger btn-sm" onclick="deleteContasLote('${modo}')"><span class="material-symbols-outlined">delete</span>Excluir</button>
+        <button class="btn btn-ghost btn-sm" onclick="state.contasSel.clear();render()">Limpar seleção</button>
+      </div>` : ''}
+      ${list.length === 0 ? `<div class="empty"><span class="material-symbols-outlined">${isCP?'payments':'request_quote'}</span><h3>Nenhum titulo encontrado</h3><p>${hasFiltros?'Ajuste ou limpe os filtros.':'Clique em "Novo Titulo" para comecar.'}</p></div>` : `
       <table>
         <thead>
           <tr>
-            <th>Descricao</th>
-            <th>${isCP?'Fornecedor':'Cliente'}</th>
-            <th>Categoria</th>
+            <th class="sel-cell"><input type="checkbox" ${allSel?'checked':''} onchange="toggleSelAll('${modo}',this.checked)"></th>
+            ${th('descricao','Descricao')}
+            ${th('parceiro',isCP?'Fornecedor':'Cliente')}
+            ${th('categoria','Categoria')}
             ${isCP?'<th>Centro de Custo</th>':''}
-            <th>Emissao</th>
-            <th>Vencimento</th>
-            <th style="text-align:right">Valor</th>
-            <th>Status</th>
+            ${th('emissao','Emissao')}
+            ${th('vencimento','Vencimento')}
+            ${th('valor','Valor','style="text-align:right"')}
+            ${th('restante','Restante','style="text-align:right"')}
+            ${th('status','Status')}
             <th></th>
           </tr>
         </thead>
-        <tbody>
-          ${list.map(r => `
-          <tr>
-            <td>
-              <div style="font-weight:600">${escapeHtml(r.descricao)}</div>
-              ${r.numero_documento?`<div style="font-size:10px;color:var(--text3)">Doc: ${escapeHtml(r.numero_documento)}</div>`:''}
-            </td>
-            <td>${escapeHtml((isCP?r.fornecedor:r.cliente)?.nome || '--')}</td>
-            <td>${r.categoria?`<span class="chip" style="background:${r.categoria.cor}22;color:${r.categoria.cor}">${escapeHtml(r.categoria.nome)}</span>`:'--'}</td>
-            ${isCP?`<td>${r.centro?`<span class="chip" style="background:#8B5A2B22;color:#C8A96E" title="${escapeHtml(r.centro.nome)}">${escapeHtml(r.centro.codigo||'')} ${escapeHtml(r.centro.nome)}</span>`:'<span style="color:var(--text3)">--</span>'}</td>`:''}
-            <td>${fmtDate(r.emissao)}</td>
-            <td>${fmtDate(r.vencimento)}</td>
-            <td style="text-align:right" class="money ${isCP?'negative':'positive'}">${fmtBRL(r.valor)}</td>
-            <td>${statusChip(r.status)}</td>
-            <td>
-              <div class="row-actions">
-                ${['aberto','parcial','vencido'].includes(r.status) ? `<button class="icon-btn" title="Registrar ${isCP?'pagamento':'recebimento'}" onclick="openPagamento('${modo}','${r.id}')"><span class="material-symbols-outlined">attach_money</span></button>` : ''}
-                <button class="icon-btn" title="Editar" onclick="openTitulo('${modo}','${r.id}')"><span class="material-symbols-outlined">edit</span></button>
-                <button class="icon-btn" title="Excluir" onclick="deleteTitulo('${modo}','${r.id}')"><span class="material-symbols-outlined">delete</span></button>
-              </div>
-            </td>
-          </tr>`).join('')}
-        </tbody>
+        <tbody>${bodyRows}</tbody>
+        <tfoot>
+          <tr class="table-foot">
+            <td colspan="${isCP?7:6}" style="text-align:right">Totais (${list.length})</td>
+            <td style="text-align:right" class="money">${fmtBRL(totalFiltro)}</td>
+            <td style="text-align:right" class="money">${fmtBRL(list.filter(isOpen).reduce((s,r)=>s+calcRestante(r),0))}</td>
+            <td colspan="2"></td>
+          </tr>
+        </tfoot>
       </table>`}
     </div>
   `;
@@ -1012,9 +1230,149 @@ function onFilterCentroNome(nome) {
 const onFilterLeilao = debounce((v)=>{ state.filters.leilao = v; render(); }, 350);
 function onFilterDataDe(v) { state.filters.from = v || ''; render(); }
 function onFilterDataAte(v) { state.filters.to = v || ''; render(); }
-function limparFiltros() {
-  state.filters = {};
+function onFilterParceiro(v) { state.filters.parceiro_id = v || ''; render(); }
+function onFilterAging(bucket) { state.filters.aging = (state.filters.aging === bucket) ? '' : bucket; render(); }
+function onGroupBy(v) { state.filters.groupBy = v || ''; render(); }
+function sortContas(k) {
+  if (state.filters.sort === k) state.filters.sortDir = (state.filters.sortDir === 'asc') ? 'desc' : 'asc';
+  else { state.filters.sort = k; state.filters.sortDir = (k==='valor'||k==='restante') ? 'desc' : 'asc'; }
   render();
+}
+function onVencPreset(v) {
+  if (!v) return;
+  const d = new Date(today()+'T00:00:00');
+  const iso = (x)=>x.toISOString().slice(0,10);
+  const addD = (n)=>{ const x=new Date(d); x.setDate(x.getDate()+n); return iso(x); };
+  let from='', to='';
+  if (v==='overdue') { from=''; to=addD(-1); state.filters.status='vencido'; }
+  else if (v==='today') { from=today(); to=today(); }
+  else if (v==='week') { from=today(); to=addD(7); }
+  else if (v==='month') { from=iso(new Date(d.getFullYear(),d.getMonth(),1)); to=iso(new Date(d.getFullYear(),d.getMonth()+1,0)); }
+  else if (v==='30') { from=today(); to=addD(30); }
+  else if (v==='year') { from=iso(new Date(d.getFullYear(),0,1)); to=iso(new Date(d.getFullYear(),11,31)); }
+  state.filters.from = from; state.filters.to = to;
+  render();
+}
+function limparFiltros() {
+  const gb = state.filters.groupBy, s = state.filters.sort, sd = state.filters.sortDir;
+  state.filters = {};
+  if (gb) state.filters.groupBy = gb; if (s) { state.filters.sort = s; state.filters.sortDir = sd; }
+  state.contasSel.clear();
+  render();
+}
+
+/* ---- seleção em lote ---- */
+function toggleSelConta(id, on) { if (on) state.contasSel.add(id); else state.contasSel.delete(id); render(); }
+function toggleSelAll(modo, on) {
+  const list = (modo==='pagar'?state.cp:state.cr) || [];
+  const fCat=state.filters.categoria_id, fParc=state.filters.parceiro_id, fAge=state.filters.aging;
+  const isCP=modo==='pagar';
+  const hojeMs=new Date(today()+'T00:00:00').getTime();
+  const bucket=(r)=>{ if(['pago','recebido'].includes(r.status))return'ok'; const d=r.vencimento?Math.round((hojeMs-new Date(r.vencimento+'T00:00:00').getTime())/86400000):null; if(d==null||d<=0)return'vencer'; if(d<=30)return'd30'; if(d<=60)return'd60'; if(d<=90)return'd90'; return'd90p'; };
+  const vis=list.filter(r=>{ if(fCat&&r.categoria_id!==fCat)return false; if(fParc&&(isCP?r.fornecedor_id:r.cliente_id)!==fParc)return false; if(fAge&&bucket(r)!==fAge)return false; return true; });
+  if (on) vis.forEach(r=>state.contasSel.add(r.id)); else vis.forEach(r=>state.contasSel.delete(r.id));
+  render();
+}
+
+/* ---- pagamento/recebimento em lote ---- */
+function openBulkPagamento(modo) {
+  const isCP = modo==='pagar';
+  const list = (isCP?state.cp:state.cr) || [];
+  const sel = list.filter(r => state.contasSel.has(r.id) && ['aberto','parcial','vencido'].includes(r.status));
+  if (!sel.length) { toast('Nenhum titulo em aberto selecionado','error'); return; }
+  const calcRest=(r)=>Number(r.valor||0)-Number(r.desconto||0)+Number(r.juros||0)+Number(r.multa||0)-Number(isCP?r.valor_pago||0:r.valor_recebido||0);
+  const total = sel.reduce((s,r)=>s+calcRest(r),0);
+  const opt = (arr) => arr.map(a=>`<option value="${a.id}">${escapeHtml(a.nome)}</option>`).join('');
+  openModal(`
+    <div class="modal-header"><div class="modal-title">${isCP?'Pagar':'Receber'} em lote <small style="color:var(--text3)">${sel.length} titulos</small></div><button class="icon-btn" onclick="closeModal()"><span class="material-symbols-outlined">close</span></button></div>
+    <div class="modal-body">
+      <div class="card" style="background:var(--s2);margin-bottom:14px">
+        <div style="font-size:12px;color:var(--text3)">Total a ${isCP?'pagar':'receber'} (valor restante)</div>
+        <div class="money ${isCP?'negative':'positive'}" style="font-size:20px;font-weight:700">${fmtBRL(total)}</div>
+      </div>
+      <p style="font-size:11.5px;color:var(--text3);margin-bottom:12px">Cada titulo será baixado pelo seu valor restante, na data e conta abaixo.</p>
+      <form id="formBulk" class="form-grid">
+        <div class="field"><label>Data*</label><input name="data" type="date" required value="${today()}"></div>
+        <div class="field"><label>Conta Bancaria*</label><select name="conta_bancaria_id" required><option value="">--</option>${opt(state.bancos)}</select></div>
+        <div class="field full"><label>Forma de ${isCP?'pagamento':'recebimento'}</label><select name="forma">${['pix','boleto','transferencia','cartao','dinheiro','cheque'].map(o=>`<option value="${o}">${o.charAt(0).toUpperCase()+o.slice(1)}</option>`).join('')}</select></div>
+      </form>
+    </div>
+    <div class="modal-footer">
+      <button class="btn" onclick="closeModal()">Cancelar</button>
+      <button class="btn btn-success" onclick="confirmBulkPagamento('${modo}')"><span class="material-symbols-outlined">done_all</span>Confirmar ${sel.length}</button>
+    </div>`, { wide:true });
+}
+async function confirmBulkPagamento(modo) {
+  const isCP = modo==='pagar';
+  const form = document.getElementById('formBulk');
+  const data = Object.fromEntries(new FormData(form));
+  if (!data.conta_bancaria_id) { toast('Selecione a conta bancaria','error'); return; }
+  const list = (isCP?state.cp:state.cr) || [];
+  const sel = list.filter(r => state.contasSel.has(r.id) && ['aberto','parcial','vencido'].includes(r.status));
+  const calcRest=(r)=>Number(r.valor||0)-Number(r.desconto||0)+Number(r.juros||0)+Number(r.multa||0)-Number(isCP?r.valor_pago||0:r.valor_recebido||0);
+  const btn = form.closest('.modal').querySelector('.btn-success');
+  if (btn) { btn.disabled = true; btn.innerHTML = '<span class="material-symbols-outlined">hourglass_empty</span>Processando...'; }
+  let ok=0, erros=0;
+  for (const r of sel) {
+    const payload = { valor: Number(calcRest(r).toFixed(2)), conta_bancaria_id: data.conta_bancaria_id };
+    payload[isCP?'data_pagamento':'data_recebimento'] = data.data;
+    payload[isCP?'forma_pagamento':'forma_recebimento'] = data.forma;
+    try { await api(`/api/erp/contas-${modo}/${r.id}/${isCP?'pagar':'receber'}`, { method:'POST', body:JSON.stringify(payload) }); ok++; }
+    catch (e) { erros++; }
+  }
+  closeModal();
+  state.contasSel.clear();
+  toast(`${ok} ${isCP?'pagos':'recebidos'}${erros?` · ${erros} com erro`:''}`, erros?'error':'success');
+  render();
+}
+async function deleteContasLote(modo) {
+  const ids = [...state.contasSel];
+  if (!ids.length) return;
+  if (!(await confirmAction(`Excluir ${ids.length} titulo(s) selecionado(s)? Esta acao nao pode ser desfeita.`))) return;
+  let ok=0, erros=0;
+  for (const id of ids) {
+    try { await api(`/api/erp/contas-${modo}/${id}`, { method:'DELETE' }); ok++; }
+    catch (e) { erros++; }
+  }
+  state.contasSel.clear();
+  toast(`${ok} excluido(s)${erros?` · ${erros} com erro`:''}`, erros?'error':'success');
+  render();
+}
+
+/* ---- exportação CSV ---- */
+function exportContasCsv(modo, onlySelected) {
+  const isCP = modo==='pagar';
+  let list = (isCP?state.cp:state.cr) || [];
+  // aplica os mesmos filtros client-side da tela
+  const fCat=state.filters.categoria_id, fParc=state.filters.parceiro_id, fAge=state.filters.aging;
+  const hojeMs=new Date(today()+'T00:00:00').getTime();
+  const bucket=(r)=>{ if(['pago','recebido'].includes(r.status))return'ok'; const d=r.vencimento?Math.round((hojeMs-new Date(r.vencimento+'T00:00:00').getTime())/86400000):null; if(d==null||d<=0)return'vencer'; if(d<=30)return'd30'; if(d<=60)return'd60'; if(d<=90)return'd90'; return'd90p'; };
+  list = list.filter(r=>{ if(fCat&&r.categoria_id!==fCat)return false; if(fParc&&(isCP?r.fornecedor_id:r.cliente_id)!==fParc)return false; if(fAge&&bucket(r)!==fAge)return false; return true; });
+  if (onlySelected) list = list.filter(r=>state.contasSel.has(r.id));
+  if (!list.length) { toast('Nada para exportar','error'); return; }
+  const calcRest=(r)=>Number(r.valor||0)-Number(r.desconto||0)+Number(r.juros||0)+Number(r.multa||0)-Number(isCP?r.valor_pago||0:r.valor_recebido||0);
+  const head = ['Descricao','Documento',isCP?'Fornecedor':'Cliente','Categoria',isCP?'Centro de Custo':'','Emissao','Vencimento','Valor','Recebido/Pago','Restante','Status'].filter((h,i)=>!(i===4&&!isCP));
+  const q = (s)=>`"${String(s??'').replace(/"/g,'""')}"`;
+  const lines = [head.join(';')];
+  for (const r of list) {
+    const cols = [
+      r.descricao, r.numero_documento||'',
+      (isCP?r.fornecedor:r.cliente)?.nome||'',
+      r.categoria?.nome||'',
+    ];
+    if (isCP) cols.push(r.centro?(`${r.centro.codigo||''} ${r.centro.nome}`).trim():'');
+    cols.push(r.emissao||'', r.vencimento||'', Number(r.valor||0).toFixed(2).replace('.',','), Number(isCP?r.valor_pago||0:r.valor_recebido||0).toFixed(2).replace('.',','), calcRest(r).toFixed(2).replace('.',','), r.status||'');
+    lines.push(cols.map(q).join(';'));
+  }
+  const csv = '﻿' + lines.join('\r\n');
+  const blob = new Blob([csv], { type:'text/csv;charset=utf-8;' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = `${isCP?'contas-a-pagar':'contas-a-receber'}-${today()}.csv`;
+  document.body.appendChild(a); a.click(); a.remove();
+  setTimeout(()=>URL.revokeObjectURL(url), 1000);
+  toast(`${list.length} titulo(s) exportado(s)`,'success');
 }
 
 function openTitulo(modo, id) {
