@@ -59,6 +59,9 @@ export async function POST(req: NextRequest) {
       total_parcelas: total,
       recorrencia: body.recorrencia || 'nenhuma',
       observacoes: body.observacoes || '',
+      nota_fiscal: body.nota_fiscal || '',
+      vendedor: body.vendedor || '',
+      projeto: body.projeto || '',
       tags: body.tags || [],
       anexos: body.anexos || [],
     })

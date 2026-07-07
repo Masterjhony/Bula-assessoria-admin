@@ -249,6 +249,48 @@ body { background:var(--bg); color:var(--text); font-family:'Inter',-apple-syste
   .period-label { min-width:120px; font-size:11.5px; }
 }
 
+/* Painel lateral do título (estilo Omie) */
+#tituloDrawer { position:fixed; top:0; right:0; bottom:0; width:340px; max-width:92vw; background:var(--surface); border-left:1px solid var(--border); box-shadow:-8px 0 30px rgba(0,0,0,.25); z-index:150; display:flex; flex-direction:column; animation:tdIn .18s ease; }
+@keyframes tdIn { from { transform:translateX(30px); opacity:0 } to { transform:none; opacity:1 } }
+#tituloDrawer .td-head { display:flex; align-items:flex-start; justify-content:space-between; gap:10px; padding:16px 18px; border-bottom:1px solid var(--border); }
+#tituloDrawer .td-title { font-size:14px; font-weight:700; color:var(--text); }
+#tituloDrawer .td-sub { font-size:11px; color:var(--text3); margin-top:3px; }
+#tituloDrawer .td-body { padding:14px 18px; overflow-y:auto; flex:1; }
+#tituloDrawer .td-kv { display:flex; justify-content:space-between; gap:12px; padding:7px 0; border-bottom:1px solid var(--border); font-size:12px; }
+#tituloDrawer .td-kv span { color:var(--text3); }
+#tituloDrawer .td-kv b { color:var(--text); font-weight:600; text-align:right; }
+#tituloDrawer .td-acts { display:flex; flex-direction:column; gap:6px; margin-top:16px; }
+#tituloDrawer .td-act { display:flex; align-items:center; gap:10px; background:var(--s2); border:1px solid var(--border); border-radius:9px; color:var(--text2); font-family:inherit; font-size:12px; font-weight:600; padding:9px 12px; cursor:pointer; transition:all .12s; text-align:left; }
+#tituloDrawer .td-act:hover { background:var(--s3); color:var(--text); }
+#tituloDrawer .td-act .material-symbols-outlined { font-size:17px; color:var(--gold); }
+#tituloDrawer .td-act.primary { background:var(--gold-dim); border-color:var(--gold); color:var(--text); }
+#tituloDrawer .td-act.danger .material-symbols-outlined { color:var(--red); }
+#tituloDrawer .td-act.danger:hover { background:var(--red-bg); color:var(--red); }
+
+/* Kanban Fluxo Operação */
+.kb-board { display:flex; gap:12px; overflow-x:auto; padding-bottom:14px; align-items:flex-start; }
+.kb-col { flex:0 0 264px; background:var(--s2); border:1px solid var(--border); border-radius:var(--r-lg); display:flex; flex-direction:column; max-height:calc(100vh - 260px); }
+.kb-col.drag-over { border-color:var(--gold); box-shadow:inset 0 0 0 1px var(--gold); }
+.kb-col-head { padding:11px 13px; border-bottom:1px solid var(--border); display:flex; align-items:center; gap:8px; position:sticky; top:0; background:var(--s2); border-radius:var(--r-lg) var(--r-lg) 0 0; }
+.kb-col-head .dot { width:8px; height:8px; border-radius:50%; flex:0 0 auto; }
+.kb-col-head .t { font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:.6px; color:var(--text2); }
+.kb-col-head .n { margin-left:auto; font-size:10.5px; font-weight:700; color:var(--text3); background:var(--surface); border:1px solid var(--border); border-radius:10px; padding:1px 8px; }
+.kb-col-sum { font-size:10px; color:var(--text3); padding:5px 13px; border-bottom:1px solid var(--border); }
+.kb-cards { padding:10px; display:flex; flex-direction:column; gap:8px; overflow-y:auto; min-height:60px; }
+.kb-card { background:var(--surface); border:1px solid var(--border); border-left:3px solid var(--border2); border-radius:10px; padding:10px 12px; cursor:grab; transition:all .12s; }
+.kb-card:hover { border-color:var(--border2); transform:translateY(-1px); box-shadow:0 3px 10px rgba(0,0,0,.12); }
+.kb-card.dragging { opacity:.45; }
+.kb-card .kc-nome { font-size:12px; font-weight:700; color:var(--text); line-height:1.3; }
+.kb-card .kc-data { font-size:10px; color:var(--text3); margin-top:2px; }
+.kb-card .kc-vals { display:flex; gap:12px; margin-top:7px; flex-wrap:wrap; }
+.kb-card .kc-v { font-size:10px; color:var(--text3); }
+.kb-card .kc-v b { display:block; font-size:11.5px; color:var(--text); font-variant-numeric:tabular-nums; }
+.kb-card .kc-badges { display:flex; gap:5px; margin-top:8px; flex-wrap:wrap; }
+.kb-card .kc-badges .chip { font-size:9px; padding:2px 7px; }
+.kb-card .kc-nav { display:flex; gap:4px; margin-top:8px; justify-content:space-between; }
+.kb-card .kc-nav button { background:none; border:1px solid var(--border); border-radius:6px; color:var(--text3); cursor:pointer; padding:2px 8px; font-size:11px; }
+.kb-card .kc-nav button:hover { color:var(--gold); border-color:var(--gold); }
+
 /* MODAL */
 .modal-backdrop { position:fixed; inset:0; background:rgba(0,0,0,0.6); backdrop-filter:blur(4px); z-index:200; display:none; align-items:center; justify-content:center; padding:24px; }
 .modal-backdrop.show { display:flex; }
@@ -425,6 +467,7 @@ svg.chart { width:100%; height:100%; display:block; }
     <div class="sidebar-section">Visao Geral</div>
     <div class="sidebar-item active" data-page="dashboard"><span class="material-symbols-outlined">dashboard</span><span>Dashboard</span></div>
     <div class="sidebar-item" data-page="fluxo"><span class="material-symbols-outlined">show_chart</span><span>Fluxo de Caixa</span></div>
+    <div class="sidebar-item" data-page="fluxo_operacao"><span class="material-symbols-outlined">view_kanban</span><span>Fluxo Operação</span></div>
 
     <div class="sidebar-section">Movimentacao</div>
     <div class="sidebar-item" data-page="cp"><span class="material-symbols-outlined">payments</span><span>Contas a Pagar</span></div>
@@ -672,6 +715,7 @@ function applyPage(page) {
   if (!ERP_PAGES.has(page)) page = 'dashboard';
   state.page = page;
   closeDrawer(); // no mobile, navegar fecha o drawer
+  if (typeof closeTituloDrawer === 'function') closeTituloDrawer(); // painel do título
   document.querySelectorAll('.sidebar-item').forEach(it => it.classList.toggle('active', it.dataset.page === page));
   render();
 }
@@ -705,6 +749,7 @@ async function render() {
     await loadBase();
     if (state.page === 'dashboard') return renderDashboard();
     if (state.page === 'fluxo') return renderFluxo();
+    if (state.page === 'fluxo_operacao') return renderFluxoOperacao();
     if (state.page === 'cp') return renderContas('pagar');
     if (state.page === 'cr') return renderContas('receber');
     if (state.page === 'bancos') return renderBancos();
@@ -1036,6 +1081,136 @@ async function renderDashboard() {
 }
 
 /* ==========================================================================
+   PAGE: FLUXO OPERAÇÃO (kanban do leilão → faturamento → resolução)
+   ========================================================================== */
+const FLUXO_ETAPAS = [
+  { k:'realizado',              label:'Realizado',            cor:'#8892a0', hint:'Leilão aconteceu — fechamento cadastrado' },
+  { k:'aguardando_mapa',        label:'Aguardando Mapa',      cor:'#3B82F6', hint:'Esperando mapa/relatório da leiloeira' },
+  { k:'conferencia',            label:'Conferência',          cor:'#D4A843', hint:'Conferindo vendas, comissões e acordo' },
+  { k:'pronto_faturar',         label:'Pronto p/ Faturar',    cor:'#C9A84C', hint:'Validado — emitir NF e lançar contas a receber' },
+  { k:'aguardando_recebimento', label:'Aguard. Recebimento',  cor:'#d98a3d', hint:'Faturado — aguardando repasse da leiloeira' },
+  { k:'pagamentos',             label:'Pagamentos & Repasses',cor:'#C0504D', hint:'Comissões de assessores e impostos a pagar' },
+  { k:'concluido',              label:'Concluído',            cor:'#6B8F5C', hint:'Recebido e pago — negócio resolvido' },
+];
+
+async function renderFluxoOperacao(){
+  const [fechamentos, receb, cps] = await Promise.all([
+    api('/api/bula/fechamento'),
+    api('/api/bula/fechamento-recebimentos').catch(()=>[]),
+    api('/api/erp/contas-pagar').catch(()=>[]),
+  ]);
+  const recMap = {}; for (const r of (receb||[])) recMap[r.fechamento_id] = r;
+  const cpMap = {}; for (const c of (cps||[])) if (c.fechamento_id) (cpMap[c.fechamento_id] ||= []).push(c);
+  state._fluxo = { fechamentos: fechamentos||[], recMap, cpMap };
+  paintFluxo();
+}
+
+function paintFluxo(){
+  const d = state._fluxo; if (!d) return;
+  const q = (state.filters.fluxoBusca||'').trim().toLowerCase();
+  const ano = state.filters.fluxoAno || '';
+  const rows = d.fechamentos.filter(f =>
+    (!q || (f.nome||'').toLowerCase().includes(q)) &&
+    (!ano || String(f.data||'').startsWith(ano)));
+  const anos = [...new Set(d.fechamentos.map(f=>String(f.data||'').slice(0,4)).filter(Boolean))].sort().reverse();
+  const byEtapa = {}; for (const e of FLUXO_ETAPAS) byEtapa[e.k] = [];
+  for (const f of rows){ const k = FLUXO_ETAPAS.some(e=>e.k===f.etapa) ? f.etapa : 'realizado'; byEtapa[k].push(f); }
+  for (const k in byEtapa) byEtapa[k].sort((a,b)=>String(b.data||'').localeCompare(String(a.data||'')));
+
+  const col = (e) => {
+    const cards = byEtapa[e.k];
+    const totReceita = cards.reduce((s,f)=>s+Number(f.receita_bula||0),0);
+    return `
+    <div class="kb-col" data-etapa="${e.k}"
+      ondragover="event.preventDefault();this.classList.add('drag-over')"
+      ondragleave="this.classList.remove('drag-over')"
+      ondrop="this.classList.remove('drag-over');fluxoDrop(event,'${e.k}')">
+      <div class="kb-col-head" title="${escapeHtml(e.hint)}">
+        <span class="dot" style="background:${e.cor}"></span>
+        <span class="t">${e.label}</span>
+        <span class="n">${cards.length}</span>
+      </div>
+      <div class="kb-col-sum">Receita Bula: <b class="money">${fmtBRL(totReceita)}</b></div>
+      <div class="kb-cards">${cards.map(f=>fluxoCard(f,e)).join('') || '<div style="font-size:10.5px;color:var(--text3);text-align:center;padding:14px 6px">— vazio —</div>'}</div>
+    </div>`;
+  };
+
+  document.getElementById('page').innerHTML = `
+    <div class="page-header">
+      <div>
+        <div class="page-title">Fluxo Operação <small>${rows.length} leilões · do fechamento à resolução</small></div>
+      </div>
+      <div class="page-actions">
+        <input class="table-filter" style="min-width:200px" placeholder="Buscar leilão..." value="${escapeHtml(state.filters.fluxoBusca||'')}" oninput="state.filters.fluxoBusca=this.value;paintFluxo()">
+        <select class="table-filter" onchange="state.filters.fluxoAno=this.value;paintFluxo()">
+          <option value="">Todos os anos</option>
+          ${anos.map(a=>`<option value="${a}" ${ano===a?'selected':''}>${a}</option>`).join('')}
+        </select>
+        <button class="btn" onclick="navigate('fechamento_leiloes')"><span class="material-symbols-outlined">table_view</span>Fechamentos</button>
+      </div>
+    </div>
+    <div class="kb-board">${FLUXO_ETAPAS.map(col).join('')}</div>
+  `;
+}
+
+function fluxoCard(f, etapa){
+  const d = state._fluxo || {};
+  const rec = (d.recMap||{})[f.id];
+  const cps = (d.cpMap||{})[f.id] || [];
+  const cpsPagas = cps.filter(c=>c.status==='pago').length;
+  const fat = Number(f.faturamento_total_leilao ?? f.vgv_total ?? 0);
+  const idx = FLUXO_ETAPAS.findIndex(e=>e.k===etapa.k);
+  const prev = FLUXO_ETAPAS[idx-1], next = FLUXO_ETAPAS[idx+1];
+  const badgeCR = rec && Number(rec.titulos)>0
+    ? `<span class="chip ${rec.todos_recebidos?'success':'warn'}" title="Contas a receber vinculadas">${rec.todos_recebidos?'✓ recebido':'CR '+fmtBRL(rec.recebido).replace('R$','').trim()+' / '+fmtBRL(rec.receita_titulos).replace('R$','').trim()}</span>`
+    : `<span class="chip muted" title="Nenhuma conta a receber vinculada">sem CR</span>`;
+  const badgeCP = cps.length
+    ? `<span class="chip ${cpsPagas===cps.length?'success':'info'}" title="Contas a pagar vinculadas (comissões/impostos)">CP ${cpsPagas}/${cps.length} pagas</span>`
+    : '';
+  return `
+  <div class="kb-card" style="border-left-color:${etapa.cor}" draggable="true"
+    ondragstart="fluxoDragStart(event,'${f.id}')" ondragend="this.classList.remove('dragging')">
+    <div class="kc-nome">${escapeHtml(f.nome)}</div>
+    <div class="kc-data">${fmtDate(f.data)}${f.local?' · '+escapeHtml(f.local):''}</div>
+    <div class="kc-vals">
+      <div class="kc-v">Faturamento<b class="money">${fmtBRL(fat)}</b></div>
+      <div class="kc-v">Receita Bula<b class="money" style="color:var(--olive)">${fmtBRL(f.receita_bula)}</b></div>
+    </div>
+    <div class="kc-badges">${badgeCR}${badgeCP}</div>
+    <div class="kc-nav">
+      ${prev?`<button title="Voltar para ${prev.label}" onclick="fluxoMove('${f.id}','${prev.k}')">‹</button>`:'<span></span>'}
+      <button title="Ver fechamento" onclick="navigate('fechamento_leiloes')" style="flex:1">abrir</button>
+      ${next?`<button title="Avançar para ${next.label}" onclick="fluxoMove('${f.id}','${next.k}')">›</button>`:'<span></span>'}
+    </div>
+  </div>`;
+}
+
+function fluxoDragStart(ev, id){
+  ev.dataTransfer.setData('text/plain', id);
+  ev.dataTransfer.effectAllowed = 'move';
+  ev.target.classList.add('dragging');
+}
+function fluxoDrop(ev, etapa){
+  ev.preventDefault();
+  const id = ev.dataTransfer.getData('text/plain');
+  if (id) fluxoMove(id, etapa);
+}
+async function fluxoMove(id, etapa){
+  const d = state._fluxo; if (!d) return;
+  const f = d.fechamentos.find(x=>x.id===id); if (!f || f.etapa===etapa) return;
+  const antes = f.etapa;
+  f.etapa = etapa; paintFluxo(); // otimista
+  try {
+    await api(`/api/bula/fechamento/${id}`, { method:'PUT', body:JSON.stringify({ etapa, etapa_atualizada_em: new Date().toISOString() }) });
+    const meta = FLUXO_ETAPAS.find(e=>e.k===etapa);
+    toast(`${f.nome} → ${meta?meta.label:etapa}`,'success');
+  } catch(e){
+    f.etapa = antes; paintFluxo();
+    toast(e.message,'error');
+  }
+}
+
+/* ==========================================================================
    PAGE: CONTAS A PAGAR / RECEBER
    ========================================================================== */
 async function renderContas(modo) {
@@ -1090,8 +1265,13 @@ async function renderContas(modo) {
       case 'categoria': return (r.categoria?.nome||'').toLowerCase();
       case 'emissao': return r.emissao||'';
       case 'valor': return Number(r.valor||0);
+      case 'liquido': return Number(r.valor||0)-Number(r.desconto||0)+Number(r.juros||0)+Number(r.multa||0);
       case 'restante': return calcRestante(r);
       case 'status': return r.status||'';
+      case 'nf': return r.nota_fiscal||'';
+      case 'ultimo': return (isCP?r.data_pagamento:r.data_recebimento)||'';
+      case 'vendedor': return (r.vendedor||'').toLowerCase();
+      case 'projeto': return (r.projeto||'').toLowerCase();
       default: return r.vencimento||'';
     }
   };
@@ -1170,7 +1350,7 @@ async function renderContas(modo) {
     if (grp==='mes') { const v=r.vencimento; if(!v) return '— sem vencimento —'; const d=new Date(v+'T00:00:00'); return d.toLocaleDateString('pt-BR',{month:'long',year:'numeric'}); }
     return '';
   };
-  const nCols = isCP ? 11 : 10;
+  const nCols = isCP ? 18 : 17;
 
   const rowHtml = (r) => {
     const d = isOpen(r) ? diasAtraso(r.vencimento) : null;
@@ -1181,22 +1361,31 @@ async function renderContas(modo) {
       else atraso = `<span class="atraso ok">em ${-d}d</span>`;
     }
     const rest = calcRestante(r);
-    const parcInfo = (r.total_parcelas>1) ? `<span class="chip muted" style="font-size:9px;padding:1px 6px" title="Parcela">${r.parcela}/${r.total_parcelas}</span>` : '';
+    const liquido = Number(r.valor||0) - Number(r.desconto||0) + Number(r.juros||0) + Number(r.multa||0);
+    const ultimo = isCP ? r.data_pagamento : r.data_recebimento;
+    const na = '<span style="color:var(--text3)">—</span>';
     return `
-      <tr class="${state.contasSel.has(r.id)?'selected':''}">
+      <tr class="${state.contasSel.has(r.id)?'selected':''}" style="cursor:pointer" onclick="if(!event.target.closest('input,button,select,a'))openTituloDrawer('${modo}','${r.id}')">
         <td class="sel-cell"><input type="checkbox" ${state.contasSel.has(r.id)?'checked':''} onchange="toggleSelConta('${r.id}',this.checked)"></td>
+        <td>${statusChip(r.status)}</td>
         <td>
-          <div style="font-weight:600;display:flex;align-items:center;gap:6px">${escapeHtml(r.descricao)} ${parcInfo}</div>
+          <div style="font-weight:600;white-space:normal;min-width:180px">${escapeHtml(r.descricao)}</div>
           ${r.numero_documento?`<div style="font-size:10px;color:var(--text3)">Doc: ${escapeHtml(r.numero_documento)}</div>`:''}
         </td>
+        <td style="font-variant-numeric:tabular-nums">${r.total_parcelas>1?`${String(r.parcela).padStart(3,'0')}/${String(r.total_parcelas).padStart(3,'0')}`:na}</td>
+        <td style="font-variant-numeric:tabular-nums">${r.nota_fiscal?escapeHtml(r.nota_fiscal):na}</td>
         <td>${escapeHtml(parceiro(r) || '--')}</td>
-        <td>${r.categoria?`<span class="chip" style="background:${r.categoria.cor}22;color:${r.categoria.cor}">${escapeHtml(r.categoria.nome)}</span>`:'--'}</td>
-        ${isCP?`<td>${r.centro?`<span class="chip" style="background:#8B5A2B22;color:#C8A96E" title="${escapeHtml(r.centro.nome)}">${escapeHtml(r.centro.codigo||'')} ${escapeHtml(r.centro.nome)}</span>`:'<span style="color:var(--text3)">--</span>'}</td>`:''}
         <td>${fmtDate(r.emissao)}</td>
         <td>${fmtDate(r.vencimento)}${atraso?`<div>${atraso}</div>`:''}</td>
+        <td>${ultimo?fmtDate(ultimo):na}</td>
         <td style="text-align:right" class="money">${fmtBRL(r.valor)}</td>
-        <td style="text-align:right" class="money ${isOpen(r)&&rest>0?(isCP?'negative':'positive'):''}">${isOpen(r)?fmtBRL(rest):'<span style="color:var(--text3)">--</span>'}</td>
-        <td>${statusChip(r.status)}</td>
+        <td style="text-align:right" class="money">${fmtBRL(liquido)}</td>
+        <td style="text-align:right" class="money ${isOpen(r)&&rest>0?(isCP?'negative':'positive'):''}">${isOpen(r)?fmtBRL(rest):na}</td>
+        <td>${r.categoria?`<span class="chip" style="background:${r.categoria.cor}22;color:${r.categoria.cor}">${escapeHtml(r.categoria.nome)}</span>`:'--'}</td>
+        ${isCP?`<td>${r.centro?`<span class="chip" style="background:#8B5A2B22;color:#C8A96E" title="${escapeHtml(r.centro.nome)}">${escapeHtml(r.centro.codigo||'')} ${escapeHtml(r.centro.nome)}</span>`:na}</td>`:''}
+        <td>${r.vendedor?escapeHtml(r.vendedor):na}</td>
+        <td>${r.projeto?escapeHtml(r.projeto):na}</td>
+        <td>${r.conta?escapeHtml(r.conta.nome):na}</td>
         <td>
           <div class="row-actions">
             ${isOpen(r) ? `<button class="icon-btn" title="Registrar ${isCP?'pagamento':'recebimento'}" onclick="openPagamento('${modo}','${r.id}')"><span class="material-symbols-outlined">attach_money</span></button>` : ''}
@@ -1332,35 +1521,46 @@ async function renderContas(modo) {
         <button class="btn btn-ghost btn-sm" onclick="state.contasSel.clear();render()">Limpar seleção</button>
       </div>` : ''}
       ${list.length === 0 ? `<div class="empty"><span class="material-symbols-outlined">${isCP?'payments':'request_quote'}</span><h3>Nenhum titulo encontrado</h3><p>${hasFiltros?'Ajuste ou limpe os filtros.':'Clique em "Novo Titulo" para comecar.'}</p></div>` : `
+      <div class="statement-scroll">
       <table>
         <thead>
           <tr>
             <th class="sel-cell"><input type="checkbox" ${allSel?'checked':''} onchange="toggleSelAllContas('${modo}',this.checked)"></th>
-            ${th('descricao','Descricao')}
+            ${th('status','Situação')}
+            ${th('descricao','Descrição')}
+            <th>Parcela</th>
+            ${th('nf','Nota Fiscal')}
             ${th('parceiro',isCP?'Fornecedor':'Cliente')}
+            ${th('emissao','Emissão')}
+            ${th('vencimento',isCP?'Previsão Pgto':'Previsão Receb.')}
+            ${th('ultimo',isCP?'Último Pgto':'Último Receb.')}
+            ${th('valor','Valor da Conta','style="text-align:right"')}
+            ${th('liquido','Valor Líquido','style="text-align:right"')}
+            ${th('restante','Restante','style="text-align:right"')}
             ${th('categoria','Categoria')}
             ${isCP?'<th>Centro de Custo</th>':''}
-            ${th('emissao','Emissao')}
-            ${th('vencimento','Vencimento')}
-            ${th('valor','Valor','style="text-align:right"')}
-            ${th('restante','Restante','style="text-align:right"')}
-            ${th('status','Status')}
+            ${th('vendedor','Vendedor')}
+            ${th('projeto','Projeto')}
+            <th>Conta Corrente</th>
             <th></th>
           </tr>
         </thead>
         <tbody>${bodyRows}</tbody>
         <tfoot>
           <tr class="table-foot">
-            <td colspan="${isCP?7:6}" style="text-align:right">Totais (${list.length})</td>
+            <td colspan="9" style="text-align:right">Totais (${list.length})</td>
             <td style="text-align:right" class="money">${fmtBRL(totalFiltro)}</td>
+            <td style="text-align:right" class="money">${fmtBRL(list.reduce((s,r)=>s+Number(r.valor||0)-Number(r.desconto||0)+Number(r.juros||0)+Number(r.multa||0),0))}</td>
             <td style="text-align:right" class="money">${fmtBRL(list.filter(isOpen).reduce((s,r)=>s+calcRestante(r),0))}</td>
-            <td colspan="2"></td>
+            <td colspan="${nCols-12}"></td>
           </tr>
         </tfoot>
-      </table>`}
+      </table>
+      </div>`}
     </div>
   `;
   document.getElementById('page').innerHTML = html;
+  renderTituloDrawer(modo);
 }
 
 function statusChip(s) {
@@ -1374,6 +1574,91 @@ function statusChip(s) {
   };
   const m = map[s] || { c:'muted', t:s };
   return `<span class="chip ${m.c}"><span class="chip-dot"></span>${m.t}</span>`;
+}
+
+/* ── Painel lateral do título (estilo Omie): detalhes + ações ─────────────── */
+function openTituloDrawer(modo, id){ state.tituloDrawer = { modo, id }; renderTituloDrawer(modo); }
+function closeTituloDrawer(){ state.tituloDrawer = null; const el = document.getElementById('tituloDrawer'); if (el) el.remove(); }
+function renderTituloDrawer(modo){
+  const old = document.getElementById('tituloDrawer'); if (old) old.remove();
+  const td = state.tituloDrawer;
+  if (!td || td.modo !== modo) return;
+  const isCP = modo==='pagar';
+  const r = (isCP?state.cp:state.cr).find(t => t.id === td.id);
+  if (!r) { state.tituloDrawer = null; return; }
+  const isOpenSt = ['aberto','parcial','vencido'].includes(r.status);
+  const liquido = Number(r.valor||0) - Number(r.desconto||0) + Number(r.juros||0) + Number(r.multa||0);
+  const rec = Number(isCP?r.valor_pago||0:r.valor_recebido||0);
+  const rest = liquido - rec;
+  const na = '<span style="color:var(--text3)">—</span>';
+  const kv = (l,v) => `<div class="td-kv"><span>${l}</span><b>${v}</b></div>`;
+  const act = (icon,label,fn,cls='') => `<button class="td-act ${cls}" onclick="${fn}"><span class="material-symbols-outlined">${icon}</span>${label}</button>`;
+  const el = document.createElement('div');
+  el.id = 'tituloDrawer';
+  el.innerHTML = `
+    <div class="td-head">
+      <div>
+        <div class="td-title">${escapeHtml(r.descricao)}</div>
+        <div class="td-sub">${r.numero_documento?'Documento: '+escapeHtml(r.numero_documento)+' · ':''}${r.total_parcelas>1?`Parcela: ${String(r.parcela).padStart(3,'0')}/${String(r.total_parcelas).padStart(3,'0')}`:''}</div>
+      </div>
+      <button class="icon-btn" onclick="closeTituloDrawer()"><span class="material-symbols-outlined">close</span></button>
+    </div>
+    <div class="td-body">
+      <div style="margin-bottom:10px">${statusChip(r.status)}</div>
+      ${kv(isCP?'Fornecedor':'Cliente', escapeHtml((isCP?r.fornecedor:r.cliente)?.nome || '—'))}
+      ${kv('Valor da conta', `<span class="money">${fmtBRL(r.valor)}</span>`)}
+      ${kv('Valor líquido', `<span class="money">${fmtBRL(liquido)}</span>`)}
+      ${kv(isCP?'Pago':'Recebido', `<span class="money positive">${fmtBRL(rec)}</span>`)}
+      ${isOpenSt?kv('Restante', `<span class="money ${isCP?'negative':'positive'}">${fmtBRL(rest)}</span>`):''}
+      ${kv('Emissão', fmtDate(r.emissao))}
+      ${kv('Vencimento', fmtDate(r.vencimento))}
+      ${(isCP?r.data_pagamento:r.data_recebimento)?kv(isCP?'Último pagamento':'Último recebimento', fmtDate(isCP?r.data_pagamento:r.data_recebimento)):''}
+      ${kv('Categoria', r.categoria?escapeHtml(r.categoria.nome):na)}
+      ${isCP?kv('Centro de custo', r.centro?escapeHtml(`${r.centro.codigo||''} ${r.centro.nome}`):na):''}
+      ${kv('Nota fiscal', r.nota_fiscal?escapeHtml(r.nota_fiscal):na)}
+      ${kv('Vendedor', r.vendedor?escapeHtml(r.vendedor):na)}
+      ${kv('Projeto', r.projeto?escapeHtml(r.projeto):na)}
+      ${kv('Conta corrente', r.conta?escapeHtml(r.conta.nome):na)}
+      ${r.observacoes?kv('Observações', escapeHtml(r.observacoes)):''}
+      <div class="td-acts">
+        ${isOpenSt ? act('bolt', isCP?'Pagar Agora':'Receber Agora', `openPagamento('${modo}','${r.id}')`, 'primary') : ''}
+        ${act('edit','Editar', `openTitulo('${modo}','${r.id}')`)}
+        ${act('content_copy','Duplicar', `duplicarTitulo('${modo}','${r.id}')`)}
+        ${act('download','Exportar CSV (filtro atual)', `exportContasCsv('${modo}')`)}
+        ${act('delete','Excluir', `deleteTitulo('${modo}','${r.id}')`, 'danger')}
+      </div>
+    </div>`;
+  document.body.appendChild(el);
+}
+async function duplicarTitulo(modo, id){
+  const isCP = modo==='pagar';
+  const r = (isCP?state.cp:state.cr).find(t => t.id === id); if(!r) return;
+  const body = {
+    descricao: `${r.descricao} (cópia)`,
+    valor: Number(r.valor||0),
+    categoria_id: r.categoria_id || null,
+    centro_custo_id: r.centro_custo_id || null,
+    plano_conta_id: r.plano_conta_id || null,
+    conta_bancaria_id: r.conta_bancaria_id || null,
+    emissao: today(),
+    vencimento: r.vencimento,
+    numero_documento: '',
+    total_parcelas: 1,
+    recorrencia: 'nenhuma',
+    observacoes: r.observacoes || '',
+    nota_fiscal: r.nota_fiscal || '',
+    vendedor: r.vendedor || '',
+    projeto: r.projeto || '',
+  };
+  body[isCP?'fornecedor_id':'cliente_id'] = (isCP?r.fornecedor_id:r.cliente_id) || null;
+  body[isCP?'forma_pagamento':'forma_recebimento'] = (isCP?r.forma_pagamento:r.forma_recebimento) || '';
+  try {
+    const created = await api(`/api/erp/contas-${modo}`, { method:'POST', body:JSON.stringify(body) });
+    const novo = Array.isArray(created) ? created[0] : created;
+    toast('Título duplicado','success');
+    state.tituloDrawer = novo ? { modo, id: novo.id } : null;
+    render();
+  } catch(e){ toast(e.message,'error'); }
 }
 
 const onFilterSearch = debounce((v)=>{ state.filters.search = v; render(); }, 350);
@@ -1563,6 +1848,9 @@ function openTitulo(modo, id) {
         <div class="field"><label>Emissao</label><input name="emissao" type="date" value="${titulo?.emissao||today()}"></div>
         <div class="field"><label>Vencimento*</label><input name="vencimento" type="date" required value="${titulo?.vencimento||today()}"></div>
         <div class="field"><label>Numero do Documento</label><input name="numero_documento" value="${escapeHtml(titulo?.numero_documento||'')}"></div>
+        <div class="field"><label>Nota Fiscal</label><input name="nota_fiscal" value="${escapeHtml(titulo?.nota_fiscal||'')}" placeholder="Nº da NF"></div>
+        <div class="field"><label>Vendedor</label><input name="vendedor" value="${escapeHtml(titulo?.vendedor||'')}" placeholder="Vendedor / responsável"></div>
+        <div class="field"><label>Projeto</label><input name="projeto" value="${escapeHtml(titulo?.projeto||'')}" placeholder="Projeto / operação"></div>
         <div class="field"><label>${isCP?'Forma de Pagamento':'Forma de Recebimento'}</label>
           <select name="${isCP?'forma_pagamento':'forma_recebimento'}">
             <option value="">--</option>
