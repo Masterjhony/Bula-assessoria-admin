@@ -34,6 +34,7 @@ import {
     DOC_TIPOS_SEMANTICOS,
 } from './crm-habilitacao'
 import { promoteWhatsappMediaToLeadDoc, type LeadDocTipo } from './whatsapp-lead-documents'
+import { computeFaixasPreco, faixasPromptBlock } from './leilao-faixas-preco'
 import { maybeRunCreditCheck } from './crm-credit-automation'
 import { maybeRunStateRegistrationCheck } from './crm-state-registration-automation'
 import { maybeEnrichLeadFromPhone } from './crm-lead-enrichment'
@@ -158,7 +159,7 @@ FLUXO (siga na ordem; pule etapas que o checklist mostra como resolvidas):
 
 OBJEÇÕES (responda curto e volte pro fluxo):
 - "Não tenho Inscrição Estadual" → sem drama: dá pra habilitar como produtor com NIRF, ou orientamos a tirar a I.E. (é rápido). Registre ie_status=nao_tem e siga o resto do checklist.
-- "Quanto custa / qual o juro?" → o parcelamento é direto com a leiloeira, condição sai no leilão (ex.: 30x). NUNCA prometa taxa, desconto ou aprovação. Volte pro checklist.
+- "Quanto custa / qual a faixa de preço?" → dê a FAIXA aproximada da categoria que ele busca (touros, matrizes ou bezerras) usando o bloco FAIXAS DE PREÇO abaixo; diga que é média e que o valor final sai no lance. Só a faixa — nunca detalhe de fechamento (leilão, comprador, lote). Sobre juros/parcelamento: é direto com a leiloeira, condição sai no leilão (ex.: 30x); NUNCA prometa taxa, desconto ou aprovação. Depois volte pro checklist.
 - Desconfiança ("é golpe?") → normal. Ofereça o contato humano (abaixo) e o site da Bula; sem pressão. Não insista em documento enquanto a pessoa estiver desconfiada.
 - "Só estou olhando / mais pra frente" → registre urgencia_compra e diga que deixar a habilitação pronta não custa nada e evita perder lote bom; se recusar, não force (proxima_acao='follow-up').
 - Assunto fora do escopo (venda de gado, parceria, cobrança...) → handoff=true com o contato humano.
@@ -491,13 +492,26 @@ export async function runConcierge(
         ? `\n\nIMPORTANTE: o lead ACABOU de enviar um arquivo pelo WhatsApp (tipo: ${input.media.type}${input.media.filename ? `, nome: ${input.media.filename}` : ''}). Trate como possível documento de habilitação (ex.: inscrição estadual, CPF/CNPJ, comprovante). Se for a documentação mínima, marque documents_received=true.`
         : ''
 
+    // Faixas de preço reais (dos fechamentos) — para responder "quanto custa"
+    // sem expor detalhe de fechamento. Best-effort: em erro, segue sem o bloco.
+    let faixasBlock = ''
+    try {
+        const faixas = await computeFaixasPreco(supabase)
+        if (faixas) {
+            const block = faixasPromptBlock(faixas)
+            if (block) faixasBlock = `\n\n${block}`
+        }
+    } catch (e) {
+        console.warn('[concierge] faixas de preço falharam:', e instanceof Error ? e.message : e)
+    }
+
     const handoffContact = input.config.handoffContact?.trim() || DEFAULT_HANDOFF_CONTACT
     const systemContent = `${persona}
 
 CONTATO HUMANO (use ao fazer handoff por pedido de falar com pessoa): ${handoffContact}
 
 CHECKLIST DE HABILITAÇÃO (estado atual — seu mapa; peça só o que está com ✘):
-${checklistPromptBlock(checklist)}
+${checklistPromptBlock(checklist)}${faixasBlock}
 
 DADOS QUE JÁ TEMOS DESTE LEAD (use para personalizar e NÃO repetir perguntas):
 ${knownFactsBlock(lead)}
