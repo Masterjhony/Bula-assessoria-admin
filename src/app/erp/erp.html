@@ -1335,7 +1335,7 @@ async function renderContas(modo) {
       <table>
         <thead>
           <tr>
-            <th class="sel-cell"><input type="checkbox" ${allSel?'checked':''} onchange="toggleSelAll('${modo}',this.checked)"></th>
+            <th class="sel-cell"><input type="checkbox" ${allSel?'checked':''} onchange="toggleSelAllContas('${modo}',this.checked)"></th>
             ${th('descricao','Descricao')}
             ${th('parceiro',isCP?'Fornecedor':'Cliente')}
             ${th('categoria','Categoria')}
@@ -1420,7 +1420,7 @@ function limparFiltros() {
 
 /* ---- seleção em lote ---- */
 function toggleSelConta(id, on) { if (on) state.contasSel.add(id); else state.contasSel.delete(id); render(); }
-function toggleSelAll(modo, on) {
+function toggleSelAllContas(modo, on) {
   const list = (modo==='pagar'?state.cp:state.cr) || [];
   const fCat=state.filters.categoria_id, fParc=state.filters.parceiro_id, fAge=state.filters.aging;
   const isCP=modo==='pagar';
@@ -2182,65 +2182,144 @@ async function renderConciliacao() {
   paintConc();
 }
 
-function paintConc(){
-  const all = state.movimentos || [];
-  const counts = { pendente:0, classificado:0, conciliado:0 };
-  for (const m of all) counts[concStatus(m)]++;
-  const tot = { entrada:0, saida:0, transferencia:0 };
-  for (const m of all) tot[m.tipo] = (tot[m.tipo]||0) + Number(m.valor);
-  const list = concFiltered();
-  const selIds = Object.keys(state.concSel||{}).filter(id => state.concSel[id]);
-  const kpi = (key) => {
-    const meta = CONC_STATUS_META[key];
-    const active = state.filters.status===key;
-    return `<div class="kpi" style="cursor:pointer;${active?`outline:2px solid ${meta.cor};outline-offset:-1px`:''}" onclick="state.filters.status = state.filters.status==='${key}'?'':'${key}'; paintConc()">
-      <div class="kpi-icon"><span class="material-symbols-outlined" style="color:${meta.cor}">${meta.icon}</span></div>
-      <div class="kpi-label">${meta.label}</div>
-      <div class="kpi-value">${counts[key]}</div>
-    </div>`;
+/* ---- período do extrato de conciliação ---- */
+function concSetPeriod(preset){
+  const t = today(); const c = new Date(t+'T00:00:00'); const y=c.getFullYear(), m=c.getMonth();
+  const L=(d)=>new Date(d.getTime()-d.getTimezoneOffset()*60000).toISOString().slice(0,10);
+  let from='', to='';
+  if(preset==='hoje'){ from=t; to=t; }
+  else if(preset==='7d'){ to=t; const f=new Date(c); f.setDate(f.getDate()-6); from=L(f); }
+  else if(preset==='mes'){ from=L(new Date(y,m,1)); to=L(new Date(y,m+1,0)); }
+  else if(preset==='30d'){ to=t; const f=new Date(c); f.setDate(f.getDate()-29); from=L(f); }
+  else if(preset==='90d'){ to=t; const f=new Date(c); f.setDate(f.getDate()-89); from=L(f); }
+  else if(preset==='ano'){ from=L(new Date(y,0,1)); to=L(new Date(y,11,31)); }
+  else { preset='tudo'; from=''; to=''; }
+  state.filters.concPeriod = { preset, from, to };
+  paintConc();
+}
+function concSetPeriodCustom(which, val){
+  const p = state.filters.concPeriod || { preset:'custom', from:'', to:'' };
+  const from = which==='from' ? val : p.from;
+  const to = which==='to' ? val : p.to;
+  state.filters.concPeriod = { preset:'custom', from, to };
+  paintConc();
+}
+
+// Extrato/razão: calcula saldo corrente ancorado no saldo_atual da conta
+function concStatement(){
+  const contaSel = state.filters.conta;
+  const conta = state.bancos.find(b => b.id === contaSel);
+  const hasBalance = !!contaSel && !!conta;     // saldo corrente só faz sentido com 1 conta
+  const full = [...(state.movimentos||[])].sort((a,b) =>
+    a.data===b.data ? String(a.created_at||'').localeCompare(String(b.created_at||'')) : String(a.data).localeCompare(String(b.data)));
+  const signed = (m) => {
+    const v = Number(m.valor||0);
+    if (m.tipo==='entrada') return v;
+    if (m.tipo==='saida') return -v;
+    const t = `${m.categoria?.nome||''} ${m.descricao||''}`.toLowerCase();
+    if (/entrada|recebi|crédito|credito/.test(t)) return v;
+    if (/saída|saida|débito|debito|envio|pagamento/.test(t)) return -v;
+    return v;
   };
+  const totalSigned = full.reduce((s,m)=>s+signed(m),0);
+  const saldoAtual = conta ? Number(conta.saldo_atual||0) : (state.bancos||[]).reduce((s,b)=>s+Number(b.saldo_atual||0),0);
+  const opening0 = (conta ? Number(conta.saldo_atual||0) : 0) - totalSigned; // saldo antes do 1º mov carregado
+  const afterMap = new Map();
+  let acc = opening0;
+  for (const m of full){ acc += signed(m); afterMap.set(m.id, acc); }
+
+  const p = state.filters.concPeriod || {};
+  const from = p.from || '', to = p.to || '';
+  const inPeriod = (m) => (!from || m.data>=from) && (!to || m.data<=to);
+  const beforeSum = from ? full.filter(m=>m.data<from).reduce((s,m)=>s+signed(m),0) : 0;
+  const periodRows = full.filter(inPeriod);
+  const openingPeriod = opening0 + beforeSum;
+  const entradas = periodRows.reduce((s,m)=>{ const x=signed(m); return s+(x>0?x:0); },0);
+  const saidas = periodRows.reduce((s,m)=>{ const x=signed(m); return s+(x<0?-x:0); },0);
+  const closingPeriod = openingPeriod + (entradas - saidas);
+
+  const q=(state.filters.busca||'').trim().toLowerCase(), stF=state.filters.status||'', tpF=state.filters.tipoMov||'';
+  const visible = periodRows.filter(m=>{
+    if (stF && concStatus(m)!==stF) return false;
+    if (tpF && m.tipo!==tpF) return false;
+    if (q){ const hay=`${m.descricao||''} ${m.pessoa?.nome||''} ${m.pessoa?.documento||''} ${m.categoria?.nome||''} ${m.observacoes||''} ${m.valor||''}`.toLowerCase(); if(!hay.includes(q)) return false; }
+    return true;
+  });
+  const conciliadoSigned = full.filter(m=>concStatus(m)==='conciliado').reduce((s,m)=>s+signed(m),0);
+  const counts = { pendente:0, classificado:0, conciliado:0 };
+  for (const m of periodRows) counts[concStatus(m)]++;
+
+  return { hasBalance, conta, signed, afterMap, visible, periodRows, openingPeriod, closingPeriod,
+    entradas, saidas, saldoAtual, saldoConciliado: hasBalance ? opening0 + conciliadoSigned : null, counts };
+}
+
+function paintConc(){
+  if (!state.filters.concPeriod) state.filters.concPeriod = { preset:'mes', from:'', to:'' };
+  const s = concStatement();
+  const selIds = Object.keys(state.concSel||{}).filter(id => state.concSel[id]);
+  const p = state.filters.concPeriod;
+  if (p.preset==='mes' && !p.from) { concSetPeriod('mes'); return; } // resolve datas na 1ª pintura
+  const presets = [['hoje','Hoje'],['7d','7 dias'],['mes','Mês'],['30d','30 dias'],['90d','90 dias'],['ano','Ano'],['tudo','Tudo']];
+  const contaNome = s.conta ? s.conta.nome : 'Todas as contas';
+
   const html = `
     <div class="page-header">
-      <div><div class="page-title">Conciliacao Bancaria <small>${counts.pendente} pendentes · ${counts.classificado} classificados · ${counts.conciliado} conciliados</small></div>
-        <div style="font-size:12px;margin-top:4px;display:flex;gap:14px;flex-wrap:wrap">
-          <span style="color:#6B8F5C">▲ Entradas ${fmtBRL(tot.entrada)}</span>
-          <span style="color:#C0504D">▼ Saídas ${fmtBRL(tot.saida)}</span>
-          <span style="color:#3B82F6">⇄ Transferências ${fmtBRL(tot.transferencia)}</span>
-          <span style="color:var(--text2)">= Resultado ${fmtBRL(tot.entrada - tot.saida)}</span>
+      <div>
+        <div class="page-title">Movimentação da Conta Corrente <small>${contaNome}</small></div>
+        <div style="font-size:12px;margin-top:5px;display:flex;gap:14px;flex-wrap:wrap;align-items:center">
+          <span style="color:var(--olive);font-weight:600">▲ Entradas ${fmtBRL(s.entradas)}</span>
+          <span style="color:var(--red);font-weight:600">▼ Saídas ${fmtBRL(s.saidas)}</span>
+          <span style="color:var(--text2)">= Resultado ${fmtBRL(s.entradas - s.saidas)}</span>
         </div>
       </div>
       <div class="page-actions">
-        <button class="btn" onclick="openMovimento()"><span class="material-symbols-outlined">add</span>Lancamento</button>
+        <button class="btn" onclick="renderConciliacao()" title="Recarregar"><span class="material-symbols-outlined">refresh</span>Atualizar</button>
+        <button class="btn btn-primary" onclick="openMovimento()"><span class="material-symbols-outlined">add</span>Novo Lançamento</button>
       </div>
     </div>
-    <div class="kpi-grid">${kpi('pendente')}${kpi('classificado')}${kpi('conciliado')}</div>
 
     <div class="table-wrap">
       <div class="table-toolbar" style="flex-wrap:wrap;gap:8px;align-items:center">
-        <input class="table-filter" style="min-width:240px;flex:1" placeholder="Buscar descricao, valor, contraparte..." value="${escapeHtml(state.filters.busca||'')}" oninput="state.filters.busca=this.value; paintConcTableOnly()">
-        <select class="table-filter" onchange="state.filters.conta=this.value; renderConciliacao()">
-          <option value="">Todas as contas</option>
+        <select class="table-filter" onchange="state.filters.conta=this.value; state.concSel={}; renderConciliacao()" style="min-width:170px" title="Conta corrente">
+          <option value="">Todas as contas correntes</option>
           ${state.bancos.map(b => `<option value="${b.id}" ${state.filters.conta===b.id?'selected':''}>${escapeHtml(b.nome)}</option>`).join('')}
         </select>
-        <select class="table-filter" onchange="state.filters.status=this.value; paintConc()">
-          <option value="">Todos os status</option>
-          ${['pendente','classificado','conciliado'].map(s => `<option value="${s}" ${state.filters.status===s?'selected':''}>${CONC_STATUS_META[s].label}</option>`).join('')}
+        <div class="seg">${presets.map(([k,l])=>`<button class="${p.preset===k?'on':''}" onclick="concSetPeriod('${k}')">${l}</button>`).join('')}</div>
+        <label class="table-filter" style="display:flex;align-items:center;gap:4px">de <input type="date" value="${p.from||''}" onchange="concSetPeriodCustom('from',this.value)" style="border:0;background:transparent;color:inherit"></label>
+        <label class="table-filter" style="display:flex;align-items:center;gap:4px">até <input type="date" value="${p.to||''}" onchange="concSetPeriodCustom('to',this.value)" style="border:0;background:transparent;color:inherit"></label>
+        <input class="table-filter" style="min-width:200px;flex:1" placeholder="Buscar descrição, valor, contraparte..." value="${escapeHtml(state.filters.busca||'')}" oninput="state.filters.busca=this.value; paintConcTableOnly()">
+        <select class="table-filter" onchange="state.filters.status=this.value; paintConc()" title="Situação">
+          <option value="">Todas as situações</option>
+          ${['pendente','classificado','conciliado'].map(x => `<option value="${x}" ${state.filters.status===x?'selected':''}>${CONC_STATUS_META[x].label} (${s.counts[x]})</option>`).join('')}
         </select>
-        <select class="table-filter" onchange="state.filters.tipoMov=this.value; paintConc()">
-          <option value="">Entradas + Saídas + Transf.</option>
+        <select class="table-filter" onchange="state.filters.tipoMov=this.value; paintConc()" title="Tipo">
+          <option value="">Entradas + Saídas</option>
           ${[['entrada','Só entradas'],['saida','Só saídas'],['transferencia','Só transferências']].map(([v,l]) => `<option value="${v}" ${state.filters.tipoMov===v?'selected':''}>${l}</option>`).join('')}
         </select>
-        ${selIds.length ? `
-          <span style="font-size:11.5px;color:var(--text2);white-space:nowrap">${selIds.length} selec.</span>
-          <select class="table-filter" onchange="if(this.value){bulkSetCategoria(this.value);this.value=''}">
-            <option value="">Categoria em lote...</option>
-            ${state.categorias.map(c => `<option value="${c.id}">${escapeHtml(c.nome)}</option>`).join('')}
-          </select>
-          <button class="btn" onclick="bulkSetStatus('conciliado')"><span class="material-symbols-outlined">verified</span>Conciliar</button>
-          <button class="btn" onclick="bulkSetStatus('pendente')"><span class="material-symbols-outlined">undo</span>Pendente</button>
-        ` : ''}
       </div>
-      <div id="concTableWrap">${concTable(list)}</div>
+      ${selIds.length ? `
+      <div class="bulk-bar">
+        <span class="bulk-info">${selIds.length} selecionado${selIds.length>1?'s':''}</span>
+        <select class="table-filter" onchange="if(this.value){bulkSetCategoria(this.value);this.value=''}">
+          <option value="">Categoria em lote…</option>
+          ${state.categorias.map(c => `<option value="${c.id}">${escapeHtml(c.nome)}</option>`).join('')}
+        </select>
+        <button class="btn btn-success btn-sm" onclick="bulkSetStatus('conciliado')"><span class="material-symbols-outlined">verified</span>Conciliar</button>
+        <button class="btn btn-sm" onclick="bulkSetStatus('classificado')"><span class="material-symbols-outlined">auto_awesome</span>Classificar</button>
+        <button class="btn btn-ghost btn-sm" onclick="bulkSetStatus('pendente')"><span class="material-symbols-outlined">undo</span>Pendente</button>
+      </div>` : ''}
+      <div id="concTableWrap">${concStatementTable(s)}</div>
+    </div>
+
+    <div class="conc-foot">
+      <div class="cf-title"><span class="material-symbols-outlined">info</span>Informações da conta corrente</div>
+      <div class="cf-tiles">
+        ${s.hasBalance ? `<div class="cf-tile"><div class="cf-l">Saldo Anterior</div><div class="cf-v money">${fmtBRL(s.openingPeriod)}</div></div>` : ''}
+        <div class="cf-tile"><div class="cf-l">Entradas no período</div><div class="cf-v money positive">${fmtBRL(s.entradas)}</div></div>
+        <div class="cf-tile"><div class="cf-l">Saídas no período</div><div class="cf-v money negative">${fmtBRL(s.saidas)}</div></div>
+        ${s.hasBalance ? `<div class="cf-tile"><div class="cf-l">Saldo Conciliado</div><div class="cf-v money">${fmtBRL(s.saldoConciliado)}</div></div>` : ''}
+        <div class="cf-tile cf-strong"><div class="cf-l">Saldo Atual</div><div class="cf-v money ${s.saldoAtual>=0?'positive':'negative'}">${fmtBRL(s.saldoAtual)}</div></div>
+      </div>
     </div>
   `;
   document.getElementById('page').innerHTML = html;
@@ -2248,7 +2327,7 @@ function paintConc(){
 
 function paintConcTableOnly(){
   const wrap = document.getElementById('concTableWrap');
-  if (wrap) wrap.innerHTML = concTable(concFiltered());
+  if (wrap) wrap.innerHTML = concStatementTable(concStatement());
 }
 
 function concRef(m){
@@ -2262,93 +2341,104 @@ function concRef(m){
 }
 
 const CC_STYLE = `<style>
-  .cc-selbar{display:flex;align-items:center;gap:8px;font-size:11.5px;color:var(--text2);padding:2px 2px 8px}
-  .cc-list{display:flex;flex-direction:column;gap:8px}
-  .cc{display:flex;align-items:flex-start;gap:12px;background:var(--surface);border:1px solid var(--border2);border-left:3px solid var(--border2);border-radius:10px;padding:12px 14px;transition:background .12s}
-  .cc:hover{background:var(--s2)}
-  .cc.sel{background:var(--gold-dim);border-color:var(--gold)}
-  .cc.cc-in{border-left-color:#6B8F5C}.cc.cc-out{border-left-color:#C0504D}.cc.cc-transf{border-left-color:#3B82F6}
-  .cc-chk{margin-top:4px;flex:0 0 auto}
-  .cc-ic{width:30px;height:30px;border-radius:8px;display:flex;align-items:center;justify-content:center;flex:0 0 auto;margin-top:1px}
-  .cc-ic .material-symbols-outlined{font-size:18px}
-  .cc-ic.in{background:#6B8F5C22;color:#6B8F5C}.cc-ic.out{background:#C0504D22;color:#C0504D}.cc-ic.transf{background:#3B82F622;color:#3B82F6}
-  .cc-main{flex:1;min-width:0}
-  .cc-top{display:flex;align-items:baseline;gap:8px;flex-wrap:wrap}
-  .cc-rot{font-size:10px;text-transform:uppercase;letter-spacing:.5px;color:var(--text3)}
-  .cc-dest{font-size:14px;font-weight:700;color:var(--text)}
-  .cc-dest.none{color:var(--text3);font-weight:500;font-style:italic}
-  .cc-doc{font-size:11px;color:var(--text3);font-variant-numeric:tabular-nums}
-  .cc-sub{font-size:12px;color:var(--text2);margin-top:2px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:100%}
-  .cc-ref{font-size:11.5px;color:var(--text2);margin-top:3px}
-  .cc-badges{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-top:9px}
-  .cc-date{font-size:11px;color:var(--text3);white-space:nowrap}
-  .cc-origem{font-size:10.5px;color:var(--text3)}
-  .cc-right{display:flex;flex-direction:column;align-items:flex-end;gap:8px;flex:0 0 auto}
-  .cc-val{font-size:15px;font-weight:700;white-space:nowrap;font-variant-numeric:tabular-nums}
+  .statement-scroll{overflow-x:auto}
+  table.statement{width:100%;border-collapse:collapse;font-size:12px}
+  table.statement th{font-size:9.5px;text-transform:uppercase;letter-spacing:.7px;color:var(--text3);font-weight:700;text-align:left;padding:10px 12px;border-bottom:1px solid var(--border);background:var(--s2);white-space:nowrap;position:sticky;top:0}
+  table.statement td{padding:9px 12px;border-bottom:1px solid var(--border);vertical-align:middle;white-space:nowrap}
+  table.statement tbody tr:hover td{background:var(--s2)}
+  table.statement tr.sel td{background:var(--gold-dim)}
+  .st-sit{display:inline-flex;align-items:center;gap:6px;cursor:pointer;font-weight:600;font-size:11px;white-space:nowrap}
+  .st-dot{width:8px;height:8px;border-radius:50%;flex:0 0 auto;box-shadow:0 0 0 3px transparent}
+  .st-dest{font-weight:600;color:var(--text)}
+  .st-dest.none{color:var(--text3);font-weight:500;font-style:italic}
+  .st-sub{font-size:10.5px;color:var(--text3);overflow:hidden;text-overflow:ellipsis;max-width:320px}
+  .st-conta{display:inline-flex;align-items:center;gap:6px;color:var(--text2)}
+  .st-conta .d{width:7px;height:7px;border-radius:50%;flex:0 0 auto}
+  .st-cat{background:var(--surface);border:1px solid var(--border2);border-radius:7px;color:var(--text);font-size:11px;font-family:inherit;padding:4px 7px;max-width:190px;cursor:pointer}
+  .st-cat:hover{border-color:var(--border2)}
+  .st-val{font-weight:700;font-variant-numeric:tabular-nums;text-align:right}
+  .st-saldo{font-variant-numeric:tabular-nums;text-align:right;color:var(--text2)}
+  table.statement tr.st-open td, table.statement tr.st-close td{font-weight:700;font-size:11px;text-transform:uppercase;letter-spacing:.5px}
+  table.statement tr.st-open td{background:var(--gold-dim);color:var(--text2)}
+  table.statement tr.st-close td{background:var(--s2);border-top:2px solid var(--border);border-bottom:0}
+  .st-linkbtn{background:none;border:1px solid var(--border2);border-radius:6px;color:var(--text3);font-size:10px;padding:3px 7px;cursor:pointer;display:inline-flex;align-items:center;gap:4px;font-family:inherit}
+  .st-linkbtn:hover{color:var(--text2);border-color:var(--gold)}
+  .st-opts{display:flex;align-items:center;gap:6px;justify-content:flex-end}
+  /* Rodapé "informações da conta" */
+  .conc-foot{margin-top:16px;background:var(--surface);border:1px solid var(--border);border-radius:var(--r-lg);padding:16px 20px;display:flex;align-items:center;gap:24px;flex-wrap:wrap}
+  .conc-foot .cf-title{display:flex;align-items:center;gap:8px;font-size:12px;font-weight:600;color:var(--text2)}
+  .conc-foot .cf-title .material-symbols-outlined{font-size:18px;color:var(--gold)}
+  .conc-foot .cf-tiles{display:flex;gap:28px;flex-wrap:wrap;margin-left:auto}
+  .conc-foot .cf-tile{text-align:right}
+  .conc-foot .cf-l{font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.6px;color:var(--text3)}
+  .conc-foot .cf-v{font-size:17px;font-weight:700;margin-top:3px;font-variant-numeric:tabular-nums}
+  .conc-foot .cf-strong .cf-v{font-size:20px}
+  @media(max-width:900px){.conc-foot{gap:14px}.conc-foot .cf-tiles{gap:16px;margin-left:0}.conc-foot .cf-v{font-size:15px}}
 </style>`;
 
-function concTable(list){
-  if (!list.length) return '<div class="empty"><p>Nenhum movimento</p></div>';
-  const allSel = list.length > 0 && list.every(m => state.concSel[m.id]);
-  const shown = list.slice(0,300);
-  return `${CC_STYLE}
-    <div class="cc-selbar"><input type="checkbox" ${allSel?'checked':''} onchange="toggleSelAll(this.checked)"> Selecionar todos (${list.length})</div>
-    <div class="cc-list">${shown.map(m => concCard(m)).join('')}</div>
-    ${list.length>300?`<div style="text-align:center;color:var(--text3);font-size:11px;padding:8px">Mostrando 300 de ${list.length}. Refine a busca.</div>`:''}`;
+function concStatementTable(s){
+  const showBal = s.hasBalance;
+  const shown = s.visible.slice(0, 400);
+  const allSel = s.visible.length>0 && s.visible.every(m => state.concSel[m.id]);
+  if (!s.periodRows.length) {
+    return `${CC_STYLE}<div class="empty"><span class="material-symbols-outlined">receipt_long</span><h3>Sem movimentos no período</h3><p>Ajuste o período ou a conta.</p></div>`;
+  }
+  const anterior = showBal ? `<tr class="st-open">
+    <td></td><td colspan="4">Saldo Anterior</td><td></td><td class="st-val">—</td><td class="st-saldo">${fmtBRL(s.openingPeriod)}</td><td></td></tr>` : '';
+  const fechamento = showBal ? `<tr class="st-close">
+    <td></td><td colspan="4">Saldo do Período</td><td></td>
+    <td class="st-val money ${s.entradas-s.saidas>=0?'positive':'negative'}">${fmtBRL(s.entradas-s.saidas)}</td>
+    <td class="st-saldo money" style="color:var(--gold)">${fmtBRL(s.closingPeriod)}</td><td></td></tr>` : '';
+  return `${CC_STYLE}<div class="statement-scroll"><table class="statement">
+    <thead><tr>
+      <th class="sel-cell"><input type="checkbox" ${allSel?'checked':''} onchange="toggleSelAll(this.checked)"></th>
+      <th>Situação</th><th>Data</th><th>Cliente / Fornecedor</th><th>Conta</th><th>Categoria</th>
+      <th style="text-align:right">Valor (R$)</th>${showBal?'<th style="text-align:right">Saldo (R$)</th>':''}<th></th>
+    </tr></thead>
+    <tbody>
+      ${anterior}
+      ${shown.map(m => concStatementRow(m, s)).join('')}
+      ${fechamento}
+    </tbody>
+  </table></div>
+  ${s.visible.length>400?`<div style="text-align:center;color:var(--text3);font-size:11px;padding:8px">Mostrando 400 de ${s.visible.length}. Refine o período ou a busca.</div>`:''}`;
 }
 
-function concCard(m){
+function concStatementRow(m, s){
   const st = concStatus(m);
   const meta = CONC_STATUS_META[st];
-  const isEnt = m.tipo==='entrada';
-  const isTransf = m.tipo==='transferencia';
+  const isEnt = m.tipo==='entrada', isTransf = m.tipo==='transferencia';
   const cats = isTransf ? state.categorias.slice() : state.categorias.filter(c => c.tipo===(isEnt?'receita':'despesa'));
   if (m.categoria_id && m.categoria && !cats.some(c => c.id===m.categoria_id)) cats.unshift(m.categoria);
-  const conf = concConfianca(m);
-  const confCor = conf==='alta'?'#6B8F5C':conf==='media'?'#D4A843':conf==='baixa'?'#C0504D':'#888';
-  const cor = isTransf ? '#3B82F6' : isEnt ? '#6B8F5C' : '#C0504D';
-  const cls = isTransf ? 'cc-transf' : isEnt ? 'cc-in' : 'cc-out';
-  const icClass = isTransf ? 'transf' : isEnt ? 'in' : 'out';
-  const icon = isTransf ? 'swap_horiz' : isEnt ? 'south_west' : 'north_east';
-  const sinal = isTransf ? '' : isEnt ? '+ ' : '- ';
-  const catSel = `<select onchange="onConcCatChange('${m.id}', this.value)" style="background:var(--surface);border:1px solid var(--border2);border-radius:6px;color:var(--text);font-size:11px;padding:3px 6px;max-width:200px">
-    <option value="" ${!m.categoria_id?'selected':''}>-- sem categoria --</option>
-    ${cats.map(c => `<option value="${c.id}" ${m.categoria_id===c.id?'selected':''}>${escapeHtml(c.nome)}</option>`).join('')}
-    <option value="__new__">+ Nova categoria...</option>
-  </select>`;
+  const sval = s.signed(m);
+  const valCor = sval>0 ? 'var(--olive)' : sval<0 ? 'var(--red)' : 'var(--text3)';
+  const after = s.afterMap.get(m.id);
   const nome = m.pessoa && m.pessoa.nome;
-  const doc = m.pessoa && m.pessoa.documento;
-  const rot = isTransf ? 'Transferência entre contas' : isEnt ? 'Recebido de' : 'Pago a';
-  const dest = isTransf
-    ? `<span class="cc-rot">Transferência entre contas</span><span class="cc-dest" style="color:#3B82F6">${escapeHtml(nome||'contas próprias / investimento')}</span>`
-    : (nome
-      ? `<span class="cc-rot">${rot}</span><span class="cc-dest">${escapeHtml(nome)}</span>${doc?`<span class="cc-doc">${escapeHtml(doc)}</span>`:''}`
-      : `<span class="cc-dest none">Sem destinatario identificado</span>`);
   const ref = concRef(m);
-  return `<div class="cc ${cls} ${state.concSel[m.id]?'sel':''}">
-    <input class="cc-chk" type="checkbox" ${state.concSel[m.id]?'checked':''} onchange="toggleSel('${m.id}',this.checked)">
-    <div class="cc-ic ${icClass}"><span class="material-symbols-outlined">${icon}</span></div>
-    <div class="cc-main">
-      <div class="cc-top">${dest}</div>
-      <div class="cc-sub" title="${escapeHtml(m.descricao||'')}">${escapeHtml(m.descricao||'--')}</div>
-      ${ref?`<div class="cc-ref">${escapeHtml(ref)}</div>`:''}
-      <div class="cc-badges">
-        <span class="cc-date"><span class="material-symbols-outlined" style="font-size:13px;vertical-align:-2px">event</span> ${fmtDate(m.data)}</span>
-        <span class="cc-origem">${escapeHtml(concOrigem(m))}</span>
-        ${conf?`<span class="chip" style="background:${confCor}22;color:${confCor};font-size:9.5px;padding:1px 6px">conf. ${conf}</span>`:''}
-        ${catSel}
-        ${isTransf
-          ? `<span class="chip" style="background:#3B82F622;color:#3B82F6;font-size:9.5px" title="Não entra no resultado de entradas/saídas"><span class="material-symbols-outlined" style="font-size:12px;vertical-align:-2px">swap_horiz</span> não afeta resultado</span>`
-          : (m.conta_pagar_id||m.conta_receber_id)
-          ? `<span class="chip" style="background:#6B8F5C22;color:#6B8F5C;font-size:9.5px;cursor:pointer" title="Vinculado a um título (baixado). Clique para desvincular." onclick="desvincularTitulo('${m.id}')"><span class="material-symbols-outlined" style="font-size:12px;vertical-align:-2px">link</span> ${m.conta_pagar_id?'conta a pagar':'conta a receber'}</span>`
-          : `<button onclick="openVincularTitulo('${m.id}')" style="background:none;border:1px solid var(--border2);border-radius:6px;color:var(--text2);font-size:10.5px;padding:2px 8px;cursor:pointer;display:inline-flex;align-items:center;gap:4px"><span class="material-symbols-outlined" style="font-size:13px">add_link</span>Vincular título</button>`}
-      </div>
-    </div>
-    <div class="cc-right">
-      <div class="cc-val" style="color:${cor}">${sinal}${fmtBRL(m.valor)}</div>
-      <span class="chip" style="background:${meta.cor}22;color:${meta.cor};cursor:pointer" onclick="cycleConcStatus('${m.id}')" title="Clique para alternar status">${meta.label}</span>
-    </div>
-  </div>`;
+  const catSel = `<select class="st-cat" onchange="onConcCatChange('${m.id}', this.value)">
+    <option value="" ${!m.categoria_id?'selected':''}>— sem categoria —</option>
+    ${cats.map(c => `<option value="${c.id}" ${m.categoria_id===c.id?'selected':''}>${escapeHtml(c.nome)}</option>`).join('')}
+    <option value="__new__">+ Nova categoria…</option>
+  </select>`;
+  const opts = isTransf
+    ? `<span class="chip info" style="font-size:9px" title="Transferência não afeta o resultado"><span class="material-symbols-outlined" style="font-size:11px">swap_horiz</span>transf.</span>`
+    : (m.conta_pagar_id||m.conta_receber_id)
+      ? `<span class="chip success" style="font-size:9px;cursor:pointer" title="Vinculado a um título. Clique para desvincular." onclick="desvincularTitulo('${m.id}')"><span class="material-symbols-outlined" style="font-size:11px">link</span>${m.conta_pagar_id?'a pagar':'a receber'}</span>`
+      : `<button class="st-linkbtn" onclick="openVincularTitulo('${m.id}')"><span class="material-symbols-outlined" style="font-size:12px">add_link</span>Vincular</button>`;
+  return `<tr class="${state.concSel[m.id]?'sel':''}">
+    <td class="sel-cell"><input type="checkbox" ${state.concSel[m.id]?'checked':''} onchange="toggleSel('${m.id}',this.checked)"></td>
+    <td><span class="st-sit" onclick="cycleConcStatus('${m.id}')" title="Clique para alternar a situação"><span class="st-dot" style="background:${meta.cor}"></span>${meta.label}</span></td>
+    <td style="color:var(--text2)">${fmtDate(m.data)}</td>
+    <td>
+      ${nome ? `<span class="st-dest">${escapeHtml(nome)}</span>` : `<span class="st-dest none">Sem contraparte</span>`}
+      ${ref?`<div class="st-sub" title="${escapeHtml(m.descricao||'')}">${escapeHtml(ref)}</div>`:(m.descricao?`<div class="st-sub" title="${escapeHtml(m.descricao)}">${escapeHtml(m.descricao)}</div>`:'')}
+    </td>
+    <td><span class="st-conta"><span class="d" style="background:${m.conta?.cor||'var(--text3)'}"></span>${escapeHtml(m.conta?.nome||'--')}</span></td>
+    <td>${catSel}</td>
+    <td class="st-val" style="color:${valCor}">${sval>0?'+ ':sval<0?'- ':''}${fmtBRL(Math.abs(Number(m.valor||0))).replace('R$','').trim()}</td>
+    ${s.hasBalance?`<td class="st-saldo" style="color:${after>=0?'var(--text)':'var(--red)'}">${fmtBRL(after).replace('R$','').trim()}</td>`:''}
+    <td><div class="st-opts">${opts}</div></td>
+  </tr>`;
 }
 
 // ── Vincular movimento a título (CR/CP) direto do card ──────────────────────
@@ -2410,7 +2500,7 @@ async function desvincularTitulo(movId){
 }
 function toggleSel(id, val){ if(val) state.concSel[id]=true; else delete state.concSel[id]; paintConc(); }
 function toggleSelAll(val){
-  for (const m of concFiltered()){ if(val) state.concSel[m.id]=true; else delete state.concSel[m.id]; }
+  for (const m of concStatement().visible){ if(val) state.concSel[m.id]=true; else delete state.concSel[m.id]; }
   paintConc();
 }
 
