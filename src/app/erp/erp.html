@@ -2408,8 +2408,14 @@ function concCols(showBal){
   ];
   if(showBal){ c.push({k:'saldo', h:'Saldo (R$)', r:true}); c.push({k:'prev', h:'Saldo Previsto (R$)', r:true}); }
   c.push({k:'origem', h:'Origem'});
+  c.push({k:'tipodoc', h:'Tipo de Documento'});
   c.push({k:'documento', h:'Documento'});
+  c.push({k:'nf', h:'Nota Fiscal'});
+  c.push({k:'parcela', h:'Parcela'});
+  c.push({k:'nossonum', h:'Nosso Número'});
+  c.push({k:'vendedor', h:'Vendedor'});
   c.push({k:'centro', h:'Centro de Custo'});
+  c.push({k:'projeto', h:'Projeto'});
   c.push({k:'obs', h:'Observações'});
   c.push({k:'incluido', h:'Incluído em'});
   c.push({k:'opts', h:'Opções'});
@@ -2490,8 +2496,14 @@ function concStatementRow(m, s){
     saldo: `<td class="st-saldo" style="color:${afterCon>=0?'var(--text2)':'var(--red)'}">${fmtBRL(afterCon).replace('R$','').trim()}</td>`,
     prev: `<td class="st-saldo" style="color:${after>=0?'var(--text)':'var(--red)'};font-weight:600">${fmtBRL(after).replace('R$','').trim()}</td>`,
     origem: `<td><span class="chip" style="font-size:9px;background:${sval>0?'var(--olive-bg)':sval<0?'var(--red-bg)':'var(--s3)'};color:${sval>0?'var(--olive)':sval<0?'var(--red)':'var(--text3)'}">${origemTxt}</span></td>`,
+    tipodoc: `<td style="color:var(--text2)">${m.tipo_documento?escapeHtml(m.tipo_documento):'<span style="color:var(--text3)">—</span>'}</td>`,
     documento: `<td style="color:var(--text2);font-variant-numeric:tabular-nums">${m.documento?escapeHtml(m.documento):'<span style="color:var(--text3)">—</span>'}</td>`,
+    nf: `<td style="color:var(--text2);font-variant-numeric:tabular-nums">${m.nota_fiscal?escapeHtml(m.nota_fiscal):'<span style="color:var(--text3)">—</span>'}</td>`,
+    parcela: `<td style="color:var(--text2);font-variant-numeric:tabular-nums">${m.parcela?escapeHtml(m.parcela):'<span style="color:var(--text3)">—</span>'}</td>`,
+    nossonum: `<td style="color:var(--text2);font-variant-numeric:tabular-nums">${m.nosso_numero?escapeHtml(m.nosso_numero):'<span style="color:var(--text3)">—</span>'}</td>`,
+    vendedor: `<td style="color:var(--text2)">${m.vendedor?escapeHtml(m.vendedor):'<span style="color:var(--text3)">—</span>'}</td>`,
     centro: `<td style="color:var(--text2)">${m.centro?escapeHtml(`${m.centro.codigo?m.centro.codigo+' ':''}${m.centro.nome}`):'<span style="color:var(--text3)">—</span>'}</td>`,
+    projeto: `<td style="color:var(--text2)">${m.projeto?escapeHtml(m.projeto):'<span style="color:var(--text3)">—</span>'}</td>`,
     obs: `<td class="st-obs" title="${escapeHtml(m.observacoes||'')}">${m.observacoes?escapeHtml(m.observacoes):'<span style="color:var(--text3)">—</span>'}</td>`,
     incluido: `<td style="color:var(--text3)">${timeAgo(m.created_at)}</td>`,
     opts: `<td>${opts}</td>`,
@@ -2542,7 +2554,17 @@ function openMovEdit(movId){
             <div class="field full"><label>CNPJ / CPF</label><input id="npDoc" placeholder="00.000.000/0000-00"></div>
           </div>
         </div>
+        <div class="field"><label>Tipo de Documento</label>
+          <select id="mvTipoDoc">
+            ${['','Outros','NF-e','NFS-e','Boleto','Recibo','Fatura','Contrato','Duplicata'].map(o=>`<option value="${o}" ${(m.tipo_documento||'')===o?'selected':''}>${o||'—'}</option>`).join('')}
+          </select>
+        </div>
         <div class="field"><label>Documento</label><input id="mvDoc" value="${escapeHtml(m.documento||'')}" placeholder="Nº do documento"></div>
+        <div class="field"><label>Nota Fiscal</label><input id="mvNF" value="${escapeHtml(m.nota_fiscal||'')}" placeholder="Nº da NF"></div>
+        <div class="field"><label>Parcela</label><input id="mvParcela" value="${escapeHtml(m.parcela||'')}" placeholder="ex: 001/012"></div>
+        <div class="field"><label>Nosso Número</label><input id="mvNossoNum" value="${escapeHtml(m.nosso_numero||'')}" placeholder="Nosso número (boleto)"></div>
+        <div class="field"><label>Vendedor</label><input id="mvVendedor" value="${escapeHtml(m.vendedor||'')}" placeholder="Vendedor / responsável"></div>
+        <div class="field"><label>Projeto</label><input id="mvProjeto" value="${escapeHtml(m.projeto||'')}" placeholder="Projeto"></div>
         <div class="field full"><label>Observações</label><textarea id="mvObs">${escapeHtml(m.observacoes||'')}</textarea></div>
       </div>
     </div>
@@ -2583,11 +2605,33 @@ async function saveMovEdit(movId){
       }
     }
     // 2) atualiza o movimento
-    const patch = { pessoa_id: pessoaId, documento: (document.getElementById('mvDoc').value||'').trim(), observacoes: (document.getElementById('mvObs').value||'').trim() };
-    const upd = await api(`/api/erp/movimentos/${movId}`, { method:'PATCH', body:JSON.stringify(patch) });
+    const val = (id) => { const el = document.getElementById(id); return el ? (el.value||'').trim() : ''; };
+    const patch = {
+      pessoa_id: pessoaId,
+      documento: val('mvDoc'),
+      observacoes: val('mvObs'),
+      tipo_documento: val('mvTipoDoc'),
+      nota_fiscal: val('mvNF'),
+      parcela: val('mvParcela'),
+      nosso_numero: val('mvNossoNum'),
+      vendedor: val('mvVendedor'),
+      projeto: val('mvProjeto'),
+    };
+    let saved = false;
+    try {
+      await api(`/api/erp/movimentos/${movId}`, { method:'PATCH', body:JSON.stringify(patch) });
+      saved = true;
+    } catch (err) {
+      // Fallback: se a migration 0045 ainda não rodou nesse ambiente, salva só os campos antigos
+      if (/column|coluna/i.test(err.message)) {
+        await api(`/api/erp/movimentos/${movId}`, { method:'PATCH', body:JSON.stringify({ pessoa_id: pessoaId, documento: patch.documento, observacoes: patch.observacoes }) });
+        toast('Campos extras não salvos (aplicar migration 0045)','info');
+        saved = true;
+      } else { throw err; }
+    }
     // 3) reflete no estado local
     const pes = (state.pessoas||[]).find(p=>p.id===pessoaId) || null;
-    if (m){ m.pessoa_id = pessoaId; m.pessoa = pes; m.documento = patch.documento; m.observacoes = patch.observacoes; }
+    if (m && saved){ m.pessoa_id = pessoaId; m.pessoa = pes; Object.assign(m, patch); }
     closeModal();
     toast('Movimento atualizado','success');
     paintConc();
