@@ -211,6 +211,14 @@ body { background:var(--bg); color:var(--text); font-family:'Inter',-apple-syste
 /* Rodapé de totais */
 .table-foot td { font-weight:700; font-size:12px; background:var(--s2); border-top:2px solid var(--border); color:var(--text); }
 
+/* Paginação */
+.pgn { display:flex; align-items:center; justify-content:flex-end; gap:6px; padding:10px 16px; border-top:1px solid var(--border); font-size:11.5px; color:var(--text3); }
+.pgn .pgn-info { margin-right:auto; }
+.pgn button { background:var(--s2); border:1px solid var(--border); border-radius:7px; color:var(--text2); font-family:inherit; font-size:12px; width:28px; height:26px; cursor:pointer; transition:all .12s; }
+.pgn button:hover:not(:disabled) { color:var(--gold); border-color:var(--gold); }
+.pgn button:disabled { opacity:.35; cursor:default; }
+.pgn .pgn-cur { font-weight:700; color:var(--text); padding:0 6px; font-variant-numeric:tabular-nums; }
+
 /* DASHBOARD — seletor de período (segmented) */
 .period-bar { display:flex; flex-wrap:wrap; gap:8px; align-items:center; margin:0 0 20px; }
 .seg { display:inline-flex; background:var(--s2); border:1px solid var(--border); border-radius:10px; padding:3px; gap:2px; }
@@ -1350,7 +1358,16 @@ async function renderContas(modo) {
     if (grp==='mes') { const v=r.vencimento; if(!v) return '— sem vencimento —'; const d=new Date(v+'T00:00:00'); return d.toLocaleDateString('pt-BR',{month:'long',year:'numeric'}); }
     return '';
   };
-  const nCols = isCP ? 18 : 17;
+  const nCols = isCP ? 19 : 18;
+
+  // ---- paginação (client-side) ----
+  const PAGE_SIZE = 50;
+  state.contasPage = state.contasPage || {};
+  let pageNum = state.contasPage[modo] || 1;
+  const totalPages = Math.max(1, Math.ceil(list.length / PAGE_SIZE));
+  if (pageNum > totalPages) pageNum = totalPages;
+  state.contasPage[modo] = pageNum;
+  const pageList = list.slice((pageNum-1)*PAGE_SIZE, pageNum*PAGE_SIZE);
 
   const rowHtml = (r) => {
     const d = isOpen(r) ? diasAtraso(r.vencimento) : null;
@@ -1385,6 +1402,7 @@ async function renderContas(modo) {
         ${isCP?`<td>${r.centro?`<span class="chip" style="background:#8B5A2B22;color:#C8A96E" title="${escapeHtml(r.centro.nome)}">${escapeHtml(r.centro.codigo||'')} ${escapeHtml(r.centro.nome)}</span>`:na}</td>`:''}
         <td>${r.vendedor?escapeHtml(r.vendedor):na}</td>
         <td>${r.projeto?escapeHtml(r.projeto):na}</td>
+        <td style="max-width:210px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:var(--text2)" title="${escapeHtml(r.observacoes||'')}">${r.observacoes?escapeHtml(r.observacoes):na}</td>
         <td>${r.conta?escapeHtml(r.conta.nome):na}</td>
         <td>
           <div class="row-actions">
@@ -1399,15 +1417,24 @@ async function renderContas(modo) {
   let bodyRows = '';
   if (grp) {
     const groups = new Map();
-    for (const r of list) { const k = grpKey(r); if (!groups.has(k)) groups.set(k, []); groups.get(k).push(r); }
+    for (const r of pageList) { const k = grpKey(r); if (!groups.has(k)) groups.set(k, []); groups.get(k).push(r); }
     for (const [k, rows] of groups) {
       const sub = rows.reduce((s,r)=>s+Number(r.valor||0),0);
       bodyRows += `<tr class="grp-row"><td colspan="${nCols}">${escapeHtml(k)} <small style="color:var(--text3);font-weight:600">· ${rows.length}</small><span class="grp-tot money">${fmtBRL(sub)}</span></td></tr>`;
       bodyRows += rows.map(rowHtml).join('');
     }
   } else {
-    bodyRows = list.map(rowHtml).join('');
+    bodyRows = pageList.map(rowHtml).join('');
   }
+  const pgnBar = totalPages > 1 ? `
+    <div class="pgn">
+      <span class="pgn-info">${(pageNum-1)*PAGE_SIZE+1}–${Math.min(pageNum*PAGE_SIZE,list.length)} de ${list.length} títulos</span>
+      <button ${pageNum<=1?'disabled':''} onclick="contasGoPage('${modo}',1)" title="Primeira">«</button>
+      <button ${pageNum<=1?'disabled':''} onclick="contasGoPage('${modo}',${pageNum-1})" title="Anterior">‹</button>
+      <span class="pgn-cur">${pageNum} / ${totalPages}</span>
+      <button ${pageNum>=totalPages?'disabled':''} onclick="contasGoPage('${modo}',${pageNum+1})" title="Próxima">›</button>
+      <button ${pageNum>=totalPages?'disabled':''} onclick="contasGoPage('${modo}',${totalPages})" title="Última">»</button>
+    </div>` : `<div class="pgn"><span class="pgn-info">${list.length} título${list.length===1?'':'s'}</span></div>`;
 
   const html = `
     <div class="page-header">
@@ -1541,6 +1568,7 @@ async function renderContas(modo) {
             ${isCP?'<th>Centro de Custo</th>':''}
             ${th('vendedor','Vendedor')}
             ${th('projeto','Projeto')}
+            <th>Observações</th>
             <th>Conta Corrente</th>
             <th></th>
           </tr>
@@ -1556,12 +1584,16 @@ async function renderContas(modo) {
           </tr>
         </tfoot>
       </table>
-      </div>`}
+      </div>
+      ${pgnBar}`}
     </div>
   `;
   document.getElementById('page').innerHTML = html;
   renderTituloDrawer(modo);
 }
+
+function contasGoPage(modo, p){ state.contasPage = state.contasPage||{}; state.contasPage[modo] = p; render(); }
+function resetContasPage(){ state.contasPage = {}; }
 
 function statusChip(s) {
   const map = {
@@ -1661,10 +1693,10 @@ async function duplicarTitulo(modo, id){
   } catch(e){ toast(e.message,'error'); }
 }
 
-const onFilterSearch = debounce((v)=>{ state.filters.search = v; render(); }, 350);
-function onFilterStatus(v) { state.filters.status = v; render(); }
-function onFilterCategoria(v) { state.filters.categoria_id = v || ''; render(); }
-function onFilterCentro(v) { state.filters.centro_custo_id = v || ''; render(); }
+const onFilterSearch = debounce((v)=>{ state.filters.search = v; resetContasPage(); render(); }, 350);
+function onFilterStatus(v) { state.filters.status = v; resetContasPage(); render(); }
+function onFilterCategoria(v) { state.filters.categoria_id = v || ''; resetContasPage(); render(); }
+function onFilterCentro(v) { state.filters.centro_custo_id = v || ''; resetContasPage(); render(); }
 function onFilterCentroNome(nome) {
   const c = state.centros.find(x => x.nome === nome);
   if (c) { state.filters.centro_custo_id = c.id; render(); }
@@ -1672,8 +1704,8 @@ function onFilterCentroNome(nome) {
 const onFilterLeilao = debounce((v)=>{ state.filters.leilao = v; render(); }, 350);
 function onFilterDataDe(v) { state.filters.from = v || ''; render(); }
 function onFilterDataAte(v) { state.filters.to = v || ''; render(); }
-function onFilterParceiro(v) { state.filters.parceiro_id = v || ''; render(); }
-function onFilterAging(bucket) { state.filters.aging = (state.filters.aging === bucket) ? '' : bucket; render(); }
+function onFilterParceiro(v) { state.filters.parceiro_id = v || ''; resetContasPage(); render(); }
+function onFilterAging(bucket) { state.filters.aging = (state.filters.aging === bucket) ? '' : bucket; resetContasPage(); render(); }
 function onGroupBy(v) { state.filters.groupBy = v || ''; render(); }
 function sortContas(k) {
   if (state.filters.sort === k) state.filters.sortDir = (state.filters.sortDir === 'asc') ? 'desc' : 'asc';
@@ -1700,6 +1732,7 @@ function limparFiltros() {
   state.filters = {};
   if (gb) state.filters.groupBy = gb; if (s) { state.filters.sort = s; state.filters.sortDir = sd; }
   state.contasSel.clear();
+  resetContasPage();
   render();
 }
 
