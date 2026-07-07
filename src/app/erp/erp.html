@@ -2221,22 +2221,28 @@ function concStatement(){
     if (/saída|saida|débito|debito|envio|pagamento/.test(t)) return -v;
     return v;
   };
+  const isConc = (m) => concStatus(m)==='conciliado';
   const totalSigned = full.reduce((s,m)=>s+signed(m),0);
   const saldoAtual = conta ? Number(conta.saldo_atual||0) : (state.bancos||[]).reduce((s,b)=>s+Number(b.saldo_atual||0),0);
   const opening0 = (conta ? Number(conta.saldo_atual||0) : 0) - totalSigned; // saldo antes do 1º mov carregado
-  const afterMap = new Map();
-  let acc = opening0;
-  for (const m of full){ acc += signed(m); afterMap.set(m.id, acc); }
+  // saldo previsto (todos os movimentos) e saldo conciliado (só conciliados avançam)
+  const afterMap = new Map(), conAfterMap = new Map();
+  let accPrev = opening0, accCon = opening0;
+  for (const m of full){ accPrev += signed(m); afterMap.set(m.id, accPrev); if (isConc(m)) accCon += signed(m); conAfterMap.set(m.id, accCon); }
 
   const p = state.filters.concPeriod || {};
   const from = p.from || '', to = p.to || '';
   const inPeriod = (m) => (!from || m.data>=from) && (!to || m.data<=to);
-  const beforeSum = from ? full.filter(m=>m.data<from).reduce((s,m)=>s+signed(m),0) : 0;
+  const before = from ? full.filter(m=>m.data<from) : [];
+  const beforeSum = before.reduce((s,m)=>s+signed(m),0);
+  const beforeSumCon = before.filter(isConc).reduce((s,m)=>s+signed(m),0);
   const periodRows = full.filter(inPeriod);
-  const openingPeriod = opening0 + beforeSum;
+  const openingPeriod = opening0 + beforeSum;         // previsto
+  const openingPeriodCon = opening0 + beforeSumCon;   // conciliado
   const entradas = periodRows.reduce((s,m)=>{ const x=signed(m); return s+(x>0?x:0); },0);
   const saidas = periodRows.reduce((s,m)=>{ const x=signed(m); return s+(x<0?-x:0); },0);
   const closingPeriod = openingPeriod + (entradas - saidas);
+  const closingPeriodCon = openingPeriodCon + periodRows.filter(isConc).reduce((s,m)=>s+signed(m),0);
 
   const q=(state.filters.busca||'').trim().toLowerCase(), stF=state.filters.status||'', tpF=state.filters.tipoMov||'';
   const visible = periodRows.filter(m=>{
@@ -2249,7 +2255,8 @@ function concStatement(){
   const counts = { pendente:0, classificado:0, conciliado:0 };
   for (const m of periodRows) counts[concStatus(m)]++;
 
-  return { hasBalance, conta, signed, afterMap, visible, periodRows, openingPeriod, closingPeriod,
+  return { hasBalance, conta, signed, afterMap, conAfterMap, visible, periodRows,
+    openingPeriod, closingPeriod, openingPeriodCon, closingPeriodCon,
     entradas, saidas, saldoAtual, saldoConciliado: hasBalance ? opening0 + conciliadoSigned : null, counts };
 }
 
@@ -2352,6 +2359,8 @@ const CC_STYLE = `<style>
   .st-dest{font-weight:600;color:var(--text)}
   .st-dest.none{color:var(--text3);font-weight:500;font-style:italic}
   .st-sub{font-size:10.5px;color:var(--text3);overflow:hidden;text-overflow:ellipsis;max-width:320px}
+  .st-obs{color:var(--text2);max-width:220px;overflow:hidden;text-overflow:ellipsis}
+  table.statement td.st-obs{white-space:nowrap}
   .st-conta{display:inline-flex;align-items:center;gap:6px;color:var(--text2)}
   .st-conta .d{width:7px;height:7px;border-radius:50%;flex:0 0 auto}
   .st-cat{background:var(--surface);border:1px solid var(--border2);border-radius:7px;color:var(--text);font-size:11px;font-family:inherit;padding:4px 7px;max-width:190px;cursor:pointer}
@@ -2376,24 +2385,62 @@ const CC_STYLE = `<style>
   @media(max-width:900px){.conc-foot{gap:14px}.conc-foot .cf-tiles{gap:16px;margin-left:0}.conc-foot .cf-v{font-size:15px}}
 </style>`;
 
+function timeAgo(iso){
+  if(!iso) return '--';
+  const t = new Date(iso).getTime(); if(isNaN(t)) return '--';
+  const diff = Math.floor((Date.now()-t)/1000);
+  if(diff<60) return 'agora há pouco';
+  if(diff<3600) return `${Math.floor(diff/60)} min atrás`;
+  if(diff<86400) return `${Math.floor(diff/3600)} h atrás`;
+  if(diff<2592000) return `${Math.floor(diff/86400)} d atrás`;
+  return fmtDate(iso.slice(0,10));
+}
+// Colunas do extrato completo (estilo Omie). showBal controla as colunas de saldo.
+function concCols(showBal){
+  const c = [
+    {k:'sit',   h:'Situação'},
+    {k:'data',  h:'Data'},
+    {k:'conta', h:'Conta'},
+    {k:'razao', h:'Cliente / Fornecedor'},
+    {k:'doc',   h:'CNPJ / CPF'},
+    {k:'cat',   h:'Categoria'},
+    {k:'valor', h:'Valor (R$)', r:true},
+  ];
+  if(showBal){ c.push({k:'saldo', h:'Saldo (R$)', r:true}); c.push({k:'prev', h:'Saldo Previsto (R$)', r:true}); }
+  c.push({k:'origem', h:'Origem'});
+  c.push({k:'documento', h:'Documento'});
+  c.push({k:'centro', h:'Centro de Custo'});
+  c.push({k:'obs', h:'Observações'});
+  c.push({k:'incluido', h:'Incluído em'});
+  c.push({k:'opts', h:'Opções'});
+  return c;
+}
+
 function concStatementTable(s){
   const showBal = s.hasBalance;
+  const cols = concCols(showBal);
   const shown = s.visible.slice(0, 400);
   const allSel = s.visible.length>0 && s.visible.every(m => state.concSel[m.id]);
   if (!s.periodRows.length) {
     return `${CC_STYLE}<div class="empty"><span class="material-symbols-outlined">receipt_long</span><h3>Sem movimentos no período</h3><p>Ajuste o período ou a conta.</p></div>`;
   }
-  const anterior = showBal ? `<tr class="st-open">
-    <td></td><td colspan="4">Saldo Anterior</td><td></td><td class="st-val">—</td><td class="st-saldo">${fmtBRL(s.openingPeriod)}</td><td></td></tr>` : '';
-  const fechamento = showBal ? `<tr class="st-close">
-    <td></td><td colspan="4">Saldo do Período</td><td></td>
-    <td class="st-val money ${s.entradas-s.saidas>=0?'positive':'negative'}">${fmtBRL(s.entradas-s.saidas)}</td>
-    <td class="st-saldo money" style="color:var(--gold)">${fmtBRL(s.closingPeriod)}</td><td></td></tr>` : '';
+  // linha de resumo (SALDO ANTERIOR / SALDO DO PERÍODO): preenche só valor/saldos
+  const summaryRow = (cls, label, valor, saldoCon, saldoPrev, strong) => {
+    const cells = cols.map(col => {
+      if (col.k==='razao') return `<td>${label}</td>`;
+      if (col.k==='valor') return `<td class="st-val ${valor==null?'':'money'} ${valor>=0?'positive':'negative'}">${valor==null?'—':fmtBRL(valor)}</td>`;
+      if (col.k==='saldo') return `<td class="st-saldo money">${fmtBRL(saldoCon)}</td>`;
+      if (col.k==='prev') return `<td class="st-saldo money" ${strong?'style="color:var(--gold)"':''}>${fmtBRL(saldoPrev)}</td>`;
+      return '<td></td>';
+    }).join('');
+    return `<tr class="${cls}"><td></td>${cells}</tr>`;
+  };
+  const anterior = showBal ? summaryRow('st-open','Saldo Anterior', null, s.openingPeriodCon, s.openingPeriod, false) : '';
+  const fechamento = showBal ? summaryRow('st-close','Saldo do Período', s.entradas-s.saidas, s.closingPeriodCon, s.closingPeriod, true) : '';
   return `${CC_STYLE}<div class="statement-scroll"><table class="statement">
     <thead><tr>
       <th class="sel-cell"><input type="checkbox" ${allSel?'checked':''} onchange="toggleSelAll(this.checked)"></th>
-      <th>Situação</th><th>Data</th><th>Cliente / Fornecedor</th><th>Conta</th><th>Categoria</th>
-      <th style="text-align:right">Valor (R$)</th>${showBal?'<th style="text-align:right">Saldo (R$)</th>':''}<th></th>
+      ${cols.map(c=>`<th ${c.r?'style="text-align:right"':''}>${c.h}</th>`).join('')}
     </tr></thead>
     <tbody>
       ${anterior}
@@ -2412,33 +2459,139 @@ function concStatementRow(m, s){
   if (m.categoria_id && m.categoria && !cats.some(c => c.id===m.categoria_id)) cats.unshift(m.categoria);
   const sval = s.signed(m);
   const valCor = sval>0 ? 'var(--olive)' : sval<0 ? 'var(--red)' : 'var(--text3)';
-  const after = s.afterMap.get(m.id);
-  const nome = m.pessoa && m.pessoa.nome;
+  const after = s.afterMap.get(m.id), afterCon = s.conAfterMap.get(m.id);
+  const razao = (m.pessoa && (m.pessoa.razao_social || m.pessoa.nome)) || '';
+  const doc = (m.pessoa && m.pessoa.documento) || '';
   const ref = concRef(m);
+  const origemTxt = sval>0 ? 'Crédito' : sval<0 ? 'Débito' : '—';
   const catSel = `<select class="st-cat" onchange="onConcCatChange('${m.id}', this.value)">
     <option value="" ${!m.categoria_id?'selected':''}>— sem categoria —</option>
     ${cats.map(c => `<option value="${c.id}" ${m.categoria_id===c.id?'selected':''}>${escapeHtml(c.nome)}</option>`).join('')}
     <option value="__new__">+ Nova categoria…</option>
   </select>`;
-  const opts = isTransf
+  const link = isTransf
     ? `<span class="chip info" style="font-size:9px" title="Transferência não afeta o resultado"><span class="material-symbols-outlined" style="font-size:11px">swap_horiz</span>transf.</span>`
     : (m.conta_pagar_id||m.conta_receber_id)
       ? `<span class="chip success" style="font-size:9px;cursor:pointer" title="Vinculado a um título. Clique para desvincular." onclick="desvincularTitulo('${m.id}')"><span class="material-symbols-outlined" style="font-size:11px">link</span>${m.conta_pagar_id?'a pagar':'a receber'}</span>`
-      : `<button class="st-linkbtn" onclick="openVincularTitulo('${m.id}')"><span class="material-symbols-outlined" style="font-size:12px">add_link</span>Vincular</button>`;
+      : `<button class="st-linkbtn" onclick="openVincularTitulo('${m.id}')" title="Vincular a título"><span class="material-symbols-outlined" style="font-size:12px">add_link</span></button>`;
+  const opts = `<div class="st-opts">
+    <button class="icon-btn" title="Editar / definir cliente-fornecedor" onclick="openMovEdit('${m.id}')"><span class="material-symbols-outlined" style="font-size:15px">edit</span></button>
+    <button class="icon-btn" title="${st==='conciliado'?'Conciliado — clique para reabrir':'Marcar como conciliado'}" onclick="cycleConcStatus('${m.id}')"><span class="material-symbols-outlined" style="font-size:16px;color:${st==='conciliado'?'var(--olive)':'var(--text3)'}">${st==='conciliado'?'check_circle':'radio_button_unchecked'}</span></button>
+    ${link}
+  </div>`;
+  const cell = {
+    sit: `<td><span class="st-sit" onclick="cycleConcStatus('${m.id}')" title="Clique para alternar a situação"><span class="st-dot" style="background:${meta.cor}"></span>${meta.label}</span></td>`,
+    data: `<td style="color:var(--text2)">${fmtDate(m.data)}</td>`,
+    conta: `<td><span class="st-conta"><span class="d" style="background:${m.conta?.cor||'var(--text3)'}"></span>${escapeHtml(m.conta?.nome||'--')}</span></td>`,
+    razao: `<td>${razao ? `<span class="st-dest">${escapeHtml(razao)}</span>` : `<span class="st-dest none" title="${escapeHtml(m.descricao||'')}">${ref?escapeHtml(ref):'— definir —'}</span>`}${(m.descricao&&razao)?`<div class="st-sub" title="${escapeHtml(m.descricao)}">${escapeHtml(concRef(m)||m.descricao)}</div>`:''}</td>`,
+    doc: `<td style="color:var(--text2);font-variant-numeric:tabular-nums">${doc?escapeHtml(doc):'<span style="color:var(--text3)">—</span>'}</td>`,
+    cat: `<td>${catSel}</td>`,
+    valor: `<td class="st-val" style="color:${valCor}">${sval>0?'+ ':sval<0?'- ':''}${fmtBRL(Math.abs(Number(m.valor||0))).replace('R$','').trim()}</td>`,
+    saldo: `<td class="st-saldo" style="color:${afterCon>=0?'var(--text2)':'var(--red)'}">${fmtBRL(afterCon).replace('R$','').trim()}</td>`,
+    prev: `<td class="st-saldo" style="color:${after>=0?'var(--text)':'var(--red)'};font-weight:600">${fmtBRL(after).replace('R$','').trim()}</td>`,
+    origem: `<td><span class="chip" style="font-size:9px;background:${sval>0?'var(--olive-bg)':sval<0?'var(--red-bg)':'var(--s3)'};color:${sval>0?'var(--olive)':sval<0?'var(--red)':'var(--text3)'}">${origemTxt}</span></td>`,
+    documento: `<td style="color:var(--text2);font-variant-numeric:tabular-nums">${m.documento?escapeHtml(m.documento):'<span style="color:var(--text3)">—</span>'}</td>`,
+    centro: `<td style="color:var(--text2)">${m.centro?escapeHtml(`${m.centro.codigo?m.centro.codigo+' ':''}${m.centro.nome}`):'<span style="color:var(--text3)">—</span>'}</td>`,
+    obs: `<td class="st-obs" title="${escapeHtml(m.observacoes||'')}">${m.observacoes?escapeHtml(m.observacoes):'<span style="color:var(--text3)">—</span>'}</td>`,
+    incluido: `<td style="color:var(--text3)">${timeAgo(m.created_at)}</td>`,
+    opts: `<td>${opts}</td>`,
+  };
+  const cols = concCols(s.hasBalance);
   return `<tr class="${state.concSel[m.id]?'sel':''}">
     <td class="sel-cell"><input type="checkbox" ${state.concSel[m.id]?'checked':''} onchange="toggleSel('${m.id}',this.checked)"></td>
-    <td><span class="st-sit" onclick="cycleConcStatus('${m.id}')" title="Clique para alternar a situação"><span class="st-dot" style="background:${meta.cor}"></span>${meta.label}</span></td>
-    <td style="color:var(--text2)">${fmtDate(m.data)}</td>
-    <td>
-      ${nome ? `<span class="st-dest">${escapeHtml(nome)}</span>` : `<span class="st-dest none">Sem contraparte</span>`}
-      ${ref?`<div class="st-sub" title="${escapeHtml(m.descricao||'')}">${escapeHtml(ref)}</div>`:(m.descricao?`<div class="st-sub" title="${escapeHtml(m.descricao)}">${escapeHtml(m.descricao)}</div>`:'')}
-    </td>
-    <td><span class="st-conta"><span class="d" style="background:${m.conta?.cor||'var(--text3)'}"></span>${escapeHtml(m.conta?.nome||'--')}</span></td>
-    <td>${catSel}</td>
-    <td class="st-val" style="color:${valCor}">${sval>0?'+ ':sval<0?'- ':''}${fmtBRL(Math.abs(Number(m.valor||0))).replace('R$','').trim()}</td>
-    ${s.hasBalance?`<td class="st-saldo" style="color:${after>=0?'var(--text)':'var(--red)'}">${fmtBRL(after).replace('R$','').trim()}</td>`:''}
-    <td><div class="st-opts">${opts}</div></td>
+    ${cols.map(c=>cell[c.k]).join('')}
   </tr>`;
+}
+
+// ── Editar movimento: definir/criar cliente-fornecedor, documento, observações ──
+function openMovEdit(movId){
+  const m = concGetMov(movId); if(!m) return;
+  const isEnt = m.tipo==='entrada';
+  const people = (state.pessoas||[]);
+  const html = `
+    <div class="modal-header"><div class="modal-title">Editar movimento</div><button class="icon-btn" onclick="closeModal()"><span class="material-symbols-outlined">close</span></button></div>
+    <div class="modal-body">
+      <div class="card" style="background:var(--s2);margin-bottom:14px">
+        <div style="font-size:13px;font-weight:600">${escapeHtml(m.descricao||'--')}</div>
+        <div style="display:flex;gap:16px;font-size:11px;color:var(--text3);margin-top:4px">
+          <span>${fmtDate(m.data)}</span>
+          <span class="money" style="color:${isEnt?'var(--olive)':'var(--red)'}">${isEnt?'+':'-'} ${fmtBRL(m.valor)}</span>
+          <span>${escapeHtml(m.conta?.nome||'')}</span>
+        </div>
+      </div>
+      <div class="form-grid">
+        <div class="field full">
+          <label>Cliente / Fornecedor</label>
+          <div style="display:flex;gap:8px">
+            <select id="mvPessoa" style="flex:1">
+              <option value="">— sem contraparte —</option>
+              ${people.map(pp=>`<option value="${pp.id}" ${m.pessoa_id===pp.id?'selected':''}>${escapeHtml(pp.razao_social||pp.nome)}${pp.documento?' · '+escapeHtml(pp.documento):''}</option>`).join('')}
+            </select>
+            <button type="button" class="btn btn-sm" onclick="mvToggleNovaPessoa()"><span class="material-symbols-outlined">person_add</span>Novo</button>
+          </div>
+        </div>
+        <div class="field full" id="mvNovaPessoa" style="display:none;background:var(--s2);border:1px dashed var(--border2);border-radius:10px;padding:12px">
+          <div class="form-grid" style="gap:10px">
+            <div class="field"><label>Tipo</label><select id="npTipo"><option value="pj">Pessoa Jurídica (CNPJ)</option><option value="pf">Pessoa Física (CPF)</option></select></div>
+            <div class="field"><label>Papel</label><select id="npPapel">
+              <option value="${isEnt?'cliente':'fornecedor'}" selected>${isEnt?'Cliente':'Fornecedor'}</option>
+              <option value="${isEnt?'fornecedor':'cliente'}">${isEnt?'Fornecedor':'Cliente'}</option>
+              <option value="ambos">Cliente e Fornecedor</option>
+            </select></div>
+            <div class="field full"><label>Nome / Razão Social*</label><input id="npNome" value="${escapeHtml((m.pessoa&&m.pessoa.nome)|| (concRef(m)||''))}"></div>
+            <div class="field full"><label>CNPJ / CPF</label><input id="npDoc" placeholder="00.000.000/0000-00"></div>
+          </div>
+        </div>
+        <div class="field"><label>Documento</label><input id="mvDoc" value="${escapeHtml(m.documento||'')}" placeholder="Nº do documento"></div>
+        <div class="field full"><label>Observações</label><textarea id="mvObs">${escapeHtml(m.observacoes||'')}</textarea></div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn" onclick="closeModal()">Cancelar</button>
+      <button class="btn btn-primary" onclick="saveMovEdit('${movId}')"><span class="material-symbols-outlined">check</span>Salvar</button>
+    </div>`;
+  openModal(html, { wide:true });
+}
+function mvToggleNovaPessoa(){
+  const el = document.getElementById('mvNovaPessoa');
+  const sel = document.getElementById('mvPessoa');
+  if(!el) return;
+  const show = el.style.display==='none';
+  el.style.display = show ? 'block' : 'none';
+  if(show && sel) sel.value = ''; // criar nova => desassocia a seleção
+}
+async function saveMovEdit(movId){
+  const m = concGetMov(movId); if(!m) return;
+  let pessoaId = document.getElementById('mvPessoa').value || null;
+  const novaBox = document.getElementById('mvNovaPessoa');
+  try {
+    // 1) cria pessoa nova se o painel estiver aberto e tiver nome
+    if (novaBox && novaBox.style.display!=='none') {
+      const nome = (document.getElementById('npNome').value||'').trim();
+      if (nome) {
+        const papel = document.getElementById('npPapel').value;
+        const nova = await api('/api/erp/pessoas', { method:'POST', body:JSON.stringify({
+          tipo: document.getElementById('npTipo').value,
+          nome,
+          razao_social: document.getElementById('npTipo').value==='pj' ? nome : '',
+          documento: (document.getElementById('npDoc').value||'').trim(),
+          is_cliente: papel==='cliente'||papel==='ambos',
+          is_fornecedor: papel==='fornecedor'||papel==='ambos',
+        }) });
+        pessoaId = nova.id;
+        state.pessoas = [...(state.pessoas||[]), nova].sort((a,b)=>String(a.nome).localeCompare(String(b.nome),'pt-BR'));
+      }
+    }
+    // 2) atualiza o movimento
+    const patch = { pessoa_id: pessoaId, documento: (document.getElementById('mvDoc').value||'').trim(), observacoes: (document.getElementById('mvObs').value||'').trim() };
+    const upd = await api(`/api/erp/movimentos/${movId}`, { method:'PATCH', body:JSON.stringify(patch) });
+    // 3) reflete no estado local
+    const pes = (state.pessoas||[]).find(p=>p.id===pessoaId) || null;
+    if (m){ m.pessoa_id = pessoaId; m.pessoa = pes; m.documento = patch.documento; m.observacoes = patch.observacoes; }
+    closeModal();
+    toast('Movimento atualizado','success');
+    paintConc();
+  } catch(e){ toast(e.message,'error'); }
 }
 
 // ── Vincular movimento a título (CR/CP) direto do card ──────────────────────
