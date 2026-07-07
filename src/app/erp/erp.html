@@ -211,6 +211,44 @@ body { background:var(--bg); color:var(--text); font-family:'Inter',-apple-syste
 /* Rodapé de totais */
 .table-foot td { font-weight:700; font-size:12px; background:var(--s2); border-top:2px solid var(--border); color:var(--text); }
 
+/* DASHBOARD — seletor de período (segmented) */
+.period-bar { display:flex; flex-wrap:wrap; gap:8px; align-items:center; margin:0 0 20px; }
+.seg { display:inline-flex; background:var(--s2); border:1px solid var(--border); border-radius:10px; padding:3px; gap:2px; }
+.seg button { border:0; background:transparent; color:var(--text3); font-family:inherit; font-size:11.5px; font-weight:600; padding:6px 12px; border-radius:7px; cursor:pointer; transition:all .12s; white-space:nowrap; }
+.seg button:hover { color:var(--text2); }
+.seg button.on { background:var(--surface); color:var(--gold); box-shadow:0 1px 2px rgba(0,0,0,.12); }
+.period-nav { display:inline-flex; align-items:center; gap:4px; }
+.period-label { font-size:12.5px; font-weight:700; color:var(--text); min-width:150px; text-align:center; }
+.period-custom { display:flex; align-items:center; gap:6px; }
+
+/* Chip de variação (delta) */
+.delta { display:inline-flex; align-items:center; gap:3px; font-size:11px; font-weight:700; padding:2px 7px; border-radius:10px; }
+.delta.up { background:var(--olive-bg); color:var(--olive); }
+.delta.down { background:var(--red-bg); color:var(--red); }
+.delta.flat { background:var(--s3); color:var(--text3); }
+.delta .material-symbols-outlined { font-size:13px; }
+
+/* Faixa de 3 estatísticas do período (realizado) */
+.stat-strip { display:grid; grid-template-columns:repeat(3,1fr); gap:14px; margin-bottom:20px; }
+.stat-card { background:var(--surface); border:1px solid var(--border); border-radius:var(--r-lg); padding:16px 18px; }
+.stat-card .sl { font-size:10px; font-weight:700; text-transform:uppercase; letter-spacing:.8px; color:var(--text3); display:flex; align-items:center; gap:6px; }
+.stat-card .sv { font-size:20px; font-weight:700; letter-spacing:-.4px; margin-top:6px; font-variant-numeric:tabular-nums; }
+.stat-card .sm { font-size:11px; color:var(--text3); margin-top:5px; display:flex; align-items:center; gap:7px; }
+
+/* Barras horizontais por categoria */
+.cat-bar { padding:8px 0; border-bottom:1px solid var(--border); }
+.cat-bar:last-child { border-bottom:0; }
+.cat-bar .cb-top { display:flex; justify-content:space-between; align-items:baseline; font-size:12px; margin-bottom:5px; }
+.cat-bar .cb-name { color:var(--text); font-weight:600; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; max-width:62%; }
+.cat-bar .cb-val { color:var(--text2); font-weight:700; font-variant-numeric:tabular-nums; }
+.cat-bar .cb-track { height:7px; background:var(--s3); border-radius:5px; overflow:hidden; }
+.cat-bar .cb-fill { height:100%; border-radius:5px; }
+
+@media (max-width:900px) {
+  .stat-strip { grid-template-columns:1fr; gap:10px; }
+  .period-label { min-width:120px; font-size:11.5px; }
+}
+
 /* MODAL */
 .modal-backdrop { position:fixed; inset:0; background:rgba(0,0,0,0.6); backdrop-filter:blur(4px); z-index:200; display:none; align-items:center; justify-content:center; padding:24px; }
 .modal-backdrop.show { display:flex; }
@@ -725,7 +763,7 @@ function lineChart(serie, opts={}) {
   serie.forEach((s, i) => {
     if (i % stepLabel === 0 || i === serie.length - 1) {
       const x = pad.l + i * xStep;
-      svg += `<text x="${x}" y="${h-10}" text-anchor="middle" font-size="9" fill="#666">${fmtDateShort(s.data)}</text>`;
+      svg += `<text x="${x}" y="${h-10}" text-anchor="middle" font-size="9" fill="#666">${escapeHtml(s.label || fmtDateShort(s.data))}</text>`;
     }
   });
 
@@ -784,13 +822,86 @@ function barChart(items, opts={}) {
 /* ==========================================================================
    PAGE: DASHBOARD
    ========================================================================== */
+/* ---- período do dashboard (mês/trimestre/semestre/ano/30d/90d/custom) ---- */
+function dashCompute(preset, cursorIso) {
+  const c = new Date(cursorIso + 'T00:00:00');
+  const y = c.getFullYear(), m = c.getMonth();
+  const L = (dt) => new Date(dt.getTime() - dt.getTimezoneOffset()*60000).toISOString().slice(0,10);
+  let from, to;
+  if (preset === 'trimestre') { const q = Math.floor(m/3); from = L(new Date(y,q*3,1)); to = L(new Date(y,q*3+3,0)); }
+  else if (preset === 'semestre') { const h = m<6?0:6; from = L(new Date(y,h,1)); to = L(new Date(y,h+6,0)); }
+  else if (preset === 'ano') { from = L(new Date(y,0,1)); to = L(new Date(y,11,31)); }
+  else if (preset === '30d') { to = cursorIso; const f = new Date(c); f.setDate(f.getDate()-29); from = L(f); }
+  else if (preset === '90d') { to = cursorIso; const f = new Date(c); f.setDate(f.getDate()-89); from = L(f); }
+  else { preset = 'mes'; from = L(new Date(y,m,1)); to = L(new Date(y,m+1,0)); }
+  return { preset, cursor: cursorIso, from, to };
+}
+function dashSetPreset(preset) { state.dashPeriod = dashCompute(preset, today()); renderDashboard(); }
+function dashShift(dir) {
+  const p = state.dashPeriod;
+  if (p.preset === 'custom') {
+    const len = Math.round((new Date(p.to+'T00:00:00') - new Date(p.from+'T00:00:00'))/86400000) + 1;
+    const nf = new Date(p.from+'T00:00:00'); nf.setDate(nf.getDate()+len*dir);
+    const nt = new Date(p.to+'T00:00:00'); nt.setDate(nt.getDate()+len*dir);
+    const L = (dt)=>new Date(dt.getTime()-dt.getTimezoneOffset()*60000).toISOString().slice(0,10);
+    state.dashPeriod = { preset:'custom', cursor:L(nf), from:L(nf), to:L(nt) };
+  } else {
+    const c = new Date(p.cursor+'T00:00:00');
+    if (p.preset === 'mes') c.setMonth(c.getMonth()+dir);
+    else if (p.preset === 'trimestre') c.setMonth(c.getMonth()+3*dir);
+    else if (p.preset === 'semestre') c.setMonth(c.getMonth()+6*dir);
+    else if (p.preset === 'ano') c.setFullYear(c.getFullYear()+dir);
+    else if (p.preset === '30d') c.setDate(c.getDate()+30*dir);
+    else if (p.preset === '90d') c.setDate(c.getDate()+90*dir);
+    state.dashPeriod = dashCompute(p.preset, new Date(c.getTime()-c.getTimezoneOffset()*60000).toISOString().slice(0,10));
+  }
+  renderDashboard();
+}
+function dashCustom(which, val) {
+  if (!val) return;
+  const p = state.dashPeriod;
+  const from = which==='from' ? val : p.from;
+  const to = which==='to' ? val : p.to;
+  if (from > to) { toast('Data inicial maior que a final','error'); return; }
+  state.dashPeriod = { preset:'custom', cursor:from, from, to };
+  renderDashboard();
+}
+function dashPeriodLabel(p) {
+  const c = new Date(p.cursor+'T00:00:00'), y = c.getFullYear();
+  if (p.preset === 'mes') { const s = c.toLocaleDateString('pt-BR',{month:'long',year:'numeric'}); return s.charAt(0).toUpperCase()+s.slice(1); }
+  if (p.preset === 'trimestre') return 'T'+(Math.floor(c.getMonth()/3)+1)+' · '+y;
+  if (p.preset === 'semestre') return 'S'+(c.getMonth()<6?1:2)+' · '+y;
+  if (p.preset === 'ano') return ''+y;
+  return fmtDateShort(p.from)+' – '+fmtDateShort(p.to);
+}
+function deltaChip(cur, prev, opts={}) {
+  if (!prev && !cur) return `<span class="delta flat"><span class="material-symbols-outlined">remove</span>—</span>`;
+  const pct = prev !== 0 ? ((cur-prev)/Math.abs(prev))*100 : (cur>0?100:0);
+  const r = Math.round(pct);
+  let good = cur >= prev; if (opts.invert) good = cur <= prev;
+  const cls = r===0 ? 'flat' : (good ? 'up' : 'down');
+  const ico = r>0 ? 'arrow_upward' : r<0 ? 'arrow_downward' : 'remove';
+  return `<span class="delta ${cls}" title="vs período anterior"><span class="material-symbols-outlined">${ico}</span>${Math.abs(r)}%</span>`;
+}
+function catBars(items) {
+  if (!items || !items.length) return '<div class="empty" style="padding:20px"><span class="material-symbols-outlined">insights</span><p>Sem movimentação no período</p></div>';
+  const max = Math.max(...items.map(i=>Number(i.valor||0))) || 1;
+  return items.map(i => `
+    <div class="cat-bar">
+      <div class="cb-top"><span class="cb-name" title="${escapeHtml(i.nome)}">${escapeHtml(i.nome)}</span><span class="cb-val money">${fmtBRL(i.valor)}</span></div>
+      <div class="cb-track"><div class="cb-fill" style="width:${Math.max(3,(Number(i.valor||0)/max)*100)}%;background:${i.cor||'#8892a0'}"></div></div>
+    </div>`).join('');
+}
+
 async function renderDashboard() {
-  const d = await api('/api/erp/dashboard');
+  const p = state.dashPeriod || (state.dashPeriod = dashCompute('mes', today()));
+  const d = await api(`/api/erp/dashboard?from=${p.from}&to=${p.to}`);
   state.dashboard = d;
+  const presets = [['mes','Mês'],['trimestre','Trimestre'],['semestre','Semestre'],['ano','Ano'],['30d','30 dias'],['90d','90 dias']];
   const html = `
     <div class="page-header">
       <div>
-        <div class="page-title">Dashboard <small>visao financeira</small></div>
+        <div class="page-title">Dashboard <small>visão financeira</small></div>
       </div>
       <div class="page-actions">
         <button class="btn" onclick="navigate('fluxo')"><span class="material-symbols-outlined">show_chart</span>Fluxo Detalhado</button>
@@ -798,12 +909,29 @@ async function renderDashboard() {
       </div>
     </div>
 
+    <div class="period-bar">
+      <div class="seg">
+        ${presets.map(([k,l])=>`<button class="${p.preset===k?'on':''}" onclick="dashSetPreset('${k}')">${l}</button>`).join('')}
+      </div>
+      <div class="period-nav">
+        <button class="icon-btn" title="Período anterior" onclick="dashShift(-1)"><span class="material-symbols-outlined">chevron_left</span></button>
+        <span class="period-label">${dashPeriodLabel(p)}</span>
+        <button class="icon-btn" title="Próximo período" onclick="dashShift(1)"><span class="material-symbols-outlined">chevron_right</span></button>
+      </div>
+      <div class="period-custom">
+        <input type="date" class="table-filter" value="${p.from}" onchange="dashCustom('from',this.value)" title="Data inicial">
+        <span style="color:var(--text3)">–</span>
+        <input type="date" class="table-filter" value="${p.to}" onchange="dashCustom('to',this.value)" title="Data final">
+      </div>
+      <div style="margin-left:auto;font-size:11px;color:var(--text3)">${d.periodo.dias} dias · comparado ao período anterior</div>
+    </div>
+
     <div class="kpi-grid">
       <div class="kpi success">
         <div class="kpi-icon"><span class="material-symbols-outlined">account_balance_wallet</span></div>
         <div class="kpi-label">Saldo em Bancos</div>
         <div class="kpi-value money positive">${fmtBRL(d.saldo_total_bancos)}</div>
-        <div class="kpi-sub">${d.bancos.length} contas ativas</div>
+        <div class="kpi-sub">${d.bancos.length} contas ativas · hoje</div>
       </div>
       <div class="kpi danger">
         <div class="kpi-icon"><span class="material-symbols-outlined">trending_down</span></div>
@@ -819,31 +947,49 @@ async function renderDashboard() {
       </div>
       <div class="kpi warn">
         <div class="kpi-icon"><span class="material-symbols-outlined">insights</span></div>
-        <div class="kpi-label">Resultado do Mes</div>
-        <div class="kpi-value money ${d.resultado_mes>=0?'positive':'negative'}">${fmtBRL(d.resultado_mes)}</div>
-        <div class="kpi-sub">Previsto: ${fmtBRL(d.previsao_mes_entrada)} - ${fmtBRL(d.previsao_mes_saida)}</div>
+        <div class="kpi-label">Resultado do Período</div>
+        <div class="kpi-value money ${d.resultado>=0?'positive':'negative'}">${fmtBRL(d.resultado)}</div>
+        <div class="kpi-sub">${deltaChip(d.resultado, d.prev.resultado)} realizado (caixa)</div>
+      </div>
+    </div>
+
+    <div class="stat-strip">
+      <div class="stat-card">
+        <div class="sl"><span class="material-symbols-outlined" style="font-size:14px;color:var(--olive)">south_west</span>Entradas realizadas</div>
+        <div class="sv money positive">${fmtBRL(d.entradas)}</div>
+        <div class="sm">${deltaChip(d.entradas, d.prev.entradas)} · previsto ${fmtBRL(d.previsto_entrada)}</div>
+      </div>
+      <div class="stat-card">
+        <div class="sl"><span class="material-symbols-outlined" style="font-size:14px;color:var(--red)">north_east</span>Saídas realizadas</div>
+        <div class="sv money negative">${fmtBRL(d.saidas)}</div>
+        <div class="sm">${deltaChip(d.saidas, d.prev.saidas, {invert:true})} · previsto ${fmtBRL(d.previsto_saida)}</div>
+      </div>
+      <div class="stat-card">
+        <div class="sl"><span class="material-symbols-outlined" style="font-size:14px;color:var(--gold)">event_upcoming</span>Resultado previsto</div>
+        <div class="sv money ${d.previsto_resultado>=0?'positive':'negative'}">${fmtBRL(d.previsto_resultado)}</div>
+        <div class="sm">títulos com vencimento no período</div>
       </div>
     </div>
 
     <div class="grid-row">
       <div class="chart-wrap">
         <div class="chart-header">
-          <div class="chart-title">Movimentacao Bancaria - Ultimos 30 dias</div>
+          <div class="chart-title">Movimentação de Caixa · ${escapeHtml(dashPeriodLabel(p))}</div>
           <div style="display:flex;gap:14px;font-size:11px;color:var(--text3)">
-            <span><span style="display:inline-block;width:8px;height:8px;background:#6B8F5C;border-radius:2px;margin-right:6px"></span>Entradas: ${fmtBRL(d.realizado_30_entradas)}</span>
-            <span><span style="display:inline-block;width:8px;height:8px;background:#C0504D;border-radius:2px;margin-right:6px"></span>Saidas: ${fmtBRL(d.realizado_30_saidas)}</span>
+            <span><span style="display:inline-block;width:8px;height:8px;background:#6B8F5C;border-radius:2px;margin-right:6px"></span>Entradas: ${fmtBRL(d.entradas)}</span>
+            <span><span style="display:inline-block;width:8px;height:8px;background:#C0504D;border-radius:2px;margin-right:6px"></span>Saídas: ${fmtBRL(d.saidas)}</span>
           </div>
         </div>
         <div class="chart-canvas">
-          ${lineChart(d.serie_30d, { series:[
+          ${lineChart(d.serie, { series:[
             { key:'entrada', color:'#6B8F5C', label:'Entradas', fill:true },
-            { key:'saida', color:'#C0504D', label:'Saidas', fill:true },
+            { key:'saida', color:'#C0504D', label:'Saídas', fill:true },
           ] })}
         </div>
       </div>
 
       <div class="card">
-        <div class="card-title"><span class="material-symbols-outlined">account_balance</span>Contas Bancarias</div>
+        <div class="card-title"><span class="material-symbols-outlined">account_balance</span>Contas Bancárias</div>
         ${d.bancos.length ? d.bancos.map(b => `
           <div style="display:flex;justify-content:space-between;padding:10px 0;border-bottom:1px solid var(--border)">
             <div>
@@ -858,18 +1004,29 @@ async function renderDashboard() {
 
     <div class="grid-row" style="grid-template-columns:1fr 1fr">
       <div class="card">
-        <div class="card-title"><span class="material-symbols-outlined">payments</span>Pagamentos do Periodo (30d)</div>
+        <div class="card-title"><span class="material-symbols-outlined">savings</span>Receitas por Categoria <span style="margin-left:auto;color:var(--olive);font-weight:700">${fmtBRL(d.entradas)}</span></div>
+        ${catBars(d.top_receitas)}
+      </div>
+      <div class="card">
+        <div class="card-title"><span class="material-symbols-outlined">shopping_cart</span>Despesas por Categoria <span style="margin-left:auto;color:var(--red);font-weight:700">${fmtBRL(d.saidas)}</span></div>
+        ${catBars(d.top_despesas)}
+      </div>
+    </div>
+
+    <div class="grid-row" style="grid-template-columns:1fr 1fr">
+      <div class="card">
+        <div class="card-title"><span class="material-symbols-outlined">payments</span>Pagamentos no Período</div>
         <div style="display:flex;align-items:baseline;gap:8px;margin-top:6px">
-          <div style="font-size:24px;font-weight:700">${fmtBRL(d.paid_30d)}</div>
-          <div style="font-size:11px;color:var(--text3)">pagos nos ultimos 30 dias</div>
+          <div style="font-size:24px;font-weight:700" class="money">${fmtBRL(d.pago_periodo)}</div>
+          <div style="font-size:11px;color:var(--text3)">baixados em ${dashPeriodLabel(p)}</div>
         </div>
         <button class="btn btn-ghost btn-sm" style="margin-top:14px" onclick="navigate('cp')">Ver contas a pagar</button>
       </div>
       <div class="card">
-        <div class="card-title"><span class="material-symbols-outlined">request_quote</span>Recebimentos do Periodo (30d)</div>
+        <div class="card-title"><span class="material-symbols-outlined">request_quote</span>Recebimentos no Período</div>
         <div style="display:flex;align-items:baseline;gap:8px;margin-top:6px">
-          <div style="font-size:24px;font-weight:700">${fmtBRL(d.received_30d)}</div>
-          <div style="font-size:11px;color:var(--text3)">recebidos nos ultimos 30 dias</div>
+          <div style="font-size:24px;font-weight:700" class="money">${fmtBRL(d.recebido_periodo)}</div>
+          <div style="font-size:11px;color:var(--text3)">baixados em ${dashPeriodLabel(p)}</div>
         </div>
         <button class="btn btn-ghost btn-sm" style="margin-top:14px" onclick="navigate('cr')">Ver contas a receber</button>
       </div>
