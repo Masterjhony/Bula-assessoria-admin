@@ -233,29 +233,46 @@ function shouldComputeMql(data: Partial<CRMLead>): boolean {
     );
 }
 
+// PostgREST corta qualquer consulta em 1000 linhas por padrão. Com a base de
+// leads passando de 1000 (import da Base Unificada), buscar sem paginar
+// esconderia silenciosamente o excedente — a tela mostrava "1000" e o módulo
+// Clientes cruzava só os 1000 primeiros. Este helper pagina por .range() até
+// esvaziar, trazendo TODAS as linhas. columns permite trazer só o necessário.
+const PAGE = 1000;
+export async function fetchAllLeadRows<T = CRMLead>(
+    build: (from: number, to: number) => PromiseLike<{ data: T[] | null; error: { message: string } | null }>,
+): Promise<T[]> {
+    const all: T[] = [];
+    for (let from = 0; ; from += PAGE) {
+        const { data, error } = await build(from, from + PAGE - 1);
+        if (error) {
+            console.error('Error fetching CRM leads (paginado):', error.message);
+            break;
+        }
+        const rows = data ?? [];
+        all.push(...rows);
+        if (rows.length < PAGE) break;
+    }
+    return all;
+}
+
 export async function getLeads(funnelId?: string): Promise<CRMLead[]> {
     const supabase = await createClient();
 
     // Leads arquivados ficam de fora de todas as telas operacionais — só aparecem
     // na aba "Arquivados" (getArchivedLeads).
-    let query = supabase
-        .from('crm_leads')
-        .select('*')
-        .eq('arquivado', false)
-        .order('position', { ascending: true });
+    const data = await fetchAllLeadRows<CRMLead>((from, to) => {
+        let query = supabase
+            .from('crm_leads')
+            .select('*')
+            .eq('arquivado', false)
+            .order('position', { ascending: true })
+            .range(from, to);
+        if (funnelId) query = query.eq('funnel_id', funnelId);
+        return query;
+    });
 
-    if (funnelId) {
-        query = query.eq('funnel_id', funnelId);
-    }
-
-    const { data, error } = await query;
-
-    if (error) {
-        console.error('Error fetching CRM leads:', error);
-        return [];
-    }
-
-    return normalizeLeadRows(data as CRMLead[]);
+    return normalizeLeadRows(data);
 }
 
 /** Leads arquivados (soft-delete), mais recentes primeiro. Usado pela aba "Arquivados". */

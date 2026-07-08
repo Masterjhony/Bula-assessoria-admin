@@ -163,15 +163,28 @@ const totalDe = (c: Cliente) => c.compras.reduce((s, x) => s + x.valor, 0)
 export async function getClientes(): Promise<Cliente[]> {
   const supabase = await createClient()
 
+  // O cruzamento comprador→lead precisa varrer TODOS os leads (não só os 1000
+  // primeiros do teto do PostgREST) — senão, com a base grande, o enriquecimento
+  // por nome só encontraria os leads antigos. Paginado por .range().
+  const LEAD_COLS = 'id, nome, empresa, telefone, celular, email, status, temperatura, prioridade, interesse, o_que_busca, cidade, estado, data_estimada_fechamento, contact_history, cpf, inscricao_estadual, tem_inscricao_estadual, score_serasa, pendencias_financeiras, momento_pecuaria, operacao_pecuaria'
+  const fetchAllLeads = async (): Promise<LeadRow[]> => {
+    const out: LeadRow[] = []
+    for (let from = 0; ; from += 1000) {
+      const { data, error } = await supabase
+        .from('crm_leads').select(LEAD_COLS).eq('arquivado', false).range(from, from + 999)
+      if (error) { console.warn('[clientes] leads paginado:', error.message); break }
+      const rows = (data ?? []) as LeadRow[]
+      out.push(...rows)
+      if (rows.length < 1000) break
+    }
+    return out
+  }
   const [fechRes, leadsRes] = await Promise.all([
     supabase
       .from('bula_leilao_fechamento')
       .select('id, nome, data, compradores')
       .order('data', { ascending: false }),
-    supabase
-      .from('crm_leads')
-      .select('id, nome, empresa, telefone, celular, email, status, temperatura, prioridade, interesse, o_que_busca, cidade, estado, data_estimada_fechamento, contact_history, cpf, inscricao_estadual, tem_inscricao_estadual, score_serasa, pendencias_financeiras, momento_pecuaria, operacao_pecuaria')
-      .eq('arquivado', false),
+    fetchAllLeads().then((data) => ({ data, error: null })),
   ])
 
   if (fechRes.error) {
