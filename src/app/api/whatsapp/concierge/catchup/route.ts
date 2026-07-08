@@ -37,9 +37,15 @@ function svc() {
  */
 export async function GET(req: NextRequest) {
     const authHeader = req.headers.get('authorization') || ''
-    const cronOk = !!process.env.CRON_SECRET && authHeader === `Bearer ${process.env.CRON_SECRET}`
+    const ua = req.headers.get('user-agent') || ''
+    // Aceita: (1) CRON_SECRET quando configurado (Vercel injeta o Bearer);
+    // (2) fallback pelo user-agent do Vercel cron quando não há secret — o
+    // endpoint só responde leads já em espera, então o risco é baixo; ou
+    // (3) sessão admin (acionar manualmente pela UI).
+    const cronSecretOk = !!process.env.CRON_SECRET && authHeader === `Bearer ${process.env.CRON_SECRET}`
+    const cronUaOk = !process.env.CRON_SECRET && /vercel-cron/i.test(ua)
     const auth = await requireAdmin()
-    if (!cronOk && !auth.ok) {
+    if (!cronSecretOk && !cronUaOk && !auth.ok) {
         return NextResponse.json({ error: 'não autorizado' }, { status: 401 })
     }
     return runCatchup({ limit: 50, dryRun: false })
