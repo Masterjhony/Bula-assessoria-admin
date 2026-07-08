@@ -386,13 +386,31 @@ export async function handleLeiloeiraGroupMessage(
                 const texto = decision === 'aprovado'
                     ? `Boa notícia${nome ? `, ${nome}` : ''}! 🎉 Seu cadastro na *${leiloeira.nome}* foi *aprovado*. Você já está habilitado a comprar parcelado nos leilões. Qualquer dúvida, é só me chamar por aqui!`
                     : `Olá${nome ? `, ${nome}` : ''}! Tivemos um retorno da ${leiloeira.nome} sobre o seu cadastro e precisamos alinhar alguns detalhes com você. Nossa equipe já vai te chamar por aqui, tudo bem?`
-                const r = await sendOutbound(supabase, {
+                let r = await sendOutbound(supabase, {
                     to: { phone, leadId: lead.id, name: lead.nome },
                     text: texto,
                     intent: 'crm_reply', // canal do cliente = API oficial (política do gateway)
                     origin: 'cadastro-leiloeira',
                 })
                 clienteAvisado = r.status === 'sent' || r.status === 'queued'
+                // A aprovação da leiloeira costuma vir DIAS depois da conversa →
+                // janela de 24h fechada e o texto livre é retido pelo gateway.
+                // Reabre com template UTILITY aprovado (o aviso não pode esperar
+                // o lead escrever de novo).
+                if (!clienteAvisado && r.reason === 'outside_24h_needs_template') {
+                    const tpl = decision === 'aprovado'
+                        ? { templateName: 'cadastro_leiloeira_aprovado', templateParams: [nome || clienteNome, leiloeira.nome] }
+                        : { templateName: 'retomada_atendimento', templateParams: [nome || clienteNome, `o seu cadastro na ${leiloeira.nome}`] }
+                    r = await sendOutbound(supabase, {
+                        to: { phone, leadId: lead.id, name: lead.nome },
+                        text: texto, // corpo renderizado só para o log/inbox
+                        ...tpl,
+                        templateLanguage: 'pt_BR',
+                        intent: 'crm_reply',
+                        origin: 'cadastro-leiloeira',
+                    })
+                    clienteAvisado = r.status === 'sent' || r.status === 'queued'
+                }
             }
         }
     }
