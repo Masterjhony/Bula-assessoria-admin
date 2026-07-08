@@ -156,6 +156,34 @@ const brl0 = (n: number) =>
 
 const totalDe = (c: Cliente) => c.compras.reduce((s, x) => s + x.valor, 0)
 
+// Tokens distintivos do nome do leilão (ignora genéricos) — usados para saber se
+// uma compra de fechamento já está representada no histórico manual do assessor.
+const LEILAO_STOP = new Set([
+  'leilao', 'virtual', 'nelore', 'touros', 'matrizes', 'femeas', 'machos', 'gado',
+  'edicao', 'especial', 'provados', 'provadas', 'remate', 'venda', 'fazenda', 'faz',
+  'anos', 'origem', 'na', 'de', 'do', 'da', 'e', 'os', 'as', '2026', '2025',
+])
+function leilaoTokens(nome?: string): string[] {
+  return String(nome || '').normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase()
+    .split(/[^a-z0-9]+/).filter((t) => t.length >= 4 && !LEILAO_STOP.has(t))
+}
+/**
+ * Mescla compras do fechamento com as reportadas pelo assessor (per-lote, mais
+ * ricas): mantém TODAS as manuais e adiciona só compras de fechamento cujo
+ * leilão ainda não aparece no histórico manual. Evita esconder o detalhado e
+ * evita contar a mesma compra duas vezes.
+ */
+function mergeCompras(fechamento: CompraHist[], manuais: CompraHist[]): CompraHist[] {
+  if (!manuais.length) return fechamento
+  const cobertos = new Set<string>()
+  for (const m of manuais) for (const t of leilaoTokens(m.leilao)) cobertos.add(t)
+  const extra = fechamento.filter((f) => {
+    const toks = leilaoTokens(f.leilao)
+    return toks.length === 0 || !toks.some((t) => cobertos.has(t))
+  })
+  return [...manuais, ...extra]
+}
+
 /** Compras reportadas pelo assessor (clientes.compras_manuais) → CompraHist[]. */
 function asComprasManuais(v: unknown): CompraHist[] {
   if (!Array.isArray(v)) return []
@@ -367,9 +395,12 @@ export async function getClientes(): Promise<Cliente[]> {
     const linkedLead = row.crm_lead_id ? leadById.get(row.crm_lead_id) : undefined
 
     if (existing) {
-      // overlay: dados manuais não-vazios vencem; compras/derivados preservados
+      // overlay: dados manuais não-vazios vencem; compras/derivados preservados.
+      // Compras: mescla o detalhado do assessor com os leilões de fechamento
+      // ainda não cobertos (não esconde histórico nem duplica).
       byKey.set(key, {
         ...existing,
+        compras: mergeCompras(existing.compras, asComprasManuais(row.compras_manuais)),
         nome: row.nome || existing.nome,
         responsavel: row.responsavel || existing.responsavel,
         telefone: (row.telefone || existing.telefone || '').trim(),
