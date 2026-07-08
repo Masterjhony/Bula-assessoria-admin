@@ -30,13 +30,16 @@ async function run(req: NextRequest) {
     if (!authorized(req)) {
         return NextResponse.json({ error: 'unauthorized' }, { status: 401 })
     }
-    const group = new URL(req.url).searchParams.get('group')?.trim() || undefined
+    const url = new URL(req.url)
+    const group = url.searchParams.get('group')?.trim() || undefined
+    const daysRaw = Number(url.searchParams.get('days'))
+    const days = Number.isFinite(daysRaw) && daysRaw > 0 ? daysRaw : undefined
 
     const supabase = createClient(
         process.env.NEXT_PUBLIC_SUPABASE_URL!,
         process.env.SUPABASE_SERVICE_ROLE_KEY!,
     )
-    const result = await sendCrmDailyDigest(supabase, { groupId: group })
+    const result = await sendCrmDailyDigest(supabase, { groupId: group, days })
     return NextResponse.json({ ok: result.sent, reason: result.reason, stats: result.stats })
 }
 

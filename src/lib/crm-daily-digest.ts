@@ -55,8 +55,17 @@ export interface DailyDigestStats {
     aguardandoLista: { nome: string; status: string }[]
 }
 
-export async function buildCrmDailyDigest(supabase: SupabaseClient): Promise<{ text: string; stats: DailyDigestStats }> {
-    const { iso: start, label } = todayStart()
+export async function buildCrmDailyDigest(
+    supabase: SupabaseClient,
+    opts: { days?: number } = {},
+): Promise<{ text: string; stats: DailyDigestStats }> {
+    // Janela: 1 dia (padrão, "resumo do dia") ou N dias (testes / retrospecto).
+    const days = Math.max(1, Math.min(30, Math.round(opts.days ?? 1)))
+    const today = todayStart()
+    const start = days === 1
+        ? today.iso
+        : new Date(new Date(today.iso).getTime() - (days - 1) * 86_400_000).toISOString()
+    const label = days === 1 ? today.label : `últimos ${days} dias (até ${today.label})`
 
     // ── Mensagens de hoje (conversas de cliente) ──
     const { data: msgs } = await supabase
@@ -147,7 +156,7 @@ export async function buildCrmDailyDigest(supabase: SupabaseClient): Promise<{ t
         : ''
     const f = (k: string) => funil[k] ?? 0
     const linhas = [
-        `🌇 *Resumo do dia — CRM/WhatsApp* · ${label}`,
+        `🌇 *Resumo ${days === 1 ? 'do dia' : 'do período'} — CRM/WhatsApp* · ${label}`,
         '',
         '*Movimento*',
         `• Leads novos: ${stats.novosLeads}`,
@@ -156,12 +165,12 @@ export async function buildCrmDailyDigest(supabase: SupabaseClient): Promise<{ t
         `• Aguardando resposta agora: ${stats.aguardandoAgora}`,
         `• Pediram humano: ${stats.handoffs} · Opt-out: ${stats.optouts}`,
         '',
-        '*Funil (quem conversou hoje)*',
+        `*Funil (quem conversou no ${days === 1 ? 'dia' : 'período'})*`,
         `• ${CRM_STAGE_ENTRY}: ${f(CRM_STAGE_ENTRY)} · ${CRM_STAGE_CONNECTION}: ${f(CRM_STAGE_CONNECTION)} · ${CRM_STAGE_QUALIFICATION}: ${f(CRM_STAGE_QUALIFICATION)}`,
         `• ${CRM_STAGE_INFO_CAPTURED}: ${f(CRM_STAGE_INFO_CAPTURED)} · ${CRM_STAGE_REGISTRATION}: ${f(CRM_STAGE_REGISTRATION)} · ${CRM_STAGE_LOST}: ${f(CRM_STAGE_LOST)}`,
         '',
         '*Habilitação & cadastro*',
-        `• Checklists completos hoje: ${stats.checklistsCompletos}`,
+        `• Checklists completos: ${stats.checklistsCompletos}`,
         `• Fichas enviadas às leiloeiras: ${stats.fichasEnviadas}`,
         `• Decisões: ${stats.aprovados} aprovada(s) · ${stats.recusados} recusada(s)`,
     ]
@@ -181,9 +190,9 @@ export async function buildCrmDailyDigest(supabase: SupabaseClient): Promise<{ t
  */
 export async function sendCrmDailyDigest(
     supabase: SupabaseClient,
-    opts: { groupId?: string } = {},
+    opts: { groupId?: string; days?: number } = {},
 ): Promise<{ sent: boolean; reason?: string; stats: DailyDigestStats }> {
-    const { text, stats } = await buildCrmDailyDigest(supabase)
+    const { text, stats } = await buildCrmDailyDigest(supabase, { days: opts.days })
     if (opts.groupId) {
         const r = await sendVpsGroup(opts.groupId, text)
         return { sent: r.queued, reason: r.error, stats }
