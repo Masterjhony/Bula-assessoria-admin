@@ -889,6 +889,139 @@ export async function syncBulaLeadsToPerpetuoTab(): Promise<{
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
+// Aba por campanha: "Leads EAO" (só os leads da campanha EAO, layout limpo).
+//
+// Espelho ADICIONAL e independente do PERPETUO: lê a mesma bruta ("Cópia de
+// LEADS BULA"), filtra as linhas do Meta cujo campaign_id é o da campanha EAO e
+// as escreve numa aba dedicada, em colunas legíveis. Não altera em nada o
+// PERPETUO nem a leitura do CRM — é só uma "vista" organizada por campanha.
+// Append-only e idempotente pelo Lead ID (rodar de novo nunca duplica).
+// ─────────────────────────────────────────────────────────────────────────────
+
+export const LEADS_EAO_TAB = 'Leads EAO'
+/** Campanha "LEADS - FORMS INST EAO" (conta CA2 - Bula 360). */
+const EAO_CAMPAIGN_ID = '120249047242270708'
+
+// Cabeçalho limpo — só o que interessa pra operação da campanha (sem o dump cru
+// de metadados do Meta que existe no PERPETUO).
+const EAO_HEADER = [
+  'Data', 'Nome', 'E-mail', 'WhatsApp', 'UF', 'Cidade', 'Momento', 'Cabeças',
+  'Inscrição Estadual', 'Interesse', 'Qtd. desejada', 'Lead ID', 'Campanha', 'Anúncio',
+] as const
+
+/** Monta a linha da aba "Leads EAO" alinhada ao cabeçalho REAL (resolve por nome). */
+function buildEaoRow(p: RawMetaLead, header: string[]): string[] {
+  const interesse = META_INTERESSE.get(p.interesse.toLowerCase()) || p.interesse
+  const noun = META_NOUN.get(interesse) || ''
+  const qtdBase = META_QTD.get(p.qtd)
+  const testPrefix = isMetaTestLead(p) ? '[TESTE META] ' : ''
+  const values = new Map<string, string>([
+    ['data', fmtDate(new Date(p.created))],
+    ['nome', testPrefix + p.fullName],
+    ['email', p.email],
+    ['whatsapp', metaPhoneToWhatsApp(p.phone)],
+    ['uf', metaStateToUF(p.state)],
+    ['cidade', ''],
+    ['momento', META_MOMENTO.get(p.momento.toLowerCase()) || p.momento],
+    ['cabecas', META_CABECAS.get(p.cabecas) || p.cabecas],
+    ['inscricaoestadual', p.temIe ? (p.temIe.toLowerCase() === 'sim' ? 'Sim' : 'Não') : ''],
+    ['interesse', interesse],
+    ['qtddesejada', qtdBase ? `${qtdBase}${noun ? ' ' + noun : ''}` : p.qtd],
+    ['leadid', p.id],
+    ['campanha', p.campaignName],
+    ['anuncio', p.adName],
+  ])
+  return header.map(h => values.get(normalizeHeaderText(h)) ?? '')
+}
+
+/**
+ * Espelha os leads da campanha EAO (da bruta "Cópia de LEADS BULA") para a aba
+ * dedicada "Leads EAO", em layout limpo. Cria a aba/cabeçalho se faltarem. Só
+ * ACRESCENTA o que ainda não está lá (idempotente pelo Lead ID do Meta), nunca
+ * reescreve linha existente. Best-effort: auth/planilha ausente degrada pra
+ * no-op; erro de Sheets sobe para o cron logar. Não toca no PERPETUO.
+ */
+export async function syncEaoLeadsToTab(): Promise<{
+  appended: number; total: number; skipped: number; reason?: string
+}> {
+  const info = await getStoredInfo()
+  if (!info) return { appended: 0, total: 0, skipped: 0, reason: 'not_provisioned' }
+  const auth = getAuth()
+  if (!auth) return { appended: 0, total: 0, skipped: 0, reason: 'no_credentials' }
+
+  const sheets = google.sheets({ version: 'v4', auth })
+  const meta = await sheets.spreadsheets.get({ spreadsheetId: info.spreadsheetId, includeGridData: false })
+  const titles = (meta.data.sheets ?? []).map(s => s.properties?.title)
+  if (!titles.includes(LEADS_BULA_TAB)) return { appended: 0, total: 0, skipped: 0, reason: 'source_tab_missing' }
+
+  // Fonte: mesma bruta que alimenta o PERPETUO.
+  const srcAll = ((await sheets.spreadsheets.values.get({
+    spreadsheetId: info.spreadsheetId,
+    range: `${LEADS_BULA_TAB}!A1:${columnName(HEADER_READ_COLUMNS)}`,
+  })).data.values ?? []) as string[][]
+  const srcRows = srcAll.slice(1).filter(r => r.some(c => String(c ?? '').trim()))
+
+  // Garante a aba de destino + cabeçalho (só escreve o header se estiver vazio).
+  if (!titles.includes(LEADS_EAO_TAB)) {
+    await sheets.spreadsheets.batchUpdate({
+      spreadsheetId: info.spreadsheetId,
+      requestBody: { requests: [{ addSheet: { properties: { title: LEADS_EAO_TAB } } }] },
+    })
+  }
+  let header = await readHeaderRow(sheets, info.spreadsheetId, LEADS_EAO_TAB)
+  if (!header.some(Boolean)) {
+    header = [...EAO_HEADER]
+    await sheets.spreadsheets.values.update({
+      spreadsheetId: info.spreadsheetId,
+      range: `${LEADS_EAO_TAB}!A1:${columnName(header.length)}1`,
+      valueInputOption: 'RAW',
+      requestBody: { values: [header] },
+    })
+  }
+
+  // Idempotência: Lead IDs já presentes na aba.
+  const idCol = header.map(normalizeHeaderText).indexOf('leadid')
+  const dstRows = ((await sheets.spreadsheets.values.get({
+    spreadsheetId: info.spreadsheetId,
+    range: `${LEADS_EAO_TAB}!A2:${columnName(header.length)}`,
+  })).data.values ?? []) as string[][]
+  const seen = new Set<string>()
+  for (const r of dstRows) {
+    const id = idCol >= 0 ? String(r[idCol] ?? '').trim() : ''
+    if (id) seen.add(id)
+  }
+
+  // Só as linhas do Meta cuja campanha é a EAO, ainda não espelhadas.
+  const fresh: string[][] = []
+  let total = 0
+  for (const raw of srcRows) {
+    const p = parseRawMetaLead(raw)
+    if (!p || p.campaignId !== EAO_CAMPAIGN_ID) continue
+    total++
+    if (p.id && seen.has(p.id)) continue
+    if (p.id) seen.add(p.id)
+    fresh.push(buildEaoRow(p, header))
+  }
+  if (!fresh.length) return { appended: 0, total, skipped: total }
+
+  const sheetId = await getTabSheetId(sheets, info.spreadsheetId, LEADS_EAO_TAB)
+  await sheets.spreadsheets.batchUpdate({
+    spreadsheetId: info.spreadsheetId,
+    requestBody: {
+      requests: [{
+        appendCells: {
+          sheetId,
+          rows: fresh.map(r => ({ values: r.map(v => ({ userEnteredValue: { stringValue: String(v ?? '') } })) })),
+          fields: 'userEnteredValue',
+        },
+      }],
+    },
+  })
+  console.log(`[jmp-sheets] Leads EAO: ${fresh.length} lead(s) novos espelhados (de ${total} na bruta)`)
+  return { appended: fresh.length, total, skipped: total - fresh.length }
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
 // Leitura das CORES de fundo da aba "Leads JMP" + da aba "Cadastro JMP".
 //
 // A equipe pinta a linha de cada lead conforme o estágio do atendimento:

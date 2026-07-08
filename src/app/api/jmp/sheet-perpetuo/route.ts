@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { syncBulaLeadsToPerpetuoTab } from '@/lib/jmp-sheets'
+import { syncBulaLeadsToPerpetuoTab, syncEaoLeadsToTab } from '@/lib/jmp-sheets'
 
 export const maxDuration = 60
 
@@ -24,7 +24,12 @@ async function run(req: NextRequest) {
   }
   try {
     const result = await syncBulaLeadsToPerpetuoTab()
-    return NextResponse.json({ ok: true, ...result })
+    // Aba dedicada da campanha EAO — best-effort para nunca derrubar o PERPETUO.
+    const eao = await syncEaoLeadsToTab().catch(e => {
+      console.error('[sheet-perpetuo] Leads EAO falhou:', e instanceof Error ? e.message : e)
+      return { appended: 0, total: 0, skipped: 0, reason: 'error' as const }
+    })
+    return NextResponse.json({ ok: true, ...result, eao })
   } catch (e) {
     // Sem isso o cron só vê "500" e o erro real fica escondido nos logs.
     const message = e instanceof Error ? e.message : String(e)

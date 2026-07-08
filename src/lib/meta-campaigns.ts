@@ -36,27 +36,47 @@ export interface MetaCampaignsSnapshot {
 
 export const META_CAMPAIGNS: MetaCampaignsSnapshot = {
     // Métricas de entrega (spend/impressões/alcance/cliques/ctr/cpc/cpm) puxadas
-    // ao vivo do conector da Meta em 28/06/2026 (date_preset=maximum). Leads/MQL/
+    // ao vivo do conector da Meta em 08/07/2026 (date_preset=maximum). Leads/MQL/
     // interesses são do último cruzamento por formulário/planilha — por isso o CPL
     // (= spend ÷ leads) usa o investimento atual sobre essa contagem de leads.
-    updatedAt: '2026-06-28',
+    updatedAt: '2026-07-08',
     account: 'CA2 - Bula 360',
     campaigns: [
         {
+            // Campanha nova (subiu 08/07) — ainda sem leads (form) no início da
+            // veiculação; leads/MQL/interesses aparecem quando o formulário
+            // começar a converter e cruzar por campaign_id na planilha PERPETUO.
+            id: '120249047242270708',
+            name: 'LEADS - FORMS INST EAO',
+            status: 'ACTIVE',
+            start: '2026-07-08',
+            spend: 32.15,
+            leads: 0,
+            mql: 0,
+            impressions: 2426,
+            reach: 2244,
+            clicks: 13,
+            ctr: 0.54,
+            cpc: 2.47,
+            cpm: 13.25,
+            cpl: 0,
+            interesses: [],
+        },
+        {
             id: '120248414742440708',
             name: 'LEADS - FORMS INST MAGDA Macho',
-            status: 'ACTIVE',
+            status: 'PAUSED',
             start: '2026-06-23',
-            spend: 1198.74,
+            spend: 1223.30,
             leads: 357,
             mql: 12,
-            impressions: 127343,
-            reach: 87476,
-            clicks: 2901,
-            ctr: 2.27,
+            impressions: 130199,
+            reach: 88753,
+            clicks: 2978,
+            ctr: 2.29,
             cpc: 0.41,
             cpm: 9.40,
-            cpl: 3.36,
+            cpl: 3.43,
             interesses: [
                 { label: 'Bezerras P.O.', n: 42 },
                 { label: 'Não sei ainda', n: 42 },
