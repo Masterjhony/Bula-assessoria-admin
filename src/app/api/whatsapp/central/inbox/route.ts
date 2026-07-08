@@ -99,18 +99,28 @@ export async function GET(req: NextRequest) {
     }
 
     const phones = [...byPhone.keys()]
-    // O CRM guarda o número em telefone OU celular e em formatos variados
-    // ("5522981080075", "(22) 98108-0075", sem DDI...) — casamos por TODAS as
-    // variantes de cada conversa, nas duas colunas, senão a conversa aparece
-    // "sem lead vinculado" mesmo com o lead na base.
-    const variantsByPhone = new Map<string, string[]>()
-    for (const p of phones) variantsByPhone.set(p, phoneVariants(p))
-    const allVariants = [...new Set([...variantsByPhone.values()].flat())]
-    const inList = `(${allVariants.map(v => `"${v}"`).join(',')})`
-    const { data: leads } = allVariants.length ? await supabase
-        .from('crm_leads')
-        .select('id, nome, telefone, celular, created_at, interesse_principal, handoff_humano, handoff_responsavel, optout_whatsapp, stage, status')
-        .or(`telefone.in.${inList},celular.in.${inList}`) : { data: [] }
+    // O CRM casa por telefone OU celular. O banco guarda o número CANÔNICO
+    // (só dígitos com DDI — backfill de 08/07), então bastam as variantes
+    // NUMÉRICAS (com/sem 55, com/sem nono dígito). Em LOTES: uma única query
+    // com centenas de conversas × variantes estourava a URL do PostgREST e a
+    // lista ficava carregando pra sempre.
+    const allVariants = [...new Set(
+        phones.flatMap(p => phoneVariants(p).filter(v => /^\d+$/.test(v))),
+    )]
+    const LEAD_COLS = 'id, nome, telefone, celular, created_at, interesse_principal, handoff_humano, handoff_responsavel, optout_whatsapp, stage, status'
+    const CHUNK = 200
+    const chunks: string[][] = []
+    for (let i = 0; i < allVariants.length; i += CHUNK) chunks.push(allVariants.slice(i, i + CHUNK))
+    const results = await Promise.all(chunks.flatMap(chunk => [
+        supabase.from('crm_leads').select(LEAD_COLS).in('telefone', chunk),
+        supabase.from('crm_leads').select(LEAD_COLS).in('celular', chunk),
+    ]))
+    const seen = new Set<string>()
+    const leads = results.flatMap(r => r.data ?? []).filter(l => {
+        if (seen.has(l.id)) return false
+        seen.add(l.id)
+        return true
+    })
 
     // Indexa o lead por todas as variantes do número dele (lead mais antigo
     // vence — é o original quando há duplicata).
