@@ -43,7 +43,7 @@ type ClienteRow = {
   cidade: string | null; uf: string | null; perfil: string | null; status: string | null
   recorrente: boolean | null; interesses: unknown; tags: unknown
   observacoes: string | null; preferencias: string | null
-  preferencias_categorias: unknown
+  preferencias_categorias: unknown; compras_manuais: unknown
   proximo_followup: string | null; crm_lead_id: string | null
   cpf: string | null; inscricao_estadual: string | null; tem_inscricao_estadual: string | null
   score_credito: number | null; score_faixa: string | null; score_consultado_at: string | null
@@ -155,6 +155,25 @@ const brl0 = (n: number) =>
   new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL', maximumFractionDigits: 0 }).format(n)
 
 const totalDe = (c: Cliente) => c.compras.reduce((s, x) => s + x.valor, 0)
+
+/** Compras reportadas pelo assessor (clientes.compras_manuais) → CompraHist[]. */
+function asComprasManuais(v: unknown): CompraHist[] {
+  if (!Array.isArray(v)) return []
+  const cats: Interesse[] = ['Sêmen', 'Embriões', 'Touros', 'Matrizes', 'Leilões']
+  return v.map((raw, i) => {
+    const o = (raw && typeof raw === 'object' ? raw : {}) as Record<string, unknown>
+    const categoria = cats.includes(o.categoria as Interesse) ? (o.categoria as Interesse) : 'Leilões'
+    return {
+      id: String(o.id ?? `manual-${i}`),
+      data: String(o.data ?? '').slice(0, 10),
+      descricao: String(o.descricao ?? 'Compra'),
+      leilao: o.leilao ? String(o.leilao) : undefined,
+      categoria,
+      cabecas: Number(o.cabecas) || undefined,
+      valor: Number(o.valor) || 0,
+    }
+  }).filter((x) => x.valor > 0 || x.leilao)
+}
 
 /**
  * Lista unificada de clientes: compradores dos fechamentos + CRM + cadastros
@@ -388,7 +407,8 @@ export async function getClientes(): Promise<Cliente[]> {
         preferencias: row.preferencias || undefined,
         preferenciasCategorias: asPrefCats(row.preferencias_categorias),
         proximoFollowup: row.proximo_followup ? String(row.proximo_followup).slice(0, 10) : undefined,
-        compras: [],
+        // Cliente sem fechamento: mostra as compras reportadas pelo assessor.
+        compras: asComprasManuais(row.compras_manuais),
         interacoes: mapLeadInteracoes(lead),
         crmLeadId: row.crm_lead_id || lead?.id,
         matchKey: key,

@@ -40,7 +40,10 @@ const normalizePhone = (v) => {
 }
 const nameKey = (v) => String(v ?? '').normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase().replace(/[^a-z0-9]+/g, ' ').trim()
 const firstEmail = (v) => String(v || '').trim().split(/[\s,;]+/).filter(x => x.includes('@'))[0] || ''
-const titleCase = (v) => String(v || '').trim().toLowerCase().replace(/\b\p{L}/gu, c => c.toUpperCase())
+// \b trata letras acentuadas como fronteira e geraria "JosÉ"/"GalvÃo"; capitaliza
+// só a 1ª letra de cada palavra (início ou após separador).
+const titleCase = (v) => String(v || '').trim().toLowerCase()
+  .replace(/(^|[\s\-'/().])(\p{L})/gu, (_, sep, ch) => sep + ch.toUpperCase())
 
 // ORIGEM crua -> tag curta + rótulo legível
 function origemTag(raw) {

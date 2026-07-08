@@ -33,7 +33,10 @@ const normalizePhone = (v) => {
   return d
 }
 const nameKey = (v) => String(v ?? '').normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase().replace(/[^a-z0-9]+/g, ' ').trim()
-const titleCase = (v) => String(v || '').trim().toLowerCase().replace(/\b\p{L}/gu, c => c.toUpperCase())
+// \b trata letras acentuadas como fronteira e geraria "JosÉ"/"GalvÃo"; capitaliza
+// só a 1ª letra de cada palavra (início ou após separador).
+const titleCase = (v) => String(v || '').trim().toLowerCase()
+  .replace(/(^|[\s\-'/().])(\p{L})/gu, (_, sep, ch) => sep + ch.toUpperCase())
 
 // Etiquetas entre parênteses ((GA), (PLP), (EAO), (Prod.)...) = marcadores de lista.
 function extractLabels(...names) {
