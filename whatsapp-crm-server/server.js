@@ -212,11 +212,62 @@ function extractText(msg) {
   ).trim()
 }
 
+/** contextInfo da mensagem (onde mora a citação), independente do tipo. */
+function extractContextInfo(msg) {
+  const m = msg.message
+  if (!m) return null
+  return (
+    m.extendedTextMessage?.contextInfo ||
+    m.imageMessage?.contextInfo ||
+    m.videoMessage?.contextInfo ||
+    m.documentMessage?.contextInfo ||
+    null
+  )
+}
+
+/**
+ * Mensagem recebida num GRUPO → encaminha ao Next (/api/whatsapp/group-inbound).
+ * Usado pelas automações de grupo (ex.: aprovação de cadastro nos grupos das
+ * leiloeiras). O Next decide se o grupo interessa; aqui só encaminhamos texto
+ * de terceiros (nunca o que nós mesmos enviamos — evita loop).
+ */
+async function handleGroupInbound(msg) {
+  if (!INBOUND_ENABLED) return
+  const jid = msg.key?.remoteJid || ''
+  if (msg.key?.fromMe) return
+  if (!jid.endsWith('@g.us')) return
+
+  const text = extractText(msg)
+  if (!text) return
+
+  const ctx = extractContextInfo(msg)
+  const quoted = ctx?.quotedMessage ? extractText({ message: ctx.quotedMessage }) : ''
+
+  try {
+    await fetch(`${NEXT_API_URL}/api/whatsapp/group-inbound`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'x-webhook-secret': WEBHOOK_SECRET },
+      body: JSON.stringify({
+        group_jid: jid,
+        participant: msg.key?.participant || '',
+        name: msg.pushName || '',
+        body: text,
+        quoted_body: quoted,
+        message_id: msg.key?.id,
+      }),
+      signal: AbortSignal.timeout(25000),
+    })
+  } catch (error) {
+    console.error('[crm-whatsapp] group-inbound webhook falhou:', error.message)
+  }
+}
+
 async function handleInbound(msg) {
   if (!INBOUND_ENABLED) return
   const jid = msg.key?.remoteJid || ''
-  // Só conversa individual (ignora grupos, status, broadcast) e nada que eu enviei.
+  // Grupos têm rota própria; aqui só conversa individual, e nada que eu enviei.
   if (msg.key?.fromMe) return
+  if (jid.endsWith('@g.us')) return handleGroupInbound(msg)
   if (!jid.endsWith('@s.whatsapp.net')) return
 
   const text = extractText(msg)

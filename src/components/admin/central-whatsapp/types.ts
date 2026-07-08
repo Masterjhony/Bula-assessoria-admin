@@ -9,6 +9,8 @@ export interface InboxConversation {
     last_direction: 'inbound' | 'outbound' | null
     last_at: string
     inbound_pending: number
+    /** Último canal usado: 'cloud' (API oficial, cliente) | 'baileys' (nº próprio). */
+    channel: 'cloud' | 'baileys' | null
     lead_id: string | null
     lead_nome: string | null
     interesse_principal: string | null

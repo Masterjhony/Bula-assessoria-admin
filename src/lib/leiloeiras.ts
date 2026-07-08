@@ -17,6 +17,10 @@ export interface Leiloeira {
   nome: string
   emailCadastro: string
   contato: string
+  /** JID do grupo de cadastros no WhatsApp (Baileys), ex.: 120363...@g.us. */
+  whatsappGroupId: string
+  /** Nome do grupo (exibição). */
+  whatsappGroupName: string
   requisitos: LeiloeiraRequisitos
   observacoes: string
   ativo: boolean

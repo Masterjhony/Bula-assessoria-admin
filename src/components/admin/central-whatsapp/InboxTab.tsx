@@ -130,6 +130,28 @@ const FILTERS: { id: Filter; label: string }[] = [
     { id: "optout", label: "Opt-out" },
 ]
 
+type ChannelFilter = "todos" | "cloud" | "baileys"
+
+const CHANNEL_FILTERS: { id: ChannelFilter; label: string }[] = [
+    { id: "todos", label: "Todos os canais" },
+    { id: "cloud", label: "API oficial" },
+    { id: "baileys", label: "Baileys" },
+]
+
+/** Badge do canal de transporte da conversa (API oficial × Baileys). */
+function ChannelBadge({ channel }: { channel: "cloud" | "baileys" | null }) {
+    if (!channel) return null
+    return channel === "cloud" ? (
+        <span className="text-[10px] px-1.5 py-0.5 rounded-full bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20">
+            API oficial
+        </span>
+    ) : (
+        <span className="text-[10px] px-1.5 py-0.5 rounded-full bg-amber-500/10 text-amber-600 dark:text-amber-400 border border-amber-500/20">
+            Baileys
+        </span>
+    )
+}
+
 function timeAgo(dateStr: string) {
     const diff = Date.now() - new Date(dateStr).getTime()
     const m = Math.floor(diff / 60000)
@@ -239,6 +261,7 @@ export function InboxTab({ templates, channel = "oficial" }: { templates: Templa
     // No canal Baileys não existe janela de 24h nem template: texto livre sempre.
     const officialMode = channel === "oficial"
     const [filter, setFilter] = useState<Filter>("todos")
+    const [channelFilter, setChannelFilter] = useState<ChannelFilter>("todos")
     const [search, setSearch] = useState("")
     const [conversations, setConversations] = useState<InboxConversation[]>([])
     const [loadingList, setLoadingList] = useState(true)
@@ -280,6 +303,7 @@ export function InboxTab({ templates, channel = "oficial" }: { templates: Templa
         try {
             const params = new URLSearchParams()
             if (filter !== "todos") params.set("filter", filter)
+            if (channelFilter !== "todos") params.set("channel", channelFilter)
             if (search.trim()) params.set("q", search.trim())
             const res = await fetch(`/api/whatsapp/central/inbox?${params}`)
             const data = await res.json()
@@ -367,7 +391,7 @@ export function InboxTab({ templates, channel = "oficial" }: { templates: Templa
         }
     }
 
-    useEffect(() => { fetchInbox() }, [filter])
+    useEffect(() => { fetchInbox() }, [filter, channelFilter])
     useEffect(() => {
         const t = setTimeout(fetchInbox, 300)
         return () => clearTimeout(t)
@@ -375,7 +399,7 @@ export function InboxTab({ templates, channel = "oficial" }: { templates: Templa
     useEffect(() => {
         const i = setInterval(fetchInbox, 30000)
         return () => clearInterval(i)
-    }, [filter, search])
+    }, [filter, channelFilter, search])
     useEffect(() => {
         // Ao trocar de conversa, recarrega a thread e volta para a aba Detalhes.
         setLeadTab("detalhes")
@@ -513,6 +537,22 @@ export function InboxTab({ templates, channel = "oficial" }: { templates: Templa
                             </button>
                         ))}
                     </div>
+                    {/* Divisão de canal: API oficial = cliente; Baileys = nº próprio/legado */}
+                    <div className="flex flex-wrap gap-1">
+                        {CHANNEL_FILTERS.map(f => (
+                            <button
+                                key={f.id}
+                                onClick={() => setChannelFilter(f.id)}
+                                className={`text-[11px] px-2 py-1 rounded-full border transition-colors ${
+                                    channelFilter === f.id
+                                        ? "bg-sky-600 text-white border-transparent"
+                                        : "text-muted-foreground hover:bg-muted"
+                                }`}
+                            >
+                                {f.label}
+                            </button>
+                        ))}
+                    </div>
                 </div>
 
                 <div className="flex-1 overflow-y-auto divide-y">
@@ -553,8 +593,11 @@ export function InboxTab({ templates, channel = "oficial" }: { templates: Templa
                                         {c.last_message ?? "—"}
                                     </p>
                                     <div className="flex items-center justify-between gap-1 mt-1.5">
-                                        <span className={`text-[10px] px-1.5 py-0.5 rounded-full font-medium ${st.cls}`}>
-                                            {st.label}
+                                        <span className="flex items-center gap-1">
+                                            <span className={`text-[10px] px-1.5 py-0.5 rounded-full font-medium ${st.cls}`}>
+                                                {st.label}
+                                            </span>
+                                            <ChannelBadge channel={c.channel} />
                                         </span>
                                         <div className="flex items-center gap-1">
                                             {c.interesse_principal && (

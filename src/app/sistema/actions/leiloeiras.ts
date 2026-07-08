@@ -9,8 +9,12 @@ import {
 
 type LeiloeiraRow = {
   id: string; nome: string; email_cadastro: string | null; contato: string | null
+  whatsapp_group_id: string | null; whatsapp_group_name: string | null
   requisitos: unknown; observacoes: string | null; ativo: boolean | null; created_at: string | null
 }
+
+const LEILOEIRA_COLS =
+  'id, nome, email_cadastro, contato, whatsapp_group_id, whatsapp_group_name, requisitos, observacoes, ativo, created_at'
 
 function mapLeiloeira(r: LeiloeiraRow): Leiloeira {
   return {
@@ -18,6 +22,8 @@ function mapLeiloeira(r: LeiloeiraRow): Leiloeira {
     nome: r.nome,
     emailCadastro: r.email_cadastro || '',
     contato: r.contato || '',
+    whatsappGroupId: r.whatsapp_group_id || '',
+    whatsappGroupName: r.whatsapp_group_name || '',
     requisitos: coerceRequisitos(r.requisitos),
     observacoes: r.observacoes || '',
     ativo: r.ativo !== false,
@@ -29,7 +35,7 @@ export async function getLeiloeiras(): Promise<Leiloeira[]> {
   const supabase = await createClient()
   const { data, error } = await supabase
     .from('leiloeiras')
-    .select('id, nome, email_cadastro, contato, requisitos, observacoes, ativo, created_at')
+    .select(LEILOEIRA_COLS)
     .order('nome', { ascending: true })
   if (error) {
     console.warn('[leiloeiras] tabela indisponível:', error.message)
@@ -43,6 +49,8 @@ export interface LeiloeiraInput {
   nome: string
   emailCadastro?: string
   contato?: string
+  whatsappGroupId?: string
+  whatsappGroupName?: string
   requisitos?: { requireIe?: boolean; scoreMin?: number; documentos?: string[] }
   observacoes?: string
   ativo?: boolean
@@ -56,6 +64,8 @@ export async function saveLeiloeira(input: LeiloeiraInput): Promise<Leiloeira> {
     nome: input.nome.trim(),
     email_cadastro: (input.emailCadastro ?? '').trim(),
     contato: (input.contato ?? '').trim(),
+    whatsapp_group_id: (input.whatsappGroupId ?? '').trim(),
+    whatsapp_group_name: (input.whatsappGroupName ?? '').trim(),
     requisitos: coerceRequisitos(input.requisitos),
     observacoes: (input.observacoes ?? '').trim(),
     ativo: input.ativo ?? true,
@@ -66,7 +76,7 @@ export async function saveLeiloeira(input: LeiloeiraInput): Promise<Leiloeira> {
     : supabase.from('leiloeiras').insert(payload)
 
   const { data, error } = await query
-    .select('id, nome, email_cadastro, contato, requisitos, observacoes, ativo, created_at')
+    .select(LEILOEIRA_COLS)
     .single()
   if (error) throw new Error(`Erro ao salvar leiloeira: ${error.message}`)
   revalidatePath('/sistema/clientes/cadastro-leiloeiras')

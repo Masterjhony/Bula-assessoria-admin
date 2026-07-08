@@ -19,6 +19,8 @@ interface ConversationRow {
     last_direction: 'inbound' | 'outbound' | null
     last_at: string
     inbound_pending: number
+    /** Último canal usado na conversa: 'cloud' (API oficial) | 'baileys'. */
+    channel: 'cloud' | 'baileys' | null
     lead_id: string | null
     lead_nome: string | null
     interesse_principal: string | null
@@ -39,6 +41,7 @@ export async function GET(req: NextRequest) {
     const filter = url.searchParams.get('filter') ?? 'todos'
     const q = (url.searchParams.get('q') || '').trim().toLowerCase()
     const interesseFilter = url.searchParams.get('interesse')
+    const channelFilter = url.searchParams.get('channel') // 'cloud' | 'baileys'
 
     const supabase = createClient(
         process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -49,7 +52,7 @@ export async function GET(req: NextRequest) {
     // ranking das conversas mais recentes sem precisar de função SQL custom.
     const { data: messages, error: msgErr } = await supabase
         .from('whatsapp_messages')
-        .select('id, phone, name, direction, body, status, lead_id, created_at, origin, intent')
+        .select('id, phone, name, direction, body, status, lead_id, created_at, origin, intent, channel')
         .not('phone', 'is', null)
         .order('created_at', { ascending: false })
         .limit(1000)
@@ -58,20 +61,27 @@ export async function GET(req: NextRequest) {
         return NextResponse.json({ error: msgErr.message }, { status: 500 })
     }
 
+    // Tráfego interno do Baileys que NÃO é conversa de cliente: envios a grupos
+    // (JID no lugar do phone), avisos de automação e o inbound de grupos das
+    // leiloeiras. O inbox é o canal do CLIENTE (API oficial em 1º lugar).
+    const INTERNAL_ORIGINS = new Set(['crm-assessor', 'group-manual', 'group-inbound', 'gif-lotes'])
+
     const byPhone = new Map<string, {
         last: typeof messages[number]
         inbound_pending: number
+        channel: 'cloud' | 'baileys' | null
     }>()
     for (const m of messages ?? []) {
         if (!m.phone) continue
-        // Notificações internas para assessores não são conversas de cliente —
-        // ficam fora do inbox (a telemetria delas vive no cockpit "Status").
-        if (m.origin === 'crm-assessor' || m.intent === 'assessor') continue
+        // Grupos e JIDs não-numéricos nunca são conversa 1:1 de cliente.
+        if (!/^\d{8,15}$/.test(m.phone)) continue
+        if (INTERNAL_ORIGINS.has(m.origin ?? '') || m.intent === 'assessor') continue
         const existing = byPhone.get(m.phone)
         if (!existing) {
             byPhone.set(m.phone, {
                 last: m,
                 inbound_pending: m.direction === 'inbound' ? 1 : 0,
+                channel: (m.channel === 'cloud' || m.channel === 'baileys') ? m.channel : null,
             })
             continue
         }
@@ -79,6 +89,11 @@ export async function GET(req: NextRequest) {
         // último outbound como pendentes.
         if (m.direction === 'inbound' && existing.last.direction === 'inbound') {
             existing.inbound_pending += 1
+        }
+        // Canal da conversa = o da mensagem mais recente que tem canal marcado
+        // (mensagens antigas, pré-gateway, não têm a coluna preenchida).
+        if (!existing.channel && (m.channel === 'cloud' || m.channel === 'baileys')) {
+            existing.channel = m.channel
         }
     }
 
@@ -103,6 +118,7 @@ export async function GET(req: NextRequest) {
             last_direction: (entry.last.direction as 'inbound' | 'outbound' | null) ?? null,
             last_at: entry.last.created_at,
             inbound_pending: entry.inbound_pending,
+            channel: entry.channel,
             lead_id: lead?.id ?? null,
             lead_nome: lead?.nome ?? null,
             interesse_principal: lead?.interesse_principal ?? null,
@@ -120,6 +136,9 @@ export async function GET(req: NextRequest) {
     else if (filter === 'interesse') rows = rows.filter(r => !!r.interesse_principal)
 
     if (interesseFilter) rows = rows.filter(r => r.interesse_principal === interesseFilter)
+    if (channelFilter === 'cloud' || channelFilter === 'baileys') {
+        rows = rows.filter(r => r.channel === channelFilter)
+    }
 
     if (q) {
         rows = rows.filter(r =>

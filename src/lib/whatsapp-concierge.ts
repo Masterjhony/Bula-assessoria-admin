@@ -39,6 +39,7 @@ import { maybeRunCreditCheck } from './crm-credit-automation'
 import { maybeRunStateRegistrationCheck } from './crm-state-registration-automation'
 import { maybeEnrichLeadFromPhone } from './crm-lead-enrichment'
 import { notifyTeamGroup } from './whatsapp-team-notify'
+import { submitLeadCadastroToLeiloeiraGroups } from './leiloeira-whatsapp-cadastro'
 import {
     CRM_STAGE_CONNECTION,
     CRM_STAGE_QUALIFICATION,
@@ -816,15 +817,49 @@ async function applyConciergeEffects(
         const faltam = checklist.missingLabels.length
             ? `Faltam: ${checklist.missingLabels.join(', ')}`
             : 'Checklist completo'
+
+        // Checklist COMPLETO → posta a ficha automaticamente nos grupos de
+        // cadastro das leiloeiras (Baileys). Idempotente por leiloeira.
+        let cadastroLinha = 'Próximo passo: revisar e aprovar o cadastro no CRM.'
+        if (checklist.complete) {
+            const sub = await submitLeadCadastroToLeiloeiraGroups(supabase, lead.id)
+            if (sub.sent > 0) {
+                cadastroLinha = `📤 Ficha de cadastro enviada ao grupo de ${sub.sent} leiloeira(s) — aguardando aprovado/recusado no grupo.`
+            } else if (sub.skipped.length) {
+                cadastroLinha = `⚠ Ficha NÃO enviada às leiloeiras: ${sub.skipped.map(s => `${s.leiloeira}: ${s.reason}`).join(' · ')}`
+            }
+        }
+
         const r = await notifyTeamGroup(supabase, [
             '✅ *Habilitação captada pela IA*',
             `${nome}${fone ? ` — ${fone}` : ''}`,
             `Interesse: ${interesse} · Docs: ${docsCount} arquivo(s) · ${checklist.done}/${checklist.total} itens`,
             faltam,
-            'Próximo passo: revisar e aprovar o cadastro no CRM.',
+            cadastroLinha,
         ].join('\n'))
         if (!r.sent && r.reason !== 'no_group_configured') {
             console.warn('[concierge] aviso ao grupo falhou:', r.reason)
         }
+    }
+
+    // Supervisão: eventos de conversa que pedem atenção humana vão pro grupo
+    // interno (Baileys). O pipeline só roda o concierge para lead que ainda NÃO
+    // estava em handoff/opt-out, então estes são sempre eventos novos.
+    const nomeSup = (update.nome as string) || lead.nome || lead.telefone || 'Lead'
+    const foneSup = lead.celular || lead.telefone || ''
+    if (ai.handoff && !ai.optout) {
+        void notifyTeamGroup(supabase, [
+            '🖐 *Lead pediu atendimento humano*',
+            `${nomeSup}${foneSup ? ` — ${foneSup}` : ''}`,
+            ai.internal_note ? `Contexto: ${ai.internal_note}` : '',
+            'O bot pausou para este lead — assumir a conversa no inbox.',
+        ].filter(Boolean).join('\n')).catch(() => { /* best-effort */ })
+    }
+    if (ai.optout) {
+        void notifyTeamGroup(supabase, [
+            '🔕 *Lead pediu para não receber mais mensagens (opt-out)*',
+            `${nomeSup}${foneSup ? ` — ${foneSup}` : ''}`,
+            'Envios bloqueados automaticamente.',
+        ].join('\n')).catch(() => { /* best-effort */ })
     }
 }

@@ -3,7 +3,7 @@
 import { useState, useEffect, useCallback } from 'react'
 import {
   Gavel, UserPlus, Mail, Phone, Pencil, Trash2, X, Plus, Check,
-  ShieldCheck, FileText, ListChecks,
+  ShieldCheck, FileText, ListChecks, MessageCircle, Loader2,
 } from 'lucide-react'
 import { type Leiloeira, DEFAULT_REQUISITOS } from '@/lib/leiloeiras'
 import { saveLeiloeira, deleteLeiloeira, type LeiloeiraInput } from '@/app/sistema/actions/leiloeiras'
@@ -158,6 +158,14 @@ export function CadastroLeiloeirasClient({ initial }: { initial: Leiloeira[] }) 
                           <span className="truncate">{l.contato}</span>
                         </div>
                       )}
+                      {l.whatsappGroupId && (
+                        <div className="flex items-center gap-1.5 mt-1 text-[12px]" style={{ color: 'var(--text2)' }}>
+                          <MessageCircle size={12} style={{ color: 'var(--gold)' }} />
+                          <span className="truncate" title={l.whatsappGroupId}>
+                            Grupo de cadastros: {l.whatsappGroupName || l.whatsappGroupId}
+                          </span>
+                        </div>
+                      )}
                     </div>
                   </div>
                   <div className="flex items-center gap-1.5 shrink-0">
@@ -223,6 +231,28 @@ function LeiloeiraFormModal({ leiloeira, onClose, onSave }: {
   const [nome, setNome] = useState(leiloeira?.nome ?? '')
   const [emailCadastro, setEmailCadastro] = useState(leiloeira?.emailCadastro ?? '')
   const [contato, setContato] = useState(leiloeira?.contato ?? '')
+  const [whatsappGroupId, setWhatsappGroupId] = useState(leiloeira?.whatsappGroupId ?? '')
+  const [whatsappGroupName, setWhatsappGroupName] = useState(leiloeira?.whatsappGroupName ?? '')
+  // Grupos do WhatsApp (Baileys) para o seletor — carregados sob demanda.
+  const [grupos, setGrupos] = useState<{ id: string; subject: string }[] | null>(null)
+  const [gruposLoading, setGruposLoading] = useState(false)
+  const [gruposErro, setGruposErro] = useState<string | null>(null)
+
+  const loadGrupos = async () => {
+    if (grupos || gruposLoading) return
+    setGruposLoading(true)
+    setGruposErro(null)
+    try {
+      const res = await fetch('/api/whatsapp/groups')
+      const data = await res.json()
+      if (!res.ok) throw new Error(data.error || 'Falha ao listar grupos')
+      setGrupos(data.groups ?? [])
+    } catch (e) {
+      setGruposErro(e instanceof Error ? e.message : 'WhatsApp (Baileys) indisponível')
+    } finally {
+      setGruposLoading(false)
+    }
+  }
   const [requireIe, setRequireIe] = useState(leiloeira?.requisitos.requireIe ?? DEFAULT_REQUISITOS.requireIe)
   const [scoreMin, setScoreMin] = useState<number>(leiloeira?.requisitos.scoreMin ?? DEFAULT_REQUISITOS.scoreMin)
   const [documentos, setDocumentos] = useState<string[]>(leiloeira?.requisitos.documentos ?? [...DEFAULT_REQUISITOS.documentos])
@@ -250,6 +280,8 @@ function LeiloeiraFormModal({ leiloeira, onClose, onSave }: {
         nome: nome.trim(),
         emailCadastro: emailCadastro.trim(),
         contato: contato.trim(),
+        whatsappGroupId: whatsappGroupId.trim(),
+        whatsappGroupName: whatsappGroupName.trim(),
         requisitos: { requireIe, scoreMin: Number(scoreMin) || 0, documentos },
         observacoes: observacoes.trim(),
         ativo,
@@ -275,6 +307,49 @@ function LeiloeiraFormModal({ leiloeira, onClose, onSave }: {
         <Field label="Nome *" full><input className="input" value={nome} onChange={(e) => setNome(e.target.value)} placeholder="Ex.: Leilões Nelore MEAB" /></Field>
         <Field label="E-mail de cadastro"><input className="input" type="email" value={emailCadastro} onChange={(e) => setEmailCadastro(e.target.value)} placeholder="cadastro@leiloeira.com" /></Field>
         <Field label="Contato"><input className="input" value={contato} onChange={(e) => setContato(e.target.value)} placeholder="(00) 90000-0000" /></Field>
+
+        <Field label="Grupo de cadastros no WhatsApp (Baileys)" full>
+          <div className="flex flex-col gap-2 rounded-lg p-3" style={{ background: 'var(--s2)', border: '1px solid var(--border)' }}>
+            <p className="text-[12px]" style={{ color: 'var(--text2)' }}>
+              Quando o lead completa o checklist de habilitação, a ficha de cadastro é postada
+              automaticamente neste grupo — e a resposta &quot;aprovado&quot;/&quot;recusado&quot; no grupo fecha o ciclo.
+            </p>
+            {whatsappGroupId ? (
+              <div className="flex items-center gap-2 flex-wrap">
+                <span className="badge blue" title={whatsappGroupId}>
+                  <MessageCircle size={11} /> {whatsappGroupName || whatsappGroupId}
+                </span>
+                <button className="btn ghost" type="button" onClick={() => { setWhatsappGroupId(''); setWhatsappGroupName('') }}>
+                  <X size={12} /> Desvincular
+                </button>
+              </div>
+            ) : (
+              <span className="text-[12px]" style={{ color: 'var(--text3)' }}>Nenhum grupo vinculado.</span>
+            )}
+            {grupos === null ? (
+              <button className="btn" type="button" onClick={loadGrupos} disabled={gruposLoading}>
+                {gruposLoading ? <Loader2 size={13} className="animate-spin" /> : <MessageCircle size={13} />}
+                {gruposLoading ? 'Buscando grupos…' : 'Escolher grupo do WhatsApp'}
+              </button>
+            ) : (
+              <select
+                className="input"
+                value={whatsappGroupId}
+                onChange={(e) => {
+                  const g = grupos.find((x) => x.id === e.target.value)
+                  setWhatsappGroupId(e.target.value)
+                  setWhatsappGroupName(g?.subject ?? '')
+                }}
+              >
+                <option value="">— sem grupo —</option>
+                {grupos.map((g) => (
+                  <option key={g.id} value={g.id}>{g.subject || g.id}</option>
+                ))}
+              </select>
+            )}
+            {gruposErro && <span className="text-[12px]" style={{ color: 'var(--red)' }}>{gruposErro}</span>}
+          </div>
+        </Field>
 
         <Field label="Requisitos" full>
           <div className="flex flex-col gap-3 rounded-lg p-3" style={{ background: 'var(--s2)', border: '1px solid var(--border)' }}>
