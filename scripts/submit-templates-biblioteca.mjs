@@ -184,6 +184,50 @@ Condição: {{4}}.
 Nossa equipe já apartou os destaques. Quer que eu te envie o catálogo e os lotes que valem a pena pro seu perfil?`,
     vars: ['João', 'Leilão de Touros e Matrizes Naviraí', '16/07 às 20h', '30x no boleto e frete grátis'],
   },
+  // ── molds da campanha de evento (copy do chefe, 08/07 — generalizada) ────
+  // A lista de ofertas virou linha única ({{4}}): variável da Meta NÃO aceita
+  // quebra de linha, então bullets específicos deixariam o template mono-uso.
+  {
+    name: 'bula_convite_evento_ofertas',
+    category: 'MARKETING',
+    media: 'IMAGE',
+    body: `Olá, {{1}}!
+
+Prazer, João Antônio da Bula Assessoria aqui. 🤠
+
+Passando para te convidar para o *{{2}}*, que acontecerá {{3}}!
+
+Ofertas de: {{4}}.
+
+Em até *{{5}} no boleto* e *frete grátis* para todo o Brasil! 🇧🇷
+
+Bora bater um papo?`,
+    vars: ['João', '13° Mega Evento EAO Baviera', 'do dia 09 a 12 de Julho', 'sêmen, aspirações, 350 fêmeas PO e 500 touros PO', '40x'],
+  },
+  {
+    name: 'bula_padrao_lote_video',
+    category: 'MARKETING',
+    media: 'VIDEO',
+    body: `Fala, {{1}}! Olha eu aqui mais uma vez… 😁
+
+Passando para te mostrar o padrão de {{2}} que estará disponível {{3}}.
+
+Bora mexer! Aproveite a oportunidade para {{4}}. 🤩`,
+    vars: ['João', '500 touros EAO', 'no próximo domingo, 12/07', 'repor seus reprodutores e produzir os melhores bezerros da sua região'],
+  },
+  {
+    name: 'bula_padrao_genetico_video',
+    category: 'MARKETING',
+    media: 'VIDEO',
+    body: `Opa, {{1}}! João da Bula aqui mais uma vez… 😍
+
+Olha o padrão de {{2}} que estará disponível no *{{3}}*!
+
+Chegou a hora de você elevar o padrão genético do seu rebanho 🔥
+
+Em até *{{4}} no boleto* e *frete grátis*!`,
+    vars: ['João', 'matrizes PO', 'Mega Evento EAO Baviera', '40x'],
+  },
   {
     name: 'bula_leilao_hoje_imagem',
     category: 'MARKETING',
