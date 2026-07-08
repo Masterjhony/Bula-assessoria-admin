@@ -11,6 +11,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
 import { requireAdmin } from '@/lib/auth-helpers'
+import { phoneVariants } from '@/lib/whatsapp-central'
 
 interface ConversationRow {
     phone: string
@@ -98,14 +99,29 @@ export async function GET(req: NextRequest) {
     }
 
     const phones = [...byPhone.keys()]
-    const { data: leads } = await supabase
+    // O CRM guarda o número em telefone OU celular e em formatos variados
+    // ("5522981080075", "(22) 98108-0075", sem DDI...) — casamos por TODAS as
+    // variantes de cada conversa, nas duas colunas, senão a conversa aparece
+    // "sem lead vinculado" mesmo com o lead na base.
+    const variantsByPhone = new Map<string, string[]>()
+    for (const p of phones) variantsByPhone.set(p, phoneVariants(p))
+    const allVariants = [...new Set([...variantsByPhone.values()].flat())]
+    const inList = `(${allVariants.map(v => `"${v}"`).join(',')})`
+    const { data: leads } = allVariants.length ? await supabase
         .from('crm_leads')
-        .select('id, nome, telefone, interesse_principal, handoff_humano, handoff_responsavel, optout_whatsapp, stage, status')
-        .in('telefone', phones)
+        .select('id, nome, telefone, celular, created_at, interesse_principal, handoff_humano, handoff_responsavel, optout_whatsapp, stage, status')
+        .or(`telefone.in.${inList},celular.in.${inList}`) : { data: [] }
 
+    // Indexa o lead por todas as variantes do número dele (lead mais antigo
+    // vence — é o original quando há duplicata).
     const leadByPhone = new Map<string, NonNullable<typeof leads>[number]>()
-    for (const l of leads ?? []) {
-        if (l.telefone) leadByPhone.set(l.telefone, l)
+    const sorted = [...(leads ?? [])].sort((a, b) =>
+        +new Date(b.created_at ?? 0) - +new Date(a.created_at ?? 0))
+    for (const l of sorted) {
+        for (const raw of [l.telefone, l.celular]) {
+            if (!raw) continue
+            for (const v of phoneVariants(raw)) leadByPhone.set(v, l)
+        }
     }
 
     let rows: ConversationRow[] = phones.map((phone) => {

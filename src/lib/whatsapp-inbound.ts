@@ -29,11 +29,14 @@ export async function findLeadByPhone(
 ): Promise<LeadShape | null> {
     const variants = phoneVariants(phone)
     if (variants.length === 0) return null
+    // Casa por telefone OU celular (leads de campanha/planilha gravam o número
+    // em celular; só telefone deixava a conversa órfã e criava lead duplicado).
+    const list = `(${variants.map(v => `"${v}"`).join(',')})`
     const { data } = await supabase
         .from('crm_leads')
         .select(LEAD_FIELDS)
-        .in('telefone', variants)
-        .order('created_at', { ascending: false })
+        .or(`telefone.in.${list},celular.in.${list}`)
+        .order('created_at', { ascending: true })
         .limit(1)
     return (data?.[0] as LeadShape) ?? null
 }

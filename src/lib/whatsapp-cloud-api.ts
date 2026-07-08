@@ -14,6 +14,9 @@ export interface WhatsappCloudTemplate {
     status: string
     category: string
     language: string
+    rejected_reason: string | null
+    /** IMAGE/VIDEO/DOCUMENT quando o template tem header de mídia (criativo variável). */
+    header_format: string | null
     body: string
 }
 
@@ -74,6 +77,7 @@ type MetaTemplateRow = {
     status?: string
     category?: string
     language?: string
+    rejected_reason?: string
     components?: MetaTemplateComponent[]
 }
 
@@ -176,10 +180,18 @@ function bodyFromTemplate(row: MetaTemplateRow): string {
     return body?.text ?? ''
 }
 
+/** Formato do HEADER de mídia (IMAGE/VIDEO/DOCUMENT), se houver. */
+function headerFormatFromTemplate(row: MetaTemplateRow): string | null {
+    const header = row.components?.find(c => String(c.type ?? '').toUpperCase() === 'HEADER') as
+        | { format?: string } | undefined
+    const fmt = String(header?.format ?? '').toUpperCase()
+    return ['IMAGE', 'VIDEO', 'DOCUMENT'].includes(fmt) ? fmt : null
+}
+
 export async function fetchWhatsappCloudTemplates(): Promise<WhatsappCloudTemplate[]> {
     const config = getWhatsappCloudConfig()
     if (!config.businessAccountId) return []
-    const fields = 'id,name,status,category,language,components'
+    const fields = 'id,name,status,category,language,rejected_reason,components'
     const json = await metaFetch(`/${config.businessAccountId}/message_templates?fields=${fields}&limit=100`)
     const rows = (json as { data?: MetaTemplateRow[] }).data ?? []
     return rows
@@ -190,6 +202,8 @@ export async function fetchWhatsappCloudTemplates(): Promise<WhatsappCloudTempla
             status: String(r.status ?? ''),
             category: String(r.category ?? ''),
             language: String(r.language ?? ''),
+            rejected_reason: r.rejected_reason ? String(r.rejected_reason) : null,
+            header_format: headerFormatFromTemplate(r),
             body: bodyFromTemplate(r),
         }))
 }
@@ -337,32 +351,47 @@ export async function createWhatsappCloudTemplate(input: {
     return { id: json.id, status: json.status ?? 'PENDING', category: json.category ?? input.category }
 }
 
+/** "bula_leilao_convite" → "Bula Leilão Convite" (título legível pro cockpit). */
+function prettyTemplateTitle(name: string): string {
+    return name
+        .replace(/_/g, ' ')
+        .replace(/\b\w/g, c => c.toUpperCase())
+        .trim()
+}
+
 /**
- * Sincroniza o status Meta dos templates locais que já foram submetidos
- * (meta_template_id não nulo). Casa pelo nome do template na Meta.
+ * Sincronização COMPLETA com a Meta:
+ *   • atualiza o status (PENDING→APPROVED/REJECTED…) dos templates locais; e
+ *   • IMPORTA para `whatsapp_templates` os templates que existem na WABA mas
+ *     não na tabela local (ex.: submetidos por script) — sem isso o inbox
+ *     mostrava "Nenhum template aprovado disponível" mesmo com 20 aprovados.
+ * O corpo importado troca {{1}}→{nome} (o inbox renderiza e a Cloud preenche a
+ * 1ª variável com o primeiro nome do lead).
  */
 export async function syncMetaTemplateStatuses(
     supabase: SupabaseClient,
-): Promise<{ updated: number; statuses: Record<string, string> }> {
-    const metaTemplates = await fetchWhatsappCloudTemplatesFull()
+): Promise<{ updated: number; imported: number; statuses: Record<string, string> }> {
+    const metaTemplates = await fetchWhatsappCloudTemplates()
     const byName = new Map(metaTemplates.map(t => [t.name, t]))
 
     const { data: locals } = await supabase
         .from('whatsapp_templates')
         .select('id, slug, meta_template_id, meta_status')
-        .not('meta_template_id', 'is', null)
 
     let updated = 0
     const statuses: Record<string, string> = {}
+    const matchedMetaNames = new Set<string>()
     for (const local of locals ?? []) {
         const metaName = metaTemplateName((local as { slug: string }).slug)
         const meta = byName.get(metaName)
         if (!meta) continue
+        matchedMetaNames.add(metaName)
         const newStatus = (meta.status || 'PENDING').toUpperCase()
         statuses[metaName] = newStatus
         const { error } = await supabase
             .from('whatsapp_templates')
             .update({
+                meta_template_id: meta.id,
                 meta_status: newStatus,
                 meta_category: meta.category || null,
                 meta_language: meta.language || null,
@@ -372,7 +401,33 @@ export async function syncMetaTemplateStatuses(
             .eq('id', (local as { id: string }).id)
         if (!error) updated++
     }
-    return { updated, statuses }
+
+    // Importa os templates da WABA sem linha local (criados por script/painel Meta).
+    let imported = 0
+    for (const meta of metaTemplates) {
+        if (matchedMetaNames.has(meta.name)) continue
+        if (meta.language && !meta.language.startsWith('pt')) continue // hello_world & afins
+        const status = (meta.status || 'PENDING').toUpperCase()
+        statuses[meta.name] = status
+        const body = (meta.body || '').replace(/\{\{\s*1\s*\}\}/g, '{nome}')
+        const { error } = await supabase.from('whatsapp_templates').upsert({
+            slug: meta.name,
+            title: prettyTemplateTitle(meta.name),
+            category: 'geral',
+            body: body || `Template Meta: ${meta.name}${meta.header_format ? ` (header ${meta.header_format})` : ''}`,
+            variables: body.includes('{nome}') ? ['nome'] : [],
+            archived: false,
+            meta_template_id: meta.id,
+            meta_status: status,
+            meta_category: meta.category || null,
+            meta_language: meta.language || null,
+            meta_rejected_reason: status === 'REJECTED' ? (meta.rejected_reason || 'rejeitado') : null,
+            meta_synced_at: new Date().toISOString(),
+        }, { onConflict: 'slug' })
+        if (!error) imported++
+    }
+
+    return { updated, imported, statuses }
 }
 
 function appendPoll(message: string, poll?: CloudCampaignPoll | null): string {

@@ -46,11 +46,13 @@ export async function GET(
             .in('phone', variants)
             .order('created_at', { ascending: true })
             .limit(500),
+        // telefone OU celular, em qualquer formato (variantes); lead mais
+        // antigo vence (é o original quando há duplicata).
         supabase
             .from('crm_leads')
             .select('id, nome, telefone, email, status, stage, prioridade, interesse, interesse_principal, tags_whatsapp, handoff_humano, handoff_responsavel, handoff_at, optout_whatsapp, last_whatsapp_at, contact_count, contact_history, notes, responsavel, source, medium, campaign')
-            .in('telefone', variants)
-            .order('created_at', { ascending: false })
+            .or(`telefone.in.(${variants.map(v => `"${v}"`).join(',')}),celular.in.(${variants.map(v => `"${v}"`).join(',')})`)
+            .order('created_at', { ascending: true })
             .limit(1),
         // Última inbound de verdade (a lista acima vem em ordem crescente e pode
         // estar truncada em 500) — é o que define a janela de 24h.
@@ -116,11 +118,13 @@ export async function POST(
         process.env.SUPABASE_SERVICE_ROLE_KEY!,
     )
 
+    const postVariants = phoneVariants(phone)
+    const postList = `(${postVariants.map(v => `"${v}"`).join(',')})`
     const { data: lead } = await supabase
         .from('crm_leads')
         .select('id, nome, optout_whatsapp')
-        .in('telefone', phoneVariants(phone))
-        .order('created_at', { ascending: false })
+        .or(`telefone.in.${postList},celular.in.${postList}`)
+        .order('created_at', { ascending: true })
         .limit(1)
         .single()
 

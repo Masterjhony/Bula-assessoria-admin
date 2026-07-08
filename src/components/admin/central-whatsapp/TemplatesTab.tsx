@@ -138,7 +138,10 @@ export function TemplatesTab({ templates, onChange }: Props) {
                 setFeedback({ type: "err", msg: data.error ?? "Falha ao sincronizar" })
                 return
             }
-            setFeedback({ type: "ok", msg: `Status sincronizado (${data.updated} atualizado(s)).` })
+            setFeedback({
+                type: "ok",
+                msg: `Sincronizado com a Meta: ${data.updated ?? 0} atualizado(s), ${data.imported ?? 0} importado(s) da WABA.`,
+            })
             onChange()
         } catch (e: unknown) {
             setFeedback({ type: "err", msg: e instanceof Error ? e.message : "Erro" })
@@ -333,7 +336,18 @@ export function TemplatesTab({ templates, onChange }: Props) {
         if (res.ok) onChange()
     }
 
-    const grouped = templates.reduce<Record<string, Template[]>>((acc, t) => {
+    // Operação atual: os templates Meta (API oficial) são o centro — servem
+    // campanhas, reaberturas de janela e disparos. A biblioteca local (Baileys,
+    // era do grafo de triagem) fica recolhida como legado.
+    const metaTemplates = templates.filter(t => t.meta_status !== "LOCAL")
+    const localTemplates = templates.filter(t => t.meta_status === "LOCAL")
+    const STATUS_ORDER: Record<string, number> = { APPROVED: 0, PENDING: 1, REJECTED: 2, PAUSED: 3, DISABLED: 4 }
+    const metaSorted = [...metaTemplates].sort((a, b) =>
+        (STATUS_ORDER[a.meta_status] ?? 9) - (STATUS_ORDER[b.meta_status] ?? 9) || a.title.localeCompare(b.title))
+    const approvedCount = metaTemplates.filter(t => t.meta_status === "APPROVED").length
+    const pendingCount = metaTemplates.filter(t => t.meta_status === "PENDING").length
+
+    const grouped = localTemplates.reduce<Record<string, Template[]>>((acc, t) => {
         (acc[t.category] = acc[t.category] || []).push(t)
         return acc
     }, {})
@@ -345,35 +359,92 @@ export function TemplatesTab({ templates, onChange }: Props) {
         <div className="grid grid-cols-1 lg:grid-cols-[1fr_460px] gap-4">
             {/* Lista */}
             <div className="space-y-4">
-                <div className="flex items-center justify-between">
+                <div className="flex items-center justify-between flex-wrap gap-2">
                     <p className="text-sm text-muted-foreground">
-                        {templates.length} template(s) ativos. Use <code>{"{nome}"}</code> nas mensagens para inserir o nome do lead.
+                        <span className="font-semibold text-foreground">{approvedCount}</span> aprovado(s) na Meta
+                        {pendingCount > 0 && <> · <span className="text-amber-500">{pendingCount} pendente(s)</span></>}
+                        {" "}· prontos para campanhas e reabertura de conversa.
                     </p>
                     <div className="flex items-center gap-2">
                         <button
                             onClick={syncStatuses}
                             disabled={syncing}
                             className="flex items-center gap-1.5 text-xs border px-2.5 py-1.5 rounded-lg hover:bg-muted disabled:opacity-50"
-                            title="Atualiza o status de aprovação Meta dos templates submetidos"
+                            title="Atualiza status de aprovação e importa templates da WABA que ainda não estão aqui"
                         >
                             {syncing ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <RefreshCw className="h-3.5 w-3.5" />}
-                            Sincronizar status
+                            Sincronizar com a Meta
                         </button>
                         <button
                             onClick={startNew}
-                            className="flex items-center gap-1.5 text-sm bg-primary text-primary-foreground px-3 py-1.5 rounded-lg hover:opacity-90"
+                            className="flex items-center gap-1.5 text-sm font-medium text-black px-3 py-1.5 rounded-lg hover:opacity-90"
+                            style={{ background: "#C9A84C" }}
                         >
                             <Plus className="h-3.5 w-3.5" /> Novo template
                         </button>
                     </div>
                 </div>
 
-                {Object.keys(grouped).length === 0 && (
-                    <div className="border border-dashed rounded-lg p-10 text-center text-sm text-muted-foreground">
-                        Nenhum template cadastrado ainda.
-                    </div>
-                )}
+                {/* ── Templates Meta (API oficial) — a operação de hoje ── */}
+                <div>
+                    <p className="font-display uppercase tracking-wide text-xs mb-1.5 px-1 flex items-center gap-2">
+                        <span className="h-3.5 w-1 rounded-full" style={{ background: "#C9A84C" }} />
+                        Templates Meta · API oficial
+                    </p>
+                    {metaSorted.length === 0 ? (
+                        <div className="border border-dashed rounded-xl p-8 text-center text-sm text-muted-foreground">
+                            Nenhum template Meta aqui ainda — clique em <strong>Sincronizar com a Meta</strong> para importar os da WABA.
+                        </div>
+                    ) : (
+                        <div className="bg-card text-card-foreground rounded-xl border divide-y">
+                            {metaSorted.map(t => {
+                                const badge = metaBadge(t.meta_status)
+                                return (
+                                    <div key={t.id} className={`px-4 py-3 flex items-start gap-3 ${editing?.id === t.id ? "bg-primary/5 dark:bg-primary/10" : ""}`}>
+                                        <div className="flex-1 min-w-0">
+                                            <div className="flex items-center gap-1.5 flex-wrap">
+                                                <p className="font-semibold text-sm">{t.title}</p>
+                                                {t.meta_category && (
+                                                    <span className="text-[9px] uppercase tracking-wider px-1.5 py-0.5 rounded bg-muted text-muted-foreground">
+                                                        {t.meta_category}
+                                                    </span>
+                                                )}
+                                                {badge && (
+                                                    <span className={`inline-flex items-center gap-0.5 text-[9px] uppercase tracking-wider px-1.5 py-0.5 rounded ${badge.cls}`}>
+                                                        <badge.Icon className="h-2.5 w-2.5" /> {badge.label}
+                                                    </span>
+                                                )}
+                                            </div>
+                                            <p className="text-xs text-muted-foreground line-clamp-2 whitespace-pre-wrap mt-0.5">{t.body}</p>
+                                            <p className="text-[10px] text-muted-foreground mt-1">
+                                                <code>{t.slug}</code>{t.meta_language ? ` · ${t.meta_language}` : ""}
+                                            </p>
+                                            {t.meta_status === "REJECTED" && t.meta_rejected_reason && (
+                                                <p className="text-[10px] text-red-600 dark:text-red-400 mt-0.5">Meta rejeitou: {t.meta_rejected_reason}</p>
+                                            )}
+                                        </div>
+                                        <div className="flex flex-col items-end gap-1 flex-shrink-0">
+                                            <button onClick={() => startEdit(t)} className="text-xs text-muted-foreground hover:text-foreground p-1 rounded hover:bg-muted" title="Editar título/corpo local">
+                                                <Edit3 className="h-3.5 w-3.5" />
+                                            </button>
+                                            <button onClick={() => handleArchive(t.id)} className="text-xs text-muted-foreground hover:text-red-600 p-1 rounded hover:bg-muted" title="Arquivar">
+                                                <Archive className="h-3.5 w-3.5" />
+                                            </button>
+                                        </div>
+                                    </div>
+                                )
+                            })}
+                        </div>
+                    )}
+                </div>
 
+                {/* ── Biblioteca local (legado do grafo / envios Baileys) ── */}
+                {localTemplates.length > 0 && (
+                <details className="group">
+                    <summary className="cursor-pointer select-none text-[11px] uppercase tracking-wider text-muted-foreground px-1 py-1.5 hover:text-foreground">
+                        Biblioteca local · {localTemplates.length} template(s) — legado da triagem por fluxo (a IA atende agora); ainda usáveis em campanhas via Baileys
+                    </summary>
+                <div className="space-y-4 mt-2">
                 {CATEGORIES.map(cat => {
                     const list = grouped[cat.id] ?? []
                     if (list.length === 0) return null
@@ -488,6 +559,9 @@ export function TemplatesTab({ templates, onChange }: Props) {
                         </div>
                     )
                 })}
+                </div>
+                </details>
+                )}
             </div>
 
             {/* Editor */}

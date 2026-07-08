@@ -688,6 +688,39 @@ function normalizeEmail(email?: string | null): string {
     return String(email || '').trim().toLowerCase();
 }
 
+/** Telefone canônico para gravar no CRM: só dígitos com DDI (5522981080075).
+ *  Formatos de planilha ("(22) 98108-0075") quebravam o vínculo com o WhatsApp. */
+function normalizedLeadPhone(v?: string | null): string | null {
+    const s = String(v || '').trim();
+    if (!s) return null;
+    return normalizePhone(s) || s.replace(/\D/g, '') || s;
+}
+
+/**
+ * Busca TODOS os leads do CRM em páginas de 1000 (o PostgREST corta em 1000 por
+ * request). Com a base em 15k+, o select sem paginação fazia os matchers de
+ * import/sync enxergarem só uma fatia — e leads existentes eram recriados
+ * (duplicata + welcome de novo) a cada cron.
+ */
+async function fetchAllCrmLeadRows<T>(
+    supabase: { from: (t: string) => any },
+    columns: string,
+): Promise<T[]> {
+    const PAGE = 1000;
+    const out: T[] = [];
+    for (let from = 0; ; from += PAGE) {
+        const { data, error } = await supabase
+            .from('crm_leads')
+            .select(columns)
+            .order('created_at', { ascending: true })
+            .range(from, from + PAGE - 1);
+        if (error) throw new Error(`Error fetching CRM leads: ${error.message}`);
+        out.push(...((data ?? []) as T[]));
+        if (!data || data.length < PAGE) break;
+    }
+    return out;
+}
+
 function leadPhoneKeys(phone?: string | null): string[] {
     const normalized = normalizePhone(phone || '');
     if (normalized) return phoneVariants(normalized);
@@ -734,15 +767,13 @@ function missingCrmFields(row: SheetLeadRow, lead: CRMLeadMatchRow): string[] {
 
 export async function validateLeadsAgainstSheet(): Promise<CRMLeadSheetValidation> {
     const supabase = await createClient();
-    const [{ info, rows }, crmRes] = await Promise.all([
+    const [{ info, rows }, crmLeads] = await Promise.all([
         readSheetLeadRows(),
-        supabase
-            .from('crm_leads')
-            .select('id, nome, email, telefone, celular, estado, cidade, quantidade_animais, o_que_busca, created_at, extra_data'),
+        fetchAllCrmLeadRows<CRMLeadMatchRow>(
+            supabase,
+            'id, nome, email, telefone, celular, estado, cidade, quantidade_animais, o_que_busca, created_at, extra_data',
+        ),
     ]);
-
-    if (crmRes.error) throw new Error(`Error fetching CRM leads: ${crmRes.error.message}`);
-    const crmLeads = (crmRes.data ?? []) as CRMLeadMatchRow[];
 
     const missing: MissingSheetLead[] = [];
     const incomplete: IncompleteSheetLead[] = [];
@@ -803,8 +834,8 @@ function sheetRowToLead(
     return {
         nome: row.nome || row.email || row.whatsapp || `Lead planilha linha ${row.rowNumber}`,
         email: row.email || null,
-        telefone: row.whatsapp || null,
-        celular: row.whatsapp || null,
+        telefone: normalizedLeadPhone(row.whatsapp),
+        celular: normalizedLeadPhone(row.whatsapp),
         estado: row.uf,
         cidade: row.cidade,
         momento_pecuaria: row.momento,
@@ -916,11 +947,10 @@ export async function importMissingLeadsFromBulaSheet(): Promise<{ created: numb
     const skippedTest = rows.length - realRows.length;
     if (realRows.length === 0) return { created: 0, total: rows.length, matched: 0, skippedTest };
 
-    const { data: crm, error: crmError } = await supabase
-        .from('crm_leads')
-        .select('id, nome, email, telefone, celular, estado, cidade, quantidade_animais, o_que_busca, created_at, extra_data');
-    if (crmError) throw new Error(`Error fetching CRM leads: ${crmError.message}`);
-    const crmLeads = (crm ?? []) as CRMLeadMatchRow[];
+    const crmLeads = await fetchAllCrmLeadRows<CRMLeadMatchRow>(
+        supabase,
+        'id, nome, email, telefone, celular, estado, cidade, quantidade_animais, o_que_busca, created_at, extra_data',
+    );
 
     const sourceMeta: SheetLeadSourceMeta = {
         origem: 'Planilha — Cópia de LEADS BULA (Meta BULA PERPETUO)',
@@ -1072,13 +1102,11 @@ function matchByContact<T extends { email?: string | null; telefone?: string | n
 export async function syncSheetColorsToCrm(apply = false): Promise<CRMColorSyncResult> {
     const supabase = await createClient();
 
-    const [{ info, rows }, cadastro, crmRes] = await Promise.all([
+    const [{ info, rows }, cadastro, crmLeads] = await Promise.all([
         readSheetLeadRowsWithColor(),
         readCadastroSheetRows().catch(() => ({ info: null, rows: [] as CadastroSheetRow[] })),
-        supabase.from('crm_leads').select('id, nome, email, telefone, celular, status, extra_data'),
+        fetchAllCrmLeadRows<ColorSyncMatchRow>(supabase, 'id, nome, email, telefone, celular, status, extra_data, created_at'),
     ]);
-    if (crmRes.error) throw new Error(`Error fetching CRM leads: ${crmRes.error.message}`);
-    const crmLeads = (crmRes.data ?? []) as ColorSyncMatchRow[];
 
     const changes: CRMColorSyncChange[] = [];
     // Atualizações em extra_data para gravar a "baseline" da cor (sheet_color_status).
@@ -1166,8 +1194,8 @@ export async function syncSheetColorsToCrm(apply = false): Promise<CRMColorSyncR
                 const insertData = sanitizeLeadData({
                     nome: c.nome,
                     email: c.email,
-                    telefone: c.whatsapp,
-                    celular: c.whatsapp,
+                    telefone: normalizedLeadPhone(c.whatsapp),
+                    celular: normalizedLeadPhone(c.whatsapp),
                     estado: c.uf,
                     cidade: c.cidade,
                     cpf: c.cpf,

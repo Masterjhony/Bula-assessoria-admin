@@ -117,25 +117,40 @@ export async function saveCrmWelcome(
     return merged
 }
 
-/** Já mandamos um welcome a este número nas últimas 24h? (dedup) */
-async function hasRecentWelcome(supabase: SupabaseClient, phone: string): Promise<boolean> {
+/**
+ * Dedup do welcome:
+ *   • welcome ENTREGUE (sent/queued) alguma vez → nunca reenvia (o welcome é a
+ *     1ª mensagem; reabertura/reengajamento têm templates próprios);
+ *   • welcome FALHO nas últimas 24h → também bloqueia (número inválido falha
+ *     sempre — sem isso, cada rodada do import re-tentava e poluía o log).
+ */
+async function hasWelcomeBlock(supabase: SupabaseClient, phone: string): Promise<boolean> {
     const variants = phoneVariants(phone)
     if (variants.length === 0) return false
-    const since = new Date(Date.now() - DEDUP_WINDOW_MS).toISOString()
-    const { data, error } = await supabase
+    const { data: sent, error } = await supabase
         .from('whatsapp_messages')
         .select('id')
         .in('phone', variants)
         .eq('direction', 'outbound')
         .eq('bot_step', 'welcome')
         .in('status', ['sent', 'queued'])
-        .gte('created_at', since)
         .limit(1)
     if (error) {
         console.warn('[crm-welcome] dedup check falhou:', error.message)
         return false // na dúvida, prefere mandar a perder o welcome
     }
-    return (data?.length ?? 0) > 0
+    if ((sent?.length ?? 0) > 0) return true
+
+    const since = new Date(Date.now() - DEDUP_WINDOW_MS).toISOString()
+    const { data: failed } = await supabase
+        .from('whatsapp_messages')
+        .select('id')
+        .in('phone', variants)
+        .eq('direction', 'outbound')
+        .eq('bot_step', 'welcome')
+        .gte('created_at', since)
+        .limit(1)
+    return (failed?.length ?? 0) > 0
 }
 
 export type WelcomeDispatchResult =
@@ -161,7 +176,7 @@ export async function dispatchCrmWelcome(
     const body = config.message?.trim()
     if (!body) return { attempted: false, reason: 'empty_message' }
 
-    if (await hasRecentWelcome(supabase, phone)) {
+    if (await hasWelcomeBlock(supabase, phone)) {
         return { attempted: false, reason: 'recent_welcome' }
     }
 

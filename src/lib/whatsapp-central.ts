@@ -223,6 +223,15 @@ export function phoneVariants(phone: string): string[] {
         variants.add(`55${add9}`);
     }
 
+    // Variantes FORMATADAS "(DD) 98108-0075" — imports de planilha gravaram o
+    // telefone assim no CRM; sem elas o lookup por telefone nunca casava esses
+    // leads (a conversa aparecia "sem lead vinculado" no inbox).
+    for (const v of [...variants]) {
+        const d = v.startsWith('55') ? v.slice(2) : v;
+        if (d.length === 11) variants.add(`(${d.slice(0, 2)}) ${d.slice(2, 7)}-${d.slice(7)}`);
+        else if (d.length === 10) variants.add(`(${d.slice(0, 2)}) ${d.slice(2, 6)}-${d.slice(6)}`);
+    }
+
     return [...variants];
 }
 
