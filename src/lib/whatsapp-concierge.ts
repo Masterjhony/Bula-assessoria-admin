@@ -588,7 +588,12 @@ ${RESULT_SCHEMA_INSTRUCTIONS}`
             console.warn(`[concierge] OpenRouter falhou (tentativa ${attempt}):`, e instanceof Error ? e.message : e)
         }
     }
-    if (!ai) return { handled: false, reason: 'ai_empty_after_retry' }
+    if (!ai) {
+        // A IA falhou mesmo após retry — avisa a equipe (throttled) para
+        // assumir o lead se persistir. O catchup ainda vai reprocessar depois.
+        await alertAiFailure(supabase, input.config, lead, input.phone).catch(() => { /* best-effort */ })
+        return { handled: false, reason: 'ai_empty_after_retry' }
+    }
 
     // Aplica efeitos no CRM (best-effort).
     try {
@@ -610,6 +615,47 @@ ${RESULT_SCHEMA_INSTRUCTIONS}`
         return { handled: true, silent: true, reason: optout ? 'optout_no_reply' : 'empty_reply' }
     }
     return { handled: true, silent: false, reply, botStep, handoff, optout }
+}
+
+/* ─── Aviso de falha da IA (throttled) ─────────────────────────────────── */
+
+const AI_ALERT_KEY = 'crm_concierge_ai_alert'
+const AI_ALERT_THROTTLE_MS = 5 * 60 * 1000
+
+/**
+ * Avisa o grupo interno quando a IA volta vazia mesmo após retry — sinal de
+ * instabilidade do provedor ou lead "encalhado". Throttle de 5 min via
+ * site_settings para não inundar o grupo durante uma instabilidade (o timestamp
+ * do último aviso é compartilhado entre execuções serverless).
+ */
+async function alertAiFailure(
+    supabase: SupabaseClient,
+    config: ConciergeConfig,
+    lead: FullLead,
+    phone: string,
+): Promise<void> {
+    if (!config.notifyGroupId) return
+    const { data } = await supabase
+        .from('site_settings')
+        .select('value')
+        .eq('key', AI_ALERT_KEY)
+        .maybeSingle()
+    const raw = (data?.value ?? {}) as { at?: string }
+    const lastAt = raw.at ? new Date(raw.at).getTime() : 0
+    if (Date.now() - lastAt < AI_ALERT_THROTTLE_MS) return
+    // Marca ANTES de enviar para não duplicar em chamadas concorrentes.
+    await supabase.from('site_settings').upsert(
+        { key: AI_ALERT_KEY, value: { at: new Date().toISOString() }, updated_at: new Date().toISOString() },
+        { onConflict: 'key' },
+    )
+    const nome = lead.nome || phone || 'Lead'
+    const fone = lead.celular || lead.telefone || phone || ''
+    await notifyTeamGroup(supabase, [
+        '⚠️ *A IA não conseguiu responder um lead*',
+        `${nome}${fone ? ` — ${fone}` : ''}`,
+        'Voltou vazia mesmo após tentar de novo (possível instabilidade do provedor de IA).',
+        'O lead está aguardando — o sistema tenta de novo em alguns minutos; assumam no inbox se persistir.',
+    ].join('\n'))
 }
 
 async function applyConciergeEffects(
