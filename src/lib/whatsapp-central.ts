@@ -226,7 +226,18 @@ export function phoneVariants(phone: string): string[] {
     return [...variants];
 }
 
+// Opt-out determinístico: SÓ comando inequívoco — a mensagem INTEIRA é a
+// palavra (ex.: "PARAR") ou uma frase explícita de descadastro. O match antigo
+// por includes/startsWith marcava falso positivo demais ("vou SAIR pra
+// fazenda", "PAREce bom", "quero CANCELAR o boleto" → opt-out indevido).
+// Com o concierge (IA) ligado este classificador nem decide opt-out — a IA
+// decide pelo contexto (ver whatsapp-inbound.ts / persona do concierge).
 const STOP_WORDS = ['parar', 'sair', 'cancelar', 'remover', 'pare', 'descadastrar', 'unsubscribe'];
+const STOP_PHRASES = [
+    'parar de receber', 'quero parar de receber', 'nao quero receber',
+    'nao quero mais receber', 'nao mandar mais', 'nao me mande mais',
+    'me tira da lista', 'me tirem da lista', 'remover da lista', 'me descadastra',
+];
 const RESUBSCRIBE_WORDS = ['voltar', 'reativar', 'reinscrever'];
 const HUMAN_WORDS = [
     'consultor', 'humano', 'atendente', 'pessoa', 'equipe', 'atendimento humano',
@@ -284,7 +295,9 @@ export function classifyMessage(text: string, ctx?: ClassifyContext): Classifica
     const lower = raw.toLowerCase();
     const stripped = lower.normalize('NFD').replace(/[̀-ͯ]/g, '');
 
-    if (STOP_WORDS.some(w => stripped === w || stripped === w + '!' || stripped.includes(` ${w}`) || stripped.startsWith(w))) {
+    // Mensagem inteira = comando (tolera pontuação final) ou frase explícita.
+    const strippedBare = stripped.replace(/[!.?\s]+$/g, '');
+    if (STOP_WORDS.includes(strippedBare) || STOP_PHRASES.some(p => stripped.includes(p))) {
         return { kind: 'optout' };
     }
     if (RESUBSCRIBE_WORDS.some(w => stripped === w || stripped.startsWith(w))) {

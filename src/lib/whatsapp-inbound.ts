@@ -10,7 +10,7 @@
  */
 
 import type { SupabaseClient } from '@supabase/supabase-js'
-import { phoneVariants, classifyMessage } from './whatsapp-central'
+import { phoneVariants } from './whatsapp-central'
 import { runFlow, type LeadShape } from './whatsapp-flow-engine'
 import { readPauseState } from './whatsapp-pause'
 import { handleCampaignReply } from './whatsapp-campaign-reply'
@@ -268,16 +268,15 @@ export async function processInboundMessage(
     // ── Concierge de qualificação (IA) — LINHA ÚNICA de automação ────────────
     // Quando ligado no cockpit, a IA é a *única* automação que conversa com o
     // lead: o grafo legado (keyword→triagem, menu de interesses, etc.) NÃO roda
-    // junto, para não enviar mensagem duplicada/desorganizada. Exceções que
-    // permanecem por serem compliance, não marketing:
-    //   • opt-out determinístico ("parar"/"sair") → tratado pelo grafo;
-    //   • lead já em handoff humano ou opt-out → ninguém automatiza (humano trata).
+    // junto, para não enviar mensagem duplicada/desorganizada. Inclusive o
+    // OPT-OUT é decisão da IA (pelo contexto da conversa), não de keyword —
+    // o classificador determinístico marcava falso positivo demais ("vou sair
+    // pra fazenda" → opt-out). A única exceção: lead já em handoff humano ou
+    // opt-out → ninguém automatiza (humano trata; "voltar" reativa pelo grafo).
     const conciergeConfig = await loadConciergeConfig(supabase)
-    const isOptoutMsg = classifyMessage(text, { tags: lead?.tags_whatsapp ?? [] }).kind === 'optout'
 
     if (conciergeConfig.enabled) {
-        // Opt-out segue pelo grafo (lane de opt-out). Demais casos: só a IA.
-        if (lead && !lead.optout_whatsapp && !lead.handoff_humano && !isOptoutMsg) {
+        if (lead && !lead.optout_whatsapp && !lead.handoff_humano) {
             // Janela de "pensar": espera um tempo antes de responder pra agrupar
             // mensagens enviadas em sequência. Se durante a espera chegar uma
             // inbound mais nova deste número, esta é descartada (a mais nova
@@ -301,8 +300,8 @@ export async function processInboundMessage(
             // lead) e opt-out seguem nos seus próprios caminhos.
             return { kind: 'silent', reason: c.handled ? `concierge_${c.reason}` : `concierge_unhandled_${c.reason}`, lead }
         }
-        // opt-out / handoff / opt-out msg: deixa o grafo cuidar do opt-out;
-        // handoff já cai em silêncio nas lanes do grafo.
+        // Lead já em opt-out / handoff: cai no grafo, que trata "voltar"
+        // (resubscribe) e mantém silêncio no resto.
     }
 
     const result = await runFlow(graph, { phone, senderName, text, lead })

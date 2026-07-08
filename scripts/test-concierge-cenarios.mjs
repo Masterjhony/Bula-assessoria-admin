@@ -148,6 +148,6 @@ for (const pergunta of CENARIOS) {
     console.log(`🧑 LEAD: ${pergunta}`)
     if (!parsed) { console.log(`   ⚠ JSON inválido: ${raw.slice(0, 200)}\n`); continue }
     console.log(`🤖 JOÃO: ${String(parsed.reply || '(vazio)').replace(/\n/g, '\n         ')}`)
-    console.log(`   [stage=${parsed.stage} handoff=${!!parsed.handoff} updates=${JSON.stringify(parsed.updates || {})}]`)
+    console.log(`   [stage=${parsed.stage} handoff=${!!parsed.handoff} optout=${!!parsed.optout} updates=${JSON.stringify(parsed.updates || {})}]`)
     console.log('')
 }
