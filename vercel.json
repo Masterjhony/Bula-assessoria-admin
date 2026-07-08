@@ -4,6 +4,7 @@
     { "path": "/api/jmp/sheet-heal", "schedule": "30 11 * * *" },
     { "path": "/api/jmp/sheet-color-sync", "schedule": "0 12 * * *" },
     { "path": "/api/crm/inactivity-sweep", "schedule": "0 13 * * *" },
-    { "path": "/api/cron/crm-daily-digest", "schedule": "30 22 * * *" }
+    { "path": "/api/cron/crm-daily-digest", "schedule": "30 22 * * *" },
+    { "path": "/api/whatsapp/concierge/catchup", "schedule": "*/5 * * * *" }
   ]
 }

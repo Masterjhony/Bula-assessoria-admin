@@ -571,19 +571,24 @@ ${RESULT_SCHEMA_INSTRUCTIONS}`
         messages.push({ role: 'user', content: input.text.trim() })
     }
 
+    // Uma resposta vazia/inválida da IA (ou um erro transitório do provedor —
+    // observado como um retorno de 0 tokens) deixaria o lead no silêncio para
+    // sempre, já que o pipeline NÃO cai no grafo legado. Por isso tentamos até
+    // 2 vezes antes de desistir: o custo é baixo e cobre a maioria dos blips.
     let ai: ConciergeAIResult | null = null
-    try {
-        ai = await openRouterJSON<ConciergeAIResult>(messages, {
-            model: input.config.model || undefined,
-            temperature: 0.45,
-            maxTokens: 700,
-            logKind: 'concierge',
-        })
-    } catch (e) {
-        console.warn('[concierge] OpenRouter falhou:', e instanceof Error ? e.message : e)
-        return { handled: false, reason: 'ai_error' }
+    for (let attempt = 1; attempt <= 2 && !ai; attempt++) {
+        try {
+            ai = await openRouterJSON<ConciergeAIResult>(messages, {
+                model: input.config.model || undefined,
+                temperature: 0.45,
+                maxTokens: 700,
+                logKind: 'concierge',
+            })
+        } catch (e) {
+            console.warn(`[concierge] OpenRouter falhou (tentativa ${attempt}):`, e instanceof Error ? e.message : e)
+        }
     }
-    if (!ai) return { handled: false, reason: 'ai_unparseable' }
+    if (!ai) return { handled: false, reason: 'ai_empty_after_retry' }
 
     // Aplica efeitos no CRM (best-effort).
     try {

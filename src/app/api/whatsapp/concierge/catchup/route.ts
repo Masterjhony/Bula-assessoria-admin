@@ -22,9 +22,27 @@ import { sendOutbound } from '@/lib/whatsapp-gateway'
 export const maxDuration = 300
 
 const WINDOW_MS = 24 * 3_600_000
+// Não responde inbound "quente demais": o webhook ao vivo ainda pode estar
+// dentro da janela de "pensar" processando essa mesma mensagem. Só assume o
+// que já está esperando há mais de 90s (aí é backlog de verdade, não corrida).
+const MIN_AGE_MS = 90_000
 
 function svc() {
     return createClient(process.env.NEXT_PUBLIC_SUPABASE_URL!, process.env.SUPABASE_SERVICE_ROLE_KEY!)
+}
+
+/**
+ * GET → gatilho de cron (Vercel injeta `Authorization: Bearer <CRON_SECRET>`
+ * quando a env CRON_SECRET existe). Roda o mesmo catchup com limites padrão.
+ */
+export async function GET(req: NextRequest) {
+    const authHeader = req.headers.get('authorization') || ''
+    const cronOk = !!process.env.CRON_SECRET && authHeader === `Bearer ${process.env.CRON_SECRET}`
+    const auth = await requireAdmin()
+    if (!cronOk && !auth.ok) {
+        return NextResponse.json({ error: 'não autorizado' }, { status: 401 })
+    }
+    return runCatchup({ limit: 50, dryRun: false })
 }
 
 export async function POST(req: NextRequest) {
@@ -39,7 +57,10 @@ export async function POST(req: NextRequest) {
     try { body = await req.json() } catch { /* corpo opcional */ }
     const limit = Math.min(Math.max(Number(body.limit) || 30, 1), 100)
     const dryRun = !!body.dryRun
+    return runCatchup({ limit, dryRun })
+}
 
+async function runCatchup({ limit, dryRun }: { limit: number; dryRun: boolean }) {
     const supabase = svc()
 
     const config = await loadConciergeConfig(supabase)
@@ -65,9 +86,12 @@ export async function POST(req: NextRequest) {
         lastByPhone.set(p, { direction: r.direction, body: r.body, created_at: r.created_at })
     }
 
-    // Candidatos: a última mensagem é inbound (aguardando nossa resposta).
+    // Candidatos: a última mensagem é inbound (aguardando nossa resposta) e já
+    // "esfriou" o suficiente (> MIN_AGE_MS) para não competir com o webhook ao vivo.
+    const nowMs = Date.now()
     const candidates = [...lastByPhone.entries()]
         .filter(([, m]) => m.direction === 'inbound')
+        .filter(([, m]) => nowMs - new Date(m.created_at).getTime() >= MIN_AGE_MS)
         .map(([phone, m]) => ({ phone, text: (m.body || '').trim(), at: m.created_at }))
 
     const results: Array<{ phone: string; status: string; reason?: string }> = []
