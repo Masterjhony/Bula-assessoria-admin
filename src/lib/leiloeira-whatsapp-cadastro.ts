@@ -71,9 +71,22 @@ function gerarCodigo(): string {
 const LEAD_FICHA_FIELDS =
     'id, nome, telefone, celular, email, cpf, cidade, estado, inscricao_estadual, tem_inscricao_estadual, interesse_principal, o_que_busca, quantidade_animais, contact_history, extra_data'
 
+/** String limpa: "null"/"undefined" literais (deslize comum da IA) viram vazio. */
+function str(v: unknown): string {
+    const s = String(v ?? '').trim()
+    return /^(null|undefined|-)$/i.test(s) ? '' : s
+}
+
+/** Telefone legível: 5533999471415 → +55 (33) 99947-1415. */
+function fmtFone(v: string): string {
+    const d = v.replace(/\D/g, '')
+    if (d.length === 13 && d.startsWith('55')) return `+55 (${d.slice(2, 4)}) ${d.slice(4, 9)}-${d.slice(9)}`
+    if (d.length === 12 && d.startsWith('55')) return `+55 (${d.slice(2, 4)}) ${d.slice(4, 8)}-${d.slice(8)}`
+    return v
+}
+
 function buildFicha(lead: LeadRow, codigo: string, docs: { nome: string; url: string }[]): string {
     const xd = (lead.extra_data ?? {}) as Record<string, unknown>
-    const str = (v: unknown) => String(v ?? '').trim()
     const fone = str(lead.celular) || str(lead.telefone)
     const fazenda = [str(xd.fazenda_nome), [str(xd.fazenda_cidade), str(xd.fazenda_uf)].filter(Boolean).join('/')]
         .filter(Boolean).join(' — ')
@@ -84,8 +97,8 @@ function buildFicha(lead: LeadRow, codigo: string, docs: { nome: string; url: st
         `📋 *Solicitação de cadastro* · ${codigo}`,
         '',
         `*Nome:* ${str(lead.nome) || '—'}`,
-        `*CPF:* ${lead.cpf ? fmtCpf(lead.cpf) : '—'}`,
-        `*Telefone:* ${fone || '—'}`,
+        `*CPF:* ${str(lead.cpf) ? fmtCpf(lead.cpf!) : '—'}`,
+        `*Telefone:* ${fone ? fmtFone(fone) : '—'}`,
         `*E-mail:* ${str(lead.email) || '—'}`,
     ]
     const endereco = str(xd.endereco_titular)
@@ -93,7 +106,8 @@ function buildFicha(lead: LeadRow, codigo: string, docs: { nome: string; url: st
     if (fazenda) linhas.push(`*Fazenda:* ${fazenda}`)
     linhas.push(`*Inscrição Estadual:* ${ie || '—'}`)
     const interesse = str(lead.interesse_principal) || str(lead.o_que_busca)
-    if (interesse) linhas.push(`*Interesse:* ${interesse}${lead.quantidade_animais ? ` (${lead.quantidade_animais} cab.)` : ''}`)
+    const qtd = str(lead.quantidade_animais)
+    if (interesse) linhas.push(`*Interesse:* ${interesse}${qtd ? ` (${qtd} cab.)` : ''}`)
 
     if (docs.length) {
         linhas.push('', '*Documentos:*')
@@ -127,7 +141,14 @@ async function loadLeadDocLinks(
         const { data: signed } = await supabase.storage
             .from(DOCS_BUCKET)
             .createSignedUrl(d.path, 7 * 86400)
-        if (signed?.signedUrl) docs.push({ nome: d.nome_arquivo, url: signed.signedUrl })
+        if (!signed?.signedUrl) continue
+        // Mídia vinda do WhatsApp tem nome técnico (wamid.XXX.jpg) — troca por
+        // um rótulo legível; arquivos com nome real (CNH.pdf) ficam como estão.
+        const ext = (d.nome_arquivo.split('.').pop() || '').toLowerCase()
+        const nome = /^wamid\./i.test(d.nome_arquivo)
+            ? `Documento ${docs.length + 1}${ext ? ` (${ext})` : ''}`
+            : d.nome_arquivo
+        docs.push({ nome, url: signed.signedUrl })
     }
     return docs
 }
