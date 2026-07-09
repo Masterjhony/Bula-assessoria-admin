@@ -2,15 +2,15 @@
 gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
-status: in_progress
-stopped_at: Completed 03-01-PLAN.md (Reskin de conteúdo EAO Baviera)
-last_updated: "2026-07-09T01:29:00Z"
+status: complete
+stopped_at: Completed 03-02-PLAN.md (Checkbox de consentimento WhatsApp no Step 3) — Phase 3 Complete
+last_updated: "2026-07-09T01:38:00Z"
 progress:
   total_phases: 3
-  completed_phases: 1
+  completed_phases: 2
   total_plans: 7
-  completed_plans: 6
-  percent: 86
+  completed_plans: 7
+  percent: 100
 ---
 
 # Project State — Nelore JMP Landing Page
@@ -20,19 +20,19 @@ progress:
 See: .planning/PROJECT.md (updated 2026-06-07)
 
 **Core value:** O formulário deve ser preenchido e enviado — tudo que não contribui para essa ação é ruído.
-**Current focus:** Phase 03 — Mega Evento EAO Baviera — IN PROGRESS (Plan 1/2 complete)
+**Current focus:** Phase 03 — Mega Evento EAO Baviera — COMPLETE
 
 ## Current Phase
 
 **Phase 3 of 3** — Mega Evento EAO Baviera — Reskin de Conteúdo
-**Status:** IN PROGRESS
+**Status:** COMPLETE
 
 ## Phase Progress
 
 | Plan | Description | Status |
 |------|-------------|--------|
 | 03-01 | Reskin de conteúdo EAO Baviera (content.ts, Form.tsx identidade/título, index.html) | ✓ Complete |
-| 03-02 | Checkbox de consentimento WhatsApp no Step 3 | Pending |
+| 03-02 | Checkbox de consentimento WhatsApp no Step 3 | ✓ Complete |
 
 ## Decisions Made
 
@@ -49,12 +49,14 @@ See: .planning/PROJECT.md (updated 2026-06-07)
 - Footer logo uses brightness-0 invert Tailwind classes for white-on-black rendering
 - Wordmark de texto ("EAO BAVIERA") substitui o logo raster JMP no bloco de identidade do Form.tsx — sem asset de logo EAO disponível (Phase 3, Plan 03-01)
 - hero.stats reduzido a um único item de data (09–12 JUL / 2026 · 4 dias), sem inventar contagem de lotes do novo evento (Phase 3, Plan 03-01)
+- FormErrors = { [K in keyof FormData]?: string } substitui Partial<FormData> como tipo do mapa de erros — necessário assim que FormData ganha o campo booleano whatsappConsent (Phase 3, Plan 03-02)
+- whatsappConsent viaja ao payload de /api/jmp/lead automaticamente via spread ...data em submitForm, sem alterar a função (Phase 3, Plan 03-02)
 
 ## Last Session
 
-**Timestamp:** 2026-07-09T01:29:00Z
-**Stopped At:** Completed 03-01-PLAN.md (Reskin de conteúdo EAO Baviera) — Plan 03-02 (checkbox de consentimento WhatsApp) pendente
-**Resume File:** .planning/phases/03-mega-evento-eao-baviera/03-02-PLAN.md
+**Timestamp:** 2026-07-09T01:38:00Z
+**Stopped At:** Completed 03-02-PLAN.md (Checkbox de consentimento WhatsApp no Step 3) — Phase 3 e todas as fases planejadas concluídas
+**Resume File:** None — all plans complete
 
 ## Notes
 

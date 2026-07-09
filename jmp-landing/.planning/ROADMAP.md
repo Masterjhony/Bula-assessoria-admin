@@ -47,20 +47,20 @@
 
 ### Phase 3: Mega Evento EAO Baviera — Reskin de Conteúdo
 **Goal:** Substituir todo o conteúdo e identidade visual do leilão Nelore JMP na coluna hero e no formulário pelo 13º Mega Evento EAO Baviera (genética Nelore PO, 09 a 12 de Julho de 2026, Fazenda Baviera, Itagibá/BA), e adicionar um checkbox obrigatório de consentimento de contato via WhatsApp no Step 3 — sem restruturar o formulário nem alterar campos/lógica pré-existentes além do necessário para essas duas mudanças
-**Status:** In Progress (Plan 1/2 complete)
+**Status:** COMPLETE
 
 **Requirements:** EAO-01, EAO-02, EAO-03, EAO-04, EAO-05, EAO-06, EAO-07
 
 **Success Criteria:**
-1. Hero (coluna esquerda) exibe badge, headline, value prop, benefícios, stat de data e localização do Mega Evento EAO Baviera — nenhum resquício de copy do JMP
-2. Background do hero (`src/content.ts`) e preload LCP (`index.html`) apontam para `foto-leilao-eao.jpeg`
-3. Bloco de identidade ao lado do logo Bula exibe o wordmark "EAO BAVIERA" — zero ocorrências de `jmpLogo`/`alt="JMP"` remanescentes, mas `/api/jmp/lead`, `JmpHero` e `jmp_utm` (infraestrutura não relacionada à marca) seguem intactos
-4. Título do formulário e bloco de info rápida do evento refletem o Mega Evento EAO Baviera (09 a 12 Jul, Itagibá/BA)
-5. `<title>` da aba do navegador reflete o evento EAO Baviera
-6. Step 3 exige um novo checkbox obrigatório — "Autorizo a Bula Assessoria a entrar em contato comigo no WhatsApp" — bloqueando o submit até ser marcado, com o valor incluído automaticamente no payload de `/api/jmp/lead`
-7. Steps 1 e 2, os demais campos/validações do Step 3, `submitForm` e `onSubmit` permanecem inalterados além da checagem do novo checkbox em `validateStep`
-8. `npm run build` conclui com exit 0 (tsc -b + vite build)
+1. ✓ Hero (coluna esquerda) exibe badge, headline, value prop, benefícios, stat de data e localização do Mega Evento EAO Baviera — nenhum resquício de copy do JMP
+2. ✓ Background do hero (`src/content.ts`) e preload LCP (`index.html`) apontam para `foto-leilao-eao.jpeg`
+3. ✓ Bloco de identidade ao lado do logo Bula exibe o wordmark "EAO BAVIERA" — zero ocorrências de `jmpLogo`/`alt="JMP"` remanescentes, mas `/api/jmp/lead`, `JmpHero` e `jmp_utm` (infraestrutura não relacionada à marca) seguem intactos
+4. ✓ Título do formulário e bloco de info rápida do evento refletem o Mega Evento EAO Baviera (09 a 12 Jul, Itagibá/BA)
+5. ✓ `<title>` da aba do navegador reflete o evento EAO Baviera
+6. ✓ Step 3 exige um novo checkbox obrigatório — "Autorizo a Bula Assessoria a entrar em contato comigo no WhatsApp" — bloqueando o submit até ser marcado, com o valor incluído automaticamente no payload de `/api/jmp/lead`
+7. ✓ Steps 1 e 2, os demais campos/validações do Step 3, `submitForm` e `onSubmit` permanecem inalterados além da checagem do novo checkbox em `validateStep`
+8. ✓ `npm run build` conclui com exit 0 (tsc -b + vite build)
 
 **Plans:**
 1. ✓ Reskin de conteúdo EAO Baviera — `src/content.ts` (hero), `src/components/Form.tsx` (identidade, título, info do evento) e `index.html` (preload + title) (COMPLETE: 1715b1d, b8fdf5f, 7c1b733)
-2. Checkbox de consentimento WhatsApp no Step 3 — `src/components/Form.tsx` (FormData, validateStep, handler dedicado, render do checkbox); depende da Plan 1 (mesmo arquivo)
+2. ✓ Checkbox de consentimento WhatsApp no Step 3 — `src/components/Form.tsx` (FormData, validateStep, handler dedicado, render do checkbox); depende da Plan 1 (mesmo arquivo) (COMPLETE: 0793527)

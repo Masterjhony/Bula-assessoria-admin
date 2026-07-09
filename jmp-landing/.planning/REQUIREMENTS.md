@@ -39,7 +39,7 @@
 - [x] **EAO-04**: Título do formulário ("Garanta sua vaga / no Mega Evento EAO") e bloco de info rápida do evento (09 a 12 Jul · Fazenda Baviera, Itagibá/BA) atualizados
 - [x] **EAO-05**: `<title>` da aba do navegador reflete o evento EAO Baviera
 - [x] **EAO-06**: Nenhuma linha de Steps 1–3, `validateStep`, `submitForm`, `onSubmit`, `handleChange`, `handleUFChange` ou `goTo` alterada pelo reskin de conteúdo
-- [ ] **EAO-07**: Step 3 exige checkbox obrigatório de consentimento de contato via WhatsApp, bloqueando submit até ser marcado, com valor incluído automaticamente no payload de `/api/jmp/lead`
+- [x] **EAO-07**: Step 3 exige checkbox obrigatório de consentimento de contato via WhatsApp, bloqueando submit até ser marcado, com valor incluído automaticamente no payload de `/api/jmp/lead`
 
 ## v2 Requirements (Deferred)
 
@@ -65,4 +65,4 @@
 | VIS-01 → VIS-05 | Phase 1 | Complete |
 | TECH-01 → TECH-02 | Phase 1 | Complete |
 | EAO-01 → EAO-06 | Phase 3 (Plan 03-01) | Complete |
-| EAO-07 | Phase 3 (Plan 03-02) | Pending |
+| EAO-07 | Phase 3 (Plan 03-02) | Complete |
