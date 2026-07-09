@@ -23,15 +23,23 @@ function isErpHost(host: string | null): boolean {
   return h === 'erp.localhost' || h.startsWith('erp.')
 }
 
-// Subdomínio público jmp.* (jmp.bulaassessoria.com) — landing de inscrições
-// "Nelore JMP". É uma SPA estática já buildada em public/jmp/ (Vite). O host
-// reescreve qualquer caminho para o prefixo /jmp, servindo os arquivos do
-// public. O formulário posta em /api/jmp/lead (público), por isso /api e
-// /_next ficam de fora do rewrite.
+// Subdomínio público da landing de inscrições (SPA estática já buildada em
+// public/jmp/, Vite). O host reescreve qualquer caminho para o prefixo /jmp,
+// servindo os arquivos do public. O formulário posta em /api/jmp/lead
+// (público), por isso /api e /_next ficam de fora do rewrite.
+//
+// Serve tanto o host histórico jmp.* (jmp.bulaassessoria.com) quanto eao.*
+// (eao.bulaassessoria.com) — este último passou a ser o domínio do evento
+// atual (13º Mega Evento EAO Baviera). Ambos apontam para a MESMA SPA.
 function isJmpHost(host: string | null): boolean {
   if (!host) return false
   const h = host.toLowerCase().split(':')[0]
-  return h === 'jmp.localhost' || h.startsWith('jmp.')
+  return (
+    h === 'jmp.localhost' ||
+    h.startsWith('jmp.') ||
+    h === 'eao.localhost' ||
+    h.startsWith('eao.')
+  )
 }
 
 // Subdomínio PRIVADO adminjmp.* (adminjmp.bulaassessoria.com) — painel que
