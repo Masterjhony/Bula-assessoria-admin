@@ -15,7 +15,7 @@ export function Footer() {
           <div className="max-w-xl">
             <p className="text-[11px] font-black uppercase tracking-[0.18em] text-white/50">Bula Assessoria Pecuária</p>
             <h3 className="mt-3 text-2xl font-black leading-[1.1] tracking-tight sm:text-3xl">
-              Assessoria gratuita nos maiores leilões do Brasil, com frete grátis de Campo Grande até a sua porteira.
+              Assessoria gratuita nos maiores leilões do Brasil, com frete grátis para animais PO.
             </h3>
           </div>
           <a
@@ -77,7 +77,7 @@ export function Footer() {
             <li>
               <a href="#inscricao" onClick={scrollToForm} className="inline-flex items-center gap-2 transition-colors hover:text-white">
                 <ArrowRight className="h-4 w-4 text-white/30" />
-                10º Leilão Nelore JMP
+                13º Mega Evento EAO Baviera
               </a>
             </li>
           </ul>

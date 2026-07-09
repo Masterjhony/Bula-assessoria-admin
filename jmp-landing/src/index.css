@@ -53,12 +53,34 @@ html {
 .hide-scrollbar::-webkit-scrollbar { display: none; }
 .hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
 
+/* Fundo do hero: a imagem (`--hero-bg-url`, setada inline no App.tsx a partir
+   de content.hero.backgroundUrl) é um flyer/poster em retrato (1080x1350,
+   texto e logos de patrocinadores embutidos). No mobile, o hero empilha duas
+   seções em coluna (texto + form), cada uma com sua própria altura mínima —
+   o container final fica muito mais "alto" do que a proporção do poster.
+   Com `background-size: cover` isso força um zoom enorme e corta as laterais
+   do poster de forma feia (texto/logos cortados). Por isso, no mobile usamos
+   `contain` (mostra o poster inteiro, sem corte, ancorado no topo) somado a
+   um gradiente escuro por cima, pra virar um fundo escuro e "moody" que não
+   compete com o texto do hero — sem depender de zoom/corte agressivo.
+   No desktop (>=1024px, layout lado a lado) a proporção do container é bem
+   menos extrema, então mantemos o comportamento original: cover + center +
+   attachment fixed. */
 .hero-bg {
   background-attachment: scroll;
+  background-image:
+    linear-gradient(to bottom, rgba(0, 0, 0, 0.15) 0%, rgba(0, 0, 0, 0.78) 50%, #000 72%),
+    var(--hero-bg-url);
+  background-repeat: no-repeat, no-repeat;
+  background-size: cover, contain;
+  background-position: center, top center;
 }
 
 @media (min-width: 1024px) {
   .hero-bg {
     background-attachment: fixed;
+    background-image: var(--hero-bg-url);
+    background-size: cover;
+    background-position: center;
   }
 }
