@@ -3,13 +3,13 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: complete
-stopped_at: Completed 03-02-PLAN.md (Checkbox de consentimento WhatsApp no Step 3) — Phase 3 Complete
-last_updated: "2026-07-09T01:38:00Z"
+stopped_at: Completed 03-03-PLAN.md (Correção de posicionamento comercial — assessoria de compra gratuita) — Phase 3 Complete
+last_updated: "2026-07-09T02:19:20Z"
 progress:
   total_phases: 3
-  completed_phases: 2
-  total_plans: 7
-  completed_plans: 7
+  completed_phases: 3
+  total_plans: 8
+  completed_plans: 8
   percent: 100
 ---
 
@@ -33,6 +33,7 @@ See: .planning/PROJECT.md (updated 2026-06-07)
 |------|-------------|--------|
 | 03-01 | Reskin de conteúdo EAO Baviera (content.ts, Form.tsx identidade/título, index.html) | ✓ Complete |
 | 03-02 | Checkbox de consentimento WhatsApp no Step 3 | ✓ Complete |
+| 03-03 | Correção de posicionamento comercial — hero/Form.tsx/obrigado-jmp.html reposicionados de "Bula apartou os lotes" (falso) para "assessoria de compra gratuita" | ✓ Complete |
 
 ## Decisions Made
 
@@ -51,11 +52,14 @@ See: .planning/PROJECT.md (updated 2026-06-07)
 - hero.stats reduzido a um único item de data (09–12 JUL / 2026 · 4 dias), sem inventar contagem de lotes do novo evento (Phase 3, Plan 03-01)
 - FormErrors = { [K in keyof FormData]?: string } substitui Partial<FormData> como tipo do mapa de erros — necessário assim que FormData ganha o campo booleano whatsappConsent (Phase 3, Plan 03-02)
 - whatsappConsent viaja ao payload de /api/jmp/lead automaticamente via spread ...data em submitForm, sem alterar a função (Phase 3, Plan 03-02)
+- benefits do hero removeu deliberadamente as linhas de desconto à vista/frete grátis (condições do evento, não do serviço de assessoria da Bula) — não recolocadas em nenhum outro lugar da página (Phase 3, Plan 03-03)
+- Footer.tsx reconfirmado e mantido intocado: única menção a "apartações" é descrição genérica da empresa, sem alegação específica sobre os lotes do 13º Mega Baviera (Phase 3, Plan 03-03)
+- Nova seção "Sobre o leilão" (ideia do cliente) permanece fora de escopo — candidata para fase futura (Phase 3, Plan 03-03)
 
 ## Last Session
 
-**Timestamp:** 2026-07-09T01:38:00Z
-**Stopped At:** Completed 03-02-PLAN.md (Checkbox de consentimento WhatsApp no Step 3) — Phase 3 e todas as fases planejadas concluídas
+**Timestamp:** 2026-07-09T02:19:20Z
+**Stopped At:** Completed 03-03-PLAN.md (Correção de posicionamento comercial — assessoria de compra gratuita) — Phase 3 e todas as fases planejadas concluídas
 **Resume File:** None — all plans complete
 
 ## Notes
@@ -65,3 +69,4 @@ See: .planning/PROJECT.md (updated 2026-06-07)
 - Integração Google Sheets: estrutura preparada (handleSubmit stub), implementação futura
 - npm run build: PASSING — all 5 components compiled, dist/obrigado-jmp.html present
 - Phase 3: `src/constants.ts` (WHATSAPP_GROUP_URL, OBRIGADO_PAGE_URL) continua apontando para o grupo/página do JMP — follow-up conhecido, não corrigido nesta fase
+- Phase 3 Plan 03-03: hero e formulário não afirmam mais que a Bula selecionou/apartou os lotes do 13º Mega Baviera; página vende a assessoria de compra gratuita, copy verbatim do cliente

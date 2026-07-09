@@ -40,6 +40,9 @@
 - [x] **EAO-05**: `<title>` da aba do navegador reflete o evento EAO Baviera
 - [x] **EAO-06**: Nenhuma linha de Steps 1–3, `validateStep`, `submitForm`, `onSubmit`, `handleChange`, `handleUFChange` ou `goTo` alterada pelo reskin de conteúdo
 - [x] **EAO-07**: Step 3 exige checkbox obrigatório de consentimento de contato via WhatsApp, bloqueando submit até ser marcado, com valor incluído automaticamente no payload de `/api/jmp/lead`
+- [x] **EAO-08**: Hero e formulário não afirmam mais que a Bula selecionou/apartou os animais do 13º Mega Baviera especificamente — vendem a assessoria de compra gratuita (copy final aprovado pelo cliente)
+- [x] **EAO-09**: `public/obrigado-jmp.html` não tem mais nenhum resquício textual do leilão Nelore JMP (`<title>` corrigido)
+- [x] **EAO-10**: `src/components/Footer.tsx` confirmado sem alegação de aparte específica deste leilão (ou corrigido, se uma alegação fosse encontrada na execução)
 
 ## v2 Requirements (Deferred)
 
@@ -66,3 +69,4 @@
 | TECH-01 → TECH-02 | Phase 1 | Complete |
 | EAO-01 → EAO-06 | Phase 3 (Plan 03-01) | Complete |
 | EAO-07 | Phase 3 (Plan 03-02) | Complete |
+| EAO-08 → EAO-10 | Phase 3 (Plan 03-03) | Complete |
