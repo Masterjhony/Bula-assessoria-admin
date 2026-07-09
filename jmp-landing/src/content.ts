@@ -58,25 +58,24 @@ export interface JmpContent {
 
 export const DEFAULT_CONTENT: JmpContent = {
   hero: {
-    backgroundUrl: '/foto-bulinha-bg.jpeg',
-    badge: 'Vagas limitadas · 13 e 14 de Junho',
-    headline: 'Compre do leilão\napartado\npela Bula.',
-    valueProp: 'A Bula analisa os animais do leilão e te diz quais valem a pena comprar, antes do martelo cair.',
+    backgroundUrl: '/foto-leilao-eao.jpeg',
+    badge: 'VAGAS ABERTAS · 09 A 12 DE JULHO',
+    headline: 'Habilite-se para o\nMega Evento EAO\ncom a Bula.',
+    valueProp: 'A Bula avalia a seleção EAO, aparta os melhores animais para o seu rebanho e cuida de toda a sua habilitação no leilão.',
     valuePropStrong: 'Grátis. Sem compromisso.',
-    benefitsTitle: '1.000 Touros Apartados\npela Bula Assessoria',
+    benefitsTitle: 'A Mega Seleção da\nGenética EAO,\nApartada pela Bula',
     benefits: [
-      { text: '1.000 touros avaliados' },
-      { text: 'Compra em 30 parcelas', strong: true },
-      { text: 'Frete grátis' },
-      { text: 'Genética Nelore JMP' },
-      { text: 'Condição especial para renovar a bateria de touros', strong: true },
+      { text: 'Seleção EAO avaliada animal por animal' },
+      { text: 'Habilitação completa para dar lances', strong: true },
+      { text: 'Atendimento direto da equipe Bula Assessoria' },
+      { text: 'Análise de genética e valor justo antes do martelo cair' },
+      { text: 'Condição especial para renovar seu rebanho', strong: true },
     ],
     stats: [
-      { value: '1.000', label: 'Touros PO' },
-      { value: '240', label: 'Bezerras PO' },
+      { value: '09–12 JUL', label: '2026 · 4 dias' },
     ],
-    locationLine1: 'Campo Grande/MS',
-    locationLine2: 'Terra Nova Eventos',
+    locationLine1: 'Itagibá / BA',
+    locationLine2: 'Fazenda Baviera',
   },
   whatsappGroupUrl: 'https://chat.whatsapp.com/JYxJPWfkoHHLZfosHlywN9',
   blocks: [
