@@ -60,6 +60,13 @@ export interface HabilitacaoInput {
     docsCount: number
     /** Tipos (heurísticos) dos arquivos reais: 'ie' | 'cpf' | 'comprovante' | ... */
     docTipos?: string[]
+    /**
+     * Leilão que aceita cadastro SEM Inscrição Estadual (ex.: EAO Baviera).
+     * Quando o lead é dessa campanha E declarou não ter I.E., o item da I.E.
+     * conta como resolvido — senão o checklist nunca fecha e a ficha nunca é
+     * enviada às leiloeiras. Vazio = regra normal (I.E. obrigatória).
+     */
+    ieDispensadaPara?: string | null
 }
 
 const digits = (v: unknown) => String(v ?? '').replace(/\D/g, '')
@@ -95,6 +102,7 @@ export function computeHabilitacaoChecklist(input: HabilitacaoInput): Habilitaca
     const fazendaUf = xd(input, 'fazenda_uf')
     const ie = str(input.inscricao_estadual)
     const temIe = str(input.tem_inscricao_estadual).toLowerCase() === 'sim'
+    const ieDispensada = Boolean(str(input.ieDispensadaPara))
 
     // Documentos: a marcação semântica da IA só vale com arquivo real por trás.
     const docIdentidade = temArquivoReal && (semantic.has('identidade') || tipos.has('cpf'))
@@ -118,9 +126,11 @@ export function computeHabilitacaoChecklist(input: HabilitacaoInput): Habilitaca
             value: fazendaCidade ? `${fazendaCidade}${fazendaUf ? '/' + fazendaUf : ''}` : undefined,
         },
         {
-            key: 'inscricao_estadual', label: 'Inscrição Estadual (ou NIRF)', group: 'propriedade',
-            done: ie.length >= 3 || temIe,
-            value: ie || (temIe ? 'Tem (nº pendente)' : undefined),
+            key: 'inscricao_estadual',
+            label: ieDispensada ? `Inscrição Estadual (dispensada — ${str(input.ieDispensadaPara)})` : 'Inscrição Estadual (ou NIRF)',
+            group: 'propriedade',
+            done: ie.length >= 3 || temIe || ieDispensada,
+            value: ie || (temIe ? 'Tem (nº pendente)' : ieDispensada ? 'Dispensada para este leilão' : undefined),
         },
 
         { key: 'doc_identidade', label: 'Foto da CNH/RG', group: 'documentos', done: docIdentidade },

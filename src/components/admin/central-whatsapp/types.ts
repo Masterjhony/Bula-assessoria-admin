@@ -64,6 +64,16 @@ export interface ThreadLead {
     source: string | null
     medium: string | null
     campaign: string | null
+    // Qualificação: o que o formulário capturou + o que a IA levantou na conversa.
+    // Ficavam gravados e invisíveis — o card só mostrava `interesse_principal`.
+    momento_pecuaria: string | null
+    quantidade_animais: string | null
+    o_que_busca: string | null
+    cidade: string | null
+    estado: string | null
+    tem_inscricao_estadual: string | null
+    inscricao_estadual: string | null
+    extra_data: Record<string, unknown> | null
 }
 
 export interface Template {

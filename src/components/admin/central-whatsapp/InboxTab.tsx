@@ -15,6 +15,7 @@ import {
     type Template,
 } from "./types"
 import { ACADEMIA_TAG } from "@/lib/whatsapp-central"
+import { buildQualificacao, QUAL_GRUPO_LABEL } from "@/lib/crm-qualificacao"
 
 type Filter = "todos" | "aguardando" | "handoff" | "optout" | "interesse"
 
@@ -502,6 +503,9 @@ export function InboxTab({ templates, channel = "oficial" }: { templates: Templa
     }
 
     // Cabeçalho da thread — dados derivados do lead/conversa selecionados.
+    // Perfil/intenção/fiscal/jornada do lead — mesma fonte que alimenta o prompt da IA.
+    const qualificacao = useMemo(() => (threadLead ? buildQualificacao(threadLead) : []), [threadLead])
+
     const headerName = threadLead?.nome || selected?.name || (selectedPhone ? formatPhone(selectedPhone) : "")
     const isNovoLead = (threadLead?.contact_count ?? 0) <= 1
     // Resumo para a aba "Histórico" do painel (datas reais do thread carregado).
@@ -985,6 +989,46 @@ export function InboxTab({ templates, channel = "oficial" }: { templates: Templa
                                             </div>
                                         )}
                                     </div>
+
+                                    {/* Qualificação — tudo o que sabemos do produtor, com a procedência
+                                        de cada dado: [formulário] o lead clicou num anúncio (pode estar
+                                        errado), [conversa] a IA arrancou, [consulta] veio de API. */}
+                                    {qualificacao.length > 0 && (
+                                        <div className="space-y-2 border-t pt-3">
+                                            <p className="text-[10px] uppercase tracking-wider text-muted-foreground">Qualificação</p>
+                                            {(["perfil", "intenção", "fiscal", "jornada"] as const).map(grupo => {
+                                                const itens = qualificacao.filter(i => i.grupo === grupo)
+                                                if (!itens.length) return null
+                                                return (
+                                                    <div key={grupo} className="space-y-0.5">
+                                                        <p className="text-[10px] text-muted-foreground mt-1">{QUAL_GRUPO_LABEL[grupo]}</p>
+                                                        {itens.map(i => (
+                                                            <div key={i.key} className="flex items-start justify-between gap-2 text-xs">
+                                                                <span className="text-muted-foreground shrink-0">{i.label}</span>
+                                                                <span className="text-right">
+                                                                    <strong>{i.value}</strong>
+                                                                    <span
+                                                                        className={`ml-1.5 text-[9px] uppercase tracking-wide px-1 py-0.5 rounded ${
+                                                                            i.origem === "formulário" ? "bg-sky-500/10 text-sky-500"
+                                                                                : i.origem === "conversa" ? "bg-emerald-500/10 text-emerald-500"
+                                                                                    : "bg-violet-500/10 text-violet-500"
+                                                                        }`}
+                                                                        title={
+                                                                            i.origem === "formulário" ? "Respondido no formulário do anúncio — pode estar impreciso"
+                                                                                : i.origem === "conversa" ? "Levantado pela IA na conversa"
+                                                                                    : "Preenchido por consulta automática"
+                                                                        }
+                                                                    >
+                                                                        {i.origem}
+                                                                    </span>
+                                                                </span>
+                                                            </div>
+                                                        ))}
+                                                    </div>
+                                                )
+                                            })}
+                                        </div>
+                                    )}
 
                                     {/* Habilitação — mesmo checklist que guia a IA do concierge */}
                                     {habilitacao?.checklist && (

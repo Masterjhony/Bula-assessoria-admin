@@ -138,20 +138,24 @@ const REGRAS: Record<ConciergeFase, string[]> = {
         'Reaja ao que ele responde (um comentário curto de quem é do ramo) antes de perguntar a próxima coisa.',
     ],
     apresentacao: [
-        'Você já entende a operação dele. Agora APRESENTE A BULA e o valor da assessoria — e proponha o assessor dedicado, sem custo.',
-        'PROIBIDO nesta fase: pedir documento ou foto. Dado de cadastro só depois que ele topar a assessoria.',
-        'Feche a mensagem perguntando se ele quer que um assessor nosso acompanhe ele (é o "sim" que destrava o resto).',
+        'Você já entende a operação dele. Agora APRESENTE A BULA e o valor da assessoria — que é gratuita pro comprador.',
+        'PROIBIDO nesta fase: pedir documento ou foto. Dado de cadastro só depois que ele topar o acompanhamento.',
+        'Feche perguntando se ele quer que VOCÊ cuide do cadastro dele e o acompanhe no leilão (é o "sim" que destrava o resto).',
+        'NÃO ofereça "falar com um assessor" nem "te passar para um assessor" — o assessor só entra depois do cadastro aprovado.',
         'Se ele já demonstrou o "sim" ("quero", "pode ser", "como faço?"), marque updates.aceitou_assessoria=true.',
     ],
     habilitacao: [
-        'O lead aceitou a assessoria. Agora sim: peça o que falta no checklist, enquadrado como o que destrava o trabalho do assessor.',
+        'O lead topou. Agora sim: peça o que falta no checklist, enquadrado como o que destrava a participação dele no leilão.',
         'Peça em UMA mensagem organizada, nunca item por item, e só o que está marcado com ✘.',
         'Dado marcado com ✔ NUNCA é pedido de novo — no máximo confirmado ("é isso mesmo?").',
-        'Lembre em meia linha o benefício: com isso o assessor já monta a estratégia dele pro próximo leilão.',
+        'Benefício em meia linha: com o cadastro aprovado ele já pode dar lance no próximo leilão.',
+        'Quem conduz é VOCÊ. Não diga que vai encaminhar para um assessor — isso é depois da aprovação.',
     ],
     analise: [
         'Checklist completo: NÃO peça mais nada.',
-        'Confirme o recebimento, diga que a habilitação foi encaminhada e que um assessor assume o acompanhamento.',
+        'Confirme o recebimento e diga que o cadastro foi enviado às leiloeiras parceiras para análise.',
+        'Você pode dizer que, ASSIM QUE O CADASTRO FOR APROVADO, um assessor da Bula assume o acompanhamento dele nos leilões.',
+        'Nunca diga que já está passando para o assessor agora — o cadastro ainda vai ser analisado.',
         'Marque documents_received=true e handoff=true.',
     ],
 }
@@ -160,7 +164,7 @@ const TITULO: Record<ConciergeFase, string> = {
     descoberta: 'DESCOBERTA — entender o produtor (NADA de cadastro)',
     apresentacao: 'APRESENTAÇÃO — vender a assessoria e conseguir o "sim"',
     habilitacao: 'HABILITAÇÃO — coletar o que falta do checklist',
-    analise: 'ANÁLISE — encerrar e passar para o assessor',
+    analise: 'ANÁLISE — cadastro enviado às leiloeiras, aguardando aprovação',
 }
 
 /**

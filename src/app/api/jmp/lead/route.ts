@@ -58,6 +58,18 @@ export async function POST(req: NextRequest) {
   const cabecas = str(body.cabecas)
   const temInscricaoEstadual = str(body.inscricaoEstadual)
 
+  // Atribuição de campanha (Meta), no MESMO formato do import de planilha
+  // (`extra_data.utm` em sheetRowToLead) — é assim que as regras por campanha
+  // reconhecem o lead depois. `ad-id` chega como ad_id (a landing normaliza).
+  const utmAttr = {
+    source: str(body.utm_source),
+    medium: str(body.utm_medium),
+    campaign: str(body.utm_campaign),
+    content: str(body.utm_content),
+    ad_id: str(body.ad_id),
+  }
+  const temUtm = Object.values(utmAttr).some(Boolean)
+
   // Regra de MQL do Funil JMP (editável nas Configurações do CRM, por funil).
   // Best-effort: se a config não existir/falhar, cai no padrão (≥100 + tem IE).
   const mqlRule = await getJmpMqlRule()
@@ -93,6 +105,7 @@ export async function POST(req: NextRequest) {
     landing_url:
       req.headers.get('referer') || 'https://jmp.bulaassessoria.com/',
     data_entrada: new Date().toISOString(),
+    ...(temUtm ? { extra_data: { utm: utmAttr } } : {}),
   }
 
   const { data, error } = await supabaseAdmin()
@@ -119,15 +132,13 @@ export async function POST(req: NextRequest) {
     inscricaoEstadual: str(body.inscricaoEstadual),
   }
 
-  // Atribuição de campanha vinda dos criativos (Meta). Só usada na planilha —
-  // não vai para o insert em crm_leads (essas colunas não existem lá e
-  // quebrariam o cadastro). `ad-id` chega como ad_id (a landing normaliza).
+  // Mesma atribuição, no formato de colunas que a planilha espera.
   const utm = {
-    utm_source: str(body.utm_source),
-    utm_medium: str(body.utm_medium),
-    utm_campaign: str(body.utm_campaign),
-    utm_content: str(body.utm_content),
-    ad_id: str(body.ad_id),
+    utm_source: utmAttr.source,
+    utm_medium: utmAttr.medium,
+    utm_campaign: utmAttr.campaign,
+    utm_content: utmAttr.content,
+    ad_id: utmAttr.ad_id,
   }
 
   // Conteúdo (templates de e-mail). Carregado uma vez para welcome + fluxo.

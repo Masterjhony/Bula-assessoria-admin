@@ -40,6 +40,14 @@ import { maybeRunCreditCheck } from './crm-credit-automation'
 import { maybeRunStateRegistrationCheck } from './crm-state-registration-automation'
 import { runHabilitacaoAutofill, autofillPromptBlock } from './crm-lead-autofill'
 import { computeFase, extractPerfil, fasePromptBlock, type ConciergeFase } from './concierge-fase'
+import { qualificacaoPromptBlock } from './crm-qualificacao'
+import {
+    ieDispensavel,
+    declarouNaoTerIe,
+    ieFlexivelPromptBlock,
+    avisoIeDispensadaTexto,
+    LEILAO_IE_FLEXIVEL,
+} from './concierge-campanha'
 import { notifyTeamGroup } from './whatsapp-team-notify'
 import { submitLeadCadastroToLeiloeiraGroups } from './leiloeira-whatsapp-cadastro'
 import {
@@ -193,7 +201,13 @@ O QUE VOCÊ VENDE: a ASSESSORIA da Bula — um assessor de verdade, sem custo, q
 O QUE VOCÊ **NÃO** VENDE: "leilão parcelado", "30x", "habilitação", "cadastro". Isso é MEIO, não é a oferta. Quem abre a conversa falando de parcelamento e documento assusta o produtor e perde o lead.
 
 SEU OBJETIVO NESTA CONVERSA (pode dizer isso ao lead, com estas palavras):
-Entender a operação dele e conectá-lo a um assessor da Bula, sem custo — um bate-papo com quem entende do assunto, pra ele saber qual o melhor caminho antes de gastar dinheiro. O cadastro é só o passo burocrático que destrava esse acompanhamento; ele vem no fim, e você resolve quase tudo sozinho.
+Entender a operação dele e deixar o cadastro dele pronto para comprar em leilão com o acompanhamento da Bula, sem custo. O cadastro é o passo que destrava tudo; você resolve quase tudo sozinho.
+
+A ORDEM DAS COISAS (regra de ouro, nunca inverta):
+descoberta → apresentação da Bula → cadastro/habilitação → **aprovação das leiloeiras** → só ENTÃO um assessor assume o cliente.
+- NUNCA diga que vai "passar para um assessor", "encaminhar para um assessor" ou "marcar uma conversa com o assessor" antes da aprovação do cadastro. Quem conduz até lá é VOCÊ.
+- Você PODE (e deve) usar o assessor como promessa de futuro, condicionada: "assim que seu cadastro for aprovado, um assessor da Bula assume seu acompanhamento nos leilões".
+- Exceção única: se o lead pedir EXPRESSAMENTE para falar com uma pessoa/humano ("quero falar com alguém", "me passa um número", "prefiro falar com gente"), aí sim handoff=true.
 
 A FASE ATUAL DA CONVERSA vem num bloco mais abaixo. Ela MANDA em tudo: o que é proibido pedir em cada fase está escrito lá. Nunca pule fase, mesmo que o lead pareça pronto.
 
@@ -207,14 +221,14 @@ SOBRE A BULA (use quando perguntarem quem somos, ou na fase de apresentação):
 - Credibilidade: site bulaassessoria.com (agenda pública em bulaassessoria.com/agenda) e Instagram @bulaassessoria.
 
 APRESENTAÇÃO COMERCIAL (a mensagem-chave da fase de apresentação — adapte ao perfil dele, 4 a 6 linhas, nunca copiada literal):
-"Deixa eu te explicar como a gente trabalha: a Bula é uma assessoria de leilão. A gente vai a campo antes do remate, analisa os animais e separa o que presta — pro seu caso, [encaixe o objetivo dele]. No dia, o assessor fica com você e te orienta até onde vale o lance, pra não pagar caro em animal que não vai te servir.
-Pro produtor não custa nada. Quer que eu te coloque com um dos nossos assessores pra conversar sobre [o objetivo dele]?"
+"Deixa eu te explicar como a gente trabalha: a Bula é uma assessoria de leilão. A gente vai a campo antes do remate, analisa os animais e separa o que presta — pro seu caso, [encaixe o objetivo dele]. No dia do leilão você não entra sozinho: tem gente da Bula te orientando até onde vale o lance, pra não pagar caro em animal que não vai te servir.
+Pro produtor não custa nada. Quer que eu já deixe seu cadastro pronto pra você participar com a gente do seu lado?"
 
 O CAMINHO DO CLIENTE (explique se perguntarem "como funciona"):
 1) A gente entende o que você tem e onde quer chegar (é o que estamos fazendo agora).
-2) Um assessor da Bula assume seu acompanhamento — sem custo — e monta a estratégia pro seu objetivo.
-3) Pra ele conseguir dar lance e cadastrar você nas leiloeiras parceiras, a gente junta uns dados e documentos. Boa parte eu já resolvo por aqui.
-4) No leilão, o assessor está com você: mostra os lotes certos e orienta o lance.
+2) Eu monto seu cadastro nas leiloeiras parceiras — juntamos uns dados e documentos, e boa parte eu já resolvo por aqui.
+3) As leiloeiras analisam e aprovam o cadastro. É o que te habilita a dar lance.
+4) Aprovado o cadastro, um assessor da Bula assume seu acompanhamento — sem custo — e no leilão fica com você: mostra os lotes certos e orienta até onde vale o lance.
 
 ESTILO (obrigatório):
 - Mensagens CURTAS: 2 a 4 linhas. Tom de WhatsApp, humano. NADA de textão (só a apresentação comercial pode ir a 6 linhas).
@@ -245,12 +259,13 @@ OBJEÇÕES E PERGUNTAS FREQUENTES (responda curto e volte pra fase atual):
 - "Quando é o próximo leilão?" → use o bloco PRÓXIMOS LEILÕES (1 a 3 eventos que combinem com o interesse) e emende com o valor do assessor no evento.
 - "E o frete?" → muitos leilões parceiros têm frete grátis; a condição exata sai em cada leilão.
 - Desconfiança ("é golpe?") → normal. Aponte o site bulaassessoria.com e o Instagram @bulaassessoria, e ofereça o contato humano. Não peça nada enquanto a pessoa estiver desconfiada.
-- "Só estou olhando / mais pra frente" → ótimo momento pra assessoria: conversar com o assessor não custa e não compromete. Registre urgencia_compra. Se recusar, não force (proxima_acao='follow-up').
+- "Só estou olhando / mais pra frente" → ótimo momento pra deixar o cadastro pronto: não custa nada, não compromete, e evita perder lote bom. Registre urgencia_compra. Se recusar, não force (proxima_acao='follow-up').
 - Lead esfriou depois de um pedido de dados → NÃO repita a lista. Pergunte em 1 linha o que ficou de dúvida, ou volte pro assunto dele (o gado).
 - Assunto fora do escopo (venda de gado, parceria, cobrança...) → handoff=true com o contato humano.
 
 REGISTRO (tão importante quanto responder): TODO dado que o lead informar vai em "updates" — quantidade de cabeças, sistema (cria/recria/engorda), o que ele cria hoje, objetivo, urgência, CPF, e-mail, endereço, fazenda, I.E. O que você não registrar, o sistema perde. Não invente nem "complete" dados que o lead não disse.
-Marque updates.assessoria_apresentada=true na mensagem em que você apresentar a Bula, e updates.aceitou_assessoria=true quando ele topar falar com um assessor ("quero", "pode ser", "como faço?", "manda").
+Marque updates.assessoria_apresentada=true na mensagem em que você apresentar a Bula, e updates.aceitou_assessoria=true quando ele topar que você cuide do cadastro/acompanhamento dele ("quero", "pode ser", "como faço?", "manda").
+QUALIFIQUE FUNDO. Além do básico, colete e registre sempre que a conversa permitir: sistema_producao (cria/recria/engorda/ciclo), rebanho_atual (o que ele cria hoje), quantidade_animais, objetivo_compra_resumido, urgencia_compra, experiencia_leilao. É esse conjunto que diz ao time O QUE OFERECER pra ele depois — sem isso, o assessor começa do zero.
 Quando o lead enviar arquivo/foto, marque em updates.documentos_recebidos o que ele representa: "identidade" (CNH/RG), "identidade_selfie" (segurando o doc), "comprovante_propriedade", "ie_nirf". Áudio NUNCA é documento (é mensagem de voz, já transcrita).
 
 REGRAS DURAS:
@@ -264,9 +279,9 @@ REGRAS DURAS:
 EXEMPLOS (adapte, não copie):
 - Descoberta: "Boa, Marcelo! Gabiru dá aquele volume, né kkk. E hoje você tá mais na cria ou já toca a engorda também?"
 - Descoberta: "Entendi — quer subir o nível do rebanho com P.O. Quantas matrizes você tem hoje?"
-- Apresentação: "Olha, a Bula é uma assessoria de leilão: a gente vai a campo antes do remate, aparta os animais e separa o que presta pro seu objetivo — no seu caso, touro que melhore o bezerro do mestiço. No dia, o assessor fica do seu lado e te fala até onde vale o lance. Pro produtor não custa nada. Quer que eu te coloque com um assessor nosso?"
-- Habilitação: "Fechado! Já vou passar você pro assessor. Pra ele conseguir te dar lance no leilão, só preciso do nome da fazenda e da cidade/UF de entrega — o resto eu já tenho aqui."
-- Completo: "Perfeito, tá tudo certo. Já encaminhei e um assessor te chama pra alinhar os próximos leilões."`
+- Apresentação: "Olha, a Bula é uma assessoria de leilão: a gente vai a campo antes do remate, aparta os animais e separa o que presta pro seu objetivo — no seu caso, touro que melhore o bezerro do mestiço. No dia, você tem a Bula do seu lado te falando até onde vale o lance. Pro produtor não custa nada. Quer que eu já deixe seu cadastro pronto?"
+- Habilitação: "Fechado! Pra te habilitar a dar lance no leilão, só preciso do nome da fazenda e da cidade/UF de entrega — o resto eu já tenho aqui."
+- Completo: "Perfeito, tá tudo certo. Já mandei seu cadastro pras leiloeiras. Assim que aprovarem, um assessor da Bula te chama pra alinhar os próximos leilões."`
 
 /* ─── Saída estruturada esperada da IA ─────────────────────────────────── */
 
@@ -385,6 +400,14 @@ async function loadLeadDocs(
     return { count: data.length, tipos: data.map(d => String(d.tipo || 'outro')) }
 }
 
+/**
+ * A I.E. deste lead pode ser dispensada? Só quando ele veio da campanha do
+ * leilão que aceita (EAO) E já declarou que não tem. Nunca por antecipação.
+ */
+function ieDispensadaPara(lead: Pick<FullLead, 'extra_data' | 'tem_inscricao_estadual'>): string | null {
+    return ieDispensavel(lead) && declarouNaoTerIe(lead) ? LEILAO_IE_FLEXIVEL : null
+}
+
 /** Checklist a partir do lead já carregado (mesma regra em todos os pontos). */
 function buildChecklist(lead: FullLead, docs: { count: number; tipos: string[] }) {
     return computeHabilitacaoChecklist({
@@ -398,6 +421,7 @@ function buildChecklist(lead: FullLead, docs: { count: number; tipos: string[] }
         extra_data: lead.extra_data,
         docsCount: docs.count,
         docTipos: docs.tipos,
+        ieDispensadaPara: ieDispensadaPara(lead),
     })
 }
 
@@ -457,35 +481,20 @@ interface FullLead {
     extra_data: Record<string, unknown> | null
 }
 
+/**
+ * Identidade e posição no CRM. O grosso do que sabemos (perfil, intenção,
+ * fiscal, jornada) vem de `qualificacaoPromptBlock`, que carrega também a
+ * PROCEDÊNCIA de cada dado — importante porque o que o lead clicou no anúncio
+ * mente com frequência (marca "quero aprender" e toca 120 cabeças).
+ */
 function knownFactsBlock(lead: FullLead): string {
-    const xd = (lead.extra_data ?? {}) as Record<string, unknown>
     const lines: string[] = []
     const add = (label: string, v: unknown) => {
         if (v === null || v === undefined || v === '') return
         lines.push(`- ${label}: ${String(v)}`)
     }
     add('Nome', lead.nome)
-    add('Estado/UF', lead.estado)
-    add('Cidade', lead.cidade)
-    add('Interesse (form)', lead.o_que_busca || lead.interesse)
-    add('Interesse principal', lead.interesse_principal)
-    add('Quantidade de cabeças', lead.quantidade_animais)
-    add('Momento na pecuária', lead.momento_pecuaria)
-    add('Tem Inscrição Estadual?', lead.tem_inscricao_estadual)
-    add('Nº Inscrição Estadual', lead.inscricao_estadual)
-    add('Etapa atual', lead.status)
-    // Campos de qualificação acumulados pelo próprio concierge.
-    add('Sistema de produção', xd.sistema_producao)
-    add('Rebanho atual', xd.rebanho_atual)
-    add('Objetivo de compra', xd.objetivo_compra_resumido)
-    add('Urgência', xd.urgencia_compra)
-    add('Experiência em leilão', xd.experiencia_leilao)
-    add('Assessoria já apresentada em', xd.assessoria_apresentada_at)
-    add('Aceitou falar com assessor', xd.aceitou_assessoria === true ? 'Sim' : undefined)
-    add('Status IE', xd.ie_status)
-    add('Status cadastro', xd.cadastro_status)
-    add('Etapa de qualificação', xd.qualificacao_step)
-    add('Próxima ação prevista', xd.proxima_acao)
+    add('Etapa no CRM', lead.status)
     return lines.length ? lines.join('\n') : '- (nenhum dado prévio relevante)'
 }
 
@@ -755,6 +764,11 @@ export async function runConcierge(
         console.warn('[concierge] agenda de leilões falhou:', e instanceof Error ? e.message : e)
     }
 
+    // Exceção de I.E. do leilão da campanha (EAO). Só existe no prompt do lead
+    // que veio dessa campanha — quem não é dela nem sabe que a regra existe.
+    const ieFlex = ieFlexivelPromptBlock(lead)
+    const ieBlock = ieFlex ? `\n\n${ieFlex}` : ''
+
     const handoffContact = input.config.handoffContact?.trim() || DEFAULT_HANDOFF_CONTACT
     const systemContent = `${persona}
 
@@ -762,10 +776,12 @@ CONTATO HUMANO (use ao fazer handoff por pedido de falar com pessoa): ${handoffC
 
 ${fasePromptBlock(fase, extractPerfil(lead))}
 
+${qualificacaoPromptBlock(lead)}${ieBlock}
+
 CHECKLIST DE HABILITAÇÃO (só entra em jogo na FASE habilitação — nas outras, ignore-o completamente):
 ${checklistPromptBlock(checklist)}${autofillBlock}${faixasBlock}${agendaBlock}
 
-DADOS QUE JÁ TEMOS DESTE LEAD (use para personalizar e NÃO repetir perguntas):
+DADOS DE IDENTIFICAÇÃO:
 ${knownFactsBlock(lead)}
 
 O primeiro nome do lead é "${fname || 'desconhecido'}". USE O NOME COM PARCIMÔNIA: chamar a pessoa pelo nome toda hora soa robótico e forçado. Como regra, só use o nome quando for realmente natural — na saudação de abertura ou num momento pontual pra dar um toque humano — e, mesmo assim, não em mensagens seguidas. Na dúvida, NÃO use o nome; fale direto com a pessoa (2ª pessoa) sem vocativo. Nunca comece toda resposta com o nome.${mediaNote}
@@ -978,14 +994,20 @@ async function applyConciergeEffects(
         ultimo_contato: new Date().toISOString(),
     }
 
-    // Colunas reais quando confirmadas.
+    // Colunas reais quando confirmadas. Toda coluna sobrescrita pela IA entra em
+    // `campos_ia` — é o que permite ao card dizer se o valor veio do formulário
+    // (o lead clicou num anúncio) ou da conversa (ele falou).
+    const camposIa = new Set(Array.isArray(prevExtra.campos_ia) ? prevExtra.campos_ia.map(String) : [])
+    const marcarIa = (coluna: string) => camposIa.add(coluna)
+
     if (u.interesse) {
         update.interesse_principal = u.interesse
         nextExtra.concierge_interesse = u.interesse
+        marcarIa('interesse_principal')
     }
-    if (u.quantidade_animais) update.quantidade_animais = u.quantidade_animais
-    if (u.estado) update.estado = u.estado
-    if (u.cidade) update.cidade = u.cidade
+    if (u.quantidade_animais) { update.quantidade_animais = u.quantidade_animais; marcarIa('quantidade_animais') }
+    if (u.estado) { update.estado = u.estado; marcarIa('estado') }
+    if (u.cidade) { update.cidade = u.cidade; marcarIa('cidade') }
     if (u.inscricao_estadual) {
         update.inscricao_estadual = u.inscricao_estadual
         update.tem_inscricao_estadual = 'Sim'
@@ -1008,6 +1030,15 @@ async function applyConciergeEffects(
     if (/\S+\s+\S+/.test(nomeCompleto) && !/\S+\s+\S+/.test(String(lead.nome ?? '').trim())) {
         update.nome = nomeCompleto
     }
+    if (camposIa.size) nextExtra.campos_ia = [...camposIa]
+
+    // I.E. dispensada: só para lead da campanha do leilão que aceita, e só
+    // depois que ELE declarou não ter. Sem isso o checklist nunca fecharia para
+    // 6 de cada 10 leads da campanha, e a ficha nunca chegaria às leiloeiras.
+    const temIeAgora = (update.tem_inscricao_estadual as string) ?? lead.tem_inscricao_estadual
+    const dispensaIe = ieDispensadaPara({ extra_data: nextExtra, tem_inscricao_estadual: temIeAgora })
+    const primeiraDispensa = Boolean(dispensaIe) && !prevExtra.ie_dispensada_leilao
+    if (dispensaIe) nextExtra.ie_dispensada_leilao = dispensaIe
 
     // Checklist recalculado com o estado PÓS-updates — vai para extra_data
     // (UI do inbox/CRM lê daqui) e decide a etapa.
@@ -1018,10 +1049,11 @@ async function applyConciergeEffects(
         celular: lead.celular,
         email: (update.email as string) ?? lead.email,
         inscricao_estadual: (update.inscricao_estadual as string) ?? lead.inscricao_estadual,
-        tem_inscricao_estadual: (update.tem_inscricao_estadual as string) ?? lead.tem_inscricao_estadual,
+        tem_inscricao_estadual: temIeAgora,
         extra_data: nextExtra,
         docsCount,
         docTipos,
+        ieDispensadaPara: dispensaIe,
     })
     nextExtra.habilitacao = {
         done: checklist.done,
@@ -1189,6 +1221,14 @@ async function applyConciergeEffects(
     // estava em handoff/opt-out, então estes são sempre eventos novos.
     const nomeSup = (update.nome as string) || lead.nome || lead.telefone || 'Lead'
     const foneSup = lead.celular || lead.telefone || ''
+
+    // Lead seguindo sem I.E. pela exceção do leilão — a equipe precisa saber, com
+    // a ressalva de que a dispensa vale só para este evento. Uma vez por lead.
+    if (primeiraDispensa) {
+        await notifyTeamGroup(supabase, avisoIeDispensadaTexto(nomeSup, foneSup))
+            .catch(() => { /* best-effort */ })
+    }
+
     if (ai.handoff && !ai.optout) {
         await notifyTeamGroup(supabase, [
             '🖐 *Lead pediu atendimento humano*',
