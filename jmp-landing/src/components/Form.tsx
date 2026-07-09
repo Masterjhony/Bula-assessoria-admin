@@ -71,9 +71,11 @@ interface FormData {
   interesse: string
   quantidade: string
   inscricaoEstadual: string
+  whatsappConsent: boolean
 }
 
 type FieldKey = keyof FormData
+type FormErrors = { [K in keyof FormData]?: string }
 
 // ── Pergunta de quantidade, contextual ao interesse ────────────────────────
 // O substantivo e a concordância ("Quantos"/"Quantas") mudam conforme o que
@@ -175,8 +177,8 @@ function analyticsProfile(data: FormData, utms: Utm) {
   }
 }
 
-function validateStep(step: number, data: FormData): Partial<FormData> {
-  const errors: Partial<FormData> = {}
+function validateStep(step: number, data: FormData): FormErrors {
+  const errors: FormErrors = {}
   if (step === 1) {
     if (!data.nome.trim() || data.nome.trim().length < 3)
       errors.nome = 'Preencha seu nome completo (mín. 3 caracteres).'
@@ -195,6 +197,7 @@ function validateStep(step: number, data: FormData): Partial<FormData> {
     if (!data.interesse) errors.interesse = 'Selecione seu interesse.'
     if (data.interesse && !data.quantidade) errors.quantidade = 'Selecione a quantidade que você precisa.'
     if (!data.inscricaoEstadual) errors.inscricaoEstadual = 'Informe se você tem inscrição estadual.'
+    if (!data.whatsappConsent) errors.whatsappConsent = 'Você precisa autorizar o contato via WhatsApp para continuar.'
   }
   return errors
 }
@@ -324,9 +327,9 @@ export function Form({ hero }: { hero: JmpHero }) {
   const [formData, setFormData] = useState<FormData>({
     nome: '', email: '', whatsapp: '',
     uf: '', cidade: '',
-    momento: '', cabecas: '', interesse: '', quantidade: '', inscricaoEstadual: '',
+    momento: '', cabecas: '', interesse: '', quantidade: '', inscricaoEstadual: '', whatsappConsent: false,
   })
-  const [errors, setErrors] = useState<Partial<FormData>>({})
+  const [errors, setErrors] = useState<FormErrors>({})
   const [cities, setCities] = useState<string[]>([])
   const [citiesLoading, setCitiesLoading] = useState(false)
   const [loading, setLoading] = useState(false)
@@ -367,6 +370,12 @@ export function Form({ hero }: { hero: JmpHero }) {
     setFormData(prev => ({ ...prev, uf: sigla, cidade: '' }))
     trackFormFieldChanged('uf', step, Boolean(sigla))
     setErrors(prev => ({ ...prev, uf: undefined, cidade: undefined }))
+  }
+
+  function handleWhatsappConsentChange(checked: boolean) {
+    setFormData(prev => ({ ...prev, whatsappConsent: checked }))
+    trackFormFieldChanged('whatsappConsent', step, checked)
+    if (errors.whatsappConsent) setErrors(prev => ({ ...prev, whatsappConsent: undefined }))
   }
 
   function goTo(target: number) {
@@ -714,6 +723,18 @@ export function Form({ hero }: { hero: JmpHero }) {
                       {errors.quantidade && <span className={errorClass}>{errors.quantidade}</span>}
                     </div>
                   )}
+                  <div>
+                    <label className="flex items-start gap-3 cursor-pointer select-none">
+                      <input
+                        type="checkbox"
+                        checked={formData.whatsappConsent}
+                        onChange={e => handleWhatsappConsentChange(e.target.checked)}
+                        className="mt-0.5 h-4 w-4 shrink-0 rounded border-white/25 bg-white/5 accent-gold focus:ring-1 focus:ring-gold/50 focus:ring-offset-0 cursor-pointer"
+                      />
+                      <span className="text-white/70 text-sm leading-snug">Autorizo a Bula Assessoria a entrar em contato comigo no WhatsApp</span>
+                    </label>
+                    {errors.whatsappConsent && <span className={errorClass}>{errors.whatsappConsent}</span>}
+                  </div>
                 </div>
                 <div className="mt-6 flex gap-3">
                   <button onClick={() => goTo(2)} className={btnBack}>← Voltar</button>
