@@ -433,7 +433,13 @@ export function Form({ hero }: { hero: JmpHero }) {
               className="h-14 w-auto object-contain sm:h-16"
             />
             <div className="h-10 w-px bg-white/30 sm:h-12" />
-            <span className="text-white font-black text-xl sm:text-2xl uppercase tracking-tight leading-none">EAO BAVIERA</span>
+            <img
+              src="/logo-eao-white.png"
+              alt="EAO Agropecuária"
+              width={1320}
+              height={1155}
+              className="h-14 w-auto object-contain sm:h-16"
+            />
           </div>
 
           {/* Urgency badge */}
@@ -510,8 +516,8 @@ export function Form({ hero }: { hero: JmpHero }) {
           <div className="mb-7">
             <p className="text-white/35 text-[10px] uppercase tracking-[3px] mb-2">Grátis · Sem compromisso</p>
             <h2 className="text-white font-black text-2xl sm:text-3xl leading-tight">
-              Garanta sua vaga<br />
-              <span className="text-white/60 font-bold">no Mega Evento EAO</span>
+              Receba a assessoria<br />
+              <span className="text-white/60 font-bold">gratuita da Bula</span>
             </h2>
           </div>
 
@@ -539,9 +545,9 @@ export function Form({ hero }: { hero: JmpHero }) {
             {/* Step 1 */}
             {step === 1 && (
               <>
-                <h3 className="text-white text-lg font-bold mb-1">Responda e receba ofertas!</h3>
+                <h3 className="text-white text-lg font-bold mb-1">Faça seu cadastro!</h3>
                 <p className="text-white/35 text-sm mb-5">
-                  Voce recebe as ofertas pelo celular! Cadastre-se
+                  É rápido. A equipe Bula recebe seus dados e fala com você direto no WhatsApp.
                 </p>
                 <div className="space-y-4">
                   <div>
@@ -747,7 +753,7 @@ export function Form({ hero }: { hero: JmpHero }) {
                       {loading ? (
                         <><Loader2 className="w-5 h-5 animate-spin" />Enviando…</>
                       ) : (
-                        'QUERO PARTICIPAR! →'
+                        'QUERO MINHA ASSESSORIA →'
                       )}
                     </span>
                   </button>
