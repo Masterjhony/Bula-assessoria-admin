@@ -87,15 +87,25 @@ function App() {
   return (
     <div className="min-h-screen font-sans bg-black text-white">
       <main>
-        {/* O poster pinta como background do container (primeiro paint), o vídeo
-            entra por cima quando carrega e o scrim escurece tudo para o texto
-            do hero ficar legível. Conteúdo em z-10, acima dos dois. */}
-        <div
-          className="relative overflow-hidden bg-black hero-bg"
-          style={{ '--hero-bg-url': `url(${content.hero.backgroundUrl})` } as React.CSSProperties}
-        >
-          <HeroVideo poster={content.hero.backgroundUrl} />
-          <div className="hero-scrim pointer-events-none absolute inset-0" aria-hidden="true" />
+        {/* A mídia (poster + vídeo + scrim) vive numa camada própria, `.hero-media`,
+            que no mobile tem a altura da TELA e não a do hero.
+
+            Sem isso o vídeo era esticado sobre os ~2000px do hero empilhado —
+            upscale de 3,5x sobre uma fonte de 1024x576, o que borrava a imagem
+            e cortava as laterais. Preso a 100svh o upscale cai para ~1,5x.
+            No desktop a camada volta a ocupar o hero inteiro (`height: 100%`).
+
+            O poster pinta como background dessa camada (primeiro paint) e o
+            vídeo entra por cima quando carrega. Conteúdo em z-10, acima. */}
+        <div className="relative overflow-hidden bg-black">
+          <div
+            className="hero-media pointer-events-none"
+            style={{ '--hero-bg-url': `url(${content.hero.backgroundUrl})` } as React.CSSProperties}
+            aria-hidden="true"
+          >
+            <HeroVideo poster={content.hero.backgroundUrl} />
+            <div className="hero-scrim absolute inset-0" />
+          </div>
           <div className="relative z-10">
             <Form hero={content.hero} />
           </div>

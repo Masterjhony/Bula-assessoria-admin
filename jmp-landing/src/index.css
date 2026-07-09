@@ -53,21 +53,42 @@ html {
 .hide-scrollbar::-webkit-scrollbar { display: none; }
 .hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
 
-/* Fundo do hero. `--hero-bg-url` (setada inline no App.tsx a partir de
-   content.hero.backgroundUrl) é o POSTER do vídeo: 1280x720, o primeiro quadro
-   da filmagem de drone. Como é 16:9 e não mais um flyer em retrato, `cover`
-   serve nas duas orientações — o antigo truque de `contain` no mobile (que
-   existia para não cortar a arte do flyer) deixou de ser necessário.
+/* Camada de mídia do hero: poster (background), <video> e scrim.
 
-   `background-attachment: fixed` também saiu: com o <video> por cima, o
-   paralaxe do poster só criaria descolamento entre as duas camadas. */
-.hero-bg {
+   `--hero-bg-url` (setada inline no App.tsx a partir de content.hero.backgroundUrl)
+   é o POSTER do vídeo — o quadro de 2s, 16:9.
+
+   A ALTURA é o ponto central. No mobile o hero empilha texto + formulário e
+   passa de 2000px; se a mídia acompanhasse essa altura, o `cover` faria um
+   upscale de ~3,5x sobre a fonte de 1024x576 (borrado, e cortando as laterais).
+   Presa a uma tela de altura, o upscale cai para ~1,5x — é o mesmo motivo de o
+   hero de /agenda, que é uma faixa curta, parecer mais nítido.
+
+   Abaixo dessa camada o hero é preto puro, e o scrim termina em #000, então a
+   emenda não aparece. No desktop a camada volta a ocupar o hero inteiro.
+
+   `background-attachment: fixed` não entra: com o <video> por cima, o paralaxe
+   do poster descolaria as duas camadas. */
+.hero-media {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 100vh; /* fallback p/ navegadores sem svh */
+  height: 100svh;
+  overflow: hidden;
   background-color: #000;
   background-image: var(--hero-bg-url);
   background-repeat: no-repeat;
   background-size: cover;
   background-position: center;
   background-attachment: scroll;
+}
+
+@media (min-width: 1024px) {
+  .hero-media {
+    height: 100%;
+  }
 }
 
 /* Escurece o vídeo/poster para o texto branco ter contraste. Fica ACIMA do
@@ -99,14 +120,17 @@ html {
     );
 }
 
-/* No mobile o hero empilha texto + formulário em coluna e fica bem mais alto,
-   então o texto corre por cima da filmagem em quase toda a altura. Ainda assim
-   o véu tem que ser LEVE: as camadas se somam e o hero vira um retângulo preto.
-   O contraste vem do gradiente, que adensa só onde o texto realmente cai. */
+/* No mobile o scrim cobre a camada de mídia (uma tela de altura), não o hero
+   inteiro. Por isso o gradiente TEM que fechar em #000 a 100%: é ali que a
+   filmagem acaba e começa o preto do resto do hero — sem isso aparece uma
+   emenda horizontal.
+
+   O véu é leve de propósito: as camadas se somam e o hero vira um retângulo
+   preto. O contraste vem do gradiente, que adensa onde o texto cai. */
 @media (max-width: 1023px) {
   .hero-scrim {
-    background-color: rgba(10, 10, 10, 0.35);
+    background-color: rgba(10, 10, 10, 0.3);
     background-image:
-      linear-gradient(to bottom, rgba(10, 10, 10, 0.1) 0%, rgba(10, 10, 10, 0.3) 42%, rgba(10, 10, 10, 0.72) 80%, #000 100%);
+      linear-gradient(to bottom, rgba(10, 10, 10, 0.08) 0%, rgba(10, 10, 10, 0.25) 45%, rgba(10, 10, 10, 0.7) 82%, #000 100%);
   }
 }
