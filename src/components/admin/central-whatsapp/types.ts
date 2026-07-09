@@ -162,7 +162,28 @@ export interface CampaignStep {
     updated_at: string
 }
 
+export interface TaxaRespostaLinha {
+    /** `origin` da mensagem: identifica o disparo (ex.: frio-estancia-bahia:2026-07). */
+    origin: string
+    enviados: number
+    responderam: number
+    pct: number
+}
+
 export interface CentralMetrics {
+    periodo_dias: number
+    campanha: string | null
+    canal: string | null
+    /** Campanhas disponíveis no seletor, com o total de leads de cada uma. */
+    campanhas: Array<{ key: string; leads: number }>
+    /** Mensagens de grupo (Baileys) que ficaram FORA de toda contagem. */
+    mensagens_grupo_excluidas: number
+    leads_no_recorte: number
+    mensagens_enviadas_periodo: number
+    mensagens_recebidas_periodo: number
+    taxa_resposta: TaxaRespostaLinha[]
+    taxa_resposta_total: { enviados: number; responderam: number; pct: number }
+
     novos_contatos_7d: number
     leads_com_interesse: number
     aguardando_humano: number
