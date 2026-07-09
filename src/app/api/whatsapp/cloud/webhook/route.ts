@@ -18,7 +18,7 @@
  * (sendOutbound, intent crm_reply) — dentro da janela de 24h é texto livre.
  */
 
-import { NextRequest, NextResponse } from 'next/server'
+import { NextRequest, NextResponse, after } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
 import crypto from 'crypto'
 import { normalizePhone } from '@/lib/whatsapp-central'
@@ -28,7 +28,9 @@ import { sendOutbound } from '@/lib/whatsapp-gateway'
 import { downloadWhatsappCloudMedia } from '@/lib/whatsapp-cloud-api'
 import type { SupabaseClient } from '@supabase/supabase-js'
 
-export const maxDuration = 30
+// O processamento (transcrição, IA, consultas, envio) roda em `after()`, depois
+// do 200 — mas ainda dentro desta invocação. Precisa de teto folgado.
+export const maxDuration = 120
 
 function getSupabase() {
     return createClient(
@@ -178,6 +180,21 @@ async function ingestInboundMedia(
     }
 }
 
+type MetaPayload = {
+    object?: string
+    entry?: Array<{
+        changes?: Array<{
+            field?: string
+            value?: {
+                messaging_product?: string
+                contacts?: Array<{ profile?: { name?: string }; wa_id?: string }>
+                messages?: MetaMessage[]
+                statuses?: Array<{ id?: string; status?: string; errors?: Array<{ title?: string; message?: string }> }>
+            }
+        }>
+    }>
+}
+
 // ── POST: eventos da Meta ───────────────────────────────────────────────────
 export async function POST(req: NextRequest) {
     const raw = await req.text()
@@ -185,28 +202,25 @@ export async function POST(req: NextRequest) {
         return NextResponse.json({ error: 'invalid signature' }, { status: 401 })
     }
 
-    let payload: {
-        object?: string
-        entry?: Array<{
-            changes?: Array<{
-                field?: string
-                value?: {
-                    messaging_product?: string
-                    contacts?: Array<{ profile?: { name?: string }; wa_id?: string }>
-                    messages?: MetaMessage[]
-                    statuses?: Array<{ id?: string; status?: string; errors?: Array<{ title?: string; message?: string }> }>
-                }
-            }>
-        }>
-    }
+    let payload: MetaPayload
     try {
         payload = JSON.parse(raw)
     } catch {
         return NextResponse.json({ error: 'Invalid JSON' }, { status: 400 })
     }
 
-    // Respondemos 200 mesmo em erro de processamento: a Meta reenvia em não-200,
-    // gerando duplicatas. Erros são logados e a inbound já fica registrada.
+    // O 200 sai AGORA; o trabalho pesado (transcrição, IA, consultas, envio)
+    // roda em `after()`. Antes ele acontecia antes da resposta: quando a IA ou
+    // uma consulta demorava, a função estourava o tempo, a Meta reentregava e o
+    // dedup por wamid descartava a reentrega — o lead ficava sem resposta pra
+    // sempre. Respondendo já, a Meta nunca reenvia, e se o processamento morrer
+    // o catchup (cron) reprocessa o lead em minutos.
+    after(() => processEvents(payload))
+
+    return NextResponse.json({ received: true })
+}
+
+async function processEvents(payload: MetaPayload): Promise<void> {
     try {
         const supabase = getSupabase()
 
@@ -270,6 +284,12 @@ export async function POST(req: NextRequest) {
                             console.warn('[cloud-webhook] envio da resposta falhou:', err instanceof Error ? err.message : err),
                         )
                     }
+
+                    // Automações caras (crédito, avisos, ficha às leiloeiras) —
+                    // só agora, com a mensagem do lead já entregue.
+                    await outcome.after?.().catch(err =>
+                        console.warn('[cloud-webhook] efeitos pós-resposta falharam:', err instanceof Error ? err.message : err),
+                    )
                 }
 
                 // Recibos de entrega — atualiza o status do outbound pelo wamid.
@@ -292,6 +312,4 @@ export async function POST(req: NextRequest) {
     } catch (err) {
         console.error('[cloud-webhook] erro ao processar evento:', err instanceof Error ? err.message : err)
     }
-
-    return NextResponse.json({ received: true })
 }

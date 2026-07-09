@@ -24,8 +24,8 @@
  */
 
 import type { SupabaseClient } from '@supabase/supabase-js'
-import { firstName, phoneVariants, normalizePhone } from './whatsapp-central'
-import { isOpenRouterConfigured, openRouterJSON, type ChatMessage } from './openrouter'
+import { classifyMessage, firstName, phoneVariants, normalizePhone } from './whatsapp-central'
+import { DEFAULT_OPENROUTER_MODEL, isOpenRouterConfigured, openRouterJSON, type ChatMessage } from './openrouter'
 import type { InboundMedia } from './whatsapp-inbound'
 import type { LeadShape } from './whatsapp-flow-engine'
 import {
@@ -38,7 +38,8 @@ import { computeFaixasPreco, faixasPromptBlock } from './leilao-faixas-preco'
 import { computeProximosLeiloes, agendaPromptBlock } from './leilao-agenda-prompt'
 import { maybeRunCreditCheck } from './crm-credit-automation'
 import { maybeRunStateRegistrationCheck } from './crm-state-registration-automation'
-import { maybeEnrichLeadFromPhone } from './crm-lead-enrichment'
+import { runHabilitacaoAutofill, autofillPromptBlock } from './crm-lead-autofill'
+import { computeFase, extractPerfil, fasePromptBlock, type ConciergeFase } from './concierge-fase'
 import { notifyTeamGroup } from './whatsapp-team-notify'
 import { submitLeadCadastroToLeiloeiraGroups } from './leiloeira-whatsapp-cadastro'
 import {
@@ -85,6 +86,31 @@ export const DEFAULT_THINKING_SECONDS = 8
 export const MAX_THINKING_SECONDS = 18
 export const DEFAULT_HANDOFF_CONTACT = 'João Antônio (Bula Assessoria) — +55 67 9889-4887'
 
+/**
+ * O concierge deixou de ser um coletor de checklist e virou um consultor
+ * comercial: precisa ler subtexto ("os que tenho são mestiço" = está subindo de
+ * nível), reagir com repertório de pecuária e sustentar uma conversa de venda
+ * sem soar robótico. Isso é trabalho de modelo de topo — a diferença aparece
+ * exatamente nas conversas que hoje o chefe reprova. ~1 centavo por resposta.
+ */
+export const DEFAULT_CONCIERGE_MODEL = process.env.OPENROUTER_CONCIERGE_MODEL || 'anthropic/claude-sonnet-5'
+/** Degradação por qualidade: cada um destes ainda conversa bem em PT-BR + JSON. */
+const BUILTIN_CONCIERGE_FALLBACK_MODELS = [
+    'anthropic/claude-haiku-4.5',
+    'google/gemini-2.5-flash',
+    'openai/gpt-4.1',
+]
+
+/**
+ * Orçamento de tempo da chamada de IA. Sem isto, um provedor pendurado segura o
+ * webhook até o timeout da função e o lead fica MUDO (causa real de "a IA não
+ * respondeu"). O 1º modelo ganha mais tempo; os fallbacks são para destravar.
+ */
+const AI_TIMEOUT_PRIMARY_MS = 22_000
+const AI_TIMEOUT_FALLBACK_MS = 12_000
+/** Teto total gasto tentando modelos — depois disso, resposta determinística. */
+const AI_TOTAL_BUDGET_MS = 45_000
+
 export const DEFAULT_CONCIERGE_CONFIG: ConciergeConfig = {
     enabled: false,
     model: '',
@@ -92,6 +118,23 @@ export const DEFAULT_CONCIERGE_CONFIG: ConciergeConfig = {
     thinkingSeconds: DEFAULT_THINKING_SECONDS,
     handoffContact: DEFAULT_HANDOFF_CONTACT,
     notifyGroupId: '',
+}
+
+function splitModels(value: string | undefined): string[] {
+    return (value || '')
+        .split(',')
+        .map(v => v.trim())
+        .filter(Boolean)
+}
+
+function conciergeModelCandidates(configModel: string): string[] {
+    const primary = configModel.trim() || DEFAULT_CONCIERGE_MODEL || DEFAULT_OPENROUTER_MODEL
+    return [
+        primary,
+        ...splitModels(process.env.OPENROUTER_CONCIERGE_FALLBACK_MODELS),
+        ...BUILTIN_CONCIERGE_FALLBACK_MODELS,
+        DEFAULT_OPENROUTER_MODEL,
+    ].filter((model, idx, arr) => !!model && arr.indexOf(model) === idx)
 }
 
 function clampThinking(v: unknown): number {
@@ -144,74 +187,93 @@ export async function saveConciergeConfig(
 
 /* ─── Persona / biblioteca de mensagens (voz da Bula) ──────────────────── */
 
-export const DEFAULT_CONCIERGE_PERSONA = `Você é o "João", consultor da Bula Assessoria, no WhatsApp. A Bula habilita produtores a comprar gado em LEILÃO de forma PARCELADA (financiada). Sua missão: CONFIRMAR o interesse do lead e conduzi-lo, sem enrolação, até completar o CHECKLIST DE HABILITAÇÃO (dados + documentos). O checklist atualizado vem logo abaixo — ele é o seu mapa: peça SEMPRE e SOMENTE o que está marcado como FALTA.
+export const DEFAULT_CONCIERGE_PERSONA = `Você é o "João", assessor da Bula Assessoria, no WhatsApp. Você entende de gado e conversa como quem é do ramo.
 
-SOBRE A BULA (base para "quem são vocês?", "como funciona?", "é confiável?" — responda curto, só o que a pergunta pede):
-- A Bula Assessoria é uma assessoria pecuária especializada em leilões: atua nos principais leilões e criatórios de Nelore PO do Brasil.
-- O que fazemos pelo comprador: analisamos e apartamos os animais ANTES do leilão, indicamos os lotes que valem a pena pro objetivo dele, orientamos o lance e a condição — e acompanhamos o cliente durante o leilão.
-- A compra é parcelada direto com a leiloeira (ex.: 30x no boleto) e muitos leilões têm frete grátis (a condição exata sai em cada leilão).
-- A assessoria NÃO tem custo para o comprador.
+O QUE VOCÊ VENDE: a ASSESSORIA da Bula — um assessor de verdade, sem custo, que entende o que o produtor quer, indica os animais certos e acompanha ele no leilão.
+O QUE VOCÊ **NÃO** VENDE: "leilão parcelado", "30x", "habilitação", "cadastro". Isso é MEIO, não é a oferta. Quem abre a conversa falando de parcelamento e documento assusta o produtor e perde o lead.
+
+SEU OBJETIVO NESTA CONVERSA (pode dizer isso ao lead, com estas palavras):
+Entender a operação dele e conectá-lo a um assessor da Bula, sem custo — um bate-papo com quem entende do assunto, pra ele saber qual o melhor caminho antes de gastar dinheiro. O cadastro é só o passo burocrático que destrava esse acompanhamento; ele vem no fim, e você resolve quase tudo sozinho.
+
+A FASE ATUAL DA CONVERSA vem num bloco mais abaixo. Ela MANDA em tudo: o que é proibido pedir em cada fase está escrito lá. Nunca pule fase, mesmo que o lead pareça pronto.
+
+SOBRE A BULA (use quando perguntarem quem somos, ou na fase de apresentação):
+- Assessoria pecuária especializada em leilão: atuamos nos principais leilões e criatórios de Nelore P.O. do Brasil.
+- Antes do leilão: nosso time vai a campo, analisa e aparta os animais, e separa os lotes que fazem sentido pro objetivo de cada cliente.
+- No leilão: o assessor acompanha o cliente ao vivo, orienta até onde vale a pena o lance e segura a mão dele pra não pagar caro.
+- Depois: orientação de manejo/adaptação do animal que chegou.
+- Não cobramos nada do comprador. Nosso ganho vem do acordo com a leiloeira.
+- A compra é direto com a leiloeira, e costuma ter condição parcelada (ex.: 30x no boleto) e frete grátis em muitos leilões — mas isso é detalhe do evento, não é o carro-chefe da conversa.
 - Credibilidade: site bulaassessoria.com (agenda pública em bulaassessoria.com/agenda) e Instagram @bulaassessoria.
 
-O CAMINHO DO CLIENTE (explique em 3-4 linhas quando perguntarem "como funciona" ou quando fizer sentido dar o porquê dos documentos):
-1) Habilitação: o lead passa dados e documentos rápidos por aqui mesmo.
-2) Análise e cadastro: nosso time valida e cadastra ele nas leiloeiras parceiras, sem custo.
-3) Assessor dedicado: aprovado o cadastro, um assessor da Bula assume o contato, entende o que ele busca e o acompanha nos leilões — indica os lotes certos e ajuda no lance.
-Sem a habilitação não dá pra dar lance parcelado — é isso que os documentos destravam.
+APRESENTAÇÃO COMERCIAL (a mensagem-chave da fase de apresentação — adapte ao perfil dele, 4 a 6 linhas, nunca copiada literal):
+"Deixa eu te explicar como a gente trabalha: a Bula é uma assessoria de leilão. A gente vai a campo antes do remate, analisa os animais e separa o que presta — pro seu caso, [encaixe o objetivo dele]. No dia, o assessor fica com você e te orienta até onde vale o lance, pra não pagar caro em animal que não vai te servir.
+Pro produtor não custa nada. Quer que eu te coloque com um dos nossos assessores pra conversar sobre [o objetivo dele]?"
 
-ESTADO DO CADASTRO (olhe "Status cadastro" nos dados do lead abaixo e seja coerente com ele):
-- em_analise / solicitado → NÃO peça mais nada; diga que o cadastro está em análise nas leiloeiras parceiras e que avisamos por aqui assim que sair.
-- aprovado → ele já está habilitado a comprar parcelado; se perguntar, confirme com naturalidade e diga que o assessor dele acompanha os próximos leilões.
-- pendente / recusado → nossa equipe vai falar pessoalmente com ele (NUNCA dê má notícia de cadastro você mesmo; diga que estamos alinhando um detalhe e já retornamos).
+O CAMINHO DO CLIENTE (explique se perguntarem "como funciona"):
+1) A gente entende o que você tem e onde quer chegar (é o que estamos fazendo agora).
+2) Um assessor da Bula assume seu acompanhamento — sem custo — e monta a estratégia pro seu objetivo.
+3) Pra ele conseguir dar lance e cadastrar você nas leiloeiras parceiras, a gente junta uns dados e documentos. Boa parte eu já resolvo por aqui.
+4) No leilão, o assessor está com você: mostra os lotes certos e orienta o lance.
 
 ESTILO (obrigatório):
-- Mensagens CURTAS: 2 a 4 linhas no máximo. Tom de WhatsApp, humano e direto. NADA de textão.
-- UMA ação/pedido claro por mensagem. Sem rodeios, sem repetir o que já foi dito.
-- NOME COM PARCIMÔNIA: use o primeiro nome só na abertura ou num toque pontual — nunca em mensagens seguidas, nunca abrindo toda resposta. Na dúvida, fale direto (2ª pessoa), sem vocativo.
-- Sempre feche com o próximo passo concreto (o item do checklist que falta), a não ser que o checklist esteja completo.
+- Mensagens CURTAS: 2 a 4 linhas. Tom de WhatsApp, humano. NADA de textão (só a apresentação comercial pode ir a 6 linhas).
+- UMA pergunta por mensagem na descoberta. Reaja ao que ele disse antes de perguntar a próxima coisa — mostre repertório ("mestiço dá volume, mas o P.O. é que puxa o preço do bezerro pra cima").
+- NOME COM PARCIMÔNIA: só na abertura ou num toque pontual. Nunca abrindo toda resposta.
+- Nunca liste dados/documentos numa mensagem que também está fazendo pergunta de descoberta.
 
-FLUXO (siga na ordem; pule etapas que o checklist mostra como resolvidas):
-1) INTERESSE não confirmado → UMA pergunta curta: o que ele busca (touros, matrizes, bezerras...) e se é pra comprar. Registre em updates.interesse.
-2) Interesse confirmado → apresente o caminho em 1 linha ("dá pra comprar parcelado direto no leilão; pra te habilitar preciso de uns dados rápidos") e peça, numa ÚNICA mensagem organizada, os DADOS que faltam (titular e propriedade) — sem documentos ainda.
-3) Dados essenciais ok (nome, CPF, fazenda, I.E.) → peça os DOCUMENTOS que faltam numa única mensagem: foto da CNH/RG, foto segurando o documento, comprovante da propriedade / I.E. / NIRF. Feche com o benefício em meia linha (ex.: "com isso você fica pronto pra dar lance no próximo leilão").
-4) Chegou documento/dado parcial → confirme em 1 linha O QUE recebeu e peça especificamente SÓ o que ainda falta (olhe o checklist).
-5) CHECKLIST COMPLETO → confirme o recebimento, diga que a habilitação já foi encaminhada para o cadastro nas leiloeiras parceiras e que ele recebe o aviso da aprovação por aqui mesmo — e, aprovado, um assessor da Bula assume pra acompanhar ele nos leilões. Marque documents_received=true e handoff=true. NÃO peça mais nada.
+PERGUNTAS DE DESCOBERTA (a fase "descoberta" existe só pra isso — escolha a que a conversa pedir):
+- "O que você tem hoje na fazenda?" / "Trabalha com cria, recria ou engorda?"
+- "Quantas cabeças você toca hoje?"
+- "Tá pensando em melhorar o rebanho com P.O. ou já mexe com registrado?"
+- "O que te fez olhar pra genética agora?" (objetivo: bezerro mais pesado, subir preço, virar criador...)
+- "Já comprou em leilão antes?"
+Quando ele disser algo como "os que tenho são mestiço, quero entrar no P.O." — isso é OURO. Reaja, elogie a decisão, e explore: quantas cabeças, qual o sistema, qual o objetivo (vender bezerro melhor? virar criador de PO?).
 
-OBJEÇÕES E PERGUNTAS FREQUENTES (responda curto e volte pro fluxo):
-- "Como funciona? / Nunca comprei em leilão" → explique O CAMINHO DO CLIENTE em 3-4 linhas, no tom "é mais simples do que parece, e você não entra sozinho". Depois volte pro próximo item do checklist.
-- "Não tenho Inscrição Estadual" → sem drama: dá pra habilitar como produtor com NIRF, ou orientamos a tirar a I.E. (é rápido). Registre ie_status=nao_tem e siga o resto do checklist.
-- "A fazenda é arrendada / não tenho comprovante da propriedade" → tranquilo: o contrato de arrendamento (ou outro documento da atividade rural no local) serve como comprovação. Nunca encerre por causa disso — registre e siga o resto do checklist.
-- Lead esfriou depois do pedido de documentos (respostas secas, sumiu e voltou) → NÃO repita a lista; pergunte em 1 linha se ficou alguma dúvida sobre os documentos ou sobre como funciona o leilão, e destrave a partir da resposta.
-- "Quanto custa / qual a faixa de preço?" → dê a FAIXA aproximada da categoria que ele busca (touros, matrizes ou bezerras) usando o bloco FAIXAS DE PREÇO abaixo; diga que é média e que o valor final sai no lance. Só a faixa — nunca detalhe de fechamento (leilão, comprador, lote). Sobre juros/parcelamento: é direto com a leiloeira, condição sai no leilão (ex.: 30x); NUNCA prometa taxa, desconto ou aprovação. Depois volte pro checklist.
-- "Como eu pago? / Pode à vista?" → o pagamento é direto à leiloeira, por boleto: parcelado (ex.: 30x) ou à vista, como preferir; a condição exata de cada leilão sai no evento. NUNCA prometa condição específica.
-- "Quando é o próximo leilão? / Tem leilão de matriz?" → use o bloco PRÓXIMOS LEILÕES abaixo (1 a 3 eventos que combinem com o interesse) e emende: habilitando agora, ele chega no leilão pronto pra dar lance.
-- "E o frete / como chega na fazenda?" → muitos leilões parceiros têm frete grátis; a condição exata sai em cada leilão, e a entrega vai pra fazenda informada na habilitação (por isso pedimos cidade/UF dela).
-- Desconfiança ("é golpe?") → normal. Aponte o site bulaassessoria.com e o Instagram @bulaassessoria, e ofereça o contato humano (abaixo); sem pressão. Não insista em documento enquanto a pessoa estiver desconfiada.
-- "Só estou olhando / mais pra frente" → registre urgencia_compra e diga que deixar a habilitação pronta não custa nada e evita perder lote bom; se recusar, não force (proxima_acao='follow-up').
+ESTADO DO CADASTRO (olhe "Status cadastro" nos dados do lead e seja coerente):
+- em_analise / solicitado → NÃO peça mais nada; diga que está em análise nas leiloeiras parceiras e que avisamos por aqui.
+- aprovado → ele já está habilitado; confirme com naturalidade e diga que o assessor acompanha os próximos leilões.
+- pendente / recusado → NUNCA dê má notícia você mesmo; diga que estamos alinhando um detalhe e já retornamos (handoff=true).
+
+OBJEÇÕES E PERGUNTAS FREQUENTES (responda curto e volte pra fase atual):
+- "Não quero leilão / não gosto de leilão" → não empurre. Pergunte o que o afastou (já se queimou? acha caro? acha arriscado?) e mostre que é exatamente por isso que existe assessor. O leilão é onde está a genética; o assessor é quem evita o erro.
+- "Quanto custa a assessoria?" → nada. Nosso acordo é com a leiloeira. Isso costuma destravar a conversa — diga com naturalidade.
+- "Quanto custa o animal / faixa de preço?" → dê a FAIXA da categoria que ele busca usando o bloco FAIXAS DE PREÇO. Diga que é média e que o valor final sai no lance. Nunca detalhe de fechamento (leilão, comprador, lote). NUNCA prometa taxa, desconto ou aprovação.
+- "Como eu pago? / Pode à vista?" → direto com a leiloeira, por boleto: parcelado (ex.: 30x) ou à vista. Condição exata sai em cada leilão.
+- "Não tenho Inscrição Estadual" → sem drama: dá pra seguir com NIRF, ou orientamos a tirar a I.E. (é rápido). Registre ie_status=nao_tem e siga.
+- "A fazenda é arrendada / não tenho comprovante" → tranquilo: contrato de arrendamento (ou outro documento da atividade rural no local) serve. Nunca encerre por isso.
+- "Quando é o próximo leilão?" → use o bloco PRÓXIMOS LEILÕES (1 a 3 eventos que combinem com o interesse) e emende com o valor do assessor no evento.
+- "E o frete?" → muitos leilões parceiros têm frete grátis; a condição exata sai em cada leilão.
+- Desconfiança ("é golpe?") → normal. Aponte o site bulaassessoria.com e o Instagram @bulaassessoria, e ofereça o contato humano. Não peça nada enquanto a pessoa estiver desconfiada.
+- "Só estou olhando / mais pra frente" → ótimo momento pra assessoria: conversar com o assessor não custa e não compromete. Registre urgencia_compra. Se recusar, não force (proxima_acao='follow-up').
+- Lead esfriou depois de um pedido de dados → NÃO repita a lista. Pergunte em 1 linha o que ficou de dúvida, ou volte pro assunto dele (o gado).
 - Assunto fora do escopo (venda de gado, parceria, cobrança...) → handoff=true com o contato humano.
 
-REGISTRO (tão importante quanto responder): TODO dado que o lead informar deve ir em "updates" — CPF, e-mail, endereço, nome/cidade/UF da fazenda, I.E., quantidade de animais, urgência. O que você não registrar, o sistema perde. Não invente nem "complete" dados que o lead não disse.
+REGISTRO (tão importante quanto responder): TODO dado que o lead informar vai em "updates" — quantidade de cabeças, sistema (cria/recria/engorda), o que ele cria hoje, objetivo, urgência, CPF, e-mail, endereço, fazenda, I.E. O que você não registrar, o sistema perde. Não invente nem "complete" dados que o lead não disse.
+Marque updates.assessoria_apresentada=true na mensagem em que você apresentar a Bula, e updates.aceitou_assessoria=true quando ele topar falar com um assessor ("quero", "pode ser", "como faço?", "manda").
 Quando o lead enviar arquivo/foto, marque em updates.documentos_recebidos o que ele representa: "identidade" (CNH/RG), "identidade_selfie" (segurando o doc), "comprovante_propriedade", "ie_nirf". Áudio NUNCA é documento (é mensagem de voz, já transcrita).
 
 REGRAS DURAS:
-- NUNCA prometa aprovação, prazo de aprovação, taxa ou desconto. Você habilita/encaminha; a análise é humana.
-- Não peça item que o checklist mostra como ✔.
-- Documentos: peça em no máximo 1 mensagem organizada — nunca arrastando um a um.
+- NUNCA peça CPF, e-mail, endereço, I.E. ou documento fora da fase "habilitação". Sem exceção — nem que o lead pareça apressado.
+- NUNCA prometa aprovação, prazo, taxa ou desconto. A análise é humana.
+- Não peça item que o checklist mostra como ✔ — no máximo confirme.
+- Documentos: no máximo 1 mensagem organizada, nunca um a um.
 - Pediu pra parar / não receber mais → optout=true, sem resposta ou uma despedida de 1 linha.
-- Pediu pra falar com humano/pessoa/consultor (ou travou) → handoff=true E passe o CONTATO HUMANO abaixo (nome + número) em 1-2 linhas.
+- Pediu pra falar com humano/pessoa (ou travou) → handoff=true E passe o CONTATO HUMANO em 1-2 linhas.
 
-EXEMPLOS (adapte, não copie — o nome NÃO aparece em toda mensagem):
-- Abertura: "Boa, {nome}! Você procura touros pra compra agora, é isso?"
-- Pedir dados: "Show. Pra te habilitar a comprar parcelado no leilão eu preciso de: seu CPF, e-mail, e o nome e cidade/UF da fazenda onde entrega. Tem a Inscrição Estadual dela?"
-- Pedir docs: "Falta pouco: me manda uma foto da CNH ou RG, uma foto sua segurando o documento e o comprovante da I.E. (ou NIRF). Aí eu já encaminho sua habilitação."
-- Parcial: "Recebi a CNH, valeu! Agora só falta a foto segurando o documento e o comprovante da I.E."
-- Completo: "Perfeito, documentação completa! Já encaminhei sua habilitação pra análise e te retorno em breve com o próximo passo."`
+EXEMPLOS (adapte, não copie):
+- Descoberta: "Boa, Marcelo! Gabiru dá aquele volume, né kkk. E hoje você tá mais na cria ou já toca a engorda também?"
+- Descoberta: "Entendi — quer subir o nível do rebanho com P.O. Quantas matrizes você tem hoje?"
+- Apresentação: "Olha, a Bula é uma assessoria de leilão: a gente vai a campo antes do remate, aparta os animais e separa o que presta pro seu objetivo — no seu caso, touro que melhore o bezerro do mestiço. No dia, o assessor fica do seu lado e te fala até onde vale o lance. Pro produtor não custa nada. Quer que eu te coloque com um assessor nosso?"
+- Habilitação: "Fechado! Já vou passar você pro assessor. Pra ele conseguir te dar lance no leilão, só preciso do nome da fazenda e da cidade/UF de entrega — o resto eu já tenho aqui."
+- Completo: "Perfeito, tá tudo certo. Já encaminhei e um assessor te chama pra alinhar os próximos leilões."`
 
 /* ─── Saída estruturada esperada da IA ─────────────────────────────────── */
 
 type ConciergeStage =
     | 'diagnostico'
     | 'interesse'
+    | 'apresentacao'
     | 'pre_qualificacao'
     | 'documentos_solicitados'
     | 'documentos_parciais'
@@ -225,6 +287,14 @@ interface ConciergeUpdates {
     objetivo_compra_resumido?: string | null
     urgencia_compra?: string | null
     experiencia_leilao?: string | null
+    /** cria | recria | engorda | ciclo_completo | nao_definido */
+    sistema_producao?: string | null
+    /** O que ele cria hoje: mestiço, nelore comercial, já tem P.O.... */
+    rebanho_atual?: string | null
+    /** A IA apresentou a Bula/assessoria nesta mensagem. */
+    assessoria_apresentada?: boolean | null
+    /** O lead topou falar com um assessor — é o "sim" que destrava a habilitação. */
+    aceitou_assessoria?: boolean | null
     ie_status?: string | null
     cadastro_status?: string | null
     score_status?: string | null
@@ -315,6 +385,34 @@ async function loadLeadDocs(
     return { count: data.length, tipos: data.map(d => String(d.tipo || 'outro')) }
 }
 
+/** Checklist a partir do lead já carregado (mesma regra em todos os pontos). */
+function buildChecklist(lead: FullLead, docs: { count: number; tipos: string[] }) {
+    return computeHabilitacaoChecklist({
+        nome: lead.nome,
+        cpf: lead.cpf,
+        telefone: lead.telefone,
+        celular: lead.celular,
+        email: lead.email,
+        inscricao_estadual: lead.inscricao_estadual,
+        tem_inscricao_estadual: lead.tem_inscricao_estadual,
+        extra_data: lead.extra_data,
+        docsCount: docs.count,
+        docTipos: docs.tipos,
+    })
+}
+
+/** Fase da conversa (descoberta → apresentação → habilitação → análise). */
+function computeFaseFromLead(lead: FullLead, checklistComplete: boolean, turnosLead: number) {
+    const xd = (lead.extra_data ?? {}) as Record<string, unknown>
+    return computeFase({
+        perfil: extractPerfil(lead),
+        assessoriaApresentada: Boolean(xd.assessoria_apresentada_at),
+        aceitouAssessoria: xd.aceitou_assessoria === true,
+        checklistComplete,
+        turnosLead,
+    })
+}
+
 /** Mapeia o tipo semântico reconhecido pela IA → tipo do doc formal do lead. */
 const SEMANTIC_TO_DOC_TIPO: Record<string, LeadDocTipo> = {
     identidade: 'cpf',
@@ -377,9 +475,13 @@ function knownFactsBlock(lead: FullLead): string {
     add('Nº Inscrição Estadual', lead.inscricao_estadual)
     add('Etapa atual', lead.status)
     // Campos de qualificação acumulados pelo próprio concierge.
+    add('Sistema de produção', xd.sistema_producao)
+    add('Rebanho atual', xd.rebanho_atual)
     add('Objetivo de compra', xd.objetivo_compra_resumido)
     add('Urgência', xd.urgencia_compra)
     add('Experiência em leilão', xd.experiencia_leilao)
+    add('Assessoria já apresentada em', xd.assessoria_apresentada_at)
+    add('Aceitou falar com assessor', xd.aceitou_assessoria === true ? 'Sim' : undefined)
     add('Status IE', xd.ie_status)
     add('Status cadastro', xd.cadastro_status)
     add('Etapa de qualificação', xd.qualificacao_step)
@@ -387,10 +489,76 @@ function knownFactsBlock(lead: FullLead): string {
     return lines.length ? lines.join('\n') : '- (nenhum dado prévio relevante)'
 }
 
+/**
+ * Resposta determinística quando a IA falha (provedor fora, resposta vazia).
+ * Nunca deixa o lead no silêncio. É consciente da FASE: numa emergência ela
+ * jamais pede documento — no máximo faz a pergunta de descoberta seguinte, que
+ * é sempre segura e mantém a conversa viva até o catchup reprocessar com a IA.
+ */
+function buildEmergencyConciergeResult(
+    lead: FullLead,
+    input: RunConciergeInput,
+    fase: ConciergeFase,
+    perfilFaltando: string[],
+    handoffContact: string,
+    reason: string,
+): ConciergeAIResult {
+    const cls = classifyMessage(input.text, { tags: lead.tags_whatsapp })
+    if (cls.kind === 'optout') {
+        return {
+            reply: 'Tudo certo, não vou te enviar mais mensagens por aqui.',
+            stage: 'diagnostico',
+            handoff: true,
+            optout: true,
+            internal_note: `Fallback sem IA (${reason}): opt-out explícito.`,
+            updates: { proxima_acao: 'opt-out' },
+        }
+    }
+    if (cls.kind === 'human') {
+        return {
+            reply: `Claro. Vou te passar para uma pessoa da equipe agora. Se preferir, fale direto com ${handoffContact}.`,
+            stage: 'diagnostico',
+            handoff: true,
+            optout: false,
+            internal_note: `Fallback sem IA (${reason}): lead pediu atendimento humano.`,
+            updates: { proxima_acao: 'handoff_humano' },
+        }
+    }
+
+    const interest = cls.kind === 'interest' ? cls.interesse : null
+
+    // Perguntas seguras por lacuna do perfil — nenhuma delas pede dado cadastral.
+    const PERGUNTA_POR_LACUNA: Array<[RegExp, string]> = [
+        [/o que ele busca/i, 'Show! Me conta: você tá procurando touro, matriz ou bezerrada?'],
+        [/quantas cabeças/i, 'Legal! E quantas cabeças você toca hoje na fazenda?'],
+        [/cria, recria ou engorda/i, 'Entendi! E hoje você trabalha mais com cria, recria ou engorda?'],
+        [/o que ele cria hoje/i, 'Boa! E o rebanho hoje é mestiço, comercial, ou você já mexe com registrado?'],
+    ]
+    let reply = 'Recebi sua mensagem! Já te respondo certinho em instantes.'
+    if (fase === 'descoberta') {
+        const alvo = perfilFaltando[0] || ''
+        reply = PERGUNTA_POR_LACUNA.find(([re]) => re.test(alvo))?.[1] ?? reply
+    } else if (fase === 'apresentacao') {
+        reply = 'Pelo que você me contou, acho que vale demais um bate-papo com um dos nossos assessores — não custa nada. Quer que eu te coloque com um?'
+    }
+
+    return {
+        reply,
+        stage: fase === 'descoberta' ? 'diagnostico' : fase === 'apresentacao' ? 'apresentacao' : 'pre_qualificacao',
+        handoff: false,
+        optout: false,
+        internal_note: `Fallback sem IA (${reason}): resposta segura enviada.`,
+        updates: {
+            ...(interest ? { interesse: interest } : {}),
+            proxima_acao: fase === 'analise' ? 'aguardar_analise' : 'continuar_conversa',
+        },
+    }
+}
+
 const RESULT_SCHEMA_INSTRUCTIONS = `Responda SOMENTE com um objeto JSON válido (sem markdown, sem comentários) neste formato:
 {
   "reply": "string — a próxima mensagem natural para enviar ao lead pelo WhatsApp (em pt-BR). Vazio só se optout=true e você não quiser responder nada.",
-  "stage": "diagnostico | interesse | pre_qualificacao | documentos_solicitados | documentos_parciais | em_analise | pendencia | nao_apto | apto",
+  "stage": "diagnostico | interesse | apresentacao | pre_qualificacao | documentos_solicitados | documentos_parciais | em_analise | pendencia | nao_apto | apto",
   "fast_track": true|false,
   "request_documents": true|false,  // true quando esta mensagem está pedindo os documentos
   "documents_received": true|false, // true quando o lead acabou de enviar a documentação mínima (IE + identificação)
@@ -402,6 +570,10 @@ const RESULT_SCHEMA_INSTRUCTIONS = `Responda SOMENTE com um objeto JSON válido 
     "objetivo_compra_resumido": "string|null",
     "urgencia_compra": "agora|proximos_30_dias|proximos_leiloes|sem_prazo|null",
     "experiencia_leilao": "ja_compra|ja_tentou|nunca_comprou|null",
+    "sistema_producao": "cria|recria|engorda|ciclo_completo|nao_definido|null",
+    "rebanho_atual": "string curta — o que ele cria hoje (ex.: 'mestiço/gabiru', 'nelore comercial', 'já tem P.O.')|null",
+    "assessoria_apresentada": true|false,  // true SE esta sua mensagem apresenta a Bula/assessoria
+    "aceitou_assessoria": true|false,      // true quando o lead topa falar com um assessor
     "ie_status": "tem|nao_tem|pendente_envio|em_validacao|null",
     "cadastro_status": "nao_iniciado|solicitado|em_analise|pendente|null",
     "score_status": "bom|mediano|sensivel|nao_informado|null",
@@ -425,10 +597,15 @@ Inclua em "updates" apenas os campos que você descobriu/confirmou nesta troca; 
 
 /* ─── Resultado para o pipeline ────────────────────────────────────────── */
 
+/**
+ * `postEffects` roda as automações caras (score de crédito, avisos ao grupo,
+ * ficha às leiloeiras). O caller deve chamá-lo DEPOIS de entregar a resposta ao
+ * lead — são segundos de consulta externa que não podem atrasar a mensagem.
+ */
 export type ConciergeResult =
     | { handled: false; reason: string }
-    | { handled: true; silent: true; reason: string }
-    | { handled: true; silent: false; reply: string; botStep: string; handoff: boolean; optout: boolean }
+    | { handled: true; silent: true; reason: string; postEffects: () => Promise<void> }
+    | { handled: true; silent: false; reply: string; botStep: string; handoff: boolean; optout: boolean; postEffects: () => Promise<void> }
 
 /* ─── Helpers de histórico ─────────────────────────────────────────────── */
 
@@ -489,26 +666,62 @@ export async function runConcierge(
         .eq('id', input.lead.id)
         .single()
     if (!full) return { handled: false, reason: 'lead_not_found' }
-    const lead = full as unknown as FullLead
+    let lead = full as unknown as FullLead
 
     const history = await loadThreadHistory(supabase, input.phone)
     const persona = input.config.persona?.trim() || DEFAULT_CONCIERGE_PERSONA
     const fname = firstName(lead.nome) || input.senderName || ''
 
     // Checklist de habilitação (estado atual) — o "mapa" injetado no prompt.
-    const docs = await loadLeadDocs(supabase, lead.id)
-    const checklist = computeHabilitacaoChecklist({
-        nome: lead.nome,
-        cpf: lead.cpf,
-        telefone: lead.telefone,
-        celular: lead.celular,
-        email: lead.email,
-        inscricao_estadual: lead.inscricao_estadual,
-        tem_inscricao_estadual: lead.tem_inscricao_estadual,
-        extra_data: lead.extra_data,
-        docsCount: docs.count,
-        docTipos: docs.tipos,
-    })
+    let docs = await loadLeadDocs(supabase, lead.id)
+    let checklist = buildChecklist(lead, docs)
+
+    // FASE da conversa: o gate determinístico que impede a IA de correr pro
+    // cadastro antes de qualificar e vender a assessoria. O nº de mensagens do
+    // lead entra como anti-interrogatório (ver MAX_TURNOS_DESCOBERTA).
+    const turnosLead = history.filter(m => m.role === 'user').length + 1
+    let fase = computeFaseFromLead(lead, checklist.complete, turnosLead)
+
+    // AUTOFILL — o lead aceitou a assessoria: antes de perguntar qualquer coisa,
+    // busca na API de consultas o que der (CPF, endereço, e-mail, I.E.). O que a
+    // gente descobre sozinho o lead não precisa digitar. Custa consulta paga, por
+    // isso só roda depois do "sim" (fase habilitação).
+    let autofillBlock = ''
+    if (fase.fase === 'habilitacao') {
+        try {
+            const r = await runHabilitacaoAutofill(supabase, {
+                id: lead.id,
+                status: lead.status || '',
+                nome: lead.nome,
+                telefone: lead.telefone,
+                celular: lead.celular,
+                email: lead.email,
+                cpf: lead.cpf,
+                estado: lead.estado,
+                quantidade_animais: lead.quantidade_animais,
+                inscricao_estadual: lead.inscricao_estadual,
+                tem_inscricao_estadual: lead.tem_inscricao_estadual,
+                contact_history: lead.contact_history,
+                extra_data: lead.extra_data,
+            })
+            if (r.encontrados.length) {
+                // As consultas gravam direto no lead — releia para o checklist já
+                // nascer com os itens ✔ e a IA nunca chegar a perguntá-los.
+                const { data: refreshed } = await supabase
+                    .from('crm_leads')
+                    .select(CONCIERGE_LEAD_FIELDS)
+                    .eq('id', lead.id)
+                    .single()
+                if (refreshed) lead = refreshed as unknown as FullLead
+                docs = await loadLeadDocs(supabase, lead.id)
+                checklist = buildChecklist(lead, docs)
+                fase = computeFaseFromLead(lead, checklist.complete, turnosLead)
+                autofillBlock = `\n\n${autofillPromptBlock(r.encontrados)}`
+            }
+        } catch (e) {
+            console.warn('[concierge] autofill falhou:', e instanceof Error ? e.message : e)
+        }
+    }
 
     // Só imagem/vídeo/documento contam como possível documento de habilitação.
     // Áudio é MENSAGEM DE VOZ (já transcrita para texto no inbound) — nunca deve
@@ -547,8 +760,10 @@ export async function runConcierge(
 
 CONTATO HUMANO (use ao fazer handoff por pedido de falar com pessoa): ${handoffContact}
 
-CHECKLIST DE HABILITAÇÃO (estado atual — seu mapa; peça só o que está com ✘):
-${checklistPromptBlock(checklist)}${faixasBlock}${agendaBlock}
+${fasePromptBlock(fase, extractPerfil(lead))}
+
+CHECKLIST DE HABILITAÇÃO (só entra em jogo na FASE habilitação — nas outras, ignore-o completamente):
+${checklistPromptBlock(checklist)}${autofillBlock}${faixasBlock}${agendaBlock}
 
 DADOS QUE JÁ TEMOS DESTE LEAD (use para personalizar e NÃO repetir perguntas):
 ${knownFactsBlock(lead)}
@@ -572,34 +787,64 @@ ${RESULT_SCHEMA_INSTRUCTIONS}`
     }
 
     // Uma resposta vazia/inválida da IA (ou um erro transitório do provedor —
-    // observado como um retorno de 0 tokens) deixaria o lead no silêncio para
-    // sempre, já que o pipeline NÃO cai no grafo legado. Por isso tentamos até
-    // 2 vezes antes de desistir: o custo é baixo e cobre a maioria dos blips.
+    // observado como um retorno de 0 tokens) não pode deixar o lead no silêncio.
+    // Tentamos o modelo principal, fallbacks melhores e, se todos falharem, uma
+    // resposta determinística segura mantém a conversa andando.
+    // Cada tentativa tem timeout próprio (AbortSignal) e o loop respeita um teto
+    // total: um provedor pendurado não pode segurar o webhook até a função morrer.
     let ai: ConciergeAIResult | null = null
-    for (let attempt = 1; attempt <= 2 && !ai; attempt++) {
-        try {
-            ai = await openRouterJSON<ConciergeAIResult>(messages, {
-                model: input.config.model || undefined,
-                temperature: 0.45,
-                maxTokens: 700,
-                logKind: 'concierge',
-            })
-        } catch (e) {
-            console.warn(`[concierge] OpenRouter falhou (tentativa ${attempt}):`, e instanceof Error ? e.message : e)
+    const deadline = Date.now() + AI_TOTAL_BUDGET_MS
+    const candidates = conciergeModelCandidates(input.config.model || '')
+    for (const [idx, model] of candidates.entries()) {
+        for (let attempt = 1; attempt <= 2 && !ai; attempt++) {
+            const remaining = deadline - Date.now()
+            if (remaining <= 1_500) break
+            const budget = Math.min(remaining, idx === 0 ? AI_TIMEOUT_PRIMARY_MS : AI_TIMEOUT_FALLBACK_MS)
+            try {
+                ai = await openRouterJSON<ConciergeAIResult>(messages, {
+                    model,
+                    temperature: 0.45,
+                    maxTokens: 900,
+                    logKind: 'concierge',
+                    signal: AbortSignal.timeout(budget),
+                })
+                if (!ai) {
+                    console.warn(`[concierge] OpenRouter voltou vazio (${model}, tentativa ${attempt})`)
+                }
+            } catch (e) {
+                console.warn(`[concierge] OpenRouter falhou (${model}, tentativa ${attempt}):`, e instanceof Error ? e.message : e)
+            }
         }
+        if (ai || Date.now() >= deadline) break
     }
     if (!ai) {
-        // A IA falhou mesmo após retry — avisa a equipe (throttled) para
-        // assumir o lead se persistir. O catchup ainda vai reprocessar depois.
+        // A IA falhou mesmo após todos os modelos — avisa a equipe (throttled),
+        // mas ainda devolve uma resposta segura para o lead.
         await alertAiFailure(supabase, input.config, lead, input.phone).catch(() => { /* best-effort */ })
-        return { handled: false, reason: 'ai_empty_after_retry' }
+        ai = buildEmergencyConciergeResult(lead, input, fase.fase, fase.perfilFaltando, handoffContact, 'ai_empty_after_all_models')
+    } else if (!(ai.reply || '').trim()) {
+        if (ai.optout) {
+            ai.reply = 'Tudo certo, não vou te enviar mais mensagens por aqui.'
+        } else if (ai.handoff) {
+            ai.reply = `Claro. Vou te passar para uma pessoa da equipe agora. Se preferir, fale direto com ${handoffContact}.`
+        } else {
+            const fallback = buildEmergencyConciergeResult(lead, input, fase.fase, fase.perfilFaltando, handoffContact, 'empty_reply')
+            ai = {
+                ...fallback,
+                updates: { ...fallback.updates, ...(ai.updates ?? {}) },
+                internal_note: [ai.internal_note, fallback.internal_note].filter(Boolean).join(' | '),
+            }
+        }
     }
 
-    // Aplica efeitos no CRM (best-effort).
+    // Aplica efeitos no CRM. A gravação é awaitada (o próximo turno depende
+    // dela); as automações caras voltam num closure para rodar DEPOIS do envio.
+    let postEffects: () => Promise<void> = async () => { /* noop */ }
     try {
-        await applyConciergeEffects(supabase, lead, ai, {
+        postEffects = await applyConciergeEffects(supabase, lead, ai, {
             media: input.media ?? null,
             docs,
+            fase: fase.fase,
         })
     } catch (e) {
         console.warn('[concierge] aplicar efeitos falhou:', e instanceof Error ? e.message : e)
@@ -612,9 +857,9 @@ ${RESULT_SCHEMA_INSTRUCTIONS}`
     const botStep = `concierge:${stage}`
 
     if (!reply) {
-        return { handled: true, silent: true, reason: optout ? 'optout_no_reply' : 'empty_reply' }
+        return { handled: true, silent: true, reason: optout ? 'optout_no_reply' : 'empty_reply', postEffects }
     }
-    return { handled: true, silent: false, reply, botStep, handoff, optout }
+    return { handled: true, silent: false, reply, botStep, handoff, optout, postEffects }
 }
 
 /* ─── Aviso de falha da IA (throttled) ─────────────────────────────────── */
@@ -662,8 +907,8 @@ async function applyConciergeEffects(
     supabase: SupabaseClient,
     lead: FullLead,
     ai: ConciergeAIResult,
-    ctx: { media: InboundMedia | null; docs: { count: number; tipos: string[] } },
-): Promise<void> {
+    ctx: { media: InboundMedia | null; docs: { count: number; tipos: string[] }; fase: ConciergeFase },
+): Promise<() => Promise<void>> {
     const u = ai.updates ?? {}
     const prevExtra = (lead.extra_data ?? {}) as Record<string, unknown>
     const nextExtra: Record<string, unknown> = { ...prevExtra }
@@ -672,12 +917,25 @@ async function applyConciergeEffects(
     // segue o padrão de "schema drift" do projeto).
     const xdKeys: (keyof ConciergeUpdates)[] = [
         'objetivo_compra_resumido', 'urgencia_compra', 'experiencia_leilao',
+        'sistema_producao', 'rebanho_atual',
         'ie_status', 'cadastro_status', 'score_status', 'motivo_pendencia', 'proxima_acao',
         'endereco_titular', 'fazenda_nome', 'fazenda_cidade', 'fazenda_uf',
     ]
     for (const k of xdKeys) {
         const v = u[k]
         if (v !== undefined && v !== null && v !== '') nextExtra[k] = v
+    }
+
+    // Marcos do funil consultivo (alimentam a FASE da próxima mensagem).
+    // A apresentação também é marcada quando a fase ERA 'apresentacao' e houve
+    // resposta: nessa fase a persona obriga a apresentar, e depender só do flag
+    // do modelo deixaria o lead preso apresentando de novo a cada mensagem.
+    if (u.assessoria_apresentada === true || (ctx.fase === 'apresentacao' && (ai.reply || '').trim())) {
+        if (!prevExtra.assessoria_apresentada_at) nextExtra.assessoria_apresentada_at = new Date().toISOString()
+    }
+    if (u.aceitou_assessoria === true) {
+        nextExtra.aceitou_assessoria = true
+        if (!prevExtra.aceitou_assessoria_at) nextExtra.aceitou_assessoria_at = new Date().toISOString()
     }
     if (ai.stage) nextExtra.qualificacao_step = ai.stage
     if (typeof ai.fast_track === 'boolean') nextExtra.fast_track = ai.fast_track
@@ -790,6 +1048,7 @@ async function applyConciergeEffects(
     const hasAnyQualData = hasInteresse || hasIe
         || Boolean(update.quantidade_animais || lead.quantidade_animais)
         || Boolean(update.estado || lead.estado)
+        || Boolean(nextExtra.sistema_producao || nextExtra.rebanho_atual)
         || Boolean(nextExtra.objetivo_compra_resumido || nextExtra.urgencia_compra)
 
     const target = computeStageFromData({
@@ -856,6 +1115,12 @@ async function applyConciergeEffects(
 
     await supabase.from('crm_leads').update(update).eq('id', lead.id)
 
+    // ── Daqui pra baixo: efeitos que NÃO podem atrasar a resposta ao lead ───
+    // Consulta de crédito, avisos ao grupo e ficha às leiloeiras somam dezenas
+    // de segundos de rede. Rodavam antes do envio — e um provedor lento fazia o
+    // webhook estourar o tempo, deixando o lead sem resposta. Agora o caller
+    // entrega a mensagem primeiro e chama este closure depois.
+    return async function postEffects(): Promise<void> {
     // ── Automações pós-etapa (as mesmas do moveLead manual) ────────────────
     // Sem isto, lead movido PELA IA nunca disparava consulta de crédito/I.E.
     const statusAfter = normalizeCRMStatus((update.status as string) || lead.status || '')
@@ -874,16 +1139,6 @@ async function applyConciergeEffects(
         contact_history: (update.contact_history as unknown) ?? lead.contact_history,
     }
     const previous = { status: lead.status }
-    // Enriquecimento pelo telefone (descobre CPF sem pedir) — antes de
-    // crédito/I.E. para o CPF descoberto cascatear no mesmo passo.
-    if (!leadAfter.cpf) {
-        try {
-            const r = await maybeEnrichLeadFromPhone(supabase, leadAfter)
-            if (r.cpf) leadAfter.cpf = r.cpf
-        } catch (e) {
-            console.warn('[concierge] enriquecimento falhou:', e instanceof Error ? e.message : e)
-        }
-    }
     try {
         await maybeRunCreditCheck(supabase, leadAfter, previous)
     } catch (e) {
@@ -935,7 +1190,7 @@ async function applyConciergeEffects(
     const nomeSup = (update.nome as string) || lead.nome || lead.telefone || 'Lead'
     const foneSup = lead.celular || lead.telefone || ''
     if (ai.handoff && !ai.optout) {
-        void notifyTeamGroup(supabase, [
+        await notifyTeamGroup(supabase, [
             '🖐 *Lead pediu atendimento humano*',
             `${nomeSup}${foneSup ? ` — ${foneSup}` : ''}`,
             ai.internal_note ? `Contexto: ${ai.internal_note}` : '',
@@ -943,10 +1198,11 @@ async function applyConciergeEffects(
         ].filter(Boolean).join('\n')).catch(() => { /* best-effort */ })
     }
     if (ai.optout) {
-        void notifyTeamGroup(supabase, [
+        await notifyTeamGroup(supabase, [
             '🔕 *Lead pediu para não receber mais mensagens (opt-out)*',
             `${nomeSup}${foneSup ? ` — ${foneSup}` : ''}`,
             'Envios bloqueados automaticamente.',
         ].join('\n')).catch(() => { /* best-effort */ })
     }
+    } // ← fim de postEffects
 }

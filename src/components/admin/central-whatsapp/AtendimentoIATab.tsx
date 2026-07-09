@@ -241,7 +241,7 @@ export function AtendimentoIATab() {
                             placeholder={cfg.default_model}
                             className="w-full rounded-lg border bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#C9A84C]/40"
                         />
-                        <p className="text-[10px] text-muted-foreground">Vazio = <code>{cfg.default_model}</code>. Ex.: <code>google/gemini-2.5-pro</code>, <code>anthropic/claude-sonnet-4.5</code>.</p>
+                        <p className="text-[10px] text-muted-foreground">Vazio = <code>{cfg.default_model}</code> (recomendado — conduz a conversa comercial). Alternativas: <code>anthropic/claude-haiku-4.5</code>, <code>google/gemini-2.5-flash</code> (mais baratos, menos jogo de cintura).</p>
                     </div>
 
                     <div className="space-y-1.5">

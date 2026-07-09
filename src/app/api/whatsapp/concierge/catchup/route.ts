@@ -78,27 +78,47 @@ async function runCatchup({ limit, dryRun }: { limit: number; dryRun: boolean })
     const since = new Date(Date.now() - WINDOW_MS).toISOString()
     const { data: rows, error } = await supabase
         .from('whatsapp_messages')
-        .select('phone, direction, body, created_at')
+        .select('phone, direction, status, origin, body, created_at')
         .gte('created_at', since)
         .order('created_at', { ascending: true })
         .limit(4000)
     if (error) return NextResponse.json({ error: error.message }, { status: 500 })
 
     // Última mensagem por telefone (ordem asc → o último visto é o mais recente).
-    const lastByPhone = new Map<string, { direction: string; body: string | null; created_at: string }>()
+    const lastByPhone = new Map<string, { direction: string; status: string | null; origin: string | null; body: string | null; created_at: string }>()
+    const lastInboundByPhone = new Map<string, { body: string | null; created_at: string }>()
     for (const r of rows ?? []) {
         const p = normalizePhone(r.phone || '')
         if (!p) continue
-        lastByPhone.set(p, { direction: r.direction, body: r.body, created_at: r.created_at })
+        const row = {
+            direction: r.direction,
+            status: r.status,
+            origin: r.origin,
+            body: r.body,
+            created_at: r.created_at,
+        }
+        lastByPhone.set(p, row)
+        if (r.direction === 'inbound') {
+            lastInboundByPhone.set(p, { body: r.body, created_at: r.created_at })
+        }
     }
 
     // Candidatos: a última mensagem é inbound (aguardando nossa resposta) e já
     // "esfriou" o suficiente (> MIN_AGE_MS) para não competir com o webhook ao vivo.
+    // Se a última saída do bot falhou, continua elegível: outbound failed não
+    // conta como resposta entregue.
     const nowMs = Date.now()
     const candidates = [...lastByPhone.entries()]
-        .filter(([, m]) => m.direction === 'inbound')
-        .filter(([, m]) => nowMs - new Date(m.created_at).getTime() >= MIN_AGE_MS)
-        .map(([phone, m]) => ({ phone, text: (m.body || '').trim(), at: m.created_at }))
+        .map(([phone, last]) => {
+            const failedBotSend =
+                last.direction === 'outbound' &&
+                last.status === 'failed' &&
+                (last.origin === 'central-inbound' || last.origin === 'concierge-catchup')
+            const source = last.direction === 'inbound' ? last : (failedBotSend ? lastInboundByPhone.get(phone) : null)
+            return source ? { phone, text: (source.body || '').trim(), at: source.created_at } : null
+        })
+        .filter((c): c is { phone: string; text: string; at: string } => !!c)
+        .filter(c => nowMs - new Date(c.at).getTime() >= MIN_AGE_MS)
 
     const results: Array<{ phone: string; status: string; reason?: string }> = []
     let sent = 0, skipped = 0, errors = 0
@@ -140,6 +160,10 @@ async function runCatchup({ limit, dryRun }: { limit: number; dryRun: boolean })
             } else {
                 results.push({ phone: cand.phone, status: 'fail', reason: r.reason }); errors++
             }
+            // Automações caras só depois de a mensagem sair (mesma regra do webhook).
+            await c.postEffects().catch(err =>
+                console.warn('[catchup] efeitos pós-resposta falharam:', err instanceof Error ? err.message : err),
+            )
         } catch (e) {
             results.push({ phone: cand.phone, status: 'error', reason: e instanceof Error ? e.message : 'erro' }); errors++
         }

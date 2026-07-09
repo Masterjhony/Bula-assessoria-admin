@@ -141,6 +141,10 @@ function businessHoursOk(cfg: GuardrailsConfig): boolean {
     })
 }
 
+function sleep(ms: number): Promise<void> {
+    return new Promise(resolve => setTimeout(resolve, ms))
+}
+
 async function sendViaBaileys(
     phone: string,
     text: string,
@@ -172,15 +176,21 @@ async function sendViaCloud(input: {
     templateLanguage?: string | null
     templateParams?: string[] | null
 }): Promise<{ status: 'sent' | 'failed'; messageId?: string; error?: string }> {
-    const r = await sendSingleViaCloudApi({
-        to: input.phone,
-        name: input.name,
-        text: input.text,
-        templateName: input.templateName,
-        templateLanguage: input.templateLanguage,
-        templateParams: input.templateParams,
-    })
-    return r.ok ? { status: 'sent', messageId: r.messageId } : { status: 'failed', error: r.error }
+    let lastError = 'cloud_send_failed'
+    for (let attempt = 1; attempt <= 2; attempt++) {
+        const r = await sendSingleViaCloudApi({
+            to: input.phone,
+            name: input.name,
+            text: input.text,
+            templateName: input.templateName,
+            templateLanguage: input.templateLanguage,
+            templateParams: input.templateParams,
+        })
+        if (r.ok) return { status: 'sent', messageId: r.messageId }
+        lastError = r.error || lastError
+        if (attempt < 2) await sleep(700)
+    }
+    return { status: 'failed', error: lastError }
 }
 
 async function logOutbound(

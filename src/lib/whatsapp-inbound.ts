@@ -200,9 +200,14 @@ async function isLatestInbound(
     return !latestWamid || latestWamid === messageId
 }
 
+/**
+ * `after` carrega os efeitos que só podem rodar DEPOIS de a resposta chegar ao
+ * lead (consulta de crédito, avisos ao grupo, ficha às leiloeiras). O caller
+ * envia a mensagem e então o executa — em background, se a plataforma permitir.
+ */
 export type InboundOutcome =
-    | { kind: 'silent'; reason: string; lead: LeadShape | null }
-    | { kind: 'reply'; reply: string; bot_step?: string; lead: LeadShape | null }
+    | { kind: 'silent'; reason: string; lead: LeadShape | null; after?: () => Promise<void> }
+    | { kind: 'reply'; reply: string; bot_step?: string; lead: LeadShape | null; after?: () => Promise<void> }
 
 /**
  * Processa uma mensagem recebida e DECIDE a resposta (sem entregá-la). O caller
@@ -296,12 +301,17 @@ export async function processInboundMessage(
                 lead, phone, senderName, text, media: input.media ?? null, config: conciergeConfig,
             })
             if (c.handled && !c.silent) {
-                return { kind: 'reply', reply: c.reply, bot_step: c.botStep, lead }
+                return { kind: 'reply', reply: c.reply, bot_step: c.botStep, lead, after: c.postEffects }
             }
             // Silêncio (resposta vazia/opt-out) OU IA indisponível (sem chave/erro):
             // NÃO caímos no grafo legado — mantemos uma linha só. Welcome (novo
             // lead) e opt-out seguem nos seus próprios caminhos.
-            return { kind: 'silent', reason: c.handled ? `concierge_${c.reason}` : `concierge_unhandled_${c.reason}`, lead }
+            return {
+                kind: 'silent',
+                reason: c.handled ? `concierge_${c.reason}` : `concierge_unhandled_${c.reason}`,
+                lead,
+                after: c.handled ? c.postEffects : undefined,
+            }
         }
         // Lead já em opt-out / handoff: cai no grafo, que trata "voltar"
         // (resubscribe) e mantém silêncio no resto.

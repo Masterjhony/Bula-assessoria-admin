@@ -7,8 +7,8 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
 import { requireAdmin } from '@/lib/auth-helpers'
-import { loadConciergeConfig, saveConciergeConfig, DEFAULT_CONCIERGE_PERSONA } from '@/lib/whatsapp-concierge'
-import { DEFAULT_OPENROUTER_MODEL, isOpenRouterConfigured } from '@/lib/openrouter'
+import { loadConciergeConfig, saveConciergeConfig, DEFAULT_CONCIERGE_PERSONA, DEFAULT_CONCIERGE_MODEL } from '@/lib/whatsapp-concierge'
+import { isOpenRouterConfigured } from '@/lib/openrouter'
 
 function admin() {
     return createClient(
@@ -25,7 +25,7 @@ export async function GET() {
     return NextResponse.json({
         ...config,
         api_configured: isOpenRouterConfigured(),
-        default_model: DEFAULT_OPENROUTER_MODEL,
+        default_model: DEFAULT_CONCIERGE_MODEL,
         default_persona: DEFAULT_CONCIERGE_PERSONA,
     })
 }
@@ -65,5 +65,5 @@ export async function PUT(req: NextRequest) {
         handoffContact: body.handoffContact as string | undefined,
         notifyGroupId: body.notifyGroupId as string | undefined,
     })
-    return NextResponse.json({ ...saved, api_configured: isOpenRouterConfigured(), default_model: DEFAULT_OPENROUTER_MODEL })
+    return NextResponse.json({ ...saved, api_configured: isOpenRouterConfigured(), default_model: DEFAULT_CONCIERGE_MODEL })
 }

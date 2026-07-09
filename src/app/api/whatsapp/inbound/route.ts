@@ -13,12 +13,12 @@
  * ou pela aba "Fluxo" da Central WhatsApp.
  */
 
-import { NextRequest, NextResponse } from 'next/server'
+import { NextRequest, NextResponse, after } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
 import { normalizePhone } from '@/lib/whatsapp-central'
 import { processInboundMessage } from '@/lib/whatsapp-inbound'
 
-export const maxDuration = 30
+export const maxDuration = 120
 
 export async function POST(req: NextRequest) {
     const SECRET = process.env.WHATSAPP_GROUP_TASK_SECRET || ''
@@ -52,6 +52,15 @@ export async function POST(req: NextRequest) {
         messageId: body.message_id ?? null,
         channel: 'baileys',
     })
+
+    // Efeitos caros (crédito, avisos ao grupo, ficha às leiloeiras) rodam depois
+    // da resposta: quem entrega a mensagem é o VPS, e ele não pode ficar
+    // esperando consulta externa pra falar com o lead.
+    if (outcome.after) {
+        after(() => outcome.after!().catch(err =>
+            console.warn('[inbound] efeitos pós-resposta falharam:', err instanceof Error ? err.message : err),
+        ))
+    }
 
     if (outcome.kind === 'silent') {
         return NextResponse.json({ silent: true, reason: outcome.reason })
