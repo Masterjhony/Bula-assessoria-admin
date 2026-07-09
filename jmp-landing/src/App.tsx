@@ -44,6 +44,13 @@ function HeroVideo({ poster }: { poster: string }) {
     v.muted = true
     const p = v.play()
     if (p && typeof p.catch === 'function') p.catch(() => {})
+
+    // `canplay` pode disparar ANTES do React anexar o onCanPlay (o <video> já
+    // monta com src e o navegador pode ter o arquivo em cache). Quando isso
+    // acontecia, `ready` nunca virava true e o vídeo ficava com opacity 0 para
+    // sempre — a página mostrava só o poster, escuro. Aqui a gente pergunta o
+    // estado em vez de esperar o evento.
+    if (v.readyState >= 2) setReady(true)
   }, [mounted])
 
   if (!mounted) return null
@@ -60,6 +67,7 @@ function HeroVideo({ poster }: { poster: string }) {
       playsInline
       preload="auto"
       aria-hidden="true"
+      onLoadedData={() => setReady(true)}
       onCanPlay={() => setReady(true)}
     />
   )
