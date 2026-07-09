@@ -17,13 +17,14 @@
 
     <!-- Poster do vídeo de fundo do hero (LCP). Pré-carrega em alta prioridade
          para não esperar o JS montar o React antes de começar o download. Mora
-         no Storage, então abrimos a conexão antes. O vídeo em si NÃO é
-         pré-carregado: entra só depois do load, e só no desktop. -->
-    <link rel="preconnect" href="https://nfjkzigvxegnhaxxbevt.supabase.co" crossorigin />
+         no Cloudinary (mesmo asset do hero de /agenda), então abrimos a conexão
+         antes. O vídeo em si NÃO é pré-carregado: entra só depois do load, e só
+         no desktop. -->
+    <link rel="preconnect" href="https://res.cloudinary.com" crossorigin />
     <link
       rel="preload"
       as="image"
-      href="https://nfjkzigvxegnhaxxbevt.supabase.co/storage/v1/object/public/jmp-landing/eao/hero-boiada-poster.webp"
+      href="https://res.cloudinary.com/dny0ibgbn/video/upload/so_2,w_1280,q_auto/v1780252444/video_de_fundo_jmvezn.webp"
       fetchpriority="high"
     />
 
@@ -42,8 +43,8 @@
     </noscript>
 
     <title>13º Mega Evento EAO Baviera — Inscrições</title>
-    <script type="module" crossorigin src="/assets/index-BDa423ZN.js"></script>
-    <link rel="stylesheet" crossorigin href="/assets/index-BXEupUks.css">
+    <script type="module" crossorigin src="/assets/index--r1uPrar.js"></script>
+    <link rel="stylesheet" crossorigin href="/assets/index-dSLeuXVd.css">
   </head>
   <body>
     <!-- Google Tag Manager (noscript) -->

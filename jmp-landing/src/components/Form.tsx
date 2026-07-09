@@ -452,7 +452,10 @@ export function Form({ hero }: { hero: JmpHero }) {
     <section id="inscricao" className="min-h-screen flex flex-col lg:flex-row">
 
       {/* ── LEFT: Hero content ── */}
-      <div className="lg:w-[48%] bg-black/80 lg:bg-black/52 text-white flex flex-col justify-center px-8 py-14 lg:py-20 min-h-[320px]">
+      {/* No desktop o painel escuro sai: o .hero-scrim (mesma receita da
+          /agenda) já dá o contraste, e os dois somados apagam a filmagem de
+          fundo. No mobile ele fica — lá não há vídeo, só o poster estático. */}
+      <div className="lg:w-[48%] bg-black/80 lg:bg-transparent text-white flex flex-col justify-center px-8 py-14 lg:py-20 min-h-[320px]">
         <div className="max-w-[380px] ml-auto mr-4 lg:mr-10">
 
           {/* Bula + EAO Baviera identity */}
@@ -540,7 +543,10 @@ export function Form({ hero }: { hero: JmpHero }) {
       </div>
 
       {/* ── RIGHT: Form ── */}
-      <div className="lg:w-[52%] bg-black/65 flex items-center justify-center px-6 py-12 lg:py-0 lg:pl-16 lg:pr-12">
+      {/* No desktop, um painel chapado aqui criaria uma emenda vertical visível
+          contra a coluna esquerda (que é transparente sobre o vídeo). Um véu
+          bem leve basta: o card do formulário tem fundo próprio. */}
+      <div className="lg:w-[52%] bg-black/65 lg:bg-black/20 flex items-center justify-center px-6 py-12 lg:py-0 lg:pl-16 lg:pr-12">
         <div id="inscricao-form" />
         <div className="w-full max-w-[420px]">
 

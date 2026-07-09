@@ -25,10 +25,11 @@ const ROLLBACK_FILE = rollbackIdx >= 0 ? process.argv[rollbackIdx + 1] : null
 
 // Espelho exato de DEFAULT_CONTENT.hero em jmp-landing/src/content.ts.
 const HERO = {
-  // Poster do vídeo de fundo (drone, boiada). O <video> é constante no código
-  // (jmp-landing/src/leiloes.ts); aqui vai só a imagem estática, que é o LCP e
-  // o que o mobile / prefers-reduced-motion enxergam.
-  backgroundUrl: 'https://nfjkzigvxegnhaxxbevt.supabase.co/storage/v1/object/public/jmp-landing/eao/hero-boiada-poster.webp',
+  // Poster do vídeo de fundo (quadro de 2s do vídeo da /agenda, gerado pelo
+  // Cloudinary). O <video> é constante no código (jmp-landing/src/leiloes.ts);
+  // aqui vai só a imagem estática, que é o LCP e o que o mobile /
+  // prefers-reduced-motion enxergam.
+  backgroundUrl: 'https://res.cloudinary.com/dny0ibgbn/video/upload/so_2,w_1280,q_auto/v1780252444/video_de_fundo_jmvezn.webp',
   badge: 'ASSESSORIA GRATUITA · 10 A 12 DE JULHO',
   headline: 'Compre bem no\nMega Baviera com\na Bula ao seu lado.',
   valueProp: 'São 3 leilões em 3 dias. A equipe de assessores da Bula te ajuda a entender a genética, escolher os animais certos e dar o lance certo.',

@@ -58,9 +58,9 @@ export interface JmpContent {
 
 export const DEFAULT_CONTENT: JmpContent = {
   hero: {
-    // Poster do vídeo de fundo (primeiro quadro da filmagem de drone). É o LCP
+    // Poster do vídeo de fundo (quadro de 2s, gerado pelo Cloudinary). É o LCP
     // do hero — pré-carregado no index.html. O <video> entra por cima depois.
-    backgroundUrl: 'https://nfjkzigvxegnhaxxbevt.supabase.co/storage/v1/object/public/jmp-landing/eao/hero-boiada-poster.webp',
+    backgroundUrl: 'https://res.cloudinary.com/dny0ibgbn/video/upload/so_2,w_1280,q_auto/v1780252444/video_de_fundo_jmvezn.webp',
     badge: 'ASSESSORIA GRATUITA · 10 A 12 DE JULHO',
     headline: 'Compre bem no\nMega Baviera com\na Bula ao seu lado.',
     valueProp: 'São 3 leilões em 3 dias. A equipe de assessores da Bula te ajuda a entender a genética, escolher os animais certos e dar o lance certo.',

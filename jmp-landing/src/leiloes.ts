@@ -56,17 +56,20 @@ export const LEILOES: Leilao[] = [
   },
 ]
 
-// Fundo do hero: filmagem aérea de drone da própria Bula (boiada Nelore em fila
-// no pasto, luz da manhã). Origem: Drive da Bula, "Marketing e Growth/Fotos e
-// Vídeos/Drone/DJI_0069.MP4" — recortado em 12s, 1280x720, sem áudio, ~1,6 MB.
+// Fundo do hero: o MESMO vídeo do hero de bulaassessoria.com/agenda (boiada
+// Nelore vindo de frente com o vaqueiro). Fonte única: o asset do Cloudinary
+// que src/app/agenda/page.tsx já usa — se um dia trocar lá, trocar aqui também.
 //
-// Vive no Storage e NÃO no bundle: 1,6 MB no /assets do build atrasaria o
-// primeiro paint. O poster é o primeiro quadro e é o que a página pinta antes
-// (e o único que ela pinta no mobile / com prefers-reduced-motion).
+// Servido pelo Cloudinary (`public, immutable, max-age=30d`), não pelo Storage
+// do Supabase, cujos objetos respondem `no-cache`.
 export const HERO_VIDEO_URL =
-  'https://nfjkzigvxegnhaxxbevt.supabase.co/storage/v1/object/public/jmp-landing/eao/hero-boiada.mp4'
+  'https://res.cloudinary.com/dny0ibgbn/video/upload/v1780252444/video_de_fundo_jmvezn.mp4'
+
+// Poster = quadro de 2s do próprio vídeo, gerado pelo Cloudinary por URL
+// (`so_2` = second offset). Não hospedamos cópia: se o vídeo mudar, o poster
+// acompanha. É o LCP do hero e o único fundo que o mobile enxerga.
 export const HERO_POSTER_URL =
-  'https://nfjkzigvxegnhaxxbevt.supabase.co/storage/v1/object/public/jmp-landing/eao/hero-boiada-poster.webp'
+  'https://res.cloudinary.com/dny0ibgbn/video/upload/so_2,w_1280,q_auto/v1780252444/video_de_fundo_jmvezn.webp'
 
 /**
  * Texto legível dos leilões escolhidos, para o CRM (notes) e a planilha.
