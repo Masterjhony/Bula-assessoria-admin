@@ -17,6 +17,7 @@ import bulaLogo from '../assets/logo-bula-trimmed.png'
 // que começa com "logo-" (ver matcher em src/proxy.ts), então o caminho
 // público resolveria para a raiz do app e daria 404 em produção.
 import eaoLogo from '../assets/logo-eao-white.png'
+import { LEILOES, leiloesDescricao } from '../leiloes'
 
 // Renderiza texto com quebras de linha (\n) preservando-as como <br/>.
 function MultiLine({ text }: { text: string }) {
@@ -69,6 +70,8 @@ interface FormData {
   nome: string
   email: string
   whatsapp: string
+  /** ids de LEILOES — em qual(is) pregão(ões) o lead quer comprar. */
+  leiloes: string[]
   uf: string
   cidade: string
   momento: string
@@ -197,6 +200,7 @@ function validateStep(step: number, data: FormData): FormErrors {
     if (!data.cidade) errors.cidade = 'Selecione sua cidade.'
   }
   if (step === 3) {
+    if (!data.leiloes.length) errors.leiloes = 'Escolha pelo menos um leilão.'
     if (!data.momento) errors.momento = 'Selecione seu momento na pecuária.'
     if (!data.cabecas) errors.cabecas = 'Selecione a quantidade de cabeças.'
     if (!data.interesse) errors.interesse = 'Selecione seu interesse.'
@@ -213,7 +217,14 @@ async function submitForm(data: FormData, utms: Utm): Promise<void> {
   // `oQueBusca` é a quantidade desejada já em texto legível (contextual ao
   // interesse) — vai para a coluna o_que_busca do CRM e para a planilha.
   // Os utm_* + ad_id viajam junto para a automação da planilha (atribuição).
-  const payload = { ...data, ...utms, oQueBusca: qtdDescricao(data.interesse, data.quantidade) }
+  // `leiloesDescricao` é o texto que o assessor lê no card do CRM e na planilha
+  // ("Fêmeas (11/07), Touros (12/07)"). Os ids crus viajam em `leiloes`.
+  const payload = {
+    ...data,
+    ...utms,
+    oQueBusca: qtdDescricao(data.interesse, data.quantidade),
+    leiloesDescricao: leiloesDescricao(data.leiloes),
+  }
   const res = await fetch('/api/jmp/lead', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
@@ -333,6 +344,7 @@ export function Form({ hero }: { hero: JmpHero }) {
     nome: '', email: '', whatsapp: '',
     uf: '', cidade: '',
     momento: '', cabecas: '', interesse: '', quantidade: '', inscricaoEstadual: '', whatsappConsent: false,
+    leiloes: [],
   })
   const [errors, setErrors] = useState<FormErrors>({})
   const [cities, setCities] = useState<string[]>([])
@@ -375,6 +387,21 @@ export function Form({ hero }: { hero: JmpHero }) {
     setFormData(prev => ({ ...prev, uf: sigla, cidade: '' }))
     trackFormFieldChanged('uf', step, Boolean(sigla))
     setErrors(prev => ({ ...prev, uf: undefined, cidade: undefined }))
+  }
+
+  // Múltipla escolha: o lead pode querer comprar em mais de um pregão do fim
+  // de semana. Guardamos os ids de LEILOES na ordem do catálogo, não na ordem
+  // de clique, para o texto salvo no CRM sair sempre cronológico.
+  function toggleLeilao(id: string) {
+    setFormData(prev => {
+      const has = prev.leiloes.includes(id)
+      const next = has
+        ? prev.leiloes.filter(l => l !== id)
+        : LEILOES.filter(l => l.id === id || prev.leiloes.includes(l.id)).map(l => l.id)
+      return { ...prev, leiloes: next }
+    })
+    trackFormFieldChanged('leiloes', step, true)
+    if (errors.leiloes) setErrors(prev => ({ ...prev, leiloes: undefined }))
   }
 
   function handleWhatsappConsentChange(checked: boolean) {
@@ -700,6 +727,41 @@ export function Form({ hero }: { hero: JmpHero }) {
                     {errors.inscricaoEstadual && <span className={errorClass}>{errors.inscricaoEstadual}</span>}
                   </div>
                   <div>
+                    <label className={labelClass}>Em qual leilão você quer comprar? *</label>
+                    <p className="text-white/35 text-xs mb-2.5">Pode marcar mais de um.</p>
+                    <div className="space-y-2">
+                      {LEILOES.map(l => {
+                        const checked = formData.leiloes.includes(l.id)
+                        return (
+                          <label
+                            key={l.id}
+                            className={`flex items-center gap-3 rounded-lg border px-3.5 py-3 cursor-pointer select-none transition-all ${
+                              checked
+                                ? 'border-gold/60 bg-gold/10'
+                                : 'border-white/15 bg-white/5 hover:border-white/30'
+                            }`}
+                          >
+                            <input
+                              type="checkbox"
+                              checked={checked}
+                              onChange={() => toggleLeilao(l.id)}
+                              className="h-4 w-4 shrink-0 rounded border-white/25 bg-white/5 accent-gold cursor-pointer"
+                            />
+                            <span className="min-w-0 flex-1">
+                              <span className="block text-white text-sm font-semibold leading-tight">{l.label}</span>
+                              <span className="block text-white/40 text-xs leading-tight mt-0.5">{l.tipo}</span>
+                            </span>
+                            <span className="shrink-0 text-right">
+                              <span className="block text-white/80 text-sm font-bold leading-tight">{l.dataCurta}</span>
+                              <span className="block text-white/35 text-[10px] uppercase tracking-wider leading-tight">{l.diaSemana}</span>
+                            </span>
+                          </label>
+                        )
+                      })}
+                    </div>
+                    {errors.leiloes && <span className={errorClass}>{errors.leiloes}</span>}
+                  </div>
+                  <div>
                     <label className={labelClass}>Seu Interesse *</label>
                     <select
                       value={formData.interesse}
@@ -781,7 +843,7 @@ export function Form({ hero }: { hero: JmpHero }) {
           <div className="mt-5 flex items-center justify-center gap-4 text-white/25 text-[11px]">
             <span className="inline-flex items-center gap-1.5">
               <Calendar className="w-3 h-3" />
-              09 a 12 Jul · Fazenda Baviera
+              10 a 12 Jul · Fazenda Baviera
             </span>
             <span className="w-px h-3 bg-white/15" />
             <span className="inline-flex items-center gap-1.5">

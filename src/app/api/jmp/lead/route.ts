@@ -11,7 +11,7 @@ import {
 import { DEFAULT_JMP_CONTENT, sanitizeContent } from '@/lib/jmp-content'
 import { sendJmpWelcomeEmail } from '@/lib/jmp-welcome-email'
 import { enrollLeadInEmailFlow } from '@/lib/jmp-email-flow'
-import { appendLeadToSheet } from '@/lib/jmp-sheets'
+import { appendLeadToEaoSheet, normalizeMetaRawRows } from '@/lib/jmp-sheets'
 import { dispatchCrmWelcome } from '@/lib/crm-welcome'
 
 const CONTENT_TABLE = 'jmp_landing_content'
@@ -58,6 +58,23 @@ export async function POST(req: NextRequest) {
   const cabecas = str(body.cabecas)
   const temInscricaoEstadual = str(body.inscricaoEstadual)
 
+  // Pregões do 13º Mega Evento EAO Baviera em que o lead quer comprar.
+  // Espelha src/leiloes.ts da landing — só aceitamos ids conhecidos, o corpo
+  // da requisição não é confiável.
+  const LEILAO_IDS = ['aspiracoes', 'femeas', 'touros'] as const
+  const leiloes = Array.isArray(body.leiloes)
+    ? LEILAO_IDS.filter((id) => (body.leiloes as unknown[]).includes(id))
+    : []
+  const leiloesDescricao = str(body.leiloesDescricao)
+  // Consentimento explícito de contato via WhatsApp (checkbox obrigatório).
+  const whatsappConsent = body.whatsappConsent === true
+
+  // Host real de onde veio o cadastro (eao.* ou jmp.* servem a MESMA landing).
+  // Antes era fixo em jmp.bulaassessoria.com, o que atribuía errado os leads
+  // que chegam pelo domínio do evento.
+  const referer = req.headers.get('referer')
+  const host = req.headers.get('host') ?? 'eao.bulaassessoria.com'
+
   // Atribuição de campanha (Meta), no MESMO formato do import de planilha
   // (`extra_data.utm` em sheetRowToLead) — é assim que as regras por campanha
   // reconhecem o lead depois. `ad-id` chega como ad_id (a landing normaliza).
@@ -99,13 +116,19 @@ export async function POST(req: NextRequest) {
     status: CRM_STAGE_ENTRY,
     funnel_id: JMP_FUNNEL_ID,
     is_mql: isMql,
-    origem: 'Landing JMP — Nelore 13/14 jun',
+    origem: 'Landing EAO — 13º Mega Baviera 10–12/jul',
     source: 'jmp-landing',
-    source_page: 'jmp.bulaassessoria.com',
-    landing_url:
-      req.headers.get('referer') || 'https://jmp.bulaassessoria.com/',
+    source_page: host,
+    landing_url: referer || `https://${host}/`,
+    // O assessor lê isto direto no card, sem abrir o JSON de extra_data.
+    notes: leiloesDescricao ? `Quer comprar em: ${leiloesDescricao}` : null,
     data_entrada: new Date().toISOString(),
-    ...(temUtm ? { extra_data: { utm: utmAttr } } : {}),
+    extra_data: {
+      evento: 'mega-eao-baviera-2026',
+      leiloes,
+      whatsapp_consent: whatsappConsent,
+      ...(temUtm ? { utm: utmAttr } : {}),
+    },
   }
 
   const { data, error } = await supabaseAdmin()
@@ -130,6 +153,8 @@ export async function POST(req: NextRequest) {
     interesse: str(body.interesse),
     oQueBusca: str(body.oQueBusca),
     inscricaoEstadual: str(body.inscricaoEstadual),
+    leiloesDescricao,
+    whatsappConsent,
   }
 
   // Mesma atribuição, no formato de colunas que a planilha espera.
@@ -163,10 +188,22 @@ export async function POST(req: NextRequest) {
     console.error('[JMP lead] email flow enroll failed:', e)
   }
 
+  // Aba "Leads EAO" — dedicada à campanha do 13º Mega Baviera. A aba
+  // "Leads JMP" fica intacta (histórico do evento anterior + despejo do Meta).
   try {
-    await appendLeadToSheet({ ...leadCtx, ...utm, leadId: data?.id ?? null, createdAt: new Date() })
+    await appendLeadToEaoSheet({ ...leadCtx, ...utm, leadId: data?.id ?? null, createdAt: new Date() })
   } catch (e) {
     console.error('[JMP lead] sheets append failed:', e)
+  }
+
+  // Auto-cura oportunista das linhas cruas que o Meta despeja na aba "Leads
+  // JMP". Rodava dentro do antigo appendLeadToSheet; como a landing passou a
+  // gravar na aba do EAO, o gatilho por lead vive aqui — senão só o cron
+  // diário (sheet-heal) realinharia, deixando a planilha torta por até 24h.
+  try {
+    await normalizeMetaRawRows()
+  } catch (e) {
+    console.error('[JMP lead] meta rows normalize failed:', e)
   }
 
   // Boas-vindas automáticas no WhatsApp pelo número conectado (Baileys).

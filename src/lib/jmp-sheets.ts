@@ -130,10 +130,10 @@ async function readHeaderRow(sheets: SheetsClient, spreadsheetId: string, tab: s
   return ((res.data.values?.[0] ?? []) as unknown[]).map((value) => String(value ?? '').trim())
 }
 
-async function updateHeaderRow(sheets: SheetsClient, spreadsheetId: string, headerRow: string[]): Promise<void> {
+async function updateHeaderRow(sheets: SheetsClient, spreadsheetId: string, headerRow: string[], tab: string = TAB): Promise<void> {
   await sheets.spreadsheets.values.update({
     spreadsheetId,
-    range: `${TAB}!A1:${columnName(headerRow.length)}1`,
+    range: `${tab}!A1:${columnName(headerRow.length)}1`,
     valueInputOption: 'RAW',
     requestBody: { values: [headerRow] },
   })
@@ -322,6 +322,10 @@ export interface SheetLead {
   ad_id?: string | null
   leadId?: string | null
   createdAt?: Date
+  /** "Fêmeas (11/07), Touros (12/07)" — pregões escolhidos na landing do EAO. */
+  leiloesDescricao?: string | null
+  /** Consentimento explícito de contato via WhatsApp (checkbox do formulário). */
+  whatsappConsent?: boolean
 }
 
 export interface SheetLeadRow {
@@ -904,10 +908,17 @@ const EAO_CAMPAIGN_ID = '120249047242270708'
 
 // Cabeçalho limpo — só o que interessa pra operação da campanha (sem o dump cru
 // de metadados do Meta que existe no PERPETUO).
+//
+// A aba recebe DUAS fontes: os leads do Meta (espelhados por syncEaoLeadsToTab)
+// e os leads do formulário da landing (appendLeadToEaoSheet). As duas últimas
+// colunas só existem para a landing — nas linhas vindas do Meta ficam vazias,
+// porque buildEaoRow resolve por nome de coluna e devolve '' no que não conhece.
 const EAO_HEADER = [
   'Data', 'Nome', 'E-mail', 'WhatsApp', 'UF', 'Cidade', 'Momento', 'Cabeças',
   'Inscrição Estadual', 'Interesse', 'Qtd. desejada', 'Lead ID', 'Campanha', 'Anúncio',
+  'Leilão de interesse', 'Consentimento WhatsApp',
 ] as const
+type EaoHeaderName = (typeof EAO_HEADER)[number]
 
 /** Monta a linha da aba "Leads EAO" alinhada ao cabeçalho REAL (resolve por nome). */
 function buildEaoRow(p: RawMetaLead, header: string[]): string[] {
@@ -1256,6 +1267,100 @@ export async function appendLeadToSheet(lead: SheetLead): Promise<{ skipped: boo
   // AWAIT obrigatório: em serverless (Vercel) trabalho não-aguardado é
   // congelado quando a resposta sai — com `void` a normalização nunca rodava.
   await normalizeMetaRawRows()
+
+  return { skipped: false }
+}
+
+// ── Leads da LANDING na aba "Leads EAO" ────────────────────────────────────
+// A mesma aba que syncEaoLeadsToTab alimenta com os leads do Meta recebe também
+// os leads do formulário de eao.bulaassessoria.com. Não colidem: o espelho do
+// Meta é idempotente pelo Lead ID (id do Meta) e nunca reescreve linha alheia;
+// as linhas da landing carregam o uuid do crm_leads.
+//
+// Layout próprio: começa em "Data" na coluna A (NÃO tem o "Atendido por" da aba
+// Leads JMP) e não recebe o despejo cru do Meta — por isso não reusa
+// ensureSheetLayout, cujo alinhamento é específico daquele layout.
+
+/**
+ * Garante que a aba tenha todas as colunas de EAO_HEADER. Colunas que faltam
+ * são acrescentadas no FIM — nunca sobrescrevemos uma coluna já preenchida
+ * (a equipe pode ter adicionado as suas).
+ */
+async function ensureEaoLayout(sheets: SheetsClient, spreadsheetId: string): Promise<Map<EaoHeaderName, number>> {
+  const headerRow = await readHeaderRow(sheets, spreadsheetId, LEADS_EAO_TAB)
+
+  const next = headerRow.some(Boolean) ? [...headerRow] : [...EAO_HEADER]
+  for (const header of EAO_HEADER) {
+    if (next.some((h) => normalizeHeaderText(String(h ?? '')) === normalizeHeaderText(header))) continue
+    next.push(header)
+  }
+
+  if (next.join(' ') !== headerRow.join(' ')) {
+    await updateHeaderRow(sheets, spreadsheetId, next, LEADS_EAO_TAB)
+  }
+
+  const indexes = new Map<EaoHeaderName, number>()
+  next.forEach((h, i) => {
+    const match = EAO_HEADER.find((e) => normalizeHeaderText(e) === normalizeHeaderText(String(h ?? '')))
+    if (match && !indexes.has(match)) indexes.set(match, i)
+  })
+  return indexes
+}
+
+/** Grava o lead da landing do EAO na aba dedicada da campanha. */
+export async function appendLeadToEaoSheet(lead: SheetLead): Promise<{ skipped: boolean; reason?: string }> {
+  const info = await getStoredInfo()
+  if (!info) return { skipped: true, reason: 'not_provisioned' }
+  const auth = getAuth()
+  if (!auth) {
+    console.error('[jmp-sheets] append EAO PULADO (credenciais ausentes/inválidas) — lead não foi para a planilha:', lead.nome)
+    return { skipped: true, reason: 'no_credentials' }
+  }
+
+  const sheets = google.sheets({ version: 'v4', auth })
+  const indexes = await ensureEaoLayout(sheets, info.spreadsheetId)
+
+  const row = Array.from({ length: Math.max(...indexes.values()) + 1 }, () => '')
+  const set = (header: EaoHeaderName, value: string | null | undefined) => {
+    const index = indexes.get(header)
+    if (index != null) row[index] = value ?? ''
+  }
+
+  set('Data', fmtDate(lead.createdAt ?? new Date()))
+  set('Nome', lead.nome)
+  set('E-mail', lead.email)
+  set('WhatsApp', lead.whatsapp)
+  set('UF', lead.uf)
+  set('Cidade', lead.cidade)
+  set('Momento', lead.momento)
+  set('Cabeças', lead.cabecas)
+  set('Inscrição Estadual', lead.inscricaoEstadual)
+  set('Interesse', lead.interesse)
+  set('Qtd. desejada', lead.oQueBusca)
+  set('Lead ID', lead.leadId)
+  // A aba da equipe chama de "Campanha"/"Anúncio" o que a landing manda como
+  // utm_campaign / utm_content (o criativo). ad_id entra como reserva.
+  set('Campanha', lead.utm_campaign)
+  set('Anúncio', lead.utm_content || lead.ad_id)
+  set('Leilão de interesse', lead.leiloesDescricao)
+  set('Consentimento WhatsApp', lead.whatsappConsent ? 'Sim' : 'Não')
+
+  // appendCells (e não values.append) pelo mesmo motivo da aba Leads JMP:
+  // o append clássico usa detecção de tabela e desloca linhas quando há
+  // células órfãs abaixo da tabela.
+  const sheetId = await getTabSheetId(sheets, info.spreadsheetId, LEADS_EAO_TAB)
+  await sheets.spreadsheets.batchUpdate({
+    spreadsheetId: info.spreadsheetId,
+    requestBody: {
+      requests: [{
+        appendCells: {
+          sheetId,
+          rows: [{ values: row.map((v) => ({ userEnteredValue: { stringValue: String(v ?? '') } })) }],
+          fields: 'userEnteredValue',
+        },
+      }],
+    },
+  })
 
   return { skipped: false }
 }

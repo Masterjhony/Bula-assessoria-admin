@@ -59,9 +59,9 @@ export interface JmpContent {
 export const DEFAULT_CONTENT: JmpContent = {
   hero: {
     backgroundUrl: '/foto-leilao-eao.jpeg',
-    badge: 'ASSESSORIA GRATUITA · 09 A 12 DE JULHO',
+    badge: 'ASSESSORIA GRATUITA · 10 A 12 DE JULHO',
     headline: 'Compre bem no\nMega Baviera com\na Bula ao seu lado.',
-    valueProp: 'A equipe de assessores da Bula te ajuda a entender a genética, escolher os animais certos e dar o lance certo no 13º Mega Baviera.',
+    valueProp: 'São 3 leilões em 3 dias. A equipe de assessores da Bula te ajuda a entender a genética, escolher os animais certos e dar o lance certo.',
     valuePropStrong: 'Assessoria gratuita. Sem compromisso.',
     benefitsTitle: 'Uma Equipe de\nAssessores do Seu\nLado no Mega Baviera',
     benefits: [
@@ -73,7 +73,7 @@ export const DEFAULT_CONTENT: JmpContent = {
     ],
     stats: [
       { value: 'GRÁTIS', label: 'ASSESSORIA DE COMPRA' },
-      { value: '09–12 JUL', label: 'MEGA BAVIERA' },
+      { value: '3', label: 'LEILÕES · 10 A 12 JUL' },
     ],
     locationLine1: 'Itagibá / BA',
     locationLine2: 'Fazenda Baviera',
