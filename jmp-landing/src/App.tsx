@@ -1,5 +1,5 @@
 import './index.css'
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { Form } from './components/Form'
 import { Footer } from './components/Footer'
 import { DEFAULT_CONTENT, fetchContent, type JmpContent } from './content'
@@ -11,49 +11,47 @@ function scrollToForm(e: React.MouseEvent) {
 }
 
 /**
- * Fundo em vídeo do hero (boiada, drone). É enfeite: a página tem que ficar
- * perfeita sem ele.
+ * Fundo em vídeo do hero — a MESMA filmagem e o mesmo comportamento do hero de
+ * bulaassessoria.com/agenda: roda sempre, em qualquer tela.
  *
- * Só carrega quando vale a pena:
- * - depois do `load` da página, para não disputar banda com o LCP (o poster);
- * - só no desktop (>=1024px) — no mobile são 1,6 MB de dados móveis e uma
- *   bateria a menos, num hero que já é alto demais;
- * - respeita `prefers-reduced-motion` e o modo de economia de dados.
+ * Não há gate de `prefers-reduced-motion` nem de largura, de propósito: a
+ * /agenda também não tem, e o vídeo é parte da identidade da página (decisão do
+ * dono do produto, tomada com o trade-off na mesa).
  *
- * Enquanto não estiver pronto fica transparente, deixando ver o poster que já
- * está pintado como background do container — sem flash nem salto de layout.
+ * O único cuidado é de carregamento: o <video> só monta depois do `load`, para
+ * não disputar banda com o LCP (o poster). Enquanto não pode tocar fica
+ * transparente e o poster — já pintado como background do container — aparece
+ * no lugar, sem flash nem salto de layout.
+ *
+ * `play()` é chamado na mão: autoplay+muted às vezes não dispara sozinho
+ * dependendo do navegador/aba (mesmo truque de src/app/agenda/HeroVideo.tsx).
  */
 function HeroVideo({ poster }: { poster: string }) {
-  const [enabled, setEnabled] = useState(false)
+  const [mounted, setMounted] = useState(false)
   const [ready, setReady] = useState(false)
+  const ref = useRef<HTMLVideoElement>(null)
 
   useEffect(() => {
-    const desktop = window.matchMedia('(min-width: 1024px)')
-    const reduced = window.matchMedia('(prefers-reduced-motion: reduce)')
-    const conn = (navigator as unknown as { connection?: { saveData?: boolean; effectiveType?: string } }).connection
-    const frugal = Boolean(conn?.saveData) || /(^|-)2g$/.test(conn?.effectiveType ?? '')
-
-    const decide = () => setEnabled(desktop.matches && !reduced.matches && !frugal)
-    const start = () => {
-      decide()
-      desktop.addEventListener('change', decide)
-      reduced.addEventListener('change', decide)
-    }
-
+    const start = () => setMounted(true)
     if (document.readyState === 'complete') start()
     else window.addEventListener('load', start, { once: true })
-
-    return () => {
-      desktop.removeEventListener('change', decide)
-      reduced.removeEventListener('change', decide)
-    }
+    return () => window.removeEventListener('load', start)
   }, [])
 
-  if (!enabled) return null
+  useEffect(() => {
+    const v = ref.current
+    if (!v) return
+    v.muted = true
+    const p = v.play()
+    if (p && typeof p.catch === 'function') p.catch(() => {})
+  }, [mounted])
+
+  if (!mounted) return null
 
   return (
     <video
-      className={`pointer-events-none absolute inset-0 h-full w-full object-cover transition-opacity duration-1000 ${ready ? 'opacity-100' : 'opacity-0'}`}
+      ref={ref}
+      className={`pointer-events-none absolute inset-0 h-full w-full object-cover transition-opacity duration-700 ${ready ? 'opacity-100' : 'opacity-0'}`}
       src={HERO_VIDEO_URL}
       poster={poster}
       autoPlay
