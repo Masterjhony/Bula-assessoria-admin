@@ -12,7 +12,6 @@ import {
   trackFormValidationFailed,
 } from '../analytics/posthog'
 import bulaLogo from '../assets/logo-bula-trimmed.png'
-import jmpLogo from '../assets/jmp-logo.png'
 
 // Renderiza texto com quebras de linha (\n) preservando-as como <br/>.
 function MultiLine({ text }: { text: string }) {
@@ -72,9 +71,11 @@ interface FormData {
   interesse: string
   quantidade: string
   inscricaoEstadual: string
+  whatsappConsent: boolean
 }
 
 type FieldKey = keyof FormData
+type FormErrors = { [K in keyof FormData]?: string }
 
 // ── Pergunta de quantidade, contextual ao interesse ────────────────────────
 // O substantivo e a concordância ("Quantos"/"Quantas") mudam conforme o que
@@ -176,8 +177,8 @@ function analyticsProfile(data: FormData, utms: Utm) {
   }
 }
 
-function validateStep(step: number, data: FormData): Partial<FormData> {
-  const errors: Partial<FormData> = {}
+function validateStep(step: number, data: FormData): FormErrors {
+  const errors: FormErrors = {}
   if (step === 1) {
     if (!data.nome.trim() || data.nome.trim().length < 3)
       errors.nome = 'Preencha seu nome completo (mín. 3 caracteres).'
@@ -196,6 +197,7 @@ function validateStep(step: number, data: FormData): Partial<FormData> {
     if (!data.interesse) errors.interesse = 'Selecione seu interesse.'
     if (data.interesse && !data.quantidade) errors.quantidade = 'Selecione a quantidade que você precisa.'
     if (!data.inscricaoEstadual) errors.inscricaoEstadual = 'Informe se você tem inscrição estadual.'
+    if (!data.whatsappConsent) errors.whatsappConsent = 'Você precisa autorizar o contato via WhatsApp para continuar.'
   }
   return errors
 }
@@ -325,9 +327,9 @@ export function Form({ hero }: { hero: JmpHero }) {
   const [formData, setFormData] = useState<FormData>({
     nome: '', email: '', whatsapp: '',
     uf: '', cidade: '',
-    momento: '', cabecas: '', interesse: '', quantidade: '', inscricaoEstadual: '',
+    momento: '', cabecas: '', interesse: '', quantidade: '', inscricaoEstadual: '', whatsappConsent: false,
   })
-  const [errors, setErrors] = useState<Partial<FormData>>({})
+  const [errors, setErrors] = useState<FormErrors>({})
   const [cities, setCities] = useState<string[]>([])
   const [citiesLoading, setCitiesLoading] = useState(false)
   const [loading, setLoading] = useState(false)
@@ -368,6 +370,12 @@ export function Form({ hero }: { hero: JmpHero }) {
     setFormData(prev => ({ ...prev, uf: sigla, cidade: '' }))
     trackFormFieldChanged('uf', step, Boolean(sigla))
     setErrors(prev => ({ ...prev, uf: undefined, cidade: undefined }))
+  }
+
+  function handleWhatsappConsentChange(checked: boolean) {
+    setFormData(prev => ({ ...prev, whatsappConsent: checked }))
+    trackFormFieldChanged('whatsappConsent', step, checked)
+    if (errors.whatsappConsent) setErrors(prev => ({ ...prev, whatsappConsent: undefined }))
   }
 
   function goTo(target: number) {
@@ -415,7 +423,7 @@ export function Form({ hero }: { hero: JmpHero }) {
       <div className="lg:w-[48%] bg-black/80 lg:bg-black/52 text-white flex flex-col justify-center px-8 py-14 lg:py-20 min-h-[320px]">
         <div className="max-w-[380px] ml-auto mr-4 lg:mr-10">
 
-          {/* Bula + JMP identity */}
+          {/* Bula + EAO Baviera identity */}
           <div className="mb-10 flex items-center gap-5">
             <img
               src={bulaLogo}
@@ -426,10 +434,10 @@ export function Form({ hero }: { hero: JmpHero }) {
             />
             <div className="h-10 w-px bg-white/30 sm:h-12" />
             <img
-              src={jmpLogo}
-              alt="JMP"
-              width={269}
-              height={149}
+              src="/logo-eao-white.png"
+              alt="EAO Agropecuária"
+              width={1320}
+              height={1155}
               className="h-14 w-auto object-contain sm:h-16"
             />
           </div>
@@ -508,8 +516,8 @@ export function Form({ hero }: { hero: JmpHero }) {
           <div className="mb-7">
             <p className="text-white/35 text-[10px] uppercase tracking-[3px] mb-2">Grátis · Sem compromisso</p>
             <h2 className="text-white font-black text-2xl sm:text-3xl leading-tight">
-              Garanta sua vaga<br />
-              <span className="text-white/60 font-bold">no JMP 2026</span>
+              Receba a assessoria<br />
+              <span className="text-white/60 font-bold">gratuita da Bula</span>
             </h2>
           </div>
 
@@ -537,9 +545,9 @@ export function Form({ hero }: { hero: JmpHero }) {
             {/* Step 1 */}
             {step === 1 && (
               <>
-                <h3 className="text-white text-lg font-bold mb-1">Responda e receba ofertas!</h3>
+                <h3 className="text-white text-lg font-bold mb-1">Faça seu cadastro!</h3>
                 <p className="text-white/35 text-sm mb-5">
-                  Voce recebe as ofertas pelo celular! Cadastre-se
+                  É rápido. A equipe Bula recebe seus dados e fala com você direto no WhatsApp.
                 </p>
                 <div className="space-y-4">
                   <div>
@@ -721,6 +729,18 @@ export function Form({ hero }: { hero: JmpHero }) {
                       {errors.quantidade && <span className={errorClass}>{errors.quantidade}</span>}
                     </div>
                   )}
+                  <div>
+                    <label className="flex items-start gap-3 cursor-pointer select-none">
+                      <input
+                        type="checkbox"
+                        checked={formData.whatsappConsent}
+                        onChange={e => handleWhatsappConsentChange(e.target.checked)}
+                        className="mt-0.5 h-4 w-4 shrink-0 rounded border-white/25 bg-white/5 accent-gold focus:ring-1 focus:ring-gold/50 focus:ring-offset-0 cursor-pointer"
+                      />
+                      <span className="text-white/70 text-sm leading-snug">Autorizo a Bula Assessoria a entrar em contato comigo no WhatsApp</span>
+                    </label>
+                    {errors.whatsappConsent && <span className={errorClass}>{errors.whatsappConsent}</span>}
+                  </div>
                 </div>
                 <div className="mt-6 flex gap-3">
                   <button onClick={() => goTo(2)} className={btnBack}>← Voltar</button>
@@ -733,7 +753,7 @@ export function Form({ hero }: { hero: JmpHero }) {
                       {loading ? (
                         <><Loader2 className="w-5 h-5 animate-spin" />Enviando…</>
                       ) : (
-                        'QUERO PARTICIPAR! →'
+                        'QUERO MINHA ASSESSORIA →'
                       )}
                     </span>
                   </button>
@@ -756,12 +776,12 @@ export function Form({ hero }: { hero: JmpHero }) {
           <div className="mt-5 flex items-center justify-center gap-4 text-white/25 text-[11px]">
             <span className="inline-flex items-center gap-1.5">
               <Calendar className="w-3 h-3" />
-              14 Jun · Domingo · 09h
+              09 a 12 Jul · Fazenda Baviera
             </span>
             <span className="w-px h-3 bg-white/15" />
             <span className="inline-flex items-center gap-1.5">
               <MapPin className="w-3 h-3" />
-              Campo Grande/MS
+              Itagibá / BA
             </span>
           </div>
 
