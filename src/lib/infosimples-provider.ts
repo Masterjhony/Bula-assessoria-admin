@@ -148,11 +148,18 @@ export async function consultarProtestosInfosimples(cpf: string): Promise<Protes
 export interface SintegraRecord {
     inscricao_estadual?: string
     razao_social?: string
+    /** Nome da propriedade rural (ex.: "FAZENDA SANTANA") — o `nome` vem vazio para PF. */
+    nome_fantasia?: string
     situacao_ie?: string
     uf_ie?: string
     tipo_ie?: string
     municipio?: string
     situacao_cadastral?: string
+    endereco_logradouro?: string
+    endereco_numero?: string
+    endereco_bairro?: string
+    endereco_cep?: string
+    atividade_economica?: string
 }
 
 export interface SintegraResult {
@@ -168,14 +175,23 @@ function parseSintegra(data: unknown[], uf: string): SintegraRecord[] {
         const row = item as Record<string, unknown>
         const ie = row.normalizado_inscricao_estadual || row.inscricao_estadual
         if (!ie) continue
+        const s = (v: unknown) => (v ? String(v).trim() || undefined : undefined)
         out.push({
             inscricao_estadual: String(ie),
-            razao_social: row.razao_social ? String(row.razao_social) : (row.nome ? String(row.nome) : undefined),
-            situacao_ie: row.situacao_ie ? String(row.situacao_ie) : undefined,
-            situacao_cadastral: row.situacao_cadastral ? String(row.situacao_cadastral) : undefined,
-            uf_ie: row.endereco_uf ? String(row.endereco_uf) : uf,
-            tipo_ie: row.tipo_ie ? String(row.tipo_ie) : undefined,
-            municipio: row.endereco_municipio ? String(row.endereco_municipio) : (row.municipio ? String(row.municipio) : undefined),
+            razao_social: s(row.razao_social) ?? s(row.nome),
+            // Produtor rural pessoa física costuma vir com `nome` vazio e o nome
+            // da propriedade em `nome_fantasia` ("FAZENDA SANTANA").
+            nome_fantasia: s(row.nome_fantasia),
+            situacao_ie: s(row.situacao_ie),
+            situacao_cadastral: s(row.situacao_cadastral),
+            uf_ie: s(row.endereco_uf) ?? uf,
+            tipo_ie: s(row.tipo_ie),
+            municipio: s(row.endereco_municipio) ?? s(row.municipio),
+            endereco_logradouro: s(row.endereco_logradouro),
+            endereco_numero: s(row.endereco_numero),
+            endereco_bairro: s(row.endereco_bairro),
+            endereco_cep: s(row.endereco_cep),
+            atividade_economica: s(row.atividade_economica),
         })
     }
     return out

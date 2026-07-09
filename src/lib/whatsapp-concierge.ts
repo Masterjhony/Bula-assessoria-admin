@@ -38,7 +38,7 @@ import { computeFaixasPreco, faixasPromptBlock } from './leilao-faixas-preco'
 import { computeProximosLeiloes, agendaPromptBlock } from './leilao-agenda-prompt'
 import { maybeRunCreditCheck } from './crm-credit-automation'
 import { maybeRunStateRegistrationCheck } from './crm-state-registration-automation'
-import { runHabilitacaoAutofill, autofillPromptBlock } from './crm-lead-autofill'
+import { runHabilitacaoAutofill, autofillPromptBlock, extrairCpf } from './crm-lead-autofill'
 import { computeFase, extractPerfil, fasePromptBlock, type ConciergeFase } from './concierge-fase'
 import { qualificacaoPromptBlock } from './crm-qualificacao'
 import {
@@ -408,6 +408,11 @@ function ieDispensadaPara(lead: Pick<FullLead, 'extra_data' | 'tem_inscricao_est
     return ieDispensavel(lead) && declarouNaoTerIe(lead) ? LEILAO_IE_FLEXIVEL : null
 }
 
+/** A propriedade do lead foi confirmada na base do Estado (Sintegra)? */
+function propriedadeConsultada(lead: Pick<FullLead, 'extra_data'>): boolean {
+    return Boolean((lead.extra_data ?? {}).propriedade_consultada_at)
+}
+
 /** Checklist a partir do lead já carregado (mesma regra em todos os pontos). */
 function buildChecklist(lead: FullLead, docs: { count: number; tipos: string[] }) {
     return computeHabilitacaoChecklist({
@@ -422,6 +427,7 @@ function buildChecklist(lead: FullLead, docs: { count: number; tipos: string[] }
         docsCount: docs.count,
         docTipos: docs.tipos,
         ieDispensadaPara: ieDispensadaPara(lead),
+        documentosSimplificados: propriedadeConsultada(lead),
     })
 }
 
@@ -697,6 +703,16 @@ export async function runConcierge(
     // isso só roda depois do "sim" (fase habilitação).
     let autofillBlock = ''
     if (fase.fase === 'habilitacao') {
+        // O lead pode ter mandado o CPF AGORA. Persistimos antes de consultar,
+        // senão a consulta só rodaria na próxima mensagem e a IA pediria a
+        // fazenda que o Sintegra já entregaria de graça.
+        if (!String(lead.cpf ?? '').replace(/\D/g, '')) {
+            const cpfNaMensagem = extrairCpf(input.text)
+            if (cpfNaMensagem) {
+                await supabase.from('crm_leads').update({ cpf: cpfNaMensagem }).eq('id', lead.id)
+                lead = { ...lead, cpf: cpfNaMensagem }
+            }
+        }
         try {
             const r = await runHabilitacaoAutofill(supabase, {
                 id: lead.id,
@@ -1054,6 +1070,7 @@ async function applyConciergeEffects(
         docsCount,
         docTipos,
         ieDispensadaPara: dispensaIe,
+        documentosSimplificados: propriedadeConsultada({ extra_data: nextExtra }),
     })
     nextExtra.habilitacao = {
         done: checklist.done,

@@ -13,12 +13,14 @@ import {
 import {
   consultarInscricaoEstadualPorCpf,
   normalizeUf,
+  type StateRegistrationRecord,
   type StateRegistrationReport,
 } from '@/lib/state-registration-provider'
 
 type LeadLike = {
   id: string
   status: string
+  nome?: string | null
   cpf?: string | null
   estado?: string | null
   quantidade_animais?: string | null
@@ -64,6 +66,14 @@ export function shouldRunStateRegistrationCheck(lead: LeadLike, previous: Previo
   const stageJustEntered = !previous || !isQualification(String(previous.status || ''))
   if (stageJustEntered) return true
   return !recentlyChecked(lead.extra_data)
+}
+
+const str = (v: unknown) => String(v ?? '').trim()
+
+/** O registro que corresponde à I.E. escolhida (a ativa, quando há várias). */
+function pickBest(report: StateRegistrationReport): StateRegistrationRecord | undefined {
+  if (report.pending || !report.inscricaoEstadual) return undefined
+  return report.results.find(r => r.inscricao_estadual === report.inscricaoEstadual) ?? report.results[0]
 }
 
 function registrationSummary(report: StateRegistrationReport): string {
@@ -156,28 +166,57 @@ export async function maybeRunStateRegistrationCheck(
   const nextTemIe = report.pending ? lead.tem_inscricao_estadual || '' : report.temInscricaoEstadual
   const nextIe = report.pending ? lead.inscricao_estadual || '' : report.inscricaoEstadual || ''
 
-  const patch: Record<string, unknown> = {
-    extra_data: {
-      ...extraData,
-      fiscal: {
-        ...fiscal,
-        ie: {
-          inscricaoEstadual: report.inscricaoEstadual,
-          temInscricaoEstadual: report.temInscricaoEstadual,
-          uf: report.uf,
-          provider: report.provider,
-          consultedAt: report.consultedAt,
-          pending: report.pending,
-          results: report.results.slice(0, 5),
-        },
+  const nextExtra: Record<string, unknown> = {
+    ...extraData,
+    fiscal: {
+      ...fiscal,
+      ie: {
+        inscricaoEstadual: report.inscricaoEstadual,
+        temInscricaoEstadual: report.temInscricaoEstadual,
+        uf: report.uf,
+        provider: report.provider,
+        consultedAt: report.consultedAt,
+        pending: report.pending,
+        results: report.results.slice(0, 5),
       },
     },
+  }
+
+  // A consulta do Sintegra devolve a PROPRIEDADE ligada à I.E.: nome da fazenda,
+  // município, UF e endereço. É exatamente o bloco "Dados da Propriedade" da
+  // ficha de cadastro — preenchemos sozinhos em vez de perguntar ao lead.
+  // Só preenche o que está vazio: o que o lead digitou sempre prevalece.
+  const best = pickBest(report)
+  if (best) {
+    // Produtor rural PF: `razao_social` traz o nome completo do titular e
+    // `nome_fantasia` o nome da propriedade ("FAZENDA SANTANA").
+    const fazendaNome = best.nome_fantasia || best.razao_social
+    if (fazendaNome && !str(extraData.fazenda_nome)) nextExtra.fazenda_nome = fazendaNome
+    if (best.municipio && !str(extraData.fazenda_cidade)) nextExtra.fazenda_cidade = best.municipio
+    const ufProp = best.uf_ie || report.uf
+    if (ufProp && !str(extraData.fazenda_uf)) nextExtra.fazenda_uf = ufProp
+    const endProp = [best.endereco_logradouro, best.endereco_numero, best.endereco_bairro, best.municipio, ufProp, best.endereco_cep]
+      .map(v => String(v ?? '').trim())
+      .filter(Boolean)
+      .join(', ')
+    if (endProp) nextExtra.propriedade_endereco = endProp
+    if (best.atividade_economica) nextExtra.propriedade_atividade = best.atividade_economica
+    nextExtra.propriedade_consultada_at = report.consultedAt
+  }
+
+  const patch: Record<string, unknown> = {
+    extra_data: nextExtra,
     contact_history: appendNote(current?.contact_history ?? lead.contact_history, summary),
   }
 
   if (!report.pending) {
     patch.tem_inscricao_estadual = nextTemIe
     patch.inscricao_estadual = nextIe
+    // Nome completo oficial, quando o card só tem o primeiro nome do WhatsApp.
+    const nomeOficial = str(best?.razao_social)
+    if (/\S+\s+\S+/.test(nomeOficial) && !/\S+\s+\S+/.test(str(lead.nome))) {
+      patch.nome = nomeOficial
+    }
     patch.is_mql = evaluateMql(mqlRule || DEFAULT_JMP_MQL_RULE, {
       quantidade_animais: lead.quantidade_animais,
       tem_inscricao_estadual: nextTemIe,

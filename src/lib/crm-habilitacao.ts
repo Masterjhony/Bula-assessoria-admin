@@ -67,6 +67,14 @@ export interface HabilitacaoInput {
      * enviada às leiloeiras. Vazio = regra normal (I.E. obrigatória).
      */
     ieDispensadaPara?: string | null
+    /**
+     * A consulta oficial (Sintegra) já trouxe a propriedade e a I.E. do titular.
+     * Nesse caso pedimos UM documento (foto da CNH/RG) em vez de três: os dados
+     * já foram conferidos numa base do Estado, então a selfie e o comprovante de
+     * propriedade deixam de ser a única prova. Foi assim que o cadastro do
+     * Ricardo (aprovado) entrou: dados + um documento.
+     */
+    documentosSimplificados?: boolean
 }
 
 const digits = (v: unknown) => String(v ?? '').replace(/\D/g, '')
@@ -134,12 +142,19 @@ export function computeHabilitacaoChecklist(input: HabilitacaoInput): Habilitaca
         },
 
         { key: 'doc_identidade', label: 'Foto da CNH/RG', group: 'documentos', done: docIdentidade },
-        { key: 'doc_identidade_selfie', label: 'Foto segurando o documento', group: 'documentos', done: docSelfie },
-        { key: 'doc_fiscal', label: 'Comprovante da propriedade / I.E. / NIRF', group: 'documentos', done: docFiscal },
     ]
 
+    // Com a propriedade confirmada na base do Estado, um documento basta.
+    if (!input.documentosSimplificados) {
+        items.push(
+            { key: 'doc_identidade_selfie', label: 'Foto segurando o documento', group: 'documentos', done: docSelfie },
+            { key: 'doc_fiscal', label: 'Comprovante da propriedade / I.E. / NIRF', group: 'documentos', done: docFiscal },
+        )
+    }
+
+    const minDocs = input.documentosSimplificados ? 1 : 2
     const done = items.filter(i => i.done).length
-    const complete = done === items.length && input.docsCount >= 2
+    const complete = done === items.length && input.docsCount >= minDocs
     return {
         items,
         done,

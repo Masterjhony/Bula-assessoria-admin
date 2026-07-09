@@ -146,6 +146,8 @@ const REGRAS: Record<ConciergeFase, string[]> = {
     ],
     habilitacao: [
         'O lead topou. Agora sim: peça o que falta no checklist, enquadrado como o que destrava a participação dele no leilão.',
+        'COMECE PELO CPF. Com o CPF a gente descobre sozinho a Inscrição Estadual e a fazenda dele — pedir isso antes é trabalho perdido pro lead.',
+        'Se o CPF ainda não veio, peça só CPF + endereço de correspondência (cidade/UF/CEP). NÃO peça fazenda, I.E. nem documento ainda.',
         'Peça em UMA mensagem organizada, nunca item por item, e só o que está marcado com ✘.',
         'Dado marcado com ✔ NUNCA é pedido de novo — no máximo confirmado ("é isso mesmo?").',
         'Benefício em meia linha: com o cadastro aprovado ele já pode dar lance no próximo leilão.',

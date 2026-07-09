@@ -31,6 +31,38 @@ import { DEFAULT_JMP_MQL_RULE } from './crm-types'
 /** Tempo que o concierge espera pelas consultas antes de responder ao lead. */
 export const AUTOFILL_TIMEOUT_MS = 9_000
 
+/** Dígitos verificadores do CPF. Sem isto, um celular de 11 dígitos vira "CPF". */
+export function cpfValido(cpf: string): boolean {
+    const d = String(cpf).replace(/\D/g, '')
+    if (d.length !== 11 || /^(\d)\1{10}$/.test(d)) return false
+    for (const [len, pos] of [[9, 10], [10, 11]] as const) {
+        let soma = 0
+        for (let i = 0; i < len; i++) soma += Number(d[i]) * (pos - i)
+        let dv = (soma * 10) % 11
+        if (dv === 10) dv = 0
+        if (dv !== Number(d[len])) return false
+    }
+    return true
+}
+
+/**
+ * Acha um CPF válido no texto do lead. Serve para o autofill rodar JÁ na
+ * mensagem em que ele manda o CPF — sem isto a consulta só aconteceria na
+ * mensagem seguinte, e a IA pediria a fazenda que já daria pra descobrir.
+ */
+export function extrairCpf(texto: string): string | null {
+    const candidatos = String(texto ?? '').match(/\d[\d.\-\s]{9,17}\d/g) ?? []
+    for (const c of candidatos) {
+        const d = c.replace(/\D/g, '')
+        // Uma sequência longa pode conter o CPF; testa janelas de 11 dígitos.
+        for (let i = 0; i + 11 <= d.length; i++) {
+            const janela = d.slice(i, i + 11)
+            if (cpfValido(janela)) return janela
+        }
+    }
+    return null
+}
+
 export interface AutofillLead {
     id: string
     status: string
@@ -105,8 +137,9 @@ export async function runHabilitacaoAutofill(
         }
     }
 
-    // 2) CPF + UF → Inscrição Estadual. Só faz sentido depois do passo 1 (o CPF
-    //    descoberto lá cascateia para cá no mesmo atendimento).
+    // 2) CPF + UF → Sintegra. Devolve a I.E. E a propriedade rural ligada a ela:
+    //    nome da fazenda, município, UF, endereço. É o bloco "Dados da
+    //    Propriedade" inteiro da ficha de cadastro, sem perguntar nada ao lead.
     const temCpf = String(lead.cpf ?? '').replace(/\D/g, '').length === 11
     const semIe = !String(lead.inscricao_estadual ?? '').trim()
     if (temCpf && semIe && Date.now() < deadline) {
@@ -123,7 +156,15 @@ export async function runHabilitacaoAutofill(
             Math.max(1_000, deadline - Date.now()),
         )
         if (ie === null) timedOut = true
-        if (ie?.inscricaoEstadual) encontrados.push('Inscrição Estadual')
+        if (ie?.inscricaoEstadual) {
+            encontrados.push('Inscrição Estadual')
+            // A automação grava a propriedade em extra_data; relemos para saber
+            // se veio, e assim dizer à IA que é pra CONFIRMAR, não perguntar.
+            const { data } = await supabase.from('crm_leads').select('extra_data').eq('id', lead.id).single()
+            const xd = (data?.extra_data ?? {}) as Record<string, unknown>
+            if (xd.fazenda_nome) encontrados.push(`fazenda "${String(xd.fazenda_nome)}"`)
+            if (xd.fazenda_cidade) encontrados.push(`cidade/UF da fazenda (${String(xd.fazenda_cidade)}/${String(xd.fazenda_uf ?? '')})`)
+        }
     }
 
     return { ran, encontrados, timedOut }
@@ -139,7 +180,8 @@ export function autofillPromptBlock(encontrados: string[]): string {
     return [
         `DADOS QUE JÁ LOCALIZAMOS SOZINHOS (${encontrados.join(', ')}):`,
         '- NÃO peça estes dados ao lead — eles já estão no checklist como ✔.',
-        '- Se precisar citá-los, apenas CONFIRME de leve ("confirma que o endereço é X?").',
+        '- CONFIRME numa linha, com naturalidade ("é a Fazenda Santana, em Santa Maria Madalena/RJ, certo?").',
         '- NUNCA diga que consultamos base de dados, CPF ou órgão nenhum. Diga "já tenho aqui".',
+        '- Como a propriedade já está confirmada, peça APENAS UMA foto do documento (CNH ou RG). Nada de selfie nem comprovante.',
     ].join('\n')
 }

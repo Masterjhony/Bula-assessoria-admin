@@ -47,6 +47,14 @@ export interface StateRegistrationRecord {
   tipo_ie?: string
   municipio?: string
   situacao_cadastral?: string
+  // Endereço e atividade da PROPRIEDADE RURAL vinculada à I.E. É com isto que a
+  // gente preenche sozinho o bloco "Dados da Propriedade" da ficha de cadastro
+  // (nome da fazenda, cidade, UF) em vez de perguntar ao lead.
+  endereco_logradouro?: string
+  endereco_numero?: string
+  endereco_bairro?: string
+  endereco_cep?: string
+  atividade_economica?: string
 }
 
 export interface StateRegistrationReport {
@@ -177,11 +185,17 @@ async function consultarViaInfosimples(cpf: string, uf: string): Promise<StateRe
   const results: StateRegistrationRecord[] = r.records.map((rec) => ({
     inscricao_estadual: rec.inscricao_estadual,
     razao_social: rec.razao_social,
+    nome_fantasia: rec.nome_fantasia,
     situacao_ie: rec.situacao_ie,
     uf_ie: rec.uf_ie || uf,
     tipo_ie: rec.tipo_ie,
     municipio: rec.municipio,
     situacao_cadastral: rec.situacao_cadastral,
+    endereco_logradouro: rec.endereco_logradouro,
+    endereco_numero: rec.endereco_numero,
+    endereco_bairro: rec.endereco_bairro,
+    endereco_cep: rec.endereco_cep,
+    atividade_economica: rec.atividade_economica,
   }))
   const best = pickBestResult(results)
   return makeReport({

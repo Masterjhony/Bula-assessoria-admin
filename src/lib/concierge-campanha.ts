@@ -31,7 +31,11 @@ export interface CampanhaLead {
  *   content : "video-leilao-eao-touros-04"
  */
 export function isLeadCampanhaEao(lead: CampanhaLead): boolean {
-    const utm = ((lead.extra_data ?? {}).utm ?? {}) as Record<string, unknown>
+    const xd = (lead.extra_data ?? {}) as Record<string, unknown>
+    // A landing do evento (eao.*) marca `evento` direto; o import da planilha
+    // traz só os UTMs da Meta. Os dois caminhos precisam ser reconhecidos.
+    if (String(xd.evento ?? '').startsWith('mega-eao-baviera')) return true
+    const utm = (xd.utm ?? {}) as Record<string, unknown>
     const campos = [utm.campaign, utm.content, utm.source]
         .map(v => String(v ?? ''))
         .join(' ')
