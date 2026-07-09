@@ -31,6 +31,8 @@ export const LEILOES: Leilao[] = [
     data: '2026-07-10',
     dataCurta: '10/07',
     diaSemana: 'Sexta-feira',
+    catalogoUrl:
+      'https://nfjkzigvxegnhaxxbevt.supabase.co/storage/v1/object/public/leilao-catalogos/eao-baviera-13/catalogo-aspiracoes-13-eao-baviera.pdf',
   },
   {
     id: 'femeas',
@@ -54,9 +56,17 @@ export const LEILOES: Leilao[] = [
   },
 ]
 
-/** Capa oficial do evento (Storage do sistema, escala 2026). */
-export const EVENTO_CAPA_URL =
-  'https://nfjkzigvxegnhaxxbevt.supabase.co/storage/v1/object/public/leilao-covers/escala-2026/2026-07-10-mega-eao-baviera-aspiracoes-f21145369d.webp'
+// Fundo do hero: filmagem aérea de drone da própria Bula (boiada Nelore em fila
+// no pasto, luz da manhã). Origem: Drive da Bula, "Marketing e Growth/Fotos e
+// Vídeos/Drone/DJI_0069.MP4" — recortado em 12s, 1280x720, sem áudio, ~1,6 MB.
+//
+// Vive no Storage e NÃO no bundle: 1,6 MB no /assets do build atrasaria o
+// primeiro paint. O poster é o primeiro quadro e é o que a página pinta antes
+// (e o único que ela pinta no mobile / com prefers-reduced-motion).
+export const HERO_VIDEO_URL =
+  'https://nfjkzigvxegnhaxxbevt.supabase.co/storage/v1/object/public/jmp-landing/eao/hero-boiada.mp4'
+export const HERO_POSTER_URL =
+  'https://nfjkzigvxegnhaxxbevt.supabase.co/storage/v1/object/public/jmp-landing/eao/hero-boiada-poster.webp'
 
 /**
  * Texto legível dos leilões escolhidos, para o CRM (notes) e a planilha.

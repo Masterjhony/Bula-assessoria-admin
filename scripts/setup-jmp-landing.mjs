@@ -44,7 +44,10 @@ const supabase = createClient(SUPABASE_URL, SERVICE_KEY)
   const cfg = {
     public: true,
     fileSizeLimit: 10 * 1024 * 1024,
-    allowedMimeTypes: ['image/jpeg', 'image/jpg', 'image/png', 'image/webp', 'image/avif', 'image/gif', 'application/pdf'],
+    // video/mp4: fundo em vídeo do hero (boiada, filmagem de drone da Bula).
+    // Sem isso o upload devolve 415 invalid_mime_type, e rodar este script de
+    // novo reverteria a allowlist e quebraria o vídeo já publicado.
+    allowedMimeTypes: ['image/jpeg', 'image/jpg', 'image/png', 'image/webp', 'image/avif', 'image/gif', 'application/pdf', 'video/mp4'],
   }
   if (buckets?.some((b) => b.name === BUCKET)) {
     await supabase.storage.updateBucket(BUCKET, cfg)

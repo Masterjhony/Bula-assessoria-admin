@@ -15,9 +15,17 @@
     <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
-    <!-- Imagem de fundo do hero (LCP). Pré-carrega em alta prioridade para não
-         esperar o JS montar o React antes de começar o download. -->
-    <link rel="preload" as="image" href="/foto-leilao-eao.jpeg" fetchpriority="high" />
+    <!-- Poster do vídeo de fundo do hero (LCP). Pré-carrega em alta prioridade
+         para não esperar o JS montar o React antes de começar o download. Mora
+         no Storage, então abrimos a conexão antes. O vídeo em si NÃO é
+         pré-carregado: entra só depois do load, e só no desktop. -->
+    <link rel="preconnect" href="https://nfjkzigvxegnhaxxbevt.supabase.co" crossorigin />
+    <link
+      rel="preload"
+      as="image"
+      href="https://nfjkzigvxegnhaxxbevt.supabase.co/storage/v1/object/public/jmp-landing/eao/hero-boiada-poster.webp"
+      fetchpriority="high"
+    />
 
     <!-- Fonte Inter sem bloquear renderização: baixa como "style" e só vira
          stylesheet no onload. Antes era um @import no CSS, que bloqueava o paint. -->
@@ -34,8 +42,8 @@
     </noscript>
 
     <title>13º Mega Evento EAO Baviera — Inscrições</title>
-    <script type="module" crossorigin src="/assets/index-D-H2o2wJ.js"></script>
-    <link rel="stylesheet" crossorigin href="/assets/index-CTgwIEXq.css">
+    <script type="module" crossorigin src="/assets/index-BDa423ZN.js"></script>
+    <link rel="stylesheet" crossorigin href="/assets/index-BXEupUks.css">
   </head>
   <body>
     <!-- Google Tag Manager (noscript) -->

@@ -25,7 +25,10 @@ const ROLLBACK_FILE = rollbackIdx >= 0 ? process.argv[rollbackIdx + 1] : null
 
 // Espelho exato de DEFAULT_CONTENT.hero em jmp-landing/src/content.ts.
 const HERO = {
-  backgroundUrl: '/foto-leilao-eao.jpeg',
+  // Poster do vídeo de fundo (drone, boiada). O <video> é constante no código
+  // (jmp-landing/src/leiloes.ts); aqui vai só a imagem estática, que é o LCP e
+  // o que o mobile / prefers-reduced-motion enxergam.
+  backgroundUrl: 'https://nfjkzigvxegnhaxxbevt.supabase.co/storage/v1/object/public/jmp-landing/eao/hero-boiada-poster.webp',
   badge: 'ASSESSORIA GRATUITA · 10 A 12 DE JULHO',
   headline: 'Compre bem no\nMega Baviera com\na Bula ao seu lado.',
   valueProp: 'São 3 leilões em 3 dias. A equipe de assessores da Bula te ajuda a entender a genética, escolher os animais certos e dar o lance certo.',

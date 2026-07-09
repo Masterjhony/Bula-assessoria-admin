@@ -3,11 +3,68 @@ import { useEffect, useState } from 'react'
 import { Form } from './components/Form'
 import { Footer } from './components/Footer'
 import { DEFAULT_CONTENT, fetchContent, type JmpContent } from './content'
-import { LEILOES } from './leiloes'
+import { HERO_VIDEO_URL, LEILOES } from './leiloes'
 
 function scrollToForm(e: React.MouseEvent) {
   e.preventDefault()
   document.getElementById('inscricao-form')?.scrollIntoView({ behavior: 'smooth' })
+}
+
+/**
+ * Fundo em vídeo do hero (boiada, drone). É enfeite: a página tem que ficar
+ * perfeita sem ele.
+ *
+ * Só carrega quando vale a pena:
+ * - depois do `load` da página, para não disputar banda com o LCP (o poster);
+ * - só no desktop (>=1024px) — no mobile são 1,6 MB de dados móveis e uma
+ *   bateria a menos, num hero que já é alto demais;
+ * - respeita `prefers-reduced-motion` e o modo de economia de dados.
+ *
+ * Enquanto não estiver pronto fica transparente, deixando ver o poster que já
+ * está pintado como background do container — sem flash nem salto de layout.
+ */
+function HeroVideo({ poster }: { poster: string }) {
+  const [enabled, setEnabled] = useState(false)
+  const [ready, setReady] = useState(false)
+
+  useEffect(() => {
+    const desktop = window.matchMedia('(min-width: 1024px)')
+    const reduced = window.matchMedia('(prefers-reduced-motion: reduce)')
+    const conn = (navigator as unknown as { connection?: { saveData?: boolean; effectiveType?: string } }).connection
+    const frugal = Boolean(conn?.saveData) || /(^|-)2g$/.test(conn?.effectiveType ?? '')
+
+    const decide = () => setEnabled(desktop.matches && !reduced.matches && !frugal)
+    const start = () => {
+      decide()
+      desktop.addEventListener('change', decide)
+      reduced.addEventListener('change', decide)
+    }
+
+    if (document.readyState === 'complete') start()
+    else window.addEventListener('load', start, { once: true })
+
+    return () => {
+      desktop.removeEventListener('change', decide)
+      reduced.removeEventListener('change', decide)
+    }
+  }, [])
+
+  if (!enabled) return null
+
+  return (
+    <video
+      className={`pointer-events-none absolute inset-0 h-full w-full object-cover transition-opacity duration-1000 ${ready ? 'opacity-100' : 'opacity-0'}`}
+      src={HERO_VIDEO_URL}
+      poster={poster}
+      autoPlay
+      muted
+      loop
+      playsInline
+      preload="auto"
+      aria-hidden="true"
+      onCanPlay={() => setReady(true)}
+    />
+  )
 }
 
 function App() {
@@ -24,11 +81,18 @@ function App() {
   return (
     <div className="min-h-screen font-sans bg-black text-white">
       <main>
+        {/* O poster pinta como background do container (primeiro paint), o vídeo
+            entra por cima quando carrega e o scrim escurece tudo para o texto
+            do hero ficar legível. Conteúdo em z-10, acima dos dois. */}
         <div
-          className="relative bg-black hero-bg"
+          className="relative overflow-hidden bg-black hero-bg"
           style={{ '--hero-bg-url': `url(${content.hero.backgroundUrl})` } as React.CSSProperties}
         >
-          <Form hero={content.hero} />
+          <HeroVideo poster={content.hero.backgroundUrl} />
+          <div className="hero-scrim pointer-events-none absolute inset-0" aria-hidden="true" />
+          <div className="relative z-10">
+            <Form hero={content.hero} />
+          </div>
         </div>
 
         {/* Os 3 pregões do fim de semana. A campanha existe para converter
