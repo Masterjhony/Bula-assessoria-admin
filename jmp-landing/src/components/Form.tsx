@@ -12,6 +12,11 @@ import {
   trackFormValidationFailed,
 } from '../analytics/posthog'
 import bulaLogo from '../assets/logo-bula-trimmed.png'
+// Importado como asset (vai para /assets/<hash>.png) em vez de referenciar
+// /logo-eao-white.png do public: o middleware do Next exclui do rewrite tudo
+// que começa com "logo-" (ver matcher em src/proxy.ts), então o caminho
+// público resolveria para a raiz do app e daria 404 em produção.
+import eaoLogo from '../assets/logo-eao-white.png'
 
 // Renderiza texto com quebras de linha (\n) preservando-as como <br/>.
 function MultiLine({ text }: { text: string }) {
@@ -434,7 +439,7 @@ export function Form({ hero }: { hero: JmpHero }) {
             />
             <div className="h-10 w-px bg-white/30 sm:h-12" />
             <img
-              src="/logo-eao-white.png"
+              src={eaoLogo}
               alt="EAO Agropecuária"
               width={1320}
               height={1155}
