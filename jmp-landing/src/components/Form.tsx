@@ -12,7 +12,6 @@ import {
   trackFormValidationFailed,
 } from '../analytics/posthog'
 import bulaLogo from '../assets/logo-bula-trimmed.png'
-import jmpLogo from '../assets/jmp-logo.png'
 
 // Renderiza texto com quebras de linha (\n) preservando-as como <br/>.
 function MultiLine({ text }: { text: string }) {
@@ -415,7 +414,7 @@ export function Form({ hero }: { hero: JmpHero }) {
       <div className="lg:w-[48%] bg-black/80 lg:bg-black/52 text-white flex flex-col justify-center px-8 py-14 lg:py-20 min-h-[320px]">
         <div className="max-w-[380px] ml-auto mr-4 lg:mr-10">
 
-          {/* Bula + JMP identity */}
+          {/* Bula + EAO Baviera identity */}
           <div className="mb-10 flex items-center gap-5">
             <img
               src={bulaLogo}
@@ -425,13 +424,7 @@ export function Form({ hero }: { hero: JmpHero }) {
               className="h-14 w-auto object-contain sm:h-16"
             />
             <div className="h-10 w-px bg-white/30 sm:h-12" />
-            <img
-              src={jmpLogo}
-              alt="JMP"
-              width={269}
-              height={149}
-              className="h-14 w-auto object-contain sm:h-16"
-            />
+            <span className="text-white font-black text-xl sm:text-2xl uppercase tracking-tight leading-none">EAO BAVIERA</span>
           </div>
 
           {/* Urgency badge */}
@@ -509,7 +502,7 @@ export function Form({ hero }: { hero: JmpHero }) {
             <p className="text-white/35 text-[10px] uppercase tracking-[3px] mb-2">Grátis · Sem compromisso</p>
             <h2 className="text-white font-black text-2xl sm:text-3xl leading-tight">
               Garanta sua vaga<br />
-              <span className="text-white/60 font-bold">no JMP 2026</span>
+              <span className="text-white/60 font-bold">no Mega Evento EAO</span>
             </h2>
           </div>
 
@@ -756,12 +749,12 @@ export function Form({ hero }: { hero: JmpHero }) {
           <div className="mt-5 flex items-center justify-center gap-4 text-white/25 text-[11px]">
             <span className="inline-flex items-center gap-1.5">
               <Calendar className="w-3 h-3" />
-              14 Jun · Domingo · 09h
+              09 a 12 Jul · Fazenda Baviera
             </span>
             <span className="w-px h-3 bg-white/15" />
             <span className="inline-flex items-center gap-1.5">
               <MapPin className="w-3 h-3" />
-              Campo Grande/MS
+              Itagibá / BA
             </span>
           </div>
 
