@@ -49,7 +49,7 @@ import {
     LEILAO_IE_FLEXIVEL,
 } from './concierge-campanha'
 import { notifyTeamGroup } from './whatsapp-team-notify'
-import { submitLeadCadastroToLeiloeiraGroups } from './leiloeira-whatsapp-cadastro'
+import { sincronizarHabilitacao } from './crm-habilitacao-sync'
 import {
     CRM_STAGE_CONNECTION,
     CRM_STAGE_QUALIFICATION,
@@ -1051,9 +1051,11 @@ async function applyConciergeEffects(
     // I.E. dispensada: só para lead da campanha do leilão que aceita, e só
     // depois que ELE declarou não ter. Sem isso o checklist nunca fecharia para
     // 6 de cada 10 leads da campanha, e a ficha nunca chegaria às leiloeiras.
+    // A marca fica no lead (o checklist a lê), mas o AVISO ao grupo só sai na
+    // hora de submeter a ficha sem I.E. — avisar aqui dispararia já na primeira
+    // mensagem, porque o formulário do anúncio já traz "não tenho I.E.".
     const temIeAgora = (update.tem_inscricao_estadual as string) ?? lead.tem_inscricao_estadual
     const dispensaIe = ieDispensadaPara({ extra_data: nextExtra, tem_inscricao_estadual: temIeAgora })
-    const primeiraDispensa = Boolean(dispensaIe) && !prevExtra.ie_dispensada_leilao
     if (dispensaIe) nextExtra.ie_dispensada_leilao = dispensaIe
 
     // Checklist recalculado com o estado PÓS-updates — vai para extra_data
@@ -1199,32 +1201,33 @@ async function applyConciergeEffects(
         console.warn('[concierge] automação de I.E. falhou:', e instanceof Error ? e.message : e)
     }
 
+    // Consulta → grava no lead → submete a ficha (ou devolve o que falta).
+    // Roda SEMPRE, não só na primeira vez: a submissão morava dentro do aviso
+    // interno abaixo, que dispara uma vez só e ainda com o checklist incompleto
+    // — quando o checklist fechava, a ficha nunca era enviada.
+    const sync = await sincronizarHabilitacao(supabase, lead.id).catch(e => {
+        console.warn('[concierge] sync de habilitação falhou:', e instanceof Error ? e.message : e)
+        return null
+    })
+
     // Aviso no grupo interno (best-effort, depois do update pra não atrasar nada
     // crítico). O flag habilitacao_notificada_at já foi gravado junto do update.
     if (shouldNotifyTeam) {
         const nome = (update.nome as string) || lead.nome || lead.telefone || 'Lead'
         const fone = lead.celular || lead.telefone || ''
         const interesse = (update.interesse_principal as string) || lead.interesse_principal || lead.o_que_busca || '—'
-        const faltam = checklist.missingLabels.length
-            ? `Faltam: ${checklist.missingLabels.join(', ')}`
+        const cl = sync?.checklist ?? checklist
+        const faltam = cl.missingLabels.length
+            ? `Faltam: ${cl.missingLabels.join(', ')}`
             : 'Checklist completo'
-
-        // Checklist COMPLETO → posta a ficha automaticamente nos grupos de
-        // cadastro das leiloeiras (Baileys). Idempotente por leiloeira.
-        let cadastroLinha = 'Próximo passo: revisar e aprovar o cadastro no CRM.'
-        if (checklist.complete) {
-            const sub = await submitLeadCadastroToLeiloeiraGroups(supabase, lead.id)
-            if (sub.sent > 0) {
-                cadastroLinha = `📤 Ficha de cadastro enviada ao grupo de ${sub.sent} leiloeira(s) — aguardando aprovado/recusado no grupo.`
-            } else if (sub.skipped.length) {
-                cadastroLinha = `⚠ Ficha NÃO enviada às leiloeiras: ${sub.skipped.map(s => `${s.leiloeira}: ${s.reason}`).join(' · ')}`
-            }
-        }
+        const cadastroLinha = sync?.submetido
+            ? `📤 Ficha enviada ao grupo de ${sync.enviadosPara} leiloeira(s) — aguardando aprovado/recusado.`
+            : 'Próximo passo: revisar e aprovar o cadastro no CRM.'
 
         const r = await notifyTeamGroup(supabase, [
             '✅ *Habilitação captada pela IA*',
             `${nome}${fone ? ` — ${fone}` : ''}`,
-            `Interesse: ${interesse} · Docs: ${docsCount} arquivo(s) · ${checklist.done}/${checklist.total} itens`,
+            `Interesse: ${interesse} · Docs: ${docsCount} arquivo(s) · ${cl.done}/${cl.total} itens`,
             faltam,
             cadastroLinha,
         ].join('\n'))
@@ -1238,13 +1241,6 @@ async function applyConciergeEffects(
     // estava em handoff/opt-out, então estes são sempre eventos novos.
     const nomeSup = (update.nome as string) || lead.nome || lead.telefone || 'Lead'
     const foneSup = lead.celular || lead.telefone || ''
-
-    // Lead seguindo sem I.E. pela exceção do leilão — a equipe precisa saber, com
-    // a ressalva de que a dispensa vale só para este evento. Uma vez por lead.
-    if (primeiraDispensa) {
-        await notifyTeamGroup(supabase, avisoIeDispensadaTexto(nomeSup, foneSup))
-            .catch(() => { /* best-effort */ })
-    }
 
     if (ai.handoff && !ai.optout) {
         await notifyTeamGroup(supabase, [

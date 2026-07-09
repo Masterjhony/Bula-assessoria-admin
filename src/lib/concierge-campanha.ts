@@ -71,6 +71,16 @@ export function ieFlexivelPromptBlock(lead: CampanhaLead): string {
     ].join('\n')
 }
 
+/**
+ * A I.E. deste lead pode ser dada como resolvida? Só quando ele veio da campanha
+ * do leilão que aceita E já declarou que não tem. Nunca por antecipação.
+ */
+export function ieDispensadaParaLead(
+    lead: CampanhaLead & { tem_inscricao_estadual?: string | null },
+): string | null {
+    return ieDispensavel(lead) && declarouNaoTerIe(lead) ? LEILAO_IE_FLEXIVEL : null
+}
+
 /** Frase do aviso interno quando um lead segue sem I.E. */
 export function avisoIeDispensadaTexto(nome: string, fone: string): string {
     return [
