@@ -94,6 +94,12 @@ export function shouldEnrichLead(lead: LeadLike): boolean {
   if (String(lead.cpf ?? '').replace(/\D/g, '').length === 11) return false
   const fone = String(lead.celular || lead.telefone || '').replace(/\D/g, '')
   if (fone.length < 10) return false
+  // Consulta paga e imprecisa: medido em 6 leads de CPF conhecido, o telefone
+  // acertou 3, devolveu OUTRA pessoa 2 e não achou 1. A única defesa é comparar
+  // o nome retornado — e `nameMatchesEnriched` exige ≥2 tokens no nome do lead.
+  // Com nome de uma palavra só ("Mateus"), o CPF seria rejeitado de qualquer
+  // jeito: gastar a consulta é jogar dinheiro fora.
+  if (nameTokens(String(lead.nome ?? '')).length < 2) return false
   return !recentlyTried(lead.extra_data)
 }
 
