@@ -43,25 +43,38 @@ const normalizePhone = input => {
     return c.length >= 12 && c.length <= 13 ? c : null
 }
 
-/** O que falta para o cadastro ser ANALISÁVEL (espelha prontoParaFicha). */
+/**
+ * O que falta para o cadastro ser ANALISÁVEL — lista oficial de análise de
+ * crédito PF da leiloeira (Márcia/Programa, 07/2026).
+ */
 function faltando(lead, tipos) {
     const xd = lead.extra_data ?? {}
     const t = new Set(tipos)
+    const refs = (Array.isArray(xd.referencias) ? xd.referencias : []).filter(Boolean)
     const faltam = []
     if (!t.has('cpf')) faltam.push('identidade')
-    const temPropriedade = Boolean(limpo(xd.fazenda_nome) || limpo(xd.fazenda_cidade) || limpo(xd.propriedade_consultada_at)) || t.has('ie') || t.has('comprovante')
-    if (!temPropriedade) faltam.push('propriedade')
-    if (!t.has('movimentacao')) faltam.push('movimentacao')
+    if (!t.has('endereco')) faltam.push('endereco')
+    if (!t.has('matricula')) faltam.push('matricula')
+    if (!t.has('itr')) faltam.push('itr')
+    if (!t.has('renda')) faltam.push('renda')
+    if (refs.length < 3) faltam.push('referencias')
     return faltam
 }
 
-/** Texto do {{2}} — prioriza a movimentação; junta o que falta em linguagem do produtor. */
+/** Texto do {{2}} — a lista de documentos que a leiloeira exige, em linguagem do produtor. */
 function textoDocumento(faltam) {
-    const partes = []
-    if (faltam.includes('movimentacao')) partes.push('um comprovante de que você já mexe com gado (uma GTA recente, nota de compra/venda de boi, ou o cartão de produtor rural)')
-    if (faltam.includes('identidade')) partes.push('uma foto da sua CNH ou RG')
-    if (faltam.includes('propriedade')) partes.push('um comprovante da sua propriedade rural')
-    return partes.join('; e ')
+    const M = {
+        identidade: 'documento pessoal com foto + uma selfie segurando o documento',
+        endereco: 'comprovante de endereço no seu nome',
+        matricula: 'certidão de matrícula atualizada do imóvel rural (do cartório)',
+        itr: 'o ITR do imóvel',
+        renda: 'comprovante de renda (declaração de Imposto de Renda e extrato bancário dos últimos 3 meses)',
+        referencias: '3 referências (comerciais ou pessoais) com telefone',
+    }
+    const partes = faltam.map(f => M[f]).filter(Boolean)
+    // A Meta limita o parâmetro do template; se faltar muita coisa, resume.
+    if (partes.length > 3) return `${partes.slice(0, 3).join('; ')}; e mais alguns itens que te explico na sequência`
+    return partes.join('; ')
 }
 
 // cadastros com lead vinculado — separa pendentes de já aprovados

@@ -38,13 +38,21 @@ export interface HabilitacaoChecklist {
     missingLabels: string[]
 }
 
-/** Tipos semânticos de documento que a IA pode marcar como recebidos. */
+/**
+ * Tipos semânticos de documento que a IA pode marcar como recebidos.
+ * Espelham a LISTA OFICIAL de análise de crédito PF da leiloeira (Programa/
+ * Márcia, 07/2026): documento+selfie, endereço, matrícula do imóvel + ITR,
+ * renda, casamento (opcional). Referências (3, com telefone) são DADO, não
+ * documento — coletadas na conversa e guardadas em extra_data.referencias.
+ */
 export const DOC_TIPOS_SEMANTICOS = [
-    'identidade',            // foto da CNH/RG
-    'identidade_selfie',     // foto segurando o documento (autenticidade)
-    'comprovante_propriedade',
-    'ie_nirf',               // cartão/comprovante de I.E. ou NIRF
-    'movimentacao_pecuaria', // GTA, nota fiscal de gado, cartão/declaração de produtor
+    'identidade',            // documento pessoal com foto (frente/verso)
+    'identidade_selfie',     // selfie segurando o documento
+    'comprovante_endereco',  // comprovante de endereço p/ correspondência
+    'matricula_imovel',      // certidão de matrícula atualizada do imóvel rural
+    'itr',                   // ITR do imóvel
+    'comprovante_renda',     // IR + extrato bancário (3 meses)
+    'certidao_casamento',    // opcional
 ] as const
 export type DocTipoSemantico = (typeof DOC_TIPOS_SEMANTICOS)[number]
 
@@ -123,20 +131,26 @@ export function computeHabilitacaoChecklist(input: HabilitacaoInput): Habilitaca
     const temIe = str(input.tem_inscricao_estadual).toLowerCase() === 'sim'
     const ieDispensada = Boolean(str(input.ieDispensadaPara))
 
-    // Documentos: a marcação semântica da IA só vale com arquivo real por trás,
-    // e cada foto exige o SEU arquivo. Com um único arquivo a IA marcava
-    // "identidade" e "identidade_selfie" ao mesmo tempo — o checklist zerava as
-    // pendências mas `complete` continuava falso, e ninguém entendia o porquê.
+    // Documentos da ANÁLISE DE CRÉDITO PF (lista oficial da leiloeira). Cada
+    // marcação semântica da IA só vale com arquivo real por trás; o tipo real do
+    // arquivo (docTipos, classificado no upload) é o caminho mais confiável.
+    const doc = (sem: string, tipo: string) => temArquivoReal && (semantic.has(sem) || tipos.has(tipo))
     const docIdentidade = input.docsCount >= 1 && (semantic.has('identidade') || tipos.has('cpf'))
+    // Selfie precisa do SEU arquivo (a mesma foto não é doc E selfie).
     const docSelfie = input.docsCount >= 2 && semantic.has('identidade_selfie')
-    const docFiscal = temArquivoReal && (
-        semantic.has('comprovante_propriedade') || semantic.has('ie_nirf')
-        || tipos.has('ie') || tipos.has('comprovante')
-    )
-    // Movimentação pecuária: prova que o produtor OPERA (GTA, nota de gado,
-    // cartão/declaração de produtor). A leiloeira (Programa/EAO) exige para
-    // analisar — e nenhuma API entrega, então SÓ o lead pode enviar.
-    const docMovimentacao = temArquivoReal && (semantic.has('movimentacao_pecuaria') || tipos.has('movimentacao'))
+    const docEndereco = doc('comprovante_endereco', 'endereco')
+    const docMatricula = doc('matricula_imovel', 'matricula')
+    const docItr = doc('itr', 'itr')
+    const docRenda = doc('comprovante_renda', 'renda')
+    const docCasamento = doc('certidao_casamento', 'casamento')
+
+    // Referências: 3 comerciais/pessoais COM telefone. São dado, não arquivo —
+    // a IA coleta na conversa e grava em extra_data.referencias (nome + fone).
+    const refsRaw = (input.extra_data ?? {}).referencias
+    const referencias = (Array.isArray(refsRaw) ? refsRaw : [])
+        .map(r => (typeof r === 'string' ? r : `${(r as Record<string, unknown>)?.nome ?? ''} ${(r as Record<string, unknown>)?.telefone ?? ''}`))
+        .map(s => String(s).trim())
+        .filter(s => /\d{8,}/.test(s.replace(/\D/g, '')))
 
     const items: ChecklistItem[] = [
         { key: 'nome_completo', label: 'Nome completo', group: 'titular', done: /\S+\s+\S+/.test(nome), value: nome || undefined },
@@ -159,36 +173,25 @@ export function computeHabilitacaoChecklist(input: HabilitacaoInput): Habilitaca
             value: ie || (temIe ? 'Tem (nº pendente)' : ieDispensada ? 'Dispensada para este leilão' : undefined),
         },
 
-        { key: 'doc_identidade', label: 'Foto da CNH/RG', group: 'documentos', done: docIdentidade },
+        // Lista oficial de análise de crédito PF (todos OBRIGATÓRIOS, exceto
+        // casamento). NENHUMA consulta substitui — vêm do lead.
+        { key: 'doc_identidade', label: 'Documento pessoal com foto (frente e verso)', group: 'documentos', done: docIdentidade },
+        { key: 'doc_identidade_selfie', label: 'Selfie segurando o documento', group: 'documentos', done: docSelfie },
+        { key: 'doc_endereco', label: 'Comprovante de endereço (correspondência, no titular)', group: 'documentos', done: docEndereco },
+        { key: 'doc_matricula', label: 'Certidão de matrícula atualizada do imóvel rural (cartório)', group: 'documentos', done: docMatricula },
+        { key: 'doc_itr', label: 'ITR do imóvel', group: 'documentos', done: docItr },
+        { key: 'doc_renda', label: 'Comprovante de renda (Decl. de IR + extrato bancário 3 meses)', group: 'documentos', done: docRenda },
+        { key: 'referencias', label: '3 referências comerciais/pessoais (com telefone)', group: 'documentos', done: referencias.length >= 3, value: referencias.length ? `${referencias.length}/3` : undefined },
     ]
 
-    // A ficha que a leiloeira aprovou (Ricardo P. Moreira, 07/2026) pediu:
-    // dados + "foto do documento e foto segurando o documento". NÃO pediu
-    // comprovante de propriedade — e era esse item que travava 34 dos 35 leads.
-    // Ele deixou de ser exigido; quando o lead manda, entra como ✔ extra.
-    // Com a propriedade já confirmada no Sintegra, a selfie também cai: os dados
-    // foram conferidos numa base do Estado, não na palavra do lead.
-    if (!input.documentosSimplificados) {
-        items.push({ key: 'doc_identidade_selfie', label: 'Foto segurando o documento', group: 'documentos', done: docSelfie })
-    }
-    // Movimentação pecuária é agora item OBRIGATÓRIO: a leiloeira só analisa o
-    // cadastro com a prova de que o produtor atua no meio (Márcia/Programa,
-    // 07/2026). É o único documento que a consulta não substitui.
-    items.push({
-        key: 'doc_movimentacao',
-        label: 'Comprovante de movimentação pecuária (GTA, nota de gado ou cartão de produtor)',
-        group: 'documentos',
-        done: docMovimentacao,
-    })
-    if (docFiscal) {
-        items.push({ key: 'doc_fiscal', label: 'Comprovante da propriedade / I.E. (extra)', group: 'documentos', done: true })
+    // Certidão de casamento é OPCIONAL na lista da leiloeira: só aparece como ✔
+    // quando o lead manda — nunca trava o checklist.
+    if (docCasamento) {
+        items.push({ key: 'doc_casamento', label: 'Certidão de casamento', group: 'documentos', done: true })
     }
 
-    // Com movimentação obrigatória, o cadastro completo tem sempre ≥2 arquivos
-    // (identidade + movimentação), mesmo no fluxo simplificado por consulta.
-    const minDocs = 2
     const done = items.filter(i => i.done).length
-    const complete = done === items.length && input.docsCount >= minDocs
+    const complete = done === items.length
     return {
         items,
         done,

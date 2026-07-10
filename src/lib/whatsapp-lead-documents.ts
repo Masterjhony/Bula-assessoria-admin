@@ -16,23 +16,33 @@ import { WHATSAPP_MEDIA_BUCKET } from './whatsapp-inbound'
 
 export const LEAD_DOCS_BUCKET = 'cliente-documentos'
 
-export type LeadDocTipo = 'ie' | 'cpf' | 'comprovante' | 'movimentacao' | 'contrato' | 'outro'
+export type LeadDocTipo =
+    | 'ie' | 'cpf' | 'comprovante' | 'movimentacao'
+    | 'endereco' | 'matricula' | 'itr' | 'renda' | 'casamento'
+    | 'contrato' | 'outro'
 
-/** Heurística de tipo a partir do nome/caption/mime do arquivo. */
+/**
+ * Heurística de tipo a partir do nome/caption/mime. Alinhada à lista oficial de
+ * análise de crédito PF da leiloeira. A ordem importa: itens mais específicos
+ * (matrícula, ITR, renda) antes dos genéricos (comprovante de endereço).
+ */
 export function guessDocTipo(
     filename?: string | null,
     caption?: string | null,
     _mime?: string | null,
 ): LeadDocTipo {
     const hay = `${filename || ''} ${caption || ''}`.toLowerCase()
-    if (/\bie\b|inscri|estadual/.test(hay)) return 'ie'
-    if (/cpf|cnpj|rg\b|identidade|documento de identidade/.test(hay)) return 'cpf'
-    // Movimentação pecuária: GTA, nota fiscal de gado, cartão/declaração de
-    // produtor rural, rebanho. Prova que o produtor opera de fato no meio
-    // pecuário — exigência da leiloeira que NENHUMA API entrega (GTA vive no
-    // sistema da defesa agropecuária do estado, atrás do login do produtor).
-    if (/\bgta\b|guia de tr[aâ]nsito|tr[aâ]nsito animal|nota fiscal.*(gado|boi|bovin|animal)|rebanho|movimenta|produtor rural|cart[aã]o de produtor|declara[cç][aã]o de rebanho/.test(hay)) return 'movimentacao'
-    if (/comprov|residencia|endere|conta de luz|agua/.test(hay)) return 'comprovante'
+    if (/\bie\b|inscri.*estadual|sintegra/.test(hay)) return 'ie'
+    if (/matr[ií]cula|registro de im[oó]vel|cart[oó]rio.*im[oó]vel|escritura/.test(hay)) return 'matricula'
+    if (/\bitr\b|imposto territorial|ditr|\bccir\b|\bnirf\b/.test(hay)) return 'itr'
+    if (/renda|imposto de renda|\birpf\b|declara[cç][aã]o.*(renda|ir)\b|extrato banc|holerite|contra.?cheque/.test(hay)) return 'renda'
+    if (/casamento|certid[aã]o.*casamento|estado civil/.test(hay)) return 'casamento'
+    if (/comprov.*endere|residencia|resid[eê]ncia|conta de luz|conta de [aá]gua|correspond[eê]ncia/.test(hay)) return 'endereco'
+    // Movimentação pecuária (GTA/nota de gado): não está na lista oficial de
+    // crédito, mas se o lead mandar, classificamos para não virar "outro".
+    if (/\bgta\b|guia de tr[aâ]nsito|tr[aâ]nsito animal|nota fiscal.*(gado|boi|bovin|animal)|rebanho|cart[aã]o de produtor|declara[cç][aã]o de rebanho/.test(hay)) return 'movimentacao'
+    if (/cpf|cnpj|\brg\b|identidade|cnh|habilita[cç][aã]o|documento de identidade/.test(hay)) return 'cpf'
+    if (/comprov|endere/.test(hay)) return 'endereco'
     if (/contrato|procura/.test(hay)) return 'contrato'
     return 'outro'
 }

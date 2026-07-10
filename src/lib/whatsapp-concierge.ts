@@ -279,8 +279,15 @@ OBJEÇÕES E PERGUNTAS FREQUENTES (responda curto e volte pra fase atual):
 REGISTRO (tão importante quanto responder): TODO dado que o lead informar vai em "updates" — quantidade de cabeças, sistema (cria/recria/engorda), o que ele cria hoje, objetivo, urgência, CPF, e-mail, endereço, fazenda, I.E. O que você não registrar, o sistema perde. Não invente nem "complete" dados que o lead não disse.
 Marque updates.assessoria_apresentada=true na mensagem em que você apresentar a Bula, e updates.aceitou_assessoria=true quando ele topar que você cuide do cadastro/acompanhamento dele ("quero", "pode ser", "como faço?", "manda").
 QUALIFIQUE FUNDO. Além do básico, colete e registre sempre que a conversa permitir: sistema_producao (cria/recria/engorda/ciclo), rebanho_atual (o que ele cria hoje), quantidade_animais, objetivo_compra_resumido, urgencia_compra, experiencia_leilao. É esse conjunto que diz ao time O QUE OFERECER pra ele depois — sem isso, o assessor começa do zero.
-Quando o lead enviar arquivo/foto, marque em updates.documentos_recebidos o que ele representa: "identidade" (CNH/RG), "identidade_selfie" (segurando o doc), "comprovante_propriedade", "ie_nirf", "movimentacao_pecuaria" (GTA, nota fiscal de compra/venda de gado, cartão ou declaração de produtor rural). Áudio NUNCA é documento (é mensagem de voz, já transcrita).
-COMPROVANTE DE MOVIMENTAÇÃO PECUÁRIA é item OBRIGATÓRIO para a habilitação (a leiloeira só analisa o cadastro com ele). Peça com naturalidade quando faltar: "pra fechar seu cadastro, me manda um comprovante de que você já mexe com gado — pode ser uma GTA recente, uma nota de compra/venda de boi, ou o cartão de produtor rural". Aceite qualquer um desses. Nunca invente que recebeu.
+Quando o lead enviar arquivo/foto, marque em updates.documentos_recebidos o que ele representa: "identidade" (documento pessoal com foto), "identidade_selfie" (selfie segurando o documento), "comprovante_endereco", "matricula_imovel" (certidão de matrícula do imóvel rural), "itr", "comprovante_renda" (declaração de IR ou extrato bancário), "certidao_casamento". Áudio NUNCA é documento (é mensagem de voz, já transcrita).
+DOCUMENTAÇÃO PARA ANÁLISE DE CRÉDITO (a leiloeira exige TUDO isto para habilitar o cadastro parcelado; peça um de cada vez, com naturalidade, na ordem que fluir):
+ 1) Documento pessoal com foto (frente e verso) + uma SELFIE segurando o documento perto do rosto;
+ 2) Comprovante de endereço para correspondência no nome do titular;
+ 3) Certidão de matrícula atualizada do imóvel rural (do cartório) + o ITR do imóvel;
+ 4) Comprovante de renda: declaração de Imposto de Renda e extrato bancário dos últimos 3 meses;
+ 5) 3 referências (comerciais ou pessoais) com telefone — registre em updates.referencias como lista de "Nome - telefone";
+ 6) Certidão de casamento é opcional (só se o lead tiver/for casado).
+Nunca invente que recebeu um documento. Vá pedindo o que ainda falta pelo checklist, sem repetir o que já veio.
 
 REGRAS DURAS:
 - NUNCA peça CPF, e-mail, endereço, I.E. ou documento fora da fase "habilitação". Sem exceção — nem que o lead pareça apressado.
@@ -343,6 +350,8 @@ interface ConciergeUpdates {
     fazenda_uf?: string | null
     /** Tipos semânticos dos documentos recebidos nesta troca. */
     documentos_recebidos?: string[] | null
+    /** Referências comerciais/pessoais ("Nome - telefone") informadas pelo lead. */
+    referencias?: string[] | null
 }
 
 interface ConciergeAIResult {
@@ -497,9 +506,11 @@ function computeFaseFromLead(lead: FullLead, checklistComplete: boolean, turnosL
 const SEMANTIC_TO_DOC_TIPO: Record<string, LeadDocTipo> = {
     identidade: 'cpf',
     identidade_selfie: 'cpf',
-    comprovante_propriedade: 'comprovante',
-    ie_nirf: 'ie',
-    movimentacao_pecuaria: 'movimentacao',
+    comprovante_endereco: 'endereco',
+    matricula_imovel: 'matricula',
+    itr: 'itr',
+    comprovante_renda: 'renda',
+    certidao_casamento: 'casamento',
 }
 
 function maxStatus(current: string, candidate: string): string {
@@ -656,7 +667,8 @@ const RESULT_SCHEMA_INSTRUCTIONS = `Responda SOMENTE com um objeto JSON válido 
     "fazenda_nome": "string|null",       // nome da fazenda/propriedade de entrega
     "fazenda_cidade": "string|null",
     "fazenda_uf": "UF|null",
-    "documentos_recebidos": ["identidade" | "identidade_selfie" | "comprovante_propriedade" | "ie_nirf"] // ou null
+    "documentos_recebidos": ["identidade" | "identidade_selfie" | "comprovante_endereco" | "matricula_imovel" | "itr" | "comprovante_renda" | "certidao_casamento"], // ou null
+    "referencias": ["Nome - telefone", ...]  // referências comerciais/pessoais que o lead informar (com telefone); ou null
   }
 }
 Inclua em "updates" apenas os campos que você descobriu/confirmou nesta troca; omita ou use null para o resto. Não invente dados que o lead não disse.`
@@ -1032,6 +1044,25 @@ async function applyConciergeEffects(
         const prevDocs = Array.isArray(prevExtra.docs_recebidos)
             ? prevExtra.docs_recebidos.map(d => String(d)) : []
         nextExtra.docs_recebidos = [...new Set([...prevDocs, ...semanticNew])]
+    }
+
+    // Referências (3 com telefone, exigência da leiloeira): dado, não arquivo.
+    // Acumula com as já coletadas, dedup por telefone, guarda no máx. 6.
+    const refsNew = (Array.isArray(u.referencias) ? u.referencias : [])
+        .map(r => String(r ?? '').trim())
+        .filter(r => /\d{8,}/.test(r.replace(/\D/g, '')))
+    if (refsNew.length) {
+        const prevRefs = Array.isArray(prevExtra.referencias)
+            ? prevExtra.referencias.map(r => String(r)) : []
+        const seen = new Set<string>()
+        const merged: string[] = []
+        for (const r of [...prevRefs, ...refsNew]) {
+            const fone = r.replace(/\D/g, '').slice(-8)
+            if (fone && seen.has(fone)) continue
+            if (fone) seen.add(fone)
+            merged.push(r)
+        }
+        nextExtra.referencias = merged.slice(0, 6)
     }
 
     // A mídia desta mensagem, quando reconhecida como documento, vira doc formal

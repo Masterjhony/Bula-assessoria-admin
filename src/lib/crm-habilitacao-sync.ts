@@ -30,7 +30,7 @@ import { maybeRunStateRegistrationCheck } from './crm-state-registration-automat
 import { maybeEnrichLeadFromPhone } from './crm-lead-enrichment'
 import { consultarImoveisRuraisPorCpf, isFiscalApiConfigured } from './state-registration-provider'
 import { submitLeadCadastroToLeiloeiraGroups, enviarComplementoCadastro } from './leiloeira-whatsapp-cadastro'
-import { ieDispensadaParaLead, isLeadCampanhaEao, avisoIeDispensadaTexto } from './concierge-campanha'
+import { ieDispensadaParaLead, avisoIeDispensadaTexto } from './concierge-campanha'
 import { notifyTeamGroup } from './whatsapp-team-notify'
 import { DEFAULT_JMP_MQL_RULE } from './crm-types'
 
@@ -98,8 +98,8 @@ function buildChecklist(lead: SyncLead, docs: { count: number; tipos: string[] }
         docsCount: docs.count,
         docTipos: docs.tipos,
         ieDispensadaPara: ieDispensadaParaLead(lead),
-        // EAO: habilitação comprovadamente mais frouxa — 1 foto basta.
-        documentosSimplificados: Boolean(xd.propriedade_consultada_at) || isLeadCampanhaEao(lead),
+        // (documentosSimplificados descontinuado: a análise de crédito PF exige
+        // a lista completa da leiloeira — consulta não substitui documento.)
     })
 }
 
@@ -111,37 +111,34 @@ const limpo = (v: unknown) => {
 
 /**
  * A ficha só vai para a leiloeira quando está ANALISÁVEL — a leiloeira
- * (Programa/Márcia, 07/2026) pediu para "seguir somente com os que têm
- * documentação/dados completos", porque cadastro incompleto ela não analisa (e
- * ainda repassa para a EAO). Submeter incompleto só gerava recusa e atrito.
+ * (Programa/Márcia, 07/2026) só analisa cadastro com a DOCUMENTAÇÃO COMPLETA de
+ * análise de crédito PF; incompleto ela não analisa (e ainda repassa à EAO).
+ * Submeter incompleto só gerava recusa e atrito.
  *
- * Analisável exige o conjunto completo:
- *   nome completo · CPF · telefone
- *   · IDENTIDADE (foto CNH/RG)
- *   · PROPRIEDADE RURAL comprovada — por DADO (fazenda vinda do Sintegra/CNIR)
- *     ou por documento (comprovante de propriedade / I.E.)
- *   · MOVIMENTAÇÃO PECUÁRIA (GTA, nota de gado ou cartão de produtor) — só o
- *     lead pode enviar; nenhuma consulta substitui.
+ * O gate usa o próprio checklist (fonte única). Exige os itens OBRIGATÓRIOS da
+ * lista oficial + o básico do titular; campos acessórios (e-mail, fazenda, I.E.)
+ * NÃO travam a submissão — entram na ficha se houver.
+ *
+ *   básico:     nome_completo · cpf · telefone
+ *   documentos: doc_identidade · doc_identidade_selfie · doc_endereco
+ *               · doc_matricula · doc_itr · doc_renda · referencias
  */
+const ITENS_OBRIGATORIOS_FICHA = [
+    'nome_completo', 'cpf', 'telefone',
+    'doc_identidade', 'doc_identidade_selfie', 'doc_endereco',
+    'doc_matricula', 'doc_itr', 'doc_renda', 'referencias',
+] as const
+
 export function prontoParaFicha(
-    lead: Pick<SyncLead, 'nome' | 'cpf' | 'telefone' | 'celular'> & { extra_data?: Record<string, unknown> | null },
-    docs: { count: number; tipos: string[] },
+    checklist: HabilitacaoChecklist,
 ): { pronto: boolean; faltamEssenciais: string[] } {
+    const byKey = new Map(checklist.items.map(i => [i.key, i]))
     const faltam: string[] = []
-    const tipos = new Set(docs.tipos)
-    const xd = lead.extra_data ?? {}
-    if (!/\S+\s+\S+/.test(limpo(lead.nome))) faltam.push('nome completo')
-    if (!cpfValido(lead.cpf)) faltam.push('CPF')
-    if (!limpo(lead.celular) && !limpo(lead.telefone)) faltam.push('telefone')
-    // Identidade = foto do documento; no sistema o tipo 'cpf' é a CNH/RG.
-    if (!tipos.has('cpf')) faltam.push('foto do documento de identidade (CNH/RG)')
-    // Propriedade rural: por dado (Sintegra/CNIR) ou por documento.
-    const temPropriedade = Boolean(limpo(xd.fazenda_nome) || limpo(xd.fazenda_cidade) || limpo(xd.propriedade_consultada_at))
-        || tipos.has('ie') || tipos.has('comprovante')
-    if (!temPropriedade) faltam.push('comprovante de propriedade rural (fazenda)')
-    // Movimentação pecuária: só o lead envia.
-    if (!tipos.has('movimentacao')) faltam.push('comprovante de movimentação pecuária (GTA/nota de gado)')
-    return { pronto: faltam.length === 0, faltamEssenciais: [...new Set(faltam)] }
+    for (const key of ITENS_OBRIGATORIOS_FICHA) {
+        const item = byKey.get(key)
+        if (!item || !item.done) faltam.push(item?.label ?? key)
+    }
+    return { pronto: faltam.length === 0, faltamEssenciais: faltam }
 }
 
 export async function sincronizarHabilitacao(
@@ -279,7 +276,7 @@ export async function sincronizarHabilitacao(
     // falta. A leiloeira só analisa com documentação completa (identidade +
     // propriedade + movimentação pecuária); mandar incompleto só gera recusa.
     // O checklist guia a CONVERSA; `prontoParaFicha` guarda a SUBMISSÃO.
-    const { pronto, faltamEssenciais } = prontoParaFicha(lead, docs)
+    const { pronto, faltamEssenciais } = prontoParaFicha(checklist)
     base.pronto = pronto
     if (!pronto) return { ...base, motivo: `aguardando documentação para análise: ${faltamEssenciais.join(', ')}` }
     if (!submeter || opts.dryRun) return { ...base, motivo: 'pronto (submissão não solicitada)' }

@@ -102,9 +102,14 @@ function fmtFone(v: string): string {
 }
 
 const DOC_TIPO_LABEL: Record<string, string> = {
-    cpf: 'Documento de identidade (CNH/RG)',
+    cpf: 'Documento pessoal com foto / selfie',
     ie: 'Comprovante de Inscrição Estadual (SEFAZ)',
     comprovante: 'Comprovante da propriedade',
+    endereco: 'Comprovante de endereço',
+    matricula: 'Certidão de matrícula do imóvel rural',
+    itr: 'ITR do imóvel',
+    renda: 'Comprovante de renda (IR / extrato)',
+    casamento: 'Certidão de casamento',
     movimentacao: 'Comprovante de movimentação pecuária (GTA/nota de gado)',
     outro: 'Documento',
 }
@@ -160,6 +165,12 @@ function buildFicha(lead: LeadRow, codigo: string, docs: { nome: string }[]): st
     }
 
     if (perfil.length) linhas.push('', '*Perfil do comprador*', '', ...perfil)
+
+    // Referências comerciais/pessoais (exigência da análise de crédito PF).
+    const refs = (Array.isArray(xd.referencias) ? xd.referencias : [])
+        .map(r => (typeof r === 'string' ? r : `${(r as Record<string, unknown>)?.nome ?? ''} ${(r as Record<string, unknown>)?.telefone ?? ''}`))
+        .map(s => str(s)).filter(Boolean)
+    if (refs.length) linhas.push('', '*Referências*', '', ...refs.map((r, i) => `${i + 1}. ${r}`))
 
     // Documentos vão como ANEXOS logo após esta mensagem (o VPS envia a mídia).
     // Nada de link assinado no corpo: 300 caracteres de token quebravam no
