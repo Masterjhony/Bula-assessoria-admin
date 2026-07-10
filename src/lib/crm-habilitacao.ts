@@ -99,7 +99,10 @@ const digits = (v: unknown) => String(v ?? '').replace(/\D/g, '')
  */
 const str = (v: unknown) => {
     const s = String(v ?? '').trim()
-    return /^(null|undefined|nulo|n\/a|na|-|--)$/i.test(s) ? '' : s
+    // Além dos "null"/"undefined", pega declarações NEGATIVAS que vazaram para
+    // campos de valor (ex.: inscricao_estadual = "nao_tem"): sem isto, "nao_tem"
+    // (7 chars) passava por I.E. válida e o checklist fechava com dado falso.
+    return /^(null|undefined|nulo|n\/a|na|-|--|n[aã]o[ _]?tem|n[aã]o[ _]?possui|nenhuma?|sem)$/i.test(s) ? '' : s
 }
 
 function xd(input: HabilitacaoInput, key: string): string {
@@ -154,8 +157,10 @@ export function computeHabilitacaoChecklist(input: HabilitacaoInput): Habilitaca
             key: 'inscricao_estadual',
             label: ieDispensada ? `Inscrição Estadual (dispensada — ${str(input.ieDispensadaPara)})` : 'Inscrição Estadual (ou NIRF)',
             group: 'propriedade',
-            done: ie.length >= 3 || temIe || ieDispensada,
-            value: ie || (temIe ? 'Tem (nº pendente)' : ieDispensada ? 'Dispensada para este leilão' : undefined),
+            // I.E. real tem DÍGITOS: exigir número (≥3 dígitos) evita que lixo de
+            // texto ("nao_tem") ou nome ffeche o item por engano.
+            done: ie.replace(/\D/g, '').length >= 3 || temIe || ieDispensada,
+            value: ie.replace(/\D/g, '').length >= 3 ? ie : (temIe ? 'Tem (nº pendente)' : ieDispensada ? 'Dispensada para este leilão' : undefined),
         },
         { key: 'fazenda_nome', label: 'Nome da fazenda (entrega)', group: 'propriedade', optional: true, done: fazendaNome.length >= 2, value: fazendaNome || undefined },
         {

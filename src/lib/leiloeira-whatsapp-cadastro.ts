@@ -87,10 +87,10 @@ function gerarCodigo(): string {
 const LEAD_FICHA_FIELDS =
     'id, nome, telefone, celular, email, cpf, cidade, estado, inscricao_estadual, tem_inscricao_estadual, interesse_principal, o_que_busca, quantidade_animais, contact_history, extra_data'
 
-/** String limpa: "null"/"undefined" literais (deslize comum da IA) viram vazio. */
+/** String limpa: "null"/"undefined" e declarações negativas ("nao_tem") viram vazio. */
 function str(v: unknown): string {
     const s = String(v ?? '').trim()
-    return /^(null|undefined|-)$/i.test(s) ? '' : s
+    return /^(null|undefined|-|n[aã]o[ _]?tem|n[aã]o[ _]?possui|nenhuma?|sem)$/i.test(s) ? '' : s
 }
 
 /** Telefone legível: 5533999471415 → +55 (33) 99947-1415. */
