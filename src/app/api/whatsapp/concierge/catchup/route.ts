@@ -49,7 +49,9 @@ export async function GET(req: NextRequest) {
     if (!cronSecretOk && !cronUaOk && !auth.ok) {
         return NextResponse.json({ error: 'não autorizado' }, { status: 401 })
     }
-    return runCatchup({ limit: 50, dryRun: false })
+    // 15 por execução: com a IA levando 20-45s por lead, 50 estourava os 300s
+    // e as execuções do cron se sobrepunham — origem das respostas duplicadas.
+    return runCatchup({ limit: 15, dryRun: false })
 }
 
 export async function POST(req: NextRequest) {
@@ -105,10 +107,15 @@ async function botRespondeuAgora(supabase: ReturnType<typeof svc>, phone: string
         .select('direction, origin, created_at')
         .in('phone', variants)
         .order('created_at', { ascending: false })
-        .limit(1)
-    const m = data?.[0]
-    if (!m || m.direction !== 'outbound') return false
-    return Date.now() - new Date(m.created_at).getTime() < 3 * 60_000
+        .limit(2)
+    const [m1, m2] = data ?? []
+    if (!m1 || m1.direction !== 'outbound') return false
+    // Resposta recente → outra execução/webhook acabou de falar.
+    if (Date.now() - new Date(m1.created_at).getTime() < 3 * 60_000) return true
+    // TRAVA DURA: o bot nunca emenda uma 3ª mensagem sem o lead responder.
+    // Foi o que aconteceu com o Elson (6 mensagens em 10 min, execuções do
+    // cron sobrepostas com snapshot velho da fila).
+    return m2?.direction === 'outbound'
 }
 
 async function runCatchup({ limit, dryRun }: { limit: number; dryRun: boolean }) {
