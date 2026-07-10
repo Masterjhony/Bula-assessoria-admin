@@ -124,10 +124,16 @@ function score(lead, conversouAlguma) {
 }
 
 /* ── mídia dos headers ────────────────────────────────────────────────────── */
+/**
+ * Devolve { link, path, mime, filename }: `link` (URL assinada) vai no header do
+ * template pra Meta baixar; `path` (caminho no bucket) vai no LOG da mensagem —
+ * é assim que o cockpit renderiza a mídia igualzinha ao que o lead recebeu (o
+ * thread API assina o path na hora de exibir).
+ */
 async function resolverMidia(arg, tipo) {
     const v = argVal(arg)
     if (!v) return null
-    if (/^https?:\/\//i.test(v)) return v
+    if (/^https?:\/\//i.test(v)) return { link: v, path: null, mime: null, filename: null }
     const buf = fs.readFileSync(v)
     const maxMb = tipo === 'video' ? 16 : 5
     if (buf.length > maxMb * 1024 * 1024) throw new Error(`${v}: ${(buf.length / 1048576).toFixed(1)}MB excede o limite de ${maxMb}MB do WhatsApp`)
@@ -137,7 +143,7 @@ async function resolverMidia(arg, tipo) {
     if (error) throw new Error(`upload ${v}: ${error.message}`)
     const { data } = await supabase.storage.from('whatsapp-media').createSignedUrl(dest, 7 * 86400)
     if (!data?.signedUrl) throw new Error(`URL assinada falhou para ${dest}`)
-    return data.signedUrl
+    return { link: data.signedUrl, path: dest, mime, filename: path.basename(v) }
 }
 
 /* ── main ─────────────────────────────────────────────────────────────────── */
@@ -219,12 +225,12 @@ async function main() {
 
     if (!PHONE_ID || !TOKEN) throw new Error('faltam credenciais Cloud API')
     // Resolve as mídias exigidas pelos templates presentes na lista
-    const mediaUrl = {}
+    const media = {}
     for (const [key, t] of Object.entries(TEMPLATES)) {
         if (!porTemplate[key]) continue
-        const url = await resolverMidia(t.mediaArg, t.header)
-        if (!url) throw new Error(`lista tem ${porTemplate[key]} envio(s) de "${key}" mas falta ${t.mediaArg}`)
-        mediaUrl[key] = url
+        const m = await resolverMidia(t.mediaArg, t.header)
+        if (!m) throw new Error(`lista tem ${porTemplate[key]} envio(s) de "${key}" mas falta ${t.mediaArg}`)
+        media[key] = m
     }
 
     console.log(`\n=== ENVIANDO ${audience.length} (throttle ${THROTTLE_MS}ms) ===`)
@@ -239,7 +245,7 @@ async function main() {
             template: {
                 name: t.name, language: { code: 'pt_BR' },
                 components: [
-                    { type: 'header', parameters: [{ type: t.header, [t.header]: { link: mediaUrl[a.template] } }] },
+                    { type: 'header', parameters: [{ type: t.header, [t.header]: { link: media[a.template].link } }] },
                     { type: 'body', parameters: params.map(p => ({ type: 'text', text: p })) },
                 ],
             },
@@ -259,6 +265,10 @@ async function main() {
             phone: a.fone, name: a.nome || 'Contato', body: t.render(params),
             direction: 'outbound', status, channel: 'cloud', intent: 'campaign',
             origin: ORIGIN, bot_step: a.template, lead_id: a.id,
+            // path no bucket (não URL): o cockpit assina na hora e mostra a
+            // mídia exatamente como o lead recebeu.
+            media_url: media[a.template].path, media_type: t.header,
+            media_mime: media[a.template].mime, media_filename: media[a.template].filename,
             reason: messageId ?? (status === 'failed' ? 'send_failed' : null), error_msg: errMsg,
         })
         if (status === 'sent') {
