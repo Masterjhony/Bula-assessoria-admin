@@ -85,7 +85,14 @@ function fmtFone(v: string): string {
     return v
 }
 
-function buildFicha(lead: LeadRow, codigo: string, docs: { nome: string; url: string }[]): string {
+const DOC_TIPO_LABEL: Record<string, string> = {
+    cpf: 'Documento de identidade (CNH/RG)',
+    ie: 'Comprovante de Inscrição Estadual (SEFAZ)',
+    comprovante: 'Comprovante da propriedade',
+    outro: 'Documento',
+}
+
+function buildFicha(lead: LeadRow, codigo: string, docs: { nome: string }[]): string {
     const xd = (lead.extra_data ?? {}) as Record<string, unknown>
     const fone = str(lead.celular) || str(lead.telefone)
     const ie = str(lead.inscricao_estadual)
@@ -137,12 +144,15 @@ function buildFicha(lead: LeadRow, codigo: string, docs: { nome: string; url: st
 
     if (perfil.length) linhas.push('', '*Perfil do comprador*', '', ...perfil)
 
-    if (docs.length) {
-        linhas.push('', '*Foto do documento e foto segurando o documento, para comprovação de autenticidade:*')
-        for (const d of docs) linhas.push(`• ${d.nome}: ${d.url}`)
-    } else {
-        linhas.push('', '_Sem documentos anexados._')
-    }
+    // Documentos vão como ANEXOS logo após esta mensagem (o VPS envia a mídia).
+    // Nada de link assinado no corpo: 300 caracteres de token quebravam no
+    // "Ler mais" da conversa e expiram em 7 dias.
+    linhas.push(
+        '',
+        docs.length
+            ? `*Documentos para comprovação de autenticidade:* ${docs.length} anexo${docs.length > 1 ? 's' : ''} a seguir (código ${codigo}).`
+            : '_Sem documentos anexados — solicitar ao cliente._',
+    )
 
     linhas.push(
         '',
@@ -156,14 +166,14 @@ function buildFicha(lead: LeadRow, codigo: string, docs: { nome: string; url: st
 async function loadLeadDocLinks(
     supabase: SupabaseClient,
     leadId: string,
-): Promise<{ nome: string; url: string }[]> {
+): Promise<{ nome: string; url: string; tipo: string; contentType: string }[]> {
     const { data } = await supabase
         .from('crm_lead_documentos')
-        .select('nome_arquivo, path')
+        .select('nome_arquivo, path, tipo, content_type')
         .eq('lead_id', leadId)
-    const docs: { nome: string; url: string }[] = []
+    const docs: { nome: string; url: string; tipo: string; contentType: string }[] = []
     const seen = new Set<string>()
-    for (const d of (data ?? []) as { nome_arquivo: string; path: string }[]) {
+    for (const d of (data ?? []) as { nome_arquivo: string; path: string; tipo: string | null; content_type: string | null }[]) {
         if (!d.path || seen.has(d.nome_arquivo)) continue
         seen.add(d.nome_arquivo)
         const { data: signed } = await supabase.storage
@@ -176,7 +186,12 @@ async function loadLeadDocLinks(
         const nome = /^wamid\./i.test(d.nome_arquivo)
             ? `Documento ${docs.length + 1}${ext ? ` (${ext})` : ''}`
             : d.nome_arquivo
-        docs.push({ nome, url: signed.signedUrl })
+        docs.push({
+            nome,
+            url: signed.signedUrl,
+            tipo: String(d.tipo || 'outro'),
+            contentType: String(d.content_type || ''),
+        })
     }
     return docs
 }
@@ -239,6 +254,18 @@ export async function submitLeadCadastroToLeiloeiraGroups(
             if (!r.queued) {
                 result.skipped.push({ leiloeira: leiloeira.nome, reason: r.error || 'falha no envio ao grupo' })
                 continue
+            }
+            // Cada documento vai como ANEXO, com legenda que amarra ao código da
+            // ficha — a leiloeira abre a foto ali mesmo, sem link para copiar.
+            for (const d of docs) {
+                const ehPdf = d.contentType.includes('pdf') || /\.pdf$/i.test(d.nome)
+                const rotulo = DOC_TIPO_LABEL[d.tipo] ?? DOC_TIPO_LABEL.outro
+                await sendVpsGroup(leiloeira.whatsapp_group_id, '', {
+                    type: ehPdf ? 'document' : 'image',
+                    url: d.url,
+                    caption: `${codigo} · ${str(lead.nome)} — ${rotulo}`,
+                    ...(ehPdf ? { fileName: `${codigo}-${d.tipo}.pdf` } : {}),
+                }).catch(() => { /* anexo é best-effort; a ficha já foi */ })
             }
             const { error } = await supabase.from('cliente_leiloeira_cadastro').upsert(
                 {

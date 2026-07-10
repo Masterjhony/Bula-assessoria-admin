@@ -28,7 +28,7 @@ import { computeHabilitacaoChecklist, type HabilitacaoChecklist } from './crm-ha
 import { maybeRunStateRegistrationCheck } from './crm-state-registration-automation'
 import { maybeEnrichLeadFromPhone } from './crm-lead-enrichment'
 import { submitLeadCadastroToLeiloeiraGroups } from './leiloeira-whatsapp-cadastro'
-import { ieDispensadaParaLead, avisoIeDispensadaTexto } from './concierge-campanha'
+import { ieDispensadaParaLead, isLeadCampanhaEao, avisoIeDispensadaTexto } from './concierge-campanha'
 import { notifyTeamGroup } from './whatsapp-team-notify'
 import { DEFAULT_JMP_MQL_RULE } from './crm-types'
 
@@ -96,7 +96,8 @@ function buildChecklist(lead: SyncLead, docs: { count: number; tipos: string[] }
         docsCount: docs.count,
         docTipos: docs.tipos,
         ieDispensadaPara: ieDispensadaParaLead(lead),
-        documentosSimplificados: Boolean(xd.propriedade_consultada_at),
+        // EAO: habilitação comprovadamente mais frouxa — 1 foto basta.
+        documentosSimplificados: Boolean(xd.propriedade_consultada_at) || isLeadCampanhaEao(lead),
     })
 }
 

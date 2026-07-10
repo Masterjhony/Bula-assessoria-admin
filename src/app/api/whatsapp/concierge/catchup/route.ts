@@ -14,7 +14,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
 import { requireAdmin } from '@/lib/auth-helpers'
-import { normalizePhone, classifyMessage } from '@/lib/whatsapp-central'
+import { normalizePhone, phoneVariants, classifyMessage } from '@/lib/whatsapp-central'
 import { findLeadByPhone } from '@/lib/whatsapp-inbound'
 import { loadConciergeConfig, runConcierge } from '@/lib/whatsapp-concierge'
 import { sendOutbound } from '@/lib/whatsapp-gateway'
@@ -23,9 +23,10 @@ export const maxDuration = 300
 
 const WINDOW_MS = 24 * 3_600_000
 // Não responde inbound "quente demais": o webhook ao vivo ainda pode estar
-// dentro da janela de "pensar" processando essa mesma mensagem. Só assume o
-// que já está esperando há mais de 90s (aí é backlog de verdade, não corrida).
-const MIN_AGE_MS = 90_000
+// processando essa mesma mensagem (janela de pensar + consultas + IA com
+// fallbacks passam fácil de 90s). Com 90s o catchup CORREU com o webhook e o
+// lead recebeu resposta dupla no mesmo minuto (Pedro/Elson, 09/07 23:10).
+const MIN_AGE_MS = 240_000
 
 function svc() {
     return createClient(process.env.NEXT_PUBLIC_SUPABASE_URL!, process.env.SUPABASE_SERVICE_ROLE_KEY!)
@@ -66,12 +67,59 @@ export async function POST(req: NextRequest) {
     return runCatchup({ limit, dryRun })
 }
 
+/**
+ * Trava de execução única (via site_settings): duas execuções simultâneas do
+ * catchup geravam DUAS respostas da IA para o mesmo lead. O lock expira sozinho
+ * em 4 min — se uma execução morrer, a próxima assume.
+ */
+const CATCHUP_LOCK_KEY = 'crm_concierge_catchup_lock'
+const CATCHUP_LOCK_MS = 4 * 60_000
+
+async function acquireLock(supabase: ReturnType<typeof svc>): Promise<boolean> {
+    const { data } = await supabase.from('site_settings').select('value').eq('key', CATCHUP_LOCK_KEY).maybeSingle()
+    const at = (data?.value as { at?: string } | null)?.at
+    if (at && Date.now() - new Date(at).getTime() < CATCHUP_LOCK_MS) return false
+    await supabase.from('site_settings').upsert(
+        { key: CATCHUP_LOCK_KEY, value: { at: new Date().toISOString() }, updated_at: new Date().toISOString() },
+        { onConflict: 'key' },
+    )
+    return true
+}
+
+async function releaseLock(supabase: ReturnType<typeof svc>): Promise<void> {
+    await supabase.from('site_settings').upsert(
+        { key: CATCHUP_LOCK_KEY, value: { at: null }, updated_at: new Date().toISOString() },
+        { onConflict: 'key' },
+    ).then(() => undefined, () => undefined)
+}
+
+/**
+ * O bot acabou de responder este número? Entre eleger o candidato e a IA gerar
+ * a resposta passam 20–60s — tempo de sobra para o webhook ao vivo responder
+ * primeiro. Recheca no instante do envio; mais barato que uma mensagem dupla.
+ */
+async function botRespondeuAgora(supabase: ReturnType<typeof svc>, phone: string): Promise<boolean> {
+    const variants = phoneVariants(phone)
+    const { data } = await supabase
+        .from('whatsapp_messages')
+        .select('direction, origin, created_at')
+        .in('phone', variants)
+        .order('created_at', { ascending: false })
+        .limit(1)
+    const m = data?.[0]
+    if (!m || m.direction !== 'outbound') return false
+    return Date.now() - new Date(m.created_at).getTime() < 3 * 60_000
+}
+
 async function runCatchup({ limit, dryRun }: { limit: number; dryRun: boolean }) {
     const supabase = svc()
 
     const config = await loadConciergeConfig(supabase)
     if (!config.enabled) {
         return NextResponse.json({ error: 'concierge desligado — ligue no cockpit antes.' }, { status: 409 })
+    }
+    if (!dryRun && !(await acquireLock(supabase))) {
+        return NextResponse.json({ ok: true, skipped: 'outra execução do catchup em andamento (lock ativo)' })
     }
 
     // Mensagens das últimas 24h (janela ativa). Reduz por telefone para a última.
@@ -144,6 +192,11 @@ async function runCatchup({ limit, dryRun }: { limit: number; dryRun: boolean })
             const c = await runConcierge(supabase, {
                 lead, phone: cand.phone, senderName: lead.nome ?? '', text: cand.text, media: null, config,
             })
+            // A IA levou dezenas de segundos; o webhook pode ter respondido nesse
+            // meio-tempo. Rechecar agora evita a mensagem dupla.
+            if (await botRespondeuAgora(supabase, cand.phone)) {
+                results.push({ phone: cand.phone, status: 'skip', reason: 'webhook_respondeu_durante_geracao' }); skipped++; continue
+            }
             if (!c.handled) { results.push({ phone: cand.phone, status: 'skip', reason: `unhandled_${c.reason}` }); skipped++; continue }
             if (c.silent) { results.push({ phone: cand.phone, status: 'skip', reason: c.reason }); skipped++; continue }
 
@@ -168,6 +221,8 @@ async function runCatchup({ limit, dryRun }: { limit: number; dryRun: boolean })
             results.push({ phone: cand.phone, status: 'error', reason: e instanceof Error ? e.message : 'erro' }); errors++
         }
     }
+
+    if (!dryRun) await releaseLock(supabase)
 
     return NextResponse.json({
         ok: true,

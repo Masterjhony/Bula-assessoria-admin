@@ -43,6 +43,7 @@ import { computeFase, extractPerfil, fasePromptBlock, type ConciergeFase } from 
 import { qualificacaoPromptBlock } from './crm-qualificacao'
 import {
     ieDispensavel,
+    isLeadCampanhaEao,
     declarouNaoTerIe,
     ieFlexivelPromptBlock,
     avisoIeDispensadaTexto,
@@ -272,7 +273,7 @@ REGRAS DURAS:
 - NUNCA peça CPF, e-mail, endereço, I.E. ou documento fora da fase "habilitação". Sem exceção — nem que o lead pareça apressado.
 - NUNCA prometa aprovação, prazo, taxa ou desconto. A análise é humana.
 - Não peça item que o checklist mostra como ✔ — no máximo confirme.
-- Documentos: no máximo 1 mensagem organizada, nunca um a um.
+- Documentos: peça EXATAMENTE os que o checklist lista com ✘ — nem um a mais. NUNCA invente exigência que não está lá ("frente e verso", selfie, comprovante de propriedade, conta de luz). Se o checklist pede só a foto da CNH/RG, é SÓ isso que você pede. No máximo 1 mensagem organizada, nunca um a um.
 - Pediu pra parar / não receber mais → optout=true, sem resposta ou uma despedida de 1 linha.
 - Pediu pra falar com humano/pessoa (ou travou) → handoff=true E passe o CONTATO HUMANO em 1-2 linhas.
 
@@ -439,6 +440,16 @@ function propriedadeConsultada(lead: Pick<FullLead, 'extra_data'>): boolean {
     return Boolean((lead.extra_data ?? {}).propriedade_consultada_at)
 }
 
+/**
+ * Documentação simplificada (só a foto da CNH/RG, sem selfie): quando a
+ * propriedade foi confirmada em base oficial OU quando o lead veio da campanha
+ * do EAO — a habilitação desse leilão é comprovadamente mais frouxa (o cadastro
+ * do Ricardo foi aprovado com dados + um documento).
+ */
+function docsSimplificados(lead: Pick<FullLead, 'extra_data'>): boolean {
+    return propriedadeConsultada(lead) || isLeadCampanhaEao(lead)
+}
+
 /** Checklist a partir do lead já carregado (mesma regra em todos os pontos). */
 function buildChecklist(lead: FullLead, docs: { count: number; tipos: string[] }) {
     return computeHabilitacaoChecklist({
@@ -453,7 +464,7 @@ function buildChecklist(lead: FullLead, docs: { count: number; tipos: string[] }
         docsCount: docs.count,
         docTipos: docs.tipos,
         ieDispensadaPara: ieDispensadaPara(lead),
-        documentosSimplificados: propriedadeConsultada(lead),
+        documentosSimplificados: docsSimplificados(lead),
     })
 }
 
@@ -1098,7 +1109,7 @@ async function applyConciergeEffects(
         docsCount,
         docTipos,
         ieDispensadaPara: dispensaIe,
-        documentosSimplificados: propriedadeConsultada({ extra_data: nextExtra }),
+        documentosSimplificados: docsSimplificados({ extra_data: nextExtra }),
     })
     nextExtra.habilitacao = {
         done: checklist.done,

@@ -55,16 +55,31 @@ export async function pairVpsPhone(
     }
 }
 
-/** Enfileira uma mensagem de texto para um grupo. `groupId` = JID ou id antes do @. */
+export interface VpsGroupMedia {
+    type: 'image' | 'video' | 'audio' | 'document'
+    /** URL que o VPS consegue baixar (signed URL do Storage serve). */
+    url: string
+    caption?: string
+    /** Nome de arquivo exibido quando type='document'. */
+    fileName?: string
+}
+
+/**
+ * Enfileira uma mensagem para um grupo. `groupId` = JID ou id antes do @.
+ * Com `media`, o VPS baixa a URL e envia o ARQUIVO no grupo (a URL não aparece
+ * na mensagem) — é assim que os documentos da ficha de cadastro chegam como
+ * anexo, em vez de um link assinado de 300 caracteres que quebra no "Ler mais".
+ */
 export async function sendVpsGroup(
     groupId: string,
     message: string,
+    media?: VpsGroupMedia,
 ): Promise<{ queued: boolean; jid?: string; error?: string }> {
     try {
         const res = await fetch(`${WHATSAPP_SERVER_URL}/send-group`, {
             method: 'POST',
             headers: vpsHeaders({ 'Content-Type': 'application/json' }),
-            body: JSON.stringify({ groupId, message }),
+            body: JSON.stringify({ groupId, message, ...(media ? { media } : {}) }),
             signal: AbortSignal.timeout(15000),
         })
         const body = await res.json().catch(() => ({}))
