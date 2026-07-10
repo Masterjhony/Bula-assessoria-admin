@@ -222,6 +222,16 @@ export async function sincronizarHabilitacao(
     base.enviadosPara = sub.sent
     base.submetido = sub.sent > 0
 
+    // attempted=0 sem skips = todas as leiloeiras já tinham recebido este
+    // cliente (submissão antiga, antes da flag existir). Grava a flag para o
+    // lead sair da fila da varredura em vez de ser reprocessado para sempre.
+    if (sub.sent === 0 && sub.attempted === 0 && !sub.skipped.length) {
+        await supabase.from('crm_leads').update({
+            extra_data: { ...extraAtual, cadastro_submetido_at: new Date().toISOString() },
+        }).eq('id', leadId)
+        return { ...base, motivo: 'ficha já estava nas leiloeiras (flag regularizada)' }
+    }
+
     if (sub.sent > 0) {
         await supabase.from('crm_leads').update({
             extra_data: { ...extraAtual, cadastro_submetido_at: new Date().toISOString() },
