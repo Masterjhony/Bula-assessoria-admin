@@ -110,27 +110,38 @@ const limpo = (v: unknown) => {
 }
 
 /**
- * A ficha vai para a leiloeira quando tem o ESSENCIAL — não quando o checklist
- * está 100%. A ficha do Ricardo, que foi aprovada, tinha Roteiro, Telefone e
- * Resp. Telefone em branco. Exigir o checklist inteiro só segurava cadastro que
- * a leiloeira aprovaria.
+ * A ficha só vai para a leiloeira quando está ANALISÁVEL — a leiloeira
+ * (Programa/Márcia, 07/2026) pediu para "seguir somente com os que têm
+ * documentação/dados completos", porque cadastro incompleto ela não analisa (e
+ * ainda repassa para a EAO). Submeter incompleto só gerava recusa e atrito.
  *
- * Essencial (sem isto nenhuma leiloeira consegue cadastrar):
- *   nome completo · CPF · telefone.
- * O documento com foto deixou de ser essencial GLOBAL: virou exigência POR
- * leiloeira (a Programa aceita a ficha sem ele — `leiloeiraAceitaFichaSemDoc`).
- * Quem exige documento fica em `aguardandoDoc` e recebe quando ele chegar.
- * Desejável (entra se houver, sai em branco se não):
- *   e-mail · endereço · fazenda · cidade/UF · I.E.
+ * Analisável exige o conjunto completo:
+ *   nome completo · CPF · telefone
+ *   · IDENTIDADE (foto CNH/RG)
+ *   · PROPRIEDADE RURAL comprovada — por DADO (fazenda vinda do Sintegra/CNIR)
+ *     ou por documento (comprovante de propriedade / I.E.)
+ *   · MOVIMENTAÇÃO PECUÁRIA (GTA, nota de gado ou cartão de produtor) — só o
+ *     lead pode enviar; nenhuma consulta substitui.
  */
 export function prontoParaFicha(
-    lead: Pick<SyncLead, 'nome' | 'cpf' | 'telefone' | 'celular'>,
+    lead: Pick<SyncLead, 'nome' | 'cpf' | 'telefone' | 'celular'> & { extra_data?: Record<string, unknown> | null },
+    docs: { count: number; tipos: string[] },
 ): { pronto: boolean; faltamEssenciais: string[] } {
     const faltam: string[] = []
+    const tipos = new Set(docs.tipos)
+    const xd = lead.extra_data ?? {}
     if (!/\S+\s+\S+/.test(limpo(lead.nome))) faltam.push('nome completo')
     if (!cpfValido(lead.cpf)) faltam.push('CPF')
     if (!limpo(lead.celular) && !limpo(lead.telefone)) faltam.push('telefone')
-    return { pronto: faltam.length === 0, faltamEssenciais: faltam }
+    // Identidade = foto do documento; no sistema o tipo 'cpf' é a CNH/RG.
+    if (!tipos.has('cpf')) faltam.push('foto do documento de identidade (CNH/RG)')
+    // Propriedade rural: por dado (Sintegra/CNIR) ou por documento.
+    const temPropriedade = Boolean(limpo(xd.fazenda_nome) || limpo(xd.fazenda_cidade) || limpo(xd.propriedade_consultada_at))
+        || tipos.has('ie') || tipos.has('comprovante')
+    if (!temPropriedade) faltam.push('comprovante de propriedade rural (fazenda)')
+    // Movimentação pecuária: só o lead envia.
+    if (!tipos.has('movimentacao')) faltam.push('comprovante de movimentação pecuária (GTA/nota de gado)')
+    return { pronto: faltam.length === 0, faltamEssenciais: [...new Set(faltam)] }
 }
 
 export async function sincronizarHabilitacao(
@@ -264,38 +275,15 @@ export async function sincronizarHabilitacao(
         await enviarComplementoCadastro(supabase, leadId).catch(() => { /* best-effort */ })
     }
 
-    // ── 3. Tem o essencial → ficha às leiloeiras. Senão → a IA pede o que falta.
-    // O checklist continua guiando a CONVERSA (a IA pede o que está com ✘), mas
-    // não segura mais a submissão: campo desejável ausente vai em branco na ficha.
-    // Documento com foto é exigência POR leiloeira (a Programa recebe sem) — o
-    // submissor decide quem recebe agora e quem fica em `aguardandoDoc`.
-    const { pronto, faltamEssenciais } = prontoParaFicha(lead)
+    // ── 3. Cadastro ANALISÁVEL → ficha às leiloeiras. Senão → a IA pede o que
+    // falta. A leiloeira só analisa com documentação completa (identidade +
+    // propriedade + movimentação pecuária); mandar incompleto só gera recusa.
+    // O checklist guia a CONVERSA; `prontoParaFicha` guarda a SUBMISSÃO.
+    const { pronto, faltamEssenciais } = prontoParaFicha(lead, docs)
     base.pronto = pronto
-    if (!pronto) return { ...base, motivo: `falta o essencial: ${faltamEssenciais.join(', ')}` }
+    if (!pronto) return { ...base, motivo: `aguardando documentação para análise: ${faltamEssenciais.join(', ')}` }
     if (!submeter || opts.dryRun) return { ...base, motivo: 'pronto (submissão não solicitada)' }
-    // Flag própria da submissão — separada do aviso interno, que dispara antes.
-    // Só existe quando TODAS as leiloeiras ativas já receberam a ficha; um lead
-    // submetido só à Programa (sem doc) continua na fila até o doc chegar.
     if (xd.cadastro_submetido_at) return { ...base, motivo: 'ficha já submetida antes' }
-
-    // Ficha completa > ficha instantânea (reclamação real do comercial: "está
-    // indo muito incompleta"). Sem fazenda/cidade, seguramos a submissão por
-    // até 24h — tempo de a IA pedir na conversa ou de a consulta preencher.
-    // Depois disso vai como está: lead que sumiu não segura cadastro pra sempre.
-    const temPropriedade = Boolean(limpo(xd.fazenda_nome) || limpo(xd.fazenda_cidade))
-    if (!temPropriedade) {
-        const desde = String(xd.ficha_aguardando_propriedade_desde ?? '')
-        if (!desde) {
-            await supabase.from('crm_leads').update({
-                extra_data: { ...extraAtual, ficha_aguardando_propriedade_desde: new Date().toISOString() },
-            }).eq('id', leadId)
-            return { ...base, motivo: 'ficha segurada: sem fazenda/cidade — IA vai pedir; envia em 24h de qualquer forma' }
-        }
-        const h = (Date.now() - new Date(desde).getTime()) / 3600000
-        if (Number.isFinite(h) && h < 24) {
-            return { ...base, motivo: `ficha segurada aguardando fazenda/cidade (${h.toFixed(1)}h de 24h)` }
-        }
-    }
 
     const sub = await submitLeadCadastroToLeiloeiraGroups(supabase, leadId)
     base.enviadosPara = sub.sent

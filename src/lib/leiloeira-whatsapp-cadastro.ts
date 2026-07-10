@@ -72,16 +72,9 @@ export interface GroupSubmissionResult {
     aguardandoDoc: string[]
 }
 
-/**
- * Leiloeiras que aceitam a ficha ANTES do documento com foto. A Programa
- * Leilões é comprovadamente mais flexível na aprovação — segurar a ficha dela
- * esperando a foto do lead só atrasava cadastro que ela aprovaria. Para as
- * demais, o documento continua obrigatório.
- */
-const FICHA_SEM_DOC_FOTO = /programa/i
-export function leiloeiraAceitaFichaSemDoc(nome: string): boolean {
-    return FICHA_SEM_DOC_FOTO.test(nome)
-}
+// (Removida a exceção "Programa aceita ficha sem doc": a leiloeira passou a
+// exigir documentação COMPLETA para analisar — ver prontoParaFicha. Nenhuma
+// leiloeira recebe cadastro sem documento agora.)
 
 /* ─── Submissão ────────────────────────────────────────────────────────── */
 
@@ -112,6 +105,7 @@ const DOC_TIPO_LABEL: Record<string, string> = {
     cpf: 'Documento de identidade (CNH/RG)',
     ie: 'Comprovante de Inscrição Estadual (SEFAZ)',
     comprovante: 'Comprovante da propriedade',
+    movimentacao: 'Comprovante de movimentação pecuária (GTA/nota de gado)',
     outro: 'Documento',
 }
 
@@ -278,10 +272,10 @@ export async function submitLeadCadastroToLeiloeiraGroups(
 
         for (const leiloeira of leiloeiras) {
             if (jaEnviado.has(leiloeira.id)) continue
-            // Sem documento com foto, a ficha só vai para leiloeira que aceita
-            // recebê-la assim (Programa). As demais entram em `aguardandoDoc` e
-            // recebem automaticamente quando o documento chegar.
-            if (!docs.length && !leiloeiraAceitaFichaSemDoc(leiloeira.nome)) {
+            // Defesa em profundidade: sem documento nenhuma leiloeira recebe
+            // (o portão real é `prontoParaFicha`, mas se alguém chamar direto,
+            // não deixamos ir cadastro sem doc para a leiloeira analisar).
+            if (!docs.length) {
                 result.aguardandoDoc.push(leiloeira.nome)
                 continue
             }

@@ -44,6 +44,7 @@ export const DOC_TIPOS_SEMANTICOS = [
     'identidade_selfie',     // foto segurando o documento (autenticidade)
     'comprovante_propriedade',
     'ie_nirf',               // cartão/comprovante de I.E. ou NIRF
+    'movimentacao_pecuaria', // GTA, nota fiscal de gado, cartão/declaração de produtor
 ] as const
 export type DocTipoSemantico = (typeof DOC_TIPOS_SEMANTICOS)[number]
 
@@ -132,6 +133,10 @@ export function computeHabilitacaoChecklist(input: HabilitacaoInput): Habilitaca
         semantic.has('comprovante_propriedade') || semantic.has('ie_nirf')
         || tipos.has('ie') || tipos.has('comprovante')
     )
+    // Movimentação pecuária: prova que o produtor OPERA (GTA, nota de gado,
+    // cartão/declaração de produtor). A leiloeira (Programa/EAO) exige para
+    // analisar — e nenhuma API entrega, então SÓ o lead pode enviar.
+    const docMovimentacao = temArquivoReal && (semantic.has('movimentacao_pecuaria') || tipos.has('movimentacao'))
 
     const items: ChecklistItem[] = [
         { key: 'nome_completo', label: 'Nome completo', group: 'titular', done: /\S+\s+\S+/.test(nome), value: nome || undefined },
@@ -166,11 +171,22 @@ export function computeHabilitacaoChecklist(input: HabilitacaoInput): Habilitaca
     if (!input.documentosSimplificados) {
         items.push({ key: 'doc_identidade_selfie', label: 'Foto segurando o documento', group: 'documentos', done: docSelfie })
     }
+    // Movimentação pecuária é agora item OBRIGATÓRIO: a leiloeira só analisa o
+    // cadastro com a prova de que o produtor atua no meio (Márcia/Programa,
+    // 07/2026). É o único documento que a consulta não substitui.
+    items.push({
+        key: 'doc_movimentacao',
+        label: 'Comprovante de movimentação pecuária (GTA, nota de gado ou cartão de produtor)',
+        group: 'documentos',
+        done: docMovimentacao,
+    })
     if (docFiscal) {
-        items.push({ key: 'doc_fiscal', label: 'Comprovante da propriedade / I.E. (opcional)', group: 'documentos', done: true })
+        items.push({ key: 'doc_fiscal', label: 'Comprovante da propriedade / I.E. (extra)', group: 'documentos', done: true })
     }
 
-    const minDocs = input.documentosSimplificados ? 1 : 2
+    // Com movimentação obrigatória, o cadastro completo tem sempre ≥2 arquivos
+    // (identidade + movimentação), mesmo no fluxo simplificado por consulta.
+    const minDocs = 2
     const done = items.filter(i => i.done).length
     const complete = done === items.length && input.docsCount >= minDocs
     return {

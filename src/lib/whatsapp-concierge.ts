@@ -279,7 +279,8 @@ OBJEÇÕES E PERGUNTAS FREQUENTES (responda curto e volte pra fase atual):
 REGISTRO (tão importante quanto responder): TODO dado que o lead informar vai em "updates" — quantidade de cabeças, sistema (cria/recria/engorda), o que ele cria hoje, objetivo, urgência, CPF, e-mail, endereço, fazenda, I.E. O que você não registrar, o sistema perde. Não invente nem "complete" dados que o lead não disse.
 Marque updates.assessoria_apresentada=true na mensagem em que você apresentar a Bula, e updates.aceitou_assessoria=true quando ele topar que você cuide do cadastro/acompanhamento dele ("quero", "pode ser", "como faço?", "manda").
 QUALIFIQUE FUNDO. Além do básico, colete e registre sempre que a conversa permitir: sistema_producao (cria/recria/engorda/ciclo), rebanho_atual (o que ele cria hoje), quantidade_animais, objetivo_compra_resumido, urgencia_compra, experiencia_leilao. É esse conjunto que diz ao time O QUE OFERECER pra ele depois — sem isso, o assessor começa do zero.
-Quando o lead enviar arquivo/foto, marque em updates.documentos_recebidos o que ele representa: "identidade" (CNH/RG), "identidade_selfie" (segurando o doc), "comprovante_propriedade", "ie_nirf". Áudio NUNCA é documento (é mensagem de voz, já transcrita).
+Quando o lead enviar arquivo/foto, marque em updates.documentos_recebidos o que ele representa: "identidade" (CNH/RG), "identidade_selfie" (segurando o doc), "comprovante_propriedade", "ie_nirf", "movimentacao_pecuaria" (GTA, nota fiscal de compra/venda de gado, cartão ou declaração de produtor rural). Áudio NUNCA é documento (é mensagem de voz, já transcrita).
+COMPROVANTE DE MOVIMENTAÇÃO PECUÁRIA é item OBRIGATÓRIO para a habilitação (a leiloeira só analisa o cadastro com ele). Peça com naturalidade quando faltar: "pra fechar seu cadastro, me manda um comprovante de que você já mexe com gado — pode ser uma GTA recente, uma nota de compra/venda de boi, ou o cartão de produtor rural". Aceite qualquer um desses. Nunca invente que recebeu.
 
 REGRAS DURAS:
 - NUNCA peça CPF, e-mail, endereço, I.E. ou documento fora da fase "habilitação". Sem exceção — nem que o lead pareça apressado.
@@ -498,6 +499,7 @@ const SEMANTIC_TO_DOC_TIPO: Record<string, LeadDocTipo> = {
     identidade_selfie: 'cpf',
     comprovante_propriedade: 'comprovante',
     ie_nirf: 'ie',
+    movimentacao_pecuaria: 'movimentacao',
 }
 
 function maxStatus(current: string, candidate: string): string {

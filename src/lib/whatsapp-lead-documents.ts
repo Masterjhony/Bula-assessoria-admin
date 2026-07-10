@@ -16,7 +16,7 @@ import { WHATSAPP_MEDIA_BUCKET } from './whatsapp-inbound'
 
 export const LEAD_DOCS_BUCKET = 'cliente-documentos'
 
-export type LeadDocTipo = 'ie' | 'cpf' | 'comprovante' | 'contrato' | 'outro'
+export type LeadDocTipo = 'ie' | 'cpf' | 'comprovante' | 'movimentacao' | 'contrato' | 'outro'
 
 /** Heurística de tipo a partir do nome/caption/mime do arquivo. */
 export function guessDocTipo(
@@ -27,6 +27,11 @@ export function guessDocTipo(
     const hay = `${filename || ''} ${caption || ''}`.toLowerCase()
     if (/\bie\b|inscri|estadual/.test(hay)) return 'ie'
     if (/cpf|cnpj|rg\b|identidade|documento de identidade/.test(hay)) return 'cpf'
+    // Movimentação pecuária: GTA, nota fiscal de gado, cartão/declaração de
+    // produtor rural, rebanho. Prova que o produtor opera de fato no meio
+    // pecuário — exigência da leiloeira que NENHUMA API entrega (GTA vive no
+    // sistema da defesa agropecuária do estado, atrás do login do produtor).
+    if (/\bgta\b|guia de tr[aâ]nsito|tr[aâ]nsito animal|nota fiscal.*(gado|boi|bovin|animal)|rebanho|movimenta|produtor rural|cart[aã]o de produtor|declara[cç][aã]o de rebanho/.test(hay)) return 'movimentacao'
     if (/comprov|residencia|endere|conta de luz|agua/.test(hay)) return 'comprovante'
     if (/contrato|procura/.test(hay)) return 'contrato'
     return 'outro'
