@@ -129,20 +129,30 @@ async function runCatchup({ limit, dryRun }: { limit: number; dryRun: boolean })
         return NextResponse.json({ ok: true, skipped: 'outra execução do catchup em andamento (lock ativo)' })
     }
 
-    // Mensagens das últimas 24h (janela ativa). Reduz por telefone para a última.
+    // Mensagens das últimas 24h (janela ativa), PAGINADAS. O PostgREST capa
+    // qualquer resposta em 1000 linhas — o .limit(4000) antigo devolvia as 1000
+    // mais ANTIGAS da janela, as respostas recentes do bot ficavam invisíveis e
+    // o mesmo lead era reeleito a cada cron, para sempre (Pedro, 09/07: oito
+    // mensagens iguais em 30 min). Regra da casa: matcher SEMPRE paginado.
     const since = new Date(Date.now() - WINDOW_MS).toISOString()
-    const { data: rows, error } = await supabase
-        .from('whatsapp_messages')
-        .select('phone, direction, status, origin, body, created_at')
-        .gte('created_at', since)
-        .order('created_at', { ascending: true })
-        .limit(4000)
-    if (error) return NextResponse.json({ error: error.message }, { status: 500 })
+    const rows: Array<{ phone: string; direction: string; status: string | null; origin: string | null; body: string | null; created_at: string }> = []
+    for (let off = 0; off < 12000; off += 1000) {
+        const { data, error } = await supabase
+            .from('whatsapp_messages')
+            .select('phone, direction, status, origin, body, created_at')
+            .gte('created_at', since)
+            .order('created_at', { ascending: true })
+            .range(off, off + 999)
+        if (error) return NextResponse.json({ error: error.message }, { status: 500 })
+        if (!data?.length) break
+        rows.push(...(data as typeof rows))
+        if (data.length < 1000) break
+    }
 
     // Última mensagem por telefone (ordem asc → o último visto é o mais recente).
     const lastByPhone = new Map<string, { direction: string; status: string | null; origin: string | null; body: string | null; created_at: string }>()
     const lastInboundByPhone = new Map<string, { body: string | null; created_at: string }>()
-    for (const r of rows ?? []) {
+    for (const r of rows) {
         const p = normalizePhone(r.phone || '')
         if (!p) continue
         const row = {
