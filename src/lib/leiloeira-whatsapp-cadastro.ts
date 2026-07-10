@@ -338,6 +338,72 @@ export async function submitLeadCadastroToLeiloeiraGroups(
     return result
 }
 
+/**
+ * Re-posta a FICHA COMPLETA ATUALIZADA de um lead às leiloeiras onde ele já tem
+ * cadastro (status 'enviado'), citando o MESMO código. Serve para o caso em que
+ * a ficha original foi postada incompleta (fase "sem doc") e depois os dados
+ * foram preenchidos pelas consultas: em vez de duplicar o cadastro, mandamos uma
+ * versão limpa e completa com os anexos que o lead tenha.
+ *
+ * Não cria linha nova nem toca em cadastros já 'aprovado'/'recusado' (decididos).
+ * `filtroLeiloeira` limita a quais leiloeiras re-enviar (ex.: só a Programa).
+ */
+export async function reenviarFichaAtualizada(
+    supabase: SupabaseClient,
+    leadId: string,
+    filtroLeiloeira: RegExp,
+): Promise<{ enviados: { leiloeira: string; codigo: string; anexos: number }[]; erros: string[] }> {
+    const out: { enviados: { leiloeira: string; codigo: string; anexos: number }[]; erros: string[] } = { enviados: [], erros: [] }
+    try {
+        const { data: leadData } = await supabase.from('crm_leads').select(LEAD_FICHA_FIELDS).eq('id', leadId).maybeSingle()
+        const lead = leadData as LeadRow | null
+        if (!lead) { out.erros.push('lead não encontrado'); return out }
+
+        const { data: cadRows } = await supabase
+            .from('cliente_leiloeira_cadastro')
+            .select('leiloeira_id, status, codigo')
+            .eq('crm_lead_id', leadId)
+        const { data: leilData } = await supabase.from('leiloeiras').select('id, nome, whatsapp_group_id, ativo').eq('ativo', true)
+        const leilById = new Map(((leilData ?? []) as LeiloeiraGroupRow[]).map(l => [l.id, l]))
+
+        const docs = await loadLeadDocLinks(supabase, leadId)
+        const xd = (lead.extra_data ?? {}) as Record<string, unknown>
+        const estadoEnviado = { ...((xd.ficha_estado_enviado ?? {}) as Record<string, unknown>) }
+        const temPropriedade = Boolean(str(xd.fazenda_nome) || str(xd.fazenda_cidade))
+
+        for (const cad of (cadRows ?? []) as { leiloeira_id: string; status: string | null; codigo: string | null }[]) {
+            const leil = leilById.get(cad.leiloeira_id)
+            if (!leil?.whatsapp_group_id || !filtroLeiloeira.test(leil.nome)) continue
+            if (cad.status === 'aprovado' || cad.status === 'recusado') continue // decidido: não mexer
+            const codigo = cad.codigo || gerarCodigo()
+            const corpo = `♻️ *Ficha completa (atualizada)* — dados confirmados em fontes oficiais.\n\n${buildFicha(lead, codigo, docs)}`
+            const r = await sendVpsGroup(leil.whatsapp_group_id, corpo)
+            if (!r.queued) { out.erros.push(`${leil.nome}: ${r.error || 'falha no envio'}`); continue }
+            for (const d of docs) {
+                const ehPdf = d.contentType.includes('pdf') || /\.pdf$/i.test(d.nome)
+                const rotulo = DOC_TIPO_LABEL[d.tipo] ?? DOC_TIPO_LABEL.outro
+                await sendVpsGroup(leil.whatsapp_group_id, '', {
+                    type: ehPdf ? 'document' : 'image',
+                    url: d.url,
+                    caption: `${codigo} · ${str(lead.nome)} — ${rotulo}`,
+                    ...(ehPdf ? { fileName: `${codigo}-${d.tipo}.pdf` } : {}),
+                }).catch(() => { /* anexo é best-effort */ })
+            }
+            estadoEnviado[cad.leiloeira_id] = { docs: docs.length, propriedade: temPropriedade }
+            await supabase.from('cliente_leiloeira_cadastro')
+                .update({ enviado_at: new Date().toISOString() })
+                .eq('crm_lead_id', leadId).eq('leiloeira_id', cad.leiloeira_id)
+            out.enviados.push({ leiloeira: leil.nome, codigo, anexos: docs.length })
+        }
+        if (out.enviados.length) {
+            await supabase.from('crm_leads').update({ extra_data: { ...xd, ficha_estado_enviado: estadoEnviado } }).eq('id', leadId)
+        }
+    } catch (e) {
+        out.erros.push(e instanceof Error ? e.message : 'erro')
+    }
+    return out
+}
+
 /* ─── Complemento pós-submissão ────────────────────────────────────────── */
 
 /**
