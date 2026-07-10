@@ -117,6 +117,20 @@ export async function saveLeadDocFromUrl(
     }
     if (!buffer.byteLength) return null
 
+    // Valida que é um documento REALMENTE abrível (PDF ou imagem) e não uma
+    // casca/erro. O site_receipt do Infosimples às vezes volta um PDF de ~5KB
+    // com o miolo vazio (abre em branco) ou um texto "Invalid URL" — anexar isso
+    // na leiloeira é pior que não anexar. Exige magic bytes + tamanho mínimo.
+    const head = buffer.subarray(0, 8)
+    const isPdf = head.subarray(0, 5).toString('latin1') === '%PDF-'
+    const isJpg = head.subarray(0, 3).toString('hex') === 'ffd8ff'
+    const isPng = head.toString('hex') === '89504e470d0a1a0a'
+    const valido = isPdf ? buffer.byteLength >= 8_000 : (isJpg || isPng) ? buffer.byteLength >= 3_000 : false
+    if (!valido) {
+        console.warn(`[lead-docs] comprovante descartado (não é PDF/imagem abrível: ${buffer.byteLength}B, magic=${head.subarray(0, 4).toString('latin1').replace(/[^ -~]/g, '.')})`)
+        return null
+    }
+
     const ext = extFromName(input.filename, contentType)
     const path = `crm-leads/${leadId}/${crypto.randomUUID()}.${ext}`
     const { error: upErr } = await supabase.storage
