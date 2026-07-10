@@ -263,6 +263,13 @@ export async function submitLeadCadastroToLeiloeiraGroups(
 
         const docs = await loadLeadDocLinks(supabase, lead.id)
 
+        // O que cada leiloeira recebeu nesta ficha — é a régua do COMPLEMENTO:
+        // quando docs/fazenda chegarem depois, `enviarComplementoCadastro` posta
+        // só o delta no grupo, citando o mesmo código.
+        const xdLead = (lead.extra_data ?? {}) as Record<string, unknown>
+        const estadoEnviado = { ...((xdLead.ficha_estado_enviado ?? {}) as Record<string, unknown>) }
+        const temPropriedade = Boolean(str(xdLead.fazenda_nome) || str(xdLead.fazenda_cidade))
+
         for (const leiloeira of leiloeiras) {
             if (jaEnviado.has(leiloeira.id)) continue
             // Sem documento com foto, a ficha só vai para leiloeira que aceita
@@ -304,12 +311,126 @@ export async function submitLeadCadastroToLeiloeiraGroups(
                 { onConflict: 'cliente_key,leiloeira_id' },
             )
             if (error) console.warn('[cadastro-grupo] registro falhou:', error.message)
+            estadoEnviado[leiloeira.id] = { docs: docs.length, propriedade: temPropriedade }
             result.sent++
+        }
+
+        if (result.sent > 0) {
+            const { error } = await supabase.from('crm_leads').update({
+                extra_data: { ...xdLead, ficha_estado_enviado: estadoEnviado },
+            }).eq('id', lead.id)
+            if (error) console.warn('[cadastro-grupo] estado enviado não gravado:', error.message)
         }
     } catch (e) {
         console.warn('[cadastro-grupo] submissão falhou:', e instanceof Error ? e.message : e)
     }
     return result
+}
+
+/* ─── Complemento pós-submissão ────────────────────────────────────────── */
+
+/**
+ * Mensagem no WhatsApp só pode ser EDITADA por 15 minutos — depois disso, a
+ * forma de completar uma ficha já enviada é postar um COMPLEMENTO no grupo
+ * citando o mesmo código. É isto que cumpre a promessa "_enviaremos na
+ * sequência, neste mesmo código_" da ficha sem documentos.
+ *
+ * Compara o que cada leiloeira recebeu (`extra_data.ficha_estado_enviado`) com
+ * o estado atual do lead e envia só o DELTA: propriedade que apareceu (consulta
+ * ou conversa) e documentos novos. Idempotente: atualiza a régua após enviar.
+ * Cadastros antigos sem régua registrada são ignorados (não há como saber o que
+ * já foi; melhor silêncio que ficha duplicada no grupo).
+ */
+export async function enviarComplementoCadastro(
+    supabase: SupabaseClient,
+    leadId: string,
+): Promise<{ enviados: number }> {
+    let enviados = 0
+    try {
+        const { data: leadData } = await supabase
+            .from('crm_leads')
+            .select(LEAD_FICHA_FIELDS)
+            .eq('id', leadId)
+            .maybeSingle()
+        const lead = leadData as LeadRow | null
+        if (!lead) return { enviados }
+        const xd = (lead.extra_data ?? {}) as Record<string, unknown>
+        const estadoEnviado = { ...((xd.ficha_estado_enviado ?? {}) as Record<string, Record<string, unknown>>) }
+        if (!Object.keys(estadoEnviado).length) return { enviados }
+
+        const { data: cadData } = await supabase
+            .from('cliente_leiloeira_cadastro')
+            .select('leiloeira_id, status, codigo')
+            .eq('crm_lead_id', leadId)
+            .in('status', ['enviado'])
+        const cadastros = (cadData ?? []) as { leiloeira_id: string; status: string; codigo: string | null }[]
+        if (!cadastros.length) return { enviados }
+
+        const { data: leiloeirasData } = await supabase
+            .from('leiloeiras')
+            .select('id, nome, whatsapp_group_id, ativo')
+            .eq('ativo', true)
+        const grupoPorId = new Map(
+            ((leiloeirasData ?? []) as LeiloeiraGroupRow[])
+                .filter(l => l.whatsapp_group_id)
+                .map(l => [l.id, l]),
+        )
+
+        const docs = await loadLeadDocLinks(supabase, leadId)
+        const fazenda = str(xd.fazenda_nome)
+        const cidade = str(xd.fazenda_cidade)
+        const ufFaz = str(xd.fazenda_uf)
+        const ie = str(lead.inscricao_estadual)
+        const temPropriedade = Boolean(fazenda || cidade)
+
+        let mudou = false
+        for (const cad of cadastros) {
+            const grupo = grupoPorId.get(cad.leiloeira_id)
+            const regua = estadoEnviado[cad.leiloeira_id] as { docs?: number; propriedade?: boolean } | undefined
+            if (!grupo || !regua || !cad.codigo) continue
+
+            const docsNovos = docs.slice(Number(regua.docs ?? 0))
+            const propriedadeNova = temPropriedade && !regua.propriedade
+            if (!docsNovos.length && !propriedadeNova) continue
+
+            if (propriedadeNova) {
+                const linhas = [
+                    `📎 *Complemento do cadastro* · ${cad.codigo} — ${str(lead.nome)}`,
+                    '',
+                    '*Dados da Propriedade onde serão entregues os animais*',
+                    `*Fazenda:* ${fazenda || '—'}`,
+                    `*Cidade:* ${cidade || '—'}`,
+                    `*Estado:* ${ufFaz || '—'}`,
+                ]
+                if (ie) linhas.push(`*I.E.:* ${ie}`)
+                const r = await sendVpsGroup(grupo.whatsapp_group_id, linhas.join('\n'))
+                if (!r.queued) continue
+            }
+            for (const d of docsNovos) {
+                const ehPdf = d.contentType.includes('pdf') || /\.pdf$/i.test(d.nome)
+                const rotulo = DOC_TIPO_LABEL[d.tipo] ?? DOC_TIPO_LABEL.outro
+                await sendVpsGroup(grupo.whatsapp_group_id, '', {
+                    type: ehPdf ? 'document' : 'image',
+                    url: d.url,
+                    caption: `${cad.codigo} · ${str(lead.nome)} — ${rotulo} (complemento)`,
+                    ...(ehPdf ? { fileName: `${cad.codigo}-${d.tipo}.pdf` } : {}),
+                }).catch(() => { /* anexo é best-effort */ })
+            }
+            estadoEnviado[cad.leiloeira_id] = { docs: docs.length, propriedade: temPropriedade || Boolean(regua.propriedade) }
+            enviados++
+            mudou = true
+        }
+
+        if (mudou) {
+            const { error } = await supabase.from('crm_leads').update({
+                extra_data: { ...xd, ficha_estado_enviado: estadoEnviado },
+            }).eq('id', leadId)
+            if (error) console.warn('[cadastro-grupo] régua do complemento não gravada:', error.message)
+        }
+    } catch (e) {
+        console.warn('[cadastro-grupo] complemento falhou:', e instanceof Error ? e.message : e)
+    }
+    return { enviados }
 }
 
 /* ─── Decisão no grupo ─────────────────────────────────────────────────── */

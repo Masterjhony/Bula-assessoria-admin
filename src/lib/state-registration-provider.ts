@@ -273,64 +273,148 @@ export async function consultarInscricaoEstadualPorCpf(input: {
     return makeReport({ pending: true, message: 'UF ausente; consulta de I.E. nao executada.' })
   }
 
-  // Sem FiscalAPI: Infosimples (Sintegra) na frente, Direct Data de fallback.
-  // Ambos exigem UF (não têm varredura nacional numa chamada só).
+  // Precedência POR PAPEL, não por provedor:
   //
-  // A ordem IMPORTA: só o Infosimples devolve a PROPRIEDADE rural (fazenda,
-  // município, endereço) e o PDF do comprovante da SEFAZ — que vira documento
-  // do lead e destrava a ficha. O Direct Data devolve apenas o número da I.E.
-  // Quando o Direct Data respondia primeiro, nenhuma consulta chegava ao
-  // Infosimples e a base ficou com ZERO leads com propriedade preenchida.
-  if (!process.env.FISCALAPI_API_KEY && (process.env.DIRECTD_TOKEN || process.env.INFOSIMPLES_TOKEN)) {
-    if (!uf) {
-      return makeReport({ provider: 'directd/infosimples', pending: true, message: 'UF ausente; consulta Sintegra nao executada.' })
-    }
-    if (process.env.INFOSIMPLES_TOKEN) {
-      const r = await consultarViaInfosimples(cpf, uf)
-      // Sucesso (achou, "nada consta" ou UF que exige gov.br) → resposta final.
-      // Só falha transitória (pending) cai para o Direct Data.
-      if (!r.pending || !process.env.DIRECTD_TOKEN) return r
-    }
-    if (process.env.DIRECTD_TOKEN) {
-      const { consultarSintegraDirectd } = await import('@/lib/directd-provider')
-      const d = await consultarSintegraDirectd(cpf, uf)
-      if (!d.pending) {
-        const results: StateRegistrationRecord[] = d.ie ? [{
-          inscricao_estadual: d.ie,
-          razao_social: d.nome || undefined,
-          situacao_ie: d.situacao || undefined,
-          uf_ie: d.uf || uf,
-        }] : []
-        return makeReport({
-          provider: 'directd',
-          inscricaoEstadual: d.ie,
-          temInscricaoEstadual: d.ie ? 'Sim' : 'Não',
-          uf: d.uf || uf,
-          results,
-        })
-      }
-      return makeReport({ provider: 'directd', uf, pending: true, message: d.message })
-    }
-    return makeReport({ provider: 'infosimples', uf, pending: true, message: 'Consulta Sintegra indisponivel no momento.' })
+  //   • Consulta com UF → Infosimples primeiro. É o único que devolve a
+  //     PROPRIEDADE rural (fazenda, município, endereço) e o PDF do comprovante
+  //     da SEFAZ — que vira documento do lead e destrava a ficha. Quando o
+  //     Direct Data respondia primeiro, a base ficou com ZERO propriedades.
+  //   • FiscalAPI é o LOCALIZADOR: cobre a busca nacional (uf=null, todos os
+  //     estados numa chamada) e serve de fallback por UF quando o Infosimples
+  //     falha. Nunca deve substituir o caminho rico do Infosimples.
+  //   • Direct Data é o último fallback (devolve só o número da I.E.).
+  if (uf && process.env.INFOSIMPLES_TOKEN) {
+    const r = await consultarViaInfosimples(cpf, uf)
+    // Sucesso (achou, "nada consta" ou UF que exige gov.br) → resposta final.
+    // Só falha transitória (pending) cai para os fallbacks abaixo.
+    if (!r.pending) return r
   }
 
+  if (process.env.FISCALAPI_API_KEY) {
+    try {
+      const raw = uf
+        ? await fiscalApiGet('/api/consultar', { uf, cpf })
+        : await fiscalApiGet('/api/consultar-ie-todos', { cpf })
+      const results = parseFiscalApiResults(raw)
+      const best = pickBestResult(results)
+      return makeReport({
+        inscricaoEstadual: best?.inscricao_estadual || null,
+        temInscricaoEstadual: best?.inscricao_estadual ? 'Sim' : 'Não',
+        uf: best?.uf_ie || uf || null,
+        results,
+      })
+    } catch (e) {
+      if (!uf || !process.env.DIRECTD_TOKEN) {
+        return makeReport({
+          uf,
+          pending: true,
+          message: `Falha ao consultar I.E.: ${e instanceof Error ? e.message : 'erro'}`,
+        })
+      }
+    }
+  }
+
+  if (uf && process.env.DIRECTD_TOKEN) {
+    const { consultarSintegraDirectd } = await import('@/lib/directd-provider')
+    const d = await consultarSintegraDirectd(cpf, uf)
+    if (!d.pending) {
+      const results: StateRegistrationRecord[] = d.ie ? [{
+        inscricao_estadual: d.ie,
+        razao_social: d.nome || undefined,
+        situacao_ie: d.situacao || undefined,
+        uf_ie: d.uf || uf,
+      }] : []
+      return makeReport({
+        provider: 'directd',
+        inscricaoEstadual: d.ie,
+        temInscricaoEstadual: d.ie ? 'Sim' : 'Não',
+        uf: d.uf || uf,
+        results,
+      })
+    }
+    return makeReport({ provider: 'directd', uf, pending: true, message: d.message })
+  }
+
+  return makeReport({
+    uf,
+    pending: true,
+    message: uf
+      ? 'Nenhum provedor de I.E. disponivel no momento.'
+      : 'Busca nacional de I.E. exige FISCALAPI_API_KEY.',
+  })
+}
+
+/* ─── Imóveis rurais (CNIR/CAFIR — Receita Federal, via FiscalAPI) ───────── */
+
+export interface ImovelRural {
+  nome?: string
+  municipio?: string
+  uf?: string
+  areaHa?: string
+  cib?: string
+  situacao?: string
+}
+
+export interface ImoveisRuraisReport {
+  pending: boolean
+  imoveis: ImovelRural[]
+  provider: string
+  consultedAt: string
+  message?: string
+}
+
+export function isFiscalApiConfigured(): boolean {
+  return Boolean(process.env.FISCALAPI_API_KEY)
+}
+
+/** Parser tolerante: o CNIR devolve os imóveis em `results`/`imoveis`/`data`. */
+function parseImoveisRurais(raw: unknown): ImovelRural[] {
+  if (!raw || typeof raw !== 'object') return []
+  const body = raw as Record<string, unknown>
+  const lista = ([body.results, body.imoveis, body.data].find(Array.isArray) ?? []) as unknown[]
+  const out: ImovelRural[] = []
+  const s = (v: unknown) => { const t = String(v ?? '').trim(); return t || undefined }
+  for (const item of lista) {
+    if (!item || typeof item !== 'object') continue
+    const r = item as Record<string, unknown>
+    const imovel: ImovelRural = {
+      nome: s(r.nome_imovel) ?? s(r.denominacao) ?? s(r.nome),
+      municipio: s(r.municipio),
+      uf: s(r.uf),
+      areaHa: s(r.area_total) ?? s(r.area),
+      cib: s(r.cib) ?? s(r.nirf),
+      situacao: s(r.situacao) ?? s(r.situacao_cadastral),
+    }
+    if (imovel.nome || imovel.municipio || imovel.cib) out.push(imovel)
+  }
+  return out
+}
+
+/**
+ * Imóveis rurais do titular no CAFIR/CNIR (Receita Federal), por CPF.
+ * É a fonte de propriedade para quem NÃO tem Inscrição Estadual — situação da
+ * maioria dos leads da campanha EAO, cuja ficha saía com o bloco da fazenda
+ * inteiro em branco. Sem FISCALAPI_API_KEY → pending (no-op).
+ */
+export async function consultarImoveisRuraisPorCpf(cpf: string): Promise<ImoveisRuraisReport> {
+  const consultedAt = new Date().toISOString()
+  const digits = onlyDigits(cpf)
+  if (digits.length !== 11) {
+    return { pending: true, imoveis: [], provider: 'fiscalapi', consultedAt, message: 'CPF invalido para consultar CNIR.' }
+  }
+  if (!isFiscalApiConfigured()) {
+    return { pending: true, imoveis: [], provider: 'fiscalapi', consultedAt, message: 'FISCALAPI_API_KEY ausente; CNIR nao consultado.' }
+  }
   try {
-    const raw = uf
-      ? await fiscalApiGet('/api/consultar', { uf, cpf })
-      : await fiscalApiGet('/api/consultar-ie-todos', { cpf })
-    const results = parseFiscalApiResults(raw)
-    const best = pickBestResult(results)
-    return makeReport({
-      inscricaoEstadual: best?.inscricao_estadual || null,
-      temInscricaoEstadual: best?.inscricao_estadual ? 'Sim' : 'Não',
-      uf: best?.uf_ie || uf || null,
-      results,
-    })
+    const raw = await fiscalApiGet('/api/cnir/consultar', { documento: digits })
+    return { pending: false, imoveis: parseImoveisRurais(raw), provider: 'fiscalapi', consultedAt }
   } catch (e) {
-    return makeReport({
-      uf,
+    return {
       pending: true,
-      message: `Falha ao consultar I.E.: ${e instanceof Error ? e.message : 'erro'}`,
-    })
+      imoveis: [],
+      provider: 'fiscalapi',
+      consultedAt,
+      message: `Falha ao consultar CNIR: ${e instanceof Error ? e.message : 'erro'}`,
+    }
   }
 }

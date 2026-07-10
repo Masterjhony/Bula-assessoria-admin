@@ -28,7 +28,8 @@ import type { SupabaseClient } from '@supabase/supabase-js'
 import { computeHabilitacaoChecklist, type HabilitacaoChecklist } from './crm-habilitacao'
 import { maybeRunStateRegistrationCheck } from './crm-state-registration-automation'
 import { maybeEnrichLeadFromPhone } from './crm-lead-enrichment'
-import { submitLeadCadastroToLeiloeiraGroups } from './leiloeira-whatsapp-cadastro'
+import { consultarImoveisRuraisPorCpf, isFiscalApiConfigured } from './state-registration-provider'
+import { submitLeadCadastroToLeiloeiraGroups, enviarComplementoCadastro } from './leiloeira-whatsapp-cadastro'
 import { ieDispensadaParaLead, isLeadCampanhaEao, avisoIeDispensadaTexto } from './concierge-campanha'
 import { notifyTeamGroup } from './whatsapp-team-notify'
 import { DEFAULT_JMP_MQL_RULE } from './crm-types'
@@ -180,6 +181,50 @@ export async function sincronizarHabilitacao(
             console.warn('[habilitacao-sync] consulta de I.E. falhou:', e instanceof Error ? e.message : e)
         }
     }
+    // ── 1c. CPF → imóveis rurais no CNIR/CAFIR da Receita (FiscalAPI) ──────
+    // É a fonte de propriedade para quem NÃO TEM I.E. — o Sintegra só devolve
+    // fazenda de quem é inscrito, e a maioria dos leads (EAO) não é. Sem isto a
+    // ficha saía com o bloco da propriedade inteiro em branco. Gate: 1x/30 dias
+    // e só quando a propriedade continua vazia após o Sintegra.
+    {
+        const xdCnir = (lead.extra_data ?? {}) as Record<string, unknown>
+        const fiscal = (xdCnir.fiscal ?? {}) as Record<string, unknown>
+        const cnirPrev = (fiscal.cnir ?? null) as { consultedAt?: string; pending?: boolean } | null
+        const cnirRecente = Boolean(cnirPrev?.consultedAt && !cnirPrev.pending
+            && Date.now() - new Date(cnirPrev.consultedAt).getTime() < 30 * 86400000)
+        const semPropriedade = !limpo(xdCnir.fazenda_nome) && !limpo(xdCnir.fazenda_cidade)
+        if (consultar && !opts.dryRun && isFiscalApiConfigured() && cpfValido(lead.cpf) && semPropriedade && !cnirRecente) {
+            try {
+                const r = await consultarImoveisRuraisPorCpf(String(lead.cpf))
+                base.consultou = true
+                const melhor = r.imoveis.find(i => i.nome && i.municipio) ?? r.imoveis[0]
+                const patchExtra: Record<string, unknown> = {
+                    ...xdCnir,
+                    fiscal: {
+                        ...fiscal,
+                        cnir: {
+                            consultedAt: r.consultedAt,
+                            pending: r.pending,
+                            total: r.imoveis.length,
+                            imoveis: r.imoveis.slice(0, 5),
+                            message: r.message,
+                        },
+                    },
+                }
+                if (melhor) {
+                    if (melhor.nome && !limpo(xdCnir.fazenda_nome)) patchExtra.fazenda_nome = melhor.nome
+                    if (melhor.municipio && !limpo(xdCnir.fazenda_cidade)) patchExtra.fazenda_cidade = melhor.municipio
+                    if (melhor.uf && !limpo(xdCnir.fazenda_uf)) patchExtra.fazenda_uf = melhor.uf
+                    patchExtra.propriedade_fonte = 'cnir'
+                }
+                await supabase.from('crm_leads').update({ extra_data: patchExtra }).eq('id', leadId)
+                lead = (await reload()) ?? lead
+            } catch (e) {
+                console.warn('[habilitacao-sync] consulta CNIR falhou:', e instanceof Error ? e.message : e)
+            }
+        }
+    }
+
     const xd = lead.extra_data ?? {}
     if (base.consultou) {
         if (lead.inscricao_estadual) base.encontrados.push(`I.E. ${lead.inscricao_estadual}`)
@@ -210,6 +255,15 @@ export async function sincronizarHabilitacao(
         await supabase.from('crm_leads').update({ extra_data: extraAtual }).eq('id', leadId)
     }
 
+    // Complemento: ficha já postada em algum grupo ganha os dados que chegaram
+    // DEPOIS (fazenda da conversa/consulta, docs novos) citando o mesmo código.
+    // WhatsApp não deixa editar mensagem após 15 min — o complemento é o jeito
+    // de a ficha "ficar completa" na mesma thread. Roda antes da submissão para
+    // valer também para quem já saiu da fila (cadastro_submetido_at).
+    if (submeter && !opts.dryRun) {
+        await enviarComplementoCadastro(supabase, leadId).catch(() => { /* best-effort */ })
+    }
+
     // ── 3. Tem o essencial → ficha às leiloeiras. Senão → a IA pede o que falta.
     // O checklist continua guiando a CONVERSA (a IA pede o que está com ✘), mas
     // não segura mais a submissão: campo desejável ausente vai em branco na ficha.
@@ -224,18 +278,45 @@ export async function sincronizarHabilitacao(
     // submetido só à Programa (sem doc) continua na fila até o doc chegar.
     if (xd.cadastro_submetido_at) return { ...base, motivo: 'ficha já submetida antes' }
 
+    // Ficha completa > ficha instantânea (reclamação real do comercial: "está
+    // indo muito incompleta"). Sem fazenda/cidade, seguramos a submissão por
+    // até 24h — tempo de a IA pedir na conversa ou de a consulta preencher.
+    // Depois disso vai como está: lead que sumiu não segura cadastro pra sempre.
+    const temPropriedade = Boolean(limpo(xd.fazenda_nome) || limpo(xd.fazenda_cidade))
+    if (!temPropriedade) {
+        const desde = String(xd.ficha_aguardando_propriedade_desde ?? '')
+        if (!desde) {
+            await supabase.from('crm_leads').update({
+                extra_data: { ...extraAtual, ficha_aguardando_propriedade_desde: new Date().toISOString() },
+            }).eq('id', leadId)
+            return { ...base, motivo: 'ficha segurada: sem fazenda/cidade — IA vai pedir; envia em 24h de qualquer forma' }
+        }
+        const h = (Date.now() - new Date(desde).getTime()) / 3600000
+        if (Number.isFinite(h) && h < 24) {
+            return { ...base, motivo: `ficha segurada aguardando fazenda/cidade (${h.toFixed(1)}h de 24h)` }
+        }
+    }
+
     const sub = await submitLeadCadastroToLeiloeiraGroups(supabase, leadId)
     base.enviadosPara = sub.sent
     base.submetido = sub.sent > 0
     const coberturaCompleta = !sub.skipped.length && !sub.aguardandoDoc.length
 
+    // A flag é gravada sobre o extra_data MAIS RECENTE (o submit acabou de
+    // escrever `ficha_estado_enviado` lá; usar a cópia local apagaria a régua).
+    const marcarSubmetido = async () => {
+        const { data } = await supabase.from('crm_leads').select('extra_data').eq('id', leadId).single()
+        const atual = ((data?.extra_data as Record<string, unknown> | null) ?? extraAtual)
+        await supabase.from('crm_leads').update({
+            extra_data: { ...atual, cadastro_submetido_at: new Date().toISOString() },
+        }).eq('id', leadId)
+    }
+
     // attempted=0 sem pendências = todas as leiloeiras já tinham recebido este
     // cliente (submissão antiga, antes da flag existir). Grava a flag para o
     // lead sair da fila da varredura em vez de ser reprocessado para sempre.
     if (sub.sent === 0 && sub.attempted === 0 && coberturaCompleta) {
-        await supabase.from('crm_leads').update({
-            extra_data: { ...extraAtual, cadastro_submetido_at: new Date().toISOString() },
-        }).eq('id', leadId)
+        await marcarSubmetido()
         return { ...base, motivo: 'ficha já estava nas leiloeiras (flag regularizada)' }
     }
 
@@ -247,9 +328,7 @@ export async function sincronizarHabilitacao(
 
     if (sub.sent > 0) {
         if (coberturaCompleta) {
-            await supabase.from('crm_leads').update({
-                extra_data: { ...extraAtual, cadastro_submetido_at: new Date().toISOString() },
-            }).eq('id', leadId)
+            await marcarSubmetido()
         }
         const fone = lead.celular || lead.telefone || ''
         const linhas = [

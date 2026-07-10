@@ -174,6 +174,25 @@ export async function maybeRunStateRegistrationCheck(
       if (r.inscricaoEstadual) break
     }
   }
+
+  // Nada nas UFs candidatas → busca NACIONAL (FiscalAPI, todos os estados numa
+  // chamada). Acha a fazenda registrada longe de onde o lead mora — DDD de TO
+  // com propriedade em MG, por exemplo. Se localizar, reconsulta aquela UF pelo
+  // caminho rico (Infosimples) para trazer a propriedade e o PDF da SEFAZ.
+  if (report && !report.pending && !report.inscricaoEstadual && process.env.FISCALAPI_API_KEY) {
+    const nacional = await consultarInscricaoEstadualPorCpf({ cpf: String(lead.cpf), uf: null, allowAllStates: true })
+    if (!nacional.pending && nacional.inscricaoEstadual) {
+      ufsConsultadas.push('BR')
+      const ufAchada = nacional.uf
+      if (ufAchada && !ufsCandidatas.includes(ufAchada) && process.env.INFOSIMPLES_TOKEN) {
+        const rica = await consultarInscricaoEstadualPorCpf({ cpf: String(lead.cpf), uf: ufAchada })
+        report = (!rica.pending && rica.inscricaoEstadual) ? rica : nacional
+        ufsConsultadas.push(ufAchada)
+      } else {
+        report = nacional
+      }
+    }
+  }
   if (!report) {
     return {
       attempted: false,
