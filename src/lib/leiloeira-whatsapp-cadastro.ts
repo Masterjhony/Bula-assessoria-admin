@@ -283,13 +283,9 @@ export async function submitLeadCadastroToLeiloeiraGroups(
 
         for (const leiloeira of leiloeiras) {
             if (jaEnviado.has(leiloeira.id)) continue
-            // Defesa em profundidade: sem documento nenhuma leiloeira recebe
-            // (o portão real é `prontoParaFicha`, mas se alguém chamar direto,
-            // não deixamos ir cadastro sem doc para a leiloeira analisar).
-            if (!docs.length) {
-                result.aguardandoDoc.push(leiloeira.nome)
-                continue
-            }
+            // Documento NÃO trava a submissão: a leiloeira (Márcia/Programa)
+            // concedeu que basta os DADOS; documento é "se possível" e vai como
+            // complemento quando chegar. Ficha só-dados É analisável.
             result.attempted++
             const codigo = gerarCodigo()
             const r = await sendVpsGroup(leiloeira.whatsapp_group_id, buildFicha(lead, codigo, docs))
