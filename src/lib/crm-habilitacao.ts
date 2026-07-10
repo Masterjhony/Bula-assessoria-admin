@@ -78,7 +78,17 @@ export interface HabilitacaoInput {
 }
 
 const digits = (v: unknown) => String(v ?? '').replace(/\D/g, '')
-const str = (v: unknown) => String(v ?? '').trim()
+
+/**
+ * A IA às vezes grava a PALAVRA "null" (ou "undefined", "-", "n/a") em vez de
+ * deixar o campo vazio. Como "null" tem 4 caracteres, o checklist dava o item
+ * como preenchido: um lead chegou a 11/11 com `inscricao_estadual = "null"` e
+ * `fazenda_nome = "null"`, pronto para ir à leiloeira com dado falso.
+ */
+const str = (v: unknown) => {
+    const s = String(v ?? '').trim()
+    return /^(null|undefined|nulo|n\/a|na|-|--)$/i.test(s) ? '' : s
+}
 
 function xd(input: HabilitacaoInput, key: string): string {
     return str((input.extra_data ?? {})[key])
@@ -112,9 +122,12 @@ export function computeHabilitacaoChecklist(input: HabilitacaoInput): Habilitaca
     const temIe = str(input.tem_inscricao_estadual).toLowerCase() === 'sim'
     const ieDispensada = Boolean(str(input.ieDispensadaPara))
 
-    // Documentos: a marcação semântica da IA só vale com arquivo real por trás.
-    const docIdentidade = temArquivoReal && (semantic.has('identidade') || tipos.has('cpf'))
-    const docSelfie = temArquivoReal && semantic.has('identidade_selfie')
+    // Documentos: a marcação semântica da IA só vale com arquivo real por trás,
+    // e cada foto exige o SEU arquivo. Com um único arquivo a IA marcava
+    // "identidade" e "identidade_selfie" ao mesmo tempo — o checklist zerava as
+    // pendências mas `complete` continuava falso, e ninguém entendia o porquê.
+    const docIdentidade = input.docsCount >= 1 && (semantic.has('identidade') || tipos.has('cpf'))
+    const docSelfie = input.docsCount >= 2 && semantic.has('identidade_selfie')
     const docFiscal = temArquivoReal && (
         semantic.has('comprovante_propriedade') || semantic.has('ie_nirf')
         || tipos.has('ie') || tipos.has('comprovante')

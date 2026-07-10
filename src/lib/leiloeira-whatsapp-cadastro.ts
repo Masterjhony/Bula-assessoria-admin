@@ -404,7 +404,7 @@ export async function handleLeiloeiraGroupMessage(
                 // o lead escrever de novo).
                 if (!clienteAvisado && r.reason === 'outside_24h_needs_template') {
                     const tpl = decision === 'aprovado'
-                        ? { templateName: 'bula_cadastro_aprovado', templateParams: [nome || clienteNome, leiloeira.nome] }
+                        ? { templateName: 'cadastro_leiloeira_aprovado', templateParams: [nome || clienteNome, leiloeira.nome] }
                         : { templateName: 'retomada_atendimento', templateParams: [nome || clienteNome, `o seu cadastro na ${leiloeira.nome}`] }
                     r = await sendOutbound(supabase, {
                         to: { phone, leadId: lead.id, name: lead.nome },

@@ -167,6 +167,13 @@ export interface SintegraRecord {
 export interface SintegraResult {
     pending: boolean
     records: SintegraRecord[]
+    /**
+     * A UF não permite consulta por CPF sem credencial do titular (MG exige
+     * login gov.br). Não é falha transitória nem "não tem I.E.": é impossível
+     * consultar. Não deve virar `tem_inscricao_estadual = Não`, nem ser
+     * retentado a cada mensagem.
+     */
+    indisponivel?: boolean
     message?: string
 }
 
@@ -215,6 +222,16 @@ export async function consultarSintegraInfosimples(cpf: string, uf: string): Pro
         }
         if (r.code === 612) {
             return { pending: false, records: [] } // sem inscrição na UF
+        }
+        // 606 nesta consulta significa que a UF exige login gov.br do titular
+        // (caso de MG). Estrutural: não adianta tentar de novo.
+        if (r.code === 606) {
+            return {
+                pending: false,
+                indisponivel: true,
+                records: [],
+                message: `A SEFAZ de ${uf} não permite consulta de I.E. por CPF sem login gov.br do titular.`,
+            }
         }
         return {
             pending: true,

@@ -408,6 +408,32 @@ function ieDispensadaPara(lead: Pick<FullLead, 'extra_data' | 'tem_inscricao_est
     return ieDispensavel(lead) && declarouNaoTerIe(lead) ? LEILAO_IE_FLEXIVEL : null
 }
 
+/** Textos que a IA usa quando quis dizer "não sei" — nunca devem virar dado. */
+const LIXO_TEXTUAL = /^(null|undefined|nulo|n\/a|na|nao informado|não informado|-|--|\?)$/i
+
+/**
+ * O JSON da IA às vezes traz a PALAVRA "null" no lugar do valor nulo. Sem esta
+ * limpeza, `inscricao_estadual: "null"` era gravado no lead, o checklist contava
+ * o item como preenchido (4 caracteres!) e a ficha ia para a leiloeira com dado
+ * falso. Aconteceu de verdade com um lead que chegou a 11/11.
+ */
+function sanitizeUpdates(u: ConciergeUpdates): ConciergeUpdates {
+    const out: Record<string, unknown> = {}
+    for (const [k, v] of Object.entries(u)) {
+        if (typeof v === 'string') {
+            const s = v.trim()
+            if (!s || LIXO_TEXTUAL.test(s)) continue
+            out[k] = s
+        } else if (Array.isArray(v)) {
+            const arr = v.filter(x => typeof x === 'string' && !LIXO_TEXTUAL.test(x.trim()))
+            if (arr.length) out[k] = arr
+        } else if (v !== null && v !== undefined) {
+            out[k] = v
+        }
+    }
+    return out as ConciergeUpdates
+}
+
 /** A propriedade do lead foi confirmada na base do Estado (Sintegra)? */
 function propriedadeConsultada(lead: Pick<FullLead, 'extra_data'>): boolean {
     return Boolean((lead.extra_data ?? {}).propriedade_consultada_at)
@@ -941,7 +967,7 @@ async function applyConciergeEffects(
     ai: ConciergeAIResult,
     ctx: { media: InboundMedia | null; docs: { count: number; tipos: string[] }; fase: ConciergeFase },
 ): Promise<() => Promise<void>> {
-    const u = ai.updates ?? {}
+    const u = sanitizeUpdates(ai.updates ?? {})
     const prevExtra = (lead.extra_data ?? {}) as Record<string, unknown>
     const nextExtra: Record<string, unknown> = { ...prevExtra }
 

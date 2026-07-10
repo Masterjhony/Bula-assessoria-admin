@@ -67,6 +67,8 @@ export interface StateRegistrationReport {
   provider: string
   consultedAt: string
   pending: boolean
+  /** A UF não permite consultar por CPF (ex.: MG exige login gov.br). */
+  indisponivel?: boolean
   message?: string
 }
 
@@ -183,6 +185,10 @@ async function consultarViaInfosimples(cpf: string, uf: string): Promise<StateRe
   const r = await consultarSintegraInfosimples(cpf, uf)
   if (r.pending) {
     return makeReport({ provider: 'infosimples', uf, pending: true, message: r.message })
+  }
+  // UF que exige gov.br: não sabemos se tem I.E.; não afirmamos nada.
+  if (r.indisponivel) {
+    return makeReport({ provider: 'infosimples', uf, pending: false, indisponivel: true, message: r.message })
   }
   const results: StateRegistrationRecord[] = r.records.map((rec) => ({
     inscricao_estadual: rec.inscricao_estadual,

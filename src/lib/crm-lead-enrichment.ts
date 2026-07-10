@@ -81,8 +81,10 @@ export function nameMatchesEnriched(leadName: string, returnedName: string): boo
 }
 
 function recentlyTried(extra: Record<string, unknown> | null | undefined): boolean {
-  const enr = (extra?.enriquecimento || null) as { consultedAt?: string } | null
+  const enr = (extra?.enriquecimento || null) as { consultedAt?: string; pending?: boolean } | null
   if (!enr?.consultedAt) return false
+  // Tentativa que falhou (sem saldo, timeout) não queima a janela de 30 dias.
+  if (enr.pending) return false
   const last = new Date(enr.consultedAt).getTime()
   if (Number.isNaN(last)) return false
   return Date.now() - last < RETRY_DAYS * 86400000

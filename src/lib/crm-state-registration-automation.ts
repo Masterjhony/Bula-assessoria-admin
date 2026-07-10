@@ -51,9 +51,14 @@ function isQualification(status: string): boolean {
 }
 
 function recentlyChecked(extra: Record<string, unknown> | null | undefined): boolean {
-  const fiscal = (extra?.fiscal || null) as { ie?: { consultedAt?: string } } | null
+  const fiscal = (extra?.fiscal || null) as { ie?: { consultedAt?: string; pending?: boolean } } | null
   const consultedAt = fiscal?.ie?.consultedAt
   if (!consultedAt) return false
+  // Consulta que FALHOU (sem saldo, provedor fora, UF ausente) não conta como
+  // consulta feita — senão o erro carimba o lead e a trava de 30 dias bloqueia
+  // a tentativa boa. Aconteceu: a cota do Infosimples estourou e todos os leads
+  // ficaram travados até agosto.
+  if (fiscal?.ie?.pending) return false
   const last = new Date(consultedAt).getTime()
   if (Number.isNaN(last)) return false
   return Date.now() - last < RECHECK_DAYS * 86400000
@@ -62,7 +67,13 @@ function recentlyChecked(extra: Record<string, unknown> | null | undefined): boo
 export function shouldRunStateRegistrationCheck(lead: LeadLike, previous: PreviousLike): boolean {
   if (!isQualification(lead.status)) return false
   if (!lead.cpf || lead.cpf.replace(/\D/g, '').length !== 11) return false
-  if (String(lead.inscricao_estadual || '').trim()) return false
+
+  // Ter o número da I.E. não basta mais para pular a consulta: é dela que vêm a
+  // fazenda, a cidade/UF e o comprovante em PDF da SEFAZ. Só pula quem já tem
+  // I.E. E propriedade confirmada.
+  const jaTemTudo = Boolean(String(lead.inscricao_estadual || '').trim())
+    && Boolean((lead.extra_data ?? {}).propriedade_consultada_at)
+  if (jaTemTudo) return false
 
   const stageJustEntered = !previous || !isQualification(String(previous.status || ''))
   if (stageJustEntered) return true
@@ -79,6 +90,7 @@ function pickBest(report: StateRegistrationReport): StateRegistrationRecord | un
 
 function registrationSummary(report: StateRegistrationReport): string {
   if (report.pending) return report.message || 'Consulta de I.E. pendente.'
+  if (report.indisponivel) return report.message || 'Consulta de I.E. indisponível nesta UF.'
   if (!report.inscricaoEstadual) {
     return `I.E. nao encontrada${report.uf ? ` em ${report.uf}` : ''}.`
   }
@@ -178,6 +190,8 @@ export async function maybeRunStateRegistrationCheck(
         provider: report.provider,
         consultedAt: report.consultedAt,
         pending: report.pending,
+        indisponivel: report.indisponivel ?? false,
+        motivo: report.indisponivel ? report.message : undefined,
         results: report.results.slice(0, 5),
       },
     },
@@ -223,7 +237,13 @@ export async function maybeRunStateRegistrationCheck(
     contact_history: appendNote(current?.contact_history ?? lead.contact_history, summary),
   }
 
-  if (!report.pending) {
+  // UF que exige gov.br (MG): a consulta não roda. NÃO gravamos "não tem I.E." —
+  // o Helio tem 001221521-79 e seria marcado como sem inscrição. Só registramos
+  // o motivo, para a IA pedir a I.E. ao lead e ninguém retentar em vão.
+  if (!report.pending && report.indisponivel) {
+    patch.tem_inscricao_estadual = lead.tem_inscricao_estadual || ''
+    patch.inscricao_estadual = lead.inscricao_estadual || ''
+  } else if (!report.pending) {
     patch.tem_inscricao_estadual = nextTemIe
     patch.inscricao_estadual = nextIe
     // Nome completo oficial, quando o card só tem o primeiro nome do WhatsApp.
