@@ -261,14 +261,17 @@ export async function submitLeadCadastroToLeiloeiraGroups(
             return result
         }
 
-        // Idempotência: quem já recebeu este cliente não recebe de novo.
+        // Idempotência: quem já recebeu este cliente não recebe de novo. RECUSADO
+        // ENTRA no skip — a leiloeira já disse não; re-mandar (o cron fazia isso
+        // com um código novo) fura a decisão dela e irrita. Recuperar um recusado
+        // é decisão humana, não automática.
         const { data: statusData } = await supabase
             .from('cliente_leiloeira_cadastro')
             .select('leiloeira_id, status')
             .eq('cliente_key', matchKey)
         const jaEnviado = new Set(
             (statusData ?? [])
-                .filter((s: { status: string | null }) => s.status === 'enviado' || s.status === 'aprovado')
+                .filter((s: { status: string | null }) => s.status === 'enviado' || s.status === 'aprovado' || s.status === 'recusado')
                 .map((s: { leiloeira_id: string }) => s.leiloeira_id),
         )
 

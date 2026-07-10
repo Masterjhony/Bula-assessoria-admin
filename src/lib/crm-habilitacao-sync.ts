@@ -32,7 +32,29 @@ import { consultarImoveisRuraisPorCpf, isFiscalApiConfigured } from './state-reg
 import { submitLeadCadastroToLeiloeiraGroups, enviarComplementoCadastro } from './leiloeira-whatsapp-cadastro'
 import { ieDispensadaParaLead, avisoIeDispensadaTexto } from './concierge-campanha'
 import { notifyTeamGroup } from './whatsapp-team-notify'
+import { maybeRunCreditCheck } from './crm-credit-automation'
+import { scoreToFaixa } from './clientes'
 import { DEFAULT_JMP_MQL_RULE } from './crm-types'
+
+/** Faixas de score que a leiloeira aceita analisar (razoável para cima). */
+const FAIXAS_APROVADAS = new Set(['razoavel', 'bom', 'otimo'])
+
+/**
+ * O crédito do lead libera a submissão? A leiloeira é exigente: não adianta
+ * mandar cadastro de quem ela vai barrar por crédito. Só passa score APROVADO
+ * (≥ razoável) e SEM protestos. Score não consultado / pendente = NÃO passa
+ * (não dá pra afirmar que é bom).
+ */
+function creditoLiberado(xd: Record<string, unknown>): { ok: boolean; motivo: string } {
+    const c = (xd.credito ?? null) as { score?: unknown; faixa?: unknown; protestos?: unknown; pending?: boolean; consultedAt?: string } | null
+    if (!c || c.pending || !c.consultedAt) return { ok: false, motivo: 'score de crédito ainda não consultado' }
+    const score = Number(c.score)
+    const faixa = String(c.faixa || scoreToFaixa(Number.isFinite(score) ? score : null))
+    const nProtestos = Array.isArray(c.protestos) ? c.protestos.length : 0
+    if (!FAIXAS_APROVADAS.has(faixa)) return { ok: false, motivo: `score ${Number.isFinite(score) ? score : '?'} (${faixa || 'sem faixa'}) abaixo do corte` }
+    if (nProtestos > 0) return { ok: false, motivo: `${nProtestos} protesto${nProtestos > 1 ? 's' : ''} no CPF` }
+    return { ok: true, motivo: `score ${score} (${faixa}), sem protestos` }
+}
 
 const LEAD_FIELDS =
     'id, nome, telefone, celular, email, cpf, estado, cidade, quantidade_animais, ' +
@@ -218,12 +240,32 @@ export async function sincronizarHabilitacao(
         }
     }
 
+    // ── 1d. CPF → SCORE de crédito + protestos (Direct Data/QUOD) ─────────
+    // A leiloeira é exigente: só vale mandar quem tem crédito bom. Consulta aqui
+    // (gate de 14 dias interno) para o gate de submissão ter dado fresco.
+    {
+        const credito = ((lead.extra_data ?? {}).credito ?? null) as { consultedAt?: string; pending?: boolean } | null
+        const creditoRecente = Boolean(credito?.consultedAt && !credito.pending
+            && Date.now() - new Date(credito.consultedAt).getTime() < 14 * 86400000)
+        if (consultar && cpfValido(lead.cpf) && !creditoRecente && !opts.dryRun) {
+            try {
+                await maybeRunCreditCheck(supabase, lead, { status: lead.status })
+                base.consultou = true
+                lead = (await reload()) ?? lead
+            } catch (e) {
+                console.warn('[habilitacao-sync] consulta de crédito falhou:', e instanceof Error ? e.message : e)
+            }
+        }
+    }
+
     const xd = lead.extra_data ?? {}
     if (base.consultou) {
         if (lead.inscricao_estadual) base.encontrados.push(`I.E. ${lead.inscricao_estadual}`)
         if (xd.fazenda_nome) base.encontrados.push(String(xd.fazenda_nome))
         if (xd.fazenda_cidade) base.encontrados.push(`${xd.fazenda_cidade}/${xd.fazenda_uf ?? ''}`)
         if (xd.endereco_titular) base.encontrados.push('endereço do titular')
+        const cr = (xd.credito ?? {}) as { score?: unknown }
+        if (cr.score) base.encontrados.push(`score ${cr.score}`)
     }
 
     // ── 2. Recalcula e persiste o checklist ────────────────────────────────
@@ -258,13 +300,17 @@ export async function sincronizarHabilitacao(
     }
 
     // ── 3. Cadastro ANALISÁVEL → ficha às leiloeiras. Senão → a IA pede o que
-    // falta. A leiloeira só analisa com documentação completa (identidade +
-    // propriedade + movimentação pecuária); mandar incompleto só gera recusa.
-    // O checklist guia a CONVERSA; `prontoParaFicha` guarda a SUBMISSÃO.
+    // falta. A leiloeira é exigente: só mandamos cadastro com DADOS completos +
+    // propriedade + CRÉDITO bom. Mandar fraco/sem crédito só gera recusa e atrito.
+    // O checklist guia a CONVERSA; `prontoParaFicha` + `creditoLiberado` guardam
+    // a SUBMISSÃO.
     const { pronto, faltamEssenciais } = prontoParaFicha(checklist)
     base.pronto = pronto
-    if (!pronto) return { ...base, motivo: `aguardando documentação para análise: ${faltamEssenciais.join(', ')}` }
-    if (!submeter || opts.dryRun) return { ...base, motivo: 'pronto (submissão não solicitada)' }
+    if (!pronto) return { ...base, motivo: `aguardando dados para análise: ${faltamEssenciais.join(', ')}` }
+    // Gate de crédito: só passa score bom e sem protestos.
+    const credito = creditoLiberado(xd)
+    if (!credito.ok) return { ...base, motivo: `retido pelo crédito: ${credito.motivo}` }
+    if (!submeter || opts.dryRun) return { ...base, motivo: `pronto (submissão não solicitada) · ${credito.motivo}` }
     if (xd.cadastro_submetido_at) return { ...base, motivo: 'ficha já submetida antes' }
 
     const sub = await submitLeadCadastroToLeiloeiraGroups(supabase, leadId)

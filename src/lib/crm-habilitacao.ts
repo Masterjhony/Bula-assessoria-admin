@@ -162,9 +162,12 @@ export function computeHabilitacaoChecklist(input: HabilitacaoInput): Habilitaca
             done: ie.replace(/\D/g, '').length >= 3 || temIe || ieDispensada,
             value: ie.replace(/\D/g, '').length >= 3 ? ie : (temIe ? 'Tem (nº pendente)' : ieDispensada ? 'Dispensada para este leilão' : undefined),
         },
-        { key: 'fazenda_nome', label: 'Nome da fazenda (entrega)', group: 'propriedade', optional: true, done: fazendaNome.length >= 2, value: fazendaNome || undefined },
+        // Propriedade é OBRIGATÓRIA: ficha com Fazenda/Cidade "—" é vaga e a
+        // leiloeira barra. Vem das consultas oficiais (Sintegra/CNIR) quando há
+        // I.E.; senão, o lead informa. Sem isto não submete.
+        { key: 'fazenda_nome', label: 'Nome da fazenda (entrega)', group: 'propriedade', done: fazendaNome.length >= 2, value: fazendaNome || undefined },
         {
-            key: 'fazenda_local', label: 'Cidade/UF da fazenda', group: 'propriedade', optional: true,
+            key: 'fazenda_local', label: 'Cidade/UF da fazenda', group: 'propriedade',
             done: fazendaCidade.length >= 2 && fazendaUf.length === 2,
             value: fazendaCidade ? `${fazendaCidade}${fazendaUf ? '/' + fazendaUf : ''}` : undefined,
         },
