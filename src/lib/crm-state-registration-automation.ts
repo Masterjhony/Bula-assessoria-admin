@@ -13,6 +13,7 @@ import {
 import {
   consultarInscricaoEstadualPorCpf,
   normalizeUf,
+  ufFromPhone,
   type StateRegistrationRecord,
   type StateRegistrationReport,
 } from '@/lib/state-registration-provider'
@@ -24,6 +25,8 @@ type LeadLike = {
   nome?: string | null
   cpf?: string | null
   estado?: string | null
+  telefone?: string | null
+  celular?: string | null
   quantidade_animais?: string | null
   tem_inscricao_estadual?: string | null
   inscricao_estadual?: string | null
@@ -141,12 +144,46 @@ export async function maybeRunStateRegistrationCheck(
   }
 
   const allowAllStates = process.env.FISCALAPI_IE_ALL_STATES === 'true'
-  const uf = normalizeUf(lead.estado)
-  const report = await consultarInscricaoEstadualPorCpf({
-    cpf: String(lead.cpf),
-    uf,
-    allowAllStates,
-  })
+
+  // UFs candidatas, na ordem de confiança: a que o lead informou no cadastro e
+  // a do DDD do telefone. A maioria dos leads não preenche `estado` — sem o
+  // fallback do DDD a consulta nunca rodava. E quando a UF do cadastro não tem
+  // I.E. (ou a SEFAZ dela não permite consulta por CPF), a UF do DDD é a
+  // segunda chance: fazenda registrada onde a pessoa mora. No máximo 2
+  // consultas pagas, dentro do mesmo gate de 30 dias.
+  const ufCadastro = normalizeUf(lead.estado)
+  const ufTelefone = ufFromPhone(lead.celular || lead.telefone)
+  const ufsCandidatas = [...new Set([ufCadastro, ufTelefone].filter((u): u is string => Boolean(u)))]
+
+  let report: StateRegistrationReport | null = null
+  const ufsConsultadas: string[] = []
+  if (!ufsCandidatas.length) {
+    report = await consultarInscricaoEstadualPorCpf({ cpf: String(lead.cpf), uf: null, allowAllStates })
+  } else {
+    for (const ufTentativa of ufsCandidatas) {
+      const r = await consultarInscricaoEstadualPorCpf({ cpf: String(lead.cpf), uf: ufTentativa, allowAllStates })
+      // Falha transitória (provedor fora, sem saldo): para aqui — não gasta a
+      // 2ª consulta num provedor instável; o gate deixa retentar depois.
+      if (r.pending) {
+        report = report ?? r
+        break
+      }
+      ufsConsultadas.push(ufTentativa)
+      report = r
+      // Achou a I.E. → é esta; não consulta a próxima UF.
+      if (r.inscricaoEstadual) break
+    }
+  }
+  if (!report) {
+    return {
+      attempted: false,
+      pending: true,
+      inscricaoEstadual: null,
+      temInscricaoEstadual: '',
+      reason: 'nenhuma UF candidata para consultar',
+    }
+  }
+  const uf = report.uf ?? ufsCandidatas[0] ?? null
 
   if (report.pending && !process.env.FISCALAPI_API_KEY) {
     return {
@@ -168,7 +205,9 @@ export async function maybeRunStateRegistrationCheck(
     }
   }
 
-  const summary = registrationSummary(report)
+  const summary = ufsConsultadas.length > 1 && !report.inscricaoEstadual
+    ? `${registrationSummary(report)} (UFs consultadas: ${ufsConsultadas.join(', ')})`
+    : registrationSummary(report)
   const { data: current } = await supabase
     .from('crm_leads')
     .select('extra_data, contact_history')
@@ -187,6 +226,7 @@ export async function maybeRunStateRegistrationCheck(
         inscricaoEstadual: report.inscricaoEstadual,
         temInscricaoEstadual: report.temInscricaoEstadual,
         uf: report.uf,
+        ufsConsultadas,
         provider: report.provider,
         consultedAt: report.consultedAt,
         pending: report.pending,

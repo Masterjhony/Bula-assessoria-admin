@@ -46,8 +46,14 @@ async function infosimplesPost(
         method: 'POST',
         headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
         body: body.toString(),
-        // Consultas a sites-fonte podem demorar; a Infosimples segura a conexão.
-        signal: AbortSignal.timeout(55_000),
+        // Consultas a sites-fonte podem demorar MUITO na primeira vez: a
+        // Infosimples roda uma automação ao vivo no site da SEFAZ (a retentativa
+        // sai do cache deles e volta em segundos). Com 55s, TODA consulta nova
+        // de Sintegra estourava o prazo e o resultado se perdia — foi uma das
+        // causas de zero propriedades preenchidas na base. O caller decide o
+        // próprio orçamento (o sweep tem maxDuration 300s; o concierge nunca
+        // espera isto — o autofill tem deadline de 9s e segue em background).
+        signal: AbortSignal.timeout(150_000),
     })
     const json = (await res.json().catch(() => null)) as InfosimplesEnvelope | null
     if (!json || typeof json.code !== 'number') {

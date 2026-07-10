@@ -58,6 +58,23 @@ export interface GroupSubmissionResult {
     attempted: number
     sent: number
     skipped: { leiloeira: string; reason: string }[]
+    /**
+     * Leiloeiras que NÃO receberam a ficha porque exigem documento com foto e o
+     * lead ainda não mandou nenhum. Não é erro: quando o documento chegar, a
+     * próxima sincronização submete a elas (idempotência por leiloeira).
+     */
+    aguardandoDoc: string[]
+}
+
+/**
+ * Leiloeiras que aceitam a ficha ANTES do documento com foto. A Programa
+ * Leilões é comprovadamente mais flexível na aprovação — segurar a ficha dela
+ * esperando a foto do lead só atrasava cadastro que ela aprovaria. Para as
+ * demais, o documento continua obrigatório.
+ */
+const FICHA_SEM_DOC_FOTO = /programa/i
+export function leiloeiraAceitaFichaSemDoc(nome: string): boolean {
+    return FICHA_SEM_DOC_FOTO.test(nome)
 }
 
 /* ─── Submissão ────────────────────────────────────────────────────────── */
@@ -151,7 +168,7 @@ function buildFicha(lead: LeadRow, codigo: string, docs: { nome: string }[]): st
         '',
         docs.length
             ? `*Documentos para comprovação de autenticidade:* ${docs.length} anexo${docs.length > 1 ? 's' : ''} a seguir (código ${codigo}).`
-            : '_Sem documentos anexados — solicitar ao cliente._',
+            : '_Documentos em coleta com o cliente — enviaremos na sequência, neste mesmo código._',
     )
 
     linhas.push(
@@ -205,7 +222,7 @@ export async function submitLeadCadastroToLeiloeiraGroups(
     supabase: SupabaseClient,
     leadId: string,
 ): Promise<GroupSubmissionResult> {
-    const result: GroupSubmissionResult = { attempted: 0, sent: 0, skipped: [] }
+    const result: GroupSubmissionResult = { attempted: 0, sent: 0, skipped: [], aguardandoDoc: [] }
     try {
         const { data: leadData } = await supabase
             .from('crm_leads')
@@ -248,6 +265,13 @@ export async function submitLeadCadastroToLeiloeiraGroups(
 
         for (const leiloeira of leiloeiras) {
             if (jaEnviado.has(leiloeira.id)) continue
+            // Sem documento com foto, a ficha só vai para leiloeira que aceita
+            // recebê-la assim (Programa). As demais entram em `aguardandoDoc` e
+            // recebem automaticamente quando o documento chegar.
+            if (!docs.length && !leiloeiraAceitaFichaSemDoc(leiloeira.nome)) {
+                result.aguardandoDoc.push(leiloeira.nome)
+                continue
+            }
             result.attempted++
             const codigo = gerarCodigo()
             const r = await sendVpsGroup(leiloeira.whatsapp_group_id, buildFicha(lead, codigo, docs))

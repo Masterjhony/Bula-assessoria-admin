@@ -17,7 +17,8 @@
  * "Essencial" ≠ "checklist completo". A ficha aprovada do Ricardo tinha Roteiro,
  * Telefone e Resp. Telefone em branco — a leiloeira não é exigente com campo
  * acessório. O checklist segue guiando a CONVERSA; a submissão usa
- * `prontoParaFicha()`, que exige só nome, CPF, telefone e uma foto.
+ * `prontoParaFicha()` (nome, CPF e telefone) e o documento com foto é exigência
+ * por leiloeira: a Programa recebe a ficha sem ele, as demais aguardam o doc.
  *
  * Idempotente e chamável de qualquer lugar: do turno do concierge, de um
  * backfill, de um botão no CRM.
@@ -113,20 +114,21 @@ const limpo = (v: unknown) => {
  * Resp. Telefone em branco. Exigir o checklist inteiro só segurava cadastro que
  * a leiloeira aprovaria.
  *
- * Essencial (sem isto a leiloeira não consegue cadastrar):
- *   nome completo · CPF · telefone · pelo menos um documento com foto.
+ * Essencial (sem isto nenhuma leiloeira consegue cadastrar):
+ *   nome completo · CPF · telefone.
+ * O documento com foto deixou de ser essencial GLOBAL: virou exigência POR
+ * leiloeira (a Programa aceita a ficha sem ele — `leiloeiraAceitaFichaSemDoc`).
+ * Quem exige documento fica em `aguardandoDoc` e recebe quando ele chegar.
  * Desejável (entra se houver, sai em branco se não):
  *   e-mail · endereço · fazenda · cidade/UF · I.E.
  */
 export function prontoParaFicha(
     lead: Pick<SyncLead, 'nome' | 'cpf' | 'telefone' | 'celular'>,
-    docsCount: number,
 ): { pronto: boolean; faltamEssenciais: string[] } {
     const faltam: string[] = []
     if (!/\S+\s+\S+/.test(limpo(lead.nome))) faltam.push('nome completo')
     if (!cpfValido(lead.cpf)) faltam.push('CPF')
     if (!limpo(lead.celular) && !limpo(lead.telefone)) faltam.push('telefone')
-    if (docsCount < 1) faltam.push('foto do documento')
     return { pronto: faltam.length === 0, faltamEssenciais: faltam }
 }
 
@@ -211,37 +213,53 @@ export async function sincronizarHabilitacao(
     // ── 3. Tem o essencial → ficha às leiloeiras. Senão → a IA pede o que falta.
     // O checklist continua guiando a CONVERSA (a IA pede o que está com ✘), mas
     // não segura mais a submissão: campo desejável ausente vai em branco na ficha.
-    const { pronto, faltamEssenciais } = prontoParaFicha(lead, docs.count)
+    // Documento com foto é exigência POR leiloeira (a Programa recebe sem) — o
+    // submissor decide quem recebe agora e quem fica em `aguardandoDoc`.
+    const { pronto, faltamEssenciais } = prontoParaFicha(lead)
     base.pronto = pronto
     if (!pronto) return { ...base, motivo: `falta o essencial: ${faltamEssenciais.join(', ')}` }
     if (!submeter || opts.dryRun) return { ...base, motivo: 'pronto (submissão não solicitada)' }
     // Flag própria da submissão — separada do aviso interno, que dispara antes.
+    // Só existe quando TODAS as leiloeiras ativas já receberam a ficha; um lead
+    // submetido só à Programa (sem doc) continua na fila até o doc chegar.
     if (xd.cadastro_submetido_at) return { ...base, motivo: 'ficha já submetida antes' }
 
     const sub = await submitLeadCadastroToLeiloeiraGroups(supabase, leadId)
     base.enviadosPara = sub.sent
     base.submetido = sub.sent > 0
+    const coberturaCompleta = !sub.skipped.length && !sub.aguardandoDoc.length
 
-    // attempted=0 sem skips = todas as leiloeiras já tinham recebido este
+    // attempted=0 sem pendências = todas as leiloeiras já tinham recebido este
     // cliente (submissão antiga, antes da flag existir). Grava a flag para o
     // lead sair da fila da varredura em vez de ser reprocessado para sempre.
-    if (sub.sent === 0 && sub.attempted === 0 && !sub.skipped.length) {
+    if (sub.sent === 0 && sub.attempted === 0 && coberturaCompleta) {
         await supabase.from('crm_leads').update({
             extra_data: { ...extraAtual, cadastro_submetido_at: new Date().toISOString() },
         }).eq('id', leadId)
         return { ...base, motivo: 'ficha já estava nas leiloeiras (flag regularizada)' }
     }
 
+    // Nada enviado agora e o que falta é só documento → silencioso: a varredura
+    // roda de hora em hora e avisar a equipe a cada passada viraria spam.
+    if (sub.sent === 0 && !sub.attempted && sub.aguardandoDoc.length && !sub.skipped.length) {
+        return { ...base, motivo: `aguardando documento com foto para: ${sub.aguardandoDoc.join(', ')}` }
+    }
+
     if (sub.sent > 0) {
-        await supabase.from('crm_leads').update({
-            extra_data: { ...extraAtual, cadastro_submetido_at: new Date().toISOString() },
-        }).eq('id', leadId)
+        if (coberturaCompleta) {
+            await supabase.from('crm_leads').update({
+                extra_data: { ...extraAtual, cadastro_submetido_at: new Date().toISOString() },
+            }).eq('id', leadId)
+        }
         const fone = lead.celular || lead.telefone || ''
         const linhas = [
             '📤 *Ficha de cadastro enviada às leiloeiras*',
             `${lead.nome ?? leadId}${fone ? ` — ${fone}` : ''}`,
             `Enviada ao grupo de ${sub.sent} leiloeira(s) — aguardando aprovado/recusado.`,
         ]
+        if (sub.aguardandoDoc.length) {
+            linhas.push(`⏳ ${sub.aguardandoDoc.join(', ')}: aguardando documento com foto do cliente para enviar.`)
+        }
         // A ressalva da I.E. dispensada só aqui: é neste momento que a ficha
         // realmente segue sem ela, e é isto que a equipe precisa conferir.
         const dispensa = ieDispensadaParaLead(lead)
