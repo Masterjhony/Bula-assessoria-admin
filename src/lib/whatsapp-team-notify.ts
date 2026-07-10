@@ -18,14 +18,18 @@ import { sendVpsGroup } from './whatsapp-vps'
 /** Mesmo registro do concierge (evita import circular com whatsapp-concierge). */
 const CONFIG_KEY = 'crm_concierge'
 
-async function loadNotifyGroupId(supabase: SupabaseClient): Promise<string> {
+async function loadGroupId(
+    supabase: SupabaseClient,
+    field: 'notifyGroupId' | 'assessoresGroupId',
+): Promise<string> {
     const { data } = await supabase
         .from('site_settings')
         .select('value')
         .eq('key', CONFIG_KEY)
         .maybeSingle()
-    const raw = (data?.value ?? {}) as { notifyGroupId?: unknown }
-    return typeof raw.notifyGroupId === 'string' ? raw.notifyGroupId.trim() : ''
+    const raw = (data?.value ?? {}) as Record<string, unknown>
+    const v = raw[field]
+    return typeof v === 'string' ? v.trim() : ''
 }
 
 export interface TeamNotifyResult {
@@ -33,23 +37,39 @@ export interface TeamNotifyResult {
     reason?: string
 }
 
-/**
- * Envia uma mensagem ao grupo interno configurado. Best-effort: retorna
- * `{sent:false, reason}` em vez de lançar.
- */
-export async function notifyTeamGroup(
-    supabase: SupabaseClient,
-    message: string,
-): Promise<TeamNotifyResult> {
+async function sendToGroup(groupId: string, message: string): Promise<TeamNotifyResult> {
     const text = (message || '').trim()
     if (!text) return { sent: false, reason: 'empty_message' }
+    if (!groupId) return { sent: false, reason: 'no_group_configured' }
     try {
-        const groupId = await loadNotifyGroupId(supabase)
-        if (!groupId) return { sent: false, reason: 'no_group_configured' }
         const r = await sendVpsGroup(groupId, text)
         if (r.queued) return { sent: true }
         return { sent: false, reason: r.error || 'vps_error' }
     } catch (e) {
         return { sent: false, reason: e instanceof Error ? e.message : 'erro' }
     }
+}
+
+/**
+ * Envia ao grupo interno de automações/notificações (site_settings →
+ * crm_concierge.notifyGroupId). Best-effort: retorna `{sent:false, reason}`.
+ */
+export async function notifyTeamGroup(
+    supabase: SupabaseClient,
+    message: string,
+): Promise<TeamNotifyResult> {
+    return sendToGroup(await loadGroupId(supabase, 'notifyGroupId'), message)
+}
+
+/**
+ * Envia ao grupo dos ASSESSORES (site_settings → crm_concierge.assessoresGroupId).
+ * É onde a equipe comercial acompanha os cadastros aprovados e pega o cliente
+ * habilitado para dar sequência — separado do grupo de automações (log do
+ * sistema). Sem `assessoresGroupId` configurado, vira no-op silencioso.
+ */
+export async function notifyAssessoresGroup(
+    supabase: SupabaseClient,
+    message: string,
+): Promise<TeamNotifyResult> {
+    return sendToGroup(await loadGroupId(supabase, 'assessoresGroupId'), message)
 }

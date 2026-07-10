@@ -22,6 +22,7 @@ interface ConciergeSettings {
     thinkingSeconds: number
     handoffContact: string
     notifyGroupId: string
+    assessoresGroupId: string
     api_configured: boolean
     default_model: string
     default_persona: string
@@ -276,12 +277,24 @@ export function AtendimentoIATab() {
                         <p className="text-[10px] text-muted-foreground">Recebe: habilitação completa, pedido de humano, opt-out e decisões das leiloeiras.</p>
                     </div>
 
+                    <div className="space-y-1.5">
+                        <label className="text-xs font-medium flex items-center gap-1.5"><BellRing style={{ color: GOLD }} className="h-3.5 w-3.5" /> Grupo dos assessores (aprovados)</label>
+                        <input
+                            value={cfg.assessoresGroupId}
+                            onChange={e => setCfg(c => c ? { ...c, assessoresGroupId: e.target.value } : c)}
+                            placeholder="1203634…@g.us"
+                            className="w-full rounded-lg border bg-background px-3 py-2 text-sm font-mono focus:outline-none focus:ring-2 focus:ring-[#C9A84C]/40"
+                        />
+                        <p className="text-[10px] text-muted-foreground">Recebe os cadastros APROVADOS pela leiloeira — cliente habilitado para a equipe comercial dar sequência.</p>
+                    </div>
+
                     <button
                         onClick={() => save({
                             model: cfg.model,
                             thinkingSeconds: cfg.thinkingSeconds,
                             handoffContact: cfg.handoffContact,
                             notifyGroupId: cfg.notifyGroupId,
+                            assessoresGroupId: cfg.assessoresGroupId,
                         })}
                         disabled={saving}
                         className="w-full flex items-center justify-center gap-1.5 text-sm font-medium px-4 py-2.5 rounded-lg text-black disabled:opacity-50"

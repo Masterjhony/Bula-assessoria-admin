@@ -22,8 +22,14 @@ import type { SupabaseClient } from '@supabase/supabase-js'
 import { clienteMatchKey, fmtCpf } from './clientes'
 import { sendVpsGroup } from './whatsapp-vps'
 import { sendOutbound } from './whatsapp-gateway'
-import { notifyTeamGroup } from './whatsapp-team-notify'
+import { notifyTeamGroup, notifyAssessoresGroup } from './whatsapp-team-notify'
 import { firstName } from './whatsapp-central'
+
+/** UF do lead para as notificações: a do cadastro, ou a da fazenda consultada. */
+function ufDoLead(lead: { estado?: string | null; extra_data?: Record<string, unknown> | null }): string {
+    const uf = String(lead.estado ?? '').trim() || String((lead.extra_data ?? {}).fazenda_uf ?? '').trim()
+    return uf ? uf.toUpperCase() : ''
+}
 
 const DOCS_BUCKET = 'cliente-documentos'
 
@@ -549,16 +555,20 @@ export async function handleLeiloeiraGroupMessage(
 
     // ── Efeitos no lead + retorno ao cliente (API oficial) ──
     let clienteNome = cadastro.cliente_key
+    let clienteUf = ''
+    let clienteFone = ''
     let clienteAvisado = false
     if (cadastro.crm_lead_id) {
         const { data: leadData } = await supabase
             .from('crm_leads')
-            .select('id, nome, telefone, celular, contact_history, extra_data, optout_whatsapp')
+            .select('id, nome, telefone, celular, estado, contact_history, extra_data, optout_whatsapp')
             .eq('id', cadastro.crm_lead_id)
             .maybeSingle()
-        const lead = leadData as (Pick<LeadRow, 'id' | 'nome' | 'telefone' | 'celular' | 'contact_history' | 'extra_data'> & { optout_whatsapp: boolean | null }) | null
+        const lead = leadData as (Pick<LeadRow, 'id' | 'nome' | 'telefone' | 'celular' | 'estado' | 'contact_history' | 'extra_data'> & { optout_whatsapp: boolean | null }) | null
         if (lead) {
             clienteNome = lead.nome || clienteNome
+            clienteUf = ufDoLead(lead)
+            clienteFone = lead.celular || lead.telefone || ''
             const xd = { ...(lead.extra_data ?? {}) } as Record<string, unknown>
             xd.cadastro_status = decision === 'aprovado' ? 'aprovado' : 'recusado'
             if (decision === 'aprovado') xd.cadastro_aprovado = true
@@ -620,16 +630,29 @@ export async function handleLeiloeiraGroupMessage(
         input.groupJid,
         `✅ Registrado: cadastro de *${clienteNome}* marcado como *${decision.toUpperCase()}*. ${clienteAvisado ? 'Cliente avisado.' : 'Cliente ainda não avisado (fora da janela ou sem WhatsApp).'}`,
     )
-    void notifyTeamGroup(supabase, [
+    const linhaCliente = `Cliente: ${clienteNome}${clienteUf ? ` (${clienteUf})` : ''}${clienteFone ? ` — ${clienteFone}` : ''}`
+    const avisoNotify = [
         decision === 'aprovado' ? '🟢 *Cadastro APROVADO pela leiloeira*' : '🔴 *Cadastro RECUSADO pela leiloeira*',
-        `Cliente: ${clienteNome}`,
+        linhaCliente,
         `Leiloeira: ${leiloeira.nome} · por ${input.senderName || 'participante do grupo'}`,
         clienteAvisado
             ? 'Cliente avisado pela API oficial.'
             : decision === 'recusado'
                 ? 'Lead marcado para atendimento humano — falar com o cliente.'
                 : '⚠ Não consegui avisar o cliente (janela fechada/sem telefone) — avisar manualmente.',
-    ].join('\n')).catch(() => { /* best-effort */ })
+    ].join('\n')
+    void notifyTeamGroup(supabase, avisoNotify).catch(() => { /* best-effort */ })
+
+    // Aprovado → também no grupo dos ASSESSORES: é o cliente pronto para a equipe
+    // comercial pegar e dar sequência (o grupo de automações é só o log do sistema).
+    if (decision === 'aprovado') {
+        void notifyAssessoresGroup(supabase, [
+            '🟢 *Novo cliente APROVADO — habilitado a comprar*',
+            linhaCliente,
+            `Leiloeira: ${leiloeira.nome}`,
+            clienteAvisado ? 'Cliente já avisado pela IA — dar sequência no atendimento.' : 'Cliente ainda não avisado — falar com ele.',
+        ].join('\n')).catch(() => { /* best-effort */ })
+    }
 
     return { kind: 'decided', decision, cliente: clienteNome, leiloeira: leiloeira.nome, clienteAvisado }
 }

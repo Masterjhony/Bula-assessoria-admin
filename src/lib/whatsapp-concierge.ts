@@ -89,6 +89,13 @@ export interface ConciergeConfig {
      * Vazio = avisos desligados. Editável no cockpit.
      */
     notifyGroupId: string
+    /**
+     * ID do grupo dos ASSESSORES (via Baileys) — recebe os cadastros APROVADOS
+     * pela leiloeira, para a equipe comercial pegar o cliente habilitado e dar
+     * sequência. Separado do notifyGroupId (log de automações). Editável no
+     * cockpit; vazio = não replica os aprovados.
+     */
+    assessoresGroupId: string
 }
 
 export const DEFAULT_THINKING_SECONDS = 8
@@ -127,6 +134,7 @@ export const DEFAULT_CONCIERGE_CONFIG: ConciergeConfig = {
     thinkingSeconds: DEFAULT_THINKING_SECONDS,
     handoffContact: DEFAULT_HANDOFF_CONTACT,
     notifyGroupId: '',
+    assessoresGroupId: '',
 }
 
 function splitModels(value: string | undefined): string[] {
@@ -167,6 +175,7 @@ export async function loadConciergeConfig(supabase: SupabaseClient): Promise<Con
         handoffContact: typeof raw.handoffContact === 'string' && raw.handoffContact.trim()
             ? raw.handoffContact : DEFAULT_HANDOFF_CONTACT,
         notifyGroupId: typeof raw.notifyGroupId === 'string' ? raw.notifyGroupId.trim() : '',
+        assessoresGroupId: typeof raw.assessoresGroupId === 'string' ? raw.assessoresGroupId.trim() : '',
     }
 }
 
@@ -186,6 +195,9 @@ export async function saveConciergeConfig(
         notifyGroupId: patch.notifyGroupId === undefined
             ? current.notifyGroupId
             : patch.notifyGroupId.trim(),
+        assessoresGroupId: patch.assessoresGroupId === undefined
+            ? current.assessoresGroupId
+            : patch.assessoresGroupId.trim(),
     }
     const { error } = await supabase
         .from('site_settings')

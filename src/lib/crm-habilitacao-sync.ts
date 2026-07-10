@@ -331,9 +331,10 @@ export async function sincronizarHabilitacao(
             await marcarSubmetido()
         }
         const fone = lead.celular || lead.telefone || ''
+        const uf = String(lead.estado ?? '').trim() || String((lead.extra_data ?? {}).fazenda_uf ?? '').trim()
         const linhas = [
             '📤 *Ficha de cadastro enviada às leiloeiras*',
-            `${lead.nome ?? leadId}${fone ? ` — ${fone}` : ''}`,
+            `${lead.nome ?? leadId}${uf ? ` (${uf.toUpperCase()})` : ''}${fone ? ` — ${fone}` : ''}`,
             `Enviada ao grupo de ${sub.sent} leiloeira(s) — aguardando aprovado/recusado.`,
         ]
         if (sub.aguardandoDoc.length) {
