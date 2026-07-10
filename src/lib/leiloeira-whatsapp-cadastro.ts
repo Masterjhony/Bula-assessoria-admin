@@ -88,29 +88,34 @@ function fmtFone(v: string): string {
 function buildFicha(lead: LeadRow, codigo: string, docs: { nome: string; url: string }[]): string {
     const xd = (lead.extra_data ?? {}) as Record<string, unknown>
     const fone = str(lead.celular) || str(lead.telefone)
-    const fazenda = [str(xd.fazenda_nome), [str(xd.fazenda_cidade), str(xd.fazenda_uf)].filter(Boolean).join('/')]
-        .filter(Boolean).join(' — ')
     const ie = str(lead.inscricao_estadual)
         || (str(lead.tem_inscricao_estadual).toLowerCase() === 'sim' ? 'Tem (nº a confirmar)' : '')
 
+    // Formato espelhado da ficha que a leiloeira aprovou (07/2026): bloco do
+    // titular, bloco da propriedade, e as fotos de autenticidade. Manter o mesmo
+    // layout evita retrabalho de quem lê o grupo.
     const linhas = [
         `📋 *Solicitação de cadastro* · ${codigo}`,
         '',
-        `*Nome:* ${str(lead.nome) || '—'}`,
+        `*Nome Completo:* ${str(lead.nome) || '—'}`,
         `*CPF:* ${str(lead.cpf) ? fmtCpf(lead.cpf!) : '—'}`,
         `*Telefone:* ${fone ? fmtFone(fone) : '—'}`,
         `*E-mail:* ${str(lead.email) || '—'}`,
+        `*Endereço Correspondência:* ${str(xd.endereco_titular) || '—'}`,
+        '',
+        '*Dados da Propriedade onde serão entregues os animais*',
+        '',
+        `*Fazenda:* ${str(xd.fazenda_nome) || '—'}`,
+        `*Cidade:* ${str(xd.fazenda_cidade) || '—'}`,
+        `*Estado:* ${str(xd.fazenda_uf) || '—'}`,
+        `*I.E.:* ${ie || (str(xd.ie_dispensada_leilao) ? `dispensada — ${str(xd.ie_dispensada_leilao)}` : '—')}`,
     ]
-    const endereco = str(xd.endereco_titular)
-    if (endereco) linhas.push(`*Endereço:* ${endereco}`)
-    if (fazenda) linhas.push(`*Fazenda:* ${fazenda}`)
-    linhas.push(`*Inscrição Estadual:* ${ie || '—'}`)
     const interesse = str(lead.interesse_principal) || str(lead.o_que_busca)
     const qtd = str(lead.quantidade_animais)
-    if (interesse) linhas.push(`*Interesse:* ${interesse}${qtd ? ` (${qtd} cab.)` : ''}`)
+    if (interesse) linhas.push('', `*Interesse:* ${interesse}${qtd ? ` (${qtd} cab.)` : ''}`)
 
     if (docs.length) {
-        linhas.push('', '*Documentos:*')
+        linhas.push('', '*Foto do documento e foto segurando o documento, para comprovação de autenticidade:*')
         for (const d of docs) linhas.push(`• ${d.nome}: ${d.url}`)
     } else {
         linhas.push('', '_Sem documentos anexados._')
@@ -399,7 +404,7 @@ export async function handleLeiloeiraGroupMessage(
                 // o lead escrever de novo).
                 if (!clienteAvisado && r.reason === 'outside_24h_needs_template') {
                     const tpl = decision === 'aprovado'
-                        ? { templateName: 'cadastro_leiloeira_aprovado', templateParams: [nome || clienteNome, leiloeira.nome] }
+                        ? { templateName: 'bula_cadastro_aprovado', templateParams: [nome || clienteNome, leiloeira.nome] }
                         : { templateName: 'retomada_atendimento', templateParams: [nome || clienteNome, `o seu cadastro na ${leiloeira.nome}`] }
                     r = await sendOutbound(supabase, {
                         to: { phone, leadId: lead.id, name: lead.nome },

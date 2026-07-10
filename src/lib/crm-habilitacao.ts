@@ -144,12 +144,17 @@ export function computeHabilitacaoChecklist(input: HabilitacaoInput): Habilitaca
         { key: 'doc_identidade', label: 'Foto da CNH/RG', group: 'documentos', done: docIdentidade },
     ]
 
-    // Com a propriedade confirmada na base do Estado, um documento basta.
+    // A ficha que a leiloeira aprovou (Ricardo P. Moreira, 07/2026) pediu:
+    // dados + "foto do documento e foto segurando o documento". NÃO pediu
+    // comprovante de propriedade — e era esse item que travava 34 dos 35 leads.
+    // Ele deixou de ser exigido; quando o lead manda, entra como ✔ extra.
+    // Com a propriedade já confirmada no Sintegra, a selfie também cai: os dados
+    // foram conferidos numa base do Estado, não na palavra do lead.
     if (!input.documentosSimplificados) {
-        items.push(
-            { key: 'doc_identidade_selfie', label: 'Foto segurando o documento', group: 'documentos', done: docSelfie },
-            { key: 'doc_fiscal', label: 'Comprovante da propriedade / I.E. / NIRF', group: 'documentos', done: docFiscal },
-        )
+        items.push({ key: 'doc_identidade_selfie', label: 'Foto segurando o documento', group: 'documentos', done: docSelfie })
+    }
+    if (docFiscal) {
+        items.push({ key: 'doc_fiscal', label: 'Comprovante da propriedade / I.E. (opcional)', group: 'documentos', done: true })
     }
 
     const minDocs = input.documentosSimplificados ? 1 : 2

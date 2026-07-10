@@ -16,6 +16,7 @@ import {
   type StateRegistrationRecord,
   type StateRegistrationReport,
 } from '@/lib/state-registration-provider'
+import { saveLeadDocFromUrl } from '@/lib/whatsapp-lead-documents'
 
 type LeadLike = {
   id: string
@@ -202,6 +203,19 @@ export async function maybeRunStateRegistrationCheck(
     if (endProp) nextExtra.propriedade_endereco = endProp
     if (best.atividade_economica) nextExtra.propriedade_atividade = best.atividade_economica
     nextExtra.propriedade_consultada_at = report.consultedAt
+
+    // O comprovante da SEFAZ (PDF) vira documento do lead. É o item que mais
+    // travava o cadastro — e vale mais que a foto de um papel do lead.
+    if (best.site_receipt) {
+      const doc = await saveLeadDocFromUrl(supabase, {
+        leadId: lead.id,
+        url: best.site_receipt,
+        filename: `comprovante-ie-${report.uf ?? ''}-${String(lead.cpf).replace(/\D/g, '')}.pdf`,
+        tipo: 'ie',
+        mime: 'application/pdf',
+      }).catch(() => null)
+      if (doc) nextExtra.comprovante_ie_anexado_at = new Date().toISOString()
+    }
   }
 
   const patch: Record<string, unknown> = {

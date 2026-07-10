@@ -160,6 +160,8 @@ export interface SintegraRecord {
     endereco_bairro?: string
     endereco_cep?: string
     atividade_economica?: string
+    /** PDF do comprovante emitido pela SEFAZ — serve como comprovante de I.E. */
+    site_receipt?: string
 }
 
 export interface SintegraResult {
@@ -192,6 +194,7 @@ function parseSintegra(data: unknown[], uf: string): SintegraRecord[] {
             endereco_bairro: s(row.endereco_bairro),
             endereco_cep: s(row.endereco_cep),
             atividade_economica: s(row.atividade_economica),
+            site_receipt: s(row.site_receipt),
         })
     }
     return out

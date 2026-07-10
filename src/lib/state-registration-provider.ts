@@ -55,6 +55,8 @@ export interface StateRegistrationRecord {
   endereco_bairro?: string
   endereco_cep?: string
   atividade_economica?: string
+  /** PDF do comprovante emitido pela SEFAZ — vira documento do lead. */
+  site_receipt?: string
 }
 
 export interface StateRegistrationReport {
@@ -196,6 +198,7 @@ async function consultarViaInfosimples(cpf: string, uf: string): Promise<StateRe
     endereco_bairro: rec.endereco_bairro,
     endereco_cep: rec.endereco_cep,
     atividade_economica: rec.atividade_economica,
+    site_receipt: rec.site_receipt,
   }))
   const best = pickBestResult(results)
   return makeReport({

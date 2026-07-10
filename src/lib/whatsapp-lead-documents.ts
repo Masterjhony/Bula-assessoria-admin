@@ -65,6 +65,83 @@ export interface PromotedDoc {
 }
 
 /**
+ * Salva um arquivo BAIXADO DE UMA URL como documento do lead.
+ *
+ * Usado pelo comprovante de Inscrição Estadual que a consulta do Sintegra
+ * devolve (`site_receipt`, um PDF emitido pela SEFAZ). Anexar isto sozinho tira
+ * do lead o item que mais travava o cadastro — e o comprovante do Estado vale
+ * mais que a foto de um papel que ele mandaria.
+ *
+ * Idempotente por (lead, nome do arquivo): rodar de novo não duplica.
+ */
+export async function saveLeadDocFromUrl(
+    supabase: SupabaseClient,
+    input: { leadId: string; url: string; filename: string; tipo: LeadDocTipo; mime?: string },
+): Promise<PromotedDoc | null> {
+    const { leadId, url } = input
+    if (!leadId || !url) return null
+
+    const { data: existing } = await supabase
+        .from('crm_lead_documentos')
+        .select('id')
+        .eq('lead_id', leadId)
+        .eq('nome_arquivo', input.filename)
+        .limit(1)
+    if (existing?.length) return null
+
+    let buffer: Buffer
+    let contentType = input.mime || 'application/pdf'
+    try {
+        const res = await fetch(url, { signal: AbortSignal.timeout(30_000) })
+        if (!res.ok) throw new Error(`HTTP ${res.status}`)
+        contentType = input.mime || res.headers.get('content-type')?.split(';')[0] || contentType
+        buffer = Buffer.from(await res.arrayBuffer())
+    } catch (e) {
+        console.warn('[lead-docs] download do comprovante falhou:', e instanceof Error ? e.message : e)
+        return null
+    }
+    if (!buffer.byteLength) return null
+
+    const ext = extFromName(input.filename, contentType)
+    const path = `crm-leads/${leadId}/${crypto.randomUUID()}.${ext}`
+    const { error: upErr } = await supabase.storage
+        .from(LEAD_DOCS_BUCKET)
+        .upload(path, buffer, { contentType, upsert: false })
+    if (upErr) {
+        console.warn('[lead-docs] upload do comprovante falhou:', upErr.message)
+        return null
+    }
+
+    const { data, error } = await supabase
+        .from('crm_lead_documentos')
+        .insert({
+            lead_id: leadId,
+            tipo: input.tipo,
+            nome_arquivo: input.filename,
+            path,
+            tamanho_bytes: buffer.byteLength,
+            content_type: contentType,
+            uploaded_by: 'consulta',
+        })
+        .select('id, tipo, nome_arquivo, path, tamanho_bytes, content_type, created_at')
+        .single()
+    if (error || !data) {
+        await supabase.storage.from(LEAD_DOCS_BUCKET).remove([path])
+        console.warn('[lead-docs] insert do comprovante falhou:', error?.message)
+        return null
+    }
+    return {
+        id: data.id as string,
+        tipo: data.tipo as string,
+        nomeArquivo: data.nome_arquivo as string,
+        path: data.path as string,
+        tamanhoBytes: data.tamanho_bytes as number,
+        contentType: data.content_type as string,
+        createdAt: data.created_at as string,
+    }
+}
+
+/**
  * Copia a mídia inbound para `cliente-documentos` e registra em
  * `crm_lead_documentos`. Retorna o doc criado, ou null se já existir/der erro.
  */
