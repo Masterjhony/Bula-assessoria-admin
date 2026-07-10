@@ -49,24 +49,29 @@ const THROTTLE_MS = 2000
 const QUIET_HOURS = 72          // sem mensagem em nenhuma direção há pelo menos isto
 const DEDUP_DISPARO_DIAS = 7    // não empilhar com outro disparo recente
 
-/** Conteúdo dos 3 templates (variáveis fixadas para o EAO Baviera 12/07). */
+/**
+ * Conteúdo dos 3 templates (variáveis fixadas para o EAO Baviera 12/07).
+ * `render` reproduz o corpo REAL que o lead recebe — é o que vai pro log em
+ * whatsapp_messages, para o cockpit mostrar a mensagem de verdade (e não um
+ * placeholder técnico).
+ */
 const TEMPLATES = {
     touros: {
         name: 'bula_padrao_lote_video', header: 'video', mediaArg: '--video-tourama',
         params: nome => [nome, 'tourama EAO', 'no próximo domingo, 12/07',
             'repor seus reprodutores e produzir os melhores bezerros da sua região'],
-        preview: 'vídeo tourama · "padrão de tourama EAO... domingo, 12/07"',
+        render: p => `Fala, ${p[0]}! Olha eu aqui mais uma vez… 😁\n\nPassando para te mostrar o padrão de ${p[1]} que estará disponível ${p[2]}.\n\nBora mexer! Aproveite a oportunidade para ${p[3]}. 🤩`,
     },
     matrizes: {
         name: 'bula_padrao_genetico_video', header: 'video', mediaArg: '--video-matrizes',
         params: nome => [nome, 'matrizes', 'Mega Evento EAO - Baviera', '40x'],
-        preview: 'vídeo matrizes · "elevar o padrão genético... 40x no boleto e frete grátis"',
+        render: p => `Opa, ${p[0]}! João da Bula aqui mais uma vez… 😍\n\nOlha o padrão de ${p[1]} que estará disponível no *${p[2]}*!\n\nChegou a hora de você elevar o padrão genético do seu rebanho 🔥\n\nEm até *${p[3]} no boleto* e *frete grátis*!`,
     },
     convite: {
         name: 'bula_convite_evento_ofertas', header: 'image', mediaArg: '--img-convite',
         params: nome => [nome, '13º Mega Evento EAO Baviera', 'de 09 a 12 de Julho',
             'Sêmen, Aspirações, 350 Fêmeas PO e 500 Touros PO', '40x'],
-        preview: 'arte agenda · convite completo com ofertas e 40x',
+        render: p => `Olá, ${p[0]}!\n\nPrazer, João Antônio da Bula Assessoria aqui. 🤠\n\nPassando para te convidar para o *${p[1]}*, que acontecerá ${p[2]}!\n\nOfertas de: ${p[3]}.\n\nEm até *${p[4]} no boleto* e *frete grátis* para todo o Brasil! 🇧🇷\n\nBora bater um papo?`,
     },
 }
 
@@ -251,7 +256,7 @@ async function main() {
         } catch (e) { errMsg = e?.message || 'fetch_error' }
 
         await supabase.from('whatsapp_messages').insert({
-            phone: a.fone, name: a.nome || 'Contato', body: `[template ${t.name}] ${t.preview}`,
+            phone: a.fone, name: a.nome || 'Contato', body: t.render(params),
             direction: 'outbound', status, channel: 'cloud', intent: 'campaign',
             origin: ORIGIN, bot_step: a.template, lead_id: a.id,
             reason: messageId ?? (status === 'failed' ? 'send_failed' : null), error_msg: errMsg,
