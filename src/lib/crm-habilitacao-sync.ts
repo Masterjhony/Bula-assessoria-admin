@@ -11,8 +11,13 @@
  *   1. Se o lead tem CPF e a propriedade ainda não foi consultada, consulta e
  *      grava no lead (fazenda, cidade/UF, I.E., endereço da propriedade).
  *   2. Recalcula o checklist com o estado novo e persiste em extra_data.
- *   3. Checklist completo  → posta a ficha nos grupos das leiloeiras (idempotente).
- *      Checklist incompleto → devolve o que falta, para a IA pedir ao cliente.
+ *   3. Tem o ESSENCIAL → posta a ficha nos grupos das leiloeiras (idempotente).
+ *      Não tem      → devolve o que falta, para a IA pedir ao cliente.
+ *
+ * "Essencial" ≠ "checklist completo". A ficha aprovada do Ricardo tinha Roteiro,
+ * Telefone e Resp. Telefone em branco — a leiloeira não é exigente com campo
+ * acessório. O checklist segue guiando a CONVERSA; a submissão usa
+ * `prontoParaFicha()`, que exige só nome, CPF, telefone e uma foto.
  *
  * Idempotente e chamável de qualquer lugar: do turno do concierge, de um
  * backfill, de um botão no CRM.
@@ -64,6 +69,8 @@ export interface HabilitacaoSyncResult {
     checklist: HabilitacaoChecklist | null
     /** Itens que ainda faltam — é o que a IA deve pedir ao cliente. */
     faltando: string[]
+    /** Tem o essencial para a ficha ir à leiloeira (≠ checklist completo). */
+    pronto: boolean
     /** Ficha postada nos grupos das leiloeiras nesta chamada. */
     submetido: boolean
     enviadosPara: number
@@ -94,6 +101,33 @@ function buildChecklist(lead: SyncLead, docs: { count: number; tipos: string[] }
 }
 
 const cpfValido = (v: unknown) => String(v ?? '').replace(/\D/g, '').length === 11
+const limpo = (v: unknown) => {
+    const s = String(v ?? '').trim()
+    return /^(null|undefined|nulo|n\/a|-)$/i.test(s) ? '' : s
+}
+
+/**
+ * A ficha vai para a leiloeira quando tem o ESSENCIAL — não quando o checklist
+ * está 100%. A ficha do Ricardo, que foi aprovada, tinha Roteiro, Telefone e
+ * Resp. Telefone em branco. Exigir o checklist inteiro só segurava cadastro que
+ * a leiloeira aprovaria.
+ *
+ * Essencial (sem isto a leiloeira não consegue cadastrar):
+ *   nome completo · CPF · telefone · pelo menos um documento com foto.
+ * Desejável (entra se houver, sai em branco se não):
+ *   e-mail · endereço · fazenda · cidade/UF · I.E.
+ */
+export function prontoParaFicha(
+    lead: Pick<SyncLead, 'nome' | 'cpf' | 'telefone' | 'celular'>,
+    docsCount: number,
+): { pronto: boolean; faltamEssenciais: string[] } {
+    const faltam: string[] = []
+    if (!/\S+\s+\S+/.test(limpo(lead.nome))) faltam.push('nome completo')
+    if (!cpfValido(lead.cpf)) faltam.push('CPF')
+    if (!limpo(lead.celular) && !limpo(lead.telefone)) faltam.push('telefone')
+    if (docsCount < 1) faltam.push('foto do documento')
+    return { pronto: faltam.length === 0, faltamEssenciais: faltam }
+}
 
 export async function sincronizarHabilitacao(
     supabase: SupabaseClient,
@@ -104,7 +138,7 @@ export async function sincronizarHabilitacao(
     const submeter = opts.submeter ?? true
     const base: HabilitacaoSyncResult = {
         leadId, consultou: false, encontrados: [], checklist: null,
-        faltando: [], submetido: false, enviadosPara: 0,
+        faltando: [], pronto: false, submetido: false, enviadosPara: 0,
     }
 
     const reload = async (): Promise<SyncLead | null> => {
@@ -173,9 +207,13 @@ export async function sincronizarHabilitacao(
         await supabase.from('crm_leads').update({ extra_data: extraAtual }).eq('id', leadId)
     }
 
-    // ── 3. Completo → ficha às leiloeiras. Incompleto → a IA pede o que falta.
-    if (!checklist.complete) return { ...base, motivo: `faltam ${checklist.missingLabels.length} item(ns)` }
-    if (!submeter || opts.dryRun) return { ...base, motivo: 'completo (submissão não solicitada)' }
+    // ── 3. Tem o essencial → ficha às leiloeiras. Senão → a IA pede o que falta.
+    // O checklist continua guiando a CONVERSA (a IA pede o que está com ✘), mas
+    // não segura mais a submissão: campo desejável ausente vai em branco na ficha.
+    const { pronto, faltamEssenciais } = prontoParaFicha(lead, docs.count)
+    base.pronto = pronto
+    if (!pronto) return { ...base, motivo: `falta o essencial: ${faltamEssenciais.join(', ')}` }
+    if (!submeter || opts.dryRun) return { ...base, motivo: 'pronto (submissão não solicitada)' }
     // Flag própria da submissão — separada do aviso interno, que dispara antes.
     if (xd.cadastro_submetido_at) return { ...base, motivo: 'ficha já submetida antes' }
 

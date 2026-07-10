@@ -89,7 +89,8 @@ function buildFicha(lead: LeadRow, codigo: string, docs: { nome: string; url: st
     const xd = (lead.extra_data ?? {}) as Record<string, unknown>
     const fone = str(lead.celular) || str(lead.telefone)
     const ie = str(lead.inscricao_estadual)
-        || (str(lead.tem_inscricao_estadual).toLowerCase() === 'sim' ? 'Tem (nº a confirmar)' : '')
+        || (str(lead.tem_inscricao_estadual).toLowerCase() === 'sim'
+            ? 'o produtor declara ter, número ainda não informado' : '')
 
     // Formato espelhado da ficha que a leiloeira aprovou (07/2026): bloco do
     // titular, bloco da propriedade, e as fotos de autenticidade. Manter o mesmo
@@ -110,9 +111,31 @@ function buildFicha(lead: LeadRow, codigo: string, docs: { nome: string; url: st
         `*Estado:* ${str(xd.fazenda_uf) || '—'}`,
         `*I.E.:* ${ie || (str(xd.ie_dispensada_leilao) ? `dispensada — ${str(xd.ie_dispensada_leilao)}` : '—')}`,
     ]
-    const interesse = str(lead.interesse_principal) || str(lead.o_que_busca)
-    const qtd = str(lead.quantidade_animais)
-    if (interesse) linhas.push('', `*Interesse:* ${interesse}${qtd ? ` (${qtd} cab.)` : ''}`)
+    // Perfil do comprador. A leiloeira decide melhor sabendo QUEM é o produtor,
+    // e tudo isto já está no lead (formulário + conversa + consulta de crédito).
+    // Sem este bloco a ficha saía com "Interesse: leiloes" e mais nada.
+    const perfil: string[] = []
+    const addPerfil = (rot: string, v: unknown) => { const s = str(v); if (s) perfil.push(`*${rot}:* ${s}`) }
+    addPerfil('Busca', str(lead.o_que_busca) || str(lead.interesse_principal))
+    addPerfil('Rebanho', str(lead.quantidade_animais) ? `${str(lead.quantidade_animais)} cabeças` : '')
+    addPerfil('Sistema', str(xd.sistema_producao).replace(/_/g, ' '))
+    addPerfil('Hoje cria', xd.rebanho_atual)
+    addPerfil('Objetivo', xd.objetivo_compra_resumido)
+
+    // Crédito, quando a automação já consultou — é o que a leiloeira olharia depois.
+    // `protestos` é um ARRAY: vazio é truthy em JS, então conta-se o tamanho.
+    const credito = (xd.credito ?? {}) as { score?: unknown; faixa?: unknown; protestos?: unknown[] }
+    const score = str(credito.score)
+    if (score) {
+        const nProtestos = Array.isArray(credito.protestos) ? credito.protestos.length : 0
+        const faixa = str(credito.faixa)
+        perfil.push(
+            `*Score de crédito:* ${score}${faixa ? ` (${faixa})` : ''}` +
+            ` · ${nProtestos ? `${nProtestos} protesto${nProtestos > 1 ? 's' : ''}` : 'sem protestos'}`,
+        )
+    }
+
+    if (perfil.length) linhas.push('', '*Perfil do comprador*', '', ...perfil)
 
     if (docs.length) {
         linhas.push('', '*Foto do documento e foto segurando o documento, para comprovação de autenticidade:*')

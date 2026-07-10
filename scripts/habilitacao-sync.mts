@@ -60,18 +60,19 @@ const lista = await alvos()
 console.log(`Modo: ${SUBMETER ? '🚨 CONSULTA + SUBMETE FICHA' : CONSULTAR ? 'consulta e grava (sem enviar ficha)' : 'DRY-RUN (nada é feito)'}`)
 console.log(`Leads alvo: ${lista.length}\n`)
 
-let completos = 0, consultados = 0, submetidos = 0
+let prontos = 0, consultados = 0, submetidos = 0
 for (const [i, l] of lista.entries()) {
     if (i >= LIMIT) break
     const r = await sincronizarHabilitacao(sb, l.id, { consultar: CONSULTAR, submeter: SUBMETER, dryRun })
     if (r.consultou) consultados++
-    if (r.checklist?.complete) completos++
+    if (r.pronto) prontos++
     if (r.submetido) submetidos++
     const cl = r.checklist
     const achou = r.encontrados.length ? `  ↳ achou: ${r.encontrados.join(' · ')}` : ''
+    const estado = r.pronto ? '📨 PRONTO PARA FICHA' : `sem o essencial → ${r.motivo}`
     console.log(
         `${String(i + 1).padStart(3)}. ${(l.nome ?? l.id).slice(0, 30).padEnd(30)} ` +
-        `${cl ? `${cl.done}/${cl.total}` : '—'} ${cl?.complete ? '✅ completo' : `falta: ${r.faltando.slice(0, 3).join(', ')}${r.faltando.length > 3 ? '…' : ''}`}` +
+        `${cl ? `${String(cl.done).padStart(2)}/${cl.total}` : '  —'}  ${estado}` +
         `${r.submetido ? `  📤 ficha → ${r.enviadosPara} leiloeira(s)` : ''}`,
     )
     if (achou) console.log(achou)
