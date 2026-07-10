@@ -110,35 +110,20 @@ const limpo = (v: unknown) => {
 }
 
 /**
- * A ficha só vai para a leiloeira quando está ANALISÁVEL — a leiloeira
- * (Programa/Márcia, 07/2026) só analisa cadastro com a DOCUMENTAÇÃO COMPLETA de
- * análise de crédito PF; incompleto ela não analisa (e ainda repassa à EAO).
- * Submeter incompleto só gerava recusa e atrito.
+ * A ficha vai para a leiloeira quando os DADOS obrigatórios estão completos —
+ * régua enxuta que a Márcia/Programa concedeu (10/07/2026): "de início imediato,
+ * Nome, CPF, Inscrição Estadual, endereço de correspondência, telefone; se
+ * possível, documento pessoal com foto e comprovante de residência".
  *
- * O gate usa o próprio checklist (fonte única). Exige os itens OBRIGATÓRIOS da
- * lista oficial + o básico do titular; campos acessórios (e-mail, fazenda, I.E.)
- * NÃO travam a submissão — entram na ficha se houver.
- *
- *   básico:     nome_completo · cpf · telefone
- *   documentos: doc_identidade · doc_identidade_selfie · doc_endereco
- *               · doc_matricula · doc_itr · doc_renda · referencias
+ * Como quase todos os obrigatórios são DADOS que as consultas oficiais já
+ * trazem (CPF, I.E., endereço vêm do Sintegra/enriquecimento), o gate delega ao
+ * `checklist.complete` (todos os itens NÃO-opcionais ok). Os dois documentos são
+ * desejáveis — entram na ficha se houver, mas não seguram a submissão.
  */
-const ITENS_OBRIGATORIOS_FICHA = [
-    'nome_completo', 'cpf', 'telefone',
-    'doc_identidade', 'doc_identidade_selfie', 'doc_endereco',
-    'doc_matricula', 'doc_itr', 'doc_renda', 'referencias',
-] as const
-
 export function prontoParaFicha(
     checklist: HabilitacaoChecklist,
 ): { pronto: boolean; faltamEssenciais: string[] } {
-    const byKey = new Map(checklist.items.map(i => [i.key, i]))
-    const faltam: string[] = []
-    for (const key of ITENS_OBRIGATORIOS_FICHA) {
-        const item = byKey.get(key)
-        if (!item || !item.done) faltam.push(item?.label ?? key)
-    }
-    return { pronto: faltam.length === 0, faltamEssenciais: faltam }
+    return { pronto: checklist.complete, faltamEssenciais: checklist.missingLabels }
 }
 
 export async function sincronizarHabilitacao(

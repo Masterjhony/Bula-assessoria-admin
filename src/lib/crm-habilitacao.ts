@@ -25,6 +25,13 @@ export interface ChecklistItem {
     label: string
     group: ChecklistGroup
     done: boolean
+    /**
+     * Item DESEJÁVEL ("se possível"), não obrigatório. Não trava `complete` nem
+     * a submissão; a IA pede com leveza e a ficha inclui se houver. É o caso dos
+     * documentos que a leiloeira aceita receber depois (documento com foto,
+     * comprovante de residência) na régua enxuta que a Márcia concedeu.
+     */
+    optional?: boolean
     /** Valor já coletado (quando aplicável), para exibição. */
     value?: string
 }
@@ -40,19 +47,15 @@ export interface HabilitacaoChecklist {
 
 /**
  * Tipos semânticos de documento que a IA pode marcar como recebidos.
- * Espelham a LISTA OFICIAL de análise de crédito PF da leiloeira (Programa/
- * Márcia, 07/2026): documento+selfie, endereço, matrícula do imóvel + ITR,
- * renda, casamento (opcional). Referências (3, com telefone) são DADO, não
- * documento — coletadas na conversa e guardadas em extra_data.referencias.
+ * Régua ENXUTA concedida pela leiloeira (Márcia/Programa, 10/07/2026): para
+ * início imediato bastam os DADOS (nome, CPF, I.E., endereço, telefone) e, "se
+ * possível", dois documentos — documento pessoal com foto e comprovante de
+ * residência. O dossiê pesado (matrícula, ITR, renda, referências) foi
+ * dispensado; os tipos seguem no enum de documentos só para classificação.
  */
 export const DOC_TIPOS_SEMANTICOS = [
-    'identidade',            // documento pessoal com foto (frente/verso)
-    'identidade_selfie',     // selfie segurando o documento
-    'comprovante_endereco',  // comprovante de endereço p/ correspondência
-    'matricula_imovel',      // certidão de matrícula atualizada do imóvel rural
-    'itr',                   // ITR do imóvel
-    'comprovante_renda',     // IR + extrato bancário (3 meses)
-    'certidao_casamento',    // opcional
+    'identidade',            // documento pessoal com foto
+    'comprovante_endereco',  // comprovante de residência/correspondência
 ] as const
 export type DocTipoSemantico = (typeof DOC_TIPOS_SEMANTICOS)[number]
 
@@ -131,40 +134,22 @@ export function computeHabilitacaoChecklist(input: HabilitacaoInput): Habilitaca
     const temIe = str(input.tem_inscricao_estadual).toLowerCase() === 'sim'
     const ieDispensada = Boolean(str(input.ieDispensadaPara))
 
-    // Documentos da ANÁLISE DE CRÉDITO PF (lista oficial da leiloeira). Cada
-    // marcação semântica da IA só vale com arquivo real por trás; o tipo real do
-    // arquivo (docTipos, classificado no upload) é o caminho mais confiável.
-    const doc = (sem: string, tipo: string) => temArquivoReal && (semantic.has(sem) || tipos.has(tipo))
-    const docIdentidade = input.docsCount >= 1 && (semantic.has('identidade') || tipos.has('cpf'))
-    // Selfie precisa do SEU arquivo (a mesma foto não é doc E selfie).
-    const docSelfie = input.docsCount >= 2 && semantic.has('identidade_selfie')
-    const docEndereco = doc('comprovante_endereco', 'endereco')
-    const docMatricula = doc('matricula_imovel', 'matricula')
-    const docItr = doc('itr', 'itr')
-    const docRenda = doc('comprovante_renda', 'renda')
-    const docCasamento = doc('certidao_casamento', 'casamento')
+    // Documentos "se possível" (régua enxuta da Márcia): documento pessoal com
+    // foto e comprovante de residência. A marcação semântica da IA só vale com
+    // arquivo real por trás; o tipo real do arquivo (docTipos) é o mais confiável.
+    const docIdentidade = temArquivoReal && (semantic.has('identidade') || tipos.has('cpf'))
+    const docResidencia = temArquivoReal && (semantic.has('comprovante_endereco') || tipos.has('endereco') || tipos.has('comprovante'))
 
-    // Referências: 3 comerciais/pessoais COM telefone. São dado, não arquivo —
-    // a IA coleta na conversa e grava em extra_data.referencias (nome + fone).
-    const refsRaw = (input.extra_data ?? {}).referencias
-    const referencias = (Array.isArray(refsRaw) ? refsRaw : [])
-        .map(r => (typeof r === 'string' ? r : `${(r as Record<string, unknown>)?.nome ?? ''} ${(r as Record<string, unknown>)?.telefone ?? ''}`))
-        .map(s => String(s).trim())
-        .filter(s => /\d{8,}/.test(s.replace(/\D/g, '')))
-
+    // Régua da concessão (10/07): OBRIGATÓRIO = dados (nome, CPF, I.E., endereço,
+    // telefone), quase todos vindos das consultas oficiais. Documentos entram
+    // como DESEJÁVEIS ("se possível, de início imediato") — não travam a ficha.
     const items: ChecklistItem[] = [
         { key: 'nome_completo', label: 'Nome completo', group: 'titular', done: /\S+\s+\S+/.test(nome), value: nome || undefined },
         { key: 'cpf', label: 'CPF', group: 'titular', done: cpf.length === 11, value: cpf || undefined },
         { key: 'telefone', label: 'Telefone', group: 'titular', done: fone.length >= 8, value: fone || undefined },
-        { key: 'email', label: 'E-mail', group: 'titular', done: email.includes('@'), value: email || undefined },
-        { key: 'endereco', label: 'Endereço do titular (cidade/UF/CEP)', group: 'titular', done: endereco.length >= 8, value: endereco || undefined },
+        { key: 'endereco', label: 'Endereço de correspondência', group: 'titular', done: endereco.length >= 8, value: endereco || undefined },
+        { key: 'email', label: 'E-mail', group: 'titular', optional: true, done: email.includes('@'), value: email || undefined },
 
-        { key: 'fazenda_nome', label: 'Nome da fazenda (entrega)', group: 'propriedade', done: fazendaNome.length >= 2, value: fazendaNome || undefined },
-        {
-            key: 'fazenda_local', label: 'Cidade/UF da fazenda', group: 'propriedade',
-            done: fazendaCidade.length >= 2 && fazendaUf.length === 2,
-            value: fazendaCidade ? `${fazendaCidade}${fazendaUf ? '/' + fazendaUf : ''}` : undefined,
-        },
         {
             key: 'inscricao_estadual',
             label: ieDispensada ? `Inscrição Estadual (dispensada — ${str(input.ieDispensadaPara)})` : 'Inscrição Estadual (ou NIRF)',
@@ -172,32 +157,30 @@ export function computeHabilitacaoChecklist(input: HabilitacaoInput): Habilitaca
             done: ie.length >= 3 || temIe || ieDispensada,
             value: ie || (temIe ? 'Tem (nº pendente)' : ieDispensada ? 'Dispensada para este leilão' : undefined),
         },
+        { key: 'fazenda_nome', label: 'Nome da fazenda (entrega)', group: 'propriedade', optional: true, done: fazendaNome.length >= 2, value: fazendaNome || undefined },
+        {
+            key: 'fazenda_local', label: 'Cidade/UF da fazenda', group: 'propriedade', optional: true,
+            done: fazendaCidade.length >= 2 && fazendaUf.length === 2,
+            value: fazendaCidade ? `${fazendaCidade}${fazendaUf ? '/' + fazendaUf : ''}` : undefined,
+        },
 
-        // Lista oficial de análise de crédito PF (todos OBRIGATÓRIOS, exceto
-        // casamento). NENHUMA consulta substitui — vêm do lead.
-        { key: 'doc_identidade', label: 'Documento pessoal com foto (frente e verso)', group: 'documentos', done: docIdentidade },
-        { key: 'doc_identidade_selfie', label: 'Selfie segurando o documento', group: 'documentos', done: docSelfie },
-        { key: 'doc_endereco', label: 'Comprovante de endereço (correspondência, no titular)', group: 'documentos', done: docEndereco },
-        { key: 'doc_matricula', label: 'Certidão de matrícula atualizada do imóvel rural (cartório)', group: 'documentos', done: docMatricula },
-        { key: 'doc_itr', label: 'ITR do imóvel', group: 'documentos', done: docItr },
-        { key: 'doc_renda', label: 'Comprovante de renda (Decl. de IR + extrato bancário 3 meses)', group: 'documentos', done: docRenda },
-        { key: 'referencias', label: '3 referências comerciais/pessoais (com telefone)', group: 'documentos', done: referencias.length >= 3, value: referencias.length ? `${referencias.length}/3` : undefined },
+        // "Se possível, de início imediato" — desejáveis, não travam a submissão.
+        { key: 'doc_identidade', label: 'Documento pessoal com foto', group: 'documentos', optional: true, done: docIdentidade },
+        { key: 'doc_endereco', label: 'Comprovante de residência', group: 'documentos', optional: true, done: docResidencia },
     ]
 
-    // Certidão de casamento é OPCIONAL na lista da leiloeira: só aparece como ✔
-    // quando o lead manda — nunca trava o checklist.
-    if (docCasamento) {
-        items.push({ key: 'doc_casamento', label: 'Certidão de casamento', group: 'documentos', done: true })
-    }
-
+    const obrigatorios = items.filter(i => !i.optional)
     const done = items.filter(i => i.done).length
-    const complete = done === items.length
+    // `complete` = todos os OBRIGATÓRIOS ok (os desejáveis não seguram).
+    const complete = obrigatorios.every(i => i.done)
     return {
         items,
         done,
         total: items.length,
+        // missingLabels lista os obrigatórios que faltam (é o que a IA pede
+        // primeiro); os desejáveis a IA pede "se possível" via checklistPromptBlock.
+        missingLabels: obrigatorios.filter(i => !i.done).map(i => i.label),
         complete,
-        missingLabels: items.filter(i => !i.done).map(i => i.label),
     }
 }
 
@@ -218,11 +201,14 @@ export function checklistPromptBlock(cl: HabilitacaoChecklist): string {
         const items = cl.items.filter(i => i.group === group)
         lines.push(`${GROUP_LABEL[group]}:`)
         for (const i of items) {
-            lines.push(i.done ? `  ✔ ${i.label}${i.value ? `: ${i.value}` : ''}` : `  ✘ FALTA — ${i.label}`)
+            const marca = i.optional ? ' (se possível)' : ''
+            lines.push(i.done
+                ? `  ✔ ${i.label}${i.value ? `: ${i.value}` : ''}`
+                : `  ✘ FALTA — ${i.label}${marca}`)
         }
     }
     lines.push(cl.complete
-        ? 'CHECKLIST COMPLETO: não peça mais nada; confirme e informe que a habilitação foi encaminhada.'
-        : `Progresso: ${cl.done}/${cl.total}. Peça SOMENTE itens marcados com ✘, priorizando dados antes de documentos.`)
+        ? 'DADOS OBRIGATÓRIOS COMPLETOS: a habilitação já pode ser encaminhada. Os itens "(se possível)" que faltarem, peça UMA vez com leveza (documento com foto e comprovante de residência) — mas NÃO trave o cadastro por eles.'
+        : `Progresso: ${cl.done}/${cl.total}. Peça primeiro os itens ✘ SEM "(se possível)" (são os obrigatórios); os "(se possível)" peça com leveza e não trave o cadastro por eles.`)
     return lines.join('\n')
 }
