@@ -69,11 +69,15 @@ function snapshotFromVps(v: VideoextratorLeilao) {
   }
 }
 
-function analiseVpsConcluida(v: VideoextratorLeilao): boolean {
-  if (['done', 'legacy_complete'].includes(v.queue_status || '')) return true
+function statusTerminalVps(v: VideoextratorLeilao): 'concluido' | 'erro' | null {
+  if (['done', 'legacy_complete'].includes(v.queue_status || '')) return 'concluido'
   // "skipped" pode significar apenas que o pipeline não encontrou lote
-  // algum. Só tratamos como concluído quando existe relatório aproveitável.
-  return v.queue_status === 'skipped' && Number(v.total_lotes || 0) > 0
+  // algum. Sem relatório aproveitável, o estado correto é erro, não uma
+  // espera infinita nem uma análise concluída vazia.
+  if (v.queue_status === 'skipped') {
+    return Number(v.total_lotes || 0) > 0 ? 'concluido' : 'erro'
+  }
+  return null
 }
 
 /**
@@ -114,7 +118,7 @@ export async function montarLeiloesAnalise(
   const vpsById = new Map(vps.map((v) => [v.video_id, v]))
 
   const novosAuto: Array<Record<string, unknown>> = []
-  const concluidosAgora: Array<Record<string, unknown>> = []
+  const reconciliadosAgora: Array<Record<string, unknown>> = []
   const rows: LeilaoAnaliseRow[] = []
 
   for (const leilao of agenda) {
@@ -124,20 +128,20 @@ export async function montarLeiloesAnalise(
       // vídeo que terminava na VPS continuava como "processando" no web-bula
       // até alguém clicar manualmente em Sincronizar.
       const hit = vinc.video_id ? vpsById.get(vinc.video_id) : undefined
-      const filaTerminou = hit && analiseVpsConcluida(hit)
-      if (vinc.status !== 'concluido' && hit && filaTerminou) {
+      const statusTerminal = hit ? statusTerminalVps(hit) : null
+      if (vinc.status !== 'concluido' && hit && statusTerminal && vinc.status !== statusTerminal) {
         const snap = snapshotFromVps(hit)
         const sincronizadoEm = new Date().toISOString()
         const analise: AnaliseVinculo = {
           ...vinc,
-          status: 'concluido',
+          status: statusTerminal,
           ...snap,
           sincronizado_em: sincronizadoEm,
         }
-        concluidosAgora.push({
+        reconciliadosAgora.push({
           leilao_id: leilao.id,
           video_id: vinc.video_id,
-          status: 'concluido',
+          status: statusTerminal,
           ...snap,
           sincronizado_em: sincronizadoEm,
         })
@@ -155,9 +159,8 @@ export async function montarLeiloesAnalise(
       if (m && m.tier === 'auto') {
         usados.add(m.video.video_id)
         const snap = snapshotFromVps(m.video)
-        const filaTerminou = analiseVpsConcluida(m.video)
-        const status = filaTerminou ? 'concluido' : 'processando'
-        const sincronizadoEm = filaTerminou ? new Date().toISOString() : null
+        const status = statusTerminalVps(m.video) || 'processando'
+        const sincronizadoEm = status !== 'processando' ? new Date().toISOString() : null
         const analise: AnaliseVinculo = {
           video_id: m.video.video_id,
           video_url: `https://www.youtube.com/watch?v=${m.video.video_id}`,
@@ -192,10 +195,10 @@ export async function montarLeiloesAnalise(
   if (novosAuto.length > 0) {
     await supabase.from('bula_leilao_video_analise').upsert(novosAuto, { onConflict: 'leilao_id' })
   }
-  if (concluidosAgora.length > 0) {
+  if (reconciliadosAgora.length > 0) {
     await supabase
       .from('bula_leilao_video_analise')
-      .upsert(concluidosAgora, { onConflict: 'leilao_id' })
+      .upsert(reconciliadosAgora, { onConflict: 'leilao_id' })
   }
 
   return { rows, vpsOnline }
@@ -226,11 +229,12 @@ export async function sincronizarAnalises(
     if (!opts.force && v.status === 'concluido') continue
     const hit = vpsById.get(v.video_id)
     if (!hit) continue
-    if (!analiseVpsConcluida(hit)) continue
+    const statusTerminal = statusTerminalVps(hit)
+    if (!statusTerminal || v.status === statusTerminal) continue
     const snap = snapshotFromVps(hit)
     await supabase
       .from('bula_leilao_video_analise')
-      .update({ status: 'concluido', ...snap, sincronizado_em: new Date().toISOString() })
+      .update({ status: statusTerminal, ...snap, sincronizado_em: new Date().toISOString() })
       .eq('leilao_id', v.leilao_id)
     atualizados++
   }
