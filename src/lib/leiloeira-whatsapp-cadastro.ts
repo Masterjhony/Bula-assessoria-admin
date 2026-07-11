@@ -24,11 +24,23 @@ import { sendVpsGroup } from './whatsapp-vps'
 import { sendOutbound } from './whatsapp-gateway'
 import { notifyTeamGroup, notifyAssessoresGroup } from './whatsapp-team-notify'
 import { firstName } from './whatsapp-central'
+import { ufFromPhone, normalizeUf } from './state-registration-provider'
+import { resumoQualificacaoTexto } from './crm-qualificacao'
 
 /** UF do lead para as notificações: a do cadastro, ou a da fazenda consultada. */
 function ufDoLead(lead: { estado?: string | null; extra_data?: Record<string, unknown> | null }): string {
-    const uf = String(lead.estado ?? '').trim() || String((lead.extra_data ?? {}).fazenda_uf ?? '').trim()
-    return uf ? uf.toUpperCase() : ''
+    return normalizeUf(lead.estado) || normalizeUf(String((lead.extra_data ?? {}).fazenda_uf ?? '')) || ''
+}
+
+/**
+ * Linha de UF sempre presente para os avisos internos (Baileys). Prefere a UF
+ * captada; sem ela, cai no DDD do telefone (marcado, pois às vezes engana).
+ */
+function ufLineCad(uf: string, fone: string): string {
+    if (uf) return `Região (UF): ${uf}`
+    const byDdd = ufFromPhone(fone)
+    if (byDdd) return `Região (UF): ${byDdd} (por DDD — confirmar)`
+    return 'Região (UF): não informada'
 }
 
 const DOCS_BUCKET = 'cliente-documentos'
@@ -46,6 +58,8 @@ interface LeadRow {
     estado: string | null
     inscricao_estadual: string | null
     tem_inscricao_estadual: string | null
+    momento_pecuaria: string | null
+    interesse: string | null
     interesse_principal: string | null
     o_que_busca: string | null
     quantidade_animais: string | null
@@ -627,18 +641,20 @@ export async function handleLeiloeiraGroupMessage(
     let clienteNome = cadastro.cliente_key
     let clienteUf = ''
     let clienteFone = ''
+    let clienteQualResumo = ''
     let clienteAvisado = false
     if (cadastro.crm_lead_id) {
         const { data: leadData } = await supabase
             .from('crm_leads')
-            .select('id, nome, telefone, celular, estado, contact_history, extra_data, optout_whatsapp')
+            .select('id, nome, telefone, celular, cidade, estado, momento_pecuaria, interesse, interesse_principal, o_que_busca, quantidade_animais, tem_inscricao_estadual, inscricao_estadual, contact_history, extra_data, optout_whatsapp')
             .eq('id', cadastro.crm_lead_id)
             .maybeSingle()
-        const lead = leadData as (Pick<LeadRow, 'id' | 'nome' | 'telefone' | 'celular' | 'estado' | 'contact_history' | 'extra_data'> & { optout_whatsapp: boolean | null }) | null
+        const lead = leadData as (LeadRow & { optout_whatsapp: boolean | null }) | null
         if (lead) {
             clienteNome = lead.nome || clienteNome
             clienteUf = ufDoLead(lead)
             clienteFone = lead.celular || lead.telefone || ''
+            clienteQualResumo = resumoQualificacaoTexto(lead)
             const xd = { ...(lead.extra_data ?? {}) } as Record<string, unknown>
             xd.cadastro_status = decision === 'aprovado' ? 'aprovado' : 'recusado'
             if (decision === 'aprovado') xd.cadastro_aprovado = true
@@ -700,10 +716,11 @@ export async function handleLeiloeiraGroupMessage(
         input.groupJid,
         `✅ Registrado: cadastro de *${clienteNome}* marcado como *${decision.toUpperCase()}*. ${clienteAvisado ? 'Cliente avisado.' : 'Cliente ainda não avisado (fora da janela ou sem WhatsApp).'}`,
     )
-    const linhaCliente = `Cliente: ${clienteNome}${clienteUf ? ` (${clienteUf})` : ''}${clienteFone ? ` — ${clienteFone}` : ''}`
+    const linhaCliente = `Cliente: ${clienteNome}${clienteFone ? ` — ${clienteFone}` : ''}`
     const avisoNotify = [
         decision === 'aprovado' ? '🟢 *Cadastro APROVADO pela leiloeira*' : '🔴 *Cadastro RECUSADO pela leiloeira*',
         linhaCliente,
+        ufLineCad(clienteUf, clienteFone),
         `Leiloeira: ${leiloeira.nome} · por ${input.senderName || 'participante do grupo'}`,
         clienteAvisado
             ? 'Cliente avisado pela API oficial.'
@@ -719,9 +736,11 @@ export async function handleLeiloeiraGroupMessage(
         void notifyAssessoresGroup(supabase, [
             '🟢 *Novo cliente APROVADO — habilitado a comprar*',
             linhaCliente,
+            ufLineCad(clienteUf, clienteFone),
             `Leiloeira: ${leiloeira.nome}`,
             clienteAvisado ? 'Cliente já avisado pela IA — dar sequência no atendimento.' : 'Cliente ainda não avisado — falar com ele.',
-        ].join('\n')).catch(() => { /* best-effort */ })
+            clienteQualResumo ? `\n${clienteQualResumo}` : '',
+        ].filter(Boolean).join('\n')).catch(() => { /* best-effort */ })
     }
 
     return { kind: 'decided', decision, cliente: clienteNome, leiloeira: leiloeira.nome, clienteAvisado }

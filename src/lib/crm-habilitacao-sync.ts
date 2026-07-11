@@ -28,9 +28,10 @@ import type { SupabaseClient } from '@supabase/supabase-js'
 import { computeHabilitacaoChecklist, type HabilitacaoChecklist } from './crm-habilitacao'
 import { maybeRunStateRegistrationCheck } from './crm-state-registration-automation'
 import { maybeEnrichLeadFromPhone } from './crm-lead-enrichment'
-import { consultarImoveisRuraisPorCpf, isFiscalApiConfigured } from './state-registration-provider'
+import { consultarImoveisRuraisPorCpf, isFiscalApiConfigured, ufFromPhone, normalizeUf } from './state-registration-provider'
 import { submitLeadCadastroToLeiloeiraGroups, enviarComplementoCadastro } from './leiloeira-whatsapp-cadastro'
 import { ieDispensadaParaLead, avisoIeDispensadaTexto } from './concierge-campanha'
+import { resumoQualificacaoTexto } from './crm-qualificacao'
 import { notifyTeamGroup } from './whatsapp-team-notify'
 import { maybeRunCreditCheck } from './crm-credit-automation'
 import { scoreToFaixa } from './clientes'
@@ -38,6 +39,19 @@ import { DEFAULT_JMP_MQL_RULE } from './crm-types'
 
 /** Faixas de score que a leiloeira aceita analisar (razoável para cima). */
 const FAIXAS_APROVADAS = new Set(['razoavel', 'bom', 'otimo'])
+
+/**
+ * Linha de UF do lead para os avisos internos do grupo (Baileys). Sempre
+ * devolve uma linha, mesmo sem dado. Ordem: `estado` captado → `fazenda_uf`
+ * (extra_data) → DDD do telefone (marcado "por DDD", que às vezes engana).
+ */
+function ufLineSync(lead: { estado?: string | null; extra_data?: Record<string, unknown> | null; celular?: string | null; telefone?: string | null }): string {
+    const real = normalizeUf(lead.estado) || normalizeUf(String((lead.extra_data ?? {}).fazenda_uf ?? ''))
+    if (real) return `Região (UF): ${real}`
+    const byDdd = ufFromPhone(lead.celular) || ufFromPhone(lead.telefone)
+    if (byDdd) return `Região (UF): ${byDdd} (por DDD — confirmar)`
+    return 'Região (UF): não informada'
+}
 
 /**
  * O crédito do lead libera a submissão? A leiloeira é exigente: não adianta
@@ -58,6 +72,7 @@ function creditoLiberado(xd: Record<string, unknown>): { ok: boolean; motivo: st
 
 const LEAD_FIELDS =
     'id, nome, telefone, celular, email, cpf, estado, cidade, quantidade_animais, ' +
+    'momento_pecuaria, interesse, interesse_principal, o_que_busca, ' +
     'inscricao_estadual, tem_inscricao_estadual, status, contact_history, extra_data'
 
 interface SyncLead {
@@ -68,7 +83,12 @@ interface SyncLead {
     email: string | null
     cpf: string | null
     estado: string | null
+    cidade: string | null
     quantidade_animais: string | null
+    momento_pecuaria: string | null
+    interesse: string | null
+    interesse_principal: string | null
+    o_que_busca: string | null
     inscricao_estadual: string | null
     tem_inscricao_estadual: string | null
     /** Nunca é nulo na prática; as automações exigem `string`. */
@@ -347,10 +367,10 @@ export async function sincronizarHabilitacao(
             await marcarSubmetido()
         }
         const fone = lead.celular || lead.telefone || ''
-        const uf = String(lead.estado ?? '').trim() || String((lead.extra_data ?? {}).fazenda_uf ?? '').trim()
         const linhas = [
             '📤 *Ficha de cadastro enviada às leiloeiras*',
-            `${lead.nome ?? leadId}${uf ? ` (${uf.toUpperCase()})` : ''}${fone ? ` — ${fone}` : ''}`,
+            `${lead.nome ?? leadId}${fone ? ` — ${fone}` : ''}`,
+            ufLineSync(lead),
             `Enviada ao grupo de ${sub.sent} leiloeira(s) — aguardando aprovado/recusado.`,
         ]
         if (sub.aguardandoDoc.length) {
@@ -362,12 +382,15 @@ export async function sincronizarHabilitacao(
         if (dispensa && !lead.inscricao_estadual) {
             linhas.push('', avisoIeDispensadaTexto(lead.nome ?? leadId, fone))
         }
+        const resumo = resumoQualificacaoTexto(lead)
+        if (resumo) linhas.push('', resumo)
         await notifyTeamGroup(supabase, linhas.join('\n')).catch(() => { /* best-effort */ })
     } else if (sub.skipped.length) {
         base.motivo = sub.skipped.map(s => `${s.leiloeira}: ${s.reason}`).join(' · ')
         await notifyTeamGroup(supabase, [
             '⚠️ *Cadastro completo, mas a ficha NÃO foi enviada*',
             `${lead.nome ?? leadId}`,
+            ufLineSync(lead),
             base.motivo,
         ].join('\n')).catch(() => { /* best-effort */ })
     }

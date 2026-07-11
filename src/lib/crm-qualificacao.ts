@@ -141,6 +141,50 @@ export function buildQualificacao(lead: QualLead): QualItem[] {
     return out
 }
 
+/**
+ * Resumo COMPACTO da qualificação para os avisos internos do WhatsApp (Baileys).
+ * Serve ao assessor que vai assumir o lead: em 2–4 linhas ele já sabe quem é o
+ * produtor, o que quer e como está no fiscal — sem abrir o CRM. Uma linha por
+ * grupo (`Perfil:`, `Intenção:`, `Fiscal:`), valores separados por ` · `; grupos
+ * sem dado somem. Local/UF fica de fora (a notificação já traz a linha de UF).
+ * Reaproveita os mesmos rótulos/mapas da fonte única acima.
+ */
+export function resumoQualificacaoLinhas(lead: QualLead): string[] {
+    const xd = (lead.extra_data ?? {}) as Record<string, unknown>
+    const linhas: string[] = []
+
+    const perfil = [
+        momentoPecuariaLabel(lead.momento_pecuaria),
+        SISTEMA_PRODUCAO_LABEL[str(xd.sistema_producao)] ?? str(xd.sistema_producao),
+        str(lead.quantidade_animais) ? `${str(lead.quantidade_animais)} cabeças` : '',
+        str(xd.rebanho_atual) ? `rebanho: ${str(xd.rebanho_atual)}` : '',
+    ].filter(Boolean)
+    if (perfil.length) linhas.push(`Perfil: ${perfil.join(' · ')}`)
+
+    const intencao = [
+        str(lead.interesse_principal) || str(lead.o_que_busca) || str(lead.interesse),
+        str(xd.objetivo_compra_resumido),
+        URGENCIA_LABEL[str(xd.urgencia_compra)] ?? str(xd.urgencia_compra),
+        EXPERIENCIA_LABEL[str(xd.experiencia_leilao)] ?? str(xd.experiencia_leilao),
+    ].filter(Boolean)
+    if (intencao.length) linhas.push(`Intenção: ${intencao.join(' · ')}`)
+
+    const fiscal: string[] = []
+    if (str(lead.tem_inscricao_estadual)) fiscal.push(`Tem I.E.: ${str(lead.tem_inscricao_estadual)}`)
+    else if (str(lead.inscricao_estadual)) fiscal.push(`I.E.: ${str(lead.inscricao_estadual)}`)
+    if (str(xd.ie_dispensada_leilao)) fiscal.push(`I.E. dispensada (${str(xd.ie_dispensada_leilao)})`)
+    if (fiscal.length) linhas.push(`Fiscal: ${fiscal.join(' · ')}`)
+
+    return linhas
+}
+
+/** Resumo da qualificação como bloco de texto (linhas já com "📋"), ou '' se vazio. */
+export function resumoQualificacaoTexto(lead: QualLead): string {
+    const linhas = resumoQualificacaoLinhas(lead)
+    if (!linhas.length) return ''
+    return ['📋 *Qualificação*', ...linhas].join('\n')
+}
+
 export const QUAL_GRUPO_LABEL: Record<QualGrupo, string> = {
     perfil: 'Perfil do produtor',
     'intenção': 'Intenção de compra',

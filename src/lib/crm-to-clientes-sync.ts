@@ -12,6 +12,7 @@ import { CRM_STAGE_REGISTRATION, normalizeCRMStatus } from '@/lib/crm-types'
 import { clienteMatchKey, scoreToFaixa, isClienteCadastroApto } from '@/lib/clientes'
 import { submitClienteToLeiloeiras } from '@/lib/leiloeira-submission'
 import { notifyTeamGroup } from '@/lib/whatsapp-team-notify'
+import { ufFromPhone, normalizeUf } from '@/lib/state-registration-provider'
 
 type LeadLike = {
   id: string
@@ -133,9 +134,13 @@ export async function syncLeadToClientes(
   }
 
   // Aviso interno: cadastro aprovado virou cliente (com o resultado dos e-mails).
+  const ufCliente = normalizeUf(lead.estado) || ufFromPhone(lead.celular) || ufFromPhone(lead.telefone)
   void notifyTeamGroup(supabase, [
     '🏁 *Cadastro aprovado — lead virou cliente*',
     `${nome}${payload.telefone ? ` — ${payload.telefone}` : ''}`,
+    ufCliente
+      ? `Região (UF): ${ufCliente}${normalizeUf(lead.estado) ? '' : ' (por DDD — confirmar)'}`
+      : 'Região (UF): não informada',
     emailsSent > 0
       ? `Cadastro enviado por e-mail para ${emailsSent} leiloeira(s).`
       : 'Nenhum e-mail de leiloeira enviado (sem leiloeira elegível ou já enviado).',

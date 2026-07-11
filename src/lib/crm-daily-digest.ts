@@ -12,6 +12,7 @@
 import type { SupabaseClient } from '@supabase/supabase-js'
 import { notifyTeamGroup } from './whatsapp-team-notify'
 import { sendVpsGroup } from './whatsapp-vps'
+import { ufFromPhone, normalizeUf } from './state-registration-provider'
 import {
     CRM_STAGE_ENTRY,
     CRM_STAGE_CONNECTION,
@@ -52,7 +53,7 @@ export interface DailyDigestStats {
     fichasEnviadas: number
     aprovados: number
     recusados: number
-    aguardandoLista: { nome: string; status: string }[]
+    aguardandoLista: { nome: string; status: string; uf: string }[]
 }
 
 export async function buildCrmDailyDigest(
@@ -100,16 +101,16 @@ export async function buildCrmDailyDigest(
     // ── Funil: etapa atual de quem teve conversa hoje ──
     const phones = [...new Set([...outboundPhones, ...inboundPhones])]
     const funil: Record<string, number> = {}
-    const statusByPhone = new Map<string, { nome: string; status: string }>()
+    const statusByPhone = new Map<string, { nome: string; status: string; estado: string | null }>()
     if (phones.length) {
         const { data: leads } = await supabase
             .from('crm_leads')
-            .select('nome, telefone, status')
+            .select('nome, telefone, status, estado')
             .in('telefone', phones)
         for (const l of leads ?? []) {
             const st = normalizeCRMStatus(l.status) || '—'
             funil[st] = (funil[st] ?? 0) + 1
-            if (l.telefone) statusByPhone.set(l.telefone, { nome: l.nome || l.telefone, status: st })
+            if (l.telefone) statusByPhone.set(l.telefone, { nome: l.nome || l.telefone, status: st, estado: l.estado ?? null })
         }
     }
 
@@ -131,7 +132,9 @@ export async function buildCrmDailyDigest(
 
     const aguardandoLista = aguardando.slice(-6).reverse().map(([phone, v]) => {
         const lead = statusByPhone.get(phone)
-        return { nome: lead?.nome || v.name, status: lead?.status || '—' }
+        const ufReal = normalizeUf(lead?.estado)
+        const uf = ufReal || (ufFromPhone(phone) ? `${ufFromPhone(phone)}?` : '')
+        return { nome: lead?.nome || v.name, status: lead?.status || '—', uf }
     })
 
     const stats: DailyDigestStats = {
@@ -176,7 +179,7 @@ export async function buildCrmDailyDigest(
     ]
     if (aguardandoLista.length) {
         linhas.push('', '*Aguardando resposta (mais recentes)*')
-        for (const a of aguardandoLista) linhas.push(`• ${a.nome} — ${a.status}`)
+        for (const a of aguardandoLista) linhas.push(`• ${a.nome}${a.uf ? ` (${a.uf})` : ''} — ${a.status}`)
     }
     linhas.push('', '_Resumo automático · Central WhatsApp_')
 

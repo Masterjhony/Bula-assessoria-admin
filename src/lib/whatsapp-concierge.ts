@@ -40,7 +40,7 @@ import { maybeRunCreditCheck } from './crm-credit-automation'
 import { maybeRunStateRegistrationCheck } from './crm-state-registration-automation'
 import { runHabilitacaoAutofill, autofillPromptBlock, extrairCpf } from './crm-lead-autofill'
 import { computeFase, extractPerfil, fasePromptBlock, type ConciergeFase } from './concierge-fase'
-import { qualificacaoPromptBlock } from './crm-qualificacao'
+import { qualificacaoPromptBlock, resumoQualificacaoTexto, type QualLead } from './crm-qualificacao'
 import {
     ieDispensavel,
     isLeadCampanhaEao,
@@ -50,6 +50,7 @@ import {
     LEILAO_IE_FLEXIVEL,
 } from './concierge-campanha'
 import { notifyTeamGroup } from './whatsapp-team-notify'
+import { ufFromPhone, normalizeUf } from './state-registration-provider'
 import { sincronizarHabilitacao } from './crm-habilitacao-sync'
 import {
     CRM_STAGE_CONNECTION,
@@ -463,6 +464,23 @@ function propriedadeConsultada(lead: Pick<FullLead, 'extra_data'>): boolean {
  */
 function docsSimplificados(lead: Pick<FullLead, 'extra_data'>): boolean {
     return propriedadeConsultada(lead) || isLeadCampanhaEao(lead)
+}
+
+/**
+ * Linha de UF do lead para os avisos internos do grupo (Baileys).
+ * Preferimos o `estado` que já foi captado/confirmado; se não tiver, caímos no
+ * DDD do telefone e marcamos "(por DDD)" — o Douglas alertou que só o DDD às
+ * vezes engana (o cara pode ser de outra região). Sempre devolve uma linha,
+ * mesmo sem dado nenhum, pra manter o campo visível em todo report de lead.
+ */
+function ufLine(estado?: string | null, ...phones: Array<string | null | undefined>): string {
+    const real = normalizeUf(estado)
+    if (real) return `Região (UF): ${real}`
+    for (const p of phones) {
+        const byDdd = ufFromPhone(p)
+        if (byDdd) return `Região (UF): ${byDdd} (por DDD — confirmar)`
+    }
+    return 'Região (UF): não informada'
 }
 
 /** Checklist a partir do lead já carregado (mesma regra em todos os pontos). */
@@ -980,6 +998,7 @@ async function alertAiFailure(
     await notifyTeamGroup(supabase, [
         '⚠️ *A IA não conseguiu responder um lead*',
         `${nome}${fone ? ` — ${fone}` : ''}`,
+        ufLine(lead.estado, lead.celular, lead.telefone, phone),
         'Voltou vazia mesmo após tentar de novo (possível instabilidade do provedor de IA).',
         'O lead está aguardando — o sistema tenta de novo em alguns minutos; assumam no inbox se persistir.',
     ].join('\n'))
@@ -1279,11 +1298,29 @@ async function applyConciergeEffects(
         return null
     })
 
+    // Retrato da qualificação PÓS-update (merge de update + lead + extra_data
+    // novo) — vai nos avisos para o assessor que assume já entrar ciente de quem
+    // é o produtor, sem abrir o CRM.
+    const qualLead: QualLead = {
+        interesse: (update.interesse as string) ?? lead.interesse,
+        interesse_principal: (update.interesse_principal as string) ?? lead.interesse_principal,
+        o_que_busca: (update.o_que_busca as string) ?? lead.o_que_busca,
+        momento_pecuaria: (update.momento_pecuaria as string) ?? lead.momento_pecuaria,
+        quantidade_animais: (update.quantidade_animais as string) ?? lead.quantidade_animais,
+        estado: (update.estado as string) ?? lead.estado,
+        cidade: (update.cidade as string) ?? lead.cidade,
+        tem_inscricao_estadual: (update.tem_inscricao_estadual as string) ?? lead.tem_inscricao_estadual,
+        inscricao_estadual: (update.inscricao_estadual as string) ?? lead.inscricao_estadual,
+        extra_data: nextExtra,
+    }
+    const resumoQual = resumoQualificacaoTexto(qualLead)
+
     // Aviso no grupo interno (best-effort, depois do update pra não atrasar nada
     // crítico). O flag habilitacao_notificada_at já foi gravado junto do update.
     if (shouldNotifyTeam) {
         const nome = (update.nome as string) || lead.nome || lead.telefone || 'Lead'
         const fone = lead.celular || lead.telefone || ''
+        const uf = ufLine((update.estado as string) ?? lead.estado, lead.celular, lead.telefone)
         const interesse = (update.interesse_principal as string) || lead.interesse_principal || lead.o_que_busca || '—'
         const cl = sync?.checklist ?? checklist
         const faltam = cl.missingLabels.length
@@ -1296,10 +1333,12 @@ async function applyConciergeEffects(
         const r = await notifyTeamGroup(supabase, [
             '✅ *Habilitação captada pela IA*',
             `${nome}${fone ? ` — ${fone}` : ''}`,
+            uf,
             `Interesse: ${interesse} · Docs: ${docsCount} arquivo(s) · ${cl.done}/${cl.total} itens`,
             faltam,
             cadastroLinha,
-        ].join('\n'))
+            resumoQual ? `\n${resumoQual}` : '',
+        ].filter(Boolean).join('\n'))
         if (!r.sent && r.reason !== 'no_group_configured') {
             console.warn('[concierge] aviso ao grupo falhou:', r.reason)
         }
@@ -1310,19 +1349,23 @@ async function applyConciergeEffects(
     // estava em handoff/opt-out, então estes são sempre eventos novos.
     const nomeSup = (update.nome as string) || lead.nome || lead.telefone || 'Lead'
     const foneSup = lead.celular || lead.telefone || ''
+    const ufSup = ufLine((update.estado as string) ?? lead.estado, lead.celular, lead.telefone)
 
     if (ai.handoff && !ai.optout) {
         await notifyTeamGroup(supabase, [
             '🖐 *Lead pediu atendimento humano*',
             `${nomeSup}${foneSup ? ` — ${foneSup}` : ''}`,
+            ufSup,
             ai.internal_note ? `Contexto: ${ai.internal_note}` : '',
             'O bot pausou para este lead — assumir a conversa no inbox.',
+            resumoQual ? `\n${resumoQual}` : '',
         ].filter(Boolean).join('\n')).catch(() => { /* best-effort */ })
     }
     if (ai.optout) {
         await notifyTeamGroup(supabase, [
             '🔕 *Lead pediu para não receber mais mensagens (opt-out)*',
             `${nomeSup}${foneSup ? ` — ${foneSup}` : ''}`,
+            ufSup,
             'Envios bloqueados automaticamente.',
         ].join('\n')).catch(() => { /* best-effort */ })
     }
