@@ -69,6 +69,13 @@ function snapshotFromVps(v: VideoextratorLeilao) {
   }
 }
 
+function analiseVpsConcluida(v: VideoextratorLeilao): boolean {
+  if (['done', 'legacy_complete'].includes(v.queue_status || '')) return true
+  // "skipped" pode significar apenas que o pipeline não encontrou lote
+  // algum. Só tratamos como concluído quando existe relatório aproveitável.
+  return v.queue_status === 'skipped' && Number(v.total_lotes || 0) > 0
+}
+
 /**
  * Monta a lista de leilões da agenda (>= DATA_INICIO) com o estado da análise.
  * Faz auto-match dos sem-vínculo contra a VPS e persiste os de tier 'auto'.
@@ -117,8 +124,7 @@ export async function montarLeiloesAnalise(
       // vídeo que terminava na VPS continuava como "processando" no web-bula
       // até alguém clicar manualmente em Sincronizar.
       const hit = vinc.video_id ? vpsById.get(vinc.video_id) : undefined
-      const filaTerminou = hit
-        && ['done', 'skipped', 'legacy_complete'].includes(hit.queue_status || '')
+      const filaTerminou = hit && analiseVpsConcluida(hit)
       if (vinc.status !== 'concluido' && hit && filaTerminou) {
         const snap = snapshotFromVps(hit)
         const sincronizadoEm = new Date().toISOString()
@@ -149,9 +155,7 @@ export async function montarLeiloesAnalise(
       if (m && m.tier === 'auto') {
         usados.add(m.video.video_id)
         const snap = snapshotFromVps(m.video)
-        const filaTerminou = ['done', 'skipped', 'legacy_complete'].includes(
-          m.video.queue_status || '',
-        )
+        const filaTerminou = analiseVpsConcluida(m.video)
         const status = filaTerminou ? 'concluido' : 'processando'
         const sincronizadoEm = filaTerminou ? new Date().toISOString() : null
         const analise: AnaliseVinculo = {
@@ -222,7 +226,7 @@ export async function sincronizarAnalises(
     if (!opts.force && v.status === 'concluido') continue
     const hit = vpsById.get(v.video_id)
     if (!hit) continue
-    if (!['done', 'skipped', 'legacy_complete'].includes(hit.queue_status || '')) continue
+    if (!analiseVpsConcluida(hit)) continue
     const snap = snapshotFromVps(hit)
     await supabase
       .from('bula_leilao_video_analise')
