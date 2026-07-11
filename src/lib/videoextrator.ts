@@ -145,6 +145,9 @@ export interface FilaItem {
   title: string | null
   channel_key: string | null
   status: string // pending | processing | done | error | skipped
+  stage?: string | null
+  stage_updated_at?: string | null
+  attempts?: number
   last_error?: string | null
   updated_at?: string | null
 }

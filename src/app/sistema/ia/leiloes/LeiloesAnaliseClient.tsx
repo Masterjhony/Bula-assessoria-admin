@@ -9,7 +9,7 @@ import {
   SlidersHorizontal, Youtube, CalendarDays, CircleDollarSign, Wifi, ArrowUpDown,
 } from 'lucide-react'
 import type { LeilaoAnaliseRow } from '@/lib/leilao-analise'
-import { parseProcedencia, type Relatorio, type Atividade, type AtividadeEvento } from '@/lib/videoextrator'
+import { parseProcedencia, type Relatorio, type Atividade, type AtividadeEvento, type FilaItem } from '@/lib/videoextrator'
 
 function brl(n: number | null | undefined): string {
   if (n == null) return '—'
@@ -48,6 +48,29 @@ const FILTROS: Array<{ value: FiltroEstado; label: string }> = [
   { value: 'erro', label: 'Com erro' },
 ]
 
+const ETAPAS_FILA: Record<string, { label: string; ativa: boolean }> = {
+  discovered: { label: 'Descoberto', ativa: false },
+  queued: { label: 'Aguardando na fila', ativa: false },
+  acquiring: { label: 'Preparando vídeo', ativa: true },
+  transcribing: { label: 'Transcrevendo', ativa: true },
+  extracting: { label: 'Identificando lotes', ativa: true },
+  gallery: { label: 'Gerando galeria', ativa: true },
+  validating: { label: 'Validando evidências', ativa: true },
+  persisting: { label: 'Salvando resultados', ativa: true },
+  retry_wait: { label: 'Nova tentativa agendada', ativa: false },
+  infra_wait: { label: 'Aguardando infraestrutura', ativa: false },
+  waiting: { label: 'Aguardando disponibilidade', ativa: false },
+  complete: { label: 'Concluído', ativa: false },
+  skipped: { label: 'Ignorado', ativa: false },
+}
+
+function etapaFila(item?: FilaItem): { label: string; ativa: boolean } {
+  if (item?.stage && ETAPAS_FILA[item.stage]) return ETAPAS_FILA[item.stage]
+  if (item?.status === 'processing') return { label: 'Processando agora', ativa: true }
+  if (item?.status === 'error') return { label: 'Falha no processamento', ativa: false }
+  return { label: 'Aguardando na fila', ativa: false }
+}
+
 export default function LeiloesAnaliseClient({
   initialRows,
   vpsOnline,
@@ -68,6 +91,10 @@ export default function LeiloesAnaliseClient({
   const [filtro, setFiltro] = useState<FiltroEstado>('todos')
   const [ordemRecente, setOrdemRecente] = useState(true)
   const monitorFeed = useMonitorFeed()
+  const filaPorVideo = useMemo(
+    () => new Map((monitorFeed.data?.fila || []).map((item) => [item.video_id, item])),
+    [monitorFeed.data?.fila],
+  )
 
   const resumo = useMemo(() => {
     const c = { total: rows.length, analisado: 0, processando: 0, sugestao: 0, sem: 0, erro: 0, volume: 0, lotes: 0, vendidos: 0 }
@@ -268,6 +295,8 @@ export default function LeiloesAnaliseClient({
                 const badge = BADGE[e]
                 const id = row.leilao.id
                 const isBusy = busy === id
+                const itemFila = row.analise?.video_id ? filaPorVideo.get(row.analise.video_id) : undefined
+                const etapa = etapaFila(itemFila)
                 return (
                   <tr key={id} className="border-b border-gray-100 transition-colors last:border-b-0 hover:bg-gray-50/70 dark:border-[#232323] dark:hover:bg-[#181818]">
                     <td className="whitespace-nowrap px-5 py-4 text-xs font-medium text-gray-500 dark:text-gray-400">{dataBR(row.leilao.data)}</td>
@@ -280,7 +309,7 @@ export default function LeiloesAnaliseClient({
                     <td className="px-4 py-4">
                       <span className={`inline-flex items-center gap-1.5 text-[11px] px-2 py-1 rounded-full border ${badge.cls}`}>
                         <badge.Icon size={12} />
-                        {badge.label}
+                        {e === 'processando' ? etapa.label : badge.label}
                       </span>
                       {e === 'sugestao' && row.sugestao && <p className="mt-1 text-[10px] text-gray-400">match {Math.round(row.sugestao.score * 100)}%</p>}
                     </td>
@@ -345,7 +374,8 @@ export default function LeiloesAnaliseClient({
                         )}
                         {e === 'processando' && (
                           <span className="text-xs text-amber-500 flex items-center gap-1.5">
-                            <Loader2 size={13} className="animate-spin" /> na fila da VPS
+                            {etapa.ativa ? <Loader2 size={13} className="animate-spin" /> : <Clock size={13} />}
+                            {etapa.label}
                           </span>
                         )}
                       </div>
@@ -507,7 +537,8 @@ function AtividadePanel({ data, erro, loading }: { data: Atividade | null; erro:
   const [open, setOpen] = useState(false)
 
   const s = data?.stats || {}
-  const processando = (data?.fila || []).filter((f) => f.status === 'processing')
+  const processando = (data?.fila || []).filter((f) => etapaFila(f).ativa)
+  const etapaAtual = etapaFila(processando[0])
 
   return (
     <div className="overflow-hidden rounded-2xl border border-gray-200 bg-white dark:border-[#2A2A2A] dark:bg-[#141414]">
@@ -533,7 +564,7 @@ function AtividadePanel({ data, erro, loading }: { data: Atividade | null; erro:
           {processando.length > 0 && (
             <div className="mb-3 flex items-center gap-2 text-xs text-sky-500">
               <Loader2 size={13} className="animate-spin" />
-              Analisando agora: <span className="font-medium truncate max-w-[60%]">{processando[0].title || processando[0].video_id}</span>
+              {etapaAtual.label}: <span className="font-medium truncate max-w-[60%]">{processando[0].title || processando[0].video_id}</span>
             </div>
           )}
           {loading && <div className="py-6 flex justify-center"><Loader2 className="animate-spin text-[#A68B4B]" size={20} /></div>}
