@@ -94,7 +94,7 @@ for (const n of touros) tourosUrls.push(await up(`galeria-touros/${n}.jpg`, `see
 
 const content = {
   hero: { backgroundUrl: heroBg, badge: 'Vagas limitadas · 13 e 14 de Junho' },
-  whatsappGroupUrl: 'https://chat.whatsapp.com/JYxJPWfkoHHLZfosHlywN9',
+  whatsappGroupUrl: 'https://chat.whatsapp.com/BupzNlk11RLDRDb9Q24qjO',
   blocks: [
     {
       id: 'aparte-femeas',

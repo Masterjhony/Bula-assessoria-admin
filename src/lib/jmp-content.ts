@@ -142,7 +142,7 @@ const DEFAULT_HERO: JmpHero = {
 
 export const DEFAULT_JMP_CONTENT: JmpContent = {
   hero: DEFAULT_HERO,
-  whatsappGroupUrl: 'https://chat.whatsapp.com/J6qbr9dlZ3L1gYZTit0lfC?mode=gi_t',
+  whatsappGroupUrl: 'https://chat.whatsapp.com/BupzNlk11RLDRDb9Q24qjO',
   welcomeEmail: {
     enabled: false,
     subject: 'Sua inscricao no Nelore JMP foi recebida',
