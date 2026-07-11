@@ -63,7 +63,7 @@ export interface RelatorioLote {
   data_nascimento?: string | null
   percentual_ofertado?: number | null
   formula_parcelas?: string | null
-  frame_artifact_id?: number | null
+  frame_artifact_id?: number | string | null
   live_last_seen_at?: string | null
   live_read_count?: number | null
   financeiro?: RelatorioLoteFinanceiro | null

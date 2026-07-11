@@ -11,8 +11,9 @@ export async function GET(
 ) {
   const auth = await requireAdmin()
   if (!auth.ok) return NextResponse.json({ error: auth.error }, { status: auth.status })
-  const id = Number((await params).id)
-  if (!Number.isSafeInteger(id) || id <= 0) {
+  const rawId = (await params).id
+  const id = /^live-\d+$/.test(rawId) ? rawId : Number(rawId)
+  if (typeof id === 'number' && (!Number.isSafeInteger(id) || id <= 0)) {
     return NextResponse.json({ error: 'Imagem inválida.' }, { status: 400 })
   }
   try {

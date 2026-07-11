@@ -101,14 +101,19 @@ export async function getCatalogoLotes(query: string): Promise<CatalogoLotesResp
   return response.json() as Promise<CatalogoLotesResponse>
 }
 
-export async function getLoteArtifact(id: number): Promise<{
+export async function getLoteArtifact(id: number | string): Promise<{
   body: ArrayBuffer
   contentType: string
 }> {
   ensureConfig()
+  const value = String(id)
+  const liveMatch = /^live-(\d+)$/.exec(value)
+  const path = liveMatch
+    ? `/api/live-lote-artefatos/${liveMatch[1]}`
+    : `/api/lote-artefatos/${encodeURIComponent(value)}`
   let response: Response
   try {
-    response = await fetch(`${API_URL}/api/lote-artefatos/${id}`, {
+    response = await fetch(`${API_URL}${path}`, {
       headers: headers(), cache: 'force-cache', signal: AbortSignal.timeout(25_000),
     })
   } catch (error) {
