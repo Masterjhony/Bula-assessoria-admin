@@ -24,6 +24,23 @@ export interface CatalogoAnimal {
   reprodutivo?: string | null
 }
 
+export interface BuyerEvidence {
+  version?: number
+  source?: 'buyer_identification' | 'llm' | 'human_review' | string
+  decision?: 'confirmed_buyer' | 'pending' | 'moved_to_assessor' | 'rejected' | string
+  buyer?: {
+    candidate?: string
+    name?: string
+    status?: 'confirmado' | 'provavel' | 'pendente' | 'rejeitado' | string
+    confidence?: number
+    trigger?: string
+    explicit_anchor?: boolean
+    post_hammer?: boolean
+  }
+  assessor?: { name?: string; id?: string | null; confidence?: number; trigger?: string }
+  evidence_text?: string
+}
+
 export interface CatalogoLote {
   id: number
   video_id: string
@@ -33,6 +50,10 @@ export interface CatalogoLote {
   valor_parcela: number | null
   total_parcelas: number | null
   comprador: string | null
+  comprador_status?: 'confirmado' | 'provavel' | 'pendente' | 'rejeitado' | string | null
+  buyer_evidence_json?: BuyerEvidence | null
+  assessor_id?: string | null
+  assessor_nome?: string | null
   assessoria: string | null
   assessoria_comprador: string | null
   nome_animal: string | null
@@ -67,6 +88,25 @@ export interface CatalogoLotesResponse {
   facets: { leiloes: Array<{ video_id: string; titulo: string; total: number }> }
 }
 
+export type LoteReviewAction = 'confirm' | 'correct' | 'clear_buyer' | 'mark_pending' | 'reject'
+
+export interface LoteReviewInput {
+  review_id: string
+  action: LoteReviewAction
+  comprador?: string
+  comprador_status?: 'confirmado' | 'provavel' | 'pendente' | 'rejeitado'
+  assessor_nome?: string
+  assessor_id?: string | null
+  note?: string
+  reviewer?: string
+}
+
+export interface LoteReviewResponse {
+  lote: Partial<CatalogoLote> & { id: number }
+  review: { review_id: string; action: LoteReviewAction; created_at: string }
+  idempotent: boolean
+}
+
 export class VideoextratorLotesError extends Error {
   status: number
   constructor(message: string, status = 502) {
@@ -99,6 +139,27 @@ export async function getCatalogoLotes(query: string): Promise<CatalogoLotesResp
     throw new VideoextratorLotesError(`VPS respondeu ${response.status}: ${body.slice(0, 200)}`)
   }
   return response.json() as Promise<CatalogoLotesResponse>
+}
+
+export async function reviewCatalogoLote(id: number, input: LoteReviewInput): Promise<LoteReviewResponse> {
+  ensureConfig()
+  let response: Response
+  try {
+    response = await fetch(`${API_URL}/api/lotes/${id}/review`, {
+      method: 'PATCH',
+      headers: { ...headers(), 'Content-Type': 'application/json' },
+      body: JSON.stringify(input),
+      cache: 'no-store',
+      signal: AbortSignal.timeout(25_000),
+    })
+  } catch (error) {
+    throw new VideoextratorLotesError(`Falha ao enviar revisão: ${(error as Error).message}`, 504)
+  }
+  if (!response.ok) {
+    const body = await response.text().catch(() => '')
+    throw new VideoextratorLotesError(`VPS respondeu ${response.status}: ${body.slice(0, 300)}`, response.status)
+  }
+  return response.json() as Promise<LoteReviewResponse>
 }
 
 export async function getLoteArtifact(id: number | string): Promise<{

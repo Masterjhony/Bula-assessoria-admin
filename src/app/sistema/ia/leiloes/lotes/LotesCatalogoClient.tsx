@@ -1,6 +1,6 @@
 'use client'
 
-import { useCallback, useEffect, useMemo, useState } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import Image from 'next/image'
 import {
   AlertTriangle, Beef, CheckCircle2, ChevronDown,
@@ -26,6 +26,23 @@ interface AnimalCatalogo {
   reprodutivo?: string | null
 }
 
+interface BuyerEvidence {
+  version?: number
+  source?: 'buyer_identification' | 'llm' | 'human_review' | string
+  decision?: 'confirmed_buyer' | 'pending' | 'moved_to_assessor' | 'rejected' | string
+  buyer?: {
+    candidate?: string
+    name?: string
+    status?: 'confirmado' | 'provavel' | 'pendente' | 'rejeitado' | string
+    confidence?: number
+    trigger?: string
+    explicit_anchor?: boolean
+    post_hammer?: boolean
+  }
+  assessor?: { name?: string; id?: string | null; confidence?: number; trigger?: string }
+  evidence_text?: string
+}
+
 interface Lote {
   id: number
   video_id: string
@@ -35,6 +52,10 @@ interface Lote {
   valor_parcela: number | null
   total_parcelas: number | null
   comprador: string | null
+  comprador_status?: 'confirmado' | 'provavel' | 'pendente' | 'rejeitado' | string | null
+  buyer_evidence_json?: BuyerEvidence | null
+  assessor_id?: string | null
+  assessor_nome?: string | null
   assessoria: string | null
   assessoria_comprador: string | null
   nome_animal: string | null
@@ -57,6 +78,14 @@ interface ResponseData {
   total: number
   summary: { total: number; com_imagem: number; vendidos: number; revisar: number }
   facets: { leiloes: Array<{ video_id: string; titulo: string; total: number }> }
+}
+
+interface EquipeMembro {
+  id: string
+  nome: string
+  apelido?: string | null
+  empresa?: string | null
+  ativo: boolean
 }
 
 type ViewMode = 'cards' | 'table'
@@ -94,6 +123,20 @@ function statusLabel(lote: Lote): { label: string; cls: string } {
   return { label: 'Vendido', cls: 'border-emerald-500/25 bg-emerald-500/10 text-emerald-500' }
 }
 
+function buyerLabel(lote: Lote): string {
+  const status = (lote.comprador_status || '').toLowerCase()
+  if (!lote.comprador || status === 'pendente' || status === 'rejeitado') return 'Pendente'
+  return lote.comprador
+}
+
+function buyerStatusLabel(lote: Lote): string {
+  const status = (lote.comprador_status || '').toLowerCase()
+  if (status === 'confirmado') return 'Confirmado'
+  if (status === 'provavel') return 'Provável'
+  if (status === 'rejeitado') return 'Rejeitado'
+  return lote.comprador ? 'Não revisado' : 'Pendente'
+}
+
 export default function LotesCatalogoClient() {
   const [data, setData] = useState<ResponseData | null>(null)
   const [items, setItems] = useState<Lote[]>([])
@@ -110,11 +153,21 @@ export default function LotesCatalogoClient() {
   const [minConfidence, setMinConfidence] = useState('')
   const [view, setView] = useState<ViewMode>('cards')
   const [selected, setSelected] = useState<Lote | null>(null)
+  const [assessores, setAssessores] = useState<EquipeMembro[]>([])
 
   useEffect(() => {
     const timer = setTimeout(() => setDebouncedSearch(search.trim()), 300)
     return () => clearTimeout(timer)
   }, [search])
+
+  useEffect(() => {
+    const controller = new AbortController()
+    fetch('/api/leiloes/equipe', { cache: 'no-store', signal: controller.signal })
+      .then(async (response) => response.ok ? response.json() : [])
+      .then((rows) => setAssessores((rows as EquipeMembro[]).filter((row) => row.ativo)))
+      .catch(() => undefined)
+    return () => controller.abort()
+  }, [])
 
   const buildQuery = useCallback((cursor?: number | null) => {
     const query = new URLSearchParams({ limit: '60' })
@@ -283,7 +336,17 @@ export default function LotesCatalogoClient() {
         </div>
       )}
 
-      {selected && <LotDetail lote={selected} onClose={() => setSelected(null)} />}
+      {selected && (
+        <LotDetail
+          lote={selected}
+          assessores={assessores}
+          onClose={() => setSelected(null)}
+          onUpdated={(updated) => {
+            setSelected(updated)
+            setItems((current) => current.map((item) => item.id === updated.id ? updated : item))
+          }}
+        />
+      )}
     </div>
   )
 }
@@ -358,7 +421,9 @@ function LotCard({ lote, onOpen }: { lote: Lote; onOpen: () => void }) {
         </div>
         <div className="mt-4 grid grid-cols-2 gap-2">
           <Info icon={Warehouse} label="Vendedor" value={lote.vendedor || lote.catalogo?.vendedores?.join(', ') || 'Não confirmado'} />
-          <Info icon={UserRound} label="Comprador" value={lote.comprador || 'Não informado'} />
+          <Info icon={UserRound} label="Comprador" value={buyerLabel(lote)} />
+          <Info icon={UserRound} label="Assessor" value={lote.assessor_nome || 'Não identificado'} />
+          <Info icon={Warehouse} label="Assessoria" value={lote.assessoria_comprador || lote.assessoria || 'Não informada'} />
         </div>
         <div className="mt-4 border-t border-gray-100 pt-3 dark:border-[#252525]">
           <div className="flex items-center justify-between text-[10px]"><span className="text-gray-400">Confiança da evidência</span><span className={conf >= 80 ? 'text-emerald-500' : conf >= 60 ? 'text-amber-500' : 'text-red-400'}>{conf}%</span></div>
@@ -380,22 +445,155 @@ function Info({ icon: Icon, label, value }: { icon: React.ElementType; label: st
 function LotsTable({ items, onOpen }: { items: Lote[]; onOpen: (lote: Lote) => void }) {
   return (
     <div className="overflow-hidden rounded-2xl border border-gray-200 bg-white dark:border-[#292929] dark:bg-[#121212]">
-      <div className="overflow-x-auto"><table className="w-full min-w-[920px] text-left"><thead className="border-b border-gray-200 bg-gray-50 text-[10px] uppercase tracking-wider text-gray-400 dark:border-[#292929] dark:bg-[#171717]"><tr><th className="px-4 py-3">Imagem</th><th className="px-4 py-3">Lote / animal</th><th className="px-4 py-3">Leilão</th><th className="px-4 py-3">Comprador</th><th className="px-4 py-3">Valor</th><th className="px-4 py-3">Confiança</th><th className="px-4 py-3" /></tr></thead>
-        <tbody className="divide-y divide-gray-100 dark:divide-[#252525]">{items.map((lote) => { const image = frameUrl(lote); return <tr key={lote.id} className="text-xs text-gray-600 hover:bg-gray-50 dark:text-gray-300 dark:hover:bg-[#171717]"><td className="px-4 py-3">{image ? <Image unoptimized width={80} height={48} src={image} alt="" className="h-12 w-20 rounded-lg object-cover" /> : <div className="flex h-12 w-20 items-center justify-center rounded-lg bg-gray-100 dark:bg-[#202020]"><ImageIcon size={16} className="text-gray-400" /></div>}</td><td className="px-4 py-3"><p className="font-semibold text-gray-900 dark:text-white">Lote {lote.numero_lote || '—'}</p><p className="mt-0.5 max-w-52 truncate text-[11px] text-gray-400">{lote.nome_animal || lote.descricao_lote || 'Sem descrição'}</p></td><td className="px-4 py-3"><p className="max-w-52 truncate">{lote.leilao.titulo || lote.video_id}</p><p className="text-[10px] text-gray-400">{lote.leilao.canal}</p></td><td className="px-4 py-3">{lote.comprador || '—'}</td><td className="px-4 py-3 font-semibold">{brl(lote.valor_parcela || lote.valor_final)}</td><td className="px-4 py-3">{confidence(lote.confianca)}%</td><td className="px-4 py-3"><button onClick={() => onOpen(lote)} className="rounded-lg border border-gray-200 p-2 text-gray-400 hover:text-[#A68B4B] dark:border-[#303030]"><Eye size={14} /></button></td></tr> })}</tbody></table></div>
+      <div className="overflow-x-auto"><table className="w-full min-w-[1040px] text-left"><thead className="border-b border-gray-200 bg-gray-50 text-[10px] uppercase tracking-wider text-gray-400 dark:border-[#292929] dark:bg-[#171717]"><tr><th className="px-4 py-3">Imagem</th><th className="px-4 py-3">Lote / animal</th><th className="px-4 py-3">Leilão</th><th className="px-4 py-3">Comprador</th><th className="px-4 py-3">Assessor</th><th className="px-4 py-3">Valor</th><th className="px-4 py-3">Confiança</th><th className="px-4 py-3" /></tr></thead>
+        <tbody className="divide-y divide-gray-100 dark:divide-[#252525]">{items.map((lote) => { const image = frameUrl(lote); return <tr key={lote.id} className="text-xs text-gray-600 hover:bg-gray-50 dark:text-gray-300 dark:hover:bg-[#171717]"><td className="px-4 py-3">{image ? <Image unoptimized width={80} height={48} src={image} alt="" className="h-12 w-20 rounded-lg object-cover" /> : <div className="flex h-12 w-20 items-center justify-center rounded-lg bg-gray-100 dark:bg-[#202020]"><ImageIcon size={16} className="text-gray-400" /></div>}</td><td className="px-4 py-3"><p className="font-semibold text-gray-900 dark:text-white">Lote {lote.numero_lote || '—'}</p><p className="mt-0.5 max-w-52 truncate text-[11px] text-gray-400">{lote.nome_animal || lote.descricao_lote || 'Sem descrição'}</p></td><td className="px-4 py-3"><p className="max-w-52 truncate">{lote.leilao.titulo || lote.video_id}</p><p className="text-[10px] text-gray-400">{lote.leilao.canal}</p></td><td className="px-4 py-3"><p className="max-w-40 truncate">{buyerLabel(lote)}</p><p className="text-[9px] text-gray-400">{buyerStatusLabel(lote)}</p></td><td className="px-4 py-3"><p className="max-w-40 truncate">{lote.assessor_nome || '—'}</p><p className="text-[9px] text-gray-400">{lote.assessoria_comprador || lote.assessoria || ''}</p></td><td className="px-4 py-3 font-semibold">{brl(lote.valor_parcela || lote.valor_final)}</td><td className="px-4 py-3">{confidence(lote.confianca)}%</td><td className="px-4 py-3"><button onClick={() => onOpen(lote)} className="rounded-lg border border-gray-200 p-2 text-gray-400 hover:text-[#A68B4B] dark:border-[#303030]"><Eye size={14} /></button></td></tr> })}</tbody></table></div>
     </div>
   )
 }
 
-function LotDetail({ lote, onClose }: { lote: Lote; onClose: () => void }) {
+function identityKey(value: string | null | undefined): string {
+  return (value || '').normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase().replace(/[^a-z0-9]+/g, ' ').trim()
+}
+
+function LotDetail({ lote, assessores, onClose, onUpdated }: {
+  lote: Lote
+  assessores: EquipeMembro[]
+  onClose: () => void
+  onUpdated: (lote: Lote) => void
+}) {
   const image = frameUrl(lote)
   const animals = lote.catalogo?.animais || []
+  const evidence = lote.buyer_evidence_json
+  const [editing, setEditing] = useState(false)
+  const [buyer, setBuyer] = useState(lote.comprador || '')
+  const [buyerStatus, setBuyerStatus] = useState(lote.comprador_status || (lote.comprador ? 'provavel' : 'pendente'))
+  const [assessorId, setAssessorId] = useState(lote.assessor_id || '')
+  const [note, setNote] = useState('')
+  const [savingReview, setSavingReview] = useState(false)
+  const [reviewMessage, setReviewMessage] = useState<string | null>(null)
+  const [reviewError, setReviewError] = useState<string | null>(null)
+  const pendingReviewRef = useRef<{ fingerprint: string; reviewId: string } | null>(null)
+  const buyerKeys = (lote.comprador || '').split(/[\/,|]/).map(identityKey).filter(Boolean)
+  const buyerAsAssessor = assessores.find((item) => {
+    const aliases = [item.nome, item.apelido].map(identityKey).filter(Boolean)
+    return buyerKeys.some((key) => aliases.includes(key))
+  })
+
+  async function submitReview(
+    action: 'confirm' | 'correct' | 'clear_buyer' | 'mark_pending' | 'reject',
+    overrides: { comprador?: string; comprador_status?: string; assessor_id?: string | null; assessor_nome?: string } = {},
+  ) {
+    let effectiveBuyer = (overrides.comprador ?? lote.comprador ?? '').trim()
+    let effectiveBuyerStatus = overrides.comprador_status ?? lote.comprador_status ?? (effectiveBuyer ? 'provavel' : 'pendente')
+    if (action === 'reject') {
+      effectiveBuyer = ''
+      effectiveBuyerStatus = 'rejeitado'
+    } else if (action === 'mark_pending' || action === 'clear_buyer') {
+      effectiveBuyer = ''
+      effectiveBuyerStatus = 'pendente'
+    } else if (action === 'confirm') {
+      effectiveBuyerStatus = 'confirmado'
+    }
+
+    const reviewPayload: {
+      action: 'confirm' | 'correct' | 'clear_buyer' | 'mark_pending' | 'reject'
+      comprador: string
+      comprador_status: string
+      assessor_id?: string | null
+      assessor_nome?: string
+      note: string
+    } = {
+      action,
+      comprador: effectiveBuyer,
+      comprador_status: effectiveBuyerStatus,
+      note: note.trim(),
+    }
+    const hasAssessorOverride = Object.prototype.hasOwnProperty.call(overrides, 'assessor_id')
+      || Object.prototype.hasOwnProperty.call(overrides, 'assessor_nome')
+    if (hasAssessorOverride) {
+      const effectiveAssessorId = overrides.assessor_id || null
+      const selectedAssessor = assessores.find((item) => item.id === effectiveAssessorId)
+      reviewPayload.assessor_id = effectiveAssessorId
+      reviewPayload.assessor_nome = overrides.assessor_nome ?? selectedAssessor?.nome ?? ''
+    }
+
+    const fingerprint = JSON.stringify({ lote_id: lote.id, ...reviewPayload })
+    const pendingReview = pendingReviewRef.current
+    const reviewId = pendingReview?.fingerprint === fingerprint ? pendingReview.reviewId : crypto.randomUUID()
+    pendingReviewRef.current = { fingerprint, reviewId }
+
+    setSavingReview(true); setReviewError(null); setReviewMessage(null)
+    try {
+      const response = await fetch(`/api/sistema/ia/leiloes/lotes/${lote.id}/review`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ review_id: reviewId, ...reviewPayload }),
+      })
+      const body = await response.json().catch(() => ({})) as { lote?: Partial<Lote>; error?: string }
+      if (!response.ok) throw new Error(body.error || `Erro ${response.status}`)
+      if (pendingReviewRef.current?.reviewId === reviewId) pendingReviewRef.current = null
+      const updated = { ...lote, ...(body.lote || {}) }
+      onUpdated(updated)
+      setBuyer(updated.comprador || '')
+      setBuyerStatus(updated.comprador_status || (updated.comprador ? 'provavel' : 'pendente'))
+      setAssessorId(updated.assessor_id || '')
+      setEditing(false); setNote('')
+      setReviewMessage('Revisão salva e incorporada ao feedback do extrator.')
+    } catch (cause) {
+      setReviewError((cause as Error).message)
+    } finally {
+      setSavingReview(false)
+    }
+  }
+
+  function submitCorrection() {
+    const selectedAssessor = assessores.find((item) => item.id === assessorId)
+    const overrides = {
+      assessor_id: assessorId || null,
+      assessor_nome: selectedAssessor?.nome ?? '',
+    }
+    if (buyerStatus === 'rejeitado') {
+      return submitReview('reject', { ...overrides, comprador: '', comprador_status: 'rejeitado' })
+    }
+    if (!buyer.trim() || buyerStatus === 'pendente') {
+      return submitReview('mark_pending', { ...overrides, comprador: '', comprador_status: 'pendente' })
+    }
+    return submitReview('correct', { ...overrides, comprador: buyer.trim(), comprador_status: buyerStatus })
+  }
+
   return (
     <div className="fixed inset-0 z-[80] flex items-end justify-end bg-black/65 backdrop-blur-sm sm:p-4" onMouseDown={(event) => { if (event.target === event.currentTarget) onClose() }}>
       <section role="dialog" aria-modal="true" aria-label={`Ficha do lote ${lote.numero_lote || ''}`} className="max-h-[96vh] w-full overflow-y-auto rounded-t-3xl border border-gray-200 bg-white shadow-2xl dark:border-[#303030] dark:bg-[#111111] sm:max-w-2xl sm:rounded-3xl">
         <div className="sticky top-0 z-10 flex items-center justify-between border-b border-gray-200 bg-white/95 px-5 py-4 backdrop-blur dark:border-[#292929] dark:bg-[#111111]/95"><div><p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-[#A68B4B]">Ficha auditável</p><h2 className="text-lg font-bold text-gray-950 dark:text-white">Lote {lote.numero_lote || 'sem número confirmado'}</h2></div><button onClick={onClose} className="rounded-xl border border-gray-200 p-2 text-gray-400 hover:text-gray-900 dark:border-[#303030] dark:hover:text-white"><X size={17} /></button></div>
         <div className="space-y-5 p-5">
           <div className="overflow-hidden rounded-2xl bg-[#181818]">{image ? <Image unoptimized width={640} height={360} src={image} alt={`Frame do lote ${lote.numero_lote || ''}`} className="aspect-video w-full object-cover" /> : <div className="flex aspect-video items-center justify-center"><ImageIcon size={34} className="text-[#A68B4B]/50" /></div>}</div>
-          <div className="grid grid-cols-2 gap-3 sm:grid-cols-3"><Detail label="Animal / oferta" value={lote.nome_animal || lote.descricao_lote || 'Não confirmado'} /><Detail label="Valor por parcela" value={brl(lote.valor_parcela || lote.valor_final)} /><Detail label="Parcelamento" value={lote.total_parcelas ? `${lote.total_parcelas} parcelas` : 'Não informado'} /><Detail label="Vendedor" value={lote.vendedor || lote.catalogo?.vendedores?.join(', ') || 'Não confirmado'} /><Detail label="Comprador" value={lote.comprador || 'Não informado'} /><Detail label="Assessoria" value={lote.assessoria_comprador || lote.assessoria || 'Não informada'} /></div>
+          <div className="grid grid-cols-2 gap-3 sm:grid-cols-3"><Detail label="Animal / oferta" value={lote.nome_animal || lote.descricao_lote || 'Não confirmado'} /><Detail label="Valor por parcela" value={brl(lote.valor_parcela || lote.valor_final)} /><Detail label="Parcelamento" value={lote.total_parcelas ? `${lote.total_parcelas} parcelas` : 'Não informado'} /><Detail label="Vendedor" value={lote.vendedor || lote.catalogo?.vendedores?.join(', ') || 'Não confirmado'} /><Detail label={`Comprador · ${buyerStatusLabel(lote)}`} value={buyerLabel(lote)} /><Detail label="Assessor" value={lote.assessor_nome || 'Não identificado'} /><Detail label="Assessoria" value={lote.assessoria_comprador || lote.assessoria || 'Não informada'} /></div>
+          <section className="rounded-2xl border border-sky-500/20 bg-sky-500/[0.04] p-4">
+            <div className="flex flex-wrap items-start justify-between gap-3">
+              <div><h3 className="text-xs font-semibold text-gray-900 dark:text-white">Identificação de comprador e assessor</h3><p className="mt-1 text-[10px] text-gray-400">Papéis separados, com revisão humana auditável.</p></div>
+              <div className="flex gap-2"><span className="rounded-full border border-sky-500/20 bg-sky-500/10 px-2 py-1 text-[9px] text-sky-500">{buyerStatusLabel(lote)}</span>{evidence?.buyer?.confidence != null && <span className="rounded-full border border-gray-200 px-2 py-1 text-[9px] text-gray-500 dark:border-[#343434]">conf. {confidence(evidence.buyer.confidence)}%</span>}</div>
+            </div>
+            <p className="mt-3 text-xs leading-5 text-gray-600 dark:text-gray-300">{evidence?.evidence_text || lote.evidencia.texto || 'Sem trecho específico validado para a identidade do comprador.'}</p>
+            {evidence && (evidence.source || evidence.buyer?.trigger || evidence.assessor?.trigger) && <div className="mt-2 flex flex-wrap gap-2 text-[9px] text-gray-400">{evidence.source && <span>fonte: {evidence.source.replaceAll('_', ' ')}</span>}{evidence.buyer?.trigger && <span>gatilho: {evidence.buyer.trigger}</span>}{evidence.assessor?.trigger && <span>assessor: {evidence.assessor.trigger}</span>}</div>}
+            {reviewMessage && <p className="mt-3 text-[10px] text-emerald-500">{reviewMessage}</p>}
+            {reviewError && <p className="mt-3 text-[10px] text-red-500">{reviewError}</p>}
+            {!editing ? (
+              <div className="mt-4 flex flex-wrap gap-2">
+                {lote.comprador && <button disabled={savingReview} onClick={() => submitReview('confirm', { comprador_status: 'confirmado' })} className="rounded-lg bg-emerald-500/10 px-3 py-2 text-[10px] font-semibold text-emerald-500 disabled:opacity-50">Confirmar comprador</button>}
+                {buyerAsAssessor && <button disabled={savingReview} onClick={() => submitReview('mark_pending', { comprador: '', comprador_status: 'pendente', assessor_id: buyerAsAssessor.id, assessor_nome: buyerAsAssessor.nome })} className="rounded-lg bg-amber-500/10 px-3 py-2 text-[10px] font-semibold text-amber-500 disabled:opacity-50">Mover nome para Assessor</button>}
+                <button disabled={savingReview} onClick={() => submitReview('mark_pending', { comprador: '', comprador_status: 'pendente' })} className="rounded-lg border border-gray-200 px-3 py-2 text-[10px] font-semibold text-gray-500 disabled:opacity-50 dark:border-[#383838]">Comprador pendente</button>
+                <button onClick={() => setEditing(true)} className="rounded-lg border border-[#A68B4B]/30 px-3 py-2 text-[10px] font-semibold text-[#A68B4B]">Corrigir identificação</button>
+              </div>
+            ) : (
+              <div className="mt-4 grid gap-3 rounded-xl border border-gray-200 bg-white p-3 dark:border-[#333] dark:bg-[#171717] sm:grid-cols-2">
+                <label className="text-[9px] uppercase tracking-wide text-gray-400">Comprador<input value={buyer} onChange={(event) => setBuyer(event.target.value)} className="mt-1 w-full rounded-lg border border-gray-200 bg-gray-50 px-3 py-2 text-xs normal-case text-gray-800 outline-none dark:border-[#333] dark:bg-[#111] dark:text-white" /></label>
+                <label className="text-[9px] uppercase tracking-wide text-gray-400">Status<select value={buyerStatus} onChange={(event) => setBuyerStatus(event.target.value)} className="mt-1 w-full rounded-lg border border-gray-200 bg-gray-50 px-3 py-2 text-xs normal-case text-gray-800 outline-none dark:border-[#333] dark:bg-[#111] dark:text-white"><option value="confirmado">Confirmado</option><option value="provavel">Provável</option><option value="pendente">Pendente</option><option value="rejeitado">Rejeitado</option></select></label>
+                <label className="text-[9px] uppercase tracking-wide text-gray-400 sm:col-span-2">Assessor<select value={assessorId} onChange={(event) => setAssessorId(event.target.value)} className="mt-1 w-full rounded-lg border border-gray-200 bg-gray-50 px-3 py-2 text-xs normal-case text-gray-800 outline-none dark:border-[#333] dark:bg-[#111] dark:text-white"><option value="">Não identificado</option>{assessores.map((item) => <option key={item.id} value={item.id}>{item.nome}{item.empresa ? ` · ${item.empresa}` : ''}</option>)}</select></label>
+                <label className="text-[9px] uppercase tracking-wide text-gray-400 sm:col-span-2">Nota da revisão<textarea value={note} onChange={(event) => setNote(event.target.value)} rows={2} className="mt-1 w-full rounded-lg border border-gray-200 bg-gray-50 px-3 py-2 text-xs normal-case text-gray-800 outline-none dark:border-[#333] dark:bg-[#111] dark:text-white" /></label>
+                <div className="flex justify-end gap-2 sm:col-span-2"><button onClick={() => setEditing(false)} className="rounded-lg px-3 py-2 text-[10px] text-gray-400">Cancelar</button><button disabled={savingReview} onClick={submitCorrection} className="inline-flex items-center gap-1 rounded-lg bg-[#A68B4B] px-3 py-2 text-[10px] font-semibold text-black disabled:opacity-50">{savingReview && <Loader2 size={11} className="animate-spin" />} Salvar correção</button></div>
+              </div>
+            )}
+          </section>
           {animals.length > 0 && <section className="rounded-2xl border border-[#A68B4B]/20 bg-[#A68B4B]/5 p-4"><h3 className="text-xs font-semibold text-[#A68B4B]">Referência do catálogo oficial</h3><div className="mt-3 space-y-2">{animals.map((animal, index) => <div key={`${animal.rgn || animal.nome}-${index}`} className="rounded-xl bg-white/70 p-3 text-xs dark:bg-[#171717]"><p className="font-semibold text-gray-900 dark:text-white">{animal.nome || animal.rgn || animal.siu || `Animal ${index + 1}`}</p><p className="mt-1 text-[10px] leading-4 text-gray-500">{[animal.rgn && `RGN ${animal.rgn}`, animal.nascimento && `Nasc. ${animal.nascimento}`, animal.pai && `Pai ${animal.pai}`, animal.mae && `Mãe ${animal.mae}`, animal.reprodutivo].filter(Boolean).join(' • ')}</p></div>)}</div></section>}
           <section className="rounded-2xl border border-gray-200 p-4 dark:border-[#303030]"><div className="flex items-center justify-between gap-3"><h3 className="text-xs font-semibold text-gray-900 dark:text-white">Evidência da transmissão</h3>{lote.evidencia.inicio_s != null && <span className="rounded-full bg-gray-100 px-2 py-1 text-[10px] text-gray-500 dark:bg-[#222]">{formatTime(lote.evidencia.inicio_s)}</span>}</div><p className="mt-3 text-xs leading-5 text-gray-500 dark:text-gray-400">{lote.evidencia.texto || 'Nenhum trecho foi validado para este lote. O registro deve permanecer em revisão.'}</p>{lote.evidencia.youtube_url && <a href={lote.evidencia.youtube_url} target="_blank" rel="noreferrer" className="mt-3 inline-flex items-center gap-2 text-xs font-semibold text-[#A68B4B] hover:underline"><ExternalLink size={13} /> Conferir no YouTube</a>}</section>
           {lote.procedencia.flags.length > 0 && <section><h3 className="text-[10px] font-semibold uppercase tracking-wider text-gray-400">Sinais de QA</h3><div className="mt-2 flex flex-wrap gap-2">{lote.procedencia.flags.map((flag) => <span key={flag} className="rounded-full border border-amber-500/25 bg-amber-500/10 px-2.5 py-1 text-[10px] text-amber-500">{flag.replaceAll('_', ' ')}</span>)}</div></section>}

@@ -40,6 +40,23 @@ export interface RelatorioLoteFinanceiro {
   } | null
 }
 
+export interface BuyerEvidence {
+  version?: number
+  source?: 'buyer_identification' | 'llm' | 'human_review' | string
+  decision?: 'confirmed_buyer' | 'pending' | 'moved_to_assessor' | 'rejected' | string
+  buyer?: {
+    candidate?: string
+    name?: string
+    status?: 'confirmado' | 'provavel' | 'pendente' | 'rejeitado' | string
+    confidence?: number
+    trigger?: string
+    explicit_anchor?: boolean
+    post_hammer?: boolean
+  }
+  assessor?: { name?: string; id?: string | null; confidence?: number; trigger?: string }
+  evidence_text?: string
+}
+
 export interface RelatorioLote {
   id: number | string
   numero_lote: string | null
@@ -48,6 +65,10 @@ export interface RelatorioLote {
   total_parcelas: number | null
   valor_oferta_inicial: number | null
   comprador: string | null
+  comprador_status?: 'confirmado' | 'provavel' | 'pendente' | 'rejeitado' | string | null
+  buyer_evidence_json?: BuyerEvidence | null
+  assessor_id?: string | null
+  assessor_nome?: string | null
   assessoria: string | null
   assessoria_comprador: string | null
   nome_animal: string | null

@@ -684,8 +684,9 @@ function LiveLotRow({ lote, current }: { lote: RelatorioLote; current: boolean }
           </div>
           <span className={`shrink-0 rounded-full border px-2 py-0.5 text-[8px] font-semibold ${status.cls}`}>{status.label}</span>
         </div>
-        <div className="mt-2 grid grid-cols-2 gap-x-4 gap-y-2 sm:grid-cols-4">
-          <LiveLotField label="Comprador" value={lote.comprador || (lote.motivo === 'VENDIDO' ? 'Pendente' : status.label)} />
+        <div className="mt-2 grid grid-cols-2 gap-x-4 gap-y-2 sm:grid-cols-5">
+          <LiveLotField label="Comprador" value={liveBuyerLabel(lote, status.label)} />
+          <LiveLotField label="Assessor" value={lote.assessor_nome || 'Não identificado'} />
           <LiveLotField label="Condição" value={liveLotFormula(lote)} />
           <LiveLotField label="Total" value={brl(total)} strong />
           <LiveLotField label="Confiança" value={confidence != null ? `${confidence}%` : 'Em análise'} tone={confidence != null && confidence < 70 ? 'warning' : undefined} />
@@ -723,6 +724,14 @@ function liveLotTotal(lote: RelatorioLote): number | null {
     ?? liveLotNumber(lote.valor_total_estimado)
     ?? liveLotNumber(lote.financeiro?.total_estimado)
     ?? liveLotNumber(lote.financeiro?.valor_total)
+}
+
+function liveBuyerLabel(lote: RelatorioLote, fallback: string): string {
+  const buyerStatus = (lote.comprador_status || '').toLowerCase()
+  if (!lote.comprador || buyerStatus === 'pendente' || buyerStatus === 'rejeitado') {
+    return lote.motivo === 'VENDIDO' ? 'Pendente' : fallback
+  }
+  return lote.comprador
 }
 
 function liveLotFormula(lote: RelatorioLote): string {
@@ -969,6 +978,7 @@ function RelatorioModal({ leilaoId, nome, analise, onClose }: { leilaoId: string
                       <th className="px-3 py-2 font-medium">#</th>
                       <th className="px-3 py-2 font-medium">Descrição / Animal</th>
                       <th className="px-3 py-2 font-medium">Comprador</th>
+                      <th className="px-3 py-2 font-medium">Assessor</th>
                       <th className="px-3 py-2 font-medium text-right">Valor</th>
                       <th className="px-3 py-2 font-medium text-center">Parc.</th>
                       <th className="px-3 py-2 font-medium">Fonte</th>
@@ -984,7 +994,8 @@ function RelatorioModal({ leilaoId, nome, analise, onClose }: { leilaoId: string
                         <td className="px-3 py-2 max-w-[200px] truncate text-gray-700 dark:text-gray-200" title={l.descricao_lote || l.nome_animal || ''}>
                           {l.nome_animal || l.descricao_lote || '—'}
                         </td>
-                        <td className="px-3 py-2 text-gray-600 dark:text-gray-300 max-w-[150px] truncate" title={l.comprador || ''}>{l.comprador || '—'}</td>
+                        <td className="px-3 py-2 text-gray-600 dark:text-gray-300 max-w-[150px] truncate" title={l.comprador || ''}>{liveBuyerLabel(l, 'Pendente')}</td>
+                        <td className="px-3 py-2 text-gray-600 dark:text-gray-300 max-w-[150px] truncate" title={l.assessor_nome || ''}>{l.assessor_nome || '—'}</td>
                         <td className="px-3 py-2 text-right font-medium text-gray-800 dark:text-gray-100">{brl(l.valor_final)}</td>
                         <td className="px-3 py-2 text-center text-gray-500 dark:text-gray-400">{l.total_parcelas || '—'}</td>
                         <td className="px-3 py-2">
