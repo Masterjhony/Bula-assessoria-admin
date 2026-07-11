@@ -5,7 +5,8 @@ import { useRouter } from 'next/navigation'
 import {
   FileVideo, RefreshCw, X, Play, CheckCircle2, Clock, AlertCircle,
   Loader2, ExternalLink, Sparkles, TrendingUp, Users, Tag, Eye, Mic, AlertTriangle,
-  Activity, Search, GraduationCap, Gauge, ChevronDown,
+  Activity, Search, GraduationCap, Gauge, ChevronDown, Radio, History,
+  SlidersHorizontal, Youtube, CalendarDays, CircleDollarSign, Wifi, ArrowUpDown,
 } from 'lucide-react'
 import type { LeilaoAnaliseRow } from '@/lib/leilao-analise'
 import { parseProcedencia, type Relatorio, type Atividade, type AtividadeEvento } from '@/lib/videoextrator'
@@ -20,6 +21,7 @@ function dataBR(iso: string): string {
 }
 
 type Estado = 'concluido' | 'processando' | 'sugestao' | 'sem_video' | 'erro'
+type FiltroEstado = 'todos' | Estado
 
 function estadoDe(row: LeilaoAnaliseRow): Estado {
   if (row.analise?.status === 'concluido') return 'concluido'
@@ -37,6 +39,15 @@ const BADGE: Record<Estado, { label: string; cls: string; Icon: React.ElementTyp
   erro: { label: 'Erro', cls: 'bg-red-500/10 text-red-500 border-red-500/30', Icon: AlertCircle },
 }
 
+const FILTROS: Array<{ value: FiltroEstado; label: string }> = [
+  { value: 'todos', label: 'Todos' },
+  { value: 'concluido', label: 'Analisados' },
+  { value: 'processando', label: 'Em processamento' },
+  { value: 'sugestao', label: 'Sugestões' },
+  { value: 'sem_video', label: 'Sem vídeo' },
+  { value: 'erro', label: 'Com erro' },
+]
+
 export default function LeiloesAnaliseClient({
   initialRows,
   vpsOnline,
@@ -47,24 +58,51 @@ export default function LeiloesAnaliseClient({
   erro: string | null
 }) {
   const router = useRouter()
-  const [rows] = useState(initialRows)
+  const rows = initialRows
   const [busy, setBusy] = useState<string | null>(null) // leilao_id em ação
   const [syncing, setSyncing] = useState(false)
   const [urlInputs, setUrlInputs] = useState<Record<string, string>>({})
   const [msg, setMsg] = useState<string | null>(null)
   const [relatorioOpen, setRelatorioOpen] = useState<{ id: string; nome: string; analise: typeof rows[number]['analise'] } | null>(null)
+  const [busca, setBusca] = useState('')
+  const [filtro, setFiltro] = useState<FiltroEstado>('todos')
+  const [ordemRecente, setOrdemRecente] = useState(true)
+  const monitorFeed = useMonitorFeed()
 
   const resumo = useMemo(() => {
-    const c = { total: rows.length, analisado: 0, processando: 0, sugestao: 0, sem: 0 }
+    const c = { total: rows.length, analisado: 0, processando: 0, sugestao: 0, sem: 0, erro: 0, volume: 0, lotes: 0, vendidos: 0 }
     for (const r of rows) {
       const e = estadoDe(r)
-      if (e === 'concluido') c.analisado++
+      if (e === 'concluido') {
+        c.analisado++
+        c.volume += Number(r.analise?.volume_total || 0)
+        c.lotes += Number(r.analise?.total_lotes || 0)
+        c.vendidos += Number(r.analise?.total_vendidos || 0)
+      }
       else if (e === 'processando') c.processando++
       else if (e === 'sugestao') c.sugestao++
+      else if (e === 'erro') c.erro++
       else c.sem++
     }
     return c
   }, [rows])
+
+  const rowsFiltradas = useMemo(() => {
+    const termo = busca.trim().toLocaleLowerCase('pt-BR')
+    return rows
+      .filter((row) => filtro === 'todos' || estadoDe(row) === filtro)
+      .filter((row) => {
+        if (!termo) return true
+        return [row.leilao.nome, row.leilao.transmissao, row.leilao.local]
+          .some((value) => (value || '').toLocaleLowerCase('pt-BR').includes(termo))
+      })
+      .sort((a, b) => {
+        const delta = Date.parse(b.leilao.data) - Date.parse(a.leilao.data)
+        return ordemRecente ? delta : -delta
+      })
+  }, [rows, busca, filtro, ordemRecente])
+
+  const cobertura = resumo.total ? Math.round((resumo.analisado / resumo.total) * 100) : 0
 
   async function post(url: string, body?: unknown) {
     const res = await fetch(url, {
@@ -118,120 +156,171 @@ export default function LeiloesAnaliseClient({
   }
 
   return (
-    <div>
-      {/* Header */}
-      <div className="flex flex-wrap items-center justify-between gap-4 mb-6">
-        <div>
-          <h1 className="text-2xl font-bold text-gray-900 dark:text-white flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-[#A68B4B] to-[#C8A96E] flex items-center justify-center shadow-lg shadow-[#A68B4B]/30">
-              <FileVideo size={20} className="text-black" />
+    <div className="space-y-5">
+      <section className="relative overflow-hidden rounded-3xl border border-[#A68B4B]/20 bg-white dark:bg-[#111111] px-5 py-6 lg:px-7 lg:py-7">
+        <div className="pointer-events-none absolute -right-16 -top-24 h-64 w-64 rounded-full bg-[#A68B4B]/10 blur-3xl" />
+        <div className="relative flex flex-col gap-6 xl:flex-row xl:items-end xl:justify-between">
+          <div className="max-w-2xl">
+            <div className="mb-3 inline-flex items-center gap-2 rounded-full border border-[#A68B4B]/25 bg-[#A68B4B]/5 px-3 py-1 text-[10px] font-semibold uppercase tracking-[0.18em] text-[#A68B4B]">
+              <FileVideo size={12} /> Inteligência de leilões
             </div>
-            Análise de Leilões
-          </h1>
-          <p className="text-sm text-gray-500 mt-1 ml-13">
-            Relatórios extraídos dos vídeos dos leilões (desde 04/2026) · videoextrator na VPS
-          </p>
+            <h1 className="text-2xl font-bold tracking-tight text-gray-950 dark:text-white sm:text-3xl">Decisões melhores a partir de cada transmissão</h1>
+            <p className="mt-2 max-w-xl text-sm leading-6 text-gray-500 dark:text-gray-400">
+              Consulte o histórico já transcrito, acompanhe a captura ao vivo e compare a leitura da IA com os fechamentos da Bula.
+            </p>
+          </div>
+          <div className="flex flex-wrap items-center gap-2">
+            <span className={`inline-flex items-center gap-2 rounded-xl border px-3 py-2 text-xs font-medium ${vpsOnline ? 'border-emerald-500/25 bg-emerald-500/5 text-emerald-500' : 'border-red-500/25 bg-red-500/5 text-red-500'}`}>
+              <Wifi size={14} /> {vpsOnline ? 'VPS conectada' : 'VPS indisponível'}
+            </span>
+            <button
+              onClick={sincronizar}
+              disabled={syncing}
+              className="inline-flex items-center gap-2 rounded-xl bg-[#B89A57] px-4 py-2 text-xs font-semibold text-black shadow-sm transition hover:bg-[#C8A96E] disabled:opacity-50"
+            >
+              <RefreshCw size={14} className={syncing ? 'animate-spin' : ''} />
+              Atualizar dados
+            </button>
+          </div>
         </div>
-        <div className="flex items-center gap-2">
-          <span className={`text-[11px] px-2.5 py-1 rounded-full border ${vpsOnline ? 'text-emerald-500 border-emerald-500/30 bg-emerald-500/5' : 'text-red-500 border-red-500/30 bg-red-500/5'}`}>
-            {vpsOnline ? 'VPS online' : 'VPS offline'}
-          </span>
-          <button
-            onClick={sincronizar}
-            disabled={syncing}
-            className="flex items-center gap-2 px-3.5 py-2 text-sm rounded-xl border border-[#A68B4B]/40 text-[#A68B4B] hover:bg-[#A68B4B]/10 transition-all disabled:opacity-50"
-          >
-            <RefreshCw size={15} className={syncing ? 'animate-spin' : ''} />
-            Sincronizar
-          </button>
-        </div>
+      </section>
+
+      <div className="grid grid-cols-2 gap-3 xl:grid-cols-4">
+        <MetricCard icon={CalendarDays} label="Base acompanhada" value={String(resumo.total)} helper="desde abril de 2026" />
+        <MetricCard icon={Gauge} label="Cobertura analisada" value={`${cobertura}%`} helper={`${resumo.analisado} relatórios concluídos`} tone="emerald" />
+        <MetricCard icon={CircleDollarSign} label="Volume identificado" value={brl(resumo.volume)} helper="nos relatórios concluídos" tone="gold" />
+        <MetricCard icon={Tag} label="Lotes capturados" value={resumo.lotes.toLocaleString('pt-BR')} helper={`${resumo.vendidos} marcados como vendidos`} tone="sky" />
       </div>
 
-      {/* Resumo */}
-      <div className="grid grid-cols-2 sm:grid-cols-5 gap-3 mb-6">
-        <CardResumo label="Leilões" valor={resumo.total} />
-        <CardResumo label="Analisados" valor={resumo.analisado} cor="text-emerald-500" />
-        <CardResumo label="Processando" valor={resumo.processando} cor="text-amber-500" />
-        <CardResumo label="Sugestões" valor={resumo.sugestao} cor="text-sky-500" />
-        <CardResumo label="Sem vídeo" valor={resumo.sem} cor="text-gray-400" />
-      </div>
-
-      <AtividadePanel />
+      <LiveAuctionsPanel data={monitorFeed.data} erro={monitorFeed.erro} loading={monitorFeed.loading} />
 
       {erro && (
-        <div className="mb-4 px-4 py-3 rounded-xl bg-red-500/10 border border-red-500/30 text-sm text-red-500">
+        <div className="rounded-xl bg-red-500/10 border border-red-500/30 px-4 py-3 text-sm text-red-500">
           {erro}
         </div>
       )}
       {msg && (
-        <div className="mb-4 px-4 py-3 rounded-xl bg-[#A68B4B]/10 border border-[#A68B4B]/30 text-sm text-[#A68B4B] flex items-center justify-between">
+        <div className="flex items-center justify-between rounded-xl border border-[#A68B4B]/30 bg-[#A68B4B]/10 px-4 py-3 text-sm text-[#A68B4B]">
           <span>{msg}</span>
           <button onClick={() => setMsg(null)}><X size={14} /></button>
         </div>
       )}
 
-      {/* Tabela */}
-      <div className="rounded-2xl border border-gray-200 dark:border-[#2A2A2A] bg-white dark:bg-[#141414] overflow-hidden">
+      <section className="overflow-hidden rounded-2xl border border-gray-200 bg-white dark:border-[#292929] dark:bg-[#121212]">
+        <div className="border-b border-gray-200 px-4 py-4 dark:border-[#292929] lg:px-5">
+          <div className="flex flex-col gap-4 xl:flex-row xl:items-center xl:justify-between">
+            <div>
+              <div className="flex items-center gap-2">
+                <History size={17} className="text-[#A68B4B]" />
+                <h2 className="font-semibold text-gray-900 dark:text-white">Histórico de leilões</h2>
+                <span className="rounded-full bg-gray-100 px-2 py-0.5 text-[10px] font-medium text-gray-500 dark:bg-[#202020] dark:text-gray-400">{rowsFiltradas.length}</span>
+              </div>
+              <p className="mt-1 text-xs text-gray-400">Priorize os eventos concluídos para trabalhar com transcrição e relatório completos.</p>
+            </div>
+            <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
+              <label className="relative block">
+                <Search size={14} className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
+                <input
+                  value={busca}
+                  onChange={(event) => setBusca(event.target.value)}
+                  placeholder="Buscar leilão, canal ou local"
+                  aria-label="Buscar leilões"
+                  className="h-10 w-full rounded-xl border border-gray-200 bg-gray-50 pl-9 pr-3 text-xs text-gray-800 outline-none transition focus:border-[#A68B4B]/60 focus:bg-white dark:border-[#303030] dark:bg-[#191919] dark:text-gray-100 dark:focus:bg-[#171717] sm:w-72"
+                />
+              </label>
+              <button
+                onClick={() => setOrdemRecente((value) => !value)}
+                className="inline-flex h-10 items-center justify-center gap-2 rounded-xl border border-gray-200 px-3 text-xs text-gray-500 transition hover:border-[#A68B4B]/40 hover:text-[#A68B4B] dark:border-[#303030] dark:text-gray-400"
+              >
+                <ArrowUpDown size={14} /> {ordemRecente ? 'Mais recentes' : 'Mais antigos'}
+              </button>
+            </div>
+          </div>
+          <div className="mt-4 flex items-center gap-2 overflow-x-auto pb-1">
+            <SlidersHorizontal size={14} className="mr-1 shrink-0 text-gray-400" />
+            {FILTROS.map((item) => (
+              <button
+                key={item.value}
+                onClick={() => setFiltro(item.value)}
+                className={`shrink-0 rounded-lg border px-3 py-1.5 text-[11px] font-medium transition ${filtro === item.value ? 'border-[#A68B4B]/40 bg-[#A68B4B]/10 text-[#A68B4B]' : 'border-transparent bg-gray-100 text-gray-500 hover:text-gray-800 dark:bg-[#1D1D1D] dark:text-gray-400 dark:hover:text-gray-200'}`}
+              >
+                {item.label}
+              </button>
+            ))}
+          </div>
+        </div>
+
         <div className="overflow-x-auto">
-          <table className="w-full text-sm">
+          <table className="w-full min-w-[1040px] text-sm">
             <thead>
-              <tr className="text-left text-[11px] uppercase tracking-wide text-gray-400 border-b border-gray-200 dark:border-[#2A2A2A]">
-                <th className="px-4 py-3 font-medium">Data</th>
-                <th className="px-4 py-3 font-medium">Leilão</th>
-                <th className="px-4 py-3 font-medium hidden md:table-cell">Canal</th>
-                <th className="px-4 py-3 font-medium">Status</th>
-                <th className="px-4 py-3 font-medium hidden lg:table-cell">Resultado</th>
-                <th className="px-4 py-3 font-medium text-right">Ação</th>
+              <tr className="border-b border-gray-200 text-left text-[10px] uppercase tracking-[0.12em] text-gray-400 dark:border-[#292929]">
+                <th className="w-28 px-5 py-3 font-medium">Data</th>
+                <th className="px-4 py-3 font-medium">Evento</th>
+                <th className="w-40 px-4 py-3 font-medium">Status</th>
+                <th className="w-40 px-4 py-3 font-medium">Leitura</th>
+                <th className="w-44 px-4 py-3 font-medium">Volume</th>
+                <th className="w-[330px] px-5 py-3 text-right font-medium">Ação</th>
               </tr>
             </thead>
             <tbody>
-              {rows.map((row) => {
+              {rowsFiltradas.map((row) => {
                 const e = estadoDe(row)
                 const badge = BADGE[e]
                 const id = row.leilao.id
                 const isBusy = busy === id
                 return (
-                  <tr key={id} className="border-b border-gray-100 dark:border-[#222] hover:bg-gray-50 dark:hover:bg-[#1A1A1A] transition-colors">
-                    <td className="px-4 py-3 whitespace-nowrap text-gray-500 dark:text-gray-400">{dataBR(row.leilao.data)}</td>
-                    <td className="px-4 py-3 font-medium text-gray-900 dark:text-gray-100 max-w-[260px] truncate" title={row.leilao.nome}>
-                      {row.leilao.nome}
+                  <tr key={id} className="border-b border-gray-100 transition-colors last:border-b-0 hover:bg-gray-50/70 dark:border-[#232323] dark:hover:bg-[#181818]">
+                    <td className="whitespace-nowrap px-5 py-4 text-xs font-medium text-gray-500 dark:text-gray-400">{dataBR(row.leilao.data)}</td>
+                    <td className="px-4 py-4">
+                      <p className="max-w-[360px] truncate font-semibold text-gray-900 dark:text-gray-100" title={row.leilao.nome}>{row.leilao.nome}</p>
+                      <p className="mt-1 max-w-[360px] truncate text-[11px] text-gray-400">
+                        {[row.leilao.transmissao, row.leilao.local].filter(Boolean).join(' · ') || 'Canal e local não informados'}
+                      </p>
                     </td>
-                    <td className="px-4 py-3 hidden md:table-cell text-gray-500 dark:text-gray-400">
-                      {row.leilao.transmissao || '—'}
-                    </td>
-                    <td className="px-4 py-3">
+                    <td className="px-4 py-4">
                       <span className={`inline-flex items-center gap-1.5 text-[11px] px-2 py-1 rounded-full border ${badge.cls}`}>
                         <badge.Icon size={12} />
                         {badge.label}
                       </span>
+                      {e === 'sugestao' && row.sugestao && <p className="mt-1 text-[10px] text-gray-400">match {Math.round(row.sugestao.score * 100)}%</p>}
                     </td>
-                    <td className="px-4 py-3 hidden lg:table-cell text-gray-500 dark:text-gray-400 whitespace-nowrap">
+                    <td className="px-4 py-4 text-xs text-gray-500 dark:text-gray-400">
                       {e === 'concluido' && row.analise ? (
-                        <div className="flex items-center gap-2">
-                          <span>{row.analise.total_vendidos ?? 0}/{row.analise.total_lotes ?? 0} lotes · {brl(row.analise.volume_total)}</span>
+                        <div>
+                          <p className="font-medium text-gray-700 dark:text-gray-200">{row.analise.total_vendidos ?? 0} vendidos</p>
+                          <p className="mt-0.5 text-[10px] text-gray-400">de {row.analise.total_lotes ?? 0} lotes detectados</p>
                           {row.analise.indice_assertividade != null && (
-                            <span className={`text-[10px] px-1.5 py-0.5 rounded-full border ${assertCls(row.analise.indice_assertividade)}`} title="Assertividade vs fechamento da Bula">
+                            <span className={`mt-1 inline-flex rounded-full border px-1.5 py-0.5 text-[10px] ${assertCls(row.analise.indice_assertividade)}`} title="Assertividade vs fechamento da Bula">
                               {Math.round(row.analise.indice_assertividade)}%
                             </span>
                           )}
                         </div>
                       ) : '—'}
                     </td>
-                    <td className="px-4 py-3">
-                      <div className="flex items-center justify-end gap-2">
+                    <td className="px-4 py-4">
+                      <p className="font-semibold text-gray-800 dark:text-gray-100">{e === 'concluido' ? brl(row.analise?.volume_total) : '—'}</p>
+                      {row.analise?.sincronizado_em && <p className="mt-1 text-[10px] text-gray-400">atualizado {tempoRel(row.analise.sincronizado_em)}</p>}
+                    </td>
+                    <td className="px-5 py-4">
+                      <div className="flex items-center justify-end gap-2 whitespace-nowrap">
+                        {row.analise?.video_url && (
+                          <a href={row.analise.video_url} target="_blank" rel="noreferrer" className="rounded-lg border border-gray-200 p-2 text-gray-400 transition hover:border-red-500/30 hover:text-red-500 dark:border-[#303030]" title="Abrir vídeo no YouTube">
+                            <Youtube size={14} />
+                          </a>
+                        )}
                         {e === 'concluido' && (
                           <button
                             onClick={() => setRelatorioOpen({ id, nome: row.leilao.nome, analise: row.analise })}
-                            className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs bg-[#A68B4B] text-black font-semibold hover:bg-[#C8A96E] transition-all"
+                            className="flex items-center gap-1.5 rounded-lg bg-[#A68B4B] px-3 py-2 text-xs font-semibold text-black transition hover:bg-[#C8A96E]"
                           >
-                            <ExternalLink size={13} /> Ver relatório
+                            <ExternalLink size={13} /> Abrir relatório
                           </button>
                         )}
                         {e === 'sugestao' && row.sugestao && (
                           <button
                             onClick={() => confirmarSugestao(id, row.sugestao!.video_id, row.sugestao!.score)}
                             disabled={isBusy}
-                            className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs border border-sky-500/40 text-sky-500 hover:bg-sky-500/10 transition-all disabled:opacity-50"
+                            className="flex items-center gap-1.5 rounded-lg border border-sky-500/40 px-3 py-2 text-xs text-sky-500 transition hover:bg-sky-500/10 disabled:opacity-50"
                             title={row.sugestao.titulo || ''}
                           >
                             {isBusy ? <Loader2 size={13} className="animate-spin" /> : <CheckCircle2 size={13} />} Confirmar sugestão
@@ -243,12 +332,12 @@ export default function LeiloesAnaliseClient({
                               value={urlInputs[id] || ''}
                               onChange={(ev) => setUrlInputs((p) => ({ ...p, [id]: ev.target.value }))}
                               placeholder="URL do YouTube"
-                              className="w-[150px] lg:w-[180px] bg-gray-50 dark:bg-[#1A1A1A] border border-gray-200 dark:border-[#333] rounded-lg px-2.5 py-1.5 text-xs outline-none focus:border-[#A68B4B]/50"
+                              className="w-[150px] rounded-lg border border-gray-200 bg-gray-50 px-2.5 py-2 text-xs outline-none focus:border-[#A68B4B]/50 dark:border-[#333] dark:bg-[#1A1A1A] lg:w-[180px]"
                             />
                             <button
                               onClick={() => analisar(id)}
                               disabled={isBusy || !(urlInputs[id] || '').trim()}
-                              className="flex items-center gap-1 px-2.5 py-1.5 rounded-lg text-xs bg-[#A68B4B]/15 text-[#A68B4B] hover:bg-[#A68B4B]/25 transition-all disabled:opacity-40"
+                              className="flex items-center gap-1 rounded-lg bg-[#A68B4B]/15 px-2.5 py-2 text-xs text-[#A68B4B] transition hover:bg-[#A68B4B]/25 disabled:opacity-40"
                             >
                               {isBusy ? <Loader2 size={13} className="animate-spin" /> : <Play size={13} />} Analisar
                             </button>
@@ -264,13 +353,15 @@ export default function LeiloesAnaliseClient({
                   </tr>
                 )
               })}
-              {rows.length === 0 && (
-                <tr><td colSpan={6} className="px-4 py-10 text-center text-gray-400">Nenhum leilão na agenda desde 04/2026.</td></tr>
+              {rowsFiltradas.length === 0 && (
+                <tr><td colSpan={6} className="px-4 py-14 text-center text-gray-400">Nenhum leilão encontrado com estes filtros.</td></tr>
               )}
             </tbody>
           </table>
         </div>
-      </div>
+      </section>
+
+      <AtividadePanel data={monitorFeed.data} erro={monitorFeed.erro} loading={monitorFeed.loading} />
 
       {relatorioOpen && (
         <RelatorioModal
@@ -280,6 +371,114 @@ export default function LeiloesAnaliseClient({
           onClose={() => setRelatorioOpen(null)}
         />
       )}
+    </div>
+  )
+}
+
+function useMonitorFeed() {
+  const [data, setData] = useState<Atividade | null>(null)
+  const [erro, setErro] = useState<string | null>(null)
+
+  useEffect(() => {
+    let alive = true
+    const load = () => {
+      fetch('/api/sistema/ia/leiloes/status')
+        .then(async (response) => {
+          const payload = await response.json()
+          if (!response.ok) throw new Error(payload.error || `Erro ${response.status}`)
+          return payload as Atividade
+        })
+        .then((payload) => {
+          if (alive) {
+            setData(payload)
+            setErro(null)
+          }
+        })
+        .catch((error) => { if (alive) setErro(error.message) })
+    }
+    load()
+    const id = setInterval(load, 15_000)
+    return () => {
+      alive = false
+      clearInterval(id)
+    }
+  }, [])
+
+  return { data, erro, loading: !data && !erro }
+}
+
+function duracaoRel(seconds: number): string {
+  const totalMinutes = Math.max(0, Math.floor(seconds / 60))
+  const hours = Math.floor(totalMinutes / 60)
+  const minutes = totalMinutes % 60
+  if (!hours) return `${minutes} min`
+  return `${hours}h ${String(minutes).padStart(2, '0')}min`
+}
+
+function LiveAuctionsPanel({ data, erro, loading }: { data: Atividade | null; erro: string | null; loading: boolean }) {
+  const monitor = data?.monitor
+  const sessions = monitor?.sessions || []
+
+  return (
+    <section className={`overflow-hidden rounded-2xl border ${sessions.length ? 'border-red-500/20 bg-gradient-to-br from-red-500/[0.06] via-white to-[#A68B4B]/[0.06] dark:via-[#121212]' : 'border-gray-200 bg-white dark:border-[#292929] dark:bg-[#121212]'}`}>
+      <div className="flex flex-col gap-3 px-4 py-4 sm:flex-row sm:items-center sm:justify-between lg:px-5">
+        <div className="flex items-center gap-3">
+          <div className={`flex h-10 w-10 items-center justify-center rounded-xl ${sessions.length ? 'bg-red-500/10 text-red-500' : 'bg-gray-100 text-gray-400 dark:bg-[#202020]'}`}>
+            <Radio size={18} className={sessions.length ? 'animate-pulse' : ''} />
+          </div>
+          <div>
+            <div className="flex items-center gap-2">
+              <h2 className="font-semibold text-gray-900 dark:text-white">Monitoramento ao vivo</h2>
+              {sessions.length > 0 && <span className="rounded-full bg-red-500 px-2 py-0.5 text-[9px] font-bold uppercase tracking-[0.14em] text-white">Ao vivo</span>}
+            </div>
+            <p className="mt-0.5 text-xs text-gray-400">
+              {sessions.length ? `${sessions.length} transmissão(ões) capturada(s) agora` : 'Nenhuma transmissão sendo capturada neste momento'}
+            </p>
+          </div>
+        </div>
+        <div className="text-[10px] text-gray-400">
+          {monitor?.checked_at ? `VPS atualizada ${tempoRel(monitor.checked_at)}` : 'Atualização automática a cada 15s'}
+        </div>
+      </div>
+
+      {loading && <div className="mx-4 mb-4 h-24 animate-pulse rounded-xl bg-gray-100 dark:bg-[#1B1B1B]" />}
+      {erro && !data && <div className="mx-4 mb-4 rounded-xl border border-red-500/20 bg-red-500/5 px-4 py-3 text-xs text-red-500">Não foi possível consultar o monitor: {erro}</div>}
+      {sessions.length > 0 && (
+        <div className="grid gap-3 border-t border-red-500/10 p-4 lg:grid-cols-2 lg:p-5">
+          {sessions.map((session) => (
+            <article key={session.video_id} className="rounded-2xl border border-gray-200/80 bg-white/80 p-4 shadow-sm dark:border-[#303030] dark:bg-[#171717]/90">
+              <div className="flex items-start justify-between gap-4">
+                <div className="min-w-0">
+                  <p className="truncate text-sm font-semibold text-gray-900 dark:text-white" title={session.title}>{session.title}</p>
+                  <p className="mt-1 text-[11px] text-gray-400">Monitorando há {duracaoRel(session.age_seconds)}</p>
+                </div>
+                {session.url && (
+                  <a href={session.url} target="_blank" rel="noreferrer" className="shrink-0 rounded-lg border border-red-500/20 bg-red-500/5 p-2 text-red-500 transition hover:bg-red-500/10" title="Assistir no YouTube">
+                    <Youtube size={15} />
+                  </a>
+                )}
+              </div>
+              <div className="mt-4 grid grid-cols-3 gap-2">
+                <LiveStat label="Lotes" value={String(session.total_lotes)} />
+                <LiveStat label="Vendidos" value={String(session.vendidos)} />
+                <LiveStat label="Volume parcial" value={brl(session.volume_total)} />
+              </div>
+              <div className="mt-3 flex items-center gap-2 text-[10px] text-emerald-500">
+                <span className="h-1.5 w-1.5 rounded-full bg-emerald-500" /> Gravador e transcritor ativos
+              </div>
+            </article>
+          ))}
+        </div>
+      )}
+    </section>
+  )
+}
+
+function LiveStat({ label, value }: { label: string; value: string }) {
+  return (
+    <div className="rounded-xl bg-gray-50 px-3 py-2 dark:bg-[#1F1F1F]">
+      <p className="text-[9px] uppercase tracking-wide text-gray-400">{label}</p>
+      <p className="mt-0.5 truncate text-xs font-semibold text-gray-800 dark:text-gray-100" title={value}>{value}</p>
     </div>
   )
 }
@@ -304,41 +503,21 @@ const EVENTO_META: Record<string, { Icon: React.ElementType; cls: string }> = {
   sync: { Icon: RefreshCw, cls: 'text-gray-400' },
 }
 
-function AtividadePanel() {
-  const [open, setOpen] = useState(true)
-  const [data, setData] = useState<Atividade | null>(null)
-  const [erro, setErro] = useState<string | null>(null)
-
-  useEffect(() => {
-    if (!open) return
-    let alive = true
-    const load = () => {
-      fetch('/api/sistema/ia/leiloes/status')
-        .then(async (r) => {
-          const d = await r.json()
-          if (!r.ok) throw new Error(d.error || `Erro ${r.status}`)
-          return d as Atividade
-        })
-        .then((d) => { if (alive) { setData(d); setErro(null) } })
-        .catch((e) => { if (alive) setErro(e.message) })
-    }
-    load()
-    const id = setInterval(load, 15000) // auto-refresh a cada 15s
-    return () => { alive = false; clearInterval(id) }
-  }, [open])
+function AtividadePanel({ data, erro, loading }: { data: Atividade | null; erro: string | null; loading: boolean }) {
+  const [open, setOpen] = useState(false)
 
   const s = data?.stats || {}
   const processando = (data?.fila || []).filter((f) => f.status === 'processing')
 
   return (
-    <div className="mb-6 rounded-2xl border border-gray-200 dark:border-[#2A2A2A] bg-white dark:bg-[#141414] overflow-hidden">
+    <div className="overflow-hidden rounded-2xl border border-gray-200 bg-white dark:border-[#2A2A2A] dark:bg-[#141414]">
       <button
         onClick={() => setOpen((o) => !o)}
         className="w-full flex items-center gap-2 px-4 py-3 text-left hover:bg-gray-50 dark:hover:bg-[#1A1A1A] transition-colors"
       >
         <Activity size={16} className="text-[#A68B4B]" />
         <span className="text-sm font-semibold text-gray-800 dark:text-gray-200">Atividade do sistema</span>
-        {open && <span className="flex items-center gap-1 text-[10px] text-gray-400"><span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" /> ao vivo</span>}
+        <span className="text-[10px] text-gray-400">diagnóstico da fila e eventos técnicos</span>
         <div className="ml-auto flex items-center gap-2">
           <ChipFila label="na fila" valor={s.pending} cor="text-amber-500" />
           <ChipFila label="processando" valor={processando.length} cor="text-sky-500" />
@@ -357,7 +536,7 @@ function AtividadePanel() {
               Analisando agora: <span className="font-medium truncate max-w-[60%]">{processando[0].title || processando[0].video_id}</span>
             </div>
           )}
-          {!data && !erro && <div className="py-6 flex justify-center"><Loader2 className="animate-spin text-[#A68B4B]" size={20} /></div>}
+          {loading && <div className="py-6 flex justify-center"><Loader2 className="animate-spin text-[#A68B4B]" size={20} /></div>}
           {data && (
             <div className="space-y-1 max-h-72 overflow-y-auto">
               {(data.eventos || []).length === 0 && (
@@ -402,11 +581,21 @@ function ChipFila({ label, valor, cor }: { label: string; valor?: number; cor: s
   )
 }
 
-function CardResumo({ label, valor, cor }: { label: string; valor: number; cor?: string }) {
+function MetricCard({ icon: Icon, label, value, helper, tone = 'default' }: { icon: React.ElementType; label: string; value: string; helper: string; tone?: 'default' | 'gold' | 'emerald' | 'sky' }) {
+  const tones = {
+    default: 'bg-gray-100 text-gray-500 dark:bg-[#202020] dark:text-gray-400',
+    gold: 'bg-[#A68B4B]/10 text-[#A68B4B]',
+    emerald: 'bg-emerald-500/10 text-emerald-500',
+    sky: 'bg-sky-500/10 text-sky-500',
+  }
   return (
-    <div className="rounded-xl border border-gray-200 dark:border-[#2A2A2A] bg-white dark:bg-[#141414] px-4 py-3">
-      <p className="text-[11px] uppercase tracking-wide text-gray-400">{label}</p>
-      <p className={`text-2xl font-bold mt-0.5 ${cor || 'text-gray-900 dark:text-white'}`}>{valor}</p>
+    <div className="rounded-2xl border border-gray-200 bg-white p-4 dark:border-[#292929] dark:bg-[#121212]">
+      <div className="flex items-center justify-between gap-3">
+        <p className="text-[10px] font-medium uppercase tracking-[0.12em] text-gray-400">{label}</p>
+        <span className={`flex h-8 w-8 items-center justify-center rounded-lg ${tones[tone]}`}><Icon size={15} /></span>
+      </div>
+      <p className="mt-2 truncate text-xl font-bold text-gray-900 dark:text-white sm:text-2xl" title={value}>{value}</p>
+      <p className="mt-1 text-[10px] text-gray-400">{helper}</p>
     </div>
   )
 }
@@ -418,7 +607,6 @@ function RelatorioModal({ leilaoId, nome, analise, onClose }: { leilaoId: string
 
   useEffect(() => {
     let alive = true
-    setLoading(true)
     fetch(`/api/sistema/ia/leiloes/${leilaoId}/relatorio`)
       .then(async (r) => {
         const d = await r.json()

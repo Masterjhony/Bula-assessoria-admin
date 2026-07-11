@@ -153,9 +153,93 @@ export interface Atividade {
   eventos: AtividadeEvento[]
   fila: FilaItem[]
   stats: { pending?: number; processing?: number; done?: number; error?: number; total?: number }
+  monitor?: MonitorOverview | null
 }
 
 /** Feed de andamento do loop autônomo + estado da fila. */
 export function getAtividade(limit = 60): Promise<Atividade> {
   return call<Atividade>(`/api/atividade?limit=${limit}`)
+}
+
+export interface MonitorLiveSession {
+  video_id: string
+  title: string
+  url: string
+  status: string
+  started_at: string
+  age_seconds: number
+  queued_after_live: boolean
+  last_error: string
+  total_lotes: number
+  vendidos: number
+  volume_total: number
+}
+
+export interface MonitorOverview {
+  status: string
+  live_status: string
+  checked_at: string | null
+  poll_interval: number | null
+  sessions: MonitorLiveSession[]
+}
+
+interface HealthLiveSession {
+  video_id?: string
+  title?: string
+  url?: string
+  status?: string
+  started_at?: string
+  age_seconds?: number
+  queued_after_live?: boolean
+  last_error?: string
+}
+
+interface HealthSnapshot {
+  status?: string
+  checked_at?: string
+  checks?: {
+    live_orchestrator?: {
+      status?: string
+      checked_at?: string
+      poll_interval?: number
+      summary?: { active_sessions?: HealthLiveSession[] }
+    }
+  }
+}
+
+/** Estado operacional do monitor ao vivo, enriquecido com o relatório parcial. */
+export async function getMonitorOverview(): Promise<MonitorOverview> {
+  const health = await call<HealthSnapshot>('/api/health')
+  const live = health.checks?.live_orchestrator
+  const rawSessions = live?.summary?.active_sessions ?? []
+  const sessions = await Promise.all(rawSessions.map(async (session): Promise<MonitorLiveSession> => {
+    let report: Relatorio | null = null
+    if (session.video_id) {
+      try {
+        report = await getRelatorio(session.video_id)
+      } catch {
+        // A sessão pode ter acabado de iniciar e ainda não possuir lotes.
+      }
+    }
+    return {
+      video_id: session.video_id || '',
+      title: session.title || session.video_id || 'Leilão ao vivo',
+      url: session.url || (session.video_id ? `https://www.youtube.com/watch?v=${session.video_id}` : ''),
+      status: session.status || 'running',
+      started_at: session.started_at || '',
+      age_seconds: Number(session.age_seconds || 0),
+      queued_after_live: Boolean(session.queued_after_live),
+      last_error: session.last_error || '',
+      total_lotes: Number(report?.total_lotes || 0),
+      vendidos: Number(report?.vendidos || 0),
+      volume_total: Number(report?.volume_total || 0),
+    }
+  }))
+  return {
+    status: health.status || 'unknown',
+    live_status: live?.status || 'not_configured',
+    checked_at: live?.checked_at || health.checked_at || null,
+    poll_interval: live?.poll_interval ?? null,
+    sessions,
+  }
 }
