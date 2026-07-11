@@ -99,11 +99,6 @@ export default function LeiloesAnaliseClient({
   const [busca, setBusca] = useState('')
   const [filtro, setFiltro] = useState<FiltroEstado>('todos')
   const [ordemRecente, setOrdemRecente] = useState(true)
-  const monitorFeed = useMonitorFeed()
-  const filaPorVideo = useMemo(
-    () => new Map((monitorFeed.data?.fila || []).map((item) => [item.video_id, item])),
-    [monitorFeed.data?.fila],
-  )
 
   const resumo = useMemo(() => {
     const c = { total: rows.length, analisado: 0, processando: 0, sugestao: 0, sem: 0, erro: 0, volume: 0, lotes: 0, vendidos: 0 }
@@ -137,6 +132,16 @@ export default function LeiloesAnaliseClient({
         return ordemRecente ? delta : -delta
       })
   }, [rows, busca, filtro, ordemRecente])
+
+  const visibleVideoIds = useMemo(
+    () => [...new Set(rowsFiltradas.map((row) => row.analise?.video_id).filter((videoId): videoId is string => Boolean(videoId)))],
+    [rowsFiltradas],
+  )
+  const monitorFeed = useMonitorFeed(visibleVideoIds)
+  const filaPorVideo = useMemo(
+    () => new Map((monitorFeed.data?.fila || []).map((item) => [item.video_id, item])),
+    [monitorFeed.data?.fila],
+  )
 
   const cobertura = resumo.total ? Math.round((resumo.analisado / resumo.total) * 100) : 0
 
@@ -382,10 +387,7 @@ export default function LeiloesAnaliseClient({
                           </div>
                         )}
                         {e === 'processando' && (
-                          <span className="text-xs text-amber-500 flex items-center gap-1.5">
-                            {etapa.ativa ? <Loader2 size={13} className="animate-spin" /> : <Clock size={13} />}
-                            {etapa.label}
-                          </span>
+                          <QueueProgress item={itemFila} etapa={etapa} />
                         )}
                       </div>
                     </td>
@@ -414,14 +416,20 @@ export default function LeiloesAnaliseClient({
   )
 }
 
-function useMonitorFeed() {
+function useMonitorFeed(videoIds: string[]) {
   const [data, setData] = useState<Atividade | null>(null)
   const [erro, setErro] = useState<string | null>(null)
+  const statusUrl = useMemo(() => {
+    const params = new URLSearchParams()
+    for (const videoId of videoIds) params.append('video_ids', videoId)
+    const query = params.toString()
+    return `/api/sistema/ia/leiloes/status${query ? `?${query}` : ''}`
+  }, [videoIds])
 
   useEffect(() => {
     let alive = true
     const load = () => {
-      fetch('/api/sistema/ia/leiloes/status')
+      fetch(statusUrl)
         .then(async (response) => {
           const payload = await response.json()
           if (!response.ok) throw new Error(payload.error || `Erro ${response.status}`)
@@ -441,9 +449,89 @@ function useMonitorFeed() {
       alive = false
       clearInterval(id)
     }
-  }, [])
+  }, [statusUrl])
 
   return { data, erro, loading: !data && !erro }
+}
+
+function QueueProgress({ item, etapa }: { item?: FilaItem; etapa: ReturnType<typeof etapaFila> }) {
+  const queueState = (item?.queue_state || '').toLowerCase()
+  const readyTotal = item?.queue_ready_total ?? item?.ready_total
+  const wait = filaWaitLabel(item)
+  const nextAttempt = item?.next_attempt_at ? tempoAte(item.next_attempt_at) : null
+  const attempts = Number(item?.attempts || 0)
+  const isRetry = Boolean(
+    nextAttempt
+    && (queueState === 'blocked' || ['retry_wait', 'infra_wait', 'waiting'].includes(item?.stage || '')),
+  )
+  const details: string[] = []
+
+  if (item?.queue_position != null) {
+    details.push(`posição ${item.queue_position}${readyTotal != null ? ` de ${readyTotal}` : ''}`)
+  } else if (queueState === 'ready') {
+    details.push('pronto para processar')
+  }
+  if (wait && !['processing', 'done', 'skipped'].includes(queueState)) details.push(`esperando há ${wait}`)
+  if (etapa.ativa && item?.stage_updated_at) details.push(`etapa atualizada ${tempoRel(item.stage_updated_at)}`)
+  if (etapa.ativa && attempts > 0) details.push(`tentativa ${attempts}`)
+
+  if (!item) {
+    details.push('consultando posição na VPS')
+  } else if (queueState === 'done') {
+    details.push('aguardando sincronização da página')
+  }
+
+  return (
+    <div className="flex max-w-[285px] flex-col items-end gap-0.5 text-right">
+      <span className="flex items-center gap-1.5 text-xs text-amber-500">
+        {etapa.ativa ? <Loader2 size={13} className="animate-spin" /> : <Clock size={13} />}
+        {etapa.label}
+      </span>
+      {details.length > 0 && (
+        <span className="max-w-full truncate text-[10px] text-gray-400" title={details.join(' · ')}>
+          {details.join(' · ')}
+        </span>
+      )}
+      {isRetry && (
+        <span className="max-w-full truncate text-[10px] text-amber-500/80" title={item?.next_attempt_at || undefined}>
+          Nova tentativa {nextAttempt}{attempts > 0 ? ` · ${attempts} tentativa(s) realizada(s)` : ''}
+        </span>
+      )}
+    </div>
+  )
+}
+
+function filaWaitLabel(item?: FilaItem): string | null {
+  if (item?.wait_seconds != null) {
+    const supplied = Number(item.wait_seconds)
+    if (Number.isFinite(supplied) && supplied >= 0) return duracaoCurta(supplied)
+  }
+  if (!item?.queued_at) return null
+  const queuedAt = Date.parse(item.queued_at)
+  if (Number.isNaN(queuedAt)) return null
+  return duracaoCurta(Math.max(0, (Date.now() - queuedAt) / 1000))
+}
+
+function duracaoCurta(seconds: number): string {
+  const total = Math.max(0, Math.floor(seconds))
+  if (total < 60) return 'menos de 1 min'
+  if (total < 3600) return `${Math.floor(total / 60)} min`
+  if (total < 86400) {
+    const hours = Math.floor(total / 3600)
+    const minutes = Math.floor((total % 3600) / 60)
+    return minutes ? `${hours}h ${minutes}min` : `${hours}h`
+  }
+  const days = Math.floor(total / 86400)
+  const hours = Math.floor((total % 86400) / 3600)
+  return hours ? `${days}d ${hours}h` : `${days}d`
+}
+
+function tempoAte(iso: string): string | null {
+  const target = Date.parse(iso)
+  if (Number.isNaN(target)) return null
+  const seconds = Math.floor((target - Date.now()) / 1000)
+  if (seconds <= 0) return 'liberada agora'
+  return `em ${duracaoCurta(seconds)}`
 }
 
 function duracaoRel(seconds: number): string {

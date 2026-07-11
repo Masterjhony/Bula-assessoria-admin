@@ -104,14 +104,41 @@ export async function montarLeiloesAnalise(
   // Vídeos já vinculados a algum leilão (não sugerir de novo).
   const usados = new Set<string>()
   for (const v of vinculos.values()) if (v.video_id) usados.add(v.video_id)
+  const vpsById = new Map(vps.map((v) => [v.video_id, v]))
 
   const novosAuto: Array<Record<string, unknown>> = []
+  const concluidosAgora: Array<Record<string, unknown>> = []
   const rows: LeilaoAnaliseRow[] = []
 
   for (const leilao of agenda) {
     const vinc = vinculos.get(leilao.id) ?? null
     if (vinc) {
-      rows.push({ leilao, analise: vinc, sugestao: null })
+      // A listagem também funciona como reconciliação leve. Antes, um
+      // vídeo que terminava na VPS continuava como "processando" no web-bula
+      // até alguém clicar manualmente em Sincronizar.
+      const hit = vinc.video_id ? vpsById.get(vinc.video_id) : undefined
+      const filaTerminou = hit
+        && ['done', 'skipped', 'legacy_complete'].includes(hit.queue_status || '')
+      if (vinc.status !== 'concluido' && hit && filaTerminou) {
+        const snap = snapshotFromVps(hit)
+        const sincronizadoEm = new Date().toISOString()
+        const analise: AnaliseVinculo = {
+          ...vinc,
+          status: 'concluido',
+          ...snap,
+          sincronizado_em: sincronizadoEm,
+        }
+        concluidosAgora.push({
+          leilao_id: leilao.id,
+          video_id: vinc.video_id,
+          status: 'concluido',
+          ...snap,
+          sincronizado_em: sincronizadoEm,
+        })
+        rows.push({ leilao, analise, sugestao: null })
+      } else {
+        rows.push({ leilao, analise: vinc, sugestao: null })
+      }
       continue
     }
     // Sem vínculo: tenta auto-match contra a VPS.
@@ -122,13 +149,18 @@ export async function montarLeiloesAnalise(
       if (m && m.tier === 'auto') {
         usados.add(m.video.video_id)
         const snap = snapshotFromVps(m.video)
+        const filaTerminou = ['done', 'skipped', 'legacy_complete'].includes(
+          m.video.queue_status || '',
+        )
+        const status = filaTerminou ? 'concluido' : 'processando'
+        const sincronizadoEm = filaTerminou ? new Date().toISOString() : null
         const analise: AnaliseVinculo = {
           video_id: m.video.video_id,
           video_url: `https://www.youtube.com/watch?v=${m.video.video_id}`,
-          status: 'concluido',
+          status,
           match_tipo: 'auto',
           ...snap,
-          sincronizado_em: new Date().toISOString(),
+          sincronizado_em: sincronizadoEm,
           indice_assertividade: null,
           assertividade: null,
         }
@@ -138,7 +170,7 @@ export async function montarLeiloesAnalise(
           video_url: analise.video_url,
           match_tipo: 'auto',
           match_score: m.score,
-          status: 'concluido',
+          status,
           ...snap,
           sincronizado_em: analise.sincronizado_em,
         })
@@ -155,6 +187,11 @@ export async function montarLeiloesAnalise(
   // Persiste os auto-matches descobertos agora (idempotente por leilao_id UNIQUE).
   if (novosAuto.length > 0) {
     await supabase.from('bula_leilao_video_analise').upsert(novosAuto, { onConflict: 'leilao_id' })
+  }
+  if (concluidosAgora.length > 0) {
+    await supabase
+      .from('bula_leilao_video_analise')
+      .upsert(concluidosAgora, { onConflict: 'leilao_id' })
   }
 
   return { rows, vpsOnline }
@@ -185,6 +222,7 @@ export async function sincronizarAnalises(
     if (!opts.force && v.status === 'concluido') continue
     const hit = vpsById.get(v.video_id)
     if (!hit) continue
+    if (!['done', 'skipped', 'legacy_complete'].includes(hit.queue_status || '')) continue
     const snap = snapshotFromVps(hit)
     await supabase
       .from('bula_leilao_video_analise')

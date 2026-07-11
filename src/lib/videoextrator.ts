@@ -15,6 +15,9 @@ export interface VideoextratorLeilao {
   total_lotes: number | null
   total_vendidos: number | null
   total_vendido_brl: number | null
+  queue_status?: string | null
+  queue_stage?: string | null
+  queue_updated_at?: string | null
 }
 
 export interface RelatorioLoteFinanceiro {
@@ -197,6 +200,13 @@ export interface FilaItem {
   attempts?: number
   last_error?: string | null
   updated_at?: string | null
+  queue_position?: number | null
+  queue_ready_total?: number | null
+  ready_total?: number | null
+  queued_at?: string | null
+  wait_seconds?: number | null
+  queue_state?: string | null
+  next_attempt_at?: string | null
 }
 
 export interface Atividade {
@@ -207,8 +217,12 @@ export interface Atividade {
 }
 
 /** Feed de andamento do loop autônomo + estado da fila. */
-export function getAtividade(limit = 60): Promise<Atividade> {
-  return call<Atividade>(`/api/atividade?limit=${limit}`)
+export function getAtividade(limit = 60, videoIds: string[] = []): Promise<Atividade> {
+  const params = new URLSearchParams({ limit: String(limit) })
+  for (const videoId of [...new Set(videoIds)].slice(0, 200)) {
+    if (videoId) params.append('video_ids', videoId)
+  }
+  return call<Atividade>(`/api/atividade?${params.toString()}`)
 }
 
 export interface MonitorLiveSession {
