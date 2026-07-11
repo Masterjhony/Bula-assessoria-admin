@@ -17,8 +17,28 @@ export interface VideoextratorLeilao {
   total_vendido_brl: number | null
 }
 
+export interface RelatorioLoteFinanceiro {
+  soma_base?: number | null
+  valor_parcela?: number | null
+  total_parcelas?: number | null
+  quantidade?: number | null
+  quantidade_animais?: number | null
+  unidade_preco?: string | null
+  total_confirmado?: number | null
+  total_estimado?: number | null
+  valor_total?: number | null
+  formula?: string | null
+  status?: string | null
+  cobertura?: {
+    calculavel?: boolean
+    completa?: boolean
+    percentual?: number
+    pendencias?: string[]
+  } | null
+}
+
 export interface RelatorioLote {
-  id: number
+  id: number | string
   numero_lote: string | null
   valor_final: number | null
   valor_parcela: number | null
@@ -34,6 +54,19 @@ export interface RelatorioLote {
   peso_kg: number | null
   confianca: number | null
   qa_flags: string | null // JSON { fonte, src:{campo:[fontes]}, flags:[...] }
+  valor_total_negociado?: number | null
+  valor_total_estimado?: number | null
+  quantidade_animais?: number | null
+  unidade_preco?: string | null
+  status_parcial?: string | null
+  identificacao_animal?: string | null
+  data_nascimento?: string | null
+  percentual_ofertado?: number | null
+  formula_parcelas?: string | null
+  frame_artifact_id?: number | null
+  live_last_seen_at?: string | null
+  live_read_count?: number | null
+  financeiro?: RelatorioLoteFinanceiro | null
 }
 
 export interface LoteProcedencia {
@@ -72,6 +105,20 @@ export interface Relatorio {
   top_assessorias: { nome: string; quantidade: number }[]
   timeline: { hora: string; quantidade: number }[]
   lotes: RelatorioLote[]
+  volume_parcelas_captado?: number | null
+  volume_total_confirmado?: number | null
+  volume_total_estimado?: number | null
+  lotes_com_total?: number | null
+  lotes_sem_total?: number | null
+  cobertura_total_pct?: number | null
+  live_current_lot?: RelatorioLote | null
+  live_visual?: {
+    status?: string | null
+    checked_at?: string | null
+    last_success_at?: string | null
+    last_error?: string | null
+    calls_last_hour?: number | null
+  } | null
 }
 
 export class VideoextratorError extends Error {
@@ -176,6 +223,16 @@ export interface MonitorLiveSession {
   total_lotes: number
   vendidos: number
   volume_total: number
+  volume_parcelas_captado: number | null
+  volume_total_confirmado: number | null
+  volume_total_estimado: number | null
+  lotes_com_total: number
+  lotes_sem_total: number
+  cobertura_total_pct: number | null
+  recent_lots: RelatorioLote[]
+  current_lot: RelatorioLote | null
+  visual_status: string
+  visual_updated_at: string | null
 }
 
 export interface MonitorOverview {
@@ -224,6 +281,32 @@ export async function getMonitorOverview(): Promise<MonitorOverview> {
         // A sessão pode ter acabado de iniciar e ainda não possuir lotes.
       }
     }
+    const lotes = report?.lotes ?? []
+    const recentLots = [...lotes]
+      .sort((a, b) => {
+        const bySeen = Date.parse(b.live_last_seen_at || '') - Date.parse(a.live_last_seen_at || '')
+        if (Number.isFinite(bySeen) && bySeen !== 0) return bySeen
+        return Number(b.id || 0) - Number(a.id || 0)
+      })
+      .slice(0, 6)
+    const lotesVendidos = lotes.filter((lote) => {
+      const motivo = (lote.motivo || '').toUpperCase()
+      const status = (lote.status_parcial || '').toUpperCase()
+      if (status === 'EM_DISPUTA' || status === 'NAO_VENDIDO') return false
+      return motivo === 'VENDIDO' || status === 'VENDIDO_CONFIRMADO' || status === 'VENDIDO'
+    })
+    const lotesComTotalDerivado = lotesVendidos.filter((lote) => valorTotalLote(lote) != null).length
+    const lotesSemTotalDerivado = Math.max(0, Number(report?.vendidos || 0) - lotesComTotalDerivado)
+    const volumeEstimadoDerivado = lotesVendidos.reduce((total, lote) => total + (valorTotalLote(lote) || 0), 0)
+    const volumeParcelasDerivado = lotes.reduce((total, lote) => {
+      if ((lote.motivo || '').toUpperCase() === 'NAO_VENDIDO') return total
+      return total + (numeroOpcional(lote.valor_parcela) ?? numeroOpcional(lote.financeiro?.soma_base) ?? numeroOpcional(lote.valor_final) ?? 0)
+    }, 0)
+    const lotesComTotal = numeroOpcional(report?.lotes_com_total) ?? lotesComTotalDerivado
+    const lotesSemTotal = numeroOpcional(report?.lotes_sem_total) ?? lotesSemTotalDerivado
+    const coberturaDerivada = report?.vendidos
+      ? Math.min(100, Math.round((lotesComTotal / Number(report.vendidos)) * 100))
+      : null
     return {
       video_id: session.video_id || '',
       title: session.title || session.video_id || 'Leilão ao vivo',
@@ -236,6 +319,16 @@ export async function getMonitorOverview(): Promise<MonitorOverview> {
       total_lotes: Number(report?.total_lotes || 0),
       vendidos: Number(report?.vendidos || 0),
       volume_total: Number(report?.volume_total || 0),
+      volume_parcelas_captado: numeroOpcional(report?.volume_parcelas_captado) ?? (volumeParcelasDerivado || null),
+      volume_total_confirmado: numeroOpcional(report?.volume_total_confirmado),
+      volume_total_estimado: numeroOpcional(report?.volume_total_estimado) ?? (volumeEstimadoDerivado || null),
+      lotes_com_total: lotesComTotal,
+      lotes_sem_total: lotesSemTotal,
+      cobertura_total_pct: numeroOpcional(report?.cobertura_total_pct) ?? coberturaDerivada,
+      recent_lots: recentLots,
+      current_lot: report?.live_current_lot ?? null,
+      visual_status: report?.live_visual?.status || 'not_started',
+      visual_updated_at: report?.live_visual?.last_success_at || report?.live_visual?.checked_at || null,
     }
   }))
   return {
@@ -245,4 +338,19 @@ export async function getMonitorOverview(): Promise<MonitorOverview> {
     poll_interval: live?.poll_interval ?? null,
     sessions,
   }
+}
+
+function numeroOpcional(value: unknown): number | null {
+  if (value == null || value === '') return null
+  const number = Number(value)
+  return Number.isFinite(number) ? number : null
+}
+
+function valorTotalLote(lote: RelatorioLote): number | null {
+  if ((lote.motivo || '').toUpperCase() === 'NAO_VENDIDO') return null
+  const confirmado = numeroOpcional(lote.valor_total_negociado) ?? numeroOpcional(lote.financeiro?.total_confirmado)
+  if (confirmado != null) return confirmado
+  const estimado = numeroOpcional(lote.valor_total_estimado) ?? numeroOpcional(lote.financeiro?.total_estimado)
+  if (estimado != null) return estimado
+  return numeroOpcional(lote.financeiro?.valor_total)
 }

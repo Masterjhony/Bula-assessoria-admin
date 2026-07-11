@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useMemo, useEffect } from 'react'
+import Image from 'next/image'
 import { useRouter } from 'next/navigation'
 import {
   FileVideo, RefreshCw, X, Play, CheckCircle2, Clock, AlertCircle,
@@ -9,7 +10,15 @@ import {
   SlidersHorizontal, Youtube, CalendarDays, CircleDollarSign, Wifi, ArrowUpDown,
 } from 'lucide-react'
 import type { LeilaoAnaliseRow } from '@/lib/leilao-analise'
-import { parseProcedencia, type Relatorio, type Atividade, type AtividadeEvento, type FilaItem } from '@/lib/videoextrator'
+import {
+  parseProcedencia,
+  type Relatorio,
+  type RelatorioLote,
+  type Atividade,
+  type AtividadeEvento,
+  type FilaItem,
+  type MonitorLiveSession,
+} from '@/lib/videoextrator'
 
 function brl(n: number | null | undefined): string {
   if (n == null) return '—'
@@ -475,33 +484,194 @@ function LiveAuctionsPanel({ data, erro, loading }: { data: Atividade | null; er
       {erro && !data && <div className="mx-4 mb-4 rounded-xl border border-red-500/20 bg-red-500/5 px-4 py-3 text-xs text-red-500">Não foi possível consultar o monitor: {erro}</div>}
       {sessions.length > 0 && (
         <div className="grid gap-3 border-t border-red-500/10 p-4 lg:grid-cols-2 lg:p-5">
-          {sessions.map((session) => (
-            <article key={session.video_id} className="rounded-2xl border border-gray-200/80 bg-white/80 p-4 shadow-sm dark:border-[#303030] dark:bg-[#171717]/90">
-              <div className="flex items-start justify-between gap-4">
-                <div className="min-w-0">
-                  <p className="truncate text-sm font-semibold text-gray-900 dark:text-white" title={session.title}>{session.title}</p>
-                  <p className="mt-1 text-[11px] text-gray-400">Monitorando há {duracaoRel(session.age_seconds)}</p>
-                </div>
-                {session.url && (
-                  <a href={session.url} target="_blank" rel="noreferrer" className="shrink-0 rounded-lg border border-red-500/20 bg-red-500/5 p-2 text-red-500 transition hover:bg-red-500/10" title="Assistir no YouTube">
-                    <Youtube size={15} />
-                  </a>
-                )}
-              </div>
-              <div className="mt-4 grid grid-cols-3 gap-2">
-                <LiveStat label="Lotes" value={String(session.total_lotes)} />
-                <LiveStat label="Vendidos" value={String(session.vendidos)} />
-                <LiveStat label="Volume parcial" value={brl(session.volume_total)} />
-              </div>
-              <div className="mt-3 flex items-center gap-2 text-[10px] text-emerald-500">
-                <span className="h-1.5 w-1.5 rounded-full bg-emerald-500" /> Gravador e transcritor ativos
-              </div>
-            </article>
-          ))}
+          {sessions.map((session) => <LiveAuctionCard key={session.video_id} session={session} />)}
         </div>
       )}
     </section>
   )
+}
+
+function LiveAuctionCard({ session }: { session: MonitorLiveSession }) {
+  const currentId = session.current_lot?.id
+  const partialLots = [
+    ...(session.current_lot ? [session.current_lot] : []),
+    ...(session.recent_lots || []).filter((lote) => lote.id !== currentId),
+  ].slice(0, 6)
+  const totalCompleto = session.vendidos > 0 && session.lotes_sem_total === 0 && session.volume_total_confirmado != null
+  const totalExibido = totalCompleto
+    ? session.volume_total_confirmado
+    : session.volume_total_estimado ?? session.volume_total_confirmado ?? (session.volume_total || null)
+  const totalLabel = totalCompleto
+    ? 'Total confirmado'
+    : session.volume_total_estimado != null ? 'Total estimado' : 'Volume captado'
+  const cobertura = session.cobertura_total_pct != null
+    ? `${Math.round(session.cobertura_total_pct)}% de cobertura financeira`
+    : `${session.lotes_com_total}/${session.vendidos || 0} vendidos com total`
+
+  return (
+    <article className="rounded-2xl border border-gray-200/80 bg-white/80 p-4 shadow-sm dark:border-[#303030] dark:bg-[#171717]/90">
+      <div className="flex items-start justify-between gap-4">
+        <div className="min-w-0">
+          <p className="truncate text-sm font-semibold text-gray-900 dark:text-white" title={session.title}>{session.title}</p>
+          <p className="mt-1 text-[11px] text-gray-400">Monitorando há {duracaoRel(session.age_seconds)}</p>
+        </div>
+        {session.url && (
+          <a href={session.url} target="_blank" rel="noreferrer" className="shrink-0 rounded-lg border border-red-500/20 bg-red-500/5 p-2 text-red-500 transition hover:bg-red-500/10" title="Assistir no YouTube">
+            <Youtube size={15} />
+          </a>
+        )}
+      </div>
+
+      <div className="mt-4 grid grid-cols-3 gap-2">
+        <LiveStat label="Lotes identificados" value={String(session.total_lotes)} />
+        <LiveStat label="Vendidos confirmados" value={String(session.vendidos)} />
+        <LiveStat label={totalLabel} value={brl(totalExibido)} />
+      </div>
+      <div className="mt-2 flex flex-wrap gap-x-3 gap-y-1 text-[9px] text-gray-400">
+        <span>{cobertura}</span>
+        <span>{session.lotes_com_total} com total{session.lotes_sem_total ? ` · ${session.lotes_sem_total} pendente(s)` : ''}</span>
+        {session.volume_parcelas_captado != null && (
+          <span>Parcelas-base captadas: {brl(session.volume_parcelas_captado)}</span>
+        )}
+      </div>
+
+      <div className="mt-4 overflow-hidden rounded-xl border border-gray-200/80 bg-gray-50/60 dark:border-[#2B2B2B] dark:bg-[#131313]">
+        <div className="flex items-center justify-between gap-3 border-b border-gray-200/80 px-3 py-2 dark:border-[#292929]">
+          <div>
+            <p className="text-[11px] font-semibold text-gray-700 dark:text-gray-200">Parcial capturado</p>
+            <p className="text-[9px] text-gray-400">Dados provisórios, atualizados a cada 15 segundos</p>
+          </div>
+          <span className="shrink-0 rounded-full border border-red-500/20 bg-red-500/5 px-2 py-1 text-[8px] font-semibold uppercase tracking-wider text-red-500">Ao vivo</span>
+        </div>
+        {partialLots.length > 0 ? (
+          <div className="max-h-[34rem] divide-y divide-gray-200/70 overflow-y-auto dark:divide-[#272727]">
+            {partialLots.map((lote) => (
+              <LiveLotRow key={`${lote.id}-${lote.numero_lote || ''}`} lote={lote} current={lote.id === currentId} />
+            ))}
+          </div>
+        ) : (
+          <div className="px-3 py-4 text-center text-[10px] text-gray-400">
+            Os primeiros lotes aparecerão aqui assim que forem identificados.
+          </div>
+        )}
+      </div>
+
+      <div className="mt-3 flex items-center gap-2 text-[10px] text-emerald-500">
+        <span className="h-1.5 w-1.5 rounded-full bg-emerald-500" />
+        {session.visual_status === 'running'
+          ? 'Gravador, transcritor e leitura visual ativos'
+          : 'Gravador e transcritor ativos · leitura visual iniciando'}
+      </div>
+    </article>
+  )
+}
+
+function LiveLotRow({ lote, current }: { lote: RelatorioLote; current: boolean }) {
+  const status = liveLotStatus(lote, current)
+  const identificacao = lote.identificacao_animal || lote.nome_animal || lote.descricao_lote || 'Identificação em processamento'
+  const descricao = lote.descricao_lote && lote.descricao_lote !== identificacao ? lote.descricao_lote : null
+  const total = liveLotTotal(lote)
+  const confidence = confidencePct(lote.confianca)
+  const imageUrl = lote.frame_artifact_id
+    ? `/api/sistema/ia/leiloes/lotes/imagem/${lote.frame_artifact_id}`
+    : null
+
+  return (
+    <div className={`flex items-start gap-3 px-3 py-3 ${current ? 'bg-red-500/[0.035]' : ''}`}>
+      <div className="flex h-14 w-20 shrink-0 items-center justify-center overflow-hidden rounded-lg bg-gray-100 dark:bg-[#202020]">
+        {imageUrl ? (
+          <Image unoptimized src={imageUrl} width={160} height={112} alt={`Imagem parcial do lote ${lote.numero_lote || ''}`} className="h-full w-full object-cover" />
+        ) : (
+          <span className="text-[9px] font-semibold uppercase tracking-wide text-gray-400">Lote {lote.numero_lote || '—'}</span>
+        )}
+      </div>
+      <div className="min-w-0 flex-1">
+        <div className="flex min-w-0 items-start justify-between gap-2">
+          <div className="min-w-0">
+            <p className="truncate text-[11px] font-semibold text-gray-800 dark:text-gray-100" title={identificacao}>
+              <span className="mr-1.5 text-[#A68B4B]">Lote {lote.numero_lote || '—'}</span>
+              {identificacao}
+            </p>
+            {descricao && <p className="mt-0.5 truncate text-[9px] text-gray-400" title={descricao}>{descricao}</p>}
+          </div>
+          <span className={`shrink-0 rounded-full border px-2 py-0.5 text-[8px] font-semibold ${status.cls}`}>{status.label}</span>
+        </div>
+        <div className="mt-2 grid grid-cols-2 gap-x-4 gap-y-2 sm:grid-cols-4">
+          <LiveLotField label="Comprador" value={lote.comprador || (lote.motivo === 'VENDIDO' ? 'Pendente' : status.label)} />
+          <LiveLotField label="Condição" value={liveLotFormula(lote)} />
+          <LiveLotField label="Total" value={brl(total)} strong />
+          <LiveLotField label="Confiança" value={confidence != null ? `${confidence}%` : 'Em análise'} tone={confidence != null && confidence < 70 ? 'warning' : undefined} />
+        </div>
+      </div>
+    </div>
+  )
+}
+
+function LiveLotField({ label, value, strong = false, tone }: { label: string; value: string; strong?: boolean; tone?: 'warning' }) {
+  return (
+    <div className="min-w-0">
+      <p className="text-[8px] uppercase tracking-wide text-gray-400">{label}</p>
+      <p className={`mt-0.5 truncate text-[10px] ${strong ? 'font-semibold text-gray-800 dark:text-gray-100' : tone === 'warning' ? 'font-medium text-amber-500' : 'text-gray-600 dark:text-gray-300'}`} title={value}>{value}</p>
+    </div>
+  )
+}
+
+function confidencePct(value: number | null | undefined): number | null {
+  if (value == null || !Number.isFinite(Number(value))) return null
+  const normalized = Number(value) <= 1 ? Number(value) * 100 : Number(value)
+  return Math.max(0, Math.min(100, Math.round(normalized)))
+}
+
+function liveLotNumber(value: unknown): number | null {
+  if (value == null || value === '') return null
+  const number = Number(value)
+  return Number.isFinite(number) ? number : null
+}
+
+function liveLotTotal(lote: RelatorioLote): number | null {
+  if ((lote.motivo || '').toUpperCase() === 'NAO_VENDIDO') return null
+  return liveLotNumber(lote.valor_total_negociado)
+    ?? liveLotNumber(lote.financeiro?.total_confirmado)
+    ?? liveLotNumber(lote.valor_total_estimado)
+    ?? liveLotNumber(lote.financeiro?.total_estimado)
+    ?? liveLotNumber(lote.financeiro?.valor_total)
+}
+
+function liveLotFormula(lote: RelatorioLote): string {
+  const parcela = liveLotNumber(lote.valor_parcela) ?? liveLotNumber(lote.financeiro?.valor_parcela)
+  const parcelas = liveLotNumber(lote.total_parcelas) ?? liveLotNumber(lote.financeiro?.total_parcelas)
+  const unidade = (lote.unidade_preco || lote.financeiro?.unidade_preco || '').toUpperCase()
+  if (unidade === 'TOTAL_LOTE') {
+    const total = liveLotTotal(lote)
+    return total != null ? `${brl(total)} total do lote` : 'Total em conferência'
+  }
+  if (parcela == null) return lote.financeiro?.formula || 'Em processamento'
+  const parts = [brl(parcela)]
+  if (parcelas != null) parts.push(`× ${parcelas} parc.`)
+  const quantidade = liveLotNumber(lote.quantidade_animais)
+    ?? liveLotNumber(lote.financeiro?.quantidade_animais)
+    ?? liveLotNumber(lote.financeiro?.quantidade)
+  if (unidade === 'POR_ANIMAL' && quantidade != null) parts.push(`× ${quantidade} animais`)
+  return parts.join(' ')
+}
+
+function liveLotStatus(lote: RelatorioLote, current: boolean): { label: string; cls: string } {
+  const raw = (lote.status_parcial || lote.motivo || '').toLocaleUpperCase('pt-BR')
+  if (raw.includes('DISPUTA') || (current && !raw.includes('VENDIDO'))) {
+    return { label: 'Em disputa', cls: 'border-red-500/25 bg-red-500/10 text-red-500' }
+  }
+  const confidence = confidencePct(lote.confianca)
+  const financialStatus = (lote.financeiro?.status || '').toLocaleUpperCase('pt-BR')
+  if (raw.includes('REVIS') || raw.includes('A_CONFIRMAR') || financialStatus === 'INCOMPLETO' || financialStatus === 'INVALIDO' || (confidence != null && confidence < 70)) {
+    return { label: 'Revisar', cls: 'border-amber-500/25 bg-amber-500/10 text-amber-500' }
+  }
+  if (raw.includes('NAO_VENDIDO') || raw.includes('NÃO VENDIDO')) {
+    return { label: 'Não vendido', cls: 'border-gray-500/25 bg-gray-500/10 text-gray-400' }
+  }
+  if (raw.includes('VENDIDO') || lote.comprador) {
+    return { label: 'Vendido', cls: 'border-emerald-500/25 bg-emerald-500/10 text-emerald-500' }
+  }
+  return { label: 'Parcial', cls: 'border-sky-500/25 bg-sky-500/10 text-sky-500' }
 }
 
 function LiveStat({ label, value }: { label: string; value: string }) {
