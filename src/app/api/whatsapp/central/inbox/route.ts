@@ -49,14 +49,17 @@ export async function GET(req: NextRequest) {
         process.env.SUPABASE_SERVICE_ROLE_KEY!
     )
 
-    // Buscamos as últimas 1000 mensagens com phone, suficiente pra montar o
-    // ranking das conversas mais recentes sem precisar de função SQL custom.
+    // Buscamos as últimas 8000 mensagens com phone para montar o ranking das
+    // conversas mais recentes. Era 1000, mas com o volume atual (2000+ msgs/dia
+    // dos disparos/concierge) essa janela cobria só ~20h e a lista encolhia para
+    // ~60 conversas; 8000 cobre vários dias. Correção definitiva pendente:
+    // DISTINCT ON (phone) via RPC, que independe do volume.
     const { data: messages, error: msgErr } = await supabase
         .from('whatsapp_messages')
         .select('id, phone, name, direction, body, status, lead_id, created_at, origin, intent, channel')
         .not('phone', 'is', null)
         .order('created_at', { ascending: false })
-        .limit(1000)
+        .limit(8000)
 
     if (msgErr) {
         return NextResponse.json({ error: msgErr.message }, { status: 500 })
