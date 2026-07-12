@@ -143,6 +143,17 @@ export default function LeiloesAnaliseClient({
     [monitorFeed.data?.fila],
   )
 
+  useEffect(() => {
+    const terminou = rows.some((row) => {
+      if (row.analise?.status !== 'processando' || !row.analise.video_id) return false
+      const status = filaPorVideo.get(row.analise.video_id)?.status
+      return ['done', 'skipped', 'error'].includes(status || '')
+    })
+    if (!terminou) return
+    const id = window.setTimeout(() => router.refresh(), 500)
+    return () => window.clearTimeout(id)
+  }, [filaPorVideo, rows, router])
+
   const cobertura = resumo.total ? Math.round((resumo.analisado / resumo.total) * 100) : 0
 
   async function post(url: string, body?: unknown) {

@@ -80,6 +80,35 @@ function statusTerminalVps(v: VideoextratorLeilao): 'concluido' | 'erro' | null 
   return null
 }
 
+function terminalUpdate(
+  current: AnaliseVinculo,
+  remote: VideoextratorLeilao,
+): { status: 'concluido' | 'erro'; snapshot: ReturnType<typeof snapshotFromVps> } | null {
+  const remoteStatus = statusTerminalVps(remote)
+  if (!remoteStatus) return null
+
+  // Uma revisão pós-live pode falhar depois de já existir um relatório útil.
+  // Nesse caso preservamos o último snapshot concluído em vez de transformar
+  // dados válidos em uma análise vazia/com erro.
+  if (
+    current.status === 'concluido'
+    && remoteStatus === 'erro'
+    && Number(current.total_lotes || 0) > 0
+  ) return null
+
+  return { status: remoteStatus, snapshot: snapshotFromVps(remote) }
+}
+
+function terminalUpdateChanged(
+  current: AnaliseVinculo,
+  update: NonNullable<ReturnType<typeof terminalUpdate>>,
+): boolean {
+  return current.status !== update.status
+    || Number(current.total_lotes || 0) !== Number(update.snapshot.total_lotes || 0)
+    || Number(current.total_vendidos || 0) !== Number(update.snapshot.total_vendidos || 0)
+    || Number(current.volume_total || 0) !== Number(update.snapshot.volume_total || 0)
+}
+
 /**
  * Monta a lista de leilões da agenda (>= DATA_INICIO) com o estado da análise.
  * Faz auto-match dos sem-vínculo contra a VPS e persiste os de tier 'auto'.
@@ -128,21 +157,20 @@ export async function montarLeiloesAnalise(
       // vídeo que terminava na VPS continuava como "processando" no web-bula
       // até alguém clicar manualmente em Sincronizar.
       const hit = vinc.video_id ? vpsById.get(vinc.video_id) : undefined
-      const statusTerminal = hit ? statusTerminalVps(hit) : null
-      if (vinc.status !== 'concluido' && hit && statusTerminal && vinc.status !== statusTerminal) {
-        const snap = snapshotFromVps(hit)
+      const update = hit ? terminalUpdate(vinc, hit) : null
+      if (update && terminalUpdateChanged(vinc, update)) {
         const sincronizadoEm = new Date().toISOString()
         const analise: AnaliseVinculo = {
           ...vinc,
-          status: statusTerminal,
-          ...snap,
+          status: update.status,
+          ...update.snapshot,
           sincronizado_em: sincronizadoEm,
         }
         reconciliadosAgora.push({
           leilao_id: leilao.id,
           video_id: vinc.video_id,
-          status: statusTerminal,
-          ...snap,
+          status: update.status,
+          ...update.snapshot,
           sincronizado_em: sincronizadoEm,
         })
         rows.push({ leilao, analise, sugestao: null })
@@ -214,7 +242,7 @@ export async function sincronizarAnalises(
 ): Promise<{ atualizados: number }> {
   const { data: vincRows } = await supabase
     .from('bula_leilao_video_analise')
-    .select('leilao_id, video_id, status')
+    .select('leilao_id, video_id, video_url, status, match_tipo, total_lotes, total_vendidos, volume_total, sincronizado_em, indice_assertividade, assertividade')
   let vps: VideoextratorLeilao[]
   try {
     vps = await listarLeiloesVPS()
@@ -226,15 +254,18 @@ export async function sincronizarAnalises(
   let atualizados = 0
   for (const v of vincRows ?? []) {
     if (!v.video_id) continue
-    if (!opts.force && v.status === 'concluido') continue
     const hit = vpsById.get(v.video_id)
     if (!hit) continue
-    const statusTerminal = statusTerminalVps(hit)
-    if (!statusTerminal || v.status === statusTerminal) continue
-    const snap = snapshotFromVps(hit)
+    const current = v as AnaliseVinculo
+    const update = terminalUpdate(current, hit)
+    if (!update || (!opts.force && !terminalUpdateChanged(current, update))) continue
     await supabase
       .from('bula_leilao_video_analise')
-      .update({ status: statusTerminal, ...snap, sincronizado_em: new Date().toISOString() })
+      .update({
+        status: update.status,
+        ...update.snapshot,
+        sincronizado_em: new Date().toISOString(),
+      })
       .eq('leilao_id', v.leilao_id)
     atualizados++
   }
