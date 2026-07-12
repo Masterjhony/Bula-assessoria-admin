@@ -80,7 +80,7 @@ export const DEFAULT_CONTENT: JmpContent = {
     locationLine1: 'Itagibá / BA',
     locationLine2: 'Fazenda Baviera',
   },
-  whatsappGroupUrl: 'https://chat.whatsapp.com/BupzNlk11RLDRDb9Q24qjO',
+  whatsappGroupUrl: 'https://chat.whatsapp.com/J6qbr9dlZ3L1gYZTit0lfC',
   blocks: [
     {
       id: 'aparte-femeas',

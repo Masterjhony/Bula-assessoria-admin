@@ -3,7 +3,7 @@ import type { LeilaoPublico } from '@/lib/bula/public-leiloes'
 // Convite do grupo de WhatsApp "Academia do Nelore P.O" (Fórmula do Boi / Bula Remates).
 // Mesmo link usado na LP/site do Fórmula do Boi.
 export const WHATSAPP_CTA_URL =
-    'https://chat.whatsapp.com/BupzNlk11RLDRDb9Q24qjO'
+    'https://chat.whatsapp.com/J6qbr9dlZ3L1gYZTit0lfC'
 
 export const MES_NOMES = [
     '', 'Janeiro', 'Fevereiro', 'Março', 'Abril', 'Maio', 'Junho',
