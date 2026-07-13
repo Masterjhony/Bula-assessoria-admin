@@ -61,3 +61,6 @@ Bula_Assessoria_Leads_Instagram_2026-06-23_a_2026-06-24.xlsx
 
 # Dados de conciliação com CPF/PII — não versionar
 scripts/data/
+
+# cache local da análise de conversas (IA)
+outputs/.cache-conversas-ia.json
