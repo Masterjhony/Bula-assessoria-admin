@@ -49,20 +49,36 @@ export async function GET(req: NextRequest) {
         process.env.SUPABASE_SERVICE_ROLE_KEY!
     )
 
-    // Buscamos as últimas 8000 mensagens com phone para montar o ranking das
-    // conversas mais recentes. Era 1000, mas com o volume atual (2000+ msgs/dia
-    // dos disparos/concierge) essa janela cobria só ~20h e a lista encolhia para
-    // ~60 conversas; 8000 cobre vários dias. Correção definitiva pendente:
-    // DISTINCT ON (phone) via RPC, que independe do volume.
-    const { data: messages, error: msgErr } = await supabase
-        .from('whatsapp_messages')
-        .select('id, phone, name, direction, body, status, lead_id, created_at, origin, intent, channel')
-        .not('phone', 'is', null)
-        .order('created_at', { ascending: false })
-        .limit(8000)
-
-    if (msgErr) {
-        return NextResponse.json({ error: msgErr.message }, { status: 500 })
+    // TODAS as mensagens com phone, PAGINANDO (mais recente → mais antiga), para
+    // que a lista contenha UMA conversa por número, independente do volume e SEM
+    // sumir com o tempo. Antes usávamos `.limit(8000)` numa query só — mas o
+    // PostgREST corta a resposta no `db-max-rows` (1000 por padrão), então na
+    // prática só as ~1000 msgs mais recentes eram lidas; como 2000+ msgs/dia são
+    // concierge/grupos (descartados abaixo), sobravam pouquíssimas conversas de
+    // cliente. Paginar por `.range()` devolve páginas cheias e cobre todo o
+    // histórico, mantendo os contatos sempre pesquisáveis. (Cap de segurança bem
+    // acima do volume atual só pra evitar loop infinito se algo der errado.)
+    const PAGE = 1000
+    const MAX_MSGS = 60000
+    const messages: {
+        id: string; phone: string | null; name: string | null
+        direction: string | null; body: string | null; status: string | null
+        lead_id: string | null; created_at: string; origin: string | null
+        intent: string | null; channel: string | null
+    }[] = []
+    for (let from = 0; from < MAX_MSGS; from += PAGE) {
+        const { data, error: msgErr } = await supabase
+            .from('whatsapp_messages')
+            .select('id, phone, name, direction, body, status, lead_id, created_at, origin, intent, channel')
+            .not('phone', 'is', null)
+            .order('created_at', { ascending: false })
+            .range(from, from + PAGE - 1)
+        if (msgErr) {
+            return NextResponse.json({ error: msgErr.message }, { status: 500 })
+        }
+        if (!data || data.length === 0) break
+        messages.push(...data)
+        if (data.length < PAGE) break
     }
 
     // Tráfego interno do Baileys que NÃO é conversa de cliente: envios a grupos
@@ -179,5 +195,8 @@ export async function GET(req: NextRequest) {
 
     rows.sort((a, b) => +new Date(b.last_at) - +new Date(a.last_at))
 
-    return NextResponse.json({ conversations: rows.slice(0, 200) })
+    // Com busca ativa, devolve TODOS os resultados (o contato pode ser antigo);
+    // ao navegar sem busca, mostra os mais recentes com teto folgado.
+    const limit = (q || interesseFilter || channelFilter || filter !== 'todos') ? rows.length : 1000
+    return NextResponse.json({ conversations: rows.slice(0, limit), total: rows.length })
 }
