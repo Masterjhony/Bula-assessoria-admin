@@ -142,7 +142,7 @@ export async function updateSession(req: NextRequest) {
     // Host lp.* (e bulaassessoria.com) → a raiz "/" redireciona para /agenda.
     // Demais caminhos
     // públicos seguem mapeando para /agenda (compat com links antigos).
-    // Caminhos canônicos (/institucional, /agenda) passam direto.
+    // Caminhos canônicos (/institucional, /agenda, /leiloes) passam direto.
     const url = req.nextUrl.clone()
     if (pathname === '/') {
       url.pathname = '/agenda'
@@ -150,6 +150,7 @@ export async function updateSession(req: NextRequest) {
     } else if (
       !pathname.startsWith('/institucional') &&
       !pathname.startsWith('/agenda') &&
+      !pathname.startsWith('/leiloes') &&
       !pathname.startsWith('/criatorios') &&
       !pathname.startsWith('/api/') &&
       !pathname.startsWith('/_next') &&

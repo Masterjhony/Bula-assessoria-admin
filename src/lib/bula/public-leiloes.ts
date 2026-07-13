@@ -91,9 +91,18 @@ function currentMonthRangeSaoPaulo() {
 function publicAgendaRangeSaoPaulo() {
     const today = todaySaoPaulo()
     const current = currentMonthRangeSaoPaulo()
+    const currentYear = Number(current.year)
+    const currentMonth = Number(current.month)
+    const nextMonthDate = new Date(currentYear, currentMonth, 1)
+    const nextYear = String(nextMonthDate.getFullYear())
+    const nextMonth = String(nextMonthDate.getMonth() + 1).padStart(2, '0')
+    const nextMonthLastDay = new Date(currentYear, currentMonth + 1, 0).getDate()
+
     return {
         start: today,
-        end: current.end,
+        // A agenda publica antecipa o mes seguinte. Em julho, por exemplo,
+        // os clientes ja conseguem consultar todos os leiloes de agosto.
+        end: `${nextYear}-${nextMonth}-${String(nextMonthLastDay).padStart(2, '0')}`,
         current,
     }
 }

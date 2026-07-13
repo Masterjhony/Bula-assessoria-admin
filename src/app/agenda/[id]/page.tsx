@@ -69,7 +69,7 @@ export default async function LeilaoDetalhePage({ params }: { params: Promise<{ 
         <article className="bg-[#0A0A0A] text-white">
             <div className="mx-auto max-w-6xl px-5 pt-28 pb-10 sm:px-8 sm:pt-32 sm:pb-14">
                 <Link
-                    href="/agenda"
+                    href="/leiloes"
                     className="inline-flex items-center gap-2 rounded-md border border-white/12 bg-[#141414] px-3 py-2 text-sm font-bold text-white/64 transition-colors hover:border-[#C9A84C]/40 hover:text-white"
                 >
                     <ArrowLeft className="h-4 w-4" />
@@ -80,12 +80,21 @@ export default async function LeilaoDetalhePage({ params }: { params: Promise<{ 
                     <div className="min-h-[320px] bg-black sm:min-h-[440px] lg:min-h-[620px]">
                         <div className="relative flex h-full min-h-[320px] items-center justify-center overflow-hidden sm:min-h-[440px] lg:min-h-[620px]">
                             {leilao.img ? (
-                                // eslint-disable-next-line @next/next/no-img-element
-                                <img
-                                    src={leilao.img}
-                                    alt={leilao.nome}
-                                    className="h-full w-full object-cover transition-transform duration-700 hover:scale-[1.025]"
-                                />
+                                <>
+                                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                                    <img
+                                        src={leilao.img}
+                                        alt=""
+                                        aria-hidden
+                                        className="absolute inset-0 h-full w-full scale-110 object-cover opacity-35 blur-2xl"
+                                    />
+                                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                                    <img
+                                        src={leilao.img}
+                                        alt={leilao.nome}
+                                        className="relative h-full w-full object-contain transition-transform duration-700 hover:scale-[1.015]"
+                                    />
+                                </>
                             ) : (
                                 <div className="flex h-full w-full items-center justify-center bg-black py-16 text-center text-white">
                                     {/* eslint-disable-next-line @next/next/no-img-element */}

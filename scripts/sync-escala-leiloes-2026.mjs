@@ -1,4 +1,4 @@
-import { readFileSync, readdirSync } from 'node:fs'
+import { existsSync, readFileSync, readdirSync } from 'node:fs'
 import { basename, join } from 'node:path'
 import { randomUUID, createHash } from 'node:crypto'
 import { createClient } from '@supabase/supabase-js'
@@ -8,6 +8,17 @@ import XLSX from 'xlsx'
 const dry = process.argv.includes('--dry')
 const keepExtras = process.argv.includes('--keep-extras')
 const skipImages = process.argv.includes('--skip-images')
+const monthsArg = process.argv.find((arg) => arg.startsWith('--months='))
+const syncMonths = new Set(
+  (monthsArg?.slice('--months='.length) ?? '')
+    .split(',')
+    .map((value) => value.trim())
+    .filter((value) => /^20\d{2}-(0[1-9]|1[0-2])$/.test(value)),
+)
+if (monthsArg && syncMonths.size === 0) {
+  console.error('Filtro --months invalido. Use, por exemplo, --months=2026-07,2026-08.')
+  process.exit(1)
+}
 const explicitFile = process.argv.find((arg) => arg.endsWith('.xlsx'))
 const sourceFile = explicitFile ?? readdirSync('.').find((f) => f.startsWith('ESCALA') && f.endsWith('.xlsx'))
 
@@ -16,18 +27,20 @@ if (!sourceFile) {
   process.exit(1)
 }
 
-const env = Object.fromEntries(
-  readFileSync(join('.', '.env.local'), 'utf-8')
+const localEnvFile = join('.', '.env.local')
+const localEnv = existsSync(localEnvFile) ? Object.fromEntries(
+  readFileSync(localEnvFile, 'utf-8')
     .split(/\r?\n/)
     .filter((line) => line && !line.startsWith('#') && line.includes('='))
     .map((line) => {
       const i = line.indexOf('=')
       return [line.slice(0, i).trim(), line.slice(i + 1).trim().replace(/^"|"$/g, '')]
     }),
-)
+) : {}
+const env = { ...localEnv, ...process.env }
 
 if (!env.NEXT_PUBLIC_SUPABASE_URL || !env.SUPABASE_SERVICE_ROLE_KEY) {
-  console.error('Variaveis NEXT_PUBLIC_SUPABASE_URL/SUPABASE_SERVICE_ROLE_KEY ausentes em .env.local')
+  console.error('Variaveis NEXT_PUBLIC_SUPABASE_URL/SUPABASE_SERVICE_ROLE_KEY ausentes no ambiente ou em .env.local')
   process.exit(1)
 }
 
@@ -70,6 +83,27 @@ function parseHour(value) {
 
 function clean(value) {
   return String(value ?? '').trim()
+}
+
+function isMeaningfulSheetValue(value) {
+  const normalized = clean(value)
+  return Boolean(normalized) && !/^\?+$/.test(normalized) && normalized !== '-'
+}
+
+function sheetOrExisting(value, existing, fallback = '') {
+  if (isMeaningfulSheetValue(value)) return clean(value)
+  if (existing != null && clean(existing)) return existing
+  return fallback
+}
+
+function parseMoney(value) {
+  if (!isMeaningfulSheetValue(value)) return null
+  let normalized = clean(value).replace(/R\$\s?/gi, '').replace(/\s/g, '')
+  if (normalized.includes(',')) normalized = normalized.replace(/\./g, '').replace(',', '.')
+  else if (/^-?\d{1,3}(\.\d{3})+$/.test(normalized)) normalized = normalized.replace(/\./g, '')
+  else normalized = normalized.replace(/[^\d.-]/g, '')
+  const parsed = Number(normalized)
+  return Number.isFinite(parsed) ? parsed : null
 }
 
 function slug(value) {
@@ -185,6 +219,7 @@ function headerIndexes(headerRow) {
     faturamento_realizado: ['FATURAMENTO REALIZADO'],
     venda_bula: ['VENDA BULA ASSESSORIA'],
     comissao_receber: ['COMISSAO A RECEBER'],
+    comissao_prevista: ['COMISSAO PREVISTA'],
     recebido: ['RECEBIDO'],
     catalogo_url: ['CATALOGO'],
     fechamento: ['FECHAMENTO'],
@@ -241,6 +276,7 @@ function parseWorkbook(file) {
         faturamento_realizado: clean(row[idx.faturamento_realizado]),
         venda_bula: clean(row[idx.venda_bula]),
         comissao_receber: clean(row[idx.comissao_receber]),
+        comissao_prevista: clean(row[idx.comissao_prevista]),
         recebido: clean(row[idx.recebido]),
         catalogo_url: clean(row[idx.catalogo_url]),
         checklist: checklistFromRow(row, checklistCols),
@@ -364,6 +400,10 @@ async function attachImages(sourceRows, file) {
   }
   const withImg = sourceRows.filter((r) => r.image_url).length
   console.log(`Capas: ${uploaded} enviadas, ${reused} reaproveitadas, ${withImg} leiloes com capa da planilha`)
+  const withoutImg = sourceRows.filter((row) => !row.image_url)
+  if (withoutImg.length > 0) {
+    console.log(`Sem capa embutida (${withoutImg.length}): ${withoutImg.map((row) => `${row.data} ${row.nome}`).join(' | ')}`)
+  }
 }
 
 function grams(value) {
@@ -441,31 +481,36 @@ function addHoursIso(startIso, hours) {
   return new Date(new Date(startIso).getTime() + hours * 60 * 60 * 1000).toISOString()
 }
 
-function toPublicLeilao(row) {
+function toPublicLeilao(row, existing) {
   const qtd = Number.parseInt(String(row.qtd_animais).replace(/\D/g, ''), 10)
+  const expectativa = parseMoney(row.faturamento_previsto)
+  const realizadoBula = parseMoney(row.venda_bula)
   return {
     nome: row.nome,
     data: row.data,
-    tipo: row.raca || row.sexo || 'Leilao',
-    local: row.presencial || '',
-    animais: Number.isFinite(qtd) ? qtd : 0,
-    expectativa: 0,
-    meta_bula: 0,
-    realizado_bula: 0,
-    status: statusForDate(row.data),
-    horario: row.hora,
-    transmissao: '',
-    modelo: row.presencial || '',
-    leiloeira: row.leiloeira || '',
-    condicao: row.condicao || '',
-    frete_gratis: row.frete_gratis || '',
-    acordo_comissao: row.comissao || '',
-    catalogo_url: row.catalogo_url || null,
-    tasks: [],
+    tipo: sheetOrExisting(row.raca || row.sexo, existing?.tipo, 'Leilao'),
+    local: sheetOrExisting(row.presencial, existing?.local),
+    animais: Number.isFinite(qtd) ? qtd : Number(existing?.animais) || 0,
+    expectativa: expectativa ?? (Number(existing?.expectativa) || 0),
+    meta_bula: Number(existing?.meta_bula) || 0,
+    realizado_bula: realizadoBula ?? (Number(existing?.realizado_bula) || 0),
+    status: existing?.status || statusForDate(row.data),
+    horario: sheetOrExisting(row.hora, existing?.horario),
+    transmissao: existing?.transmissao || '',
+    modelo: sheetOrExisting(row.presencial, existing?.modelo),
+    leiloeira: sheetOrExisting(row.leiloeira, existing?.leiloeira),
+    condicao: sheetOrExisting(row.condicao, existing?.condicao),
+    frete_gratis: sheetOrExisting(row.frete_gratis, existing?.frete_gratis),
+    acordo_comissao: sheetOrExisting(row.comissao, existing?.acordo_comissao),
+    catalogo_url: sheetOrExisting(row.catalogo_url, existing?.catalogo_url, null),
+    tasks: existing?.tasks ?? [],
   }
 }
 
-const sourceRows = parseWorkbook(sourceFile)
+const allSourceRows = parseWorkbook(sourceFile)
+const sourceRows = syncMonths.size > 0
+  ? allSourceRows.filter((row) => syncMonths.has(row.data.slice(0, 7)))
+  : allSourceRows
 const duplicateKeys = sourceRows
   .map(rowKey)
   .filter((key, idx, all) => all.indexOf(key) !== idx)
@@ -478,6 +523,7 @@ if (duplicateKeys.length > 0) {
 
 console.log(`Fonte: ${basename(sourceFile)}`)
 console.log(`Linhas de leilao na planilha: ${sourceRows.length}`)
+console.log(`Meses: ${syncMonths.size > 0 ? [...syncMonths].sort().join(', ') : 'ano inteiro'}`)
 console.log(`Modo: ${dry ? 'dry-run' : 'escrita real'}${keepExtras ? ' (mantendo extras)' : ''}`)
 
 if (!skipImages) {
@@ -498,47 +544,56 @@ if (process.env.DEBUG_SYNC) {
   console.log('')
 }
 
-const { data: currentRows, error: cronoError } = await supabase
+const { data: currentRowsAll, error: cronoError } = await supabase
   .from('cronograma_leiloes')
   .select('*')
   .gte('data', '2026-01-01')
   .lt('data', '2027-01-01')
 if (cronoError) throw cronoError
+const currentRows = (currentRowsAll ?? []).filter((row) =>
+  syncMonths.size === 0 || syncMonths.has(String(row.data).slice(0, 7)),
+)
 
-const { pairs, usedDb } = matchExisting(sourceRows, currentRows ?? [])
-const currentById = new Map((currentRows ?? []).map((row) => [row.id, row]))
+const { pairs, usedDb } = matchExisting(sourceRows, currentRows)
+const agreementRows = sourceRows
+  .map((row, index) => ({ row, existing: pairs.get(index) }))
+  .filter(({ row }) => isMeaningfulSheetValue(row.comissao))
+const agreementChanges = agreementRows.filter(({ row, existing }) =>
+  strip(row.comissao) !== strip(existing?.comissao),
+)
+console.log(`Acordos: ${agreementRows.length} informados na planilha, ${agreementChanges.length} preenchimentos/atualizacoes no cronograma`)
 
 const cronogramaPayload = sourceRows.map((row, index) => {
   const existing = pairs.get(index)
   return {
     id: existing?.id ?? randomUUID(),
     data: row.data,
-    dia_semana: row.dia_semana,
-    hora: row.hora,
+    dia_semana: sheetOrExisting(row.dia_semana, existing?.dia_semana),
+    hora: sheetOrExisting(row.hora, existing?.hora),
     nome: row.nome,
-    criador: row.criador,
+    criador: sheetOrExisting(row.criador, existing?.criador),
     // Modalidade e editavel no painel admin (Modalidade/Modelo). A planilha so
     // semeia o valor no primeiro insert; em registros ja existentes, preserva o
     // que esta no banco para nao sobrescrever ajustes manuais a cada sync.
     presencial: existing ? existing.presencial : row.presencial,
-    leiloeira: row.leiloeira,
-    raca: row.raca,
-    qtd_animais: row.qtd_animais,
-    sexo: row.sexo,
-    comissao: row.comissao,
-    contrato: row.contrato,
-    faturamento_previsto: row.faturamento_previsto,
-    faturamento_realizado: row.faturamento_realizado,
-    venda_bula: row.venda_bula,
-    comissao_receber: row.comissao_receber,
-    recebido: row.recebido,
-    catalogo_url: row.catalogo_url || existing?.catalogo_url || null,
+    leiloeira: sheetOrExisting(row.leiloeira, existing?.leiloeira),
+    raca: sheetOrExisting(row.raca, existing?.raca),
+    qtd_animais: sheetOrExisting(row.qtd_animais, existing?.qtd_animais),
+    sexo: sheetOrExisting(row.sexo, existing?.sexo),
+    comissao: sheetOrExisting(row.comissao, existing?.comissao),
+    contrato: sheetOrExisting(row.contrato, existing?.contrato),
+    faturamento_previsto: sheetOrExisting(row.faturamento_previsto, existing?.faturamento_previsto),
+    faturamento_realizado: sheetOrExisting(row.faturamento_realizado, existing?.faturamento_realizado),
+    venda_bula: sheetOrExisting(row.venda_bula, existing?.venda_bula),
+    comissao_receber: sheetOrExisting(row.comissao_receber || row.comissao_prevista, existing?.comissao_receber),
+    recebido: sheetOrExisting(row.recebido, existing?.recebido),
+    catalogo_url: sheetOrExisting(row.catalogo_url, existing?.catalogo_url, null),
     // A capa da planilha vence; sem capa na planilha, preserva a atual.
     img: row.image_url || existing?.img || null,
   }
 })
 
-const extraCronograma = (currentRows ?? []).filter((_, index) => !usedDb.has(index))
+const extraCronograma = currentRows.filter((_, index) => !usedDb.has(index))
 console.log(`Cronograma: ${pairs.size} atualizacoes, ${sourceRows.length - pairs.size} insercoes, ${extraCronograma.length} extras no banco`)
 
 if (!dry && extraCronograma.length > 0 && !keepExtras) {
@@ -558,21 +613,26 @@ if (!dry) {
   syncedCronograma = data
 }
 
-const syncedByKey = new Map(syncedCronograma.map((row) => [rowKey(row), row]))
-const sourceWithIds = sourceRows.map((row) => syncedByKey.get(rowKey(row)) ?? row)
+const syncedById = new Map(syncedCronograma.map((row) => [row.id, row]))
+const sourceWithIds = sourceRows.map((row, index) =>
+  syncedById.get(cronogramaPayload[index].id) ?? { ...row, id: cronogramaPayload[index].id },
+)
 
-const { data: currentPublic, error: publicError } = await supabase
+const { data: currentPublicAll, error: publicError } = await supabase
   .from('bula_leiloes')
   .select('*')
   .gte('data', '2026-01-01')
   .lt('data', '2027-01-01')
 if (publicError) throw publicError
+const currentPublic = (currentPublicAll ?? []).filter((row) =>
+  syncMonths.size === 0 || syncMonths.has(String(row.data).slice(0, 7)),
+)
 
-const { pairs: publicPairs, usedDb: usedPublic } = matchExisting(sourceRows, currentPublic ?? [])
+const { pairs: publicPairs, usedDb: usedPublic } = matchExisting(sourceRows, currentPublic)
 const publicPayload = sourceRows.map((row, index) => {
   const existing = publicPairs.get(index)
-  const cronograma = syncedByKey.get(rowKey(row))
-  const pub = toPublicLeilao(row)
+  const cronograma = syncedById.get(cronogramaPayload[index].id)
+  const pub = toPublicLeilao(row, existing)
   return {
     id: existing?.id ?? randomUUID(),
     ...pub,
@@ -586,14 +646,14 @@ const publicPayload = sourceRows.map((row, index) => {
     local: existing ? existing.local : pub.local,
     // A capa da planilha vence; sem capa nova, preserva a atual (admin/cronograma).
     img: row.image_url || existing?.img || cronograma?.img || '',
-    catalogo_url: existing?.catalogo_url || cronograma?.catalogo_url || row.catalogo_url || null,
+    catalogo_url: sheetOrExisting(row.catalogo_url, existing?.catalogo_url || cronograma?.catalogo_url, null),
     transmissao: existing?.transmissao || '',
     // Checklist "Produção & Divulgação": junho vem da planilha; julho em diante
     // recebe o mesmo checklist em branco (semeado uma vez). Preserva grupos manuais.
     tasks: mergeChecklist(existing?.tasks ?? [], row),
   }
 })
-const extraPublic = (currentPublic ?? []).filter((_, index) => !usedPublic.has(index))
+const extraPublic = currentPublic.filter((_, index) => !usedPublic.has(index))
 console.log(`Publico: ${publicPairs.size} atualizacoes, ${sourceRows.length - publicPairs.size} insercoes, ${extraPublic.length} extras no banco`)
 
 if (!dry && extraPublic.length > 0 && !keepExtras) {

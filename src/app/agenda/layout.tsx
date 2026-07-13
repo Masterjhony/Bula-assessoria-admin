@@ -12,7 +12,7 @@ export const metadata: Metadata = {
         title: 'Agenda de Leilões | Bula Assessoria',
         description:
             'Touros e matrizes dos principais leilões do Brasil, com curadoria e assessoria comercial da Bula.',
-        url: 'https://bulaassessoria.com/agenda',
+        url: 'https://bulaassessoria.com/leiloes',
         siteName: 'Bula Assessoria',
         images: [
             {
@@ -40,7 +40,7 @@ export default function AgendaLayout({ children }: { children: React.ReactNode }
                 sem barra/borda. Some ao rolar, é intencional. */}
             <header className="absolute inset-x-0 top-0 z-30">
                 <div className="mx-auto flex h-20 max-w-7xl items-center justify-between px-5 sm:h-24 sm:px-8">
-                    <Link href="/agenda" className="flex items-center group" aria-label="Bula Assessoria">
+                    <Link href="/leiloes" className="flex items-center group" aria-label="Bula Assessoria">
                         {/* eslint-disable-next-line @next/next/no-img-element */}
                         <img
                             src="/logo-bula-assessoria-white.png"
@@ -49,13 +49,13 @@ export default function AgendaLayout({ children }: { children: React.ReactNode }
                         />
                     </Link>
                     <nav className="flex items-center gap-[clamp(14px,2.4vw,34px)]">
-                        <Link href="/agenda#agenda" className="agenda-nav-link hidden sm:inline" style={{ fontFamily: "'Inter',sans-serif", fontSize: '11px', fontWeight: 500, letterSpacing: '0.2em', textTransform: 'uppercase', color: 'rgba(255,255,255,0.6)' }}>
+                        <Link href="/leiloes#agenda" className="agenda-nav-link hidden sm:inline" style={{ fontFamily: "'Inter',sans-serif", fontSize: '11px', fontWeight: 500, letterSpacing: '0.2em', textTransform: 'uppercase', color: 'rgba(255,255,255,0.6)' }}>
                             Agenda
                         </Link>
-                        <Link href="/agenda#sobre" className="agenda-nav-link hidden sm:inline" style={{ fontFamily: "'Inter',sans-serif", fontSize: '11px', fontWeight: 500, letterSpacing: '0.2em', textTransform: 'uppercase', color: 'rgba(255,255,255,0.6)' }}>
+                        <Link href="/leiloes#sobre" className="agenda-nav-link hidden sm:inline" style={{ fontFamily: "'Inter',sans-serif", fontSize: '11px', fontWeight: 500, letterSpacing: '0.2em', textTransform: 'uppercase', color: 'rgba(255,255,255,0.6)' }}>
                             Sobre
                         </Link>
-                        <Link href="/agenda#contato" className="agenda-nav-link hidden sm:inline" style={{ fontFamily: "'Inter',sans-serif", fontSize: '11px', fontWeight: 500, letterSpacing: '0.2em', textTransform: 'uppercase', color: 'rgba(255,255,255,0.6)' }}>
+                        <Link href="/leiloes#contato" className="agenda-nav-link hidden sm:inline" style={{ fontFamily: "'Inter',sans-serif", fontSize: '11px', fontWeight: 500, letterSpacing: '0.2em', textTransform: 'uppercase', color: 'rgba(255,255,255,0.6)' }}>
                             Contato
                         </Link>
                         <a
@@ -116,13 +116,13 @@ export default function AgendaLayout({ children }: { children: React.ReactNode }
                         </h4>
                         <ul className="space-y-6 text-[15px] text-white/62">
                             <li>
-                                <Link href="/agenda" className="inline-flex items-center gap-2 transition-colors hover:text-[#C9A84C]">
+                                <Link href="/leiloes" className="inline-flex items-center gap-2 transition-colors hover:text-[#C9A84C]">
                                     <Calendar className="h-4 w-4 text-white/35" />
                                     Agenda de leilões
                                 </Link>
                             </li>
                             <li>
-                                <Link href="/agenda#proximos" className="inline-flex items-center gap-2 transition-colors hover:text-[#C9A84C]">
+                                <Link href="/leiloes#agenda" className="inline-flex items-center gap-2 transition-colors hover:text-[#C9A84C]">
                                     <ArrowRight className="h-4 w-4 text-white/35" />
                                     Próximos leilões
                                 </Link>

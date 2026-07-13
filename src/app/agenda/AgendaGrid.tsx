@@ -83,6 +83,23 @@ export function AgendaGrid({ leiloes }: { leiloes: LeilaoPublico[] }) {
                 </div>
             </div>
 
+            {grupos.length > 1 && (
+                <nav aria-label="Meses da agenda" className="mt-4 flex flex-wrap gap-2">
+                    {grupos.map((grupo) => (
+                        <a
+                            key={grupo.key}
+                            href={`#mes-${grupo.key}`}
+                            className="inline-flex items-center gap-2 rounded-full border border-white/12 bg-[#141414] px-4 py-2 text-xs font-black uppercase tracking-wide text-white/68 transition-all hover:border-[#C9A84C]/45 hover:bg-[#C9A84C]/10 hover:text-[#E8DBB8]"
+                        >
+                            {grupo.label}
+                            <span className="rounded-full bg-white/8 px-2 py-0.5 text-[10px] text-[#C9A84C]">
+                                {grupo.total}
+                            </span>
+                        </a>
+                    ))}
+                </nav>
+            )}
+
             {lista.length === 0 ? (
                 <EstadoVazio temBusca={!!busca.trim()} />
             ) : (
@@ -147,17 +164,26 @@ function LeilaoCard({ leilao, index }: { leilao: LeilaoPublico; index: number })
             transition={{ duration: 0.3, delay: Math.min(index * 0.04, 0.3) }}
         >
             <Link
-                href={`/agenda/${leilao.id}`}
+                href={`/leiloes/${leilao.id}`}
                 className="group flex h-full flex-col overflow-hidden rounded-md border border-white/10 bg-[#141414] transition-all duration-300 hover:-translate-y-1 hover:border-[#C9A84C]/35 hover:shadow-[0_28px_60px_-38px_rgba(0,0,0,0.9)]"
             >
-                <div className="relative aspect-[16/10] overflow-hidden bg-black">
+                <div className="relative aspect-[4/5] overflow-hidden bg-black">
                     {leilao.img ? (
-                        // eslint-disable-next-line @next/next/no-img-element
-                        <img
-                            src={leilao.img}
-                            alt={leilao.nome}
-                            className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-105"
-                        />
+                        <>
+                            {/* eslint-disable-next-line @next/next/no-img-element */}
+                            <img
+                                src={leilao.img}
+                                alt=""
+                                aria-hidden
+                                className="absolute inset-0 h-full w-full scale-110 object-cover opacity-35 blur-2xl"
+                            />
+                            {/* eslint-disable-next-line @next/next/no-img-element */}
+                            <img
+                                src={leilao.img}
+                                alt={leilao.nome}
+                                className="relative h-full w-full object-contain transition-transform duration-700 group-hover:scale-[1.025]"
+                            />
+                        </>
                     ) : (
                         <div className="flex h-full w-full items-center justify-center bg-black text-white">
                             <div className="text-center">

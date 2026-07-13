@@ -80,7 +80,7 @@ export default async function AgendaPage() {
                     <p style={{ fontFamily: INTER, fontSize: 'clamp(15px,1.5vw,18px)', lineHeight: 1.55, color: 'rgba(255,255,255,0.72)', maxWidth: '52ch', margin: '0 0 34px' }}>{heroSub}</p>
                     <div style={{ display: 'flex', gap: '14px', flexWrap: 'wrap' }}>
                         <a href={WHATSAPP_CTA_URL} target="_blank" rel="noopener noreferrer" className="agenda-btn-white" style={{ fontFamily: OSWALD, fontWeight: 600, fontSize: '14px', letterSpacing: '0.14em', textTransform: 'uppercase', color: '#0A0A0A', background: '#fff', textDecoration: 'none', padding: '16px 30px' }}>Falar no WhatsApp</a>
-                        {destaque && <Link href={`/agenda/${destaque.id}`} className="agenda-btn-outline" style={{ fontFamily: OSWALD, fontWeight: 600, fontSize: '14px', letterSpacing: '0.14em', textTransform: 'uppercase', color: '#fff', textDecoration: 'none', padding: '16px 30px', border: '1px solid rgba(255,255,255,0.35)' }}>Ver Detalhes →</Link>}
+                        {destaque && <Link href={`/leiloes/${destaque.id}`} className="agenda-btn-outline" style={{ fontFamily: OSWALD, fontWeight: 600, fontSize: '14px', letterSpacing: '0.14em', textTransform: 'uppercase', color: '#fff', textDecoration: 'none', padding: '16px 30px', border: '1px solid rgba(255,255,255,0.35)' }}>Ver Detalhes →</Link>}
                     </div>
                 </div>
             </section>
