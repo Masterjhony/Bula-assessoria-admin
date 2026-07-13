@@ -725,9 +725,10 @@ function LiveLotRow({ lote, current }: { lote: RelatorioLote; current: boolean }
           </div>
           <span className={`shrink-0 rounded-full border px-2 py-0.5 text-[8px] font-semibold ${status.cls}`}>{status.label}</span>
         </div>
-        <div className="mt-2 grid grid-cols-2 gap-x-4 gap-y-2 sm:grid-cols-5">
+        <div className="mt-2 grid grid-cols-2 gap-x-4 gap-y-2 sm:grid-cols-6">
           <LiveLotField label="Comprador" value={liveBuyerLabel(lote, status.label)} />
           <LiveLotField label="Assessor" value={lote.assessor_nome || 'Não identificado'} />
+          <LiveLotField label="Casa / Assessoria" value={lote.assessoria_comprador || lote.assessoria || 'Não identificada'} />
           <LiveLotField label="Condição" value={liveLotFormula(lote)} />
           <LiveLotField label="Total" value={brl(total)} strong />
           <LiveLotField label="Confiança" value={confidence != null ? `${confidence}%` : 'Em análise'} tone={confidence != null && confidence < 70 ? 'warning' : undefined} />
@@ -769,9 +770,8 @@ function liveLotTotal(lote: RelatorioLote): number | null {
 
 function liveBuyerLabel(lote: RelatorioLote, fallback: string): string {
   const buyerStatus = (lote.comprador_status || '').toLowerCase()
-  if (!lote.comprador || buyerStatus === 'pendente' || buyerStatus === 'rejeitado') {
-    return lote.motivo === 'VENDIDO' ? 'Pendente' : fallback
-  }
+  if (!lote.comprador) return fallback === 'Em disputa' ? fallback : 'Não anunciado'
+  if (buyerStatus === 'pendente' || buyerStatus === 'rejeitado') return 'Em validação'
   return lote.comprador
 }
 
@@ -798,9 +798,12 @@ function liveLotStatus(lote: RelatorioLote, current: boolean): { label: string; 
   if (raw.includes('DISPUTA') || (current && !raw.includes('VENDIDO'))) {
     return { label: 'Em disputa', cls: 'border-red-500/25 bg-red-500/10 text-red-500' }
   }
+  if (raw.includes('A_CONFIRMAR')) {
+    return { label: 'A confirmar', cls: 'border-amber-500/25 bg-amber-500/10 text-amber-500' }
+  }
   const confidence = confidencePct(lote.confianca)
   const financialStatus = (lote.financeiro?.status || '').toLocaleUpperCase('pt-BR')
-  if (raw.includes('REVIS') || raw.includes('A_CONFIRMAR') || financialStatus === 'INCOMPLETO' || financialStatus === 'INVALIDO' || (confidence != null && confidence < 70)) {
+  if (raw.includes('REVIS') || financialStatus === 'INCOMPLETO' || financialStatus === 'INVALIDO' || (confidence != null && confidence < 70)) {
     return { label: 'Revisar', cls: 'border-amber-500/25 bg-amber-500/10 text-amber-500' }
   }
   if (raw.includes('NAO_VENDIDO') || raw.includes('NÃO VENDIDO')) {
@@ -1011,8 +1014,9 @@ function RelatorioModal({ leilaoId, nome, analise, onClose }: { leilaoId: string
                 <Stat icon={TrendingUp} label="Maior lance" valor={brl(rel.preco_maximo)} />
               </div>
 
-              <div className="grid md:grid-cols-2 gap-6 mb-6">
+              <div className="grid md:grid-cols-3 gap-6 mb-6">
                 <ListaTop titulo="Top compradores" icon={Users} itens={(rel.top_compradores || []).map((c) => ({ nome: c.nome, valor: brl(c.volume) }))} />
+                <ListaTop titulo="Top assessores" icon={Users} itens={(rel.top_assessores || []).map((c) => ({ nome: c.nome, valor: `${c.quantidade} lote(s)` }))} />
                 <ListaTop titulo="Top assessorias" icon={Users} itens={(rel.top_assessorias || []).map((c) => ({ nome: c.nome, valor: `${c.quantidade} lote(s)` }))} />
               </div>
 
@@ -1024,6 +1028,7 @@ function RelatorioModal({ leilaoId, nome, analise, onClose }: { leilaoId: string
                 const procs = (rel.lotes || []).map((l) => parseProcedencia(l.qa_flags))
                 const nDesacordo = procs.filter((p) => p.desacordo).length
                 const nVisual = procs.filter((p) => p.fonte === 'fusao').length
+                const nCompradorNaoAnunciado = (rel.lotes || []).filter((l) => !l.comprador || l.comprador_status === 'pendente').length
                 return (
                   <div className="flex flex-wrap items-center gap-2 mb-2">
                     <h3 className="text-sm font-semibold text-gray-700 dark:text-gray-300">Lotes ({rel.lotes?.length || 0})</h3>
@@ -1037,6 +1042,11 @@ function RelatorioModal({ leilaoId, nome, analise, onClose }: { leilaoId: string
                         <AlertTriangle size={11} /> {nDesacordo} desacordo áudio↔vídeo (revisar)
                       </span>
                     )}
+                    {nCompradorNaoAnunciado > 0 && (
+                      <span className="inline-flex items-center gap-1 text-[11px] px-2 py-0.5 rounded-full bg-sky-500/10 text-sky-500 border border-sky-500/30">
+                        <Users size={11} /> {nCompradorNaoAnunciado} comprador(es) não anunciado(s)
+                      </span>
+                    )}
                   </div>
                 )
               })()}
@@ -1048,6 +1058,7 @@ function RelatorioModal({ leilaoId, nome, analise, onClose }: { leilaoId: string
                       <th className="px-3 py-2 font-medium">Descrição / Animal</th>
                       <th className="px-3 py-2 font-medium">Comprador</th>
                       <th className="px-3 py-2 font-medium">Assessor</th>
+                      <th className="px-3 py-2 font-medium">Casa / Assessoria</th>
                       <th className="px-3 py-2 font-medium text-right">Valor</th>
                       <th className="px-3 py-2 font-medium text-center">Parc.</th>
                       <th className="px-3 py-2 font-medium">Fonte</th>
@@ -1057,23 +1068,23 @@ function RelatorioModal({ leilaoId, nome, analise, onClose }: { leilaoId: string
                   <tbody>
                     {(rel.lotes || []).map((l) => {
                       const proc = parseProcedencia(l.qa_flags)
+                      const status = liveLotStatus(l, false)
                       return (
                       <tr key={l.id} className={`border-b border-gray-100 dark:border-[#222] ${proc.desacordo ? 'bg-amber-500/5' : ''}`}>
                         <td className="px-3 py-2 text-gray-400">{l.numero_lote}</td>
                         <td className="px-3 py-2 max-w-[200px] truncate text-gray-700 dark:text-gray-200" title={l.descricao_lote || l.nome_animal || ''}>
                           {l.nome_animal || l.descricao_lote || '—'}
                         </td>
-                        <td className="px-3 py-2 text-gray-600 dark:text-gray-300 max-w-[150px] truncate" title={l.comprador || ''}>{liveBuyerLabel(l, 'Pendente')}</td>
+                        <td className="px-3 py-2 text-gray-600 dark:text-gray-300 max-w-[150px] truncate" title={l.comprador || ''}>{liveBuyerLabel(l, 'Não anunciado')}</td>
                         <td className="px-3 py-2 text-gray-600 dark:text-gray-300 max-w-[150px] truncate" title={l.assessor_nome || ''}>{l.assessor_nome || '—'}</td>
+                        <td className="px-3 py-2 text-gray-600 dark:text-gray-300 max-w-[150px] truncate" title={l.assessoria_comprador || l.assessoria || ''}>{l.assessoria_comprador || l.assessoria || '—'}</td>
                         <td className="px-3 py-2 text-right font-medium text-gray-800 dark:text-gray-100">{brl(l.valor_final)}</td>
                         <td className="px-3 py-2 text-center text-gray-500 dark:text-gray-400">{l.total_parcelas || '—'}</td>
                         <td className="px-3 py-2">
                           <FonteBadge proc={proc} conf={l.confianca} />
                         </td>
                         <td className="px-3 py-2">
-                          <span className={l.motivo === 'VENDIDO' ? 'text-emerald-500' : 'text-gray-400'}>
-                            {l.motivo === 'VENDIDO' ? 'Vendido' : 'Não vendido'}
-                          </span>
+                          <span className={`inline-flex rounded-full border px-2 py-0.5 text-[10px] font-semibold ${status.cls}`}>{status.label}</span>
                         </td>
                       </tr>
                     )})}

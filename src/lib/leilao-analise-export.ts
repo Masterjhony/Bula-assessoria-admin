@@ -65,6 +65,40 @@ function volumeRelatorio(relatorio: Relatorio): number {
     ?? 0
 }
 
+type ResumoAssessor = {
+  Assessor: string
+  'Casa / Assessoria': string
+  Lotes: number
+  Animais: number
+  VGV: number
+}
+
+function assessoriaLote(lote: RelatorioLote): string {
+  return String(lote.assessoria_comprador || lote.assessoria || '').trim()
+}
+
+function resumoPorAssessor(lotes: RelatorioLote[]): ResumoAssessor[] {
+  const grupos = new Map<string, ResumoAssessor>()
+  for (const lote of lotes) {
+    const assessor = String(lote.assessor_nome || '').trim()
+    const assessoria = assessoriaLote(lote)
+    if (!assessor && !assessoria) continue
+    const key = `${assessor.toLocaleLowerCase('pt-BR')}\u0000${assessoria.toLocaleLowerCase('pt-BR')}`
+    const atual = grupos.get(key) || {
+      Assessor: assessor,
+      'Casa / Assessoria': assessoria,
+      Lotes: 0,
+      Animais: 0,
+      VGV: 0,
+    }
+    atual.Lotes += 1
+    atual.Animais += numero(lote.quantidade_animais) ?? numero(lote.financeiro?.quantidade_animais) ?? 1
+    atual.VGV += totalLote(lote) ?? 0
+    grupos.set(key, atual)
+  }
+  return [...grupos.values()].sort((a, b) => b.VGV - a.VGV || b.Lotes - a.Lotes || a.Assessor.localeCompare(b.Assessor, 'pt-BR'))
+}
+
 export async function exportarRelatorioExcel(nome: string, relatorio: Relatorio, analise: AnaliseResumo) {
   const XLSX = await import('xlsx')
   const agora = new Date()
@@ -89,7 +123,7 @@ export async function exportarRelatorioExcel(nome: string, relatorio: Relatorio,
     Comprador: lote.comprador || '',
     'Status comprador': lote.comprador_status || 'pendente',
     Assessor: lote.assessor_nome || '',
-    Assessoria: lote.assessoria_comprador || lote.assessoria || '',
+    'Casa / Assessoria': assessoriaLote(lote),
     'Valor por parcela': numero(lote.valor_parcela) ?? numero(lote.valor_final),
     Parcelas: numero(lote.total_parcelas),
     Animais: numero(lote.quantidade_animais),
@@ -108,14 +142,17 @@ export async function exportarRelatorioExcel(nome: string, relatorio: Relatorio,
     Pendências: pendenciasLote(lote).join('; '),
     Evidência: lote.buyer_evidence_json?.evidence_text || '',
   }))
+  const assessores = resumoPorAssessor(relatorio.lotes || [])
 
   const workbook = XLSX.utils.book_new()
   XLSX.utils.book_append_sheet(workbook, XLSX.utils.aoa_to_sheet(resumo), 'Resumo')
   XLSX.utils.book_append_sheet(workbook, XLSX.utils.json_to_sheet(lotes), 'Lotes')
   XLSX.utils.book_append_sheet(workbook, XLSX.utils.json_to_sheet(pendencias), 'Pendências')
   XLSX.utils.book_append_sheet(workbook, XLSX.utils.json_to_sheet(compradores), 'Compradores')
+  XLSX.utils.book_append_sheet(workbook, XLSX.utils.json_to_sheet(assessores), 'Por assessor')
   workbook.Sheets.Lotes['!cols'] = [12, 22, 45, 28, 18, 24, 24, 18, 10, 10, 16, 18, 12, 42].map((wch) => ({ wch }))
   workbook.Sheets.Pendências['!cols'] = [{ wch: 12 }, { wch: 55 }, { wch: 80 }]
+  workbook.Sheets['Por assessor']['!cols'] = [{ wch: 28 }, { wch: 28 }, { wch: 10 }, { wch: 10 }, { wch: 18 }]
   XLSX.writeFile(workbook, `relatorio-${nomeArquivo(nome)}-${agora.toISOString().slice(0, 10)}.xlsx`)
 }
 
@@ -124,6 +161,7 @@ export async function exportarRelatorioPdf(nome: string, relatorio: Relatorio, a
   const autoTable = autoTableModule.default
   const doc = new jsPDF({ orientation: 'landscape', unit: 'mm', format: 'a4' })
   const pendentes = (relatorio.lotes || []).filter((lote) => pendenciasLote(lote).length > 0)
+  const assessores = resumoPorAssessor(relatorio.lotes || [])
   const agora = new Date()
 
   doc.setFillColor(18, 18, 18)
@@ -154,26 +192,46 @@ export async function exportarRelatorioPdf(nome: string, relatorio: Relatorio, a
     tableLineWidth: 0.2,
   })
 
+  let inicioLotes = ((doc as typeof doc & { lastAutoTable?: { finalY: number } }).lastAutoTable?.finalY ?? 58) + 5
+  if (assessores.length > 0) {
+    doc.setFontSize(10)
+    doc.setTextColor(55, 55, 55)
+    doc.text('Por assessor', 8, inicioLotes)
+    autoTable(doc, {
+      startY: inicioLotes + 2,
+      margin: { left: 8, right: 8 },
+      head: [['Assessor', 'Casa / Assessoria', 'Lotes', 'Animais', 'VGV']],
+      body: assessores.map((item) => [item.Assessor || '—', item['Casa / Assessoria'] || '—', item.Lotes, item.Animais, brl(item.VGV)]),
+      theme: 'grid',
+      headStyles: { fillColor: [166, 139, 75], textColor: [255, 255, 255], fontSize: 7.5 },
+      bodyStyles: { fontSize: 7, textColor: [45, 45, 45], cellPadding: 1.5 },
+      columnStyles: { 0: { cellWidth: 60 }, 1: { cellWidth: 60 }, 2: { cellWidth: 25, halign: 'center' }, 3: { cellWidth: 25, halign: 'center' }, 4: { cellWidth: 40, halign: 'right' } },
+    })
+    inicioLotes = ((doc as typeof doc & { lastAutoTable?: { finalY: number } }).lastAutoTable?.finalY ?? inicioLotes) + 5
+  }
+
   autoTable(doc, {
-    startY: (doc as typeof doc & { lastAutoTable?: { finalY: number } }).lastAutoTable?.finalY ?? 58,
+    startY: inicioLotes,
     margin: { top: 14, left: 8, right: 8, bottom: 12 },
-    head: [['Lote', 'Status', 'Animal / descrição', 'Comprador', 'Valor', 'Parc.', 'Qtd.', 'Total', 'Conf.', 'Pendências']],
+    head: [['Lote', 'Status', 'Animal / descrição', 'Comprador', 'Assessor', 'Casa / Assessoria', 'Valor', 'Parc.', 'Qtd.', 'Total', 'Conf.', 'Pendências']],
     body: (relatorio.lotes || []).map((lote) => [
       lote.numero_lote || '—', statusLote(lote),
       lote.identificacao_animal || lote.nome_animal || lote.descricao_lote || '—',
-      lote.comprador || 'Pendente', brl(numero(lote.valor_parcela) ?? numero(lote.valor_final)),
+      lote.comprador || 'Não anunciado', lote.assessor_nome || '—', assessoriaLote(lote) || '—',
+      brl(numero(lote.valor_parcela) ?? numero(lote.valor_final)),
       lote.total_parcelas || '—', lote.quantidade_animais || '—', brl(totalLote(lote)),
       lote.confianca == null ? '—' : `${Math.round(Number(lote.confianca) * 100)}%`,
       pendenciasLote(lote).join('; '),
     ]),
-    headStyles: { fillColor: [40, 38, 34], textColor: [255, 255, 255], fontSize: 7.5 },
-    bodyStyles: { fontSize: 6.8, textColor: [45, 45, 45], cellPadding: 1.6 },
+    headStyles: { fillColor: [40, 38, 34], textColor: [255, 255, 255], fontSize: 6.8 },
+    bodyStyles: { fontSize: 6.2, textColor: [45, 45, 45], cellPadding: 1.35 },
     alternateRowStyles: { fillColor: [249, 249, 248] },
     columnStyles: {
-      0: { cellWidth: 13 }, 1: { cellWidth: 23 }, 2: { cellWidth: 54 }, 3: { cellWidth: 37 },
-      4: { cellWidth: 22, halign: 'right' }, 5: { cellWidth: 11, halign: 'center' },
-      6: { cellWidth: 10, halign: 'center' }, 7: { cellWidth: 24, halign: 'right' },
-      8: { cellWidth: 12, halign: 'center' }, 9: { cellWidth: 54 },
+      0: { cellWidth: 12 }, 1: { cellWidth: 19 }, 2: { cellWidth: 37 }, 3: { cellWidth: 30 },
+      4: { cellWidth: 22 }, 5: { cellWidth: 23 }, 6: { cellWidth: 18, halign: 'right' },
+      7: { cellWidth: 9, halign: 'center' }, 8: { cellWidth: 9, halign: 'center' },
+      9: { cellWidth: 22, halign: 'right' }, 10: { cellWidth: 11, halign: 'center' },
+      11: { cellWidth: 47 },
     },
     didDrawPage: (data) => {
       doc.setFontSize(7)

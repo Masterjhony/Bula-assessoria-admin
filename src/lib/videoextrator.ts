@@ -127,6 +127,7 @@ export interface Relatorio {
   preco_minimo: number
   top_compradores: { nome: string; volume: number }[]
   top_assessorias: { nome: string; quantidade: number }[]
+  top_assessores?: { nome: string; quantidade: number }[]
   timeline: { hora: string; quantidade: number }[]
   lotes: RelatorioLote[]
   volume_parcelas_captado?: number | null
