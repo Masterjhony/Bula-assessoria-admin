@@ -8,6 +8,7 @@ import {
   Loader2, ExternalLink, Sparkles, TrendingUp, Users, Tag, Eye, Mic, AlertTriangle,
   Activity, Search, GraduationCap, Gauge, ChevronDown, Radio, History,
   SlidersHorizontal, Youtube, CalendarDays, CircleDollarSign, Wifi, ArrowUpDown,
+  Download, FileSpreadsheet, FileText,
 } from 'lucide-react'
 import type { LeilaoAnaliseRow } from '@/lib/leilao-analise'
 import {
@@ -19,6 +20,7 @@ import {
   type FilaItem,
   type MonitorLiveSession,
 } from '@/lib/videoextrator'
+import { exportarRelatorioExcel, exportarRelatorioPdf } from '@/lib/leilao-analise-export'
 
 function brl(n: number | null | undefined): string {
   if (n == null) return '—'
@@ -99,6 +101,7 @@ export default function LeiloesAnaliseClient({
   const [busca, setBusca] = useState('')
   const [filtro, setFiltro] = useState<FiltroEstado>('todos')
   const [ordemRecente, setOrdemRecente] = useState(true)
+  const [exporting, setExporting] = useState<string | null>(null)
 
   const resumo = useMemo(() => {
     const c = { total: rows.length, analisado: 0, processando: 0, sugestao: 0, sem: 0, erro: 0, volume: 0, lotes: 0, vendidos: 0 }
@@ -204,6 +207,23 @@ export default function LeiloesAnaliseClient({
       setMsg(`Falha ao sincronizar: ${(e as Error).message}`)
     } finally {
       setSyncing(false)
+    }
+  }
+
+  async function gerarRelatorio(row: LeilaoAnaliseRow, formato: 'pdf' | 'excel' = 'pdf') {
+    const id = row.leilao.id
+    setExporting(`${id}:${formato}`)
+    setMsg(null)
+    try {
+      const response = await fetch(`/api/sistema/ia/leiloes/${id}/relatorio`, { cache: 'no-store' })
+      const relatorio = await response.json()
+      if (!response.ok) throw new Error(relatorio.error || `Erro ${response.status}`)
+      if (formato === 'excel') await exportarRelatorioExcel(row.leilao.nome, relatorio, row.analise)
+      else await exportarRelatorioPdf(row.leilao.nome, relatorio, row.analise)
+    } catch (error) {
+      setMsg(`Falha ao gerar relatório: ${(error as Error).message}`)
+    } finally {
+      setExporting(null)
     }
   }
 
@@ -363,12 +383,22 @@ export default function LeiloesAnaliseClient({
                           </a>
                         )}
                         {e === 'concluido' && (
-                          <button
-                            onClick={() => setRelatorioOpen({ id, nome: row.leilao.nome, analise: row.analise })}
-                            className="flex items-center gap-1.5 rounded-lg bg-[#A68B4B] px-3 py-2 text-xs font-semibold text-black transition hover:bg-[#C8A96E]"
-                          >
-                            <ExternalLink size={13} /> Abrir relatório
-                          </button>
+                          <>
+                            <button
+                              onClick={() => gerarRelatorio(row, 'pdf')}
+                              disabled={exporting?.startsWith(`${id}:`)}
+                              className="flex items-center gap-1.5 rounded-lg border border-[#A68B4B]/40 px-3 py-2 text-xs font-semibold text-[#A68B4B] transition hover:bg-[#A68B4B]/10 disabled:opacity-50"
+                              title="Baixar relatório completo em PDF"
+                            >
+                              {exporting === `${id}:pdf` ? <Loader2 size={13} className="animate-spin" /> : <Download size={13} />} Gerar PDF
+                            </button>
+                            <button
+                              onClick={() => setRelatorioOpen({ id, nome: row.leilao.nome, analise: row.analise })}
+                              className="flex items-center gap-1.5 rounded-lg bg-[#A68B4B] px-3 py-2 text-xs font-semibold text-black transition hover:bg-[#C8A96E]"
+                            >
+                              <ExternalLink size={13} /> Abrir relatório
+                            </button>
+                          </>
                         )}
                         {e === 'sugestao' && row.sugestao && (
                           <button
@@ -913,6 +943,7 @@ function RelatorioModal({ leilaoId, nome, analise, onClose }: { leilaoId: string
   const [rel, setRel] = useState<Relatorio | null>(null)
   const [loading, setLoading] = useState(true)
   const [erro, setErro] = useState<string | null>(null)
+  const [exportando, setExportando] = useState<'pdf' | 'excel' | null>(null)
 
   useEffect(() => {
     let alive = true
@@ -927,6 +958,17 @@ function RelatorioModal({ leilaoId, nome, analise, onClose }: { leilaoId: string
     return () => { alive = false }
   }, [leilaoId])
 
+  async function exportar(formato: 'pdf' | 'excel') {
+    if (!rel) return
+    setExportando(formato)
+    try {
+      if (formato === 'excel') await exportarRelatorioExcel(nome, rel, analise)
+      else await exportarRelatorioPdf(nome, rel, analise)
+    } finally {
+      setExportando(null)
+    }
+  }
+
   return (
     <div className="fixed inset-0 z-[100] flex items-end sm:items-center justify-center bg-black/60 backdrop-blur-sm p-0 sm:p-4" onClick={onClose}>
       <div
@@ -938,7 +980,23 @@ function RelatorioModal({ leilaoId, nome, analise, onClose }: { leilaoId: string
             <h2 className="font-bold text-gray-900 dark:text-white">{nome}</h2>
             <p className="text-xs text-gray-400">Relatório pós-leilão</p>
           </div>
-          <button onClick={onClose} className="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-[#1A1A1A]"><X size={18} /></button>
+          <div className="flex items-center gap-2">
+            <button
+              onClick={() => exportar('pdf')}
+              disabled={!rel || exportando != null}
+              className="inline-flex items-center gap-1.5 rounded-lg border border-[#A68B4B]/40 px-3 py-2 text-xs font-semibold text-[#A68B4B] transition hover:bg-[#A68B4B]/10 disabled:opacity-40"
+            >
+              {exportando === 'pdf' ? <Loader2 size={13} className="animate-spin" /> : <FileText size={13} />} PDF
+            </button>
+            <button
+              onClick={() => exportar('excel')}
+              disabled={!rel || exportando != null}
+              className="inline-flex items-center gap-1.5 rounded-lg border border-emerald-500/30 px-3 py-2 text-xs font-semibold text-emerald-500 transition hover:bg-emerald-500/10 disabled:opacity-40"
+            >
+              {exportando === 'excel' ? <Loader2 size={13} className="animate-spin" /> : <FileSpreadsheet size={13} />} Excel
+            </button>
+            <button onClick={onClose} aria-label="Fechar relatório" className="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-[#1A1A1A]"><X size={18} /></button>
+          </div>
         </div>
 
         <div className="overflow-y-auto p-5">
