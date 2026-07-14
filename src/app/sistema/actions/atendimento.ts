@@ -1,7 +1,7 @@
 'use server'
 
 import { supabaseAdmin } from '@/lib/supabase'
-import { atendimentoResposta, type AtendimentoMsg, type AtendimentoStats } from '@/lib/atendimento-stats'
+import { atendimentoGrowth, type AtendimentoMsg, type AtendimentoGrowth } from '@/lib/atendimento-stats'
 
 /**
  * Números do atendimento (WhatsApp) para o Dashboard de Growth.
@@ -10,7 +10,7 @@ import { atendimentoResposta, type AtendimentoMsg, type AtendimentoStats } from 
  *
  * @param dias janela em dias (default 90; cobre a base atual de mensagens).
  */
-export async function getAtendimentoStats(dias = 90): Promise<AtendimentoStats & { janela_dias: number }> {
+export async function getAtendimentoStats(dias = 90): Promise<AtendimentoGrowth> {
     const supabase = supabaseAdmin()
     const inicio = new Date(Date.now() - dias * 86400_000).toISOString()
 
@@ -29,5 +29,5 @@ export async function getAtendimentoStats(dias = 90): Promise<AtendimentoStats &
         if (data.length < 1000) break
     }
 
-    return { ...atendimentoResposta(msgs), janela_dias: dias }
+    return atendimentoGrowth(msgs, dias, Date.now())
 }

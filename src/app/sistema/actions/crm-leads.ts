@@ -92,6 +92,11 @@ export interface CRMLead {
     contact_history?: CRMContactEntry[] | null;
     is_preferencial?: boolean | null;
     contact_count?: number | null;
+    // Atendimento WhatsApp (vêm no select('*'); usados no Dashboard de Growth)
+    interesse_principal?: string | null;
+    handoff_humano?: boolean | null;
+    optout_whatsapp?: boolean | null;
+    last_whatsapp_at?: string | null;
     // Arquivamento (soft-delete)
     arquivado?: boolean | null;
     arquivado_at?: string | null;

@@ -119,3 +119,90 @@ export function atendimentoResposta(msgs: AtendimentoMsg[]): AtendimentoStats {
         contatos: contatos.size,
     }
 }
+
+export interface OrigemResposta {
+    origin: string
+    enviados: number
+    responderam: number
+    pct: number
+}
+
+export interface AtendimentoGrowth extends AtendimentoStats {
+    janela_dias: number
+    /** Séries diárias (mais antigo → hoje), tamanho = min(janela, 90). */
+    serie_contatados: number[]
+    serie_responderam: number[]
+    /** Taxa de resposta por disparo (lista fria vs reengajamento vs evento…). */
+    por_origem: OrigemResposta[]
+    /** foneKey das pessoas que responderam — para cruzar com leads (funil). */
+    respondentes_keys: string[]
+}
+
+/**
+ * Versão rica para o Dashboard de Growth: além do total por pessoa, devolve a
+ * série temporal (coorte por dia do 1º disparo), o recorte por origem e as
+ * chaves dos respondentes (para o funil contatado→respondeu→MQL→cliente).
+ */
+export function atendimentoGrowth(msgs: AtendimentoMsg[], dias: number, nowMs: number): AtendimentoGrowth {
+    const base = atendimentoResposta(msgs)
+
+    const inboundPorFone = new Map<string, number[]>()
+    for (const m of msgs) {
+        if (isGrupo(m.phone) || m.direction !== 'inbound') continue
+        const k = foneKey(m.phone)
+        if (!k) continue
+        const arr = inboundPorFone.get(k)
+        if (arr) arr.push(new Date(m.created_at).getTime())
+        else inboundPorFone.set(k, [new Date(m.created_at).getTime()])
+    }
+    const respondeu = (k: string, t: number) => {
+        const ins = inboundPorFone.get(k)
+        return !!ins && ins.some(x => x > t && x - t < JANELA_RESPOSTA_MS)
+    }
+
+    // 1º disparo por pessoa (global) + por origem.
+    const primeiroDisparo = new Map<string, number>()
+    const porOrigemMap = new Map<string, Map<string, number>>()
+    for (const m of msgs) {
+        if (isGrupo(m.phone) || m.direction !== 'outbound' || !m.origin) continue
+        if (ORIGENS_NAO_DISPARO.has(m.origin)) continue
+        if (!STATUS_ENVIADO.has(String(m.status))) continue
+        const k = foneKey(m.phone)
+        if (!k) continue
+        const t = new Date(m.created_at).getTime()
+        const prev = primeiroDisparo.get(k)
+        if (prev === undefined || t < prev) primeiroDisparo.set(k, t)
+        let om = porOrigemMap.get(m.origin)
+        if (!om) { om = new Map(); porOrigemMap.set(m.origin, om) }
+        const pv = om.get(k)
+        if (pv === undefined || t < pv) om.set(k, t)
+    }
+
+    // Série diária por coorte (dia do 1º disparo).
+    const DAYS = Math.min(Math.max(dias, 1), 90)
+    const hoje = new Date(nowMs); hoje.setHours(0, 0, 0, 0)
+    const idxDoDia = (t: number) => {
+        const d = new Date(t); d.setHours(0, 0, 0, 0)
+        const diff = Math.round((hoje.getTime() - d.getTime()) / 86400_000)
+        return diff >= 0 && diff < DAYS ? DAYS - 1 - diff : -1
+    }
+    const serie_contatados = new Array(DAYS).fill(0)
+    const serie_responderam = new Array(DAYS).fill(0)
+    const respondentes_keys: string[] = []
+    for (const [k, t] of primeiroDisparo) {
+        const i = idxDoDia(t)
+        if (i >= 0) serie_contatados[i]++
+        if (respondeu(k, t)) {
+            respondentes_keys.push(k)
+            if (i >= 0) serie_responderam[i]++
+        }
+    }
+
+    const por_origem: OrigemResposta[] = [...porOrigemMap.entries()].map(([origin, fones]) => {
+        let r = 0
+        for (const [k, t] of fones) if (respondeu(k, t)) r++
+        return { origin, enviados: fones.size, responderam: r, pct: fones.size ? Number(((r / fones.size) * 100).toFixed(1)) : 0 }
+    }).sort((a, b) => b.enviados - a.enviados)
+
+    return { ...base, janela_dias: dias, serie_contatados, serie_responderam, por_origem, respondentes_keys }
+}

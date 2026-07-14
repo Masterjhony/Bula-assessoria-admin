@@ -6,10 +6,11 @@ import {
     Users, Crown, TrendingUp, TrendingDown, CheckCircle2, XCircle,
     ArrowRight, Filter, Megaphone, Wallet, DollarSign,
     MousePointerClick, Target, MapPin, Activity, Reply, MessageSquare, MessageCircle, Send,
+    Hand, BellOff,
 } from 'lucide-react';
 import type { CRMLead } from '@/app/sistema/actions/crm-leads';
 import type { CRMConfig } from '@/lib/crm-types';
-import type { AtendimentoStats } from '@/lib/atendimento-stats';
+import type { AtendimentoGrowth } from '@/lib/atendimento-stats';
 import {
     normalizeCRMStatus, getStageColorHex, CRM_STAGE_ENTRY,
     CRM_STAGE_CONNECTION, CRM_STAGE_QUALIFICATION, CRM_STAGE_INFO_CAPTURED,
@@ -17,6 +18,7 @@ import {
 } from '@/lib/crm-types';
 import { Sparkline } from '@/components/admin/Sparkline';
 import { META_CAMPAIGNS, metaCampaignTotals, cpmqlOf } from '@/lib/meta-campaigns';
+import { foneKey } from '@/lib/atendimento-stats';
 
 const card = 'rounded-2xl border border-gray-200 dark:border-[#2A2A2A] bg-white dark:bg-[#141414]';
 const BRONZE = '#A68B4B';
@@ -98,7 +100,7 @@ interface Props {
     leads: CRMLead[];
     archived: CRMLead[];
     crmConfig: CRMConfig;
-    atendimento: (AtendimentoStats & { janela_dias: number }) | null;
+    atendimento: AtendimentoGrowth | null;
 }
 
 export function CRMGrowthDashboard({ leads, archived, crmConfig, atendimento }: Props) {
@@ -211,6 +213,56 @@ export function CRMGrowthDashboard({ leads, archived, crmConfig, atendimento }: 
         };
     }, [leads, archived, stages, media]);
 
+    // Atendimento cruzado com o CRM: funil contatado→respondeu→MQL→cadastro→cliente
+    // (cruzando o telefone dos respondentes com os leads) + interesse/handoff/opt-out.
+    const atd = useMemo(() => {
+        // Interesse / handoff / opt-out saem direto dos leads ativos.
+        const interMap = new Map<string, number>();
+        let handoff = 0, optout = 0, comInteresse = 0;
+        for (const l of leads) {
+            if (l.handoff_humano) handoff++;
+            if (l.optout_whatsapp) optout++;
+            if (l.interesse_principal) {
+                comInteresse++;
+                interMap.set(l.interesse_principal, (interMap.get(l.interesse_principal) ?? 0) + 1);
+            }
+        }
+        const interesses = [...interMap.entries()].sort((a, b) => b[1] - a[1]);
+        const interTotal = interesses.reduce((a, b) => a + b[1], 0);
+
+        if (!atendimento) return { funnel: null, interesses, interTotal, handoff, optout, comInteresse };
+
+        // Índice telefone→lead e telefone→cliente aprovado.
+        const leadByKey = new Map<string, CRMLead>();
+        for (const l of leads) for (const p of [l.telefone, l.celular]) {
+            const k = foneKey(p);
+            if (k && !leadByKey.has(k)) leadByKey.set(k, l);
+        }
+        const aprovadoKeys = new Set<string>();
+        for (const l of archived) {
+            if (!l.extra_data?.cadastro_aprovado) continue;
+            for (const p of [l.telefone, l.celular]) { const k = foneKey(p); if (k) aprovadoKeys.add(k); }
+        }
+
+        let respMql = 0, respCad = 0, respCli = 0;
+        for (const k of atendimento.respondentes_keys) {
+            const lead = leadByKey.get(k);
+            const cliente = aprovadoKeys.has(k);
+            if (cliente) respCli++;
+            if (cliente || (lead && normalizeCRMStatus(lead.status) === CRM_STAGE_REGISTRATION)) respCad++;
+            if (cliente || lead?.is_mql) respMql++;
+        }
+
+        const funnel: FunnelNode[] = [
+            { label: 'Contatados', value: atendimento.disparados, color: '#a855f7' },
+            { label: 'Responderam', value: atendimento.responderam, color: '#0ea5e9' },
+            { label: 'MQL', value: respMql, color: BRONZE },
+            { label: 'Cadastro', value: respCad, color: '#06b6d4' },
+            { label: 'Clientes', value: respCli, color: '#10b981' },
+        ];
+        return { funnel, interesses, interTotal, handoff, optout, comInteresse };
+    }, [atendimento, leads, archived]);
+
     const kpis = [
         { label: 'Leads ativos', value: fmtInt(m.total), icon: Users, color: '#3b82f6', sub: `${m.last7} nos últimos 7 dias` },
         { label: 'MQL', value: fmtInt(m.mql), icon: Crown, color: BRONZE, sub: `${pct(m.mql, m.total)}% dos leads · +${m.mqlLast7} (7d)` },
@@ -314,43 +366,91 @@ export function CRMGrowthDashboard({ leads, archived, crmConfig, atendimento }: 
                         </span>
                     </div>
 
-                    <div className="grid grid-cols-2 sm:grid-cols-3 xl:grid-cols-6 gap-2.5 mb-5">
+                    <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5 mb-5">
                         <StatChip icon={Send} label="Contatados (disparo)" value={fmtInt(atendimento.disparados)} color="#a855f7" />
                         <StatChip icon={Reply} label="Responderam" value={fmtInt(atendimento.responderam)} color="#22c55e" />
                         <StatChip icon={Target} label="Taxa de resposta" value={`${atendimento.pct}%`} color="#0ea5e9" />
                         <StatChip icon={Users} label="Contatos únicos" value={fmtInt(atendimento.contatos)} color="#3b82f6" />
                         <StatChip icon={MessageSquare} label="Mensagens enviadas" value={fmtInt(atendimento.enviadas)} color="#6366f1" />
                         <StatChip icon={MessageCircle} label="Mensagens recebidas" value={fmtInt(atendimento.recebidas)} color="#06b6d4" />
+                        <StatChip icon={Hand} label="Em atendimento humano" value={fmtInt(atd.handoff)} color="#f59e0b" />
+                        <StatChip icon={BellOff} label="Opt-outs" value={fmtInt(atd.optout)} color="#ef4444" />
+                    </div>
+
+                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-5 mb-5">
+                        {/* Funil completo: contatado → respondeu → MQL → cadastro → cliente */}
+                        <div>
+                            <h3 className="text-[11px] font-bold uppercase tracking-widest text-gray-500 mb-3">Funil — do contato ao cliente</h3>
+                            {atd.funnel && <FunnelChart nodes={atd.funnel} exponent={0.5} minPct={13} />}
+                            <p className="text-[11px] text-gray-400 mt-3">
+                                % à direita = conversão da etapa anterior. MQL/cadastro/cliente são os respondentes
+                                cruzados com o CRM pelo telefone.
+                            </p>
+                        </div>
+
+                        {/* Evolução temporal: contatados x responderam por dia */}
+                        <div className="rounded-xl border border-gray-100 dark:border-[#2A2A2A] p-4">
+                            <div className="flex items-center justify-between mb-2">
+                                <h3 className="text-[11px] font-bold uppercase tracking-widest text-gray-500">Contatados / dia ({atendimento.janela_dias}d)</h3>
+                                <span className="text-4xl font-extrabold tabular-nums text-gray-900 dark:text-white">{atendimento.pct}%</span>
+                            </div>
+                            <Sparkline data={atendimento.serie_contatados} color="#a855f7" height={44} />
+                            <div className="flex items-center justify-between mt-3 mb-1">
+                                <h3 className="text-[11px] font-bold uppercase tracking-widest text-gray-500">Responderam / dia</h3>
+                                <span className="text-[11px] text-gray-400">taxa de resposta média</span>
+                            </div>
+                            <Sparkline data={atendimento.serie_responderam} color="#22c55e" height={44} />
+                        </div>
                     </div>
 
                     <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
+                        {/* Resposta por origem / campanha */}
                         <div>
-                            <h3 className="text-[11px] font-bold uppercase tracking-widest text-gray-500 mb-3">Funil de resposta</h3>
-                            <FunnelChart
-                                nodes={[
-                                    { label: 'Contatados', value: atendimento.disparados, color: '#a855f7' },
-                                    { label: 'Responderam', value: atendimento.responderam, color: '#22c55e' },
-                                ]}
-                                exponent={1}
-                                minPct={16}
-                            />
-                            <p className="text-[11px] text-gray-400 mt-3">
-                                De quem recebeu uma abordagem nossa, {atendimento.pct}% escreveram de volta em até 72h.
-                                Respostas do bot a conversas em curso não contam como disparo.
-                            </p>
+                            <h3 className="text-[11px] font-bold uppercase tracking-widest text-gray-500 mb-3">Taxa de resposta por disparo</h3>
+                            {atendimento.por_origem.length === 0 ? (
+                                <p className="text-xs text-gray-400">Nenhum disparo no período.</p>
+                            ) : (
+                                <div className="space-y-2.5">
+                                    {atendimento.por_origem.slice(0, 8).map(o => (
+                                        <div key={o.origin}>
+                                            <div className="flex items-center justify-between text-xs mb-0.5">
+                                                <span className="truncate pr-2 text-gray-600 dark:text-gray-300">{o.origin}</span>
+                                                <span className="text-gray-400 tabular-nums whitespace-nowrap">
+                                                    {o.responderam}/{o.enviados} · <strong className="text-gray-700 dark:text-gray-200">{o.pct}%</strong>
+                                                </span>
+                                            </div>
+                                            <div className="h-1.5 rounded-full bg-gray-100 dark:bg-[#1A1A1A] overflow-hidden">
+                                                <div
+                                                    className={`h-full rounded-full ${o.pct >= 20 ? 'bg-emerald-500' : o.pct >= 8 ? 'bg-amber-500' : 'bg-rose-500'}`}
+                                                    style={{ width: `${Math.min(100, o.pct)}%` }}
+                                                />
+                                            </div>
+                                        </div>
+                                    ))}
+                                </div>
+                            )}
                         </div>
-                        <div className="flex flex-col justify-center rounded-xl border border-gray-100 dark:border-[#2A2A2A] p-5">
-                            <p className="text-[11px] font-bold uppercase tracking-widest text-gray-500 mb-1">Taxa de resposta</p>
-                            <p className="text-4xl font-extrabold tabular-nums text-gray-900 dark:text-white">{atendimento.pct}%</p>
-                            <p className="text-xs text-gray-500 mt-1">
-                                {fmtInt(atendimento.responderam)} de {fmtInt(atendimento.disparados)} pessoas responderam
-                            </p>
-                            <div className="mt-3 h-2 rounded-full bg-gray-100 dark:bg-[#1A1A1A] overflow-hidden">
-                                <div
-                                    className={`h-full rounded-full ${atendimento.pct >= 20 ? 'bg-emerald-500' : atendimento.pct >= 8 ? 'bg-amber-500' : 'bg-rose-500'}`}
-                                    style={{ width: `${Math.min(100, atendimento.pct)}%` }}
-                                />
-                            </div>
+
+                        {/* Distribuição de interesse (dos leads) */}
+                        <div>
+                            <h3 className="text-[11px] font-bold uppercase tracking-widest text-gray-500 mb-3">
+                                Interesse identificado ({fmtInt(atd.comInteresse)} leads)
+                            </h3>
+                            {atd.interesses.length === 0 ? (
+                                <p className="text-xs text-gray-400">Nenhum interesse identificado ainda.</p>
+                            ) : (
+                                <div className="space-y-2.5">
+                                    {atd.interesses.slice(0, 8).map(([label, n]) => (
+                                        <div key={label} className="flex items-center gap-2.5">
+                                            <span className="w-32 shrink-0 text-[11px] text-gray-600 dark:text-gray-300 truncate">{label}</span>
+                                            <div className="flex-1 h-2 rounded-full bg-gray-100 dark:bg-[#1A1A1A] overflow-hidden">
+                                                <div className="h-full rounded-full bg-[#A68B4B]" style={{ width: `${pct(n, atd.interTotal)}%` }} />
+                                            </div>
+                                            <span className="w-14 shrink-0 text-right text-[10px] text-gray-400 tabular-nums">{n} · {pct(n, atd.interTotal)}%</span>
+                                        </div>
+                                    ))}
+                                </div>
+                            )}
                         </div>
                     </div>
                 </section>
