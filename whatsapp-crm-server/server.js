@@ -263,8 +263,25 @@ async function processQueue(session) {
 
 // ── Inbound → Next (fluxo do bot) ────────────────────────────────────────────
 
+/** Desembrulha wrappers comuns (ephemeral/viewOnce/edited/deviceSent) para
+ *  chegar na mensagem real — o histórico e mensagens sumíveis vêm assim. */
+function unwrapMessage(m) {
+  if (!m) return m
+  return (
+    m.ephemeralMessage?.message ||
+    m.viewOnceMessage?.message ||
+    m.viewOnceMessageV2?.message ||
+    m.viewOnceMessageV2Extension?.message ||
+    m.documentWithCaptionMessage?.message ||
+    m.editedMessage?.message ||
+    m.protocolMessage?.editedMessage ||
+    m.deviceSentMessage?.message ||
+    m
+  )
+}
+
 function extractText(msg) {
-  const m = msg.message
+  const m = unwrapMessage(msg.message)
   if (!m) return ''
   return (
     m.conversation ||
@@ -337,12 +354,17 @@ async function handleGroupInbound(session, msg) {
  */
 async function handleHistorySync(session, messages) {
   if (!INBOUND_ENABLED || !Array.isArray(messages) || messages.length === 0) return
+  // Diagnóstico: entender a quebra do que o WhatsApp entrega no sync.
+  let grupo = 0, lid = 0, outro = 0, semTexto = 0
   const batch = []
   for (const msg of messages) {
     const jid = msg.key?.remoteJid || ''
-    if (!jid.endsWith('@s.whatsapp.net')) continue // só conversa individual
+    // Grupos NÃO entram no histórico (decisão de produto). Idem broadcast/lid.
+    if (jid.endsWith('@g.us')) { grupo++; continue }
+    if (jid.endsWith('@lid')) { lid++; continue }
+    if (!jid.endsWith('@s.whatsapp.net')) { outro++; continue }
     const text = extractText(msg)
-    if (!text) continue
+    if (!text) { semTexto++; continue }
     const phone = normalizePhone(jid.split('@')[0])
     if (!phone) continue
     const tsRaw = msg.messageTimestamp
@@ -356,6 +378,7 @@ async function handleHistorySync(session, messages) {
       ts: ts && Number.isFinite(ts) ? ts : null,
     })
   }
+  console.log(`[${session.id}] history breakdown: total=${messages.length} grupo=${grupo} lid=${lid} outro=${outro} 1:1_semTexto=${semTexto} 1:1_comTexto=${batch.length}`)
   if (batch.length === 0) return
   for (let i = 0; i < batch.length; i += 200) {
     const chunk = batch.slice(i, i + 200)
