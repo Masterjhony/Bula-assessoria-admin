@@ -44,30 +44,41 @@ export const META_CAMPAIGNS: MetaCampaignsSnapshot = {
     // As campanhas "JMP SITE" mandavam tráfego para o site (não form da Meta): a
     // Meta reporta leads N/A e a base não as tagueia por nome, então ficam com
     // leads/MQL 0 (o investimento aparece, a conversão foi captada fora daqui).
+    //
+    // Os leads "CA -LEADS -EAO TOUROS/FEMEA — web" (que na base chegam por
+    // utm.campaign) NÃO são campanhas da CA1: o utm.medium deles é "LEADS - FORMS
+    // INST EAO — Cópia", ou seja, é a MESMA campanha, só que entraram pela landing
+    // page com os vídeos de touros/fêmeas. Por isso somam em EAO — Cópia, não viram
+    // linha nova.
     updatedAt: '2026-07-14',
     account: 'CA2 - Bula 360',
     campaigns: [
         {
+            // leads/MQL = formulário da Meta (216 leads / 37 MQL) + os que entraram
+            // pela LANDING PAGE com os vídeos de touros/fêmeas (37 leads / 7 MQL,
+            // utm.medium = esta campanha, utm.campaign = "CA -LEADS -EAO TOUROS/FEMEA
+            // — web"). NÃO são campanhas separadas da CA1 — é a mesma EAO — Cópia por
+            // outra porta. Total: 253 leads / 44 MQL.
             id: '120249049934240708',
             name: 'LEADS - FORMS INST EAO — Cópia',
             status: 'PAUSED',
             start: '2026-07-08',
             spend: 2887.76,
-            leads: 216,
-            mql: 37,
+            leads: 253,
+            mql: 44,
             impressions: 258815,
             reach: 129735,
             clicks: 3509,
             ctr: 1.36,
             cpc: 0.82,
             cpm: 11.16,
-            cpl: 13.37,
+            cpl: 11.41,
             interesses: [
                 { label: '1 a 5', n: 60 },
-                { label: '1 a 5 bezerras', n: 23 },
-                { label: '6 a 10 bezerras', n: 13 },
-                { label: '1 a 5 matrizes', n: 11 },
-                { label: 'Ainda não sei', n: 10 },
+                { label: '1 a 5 bezerras', n: 27 },
+                { label: '1 a 5 touros', n: 22 },
+                { label: '6 a 10 bezerras', n: 15 },
+                { label: '1 a 5 matrizes', n: 14 },
             ],
         },
         {
