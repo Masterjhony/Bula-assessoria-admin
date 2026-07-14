@@ -1,0 +1,40 @@
+# Graphify ignore — mesma sintaxe do .gitignore
+# Dependências e builds
+node_modules/
+.next/
+out/
+dist/
+build/
+coverage/
+
+# Saída do próprio Graphify
+graphify-out/
+
+# SPA já buildada (fonte fica em jmp-landing)
+public/jmp/
+public/**/*.map
+
+# Assets binários / relatórios gerados
+outputs/
+*.pptx
+*.xlsx
+*.pdf
+*.gif
+*.png
+*.jpg
+*.jpeg
+*.webp
+*.mp4
+*.zip
+
+# Temporários de outras ferramentas
+.codex-dev/
+.codex-remote-attachments/
+.codex_tmp/
+.vercel/
+.turbo/
+
+# Locks
+package-lock.json
+pnpm-lock.yaml
+yarn.lock
