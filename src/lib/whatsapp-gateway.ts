@@ -121,6 +121,9 @@ function resolveChannel(
     if (hint === 'baileys') {
         // Massa nunca pelo Baileys, mesmo se forçada — proteção dura.
         if (req.intent === 'broadcast') return { channel: null, reason: 'mass_blocked_on_baileys' }
+        // Garantia dura: atendimento ao cliente (crm_reply/bot) nunca pelo
+        // Baileys, nem quando forçado por hint. Só sai pela API oficial.
+        if (req.intent === 'crm_reply' || req.intent === 'bot') return { channel: null, reason: 'attendance_official_only' }
         return { channel: 'baileys' }
     }
     if (hint === 'cloud') {
@@ -137,16 +140,14 @@ function resolveChannel(
         case 'crm_reply':
         case 'bot':
         default:
-            // Política "100% oficial para o SDR": quando a Cloud está
-            // configurada, toda resposta do CRM/bot sai pela API oficial —
-            // texto livre dentro da janela de 24h, template para reabrir fora
-            // dela. O Baileys só entra como fallback se a Cloud não existir.
-            if (cloudConfigured) {
-                if (isSessionOpen) return { channel: 'cloud' }
-                if (req.templateName) return { channel: 'cloud' }
-                return { channel: null, reason: 'outside_24h_needs_template' }
-            }
-            if (isSessionOpen) return { channel: 'baileys' }
+            // Garantia dura: o atendimento ao cliente é EXCLUSIVAMENTE pela API
+            // oficial. Sem fallback para o Baileys — texto livre dentro da janela
+            // de 24h, template para reabrir fora dela. Se a Cloud não estiver
+            // configurada ou não puder entregar, a mensagem fica retida (held)
+            // em vez de escapar pelo Baileys.
+            if (!cloudConfigured) return { channel: null, reason: 'cloud_not_configured' }
+            if (isSessionOpen) return { channel: 'cloud' }
+            if (req.templateName) return { channel: 'cloud' }
             return { channel: null, reason: 'outside_24h_needs_template' }
     }
 }

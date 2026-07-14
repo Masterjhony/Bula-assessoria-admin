@@ -88,9 +88,25 @@ function createSession(id) {
     pairPhone: null,
     pairingCode: null,
     authDir: `${SESSIONS_DIR}/${id}`,
+    // IDs de mensagens que ESTE servidor enviou (via fila/gateway). Usado para
+    // NÃO espelhar como "mensagem do dono" o que o próprio sistema disparou —
+    // esses já são logados pelo gateway. Só o que o humano digita no aparelho
+    // (fromMe sem id conhecido) vira espelho.
+    ownSentIds: new Set(),
   }
   sessions.set(id, session)
   return session
+}
+
+/** Registra um id enviado por nós (com poda simples para não crescer sem limite). */
+function markOwnSent(session, id) {
+  if (!id) return
+  session.ownSentIds.add(id)
+  if (session.ownSentIds.size > 2000) {
+    // Descarta a metade mais antiga (Set preserva ordem de inserção).
+    const drop = [...session.ownSentIds].slice(0, 1000)
+    for (const d of drop) session.ownSentIds.delete(d)
+  }
 }
 
 function json(res, statusCode, body) {
@@ -219,7 +235,9 @@ async function sendItem(session, item) {
   const contents = buildContents(item)
   if (contents.length === 0) throw new Error('empty_message')
   for (const content of contents) {
-    await session.socket.sendMessage(jid, content)
+    const sent = await session.socket.sendMessage(jid, content)
+    // Marca o id do envio para o espelho (messages.upsert fromMe) ignorá-lo.
+    markOwnSent(session, sent?.key?.id)
   }
 }
 
@@ -311,17 +329,68 @@ async function handleGroupInbound(session, msg) {
   }
 }
 
+/**
+ * Sincronização de histórico do WhatsApp (ao conectar/parear): persiste um
+ * recorte recente das conversas 1:1 no CRM, para o inbox não nascer vazio.
+ * Envia em lotes ao Next; o que já existe é deduplicado por message_id lá.
+ * OBS: o WhatsApp entrega um recorte parcial (não o histórico inteiro).
+ */
+async function handleHistorySync(session, messages) {
+  if (!INBOUND_ENABLED || !Array.isArray(messages) || messages.length === 0) return
+  const batch = []
+  for (const msg of messages) {
+    const jid = msg.key?.remoteJid || ''
+    if (!jid.endsWith('@s.whatsapp.net')) continue // só conversa individual
+    const text = extractText(msg)
+    if (!text) continue
+    const phone = normalizePhone(jid.split('@')[0])
+    if (!phone) continue
+    const tsRaw = msg.messageTimestamp
+    const ts = tsRaw ? Number(typeof tsRaw === 'object' && tsRaw.toNumber ? tsRaw.toNumber() : tsRaw) : null
+    batch.push({
+      phone,
+      name: msg.pushName || '',
+      body: text,
+      from_me: !!msg.key?.fromMe,
+      message_id: msg.key?.id,
+      ts: ts && Number.isFinite(ts) ? ts : null,
+    })
+  }
+  if (batch.length === 0) return
+  for (let i = 0; i < batch.length; i += 200) {
+    const chunk = batch.slice(i, i + 200)
+    try {
+      await fetch(`${NEXT_API_URL}/api/whatsapp/history`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'x-webhook-secret': WEBHOOK_SECRET },
+        body: JSON.stringify({ session: session.id, messages: chunk }),
+        signal: AbortSignal.timeout(30000),
+      })
+    } catch (error) {
+      console.error(`[${session.id}] history sync webhook falhou:`, error.message)
+    }
+  }
+  console.log(`[${session.id}] history sync: ${batch.length} msgs 1:1 enviadas ao CRM`)
+}
+
 async function handleInbound(session, msg) {
   if (!INBOUND_ENABLED) return
   const jid = msg.key?.remoteJid || ''
-  // Grupos têm rota própria; aqui só conversa individual, e nada que eu enviei.
-  if (msg.key?.fromMe) return
-  if (jid.endsWith('@g.us')) return handleGroupInbound(session, msg)
+  const fromMe = !!msg.key?.fromMe
+
+  // Grupos: só encaminha o que TERCEIROS escreveram (nunca o que eu mandei).
+  if (jid.endsWith('@g.us')) { if (!fromMe) return handleGroupInbound(session, msg); return }
   if (!jid.endsWith('@s.whatsapp.net')) return
+
+  // Espelho: mensagens que o próprio dono do número digita no aparelho (fromMe)
+  // entram como OUTBOUND. Mas o que ESTE servidor enviou (gateway) já foi logado
+  // — ignora pelo id conhecido para não duplicar.
+  if (fromMe && session.ownSentIds.has(msg.key?.id)) return
 
   const text = extractText(msg)
   if (!text) return
 
+  // O telefone é sempre o do CONTATO (remoteJid), seja inbound ou fromMe.
   const phone = normalizePhone(jid.split('@')[0])
   const name = msg.pushName || ''
 
@@ -329,7 +398,7 @@ async function handleInbound(session, msg) {
     const res = await fetch(`${NEXT_API_URL}/api/whatsapp/inbound`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json', 'x-webhook-secret': WEBHOOK_SECRET },
-      body: JSON.stringify({ session: session.id, phone, name, body: text, message_id: msg.key?.id }),
+      body: JSON.stringify({ session: session.id, phone, name, body: text, message_id: msg.key?.id, from_me: fromMe }),
       signal: AbortSignal.timeout(25000),
     })
     if (!res.ok) {
@@ -337,9 +406,9 @@ async function handleInbound(session, msg) {
       return
     }
     const data = await res.json().catch(() => ({}))
-    // O Next devolve `reply` só quando a automação está ligada para este inbox.
-    // Inbox manual → `{silent:true}` sem reply → não respondemos (o humano assume).
-    if (data.reply) {
+    // O Next devolve `reply` só quando a automação está ligada e NÃO é fromMe.
+    // Inbox manual (ou fromMe) → `{silent:true}` sem reply → não respondemos.
+    if (data.reply && !fromMe) {
       session.queue.push({ phone, message: data.reply })
       void processQueue(session)
     }
@@ -362,6 +431,11 @@ async function startSocket(session) {
     defaultQueryTimeoutMs: QUERY_TIMEOUT_MS,
     keepAliveIntervalMs: 25000,
     retryRequestDelayMs: 500,
+    // Pede o histórico completo que o WhatsApp entrega no vínculo — alimenta a
+    // importação de conversas (messaging-history.set → /api/whatsapp/history).
+    // Só rende num LINK novo (parear/re-parear); numa reconexão já pareada o
+    // WhatsApp não reenvia o dump.
+    syncFullHistory: true,
     version,
   })
 
@@ -457,6 +531,9 @@ async function startSocket(session) {
       isLatest: isLatest ?? null,
       syncType: syncType ?? null,
     }))
+    // Persiste o recorte de conversas 1:1 no CRM (dedup por message_id no Next).
+    void handleHistorySync(session, messages).catch(e =>
+      console.error(`[${session.id}] handleHistorySync:`, e.message))
   })
 
   session.socket.ev.on('messages.upsert', async ({ messages, type }) => {

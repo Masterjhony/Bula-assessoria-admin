@@ -176,6 +176,64 @@ export async function inboundAlreadyProcessed(
 }
 
 /**
+ * Esta mensagem (por `message_id`/reason) já foi registrada em QUALQUER direção?
+ * Usado pelo espelho (fromMe) e pela importação de histórico para não duplicar
+ * numa reconexão/reprocessamento.
+ */
+export async function messageAlreadyLogged(
+    supabase: SupabaseClient,
+    messageId: string | null | undefined,
+): Promise<boolean> {
+    if (!messageId) return false
+    const { data } = await supabase
+        .from('whatsapp_messages')
+        .select('id')
+        .eq('reason', messageId)
+        .limit(1)
+    return !!data?.length
+}
+
+/**
+ * Espelho de mensagem OUTBOUND: o dono do número (ex.: João) respondeu um contato
+ * pelo próprio aparelho. Registra como outbound no inbox e mantém o CRM em dia
+ * (find-or-create do lead + last_whatsapp_at). NÃO roda concierge nem responde.
+ */
+export async function mirrorOutboundMessage(
+    supabase: SupabaseClient,
+    input: {
+        phone: string; text: string; contactName?: string
+        messageId?: string | null; inboxId?: string | null; channel?: string | null
+    },
+): Promise<{ lead: LeadShape | null }> {
+    const { phone } = input
+    if (input.messageId && (await messageAlreadyLogged(supabase, input.messageId))) {
+        return { lead: await findLeadByPhone(supabase, phone) }
+    }
+    let lead = await findLeadByPhone(supabase, phone)
+    if (!lead) lead = await createLeadFromInbound(supabase, phone, input.contactName || '', 'whatsapp-espelho')
+
+    await supabase.from('whatsapp_messages').insert({
+        phone,
+        name: input.contactName || lead?.nome || phone,
+        status: 'sent',
+        body: input.text,
+        direction: 'outbound',
+        origin: 'baileys-mirror',
+        channel: input.channel ?? 'baileys',
+        inbox_id: input.inboxId ?? null,
+        reason: input.messageId ?? null,
+        lead_id: lead?.id ?? null,
+    })
+    if (lead) {
+        void supabase
+            .from('crm_leads')
+            .update({ last_whatsapp_at: new Date().toISOString() })
+            .eq('id', lead.id)
+    }
+    return { lead }
+}
+
+/**
  * Esta inbound (wamid) ainda é a mais recente deste número? Usada pela janela de
  * "pensar" do concierge: se chegou mensagem mais nova durante a espera, a atual
  * é descartada para que só a última responda. Sem messageId (ex.: Baileys), não

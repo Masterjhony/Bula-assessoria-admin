@@ -16,7 +16,7 @@
 import { NextRequest, NextResponse, after } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
 import { normalizePhone } from '@/lib/whatsapp-central'
-import { processInboundMessage } from '@/lib/whatsapp-inbound'
+import { processInboundMessage, mirrorOutboundMessage } from '@/lib/whatsapp-inbound'
 import { resolveBaileysInbox } from '@/lib/whatsapp-inboxes'
 
 export const maxDuration = 120
@@ -28,7 +28,7 @@ export async function POST(req: NextRequest) {
         return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
-    let body: { phone: string; name?: string; body: string; message_id?: string; session?: string }
+    let body: { phone: string; name?: string; body: string; message_id?: string; session?: string; from_me?: boolean }
     try {
         body = await req.json()
     } catch {
@@ -49,6 +49,19 @@ export async function POST(req: NextRequest) {
     // Qual caixa Baileys recebeu (o VPS manda o sessionId). O flag do inbox
     // decide se a automação (concierge/welcome) roda ou se é atendimento manual.
     const inbox = await resolveBaileysInbox(supabase, body.session)
+
+    // Espelho: o dono do número respondeu pelo aparelho (fromMe) → registra como
+    // outbound e atualiza o CRM, sem rodar concierge nem devolver resposta.
+    if (body.from_me) {
+        await mirrorOutboundMessage(supabase, {
+            phone,
+            text,
+            messageId: body.message_id ?? null,
+            inboxId: inbox?.id ?? body.session ?? null,
+            channel: 'baileys',
+        })
+        return NextResponse.json({ silent: true, reason: 'mirror_outbound' })
+    }
 
     const outcome = await processInboundMessage(supabase, {
         phone,
