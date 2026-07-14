@@ -21,7 +21,9 @@ export async function POST(req: NextRequest) {
     const phone = String(body.phone || '').trim()
     if (!phone) return NextResponse.json({ error: 'Informe o número (com DDD).' }, { status: 400 })
 
-    const result = await pairVpsPhone(phone)
+    // Multi-inbox: ?session=<id> pareia uma sessão Baileys específica.
+    const session = (new URL(req.url).searchParams.get('session') || '').trim() || null
+    const result = await pairVpsPhone(phone, session)
     if (result.error) return NextResponse.json({ error: result.error }, { status: 502 })
     if (result.pairing_code) return NextResponse.json({ pairing_code: result.pairing_code })
     return NextResponse.json({ pending: true, message: 'Código sendo gerado, aguarde alguns segundos e tente de novo.' }, { status: 202 })

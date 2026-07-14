@@ -43,6 +43,18 @@ import { WHATSAPP_SERVER_URL, vpsHeaders } from './whatsapp-vps'
 export type OutboundIntent = 'crm_reply' | 'assessor' | 'campaign' | 'bot' | 'broadcast'
 export type Channel = GuardChannel
 
+// Inbox default para envios Baileys sem inbox explícito (assessor, campanha,
+// fallback). Casa com o seed 'joao' de whatsapp_inboxes e a sessão default do VPS.
+const DEFAULT_BAILEYS_INBOX = 'joao'
+
+/** inbox_id a gravar no log: explícito do request, ou derivado do canal resolvido. */
+function resolveInboxId(inboxId: string | null | undefined, channel: Channel | null): string | null {
+    if (inboxId) return inboxId
+    if (channel === 'cloud') return 'cloud'
+    if (channel === 'baileys') return DEFAULT_BAILEYS_INBOX
+    return null
+}
+
 export interface OutboundRequest {
     to: { phone: string; leadId?: string | null; name?: string | null }
     /** Corpo texto. Obrigatório quando não é envio por template. */
@@ -57,6 +69,13 @@ export interface OutboundRequest {
     intent: OutboundIntent
     /** 'auto' (default) deixa a política decidir; força um canal específico se quiser. */
     channelHint?: Channel | 'auto'
+    /**
+     * Inbox (caixa de atendimento) de origem/destino — whatsapp_inboxes.id.
+     * Para envio Baileys, é também o sessionId no VPS (qual número envia).
+     * Ausente → sessão default do VPS (número histórico do João). Fica gravado
+     * em whatsapp_messages.inbox_id para escopar a conversa por caixa.
+     */
+    inboxId?: string | null
     origin?: string
     campaignId?: string | null
     /** Etapa do bot/fluxo (compat com telemetria existente, ex: 'assessor-notification'). */
@@ -148,9 +167,15 @@ function sleep(ms: number): Promise<void> {
 async function sendViaBaileys(
     phone: string,
     text: string,
+    session?: string | null,
 ): Promise<{ status: 'queued' | 'sent' | 'failed'; messageId?: string; error?: string }> {
     try {
-        const res = await fetch(`${WHATSAPP_SERVER_URL}/send-direct`, {
+        // `?session=<inboxId>` escolhe de qual número Baileys sai; sem ele, o VPS
+        // usa a sessão default (compat: assessor/campanha/fallback → João).
+        const url = session
+            ? `${WHATSAPP_SERVER_URL}/send-direct?session=${encodeURIComponent(session)}`
+            : `${WHATSAPP_SERVER_URL}/send-direct`
+        const res = await fetch(url, {
             method: 'POST',
             headers: vpsHeaders({ 'Content-Type': 'application/json' }),
             body: JSON.stringify({ phone, message: text }),
@@ -208,6 +233,7 @@ async function logOutbound(
         direction: 'outbound',
         status,
         channel,
+        inbox_id: resolveInboxId(req.inboxId, channel),
         intent: req.intent,
         origin: req.origin ?? req.intent,
         bot_step: req.botStep ?? null,
@@ -285,7 +311,7 @@ export async function sendOutbound(
 
     // 4) Entrega ao transporte
     const transport = channel === 'baileys'
-        ? await sendViaBaileys(phone, req.text ?? '')
+        ? await sendViaBaileys(phone, req.text ?? '', req.inboxId ?? undefined)
         : await sendViaCloud({
             phone,
             name: req.to.name,

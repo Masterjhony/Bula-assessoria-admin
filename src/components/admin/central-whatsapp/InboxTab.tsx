@@ -9,6 +9,7 @@ import {
 } from "lucide-react"
 import {
     INTERESSE_LABELS,
+    type Inbox,
     type InboxConversation,
     type ThreadLead,
     type ThreadMessage,
@@ -131,14 +132,6 @@ const FILTERS: { id: Filter; label: string }[] = [
     { id: "optout", label: "Opt-out" },
 ]
 
-type ChannelFilter = "todos" | "cloud" | "baileys"
-
-const CHANNEL_FILTERS: { id: ChannelFilter; label: string }[] = [
-    { id: "todos", label: "Todos os canais" },
-    { id: "cloud", label: "API oficial" },
-    { id: "baileys", label: "Baileys" },
-]
-
 /** Badge do canal de transporte da conversa (API oficial × Baileys). */
 function ChannelBadge({ channel }: { channel: "cloud" | "baileys" | null }) {
     if (!channel) return null
@@ -258,11 +251,11 @@ function convStatus(c: InboxConversation): { label: string; cls: string } {
     return { label: "Finalizada", cls: "bg-muted text-muted-foreground" }
 }
 
-export function InboxTab({ templates, channel = "oficial" }: { templates: Template[]; channel?: "oficial" | "baileys" }) {
-    // No canal Baileys não existe janela de 24h nem template: texto livre sempre.
-    const officialMode = channel === "oficial"
+export function InboxTab({ templates, inbox }: { templates: Template[]; inbox: Inbox }) {
+    // Inbox da API oficial (Cloud) tem janela de 24h + template; inbox Baileys
+    // (número próprio) é texto livre sempre, sem janela nem template.
+    const officialMode = inbox.kind === "cloud"
     const [filter, setFilter] = useState<Filter>("todos")
-    const [channelFilter, setChannelFilter] = useState<ChannelFilter>("todos")
     const [search, setSearch] = useState("")
     const [conversations, setConversations] = useState<InboxConversation[]>([])
     const [loadingList, setLoadingList] = useState(true)
@@ -303,8 +296,8 @@ export function InboxTab({ templates, channel = "oficial" }: { templates: Templa
         setLoadingList(true)
         try {
             const params = new URLSearchParams()
+            params.set("inbox", inbox.id)
             if (filter !== "todos") params.set("filter", filter)
-            if (channelFilter !== "todos") params.set("channel", channelFilter)
             if (search.trim()) params.set("q", search.trim())
             const res = await fetch(`/api/whatsapp/central/inbox?${params}`)
             const data = await res.json()
@@ -319,7 +312,7 @@ export function InboxTab({ templates, channel = "oficial" }: { templates: Templa
     async function fetchThread(phone: string) {
         setLoadingThread(true)
         try {
-            const res = await fetch(`/api/whatsapp/central/thread/${encodeURIComponent(phone)}`)
+            const res = await fetch(`/api/whatsapp/central/thread/${encodeURIComponent(phone)}?inbox=${encodeURIComponent(inbox.id)}`)
             const data = await res.json()
             setThread(data.messages ?? [])
             setThreadLead(data.lead ?? null)
@@ -392,7 +385,7 @@ export function InboxTab({ templates, channel = "oficial" }: { templates: Templa
         }
     }
 
-    useEffect(() => { fetchInbox() }, [filter, channelFilter])
+    useEffect(() => { fetchInbox() }, [filter, inbox.id])
     useEffect(() => {
         const t = setTimeout(fetchInbox, 300)
         return () => clearTimeout(t)
@@ -400,7 +393,9 @@ export function InboxTab({ templates, channel = "oficial" }: { templates: Templa
     useEffect(() => {
         const i = setInterval(fetchInbox, 30000)
         return () => clearInterval(i)
-    }, [filter, channelFilter, search])
+    }, [filter, inbox.id, search])
+    // Ao trocar de inbox, fecha a conversa aberta (ela pertence a outra caixa).
+    useEffect(() => { setSelectedPhone(null) }, [inbox.id])
     useEffect(() => {
         // Ao trocar de conversa, recarrega a thread e volta para a aba Detalhes.
         setLeadTab("detalhes")
@@ -451,7 +446,7 @@ export function InboxTab({ templates, channel = "oficial" }: { templates: Templa
             const res = await fetch(`/api/whatsapp/central/thread/${encodeURIComponent(selectedPhone)}`, {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ message: composer.trim(), channel }),
+                body: JSON.stringify({ message: composer.trim(), inbox_id: inbox.id }),
             })
             const data = await res.json()
             if (!res.ok) {
@@ -478,7 +473,7 @@ export function InboxTab({ templates, channel = "oficial" }: { templates: Templa
             const res = await fetch(`/api/whatsapp/central/thread/${encodeURIComponent(selectedPhone)}`, {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ template_id: tplId, channel }),
+                body: JSON.stringify({ template_id: tplId, inbox_id: inbox.id }),
             })
             const data = await res.json()
             if (!res.ok) {
@@ -534,22 +529,6 @@ export function InboxTab({ templates, channel = "oficial" }: { templates: Templa
                                 className={`text-[11px] px-2 py-1 rounded-full border transition-colors ${
                                     filter === f.id
                                         ? "bg-emerald-600 text-white border-transparent"
-                                        : "text-muted-foreground hover:bg-muted"
-                                }`}
-                            >
-                                {f.label}
-                            </button>
-                        ))}
-                    </div>
-                    {/* Divisão de canal: API oficial = cliente; Baileys = nº próprio/legado */}
-                    <div className="flex flex-wrap gap-1">
-                        {CHANNEL_FILTERS.map(f => (
-                            <button
-                                key={f.id}
-                                onClick={() => setChannelFilter(f.id)}
-                                className={`text-[11px] px-2 py-1 rounded-full border transition-colors ${
-                                    channelFilter === f.id
-                                        ? "bg-sky-600 text-white border-transparent"
                                         : "text-muted-foreground hover:bg-muted"
                                 }`}
                             >

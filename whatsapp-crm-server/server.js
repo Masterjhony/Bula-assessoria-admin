@@ -1,5 +1,5 @@
 import http from 'node:http'
-import { rm } from 'node:fs/promises'
+import { rm, mkdir, readdir, cp, access } from 'node:fs/promises'
 import makeWASocket, {
   Browsers,
   DisconnectReason,
@@ -10,7 +10,16 @@ import QRCode from 'qrcode'
 
 // ── Config (via env) ────────────────────────────────────────────────────────
 const PORT = Number(process.env.WHATSAPP_SERVER_PORT || process.env.PORT || 3001)
-const AUTH_DIR = process.env.AUTH_DIR || './auth'
+
+// Multi-sessão: cada inbox Baileys tem sua própria pasta de auth em
+// `${SESSIONS_DIR}/${sessionId}`. AUTH_DIR é o layout LEGADO (sessão única) —
+// mantido só para adoção automática no primeiro boot (ver adoptLegacyAuth).
+const SESSIONS_DIR = process.env.SESSIONS_DIR || './auth-sessions'
+const LEGACY_AUTH_DIR = process.env.AUTH_DIR || './auth'
+// Sessão usada quando o chamador não informa `?session=` (compat retroativa:
+// grupos das leiloeiras, notificação de assessor, campanhas, gif-lotes, etc.
+// continuam operando este número).
+const DEFAULT_SESSION_ID = process.env.DEFAULT_SESSION_ID || 'joao'
 
 // Jitter anti-ban: intervalo ALEATÓRIO entre envios (quebra o fingerprint de
 // disparo automático). Substitui o atraso fixo antigo. Mantém compat: se só
@@ -41,26 +50,55 @@ const INBOUND_ENABLED = Boolean(NEXT_API_URL && WEBHOOK_SECRET)
 // o QR (e sequestrar a sessão). O Next envia esse token em WHATSAPP_SERVER_TOKEN.
 const API_TOKEN = process.env.API_TOKEN || ''
 
-let socket = null
-let connectionStatus = 'connecting'
-let currentQr = null
-let currentQrDataUrl = null
-let processing = false
-const queue = []
+const SESSION_ID_RE = /^[a-z0-9][a-z0-9-]{1,31}$/
 
-// Pareamento por código de telefone (alternativa ao QR). Quando `pairPhone`
-// está setado e a sessão ainda não foi registrada, o socket pede um código de
-// 8 caracteres que o usuário digita no WhatsApp (Aparelhos conectados →
-// Conectar com número de telefone).
-let pairPhone = null
-let pairingCode = null
+// ── Estado por sessão ─────────────────────────────────────────────────────────
+// Cada sessão (inbox Baileys) encapsula socket, status, QR, fila e pareamento
+// próprios. A chave do Map é o sessionId (= whatsapp_inboxes.id no app).
+/** @type {Map<string, Session>} */
+const sessions = new Map()
+
+/**
+ * @typedef {Object} Session
+ * @property {string} id
+ * @property {import('@whiskeysockets/baileys').WASocket|null} socket
+ * @property {string} connectionStatus
+ * @property {string|null} currentQr
+ * @property {string|null} currentQrDataUrl
+ * @property {boolean} processing
+ * @property {Array<object>} queue
+ * @property {string|null} pairPhone
+ * @property {string|null} pairingCode
+ * @property {string} authDir
+ */
+
+/** Cria (ou retorna) o registro de estado de uma sessão. */
+function createSession(id) {
+  const existing = sessions.get(id)
+  if (existing) return existing
+  /** @type {Session} */
+  const session = {
+    id,
+    socket: null,
+    connectionStatus: 'connecting',
+    currentQr: null,
+    currentQrDataUrl: null,
+    processing: false,
+    queue: [],
+    pairPhone: null,
+    pairingCode: null,
+    authDir: `${SESSIONS_DIR}/${id}`,
+  }
+  sessions.set(id, session)
+  return session
+}
 
 function json(res, statusCode, body) {
   res.writeHead(statusCode, {
     'Content-Type': 'application/json; charset=utf-8',
     'Access-Control-Allow-Origin': '*',
     'Access-Control-Allow-Headers': 'Content-Type',
-    'Access-Control-Allow-Methods': 'GET,POST,OPTIONS',
+    'Access-Control-Allow-Methods': 'GET,POST,DELETE,OPTIONS',
   })
   res.end(JSON.stringify(body))
 }
@@ -128,7 +166,17 @@ function buildContents(item) {
       if (media.height) content.height = Number(media.height)
     }
     else if (type === 'audio') { content.audio = { url: media.url }; delete content.caption }
-    else { content.document = { url: media.url }; content.fileName = media.filename || 'arquivo'; content.mimetype = media.mime || 'application/octet-stream' }
+    else {
+      // Documento: nome vem como fileName (app) ou filename; o mimetype era
+      // fixo em octet-stream -> WhatsApp entregava .bin. Agora infere pela
+      // extensao quando o remetente nao manda mime explicito.
+      const fname = media.fileName || media.filename || 'arquivo'
+      const ext = (String(fname).split('.').pop() || '').toLowerCase()
+      const extMime = { pdf: 'application/pdf', jpg: 'image/jpeg', jpeg: 'image/jpeg', png: 'image/png', gif: 'image/gif', webp: 'image/webp', doc: 'application/msword', docx: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document', xls: 'application/vnd.ms-excel', xlsx: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet', txt: 'text/plain', csv: 'text/csv', zip: 'application/zip' }[ext]
+      content.document = { url: media.url }
+      content.fileName = fname
+      content.mimetype = media.mime || media.mimetype || media.contentType || extMime || 'application/octet-stream'
+    }
     contents.push(content)
   } else if (message) {
     contents.push({ text: message })
@@ -147,51 +195,51 @@ function buildContents(item) {
 }
 
 /**
- * Resolve o JID de destino de um item da fila.
+ * Resolve o JID de destino de um item da fila, usando o socket da sessão.
  *  - item.jid presente → destino explícito (grupo `...@g.us` ou JID pronto).
  *    Sem checagem onWhatsApp (grupos não respondem a ela).
  *  - senão → número individual: normaliza, confirma que existe no WhatsApp.
  */
-async function resolveJid(item) {
+async function resolveJid(session, item) {
   if (item.jid) {
     return String(item.jid).includes('@') ? String(item.jid) : `${item.jid}@g.us`
   }
   const normalized = normalizePhone(item.phone)
   if (!normalized) throw new Error('invalid_phone')
   const jid = `${normalized}@s.whatsapp.net`
-  const exists = await socket.onWhatsApp(jid)
+  const exists = await session.socket.onWhatsApp(jid)
   if (!exists?.[0]?.exists) throw new Error('not_on_whatsapp')
   return jid
 }
 
-async function sendItem(item) {
-  if (!socket || connectionStatus !== 'connected') throw new Error('whatsapp_disconnected')
-  const jid = await resolveJid(item)
+async function sendItem(session, item) {
+  if (!session.socket || session.connectionStatus !== 'connected') throw new Error('whatsapp_disconnected')
+  const jid = await resolveJid(session, item)
 
   const contents = buildContents(item)
   if (contents.length === 0) throw new Error('empty_message')
   for (const content of contents) {
-    await socket.sendMessage(jid, content)
+    await session.socket.sendMessage(jid, content)
   }
 }
 
-async function processQueue() {
-  if (processing) return
-  processing = true
+async function processQueue(session) {
+  if (session.processing) return
+  session.processing = true
   try {
-    while (queue.length > 0) {
-      const item = queue.shift()
+    while (session.queue.length > 0) {
+      const item = session.queue.shift()
       const label = item.jid || normalizePhone(item.phone)
       try {
-        await sendItem(item)
-        console.log(`[crm-whatsapp] enviado para ${label}`)
+        await sendItem(session, item)
+        console.log(`[${session.id}] enviado para ${label}`)
       } catch (error) {
-        console.error(`[crm-whatsapp] falha ao enviar para ${label}:`, error.message)
+        console.error(`[${session.id}] falha ao enviar para ${label}:`, error.message)
       }
-      if (queue.length > 0) await sleep(jitter())
+      if (session.queue.length > 0) await sleep(jitter())
     }
   } finally {
-    processing = false
+    session.processing = false
   }
 }
 
@@ -231,7 +279,7 @@ function extractContextInfo(msg) {
  * leiloeiras). O Next decide se o grupo interessa; aqui só encaminhamos texto
  * de terceiros (nunca o que nós mesmos enviamos — evita loop).
  */
-async function handleGroupInbound(msg) {
+async function handleGroupInbound(session, msg) {
   if (!INBOUND_ENABLED) return
   const jid = msg.key?.remoteJid || ''
   if (msg.key?.fromMe) return
@@ -248,6 +296,7 @@ async function handleGroupInbound(msg) {
       method: 'POST',
       headers: { 'Content-Type': 'application/json', 'x-webhook-secret': WEBHOOK_SECRET },
       body: JSON.stringify({
+        session: session.id,
         group_jid: jid,
         participant: msg.key?.participant || '',
         name: msg.pushName || '',
@@ -258,16 +307,16 @@ async function handleGroupInbound(msg) {
       signal: AbortSignal.timeout(25000),
     })
   } catch (error) {
-    console.error('[crm-whatsapp] group-inbound webhook falhou:', error.message)
+    console.error(`[${session.id}] group-inbound webhook falhou:`, error.message)
   }
 }
 
-async function handleInbound(msg) {
+async function handleInbound(session, msg) {
   if (!INBOUND_ENABLED) return
   const jid = msg.key?.remoteJid || ''
   // Grupos têm rota própria; aqui só conversa individual, e nada que eu enviei.
   if (msg.key?.fromMe) return
-  if (jid.endsWith('@g.us')) return handleGroupInbound(msg)
+  if (jid.endsWith('@g.us')) return handleGroupInbound(session, msg)
   if (!jid.endsWith('@s.whatsapp.net')) return
 
   const text = extractText(msg)
@@ -280,29 +329,31 @@ async function handleInbound(msg) {
     const res = await fetch(`${NEXT_API_URL}/api/whatsapp/inbound`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json', 'x-webhook-secret': WEBHOOK_SECRET },
-      body: JSON.stringify({ phone, name, body: text, message_id: msg.key?.id }),
+      body: JSON.stringify({ session: session.id, phone, name, body: text, message_id: msg.key?.id }),
       signal: AbortSignal.timeout(25000),
     })
     if (!res.ok) {
-      console.error(`[crm-whatsapp] inbound webhook HTTP ${res.status}`)
+      console.error(`[${session.id}] inbound webhook HTTP ${res.status}`)
       return
     }
     const data = await res.json().catch(() => ({}))
+    // O Next devolve `reply` só quando a automação está ligada para este inbox.
+    // Inbox manual → `{silent:true}` sem reply → não respondemos (o humano assume).
     if (data.reply) {
-      queue.push({ phone, message: data.reply })
-      void processQueue()
+      session.queue.push({ phone, message: data.reply })
+      void processQueue(session)
     }
   } catch (error) {
-    console.error('[crm-whatsapp] inbound webhook falhou:', error.message)
+    console.error(`[${session.id}] inbound webhook falhou:`, error.message)
   }
 }
 
 // ── Sessão Baileys ───────────────────────────────────────────────────────────
-async function startSocket() {
-  const { state, saveCreds } = await useMultiFileAuthState(AUTH_DIR)
+async function startSocket(session) {
+  const { state, saveCreds } = await useMultiFileAuthState(session.authDir)
   const { version } = await fetchLatestBaileysVersion()
 
-  socket = makeWASocket({
+  session.socket = makeWASocket({
     auth: state,
     browser: Browsers.macOS('Bula CRM'),
     printQRInTerminal: false,
@@ -314,28 +365,28 @@ async function startSocket() {
     version,
   })
 
-  socket.ev.on('creds.update', saveCreds)
+  session.socket.ev.on('creds.update', saveCreds)
 
   // Se há um número aguardando pareamento e a sessão ainda não foi registrada,
   // pede o código (em vez do QR). Pequeno atraso para o socket abrir o ws.
-  if (pairPhone && !socket.authState.creds.registered) {
+  if (session.pairPhone && !session.socket.authState.creds.registered) {
     setTimeout(async () => {
       try {
-        const code = await socket.requestPairingCode(pairPhone)
-        pairingCode = code
-        console.log(`[crm-whatsapp] pairing code para ${pairPhone}: ${code}`)
+        const code = await session.socket.requestPairingCode(session.pairPhone)
+        session.pairingCode = code
+        console.log(`[${session.id}] pairing code para ${session.pairPhone}: ${code}`)
       } catch (error) {
-        pairingCode = null
-        console.error('[crm-whatsapp] requestPairingCode falhou:', error.message)
+        session.pairingCode = null
+        console.error(`[${session.id}] requestPairingCode falhou:`, error.message)
       }
     }, 3000)
   }
 
-  socket.ev.on('connection.update', async update => {
+  session.socket.ev.on('connection.update', async update => {
     const { connection, lastDisconnect, qr } = update
     // Log detalhado do handshake (diagnóstico de vínculo). Vai para
     // /var/log/whatsapp-crm.log (StandardOutput do systemd).
-    console.log(`[conn] ${new Date().toISOString()} ` + JSON.stringify({
+    console.log(`[conn:${session.id}] ${new Date().toISOString()} ` + JSON.stringify({
       connection,
       hasQr: !!qr,
       isNewLogin: update.isNewLogin,
@@ -345,47 +396,51 @@ async function startSocket() {
       err: lastDisconnect?.error?.message ?? null,
     }))
     if (qr) {
-      connectionStatus = 'qr'
-      currentQr = qr
-      currentQrDataUrl = await QRCode.toDataURL(qr, { margin: 1, width: 320 })
-      console.log('[crm-whatsapp] QR Code gerado')
+      session.connectionStatus = 'qr'
+      session.currentQr = qr
+      session.currentQrDataUrl = await QRCode.toDataURL(qr, { margin: 1, width: 320 })
+      console.log(`[${session.id}] QR Code gerado`)
     }
     if (connection === 'open') {
-      connectionStatus = 'connected'
-      currentQr = null
-      currentQrDataUrl = null
-      pairPhone = null
-      pairingCode = null
-      console.log('[crm-whatsapp] conectado')
-      void processQueue()
+      session.connectionStatus = 'connected'
+      session.currentQr = null
+      session.currentQrDataUrl = null
+      session.pairPhone = null
+      session.pairingCode = null
+      console.log(`[${session.id}] conectado`)
+      void processQueue(session)
     }
     if (connection === 'connecting') {
-      connectionStatus = currentQr ? 'qr' : 'connecting'
+      session.connectionStatus = session.currentQr ? 'qr' : 'connecting'
     }
     if (connection === 'close') {
       const statusCode = lastDisconnect?.error?.output?.statusCode
       const loggedOut = statusCode === DisconnectReason.loggedOut
-      connectionStatus = 'disconnected'
-      socket = null
-      currentQr = null
-      currentQrDataUrl = null
-      console.log(`[crm-whatsapp] desconectado${loggedOut ? ' (logout)' : ''}`)
+      session.connectionStatus = 'disconnected'
+      session.socket = null
+      session.currentQr = null
+      session.currentQrDataUrl = null
+      console.log(`[${session.id}] desconectado${loggedOut ? ' (logout)' : ''}`)
+      // Sessão removida (DELETE /sessions): não reconecta.
+      if (!sessions.has(session.id)) return
       if (loggedOut) {
         // Sessão encerrada no aparelho: as credenciais em disco ficam inválidas.
         // Sem zerá-las, o socket nunca pede um QR novo e a sessão fica presa em
         // "disconnected". Limpa o auth e recomeça para gerar um QR fresco.
-        rm(AUTH_DIR, { recursive: true, force: true })
-          .catch(error => console.error('[crm-whatsapp] limpar auth pós-logout:', error.message))
+        rm(session.authDir, { recursive: true, force: true })
+          .catch(error => console.error(`[${session.id}] limpar auth pós-logout:`, error.message))
           .finally(() => {
             setTimeout(() => {
-              connectionStatus = 'connecting'
-              void startSocket().catch(error => console.error('[crm-whatsapp] restart pós-logout:', error))
+              if (!sessions.has(session.id)) return
+              session.connectionStatus = 'connecting'
+              void startSocket(session).catch(error => console.error(`[${session.id}] restart pós-logout:`, error))
             }, 1500)
           })
       } else {
         setTimeout(() => {
-          connectionStatus = 'connecting'
-          void startSocket().catch(error => console.error('[crm-whatsapp] reconnect:', error))
+          if (!sessions.has(session.id)) return
+          session.connectionStatus = 'connecting'
+          void startSocket(session).catch(error => console.error(`[${session.id}] reconnect:`, error))
         }, 3000)
       }
     }
@@ -393,8 +448,8 @@ async function startSocket() {
 
   // Sincronização de histórico: indica que o vínculo avançou para a fase de
   // sync (o "pesado"). Se aparece progresso, o link em si funcionou.
-  socket.ev.on('messaging-history.set', ({ chats, contacts, messages, isLatest, progress, syncType }) => {
-    console.log(`[history] ${new Date().toISOString()} ` + JSON.stringify({
+  session.socket.ev.on('messaging-history.set', ({ chats, contacts, messages, isLatest, progress, syncType }) => {
+    console.log(`[history:${session.id}] ${new Date().toISOString()} ` + JSON.stringify({
       chats: chats?.length ?? 0,
       contacts: contacts?.length ?? 0,
       messages: messages?.length ?? 0,
@@ -404,15 +459,88 @@ async function startSocket() {
     }))
   })
 
-  socket.ev.on('messages.upsert', async ({ messages, type }) => {
+  session.socket.ev.on('messages.upsert', async ({ messages, type }) => {
     if (type !== 'notify') return
     for (const msg of messages) {
-      try { await handleInbound(msg) } catch (e) { console.error('[crm-whatsapp] handleInbound:', e.message) }
+      try { await handleInbound(session, msg) } catch (e) { console.error(`[${session.id}] handleInbound:`, e.message) }
     }
   })
 }
 
+// ── Bootstrap de sessões ──────────────────────────────────────────────────────
+async function pathExists(p) {
+  try { await access(p); return true } catch { return false }
+}
+
+/**
+ * Primeiro boot no layout multi-sessão: se a sessão default ainda não existe em
+ * SESSIONS_DIR mas há credenciais no layout LEGADO (./auth de sessão única),
+ * copia-as para SESSIONS_DIR/<default> — assim o número já pareado (João) sobe
+ * conectado, sem reparear. O ./auth legado é preservado como backup.
+ */
+async function adoptLegacyAuth() {
+  const defaultDir = `${SESSIONS_DIR}/${DEFAULT_SESSION_ID}`
+  const hasDefault = await pathExists(`${defaultDir}/creds.json`)
+  const hasLegacy = await pathExists(`${LEGACY_AUTH_DIR}/creds.json`)
+  if (!hasDefault && hasLegacy) {
+    console.log(`[boot] adotando auth legado ${LEGACY_AUTH_DIR} → ${defaultDir}`)
+    await cp(LEGACY_AUTH_DIR, defaultDir, { recursive: true })
+  }
+}
+
+/** Descobre sessões existentes em disco e inicia todas (garante a default). */
+async function bootstrapSessions() {
+  await mkdir(SESSIONS_DIR, { recursive: true })
+  await adoptLegacyAuth()
+
+  const ids = new Set([DEFAULT_SESSION_ID])
+  try {
+    const entries = await readdir(SESSIONS_DIR, { withFileTypes: true })
+    for (const e of entries) {
+      if (e.isDirectory() && SESSION_ID_RE.test(e.name)) ids.add(e.name)
+    }
+  } catch (error) {
+    console.error('[boot] readdir sessões falhou:', error.message)
+  }
+
+  for (const id of ids) {
+    const session = createSession(id)
+    void startSocket(session).catch(error => {
+      session.connectionStatus = 'disconnected'
+      console.error(`[${id}] erro ao iniciar:`, error)
+    })
+  }
+  console.log(`[boot] sessões iniciadas: ${[...ids].join(', ')}`)
+}
+
 // ── HTTP ─────────────────────────────────────────────────────────────────────
+
+/** Lê `?session=` (ou usa a default). Retorna a sessão do Map (pode ser undefined). */
+function resolveSession(url) {
+  const raw = (url.searchParams.get('session') || '').trim()
+  const id = raw || DEFAULT_SESSION_ID
+  // A default é sempre garantida (criada on-demand se o boot ainda não terminou).
+  if (id === DEFAULT_SESSION_ID) {
+    const s = sessions.get(id)
+    if (s) return s
+    const created = createSession(id)
+    void startSocket(created).catch(error => console.error(`[${id}] start on-demand:`, error))
+    return created
+  }
+  return sessions.get(id)
+}
+
+function sessionSummary(s) {
+  return {
+    id: s.id,
+    status: s.connectionStatus,
+    hasQr: !!s.currentQrDataUrl,
+    queueSize: s.queue.length,
+    processing: s.processing,
+    jid: s.socket?.user?.id ?? null,
+  }
+}
+
 const server = http.createServer(async (req, res) => {
   try {
     if (req.method === 'OPTIONS') { json(res, 204, {}); return }
@@ -425,8 +553,45 @@ const server = http.createServer(async (req, res) => {
 
     const url = new URL(req.url || '/', `http://${req.headers.host || 'localhost'}`)
 
+    // ── Gestão de sessões (multi-inbox) ──────────────────────────────────────
+    if (req.method === 'GET' && url.pathname === '/sessions') {
+      json(res, 200, { sessions: [...sessions.values()].map(sessionSummary), default: DEFAULT_SESSION_ID })
+      return
+    }
+    if (req.method === 'POST' && url.pathname === '/sessions') {
+      const body = await readJson(req)
+      const id = String(body.id || '').trim().toLowerCase()
+      if (!SESSION_ID_RE.test(id)) {
+        json(res, 400, { error: 'id inválido (use slug [a-z0-9-], 2–32 chars)' }); return
+      }
+      if (sessions.has(id)) { json(res, 409, { error: 'sessão já existe' }); return }
+      const session = createSession(id)
+      void startSocket(session).catch(error => {
+        session.connectionStatus = 'disconnected'
+        console.error(`[${id}] erro ao iniciar (nova sessão):`, error.message)
+      })
+      json(res, 201, { created: true, id, status: session.connectionStatus })
+      return
+    }
+    if (req.method === 'DELETE' && url.pathname === '/sessions') {
+      const id = (url.searchParams.get('session') || '').trim()
+      if (!id) { json(res, 400, { error: 'session obrigatório' }); return }
+      if (id === DEFAULT_SESSION_ID) { json(res, 403, { error: 'não é permitido remover a sessão default' }); return }
+      const session = sessions.get(id)
+      if (!session) { json(res, 404, { error: 'unknown_session' }); return }
+      sessions.delete(id) // remove antes de encerrar → connection.update não reconecta
+      try { session.socket?.end() } catch { /* ignore */ }
+      try { await session.socket?.logout() } catch { /* pode já estar desconectado */ }
+      await rm(session.authDir, { recursive: true, force: true }).catch(() => {})
+      json(res, 200, { deleted: true, id })
+      return
+    }
+
+    // ── Sessão-alvo das rotas abaixo (default quando ?session= ausente) ───────
     if (req.method === 'GET' && url.pathname === '/status') {
-      json(res, 200, { status: connectionStatus, qr: currentQrDataUrl, pairing_code: pairingCode })
+      const session = resolveSession(url)
+      if (!session) { json(res, 404, { error: 'unknown_session' }); return }
+      json(res, 200, { session: session.id, status: session.connectionStatus, qr: session.currentQrDataUrl, pairing_code: session.pairingCode })
       return
     }
 
@@ -434,59 +599,68 @@ const server = http.createServer(async (req, res) => {
     // WhatsApp (Aparelhos conectados → Conectar com número). Alternativa ao QR.
     if (req.method === 'POST' && url.pathname === '/pair') {
       const body = await readJson(req)
+      const session = resolveSession(url) || (body.session ? sessions.get(String(body.session)) : null)
+      if (!session) { json(res, 404, { error: 'unknown_session' }); return }
       const phone = normalizePhone(body.phone)
       if (!phone) { json(res, 400, { error: 'phone obrigatório (com DDD)' }); return }
-      if (connectionStatus === 'connected') { json(res, 409, { error: 'sessão já conectada' }); return }
+      if (session.connectionStatus === 'connected') { json(res, 409, { error: 'sessão já conectada' }); return }
 
       // Recomeça com credenciais limpas para garantir uma sessão não-registrada
       // (requestPairingCode só funciona antes do registro).
-      pairPhone = phone
-      pairingCode = null
-      try { await rm(AUTH_DIR, { recursive: true, force: true }) } catch { /* dir pode não existir */ }
-      if (socket) { try { socket.end() } catch { /* ignore */ } socket = null }
-      connectionStatus = 'connecting'
-      void startSocket().catch(error => console.error('[crm-whatsapp] pair restart:', error.message))
+      session.pairPhone = phone
+      session.pairingCode = null
+      try { await rm(session.authDir, { recursive: true, force: true }) } catch { /* dir pode não existir */ }
+      if (session.socket) { try { session.socket.end() } catch { /* ignore */ } session.socket = null }
+      session.connectionStatus = 'connecting'
+      void startSocket(session).catch(error => console.error(`[${session.id}] pair restart:`, error.message))
 
       // Aguarda o código ser gerado (até ~13s).
-      for (let i = 0; i < 26; i++) { if (pairingCode) break; await sleep(500) }
-      if (pairingCode) { json(res, 200, { pairing_code: pairingCode, phone: pairPhone }); return }
+      for (let i = 0; i < 26; i++) { if (session.pairingCode) break; await sleep(500) }
+      if (session.pairingCode) { json(res, 200, { pairing_code: session.pairingCode, phone: session.pairPhone }); return }
       json(res, 202, { pending: true, message: 'código sendo gerado; consulte /status' })
       return
     }
+
     if (req.method === 'GET' && (url.pathname === '/queue' || url.pathname === '/health')) {
+      const session = resolveSession(url)
       json(res, 200, {
-        status: connectionStatus,
-        queueSize: queue.length,
-        processing,
+        status: session?.connectionStatus ?? 'unknown',
+        queueSize: session?.queue.length ?? 0,
+        processing: session?.processing ?? false,
         inbound_enabled: INBOUND_ENABLED,
         jitter_ms: [MIN_DELAY_MS, MAX_DELAY_MS],
+        sessions: [...sessions.keys()],
       })
       return
     }
 
     if (req.method === 'POST' && url.pathname === '/send-direct') {
       const body = await readJson(req)
+      const session = resolveSession(url)
+      if (!session) { json(res, 404, { error: 'unknown_session' }); return }
       const phone = normalizePhone(body.phone)
       const message = String(body.message || '').trim()
       if (!phone || (!message && !body.media)) {
         json(res, 400, { error: 'phone e (message ou media) são obrigatórios' })
         return
       }
-      queue.push({ phone, message, media: body.media || null, poll: body.poll || null })
-      void processQueue()
-      json(res, 200, { queued: true, position: queue.length })
+      session.queue.push({ phone, message, media: body.media || null, poll: body.poll || null })
+      void processQueue(session)
+      json(res, 200, { queued: true, position: session.queue.length, session: session.id })
       return
     }
 
     // Lista os grupos de que a sessão participa — usado para descobrir o JID
     // (`...@g.us`) do grupo destino antes de enviar.
     if (req.method === 'GET' && url.pathname === '/groups') {
-      if (!socket || connectionStatus !== 'connected') {
+      const session = resolveSession(url)
+      if (!session) { json(res, 404, { error: 'unknown_session' }); return }
+      if (!session.socket || session.connectionStatus !== 'connected') {
         json(res, 503, { error: 'whatsapp_disconnected' })
         return
       }
       try {
-        const participating = await socket.groupFetchAllParticipating()
+        const participating = await session.socket.groupFetchAllParticipating()
         const groups = Object.values(participating || {}).map(g => ({
           id: g.id,
           subject: g.subject || '',
@@ -502,6 +676,8 @@ const server = http.createServer(async (req, res) => {
     // Envia para um grupo. Aceita `groupId` (JID `...@g.us` ou só o id antes do @).
     if (req.method === 'POST' && url.pathname === '/send-group') {
       const body = await readJson(req)
+      const session = resolveSession(url)
+      if (!session) { json(res, 404, { error: 'unknown_session' }); return }
       const rawId = String(body.groupId || body.jid || '').trim()
       const message = String(body.message || '').trim()
       if (!rawId || (!message && !body.media)) {
@@ -509,14 +685,16 @@ const server = http.createServer(async (req, res) => {
         return
       }
       const jid = rawId.includes('@') ? rawId : `${rawId}@g.us`
-      queue.push({ jid, message, media: body.media || null, poll: body.poll || null })
-      void processQueue()
-      json(res, 200, { queued: true, position: queue.length, jid })
+      session.queue.push({ jid, message, media: body.media || null, poll: body.poll || null })
+      void processQueue(session)
+      json(res, 200, { queued: true, position: session.queue.length, jid })
       return
     }
 
     if (req.method === 'POST' && url.pathname === '/campaign-send') {
       const body = await readJson(req)
+      const session = resolveSession(url)
+      if (!session) { json(res, 404, { error: 'unknown_session' }); return }
       const recipients = Array.isArray(body.recipients) ? body.recipients : []
       if (recipients.length === 0) {
         json(res, 400, { error: 'recipients vazio' })
@@ -526,7 +704,7 @@ const server = http.createServer(async (req, res) => {
       for (const r of recipients) {
         const phone = normalizePhone(r.phone)
         if (!phone) continue
-        queue.push({
+        session.queue.push({
           phone,
           message: r.message || r.caption || '',
           media: body.media || r.media || null,
@@ -534,8 +712,8 @@ const server = http.createServer(async (req, res) => {
         })
         queued++
       }
-      void processQueue()
-      json(res, 200, { queued, campaign_id: body.campaign_id || null, queue_size: queue.length })
+      void processQueue(session)
+      json(res, 200, { queued, campaign_id: body.campaign_id || null, queue_size: session.queue.length })
       return
     }
 
@@ -547,10 +725,9 @@ const server = http.createServer(async (req, res) => {
 
 server.listen(PORT, () => {
   console.log(`[crm-whatsapp] servidor em http://0.0.0.0:${PORT}`)
-  console.log(`[crm-whatsapp] auth dir: ${AUTH_DIR} · inbound: ${INBOUND_ENABLED ? 'on' : 'off'} · jitter: ${MIN_DELAY_MS}-${MAX_DELAY_MS}ms`)
+  console.log(`[crm-whatsapp] sessões: ${SESSIONS_DIR} · default: ${DEFAULT_SESSION_ID} · inbound: ${INBOUND_ENABLED ? 'on' : 'off'} · jitter: ${MIN_DELAY_MS}-${MAX_DELAY_MS}ms`)
 })
 
-void startSocket().catch(error => {
-  connectionStatus = 'disconnected'
-  console.error('[crm-whatsapp] erro ao iniciar:', error)
+void bootstrapSessions().catch(error => {
+  console.error('[crm-whatsapp] erro no bootstrap de sessões:', error)
 })

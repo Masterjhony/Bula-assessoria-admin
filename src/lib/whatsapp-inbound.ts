@@ -126,7 +126,8 @@ export function logInbound(
     supabase: SupabaseClient,
     args: {
         phone: string; name: string; body: string; lead_id: string | null
-        message_id?: string | null; channel?: string | null; media?: InboundMedia | null
+        message_id?: string | null; channel?: string | null; inbox_id?: string | null
+        media?: InboundMedia | null
     },
 ) {
     void supabase
@@ -139,6 +140,7 @@ export function logInbound(
             direction: 'inbound',
             origin: 'central-inbound',
             channel: args.channel ?? null,
+            inbox_id: args.inbox_id ?? null,
             reason: args.message_id ?? null,
             lead_id: args.lead_id,
             media_url: args.media?.url ?? null,
@@ -218,6 +220,15 @@ export async function processInboundMessage(
     input: {
         phone: string; senderName?: string; text: string
         messageId?: string | null; channel?: string | null; media?: InboundMedia | null
+        /** Inbox de origem (whatsapp_inboxes.id) — gravado no log da inbound. */
+        inboxId?: string | null
+        /**
+         * Se o inbox roda automações (concierge/welcome/grafo). `false` = caixa
+         * manual: registra a inbound e a conversa aparece no inbox, mas nenhuma
+         * resposta automática é gerada (o humano atende). undefined → ligado
+         * (compat: webhook oficial e chamadas antigas mantêm o comportamento).
+         */
+        automationsEnabled?: boolean
     },
 ): Promise<InboundOutcome> {
     const { phone } = input
@@ -244,6 +255,7 @@ export async function processInboundMessage(
         lead_id: lead?.id ?? null,
         message_id: input.messageId ?? null,
         channel: input.channel ?? null,
+        inbox_id: input.inboxId ?? null,
         media: input.media ?? null,
     })
 
@@ -258,6 +270,14 @@ export async function processInboundMessage(
         void handleCampaignReply(supabase, lead.id).catch(err =>
             console.warn('[Inbound] handleCampaignReply falhou:', err instanceof Error ? err.message : err),
         )
+    }
+
+    // Inbox manual (automations_enabled=false): a conversa é registrada e aparece
+    // no inbox, mas nenhuma automação responde — o atendente humano assume. As
+    // automações (welcome/concierge/campanha) rodam só nos inboxes com o flag on
+    // (por padrão, a API oficial). Ver decisão de produto em 0049_whatsapp_inboxes.
+    if (input.automationsEnabled === false) {
+        return { kind: 'silent', reason: 'manual_inbox', lead }
     }
 
     // Pausa global: segue logando a inbound, mas nenhum fluxo automatizado roda.

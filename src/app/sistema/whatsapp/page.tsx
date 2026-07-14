@@ -11,7 +11,7 @@ import { TemplatesTab } from "@/components/admin/central-whatsapp/TemplatesTab"
 import { CampaignsTab } from "@/components/admin/central-whatsapp/CampaignsTab"
 import { MetricsTab } from "@/components/admin/central-whatsapp/MetricsTab"
 import { AtendimentoIATab } from "@/components/admin/central-whatsapp/AtendimentoIATab"
-import type { Template } from "@/components/admin/central-whatsapp/types"
+import type { Inbox as WaInbox, Template } from "@/components/admin/central-whatsapp/types"
 
 const GOLD = "#C9A84C"
 
@@ -59,6 +59,12 @@ function CentralWhatsAppInner() {
 
     const [templates, setTemplates] = useState<Template[]>([])
 
+    // Multi-inbox: caixas de atendimento (API oficial + sessões Baileys). O
+    // seletor no cabeçalho escolhe qual inbox o painel abaixo mostra/opera.
+    const [inboxes, setInboxes] = useState<WaInbox[]>([])
+    const [selectedInboxId, setSelectedInboxId] = useState<string | null>(null)
+    const selectedInbox = inboxes.find(i => i.id === selectedInboxId) ?? inboxes[0] ?? null
+
     async function fetchTemplates() {
         const res = await fetch(`/api/whatsapp/central/templates`)
         if (res.ok) {
@@ -74,6 +80,21 @@ function CentralWhatsAppInner() {
             if (!res.ok || cancelled) return
             const data = await res.json()
             if (!cancelled) setTemplates(data.templates ?? [])
+        })()
+        return () => { cancelled = true }
+    }, [])
+
+    useEffect(() => {
+        let cancelled = false
+        ;(async () => {
+            const res = await fetch(`/api/whatsapp/inboxes`)
+            if (!res.ok || cancelled) return
+            const data = await res.json()
+            const list: WaInbox[] = data.inboxes ?? []
+            if (cancelled) return
+            setInboxes(list)
+            // Default: a caixa primária (API oficial) — de onde o cliente fala.
+            setSelectedInboxId(prev => prev ?? (list.find(i => i.is_primary)?.id ?? list[0]?.id ?? null))
         })()
         return () => { cancelled = true }
     }, [])
@@ -98,6 +119,26 @@ function CentralWhatsAppInner() {
                         </p>
                     </div>
                 </div>
+
+                {/* Seletor de inbox (multi-inbox): escolhe de qual caixa/número o
+                    Inbox mostra as conversas e por qual o SDR responde. */}
+                {tab === "inbox" && inboxes.length > 0 && (
+                    <label className="flex items-center gap-2 text-sm shrink-0">
+                        <MessageCircle className="h-4 w-4 text-muted-foreground" />
+                        <select
+                            value={selectedInbox?.id ?? ""}
+                            onChange={e => setSelectedInboxId(e.target.value)}
+                            className="rounded-md border bg-background px-3 py-1.5 text-sm font-medium focus:outline-none focus:ring-2 focus:ring-emerald-500/40"
+                        >
+                            {inboxes.map(i => (
+                                <option key={i.id} value={i.id}>
+                                    {i.label}{i.kind === "cloud" ? " · API oficial" : " · Baileys"}
+                                    {i.kind === "baileys" && i.live_status && i.live_status !== "connected" ? ` (${i.live_status})` : ""}
+                                </option>
+                            ))}
+                        </select>
+                    </label>
+                )}
             </div>
 
             <div className="flex flex-wrap gap-1.5 shrink-0 mb-4">
@@ -123,7 +164,9 @@ function CentralWhatsAppInner() {
             </div>
 
             <div className="space-y-5 pb-5">
-                {tab === "inbox"     && <InboxTab templates={templates} />}
+                {tab === "inbox"     && (selectedInbox
+                    ? <InboxTab templates={templates} inbox={selectedInbox} />
+                    : <div className="flex items-center justify-center py-24"><Loader2 size={24} className="animate-spin text-[#A68B4B]" /></div>)}
                 {tab === "ia"        && <AtendimentoIATab />}
                 {tab === "templates" && <TemplatesTab templates={templates} onChange={fetchTemplates} />}
                 {tab === "campanhas" && <CampaignsTab templates={templates} />}

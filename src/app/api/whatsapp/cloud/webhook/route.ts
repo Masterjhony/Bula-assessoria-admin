@@ -25,6 +25,7 @@ import { normalizePhone } from '@/lib/whatsapp-central'
 import { processInboundMessage, inboundAlreadyProcessed, WHATSAPP_MEDIA_BUCKET, type InboundMedia } from '@/lib/whatsapp-inbound'
 import { promoteWhatsappMediaToLeadDoc } from '@/lib/whatsapp-lead-documents'
 import { sendOutbound } from '@/lib/whatsapp-gateway'
+import { CLOUD_INBOX_ID } from '@/lib/whatsapp-inboxes'
 import { downloadWhatsappCloudMedia } from '@/lib/whatsapp-cloud-api'
 import type { SupabaseClient } from '@supabase/supabase-js'
 
@@ -249,6 +250,7 @@ async function processEvents(payload: MetaPayload): Promise<void> {
                         text,
                         messageId: msg.id ?? null,
                         channel: 'cloud',
+                        inboxId: CLOUD_INBOX_ID,
                         media,
                     })
 
@@ -278,6 +280,7 @@ async function processEvents(payload: MetaPayload): Promise<void> {
                             // definição. Forçamos 'cloud' para não depender do log da
                             // inbound (assíncrono) ter commitado antes do gateway checar.
                             channelHint: 'cloud',
+                            inboxId: CLOUD_INBOX_ID,
                             origin: 'central-inbound',
                             botStep: outcome.bot_step ?? null,
                         }).catch(err =>

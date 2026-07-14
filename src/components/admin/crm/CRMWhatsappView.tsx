@@ -26,7 +26,18 @@ import {
 } from 'lucide-react';
 import { InboxTab } from '@/components/admin/central-whatsapp/InboxTab';
 import { MetricsTab } from '@/components/admin/central-whatsapp/MetricsTab';
-import type { Template } from '@/components/admin/central-whatsapp/types';
+import type { Inbox as WaInbox, Template } from '@/components/admin/central-whatsapp/types';
+
+/**
+ * O toggle oficial/baileys desta view mapeia para os dois inboxes default
+ * (multi-inbox). Sintetizamos um Inbox mínimo sem carregar a lista — mantém o
+ * comportamento de duas caixas (API oficial × número do João) já existente aqui.
+ */
+function channelToInbox(channel: 'oficial' | 'baileys'): WaInbox {
+    return channel === 'oficial'
+        ? { id: 'cloud', label: 'API Oficial', kind: 'cloud', phone: null, channel: 'cloud', status: 'connected', is_primary: true, automations_enabled: true, ativo: true, ordem: 10 }
+        : { id: 'joao', label: 'João Antonio', kind: 'baileys', phone: null, channel: 'baileys', status: 'unknown', is_primary: false, automations_enabled: true, ativo: true, ordem: 20 };
+}
 
 type ActivityRow = {
     id: string;
@@ -396,7 +407,7 @@ export function CRMWhatsappView() {
             </div>
 
             {view === 'conversas' && (
-                <InboxTab templates={templates} channel={channel} />
+                <InboxTab templates={templates} inbox={channelToInbox(channel)} />
             )}
 
             {view === 'metricas' && <MetricsTab />}

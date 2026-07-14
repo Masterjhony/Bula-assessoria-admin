@@ -2,6 +2,23 @@
 
 export type WAStatus = 'disconnected' | 'connecting' | 'connected' | 'qr'
 
+/** Caixa de atendimento (multi-inbox): API oficial ('cloud') ou sessão Baileys. */
+export interface Inbox {
+    id: string
+    label: string
+    kind: 'baileys' | 'cloud'
+    phone: string | null
+    channel: 'baileys' | 'cloud'
+    status: string
+    is_primary: boolean
+    automations_enabled: boolean
+    ativo: boolean
+    ordem: number
+    /** Status ao vivo da sessão no VPS (só Baileys); null se indisponível. */
+    live_status?: string | null
+    queue_size?: number | null
+}
+
 export interface InboxConversation {
     phone: string
     name: string | null

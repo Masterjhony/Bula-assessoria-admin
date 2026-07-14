@@ -18,11 +18,12 @@ import { ensureAudienceTagForTemplate } from '@/lib/whatsapp-audience-tags'
 import { metaTemplateName } from '@/lib/whatsapp-cloud-api'
 import { sendOutbound } from '@/lib/whatsapp-gateway'
 import { WHATSAPP_MEDIA_BUCKET } from '@/lib/whatsapp-inbound'
+import { loadInbox } from '@/lib/whatsapp-inboxes'
 
 const WINDOW_MS = 24 * 3_600_000
 
 export async function GET(
-    _req: NextRequest,
+    req: NextRequest,
     { params }: { params: Promise<{ phone: string }> },
 ) {
     const auth = await requireAdmin()
@@ -32,6 +33,10 @@ export async function GET(
     const phone = normalizePhone(decodeURIComponent(rawPhone))
     if (!phone) return NextResponse.json({ error: 'phone inválido' }, { status: 400 })
 
+    // Conversa escopada por inbox: a mesma pessoa em 2 números são 2 threads.
+    // Sem ?inbox= (compat/rollout), retorna o histórico completo como antes.
+    const inboxFilter = (new URL(req.url).searchParams.get('inbox') || '').trim() || null
+
     const supabase = createClient(
         process.env.NEXT_PUBLIC_SUPABASE_URL!,
         process.env.SUPABASE_SERVICE_ROLE_KEY!,
@@ -39,11 +44,21 @@ export async function GET(
 
     const variants = phoneVariants(phone)
 
+    let msgQuery = supabase
+        .from('whatsapp_messages')
+        .select('id, phone, name, body, direction, status, origin, bot_step, campaign_id, template_id, created_at, media_url, media_type, media_mime, media_filename, media_meta_id, media_ingest_error')
+        .in('phone', variants)
+    if (inboxFilter) msgQuery = msgQuery.eq('inbox_id', inboxFilter)
+
+    let lastInboundQuery = supabase
+        .from('whatsapp_messages')
+        .select('created_at')
+        .in('phone', variants)
+        .eq('direction', 'inbound')
+    if (inboxFilter) lastInboundQuery = lastInboundQuery.eq('inbox_id', inboxFilter)
+
     const [messagesRes, leadRes, lastInboundRes] = await Promise.all([
-        supabase
-            .from('whatsapp_messages')
-            .select('id, phone, name, body, direction, status, origin, bot_step, campaign_id, template_id, created_at, media_url, media_type, media_mime, media_filename, media_meta_id, media_ingest_error')
-            .in('phone', variants)
+        msgQuery
             .order('created_at', { ascending: true })
             .limit(500),
         // telefone OU celular, em qualquer formato (variantes); lead mais
@@ -56,11 +71,7 @@ export async function GET(
             .limit(1),
         // Última inbound de verdade (a lista acima vem em ordem crescente e pode
         // estar truncada em 500) — é o que define a janela de 24h.
-        supabase
-            .from('whatsapp_messages')
-            .select('created_at')
-            .in('phone', variants)
-            .eq('direction', 'inbound')
+        lastInboundQuery
             .order('created_at', { ascending: false })
             .limit(1),
     ])
@@ -104,19 +115,24 @@ export async function POST(
     const phone = normalizePhone(decodeURIComponent(rawPhone))
     if (!phone) return NextResponse.json({ error: 'phone inválido' }, { status: 400 })
 
-    let body: { message?: string; template_id?: string; channel?: 'oficial' | 'baileys' }
+    let body: { message?: string; template_id?: string; channel?: 'oficial' | 'baileys'; inbox_id?: string }
     try { body = await req.json() } catch {
         return NextResponse.json({ error: 'Invalid JSON' }, { status: 400 })
     }
-
-    // Seletor de canal do inbox: 'baileys' força o número Baileys (texto livre,
-    // sem janela de 24h); 'oficial'/ausente deixa o gateway decidir (Cloud).
-    const channelHint = body.channel === 'baileys' ? 'baileys' : 'auto'
 
     const supabase = createClient(
         process.env.NEXT_PUBLIC_SUPABASE_URL!,
         process.env.SUPABASE_SERVICE_ROLE_KEY!,
     )
+
+    // Multi-inbox: `inbox_id` escolhe de qual número o SDR responde. Baileys →
+    // força aquela sessão (texto livre, sem janela de 24h); Cloud → o gateway
+    // decide (texto dentro de 24h, template fora). `channel` legado ainda vale
+    // como fallback ('baileys' | 'oficial').
+    const inbox = body.inbox_id ? await loadInbox(supabase, body.inbox_id) : null
+    const isBaileysInbox = inbox ? inbox.kind === 'baileys' : body.channel === 'baileys'
+    const channelHint = isBaileysInbox ? 'baileys' : 'auto'
+    const inboxId = inbox?.id ?? (isBaileysInbox ? undefined : 'cloud')
 
     const postVariants = phoneVariants(phone)
     const postList = `(${postVariants.map(v => `"${v}"`).join(',')})`
@@ -171,6 +187,7 @@ export async function POST(
         templateLanguage,
         intent: 'crm_reply',
         channelHint,
+        inboxId,
         origin: 'inbox-sdr',
     })
 

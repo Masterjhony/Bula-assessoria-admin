@@ -59,7 +59,34 @@ systemctl restart whatsapp-crm       # reiniciar
 curl -s http://127.0.0.1:3001/status # status local (conn + QR)
 ```
 
-A sessão fica em `/opt/whatsapp-crm/auth/` — **faça backup** (perdê-la = re-escanear QR).
+As sessões ficam em `/opt/whatsapp-crm/auth-sessions/<id>/` (uma pasta por inbox
+Baileys) — **faça backup** (perdê-las = re-escanear QR).
+
+## Multi-inbox: migrar a sessão única para o layout multi-sessão
+
+A versão nova gerencia **N sessões Baileys** (mapa por `sessionId`), cada uma com
+sua pasta de auth. A sessão histórica (número do João Antonio) vivia em `./auth`
+no layout de sessão única. Para preservar o pareamento **sem re-escanear**, basta
+mover a pasta com o serviço parado:
+
+```bash
+systemctl stop whatsapp-crm
+cp -a /opt/whatsapp-crm/auth /opt/whatsapp-crm/auth.bak      # backup
+mkdir -p /opt/whatsapp-crm/auth-sessions
+mv /opt/whatsapp-crm/auth /opt/whatsapp-crm/auth-sessions/joao
+# garanta no .env: SESSIONS_DIR=/opt/whatsapp-crm/auth-sessions e DEFAULT_SESSION_ID=joao
+systemctl start whatsapp-crm
+curl -s "http://127.0.0.1:3001/status?session=joao"          # deve voltar connected, sem QR
+```
+
+> Se você **esquecer** o `mv`, o servidor faz uma adoção automática no 1º boot:
+> copia `./auth` (legado) para `auth-sessions/<default>` quando esta ainda não
+> existe. O `mv` explícito com o serviço parado é o caminho recomendado (evita
+> corrida de escrita de `creds.update`).
+
+Endpoints passam a aceitar `?session=<id>` (sem o parâmetro → sessão default).
+Gestão: `GET /sessions` (lista), `POST /sessions {id}` (cria + gera QR),
+`DELETE /sessions?session=<id>` (encerra e apaga; a default é protegida).
 
 ## Sem domínio? Túnel Cloudflare nomeado (URL estável)
 

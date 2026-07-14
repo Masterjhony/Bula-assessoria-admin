@@ -43,6 +43,8 @@ export async function GET(req: NextRequest) {
     const q = (url.searchParams.get('q') || '').trim().toLowerCase()
     const interesseFilter = url.searchParams.get('interesse')
     const channelFilter = url.searchParams.get('channel') // 'cloud' | 'baileys'
+    // Multi-inbox: escopa a lista a uma caixa (conversa = inbox + telefone).
+    const inboxFilter = (url.searchParams.get('inbox') || '').trim() || null
 
     const supabase = createClient(
         process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -67,10 +69,12 @@ export async function GET(req: NextRequest) {
         intent: string | null; channel: string | null
     }[] = []
     for (let from = 0; from < MAX_MSGS; from += PAGE) {
-        const { data, error: msgErr } = await supabase
+        let pageQuery = supabase
             .from('whatsapp_messages')
             .select('id, phone, name, direction, body, status, lead_id, created_at, origin, intent, channel')
             .not('phone', 'is', null)
+        if (inboxFilter) pageQuery = pageQuery.eq('inbox_id', inboxFilter)
+        const { data, error: msgErr } = await pageQuery
             .order('created_at', { ascending: false })
             .range(from, from + PAGE - 1)
         if (msgErr) {

@@ -17,6 +17,7 @@ import { NextRequest, NextResponse, after } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
 import { normalizePhone } from '@/lib/whatsapp-central'
 import { processInboundMessage } from '@/lib/whatsapp-inbound'
+import { resolveBaileysInbox } from '@/lib/whatsapp-inboxes'
 
 export const maxDuration = 120
 
@@ -27,7 +28,7 @@ export async function POST(req: NextRequest) {
         return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
-    let body: { phone: string; name?: string; body: string; message_id?: string }
+    let body: { phone: string; name?: string; body: string; message_id?: string; session?: string }
     try {
         body = await req.json()
     } catch {
@@ -45,12 +46,18 @@ export async function POST(req: NextRequest) {
         process.env.SUPABASE_SERVICE_ROLE_KEY!,
     )
 
+    // Qual caixa Baileys recebeu (o VPS manda o sessionId). O flag do inbox
+    // decide se a automação (concierge/welcome) roda ou se é atendimento manual.
+    const inbox = await resolveBaileysInbox(supabase, body.session)
+
     const outcome = await processInboundMessage(supabase, {
         phone,
         senderName: body.name,
         text,
         messageId: body.message_id ?? null,
         channel: 'baileys',
+        inboxId: inbox?.id ?? body.session ?? null,
+        automationsEnabled: inbox?.automations_enabled ?? true,
     })
 
     // Efeitos caros (crédito, avisos ao grupo, ficha às leiloeiras) rodam depois
