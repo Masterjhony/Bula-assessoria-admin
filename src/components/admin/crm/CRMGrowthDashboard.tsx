@@ -5,10 +5,11 @@ import Link from 'next/link';
 import {
     Users, Crown, TrendingUp, TrendingDown, CheckCircle2, XCircle,
     ArrowRight, Filter, Megaphone, Wallet, DollarSign,
-    MousePointerClick, Target, MapPin, Activity,
+    MousePointerClick, Target, MapPin, Activity, Reply, MessageSquare, MessageCircle, Send,
 } from 'lucide-react';
 import type { CRMLead } from '@/app/sistema/actions/crm-leads';
 import type { CRMConfig } from '@/lib/crm-types';
+import type { AtendimentoStats } from '@/lib/atendimento-stats';
 import {
     normalizeCRMStatus, getStageColorHex, CRM_STAGE_ENTRY,
     CRM_STAGE_CONNECTION, CRM_STAGE_QUALIFICATION, CRM_STAGE_INFO_CAPTURED,
@@ -97,9 +98,10 @@ interface Props {
     leads: CRMLead[];
     archived: CRMLead[];
     crmConfig: CRMConfig;
+    atendimento: (AtendimentoStats & { janela_dias: number }) | null;
 }
 
-export function CRMGrowthDashboard({ leads, archived, crmConfig }: Props) {
+export function CRMGrowthDashboard({ leads, archived, crmConfig, atendimento }: Props) {
     const stages = crmConfig.funnels[0]?.stages ?? crmConfig.stages;
     const media = META_CAMPAIGNS;
 
@@ -132,11 +134,6 @@ export function CRMGrowthDashboard({ leads, archived, crmConfig }: Props) {
         const cCadastro = byStage.get(CRM_STAGE_REGISTRATION) ?? 0;
         const perdidos = byStage.get(CRM_STAGE_LOST) ?? 0;
         const aprovados = archived.filter(l => l.extra_data?.cadastro_aprovado).length;
-
-        const respondidos = leads.filter(l => {
-            const s = l.extra_data?.sheet_color_status;
-            return s && s !== CRM_STAGE_ENTRY;
-        }).length;
 
         // Funil de conversão cumulativo (assume progressão; PERDIDOS à parte).
         const convFunnel: FunnelNode[] = [
@@ -208,7 +205,7 @@ export function CRMGrowthDashboard({ leads, archived, crmConfig }: Props) {
         const taxaConversao = total > 0 ? +(((cCadastro + aprovados) / total) * 100).toFixed(1) : 0;
 
         return {
-            total, mql, perdidos, aprovados, respondidos, cCadastro,
+            total, mql, perdidos, aprovados, cCadastro,
             convFunnel, dist, distMax, series, mqlSeries, last7, prev7, trend7, mqlLast7,
             sources, ufs, interesses, interTotal, taxaConversao,
         };
@@ -218,7 +215,14 @@ export function CRMGrowthDashboard({ leads, archived, crmConfig }: Props) {
         { label: 'Leads ativos', value: fmtInt(m.total), icon: Users, color: '#3b82f6', sub: `${m.last7} nos últimos 7 dias` },
         { label: 'MQL', value: fmtInt(m.mql), icon: Crown, color: BRONZE, sub: `${pct(m.mql, m.total)}% dos leads · +${m.mqlLast7} (7d)` },
         { label: 'Taxa de conversão', value: `${m.taxaConversao}%`, icon: Target, color: '#22c55e', sub: `${m.cCadastro + m.aprovados} em cadastro/clientes` },
-        { label: 'Clientes aprovados', value: fmtInt(m.aprovados), icon: CheckCircle2, color: '#10b981', sub: `${m.respondidos} responderam` },
+        {
+            label: 'Responderam',
+            value: atendimento ? fmtInt(atendimento.responderam) : '—',
+            icon: Reply,
+            color: '#0ea5e9',
+            sub: atendimento ? `de ${fmtInt(atendimento.disparados)} contatados · ${atendimento.pct}%` : 'sem dados de atendimento',
+        },
+        { label: 'Clientes aprovados', value: fmtInt(m.aprovados), icon: CheckCircle2, color: '#10b981', sub: `${pct(m.aprovados, m.total)}% do total` },
         { label: 'Perdidos', value: fmtInt(m.perdidos), icon: XCircle, color: '#6b7280', sub: `${pct(m.perdidos, m.total)}% do total` },
     ];
 
@@ -247,7 +251,7 @@ export function CRMGrowthDashboard({ leads, archived, crmConfig }: Props) {
             </div>
 
             {/* KPIs */}
-            <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-5 gap-3">
+            <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-6 gap-3">
                 {kpis.map(k => (
                     <div key={k.label} className={`${card} p-4`}>
                         <div className="flex items-center gap-2.5 mb-2">
@@ -296,6 +300,61 @@ export function CRMGrowthDashboard({ leads, archived, crmConfig }: Props) {
                     </div>
                 </section>
             </div>
+
+            {/* Atendimento (WhatsApp) — dado REAL de mensagens, sem grupos, por pessoa */}
+            {atendimento && (
+                <section className={`${card} p-5`}>
+                    <div className="flex items-center justify-between gap-3 mb-4 flex-wrap">
+                        <div className="flex items-center gap-2">
+                            <Reply size={16} className="text-[#A68B4B]" />
+                            <h2 className="text-sm font-semibold text-gray-900 dark:text-white">Atendimento — WhatsApp</h2>
+                        </div>
+                        <span className="text-[10px] text-gray-400">
+                            últimos {atendimento.janela_dias} dias · grupos não contam · 1 pessoa = 1 contato
+                        </span>
+                    </div>
+
+                    <div className="grid grid-cols-2 sm:grid-cols-3 xl:grid-cols-6 gap-2.5 mb-5">
+                        <StatChip icon={Send} label="Contatados (disparo)" value={fmtInt(atendimento.disparados)} color="#a855f7" />
+                        <StatChip icon={Reply} label="Responderam" value={fmtInt(atendimento.responderam)} color="#22c55e" />
+                        <StatChip icon={Target} label="Taxa de resposta" value={`${atendimento.pct}%`} color="#0ea5e9" />
+                        <StatChip icon={Users} label="Contatos únicos" value={fmtInt(atendimento.contatos)} color="#3b82f6" />
+                        <StatChip icon={MessageSquare} label="Mensagens enviadas" value={fmtInt(atendimento.enviadas)} color="#6366f1" />
+                        <StatChip icon={MessageCircle} label="Mensagens recebidas" value={fmtInt(atendimento.recebidas)} color="#06b6d4" />
+                    </div>
+
+                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
+                        <div>
+                            <h3 className="text-[11px] font-bold uppercase tracking-widest text-gray-500 mb-3">Funil de resposta</h3>
+                            <FunnelChart
+                                nodes={[
+                                    { label: 'Contatados', value: atendimento.disparados, color: '#a855f7' },
+                                    { label: 'Responderam', value: atendimento.responderam, color: '#22c55e' },
+                                ]}
+                                exponent={1}
+                                minPct={16}
+                            />
+                            <p className="text-[11px] text-gray-400 mt-3">
+                                De quem recebeu uma abordagem nossa, {atendimento.pct}% escreveram de volta em até 72h.
+                                Respostas do bot a conversas em curso não contam como disparo.
+                            </p>
+                        </div>
+                        <div className="flex flex-col justify-center rounded-xl border border-gray-100 dark:border-[#2A2A2A] p-5">
+                            <p className="text-[11px] font-bold uppercase tracking-widest text-gray-500 mb-1">Taxa de resposta</p>
+                            <p className="text-4xl font-extrabold tabular-nums text-gray-900 dark:text-white">{atendimento.pct}%</p>
+                            <p className="text-xs text-gray-500 mt-1">
+                                {fmtInt(atendimento.responderam)} de {fmtInt(atendimento.disparados)} pessoas responderam
+                            </p>
+                            <div className="mt-3 h-2 rounded-full bg-gray-100 dark:bg-[#1A1A1A] overflow-hidden">
+                                <div
+                                    className={`h-full rounded-full ${atendimento.pct >= 20 ? 'bg-emerald-500' : atendimento.pct >= 8 ? 'bg-amber-500' : 'bg-rose-500'}`}
+                                    style={{ width: `${Math.min(100, atendimento.pct)}%` }}
+                                />
+                            </div>
+                        </div>
+                    </div>
+                </section>
+            )}
 
             {/* Mídia & Aquisição (Meta Ads) */}
             <section className={`${card} p-5`}>

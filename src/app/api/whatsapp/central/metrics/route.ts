@@ -21,33 +21,13 @@ import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
 import { requireAdmin } from '@/lib/auth-helpers'
 import { INTERESSES } from '@/lib/whatsapp-central'
+import {
+    JANELA_RESPOSTA_MS, ORIGENS_NAO_DISPARO, isGrupo, foneKey, atendimentoResposta,
+} from '@/lib/atendimento-stats'
 
 // Tarifa média estimada de conversa marketing (USD). Só para ESTIMAR o gasto de
 // WhatsApp — o valor faturado real fica no WhatsApp Manager.
 const WA_TARIFA_USD = 0.07
-
-/** Janela em que uma inbound conta como "resposta" ao disparo. */
-const JANELA_RESPOSTA_MS = 72 * 3600_000
-
-/** Origens que são resposta NOSSA numa conversa em curso, não abordagem. */
-const ORIGENS_NAO_DISPARO = new Set([
-    'central-inbound', 'central-bot', 'concierge-catchup', 'inbox-sdr', 'crm-assessor', 'manual-admin', 'teste-manual',
-])
-
-/** Mensagem de grupo (Baileys). Nunca conta em métrica. */
-const isGrupo = (phone: unknown) => String(phone ?? '').includes('@g.us')
-
-/**
- * Chave canônica do telefone: sem DDI e sem o nono dígito. Une "5567998894887",
- * "67998894887" e "6798894887" no mesmo contato — sem isso o mesmo lead conta
- * como duas pessoas e a taxa de resposta sai errada.
- */
-function foneKey(phone: unknown): string {
-    let d = String(phone ?? '').replace(/\D/g, '')
-    if (d.startsWith('55') && d.length >= 12) d = d.slice(2)
-    if (d.length === 11 && d[2] === '9') d = d.slice(0, 2) + d.slice(3)
-    return d
-}
 
 interface Msg {
     phone: string
@@ -191,8 +171,8 @@ export async function GET(req: NextRequest) {
         }
     }).sort((a, b) => b.enviados - a.enviados)
 
-    const totEnv = taxa_resposta.reduce((a, b) => a + b.enviados, 0)
-    const totResp = taxa_resposta.reduce((a, b) => a + b.responderam, 0)
+    // Total por PESSOA (não soma de origens — senão quem levou 2 disparos conta 2x).
+    const totalPessoas = atendimentoResposta(msgs)
 
     // ── Cards ───────────────────────────────────────────────────────────────
     const seteDias = new Date(now - 7 * 86400_000)
@@ -249,9 +229,9 @@ export async function GET(req: NextRequest) {
 
         taxa_resposta,
         taxa_resposta_total: {
-            enviados: totEnv,
-            responderam: totResp,
-            pct: totEnv ? Number(((totResp / totEnv) * 100).toFixed(1)) : 0,
+            enviados: totalPessoas.disparados,
+            responderam: totalPessoas.responderam,
+            pct: totalPessoas.pct,
         },
 
         wa_conversas_empresa_30d,

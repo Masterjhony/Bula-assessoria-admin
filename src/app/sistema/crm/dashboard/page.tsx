@@ -3,14 +3,16 @@ import { Loader2 } from 'lucide-react'
 import { CRMGrowthDashboard } from '@/components/admin/crm/CRMGrowthDashboard'
 import { getLeads, getArchivedLeads } from '@/app/sistema/actions/crm-leads'
 import { getCRMConfig } from '@/app/sistema/actions/crm-config'
+import { getAtendimentoStats } from '@/app/sistema/actions/atendimento'
 
 export const dynamic = 'force-dynamic'
 
 export default async function CRMDashboardPage() {
-  const [leads, archived, crmConfig] = await Promise.all([
+  const [leads, archived, crmConfig, atendimento] = await Promise.all([
     getLeads(),
     getArchivedLeads(),
     getCRMConfig(),
+    getAtendimentoStats().catch(() => null),
   ])
 
   return (
@@ -21,7 +23,7 @@ export default async function CRMDashboardPage() {
         </div>
       }
     >
-      <CRMGrowthDashboard leads={leads || []} archived={archived || []} crmConfig={crmConfig} />
+      <CRMGrowthDashboard leads={leads || []} archived={archived || []} crmConfig={crmConfig} atendimento={atendimento} />
     </Suspense>
   )
 }
