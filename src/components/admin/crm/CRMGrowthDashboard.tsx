@@ -6,7 +6,7 @@ import {
     Users, Crown, TrendingUp, TrendingDown, CheckCircle2, XCircle,
     ArrowRight, Filter, Megaphone, Wallet, DollarSign,
     MousePointerClick, Target, MapPin, Activity, Reply, MessageSquare, MessageCircle, Send,
-    Hand, BellOff,
+    Hand, BellOff, Sprout,
 } from 'lucide-react';
 import type { CRMLead } from '@/app/sistema/actions/crm-leads';
 import type { CRMConfig } from '@/lib/crm-types';
@@ -230,11 +230,13 @@ export function CRMGrowthDashboard({ leads, archived, crmConfig, atendimento }: 
         const interesses = [...interMap.entries()].sort((a, b) => b[1] - a[1]);
         const interTotal = interesses.reduce((a, b) => a + b[1], 0);
 
-        if (!atendimento) return { funnel: null, interesses, interTotal, handoff, optout, comInteresse };
+        if (!atendimento) {
+            return { funnel: null, interesses, interTotal, handoff, optout, comInteresse, atendidos: null };
+        }
 
-        // Índice telefone→lead e telefone→cliente aprovado.
+        // Índice telefone→lead (ativos primeiro; arquivados p/ alcançar aprovados).
         const leadByKey = new Map<string, CRMLead>();
-        for (const l of leads) for (const p of [l.telefone, l.celular]) {
+        for (const l of [...leads, ...archived]) for (const p of [l.telefone, l.celular]) {
             const k = foneKey(p);
             if (k && !leadByKey.has(k)) leadByKey.set(k, l);
         }
@@ -244,13 +246,26 @@ export function CRMGrowthDashboard({ leads, archived, crmConfig, atendimento }: 
             for (const p of [l.telefone, l.celular]) { const k = foneKey(p); if (k) aprovadoKeys.add(k); }
         }
 
-        let respMql = 0, respCad = 0, respCli = 0;
+        // "Querendo começar" = perfil iniciante (momento na pecuária = quer entrar).
+        const querEntrar = (mp?: string | null) =>
+            /quero-aprender|nao-trabalho/.test(String(mp ?? '').toLowerCase().replace(/_/g, '-'));
+
+        // Habilitação (cadastro em leiloeira) — só entre os que responderam.
+        let respMql = 0, respCad = 0, respCli = 0, querComecar = 0;
+        let habIniciada = 0, habSubmetida = 0, habAprovada = 0, habRecusada = 0;
         for (const k of atendimento.respondentes_keys) {
             const lead = leadByKey.get(k);
             const cliente = aprovadoKeys.has(k);
             if (cliente) respCli++;
             if (cliente || (lead && normalizeCRMStatus(lead.status) === CRM_STAGE_REGISTRATION)) respCad++;
             if (cliente || lead?.is_mql) respMql++;
+            if (lead && querEntrar(lead.momento_pecuaria)) querComecar++;
+            const xd = lead?.extra_data ?? {};
+            const cs = String(xd.cadastro_status ?? '').trim();
+            if (cs === 'aprovado' || xd.cadastro_aprovado) habAprovada++;
+            if (cs === 'recusado') habRecusada++;
+            if (xd.cadastro_submetido_at) habSubmetida++;
+            if ((cs && cs !== 'nao_iniciado') || xd.cadastro_submetido_at) habIniciada++;
         }
 
         const funnel: FunnelNode[] = [
@@ -260,7 +275,13 @@ export function CRMGrowthDashboard({ leads, archived, crmConfig, atendimento }: 
             { label: 'Cadastro', value: respCad, color: '#06b6d4' },
             { label: 'Clientes', value: respCli, color: '#10b981' },
         ];
-        return { funnel, interesses, interTotal, handoff, optout, comInteresse };
+        const habFunnel: FunnelNode[] = [
+            { label: 'Iniciada', value: habIniciada, color: '#8b5cf6' },
+            { label: 'Submetida', value: habSubmetida, color: '#06b6d4' },
+            { label: 'Aprovada', value: habAprovada, color: '#10b981' },
+        ];
+        const atendidos = { querComecar, habIniciada, habSubmetida, habAprovada, habRecusada, habFunnel };
+        return { funnel, interesses, interTotal, handoff, optout, comInteresse, atendidos };
     }, [atendimento, leads, archived]);
 
     const kpis = [
@@ -453,6 +474,40 @@ export function CRMGrowthDashboard({ leads, archived, crmConfig, atendimento }: 
                             )}
                         </div>
                     </div>
+
+                    {/* Intenção de começar + Habilitações (só entre os atendidos) */}
+                    {atd.atendidos && (
+                        <div className="grid grid-cols-1 lg:grid-cols-2 gap-5 mt-5 pt-5 border-t border-gray-100 dark:border-[#2A2A2A]">
+                            {/* Querendo começar */}
+                            <div className="flex flex-col justify-center rounded-xl border border-gray-100 dark:border-[#2A2A2A] p-5">
+                                <div className="flex items-center gap-2 mb-1">
+                                    <Sprout size={15} className="text-[#22c55e]" />
+                                    <p className="text-[11px] font-bold uppercase tracking-widest text-gray-500">Querendo começar</p>
+                                </div>
+                                <p className="text-4xl font-extrabold tabular-nums text-gray-900 dark:text-white">{fmtInt(atd.atendidos.querComecar)}</p>
+                                <p className="text-xs text-gray-500 mt-1">
+                                    dos {fmtInt(atendimento.responderam)} atendidos são iniciantes que querem entrar na pecuária
+                                    ({pct(atd.atendidos.querComecar, atendimento.responderam)}%)
+                                </p>
+                                <div className="mt-3 h-2 rounded-full bg-gray-100 dark:bg-[#1A1A1A] overflow-hidden">
+                                    <div className="h-full rounded-full bg-emerald-500"
+                                        style={{ width: `${Math.min(100, pct(atd.atendidos.querComecar, atendimento.responderam))}%` }} />
+                                </div>
+                            </div>
+
+                            {/* Habilitações (cadastro em leiloeira) */}
+                            <div>
+                                <h3 className="text-[11px] font-bold uppercase tracking-widest text-gray-500 mb-3">
+                                    Habilitações (cadastro em leiloeira)
+                                </h3>
+                                <FunnelChart nodes={atd.atendidos.habFunnel} exponent={0.5} minPct={14} />
+                                <p className="text-[11px] text-gray-400 mt-3">
+                                    Iniciada = cadastro em andamento · Submetida = enviada à leiloeira · Aprovada = habilitado.
+                                    {atd.atendidos.habRecusada > 0 && <> {fmtInt(atd.atendidos.habRecusada)} recusada(s).</>}
+                                </p>
+                            </div>
+                        </div>
+                    )}
                 </section>
             )}
 
