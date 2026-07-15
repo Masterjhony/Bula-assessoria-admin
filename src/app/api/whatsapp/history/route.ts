@@ -96,7 +96,7 @@ export async function POST(req: NextRequest) {
 
     const rows = fresh.map(m => ({
         phone: m.phone,
-        name: m.from_me ? null : (m.name || null), // fromMe: pushName é do dono, não do contato
+        name: m.from_me ? '' : (m.name || ''), // fromMe: pushName é do dono, não do contato. '' (não null): coluna é NOT NULL
         status: m.from_me ? 'sent' : 'received',
         body: m.body.trim(),
         direction: m.from_me ? 'outbound' : 'inbound',

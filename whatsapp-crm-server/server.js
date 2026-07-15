@@ -415,20 +415,28 @@ async function handleHistorySync(session, messages) {
   }
   console.log(`[${session.id}] history breakdown: total=${messages.length} grupo=${grupo} lid=${lidJids.length} lidSemMapa=${lidSemMapa} outro=${outro} semTexto=${semTexto} 1:1_importadas=${batch.length}`)
   if (batch.length === 0) return
+  let inseridas = 0
   for (let i = 0; i < batch.length; i += 200) {
     const chunk = batch.slice(i, i + 200)
     try {
-      await fetch(`${NEXT_API_URL}/api/whatsapp/history`, {
+      const res = await fetch(`${NEXT_API_URL}/api/whatsapp/history`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', 'x-webhook-secret': WEBHOOK_SECRET },
         body: JSON.stringify({ session: session.id, messages: chunk }),
         signal: AbortSignal.timeout(30000),
       })
+      if (!res.ok) {
+        const detalhe = await res.text().catch(() => '')
+        console.error(`[${session.id}] history HTTP ${res.status} (chunk ${i}): ${detalhe.slice(0, 200)}`)
+      } else {
+        const data = await res.json().catch(() => ({}))
+        inseridas += Number(data.inserted) || 0
+      }
     } catch (error) {
       console.error(`[${session.id}] history sync webhook falhou:`, error.message)
     }
   }
-  console.log(`[${session.id}] history sync: ${batch.length} msgs 1:1 enviadas ao CRM`)
+  console.log(`[${session.id}] history sync: ${batch.length} enviadas, ${inseridas} inseridas no CRM`)
 }
 
 /** Resolve o JID de um contato 1:1 para telefone canônico. Conversas novas do
