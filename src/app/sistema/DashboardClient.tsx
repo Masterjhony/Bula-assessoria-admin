@@ -5,8 +5,10 @@ import Link from 'next/link'
 import { useRouter, usePathname, useSearchParams } from 'next/navigation'
 import {
   Gavel, Calendar, MapPin, Filter, ChevronDown, User, X,
+  Users, UserPlus, Star as StarIcon, Flame, MessageCircle, Reply, Send, ArrowUpRight,
 } from 'lucide-react'
 import { LeiloesAnalyticsBlock, type FechamentoAnalyticsItem } from './leiloes/LeiloesAnalyticsBlock'
+import type { AtendimentoGrowth } from '@/lib/atendimento-stats'
 
 // ─── Types ──────────────────────────────────────────────────────────────────
 
@@ -50,6 +52,16 @@ export type FeedItem = {
   when: string
 }
 
+export type CrmPulse = {
+  totalAtivos: number
+  novosPeriodo: number
+  mql: number
+  altaPrioridade: number
+  funnel: { label: string; value: number; color: string }[]
+  entrada: number
+  perdidos: number
+}
+
 export type DashboardProps = {
   today: string
   proximo: ProximoLeilao | null
@@ -64,6 +76,8 @@ export type DashboardProps = {
   }
   fechamentoItems: FechamentoAnalyticsItem[]
   feed: FeedItem[]
+  crm: CrmPulse
+  atendimento: AtendimentoGrowth | null
 }
 
 // ─── Helpers ────────────────────────────────────────────────────────────────
@@ -159,7 +173,7 @@ function FilterBar({
           {openPeriod && (
             <>
               <div className="fixed inset-0 z-40" onClick={() => setOpenPeriod(false)} />
-              <div className="absolute top-full left-0 mt-1 z-50 min-w-[200px] rounded-md border border-[var(--border)] bg-[var(--s1)] shadow-xl overflow-hidden">
+              <div className="absolute top-full left-0 mt-1 z-50 min-w-[200px] rounded-md border border-[var(--border)] bg-[var(--surface)] shadow-xl overflow-hidden">
                 {PERIOD_OPTIONS.map(opt => (
                   <button
                     key={opt.key}
@@ -207,7 +221,7 @@ function FilterBar({
           {openAssessor && (
             <>
               <div className="fixed inset-0 z-40" onClick={() => setOpenAssessor(false)} />
-              <div className="absolute top-full left-0 mt-1 z-50 min-w-[260px] rounded-md border border-[var(--border)] bg-[var(--s1)] shadow-xl overflow-hidden">
+              <div className="absolute top-full left-0 mt-1 z-50 min-w-[260px] rounded-md border border-[var(--border)] bg-[var(--surface)] shadow-xl overflow-hidden">
                 <div className="p-2 border-b border-[var(--border)]">
                   <input
                     type="text"
@@ -446,6 +460,176 @@ function ActivityCard({ items, title, href }: { items: FeedItem[]; title: string
   )
 }
 
+// ─── Pulso da operação: CRM (funil de leads) ────────────────────────────────
+
+const GOLD = '#A68B4B'
+
+function PulseChip({ icon: Icon, label, value, tone }: {
+  icon: React.ElementType; label: string; value: string; tone?: 'gold' | 'red'
+}) {
+  const color = tone === 'gold' ? GOLD : tone === 'red' ? '#ef4444' : undefined
+  return (
+    <div className="flex items-center gap-2.5 rounded-xl border border-gray-100 dark:border-[#2A2A2A] px-3 py-2.5 min-w-0">
+      <div
+        className="w-8 h-8 rounded-lg flex items-center justify-center shrink-0"
+        style={{ background: color ? `${color}1A` : 'var(--s2)', color: color ?? 'var(--text2)' }}
+      >
+        <Icon size={15} />
+      </div>
+      <div className="min-w-0">
+        <p className="text-base font-black leading-none tabular-nums" style={{ color: color ?? undefined }}>{value}</p>
+        <p className="text-[9px] uppercase tracking-wider text-gray-400 truncate mt-1">{label}</p>
+      </div>
+    </div>
+  )
+}
+
+function CrmPulseCard({ crm, periodLabel }: { crm: CrmPulse; periodLabel: string }) {
+  const funnelMax = Math.max(1, ...crm.funnel.map(n => n.value))
+  const pipelineTotal = crm.funnel.reduce((s, n) => s + n.value, 0)
+  return (
+    <div className="rounded-2xl border border-gray-100 dark:border-[#2A2A2A] bg-white dark:bg-[#141414] p-5 flex flex-col">
+      <div className="flex items-center justify-between mb-4">
+        <div>
+          <p className="text-xs font-black uppercase tracking-wider text-gray-900 dark:text-white flex items-center gap-1.5">
+            <Users size={13} className="text-[#A68B4B]" /> CRM · Pipeline de leads
+          </p>
+          <p className="text-[10px] text-gray-400 mt-0.5">Leads ativos no CRM por etapa</p>
+        </div>
+        <Link
+          href="/sistema/leads"
+          className="inline-flex items-center gap-1 text-[10px] font-bold uppercase tracking-wider text-[#A68B4B] hover:opacity-80 transition-opacity"
+        >
+          abrir <ArrowUpRight size={12} />
+        </Link>
+      </div>
+
+      <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 mb-5">
+        <PulseChip icon={Users} label="Ativos" value={fmtNum(crm.totalAtivos)} />
+        <PulseChip icon={UserPlus} label={`Novos · ${periodLabel}`} value={fmtNum(crm.novosPeriodo)} tone="gold" />
+        <PulseChip icon={StarIcon} label="MQL" value={fmtNum(crm.mql)} tone="gold" />
+        <PulseChip icon={Flame} label="Prior. alta" value={fmtNum(crm.altaPrioridade)} tone="red" />
+      </div>
+
+      {/* Distribuição do pipeline por etapa (barras + % do pipeline) */}
+      <div className="space-y-2.5 mt-auto">
+        {crm.funnel.map((n) => {
+          const share = pipelineTotal > 0 ? Math.round((n.value / pipelineTotal) * 100) : 0
+          return (
+            <div key={n.label} className="flex items-center gap-3">
+              <span className="w-28 shrink-0 text-[10px] font-semibold text-gray-600 dark:text-gray-300 text-right truncate">{n.label}</span>
+              <div className="flex-1 h-6 rounded-lg bg-gray-50 dark:bg-[#1A1A1A] overflow-hidden relative">
+                <div
+                  className="h-full rounded-lg transition-all duration-700 flex items-center px-2"
+                  style={{ width: `${Math.max((n.value / funnelMax) * 100, 6)}%`, background: `linear-gradient(90deg, ${n.color}cc, ${n.color})` }}
+                >
+                  <span className="text-[11px] font-black text-white tabular-nums drop-shadow">{fmtNum(n.value)}</span>
+                </div>
+              </div>
+              <span className="w-9 shrink-0 text-right text-[10px] font-bold tabular-nums text-gray-400">{share}%</span>
+            </div>
+          )
+        })}
+      </div>
+
+      <div className="flex items-center justify-between gap-3 mt-4 pt-3 border-t border-gray-50 dark:border-[#262626] text-[10px] text-gray-400">
+        <span className="flex items-center gap-1.5">
+          <span className="w-1.5 h-1.5 rounded-full bg-gray-400" /> Fila de entrada <b className="text-gray-600 dark:text-gray-300 tabular-nums">{fmtNum(crm.entrada)}</b>
+        </span>
+        <span className="flex items-center gap-1.5">
+          <span className="w-1.5 h-1.5 rounded-full bg-[#ef4444]" /> Perdidos <b className="text-gray-600 dark:text-gray-300 tabular-nums">{fmtNum(crm.perdidos)}</b>
+        </span>
+      </div>
+    </div>
+  )
+}
+
+// ─── Pulso da operação: Atendimento (WhatsApp) ──────────────────────────────
+
+function DualSpark({ a, b, height = 56 }: { a: number[]; b: number[]; height?: number }) {
+  const n = Math.max(a.length, b.length)
+  if (n < 2) return null
+  const max = Math.max(1, ...a, ...b)
+  const w = 100
+  const stepX = w / (n - 1)
+  const toPts = (data: number[]) =>
+    data.map((v, i) => `${(i * stepX).toFixed(2)},${(height - (v / max) * height).toFixed(2)}`).join(' ')
+  return (
+    <svg viewBox={`0 0 ${w} ${height}`} className="w-full" preserveAspectRatio="none" style={{ height }}>
+      <defs>
+        <linearGradient id="atd-area" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%" stopColor={GOLD} stopOpacity="0.28" />
+          <stop offset="100%" stopColor={GOLD} stopOpacity="0" />
+        </linearGradient>
+      </defs>
+      <polygon points={`0,${height} ${toPts(a)} ${w},${height}`} fill="url(#atd-area)" />
+      <polyline points={toPts(a)} fill="none" stroke={GOLD} strokeWidth="1.6" strokeLinejoin="round" strokeLinecap="round" vectorEffect="non-scaling-stroke" />
+      <polyline points={toPts(b)} fill="none" stroke="#22c55e" strokeWidth="1.6" strokeLinejoin="round" strokeLinecap="round" vectorEffect="non-scaling-stroke" />
+    </svg>
+  )
+}
+
+function AtendimentoPulseCard({ atd }: { atd: AtendimentoGrowth }) {
+  const topOrigem = atd.por_origem.filter(o => o.enviados >= 3).slice(0, 3)
+  const maxOrigem = Math.max(1, ...topOrigem.map(o => o.enviados))
+  return (
+    <div className="rounded-2xl border border-gray-100 dark:border-[#2A2A2A] bg-white dark:bg-[#141414] p-5 flex flex-col">
+      <div className="flex items-center justify-between mb-4">
+        <div>
+          <p className="text-xs font-black uppercase tracking-wider text-gray-900 dark:text-white flex items-center gap-1.5">
+            <MessageCircle size={13} className="text-[#A68B4B]" /> Atendimento · WhatsApp
+          </p>
+          <p className="text-[10px] text-gray-400 mt-0.5">Abordagem → resposta · últimos 90 dias</p>
+        </div>
+        <Link
+          href="/sistema/whatsapp"
+          className="inline-flex items-center gap-1 text-[10px] font-bold uppercase tracking-wider text-[#A68B4B] hover:opacity-80 transition-opacity"
+        >
+          abrir <ArrowUpRight size={12} />
+        </Link>
+      </div>
+
+      <div className="grid grid-cols-3 gap-2 mb-4">
+        <div className="rounded-xl border border-gray-100 dark:border-[#2A2A2A] px-3 py-3">
+          <div className="flex items-center gap-1.5 text-gray-400 mb-1.5"><Send size={12} /><span className="text-[9px] uppercase tracking-wider">Contatados</span></div>
+          <p className="text-2xl font-black leading-none tabular-nums text-gray-900 dark:text-white">{fmtNum(atd.disparados)}</p>
+        </div>
+        <div className="rounded-xl border border-gray-100 dark:border-[#2A2A2A] px-3 py-3">
+          <div className="flex items-center gap-1.5 text-gray-400 mb-1.5"><Reply size={12} /><span className="text-[9px] uppercase tracking-wider">Responderam</span></div>
+          <p className="text-2xl font-black leading-none tabular-nums text-emerald-500">{fmtNum(atd.responderam)}</p>
+        </div>
+        <div className="rounded-xl border border-[#A68B4B]/30 bg-[#A68B4B]/5 px-3 py-3">
+          <div className="flex items-center gap-1.5 text-[#A68B4B] mb-1.5"><span className="text-[9px] uppercase tracking-wider font-bold">Taxa</span></div>
+          <p className="text-2xl font-black leading-none tabular-nums text-[#A68B4B]">{atd.pct}%</p>
+        </div>
+      </div>
+
+      <div className="relative">
+        <DualSpark a={atd.serie_contatados} b={atd.serie_responderam} />
+        <div className="flex items-center gap-4 mt-1.5">
+          <span className="flex items-center gap-1.5 text-[9px] text-gray-400"><span className="w-2 h-0.5 rounded" style={{ background: GOLD }} /> contatados/dia</span>
+          <span className="flex items-center gap-1.5 text-[9px] text-gray-400"><span className="w-2 h-0.5 rounded bg-emerald-500" /> responderam</span>
+        </div>
+      </div>
+
+      {topOrigem.length > 0 && (
+        <div className="space-y-1.5 mt-4 pt-3 border-t border-gray-50 dark:border-[#262626]">
+          <p className="text-[9px] uppercase tracking-widest text-gray-400 mb-1">Taxa por origem de disparo</p>
+          {topOrigem.map(o => (
+            <div key={o.origin} className="flex items-center gap-2.5">
+              <span className="w-32 shrink-0 text-[10px] text-gray-600 dark:text-gray-300 truncate">{o.origin}</span>
+              <div className="flex-1 h-1.5 rounded-full bg-gray-100 dark:bg-[#1A1A1A] overflow-hidden">
+                <div className="h-full rounded-full" style={{ width: `${(o.enviados / maxOrigem) * 100}%`, background: GOLD }} />
+              </div>
+              <span className="w-24 shrink-0 text-right text-[9px] text-gray-400 tabular-nums">{fmtNum(o.enviados)} · {o.pct}%</span>
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
+  )
+}
+
 // ─── Main ───────────────────────────────────────────────────────────────────
 
 export default function DashboardClient(props: DashboardProps) {
@@ -467,6 +651,19 @@ export default function DashboardClient(props: DashboardProps) {
 
       <FilterBar filters={f} />
 
+      {/* Pulso da operação: CRM + Atendimento (independentes do filtro de leilão) */}
+      <div className="grid lg:grid-cols-2 gap-4 items-stretch">
+        <CrmPulseCard crm={props.crm} periodLabel={f.label} />
+        {props.atendimento
+          ? <AtendimentoPulseCard atd={props.atendimento} />
+          : (
+            <div className="rounded-2xl border border-gray-100 dark:border-[#2A2A2A] bg-white dark:bg-[#141414] p-5 flex items-center justify-center">
+              <span className="text-xs subtle">Métricas de atendimento indisponíveis.</span>
+            </div>
+          )}
+      </div>
+
+      <div className="sec-label">Leilões &amp; vendas</div>
       <LeiloesAnalyticsBlock items={props.fechamentoItems} />
 
       <div className="g2">

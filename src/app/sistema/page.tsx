@@ -1,5 +1,11 @@
 import { createClient } from '@/utils/supabase/server';
 import { normalizeAssessorNome } from '@/lib/assessor-normalize';
+import {
+    normalizeCRMStatus, getStageColorHex,
+    CRM_STAGE_CONNECTION, CRM_STAGE_QUALIFICATION, CRM_STAGE_INFO_CAPTURED,
+    CRM_STAGE_REGISTRATION, CRM_STAGE_LOST,
+} from '@/lib/crm-types';
+import { getAtendimentoStats } from './actions/atendimento';
 import type { FechamentoAnalyticsItem } from './leiloes/LeiloesAnalyticsBlock';
 import DashboardClient, {
     type DashboardProps,
@@ -8,6 +14,7 @@ import DashboardClient, {
     type FeedItem,
     type PeriodKey,
     type AssessorOption,
+    type CrmPulse,
 } from './DashboardClient';
 
 const MONTH_ABBR = ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun', 'Jul', 'Ago', 'Set', 'Out', 'Nov', 'Dez'];
@@ -254,6 +261,76 @@ export default async function AdminDashboard({ searchParams }: { searchParams?: 
         })),
     }));
 
+    // ── Pulso do CRM (funil operacional) + Atendimento ───────────────────────
+    // Os ~13k leads da "Base Unificada" vivem na fila ENTRADA e afundariam o
+    // funil. Contamos o pipeline (CONEXÃO→CADASTRO) com um fetch enxuto que passa
+    // longe do teto de 1000 do PostgREST, e usamos count exato p/ os totais.
+    const ENTRADA_LABELS = ['Lead', 'Sem Status', 'ENTRADA', 'entrada'];
+    const rangeFromTs = `${range.from}T00:00:00`;
+    const rangeToTs = `${range.to}T23:59:59`;
+
+    // Pipeline (não-ENTRADA, ativo). Pagina — o PostgREST corta em 1000 por chamada.
+    async function loadPipelineStatuses() {
+        const out: Array<{ status?: string | null }> = [];
+        for (let from = 0; ; from += 1000) {
+            const { data, error } = await supabase.from('crm_leads')
+                .select('status')
+                .eq('arquivado', false)
+                .not('status', 'is', null)
+                .not('status', 'in', `(${ENTRADA_LABELS.map(s => `"${s}"`).join(',')})`)
+                .range(from, from + 999);
+            if (error) break;
+            if (!data?.length) break;
+            out.push(...data);
+            if (data.length < 1000) break;
+        }
+        return out;
+    }
+
+    const [
+        pipelineRows,
+        totalAtivosRes,
+        novosPeriodoRes,
+        mqlRes,
+        altaPrioridadeRes,
+        atendimento,
+    ] = await Promise.all([
+        loadPipelineStatuses(),
+        supabase.from('crm_leads').select('id', { count: 'exact', head: true }).eq('arquivado', false),
+        supabase.from('crm_leads').select('id', { count: 'exact', head: true })
+            .eq('arquivado', false).gte('created_at', rangeFromTs).lte('created_at', rangeToTs),
+        supabase.from('crm_leads').select('id', { count: 'exact', head: true }).eq('arquivado', false).eq('is_mql', true),
+        supabase.from('crm_leads').select('id', { count: 'exact', head: true }).eq('arquivado', false).eq('prioridade', 'Alta'),
+        getAtendimentoStats(90).catch(() => null),
+    ]);
+
+    const stageCount = new Map<string, number>();
+    for (const row of pipelineRows) {
+        const stage = normalizeCRMStatus(row.status);
+        stageCount.set(stage, (stageCount.get(stage) || 0) + 1);
+    }
+    const funnel = [
+        { label: CRM_STAGE_CONNECTION, stage: CRM_STAGE_CONNECTION, color: getStageColorHex('red') },
+        { label: CRM_STAGE_QUALIFICATION, stage: CRM_STAGE_QUALIFICATION, color: getStageColorHex('yellow') },
+        { label: 'INFO CAPTADAS', stage: CRM_STAGE_INFO_CAPTURED, color: getStageColorHex('green') },
+        { label: CRM_STAGE_REGISTRATION, stage: CRM_STAGE_REGISTRATION, color: getStageColorHex('cyan') },
+    ].map(n => ({ label: n.label, value: stageCount.get(n.stage) || 0, color: n.color }));
+
+    const totalAtivos = totalAtivosRes.count ?? 0;
+    const pipelineTotal = funnel.reduce((s, n) => s + n.value, 0);
+    const perdidos = stageCount.get(CRM_STAGE_LOST) || 0;
+    const entrada = Math.max(0, totalAtivos - pipelineTotal - perdidos);
+
+    const crm: CrmPulse = {
+        totalAtivos,
+        novosPeriodo: novosPeriodoRes.count ?? 0,
+        mql: mqlRes.count ?? 0,
+        altaPrioridade: altaPrioridadeRes.count ?? 0,
+        funnel,
+        entrada,
+        perdidos,
+    };
+
     // ── Feed (apenas leads — fechamentos individuais agora ficam só na página de fechamento) ─
     const allLeads = leads ?? [];
     const feed: FeedItem[] = [];
@@ -283,6 +360,8 @@ export default async function AdminDashboard({ searchParams }: { searchParams?: 
         },
         fechamentoItems,
         feed,
+        crm,
+        atendimento,
     };
 
     return <DashboardClient {...props} />;

@@ -13,6 +13,10 @@
    Light mode é opt-in via [data-theme="light"] no <html>.
 ══════════════════════════════════════════════════════════ */
 :root, [data-theme="dark"] {
+  /* Faz o navegador renderizar controles nativos (popup de <select>, calendário
+     de <input type=date>, scrollbars) em modo escuro. Sem isto, o popup de opções
+     de um <select> abre com fundo branco e texto claro = invisível no dark. */
+  color-scheme: dark;
   --bg: #0D0D0D;
   --surface: #141414;
   --s2: #1A1A1A;
@@ -41,6 +45,7 @@
 }
 
 [data-theme="light"] {
+  color-scheme: light;
   --bg: #F5F3EF;
   --surface: #FFFFFF;
   --s2: #F0EDE8;
@@ -164,6 +169,13 @@ a {
     color: inherit;
     background: transparent;
     outline: none;
+  }
+  /* O popup nativo de <select> herda transparência em alguns navegadores
+     (Chrome/Win), deixando as opções ilegíveis. Fixa fundo/cor sólidos usando
+     os tokens do tema — color-scheme resolve o resto (setas, hover nativo). */
+  option, optgroup {
+    background: var(--surface);
+    color: var(--text);
     /* Sem `border: none` aqui — isso fixaria border-style:none e impediria os
        utilitários `border`/`border-*` do Tailwind de renderizarem. O Preflight
        já zera a largura da borda por padrão, então campos sem estilo seguem
