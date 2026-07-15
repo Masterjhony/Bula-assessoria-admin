@@ -84,6 +84,12 @@ const STOPWORDS = new Set([
 export function normalizeForMatch(input: string): string {
     return input
         .normalize('NFD').replace(/[̀-ͯ]/g, '') // remove acentos (combining marks)
+        // Quebra palavras grudadas ANTES de baixar a caixa — nomes de arquivo do
+        // WhatsApp vêm assim (ex.: "LeilãoNaviraíMatrizes2026" → "Leilao Navirai
+        // Matrizes 2026"). Sem isso o match fuzzy fica cego (score baixo).
+        .replace(/([a-z])([A-Z])/g, '$1 $2')             // camelCase
+        .replace(/([A-Za-z])(\d)/g, '$1 $2')             // letra → dígito
+        .replace(/(\d)([A-Za-z])/g, '$1 $2')             // dígito → letra
         .toLowerCase()
         .replace(/\.[a-z0-9]{2,5}$/, '')                  // remove extensão
         .replace(/[^a-z0-9]+/g, ' ')                      // só letras/dígitos
