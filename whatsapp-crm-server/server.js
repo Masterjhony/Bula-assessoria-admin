@@ -18,6 +18,14 @@ const SESSIONS_DIR = process.env.SESSIONS_DIR || './auth-sessions'
 // Onde guardamos o dump BRUTO de cada history sync (rede de segurança p/ replay
 // offline sem novo re-link). Ver replay-history.mjs.
 const HISTORY_DUMP_DIR = process.env.HISTORY_DUMP_DIR || './history-dumps'
+
+// Sessões de COLETA: números conectados só para captar GRUPOS (catálogos, lances)
+// — NÃO espelham conversas 1:1 no CRM (nem histórico nem ao vivo). Grupos seguem
+// normais. Ex.: 'joao-automation' (número pessoal do dono).
+const NO_CRM_1TO1 = new Set(
+  (process.env.NO_CRM_1TO1_SESSIONS || 'joao-automation')
+    .split(',').map(s => s.trim()).filter(Boolean)
+)
 const LEGACY_AUTH_DIR = process.env.AUTH_DIR || './auth'
 // Sessão usada quando o chamador não informa `?session=` (compat retroativa:
 // grupos das leiloeiras, notificação de assessor, campanhas, gif-lotes, etc.
@@ -357,6 +365,8 @@ async function handleGroupInbound(session, msg) {
  */
 async function handleHistorySync(session, messages) {
   if (!INBOUND_ENABLED || !Array.isArray(messages) || messages.length === 0) return
+  // Sessão de coleta (só grupos): não importa histórico de 1:1 pro CRM.
+  if (NO_CRM_1TO1.has(session.id)) return
 
   // As conversas 1:1 hoje chegam predominantemente como @lid (Linked Identity,
   // o novo endereçamento de privacidade do WhatsApp). Pré-resolvemos @lid →
@@ -462,6 +472,8 @@ async function handleInbound(session, msg) {
 
   // Grupos: só encaminha o que TERCEIROS escreveram (nunca o que eu mandei).
   if (jid.endsWith('@g.us')) { if (!fromMe) return handleGroupInbound(session, msg); return }
+  // Sessão de coleta (número pessoal p/ grupos): não espelha 1:1 no CRM.
+  if (NO_CRM_1TO1.has(session.id)) return
   // 1:1: @s.whatsapp.net direto ou @lid resolvido; qualquer outro domínio sai.
   const phone = await resolveContactPhone(session, jid, msg)
   if (!phone) return
