@@ -18,11 +18,11 @@
 
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
-import { getR2DownloadUrl } from '@/lib/r2'
 import {
     findMatches,
     decideAutoAttach,
     readCatalogsPauseState,
+    resolveCatalogDownloadUrl,
 } from '@/lib/whatsapp-catalogs'
 
 export const maxDuration = 30
@@ -43,7 +43,8 @@ type WebhookBody = {
     file_name: string
     file_mime?: string
     file_size?: number
-    r2_key: string
+    r2_key?: string
+    file_url?: string // URL pública do Supabase Storage (R2 desabilitado)
 }
 
 export async function POST(req: NextRequest) {
@@ -54,9 +55,10 @@ export async function POST(req: NextRequest) {
     }
 
     const body = (await req.json().catch(() => null)) as WebhookBody | null
-    if (!body || !body.group_jid || !body.file_name || !body.r2_key) {
+    const fileRef = body?.file_url || body?.r2_key || '' // URL Supabase ou chave R2 legada
+    if (!body || !body.group_jid || !body.file_name || !fileRef) {
         return NextResponse.json(
-            { error: 'group_jid, file_name e r2_key são obrigatórios' },
+            { error: 'group_jid, file_name e file_url (ou r2_key) são obrigatórios' },
             { status: 400 }
         )
     }
@@ -109,14 +111,14 @@ export async function POST(req: NextRequest) {
         file_name: body.file_name,
         file_mime: body.file_mime ?? null,
         file_size: typeof body.file_size === 'number' ? body.file_size : null,
-        r2_key: body.r2_key,
+        r2_key: fileRef,
         candidates,
         match_score: candidates[0]?.score ?? null,
     }
 
     // 4) Decisão
     if (decision.decision === 'attach' && !pause.paused) {
-        const presigned = await getR2DownloadUrl(body.r2_key, {
+        const catalogoUrl = await resolveCatalogDownloadUrl(fileRef, {
             expiresInSeconds: 7 * 24 * 3600,
             downloadAs: body.file_name,
         })
@@ -125,7 +127,7 @@ export async function POST(req: NextRequest) {
         const { error: errUpd } = await client
             .from('cronograma_leiloes')
             .update({
-                catalogo_url: presigned,
+                catalogo_url: catalogoUrl,
                 catalogo_anexado_em: nowIso,
                 catalogo_origem: body.group_name ?? group.nome,
             })

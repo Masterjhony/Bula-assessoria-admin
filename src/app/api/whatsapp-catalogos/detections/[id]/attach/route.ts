@@ -10,7 +10,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
 import { requireAdmin } from '@/lib/auth-helpers'
-import { getR2DownloadUrl } from '@/lib/r2'
+import { resolveCatalogDownloadUrl } from '@/lib/whatsapp-catalogs'
 
 export const dynamic = 'force-dynamic'
 
@@ -42,7 +42,7 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
         return NextResponse.json({ error: 'detecção não encontrada' }, { status: 404 })
     }
     if (!detection.r2_key) {
-        return NextResponse.json({ error: 'detecção não tem arquivo R2 (r2_key vazio)' }, { status: 400 })
+        return NextResponse.json({ error: 'detecção não tem arquivo (r2_key vazio)' }, { status: 400 })
     }
 
     const { data: leilao, error: errLeil } = await client
@@ -61,9 +61,9 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
         }, { status: 409 })
     }
 
-    // Gera URL R2 válida por 7 dias (limite S3). A URL é regerada quando
-    // alguém abrir o catálogo via UI; aqui salvamos a versão atual.
-    const presigned = await getR2DownloadUrl(detection.r2_key, {
+    // URL Supabase pública (permanente) quando o produtor usou Storage; ou
+    // presign R2 de 7 dias para chaves R2 legadas.
+    const catalogoUrl = await resolveCatalogDownloadUrl(detection.r2_key, {
         expiresInSeconds: 7 * 24 * 3600,
         downloadAs: detection.file_name,
     })
@@ -72,7 +72,7 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
     const { error: errUpd } = await client
         .from('cronograma_leiloes')
         .update({
-            catalogo_url: presigned,
+            catalogo_url: catalogoUrl,
             catalogo_anexado_em: nowIso,
             catalogo_origem: detection.group_name || 'whatsapp-catalogos',
         })

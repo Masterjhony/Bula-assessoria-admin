@@ -16,6 +16,25 @@ import { createClient, SupabaseClient } from '@supabase/supabase-js'
 
 export const CATALOGS_PAUSE_KEY = 'whatsapp_catalogs_paused'
 
+/**
+ * Resolve a URL de download do catálogo a partir do `r2_key` guardado na
+ * detecção. Como o R2 está desabilitado nesta conta, o produtor (servidor
+ * Baileys) sobe o PDF direto pro Supabase Storage e guarda a URL pública `http`
+ * aqui — nesse caso usamos a URL como está. Só cai no presign do R2 quando o
+ * valor é uma chave R2 legada (não-URL).
+ */
+export async function resolveCatalogDownloadUrl(
+    key: string,
+    opts?: { expiresInSeconds?: number; downloadAs?: string }
+): Promise<string> {
+    if (/^https?:\/\//i.test(key)) return key
+    const { getR2DownloadUrl } = await import('./r2')
+    return getR2DownloadUrl(key, {
+        expiresInSeconds: opts?.expiresInSeconds ?? 7 * 24 * 3600,
+        downloadAs: opts?.downloadAs,
+    })
+}
+
 export type CatalogsPauseState = {
     paused: boolean
     paused_at: string | null

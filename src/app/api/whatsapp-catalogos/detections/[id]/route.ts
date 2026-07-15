@@ -8,8 +8,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
 import { requireAdmin } from '@/lib/auth-helpers'
-import { getR2DownloadUrl } from '@/lib/r2'
-import { findMatches } from '@/lib/whatsapp-catalogs'
+import { findMatches, resolveCatalogDownloadUrl } from '@/lib/whatsapp-catalogs'
 
 export const dynamic = 'force-dynamic'
 
@@ -41,7 +40,7 @@ export async function GET(_req: NextRequest, { params }: { params: Promise<{ id:
     let file_url: string | null = null
     if (data.r2_key) {
         try {
-            file_url = await getR2DownloadUrl(data.r2_key, {
+            file_url = await resolveCatalogDownloadUrl(data.r2_key, {
                 expiresInSeconds: 3600,
                 downloadAs: data.file_name,
             })

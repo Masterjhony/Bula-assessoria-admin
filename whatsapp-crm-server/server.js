@@ -5,6 +5,7 @@ import makeWASocket, {
   DisconnectReason,
   fetchLatestBaileysVersion,
   useMultiFileAuthState,
+  downloadMediaMessage,
 } from '@whiskeysockets/baileys'
 import QRCode from 'qrcode'
 
@@ -26,6 +27,16 @@ const NO_CRM_1TO1 = new Set(
   (process.env.NO_CRM_1TO1_SESSIONS || 'joao-automation')
     .split(',').map(s => s.trim()).filter(Boolean)
 )
+
+// Catálogos: sobe o PDF direto pro Supabase Storage (R2 está desabilitado nesta
+// conta) e avisa o Next. Credenciais só são usadas p/ upload de catálogo.
+const SUPABASE_URL = (process.env.SUPABASE_URL || process.env.NEXT_PUBLIC_SUPABASE_URL || '').replace(/\/$/, '')
+const SUPABASE_SERVICE_ROLE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY || ''
+const CATALOG_BUCKET = process.env.CATALOG_BUCKET || 'leilao-catalogos'
+const CATALOGS_ENABLED = Boolean(SUPABASE_URL && SUPABASE_SERVICE_ROLE_KEY && INBOUND_ENABLED)
+
+// Logger mínimo exigido pelo downloadMediaMessage do Baileys.
+const mediaLogger = { level: 'silent', child: () => mediaLogger, trace() {}, debug() {}, info() {}, warn() {}, error() {} }
 const LEGACY_AUTH_DIR = process.env.AUTH_DIR || './auth'
 // Sessão usada quando o chamador não informa `?session=` (compat retroativa:
 // grupos das leiloeiras, notificação de assessor, campanhas, gif-lotes, etc.
@@ -319,6 +330,102 @@ function extractContextInfo(msg) {
   )
 }
 
+// ── Catálogos: PDF em grupo monitorado → Supabase Storage → webhook do Next ───
+const CATALOG_GROUPS = new Set() // JIDs monitorados (recarregado periodicamente)
+
+async function refreshCatalogGroups() {
+  if (!CATALOGS_ENABLED) return
+  try {
+    const res = await fetch(`${NEXT_API_URL}/api/whatsapp-catalogos/active-groups`, {
+      headers: { 'x-webhook-secret': WEBHOOK_SECRET },
+      signal: AbortSignal.timeout(15000),
+    })
+    if (!res.ok) return
+    const data = await res.json().catch(() => ({}))
+    const jids = (Array.isArray(data.groups) ? data.groups : []).map(g => g?.jid).filter(Boolean)
+    CATALOG_GROUPS.clear()
+    for (const j of jids) CATALOG_GROUPS.add(j)
+  } catch (error) {
+    console.error('refreshCatalogGroups falhou:', error.message)
+  }
+}
+
+/** Extrai o documentMessage (PDF etc.) de uma msg, desembrulhando wrappers. */
+function extractDocument(msg) {
+  const m = unwrapMessage(msg.message)
+  return m?.documentMessage || m?.documentWithCaptionMessage?.message?.documentMessage || null
+}
+
+/** PDF de catálogo num grupo monitorado: baixa, sobe pro Supabase e chama o
+ *  webhook de catálogos. Retorna true se tratou (era documento), false senão. */
+async function handleCatalogDocument(session, msg, jid) {
+  if (!CATALOGS_ENABLED || !CATALOG_GROUPS.has(jid)) return false
+  const doc = extractDocument(msg)
+  if (!doc) return false
+  const mime = doc.mimetype || ''
+  const name = (doc.fileName || doc.title || 'catalogo.pdf').trim()
+  if (!/pdf/i.test(mime) && !/\.pdf$/i.test(name)) return false // só PDF
+
+  let buffer
+  try {
+    buffer = await downloadMediaMessage(msg, 'buffer', {}, {
+      logger: mediaLogger,
+      reuploadRequest: session.socket.updateMediaMessage,
+    })
+  } catch (error) {
+    console.error(`[${session.id}] catálogo: download falhou:`, error.message)
+    return true
+  }
+
+  const safe = name.replace(/[^\w.\-]+/g, '_').slice(-80)
+  const path = `catalogos-whatsapp/${session.id}/${msg.key?.id || Date.now()}-${safe}`
+  try {
+    const up = await fetch(`${SUPABASE_URL}/storage/v1/object/${CATALOG_BUCKET}/${encodeURI(path)}`, {
+      method: 'POST',
+      headers: {
+        Authorization: `Bearer ${SUPABASE_SERVICE_ROLE_KEY}`,
+        'Content-Type': mime || 'application/pdf',
+        'x-upsert': 'true',
+        'cache-control': '3600',
+      },
+      body: buffer,
+      signal: AbortSignal.timeout(60000),
+    })
+    if (!up.ok) {
+      console.error(`[${session.id}] catálogo: upload Storage HTTP ${up.status}: ${(await up.text().catch(() => '')).slice(0, 150)}`)
+      return true
+    }
+  } catch (error) {
+    console.error(`[${session.id}] catálogo: upload Storage falhou:`, error.message)
+    return true
+  }
+
+  const fileUrl = `${SUPABASE_URL}/storage/v1/object/public/${CATALOG_BUCKET}/${encodeURI(path)}`
+  try {
+    const res = await fetch(`${NEXT_API_URL}/api/whatsapp-catalogos/webhook`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'x-webhook-secret': WEBHOOK_SECRET },
+      body: JSON.stringify({
+        group_jid: jid,
+        sender_jid: msg.key?.participant || '',
+        sender_name: msg.pushName || '',
+        message_id: msg.key?.id,
+        file_name: name,
+        file_mime: mime || 'application/pdf',
+        file_size: buffer.length,
+        file_url: fileUrl,
+        r2_key: fileUrl, // compat: a rota aceita URL http em r2_key
+      }),
+      signal: AbortSignal.timeout(30000),
+    })
+    const data = await res.json().catch(() => ({}))
+    console.log(`[${session.id}] catálogo "${name}" → ${res.status} ${JSON.stringify(data).slice(0, 160)}`)
+  } catch (error) {
+    console.error(`[${session.id}] catálogo: webhook falhou:`, error.message)
+  }
+  return true
+}
+
 /**
  * Mensagem recebida num GRUPO → encaminha ao Next (/api/whatsapp/group-inbound).
  * Usado pelas automações de grupo (ex.: aprovação de cadastro nos grupos das
@@ -330,6 +437,9 @@ async function handleGroupInbound(session, msg) {
   const jid = msg.key?.remoteJid || ''
   if (msg.key?.fromMe) return
   if (!jid.endsWith('@g.us')) return
+
+  // Catálogos: PDF em grupo monitorado é tratado à parte (baixa + webhook).
+  if (await handleCatalogDocument(session, msg, jid)) return
 
   const text = extractText(msg)
   if (!text) return
@@ -919,3 +1029,10 @@ server.listen(PORT, () => {
 void bootstrapSessions().catch(error => {
   console.error('[crm-whatsapp] erro no bootstrap de sessões:', error)
 })
+
+// Catálogos: carrega os grupos monitorados no boot e recarrega a cada 5 min.
+if (CATALOGS_ENABLED) {
+  void refreshCatalogGroups()
+  setInterval(() => { void refreshCatalogGroups() }, 5 * 60 * 1000)
+  console.log('[crm-whatsapp] captura de catálogos: on (bucket ' + CATALOG_BUCKET + ')')
+}
