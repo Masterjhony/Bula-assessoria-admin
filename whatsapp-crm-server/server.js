@@ -33,7 +33,6 @@ const NO_CRM_1TO1 = new Set(
 const SUPABASE_URL = (process.env.SUPABASE_URL || process.env.NEXT_PUBLIC_SUPABASE_URL || '').replace(/\/$/, '')
 const SUPABASE_SERVICE_ROLE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY || ''
 const CATALOG_BUCKET = process.env.CATALOG_BUCKET || 'leilao-catalogos'
-const CATALOGS_ENABLED = Boolean(SUPABASE_URL && SUPABASE_SERVICE_ROLE_KEY && INBOUND_ENABLED)
 
 // Logger mínimo exigido pelo downloadMediaMessage do Baileys.
 const mediaLogger = { level: 'silent', child: () => mediaLogger, trace() {}, debug() {}, info() {}, warn() {}, error() {} }
@@ -65,6 +64,10 @@ const QUERY_TIMEOUT_MS = Number(process.env.QUERY_TIMEOUT_MS || 120000)
 const NEXT_API_URL = (process.env.NEXT_API_URL || '').replace(/\/$/, '')
 const WEBHOOK_SECRET = process.env.WEBHOOK_SECRET || process.env.WHATSAPP_GROUP_TASK_SECRET || ''
 const INBOUND_ENABLED = Boolean(NEXT_API_URL && WEBHOOK_SECRET)
+
+// Captura de catálogos: precisa de Supabase (upload) + INBOUND (webhook do Next).
+// Definido aqui (após INBOUND_ENABLED) para não cair em TDZ.
+const CATALOGS_ENABLED = Boolean(SUPABASE_URL && SUPABASE_SERVICE_ROLE_KEY && INBOUND_ENABLED)
 
 // Guard de acesso: quando API_TOKEN está setado, todo request (exceto OPTIONS)
 // precisa do header `x-vps-token` correspondente. Imprescindível com a porta
