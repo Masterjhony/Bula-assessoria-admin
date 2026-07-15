@@ -1,5 +1,5 @@
 import http from 'node:http'
-import { rm, mkdir, readdir, cp, access } from 'node:fs/promises'
+import { rm, mkdir, readdir, cp, access, writeFile } from 'node:fs/promises'
 import makeWASocket, {
   Browsers,
   DisconnectReason,
@@ -15,6 +15,9 @@ const PORT = Number(process.env.WHATSAPP_SERVER_PORT || process.env.PORT || 3001
 // `${SESSIONS_DIR}/${sessionId}`. AUTH_DIR é o layout LEGADO (sessão única) —
 // mantido só para adoção automática no primeiro boot (ver adoptLegacyAuth).
 const SESSIONS_DIR = process.env.SESSIONS_DIR || './auth-sessions'
+// Onde guardamos o dump BRUTO de cada history sync (rede de segurança p/ replay
+// offline sem novo re-link). Ver replay-history.mjs.
+const HISTORY_DUMP_DIR = process.env.HISTORY_DUMP_DIR || './history-dumps'
 const LEGACY_AUTH_DIR = process.env.AUTH_DIR || './auth'
 // Sessão usada quando o chamador não informa `?session=` (compat retroativa:
 // grupos das leiloeiras, notificação de assessor, campanhas, gif-lotes, etc.
@@ -428,6 +431,22 @@ async function handleHistorySync(session, messages) {
   console.log(`[${session.id}] history sync: ${batch.length} msgs 1:1 enviadas ao CRM`)
 }
 
+/** Resolve o JID de um contato 1:1 para telefone canônico. Conversas novas do
+ *  WhatsApp chegam como @lid (Linked Identity) — resolve pelo key.remoteJidAlt
+ *  (quando presente) ou pelo mapa LID↔PN da sessão. Retorna '' se não for 1:1. */
+async function resolveContactPhone(session, jid, msg) {
+  if (jid.endsWith('@s.whatsapp.net')) return normalizePhone(jid.split('@')[0].split(':')[0])
+  if (jid.endsWith('@lid')) {
+    const alt = msg?.key?.remoteJidAlt || ''
+    if (alt.endsWith('@s.whatsapp.net')) return normalizePhone(alt.split('@')[0].split(':')[0])
+    try {
+      const pn = await session.socket?.signalRepository?.lidMapping?.getPNForLID?.(jid)
+      if (pn) return normalizePhone(String(pn).split('@')[0].split(':')[0])
+    } catch { /* segue sem telefone */ }
+  }
+  return ''
+}
+
 async function handleInbound(session, msg) {
   if (!INBOUND_ENABLED) return
   const jid = msg.key?.remoteJid || ''
@@ -435,7 +454,9 @@ async function handleInbound(session, msg) {
 
   // Grupos: só encaminha o que TERCEIROS escreveram (nunca o que eu mandei).
   if (jid.endsWith('@g.us')) { if (!fromMe) return handleGroupInbound(session, msg); return }
-  if (!jid.endsWith('@s.whatsapp.net')) return
+  // 1:1: @s.whatsapp.net direto ou @lid resolvido; qualquer outro domínio sai.
+  const phone = await resolveContactPhone(session, jid, msg)
+  if (!phone) return
 
   // Espelho: mensagens que o próprio dono do número digita no aparelho (fromMe)
   // entram como OUTBOUND. Mas o que ESTE servidor enviou (gateway) já foi logado
@@ -446,7 +467,6 @@ async function handleInbound(session, msg) {
   if (!text) return
 
   // O telefone é sempre o do CONTATO (remoteJid), seja inbound ou fromMe.
-  const phone = normalizePhone(jid.split('@')[0])
   const name = msg.pushName || ''
 
   try {
@@ -586,6 +606,22 @@ async function startSocket(session) {
       isLatest: isLatest ?? null,
       syncType: syncType ?? null,
     }))
+    // Rede de segurança: grava o DUMP BRUTO em disco antes de processar. Assim,
+    // se a extração ainda falhar em algum formato, dá pra reprocessar OFFLINE
+    // (replay-history.mjs) sem exigir novo re-link do aparelho.
+    void (async () => {
+      try {
+        if (Array.isArray(messages) && messages.length) {
+          await mkdir(HISTORY_DUMP_DIR, { recursive: true })
+          const stamp = new Date().toISOString().replace(/[:.]/g, '-')
+          const file = `${HISTORY_DUMP_DIR}/${session.id}-${stamp}-${messages.length}.json`
+          await writeFile(file, JSON.stringify(messages))
+          console.log(`[${session.id}] history dump salvo: ${file}`)
+        }
+      } catch (e) {
+        console.error(`[${session.id}] falha ao salvar dump:`, e.message)
+      }
+    })()
     // Persiste o recorte de conversas 1:1 no CRM (dedup por message_id no Next).
     void handleHistorySync(session, messages).catch(e =>
       console.error(`[${session.id}] handleHistorySync:`, e.message))
