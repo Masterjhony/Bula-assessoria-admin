@@ -354,19 +354,51 @@ async function handleGroupInbound(session, msg) {
  */
 async function handleHistorySync(session, messages) {
   if (!INBOUND_ENABLED || !Array.isArray(messages) || messages.length === 0) return
+
+  // As conversas 1:1 hoje chegam predominantemente como @lid (Linked Identity,
+  // o novo endereçamento de privacidade do WhatsApp). Pré-resolvemos @lid →
+  // telefone EM LOTE pelo mapa LID↔PN da própria sessão (persistido no auth),
+  // para não fazer 1 leitura de store por mensagem.
+  const lidJids = [...new Set(
+    messages.map(m => m.key?.remoteJid || '').filter(j => j.endsWith('@lid'))
+  )]
+  const lidToPhone = new Map()
+  if (lidJids.length) {
+    try {
+      const pairs = (await session.socket?.signalRepository?.lidMapping?.getPNsForLIDs?.(lidJids)) || []
+      for (const p of pairs) {
+        const ph = normalizePhone(String(p.pn || '').split('@')[0].split(':')[0])
+        if (ph) lidToPhone.set(p.lid, ph)
+      }
+    } catch (error) {
+      console.error(`[${session.id}] lidMapping.getPNsForLIDs falhou:`, error.message)
+    }
+  }
+
+  // Resolve o telefone canônico de uma msg (1:1 direto, ou @lid via mapa/alt).
+  const phoneOf = (msg, jid) => {
+    if (jid.endsWith('@s.whatsapp.net')) return normalizePhone(jid.split('@')[0].split(':')[0])
+    if (jid.endsWith('@lid')) {
+      const fromMap = lidToPhone.get(jid)
+      if (fromMap) return fromMap
+      const alt = msg.key?.remoteJidAlt || ''
+      if (alt.endsWith('@s.whatsapp.net')) return normalizePhone(alt.split('@')[0].split(':')[0])
+    }
+    return ''
+  }
+
   // Diagnóstico: entender a quebra do que o WhatsApp entrega no sync.
-  let grupo = 0, lid = 0, outro = 0, semTexto = 0
+  let grupo = 0, outro = 0, semTexto = 0, lidSemMapa = 0
   const batch = []
   for (const msg of messages) {
     const jid = msg.key?.remoteJid || ''
-    // Grupos NÃO entram no histórico (decisão de produto). Idem broadcast/lid.
+    // Grupos NÃO entram no histórico (decisão de produto). Idem broadcast.
     if (jid.endsWith('@g.us')) { grupo++; continue }
-    if (jid.endsWith('@lid')) { lid++; continue }
-    if (!jid.endsWith('@s.whatsapp.net')) { outro++; continue }
+    if (!jid.endsWith('@s.whatsapp.net') && !jid.endsWith('@lid')) { outro++; continue }
+    const phone = phoneOf(msg, jid)
+    if (!phone) { lidSemMapa++; continue }
     const text = extractText(msg)
     if (!text) { semTexto++; continue }
-    const phone = normalizePhone(jid.split('@')[0])
-    if (!phone) continue
     const tsRaw = msg.messageTimestamp
     const ts = tsRaw ? Number(typeof tsRaw === 'object' && tsRaw.toNumber ? tsRaw.toNumber() : tsRaw) : null
     batch.push({
@@ -378,7 +410,7 @@ async function handleHistorySync(session, messages) {
       ts: ts && Number.isFinite(ts) ? ts : null,
     })
   }
-  console.log(`[${session.id}] history breakdown: total=${messages.length} grupo=${grupo} lid=${lid} outro=${outro} 1:1_semTexto=${semTexto} 1:1_comTexto=${batch.length}`)
+  console.log(`[${session.id}] history breakdown: total=${messages.length} grupo=${grupo} lid=${lidJids.length} lidSemMapa=${lidSemMapa} outro=${outro} semTexto=${semTexto} 1:1_importadas=${batch.length}`)
   if (batch.length === 0) return
   for (let i = 0; i < batch.length; i += 200) {
     const chunk = batch.slice(i, i + 200)
