@@ -15,6 +15,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
 import { handleLeiloeiraGroupMessage } from '@/lib/leiloeira-whatsapp-cadastro'
+import { handleLanceGroupMessage } from '@/lib/whatsapp-lances'
 
 export const maxDuration = 30
 
@@ -27,7 +28,7 @@ export async function POST(req: NextRequest) {
 
     let body: {
         group_jid?: string; participant?: string; name?: string
-        body?: string; quoted_body?: string; message_id?: string
+        body?: string; quoted_body?: string; message_id?: string; ts?: number
     }
     try {
         body = await req.json()
@@ -82,5 +83,14 @@ export async function POST(req: NextRequest) {
         quotedText: body.quoted_body || null,
     })
 
-    return NextResponse.json({ ok: true, outcome })
+    // Lances do pregão ao vivo (grupo "Lances Bula Assessoria") → vendas.
+    const lance = await handleLanceGroupMessage(supabase, {
+        groupJid,
+        text,
+        quotedText: body.quoted_body || null,
+        messageId: messageId || null,
+        ts: typeof body.ts === 'number' ? body.ts : null,
+    })
+
+    return NextResponse.json({ ok: true, outcome, lance })
 }

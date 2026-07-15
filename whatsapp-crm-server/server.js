@@ -450,6 +450,9 @@ async function handleGroupInbound(session, msg) {
   const ctx = extractContextInfo(msg)
   const quoted = ctx?.quotedMessage ? extractText({ message: ctx.quotedMessage }) : ''
 
+  const tsRaw = msg.messageTimestamp
+  const ts = tsRaw ? Number(typeof tsRaw === 'object' && tsRaw.toNumber ? tsRaw.toNumber() : tsRaw) : null
+
   try {
     await fetch(`${NEXT_API_URL}/api/whatsapp/group-inbound`, {
       method: 'POST',
@@ -462,6 +465,7 @@ async function handleGroupInbound(session, msg) {
         body: text,
         quoted_body: quoted,
         message_id: msg.key?.id,
+        ts: ts && Number.isFinite(ts) ? ts : null,
       }),
       signal: AbortSignal.timeout(25000),
     })
