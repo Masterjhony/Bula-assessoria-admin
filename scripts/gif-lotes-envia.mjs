@@ -84,8 +84,12 @@ function buildCaption(l, cond) {
 
 // ── Execução ────────────────────────────────────────────────────────────────
 
-const health = await fetch(`${VPS}/health`, { headers: VPS_HEADERS }).then((r) => r.json())
-console.log(`VPS: ${health.status} (fila ${health.queueSize})`)
+// `session` opcional no job → escolhe a sessão Baileys (ex.: 'joao-automation',
+// que participa de grupos onde a 'joao' padrão não está). Sem isso, usa a default.
+const sessionQS = job.session ? `?session=${encodeURIComponent(job.session)}` : ''
+
+const health = await fetch(`${VPS}/health${sessionQS}`, { headers: VPS_HEADERS }).then((r) => r.json())
+console.log(`VPS: ${health.status} (fila ${health.queueSize})${job.session ? ` · sessão ${job.session}` : ''}`)
 if (!dryRun && !uploadOnly && health.status !== 'connected') {
   console.error('Sessão Baileys não conectada — escaneie o QR na Central WhatsApp e rode de novo.')
   process.exit(1)
@@ -115,7 +119,7 @@ for (const l of lots) {
 
   const endpoint = job.group_id ? '/send-group' : '/send-direct'
   const dest = job.group_id ? { groupId: job.group_id } : { phone: job.phone }
-  const res = await fetch(`${VPS}${endpoint}`, {
+  const res = await fetch(`${VPS}${endpoint}${sessionQS}`, {
     method: 'POST',
     headers: VPS_HEADERS,
     body: JSON.stringify({
