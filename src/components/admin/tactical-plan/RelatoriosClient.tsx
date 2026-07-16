@@ -13,6 +13,7 @@ import {
     applyFilters, computeMetrics, generateTacticalPlanPDF,
     type PdfFilters, type ReportMode,
 } from '@/lib/tactical-plan-pdf'
+import { flattenChecklistItems } from '@/lib/tactical-checklists'
 
 // ─── Constants ────────────────────────────────────────────────────────────
 
@@ -715,11 +716,14 @@ export function RelatoriosClient({
                     <div>
                         {(() => {
                             const withOpen = filtered
-                                .map(t => ({
-                                    t,
-                                    open: (t.checklists || []).filter((c: { completed?: boolean }) => !c.completed).length,
-                                    total: (t.checklists || []).length,
-                                }))
+                                .map(t => {
+                                    const items = flattenChecklistItems(t.checklists)
+                                    return {
+                                        t,
+                                        open: items.filter(c => !c.completed).length,
+                                        total: items.length,
+                                    }
+                                })
                                 .filter(x => x.open > 0)
                                 .sort((a, b) => b.open - a.open)
                                 .slice(0, 8)

@@ -9,6 +9,7 @@
 
 import type { TacticalTask } from '@/app/sistema/actions/tactical-tasks'
 import type { TacticalMember } from '@/app/sistema/actions/tactical-strategic'
+import { flattenChecklistItems } from '@/lib/tactical-checklists'
 
 export type ReportMode = 'executive' | 'detailed'
 
@@ -162,7 +163,7 @@ export function computeMetrics(tasks: TacticalTask[]): Metrics {
             if (isOverdue(t, now)) rec.atrasadas++
         }
 
-        for (const c of (t.checklists || [])) {
+        for (const c of flattenChecklistItems(t.checklists)) {
             checklistTotal++
             if (c.completed) checklistConcluidas++
             else {
@@ -214,7 +215,7 @@ export function applyFilters(all: TacticalTask[], filters: PdfFilters): Tactical
         if (filters.status && t.status !== filters.status) return false
         if (filters.priority && t.priority !== filters.priority) return false
         if (filters.strategicStage && t.strategic_stage !== filters.strategicStage) return false
-        if (filters.itemType === 'checklist' && (!t.checklists || t.checklists.length === 0)) return false
+        if (filters.itemType === 'checklist' && flattenChecklistItems(t.checklists).length === 0) return false
         switch (filters.situation) {
             case 'overdue': return isOverdue(t, now)
             case 'stale': return isStale(t, now)
@@ -703,7 +704,8 @@ export async function generateTacticalPlanPDF(
             y = tituloSecao(y, '05 DETALHAMENTO', name, `${list.length} tarefa${list.length === 1 ? '' : 's'} sob este responsável`)
 
             for (const t of list) {
-                const checklistCount = (t.checklists || []).length
+                const checklistItems = flattenChecklistItems(t.checklists)
+                const checklistCount = checklistItems.length
                 // estimate height needed: header (16) + status block (8) + per-checklist (5) + footer gap (6)
                 const estHeight = 24 + Math.min(checklistCount, 8) * 5
                 y = ensureSpace(y, estHeight, `Detalhes · ${name}`)
@@ -742,11 +744,11 @@ export async function generateTacticalPlanPDF(
                     doc.setFont('helvetica', 'bold')
                     doc.setFontSize(7)
                     doc.setTextColor(...BRONZE)
-                    const done = (t.checklists || []).filter(c => c.completed).length
+                    const done = checklistItems.filter(c => c.completed).length
                     doc.text(`CHECKLIST  ·  ${done}/${checklistCount} concluído${checklistCount === 1 ? '' : 's'}`, M + 4, y, { charSpace: 0.3 })
                     y += 3.5
 
-                    for (const c of (t.checklists || [])) {
+                    for (const c of checklistItems) {
                         y = ensureSpace(y, 6, `Detalhes · ${name}`)
                         // Box
                         doc.setDrawColor(...(c.completed ? TECH_GREEN : GRAY_300))

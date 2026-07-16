@@ -5,6 +5,9 @@ import { X, Calendar, Save, Plus, Trash2, CheckCircle2, MessageSquare, Send, Pap
 import { TacticalTask, TacticalComment, TacticalAttachment, getComments, addComment, getAttachments, saveAttachmentRecord, deleteAttachment } from '@/app/sistema/actions/tactical-tasks';
 import { TacticalMember } from '@/app/sistema/actions/tactical-strategic';
 import { createClient } from '@/utils/supabase/client';
+import { normalizeChecklists, type ChecklistGroup } from '@/lib/tactical-checklists';
+
+const uid = () => `${Date.now()}-${Math.random().toString(36).slice(2, 7)}`;
 
 const STRATEGIC_STAGES = ['', 'Aquisição', 'Conversão', 'Retenção', 'Receita'];
 
@@ -30,8 +33,9 @@ export function TaskModal({ isOpen, onClose, task, defaultStatus, onSave, onDele
     const [startDate, setStartDate] = useState('');
     const [dueDate, setDueDate] = useState('');
     const [assignees, setAssignees] = useState<string[]>([]);
-    const [checklists, setChecklists] = useState<{ id: string, title: string, completed: boolean, assignee?: string | null, due_date?: string | null }[]>([]);
-    const [newChecklistTitle, setNewChecklistTitle] = useState('');
+    const [checklists, setChecklists] = useState<ChecklistGroup[]>([]);
+    // Texto do "adicionar item" por grupo (keyed pelo id do grupo).
+    const [newItemByGroup, setNewItemByGroup] = useState<Record<string, string>>({});
     const [isSaving, setIsSaving] = useState(false);
     const [saveError, setSaveError] = useState<string | null>(null);
     const initialSnapshotRef = useRef<string>('');
@@ -71,7 +75,7 @@ export function TaskModal({ isOpen, onClose, task, defaultStatus, onSave, onDele
                 startDate: task.start_date ? new Date(task.start_date).toISOString().split('T')[0] : '',
                 dueDate: task.due_date ? new Date(task.due_date).toISOString().split('T')[0] : '',
                 assignees: task.assignees ? Array.from(new Set(task.assignees)) : [],
-                checklists: task.checklists || [],
+                checklists: normalizeChecklists(task.checklists),
                 iceImpact: task.ice_impact ?? 5,
                 iceConfidence: task.ice_confidence ?? 5,
                 iceEase: task.ice_ease ?? 5,
@@ -86,6 +90,7 @@ export function TaskModal({ isOpen, onClose, task, defaultStatus, onSave, onDele
             setDueDate(next.dueDate);
             setAssignees(next.assignees);
             setChecklists(next.checklists);
+            setNewItemByGroup({});
             setIceImpact(next.iceImpact);
             setIceConfidence(next.iceConfidence);
             setIceEase(next.iceEase);
@@ -118,7 +123,7 @@ export function TaskModal({ isOpen, onClose, task, defaultStatus, onSave, onDele
                 startDate: '',
                 dueDate: '',
                 assignees: [] as string[],
-                checklists: [] as { id: string, title: string, completed: boolean, assignee?: string | null, due_date?: string | null }[],
+                checklists: [] as ChecklistGroup[],
                 iceImpact: 5,
                 iceConfidence: 5,
                 iceEase: 5,
@@ -133,6 +138,7 @@ export function TaskModal({ isOpen, onClose, task, defaultStatus, onSave, onDele
             setDueDate(next.dueDate);
             setAssignees(next.assignees);
             setChecklists(next.checklists);
+            setNewItemByGroup({});
             setIceImpact(next.iceImpact);
             setIceConfidence(next.iceConfidence);
             setIceEase(next.iceEase);
@@ -317,14 +323,39 @@ export function TaskModal({ isOpen, onClose, task, defaultStatus, onSave, onDele
         return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
     };
 
-    const addChecklistItem = () => {
-        if (!newChecklistTitle.trim()) return;
-        setChecklists([...checklists, { id: Date.now().toString(), title: newChecklistTitle, completed: false, assignee: null, due_date: null }]);
-        setNewChecklistTitle('');
+    // ── Checklists (grupos nomeados) ──────────────────────────────────────
+    const addChecklistGroup = () => {
+        setChecklists(gs => [...gs, { id: uid(), title: '', items: [] }]);
     };
 
-    const updateChecklistItem = (id: string, updates: Partial<{ title: string, assignee: string | null, due_date: string | null }>) => {
-        setChecklists(c => c.map(ci => ci.id === id ? { ...ci, ...updates } : ci));
+    const updateChecklistGroupTitle = (groupId: string, title: string) => {
+        setChecklists(gs => gs.map(g => g.id === groupId ? { ...g, title } : g));
+    };
+
+    const deleteChecklistGroup = (groupId: string) => {
+        setChecklists(gs => gs.filter(g => g.id !== groupId));
+        setNewItemByGroup(m => { const { [groupId]: _drop, ...rest } = m; return rest; });
+    };
+
+    const addChecklistItem = (groupId: string) => {
+        const title = (newItemByGroup[groupId] || '').trim();
+        if (!title) return;
+        setChecklists(gs => gs.map(g => g.id === groupId
+            ? { ...g, items: [...g.items, { id: uid(), title, completed: false, assignee: null, due_date: null }] }
+            : g));
+        setNewItemByGroup(m => ({ ...m, [groupId]: '' }));
+    };
+
+    const updateChecklistItem = (groupId: string, itemId: string, updates: Partial<{ title: string, completed: boolean, assignee: string | null, due_date: string | null }>) => {
+        setChecklists(gs => gs.map(g => g.id === groupId
+            ? { ...g, items: g.items.map(ci => ci.id === itemId ? { ...ci, ...updates } : ci) }
+            : g));
+    };
+
+    const deleteChecklistItem = (groupId: string, itemId: string) => {
+        setChecklists(gs => gs.map(g => g.id === groupId
+            ? { ...g, items: g.items.filter(ci => ci.id !== itemId) }
+            : g));
     };
 
     const ScoreSlider = ({ label, value, onChange }: { label: string; value: number; onChange: (v: number) => void }) => (
@@ -515,73 +546,128 @@ export function TaskModal({ isOpen, onClose, task, defaultStatus, onSave, onDele
                                 </div>
                             )}
 
-                            {/* Checklists */}
+                            {/* Checklists — vários grupos nomeados por card */}
                             <div className="pt-4 border-t border-gray-100 dark:border-[#2A2A2A]">
-                                <label className="flex items-center gap-2 text-sm font-medium text-gray-900 dark:text-white mb-4">
-                                    <CheckCircle2 size={18} className="text-[#A68B4B]" /> Checklist
-                                </label>
-                                <div className="flex items-center gap-2 mb-4">
-                                    <input
-                                        type="text"
-                                        value={newChecklistTitle}
-                                        onChange={e => setNewChecklistTitle(e.target.value)}
-                                        onKeyDown={e => { if (e.key === 'Enter') { e.preventDefault(); addChecklistItem(); } }}
-                                        className="flex-1 px-4 py-2 bg-gray-50 dark:bg-[#141414] border border-gray-200 dark:border-[#2A2A2A] rounded-lg focus:ring-2 focus:ring-[#A68B4B] focus:border-transparent transition-all outline-none text-gray-900 dark:text-white placeholder-gray-500 text-sm"
-                                        placeholder="Adicionar item..."
-                                    />
-                                    <button type="button" onClick={addChecklistItem} disabled={!newChecklistTitle.trim()}
-                                        className="p-2.5 bg-gray-100 dark:bg-[#2e2e2e] text-gray-600 dark:text-gray-300 rounded-lg hover:bg-gray-200 dark:hover:bg-[#3f3f3f] transition-colors disabled:opacity-50">
-                                        <Plus size={18} />
-                                    </button>
+                                <div className="flex items-center justify-between mb-4">
+                                    <label className="flex items-center gap-2 text-sm font-medium text-gray-900 dark:text-white">
+                                        <CheckCircle2 size={18} className="text-[#A68B4B]" /> Checklists
+                                    </label>
+                                    {checklists.length > 0 && (
+                                        <button type="button" onClick={addChecklistGroup}
+                                            className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-gray-600 dark:text-gray-300 bg-gray-100 dark:bg-[#2e2e2e] hover:bg-gray-200 dark:hover:bg-[#3f3f3f] rounded-lg transition-colors border border-gray-200 dark:border-[#333]">
+                                            <Plus size={14} /> Adicionar checklist
+                                        </button>
+                                    )}
                                 </div>
-                                <div className="space-y-2">
-                                    {checklists.map(check => {
-                                        const itemDueDate = check.due_date ? check.due_date.split('T')[0] : '';
-                                        const isItemOverdue = itemDueDate && !check.completed && new Date(itemDueDate) < new Date(new Date().toISOString().split('T')[0]);
-                                        return (
-                                            <div key={check.id} className="group bg-gray-50 dark:bg-[#141414] border border-gray-200 dark:border-[#2A2A2A] rounded-lg p-2.5 space-y-2">
-                                                <div className="flex items-start gap-3">
-                                                    <button type="button" className="mt-1 flex-shrink-0" onClick={() => setChecklists(c => c.map(ci => ci.id === check.id ? { ...ci, completed: !ci.completed } : ci))}>
-                                                        <div className={`w-5 h-5 rounded border flex items-center justify-center transition-colors ${check.completed ? 'bg-[#A68B4B] border-[#A68B4B] text-black' : 'border-gray-300 dark:border-gray-600'}`}>
-                                                            {check.completed && <CheckCircle2 size={14} />}
-                                                        </div>
-                                                    </button>
-                                                    <input
-                                                        type="text"
-                                                        value={check.title}
-                                                        onChange={e => updateChecklistItem(check.id, { title: e.target.value })}
-                                                        className={`flex-1 text-sm pt-1 bg-transparent border-none outline-none focus:ring-0 transition-all ${check.completed ? 'line-through text-gray-400 dark:text-gray-500' : 'text-gray-700 dark:text-gray-300'}`}
-                                                    />
-                                                    <button type="button" onClick={() => setChecklists(c => c.filter(ci => ci.id !== check.id))}
-                                                        className="p-1 opacity-0 group-hover:opacity-100 text-gray-400 hover:text-red-500 transition-all mt-0.5">
-                                                        <Trash2 size={16} />
-                                                    </button>
-                                                </div>
-                                                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 pl-8">
-                                                    <select
-                                                        value={check.assignee || ''}
-                                                        onChange={e => updateChecklistItem(check.id, { assignee: e.target.value || null })}
-                                                        className="px-3 py-1.5 text-xs bg-white dark:bg-[#1A1A1A] border border-gray-200 dark:border-[#2A2A2A] rounded-md focus:ring-2 focus:ring-[#A68B4B] focus:border-transparent outline-none text-gray-700 dark:text-gray-300"
-                                                    >
-                                                        <option value="">— Responsável —</option>
-                                                        {members.map(m => (
-                                                            <option key={m.id} value={m.name}>{m.name}</option>
-                                                        ))}
-                                                    </select>
-                                                    <div className="relative">
-                                                        <Calendar className={`absolute left-2.5 top-1/2 -translate-y-1/2 ${isItemOverdue ? 'text-red-500' : 'text-gray-400'}`} size={14} />
+
+                                {checklists.length === 0 ? (
+                                    <button type="button" onClick={addChecklistGroup}
+                                        className="w-full py-6 rounded-xl border border-dashed border-gray-300 dark:border-[#2A2A2A] text-sm text-gray-400 hover:text-[#A68B4B] hover:border-[#A68B4B]/50 transition-colors flex items-center justify-center gap-2">
+                                        <Plus size={16} /> Adicionar checklist
+                                    </button>
+                                ) : (
+                                    <div className="space-y-4">
+                                        {checklists.map(group => {
+                                            const done = group.items.filter(i => i.completed).length;
+                                            const total = group.items.length;
+                                            const pct = total > 0 ? (done / total) * 100 : 0;
+                                            const draft = newItemByGroup[group.id] || '';
+                                            return (
+                                                <div key={group.id} className="rounded-xl border border-gray-200 dark:border-[#2A2A2A] p-3 space-y-3">
+                                                    {/* Cabeçalho do grupo: título editável + progresso + excluir */}
+                                                    <div className="flex items-center gap-2">
+                                                        <CheckCircle2 size={16} className="text-[#A68B4B] flex-shrink-0" />
                                                         <input
-                                                            type="date"
-                                                            value={itemDueDate}
-                                                            onChange={e => updateChecklistItem(check.id, { due_date: e.target.value || null })}
-                                                            className={`w-full pl-8 pr-2 py-1.5 text-xs bg-white dark:bg-[#1A1A1A] border rounded-md focus:ring-2 focus:ring-[#A68B4B] focus:border-transparent outline-none ${isItemOverdue ? 'border-red-300 dark:border-red-500/40 text-red-600 dark:text-red-400' : 'border-gray-200 dark:border-[#2A2A2A] text-gray-700 dark:text-gray-300'}`}
+                                                            type="text"
+                                                            value={group.title}
+                                                            onChange={e => updateChecklistGroupTitle(group.id, e.target.value)}
+                                                            className="flex-1 text-sm font-semibold bg-transparent border-none outline-none focus:ring-0 text-gray-900 dark:text-white placeholder-gray-500"
+                                                            placeholder="Nome do checklist"
                                                         />
+                                                        {total > 0 && (
+                                                            <span className="text-[11px] font-bold text-gray-400 tabular-nums whitespace-nowrap">{done}/{total}</span>
+                                                        )}
+                                                        <button type="button" onClick={() => deleteChecklistGroup(group.id)}
+                                                            className="p-1 text-gray-400 hover:text-red-500 transition-colors flex-shrink-0" title="Excluir checklist">
+                                                            <Trash2 size={15} />
+                                                        </button>
+                                                    </div>
+
+                                                    {total > 0 && (
+                                                        <div className="h-1 rounded-full bg-gray-100 dark:bg-[#2A2A2A] overflow-hidden">
+                                                            <div className="h-full bg-[#A68B4B] transition-all" style={{ width: `${pct}%` }} />
+                                                        </div>
+                                                    )}
+
+                                                    <div className="space-y-2">
+                                                        {group.items.map(check => {
+                                                            const itemDueDate = check.due_date ? check.due_date.split('T')[0] : '';
+                                                            const isItemOverdue = itemDueDate && !check.completed && new Date(itemDueDate) < new Date(new Date().toISOString().split('T')[0]);
+                                                            return (
+                                                                <div key={check.id} className="group bg-gray-50 dark:bg-[#141414] border border-gray-200 dark:border-[#2A2A2A] rounded-lg p-2.5 space-y-2">
+                                                                    <div className="flex items-start gap-3">
+                                                                        <button type="button" className="mt-1 flex-shrink-0" onClick={() => updateChecklistItem(group.id, check.id, { completed: !check.completed })}>
+                                                                            <div className={`w-5 h-5 rounded border flex items-center justify-center transition-colors ${check.completed ? 'bg-[#A68B4B] border-[#A68B4B] text-black' : 'border-gray-300 dark:border-gray-600'}`}>
+                                                                                {check.completed && <CheckCircle2 size={14} />}
+                                                                            </div>
+                                                                        </button>
+                                                                        <input
+                                                                            type="text"
+                                                                            value={check.title}
+                                                                            onChange={e => updateChecklistItem(group.id, check.id, { title: e.target.value })}
+                                                                            className={`flex-1 text-sm pt-1 bg-transparent border-none outline-none focus:ring-0 transition-all ${check.completed ? 'line-through text-gray-400 dark:text-gray-500' : 'text-gray-700 dark:text-gray-300'}`}
+                                                                        />
+                                                                        <button type="button" onClick={() => deleteChecklistItem(group.id, check.id)}
+                                                                            className="p-1 opacity-0 group-hover:opacity-100 text-gray-400 hover:text-red-500 transition-all mt-0.5">
+                                                                            <Trash2 size={16} />
+                                                                        </button>
+                                                                    </div>
+                                                                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 pl-8">
+                                                                        <select
+                                                                            value={check.assignee || ''}
+                                                                            onChange={e => updateChecklistItem(group.id, check.id, { assignee: e.target.value || null })}
+                                                                            className="px-3 py-1.5 text-xs bg-white dark:bg-[#1A1A1A] border border-gray-200 dark:border-[#2A2A2A] rounded-md focus:ring-2 focus:ring-[#A68B4B] focus:border-transparent outline-none text-gray-700 dark:text-gray-300"
+                                                                        >
+                                                                            <option value="">— Responsável —</option>
+                                                                            {members.map(m => (
+                                                                                <option key={m.id} value={m.name}>{m.name}</option>
+                                                                            ))}
+                                                                        </select>
+                                                                        <div className="relative">
+                                                                            <Calendar className={`absolute left-2.5 top-1/2 -translate-y-1/2 ${isItemOverdue ? 'text-red-500' : 'text-gray-400'}`} size={14} />
+                                                                            <input
+                                                                                type="date"
+                                                                                value={itemDueDate}
+                                                                                onChange={e => updateChecklistItem(group.id, check.id, { due_date: e.target.value || null })}
+                                                                                className={`w-full pl-8 pr-2 py-1.5 text-xs bg-white dark:bg-[#1A1A1A] border rounded-md focus:ring-2 focus:ring-[#A68B4B] focus:border-transparent outline-none ${isItemOverdue ? 'border-red-300 dark:border-red-500/40 text-red-600 dark:text-red-400' : 'border-gray-200 dark:border-[#2A2A2A] text-gray-700 dark:text-gray-300'}`}
+                                                                            />
+                                                                        </div>
+                                                                    </div>
+                                                                </div>
+                                                            );
+                                                        })}
+                                                    </div>
+
+                                                    {/* Adicionar item ao grupo */}
+                                                    <div className="flex items-center gap-2">
+                                                        <input
+                                                            type="text"
+                                                            value={draft}
+                                                            onChange={e => setNewItemByGroup(m => ({ ...m, [group.id]: e.target.value }))}
+                                                            onKeyDown={e => { if (e.key === 'Enter') { e.preventDefault(); addChecklistItem(group.id); } }}
+                                                            className="flex-1 px-3 py-2 bg-gray-50 dark:bg-[#141414] border border-gray-200 dark:border-[#2A2A2A] rounded-lg focus:ring-2 focus:ring-[#A68B4B] focus:border-transparent transition-all outline-none text-gray-900 dark:text-white placeholder-gray-500 text-sm"
+                                                            placeholder="Adicionar item..."
+                                                        />
+                                                        <button type="button" onClick={() => addChecklistItem(group.id)} disabled={!draft.trim()}
+                                                            className="p-2.5 bg-gray-100 dark:bg-[#2e2e2e] text-gray-600 dark:text-gray-300 rounded-lg hover:bg-gray-200 dark:hover:bg-[#3f3f3f] transition-colors disabled:opacity-50">
+                                                            <Plus size={18} />
+                                                        </button>
                                                     </div>
                                                 </div>
-                                            </div>
-                                        );
-                                    })}
-                                </div>
+                                            );
+                                        })}
+                                    </div>
+                                )}
                             </div>
                         </>
                     )}

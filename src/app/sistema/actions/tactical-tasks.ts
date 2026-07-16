@@ -3,6 +3,7 @@
 import { createClient } from '@/utils/supabase/server';
 
 import { revalidatePath } from 'next/cache';
+import type { ChecklistGroup } from '@/lib/tactical-checklists';
 
 export interface TacticalColumn {
     id: string;
@@ -52,7 +53,9 @@ export interface TacticalTask {
     assignees?: string[];
     position: number;
     created_at: string;
-    checklists?: { id: string, title: string, completed: boolean, assignee?: string | null, due_date?: string | null }[];
+    /** Checklists do card. Formato novo = grupos nomeados; cards antigos podem
+     *  ainda ter o array plano de itens — leia via helpers de tactical-checklists. */
+    checklists?: ChecklistGroup[];
     tactical_task_comments?: { count: number }[];
     tactical_task_attachments?: { count: number }[];
     // ICE Scoring

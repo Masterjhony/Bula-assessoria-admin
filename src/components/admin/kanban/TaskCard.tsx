@@ -5,6 +5,7 @@ import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 import { Calendar, CheckSquare, MessageSquare, Paperclip, Zap, Link, AlertTriangle, Clock, Smartphone } from 'lucide-react';
 import { TacticalTask } from '@/app/sistema/actions/tactical-tasks';
+import { flattenChecklistItems } from '@/lib/tactical-checklists';
 
 interface TaskCardProps {
     task: TacticalTask;
@@ -116,8 +117,9 @@ export function TaskCardView({ task, allTasks = [], doneStatus, innerRef, style,
     const score = iceScore(task);
     const scoreUsed = (task.ice_impact ?? 5) !== 5 || (task.ice_confidence ?? 5) !== 5 || (task.ice_ease ?? 5) !== 5;
 
-    const totalChecklists = task.checklists?.length || 0;
-    const completedChecklists = task.checklists?.filter(c => c.completed).length || 0;
+    const checklistItems = flattenChecklistItems(task.checklists);
+    const totalChecklists = checklistItems.length;
+    const completedChecklists = checklistItems.filter(c => c.completed).length;
     const isChecklistComplete = totalChecklists > 0 && completedChecklists === totalChecklists;
     const commentCount = task.tactical_task_comments?.[0]?.count || 0;
     const attachmentCount = task.tactical_task_attachments?.[0]?.count || 0;
