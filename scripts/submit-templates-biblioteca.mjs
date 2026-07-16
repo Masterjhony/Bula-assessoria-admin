@@ -147,6 +147,25 @@ Atualização sobre a sua habilitação: {{2}}.
 Próximo passo: {{3}}. Qualquer dúvida, é só responder por aqui.`,
     vars: ['João', 'seu cadastro foi enviado para análise das leiloeiras parceiras', 'aguardar a confirmação — eu te aviso por aqui assim que sair'],
   },
+  // Fecha o ciclo do cadastro (ver leiloeira-whatsapp-cadastro.ts): a leiloeira
+  // aprova no grupo dias depois, a janela de 24h já fechou e o aviso precisa de
+  // template. Substitui o `cadastro_leiloeira_aprovado` (texto seco, sem dizer
+  // que o lead está habilitado a COMPRAR). UTILITY puro: nada de parcelamento,
+  // frete ou convite a leilão — oferta aqui reclassificaria para MARKETING e
+  // jogaria o template na fila lenta. Mesmas 2 variáveis, mesma ordem.
+  {
+    name: 'bula_cadastro_aprovado',
+    category: 'UTILITY',
+    header: 'Cadastro aprovado',
+    body: `Olá, {{1}}!
+
+Seu cadastro na *{{2}}* foi aprovado.
+
+Você já está habilitado a dar lances e arrematar nos leilões dela, com o acompanhamento da nossa assessoria do início ao fim.
+
+Quando quiser participar, é só me chamar por aqui que eu te oriento no passo a passo.`,
+    vars: ['João', 'Bula Remates'],
+  },
 
   // ── molds novos: MÍDIA (o criativo é variável — 1 template, N campanhas) ─
   {
@@ -238,6 +257,91 @@ Em até *{{4}} no boleto* e *frete grátis*!`,
 
 Se você ficou de olho em algum lote, me chama por aqui que eu te ajudo com o cadastro e com o lance — ainda dá tempo.`,
     vars: ['João', 'Leilão de Touros e Matrizes Naviraí', '20h'],
+  },
+
+  // ── molds do FLUXO DE ATENDIMENTO (anti-abandono, pós-EAO jul/2026) ──────
+  // O maior vazamento do funil é o silêncio depois do pedido de dados; estes
+  // UTILITY reabrem a conversa >24h em cada ponto do fluxo. Usados pelo
+  // followup-atendimento.mjs e pelo time no disparo manual.
+  {
+    name: 'bula_cadastro_retomada',
+    category: 'UTILITY',
+    header: 'Seu cadastro está quase pronto',
+    body: `Olá, {{1}}!
+
+Seu cadastro para participar dos leilões está quase finalizado — falta só {{2}}.
+
+O resto eu resolvo por aqui mesmo, em um minuto. Podemos concluir?`,
+    vars: ['João', 'confirmar o número do seu CPF'],
+  },
+  {
+    name: 'bula_cadastro_duvida',
+    category: 'UTILITY',
+    header: 'Sobre o seu cadastro',
+    body: `Olá, {{1}}!
+
+Vi que a gente parou na parte do cadastro. Ele é o processo padrão das leiloeiras para liberar seus lances, e seus dados são usados somente para isso.
+
+Se ficou qualquer dúvida, me pergunta por aqui. E se preferir o caminho curto: {{2}}. Estou por aqui.`,
+    vars: ['João', 'me manda só o CPF que eu adianto o resto para você'],
+  },
+  {
+    name: 'bula_pergunta_rapida',
+    category: 'UTILITY',
+    header: 'Pergunta rápida',
+    body: `Olá, {{1}}! Tudo bem?
+
+Posso te fazer uma pergunta rápida sobre {{2}}? É coisa de um minuto e me ajuda a te atender do jeito certo.`,
+    vars: ['João', 'o que você está buscando para o rebanho'],
+  },
+  {
+    name: 'bula_retomada_interesse',
+    category: 'MARKETING',
+    header: 'Apareceu novidade para você',
+    body: `Olá, {{1}}!
+
+Quando a gente conversou, você comentou sobre {{2}}. Apareceu novidade que tem tudo a ver: {{3}}.
+
+Quer que eu te passe os detalhes? É só responder por aqui.`,
+    vars: ['João', 'touros para melhorar a bezerrada', 'um leilão com reprodutores avaliados a campo pela nossa equipe, em 30x no boleto'],
+  },
+
+  // ── molds de BOAS-VINDAS POR PERSONA (1º toque pós-formulário >24h) ──────
+  // O formulário da campanha já diz quem é a pessoa (momento na pecuária);
+  // cada perfil recebe um primeiro toque diferente — mesmo racional do bloco
+  // PERSONA DO LEAD do concierge (concierge-persona.ts).
+  {
+    name: 'bula_boas_vindas_iniciante',
+    category: 'MARKETING',
+    header: 'Começando na pecuária',
+    body: `Olá, {{1}}! Vi que você quer começar a criar gado — decisão boa. 🐂
+
+Aqui é o João, da Bula Assessoria. A gente acompanha quem está dando os primeiros passos: te ajudo a escolher o animal certo e a não pagar caro, sem custo nenhum pra você.
+
+Me conta: {{2}}? Daí eu já te aponto o caminho certo.`,
+    vars: ['João', 'você pretende começar melhorando com touro ou já formando um plantel'],
+  },
+  {
+    name: 'bula_boas_vindas_produtor',
+    category: 'MARKETING',
+    header: 'Genética que valoriza o rebanho',
+    body: `Olá, {{1}}! Aqui é o João, da Bula Assessoria. 🤠
+
+Trabalho ajudando produtor a subir o padrão do rebanho com genética P.O. — touro certo valoriza a bezerrada na hora da venda.
+
+Hoje você trabalha mais com {{2}}? Me conta que eu te mostro o que encaixa no seu caso.`,
+    vars: ['João', 'cria, recria ou engorda'],
+  },
+  {
+    name: 'bula_boas_vindas_criador',
+    category: 'MARKETING',
+    header: 'Agenda dos principais remates',
+    body: `Olá, {{1}}! João, da Bula Assessoria.
+
+A gente acompanha os principais remates de Nelore P.O. do país — nossa equipe vai a campo antes e aparta o que realmente presta, {{2}}.
+
+Quer que eu te mande a agenda dos próximos leilões?`,
+    vars: ['João', 'sem custo nenhum pro comprador'],
   },
 ]
 

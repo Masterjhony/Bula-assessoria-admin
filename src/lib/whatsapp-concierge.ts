@@ -40,6 +40,7 @@ import { maybeRunCreditCheck } from './crm-credit-automation'
 import { maybeRunStateRegistrationCheck } from './crm-state-registration-automation'
 import { runHabilitacaoAutofill, autofillPromptBlock, extrairCpf } from './crm-lead-autofill'
 import { computeFase, extractPerfil, fasePromptBlock, type ConciergeFase } from './concierge-fase'
+import { computeSegmento, personaPromptBlock } from './concierge-persona'
 import { qualificacaoPromptBlock, resumoQualificacaoTexto, type QualLead } from './crm-qualificacao'
 import {
     ieDispensavel,
@@ -224,6 +225,7 @@ descoberta → apresentação da Bula → cadastro/habilitação → **aprovaç�
 - Exceção única: se o lead pedir EXPRESSAMENTE para falar com uma pessoa/humano ("quero falar com alguém", "me passa um número", "prefiro falar com gente"), aí sim handoff=true.
 
 A FASE ATUAL DA CONVERSA vem num bloco mais abaixo. Ela MANDA em tudo: o que é proibido pedir em cada fase está escrito lá. Nunca pule fase, mesmo que o lead pareça pronto.
+Logo depois da fase vem o bloco PERSONA DO LEAD: ele diz COMO falar com ESTE perfil (iniciante, produtor comercial, criador de P.O.). A fase diz o que pode; a persona diz o tom e as perguntas certas. Siga os dois.
 
 SOBRE A BULA (use quando perguntarem quem somos, ou na fase de apresentação):
 - Assessoria pecuária especializada em leilão: atuamos nos principais leilões e criatórios de Nelore P.O. do Brasil.
@@ -276,6 +278,12 @@ OBJEÇÕES E PERGUNTAS FREQUENTES (responda curto e volte pra fase atual):
 - "Só estou olhando / mais pra frente" → ótimo momento pra deixar o cadastro pronto: não custa nada, não compromete, e evita perder lote bom. Registre urgencia_compra. Se recusar, não force (proxima_acao='follow-up').
 - Lead esfriou depois de um pedido de dados → NÃO repita a lista. Pergunte em 1 linha o que ficou de dúvida, ou volte pro assunto dele (o gado).
 - Assunto fora do escopo (venda de gado, parceria, cobrança...) → handoff=true com o contato humano.
+
+CONFIANÇA NA HORA DO CADASTRO (o maior ponto de abandono do funil é o pedido de dados — trate como momento crítico):
+- Peça O MÍNIMO: CPF primeiro, sempre dizendo que o resto você puxa nos sistemas oficiais — o lead não precisa digitar quase nada.
+- Todo pedido de dado vem com o PORQUÊ em meia linha ("é o que a leiloeira usa pra liberar seu lance").
+- Se a pessoa demonstrar receio, PARE de pedir: aponte o site bulaassessoria.com e o Instagram @bulaassessoria, ofereça falar com uma pessoa da equipe, e só retome quando ela sinalizar conforto.
+- Documentos com foto NUNCA travam o cadastro: são "se der pra ir adiantando". Resistiu? Siga só com os dados.
 
 REGISTRO (tão importante quanto responder): TODO dado que o lead informar vai em "updates" — quantidade de cabeças, sistema (cria/recria/engorda), o que ele cria hoje, objetivo, urgência, CPF, e-mail, endereço, fazenda, I.E. O que você não registrar, o sistema perde. Não invente nem "complete" dados que o lead não disse.
 Marque updates.assessoria_apresentada=true na mensagem em que você apresentar a Bula, e updates.aceitou_assessoria=true quando ele topar que você cuide do cadastro/acompanhamento dele ("quero", "pode ser", "como faço?", "manda").
@@ -506,6 +514,7 @@ function computeFaseFromLead(lead: FullLead, checklistComplete: boolean, turnosL
     const xd = (lead.extra_data ?? {}) as Record<string, unknown>
     return computeFase({
         perfil: extractPerfil(lead),
+        segmento: computeSegmento(lead),
         assessoriaApresentada: Boolean(xd.assessoria_apresentada_at),
         aceitouAssessoria: xd.aceitou_assessoria === true,
         checklistComplete,
@@ -612,6 +621,9 @@ function buildEmergencyConciergeResult(
 
     // Perguntas seguras por lacuna do perfil — nenhuma delas pede dado cadastral.
     const PERGUNTA_POR_LACUNA: Array<[RegExp, string]> = [
+        [/quer começar a criar/i, 'Boa! Me conta: você tá pensando em começar como — melhorando com touro bom ou já formando um plantel?'],
+        [/plano dele pra começar/i, 'Show! E você já tem a terra/estrutura pra começar, ou ainda tá se organizando?'],
+        [/o que ele busca agora/i, 'Show! E o que você tá buscando agora — reforço de plantel ou alguma linhagem específica?'],
         [/o que ele busca/i, 'Show! Me conta: você tá procurando touro, matriz ou bezerrada?'],
         [/quantas cabeças/i, 'Legal! E quantas cabeças você toca hoje na fazenda?'],
         [/cria, recria ou engorda/i, 'Entendi! E hoje você trabalha mais com cria, recria ou engorda?'],
@@ -859,6 +871,8 @@ export async function runConcierge(
 CONTATO HUMANO (use ao fazer handoff por pedido de falar com pessoa): ${handoffContact}
 
 ${fasePromptBlock(fase, extractPerfil(lead))}
+
+${personaPromptBlock(lead)}
 
 ${qualificacaoPromptBlock(lead)}${ieBlock}
 

@@ -21,6 +21,8 @@
  * não pode ser pedido nela. Junto com o checklist, é o "mapa" da IA.
  */
 
+import type { Segmento } from './concierge-persona'
+
 export type ConciergeFase = 'descoberta' | 'apresentacao' | 'habilitacao' | 'analise'
 
 /** Perfil comercial do produtor — o que o chefe quer saber ANTES do cadastro. */
@@ -41,6 +43,8 @@ export interface PerfilLead {
 
 export interface FaseInput {
     perfil: PerfilLead
+    /** Segmento/persona do lead (concierge-persona) — muda o que a descoberta precisa. */
+    segmento?: Segmento
     /** extra_data.assessoria_apresentada_at — a IA já explicou a Bula? */
     assessoriaApresentada: boolean
     /** extra_data.aceitou_assessoria — o lead topou falar com um assessor? */
@@ -71,12 +75,27 @@ export const MAX_TURNOS_DESCOBERTA = 6
 const str = (v: unknown) => String(v ?? '').trim()
 
 /**
- * Perfil mínimo para sair da descoberta. `sistema` aceita 'nao_definido' — o
- * lead que não sabe responder (ou não quer) não pode ficar preso no funil; o
- * que não vale é a IA nunca ter perguntado.
+ * Perfil mínimo para sair da descoberta — POR SEGMENTO. `sistema` aceita
+ * 'nao_definido' — o lead que não sabe responder (ou não quer) não pode ficar
+ * preso no funil; o que não vale é a IA nunca ter perguntado.
+ *
+ * O segmento muda o que faz sentido perguntar: iniciante não tem rebanho nem
+ * sistema (perguntar "cria, recria ou engorda?" pra quem quer COMEÇAR esfria a
+ * conversa — aconteceu na campanha EAO); criador de P.O. dispensa o básico e
+ * sai da descoberta com menos perguntas (o formulário já o posicionou).
  */
-export function perfilFaltando(p: PerfilLead): string[] {
+export function perfilFaltando(p: PerfilLead, segmento: Segmento = 'indefinido'): string[] {
     const falta: string[] = []
+    if (segmento === 'iniciante') {
+        if (!str(p.interesse)) falta.push('o que ele quer começar a criar (melhorar com touro? formar plantel com matrizes?)')
+        if (!str(p.objetivo)) falta.push('o plano dele pra começar (já tem terra/estrutura? quando pretende?)')
+        return falta
+    }
+    if (segmento === 'criador_po') {
+        if (!str(p.interesse)) falta.push('o que ele busca agora (reforço de plantel, linhagem específica…)')
+        if (!str(p.quantidade)) falta.push('quantas cabeças ele toca hoje')
+        return falta
+    }
     if (!str(p.interesse)) falta.push('o que ele busca (touros, matrizes, bezerras…)')
     if (!str(p.quantidade)) falta.push('quantas cabeças ele tem hoje')
     if (!str(p.sistema)) falta.push('se trabalha com cria, recria ou engorda')
@@ -85,7 +104,7 @@ export function perfilFaltando(p: PerfilLead): string[] {
 }
 
 export function computeFase(input: FaseInput): FaseResult {
-    const falta = perfilFaltando(input.perfil)
+    const falta = perfilFaltando(input.perfil, input.segmento ?? 'indefinido')
     const jaApresentou = input.assessoriaApresentada
     const base = { perfilFaltando: falta, jaApresentou }
 
@@ -146,10 +165,13 @@ const REGRAS: Record<ConciergeFase, string[]> = {
     ],
     habilitacao: [
         'O lead topou. Agora sim: peça o que falta no checklist, enquadrado como o que destrava a participação dele no leilão.',
-        'COMECE PELO CPF. Com o CPF a gente descobre sozinho a Inscrição Estadual e a fazenda dele — pedir isso antes é trabalho perdido pro lead.',
+        'ESTE É O PONTO ONDE MAIS SE PERDE LEAD (a maioria abandona no pedido de dados). Antes do PRIMEIRO pedido, ancore a confiança em meia linha: é o cadastro padrão que a leiloeira pede pra liberar o lance, e os dados ficam só entre ele, a Bula e a leiloeira.',
+        'COMECE PELO CPF — e SÓ o CPF. Diga que com ele você puxa o resto nos sistemas oficiais (I.E., fazenda, endereço): o lead não precisa digitar quase nada. Pedir lista de dados de uma vez é o que espanta.',
         'Se o CPF ainda não veio, peça só CPF + endereço de correspondência (cidade/UF/CEP). NÃO peça fazenda, I.E. nem documento ainda.',
         'Peça em UMA mensagem organizada, nunca item por item, e só o que está marcado com ✘.',
         'Dado marcado com ✔ NUNCA é pedido de novo — no máximo confirmado ("é isso mesmo?").',
+        'Se ele hesitar, sumir ou desconversar depois de um pedido: NÃO repita a lista. Pergunte em 1 linha o que travou; se for desconfiança, aponte o site bulaassessoria.com e o @bulaassessoria e ofereça uma pessoa da equipe — nunca insista no dado com lead desconfiado.',
+        'Documentos com foto são OPCIONAIS ("se der pra ir adiantando") e NUNCA travam o cadastro — se sentir resistência, siga só com os dados.',
         'Benefício em meia linha: com o cadastro aprovado ele já pode dar lance no próximo leilão.',
         'Quem conduz é VOCÊ. Não diga que vai encaminhar para um assessor — isso é depois da aprovação.',
     ],
