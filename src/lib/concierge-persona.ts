@@ -106,6 +106,36 @@ export function computeObjetivo(lead: SegmentoLead): ObjetivoCompra {
     return 'indefinido'
 }
 
+/**
+ * TERCEIRO SINAL (transversal): o CAÇADOR DE OPORTUNIDADE. Não é um segmento
+ * nem um objetivo — é um COMPORTAMENTO que existe em qualquer persona (o
+ * criador P.O. garimpa preço tanto quanto o produtor comercial): o motor
+ * predominante dele é o ganho financeiro, não o melhoramento em si. O doc de
+ * personas (17/07) manda tratá-lo como etiqueta sobre a persona-base, nunca
+ * como persona separada — senão fragmenta o funil.
+ *
+ * Sinais FORTES apenas (lucro, revenda, margem, barato, abaixo do mercado…).
+ * "Investimento" e "valorizar" sozinhos são papo neutro de pecuária ("investir
+ * no rebanho", "valoriza a bezerrada") e dariam falso positivo.
+ */
+const OPORTUNISTA = /oportunidad|barat[oa]|pre[çc]o (bom|baixo)|abaixo do (mercado|pre[çc]o)|desconto|lucr[oa]|revend|margem|investidor|comprar? (bem )?e vender|bom neg[óo]cio|neg[óo]cio bom|fazer dinheiro/i
+
+/** O lead caça oportunidade/ganho financeiro? (flag manual/IA ou texto da conversa) */
+export function isOportunista(lead: SegmentoLead): boolean {
+    const xd = (lead.extra_data ?? {}) as Record<string, unknown>
+    if (xd.perfil_oportunista === true) return true
+    const texto = [xd.objetivo_compra_resumido, lead.interesse_principal, lead.o_que_busca, lead.interesse]
+        .map(str).filter(Boolean).join(' | ')
+    return OPORTUNISTA.test(texto)
+}
+
+const ETIQUETA_OPORTUNISTA = [
+    'ETIQUETA: CAÇADOR DE OPORTUNIDADE — além do perfil acima, o motor dele é o GANHO FINANCEIRO: preço abaixo do mercado, margem, negócio bom.',
+    'Fale em números e comparação: o que a equipe viu a campo valendo mais do que vai custar, condição (30x, frete grátis) como alavanca, preço da pista vs o mercado.',
+    'A Bula é o GARIMPO dele: a gente vê os animais antes do remate e sabe o que está abaixo do preço — quem tem a assessoria fica sabendo primeiro. Esse é o gancho de venda pra ele.',
+    'Urgência funciona com esse perfil ("esse padrão a esse preço não repete") — mas lembre a regra da fase: oportunidade concreta só com cadastro pronto. Use isso A FAVOR: o cadastro é o que garante que ele não perca a próxima oportunidade na hora H.',
+]
+
 export const OBJETIVO_LABEL: Record<ObjetivoCompra, string> = {
     touros: 'Touros / reprodutores',
     matrizes: 'Matrizes / bezerras — base materna',
@@ -193,6 +223,10 @@ export function personaPromptBlock(lead: SegmentoLead): string {
     if (ROTEIRO_OBJETIVO[obj].length) {
         lines.push('', `OBJETIVO DE COMPRA: ${OBJETIVO_LABEL[obj]}`)
         lines.push(...ROTEIRO_OBJETIVO[obj].map(x => `- ${x}`))
+    }
+    // Etiqueta transversal: soma-se a qualquer persona/objetivo, nunca substitui.
+    if (isOportunista(lead)) {
+        lines.push('', ...ETIQUETA_OPORTUNISTA.map((x, i) => (i === 0 ? x : `- ${x}`)))
     }
     return lines.join('\n')
 }
