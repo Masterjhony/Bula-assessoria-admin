@@ -306,6 +306,20 @@ Quer que eu te passe os detalhes? É só responder por aqui.`,
     vars: ['João', 'touros para melhorar a bezerrada', 'um leilão com reprodutores avaliados a campo pela nossa equipe, em 30x no boleto'],
   },
 
+  {
+    name: 'bula_habilitacao_convite',
+    category: 'MARKETING',
+    header: 'Assessoria gratuita da Bula',
+    body: `Olá, {{1}}! 🤠
+
+Você pode se habilitar para receber a assessoria gratuita da Bula: nossa equipe analisa os animais a campo antes dos leilões, indica os lotes certos pro seu objetivo e acompanha seu lance do início ao fim.
+
+Sem custo nenhum pra você — {{2}}.
+
+Quer que eu já deixe sua habilitação pronta? É rápido e eu cuido de quase tudo por aqui.`,
+    vars: ['João', 'nosso acordo é com as leiloeiras parceiras'],
+  },
+
   // ── molds de BOAS-VINDAS POR PERSONA (1º toque pós-formulário >24h) ──────
   // O formulário da campanha já diz quem é a pessoa (momento na pecuária);
   // cada perfil recebe um primeiro toque diferente — mesmo racional do bloco
