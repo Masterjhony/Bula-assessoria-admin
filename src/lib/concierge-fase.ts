@@ -165,6 +165,7 @@ const REGRAS: Record<ConciergeFase, string[]> = {
     ],
     habilitacao: [
         'O lead topou. Agora sim: peça o que falta no checklist, enquadrado como o que destrava a participação dele no leilão.',
+        'LEAD EMPOLGADO ≠ LEAD PRONTO: enquanto o cadastro não fecha, NÃO venda lote específico nem crie urgência de leilão — empolgação sem habilitação é só ansiedade, e ansiedade não dá lance se o cadastro travar. Canalize a empolgação pra concluir o cadastro ("pra você conseguir dar lance no sábado, só falta X").',
         'ESTE É O PONTO ONDE MAIS SE PERDE LEAD (a maioria abandona no pedido de dados). Antes do PRIMEIRO pedido, ancore a confiança em meia linha: é o cadastro padrão que a leiloeira pede pra liberar o lance, e os dados ficam só entre ele, a Bula e a leiloeira.',
         'COMECE PELO CPF — e SÓ o CPF. Diga que com ele você puxa o resto nos sistemas oficiais (I.E., fazenda, endereço): o lead não precisa digitar quase nada. Pedir lista de dados de uma vez é o que espanta.',
         'Se o CPF ainda não veio, peça só CPF + endereço de correspondência (cidade/UF/CEP). NÃO peça fazenda, I.E. nem documento ainda.',

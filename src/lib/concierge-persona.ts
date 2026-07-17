@@ -17,9 +17,22 @@
 
 export type Segmento = 'iniciante' | 'produtor_comercial' | 'criador_po' | 'indefinido'
 
+/**
+ * SEGUNDO EIXO (doc de personas 17/07): o que o lead busca COMPRAR. A maturidade
+ * diz COMO falar; o objetivo diz SOBRE O QUÊ. Um criador P.O. atrás de touro
+ * quer shortlist e velocidade; o mesmo criador atrás de matriz quer conversa
+ * consultiva de base materna. Produto igual ≠ conversa igual.
+ * 'genetica' = embrião/sêmen/aspiração/prenhez — o "Multiplicador Genético"
+ * (Fórmula do Boi): compra escala genética, não animal na pista.
+ */
+export type ObjetivoCompra = 'touros' | 'matrizes' | 'misto' | 'genetica' | 'indefinido'
+
 export interface SegmentoLead {
     momento_pecuaria?: string | null
     quantidade_animais?: string | null
+    interesse?: string | null
+    interesse_principal?: string | null
+    o_que_busca?: string | null
     extra_data?: Record<string, unknown> | null
 }
 
@@ -67,6 +80,64 @@ export function experienciaLeilao(lead: SegmentoLead): string {
     return str((lead.extra_data ?? {}).experiencia_leilao)
 }
 
+/** Biotecnologia primeiro: é o sinal mais específico (quem fala de embrião não está falando de "fêmea" no sentido de matriz de pista). */
+const OBJ_GENETICA = /embri[õoã]|s[êe]men|aspira[çc]|\bfiv\b|iatf|prenhez|doadora|banco gen[ée]tico/i
+const OBJ_MATRIZES = /matriz|bezerr|f[êe]mea|novilh|\bvaca/i
+const OBJ_TOUROS = /touro|reprodutor|\bmacho/i
+
+/**
+ * Objetivo de compra do lead — mesmo princípio do segmento: calculado por
+ * DADOS (o que ele disse na conversa + o que clicou no formulário), não pelo
+ * feeling do modelo. A conversa (objetivo_compra_resumido, acumulado pela IA)
+ * corrige o formulário.
+ */
+export function computeObjetivo(lead: SegmentoLead): ObjetivoCompra {
+    const xd = (lead.extra_data ?? {}) as Record<string, unknown>
+    // Conversa primeiro, formulário depois — mesma hierarquia do segmento.
+    const texto = [xd.objetivo_compra_resumido, lead.interesse_principal, lead.o_que_busca, lead.interesse]
+        .map(str).filter(Boolean).join(' | ')
+    if (!texto) return 'indefinido'
+    if (OBJ_GENETICA.test(texto)) return 'genetica'
+    const touros = OBJ_TOUROS.test(texto)
+    const matrizes = OBJ_MATRIZES.test(texto)
+    if (touros && matrizes) return 'misto'
+    if (touros) return 'touros'
+    if (matrizes) return 'matrizes'
+    return 'indefinido'
+}
+
+export const OBJETIVO_LABEL: Record<ObjetivoCompra, string> = {
+    touros: 'Touros / reprodutores',
+    matrizes: 'Matrizes / bezerras — base materna',
+    misto: 'Touros E fêmeas',
+    genetica: 'Genética (embrião, sêmen, aspiração) — Multiplicador Genético',
+    indefinido: 'Ainda não declarado',
+}
+
+/**
+ * O que muda na conversa por objetivo. Complementa o roteiro do segmento: o
+ * segmento dá o tom, o objetivo dá o assunto e o ritmo de fechamento.
+ */
+const ROTEIRO_OBJETIVO: Record<ObjetivoCompra, string[]> = {
+    touros: [
+        'Ele busca TOURO: compra de RESULTADO — decisão mais rápida que fêmea. Fale de correção do plantel, ganho na bezerrada e previsibilidade.',
+        'Se ele é do meio, encurte: proponha separar os reprodutores certos pro objetivo dele nos próximos leilões (shortlist, não catálogo).',
+    ],
+    matrizes: [
+        'Ele busca MATRIZ/BEZERRA: compra de BASE MATERNA — decisão mais pensada que touro. O que pesa: família, fertilidade, precocidade, habilidade materna.',
+        'Tom mais consultivo: menos "fechar rápido", mais "escolher certo". Ajudar a comparar linhagens/famílias é o que ganha esse lead.',
+    ],
+    misto: [
+        'Ele quer TOURO e FÊMEA — duas frentes. Descubra qual vem primeiro (orçamento e momento do rebanho costumam decidir) e conduza uma de cada vez.',
+    ],
+    genetica: [
+        'Ele busca GENÉTICA (embrião, sêmen, aspiração, prenhez, doadora): compra ESCALA GENÉTICA, não animal na pista — o perfil "Fórmula do Boi".',
+        'Aja como pré-consultor técnico: antes de qualquer papo de cadastro, confirme o objetivo do programa (acelerar o plantel? formar banco genético?) e a estrutura dele (tem receptoras? já faz FIV/IATF?).',
+        'NÃO empurre lote de animal pronto pra esse perfil sem entender o programa — a compra dele é outra, e tratar como compra de leilão comum esfria.',
+    ],
+    indefinido: [],
+}
+
 export const SEGMENTO_LABEL: Record<Segmento, string> = {
     iniciante: 'Iniciante — quer entrar na pecuária',
     produtor_comercial: 'Produtor comercial — já toca gado, sem P.O.',
@@ -108,7 +179,8 @@ const EXPERIENCIA_NOTA: Record<string, string> = {
 
 /**
  * Bloco injetado no prompt do concierge, logo após a FASE. A fase diz O QUE
- * pode ser feito agora; a persona diz COMO falar com ESTE lead.
+ * pode ser feito agora; a persona diz COMO falar com ESTE lead; o objetivo de
+ * compra (segundo eixo) diz sobre o quê e em que ritmo.
  */
 export function personaPromptBlock(lead: SegmentoLead): string {
     const seg = computeSegmento(lead)
@@ -116,5 +188,11 @@ export function personaPromptBlock(lead: SegmentoLead): string {
     lines.push(...ROTEIRO[seg].map(x => `- ${x}`))
     const nota = EXPERIENCIA_NOTA[experienciaLeilao(lead)]
     if (nota) lines.push(`- ${nota}`)
+
+    const obj = computeObjetivo(lead)
+    if (ROTEIRO_OBJETIVO[obj].length) {
+        lines.push('', `OBJETIVO DE COMPRA: ${OBJETIVO_LABEL[obj]}`)
+        lines.push(...ROTEIRO_OBJETIVO[obj].map(x => `- ${x}`))
+    }
     return lines.join('\n')
 }
