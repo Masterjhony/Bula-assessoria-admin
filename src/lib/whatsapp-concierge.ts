@@ -41,6 +41,7 @@ import { maybeRunStateRegistrationCheck } from './crm-state-registration-automat
 import { runHabilitacaoAutofill, autofillPromptBlock, extrairCpf } from './crm-lead-autofill'
 import { computeFase, extractPerfil, fasePromptBlock, type ConciergeFase } from './concierge-fase'
 import { computeSegmento, personaPromptBlock } from './concierge-persona'
+import { fewShotPromptBlock, normalizeFewShots, type FewShot } from './concierge-few-shot'
 import { qualificacaoPromptBlock, resumoQualificacaoTexto, type QualLead } from './crm-qualificacao'
 import {
     ieDispensavel,
@@ -98,6 +99,14 @@ export interface ConciergeConfig {
      * cockpit; vazio = não replica os aprovados.
      */
     assessoresGroupId: string
+    /**
+     * EXEMPLOS DE OURO (few-shot) — respostas reais do SDR humano que
+     * funcionaram, mineradas da base e injetadas no prompt filtradas pelo
+     * segmento do lead. Vazio = comportamento de hoje (nenhum exemplo). A
+     * curadoria é humana: scripts/concierge-mina-few-shot.mjs propõe,
+     * scripts/concierge-few-shot-load.mjs grava aqui. Ver concierge-few-shot.ts.
+     */
+    fewShots: FewShot[]
 }
 
 export const DEFAULT_THINKING_SECONDS = 8
@@ -137,6 +146,7 @@ export const DEFAULT_CONCIERGE_CONFIG: ConciergeConfig = {
     handoffContact: DEFAULT_HANDOFF_CONTACT,
     notifyGroupId: '',
     assessoresGroupId: '',
+    fewShots: [],
 }
 
 function splitModels(value: string | undefined): string[] {
@@ -178,6 +188,7 @@ export async function loadConciergeConfig(supabase: SupabaseClient): Promise<Con
             ? raw.handoffContact : DEFAULT_HANDOFF_CONTACT,
         notifyGroupId: typeof raw.notifyGroupId === 'string' ? raw.notifyGroupId.trim() : '',
         assessoresGroupId: typeof raw.assessoresGroupId === 'string' ? raw.assessoresGroupId.trim() : '',
+        fewShots: normalizeFewShots(raw.fewShots),
     }
 }
 
@@ -200,6 +211,7 @@ export async function saveConciergeConfig(
         assessoresGroupId: patch.assessoresGroupId === undefined
             ? current.assessoresGroupId
             : patch.assessoresGroupId.trim(),
+        fewShots: patch.fewShots === undefined ? current.fewShots : normalizeFewShots(patch.fewShots),
     }
     const { error } = await supabase
         .from('site_settings')
@@ -865,6 +877,11 @@ export async function runConcierge(
     const ieFlex = ieFlexivelPromptBlock(lead)
     const ieBlock = ieFlex ? `\n\n${ieFlex}` : ''
 
+    // Exemplos de ouro (respostas reais do SDR humano) filtrados pelo segmento
+    // do lead. Vazio quando a config não tem exemplos — sem mudança de prompt.
+    const fewShot = fewShotPromptBlock(lead, input.config.fewShots ?? [])
+    const fewShotBlock = fewShot ? `\n\n${fewShot}` : ''
+
     const handoffContact = input.config.handoffContact?.trim() || DEFAULT_HANDOFF_CONTACT
     const systemContent = `${persona}
 
@@ -872,7 +889,7 @@ CONTATO HUMANO (use ao fazer handoff por pedido de falar com pessoa): ${handoffC
 
 ${fasePromptBlock(fase, extractPerfil(lead))}
 
-${personaPromptBlock(lead)}
+${personaPromptBlock(lead)}${fewShotBlock}
 
 ${qualificacaoPromptBlock(lead)}${ieBlock}
 
