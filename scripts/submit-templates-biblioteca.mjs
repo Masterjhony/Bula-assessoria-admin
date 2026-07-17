@@ -319,6 +319,23 @@ Sem custo nenhum pra você — {{2}}.
 Quer que eu já deixe sua habilitação pronta? É rápido e eu cuido de quase tudo por aqui.`,
     vars: ['João', 'nosso acordo é com as leiloeiras parceiras'],
   },
+  // Versão "morde e assopra" p/ leiloeiras EXIGENTES: não promete rapidez —
+  // admite que a habilitação pede dados/documentos e compensa com a assessoria
+  // gratuita + "eu carrego essa parte com você". Honestidade evita o lead se
+  // sentir enganado no meio do processo (maior causa de abandono/desconfiança).
+  {
+    name: 'bula_habilitacao_sincera',
+    category: 'MARKETING',
+    header: 'Vale a pena se habilitar',
+    body: `Olá, {{1}}! 🤠
+
+A assessoria da Bula é gratuita: nosso time vai a campo antes do leilão, aparta o que presta pro seu objetivo e fica do seu lado na hora do lance.
+
+Vou ser sincero com você: pra liberar os lances, a leiloeira pede uma habilitação com alguns dados e documentos. É a parte chata — mas eu carrego ela com você, e {{2}}.
+
+Topa começar? Me manda o essencial e eu vou te falando o que falta, no seu ritmo.`,
+    vars: ['João', 'uma vez aprovada, ela vale pros próximos leilões também'],
+  },
 
   // ── molds de BOAS-VINDAS POR PERSONA (1º toque pós-formulário >24h) ──────
   // O formulário da campanha já diz quem é a pessoa (momento na pecuária);
