@@ -7,7 +7,7 @@ import { usePathname, useRouter } from 'next/navigation'
 import {
   LayoutDashboard, LogOut, Menu, X, Users, Settings, Calendar,
   MessageCircle, FileText, Sparkles, Gavel, Shield, ChevronDown,
-  BarChart2, Target, BarChart3, Megaphone,
+  Target, BarChart3, Megaphone,
   Mail, ImageIcon, Contact, FileVideo, Clapperboard,
 } from 'lucide-react'
 import { createClient } from '@/utils/supabase/client'
@@ -60,7 +60,8 @@ const navConfig: NavEntry[] = [
   {
     label: 'Ferramentas', icon: Sparkles,
     items: [
-      { href: '/sistema/analytics', label: 'Analytics', icon: BarChart2 },
+      { href: '/sistema/lances', label: 'Lances do Pregão', icon: Gavel },
+      { href: '/sistema/catalogos-whatsapp', label: 'Catálogos WhatsApp', icon: FileText },
       { href: '/sistema/ia', label: 'IA Mapeamento', icon: Sparkles },
       { href: '/sistema/ia/leiloes', label: 'Análise de Leilões', icon: FileVideo },
       { href: '/sistema/gif-lotes', label: 'GIF de Lotes', icon: Clapperboard },
@@ -73,7 +74,6 @@ const navConfig: NavEntry[] = [
       { href: '/sistema/users', label: 'Usuários & Permissões', icon: Shield },
       { href: '/sistema/whatsapp', label: 'Central WhatsApp', icon: MessageCircle },
       { href: '/sistema/email', label: 'Central de E-mail', icon: Mail },
-      { href: '/sistema/catalogos-whatsapp', label: 'Catálogos WhatsApp', icon: FileText },
       { href: '/sistema/settings', label: 'Configurações', icon: Settings },
     ],
   },
