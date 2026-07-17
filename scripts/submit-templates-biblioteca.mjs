@@ -336,6 +336,22 @@ Vou ser sincero com você: pra liberar os lances, a leiloeira pede uma habilita�
 Topa começar? Me manda o essencial e eu vou te falando o que falta, no seu ritmo.`,
     vars: ['João', 'uma vez aprovada, ela vale pros próximos leilões também'],
   },
+  // Versão NEUTRA/seca do convite de habilitação: público rústico, papo reto,
+  // sem emoji e sem afago — só o fato (assessoria de graça, habilitação
+  // necessária, eu resolvo a maior parte) e o convite.
+  {
+    name: 'bula_habilitacao_direta',
+    category: 'MARKETING',
+    header: 'Habilitação para leilão',
+    body: `Olá, {{1}}.
+
+A Bula acompanha comprador em leilão: a equipe vê os animais a campo antes e te fala o que vale o lance. Não custa nada pro comprador.
+
+Pra dar lance, a leiloeira pede uma habilitação — alguns dados e documentos. Eu resolvo a maior parte por aqui, e {{2}}.
+
+Se quiser, a gente começa. É só responder.`,
+    vars: ['João', 'feita uma vez, serve pros próximos leilões'],
+  },
 
   // ── molds de BOAS-VINDAS POR PERSONA (1º toque pós-formulário >24h) ──────
   // O formulário da campanha já diz quem é a pessoa (momento na pecuária);
