@@ -48,6 +48,9 @@ const SUBMIT = args.includes('--submit')
 const ONLY = (() => { const i = args.indexOf('--only'); return i >= 0 ? args[i + 1] : null })()
 const VIDEO_PATH = (() => { const i = args.indexOf('--video'); return i >= 0 ? args[i + 1] : 'F:/videooo.mp4' })()
 const IMAGE_PATH = (() => { const i = args.indexOf('--image'); return i >= 0 ? args[i + 1] : path.join(ROOT, 'public/agenda-oficial-bula-whatsapp-v2.jpg') })()
+// Exemplo de DOCUMENT: um catálogo REAL (exemplo genérico é motivo clássico de
+// reprovação lenta). No disparo, o PDF da vez é variável como nos outros molds.
+const PDF_PATH = (() => { const i = args.indexOf('--pdf'); return i >= 0 ? args[i + 1] : 'F:/Catálogo_LeilãoNaviraíMatrizes2026 - 2 Etapa.pdf' })()
 
 const GRAPH = (process.env.WHATSAPP_CLOUD_GRAPH_VERSION || 'v25.0').replace(/^v?/, 'v')
 const WABA = process.env.WHATSAPP_CLOUD_BUSINESS_ACCOUNT_ID || process.env.WABA_ID
@@ -390,12 +393,85 @@ A gente acompanha os principais remates de Nelore P.O. do país — nossa equipe
 Quer que eu te mande a agenda dos próximos leilões?`,
     vars: ['João', 'sem custo nenhum pro comprador'],
   },
+
+  // ── molds por PERSONA × OBJETIVO (doc de personas 17/07 + 2º eixo) ───────
+  // O concierge agora ramifica também pelo objetivo de compra (touros /
+  // matrizes / genética — concierge-persona.ts); estes molds levam o mesmo
+  // racional pro disparo: agenda segmentada com header IMAGE (a arte do evento
+  // é variável) e material com header DOCUMENT (o PDF/catálogo da vez).
+  {
+    // Fecha a família de boas-vindas: iniciante/produtor/criador já existem;
+    // faltava o Multiplicador Genético (embrião/sêmen/aspiração — Fórmula do Boi).
+    name: 'bula_boas_vindas_multiplicador',
+    category: 'MARKETING',
+    header: 'Multiplicação genética',
+    body: `Olá, {{1}}! João, da Bula Assessoria. 🧬
+
+Vi que seu caminho é {{2}} — quando o programa é bem desenhado, é o jeito mais rápido de subir o padrão do plantel.
+
+A gente acompanha os principais remates e programas de genética Nelore P.O. do país, sem custo pro comprador.
+
+Me conta do seu programa: {{3}}? Com isso eu já te aponto o que encaixa.`,
+    vars: ['João', 'multiplicar genética (embrião, aspiração, sêmen)', 'você já trabalha com FIV ou tem estrutura de receptoras'],
+  },
+  {
+    // Agenda pro REPOSITOR DE TOUROS: conversa de resultado e shortlist.
+    name: 'bula_agenda_touros_imagem',
+    category: 'MARKETING',
+    media: 'IMAGE',
+    body: `Olá, {{1}}! 🐂
+
+Agenda pra quem busca reprodutor: {{2}}.
+
+Nossa equipe já foi a campo e apartou os touros que valem lance, com {{3}} na maioria dos eventos.
+
+Quer que eu te mande a lista curta pro seu objetivo? É só responder por aqui.`,
+    vars: ['João', 'Leilão Naviraí (16/07, 20h) e Mega EAO Baviera (09 a 12/07)', '30x no boleto e frete grátis'],
+  },
+  {
+    // Agenda pra SELECIONADORA DE MATRIZES: tom consultivo de base materna.
+    name: 'bula_agenda_matrizes_imagem',
+    category: 'MARKETING',
+    media: 'IMAGE',
+    body: `Olá, {{1}}!
+
+Pra quem está formando ou reforçando base materna, vale olhar: {{2}}.
+
+São fêmeas com família, fertilidade e habilidade materna avaliadas a campo pela nossa equipe. Escolher matriz é decisão de anos — se quiser, eu te ajudo a comparar as opções pro seu criatório, sem custo e sem pressa.`,
+    vars: ['João', 'Leilão Naviraí Matrizes, dia 16/07 às 20h'],
+  },
+  {
+    // Agenda pro MULTIPLICADOR GENÉTICO: aspirações/embriões/prenhezes.
+    name: 'bula_agenda_genetica_imagem',
+    category: 'MARKETING',
+    media: 'IMAGE',
+    body: `Olá, {{1}}! 🧬
+
+Novidade pra quem multiplica: {{2}}.
+
+Dá pra desenhar um passo bom do seu programa com isso. Me fala seu objetivo — {{3}} — que eu levanto o que encaixa e te passo os detalhes.`,
+    vars: ['João', 'agenda confirmada com aspirações de doadoras premiadas e embriões de famílias provadas', 'acelerar o plantel ou formar banco genético'],
+  },
+  {
+    // Material/shortlist POR PERFIL com o PDF anexado (catálogo, seleção da
+    // equipe…): o mesmo molde serve touro, matriz ou genética via variáveis.
+    name: 'bula_material_perfil_pdf',
+    category: 'MARKETING',
+    media: 'DOCUMENT',
+    body: `Olá, {{1}}! 📋
+
+Você comentou que busca {{2}}. Nossa equipe separou este material com {{3}}.
+
+Qualquer lote que chamar sua atenção, me responde por aqui que eu levanto os detalhes e te acompanho até o lance.`,
+    vars: ['João', 'touros pra repor os reprodutores', 'a seleção que fizemos a campo, com os destaques do seu perfil marcados'],
+  },
 ]
 
 // ── Resumable Upload (header_handle do arquivo-exemplo de mídia) ─────────────
 const MEDIA_SOURCES = {
   IMAGE: { path: IMAGE_PATH, type: 'image/jpeg' },
   VIDEO: { path: VIDEO_PATH, type: 'video/mp4' },
+  DOCUMENT: { path: PDF_PATH, type: 'application/pdf' },
 }
 const handleCache = {}
 
@@ -442,7 +518,9 @@ async function buildPayload(t) {
 function preview(t) {
   let b = t.body
   t.vars.forEach((v, i) => { b = b.replace(new RegExp(`\\{\\{\\s*${i + 1}\\s*\\}\\}`, 'g'), v) })
-  const head = t.media ? `[${t.media === 'VIDEO' ? '🎬 vídeo' : '🖼 imagem'} — criativo anexado no disparo]` : `*${t.header}*`
+  const head = t.media
+    ? `[${t.media === 'VIDEO' ? '🎬 vídeo' : t.media === 'DOCUMENT' ? '📄 documento (PDF)' : '🖼 imagem'} — criativo anexado no disparo]`
+    : `*${t.header}*`
   return `${head}\n\n${b}\n\n_${FOOTER}_`
 }
 
