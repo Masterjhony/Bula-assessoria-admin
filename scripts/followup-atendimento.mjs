@@ -248,7 +248,10 @@ async function main() {
       step, param2, lastAt: c.lastAt,
     })
   }
-  audience.sort((a, b) => new Date(a.lastAt) - new Date(b.lastAt))
+  // Cadastro travado primeiro (mais perto do objetivo); dentro do step, mais antigo primeiro —
+  // garante que um --limit apertado nunca corte os leads de habilitação.
+  const stepRank = (a) => (a.step.botStep.startsWith('followup_cadastro') ? 0 : 1)
+  audience.sort((a, b) => stepRank(a) - stepRank(b) || new Date(a.lastAt) - new Date(b.lastAt))
 
   // ── relatório ──
   const porStep = {}
