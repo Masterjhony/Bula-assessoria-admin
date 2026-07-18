@@ -228,6 +228,7 @@ async function main() {
     if (lead.handoff_humano) { skipped.handoff++; continue }
     if (lead.optout_whatsapp) { skipped.optout++; continue }
     const xd = lead.extra_data ?? {}
+    if (xd.contexto_incorreto_at) { skipped.handoff++; continue } // número errado: nunca mais contatar
     const cadStatus = String(xd.cadastro_status ?? '')
     if (cadStatus === 'em_analise' || cadStatus === 'solicitado') { skipped.emAnalise++; continue }
 

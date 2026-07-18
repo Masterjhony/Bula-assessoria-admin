@@ -217,6 +217,7 @@ export function checklistPromptBlock(cl: HabilitacaoChecklist): string {
     }
     lines.push(cl.complete
         ? 'DADOS OBRIGATÓRIOS COMPLETOS: a habilitação já pode ser encaminhada. Os itens "(se possível)" que faltarem, peça UMA vez com leveza (documento com foto e comprovante de residência) — mas NÃO trave o cadastro por eles.'
-        : `Progresso: ${cl.done}/${cl.total}. Peça primeiro os itens ✘ SEM "(se possível)" (são os obrigatórios); os "(se possível)" peça com leveza e não trave o cadastro por eles.`)
+        : `Progresso interno: ${cl.done}/${cl.total}. Peça primeiro os itens ✘ SEM "(se possível)" (são os obrigatórios); os "(se possível)" peça com leveza e não trave o cadastro por eles.`)
+    lines.push('PARA O LEAD, fale por BLOCO, nunca por contagem de itens: bloco completo = "Identificação concluída"; incompleto = "falta só a parte da propriedade". NUNCA diga "X de 10 itens" — jornada longa percebida derruba a conclusão.')
     return lines.join('\n')
 }

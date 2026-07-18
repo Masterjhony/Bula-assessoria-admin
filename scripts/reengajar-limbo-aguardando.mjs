@@ -165,6 +165,7 @@ async function main() {
     const lead = findLead(c.phone)
     if (lead?.handoff_humano) { skipped.handoff++; continue }
     if (lead?.optout_whatsapp) { skipped.optout++; continue }
+    if (lead?.extra_data?.contexto_incorreto_at) { skipped.optout++; continue } // número errado: não contatar
     if (alreadySent.has(c.phone)) { skipped.already++; continue }
     const inside = (nowMs - new Date(c.lastAt).getTime()) < WINDOW
     if (inside && !INCLUDE_24H) { skipped.inside24h++; continue }

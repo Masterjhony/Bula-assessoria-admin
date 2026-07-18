@@ -281,6 +281,10 @@ ESTILO (obrigatório):
 
 DESCOBERTA É EXCEÇÃO, NÃO ETAPA: o lead geralmente já vem qualificado da campanha (o formulário diz o que ele busca). Só existe pergunta de descoberta quando NÃO sabemos nem o interesse — e é UMA: "O que você está buscando: touro pra melhorar o rebanho, matrizes, genética?". Sistema, rebanho, quantidade e experiência são REGISTRO OPORTUNISTA: se surgirem na conversa, registre em updates; nunca pergunte em série nem atrase o cadastro por causa deles.
 
+VALIDAÇÃO DE CONTEXTO (antes de qualquer venda): se a resposta indicar que o número/pessoa NÃO tem relação com pecuária — empresa de outro ramo, "acho que foi engano", nome/assunto incompatível — NENHUM argumento compensa contexto errado; continuar vendendo só gera denúncia. Responda em 1 linha ("Desculpe, seu número foi associado por engano — vou corrigir aqui e encerrar. Obrigado!"), marque updates.contexto_incorreto=true e NÃO venda mais nada. Se ficar em dúvida (resposta ambígua), pergunte primeiro: "Isso tem relação com você ou o número foi associado por engano?" — vender vem depois da confirmação.
+
+DIAGNÓSTICO ANTES DE PERSUASÃO: quando o lead hesita, identifique QUAL é a barreira antes de responder — e registre em updates.objecao_tipo. Desconfiança (risco) → identidade/finalidade, nunca mais argumento de venda. Sem documento/tempo agora (logistica) → combine a janela. Não vê ganho (valor) → conecte o cadastro a um resultado concreto. Não entendeu o processo (incerteza) → explique quantas etapas faltam e o que acontece depois. Insistir no argumento errado queima o lead.
+
 ESTADO DO CADASTRO (olhe "Status cadastro" nos dados do lead e seja coerente):
 - em_analise / solicitado → NÃO peça mais nada; diga que está em análise nas leiloeiras parceiras e que avisamos por aqui.
 - aprovado → ele já está habilitado; confirme com naturalidade e diga que o assessor acompanha os próximos leilões.
@@ -305,6 +309,8 @@ CONFIANÇA NA HORA DO CADASTRO (o maior ponto de abandono do funil é o pedido d
 - Peça em UMA mensagem organizada, com o que falta claro. O lead FORNECE os dados e documentos; não prometa consultar ou "puxar" nada por ele.
 - Se a pessoa demonstrar receio, PARE de pedir: aponte o site bulaassessoria.com e o Instagram @bulaassessoria, e só retome quando ela sinalizar conforto.
 - Documentos (foto de documento com foto + comprovante de endereço) são parte PADRÃO do cadastro: peça com naturalidade junto dos dados. Se ele não tiver em mãos, registre o que veio e combine o envio do resto — não deixe morrer.
+- "NÃO ESTOU COM O DOCUMENTO AGORA" nunca termina em "sem problema, fico aguardando" — isso mata a conversa. Feche uma janela concreta: "Você costuma estar com isso hoje à noite ou amanhã de manhã?" e registre em updates.retomada_combinada. Na retomada, diga o que JÁ está salvo e qual é a única pendência.
+- PROGRESSO EM BLOCOS, nunca em contagem: o cadastro tem 3 blocos (Identificação, Propriedade, Fiscal). Diga "Identificação concluída — falta só a parte da propriedade", NUNCA "faltam 7 de 10 itens". Jornada curta percebida conclui; lista longa espanta.
 
 REGISTRO (tão importante quanto responder): TODO dado que o lead informar vai em "updates" — quantidade de cabeças, sistema (cria/recria/engorda), o que ele cria hoje, objetivo, urgência, CPF, e-mail, endereço, fazenda, I.E. O que você não registrar, o sistema perde. Não invente nem "complete" dados que o lead não disse.
 Marque updates.assessoria_apresentada=true na mensagem em que você apresentar a Bula, e updates.aceitou_assessoria=true quando ele topar que você cuide do cadastro/acompanhamento dele ("quero", "pode ser", "como faço?", "manda").
@@ -375,6 +381,12 @@ interface ConciergeUpdates {
     documentos_recebidos?: string[] | null
     /** Referências comerciais/pessoais ("Nome - telefone") informadas pelo lead. */
     referencias?: string[] | null
+    /** Número/pessoa errada ou nada a ver com pecuária: corrigir a base e encerrar. */
+    contexto_incorreto?: boolean | null
+    /** Janela combinada com o lead p/ retomar ("hoje à noite", "amanhã de manhã"). */
+    retomada_combinada?: string | null
+    /** Tipo da objeção dominante: risco | logistica | valor | contexto | incerteza. */
+    objecao_tipo?: string | null
 }
 
 interface ConciergeAIResult {
@@ -706,7 +718,10 @@ const RESULT_SCHEMA_INSTRUCTIONS = `Responda SOMENTE com um objeto JSON válido 
     "fazenda_nome": "string|null",       // nome da fazenda/propriedade de entrega
     "fazenda_cidade": "string|null",
     "fazenda_uf": "UF|null",
-    "documentos_recebidos": ["identidade" | "comprovante_endereco"] // ou null
+    "documentos_recebidos": ["identidade" | "comprovante_endereco"], // ou null
+    "contexto_incorreto": true|false,   // true se o número/pessoa não tem relação com pecuária (empresa errada, engano)
+    "retomada_combinada": "string|null", // janela que o LEAD combinou p/ retomar ("hoje à noite", "amanhã de manhã")
+    "objecao_tipo": "risco|logistica|valor|contexto|incerteza|null" // objeção dominante quando o lead hesita/trava
   }
 }
 Inclua em "updates" apenas os campos que você descobriu/confirmou nesta troca; omita ou use null para o resto. Não invente dados que o lead não disse.`
@@ -1058,10 +1073,15 @@ async function applyConciergeEffects(
         'sistema_producao', 'rebanho_atual',
         'ie_status', 'cadastro_status', 'score_status', 'motivo_pendencia', 'proxima_acao',
         'endereco_titular', 'fazenda_nome', 'fazenda_cidade', 'fazenda_uf',
+        'retomada_combinada', 'objecao_tipo',
     ]
     for (const k of xdKeys) {
         const v = u[k]
         if (v !== undefined && v !== null && v !== '') nextExtra[k] = v
+    }
+    // "Quando-então": janela combinada vira timestamp p/ o follow-up saber a hora.
+    if (typeof u.retomada_combinada === 'string' && u.retomada_combinada.trim()) {
+        nextExtra.retomada_combinada_at = new Date().toISOString()
     }
 
     // Marcos do funil consultivo (alimentam a FASE da próxima mensagem).
@@ -1256,6 +1276,15 @@ async function applyConciergeEffects(
         && !prevExtra.habilitacao_notificada_at
     if (shouldNotifyTeam) {
         nextExtra.habilitacao_notificada_at = new Date().toISOString()
+    }
+
+    // Contexto incorreto (número errado, empresa sem relação com pecuária):
+    // corrigir a base e encerrar — nenhum texto persuasivo compensa contexto
+    // errado, só aumenta risco de denúncia. Suprime campanhas futuras.
+    if (u.contexto_incorreto === true) {
+        nextExtra.contexto_incorreto_at = new Date().toISOString()
+        update.optout_whatsapp = true
+        update.optout_at = new Date().toISOString()
     }
 
     // Handoff → humano assume; bot para de responder esse lead.
