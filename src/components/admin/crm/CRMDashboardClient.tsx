@@ -17,10 +17,10 @@ import { CRMPreferenciaisStrip } from './CRMPreferenciaisStrip';
 import { CRMLeadsView } from './CRMLeadsView';
 import { CRMTeamView } from './CRMTeamView';
 import { CRMWhatsappView } from './CRMWhatsappView';
-import { CRMValidationView } from './CRMValidationView';
+import { CRMAuditoriaView } from './CRMAuditoriaView';
 import {
     LayoutGrid, Plus, Maximize2, Minimize2, Settings, Archive,
-    Users, MessageCircle, ClipboardList, FileSpreadsheet,
+    Users, MessageCircle, ClipboardList, Bot,
 } from 'lucide-react';
 
 interface CRMDashboardClientProps {
@@ -28,8 +28,8 @@ interface CRMDashboardClientProps {
     crmConfig: CRMConfig;
 }
 
-type ViewType = 'lista' | 'kanban' | 'arquivados' | 'equipe' | 'whatsapp' | 'planilha' | 'configuracoes';
-const VALID_VIEWS: ViewType[] = ['lista', 'kanban', 'arquivados', 'equipe', 'whatsapp', 'planilha', 'configuracoes'];
+type ViewType = 'lista' | 'kanban' | 'arquivados' | 'equipe' | 'whatsapp' | 'auditoria' | 'configuracoes';
+const VALID_VIEWS: ViewType[] = ['lista', 'kanban', 'arquivados', 'equipe', 'whatsapp', 'auditoria', 'configuracoes'];
 
 export function CRMDashboardClient({ initialLeads, crmConfig: initialConfig }: CRMDashboardClientProps) {
     const [leads, setLeads] = useState<CRMLead[]>(initialLeads);
@@ -311,7 +311,7 @@ export function CRMDashboardClient({ initialLeads, crmConfig: initialConfig }: C
         { id: 'arquivados', label: 'Arquivados', icon: Archive },
         { id: 'equipe', label: 'Equipe', icon: Users },
         { id: 'whatsapp', label: 'WhatsApp', icon: MessageCircle },
-        { id: 'planilha', label: 'Planilha', icon: FileSpreadsheet },
+        { id: 'auditoria', label: 'Auditoria IA', icon: Bot },
         { id: 'configuracoes', label: 'Configurações', icon: Settings },
     ] as const;
 
@@ -319,8 +319,8 @@ export function CRMDashboardClient({ initialLeads, crmConfig: initialConfig }: C
     const isArquivados = activeView === 'arquivados';
     const isEquipe = activeView === 'equipe';
     const isWhatsapp = activeView === 'whatsapp';
-    const isPlanilha = activeView === 'planilha';
-    const isScrollable = isSettings || isArquivados || isEquipe || isWhatsapp || isPlanilha;
+    const isAuditoria = activeView === 'auditoria';
+    const isScrollable = isSettings || isArquivados || isEquipe || isWhatsapp || isAuditoria;
     const canCreateLead = activeView === 'kanban' || activeView === 'lista';
     const handleNewLeadClick = () => {
         handleOpenNewLead();
@@ -476,8 +476,8 @@ export function CRMDashboardClient({ initialLeads, crmConfig: initialConfig }: C
                     <CRMWhatsappView />
                 )}
 
-                {activeView === 'planilha' && (
-                    <CRMValidationView />
+                {activeView === 'auditoria' && (
+                    <CRMAuditoriaView onOpenLead={(id) => setEditingLeadId(id)} />
                 )}
             </div>
 

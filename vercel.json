@@ -6,6 +6,7 @@
     { "path": "/api/crm/inactivity-sweep", "schedule": "0 13 * * *" },
     { "path": "/api/cron/crm-daily-digest", "schedule": "30 22 * * *" },
     { "path": "/api/whatsapp/concierge/catchup", "schedule": "*/5 * * * *" },
+    { "path": "/api/cron/auditoria-conversas", "schedule": "0 8 * * *" },
     { "path": "/api/crm/habilitacao-sweep", "schedule": "15 * * * *" }
   ]
 }
