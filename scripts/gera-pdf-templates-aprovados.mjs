@@ -27,11 +27,16 @@ const outIdx = args.indexOf('--out')
 const OUT = outIdx >= 0 ? args[outIdx + 1] : join(homedir(), 'Desktop', 'Templates WhatsApp Aprovados - Bula Assessoria.pdf')
 
 const esc = s => String(s ?? '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
-// *negrito* do WhatsApp → <b>, quebra de linha → <br>, variáveis {{n}} → chip
-function renderBody(text) {
+// *negrito* do WhatsApp → <b>, quebra de linha → <br>.
+// Variáveis {{n}}: preenchidas com o valor de exemplo (como o lead vê);
+// se não houver exemplo, mantém o chip {{n}}.
+function renderBody(text, examples = []) {
   let h = esc(text)
+  h = h.replace(/\{\{(\d+)\}\}/g, (m, n) => {
+    const v = examples[Number(n) - 1]
+    return v != null && v !== '' ? `<span class="filled">${esc(v)}</span>` : `<span class="var">{{${n}}}</span>`
+  })
   h = h.replace(/\*([^*\n]+)\*/g, '<b>$1</b>')
-  h = h.replace(/\{\{(\d+)\}\}/g, '<span class="var">{{$1}}</span>')
   h = h.replace(/\n/g, '<br>')
   return h
 }
@@ -54,17 +59,18 @@ async function main() {
     const footer = t.components.find(c => c.type === 'FOOTER')
     const buttons = t.components.find(c => c.type === 'BUTTONS')
     const examples = body?.example?.body_text?.[0] || []
+    const headerExamples = header?.example?.header_text || []
 
     let headerHtml = ''
     if (header) {
-      if (header.format === 'TEXT') headerHtml = `<div class="hdr hdr-text">${renderBody(header.text)}</div>`
+      if (header.format === 'TEXT') headerHtml = `<div class="hdr hdr-text">${renderBody(header.text, headerExamples)}</div>`
       else headerHtml = `<div class="hdr hdr-media">${MEDIA_ICON[header.format] || header.format}<span class="hdr-note">— anexado no disparo</span></div>`
     }
     const btnHtml = buttons
       ? `<div class="btns">${buttons.buttons.map(b => `<div class="btn">${esc(b.text)}${b.url ? ' 🔗' : b.phone_number ? ' 📞' : ''}</div>`).join('')}</div>`
       : ''
     const legenda = examples.length
-      ? `<div class="legend"><span class="legend-t">Variáveis:</span> ${examples.map((v, i) => `<span class="var">{{${i + 1}}}</span> ${esc(v)}`).join(' &nbsp;·&nbsp; ')}</div>`
+      ? `<div class="legend"><span class="legend-t">Variáveis (preenchidas com exemplo):</span> ${examples.map((v, i) => `<span class="var">{{${i + 1}}}</span> = <span class="filled">${esc(v)}</span>`).join(' &nbsp;·&nbsp; ')}</div>`
       : ''
 
     return `<div class="card">
@@ -74,7 +80,7 @@ async function main() {
       </div>
       <div class="bubble">
         ${headerHtml}
-        ${body ? `<div class="body">${renderBody(body.text)}</div>` : ''}
+        ${body ? `<div class="body">${renderBody(body.text, examples)}</div>` : ''}
         ${footer ? `<div class="footer">${renderBody(footer.text)}</div>` : ''}
         ${btnHtml}
       </div>
@@ -112,6 +118,7 @@ async function main() {
   .btns { margin-top:8px; border-top:1px solid #cbe6bb; padding-top:6px; }
   .btn { color:#0a7cff; text-align:center; font-size:12px; font-weight:600; padding:4px; }
   .var { background:#111; color:#ffd24c; font-family:Consolas,monospace; font-size:10.5px; border-radius:4px; padding:0 4px; font-weight:700; }
+  .filled { background:#fff3bf; border-bottom:1px dotted #b8860b; border-radius:2px; padding:0 1px; }
   .legend { margin-top:8px; font-size:10.5px; color:#555; }
   .legend-t { font-weight:700; color:#111; }
   </style></head><body><div class="page">
