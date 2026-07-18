@@ -67,42 +67,27 @@ export interface FaseResult {
 }
 
 /**
- * Teto de perguntas de descoberta. O chefe quer MAIS qualificação, mas um lead
- * que não responde o perfil não pode ficar preso num interrogatório: passada
- * esta quantidade de mensagens dele, a gente apresenta a assessoria com o que
- * tem. Vender é melhor que continuar perguntando pra uma pessoa calada.
+ * Teto de perguntas de descoberta. Decisão comercial de 18/07: o lead
+ * geralmente JÁ VEM qualificado da campanha (formulário diz o que busca) —
+ * descoberta é exceção, não etapa. Duas mensagens sem descobrir o interesse e
+ * a gente apresenta a assessoria assim mesmo.
  */
-export const MAX_TURNOS_DESCOBERTA = 4
+export const MAX_TURNOS_DESCOBERTA = 2
 
 const str = (v: unknown) => String(v ?? '').trim()
 
 /**
- * Perfil mínimo para sair da descoberta — POR SEGMENTO. `sistema` aceita
- * 'nao_definido' — o lead que não sabe responder (ou não quer) não pode ficar
- * preso no funil; o que não vale é a IA nunca ter perguntado.
- *
- * O segmento muda o que faz sentido perguntar: iniciante não tem rebanho nem
- * sistema (perguntar "cria, recria ou engorda?" pra quem quer COMEÇAR esfria a
- * conversa — aconteceu na campanha EAO); criador de P.O. dispensa o básico e
- * sai da descoberta com menos perguntas (o formulário já o posicionou).
+ * Descoberta MÍNIMA: só falta algo quando não sabemos nem o que o lead busca.
+ * Sistema/rebanho/quantidade deixaram de ser porteira de fase (18/07) — viram
+ * registro oportunista durante a conversa. Qualificar fundo quem já veio
+ * qualificado da campanha era gastar turnos que deviam virar cadastro.
  */
 export function perfilFaltando(p: PerfilLead, segmento: Segmento = 'indefinido'): string[] {
-    const falta: string[] = []
+    if (str(p.interesse) || str(p.objetivo)) return []
     if (segmento === 'iniciante') {
-        if (!str(p.interesse)) falta.push('o que ele quer começar a criar (melhorar com touro? formar plantel com matrizes?)')
-        if (!str(p.objetivo)) falta.push('o plano dele pra começar (já tem terra/estrutura? quando pretende?)')
-        return falta
+        return ['o que ele quer começar a criar (melhorar com touro? formar plantel com matrizes?)']
     }
-    if (segmento === 'criador_po') {
-        if (!str(p.interesse)) falta.push('o que ele busca agora (reforço de plantel, linhagem específica…)')
-        if (!str(p.quantidade)) falta.push('quantas cabeças ele toca hoje')
-        return falta
-    }
-    if (!str(p.interesse)) falta.push('o que ele busca (touros, matrizes, bezerras…)')
-    if (!str(p.quantidade)) falta.push('quantas cabeças ele tem hoje')
-    if (!str(p.sistema)) falta.push('se trabalha com cria, recria ou engorda')
-    if (!str(p.rebanho)) falta.push('o que ele cria hoje (mestiço, comercial, já tem P.O.?)')
-    return falta
+    return ['o que ele busca (touros, matrizes, genética…)']
 }
 
 export function computeFase(input: FaseInput): FaseResult {
@@ -118,20 +103,15 @@ export function computeFase(input: FaseInput): FaseResult {
     if (jaApresentou && input.aceitouAssessoria) {
         return { ...base, fase: 'habilitacao', motivo: 'lead aceitou a assessoria — pode habilitar' }
     }
-    // Sinal de compra explícito (urgência registrada + já sabemos o que ele busca):
-    // segurar esse lead em descoberta é perder venda. Pula direto pra apresentação
-    // e o "sim"; a qualificação fina acontece naturalmente durante a habilitação.
-    const sinalCompra = ['agora', 'proximos_30_dias', 'proximos_leiloes'].includes(str(input.perfil.urgencia))
-        && !!str(input.perfil.interesse)
-    if (falta.length > 0 && !sinalCompra) {
+    // Interesse conhecido (formulário da campanha, classificação ou conversa) =
+    // lead qualificado o suficiente. Descoberta só quando não sabemos NEM o que
+    // ele busca — e mesmo assim por no máximo MAX_TURNOS_DESCOBERTA mensagens.
+    if (falta.length > 0) {
         const enrolou = (input.turnosLead ?? 0) >= MAX_TURNOS_DESCOBERTA
         if (!enrolou) {
-            return { ...base, fase: 'descoberta', motivo: `perfil incompleto (${falta.length} item(ns))` }
+            return { ...base, fase: 'descoberta', motivo: 'não sabemos o que o lead busca' }
         }
-        return { ...base, fase: 'apresentacao', motivo: `perfil incompleto, mas a conversa já se estendeu (${input.turnosLead} msgs) — apresentar assessoria` }
-    }
-    if (sinalCompra && !jaApresentou) {
-        return { ...base, fase: 'apresentacao', motivo: 'sinal de compra explícito — apresentar a assessoria e buscar o "sim" já' }
+        return { ...base, fase: 'apresentacao', motivo: `interesse não descoberto em ${input.turnosLead} msgs — apresentar assessoria assim mesmo` }
     }
     if (!jaApresentou) {
         return { ...base, fase: 'apresentacao', motivo: 'perfil entendido, falta apresentar a assessoria' }
@@ -162,30 +142,28 @@ export function extractPerfil(lead: {
 
 const REGRAS: Record<ConciergeFase, string[]> = {
     descoberta: [
+        'Você ainda não sabe O QUE o lead busca. UMA pergunta objetiva pra descobrir (touros, matrizes, genética, começar do zero?) — e nada além disso.',
         'PROIBIDO nesta fase: pedir CPF, e-mail, endereço, Inscrição Estadual, foto de documento ou qualquer dado de cadastro.',
-        'PROIBIDO nesta fase: falar em "habilitar", "cadastro", "compra parcelada" ou "30x" como se fosse a oferta.',
-        'Faça UMA pergunta por mensagem, no tom de quem entende de gado e quer entender a operação dele.',
-        'Reaja ao que ele responde (um comentário curto de quem é do ramo) antes de perguntar a próxima coisa.',
+        'NÃO transforme em questionário: sistema, rebanho e quantidade são registro oportunista se ele mencionar, nunca pergunta em série.',
     ],
     apresentacao: [
-        'Você já entende a operação dele. Agora APRESENTE A BULA e o valor da assessoria — que é gratuita pro comprador.',
-        'PROIBIDO nesta fase: pedir documento ou foto. Dado de cadastro só depois que ele topar o acompanhamento.',
-        'Feche perguntando se ele quer que VOCÊ cuide do cadastro dele e o acompanhe no leilão (é o "sim" que destrava o resto).',
-        'NÃO ofereça "falar com um assessor" nem "te passar para um assessor" — o assessor só entra depois do cadastro aprovado.',
+        'O lead já vem qualificado (formulário/campanha) na maioria dos casos: referencie o que ele declarou ("você busca matrizes...") em vez de perguntar de novo.',
+        'APRESENTE A BULA em 2-3 linhas — assessoria gratuita pro comprador, time que analisa os animais antes do remate e acompanha o lance — e feche com a pergunta do "sim": ele quer que VOCÊ deixe o cadastro dele pronto pra comprar em leilão?',
+        'Ao propor o cadastro, dê o PORQUÊ comercial em meia linha: a compra em leilão é parcelada (ex.: 30x no boleto) direto com a leiloeira — como é ela que assume o risco do parcelamento, ela só libera lance de cadastro aprovado. Cadastro = crédito aprovado pra dar lance, não burocracia.',
+        'PROIBIDO nesta fase: pedir documento ou foto. Dado de cadastro só depois do "sim".',
+        'NÃO ofereça "falar com um assessor", "uma pessoa da equipe" nem similar — o assessor só entra DEPOIS do cadastro aprovado, e quem conduz até lá é você.',
         'Se ele já demonstrou o "sim" ("quero", "pode ser", "como faço?"), marque updates.aceitou_assessoria=true.',
     ],
     habilitacao: [
-        'O lead topou. Agora sim: peça o que falta no checklist, enquadrado como o que destrava a participação dele no leilão.',
-        'LEAD EMPOLGADO ≠ LEAD PRONTO: enquanto o cadastro não fecha, NÃO venda lote específico nem crie urgência de leilão — empolgação sem habilitação é só ansiedade, e ansiedade não dá lance se o cadastro travar. Canalize a empolgação pra concluir o cadastro ("pra você conseguir dar lance no sábado, só falta X").',
-        'ESTE É O PONTO ONDE MAIS SE PERDE LEAD (a maioria abandona no pedido de dados). Antes do PRIMEIRO pedido, ancore a confiança em meia linha: é o cadastro padrão que a leiloeira pede pra liberar o lance, e os dados ficam só entre ele, a Bula e a leiloeira.',
-        'COMECE PELO CPF — e SÓ o CPF. Diga que com ele você puxa o resto nos sistemas oficiais (I.E., fazenda, endereço): o lead não precisa digitar quase nada. Pedir lista de dados de uma vez é o que espanta.',
-        'Se o CPF ainda não veio, peça só CPF + endereço de correspondência (cidade/UF/CEP). NÃO peça fazenda, I.E. nem documento ainda.',
-        'Peça em UMA mensagem organizada, nunca item por item, e só o que está marcado com ✘.',
+        'O lead topou. Objetivo único desta fase: FECHAR O CADASTRO. Cada mensagem sua ou coleta um dado/documento ou destrava uma objeção.',
+        'LEAD EMPOLGADO ≠ LEAD PRONTO: enquanto o cadastro não fecha, NÃO venda lote específico nem crie urgência de leilão. Canalize a empolgação pra concluir o cadastro ("pra você conseguir dar lance no sábado, só falta X").',
+        'Antes do PRIMEIRO pedido, ancore o porquê em uma linha: como a compra é parcelada, a leiloeira precisa dos dados e documentos de quem vai dar lance — é o cadastro dela que libera seu crédito. Os dados ficam entre ele, a Bula e a leiloeira.',
+        'Peça em UMA mensagem organizada TUDO que falta com ✘ nos DADOS: nome completo, CPF, Inscrição Estadual (ou NIRF), endereço e e-mail. O lead fornece os dados — não prometa "puxar nos sistemas" nem consultar nada por ele.',
+        'DOCUMENTOS FAZEM PARTE DO CADASTRO PADRÃO: foto de um documento com foto (RG/CNH) e comprovante de endereço. Peça junto com os dados, como exigência normal da leiloeira — não como favor opcional. Se ele não tiver em mãos, registre o que veio e combine quando manda o resto; não deixe morrer.',
         'Dado marcado com ✔ NUNCA é pedido de novo — no máximo confirmado ("é isso mesmo?").',
-        'Se ele hesitar, sumir ou desconversar depois de um pedido: NÃO repita a lista. Pergunte em 1 linha o que travou; se for desconfiança, aponte o site bulaassessoria.com e o @bulaassessoria e ofereça uma pessoa da equipe — nunca insista no dado com lead desconfiado.',
-        'Documentos com foto são OPCIONAIS ("se der pra ir adiantando") e NUNCA travam o cadastro — se sentir resistência, siga só com os dados.',
+        'Se ele hesitar, sumir ou desconversar depois de um pedido: NÃO repita a lista. Pergunte em 1 linha o que travou; se for desconfiança, aponte o site bulaassessoria.com e o Instagram @bulaassessoria.',
         'Benefício em meia linha: com o cadastro aprovado ele já pode dar lance no próximo leilão.',
-        'Quem conduz é VOCÊ. Não diga que vai encaminhar para um assessor — isso é depois da aprovação.',
+        'Quem conduz é VOCÊ até o fim. NUNCA ofereça encaminhar para assessor ou "pessoa da equipe" — assessor é o prêmio de cadastro aprovado.',
     ],
     analise: [
         'Checklist completo: NÃO peça mais nada.',

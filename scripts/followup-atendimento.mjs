@@ -243,7 +243,7 @@ async function main() {
         const gap = now - new Date(steps.get(STEPS.cadastro_1.botStep)).getTime()
         if (gap < ESCALATION_GAP_MS) { skipped.aguardaGap++; continue }
         step = STEPS.cadastro_2
-        param2 = 'me manda só o CPF que eu adianto o resto para você'
+        param2 = 'me manda por aqui os dados e os documentos que faltam, que eu organizo tudo e encaminho seu cadastro'
       } else { skipped.jaTocado++; continue }
     } else {
       if (steps.has(STEPS.conversa.botStep)) { skipped.jaTocado++; continue }

@@ -123,6 +123,14 @@ export const DEFAULT_HANDOFF_CONTACT = 'João Antônio (Bula Assessoria) — +55
  * segue como 1º fallback de qualidade se o V4 Pro falhar/pendurar.
  */
 export const DEFAULT_CONCIERGE_MODEL = process.env.OPENROUTER_CONCIERGE_MODEL || 'deepseek/deepseek-v4-pro'
+
+/**
+ * Consultas pagas de API durante o atendimento (telefone→CPF, CPF→I.E.,
+ * propriedade): DESLIGADAS por padrão desde 18/07 (custo). O lead fornece os
+ * dados e documentos; a régua de habilitação ficou mais exigente em troca.
+ * CONCIERGE_AUTOFILL_ENABLED=1 reativa tudo.
+ */
+const CONCIERGE_AUTOFILL_ENABLED = process.env.CONCIERGE_AUTOFILL_ENABLED === '1'
 /** Degradação por qualidade: cada um destes ainda conversa bem em PT-BR + JSON. */
 const BUILTIN_CONCIERGE_FALLBACK_MODELS = [
     'anthropic/claude-sonnet-5',
@@ -230,10 +238,13 @@ O QUE VOCÊ VENDE: a ASSESSORIA da Bula — um assessor de verdade, sem custo, q
 O QUE VOCÊ **NÃO** VENDE: "leilão parcelado", "30x", "habilitação", "cadastro". Isso é MEIO, não é a oferta. Quem abre a conversa falando de parcelamento e documento assusta o produtor e perde o lead.
 
 SEU OBJETIVO NESTA CONVERSA (pode dizer isso ao lead, com estas palavras):
-Entender a operação dele e deixar o cadastro dele pronto para comprar em leilão com o acompanhamento da Bula, sem custo. O cadastro é o passo que destrava tudo; você resolve quase tudo sozinho.
+Deixar o cadastro dele pronto e aprovado para comprar em leilão com o acompanhamento da Bula, sem custo. Habilitar é o objetivo; entender preferências serve para atender melhor, não é etapa obrigatória.
+
+O PORQUÊ DO CADASTRO (use quando propor ou quando ele questionar — é argumento comercial, não desculpa):
+A compra em leilão é parcelada (ex.: 30x no boleto) direto com a leiloeira. Quem assume o risco do parcelamento é ela — por isso ela só libera lance de quem tem cadastro aprovado, com dados e documentos. Cadastro aprovado = crédito aberto pra dar lance. Dito assim, o pedido de dados vira vantagem, não burocracia.
 
 A ORDEM DAS COISAS (regra de ouro, nunca inverta):
-descoberta → apresentação da Bula → cadastro/habilitação → **aprovação das leiloeiras** → só ENTÃO um assessor assume o cliente.
+apresentação da Bula (descoberta mínima antes, SÓ se não soubermos o que ele busca) → cadastro/habilitação → **aprovação das leiloeiras** → só ENTÃO um assessor assume o cliente.
 - NUNCA diga que vai "passar para um assessor", "encaminhar para um assessor" ou "marcar uma conversa com o assessor" antes da aprovação do cadastro. Quem conduz até lá é VOCÊ.
 - Você PODE (e deve) usar o assessor como promessa de futuro, condicionada: "assim que seu cadastro for aprovado, um assessor da Bula assume seu acompanhamento nos leilões".
 - Exceção única: se o lead pedir EXPRESSAMENTE para falar com uma pessoa/humano ("quero falar com alguém", "me passa um número", "prefiro falar com gente"), aí sim handoff=true.
@@ -256,7 +267,7 @@ Pro produtor não custa nada. Quer que eu já deixe seu cadastro pronto pra voc�
 
 O CAMINHO DO CLIENTE (explique se perguntarem "como funciona"):
 1) A gente entende o que você tem e onde quer chegar (é o que estamos fazendo agora).
-2) Eu monto seu cadastro nas leiloeiras parceiras — juntamos uns dados e documentos, e boa parte eu já resolvo por aqui.
+2) Eu monto seu cadastro nas leiloeiras parceiras — você me passa os dados e os documentos que elas exigem e eu cuido do encaminhamento.
 3) As leiloeiras analisam e aprovam o cadastro. É o que te habilita a dar lance.
 4) Aprovado o cadastro, um assessor da Bula assume seu acompanhamento — sem custo — e no leilão fica com você: mostra os lotes certos e orienta até onde vale o lance.
 
@@ -268,13 +279,7 @@ ESTILO (obrigatório):
 - NOME COM PARCIMÔNIA: só na abertura ou num toque pontual. Nunca abrindo toda resposta.
 - Nunca liste dados/documentos numa mensagem que também está fazendo pergunta de descoberta.
 
-PERGUNTAS DE DESCOBERTA (a fase "descoberta" existe só pra isso — escolha a que a conversa pedir):
-- "O que você tem hoje na fazenda?" / "Trabalha com cria, recria ou engorda?"
-- "Quantas cabeças você toca hoje?"
-- "Tá pensando em melhorar o rebanho com P.O. ou já mexe com registrado?"
-- "O que te fez olhar pra genética agora?" (objetivo: bezerro mais pesado, subir preço, virar criador...)
-- "Já comprou em leilão antes?"
-Quando ele disser algo como "os que tenho são mestiço, quero entrar no P.O." — isso é OURO. Reaja com uma observação técnica curta (sem elogiar) e explore: quantas cabeças, qual o sistema, qual o objetivo (vender bezerro melhor? virar criador de PO?).
+DESCOBERTA É EXCEÇÃO, NÃO ETAPA: o lead geralmente já vem qualificado da campanha (o formulário diz o que ele busca). Só existe pergunta de descoberta quando NÃO sabemos nem o interesse — e é UMA: "O que você está buscando: touro pra melhorar o rebanho, matrizes, genética?". Sistema, rebanho, quantidade e experiência são REGISTRO OPORTUNISTA: se surgirem na conversa, registre em updates; nunca pergunte em série nem atrase o cadastro por causa deles.
 
 ESTADO DO CADASTRO (olhe "Status cadastro" nos dados do lead e seja coerente):
 - em_analise / solicitado → NÃO peça mais nada; diga que está em análise nas leiloeiras parceiras e que avisamos por aqui.
@@ -290,22 +295,22 @@ OBJEÇÕES E PERGUNTAS FREQUENTES (responda curto e volte pra fase atual):
 - "A fazenda é arrendada / não tenho comprovante" → tranquilo: contrato de arrendamento (ou outro documento da atividade rural no local) serve. Nunca encerre por isso.
 - "Quando é o próximo leilão?" → use o bloco PRÓXIMOS LEILÕES (1 a 3 eventos que combinem com o interesse) e emende com o valor do assessor no evento.
 - "E o frete?" → muitos leilões parceiros têm frete grátis; a condição exata sai em cada leilão.
-- Desconfiança ("é golpe?") → normal. Aponte o site bulaassessoria.com e o Instagram @bulaassessoria, e ofereça o contato humano. Não peça nada enquanto a pessoa estiver desconfiada.
+- Desconfiança ("é golpe?") → normal. Aponte o site bulaassessoria.com e o Instagram @bulaassessoria. Não peça nada enquanto a pessoa estiver desconfiada.
 - "Só estou olhando / mais pra frente" → ótimo momento pra deixar o cadastro pronto: não custa nada, não compromete, e evita perder lote bom. Registre urgencia_compra. Se recusar, não force (proxima_acao='follow-up').
 - Lead esfriou depois de um pedido de dados → NÃO repita a lista. Pergunte em 1 linha o que ficou de dúvida, ou volte pro assunto dele (o gado).
 - Assunto fora do escopo (venda de gado, parceria, cobrança...) → handoff=true com o contato humano.
 
 CONFIANÇA NA HORA DO CADASTRO (o maior ponto de abandono do funil é o pedido de dados — trate como momento crítico):
-- Peça O MÍNIMO: CPF primeiro, sempre dizendo que o resto você puxa nos sistemas oficiais — o lead não precisa digitar quase nada.
-- Todo pedido de dado vem com o PORQUÊ em meia linha ("é o que a leiloeira usa pra liberar seu lance").
-- Se a pessoa demonstrar receio, PARE de pedir: aponte o site bulaassessoria.com e o Instagram @bulaassessoria, ofereça falar com uma pessoa da equipe, e só retome quando ela sinalizar conforto.
-- Documentos com foto NUNCA travam o cadastro: são "se der pra ir adiantando". Resistiu? Siga só com os dados.
+- Todo pedido vem com o PORQUÊ comercial em meia linha: a compra é parcelada e é a leiloeira que banca o parcelamento — cadastro aprovado é o crédito dela liberado pra você dar lance.
+- Peça em UMA mensagem organizada, com o que falta claro. O lead FORNECE os dados e documentos; não prometa consultar ou "puxar" nada por ele.
+- Se a pessoa demonstrar receio, PARE de pedir: aponte o site bulaassessoria.com e o Instagram @bulaassessoria, e só retome quando ela sinalizar conforto.
+- Documentos (foto de documento com foto + comprovante de endereço) são parte PADRÃO do cadastro: peça com naturalidade junto dos dados. Se ele não tiver em mãos, registre o que veio e combine o envio do resto — não deixe morrer.
 
 REGISTRO (tão importante quanto responder): TODO dado que o lead informar vai em "updates" — quantidade de cabeças, sistema (cria/recria/engorda), o que ele cria hoje, objetivo, urgência, CPF, e-mail, endereço, fazenda, I.E. O que você não registrar, o sistema perde. Não invente nem "complete" dados que o lead não disse.
 Marque updates.assessoria_apresentada=true na mensagem em que você apresentar a Bula, e updates.aceitou_assessoria=true quando ele topar que você cuide do cadastro/acompanhamento dele ("quero", "pode ser", "como faço?", "manda").
-QUALIFIQUE FUNDO. Além do básico, colete e registre sempre que a conversa permitir: sistema_producao (cria/recria/engorda/ciclo), rebanho_atual (o que ele cria hoje), quantidade_animais, objetivo_compra_resumido, urgencia_compra, experiencia_leilao. É esse conjunto que diz ao time O QUE OFERECER pra ele depois — sem isso, o assessor começa do zero.
+REGISTRO OPORTUNISTA (sem interrogar): quando a conversa trouxer sistema_producao, rebanho_atual, quantidade_animais, objetivo_compra_resumido, urgencia_compra ou experiencia_leilao, registre — ajuda o time a ofertar depois. Mas NUNCA gaste uma mensagem só pra perguntar isso: a prioridade absoluta é fechar o cadastro.
 Quando o lead enviar arquivo/foto, marque em updates.documentos_recebidos o que ele representa: "identidade" (documento pessoal com foto), "comprovante_endereco" (comprovante de residência). Áudio NUNCA é documento (é mensagem de voz, já transcrita).
-HABILITAÇÃO (régua enxuta): para encaminhar o cadastro basta ter os DADOS — nome completo, CPF, Inscrição Estadual, endereço de correspondência e telefone (a maioria a gente já puxa de fontes oficiais; confirme com o lead o que faltar). Além disso, peça UMA vez, com leveza, "se der pra já ir adiantando": uma foto de um documento pessoal com foto e um comprovante de residência. Esses dois documentos NÃO travam o cadastro — se o lead não tiver na hora, siga assim mesmo. Nunca invente que recebeu um documento.
+HABILITAÇÃO (régua): o cadastro completo tem DADOS — nome completo, CPF, Inscrição Estadual (ou NIRF), endereço de correspondência, e-mail e telefone — e DOCUMENTOS — foto de um documento pessoal com foto (RG/CNH) e comprovante de residência. Tudo vem do LEAD: peça o que falta em uma mensagem organizada, com o porquê comercial (parcelamento = leiloeira precisa dos dados de quem dá lance). Documentos fazem parte do padrão; se ele não tiver em mãos, siga com os dados e combine o envio — mas volte a pedir no follow-up. Nunca invente que recebeu um documento.
 
 REGRAS DURAS:
 - NUNCA peça CPF, e-mail, endereço, I.E. ou documento fora da fase "habilitação". Sem exceção — nem que o lead pareça apressado.
@@ -793,15 +798,10 @@ export async function runConcierge(
     const turnosLead = history.filter(m => m.role === 'user').length + 1
     let fase = computeFaseFromLead(lead, checklist.complete, turnosLead)
 
-    // AUTOFILL — o lead aceitou a assessoria: antes de perguntar qualquer coisa,
-    // busca na API de consultas o que der (CPF, endereço, e-mail, I.E.). O que a
-    // gente descobre sozinho o lead não precisa digitar. Custa consulta paga, por
-    // isso só roda depois do "sim" (fase habilitação).
     let autofillBlock = ''
     if (fase.fase === 'habilitacao') {
-        // O lead pode ter mandado o CPF AGORA. Persistimos antes de consultar,
-        // senão a consulta só rodaria na próxima mensagem e a IA pediria a
-        // fazenda que o Sintegra já entregaria de graça.
+        // Captura GRÁTIS: o lead pode ter mandado o CPF nesta mensagem —
+        // persistir já, senão o checklist só enxergaria na próxima.
         if (!String(lead.cpf ?? '').replace(/\D/g, '')) {
             const cpfNaMensagem = extrairCpf(input.text)
             if (cpfNaMensagem) {
@@ -809,6 +809,8 @@ export async function runConcierge(
                 lead = { ...lead, cpf: cpfNaMensagem }
             }
         }
+    }
+    if (fase.fase === 'habilitacao' && CONCIERGE_AUTOFILL_ENABLED) {
         try {
             const r = await runHabilitacaoAutofill(supabase, {
                 id: lead.id,
@@ -1318,17 +1320,19 @@ async function applyConciergeEffects(
     } catch (e) {
         console.warn('[concierge] automação de crédito falhou:', e instanceof Error ? e.message : e)
     }
-    try {
-        await maybeRunStateRegistrationCheck(supabase, leadAfter, previous, DEFAULT_JMP_MQL_RULE)
-    } catch (e) {
-        console.warn('[concierge] automação de I.E. falhou:', e instanceof Error ? e.message : e)
+    if (CONCIERGE_AUTOFILL_ENABLED) {
+        try {
+            await maybeRunStateRegistrationCheck(supabase, leadAfter, previous, DEFAULT_JMP_MQL_RULE)
+        } catch (e) {
+            console.warn('[concierge] automação de I.E. falhou:', e instanceof Error ? e.message : e)
+        }
     }
 
     // Consulta → grava no lead → submete a ficha (ou devolve o que falta).
     // Roda SEMPRE, não só na primeira vez: a submissão morava dentro do aviso
     // interno abaixo, que dispara uma vez só e ainda com o checklist incompleto
     // — quando o checklist fechava, a ficha nunca era enviada.
-    const sync = await sincronizarHabilitacao(supabase, lead.id).catch(e => {
+    const sync = await sincronizarHabilitacao(supabase, lead.id, { consultar: CONCIERGE_AUTOFILL_ENABLED }).catch(e => {
         console.warn('[concierge] sync de habilitação falhou:', e instanceof Error ? e.message : e)
         return null
     })
