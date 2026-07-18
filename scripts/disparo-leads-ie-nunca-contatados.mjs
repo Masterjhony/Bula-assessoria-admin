@@ -242,7 +242,7 @@ async function main() {
 
     await supabase.from('whatsapp_messages').insert({
       phone: a.phone, name: a.nome || 'Contato', body: bodyLog, direction: 'outbound',
-      status, channel: 'cloud', intent: 'bot', origin: ORIGIN, bot_step: BOT_STEP,
+      status, channel: 'cloud', inbox_id: 'cloud', intent: 'bot', origin: ORIGIN, bot_step: BOT_STEP,
       lead_id: a.leadId, campaign_id: null, reason: messageId ?? (status === 'failed' ? 'send_failed' : null),
       error_msg: errMsg,
     })

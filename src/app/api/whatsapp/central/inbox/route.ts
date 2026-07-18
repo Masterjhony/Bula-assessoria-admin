@@ -73,7 +73,11 @@ export async function GET(req: NextRequest) {
             .from('whatsapp_messages')
             .select('id, phone, name, direction, body, status, lead_id, created_at, origin, intent, channel')
             .not('phone', 'is', null)
-        if (inboxFilter) pageQuery = pageQuery.eq('inbox_id', inboxFilter)
+        // Scripts de disparo às vezes gravam sem inbox_id; msg de canal cloud com
+        // inbox nulo pertence ao inbox 'cloud' (só existe um) — sem isto, quem só
+        // recebeu template de campanha some da lista (bug de 18/07).
+        if (inboxFilter === 'cloud') pageQuery = pageQuery.or('inbox_id.eq.cloud,and(inbox_id.is.null,channel.eq.cloud)')
+        else if (inboxFilter) pageQuery = pageQuery.eq('inbox_id', inboxFilter)
         const { data, error: msgErr } = await pageQuery
             .order('created_at', { ascending: false })
             .range(from, from + PAGE - 1)
