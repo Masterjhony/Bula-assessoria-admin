@@ -5,16 +5,14 @@ import { createClient } from '@/utils/supabase/client';
 import {
     ImageIcon, Film, FileText, Upload, Grid3X3, List, Search, X,
     Copy, Download, Trash2, RefreshCw, File, Check, AlertCircle,
-    Eye, FolderOpen, ChevronDown, SortAsc, SortDesc, Cloud, Database,
+    Eye, FolderOpen, Folder, ChevronDown, ChevronRight, Home,
 } from 'lucide-react';
-import R2Library from './R2Library';
-
-type Provider = 'supabase' | 'r2';
 
 // ── Types ─────────────────────────────────────────────────────────────────────
 
 type StorageFile = {
     name: string;
+    path: string; // caminho completo no bucket (inclui pastas)
     id: string | null;
     updated_at: string | null;
     created_at: string | null;
@@ -90,7 +88,7 @@ function TypeBadge({ type }: { type: FilterType }) {
     );
 }
 
-function FileIcon({ type, ext }: { type: FilterType; ext: string }) {
+function FileIcon({ type }: { type: FilterType }) {
     if (type === 'images') return <ImageIcon size={22} className="text-blue-400" />;
     if (type === 'videos') return <Film size={22} className="text-purple-400" />;
     if (type === 'docs') return <FileText size={22} className="text-emerald-400" />;
@@ -120,7 +118,8 @@ function Toast({ message, type, onClose }: { message: string; type: 'success' | 
 export default function BibliotecaMidia() {
     const supabase = createClient();
 
-    const [provider, setProvider] = useState<Provider>('supabase');
+    const [currentPath, setCurrentPath] = useState('');
+    const [folders, setFolders] = useState<string[]>([]);
     const [files, setFiles] = useState<StorageFile[]>([]);
     const [loading, setLoading] = useState(true);
     const [uploading, setUploading] = useState(false);
@@ -144,34 +143,54 @@ export default function BibliotecaMidia() {
         setTimeout(() => setToast(null), 3500);
     };
 
-    const fetchFiles = useCallback(async () => {
+    const fetchFiles = useCallback(async (path: string) => {
         setLoading(true);
         setBucketError(false);
         try {
-            const { data, error } = await supabase.storage.from(BUCKET).list('', {
-                limit: 500,
-                offset: 0,
-                sortBy: { column: 'created_at', order: 'desc' },
-            });
-
-            if (error) {
-                setBucketError(true);
-                return;
+            const collectedFolders: string[] = [];
+            const collectedFiles: StorageFile[] = [];
+            let offset = 0;
+            for (; ;) {
+                const { data, error } = await supabase.storage.from(BUCKET).list(path, {
+                    limit: 1000,
+                    offset,
+                    sortBy: { column: 'created_at', order: 'desc' },
+                });
+                if (error) {
+                    setBucketError(true);
+                    return;
+                }
+                if (!data?.length) break;
+                for (const item of data) {
+                    if (item.name === '.emptyFolderPlaceholder') continue;
+                    if (item.id === null) {
+                        collectedFolders.push(item.name);
+                    } else {
+                        const fullPath = path ? `${path}/${item.name}` : item.name;
+                        collectedFiles.push({
+                            ...item,
+                            path: fullPath,
+                            publicUrl: supabase.storage.from(BUCKET).getPublicUrl(fullPath).data.publicUrl,
+                        });
+                    }
+                }
+                if (data.length < 1000) break;
+                offset += 1000;
             }
-
-            const filtered = (data || []).filter(f => f.name !== '.emptyFolderPlaceholder');
-            const withUrls: StorageFile[] = filtered.map(file => ({
-                ...file,
-                publicUrl: supabase.storage.from(BUCKET).getPublicUrl(file.name).data.publicUrl,
-            }));
-
-            setFiles(withUrls);
+            setFolders(collectedFolders.sort((a, b) => a.localeCompare(b)));
+            setFiles(collectedFiles);
         } finally {
             setLoading(false);
         }
     }, [supabase]);
 
-    useEffect(() => { fetchFiles(); }, [fetchFiles]);
+    useEffect(() => { fetchFiles(currentPath); }, [fetchFiles, currentPath]);
+
+    const navigateTo = (path: string) => {
+        setSearchQuery('');
+        setFilterType('all');
+        setCurrentPath(path);
+    };
 
     // Drag & drop
     const handleDragOver = (e: React.DragEvent) => { e.preventDefault(); setIsDragging(true); };
@@ -192,7 +211,8 @@ export default function BibliotecaMidia() {
         for (const file of uploads) {
             const safeName = file.name.replace(/[^a-zA-Z0-9._\-]/g, '_');
             const fileName = `${Date.now()}_${safeName}`;
-            const { error } = await supabase.storage.from(BUCKET).upload(fileName, file, {
+            const dest = currentPath ? `${currentPath}/${fileName}` : fileName;
+            const { error } = await supabase.storage.from(BUCKET).upload(dest, file, {
                 cacheControl: '3600',
                 upsert: false,
             });
@@ -206,30 +226,33 @@ export default function BibliotecaMidia() {
         } else {
             showToast(`${uploads.length - errors} enviado(s), ${errors} erro(s).`, 'error');
         }
-        fetchFiles();
+        fetchFiles(currentPath);
     };
 
-    const handleDelete = async (fileName: string) => {
-        setDeletingName(fileName);
-        const { error } = await supabase.storage.from(BUCKET).remove([fileName]);
+    const handleDelete = async (file: StorageFile) => {
+        setDeletingName(file.path);
+        const { error } = await supabase.storage.from(BUCKET).remove([file.path]);
         if (error) {
             showToast('Erro ao remover arquivo.', 'error');
         } else {
             showToast('Arquivo removido.', 'success');
-            setFiles(prev => prev.filter(f => f.name !== fileName));
-            if (previewFile?.name === fileName) setPreviewFile(null);
+            setFiles(prev => prev.filter(f => f.path !== file.path));
+            if (previewFile?.path === file.path) setPreviewFile(null);
         }
         setDeletingName(null);
     };
 
     const handleCopyUrl = (file: StorageFile) => {
         navigator.clipboard.writeText(file.publicUrl);
-        setCopiedName(file.name);
+        setCopiedName(file.path);
         setTimeout(() => setCopiedName(null), 2000);
         showToast('URL copiada para a área de transferência!', 'success');
     };
 
     // Filtering & sorting
+    const displayFolders = folders.filter(f =>
+        f.toLowerCase().includes(searchQuery.toLowerCase()),
+    );
     const displayFiles = files
         .filter(file => {
             const matchSearch = file.name.toLowerCase().includes(searchQuery.toLowerCase());
@@ -245,7 +268,7 @@ export default function BibliotecaMidia() {
             return 0;
         });
 
-    // Stats
+    // Stats (da pasta atual)
     const totalSize = files.reduce((acc, f) => acc + (f.metadata?.size ?? 0), 0);
     const imageCount = files.filter(f => getFileType(f.metadata?.mimetype) === 'images').length;
     const videoCount = files.filter(f => getFileType(f.metadata?.mimetype) === 'videos').length;
@@ -259,24 +282,29 @@ export default function BibliotecaMidia() {
         { id: 'others', label: 'Outros', count: files.length - imageCount - videoCount - docCount },
     ];
 
+    const pathSegments = currentPath ? currentPath.split('/') : [];
+    const previewType = previewFile ? getFileType(previewFile.metadata?.mimetype) : 'others';
+
     // ── Render ─────────────────────────────────────────────────────────────────
 
     return (
         <div
             className="space-y-6 relative"
-            onDragOver={provider === 'supabase' ? handleDragOver : undefined}
-            onDragLeave={provider === 'supabase' ? handleDragLeave : undefined}
-            onDrop={provider === 'supabase' ? handleDrop : undefined}
+            onDragOver={handleDragOver}
+            onDragLeave={handleDragLeave}
+            onDrop={handleDrop}
         >
-            {/* Drag overlay (apenas no provider Supabase) */}
-            {provider === 'supabase' && isDragging && (
+            {/* Drag overlay */}
+            {isDragging && (
                 <div className="fixed inset-0 z-40 bg-black/60 backdrop-blur-sm flex items-center justify-center pointer-events-none">
                     <div className="flex flex-col items-center gap-4 text-center">
                         <div className="w-24 h-24 rounded-3xl bg-gradient-to-br from-[#A68B4B] to-[#C8A96E] flex items-center justify-center shadow-2xl shadow-[#A68B4B]/40">
                             <Upload size={44} className="text-black" />
                         </div>
                         <p className="text-2xl font-bold text-white">Solte para enviar</p>
-                        <p className="text-gray-400 text-sm">Múltiplos arquivos suportados</p>
+                        <p className="text-gray-400 text-sm">
+                            {currentPath ? `Enviando para ${currentPath}` : 'Múltiplos arquivos suportados'}
+                        </p>
                     </div>
                 </div>
             )}
@@ -286,88 +314,82 @@ export default function BibliotecaMidia() {
                 <div>
                     <h1 className="text-2xl font-bold text-gray-900 dark:text-white tracking-tight">Biblioteca de Mídia</h1>
                     <p className="text-sm text-gray-500 dark:text-gray-500 mt-0.5">
-                        {provider === 'supabase'
-                            ? 'Central unificada de fotos, vídeos e fichas técnicas'
-                            : 'Backups e arquivos grandes no Cloudflare R2 (bucket privado)'}
+                        Central unificada de fotos, vídeos e fichas técnicas
                     </p>
                 </div>
-                {provider === 'supabase' && (
-                    <div className="flex items-center gap-3">
-                        <button
-                            onClick={fetchFiles}
-                            disabled={loading}
-                            className="p-2.5 rounded-xl border border-gray-200 dark:border-[#2A2A2A] text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-[#1A1A1A] transition-all"
-                            title="Atualizar"
-                        >
-                            <RefreshCw size={16} className={loading ? 'animate-spin' : ''} />
-                        </button>
-                        <button
-                            onClick={() => fileInputRef.current?.click()}
-                            disabled={uploading}
-                            className="flex items-center gap-2 px-5 py-2.5 rounded-xl bg-gradient-to-r from-[#A68B4B] to-[#C8A96E] text-black font-semibold text-sm hover:opacity-90 transition-opacity shadow-lg shadow-[#A68B4B]/20 disabled:opacity-60"
-                        >
-                            {uploading ? (
-                                <>
-                                    <RefreshCw size={16} className="animate-spin" />
-                                    {uploadCount}/{uploadTotal} enviando...
-                                </>
-                            ) : (
-                                <>
-                                    <Upload size={16} />
-                                    Enviar arquivos
-                                </>
-                            )}
-                        </button>
-                        <input
-                            ref={fileInputRef}
-                            type="file"
-                            multiple
-                            className="hidden"
-                            onChange={e => e.target.files && uploadFiles(e.target.files)}
-                        />
-                    </div>
-                )}
+                <div className="flex items-center gap-3">
+                    <button
+                        onClick={() => fetchFiles(currentPath)}
+                        disabled={loading}
+                        className="p-2.5 rounded-xl border border-gray-200 dark:border-[#2A2A2A] text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-[#1A1A1A] transition-all"
+                        title="Atualizar"
+                    >
+                        <RefreshCw size={16} className={loading ? 'animate-spin' : ''} />
+                    </button>
+                    <button
+                        onClick={() => fileInputRef.current?.click()}
+                        disabled={uploading}
+                        className="flex items-center gap-2 px-5 py-2.5 rounded-xl bg-gradient-to-r from-[#A68B4B] to-[#C8A96E] text-black font-semibold text-sm hover:opacity-90 transition-opacity shadow-lg shadow-[#A68B4B]/20 disabled:opacity-60"
+                    >
+                        {uploading ? (
+                            <>
+                                <RefreshCw size={16} className="animate-spin" />
+                                {uploadCount}/{uploadTotal} enviando...
+                            </>
+                        ) : (
+                            <>
+                                <Upload size={16} />
+                                Enviar arquivos
+                            </>
+                        )}
+                    </button>
+                    <input
+                        ref={fileInputRef}
+                        type="file"
+                        multiple
+                        className="hidden"
+                        onChange={e => e.target.files && uploadFiles(e.target.files)}
+                    />
+                </div>
             </div>
 
-            {/* Provider selector */}
-            <div className="inline-flex items-center gap-1 bg-white dark:bg-[#141414] border border-gray-200 dark:border-[#2A2A2A] rounded-xl p-1">
+            {/* Breadcrumb */}
+            <div className="flex items-center gap-1 flex-wrap text-sm">
                 <button
-                    onClick={() => setProvider('supabase')}
-                    className={`flex items-center gap-2 px-4 py-2 rounded-lg text-xs font-medium transition-all ${provider === 'supabase'
-                        ? 'bg-gradient-to-r from-[#A68B4B] to-[#C8A96E] text-black shadow-sm'
-                        : 'text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white'
-                        }`}
+                    onClick={() => navigateTo('')}
+                    className={`flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg transition-colors ${currentPath
+                        ? 'text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-[#1A1A1A]'
+                        : 'text-gray-900 dark:text-white font-semibold'}`}
                 >
-                    <Database size={14} />
-                    Supabase
-                    <span className={`text-[10px] ${provider === 'supabase' ? 'text-black/60' : 'text-gray-400 dark:text-gray-600'}`}>
-                        (mídia editorial)
-                    </span>
+                    <Home size={14} />
+                    Biblioteca
                 </button>
-                <button
-                    onClick={() => setProvider('r2')}
-                    className={`flex items-center gap-2 px-4 py-2 rounded-lg text-xs font-medium transition-all ${provider === 'r2'
-                        ? 'bg-gradient-to-r from-[#A68B4B] to-[#C8A96E] text-black shadow-sm'
-                        : 'text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white'
-                        }`}
-                >
-                    <Cloud size={14} />
-                    R2
-                    <span className={`text-[10px] ${provider === 'r2' ? 'text-black/60' : 'text-gray-400 dark:text-gray-600'}`}>
-                        (backups / arquivos grandes)
-                    </span>
-                </button>
+                {pathSegments.map((seg, i) => {
+                    const path = pathSegments.slice(0, i + 1).join('/');
+                    const isLast = i === pathSegments.length - 1;
+                    return (
+                        <span key={path} className="flex items-center gap-1">
+                            <ChevronRight size={14} className="text-gray-400 dark:text-gray-600" />
+                            <button
+                                onClick={() => navigateTo(path)}
+                                disabled={isLast}
+                                className={`px-2.5 py-1.5 rounded-lg transition-colors ${isLast
+                                    ? 'text-gray-900 dark:text-white font-semibold cursor-default'
+                                    : 'text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-[#1A1A1A]'}`}
+                            >
+                                {seg}
+                            </button>
+                        </span>
+                    );
+                })}
             </div>
 
-            {provider === 'r2' && <R2Library />}
-
-            {provider === 'supabase' && (<>
             {/* Stats */}
             <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-                <StatCard label="Total de arquivos" value={files.length} sub={formatBytes(totalSize) + ' usados'} />
+                <StatCard label="Arquivos na pasta" value={files.length} sub={formatBytes(totalSize) + ' usados'} />
                 <StatCard label="Fotos" value={imageCount} sub="imagens" />
                 <StatCard label="Vídeos" value={videoCount} sub="clipes" />
-                <StatCard label="Documentos" value={docCount} sub="PDFs e docs" />
+                <StatCard label="Subpastas" value={folders.length} sub="pastas" />
             </div>
 
             {/* Bucket error */}
@@ -377,7 +399,7 @@ export default function BibliotecaMidia() {
                     <div>
                         <p className="text-sm font-semibold text-amber-300">Bucket &quot;media&quot; não encontrado</p>
                         <p className="text-xs text-amber-400/70 mt-1">
-                            Crie o bucket <code className="bg-amber-500/10 px-1 rounded">media</code> no Supabase Storage com acesso público para começar a usar a biblioteca.
+                            Rode <code className="bg-amber-500/10 px-1 rounded">node scripts/setup-media-bucket.mjs</code> para criar o bucket da biblioteca.
                         </p>
                     </div>
                 </div>
@@ -390,7 +412,7 @@ export default function BibliotecaMidia() {
                     <Search size={16} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400" />
                     <input
                         type="text"
-                        placeholder="Buscar arquivos..."
+                        placeholder="Buscar nesta pasta..."
                         value={searchQuery}
                         onChange={e => setSearchQuery(e.target.value)}
                         className="w-full pl-10 pr-4 py-2.5 rounded-xl bg-white dark:bg-[#141414] border border-gray-200 dark:border-[#2A2A2A] text-sm text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-600 focus:outline-none focus:border-[#A68B4B]/50 transition-colors"
@@ -453,6 +475,24 @@ export default function BibliotecaMidia() {
                 </div>
             </div>
 
+            {/* Folders */}
+            {!loading && displayFolders.length > 0 && (
+                <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6 gap-3">
+                    {displayFolders.map(folder => (
+                        <button
+                            key={folder}
+                            onClick={() => navigateTo(currentPath ? `${currentPath}/${folder}` : folder)}
+                            className="flex items-center gap-3 px-4 py-3.5 rounded-2xl border border-gray-200 dark:border-[#2A2A2A] bg-white dark:bg-[#141414] hover:border-[#A68B4B]/40 hover:bg-gray-50 dark:hover:bg-[#191919] transition-all text-left group"
+                        >
+                            <Folder size={20} className="text-[#A68B4B] shrink-0 group-hover:scale-110 transition-transform" />
+                            <span className="text-sm font-medium text-gray-800 dark:text-gray-200 truncate" title={folder}>
+                                {folder}
+                            </span>
+                        </button>
+                    ))}
+                </div>
+            )}
+
             {/* Content */}
             {loading ? (
                 <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
@@ -460,14 +500,14 @@ export default function BibliotecaMidia() {
                         <div key={i} className="aspect-square rounded-2xl bg-gray-100 dark:bg-[#141414] animate-pulse" />
                     ))}
                 </div>
-            ) : displayFiles.length === 0 ? (
+            ) : displayFiles.length === 0 && displayFolders.length === 0 ? (
                 <div className="flex flex-col items-center justify-center py-24 gap-5 text-center">
                     <div className="w-20 h-20 rounded-3xl bg-gradient-to-br from-[#A68B4B]/15 to-[#C8A96E]/5 border border-[#A68B4B]/15 flex items-center justify-center">
                         <FolderOpen size={34} className="text-[#A68B4B]/60" />
                     </div>
                     <div>
                         <p className="text-base font-semibold text-gray-700 dark:text-gray-300">
-                            {searchQuery || filterType !== 'all' ? 'Nenhum arquivo encontrado' : 'Biblioteca vazia'}
+                            {searchQuery || filterType !== 'all' ? 'Nenhum arquivo encontrado' : 'Pasta vazia'}
                         </p>
                         <p className="text-sm text-gray-400 dark:text-gray-600 mt-1">
                             {searchQuery || filterType !== 'all'
@@ -491,12 +531,13 @@ export default function BibliotecaMidia() {
                     {displayFiles.map(file => {
                         const type = getFileType(file.metadata?.mimetype);
                         const isImage = type === 'images';
-                        const isDeleting = deletingName === file.name;
-                        const isCopied = copiedName === file.name;
+                        const isVideo = type === 'videos';
+                        const isDeleting = deletingName === file.path;
+                        const isCopied = copiedName === file.path;
 
                         return (
                             <div
-                                key={file.name}
+                                key={file.path}
                                 className="group relative rounded-2xl overflow-hidden border border-gray-200 dark:border-[#2A2A2A] bg-white dark:bg-[#141414] hover:border-[#A68B4B]/40 transition-all duration-200 hover:shadow-lg hover:shadow-[#A68B4B]/5"
                             >
                                 {/* Thumbnail */}
@@ -509,9 +550,24 @@ export default function BibliotecaMidia() {
                                             className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
                                             loading="lazy"
                                         />
+                                    ) : isVideo ? (
+                                        <>
+                                            <video
+                                                src={file.publicUrl}
+                                                preload="metadata"
+                                                muted
+                                                playsInline
+                                                className="w-full h-full object-cover"
+                                            />
+                                            <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+                                                <div className="w-10 h-10 rounded-full bg-black/50 backdrop-blur-sm flex items-center justify-center">
+                                                    <Film size={16} className="text-white" />
+                                                </div>
+                                            </div>
+                                        </>
                                     ) : (
                                         <div className="flex flex-col items-center gap-2 opacity-50">
-                                            <FileIcon type={type} ext={getExtension(file.name)} />
+                                            <FileIcon type={type} />
                                             <span className="text-[10px] font-bold text-gray-400 tracking-widest">
                                                 {getExtension(file.name)}
                                             </span>
@@ -520,7 +576,7 @@ export default function BibliotecaMidia() {
 
                                     {/* Hover overlay */}
                                     <div className="absolute inset-0 bg-black/0 group-hover:bg-black/50 transition-all duration-200 flex items-center justify-center gap-2 opacity-0 group-hover:opacity-100">
-                                        {isImage && (
+                                        {(isImage || isVideo) && (
                                             <button
                                                 onClick={() => setPreviewFile(file)}
                                                 className="w-9 h-9 rounded-xl bg-white/10 backdrop-blur-sm border border-white/20 flex items-center justify-center text-white hover:bg-white/20 transition-colors"
@@ -547,7 +603,7 @@ export default function BibliotecaMidia() {
                                             <Download size={15} />
                                         </a>
                                         <button
-                                            onClick={() => handleDelete(file.name)}
+                                            onClick={() => handleDelete(file)}
                                             disabled={isDeleting}
                                             className="w-9 h-9 rounded-xl bg-red-500/20 backdrop-blur-sm border border-red-500/30 flex items-center justify-center text-red-400 hover:bg-red-500/30 transition-colors disabled:opacity-50"
                                             title="Remover"
@@ -586,12 +642,13 @@ export default function BibliotecaMidia() {
                     {displayFiles.map((file, idx) => {
                         const type = getFileType(file.metadata?.mimetype);
                         const isImage = type === 'images';
-                        const isDeleting = deletingName === file.name;
-                        const isCopied = copiedName === file.name;
+                        const isVideo = type === 'videos';
+                        const isDeleting = deletingName === file.path;
+                        const isCopied = copiedName === file.path;
 
                         return (
                             <div
-                                key={file.name}
+                                key={file.path}
                                 className={`grid grid-cols-[auto_1fr_auto_auto_auto] gap-0 items-center px-5 py-3.5 hover:bg-gray-50 dark:hover:bg-[#191919] transition-colors ${idx < displayFiles.length - 1 ? 'border-b border-gray-100 dark:border-[#262626]' : ''}`}
                             >
                                 {/* Icon / thumb */}
@@ -600,7 +657,7 @@ export default function BibliotecaMidia() {
                                         // eslint-disable-next-line @next/next/no-img-element
                                         <img src={file.publicUrl} alt={file.name} className="w-full h-full object-cover" loading="lazy" />
                                     ) : (
-                                        <FileIcon type={type} ext={getExtension(file.name)} />
+                                        <FileIcon type={type} />
                                     )}
                                 </div>
                                 {/* Name */}
@@ -622,7 +679,7 @@ export default function BibliotecaMidia() {
                                 </span>
                                 {/* Actions */}
                                 <div className="w-28 flex items-center justify-end gap-1.5">
-                                    {isImage && (
+                                    {(isImage || isVideo) && (
                                         <button onClick={() => setPreviewFile(file)} title="Visualizar" className="p-1.5 rounded-lg text-gray-400 hover:text-white hover:bg-white/10 dark:hover:bg-[#2e2e2e] transition-colors">
                                             <Eye size={15} />
                                         </button>
@@ -634,7 +691,7 @@ export default function BibliotecaMidia() {
                                         <Download size={15} />
                                     </a>
                                     <button
-                                        onClick={() => handleDelete(file.name)}
+                                        onClick={() => handleDelete(file)}
                                         disabled={isDeleting}
                                         title="Remover"
                                         className="p-1.5 rounded-lg text-red-400/60 hover:text-red-400 hover:bg-red-500/10 transition-colors disabled:opacity-40"
@@ -655,7 +712,7 @@ export default function BibliotecaMidia() {
                 </p>
             )}
 
-            {/* Image Preview Modal */}
+            {/* Preview Modal (imagem ou vídeo) */}
             {previewFile && (
                 <div
                     className="fixed inset-0 z-50 bg-black/90 backdrop-blur-md flex items-center justify-center p-6"
@@ -678,7 +735,7 @@ export default function BibliotecaMidia() {
                                     onClick={() => handleCopyUrl(previewFile)}
                                     className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-white/10 border border-white/20 text-white text-xs hover:bg-white/20 transition-colors"
                                 >
-                                    {copiedName === previewFile.name ? <Check size={13} className="text-emerald-400" /> : <Copy size={13} />}
+                                    {copiedName === previewFile.path ? <Check size={13} className="text-emerald-400" /> : <Copy size={13} />}
                                     Copiar URL
                                 </button>
                                 <a
@@ -700,21 +757,30 @@ export default function BibliotecaMidia() {
                             </div>
                         </div>
 
-                        {/* Image */}
+                        {/* Media */}
                         <div className="rounded-2xl overflow-hidden border border-white/10 shadow-2xl">
-                            {/* eslint-disable-next-line @next/next/no-img-element */}
-                            <img
-                                src={previewFile.publicUrl}
-                                alt={previewFile.name}
-                                className="max-h-[75vh] max-w-full object-contain block"
-                            />
+                            {previewType === 'videos' ? (
+                                <video
+                                    src={previewFile.publicUrl}
+                                    controls
+                                    autoPlay
+                                    playsInline
+                                    className="max-h-[75vh] max-w-full block"
+                                />
+                            ) : (
+                                // eslint-disable-next-line @next/next/no-img-element
+                                <img
+                                    src={previewFile.publicUrl}
+                                    alt={previewFile.name}
+                                    className="max-h-[75vh] max-w-full object-contain block"
+                                />
+                            )}
                         </div>
                     </div>
                 </div>
             )}
-            </>)}
 
-            {/* Toast (compartilhado entre providers) */}
+            {/* Toast */}
             {toast && <Toast message={toast.message} type={toast.type} onClose={() => setToast(null)} />}
         </div>
     );
