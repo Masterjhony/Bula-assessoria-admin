@@ -40,6 +40,7 @@ import { maybeRunCreditCheck } from './crm-credit-automation'
 import { maybeRunStateRegistrationCheck } from './crm-state-registration-automation'
 import { runHabilitacaoAutofill, autofillPromptBlock, extrairCpf } from './crm-lead-autofill'
 import { computeFase, extractPerfil, fasePromptBlock, type ConciergeFase } from './concierge-fase'
+import { computeLeadScore, leadScorePromptBlock, type LeadScore } from './lead-score'
 import { computeSegmento, personaPromptBlock } from './concierge-persona'
 import { fewShotPromptBlock, normalizeFewShots, type FewShot } from './concierge-few-shot'
 import { qualificacaoPromptBlock, resumoQualificacaoTexto, type QualLead } from './crm-qualificacao'
@@ -893,6 +894,24 @@ export async function runConcierge(
         console.warn('[concierge] agenda de leilões falhou:', e instanceof Error ? e.message : e)
     }
 
+    // TERMÔMETRO: a equação do modelo de conversão computada dos dados do lead.
+    // Vira instrução de conduta no prompt (qual gargalo destravar) e snapshot
+    // em extra_data.lead_score (fila de follow-up prioriza por prontidão).
+    const xdScore = (lead.extra_data ?? {}) as Record<string, unknown>
+    const perfilScore = extractPerfil(lead)
+    const leadScore = computeLeadScore({
+        interesse: perfilScore.interesse,
+        objetivo: perfilScore.objetivo,
+        urgencia: perfilScore.urgencia,
+        msgsLead: turnosLead,
+        cpfPresente: String(lead.cpf ?? '').replace(/\D/g, '').length === 11,
+        docsRecebidos: docs.count,
+        aceitouAssessoria: xdScore.aceitou_assessoria === true,
+        objecaoTipo: typeof xdScore.objecao_tipo === 'string' ? xdScore.objecao_tipo : null,
+        retomadaCombinada: Boolean(xdScore.retomada_combinada_at),
+        checklist: { done: checklist.done, total: checklist.total },
+    })
+
     // Exceção de I.E. do leilão da campanha (EAO). Só existe no prompt do lead
     // que veio dessa campanha — quem não é dela nem sabe que a regra existe.
     const ieFlex = ieFlexivelPromptBlock(lead)
@@ -915,7 +934,9 @@ ${personaPromptBlock(lead)}${fewShotBlock}
 ${qualificacaoPromptBlock(lead)}${ieBlock}
 
 CHECKLIST DE HABILITAÇÃO (só entra em jogo na FASE habilitação — nas outras, ignore-o completamente):
-${checklistPromptBlock(checklist)}${autofillBlock}${faixasBlock}${agendaBlock}
+${checklistPromptBlock(checklist)}
+
+${leadScorePromptBlock(leadScore)}${autofillBlock}${faixasBlock}${agendaBlock}
 
 DADOS DE IDENTIFICAÇÃO:
 ${knownFactsBlock(lead)}
@@ -997,6 +1018,7 @@ ${RESULT_SCHEMA_INSTRUCTIONS}`
             media: input.media ?? null,
             docs,
             fase: fase.fase,
+            score: leadScore,
         })
     } catch (e) {
         console.warn('[concierge] aplicar efeitos falhou:', e instanceof Error ? e.message : e)
@@ -1060,11 +1082,17 @@ async function applyConciergeEffects(
     supabase: SupabaseClient,
     lead: FullLead,
     ai: ConciergeAIResult,
-    ctx: { media: InboundMedia | null; docs: { count: number; tipos: string[] }; fase: ConciergeFase },
+    ctx: { media: InboundMedia | null; docs: { count: number; tipos: string[] }; fase: ConciergeFase; score?: LeadScore },
 ): Promise<() => Promise<void>> {
     const u = sanitizeUpdates(ai.updates ?? {})
     const prevExtra = (lead.extra_data ?? {}) as Record<string, unknown>
     const nextExtra: Record<string, unknown> = { ...prevExtra }
+
+    // Snapshot do termômetro — fila de follow-up ordena por prontidão e o
+    // histórico permite calibrar os pesos com eventos reais depois.
+    if (ctx.score) {
+        nextExtra.lead_score = { ...ctx.score, at: new Date().toISOString() }
+    }
 
     // Campos de qualificação/habilitação vivem em extra_data (sem migração —
     // segue o padrão de "schema drift" do projeto).

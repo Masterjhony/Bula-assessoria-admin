@@ -256,12 +256,21 @@ async function main() {
     audience.push({
       phone: c.phone, leadId: lead.id, fname: firstName(nome) || 'amigo(a)',
       step, param2, lastAt: c.lastAt,
+      // Termômetro do concierge (extra_data.lead_score): prontidão computada da
+      // equação de conversão. Sem score (nunca conversou c/ IA) = 0.
+      prob: Number(xd.lead_score?.prob ?? 0),
+      retomadaDue: Boolean(xd.retomada_combinada_at),
     })
   }
-  // Cadastro travado primeiro (mais perto do objetivo); dentro do step, mais antigo primeiro —
-  // garante que um --limit apertado nunca corte os leads de habilitação.
+  // Prioridade num --limit apertado: cadastro travado primeiro (mais perto do
+  // objetivo); dentro do step, quem COMBINOU retomada primeiro (compromisso
+  // "quando-então"), depois maior prontidão (lead_score.prob), depois mais antigo.
   const stepRank = (a) => (a.step.botStep.startsWith('followup_cadastro') ? 0 : 1)
-  audience.sort((a, b) => stepRank(a) - stepRank(b) || new Date(a.lastAt) - new Date(b.lastAt))
+  audience.sort((a, b) =>
+    stepRank(a) - stepRank(b)
+    || Number(b.retomadaDue) - Number(a.retomadaDue)
+    || b.prob - a.prob
+    || new Date(a.lastAt) - new Date(b.lastAt))
 
   // ── relatório ──
   const porStep = {}
