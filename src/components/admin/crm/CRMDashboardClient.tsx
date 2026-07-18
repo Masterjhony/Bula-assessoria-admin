@@ -5,7 +5,7 @@ import { useSearchParams, useRouter, usePathname } from 'next/navigation';
 import {
     CRMLead, updateLead, createLead, moveLead, deleteLead,
     archiveLead, unarchiveLead, getArchivedLeads,
-    setCadastroAprovado,
+    setCadastroAprovado, getLead,
 } from '@/app/sistema/actions/crm-leads';
 import type { CRMConfig } from '@/lib/crm-types';
 import { CRM_STAGE_CONNECTION, isQualificationStage } from '@/lib/crm-types';
@@ -70,6 +70,20 @@ export function CRMDashboardClient({ initialLeads, crmConfig: initialConfig }: C
         [leads, editingLeadId]
     );
     const isModalOpen = isCreatingLead || editingLead != null;
+
+    // As listas viajam com extra_data enxuto (slimEntradaLead). Ao abrir um
+    // lead, busca a versão completa e mescla no estado — o modal re-renderiza
+    // com o dado cheio antes de qualquer edição, e ainda pega atualizações que
+    // o concierge fez desde o load da página.
+    useEffect(() => {
+        if (!editingLeadId) return;
+        let cancelled = false;
+        getLead(editingLeadId).then(full => {
+            if (!full || cancelled) return;
+            setLeads(prev => prev.map(l => l.id === full.id ? full : l));
+        }).catch(() => { /* mantém a versão em memória */ });
+        return () => { cancelled = true; };
+    }, [editingLeadId]);
 
     const updateUrl = useCallback((mutate: (params: URLSearchParams) => void) => {
         const params = new URLSearchParams(searchParams.toString());

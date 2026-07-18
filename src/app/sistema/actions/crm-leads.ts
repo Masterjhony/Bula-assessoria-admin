@@ -247,37 +247,123 @@ const PAGE = 1000;
 export async function fetchAllLeadRows<T = CRMLead>(
     build: (from: number, to: number) => PromiseLike<{ data: T[] | null; error: { message: string } | null }>,
 ): Promise<T[]> {
+    // Páginas em LOTES CONCORRENTES: com 16k+ leads, buscar 1000 por vez em série
+    // eram ~16 idas ao banco encadeadas — a causa nº 1 do CRM "lento pra abrir".
+    const CONCURRENCY = 6;
     const all: T[] = [];
-    for (let from = 0; ; from += PAGE) {
-        const { data, error } = await build(from, from + PAGE - 1);
-        if (error) {
-            console.error('Error fetching CRM leads (paginado):', error.message);
-            break;
+    for (let base = 0; ; base += PAGE * CONCURRENCY) {
+        const pages = await Promise.all(
+            Array.from({ length: CONCURRENCY }, (_, i) => build(base + i * PAGE, base + i * PAGE + PAGE - 1)),
+        );
+        let done = false;
+        for (const { data, error } of pages) {
+            if (error) {
+                console.error('Error fetching CRM leads (paginado):', error.message);
+                done = true;
+                break;
+            }
+            const rows = data ?? [];
+            all.push(...rows);
+            if (rows.length < PAGE) { done = true; break; }
         }
-        const rows = data ?? [];
-        all.push(...rows);
-        if (rows.length < PAGE) break;
+        if (done) break;
     }
     return all;
 }
+
+/**
+ * Chaves de extra_data que as LISTAS precisam (badge de aprovado no card e
+ * métricas do dashboard de growth). O resto do blob — checklist do concierge,
+ * UTM, histórico — só interessa ao modal, que busca o lead completo ao abrir
+ * (getLead). Sem este corte, a fila ENTRADA (15k+) embute megabytes de JSON
+ * no HTML da página.
+ */
+const LIGHT_EXTRA_DATA_KEYS = [
+    'cadastro_aprovado', 'cadastro_aprovado_at', 'cadastro_status', 'cadastro_submetido_at',
+] as const;
+
+function slimEntradaLead(lead: CRMLead): CRMLead {
+    if (normalizeCRMStatus(lead.status) !== CRM_STAGE_ENTRY) return lead;
+    // Chave nula não viaja: em 15k+ linhas, cada `"coluna":null` repetido é
+    // megabyte no payload. A UI lê tudo com `?.`/`|| ''`, então omitir = null.
+    const out: Record<string, unknown> = {};
+    for (const [k, v] of Object.entries(lead)) if (v != null) out[k] = v;
+    const xd = lead.extra_data;
+    if (xd) {
+        const light: Record<string, unknown> = {};
+        for (const k of LIGHT_EXTRA_DATA_KEYS) if (xd[k] != null) light[k] = xd[k];
+        if (Object.keys(light).length) out.extra_data = light;
+        else delete out.extra_data;
+    }
+    return out as unknown as CRMLead;
+}
+
+/**
+ * Colunas que as telas de LISTA leem de um lead da fila ENTRADA (tabela
+ * unificada + filtros + export + dashboards). Fora daqui ficam os blobs que só
+ * o modal usa — contact_history, tags_whatsapp, updated_at etc. — e que o
+ * modal repõe via getLead ao abrir. Com 15k+ leads na ENTRADA, cada coluna a
+ * mais aqui repete o nome dela 15 mil vezes no HTML da página.
+ */
+const ENTRADA_LIGHT_COLUMNS = [
+    'id', 'funnel_id', 'position', 'status', 'nome', 'telefone', 'celular', 'email',
+    'empresa', 'cpf', 'inscricao_estadual', 'tem_inscricao_estadual', 'quantidade_animais',
+    'interesse', 'interesse_principal', 'o_que_busca', 'momento_pecuaria', 'operacao_pecuaria',
+    'assessoria', 'estado', 'cidade', 'source', 'source_page', 'medium', 'campaign', 'origem',
+    'landing_url', 'instagram', 'fbclid', 'gclid', 'utm_content', 'utm_term',
+    'temperatura', 'prioridade', 'responsavel', 'notes', 'is_mql', 'is_preferencial',
+    'probabilidade', 'valor_estimado', 'data_estimada_fechamento', 'pendencias_financeiras',
+    'score_serasa', 'ultimo_contato', 'data_entrada', 'created_at', 'last_whatsapp_at',
+    'handoff_humano', 'optout_whatsapp', 'extra_data',
+].join(', ');
 
 export async function getLeads(funnelId?: string): Promise<CRMLead[]> {
     const supabase = await createClient();
 
     // Leads arquivados ficam de fora de todas as telas operacionais — só aparecem
     // na aba "Arquivados" (getArchivedLeads).
-    const data = await fetchAllLeadRows<CRMLead>((from, to) => {
+    //
+    // Duas consultas em paralelo: o funil operacional (~centenas) viaja completo;
+    // a fila ENTRADA (15k+) viaja só com as colunas de lista. Status nulo/variante
+    // cai na consulta "completa" (or com is.null) — nada some, só pesa um pouco mais.
+    const buildFor = (select: string, entrada: boolean) => (from: number, to: number) => {
         let query = supabase
             .from('crm_leads')
-            .select('*')
+            .select(select)
             .eq('arquivado', false)
             .order('position', { ascending: true })
             .range(from, to);
+        query = entrada
+            ? query.eq('status', CRM_STAGE_ENTRY)
+            : query.or(`status.neq.${CRM_STAGE_ENTRY},status.is.null`);
         if (funnelId) query = query.eq('funnel_id', funnelId);
-        return query;
-    });
+        return query as unknown as PromiseLike<{ data: CRMLead[] | null; error: { message: string } | null }>;
+    };
+    const [funil, entrada] = await Promise.all([
+        fetchAllLeadRows<CRMLead>(buildFor('*', false)),
+        fetchAllLeadRows<CRMLead>(buildFor(ENTRADA_LIGHT_COLUMNS, true)),
+    ]);
 
-    return normalizeLeadRows(data);
+    return [...normalizeLeadRows(funil), ...normalizeLeadRows(entrada).map(slimEntradaLead)];
+}
+
+/**
+ * Lead completo (com extra_data inteiro). As listas viajam enxutas
+ * (slimEntradaLead); o modal chama isto ao abrir para ter o dado cheio antes
+ * de qualquer edição.
+ */
+export async function getLead(id: string): Promise<CRMLead | null> {
+    const supabase = await createClient();
+    const { data, error } = await supabase
+        .from('crm_leads')
+        .select('*')
+        .eq('id', id)
+        .maybeSingle();
+    if (error) {
+        console.error('Error fetching CRM lead:', error.message);
+        return null;
+    }
+    return data ? normalizeLeadRow(data as CRMLead) : null;
 }
 
 /** Leads arquivados (soft-delete), mais recentes primeiro. Usado pela aba "Arquivados". */
@@ -381,6 +467,13 @@ export async function updateLead(id: string, data: Partial<CRMLead>): Promise<CR
             ? await withComputedMql(data, previous as Partial<MqlSource> | null)
             : data
     );
+
+    // extra_data é MERGE, nunca substituição: o cliente pode estar com a versão
+    // enxuta das listas (slimEntradaLead) ou defasada em relação ao que o
+    // concierge gravou em paralelo — substituir apagaria CPF/checklist/UTM.
+    if (payload.extra_data && previous?.extra_data) {
+        payload.extra_data = { ...(previous.extra_data as Record<string, unknown>), ...payload.extra_data };
+    }
 
     const { data: updatedLead, error } = await supabase
         .from('crm_leads')
