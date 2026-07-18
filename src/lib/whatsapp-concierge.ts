@@ -117,11 +117,12 @@ export const DEFAULT_HANDOFF_CONTACT = 'João Antônio (Bula Assessoria) — +55
  * O concierge deixou de ser um coletor de checklist e virou um consultor
  * comercial: precisa ler subtexto ("os que tenho são mestiço" = está subindo de
  * nível), reagir com repertório de pecuária e sustentar uma conversa de venda
- * sem soar robótico. Kimi K3 é escolha do chefe (18/07) — ciente de que na
- * OpenRouter custa $3/$15 por M tokens, MAIS que o Sonnet 5 ($2/$10); a decisão
- * foi por preferência de modelo, não por custo.
+ * sem soar robótico. DeepSeek V4 Pro (18/07, pedido do chefe de baixar custo):
+ * $0.43/$0.87 por M tokens na OpenRouter — ~5x mais barato que o Sonnet 5
+ * ($2/$10) e ~8x que o Kimi K3 ($3/$15), mantendo classe flagship. Sonnet 5
+ * segue como 1º fallback de qualidade se o V4 Pro falhar/pendurar.
  */
-export const DEFAULT_CONCIERGE_MODEL = process.env.OPENROUTER_CONCIERGE_MODEL || 'moonshotai/kimi-k3'
+export const DEFAULT_CONCIERGE_MODEL = process.env.OPENROUTER_CONCIERGE_MODEL || 'deepseek/deepseek-v4-pro'
 /** Degradação por qualidade: cada um destes ainda conversa bem em PT-BR + JSON. */
 const BUILTIN_CONCIERGE_FALLBACK_MODELS = [
     'anthropic/claude-sonnet-5',
