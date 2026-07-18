@@ -117,13 +117,14 @@ export const DEFAULT_HANDOFF_CONTACT = 'João Antônio (Bula Assessoria) — +55
  * O concierge deixou de ser um coletor de checklist e virou um consultor
  * comercial: precisa ler subtexto ("os que tenho são mestiço" = está subindo de
  * nível), reagir com repertório de pecuária e sustentar uma conversa de venda
- * sem soar robótico. Isso é trabalho de modelo de topo — a diferença aparece
- * exatamente nas conversas que hoje o chefe reprova. ~1 centavo por resposta.
+ * sem soar robótico. Kimi K3 é escolha do chefe (18/07) — ciente de que na
+ * OpenRouter custa $3/$15 por M tokens, MAIS que o Sonnet 5 ($2/$10); a decisão
+ * foi por preferência de modelo, não por custo.
  */
-export const DEFAULT_CONCIERGE_MODEL = process.env.OPENROUTER_CONCIERGE_MODEL || 'anthropic/claude-sonnet-5'
+export const DEFAULT_CONCIERGE_MODEL = process.env.OPENROUTER_CONCIERGE_MODEL || 'moonshotai/kimi-k3'
 /** Degradação por qualidade: cada um destes ainda conversa bem em PT-BR + JSON. */
 const BUILTIN_CONCIERGE_FALLBACK_MODELS = [
-    'anthropic/claude-haiku-4.5',
+    'anthropic/claude-sonnet-5',
     'google/gemini-2.5-flash',
     'openai/gpt-4.1',
 ]

@@ -39,6 +39,8 @@ export interface PerfilLead {
     objetivo: string | null
     /** ja_compra | ja_tentou | nunca_comprou */
     experiencia: string | null
+    /** agora | proximos_30_dias | proximos_leiloes | sem_prazo (urgencia_compra). */
+    urgencia: string | null
 }
 
 export interface FaseInput {
@@ -70,7 +72,7 @@ export interface FaseResult {
  * esta quantidade de mensagens dele, a gente apresenta a assessoria com o que
  * tem. Vender é melhor que continuar perguntando pra uma pessoa calada.
  */
-export const MAX_TURNOS_DESCOBERTA = 6
+export const MAX_TURNOS_DESCOBERTA = 4
 
 const str = (v: unknown) => String(v ?? '').trim()
 
@@ -116,12 +118,20 @@ export function computeFase(input: FaseInput): FaseResult {
     if (jaApresentou && input.aceitouAssessoria) {
         return { ...base, fase: 'habilitacao', motivo: 'lead aceitou a assessoria — pode habilitar' }
     }
-    if (falta.length > 0) {
+    // Sinal de compra explícito (urgência registrada + já sabemos o que ele busca):
+    // segurar esse lead em descoberta é perder venda. Pula direto pra apresentação
+    // e o "sim"; a qualificação fina acontece naturalmente durante a habilitação.
+    const sinalCompra = ['agora', 'proximos_30_dias', 'proximos_leiloes'].includes(str(input.perfil.urgencia))
+        && !!str(input.perfil.interesse)
+    if (falta.length > 0 && !sinalCompra) {
         const enrolou = (input.turnosLead ?? 0) >= MAX_TURNOS_DESCOBERTA
         if (!enrolou) {
             return { ...base, fase: 'descoberta', motivo: `perfil incompleto (${falta.length} item(ns))` }
         }
         return { ...base, fase: 'apresentacao', motivo: `perfil incompleto, mas a conversa já se estendeu (${input.turnosLead} msgs) — apresentar assessoria` }
+    }
+    if (sinalCompra && !jaApresentou) {
+        return { ...base, fase: 'apresentacao', motivo: 'sinal de compra explícito — apresentar a assessoria e buscar o "sim" já' }
     }
     if (!jaApresentou) {
         return { ...base, fase: 'apresentacao', motivo: 'perfil entendido, falta apresentar a assessoria' }
@@ -146,6 +156,7 @@ export function extractPerfil(lead: {
         rebanho: str(xd.rebanho_atual) || str(lead.momento_pecuaria) || null,
         objetivo: str(xd.objetivo_compra_resumido) || null,
         experiencia: str(xd.experiencia_leilao) || null,
+        urgencia: str(xd.urgencia_compra) || null,
     }
 }
 
@@ -220,7 +231,13 @@ export function fasePromptBlock(r: FaseResult, perfil: PerfilLead): string {
     if (perfil.rebanho) sabe.push(`hoje cria: ${perfil.rebanho}`)
     if (perfil.objetivo) sabe.push(`objetivo: ${perfil.objetivo}`)
     if (perfil.experiencia) sabe.push(`leilão: ${perfil.experiencia}`)
+    if (perfil.urgencia) sabe.push(`urgência: ${perfil.urgencia}`)
     if (sabe.length) lines.push('', `PERFIL JÁ LEVANTADO (não repita estas perguntas): ${sabe.join(' · ')}`)
+
+    const quente = ['agora', 'proximos_30_dias', 'proximos_leiloes'].includes(String(perfil.urgencia ?? '').trim())
+    if (r.fase === 'apresentacao' && quente) {
+        lines.push('', 'LEAD COM SINAL DE COMPRA: não faça mais nenhuma pergunta de perfil. Meia linha de valor da assessoria + a pergunta do "sim" (você cuidar do cadastro e acompanhá-lo no leilão). O objetivo desta mensagem é UM: conseguir o "sim" pra habilitação.')
+    }
 
     return lines.join('\n')
 }
