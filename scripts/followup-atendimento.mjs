@@ -150,15 +150,24 @@ async function pullMessages(sinceIso) {
 async function fetchTemplateStatus() {
   const map = new Map()
   if (!WABA || !TOKEN) return map
-  let url = `https://graph.facebook.com/${GRAPH}/${WABA}/message_templates?fields=name,status&limit=100`
+  let url = `https://graph.facebook.com/${GRAPH}/${WABA}/message_templates?fields=name,status,components&limit=100`
   while (url) {
     const res = await fetch(url, { headers: { Authorization: `Bearer ${TOKEN}` }, signal: AbortSignal.timeout(30000) })
     const json = await res.json().catch(() => null)
     if (!res.ok) break
-    for (const t of json?.data ?? []) map.set(t.name, t.status)
+    for (const t of json?.data ?? []) {
+      const body = (t.components ?? []).find(c => c.type === 'BODY')?.text ?? ''
+      map.set(t.name, { status: t.status, body })
+    }
     url = json?.paging?.next || null
   }
   return map
+}
+
+// Texto que o LEAD vê (corpo aprovado com {{n}} preenchidos) — é o que vai pro
+// log do cockpit; placeholder "[template x]" na conversa confunde o time.
+function renderTemplateBody(body, params) {
+  return String(body || '').replace(/\{\{(\d)\}\}/g, (_m, n) => params[Number(n) - 1] ?? '')
 }
 
 async function main() {
@@ -270,15 +279,15 @@ async function main() {
   }
 
   // ── template aprovado? ──
-  const status = await fetchTemplateStatus()
+  const templates = await fetchTemplateStatus()
   const neededTemplates = [...new Set(audience.map(a => a.step.template))]
-  const blocked = neededTemplates.filter(t => status.get(t) !== 'APPROVED')
+  const blocked = neededTemplates.filter(t => templates.get(t)?.status !== 'APPROVED')
   if (blocked.length) {
-    console.log(`\n⚠ Templates ainda NÃO aprovados na WABA: ${blocked.map(t => `${t}(${status.get(t) || 'inexistente'})`).join(', ')}`)
+    console.log(`\n⚠ Templates ainda NÃO aprovados na WABA: ${blocked.map(t => `${t}(${templates.get(t)?.status || 'inexistente'})`).join(', ')}`)
     console.log('Envio segue só para os steps com template aprovado.')
   }
   const toSend = audience
-    .filter(a => status.get(a.step.template) === 'APPROVED')
+    .filter(a => templates.get(a.step.template)?.status === 'APPROVED')
     .slice(0, LIMIT === Infinity ? audience.length : LIMIT)
 
   console.log(`\n=== ENVIANDO para ${toSend.length} (throttle ${THROTTLE_MS}ms) ===`)
@@ -305,7 +314,9 @@ async function main() {
     } catch (e) { errMsg = e?.message || 'fetch_error' }
 
     await supabase.from('whatsapp_messages').insert({
-      phone: a.phone, name: a.fname, body: `[template ${a.step.template}] ${a.param2}`, direction: 'outbound',
+      phone: a.phone, name: a.fname,
+      body: renderTemplateBody(templates.get(a.step.template)?.body, params) || `[template ${a.step.template}] ${a.param2}`,
+      direction: 'outbound',
       status: statusSend, channel: 'cloud', inbox_id: 'cloud', intent: 'crm_reply', origin: ORIGIN, bot_step: a.step.botStep,
       lead_id: a.leadId, campaign_id: null, reason: messageId ?? (statusSend === 'failed' ? 'send_failed' : null),
       error_msg: errMsg,
