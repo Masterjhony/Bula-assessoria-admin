@@ -199,8 +199,7 @@ export async function GET(req: NextRequest) {
 
     rows.sort((a, b) => +new Date(b.last_at) - +new Date(a.last_at))
 
-    // Com busca ativa, devolve TODOS os resultados (o contato pode ser antigo);
-    // ao navegar sem busca, mostra os mais recentes com teto folgado.
-    const limit = (q || interesseFilter || channelFilter || filter !== 'todos') ? rows.length : 1000
-    return NextResponse.json({ conversations: rows.slice(0, limit), total: rows.length })
+    // Devolve TODAS as conversas: o teto de 1000 em "Todos" escondia as mais
+    // antigas em silêncio (18/07: base passou de 1.6k conversas e "sumiu gente").
+    return NextResponse.json({ conversations: rows, total: rows.length })
 }
