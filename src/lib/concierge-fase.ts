@@ -153,6 +153,7 @@ const REGRAS: Record<ConciergeFase, string[]> = {
         'PROIBIDO nesta fase: pedir documento ou foto. Dado de cadastro só depois do "sim".',
         'NÃO ofereça "falar com um assessor", "uma pessoa da equipe" nem similar — o assessor só entra DEPOIS do cadastro aprovado, e quem conduz até lá é você.',
         'Se ele já demonstrou o "sim" ("quero", "pode ser", "como faço?"), marque updates.aceitou_assessoria=true.',
+        'Se o "sim" NÃO vier (hesitação, resposta vaga, "vou pensar"): ofereça as TRÊS situações — (1) só acompanhar oportunidades por enquanto, (2) pode comprar mais pra frente, (3) deixar o cadastro pronto pra já participar. Registre: opção 1 → urgencia_compra=sem_prazo; opção 2 → urgencia_compra=proximos_leiloes; opção 3 → aceitou_assessoria=true. SÓ a opção 3 entra em documentos — quem escolheu 1 ou 2 recebe conteúdo/aviso de leilão e follow-up, NUNCA pedido de dado (pressionar quem se declarou "só olhando" gera opt-out).',
     ],
     habilitacao: [
         'O lead topou. Objetivo único desta fase: FECHAR O CADASTRO. Cada mensagem sua ou coleta um dado/documento ou destrava uma objeção.',

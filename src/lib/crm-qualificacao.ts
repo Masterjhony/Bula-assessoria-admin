@@ -85,6 +85,23 @@ export const EXPERIENCIA_LABEL: Record<string, string> = {
     nunca_comprou: 'Nunca comprou em leilão',
 }
 
+export const GARGALO_LABEL: Record<string, string> = {
+    valor: 'Valor percebido',
+    confianca: 'Confiança',
+    facilidade: 'Facilidade',
+    momento: 'Momento',
+    progresso: 'Progresso',
+    atrito: 'Atrito restante',
+}
+
+export const OBJECAO_LABEL: Record<string, string> = {
+    risco: 'Risco/desconfiança',
+    logistica: 'Logística (sem doc/tempo)',
+    valor: 'Não vê o ganho',
+    contexto: 'Contexto errado',
+    incerteza: 'Incerteza do processo',
+}
+
 export function momentoPecuariaLabel(v: unknown): string {
     const s = slug(v)
     if (!s) return ''
@@ -137,6 +154,15 @@ export function buildQualificacao(lead: QualLead): QualItem[] {
     if (xd.aceitou_assessoria === true) add('aceitou', 'Aceitou o acompanhamento', 'Sim', 'conversa', 'jornada')
     add('cadastro_status', 'Status do cadastro', xd.cadastro_status, 'conversa', 'jornada')
     add('proxima_acao', 'Próxima ação', xd.proxima_acao, 'conversa', 'jornada')
+
+    // ── Termômetro (equação de conversão do atendimento) — visão do atendente
+    const score = xd.lead_score as { prob?: number; gargalo?: string } | undefined
+    if (score && typeof score.prob === 'number') {
+        add('prontidao', 'Prontidão (termômetro)', `${Math.round(score.prob * 100)}%`, 'conversa', 'jornada')
+        if (score.gargalo) add('gargalo', 'Gargalo atual', GARGALO_LABEL[str(score.gargalo)] ?? score.gargalo, 'conversa', 'jornada')
+    }
+    add('objecao', 'Objeção dominante', OBJECAO_LABEL[str(xd.objecao_tipo)] ?? xd.objecao_tipo, 'conversa', 'jornada')
+    add('retomada_combinada', 'Retomada combinada', xd.retomada_combinada, 'conversa', 'jornada')
 
     return out
 }
