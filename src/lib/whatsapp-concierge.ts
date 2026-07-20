@@ -63,6 +63,7 @@ import {
     DEFAULT_JMP_MQL_RULE,
     normalizeCRMStatus,
 } from './crm-types'
+import { maxStatus, pushStageMove } from './crm-stage-rules'
 
 export const CONCIERGE_KEY = 'crm_concierge'
 
@@ -405,12 +406,10 @@ interface ConciergeAIResult {
 
 /* ─── Mapeamento de etapa → status no Kanban (avanço conservador) ──────── */
 
-// Ordem para garantir que só avançamos (nunca regredimos por uma mensagem
-// ambígua). Auto-avanço é limitado a INFORMAÇÕES CAPTADAS — CADASTRO/aprovação
-// é decisão humana, então o concierge nunca move para lá sozinho.
-const STATUS_ORDER = [
-    'ENTRADA', 'CONEXÃO', 'QUALIFICAÇÃO', 'INFORMAÇÕES CAPTADAS', 'CADASTRO', 'PERDIDOS',
-]
+// A ordem das etapas, o maxStatus (só avança) e o formato do stage_history
+// moram em crm-stage-rules.ts — a fonte única das regras de movimentação.
+// Auto-avanço é limitado a INFORMAÇÕES CAPTADAS — CADASTRO/aprovação é decisão
+// humana, então o concierge nunca move para lá sozinho.
 
 /**
  * Decide a etapa do lead a partir dos DADOS coletados — não do "feeling" do LLM.
@@ -561,14 +560,6 @@ function computeFaseFromLead(lead: FullLead, checklistComplete: boolean, turnosL
 const SEMANTIC_TO_DOC_TIPO: Record<string, LeadDocTipo> = {
     identidade: 'cpf',
     comprovante_endereco: 'endereco',
-}
-
-function maxStatus(current: string, candidate: string): string {
-    const ci = STATUS_ORDER.indexOf(normalizeCRMStatus(current))
-    const ni = STATUS_ORDER.indexOf(normalizeCRMStatus(candidate))
-    if (ni < 0) return current
-    if (ci < 0) return candidate
-    return ni > ci ? candidate : current
 }
 
 /* ─── Contexto enviado à IA ────────────────────────────────────────────── */
@@ -1306,16 +1297,12 @@ async function applyConciergeEffects(
         update.status = advanced
         // Auditoria estruturada da mudança de etapa (base do fluxograma/gestão do
         // chefe): quem moveu, de/para, por quê e quando. Mantém as últimas 30.
-        const rawHist = nextExtra.stage_history
-        const history = Array.isArray(rawHist) ? [...rawHist] : []
-        history.unshift({
+        nextExtra.stage_history = pushStageMove(nextExtra, {
             from: lead.status || 'ENTRADA',
             to: advanced,
             reason: target.reason,
             by: 'ia',
-            at: new Date().toISOString(),
-        })
-        nextExtra.stage_history = history.slice(0, 30)
+        }).stage_history
     }
 
     // Aviso interno (uma vez por lead): habilitação completa → equipe revisa e

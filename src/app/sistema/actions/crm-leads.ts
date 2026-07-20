@@ -16,6 +16,7 @@ import {
     JMP_FUNNEL_ID,
     normalizeCRMStatus,
 } from '@/lib/crm-types';
+import { pushStageMove } from '@/lib/crm-stage-rules';
 import { getCRMConfig } from './crm-config';
 import { maybeNotifyAssessorOnLeadStage } from '@/lib/crm-whatsapp-assessor';
 import { maybeRunStateRegistrationCheck } from '@/lib/crm-state-registration-automation';
@@ -475,6 +476,22 @@ export async function updateLead(id: string, data: Partial<CRMLead>): Promise<CR
         payload.extra_data = { ...(previous.extra_data as Record<string, unknown>), ...payload.extra_data };
     }
 
+    // Auditoria de etapa (crm-stage-rules): edição manual que muda o status
+    // entra na mesma trilha stage_history da IA e do sistema.
+    if (
+        typeof payload.status === 'string' && previous &&
+        normalizeCRMStatus(payload.status) !== normalizeCRMStatus(previous.status)
+    ) {
+        const base = (payload.extra_data as Record<string, unknown> | undefined)
+            ?? (previous.extra_data as Record<string, unknown> | null);
+        payload.extra_data = pushStageMove(base, {
+            from: previous.status ?? '',
+            to: payload.status,
+            reason: 'edição manual',
+            by: 'usuario',
+        });
+    }
+
     const { data: updatedLead, error } = await supabase
         .from('crm_leads')
         .update(payload)
@@ -522,12 +539,21 @@ export async function moveLead(id: string, newStatus: string, newPosition: numbe
         .eq('id', id)
         .single();
 
+    // Auditoria de etapa (crm-stage-rules): arrasto no kanban que muda a etapa
+    // entra na mesma trilha stage_history da IA e do sistema.
+    const movePayload: Record<string, unknown> = { status, position: newPosition };
+    if (previous && normalizeCRMStatus(previous.status) !== status) {
+        movePayload.extra_data = pushStageMove(previous.extra_data as Record<string, unknown> | null, {
+            from: previous.status ?? '',
+            to: status,
+            reason: 'movido no kanban',
+            by: 'usuario',
+        });
+    }
+
     const { error } = await supabase
         .from('crm_leads')
-        .update({
-            status,
-            position: newPosition
-        })
+        .update(movePayload)
         .eq('id', id);
 
     if (error) {
@@ -1552,20 +1578,16 @@ export async function sweepInactiveLeadsToLost(): Promise<{ moved: number; scann
         const lastInboundAt = inboundRes.data?.created_at ?? null;
         if (!lastInboundAt || lastInboundAt > cutoffIso) continue;
 
-        const prevExtra = (lead.extra_data ?? {}) as Record<string, unknown>;
-        const rawHist = prevExtra.stage_history;
-        const history = Array.isArray(rawHist) ? [...rawHist] : [];
-        history.unshift({
+        const nextExtra = pushStageMove(lead.extra_data, {
             from: lead.status,
             to: CRM_STAGE_LOST,
             reason: `sem resposta há ${INACTIVITY_DAYS}+ dias após ${attempts} tentativas`,
             by: 'sistema',
-            at: new Date().toISOString(),
         });
 
         const { error: upErr } = await supabase
             .from('crm_leads')
-            .update({ status: CRM_STAGE_LOST, extra_data: { ...prevExtra, stage_history: history.slice(0, 30) } })
+            .update({ status: CRM_STAGE_LOST, extra_data: nextExtra })
             .eq('id', lead.id);
         if (!upErr) ids.push(lead.id);
     }
@@ -1587,19 +1609,15 @@ export async function marcarLeadGanho(
     if (error || !lead) return { ok: false, error: 'Lead não encontrado' };
 
     // Auditoria (mesma trilha stage_history da IA): registra o ganho antes de arquivar.
-    const prevExtra = (lead.extra_data ?? {}) as Record<string, unknown>;
-    const rawHist = prevExtra.stage_history;
-    const history = Array.isArray(rawHist) ? [...rawHist] : [];
-    history.unshift({
+    const nextExtra = pushStageMove(lead.extra_data, {
         from: lead.status,
         to: 'GANHO',
         reason: 'ganho manual — enviado para Clientes',
         by: 'usuario',
-        at: new Date().toISOString(),
     });
     await supabase
         .from('crm_leads')
-        .update({ extra_data: { ...prevExtra, stage_history: history.slice(0, 30), ganho_at: new Date().toISOString() } })
+        .update({ extra_data: { ...nextExtra, ganho_at: new Date().toISOString() } })
         .eq('id', leadId);
 
     const result = await syncLeadToClientes(supabase, lead as Parameters<typeof syncLeadToClientes>[1], {

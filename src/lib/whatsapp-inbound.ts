@@ -19,6 +19,7 @@ import { isWithinAllowedHours } from './whatsapp-flow-settings'
 import { loadConciergeConfig, runConcierge } from './whatsapp-concierge'
 import { transcribeAudioOpenRouter } from './openrouter'
 import { CRM_STAGE_ENTRY } from './crm-types'
+import { reactivateLeadIfLost } from './crm-stage-rules'
 
 const LEAD_FIELDS =
     'id, nome, telefone, interesse_principal, handoff_humano, handoff_at, optout_whatsapp, contact_history, contact_count, tags_whatsapp, stage, status, notes'
@@ -322,6 +323,12 @@ export async function processInboundMessage(
             .from('crm_leads')
             .update({ last_whatsapp_at: new Date().toISOString() })
             .eq('id', lead.id)
+
+        // REGRA DE REATIVAÇÃO (crm-stage-rules): lead em PERDIDOS que responde
+        // volta para a etapa de onde caiu. Awaited de propósito — o concierge
+        // refetch-a o lead logo abaixo e precisa enxergar a etapa já revivida.
+        const revived = await reactivateLeadIfLost(supabase, lead)
+        if (revived) lead = { ...lead, status: revived }
 
         // Reação à resposta de campanha (fire-and-forget). Marca replied_at em
         // recipients ativos do lead, aplica reply_tag e reply_handoff.
