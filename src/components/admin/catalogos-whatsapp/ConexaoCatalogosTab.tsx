@@ -95,7 +95,7 @@ export function ConexaoCatalogosTab() {
 
     return (
         <div className="space-y-5">
-            <div className="bg-card text-card-foreground rounded-xl border overflow-hidden">
+            <div className="bg-[var(--surface)] text-[var(--text)] rounded-xl border border-[var(--border2)] overflow-hidden">
                 <div className="px-6 py-4 border-b flex items-center justify-between">
                     <h3 className="font-semibold flex items-center gap-2">
                         <QrCode className="h-4 w-4" /> Status da sessão de catálogos
@@ -162,7 +162,7 @@ export function ConexaoCatalogosTab() {
                 </div>
             </div>
 
-            <div className="bg-card text-card-foreground rounded-xl border overflow-hidden">
+            <div className="bg-[var(--surface)] text-[var(--text)] rounded-xl border border-[var(--border2)] overflow-hidden">
                 <div className="px-6 py-4 border-b flex items-center justify-between">
                     <h3 className="font-semibold flex items-center gap-2">
                         {isPaused ? <Pause className="h-4 w-4" /> : <Play className="h-4 w-4" />}

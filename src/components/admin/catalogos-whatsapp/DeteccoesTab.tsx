@@ -146,7 +146,7 @@ export function DeteccoesTab() {
 
     return (
         <div className="space-y-4">
-            <div className="bg-card text-card-foreground rounded-xl border overflow-hidden">
+            <div className="bg-[var(--surface)] text-[var(--text)] rounded-xl border border-[var(--border2)] overflow-hidden">
                 <div className="px-6 py-4 border-b flex flex-col md:flex-row md:items-center md:justify-between gap-3">
                     <div className="flex flex-wrap gap-1">
                         {FILTERS.map(f => (
@@ -328,7 +328,7 @@ function DetectionModal({
     return (
         <div className="fixed inset-0 z-50 bg-black/60 flex items-center justify-center p-4" onClick={onClose}>
             <div
-                className="bg-card text-card-foreground rounded-xl border w-full max-w-3xl max-h-[90vh] overflow-hidden flex flex-col"
+                className="bg-[var(--surface)] text-[var(--text)] rounded-xl border border-[var(--border2)] shadow-2xl w-full max-w-3xl max-h-[90vh] overflow-hidden flex flex-col"
                 onClick={e => e.stopPropagation()}
             >
                 <div className="px-6 py-4 border-b">

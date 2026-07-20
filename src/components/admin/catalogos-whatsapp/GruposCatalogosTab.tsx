@@ -72,7 +72,7 @@ export function GruposCatalogosTab() {
 
     return (
         <div className="space-y-5">
-            <div className="bg-card text-card-foreground rounded-xl border overflow-hidden">
+            <div className="bg-[var(--surface)] text-[var(--text)] rounded-xl border border-[var(--border2)] overflow-hidden">
                 <div className="px-6 py-4 border-b flex items-center justify-between">
                     <h3 className="font-semibold flex items-center gap-2">
                         <Users className="h-4 w-4" /> Grupos monitorados
@@ -203,7 +203,7 @@ function GroupForm({
 
     return (
         <div className="fixed inset-0 z-50 bg-black/60 flex items-center justify-center p-4" onClick={onClose}>
-            <div className="bg-card text-card-foreground rounded-xl border w-full max-w-lg overflow-hidden" onClick={e => e.stopPropagation()}>
+            <div className="bg-[var(--surface)] text-[var(--text)] rounded-xl border border-[var(--border2)] shadow-2xl w-full max-w-lg overflow-hidden" onClick={e => e.stopPropagation()}>
                 <div className="px-6 py-4 border-b">
                     <h3 className="font-semibold">{initial ? "Editar grupo" : "Novo grupo"}</h3>
                 </div>
