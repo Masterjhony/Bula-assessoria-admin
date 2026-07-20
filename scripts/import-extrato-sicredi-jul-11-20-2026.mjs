@@ -36,8 +36,13 @@ const r2 = (n) => Math.round(Number(n) * 100) / 100
 const now = () => new Date().toISOString()
 
 const SICREDI = 'af4724ec-e098-4e13-b172-04b2bfb1949d'
-const SALDO_BANCO = 0.00
+// CONVENCAO (20/07, pedido do chefe): o saldo exibido do Sicredi no ERP e o
+// TOTAL = conta corrente + aplicacao com resgate automatico. A varredura e
+// automatica, entao o dinheiro aplicado continua disponivel — ancorar o saldo
+// derivado no total, nao no CC (que vive zerado).
+const SALDO_CC = 0.00
 const SALDO_APLICACAO = 29577.20
+const SALDO_BANCO = SALDO_CC + SALDO_APLICACAO
 const FONTE = 'Extrato Sicredi (Internet Banking) 11/07-20/07/2026, lido em 20/07/2026'
 const CAT = {
   RECEBIMENTO_CLIENTE: 'ee101d8d-4c90-4cbc-8139-a156e046e20f',
