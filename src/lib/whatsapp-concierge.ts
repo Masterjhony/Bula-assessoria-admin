@@ -118,12 +118,13 @@ export const DEFAULT_HANDOFF_CONTACT = 'João Antônio (Bula Assessoria) — +55
  * O concierge deixou de ser um coletor de checklist e virou um consultor
  * comercial: precisa ler subtexto ("os que tenho são mestiço" = está subindo de
  * nível), reagir com repertório de pecuária e sustentar uma conversa de venda
- * sem soar robótico. DeepSeek V4 Pro (18/07, pedido do chefe de baixar custo):
- * $0.43/$0.87 por M tokens na OpenRouter — ~5x mais barato que o Sonnet 5
- * ($2/$10) e ~8x que o Kimi K3 ($3/$15), mantendo classe flagship. Sonnet 5
- * segue como 1º fallback de qualidade se o V4 Pro falhar/pendurar.
+ * sem soar robótico. GPT-5.6 Luna (20/07, pedido do chefe após o DeepSeek V4
+ * Pro derrapar em produção — fallback genérico num turno de CPF): $1/$6 por M
+ * tokens na OpenRouter, meio-termo entre o V4 Pro ($0.43/$0.87) e o Sonnet 5
+ * ($2/$10). Sonnet 5 segue como 1º fallback de qualidade se o Luna
+ * falhar/pendurar; o V4 Pro vira fallback barato.
  */
-export const DEFAULT_CONCIERGE_MODEL = process.env.OPENROUTER_CONCIERGE_MODEL || 'deepseek/deepseek-v4-pro'
+export const DEFAULT_CONCIERGE_MODEL = process.env.OPENROUTER_CONCIERGE_MODEL || 'openai/gpt-5.6-luna'
 
 /**
  * Consultas pagas de API durante o atendimento (telefone→CPF, CPF→I.E.,
@@ -135,8 +136,8 @@ const CONCIERGE_AUTOFILL_ENABLED = process.env.CONCIERGE_AUTOFILL_ENABLED === '1
 /** Degradação por qualidade: cada um destes ainda conversa bem em PT-BR + JSON. */
 const BUILTIN_CONCIERGE_FALLBACK_MODELS = [
     'anthropic/claude-sonnet-5',
+    'deepseek/deepseek-v4-pro',
     'google/gemini-2.5-flash',
-    'openai/gpt-4.1',
 ]
 
 /**
@@ -653,6 +654,21 @@ function buildEmergencyConciergeResult(
 
     const interest = cls.kind === 'interest' ? cls.interesse : null
 
+    // O lead acabou de mandar o CPF (capturado e persistido antes da IA):
+    // confirmar o recebimento vale mais que qualquer pergunta de fase — a
+    // resposta genérica aqui já queimou lead que fez exatamente o que pedimos.
+    const cpfNaMensagem = extrairCpf(input.text)
+    if (cpfNaMensagem && String(lead.cpf ?? '').replace(/\D/g, '') === cpfNaMensagem) {
+        return {
+            reply: 'Anotei seu CPF aqui no cadastro, obrigado! Já te retorno com o próximo passo.',
+            stage: 'pre_qualificacao',
+            handoff: false,
+            optout: false,
+            internal_note: `Fallback sem IA (${reason}): CPF recebido e persistido; confirmação enviada.`,
+            updates: { proxima_acao: 'continuar_habilitacao' },
+        }
+    }
+
     // Perguntas seguras por lacuna do perfil — nenhuma delas pede dado cadastral.
     const PERGUNTA_POR_LACUNA: Array<[RegExp, string]> = [
         [/quer começar a criar/i, 'Boa! Me conta: você tá pensando em começar como — melhorando com touro bom ou já formando um plantel?'],
@@ -804,6 +820,22 @@ export async function runConcierge(
     const persona = input.config.persona?.trim() || DEFAULT_CONCIERGE_PERSONA
     const fname = firstName(lead.nome) || input.senderName || ''
 
+    // Captura GRÁTIS e independente de fase: se a mensagem traz um CPF válido
+    // (dígitos verificadores conferem), persiste JÁ — antes de qualquer chamada
+    // de IA. Um CPF válido no texto é inequívoco, e esperar a fase "habilitacao"
+    // já fez o sistema perder CPF digitado quando a IA caiu no mesmo turno.
+    if (!String(lead.cpf ?? '').replace(/\D/g, '')) {
+        const cpfNaMensagem = extrairCpf(input.text)
+        if (cpfNaMensagem) {
+            const { error: cpfErr } = await supabase.from('crm_leads').update({ cpf: cpfNaMensagem }).eq('id', lead.id)
+            if (cpfErr) {
+                console.warn('[concierge] persistir CPF capturado falhou:', cpfErr.message)
+            } else {
+                lead = { ...lead, cpf: cpfNaMensagem }
+            }
+        }
+    }
+
     // Checklist de habilitação (estado atual) — o "mapa" injetado no prompt.
     let docs = await loadLeadDocs(supabase, lead.id)
     let checklist = buildChecklist(lead, docs)
@@ -815,17 +847,6 @@ export async function runConcierge(
     let fase = computeFaseFromLead(lead, checklist.complete, turnosLead)
 
     let autofillBlock = ''
-    if (fase.fase === 'habilitacao') {
-        // Captura GRÁTIS: o lead pode ter mandado o CPF nesta mensagem —
-        // persistir já, senão o checklist só enxergaria na próxima.
-        if (!String(lead.cpf ?? '').replace(/\D/g, '')) {
-            const cpfNaMensagem = extrairCpf(input.text)
-            if (cpfNaMensagem) {
-                await supabase.from('crm_leads').update({ cpf: cpfNaMensagem }).eq('id', lead.id)
-                lead = { ...lead, cpf: cpfNaMensagem }
-            }
-        }
-    }
     if (fase.fase === 'habilitacao' && CONCIERGE_AUTOFILL_ENABLED) {
         try {
             const r = await runHabilitacaoAutofill(supabase, {
