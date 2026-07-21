@@ -16,6 +16,13 @@ export const hero = {
   // Copy que QUALIFICA: linguagem técnica (DEP, sumário, reprodutor PO) faz o
   // comprador sério se reconhecer e o curioso se autoexcluir (Paid Social).
   lead: 'Para quem cria de verdade: a Bula lê os DEPs, cruza os números do sumário com o objetivo do seu rebanho e monta uma seleção de reprodutores PO que se paga no bezerro — sem chute e sem compra por beleza.',
+  // 3 tópicos curtos (substituem o `lead` longo no hero): (1) prova técnica,
+  // (2) benefício econômico + auto-seleção, (3) custo-zero que qualifica.
+  leadBullets: [
+    'Reprodutores PO lidos pelos DEPs e pelo sumário',
+    'Seleção que se paga no bezerro, não na beleza',
+    'Sem custo pra você — a Bula é paga pelas centrais',
+  ],
   cta: 'Quero receber uma seleção de touros',
   // [VALIDAR] prova de escala — confirmar número atual com o cliente.
   proof: '+1.000 touros PO apartados ao lado de criatórios de corte e seleção.',
@@ -40,29 +47,31 @@ export const subHero = {
   ],
 }
 
-export const processo = {
-  title: 'Como funciona',
-  lead: 'Um caminho simples, consultivo e sem custo até o touro certo.',
-  steps: [
+// Seção de PRODUTO — o que o comprador recebe (touro/genética), não o processo.
+// Foco em número/margem + "seu rebanho" para atrair comprador de escala e afastar
+// o curioso (Growth/Paid). A Bula ASSESSORA/seleciona — nunca "produz" genética.
+export const produto = {
+  eyebrow: 'O QUE VOCÊ RECEBE',
+  title: 'Não é um touro qualquer. É a genética certa pro seu rebanho.',
+  lead: 'Reprodutores PO Nelore apartados pelos números do sumário e pelo objetivo do seu plantel — não pela foto do catálogo.',
+  pillars: [
     {
-      n: '01',
-      title: 'Você se cadastra',
-      text: 'Conta pra gente o seu momento na pecuária e o que procura em poucos campos.',
+      title: 'Genética comprovada no papel',
+      text: 'Cada indicação vem lastreada nos DEPs e nos números do sumário — você compra com dado, não com achismo.',
     },
     {
-      n: '02',
-      title: 'A equipe te chama no WhatsApp',
-      text: 'Um assessor humano entra em contato pelo número que você cadastrou — não é robô, não é spam.',
+      // [VALIDAR] quais criatórios/parceiros a Bula pode nomear.
+      title: 'Procedência que você reconhece',
+      text: 'Reprodutores PO apartados ao lado de criatórios de corte e seleção de referência no Nelore.',
     },
     {
-      n: '03',
-      title: 'Entendemos seu rebanho',
-      text: 'Avaliamos seu objetivo de genética, manejo e as metas do seu plantel.',
+      title: 'Seleção sob medida pro seu objetivo',
+      text: 'Precocidade, fertilidade ou peso: a seleção puxa o traço que o seu rebanho precisa evoluir.',
     },
     {
-      n: '04',
-      title: 'Você recebe uma seleção',
-      text: 'Uma curadoria de touros com a genética e os números que fazem sentido pra você.',
+      // [VALIDAR] qualquer número de ganho/valorização precisa vir do cliente.
+      title: 'Retorno que aparece no bezerro',
+      text: 'Touro certo melhora ganho de peso e desmama — o investimento em genética volta no lote vendido.',
     },
   ],
 }

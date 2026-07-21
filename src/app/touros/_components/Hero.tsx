@@ -96,15 +96,25 @@ export function Hero() {
             <MultiLine text={hero.title} />
           </motion.h1>
 
-          <motion.p
+          <motion.ul
             initial={enter(18)}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.7, delay: 0.16, ease: [0.22, 1, 0.36, 1] }}
-            className="mt-7 max-w-[520px]"
-            style={{ fontWeight: 300, fontSize: 'clamp(17px, 2vw, 21px)', lineHeight: 1.5, color: dark.text }}
+            className="mt-7 flex max-w-[500px] flex-col gap-3"
           >
-            {hero.lead}
-          </motion.p>
+            {hero.leadBullets.map((item) => (
+              <li key={item} className="flex items-start gap-3">
+                <span
+                  aria-hidden
+                  className="mt-[9px] h-[6px] w-[6px] shrink-0 rounded-full"
+                  style={{ background: dark.gold }}
+                />
+                <span style={{ fontWeight: 300, fontSize: 'clamp(15px, 1.7vw, 17px)', lineHeight: 1.45, color: dark.text }}>
+                  {item}
+                </span>
+              </li>
+            ))}
+          </motion.ul>
 
           <motion.p
             initial={enter(18)}
