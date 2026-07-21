@@ -711,7 +711,7 @@ const RESULT_SCHEMA_INSTRUCTIONS = `Responda SOMENTE com um objeto JSON válido 
     "assessoria_apresentada": true|false,  // true SE esta sua mensagem apresenta a Bula/assessoria
     "aceitou_assessoria": true|false,      // true quando o lead topa falar com um assessor
     "ie_status": "tem|nao_tem|pendente_envio|em_validacao|null",
-    "cadastro_status": "nao_iniciado|solicitado|em_analise|pendente|null",
+    "cadastro_status": "nao_iniciado|pendente|null",  // estados de submissão (em_analise/aprovado) são gravados pelo sistema, nunca por você
     "score_status": "bom|mediano|sensivel|nao_informado|null",
     "motivo_pendencia": "ie|documento|score|protesto|outro|null",
     "proxima_acao": "string|null",
@@ -871,6 +871,22 @@ export async function runConcierge(
             }
         } catch (e) {
             console.warn('[concierge] autofill falhou:', e instanceof Error ? e.message : e)
+        }
+    }
+
+    // GUARDA DE COERÊNCIA do status do cadastro: 'solicitado'/'em_analise' só
+    // valem com o checklist completo ou com a ficha de fato submetida
+    // (cadastro_submetido_at, gravado pelo sync de habilitação). Sem isso, um
+    // 'solicitado' gravado pela própria IA numa conversa antiga (querendo dizer
+    // "solicitei os DADOS ao lead") fazia o prompt abrir com "seu cadastro já
+    // está em análise" para quem nunca montou cadastro — e o estado errado
+    // nunca se autocorrigia. A limpeza em memória persiste no update do turno.
+    {
+        const xd = (lead.extra_data ?? {}) as Record<string, unknown>
+        const st = String(xd.cadastro_status ?? '')
+        if ((st === 'solicitado' || st === 'em_analise') && !checklist.complete && !xd.cadastro_submetido_at) {
+            const { cadastro_status: _drop, ...rest } = xd
+            lead = { ...lead, extra_data: rest }
         }
     }
 
@@ -1097,6 +1113,14 @@ async function applyConciergeEffects(
     ctx: { media: InboundMedia | null; docs: { count: number; tipos: string[] }; fase: ConciergeFase; score?: LeadScore },
 ): Promise<() => Promise<void>> {
     const u = sanitizeUpdates(ai.updates ?? {})
+    // O LLM não declara estados de submissão do cadastro: 'em_analise' é
+    // gravado abaixo quando o checklist fecha, 'solicitado' pelo sync da ficha
+    // e 'aprovado'/'recusado' pela decisão da leiloeira no grupo. Um modelo já
+    // gravou 'solicitado' entendendo "solicitei os dados" — e o prompt lê esse
+    // valor como "ficha enviada às leiloeiras".
+    if (typeof u.cadastro_status === 'string' && !['nao_iniciado', 'pendente'].includes(u.cadastro_status)) {
+        delete u.cadastro_status
+    }
     const prevExtra = (lead.extra_data ?? {}) as Record<string, unknown>
     const nextExtra: Record<string, unknown> = { ...prevExtra }
 
