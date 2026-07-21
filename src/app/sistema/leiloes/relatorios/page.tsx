@@ -9,7 +9,7 @@ import {
   TrendingUp, Trophy, DollarSign,
   RadioTower, Tag, Briefcase,
 } from 'lucide-react'
-import { generateFechamentoPDF } from '@/lib/fechamento-pdf'
+import { generateFechamentoPDF, generateConsolidadoPDF } from '@/lib/fechamento-pdf'
 import { normalizeAssessorNome } from '@/lib/assessor-normalize'
 
 // ── Types ───────────────────────────────────────────────────────────────────
@@ -701,6 +701,8 @@ function ReportRouter({ report, data, from, to }: { report: ReportKey; data: Pay
 function ReportPDFBrandbook({ data, period }: { data: Payload; period: string }) {
   const [busy, setBusy] = useState<string | null>(null)
   const [search, setSearch] = useState('')
+  const [consAssessor, setConsAssessor] = useState('')
+  const [consBusy, setConsBusy] = useState(false)
 
   const list = useMemo(() => {
     const q = normalize(search)
@@ -711,6 +713,36 @@ function ReportPDFBrandbook({ data, period }: { data: Payload; period: string })
       normalize(f.local).includes(q)
     )
   }, [data.fechamentos, search])
+
+  // Assessores (canônicos) presentes no recorte atual — opções do consolidado
+  const consAssessores = useMemo(() => {
+    const set = new Set<string>()
+    for (const f of list) for (const a of f.por_assessor ?? []) {
+      const canon = normalizeAssessorNome(a.nome)
+      if (canon) set.add(canon)
+    }
+    return [...set].sort((a, b) => a.localeCompare(b, 'pt-BR'))
+  }, [list])
+
+  async function handleConsolidado() {
+    setConsBusy(true)
+    try {
+      await generateConsolidadoPDF(list, {
+        titulo: search.trim() ? `Recorte “${search.trim()}”` : 'Todos os leilões do período',
+        periodo: period,
+        filtros: [
+          search.trim() ? `Busca por nome/local: “${search.trim()}”` : 'Sem filtro de busca',
+          `${list.length} fechamento(s) no recorte`,
+        ],
+        assessor: consAssessor || null,
+      })
+    } catch (e) {
+      console.error('Erro ao gerar PDF consolidado:', e)
+      alert('Erro ao gerar o PDF consolidado. Verifique o console.')
+    } finally {
+      setConsBusy(false)
+    }
+  }
 
   const totalVgv = list.reduce((s, f) => s + (f.vgv_total || 0), 0)
   const totalLotesVendidos = list.reduce((s, f) => s + (f.lotes_vendidos || 0), 0)
@@ -758,18 +790,43 @@ function ReportPDFBrandbook({ data, period }: { data: Payload; period: string })
         />
       </div>
 
+      <div className="pdfb-cons">
+        <div className="pdfb-cons-info">
+          <div className="pdfb-cons-title"><FileBarChart size={14} /> Relatório consolidado do recorte</div>
+          <div className="pdfb-cons-sub">
+            Um único PDF com {consAssessor ? `as vendas de ${consAssessor} nos` : 'a síntese, o ranking de assessores e a distribuição por estado dos'} leilões
+            filtrados abaixo{search.trim() ? <> (busca <strong>“{search.trim()}”</strong>)</> : ''} · {period}
+          </div>
+        </div>
+        <div className="pdfb-cons-actions">
+          <select
+            className="pdfb-cons-select"
+            value={consAssessor}
+            onChange={e => setConsAssessor(e.target.value)}
+            title="Opcional: restringir às vendas de um assessor"
+          >
+            <option value="">Todos os assessores</option>
+            {consAssessores.map(a => <option key={a} value={a}>{a}</option>)}
+          </select>
+          <button type="button" className="pdfb-btn" disabled={consBusy || list.length === 0} onClick={handleConsolidado}>
+            {consBusy ? <Loader2 size={13} className="rl-spin" /> : <Download size={13} />}
+            {consBusy ? 'Gerando…' : `PDF consolidado (${list.length})`}
+          </button>
+        </div>
+      </div>
+
       <div className="pdfb-toolbar">
         <div className="pdfb-search">
           <FileText size={14} />
           <input
             type="text"
-            placeholder="Buscar por nome ou local..."
+            placeholder="Buscar por nome ou local... (ex: EAO)"
             value={search}
             onChange={e => setSearch(e.target.value)}
           />
         </div>
         <div className="pdfb-help">
-          Cada PDF inclui: capa preta+bronze, síntese, por assessor, por estado, compradores, lances detalhados.
+          A busca filtra tanto o consolidado acima quanto os PDFs individuais abaixo. Cada PDF individual inclui: capa preta+bronze, síntese, por assessor, por estado, compradores, lances detalhados.
         </div>
       </div>
 
@@ -837,6 +894,20 @@ function ReportPDFBrandbook({ data, period }: { data: Payload; period: string })
       )}
 
       <style jsx global>{`
+        .pdfb-cons {
+          display:flex; align-items:center; justify-content:space-between; gap:16px; flex-wrap:wrap;
+          background: var(--dcl-bg-card); border:1px solid rgba(200,169,110,0.45);
+          border-radius: 12px; padding: 14px 16px; margin: 4px 0 14px;
+          position: relative; overflow: hidden;
+        }
+        .pdfb-cons::before { content:''; position:absolute; top:0; left:0; bottom:0; width:3px; background: var(--dcl-gold); }
+        .pdfb-cons-title { display:flex; align-items:center; gap:7px; font-size:13px; font-weight:600; color: var(--dcl-gold); margin-bottom:4px; }
+        .pdfb-cons-sub { font-size:11px; color: var(--dcl-ink-3); line-height:1.5; max-width: 560px; }
+        .pdfb-cons-actions { display:flex; align-items:center; gap:8px; flex-wrap:wrap; }
+        .pdfb-cons-select {
+          background: var(--dcl-bg-card); border:1px solid var(--dcl-line); border-radius:8px;
+          color: var(--dcl-ink); font-family: inherit; font-size:12px; padding: 8px 10px; max-width: 220px;
+        }
         .pdfb-toolbar { display:flex; align-items:center; justify-content:space-between; gap:16px; margin: 4px 0 16px; flex-wrap:wrap; }
         .pdfb-search {
           display:inline-flex; align-items:center; gap:8px;
@@ -1534,6 +1605,22 @@ function ReportAssessor({ data, period }: { data: Payload; period: string }) {
               <button type="button" onClick={exportCsvDetalhado} className="rl-export" title="CSV detalhado: 1 linha por assessor × leilão">
                 <Download size={12} /> Detalhado (CSV)
               </button>
+              {filteredAssessor && (
+                <button
+                  type="button"
+                  className="rl-export"
+                  title={`PDF brandbook com as vendas de ${filteredAssessor.nome} no período (leilões + martelo a martelo)`}
+                  onClick={() => {
+                    generateConsolidadoPDF(data.fechamentos, {
+                      assessor: filteredAssessor.nome,
+                      periodo: period,
+                      filtros: [`Gerado pela aba Vendas por Assessor`],
+                    }).catch(e => { console.error(e); alert('Erro ao gerar o PDF.') })
+                  }}
+                >
+                  <FileText size={12} /> PDF do assessor
+                </button>
+              )}
               <span className="rl-tag rl-tag-gold">
                 {filteredAssessor ? '1 selecionado' : `${assessores.length} assessores`}
               </span>

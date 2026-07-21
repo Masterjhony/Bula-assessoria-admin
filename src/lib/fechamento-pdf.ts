@@ -947,3 +947,450 @@ export async function generateFechamentoPDF(
   void wordmarkBronze
   void GRAY_100
 }
+
+// ============================================================
+// PDF CONSOLIDADO de fechamentos (multi-leilão, filtrado)
+//
+// Um único documento com o recorte que o usuário filtrou na tela de
+// relatórios (ex.: todos os "EAO", um período, um assessor específico).
+// Modo geral: síntese + tabela de leilões (+ financeiro se o payload trouxe,
+// i.e. finance-admin) + ranking por assessor + por estado.
+// Modo assessor (opts.assessor): vira "Vendas por Assessor" — só os leilões
+// em que ele vendeu, VGV/participação dele e as vendas lote a lote. Sem
+// valores de comissão (comissão fica restrita ao ERP).
+// ============================================================
+
+export type ConsolidadoOpts = {
+  titulo?: string
+  periodo?: string          // ex.: '01/04/2026 a 21/07/2026'
+  filtros?: string[]        // descrições dos filtros aplicados (aparecem na capa)
+  assessor?: string | null  // nome canônico → relatório de vendas do assessor
+}
+
+export async function generateConsolidadoPDF(
+  fechsIn: FechamentoForPDF[],
+  opts: ConsolidadoOpts = {}
+): Promise<void> {
+  const assessor = (opts.assessor || '').trim() || null
+
+  // Agrega as linhas do assessor dentro de um fechamento (grafias já
+  // canonicalizadas podem gerar 2+ entradas no mesmo leilão).
+  const assessorNoLeilao = (f: FechamentoForPDF) => {
+    if (!assessor) return null
+    let transacoes = 0, animais = 0, vgv = 0, achou = false
+    for (const a of f.por_assessor ?? []) {
+      if (normalizeAssessorNome(a.nome) !== assessor) continue
+      achou = true
+      transacoes += Number(a.transacoes) || 0
+      animais += Number(a.animais) || 0
+      vgv += Number(a.vgv) || 0
+    }
+    return achou ? { transacoes, animais, vgv } : null
+  }
+
+  let fechs = [...fechsIn].sort((a, b) => String(a.data).localeCompare(String(b.data)))
+  if (assessor) fechs = fechs.filter(f => assessorNoLeilao(f))
+  if (!fechs.length) { alert('Nenhum fechamento no recorte selecionado.'); return }
+
+  // Totais do recorte
+  const num = (v: unknown) => Number(v) || 0
+  const tot = {
+    leiloes: fechs.length,
+    lotesV: fechs.reduce((s, f) => s + num(f.lotes_vendidos), 0),
+    lotesO: fechs.reduce((s, f) => s + num(f.lotes_ofertados), 0),
+    animais: fechs.reduce((s, f) => s + num(f.animais_vendidos), 0),
+    vgv: fechs.reduce((s, f) => s + num(f.vgv_total), 0),
+    compradores: fechs.reduce((s, f) => s + num(f.compradores_unicos), 0),
+    fat: fechs.reduce((s, f) => s + num(f.faturamento_total_leilao), 0),
+    receita: fechs.reduce((s, f) => s + num(f.receita_bula), 0),
+    comissao: fechs.reduce((s, f) => s + num(f.comissao_assessoria), 0),
+    sobra: fechs.reduce((s, f) => s + num(f.sobra_bruta), 0),
+  }
+  const assAgg = assessor
+    ? fechs.reduce((acc, f) => {
+        const a = assessorNoLeilao(f)!
+        acc.transacoes += a.transacoes; acc.animais += a.animais; acc.vgv += a.vgv
+        return acc
+      }, { transacoes: 0, animais: 0, vgv: 0 })
+    : null
+  const temFin = !assessor && fechs.some(f => f.receita_bula != null && num(f.receita_bula) > 0)
+  const vgvDestaque = assAgg ? assAgg.vgv : tot.vgv
+
+  const [{ default: jsPDF }, autoTable] = await Promise.all([
+    import('jspdf'),
+    import('jspdf-autotable').then(m => m.default),
+  ])
+  const doc = new jsPDF({ unit: 'mm', format: 'a4', orientation: 'portrait' })
+  const PW = doc.internal.pageSize.getWidth()
+  const PH = doc.internal.pageSize.getHeight()
+  const M = 16
+
+  const BRONZE: [number, number, number] = [160, 121, 46]
+  const BRONZE_700: [number, number, number] = [107, 79, 30]
+  const BRONZE_300: [number, number, number] = [212, 168, 92]
+  const BRONZE_100: [number, number, number] = [232, 203, 133]
+  const PRETO: [number, number, number] = [0, 0, 0]
+  const INK: [number, number, number] = [10, 10, 10]
+  const INK2: [number, number, number] = [20, 20, 20]
+  const GRAY_600: [number, number, number] = [74, 74, 74]
+  const GRAY_400: [number, number, number] = [120, 120, 120]
+  const GRAY_300: [number, number, number] = [160, 160, 160]
+  const TECH_GREEN: [number, number, number] = [127, 212, 160]
+  const TECH_RED: [number, number, number] = [192, 80, 77]
+  const BRANCO: [number, number, number] = [255, 255, 255]
+  const PAPER: [number, number, number] = [251, 250, 246]
+  const PAPER_LINE: [number, number, number] = [228, 220, 200]
+  const ROW_ALT: [number, number, number] = [248, 244, 233]
+  const TABLE_LINE: [number, number, number] = [232, 203, 133]
+
+  const bulaWhite = await pngUrlToWhiteMaskDataUrl('/logo-bula.png')
+
+  // ════════════ CAPA ════════════
+  doc.setFillColor(...PRETO)
+  doc.rect(0, 0, PW, PH, 'F')
+  doc.setFillColor(...BRONZE)
+  doc.rect(0, 0, PW, 1.2, 'F')
+  if (bulaWhite) {
+    const bh = 16
+    const bw = bh * (bulaWhite.w / bulaWhite.h)
+    doc.addImage(bulaWhite.data, 'PNG', M, 26, bw, bh, undefined, 'FAST')
+  } else {
+    doc.setFont('helvetica', 'bold'); doc.setFontSize(13); doc.setTextColor(...BRONZE_300)
+    doc.text('BULA ASSESSORIA', M, 36, { charSpace: 0.6 })
+  }
+  doc.setFont('helvetica', 'normal'); doc.setFontSize(8); doc.setTextColor(...GRAY_400)
+  doc.text('RELATÓRIO GERADO EM ' + new Date().toLocaleDateString('pt-BR'), PW - M, 32, { align: 'right' })
+
+  doc.setFont('helvetica', 'bold'); doc.setFontSize(8.5); doc.setTextColor(...BRONZE)
+  doc.text(assessor ? '— VENDAS POR ASSESSOR' : '— RELATÓRIO CONSOLIDADO DE FECHAMENTOS', M, 78, { charSpace: 0.6 })
+  doc.setFontSize(30); doc.setTextColor(...BRANCO)
+  const tituloCapa = assessor || opts.titulo || 'Fechamentos de Leilões'
+  const tituloLines = doc.splitTextToSize(tituloCapa, PW - M * 2)
+  doc.text(tituloLines, M, 92)
+  let capaY = 92 + tituloLines.length * 12
+
+  doc.setFont('helvetica', 'normal'); doc.setFontSize(10); doc.setTextColor(...BRONZE_300)
+  if (opts.periodo) { doc.text('Período: ' + opts.periodo, M, capaY + 4); capaY += 8 }
+  for (const filtro of opts.filtros || []) {
+    doc.setTextColor(...GRAY_300)
+    doc.text('· ' + filtro, M, capaY + 4); capaY += 7
+  }
+
+  // Destaque VGV
+  const cardY = Math.max(capaY + 12, 150)
+  doc.setDrawColor(...BRONZE); doc.setLineWidth(0.5)
+  doc.roundedRect(M, cardY, PW - M * 2, 42, 3, 3, 'D')
+  doc.setFillColor(...BRONZE); doc.rect(M, cardY, 1.2, 42, 'F')
+  doc.setFont('helvetica', 'normal'); doc.setFontSize(7.5); doc.setTextColor(...BRONZE_300)
+  doc.text(assessor ? '— VGV VENDIDO PELO ASSESSOR' : '— VGV TOTAL DA COBERTURA', M + 8, cardY + 10, { charSpace: 0.4 })
+  doc.setFont('helvetica', 'bold'); doc.setFontSize(26); doc.setTextColor(...BRONZE_100)
+  doc.text(fmtBRL(vgvDestaque), M + 8, cardY + 24)
+  doc.setFont('helvetica', 'normal'); doc.setFontSize(9); doc.setTextColor(...GRAY_300)
+  const capaSub = assessor
+    ? tot.leiloes + ' leilões · ' + assAgg!.transacoes + ' vendas · ' + assAgg!.animais + ' animais'
+    : tot.leiloes + ' leilões · ' + tot.lotesV + ' lotes vendidos · ' + fmtNum(tot.animais) + ' animais'
+  doc.text(capaSub, M + 8, cardY + 34)
+
+  doc.setFont('helvetica', 'normal'); doc.setFontSize(7); doc.setTextColor(...GRAY_400)
+  doc.text('Documento interno — Bula Assessoria Pecuária', M, PH - 16)
+
+  // ════════════ Infra de páginas papel ════════════
+  let pageNum = 1
+  let secao = ''
+  const desenhaFooter = () => {
+    doc.setFont('helvetica', 'normal'); doc.setFontSize(6.5); doc.setTextColor(...GRAY_600)
+    doc.text(('BULA ASSESSORIA · ' + (assessor || opts.titulo || 'CONSOLIDADO').toUpperCase()).slice(0, 70), M, PH - 9)
+    doc.text(String(pageNum).padStart(2, '0') + ' / —', PW - M, PH - 9, { align: 'right' })
+    void secao
+  }
+  const novaPagina = (nomeSecao: string) => {
+    doc.addPage(); pageNum++; secao = nomeSecao
+    doc.setFillColor(...PAPER); doc.rect(0, 0, PW, PH, 'F')
+    doc.setFillColor(...PRETO); doc.rect(0, 0, PW, 14, 'F')
+    if (bulaWhite) {
+      const bh = 7
+      const bw = bh * (bulaWhite.w / bulaWhite.h)
+      doc.addImage(bulaWhite.data, 'PNG', M, (14 - bh) / 2, bw, bh, undefined, 'FAST')
+    } else {
+      doc.setFont('helvetica', 'bold'); doc.setFontSize(7.5); doc.setTextColor(...BRONZE_300)
+      doc.text('BULA ASSESSORIA', M, 8.5, { charSpace: 0.2 })
+    }
+    doc.setFont('helvetica', 'normal'); doc.setTextColor(...GRAY_400); doc.setFontSize(7)
+    doc.text('§ ' + nomeSecao.toUpperCase(), PW - M, 8.5, { align: 'right' })
+    doc.setFillColor(...BRONZE); doc.rect(0, 14, PW, 0.5, 'F')
+    doc.setFillColor(...BRONZE_700); doc.rect(0, 14.5, PW, 0.2, 'F')
+    desenhaFooter()
+    return 24
+  }
+  const tituloSecao = (y: number, numTxt: string, titulo: string, sub?: string) => {
+    doc.setFont('helvetica', 'bold'); doc.setFontSize(7.5); doc.setTextColor(...BRONZE)
+    doc.text('— ' + numTxt, M, y, { charSpace: 0.4 })
+    doc.setFontSize(22); doc.setTextColor(...INK)
+    doc.text(titulo, M, y + 10)
+    if (sub) {
+      doc.setFont('helvetica', 'normal'); doc.setFontSize(9); doc.setTextColor(...GRAY_600)
+      doc.text(sub, M, y + 16)
+    }
+    return y + 24
+  }
+  const tableTheme = {
+    styles: { font: 'helvetica', fontSize: 8.5, cellPadding: 2.6, lineColor: TABLE_LINE, lineWidth: 0.1, textColor: INK2 },
+    headStyles: { fillColor: PRETO, textColor: BRONZE_100, fontStyle: 'bold' as const, fontSize: 8, cellPadding: 3 },
+    alternateRowStyles: { fillColor: ROW_ALT },
+    footStyles: { fillColor: BRANCO, textColor: INK, fontStyle: 'bold' as const, fontSize: 8.5, lineColor: TABLE_LINE, lineWidth: 0.1 },
+    margin: { left: M, right: M, bottom: 22 },
+    didDrawPage: () => desenhaFooter(),
+  }
+
+  // ════════════ 01 SÍNTESE ════════════
+  let y = novaPagina('Síntese')
+  y = tituloSecao(y, '01 SÍNTESE', 'Visão consolidada', opts.periodo ? 'Recorte: ' + opts.periodo : undefined)
+
+  const k4 = assessor
+    ? [
+        { l: 'LEILÕES', v: String(tot.leiloes), sub: 'com vendas do assessor' },
+        { l: 'VENDAS', v: String(assAgg!.transacoes), sub: 'transações' },
+        { l: 'ANIMAIS', v: fmtNum(assAgg!.animais), sub: 'comercializados' },
+        { l: 'TICKET MÉDIO', v: fmtBRLCompact(assAgg!.animais ? assAgg!.vgv / assAgg!.animais : 0), sub: 'por animal' },
+      ]
+    : [
+        { l: 'LEILÕES', v: String(tot.leiloes), sub: 'no recorte' },
+        { l: 'LOTES', v: String(tot.lotesV), sub: tot.lotesO ? 'de ' + tot.lotesO + ' ofertados' : 'vendidos' },
+        { l: 'ANIMAIS', v: fmtNum(tot.animais), sub: 'comercializados' },
+        { l: 'COMPRADORES', v: fmtNum(tot.compradores), sub: 'soma por leilão' },
+      ]
+  const kw = (PW - M * 2 - 9) / 4
+  k4.forEach((k, i) => {
+    const x = M + i * (kw + 3)
+    doc.setFillColor(...BRANCO); doc.setDrawColor(...PAPER_LINE); doc.setLineWidth(0.3)
+    doc.roundedRect(x, y, kw, 22, 1.5, 1.5, 'FD')
+    doc.setFillColor(...BRONZE); doc.rect(x, y, kw, 0.6, 'F')
+    doc.setFont('helvetica', 'normal'); doc.setFontSize(6.2); doc.setTextColor(...BRONZE_700)
+    doc.text(k.l, x + 4, y + 6, { charSpace: 0.3 })
+    doc.setFont('helvetica', 'bold'); doc.setFontSize(15); doc.setTextColor(...INK)
+    doc.text(k.v, x + 4, y + 15)
+    doc.setFont('helvetica', 'normal'); doc.setFontSize(6.5); doc.setTextColor(...GRAY_600)
+    doc.text(k.sub, x + 4, y + 19.5)
+  })
+  y += 27
+
+  // Card VGV
+  doc.setFillColor(...PRETO)
+  doc.roundedRect(M, y, PW - M * 2, 26, 2.5, 2.5, 'F')
+  doc.setDrawColor(...BRONZE); doc.setLineWidth(0.4)
+  doc.roundedRect(M, y, PW - M * 2, 26, 2.5, 2.5, 'D')
+  doc.setFillColor(...BRONZE); doc.rect(M, y, 0.8, 26, 'F')
+  doc.setFont('helvetica', 'normal'); doc.setFontSize(7); doc.setTextColor(...BRONZE_300)
+  doc.text(assessor ? '— VGV VENDIDO PELO ASSESSOR' : '— VGV TOTAL DO RECORTE', M + 6, y + 7, { charSpace: 0.3 })
+  doc.setFont('helvetica', 'bold'); doc.setFontSize(19); doc.setTextColor(...BRONZE_100)
+  doc.text(fmtBRL(vgvDestaque), M + 6, y + 18)
+  doc.setFont('helvetica', 'normal'); doc.setFontSize(7.5); doc.setTextColor(...GRAY_300)
+  const mediaLeilao = tot.leiloes ? vgvDestaque / tot.leiloes : 0
+  doc.text(
+    'Média por leilão ' + fmtBRLCompact(mediaLeilao) + (!assessor && tot.fat ? '  ·  Cobertura ' + fmtPct(tot.vgv / tot.fat) : ''),
+    PW - M - 6, y + 18, { align: 'right' }
+  )
+  y += 31
+
+  // Financeiro (só geral + finance-admin)
+  if (temFin) {
+    doc.setFillColor(...PRETO)
+    doc.roundedRect(M, y, PW - M * 2, 26, 2.5, 2.5, 'F')
+    doc.setDrawColor(...BRONZE_700); doc.setLineWidth(0.3)
+    doc.roundedRect(M, y, PW - M * 2, 26, 2.5, 2.5, 'D')
+    doc.setFont('helvetica', 'bold'); doc.setFontSize(7); doc.setTextColor(...BRONZE)
+    doc.text('— RESULTADO FINANCEIRO DO RECORTE', M + 5, y + 7, { charSpace: 0.3 })
+    const fin: { label: string; value: string; color: [number, number, number] }[] = [
+      { label: 'Receita Bula', value: fmtBRL(tot.receita), color: TECH_GREEN },
+      { label: 'Comissões assessoria', value: '- ' + fmtBRL(tot.comissao), color: TECH_RED },
+      { label: 'Sobra bruta', value: fmtBRL(tot.sobra), color: BRONZE_100 },
+    ]
+    const finW = (PW - M * 2 - 10) / 3
+    fin.forEach((f, i) => {
+      const fx = M + 5 + i * finW
+      if (i > 0) { doc.setDrawColor(...BRONZE_700); doc.setLineWidth(0.2); doc.line(fx - 2, y + 12, fx - 2, y + 22) }
+      doc.setFont('helvetica', 'normal'); doc.setFontSize(6.5); doc.setTextColor(...GRAY_300)
+      doc.text(f.label.toUpperCase(), fx, y + 13, { charSpace: 0.2 })
+      doc.setFont('helvetica', 'bold'); doc.setFontSize(12); doc.setTextColor(...f.color)
+      doc.text(f.value, fx, y + 20)
+    })
+    y += 31
+  }
+
+  // ════════════ 02 LEILÕES DO RECORTE ════════════
+  y = novaPagina('Leilões')
+  y = tituloSecao(
+    y, '02 LEILÕES',
+    assessor ? 'Leilões com vendas de ' + assessor : 'Leilões do recorte',
+    tot.leiloes + ' fechamento(s), em ordem cronológica'
+  )
+
+  if (assessor) {
+    autoTable(doc, {
+      startY: y,
+      head: [['Data', 'Leilão', 'Vendas', 'Animais', 'VGV do assessor', '% do leilão']],
+      body: fechs.map(f => {
+        const a = assessorNoLeilao(f)!
+        const pct = num(f.vgv_total) > 0 ? a.vgv / num(f.vgv_total) : 0
+        return [fmtDateExt(f.data), f.nome, a.transacoes, a.animais, fmtBRL(a.vgv), fmtPct(pct)]
+      }),
+      foot: [['Total', '', String(assAgg!.transacoes), String(assAgg!.animais), fmtBRL(assAgg!.vgv), '']],
+      columnStyles: {
+        0: { cellWidth: 24 },
+        2: { halign: 'right' }, 3: { halign: 'right' },
+        4: { halign: 'right', font: 'courier', fontStyle: 'bold', textColor: BRONZE_700 },
+        5: { halign: 'right', font: 'courier', textColor: BRONZE },
+      },
+      ...tableTheme,
+    })
+  } else {
+    const head = ['Data', 'Leilão', 'Lotes', 'Animais', 'VGV', 'Ticket']
+    if (temFin) head.push('Receita Bula', 'Sobra')
+    autoTable(doc, {
+      startY: y,
+      head: [head],
+      body: fechs.map(f => {
+        const row: (string | number)[] = [
+          fmtDateExt(f.data), f.nome, num(f.lotes_vendidos), num(f.animais_vendidos),
+          fmtBRLCompact(f.vgv_total), fmtBRLCompact(f.ticket_medio),
+        ]
+        if (temFin) row.push(fmtBRLCompact(f.receita_bula), fmtBRLCompact(f.sobra_bruta))
+        return row
+      }),
+      foot: [(() => {
+        const row: string[] = ['Total', '', String(tot.lotesV), fmtNum(tot.animais), fmtBRLCompact(tot.vgv), '']
+        if (temFin) row.push(fmtBRLCompact(tot.receita), fmtBRLCompact(tot.sobra))
+        return row
+      })()],
+      columnStyles: {
+        0: { cellWidth: 24 },
+        2: { halign: 'right' }, 3: { halign: 'right' },
+        4: { halign: 'right', font: 'courier', fontStyle: 'bold', textColor: BRONZE_700 },
+        5: { halign: 'right', font: 'courier' },
+        6: { halign: 'right', font: 'courier', textColor: [46, 106, 74] as [number, number, number] },
+        7: { halign: 'right', font: 'courier' },
+      },
+      ...tableTheme,
+    })
+  }
+
+  // ════════════ 03 POR ASSESSOR (modo geral) ════════════
+  if (!assessor) {
+    const map = new Map<string, { nome: string; empresas: Set<string>; leiloes: Set<string>; transacoes: number; animais: number; vgv: number }>()
+    for (const f of fechs) {
+      for (const a of f.por_assessor ?? []) {
+        const canon = normalizeAssessorNome(a.nome)
+        if (!canon) continue
+        const cur = map.get(canon) ?? { nome: canon, empresas: new Set(), leiloes: new Set(), transacoes: 0, animais: 0, vgv: 0 }
+        if (a.empresa) cur.empresas.add(a.empresa)
+        cur.leiloes.add(f.id)
+        cur.transacoes += num(a.transacoes); cur.animais += num(a.animais); cur.vgv += num(a.vgv)
+        map.set(canon, cur)
+      }
+    }
+    const ranking = [...map.values()].sort((a, b) => b.vgv - a.vgv)
+    if (ranking.length) {
+      const totalVgvAss = ranking.reduce((s, a) => s + a.vgv, 0) || 1
+      y = novaPagina('Por Assessor')
+      y = tituloSecao(y, '03 POR ASSESSOR', 'Ranking de vendas', ranking.length + ' assessores no recorte (nomes unificados)')
+      autoTable(doc, {
+        startY: y,
+        head: [['#', 'Assessor', 'Casa', 'Leilões', 'Vendas', 'Animais', 'VGV', '% do total']],
+        body: ranking.map((a, i) => [
+          i + 1, a.nome, [...a.empresas].join(' · '), a.leiloes.size, a.transacoes, a.animais, fmtBRL(a.vgv), fmtPct(a.vgv / totalVgvAss),
+        ]),
+        columnStyles: {
+          0: { halign: 'center', cellWidth: 9, fontStyle: 'bold', textColor: BRONZE },
+          1: { fontStyle: 'bold' },
+          3: { halign: 'right' }, 4: { halign: 'right' }, 5: { halign: 'right' },
+          6: { halign: 'right', font: 'courier', fontStyle: 'bold', textColor: BRONZE_700 },
+          7: { halign: 'right', font: 'courier', textColor: BRONZE },
+        },
+        ...tableTheme,
+      })
+    }
+
+    // ════════════ 04 POR ESTADO ════════════
+    const ufMap = new Map<string, { uf: string; estado: string; lotes: number; animais: number; vgv: number }>()
+    for (const f of fechs) {
+      for (const e of f.por_estado ?? []) {
+        const uf = (e.uf || '').toUpperCase().trim()
+        if (!uf) continue
+        const cur = ufMap.get(uf) ?? { uf, estado: e.estado || uf, lotes: 0, animais: 0, vgv: 0 }
+        cur.lotes += num(e.lotes); cur.animais += num(e.animais); cur.vgv += num(e.vgv)
+        ufMap.set(uf, cur)
+      }
+    }
+    const ufs = [...ufMap.values()].sort((a, b) => b.vgv - a.vgv)
+    if (ufs.length) {
+      const totalVgvUf = ufs.reduce((s, u) => s + u.vgv, 0) || 1
+      y = novaPagina('Por Estado')
+      y = tituloSecao(y, '04 POR ESTADO', 'Distribuição geográfica', ufs.length + ' UF(s) no recorte')
+      autoTable(doc, {
+        startY: y,
+        head: [['UF', 'Estado', 'Lotes', 'Animais', 'VGV', '% do total']],
+        body: ufs.map(u => [u.uf, u.estado, u.lotes, u.animais, fmtBRL(u.vgv), fmtPct(u.vgv / totalVgvUf)]),
+        columnStyles: {
+          0: { fontStyle: 'bold', cellWidth: 14, textColor: BRONZE },
+          2: { halign: 'right' }, 3: { halign: 'right' },
+          4: { halign: 'right', font: 'courier', fontStyle: 'bold', textColor: BRONZE_700 },
+          5: { halign: 'right', font: 'courier', textColor: BRONZE },
+        },
+        ...tableTheme,
+      })
+    }
+  }
+
+  // ════════════ 03 VENDAS DETALHADAS (modo assessor) ════════════
+  if (assessor) {
+    const vendas: { data: string; leilao: string; lote: string; comprador: string; uf: string; animais: number; vgv: number }[] = []
+    for (const f of fechs) {
+      for (const l of f.lances ?? []) {
+        if (normalizeAssessorNome(l.assessor) !== assessor) continue
+        vendas.push({
+          data: f.data, leilao: f.nome, lote: String(l.lote ?? ''),
+          comprador: [l.comprador, l.fazenda].filter(Boolean).join(' · '),
+          uf: l.uf || '', animais: num(l.animais), vgv: num(l.vgv),
+        })
+      }
+    }
+    if (vendas.length) {
+      y = novaPagina('Vendas detalhadas')
+      y = tituloSecao(y, '03 VENDAS', 'Martelo a martelo', vendas.length + ' vendas atribuídas ao assessor no recorte')
+      autoTable(doc, {
+        startY: y,
+        head: [['Data', 'Leilão', 'Lote', 'Comprador', 'UF', 'Animais', 'VGV']],
+        body: vendas.map(v => [fmtDateExt(v.data), v.leilao, v.lote || '—', v.comprador || '—', v.uf || '—', v.animais || '', fmtBRL(v.vgv)]),
+        foot: [['Total', '', '', '', '', String(vendas.reduce((s, v) => s + v.animais, 0)), fmtBRL(vendas.reduce((s, v) => s + v.vgv, 0))]],
+        columnStyles: {
+          0: { cellWidth: 22 },
+          1: { cellWidth: 44 },
+          5: { halign: 'right' },
+          6: { halign: 'right', font: 'courier', fontStyle: 'bold', textColor: BRONZE_700 },
+        },
+        ...tableTheme,
+      })
+      const lastY = (doc as unknown as { lastAutoTable?: { finalY?: number } }).lastAutoTable?.finalY
+      if (lastY && lastY < PH - 30) {
+        doc.setFont('helvetica', 'normal'); doc.setFontSize(6.5); doc.setTextColor(...GRAY_600)
+        doc.text('Vendas individuais vêm do registro martelo a martelo e podem diferir do resumo consolidado do fechamento.', M, lastY + 6)
+      }
+    }
+  }
+
+  // ════════════ Paginação final ════════════
+  const totalPaginas = (doc.internal as unknown as { getNumberOfPages: () => number }).getNumberOfPages()
+  for (let p = 2; p <= totalPaginas; p++) {
+    doc.setPage(p)
+    doc.setFillColor(...PAPER)
+    doc.rect(PW - M - 22, PH - 12, 22, 6, 'F')
+    doc.setFont('helvetica', 'normal'); doc.setFontSize(6.5); doc.setTextColor(...GRAY_600)
+    doc.text(String(p).padStart(2, '0') + ' / ' + String(totalPaginas).padStart(2, '0'), PW - M, PH - 9, { align: 'right' })
+  }
+
+  const safe = (s: string) => s.replace(/[^\wÀ-ÿ\s-]/g, '').trim().replace(/\s+/g, '_')
+  const nomeArq = assessor
+    ? 'Vendas_' + safe(assessor) + '_' + new Date().toISOString().slice(0, 10) + '.pdf'
+    : 'Fechamentos_Consolidado_' + safe(opts.titulo || 'recorte') + '_' + new Date().toISOString().slice(0, 10) + '.pdf'
+  doc.save(nomeArq)
+}

@@ -24,6 +24,18 @@ export const FABIO_OMENA = 'Fabio Omena'
 const CANONICAL_BY_KEY: ReadonlyMap<string, string> = new Map([
   ['fabio omena', FABIO_OMENA],
   ['fabio o mena', FABIO_OMENA],
+  ['fabio omenna', FABIO_OMENA],
+  // Leonardo Serafim aparece nos fechamentos também como apelido/parcial
+  ['leo', 'Leonardo Serafim'],
+  ['leo serafim', 'Leonardo Serafim'],
+  ['leonardo', 'Leonardo Serafim'],
+  // Bulinha (Felipe Andrade) — várias grafias com/sem "Vilela"
+  ['bulinha', 'Bulinha (Felipe Andrade)'],
+  ['felipe andrade', 'Bulinha (Felipe Andrade)'],
+  ['bulinha felipe andrade', 'Bulinha (Felipe Andrade)'],
+  ['felipe andrade bulinha', 'Bulinha (Felipe Andrade)'],
+  ['felipe vilela andrade', 'Bulinha (Felipe Andrade)'],
+  ['felipe vilela andrade bulinha', 'Bulinha (Felipe Andrade)'],
 ])
 
 // Formula do Boi assessors that generate the 2% payable in the ERP.
