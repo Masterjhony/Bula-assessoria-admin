@@ -475,6 +475,7 @@ svg.chart { width:100%; height:100%; display:block; }
     <div class="sidebar-section">Visao Geral</div>
     <div class="sidebar-item active" data-page="dashboard"><span class="material-symbols-outlined">dashboard</span><span>Dashboard</span></div>
     <div class="sidebar-item" data-page="fluxo"><span class="material-symbols-outlined">show_chart</span><span>Fluxo de Caixa</span></div>
+    <div class="sidebar-item" data-page="previsto_realizado"><span class="material-symbols-outlined">compare_arrows</span><span>Previsto x Realizado</span></div>
     <div class="sidebar-item" data-page="fluxo_operacao"><span class="material-symbols-outlined">view_kanban</span><span>Fluxo Operação</span></div>
 
     <div class="sidebar-section">Movimentacao</div>
@@ -767,6 +768,7 @@ async function render() {
     if (state.page === 'dashboard') return renderDashboard();
     if (state.page === 'fluxo') return renderFluxo();
     if (state.page === 'fluxo_operacao') return renderFluxoOperacao();
+    if (state.page === 'previsto_realizado') return renderPrevistoRealizado();
     if (state.page === 'cp') return renderContas('pagar');
     if (state.page === 'cr') return renderContas('receber');
     if (state.page === 'bancos') return renderBancos();
@@ -4212,25 +4214,31 @@ function resChart(meses, opts={}) {
   const w = opts.width || 860, h = opts.height || 250, pad = { t:30, r:20, b:26, l:52 };
   const innerW = w - pad.l - pad.r, innerH = h - pad.t - pad.b;
   const fmtLabel = (v) => money ? fmtCompact(v) : Number(v).toLocaleString('pt-BR');
-  let max = 0, temDado = false;
+  let max = 0, min = 0, temDado = false;
   for (const m of meses) for (const s of series) {
     const v = m[s.key]; if (v == null) continue;
-    temDado = true; if (Number(v) > max) max = Number(v);
+    temDado = true;
+    if (Number(v) > max) max = Number(v);
+    if (Number(v) < min) min = Number(v);
   }
   if (!temDado) return '<div class="empty"><span class="material-symbols-outlined">show_chart</span><p>Sem dados no periodo</p></div>';
-  if (!max) max = 1;
-  const top = max * 1.12; // folga p/ os rótulos acima dos pontos
+  if (!max && !min) max = 1;
+  const top = (max || 1) * 1.12;            // folga p/ os rótulos acima dos pontos
+  const bot = min < 0 ? min * 1.12 : 0;     // suporta séries negativas (resultado)
+  const range = top - bot || 1;
   const band = innerW / 12;
   const xAt = (i) => type === 'bar' ? pad.l + band*i + band/2 : pad.l + (innerW/11)*i;
-  const yAt = (v) => pad.t + innerH - (Number(v)/top)*innerH;
+  const yAt = (v) => pad.t + innerH - ((Number(v) - bot)/range)*innerH;
+  const yZero = yAt(0);
 
   let svg = `<svg viewBox="0 0 ${w} ${h}" class="chart" style="height:auto" xmlns="http://www.w3.org/2000/svg">`;
   for (let i = 0; i <= 4; i++) {
     const y = pad.t + (innerH/4)*i;
-    const val = top - (top/4)*i;
+    const val = top - (range/4)*i;
     svg += `<line x1="${pad.l}" y1="${y}" x2="${w-pad.r}" y2="${y}" stroke="rgba(255,255,255,0.06)" stroke-dasharray="2 4"/>`;
     svg += `<text x="${pad.l-6}" y="${y+3}" text-anchor="end" font-size="9" fill="#666">${money ? fmtCompact(val).replace('R$ ','') : fmtCompact(val,false)}</text>`;
   }
+  if (bot < 0) svg += `<line x1="${pad.l}" y1="${yZero}" x2="${w-pad.r}" y2="${yZero}" stroke="rgba(255,255,255,0.22)" stroke-width="0.8"/>`;
   meses.forEach((m,i) => {
     svg += `<text x="${xAt(i)}" y="${h-8}" text-anchor="middle" font-size="9.5" fill="#8a8f98">${RES_MESES[i]}</text>`;
   });
@@ -4240,9 +4248,10 @@ function resChart(meses, opts={}) {
       const barW = band * 0.55;
       meses.forEach((m,i) => {
         const v = m[s.key]; if (v == null) return;
-        const y = yAt(v), bh = pad.t + innerH - y;
+        const yv = yAt(v);
+        const y = Math.min(yv, yZero), bh = Math.abs(yv - yZero);
         svg += `<rect x="${xAt(i)-barW/2}" y="${y}" width="${barW}" height="${Math.max(bh,1.5)}" fill="${s.color}" rx="3" opacity="0.9"><title>${s.label} · ${RES_MESES[i]}: ${fmtLabel(v)}</title></rect>`;
-        if (s.labels) svg += `<text x="${xAt(i)}" y="${y-6}" text-anchor="middle" font-size="9.5" fill="#b9bec7">${fmtLabel(v)}</text>`;
+        if (s.labels) svg += `<text x="${xAt(i)}" y="${v < 0 ? y + bh + 10 : y - 6}" text-anchor="middle" font-size="9.5" fill="#b9bec7">${fmtLabel(v)}</text>`;
       });
       continue;
     }
@@ -4256,15 +4265,14 @@ function resChart(meses, opts={}) {
     });
     svg += `<path d="${d}" fill="none" stroke="${s.color}" stroke-width="2"${s.dash ? ' stroke-dasharray="5 4"' : ''}/>`;
     if (s.area && firstX != null && lastX > firstX) {
-      const base = pad.t + innerH;
-      svg += `<path d="${d} L${lastX} ${base} L${firstX} ${base} Z" fill="${s.color}" opacity="0.07"/>`;
+      svg += `<path d="${d} L${lastX} ${yZero} L${firstX} ${yZero} Z" fill="${s.color}" opacity="0.07"/>`;
     }
     meses.forEach((m,i) => {
       const v = m[s.key]; if (v == null) return;
       const x = xAt(i), y = yAt(v);
       svg += `<circle cx="${x}" cy="${y}" r="3" fill="${s.color}"/>`;
       svg += `<circle cx="${x}" cy="${y}" r="10" fill="rgba(0,0,0,0)"><title>${s.label} · ${RES_MESES[i]}: ${fmtLabel(v)}</title></circle>`;
-      if (s.labels) svg += `<text x="${x}" y="${y-9}" text-anchor="middle" font-size="9.5" fill="#b9bec7">${fmtLabel(v)}</text>`;
+      if (s.labels) svg += `<text x="${x}" y="${v < 0 ? y + 13 : y - 9}" text-anchor="middle" font-size="9.5" fill="#b9bec7">${fmtLabel(v)}</text>`;
     });
   }
   if (series.length > 1) {
@@ -4443,6 +4451,185 @@ async function renderResultados() {
           </tr>
         </tbody>
       </table>
+    </div>
+  `;
+  document.getElementById('page').innerHTML = html;
+}
+
+/* ==========================================================================
+   PAGE: PREVISTO × REALIZADO
+   Previsto = títulos (CR/CP) pelo vencimento — inclui folha projetada e
+   despesas fixas do ano. Realizado = movimentos bancários conciliados (sem
+   transferências internas). Comparação mensal + drill-down por categoria.
+   ========================================================================== */
+function prSetAno(v) { state.filters.prAno = v; state.prevReal = null; renderPrevistoRealizado(); }
+function prSetMes(m) { state.filters.prMes = m; renderPrevistoRealizado(); }
+function prReload() { state.prevReal = null; renderPrevistoRealizado(); }
+
+function prAder(real, prev) {
+  if (real == null || !(prev > 0)) return null;
+  return (real / prev) * 100;
+}
+function prAderChip(pct) {
+  if (pct == null) return '';
+  const cor = pct >= 85 && pct <= 115 ? '#6B8F5C' : (pct >= 60 && pct <= 140 ? '#b8934a' : '#c0645c');
+  return `<span class="chip" style="background:${cor}22;color:${cor};padding:1px 7px">${pct.toFixed(0)}% do previsto</span>`;
+}
+
+async function renderPrevistoRealizado() {
+  const anoSel = state.filters.prAno || '';
+  if (!state.prevReal) state.prevReal = await api('/api/erp/previsto-realizado' + (anoSel ? `?ano=${anoSel}` : ''));
+  const d = state.prevReal;
+  const meses = d.meses || [];
+  const temReal = (i) => i + 1 <= d.ultimo_mes_realizado;
+  const mesSel = Math.min(12, Math.max(1, Number(state.filters.prMes) || d.ultimo_mes_realizado || 1));
+  const mi = mesSel - 1;
+  const m = meses[mi] || {};
+
+  // acumulado do ano: só a partir do 1º mês em que a previsão existe de fato
+  // (o ERP começou a ter títulos em abril — comparar jan-mar, que só têm
+  // extrato importado, inflaria a aderência sem significar nada)
+  let primeiroPrev = meses.findIndex(x => (x.prev_entrada + x.prev_saida) > 100);
+  if (primeiroPrev < 0) primeiroPrev = 0;
+  const acc = { pe: 0, re: 0, ps: 0, rs: 0 };
+  for (let i = primeiroPrev; i < 12; i++) {
+    if (!temReal(i)) continue;
+    acc.pe += meses[i].prev_entrada; acc.re += meses[i].real_entrada || 0;
+    acc.ps += meses[i].prev_saida; acc.rs += meses[i].real_saida || 0;
+  }
+
+  const serie = meses.map(x => ({
+    prev_e: x.prev_entrada, real_e: x.real_entrada,
+    prev_s: x.prev_saida, real_s: x.real_saida,
+    prev_r: x.prev_entrada - x.prev_saida,
+    real_r: x.real_entrada != null ? x.real_entrada - (x.real_saida || 0) : null,
+  }));
+
+  const aderE = prAder(m.real_entrada, m.prev_entrada);
+  const aderS = prAder(m.real_saida, m.prev_saida);
+  const mesFuturo = !temReal(mi);
+
+  const catRows = (tipo) => (d.categorias || []).filter(c => c.tipo === tipo)
+    .map(c => ({ nome: c.nome, cor: c.cor, prev: c.prev[mi] || 0, real: temReal(mi) ? (c.real[mi] || 0) : null }))
+    .filter(c => c.prev > 0 || (c.real || 0) > 0)
+    .sort((a, b) => Math.max(b.prev, b.real || 0) - Math.max(a.prev, a.real || 0));
+
+  const catTable = (titulo, tipo) => {
+    const rows = catRows(tipo);
+    const em = '<span style="color:var(--text4)">—</span>';
+    const totPrev = rows.reduce((s, r) => s + r.prev, 0);
+    const totReal = rows.reduce((s, r) => s + (r.real || 0), 0);
+    // desvio bom/ruim depende do lado: receita realizada acima do previsto é
+    // bom; despesa acima do previsto é estouro.
+    const corDesvio = (desvio) => desvio == null ? '' : (tipo === 'receita' ? (desvio >= 0 ? 'positive' : 'negative') : (desvio <= 0 ? 'positive' : 'negative'));
+    return `
+    <div class="card" style="margin-bottom:0">
+      <div class="card-title"><span class="material-symbols-outlined">${tipo === 'receita' ? 'trending_up' : 'trending_down'}</span>${titulo} · ${RES_MESES[mi]}</div>
+      ${rows.length === 0 ? '<div class="empty" style="padding:20px"><p>Nada previsto nem realizado neste mês.</p></div>' : `
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Categoria</th><th style="text-align:right">Previsto</th><th style="text-align:right">Realizado</th><th style="text-align:right">Desvio</th></tr></thead>
+          <tbody>
+            ${rows.map(r => {
+              const desvio = r.real != null ? r.real - r.prev : null;
+              return `<tr>
+                <td><span class="chip" style="background:${r.cor}22;color:${r.cor}">${escapeHtml(r.nome)}</span></td>
+                <td class="money" style="text-align:right;color:var(--text2)">${r.prev > 0 ? fmtBRL(r.prev) : em}</td>
+                <td class="money" style="text-align:right">${r.real != null ? fmtBRL(r.real) : em}</td>
+                <td class="money ${corDesvio(desvio)}" style="text-align:right">${desvio != null ? (desvio >= 0 ? '+' : '') + fmtBRL(desvio) : em}</td>
+              </tr>`;
+            }).join('')}
+          </tbody>
+          <tfoot><tr style="font-weight:700;border-top:2px solid var(--border2)">
+            <td>Total</td>
+            <td class="money" style="text-align:right">${fmtBRL(totPrev)}</td>
+            <td class="money" style="text-align:right">${mesFuturo ? em : fmtBRL(totReal)}</td>
+            <td class="money ${mesFuturo ? '' : (tipo === 'receita' ? (totReal >= totPrev ? 'positive' : 'negative') : (totReal <= totPrev ? 'positive' : 'negative'))}" style="text-align:right">${mesFuturo ? em : (totReal - totPrev >= 0 ? '+' : '') + fmtBRL(totReal - totPrev)}</td>
+          </tr></tfoot>
+        </table>
+      </div>`}
+    </div>`;
+  };
+
+  const html = `
+    <div class="page-header">
+      <div><div class="page-title">Previsto x Realizado <small>previsao gerencial vs caixa conciliado</small></div></div>
+      <div class="page-actions">
+        <select class="table-filter" onchange="prSetAno(this.value)">
+          ${(d.anos || []).map(y => `<option value="${y}" ${y === d.ano ? 'selected' : ''}>${y}</option>`).join('')}
+        </select>
+        <button class="btn btn-ghost btn-sm" onclick="prReload()"><span class="material-symbols-outlined">refresh</span>Atualizar</button>
+      </div>
+    </div>
+
+    <div class="kpi-grid">
+      <div class="kpi success">
+        <div class="kpi-icon"><span class="material-symbols-outlined">south_west</span></div>
+        <div class="kpi-label">Entradas · ${RES_MESES[mi]}</div>
+        <div class="kpi-value money">${m.real_entrada != null ? fmtBRL(m.real_entrada) : fmtBRL(m.prev_entrada)}</div>
+        <div class="kpi-sub">${m.real_entrada != null ? `previsto ${fmtBRL(m.prev_entrada)} ${prAderChip(aderE)}` : 'previsto (mes ainda nao realizado)'}</div>
+      </div>
+      <div class="kpi danger">
+        <div class="kpi-icon"><span class="material-symbols-outlined">north_east</span></div>
+        <div class="kpi-label">Saidas · ${RES_MESES[mi]}</div>
+        <div class="kpi-value money">${m.real_saida != null ? fmtBRL(m.real_saida) : fmtBRL(m.prev_saida)}</div>
+        <div class="kpi-sub">${m.real_saida != null ? `previsto ${fmtBRL(m.prev_saida)} ${prAderChip(aderS)}` : 'previsto (mes ainda nao realizado)'}</div>
+      </div>
+      <div class="kpi ${((m.real_entrada != null ? m.real_entrada - m.real_saida : m.prev_entrada - m.prev_saida) < 0) ? 'danger' : 'info'}">
+        <div class="kpi-icon"><span class="material-symbols-outlined">functions</span></div>
+        <div class="kpi-label">Resultado · ${RES_MESES[mi]}</div>
+        <div class="kpi-value money ${((m.real_entrada != null ? m.real_entrada - m.real_saida : m.prev_entrada - m.prev_saida) < 0) ? 'negative' : 'positive'}">${fmtBRL(m.real_entrada != null ? m.real_entrada - m.real_saida : m.prev_entrada - m.prev_saida)}</div>
+        <div class="kpi-sub">previsto ${fmtBRL(m.prev_entrada - m.prev_saida)}</div>
+      </div>
+      <div class="kpi">
+        <div class="kpi-icon"><span class="material-symbols-outlined">verified</span></div>
+        <div class="kpi-label">Aderencia no ano</div>
+        <div class="kpi-value">${acc.pe > 0 ? Math.round((acc.re / acc.pe) * 100) + '%' : '—'} <small style="font-size:12px;color:var(--text3)">entradas</small></div>
+        <div class="kpi-sub">saidas ${acc.ps > 0 ? Math.round((acc.rs / acc.ps) * 100) + '%' : '—'} · ${RES_MESES[primeiroPrev]} a ${RES_MESES[(d.ultimo_mes_realizado || 1) - 1]}</div>
+      </div>
+    </div>
+
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(360px,1fr));gap:20px;margin-bottom:20px">
+      <div class="chart-wrap" style="margin-bottom:0">
+        <div class="chart-header"><div class="chart-title">Entradas — previsto x realizado</div></div>
+        ${resChart(serie, { width: 460, height: 230, series: [
+          { key: 'real_e', color: '#6B8F5C', label: 'Realizado', labels: true, area: true },
+          { key: 'prev_e', color: '#8a8f98', label: 'Previsto', dash: true },
+        ]})}
+      </div>
+      <div class="chart-wrap" style="margin-bottom:0">
+        <div class="chart-header"><div class="chart-title">Saidas — previsto x realizado</div></div>
+        ${resChart(serie, { width: 460, height: 230, series: [
+          { key: 'real_s', color: '#c0645c', label: 'Realizado', labels: true, area: true },
+          { key: 'prev_s', color: '#8a8f98', label: 'Previsto', dash: true },
+        ]})}
+      </div>
+    </div>
+
+    <div class="chart-wrap">
+      <div class="chart-header"><div class="chart-title">Resultado do mes (entradas − saidas) — previsto x realizado</div></div>
+      ${resChart(serie, { series: [
+        { key: 'real_r', color: '#C8A96E', label: 'Realizado', labels: true },
+        { key: 'prev_r', color: '#8a8f98', label: 'Previsto', dash: true },
+      ]})}
+    </div>
+
+    <div style="display:flex;gap:6px;flex-wrap:wrap;margin:4px 0 14px">
+      ${RES_MESES.map((nm, i) => `
+        <button class="btn btn-sm ${i === mi ? 'btn-primary' : 'btn-ghost'}" onclick="prSetMes(${i + 1})" style="text-transform:capitalize">
+          ${nm}${!temReal(i) ? ' <span style="opacity:.55;font-size:9px">prev</span>' : ''}
+        </button>`).join('')}
+    </div>
+
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(380px,1fr));gap:20px">
+      ${catTable('Receitas por categoria', 'receita')}
+      ${catTable('Despesas por categoria', 'despesa')}
+    </div>
+
+    <div style="font-size:10px;color:var(--text3);margin-top:14px;line-height:1.6">
+      <strong>Previsto</strong> = titulos de contas a pagar/receber pelo vencimento (inclui folha projetada e despesas fixas do ano; titulos cancelados ficam de fora).
+      <strong>Realizado</strong> = movimentos bancarios conciliados no extrato, sem transferencias internas.
+      As fontes sao diferentes de proposito: um pagamento sem titulo aparece so no realizado — o desvio e o ponto da pagina.
     </div>
   `;
   document.getElementById('page').innerHTML = html;
