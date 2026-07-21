@@ -469,3 +469,48 @@ disparando o evento de conversão no **submit** do formulário, carregando os UT
 
 Quando houver volume de tráfego, considerar A/B de headline/CTA/ordem de seções via PostHog
 feature flags (o SDK já entra na Fase 8). Não implementar agora.
+
+Variações de headline já preparadas em `copy.ts` (`hero.titleVariants`) para o teste:
+1. "Touro bonito não é touro bom." (dor / anti-compra-por-beleza)
+2. "O reprodutor certo se paga no bezerro." (ROI)
+3. "A genética que os grandes criatórios de Nelore usam." (autoridade de pares)
+
+---
+
+## Revisão de mídia paga & growth (3 especialistas) — resultado
+
+Antes de concluir, a página passou por review de **Growth Hacker + Paid Media Auditor +
+Paid Social Strategist**, com foco em LEADS MAIS QUALIFICADOS (MQL = ≥100 cabeças + IE).
+Consenso central: **otimizar por lead que VALE, não por volume de cadastro**, e **qualificar
+já na mensagem** (não só no formulário).
+
+### ✅ Aplicado nesta entrega
+- **Sinal de conversão por valor (P0):** `route.ts` devolve `is_mql`; o form gera `event_id`
+  único e repassa; `trackLeadConversion` dispara UM evento `Lead` (Meta) + `generate_lead`
+  (GA4) com `value` diferenciado (MQL=100 / não-MQL=10) e `currency BRL` → value-based bidding.
+  Removida a contagem dupla (`CompleteRegistration` não dispara junto).
+- **Atribuição de clique pago:** `utm.ts` passa a capturar `fbclid` e `gclid` (além de UTMs);
+  gravados em `extra_data.utm` para amarrar lead qualificado ao anúncio.
+- **Micro-conversão:** `touros_form_started` (1ª interação) → PostHog + Meta `InitiateCheckout`
+  + GA4 `begin_checkout`, para o algoritmo ter sinal quando o volume de Lead é baixo.
+- **Menos fricção que não qualifica:** e-mail e cidade viram OPCIONAIS (funil é 100% WhatsApp;
+  o filtro de MQL é rebanho+IE, não e-mail).
+- **Copy que qualifica:** hero/subHero/prova reescritos com linguagem técnica (DEP, sumário,
+  reprodutor PO, "se paga no bezerro") para o comprador sério se reconhecer e o curioso se
+  autoexcluir; "grátis" reenquadrado ("Bula é remunerada pelos criatórios/centrais, não pelo
+  pecuarista"); prova de escala quantificada (+1.000 touros PO) elevada na ProvaSocial.
+- **Conscientização como acordo recíproco:** "seleção montada à mão, uma a uma", janela de
+  contato concreta (24h úteis), fila por ordem de resposta → reduz lead frio.
+- **Sticky CTA no mobile** (some quando o form aparece).
+
+### ⏸️ Adiado — precisa da sua decisão (NÃO aplicado)
+- **Botão "manda um oi" (deep-link `wa.me`) na tela de sucesso** — inverte o 1º contato
+  (lead → Bula = quente). Fortemente recomendado pelos 3, MAS você pediu para deixar WhatsApp
+  para depois. Precisa do número oficial da Bula. **Sua decisão.**
+- **Meta Conversions API server-side (CAPI)** — dispara a conversão do servidor (fonte de
+  verdade do `is_mql`, à prova de adblock, com advanced matching). Precisa de token/dataset do
+  Meta. O `event_id` já está preparado para o dedup. **Recomendado como próximo passo.**
+- **Formulário em 2 passos (qualifica-primeiro)** — pedir rebanho+IE antes dos dados pessoais
+  para o curioso desistir antes de virar lead. Mudança de UX maior. **Sua decisão.**
+- **Checkbox de compromisso "vou responder"** — aumenta follow-through, mas adiciona fricção.
+- **Trocar a headline do hero** por uma das `titleVariants` — decisão criativa/A/B sua.
