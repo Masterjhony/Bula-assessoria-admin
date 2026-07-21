@@ -52,14 +52,17 @@ export function StickyCta() {
     >
       <a
         href="#cadastro"
-        className="flex w-full items-center justify-center rounded-full"
+        className="flex w-full items-center justify-center"
         style={{
           background: dark.gold,
           color: '#0D0D0D',
+          fontFamily: "'Oswald', sans-serif",
           fontWeight: 600,
-          fontSize: 16,
-          letterSpacing: '-0.01em',
-          minHeight: 52,
+          fontSize: 15,
+          textTransform: 'uppercase',
+          letterSpacing: '0.12em',
+          minHeight: 54,
+          borderRadius: 0,
         }}
       >
         {hero.cta}

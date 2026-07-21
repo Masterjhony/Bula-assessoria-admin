@@ -2,11 +2,12 @@
 
 import { motion, useReducedMotion } from 'framer-motion'
 import type { ReactNode, CSSProperties } from 'react'
-import { dark, light, type Surface } from '../_lib/tokens'
+import { dark, light, typo, radius, type Surface } from '../_lib/tokens'
 
-// ── Primitivos de UI da landing (Apple × Bula) ─────────────────────────────
-// Cada Section declara sua própria SUPERFÍCIE (dark ↔ light). A troca de cor
-// entre tiles adjacentes é o divisor — sem bordas nem gradientes decorativos.
+// ── Primitivos editoriais (Ferrari × Bula) ─────────────────────────────────
+// Cada Section declara sua SUPERFÍCIE (dark ↔ light). A troca de cor entre
+// tiles adjacentes é o divisor. Estética flat: hairlines, cantos retos, sem
+// glass e sem sombra suave. Dourado é voltagem única e escassa.
 
 export function palette(surface: Surface) {
   return surface === 'dark' ? dark : light
@@ -34,9 +35,9 @@ export function Section({
       style={{
         background: p.bg,
         color: p.text,
-        // Section rhythm: 56px mobile → 112px desktop (Apple ~80px, folgado).
-        paddingTop: 'clamp(56px, 10vw, 112px)',
-        paddingBottom: 'clamp(56px, 10vw, 112px)',
+        // Ritmo generoso, editorial: 64px mobile → 128px desktop.
+        paddingTop: 'clamp(64px, 11vw, 128px)',
+        paddingBottom: 'clamp(64px, 11vw, 128px)',
         ...style,
       }}
     >
@@ -45,7 +46,7 @@ export function Section({
   )
 }
 
-/** Container central. `wide` para grids; padrão ~980px para texto (Apple). */
+/** Container central. `wide` para grids; padrão ~980px para texto. */
 export function Container({
   children,
   wide = false,
@@ -56,16 +57,83 @@ export function Container({
   className?: string
 }) {
   return (
-    <div
-      className={`mx-auto w-full ${className}`}
-      style={{ maxWidth: wide ? 1200 : 980 }}
-    >
+    <div className={`mx-auto w-full ${className}`} style={{ maxWidth: wide ? 1200 : 980 }}>
       {children}
     </div>
   )
 }
 
-/** CTA em pílula — o ÚNICO elemento com o accent dourado preenchido. */
+/** Eyebrow / kicker — CAIXA ALTA, tracking largo, dourado escasso. */
+export function Eyebrow({
+  children,
+  surface = 'dark',
+  color,
+  className = '',
+  style,
+}: {
+  children: ReactNode
+  surface?: Surface
+  color?: string
+  className?: string
+  style?: CSSProperties
+}) {
+  const c = color ?? (surface === 'light' ? light.goldText : dark.gold)
+  return (
+    <p className={className} style={{ ...typo.eyebrow, color: c, ...style }}>
+      {children}
+    </p>
+  )
+}
+
+/** Hairline 1px — o divisor editorial. */
+export function Hairline({
+  surface = 'dark',
+  strong = false,
+  className = '',
+  style,
+}: {
+  surface?: Surface
+  strong?: boolean
+  className?: string
+  style?: CSSProperties
+}) {
+  const p = palette(surface)
+  return (
+    <div
+      aria-hidden
+      className={className}
+      style={{ height: 1, width: '100%', background: strong ? p.hairlineStrong : p.hairline, ...style }}
+    />
+  )
+}
+
+/** Número de ficha técnica — display gigante Oswald + rótulo mono. */
+export function StatNumber({
+  value,
+  label,
+  surface = 'dark',
+  align = 'left',
+}: {
+  value: ReactNode
+  label: ReactNode
+  surface?: Surface
+  align?: 'left' | 'center'
+}) {
+  const p = palette(surface)
+  const labelColor = surface === 'light' ? light.goldText : dark.gold
+  return (
+    <div style={{ textAlign: align }}>
+      <div style={{ ...typo.stat, color: p.text }}>{value}</div>
+      <div style={{ ...typo.monoLabel, color: labelColor, marginTop: 10 }}>{label}</div>
+    </div>
+  )
+}
+
+/**
+ * CTA editorial — retangular (radius 0), Oswald CAIXA ALTA, tracking largo.
+ * `variant='solid'` = ouro preenchido (o único preenchimento dourado).
+ * `variant='outline'` = transparente com hairline (Ferrari outline CTA).
+ */
 export function PillButton({
   children,
   href,
@@ -74,6 +142,7 @@ export function PillButton({
   surface = 'dark',
   disabled = false,
   full = false,
+  variant = 'solid',
 }: {
   children: ReactNode
   href?: string
@@ -82,26 +151,35 @@ export function PillButton({
   surface?: Surface
   disabled?: boolean
   full?: boolean
+  variant?: 'solid' | 'outline'
 }) {
   const p = palette(surface)
-  const style: CSSProperties = {
-    background: disabled ? 'rgba(150,150,150,0.35)' : p.gold,
+  const solid: CSSProperties = {
+    background: disabled ? 'rgba(150,150,150,0.30)' : p.gold,
     color: '#0D0D0D',
-    borderRadius: 9999,
-    padding: '15px 30px',
-    fontWeight: 600,
-    fontSize: 17,
-    letterSpacing: '-0.01em',
-    minHeight: 52,
+    border: '1px solid transparent',
+  }
+  const outline: CSSProperties = {
+    background: 'transparent',
+    color: p.text,
+    border: `1px solid ${p.hairlineStrong}`,
+  }
+  const style: CSSProperties = {
+    ...typo.button,
+    ...(variant === 'outline' ? outline : solid),
+    borderRadius: radius.none, // 0px — canto reto é o botão da marca
+    padding: '0 30px',
+    minHeight: 54,
     width: full ? '100%' : undefined,
     cursor: disabled ? 'not-allowed' : 'pointer',
     display: 'inline-flex',
     alignItems: 'center',
     justifyContent: 'center',
-    gap: 8,
+    gap: 10,
+    WebkitTapHighlightColor: 'transparent',
   }
   const motionProps = {
-    whileTap: disabled ? undefined : { scale: 0.97 },
+    whileTap: disabled ? undefined : { scale: 0.98 },
     transition: { duration: 0.15 },
   }
   if (href) {
@@ -118,7 +196,7 @@ export function PillButton({
   )
 }
 
-/** Reveal sutil (fade + subida) ao entrar na viewport — o "respiro" Apple. */
+/** Reveal sutil (fade + subida) ao entrar na viewport. */
 export function Reveal({
   children,
   delay = 0,

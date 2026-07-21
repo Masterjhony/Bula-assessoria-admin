@@ -3,11 +3,14 @@
 import { cloneElement, isValidElement, useEffect, useId, useRef, useState } from 'react'
 import { AnimatePresence, motion, useReducedMotion } from 'framer-motion'
 import { Loader2, CheckCircle2, ShieldCheck, ArrowRight, ArrowLeft } from 'lucide-react'
-import { light } from '../_lib/tokens'
+import { dark, typo, font, radius } from '../_lib/tokens'
 import { form as copy } from '../_lib/copy'
 import { Reveal } from './ui'
 import { captureUtms, EMPTY_UTM, type Utm } from '../_lib/utm'
 import { initAnalytics, trackFunnel, trackLeadConversion } from '../_lib/analytics'
+
+// Vermelho de erro legível sobre superfície escura (WCAG AA).
+const ERR = '#E08A82'
 
 // ── Opções ─────────────────────────────────────────────────────────────────
 const UF_OPTIONS = [
@@ -64,8 +67,6 @@ const EMPTY: FormData = {
 
 type Errors = Partial<Record<keyof FormData, string>>
 
-// Form multi-step (foot-in-the-door): 1 campo no passo 1 → máxima taxa de
-// início; qualificadores de MQL (cabeças, IE) chegam com o lead já comprometido.
 const TOTAL = 3
 const STEP_LABELS = ['Seus dados', 'Sua fazenda', 'Contato']
 const STEP_FIELDS: (keyof FormData)[][] = [
@@ -78,7 +79,6 @@ function applyPhoneMask(value: string): string {
   const d = value.replace(/\D/g, '').slice(0, 11)
   if (d.length <= 2) return d.length ? `(${d}` : ''
   if (d.length <= 6) return `(${d.slice(0, 2)}) ${d.slice(2)}`
-  // Fixo (10 dígitos) → (DD) XXXX-XXXX; celular (11) → (DD) XXXXX-XXXX.
   if (d.length <= 10) return `(${d.slice(0, 2)}) ${d.slice(2, 6)}-${d.slice(6)}`
   return `(${d.slice(0, 2)}) ${d.slice(2, 7)}-${d.slice(7)}`
 }
@@ -87,10 +87,8 @@ function validate(d: FormData): Errors {
   const e: Errors = {}
   if (d.nome.trim().length < 3) e.nome = 'Preencha seu nome completo.'
   if (d.whatsapp.replace(/\D/g, '').length < 10) e.whatsapp = 'Informe um WhatsApp válido com DDD.'
-  // E-mail é opcional (funil é 100% WhatsApp) — só valida o formato se preenchido.
   if (d.email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(d.email)) e.email = 'Informe um e-mail válido.'
   if (!d.uf) e.uf = 'Selecione seu estado.'
-  // Cidade é opcional: dropdown IBGE é fricção alta no mobile e não qualifica.
   if (!d.cabecas) e.cabecas = 'Selecione o tamanho do rebanho.'
   if (!d.quantosTouros) e.quantosTouros = 'Selecione quantos touros você busca.'
   if (!d.inscricaoEstadual) e.inscricaoEstadual = 'Informe se você tem inscrição estadual.'
@@ -98,8 +96,9 @@ function validate(d: FormData): Errors {
   return e
 }
 
-// Card do formulário multi-step (sem <Section>). O Hero fornece a seção,
-// o id="cadastro" e o anel de foco — para o form viver na 1ª dobra.
+// Card do formulário multi-step — pele EDITORIAL (flat near-black + hairline,
+// cantos retos, botões caixa-alta). Toda a LÓGICA é preservada: multi-step,
+// validação, IBGE, UTM, tracking, event_id, is_mql.
 export function LeadForm() {
   const reduce = useReducedMotion()
   const [data, setData] = useState<FormData>(EMPTY)
@@ -112,20 +111,14 @@ export function LeadForm() {
   const utmRef = useRef<Utm>(EMPTY_UTM)
   const startedRef = useRef(false)
 
-  // Captura UTM + inicializa tracking (pageview) no mount. Instância única.
   useEffect(() => {
     utmRef.current = captureUtms()
     void initAnalytics(utmRef.current)
   }, [])
 
-  // Cidades do IBGE por UF. AbortController cancela a requisição anterior ao
-  // trocar de UF rápido (evita estado obsoleto); ordena alfabético (IBGE não
-  // garante ordem).
   useEffect(() => {
     if (!data.uf) return
     const ctrl = new AbortController()
-    // Sincroniza o estado de loading com um sistema externo (fetch do IBGE) —
-    // uso legítimo de setState em effect.
     // eslint-disable-next-line react-hooks/set-state-in-effect
     setLoadingCidades(true)
     fetch(`https://servicodados.ibge.gov.br/api/v1/localidades/estados/${data.uf}/municipios`, {
@@ -141,8 +134,6 @@ export function LeadForm() {
   }, [data.uf])
 
   function set<K extends keyof FormData>(key: K, value: FormData[K]) {
-    // Micro-conversão: 1ª interação com o form (sinal de otimização quando o
-    // volume de Lead é baixo). Vai a PostHog + Meta + GA4.
     if (!startedRef.current) {
       startedRef.current = true
       trackFunnel('touros_form_started', undefined, { meta: 'InitiateCheckout', ga: 'begin_checkout' })
@@ -151,7 +142,6 @@ export function LeadForm() {
     setErrors((e) => ({ ...e, [key]: undefined }))
   }
 
-  // Valida SÓ os campos do passo atual, reusando a regra única validate().
   function validateStep(s: number): Errors {
     const all = validate(data)
     const e: Errors = {}
@@ -187,7 +177,6 @@ export function LeadForm() {
 
   async function handleSubmit(ev: React.FormEvent) {
     ev.preventDefault()
-    // Enter/submit em passos intermediários apenas avança.
     if (step < TOTAL - 1) { goNext(); return }
     if (status === 'submitting') return
     const e = validate(data)
@@ -201,7 +190,6 @@ export function LeadForm() {
 
     setStatus('submitting')
     setServerError(null)
-    // event_id único: dedup entre o Pixel (client) e o futuro CAPI (server).
     const eventId =
       typeof crypto !== 'undefined' && crypto.randomUUID
         ? crypto.randomUUID()
@@ -230,8 +218,6 @@ export function LeadForm() {
         throw new Error(body?.error || 'Falha ao enviar.')
       }
       const body = await res.json().catch(() => ({}))
-      // is_mql vem do servidor (fonte de verdade) → evento de conversão com
-      // VALOR diferenciado: o algoritmo aprende a trazer ≥100 cabeças + IE.
       trackLeadConversion({
         utm: utmRef.current,
         leadId: body?.id ?? null,
@@ -248,22 +234,17 @@ export function LeadForm() {
 
   const invalid = (k: keyof FormData) => (errors[k] ? 'true' : undefined)
 
-  // Liquid Glass — vidro fosco translúcido sobre a foto do hero: backdrop-blur,
-  // borda com brilho superior (specular) e sombra em camadas. Fundo claro o
-  // suficiente para manter o texto escuro legível.
+  // ── PELE: card flat near-black + hairline. Sem blur, sem sombra, radius 2. ──
   const cardStyle: React.CSSProperties = {
-    background: 'rgba(255, 255, 255, 0.72)',
-    backdropFilter: 'blur(28px) saturate(155%)',
-    WebkitBackdropFilter: 'blur(28px) saturate(155%)',
-    border: '1px solid rgba(255, 255, 255, 0.55)',
-    boxShadow:
-      '0 30px 80px -24px rgba(0,0,0,0.55), inset 0 1px 0 rgba(255,255,255,0.7)',
-    colorScheme: 'light',
+    background: dark.surface,
+    border: `1px solid ${dark.hairline}`,
+    borderRadius: radius.xs,
+    colorScheme: 'dark',
   }
 
   if (status === 'success') {
     return (
-      <div className="rounded-[18px] p-6 sm:p-8" style={cardStyle}>
+      <div className="p-6 sm:p-8" style={cardStyle}>
         <SuccessCard />
       </div>
     )
@@ -274,21 +255,19 @@ export function LeadForm() {
     : { initial: { opacity: 0, x: 12 }, animate: { opacity: 1, x: 0 }, exit: { opacity: 0, x: -12 } }
 
   return (
-    <form onSubmit={handleSubmit} noValidate className="rounded-[18px] p-6 sm:p-8" style={cardStyle}>
-      {/* Progresso */}
-      <div className="mb-6">
-        <div className="mb-2 flex items-center justify-between">
-          <span style={{ fontSize: 12, fontWeight: 600, letterSpacing: '0.08em', textTransform: 'uppercase', color: light.faint }}>
-            Passo {step + 1} de {TOTAL}
-          </span>
-          <span style={{ fontSize: 12.5, color: light.faint }}>{STEP_LABELS[step]}</span>
+    <form onSubmit={handleSubmit} noValidate className="p-6 sm:p-8" style={cardStyle}>
+      {/* Progresso — contador técnico em mono, trilha hairline com barras retas. */}
+      <div className="mb-7">
+        <div className="mb-2.5 flex items-center justify-between">
+          <span style={{ ...typo.monoLabel, color: dark.gold }}>Passo {step + 1} / {TOTAL}</span>
+          <span style={{ ...typo.monoLabel, color: dark.muted }}>{STEP_LABELS[step]}</span>
         </div>
         <div className="flex gap-1.5" aria-hidden>
           {Array.from({ length: TOTAL }).map((_, i) => (
             <span
               key={i}
-              className="h-1 flex-1 rounded-full"
-              style={{ background: i <= step ? light.gold : light.hairline, transition: 'background .3s' }}
+              className="h-[3px] flex-1"
+              style={{ background: i <= step ? dark.gold : dark.hairline, transition: 'background .3s' }}
             />
           ))}
         </div>
@@ -380,11 +359,13 @@ export function LeadForm() {
                         key={opt} type="button" role="radio" aria-checked={active}
                         onClick={() => set('inscricaoEstadual', opt)}
                         style={{
-                          flex: 1, minHeight: 48, borderRadius: 10, fontWeight: 600, fontSize: 15,
+                          flex: 1, minHeight: 50, borderRadius: radius.xs,
+                          fontFamily: font.display, fontWeight: 600, fontSize: 15,
+                          textTransform: 'uppercase', letterSpacing: '0.08em',
                           cursor: 'pointer', transition: 'all .15s',
-                          background: active ? light.gold : '#fff',
-                          color: active ? '#0D0D0D' : light.text,
-                          border: `1px solid ${active ? light.gold : light.hairline}`,
+                          background: active ? dark.gold : 'transparent',
+                          color: active ? '#0D0D0D' : dark.text,
+                          border: `1px solid ${active ? dark.gold : dark.hairlineStrong}`,
                         }}
                       >
                         {opt}
@@ -406,36 +387,34 @@ export function LeadForm() {
                 <input
                   type="checkbox" checked={data.whatsappConsent}
                   onChange={(e) => set('whatsappConsent', e.target.checked)}
-                  style={{ width: 20, height: 20, marginTop: 2, accentColor: light.gold, flexShrink: 0 }}
+                  style={{ width: 20, height: 20, marginTop: 2, accentColor: dark.gold, flexShrink: 0 }}
                 />
-                <span style={{ fontSize: 14, lineHeight: 1.45, color: errors.whatsappConsent ? '#C0504D' : light.muted }}>
+                <span style={{ fontFamily: font.body, fontSize: 14, lineHeight: 1.45, color: errors.whatsappConsent ? ERR : dark.muted }}>
                   {copy.consent}
                 </span>
               </label>
               {errors.whatsappConsent && (
-                <p role="alert" style={{ fontSize: 12.5, color: '#C0504D', marginTop: -8 }}>
-                  {errors.whatsappConsent}
-                </p>
+                <p role="alert" style={{ fontSize: 12.5, color: ERR, marginTop: -8 }}>{errors.whatsappConsent}</p>
               )}
               {serverError && (
-                <p role="alert" style={{ fontSize: 14, color: '#C0504D' }}>
-                  {serverError} Tente novamente.
-                </p>
+                <p role="alert" style={{ fontSize: 14, color: ERR }}>{serverError} Tente novamente.</p>
               )}
             </>
           )}
         </motion.div>
       </AnimatePresence>
 
-      {/* Navegação */}
-      <div className="mt-7 flex items-center gap-3">
+      {/* Navegação — botões retos, caixa alta. */}
+      <div className="mt-8 flex items-center gap-3">
         {step > 0 && (
           <button
             type="button" onClick={goBack}
             style={{
-              minHeight: 52, padding: '0 18px', borderRadius: 9999, fontWeight: 600, fontSize: 15,
-              display: 'inline-flex', alignItems: 'center', gap: 6, cursor: 'pointer',
-              background: '#fff', color: light.text, border: `1px solid ${light.hairline}`,
+              minHeight: 54, padding: '0 18px', borderRadius: radius.none,
+              fontFamily: font.display, fontWeight: 600, fontSize: 14,
+              textTransform: 'uppercase', letterSpacing: '0.12em',
+              display: 'inline-flex', alignItems: 'center', gap: 8, cursor: 'pointer',
+              background: 'transparent', color: dark.muted, border: `1px solid ${dark.hairlineStrong}`,
             }}
           >
             <ArrowLeft size={16} /> Voltar
@@ -445,9 +424,11 @@ export function LeadForm() {
           <button
             type="button" onClick={goNext}
             style={{
-              flex: 1, minHeight: 54, borderRadius: 9999, fontWeight: 600, fontSize: 17,
-              letterSpacing: '-0.01em', background: light.gold, color: '#0D0D0D', cursor: 'pointer',
-              display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: 8,
+              flex: 1, minHeight: 56, borderRadius: radius.none,
+              fontFamily: font.display, fontWeight: 600, fontSize: 15,
+              textTransform: 'uppercase', letterSpacing: '0.14em',
+              background: dark.gold, color: '#0D0D0D', cursor: 'pointer',
+              display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: 10,
             }}
           >
             Continuar <ArrowRight size={18} />
@@ -456,10 +437,12 @@ export function LeadForm() {
           <button
             type="submit" disabled={status === 'submitting'}
             style={{
-              flex: 1, minHeight: 54, borderRadius: 9999, fontWeight: 600, fontSize: 17,
-              letterSpacing: '-0.01em', background: light.gold, color: '#0D0D0D',
+              flex: 1, minHeight: 56, borderRadius: radius.none,
+              fontFamily: font.display, fontWeight: 600, fontSize: 15,
+              textTransform: 'uppercase', letterSpacing: '0.14em',
+              background: dark.gold, color: '#0D0D0D',
               cursor: status === 'submitting' ? 'wait' : 'pointer', opacity: status === 'submitting' ? 0.75 : 1,
-              display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: 8,
+              display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: 10,
             }}
           >
             {status === 'submitting' ? (
@@ -472,7 +455,7 @@ export function LeadForm() {
       </div>
 
       {step === TOTAL - 1 && (
-        <p className="mt-4 flex items-center justify-center gap-1.5" style={{ fontSize: 12.5, color: light.faint }}>
+        <p className="mt-4 flex items-center justify-center gap-1.5" style={{ ...typo.monoLabel, color: dark.muted }}>
           <ShieldCheck size={13} /> Seus dados ficam só com a Bula. Sem spam.
         </p>
       )}
@@ -495,8 +478,6 @@ function Field({
   const hintId = `th-${uid}`
   const showHint = Boolean(hint) && !error
   const describedBy = error ? errId : showHint ? hintId : undefined
-  // Associa label↔controle e injeta aria no filho (input/select) — sem precisar
-  // repetir id/aria em cada campo. WCAG: rótulo, estado de erro e descrição.
   const control = isValidElement(children)
     ? cloneElement(children as React.ReactElement<Record<string, unknown>>, {
         id: fieldId,
@@ -508,17 +489,17 @@ function Field({
     <div data-invalid={invalid}>
       <label
         htmlFor={fieldId}
-        className="mb-1.5 block"
-        style={{ fontSize: 14, fontWeight: 600, color: light.text, letterSpacing: '-0.01em' }}
+        className="mb-2 block"
+        style={{ fontFamily: font.display, fontSize: 12.5, fontWeight: 600, color: dark.text, textTransform: 'uppercase', letterSpacing: '0.1em' }}
       >
         {label}
       </label>
       {control}
       {showHint && (
-        <p id={hintId} className="mt-1.5" style={{ fontSize: 12.5, color: light.faint, lineHeight: 1.4 }}>{hint}</p>
+        <p id={hintId} className="mt-1.5" style={{ fontFamily: font.body, fontSize: 12.5, color: dark.muted, lineHeight: 1.45 }}>{hint}</p>
       )}
       {error && (
-        <p id={errId} role="alert" className="mt-1.5" style={{ fontSize: 12.5, color: '#C0504D' }}>{error}</p>
+        <p id={errId} role="alert" className="mt-1.5" style={{ fontFamily: font.body, fontSize: 12.5, color: ERR }}>{error}</p>
       )}
     </div>
   )
@@ -526,14 +507,13 @@ function Field({
 
 function inputStyle(hasError: boolean): React.CSSProperties {
   return {
-    width: '100%', minHeight: 48, padding: '0 14px', borderRadius: 10,
-    fontSize: 16, // ≥16px evita zoom automático do iOS
-    // Campos levemente translúcidos p/ combinar com o vidro, mas claros o
-    // bastante para o texto digitado ficar nítido.
-    background: 'rgba(255, 255, 255, 0.82)', color: light.text,
-    border: `1px solid ${hasError ? '#C0504D' : 'rgba(0, 0, 0, 0.12)'}`,
-    outline: 'none', appearance: 'none',
-    WebkitAppearance: 'none',
+    width: '100%', minHeight: 50, padding: '0 14px', borderRadius: radius.xs,
+    fontSize: 16, // ≥16px evita zoom do iOS
+    fontFamily: 'Inter, sans-serif',
+    background: dark.bg, // inset editorial sobre o card #141414
+    color: dark.text,
+    border: `1px solid ${hasError ? ERR : dark.hairlineStrong}`,
+    outline: 'none', appearance: 'none', WebkitAppearance: 'none',
   }
 }
 
@@ -542,18 +522,13 @@ function SuccessCard() {
     <Reveal>
       <div className="mx-auto max-w-[560px] text-center">
         <span
-          className="mx-auto flex h-16 w-16 items-center justify-center rounded-full"
-          style={{ background: light.goldDim }}
+          className="mx-auto flex h-14 w-14 items-center justify-center"
+          style={{ border: `1px solid ${dark.gold}`, borderRadius: radius.none }}
         >
-          <CheckCircle2 size={34} color={light.gold} />
+          <CheckCircle2 size={30} color={dark.gold} />
         </span>
-        <h2
-          className="mt-6"
-          style={{ fontWeight: 600, fontSize: 'clamp(26px, 4vw, 40px)', letterSpacing: '-0.025em' }}
-        >
-          {copy.successTitle}
-        </h2>
-        <p className="mx-auto mt-4 max-w-[460px]" style={{ fontSize: 18, lineHeight: 1.5, color: light.muted }}>
+        <h2 className="mt-6" style={{ ...typo.displayLg }}>{copy.successTitle}</h2>
+        <p className="mx-auto mt-4 max-w-[460px]" style={{ ...typo.body, fontSize: 17, color: dark.body }}>
           {copy.successLead}
         </p>
       </div>
