@@ -3,7 +3,7 @@ import { SubHero } from './_components/SubHero'
 import { ProvaSocial } from './_components/ProvaSocial'
 import { Processo } from './_components/Processo'
 import { Conscientizacao } from './_components/Conscientizacao'
-import { Formulario } from './_components/Formulario'
+import { Fechamento } from './_components/Fechamento'
 import { Footer } from './_components/Footer'
 import { StickyCta } from './_components/StickyCta'
 
@@ -11,8 +11,9 @@ import { StickyCta } from './_components/StickyCta'
 // Ritmo de tiles alternando dark ↔ light (à la Apple): a troca de superfície
 // entre seções é o divisor. Único KPI: cadastro qualificado.
 //
-//   Hero (dark/foto) → SubHero (light) → ProvaSocial (light) →
-//   Processo (dark) → Conscientizacao (dark) → Formulário (light) → Footer
+// O formulário (multi-step) vive DENTRO do Hero (#cadastro), na 1ª dobra.
+//   Hero+form (dark/foto) → SubHero (light) → ProvaSocial (light) →
+//   Processo (dark) → Conscientizacao (dark) → Fechamento/CTA (dark) → Footer
 export default function TourosPage() {
   return (
     <main>
@@ -21,7 +22,7 @@ export default function TourosPage() {
       <ProvaSocial />
       <Processo />
       <Conscientizacao />
-      <Formulario />
+      <Fechamento />
       <Footer />
       <StickyCta />
     </main>

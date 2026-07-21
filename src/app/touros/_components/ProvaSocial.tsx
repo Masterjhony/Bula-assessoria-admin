@@ -25,20 +25,33 @@ export function ProvaSocial() {
     <Section surface="light" style={{ paddingTop: 'clamp(40px, 7vw, 72px)', paddingBottom: 'clamp(40px, 7vw, 72px)' }}>
       <Container wide>
         <Reveal>
+          {/* Eyebrow discreto (tracking corp, largura limitada p/ não quebrar
+              feio no mobile); a linha quantificada abaixo é o statement. */}
           <p
-            className="text-center text-[13px] font-medium uppercase"
-            style={{ letterSpacing: '0.16em', color: light.faint }}
+            className="mx-auto max-w-[420px] text-center"
+            style={{
+              fontSize: 12,
+              fontWeight: 600,
+              textTransform: 'uppercase',
+              letterSpacing: '0.08em',
+              // Compensa o espaço-fantasma do tracking à direita, que com
+              // text-center empurra o centro óptico para a esquerda.
+              textIndent: '0.08em',
+              lineHeight: 1.3,
+              color: light.faint,
+            }}
           >
             Criatórios e fazendas que confiam na Bula
           </p>
           {/* [VALIDAR] números com o cliente — prova de escala quantificada
               atrai comprador sério (Paid Social). */}
           <p
-            className="mx-auto mt-3 max-w-[640px] text-center"
+            className="mx-auto mt-2.5 max-w-[640px] text-center"
             style={{
-              fontSize: 'clamp(19px, 2.6vw, 26px)',
+              fontSize: 'clamp(20px, 2.8vw, 28px)',
               fontWeight: 600,
               letterSpacing: '-0.02em',
+              lineHeight: 1.12,
               color: light.text,
             }}
           >

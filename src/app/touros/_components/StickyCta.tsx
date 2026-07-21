@@ -15,8 +15,10 @@ export function StickyCta() {
   const formVisibleRef = useRef(false)
 
   useEffect(() => {
+    // Form agora vive na 1ª dobra; threshold mais alto p/ o sticky não brigar
+    // com o hero e só aparecer bem depois dele.
     const onScroll = () =>
-      setShow(!formVisibleRef.current && window.scrollY > window.innerHeight * 0.9)
+      setShow(!formVisibleRef.current && window.scrollY > window.innerHeight * 1.2)
     onScroll()
     window.addEventListener('scroll', onScroll, { passive: true })
 

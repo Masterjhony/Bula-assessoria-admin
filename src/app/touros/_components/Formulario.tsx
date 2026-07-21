@@ -1,10 +1,11 @@
 'use client'
 
 import { cloneElement, isValidElement, useEffect, useId, useRef, useState } from 'react'
-import { Loader2, CheckCircle2, ShieldCheck, MessageCircle } from 'lucide-react'
+import { AnimatePresence, motion, useReducedMotion } from 'framer-motion'
+import { Loader2, CheckCircle2, ShieldCheck, ArrowRight, ArrowLeft } from 'lucide-react'
 import { light } from '../_lib/tokens'
 import { form as copy } from '../_lib/copy'
-import { Section, Container, Reveal } from './ui'
+import { Reveal } from './ui'
 import { captureUtms, EMPTY_UTM, type Utm } from '../_lib/utm'
 import { initAnalytics, trackFunnel, trackLeadConversion } from '../_lib/analytics'
 
@@ -63,6 +64,16 @@ const EMPTY: FormData = {
 
 type Errors = Partial<Record<keyof FormData, string>>
 
+// Form multi-step (foot-in-the-door): 1 campo no passo 1 → máxima taxa de
+// início; qualificadores de MQL (cabeças, IE) chegam com o lead já comprometido.
+const TOTAL = 3
+const STEP_LABELS = ['Seus dados', 'Sua fazenda', 'Contato']
+const STEP_FIELDS: (keyof FormData)[][] = [
+  ['nome'],
+  ['uf', 'cidade', 'cabecas', 'momento'],
+  ['whatsapp', 'email', 'quantosTouros', 'inscricaoEstadual', 'whatsappConsent'],
+]
+
 function applyPhoneMask(value: string): string {
   const d = value.replace(/\D/g, '').slice(0, 11)
   if (d.length <= 2) return d.length ? `(${d}` : ''
@@ -87,17 +98,21 @@ function validate(d: FormData): Errors {
   return e
 }
 
-export function Formulario() {
+// Card do formulário multi-step (sem <Section>). O Hero fornece a seção,
+// o id="cadastro" e o anel de foco — para o form viver na 1ª dobra.
+export function LeadForm() {
+  const reduce = useReducedMotion()
   const [data, setData] = useState<FormData>(EMPTY)
   const [errors, setErrors] = useState<Errors>({})
   const [status, setStatus] = useState<'idle' | 'submitting' | 'success' | 'error'>('idle')
   const [serverError, setServerError] = useState<string | null>(null)
   const [cidades, setCidades] = useState<string[]>([])
   const [loadingCidades, setLoadingCidades] = useState(false)
+  const [step, setStep] = useState(0)
   const utmRef = useRef<Utm>(EMPTY_UTM)
   const startedRef = useRef(false)
 
-  // Captura UTM + inicializa tracking (pageview) no mount.
+  // Captura UTM + inicializa tracking (pageview) no mount. Instância única.
   useEffect(() => {
     utmRef.current = captureUtms()
     void initAnalytics(utmRef.current)
@@ -136,17 +151,51 @@ export function Formulario() {
     setErrors((e) => ({ ...e, [key]: undefined }))
   }
 
+  // Valida SÓ os campos do passo atual, reusando a regra única validate().
+  function validateStep(s: number): Errors {
+    const all = validate(data)
+    const e: Errors = {}
+    for (const f of STEP_FIELDS[s]) if (all[f]) e[f] = all[f]
+    return e
+  }
+
+  function focusFirstError() {
+    requestAnimationFrame(() => {
+      document.querySelector<HTMLElement>('[data-invalid="true"]')
+        ?.scrollIntoView({ behavior: 'smooth', block: 'center' })
+    })
+  }
+
+  function goNext() {
+    const e = validateStep(step)
+    setErrors(e)
+    trackFunnel('touros_step_attempt', { step: step + 1 })
+    if (Object.keys(e).length) {
+      trackFunnel('touros_validation_failed', { step: step + 1, fields: Object.keys(e) })
+      focusFirstError()
+      return
+    }
+    const ns = Math.min(step + 1, TOTAL - 1)
+    setStep(ns)
+    trackFunnel('touros_step_reached', { step: ns + 1 })
+    document.getElementById('cadastro')?.scrollIntoView({ behavior: 'smooth', block: 'start' })
+  }
+
+  function goBack() {
+    setStep((s) => Math.max(0, s - 1))
+  }
+
   async function handleSubmit(ev: React.FormEvent) {
     ev.preventDefault()
+    // Enter/submit em passos intermediários apenas avança.
+    if (step < TOTAL - 1) { goNext(); return }
     if (status === 'submitting') return
     const e = validate(data)
     setErrors(e)
     trackFunnel('touros_submit_attempt')
     if (Object.keys(e).length) {
       trackFunnel('touros_validation_failed', { fields: Object.keys(e) })
-      // Foca o primeiro campo com erro.
-      const first = document.querySelector<HTMLElement>('[data-invalid="true"]')
-      first?.scrollIntoView({ behavior: 'smooth', block: 'center' })
+      focusFirstError()
       return
     }
 
@@ -199,202 +248,230 @@ export function Formulario() {
 
   const invalid = (k: keyof FormData) => (errors[k] ? 'true' : undefined)
 
+  const cardStyle: React.CSSProperties = {
+    background: light.surface,
+    border: `1px solid ${light.hairline}`,
+    // A única sombra do sistema — dá peso ao card sobre a foto do hero.
+    boxShadow: '0 24px 60px -24px rgba(0,0,0,0.45)',
+    colorScheme: 'light',
+  }
+
+  if (status === 'success') {
+    return (
+      <div className="rounded-[18px] p-6 sm:p-8" style={cardStyle}>
+        <SuccessCard />
+      </div>
+    )
+  }
+
+  const slide = reduce
+    ? { initial: { opacity: 0 }, animate: { opacity: 1 }, exit: { opacity: 0 } }
+    : { initial: { opacity: 0, x: 12 }, animate: { opacity: 1, x: 0 }, exit: { opacity: 0, x: -12 } }
+
   return (
-    <Section surface="light" id="cadastro" style={{ colorScheme: 'light' } as React.CSSProperties}>
-      {/* Anel de foco visível (WCAG 2.4.7) para todos os controles do form —
-          escopado, cobre inputs/selects/botões sem repetir por campo. */}
-      <style>{`
-        #cadastro input:focus-visible,
-        #cadastro select:focus-visible,
-        #cadastro button:focus-visible {
-          outline: none;
-          box-shadow: 0 0 0 3px rgba(200, 169, 110, 0.45);
-        }
-      `}</style>
-      <Container>
-        {status === 'success' ? (
-          <SuccessCard />
-        ) : (
-          <div className="grid gap-10 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.15fr)] lg:gap-16">
-            {/* Coluna de contexto */}
-            <Reveal>
-              <div className="lg:sticky lg:top-16">
-                <h2
-                  style={{
-                    fontWeight: 600,
-                    fontSize: 'clamp(28px, 4.5vw, 44px)',
-                    lineHeight: 1.08,
-                    letterSpacing: '-0.025em',
-                  }}
-                >
-                  {copy.title}
-                </h2>
-                <p className="mt-4 max-w-[420px]" style={{ fontSize: 18, lineHeight: 1.5, color: light.muted }}>
-                  {copy.lead}
-                </p>
-                <div
-                  className="mt-8 flex items-start gap-3 rounded-[14px] p-4"
-                  style={{ background: light.goldDim }}
-                >
-                  <MessageCircle size={20} color={light.gold} strokeWidth={1.75} className="mt-0.5 shrink-0" />
-                  <p style={{ fontSize: 14.5, lineHeight: 1.5, color: light.text }}>{copy.submitHint}</p>
-                </div>
+    <form onSubmit={handleSubmit} noValidate className="rounded-[18px] p-6 sm:p-8" style={cardStyle}>
+      {/* Progresso */}
+      <div className="mb-6">
+        <div className="mb-2 flex items-center justify-between">
+          <span style={{ fontSize: 12, fontWeight: 600, letterSpacing: '0.08em', textTransform: 'uppercase', color: light.faint }}>
+            Passo {step + 1} de {TOTAL}
+          </span>
+          <span style={{ fontSize: 12.5, color: light.faint }}>{STEP_LABELS[step]}</span>
+        </div>
+        <div className="flex gap-1.5" aria-hidden>
+          {Array.from({ length: TOTAL }).map((_, i) => (
+            <span
+              key={i}
+              className="h-1 flex-1 rounded-full"
+              style={{ background: i <= step ? light.gold : light.hairline, transition: 'background .3s' }}
+            />
+          ))}
+        </div>
+      </div>
+
+      <AnimatePresence mode="wait" initial={false}>
+        <motion.div
+          key={step}
+          initial={slide.initial}
+          animate={slide.animate}
+          exit={slide.exit}
+          transition={{ duration: 0.25, ease: [0.22, 1, 0.36, 1] }}
+          className="flex flex-col gap-5"
+        >
+          {step === 0 && (
+            <Field label="Nome completo" error={errors.nome} invalid={invalid('nome')}>
+              <input
+                type="text" inputMode="text" autoComplete="name"
+                value={data.nome} onChange={(e) => set('nome', e.target.value)}
+                placeholder="Seu nome" style={inputStyle(!!errors.nome)}
+              />
+            </Field>
+          )}
+
+          {step === 1 && (
+            <>
+              <div className="grid gap-5 sm:grid-cols-2">
+                <Field label="Estado" error={errors.uf} invalid={invalid('uf')}>
+                  <select
+                    value={data.uf}
+                    onChange={(e) => { set('uf', e.target.value); set('cidade', ''); setCidades([]) }}
+                    style={inputStyle(!!errors.uf)}
+                  >
+                    <option value="">Selecione…</option>
+                    {UF_OPTIONS.map((uf) => <option key={uf} value={uf}>{uf}</option>)}
+                  </select>
+                </Field>
+
+                <Field label="Cidade (opcional)" error={errors.cidade} invalid={invalid('cidade')}>
+                  <select
+                    value={data.cidade} disabled={!data.uf || loadingCidades}
+                    onChange={(e) => set('cidade', e.target.value)} style={inputStyle(!!errors.cidade)}
+                  >
+                    <option value="">{loadingCidades ? 'Carregando…' : !data.uf ? 'Escolha a UF' : 'Selecione…'}</option>
+                    {cidades.map((c) => <option key={c} value={c}>{c}</option>)}
+                  </select>
+                </Field>
               </div>
-            </Reveal>
 
-            {/* Coluna do formulário */}
-            <Reveal delay={0.08}>
-              <form
-                onSubmit={handleSubmit}
-                noValidate
-                className="rounded-[18px] p-6 sm:p-8"
-                style={{ background: light.surface, border: `1px solid ${light.hairline}` }}
-              >
-                <div className="flex flex-col gap-5">
-                  <Field label="Nome completo" error={errors.nome} invalid={invalid('nome')}>
-                    <input
-                      type="text" inputMode="text" autoComplete="name"
-                      value={data.nome} onChange={(e) => set('nome', e.target.value)}
-                      placeholder="Seu nome" style={inputStyle(!!errors.nome)}
-                    />
-                  </Field>
+              <Field label="Tamanho do rebanho" error={errors.cabecas} invalid={invalid('cabecas')}>
+                <select value={data.cabecas} onChange={(e) => set('cabecas', e.target.value)} style={inputStyle(!!errors.cabecas)}>
+                  <option value="">Selecione…</option>
+                  {CABECAS_OPTIONS.map((c) => <option key={c} value={c}>{c}</option>)}
+                </select>
+              </Field>
 
-                  <Field
-                    label="WhatsApp" error={errors.whatsapp} invalid={invalid('whatsapp')}
-                    hint={copy.whatsappHint}
-                  >
-                    <input
-                      type="tel" inputMode="tel" autoComplete="tel"
-                      value={data.whatsapp} onChange={(e) => set('whatsapp', applyPhoneMask(e.target.value))}
-                      placeholder="(00) 00000-0000" style={inputStyle(!!errors.whatsapp)}
-                    />
-                  </Field>
+              <Field label="Momento na pecuária (opcional)">
+                <select value={data.momento} onChange={(e) => set('momento', e.target.value)} style={inputStyle(false)}>
+                  <option value="">Selecione…</option>
+                  {MOMENTO_OPTIONS.map((m) => <option key={m} value={m}>{m}</option>)}
+                </select>
+              </Field>
+            </>
+          )}
 
-                  <Field label="E-mail (opcional)" error={errors.email} invalid={invalid('email')}>
-                    <input
-                      type="email" inputMode="email" autoComplete="email"
-                      value={data.email} onChange={(e) => set('email', e.target.value)}
-                      placeholder="voce@email.com" style={inputStyle(!!errors.email)}
-                    />
-                  </Field>
+          {step === 2 && (
+            <>
+              <Field label="WhatsApp" error={errors.whatsapp} invalid={invalid('whatsapp')} hint={copy.whatsappHint}>
+                <input
+                  type="tel" inputMode="tel" autoComplete="tel"
+                  value={data.whatsapp} onChange={(e) => set('whatsapp', applyPhoneMask(e.target.value))}
+                  placeholder="(00) 00000-0000" style={inputStyle(!!errors.whatsapp)}
+                />
+              </Field>
 
-                  <div className="grid gap-5 sm:grid-cols-2">
-                    <Field label="Estado" error={errors.uf} invalid={invalid('uf')}>
-                      <select
-                        value={data.uf}
-                        onChange={(e) => { set('uf', e.target.value); set('cidade', ''); setCidades([]) }}
-                        style={inputStyle(!!errors.uf)}
+              <Field label="Quantos touros você busca?" error={errors.quantosTouros} invalid={invalid('quantosTouros')}>
+                <select value={data.quantosTouros} onChange={(e) => set('quantosTouros', e.target.value)} style={inputStyle(!!errors.quantosTouros)}>
+                  <option value="">Selecione…</option>
+                  {TOUROS_OPTIONS.map((o) => <option key={o.value} value={o.value}>{o.label}</option>)}
+                </select>
+              </Field>
+
+              <Field label="Você tem inscrição estadual?" error={errors.inscricaoEstadual} invalid={invalid('inscricaoEstadual')}>
+                <div className="flex gap-3" role="radiogroup" aria-label="Você tem inscrição estadual?">
+                  {['Sim', 'Não'].map((opt) => {
+                    const active = data.inscricaoEstadual === opt
+                    return (
+                      <button
+                        key={opt} type="button" role="radio" aria-checked={active}
+                        onClick={() => set('inscricaoEstadual', opt)}
+                        style={{
+                          flex: 1, minHeight: 48, borderRadius: 10, fontWeight: 600, fontSize: 15,
+                          cursor: 'pointer', transition: 'all .15s',
+                          background: active ? light.gold : '#fff',
+                          color: active ? '#0D0D0D' : light.text,
+                          border: `1px solid ${active ? light.gold : light.hairline}`,
+                        }}
                       >
-                        <option value="">Selecione…</option>
-                        {UF_OPTIONS.map((uf) => <option key={uf} value={uf}>{uf}</option>)}
-                      </select>
-                    </Field>
-
-                    <Field label="Cidade (opcional)" error={errors.cidade} invalid={invalid('cidade')}>
-                      <select
-                        value={data.cidade} disabled={!data.uf || loadingCidades}
-                        onChange={(e) => set('cidade', e.target.value)}
-                        style={inputStyle(!!errors.cidade)}
-                      >
-                        <option value="">{loadingCidades ? 'Carregando…' : !data.uf ? 'Escolha a UF' : 'Selecione…'}</option>
-                        {cidades.map((c) => <option key={c} value={c}>{c}</option>)}
-                      </select>
-                    </Field>
-                  </div>
-
-                  <Field label="Tamanho do rebanho" error={errors.cabecas} invalid={invalid('cabecas')}>
-                    <select value={data.cabecas} onChange={(e) => set('cabecas', e.target.value)} style={inputStyle(!!errors.cabecas)}>
-                      <option value="">Selecione…</option>
-                      {CABECAS_OPTIONS.map((c) => <option key={c} value={c}>{c}</option>)}
-                    </select>
-                  </Field>
-
-                  <Field label="Quantos touros você busca?" error={errors.quantosTouros} invalid={invalid('quantosTouros')}>
-                    <select value={data.quantosTouros} onChange={(e) => set('quantosTouros', e.target.value)} style={inputStyle(!!errors.quantosTouros)}>
-                      <option value="">Selecione…</option>
-                      {TOUROS_OPTIONS.map((o) => <option key={o.value} value={o.value}>{o.label}</option>)}
-                    </select>
-                  </Field>
-
-                  <Field label="Momento na pecuária (opcional)">
-                    <select value={data.momento} onChange={(e) => set('momento', e.target.value)} style={inputStyle(false)}>
-                      <option value="">Selecione…</option>
-                      {MOMENTO_OPTIONS.map((m) => <option key={m} value={m}>{m}</option>)}
-                    </select>
-                  </Field>
-
-                  <Field label="Você tem inscrição estadual?" error={errors.inscricaoEstadual} invalid={invalid('inscricaoEstadual')}>
-                    <div className="flex gap-3" role="radiogroup" aria-label="Você tem inscrição estadual?">
-                      {['Sim', 'Não'].map((opt) => {
-                        const active = data.inscricaoEstadual === opt
-                        return (
-                          <button
-                            key={opt} type="button" role="radio" aria-checked={active}
-                            onClick={() => set('inscricaoEstadual', opt)}
-                            style={{
-                              flex: 1, minHeight: 48, borderRadius: 10, fontWeight: 600, fontSize: 15,
-                              cursor: 'pointer', transition: 'all .15s',
-                              background: active ? light.gold : '#fff',
-                              color: active ? '#0D0D0D' : light.text,
-                              border: `1px solid ${active ? light.gold : light.hairline}`,
-                            }}
-                          >
-                            {opt}
-                          </button>
-                        )
-                      })}
-                    </div>
-                  </Field>
-
-                  <label className="mt-1 flex cursor-pointer items-start gap-3" data-invalid={invalid('whatsappConsent')}>
-                    <input
-                      type="checkbox" checked={data.whatsappConsent}
-                      onChange={(e) => set('whatsappConsent', e.target.checked)}
-                      style={{ width: 20, height: 20, marginTop: 2, accentColor: light.gold, flexShrink: 0 }}
-                    />
-                    <span style={{ fontSize: 14, lineHeight: 1.45, color: errors.whatsappConsent ? '#C0504D' : light.muted }}>
-                      {copy.consent}
-                    </span>
-                  </label>
-                  {errors.whatsappConsent && (
-                    <p role="alert" style={{ fontSize: 12.5, color: '#C0504D', marginTop: -8 }}>
-                      {errors.whatsappConsent}
-                    </p>
-                  )}
-
-                  {serverError && (
-                    <p role="alert" style={{ fontSize: 14, color: '#C0504D' }}>
-                      {serverError} Tente novamente.
-                    </p>
-                  )}
-
-                  <button
-                    type="submit" disabled={status === 'submitting'}
-                    style={{
-                      marginTop: 4, minHeight: 54, borderRadius: 9999, fontWeight: 600, fontSize: 17,
-                      letterSpacing: '-0.01em', background: light.gold, color: '#0D0D0D',
-                      cursor: status === 'submitting' ? 'wait' : 'pointer',
-                      display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: 8,
-                      opacity: status === 'submitting' ? 0.75 : 1,
-                    }}
-                  >
-                    {status === 'submitting' ? (
-                      <><Loader2 size={18} className="animate-spin" /> {copy.submitting}</>
-                    ) : (
-                      copy.submit
-                    )}
-                  </button>
-
-                  <p className="flex items-center justify-center gap-1.5" style={{ fontSize: 12.5, color: light.faint }}>
-                    <ShieldCheck size={13} /> Seus dados ficam só com a Bula. Sem spam.
-                  </p>
+                        {opt}
+                      </button>
+                    )
+                  })}
                 </div>
-              </form>
-            </Reveal>
-          </div>
+              </Field>
+
+              <Field label="E-mail (opcional)" error={errors.email} invalid={invalid('email')}>
+                <input
+                  type="email" inputMode="email" autoComplete="email"
+                  value={data.email} onChange={(e) => set('email', e.target.value)}
+                  placeholder="voce@email.com" style={inputStyle(!!errors.email)}
+                />
+              </Field>
+
+              <label className="mt-1 flex cursor-pointer items-start gap-3" data-invalid={invalid('whatsappConsent')}>
+                <input
+                  type="checkbox" checked={data.whatsappConsent}
+                  onChange={(e) => set('whatsappConsent', e.target.checked)}
+                  style={{ width: 20, height: 20, marginTop: 2, accentColor: light.gold, flexShrink: 0 }}
+                />
+                <span style={{ fontSize: 14, lineHeight: 1.45, color: errors.whatsappConsent ? '#C0504D' : light.muted }}>
+                  {copy.consent}
+                </span>
+              </label>
+              {errors.whatsappConsent && (
+                <p role="alert" style={{ fontSize: 12.5, color: '#C0504D', marginTop: -8 }}>
+                  {errors.whatsappConsent}
+                </p>
+              )}
+              {serverError && (
+                <p role="alert" style={{ fontSize: 14, color: '#C0504D' }}>
+                  {serverError} Tente novamente.
+                </p>
+              )}
+            </>
+          )}
+        </motion.div>
+      </AnimatePresence>
+
+      {/* Navegação */}
+      <div className="mt-7 flex items-center gap-3">
+        {step > 0 && (
+          <button
+            type="button" onClick={goBack}
+            style={{
+              minHeight: 52, padding: '0 18px', borderRadius: 9999, fontWeight: 600, fontSize: 15,
+              display: 'inline-flex', alignItems: 'center', gap: 6, cursor: 'pointer',
+              background: '#fff', color: light.text, border: `1px solid ${light.hairline}`,
+            }}
+          >
+            <ArrowLeft size={16} /> Voltar
+          </button>
         )}
-      </Container>
-    </Section>
+        {step < TOTAL - 1 ? (
+          <button
+            type="button" onClick={goNext}
+            style={{
+              flex: 1, minHeight: 54, borderRadius: 9999, fontWeight: 600, fontSize: 17,
+              letterSpacing: '-0.01em', background: light.gold, color: '#0D0D0D', cursor: 'pointer',
+              display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: 8,
+            }}
+          >
+            Continuar <ArrowRight size={18} />
+          </button>
+        ) : (
+          <button
+            type="submit" disabled={status === 'submitting'}
+            style={{
+              flex: 1, minHeight: 54, borderRadius: 9999, fontWeight: 600, fontSize: 17,
+              letterSpacing: '-0.01em', background: light.gold, color: '#0D0D0D',
+              cursor: status === 'submitting' ? 'wait' : 'pointer', opacity: status === 'submitting' ? 0.75 : 1,
+              display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: 8,
+            }}
+          >
+            {status === 'submitting' ? (
+              <><Loader2 size={18} className="animate-spin" /> {copy.submitting}</>
+            ) : (
+              copy.submit
+            )}
+          </button>
+        )}
+      </div>
+
+      {step === TOTAL - 1 && (
+        <p className="mt-4 flex items-center justify-center gap-1.5" style={{ fontSize: 12.5, color: light.faint }}>
+          <ShieldCheck size={13} /> Seus dados ficam só com a Bula. Sem spam.
+        </p>
+      )}
+    </form>
   )
 }
 
