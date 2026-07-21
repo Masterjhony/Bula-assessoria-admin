@@ -37,9 +37,6 @@ export const light = {
   hairline: 'rgba(0, 0, 0, 0.08)',
 } as const
 
-/** A única sombra do sistema — dá peso à foto do touro sobre a superfície. */
-export const productShadow = '0 24px 70px -20px rgba(0, 0, 0, 0.55)'
-
 /** Feature settings do Inter que aproximam o "a" arredondado do SF Pro. */
 export const interFeatures = '"ss03", "cv11"'
 

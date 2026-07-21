@@ -16,10 +16,10 @@ export function Footer() {
           height={40}
           className="h-8 w-auto object-contain"
         />
-        <div className="flex flex-wrap items-center justify-center gap-x-6 gap-y-2" style={{ fontSize: 13 }}>
-          <a href="/privacidade" style={{ color: light.muted }}>Privacidade</a>
-          <a href="/termos" style={{ color: light.muted }}>Termos</a>
-          <span style={{ color: light.faint }}>
+        <div className="flex flex-wrap items-center justify-center gap-x-4 gap-y-1" style={{ fontSize: 13 }}>
+          <a href="/privacidade" className="inline-flex items-center px-2 py-2.5" style={{ color: light.muted }}>Privacidade</a>
+          <a href="/termos" className="inline-flex items-center px-2 py-2.5" style={{ color: light.muted }}>Termos</a>
+          <span className="px-2" style={{ color: light.faint }}>
             © {new Date().getFullYear()} Bula Assessoria
           </span>
         </div>

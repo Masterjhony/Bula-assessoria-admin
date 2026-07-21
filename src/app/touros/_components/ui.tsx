@@ -1,6 +1,6 @@
 'use client'
 
-import { motion } from 'framer-motion'
+import { motion, useReducedMotion } from 'framer-motion'
 import type { ReactNode, CSSProperties } from 'react'
 import { dark, light, type Surface } from '../_lib/tokens'
 
@@ -128,6 +128,8 @@ export function Reveal({
   delay?: number
   className?: string
 }) {
+  const reduce = useReducedMotion()
+  if (reduce) return <div className={className}>{children}</div>
   return (
     <motion.div
       className={className}

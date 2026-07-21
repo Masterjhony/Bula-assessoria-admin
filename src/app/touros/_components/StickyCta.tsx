@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { dark } from '../_lib/tokens'
 import { hero } from '../_lib/copy'
 
@@ -10,20 +10,22 @@ import { hero } from '../_lib/copy'
 // scroll longo do mobile (quick win de conversão).
 export function StickyCta() {
   const [show, setShow] = useState(false)
+  // Visibilidade do form guardada em ref para o scroll respeitá-la — senão o
+  // scroll dentro do próprio form reativa o CTA e ele cobre o campo ativo.
+  const formVisibleRef = useRef(false)
 
   useEffect(() => {
-    const onScroll = () => setShow(window.scrollY > window.innerHeight * 0.9)
+    const onScroll = () =>
+      setShow(!formVisibleRef.current && window.scrollY > window.innerHeight * 0.9)
     onScroll()
     window.addEventListener('scroll', onScroll, { passive: true })
 
-    // Esconde quando o form está visível.
     const form = document.getElementById('cadastro')
-    let formVisible = false
     const io = form
       ? new IntersectionObserver(
           ([e]) => {
-            formVisible = e.isIntersecting
-            if (formVisible) setShow(false)
+            formVisibleRef.current = e.isIntersecting
+            onScroll()
           },
           { threshold: 0.15 },
         )

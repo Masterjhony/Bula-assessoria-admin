@@ -1,7 +1,7 @@
 'use client'
 
 import Image from 'next/image'
-import { motion } from 'framer-motion'
+import { motion, useReducedMotion } from 'framer-motion'
 import { dark } from '../_lib/tokens'
 import { hero } from '../_lib/copy'
 import { PillButton, MultiLine } from './ui'
@@ -12,6 +12,8 @@ import { PillButton, MultiLine } from './ui'
 const HERO_PHOTO = '/jmp/galeria-touros/IMG_0059.jpg'
 
 export function Hero() {
+  const reduce = useReducedMotion()
+  const enter = (y: number) => (reduce ? false : { opacity: 0, y })
   return (
     <section
       className="relative w-full overflow-hidden"
@@ -43,7 +45,7 @@ export function Hero() {
 
       <div className="relative mx-auto flex min-h-[100svh] w-full max-w-[1120px] flex-col justify-end px-5 pb-16 pt-28 sm:px-8 sm:pb-24">
         <motion.p
-          initial={{ opacity: 0, y: 14 }}
+          initial={enter(14)}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
           className="mb-5 text-[12px] font-semibold uppercase sm:text-[13px]"
@@ -53,7 +55,7 @@ export function Hero() {
         </motion.p>
 
         <motion.h1
-          initial={{ opacity: 0, y: 18 }}
+          initial={enter(18)}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.7, delay: 0.05, ease: [0.22, 1, 0.36, 1] }}
           style={{
@@ -68,7 +70,7 @@ export function Hero() {
         </motion.h1>
 
         <motion.p
-          initial={{ opacity: 0, y: 18 }}
+          initial={enter(18)}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.7, delay: 0.12, ease: [0.22, 1, 0.36, 1] }}
           className="mt-6 max-w-[560px]"
@@ -83,7 +85,7 @@ export function Hero() {
         </motion.p>
 
         <motion.div
-          initial={{ opacity: 0, y: 18 }}
+          initial={enter(18)}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.7, delay: 0.2, ease: [0.22, 1, 0.36, 1] }}
           className="mt-9 flex flex-col items-start gap-4 sm:flex-row sm:items-center"

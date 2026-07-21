@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useMemo, useRef, useState } from 'react'
+import { cloneElement, isValidElement, useEffect, useId, useRef, useState } from 'react'
 import { Loader2, CheckCircle2, ShieldCheck, MessageCircle } from 'lucide-react'
 import { light } from '../_lib/tokens'
 import { form as copy } from '../_lib/copy'
@@ -66,7 +66,9 @@ type Errors = Partial<Record<keyof FormData, string>>
 function applyPhoneMask(value: string): string {
   const d = value.replace(/\D/g, '').slice(0, 11)
   if (d.length <= 2) return d.length ? `(${d}` : ''
-  if (d.length <= 7) return `(${d.slice(0, 2)}) ${d.slice(2)}`
+  if (d.length <= 6) return `(${d.slice(0, 2)}) ${d.slice(2)}`
+  // Fixo (10 dígitos) → (DD) XXXX-XXXX; celular (11) → (DD) XXXXX-XXXX.
+  if (d.length <= 10) return `(${d.slice(0, 2)}) ${d.slice(2, 6)}-${d.slice(6)}`
   return `(${d.slice(0, 2)}) ${d.slice(2, 7)}-${d.slice(7)}`
 }
 
@@ -101,19 +103,26 @@ export function Formulario() {
     void initAnalytics(utmRef.current)
   }, [])
 
-  // Cidades do IBGE por UF.
+  // Cidades do IBGE por UF. AbortController cancela a requisição anterior ao
+  // trocar de UF rápido (evita estado obsoleto); ordena alfabético (IBGE não
+  // garante ordem).
   useEffect(() => {
-    if (!data.uf) { setCidades([]); return }
-    let alive = true
+    if (!data.uf) return
+    const ctrl = new AbortController()
+    // Sincroniza o estado de loading com um sistema externo (fetch do IBGE) —
+    // uso legítimo de setState em effect.
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setLoadingCidades(true)
-    fetch(`https://servicodados.ibge.gov.br/api/v1/localidades/estados/${data.uf}/municipios`)
+    fetch(`https://servicodados.ibge.gov.br/api/v1/localidades/estados/${data.uf}/municipios`, {
+      signal: ctrl.signal,
+    })
       .then((r) => r.json())
       .then((rows: { nome: string }[]) => {
-        if (alive) setCidades(rows.map((m) => m.nome))
+        setCidades(rows.map((m) => m.nome).sort((a, b) => a.localeCompare(b, 'pt-BR')))
       })
-      .catch(() => { if (alive) setCidades([]) })
-      .finally(() => { if (alive) setLoadingCidades(false) })
-    return () => { alive = false }
+      .catch((err) => { if (err?.name !== 'AbortError') setCidades([]) })
+      .finally(() => { if (!ctrl.signal.aborted) setLoadingCidades(false) })
+    return () => ctrl.abort()
   }, [data.uf])
 
   function set<K extends keyof FormData>(key: K, value: FormData[K]) {
@@ -192,6 +201,16 @@ export function Formulario() {
 
   return (
     <Section surface="light" id="cadastro" style={{ colorScheme: 'light' } as React.CSSProperties}>
+      {/* Anel de foco visível (WCAG 2.4.7) para todos os controles do form —
+          escopado, cobre inputs/selects/botões sem repetir por campo. */}
+      <style>{`
+        #cadastro input:focus-visible,
+        #cadastro select:focus-visible,
+        #cadastro button:focus-visible {
+          outline: none;
+          box-shadow: 0 0 0 3px rgba(200, 169, 110, 0.45);
+        }
+      `}</style>
       <Container>
         {status === 'success' ? (
           <SuccessCard />
@@ -263,7 +282,7 @@ export function Formulario() {
                     <Field label="Estado" error={errors.uf} invalid={invalid('uf')}>
                       <select
                         value={data.uf}
-                        onChange={(e) => { set('uf', e.target.value); set('cidade', '') }}
+                        onChange={(e) => { set('uf', e.target.value); set('cidade', ''); setCidades([]) }}
                         style={inputStyle(!!errors.uf)}
                       >
                         <option value="">Selecione…</option>
@@ -305,12 +324,13 @@ export function Formulario() {
                   </Field>
 
                   <Field label="Você tem inscrição estadual?" error={errors.inscricaoEstadual} invalid={invalid('inscricaoEstadual')}>
-                    <div className="flex gap-3">
+                    <div className="flex gap-3" role="radiogroup" aria-label="Você tem inscrição estadual?">
                       {['Sim', 'Não'].map((opt) => {
                         const active = data.inscricaoEstadual === opt
                         return (
                           <button
-                            key={opt} type="button" onClick={() => set('inscricaoEstadual', opt)}
+                            key={opt} type="button" role="radio" aria-checked={active}
+                            onClick={() => set('inscricaoEstadual', opt)}
                             style={{
                               flex: 1, minHeight: 48, borderRadius: 10, fontWeight: 600, fontSize: 15,
                               cursor: 'pointer', transition: 'all .15s',
@@ -336,6 +356,11 @@ export function Formulario() {
                       {copy.consent}
                     </span>
                   </label>
+                  {errors.whatsappConsent && (
+                    <p role="alert" style={{ fontSize: 12.5, color: '#C0504D', marginTop: -8 }}>
+                      {errors.whatsappConsent}
+                    </p>
+                  )}
 
                   {serverError && (
                     <p role="alert" style={{ fontSize: 14, color: '#C0504D' }}>
@@ -382,17 +407,36 @@ function Field({
   invalid?: string
   children: React.ReactNode
 }) {
+  const uid = useId()
+  const fieldId = `tf-${uid}`
+  const errId = `te-${uid}`
+  const hintId = `th-${uid}`
+  const showHint = Boolean(hint) && !error
+  const describedBy = error ? errId : showHint ? hintId : undefined
+  // Associa label↔controle e injeta aria no filho (input/select) — sem precisar
+  // repetir id/aria em cada campo. WCAG: rótulo, estado de erro e descrição.
+  const control = isValidElement(children)
+    ? cloneElement(children as React.ReactElement<Record<string, unknown>>, {
+        id: fieldId,
+        'aria-invalid': error ? true : undefined,
+        'aria-describedby': describedBy,
+      })
+    : children
   return (
     <div data-invalid={invalid}>
-      <label className="mb-1.5 block" style={{ fontSize: 14, fontWeight: 600, color: light.text, letterSpacing: '-0.01em' }}>
+      <label
+        htmlFor={fieldId}
+        className="mb-1.5 block"
+        style={{ fontSize: 14, fontWeight: 600, color: light.text, letterSpacing: '-0.01em' }}
+      >
         {label}
       </label>
-      {children}
-      {hint && !error && (
-        <p className="mt-1.5" style={{ fontSize: 12.5, color: light.faint, lineHeight: 1.4 }}>{hint}</p>
+      {control}
+      {showHint && (
+        <p id={hintId} className="mt-1.5" style={{ fontSize: 12.5, color: light.faint, lineHeight: 1.4 }}>{hint}</p>
       )}
       {error && (
-        <p className="mt-1.5" style={{ fontSize: 12.5, color: '#C0504D' }}>{error}</p>
+        <p id={errId} role="alert" className="mt-1.5" style={{ fontSize: 12.5, color: '#C0504D' }}>{error}</p>
       )}
     </div>
   )

@@ -86,8 +86,10 @@ function loadGa4() {
   s.src = `https://www.googletagmanager.com/gtag/js?id=${GA4_ID}`
   document.head.appendChild(s)
   win.dataLayer = win.dataLayer || []
-  win.gtag = function gtag(...args: unknown[]) {
-    win.dataLayer.push(args)
+  // Shim oficial do gtag: empurra o objeto `arguments` (NÃO um array) — o
+  // gtag.js só interpreta comandos (config/event) nesse formato.
+  win.gtag = function gtag() {
+    win.dataLayer.push(arguments)
   }
   win.gtag('js', new Date())
   win.gtag('config', GA4_ID, { send_page_view: false })
