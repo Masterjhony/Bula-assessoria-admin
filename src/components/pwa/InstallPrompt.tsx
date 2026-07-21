@@ -1,7 +1,9 @@
 'use client'
 
 import { useEffect, useState } from 'react'
+import { usePathname } from 'next/navigation'
 import { usePwaInstall } from './usePwaInstall'
+import { isPublicLanding } from './isPublicLanding'
 
 // Banner discreto de instalação do PWA (aparece no rodapé). A detecção de
 // dispositivo/instalabilidade vem do hook usePwaInstall; aqui só cuidamos da
@@ -23,6 +25,7 @@ function recentlyDismissed() {
 }
 
 export function InstallPrompt() {
+  const pathname = usePathname()
   const { status, promptInstall } = usePwaInstall()
   const [dismissed, setDismissed] = useState(true)
 
@@ -45,7 +48,9 @@ export function InstallPrompt() {
   }
 
   const showIosHint = status === 'ios'
-  const visible = !dismissed && (status === 'installable' || status === 'ios')
+  // Landings públicas (tráfego pago) não mostram o banner do PWA interno.
+  const visible =
+    !isPublicLanding(pathname) && !dismissed && (status === 'installable' || status === 'ios')
   if (!visible) return null
 
   return (
