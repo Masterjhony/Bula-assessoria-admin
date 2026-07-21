@@ -5235,7 +5235,26 @@ async function acSaveAcordo(id, applyLeiloeira) {
    cada leilao proporcional ao VGV do assessor (por_assessor) e detalha leiloes
    e vendas individuais (lances) atribuidas a cada um.
    ========================================================================== */
-const coNorm = s => (s||'').trim().toUpperCase();
+/* Nos fechamentos o MESMO assessor chega com grafias variadas (acento,
+   apelido, sobrenome): "Fabio Omena"/"Fábio Omena", "Léo"/"Leonardo Serafim",
+   "Bulinha (Felipe Andrade)"/"Felipe Vilela Andrade (Bulinha)". Canonicaliza
+   p/ agregar como UMA pessoa — o nome original segue intacto no fechamento
+   (auditável). Espelha src/lib/assessor-normalize.ts (incl. Pedro Barnabé/
+   Matheus Amormino centralizados sob Marcelo Carneiro, regra do payable FdB). */
+const coStrip = s => String(s||'').normalize('NFD').replace(/[̀-ͯ]/g,'');
+const coKey = s => coStrip(s).toUpperCase().replace(/[^A-Z0-9]+/g,' ').trim();
+const CO_CANONICO = {
+  'FABIO OMENA':'Fábio Omena', 'FABIO O MENA':'Fábio Omena', 'FABIO OMENNA':'Fábio Omena',
+  'LEO':'Leonardo Serafim', 'LEO SERAFIM':'Leonardo Serafim', 'LEONARDO':'Leonardo Serafim',
+  'BULINHA':'Bulinha (Felipe Andrade)', 'FELIPE ANDRADE':'Bulinha (Felipe Andrade)',
+  'BULINHA FELIPE ANDRADE':'Bulinha (Felipe Andrade)', 'FELIPE ANDRADE BULINHA':'Bulinha (Felipe Andrade)',
+  'FELIPE VILELA ANDRADE':'Bulinha (Felipe Andrade)', 'FELIPE VILELA ANDRADE BULINHA':'Bulinha (Felipe Andrade)',
+  'PEDRO BARNABE':'Marcelo Carneiro', 'MATHEUS AMORMINO':'Marcelo Carneiro',
+};
+const coCanonNome = (s) => CO_CANONICO[coKey(s)] || String(s||'').trim();
+const coNorm = s => coKey(coCanonNome(s));
+const CO_EMPRESAS = { 'FORMULA DO BOI':'Fórmula do Boi', 'BULA ASSESSORIA':'Bula Assessoria', 'BULA REMATES':'Bula Remates' };
+const coEmpresa = (e) => CO_EMPRESAS[coKey(e)] || String(e||'').trim();
 
 function coFilteredFechamentos() {
   const all = state.fechamentos || [];
@@ -5261,34 +5280,51 @@ function coAggregate() {
       if (!key) continue;
       const share = totalVgv>0 ? a._vgv/totalVgv : 0;
       let rec = map.get(key);
-      if (!rec) { rec = { key, nome:a.nome, empresas:new Set(), leiloes:[], vgv:0, comissao:0, transacoes:0, animais:0, temEstimado:false }; map.set(key, rec); }
-      if (a.empresa) rec.empresas.add(a.empresa);
+      if (!rec) { rec = { key, nome:coCanonNome(a.nome), empresas:new Set(), apelidos:new Set(), leiloes:[], vgv:0, comissao:0, transacoes:0, animais:0, temEstimado:false }; map.set(key, rec); }
+      if (String(a.nome||'').trim() && String(a.nome).trim() !== rec.nome) rec.apelidos.add(String(a.nome).trim());
+      if (a.empresa) rec.empresas.add(coEmpresa(a.empresa));
       rec.vgv += a._vgv; rec.comissao += a._comissao;
       rec.transacoes += Number(a.transacoes)||0; rec.animais += Number(a.animais)||0;
       if (!a._real && a._comissao>0) rec.temEstimado = true;
       rec.leiloes.push({ id:f.id, nome:f.nome, data:f.data, local:f.local||'', vgv:a._vgv, share, comissao:a._comissao, real:a._real, transacoes:Number(a.transacoes)||0, animais:Number(a.animais)||0, semComissao: totalComissao<=0 && !a._real });
     }
   }
-  return [...map.values()].map(r => ({ ...r, empresas:[...r.empresas] })).sort((a,b)=> b.comissao - a.comissao || b.vgv - a.vgv);
+  return [...map.values()].map(r => ({ ...r, empresas:[...r.empresas], apelidos:[...r.apelidos] })).sort((a,b)=> b.comissao - a.comissao || b.vgv - a.vgv);
+}
+
+// Vendas individuais (lances) do assessor nos leiloes filtrados
+function coVendasDe(rec) {
+  const vendas = [];
+  for (const l of rec.leiloes) {
+    const fech = (state.fechamentos||[]).find(x=>x.id===l.id);
+    if (!fech) continue;
+    for (const v of (fech.lances||[])) {
+      if (!v || coNorm(v.assessor) !== rec.key) continue;
+      vendas.push({ leilao:fech.nome, data:fech.data, lote:v.lote, comprador:v.comprador, uf:v.uf, animais:Number(v.animais)||0, vgv:Number(v.vgv)||0 });
+    }
+  }
+  return vendas.sort((a,b)=> b.vgv - a.vgv);
 }
 
 function coFilter(key, val) { state.filters[key] = val; renderComissionamento(); }
 const coSearchInput = debounce((v)=>{ state.filters.coSearch = v; renderComissionamento(); }, 300);
-function coClear() { ['coMes','coAno','coSearch','coEmpresa','coLeilao'].forEach(k=>delete state.filters[k]); renderComissionamento(); }
+function coClear() { ['coMes','coAno','coSearch','coEmpresa','coLeilao','coAssessor'].forEach(k=>delete state.filters[k]); renderComissionamento(); }
 
 async function renderComissionamento() {
   if (!state.fechamentos) state.fechamentos = await api('/api/bula/fechamento');
   const all = state.fechamentos || [];
   const f = state.filters;
-  const mes=f.coMes||'', ano=f.coAno||'', search=f.coSearch||'', empresa=f.coEmpresa||'', leilaoSel=f.coLeilao||'';
+  const mes=f.coMes||'', ano=f.coAno||'', search=f.coSearch||'', empresa=f.coEmpresa||'', leilaoSel=f.coLeilao||'', assessorSel=f.coAssessor||'';
   const anos = [...new Set(all.map(x=>(x.data||'').slice(0,4)).filter(Boolean))].sort().reverse();
   const leiloesOpts = [...all].sort((a,b)=>(b.data||'').localeCompare(a.data||''));
 
   let assessores = coAggregate();
   const empresas = [...new Set(assessores.flatMap(a=>a.empresas))].sort();
-  const sNorm = coNorm(search);
-  if (sNorm) assessores = assessores.filter(a => coNorm(a.nome).includes(sNorm));
+  const assessorOpts = assessores.map(a=>({ key:a.key, nome:a.nome })).sort((x,y)=>x.nome.localeCompare(y.nome,'pt-BR'));
+  const sNorm = coKey(search);
+  if (sNorm) assessores = assessores.filter(a => (coNorm(a.nome)+' '+a.apelidos.map(coKey).join(' ')).includes(sNorm));
   if (empresa) assessores = assessores.filter(a => a.empresas.includes(empresa));
+  if (assessorSel) assessores = assessores.filter(a => a.key === assessorSel);
   state.coCache = assessores; // p/ drawer e CSV (mesma lista filtrada exibida)
 
   const fechs = coFilteredFechamentos();
@@ -5348,6 +5384,10 @@ async function renderComissionamento() {
           <option value="">Todos os anos</option>
           ${anos.map(a=>`<option value="${a}" ${ano===a?'selected':''}>${a}</option>`).join('')}
         </select>
+        <select class="table-filter" onchange="coFilter('coAssessor', this.value)" title="Assessor">
+          <option value="">Todos os assessores</option>
+          ${assessorOpts.map(a=>`<option value="${escapeHtml(a.key)}" ${assessorSel===a.key?'selected':''}>${escapeHtml(a.nome)}</option>`).join('')}
+        </select>
         <select class="table-filter" onchange="coFilter('coEmpresa', this.value)">
           <option value="">Todas as empresas</option>
           ${empresas.map(e=>`<option value="${escapeHtml(e)}" ${empresa===e?'selected':''}>${escapeHtml(e)}</option>`).join('')}
@@ -5356,7 +5396,7 @@ async function renderComissionamento() {
           <option value="">Todos os leiloes</option>
           ${leiloesOpts.map(x=>`<option value="${x.id}" ${leilaoSel===x.id?'selected':''}>${escapeHtml(x.nome)}</option>`).join('')}
         </select>
-        ${(mes||ano||search||empresa||leilaoSel)?`<button class="btn btn-ghost btn-sm" onclick="coClear()"><span class="material-symbols-outlined">filter_alt_off</span>Limpar</button>`:''}
+        ${(mes||ano||search||empresa||leilaoSel||assessorSel)?`<button class="btn btn-ghost btn-sm" onclick="coClear()"><span class="material-symbols-outlined">filter_alt_off</span>Limpar</button>`:''}
       </div>
       ${assessores.length===0?`<div class="empty"><span class="material-symbols-outlined">real_estate_agent</span><h3>Nenhum assessor</h3><p>Ajuste os filtros ou lance fechamentos com assessores.</p></div>`:`
       <table>
@@ -5376,7 +5416,7 @@ async function renderComissionamento() {
         <tbody>
           ${assessores.map((a,i)=>`
             <tr style="cursor:pointer" onclick="coOpenDetail(${i})">
-              <td style="font-weight:600">${escapeHtml(a.nome)}</td>
+              <td style="font-weight:600">${escapeHtml(a.nome)}${a.apelidos.length?`<div style="font-size:10px;color:var(--text3);font-weight:400" title="Grafias unificadas dos fechamentos">inclui: ${a.apelidos.map(escapeHtml).join(', ')}</div>`:''}</td>
               <td>${a.empresas.length?a.empresas.map(e=>`<span class="chip muted">${escapeHtml(e)}</span>`).join(' '):'—'}</td>
               <td style="text-align:right">${a.leiloes.length}</td>
               <td style="text-align:right">${a.transacoes}</td>
@@ -5384,7 +5424,10 @@ async function renderComissionamento() {
               <td class="money" style="text-align:right;color:var(--gold)">${fmtBRL(a.vgv)}</td>
               <td class="money" style="text-align:right;font-weight:700">${a.comissao>0?`${fmtBRL(a.comissao)}${a.temEstimado?' <span class="chip muted" style="padding:1px 5px;font-size:9px" title="Inclui valores estimados por rateio de VGV">est.</span>':''}`:'<span style="color:var(--text4)">—</span>'}</td>
               <td><div style="height:7px;background:var(--s3);border-radius:4px;overflow:hidden"><div style="height:100%;width:${Math.round((a.comissao/maxC)*100)}%;background:var(--gold)"></div></div></td>
-              <td><span class="material-symbols-outlined" style="color:var(--text4);font-size:18px">chevron_right</span></td>
+              <td style="white-space:nowrap">
+                <button class="icon-btn" title="Gerar PDF das vendas (respeita os filtros)" onclick="event.stopPropagation();coPdf(${i})"><span class="material-symbols-outlined">picture_as_pdf</span></button>
+                <span class="material-symbols-outlined" style="color:var(--text4);font-size:18px;vertical-align:middle">chevron_right</span>
+              </td>
             </tr>`).join('')}
         </tbody>
         <tfoot>
@@ -5407,16 +5450,7 @@ function coOpenDetail(idx) {
   const leiloes = rec.leiloes.slice().sort((a,b)=> (b.data||'').localeCompare(a.data||''));
 
   // Vendas (lances) atribuidas ao assessor, por leilao
-  const vendas = [];
-  for (const l of leiloes) {
-    const fech = (state.fechamentos||[]).find(x=>x.id===l.id);
-    if (!fech) continue;
-    for (const v of (fech.lances||[])) {
-      if (!v || coNorm(v.assessor) !== rec.key) continue;
-      vendas.push({ leilao:fech.nome, data:fech.data, lote:v.lote, comprador:v.comprador, uf:v.uf, animais:Number(v.animais)||0, vgv:Number(v.vgv)||0 });
-    }
-  }
-  vendas.sort((a,b)=> b.vgv - a.vgv);
+  const vendas = coVendasDe(rec);
 
   const html = `
     <div class="modal-header">
@@ -5471,8 +5505,116 @@ function coOpenDetail(idx) {
         </table>
       </div>`}
     </div>
-    <div class="modal-footer"><button class="btn" onclick="closeModal()">Fechar</button></div>`;
+    <div class="modal-footer">
+      <button class="btn" onclick="closeModal()">Fechar</button>
+      <button class="btn btn-primary" onclick="coPdf(${idx})"><span class="material-symbols-outlined">picture_as_pdf</span>Gerar PDF</button>
+    </div>`;
   openModal(html, { wide:true });
+}
+
+/* PDF de vendas do assessor (respeita os filtros ativos): abre uma janela
+   print-ready no padrão do brandbook (preto/branco, Oswald caps, dourado
+   cirúrgico) e chama o diálogo de impressão — "Salvar como PDF". */
+function coFiltroDesc() {
+  const f = state.filters; const parts = [];
+  if (f.coMes) parts.push(FL_MESES[Number(f.coMes)-1] + (f.coAno?`/${f.coAno}`:''));
+  else if (f.coAno) parts.push('Ano ' + f.coAno);
+  else parts.push('Todo o período registrado');
+  if (f.coEmpresa) parts.push(f.coEmpresa);
+  if (f.coLeilao) { const x=(state.fechamentos||[]).find(z=>z.id===f.coLeilao); if (x) parts.push(x.nome); }
+  return parts.join(' · ');
+}
+
+function coPdf(idx) {
+  const rec = (state.coCache||[])[idx];
+  if (!rec) return;
+  const leiloes = rec.leiloes.slice().sort((a,b)=> (a.data||'').localeCompare(b.data||''));
+  const vendas = coVendasDe(rec);
+  const hoje = new Date().toLocaleDateString('pt-BR');
+  const pctFmt = v => (v*100).toLocaleString('pt-BR',{maximumFractionDigits:1})+'%';
+  const w = window.open('', '_blank');
+  if (!w) { toast('Habilite pop-ups para gerar o PDF','error'); return; }
+  const totAnimaisVendas = vendas.reduce((s,v)=>s+v.animais,0);
+  const totVgvVendas = vendas.reduce((s,v)=>s+v.vgv,0);
+  w.document.write(`<!doctype html><html lang="pt-BR"><head><meta charset="utf-8">
+  <title>Vendas — ${escapeHtml(rec.nome)}</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Oswald:wght@500;600&family=Inter:wght@400;600;700&display=swap');
+    @page { size: A4; margin: 15mm 13mm; }
+    * { box-sizing:border-box; margin:0; padding:0; }
+    body { font-family:'Inter',Arial,sans-serif; color:#111; font-size:11px; }
+    .head { display:flex; justify-content:space-between; align-items:flex-end; border-bottom:3px solid #111; padding-bottom:10px; }
+    .brand { font-family:'Oswald',sans-serif; font-size:20px; letter-spacing:2px; text-transform:uppercase; font-weight:600; }
+    .brand small { color:#C9A84C; }
+    .doc { text-align:right; font-size:9.5px; color:#555; text-transform:uppercase; letter-spacing:1px; }
+    h1 { font-family:'Oswald',sans-serif; font-size:17px; text-transform:uppercase; letter-spacing:1px; margin:14px 0 2px; }
+    .sub { color:#555; font-size:10px; margin-bottom:12px; }
+    .kpis { display:flex; gap:8px; margin:10px 0 16px; }
+    .kpi { flex:1; border:1px solid #ccc; padding:8px 10px; }
+    .kpi b { display:block; font-size:13.5px; margin-top:3px; white-space:nowrap; }
+    .kpi span { font-size:8.5px; text-transform:uppercase; letter-spacing:1px; color:#666; }
+    h2 { font-family:'Oswald',sans-serif; font-size:12px; text-transform:uppercase; letter-spacing:1px; margin:16px 0 6px; border-left:3px solid #C9A84C; padding-left:7px; }
+    table { width:100%; border-collapse:collapse; }
+    th { text-align:left; font-size:8.5px; text-transform:uppercase; letter-spacing:.5px; color:#555; border-bottom:2px solid #111; padding:4px 6px; }
+    th.r, td.r { text-align:right; }
+    td { border-bottom:1px solid #e4e4e4; padding:4px 6px; vertical-align:top; }
+    tfoot td { border-top:2px solid #111; border-bottom:0; font-weight:700; }
+    tr { page-break-inside:avoid; }
+    .foot { margin-top:20px; padding-top:8px; border-top:1px solid #ccc; font-size:9px; color:#777; display:flex; justify-content:space-between; }
+    .nota { margin-top:8px; font-size:9px; color:#777; }
+  </style></head><body>
+  <div class="head">
+    <div class="brand">Bula <small>Assessoria</small></div>
+    <div class="doc">Relatório de vendas por assessor<br>Gerado em ${hoje}</div>
+  </div>
+  <h1>${escapeHtml(rec.nome)}</h1>
+  <div class="sub">${rec.empresas.map(escapeHtml).join(' · ')||''}${rec.apelidos.length?`<br>Inclui lançamentos registrados como: ${rec.apelidos.map(escapeHtml).join(', ')}`:''}<br>Período/filtro: ${escapeHtml(coFiltroDesc())}</div>
+  <div class="kpis">
+    <div class="kpi"><span>Leilões</span><b>${leiloes.length}</b></div>
+    <div class="kpi"><span>Vendas</span><b>${rec.transacoes}</b></div>
+    <div class="kpi"><span>Animais</span><b>${rec.animais}</b></div>
+    <div class="kpi"><span>VGV intermediado</span><b>${fmtBRL(rec.vgv)}</b></div>
+    <div class="kpi"><span>Comissão a pagar</span><b>${fmtBRL(rec.comissao)}${rec.temEstimado?' *':''}</b></div>
+  </div>
+  <h2>Resultado por leilão</h2>
+  <table>
+    <thead><tr><th>Data</th><th>Leilão</th><th class="r">Vendas</th><th class="r">Animais</th><th class="r">VGV</th><th class="r">% do leilão</th><th class="r">Comissão</th></tr></thead>
+    <tbody>
+      ${leiloes.map(l=>`<tr>
+        <td style="white-space:nowrap">${flDataCurta(l.data)}</td>
+        <td>${escapeHtml(l.nome)}</td>
+        <td class="r">${l.transacoes}</td>
+        <td class="r">${l.animais}</td>
+        <td class="r">${fmtBRL(l.vgv)}</td>
+        <td class="r">${pctFmt(l.share)}</td>
+        <td class="r">${l.comissao>0?fmtBRL(l.comissao)+(l.real?'':' *'):'—'}</td>
+      </tr>`).join('')}
+    </tbody>
+    <tfoot><tr><td colspan="2">Total</td><td class="r">${rec.transacoes}</td><td class="r">${rec.animais}</td><td class="r">${fmtBRL(rec.vgv)}</td><td></td><td class="r">${fmtBRL(rec.comissao)}</td></tr></tfoot>
+  </table>
+  ${vendas.length?`
+  <h2>Vendas individuais (${vendas.length})</h2>
+  <table>
+    <thead><tr><th>Data</th><th>Leilão</th><th>Lote</th><th>Comprador</th><th>UF</th><th class="r">Animais</th><th class="r">VGV</th></tr></thead>
+    <tbody>
+      ${vendas.map(v=>`<tr>
+        <td style="white-space:nowrap">${flDataCurta(v.data)}</td>
+        <td>${escapeHtml(v.leilao)}</td>
+        <td>${escapeHtml(v.lote||'—')}</td>
+        <td>${escapeHtml(v.comprador||'—')}</td>
+        <td>${escapeHtml(v.uf||'—')}</td>
+        <td class="r">${v.animais||0}</td>
+        <td class="r">${fmtBRL(v.vgv)}</td>
+      </tr>`).join('')}
+    </tbody>
+    <tfoot><tr><td colspan="5">Total</td><td class="r">${totAnimaisVendas}</td><td class="r">${fmtBRL(totVgvVendas)}</td></tr></tfoot>
+  </table>
+  <div class="nota">Vendas individuais vêm do registro de lances do pregão e podem diferir do resumo consolidado do fechamento (base da comissão).</div>`:''}
+  ${rec.temEstimado?`<div class="nota">* Comissão estimada por rateio de VGV — o leilão não tem comissão individual informada no fechamento.</div>`:''}
+  <div class="foot"><span>Bula Assessoria — documento de uso interno</span><span>${escapeHtml(rec.nome)} · ${hoje}</span></div>
+  <scr`+`ipt>window.onload = () => setTimeout(() => window.print(), 400);</scr`+`ipt>
+  </body></html>`);
+  w.document.close();
 }
 
 function coExportCSV() {
