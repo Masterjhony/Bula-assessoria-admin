@@ -248,11 +248,16 @@ export function LeadForm() {
 
   const invalid = (k: keyof FormData) => (errors[k] ? 'true' : undefined)
 
+  // Liquid Glass — vidro fosco translúcido sobre a foto do hero: backdrop-blur,
+  // borda com brilho superior (specular) e sombra em camadas. Fundo claro o
+  // suficiente para manter o texto escuro legível.
   const cardStyle: React.CSSProperties = {
-    background: light.surface,
-    border: `1px solid ${light.hairline}`,
-    // A única sombra do sistema — dá peso ao card sobre a foto do hero.
-    boxShadow: '0 24px 60px -24px rgba(0,0,0,0.45)',
+    background: 'rgba(255, 255, 255, 0.72)',
+    backdropFilter: 'blur(28px) saturate(155%)',
+    WebkitBackdropFilter: 'blur(28px) saturate(155%)',
+    border: '1px solid rgba(255, 255, 255, 0.55)',
+    boxShadow:
+      '0 30px 80px -24px rgba(0,0,0,0.55), inset 0 1px 0 rgba(255,255,255,0.7)',
     colorScheme: 'light',
   }
 
@@ -523,8 +528,10 @@ function inputStyle(hasError: boolean): React.CSSProperties {
   return {
     width: '100%', minHeight: 48, padding: '0 14px', borderRadius: 10,
     fontSize: 16, // ≥16px evita zoom automático do iOS
-    background: '#fff', color: light.text,
-    border: `1px solid ${hasError ? '#C0504D' : light.hairline}`,
+    // Campos levemente translúcidos p/ combinar com o vidro, mas claros o
+    // bastante para o texto digitado ficar nítido.
+    background: 'rgba(255, 255, 255, 0.82)', color: light.text,
+    border: `1px solid ${hasError ? '#C0504D' : 'rgba(0, 0, 0, 0.12)'}`,
     outline: 'none', appearance: 'none',
     WebkitAppearance: 'none',
   }
