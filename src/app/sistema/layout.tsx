@@ -47,6 +47,7 @@ const navConfig: NavEntry[] = [
     items: [
       { href: '/sistema/leiloes', label: 'Leilões', icon: Gavel },
       { href: '/sistema/leiloes/fechamento', label: 'Fechamento de Leilões', icon: BarChart3 },
+      { href: '/sistema/leiloes/relatorios', label: 'Relatórios', icon: FileText },
       { href: '/sistema/leiloes/equipe', label: 'Equipe', icon: Users },
     ],
   },
