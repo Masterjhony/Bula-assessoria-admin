@@ -19,6 +19,14 @@ const nextConfig = {
           { key: 'Cache-Control', value: 'public, max-age=86400, stale-while-revalidate=604800' },
         ],
       },
+      {
+        // Assets da landing de touros (public/touros/*) e imagens reutilizadas
+        // dela (criatórios/institucional): mesmo perfil de cache das da JMP.
+        source: '/:dir(touros|criatorios|institucional)/:path*.(jpg|jpeg|png|webp|svg|ico)',
+        headers: [
+          { key: 'Cache-Control', value: 'public, max-age=86400, stale-while-revalidate=604800' },
+        ],
+      },
     ]
   },
 }
