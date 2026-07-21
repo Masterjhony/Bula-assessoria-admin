@@ -145,7 +145,7 @@ const REPORT_GROUPS: ReportGroup[] = [
       { key: 'mensal',      label: 'Mensal',       icon: Calendar  },
       { key: 'comparativo', label: 'Comparativo',  icon: BarChart3 },
       { key: 'ranking',     label: 'Ranking',      icon: Trophy    },
-      { key: 'pdf',         label: 'Por Leilão',   icon: FileText },
+      { key: 'pdf',         label: 'Relatórios PDF',   icon: FileText },
     ],
   },
   {
