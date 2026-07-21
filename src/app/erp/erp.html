@@ -503,6 +503,7 @@ svg.chart { width:100%; height:100%; display:block; }
     <div class="sidebar-item" data-page="folha"><span class="material-symbols-outlined">badge</span><span>Folha &amp; Comissoes</span></div>
 
     <div class="sidebar-section">Leiloes</div>
+    <div class="sidebar-item" data-page="resultados"><span class="material-symbols-outlined">monitoring</span><span>Resultados</span></div>
     <div class="sidebar-item" data-page="fechamento_leiloes"><span class="material-symbols-outlined">gavel</span><span>Fechamento Leiloes</span></div>
     <div class="sidebar-item" data-page="acordos_comerciais"><span class="material-symbols-outlined">handshake</span><span>Acordos Comerciais</span></div>
     <div class="sidebar-item" data-page="comissionamento"><span class="material-symbols-outlined">real_estate_agent</span><span>Comissionamento</span></div>
@@ -541,6 +542,14 @@ const fmtBRL = (n) => {
   return v.toLocaleString('pt-BR', { style:'currency', currency:'BRL' });
 };
 const fmtNum = (n) => Number(n||0).toLocaleString('pt-BR', { minimumFractionDigits:2, maximumFractionDigits:2 });
+// Formato compacto p/ rótulos de gráfico (R$ 15,4M · 761,7k · 25,2k)
+const fmtCompact = (n, money=true) => {
+  const v = Number(n||0), abs = Math.abs(v);
+  const s = abs >= 1e6 ? (v/1e6).toLocaleString('pt-BR',{maximumFractionDigits:1})+'M'
+    : abs >= 1e3 ? (v/1e3).toLocaleString('pt-BR',{maximumFractionDigits:1})+'k'
+    : v.toLocaleString('pt-BR',{maximumFractionDigits:0});
+  return money ? 'R$ '+s : s;
+};
 const fmtDate = (s) => { if (!s) return '--'; const d = new Date(s+'T00:00:00'); return d.toLocaleDateString('pt-BR'); };
 const fmtDateShort = (s) => { if (!s) return '--'; const d = new Date(s+'T00:00:00'); return d.toLocaleDateString('pt-BR',{day:'2-digit',month:'2-digit'}); };
 const today = () => new Date().toISOString().slice(0,10);
@@ -774,6 +783,7 @@ async function render() {
     if (state.page === 'centros') return renderCentros();
     if (state.page === 'notas') return renderNotas();
     if (state.page === 'empresa') return renderEmpresa();
+    if (state.page === 'resultados') return renderResultados();
     if (state.page === 'fechamento_leiloes') return renderFechamentoLeiloes();
     if (state.page === 'acordos_comerciais') return renderAcordosComerciais();
     if (state.page === 'comissionamento') return renderComissionamento();
@@ -2490,7 +2500,7 @@ async function filaAplicar(tipo, tituloId, movId, btn){
     toast('Vinculo aplicado e titulo baixado','success');
     const el=document.getElementById(`fila-${tipo==='CR'?'receber':'pagar'}-${tituloId}`);
     if(el){ el.style.transition='opacity .3s'; el.style.opacity='.4'; el.querySelectorAll('button').forEach(b=>b.disabled=true); }
-    state.fechamentos=null; state.recebimentos=null; // invalida cache da tela de fechamento
+    state.fechamentos=null; state.recebimentos=null; state.resultados=null; // invalida caches de fechamento/resultados
   }catch(e){ toast(e.message,'error'); if(btn){ btn.disabled=false; btn.innerHTML='<span class="material-symbols-outlined">check</span>Vincular'; } }
 }
 
@@ -4077,7 +4087,7 @@ function flFilteredRows() {
 function flFilter(key, val) { state.filters[key] = val; renderFechamentoLeiloes(); }
 const flSearchInput = debounce((v)=>{ state.filters.flSearch = v; renderFechamentoLeiloes(); }, 300);
 function flClear() { ['flMes','flAno','flSearch','flAcordo'].forEach(k=>delete state.filters[k]); renderFechamentoLeiloes(); }
-function flReload() { state.fechamentos = null; state.recebimentos = null; renderFechamentoLeiloes(); }
+function flReload() { state.fechamentos = null; state.recebimentos = null; state.resultados = null; renderFechamentoLeiloes(); }
 
 function flRecebChip(id) {
   const r = (state.recebMap||{})[id];
@@ -4118,6 +4128,259 @@ function flRecebimentoSection(id) {
         </table>
       </div>
     </div>`;
+}
+
+/* ==========================================================================
+   PAGE: RESULTADOS (evolução mensal da operação)
+   2026+ calculado ao vivo dos fechamentos; 2025 vem do histórico consolidado
+   (erp_resultados_historico, seed do relatório Power BI).
+   ========================================================================== */
+const RES_MESES = ['jan','fev','mar','abr','mai','jun','jul','ago','set','out','nov','dez'];
+
+// Gráfico mensal com 12 meses fixos. opts.series = [{key,color,label,dash,area,labels}]
+// type 'line'|'bar' · money=false p/ contagens. Meses sem dado (null) não são
+// desenhados — ano parcial não vira uma linha de zeros falsos.
+function resChart(meses, opts={}) {
+  const series = opts.series || [];
+  const money = opts.money !== false;
+  const type = opts.type || 'line';
+  const w = opts.width || 860, h = opts.height || 250, pad = { t:30, r:20, b:26, l:52 };
+  const innerW = w - pad.l - pad.r, innerH = h - pad.t - pad.b;
+  const fmtLabel = (v) => money ? fmtCompact(v) : Number(v).toLocaleString('pt-BR');
+  let max = 0, temDado = false;
+  for (const m of meses) for (const s of series) {
+    const v = m[s.key]; if (v == null) continue;
+    temDado = true; if (Number(v) > max) max = Number(v);
+  }
+  if (!temDado) return '<div class="empty"><span class="material-symbols-outlined">show_chart</span><p>Sem dados no periodo</p></div>';
+  if (!max) max = 1;
+  const top = max * 1.12; // folga p/ os rótulos acima dos pontos
+  const band = innerW / 12;
+  const xAt = (i) => type === 'bar' ? pad.l + band*i + band/2 : pad.l + (innerW/11)*i;
+  const yAt = (v) => pad.t + innerH - (Number(v)/top)*innerH;
+
+  let svg = `<svg viewBox="0 0 ${w} ${h}" class="chart" style="height:auto" xmlns="http://www.w3.org/2000/svg">`;
+  for (let i = 0; i <= 4; i++) {
+    const y = pad.t + (innerH/4)*i;
+    const val = top - (top/4)*i;
+    svg += `<line x1="${pad.l}" y1="${y}" x2="${w-pad.r}" y2="${y}" stroke="rgba(255,255,255,0.06)" stroke-dasharray="2 4"/>`;
+    svg += `<text x="${pad.l-6}" y="${y+3}" text-anchor="end" font-size="9" fill="#666">${money ? fmtCompact(val).replace('R$ ','') : fmtCompact(val,false)}</text>`;
+  }
+  meses.forEach((m,i) => {
+    svg += `<text x="${xAt(i)}" y="${h-8}" text-anchor="middle" font-size="9.5" fill="#8a8f98">${RES_MESES[i]}</text>`;
+  });
+
+  for (const s of series) {
+    if (type === 'bar') {
+      const barW = band * 0.55;
+      meses.forEach((m,i) => {
+        const v = m[s.key]; if (v == null) return;
+        const y = yAt(v), bh = pad.t + innerH - y;
+        svg += `<rect x="${xAt(i)-barW/2}" y="${y}" width="${barW}" height="${Math.max(bh,1.5)}" fill="${s.color}" rx="3" opacity="0.9"><title>${s.label} · ${RES_MESES[i]}: ${fmtLabel(v)}</title></rect>`;
+        if (s.labels) svg += `<text x="${xAt(i)}" y="${y-6}" text-anchor="middle" font-size="9.5" fill="#b9bec7">${fmtLabel(v)}</text>`;
+      });
+      continue;
+    }
+    let d = '', started = false, firstX = null, lastX = null;
+    meses.forEach((m,i) => {
+      const v = m[s.key]; if (v == null) return;
+      const x = xAt(i);
+      d += (started ? ' L' : 'M') + `${x} ${yAt(v)}`;
+      if (firstX == null) firstX = x;
+      lastX = x; started = true;
+    });
+    svg += `<path d="${d}" fill="none" stroke="${s.color}" stroke-width="2"${s.dash ? ' stroke-dasharray="5 4"' : ''}/>`;
+    if (s.area && firstX != null && lastX > firstX) {
+      const base = pad.t + innerH;
+      svg += `<path d="${d} L${lastX} ${base} L${firstX} ${base} Z" fill="${s.color}" opacity="0.07"/>`;
+    }
+    meses.forEach((m,i) => {
+      const v = m[s.key]; if (v == null) return;
+      const x = xAt(i), y = yAt(v);
+      svg += `<circle cx="${x}" cy="${y}" r="3" fill="${s.color}"/>`;
+      svg += `<circle cx="${x}" cy="${y}" r="10" fill="rgba(0,0,0,0)"><title>${s.label} · ${RES_MESES[i]}: ${fmtLabel(v)}</title></circle>`;
+      if (s.labels) svg += `<text x="${x}" y="${y-9}" text-anchor="middle" font-size="9.5" fill="#b9bec7">${fmtLabel(v)}</text>`;
+    });
+  }
+  if (series.length > 1) {
+    let lx = pad.l;
+    for (const s of series) {
+      svg += s.dash
+        ? `<line x1="${lx}" y1="${9}" x2="${lx+14}" y2="${9}" stroke="${s.color}" stroke-width="2" stroke-dasharray="5 4"/>`
+        : `<rect x="${lx}" y="${5}" width="14" height="8" fill="${s.color}" rx="2"/>`;
+      svg += `<text x="${lx+18}" y="${12}" font-size="10" fill="#999">${escapeHtml(s.label)}</text>`;
+      lx += 26 + String(s.label).length * 6;
+    }
+  }
+  svg += '</svg>';
+  return svg;
+}
+
+// Variação % vs ano anterior, comparando SÓ os meses em que o ano atual tem
+// dado (ano parcial compara abr-jul com abr-jul, não com o ano cheio).
+function resDeltaVsPrev(a, prev, key) {
+  if (!a || !prev) return null;
+  let cur = 0, base = 0, n = 0;
+  for (let i = 0; i < 12; i++) {
+    const v = a.meses[i][key]; if (v == null) continue;
+    cur += Number(v); n++;
+    const p = prev.meses[i][key]; if (p != null) base += Number(p);
+  }
+  if (!base || !n) return null;
+  return { pct: ((cur - base) / base) * 100, meses: n };
+}
+
+function resSetAno(v) { state.filters.resAno = v; renderResultados(); }
+function resReload() { state.resultados = null; renderResultados(); }
+
+async function renderResultados() {
+  if (!state.resultados) state.resultados = await api('/api/erp/resultados');
+  const d = state.resultados;
+  const anos = d.anos || [];
+  if (!anos.length) {
+    document.getElementById('page').innerHTML = '<div class="empty"><span class="material-symbols-outlined">monitoring</span><h3>Sem resultados</h3><p>Cadastre fechamentos de leiloes para alimentar esta pagina.</p></div>';
+    return;
+  }
+  const ano = anos.includes(Number(state.filters.resAno)) ? Number(state.filters.resAno) : anos[0];
+  const a = d.porAno[String(ano)];
+  const prev = d.porAno[String(ano - 1)] || null;
+  const fin = d.finance && a.total.receita != null;
+  const delta = resDeltaVsPrev(a, prev, 'vgv');
+  const idxComDado = a.meses.map((m,i) => (m.vgv != null || m.leiloes != null) ? i : null).filter(i => i != null);
+  const parcial = a.fonte === 'fechamentos' && idxComDado.length > 0 && idxComDado.length < 12;
+
+  // série do gráfico principal com overlay do ano anterior
+  const vgvSerie = a.meses.map((m,i) => ({ vgv: m.vgv, vgv_prev: prev ? prev.meses[i].vgv : null }));
+
+  const html = `
+    <div class="page-header">
+      <div>
+        <div class="page-title">Resultados <small>evolucao mensal da operacao</small></div>
+      </div>
+      <div class="page-actions">
+        <select class="table-filter" onchange="resSetAno(this.value)">
+          ${anos.map(y => `<option value="${y}" ${y===ano?'selected':''}>${y}</option>`).join('')}
+        </select>
+        <button class="btn btn-ghost btn-sm" onclick="resReload()"><span class="material-symbols-outlined">refresh</span>Atualizar</button>
+      </div>
+    </div>
+
+    ${parcial ? `<div class="card" style="margin-bottom:18px;display:flex;gap:10px;align-items:center"><span class="material-symbols-outlined" style="color:var(--text3)">info</span><div style="font-size:12px;color:var(--text2)">Acompanhamento no sistema desde <strong>${RES_MESES[idxComDado[0]]}/${ano}</strong> — meses anteriores nao possuem dados; o mes corrente ainda esta em andamento.</div></div>` : ''}
+    ${a.fonte === 'historico' && a.observacao ? `<div class="card" style="margin-bottom:18px;display:flex;gap:10px;align-items:center"><span class="material-symbols-outlined" style="color:var(--text3)">history</span><div style="font-size:12px;color:var(--text2)">Dados consolidados de ${ano} importados do relatorio da equipe. ${escapeHtml(a.observacao)}</div></div>` : ''}
+
+    <div class="kpi-grid">
+      <div class="kpi">
+        <div class="kpi-icon"><span class="material-symbols-outlined">gavel</span></div>
+        <div class="kpi-label">Leiloes</div>
+        <div class="kpi-value">${Number(a.total.leiloes||0).toLocaleString('pt-BR')}</div>
+        <div class="kpi-sub">${a.fonte==='historico' ? 'consolidado do ano' : 'fechamentos registrados'}</div>
+      </div>
+      <div class="kpi info">
+        <div class="kpi-icon"><span class="material-symbols-outlined">paid</span></div>
+        <div class="kpi-label">Venda da Equipe (VGV)</div>
+        <div class="kpi-value money">${fmtBRL(a.total.vgv)}</div>
+        <div class="kpi-sub ${delta ? (delta.pct>=0?'up':'down') : ''}">${delta ? `${delta.pct>=0?'+':''}${delta.pct.toFixed(0)}% vs ${ano-1} (mesmos meses)` : 'cobertura da assessoria'}</div>
+      </div>
+      <div class="kpi">
+        <div class="kpi-icon"><span class="material-symbols-outlined">inventory_2</span></div>
+        <div class="kpi-label">Lotes Vendidos</div>
+        <div class="kpi-value">${Number(a.total.lotes||0).toLocaleString('pt-BR')}</div>
+        <div class="kpi-sub">pela equipe no ano</div>
+      </div>
+      ${a.compradores != null ? `
+      <div class="kpi">
+        <div class="kpi-icon"><span class="material-symbols-outlined">groups</span></div>
+        <div class="kpi-label">Compradores</div>
+        <div class="kpi-value">${Number(a.compradores).toLocaleString('pt-BR')}</div>
+        <div class="kpi-sub">${a.compradores_tipo === 'unicos' ? 'unicos no ano' : 'soma dos unicos por leilao'}</div>
+      </div>` : ''}
+      ${a.vendedores != null ? `
+      <div class="kpi">
+        <div class="kpi-icon"><span class="material-symbols-outlined">storefront</span></div>
+        <div class="kpi-label">Vendedores</div>
+        <div class="kpi-value">${Number(a.vendedores).toLocaleString('pt-BR')}</div>
+        <div class="kpi-sub">unicos no ano</div>
+      </div>` : ''}
+      ${fin ? `
+      <div class="kpi success">
+        <div class="kpi-icon"><span class="material-symbols-outlined">account_balance_wallet</span></div>
+        <div class="kpi-label">Faturamento Bula</div>
+        <div class="kpi-value money">${fmtBRL(a.total.receita)}</div>
+        <div class="kpi-sub">receita da assessoria</div>
+      </div>
+      <div class="kpi ${a.total.lucro_liquido < 0 ? 'danger' : 'success'}">
+        <div class="kpi-icon"><span class="material-symbols-outlined">savings</span></div>
+        <div class="kpi-label">Lucro Liquido (est.)</div>
+        <div class="kpi-value money ${a.total.lucro_liquido<0?'negative':'positive'}">${fmtBRL(a.total.lucro_liquido)}</div>
+        <div class="kpi-sub">receita − comissoes − 18% − desp. var.</div>
+      </div>` : ''}
+    </div>
+
+    <div class="chart-wrap">
+      <div class="chart-header"><div class="chart-title">Venda da equipe por mes${prev ? ` · ${ano} vs ${ano-1}` : ''}</div></div>
+      ${resChart(vgvSerie, { series: [
+        { key:'vgv', color:'#C8A96E', label:String(ano), labels:true, area:true },
+        ...(prev ? [{ key:'vgv_prev', color:'#79808c', label:String(ano-1), dash:true }] : []),
+      ]})}
+    </div>
+
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(340px,1fr));gap:20px">
+      <div class="chart-wrap" style="margin-bottom:0">
+        <div class="chart-header"><div class="chart-title">Lotes vendidos por mes</div></div>
+        ${resChart(a.meses, { money:false, width:460, height:230, series:[{ key:'lotes', color:'#b9c2cc', label:'Lotes', labels:true }] })}
+      </div>
+      <div class="chart-wrap" style="margin-bottom:0">
+        <div class="chart-header"><div class="chart-title">Leiloes por mes</div></div>
+        ${resChart(a.meses, { money:false, width:460, height:230, type:'bar', series:[{ key:'leiloes', color:'#7d8590', label:'Leiloes', labels:true }] })}
+      </div>
+    </div>
+
+    ${fin ? `
+    <div class="chart-wrap" style="margin-top:20px">
+      <div class="chart-header"><div class="chart-title">Faturamento Bula × Lucro liquido (est.) por mes</div></div>
+      ${resChart(a.meses, { series: [
+        { key:'receita', color:'#C8A96E', label:'Faturamento Bula', labels:true },
+        { key:'lucro_liquido', color:'#6B8F5C', label:'Lucro liquido' },
+      ]})}
+    </div>` : ''}
+
+    <div class="table-wrap" style="margin-top:20px">
+      <table>
+        <thead>
+          <tr>
+            <th>Mes</th>
+            <th style="text-align:right">Leiloes</th>
+            <th style="text-align:right">Lotes</th>
+            <th style="text-align:right">Venda da equipe</th>
+            ${fin ? '<th style="text-align:right">Fat. Bula</th><th style="text-align:right">Lucro liq. (est.)</th>' : ''}
+          </tr>
+        </thead>
+        <tbody>
+          ${a.meses.map((m,i) => {
+            const vazio = m.leiloes == null && m.lotes == null && m.vgv == null;
+            const em = '<span style="color:var(--text4)">—</span>';
+            return `<tr${vazio ? ' style="opacity:.45"' : ''}>
+              <td style="text-transform:capitalize">${RES_MESES[i]}</td>
+              <td style="text-align:right">${m.leiloes != null ? m.leiloes : em}</td>
+              <td style="text-align:right">${m.lotes != null ? m.lotes : em}</td>
+              <td class="money" style="text-align:right">${m.vgv != null ? fmtBRL(m.vgv) : em}</td>
+              ${fin ? `<td class="money" style="text-align:right">${m.receita != null ? fmtBRL(m.receita) : em}</td>
+              <td class="money ${Number(m.lucro_liquido)<0?'negative':'positive'}" style="text-align:right">${m.lucro_liquido != null ? fmtBRL(m.lucro_liquido) : em}</td>` : ''}
+            </tr>`;
+          }).join('')}
+          <tr style="font-weight:700;border-top:2px solid var(--border)">
+            <td>Total ${ano}</td>
+            <td style="text-align:right">${Number(a.total.leiloes||0).toLocaleString('pt-BR')}</td>
+            <td style="text-align:right">${Number(a.total.lotes||0).toLocaleString('pt-BR')}</td>
+            <td class="money" style="text-align:right;color:var(--gold)">${fmtBRL(a.total.vgv)}</td>
+            ${fin ? `<td class="money" style="text-align:right">${fmtBRL(a.total.receita)}</td>
+            <td class="money ${a.total.lucro_liquido<0?'negative':'positive'}" style="text-align:right">${fmtBRL(a.total.lucro_liquido)}</td>` : ''}
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  `;
+  document.getElementById('page').innerHTML = html;
 }
 
 async function renderFechamentoLeiloes() {
