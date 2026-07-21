@@ -1368,7 +1368,16 @@ async function renderContas(modo) {
     if (grp==='mes') { const v=r.vencimento; if(!v) return '— sem vencimento —'; const d=new Date(v+'T00:00:00'); return d.toLocaleDateString('pt-BR',{month:'long',year:'numeric'}); }
     return '';
   };
-  const nCols = isCP ? 19 : 18;
+
+  // ---- visão simples (padrão) x completa ----
+  // A tabela completa tem 18-19 colunas e vira scroll infinito; o dia a dia
+  // precisa de: o que é, de quem, quando vence, quanto falta. O resto fica na
+  // visão completa (persistida por usuário) e no drawer do título.
+  const simples = (localStorage.getItem('erpContasView') || 'simples') === 'simples';
+  const nCols = simples ? 9 : (isCP ? 19 : 18);
+  // filtros avançados recolhidos por padrão; abrem sozinhos se algum está ativo
+  const nAdv = [fParc, fCat, state.filters.leilao, state.filters.centro_custo_id, state.filters.from, state.filters.to, grp].filter(Boolean).length;
+  const filtrosOpen = state.filters.contasFiltrosOpen != null ? state.filters.contasFiltrosOpen : nAdv > 0;
 
   // ---- paginação (client-side) ----
   const PAGE_SIZE = 50;
@@ -1391,6 +1400,27 @@ async function renderContas(modo) {
     const liquido = Number(r.valor||0) - Number(r.desconto||0) + Number(r.juros||0) + Number(r.multa||0);
     const ultimo = isCP ? r.data_pagamento : r.data_recebimento;
     const na = '<span style="color:var(--text3)">—</span>';
+    if (simples) return `
+      <tr class="${state.contasSel.has(r.id)?'selected':''}" style="cursor:pointer" onclick="if(!event.target.closest('input,button,select,a'))openTituloDrawer('${modo}','${r.id}')">
+        <td class="sel-cell"><input type="checkbox" ${state.contasSel.has(r.id)?'checked':''} onchange="toggleSelConta('${r.id}',this.checked)"></td>
+        <td>${statusChip(r.status)}</td>
+        <td>
+          <div style="font-weight:600;white-space:normal;min-width:180px">${escapeHtml(r.descricao)}</div>
+          ${r.numero_documento?`<div style="font-size:10px;color:var(--text3)">Doc: ${escapeHtml(r.numero_documento)}</div>`:''}
+        </td>
+        <td>${escapeHtml(parceiro(r) || '--')}</td>
+        <td style="white-space:nowrap">${fmtDate(r.vencimento)}${atraso?`<div>${atraso}</div>`:''}</td>
+        <td style="text-align:right" class="money">${fmtBRL(r.valor)}</td>
+        <td style="text-align:right" class="money ${isOpen(r)&&rest>0?(isCP?'negative':'positive'):''}">${isOpen(r)?fmtBRL(rest):na}</td>
+        <td>${r.categoria?`<span class="chip" style="background:${r.categoria.cor}22;color:${r.categoria.cor}">${escapeHtml(r.categoria.nome)}</span>`:'--'}</td>
+        <td>
+          <div class="row-actions">
+            ${isOpen(r) ? `<button class="icon-btn" title="Registrar ${isCP?'pagamento':'recebimento'}" onclick="openPagamento('${modo}','${r.id}')"><span class="material-symbols-outlined">attach_money</span></button>` : ''}
+            <button class="icon-btn" title="Editar" onclick="openTitulo('${modo}','${r.id}')"><span class="material-symbols-outlined">edit</span></button>
+            <button class="icon-btn" title="Excluir" onclick="deleteTitulo('${modo}','${r.id}')"><span class="material-symbols-outlined">delete</span></button>
+          </div>
+        </td>
+      </tr>`;
     return `
       <tr class="${state.contasSel.has(r.id)?'selected':''}" style="cursor:pointer" onclick="if(!event.target.closest('input,button,select,a'))openTituloDrawer('${modo}','${r.id}')">
         <td class="sel-cell"><input type="checkbox" ${state.contasSel.has(r.id)?'checked':''} onchange="toggleSelConta('${r.id}',this.checked)"></td>
@@ -1516,6 +1546,25 @@ async function renderContas(modo) {
           <option value="vencido" ${state.filters.status==='vencido'?'selected':''}>Vencido</option>
           <option value="${isCP?'pago':'recebido'}" ${state.filters.status===(isCP?'pago':'recebido')?'selected':''}>${isCP?'Pago':'Recebido'}</option>
         </select>
+        <select class="table-filter" onchange="onVencPreset(this.value)" title="Período de vencimento">
+          <option value="">Período…</option>
+          <option value="overdue">Vencidos</option>
+          <option value="today">Vence hoje</option>
+          <option value="week">Próximos 7 dias</option>
+          <option value="month">Este mês</option>
+          <option value="30">Próximos 30 dias</option>
+          <option value="year">Este ano</option>
+        </select>
+        <button class="btn btn-ghost btn-sm ${filtrosOpen?'':''}" onclick="toggleContasFiltros()" title="Mais filtros">
+          <span class="material-symbols-outlined">tune</span>Filtros${nAdv?` (${nAdv})`:''}
+        </button>
+        <button class="btn btn-ghost btn-sm" onclick="setContasView('${simples?'completa':'simples'}')" title="${simples?'Mostrar todas as colunas (NF, parcela, centro de custo, observações...)':'Voltar à visão resumida'}">
+          <span class="material-symbols-outlined">${simples?'view_column':'view_agenda'}</span>${simples?'Visão completa':'Visão simples'}
+        </button>
+        ${hasFiltros ? `<button class="btn btn-ghost" onclick="limparFiltros()" title="Limpar filtros"><span class="material-symbols-outlined">filter_alt_off</span>Limpar</button>` : ''}
+      </div>
+      ${filtrosOpen ? `
+      <div class="table-toolbar" style="flex-wrap:wrap;gap:8px;align-items:center;border-top:1px dashed var(--border)">
         <select class="table-filter" onchange="onFilterParceiro(this.value)" title="${isCP?'Fornecedor':'Cliente'}">
           <option value="">${isCP?'Todos os fornecedores':'Todos os clientes'}</option>
           ${parcOpts.map(([id,nome])=>`<option value="${id}" ${fParc===id?'selected':''}>${escapeHtml(nome)}</option>`).join('')}
@@ -1530,15 +1579,6 @@ async function renderContas(modo) {
           <option value="">Todos os centros de custo</option>
           ${state.centros.map(c=>`<option value="${c.id}" ${state.filters.centro_custo_id===c.id?'selected':''}>${c.codigo} - ${escapeHtml(c.nome)}</option>`).join('')}
         </select>` : ''}
-        <select class="table-filter" onchange="onVencPreset(this.value)" title="Período de vencimento">
-          <option value="">Período…</option>
-          <option value="overdue">Vencidos</option>
-          <option value="today">Vence hoje</option>
-          <option value="week">Próximos 7 dias</option>
-          <option value="month">Este mês</option>
-          <option value="30">Próximos 30 dias</option>
-          <option value="year">Este ano</option>
-        </select>
         <label class="table-filter" style="display:flex;align-items:center;gap:4px">Venc. de <input type="date" value="${state.filters.from||''}" onchange="onFilterDataDe(this.value)" style="border:0;background:transparent;color:inherit"></label>
         <label class="table-filter" style="display:flex;align-items:center;gap:4px">até <input type="date" value="${state.filters.to||''}" onchange="onFilterDataAte(this.value)" style="border:0;background:transparent;color:inherit"></label>
         <select class="table-filter" onchange="onGroupBy(this.value)" title="Agrupar">
@@ -1547,8 +1587,7 @@ async function renderContas(modo) {
           <option value="categoria" ${grp==='categoria'?'selected':''}>Agrupar por categoria</option>
           <option value="mes" ${grp==='mes'?'selected':''}>Agrupar por mês</option>
         </select>
-        ${hasFiltros ? `<button class="btn btn-ghost" onclick="limparFiltros()" title="Limpar filtros"><span class="material-symbols-outlined">filter_alt_off</span>Limpar</button>` : ''}
-      </div>
+      </div>` : ''}
       ${selCount>0 ? `
       <div class="bulk-bar">
         <span class="bulk-info">${selCount} selecionado${selCount>1?'s':''} <small>· restante ${fmtBRL(selTotal)}</small></span>
@@ -1561,6 +1600,18 @@ async function renderContas(modo) {
       <div class="statement-scroll">
       <table>
         <thead>
+          ${simples ? `
+          <tr>
+            <th class="sel-cell"><input type="checkbox" ${allSel?'checked':''} onchange="toggleSelAllContas('${modo}',this.checked)"></th>
+            ${th('status','Situação')}
+            ${th('descricao','Descrição')}
+            ${th('parceiro',isCP?'Fornecedor':'Cliente')}
+            ${th('vencimento','Vencimento')}
+            ${th('valor','Valor','style="text-align:right"')}
+            ${th('restante','Restante','style="text-align:right"')}
+            ${th('categoria','Categoria')}
+            <th></th>
+          </tr>` : `
           <tr>
             <th class="sel-cell"><input type="checkbox" ${allSel?'checked':''} onchange="toggleSelAllContas('${modo}',this.checked)"></th>
             ${th('status','Situação')}
@@ -1581,17 +1632,24 @@ async function renderContas(modo) {
             <th>Observações</th>
             <th>Conta Corrente</th>
             <th></th>
-          </tr>
+          </tr>`}
         </thead>
         <tbody>${bodyRows}</tbody>
         <tfoot>
+          ${simples ? `
+          <tr class="table-foot">
+            <td colspan="5" style="text-align:right">Totais (${list.length})</td>
+            <td style="text-align:right" class="money">${fmtBRL(totalFiltro)}</td>
+            <td style="text-align:right" class="money">${fmtBRL(list.filter(isOpen).reduce((s,r)=>s+calcRestante(r),0))}</td>
+            <td colspan="2"></td>
+          </tr>` : `
           <tr class="table-foot">
             <td colspan="9" style="text-align:right">Totais (${list.length})</td>
             <td style="text-align:right" class="money">${fmtBRL(totalFiltro)}</td>
             <td style="text-align:right" class="money">${fmtBRL(list.reduce((s,r)=>s+Number(r.valor||0)-Number(r.desconto||0)+Number(r.juros||0)+Number(r.multa||0),0))}</td>
             <td style="text-align:right" class="money">${fmtBRL(list.filter(isOpen).reduce((s,r)=>s+calcRestante(r),0))}</td>
             <td colspan="${nCols-12}"></td>
-          </tr>
+          </tr>`}
         </tfoot>
       </table>
       </div>
@@ -1604,6 +1662,13 @@ async function renderContas(modo) {
 
 function contasGoPage(modo, p){ state.contasPage = state.contasPage||{}; state.contasPage[modo] = p; render(); }
 function resetContasPage(){ state.contasPage = {}; }
+function setContasView(v){ localStorage.setItem('erpContasView', v); render(); }
+function toggleContasFiltros(){
+  const nAdv = [state.filters.parceiro_id, state.filters.categoria_id, state.filters.leilao, state.filters.centro_custo_id, state.filters.from, state.filters.to, state.filters.groupBy].filter(Boolean).length;
+  const atual = state.filters.contasFiltrosOpen != null ? state.filters.contasFiltrosOpen : nAdv > 0;
+  state.filters.contasFiltrosOpen = !atual;
+  render();
+}
 
 function statusChip(s) {
   const map = {
@@ -5431,17 +5496,64 @@ function coExportCSV() {
    FOLHA & COMISSOES
    ========================================================================== */
 // Estrutura fixa (aba "Folha & Comissoes" do workbook FINANCEIRO BULA 2026).
-const FOLHA_ESTRUTURA = [
-  { nome:'Fabio Omenna',  funcao:'Assessor Comercial',      fixo:11700, comissao:'3,00%' },
-  { nome:'Douglas Bispo', funcao:'Assessor Comercial',      fixo:3600,  comissao:'2,00%' },
-  { nome:'Leonardo',      funcao:'Assessor Tecnico',        fixo:13500, comissao:'2,00%' },
-  { nome:'Gustavo Rusa',  funcao:'Parceiro',                fixo:0,     comissao:'5,00%' },
-  { nome:'Joao Eduardo',  funcao:'Tecnologia e Financeiro', fixo:3000,  comissao:'—' },
-  { nome:'Joao Gabriel',  funcao:'Marketing',               fixo:2000,  comissao:'—' },
-  { nome:'Joao Antonio',  funcao:'SDR',                     fixo:2000,  comissao:'+ R$ 2.000 (SDR)' },
-];
+/* Estrutura de folha & comissões: cadastro canônico em erp_folha_estrutura
+   (migration 0056). Edição restrita a finance-admin (API devolve 403). */
+const folhaComissaoLabel = (e) => {
+  const parts = [];
+  if (e.comissao_pct != null && Number(e.comissao_pct) > 0)
+    parts.push(Number(e.comissao_pct).toLocaleString('pt-BR', { minimumFractionDigits:2, maximumFractionDigits:2 }) + '%');
+  if (e.comissao_fixa != null && Number(e.comissao_fixa) > 0)
+    parts.push((parts.length ? '+ ' : '') + fmtBRL(e.comissao_fixa) + '/mês');
+  return parts.length ? parts.join(' ') : '—';
+};
+
+function openFolhaPessoa(id) {
+  const e = id ? (state.folhaEstrutura||[]).find(x => x.id === id) : null;
+  const html = `
+    <div class="modal-header"><div class="modal-title">${id?'Editar':'Novo'} colaborador</div><button class="icon-btn" onclick="closeModal()"><span class="material-symbols-outlined">close</span></button></div>
+    <div class="modal-body">
+      <form id="formFolhaPessoa" class="form-grid">
+        <div class="field"><label>Nome*</label><input name="nome" required value="${escapeHtml(e?.nome||'')}"></div>
+        <div class="field"><label>Funcao</label><input name="funcao" value="${escapeHtml(e?.funcao||'')}" placeholder="Assessor Comercial, SDR..."></div>
+        <div class="field"><label>Salario fixo (R$/mes)</label><input name="salario_fixo" type="number" step="0.01" min="0" value="${e?.salario_fixo??0}"></div>
+        <div class="field"><label>Comissao (%)</label><input name="comissao_pct" type="number" step="0.01" min="0" value="${e?.comissao_pct??''}" placeholder="ex: 3"></div>
+        <div class="field"><label>Comissao fixa (R$/mes)</label><input name="comissao_fixa" type="number" step="0.01" min="0" value="${e?.comissao_fixa??''}" placeholder="ex: 2000 (SDR)"></div>
+        <div class="field"><label>Ativo</label><select name="ativo"><option value="true" ${e?.ativo!==false?'selected':''}>Sim</option><option value="false" ${e?.ativo===false?'selected':''}>Nao</option></select></div>
+        <div class="field" style="grid-column:1/-1"><label>Observacao</label><input name="observacao" value="${escapeHtml(e?.observacao||'')}"></div>
+      </form>
+      <div style="font-size:10px;color:var(--text3);margin-top:8px">Alterações aqui NÃO mudam títulos já lançados — para reprojetar a folha do ano, rode scripts/projeta-folha-fixa-2026.mjs de novo (idempotente: só cria o que falta).</div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn" onclick="closeModal()">Cancelar</button>
+      <button class="btn btn-primary" onclick="saveFolhaPessoa('${id||''}')"><span class="material-symbols-outlined">save</span>Salvar</button>
+    </div>`;
+  openModal(html);
+}
+async function saveFolhaPessoa(id) {
+  const data = Object.fromEntries(new FormData(document.getElementById('formFolhaPessoa')));
+  data.salario_fixo = Number(data.salario_fixo||0);
+  data.comissao_pct = data.comissao_pct === '' ? null : Number(data.comissao_pct);
+  data.comissao_fixa = data.comissao_fixa === '' ? null : Number(data.comissao_fixa);
+  data.ativo = data.ativo === 'true';
+  try {
+    if (id) await api(`/api/erp/folha-estrutura/${id}`, { method:'PATCH', body:JSON.stringify(data) });
+    else await api('/api/erp/folha-estrutura', { method:'POST', body:JSON.stringify(data) });
+    state.folhaEstrutura = null;
+    closeModal(); toast('Salvo','success'); render();
+  } catch (e) { toast(e.message,'error'); }
+}
+async function deleteFolhaPessoa(id) {
+  if (!await confirmAction('Excluir este colaborador da estrutura? (Nao afeta titulos ja lancados.)')) return;
+  try {
+    await api(`/api/erp/folha-estrutura/${id}`, { method:'DELETE' });
+    state.folhaEstrutura = null; toast('Excluido','success'); render();
+  } catch (e) { toast(e.message,'error'); }
+}
 
 async function renderFolha() {
+  if (!state.folhaEstrutura) state.folhaEstrutura = await api('/api/erp/folha-estrutura');
+  const estrutura = state.folhaEstrutura || [];
+  const ativos = estrutura.filter(e => e.ativo !== false);
   const cps = await api('/api/erp/contas-pagar');
   const isFolha = (r) => /^folha/i.test(r.descricao||'') || /folha/i.test(r.categoria?.nome||'');
   const isComissao = (r) => /comiss[aã]o/i.test(r.descricao||'') || /comiss[aã]o/i.test(r.categoria?.nome||'');
@@ -5457,10 +5569,11 @@ async function renderFolha() {
   for (const r of folha) { const k = mesLabel(r); (byMes[k] = byMes[k] || []).push(r); }
   const meses = Object.entries(byMes).sort((a,b)=> (b[1][0].vencimento||'').localeCompare(a[1][0].vencimento||''));
 
-  const totalFixo = FOLHA_ESTRUTURA.reduce((s,e)=>s+e.fixo,0);
-  const headcount = FOLHA_ESTRUTURA.filter(e=>e.fixo>0).length;
+  const totalFixo = ativos.reduce((s,e)=>s+Number(e.salario_fixo||0),0);
+  const headcount = ativos.filter(e=>Number(e.salario_fixo)>0).length;
   const comAberto = comissoes.filter(r=>['aberto','vencido','parcial'].includes(r.status)).reduce((s,r)=>s+Number(r.valor||0),0);
   const comTotal = comissoes.reduce((s,r)=>s+Number(r.valor||0),0);
+  const folhaAberta = folha.filter(r=>['aberto','vencido','parcial'].includes(r.status)).reduce((s,r)=>s+Number(r.valor||0),0);
   const stChip = (s)=> ({pago:'success',recebido:'success',aberto:'muted',vencido:'danger',parcial:'warn'}[s]||'muted');
 
   const html = `
@@ -5477,25 +5590,35 @@ async function renderFolha() {
         <div class="kpi-label">Comissoes a Pagar</div><div class="kpi-value money">${fmtBRL(comAberto)}</div></div>
       <div class="kpi"><div class="kpi-icon"><span class="material-symbols-outlined">payments</span></div>
         <div class="kpi-label">Comissoes (total lancado)</div><div class="kpi-value money">${fmtBRL(comTotal)}</div></div>
+      <div class="kpi info"><div class="kpi-icon"><span class="material-symbols-outlined">event_upcoming</span></div>
+        <div class="kpi-label">Folha em aberto (projetada)</div><div class="kpi-value money">${fmtBRL(folhaAberta)}</div>
+        <div class="kpi-sub">titulos de folha abertos ate dez/2026</div></div>
     </div>
 
     <div class="card" style="margin-top:16px">
-      <div class="card-title"><span class="material-symbols-outlined">diversity_3</span>Estrutura de Folha &amp; Comissoes</div>
-      <div class="table-wrap">
+      <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px">
+        <div class="card-title" style="margin:0"><span class="material-symbols-outlined">diversity_3</span>Estrutura de Folha &amp; Comissoes</div>
+        <button class="btn btn-ghost btn-sm" onclick="openFolhaPessoa('')"><span class="material-symbols-outlined">person_add</span>Novo colaborador</button>
+      </div>
+      <div class="table-wrap" style="margin-top:10px">
         <table>
-          <thead><tr><th>Colaborador</th><th>Funcao</th><th style="text-align:right">Salario Fixo</th><th style="text-align:right">Comissao</th></tr></thead>
+          <thead><tr><th>Colaborador</th><th>Funcao</th><th style="text-align:right">Salario Fixo</th><th style="text-align:right">Comissao</th><th></th></tr></thead>
           <tbody>
-            ${FOLHA_ESTRUTURA.map(e=>`<tr>
-              <td style="font-weight:600">${escapeHtml(e.nome)}</td>
-              <td style="color:var(--text2)">${escapeHtml(e.funcao)}</td>
-              <td class="money" style="text-align:right">${e.fixo?fmtBRL(e.fixo):'<span style="color:var(--text4)">—</span>'}</td>
-              <td style="text-align:right;color:var(--gold);font-weight:600">${escapeHtml(e.comissao)}</td>
+            ${estrutura.map(e=>`<tr${e.ativo===false?' style="opacity:.45"':''}>
+              <td style="font-weight:600">${escapeHtml(e.nome)}${e.ativo===false?' <span class="chip muted" style="padding:1px 7px">inativo</span>':''}${e.observacao?`<div style="font-size:10px;color:var(--text3);font-weight:400">${escapeHtml(e.observacao)}</div>`:''}</td>
+              <td style="color:var(--text2)">${escapeHtml(e.funcao||'—')}</td>
+              <td class="money" style="text-align:right">${Number(e.salario_fixo)>0?fmtBRL(e.salario_fixo):'<span style="color:var(--text4)">—</span>'}</td>
+              <td style="text-align:right;color:var(--gold);font-weight:600">${folhaComissaoLabel(e)}</td>
+              <td style="white-space:nowrap;text-align:right">
+                <button class="icon-btn" title="Editar" onclick="openFolhaPessoa('${e.id}')"><span class="material-symbols-outlined">edit</span></button>
+                <button class="icon-btn" title="Excluir" onclick="deleteFolhaPessoa('${e.id}')"><span class="material-symbols-outlined">delete</span></button>
+              </td>
             </tr>`).join('')}
           </tbody>
-          <tfoot><tr style="font-weight:700;border-top:2px solid var(--border2)"><td colspan="2">Total folha fixa</td><td class="money" style="text-align:right">${fmtBRL(totalFixo)}</td><td></td></tr></tfoot>
+          <tfoot><tr style="font-weight:700;border-top:2px solid var(--border2)"><td colspan="2">Total folha fixa (ativos)</td><td class="money" style="text-align:right">${fmtBRL(totalFixo)}</td><td colspan="2"></td></tr></tfoot>
         </table>
       </div>
-      <div style="font-size:10px;color:var(--text3);margin-top:6px">Fixo (folha) + variavel (% comissao) sao despesas separadas: a base do % nao e o VGV do fechamento. Gustavo Rusa e parceiro (so comissao).</div>
+      <div style="font-size:10px;color:var(--text3);margin-top:6px">Fixo (folha) + variavel (% comissao) sao despesas separadas: a base do % nao e o VGV do fechamento. Gustavo Rusa e parceiro (so comissao). Edicao restrita a diretoria (finance-admin).</div>
     </div>
 
     <div class="card" style="margin-top:16px">
