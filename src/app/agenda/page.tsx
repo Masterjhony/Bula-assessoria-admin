@@ -53,7 +53,6 @@ export default async function AgendaPage() {
                 <HeroVideo src={HERO_VIDEO} />
                 <div style={{ position: 'absolute', inset: 0, background: 'rgba(10,10,10,0.55)' }} />
                 <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(180deg,rgba(10,10,10,0.55) 0%,rgba(10,10,10,0.12) 36%,rgba(10,10,10,0.5) 66%,rgba(10,10,10,0.96) 100%)' }} />
-                <div style={{ position: 'absolute', inset: 0, opacity: 0.5, backgroundImage: 'repeating-linear-gradient(135deg,rgba(255,255,255,0.03) 0px,rgba(255,255,255,0.03) 1px,transparent 1px,transparent 7px)' }} />
 
                 <div style={{ position: 'relative', zIndex: 10, width: '100%', maxWidth: '1280px', margin: '0 auto', padding: 'clamp(28px,5vw,64px) clamp(20px,5vw,64px) clamp(40px,6vw,80px)' }}>
                     <div style={{ display: 'flex', alignItems: 'center', gap: '14px', marginBottom: '22px' }}>
