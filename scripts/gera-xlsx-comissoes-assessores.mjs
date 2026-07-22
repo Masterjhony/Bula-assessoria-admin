@@ -42,6 +42,7 @@ const ALIASES = {
   'LEO': 'Leonardo Serafim',
   'MARCELO CARNEIRO / LEONARDO SERAFIM': 'Leonardo Serafim',
   'LM ASSESSORIA': 'Leonardo Serafim',
+  'MATEUS ALVES': 'Matheus Alves',
   'BULINHA (FELIPE ANDRADE)': 'Bulinha (Felipe Andrade)',
   'FELIPE VILELA ANDRADE (BULINHA)': 'Bulinha (Felipe Andrade)',
   'NAO INFORMADO': 'Não informado',

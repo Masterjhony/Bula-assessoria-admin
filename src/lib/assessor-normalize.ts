@@ -33,6 +33,8 @@ const CANONICAL_BY_KEY: ReadonlyMap<string, string> = new Map([
   ['marcelo carneiro leonardo serafim', 'Leonardo Serafim'],
   // LM Assessoria = empresa do Leonardo (pagamentos podem sair nesse nome)
   ['lm assessoria', 'Leonardo Serafim'],
+  // Grafia unificada (tabela de percentuais do chefe 22/07 usa "Matheus")
+  ['mateus alves', 'Matheus Alves'],
   // Bulinha (Felipe Andrade) — várias grafias com/sem "Vilela"
   ['bulinha', 'Bulinha (Felipe Andrade)'],
   ['felipe andrade', 'Bulinha (Felipe Andrade)'],

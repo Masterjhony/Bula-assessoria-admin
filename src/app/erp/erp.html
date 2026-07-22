@@ -5515,6 +5515,8 @@ const CO_CANONICO = {
   'MARCELO CARNEIRO LEONARDO SERAFIM':'Leonardo Serafim',
   // LM Assessoria = empresa do Leonardo (pagamentos podem sair nesse nome)
   'LM ASSESSORIA':'Leonardo Serafim',
+  // Grafia unificada (tabela de percentuais do chefe 22/07 usa "Matheus")
+  'MATEUS ALVES':'Matheus Alves',
 };
 const coCanonNome = (s) => CO_CANONICO[coKey(s)] || String(s||'').trim();
 const coNorm = s => coKey(coCanonNome(s));
