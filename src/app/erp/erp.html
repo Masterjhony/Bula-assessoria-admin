@@ -5732,7 +5732,10 @@ async function renderComissionamento() {
         <tbody>
           ${assessores.map((a,i)=>{
             const aberto = saldoGlobal.get(a.key) || 0;
-            const mostraAberto = temFiltroPeriodo && aberto > a.comissao + 0.01;
+            /* Só quando o filtro zera a linha mas a pessoa TEM saldo em aberto
+               em outro período (ex.: Rusa em junho — tudo quitado no acerto,
+               mas 17.400 em aberto de julho). Evita poluir quem já mostra valor. */
+            const mostraAberto = temFiltroPeriodo && aberto > 0.01 && a.comissao <= 0.01;
             return `
             <tr style="cursor:pointer" onclick="coOpenDetail(${i})">
               <td style="font-weight:600">${escapeHtml(a.nome)}${a.apelidos.length?`<div style="font-size:10px;color:var(--text3);font-weight:400" title="Grafias unificadas dos fechamentos">inclui: ${a.apelidos.map(escapeHtml).join(', ')}</div>`:''}</td>
