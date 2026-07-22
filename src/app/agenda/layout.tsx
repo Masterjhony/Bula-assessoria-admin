@@ -58,6 +58,9 @@ export default function AgendaLayout({ children }: { children: React.ReactNode }
                         <Link href="/leiloes#contato" className="agenda-nav-link hidden sm:inline" style={{ fontFamily: "'Inter',sans-serif", fontSize: '11px', fontWeight: 500, letterSpacing: '0.2em', textTransform: 'uppercase', color: 'rgba(255,255,255,0.6)' }}>
                             Contato
                         </Link>
+                        <Link href="/habilitacao" className="agenda-nav-link hidden sm:inline" style={{ fontFamily: "'Inter',sans-serif", fontSize: '11px', fontWeight: 600, letterSpacing: '0.2em', textTransform: 'uppercase', color: '#C9A84C' }}>
+                            Habilite-se
+                        </Link>
                         <a
                             href={WHATSAPP_CTA_URL}
                             target="_blank"
@@ -125,6 +128,12 @@ export default function AgendaLayout({ children }: { children: React.ReactNode }
                                 <Link href="/leiloes#agenda" className="inline-flex items-center gap-2 transition-colors hover:text-[#C9A84C]">
                                     <ArrowRight className="h-4 w-4 text-white/35" />
                                     Próximos leilões
+                                </Link>
+                            </li>
+                            <li>
+                                <Link href="/habilitacao" className="inline-flex items-center gap-2 transition-colors hover:text-[#C9A84C]">
+                                    <ArrowRight className="h-4 w-4 text-white/35" />
+                                    Habilite-se para comprar
                                 </Link>
                             </li>
                         </ul>
