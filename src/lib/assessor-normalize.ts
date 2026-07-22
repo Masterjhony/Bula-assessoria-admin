@@ -29,6 +29,8 @@ const CANONICAL_BY_KEY: ReadonlyMap<string, string> = new Map([
   ['leo', 'Leonardo Serafim'],
   ['leo serafim', 'Leonardo Serafim'],
   ['leonardo', 'Leonardo Serafim'],
+  // Dupla extinta: comissões passaram integralmente ao Leonardo (chefe, 22/07/2026)
+  ['marcelo carneiro leonardo serafim', 'Leonardo Serafim'],
   // Bulinha (Felipe Andrade) — várias grafias com/sem "Vilela"
   ['bulinha', 'Bulinha (Felipe Andrade)'],
   ['felipe andrade', 'Bulinha (Felipe Andrade)'],
