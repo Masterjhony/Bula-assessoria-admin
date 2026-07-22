@@ -55,6 +55,7 @@ import {
 import { notifyTeamGroup } from './whatsapp-team-notify'
 import { ufFromPhone, normalizeUf } from './state-registration-provider'
 import { sincronizarHabilitacao } from './crm-habilitacao-sync'
+import { parseRetomadaDueAt } from './followup-schedule'
 import {
     CRM_STAGE_CONNECTION,
     CRM_STAGE_QUALIFICATION,
@@ -1176,9 +1177,21 @@ async function applyConciergeEffects(
         const v = u[k]
         if (v !== undefined && v !== null && v !== '') nextExtra[k] = v
     }
-    // "Quando-então": janela combinada vira timestamp p/ o follow-up saber a hora.
+    // O lead respondeu nesta rodada (applyConciergeEffects só roda em turno do
+    // lead) → um callback agendado antes perdeu o sentido: ele voltou à conversa.
+    // Reabre logo abaixo se ESTA mesma resposta trouxe uma nova promessa.
+    if (prevExtra.followup_due_at != null) nextExtra.followup_due_at = null
+
+    // "Quando-então": janela combinada vira timestamp p/ o follow-up saber a hora,
+    // e uma DATA concreta (followup_due_at) p/ o cron de callback disparar o
+    // template de reabertura quando a janela de 24h já tiver fechado.
     if (typeof u.retomada_combinada === 'string' && u.retomada_combinada.trim()) {
         nextExtra.retomada_combinada_at = new Date().toISOString()
+        const due = parseRetomadaDueAt(u.retomada_combinada, new Date().toISOString())
+        if (due) {
+            nextExtra.followup_due_at = due
+            delete nextExtra.followup_sent_at // nova promessa reabre o agendamento
+        }
     }
 
     // Marcos do funil consultivo (alimentam a FASE da próxima mensagem).
