@@ -7,7 +7,7 @@ const DIACRITICS_RE = /[\u0300-\u036f]/g
 const stripDiacritics = (s: string) =>
   s.normalize('NFD').replace(DIACRITICS_RE, '')
 
-const assessorKey = (s: string) =>
+export const assessorKey = (s: string) =>
   stripDiacritics(s)
     .toLowerCase()
     .replace(/[^a-z0-9]+/g, ' ')

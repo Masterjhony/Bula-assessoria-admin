@@ -16,9 +16,33 @@
 
 import type { SupabaseClient } from '@supabase/supabase-js'
 import { comissaoPctAssessor } from './assessor-comissao'
+import { assessorKey } from './assessor-normalize'
 
 const PARCELAS = 30
 const EMPRESA = 'Bula Assessoria'
+
+type EquipeInfo = { pct: number | null; empresa: string | null }
+
+/** Cadastro de EQUIPE (erp_folha_estrutura): % fixo e empresa por nome/apelido.
+ *  Fallback (pessoa fora do cadastro): tabela fixa do código (assessor-comissao). */
+async function loadEquipeMap(sb: SupabaseClient): Promise<Map<string, EquipeInfo>> {
+    const map = new Map<string, EquipeInfo>()
+    const { data } = await sb.from('erp_folha_estrutura')
+        .select('nome, apelidos, comissao_pct, empresa, ativo')
+    for (const e of data ?? []) {
+        if (e.ativo === false) continue
+        const info: EquipeInfo = {
+            pct: e.comissao_pct != null ? Number(e.comissao_pct) / 100 : null,
+            empresa: (e.empresa as string) || null,
+        }
+        const nomes = [e.nome as string, ...((e.apelidos as string[]) ?? [])]
+        for (const nm of nomes) {
+            const k = assessorKey(String(nm || ''))
+            if (k) map.set(k, info)
+        }
+    }
+    return map
+}
 
 const r2 = (n: number) => Math.round(n * 100) / 100
 
@@ -70,10 +94,12 @@ export async function rebuildFechamentoFromLances(
         cur.transacoes += 1; cur.animais += l.animais; cur.vgv += l.vgv
         byA.set(l.assessor, cur)
     }
+    const equipe = await loadEquipeMap(sb)
     const por_assessor = [...byA.values()].sort((a, b) => b.vgv - a.vgv).map((a, i) => {
-        const pct = comissaoPctAssessor(a.nome)
+        const info = equipe.get(assessorKey(a.nome))
+        const pct = info?.pct ?? comissaoPctAssessor(a.nome)
         return {
-            posicao: i + 1, nome: a.nome, empresa: EMPRESA, transacoes: a.transacoes, animais: a.animais,
+            posicao: i + 1, nome: a.nome, empresa: info?.empresa || EMPRESA, transacoes: a.transacoes, animais: a.animais,
             vgv: r2(a.vgv), ticket_medio: Math.round(a.vgv / a.animais), pct_total: r2(a.vgv / vgv_total * 100) / 100,
             comissao_pct: pct, comissao: r2(a.vgv * pct),
         }

@@ -493,6 +493,7 @@ svg.chart { width:100%; height:100%; display:block; }
     <div class="sidebar-item" data-page="balanco"><span class="material-symbols-outlined">balance</span><span>Balanco</span></div>
 
     <div class="sidebar-section">Cadastros</div>
+    <div class="sidebar-item" data-page="equipe"><span class="material-symbols-outlined">diversity_3</span><span>Equipe</span></div>
     <div class="sidebar-item" data-page="clientes"><span class="material-symbols-outlined">groups</span><span>Clientes</span></div>
     <div class="sidebar-item" data-page="fornecedores"><span class="material-symbols-outlined">local_shipping</span><span>Fornecedores</span></div>
     <div class="sidebar-item" data-page="categorias"><span class="material-symbols-outlined">sell</span><span>Categorias</span></div>
@@ -790,6 +791,7 @@ async function render() {
     if (state.page === 'acordos_comerciais') return renderAcordosComerciais();
     if (state.page === 'comissionamento') return renderComissionamento();
     if (state.page === 'folha') return renderFolha();
+    if (state.page === 'equipe') return renderEquipe();
   } catch (e) {
     page.innerHTML = `<div class="card" style="text-align:center"><span class="material-symbols-outlined" style="font-size:36px;color:var(--red)">error</span><h3 style="margin:8px 0">Erro ao carregar</h3><p style="color:var(--text3);font-size:12px">${escapeHtml(e.message)}</p></div>`;
   }
@@ -5518,7 +5520,25 @@ const CO_CANONICO = {
   // Grafia unificada (tabela de percentuais do chefe 22/07 usa "Matheus")
   'MATEUS ALVES':'Matheus Alves',
 };
-const coCanonNome = (s) => CO_CANONICO[coKey(s)] || String(s||'').trim();
+/* Aliases dinâmicos do cadastro de EQUIPE (erp_folha_estrutura.apelidos):
+   apelido normalizado -> nome de exibição (1º apelido, senão o nome do
+   cadastro) e empresa fixa. Complementa o CO_CANONICO hardcoded. */
+function coEquipeMaps() {
+  if (state._eqMaps) return state._eqMaps;
+  const alias = {}, empresa = {};
+  for (const e of state.folhaEstrutura || []) {
+    const display = (e.apelidos && e.apelidos[0]) || e.nome;
+    for (const nm of [e.nome, ...(e.apelidos || [])]) {
+      const k = coKey(nm);
+      if (k) alias[k] = display;
+    }
+    if (e.empresa) empresa[coKey(display)] = e.empresa;
+  }
+  state._eqMaps = { alias, empresa };
+  return state._eqMaps;
+}
+const coCanonNome = (s) => coEquipeMaps().alias[coKey(s)] || CO_CANONICO[coKey(s)] || String(s||'').trim();
+const coEmpresaFixa = (nomeCanon) => coEquipeMaps().empresa[coKey(nomeCanon)] || null;
 const coNorm = s => coKey(coCanonNome(s));
 const CO_EMPRESAS = { 'FORMULA DO BOI':'Fórmula do Boi', 'BULA ASSESSORIA':'Bula Assessoria', 'BULA REMATES':'Bula Remates' };
 const coEmpresa = (e) => CO_EMPRESAS[coKey(e)] || String(e||'').trim();
@@ -5549,7 +5569,9 @@ function coAggregate() {
       let rec = map.get(key);
       if (!rec) { rec = { key, nome:coCanonNome(a.nome), empresas:new Set(), apelidos:new Set(), leiloes:[], vgv:0, comissao:0, transacoes:0, animais:0, temEstimado:false }; map.set(key, rec); }
       if (String(a.nome||'').trim() && String(a.nome).trim() !== rec.nome) rec.apelidos.add(String(a.nome).trim());
-      if (a.empresa) rec.empresas.add(coEmpresa(a.empresa));
+      const empFixa = coEmpresaFixa(rec.nome);
+      if (empFixa) { rec.empresas.clear(); rec.empresas.add(empFixa); }
+      else if (a.empresa) rec.empresas.add(coEmpresa(a.empresa));
       rec.vgv += a._vgv; rec.comissao += a._comissao;
       rec.transacoes += Number(a.transacoes)||0; rec.animais += Number(a.animais)||0;
       if (!a._real && a._comissao>0) rec.temEstimado = true;
@@ -5579,6 +5601,7 @@ function coClear() { ['coMes','coAno','coSearch','coEmpresa','coLeilao','coAsses
 
 async function renderComissionamento() {
   if (!state.fechamentos) state.fechamentos = await api('/api/bula/fechamento');
+  if (!state.folhaEstrutura) { state.folhaEstrutura = await api('/api/erp/folha-estrutura').catch(()=>[]); state._eqMaps = null; }
   const all = state.fechamentos || [];
   const f = state.filters;
   const mes=f.coMes||'', ano=f.coAno||'', search=f.coSearch||'', empresa=f.coEmpresa||'', leilaoSel=f.coLeilao||'', assessorSel=f.coAssessor||'';
@@ -6012,6 +6035,110 @@ function coExportCSV() {
    FOLHA & COMISSOES
    ========================================================================== */
 // Estrutura fixa (aba "Folha & Comissoes" do workbook FINANCEIRO BULA 2026).
+/* ==========================================================================
+   PAGE: EQUIPE — cadastro canônico de pessoas (erp_folha_estrutura + campos
+   da migration 0057): pessoa ↔ empresa, apelidos/grafias dos fechamentos,
+   % fixo de comissão, quem recebe o pagamento (fornecedor + "recebe como"),
+   zona. O Comissionamento usa apelidos/empresa daqui p/ agregar e exibir.
+   ========================================================================== */
+function eqOpen(id) {
+  const e = id ? (state.folhaEstrutura||[]).find(x => x.id === id) : null;
+  const fornecedores = state._eqFornecedores || [];
+  const empresas = ['Bula Assessoria','Bula Remates','Fórmula do Boi','Outro'];
+  const empresaAtual = e?.empresa || 'Bula Assessoria';
+  const html = `
+    <div class="modal-header"><div class="modal-title">${id?'Editar':'Novo'} membro da equipe</div><button class="icon-btn" onclick="closeModal()"><span class="material-symbols-outlined">close</span></button></div>
+    <div class="modal-body">
+      <form id="formEquipe" class="form-grid">
+        <div class="field"><label>Nome (canônico)*</label><input name="nome" required value="${escapeHtml(e?.nome||'')}"></div>
+        <div class="field"><label>Função</label><input name="funcao" value="${escapeHtml(e?.funcao||'')}" placeholder="Assessor, Parceiro, SDR..."></div>
+        <div class="field"><label>Empresa</label><select name="empresa">${empresas.map(x=>`<option value="${x}" ${empresaAtual===x?'selected':''}>${x}</option>`).join('')}${empresas.includes(empresaAtual)?'':`<option value="${escapeHtml(empresaAtual)}" selected>${escapeHtml(empresaAtual)}</option>`}</select></div>
+        <div class="field"><label>Comissão (%)</label><input name="comissao_pct" type="number" step="0.01" min="0" value="${e?.comissao_pct??''}" placeholder="ex: 2 · 0,33 · 5"></div>
+        <div class="field"><label>Salário fixo (R$/mês)</label><input name="salario_fixo" type="number" step="0.01" min="0" value="${e?.salario_fixo??0}"></div>
+        <div class="field"><label>Comissão fixa (R$/mês)</label><input name="comissao_fixa" type="number" step="0.01" min="0" value="${e?.comissao_fixa??''}" placeholder="ex: 2000 (SDR)"></div>
+        <div class="field" style="grid-column:1/-1"><label>Apelidos / grafias nos fechamentos (separar por vírgula)</label><input name="apelidos" value="${escapeHtml((e?.apelidos||[]).join(', '))}" placeholder="ex: Léo, Léo Serafim, LM Assessoria"></div>
+        <div class="field"><label>Fornecedor (quem recebe no ERP)</label><select name="fornecedor_id"><option value="">— nenhum —</option>${fornecedores.map(p=>`<option value="${p.id}" ${e?.fornecedor_id===p.id?'selected':''}>${escapeHtml(p.nome)}</option>`).join('')}</select></div>
+        <div class="field"><label>Recebe como (nome no extrato)</label><input name="pagamento_nome" value="${escapeHtml(e?.pagamento_nome||'')}" placeholder="ex: LM Assessoria, FO Assessoria"></div>
+        <div class="field"><label>Zona de atuação</label><input name="zona" value="${escapeHtml(e?.zona||'')}" placeholder="ex: Norte + MA"></div>
+        <div class="field"><label>Ativo</label><select name="ativo"><option value="true" ${e?.ativo!==false?'selected':''}>Sim</option><option value="false" ${e?.ativo===false?'selected':''}>Não</option></select></div>
+        <div class="field" style="grid-column:1/-1"><label>Observação</label><input name="observacao" value="${escapeHtml(e?.observacao||'')}"></div>
+      </form>
+      <div style="font-size:10px;color:var(--text3);margin-top:8px">Apelidos e empresa valem na hora no Bônus e Comissionamento. O % fixo vale para NOVOS fechamentos (os já lançados não são recalculados). Edição restrita a diretoria.</div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn" onclick="closeModal()">Cancelar</button>
+      <button class="btn btn-primary" onclick="eqSave('${id||''}')"><span class="material-symbols-outlined">save</span>Salvar</button>
+    </div>`;
+  openModal(html, { wide:true });
+}
+async function eqSave(id) {
+  const data = Object.fromEntries(new FormData(document.getElementById('formEquipe')));
+  data.salario_fixo = Number(data.salario_fixo||0);
+  data.comissao_pct = data.comissao_pct === '' ? null : Number(data.comissao_pct);
+  data.comissao_fixa = data.comissao_fixa === '' ? null : Number(data.comissao_fixa);
+  data.ativo = data.ativo === 'true';
+  data.fornecedor_id = data.fornecedor_id || null;
+  data.apelidos = String(data.apelidos||'').split(',').map(s=>s.trim()).filter(Boolean);
+  try {
+    if (id) await api(`/api/erp/folha-estrutura/${id}`, { method:'PATCH', body:JSON.stringify(data) });
+    else await api('/api/erp/folha-estrutura', { method:'POST', body:JSON.stringify(data) });
+    state.folhaEstrutura = null; state._eqMaps = null;
+    closeModal(); toast('Salvo','success'); render();
+  } catch (e) { toast(e.message,'error'); }
+}
+async function eqDelete(id) {
+  if (!await confirmAction('Excluir este membro da equipe? (Não afeta fechamentos nem títulos já lançados.)')) return;
+  try {
+    await api(`/api/erp/folha-estrutura/${id}`, { method:'DELETE' });
+    state.folhaEstrutura = null; state._eqMaps = null; toast('Excluído','success'); render();
+  } catch (e) { toast(e.message,'error'); }
+}
+
+async function renderEquipe() {
+  if (!state.folhaEstrutura) state.folhaEstrutura = await api('/api/erp/folha-estrutura');
+  if (!state._eqFornecedores) state._eqFornecedores = (await api('/api/erp/pessoas?tipo=fornecedor').catch(()=>[])) || [];
+  const rows = state.folhaEstrutura || [];
+  const ativos = rows.filter(e => e.ativo !== false);
+  const comPct = ativos.filter(e => Number(e.comissao_pct) > 0);
+  const html = `
+    <div class="page-header">
+      <div><div class="page-title">Equipe <small>${ativos.length} membros ativos · pessoa ↔ empresa, grafias, % e pagamento</small></div></div>
+      <div class="page-actions">
+        <button class="btn btn-ghost btn-sm" onclick="state.folhaEstrutura=null; state._eqMaps=null; render()"><span class="material-symbols-outlined">refresh</span>Atualizar</button>
+        <button class="btn btn-primary btn-sm" onclick="eqOpen('')"><span class="material-symbols-outlined">person_add</span>Novo membro</button>
+      </div>
+    </div>
+    <div class="kpi-grid">
+      <div class="kpi"><div class="kpi-icon"><span class="material-symbols-outlined">diversity_3</span></div><div class="kpi-label">Membros ativos</div><div class="kpi-value">${ativos.length}</div></div>
+      <div class="kpi"><div class="kpi-icon"><span class="material-symbols-outlined">real_estate_agent</span></div><div class="kpi-label">Comissionados</div><div class="kpi-value">${comPct.length}</div><div class="kpi-sub">com % fixo cadastrado</div></div>
+      <div class="kpi"><div class="kpi-icon"><span class="material-symbols-outlined">business</span></div><div class="kpi-label">Empresas</div><div class="kpi-value">${new Set(ativos.map(e=>e.empresa||'Bula Assessoria')).size}</div></div>
+    </div>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Membro</th><th>Função</th><th>Empresa</th><th style="text-align:right">Comissão</th><th>Recebe como</th><th>Zona</th><th></th></tr></thead>
+        <tbody>
+          ${rows.map(e=>`<tr${e.ativo===false?' style="opacity:.45"':''}>
+            <td style="font-weight:600">${escapeHtml(e.nome)}${e.ativo===false?' <span class="chip muted" style="padding:1px 7px">inativo</span>':''}
+              ${(e.apelidos||[]).length?`<div style="font-size:10px;color:var(--text3);font-weight:400" title="Grafias reconhecidas nos fechamentos">grafias: ${(e.apelidos||[]).map(escapeHtml).join(', ')}</div>`:''}
+              ${e.observacao?`<div style="font-size:10px;color:var(--text3);font-weight:400">${escapeHtml(e.observacao)}</div>`:''}</td>
+            <td style="color:var(--text2)">${escapeHtml(e.funcao||'—')}</td>
+            <td><span class="chip muted">${escapeHtml(e.empresa||'Bula Assessoria')}</span></td>
+            <td style="text-align:right;color:var(--gold);font-weight:600">${folhaComissaoLabel(e)}</td>
+            <td style="font-size:11px;color:var(--text2)">${escapeHtml(e.pagamento_nome || e.fornecedor?.nome || '—')}${e.pagamento_nome && e.fornecedor?.nome && e.pagamento_nome!==e.fornecedor.nome?`<div style="font-size:10px;color:var(--text3)">fornecedor: ${escapeHtml(e.fornecedor.nome)}</div>`:''}</td>
+            <td style="font-size:11px;color:var(--text2)">${escapeHtml(e.zona||'—')}</td>
+            <td style="white-space:nowrap;text-align:right">
+              <button class="icon-btn" title="Editar" onclick="eqOpen('${e.id}')"><span class="material-symbols-outlined">edit</span></button>
+              <button class="icon-btn" title="Excluir" onclick="eqDelete('${e.id}')"><span class="material-symbols-outlined">delete</span></button>
+            </td>
+          </tr>`).join('')}
+        </tbody>
+      </table>
+    </div>
+    <div style="font-size:10px;color:var(--text3);margin-top:8px">Grafias e empresa cadastradas aqui são usadas pelo <strong>Bônus e Comissionamento</strong> para unificar a pessoa e exibir a empresa correta. "Recebe como" documenta o nome que aparece no extrato (ex.: Leonardo recebe como LM Assessoria) — use na conciliação. Salário/comissão fixa seguem na página Folha &amp; Comissões.</div>
+  `;
+  document.getElementById('page').innerHTML = html;
+}
+
 /* Estrutura de folha & comissões: cadastro canônico em erp_folha_estrutura
    (migration 0056). Edição restrita a finance-admin (API devolve 403). */
 const folhaComissaoLabel = (e) => {
