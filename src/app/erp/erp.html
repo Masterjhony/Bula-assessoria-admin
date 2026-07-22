@@ -5530,6 +5530,7 @@ async function renderComissionamento() {
       </div>
       <div class="page-actions">
         <button class="btn btn-ghost btn-sm" onclick="flReload()"><span class="material-symbols-outlined">refresh</span>Atualizar</button>
+        <button class="btn btn-ghost btn-sm" onclick="coPdfGeral()" title="Relatório consolidado dos assessores exibidos (respeita os filtros)"><span class="material-symbols-outlined">picture_as_pdf</span>Gerar PDF</button>
         <button class="btn btn-ghost btn-sm" onclick="coExportCSV()"><span class="material-symbols-outlined">download</span>Exportar CSV</button>
       </div>
     </div>
@@ -5799,6 +5800,112 @@ function coPdf(idx) {
   <div class="nota">Vendas individuais vêm do registro de lances do pregão e podem diferir do resumo consolidado do fechamento (base da comissão).</div>`:''}
   ${rec.temEstimado?`<div class="nota">* Comissão estimada por rateio de VGV — o leilão não tem comissão individual informada no fechamento.</div>`:''}
   <div class="foot"><span>Bula Assessoria — documento de uso interno</span><span>${escapeHtml(rec.nome)} · ${hoje}</span></div>
+  <scr`+`ipt>window.onload = () => setTimeout(() => window.print(), 400);</scr`+`ipt>
+  </body></html>`);
+  w.document.close();
+}
+
+/* PDF consolidado do comissionamento (respeita os filtros ativos): resumo por
+   assessor + detalhe por leilão de cada um, no mesmo padrão print-ready do
+   coPdf (brandbook preto/branco, Oswald caps, dourado cirúrgico). */
+function coPdfGeral() {
+  const assessores = state.coCache || [];
+  if (!assessores.length) { toast('Nada para gerar — ajuste os filtros','info'); return; }
+  const hoje = new Date().toLocaleDateString('pt-BR');
+  const pctFmt = v => (v*100).toLocaleString('pt-BR',{maximumFractionDigits:1})+'%';
+  const tot = {
+    pagar: assessores.reduce((s,a)=>s+a.comissao,0),
+    vgv: assessores.reduce((s,a)=>s+a.vgv,0),
+    vendas: assessores.reduce((s,a)=>s+a.transacoes,0),
+    animais: assessores.reduce((s,a)=>s+a.animais,0),
+    leiloes: new Set(assessores.flatMap(a=>a.leiloes.map(l=>l.id))).size,
+  };
+  const temEst = assessores.some(a=>a.temEstimado);
+  const w = window.open('', '_blank');
+  if (!w) { toast('Habilite pop-ups para gerar o PDF','error'); return; }
+  w.document.write(`<!doctype html><html lang="pt-BR"><head><meta charset="utf-8">
+  <title>Comissionamento — ${escapeHtml(coFiltroDesc())}</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Oswald:wght@500;600&family=Inter:wght@400;600;700&display=swap');
+    @page { size: A4; margin: 15mm 13mm; }
+    * { box-sizing:border-box; margin:0; padding:0; }
+    body { font-family:'Inter',Arial,sans-serif; color:#111; font-size:11px; }
+    .head { display:flex; justify-content:space-between; align-items:flex-end; border-bottom:3px solid #111; padding-bottom:10px; }
+    .brand { font-family:'Oswald',sans-serif; font-size:20px; letter-spacing:2px; text-transform:uppercase; font-weight:600; }
+    .brand small { color:#C9A84C; }
+    .doc { text-align:right; font-size:9.5px; color:#555; text-transform:uppercase; letter-spacing:1px; }
+    h1 { font-family:'Oswald',sans-serif; font-size:17px; text-transform:uppercase; letter-spacing:1px; margin:14px 0 2px; }
+    .sub { color:#555; font-size:10px; margin-bottom:12px; }
+    .kpis { display:flex; gap:8px; margin:10px 0 16px; }
+    .kpi { flex:1; border:1px solid #ccc; padding:8px 10px; }
+    .kpi b { display:block; font-size:13.5px; margin-top:3px; white-space:nowrap; }
+    .kpi span { font-size:8.5px; text-transform:uppercase; letter-spacing:1px; color:#666; }
+    h2 { font-family:'Oswald',sans-serif; font-size:12px; text-transform:uppercase; letter-spacing:1px; margin:16px 0 6px; border-left:3px solid #C9A84C; padding-left:7px; }
+    h2 small { font-family:'Inter',sans-serif; text-transform:none; letter-spacing:0; color:#555; font-weight:400; }
+    table { width:100%; border-collapse:collapse; }
+    th { text-align:left; font-size:8.5px; text-transform:uppercase; letter-spacing:.5px; color:#555; border-bottom:2px solid #111; padding:4px 6px; }
+    th.r, td.r { text-align:right; }
+    td { border-bottom:1px solid #e4e4e4; padding:4px 6px; vertical-align:top; }
+    tfoot td { border-top:2px solid #111; border-bottom:0; font-weight:700; }
+    tr { page-break-inside:avoid; }
+    .apel { font-size:8.5px; color:#777; }
+    .det { page-break-inside:avoid; margin-bottom:4px; }
+    .foot { margin-top:20px; padding-top:8px; border-top:1px solid #ccc; font-size:9px; color:#777; display:flex; justify-content:space-between; }
+    .nota { margin-top:8px; font-size:9px; color:#777; }
+  </style></head><body>
+  <div class="head">
+    <div class="brand">Bula <small>Assessoria</small></div>
+    <div class="doc">Relatório de comissionamento<br>Gerado em ${hoje}</div>
+  </div>
+  <h1>Comissionamento dos Assessores</h1>
+  <div class="sub">Período/filtro: ${escapeHtml(coFiltroDesc())}</div>
+  <div class="kpis">
+    <div class="kpi"><span>Assessores</span><b>${assessores.length}</b></div>
+    <div class="kpi"><span>Leilões</span><b>${tot.leiloes}</b></div>
+    <div class="kpi"><span>Vendas · Animais</span><b>${tot.vendas} · ${tot.animais}</b></div>
+    <div class="kpi"><span>VGV intermediado</span><b>${fmtBRL(tot.vgv)}</b></div>
+    <div class="kpi"><span>Total a pagar</span><b>${fmtBRL(tot.pagar)}${temEst?' *':''}</b></div>
+  </div>
+  <h2>Resumo por assessor</h2>
+  <table>
+    <thead><tr><th>Assessor</th><th>Empresa</th><th class="r">Leilões</th><th class="r">Vendas</th><th class="r">Animais</th><th class="r">VGV intermediado</th><th class="r">Comissão a pagar</th></tr></thead>
+    <tbody>
+      ${assessores.map(a=>`<tr>
+        <td><strong>${escapeHtml(a.nome)}</strong>${a.apelidos.length?`<div class="apel">inclui: ${a.apelidos.map(escapeHtml).join(', ')}</div>`:''}</td>
+        <td>${a.empresas.map(escapeHtml).join(' · ')||'—'}</td>
+        <td class="r">${a.leiloes.length}</td>
+        <td class="r">${a.transacoes}</td>
+        <td class="r">${a.animais}</td>
+        <td class="r">${fmtBRL(a.vgv)}</td>
+        <td class="r"><strong>${a.comissao>0?fmtBRL(a.comissao)+(a.temEstimado?' *':''):'—'}</strong></td>
+      </tr>`).join('')}
+    </tbody>
+    <tfoot><tr><td colspan="2">Total (${assessores.length} assessores)</td><td class="r">${tot.leiloes}</td><td class="r">${tot.vendas}</td><td class="r">${tot.animais}</td><td class="r">${fmtBRL(tot.vgv)}</td><td class="r">${fmtBRL(tot.pagar)}</td></tr></tfoot>
+  </table>
+  <h2 style="margin-top:22px">Detalhe por assessor <small>— a pagar por leilão</small></h2>
+  ${assessores.map(a=>{
+    const leiloes = a.leiloes.slice().sort((x,y)=> (x.data||'').localeCompare(y.data||''));
+    return `<div class="det">
+    <h2 style="border-left-color:#111;margin-top:14px">${escapeHtml(a.nome)} <small>· ${a.empresas.map(escapeHtml).join(' · ')||''} · ${fmtBRL(a.comissao)}</small></h2>
+    <table>
+      <thead><tr><th>Data</th><th>Leilão</th><th class="r">Vendas</th><th class="r">Animais</th><th class="r">VGV</th><th class="r">% do leilão</th><th class="r">Comissão</th></tr></thead>
+      <tbody>
+        ${leiloes.map(l=>`<tr>
+          <td style="white-space:nowrap">${flDataCurta(l.data)}</td>
+          <td>${escapeHtml(l.nome)}</td>
+          <td class="r">${l.transacoes}</td>
+          <td class="r">${l.animais}</td>
+          <td class="r">${fmtBRL(l.vgv)}</td>
+          <td class="r">${pctFmt(l.share)}</td>
+          <td class="r">${l.comissao>0?fmtBRL(l.comissao)+(l.real?'':' *'):'—'}</td>
+        </tr>`).join('')}
+      </tbody>
+      <tfoot><tr><td colspan="2">Total</td><td class="r">${a.transacoes}</td><td class="r">${a.animais}</td><td class="r">${fmtBRL(a.vgv)}</td><td></td><td class="r">${fmtBRL(a.comissao)}</td></tr></tfoot>
+    </table>
+    </div>`;
+  }).join('')}
+  ${temEst?`<div class="nota">* Comissão estimada por rateio de VGV — o leilão não tem comissão individual informada no fechamento.</div>`:''}
+  <div class="foot"><span>Bula Assessoria — documento de uso interno</span><span>Comissionamento · ${hoje}</span></div>
   <scr`+`ipt>window.onload = () => setTimeout(() => window.print(), 400);</scr`+`ipt>
   </body></html>`);
   w.document.close();
