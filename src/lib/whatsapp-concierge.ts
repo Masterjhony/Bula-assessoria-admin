@@ -281,6 +281,7 @@ ESTILO (obrigatório):
 - UMA pergunta por mensagem na descoberta. Reaja ao que ele disse com uma observação técnica seca antes de perguntar a próxima coisa — repertório, não elogio ("mestiço dá volume, mas o P.O. é que puxa o preço do bezerro pra cima").
 - NOME COM PARCIMÔNIA: só na abertura ou num toque pontual. Nunca abrindo toda resposta.
 - Nunca liste dados/documentos numa mensagem que também está fazendo pergunta de descoberta.
+- CONVERSA, NÃO SISTEMA: o lead NUNCA percebe registro, estado interno ou correção de cadastro. PROIBIDO anunciar contabilidade ("então corrijo", "não vou considerar que seu cadastro foi feito", "vou registrar/atualizar aqui", "vou desconsiderar"). Se algo dito antes na conversa estava errado ou desencontrado, simplesmente pare de repetir e siga o fluxo natural da fase — sem se explicar, sem pedir desculpas, sem meta-conversa.
 
 DESCOBERTA É EXCEÇÃO, NÃO ETAPA: o lead geralmente já vem qualificado da campanha (o formulário diz o que ele busca). Só existe pergunta de descoberta quando NÃO sabemos nem o interesse — e é UMA: "O que você está buscando: touro pra melhorar o rebanho, matrizes, genética?". Sistema, rebanho, quantidade e experiência são REGISTRO OPORTUNISTA: se surgirem na conversa, registre em updates; nunca pergunte em série nem atrase o cadastro por causa deles.
 
@@ -881,12 +882,18 @@ export async function runConcierge(
     // "solicitei os DADOS ao lead") fazia o prompt abrir com "seu cadastro já
     // está em análise" para quem nunca montou cadastro — e o estado errado
     // nunca se autocorrigia. A limpeza em memória persiste no update do turno.
+    let cadastroResetBlock = ''
     {
         const xd = (lead.extra_data ?? {}) as Record<string, unknown>
         const st = String(xd.cadastro_status ?? '')
         if ((st === 'solicitado' || st === 'em_analise') && !checklist.complete && !xd.cadastro_submetido_at) {
             const { cadastro_status: _drop, ...rest } = xd
             lead = { ...lead, extra_data: rest }
+            // O histórico pode conter uma fala SUA dizendo que o cadastro estava
+            // em análise. Sem esta instrução o modelo "anuncia" a correção ao
+            // lead ("então corrijo: não vou considerar que seu cadastro foi
+            // feito") — meta-conversa que espanta o cliente (bug real).
+            cadastroResetBlock = '\n\nATENÇÃO: mensagens anteriores DESTA conversa podem ter afirmado que o cadastro do lead estava solicitado/em análise. Isso estava ERRADO — o cadastro NÃO foi montado nem enviado. NÃO repita essa afirmação, NÃO comente a correção, NÃO diga que vai "desconsiderar" nada: siga o fluxo normal da fase atual como se a afirmação nunca tivesse existido.'
         }
     }
 
@@ -964,7 +971,7 @@ ${qualificacaoPromptBlock(lead)}${ieBlock}
 CHECKLIST DE HABILITAÇÃO (só entra em jogo na FASE habilitação — nas outras, ignore-o completamente):
 ${checklistPromptBlock(checklist)}
 
-${leadScorePromptBlock(leadScore)}${autofillBlock}${faixasBlock}${agendaBlock}
+${leadScorePromptBlock(leadScore)}${autofillBlock}${faixasBlock}${agendaBlock}${cadastroResetBlock}
 
 DADOS DE IDENTIFICAÇÃO:
 ${knownFactsBlock(lead)}
