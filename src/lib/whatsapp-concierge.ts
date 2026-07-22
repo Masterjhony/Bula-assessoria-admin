@@ -297,8 +297,9 @@ ESTADO DO CADASTRO (olhe "Status cadastro" nos dados do lead e seja coerente):
 OBJEÇÕES E PERGUNTAS FREQUENTES (responda curto e volte pra fase atual):
 - "Não quero leilão / não gosto de leilão" → não empurre. Pergunte o que o afastou (já se queimou? acha caro? acha arriscado?) e mostre que é exatamente por isso que existe assessor. O leilão é onde está a genética; o assessor é quem evita o erro.
 - "Quanto custa a assessoria?" → nada. Nosso acordo é com a leiloeira. Isso costuma destravar a conversa — diga com naturalidade.
-- "Quanto custa o animal / faixa de preço?" → dê a FAIXA da categoria que ele busca usando o bloco FAIXAS DE PREÇO. Diga que é média e que o valor final sai no lance. Nunca detalhe de fechamento (leilão, comprador, lote). NUNCA prometa taxa, desconto ou aprovação.
+- "Quanto custa o animal / faixa de preço?" → dê a faixa COMUM da categoria (onde fecha a maioria dos negócios) usando o bloco FAIXAS DE PREÇO; se ajudar, cite o piso de entrada. NUNCA cite o teto raro/máximo (touro de elite de centenas de milhares) — âncora alta espanta o comprador comum. Diga que é média e que o valor final sai no lance. Nunca detalhe de fechamento (leilão, comprador, lote). NUNCA prometa taxa, desconto ou aprovação.
 - "Como eu pago? / Pode à vista?" → direto com a leiloeira, por boleto: parcelado (ex.: 30x) ou à vista. Condição exata sai em cada leilão.
+- "Tá caro / tá pesado pra mim" → traduza em parcela ANTES de qualquer outro argumento: "R$ 24 mil em 30x dá uns R$ 800 por parcela" — o parcelado é o que destrava a objeção de valor. Depois, se fizer sentido, aponte o piso de entrada da categoria e pergunte o teto dele.
 - "Não tenho Inscrição Estadual" → sem drama: dá pra seguir com NIRF, ou orientamos a tirar a I.E. (é rápido). Registre ie_status=nao_tem e siga.
 - "A fazenda é arrendada / não tenho comprovante" → tranquilo: contrato de arrendamento (ou outro documento da atividade rural no local) serve. Nunca encerre por isso.
 - "Quando é o próximo leilão?" → use o bloco PRÓXIMOS LEILÕES (1 a 3 eventos que combinem com o interesse) e emende com o valor do assessor no evento.
@@ -310,10 +311,10 @@ OBJEÇÕES E PERGUNTAS FREQUENTES (responda curto e volte pra fase atual):
 
 CONFIANÇA NA HORA DO CADASTRO (o maior ponto de abandono do funil é o pedido de dados — trate como momento crítico):
 - Todo pedido vem com o PORQUÊ comercial em meia linha: a compra é parcelada e é a leiloeira que banca o parcelamento — cadastro aprovado é o crédito dela liberado pra você dar lance.
-- Peça em UMA mensagem organizada, com o que falta claro. O lead FORNECE os dados e documentos; não prometa consultar ou "puxar" nada por ele.
+- Peça UM BLOCO por vez, nunca o checklist inteiro numa mensagem só. Ordem: Identificação (CPF, endereço de correspondência, e-mail) → Propriedade (nome da fazenda, cidade/UF de entrega) → Fiscal (I.E. ou NIRF) → documentos que ainda faltarem. Fechou um bloco, confirma e chama o próximo. Se o lead perguntar "o que precisa?", dê a visão geral em UMA linha (os 3 blocos, sem listar item por item) e peça só o primeiro bloco. O lead FORNECE os dados e documentos; não prometa consultar ou "puxar" nada por ele.
 - Se a pessoa demonstrar receio, PARE de pedir: aponte o site bulaassessoria.com e o Instagram @bulaassessoria, e só retome quando ela sinalizar conforto.
 - Documentos (foto de documento com foto + comprovante de endereço) são parte PADRÃO do cadastro: peça com naturalidade junto dos dados. Se ele não tiver em mãos, registre o que veio e combine o envio do resto — não deixe morrer.
-- "NÃO ESTOU COM O DOCUMENTO AGORA" nunca termina em "sem problema, fico aguardando" — isso mata a conversa. Feche uma janela concreta: "Você costuma estar com isso hoje à noite ou amanhã de manhã?" e registre em updates.retomada_combinada. Na retomada, diga o que JÁ está salvo e qual é a única pendência.
+- "NÃO ESTOU COM O DOCUMENTO AGORA" nunca termina em "sem problema, fico aguardando" — isso mata a conversa. Feche uma janela concreta: "Você costuma estar com isso hoje à noite ou amanhã de manhã?" e registre em updates.retomada_combinada. Isso vale TAMBÉM quando ele ACEITA a janela que você propôs ("amanhã de manhã pode ser") — registre a janela aceita, senão o follow-up não sabe a hora de voltar. Na retomada, diga o que JÁ está salvo e qual é a única pendência.
 - PROGRESSO EM BLOCOS, nunca em contagem: o cadastro tem 3 blocos (Identificação, Propriedade, Fiscal). Diga "Identificação concluída — falta só a parte da propriedade", NUNCA "faltam 7 de 10 itens". Jornada curta percebida conclui; lista longa espanta.
 
 REGISTRO (tão importante quanto responder): TODO dado que o lead informar vai em "updates" — quantidade de cabeças, sistema (cria/recria/engorda), o que ele cria hoje, objetivo, urgência, CPF, e-mail, endereço, fazenda, I.E. O que você não registrar, o sistema perde. Não invente nem "complete" dados que o lead não disse.
@@ -712,7 +713,7 @@ const RESULT_SCHEMA_INSTRUCTIONS = `Responda SOMENTE com um objeto JSON válido 
     "assessoria_apresentada": true|false,  // true SE esta sua mensagem apresenta a Bula/assessoria
     "aceitou_assessoria": true|false,      // true quando o lead topa falar com um assessor
     "ie_status": "tem|nao_tem|pendente_envio|em_validacao|null",
-    "cadastro_status": "nao_iniciado|pendente|null",  // estados de submissão (em_analise/aprovado) são gravados pelo sistema, nunca por você
+    "cadastro_status": "nao_iniciado|null",  // os demais estados (em_analise/pendente/aprovado) são gravados pelo sistema, nunca por você
     "score_status": "bom|mediano|sensivel|nao_informado|null",
     "motivo_pendencia": "ie|documento|score|protesto|outro|null",
     "proxima_acao": "string|null",
@@ -886,7 +887,7 @@ export async function runConcierge(
     {
         const xd = (lead.extra_data ?? {}) as Record<string, unknown>
         const st = String(xd.cadastro_status ?? '')
-        if ((st === 'solicitado' || st === 'em_analise') && !checklist.complete && !xd.cadastro_submetido_at) {
+        if ((st === 'solicitado' || st === 'em_analise' || st === 'pendente') && !checklist.complete && !xd.cadastro_submetido_at) {
             const { cadastro_status: _drop, ...rest } = xd
             lead = { ...lead, extra_data: rest }
             // O histórico pode conter uma fala SUA dizendo que o cadastro estava
@@ -1125,7 +1126,10 @@ async function applyConciergeEffects(
     // e 'aprovado'/'recusado' pela decisão da leiloeira no grupo. Um modelo já
     // gravou 'solicitado' entendendo "solicitei os dados" — e o prompt lê esse
     // valor como "ficha enviada às leiloeiras".
-    if (typeof u.cadastro_status === 'string' && !['nao_iniciado', 'pendente'].includes(u.cadastro_status)) {
+    // ('pendente' idem: o modelo grava querendo dizer "faltam dados", mas o
+    // prompt lê como "problema na análise" e responde "estamos alinhando um
+    // detalhe" + handoff — observado em teste real de 22/07.)
+    if (typeof u.cadastro_status === 'string' && u.cadastro_status !== 'nao_iniciado') {
         delete u.cadastro_status
     }
     const prevExtra = (lead.extra_data ?? {}) as Record<string, unknown>
