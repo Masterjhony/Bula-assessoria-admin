@@ -4856,7 +4856,7 @@ function flOpenDetail(id) {
               const temComissao = a._comissao>0 || a._real;
               return `<tr>
                 <td>${a.posicao||i+1}</td>
-                <td style="font-weight:600">${escapeHtml(a.nome||'—')}</td>
+                <td style="font-weight:600">${escapeHtml(a.nome||'—')}${a.observacao?`<div style="font-size:10px;color:var(--text3);font-weight:400;max-width:420px;white-space:normal">${escapeHtml(a.observacao)}</div>`:''}</td>
                 <td>${a.empresa?`<span class="chip muted">${escapeHtml(a.empresa)}</span>`:'—'}</td>
                 <td style="text-align:right">${a.transacoes||0}</td>
                 <td style="text-align:right">${a.animais||0}</td>
@@ -4871,6 +4871,8 @@ function flOpenDetail(id) {
         </table>
       </div>
       <div style="font-size:10px;color:var(--text3);margin-bottom:16px">${algumEstimado?`<strong>est.</strong> = rateio do que sobra do total (${fmtBRL(totalComissao)}) por VGV; <strong>real</strong> = valor informado no fechamento.`:'Comissoes informadas manualmente por assessor (valores reais).'}</div>`}
+
+      ${flLancesSection(x)}
 
       ${estados.length?`
       <div class="card-title" style="margin-bottom:8px"><span class="material-symbols-outlined">public</span>Distribuicao por estado</div>
@@ -4889,6 +4891,78 @@ function flOpenDetail(id) {
       <button class="btn" onclick="closeModal()">Fechar</button>
     </div>`;
   openModal(html, { wide:true });
+}
+
+/* --------------------------------------------------------------------------
+   Vendas do pregão (lances) no detalhe do fechamento, com tratamento de
+   CANCELAMENTO: leiloeiras cancelam vendas depois do leilão e o fechamento
+   precisa registrar isso sem apagar o histórico. Marcar como cancelada:
+   - risca a venda e a tira dos totais desta seção e do comissionamento
+     (vendas atribuídas do assessor);
+   - NÃO mexe sozinho no por_assessor/comissão — ajuste o valor do assessor
+     na edição do fechamento (a observação fica visível na tabela acima).
+   -------------------------------------------------------------------------- */
+function flLancesSection(x) {
+  const lances = Array.isArray(x.lances) ? x.lances : [];
+  if (!lances.length) return '';
+  const canceladas = lances.filter(v=>v && v.cancelada);
+  const ativas = lances.filter(v=>v && !v.cancelada);
+  const totAtivo = ativas.reduce((s,v)=>s+(Number(v.vgv)||0),0);
+  const totCanc = canceladas.reduce((s,v)=>s+(Number(v.vgv)||0),0);
+  return `
+      <div class="card-title" style="margin-bottom:8px"><span class="material-symbols-outlined">sell</span>Vendas do pregao (${lances.length})
+        ${canceladas.length?`<span class="chip" style="background:var(--amber-bg);color:var(--amber);padding:1px 8px;vertical-align:middle">${canceladas.length} cancelada${canceladas.length>1?'s':''} · ${fmtBRL(totCanc)}</span>`:''}
+      </div>
+      <div class="table-wrap" style="margin-bottom:6px">
+        <table>
+          <thead><tr><th>Lote</th><th>Comprador</th><th>UF</th><th>Assessor</th><th style="text-align:right">Animais</th><th style="text-align:right">VGV</th><th style="width:90px"></th></tr></thead>
+          <tbody>
+            ${lances.map((v,i)=>{
+              const off = v.cancelada;
+              return `<tr style="${off?'opacity:.55':''}">
+                <td style="${off?'text-decoration:line-through':''}">${escapeHtml(v.lote||'—')}</td>
+                <td style="${off?'text-decoration:line-through':''}">${escapeHtml(v.comprador||'—')}${off&&v.cancelada_motivo?`<div style="font-size:10px;color:var(--amber);text-decoration:none">${escapeHtml(v.cancelada_motivo)}${v.cancelada_em?` · ${flDataCurta(String(v.cancelada_em).slice(0,10))}`:''}</div>`:''}</td>
+                <td>${escapeHtml(v.uf||'—')}</td>
+                <td>${escapeHtml(v.assessor||'—')}</td>
+                <td style="text-align:right">${v.animais||0}</td>
+                <td class="money" style="text-align:right;${off?'text-decoration:line-through':''}">${fmtBRL(v.vgv)}</td>
+                <td style="text-align:right">${off
+                  ?`<button class="btn btn-ghost btn-sm" title="Restaurar esta venda" onclick="flToggleLanceCancelada('${x.id}',${i})"><span class="material-symbols-outlined">undo</span></button>`
+                  :`<button class="btn btn-ghost btn-sm" title="Marcar venda como cancelada" onclick="flToggleLanceCancelada('${x.id}',${i})"><span class="material-symbols-outlined">block</span></button>`}</td>
+              </tr>`;
+            }).join('')}
+          </tbody>
+          <tfoot><tr style="font-weight:700;border-top:2px solid var(--border2)"><td colspan="4">Total ativo (${ativas.length} vendas)</td><td style="text-align:right">${ativas.reduce((s,v)=>s+(Number(v.animais)||0),0)}</td><td class="money" style="text-align:right">${fmtBRL(totAtivo)}</td><td></td></tr></tfoot>
+        </table>
+      </div>
+      <div style="font-size:10px;color:var(--text3);margin-bottom:16px">Cancelar aqui registra o fato e tira a venda do comissionamento (vendas atribuidas) — o ajuste do VGV/comissao do assessor e feito na edicao do fechamento, com a justificativa na tabela acima.</div>`;
+}
+
+async function flToggleLanceCancelada(fechId, idx) {
+  const x = (state.fechamentos||[]).find(r => r.id === fechId);
+  if (!x || !Array.isArray(x.lances) || !x.lances[idx]) return;
+  const v = x.lances[idx];
+  const lances = x.lances.map(l => ({ ...l }));
+  if (!v.cancelada) {
+    const motivo = window.prompt(`Cancelar a venda do lote ${v.lote||'—'} (${v.comprador||'sem comprador'})?\nMotivo do cancelamento:`, 'Venda cancelada pelo comprador');
+    if (motivo === null) return;
+    lances[idx].cancelada = true;
+    lances[idx].cancelada_motivo = motivo.trim();
+    lances[idx].cancelada_em = new Date().toISOString().slice(0,10);
+  } else {
+    if (!window.confirm(`Restaurar a venda do lote ${v.lote||'—'} (${v.comprador||'sem comprador'})?`)) return;
+    delete lances[idx].cancelada;
+    delete lances[idx].cancelada_motivo;
+    delete lances[idx].cancelada_em;
+  }
+  try {
+    await api(`/api/bula/fechamento/${fechId}`, { method:'PUT', body:JSON.stringify({ lances }) });
+    x.lances = lances;
+    toast(v.cancelada?'Venda restaurada':'Venda marcada como cancelada','success');
+    flOpenDetail(fechId);
+  } catch (e) {
+    toast(e.message||'Erro ao salvar cancelamento','error');
+  }
 }
 
 function flExportCSV() {
@@ -5486,7 +5560,7 @@ function coVendasDe(rec) {
     const fech = (state.fechamentos||[]).find(x=>x.id===l.id);
     if (!fech) continue;
     for (const v of (fech.lances||[])) {
-      if (!v || coNorm(v.assessor) !== rec.key) continue;
+      if (!v || v.cancelada || coNorm(v.assessor) !== rec.key) continue;
       vendas.push({ leilao:fech.nome, data:fech.data, lote:v.lote, comprador:v.comprador, uf:v.uf, animais:Number(v.animais)||0, vgv:Number(v.vgv)||0 });
     }
   }
