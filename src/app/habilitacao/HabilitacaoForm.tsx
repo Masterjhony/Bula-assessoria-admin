@@ -32,6 +32,19 @@ const inputStyle: React.CSSProperties = {
     width: '100%', background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.16)',
     color: '#fff', padding: '14px 16px', fontFamily: INTER, fontSize: '15px', outline: 'none',
     borderRadius: '2px',
+    // Controles nativos (dropdown do select) renderizam no tema escuro — sem
+    // isto o menu de UF abria branco/azul ilegível sobre a página preta.
+    colorScheme: 'dark',
+}
+const optionStyle: React.CSSProperties = { background: '#141414', color: '#fff' }
+
+function SelectUf({ value, onChange, required }: { value: string; onChange: (v: string) => void; required?: boolean }) {
+    return (
+        <select style={{ ...inputStyle, appearance: 'none' }} value={value} onChange={e => onChange(e.target.value)} required={required}>
+            <option value="" style={optionStyle}>UF</option>
+            {UFS.map(uf => <option key={uf} value={uf} style={optionStyle}>{uf}</option>)}
+        </select>
+    )
 }
 const labelStyle: React.CSSProperties = {
     display: 'block', fontFamily: OSWALD, fontWeight: 500, fontSize: '12px',
@@ -51,7 +64,8 @@ type Status = 'idle' | 'enviando' | 'sucesso'
 
 export function HabilitacaoForm() {
     const [f, setF] = useState({
-        nome: '', cpf: '', whatsapp: '', email: '', endereco: '',
+        nome: '', cpf: '', whatsapp: '', email: '',
+        endereco_rua: '', endereco_numero: '', endereco_bairro: '', endereco_cidade: '', endereco_uf: '', endereco_cep: '',
         fazenda_nome: '', fazenda_cidade: '', fazenda_uf: '', inscricao_estadual: '', sem_ie: false,
         website: '', // honeypot
     })
@@ -77,7 +91,10 @@ export function HabilitacaoForm() {
         if (!/\S+\s+\S+/.test(f.nome.trim())) return 'Informe seu nome completo.'
         if (!cpfValido(f.cpf)) return 'CPF inválido — confira os números.'
         if (f.whatsapp.replace(/\D/g, '').length < 10) return 'Informe seu WhatsApp com DDD.'
-        if (f.endereco.trim().length < 8) return 'Informe o endereço de correspondência completo (rua, número, cidade).'
+        if (f.endereco_rua.trim().length < 3) return 'Informe a rua do endereço de correspondência.'
+        if (!f.endereco_numero.trim()) return 'Informe o número do endereço (ou "s/n").'
+        if (f.endereco_bairro.trim().length < 2) return 'Informe o bairro do endereço.'
+        if (f.endereco_cidade.trim().length < 2 || !f.endereco_uf) return 'Informe cidade e UF do endereço.'
         if (f.fazenda_nome.trim().length < 2) return 'Informe o nome da fazenda (local de entrega dos animais).'
         if (f.fazenda_cidade.trim().length < 2 || !f.fazenda_uf) return 'Informe cidade e UF da fazenda.'
         if (!f.inscricao_estadual.trim() && !f.sem_ie) return 'Informe a Inscrição Estadual/NIRF ou marque que ainda não possui.'
@@ -184,7 +201,26 @@ export function HabilitacaoForm() {
                 </div>
                 <div style={{ gridColumn: '1 / -1' }}>
                     <label style={labelStyle}>Endereço de correspondência *</label>
-                    <input style={inputStyle} value={f.endereco} onChange={e => set('endereco', e.target.value)} placeholder="Rua, número, bairro, cidade/UF, CEP" autoComplete="street-address" />
+                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(6, 1fr)', gap: '12px' }}>
+                        <div style={{ gridColumn: 'span 4' }}>
+                            <input style={inputStyle} value={f.endereco_rua} onChange={e => set('endereco_rua', e.target.value)} placeholder="Rua / avenida" autoComplete="address-line1" />
+                        </div>
+                        <div style={{ gridColumn: 'span 2' }}>
+                            <input style={inputStyle} value={f.endereco_numero} onChange={e => set('endereco_numero', e.target.value)} placeholder="Número" inputMode="numeric" />
+                        </div>
+                        <div style={{ gridColumn: 'span 3' }}>
+                            <input style={inputStyle} value={f.endereco_bairro} onChange={e => set('endereco_bairro', e.target.value)} placeholder="Bairro" autoComplete="address-level3" />
+                        </div>
+                        <div style={{ gridColumn: 'span 3' }}>
+                            <input style={inputStyle} value={f.endereco_cidade} onChange={e => set('endereco_cidade', e.target.value)} placeholder="Cidade" autoComplete="address-level2" />
+                        </div>
+                        <div style={{ gridColumn: 'span 2' }}>
+                            <SelectUf value={f.endereco_uf} onChange={v => set('endereco_uf', v)} />
+                        </div>
+                        <div style={{ gridColumn: 'span 4' }}>
+                            <input style={inputStyle} value={f.endereco_cep} onChange={e => set('endereco_cep', e.target.value.replace(/\D/g, '').slice(0, 8).replace(/(\d{5})(\d)/, '$1-$2'))} placeholder="CEP (opcional)" inputMode="numeric" autoComplete="postal-code" />
+                        </div>
+                    </div>
                 </div>
             </div>
 
@@ -200,10 +236,7 @@ export function HabilitacaoForm() {
                 </div>
                 <div>
                     <label style={labelStyle}>UF *</label>
-                    <select style={{ ...inputStyle, appearance: 'none' }} value={f.fazenda_uf} onChange={e => set('fazenda_uf', e.target.value)}>
-                        <option value="" style={{ color: '#000' }}>UF</option>
-                        {UFS.map(uf => <option key={uf} value={uf} style={{ color: '#000' }}>{uf}</option>)}
-                    </select>
+                    <SelectUf value={f.fazenda_uf} onChange={v => set('fazenda_uf', v)} />
                 </div>
                 <div style={{ gridColumn: '1 / -1' }}>
                     <label style={labelStyle}>Inscrição Estadual ou NIRF {f.sem_ie ? '' : '*'}</label>

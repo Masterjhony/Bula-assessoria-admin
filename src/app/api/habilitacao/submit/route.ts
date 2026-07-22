@@ -34,7 +34,23 @@ export async function POST(req: NextRequest) {
     const cpf = str(body.cpf).replace(/\D/g, '')
     const whatsapp = normalizePhone(str(body.whatsapp))
     const email = str(body.email)
-    const endereco = str(body.endereco)
+    // Endereço em campos separados (rua/número/bairro/cidade/UF/CEP) — o CRM e
+    // o checklist trabalham com a string única `endereco_titular`, então compomos
+    // aqui. `body.endereco` (string única) segue aceito por compatibilidade.
+    const endRua = str(body.endereco_rua)
+    const endNumero = str(body.endereco_numero)
+    const endBairro = str(body.endereco_bairro)
+    const endCidade = str(body.endereco_cidade)
+    const endUf = str(body.endereco_uf).toUpperCase()
+    const endCep = str(body.endereco_cep).replace(/\D/g, '')
+    const endereco = endRua
+        ? [
+            `${endRua}, ${endNumero || 's/n'}`,
+            endBairro,
+            endUf ? `${endCidade}/${endUf}` : endCidade,
+            endCep ? `CEP ${endCep.replace(/(\d{5})(\d{3})/, '$1-$2')}` : '',
+        ].filter(Boolean).join(', ')
+        : str(body.endereco)
     const fazendaNome = str(body.fazenda_nome)
     const fazendaCidade = str(body.fazenda_cidade)
     const fazendaUf = str(body.fazenda_uf).toUpperCase()
@@ -44,6 +60,7 @@ export async function POST(req: NextRequest) {
     if (!/\S+\s+\S+/.test(nome)) return fail('Informe seu nome completo.')
     if (!cpfValido(cpf)) return fail('CPF inválido — confira os números.')
     if (!whatsapp) return fail('Informe um WhatsApp válido com DDD.')
+    if (endRua && (endCidade.length < 2 || !/^[A-Z]{2}$/.test(endUf))) return fail('Informe cidade e UF do endereço de correspondência.')
     if (endereco.length < 8) return fail('Informe o endereço de correspondência completo.')
     if (fazendaNome.length < 2) return fail('Informe o nome da fazenda (local de entrega).')
     if (fazendaCidade.length < 2 || !/^[A-Z]{2}$/.test(fazendaUf)) return fail('Informe cidade e UF da fazenda.')
