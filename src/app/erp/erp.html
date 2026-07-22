@@ -507,7 +507,7 @@ svg.chart { width:100%; height:100%; display:block; }
     <div class="sidebar-item" data-page="resultados"><span class="material-symbols-outlined">monitoring</span><span>Resultados</span></div>
     <div class="sidebar-item" data-page="fechamento_leiloes"><span class="material-symbols-outlined">gavel</span><span>Fechamento Leiloes</span></div>
     <div class="sidebar-item" data-page="acordos_comerciais"><span class="material-symbols-outlined">handshake</span><span>Acordos Comerciais</span></div>
-    <div class="sidebar-item" data-page="comissionamento"><span class="material-symbols-outlined">real_estate_agent</span><span>Comissionamento</span></div>
+    <div class="sidebar-item" data-page="comissionamento"><span class="material-symbols-outlined">real_estate_agent</span><span>Bônus e Comissionamento</span></div>
 
     <div class="sidebar-section">Juridico</div>
     <a class="sidebar-item" href="https://admin.bulaassessoria.com/sistema/contratos" target="_blank" style="text-decoration:none;"><span class="material-symbols-outlined">description</span><span>Contratos</span></a>
@@ -5602,7 +5602,7 @@ async function renderComissionamento() {
   const html = `
     <div class="page-header">
       <div>
-        <div class="page-title">Comissionamento <small>${assessores.length} assessores · valores a pagar por leilao e venda</small></div>
+        <div class="page-title">Bônus e Comissionamento <small>${assessores.length} assessores · valores a pagar por leilao e venda</small></div>
       </div>
       <div class="page-actions">
         <button class="btn btn-ghost btn-sm" onclick="flReload()"><span class="material-symbols-outlined">refresh</span>Atualizar</button>
@@ -5931,9 +5931,9 @@ function coPdfGeral() {
   </style></head><body>
   <div class="head">
     <div class="brand">Bula <small>Assessoria</small></div>
-    <div class="doc">Relatório de comissionamento<br>Gerado em ${hoje}</div>
+    <div class="doc">Relatório de bônus e comissionamento<br>Gerado em ${hoje}</div>
   </div>
-  <h1>Comissionamento dos Assessores</h1>
+  <h1>Bônus e Comissionamento dos Assessores</h1>
   <div class="sub">Período/filtro: ${escapeHtml(coFiltroDesc())}</div>
   <div class="kpis">
     <div class="kpi"><span>Assessores</span><b>${assessores.length}</b></div>
