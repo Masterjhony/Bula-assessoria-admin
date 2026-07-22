@@ -5567,18 +5567,23 @@ function coAggregate() {
       if (!key) continue;
       const share = totalVgv>0 ? a._vgv/totalVgv : 0;
       let rec = map.get(key);
-      if (!rec) { rec = { key, nome:coCanonNome(a.nome), empresas:new Set(), apelidos:new Set(), leiloes:[], vgv:0, comissao:0, transacoes:0, animais:0, temEstimado:false }; map.set(key, rec); }
+      if (!rec) { rec = { key, nome:coCanonNome(a.nome), empresas:new Set(), apelidos:new Set(), leiloes:[], vgv:0, comissao:0, comissaoPaga:0, transacoes:0, animais:0, temEstimado:false }; map.set(key, rec); }
       if (String(a.nome||'').trim() && String(a.nome).trim() !== rec.nome) rec.apelidos.add(String(a.nome).trim());
       const empFixa = coEmpresaFixa(rec.nome);
       if (empFixa) { rec.empresas.clear(); rec.empresas.add(empFixa); }
       else if (a.empresa) rec.empresas.add(coEmpresa(a.empresa));
-      rec.vgv += a._vgv; rec.comissao += a._comissao;
+      /* pago = comissão já quitada (acerto/CP pago). Sai do "a pagar" mas
+         continua no histórico do leilão e no total ganho. */
+      const jaPago = a.pago === true;
+      rec.vgv += a._vgv;
+      if (jaPago) rec.comissaoPaga += a._comissao; else rec.comissao += a._comissao;
       rec.transacoes += Number(a.transacoes)||0; rec.animais += Number(a.animais)||0;
-      if (!a._real && a._comissao>0) rec.temEstimado = true;
-      rec.leiloes.push({ id:f.id, nome:f.nome, data:f.data, local:f.local||'', vgv:a._vgv, share, comissao:a._comissao, real:a._real, transacoes:Number(a.transacoes)||0, animais:Number(a.animais)||0, semComissao: totalComissao<=0 && !a._real });
+      if (!a._real && a._comissao>0 && !jaPago) rec.temEstimado = true;
+      rec.leiloes.push({ id:f.id, nome:f.nome, data:f.data, local:f.local||'', vgv:a._vgv, share, comissao:a._comissao, real:a._real, pago:jaPago, pagoRef:a.pago_ref||'', transacoes:Number(a.transacoes)||0, animais:Number(a.animais)||0, semComissao: totalComissao<=0 && !a._real });
     }
   }
-  return [...map.values()].map(r => ({ ...r, empresas:[...r.empresas], apelidos:[...r.apelidos] })).sort((a,b)=> b.comissao - a.comissao || b.vgv - a.vgv);
+  return [...map.values()].map(r => ({ ...r, empresas:[...r.empresas], apelidos:[...r.apelidos] }))
+    .sort((a,b)=> b.comissao - a.comissao || b.comissaoPaga - a.comissaoPaga || b.vgv - a.vgv);
 }
 
 // Vendas individuais (lances) do assessor nos leiloes filtrados
@@ -5620,6 +5625,7 @@ async function renderComissionamento() {
   const fechs = coFilteredFechamentos();
   const tot = {
     pagar: assessores.reduce((s,a)=>s+a.comissao,0),
+    paga: assessores.reduce((s,a)=>s+(a.comissaoPaga||0),0),
     vgv: assessores.reduce((s,a)=>s+a.vgv,0),
     leiloes: new Set(assessores.flatMap(a=>a.leiloes.map(l=>l.id))).size,
   };
@@ -5645,7 +5651,7 @@ async function renderComissionamento() {
         <div class="kpi-icon"><span class="material-symbols-outlined">payments</span></div>
         <div class="kpi-label">Total a Pagar</div>
         <div class="kpi-value money">${fmtBRL(tot.pagar)}</div>
-        <div class="kpi-sub">comissoes de assessoria</div>
+        <div class="kpi-sub">comissoes em aberto${tot.paga>0?` · ${fmtBRL(tot.paga)} ja pago`:''}</div>
       </div>
       <div class="kpi info">
         <div class="kpi-icon"><span class="material-symbols-outlined">groups</span></div>
@@ -5713,7 +5719,8 @@ async function renderComissionamento() {
               <td style="text-align:right">${a.transacoes}</td>
               <td style="text-align:right">${a.animais}</td>
               <td class="money" style="text-align:right;color:var(--gold)">${fmtBRL(a.vgv)}</td>
-              <td class="money" style="text-align:right;font-weight:700">${a.comissao>0?`${fmtBRL(a.comissao)}${a.temEstimado?' <span class="chip muted" style="padding:1px 5px;font-size:9px" title="Inclui valores estimados por rateio de VGV">est.</span>':''}`:'<span style="color:var(--text4)">—</span>'}</td>
+              <td class="money" style="text-align:right;font-weight:700">${a.comissao>0?`${fmtBRL(a.comissao)}${a.temEstimado?' <span class="chip muted" style="padding:1px 5px;font-size:9px" title="Inclui valores estimados por rateio de VGV">est.</span>':''}`:'<span style="color:var(--text4)">—</span>'}
+                ${a.comissaoPaga>0?`<div style="font-size:9.5px;color:var(--text3);font-weight:400" title="Comissao ja quitada — nao entra no total a pagar">${fmtBRL(a.comissaoPaga)} ja pago</div>`:''}</td>
               <td><div style="height:7px;background:var(--s3);border-radius:4px;overflow:hidden"><div style="height:100%;width:${Math.round((a.comissao/maxC)*100)}%;background:var(--gold)"></div></div></td>
               <td style="white-space:nowrap">
                 <button class="icon-btn" title="Gerar PDF das vendas (respeita os filtros)" onclick="event.stopPropagation();coPdf(${i})"><span class="material-symbols-outlined">picture_as_pdf</span></button>
@@ -5753,7 +5760,7 @@ function coOpenDetail(idx) {
     </div>
     <div class="modal-body">
       <div class="kpi-grid" style="margin-bottom:18px">
-        <div class="kpi warn"><div class="kpi-label">Total a Pagar</div><div class="kpi-value money" style="font-size:19px">${fmtBRL(rec.comissao)}</div></div>
+        <div class="kpi warn"><div class="kpi-label">Total a Pagar</div><div class="kpi-value money" style="font-size:19px">${fmtBRL(rec.comissao)}</div>${rec.comissaoPaga>0?`<div class="kpi-sub">${fmtBRL(rec.comissaoPaga)} ja pago</div>`:''}</div>
         <div class="kpi"><div class="kpi-label">VGV Intermediado</div><div class="kpi-value money" style="font-size:19px;color:var(--gold)">${fmtBRL(rec.vgv)}</div></div>
         <div class="kpi"><div class="kpi-label">Leiloes</div><div class="kpi-value" style="font-size:19px">${leiloes.length}</div></div>
         <div class="kpi"><div class="kpi-label">Vendas / Animais</div><div class="kpi-value" style="font-size:19px">${rec.transacoes} · ${rec.animais}</div></div>
@@ -5770,10 +5777,10 @@ function coOpenDetail(idx) {
               <td style="text-align:right">${l.transacoes}</td>
               <td class="money" style="text-align:right">${fmtBRL(l.vgv)}</td>
               <td style="text-align:right">${(l.share*100).toLocaleString('pt-BR',{maximumFractionDigits:1})}%</td>
-              <td class="money" style="text-align:right;font-weight:700">${l.comissao>0?`${fmtBRL(l.comissao)} ${l.real?'<span class="chip success" style="padding:1px 6px" title="Comissao real informada">real</span>':'<span class="chip muted" style="padding:1px 6px" title="Rateio por VGV">est.</span>'}`:'<span style="color:var(--text4)" title="Leilao sem comissao lancada">—</span>'}</td>
+              <td class="money" style="text-align:right;font-weight:700">${l.comissao>0?`${fmtBRL(l.comissao)} ${l.pago?`<span class="chip success" style="padding:1px 6px" title="${escapeHtml(l.pagoRef||'Comissao ja quitada')}">pago</span>`:(l.real?'<span class="chip success" style="padding:1px 6px" title="Comissao real informada">real</span>':'<span class="chip muted" style="padding:1px 6px" title="Rateio por VGV">est.</span>')}`:'<span style="color:var(--text4)" title="Leilao sem comissao lancada">—</span>'}</td>
             </tr>`).join('')}
           </tbody>
-          <tfoot><tr style="font-weight:700;border-top:2px solid var(--border2)"><td colspan="3">Total</td><td class="money" style="text-align:right">${fmtBRL(rec.vgv)}</td><td></td><td class="money" style="text-align:right">${fmtBRL(rec.comissao)}</td></tr></tfoot>
+          <tfoot><tr style="font-weight:700;border-top:2px solid var(--border2)"><td colspan="3">Total a pagar${rec.comissaoPaga>0?` <span style="font-weight:400;color:var(--text3)">(+ ${fmtBRL(rec.comissaoPaga)} ja pago)</span>`:''}</td><td class="money" style="text-align:right">${fmtBRL(rec.vgv)}</td><td></td><td class="money" style="text-align:right">${fmtBRL(rec.comissao)}</td></tr></tfoot>
         </table>
       </div>
       <div style="font-size:10px;color:var(--text3);margin-bottom:18px">${rec.temEstimado?'<strong>real</strong> = comissao informada no fechamento; <strong>est.</strong> = rateio do que sobra do total por VGV.':'Comissoes reais informadas por assessor no fechamento.'}</div>
@@ -5866,6 +5873,7 @@ function coPdf(idx) {
     <div class="kpi"><span>Animais</span><b>${rec.animais}</b></div>
     <div class="kpi"><span>VGV intermediado</span><b>${fmtBRL(rec.vgv)}</b></div>
     <div class="kpi"><span>Comissão a pagar</span><b>${fmtBRL(rec.comissao)}${rec.temEstimado?' *':''}</b></div>
+    ${rec.comissaoPaga>0?`<div class="kpi"><span>Já pago</span><b>${fmtBRL(rec.comissaoPaga)}</b></div>`:''}
   </div>
   <h2>Resultado por leilão</h2>
   <table>
@@ -5878,10 +5886,10 @@ function coPdf(idx) {
         <td class="r">${l.animais}</td>
         <td class="r">${fmtBRL(l.vgv)}</td>
         <td class="r">${pctFmt(l.share)}</td>
-        <td class="r">${l.comissao>0?fmtBRL(l.comissao)+(l.real?'':' *'):'—'}</td>
+        <td class="r">${l.comissao>0?fmtBRL(l.comissao)+(l.pago?' (pago)':(l.real?'':' *')):'—'}</td>
       </tr>`).join('')}
     </tbody>
-    <tfoot><tr><td colspan="2">Total</td><td class="r">${rec.transacoes}</td><td class="r">${rec.animais}</td><td class="r">${fmtBRL(rec.vgv)}</td><td></td><td class="r">${fmtBRL(rec.comissao)}</td></tr></tfoot>
+    <tfoot><tr><td colspan="2">Total a pagar${rec.comissaoPaga>0?` (+ ${fmtBRL(rec.comissaoPaga)} já pago)`:''}</td><td class="r">${rec.transacoes}</td><td class="r">${rec.animais}</td><td class="r">${fmtBRL(rec.vgv)}</td><td></td><td class="r">${fmtBRL(rec.comissao)}</td></tr></tfoot>
   </table>
   ${vendas.length?`
   <h2>Vendas individuais (${vendas.length})</h2>
@@ -5918,6 +5926,7 @@ function coPdfGeral() {
   const pctFmt = v => (v*100).toLocaleString('pt-BR',{maximumFractionDigits:1})+'%';
   const tot = {
     pagar: assessores.reduce((s,a)=>s+a.comissao,0),
+    paga: assessores.reduce((s,a)=>s+(a.comissaoPaga||0),0),
     vgv: assessores.reduce((s,a)=>s+a.vgv,0),
     vendas: assessores.reduce((s,a)=>s+a.transacoes,0),
     animais: assessores.reduce((s,a)=>s+a.animais,0),
@@ -5968,6 +5977,7 @@ function coPdfGeral() {
     <div class="kpi"><span>Vendas · Animais</span><b>${tot.vendas} · ${tot.animais}</b></div>
     <div class="kpi"><span>VGV intermediado</span><b>${fmtBRL(tot.vgv)}</b></div>
     <div class="kpi"><span>Total a pagar</span><b>${fmtBRL(tot.pagar)}${temEst?' *':''}</b></div>
+    ${tot.paga>0?`<div class="kpi"><span>Já pago</span><b>${fmtBRL(tot.paga)}</b></div>`:''}
   </div>
   <h2>Resumo por assessor</h2>
   <table>
@@ -5980,7 +5990,7 @@ function coPdfGeral() {
         <td class="r">${a.transacoes}</td>
         <td class="r">${a.animais}</td>
         <td class="r">${fmtBRL(a.vgv)}</td>
-        <td class="r"><strong>${a.comissao>0?fmtBRL(a.comissao)+(a.temEstimado?' *':''):'—'}</strong></td>
+        <td class="r"><strong>${a.comissao>0?fmtBRL(a.comissao)+(a.temEstimado?' *':''):'—'}</strong>${a.comissaoPaga>0?`<div style="font-size:8.5px;color:#777;font-weight:400">${fmtBRL(a.comissaoPaga)} já pago</div>`:''}</td>
       </tr>`).join('')}
     </tbody>
     <tfoot><tr><td colspan="2">Total (${assessores.length} assessores)</td><td class="r">${tot.leiloes}</td><td class="r">${tot.vendas}</td><td class="r">${tot.animais}</td><td class="r">${fmtBRL(tot.vgv)}</td><td class="r">${fmtBRL(tot.pagar)}</td></tr></tfoot>
@@ -6000,10 +6010,10 @@ function coPdfGeral() {
           <td class="r">${l.animais}</td>
           <td class="r">${fmtBRL(l.vgv)}</td>
           <td class="r">${pctFmt(l.share)}</td>
-          <td class="r">${l.comissao>0?fmtBRL(l.comissao)+(l.real?'':' *'):'—'}</td>
+          <td class="r">${l.comissao>0?fmtBRL(l.comissao)+(l.pago?' (pago)':(l.real?'':' *')):'—'}</td>
         </tr>`).join('')}
       </tbody>
-      <tfoot><tr><td colspan="2">Total</td><td class="r">${a.transacoes}</td><td class="r">${a.animais}</td><td class="r">${fmtBRL(a.vgv)}</td><td></td><td class="r">${fmtBRL(a.comissao)}</td></tr></tfoot>
+      <tfoot><tr><td colspan="2">Total a pagar${a.comissaoPaga>0?` (+ ${fmtBRL(a.comissaoPaga)} já pago)`:''}</td><td class="r">${a.transacoes}</td><td class="r">${a.animais}</td><td class="r">${fmtBRL(a.vgv)}</td><td></td><td class="r">${fmtBRL(a.comissao)}</td></tr></tfoot>
     </table>
     </div>`;
   }).join('')}
@@ -6018,10 +6028,10 @@ function coExportCSV() {
   const assessores = state.coCache || [];
   if (!assessores.length) { toast('Nada para exportar','info'); return; }
   const cell = v => `"${String(v==null?'':v).replace(/"/g,'""')}"`;
-  const lines = [['Assessor','Empresa','Leilao','Data','VGV no leilao','% do leilao','Comissao'].map(cell).join(';')];
+  const lines = [['Assessor','Empresa','Leilao','Data','VGV no leilao','% do leilao','Comissao','Status'].map(cell).join(';')];
   for (const a of assessores) {
     for (const l of a.leiloes.slice().sort((x,y)=>(y.data||'').localeCompare(x.data||''))) {
-      lines.push([a.nome, a.empresas.join(' / '), l.nome, l.data, Math.round(l.vgv), (l.share*100).toFixed(1), Math.round(l.comissao)].map(cell).join(';'));
+      lines.push([a.nome, a.empresas.join(' / '), l.nome, l.data, Math.round(l.vgv), (l.share*100).toFixed(1), Math.round(l.comissao), l.pago?'pago':'a pagar'].map(cell).join(';'));
     }
   }
   const blob = new Blob(["﻿"+lines.join('\n')], { type:'text/csv;charset=utf-8' });
