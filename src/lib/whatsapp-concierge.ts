@@ -1050,6 +1050,24 @@ ${RESULT_SCHEMA_INSTRUCTIONS}`
         }
     }
 
+    // LINK DA PÁGINA DE HABILITAÇÃO — determinístico, uma vez por lead: na
+    // primeira resposta da fase de habilitação, anexa o link do formulário
+    // (bulaassessoria.com/habilitacao). A instrução existe no prompt, mas o
+    // modelo pulava; como o link é o caminho de menor atrito pros documentos,
+    // o sistema garante o envio (flag habilitacao_link_enviado_at no persist).
+    {
+        const xdLink = (lead.extra_data ?? {}) as Record<string, unknown>
+        if (
+            fase.fase === 'habilitacao'
+            && (ai.reply || '').trim()
+            && !ai.handoff && !ai.optout
+            && !xdLink.habilitacao_link_enviado_at
+            && !(ai.reply || '').includes('bulaassessoria.com/habilitacao')
+        ) {
+            ai.reply = `${(ai.reply || '').trim()}\n\nSe preferir, dá pra adiantar tudo de uma vez — dados e documentos — direto no nosso site: https://bulaassessoria.com/habilitacao`
+        }
+    }
+
     // Aplica efeitos no CRM. A gravação é awaitada (o próximo turno depende
     // dela); as automações caras voltam num closure para rodar DEPOIS do envio.
     let postEffects: () => Promise<void> = async () => { /* noop */ }
@@ -1177,6 +1195,10 @@ async function applyConciergeEffects(
     if (ai.stage) nextExtra.qualificacao_step = ai.stage
     if (typeof ai.fast_track === 'boolean') nextExtra.fast_track = ai.fast_track
     nextExtra.concierge_last_at = new Date().toISOString()
+    // Link da página de habilitação saiu nesta resposta → marca pra não repetir.
+    if ((ai.reply || '').includes('bulaassessoria.com/habilitacao') && !prevExtra.habilitacao_link_enviado_at) {
+        nextExtra.habilitacao_link_enviado_at = new Date().toISOString()
+    }
 
     // Documentos reconhecidos pela IA (tipos semânticos) — união com os já vistos.
     const semanticNew = (Array.isArray(u.documentos_recebidos) ? u.documentos_recebidos : [])
