@@ -5586,6 +5586,23 @@ function coAggregate() {
     .sort((a,b)=> b.comissao - a.comissao || b.comissaoPaga - a.comissaoPaga || b.vgv - a.vgv);
 }
 
+/* Saldo EM ABERTO por assessor considerando TODOS os fechamentos (ignora os
+   filtros da tela). O filtro por mês esconderia comissão em aberto de outro
+   período — ex.: Rusa não tem nada a pagar em junho (tudo quitado no acerto),
+   mas tem R$ 17.400 em aberto de julho. A linha mostra esse saldo sempre. */
+function coSaldoAbertoGlobal() {
+  const map = new Map();
+  for (const f of (state.fechamentos || [])) {
+    for (const a of flComissaoAssessores(f)) {
+      if (a.pago === true) continue;
+      const k = coNorm(a.nome);
+      if (!k || !(a._comissao > 0)) continue;
+      map.set(k, (map.get(k) || 0) + a._comissao);
+    }
+  }
+  return map;
+}
+
 // Vendas individuais (lances) do assessor nos leiloes filtrados
 function coVendasDe(rec) {
   const vendas = [];
@@ -5631,6 +5648,8 @@ async function renderComissionamento() {
   };
   const semComissao = fechs.length>0 && fechs.every(x => !(Number(x.comissao_assessoria)>0));
   const maxC = assessores.reduce((m,a)=>Math.max(m,a.comissao),0) || 1;
+  const saldoGlobal = coSaldoAbertoGlobal();
+  const temFiltroPeriodo = !!(mes || ano || leilaoSel);
 
   const html = `
     <div class="page-header">
@@ -5711,7 +5730,10 @@ async function renderComissionamento() {
           </tr>
         </thead>
         <tbody>
-          ${assessores.map((a,i)=>`
+          ${assessores.map((a,i)=>{
+            const aberto = saldoGlobal.get(a.key) || 0;
+            const mostraAberto = temFiltroPeriodo && aberto > a.comissao + 0.01;
+            return `
             <tr style="cursor:pointer" onclick="coOpenDetail(${i})">
               <td style="font-weight:600">${escapeHtml(a.nome)}${a.apelidos.length?`<div style="font-size:10px;color:var(--text3);font-weight:400" title="Grafias unificadas dos fechamentos">inclui: ${a.apelidos.map(escapeHtml).join(', ')}</div>`:''}</td>
               <td>${a.empresas.length?a.empresas.map(e=>`<span class="chip muted">${escapeHtml(e)}</span>`).join(' '):'—'}</td>
@@ -5720,13 +5742,14 @@ async function renderComissionamento() {
               <td style="text-align:right">${a.animais}</td>
               <td class="money" style="text-align:right;color:var(--gold)">${fmtBRL(a.vgv)}</td>
               <td class="money" style="text-align:right;font-weight:700">${a.comissao>0?`${fmtBRL(a.comissao)}${a.temEstimado?' <span class="chip muted" style="padding:1px 5px;font-size:9px" title="Inclui valores estimados por rateio de VGV">est.</span>':''}`:'<span style="color:var(--text4)">—</span>'}
+                ${mostraAberto?`<div style="font-size:11px;color:var(--gold);font-weight:700;margin-top:2px" title="Saldo em aberto do assessor somando TODOS os periodos (o filtro atual nao mostra tudo)">${fmtBRL(aberto)} em aberto (total)</div>`:''}
                 ${a.comissaoPaga>0?`<div style="font-size:9.5px;color:var(--text3);font-weight:400" title="Comissao ja quitada — nao entra no total a pagar">${fmtBRL(a.comissaoPaga)} ja pago</div>`:''}</td>
               <td><div style="height:7px;background:var(--s3);border-radius:4px;overflow:hidden"><div style="height:100%;width:${Math.round((a.comissao/maxC)*100)}%;background:var(--gold)"></div></div></td>
               <td style="white-space:nowrap">
                 <button class="icon-btn" title="Gerar PDF das vendas (respeita os filtros)" onclick="event.stopPropagation();coPdf(${i})"><span class="material-symbols-outlined">picture_as_pdf</span></button>
                 <span class="material-symbols-outlined" style="color:var(--text4);font-size:18px;vertical-align:middle">chevron_right</span>
               </td>
-            </tr>`).join('')}
+            </tr>`;}).join('')}
         </tbody>
         <tfoot>
           <tr style="font-weight:700;border-top:2px solid var(--border2)">
