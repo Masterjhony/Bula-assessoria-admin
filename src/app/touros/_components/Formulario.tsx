@@ -1,6 +1,7 @@
 'use client'
 
 import { cloneElement, isValidElement, useEffect, useId, useRef, useState } from 'react'
+import { useRouter } from 'next/navigation'
 import { AnimatePresence, motion, useReducedMotion } from 'framer-motion'
 import { Loader2, CheckCircle2, ShieldCheck, ArrowRight, ArrowLeft } from 'lucide-react'
 import { dark, typo, font, radius } from '../_lib/tokens'
@@ -68,11 +69,13 @@ const EMPTY: FormData = {
 type Errors = Partial<Record<keyof FormData, string>>
 
 const TOTAL = 3
-const STEP_LABELS = ['Seus dados', 'Sua fazenda', 'Contato']
+// Contato (nome/WhatsApp/e-mail/consentimento) sobe para o 1º passo — captura o
+// dado de lead o quanto antes; fazenda e objetivo qualificam depois.
+const STEP_LABELS = ['Seus dados', 'Sua fazenda', 'Sua compra']
 const STEP_FIELDS: (keyof FormData)[][] = [
-  ['nome'],
+  ['nome', 'whatsapp', 'email', 'whatsappConsent'],
   ['uf', 'cidade', 'cabecas', 'momento'],
-  ['whatsapp', 'email', 'quantosTouros', 'inscricaoEstadual', 'whatsappConsent'],
+  ['quantosTouros', 'inscricaoEstadual'],
 ]
 
 function applyPhoneMask(value: string): string {
@@ -101,6 +104,7 @@ function validate(d: FormData): Errors {
 // validação, IBGE, UTM, tracking, event_id, is_mql.
 export function LeadForm() {
   const reduce = useReducedMotion()
+  const router = useRouter()
   const [data, setData] = useState<FormData>(EMPTY)
   const [errors, setErrors] = useState<Errors>({})
   const [status, setStatus] = useState<'idle' | 'submitting' | 'success' | 'error'>('idle')
@@ -224,8 +228,13 @@ export function LeadForm() {
         isMql: body?.is_mql === true,
         eventId,
       })
-      setStatus('success')
-      document.getElementById('cadastro')?.scrollIntoView({ behavior: 'smooth', block: 'start' })
+      // Redireciona para a página de obrigado conforme o veredito de MQL do
+      // SERVIDOR. URLs separadas habilitam metas de conversão por URL (Google/
+      // Meta) e otimização value-based rumo ao lead que vale. Os eventos de
+      // conversão já dispararam acima (dedup por eventId); a navegação é SPA
+      // (soft nav), então os beacons em voo não são cortados. Mantemos o status
+      // em 'submitting' — o form desmonta na navegação.
+      router.push(body?.is_mql === true ? '/obrigado-touros-mql' : '/obrigado-touros-lead')
     } catch (err) {
       setStatus('error')
       setServerError(err instanceof Error ? err.message : 'Falha ao enviar.')
@@ -256,6 +265,26 @@ export function LeadForm() {
 
   return (
     <form onSubmit={handleSubmit} noValidate className="p-6 sm:p-8" style={cardStyle}>
+      {/* Cabeçalho do form — diz O QUE é e O QUE acontece (message match +
+          expectativa), pra ninguém preencher sem saber pra quê é o cadastro. */}
+      <div className="mb-6" style={{ borderBottom: `1px solid ${dark.hairline}`, paddingBottom: 20 }}>
+        <h2
+          style={{
+            fontFamily: font.display,
+            fontWeight: 600,
+            fontSize: 'clamp(20px, 3.2vw, 24px)',
+            letterSpacing: '-0.01em',
+            lineHeight: 1.12,
+            color: dark.text,
+          }}
+        >
+          {copy.title}
+        </h2>
+        <p className="mt-2.5" style={{ fontFamily: font.body, fontSize: 14, lineHeight: 1.5, color: dark.muted }}>
+          {copy.lead}
+        </p>
+      </div>
+
       {/* Progresso — contador técnico em mono, trilha hairline com barras retas. */}
       <div className="mb-7">
         <div className="mb-2.5 flex items-center justify-between">
@@ -283,13 +312,45 @@ export function LeadForm() {
           className="flex flex-col gap-5"
         >
           {step === 0 && (
-            <Field label="Nome completo" error={errors.nome} invalid={invalid('nome')}>
-              <input
-                type="text" inputMode="text" autoComplete="name"
-                value={data.nome} onChange={(e) => set('nome', e.target.value)}
-                placeholder="Seu nome" style={inputStyle(!!errors.nome)}
-              />
-            </Field>
+            <>
+              <Field label="Nome completo" error={errors.nome} invalid={invalid('nome')}>
+                <input
+                  type="text" inputMode="text" autoComplete="name"
+                  value={data.nome} onChange={(e) => set('nome', e.target.value)}
+                  placeholder="Seu nome" style={inputStyle(!!errors.nome)}
+                />
+              </Field>
+
+              <Field label="WhatsApp" error={errors.whatsapp} invalid={invalid('whatsapp')} hint={copy.whatsappHint}>
+                <input
+                  type="tel" inputMode="tel" autoComplete="tel"
+                  value={data.whatsapp} onChange={(e) => set('whatsapp', applyPhoneMask(e.target.value))}
+                  placeholder="(00) 00000-0000" style={inputStyle(!!errors.whatsapp)}
+                />
+              </Field>
+
+              <Field label="E-mail (opcional)" error={errors.email} invalid={invalid('email')}>
+                <input
+                  type="email" inputMode="email" autoComplete="email"
+                  value={data.email} onChange={(e) => set('email', e.target.value)}
+                  placeholder="voce@email.com" style={inputStyle(!!errors.email)}
+                />
+              </Field>
+
+              <label className="mt-1 flex cursor-pointer items-start gap-3" data-invalid={invalid('whatsappConsent')}>
+                <input
+                  type="checkbox" checked={data.whatsappConsent}
+                  onChange={(e) => set('whatsappConsent', e.target.checked)}
+                  style={{ width: 20, height: 20, marginTop: 2, accentColor: dark.gold, flexShrink: 0 }}
+                />
+                <span style={{ fontFamily: font.body, fontSize: 14, lineHeight: 1.45, color: errors.whatsappConsent ? ERR : dark.muted }}>
+                  {copy.consent}
+                </span>
+              </label>
+              {errors.whatsappConsent && (
+                <p role="alert" style={{ fontSize: 12.5, color: ERR, marginTop: -8 }}>{errors.whatsappConsent}</p>
+              )}
+            </>
           )}
 
           {step === 1 && (
@@ -335,14 +396,6 @@ export function LeadForm() {
 
           {step === 2 && (
             <>
-              <Field label="WhatsApp" error={errors.whatsapp} invalid={invalid('whatsapp')} hint={copy.whatsappHint}>
-                <input
-                  type="tel" inputMode="tel" autoComplete="tel"
-                  value={data.whatsapp} onChange={(e) => set('whatsapp', applyPhoneMask(e.target.value))}
-                  placeholder="(00) 00000-0000" style={inputStyle(!!errors.whatsapp)}
-                />
-              </Field>
-
               <Field label="Quantos touros você busca?" error={errors.quantosTouros} invalid={invalid('quantosTouros')}>
                 <select value={data.quantosTouros} onChange={(e) => set('quantosTouros', e.target.value)} style={inputStyle(!!errors.quantosTouros)}>
                   <option value="">Selecione…</option>
@@ -375,27 +428,6 @@ export function LeadForm() {
                 </div>
               </Field>
 
-              <Field label="E-mail (opcional)" error={errors.email} invalid={invalid('email')}>
-                <input
-                  type="email" inputMode="email" autoComplete="email"
-                  value={data.email} onChange={(e) => set('email', e.target.value)}
-                  placeholder="voce@email.com" style={inputStyle(!!errors.email)}
-                />
-              </Field>
-
-              <label className="mt-1 flex cursor-pointer items-start gap-3" data-invalid={invalid('whatsappConsent')}>
-                <input
-                  type="checkbox" checked={data.whatsappConsent}
-                  onChange={(e) => set('whatsappConsent', e.target.checked)}
-                  style={{ width: 20, height: 20, marginTop: 2, accentColor: dark.gold, flexShrink: 0 }}
-                />
-                <span style={{ fontFamily: font.body, fontSize: 14, lineHeight: 1.45, color: errors.whatsappConsent ? ERR : dark.muted }}>
-                  {copy.consent}
-                </span>
-              </label>
-              {errors.whatsappConsent && (
-                <p role="alert" style={{ fontSize: 12.5, color: ERR, marginTop: -8 }}>{errors.whatsappConsent}</p>
-              )}
               {serverError && (
                 <p role="alert" style={{ fontSize: 14, color: ERR }}>{serverError} Tente novamente.</p>
               )}
@@ -448,15 +480,18 @@ export function LeadForm() {
             {status === 'submitting' ? (
               <><Loader2 size={18} className="animate-spin" /> {copy.submitting}</>
             ) : (
-              copy.submit
+              <>{copy.submit} <ArrowRight size={18} /></>
             )}
           </button>
         )}
       </div>
 
       {step === TOTAL - 1 && (
-        <p className="mt-4 flex items-center justify-center gap-1.5" style={{ ...typo.monoLabel, color: dark.muted }}>
-          <ShieldCheck size={13} /> Seus dados ficam só com a Bula. Sem spam.
+        <p
+          className="mt-4 flex items-center justify-center gap-1.5 text-center"
+          style={{ ...typo.monoLabel, fontSize: 10.5, letterSpacing: '0.1em', color: dark.muted }}
+        >
+          <ShieldCheck size={12} /> Seus dados ficam só com a Bula.
         </p>
       )}
     </form>

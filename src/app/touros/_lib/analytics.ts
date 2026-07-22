@@ -48,6 +48,11 @@ async function loadPosthog() {
       api_host: POSTHOG_HOST,
       capture_pageview: false,
       persistence: 'localStorage+cookie',
+      // Mapa de calor: captura cliques, rageclicks, movimento do mouse e scroll
+      // (eventos $$heatmap, por URL) → alimenta a aba "Heatmaps" do PostHog.
+      // `true` força no client mesmo se o toggle remoto do projeto estiver off.
+      // Depende de autocapture (ligado por padrão) para o clickmap do Toolbar.
+      enable_heatmaps: true,
     })
   } catch {
     posthog = null

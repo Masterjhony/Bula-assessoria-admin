@@ -2,7 +2,7 @@
 
 import { motion, useReducedMotion } from 'framer-motion'
 import type { ReactNode, CSSProperties } from 'react'
-import { dark, light, typo, radius, type Surface } from '../_lib/tokens'
+import { dark, light, typo, radius, font, type Surface } from '../_lib/tokens'
 
 // ── Primitivos editoriais (Ferrari × Bula) ─────────────────────────────────
 // Cada Section declara sua SUPERFÍCIE (dark ↔ light). A troca de cor entre
@@ -35,9 +35,10 @@ export function Section({
       style={{
         background: p.bg,
         color: p.text,
-        // Ritmo generoso, editorial: 64px mobile → 128px desktop.
-        paddingTop: 'clamp(64px, 11vw, 128px)',
-        paddingBottom: 'clamp(64px, 11vw, 128px)',
+        // Ritmo generoso, editorial: 80px mobile → 144px desktop. Mais respiro
+        // entre tiles — o ar é parte do registro (Ferrari × Bula).
+        paddingTop: 'clamp(80px, 12vw, 144px)',
+        paddingBottom: 'clamp(80px, 12vw, 144px)',
         ...style,
       }}
     >
@@ -217,6 +218,77 @@ export function Reveal({
       transition={{ duration: 0.6, delay, ease: [0.22, 1, 0.36, 1] }}
     >
       {children}
+    </motion.div>
+  )
+}
+
+/**
+ * Card de tópico "Apple-like": superfície elevada, cantos arredondados (18px),
+ * respiro generoso e hover suave (lift + realce de borda, easing da Apple).
+ * Mantém o dourado como único accent (índice mono). `title` opcional para os
+ * tópicos com título (Produto/Conscientização). Só o accent muda entre dark/light.
+ */
+export function TopicCard({
+  index,
+  text,
+  title,
+  strong = false,
+  surface = 'dark',
+  delay = 0,
+  className = '',
+}: {
+  index: number
+  text: string
+  title?: string
+  strong?: boolean
+  surface?: Surface
+  delay?: number
+  className?: string
+}) {
+  const reduce = useReducedMotion()
+  const p = palette(surface)
+  const gold = surface === 'light' ? light.goldText : dark.gold
+  const skin =
+    surface === 'dark'
+      ? { bg: 'rgba(255,255,255,0.045)', border: 'rgba(255,255,255,0.09)', hoverBg: 'rgba(255,255,255,0.07)', hoverBorder: 'rgba(255,255,255,0.20)' }
+      : { bg: 'rgba(255,255,255,0.75)', border: 'rgba(0,0,0,0.08)', hoverBg: 'rgba(255,255,255,1)', hoverBorder: 'rgba(0,0,0,0.16)' }
+  return (
+    <motion.div
+      className={`h-full ${className}`}
+      initial={reduce ? false : { opacity: 0, y: 18 }}
+      whileInView={{ opacity: 1, y: 0 }}
+      viewport={{ once: true, margin: '-60px' }}
+      whileHover={reduce ? undefined : { y: -4, backgroundColor: skin.hoverBg, borderColor: skin.hoverBorder }}
+      transition={{ duration: 0.55, delay, ease: [0.16, 1, 0.3, 1] }}
+      style={{
+        backgroundColor: skin.bg,
+        borderWidth: 1,
+        borderStyle: 'solid',
+        borderColor: skin.border,
+        borderRadius: 18,
+        padding: 'clamp(20px, 2.4vw, 28px)',
+        // WebkitBackdropFilter deixado de fora de propósito: a marca evita glass.
+      }}
+    >
+      <span style={{ ...typo.monoLabel, color: gold, display: 'block' }}>
+        {String(index).padStart(2, '0')}
+      </span>
+      {title && (
+        <h3 style={{ fontFamily: font.display, fontWeight: 600, fontSize: 19, letterSpacing: '-0.01em', color: p.text, marginTop: 16 }}>
+          {title}
+        </h3>
+      )}
+      <p
+        style={{
+          ...typo.body,
+          fontSize: title ? 15 : 'clamp(15px, 1.7vw, 17px)',
+          fontWeight: strong ? 600 : 400,
+          color: strong ? p.text : p.body,
+          marginTop: title ? 8 : 14,
+        }}
+      >
+        {text}
+      </p>
     </motion.div>
   )
 }

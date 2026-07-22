@@ -18,7 +18,7 @@ export function Fechamento() {
               Pronto para escolher o touro certo?
             </h2>
             <p className="mx-auto mt-5 max-w-[520px]" style={{ ...typo.body, fontSize: 18, color: dark.body }}>
-              Cadastre-se e a equipe da Bula te ajuda a montar a seleção — sem custo.
+              Cadastre-se: a Bula monta sua seleção de touros sem custo e você fecha o touro certo pro rebanho.
             </p>
             <div className="mt-10 flex justify-center">
               <PillButton href="#cadastro" surface="dark">

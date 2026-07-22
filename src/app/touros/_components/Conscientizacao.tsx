@@ -2,7 +2,7 @@
 
 import { dark, typo, font } from '../_lib/tokens'
 import { conscientizacao as c } from '../_lib/copy'
-import { Section, Container, Reveal, Eyebrow } from './ui'
+import { Section, Container, Reveal, Eyebrow, TopicCard } from './ui'
 
 // Seção CRÍTICA (anti-lead-frio) — tile ESCURO. Cria compromisso e expectativa
 // ANTES do cadastro: o lead entende que receberá contato humano pelo WhatsApp e
@@ -17,30 +17,20 @@ export function Conscientizacao() {
           <h2 className="mt-4 max-w-[640px]" style={{ ...typo.displayLg }}>
             {c.title}
           </h2>
-          <p className="mt-5 max-w-[620px]" style={{ ...typo.body, fontSize: 'clamp(16px, 2vw, 19px)', color: dark.body }}>
+          <p className="mt-6 max-w-[620px]" style={{ ...typo.body, fontSize: 'clamp(16px, 2vw, 19px)', color: dark.body }}>
             {c.lead}
           </p>
         </Reveal>
 
-        <div className="mt-14 grid gap-y-10 md:grid-cols-3 md:gap-x-10 md:gap-y-0">
+        <div className="mt-16 grid gap-4 md:grid-cols-3">
           {c.points.map((p, i) => (
-            <Reveal key={p.title} delay={i * 0.08}>
-              <div className="flex h-full flex-col pt-6" style={{ borderTop: `1px solid ${dark.hairlineStrong}` }}>
-                <span aria-hidden style={{ ...typo.stat, fontSize: 'clamp(34px, 5vw, 52px)', color: dark.gold, lineHeight: 1 }}>
-                  {String(i + 1).padStart(2, '0')}
-                </span>
-                <h3 className="mt-5" style={{ fontFamily: font.display, fontWeight: 600, fontSize: 19, letterSpacing: '-0.01em' }}>
-                  {p.title}
-                </h3>
-                <p className="mt-2.5" style={{ ...typo.body, fontSize: 15, color: dark.body }}>{p.text}</p>
-              </div>
-            </Reveal>
+            <TopicCard key={p.title} index={i + 1} title={p.title} text={p.text} surface="dark" delay={i * 0.08} />
           ))}
         </div>
 
         {/* Compromisso — citação editorial com barra dourada reta, sem card. */}
         <Reveal delay={0.1}>
-          <div className="mt-16 flex items-stretch gap-5" style={{ borderTop: `1px solid ${dark.hairline}`, paddingTop: 28 }}>
+          <div className="mt-20 flex items-stretch gap-5" style={{ borderTop: `1px solid ${dark.hairline}`, paddingTop: 32 }}>
             <span aria-hidden style={{ width: 3, flexShrink: 0, background: dark.gold }} />
             <p
               style={{

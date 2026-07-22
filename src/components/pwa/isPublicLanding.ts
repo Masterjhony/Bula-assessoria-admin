@@ -1,7 +1,7 @@
 // Rotas públicas de marketing (tráfego pago / leads externos) que NÃO devem
 // receber o PWA interno da Bula — nem o banner "Instalar o app", nem o service
 // worker do app admin. Elas são páginas comerciais para visitantes externos.
-export const PUBLIC_LANDING_PREFIXES = ['/touros']
+export const PUBLIC_LANDING_PREFIXES = ['/touros', '/obrigado-touros-mql', '/obrigado-touros-lead']
 
 export function isPublicLanding(pathname: string | null | undefined): boolean {
   if (!pathname) return false

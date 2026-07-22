@@ -2,9 +2,9 @@
 
 import Image from 'next/image'
 import { useEffect, useRef } from 'react'
-import { dark, typo, font } from '../_lib/tokens'
+import { dark, typo } from '../_lib/tokens'
 import { produto } from '../_lib/copy'
-import { Section, Container, Reveal, Eyebrow, StatNumber } from './ui'
+import { Section, Container, Reveal, Eyebrow, StatNumber, TopicCard } from './ui'
 import { trackFunnel } from '../_lib/analytics'
 
 // Seção de PRODUTO — o que o comprador recebe (touro/genética), não o processo.
@@ -13,10 +13,12 @@ import { trackFunnel } from '../_lib/analytics'
 const PRODUTO_PHOTO = '/jmp/galeria-touros/IMG_0037.jpg'
 
 // [VALIDAR] números com o cliente.
+// Rótulos que comunicam o PRODUTO (não jargão solto): escala real, seleção por
+// dado (o diferencial: dado > beleza) e o porquê do custo-zero (operação séria).
 const STATS = [
-  { v: '+1.000', l: 'Touros PO apartados' },
-  { v: '100%', l: 'Lidos pelo sumário' },
-  { v: 'R$ 0', l: 'De custo pra você' },
+  { v: '+1.000', l: 'Touros PO já apartados' },
+  { v: '100%', l: 'Avaliados por DEP e sumário' },
+  { v: 'R$ 0', l: 'Assessoria paga pelas centrais' },
 ]
 
 export function Produto() {
@@ -47,7 +49,7 @@ export function Produto() {
       <Container wide>
         {/* Faixa de números — a "ficha de performance" gigante. */}
         <Reveal>
-          <div ref={ref} className="mb-16 grid grid-cols-1 sm:grid-cols-3">
+          <div ref={ref} className="mb-20 grid grid-cols-1 sm:grid-cols-3">
             {STATS.map((s, i) => (
               <div
                 key={s.l}
@@ -64,7 +66,7 @@ export function Produto() {
           </div>
         </Reveal>
 
-        <div className="grid items-center gap-10 lg:grid-cols-2 lg:gap-16">
+        <div className="grid items-center gap-12 lg:grid-cols-2 lg:gap-20">
           {/* Foto do touro — moldura hairline reta, sem sombra. */}
           <Reveal>
             <div className="relative aspect-[4/3] w-full overflow-hidden" style={{ border: `1px solid ${dark.hairline}` }}>
@@ -85,24 +87,14 @@ export function Produto() {
               <h2 className="mt-4 max-w-[520px]" style={{ ...typo.displayLg }}>
                 {produto.title}
               </h2>
-              <p className="mt-5 max-w-[480px]" style={{ ...typo.body, fontSize: 17, color: dark.body }}>
+              <p className="mt-6 max-w-[480px]" style={{ ...typo.body, fontSize: 17, color: dark.body }}>
                 {produto.lead}
               </p>
             </Reveal>
 
-            <div className="mt-9 flex flex-col">
+            <div className="mt-11 flex flex-col gap-3">
               {produto.pillars.map((p, i) => (
-                <Reveal key={p.title} delay={i * 0.06}>
-                  <div className="flex gap-5 py-6" style={{ borderTop: `1px solid ${dark.hairline}` }}>
-                    <span aria-hidden style={{ ...typo.monoLabel, color: dark.gold, minWidth: '2ch', marginTop: 4 }}>
-                      {String(i + 1).padStart(2, '0')}
-                    </span>
-                    <div>
-                      <h3 style={{ fontFamily: font.display, fontWeight: 600, fontSize: 19, letterSpacing: '-0.01em' }}>{p.title}</h3>
-                      <p className="mt-2" style={{ ...typo.body, fontSize: 15, color: dark.body }}>{p.text}</p>
-                    </div>
-                  </div>
-                </Reveal>
+                <TopicCard key={p.title} index={i + 1} title={p.title} text={p.text} surface="dark" delay={i * 0.06} />
               ))}
             </div>
           </div>
