@@ -54,9 +54,12 @@ const canon = (s) => CANON[nk(s)] || String(s || '').trim()
 const { data: fechs, error } = await sb.from('bula_leilao_fechamento').select('*').order('data')
 if (error) { console.error(error.message); process.exit(1) }
 
-// Fora do ciclo de 27/07 por decisão do chefe (23/07): não são da Bula
-// Assessoria (cadastro empresa "Outro") e não entram neste pagamento.
-const EXCLUIR = /Peralta|Fabricio|Fabrício/i
+// Fora do ciclo de 27/07 por decisão do chefe (23/07):
+//  · Peralta e Fabricio Hyppolito — não são da Bula Assessoria (empresa "Outro").
+//  · Lucas Martins — o saldo de 432,00 (Matinha Virtual 21/06) não entra: está
+//    lançado a 2% quando o percentual dele é 0,33% (0,5% na época) e não constava
+//    da planilha dele já paga em 10/07 (NF 04). Fica p/ conferência.
+const EXCLUIR = /Peralta|Fabricio|Fabrício|Lucas Martins/i
 
 // ---- JUNHO em aberto, por pessoa (exclui Bulinha e Rusa: blocos próprios) ----
 const junho = new Map()
