@@ -54,6 +54,10 @@ const canon = (s) => CANON[nk(s)] || String(s || '').trim()
 const { data: fechs, error } = await sb.from('bula_leilao_fechamento').select('*').order('data')
 if (error) { console.error(error.message); process.exit(1) }
 
+// Fora do ciclo de 27/07 por decisão do chefe (23/07): não são da Bula
+// Assessoria (cadastro empresa "Outro") e não entram neste pagamento.
+const EXCLUIR = /Peralta|Fabricio|Fabrício/i
+
 // ---- JUNHO em aberto, por pessoa (exclui Bulinha e Rusa: blocos próprios) ----
 const junho = new Map()
 for (const f of fechs || []) {
@@ -61,7 +65,7 @@ for (const f of fechs || []) {
   for (const a of comissaoAssessores(f)) {
     if (a.pago === true || !(a._comissao > 0.001)) continue
     const nome = canon(a.nome)
-    if (/Bulinha|Gustavo Rusa/i.test(nome)) continue
+    if (/Bulinha|Gustavo Rusa/i.test(nome) || EXCLUIR.test(nome)) continue
     if (!junho.has(nome)) junho.set(nome, { nome, total: 0, itens: [] })
     const g = junho.get(nome)
     g.total = r2(g.total + a._comissao)
@@ -211,14 +215,19 @@ const html = `<!DOCTYPE html><html lang="pt-BR"><head><meta charset="utf-8">
 mkdirSync(join(root, 'outputs'), { recursive: true })
 const htmlPath = join(root, 'outputs', 'relatorio-comissoes-pagar-2026-07-27.html')
 const pdfPath = join(root, 'outputs', 'relatorio-comissoes-pagar-2026-07-27.pdf')
+// Cópia na Área de Trabalho (pedido do chefe)
+const desktop = join(process.env.USERPROFILE || '', 'Desktop')
+const pdfDesktop = join(desktop, 'Comissoes a Pagar - 27-07-2026.pdf')
 writeFileSync(htmlPath, html, 'utf-8')
 
 const browser = await chromium.launch()
 const page = await browser.newPage()
 await page.setContent(html, { waitUntil: 'networkidle' })
 await page.pdf({ path: pdfPath, format: 'A4', printBackground: true, margin: { top: '10mm', bottom: '10mm', left: '8mm', right: '8mm' } })
+await page.pdf({ path: pdfDesktop, format: 'A4', printBackground: true, margin: { top: '10mm', bottom: '10mm', left: '8mm', right: '8mm' } })
 await browser.close()
 
 for (const l of linhas) console.log(`  ${l.nome.padEnd(28)} R$ ${brl(l.valor).padStart(12)}`)
 console.log(`  ${'TOTAL GERAL'.padEnd(28)} R$ ${brl(totalGeral).padStart(12)}`)
 console.log(`\nPDF: ${pdfPath}`)
+console.log(`Área de Trabalho: ${pdfDesktop}`)
