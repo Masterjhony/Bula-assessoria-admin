@@ -16,8 +16,10 @@
 import { NextRequest, NextResponse, after } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
 import { normalizePhone } from '@/lib/whatsapp-central'
-import { processInboundMessage, mirrorOutboundMessage } from '@/lib/whatsapp-inbound'
+import { processInboundMessage, mirrorOutboundMessage, type InboundMedia } from '@/lib/whatsapp-inbound'
 import { resolveBaileysInbox } from '@/lib/whatsapp-inboxes'
+import { ingestOperationalSignal } from '@/lib/operational-center'
+import { resumeOperationalPlansForReply } from '@/lib/operational-executor'
 
 export const maxDuration = 120
 
@@ -28,7 +30,14 @@ export async function POST(req: NextRequest) {
         return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
-    let body: { phone: string; name?: string; body: string; message_id?: string; session?: string; from_me?: boolean }
+    let body: {
+        phone: string; name?: string; body: string; message_id?: string; session?: string; from_me?: boolean
+        media?: {
+            path?: string | null; type?: 'audio' | 'image' | 'video' | 'document'
+            mime?: string | null; filename?: string | null; size?: number | null
+            ingest_error?: string | null
+        } | null
+    }
     try {
         body = await req.json()
     } catch {
@@ -36,9 +45,17 @@ export async function POST(req: NextRequest) {
     }
 
     const phone = normalizePhone(body.phone)
-    const text = (body.body || '').trim()
+    const media: InboundMedia | null = body.media?.type ? {
+        url: body.media.path || null,
+        type: body.media.type,
+        mime: body.media.mime || null,
+        filename: body.media.filename || null,
+        ingestError: body.media.ingest_error || null,
+        ingestedAt: body.media.path ? new Date().toISOString() : null,
+    } : null
+    const text = (body.body || '').trim() || (media ? `[${media.type}]` : '')
     if (!phone || !text) {
-        return NextResponse.json({ error: 'phone e body são obrigatórios' }, { status: 400 })
+        return NextResponse.json({ error: 'phone e conteúdo são obrigatórios' }, { status: 400 })
     }
 
     const supabase = createClient(
@@ -71,6 +88,30 @@ export async function POST(req: NextRequest) {
         channel: 'baileys',
         inboxId: inbox?.id ?? body.session ?? null,
         automationsEnabled: inbox?.automations_enabled ?? true,
+        media,
+    })
+
+    // O Radar é estritamente passivo até existir um plano aprovado. Triagem e
+    // retomada de planos que aguardavam resposta rodam depois da resposta ao VPS.
+    after(async () => {
+        await Promise.allSettled([
+            ingestOperationalSignal(supabase, {
+                inboxId: inbox?.id ?? body.session ?? 'joao',
+                sessionId: body.session ?? 'joao',
+                phone,
+                chatName: body.name || outcome.lead?.nome || null,
+                senderName: body.name || outcome.lead?.nome || null,
+                isGroup: false,
+                direction: 'inbound',
+                body: text,
+                externalMessageId: body.message_id || null,
+                media: media ? {
+                    bucket: 'whatsapp-media', path: media.url, type: media.type,
+                    mime: media.mime, filename: media.filename, size: body.media?.size || null,
+                } : null,
+            }),
+            resumeOperationalPlansForReply(supabase, phone, text, body.message_id || null),
+        ])
     })
 
     // Efeitos caros (crédito, avisos ao grupo, ficha às leiloeiras) rodam depois

@@ -14,6 +14,7 @@
  * Política de canal (intent → canal):
  *   broadcast/campaign → SEMPRE Cloud (massa nunca vai pro Baileys, anti-ban)
  *   assessor           → Baileys (interno, número conhecido, transacional)
+ *   operation          → Baileys (plano operacional aprovado por humano)
  *   crm_reply/bot      → Baileys se a janela de 24h está aberta; senão exige
  *                        template e vai pela Cloud
  *
@@ -40,7 +41,7 @@ import {
 import { isWhatsappCloudApiConfigured, sendSingleViaCloudApi } from './whatsapp-cloud-api'
 import { WHATSAPP_SERVER_URL, vpsHeaders } from './whatsapp-vps'
 
-export type OutboundIntent = 'crm_reply' | 'assessor' | 'campaign' | 'bot' | 'broadcast'
+export type OutboundIntent = 'crm_reply' | 'assessor' | 'operation' | 'campaign' | 'bot' | 'broadcast'
 export type Channel = GuardChannel
 
 // Inbox default para envios Baileys sem inbox explícito (assessor, campanha,
@@ -137,6 +138,10 @@ function resolveChannel(
             return cloudConfigured ? { channel: 'cloud' } : { channel: null, reason: 'cloud_not_configured' }
         case 'assessor':
             return { channel: 'baileys' }
+        case 'operation':
+            // Mensagem 1:1 prevista num plano explicitamente aprovado. Usa a
+            // sessão operacional do João e continua passando por opt-out/log.
+            return { channel: 'baileys' }
         case 'crm_reply':
         case 'bot':
         default:
@@ -169,6 +174,7 @@ async function sendViaBaileys(
     phone: string,
     text: string,
     session?: string | null,
+    operationalApproved = false,
 ): Promise<{ status: 'queued' | 'sent' | 'failed'; messageId?: string; error?: string }> {
     try {
         // `?session=<inboxId>` escolhe de qual número Baileys sai; sem ele, o VPS
@@ -178,7 +184,10 @@ async function sendViaBaileys(
             : `${WHATSAPP_SERVER_URL}/send-direct`
         const res = await fetch(url, {
             method: 'POST',
-            headers: vpsHeaders({ 'Content-Type': 'application/json' }),
+            headers: vpsHeaders({
+                'Content-Type': 'application/json',
+                ...(operationalApproved ? { 'x-operational-send': 'approved' } : {}),
+            }),
             body: JSON.stringify({ phone, message: text }),
             signal: AbortSignal.timeout(15000),
         })
@@ -186,7 +195,7 @@ async function sendViaBaileys(
         if (!res.ok) {
             return { status: 'failed', error: String(body.error || body.reason || `http_${res.status}`) }
         }
-        if (body.sent || body.success) return { status: 'sent' }
+        if (body.sent || body.success) return { status: 'sent', messageId: String(body.message_id || '') || undefined }
         if (body.queued) return { status: 'queued' }
         return { status: 'failed', error: 'resposta_inesperada_vps' }
     } catch (e) {
@@ -312,7 +321,7 @@ export async function sendOutbound(
 
     // 4) Entrega ao transporte
     const transport = channel === 'baileys'
-        ? await sendViaBaileys(phone, req.text ?? '', req.inboxId ?? undefined)
+        ? await sendViaBaileys(phone, req.text ?? '', req.inboxId ?? undefined, req.intent === 'operation')
         : await sendViaCloud({
             phone,
             name: req.to.name,
