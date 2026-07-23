@@ -152,15 +152,13 @@ const limpo = (v: unknown) => {
 }
 
 /**
- * A ficha vai para a leiloeira quando os DADOS obrigatórios estão completos —
- * régua enxuta que a Márcia/Programa concedeu (10/07/2026): "de início imediato,
- * Nome, CPF, Inscrição Estadual, endereço de correspondência, telefone; se
- * possível, documento pessoal com foto e comprovante de residência".
- *
- * Como quase todos os obrigatórios são DADOS que as consultas oficiais já
- * trazem (CPF, I.E., endereço vêm do Sintegra/enriquecimento), o gate delega ao
- * `checklist.complete` (todos os itens NÃO-opcionais ok). Os dois documentos são
- * desejáveis — entram na ficha se houver, mas não seguram a submissão.
+ * A ficha vai para a leiloeira quando DADOS **e DOCUMENTOS** obrigatórios estão
+ * completos — régua 22/07/2026 (decisão do chefe): a flexibilização de 10/07
+ * ("documentos se possível") mandava ficha sem dossiê e o funil travava na
+ * análise. Dossiê obrigatório: documento com foto (RG/CNH/CPF), comprovante de
+ * residência, certidão de ônus/matrícula da fazenda e comprovante de renda
+ * (IR ou extrato bancário de 3 meses). O gate delega ao `checklist.complete`
+ * (todos os itens não-opcionais ok, documentos inclusos).
  */
 export function prontoParaFicha(
     checklist: HabilitacaoChecklist,

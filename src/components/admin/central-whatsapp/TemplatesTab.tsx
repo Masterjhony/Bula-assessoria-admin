@@ -3,9 +3,10 @@
 import { useState, useRef } from "react"
 import {
     Plus, Save, Trash2, Archive, AlertCircle, CheckCircle2, Loader2, Edit3,
-    ImageIcon, Vote, Upload, X, UploadCloud, RefreshCw, ShieldCheck, Clock, ShieldX,
+    ImageIcon, Vote, Upload, X, UploadCloud, RefreshCw, ShieldCheck, Clock, ShieldX, Eye,
 } from "lucide-react"
 import type { Template, MetaTemplateStatus } from "./types"
+import { WhatsappBubblePreview, templateToPreview } from "./TemplatePreview"
 
 type MetaCategory = "MARKETING" | "UTILITY" | "AUTHENTICATION"
 
@@ -97,6 +98,7 @@ export function TemplatesTab({ templates, onChange }: Props) {
     const [submitCategory, setSubmitCategory] = useState<MetaCategory>("MARKETING")
     const [submitting, setSubmitting] = useState(false)
     const [syncing, setSyncing] = useState(false)
+    const [preview, setPreview] = useState<Template | null>(null)
 
     function startSubmit(t: Template) {
         setSubmitId(t.id)
@@ -424,6 +426,9 @@ export function TemplatesTab({ templates, onChange }: Props) {
                                             )}
                                         </div>
                                         <div className="flex flex-col items-end gap-1 flex-shrink-0">
+                                            <button onClick={() => setPreview(t)} className="text-xs text-muted-foreground hover:text-foreground p-1 rounded hover:bg-muted" title="Preview — como o contato recebe">
+                                                <Eye className="h-3.5 w-3.5" />
+                                            </button>
                                             <button onClick={() => startEdit(t)} className="text-xs text-muted-foreground hover:text-foreground p-1 rounded hover:bg-muted" title="Editar título/corpo local">
                                                 <Edit3 className="h-3.5 w-3.5" />
                                             </button>
@@ -499,6 +504,13 @@ export function TemplatesTab({ templates, onChange }: Props) {
                                             )}
                                         </div>
                                         <div className="flex flex-col items-end gap-1 flex-shrink-0">
+                                            <button
+                                                onClick={() => setPreview(t)}
+                                                className="text-xs text-muted-foreground hover:text-foreground p-1 rounded hover:bg-muted"
+                                                title="Preview — como o contato recebe"
+                                            >
+                                                <Eye className="h-3.5 w-3.5" />
+                                            </button>
                                             <button
                                                 onClick={() => startEdit(t)}
                                                 className="text-xs text-muted-foreground hover:text-foreground p-1 rounded hover:bg-muted"
@@ -733,6 +745,25 @@ export function TemplatesTab({ templates, onChange }: Props) {
                     )}
                 </div>
 
+                {/* Preview ao vivo — como o contato recebe */}
+                <div className="space-y-1.5 border-t pt-3">
+                    <label className="text-xs font-medium flex items-center gap-1.5">
+                        <Eye className="h-3.5 w-3.5" /> Preview (como o contato recebe)
+                    </label>
+                    <WhatsappBubblePreview
+                        t={{
+                            body: form.body,
+                            media_url: form.media_url,
+                            media_type: form.media_type,
+                            media_filename: form.media_filename,
+                            media_caption: form.media_caption,
+                            poll_question: form.poll_question,
+                            poll_options: form.poll_options,
+                            poll_selectable_count: form.poll_selectable_count,
+                        }}
+                    />
+                </div>
+
                 {feedback && (
                     <p
                         className={`text-xs flex items-center gap-1 ${
@@ -768,6 +799,39 @@ export function TemplatesTab({ templates, onChange }: Props) {
                     )}
                 </div>
             </div>
+
+            {/* Modal de preview (olho na lista) */}
+            {preview && (
+                <div
+                    className="fixed inset-0 z-50 bg-black/60 flex items-center justify-center p-4"
+                    onClick={() => setPreview(null)}
+                >
+                    <div
+                        className="bg-card text-card-foreground rounded-xl border shadow-xl w-full max-w-md max-h-[85vh] overflow-y-auto"
+                        onClick={e => e.stopPropagation()}
+                    >
+                        <div className="flex items-center justify-between px-4 py-3 border-b">
+                            <div className="min-w-0">
+                                <p className="font-semibold text-sm truncate">{preview.title}</p>
+                                <p className="text-[10px] text-muted-foreground truncate">
+                                    <code>{preview.slug}</code>
+                                    {preview.meta_status !== "LOCAL" ? ` · ${preview.meta_status.toLowerCase()} Meta` : " · local (Baileys)"}
+                                </p>
+                            </div>
+                            <button
+                                onClick={() => setPreview(null)}
+                                className="p-1.5 rounded hover:bg-muted text-muted-foreground flex-shrink-0"
+                                title="Fechar"
+                            >
+                                <X className="h-4 w-4" />
+                            </button>
+                        </div>
+                        <div className="p-4">
+                            <WhatsappBubblePreview t={templateToPreview(preview)} />
+                        </div>
+                    </div>
+                </div>
+            )}
         </div>
     )
 }

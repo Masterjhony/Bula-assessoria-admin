@@ -12,10 +12,11 @@
  * (mesmo contrato do /api/whatsapp/inbound).
  */
 
-import { NextRequest, NextResponse } from 'next/server'
+import { NextRequest, NextResponse, after } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
 import { handleLeiloeiraGroupMessage } from '@/lib/leiloeira-whatsapp-cadastro'
 import { handleLanceGroupMessage } from '@/lib/whatsapp-lances'
+import { ingestOperationalSignal } from '@/lib/operational-center'
 
 export const maxDuration = 30
 
@@ -27,8 +28,13 @@ export async function POST(req: NextRequest) {
     }
 
     let body: {
-        group_jid?: string; participant?: string; name?: string
+        session?: string; group_jid?: string; group_name?: string; participant?: string; name?: string
         body?: string; quoted_body?: string; message_id?: string; ts?: number
+        media?: {
+            bucket?: string | null; path?: string | null; type?: string | null
+            mime?: string | null; filename?: string | null; size?: number | null
+            ingest_error?: string | null
+        } | null
     }
     try {
         body = await req.json()
@@ -38,8 +44,8 @@ export async function POST(req: NextRequest) {
 
     const groupJid = (body.group_jid || '').trim()
     const text = (body.body || '').trim()
-    if (!groupJid || !text) {
-        return NextResponse.json({ error: 'group_jid e body são obrigatórios' }, { status: 400 })
+    if (!groupJid || (!text && !body.media?.path)) {
+        return NextResponse.json({ error: 'group_jid e conteúdo são obrigatórios' }, { status: 400 })
     }
 
     const supabase = createClient(
@@ -61,36 +67,65 @@ export async function POST(req: NextRequest) {
             .limit(1)
         if (dup?.length) return NextResponse.json({ ok: true, deduped: true })
     }
-    void supabase.from('whatsapp_messages').insert({
+    const logBody = text || `[${body.media?.type || 'arquivo'}]`
+    const { data: logged } = await supabase.from('whatsapp_messages').insert({
         phone: groupJid,
-        name: body.name || 'Grupo',
-        body: text,
+        name: body.group_name || 'Grupo',
+        body: logBody,
         direction: 'inbound',
         status: 'received',
         channel: 'baileys',
+        inbox_id: body.session || 'joao',
         intent: 'bot',
         origin: 'group-inbound',
         reason: messageId || null,
-    }).then(({ error }) => {
-        if (error) console.warn('[group-inbound] log falhou:', error.message)
-    })
+        media_url: body.media?.bucket === 'whatsapp-media' ? body.media.path : null,
+        media_type: body.media?.type || null,
+        media_mime: body.media?.mime || null,
+        media_filename: body.media?.filename || null,
+        media_ingest_error: body.media?.ingest_error || null,
+        media_ingested_at: body.media?.path ? new Date().toISOString() : null,
+    }).select('id').maybeSingle()
 
-    const outcome = await handleLeiloeiraGroupMessage(supabase, {
+    after(() => ingestOperationalSignal(supabase, {
+        inboxId: body.session || 'joao',
+        sessionId: body.session || 'joao',
+        chatJid: groupJid,
+        chatName: body.group_name || null,
+        senderJid: body.participant || null,
+        senderName: body.name || null,
+        isGroup: true,
+        direction: 'inbound',
+        body: logBody,
+        quotedBody: body.quoted_body || null,
+        externalMessageId: messageId || null,
+        whatsappMessageId: logged?.id || null,
+        occurredAt: typeof body.ts === 'number' ? new Date(body.ts * 1000).toISOString() : null,
+        media: body.media ? {
+            bucket: body.media.bucket || 'whatsapp-media', path: body.media.path,
+            type: body.media.type, mime: body.media.mime, filename: body.media.filename,
+            size: body.media.size,
+        } : null,
+    }).catch(error => {
+        console.warn('[group-inbound] triagem operacional falhou:', error instanceof Error ? error.message : error)
+    }))
+
+    const outcome = text ? await handleLeiloeiraGroupMessage(supabase, {
         groupJid,
         participant: body.participant || null,
         senderName: body.name || null,
         text,
         quotedText: body.quoted_body || null,
-    })
+    }) : { kind: 'ignored', reason: 'media_only' }
 
     // Lances do pregão ao vivo (grupo "Lances Bula Assessoria") → vendas.
-    const lance = await handleLanceGroupMessage(supabase, {
+    const lance = text ? await handleLanceGroupMessage(supabase, {
         groupJid,
         text,
         quotedText: body.quoted_body || null,
         messageId: messageId || null,
         ts: typeof body.ts === 'number' ? body.ts : null,
-    })
+    }) : { kind: 'ignored', reason: 'media_only' }
 
     return NextResponse.json({ ok: true, outcome, lance })
 }

@@ -5,7 +5,7 @@ import { getIsFinanceAdmin } from '@/lib/auth-helpers'
 // Leitura: qualquer usuário autenticado do ERP. Escrita: só finance-admin
 // (salários e % de comissão são dados de diretoria).
 
-const WRITABLE = ['nome', 'funcao', 'salario_fixo', 'comissao_pct', 'comissao_fixa', 'ativo', 'ordem', 'observacao'] as const
+const WRITABLE = ['nome', 'funcao', 'salario_fixo', 'comissao_pct', 'comissao_fixa', 'ativo', 'ordem', 'observacao', 'apelidos', 'empresa', 'fornecedor_id', 'pagamento_nome', 'zona'] as const
 
 function pickWritable(body: Record<string, unknown>) {
   const out: Record<string, unknown> = {}
@@ -15,7 +15,8 @@ function pickWritable(body: Record<string, unknown>) {
 
 export async function GET(req: NextRequest) {
   const g = await guard(req); if (g.error) return g.error
-  const { data, error } = await admin().from('erp_folha_estrutura').select('*').order('ordem').order('nome')
+  const { data, error } = await admin().from('erp_folha_estrutura')
+    .select('*, fornecedor:erp_pessoas!fornecedor_id(id,nome)').order('ordem').order('nome')
   if (error) return fail(error.message, 500)
   return ok(data || [])
 }

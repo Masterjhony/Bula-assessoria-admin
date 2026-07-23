@@ -3,7 +3,7 @@ import { getIsFinanceAdmin } from '@/lib/auth-helpers'
 
 type Ctx = { params: Promise<{ id: string }> }
 
-const WRITABLE = ['nome', 'funcao', 'salario_fixo', 'comissao_pct', 'comissao_fixa', 'ativo', 'ordem', 'observacao'] as const
+const WRITABLE = ['nome', 'funcao', 'salario_fixo', 'comissao_pct', 'comissao_fixa', 'ativo', 'ordem', 'observacao', 'apelidos', 'empresa', 'fornecedor_id', 'pagamento_nome', 'zona'] as const
 
 export async function PATCH(req: NextRequest, ctx: Ctx) {
   const { id } = await ctx.params

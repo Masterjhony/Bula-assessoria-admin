@@ -8,7 +8,7 @@ import {
   LayoutDashboard, LogOut, Menu, X, Users, Settings, Calendar,
   MessageCircle, FileText, Sparkles, Gavel, Shield, ChevronDown,
   Target, BarChart3, Megaphone,
-  Mail, ImageIcon, Contact, FileVideo, Clapperboard,
+  Mail, ImageIcon, Contact, FileVideo, Clapperboard, ListChecks,
 } from 'lucide-react'
 import { createClient } from '@/utils/supabase/client'
 import { ThemeProvider } from '@/components/theme-provider'
@@ -54,6 +54,7 @@ const navConfig: NavEntry[] = [
   {
     label: 'Operações', icon: Calendar,
     items: [
+      { href: '/sistema/operacoes', label: 'Central Operacional', icon: ListChecks },
       { href: '/sistema/projetos', label: 'Projetos', icon: Calendar },
       { href: '/sistema/okr', label: 'OKR', icon: Target },
     ],

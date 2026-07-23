@@ -475,6 +475,7 @@ svg.chart { width:100%; height:100%; display:block; }
     <div class="sidebar-section">Visao Geral</div>
     <div class="sidebar-item active" data-page="dashboard"><span class="material-symbols-outlined">dashboard</span><span>Dashboard</span></div>
     <div class="sidebar-item" data-page="fluxo"><span class="material-symbols-outlined">show_chart</span><span>Fluxo de Caixa</span></div>
+    <div class="sidebar-item" data-page="previsto_realizado"><span class="material-symbols-outlined">compare_arrows</span><span>Previsto x Realizado</span></div>
     <div class="sidebar-item" data-page="fluxo_operacao"><span class="material-symbols-outlined">view_kanban</span><span>Fluxo Operação</span></div>
 
     <div class="sidebar-section">Movimentacao</div>
@@ -492,6 +493,7 @@ svg.chart { width:100%; height:100%; display:block; }
     <div class="sidebar-item" data-page="balanco"><span class="material-symbols-outlined">balance</span><span>Balanco</span></div>
 
     <div class="sidebar-section">Cadastros</div>
+    <div class="sidebar-item" data-page="equipe"><span class="material-symbols-outlined">diversity_3</span><span>Equipe</span></div>
     <div class="sidebar-item" data-page="clientes"><span class="material-symbols-outlined">groups</span><span>Clientes</span></div>
     <div class="sidebar-item" data-page="fornecedores"><span class="material-symbols-outlined">local_shipping</span><span>Fornecedores</span></div>
     <div class="sidebar-item" data-page="categorias"><span class="material-symbols-outlined">sell</span><span>Categorias</span></div>
@@ -506,7 +508,7 @@ svg.chart { width:100%; height:100%; display:block; }
     <div class="sidebar-item" data-page="resultados"><span class="material-symbols-outlined">monitoring</span><span>Resultados</span></div>
     <div class="sidebar-item" data-page="fechamento_leiloes"><span class="material-symbols-outlined">gavel</span><span>Fechamento Leiloes</span></div>
     <div class="sidebar-item" data-page="acordos_comerciais"><span class="material-symbols-outlined">handshake</span><span>Acordos Comerciais</span></div>
-    <div class="sidebar-item" data-page="comissionamento"><span class="material-symbols-outlined">real_estate_agent</span><span>Comissionamento</span></div>
+    <div class="sidebar-item" data-page="comissionamento"><span class="material-symbols-outlined">real_estate_agent</span><span>Bônus e Comissionamento</span></div>
 
     <div class="sidebar-section">Juridico</div>
     <a class="sidebar-item" href="https://admin.bulaassessoria.com/sistema/contratos" target="_blank" style="text-decoration:none;"><span class="material-symbols-outlined">description</span><span>Contratos</span></a>
@@ -767,6 +769,7 @@ async function render() {
     if (state.page === 'dashboard') return renderDashboard();
     if (state.page === 'fluxo') return renderFluxo();
     if (state.page === 'fluxo_operacao') return renderFluxoOperacao();
+    if (state.page === 'previsto_realizado') return renderPrevistoRealizado();
     if (state.page === 'cp') return renderContas('pagar');
     if (state.page === 'cr') return renderContas('receber');
     if (state.page === 'bancos') return renderBancos();
@@ -788,6 +791,7 @@ async function render() {
     if (state.page === 'acordos_comerciais') return renderAcordosComerciais();
     if (state.page === 'comissionamento') return renderComissionamento();
     if (state.page === 'folha') return renderFolha();
+    if (state.page === 'equipe') return renderEquipe();
   } catch (e) {
     page.innerHTML = `<div class="card" style="text-align:center"><span class="material-symbols-outlined" style="font-size:36px;color:var(--red)">error</span><h3 style="margin:8px 0">Erro ao carregar</h3><p style="color:var(--text3);font-size:12px">${escapeHtml(e.message)}</p></div>`;
   }
@@ -4212,25 +4216,31 @@ function resChart(meses, opts={}) {
   const w = opts.width || 860, h = opts.height || 250, pad = { t:30, r:20, b:26, l:52 };
   const innerW = w - pad.l - pad.r, innerH = h - pad.t - pad.b;
   const fmtLabel = (v) => money ? fmtCompact(v) : Number(v).toLocaleString('pt-BR');
-  let max = 0, temDado = false;
+  let max = 0, min = 0, temDado = false;
   for (const m of meses) for (const s of series) {
     const v = m[s.key]; if (v == null) continue;
-    temDado = true; if (Number(v) > max) max = Number(v);
+    temDado = true;
+    if (Number(v) > max) max = Number(v);
+    if (Number(v) < min) min = Number(v);
   }
   if (!temDado) return '<div class="empty"><span class="material-symbols-outlined">show_chart</span><p>Sem dados no periodo</p></div>';
-  if (!max) max = 1;
-  const top = max * 1.12; // folga p/ os rótulos acima dos pontos
+  if (!max && !min) max = 1;
+  const top = (max || 1) * 1.12;            // folga p/ os rótulos acima dos pontos
+  const bot = min < 0 ? min * 1.12 : 0;     // suporta séries negativas (resultado)
+  const range = top - bot || 1;
   const band = innerW / 12;
   const xAt = (i) => type === 'bar' ? pad.l + band*i + band/2 : pad.l + (innerW/11)*i;
-  const yAt = (v) => pad.t + innerH - (Number(v)/top)*innerH;
+  const yAt = (v) => pad.t + innerH - ((Number(v) - bot)/range)*innerH;
+  const yZero = yAt(0);
 
   let svg = `<svg viewBox="0 0 ${w} ${h}" class="chart" style="height:auto" xmlns="http://www.w3.org/2000/svg">`;
   for (let i = 0; i <= 4; i++) {
     const y = pad.t + (innerH/4)*i;
-    const val = top - (top/4)*i;
+    const val = top - (range/4)*i;
     svg += `<line x1="${pad.l}" y1="${y}" x2="${w-pad.r}" y2="${y}" stroke="rgba(255,255,255,0.06)" stroke-dasharray="2 4"/>`;
     svg += `<text x="${pad.l-6}" y="${y+3}" text-anchor="end" font-size="9" fill="#666">${money ? fmtCompact(val).replace('R$ ','') : fmtCompact(val,false)}</text>`;
   }
+  if (bot < 0) svg += `<line x1="${pad.l}" y1="${yZero}" x2="${w-pad.r}" y2="${yZero}" stroke="rgba(255,255,255,0.22)" stroke-width="0.8"/>`;
   meses.forEach((m,i) => {
     svg += `<text x="${xAt(i)}" y="${h-8}" text-anchor="middle" font-size="9.5" fill="#8a8f98">${RES_MESES[i]}</text>`;
   });
@@ -4240,9 +4250,10 @@ function resChart(meses, opts={}) {
       const barW = band * 0.55;
       meses.forEach((m,i) => {
         const v = m[s.key]; if (v == null) return;
-        const y = yAt(v), bh = pad.t + innerH - y;
+        const yv = yAt(v);
+        const y = Math.min(yv, yZero), bh = Math.abs(yv - yZero);
         svg += `<rect x="${xAt(i)-barW/2}" y="${y}" width="${barW}" height="${Math.max(bh,1.5)}" fill="${s.color}" rx="3" opacity="0.9"><title>${s.label} · ${RES_MESES[i]}: ${fmtLabel(v)}</title></rect>`;
-        if (s.labels) svg += `<text x="${xAt(i)}" y="${y-6}" text-anchor="middle" font-size="9.5" fill="#b9bec7">${fmtLabel(v)}</text>`;
+        if (s.labels) svg += `<text x="${xAt(i)}" y="${v < 0 ? y + bh + 10 : y - 6}" text-anchor="middle" font-size="9.5" fill="#b9bec7">${fmtLabel(v)}</text>`;
       });
       continue;
     }
@@ -4256,15 +4267,14 @@ function resChart(meses, opts={}) {
     });
     svg += `<path d="${d}" fill="none" stroke="${s.color}" stroke-width="2"${s.dash ? ' stroke-dasharray="5 4"' : ''}/>`;
     if (s.area && firstX != null && lastX > firstX) {
-      const base = pad.t + innerH;
-      svg += `<path d="${d} L${lastX} ${base} L${firstX} ${base} Z" fill="${s.color}" opacity="0.07"/>`;
+      svg += `<path d="${d} L${lastX} ${yZero} L${firstX} ${yZero} Z" fill="${s.color}" opacity="0.07"/>`;
     }
     meses.forEach((m,i) => {
       const v = m[s.key]; if (v == null) return;
       const x = xAt(i), y = yAt(v);
       svg += `<circle cx="${x}" cy="${y}" r="3" fill="${s.color}"/>`;
       svg += `<circle cx="${x}" cy="${y}" r="10" fill="rgba(0,0,0,0)"><title>${s.label} · ${RES_MESES[i]}: ${fmtLabel(v)}</title></circle>`;
-      if (s.labels) svg += `<text x="${x}" y="${y-9}" text-anchor="middle" font-size="9.5" fill="#b9bec7">${fmtLabel(v)}</text>`;
+      if (s.labels) svg += `<text x="${x}" y="${v < 0 ? y + 13 : y - 9}" text-anchor="middle" font-size="9.5" fill="#b9bec7">${fmtLabel(v)}</text>`;
     });
   }
   if (series.length > 1) {
@@ -4443,6 +4453,185 @@ async function renderResultados() {
           </tr>
         </tbody>
       </table>
+    </div>
+  `;
+  document.getElementById('page').innerHTML = html;
+}
+
+/* ==========================================================================
+   PAGE: PREVISTO × REALIZADO
+   Previsto = títulos (CR/CP) pelo vencimento — inclui folha projetada e
+   despesas fixas do ano. Realizado = movimentos bancários conciliados (sem
+   transferências internas). Comparação mensal + drill-down por categoria.
+   ========================================================================== */
+function prSetAno(v) { state.filters.prAno = v; state.prevReal = null; renderPrevistoRealizado(); }
+function prSetMes(m) { state.filters.prMes = m; renderPrevistoRealizado(); }
+function prReload() { state.prevReal = null; renderPrevistoRealizado(); }
+
+function prAder(real, prev) {
+  if (real == null || !(prev > 0)) return null;
+  return (real / prev) * 100;
+}
+function prAderChip(pct) {
+  if (pct == null) return '';
+  const cor = pct >= 85 && pct <= 115 ? '#6B8F5C' : (pct >= 60 && pct <= 140 ? '#b8934a' : '#c0645c');
+  return `<span class="chip" style="background:${cor}22;color:${cor};padding:1px 7px">${pct.toFixed(0)}% do previsto</span>`;
+}
+
+async function renderPrevistoRealizado() {
+  const anoSel = state.filters.prAno || '';
+  if (!state.prevReal) state.prevReal = await api('/api/erp/previsto-realizado' + (anoSel ? `?ano=${anoSel}` : ''));
+  const d = state.prevReal;
+  const meses = d.meses || [];
+  const temReal = (i) => i + 1 <= d.ultimo_mes_realizado;
+  const mesSel = Math.min(12, Math.max(1, Number(state.filters.prMes) || d.ultimo_mes_realizado || 1));
+  const mi = mesSel - 1;
+  const m = meses[mi] || {};
+
+  // acumulado do ano: só a partir do 1º mês em que a previsão existe de fato
+  // (o ERP começou a ter títulos em abril — comparar jan-mar, que só têm
+  // extrato importado, inflaria a aderência sem significar nada)
+  let primeiroPrev = meses.findIndex(x => (x.prev_entrada + x.prev_saida) > 100);
+  if (primeiroPrev < 0) primeiroPrev = 0;
+  const acc = { pe: 0, re: 0, ps: 0, rs: 0 };
+  for (let i = primeiroPrev; i < 12; i++) {
+    if (!temReal(i)) continue;
+    acc.pe += meses[i].prev_entrada; acc.re += meses[i].real_entrada || 0;
+    acc.ps += meses[i].prev_saida; acc.rs += meses[i].real_saida || 0;
+  }
+
+  const serie = meses.map(x => ({
+    prev_e: x.prev_entrada, real_e: x.real_entrada,
+    prev_s: x.prev_saida, real_s: x.real_saida,
+    prev_r: x.prev_entrada - x.prev_saida,
+    real_r: x.real_entrada != null ? x.real_entrada - (x.real_saida || 0) : null,
+  }));
+
+  const aderE = prAder(m.real_entrada, m.prev_entrada);
+  const aderS = prAder(m.real_saida, m.prev_saida);
+  const mesFuturo = !temReal(mi);
+
+  const catRows = (tipo) => (d.categorias || []).filter(c => c.tipo === tipo)
+    .map(c => ({ nome: c.nome, cor: c.cor, prev: c.prev[mi] || 0, real: temReal(mi) ? (c.real[mi] || 0) : null }))
+    .filter(c => c.prev > 0 || (c.real || 0) > 0)
+    .sort((a, b) => Math.max(b.prev, b.real || 0) - Math.max(a.prev, a.real || 0));
+
+  const catTable = (titulo, tipo) => {
+    const rows = catRows(tipo);
+    const em = '<span style="color:var(--text4)">—</span>';
+    const totPrev = rows.reduce((s, r) => s + r.prev, 0);
+    const totReal = rows.reduce((s, r) => s + (r.real || 0), 0);
+    // desvio bom/ruim depende do lado: receita realizada acima do previsto é
+    // bom; despesa acima do previsto é estouro.
+    const corDesvio = (desvio) => desvio == null ? '' : (tipo === 'receita' ? (desvio >= 0 ? 'positive' : 'negative') : (desvio <= 0 ? 'positive' : 'negative'));
+    return `
+    <div class="card" style="margin-bottom:0">
+      <div class="card-title"><span class="material-symbols-outlined">${tipo === 'receita' ? 'trending_up' : 'trending_down'}</span>${titulo} · ${RES_MESES[mi]}</div>
+      ${rows.length === 0 ? '<div class="empty" style="padding:20px"><p>Nada previsto nem realizado neste mês.</p></div>' : `
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Categoria</th><th style="text-align:right">Previsto</th><th style="text-align:right">Realizado</th><th style="text-align:right">Desvio</th></tr></thead>
+          <tbody>
+            ${rows.map(r => {
+              const desvio = r.real != null ? r.real - r.prev : null;
+              return `<tr>
+                <td><span class="chip" style="background:${r.cor}22;color:${r.cor}">${escapeHtml(r.nome)}</span></td>
+                <td class="money" style="text-align:right;color:var(--text2)">${r.prev > 0 ? fmtBRL(r.prev) : em}</td>
+                <td class="money" style="text-align:right">${r.real != null ? fmtBRL(r.real) : em}</td>
+                <td class="money ${corDesvio(desvio)}" style="text-align:right">${desvio != null ? (desvio >= 0 ? '+' : '') + fmtBRL(desvio) : em}</td>
+              </tr>`;
+            }).join('')}
+          </tbody>
+          <tfoot><tr style="font-weight:700;border-top:2px solid var(--border2)">
+            <td>Total</td>
+            <td class="money" style="text-align:right">${fmtBRL(totPrev)}</td>
+            <td class="money" style="text-align:right">${mesFuturo ? em : fmtBRL(totReal)}</td>
+            <td class="money ${mesFuturo ? '' : (tipo === 'receita' ? (totReal >= totPrev ? 'positive' : 'negative') : (totReal <= totPrev ? 'positive' : 'negative'))}" style="text-align:right">${mesFuturo ? em : (totReal - totPrev >= 0 ? '+' : '') + fmtBRL(totReal - totPrev)}</td>
+          </tr></tfoot>
+        </table>
+      </div>`}
+    </div>`;
+  };
+
+  const html = `
+    <div class="page-header">
+      <div><div class="page-title">Previsto x Realizado <small>previsao gerencial vs caixa conciliado</small></div></div>
+      <div class="page-actions">
+        <select class="table-filter" onchange="prSetAno(this.value)">
+          ${(d.anos || []).map(y => `<option value="${y}" ${y === d.ano ? 'selected' : ''}>${y}</option>`).join('')}
+        </select>
+        <button class="btn btn-ghost btn-sm" onclick="prReload()"><span class="material-symbols-outlined">refresh</span>Atualizar</button>
+      </div>
+    </div>
+
+    <div class="kpi-grid">
+      <div class="kpi success">
+        <div class="kpi-icon"><span class="material-symbols-outlined">south_west</span></div>
+        <div class="kpi-label">Entradas · ${RES_MESES[mi]}</div>
+        <div class="kpi-value money">${m.real_entrada != null ? fmtBRL(m.real_entrada) : fmtBRL(m.prev_entrada)}</div>
+        <div class="kpi-sub">${m.real_entrada != null ? `previsto ${fmtBRL(m.prev_entrada)} ${prAderChip(aderE)}` : 'previsto (mes ainda nao realizado)'}</div>
+      </div>
+      <div class="kpi danger">
+        <div class="kpi-icon"><span class="material-symbols-outlined">north_east</span></div>
+        <div class="kpi-label">Saidas · ${RES_MESES[mi]}</div>
+        <div class="kpi-value money">${m.real_saida != null ? fmtBRL(m.real_saida) : fmtBRL(m.prev_saida)}</div>
+        <div class="kpi-sub">${m.real_saida != null ? `previsto ${fmtBRL(m.prev_saida)} ${prAderChip(aderS)}` : 'previsto (mes ainda nao realizado)'}</div>
+      </div>
+      <div class="kpi ${((m.real_entrada != null ? m.real_entrada - m.real_saida : m.prev_entrada - m.prev_saida) < 0) ? 'danger' : 'info'}">
+        <div class="kpi-icon"><span class="material-symbols-outlined">functions</span></div>
+        <div class="kpi-label">Resultado · ${RES_MESES[mi]}</div>
+        <div class="kpi-value money ${((m.real_entrada != null ? m.real_entrada - m.real_saida : m.prev_entrada - m.prev_saida) < 0) ? 'negative' : 'positive'}">${fmtBRL(m.real_entrada != null ? m.real_entrada - m.real_saida : m.prev_entrada - m.prev_saida)}</div>
+        <div class="kpi-sub">previsto ${fmtBRL(m.prev_entrada - m.prev_saida)}</div>
+      </div>
+      <div class="kpi">
+        <div class="kpi-icon"><span class="material-symbols-outlined">verified</span></div>
+        <div class="kpi-label">Aderencia no ano</div>
+        <div class="kpi-value">${acc.pe > 0 ? Math.round((acc.re / acc.pe) * 100) + '%' : '—'} <small style="font-size:12px;color:var(--text3)">entradas</small></div>
+        <div class="kpi-sub">saidas ${acc.ps > 0 ? Math.round((acc.rs / acc.ps) * 100) + '%' : '—'} · ${RES_MESES[primeiroPrev]} a ${RES_MESES[(d.ultimo_mes_realizado || 1) - 1]}</div>
+      </div>
+    </div>
+
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(360px,1fr));gap:20px;margin-bottom:20px">
+      <div class="chart-wrap" style="margin-bottom:0">
+        <div class="chart-header"><div class="chart-title">Entradas — previsto x realizado</div></div>
+        ${resChart(serie, { width: 460, height: 230, series: [
+          { key: 'real_e', color: '#6B8F5C', label: 'Realizado', labels: true, area: true },
+          { key: 'prev_e', color: '#8a8f98', label: 'Previsto', dash: true },
+        ]})}
+      </div>
+      <div class="chart-wrap" style="margin-bottom:0">
+        <div class="chart-header"><div class="chart-title">Saidas — previsto x realizado</div></div>
+        ${resChart(serie, { width: 460, height: 230, series: [
+          { key: 'real_s', color: '#c0645c', label: 'Realizado', labels: true, area: true },
+          { key: 'prev_s', color: '#8a8f98', label: 'Previsto', dash: true },
+        ]})}
+      </div>
+    </div>
+
+    <div class="chart-wrap">
+      <div class="chart-header"><div class="chart-title">Resultado do mes (entradas − saidas) — previsto x realizado</div></div>
+      ${resChart(serie, { series: [
+        { key: 'real_r', color: '#C8A96E', label: 'Realizado', labels: true },
+        { key: 'prev_r', color: '#8a8f98', label: 'Previsto', dash: true },
+      ]})}
+    </div>
+
+    <div style="display:flex;gap:6px;flex-wrap:wrap;margin:4px 0 14px">
+      ${RES_MESES.map((nm, i) => `
+        <button class="btn btn-sm ${i === mi ? 'btn-primary' : 'btn-ghost'}" onclick="prSetMes(${i + 1})" style="text-transform:capitalize">
+          ${nm}${!temReal(i) ? ' <span style="opacity:.55;font-size:9px">prev</span>' : ''}
+        </button>`).join('')}
+    </div>
+
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(380px,1fr));gap:20px">
+      ${catTable('Receitas por categoria', 'receita')}
+      ${catTable('Despesas por categoria', 'despesa')}
+    </div>
+
+    <div style="font-size:10px;color:var(--text3);margin-top:14px;line-height:1.6">
+      <strong>Previsto</strong> = titulos de contas a pagar/receber pelo vencimento (inclui folha projetada e despesas fixas do ano; titulos cancelados ficam de fora).
+      <strong>Realizado</strong> = movimentos bancarios conciliados no extrato, sem transferencias internas.
+      As fontes sao diferentes de proposito: um pagamento sem titulo aparece so no realizado — o desvio e o ponto da pagina.
     </div>
   `;
   document.getElementById('page').innerHTML = html;
@@ -4669,7 +4858,7 @@ function flOpenDetail(id) {
               const temComissao = a._comissao>0 || a._real;
               return `<tr>
                 <td>${a.posicao||i+1}</td>
-                <td style="font-weight:600">${escapeHtml(a.nome||'—')}</td>
+                <td style="font-weight:600">${escapeHtml(a.nome||'—')}${a.observacao?`<div style="font-size:10px;color:var(--text3);font-weight:400;max-width:420px;white-space:normal">${escapeHtml(a.observacao)}</div>`:''}</td>
                 <td>${a.empresa?`<span class="chip muted">${escapeHtml(a.empresa)}</span>`:'—'}</td>
                 <td style="text-align:right">${a.transacoes||0}</td>
                 <td style="text-align:right">${a.animais||0}</td>
@@ -4684,6 +4873,8 @@ function flOpenDetail(id) {
         </table>
       </div>
       <div style="font-size:10px;color:var(--text3);margin-bottom:16px">${algumEstimado?`<strong>est.</strong> = rateio do que sobra do total (${fmtBRL(totalComissao)}) por VGV; <strong>real</strong> = valor informado no fechamento.`:'Comissoes informadas manualmente por assessor (valores reais).'}</div>`}
+
+      ${flLancesSection(x)}
 
       ${estados.length?`
       <div class="card-title" style="margin-bottom:8px"><span class="material-symbols-outlined">public</span>Distribuicao por estado</div>
@@ -4702,6 +4893,78 @@ function flOpenDetail(id) {
       <button class="btn" onclick="closeModal()">Fechar</button>
     </div>`;
   openModal(html, { wide:true });
+}
+
+/* --------------------------------------------------------------------------
+   Vendas do pregão (lances) no detalhe do fechamento, com tratamento de
+   CANCELAMENTO: leiloeiras cancelam vendas depois do leilão e o fechamento
+   precisa registrar isso sem apagar o histórico. Marcar como cancelada:
+   - risca a venda e a tira dos totais desta seção e do comissionamento
+     (vendas atribuídas do assessor);
+   - NÃO mexe sozinho no por_assessor/comissão — ajuste o valor do assessor
+     na edição do fechamento (a observação fica visível na tabela acima).
+   -------------------------------------------------------------------------- */
+function flLancesSection(x) {
+  const lances = Array.isArray(x.lances) ? x.lances : [];
+  if (!lances.length) return '';
+  const canceladas = lances.filter(v=>v && v.cancelada);
+  const ativas = lances.filter(v=>v && !v.cancelada);
+  const totAtivo = ativas.reduce((s,v)=>s+(Number(v.vgv)||0),0);
+  const totCanc = canceladas.reduce((s,v)=>s+(Number(v.vgv)||0),0);
+  return `
+      <div class="card-title" style="margin-bottom:8px"><span class="material-symbols-outlined">sell</span>Vendas do pregao (${lances.length})
+        ${canceladas.length?`<span class="chip" style="background:var(--amber-bg);color:var(--amber);padding:1px 8px;vertical-align:middle">${canceladas.length} cancelada${canceladas.length>1?'s':''} · ${fmtBRL(totCanc)}</span>`:''}
+      </div>
+      <div class="table-wrap" style="margin-bottom:6px">
+        <table>
+          <thead><tr><th>Lote</th><th>Comprador</th><th>UF</th><th>Assessor</th><th style="text-align:right">Animais</th><th style="text-align:right">VGV</th><th style="width:90px"></th></tr></thead>
+          <tbody>
+            ${lances.map((v,i)=>{
+              const off = v.cancelada;
+              return `<tr style="${off?'opacity:.55':''}">
+                <td style="${off?'text-decoration:line-through':''}">${escapeHtml(v.lote||'—')}</td>
+                <td style="${off?'text-decoration:line-through':''}">${escapeHtml(v.comprador||'—')}${off&&v.cancelada_motivo?`<div style="font-size:10px;color:var(--amber);text-decoration:none">${escapeHtml(v.cancelada_motivo)}${v.cancelada_em?` · ${flDataCurta(String(v.cancelada_em).slice(0,10))}`:''}</div>`:''}</td>
+                <td>${escapeHtml(v.uf||'—')}</td>
+                <td>${escapeHtml(v.assessor||'—')}</td>
+                <td style="text-align:right">${v.animais||0}</td>
+                <td class="money" style="text-align:right;${off?'text-decoration:line-through':''}">${fmtBRL(v.vgv)}</td>
+                <td style="text-align:right">${off
+                  ?`<button class="btn btn-ghost btn-sm" title="Restaurar esta venda" onclick="flToggleLanceCancelada('${x.id}',${i})"><span class="material-symbols-outlined">undo</span></button>`
+                  :`<button class="btn btn-ghost btn-sm" title="Marcar venda como cancelada" onclick="flToggleLanceCancelada('${x.id}',${i})"><span class="material-symbols-outlined">block</span></button>`}</td>
+              </tr>`;
+            }).join('')}
+          </tbody>
+          <tfoot><tr style="font-weight:700;border-top:2px solid var(--border2)"><td colspan="4">Total ativo (${ativas.length} vendas)</td><td style="text-align:right">${ativas.reduce((s,v)=>s+(Number(v.animais)||0),0)}</td><td class="money" style="text-align:right">${fmtBRL(totAtivo)}</td><td></td></tr></tfoot>
+        </table>
+      </div>
+      <div style="font-size:10px;color:var(--text3);margin-bottom:16px">Cancelar aqui registra o fato e tira a venda do comissionamento (vendas atribuidas) — o ajuste do VGV/comissao do assessor e feito na edicao do fechamento, com a justificativa na tabela acima.</div>`;
+}
+
+async function flToggleLanceCancelada(fechId, idx) {
+  const x = (state.fechamentos||[]).find(r => r.id === fechId);
+  if (!x || !Array.isArray(x.lances) || !x.lances[idx]) return;
+  const v = x.lances[idx];
+  const lances = x.lances.map(l => ({ ...l }));
+  if (!v.cancelada) {
+    const motivo = window.prompt(`Cancelar a venda do lote ${v.lote||'—'} (${v.comprador||'sem comprador'})?\nMotivo do cancelamento:`, 'Venda cancelada pelo comprador');
+    if (motivo === null) return;
+    lances[idx].cancelada = true;
+    lances[idx].cancelada_motivo = motivo.trim();
+    lances[idx].cancelada_em = new Date().toISOString().slice(0,10);
+  } else {
+    if (!window.confirm(`Restaurar a venda do lote ${v.lote||'—'} (${v.comprador||'sem comprador'})?`)) return;
+    delete lances[idx].cancelada;
+    delete lances[idx].cancelada_motivo;
+    delete lances[idx].cancelada_em;
+  }
+  try {
+    await api(`/api/bula/fechamento/${fechId}`, { method:'PUT', body:JSON.stringify({ lances }) });
+    x.lances = lances;
+    toast(v.cancelada?'Venda restaurada':'Venda marcada como cancelada','success');
+    flOpenDetail(fechId);
+  } catch (e) {
+    toast(e.message||'Erro ao salvar cancelamento','error');
+  }
 }
 
 function flExportCSV() {
@@ -5250,8 +5513,32 @@ const CO_CANONICO = {
   'BULINHA FELIPE ANDRADE':'Bulinha (Felipe Andrade)', 'FELIPE ANDRADE BULINHA':'Bulinha (Felipe Andrade)',
   'FELIPE VILELA ANDRADE':'Bulinha (Felipe Andrade)', 'FELIPE VILELA ANDRADE BULINHA':'Bulinha (Felipe Andrade)',
   'PEDRO BARNABE':'Marcelo Carneiro', 'MATHEUS AMORMINO':'Marcelo Carneiro',
+  // Dupla extinta: comissões passaram integralmente ao Leonardo (chefe, 22/07/2026)
+  'MARCELO CARNEIRO LEONARDO SERAFIM':'Leonardo Serafim',
+  // LM Assessoria = empresa do Leonardo (pagamentos podem sair nesse nome)
+  'LM ASSESSORIA':'Leonardo Serafim',
+  // Grafia unificada (tabela de percentuais do chefe 22/07 usa "Matheus")
+  'MATEUS ALVES':'Matheus Alves',
 };
-const coCanonNome = (s) => CO_CANONICO[coKey(s)] || String(s||'').trim();
+/* Aliases dinâmicos do cadastro de EQUIPE (erp_folha_estrutura.apelidos):
+   apelido normalizado -> nome de exibição (1º apelido, senão o nome do
+   cadastro) e empresa fixa. Complementa o CO_CANONICO hardcoded. */
+function coEquipeMaps() {
+  if (state._eqMaps) return state._eqMaps;
+  const alias = {}, empresa = {};
+  for (const e of state.folhaEstrutura || []) {
+    const display = (e.apelidos && e.apelidos[0]) || e.nome;
+    for (const nm of [e.nome, ...(e.apelidos || [])]) {
+      const k = coKey(nm);
+      if (k) alias[k] = display;
+    }
+    if (e.empresa) empresa[coKey(display)] = e.empresa;
+  }
+  state._eqMaps = { alias, empresa };
+  return state._eqMaps;
+}
+const coCanonNome = (s) => coEquipeMaps().alias[coKey(s)] || CO_CANONICO[coKey(s)] || String(s||'').trim();
+const coEmpresaFixa = (nomeCanon) => coEquipeMaps().empresa[coKey(nomeCanon)] || null;
 const coNorm = s => coKey(coCanonNome(s));
 const CO_EMPRESAS = { 'FORMULA DO BOI':'Fórmula do Boi', 'BULA ASSESSORIA':'Bula Assessoria', 'BULA REMATES':'Bula Remates' };
 const coEmpresa = (e) => CO_EMPRESAS[coKey(e)] || String(e||'').trim();
@@ -5280,16 +5567,23 @@ function coAggregate() {
       if (!key) continue;
       const share = totalVgv>0 ? a._vgv/totalVgv : 0;
       let rec = map.get(key);
-      if (!rec) { rec = { key, nome:coCanonNome(a.nome), empresas:new Set(), apelidos:new Set(), leiloes:[], vgv:0, comissao:0, transacoes:0, animais:0, temEstimado:false }; map.set(key, rec); }
+      if (!rec) { rec = { key, nome:coCanonNome(a.nome), empresas:new Set(), apelidos:new Set(), leiloes:[], vgv:0, comissao:0, comissaoPaga:0, transacoes:0, animais:0, temEstimado:false }; map.set(key, rec); }
       if (String(a.nome||'').trim() && String(a.nome).trim() !== rec.nome) rec.apelidos.add(String(a.nome).trim());
-      if (a.empresa) rec.empresas.add(coEmpresa(a.empresa));
-      rec.vgv += a._vgv; rec.comissao += a._comissao;
+      const empFixa = coEmpresaFixa(rec.nome);
+      if (empFixa) { rec.empresas.clear(); rec.empresas.add(empFixa); }
+      else if (a.empresa) rec.empresas.add(coEmpresa(a.empresa));
+      /* pago = comissão já quitada (acerto/CP pago). Sai do "a pagar" mas
+         continua no histórico do leilão e no total ganho. */
+      const jaPago = a.pago === true;
+      rec.vgv += a._vgv;
+      if (jaPago) rec.comissaoPaga += a._comissao; else rec.comissao += a._comissao;
       rec.transacoes += Number(a.transacoes)||0; rec.animais += Number(a.animais)||0;
-      if (!a._real && a._comissao>0) rec.temEstimado = true;
-      rec.leiloes.push({ id:f.id, nome:f.nome, data:f.data, local:f.local||'', vgv:a._vgv, share, comissao:a._comissao, real:a._real, transacoes:Number(a.transacoes)||0, animais:Number(a.animais)||0, semComissao: totalComissao<=0 && !a._real });
+      if (!a._real && a._comissao>0 && !jaPago) rec.temEstimado = true;
+      rec.leiloes.push({ id:f.id, nome:f.nome, data:f.data, local:f.local||'', vgv:a._vgv, share, comissao:a._comissao, real:a._real, pago:jaPago, pagoRef:a.pago_ref||'', transacoes:Number(a.transacoes)||0, animais:Number(a.animais)||0, semComissao: totalComissao<=0 && !a._real });
     }
   }
-  return [...map.values()].map(r => ({ ...r, empresas:[...r.empresas], apelidos:[...r.apelidos] })).sort((a,b)=> b.comissao - a.comissao || b.vgv - a.vgv);
+  return [...map.values()].map(r => ({ ...r, empresas:[...r.empresas], apelidos:[...r.apelidos] }))
+    .sort((a,b)=> b.comissao - a.comissao || b.comissaoPaga - a.comissaoPaga || b.vgv - a.vgv);
 }
 
 // Vendas individuais (lances) do assessor nos leiloes filtrados
@@ -5299,7 +5593,7 @@ function coVendasDe(rec) {
     const fech = (state.fechamentos||[]).find(x=>x.id===l.id);
     if (!fech) continue;
     for (const v of (fech.lances||[])) {
-      if (!v || coNorm(v.assessor) !== rec.key) continue;
+      if (!v || v.cancelada || coNorm(v.assessor) !== rec.key) continue;
       vendas.push({ leilao:fech.nome, data:fech.data, lote:v.lote, comprador:v.comprador, uf:v.uf, animais:Number(v.animais)||0, vgv:Number(v.vgv)||0 });
     }
   }
@@ -5312,6 +5606,7 @@ function coClear() { ['coMes','coAno','coSearch','coEmpresa','coLeilao','coAsses
 
 async function renderComissionamento() {
   if (!state.fechamentos) state.fechamentos = await api('/api/bula/fechamento');
+  if (!state.folhaEstrutura) { state.folhaEstrutura = await api('/api/erp/folha-estrutura').catch(()=>[]); state._eqMaps = null; }
   const all = state.fechamentos || [];
   const f = state.filters;
   const mes=f.coMes||'', ano=f.coAno||'', search=f.coSearch||'', empresa=f.coEmpresa||'', leilaoSel=f.coLeilao||'', assessorSel=f.coAssessor||'';
@@ -5328,21 +5623,30 @@ async function renderComissionamento() {
   state.coCache = assessores; // p/ drawer e CSV (mesma lista filtrada exibida)
 
   const fechs = coFilteredFechamentos();
+  /* "Comissao a Pagar" respeita ESTRITAMENTE o periodo filtrado (decisao do
+     chefe 23/07: mostrar saldo de outro periodo na linha — ex.: os 23.490 de
+     julho do Rusa aparecendo no filtro de junho — polui a leitura do mes).
+     Saldo de outro periodo = trocar o filtro ou limpar. */
+  for (const a of assessores) {
+    a._pagar = a.comissao;
+  }
   const tot = {
-    pagar: assessores.reduce((s,a)=>s+a.comissao,0),
+    pagar: assessores.reduce((s,a)=>s+a._pagar,0),
+    paga: assessores.reduce((s,a)=>s+(a.comissaoPaga||0),0),
     vgv: assessores.reduce((s,a)=>s+a.vgv,0),
     leiloes: new Set(assessores.flatMap(a=>a.leiloes.map(l=>l.id))).size,
   };
   const semComissao = fechs.length>0 && fechs.every(x => !(Number(x.comissao_assessoria)>0));
-  const maxC = assessores.reduce((m,a)=>Math.max(m,a.comissao),0) || 1;
+  const maxC = assessores.reduce((m,a)=>Math.max(m,a._pagar),0) || 1;
 
   const html = `
     <div class="page-header">
       <div>
-        <div class="page-title">Comissionamento <small>${assessores.length} assessores · valores a pagar por leilao e venda</small></div>
+        <div class="page-title">Bônus e Comissionamento <small>${assessores.length} assessores · valores a pagar por leilao e venda</small></div>
       </div>
       <div class="page-actions">
         <button class="btn btn-ghost btn-sm" onclick="flReload()"><span class="material-symbols-outlined">refresh</span>Atualizar</button>
+        <button class="btn btn-ghost btn-sm" onclick="coPdfGeral()" title="Relatório consolidado dos assessores exibidos (respeita os filtros)"><span class="material-symbols-outlined">picture_as_pdf</span>Gerar PDF</button>
         <button class="btn btn-ghost btn-sm" onclick="coExportCSV()"><span class="material-symbols-outlined">download</span>Exportar CSV</button>
       </div>
     </div>
@@ -5354,7 +5658,7 @@ async function renderComissionamento() {
         <div class="kpi-icon"><span class="material-symbols-outlined">payments</span></div>
         <div class="kpi-label">Total a Pagar</div>
         <div class="kpi-value money">${fmtBRL(tot.pagar)}</div>
-        <div class="kpi-sub">comissoes de assessoria</div>
+        <div class="kpi-sub">comissoes em aberto${tot.paga>0?` · ${fmtBRL(tot.paga)} ja pago`:''}</div>
       </div>
       <div class="kpi info">
         <div class="kpi-icon"><span class="material-symbols-outlined">groups</span></div>
@@ -5422,8 +5726,9 @@ async function renderComissionamento() {
               <td style="text-align:right">${a.transacoes}</td>
               <td style="text-align:right">${a.animais}</td>
               <td class="money" style="text-align:right;color:var(--gold)">${fmtBRL(a.vgv)}</td>
-              <td class="money" style="text-align:right;font-weight:700">${a.comissao>0?`${fmtBRL(a.comissao)}${a.temEstimado?' <span class="chip muted" style="padding:1px 5px;font-size:9px" title="Inclui valores estimados por rateio de VGV">est.</span>':''}`:'<span style="color:var(--text4)">—</span>'}</td>
-              <td><div style="height:7px;background:var(--s3);border-radius:4px;overflow:hidden"><div style="height:100%;width:${Math.round((a.comissao/maxC)*100)}%;background:var(--gold)"></div></div></td>
+              <td class="money" style="text-align:right;font-weight:700">${a._pagar>0?`${fmtBRL(a._pagar)}${a.temEstimado?' <span class="chip muted" style="padding:1px 5px;font-size:9px" title="Inclui valores estimados por rateio de VGV">est.</span>':''}`:'<span style="color:var(--text4)">—</span>'}
+                ${a.comissaoPaga>0?`<div style="font-size:9.5px;color:var(--text3);font-weight:400" title="Comissao ja quitada — nao entra no total a pagar">${fmtBRL(a.comissaoPaga)} ja pago</div>`:''}</td>
+              <td><div style="height:7px;background:var(--s3);border-radius:4px;overflow:hidden"><div style="height:100%;width:${Math.round((a._pagar/maxC)*100)}%;background:var(--gold)"></div></div></td>
               <td style="white-space:nowrap">
                 <button class="icon-btn" title="Gerar PDF das vendas (respeita os filtros)" onclick="event.stopPropagation();coPdf(${i})"><span class="material-symbols-outlined">picture_as_pdf</span></button>
                 <span class="material-symbols-outlined" style="color:var(--text4);font-size:18px;vertical-align:middle">chevron_right</span>
@@ -5462,7 +5767,7 @@ function coOpenDetail(idx) {
     </div>
     <div class="modal-body">
       <div class="kpi-grid" style="margin-bottom:18px">
-        <div class="kpi warn"><div class="kpi-label">Total a Pagar</div><div class="kpi-value money" style="font-size:19px">${fmtBRL(rec.comissao)}</div></div>
+        <div class="kpi warn"><div class="kpi-label">Total a Pagar</div><div class="kpi-value money" style="font-size:19px">${fmtBRL(rec.comissao)}</div>${rec.comissaoPaga>0?`<div class="kpi-sub">${fmtBRL(rec.comissaoPaga)} ja pago</div>`:''}</div>
         <div class="kpi"><div class="kpi-label">VGV Intermediado</div><div class="kpi-value money" style="font-size:19px;color:var(--gold)">${fmtBRL(rec.vgv)}</div></div>
         <div class="kpi"><div class="kpi-label">Leiloes</div><div class="kpi-value" style="font-size:19px">${leiloes.length}</div></div>
         <div class="kpi"><div class="kpi-label">Vendas / Animais</div><div class="kpi-value" style="font-size:19px">${rec.transacoes} · ${rec.animais}</div></div>
@@ -5479,10 +5784,10 @@ function coOpenDetail(idx) {
               <td style="text-align:right">${l.transacoes}</td>
               <td class="money" style="text-align:right">${fmtBRL(l.vgv)}</td>
               <td style="text-align:right">${(l.share*100).toLocaleString('pt-BR',{maximumFractionDigits:1})}%</td>
-              <td class="money" style="text-align:right;font-weight:700">${l.comissao>0?`${fmtBRL(l.comissao)} ${l.real?'<span class="chip success" style="padding:1px 6px" title="Comissao real informada">real</span>':'<span class="chip muted" style="padding:1px 6px" title="Rateio por VGV">est.</span>'}`:'<span style="color:var(--text4)" title="Leilao sem comissao lancada">—</span>'}</td>
+              <td class="money" style="text-align:right;font-weight:700">${l.comissao>0?`${fmtBRL(l.comissao)} ${l.pago?`<span class="chip success" style="padding:1px 6px" title="${escapeHtml(l.pagoRef||'Comissao ja quitada')}">pago</span>`:(l.real?'<span class="chip success" style="padding:1px 6px" title="Comissao real informada">real</span>':'<span class="chip muted" style="padding:1px 6px" title="Rateio por VGV">est.</span>')}`:'<span style="color:var(--text4)" title="Leilao sem comissao lancada">—</span>'}</td>
             </tr>`).join('')}
           </tbody>
-          <tfoot><tr style="font-weight:700;border-top:2px solid var(--border2)"><td colspan="3">Total</td><td class="money" style="text-align:right">${fmtBRL(rec.vgv)}</td><td></td><td class="money" style="text-align:right">${fmtBRL(rec.comissao)}</td></tr></tfoot>
+          <tfoot><tr style="font-weight:700;border-top:2px solid var(--border2)"><td colspan="3">Total a pagar${rec.comissaoPaga>0?` <span style="font-weight:400;color:var(--text3)">(+ ${fmtBRL(rec.comissaoPaga)} ja pago)</span>`:''}</td><td class="money" style="text-align:right">${fmtBRL(rec.vgv)}</td><td></td><td class="money" style="text-align:right">${fmtBRL(rec.comissao)}</td></tr></tfoot>
         </table>
       </div>
       <div style="font-size:10px;color:var(--text3);margin-bottom:18px">${rec.temEstimado?'<strong>real</strong> = comissao informada no fechamento; <strong>est.</strong> = rateio do que sobra do total por VGV.':'Comissoes reais informadas por assessor no fechamento.'}</div>
@@ -5575,6 +5880,7 @@ function coPdf(idx) {
     <div class="kpi"><span>Animais</span><b>${rec.animais}</b></div>
     <div class="kpi"><span>VGV intermediado</span><b>${fmtBRL(rec.vgv)}</b></div>
     <div class="kpi"><span>Comissão a pagar</span><b>${fmtBRL(rec.comissao)}${rec.temEstimado?' *':''}</b></div>
+    ${rec.comissaoPaga>0?`<div class="kpi"><span>Já pago</span><b>${fmtBRL(rec.comissaoPaga)}</b></div>`:''}
   </div>
   <h2>Resultado por leilão</h2>
   <table>
@@ -5587,10 +5893,10 @@ function coPdf(idx) {
         <td class="r">${l.animais}</td>
         <td class="r">${fmtBRL(l.vgv)}</td>
         <td class="r">${pctFmt(l.share)}</td>
-        <td class="r">${l.comissao>0?fmtBRL(l.comissao)+(l.real?'':' *'):'—'}</td>
+        <td class="r">${l.comissao>0?fmtBRL(l.comissao)+(l.pago?' (pago)':(l.real?'':' *')):'—'}</td>
       </tr>`).join('')}
     </tbody>
-    <tfoot><tr><td colspan="2">Total</td><td class="r">${rec.transacoes}</td><td class="r">${rec.animais}</td><td class="r">${fmtBRL(rec.vgv)}</td><td></td><td class="r">${fmtBRL(rec.comissao)}</td></tr></tfoot>
+    <tfoot><tr><td colspan="2">Total a pagar${rec.comissaoPaga>0?` (+ ${fmtBRL(rec.comissaoPaga)} já pago)`:''}</td><td class="r">${rec.transacoes}</td><td class="r">${rec.animais}</td><td class="r">${fmtBRL(rec.vgv)}</td><td></td><td class="r">${fmtBRL(rec.comissao)}</td></tr></tfoot>
   </table>
   ${vendas.length?`
   <h2>Vendas individuais (${vendas.length})</h2>
@@ -5617,14 +5923,122 @@ function coPdf(idx) {
   w.document.close();
 }
 
+/* PDF consolidado do comissionamento (respeita os filtros ativos): resumo por
+   assessor + detalhe por leilão de cada um, no mesmo padrão print-ready do
+   coPdf (brandbook preto/branco, Oswald caps, dourado cirúrgico). */
+function coPdfGeral() {
+  const assessores = state.coCache || [];
+  if (!assessores.length) { toast('Nada para gerar — ajuste os filtros','info'); return; }
+  const hoje = new Date().toLocaleDateString('pt-BR');
+  const pctFmt = v => (v*100).toLocaleString('pt-BR',{maximumFractionDigits:1})+'%';
+  const tot = {
+    pagar: assessores.reduce((s,a)=>s+a.comissao,0),
+    paga: assessores.reduce((s,a)=>s+(a.comissaoPaga||0),0),
+    vgv: assessores.reduce((s,a)=>s+a.vgv,0),
+    vendas: assessores.reduce((s,a)=>s+a.transacoes,0),
+    animais: assessores.reduce((s,a)=>s+a.animais,0),
+    leiloes: new Set(assessores.flatMap(a=>a.leiloes.map(l=>l.id))).size,
+  };
+  const temEst = assessores.some(a=>a.temEstimado);
+  const w = window.open('', '_blank');
+  if (!w) { toast('Habilite pop-ups para gerar o PDF','error'); return; }
+  w.document.write(`<!doctype html><html lang="pt-BR"><head><meta charset="utf-8">
+  <title>Comissionamento — ${escapeHtml(coFiltroDesc())}</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Oswald:wght@500;600&family=Inter:wght@400;600;700&display=swap');
+    @page { size: A4; margin: 15mm 13mm; }
+    * { box-sizing:border-box; margin:0; padding:0; }
+    body { font-family:'Inter',Arial,sans-serif; color:#111; font-size:11px; }
+    .head { display:flex; justify-content:space-between; align-items:flex-end; border-bottom:3px solid #111; padding-bottom:10px; }
+    .brand { font-family:'Oswald',sans-serif; font-size:20px; letter-spacing:2px; text-transform:uppercase; font-weight:600; }
+    .brand small { color:#C9A84C; }
+    .doc { text-align:right; font-size:9.5px; color:#555; text-transform:uppercase; letter-spacing:1px; }
+    h1 { font-family:'Oswald',sans-serif; font-size:17px; text-transform:uppercase; letter-spacing:1px; margin:14px 0 2px; }
+    .sub { color:#555; font-size:10px; margin-bottom:12px; }
+    .kpis { display:flex; gap:8px; margin:10px 0 16px; }
+    .kpi { flex:1; border:1px solid #ccc; padding:8px 10px; }
+    .kpi b { display:block; font-size:13.5px; margin-top:3px; white-space:nowrap; }
+    .kpi span { font-size:8.5px; text-transform:uppercase; letter-spacing:1px; color:#666; }
+    h2 { font-family:'Oswald',sans-serif; font-size:12px; text-transform:uppercase; letter-spacing:1px; margin:16px 0 6px; border-left:3px solid #C9A84C; padding-left:7px; }
+    h2 small { font-family:'Inter',sans-serif; text-transform:none; letter-spacing:0; color:#555; font-weight:400; }
+    table { width:100%; border-collapse:collapse; }
+    th { text-align:left; font-size:8.5px; text-transform:uppercase; letter-spacing:.5px; color:#555; border-bottom:2px solid #111; padding:4px 6px; }
+    th.r, td.r { text-align:right; }
+    td { border-bottom:1px solid #e4e4e4; padding:4px 6px; vertical-align:top; }
+    tfoot td { border-top:2px solid #111; border-bottom:0; font-weight:700; }
+    tr { page-break-inside:avoid; }
+    .apel { font-size:8.5px; color:#777; }
+    .det { page-break-inside:avoid; margin-bottom:4px; }
+    .foot { margin-top:20px; padding-top:8px; border-top:1px solid #ccc; font-size:9px; color:#777; display:flex; justify-content:space-between; }
+    .nota { margin-top:8px; font-size:9px; color:#777; }
+  </style></head><body>
+  <div class="head">
+    <div class="brand">Bula <small>Assessoria</small></div>
+    <div class="doc">Relatório de bônus e comissionamento<br>Gerado em ${hoje}</div>
+  </div>
+  <h1>Bônus e Comissionamento dos Assessores</h1>
+  <div class="sub">Período/filtro: ${escapeHtml(coFiltroDesc())}</div>
+  <div class="kpis">
+    <div class="kpi"><span>Assessores</span><b>${assessores.length}</b></div>
+    <div class="kpi"><span>Leilões</span><b>${tot.leiloes}</b></div>
+    <div class="kpi"><span>Vendas · Animais</span><b>${tot.vendas} · ${tot.animais}</b></div>
+    <div class="kpi"><span>VGV intermediado</span><b>${fmtBRL(tot.vgv)}</b></div>
+    <div class="kpi"><span>Total a pagar</span><b>${fmtBRL(tot.pagar)}${temEst?' *':''}</b></div>
+    ${tot.paga>0?`<div class="kpi"><span>Já pago</span><b>${fmtBRL(tot.paga)}</b></div>`:''}
+  </div>
+  <h2>Resumo por assessor</h2>
+  <table>
+    <thead><tr><th>Assessor</th><th>Empresa</th><th class="r">Leilões</th><th class="r">Vendas</th><th class="r">Animais</th><th class="r">VGV intermediado</th><th class="r">Comissão a pagar</th></tr></thead>
+    <tbody>
+      ${assessores.map(a=>`<tr>
+        <td><strong>${escapeHtml(a.nome)}</strong>${a.apelidos.length?`<div class="apel">inclui: ${a.apelidos.map(escapeHtml).join(', ')}</div>`:''}</td>
+        <td>${a.empresas.map(escapeHtml).join(' · ')||'—'}</td>
+        <td class="r">${a.leiloes.length}</td>
+        <td class="r">${a.transacoes}</td>
+        <td class="r">${a.animais}</td>
+        <td class="r">${fmtBRL(a.vgv)}</td>
+        <td class="r"><strong>${a.comissao>0?fmtBRL(a.comissao)+(a.temEstimado?' *':''):'—'}</strong>${a.comissaoPaga>0?`<div style="font-size:8.5px;color:#777;font-weight:400">${fmtBRL(a.comissaoPaga)} já pago</div>`:''}</td>
+      </tr>`).join('')}
+    </tbody>
+    <tfoot><tr><td colspan="2">Total (${assessores.length} assessores)</td><td class="r">${tot.leiloes}</td><td class="r">${tot.vendas}</td><td class="r">${tot.animais}</td><td class="r">${fmtBRL(tot.vgv)}</td><td class="r">${fmtBRL(tot.pagar)}</td></tr></tfoot>
+  </table>
+  <h2 style="margin-top:22px">Detalhe por assessor <small>— a pagar por leilão</small></h2>
+  ${assessores.map(a=>{
+    const leiloes = a.leiloes.slice().sort((x,y)=> (x.data||'').localeCompare(y.data||''));
+    return `<div class="det">
+    <h2 style="border-left-color:#111;margin-top:14px">${escapeHtml(a.nome)} <small>· ${a.empresas.map(escapeHtml).join(' · ')||''} · ${fmtBRL(a.comissao)}</small></h2>
+    <table>
+      <thead><tr><th>Data</th><th>Leilão</th><th class="r">Vendas</th><th class="r">Animais</th><th class="r">VGV</th><th class="r">% do leilão</th><th class="r">Comissão</th></tr></thead>
+      <tbody>
+        ${leiloes.map(l=>`<tr>
+          <td style="white-space:nowrap">${flDataCurta(l.data)}</td>
+          <td>${escapeHtml(l.nome)}</td>
+          <td class="r">${l.transacoes}</td>
+          <td class="r">${l.animais}</td>
+          <td class="r">${fmtBRL(l.vgv)}</td>
+          <td class="r">${pctFmt(l.share)}</td>
+          <td class="r">${l.comissao>0?fmtBRL(l.comissao)+(l.pago?' (pago)':(l.real?'':' *')):'—'}</td>
+        </tr>`).join('')}
+      </tbody>
+      <tfoot><tr><td colspan="2">Total a pagar${a.comissaoPaga>0?` (+ ${fmtBRL(a.comissaoPaga)} já pago)`:''}</td><td class="r">${a.transacoes}</td><td class="r">${a.animais}</td><td class="r">${fmtBRL(a.vgv)}</td><td></td><td class="r">${fmtBRL(a.comissao)}</td></tr></tfoot>
+    </table>
+    </div>`;
+  }).join('')}
+  ${temEst?`<div class="nota">* Comissão estimada por rateio de VGV — o leilão não tem comissão individual informada no fechamento.</div>`:''}
+  <div class="foot"><span>Bula Assessoria — documento de uso interno</span><span>Comissionamento · ${hoje}</span></div>
+  <scr`+`ipt>window.onload = () => setTimeout(() => window.print(), 400);</scr`+`ipt>
+  </body></html>`);
+  w.document.close();
+}
+
 function coExportCSV() {
   const assessores = state.coCache || [];
   if (!assessores.length) { toast('Nada para exportar','info'); return; }
   const cell = v => `"${String(v==null?'':v).replace(/"/g,'""')}"`;
-  const lines = [['Assessor','Empresa','Leilao','Data','VGV no leilao','% do leilao','Comissao'].map(cell).join(';')];
+  const lines = [['Assessor','Empresa','Leilao','Data','VGV no leilao','% do leilao','Comissao','Status'].map(cell).join(';')];
   for (const a of assessores) {
     for (const l of a.leiloes.slice().sort((x,y)=>(y.data||'').localeCompare(x.data||''))) {
-      lines.push([a.nome, a.empresas.join(' / '), l.nome, l.data, Math.round(l.vgv), (l.share*100).toFixed(1), Math.round(l.comissao)].map(cell).join(';'));
+      lines.push([a.nome, a.empresas.join(' / '), l.nome, l.data, Math.round(l.vgv), (l.share*100).toFixed(1), Math.round(l.comissao), l.pago?'pago':'a pagar'].map(cell).join(';'));
     }
   }
   const blob = new Blob(["﻿"+lines.join('\n')], { type:'text/csv;charset=utf-8' });
@@ -5638,6 +6052,110 @@ function coExportCSV() {
    FOLHA & COMISSOES
    ========================================================================== */
 // Estrutura fixa (aba "Folha & Comissoes" do workbook FINANCEIRO BULA 2026).
+/* ==========================================================================
+   PAGE: EQUIPE — cadastro canônico de pessoas (erp_folha_estrutura + campos
+   da migration 0057): pessoa ↔ empresa, apelidos/grafias dos fechamentos,
+   % fixo de comissão, quem recebe o pagamento (fornecedor + "recebe como"),
+   zona. O Comissionamento usa apelidos/empresa daqui p/ agregar e exibir.
+   ========================================================================== */
+function eqOpen(id) {
+  const e = id ? (state.folhaEstrutura||[]).find(x => x.id === id) : null;
+  const fornecedores = state._eqFornecedores || [];
+  const empresas = ['Bula Assessoria','Bula Remates','Fórmula do Boi','Outro'];
+  const empresaAtual = e?.empresa || 'Bula Assessoria';
+  const html = `
+    <div class="modal-header"><div class="modal-title">${id?'Editar':'Novo'} membro da equipe</div><button class="icon-btn" onclick="closeModal()"><span class="material-symbols-outlined">close</span></button></div>
+    <div class="modal-body">
+      <form id="formEquipe" class="form-grid">
+        <div class="field"><label>Nome (canônico)*</label><input name="nome" required value="${escapeHtml(e?.nome||'')}"></div>
+        <div class="field"><label>Função</label><input name="funcao" value="${escapeHtml(e?.funcao||'')}" placeholder="Assessor, Parceiro, SDR..."></div>
+        <div class="field"><label>Empresa</label><select name="empresa">${empresas.map(x=>`<option value="${x}" ${empresaAtual===x?'selected':''}>${x}</option>`).join('')}${empresas.includes(empresaAtual)?'':`<option value="${escapeHtml(empresaAtual)}" selected>${escapeHtml(empresaAtual)}</option>`}</select></div>
+        <div class="field"><label>Comissão (%)</label><input name="comissao_pct" type="number" step="0.01" min="0" value="${e?.comissao_pct??''}" placeholder="ex: 2 · 0,33 · 5"></div>
+        <div class="field"><label>Salário fixo (R$/mês)</label><input name="salario_fixo" type="number" step="0.01" min="0" value="${e?.salario_fixo??0}"></div>
+        <div class="field"><label>Comissão fixa (R$/mês)</label><input name="comissao_fixa" type="number" step="0.01" min="0" value="${e?.comissao_fixa??''}" placeholder="ex: 2000 (SDR)"></div>
+        <div class="field" style="grid-column:1/-1"><label>Apelidos / grafias nos fechamentos (separar por vírgula)</label><input name="apelidos" value="${escapeHtml((e?.apelidos||[]).join(', '))}" placeholder="ex: Léo, Léo Serafim, LM Assessoria"></div>
+        <div class="field"><label>Fornecedor (quem recebe no ERP)</label><select name="fornecedor_id"><option value="">— nenhum —</option>${fornecedores.map(p=>`<option value="${p.id}" ${e?.fornecedor_id===p.id?'selected':''}>${escapeHtml(p.nome)}</option>`).join('')}</select></div>
+        <div class="field"><label>Recebe como (nome no extrato)</label><input name="pagamento_nome" value="${escapeHtml(e?.pagamento_nome||'')}" placeholder="ex: LM Assessoria, FO Assessoria"></div>
+        <div class="field"><label>Zona de atuação</label><input name="zona" value="${escapeHtml(e?.zona||'')}" placeholder="ex: Norte + MA"></div>
+        <div class="field"><label>Ativo</label><select name="ativo"><option value="true" ${e?.ativo!==false?'selected':''}>Sim</option><option value="false" ${e?.ativo===false?'selected':''}>Não</option></select></div>
+        <div class="field" style="grid-column:1/-1"><label>Observação</label><input name="observacao" value="${escapeHtml(e?.observacao||'')}"></div>
+      </form>
+      <div style="font-size:10px;color:var(--text3);margin-top:8px">Apelidos e empresa valem na hora no Bônus e Comissionamento. O % fixo vale para NOVOS fechamentos (os já lançados não são recalculados). Edição restrita a diretoria.</div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn" onclick="closeModal()">Cancelar</button>
+      <button class="btn btn-primary" onclick="eqSave('${id||''}')"><span class="material-symbols-outlined">save</span>Salvar</button>
+    </div>`;
+  openModal(html, { wide:true });
+}
+async function eqSave(id) {
+  const data = Object.fromEntries(new FormData(document.getElementById('formEquipe')));
+  data.salario_fixo = Number(data.salario_fixo||0);
+  data.comissao_pct = data.comissao_pct === '' ? null : Number(data.comissao_pct);
+  data.comissao_fixa = data.comissao_fixa === '' ? null : Number(data.comissao_fixa);
+  data.ativo = data.ativo === 'true';
+  data.fornecedor_id = data.fornecedor_id || null;
+  data.apelidos = String(data.apelidos||'').split(',').map(s=>s.trim()).filter(Boolean);
+  try {
+    if (id) await api(`/api/erp/folha-estrutura/${id}`, { method:'PATCH', body:JSON.stringify(data) });
+    else await api('/api/erp/folha-estrutura', { method:'POST', body:JSON.stringify(data) });
+    state.folhaEstrutura = null; state._eqMaps = null;
+    closeModal(); toast('Salvo','success'); render();
+  } catch (e) { toast(e.message,'error'); }
+}
+async function eqDelete(id) {
+  if (!await confirmAction('Excluir este membro da equipe? (Não afeta fechamentos nem títulos já lançados.)')) return;
+  try {
+    await api(`/api/erp/folha-estrutura/${id}`, { method:'DELETE' });
+    state.folhaEstrutura = null; state._eqMaps = null; toast('Excluído','success'); render();
+  } catch (e) { toast(e.message,'error'); }
+}
+
+async function renderEquipe() {
+  if (!state.folhaEstrutura) state.folhaEstrutura = await api('/api/erp/folha-estrutura');
+  if (!state._eqFornecedores) state._eqFornecedores = (await api('/api/erp/pessoas?tipo=fornecedor').catch(()=>[])) || [];
+  const rows = state.folhaEstrutura || [];
+  const ativos = rows.filter(e => e.ativo !== false);
+  const comPct = ativos.filter(e => Number(e.comissao_pct) > 0);
+  const html = `
+    <div class="page-header">
+      <div><div class="page-title">Equipe <small>${ativos.length} membros ativos · pessoa ↔ empresa, grafias, % e pagamento</small></div></div>
+      <div class="page-actions">
+        <button class="btn btn-ghost btn-sm" onclick="state.folhaEstrutura=null; state._eqMaps=null; render()"><span class="material-symbols-outlined">refresh</span>Atualizar</button>
+        <button class="btn btn-primary btn-sm" onclick="eqOpen('')"><span class="material-symbols-outlined">person_add</span>Novo membro</button>
+      </div>
+    </div>
+    <div class="kpi-grid">
+      <div class="kpi"><div class="kpi-icon"><span class="material-symbols-outlined">diversity_3</span></div><div class="kpi-label">Membros ativos</div><div class="kpi-value">${ativos.length}</div></div>
+      <div class="kpi"><div class="kpi-icon"><span class="material-symbols-outlined">real_estate_agent</span></div><div class="kpi-label">Comissionados</div><div class="kpi-value">${comPct.length}</div><div class="kpi-sub">com % fixo cadastrado</div></div>
+      <div class="kpi"><div class="kpi-icon"><span class="material-symbols-outlined">business</span></div><div class="kpi-label">Empresas</div><div class="kpi-value">${new Set(ativos.map(e=>e.empresa||'Bula Assessoria')).size}</div></div>
+    </div>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Membro</th><th>Função</th><th>Empresa</th><th style="text-align:right">Comissão</th><th>Recebe como</th><th>Zona</th><th></th></tr></thead>
+        <tbody>
+          ${rows.map(e=>`<tr${e.ativo===false?' style="opacity:.45"':''}>
+            <td style="font-weight:600">${escapeHtml(e.nome)}${e.ativo===false?' <span class="chip muted" style="padding:1px 7px">inativo</span>':''}
+              ${(e.apelidos||[]).length?`<div style="font-size:10px;color:var(--text3);font-weight:400" title="Grafias reconhecidas nos fechamentos">grafias: ${(e.apelidos||[]).map(escapeHtml).join(', ')}</div>`:''}
+              ${e.observacao?`<div style="font-size:10px;color:var(--text3);font-weight:400">${escapeHtml(e.observacao)}</div>`:''}</td>
+            <td style="color:var(--text2)">${escapeHtml(e.funcao||'—')}</td>
+            <td><span class="chip muted">${escapeHtml(e.empresa||'Bula Assessoria')}</span></td>
+            <td style="text-align:right;color:var(--gold);font-weight:600">${folhaComissaoLabel(e)}</td>
+            <td style="font-size:11px;color:var(--text2)">${escapeHtml(e.pagamento_nome || e.fornecedor?.nome || '—')}${e.pagamento_nome && e.fornecedor?.nome && e.pagamento_nome!==e.fornecedor.nome?`<div style="font-size:10px;color:var(--text3)">fornecedor: ${escapeHtml(e.fornecedor.nome)}</div>`:''}</td>
+            <td style="font-size:11px;color:var(--text2)">${escapeHtml(e.zona||'—')}</td>
+            <td style="white-space:nowrap;text-align:right">
+              <button class="icon-btn" title="Editar" onclick="eqOpen('${e.id}')"><span class="material-symbols-outlined">edit</span></button>
+              <button class="icon-btn" title="Excluir" onclick="eqDelete('${e.id}')"><span class="material-symbols-outlined">delete</span></button>
+            </td>
+          </tr>`).join('')}
+        </tbody>
+      </table>
+    </div>
+    <div style="font-size:10px;color:var(--text3);margin-top:8px">Grafias e empresa cadastradas aqui são usadas pelo <strong>Bônus e Comissionamento</strong> para unificar a pessoa e exibir a empresa correta. "Recebe como" documenta o nome que aparece no extrato (ex.: Leonardo recebe como LM Assessoria) — use na conciliação. Salário/comissão fixa seguem na página Folha &amp; Comissões.</div>
+  `;
+  document.getElementById('page').innerHTML = html;
+}
+
 /* Estrutura de folha & comissões: cadastro canônico em erp_folha_estrutura
    (migration 0056). Edição restrita a finance-admin (API devolve 403). */
 const folhaComissaoLabel = (e) => {

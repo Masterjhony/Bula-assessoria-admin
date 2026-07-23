@@ -53,7 +53,6 @@ export default async function AgendaPage() {
                 <HeroVideo src={HERO_VIDEO} />
                 <div style={{ position: 'absolute', inset: 0, background: 'rgba(10,10,10,0.55)' }} />
                 <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(180deg,rgba(10,10,10,0.55) 0%,rgba(10,10,10,0.12) 36%,rgba(10,10,10,0.5) 66%,rgba(10,10,10,0.96) 100%)' }} />
-                <div style={{ position: 'absolute', inset: 0, opacity: 0.5, backgroundImage: 'repeating-linear-gradient(135deg,rgba(255,255,255,0.03) 0px,rgba(255,255,255,0.03) 1px,transparent 1px,transparent 7px)' }} />
 
                 <div style={{ position: 'relative', zIndex: 10, width: '100%', maxWidth: '1280px', margin: '0 auto', padding: 'clamp(28px,5vw,64px) clamp(20px,5vw,64px) clamp(40px,6vw,80px)' }}>
                     <div style={{ display: 'flex', alignItems: 'center', gap: '14px', marginBottom: '22px' }}>
@@ -105,6 +104,7 @@ export default async function AgendaPage() {
             </section>
 
             <Sobre />
+            <Habilitese />
             <Contato />
         </>
     )
@@ -150,6 +150,50 @@ function Sobre() {
                             </div>
                         ))}
                     </div>
+                </div>
+            </div>
+        </section>
+    )
+}
+
+function Habilitese() {
+    const passos = [
+        { n: '01', label: 'Cadastro em menos de 10 minutos' },
+        { n: '02', label: 'Leiloeiras parceiras analisam' },
+        { n: '03', label: 'Aprovado: lance parcelado liberado' },
+    ]
+    return (
+        <section id="habilite-se" style={{ padding: 'clamp(56px,8vw,120px) clamp(20px,5vw,64px)', borderTop: '1px solid rgba(255,255,255,0.08)' }}>
+            <div style={{ maxWidth: '1280px', margin: '0 auto', display: 'grid', gridTemplateColumns: 'repeat(auto-fit,minmax(320px,1fr))', gap: 'clamp(36px,6vw,90px)', alignItems: 'center' }}>
+                <div>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '14px', marginBottom: '22px' }}>
+                        <span style={{ width: '34px', height: '1px', background: GOLD }} />
+                        <span style={{ fontFamily: OSWALD, fontWeight: 500, fontSize: '12px', letterSpacing: '0.3em', textTransform: 'uppercase', color: GOLD }}>Assessoria gratuita</span>
+                    </div>
+                    <h2 style={{ fontFamily: OSWALD, fontWeight: 700, textTransform: 'uppercase', fontSize: 'clamp(30px,4.4vw,58px)', lineHeight: 0.98, letterSpacing: '-0.01em', margin: '0 0 22px' }}>
+                        Habilite-se para<br />o próximo lance.
+                    </h2>
+                    <p style={{ fontFamily: INTER, fontSize: 'clamp(15px,1.5vw,17px)', lineHeight: 1.7, color: 'rgba(255,255,255,0.72)', margin: '0 0 30px', maxWidth: '48ch' }}>
+                        Com o cadastro aprovado nas leiloeiras parceiras, você compra parcelado no boleto
+                        com a Bula do seu lado — sem custo nenhum para o produtor. Deixe sua habilitação
+                        pronta antes do leilão e não perca o lote certo.
+                    </p>
+                    <div style={{ display: 'flex', gap: '14px', flexWrap: 'wrap' }}>
+                        <Link href="/habilitacao" className="agenda-btn-white" style={{ fontFamily: OSWALD, fontWeight: 600, fontSize: '14px', letterSpacing: '0.14em', textTransform: 'uppercase', color: '#0A0A0A', background: '#fff', textDecoration: 'none', padding: '16px 30px' }}>
+                            Iniciar habilitação →
+                        </Link>
+                        <a href={WHATSAPP_CTA_URL} target="_blank" rel="noopener noreferrer" className="agenda-btn-outline" style={{ fontFamily: OSWALD, fontWeight: 600, fontSize: '14px', letterSpacing: '0.14em', textTransform: 'uppercase', color: '#fff', textDecoration: 'none', padding: '16px 30px', border: '1px solid rgba(255,255,255,0.35)' }}>
+                            Prefiro pelo WhatsApp
+                        </a>
+                    </div>
+                </div>
+                <div style={{ display: 'flex', flexDirection: 'column' }}>
+                    {passos.map((p) => (
+                        <div key={p.n} style={{ display: 'flex', alignItems: 'baseline', gap: '18px', padding: '18px 0', borderTop: '1px solid rgba(255,255,255,0.1)' }}>
+                            <span style={{ fontFamily: MONO, fontSize: '12px', color: GOLD }}>{p.n}</span>
+                            <span style={{ fontFamily: OSWALD, fontWeight: 500, fontSize: 'clamp(15px,1.7vw,19px)', letterSpacing: '0.12em', textTransform: 'uppercase' }}>{p.label}</span>
+                        </div>
+                    ))}
                 </div>
             </div>
         </section>

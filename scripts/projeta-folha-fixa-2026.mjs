@@ -55,6 +55,15 @@ function* meses(ini, fim) {
 }
 const ultimoDia = (y, m) => new Date(y, m, 0).getDate()
 
+// Regra da empresa: comissão paga dia 25; se cair em fim de semana/feriado,
+// vai para o próximo dia útil (ex.: 25/07/2026 sábado → 27/07).
+const FERIADOS_FIXOS = new Set(['01-01', '04-21', '05-01', '09-07', '10-12', '11-02', '11-15', '12-25'])
+const proxDiaUtil = (iso) => {
+  const d = new Date(iso + 'T12:00:00')
+  while (d.getDay() === 0 || d.getDay() === 6 || FERIADOS_FIXOS.has(d.toISOString().slice(5, 10))) d.setDate(d.getDate() + 1)
+  return d.toISOString().slice(0, 10)
+}
+
 // centros de custo por função (sondados: COM01 Salários Comerciais, OP01
 // Salários Operacionais, COM02 Comissão Assessores)
 const { data: centros } = await sb.from('erp_centros_custo').select('id,codigo')
@@ -105,7 +114,7 @@ for (const { y, m } of meses(MES_INI, MES_FIM)) {
       descricao: `COMISSAO FIXA ${(col.funcao || '').toUpperCase()} - ${col.nome} - ref. ${mesNome}/${y}`,
       numero_documento: doc,
       valor: Number(col.comissao_fixa),
-      emissao, vencimento: `${ny}-${String(nm).padStart(2, '0')}-25`, status: 'aberto',
+      emissao, vencimento: proxDiaUtil(`${ny}-${String(nm).padStart(2, '0')}-25`), status: 'aberto',
       categoria_id: CAT_COMISSAO,
       centro_custo_id: ccByCod['COM02'] || centroDe(col.funcao),
       fornecedor_id: fornecedorDe(col.nome),

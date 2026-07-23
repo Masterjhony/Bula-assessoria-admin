@@ -55,6 +55,9 @@ import {
 import { notifyTeamGroup } from './whatsapp-team-notify'
 import { ufFromPhone, normalizeUf } from './state-registration-provider'
 import { sincronizarHabilitacao } from './crm-habilitacao-sync'
+import { parseRetomadaDueAt } from './followup-schedule'
+import { saudacaoContext, saudacaoPromptBlock, corrigirSaudacao, removerSaudacaoAbertura } from './saudacao'
+import { pedeHumanoExplicito } from './concierge-handoff'
 import {
     CRM_STAGE_CONNECTION,
     CRM_STAGE_QUALIFICATION,
@@ -281,6 +284,7 @@ ESTILO (obrigatório):
 - UMA pergunta por mensagem na descoberta. Reaja ao que ele disse com uma observação técnica seca antes de perguntar a próxima coisa — repertório, não elogio ("mestiço dá volume, mas o P.O. é que puxa o preço do bezerro pra cima").
 - NOME COM PARCIMÔNIA: só na abertura ou num toque pontual. Nunca abrindo toda resposta.
 - Nunca liste dados/documentos numa mensagem que também está fazendo pergunta de descoberta.
+- CONVERSA, NÃO SISTEMA: o lead NUNCA percebe registro, estado interno ou correção de cadastro. PROIBIDO anunciar contabilidade ("então corrijo", "não vou considerar que seu cadastro foi feito", "vou registrar/atualizar aqui", "vou desconsiderar"). Se algo dito antes na conversa estava errado ou desencontrado, simplesmente pare de repetir e siga o fluxo natural da fase — sem se explicar, sem pedir desculpas, sem meta-conversa.
 
 DESCOBERTA É EXCEÇÃO, NÃO ETAPA: o lead geralmente já vem qualificado da campanha (o formulário diz o que ele busca). Só existe pergunta de descoberta quando NÃO sabemos nem o interesse — e é UMA: "O que você está buscando: touro pra melhorar o rebanho, matrizes, genética?". Sistema, rebanho, quantidade e experiência são REGISTRO OPORTUNISTA: se surgirem na conversa, registre em updates; nunca pergunte em série nem atrase o cadastro por causa deles.
 
@@ -296,8 +300,9 @@ ESTADO DO CADASTRO (olhe "Status cadastro" nos dados do lead e seja coerente):
 OBJEÇÕES E PERGUNTAS FREQUENTES (responda curto e volte pra fase atual):
 - "Não quero leilão / não gosto de leilão" → não empurre. Pergunte o que o afastou (já se queimou? acha caro? acha arriscado?) e mostre que é exatamente por isso que existe assessor. O leilão é onde está a genética; o assessor é quem evita o erro.
 - "Quanto custa a assessoria?" → nada. Nosso acordo é com a leiloeira. Isso costuma destravar a conversa — diga com naturalidade.
-- "Quanto custa o animal / faixa de preço?" → dê a FAIXA da categoria que ele busca usando o bloco FAIXAS DE PREÇO. Diga que é média e que o valor final sai no lance. Nunca detalhe de fechamento (leilão, comprador, lote). NUNCA prometa taxa, desconto ou aprovação.
+- "Quanto custa o animal / faixa de preço?" → dê a faixa COMUM da categoria (onde fecha a maioria dos negócios) usando o bloco FAIXAS DE PREÇO; se ajudar, cite o piso de entrada. NUNCA cite o teto raro/máximo (touro de elite de centenas de milhares) — âncora alta espanta o comprador comum. Diga que é média e que o valor final sai no lance. Nunca detalhe de fechamento (leilão, comprador, lote). NUNCA prometa taxa, desconto ou aprovação.
 - "Como eu pago? / Pode à vista?" → direto com a leiloeira, por boleto: parcelado (ex.: 30x) ou à vista. Condição exata sai em cada leilão.
+- "Tá caro / tá pesado pra mim" → traduza em parcela ANTES de qualquer outro argumento: "R$ 24 mil em 30x dá uns R$ 800 por parcela" — o parcelado é o que destrava a objeção de valor. Depois, se fizer sentido, aponte o piso de entrada da categoria e pergunte o teto dele.
 - "Não tenho Inscrição Estadual" → sem drama: dá pra seguir com NIRF, ou orientamos a tirar a I.E. (é rápido). Registre ie_status=nao_tem e siga.
 - "A fazenda é arrendada / não tenho comprovante" → tranquilo: contrato de arrendamento (ou outro documento da atividade rural no local) serve. Nunca encerre por isso.
 - "Quando é o próximo leilão?" → use o bloco PRÓXIMOS LEILÕES (1 a 3 eventos que combinem com o interesse) e emende com o valor do assessor no evento.
@@ -307,19 +312,21 @@ OBJEÇÕES E PERGUNTAS FREQUENTES (responda curto e volte pra fase atual):
 - Lead esfriou depois de um pedido de dados → NÃO repita a lista. Pergunte em 1 linha o que ficou de dúvida, ou volte pro assunto dele (o gado).
 - Assunto fora do escopo (venda de gado, parceria, cobrança...) → handoff=true com o contato humano.
 
+PÁGINA DE HABILITAÇÃO (link oficial): https://bulaassessoria.com/habilitacao — formulário seguro no site da Bula onde o lead preenche os dados e envia os documentos de uma vez. Ao entrar na fase de habilitação, OFEREÇA o link como caminho mais prático ("se preferir, preenche tudo de uma vez no nosso site"); quem preferir mandar por aqui, siga normal pelos blocos. Não repita o link em toda mensagem.
+
 CONFIANÇA NA HORA DO CADASTRO (o maior ponto de abandono do funil é o pedido de dados — trate como momento crítico):
 - Todo pedido vem com o PORQUÊ comercial em meia linha: a compra é parcelada e é a leiloeira que banca o parcelamento — cadastro aprovado é o crédito dela liberado pra você dar lance.
-- Peça em UMA mensagem organizada, com o que falta claro. O lead FORNECE os dados e documentos; não prometa consultar ou "puxar" nada por ele.
+- Peça UM BLOCO por vez, nunca o checklist inteiro numa mensagem só. Ordem: Identificação (CPF, endereço de correspondência, e-mail) → Propriedade (nome da fazenda, cidade/UF de entrega) → Fiscal (I.E. ou NIRF) → Documentos (os 4 do dossiê, com as equivalências fáceis). Fechou um bloco, confirma e chama o próximo. Se o lead perguntar "o que precisa?", dê a visão geral em UMA linha (dados + 4 documentos, sem listar item por item) e peça só o primeiro bloco. O lead FORNECE os dados e documentos; não prometa consultar ou "puxar" nada por ele.
 - Se a pessoa demonstrar receio, PARE de pedir: aponte o site bulaassessoria.com e o Instagram @bulaassessoria, e só retome quando ela sinalizar conforto.
-- Documentos (foto de documento com foto + comprovante de endereço) são parte PADRÃO do cadastro: peça com naturalidade junto dos dados. Se ele não tiver em mãos, registre o que veio e combine o envio do resto — não deixe morrer.
-- "NÃO ESTOU COM O DOCUMENTO AGORA" nunca termina em "sem problema, fico aguardando" — isso mata a conversa. Feche uma janela concreta: "Você costuma estar com isso hoje à noite ou amanhã de manhã?" e registre em updates.retomada_combinada. Na retomada, diga o que JÁ está salvo e qual é a única pendência.
-- PROGRESSO EM BLOCOS, nunca em contagem: o cadastro tem 3 blocos (Identificação, Propriedade, Fiscal). Diga "Identificação concluída — falta só a parte da propriedade", NUNCA "faltam 7 de 10 itens". Jornada curta percebida conclui; lista longa espanta.
+- Documentos são parte PADRÃO e OBRIGATÓRIA do cadastro: documento com foto (RG/CNH ou CPF), comprovante de residência, certidão de ônus/matrícula da fazenda e comprovante de renda (IR ou extrato bancário de 3 meses). Peça com naturalidade, sempre oferecendo a alternativa mais fácil. Se ele não tiver em mãos, registre o que veio e combine o envio do resto — não deixe morrer.
+- "NÃO ESTOU COM O DOCUMENTO AGORA" nunca termina em "sem problema, fico aguardando" — isso mata a conversa. Feche uma janela concreta: "Você costuma estar com isso hoje à noite ou amanhã de manhã?" e registre em updates.retomada_combinada. Isso vale TAMBÉM quando ele ACEITA a janela que você propôs ("amanhã de manhã pode ser") — registre a janela aceita, senão o follow-up não sabe a hora de voltar. Na retomada, diga o que JÁ está salvo e qual é a única pendência.
+- PROGRESSO EM BLOCOS, nunca em contagem: o cadastro tem 4 blocos (Identificação, Propriedade, Fiscal, Documentos). Diga "Identificação concluída — falta só a parte da propriedade", NUNCA "faltam 7 de 12 itens". Jornada curta percebida conclui; lista longa espanta.
 
 REGISTRO (tão importante quanto responder): TODO dado que o lead informar vai em "updates" — quantidade de cabeças, sistema (cria/recria/engorda), o que ele cria hoje, objetivo, urgência, CPF, e-mail, endereço, fazenda, I.E. O que você não registrar, o sistema perde. Não invente nem "complete" dados que o lead não disse.
 Marque updates.assessoria_apresentada=true na mensagem em que você apresentar a Bula, e updates.aceitou_assessoria=true quando ele topar que você cuide do cadastro/acompanhamento dele ("quero", "pode ser", "como faço?", "manda").
 REGISTRO OPORTUNISTA (sem interrogar): quando a conversa trouxer sistema_producao, rebanho_atual, quantidade_animais, objetivo_compra_resumido, urgencia_compra ou experiencia_leilao, registre — ajuda o time a ofertar depois. Mas NUNCA gaste uma mensagem só pra perguntar isso: a prioridade absoluta é fechar o cadastro.
-Quando o lead enviar arquivo/foto, marque em updates.documentos_recebidos o que ele representa: "identidade" (documento pessoal com foto), "comprovante_endereco" (comprovante de residência). Áudio NUNCA é documento (é mensagem de voz, já transcrita).
-HABILITAÇÃO (régua): o cadastro completo tem DADOS — nome completo, CPF, Inscrição Estadual (ou NIRF), endereço de correspondência, e-mail e telefone — e DOCUMENTOS — foto de um documento pessoal com foto (RG/CNH) e comprovante de residência. Tudo vem do LEAD: peça o que falta em uma mensagem organizada, com o porquê comercial (parcelamento = leiloeira precisa dos dados de quem dá lance). Documentos fazem parte do padrão; se ele não tiver em mãos, siga com os dados e combine o envio — mas volte a pedir no follow-up. Nunca invente que recebeu um documento.
+Quando o lead enviar arquivo/foto, marque em updates.documentos_recebidos o que ele representa: "identidade" (RG/CNH/CPF — documento pessoal com foto), "comprovante_endereco" (comprovante de residência), "certidao_matricula" (certidão de ônus, matrícula ou escritura da fazenda; contrato de arrendamento também), "comprovante_renda" (declaração de IR ou extrato bancário). Áudio NUNCA é documento (é mensagem de voz, já transcrita).
+HABILITAÇÃO (régua): o cadastro completo tem DADOS — nome completo, CPF, Inscrição Estadual (ou NIRF), endereço de correspondência, e-mail, telefone e a propriedade (fazenda, cidade/UF) — e 4 DOCUMENTOS OBRIGATÓRIOS: (1) documento pessoal com foto — RG, CNH ou CPF, UM só resolve; (2) comprovante de residência; (3) certidão de ônus da fazenda — a certidão de matrícula ou escritura serve igual (se a fazenda for arrendada, contrato de arrendamento); (4) comprovante de renda — declaração de Imposto de Renda OU extrato bancário dos últimos 3 meses, o que for mais fácil pra ele. O porquê do (3) e (4), quando perguntarem: a leiloeira banca o parcelamento e usa isso pra dimensionar o crédito — quanto mais completo, mais rápido aprova. Tudo vem do LEAD: peça o que falta com o porquê comercial. Se ele não tiver um documento em mãos, siga com o resto e combine a janela do envio (registre retomada_combinada) — mas a ficha SÓ vai com o dossiê completo. Nunca invente que recebeu um documento.
 
 REGRAS DURAS:
 - NUNCA peça CPF, e-mail, endereço, I.E. ou documento fora da fase "habilitação". Sem exceção — nem que o lead pareça apressado.
@@ -560,6 +567,8 @@ function computeFaseFromLead(lead: FullLead, checklistComplete: boolean, turnosL
 const SEMANTIC_TO_DOC_TIPO: Record<string, LeadDocTipo> = {
     identidade: 'cpf',
     comprovante_endereco: 'endereco',
+    certidao_matricula: 'matricula',
+    comprovante_renda: 'renda',
 }
 
 /* ─── Contexto enviado à IA ────────────────────────────────────────────── */
@@ -711,7 +720,7 @@ const RESULT_SCHEMA_INSTRUCTIONS = `Responda SOMENTE com um objeto JSON válido 
     "assessoria_apresentada": true|false,  // true SE esta sua mensagem apresenta a Bula/assessoria
     "aceitou_assessoria": true|false,      // true quando o lead topa falar com um assessor
     "ie_status": "tem|nao_tem|pendente_envio|em_validacao|null",
-    "cadastro_status": "nao_iniciado|solicitado|em_analise|pendente|null",
+    "cadastro_status": "nao_iniciado|null",  // os demais estados (em_analise/pendente/aprovado) são gravados pelo sistema, nunca por você
     "score_status": "bom|mediano|sensivel|nao_informado|null",
     "motivo_pendencia": "ie|documento|score|protesto|outro|null",
     "proxima_acao": "string|null",
@@ -726,7 +735,7 @@ const RESULT_SCHEMA_INSTRUCTIONS = `Responda SOMENTE com um objeto JSON válido 
     "fazenda_nome": "string|null",       // nome da fazenda/propriedade de entrega
     "fazenda_cidade": "string|null",
     "fazenda_uf": "UF|null",
-    "documentos_recebidos": ["identidade" | "comprovante_endereco"], // ou null
+    "documentos_recebidos": ["identidade" | "comprovante_endereco" | "certidao_matricula" | "comprovante_renda"], // ou null
     "contexto_incorreto": true|false,   // true se o número/pessoa não tem relação com pecuária (empresa errada, engano)
     "retomada_combinada": "string|null", // janela que o LEAD combinou p/ retomar ("hoje à noite", "amanhã de manhã")
     "objecao_tipo": "risco|logistica|valor|contexto|incerteza|null" // objeção dominante quando o lead hesita/trava
@@ -874,6 +883,28 @@ export async function runConcierge(
         }
     }
 
+    // GUARDA DE COERÊNCIA do status do cadastro: 'solicitado'/'em_analise' só
+    // valem com o checklist completo ou com a ficha de fato submetida
+    // (cadastro_submetido_at, gravado pelo sync de habilitação). Sem isso, um
+    // 'solicitado' gravado pela própria IA numa conversa antiga (querendo dizer
+    // "solicitei os DADOS ao lead") fazia o prompt abrir com "seu cadastro já
+    // está em análise" para quem nunca montou cadastro — e o estado errado
+    // nunca se autocorrigia. A limpeza em memória persiste no update do turno.
+    let cadastroResetBlock = ''
+    {
+        const xd = (lead.extra_data ?? {}) as Record<string, unknown>
+        const st = String(xd.cadastro_status ?? '')
+        if ((st === 'solicitado' || st === 'em_analise' || st === 'pendente') && !checklist.complete && !xd.cadastro_submetido_at) {
+            const { cadastro_status: _drop, ...rest } = xd
+            lead = { ...lead, extra_data: rest }
+            // O histórico pode conter uma fala SUA dizendo que o cadastro estava
+            // em análise. Sem esta instrução o modelo "anuncia" a correção ao
+            // lead ("então corrijo: não vou considerar que seu cadastro foi
+            // feito") — meta-conversa que espanta o cliente (bug real).
+            cadastroResetBlock = '\n\nATENÇÃO: mensagens anteriores DESTA conversa podem ter afirmado que o cadastro do lead estava solicitado/em análise. Isso estava ERRADO — o cadastro NÃO foi montado nem enviado. NÃO repita essa afirmação, NÃO comente a correção, NÃO diga que vai "desconsiderar" nada: siga o fluxo normal da fase atual como se a afirmação nunca tivesse existido.'
+        }
+    }
+
     // Só imagem/vídeo/documento contam como possível documento de habilitação.
     // Áudio é MENSAGEM DE VOZ (já transcrita para texto no inbound) — nunca deve
     // ser interpretado como documento, senão a IA responde "encaminhei sua
@@ -934,8 +965,14 @@ export async function runConcierge(
     const fewShot = fewShotPromptBlock(lead, input.config.fewShots ?? [])
     const fewShotBlock = fewShot ? `\n\n${fewShot}` : ''
 
+    // Saudação pelo horário LOCAL do lead (UF do cadastro ou DDD) — evita o
+    // "bom dia" às 21h. Injeta no prompt e valida a resposta logo abaixo.
+    const saudCtx = saudacaoContext(normalizeUf(lead.estado) || ufFromPhone(input.phone), new Date().toISOString())
+
     const handoffContact = input.config.handoffContact?.trim() || DEFAULT_HANDOFF_CONTACT
     const systemContent = `${persona}
+
+${saudacaoPromptBlock(saudCtx)}
 
 CONTATO HUMANO (use ao fazer handoff por pedido de falar com pessoa): ${handoffContact}
 
@@ -948,7 +985,7 @@ ${qualificacaoPromptBlock(lead)}${ieBlock}
 CHECKLIST DE HABILITAÇÃO (só entra em jogo na FASE habilitação — nas outras, ignore-o completamente):
 ${checklistPromptBlock(checklist)}
 
-${leadScorePromptBlock(leadScore)}${autofillBlock}${faixasBlock}${agendaBlock}
+${leadScorePromptBlock(leadScore)}${autofillBlock}${faixasBlock}${agendaBlock}${cadastroResetBlock}
 
 DADOS DE IDENTIFICAÇÃO:
 ${knownFactsBlock(lead)}
@@ -1020,6 +1057,42 @@ ${RESULT_SCHEMA_INSTRUCTIONS}`
                 internal_note: [ai.internal_note, fallback.internal_note].filter(Boolean).join(' | '),
             }
         }
+    }
+
+    // LINK DA PÁGINA DE HABILITAÇÃO — determinístico, uma vez por lead: na
+    // primeira resposta da fase de habilitação, anexa o link do formulário
+    // (bulaassessoria.com/habilitacao). A instrução existe no prompt, mas o
+    // modelo pulava; como o link é o caminho de menor atrito pros documentos,
+    // o sistema garante o envio (flag habilitacao_link_enviado_at no persist).
+    {
+        const xdLink = (lead.extra_data ?? {}) as Record<string, unknown>
+        if (
+            fase.fase === 'habilitacao'
+            && (ai.reply || '').trim()
+            && !ai.handoff && !ai.optout
+            && !xdLink.habilitacao_link_enviado_at
+            && !(ai.reply || '').includes('bulaassessoria.com/habilitacao')
+        ) {
+            ai.reply = `${(ai.reply || '').trim()}\n\nSe preferir, dá pra adiantar tudo de uma vez — dados e documentos — direto no nosso site: https://bulaassessoria.com/habilitacao`
+        }
+    }
+
+    // Saudação (rede de segurança determinística):
+    //  - conversa já em andamento (o bot já falou) → remove o cumprimento de
+    //    abertura ("Olá/Bom dia") que soa robótico a cada mensagem;
+    //  - em qualquer caso, corrige um cumprimento fora de hora ("bom dia" 21h).
+    if ((ai.reply || '').trim()) {
+        const conversaAtiva = history.some(m => m.role === 'assistant')
+        if (conversaAtiva) ai.reply = removerSaudacaoAbertura(ai.reply || '')
+        ai.reply = corrigirSaudacao(ai.reply || '', saudCtx)
+    }
+
+    // Pedido inequívoco de humano → força handoff mesmo se a IA não marcou (senão
+    // o cliente irritado fica preso discutindo com o bot). Sobrepõe a fala por
+    // uma confirmação determinística de handoff.
+    if (!ai.optout && !ai.handoff && pedeHumanoExplicito(input.text)) {
+        ai.handoff = true
+        ai.reply = `Claro, vou te passar para uma pessoa da nossa equipe agora. Se preferir, fale direto com ${handoffContact}.`
     }
 
     // Aplica efeitos no CRM. A gravação é awaitada (o próximo turno depende
@@ -1097,6 +1170,17 @@ async function applyConciergeEffects(
     ctx: { media: InboundMedia | null; docs: { count: number; tipos: string[] }; fase: ConciergeFase; score?: LeadScore },
 ): Promise<() => Promise<void>> {
     const u = sanitizeUpdates(ai.updates ?? {})
+    // O LLM não declara estados de submissão do cadastro: 'em_analise' é
+    // gravado abaixo quando o checklist fecha, 'solicitado' pelo sync da ficha
+    // e 'aprovado'/'recusado' pela decisão da leiloeira no grupo. Um modelo já
+    // gravou 'solicitado' entendendo "solicitei os dados" — e o prompt lê esse
+    // valor como "ficha enviada às leiloeiras".
+    // ('pendente' idem: o modelo grava querendo dizer "faltam dados", mas o
+    // prompt lê como "problema na análise" e responde "estamos alinhando um
+    // detalhe" + handoff — observado em teste real de 22/07.)
+    if (typeof u.cadastro_status === 'string' && u.cadastro_status !== 'nao_iniciado') {
+        delete u.cadastro_status
+    }
     const prevExtra = (lead.extra_data ?? {}) as Record<string, unknown>
     const nextExtra: Record<string, unknown> = { ...prevExtra }
 
@@ -1119,9 +1203,21 @@ async function applyConciergeEffects(
         const v = u[k]
         if (v !== undefined && v !== null && v !== '') nextExtra[k] = v
     }
-    // "Quando-então": janela combinada vira timestamp p/ o follow-up saber a hora.
+    // O lead respondeu nesta rodada (applyConciergeEffects só roda em turno do
+    // lead) → um callback agendado antes perdeu o sentido: ele voltou à conversa.
+    // Reabre logo abaixo se ESTA mesma resposta trouxe uma nova promessa.
+    if (prevExtra.followup_due_at != null) nextExtra.followup_due_at = null
+
+    // "Quando-então": janela combinada vira timestamp p/ o follow-up saber a hora,
+    // e uma DATA concreta (followup_due_at) p/ o cron de callback disparar o
+    // template de reabertura quando a janela de 24h já tiver fechado.
     if (typeof u.retomada_combinada === 'string' && u.retomada_combinada.trim()) {
         nextExtra.retomada_combinada_at = new Date().toISOString()
+        const due = parseRetomadaDueAt(u.retomada_combinada, new Date().toISOString())
+        if (due) {
+            nextExtra.followup_due_at = due
+            delete nextExtra.followup_sent_at // nova promessa reabre o agendamento
+        }
     }
 
     // Marcos do funil consultivo (alimentam a FASE da próxima mensagem).
@@ -1138,6 +1234,10 @@ async function applyConciergeEffects(
     if (ai.stage) nextExtra.qualificacao_step = ai.stage
     if (typeof ai.fast_track === 'boolean') nextExtra.fast_track = ai.fast_track
     nextExtra.concierge_last_at = new Date().toISOString()
+    // Link da página de habilitação saiu nesta resposta → marca pra não repetir.
+    if ((ai.reply || '').includes('bulaassessoria.com/habilitacao') && !prevExtra.habilitacao_link_enviado_at) {
+        nextExtra.habilitacao_link_enviado_at = new Date().toISOString()
+    }
 
     // Documentos reconhecidos pela IA (tipos semânticos) — união com os já vistos.
     const semanticNew = (Array.isArray(u.documentos_recebidos) ? u.documentos_recebidos : [])
@@ -1219,9 +1319,11 @@ async function applyConciergeEffects(
     }
     // Dados do titular: CPF/e-mail só preenchem vazio (não sobrescrevem um valor
     // já validado por humano); o nome só melhora (nunca troca um nome completo).
-    const cpfDigits = String(u.cpf ?? '').replace(/\D/g, '')
-    if (cpfDigits.length === 11 && !String(lead.cpf ?? '').replace(/\D/g, '')) {
-        update.cpf = cpfDigits
+    // CPF do modelo só entra se o dígito verificador BATER (extrairCpf valida) —
+    // um typo de 11 dígitos, sem isso, iria parar direto na ficha das leiloeiras.
+    const cpfValidado = extrairCpf(String(u.cpf ?? ''))
+    if (cpfValidado && !String(lead.cpf ?? '').replace(/\D/g, '')) {
+        update.cpf = cpfValidado
     }
     const email = String(u.email ?? '').trim()
     if (email.includes('@') && !String(lead.email ?? '').trim()) {

@@ -160,6 +160,7 @@ export async function updateSession(req: NextRequest) {
       !pathname.startsWith('/agenda') &&
       !pathname.startsWith('/leiloes') &&
       !pathname.startsWith('/criatorios') &&
+      !pathname.startsWith('/habilitacao') &&
       !pathname.startsWith('/api/') &&
       !pathname.startsWith('/_next') &&
       pathname !== '/favicon.ico' &&

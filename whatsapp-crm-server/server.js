@@ -28,11 +28,19 @@ const NO_CRM_1TO1 = new Set(
     .split(',').map(s => s.trim()).filter(Boolean)
 )
 
+// Número pessoal protegido: não aceita campanhas/grupos e só permite um envio
+// 1:1 quando a Central Operacional o marcou explicitamente como aprovado.
+const PROTECTED_SESSION_IDS = new Set(
+  (process.env.PROTECTED_SESSION_IDS || 'joao-automation')
+    .split(',').map(s => s.trim()).filter(Boolean)
+)
+
 // Catálogos: sobe o PDF direto pro Supabase Storage (R2 está desabilitado nesta
 // conta) e avisa o Next. Credenciais só são usadas p/ upload de catálogo.
 const SUPABASE_URL = (process.env.SUPABASE_URL || process.env.NEXT_PUBLIC_SUPABASE_URL || '').replace(/\/$/, '')
 const SUPABASE_SERVICE_ROLE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY || ''
 const CATALOG_BUCKET = process.env.CATALOG_BUCKET || 'leilao-catalogos'
+const WHATSAPP_MEDIA_BUCKET = process.env.WHATSAPP_MEDIA_BUCKET || 'whatsapp-media'
 
 // Logger mínimo exigido pelo downloadMediaMessage do Baileys.
 const mediaLogger = { level: 'silent', child: () => mediaLogger, trace() {}, debug() {}, info() {}, warn() {}, error() {} }
@@ -95,6 +103,7 @@ const sessions = new Map()
  * @property {string|null} pairPhone
  * @property {string|null} pairingCode
  * @property {string} authDir
+ * @property {number} reconnectAttempts
  */
 
 /** Cria (ou retorna) o registro de estado de uma sessão. */
@@ -113,11 +122,15 @@ function createSession(id) {
     pairPhone: null,
     pairingCode: null,
     authDir: `${SESSIONS_DIR}/${id}`,
+    reconnectAttempts: 0,
     // IDs de mensagens que ESTE servidor enviou (via fila/gateway). Usado para
     // NÃO espelhar como "mensagem do dono" o que o próprio sistema disparou —
     // esses já são logados pelo gateway. Só o que o humano digita no aparelho
     // (fromMe sem id conhecido) vira espelho.
     ownSentIds: new Set(),
+    // Cache curto de nome dos grupos. O JID sozinho não basta para casar a
+    // mensagem com a allowlist da Central Operacional.
+    groupNames: new Map(),
   }
   sessions.set(id, session)
   return session
@@ -259,11 +272,14 @@ async function sendItem(session, item) {
 
   const contents = buildContents(item)
   if (contents.length === 0) throw new Error('empty_message')
+  let messageId = null
   for (const content of contents) {
     const sent = await session.socket.sendMessage(jid, content)
+    messageId = sent?.key?.id || messageId
     // Marca o id do envio para o espelho (messages.upsert fromMe) ignorá-lo.
     markOwnSent(session, sent?.key?.id)
   }
+  return { messageId }
 }
 
 async function processQueue(session) {
@@ -359,15 +375,122 @@ function extractDocument(msg) {
   return m?.documentMessage || m?.documentWithCaptionMessage?.message?.documentMessage || null
 }
 
+/** Identifica qualquer mídia útil recebida pelo Baileys. */
+function extractInboundMedia(msg) {
+  const m = unwrapMessage(msg.message)
+  if (!m) return null
+  const candidates = [
+    ['image', m.imageMessage],
+    ['video', m.videoMessage],
+    ['audio', m.audioMessage],
+    ['document', m.documentMessage || m.documentWithCaptionMessage?.message?.documentMessage],
+  ]
+  for (const [type, value] of candidates) {
+    if (!value) continue
+    return {
+      type,
+      mime: value.mimetype || null,
+      filename: value.fileName || value.title || null,
+    }
+  }
+  return null
+}
+
+function extensionForMedia(media) {
+  const filenameExt = String(media.filename || '').split('.').pop()
+  if (filenameExt && filenameExt !== media.filename && filenameExt.length <= 8) return filenameExt.toLowerCase()
+  const mime = String(media.mime || '').split(';')[0].toLowerCase()
+  const byMime = {
+    'image/jpeg': 'jpg', 'image/png': 'png', 'image/webp': 'webp',
+    'video/mp4': 'mp4', 'video/3gpp': '3gp',
+    'audio/ogg': 'ogg', 'audio/mpeg': 'mp3', 'audio/mp4': 'm4a', 'audio/aac': 'aac',
+    'application/pdf': 'pdf',
+  }
+  return byMime[mime] || { image: 'jpg', video: 'mp4', audio: 'ogg', document: 'bin' }[media.type] || 'bin'
+}
+
+/** Baixa e guarda mídia genérica no bucket privado whatsapp-media. */
+async function captureInboundMedia(session, msg, chatKey) {
+  const media = extractInboundMedia(msg)
+  if (!media || !SUPABASE_URL || !SUPABASE_SERVICE_ROLE_KEY) return null
+  let buffer
+  try {
+    buffer = await downloadMediaMessage(msg, 'buffer', {}, {
+      logger: mediaLogger,
+      reuploadRequest: session.socket.updateMediaMessage,
+    })
+  } catch (error) {
+    return { ...media, bucket: WHATSAPP_MEDIA_BUCKET, path: null, size: null, ingest_error: error.message }
+  }
+  const safeChat = String(chatKey || 'chat').replace(/[^a-zA-Z0-9._-]+/g, '_').slice(0, 80)
+  const safeId = String(msg.key?.id || Date.now()).replace(/[^a-zA-Z0-9._-]+/g, '_').slice(0, 100)
+  const path = `baileys/${session.id}/${safeChat}/${safeId}.${extensionForMedia(media)}`
+  try {
+    const up = await fetch(`${SUPABASE_URL}/storage/v1/object/${WHATSAPP_MEDIA_BUCKET}/${encodeURI(path)}`, {
+      method: 'POST',
+      headers: {
+        Authorization: `Bearer ${SUPABASE_SERVICE_ROLE_KEY}`,
+        'Content-Type': media.mime || 'application/octet-stream',
+        'x-upsert': 'true',
+        'cache-control': '3600',
+      },
+      body: buffer,
+      signal: AbortSignal.timeout(90000),
+    })
+    if (!up.ok) {
+      const detail = (await up.text().catch(() => '')).slice(0, 180)
+      return { ...media, bucket: WHATSAPP_MEDIA_BUCKET, path: null, size: buffer.length, ingest_error: `storage_${up.status}:${detail}` }
+    }
+    return { ...media, bucket: WHATSAPP_MEDIA_BUCKET, path, size: buffer.length, ingest_error: null }
+  } catch (error) {
+    return { ...media, bucket: WHATSAPP_MEDIA_BUCKET, path: null, size: buffer.length, ingest_error: error.message }
+  }
+}
+
+async function resolveGroupName(session, jid) {
+  const cached = session.groupNames.get(jid)
+  if (cached && Date.now() - cached.at < 60 * 60 * 1000) return cached.name
+  try {
+    const metadata = await session.socket.groupMetadata(jid)
+    const name = String(metadata?.subject || '').trim()
+    if (name) session.groupNames.set(jid, { name, at: Date.now() })
+    return name
+  } catch {
+    return ''
+  }
+}
+
+/** Consulta a allowlist antes de baixar mídia. Texto pode seguir ao Next (que
+ * também filtra), mas bytes pessoais nunca devem ser copiados por engano. */
+async function operationalSourceAllowed(session, { phone = '', chatJid = '', chatName = '', senderName = '', isGroup = false }) {
+  if (!INBOUND_ENABLED) return false
+  try {
+    const res = await fetch(`${NEXT_API_URL}/api/operacoes/source-check`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'x-webhook-secret': WEBHOOK_SECRET },
+      body: JSON.stringify({
+        session: session.id, phone, chat_jid: chatJid, chat_name: chatName,
+        sender_name: senderName, is_group: isGroup,
+      }),
+      signal: AbortSignal.timeout(12000),
+    })
+    if (!res.ok) return false
+    const data = await res.json().catch(() => ({}))
+    return data.allowed === true
+  } catch {
+    return false
+  }
+}
+
 /** PDF de catálogo num grupo monitorado: baixa, sobe pro Supabase e chama o
- *  webhook de catálogos. Retorna true se tratou (era documento), false senão. */
+ * webhook. Retorna os metadados para a Central Operacional (ou null). */
 async function handleCatalogDocument(session, msg, jid) {
-  if (!CATALOGS_ENABLED || !CATALOG_GROUPS.has(jid)) return false
+  if (!CATALOGS_ENABLED || !CATALOG_GROUPS.has(jid)) return null
   const doc = extractDocument(msg)
-  if (!doc) return false
+  if (!doc) return null
   const mime = doc.mimetype || ''
   const name = (doc.fileName || doc.title || 'catalogo.pdf').trim()
-  if (!/pdf/i.test(mime) && !/\.pdf$/i.test(name)) return false // só PDF
+  if (!/pdf/i.test(mime) && !/\.pdf$/i.test(name)) return null // só PDF
 
   let buffer
   try {
@@ -377,7 +500,7 @@ async function handleCatalogDocument(session, msg, jid) {
     })
   } catch (error) {
     console.error(`[${session.id}] catálogo: download falhou:`, error.message)
-    return true
+    return { bucket: CATALOG_BUCKET, path: null, type: 'document', mime, filename: name, size: null, ingest_error: error.message }
   }
 
   const safe = name.replace(/[^\w.\-]+/g, '_').slice(-80)
@@ -396,11 +519,11 @@ async function handleCatalogDocument(session, msg, jid) {
     })
     if (!up.ok) {
       console.error(`[${session.id}] catálogo: upload Storage HTTP ${up.status}: ${(await up.text().catch(() => '')).slice(0, 150)}`)
-      return true
+      return { bucket: CATALOG_BUCKET, path: null, type: 'document', mime, filename: name, size: buffer.length, ingest_error: `storage_${up.status}` }
     }
   } catch (error) {
     console.error(`[${session.id}] catálogo: upload Storage falhou:`, error.message)
-    return true
+    return { bucket: CATALOG_BUCKET, path: null, type: 'document', mime, filename: name, size: buffer.length, ingest_error: error.message }
   }
 
   const fileUrl = `${SUPABASE_URL}/storage/v1/object/public/${CATALOG_BUCKET}/${encodeURI(path)}`
@@ -426,7 +549,7 @@ async function handleCatalogDocument(session, msg, jid) {
   } catch (error) {
     console.error(`[${session.id}] catálogo: webhook falhou:`, error.message)
   }
-  return true
+  return { bucket: CATALOG_BUCKET, path, type: 'document', mime: mime || 'application/pdf', filename: name, size: buffer.length, ingest_error: null }
 }
 
 /**
@@ -441,11 +564,17 @@ async function handleGroupInbound(session, msg) {
   if (msg.key?.fromMe) return
   if (!jid.endsWith('@g.us')) return
 
-  // Catálogos: PDF em grupo monitorado é tratado à parte (baixa + webhook).
-  if (await handleCatalogDocument(session, msg, jid)) return
-
-  const text = extractText(msg)
-  if (!text) return
+  const groupName = await resolveGroupName(session, jid)
+  const hasGenericMedia = !!extractInboundMedia(msg)
+  const radarAllowed = hasGenericMedia ? await operationalSourceAllowed(session, {
+      chatJid: jid, chatName: groupName, senderName: msg.pushName || '', isGroup: true,
+    }) : false
+  // Catálogo mantém seu fluxo especializado e também entra no Radar. As demais
+  // mídias só são baixadas quando o grupo pertence à allowlist.
+  const catalogMedia = await handleCatalogDocument(session, msg, jid)
+  const media = catalogMedia || (radarAllowed ? await captureInboundMedia(session, msg, jid) : null)
+  const text = extractText(msg) || (media ? `[${media.type}]` : '')
+  if (!text && !media) return
 
   const ctx = extractContextInfo(msg)
   const quoted = ctx?.quotedMessage ? extractText({ message: ctx.quotedMessage }) : ''
@@ -460,12 +589,14 @@ async function handleGroupInbound(session, msg) {
       body: JSON.stringify({
         session: session.id,
         group_jid: jid,
+        group_name: groupName,
         participant: msg.key?.participant || '',
         name: msg.pushName || '',
         body: text,
         quoted_body: quoted,
         message_id: msg.key?.id,
         ts: ts && Number.isFinite(ts) ? ts : null,
+        media,
       }),
       signal: AbortSignal.timeout(25000),
     })
@@ -582,6 +713,34 @@ async function resolveContactPhone(session, jid, msg) {
   return ''
 }
 
+/** Sessão de coleta: encaminha somente para a Central Operacional, sem criar
+ * lead ou rodar o concierge. A checagem ocorre antes do download da mídia. */
+async function handleOperationalOneToOne(session, msg, phone, fromMe) {
+  if (fromMe && session.ownSentIds.has(msg.key?.id)) return
+  const name = msg.pushName || ''
+  const allowed = await operationalSourceAllowed(session, { phone, chatName: name, senderName: name, isGroup: false })
+  if (!allowed) return
+  const media = await captureInboundMedia(session, msg, phone)
+  const text = extractText(msg) || (media ? `[${media.type}]` : '')
+  if (!text) return
+  const tsRaw = msg.messageTimestamp
+  const ts = tsRaw ? Number(typeof tsRaw === 'object' && tsRaw.toNumber ? tsRaw.toNumber() : tsRaw) : null
+  try {
+    const res = await fetch(`${NEXT_API_URL}/api/operacoes/inbound`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'x-webhook-secret': WEBHOOK_SECRET },
+      body: JSON.stringify({
+        session: session.id, phone, name, body: text, message_id: msg.key?.id,
+        from_me: fromMe, ts: ts && Number.isFinite(ts) ? ts : null, media,
+      }),
+      signal: AbortSignal.timeout(25000),
+    })
+    if (!res.ok) console.error(`[${session.id}] operational inbound HTTP ${res.status}`)
+  } catch (error) {
+    console.error(`[${session.id}] operational inbound falhou:`, error.message)
+  }
+}
+
 async function handleInbound(session, msg) {
   if (!INBOUND_ENABLED) return
   const jid = msg.key?.remoteJid || ''
@@ -589,18 +748,22 @@ async function handleInbound(session, msg) {
 
   // Grupos: só encaminha o que TERCEIROS escreveram (nunca o que eu mandei).
   if (jid.endsWith('@g.us')) { if (!fromMe) return handleGroupInbound(session, msg); return }
-  // Sessão de coleta (número pessoal p/ grupos): não espelha 1:1 no CRM.
-  if (NO_CRM_1TO1.has(session.id)) return
   // 1:1: @s.whatsapp.net direto ou @lid resolvido; qualquer outro domínio sai.
   const phone = await resolveContactPhone(session, jid, msg)
   if (!phone) return
+  // Sessão de coleta: 1:1 passa pela allowlist operacional e nunca entra no CRM.
+  if (NO_CRM_1TO1.has(session.id)) return handleOperationalOneToOne(session, msg, phone, fromMe)
 
   // Espelho: mensagens que o próprio dono do número digita no aparelho (fromMe)
   // entram como OUTBOUND. Mas o que ESTE servidor enviou (gateway) já foi logado
   // — ignora pelo id conhecido para não duplicar.
   if (fromMe && session.ownSentIds.has(msg.key?.id)) return
 
-  const text = extractText(msg)
+  const mediaAllowed = !fromMe && !!extractInboundMedia(msg) && await operationalSourceAllowed(session, {
+      phone, chatName: msg.pushName || '', senderName: msg.pushName || '', isGroup: false,
+    })
+  const media = mediaAllowed ? await captureInboundMedia(session, msg, phone) : null
+  const text = extractText(msg) || (media ? `[${media.type}]` : '')
   if (!text) return
 
   // O telefone é sempre o do CONTATO (remoteJid), seja inbound ou fromMe.
@@ -610,7 +773,7 @@ async function handleInbound(session, msg) {
     const res = await fetch(`${NEXT_API_URL}/api/whatsapp/inbound`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json', 'x-webhook-secret': WEBHOOK_SECRET },
-      body: JSON.stringify({ session: session.id, phone, name, body: text, message_id: msg.key?.id, from_me: fromMe }),
+      body: JSON.stringify({ session: session.id, phone, name, body: text, message_id: msg.key?.id, from_me: fromMe, media }),
       signal: AbortSignal.timeout(25000),
     })
     if (!res.ok) {
@@ -643,11 +806,12 @@ async function startSocket(session) {
     defaultQueryTimeoutMs: QUERY_TIMEOUT_MS,
     keepAliveIntervalMs: 25000,
     retryRequestDelayMs: 500,
+    markOnlineOnConnect: false,
     // Pede o histórico completo que o WhatsApp entrega no vínculo — alimenta a
     // importação de conversas (messaging-history.set → /api/whatsapp/history).
     // Só rende num LINK novo (parear/re-parear); numa reconexão já pareada o
     // WhatsApp não reenvia o dump.
-    syncFullHistory: true,
+    syncFullHistory: !PROTECTED_SESSION_IDS.has(session.id),
     version,
   })
 
@@ -689,12 +853,13 @@ async function startSocket(session) {
     }
     if (connection === 'open') {
       session.connectionStatus = 'connected'
+      session.reconnectAttempts = 0
       session.currentQr = null
       session.currentQrDataUrl = null
       session.pairPhone = null
       session.pairingCode = null
       console.log(`[${session.id}] conectado`)
-      void processQueue(session)
+      if (!PROTECTED_SESSION_IDS.has(session.id)) void processQueue(session)
     }
     if (connection === 'connecting') {
       session.connectionStatus = session.currentQr ? 'qr' : 'connecting'
@@ -710,6 +875,11 @@ async function startSocket(session) {
       // Sessão removida (DELETE /sessions): não reconecta.
       if (!sessions.has(session.id)) return
       if (loggedOut) {
+        if (PROTECTED_SESSION_IDS.has(session.id)) {
+          session.connectionStatus = 'logged_out'
+          console.error(`[${session.id}] sessão protegida saiu da conta; reconexão automática bloqueada`)
+          return
+        }
         // Sessão encerrada no aparelho: as credenciais em disco ficam inválidas.
         // Sem zerá-las, o socket nunca pede um QR novo e a sessão fica presa em
         // "disconnected". Limpa o auth e recomeça para gerar um QR fresco.
@@ -723,11 +893,15 @@ async function startSocket(session) {
             }, 1500)
           })
       } else {
+        session.reconnectAttempts += 1
+        const baseDelay = PROTECTED_SESSION_IDS.has(session.id) ? 30000 : 3000
+        const maxDelay = PROTECTED_SESSION_IDS.has(session.id) ? 15 * 60 * 1000 : 30000
+        const reconnectDelay = Math.min(maxDelay, baseDelay * (2 ** Math.min(session.reconnectAttempts - 1, 5)))
         setTimeout(() => {
           if (!sessions.has(session.id)) return
           session.connectionStatus = 'connecting'
           void startSocket(session).catch(error => console.error(`[${session.id}] reconnect:`, error))
-        }, 3000)
+        }, reconnectDelay)
       }
     }
   })
@@ -949,6 +1123,23 @@ const server = http.createServer(async (req, res) => {
         json(res, 400, { error: 'phone e (message ou media) são obrigatórios' })
         return
       }
+      if (PROTECTED_SESSION_IDS.has(session.id)) {
+        if (req.headers['x-operational-send'] !== 'approved') {
+          json(res, 403, { error: 'protected_session_requires_operational_approval' })
+          return
+        }
+        if (!session.socket || session.connectionStatus !== 'connected') {
+          json(res, 503, { error: 'whatsapp_disconnected' })
+          return
+        }
+        try {
+          const sent = await sendItem(session, { phone, message, media: body.media || null, poll: body.poll || null })
+          json(res, 200, { sent: true, message_id: sent?.messageId || null, session: session.id })
+        } catch (error) {
+          json(res, 502, { error: error instanceof Error ? error.message : String(error) })
+        }
+        return
+      }
       session.queue.push({ phone, message, media: body.media || null, poll: body.poll || null })
       void processQueue(session)
       json(res, 200, { queued: true, position: session.queue.length, session: session.id })
@@ -983,6 +1174,7 @@ const server = http.createServer(async (req, res) => {
       const body = await readJson(req)
       const session = resolveSession(url)
       if (!session) { json(res, 404, { error: 'unknown_session' }); return }
+      if (PROTECTED_SESSION_IDS.has(session.id)) { json(res, 403, { error: 'protected_session_group_send_blocked' }); return }
       const rawId = String(body.groupId || body.jid || '').trim()
       const message = String(body.message || '').trim()
       if (!rawId || (!message && !body.media)) {
@@ -1000,6 +1192,7 @@ const server = http.createServer(async (req, res) => {
       const body = await readJson(req)
       const session = resolveSession(url)
       if (!session) { json(res, 404, { error: 'unknown_session' }); return }
+      if (PROTECTED_SESSION_IDS.has(session.id)) { json(res, 403, { error: 'protected_session_campaign_blocked' }); return }
       const recipients = Array.isArray(body.recipients) ? body.recipients : []
       if (recipients.length === 0) {
         json(res, 400, { error: 'recipients vazio' })

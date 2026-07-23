@@ -7,7 +7,7 @@ const DIACRITICS_RE = /[\u0300-\u036f]/g
 const stripDiacritics = (s: string) =>
   s.normalize('NFD').replace(DIACRITICS_RE, '')
 
-const assessorKey = (s: string) =>
+export const assessorKey = (s: string) =>
   stripDiacritics(s)
     .toLowerCase()
     .replace(/[^a-z0-9]+/g, ' ')
@@ -29,6 +29,12 @@ const CANONICAL_BY_KEY: ReadonlyMap<string, string> = new Map([
   ['leo', 'Leonardo Serafim'],
   ['leo serafim', 'Leonardo Serafim'],
   ['leonardo', 'Leonardo Serafim'],
+  // Dupla extinta: comissões passaram integralmente ao Leonardo (chefe, 22/07/2026)
+  ['marcelo carneiro leonardo serafim', 'Leonardo Serafim'],
+  // LM Assessoria = empresa do Leonardo (pagamentos podem sair nesse nome)
+  ['lm assessoria', 'Leonardo Serafim'],
+  // Grafia unificada (tabela de percentuais do chefe 22/07 usa "Matheus")
+  ['mateus alves', 'Matheus Alves'],
   // Bulinha (Felipe Andrade) — várias grafias com/sem "Vilela"
   ['bulinha', 'Bulinha (Felipe Andrade)'],
   ['felipe andrade', 'Bulinha (Felipe Andrade)'],

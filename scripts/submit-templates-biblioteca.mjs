@@ -309,6 +309,40 @@ Quer que eu te passe os detalhes? É só responder por aqui.`,
     vars: ['João', 'touros para melhorar a bezerrada', 'um leilão com reprodutores avaliados a campo pela nossa equipe, em 30x no boleto'],
   },
 
+  // ── molds de AGENDAMENTO / RETOMADA NA DATA COMBINADA (callback do concierge) ─
+  // Quando o lead adia ("amanhã", "semana que vem", "depois do dia 10"), o
+  // concierge grava um followup e, na data, se a janela de 24h já fechou, reabre
+  // com estes UTILITY. Distintos de `bula_cadastro_retomada` (esse nomeia o item
+  // que falta: "falta só {{2}}"); estes referenciam o COMBINADO, sem nomear item,
+  // pra não cair em duplicidade. Se o concierge sabe o item pendente, use o
+  // `bula_cadastro_retomada`; se é só "voltar como combinamos", use este.
+  {
+    name: 'bula_retomada_agendada',
+    category: 'UTILITY',
+    header: 'Retomando como combinamos',
+    body: `Olá, {{1}}!
+
+Como a gente combinou, estou voltando para concluir seu cadastro na Bula e te deixar pronto para dar lance nos leilões — com o nosso acompanhamento, sem custo.
+
+Falta pouco, e o resto eu resolvo por aqui mesmo. Podemos seguir de onde paramos?`,
+    vars: ['João'],
+  },
+  // Link de habilitação self-service em BOTÃO DE URL (a pessoa preenche dados +
+  // envia documentos direto no site). UTILITY: continuação do cadastro que a
+  // pessoa iniciou; nada de oferta/parcelamento (reclassificaria p/ MARKETING).
+  {
+    name: 'bula_habilitacao_link',
+    category: 'UTILITY',
+    header: 'Faça sua habilitação online',
+    body: `Olá, {{1}}!
+
+Para adiantar sua habilitação na Bula, você mesmo pode preencher os dados e enviar os documentos de uma vez, direto no nosso site — leva alguns minutos e é o mesmo cadastro, no seu tempo.
+
+Qualquer dúvida no caminho, é só me chamar por aqui.`,
+    vars: ['João'],
+    buttons: [{ type: 'URL', text: 'Fazer minha habilitação', url: 'https://bulaassessoria.com/habilitacao' }],
+  },
+
   {
     name: 'bula_habilitacao_convite',
     category: 'MARKETING',
@@ -510,6 +544,10 @@ async function buildPayload(t) {
   }
   components.push({ type: 'BODY', text: t.body, ...(nVars > 0 ? { example: { body_text: [t.vars.slice(0, nVars)] } } : {}) })
   components.push({ type: 'FOOTER', text: FOOTER })
+  // Botões (opcionais): URL estático (link fixo, ex. página de habilitação) ou
+  // QUICK_REPLY. O componente BUTTONS entra por último. Um botão de URL aprova
+  // melhor que link solto no corpo (a Meta às vezes marca URL no BODY como spam).
+  if (t.buttons?.length) components.push({ type: 'BUTTONS', buttons: t.buttons })
   // allow_category_change: a Meta reclassifica em vez de rejeitar — evita o
   // ciclo lento "rejeitado por categoria → reescreve → espera de novo".
   return { name: t.name, category: t.category, language: LANG, allow_category_change: true, components }
@@ -521,7 +559,10 @@ function preview(t) {
   const head = t.media
     ? `[${t.media === 'VIDEO' ? '🎬 vídeo' : t.media === 'DOCUMENT' ? '📄 documento (PDF)' : '🖼 imagem'} — criativo anexado no disparo]`
     : `*${t.header}*`
-  return `${head}\n\n${b}\n\n_${FOOTER}_`
+  const btns = t.buttons?.length
+    ? '\n\n' + t.buttons.map(x => x.type === 'URL' ? `[🔗 ${x.text} → ${x.url}]` : `[↩ ${x.text}]`).join('  ')
+    : ''
+  return `${head}\n\n${b}\n\n_${FOOTER}_${btns}`
 }
 
 async function submitOne(t) {

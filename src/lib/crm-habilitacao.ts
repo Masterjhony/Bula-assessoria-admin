@@ -40,22 +40,28 @@ export interface HabilitacaoChecklist {
     items: ChecklistItem[]
     done: number
     total: number
-    /** true quando TODOS os itens estão ok e há ≥2 arquivos reais. */
+    /** true quando TODOS os itens obrigatórios (dados + dossiê de documentos) estão ok. */
     complete: boolean
     missingLabels: string[]
 }
 
 /**
  * Tipos semânticos de documento que a IA pode marcar como recebidos.
- * Régua ENXUTA concedida pela leiloeira (Márcia/Programa, 10/07/2026): para
- * início imediato bastam os DADOS (nome, CPF, I.E., endereço, telefone) e, "se
- * possível", dois documentos — documento pessoal com foto e comprovante de
- * residência. O dossiê pesado (matrícula, ITR, renda, referências) foi
- * dispensado; os tipos seguem no enum de documentos só para classificação.
+ * Régua vigente (decisão do chefe, 22/07/2026): a flexibilização de 10/07
+ * ("documentos se possível") deixou o funil ineficiente — fichas seguiam sem
+ * dossiê e voltavam. Documentos voltaram a ser OBRIGATÓRIOS, com equivalências:
+ *   • documento pessoal com foto — RG, CNH ou CPF (UM só resolve);
+ *   • comprovante de residência;
+ *   • certidão de ônus da fazenda — certidão de matrícula/escritura serve
+ *     (arrendatário: contrato de arrendamento);
+ *   • comprovante de renda — declaração de IR OU extrato bancário dos últimos
+ *     3 meses (a leiloeira mede capacidade de pagamento).
  */
 export const DOC_TIPOS_SEMANTICOS = [
-    'identidade',            // documento pessoal com foto
+    'identidade',            // documento pessoal com foto (RG/CNH/CPF)
     'comprovante_endereco',  // comprovante de residência/correspondência
+    'certidao_matricula',    // certidão de ônus/matrícula/escritura da fazenda (ou arrendamento)
+    'comprovante_renda',     // declaração de IR ou extrato bancário (3 meses)
 ] as const
 export type DocTipoSemantico = (typeof DOC_TIPOS_SEMANTICOS)[number]
 
@@ -80,11 +86,9 @@ export interface HabilitacaoInput {
      */
     ieDispensadaPara?: string | null
     /**
-     * A consulta oficial (Sintegra) já trouxe a propriedade e a I.E. do titular.
-     * Nesse caso pedimos UM documento (foto da CNH/RG) em vez de três: os dados
-     * já foram conferidos numa base do Estado, então a selfie e o comprovante de
-     * propriedade deixam de ser a única prova. Foi assim que o cadastro do
-     * Ricardo (aprovado) entrou: dados + um documento.
+     * LEGADO (sem efeito desde 22/07/2026): a flexibilização "consulta oficial
+     * substitui documento" deixou o funil ineficiente — o dossiê completo voltou
+     * a ser obrigatório. O campo fica aceito para não quebrar os chamadores.
      */
     documentosSimplificados?: boolean
 }
@@ -137,15 +141,18 @@ export function computeHabilitacaoChecklist(input: HabilitacaoInput): Habilitaca
     const temIe = str(input.tem_inscricao_estadual).toLowerCase() === 'sim'
     const ieDispensada = Boolean(str(input.ieDispensadaPara))
 
-    // Documentos "se possível" (régua enxuta da Márcia): documento pessoal com
-    // foto e comprovante de residência. A marcação semântica da IA só vale com
-    // arquivo real por trás; o tipo real do arquivo (docTipos) é o mais confiável.
+    // Documentos OBRIGATÓRIOS (régua 22/07). A marcação semântica da IA só vale
+    // com arquivo real por trás; o tipo real do arquivo (docTipos) é o mais
+    // confiável. Equivalências: RG/CNH/CPF = um documento só; certidão de ônus
+    // aceita matrícula/escritura (arrendatário: contrato); renda aceita IR ou
+    // extrato bancário dos últimos 3 meses.
     const docIdentidade = temArquivoReal && (semantic.has('identidade') || tipos.has('cpf'))
     const docResidencia = temArquivoReal && (semantic.has('comprovante_endereco') || tipos.has('endereco') || tipos.has('comprovante'))
+    const docMatricula = temArquivoReal && (semantic.has('certidao_matricula') || tipos.has('matricula') || tipos.has('contrato'))
+    const docRenda = temArquivoReal && (semantic.has('comprovante_renda') || tipos.has('renda'))
 
-    // Régua da concessão (10/07): OBRIGATÓRIO = dados (nome, CPF, I.E., endereço,
-    // telefone), quase todos vindos das consultas oficiais. Documentos entram
-    // como DESEJÁVEIS ("se possível, de início imediato") — não travam a ficha.
+    // OBRIGATÓRIO = dados (nome, CPF, I.E., endereço, telefone, propriedade)
+    // + os 4 documentos do dossiê. Só o e-mail segue desejável.
     const items: ChecklistItem[] = [
         { key: 'nome_completo', label: 'Nome completo', group: 'titular', done: /\S+\s+\S+/.test(nome), value: nome || undefined },
         { key: 'cpf', label: 'CPF', group: 'titular', done: cpf.length === 11, value: cpf || undefined },
@@ -172,9 +179,11 @@ export function computeHabilitacaoChecklist(input: HabilitacaoInput): Habilitaca
             value: fazendaCidade ? `${fazendaCidade}${fazendaUf ? '/' + fazendaUf : ''}` : undefined,
         },
 
-        // "Se possível, de início imediato" — desejáveis, não travam a submissão.
-        { key: 'doc_identidade', label: 'Documento pessoal com foto', group: 'documentos', optional: true, done: docIdentidade },
-        { key: 'doc_endereco', label: 'Comprovante de residência', group: 'documentos', optional: true, done: docResidencia },
+        // Dossiê obrigatório (régua 22/07) — trava a submissão até fechar.
+        { key: 'doc_identidade', label: 'Documento pessoal com foto (RG/CNH ou CPF)', group: 'documentos', done: docIdentidade },
+        { key: 'doc_endereco', label: 'Comprovante de residência', group: 'documentos', done: docResidencia },
+        { key: 'doc_matricula', label: 'Certidão de ônus ou matrícula da fazenda', group: 'documentos', done: docMatricula },
+        { key: 'doc_renda', label: 'Comprovante de renda (IR ou extrato bancário 3 meses)', group: 'documentos', done: docRenda },
     ]
 
     const obrigatorios = items.filter(i => !i.optional)
@@ -216,8 +225,8 @@ export function checklistPromptBlock(cl: HabilitacaoChecklist): string {
         }
     }
     lines.push(cl.complete
-        ? 'DADOS OBRIGATÓRIOS COMPLETOS: a habilitação já pode ser encaminhada. Os itens "(se possível)" que faltarem, peça UMA vez com leveza (documento com foto e comprovante de residência) — mas NÃO trave o cadastro por eles.'
-        : `Progresso interno: ${cl.done}/${cl.total}. Peça primeiro os itens ✘ SEM "(se possível)" (são os obrigatórios); os "(se possível)" peça com leveza e não trave o cadastro por eles.`)
-    lines.push('PARA O LEAD, fale por BLOCO, nunca por contagem de itens: bloco completo = "Identificação concluída"; incompleto = "falta só a parte da propriedade". NUNCA diga "X de 10 itens" — jornada longa percebida derruba a conclusão.')
+        ? 'CHECKLIST COMPLETO (dados + documentos): a habilitação já pode ser encaminhada às leiloeiras. Não peça mais nada.'
+        : `Progresso interno: ${cl.done}/${cl.total}. Peça primeiro os itens ✘ sem "(se possível)" — dados E documentos são obrigatórios; só os "(se possível)" (ex.: e-mail) não travam. EQUIVALÊNCIAS que facilitam pro lead: RG, CNH ou CPF = UM documento com foto só; certidão de ônus pode ser a certidão de matrícula/escritura da fazenda (arrendatário: contrato de arrendamento); comprovante de renda pode ser a declaração de IR OU extrato bancário dos últimos 3 meses — sempre ofereça a alternativa mais fácil e explique que a leiloeira usa pra dimensionar o crédito do parcelamento.`)
+    lines.push('PARA O LEAD, fale por BLOCO, nunca por contagem de itens: bloco completo = "Identificação concluída"; incompleto = "falta só a parte da propriedade". NUNCA diga "X de 12 itens" — jornada longa percebida derruba a conclusão.')
     return lines.join('\n')
 }
