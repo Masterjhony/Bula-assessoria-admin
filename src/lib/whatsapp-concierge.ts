@@ -56,7 +56,8 @@ import { notifyTeamGroup } from './whatsapp-team-notify'
 import { ufFromPhone, normalizeUf } from './state-registration-provider'
 import { sincronizarHabilitacao } from './crm-habilitacao-sync'
 import { parseRetomadaDueAt } from './followup-schedule'
-import { saudacaoContext, saudacaoPromptBlock, corrigirSaudacao } from './saudacao'
+import { saudacaoContext, saudacaoPromptBlock, corrigirSaudacao, removerSaudacaoAbertura } from './saudacao'
+import { pedeHumanoExplicito } from './concierge-handoff'
 import {
     CRM_STAGE_CONNECTION,
     CRM_STAGE_QUALIFICATION,
@@ -1076,9 +1077,23 @@ ${RESULT_SCHEMA_INSTRUCTIONS}`
         }
     }
 
-    // Rede de segurança: corrige um cumprimento fora de hora ("bom dia" às 21h)
-    // que o modelo tenha escrito apesar da instrução no prompt.
-    if ((ai.reply || '').trim()) ai.reply = corrigirSaudacao(ai.reply || '', saudCtx)
+    // Saudação (rede de segurança determinística):
+    //  - conversa já em andamento (o bot já falou) → remove o cumprimento de
+    //    abertura ("Olá/Bom dia") que soa robótico a cada mensagem;
+    //  - em qualquer caso, corrige um cumprimento fora de hora ("bom dia" 21h).
+    if ((ai.reply || '').trim()) {
+        const conversaAtiva = history.some(m => m.role === 'assistant')
+        if (conversaAtiva) ai.reply = removerSaudacaoAbertura(ai.reply || '')
+        ai.reply = corrigirSaudacao(ai.reply || '', saudCtx)
+    }
+
+    // Pedido inequívoco de humano → força handoff mesmo se a IA não marcou (senão
+    // o cliente irritado fica preso discutindo com o bot). Sobrepõe a fala por
+    // uma confirmação determinística de handoff.
+    if (!ai.optout && !ai.handoff && pedeHumanoExplicito(input.text)) {
+        ai.handoff = true
+        ai.reply = `Claro, vou te passar para uma pessoa da nossa equipe agora. Se preferir, fale direto com ${handoffContact}.`
+    }
 
     // Aplica efeitos no CRM. A gravação é awaitada (o próximo turno depende
     // dela); as automações caras voltam num closure para rodar DEPOIS do envio.
@@ -1304,9 +1319,11 @@ async function applyConciergeEffects(
     }
     // Dados do titular: CPF/e-mail só preenchem vazio (não sobrescrevem um valor
     // já validado por humano); o nome só melhora (nunca troca um nome completo).
-    const cpfDigits = String(u.cpf ?? '').replace(/\D/g, '')
-    if (cpfDigits.length === 11 && !String(lead.cpf ?? '').replace(/\D/g, '')) {
-        update.cpf = cpfDigits
+    // CPF do modelo só entra se o dígito verificador BATER (extrairCpf valida) —
+    // um typo de 11 dígitos, sem isso, iria parar direto na ficha das leiloeiras.
+    const cpfValidado = extrairCpf(String(u.cpf ?? ''))
+    if (cpfValidado && !String(lead.cpf ?? '').replace(/\D/g, '')) {
+        update.cpf = cpfValidado
     }
     const email = String(u.email ?? '').trim()
     if (email.includes('@') && !String(lead.email ?? '').trim()) {

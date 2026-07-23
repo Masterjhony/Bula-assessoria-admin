@@ -52,6 +52,24 @@ export function saudacaoPromptBlock(ctx: SaudacaoContext): string {
     return `SAUDAÇÃO PELO HORÁRIO: agora são cerca de ${ctx.hour}h no fuso do lead (${ctx.periodo}). Se for cumprimentar, use "${ctx.saudacao}" — NUNCA um cumprimento de outro período (ex.: "bom dia" quando é noite). Na dúvida, prefira algo neutro como "Olá", "Oi" ou "Opa". Não invente horário nem clima.`
 }
 
+// Saudações de ABERTURA (temporais + neutras) no começo da mensagem. Usa
+// lookahead em vez de \b: \b é ASCII e falha após vogal acentuada ("Olá!").
+const ABERTURA_RE = /^\s*(?:ol[aá]|oi|opa|ei|e a[íi]|fala|salve|bom\s+dia|boa\s+tarde|boa\s+noite)(?=$|[^a-zà-ÿ])[\s,!.?…–—-]*/i
+
+/**
+ * Remove a saudação de abertura quando a conversa JÁ está em andamento — abrir
+ * toda mensagem com "Olá/Bom dia" soa robótico. Só mexe no início (não em
+ * despedida no corpo) e não age se sobrar texto insignificante.
+ */
+export function removerSaudacaoAbertura(reply: string): string {
+    if (!reply) return reply
+    const m = reply.match(ABERTURA_RE)
+    if (!m) return reply
+    const rest = reply.slice(m[0].length)
+    if (rest.trim().length < 3) return reply // sobrou só a saudação → não mexe
+    return rest.replace(/^([a-zà-ÿ])/, c => c.toUpperCase())
+}
+
 const SAUD_RE = /\b(bom\s+dia|boa\s+tarde|boa\s+noite)\b/i
 
 /**
