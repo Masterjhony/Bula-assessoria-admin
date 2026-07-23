@@ -56,6 +56,7 @@ import { notifyTeamGroup } from './whatsapp-team-notify'
 import { ufFromPhone, normalizeUf } from './state-registration-provider'
 import { sincronizarHabilitacao } from './crm-habilitacao-sync'
 import { parseRetomadaDueAt } from './followup-schedule'
+import { saudacaoContext, saudacaoPromptBlock, corrigirSaudacao } from './saudacao'
 import {
     CRM_STAGE_CONNECTION,
     CRM_STAGE_QUALIFICATION,
@@ -963,8 +964,14 @@ export async function runConcierge(
     const fewShot = fewShotPromptBlock(lead, input.config.fewShots ?? [])
     const fewShotBlock = fewShot ? `\n\n${fewShot}` : ''
 
+    // Saudação pelo horário LOCAL do lead (UF do cadastro ou DDD) — evita o
+    // "bom dia" às 21h. Injeta no prompt e valida a resposta logo abaixo.
+    const saudCtx = saudacaoContext(normalizeUf(lead.estado) || ufFromPhone(input.phone), new Date().toISOString())
+
     const handoffContact = input.config.handoffContact?.trim() || DEFAULT_HANDOFF_CONTACT
     const systemContent = `${persona}
+
+${saudacaoPromptBlock(saudCtx)}
 
 CONTATO HUMANO (use ao fazer handoff por pedido de falar com pessoa): ${handoffContact}
 
@@ -1068,6 +1075,10 @@ ${RESULT_SCHEMA_INSTRUCTIONS}`
             ai.reply = `${(ai.reply || '').trim()}\n\nSe preferir, dá pra adiantar tudo de uma vez — dados e documentos — direto no nosso site: https://bulaassessoria.com/habilitacao`
         }
     }
+
+    // Rede de segurança: corrige um cumprimento fora de hora ("bom dia" às 21h)
+    // que o modelo tenha escrito apesar da instrução no prompt.
+    if ((ai.reply || '').trim()) ai.reply = corrigirSaudacao(ai.reply || '', saudCtx)
 
     // Aplica efeitos no CRM. A gravação é awaitada (o próximo turno depende
     // dela); as automações caras voltam num closure para rodar DEPOIS do envio.
