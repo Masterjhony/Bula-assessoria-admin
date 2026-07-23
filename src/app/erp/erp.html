@@ -5586,23 +5586,6 @@ function coAggregate() {
     .sort((a,b)=> b.comissao - a.comissao || b.comissaoPaga - a.comissaoPaga || b.vgv - a.vgv);
 }
 
-/* Saldo EM ABERTO por assessor considerando TODOS os fechamentos (ignora os
-   filtros da tela). O filtro por mês esconderia comissão em aberto de outro
-   período — ex.: Rusa não tem nada a pagar em junho (tudo quitado no acerto),
-   mas tem R$ 17.400 em aberto de julho. A linha mostra esse saldo sempre. */
-function coSaldoAbertoGlobal() {
-  const map = new Map();
-  for (const f of (state.fechamentos || [])) {
-    for (const a of flComissaoAssessores(f)) {
-      if (a.pago === true) continue;
-      const k = coNorm(a.nome);
-      if (!k || !(a._comissao > 0)) continue;
-      map.set(k, (map.get(k) || 0) + a._comissao);
-    }
-  }
-  return map;
-}
-
 // Vendas individuais (lances) do assessor nos leiloes filtrados
 function coVendasDe(rec) {
   const vendas = [];
@@ -5640,16 +5623,12 @@ async function renderComissionamento() {
   state.coCache = assessores; // p/ drawer e CSV (mesma lista filtrada exibida)
 
   const fechs = coFilteredFechamentos();
-  /* Valor exibido em "Comissao a Pagar": o que esta em aberto no periodo
-     filtrado; se o filtro zera a linha mas a pessoa tem saldo em aberto em
-     outro periodo (ex.: Rusa em junho — junho quitado, 17.400 de julho),
-     mostra o saldo em aberto real. Entra no total da tabela do mesmo jeito. */
-  const saldoGlobal = coSaldoAbertoGlobal();
-  const temFiltroPeriodo = !!(mes || ano || leilaoSel);
+  /* "Comissao a Pagar" respeita ESTRITAMENTE o periodo filtrado (decisao do
+     chefe 23/07: mostrar saldo de outro periodo na linha — ex.: os 23.490 de
+     julho do Rusa aparecendo no filtro de junho — polui a leitura do mes).
+     Saldo de outro periodo = trocar o filtro ou limpar. */
   for (const a of assessores) {
-    a._aberto = saldoGlobal.get(a.key) || 0;
-    a._outroPeriodo = temFiltroPeriodo && a.comissao <= 0.01 && a._aberto > 0.01;
-    a._pagar = a._outroPeriodo ? a._aberto : a.comissao;
+    a._pagar = a.comissao;
   }
   const tot = {
     pagar: assessores.reduce((s,a)=>s+a._pagar,0),
@@ -5747,7 +5726,7 @@ async function renderComissionamento() {
               <td style="text-align:right">${a.transacoes}</td>
               <td style="text-align:right">${a.animais}</td>
               <td class="money" style="text-align:right;color:var(--gold)">${fmtBRL(a.vgv)}</td>
-              <td class="money" style="text-align:right;font-weight:700"${a._outroPeriodo?' title="Comissao em aberto de outro periodo (o filtro atual nao cobre esses leiloes)"':''}>${a._pagar>0?`${fmtBRL(a._pagar)}${a.temEstimado?' <span class="chip muted" style="padding:1px 5px;font-size:9px" title="Inclui valores estimados por rateio de VGV">est.</span>':''}`:'<span style="color:var(--text4)">—</span>'}
+              <td class="money" style="text-align:right;font-weight:700">${a._pagar>0?`${fmtBRL(a._pagar)}${a.temEstimado?' <span class="chip muted" style="padding:1px 5px;font-size:9px" title="Inclui valores estimados por rateio de VGV">est.</span>':''}`:'<span style="color:var(--text4)">—</span>'}
                 ${a.comissaoPaga>0?`<div style="font-size:9.5px;color:var(--text3);font-weight:400" title="Comissao ja quitada — nao entra no total a pagar">${fmtBRL(a.comissaoPaga)} ja pago</div>`:''}</td>
               <td><div style="height:7px;background:var(--s3);border-radius:4px;overflow:hidden"><div style="height:100%;width:${Math.round((a._pagar/maxC)*100)}%;background:var(--gold)"></div></div></td>
               <td style="white-space:nowrap">
