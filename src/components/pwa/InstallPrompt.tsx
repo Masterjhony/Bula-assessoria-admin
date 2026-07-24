@@ -1,7 +1,9 @@
 'use client'
 
 import { useEffect, useState } from 'react'
+import { usePathname } from 'next/navigation'
 import { usePwaInstall } from './usePwaInstall'
+import { isPublicLanding } from './isPublicLanding'
 
 // Banner discreto de instalação do PWA (aparece no rodapé). A detecção de
 // dispositivo/instalabilidade vem do hook usePwaInstall; aqui só cuidamos da
@@ -23,11 +25,15 @@ function recentlyDismissed() {
 }
 
 export function InstallPrompt() {
+  const pathname = usePathname()
   const { status, promptInstall } = usePwaInstall()
   const [dismissed, setDismissed] = useState(true)
 
   useEffect(() => {
-    setDismissed(recentlyDismissed())
+    const frame = window.requestAnimationFrame(() => {
+      setDismissed(recentlyDismissed())
+    })
+    return () => window.cancelAnimationFrame(frame)
   }, [])
 
   function dismiss() {
@@ -45,11 +51,20 @@ export function InstallPrompt() {
   }
 
   const showIosHint = status === 'ios'
-  const visible = !dismissed && (status === 'installable' || status === 'ios')
+  const publicLanding = isPublicLanding(
+    pathname,
+    typeof window === 'undefined' ? undefined : window.location.hostname,
+  )
+  // Landings públicas (tráfego pago) não mostram o banner do PWA interno.
+  const visible =
+    !publicLanding && !dismissed && (status === 'installable' || status === 'ios')
   if (!visible) return null
 
   return (
-    <div className="fixed inset-x-0 bottom-0 z-[100] flex justify-center px-3 pb-[max(0.75rem,env(safe-area-inset-bottom))] pointer-events-none">
+    <div
+      className="fixed inset-x-0 bottom-0 z-[100] flex justify-center px-3 pointer-events-none"
+      style={{ paddingBottom: 'max(0.75rem, env(safe-area-inset-bottom))' }}
+    >
       <div className="pointer-events-auto w-full max-w-md rounded-2xl border border-[rgba(200,169,110,0.25)] bg-[#1d2c1d] text-[#f3f1e9] shadow-2xl">
         <div className="flex items-start gap-3 p-4">
           {/* eslint-disable-next-line @next/next/no-img-element */}

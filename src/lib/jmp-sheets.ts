@@ -748,6 +748,133 @@ function buildPerpetuoRow(p: RawMetaLead, headerRow: string[]): string[] {
   return headerRow.map(h => values.get(normalizeHeaderText(h)) ?? '')
 }
 
+/**
+ * Monta a linha dos cadastros feitos diretamente na landing de touros.
+ * Preenche o bloco operacional (A..R) e também os campos crus equivalentes
+ * (S..AN), mantendo a aba compatível com filtros/automações que leem o layout
+ * original do formulário Meta.
+ */
+function buildPerpetuoLandingRow(lead: SheetLead, headerRow: string[]): string[] {
+  const createdAt = lead.createdAt ?? new Date()
+  const entries: [string, string][] = [
+    ['Atendido por', ''],
+    ['Data', fmtDate(createdAt)],
+    ['Nome', lead.nome],
+    ['E-mail', lead.email],
+    ['WhatsApp', lead.whatsapp],
+    ['UF', lead.uf ?? ''],
+    ['Cidade', lead.cidade ?? ''],
+    ['Momento', lead.momento ?? ''],
+    ['Cabeças', lead.cabecas ?? ''],
+    ['Inscrição Estadual', lead.inscricaoEstadual ?? ''],
+    ['Interesse', lead.interesse ?? 'touros-po'],
+    ['Lead ID', lead.leadId ?? ''],
+    ['Qtd. desejada', lead.oQueBusca ?? ''],
+    ['utm_source', lead.utm_source ?? ''],
+    ['utm_medium', lead.utm_medium ?? ''],
+    ['utm_campaign', lead.utm_campaign ?? ''],
+    ['utm_content', lead.utm_content ?? ''],
+    ['ad-id', lead.ad_id ?? ''],
+    ['id', lead.leadId ?? ''],
+    ['created_time', createdAt.toISOString()],
+    ['ad_id', lead.ad_id ?? ''],
+    ['ad_name', lead.utm_content ?? ''],
+    ['campaign_name', lead.utm_campaign ?? ''],
+    ['form_name', 'Landing Touros — Funil Perpétuo'],
+    ['platform', lead.utm_source ?? 'site'],
+    ['seu_momento_na_pecuaria', lead.momento ?? ''],
+    ['você_tem_inscrição_estadual?', lead.inscricaoEstadual ?? ''],
+    ['qual_o_seu_interesse?', lead.interesse ?? 'touros-po'],
+    ['de_acordo_com_seu_interesse,_qual_a_quantidade_de_animais_desejada?', lead.oQueBusca ?? ''],
+    ['full_name', lead.nome],
+    ['email', lead.email],
+    ['phone', lead.whatsapp],
+    ['state', lead.uf ?? ''],
+    ['lead de teste', 'Não'],
+    ['lead_status', 'CREATED'],
+  ]
+  const values = new Map(entries.map(([key, value]) => [normalizeHeaderText(key), value]))
+  return headerRow.map(header => values.get(normalizeHeaderText(header)) ?? '')
+}
+
+/**
+ * Grava imediatamente na aba organizada o lead capturado pela landing de
+ * touros. O CRM continua sendo a fonte primária, mas o append é aguardado para
+ * que a linha já esteja disponível à operação quando o formulário conclui.
+ *
+ * Idempotente pelo UUID do crm_leads: uma repetição do mesmo efeito colateral
+ * não duplica a linha na planilha.
+ */
+export async function appendLeadToPerpetuoSheet(
+  lead: SheetLead,
+): Promise<{ skipped: boolean; reason?: string }> {
+  const info = await getStoredInfo()
+  if (!info) return { skipped: true, reason: 'not_provisioned' }
+  const auth = getAuth()
+  if (!auth) {
+    console.error('[jmp-sheets] append PERPETUO PULADO (credenciais ausentes/inválidas):', lead.nome)
+    return { skipped: true, reason: 'no_credentials' }
+  }
+
+  const sheets = google.sheets({ version: 'v4', auth })
+  const meta = await sheets.spreadsheets.get({
+    spreadsheetId: info.spreadsheetId,
+    includeGridData: false,
+  })
+  const titles = (meta.data.sheets ?? []).map(sheet => sheet.properties?.title)
+  if (!titles.includes(LEADS_BULA_PERPETUO_TAB)) {
+    await sheets.spreadsheets.batchUpdate({
+      spreadsheetId: info.spreadsheetId,
+      requestBody: {
+        requests: [{ addSheet: { properties: { title: LEADS_BULA_PERPETUO_TAB } } }],
+      },
+    })
+  }
+
+  let header = await readHeaderRow(sheets, info.spreadsheetId, LEADS_BULA_PERPETUO_TAB)
+  if (!header.some(Boolean)) {
+    header = [...PERPETUO_HEADER]
+    await sheets.spreadsheets.values.update({
+      spreadsheetId: info.spreadsheetId,
+      range: `${LEADS_BULA_PERPETUO_TAB}!A1:${columnName(header.length)}1`,
+      valueInputOption: 'RAW',
+      requestBody: { values: [header] },
+    })
+  }
+
+  const leadIdIndex = header.map(normalizeHeaderText).indexOf('leadid')
+  if (lead.leadId && leadIdIndex >= 0) {
+    const leadIdColumn = columnName(leadIdIndex + 1)
+    const currentIds = ((await sheets.spreadsheets.values.get({
+      spreadsheetId: info.spreadsheetId,
+      range: `${LEADS_BULA_PERPETUO_TAB}!${leadIdColumn}2:${leadIdColumn}`,
+    })).data.values ?? []) as string[][]
+    const alreadyExists = currentIds.some(row => String(row[0] ?? '').trim() === lead.leadId)
+    if (alreadyExists) return { skipped: true, reason: 'duplicate' }
+  }
+
+  const row = buildPerpetuoLandingRow(lead, header)
+  const sheetId = await getTabSheetId(sheets, info.spreadsheetId, LEADS_BULA_PERPETUO_TAB)
+  await sheets.spreadsheets.batchUpdate({
+    spreadsheetId: info.spreadsheetId,
+    requestBody: {
+      requests: [{
+        appendCells: {
+          sheetId,
+          rows: [{
+            values: row.map(value => ({
+              userEnteredValue: { stringValue: String(value ?? '') },
+            })),
+          }],
+          fields: 'userEnteredValue',
+        },
+      }],
+    },
+  })
+
+  return { skipped: false }
+}
+
 /** Núcleo do telefone (8 últimos dígitos, sem DDI) para dedup tolerante. */
 function phoneNucleo(raw: string): string {
   const d = String(raw || '').replace(/\D/g, '').replace(/^55/, '')
