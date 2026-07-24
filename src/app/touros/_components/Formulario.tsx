@@ -2,10 +2,11 @@
 
 import { cloneElement, isValidElement, useEffect, useId, useRef, useState } from 'react'
 import { useRouter } from 'next/navigation'
-import { AnimatePresence, motion, useReducedMotion } from 'framer-motion'
+import { AnimatePresence, motion } from 'framer-motion'
 import { Loader2, CheckCircle2, ShieldCheck, ArrowRight, ArrowLeft } from 'lucide-react'
 import { dark, typo, font, radius } from '../_lib/tokens'
 import { form as copy } from '../_lib/copy'
+import { useSafeReducedMotion } from '../_lib/useSafeReducedMotion'
 import { Reveal } from './ui'
 import { captureUtms, EMPTY_UTM, type Utm } from '../_lib/utm'
 import { initAnalytics, trackFunnel, trackLeadConversion } from '../_lib/analytics'
@@ -103,7 +104,7 @@ function validate(d: FormData): Errors {
 // cantos retos, botões caixa-alta). Toda a LÓGICA é preservada: multi-step,
 // validação, IBGE, UTM, tracking, event_id, is_mql.
 export function LeadForm() {
-  const reduce = useReducedMotion()
+  const reduce = useSafeReducedMotion()
   const router = useRouter()
   const [data, setData] = useState<FormData>(EMPTY)
   const [errors, setErrors] = useState<Errors>({})

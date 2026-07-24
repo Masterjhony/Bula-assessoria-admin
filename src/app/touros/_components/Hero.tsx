@@ -1,16 +1,17 @@
 'use client'
 
 import Image from 'next/image'
-import { motion, useReducedMotion } from 'framer-motion'
+import { motion } from 'framer-motion'
 import { dark, typo, font } from '../_lib/tokens'
 import { hero } from '../_lib/copy'
+import { useSafeReducedMotion } from '../_lib/useSafeReducedMotion'
 import { MultiLine, Eyebrow, TopicCard } from './ui'
 import { LeadForm } from './Formulario'
 
 const HERO_PHOTO = '/jmp/galeria-touros/IMG_0059.jpg'
 
 export function Hero() {
-  const reduce = useReducedMotion()
+  const reduce = useSafeReducedMotion()
   const enter = (y: number) => (reduce ? false : { opacity: 0, y })
   return (
     <section

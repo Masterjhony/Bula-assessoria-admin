@@ -1,8 +1,9 @@
 'use client'
 
-import { motion, useReducedMotion } from 'framer-motion'
+import { motion } from 'framer-motion'
 import type { ReactNode, CSSProperties } from 'react'
 import { dark, light, typo, radius, font, type Surface } from '../_lib/tokens'
+import { useSafeReducedMotion } from '../_lib/useSafeReducedMotion'
 
 // ── Primitivos editoriais (Ferrari × Bula) ─────────────────────────────────
 // Cada Section declara sua SUPERFÍCIE (dark ↔ light). A troca de cor entre
@@ -207,7 +208,7 @@ export function Reveal({
   delay?: number
   className?: string
 }) {
-  const reduce = useReducedMotion()
+  const reduce = useSafeReducedMotion()
   if (reduce) return <div className={className}>{children}</div>
   return (
     <motion.div
@@ -245,7 +246,7 @@ export function TopicCard({
   delay?: number
   className?: string
 }) {
-  const reduce = useReducedMotion()
+  const reduce = useSafeReducedMotion()
   const p = palette(surface)
   const gold = surface === 'light' ? light.goldText : dark.gold
   const skin =

@@ -12,7 +12,7 @@ export function ServiceWorkerRegister() {
   useEffect(() => {
     if (typeof window === 'undefined') return
     if (!('serviceWorker' in navigator)) return
-    if (isPublicLanding(pathname)) return
+    if (isPublicLanding(pathname, window.location.hostname)) return
 
     const register = () => {
       navigator.serviceWorker

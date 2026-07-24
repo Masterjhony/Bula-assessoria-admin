@@ -72,6 +72,27 @@ function isTourosHost(host: string | null): boolean {
   return h === 'touros.localhost' || h.startsWith('touros.')
 }
 
+const TOUROS_PUBLIC_PATHS = new Set([
+  '/',
+  '/touros',
+  '/obrigado-touros-mql',
+  '/obrigado-touros-lead',
+  '/privacidade',
+  '/termos',
+  '/exclusao-de-dados',
+  '/api/touros/lead',
+  '/manifest.webmanifest',
+  '/favicon.ico',
+])
+const TOUROS_PUBLIC_PREFIXES = ['/_next/', '/jmp/', '/criatorios/', '/icons/', '/logo-']
+
+function isTourosPublicPath(pathname: string): boolean {
+  return (
+    TOUROS_PUBLIC_PATHS.has(pathname) ||
+    TOUROS_PUBLIC_PREFIXES.some((prefix) => pathname.startsWith(prefix))
+  )
+}
+
 export async function updateSession(req: NextRequest) {
   const host = req.headers.get('host')
   const erp = isErpHost(host)
@@ -173,15 +194,20 @@ export async function updateSession(req: NextRequest) {
       res = NextResponse.next({ request: req })
     }
   } else if (touros) {
-    // Host touros.* → landing pública em /touros. Só a RAIZ é reescrita; as
-    // páginas de obrigado (/obrigado-touros-*), /api, assets e /_next passam
-    // direto. Sem gate de login (público) — ver early-return abaixo.
+    // Host touros.* → landing pública em /touros. Só as rotas necessárias ao
+    // funil passam por este host. Qualquer rota do app interno volta para a
+    // raiz, impedindo que /sistema ou APIs alheias ao formulário contornem o
+    // gate de autenticação pelo domínio público.
     const url = req.nextUrl.clone()
     if (pathname === '/') {
       url.pathname = '/touros'
       res = NextResponse.rewrite(url, { request: req })
-    } else {
+    } else if (isTourosPublicPath(pathname)) {
       res = NextResponse.next({ request: req })
+    } else {
+      url.pathname = '/'
+      url.search = ''
+      return NextResponse.redirect(url, 308)
     }
   } else {
     res = NextResponse.next({ request: req })
@@ -193,7 +219,7 @@ export async function updateSession(req: NextRequest) {
 
   // Landing pública de touros: sem sessão/gate de login — evita o roundtrip do
   // Supabase em cada pageview de tráfego pago.
-  if (touros) return res
+  if (touros && isTourosPublicPath(pathname)) return res
 
   const supabase = createServerClient(supaUrl, supaKey, {
     cookies: {
