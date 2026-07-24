@@ -1,13 +1,7 @@
 import { NextRequest } from 'next/server'
-import { supabaseAdmin } from '@/lib/supabase'
 import { fail, ok } from '@/lib/respond'
 import { appendLeadToPerpetuoSheet } from '@/lib/jmp-sheets'
-import {
-  CRM_STAGE_ENTRY,
-  evaluateMql,
-  JMP_FUNNEL_ID,
-  DEFAULT_JMP_MQL_RULE,
-} from '@/lib/crm-types'
+import { evaluateMql, DEFAULT_JMP_MQL_RULE } from '@/lib/crm-types'
 
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
 const VALID_UFS = new Set([
@@ -39,18 +33,15 @@ const VALID_QUANTIDADES_TOUROS = new Set([
 ])
 
 // Endpoint PÚBLICO da landing touros.bulaassessoria.com (funil perpétuo de
-// venda de touros). Variante enxuta de /api/jmp/lead: grava o lead direto em
-// crm_leads via service role, com atribuição/origem PRÓPRIAS para não misturar
-// com a campanha do Mega Evento EAO.
+// venda de touros).
 //
-// Diferenças deliberadas vs. /api/jmp/lead:
-//  - source: 'touros-perpetuo' (telemetria/atribuição isoladas).
-//  - origem própria (o assessor identifica a fonte no card do CRM).
-//  - NÃO dispara WhatsApp (dispatchCrmWelcome) nem e-mail.
-//  - Grava também na aba "LEADS BULA - PERPETUO" da planilha conectada, usando
-//    a automação Google Sheets já existente no sistema.
-//  - Reusa o mesmo funil do CRM (JMP_FUNNEL_ID = 'default') para os leads
-//    caírem no board existente; a separação vem por `source`/`origem`.
+// DECISÃO (24/07, pedido do cliente): os leads desta campanha vão APENAS para
+// a aba "LEADS BULA - PERPETUO" da planilha conectada — NÃO entram no CRM.
+// Lead em crm_leads (ENTRADA) entra no radar dos disparos/followups e, ao
+// responder, cai no concierge IA — e esta campanha NÃO deve ser atendida pelo
+// sistema de atendimento. Atendimento 100% manual pela equipe, via planilha.
+// Se um dia voltarem pro CRM, restaurar o insert (git: versão anterior deste
+// arquivo) — a planilha guarda todos os campos necessários pro re-import.
 export async function POST(req: NextRequest) {
   const body = await req.json().catch(() => ({}))
 
@@ -124,54 +115,10 @@ export async function POST(req: NextRequest) {
   })
 
   const createdAt = new Date()
-  const lead = {
-    nome,
-    email: email || null,
-    // Grava o WhatsApp em telefone E celular: o CRM (modal/cards) usa `celular`
-    // como contato principal — sem isso o número "não puxa" ao abrir o lead.
-    telefone: whatsapp,
-    celular: whatsapp,
-    estado: uf,
-    cidade,
-    momento_pecuaria: momento,
-    quantidade_animais: cabecas,
-    // Interesse fixo desta landing: touros PO.
-    interesse: 'touros-po',
-    tem_inscricao_estadual: temInscricaoEstadual,
-    // Quantidade desejada já em texto legível (ex.: "21 a 50 touros"), montado
-    // na landing — o assessor lê direto no card.
-    o_que_busca: quantidadeTouros,
-    status: CRM_STAGE_ENTRY,
-    funnel_id: JMP_FUNNEL_ID,
-    is_mql: isMql,
-    origem: 'Landing Touros — Funil Perpétuo',
-    source: 'touros-perpetuo',
-    source_page: host,
-    landing_url: referer || `https://${host}/`,
-    data_entrada: createdAt.toISOString(),
-    extra_data: {
-      funil: 'touros-perpetuo',
-      whatsapp_consent: whatsappConsent,
-      ...(eventId ? { event_id: eventId } : {}),
-      ...(temUtm ? { utm: utmAttr } : {}),
-    },
-  }
 
-  const { data, error } = await supabaseAdmin()
-    .from('crm_leads')
-    .insert(lead)
-    .select('id')
-    .single()
-
-  if (error) {
-    console.error('[touros lead] insert failed:', error.message)
-    return fail('Não foi possível registrar o cadastro.', 500)
-  }
-
-  // A planilha conectada é a mesma usada pela automação JMP. O append é
-  // aguardado (serverless congela trabalho solto após a resposta), mas continua
-  // best-effort: uma indisponibilidade temporária do Google não apaga nem
-  // duplica o lead que já foi salvo no CRM.
+  // A planilha agora é o ÚNICO registro do lead — o append deixa de ser
+  // best-effort: se o Google falhar, devolvemos erro e o lead pode reenviar
+  // (o form preserva os dados). Duplicata conta como sucesso (já está lá).
   try {
     const sheetResult = await appendLeadToPerpetuoSheet({
       nome,
@@ -189,19 +136,21 @@ export async function POST(req: NextRequest) {
       utm_campaign: utmAttr.campaign,
       utm_content: utmAttr.content,
       ad_id: utmAttr.ad_id,
-      leadId: data?.id ?? null,
+      leadId: eventId,
       createdAt,
       whatsappConsent,
     })
     if (sheetResult.skipped && sheetResult.reason !== 'duplicate') {
       console.error('[touros lead] sheets append skipped:', sheetResult.reason)
+      return fail('Não foi possível registrar o cadastro. Tente novamente.', 500)
     }
   } catch (e) {
     console.error('[touros lead] sheets append failed:', e)
+    return fail('Não foi possível registrar o cadastro. Tente novamente.', 500)
   }
 
   // Devolve o veredito de MQL (fonte de verdade = servidor) para o client
   // disparar o evento de conversão com VALOR diferenciado — assim Meta/Google
   // otimizam por lead que vale (≥100 cabeças + IE), não por volume.
-  return ok({ id: data?.id ?? null, is_mql: isMql })
+  return ok({ id: eventId, is_mql: isMql })
 }
