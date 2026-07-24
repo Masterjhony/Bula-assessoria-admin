@@ -1,6 +1,7 @@
 import { NextRequest } from 'next/server'
 import { supabaseAdmin } from '@/lib/supabase'
 import { fail, ok } from '@/lib/respond'
+import { appendLeadToPerpetuoSheet } from '@/lib/jmp-sheets'
 import {
   CRM_STAGE_ENTRY,
   evaluateMql,
@@ -45,8 +46,9 @@ const VALID_QUANTIDADES_TOUROS = new Set([
 // Diferenças deliberadas vs. /api/jmp/lead:
 //  - source: 'touros-perpetuo' (telemetria/atribuição isoladas).
 //  - origem própria (o assessor identifica a fonte no card do CRM).
-//  - NÃO dispara WhatsApp (dispatchCrmWelcome), e-mail nem planilha — fora de
-//    escopo desta landing (decisão explícita). Só persiste o lead no CRM.
+//  - NÃO dispara WhatsApp (dispatchCrmWelcome) nem e-mail.
+//  - Grava também na aba "LEADS BULA - PERPETUO" da planilha conectada, usando
+//    a automação Google Sheets já existente no sistema.
 //  - Reusa o mesmo funil do CRM (JMP_FUNNEL_ID = 'default') para os leads
 //    caírem no board existente; a separação vem por `source`/`origem`.
 export async function POST(req: NextRequest) {
@@ -121,6 +123,7 @@ export async function POST(req: NextRequest) {
     tem_inscricao_estadual: temInscricaoEstadual,
   })
 
+  const createdAt = new Date()
   const lead = {
     nome,
     email: email || null,
@@ -145,7 +148,7 @@ export async function POST(req: NextRequest) {
     source: 'touros-perpetuo',
     source_page: host,
     landing_url: referer || `https://${host}/`,
-    data_entrada: new Date().toISOString(),
+    data_entrada: createdAt.toISOString(),
     extra_data: {
       funil: 'touros-perpetuo',
       whatsapp_consent: whatsappConsent,
@@ -163,6 +166,38 @@ export async function POST(req: NextRequest) {
   if (error) {
     console.error('[touros lead] insert failed:', error.message)
     return fail('Não foi possível registrar o cadastro.', 500)
+  }
+
+  // A planilha conectada é a mesma usada pela automação JMP. O append é
+  // aguardado (serverless congela trabalho solto após a resposta), mas continua
+  // best-effort: uma indisponibilidade temporária do Google não apaga nem
+  // duplica o lead que já foi salvo no CRM.
+  try {
+    const sheetResult = await appendLeadToPerpetuoSheet({
+      nome,
+      email,
+      whatsapp,
+      uf,
+      cidade,
+      momento,
+      cabecas,
+      interesse: 'touros-po',
+      oQueBusca: quantidadeTouros,
+      inscricaoEstadual: temInscricaoEstadual,
+      utm_source: utmAttr.source,
+      utm_medium: utmAttr.medium,
+      utm_campaign: utmAttr.campaign,
+      utm_content: utmAttr.content,
+      ad_id: utmAttr.ad_id,
+      leadId: data?.id ?? null,
+      createdAt,
+      whatsappConsent,
+    })
+    if (sheetResult.skipped && sheetResult.reason !== 'duplicate') {
+      console.error('[touros lead] sheets append skipped:', sheetResult.reason)
+    }
+  } catch (e) {
+    console.error('[touros lead] sheets append failed:', e)
   }
 
   // Devolve o veredito de MQL (fonte de verdade = servidor) para o client
