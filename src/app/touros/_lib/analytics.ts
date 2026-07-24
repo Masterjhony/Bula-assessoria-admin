@@ -1,20 +1,19 @@
 // ─────────────────────────────────────────────────────────────────────────
-// Tracking & conversão da landing de touros — PostHog + Google Tag Manager.
+// Tracking da landing de touros — PostHog (produto/heatmaps).
 //
-// GA4 e Meta Pixel NÃO são disparados aqui: as tags vivem DENTRO do GTM
-// (container do subdomínio, ver _components/GoogleTagManager). Este módulo só
-// empurra eventos semânticos para o `dataLayer` — as tags do GTM disparam a
-// partir deles. Assim não há disparo dobrado (client + GTM).
+// Este módulo NÃO toca o dataLayer nem dispara Meta/GA4. A conversão é medida
+// 100% no GTM: a tag de Meta dispara pelo gatilho Page View da URL de obrigado
+// (/obrigado-touros-mql), que carrega por completo (ver Formulario). Empurrar
+// eventos ao dataLayer aqui só criava ruído — o container tem um acionador
+// catch-all (Custom Event "Event não contém gtm.") que dispararia Meta/GA4 a
+// cada micro-evento do funil e duplicava PageView.
 //
-// PostHog continua direto (produto/heatmaps, fora do GTM). NO-OP se a env do
-// key estiver vazia — deploy sem PostHog configurado não quebra a página.
+// PostHog é NO-OP se a env do key estiver vazia — deploy sem ele não quebra.
 //
 // PRINCÍPIO (auditoria de mídia): não otimizar por "cadastrou", e sim por
-// "cadastrou E vale" (MQL = ≥100 cabeças + IE). Por isso o evento de conversão
-// carrega `value`/`currency` diferenciado por MQL — o algoritmo aprende a trazer
-// o lead certo mesmo com pouco volume (value-based bidding). O veredito de MQL
-// vem do SERVIDOR (route.ts), não é recalculado no client. O `event_id` permite
-// dedup com o CAPI server-side (a tag Meta do GTM deve usá-lo como eventID).
+// "cadastrou E vale" (MQL = ≥100 cabeças + IE). A separação MQL/não-MQL é feita
+// por URL de obrigado (/obrigado-touros-mql vs -lead) + valor fixo na própria
+// tag do GTM. O veredito de MQL vem do SERVIDOR (route.ts).
 //
 // IDs via env (NEXT_PUBLIC_*):
 //   NEXT_PUBLIC_POSTHOG_KEY / NEXT_PUBLIC_POSTHOG_HOST
@@ -22,19 +21,10 @@
 // ─────────────────────────────────────────────────────────────────────────
 import type { Utm } from './utm'
 
-/* Acesso não-tipado às globais (dataLayer) — evita conflito com augmentations
-   de Window de outras partes do app. */
+/* Acesso não-tipado às globais — evita conflito com augmentations de Window de
+   outras partes do app. */
 function w(): any {
   return typeof window === 'undefined' ? undefined : window
-}
-
-/** Empurra um evento para o dataLayer do GTM. Garante o array (o snippet do GTM
-    também o inicializa, mas pode ainda não ter executado no primeiro push). */
-function pushDataLayer(payload: Record<string, unknown>) {
-  const win = w()
-  if (!win) return
-  win.dataLayer = win.dataLayer || []
-  win.dataLayer.push(payload)
 }
 
 const POSTHOG_KEY = process.env.NEXT_PUBLIC_POSTHOG_KEY
@@ -71,8 +61,9 @@ async function loadPosthog() {
 }
 
 /** Inicializa os provedores e registra o pageview. Chamar 1x no mount da rota.
-    O pageview de GA4/Meta é responsabilidade das tags do GTM (gatilho All Pages);
-    aqui só registramos no PostHog e sinalizamos o view ao dataLayer com as UTMs. */
+    Só PostHog: NÃO empurramos nada ao dataLayer para não acionar as tags de
+    Meta/GA4 do GTM durante a navegação — a conversão dispara só na página de
+    obrigado (gatilho Page View da URL, ver Formulario/trackLeadConversion). */
 export async function initAnalytics(utm: Utm) {
   const win = w()
   if (started || !win) return
@@ -82,25 +73,18 @@ export async function initAnalytics(utm: Utm) {
   const utmProps = utm as unknown as Record<string, string>
 
   ph?.capture('touros_view', { ...utmProps })
-  pushDataLayer({ event: 'touros_view', ...utmProps })
 }
 
-/** Micro-conversões do funil. Vão ao PostHog e ao dataLayer (GTM). `opts.meta`/
-    `opts.ga` viram hints no payload — a tag correspondente no GTM decide se e
-    como mapeia (ex.: gatilho no evento `touros_form_started` → Meta
-    InitiateCheckout). */
+/** Micro-conversões do funil — SÓ PostHog (produto/heatmaps). De propósito não
+    tocam o dataLayer: o container tem um acionador catch-all (Custom Event
+    "Event não contém gtm.") que dispararia Meta/GA4 a cada evento do funil.
+    `opts` é mantido por compat. com os callers, mas não é mais usado. */
 export function trackFunnel(
   event: string,
   props?: Record<string, unknown>,
-  opts?: { meta?: string; ga?: string },
+  _opts?: { meta?: string; ga?: string },
 ) {
   posthog?.capture(event, props)
-  pushDataLayer({
-    event,
-    ...props,
-    ...(opts?.meta ? { meta_event: opts.meta } : {}),
-    ...(opts?.ga ? { ga_event: opts.ga } : {}),
-  })
 }
 
 /**
