@@ -15,8 +15,9 @@ export function StickyCta() {
   const formVisibleRef = useRef(false)
 
   useEffect(() => {
-    // Form agora vive na 1ª dobra; threshold mais alto p/ o sticky não brigar
-    // com o hero e só aparecer bem depois dele.
+    // Form agora vive no FIM da página (revisão 24/07): o sticky é o atalho do
+    // scroll longo. Threshold acima de 1 viewport p/ não brigar com o CTA do
+    // hero; o IntersectionObserver o recolhe quando #cadastro entra na tela.
     const onScroll = () =>
       setShow(!formVisibleRef.current && window.scrollY > window.innerHeight * 1.2)
     onScroll()

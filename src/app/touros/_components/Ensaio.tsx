@@ -36,7 +36,9 @@ function Foto({
 
 export function Ensaio() {
   return (
-    <Section surface="dark">
+    // Hairline no topo: o ensaio agora emenda direto no hero (dark→dark), e a
+    // linha de 1px é o divisor editorial no lugar da troca de superfície.
+    <Section surface="dark" style={{ borderTop: `1px solid ${dark.hairline}` }}>
       <Container wide>
         <Reveal>
           <Eyebrow surface="dark">{ensaio.eyebrow}</Eyebrow>

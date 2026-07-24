@@ -113,6 +113,10 @@ export function LeadForm() {
   const [step, setStep] = useState(0)
   const utmRef = useRef<Utm>(EMPTY_UTM)
   const startedRef = useRef(false)
+  // A troca de passo rola até o CARD (não até a seção): a seção #cadastro tem
+  // convite + bullets acima do form, e alinhar por ela deixaria o passo novo
+  // fora da tela no mobile.
+  const formRef = useRef<HTMLFormElement>(null)
 
   useEffect(() => {
     utmRef.current = captureUtms()
@@ -171,7 +175,7 @@ export function LeadForm() {
     const ns = Math.min(step + 1, TOTAL - 1)
     setStep(ns)
     trackFunnel('touros_step_reached', { step: ns + 1 })
-    document.getElementById('cadastro')?.scrollIntoView({ behavior: 'smooth', block: 'start' })
+    formRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' })
   }
 
   function goBack() {
@@ -266,7 +270,7 @@ export function LeadForm() {
     : { initial: { opacity: 0, x: 12 }, animate: { opacity: 1, x: 0 }, exit: { opacity: 0, x: -12 } }
 
   return (
-    <form onSubmit={handleSubmit} noValidate className="p-6 sm:p-8" style={cardStyle}>
+    <form ref={formRef} onSubmit={handleSubmit} noValidate className="p-6 sm:p-8" style={cardStyle}>
       {/* Cabeçalho do form — diz O QUE é e O QUE acontece (message match +
           expectativa), pra ninguém preencher sem saber pra quê é o cadastro. */}
       <div className="mb-6" style={{ borderBottom: `1px solid ${dark.hairline}`, paddingBottom: 20 }}>

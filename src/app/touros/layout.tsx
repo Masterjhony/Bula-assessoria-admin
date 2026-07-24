@@ -18,7 +18,25 @@ export const metadata: Metadata = {
       'Assessoria gratuita de genética. Receba uma seleção de touros com a curadoria da Bula.',
     type: 'website',
     locale: 'pt_BR',
-    images: [{ url: '/jmp/galeria-touros/IMG_0037.jpg', width: 1200, height: 630, alt: 'Touro Nelore PO' }],
+    // Preview do link (WhatsApp/Meta/Google): recorte 1200×630 da panorâmica do
+    // ensaio no curral (public/touros/ensaio/apartacao-galpao.webp). A foto
+    // anterior era retrato e vinha cortada no card. JPG de propósito — o
+    // WhatsApp não renderiza WEBP de forma confiável no preview.
+    images: [
+      {
+        url: '/touros/og-curral.jpg',
+        width: 1200,
+        height: 630,
+        alt: 'Peões a cavalo apartando lotes de Nelore no curral, ao entardecer',
+      },
+    ],
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: 'O touro certo muda o seu rebanho | Bula Assessoria',
+    description:
+      'Assessoria gratuita de genética. Receba uma seleção de touros com a curadoria da Bula.',
+    images: ['/touros/og-curral.jpg'],
   },
 }
 

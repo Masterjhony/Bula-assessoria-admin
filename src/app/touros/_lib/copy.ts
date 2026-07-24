@@ -19,6 +19,16 @@ export const hero = {
   title: 'O touro certo pode te dar R$300 a R$600 a mais de lucro por bezerro(a) na desmama!',
   lead: 'O touro certo puxa peso, precocidade e fertilidade — e se paga no bezerro. A Bula monta, sem custo, uma seleção de touros PO Nelore pro objetivo do seu rebanho.',
   cta: 'Quero o touro certo pro meu rebanho',
+  // Micro-copy sob o CTA — tira o atrito ("quanto custa? o que acontece?").
+  ctaNote: 'Cadastro em 1 minuto · Sem custo · Um assessor te chama no WhatsApp',
+  // Ficha técnica do hero (revisão 24/07): com o formulário no fim da página, o
+  // hero ganha uma faixa de prova que sustenta a promessa em R$ da manchete.
+  // Todos os números já aparecem em outras seções — nada de claim novo.
+  stats: [
+    { value: '+1.000', label: 'touros PO apartados' },
+    { value: '30x', label: 'compra parcelada' },
+    { value: 'R$ 0', label: 'custo da assessoria' },
+  ],
   // [VALIDAR] prova de escala — confirmar número atual com o cliente.
   proof: '+1.000 touros PO apartados ao lado de criatórios de corte e seleção.',
   // Variações de headline para A/B (virar hook do criativo no Meta). Trocar
@@ -48,6 +58,22 @@ export const ensaio = {
   eyebrow: 'TIME BULA EM AÇÃO',
   title: 'Curral, chão, peão.',
   lead: 'A seleção não acontece no catálogo. É no curral, do lado do gado, que o time da Bula aparta os touros que chegam na sua fazenda.',
+}
+
+// Seção de CADASTRO — o formulário saiu da 1ª dobra (revisão do cliente 24/07)
+// e virou o fecho da página, logo antes do footer. Esta copy é o "convite" que
+// abre a seção; o card do form mantém a sua própria (form.title/form.lead).
+export const cadastro = {
+  eyebrow: 'CADASTRO SEM CUSTO',
+  title: 'Vamos montar a sua\nseleção de touros.',
+  lead: 'Preencha em 1 minuto. Um assessor da Bula te chama no WhatsApp, entende o objetivo do seu rebanho e separa os touros certos do próximo leilão.',
+  // Reforço lateral do convite — espelha o processo em 4 passos do SubHero.
+  bullets: [
+    'Diagnóstico do seu rebanho, sem custo',
+    'Assessor Bula mais próximo de você',
+    'Cadastro nas leiloeiras para parcelar em 30x',
+    'Seleção de touros do próximo leilão',
+  ],
 }
 
 // Páginas de OBRIGADO pós-cadastro, separadas por MQL. URLs distintas permitem
