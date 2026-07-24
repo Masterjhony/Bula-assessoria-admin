@@ -1,5 +1,6 @@
 import { Hero } from './_components/Hero'
 import { SubHero } from './_components/SubHero'
+import { Ensaio } from './_components/Ensaio'
 import { ProvaSocial } from './_components/ProvaSocial'
 import { Footer } from './_components/Footer'
 import { StickyCta } from './_components/StickyCta'
@@ -15,6 +16,7 @@ export default function TourosPage() {
     <main>
       <Hero />
       <SubHero />
+      <Ensaio />
       <ProvaSocial />
       <Footer />
       <StickyCta />

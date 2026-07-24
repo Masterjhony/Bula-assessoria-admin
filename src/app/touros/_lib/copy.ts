@@ -42,6 +42,14 @@ export const subHero = {
   ],
 }
 
+// Ensaio no curral — fotos do cliente (24/07). Título ecoa o tom de voz do
+// brandbook ("Curral, chão, peão."): a seleção acontece no chão da operação.
+export const ensaio = {
+  eyebrow: 'TIME BULA EM AÇÃO',
+  title: 'Curral, chão, peão.',
+  lead: 'A seleção não acontece no catálogo. É no curral, do lado do gado, que o time da Bula aparta os touros que chegam na sua fazenda.',
+}
+
 // Páginas de OBRIGADO pós-cadastro, separadas por MQL. URLs distintas permitem
 // metas de conversão por URL (Google/Meta) e otimizar a campanha rumo ao lead
 // que vale (MQL = ≥100 cabeças + IE). A diferença de copy é sutil — o MQL ganha

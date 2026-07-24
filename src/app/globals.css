@@ -5,6 +5,9 @@
    quebrados — como `background-image: url()` — no CSS do app principal. */
 @source not "../../jmp-landing";
 @source not "../../public";
+/* Worktrees/checkouts auxiliares (PRs) carregam cópias do repo inteiro —
+   inclusive jmp-landing — e reintroduziriam as classes quebradas acima. */
+@source not "../../.codex-dev";
 @variant dark (&:where([data-theme="dark"], [data-theme="dark"] *));
 
 /* ══════════════════════════════════════════════════════════
