@@ -2,7 +2,6 @@ import Image from 'next/image'
 import { dark, typo, font, radius, interFeatures } from '../_lib/tokens'
 import { obrigado } from '../_lib/copy'
 import { WhatsappRedirect } from './WhatsappRedirect'
-import { LeadConversion } from './LeadConversion'
 
 // Página de OBRIGADO pós-cadastro — variante por MQL. Server component estático
 // (sem framer/analytics): confirmação leve, mesma pele editorial da landing.
@@ -22,10 +21,6 @@ export function Obrigado({ variant }: { variant: 'mql' | 'lead' }) {
         WebkitFontSmoothing: 'antialiased',
       }}
     >
-      {/* Dispara a conversão touros_lead no dataLayer (GTM aciona o Meta Lead
-          aqui, na URL de obrigado). Só conta se veio do submit real do form. */}
-      <LeadConversion />
-
       <div className="w-full max-w-[620px]">
         <div className="mb-12 flex justify-center">
           <Image src="/logo-bula-assessoria-white.png" alt="Bula Assessoria" width={200} height={52} className="h-11 w-auto" priority />
