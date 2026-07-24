@@ -84,7 +84,10 @@ const TOUROS_PUBLIC_PATHS = new Set([
   '/manifest.webmanifest',
   '/favicon.ico',
 ])
-const TOUROS_PUBLIC_PREFIXES = ['/_next/', '/jmp/', '/criatorios/', '/icons/', '/logo-']
+// '/touros/' cobre os assets estáticos da landing (public/touros/ensaio/*) —
+// o otimizador do next/image busca o arquivo-fonte por esse path e o redirect
+// do middleware quebraria as fotos (308 → /).
+const TOUROS_PUBLIC_PREFIXES = ['/_next/', '/jmp/', '/touros/', '/criatorios/', '/icons/', '/logo-']
 
 function isTourosPublicPath(pathname: string): boolean {
   return (
