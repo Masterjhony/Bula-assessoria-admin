@@ -1,6 +1,7 @@
 import type { Metadata, Viewport } from 'next'
 import type { ReactNode } from 'react'
 import { interFeatures } from './_lib/tokens'
+import { GoogleTagManager } from './_components/GoogleTagManager'
 
 // Metadata comercial + OG da landing de touros (funil perpétuo).
 export const metadata: Metadata = {
@@ -40,6 +41,7 @@ export default function TourosLayout({ children }: { children: ReactNode }) {
         MozOsxFontSmoothing: 'grayscale',
       }}
     >
+      <GoogleTagManager />
       {children}
     </div>
   )

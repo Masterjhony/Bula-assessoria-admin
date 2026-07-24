@@ -1,5 +1,6 @@
 import type { Metadata } from 'next'
 import { Obrigado } from '../touros/_components/Obrigado'
+import { GoogleTagManager } from '../touros/_components/GoogleTagManager'
 
 // Obrigado do lead QUALIFICADO (MQL = ≥100 cabeças + IE). URL própria p/ metas
 // de conversão (Google/Meta) e otimização value-based rumo ao lead que vale.
@@ -10,5 +11,10 @@ export const metadata: Metadata = {
 }
 
 export default function ObrigadoTourosMqlPage() {
-  return <Obrigado variant="mql" />
+  return (
+    <>
+      <GoogleTagManager />
+      <Obrigado variant="mql" />
+    </>
+  )
 }

@@ -1,5 +1,6 @@
 import type { Metadata } from 'next'
 import { Obrigado } from '../touros/_components/Obrigado'
+import { GoogleTagManager } from '../touros/_components/GoogleTagManager'
 
 // Obrigado do lead NÃO qualificado (não-MQL). URL própria p/ separar a conversão
 // da do MQL nas plataformas de mídia.
@@ -10,5 +11,10 @@ export const metadata: Metadata = {
 }
 
 export default function ObrigadoTourosLeadPage() {
-  return <Obrigado variant="lead" />
+  return (
+    <>
+      <GoogleTagManager />
+      <Obrigado variant="lead" />
+    </>
+  )
 }
