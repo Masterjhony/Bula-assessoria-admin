@@ -1,7 +1,6 @@
 'use client'
 
 import { cloneElement, isValidElement, useEffect, useId, useRef, useState } from 'react'
-import { useRouter } from 'next/navigation'
 import { AnimatePresence, motion } from 'framer-motion'
 import { Loader2, CheckCircle2, ShieldCheck, ArrowRight, ArrowLeft } from 'lucide-react'
 import { dark, typo, font, radius } from '../_lib/tokens'
@@ -105,7 +104,6 @@ function validate(d: FormData): Errors {
 // validação, IBGE, UTM, tracking, event_id, is_mql.
 export function LeadForm() {
   const reduce = useSafeReducedMotion()
-  const router = useRouter()
   const [data, setData] = useState<FormData>(EMPTY)
   const [errors, setErrors] = useState<Errors>({})
   const [status, setStatus] = useState<'idle' | 'submitting' | 'success' | 'error'>('idle')
@@ -231,11 +229,14 @@ export function LeadForm() {
       })
       // Redireciona para a página de obrigado conforme o veredito de MQL do
       // SERVIDOR. URLs separadas habilitam metas de conversão por URL (Google/
-      // Meta) e otimização value-based rumo ao lead que vale. Os eventos de
-      // conversão já dispararam acima (dedup por eventId); a navegação é SPA
-      // (soft nav), então os beacons em voo não são cortados. Mantemos o status
-      // em 'submitting' — o form desmonta na navegação.
-      router.push(body?.is_mql === true ? '/obrigado-touros-mql' : '/obrigado-touros-lead')
+      // Meta). Navegação HARD (location) de propósito: um load completo da
+      // página de obrigado dispara o gatilho Page View do GTM na URL de obrigado
+      // — é lá que a tag de conversão (fb_conversions_mpi) roda. Uma navegação
+      // SPA (router.push) NÃO recarrega o GTM e o Page View não dispararia.
+      // Mantemos o status em 'submitting' — o form desmonta na navegação.
+      window.location.assign(
+        body?.is_mql === true ? '/obrigado-touros-mql' : '/obrigado-touros-lead',
+      )
     } catch (err) {
       setStatus('error')
       setServerError(err instanceof Error ? err.message : 'Falha ao enviar.')
