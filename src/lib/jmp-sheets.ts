@@ -1636,6 +1636,44 @@ function isTourosTestLead(nome: string, flagTeste: string): boolean {
 }
 
 /**
+ * Deixa a aba usável desde o primeiro dia: cabeçalho congelado e em negrito +
+ * filtro já ligado (a aba existe justamente para a equipe filtrar/ordenar).
+ * Só roda na CRIAÇÃO — depois disso a formatação é da equipe.
+ */
+export async function formatTourosTab(
+  sheets: SheetsClient, spreadsheetId: string, tab: string,
+): Promise<void> {
+  const sheetId = await getTabSheetId(sheets, spreadsheetId, tab)
+  await sheets.spreadsheets.batchUpdate({
+    spreadsheetId,
+    requestBody: {
+      requests: [
+        {
+          updateSheetProperties: {
+            properties: { sheetId, gridProperties: { frozenRowCount: 1 } },
+            fields: 'gridProperties.frozenRowCount',
+          },
+        },
+        {
+          repeatCell: {
+            range: { sheetId, startRowIndex: 0, endRowIndex: 1 },
+            cell: {
+              userEnteredFormat: {
+                textFormat: { bold: true },
+                backgroundColor: { red: 0.93, green: 0.93, blue: 0.93 },
+              },
+            },
+            fields: 'userEnteredFormat(textFormat,backgroundColor)',
+          },
+        },
+        // Sem endRowIndex: o filtro passa a valer também para as linhas novas.
+        { setBasicFilter: { filter: { range: { sheetId, startRowIndex: 0 } } } },
+      ],
+    },
+  })
+}
+
+/**
  * Garante a aba + todas as colunas de TOUROS_HEADER. Cria a aba se faltar e
  * ACRESCENTA no fim as colunas ausentes — nunca sobrescreve/reordena o que já
  * existe (a equipe pode ter criado colunas próprias).
@@ -1648,6 +1686,13 @@ async function ensureTourosLayout(
       spreadsheetId,
       requestBody: { requests: [{ addSheet: { properties: { title: tab } } }] },
     })
+    await sheets.spreadsheets.values.update({
+      spreadsheetId,
+      range: `${tab}!A1:${columnName(TOUROS_HEADER.length)}1`,
+      valueInputOption: 'RAW',
+      requestBody: { values: [[...TOUROS_HEADER]] },
+    })
+    await formatTourosTab(sheets, spreadsheetId, tab)
   }
   const headerRow = await readHeaderRow(sheets, spreadsheetId, tab)
   const next = headerRow.some(Boolean) ? [...headerRow] : [...TOUROS_HEADER]
