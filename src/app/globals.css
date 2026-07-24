@@ -68,11 +68,16 @@
   -webkit-tap-highlight-color: transparent;
 }
 
-/* Reset apenas para tags estruturais (NÃO universal — Tailwind padding/margin
-   precisa funcionar normalmente em elements como divs/buttons). */
-html, body, h1, h2, h3, h4, h5, h6, p, ul, ol, li, figure, blockquote, dl, dd {
-  margin: 0;
-  padding: 0;
+/* Reset de tags estruturais como DEFAULT, dentro de @layer base — assim as
+   utilitárias do Tailwind (mt-*, py-*, etc.) VENCEM este reset nas próprias
+   tags que ele zera (h1-h6, p, ul, li...). Sem o @layer, esta regra (sem
+   camada) vencia as utilitárias e o padding/margin do Tailwind era ignorado
+   nesses elementos — mesmo padrão já aplicado ao reset de campos abaixo. */
+@layer base {
+  html, body, h1, h2, h3, h4, h5, h6, p, ul, ol, li, figure, blockquote, dl, dd {
+    margin: 0;
+    padding: 0;
+  }
 }
 
 html {
