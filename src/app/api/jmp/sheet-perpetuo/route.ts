@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { syncBulaLeadsToPerpetuoTab, syncEaoLeadsToTab } from '@/lib/jmp-sheets'
+import { syncBulaLeadsToPerpetuoTab, syncEaoLeadsToTab, syncTourosLandingTabs } from '@/lib/jmp-sheets'
 
 export const maxDuration = 60
 
@@ -29,7 +29,14 @@ async function run(req: NextRequest) {
       console.error('[sheet-perpetuo] Leads EAO falhou:', e instanceof Error ? e.message : e)
       return { appended: 0, total: 0, skipped: 0, reason: 'error' as const }
     })
-    return NextResponse.json({ ok: true, ...result, eao })
+    // Abas de trabalho da campanha de touros (geral + Douglas + João Antônio).
+    // Também best-effort: é uma "vista" da aba-arquivo, nunca pode derrubar o
+    // espelho principal.
+    const touros = await syncTourosLandingTabs().catch(e => {
+      console.error('[sheet-perpetuo] abas touros falharam:', e instanceof Error ? e.message : e)
+      return { total: 0, appended: {}, semUf: 0, reason: 'error' as const }
+    })
+    return NextResponse.json({ ok: true, ...result, eao, touros })
   } catch (e) {
     // Sem isso o cron só vê "500" e o erro real fica escondido nos logs.
     const message = e instanceof Error ? e.message : String(e)

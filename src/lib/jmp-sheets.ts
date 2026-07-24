@@ -1491,3 +1491,329 @@ export async function appendLeadToEaoSheet(lead: SheetLead): Promise<{ skipped: 
 
   return { skipped: false }
 }
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Abas de TRABALHO da campanha de touros (touros.bulaassessoria.com)
+//
+// A "LEADS BULA - PERPETUO" é a aba-arquivo: recebe TODOS os leads (Meta +
+// landing) e ninguém mexe nela — filtrar/ordenar/anotar lá arrisca o append.
+// Estas três abas são cópias operacionais, alimentadas só com os leads que
+// entraram pelo FORMULÁRIO DA LANDING de touros:
+//
+//   • "LEADS TOUROS"        → todos os leads da campanha (visão completa)
+//   • "LEADS DOUGLAS"       → UFs das zonas do Douglas + do Leozinho
+//   • "LEADS JOAO ANTONIO"  → as demais UFs (Nordeste exc. MA + Sudeste)
+//
+// São APPEND-ONLY e idempotentes pelo Lead ID: rodar de novo nunca duplica e
+// nunca reescreve linha existente — a equipe pode ordenar, filtrar, pintar e
+// preencher "Atendido por"/"Observações" à vontade que a próxima gravação só
+// acrescenta linhas no fim. Colunas extras criadas pela equipe são preservadas
+// (ensureTourosLayout só ACRESCENTA no fim o que faltar).
+// ─────────────────────────────────────────────────────────────────────────────
+
+export const LEADS_TOUROS_TAB = 'LEADS TOUROS'
+export const LEADS_TOUROS_DOUGLAS_TAB = 'LEADS DOUGLAS'
+export const LEADS_TOUROS_JOAO_TAB = 'LEADS JOAO ANTONIO'
+
+/** Marca as linhas da landing na aba-arquivo (form_name). Ver buildPerpetuoLandingRow. */
+export const TOUROS_FORM_NAME = 'Landing Touros — Funil Perpétuo'
+
+// Regra de zona → assessor (mesma de scripts/gera-planilha-por-assessor.mjs).
+const ZONA_NORTE = new Set(['AC', 'AM', 'AP', 'PA', 'RO', 'RR', 'TO'])
+const ZONA_NORDESTE = new Set(['AL', 'BA', 'CE', 'PB', 'PE', 'PI', 'RN', 'SE']) // MA é exceção → Douglas
+const ZONA_SUDESTE = new Set(['ES', 'MG', 'RJ', 'SP'])
+const ZONA_SUL = new Set(['PR', 'RS', 'SC'])
+const ZONA_CENTRO_OESTE = new Set(['DF', 'GO', 'MT', 'MS'])
+
+function zonaDaUF(uf: string): string {
+  const u = uf.trim().toUpperCase()
+  if (u === 'MA') return 'Maranhão'
+  if (ZONA_NORTE.has(u)) return 'Norte'
+  if (ZONA_NORDESTE.has(u)) return 'Nordeste'
+  if (ZONA_SUDESTE.has(u)) return 'Sudeste'
+  if (ZONA_SUL.has(u)) return 'Sul'
+  if (ZONA_CENTRO_OESTE.has(u)) return 'Centro-Oeste'
+  return ''
+}
+
+/**
+ * Aba de destino do lead pela UF (divisão pedida em 24/07):
+ *   Douglas      ← zona do Douglas (Norte + MA) + zona do Leozinho (C-Oeste + Sul)
+ *   João Antônio ← o resto (Nordeste exc. MA + Sudeste)
+ * UF vazia/desconhecida não entra em nenhuma das duas — só na aba geral, para
+ * a operação distribuir na mão (e para o lead não sumir).
+ */
+function tourosTabDaUF(uf: string | null | undefined): string | null {
+  const u = String(uf ?? '').trim().toUpperCase()
+  if (!u) return null
+  if (u === 'MA' || ZONA_NORTE.has(u) || ZONA_CENTRO_OESTE.has(u) || ZONA_SUL.has(u)) {
+    return LEADS_TOUROS_DOUGLAS_TAB
+  }
+  if (ZONA_NORDESTE.has(u) || ZONA_SUDESTE.has(u)) return LEADS_TOUROS_JOAO_TAB
+  return null
+}
+
+// Cabeçalho enxuto de operação: sem o dump cru do Meta que existe no PERPETUO.
+// "Atendido por" e "Observações" são da equipe — o código nunca os escreve.
+const TOUROS_HEADER = [
+  'Atendido por', 'Data', 'Nome', 'WhatsApp', 'E-mail', 'UF', 'Zona', 'Cidade',
+  'Momento', 'Cabeças', 'Inscrição Estadual', 'Qtd. de touros', 'Lead ID',
+  'utm_source', 'utm_campaign', 'utm_content', 'ad-id', 'Observações',
+] as const
+
+/** Campos de um lead da landing, já normalizados, para montar a linha das abas. */
+interface TourosLeadRow {
+  data: string
+  nome: string
+  whatsapp: string
+  email: string
+  uf: string
+  cidade: string
+  momento: string
+  cabecas: string
+  inscricaoEstadual: string
+  qtdTouros: string
+  leadId: string
+  utmSource: string
+  utmCampaign: string
+  utmContent: string
+  adId: string
+}
+
+/** Monta a linha alinhada ao cabeçalho REAL da aba (resolve por nome de coluna). */
+function buildTourosRow(lead: TourosLeadRow, header: string[]): string[] {
+  const values = new Map<string, string>([
+    ['data', lead.data],
+    ['nome', lead.nome],
+    ['whatsapp', lead.whatsapp],
+    ['email', lead.email],
+    ['uf', lead.uf],
+    ['zona', zonaDaUF(lead.uf)],
+    ['cidade', lead.cidade],
+    ['momento', lead.momento],
+    ['cabecas', lead.cabecas],
+    ['inscricaoestadual', lead.inscricaoEstadual],
+    ['qtddetouros', lead.qtdTouros],
+    ['leadid', lead.leadId],
+    ['utmsource', lead.utmSource],
+    ['utmcampaign', lead.utmCampaign],
+    ['utmcontent', lead.utmContent],
+    ['adid', lead.adId],
+  ])
+  return header.map(h => values.get(normalizeHeaderText(h)) ?? '')
+}
+
+/** Lead da landing → shape das abas de trabalho. */
+function tourosRowFromLead(lead: SheetLead): TourosLeadRow {
+  return {
+    data: fmtDate(lead.createdAt ?? new Date()),
+    nome: lead.nome,
+    whatsapp: lead.whatsapp,
+    email: lead.email,
+    uf: String(lead.uf ?? '').trim().toUpperCase(),
+    cidade: lead.cidade ?? '',
+    momento: lead.momento ?? '',
+    cabecas: lead.cabecas ?? '',
+    inscricaoEstadual: lead.inscricaoEstadual ?? '',
+    qtdTouros: lead.oQueBusca ?? '',
+    leadId: lead.leadId ?? '',
+    utmSource: lead.utm_source ?? '',
+    utmCampaign: lead.utm_campaign ?? '',
+    utmContent: lead.utm_content ?? '',
+    adId: lead.ad_id ?? '',
+  }
+}
+
+/**
+ * Leads de teste não vão para as abas de trabalho — a equipe não deve ligar
+ * para "teste". Pega tanto a flag do Meta quanto os nomes que a gente mesmo
+ * usa nos testes do formulário.
+ */
+function isTourosTestLead(nome: string, flagTeste: string): boolean {
+  if (String(flagTeste ?? '').trim().toLowerCase() === 'sim') return true
+  const n = normalizeHeaderText(nome)
+  return !n || n.startsWith('teste') || n.startsWith('test') || n.includes('testeclaude')
+}
+
+/**
+ * Garante a aba + todas as colunas de TOUROS_HEADER. Cria a aba se faltar e
+ * ACRESCENTA no fim as colunas ausentes — nunca sobrescreve/reordena o que já
+ * existe (a equipe pode ter criado colunas próprias).
+ */
+async function ensureTourosLayout(
+  sheets: SheetsClient, spreadsheetId: string, tab: string, existingTitles: (string | null | undefined)[],
+): Promise<string[]> {
+  if (!existingTitles.includes(tab)) {
+    await sheets.spreadsheets.batchUpdate({
+      spreadsheetId,
+      requestBody: { requests: [{ addSheet: { properties: { title: tab } } }] },
+    })
+  }
+  const headerRow = await readHeaderRow(sheets, spreadsheetId, tab)
+  const next = headerRow.some(Boolean) ? [...headerRow] : [...TOUROS_HEADER]
+  for (const header of TOUROS_HEADER) {
+    if (next.some(h => normalizeHeaderText(String(h ?? '')) === normalizeHeaderText(header))) continue
+    next.push(header)
+  }
+  if (next.join(' ') !== headerRow.join(' ')) {
+    await updateHeaderRow(sheets, spreadsheetId, next, tab)
+  }
+  return next
+}
+
+/** Lead IDs já presentes na aba (idempotência do append). */
+async function tourosSeenIds(
+  sheets: SheetsClient, spreadsheetId: string, tab: string, header: string[],
+): Promise<Set<string>> {
+  const idCol = header.map(normalizeHeaderText).indexOf('leadid')
+  if (idCol < 0) return new Set()
+  const rows = ((await sheets.spreadsheets.values.get({
+    spreadsheetId,
+    range: `${tab}!A2:${columnName(header.length)}`,
+  })).data.values ?? []) as string[][]
+  const seen = new Set<string>()
+  for (const r of rows) {
+    const id = String(r[idCol] ?? '').trim()
+    if (id) seen.add(id)
+  }
+  return seen
+}
+
+async function appendTourosRows(
+  sheets: SheetsClient, spreadsheetId: string, tab: string, rows: string[][],
+): Promise<void> {
+  if (!rows.length) return
+  const sheetId = await getTabSheetId(sheets, spreadsheetId, tab)
+  await sheets.spreadsheets.batchUpdate({
+    spreadsheetId,
+    requestBody: {
+      requests: [{
+        appendCells: {
+          sheetId,
+          rows: rows.map(r => ({ values: r.map(v => ({ userEnteredValue: { stringValue: String(v ?? '') } })) })),
+          fields: 'userEnteredValue',
+        },
+      }],
+    },
+  })
+}
+
+/**
+ * Caminho rápido: grava o lead recém-cadastrado na landing nas abas de
+ * trabalho, logo depois de ele entrar na aba-arquivo. Best-effort — quem
+ * garante o registro do lead é o append no PERPETUO; se isto falhar, o
+ * syncTourosLandingTabs() (cron) recupera na próxima passada.
+ */
+export async function appendLeadToTourosTabs(
+  lead: SheetLead,
+): Promise<{ skipped: boolean; reason?: string; tabs?: string[] }> {
+  const info = await getStoredInfo()
+  if (!info) return { skipped: true, reason: 'not_provisioned' }
+  const auth = getAuth()
+  if (!auth) return { skipped: true, reason: 'no_credentials' }
+
+  const row = tourosRowFromLead(lead)
+  if (isTourosTestLead(row.nome, 'Não')) return { skipped: true, reason: 'test_lead' }
+
+  const sheets = google.sheets({ version: 'v4', auth })
+  const meta = await sheets.spreadsheets.get({ spreadsheetId: info.spreadsheetId, includeGridData: false })
+  const titles = (meta.data.sheets ?? []).map(s => s.properties?.title)
+
+  const alvo = tourosTabDaUF(row.uf)
+  const destinos = alvo ? [LEADS_TOUROS_TAB, alvo] : [LEADS_TOUROS_TAB]
+  const gravadas: string[] = []
+  for (const tab of destinos) {
+    const header = await ensureTourosLayout(sheets, info.spreadsheetId, tab, titles)
+    if (row.leadId) {
+      const seen = await tourosSeenIds(sheets, info.spreadsheetId, tab, header)
+      if (seen.has(row.leadId)) continue
+    }
+    await appendTourosRows(sheets, info.spreadsheetId, tab, [buildTourosRow(row, header)])
+    gravadas.push(tab)
+  }
+  return { skipped: false, tabs: gravadas }
+}
+
+/**
+ * Auto-cura das abas de trabalho: relê a aba-arquivo, separa os leads que
+ * vieram do formulário da landing de touros e acrescenta nas 3 abas o que
+ * ainda não está lá. Idempotente pelo Lead ID — serve de backfill (leads
+ * antigos) e de rede de segurança (se o append do cadastro falhar).
+ */
+export async function syncTourosLandingTabs(): Promise<{
+  total: number
+  appended: Record<string, number>
+  semUf: number
+  reason?: string
+}> {
+  const vazio = {
+    [LEADS_TOUROS_TAB]: 0, [LEADS_TOUROS_DOUGLAS_TAB]: 0, [LEADS_TOUROS_JOAO_TAB]: 0,
+  }
+  const info = await getStoredInfo()
+  if (!info) return { total: 0, appended: vazio, semUf: 0, reason: 'not_provisioned' }
+  const auth = getAuth()
+  if (!auth) return { total: 0, appended: vazio, semUf: 0, reason: 'no_credentials' }
+
+  const sheets = google.sheets({ version: 'v4', auth })
+  const meta = await sheets.spreadsheets.get({ spreadsheetId: info.spreadsheetId, includeGridData: false })
+  const titles = (meta.data.sheets ?? []).map(s => s.properties?.title)
+  if (!titles.includes(LEADS_BULA_PERPETUO_TAB)) {
+    return { total: 0, appended: vazio, semUf: 0, reason: 'source_tab_missing' }
+  }
+
+  // Fonte: a aba-arquivo (é lá que a landing grava). Somente LEITURA.
+  const src = ((await sheets.spreadsheets.values.get({
+    spreadsheetId: info.spreadsheetId,
+    range: `${LEADS_BULA_PERPETUO_TAB}!A1:${columnName(HEADER_READ_COLUMNS)}`,
+  })).data.values ?? []) as string[][]
+  const srcHeader = (src[0] ?? []).map(h => normalizeHeaderText(String(h ?? '')))
+  const col = (name: string) => srcHeader.indexOf(normalizeHeaderText(name))
+  const iForm = col('form_name')
+  if (iForm < 0) return { total: 0, appended: vazio, semUf: 0, reason: 'form_name_column_missing' }
+  const at = (r: string[], i: number) => (i >= 0 ? String(r[i] ?? '').trim() : '')
+
+  const idx = {
+    data: col('Data'), nome: col('Nome'), email: col('E-mail'), whatsapp: col('WhatsApp'),
+    uf: col('UF'), cidade: col('Cidade'), momento: col('Momento'), cabecas: col('Cabeças'),
+    ie: col('Inscrição Estadual'), qtd: col('Qtd. desejada'), leadId: col('Lead ID'),
+    utmSource: col('utm_source'), utmCampaign: col('utm_campaign'), utmContent: col('utm_content'),
+    adId: col('ad-id'), teste: col('lead de teste'),
+  }
+
+  const leads: TourosLeadRow[] = []
+  let semUf = 0
+  for (const r of src.slice(1)) {
+    if (!r.some(c => String(c ?? '').trim())) continue
+    if (normalizeHeaderText(at(r, iForm)) !== normalizeHeaderText(TOUROS_FORM_NAME)) continue
+    const nome = at(r, idx.nome)
+    if (isTourosTestLead(nome, at(r, idx.teste))) continue
+    const uf = at(r, idx.uf).toUpperCase()
+    if (!tourosTabDaUF(uf)) semUf++
+    leads.push({
+      data: at(r, idx.data), nome, whatsapp: at(r, idx.whatsapp), email: at(r, idx.email),
+      uf, cidade: at(r, idx.cidade), momento: at(r, idx.momento), cabecas: at(r, idx.cabecas),
+      inscricaoEstadual: at(r, idx.ie), qtdTouros: at(r, idx.qtd), leadId: at(r, idx.leadId),
+      utmSource: at(r, idx.utmSource), utmCampaign: at(r, idx.utmCampaign),
+      utmContent: at(r, idx.utmContent), adId: at(r, idx.adId),
+    })
+  }
+
+  const appended: Record<string, number> = { ...vazio }
+  for (const tab of [LEADS_TOUROS_TAB, LEADS_TOUROS_DOUGLAS_TAB, LEADS_TOUROS_JOAO_TAB]) {
+    const doTab = tab === LEADS_TOUROS_TAB ? leads : leads.filter(l => tourosTabDaUF(l.uf) === tab)
+    const header = await ensureTourosLayout(sheets, info.spreadsheetId, tab, titles)
+    const seen = await tourosSeenIds(sheets, info.spreadsheetId, tab, header)
+    const fresh: string[][] = []
+    for (const lead of doTab) {
+      if (lead.leadId && seen.has(lead.leadId)) continue
+      if (lead.leadId) seen.add(lead.leadId)
+      fresh.push(buildTourosRow(lead, header))
+    }
+    await appendTourosRows(sheets, info.spreadsheetId, tab, fresh)
+    appended[tab] = fresh.length
+  }
+
+  const novos = Object.values(appended).reduce((a, b) => a + b, 0)
+  if (novos) console.log(`[jmp-sheets] abas touros: ${JSON.stringify(appended)} (de ${leads.length} leads da landing)`)
+  return { total: leads.length, appended, semUf }
+}

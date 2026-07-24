@@ -1,6 +1,6 @@
 import { NextRequest } from 'next/server'
 import { fail, ok } from '@/lib/respond'
-import { appendLeadToPerpetuoSheet } from '@/lib/jmp-sheets'
+import { appendLeadToPerpetuoSheet, appendLeadToTourosTabs } from '@/lib/jmp-sheets'
 import { evaluateMql, DEFAULT_JMP_MQL_RULE } from '@/lib/crm-types'
 
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
@@ -116,30 +116,32 @@ export async function POST(req: NextRequest) {
 
   const createdAt = new Date()
 
+  const sheetLead = {
+    nome,
+    email,
+    whatsapp,
+    uf,
+    cidade,
+    momento,
+    cabecas,
+    interesse: 'touros-po',
+    oQueBusca: quantidadeTouros,
+    inscricaoEstadual: temInscricaoEstadual,
+    utm_source: utmAttr.source,
+    utm_medium: utmAttr.medium,
+    utm_campaign: utmAttr.campaign,
+    utm_content: utmAttr.content,
+    ad_id: utmAttr.ad_id,
+    leadId: eventId,
+    createdAt,
+    whatsappConsent,
+  }
+
   // A planilha agora é o ÚNICO registro do lead — o append deixa de ser
   // best-effort: se o Google falhar, devolvemos erro e o lead pode reenviar
   // (o form preserva os dados). Duplicata conta como sucesso (já está lá).
   try {
-    const sheetResult = await appendLeadToPerpetuoSheet({
-      nome,
-      email,
-      whatsapp,
-      uf,
-      cidade,
-      momento,
-      cabecas,
-      interesse: 'touros-po',
-      oQueBusca: quantidadeTouros,
-      inscricaoEstadual: temInscricaoEstadual,
-      utm_source: utmAttr.source,
-      utm_medium: utmAttr.medium,
-      utm_campaign: utmAttr.campaign,
-      utm_content: utmAttr.content,
-      ad_id: utmAttr.ad_id,
-      leadId: eventId,
-      createdAt,
-      whatsappConsent,
-    })
+    const sheetResult = await appendLeadToPerpetuoSheet(sheetLead)
     if (sheetResult.skipped && sheetResult.reason !== 'duplicate') {
       console.error('[touros lead] sheets append skipped:', sheetResult.reason)
       return fail('Não foi possível registrar o cadastro. Tente novamente.', 500)
@@ -147,6 +149,15 @@ export async function POST(req: NextRequest) {
   } catch (e) {
     console.error('[touros lead] sheets append failed:', e)
     return fail('Não foi possível registrar o cadastro. Tente novamente.', 500)
+  }
+
+  // Cópias de trabalho da campanha ("LEADS TOUROS" + a aba do assessor da UF).
+  // Best-effort de propósito: o lead JÁ está registrado na aba-arquivo acima —
+  // falha aqui não pode derrubar o cadastro, e o cron (sheet-perpetuo) refaz.
+  try {
+    await appendLeadToTourosTabs(sheetLead)
+  } catch (e) {
+    console.error('[touros lead] abas de trabalho falharam:', e)
   }
 
   // Devolve o veredito de MQL (fonte de verdade = servidor) para o client
