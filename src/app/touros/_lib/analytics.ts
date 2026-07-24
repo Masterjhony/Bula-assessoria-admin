@@ -46,6 +46,11 @@ const VALUE_MQL = 100
 const VALUE_NON_MQL = 10
 const CURRENCY = 'BRL'
 
+// Chave onde o submit guarda o payload da conversão para a página de obrigado
+// consumir (o Meta Lead / GA4 generate_lead dispara LÁ, não aqui — ver
+// trackLeadConversion / firePendingLeadConversion).
+const LEAD_STASH_KEY = 'touros_lead_conv'
+
 let started = false
 // posthog-js é carregado sob demanda para não pesar o bundle inicial.
 let posthog: typeof import('posthog-js').default | null = null
@@ -109,10 +114,13 @@ export function trackFunnel(
  * Diferencia MQL (≥100 cabeças + IE) via `value` — o algoritmo aprende a trazer
  * o lead que vale. `event_id` é o mesmo do CAPI server-side (dedup): a tag Meta
  * do GTM deve passá-lo como eventID.
- *  · PostHog: touros_lead_submitted (com is_mql para segmentar o funil).
- *  · dataLayer/GTM: evento `touros_lead` — a partir dele o GTM dispara UM Meta
- *    `Lead` (value/currency + eventID) e o GA4 `generate_lead` (value/currency).
- *    NÃO configurar CompleteRegistration junto para não contar em dobro.
+ *  · PostHog: touros_lead_submitted (dispara AQUI, no submit — com is_mql).
+ *  · dataLayer/GTM: a conversão `touros_lead` dispara na PÁGINA DE OBRIGADO
+ *    (pedido: gatilho na URL /obrigado-touros-*), não aqui. Guardamos o payload
+ *    no sessionStorage e firePendingLeadConversion() o empurra no mount de lá.
+ *    A partir do evento `touros_lead` o GTM dispara UM Meta `Lead` (value/
+ *    currency + eventID) e o GA4 `generate_lead`. NÃO configurar
+ *    CompleteRegistration junto para não contar em dobro.
  */
 export function trackLeadConversion(payload: {
   utm: Utm
@@ -120,6 +128,7 @@ export function trackLeadConversion(payload: {
   isMql?: boolean
   eventId?: string
 }) {
+  const win = w()
   const utmProps = payload.utm as unknown as Record<string, string>
   const value = payload.isMql ? VALUE_MQL : VALUE_NON_MQL
   const leadType = payload.isMql ? 'mql' : 'non_mql'
@@ -131,13 +140,56 @@ export function trackLeadConversion(payload: {
     ...utmProps,
   })
 
-  pushDataLayer({
-    event: 'touros_lead',
-    value,
-    currency: CURRENCY,
-    lead_type: leadType,
-    lead_id: payload.leadId ?? undefined,
-    event_id: payload.eventId ?? undefined,
-    ...utmProps,
-  })
+  // Guarda a conversão para a página de obrigado disparar. sessionStorage
+  // sobrevive à navegação SPA (mesmo domínio) e some ao fechar a aba. Só quem
+  // passou pelo form deixa esse rastro → hit direto na URL não gera conversão.
+  if (win) {
+    try {
+      win.sessionStorage.setItem(
+        LEAD_STASH_KEY,
+        JSON.stringify({
+          value,
+          currency: CURRENCY,
+          lead_type: leadType,
+          lead_id: payload.leadId ?? undefined,
+          event_id: payload.eventId ?? undefined,
+          ...utmProps,
+        }),
+      )
+    } catch {
+      /* storage indisponível (aba privada/quota) — sem conversão no obrigado */
+    }
+  }
+}
+
+/**
+ * Empurra o evento de conversão `touros_lead` ao dataLayer no MOUNT da página de
+ * obrigado, consumindo o payload guardado no submit. É daqui que o GTM aciona a
+ * tag de Meta Lead / GA4 generate_lead (gatilho: Custom Event `touros_lead`).
+ * NO-OP se não houver payload (hit direto na URL, refresh, bookmark) — assim não
+ * conta conversão fantasma. Dispara no máximo UMA vez por conversão (consome a
+ * chave). Chamar 1x no mount de /obrigado-touros-*.
+ */
+export function firePendingLeadConversion() {
+  const win = w()
+  if (!win) return
+  let raw: string | null = null
+  try {
+    raw = win.sessionStorage.getItem(LEAD_STASH_KEY)
+  } catch {
+    return
+  }
+  if (!raw) return
+  try {
+    win.sessionStorage.removeItem(LEAD_STASH_KEY)
+  } catch {
+    /* segue: melhor arriscar duplicar que perder a conversão */
+  }
+  let conv: Record<string, unknown>
+  try {
+    conv = JSON.parse(raw)
+  } catch {
+    return
+  }
+  pushDataLayer({ event: 'touros_lead', ...conv })
 }
