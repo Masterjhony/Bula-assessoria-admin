@@ -1,33 +1,44 @@
 // ─────────────────────────────────────────────────────────────────────────
-// Tracking & conversão da landing de touros — PostHog + Meta Pixel + GA4.
+// Tracking & conversão da landing de touros — PostHog + Google Tag Manager.
 //
-// Ponto ÚNICO de disparo: o Formulario chama trackLeadConversion() no sucesso e
-// os três provedores recebem o evento. Todos fazem NO-OP se a env do ID estiver
-// vazia — deploy sem IDs configurados não quebra a página.
+// GA4 e Meta Pixel NÃO são disparados aqui: as tags vivem DENTRO do GTM
+// (container do subdomínio, ver _components/GoogleTagManager). Este módulo só
+// empurra eventos semânticos para o `dataLayer` — as tags do GTM disparam a
+// partir deles. Assim não há disparo dobrado (client + GTM).
+//
+// PostHog continua direto (produto/heatmaps, fora do GTM). NO-OP se a env do
+// key estiver vazia — deploy sem PostHog configurado não quebra a página.
 //
 // PRINCÍPIO (auditoria de mídia): não otimizar por "cadastrou", e sim por
-// "cadastrou E vale" (MQL = ≥100 cabeças + IE). Por isso o evento carrega
-// `value`/`currency` diferenciado por MQL — o algoritmo aprende a trazer o lead
-// certo mesmo com pouco volume (value-based bidding). O veredito de MQL vem do
-// SERVIDOR (route.ts), não é recalculado no client.
+// "cadastrou E vale" (MQL = ≥100 cabeças + IE). Por isso o evento de conversão
+// carrega `value`/`currency` diferenciado por MQL — o algoritmo aprende a trazer
+// o lead certo mesmo com pouco volume (value-based bidding). O veredito de MQL
+// vem do SERVIDOR (route.ts), não é recalculado no client. O `event_id` permite
+// dedup com o CAPI server-side (a tag Meta do GTM deve usá-lo como eventID).
 //
-// IDs via env (NEXT_PUBLIC_*), configurados no Vercel por ambiente:
+// IDs via env (NEXT_PUBLIC_*):
 //   NEXT_PUBLIC_POSTHOG_KEY / NEXT_PUBLIC_POSTHOG_HOST
-//   NEXT_PUBLIC_META_PIXEL_ID
-//   NEXT_PUBLIC_GA4_ID
+//   (o ID do GTM fica em NEXT_PUBLIC_GTM_ID, lido no componente GoogleTagManager)
 // ─────────────────────────────────────────────────────────────────────────
 import type { Utm } from './utm'
 
-/* Acesso não-tipado às globais dos SDKs (fbq/gtag/dataLayer) — evita conflito
-   com augmentations de Window de outras partes do app. */
+/* Acesso não-tipado às globais (dataLayer) — evita conflito com augmentations
+   de Window de outras partes do app. */
 function w(): any {
   return typeof window === 'undefined' ? undefined : window
 }
 
+/** Empurra um evento para o dataLayer do GTM. Garante o array (o snippet do GTM
+    também o inicializa, mas pode ainda não ter executado no primeiro push). */
+function pushDataLayer(payload: Record<string, unknown>) {
+  const win = w()
+  if (!win) return
+  win.dataLayer = win.dataLayer || []
+  win.dataLayer.push(payload)
+}
+
 const POSTHOG_KEY = process.env.NEXT_PUBLIC_POSTHOG_KEY
 const POSTHOG_HOST = process.env.NEXT_PUBLIC_POSTHOG_HOST || 'https://us.i.posthog.com'
-const META_PIXEL_ID = process.env.NEXT_PUBLIC_META_PIXEL_ID
-const GA4_ID = process.env.NEXT_PUBLIC_GA4_ID
 
 // Peso de valor por qualidade do lead (proxy p/ value-based bidding). Ajustar
 // os pesos com o cliente; o que importa é o GRADIENTE MQL > não-MQL.
@@ -60,82 +71,48 @@ async function loadPosthog() {
   return posthog
 }
 
-function loadMetaPixel() {
-  const win = w()
-  if (!win || !META_PIXEL_ID || win.fbq) return
-  /* Snippet oficial do Meta Pixel, inline. */
-  ;(function (f: any, b: Document, e: string, v: string) {
-    if (f.fbq) return
-    const n: any = (f.fbq = function () {
-      n.callMethod ? n.callMethod.apply(n, arguments) : n.queue.push(arguments)
-    })
-    if (!f._fbq) f._fbq = n
-    n.push = n
-    n.loaded = true
-    n.version = '2.0'
-    n.queue = []
-    const t = b.createElement(e) as HTMLScriptElement
-    t.async = true
-    t.src = v
-    const s = b.getElementsByTagName(e)[0]
-    s.parentNode?.insertBefore(t, s)
-  })(win, document, 'script', 'https://connect.facebook.net/en_US/fbevents.js')
-  win.fbq('init', META_PIXEL_ID)
-}
-
-function loadGa4() {
-  const win = w()
-  if (!win || !GA4_ID || win.gtag) return
-  const s = document.createElement('script')
-  s.async = true
-  s.src = `https://www.googletagmanager.com/gtag/js?id=${GA4_ID}`
-  document.head.appendChild(s)
-  win.dataLayer = win.dataLayer || []
-  // Shim oficial do gtag: empurra o objeto `arguments` (NÃO um array) — o
-  // gtag.js só interpreta comandos (config/event) nesse formato.
-  win.gtag = function gtag() {
-    win.dataLayer.push(arguments)
-  }
-  win.gtag('js', new Date())
-  win.gtag('config', GA4_ID, { send_page_view: false })
-}
-
-/** Inicializa os provedores e registra o pageview. Chamar 1x no mount da rota. */
+/** Inicializa os provedores e registra o pageview. Chamar 1x no mount da rota.
+    O pageview de GA4/Meta é responsabilidade das tags do GTM (gatilho All Pages);
+    aqui só registramos no PostHog e sinalizamos o view ao dataLayer com as UTMs. */
 export async function initAnalytics(utm: Utm) {
   const win = w()
   if (started || !win) return
   started = true
 
-  loadMetaPixel()
-  loadGa4()
   const ph = await loadPosthog()
-
   const utmProps = utm as unknown as Record<string, string>
+
   ph?.capture('touros_view', { ...utmProps })
-  win.fbq?.('track', 'PageView')
-  win.gtag?.('event', 'page_view', { page_title: 'Landing Touros', ...utmProps })
+  pushDataLayer({ event: 'touros_view', ...utmProps })
 }
 
-/** Micro-conversões do funil. Vão ao PostHog e, quando fizer sentido, ao Meta/GA4. */
+/** Micro-conversões do funil. Vão ao PostHog e ao dataLayer (GTM). `opts.meta`/
+    `opts.ga` viram hints no payload — a tag correspondente no GTM decide se e
+    como mapeia (ex.: gatilho no evento `touros_form_started` → Meta
+    InitiateCheckout). */
 export function trackFunnel(
   event: string,
   props?: Record<string, unknown>,
   opts?: { meta?: string; ga?: string },
 ) {
-  const win = w()
   posthog?.capture(event, props)
-  if (opts?.meta) win?.fbq?.('trackCustom', opts.meta, props)
-  if (opts?.ga) win?.gtag?.('event', opts.ga, props)
+  pushDataLayer({
+    event,
+    ...props,
+    ...(opts?.meta ? { meta_event: opts.meta } : {}),
+    ...(opts?.ga ? { ga_event: opts.ga } : {}),
+  })
 }
 
 /**
  * Conversão de cadastro. Disparo ÚNICO chamado no submit bem-sucedido do form.
  * Diferencia MQL (≥100 cabeças + IE) via `value` — o algoritmo aprende a trazer
- * o lead que vale. `eventId` é o mesmo do futuro CAPI server-side (dedup).
- *  · Meta: UM evento `Lead` (com value/currency + eventID) — NÃO dispara
- *    CompleteRegistration junto para não contar em dobro.
- *  · GA4: generate_lead (value/currency + lead_type).
+ * o lead que vale. `event_id` é o mesmo do CAPI server-side (dedup): a tag Meta
+ * do GTM deve passá-lo como eventID.
  *  · PostHog: touros_lead_submitted (com is_mql para segmentar o funil).
+ *  · dataLayer/GTM: evento `touros_lead` — a partir dele o GTM dispara UM Meta
+ *    `Lead` (value/currency + eventID) e o GA4 `generate_lead` (value/currency).
+ *    NÃO configurar CompleteRegistration junto para não contar em dobro.
  */
 export function trackLeadConversion(payload: {
   utm: Utm
@@ -143,10 +120,9 @@ export function trackLeadConversion(payload: {
   isMql?: boolean
   eventId?: string
 }) {
-  const win = w()
-  if (!win) return
   const utmProps = payload.utm as unknown as Record<string, string>
   const value = payload.isMql ? VALUE_MQL : VALUE_NON_MQL
+  const leadType = payload.isMql ? 'mql' : 'non_mql'
 
   posthog?.capture('touros_lead_submitted', {
     lead_id: payload.leadId ?? undefined,
@@ -155,18 +131,13 @@ export function trackLeadConversion(payload: {
     ...utmProps,
   })
 
-  win.fbq?.(
-    'track',
-    'Lead',
-    { value, currency: CURRENCY, lead_type: payload.isMql ? 'mql' : 'non_mql' },
-    payload.eventId ? { eventID: payload.eventId } : undefined,
-  )
-
-  win.gtag?.('event', 'generate_lead', {
+  pushDataLayer({
+    event: 'touros_lead',
     value,
     currency: CURRENCY,
-    lead_type: payload.isMql ? 'mql' : 'non_mql',
+    lead_type: leadType,
     lead_id: payload.leadId ?? undefined,
+    event_id: payload.eventId ?? undefined,
     ...utmProps,
   })
 }
