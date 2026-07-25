@@ -1504,16 +1504,29 @@ export async function appendLeadToEaoSheet(lead: SheetLead): Promise<{ skipped: 
 //   • "LEADS DOUGLAS"       → UFs das zonas do Douglas + do Leozinho
 //   • "LEADS JOAO ANTONIO"  → as demais UFs (Nordeste exc. MA + Sudeste)
 //
-// São APPEND-ONLY e idempotentes pelo Lead ID: rodar de novo nunca duplica e
-// nunca reescreve linha existente — a equipe pode ordenar, filtrar, pintar e
-// preencher "Atendido por"/"Observações" à vontade que a próxima gravação só
-// acrescenta linhas no fim. Colunas extras criadas pela equipe são preservadas
-// (ensureTourosLayout só ACRESCENTA no fim o que faltar).
+// Só ACRESCENTAM linhas e são idempotentes pelo Lead ID: rodar de novo nunca
+// duplica e nunca reescreve linha existente — a equipe pode ordenar, filtrar,
+// pintar e preencher "Atendido por"/"Observações" à vontade. Colunas extras
+// criadas pela equipe são preservadas (ensureTourosLayout só ACRESCENTA no fim
+// o que faltar).
+//
+// Onde a linha nova entra depende da aba (ver TOUROS_TABS_DESC): a "LEADS
+// TOUROS" recebe no TOPO (mais recente primeiro, pedido da equipe 25/07); as
+// outras duas seguem no fim.
 // ─────────────────────────────────────────────────────────────────────────────
 
 export const LEADS_TOUROS_TAB = 'LEADS TOUROS'
 export const LEADS_TOUROS_DOUGLAS_TAB = 'LEADS DOUGLAS'
 export const LEADS_TOUROS_JOAO_TAB = 'LEADS JOAO ANTONIO'
+
+/**
+ * Abas que ficam em ordem DECRESCENTE (pedido da equipe 25/07): o lead novo
+ * entra na linha 2, empurrando os antigos para baixo — quem abre a aba vê
+ * primeiro quem acabou de se cadastrar. As demais seguem append-only no fim.
+ * Para virar outra aba, basta acrescentá-la aqui (a ordem já existente na aba
+ * se inverte uma única vez com scripts/ordena-aba-leads-touros-desc.mjs).
+ */
+const TOUROS_TABS_DESC = new Set<string>([LEADS_TOUROS_TAB])
 
 /** Marca as linhas da landing na aba-arquivo (form_name). Ver buildPerpetuoLandingRow. */
 export const TOUROS_FORM_NAME = 'Landing Touros — Funil Perpétuo'
@@ -1744,6 +1757,66 @@ async function appendTourosRows(
 }
 
 /**
+ * Insere as linhas LOGO ABAIXO DO CABEÇALHO (linha 2) — é assim que as abas
+ * em ordem decrescente recebem lead novo: o mais recente sempre em cima.
+ * `rows` deve vir do mais novo para o mais antigo.
+ *
+ * Insere de verdade (insertDimension), não sobrescreve: as linhas existentes
+ * descem inteiras, com cor/nota/colunas da equipe. O fundo das linhas novas é
+ * zerado de propósito — sem isso elas herdariam a cor da linha que estava no
+ * topo, e nessas abas cor = status marcado pela equipe.
+ */
+async function insertTourosRowsAtTop(
+  sheets: SheetsClient, spreadsheetId: string, tab: string, rows: string[][],
+): Promise<void> {
+  if (!rows.length) return
+  const sheetId = await getTabSheetId(sheets, spreadsheetId, tab)
+  await sheets.spreadsheets.batchUpdate({
+    spreadsheetId,
+    requestBody: {
+      requests: [
+        {
+          insertDimension: {
+            range: { sheetId, dimension: 'ROWS', startIndex: 1, endIndex: 1 + rows.length },
+            inheritFromBefore: false,
+          },
+        },
+        {
+          updateCells: {
+            start: { sheetId, rowIndex: 1, columnIndex: 0 },
+            rows: rows.map(r => ({ values: r.map(v => ({ userEnteredValue: { stringValue: String(v ?? '') } })) })),
+            fields: 'userEnteredValue',
+          },
+        },
+        {
+          repeatCell: {
+            range: { sheetId, startRowIndex: 1, endRowIndex: 1 + rows.length },
+            cell: { userEnteredFormat: { backgroundColorStyle: { themeColor: 'BACKGROUND' } } },
+            fields: 'userEnteredFormat.backgroundColorStyle',
+          },
+        },
+      ],
+    },
+  })
+}
+
+/**
+ * Grava as linhas na aba respeitando a ordem dela: as abas de TOUROS_TABS_DESC
+ * recebem no topo (mais recente primeiro), as demais no fim (append-only).
+ * `rows` sempre chega do mais antigo para o mais novo.
+ */
+async function writeTourosRows(
+  sheets: SheetsClient, spreadsheetId: string, tab: string, rows: string[][],
+): Promise<void> {
+  if (!rows.length) return
+  if (TOUROS_TABS_DESC.has(tab)) {
+    await insertTourosRowsAtTop(sheets, spreadsheetId, tab, [...rows].reverse())
+    return
+  }
+  await appendTourosRows(sheets, spreadsheetId, tab, rows)
+}
+
+/**
  * Caminho rápido: grava o lead recém-cadastrado na landing nas abas de
  * trabalho, logo depois de ele entrar na aba-arquivo. Best-effort — quem
  * garante o registro do lead é o append no PERPETUO; se isto falhar, o
@@ -1773,7 +1846,7 @@ export async function appendLeadToTourosTabs(
       const seen = await tourosSeenIds(sheets, info.spreadsheetId, tab, header)
       if (seen.has(row.leadId)) continue
     }
-    await appendTourosRows(sheets, info.spreadsheetId, tab, [buildTourosRow(row, header)])
+    await writeTourosRows(sheets, info.spreadsheetId, tab, [buildTourosRow(row, header)])
     gravadas.push(tab)
   }
   return { skipped: false, tabs: gravadas }
@@ -1854,7 +1927,7 @@ export async function syncTourosLandingTabs(): Promise<{
       if (lead.leadId) seen.add(lead.leadId)
       fresh.push(buildTourosRow(lead, header))
     }
-    await appendTourosRows(sheets, info.spreadsheetId, tab, fresh)
+    await writeTourosRows(sheets, info.spreadsheetId, tab, fresh)
     appended[tab] = fresh.length
   }
 
