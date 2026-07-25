@@ -19,11 +19,11 @@ export const hero = {
   title: 'O touro certo pode te dar R$300 a R$600 a mais de lucro por bezerro(a) na desmama!',
   lead: 'O touro certo puxa peso, precocidade e fertilidade — e se paga no bezerro. A Bula monta, sem custo, uma seleção de touros PO Nelore pro objetivo do seu rebanho.',
   cta: 'Quero o touro certo pro meu rebanho',
-  // Micro-copy sob o CTA — tira o atrito ("quanto custa? o que acontece?").
+  // Micro-copy de atrito ("quanto custa? o que acontece?") — no hero fica logo
+  // acima do card do form; no Fecho, sob o CTA que devolve o lead ao card.
   ctaNote: 'Cadastro em 1 minuto · Sem custo · Um assessor te chama no WhatsApp',
-  // Ficha técnica do hero (revisão 24/07): com o formulário no fim da página, o
-  // hero ganha uma faixa de prova que sustenta a promessa em R$ da manchete.
-  // Todos os números já aparecem em outras seções — nada de claim novo.
+  // Ficha técnica do hero: faixa de prova que sustenta a promessa em R$ da
+  // manchete. Todos os números já aparecem em outras seções — nada de claim novo.
   stats: [
     { value: '+1.000', label: 'touros PO apartados' },
     { value: '30x', label: 'compra parcelada' },
@@ -60,9 +60,9 @@ export const ensaio = {
   lead: 'A seleção não acontece no catálogo. É no curral, do lado do gado, que o time da Bula aparta os touros que chegam na sua fazenda.',
 }
 
-// Seção de CADASTRO — o formulário saiu da 1ª dobra (revisão do cliente 24/07)
-// e virou o fecho da página, logo antes do footer. Esta copy é o "convite" que
-// abre a seção; o card do form mantém a sua própria (form.title/form.lead).
+// FECHO da página (ex-seção de cadastro) — com o form de volta à 1ª dobra
+// (25/07), esta copy é o último convite antes do footer; o CTA leva de volta ao
+// card do hero. O card do form mantém a sua própria (form.title/form.lead).
 export const cadastro = {
   eyebrow: 'CADASTRO SEM CUSTO',
   title: 'Vamos montar a sua\nseleção de touros.',

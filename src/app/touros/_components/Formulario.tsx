@@ -113,9 +113,9 @@ export function LeadForm() {
   const [step, setStep] = useState(0)
   const utmRef = useRef<Utm>(EMPTY_UTM)
   const startedRef = useRef(false)
-  // A troca de passo rola até o CARD (não até a seção): a seção #cadastro tem
-  // convite + bullets acima do form, e alinhar por ela deixaria o passo novo
-  // fora da tela no mobile.
+  // A troca de passo rola até o CARD (não até a seção): o hero tem marca +
+  // manchete acima do form, e alinhar pela seção deixaria o passo novo fora da
+  // tela no mobile.
   const formRef = useRef<HTMLFormElement>(null)
 
   useEffect(() => {
@@ -255,11 +255,13 @@ export function LeadForm() {
     border: `1px solid ${dark.hairline}`,
     borderRadius: radius.xs,
     colorScheme: 'dark',
+    // Respiro ao rolar entre passos (scrollIntoView block:'start').
+    scrollMarginTop: 12,
   }
 
   if (status === 'success') {
     return (
-      <div className="p-6 sm:p-8" style={cardStyle}>
+      <div className="p-5 sm:p-8" style={cardStyle}>
         <SuccessCard />
       </div>
     )
@@ -270,10 +272,10 @@ export function LeadForm() {
     : { initial: { opacity: 0, x: 12 }, animate: { opacity: 1, x: 0 }, exit: { opacity: 0, x: -12 } }
 
   return (
-    <form ref={formRef} onSubmit={handleSubmit} noValidate className="p-6 sm:p-8" style={cardStyle}>
+    <form ref={formRef} onSubmit={handleSubmit} noValidate className="p-5 sm:p-8" style={cardStyle}>
       {/* Cabeçalho do form — diz O QUE é e O QUE acontece (message match +
           expectativa), pra ninguém preencher sem saber pra quê é o cadastro. */}
-      <div className="mb-6" style={{ borderBottom: `1px solid ${dark.hairline}`, paddingBottom: 20 }}>
+      <div className="mb-5 sm:mb-6" style={{ borderBottom: `1px solid ${dark.hairline}`, paddingBottom: 18 }}>
         <h2
           style={{
             fontFamily: font.display,
@@ -292,7 +294,7 @@ export function LeadForm() {
       </div>
 
       {/* Progresso — contador técnico em mono, trilha hairline com barras retas. */}
-      <div className="mb-7">
+      <div className="mb-6 sm:mb-7">
         <div className="mb-2.5 flex items-center justify-between">
           <span style={{ ...typo.monoLabel, color: dark.gold }}>Passo {step + 1} / {TOTAL}</span>
           <span style={{ ...typo.monoLabel, color: dark.muted }}>{STEP_LABELS[step]}</span>
@@ -315,7 +317,7 @@ export function LeadForm() {
           animate={slide.animate}
           exit={slide.exit}
           transition={{ duration: 0.25, ease: [0.22, 1, 0.36, 1] }}
-          className="flex flex-col gap-5"
+          className="flex flex-col gap-4 sm:gap-5"
         >
           {step === 0 && (
             <>
@@ -361,7 +363,7 @@ export function LeadForm() {
 
           {step === 1 && (
             <>
-              <div className="grid gap-5 sm:grid-cols-2">
+              <div className="grid gap-4 sm:grid-cols-2 sm:gap-5">
                 <Field label="Estado" error={errors.uf} invalid={invalid('uf')}>
                   <select
                     value={data.uf}
@@ -443,7 +445,7 @@ export function LeadForm() {
       </AnimatePresence>
 
       {/* Navegação — botões retos, caixa alta. */}
-      <div className="mt-8 flex items-center gap-3">
+      <div className="mt-7 flex items-center gap-3 sm:mt-8">
         {step > 0 && (
           <button
             type="button" onClick={goBack}

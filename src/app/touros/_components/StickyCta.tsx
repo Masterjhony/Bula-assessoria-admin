@@ -4,40 +4,44 @@ import { useEffect, useRef, useState } from 'react'
 import { dark } from '../_lib/tokens'
 import { hero } from '../_lib/copy'
 
-// CTA fixo no rodapé — SÓ mobile. Aparece depois que o usuário rola além do
-// hero e some quando o formulário (#cadastro) entra na viewport, para não
-// cobrir o próprio form. Aumenta a chance de o lead chegar ao cadastro no
-// scroll longo do mobile (quick win de conversão).
+// CTA fixo no rodapé — SÓ mobile. O formulário voltou para a 1ª dobra (25/07),
+// então o sticky é o caminho de VOLTA: aparece quando o card (#cadastro) sai da
+// tela e some assim que ele reaparece, para nunca cobrir os campos.
 export function StickyCta() {
   const [show, setShow] = useState(false)
-  // Visibilidade do form guardada em ref para o scroll respeitá-la — senão o
-  // scroll dentro do próprio form reativa o CTA e ele cobre o campo ativo.
-  const formVisibleRef = useRef(false)
+  // Visibilidade guardada em ref para o scroll respeitá-la — senão o scroll
+  // dentro do próprio form reativa o CTA e ele cobre o campo ativo. O fecho
+  // entra na conta porque já tem o mesmo botão em tela: dois CTAs empilhados
+  // no rodapé viram ruído.
+  const hideRef = useRef<Record<string, boolean>>({ cadastro: false, 'fecho-cta': false })
 
   useEffect(() => {
-    // Form agora vive no FIM da página (revisão 24/07): o sticky é o atalho do
-    // scroll longo. Threshold acima de 1 viewport p/ não brigar com o CTA do
-    // hero; o IntersectionObserver o recolhe quando #cadastro entra na tela.
-    const onScroll = () =>
-      setShow(!formVisibleRef.current && window.scrollY > window.innerHeight * 1.2)
+    // Com o form na 1ª dobra, quem manda é a visibilidade do card: o sticky só
+    // entra depois que ele passou (guarda de scroll p/ não piscar no topo).
+    const onScroll = () => {
+      const oculto = Object.values(hideRef.current).some(Boolean)
+      setShow(!oculto && window.scrollY > window.innerHeight * 0.9)
+    }
     onScroll()
     window.addEventListener('scroll', onScroll, { passive: true })
 
-    const form = document.getElementById('cadastro')
-    const io = form
-      ? new IntersectionObserver(
-          ([e]) => {
-            formVisibleRef.current = e.isIntersecting
-            onScroll()
-          },
-          { threshold: 0.15 },
-        )
-      : null
-    if (form && io) io.observe(form)
+    const observers = (['cadastro', 'fecho-cta'] as const).map((id) => {
+      const el = document.getElementById(id)
+      if (!el) return null
+      const io = new IntersectionObserver(
+        ([e]) => {
+          hideRef.current[id] = e.isIntersecting
+          onScroll()
+        },
+        { threshold: 0.15 },
+      )
+      io.observe(el)
+      return io
+    })
 
     return () => {
       window.removeEventListener('scroll', onScroll)
-      io?.disconnect()
+      observers.forEach((io) => io?.disconnect())
     }
   }, [])
 
