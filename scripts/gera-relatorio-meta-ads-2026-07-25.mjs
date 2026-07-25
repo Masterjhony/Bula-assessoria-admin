@@ -1,4 +1,4 @@
-// Relatório das campanhas ativas no Meta Ads — data-base 25/07/2026, 12h26 (MS).
+// Relatório das campanhas ativas no Meta Ads — data-base 25/07/2026, 14h05 (MS).
 //
 // Fonte: conector Meta Ads (API oficial / Meta MCP), contas Bula 360.
 // Os números abaixo são a extração literal da API naquele instante — não recalcular
@@ -25,7 +25,7 @@ const desktopStem = 'Relatorio Meta Ads - Campanhas Ativas - 25-07-2026'
 mkdirSync(outputDir, { recursive: true })
 
 // ---------------------------------------------------------------------------
-// 1) Dados extraídos do conector (25/07/2026 12h26)
+// 1) Dados extraídos do conector (25/07/2026 14h05)
 // ---------------------------------------------------------------------------
 
 const principal = {
@@ -404,7 +404,7 @@ const html = `<!doctype html>
 <div class="capa">
   <h1>Relatório Meta Ads<br>Campanhas em curso</h1>
   <div class="sub">
-    Bula Assessoria · extração de <strong>25/07/2026, 12h26</strong> (horário MS)<br>
+    Bula Assessoria · extração de <strong>25/07/2026, 14h05</strong> (horário MS)<br>
     Fonte: conector oficial do Meta Ads — varredura das 5 contas de anúncio acessíveis
   </div>
 </div>
@@ -441,7 +441,7 @@ const html = `<!doctype html>
 <div class="caixa">
   <h3>Os três pontos que mudam decisão</h3>
   <p><strong>1. A campanha principal venceu hoje às 10h36.</strong> A data-fim era 25/07 10h36 e o relógio
-  já passou (extração 12h26). Ela segue marcada como ativa no painel, mas não entrega mais. Se a captação do
+  já passou (extração 14h05). Ela segue marcada como ativa no painel, mas não entrega mais. Se a captação do
   CORTE PERPÉTUO continua, <strong>não há campanha de volume no ar</strong> — só a de touros, que subiu ontem
   com verba pequena.</p>
   <p><strong>2. Saturação de público na segunda semana.</strong> A frequência chegou a
@@ -736,7 +736,7 @@ público. Pode ser um funil de WhatsApp que alguém acha que está rodando e nã
 </ol>
 
 <div class="rodape">
-  Relatório gerado a partir da API oficial do Meta Ads (conector Meta) em 25/07/2026 às 12h26.
+  Relatório gerado a partir da API oficial do Meta Ads (conector Meta) em 25/07/2026 às 14h05.
   Os números do dia 25/07 são parciais por natureza — a extração ocorreu com o dia em curso.
   As métricas de lead referem-se a <em>formulário instantâneo</em> (conta CA1) e à conversão personalizada
   de pixel <em>"MQL Perpetuo Touros"</em> (conta CA2); não representam qualificação posterior no CRM.
