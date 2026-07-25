@@ -35,6 +35,15 @@ const PROTECTED_SESSION_IDS = new Set(
     .split(',').map(s => s.trim()).filter(Boolean)
 )
 
+// Exceção cirúrgica à regra acima: grupos INTERNOS (validação/workflow) em que a
+// sessão protegida pode postar. Campanha e 1:1 continuam bloqueados; só estes
+// JIDs saem por /send-group. Vazio = nenhum grupo liberado (comportamento antigo).
+const PROTECTED_SESSION_GROUP_ALLOWLIST = new Set(
+  (process.env.PROTECTED_SESSION_GROUP_ALLOWLIST || '')
+    .split(',').map(s => s.trim()).filter(Boolean)
+    .map(s => (s.includes('@') ? s : `${s}@g.us`))
+)
+
 // Catálogos: sobe o PDF direto pro Supabase Storage (R2 está desabilitado nesta
 // conta) e avisa o Next. Credenciais só são usadas p/ upload de catálogo.
 const SUPABASE_URL = (process.env.SUPABASE_URL || process.env.NEXT_PUBLIC_SUPABASE_URL || '').replace(/\/$/, '')
@@ -1174,7 +1183,6 @@ const server = http.createServer(async (req, res) => {
       const body = await readJson(req)
       const session = resolveSession(url)
       if (!session) { json(res, 404, { error: 'unknown_session' }); return }
-      if (PROTECTED_SESSION_IDS.has(session.id)) { json(res, 403, { error: 'protected_session_group_send_blocked' }); return }
       const rawId = String(body.groupId || body.jid || '').trim()
       const message = String(body.message || '').trim()
       if (!rawId || (!message && !body.media)) {
@@ -1182,6 +1190,9 @@ const server = http.createServer(async (req, res) => {
         return
       }
       const jid = rawId.includes('@') ? rawId : `${rawId}@g.us`
+      if (PROTECTED_SESSION_IDS.has(session.id) && !PROTECTED_SESSION_GROUP_ALLOWLIST.has(jid)) {
+        json(res, 403, { error: 'protected_session_group_send_blocked' }); return
+      }
       session.queue.push({ jid, message, media: body.media || null, poll: body.poll || null })
       void processQueue(session)
       json(res, 200, { queued: true, position: session.queue.length, jid })
