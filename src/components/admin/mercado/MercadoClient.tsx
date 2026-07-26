@@ -5,7 +5,7 @@ import {
     Radar, RefreshCw, Loader2, ExternalLink, AlertTriangle,
     CalendarDays, Target, Beef, Building2, CircleDollarSign, Check,
 } from 'lucide-react'
-import type { MercadoDados, MercadoEvento } from '@/app/sistema/actions/mercado'
+import { ehNelorePo, type MercadoDados, type MercadoEvento } from '@/app/sistema/actions/mercado'
 
 /**
  * RADAR DE MERCADO.
@@ -46,7 +46,11 @@ const fmtDataHora = (iso: string | null) => {
 export function MercadoClient({ dados }: Props) {
     const [coletando, setColetando] = useState(false)
     const [msg, setMsg] = useState<string | null>(null)
-    const [filtro, setFiltro] = useState<'gap' | 'nelore' | 'todos'>('gap')
+    // Dois eixos INDEPENDENTES. Antes eram botões excludentes, e não dava para
+    // ver o cruzamento que interessa — "Nelore PO que está fora" —, que é
+    // justamente a lista acionável. Ela é o estado inicial.
+    const [categoria, setCategoria] = useState<'po' | 'todas'>('po')
+    const [situacao, setSituacao] = useState<'fora' | 'todas'>('fora')
 
     const eventos30 = useMemo(() => {
         const limite = new Date()
@@ -56,10 +60,21 @@ export function MercadoClient({ dados }: Props) {
     }, [dados.eventos])
 
     const lista = useMemo(() => {
-        if (filtro === 'gap') return eventos30.filter(e => !e.noCronograma)
-        if (filtro === 'nelore') return eventos30.filter(e => /nelore/i.test(e.categoria ?? ''))
-        return eventos30
-    }, [eventos30, filtro])
+        let l = eventos30
+        if (categoria === 'po') l = l.filter(e => ehNelorePo(e.categoria))
+        if (situacao === 'fora') l = l.filter(e => !e.noCronograma)
+        return l
+    }, [eventos30, categoria, situacao])
+
+    const contagem = useMemo(() => {
+        const po = eventos30.filter(e => ehNelorePo(e.categoria))
+        return {
+            po: po.length,
+            poFora: po.filter(e => !e.noCronograma).length,
+            todas: eventos30.length,
+            todasFora: eventos30.filter(e => !e.noCronograma).length,
+        }
+    }, [eventos30])
 
     async function coletar() {
         setColetando(true); setMsg(null)
@@ -116,19 +131,24 @@ export function MercadoClient({ dados }: Props) {
                 <Kpi
                     destaque
                     icon={Target}
-                    valor={k.gap30}
-                    rotulo="Fora do nosso cronograma"
-                    ajuda="Próximos 30 dias"
+                    valor={k.nelorePoGap30}
+                    rotulo="Nelore PO fora do cronograma"
+                    ajuda="Próximos 30 dias · o mercado que dá para disputar"
                 />
-                <Kpi icon={CalendarDays} valor={k.proximos30} rotulo="Leilões no radar" ajuda="Próximos 30 dias" />
+                <Kpi icon={Beef} valor={k.nelorePo30} rotulo="Nelore PO no radar" ajuda="Próximos 30 dias" />
                 <Kpi
                     icon={Check}
-                    valor={k.coberturaPct == null ? '—' : `${k.coberturaPct}%`}
-                    rotulo="Cobertura"
-                    ajuda="Quanto do mercado já é nosso"
+                    valor={k.nelorePoCoberturaPct == null ? '—' : `${k.nelorePoCoberturaPct}%`}
+                    rotulo="Cobertura em Nelore PO"
+                    ajuda="Quanto do PO já passa por nós"
                 />
-                <Kpi icon={Beef} valor={k.nelore30} rotulo="Nelore" ajuda="Categoria de interesse" />
-                <Kpi icon={Building2} valor={k.leiloeirasAtivas} rotulo="Leiloeiras" ajuda="Com evento na janela" />
+                <Kpi
+                    icon={CalendarDays}
+                    valor={k.proximos30}
+                    rotulo="Agenda total"
+                    ajuda={`Todas as categorias · ${k.gap30} fora`}
+                />
+                <Kpi icon={Building2} valor={k.leiloeirasAtivas} rotulo="Leiloeiras" ajuda="Com Nelore PO na janela" />
             </section>
 
             {/* ── A lista que importa ───────────────────────────────────── */}
@@ -136,21 +156,39 @@ export function MercadoClient({ dados }: Props) {
                 <div className="flex flex-wrap items-center justify-between gap-3 border-b px-4 py-3">
                     <h2 className="font-display-tight text-sm uppercase tracking-wide">
                         Leilões · próximos 30 dias
+                        <span className="ml-2 font-sans normal-case tracking-normal text-xs text-muted-foreground">
+                            {lista.length} listado(s)
+                        </span>
                     </h2>
-                    <div className="flex rounded-lg border overflow-hidden text-xs">
-                        {([
-                            ['gap', `Fora do cronograma (${eventos30.filter(e => !e.noCronograma).length})`],
-                            ['nelore', `Nelore (${eventos30.filter(e => /nelore/i.test(e.categoria ?? '')).length})`],
-                            ['todos', `Todos (${eventos30.length})`],
-                        ] as const).map(([id, label]) => (
-                            <button
-                                key={id}
-                                onClick={() => setFiltro(id)}
-                                className={`px-3 py-1.5 ${filtro === id ? 'bg-accent font-medium' : 'hover:bg-accent/50'}`}
-                            >
-                                {label}
-                            </button>
-                        ))}
+                    <div className="flex flex-wrap items-center gap-2">
+                        <div className="flex rounded-lg border overflow-hidden text-xs">
+                            {([
+                                ['po', `Nelore PO (${contagem.po})`],
+                                ['todas', `Todas as categorias (${contagem.todas})`],
+                            ] as const).map(([id, label]) => (
+                                <button
+                                    key={id}
+                                    onClick={() => setCategoria(id)}
+                                    className={`px-3 py-1.5 ${categoria === id ? 'bg-accent font-medium' : 'hover:bg-accent/50'}`}
+                                >
+                                    {label}
+                                </button>
+                            ))}
+                        </div>
+                        <div className="flex rounded-lg border overflow-hidden text-xs">
+                            {([
+                                ['fora', `Fora do cronograma (${categoria === 'po' ? contagem.poFora : contagem.todasFora})`],
+                                ['todas', 'Tudo'],
+                            ] as const).map(([id, label]) => (
+                                <button
+                                    key={id}
+                                    onClick={() => setSituacao(id)}
+                                    className={`px-3 py-1.5 ${situacao === id ? 'bg-accent font-medium' : 'hover:bg-accent/50'}`}
+                                >
+                                    {label}
+                                </button>
+                            ))}
+                        </div>
                     </div>
                 </div>
 
@@ -182,7 +220,7 @@ export function MercadoClient({ dados }: Props) {
             {dados.porLeiloeira.length > 0 && (
                 <section className="rounded-xl border bg-card p-4">
                     <div className="flex flex-wrap items-center justify-between gap-3 mb-1">
-                        <h2 className="font-display-tight text-sm uppercase tracking-wide">Volume por leiloeira</h2>
+                        <h2 className="font-display-tight text-sm uppercase tracking-wide">Nelore PO por leiloeira</h2>
                         {/* Legenda SEMPRE presente: identidade nunca depende só da cor. */}
                         <div className="flex items-center gap-4 text-xs text-muted-foreground">
                             <span className="inline-flex items-center gap-1.5">
@@ -193,7 +231,7 @@ export function MercadoClient({ dados }: Props) {
                             </span>
                         </div>
                     </div>
-                    <p className="text-xs text-muted-foreground mb-4">Próximos 30 dias</p>
+                    <p className="text-xs text-muted-foreground mb-4">Próximos 30 dias · só Nelore PO</p>
 
                     <div className="space-y-3">
                         {dados.porLeiloeira.map(l => {
@@ -242,8 +280,8 @@ export function MercadoClient({ dados }: Props) {
 
             {/* ── Distribuições ─────────────────────────────────────────── */}
             <section className="grid md:grid-cols-2 gap-4">
-                <Distribuicao titulo="Por categoria" itens={dados.porCategoria.map(c => ({ rotulo: c.categoria, valor: c.total }))} />
-                <Distribuicao titulo="Por praça (UF)" itens={dados.porUf.map(c => ({ rotulo: c.uf, valor: c.total }))} />
+                <Distribuicao titulo="Composição da agenda (todas)" itens={dados.porCategoria.map(c => ({ rotulo: c.categoria, valor: c.total }))} />
+                <Distribuicao titulo="Nelore PO por praça (UF)" itens={dados.porUf.map(c => ({ rotulo: c.uf, valor: c.total }))} />
             </section>
 
             {/* ── Operação ──────────────────────────────────────────────── */}

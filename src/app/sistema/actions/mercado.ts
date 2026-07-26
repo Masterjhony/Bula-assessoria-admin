@@ -59,7 +59,12 @@ export interface MercadoKpis {
     proximos30: number
     gap30: number
     coberturaPct: number | null
-    nelore30: number
+    /** Nelore PO na janela — é o mercado que a Bula de fato disputa. */
+    nelorePo30: number
+    /** Nelore PO que NÃO está no nosso cronograma: o gap endereçável. */
+    nelorePoGap30: number
+    /** Cobertura só em Nelore PO (a métrica honesta para a operação). */
+    nelorePoCoberturaPct: number | null
     leiloeirasAtivas: number
 }
 
@@ -87,8 +92,13 @@ function maisDias(n: number): string {
     return d.toISOString().slice(0, 10)
 }
 
-/** Categoria "é Nelore?" — é o que interessa comercialmente à Bula. */
-const ehNelore = (c: string | null) => /nelore/i.test(String(c ?? ''))
+/**
+ * A Bula trabalha com **Nelore PO**, e só. "Nelore" solto não serve de filtro:
+ * a agenda traz também Nelore CEIP (animal de corte certificado) e Nelore
+ * Pintado, que não são o nosso mercado. Aceita "Nelore PO" e "Nelore P.O.".
+ */
+export const ehNelorePo = (c: string | null | undefined) =>
+    /nelore\s*p\.?\s*o\.?(\b|$)/i.test(String(c ?? ''))
 
 export async function getMercado(): Promise<MercadoDados> {
     const supabase = svc()
@@ -129,7 +139,8 @@ export async function getMercado(): Promise<MercadoDados> {
 
     const janela = eventos.filter(e => e.data && e.data <= em30)
     const gap30 = janela.filter(e => !e.noCronograma).length
-    const nelore30 = janela.filter(e => ehNelore(e.categoria)).length
+    const nelorePo = janela.filter(e => ehNelorePo(e.categoria))
+    const nelorePoGap = nelorePo.filter(e => !e.noCronograma).length
 
     const agrupa = <T extends string>(chaves: Array<T | null>) => {
         const m = new Map<string, number>()
@@ -140,12 +151,14 @@ export async function getMercado(): Promise<MercadoDados> {
         return [...m.entries()].map(([k, n]) => [k, n] as const).sort((a, b) => b[1] - a[1])
     }
 
+    // O ranking por leiloeira olha SÓ Nelore PO: é onde a Bula disputa. Contar
+    // máquina e cavalo aqui infla a barra de quem não é concorrente nosso.
     const porLeiloeiraMap = new Map<string, { total: number; gap: number; nelore: number }>()
-    for (const e of janela) {
+    for (const e of nelorePo) {
         const cur = porLeiloeiraMap.get(e.leiloeira) ?? { total: 0, gap: 0, nelore: 0 }
         cur.total++
         if (!e.noCronograma) cur.gap++
-        if (ehNelore(e.categoria)) cur.nelore++
+        cur.nelore++
         porLeiloeiraMap.set(e.leiloeira, cur)
     }
 
@@ -164,16 +177,24 @@ export async function getMercado(): Promise<MercadoDados> {
             proximos30: janela.length,
             gap30,
             coberturaPct: janela.length ? Math.round(((janela.length - gap30) / janela.length) * 100) : null,
-            nelore30,
+            nelorePo30: nelorePo.length,
+            nelorePoGap30: nelorePoGap,
+            nelorePoCoberturaPct: nelorePo.length
+                ? Math.round(((nelorePo.length - nelorePoGap) / nelorePo.length) * 100)
+                : null,
             leiloeirasAtivas: porLeiloeiraMap.size,
         },
         eventos,
         porLeiloeira: [...porLeiloeiraMap.entries()]
             .map(([leiloeira, v]) => ({ leiloeira, ...v }))
             .sort((a, b) => b.total - a.total),
+        // Categoria olha a agenda INTEIRA de propósito: restrita a Nelore PO
+        // viraria uma barra só. Serve de contexto — mostra o tamanho da fatia
+        // que de fato disputamos dentro do que a leiloeira toca.
         porCategoria: agrupa(janela.map(e => e.categoria)).slice(0, 12)
             .map(([categoria, total]) => ({ categoria, total })),
-        porUf: agrupa(janela.map(e => e.uf)).slice(0, 12)
+        // Praça só em Nelore PO: é onde o assessor precisa estar.
+        porUf: agrupa(nelorePo.map(e => e.uf)).slice(0, 12)
             .map(([uf, total]) => ({ uf, total })),
         fontes: (fontesRes.data ?? []).map(f => {
             const r = f as Record<string, unknown>
