@@ -1737,6 +1737,16 @@ async function tourosSeenIds(
   return seen
 }
 
+/**
+ * Célula de valor. Vazio vira célula REALMENTE vazia (sem userEnteredValue) —
+ * gravar string vazia deixaria a coluna "Etapa" (dropdown da equipe) com um
+ * valor em branco em vez do chip vazio.
+ */
+function cellValue(v: string): { userEnteredValue?: { stringValue: string } } {
+  const s = String(v ?? '')
+  return s ? { userEnteredValue: { stringValue: s } } : {}
+}
+
 async function appendTourosRows(
   sheets: SheetsClient, spreadsheetId: string, tab: string, rows: string[][],
 ): Promise<void> {
@@ -1748,7 +1758,7 @@ async function appendTourosRows(
       requests: [{
         appendCells: {
           sheetId,
-          rows: rows.map(r => ({ values: r.map(v => ({ userEnteredValue: { stringValue: String(v ?? '') } })) })),
+          rows: rows.map(r => ({ values: r.map(cellValue) })),
           fields: 'userEnteredValue',
         },
       }],
@@ -1762,15 +1772,20 @@ async function appendTourosRows(
  * `rows` deve vir do mais novo para o mais antigo.
  *
  * Insere de verdade (insertDimension), não sobrescreve: as linhas existentes
- * descem inteiras, com cor/nota/colunas da equipe. O fundo das linhas novas é
- * zerado de propósito — sem isso elas herdariam a cor da linha que estava no
- * topo, e nessas abas cor = status marcado pela equipe.
+ * descem inteiras, com cor/nota/colunas da equipe. Depois:
+ *  · zera o fundo das linhas novas — sem isso elas herdariam a cor da linha
+ *    que estava no topo, e nessas abas cor = status marcado pela equipe;
+ *  · copia a VALIDAÇÃO da linha de baixo (a que era a primeira) para as novas,
+ *    para o dropdown da coluna "Etapa" continuar valendo na linha nova. Copiar
+ *    é de propósito: as cores dos chips não são expostas pela API, mas viajam
+ *    numa cópia server-side.
  */
 async function insertTourosRowsAtTop(
   sheets: SheetsClient, spreadsheetId: string, tab: string, rows: string[][],
 ): Promise<void> {
   if (!rows.length) return
   const sheetId = await getTabSheetId(sheets, spreadsheetId, tab)
+  const largura = Math.max(...rows.map(r => r.length))
   await sheets.spreadsheets.batchUpdate({
     spreadsheetId,
     requestBody: {
@@ -1784,7 +1799,7 @@ async function insertTourosRowsAtTop(
         {
           updateCells: {
             start: { sheetId, rowIndex: 1, columnIndex: 0 },
-            rows: rows.map(r => ({ values: r.map(v => ({ userEnteredValue: { stringValue: String(v ?? '') } })) })),
+            rows: rows.map(r => ({ values: r.map(cellValue) })),
             fields: 'userEnteredValue',
           },
         },
@@ -1793,6 +1808,21 @@ async function insertTourosRowsAtTop(
             range: { sheetId, startRowIndex: 1, endRowIndex: 1 + rows.length },
             cell: { userEnteredFormat: { backgroundColorStyle: { themeColor: 'BACKGROUND' } } },
             fields: 'userEnteredFormat.backgroundColorStyle',
+          },
+        },
+        {
+          copyPaste: {
+            source: {
+              sheetId,
+              startRowIndex: 1 + rows.length, endRowIndex: 2 + rows.length,
+              startColumnIndex: 0, endColumnIndex: largura,
+            },
+            destination: {
+              sheetId,
+              startRowIndex: 1, endRowIndex: 1 + rows.length,
+              startColumnIndex: 0, endColumnIndex: largura,
+            },
+            pasteType: 'PASTE_DATA_VALIDATION',
           },
         },
       ],
