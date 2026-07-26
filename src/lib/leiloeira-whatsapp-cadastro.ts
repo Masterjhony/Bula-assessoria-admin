@@ -26,10 +26,77 @@ import { notifyTeamGroup, notifyAssessoresGroup } from './whatsapp-team-notify'
 import { firstName } from './whatsapp-central'
 import { ufFromPhone, normalizeUf } from './state-registration-provider'
 import { resumoQualificacaoTexto } from './crm-qualificacao'
+import { resolveZona } from './assessor-zona'
+import { syncLeadToClientes } from './crm-to-clientes-sync'
 
 /** UF do lead para as notificações: a do cadastro, ou a da fazenda consultada. */
 function ufDoLead(lead: { estado?: string | null; extra_data?: Record<string, unknown> | null }): string {
     return normalizeUf(lead.estado) || normalizeUf(String((lead.extra_data ?? {}).fazenda_uf ?? '')) || ''
+}
+
+/**
+ * APROVAÇÃO DA LEILOEIRA → CLIENTE + ASSESSOR.
+ *
+ * Este é o passo que faltava no funil. Até 25/07/2026 a aprovação era gravada
+ * em `cliente_leiloeira_cadastro` e avisada nos grupos, mas NADA promovia o lead:
+ * ele continuava no Kanban indefinidamente (o Márcio de Vasconcelos Martins
+ * ficou 13 dias em INFORMAÇÕES CAPTADAS depois de aprovado). `syncLeadToClientes`
+ * só era chamado pelo caminho da etapa CADASTRO, com critério NOSSO (score+I.E.),
+ * que é outra coisa — aquele dispara na SUBMISSÃO, este dispara na APROVAÇÃO.
+ *
+ * Duas travas deliberadas:
+ *   • `notifyLeiloeiras: false` — o cliente ACABOU de ser aprovado; reenviar a
+ *     ficha por e-mail seria ruído com a leiloeira que já decidiu.
+ *   • o assessor sai da regra de zona (assessor-zona.ts) e só é gravado quando
+ *     a UF é confiável. Divergência entre UF declarada e DDD não vira palpite:
+ *     fica sem responsável e aparece no aviso interno para alguém conferir.
+ *
+ * Best-effort: falha aqui nunca derruba o fechamento do ciclo no grupo.
+ */
+async function promoverAprovadoParaCliente(
+    supabase: SupabaseClient,
+    leadId: string,
+    leiloeiraNome: string,
+): Promise<{ promovido: boolean; assessor: string | null; motivo?: string }> {
+    try {
+        const { data } = await supabase
+            .from('crm_leads')
+            .select('id, nome, empresa, status, telefone, celular, email, cidade, estado, cpf, inscricao_estadual, tem_inscricao_estadual, score_serasa, pendencias_financeiras, momento_pecuaria, operacao_pecuaria, responsavel, extra_data, arquivado')
+            .eq('id', leadId)
+            .maybeSingle()
+        if (!data) return { promovido: false, assessor: null, motivo: 'lead não encontrado' }
+        const lead = data as Parameters<typeof syncLeadToClientes>[1] & { extra_data?: Record<string, unknown> | null }
+        if (lead.arquivado) return { promovido: false, assessor: null, motivo: 'lead já arquivado' }
+
+        const zona = resolveZona({
+            ufCadastro: lead.estado,
+            ufFazenda: String((lead.extra_data ?? {}).fazenda_uf ?? ''),
+            ufDdd: ufFromPhone(lead.celular || lead.telefone),
+        })
+        // Grava o responsável no lead ANTES do sync — o payload de `clientes`
+        // copia `lead.responsavel`, então assim o cliente já nasce com dono.
+        const assessor = zona.conflito ? null : zona.assessor
+        if (assessor && !String(lead.responsavel ?? '').trim()) {
+            await supabase.from('crm_leads').update({ responsavel: assessor }).eq('id', leadId)
+            lead.responsavel = assessor
+        }
+
+        const r = await syncLeadToClientes(supabase, lead, { force: true, notifyLeiloeiras: false })
+        if (!r.synced) return { promovido: false, assessor, motivo: r.reason }
+
+        await supabase.from('cliente_interacoes').insert({
+            cliente_key: r.matchKey,
+            tipo: 'Sistema',
+            responsavel: 'Sistema',
+            nota: `Aprovado na ${leiloeiraNome}. Promovido a cliente automaticamente.` +
+                (assessor ? ` Roteado para ${assessor} (${zona.detalhe}).` : ` SEM assessor: ${zona.detalhe}.`),
+        }).then(() => undefined, () => undefined)
+
+        return { promovido: true, assessor }
+    } catch (e) {
+        console.warn('[cadastro-leiloeira] promoção a cliente falhou:', e instanceof Error ? e.message : e)
+        return { promovido: false, assessor: null, motivo: 'erro interno' }
+    }
 }
 
 /**
@@ -246,6 +313,7 @@ async function loadLeadDocLinks(
 export async function submitLeadCadastroToLeiloeiraGroups(
     supabase: SupabaseClient,
     leadId: string,
+    filtroLeiloeira?: RegExp,
 ): Promise<GroupSubmissionResult> {
     const result: GroupSubmissionResult = { attempted: 0, sent: 0, skipped: [], aguardandoDoc: [] }
     try {
@@ -270,6 +338,9 @@ export async function submitLeadCadastroToLeiloeiraGroups(
             .neq('whatsapp_group_id', '')
         const leiloeiras = ((leiloeirasData ?? []) as LeiloeiraGroupRow[])
             .filter(l => l.whatsapp_group_id)
+            // Opcional: limita a submissão a leiloeiras cujo nome casa o filtro
+            // (ex.: /programa/i para não espalhar a ficha às demais).
+            .filter(l => !filtroLeiloeira || filtroLeiloeira.test(l.nome))
         if (!leiloeiras.length) {
             result.skipped.push({ leiloeira: '*', reason: 'nenhuma leiloeira com grupo vinculado' })
             return result
@@ -318,6 +389,7 @@ export async function submitLeadCadastroToLeiloeiraGroups(
                 await sendVpsGroup(leiloeira.whatsapp_group_id, '', {
                     type: ehPdf ? 'document' : 'image',
                     url: d.url,
+                    ...(d.contentType ? { mimetype: d.contentType } : {}),
                     caption: `${codigo} · ${str(lead.nome)} — ${rotulo}`,
                     ...(ehPdf ? { fileName: `${codigo}-${d.tipo}.pdf` } : {}),
                 }).catch(() => { /* anexo é best-effort; a ficha já foi */ })
@@ -398,6 +470,7 @@ export async function reenviarFichaAtualizada(
                 await sendVpsGroup(leil.whatsapp_group_id, '', {
                     type: ehPdf ? 'document' : 'image',
                     url: d.url,
+                    ...(d.contentType ? { mimetype: d.contentType } : {}),
                     caption: `${codigo} · ${str(lead.nome)} — ${rotulo}`,
                     ...(ehPdf ? { fileName: `${codigo}-${d.tipo}.pdf` } : {}),
                 }).catch(() => { /* anexo é best-effort */ })
@@ -502,6 +575,7 @@ export async function enviarComplementoCadastro(
                 await sendVpsGroup(grupo.whatsapp_group_id, '', {
                     type: ehPdf ? 'document' : 'image',
                     url: d.url,
+                    ...(d.contentType ? { mimetype: d.contentType } : {}),
                     caption: `${cad.codigo} · ${str(lead.nome)} — ${rotulo} (complemento)`,
                     ...(ehPdf ? { fileName: `${cad.codigo}-${d.tipo}.pdf` } : {}),
                 }).catch(() => { /* anexo é best-effort */ })
@@ -540,9 +614,50 @@ export type GroupDecisionOutcome =
     | { kind: 'unmatched'; decision: 'aprovado' | 'recusado' }
     | { kind: 'decided'; decision: 'aprovado' | 'recusado'; cliente: string; leiloeira: string; clienteAvisado: boolean }
 
-function parseDecision(text: string): 'aprovado' | 'recusado' | null {
-    if (/\b(reprovad\w*|recusad\w*|negad\w*|n[ãa]o\s+aprovad\w*)\b/i.test(text)) return 'recusado'
-    if (/\baprovad\w*\b/i.test(text)) return 'aprovado'
+interface ParsedDecision {
+    decision: 'aprovado' | 'recusado'
+    /**
+     * 'explicita' — a mensagem diz "aprovado"/"recusado" com todas as letras e
+     * pode ser casada pelas regras normais (código > citação > única pendente).
+     *
+     * 'nome_veredito' — a leiloeira usou a taquigrafia dela: "Fulano de Tal - OK"
+     * ou "Fulano - não autorizado". É a forma que a Programa Leilões usa NA
+     * PRÁTICA, e o parser antigo ignorava (por isso o Márcio ficou aprovado no
+     * grupo e parado no CRM). Como "ok" sozinho é palavra corriqueira de grupo,
+     * esta forma só vale quando o NOME casa com um cadastro pendente — nunca
+     * pela regra do "único pendente".
+     */
+    forma: 'explicita' | 'nome_veredito'
+    /** Nome capturado antes do veredito, quando forma = 'nome_veredito'. */
+    nome?: string
+}
+
+function parseDecision(text: string): ParsedDecision | null {
+    const t = String(text ?? '').trim()
+    if (!t) return null
+
+    // 1) Vocabulário explícito — comportamento histórico, inalterado.
+    if (/\b(reprovad\w*|recusad\w*|negad\w*|n[ãa]o\s+aprovad\w*|n[ãa]o\s+autorizad\w*)\b/i.test(t)) {
+        return { decision: 'recusado', forma: 'explicita' }
+    }
+    if (/\baprovad\w*\b/i.test(t)) return { decision: 'aprovado', forma: 'explicita' }
+
+    // 2) "Apto"/"Apta" isolado na própria linha — é o veredito da Bula Remates,
+    //    que responde com a ficha de análise (score, I.E., hectares) e fecha com
+    //    "Apto". Exigir linha própria evita casar com endereço ("apto. 62"), que
+    //    é justamente onde um \bapto\b solto daria falso positivo.
+    if (/(^|\n)\s*apt[oa]\s*[.!]?\s*(\n|$)/i.test(t)) {
+        return { decision: 'aprovado', forma: 'explicita' }
+    }
+
+    // 3) Taquigrafia "Nome - veredito". Exige o traço e o veredito no FIM da
+    //    linha, o que descarta "ok, já mando" e afins.
+    const m = /^(.{3,120}?)\s*[-–—:]\s*(ok|okay|liberad\w*|autorizad\w*)\s*[.!]?$/i.exec(t)
+    if (m) return { decision: 'aprovado', forma: 'nome_veredito', nome: m[1].trim() }
+
+    // "não tem cadastro" NÃO entra aqui de propósito: é resposta a uma CONSULTA
+    // ("esse cliente já é cadastrado?"), não veredito sobre uma ficha submetida.
+    // Tratar como recusa marcaria submissão viva como negada.
     return null
 }
 
@@ -580,8 +695,9 @@ export async function handleLeiloeiraGroupMessage(
     const leiloeira = leiloeiraData as LeiloeiraGroupRow | null
     if (!leiloeira) return { kind: 'ignored', reason: 'grupo_sem_leiloeira' }
 
-    const decision = parseDecision(input.text)
-    if (!decision) return { kind: 'ignored', reason: 'sem_decisao' }
+    const parsed = parseDecision(input.text)
+    if (!parsed) return { kind: 'ignored', reason: 'sem_decisao' }
+    const decision = parsed.decision
 
     // 1) Código explícito (na resposta ou na ficha citada)
     const codigo = parseCodigo(input.text, input.quotedText)
@@ -612,7 +728,16 @@ export async function handleLeiloeiraGroupMessage(
         const hay = `${input.text}\n${input.quotedText || ''}`.toLowerCase()
         const porNome = pendentes.filter(p => p.cliente_key && hay.includes(p.cliente_key))
         if (porNome.length === 1) cadastro = porNome[0]
-        else if (pendentes.length === 1) cadastro = pendentes[0]
+        // Fallback "só existe uma pendente" vale apenas para a forma EXPLÍCITA.
+        // Com "Fulano - OK" a identificação tem de vir do nome: um "ok" solto no
+        // grupo não pode aprovar a única ficha aberta por acidente.
+        else if (pendentes.length === 1 && parsed.forma === 'explicita') cadastro = pendentes[0]
+    }
+
+    // Taquigrafia sem cadastro identificado → não arrisca: ignora em silêncio
+    // (nem responde no grupo, porque provavelmente era conversa normal).
+    if (!cadastro && parsed.forma === 'nome_veredito') {
+        return { kind: 'ignored', reason: 'nome_veredito_sem_match' }
     }
 
     if (!cadastro) {
@@ -730,14 +855,24 @@ export async function handleLeiloeiraGroupMessage(
     ].join('\n')
     void notifyTeamGroup(supabase, avisoNotify).catch(() => { /* best-effort */ })
 
-    // Aprovado → também no grupo dos ASSESSORES: é o cliente pronto para a equipe
-    // comercial pegar e dar sequência (o grupo de automações é só o log do sistema).
+    // Aprovado → promove a CLIENTE (sai do Kanban, ganha assessor da zona) e
+    // avisa o grupo dos ASSESSORES com a ficha, que é quem dá sequência.
     if (decision === 'aprovado') {
+        const promo = cadastro.crm_lead_id
+            ? await promoverAprovadoParaCliente(supabase, cadastro.crm_lead_id, leiloeira.nome)
+            : { promovido: false, assessor: null as string | null, motivo: 'cadastro sem lead vinculado' }
+
         void notifyAssessoresGroup(supabase, [
             '🟢 *Novo cliente APROVADO — habilitado a comprar*',
             linhaCliente,
             ufLineCad(clienteUf, clienteFone),
             `Leiloeira: ${leiloeira.nome}`,
+            promo.assessor
+                ? `Assessor: *${promo.assessor}* (por zona)`
+                : '⚠ Assessor NÃO definido — conferir a UF e atribuir na ficha do cliente.',
+            promo.promovido
+                ? 'Já está em CLIENTES e saiu do CRM.'
+                : `⚠ Não entrou em CLIENTES automaticamente${promo.motivo ? ` (${promo.motivo})` : ''} — verificar.`,
             clienteAvisado ? 'Cliente já avisado pela IA — dar sequência no atendimento.' : 'Cliente ainda não avisado — falar com ele.',
             clienteQualResumo ? `\n${clienteQualResumo}` : '',
         ].filter(Boolean).join('\n')).catch(() => { /* best-effort */ })
