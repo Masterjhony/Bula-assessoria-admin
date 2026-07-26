@@ -18,6 +18,7 @@ import { requireAdmin } from '@/lib/auth-helpers'
 import {
     coletarFonte,
     salvarEventos,
+    salvarMedias,
     casarComCronograma,
     type FonteRow,
 } from '@/lib/mercado-leiloes'
@@ -42,7 +43,7 @@ async function run(dias: number) {
 
     const { data: fontesData, error } = await supabase
         .from('mercado_fontes')
-        .select('id, leiloeira, slug, site_url, agenda_url, modo, ativo')
+        .select('id, leiloeira, slug, site_url, agenda_url, modo, parser, ativo')
         .eq('ativo', true)
     if (error) return NextResponse.json({ error: error.message }, { status: 500 })
 
@@ -54,12 +55,15 @@ async function run(dias: number) {
 
         let novos = 0
         let atualizados = 0
+        let medias = 0
         let erroSalvar: string | null = null
         if (!r.erro && r.eventos.length) {
             try {
                 const s = await salvarEventos(supabase, fonte, r.eventos)
                 novos = s.novos
                 atualizados = s.atualizados
+                // Médias dependem do evento já estar gravado (amarração por id).
+                medias = await salvarMedias(supabase, fonte, r.eventos, r.medias)
             } catch (e) {
                 erroSalvar = e instanceof Error ? e.message : String(e)
             }
@@ -88,6 +92,7 @@ async function run(dias: number) {
             eventos: r.eventos.length,
             novos,
             atualizados,
+            medias,
             custo_usd: r.custoUsd,
             duracao_ms: r.duracaoMs,
             erro,

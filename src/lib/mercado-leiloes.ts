@@ -163,6 +163,112 @@ export function parseAgendaPrograma(html: string, dataIso: string): EventoColeta
     return out
 }
 
+/* ─── Parse: Leiloboi (listagem por mês + médias na página de detalhe) ───── */
+
+const MES_NUM: Record<string, number> = {
+    jan: 1, fev: 2, mar: 3, abr: 4, mai: 5, jun: 6,
+    jul: 7, ago: 8, set: 9, out: 10, nov: 11, dez: 12,
+}
+
+/**
+ * Cada leilão do Leiloboi é um `<a href="/leiloes/…-<id>">` embrulhando uma
+ * `<table class="leilao">` com dia+mês, foto do folder, `<h5>` do nome, o selo
+ * Corte/Elite, o horário e a praça. O ano NÃO aparece no card — vem do mês que
+ * a gente pediu na URL, por isso `ano` é parâmetro e não adivinhação.
+ */
+export function parseResultadosLeiloboi(html: string, ano: number): EventoColetado[] {
+    const blocos = [...html.matchAll(/<a href="(\/leiloes\/[^"]+)">([\s\S]{0,3000}?)<\/a>/g)]
+    const out: EventoColetado[] = []
+
+    for (const [, href, corpo] of blocos) {
+        const d = /data-leilao">\s*<strong>(\d{1,2})<\/strong>\s*([a-zç]{3})/i.exec(corpo)
+        const h5 = /<h5>\s*([\s\S]*?)\s*<\/h5>/.exec(corpo)
+        if (!d || !h5) continue
+
+        const dia = Number(d[1])
+        const mes = MES_NUM[d[2].toLowerCase()]
+        if (!mes) continue
+
+        const nome = decodeEntidades(h5[1]).replace(/\s+/g, ' ').trim()
+        if (!nome) continue
+
+        const selo = /\b(Elite|Corte)\b/i.exec(corpo)?.[1] ?? null
+        const hora = /(\d{1,2}:\d{2})/.exec(corpo)?.[1] ?? null
+        const local = [...corpo.matchAll(/>\s*([^<>]{8,140}\/[A-Z]{2})\s*</g)]
+            .map(m => decodeEntidades(m[1]).trim())
+            .find(Boolean) ?? null
+
+        out.push({
+            nome,
+            data: `${ano}-${String(mes).padStart(2, '0')}-${String(dia).padStart(2, '0')}`,
+            hora,
+            // O selo do Leiloboi é o tipo do leilão: "Elite" é onde mora o PO.
+            categoria: selo ? (/elite/i.test(selo) ? 'Nelore PO' : 'Gado de Corte') : null,
+            local,
+            uf: local ? (local.match(/\/([A-Z]{2})\s*$/)?.[1] ?? null) : null,
+            url: `https://leiloboi.com${href}`,
+        })
+    }
+    return out
+}
+
+export interface MediaColetada {
+    sexo: string | null
+    descricao: string | null
+    idade: string | null
+    peso: string | null
+    valor: number | null
+    kgVivo: string | null
+}
+
+/**
+ * Tabela "Médias do leilão" da página de detalhe. É o único dado de PREÇO
+ * praticado que entra no sistema — o assessor hoje argumenta de memória.
+ * Formato: Sexo | Descrição | Idade | Peso | Valor | Kg/Vivo, com o valor em
+ * "R$ 2.650,18" (ponto de milhar e vírgula decimal).
+ */
+export function parseMediasLeiloboi(html: string): MediaColetada[] {
+    const i = html.search(/M[ée]dias?\s+do\s+leil[ãa]o/i)
+    if (i < 0) return []
+    const trecho = html.slice(i, i + 20_000)
+    const linhas = [...trecho.matchAll(/<tr[^>]*>([\s\S]*?)<\/tr>/g)]
+    const out: MediaColetada[] = []
+
+    for (const [, linha] of linhas) {
+        const celulas = [...linha.matchAll(/<t[dh][^>]*>([\s\S]*?)<\/t[dh]>/g)]
+            .map(c => decodeEntidades(c[1].replace(/<[^>]+>/g, ' ')).replace(/\s+/g, ' ').trim())
+        if (celulas.length < 3) continue
+        if (/^sexo$/i.test(celulas[0])) continue             // cabeçalho
+        if (!/^[MF]$/i.test(celulas[0])) continue            // só linha de dado
+
+        const bruto = celulas.find(c => /R\$/.test(c)) ?? ''
+        const valor = bruto
+            ? Number(bruto.replace(/[^\d,.-]/g, '').replace(/\./g, '').replace(',', '.'))
+            : null
+
+        out.push({
+            sexo: celulas[0].toUpperCase(),
+            descricao: celulas[1] || null,
+            idade: celulas[2] || null,
+            peso: celulas[3] && !/R\$/.test(celulas[3]) ? celulas[3] : null,
+            valor: Number.isFinite(valor as number) ? (valor as number) : null,
+            kgVivo: celulas.length > 5 ? celulas[5] || null : null,
+        })
+    }
+    return out
+}
+
+/** Entidades numéricas e nomeadas que os sites de leiloeira usam à vontade. */
+function decodeEntidades(s: string): string {
+    return s
+        .replace(/&#x([0-9a-f]+);/gi, (_m, h) => String.fromCharCode(parseInt(h, 16)))
+        .replace(/&#(\d+);/g, (_m, d) => String.fromCharCode(Number(d)))
+        .replace(/&nbsp;/g, ' ')
+        .replace(/&amp;/g, '&')
+        .replace(/&quot;/g, '"')
+        .replace(/&(?:ordm|deg);/g, 'º')
+}
+
 /* ─── Coleta ─────────────────────────────────────────────────────────────── */
 
 export interface FonteRow {
@@ -172,6 +278,8 @@ export interface FonteRow {
     site_url: string
     agenda_url: string | null
     modo: 'http' | 'apify'
+    /** COMO ler o site. `modo` diz como buscar; os dois são independentes. */
+    parser?: string | null
     ativo: boolean
 }
 
@@ -179,10 +287,24 @@ export interface ResultadoColeta {
     fonte: string
     modo: string
     eventos: EventoColetado[]
+    /** Médias por URL de evento — só o Leiloboi publica isso hoje. */
+    medias: Map<string, MediaColetada[]>
     paginas: number
     custoUsd: number
     duracaoMs: number
     erro?: string
+}
+
+const UA = 'BulaAssessoria-RadarMercado/1.0 (+https://bulaassessoria.com)'
+
+async function buscarHtml(url: string): Promise<string | null> {
+    try {
+        const res = await fetch(url, { headers: { 'User-Agent': UA }, signal: AbortSignal.timeout(20_000) })
+        if (!res.ok) return null
+        return await res.text()
+    } catch {
+        return null
+    }
 }
 
 const ddmmaaaa = (d: Date) =>
@@ -195,23 +317,53 @@ const iso = (d: Date) => d.toISOString().slice(0, 10)
  */
 export async function coletarFonte(fonte: FonteRow, dias = 30): Promise<ResultadoColeta> {
     const t0 = Date.now()
-    const base: ResultadoColeta = { fonte: fonte.leiloeira, modo: fonte.modo, eventos: [], paginas: 0, custoUsd: 0, duracaoMs: 0 }
+    const base: ResultadoColeta = {
+        fonte: fonte.leiloeira, modo: fonte.modo, eventos: [], medias: new Map(),
+        paginas: 0, custoUsd: 0, duracaoMs: 0,
+    }
+    const parser = fonte.parser ?? 'generico'
 
     try {
-        if (fonte.modo === 'http' && fonte.agenda_url) {
+        if (fonte.modo === 'http' && fonte.agenda_url && parser === 'programa') {
+            // Programa: uma página POR DIA.
             const hoje = new Date()
             for (let i = 0; i < dias; i++) {
                 const d = new Date(Date.UTC(hoje.getUTCFullYear(), hoje.getUTCMonth(), hoje.getUTCDate() + i))
-                const url = fonte.agenda_url.replace('{data}', ddmmaaaa(d))
-                try {
-                    const res = await fetch(url, {
-                        headers: { 'User-Agent': 'BulaAssessoria-RadarMercado/1.0 (+https://bulaassessoria.com)' },
-                        signal: AbortSignal.timeout(15_000),
-                    })
-                    if (!res.ok) continue
+                const html = await buscarHtml(fonte.agenda_url.replace('{data}', ddmmaaaa(d)))
+                if (!html) continue
+                base.paginas++
+                base.eventos.push(...parseAgendaPrograma(html, iso(d)))
+            }
+        } else if (fonte.modo === 'http' && fonte.agenda_url && parser === 'leiloboi') {
+            // Leiloboi: uma página POR MÊS + detalhe de cada leilão (médias).
+            // Varre o mês corrente e os seguintes que a janela alcançar, mais o
+            // mês ANTERIOR — é lá que ficam as médias já publicadas, que é o
+            // dado que só esta fonte tem.
+            const hoje = new Date()
+            const meses = new Set<string>()
+            for (let k = -1; k <= Math.ceil(dias / 30); k++) {
+                const d = new Date(Date.UTC(hoje.getUTCFullYear(), hoje.getUTCMonth() + k, 1))
+                meses.add(`${String(d.getUTCMonth() + 1).padStart(2, '0')}-${d.getUTCFullYear()}`)
+            }
+            for (const mesano of meses) {
+                const html = await buscarHtml(fonte.agenda_url.replace('{mesano}', mesano))
+                if (!html) continue
+                base.paginas++
+                const ano = Number(mesano.split('-')[1])
+                const evs = parseResultadosLeiloboi(html, ano)
+                base.eventos.push(...evs)
+
+                // Médias só existem em leilão JÁ REALIZADO — não gasta request
+                // em evento futuro, que ainda não tem tabela nenhuma.
+                const hojeIso = iso(new Date())
+                for (const ev of evs) {
+                    if (!ev.url || !ev.data || ev.data > hojeIso) continue
+                    const det = await buscarHtml(ev.url)
+                    if (!det) continue
                     base.paginas++
-                    base.eventos.push(...parseAgendaPrograma(await res.text(), iso(d)))
-                } catch { /* dia que falhou não derruba a coleta inteira */ }
+                    const m = parseMediasLeiloboi(det)
+                    if (m.length) base.medias.set(ev.url, m)
+                }
             }
         } else {
             if (!isApifyConfigured()) throw new Error('APIFY_TOKEN ausente — fonte em modo apify não pode ser coletada.')
@@ -276,6 +428,60 @@ export async function salvarEventos(
     if (error) throw new Error(error.message)
 
     return { novos: fps.filter(f => !jaTinha.has(f)).length, atualizados: jaTinha.size }
+}
+
+/**
+ * Grava as médias, ligando cada tabela ao evento correspondente pela URL.
+ * Idempotente por fingerprint (evento + sexo + descrição + idade).
+ */
+export async function salvarMedias(
+    supabase: SupabaseClient,
+    fonte: FonteRow,
+    eventos: EventoColetado[],
+    medias: Map<string, MediaColetada[]>,
+): Promise<number> {
+    if (medias.size === 0) return 0
+    const leiloeira = normalizeLeiloeira(fonte.leiloeira).nome
+    const porUrl = new Map(eventos.filter(e => e.url).map(e => [e.url as string, e]))
+
+    // Resolve o id do evento já gravado, para amarrar a média nele.
+    const fps = [...medias.keys()]
+        .map(url => porUrl.get(url))
+        .filter((e): e is EventoColetado => !!e)
+        .map(e => fingerprintEvento(fonte.leiloeira, e.data, e.nome))
+    const { data: evRows } = await supabase
+        .from('mercado_eventos').select('id, fingerprint').in('fingerprint', fps)
+    const idPorFp = new Map((evRows ?? []).map(r => {
+        const x = r as { id: string; fingerprint: string }
+        return [x.fingerprint, x.id]
+    }))
+
+    const linhas: Array<Record<string, unknown>> = []
+    for (const [url, lista] of medias) {
+        const ev = porUrl.get(url)
+        if (!ev) continue
+        const fp = fingerprintEvento(fonte.leiloeira, ev.data, ev.nome)
+        for (const m of lista) {
+            linhas.push({
+                evento_id: idPorFp.get(fp) ?? null,
+                leiloeira,
+                evento_nome: ev.nome,
+                data: ev.data,
+                sexo: m.sexo,
+                descricao: m.descricao,
+                idade: m.idade,
+                peso: m.peso,
+                valor: m.valor,
+                kg_vivo: m.kgVivo,
+                fingerprint: `${fp}|${m.sexo ?? ''}|${chave(m.descricao ?? '')}|${chave(m.idade ?? '')}`,
+            })
+        }
+    }
+    if (!linhas.length) return 0
+
+    const { error } = await supabase.from('mercado_medias').upsert(linhas, { onConflict: 'fingerprint' })
+    if (error) throw new Error(error.message)
+    return linhas.length
 }
 
 /**

@@ -69,6 +69,16 @@ export interface MercadoKpis {
     leiloeirasAtivas: number
 }
 
+export interface MercadoMedia {
+    sexo: string
+    idade: string
+    valor: number
+    data: string
+    evento: string
+    /** Variação % contra a ocorrência anterior da MESMA categoria. */
+    variacaoPct: number | null
+}
+
 export interface MercadoDados {
     kpis: MercadoKpis
     eventos: MercadoEvento[]
@@ -77,6 +87,8 @@ export interface MercadoDados {
     porUf: Array<{ uf: string; total: number }>
     fontes: MercadoFonte[]
     coletas: MercadoColeta[]
+    medias: MercadoMedia[]
+    mediasAtualizadasEm: string | null
     apify: {
         configurado: boolean
         conta: string | null
@@ -101,7 +113,7 @@ export async function getMercado(): Promise<MercadoDados> {
     const hoje = hojeIso()
     const em30 = maisDias(30)
 
-    const [evRes, fontesRes, coletasRes] = await Promise.all([
+    const [evRes, fontesRes, coletasRes, mediasRes] = await Promise.all([
         supabase.from('mercado_eventos')
             .select('id, leiloeira, nome, data, hora, categoria, local, uf, cronograma_id, match_score, descoberto_em')
             .gte('data', hoje)
@@ -114,6 +126,11 @@ export async function getMercado(): Promise<MercadoDados> {
             .select('id, modo, status, paginas, eventos_novos, custo_usd, duracao_ms, erro, created_at')
             .order('created_at', { ascending: false })
             .limit(12),
+        supabase.from('mercado_medias')
+            .select('sexo, idade, valor, data, evento_nome')
+            .not('valor', 'is', null)
+            .order('data', { ascending: false })
+            .limit(400),
     ])
 
     const eventos: MercadoEvento[] = (evRes.data ?? []).map(e => {
@@ -157,6 +174,36 @@ export async function getMercado(): Promise<MercadoDados> {
         cur.nelore++
         porLeiloeiraMap.set(e.leiloeira, cur)
     }
+
+    // ── Médias: última cotação de cada categoria + variação contra a anterior ──
+    // Agrupa por (sexo, idade) porque é assim que o pecuarista compara preço:
+    // "fêmea de 12 a 18" é uma linha de mercado, não um leilão específico.
+    const porCategoria = new Map<string, Array<{ valor: number; data: string; evento: string }>>()
+    for (const r of (mediasRes.data ?? [])) {
+        const x = r as Record<string, unknown>
+        const sexo = String(x.sexo ?? '').toUpperCase()
+        const idade = String(x.idade ?? '').trim()
+        const valor = Number(x.valor)
+        if (!sexo || !idade || !Number.isFinite(valor)) continue
+        const k = `${sexo}|${idade}`
+        if (!porCategoria.has(k)) porCategoria.set(k, [])
+        porCategoria.get(k)!.push({ valor, data: String(x.data ?? ''), evento: String(x.evento_nome ?? '') })
+    }
+    const medias: MercadoMedia[] = [...porCategoria.entries()].map(([k, lista]) => {
+        const [sexo, idade] = k.split('|')
+        // Já vem ordenado por data desc do banco; [0] é a cotação mais recente.
+        const atual = lista[0]
+        const anterior = lista.find(l => l.data !== atual.data)
+        return {
+            sexo, idade,
+            valor: atual.valor,
+            data: atual.data,
+            evento: atual.evento,
+            variacaoPct: anterior && anterior.valor > 0
+                ? Math.round(((atual.valor - anterior.valor) / anterior.valor) * 1000) / 10
+                : null,
+        }
+    }).sort((a, b) => a.sexo === b.sexo ? a.valor - b.valor : a.sexo.localeCompare(b.sexo))
 
     let apify = { configurado: isApifyConfigured(), conta: null as string | null, gastoUsd: 0, limiteUsd: 0, percentual: 0 }
     if (apify.configurado) {
@@ -212,6 +259,10 @@ export async function getMercado(): Promise<MercadoDados> {
                 createdAt: String(r.created_at ?? ''),
             }
         }),
+        medias,
+        mediasAtualizadasEm: medias.length
+            ? medias.reduce((max, m) => (m.data > max ? m.data : max), medias[0].data)
+            : null,
         apify,
     }
 }

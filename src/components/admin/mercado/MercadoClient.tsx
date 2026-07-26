@@ -3,7 +3,7 @@
 import { useMemo, useState } from 'react'
 import {
     Radar, RefreshCw, Loader2, ExternalLink, AlertTriangle,
-    CalendarDays, Target, Beef, Building2, CircleDollarSign, Check,
+    CalendarDays, Target, Beef, Building2, CircleDollarSign, Check, TrendingUp,
 } from 'lucide-react'
 import type { MercadoDados, MercadoEvento } from '@/app/sistema/actions/mercado'
 import { ehNelorePo } from '@/lib/mercado-categorias'
@@ -272,6 +272,57 @@ export function MercadoClient({ dados }: Props) {
                                     <span className="text-xs tabular-nums text-muted-foreground w-24 text-right">
                                         {l.total} · {l.nelore} nelore
                                     </span>
+                                </div>
+                            )
+                        })}
+                    </div>
+                </section>
+            )}
+
+            {/* ── Médias praticadas ─────────────────────────────────────── */}
+            {dados.medias.length > 0 && (
+                <section className="rounded-xl border bg-card p-4">
+                    <div className="flex flex-wrap items-baseline justify-between gap-2 mb-1">
+                        <h2 className="font-display-tight text-sm uppercase tracking-wide flex items-center gap-2">
+                            <TrendingUp className="h-4 w-4" /> Médias praticadas
+                        </h2>
+                        <span className="text-xs text-muted-foreground">
+                            Leiloboi · último pregão {dados.mediasAtualizadasEm ? fmtData(dados.mediasAtualizadasEm) : ''}
+                        </span>
+                    </div>
+                    <p className="text-xs text-muted-foreground mb-4">
+                        Preço médio por categoria e a variação contra o pregão anterior. É a única
+                        referência de preço praticado no sistema — serve para o assessor argumentar com número.
+                    </p>
+                    <div className="grid sm:grid-cols-2 gap-x-6 gap-y-1">
+                        {(['F', 'M'] as const).map(sexo => {
+                            const linhas = dados.medias.filter(m => m.sexo === sexo)
+                            if (!linhas.length) return null
+                            return (
+                                <div key={sexo}>
+                                    <div className="text-[11px] uppercase tracking-wide text-muted-foreground mb-1 mt-2">
+                                        {sexo === 'F' ? 'Fêmeas' : 'Machos'}
+                                    </div>
+                                    {linhas.map(m => (
+                                        <div key={`${m.sexo}-${m.idade}`}
+                                            className="flex items-center justify-between gap-3 border-b last:border-0 py-1.5 text-sm">
+                                            <span className="text-muted-foreground truncate" title={m.idade}>{m.idade}</span>
+                                            <span className="flex items-center gap-2 whitespace-nowrap">
+                                                <span className="tabular-nums font-medium">
+                                                    {m.valor.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL', maximumFractionDigits: 0 })}
+                                                </span>
+                                                {m.variacaoPct != null && (
+                                                    <span
+                                                        className="tabular-nums text-[11px] w-14 text-right"
+                                                        style={{ color: m.variacaoPct === 0 ? undefined : m.variacaoPct > 0 ? OURO : NEUTRO }}
+                                                        title={`vs pregão anterior da mesma categoria`}
+                                                    >
+                                                        {m.variacaoPct > 0 ? '+' : ''}{m.variacaoPct.toFixed(1)}%
+                                                    </span>
+                                                )}
+                                            </span>
+                                        </div>
+                                    ))}
                                 </div>
                             )
                         })}
