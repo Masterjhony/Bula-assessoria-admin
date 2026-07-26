@@ -22,6 +22,7 @@ import {
     casarComCronograma,
     type FonteRow,
 } from '@/lib/mercado-leiloes'
+import { buscarRankingAcnb, salvarRankingAcnb } from '@/lib/mercado-acnb'
 
 export const maxDuration = 300
 
@@ -103,7 +104,18 @@ async function run(dias: number) {
     // o gap refletir o mercado inteiro e não o de uma leiloeira só.
     const match = await casarComCronograma(supabase)
 
-    return NextResponse.json({ ok: true, fontes: resultados, match })
+    // Ranking ACNB: outra natureza (gente, não leilão) e outro protocolo (API
+    // pública), por isso fora do laço de fontes. Custo zero, ~3 requests.
+    let acnb: Record<string, unknown> = { ok: false }
+    try {
+        const r = await buscarRankingAcnb()
+        const s = await salvarRankingAcnb(supabase, r.calendario, r.criadores)
+        acnb = { ok: true, calendario: r.calendario?.nome ?? null, paginas: r.paginas, ...s }
+    } catch (e) {
+        acnb = { ok: false, erro: e instanceof Error ? e.message : String(e) }
+    }
+
+    return NextResponse.json({ ok: true, fontes: resultados, match, acnb })
 }
 
 export async function POST(req: NextRequest) {

@@ -3,9 +3,9 @@
 import { useMemo, useState } from 'react'
 import {
     Radar, RefreshCw, Loader2, ExternalLink, AlertTriangle,
-    CalendarDays, Target, Beef, Building2, CircleDollarSign, Check, TrendingUp,
+    CalendarDays, Target, Beef, Building2, CircleDollarSign, Check, TrendingUp, Users,
 } from 'lucide-react'
-import type { MercadoDados, MercadoEvento } from '@/app/sistema/actions/mercado'
+import type { MercadoDados, MercadoEvento, MercadoCriador } from '@/app/sistema/actions/mercado'
 import { ehNelorePo } from '@/lib/mercado-categorias'
 
 /**
@@ -336,6 +336,9 @@ export function MercadoClient({ dados }: Props) {
                 <Distribuicao titulo="Nelore PO por praça (UF)" itens={dados.porUf.map(c => ({ rotulo: c.uf, valor: c.total }))} />
             </section>
 
+            {/* ── Prospecção: ranking ACNB × nossa base ─────────────────── */}
+            {dados.criadores.length > 0 && <Criadores dados={dados} />}
+
             {/* ── Operação ──────────────────────────────────────────────── */}
             <section className="grid lg:grid-cols-2 gap-4">
                 <div className="rounded-xl border bg-card p-4">
@@ -511,6 +514,109 @@ function Distribuicao({ titulo, itens }: { titulo: string; itens: Array<{ rotulo
                 </div>
             )}
         </div>
+    )
+}
+
+/**
+ * Ranking oficial da ACNB cruzado com a nossa base. A coluna que importa é a
+ * SITUAÇÃO: quem já é nosso, quem tem porta de entrada (sobrenome raro em comum
+ * com alguém do CRM) e quem é prospecção do zero. Ordenado por posição, porque
+ * quem está no topo do ranking movimenta mais animal.
+ */
+function Criadores({ dados }: { dados: MercadoDados }) {
+    const [filtro, setFiltro] = useState<'todos' | 'ausente' | 'relacionado' | 'nosso'>('todos')
+
+    const cont = useMemo(() => ({
+        todos: dados.criadores.length,
+        nosso: dados.criadores.filter(c => c.situacao === 'cliente' || c.situacao === 'lead').length,
+        relacionado: dados.criadores.filter(c => c.situacao === 'relacionado').length,
+        ausente: dados.criadores.filter(c => c.situacao === 'ausente').length,
+    }), [dados.criadores])
+
+    const lista = useMemo(() => dados.criadores.filter(c =>
+        filtro === 'todos' ? true
+            : filtro === 'nosso' ? (c.situacao === 'cliente' || c.situacao === 'lead')
+                : c.situacao === filtro,
+    ), [dados.criadores, filtro])
+
+    return (
+        <section className="rounded-xl border bg-card">
+            <div className="flex flex-wrap items-center justify-between gap-3 border-b px-4 py-3">
+                <div>
+                    <h2 className="font-display-tight text-sm uppercase tracking-wide flex items-center gap-2">
+                        <Users className="h-4 w-4" /> Maiores criadores de Nelore × nossa base
+                    </h2>
+                    <p className="text-xs text-muted-foreground mt-0.5">
+                        Ranking oficial ACNB {dados.criadoresCalendario ? `· ${dados.criadoresCalendario}` : ''}
+                    </p>
+                </div>
+                <div className="flex rounded-lg border overflow-hidden text-xs">
+                    {([
+                        ['ausente', `Não temos (${cont.ausente})`],
+                        ['relacionado', `Porta de entrada (${cont.relacionado})`],
+                        ['nosso', `Já é nosso (${cont.nosso})`],
+                        ['todos', `Todos (${cont.todos})`],
+                    ] as const).map(([id, label]) => (
+                        <button key={id} onClick={() => setFiltro(id)}
+                            className={`px-3 py-1.5 ${filtro === id ? 'bg-accent font-medium' : 'hover:bg-accent/50'}`}>
+                            {label}
+                        </button>
+                    ))}
+                </div>
+            </div>
+            <div className="max-h-[26rem] overflow-y-auto">
+                <table className="w-full text-sm">
+                    <tbody>
+                        {lista.map(c => (
+                            <tr key={`${c.posicao}-${c.nome}`} className="border-b last:border-0 hover:bg-accent/40">
+                                <td className="px-4 py-2 w-12 tabular-nums text-muted-foreground">{c.posicao ?? '—'}</td>
+                                <td className="px-2 py-2">
+                                    {c.nome}
+                                    {c.relacionados.length > 0 && (
+                                        <div className="text-[11px] text-muted-foreground mt-0.5">
+                                            via <em>{c.relacionados[0].token}</em> — {c.relacionados.map(r => r.nome).slice(0, 2).join(' · ')}
+                                        </div>
+                                    )}
+                                </td>
+                                <td className="px-2 py-2 w-24 text-right tabular-nums text-muted-foreground">
+                                    {c.pontos != null ? c.pontos.toLocaleString('pt-BR', { maximumFractionDigits: 0 }) : '—'}
+                                </td>
+                                <td className="px-4 py-2 w-36">
+                                    <SituacaoBadge s={c.situacao} />
+                                </td>
+                            </tr>
+                        ))}
+                        {lista.length === 0 && (
+                            <tr><td className="px-4 py-6 text-center text-sm text-muted-foreground">Nada nesta faixa.</td></tr>
+                        )}
+                    </tbody>
+                </table>
+            </div>
+        </section>
+    )
+}
+
+function SituacaoBadge({ s }: { s: MercadoCriador['situacao'] }) {
+    if (s === 'cliente' || s === 'lead') {
+        return (
+            <span className="inline-flex items-center gap-1 text-xs text-muted-foreground">
+                <Check className="h-3 w-3" /> {s === 'cliente' ? 'cliente' : 'no CRM'}
+            </span>
+        )
+    }
+    if (s === 'relacionado') {
+        return (
+            <span className="inline-flex items-center gap-1 rounded px-1.5 py-0.5 text-xs"
+                style={{ background: `${NEUTRO}22`, color: NEUTRO }}>
+                porta de entrada
+            </span>
+        )
+    }
+    return (
+        <span className="inline-flex items-center gap-1 rounded px-1.5 py-0.5 text-xs font-medium"
+            style={{ background: `${OURO}22`, color: OURO }}>
+            não temos
+        </span>
     )
 }
 

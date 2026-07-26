@@ -79,6 +79,14 @@ export interface MercadoMedia {
     variacaoPct: number | null
 }
 
+export interface MercadoCriador {
+    posicao: number | null
+    nome: string
+    pontos: number | null
+    situacao: 'cliente' | 'lead' | 'relacionado' | 'ausente'
+    relacionados: Array<{ nome: string; token: string }>
+}
+
 export interface MercadoDados {
     kpis: MercadoKpis
     eventos: MercadoEvento[]
@@ -89,6 +97,8 @@ export interface MercadoDados {
     coletas: MercadoColeta[]
     medias: MercadoMedia[]
     mediasAtualizadasEm: string | null
+    criadores: MercadoCriador[]
+    criadoresCalendario: string | null
     apify: {
         configurado: boolean
         conta: string | null
@@ -113,7 +123,7 @@ export async function getMercado(): Promise<MercadoDados> {
     const hoje = hojeIso()
     const em30 = maisDias(30)
 
-    const [evRes, fontesRes, coletasRes, mediasRes] = await Promise.all([
+    const [evRes, fontesRes, coletasRes, mediasRes, criadoresRes] = await Promise.all([
         supabase.from('mercado_eventos')
             .select('id, leiloeira, nome, data, hora, categoria, local, uf, cronograma_id, match_score, descoberto_em')
             .gte('data', hoje)
@@ -131,6 +141,10 @@ export async function getMercado(): Promise<MercadoDados> {
             .not('valor', 'is', null)
             .order('data', { ascending: false })
             .limit(400),
+        supabase.from('mercado_criadores')
+            .select('posicao, nome, pontos, situacao, relacionados, calendario_nome')
+            .order('posicao', { ascending: true })
+            .limit(200),
     ])
 
     const eventos: MercadoEvento[] = (evRes.data ?? []).map(e => {
@@ -259,6 +273,22 @@ export async function getMercado(): Promise<MercadoDados> {
                 createdAt: String(r.created_at ?? ''),
             }
         }),
+        criadores: (criadoresRes.data ?? []).map(r => {
+            const x = r as Record<string, unknown>
+            return {
+                posicao: x.posicao == null ? null : Number(x.posicao),
+                nome: String(x.nome ?? ''),
+                pontos: x.pontos == null ? null : Number(x.pontos),
+                situacao: String(x.situacao ?? 'ausente') as MercadoCriador['situacao'],
+                relacionados: Array.isArray(x.relacionados)
+                    ? (x.relacionados as Array<Record<string, unknown>>)
+                        .map(v => ({ nome: String(v.nome ?? ''), token: String(v.token ?? '') }))
+                    : [],
+            }
+        }),
+        criadoresCalendario: (criadoresRes.data ?? [])[0]
+            ? String(((criadoresRes.data ?? [])[0] as Record<string, unknown>).calendario_nome ?? '')
+            : null,
         medias,
         mediasAtualizadasEm: medias.length
             ? medias.reduce((max, m) => (m.data > max ? m.data : max), medias[0].data)
