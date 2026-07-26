@@ -8,6 +8,7 @@
     { "path": "/api/whatsapp/concierge/catchup", "schedule": "*/5 * * * *" },
     { "path": "/api/cron/auditoria-conversas", "schedule": "0 8 * * *" },
     { "path": "/api/crm/habilitacao-sweep", "schedule": "15 * * * *" },
-    { "path": "/api/cron/followup-callback", "schedule": "*/30 * * * *" }
+    { "path": "/api/cron/followup-callback", "schedule": "*/30 * * * *" },
+    { "path": "/api/mercado/coletar", "schedule": "0 9 * * *" }
   ]
 }
