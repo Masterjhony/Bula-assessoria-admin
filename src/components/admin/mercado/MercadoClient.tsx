@@ -5,7 +5,8 @@ import {
     Radar, RefreshCw, Loader2, ExternalLink, AlertTriangle,
     CalendarDays, Target, Beef, Building2, CircleDollarSign, Check,
 } from 'lucide-react'
-import { ehNelorePo, type MercadoDados, type MercadoEvento } from '@/app/sistema/actions/mercado'
+import type { MercadoDados, MercadoEvento } from '@/app/sistema/actions/mercado'
+import { ehNelorePo } from '@/lib/mercado-categorias'
 
 /**
  * RADAR DE MERCADO.

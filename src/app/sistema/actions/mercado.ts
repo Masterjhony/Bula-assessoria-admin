@@ -3,6 +3,7 @@
 import { createClient } from '@supabase/supabase-js'
 import { getApifyAccount, getApifyUso, isApifyConfigured } from '@/lib/apify'
 import { normalizeLeiloeira } from '@/lib/mercado-leiloes'
+import { ehNelorePo } from '@/lib/mercado-categorias'
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Leitura do RADAR DE MERCADO para a tela /sistema/mercado.
@@ -92,13 +93,8 @@ function maisDias(n: number): string {
     return d.toISOString().slice(0, 10)
 }
 
-/**
- * A Bula trabalha com **Nelore PO**, e só. "Nelore" solto não serve de filtro:
- * a agenda traz também Nelore CEIP (animal de corte certificado) e Nelore
- * Pintado, que não são o nosso mercado. Aceita "Nelore PO" e "Nelore P.O.".
- */
-export const ehNelorePo = (c: string | null | undefined) =>
-    /nelore\s*p\.?\s*o\.?(\b|$)/i.test(String(c ?? ''))
+// A classificação vive em `@/lib/mercado-categorias` (módulo puro): arquivo
+// 'use server' só exporta função async, e reexportar daqui quebraria o build.
 
 export async function getMercado(): Promise<MercadoDados> {
     const supabase = svc()
