@@ -49,7 +49,6 @@ const navConfig: NavEntry[] = [
       { href: '/sistema/leiloes/fechamento', label: 'Fechamento de Leilões', icon: BarChart3 },
       { href: '/sistema/leiloes/relatorios', label: 'Relatórios', icon: FileText },
       { href: '/sistema/leiloes/equipe', label: 'Equipe', icon: Users },
-      { href: '/sistema/mercado', label: 'Radar de Mercado', icon: Radar },
     ],
   },
   {
@@ -63,6 +62,7 @@ const navConfig: NavEntry[] = [
   {
     label: 'Ferramentas', icon: Sparkles,
     items: [
+      { href: '/sistema/mercado', label: 'Radar de Mercado', icon: Radar },
       { href: '/sistema/lances', label: 'Lances do Pregão', icon: Gavel },
       { href: '/sistema/catalogos-whatsapp', label: 'Catálogos WhatsApp', icon: FileText },
       { href: '/sistema/ia', label: 'IA Mapeamento', icon: Sparkles },
