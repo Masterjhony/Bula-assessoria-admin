@@ -31,6 +31,8 @@ import {
     dailyCount,
     effectiveDailyCap,
     incrementDailyCountBy,
+    withinBusinessHours,
+    nextAllowedSendAt,
 } from '@/lib/whatsapp-guardrails'
 import { WHATSAPP_SERVER_URL, vpsHeaders } from '@/lib/whatsapp-vps'
 
@@ -98,6 +100,22 @@ export async function POST(
     const channel: 'cloud' | 'baileys' = isWhatsappCloudApiConfigured() ? 'cloud' : 'baileys'
     const guardrails = await loadGuardrails(supabase)
     const tz = guardrails.business_hours.timezone
+
+    // 0) Horário: campanha é mensagem NOSSA, não pode cair de madrugada. Este
+    //    caminho não passa pelo whatsapp-gateway (fala direto com a Cloud API /
+    //    VPS), então a checagem precisa existir aqui também — senão a trava dos
+    //    guard rails só valeria para o bot e não para o disparo em massa.
+    if (guardrails.enabled && !withinBusinessHours(guardrails)) {
+        const proximo = nextAllowedSendAt(guardrails)
+        return NextResponse.json(
+            {
+                error: `Fora do horário de envio (${guardrails.business_hours.start}–${guardrails.business_hours.end}, ${tz}). Próxima janela: ${proximo.toLocaleString('pt-BR', { timeZone: tz })}.`,
+                blocked_by: 'business_hours',
+                next_window: proximo.toISOString(),
+            },
+            { status: 409 },
+        )
+    }
 
     // 1) Opt-out por número (complementa o filtro por flag do resolveSegment):
     //    remove quem está em whatsapp_optouts mesmo sem o lead estar marcado.

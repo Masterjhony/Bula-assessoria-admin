@@ -1203,20 +1203,49 @@ async function applyConciergeEffects(
         const v = u[k]
         if (v !== undefined && v !== null && v !== '') nextExtra[k] = v
     }
-    // O lead respondeu nesta rodada (applyConciergeEffects só roda em turno do
-    // lead) → um callback agendado antes perdeu o sentido: ele voltou à conversa.
-    // Reabre logo abaixo se ESTA mesma resposta trouxe uma nova promessa.
-    if (prevExtra.followup_due_at != null) nextExtra.followup_due_at = null
+    // PROMESSA EM ABERTO — "depois eu te mando".
+    //
+    // ANTES daqui, o callback agendado era ZERADO a cada resposta do lead e só
+    // renascia se a IA reemitisse `retomada_combinada` no MESMO turno. Bastava o
+    // lead mandar um "ok" depois de prometer o documento para o agendamento
+    // sumir de vez — a promessa nunca era cobrada. Agora a promessa só é
+    // encerrada por EVIDÊNCIA (o documento chegou / o dado foi preenchido),
+    // nunca pelo lead ter dito qualquer outra coisa.
+    const agora = new Date().toISOString()
 
-    // "Quando-então": janela combinada vira timestamp p/ o follow-up saber a hora,
-    // e uma DATA concreta (followup_due_at) p/ o cron de callback disparar o
-    // template de reabertura quando a janela de 24h já tiver fechado.
+    // 1) Nova promessa nesta resposta → (re)agenda e registra no histórico.
     if (typeof u.retomada_combinada === 'string' && u.retomada_combinada.trim()) {
-        nextExtra.retomada_combinada_at = new Date().toISOString()
-        const due = parseRetomadaDueAt(u.retomada_combinada, new Date().toISOString())
+        nextExtra.retomada_combinada_at = agora
+        const due = parseRetomadaDueAt(u.retomada_combinada, agora)
         if (due) {
             nextExtra.followup_due_at = due
-            delete nextExtra.followup_sent_at // nova promessa reabre o agendamento
+            delete nextExtra.followup_sent_at   // promessa nova reabre o agendamento
+            delete nextExtra.followup_failed_at // e desfaz a desistência anterior
+        }
+        // Registro durável da promessa. É o embrião de `lead_compromissos`: fica
+        // em extra_data (padrão de schema drift do projeto) para não depender de
+        // migration, e guarda O QUE foi prometido — o cron de cobrança precisa
+        // saber se falta o comprovante de renda ou a certidão de ônus, porque
+        // "faltou só o comprovante de renda" converte muito acima de um
+        // "podemos seguir?" genérico.
+        const promessas = Array.isArray(prevExtra.promessas) ? [...prevExtra.promessas] : []
+        promessas.unshift({
+            texto: u.retomada_combinada.trim(),
+            objeto: typeof u.motivo_pendencia === 'string' ? u.motivo_pendencia : null,
+            prometido_em: agora,
+            prazo: due,
+            estado: 'aberto',
+        })
+        nextExtra.promessas = promessas.slice(0, 20)
+    }
+    // 2) SEM promessa nova, mas existe agendamento: ele SOBREVIVE. Só empurramos
+    //    quando já venceu — cobrar no mesmo minuto em que a pessoa acabou de
+    //    escrever é o jeito mais rápido de parecer robô.
+    else if (prevExtra.followup_due_at != null) {
+        const venceEm = new Date(String(prevExtra.followup_due_at)).getTime()
+        if (Number.isFinite(venceEm) && venceEm <= Date.now()) {
+            const remarcado = parseRetomadaDueAt('amanhã de manhã', agora)
+            if (remarcado) nextExtra.followup_due_at = remarcado
         }
     }
 
@@ -1287,6 +1316,25 @@ async function applyConciergeEffects(
             docsCount++
             docTipos.push(promoted.tipo)
         }
+    }
+
+    // FECHAMENTO DA PROMESSA POR EVIDÊNCIA.
+    //
+    // A promessa em aberto (acima) sobrevive à resposta do lead de propósito —
+    // o que a encerra é o documento CHEGAR de fato, nunca o lead dizer que
+    // mandou. `docsCount > ctx.docs.count` significa que um arquivo real entrou
+    // em crm_lead_documentos nesta mensagem. Sem esta trava, a mudança de cima
+    // trocaria "nunca cobra" por "cobra quem já entregou", que é pior.
+    if (docsCount > ctx.docs.count) {
+        const abertas = Array.isArray(nextExtra.promessas) ? [...(nextExtra.promessas as Record<string, unknown>[])] : []
+        if (abertas.length) {
+            nextExtra.promessas = abertas.map((p, i) =>
+                i === 0 && p?.estado === 'aberto'
+                    ? { ...p, estado: 'cumprida', cumprida_em: new Date().toISOString() }
+                    : p)
+        }
+        // Documento chegou: não há mais o que cobrar nesta rodada.
+        nextExtra.followup_due_at = null
     }
 
     const update: Record<string, unknown> = {

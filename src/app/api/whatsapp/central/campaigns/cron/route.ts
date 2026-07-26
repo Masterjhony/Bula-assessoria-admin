@@ -34,6 +34,11 @@ import {
     isWhatsappCloudApiConfigured,
     sendCampaignViaCloudApi,
 } from '@/lib/whatsapp-cloud-api'
+import {
+    loadGuardrails,
+    withinBusinessHours,
+    nextAllowedSendAt,
+} from '@/lib/whatsapp-guardrails'
 
 export const maxDuration = 60
 
@@ -271,6 +276,30 @@ export async function GET(req: NextRequest) {
     const recipients = (recipientsRaw as RecipientRow[] | null) ?? []
     if (recipients.length === 0) {
         return NextResponse.json({ processed: 0, sent: 0, stopped: 0, at: now.toISOString() })
+    }
+
+    // Fora do horário permitido, follow-up NÃO é enviado nem descartado: é ADIADO
+    // para a próxima janela. O cron roda de madrugada normalmente (é quando o
+    // delay de "3 dias" vence), então sem isto a sequência bateria no cliente às
+    // 3h da manhã. Reagenda em lote e sai — na próxima passada dentro da janela
+    // eles voltam a ser elegíveis.
+    const guardrails = await loadGuardrails(supabase)
+    if (guardrails.enabled && !withinBusinessHours(guardrails, now)) {
+        const proximo = nextAllowedSendAt(guardrails, now)
+        await supabase
+            .from('whatsapp_campaign_recipients')
+            .update({ next_send_at: proximo.toISOString() })
+            .in('id', recipients.map(r => r.id))
+            .is('stopped_at', null)
+        return NextResponse.json({
+            processed: 0,
+            sent: 0,
+            stopped: 0,
+            deferred: recipients.length,
+            reason: 'outside_business_hours',
+            next_window: proximo.toISOString(),
+            at: now.toISOString(),
+        })
     }
 
     // Agrupa por campanha (uma busca de campanha e steps por id) e por lead

@@ -298,7 +298,14 @@ export async function sendOutbound(
 
     // 3) Guard rails dependentes do intent
     if (guardsOn) {
-        const hoursGated = req.intent === 'broadcast' || req.intent === 'campaign' || req.intent === 'bot'
+        // Horário comercial trava o que parte de NÓS (campanha/broadcast) e o bot
+        // quando ele INICIA a conversa. Responder alguém que acabou de escrever
+        // nunca é inconveniente — é educação — então bot com janela aberta passa
+        // a qualquer hora. Sem essa distinção, quem manda mensagem às 22h fica
+        // sem resposta até as 8h, que é o oposto de "nunca deixar lead sem
+        // resposta" (ver src/lib/whatsapp-concierge.ts).
+        const botIniciando = req.intent === 'bot' && !isSessionOpen
+        const hoursGated = req.intent === 'broadcast' || req.intent === 'campaign' || botIniciando
         if (hoursGated && !businessHoursOk(cfg)) {
             await logOutbound(supabase, req, phone, channel, 'held', { reason: 'outside_business_hours' })
             return { status: 'held', channel, reason: 'outside_business_hours' }

@@ -123,6 +123,65 @@ export function effectiveDailyCap(cfg: GuardrailsConfig, channel: GuardChannel):
     return Math.min(b.daily_cap, Math.max(b.warmup_start, ramped))
 }
 
+/**
+ * Estamos dentro da janela de horário permitida agora?
+ * Config desligada = sempre true (não trava nada).
+ */
+export function withinBusinessHours(cfg: GuardrailsConfig, at: Date = new Date()): boolean {
+    const b = cfg.business_hours
+    if (!b.enabled) return true
+    return minutesOfDay(b.timezone, at) !== null && insideWindow(minutesOfDay(b.timezone, at)!, b.start, b.end)
+}
+
+/**
+ * Próximo instante DENTRO da janela permitida, a partir de `from`.
+ *
+ * Serve para ADIAR em vez de descartar: uma campanha cujo passo venceu às 3h da
+ * manhã não pode ser enviada nem perdida — ela é reagendada para as 8h. Sem isto,
+ * o guard rail de horário viraria um sumidouro de mensagens.
+ *
+ * Devolve `from` inalterado quando já está dentro da janela (ou a trava está off).
+ */
+export function nextAllowedSendAt(cfg: GuardrailsConfig, from: Date = new Date()): Date {
+    const b = cfg.business_hours
+    if (!b.enabled) return from
+    if (withinBusinessHours(cfg, from)) return from
+
+    // Avança de 15 em 15 minutos até cair na janela (máx. 48h de busca).
+    // Simples e à prova de fuso/virada de dia — o custo é irrelevante (roda 1x por step).
+    const passo = 15 * 60_000
+    for (let i = 1; i <= (48 * 60) / 15; i++) {
+        const t = new Date(from.getTime() + i * passo)
+        if (withinBusinessHours(cfg, t)) return t
+    }
+    return from
+}
+
+function minutesOfDay(timezone: string, at: Date): number | null {
+    try {
+        const parts = new Intl.DateTimeFormat('en-US', {
+            timeZone: timezone, hour12: false, hour: '2-digit', minute: '2-digit',
+        }).formatToParts(at)
+        const hh = parseInt(parts.find(p => p.type === 'hour')?.value ?? '', 10)
+        const mm = parseInt(parts.find(p => p.type === 'minute')?.value ?? '', 10)
+        if (!Number.isFinite(hh) || !Number.isFinite(mm)) return null
+        return hh * 60 + mm
+    } catch {
+        return null
+    }
+}
+
+function insideWindow(nowMin: number, start: string, end: string): boolean {
+    const [sh, sm] = start.split(':').map(n => parseInt(n, 10))
+    const [eh, em] = end.split(':').map(n => parseInt(n, 10))
+    if (!Number.isFinite(sh) || !Number.isFinite(eh)) return true
+    const startMin = sh * 60 + (sm || 0)
+    const endMin = eh * 60 + (em || 0)
+    if (startMin === endMin) return true
+    if (startMin < endMin) return nowMin >= startMin && nowMin < endMin
+    return nowMin >= startMin || nowMin < endMin   // janela cruza a meia-noite
+}
+
 /** Delay aleatório (ms) entre envios num loop — quebra o fingerprint de spam. */
 export function jitterDelayMs(cfg: GuardrailsConfig): number {
     const { min_delay_ms, max_delay_ms } = cfg.baileys
