@@ -67,3 +67,6 @@ outputs/.cache-conversas-ia.json
 
 # Graphify — knowledge graph gerado (determinístico, rebuild via git hooks / `graphify update .`)
 graphify-out/
+
+# Estado local dos terminais Maestri (roles por maquina, nao versionavel)
+.maestri/
