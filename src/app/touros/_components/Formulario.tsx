@@ -9,6 +9,7 @@ import { useSafeReducedMotion } from '../_lib/useSafeReducedMotion'
 import { Reveal } from './ui'
 import { captureUtms, EMPTY_UTM, type Utm } from '../_lib/utm'
 import { initAnalytics, trackFunnel, trackLeadConversion } from '../_lib/analytics'
+import { aplicarMascaraTelefone, whatsappValido } from '@/lib/telefone'
 
 // Vermelho de erro legível sobre superfície escura (WCAG AA).
 const ERR = '#E08A82'
@@ -78,18 +79,11 @@ const STEP_FIELDS: (keyof FormData)[][] = [
   ['quantosTouros', 'inscricaoEstadual'],
 ]
 
-function applyPhoneMask(value: string): string {
-  const d = value.replace(/\D/g, '').slice(0, 11)
-  if (d.length <= 2) return d.length ? `(${d}` : ''
-  if (d.length <= 6) return `(${d.slice(0, 2)}) ${d.slice(2)}`
-  if (d.length <= 10) return `(${d.slice(0, 2)}) ${d.slice(2, 6)}-${d.slice(6)}`
-  return `(${d.slice(0, 2)}) ${d.slice(2, 7)}-${d.slice(7)}`
-}
 
 function validate(d: FormData): Errors {
   const e: Errors = {}
   if (d.nome.trim().length < 3) e.nome = 'Preencha seu nome completo.'
-  if (d.whatsapp.replace(/\D/g, '').length < 10) e.whatsapp = 'Informe um WhatsApp válido com DDD.'
+  if (!whatsappValido(d.whatsapp)) e.whatsapp = 'Informe um WhatsApp válido com DDD.'
   if (d.email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(d.email)) e.email = 'Informe um e-mail válido.'
   if (!d.uf) e.uf = 'Selecione seu estado.'
   if (!d.cabecas) e.cabecas = 'Selecione o tamanho do rebanho.'
@@ -332,7 +326,7 @@ export function LeadForm() {
               <Field label="WhatsApp" error={errors.whatsapp} invalid={invalid('whatsapp')} hint={copy.whatsappHint}>
                 <input
                   type="tel" inputMode="tel" autoComplete="tel"
-                  value={data.whatsapp} onChange={(e) => set('whatsapp', applyPhoneMask(e.target.value))}
+                  value={data.whatsapp} onChange={(e) => set('whatsapp', aplicarMascaraTelefone(e.target.value))}
                   placeholder="(00) 00000-0000" style={inputStyle(!!errors.whatsapp)}
                 />
               </Field>

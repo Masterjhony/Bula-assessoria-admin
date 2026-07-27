@@ -2,6 +2,7 @@ import { NextRequest } from 'next/server'
 import { fail, ok } from '@/lib/respond'
 import { appendLeadToPerpetuoSheet, appendLeadToTourosTabs } from '@/lib/jmp-sheets'
 import { evaluateMql, DEFAULT_JMP_MQL_RULE } from '@/lib/crm-types'
+import { aplicarMascaraTelefone, normalizarWhatsapp } from '@/lib/telefone'
 
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
 const VALID_UFS = new Set([
@@ -50,8 +51,11 @@ export async function POST(req: NextRequest) {
   // canal aqui — exigi-lo só adiciona fricção em tráfego mobile pago (auditoria
   // de mídia/growth). Guardamos se vier, mas não bloqueia o cadastro.
   const email = String(body.email ?? '').trim()
-  const whatsapp = String(body.whatsapp ?? '').trim()
-  const whatsappDigits = whatsapp.replace(/\D/g, '')
+  // Normaliza o código do país ANTES de validar: quem cola o número do
+  // próprio WhatsApp manda "5531988887777". Ver src/lib/telefone.ts.
+  const whatsappBruto = String(body.whatsapp ?? '').trim()
+  const whatsapp = aplicarMascaraTelefone(whatsappBruto)
+  const whatsappDigits = normalizarWhatsapp(whatsappBruto)
   if (nome.length < 3 || nome.length > 120) return fail('Informe um nome válido.')
   if (whatsapp.length > 40 || whatsappDigits.length < 10 || whatsappDigits.length > 11) {
     return fail('Informe um WhatsApp válido com DDD.')
