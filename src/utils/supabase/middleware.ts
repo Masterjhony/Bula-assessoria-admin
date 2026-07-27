@@ -96,6 +96,47 @@ function isTourosPublicPath(pathname: string): boolean {
   )
 }
 
+// Host saogeraldo.* → landing do LANÇAMENTO "Leilão Touros São Geraldo e 7P"
+// (/saogeraldo). Host próprio, e não um caminho no domínio principal, porque a
+// campanha paga aponta para ele e o funil morre em 01/08 — desligar o evento é
+// tirar o domínio, sem tocar no perpétuo de /touros.
+function isSaoGeraldoHost(host: string | null): boolean {
+  if (!host) return false
+  const h = host.toLowerCase().split(':')[0]
+  return h === 'saogeraldo.localhost' || h.startsWith('saogeraldo.')
+}
+
+const SAOGERALDO_PUBLIC_PATHS = new Set([
+  '/',
+  '/saogeraldo',
+  '/obrigado-saogeraldo-mql',
+  '/obrigado-saogeraldo-lead',
+  '/privacidade',
+  '/termos',
+  '/exclusao-de-dados',
+  '/api/saogeraldo/lead',
+  '/manifest.webmanifest',
+  '/favicon.ico',
+])
+// A landing reaproveita as fotos do ensaio de /touros e as logos de criatórios
+// em /criatorios — sem esses prefixos o otimizador do next/image busca o
+// arquivo-fonte, cai no redirect 308 → '/' e as imagens somem.
+const SAOGERALDO_PUBLIC_PREFIXES = [
+  '/_next/',
+  '/saogeraldo/',
+  '/touros/',
+  '/criatorios/',
+  '/icons/',
+  '/logo-',
+]
+
+function isSaoGeraldoPublicPath(pathname: string): boolean {
+  return (
+    SAOGERALDO_PUBLIC_PATHS.has(pathname) ||
+    SAOGERALDO_PUBLIC_PREFIXES.some((prefix) => pathname.startsWith(prefix))
+  )
+}
+
 export async function updateSession(req: NextRequest) {
   const host = req.headers.get('host')
   const erp = isErpHost(host)
@@ -103,6 +144,8 @@ export async function updateSession(req: NextRequest) {
   const jmp = !erp && !adminJmp && isJmpHost(host)
   const lp = !erp && !adminJmp && !jmp && isLpHost(host)
   const touros = !erp && !adminJmp && !jmp && !lp && isTourosHost(host)
+  const saoGeraldo =
+    !erp && !adminJmp && !jmp && !lp && !touros && isSaoGeraldoHost(host)
   const pathname = req.nextUrl.pathname
 
   const isSistemaPath =
@@ -212,6 +255,26 @@ export async function updateSession(req: NextRequest) {
       url.search = ''
       return NextResponse.redirect(url, 308)
     }
+  } else if (saoGeraldo) {
+    // Host saogeraldo.* → landing do lançamento em /saogeraldo. Mesmo contrato
+    // do host de touros: só as rotas do funil passam; qualquer outra volta para
+    // a raiz, para que /sistema e as APIs internas não contornem o gate de
+    // autenticação por um domínio público de tráfego pago.
+    //
+    // A raiz é REWRITE (não redirect): o anúncio aponta para
+    // saogeraldo.bulaassessoria.com e a URL tem que continuar limpa na barra —
+    // um 308 para /saogeraldo sujaria o compartilhamento no WhatsApp.
+    const url = req.nextUrl.clone()
+    if (pathname === '/') {
+      url.pathname = '/saogeraldo'
+      res = NextResponse.rewrite(url, { request: req })
+    } else if (isSaoGeraldoPublicPath(pathname)) {
+      res = NextResponse.next({ request: req })
+    } else {
+      url.pathname = '/'
+      url.search = ''
+      return NextResponse.redirect(url, 308)
+    }
   } else {
     res = NextResponse.next({ request: req })
   }
@@ -223,6 +286,7 @@ export async function updateSession(req: NextRequest) {
   // Landing pública de touros: sem sessão/gate de login — evita o roundtrip do
   // Supabase em cada pageview de tráfego pago.
   if (touros && isTourosPublicPath(pathname)) return res
+  if (saoGeraldo && isSaoGeraldoPublicPath(pathname)) return res
 
   const supabase = createServerClient(supaUrl, supaKey, {
     cookies: {

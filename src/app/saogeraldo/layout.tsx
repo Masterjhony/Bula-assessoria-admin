@@ -15,6 +15,10 @@ export const metadata: Metadata = {
   title: TITULO,
   description: DESCRICAO,
   robots: { index: true, follow: true },
+  // A landing responde na RAIZ do subdomínio (o host reescreve '/' → '/saogeraldo')
+  // e também no caminho /saogeraldo. Sem canonical, o Google indexaria as duas
+  // como páginas distintas e dividiria o sinal da única URL que os anúncios usam.
+  alternates: { canonical: '/' },
   openGraph: {
     title: TITULO,
     description: DESCRICAO,
