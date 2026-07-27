@@ -1882,6 +1882,56 @@ export async function appendLeadToTourosTabs(
   return { skipped: false, tabs: gravadas }
 }
 
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Lançamento "Leilão Touros São Geraldo e 7P" — aba própria.
+//
+// ADITIVO ao bloco de touros acima: reusa os mesmos helpers (ensureTourosLayout,
+// tourosSeenIds, buildTourosRow, writeTourosRows), então a aba nasce com o mesmo
+// cabeçalho, formatação e dedup das abas de trabalho. Nada acima foi alterado.
+//
+// NÃO escreve na aba-arquivo "LEADS BULA - PERPETUO", de propósito: lá a linha
+// é marcada com o form_name fixo do perpétuo (buildPerpetuoLandingRow) e o cron
+// syncTourosLandingTabs() varre exatamente por esse form_name — um lead do
+// leilão gravado ali acabaria distribuído para as abas dos assessores do
+// perpétuo. Esta aba é o registro ÚNICO do funil do lançamento.
+//
+// Também NÃO entra em TOUROS_TABS_DESC: a inserção no topo copia a validação da
+// linha de baixo, o que pressupõe aba com dados. Esta nasce vazia → append-only.
+// ─────────────────────────────────────────────────────────────────────────────
+
+export const LEADS_SAO_GERALDO_TAB = 'LEADS SAO GERALDO'
+
+/**
+ * Grava o lead do lançamento na aba dedicada. Mesmo contrato de
+ * appendLeadToTourosTabs, com destino único e sem divisão por assessor: o
+ * leilão é evento de janela curta, atendido pela equipe inteira.
+ */
+export async function appendLeadToSaoGeraldoTab(
+  lead: SheetLead,
+): Promise<{ skipped: boolean; reason?: string; tabs?: string[] }> {
+  const info = await getStoredInfo()
+  if (!info) return { skipped: true, reason: 'not_provisioned' }
+  const auth = getAuth()
+  if (!auth) return { skipped: true, reason: 'no_credentials' }
+
+  const row = tourosRowFromLead(lead)
+  if (isTourosTestLead(row.nome, 'Não')) return { skipped: true, reason: 'test_lead' }
+
+  const sheets = google.sheets({ version: 'v4', auth })
+  const meta = await sheets.spreadsheets.get({ spreadsheetId: info.spreadsheetId, includeGridData: false })
+  const titles = (meta.data.sheets ?? []).map(s => s.properties?.title)
+
+  const tab = LEADS_SAO_GERALDO_TAB
+  const header = await ensureTourosLayout(sheets, info.spreadsheetId, tab, titles)
+  if (row.leadId) {
+    const seen = await tourosSeenIds(sheets, info.spreadsheetId, tab, header)
+    if (seen.has(row.leadId)) return { skipped: true, reason: 'duplicate' }
+  }
+  await writeTourosRows(sheets, info.spreadsheetId, tab, [buildTourosRow(row, header)])
+  return { skipped: false, tabs: [tab] }
+}
+
 /**
  * Auto-cura das abas de trabalho: relê a aba-arquivo, separa os leads que
  * vieram do formulário da landing de touros e acrescenta nas 3 abas o que

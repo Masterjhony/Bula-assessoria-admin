@@ -27,6 +27,16 @@ const nextConfig = {
           { key: 'Cache-Control', value: 'public, max-age=86400, stale-while-revalidate=604800' },
         ],
       },
+      {
+        // Assets da landing do lançamento São Geraldo (public/saogeraldo/*).
+        // Regra PRÓPRIA, e não um item a mais na regra do /touros acima: aquela
+        // rota está em produção convertendo e não se mexe. Mesmo perfil de
+        // cache — 1 dia com revalidação.
+        source: '/saogeraldo/:path*.(jpg|jpeg|png|webp|svg|ico)',
+        headers: [
+          { key: 'Cache-Control', value: 'public, max-age=86400, stale-while-revalidate=604800' },
+        ],
+      },
     ]
   },
 }
