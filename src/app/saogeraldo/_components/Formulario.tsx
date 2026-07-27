@@ -4,9 +4,8 @@ import { cloneElement, isValidElement, useEffect, useId, useRef, useState } from
 import { AnimatePresence, motion } from 'framer-motion'
 import { Loader2, CheckCircle2, ShieldCheck, ArrowRight, ArrowLeft } from 'lucide-react'
 import { dark, typo, font, radius } from '../_lib/tokens'
-import { form as copy } from '../_lib/copy'
+import { form as copy } from '../_lib/copy-conversao'
 import { useSafeReducedMotion } from '../_lib/useSafeReducedMotion'
-import { Reveal } from './ui'
 import { captureUtms, EMPTY_UTM, type Utm } from '../_lib/utm'
 import { initAnalytics, trackFunnel, trackLeadConversion } from '../_lib/analytics'
 import { aplicarMascaraTelefone, whatsappValido } from '@/lib/telefone'
@@ -15,13 +14,15 @@ import { aplicarMascaraTelefone, whatsappValido } from '@/lib/telefone'
 const ERR = '#E08A82'
 
 // ── Opções ─────────────────────────────────────────────────────────────────
+// Os valores DEVEM bater com os Sets de validação de /api/saogeraldo/lead —
+// o servidor revalida tudo e recusa qualquer string fora destas listas.
 const UF_OPTIONS = [
   'AC','AL','AP','AM','BA','CE','DF','ES','GO','MA','MT','MS','MG','PA','PB',
   'PR','PE','PI','RJ','RN','RS','RO','RR','SC','SP','SE','TO',
 ]
 
-// Tamanho do rebanho (quantidade_animais → MQL). Valores SEM separador de
-// milhar no piso: parseCabecasFloor pega o 1º número, e "1.000" viraria 1.
+// Tamanho do rebanho (→ MQL). Valores SEM separador de milhar no piso: o
+// servidor pega o 1º número, e "1.000" viraria 1.
 const CABECAS_OPTIONS = [
   '1 a 99 cabeças',
   '100 a 500 cabeças',
@@ -39,7 +40,7 @@ const MOMENTO_OPTIONS = [
   'Estou começando agora',
 ]
 
-// Quantos touros o lead busca → o_que_busca (texto legível no CRM).
+// Quantos touros o lead busca → texto legível na aba da equipe.
 const TOUROS_OPTIONS = [
   { value: '1 a 5 touros', label: '1 a 5 touros' },
   { value: '6 a 10 touros', label: '6 a 10 touros' },
@@ -70,8 +71,8 @@ const EMPTY: FormData = {
 type Errors = Partial<Record<keyof FormData, string>>
 
 const TOTAL = 3
-// Contato (nome/WhatsApp/e-mail/consentimento) sobe para o 1º passo — captura o
-// dado de lead o quanto antes; fazenda e objetivo qualificam depois.
+// Contato (nome/WhatsApp/e-mail/consentimento) no 1º passo — captura o dado de
+// lead o quanto antes; fazenda e objetivo qualificam depois.
 const STEP_LABELS = ['Seus dados', 'Sua fazenda', 'Sua compra']
 const STEP_FIELDS: (keyof FormData)[][] = [
   ['nome', 'whatsapp', 'email', 'whatsappConsent'],
@@ -93,9 +94,9 @@ function validate(d: FormData): Errors {
   return e
 }
 
-// Card do formulário multi-step — pele EDITORIAL (flat near-black + hairline,
-// cantos retos, botões caixa-alta). Toda a LÓGICA é preservada: multi-step,
-// validação, IBGE, UTM, tracking, event_id, is_mql.
+// Formulário multi-step do lançamento. Fork do de touros: a MECÂNICA é a mesma
+// (3 passos, validação por passo, IBGE, UTM, event_id, MQL do servidor, hard
+// nav), o que muda é o endpoint, as URLs de obrigado e o prefixo dos eventos.
 export function LeadForm() {
   const reduce = useSafeReducedMotion()
   const [data, setData] = useState<FormData>(EMPTY)
@@ -137,7 +138,7 @@ export function LeadForm() {
   function set<K extends keyof FormData>(key: K, value: FormData[K]) {
     if (!startedRef.current) {
       startedRef.current = true
-      trackFunnel('touros_form_started', undefined, { meta: 'InitiateCheckout', ga: 'begin_checkout' })
+      trackFunnel('saogeraldo_form_started')
     }
     setData((d) => ({ ...d, [key]: value }))
     setErrors((e) => ({ ...e, [key]: undefined }))
@@ -160,15 +161,15 @@ export function LeadForm() {
   function goNext() {
     const e = validateStep(step)
     setErrors(e)
-    trackFunnel('touros_step_attempt', { step: step + 1 })
+    trackFunnel('saogeraldo_step_attempt', { step: step + 1 })
     if (Object.keys(e).length) {
-      trackFunnel('touros_validation_failed', { step: step + 1, fields: Object.keys(e) })
+      trackFunnel('saogeraldo_validation_failed', { step: step + 1, fields: Object.keys(e) })
       focusFirstError()
       return
     }
     const ns = Math.min(step + 1, TOTAL - 1)
     setStep(ns)
-    trackFunnel('touros_step_reached', { step: ns + 1 })
+    trackFunnel('saogeraldo_step_reached', { step: ns + 1 })
     formRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' })
   }
 
@@ -182,9 +183,9 @@ export function LeadForm() {
     if (status === 'submitting') return
     const e = validate(data)
     setErrors(e)
-    trackFunnel('touros_submit_attempt')
+    trackFunnel('saogeraldo_submit_attempt')
     if (Object.keys(e).length) {
-      trackFunnel('touros_validation_failed', { fields: Object.keys(e) })
+      trackFunnel('saogeraldo_validation_failed', { fields: Object.keys(e) })
       focusFirstError()
       return
     }
@@ -196,7 +197,7 @@ export function LeadForm() {
         ? crypto.randomUUID()
         : `evt_${Date.now()}_${Math.round(Math.random() * 1e9)}`
     try {
-      const res = await fetch('/api/touros/lead', {
+      const res = await fetch('/api/saogeraldo/lead', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -225,15 +226,17 @@ export function LeadForm() {
         isMql: body?.is_mql === true,
         eventId,
       })
-      // Redireciona para a página de obrigado conforme o veredito de MQL do
-      // SERVIDOR. URLs separadas habilitam metas de conversão por URL (Google/
-      // Meta). Navegação HARD (location) de propósito: um load completo da
-      // página de obrigado dispara o gatilho Page View do GTM na URL de obrigado
-      // — é lá que a tag de conversão (fb_conversions_mpi) roda. Uma navegação
-      // SPA (router.push) NÃO recarrega o GTM e o Page View não dispararia.
-      // Mantemos o status em 'submitting' — o form desmonta na navegação.
+      // Redireciona conforme o veredito de MQL do SERVIDOR. URLs separadas
+      // habilitam metas de conversão por URL (Google/Meta).
+      //
+      // Navegação HARD (window.location.assign) de propósito, NÃO router.push:
+      // só um load completo da página de obrigado dispara o gatilho Page View
+      // do GTM, que é onde a tag de conversão roda. Uma navegação SPA não
+      // recarrega o GTM e a conversão simplesmente não acontece — sem erro
+      // visível. Ver BRIEF §5 e commits d697127/e437ed1. NÃO TROCAR.
+      // O status fica em 'submitting': o form desmonta na navegação.
       window.location.assign(
-        body?.is_mql === true ? '/obrigado-touros-mql' : '/obrigado-touros-lead',
+        body?.is_mql === true ? '/obrigado-saogeraldo-mql' : '/obrigado-saogeraldo-lead',
       )
     } catch (err) {
       setStatus('error')
@@ -253,6 +256,8 @@ export function LeadForm() {
     scrollMarginTop: 12,
   }
 
+  // Rede de segurança: com a navegação hard, este estado normalmente não é
+  // alcançado. Fica para o caso de a navegação ser bloqueada pelo browser.
   if (status === 'success') {
     return (
       <div className="p-5 sm:p-8" style={cardStyle}>
@@ -510,9 +515,9 @@ function Field({
   children: React.ReactNode
 }) {
   const uid = useId()
-  const fieldId = `tf-${uid}`
-  const errId = `te-${uid}`
-  const hintId = `th-${uid}`
+  const fieldId = `sgf-${uid}`
+  const errId = `sge-${uid}`
+  const hintId = `sgh-${uid}`
   const showHint = Boolean(hint) && !error
   const describedBy = error ? errId : showHint ? hintId : undefined
   const control = isValidElement(children)
@@ -556,19 +561,17 @@ function inputStyle(hasError: boolean): React.CSSProperties {
 
 function SuccessCard() {
   return (
-    <Reveal>
-      <div className="mx-auto max-w-[560px] text-center">
-        <span
-          className="mx-auto flex h-14 w-14 items-center justify-center"
-          style={{ border: `1px solid ${dark.gold}`, borderRadius: radius.none }}
-        >
-          <CheckCircle2 size={30} color={dark.gold} />
-        </span>
-        <h2 className="mt-6" style={{ ...typo.displayLg }}>{copy.successTitle}</h2>
-        <p className="mx-auto mt-4 max-w-[460px]" style={{ ...typo.body, fontSize: 17, color: dark.body }}>
-          {copy.successLead}
-        </p>
-      </div>
-    </Reveal>
+    <div className="mx-auto max-w-[560px] text-center">
+      <span
+        className="mx-auto flex h-14 w-14 items-center justify-center"
+        style={{ border: `1px solid ${dark.gold}`, borderRadius: radius.none }}
+      >
+        <CheckCircle2 size={30} color={dark.gold} />
+      </span>
+      <h2 className="mt-6" style={{ ...typo.displayLg }}>{copy.successTitle}</h2>
+      <p className="mx-auto mt-4 max-w-[460px]" style={{ ...typo.body, fontSize: 17, color: dark.body }}>
+        {copy.successLead}
+      </p>
+    </div>
   )
 }

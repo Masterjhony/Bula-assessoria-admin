@@ -1,6 +1,6 @@
 import { NextRequest } from 'next/server'
 import { fail, ok } from '@/lib/respond'
-import { appendLeadToPerpetuoSheet, appendLeadToTourosTabs } from '@/lib/jmp-sheets'
+import { appendLeadToSaoGeraldoTab } from '@/lib/jmp-sheets'
 import { evaluateMql, DEFAULT_JMP_MQL_RULE } from '@/lib/crm-types'
 import { aplicarMascaraTelefone, normalizarWhatsapp } from '@/lib/telefone'
 
@@ -33,23 +33,45 @@ const VALID_QUANTIDADES_TOUROS = new Set([
   'ainda não sei quantos touros',
 ])
 
-// Endpoint PÚBLICO da landing touros.bulaassessoria.com (funil perpétuo de
-// venda de touros).
+/**
+ * Identificador do funil deste lançamento. Hoje ele NÃO vai para o banco — a
+ * rota de touros deixou de gravar em crm_leads em 24/07 (ver comentário abaixo)
+ * e esta rota herda a mesma arquitetura. A separação real do funil é a ABA
+ * dedicada na planilha (LEADS SAO GERALDO).
+ *
+ * Fica aqui, nomeado, porque é o rótulo canônico do lançamento em log e é o
+ * valor de `source` a usar se um dia o insert no CRM voltar.
+ */
+const LEAD_SOURCE = 'leilao-sg7p'
+
+// Endpoint PÚBLICO da landing do "Leilão Touros São Geraldo e 7P".
+// Fork de /api/touros/lead — a rota de touros NÃO foi tocada.
 //
-// DECISÃO (24/07, pedido do cliente): os leads desta campanha vão APENAS para
-// a aba "LEADS BULA - PERPETUO" da planilha conectada — NÃO entram no CRM.
-// Lead em crm_leads (ENTRADA) entra no radar dos disparos/followups e, ao
-// responder, cai no concierge IA — e esta campanha NÃO deve ser atendida pelo
-// sistema de atendimento. Atendimento 100% manual pela equipe, via planilha.
-// Se um dia voltarem pro CRM, restaurar o insert (git: versão anterior deste
-// arquivo) — a planilha guarda todos os campos necessários pro re-import.
+// HERDA a decisão do cliente de 24/07: o lead NÃO entra em crm_leads. Lead em
+// ENTRADA no CRM cai no radar dos disparos/followups e no concierge IA, e esta
+// campanha é de atendimento 100% manual pela equipe, via planilha. Por isso a
+// planilha é o ÚNICO registro — e por isso o append abaixo é bloqueante, não
+// best-effort: se o Google falhar, devolvemos erro e o lead pode reenviar.
+//
+// DIFERENÇAS vs. a rota de touros (e só estas):
+//  - Grava na aba própria do lançamento, via appendLeadToSaoGeraldoTab().
+//  - NÃO chama appendLeadToPerpetuoSheet(): a aba-arquivo marca a linha com o
+//    form_name do perpétuo, e o cron syncTourosLandingTabs() varre por esse
+//    form_name — o lead do leilão acabaria nas abas dos assessores do perpétuo.
+//  - NÃO chama appendLeadToTourosTabs(): mesmo motivo, são abas do perpétuo.
+//
+// IGUAL à rota de touros, de propósito:
+//  - Revalidação server-side de TODOS os campos (não confiar no client).
+//  - MQL decidido no SERVIDOR (≥100 cabeças + IE), nunca no browser.
+//  - Resposta { id, is_mql } — é o veredito que a landing usa para escolher a
+//    URL de obrigado, e é a navegação hard para essa URL que dispara a conversão.
 export async function POST(req: NextRequest) {
   const body = await req.json().catch(() => ({}))
 
   const nome = String(body.nome ?? '').trim()
   // E-mail é OPCIONAL: o funil é 100% WhatsApp e o e-mail não qualifica nem é
-  // canal aqui — exigi-lo só adiciona fricção em tráfego mobile pago (auditoria
-  // de mídia/growth). Guardamos se vier, mas não bloqueia o cadastro.
+  // canal aqui — exigi-lo só adiciona fricção em tráfego mobile pago. Guardamos
+  // se vier, mas não bloqueia o cadastro.
   const email = String(body.email ?? '').trim()
   // Normaliza o código do país ANTES de validar: quem cola o número do
   // próprio WhatsApp manda "5531988887777". Ver src/lib/telefone.ts.
@@ -91,28 +113,22 @@ export async function POST(req: NextRequest) {
     return fail('Informe se você tem inscrição estadual.')
   }
 
-  const host = str(req.headers.get('host'), 253) ?? 'touros.bulaassessoria.com'
-  const referer = str(req.headers.get('referer'), 2048)
   const eventId = str(body.event_id, 128)
 
-  // Atribuição de campanha (Meta/Google), no MESMO formato do import da
-  // planilha (`extra_data.utm`) — é assim que as regras por campanha
-  // reconhecem o lead depois. `ad-id` chega como ad_id (a landing normaliza).
+  // Atribuição de campanha (Meta/Google), no MESMO formato da rota de touros —
+  // é assim que as colunas de utm da aba reconhecem o lead depois. `ad-id`
+  // chega como ad_id (a landing normaliza).
   const utmAttr = {
     source: str(body.utm_source),
     medium: str(body.utm_medium),
     campaign: str(body.utm_campaign),
     content: str(body.utm_content),
     ad_id: str(body.ad_id),
-    // Cliques pagos: amarram o lead qualificado ao anúncio e habilitam
-    // enhanced conversions (Google) / advanced matching (Meta) no futuro.
-    fbclid: str(body.fbclid),
-    gclid: str(body.gclid),
   }
-  const temUtm = Object.values(utmAttr).some(Boolean)
 
-  // Padrão de MQL do Funil (≥100 cabeças + tem IE). A landing de touros não
-  // depende do crm_config para não acoplar; usa o default canônico.
+  // Padrão de MQL do Funil (≥100 cabeças + tem IE). Mesma régua do perpétuo: a
+  // qualificação do assessor não muda por ser leilão. Usa o default canônico
+  // para não acoplar ao crm_config.
   const isMql = evaluateMql(DEFAULT_JMP_MQL_RULE, {
     quantidade_animais: cabecas,
     tem_inscricao_estadual: temInscricaoEstadual,
@@ -128,6 +144,7 @@ export async function POST(req: NextRequest) {
     cidade,
     momento,
     cabecas,
+    // O catálogo do leilão é 100% macho — mesmo interesse do perpétuo.
     interesse: 'touros-po',
     oQueBusca: quantidadeTouros,
     inscricaoEstadual: temInscricaoEstadual,
@@ -141,31 +158,22 @@ export async function POST(req: NextRequest) {
     whatsappConsent,
   }
 
-  // A planilha agora é o ÚNICO registro do lead — o append deixa de ser
-  // best-effort: se o Google falhar, devolvemos erro e o lead pode reenviar
-  // (o form preserva os dados). Duplicata conta como sucesso (já está lá).
+  // A aba do lançamento é o ÚNICO registro do lead — append bloqueante. Lead de
+  // teste e duplicata contam como sucesso: no primeiro caso a omissão é
+  // proposital, no segundo o lead já está registrado.
   try {
-    const sheetResult = await appendLeadToPerpetuoSheet(sheetLead)
-    if (sheetResult.skipped && sheetResult.reason !== 'duplicate') {
-      console.error('[touros lead] sheets append skipped:', sheetResult.reason)
+    const r = await appendLeadToSaoGeraldoTab(sheetLead)
+    if (r.skipped && r.reason !== 'duplicate' && r.reason !== 'test_lead') {
+      console.error(`[${LEAD_SOURCE} lead] append pulado:`, r.reason)
       return fail('Não foi possível registrar o cadastro. Tente novamente.', 500)
     }
   } catch (e) {
-    console.error('[touros lead] sheets append failed:', e)
+    console.error(`[${LEAD_SOURCE} lead] append falhou:`, e)
     return fail('Não foi possível registrar o cadastro. Tente novamente.', 500)
   }
 
-  // Cópias de trabalho da campanha ("LEADS TOUROS" + a aba do assessor da UF).
-  // Best-effort de propósito: o lead JÁ está registrado na aba-arquivo acima —
-  // falha aqui não pode derrubar o cadastro, e o cron (sheet-perpetuo) refaz.
-  try {
-    await appendLeadToTourosTabs(sheetLead)
-  } catch (e) {
-    console.error('[touros lead] abas de trabalho falharam:', e)
-  }
-
-  // Devolve o veredito de MQL (fonte de verdade = servidor) para o client
-  // disparar o evento de conversão com VALOR diferenciado — assim Meta/Google
+  // Veredito de MQL (fonte de verdade = servidor) para o client escolher a URL
+  // de obrigado e disparar a conversão com VALOR diferenciado — Meta/Google
   // otimizam por lead que vale (≥100 cabeças + IE), não por volume.
   return ok({ id: eventId, is_mql: isMql })
 }
