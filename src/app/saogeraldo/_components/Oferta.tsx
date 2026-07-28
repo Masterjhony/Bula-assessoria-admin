@@ -3,7 +3,7 @@
 import { dark, font, typo, space } from '../_lib/tokens'
 import { EVENTO, PAGAMENTO } from '../_lib/evento'
 import { oferta as copy, catalogo } from '../_lib/copy'
-import { Section, Container, Reveal } from './ui'
+import { Section, Container, Reveal, FioDuplo } from './ui'
 
 // Condições de pagamento do catálogo oficial. É o argumento comercial mais
 // forte do leilão e não depende de nenhuma informação pendente do cliente.
@@ -26,10 +26,18 @@ export function Oferta() {
         </Reveal>
 
         {/* Cabeçalho → grade: degrau de SEÇÃO. A grade é outro assunto, não a
-            continuação do parágrafo. */}
+            continuação do parágrafo. O fio duplo é quem faz esse degrau agora —
+            ele herda a folga que era `marginTop` da grade, e a grade passa a
+            correr encostada nele, como a ficha da `Pista` corre no dela.
+
+            O `gap-px` da grade PERMANECE, e não é descuido: a §3.3 do plano
+            separa os dois ornamentos por papel — fio duplo marca fronteira de
+            CERIMÔNIA (aqui: a entrada nas condições de compra), hairline de 1px
+            marca fronteira de LISTA. A grade de quatro condições é lista. */}
+        <FioDuplo style={{ marginTop: space['2xl'] }} />
         <div
           className="grid gap-px sm:grid-cols-2 lg:grid-cols-4"
-          style={{ background: dark.hairline, marginTop: space['2xl'] }}
+          style={{ background: dark.hairline }}
         >
           {PAGAMENTO.map((item, i) => (
             <Reveal key={item.detalhe} delay={i * 0.06}>
