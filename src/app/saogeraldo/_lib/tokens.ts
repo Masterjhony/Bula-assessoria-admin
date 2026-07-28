@@ -51,6 +51,47 @@ export const font = {
   display: "'Oswald', 'Inter', system-ui, sans-serif", // condensada, voz Bula
   body: "'Inter', system-ui, -apple-system, sans-serif",
   mono: "'IBM Plex Mono', ui-monospace, SFMono-Regular, monospace",
+  // A ÚNICA família que NÃO vem do root layout: carrega por `next/font` dentro
+  // de `saogeraldo/layout.tsx`, que publica a var `--font-serif`. Fora desta
+  // rota a var não existe e o fallback Georgia assume — de propósito.
+  //
+  // PAPEL, e ele é fechado: a serifa é a voz do EVENTO (a data, a abertura do
+  // rebanho, o crédito dos criatórios). O Oswald continua sendo a voz da BULA
+  // (títulos, CTA, rótulos, NÚMERO de ficha). Dado tabular é operação, e
+  // operação é do condensado — a serifa não toca em número nenhum.
+  serif: "var(--font-serif), 'Playfair Display', Georgia, serif",
+} as const
+
+/**
+ * FIO DUPLO — 1px + 3px de intervalo + 1px = 5px de altura total.
+ *
+ * O "~2pt" do repertório de catálogo resolve em 2,67px a 96dpi; 3px é o inteiro
+ * mais próximo e não borra em tela de 1x.
+ *
+ * A regra que decide onde ele entra, para ninguém inventar a sua: **fio duplo
+ * marca fronteira de CERIMÔNIA; hairline de 1px continua marcando fronteira de
+ * LISTA.** Grade da Oferta e lista do Fecho seguem em hairline simples.
+ */
+export const rule = { hair: 1, gap: 3 } as const
+
+/**
+ * Verde-musgo — importado do sistema do catálogo, com restrição dura.
+ *
+ * Medido sobre #39553E sólido:
+ *   corpo greige #9A9488 .... 2,74:1  REPROVA AA
+ *   dourado     #C8A96E .... 3,68:1  só AA-large
+ *   branco      #F5F5F5 .... 7,57:1  AA
+ *
+ * Por isso: `musgo` só como FIO de 1px, `musgoWash` só como FUNDO de bloco de
+ * ficha. A 10% sobre #0D0D0D o fundo efetivo é ~#111412 e o corpo greige
+ * mantém 6,15:1 — continua AA, e o bloco ganha a temperatura que sinaliza
+ * "aqui é dado técnico".
+ *
+ * PROIBIDO: #39553E sólido como background de qualquer coisa com texto em cima.
+ */
+export const ink = {
+  musgo: '#39553E',
+  musgoWash: 'rgba(57, 85, 62, 0.10)',
 } as const
 
 /** Raios retos — o vocabulário editorial. Nada de 14–18px. */
@@ -154,6 +195,71 @@ export const typo = {
     letterSpacing: '0.14em',
     fontSize: 15,
     lineHeight: 1,
+  },
+
+  // ── Presets do REDESIGN (aditivos). Nenhum preset acima muda: `Formulario.tsx`
+  //    está fora de escopo, vive DENTRO da primeira dobra e consome `monoLabel`,
+  //    `displayLg` e `body`. Mutar qualquer um deles redesenharia o formulário
+  //    sem que o arquivo fosse tocado — a forma mais silenciosa de perder o KPI.
+
+  /**
+   * A DATA COMO MONUMENTO (`01 AGOSTO`). Serifa, peso 400.
+   *
+   * O piso é 26px, e não os 34px que a régua de display pediria, porque no
+   * celular ele não pode passar o `h1` (30px): num anúncio pago a promessa vem
+   * antes da cerimônia na ordem de leitura. No desktop o teto abre para 44px,
+   * que é onde a cerimônia fica cara e fica boa.
+   */
+  dataMonumento: {
+    fontFamily: font.serif,
+    fontWeight: 400,
+    fontSize: 'clamp(26px, 7vw, 44px)',
+    lineHeight: 1.05,
+    letterSpacing: '-0.005em',
+  },
+  /**
+   * SMALL CAPS DE CERIMÔNIA (`SÁBADO · 12H`, crédito dos criatórios).
+   *
+   * Small caps FAUX de propósito: a versão do Google não garante `smcp` no
+   * subset, então é caixa alta + corpo menor + tracking largo — o mesmo
+   * mecanismo que o `Eyebrow` já usa com Oswald a 0.22em.
+   */
+  cerimonia: {
+    fontFamily: font.serif,
+    fontWeight: 400,
+    textTransform: 'uppercase' as const,
+    letterSpacing: '0.18em',
+    fontSize: 'clamp(11px, 1.3vw, 13px)',
+    lineHeight: 1.4,
+  },
+  /** Título da abertura sangrada da Pista. Serifa, sobre vinheta, nunca sobre corpo. */
+  aberturaSerif: {
+    fontFamily: font.serif,
+    fontWeight: 400,
+    fontSize: 'clamp(30px, 5.4vw, 60px)',
+    lineHeight: 1.12,
+    letterSpacing: '-0.005em',
+  },
+  /**
+   * NÚMERO da ficha do rebanho — OSWALD, não serifa, e isso é regra, não gosto:
+   * dado tabular é operação, e operação é do condensado. A serifa fala pelo
+   * evento; o número fala pela leitura do catálogo, que é trabalho da Bula.
+   */
+  fichaValor: {
+    fontFamily: font.display,
+    fontWeight: 600,
+    fontSize: 'clamp(34px, 6vw, 54px)',
+    lineHeight: 1,
+    fontVariantNumeric: 'tabular-nums' as const,
+  },
+  /** Rótulo da ficha — Plex Mono, o mesmo registro técnico do resto da página. */
+  fichaRotulo: {
+    fontFamily: font.mono,
+    fontWeight: 500,
+    textTransform: 'uppercase' as const,
+    letterSpacing: '0.14em',
+    fontSize: 'clamp(10.5px, 1.2vw, 11.5px)',
+    lineHeight: 1.45,
   },
 } as const
 
