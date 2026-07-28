@@ -1,9 +1,27 @@
+// 'use client' — e aqui ele é ORÇAMENTO DE HTML, não interatividade. Como
+// componente de servidor, cada estilo inline desta seção viajava duas vezes:
+// uma no HTML renderizado e outra, com aspas escapadas a 3 bytes cada, no
+// payload RSC. O Hero é a maior marcação da página, então era ele quem mais
+// pagava. Medido em worktree isolada, sobre o mesmo commit:
+//
+//   T5 com o Hero de servidor ... 76.986 bytes   (+914 sobre a base de 76.072)
+//   T5 com o Hero de cliente .... 72.107 bytes   (−3.965 sobre a mesma base)
+//
+// Nada muda no DOM: a marcação renderizada é a mesma, os dois `<link
+// rel="preload">` da foto continuam saindo, `#cadastro` continua único e no
+// mesmo lugar, e o portão 13 mede os mesmos 579px. O que muda é onde os bytes
+// moram — sai do HTML, que ninguém armazena em cache e que bloqueia o parse,
+// e entra no chunk de JS da rota, que já era baixado porque todas as outras
+// seções desta página já são de cliente.
+'use client'
+
 import Image from 'next/image'
 import { dark, font, typo, space } from '../_lib/tokens'
 import { hero as copy } from '../_lib/copy'
 import { EVENTO } from '../_lib/evento'
 import { Contagem } from './Contagem'
 import { LeadForm } from './Formulario'
+import { FioDuplo, Cerimonia } from './ui'
 
 // Primeira dobra — FAIXA DE FOTO + copy do lançamento + contagem + FORM.
 //
@@ -45,7 +63,7 @@ import { LeadForm } from './Formulario'
 // o lead perdeu duas linhas de repetição e o botão dourado do mobile saiu — ele
 // rolava 26px até um formulário que já estava visível na mesma dobra, e a barra
 // fixa (StickyCta) cobre a intenção assim que #cadastro sai da tela.
-// Resultado medido: #cadastro subiu de 597px para 590px a 390×844 e de 594px
+// Resultado medido: #cadastro subiu de 597px para 589px a 390×844 e de 594px
 // para 582px a 375×667.
 //
 // A foto é de AMBIÊNCIA (apartação no curral), não de lote. O catálogo não tem
@@ -231,12 +249,15 @@ export function Hero() {
             </div>
 
             {/* A contagem é um bloco inteiro, não um parágrafo: ganha folga de
-                ASSUNTO. Mínimo em 30px (space.lg) porque a 21px ela media o
-                mesmo que a distância entre título e corpo — era literalmente a
-                queixa nº2 do cliente ("espremida contra o que vem antes e
-                depois") voltando pela porta do celular. O máximo do desktop
-                (64px, space.xl) não muda. */}
-            <div style={{ marginTop: 'clamp(30px, 5.4vw, 64px)' }}>
+                ASSUNTO. O máximo do desktop (64px, space.xl) não muda.
+                O MÍNIMO caiu de 30px para 20px, e é o crédito que paga o
+                monumento da data: o fio duplo que abre a contagem passou a
+                fazer o trabalho de separação que o vazio fazia sozinho.
+                Ornamento que separa devolve o espaço que a ausência de
+                ornamento exigia — se o fio não estivesse entrando, estes 10px
+                não poderiam sair, e a queixa nº2 do cliente ("espremida contra
+                o que vem antes e depois") voltaria pela porta do celular. */}
+            <div style={{ marginTop: 'clamp(20px, 5.4vw, 64px)' }}>
               <Contagem />
             </div>
           </div>
@@ -264,14 +285,18 @@ export function Hero() {
 
         {/* Faixa de origem dos lotes — crédito aos criatórios sem disputar a
             marca da página, que é da Bula.
-            Cor: `muted`, não `faint`. O próprio tokens.ts avisa que o faint
-            (#6B6B6B) só serve acima de 18px — a 12px ele dá 3.5:1 e reprova AA. */}
-        <p
-          className="text-center"
-          style={{ ...typo.monoLabel, color: dark.muted, fontSize: 12, marginTop: space['2xl'] }}
-        >
-          LOTES DE {EVENTO.vendedores.join(' · ').toUpperCase()}
-        </p>
+            PROMOVIDO a linha de cerimônia no redesign: era um <p> de 12px em
+            Plex Mono, o mesmo registro de um rótulo de campo. Os criatórios
+            ganham aqui a dignidade que o catálogo dá a eles, dentro do único
+            espaço que o BRIEF autoriza — crédito de vendedor, sobre fio duplo.
+            É o terceiro e último uso da serifa na página.
+            Cor: `muted` (o padrão da <Cerimonia>), não `faint`. O próprio
+            tokens.ts avisa que o faint só serve acima de 18px — a 12px ele dá
+            3.5:1 e reprova AA. */}
+        <FioDuplo style={{ marginTop: space['2xl'] }} />
+        <Cerimonia className="text-center" style={{ marginTop: space.md }}>
+          {copy.creditoOrigem(EVENTO.vendedores)}
+        </Cerimonia>
       </div>
     </section>
   )
