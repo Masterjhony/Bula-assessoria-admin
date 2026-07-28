@@ -132,6 +132,8 @@ function createSession(id) {
     pairingCode: null,
     authDir: `${SESSIONS_DIR}/${id}`,
     reconnectAttempts: 0,
+    // Auto-recuperação já usada neste ciclo? Evita limpar o auth em loop.
+    authResetado: false,
     // IDs de mensagens que ESTE servidor enviou (via fila/gateway). Usado para
     // NÃO espelhar como "mensagem do dono" o que o próprio sistema disparou —
     // esses já são logados pelo gateway. Só o que o humano digita no aparelho
@@ -863,6 +865,7 @@ async function startSocket(session) {
     if (connection === 'open') {
       session.connectionStatus = 'connected'
       session.reconnectAttempts = 0
+      session.authResetado = false
       session.currentQr = null
       session.currentQrDataUrl = null
       session.pairPhone = null
@@ -903,9 +906,54 @@ async function startSocket(session) {
           })
       } else {
         session.reconnectAttempts += 1
-        const baseDelay = PROTECTED_SESSION_IDS.has(session.id) ? 30000 : 3000
-        const maxDelay = PROTECTED_SESSION_IDS.has(session.id) ? 15 * 60 * 1000 : 30000
-        const reconnectDelay = Math.min(maxDelay, baseDelay * (2 ** Math.min(session.reconnectAttempts - 1, 5)))
+
+        // ── Por que este bloco ficou desse tamanho ──────────────────────────
+        // Em 28/07/2026 a sessão `joao` (número antigo, nunca repareado) rodou
+        // 503 tentativas de conexão em um dia — uma a cada 31s, para sempre,
+        // porque o teto do backoff era 30s e não havia limite de tentativas.
+        // O WhatsApp passou a responder 405 "Connection Failure" para o IP
+        // INTEIRO: as outras duas sessões, que estavam saudáveis, caíram junto
+        // e não voltaram. Uma sessão órfã derrubou a operação toda.
+        //
+        // Três travas agora:
+        //   1. teto do backoff sobe para 10 min (não-protegida) — 500 tentativas
+        //      por dia vira ~150;
+        //   2. após RESET_AUTH_APOS falhas seguidas, limpa as credenciais UMA
+        //      vez e volta pro QR (é a auto-recuperação que faltava: credencial
+        //      morta nunca reconecta, só queima tentativa);
+        //   3. após DESISTIR_APOS, PARA. Sessão parada espera pareamento humano
+        //      e não consome mais nada. Melhor uma sessão offline visível do que
+        //      todas offline por castigo de rate limit.
+        const RESET_AUTH_APOS = 8
+        const DESISTIR_APOS = 16
+
+        if (session.reconnectAttempts >= DESISTIR_APOS) {
+          session.connectionStatus = 'needs_pairing'
+          console.error(
+            `[${session.id}] ${session.reconnectAttempts} falhas seguidas — reconexão ABORTADA. ` +
+            'Recrie a sessão (DELETE+POST /sessions) e leia o QR para voltar.',
+          )
+          return
+        }
+
+        if (session.reconnectAttempts === RESET_AUTH_APOS && !session.authResetado) {
+          session.authResetado = true
+          console.warn(`[${session.id}] ${RESET_AUTH_APOS} falhas seguidas — limpando auth para gerar QR novo`)
+          rm(session.authDir, { recursive: true, force: true })
+            .catch(error => console.error(`[${session.id}] limpar auth pós-falhas:`, error.message))
+            .finally(() => {
+              setTimeout(() => {
+                if (!sessions.has(session.id)) return
+                session.connectionStatus = 'connecting'
+                void startSocket(session).catch(error => console.error(`[${session.id}] restart pós-reset:`, error))
+              }, 5000)
+            })
+          return
+        }
+
+        const baseDelay = PROTECTED_SESSION_IDS.has(session.id) ? 30000 : 5000
+        const maxDelay = PROTECTED_SESSION_IDS.has(session.id) ? 15 * 60 * 1000 : 10 * 60 * 1000
+        const reconnectDelay = Math.min(maxDelay, baseDelay * (2 ** Math.min(session.reconnectAttempts - 1, 7)))
         setTimeout(() => {
           if (!sessions.has(session.id)) return
           session.connectionStatus = 'connecting'
