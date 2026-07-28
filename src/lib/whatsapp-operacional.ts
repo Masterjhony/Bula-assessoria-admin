@@ -139,6 +139,13 @@ export async function sessaoOperacional(supabase: SupabaseClient): Promise<strin
     return (await resolverSessaoOperacional(supabase)).session
 }
 
+/** Esta sessão está de pé AGORA? Ignora o cache — é decisão de enviar ou não. */
+export async function sessaoConectada(session: string): Promise<boolean> {
+    cache = null
+    const sessions = await sessoesConectadas()
+    return !!sessions?.some(s => s.id === session && s.status === 'connected')
+}
+
 // ── Aviso 1:1 ao assessor ───────────────────────────────────────────────────
 
 interface ResponsavelConfig {
@@ -228,6 +235,15 @@ export async function avisarAssessor(
     if (!phone) return { sent: false, assessor: nome, reason: 'assessor_sem_whatsapp' }
 
     const sessao = await resolverSessaoOperacional(supabase)
+
+    // Sessão fora do ar = NÃO enfileira. O VPS aceita o item, responde
+    // `queued`, e o gateway registra como sucesso — mas se o socket cair antes
+    // de drenar, a mensagem morre com a fila e ninguém fica sabendo. Foi o que
+    // aconteceu em 28/07: dois repasses "enviados" que nunca chegaram ao
+    // assessor. Melhor falhar aqui, alto e claro, e deixar o retry cuidar.
+    if (!(await sessaoConectada(sessao.session))) {
+        return { sent: false, assessor: nome, reason: 'sessao_operacional_offline' }
+    }
     const r = await sendOutbound(supabase, {
         to: { phone, leadId: input.leadId ?? null, name: nome },
         text: input.texto,

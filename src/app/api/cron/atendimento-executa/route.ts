@@ -19,6 +19,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient, type SupabaseClient } from '@supabase/supabase-js'
 import { executarLote, casarRespostas, loadMotorConfig, diaLocal } from '@/lib/atendimento-motor'
+import { reprocessarHandoffsPendentes } from '@/lib/atendimento-handoff'
 
 export const maxDuration = 300
 
@@ -58,11 +59,17 @@ async function handler(req: NextRequest) {
     const resultado = await executarLote(supabase, { limite, agora })
     const respostas = await casarRespostas(supabase)
 
+    // Repasses que não chegaram ao assessor (número operacional fora do ar na
+    // hora da resposta). O lead já ouviu "o assessor vai te chamar" — promessa
+    // sem dono é a pior falha deste fluxo, então retenta todo ciclo.
+    const pendentes = await reprocessarHandoffsPendentes(supabase)
+
     return NextResponse.json({
         ok: true,
         dia: diaLocal(agora),
         dry_run: config.dry_run,
         respostas_casadas: respostas,
+        handoffs_pendentes: pendentes,
         ...resultado,
     })
 }

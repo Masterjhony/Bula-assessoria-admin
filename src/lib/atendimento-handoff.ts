@@ -209,6 +209,8 @@ export async function executarHandoff(
         phone: string
         /** Última mensagem do lead — vai no aviso do assessor. */
         mensagem?: string | null
+        /** Retentativa: o lead já foi respondido, a dívida é só com o assessor. */
+        apenasAssessor?: boolean
         agora?: Date
     },
 ): Promise<HandoffResult> {
@@ -227,8 +229,9 @@ export async function executarHandoff(
 
     const jaRepassado = repassadoRecentemente(lead, agora)
 
-    // 1) Responde o lead. Sempre — mesmo em repasse repetido.
-    const r = await sendOutbound(supabase, {
+    // 1) Responde o lead. Sempre — mesmo em repasse repetido. Exceto na
+    // retentativa, em que ele já ouviu a promessa e repetir viraria spam.
+    const r = input.apenasAssessor ? { status: 'sent' as const } : await sendOutbound(supabase, {
         to: { phone: fone, leadId: lead.id, name: lead.nome },
         text: textoParaLead(firstName(lead.nome) || '', zona.assessor),
         // Resposta a quem acabou de escrever: janela de 24h aberta, texto livre,
@@ -296,6 +299,20 @@ export async function executarHandoff(
         })
     }
 
+    // Repasse que não chegou ao assessor vira PENDÊNCIA, não vira silêncio.
+    // O lead já foi avisado de que alguém vai chamar; se o aviso ao assessor se
+    // perde, a promessa fica sem dono — que é a pior falha possível neste fluxo.
+    // `reprocessarHandoffsPendentes` (chamado pelo cron) tenta de novo.
+    const pendenteAntes = !!(xd.handoff_pendente as Record<string, unknown> | undefined)
+    const pendencia = (!interno.interno && !jaRepassado && !assessorAvisado)
+        ? {
+            assessor: zona.assessor,
+            mensagem: String(input.mensagem ?? ''),
+            tentativas: Number((xd.handoff_pendente as { tentativas?: number } | undefined)?.tentativas ?? 0) + 1,
+            ultima_tentativa: agora.toISOString(),
+        }
+        : null
+
     if (interno.interno) {
         return {
             handled: true, assessor: zona.assessor, respondido,
@@ -309,10 +326,14 @@ export async function executarHandoff(
         handoff_at: agora.toISOString(),
         extra_data: {
             ...xd,
-            ...(jaRepassado ? {} : { handoff_assessor_at: agora.toISOString() }),
+            // Só carimba "repassado" quando o assessor REALMENTE foi avisado —
+            // senão o cooldown de 12h bloquearia a retentativa do que falhou.
+            ...(jaRepassado || !assessorAvisado ? {} : { handoff_assessor_at: agora.toISOString() }),
             handoff_assessor: zona.assessor,
             handoff_zona: zona.detalhe,
             ...(zona.conflito ? { handoff_zona_conflito: true } : {}),
+            ...(pendencia ? { handoff_pendente: pendencia } : {}),
+            ...(assessorAvisado && pendenteAntes ? { handoff_pendente: null } : {}),
         },
         ...(jaRepassado ? {} : { contact_history: history }),
         // Não sobrescreve responsável já definido por gente.
@@ -330,4 +351,54 @@ export async function executarHandoff(
         conflitoZona: zona.conflito,
         reason: jaRepassado ? 'ja_repassado_recentemente' : undefined,
     }
+}
+
+
+/**
+ * Retenta os repasses que ficaram pendentes (número operacional fora do ar na
+ * hora). Chamado pelo cron do motor a cada ciclo: o lead já recebeu a promessa,
+ * então a dívida com o assessor não pode envelhecer em silêncio.
+ *
+ * Desiste após MAX_TENTATIVAS e deixa a marca — aí é caso pra humano olhar, não
+ * pra máquina insistir.
+ */
+const MAX_TENTATIVAS_PENDENTE = 8
+
+export async function reprocessarHandoffsPendentes(
+    supabase: SupabaseClient,
+    opts: { limite?: number } = {},
+): Promise<{ tentados: number; resolvidos: number; desistidos: number }> {
+    const out = { tentados: 0, resolvidos: 0, desistidos: 0 }
+    const { data } = await supabase
+        .from('crm_leads')
+        .select('id,nome,telefone,celular,estado,cidade,cpf,email,interesse,interesse_principal,o_que_busca,quantidade_animais,momento_pecuaria,tem_inscricao_estadual,inscricao_estadual,responsavel,handoff_humano,contact_history,extra_data')
+        .not('extra_data->handoff_pendente', 'is', null)
+        .limit(opts.limite ?? 25)
+
+    for (const row of (data ?? []) as unknown as LeadHandoff[]) {
+        const xd = (row.extra_data ?? {}) as Record<string, unknown>
+        const pend = xd.handoff_pendente as { tentativas?: number; mensagem?: string } | null
+        if (!pend) continue
+        out.tentados++
+
+        if (Number(pend.tentativas ?? 0) >= MAX_TENTATIVAS_PENDENTE) {
+            await supabase.from('crm_leads').update({
+                extra_data: { ...xd, handoff_pendente: null, handoff_desistiu_at: new Date().toISOString() },
+            }).eq('id', row.id)
+            out.desistidos++
+            continue
+        }
+
+        const fone = row.celular || row.telefone || ''
+        const r = await executarHandoff(supabase, {
+            lead: row,
+            phone: fone,
+            mensagem: pend.mensagem ?? '',
+            // Já respondemos o lead quando a pendência nasceu; aqui a dívida é
+            // só com o assessor.
+            apenasAssessor: true,
+        })
+        if (r.assessorAvisado) out.resolvidos++
+    }
+    return out
 }
