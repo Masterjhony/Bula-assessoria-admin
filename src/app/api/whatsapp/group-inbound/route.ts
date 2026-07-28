@@ -17,6 +17,7 @@ import { createClient } from '@supabase/supabase-js'
 import { handleLeiloeiraGroupMessage } from '@/lib/leiloeira-whatsapp-cadastro'
 import { handleLanceGroupMessage } from '@/lib/whatsapp-lances'
 import { ingestOperationalSignal } from '@/lib/operational-center'
+import { grupoRelevante } from '@/lib/whatsapp-grupos-relevantes'
 
 export const maxDuration = 30
 
@@ -52,6 +53,20 @@ export async function POST(req: NextRequest) {
         process.env.NEXT_PUBLIC_SUPABASE_URL!,
         process.env.SUPABASE_SERVICE_ROLE_KEY!,
     )
+
+    // PORTEIRA: o número Baileys é um WhatsApp de pessoa e está em grupo de
+    // família, de bairro, de OLX. Antes disto, TODA mensagem de grupo virava
+    // linha em whatsapp_messages e aparecia no painel da Central — conversa
+    // particular do dono guardada no banco da empresa, sem nenhum consumidor.
+    // Só passa grupo com consumidor declarado (ver whatsapp-grupos-relevantes).
+    //
+    // Exceção: mídia JÁ ingerida pelo VPS. O VPS só baixa arquivo de grupo que
+    // passou pelo gate dele (catálogo/allowlist do Radar), então mídia presente
+    // significa que outra porteira já aprovou — descartar aqui perderia catálogo.
+    const midiaJaIngerida = !!body.media?.path
+    if (!midiaJaIngerida && !(await grupoRelevante(supabase, groupJid))) {
+        return NextResponse.json({ ok: true, ignored: 'grupo_sem_consumidor' })
+    }
 
     // Dedup por message_id (o Baileys pode redisparar o upsert): registramos
     // cada inbound de grupo em whatsapp_messages (auditoria) e usamos o registro

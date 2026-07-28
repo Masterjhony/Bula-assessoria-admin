@@ -52,20 +52,32 @@ export async function GET() {
 
     const since24h = new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString()
 
+    // Este painel é da Central de ATENDIMENTO — o canal do cliente. Mensagem de
+    // grupo (@g.us) nunca foi atendimento: é conversa de grupo interno, de
+    // leiloeira e, no número Baileys pessoal, de família e de bairro. Deixá-la
+    // entrar fazia duas coisas ruins ao mesmo tempo: expunha conversa
+    // particular no painel e inflava "inbound 24h" a ponto de o número não
+    // significar nada (692, quase nenhum de cliente). Grupo tem tela própria
+    // (Central Operacional); aqui fica fora, sempre.
+    const SEM_GRUPO = '%@g.us'
+
     const [recentRes, last24hRes, lastInboundRes, lastOutboundRes, vpsStatus, vpsQueue] = await Promise.all([
         supabase
             .from('whatsapp_messages')
             .select('id, created_at, phone, name, body, direction, status, origin, bot_step')
+            .not('phone', 'like', SEM_GRUPO)
             .order('created_at', { ascending: false })
             .limit(30),
         supabase
             .from('whatsapp_messages')
             .select('direction, status, origin, bot_step')
+            .not('phone', 'like', SEM_GRUPO)
             .gte('created_at', since24h),
         supabase
             .from('whatsapp_messages')
             .select('created_at')
             .eq('direction', 'inbound')
+            .not('phone', 'like', SEM_GRUPO)
             .order('created_at', { ascending: false })
             .limit(1)
             .maybeSingle(),
@@ -74,6 +86,7 @@ export async function GET() {
             .select('created_at')
             .eq('direction', 'outbound')
             .in('status', ['sent', 'queued'])
+            .not('phone', 'like', SEM_GRUPO)
             .order('created_at', { ascending: false })
             .limit(1)
             .maybeSingle(),
