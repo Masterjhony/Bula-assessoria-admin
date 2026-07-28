@@ -344,7 +344,21 @@ export function LeadForm() {
                 />
               </Field>
 
-              <label className="mt-1 flex cursor-pointer items-start gap-3" data-invalid={invalid('whatsappConsent')}>
+              {/* `minHeight: 44` — o alvo de toque aqui é o LABEL inteiro, não a
+                  caixa de 20×20: o clique em qualquer ponto dele marca o
+                  consentimento. Medido, ele fechava em 318×40,6 (duas linhas de
+                  14px a 1,45), e 3,4px abaixo do piso de 44 que a página adota.
+                  AA nunca esteve em risco — a SC 2.5.8 pede 24×24 e isso já
+                  passava com folga; o que estava reprovando era a régua AAA de
+                  44px, e era o único alvo da página abaixo dela.
+                  Como o flex é `items-start`, a folga cresce por baixo e nada se
+                  move na tela: a caixa e o texto ficam onde estavam, o que muda
+                  é só a área que aceita o toque. */}
+              <label
+                className="mt-1 flex cursor-pointer items-start gap-3"
+                style={{ minHeight: 44 }}
+                data-invalid={invalid('whatsappConsent')}
+              >
                 <input
                   type="checkbox" checked={data.whatsappConsent}
                   onChange={(e) => set('whatsappConsent', e.target.checked)}
