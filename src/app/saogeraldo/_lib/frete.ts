@@ -9,6 +9,12 @@
 // renderizado a 300 dpi e amostrado pixel a pixel — não deduzidas por
 // geografia nem por plausibilidade comercial.
 //
+// As quatro tintas são os valores EXATOS declarados pelo InDesign, extraídos
+// do `fill` vetorial com `pdftocairo -svg` e conferidos contra a cor modal do
+// raster em 29 polígonos. Duas delas (#806853 e #8E9F93) chegaram à primeira
+// versão deste arquivo com ±1/255 de desvio, lidas a olho; a auditoria de
+// 28/07 as devolveu ao valor do documento.
+//
 // O DF merece nota. Ele não tem rótulo no mapa do catálogo e é pequeno demais
 // para leitura a olho, então foi amostrado três vezes no interior do polígono
 // (a NE do rótulo "GO"), nas coordenadas (1663,2522), (1668,2527) e
@@ -36,9 +42,9 @@ export type FaixaFrete = 'gratis' | 'gratis2lotes' | 'consulta' | 'semEntrega'
  *
  * Sobre #312417:
  *   #B59C74 .... 5,71:1  AA
- *   #8EA094 .... 5,45:1  AA
+ *   #8E9F93 .... 5,40:1  AA
  *   #999999 .... 5,28:1  AA
- *   #816852 .... 2,89:1  REPROVA — nem como texto grande (exige 3,0)
+ *   #806853 .... 2,89:1  REPROVA — nem como texto grande (exige 3,0)
  *
  * Por isso a faixa marrom, e SÓ ela, escreve em `#A98A6D`: mesmo matiz,
  * clareado até 4,69:1 sobre o card. A cápsula ao lado continua na tinta
@@ -50,8 +56,8 @@ export type FaixaFrete = 'gratis' | 'gratis2lotes' | 'consulta' | 'semEntrega'
  *
  *              ink #201812   branco #FFFFFF
  *   #B59C74      6,64  AA        2,63  REPROVA
- *   #816852      3,36  large     5,20  AA
- *   #8EA094      6,33  AA        2,76  REPROVA
+ *   #806853      3,35  large     5,22  AA
+ *   #8E9F93      6,27  AA        2,79  REPROVA
  *   #999999      6,14  AA        2,85  REPROVA
  *
  * O catálogo impresso usa BRANCO nas quatro, o que reprova em três. Aqui a
@@ -72,7 +78,7 @@ export const FAIXAS: Record<
     aria: 'frete grátis para qualquer quantidade',
   },
   gratis2lotes: {
-    cor: '#816852',
+    cor: '#806853',
     textoLegenda: '#A98A6D',
     textoSobre: '#FFFFFF',
     rotulo: 'Frete grátis*',
@@ -80,7 +86,7 @@ export const FAIXAS: Record<
     aria: 'frete grátis a partir de 2 lotes',
   },
   consulta: {
-    cor: '#8EA094',
+    cor: '#8E9F93',
     textoLegenda: '#8EA094',
     textoSobre: '#201812',
     rotulo: 'Frete sob consulta',

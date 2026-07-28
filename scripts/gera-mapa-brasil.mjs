@@ -43,12 +43,14 @@ const MARGEM_LESTE = 4.2
  * carvão — então quem a desenha usa a cor de texto sobre fundo escuro, e não
  * a cor da faixa. `oculto: true` some com a sigla.
  *
- * Quem não aparece aqui usa o centróide puro, que o acomoda bem.
+ * Quem não aparece aqui usa o polo de inacessibilidade puro, que o acomoda
+ * bem. Os deslocamentos abaixo foram recalibrados quando a âncora deixou de
+ * ser o centróide: as duas bases não coincidem.
  */
 const AJUSTE_ROTULO = {
   '24': { dx: 2.9, dy: 0.0, externo: true }, // RN
   '25': { dx: 3.0, dy: 0.0, externo: true }, // PB
-  '26': { dx: 4.3, dy: 0.0, externo: true }, // PE
+  '26': { dx: 6.1, dy: 0.0, externo: true }, // PE
   '27': { dx: 3.2, dy: 0.0, externo: true }, // AL
   '28': { dx: 3.9, dy: 0.0, externo: true }, // SE
   '32': { dx: 2.6, dy: 0.0, externo: true }, // ES
@@ -123,6 +125,83 @@ function subpaths(d) {
   return saida.filter((p) => p.length >= 3)
 }
 
+/**
+ * POLO DE INACESSIBILIDADE — o ponto interior mais distante de qualquer
+ * aresta do polígono.
+ *
+ * Substitui o centróide de área como âncora de rótulo, e a troca veio de uma
+ * medição: com o centróide, a sigla do ACRE assentava EM CIMA da divisa entre
+ * estados, que é traçada com o próprio carvão do fundo. O pior pixel sob o
+ * glifo media 1,32:1 (a mediana das 26 siglas é 6,14). O Piauí tinha o mesmo
+ * defeito em 390px.
+ *
+ * A hipótese óbvia — "o rótulo não cabe" — foi testada e caiu: o polígono do
+ * Acre mede 53×29px e a sigla 7,5×10px. Cabia com folga; só estava no lugar
+ * errado. Centróide de área é o centro de MASSA, e num estado comprido e
+ * curvo o centro de massa pode cair perto da borda, ou fora.
+ *
+ * Busca em grade com refino: amostra o bbox, fica com o ponto interior de
+ * maior distância à aresta mais próxima, e repete numa vizinhança menor. Duas
+ * passadas bastam para a escala destes polígonos.
+ */
+function poloDeInacessibilidade(pontos) {
+  const xs = pontos.map((p) => p[0])
+  const ys = pontos.map((p) => p[1])
+  let minX = Math.min(...xs)
+  let maxX = Math.max(...xs)
+  let minY = Math.min(...ys)
+  let maxY = Math.max(...ys)
+
+  const dentro = (x, y) => {
+    let d = false
+    for (let i = 0, j = pontos.length - 1; i < pontos.length; j = i++) {
+      const [xi, yi] = pontos[i]
+      const [xj, yj] = pontos[j]
+      if (yi > y !== yj > y && x < ((xj - xi) * (y - yi)) / (yj - yi) + xi) d = !d
+    }
+    return d
+  }
+
+  const distaAresta = (x, y) => {
+    let melhor = Infinity
+    for (let i = 0, j = pontos.length - 1; i < pontos.length; j = i++) {
+      const [xi, yi] = pontos[i]
+      const [xj, yj] = pontos[j]
+      const dx = xj - xi
+      const dy = yj - yi
+      const t = dx || dy ? Math.max(0, Math.min(1, ((x - xi) * dx + (y - yi) * dy) / (dx * dx + dy * dy))) : 0
+      const px = xi + t * dx
+      const py = yi + t * dy
+      const d = Math.hypot(x - px, y - py)
+      if (d < melhor) melhor = d
+    }
+    return melhor
+  }
+
+  let alvo = { x: (minX + maxX) / 2, y: (minY + maxY) / 2, d: -1 }
+  for (let passada = 0; passada < 2; passada++) {
+    const passos = 36
+    const px = (maxX - minX) / passos
+    const py = (maxY - minY) / passos
+    for (let i = 0; i <= passos; i++) {
+      for (let j = 0; j <= passos; j++) {
+        const x = minX + i * px
+        const y = minY + j * py
+        if (!dentro(x, y)) continue
+        const d = distaAresta(x, y)
+        if (d > alvo.d) alvo = { x, y, d }
+      }
+    }
+    if (alvo.d < 0) break
+    // Refina numa janela ao redor do melhor ponto da passada anterior.
+    minX = alvo.x - px * 2
+    maxX = alvo.x + px * 2
+    minY = alvo.y - py * 2
+    maxY = alvo.y + py * 2
+  }
+  return alvo
+}
+
 /** Centróide de polígono por área assinada (não é a média dos vértices). */
 function centroidePoligono(pontos) {
   let area = 0
@@ -155,15 +234,30 @@ const [, sx, sy] = escala ? escala.map(Number) : [0, 1, 1]
 const paths = [...svg.matchAll(/<path id="(\d{2})" d="([^"]+)"/g)]
 if (paths.length !== 27) throw new Error(`esperava 27 UFs, o IBGE devolveu ${paths.length}`)
 
+// TENTATIVA DESCARTADA — reduzir a precisão do path de 1e-4 para 1e-3 de grau,
+// compensando na escala da transform. A malha inline é metade dos bytes do HTML,
+// então a alavanca era tentadora: 49,7 KB caíam para 40,1 KB.
+//
+// NÃO FUNCIONA, e o motivo é o `l` relativo. Os deltas são inteiros pequenos
+// (`l1392,-366`), e dividir por 10 arredonda CADA UM — o erro não se cancela,
+// acumula ao longo do contorno. Renderizado, o mapa abriu vãos visíveis entre
+// estados e os contornos ficaram serrilhados. Um passeio aleatório de mil
+// vértices não é o desvio de meio pixel que a conta ingênua prevê.
+//
+// Se alguém voltar a esta ideia: o caminho é reamostrar o polígono (Douglas-
+// Peucker sobre pontos ABSOLUTOS) e reemitir, não arredondar delta. Aí o erro
+// é controlado por tolerância, e não por acúmulo.
 const registros = paths.map(([, codigo, d]) => {
   const partes = subpaths(d)
+  // O rótulo ancora no MAIOR polígono — ilhas não recebem sigla.
   const maior = partes
-    .map(centroidePoligono)
-    .reduce((a, b) => (b.area > a.area ? b : a), { area: -1, cx: 0, cy: 0 })
+    .map((p) => ({ pontos: p, area: Math.abs(centroidePoligono(p).area) }))
+    .reduce((a, b) => (b.area > a.area ? b : a), { area: -1, pontos: partes[0] })
+  const polo = poloDeInacessibilidade(maior.pontos)
   const ajuste = AJUSTE_ROTULO[codigo] ?? { dx: 0, dy: 0 }
-  // Aplica a transform do <g> para levar o centróide ao espaço do viewBox.
-  const rx = maior.cx * sx + ajuste.dx
-  const ry = maior.cy * sy - ajuste.dy // sy já é negativo: norte é -y
+  // Aplica a transform do <g> para levar a âncora ao espaço do viewBox.
+  const rx = polo.x * sx + ajuste.dx
+  const ry = polo.y * sy - ajuste.dy // sy já é negativo: norte é -y
   return {
     codigo,
     d,
@@ -177,22 +271,27 @@ const registros = paths.map(([, codigo, d]) => {
 // viewBox alargado a leste para caber as siglas do Nordeste.
 const [vbX, vbY, vbL, vbA] = viewBox.split(/\s+/).map(Number)
 const viewBoxFinal = `${vbX} ${vbY} ${Number((vbL + MARGEM_LESTE).toFixed(4))} ${vbA}`
+const transformFinal = transform
 
 const arquivo = `// GERADO POR scripts/gera-mapa-brasil.mjs — NÃO EDITAR À MÃO.
 //
 // Malha das 27 unidades federativas, da API de malhas territoriais do IBGE
 // (domínio público). Para regerar: \`node scripts/gera-mapa-brasil.mjs\`.
 //
-// \`rotulo\` é o centróide por área do MAIOR polígono de cada UF, já no espaço
-// do viewBox, com os ajustes manuais dos estados pequenos aplicados. Serve de
-// âncora para a sigla; não é dado geográfico.
+// \`rotulo\` é o POLO DE INACESSIBILIDADE do maior polígono de cada UF — o
+// ponto interior mais distante de qualquer aresta — já no espaço do viewBox,
+// com os ajustes manuais dos estados pequenos aplicados. Serve de âncora para
+// a sigla; não é dado geográfico.
+//
+// Não é o centróide de área: com ele a sigla do Acre caía EM CIMA da divisa
+// entre estados, medindo 1,32:1 no pior pixel contra mediana de 6,14.
 //
 // \`externo\` = a sigla cai fora do polígono, sobre o fundo carvão: quem
 // desenha usa a cor de texto do tile escuro, não a cor da faixa.
 // \`oculto\`  = não rotular (só o DF, que o catálogo também não rotula).
 
 export const VIEW_BOX = '${viewBoxFinal}'
-export const TRANSFORM = '${transform}'
+export const TRANSFORM = '${transformFinal}'
 
 export type PathUf = {
   codigo: string
