@@ -27,6 +27,23 @@ export const form = {
   successLead: 'Recebemos seus dados. Um assessor da Bula vai falar com você pelo WhatsApp.',
 } as const
 
+/**
+ * Convite para o grupo de WhatsApp do leilão.
+ *
+ * Só existe DEPOIS da conversão. Na landing ele seria uma rota de fuga: o
+ * visitante entraria no grupo, o lead não seria capturado, o assessor não
+ * teria com quem falar e a campanha não teria o que otimizar. Aqui ele só
+ * agrega — retém quem já é lead até o dia do leilão.
+ *
+ * O texto é o mesmo nas duas variantes: o grupo é um só, e o que muda entre
+ * MQL e lead é quem liga primeiro, não a que grupo a pessoa pertence.
+ */
+export const grupo = {
+  eyebrow: 'Enquanto o assessor não chama',
+  cta: 'Entrar no grupo do leilão',
+  nota: 'Avisos de lote, transmissão e edital saem por lá primeiro.',
+} as const
+
 // Duas variantes porque as URLs de obrigado são separadas (MQL vs. lead) — é o
 // que permite meta de conversão por URL e otimização por valor na mídia.
 export const obrigado = {
