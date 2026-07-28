@@ -1,4 +1,5 @@
 import { Hero } from './_components/Hero'
+import { Pista } from './_components/Pista'
 import { Oferta } from './_components/Oferta'
 import { SubHero } from './_components/SubHero'
 import { ProvaSocial } from './_components/ProvaSocial'
@@ -27,6 +28,13 @@ export default function SaoGeraldoPage() {
   return (
     <main>
       <Hero />
+      {/* A Pista entra em SEGUNDO, e não em quarto: a narrativa passa a ser a
+          de um catálogo — o que está sendo vendido → em que condição você
+          compra → quem te ajuda → aja agora. Sem ela a página pula de "tem
+          hora marcada" direto para "30x sem juros", que é a sequência de uma
+          oferta e não a de um leilão. Ela não carrega lote nenhum: é a ficha
+          AGREGADA do rebanho, gerada do catálogo e congelada em _lib/ficha.ts. */}
+      <Pista />
       <Oferta />
       <SubHero />
       <ProvaSocial />
