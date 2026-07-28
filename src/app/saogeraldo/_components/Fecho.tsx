@@ -3,6 +3,7 @@
 import { dark, typo, font, space } from '../_lib/tokens'
 import { fecho as copy } from '../_lib/copy'
 import { form } from '../_lib/copy-conversao'
+import { EVENTO } from '../_lib/evento'
 import { Section, Container, Reveal, Eyebrow, MultiLine, FioDuplo } from './ui'
 
 // FECHO — último convite, depois da prova social. Mesmo papel que na /touros:
@@ -43,7 +44,10 @@ export function Fecho() {
             style={{ rowGap: space.xl }}
           >
             <Reveal>
-              <Eyebrow surface="dark">{copy.eyebrow}</Eyebrow>
+              {/* A data sai de EVENTO, nunca da copy: é a última seção antes do
+                  rodapé a repetir a urgência, e ela tem que envelhecer junto
+                  com o resto da página quando o evento mudar. */}
+              <Eyebrow surface="dark">{copy.eyebrow(EVENTO.dataExtenso)}</Eyebrow>
               <h2 style={{ ...typo.displayLg, color: dark.text, marginTop: space.md }}>
                 <MultiLine text={copy.title} />
               </h2>

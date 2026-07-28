@@ -249,7 +249,12 @@ export const provaSocial = {
 // Fecho — último convite, depois da prova social. NÃO hospeda formulário: uma
 // segunda instância duplicaria os eventos de funil. Só devolve ao #cadastro.
 export const fecho = {
-  eyebrow: 'ANTES DO DIA 01',
+  // Era `'ANTES DO DIA 01'` — a data do leilão CHUMBADA numa string, desde
+  // antes do redesign. Virou função de `EVENTO` como o resto do arquivo: trocar
+  // a data do evento passa a ser trocar UMA linha em `evento.ts`, e não caçar
+  // um `01` solto na copy. Em caixa baixa porque quem consome é `typo.eyebrow`,
+  // que já aplica o uppercase.
+  eyebrow: (dataExtenso: string) => `Antes de ${dataExtenso}`,
   title: 'Chegue no leilão sabendo\nexatamente em que lote dar lance.',
   lead:
     'O cadastro é rápido e sem custo. Quem se cadastra antes recebe a seleção e chega no dia do leilão com a lista na mão.',
@@ -264,5 +269,10 @@ export const fecho = {
 
 export const footer = {
   nota: 'Bula Assessoria — assessoria de genética para pecuária de corte.',
-  criatorios: 'Lotes das fazendas São Geraldo e 7P Agro.',
+  // SEM ponto final: esta linha virou small caps de cerimônia no rodapé, e em
+  // caixa alta com 0.18em de tracking o ponto fica órfão — separado da última
+  // palavra pelo próprio tracking, lendo como sujeira e não como pontuação.
+  // Nenhuma outra linha cerimonial da página termina em ponto (nem o crédito
+  // do Hero, nem a linha de data da Contagem).
+  criatorios: 'Lotes das fazendas São Geraldo e 7P Agro',
 }
