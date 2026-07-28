@@ -9,30 +9,45 @@
 // número do portão mexe.
 //
 // Uso:
-//   node scripts/medir-dobra-saogeraldo.mjs             # sobe next dev, mede, derruba
-//   node scripts/medir-dobra-saogeraldo.mjs --prod      # npm run build + next start
-//   node scripts/medir-dobra-saogeraldo.mjs --prod --sem-build   # reusa .next existente
-//   node scripts/medir-dobra-saogeraldo.mjs --base=http://localhost:3000  # servidor já de pé
-//   node scripts/medir-dobra-saogeraldo.mjs --json      # saída para máquina
+//   node scripts/medir-dobra-saogeraldo.mjs           # next start sobre o .next atual
+//   node scripts/medir-dobra-saogeraldo.mjs --build   # npm run build antes de medir
+//   node scripts/medir-dobra-saogeraldo.mjs --dev     # next dev (mede edição em curso)
+//   node scripts/medir-dobra-saogeraldo.mjs --base=http://localhost:3010  # servidor de pé
+//   node scripts/medir-dobra-saogeraldo.mjs --json    # saída para máquina
 //   node scripts/medir-dobra-saogeraldo.mjs --portao=600
 //
-// POR QUE `next dev` É O PADRÃO, e não o `next start` que a §7.3 pediu:
-// o repositório não versiona `.env.local`, e `npm run build` compila o app
-// inteiro (/sistema, rotas de API, Supabase) — quebra por falta de env que nada
-// tem a ver com esta landing, e leva minutos. A medição aqui é de LAYOUT: mesmo
-// CSS, mesmos componentes, mesma fonte nos dois modos. Quem quiser o número
-// contra o bundle de produção roda com `--prod`, e o script faz o build.
+// POR QUE O PADRÃO É `next start` SOBRE UM BUILD EXISTENTE, e não `next dev`:
+//
+// 1. É o que a §7.3 pediu, e o número certo é o do bundle que vai ao ar.
+// 2. `next dev` NÃO é confiável como padrão. Ele exige o lock de `.next/dev`,
+//    e nesta equipe quase sempre há um `next dev` de colega de pé — a segunda
+//    instância morre com "Unable to acquire lock". Um padrão que depende de
+//    ninguém mais estar trabalhando não é um padrão.
+// 3. `/saogeraldo` sai PRÉ-RENDERIZADO (`.next/server/app/saogeraldo.html`), então
+//    `next start` responde em ~1s, contra minutos de compilação sob demanda do dev.
+// 4. O build já é pré-requisito da bateria: o portão 3 da §7.2 é `npm run build`
+//    e o portão 4 mede `wc -c .next/server/app/saogeraldo.html`. Quando o portão 13
+//    roda, o build existe. Exigir build não é atrito novo; é a ordem real dos portões.
+//
+// O build é responsabilidade de quem chama — mas o script CONFERE a idade dele e
+// se recusa a medir um bundle mais velho que o código (§ `buildFresco`). Medir
+// build velho é pior que não medir: devolve exit 0 sobre a página de ontem.
 //
 // Este script só LÊ a página renderizada. Não escreve nada em src/.
 
 import { chromium } from 'playwright'
 import { spawn } from 'node:child_process'
 import { createServer } from 'node:net'
+import { readdirSync, statSync } from 'node:fs'
 import { join } from 'node:path'
 
 const RAIZ = join(import.meta.dirname, '..')
 const ROTA = '/saogeraldo'
 const ANCORA = 'cadastro'
+const BUILD_ID = join(RAIZ, '.next', 'BUILD_ID')
+// A rota é autocontida: nenhum arquivo dela importa de fora de
+// `src/app/saogeraldo/`. Só o CSS global entra na conta por cima.
+const FONTES = [join(RAIZ, 'src', 'app', 'saogeraldo'), join(RAIZ, 'src', 'app', 'globals.css')]
 
 const args = process.argv.slice(2)
 const temFlag = (n) => args.includes(n)
@@ -41,8 +56,9 @@ const valorFlag = (n, padrao) => {
   return hit ? hit.slice(n.length + 1) : padrao
 }
 
-const MODO_PROD = temFlag('--prod')
-const SEM_BUILD = temFlag('--sem-build') || temFlag('--no-build')
+const MODO_DEV = temFlag('--dev')
+const FAZER_BUILD = temFlag('--build')
+const IGNORAR_IDADE = temFlag('--ignorar-idade')
 const JSON_OUT = temFlag('--json')
 const BASE_EXTERNA = valorFlag('--base', null)
 const PORTAO_PX = Number(valorFlag('--portao', '596'))
@@ -74,12 +90,106 @@ function portaLivre(porta, restam = 40) {
 
 function roda(cmd, cmdArgs, rotulo) {
   return new Promise((resolve, reject) => {
-    const p = spawn(cmd, cmdArgs, { cwd: RAIZ, stdio: JSON_OUT ? 'ignore' : 'inherit' })
+    const p = spawn(cmd, cmdArgs, { cwd: RAIZ, stdio: ['ignore', 'pipe', 'pipe'] })
+    let saida = ''
+    const olho = (buf) => {
+      saida += buf.toString()
+      log(buf.toString())
+    }
+    p.stdout.on('data', olho)
+    p.stderr.on('data', olho)
     p.on('error', () => reject(new Error(`não consegui executar \`${cmd}\` (${rotulo})`)))
-    p.on('exit', (code) =>
-      code === 0 ? resolve() : reject(new Error(`${rotulo} falhou com código ${code}`)),
-    )
+    p.on('exit', (code) => {
+      if (code === 0) return resolve()
+      // O `.next/lock` é do build, não do dev: dois `next build` no mesmo
+      // diretório se atropelam. Numa equipe rodando os portões em paralelo isso
+      // acontece o tempo todo, e o código 1 sozinho não conta essa história.
+      if (/Unable to acquire lock/i.test(saida)) {
+        return reject(
+          new Error(
+            'outro `next build` já está rodando neste repositório (lock de `.next`).\n' +
+              '  Espere ele terminar e rode de novo — sem --build, se o build dele já servir.',
+          ),
+        )
+      }
+      reject(new Error(`${rotulo} falhou com código ${code}`))
+    })
   })
+}
+
+// Arquivo mais recente sob os caminhos de origem da rota.
+function maisRecente(caminhos) {
+  let topo = { ms: 0, arquivo: null }
+  const visita = (p) => {
+    let st
+    try {
+      st = statSync(p)
+    } catch {
+      return
+    }
+    if (st.isDirectory()) {
+      for (const filho of readdirSync(p)) visita(join(p, filho))
+      return
+    }
+    if (st.mtimeMs > topo.ms) topo = { ms: st.mtimeMs, arquivo: p }
+  }
+  caminhos.forEach(visita)
+  return topo
+}
+
+// Enquanto um `next build` corre, o `.next` está sendo reescrito: o BUILD_ID some
+// e volta. Nesta equipe os portões rodam em paralelo, então esbarrar num build de
+// colega é rotina — esperar é mais útil que reclamar de um estado transitório.
+async function esperaBuildEmCurso(limiteMs = 300_000) {
+  const lock = join(RAIZ, '.next', 'lock')
+  const existe = () => {
+    try {
+      statSync(lock)
+      return true
+    } catch {
+      return false
+    }
+  }
+  if (!existe()) return
+  log('· um `next build` está em curso neste repositório; aguardando ele terminar\n')
+  const fim = Date.now() + limiteMs
+  while (Date.now() < fim) {
+    await new Promise((r) => setTimeout(r, 2000))
+    if (!existe()) {
+      // O BUILD_ID é escrito no fim; dá um respiro para o disco assentar.
+      await new Promise((r) => setTimeout(r, 1500))
+      return
+    }
+  }
+  throw new Error(
+    `há um \`next build\` segurando \`.next/lock\` há mais de ${limiteMs / 1000}s.\n` +
+      '  Se ele travou, derrube o processo; se ainda corre, rode de novo depois.',
+  )
+}
+
+// Recusa medir bundle mais velho que o código. Um exit 0 sobre o build de ontem
+// é a única saída deste script pior que um erro.
+function conferaIdadeDoBuild() {
+  let build
+  try {
+    build = statSync(BUILD_ID)
+  } catch {
+    throw new Error(
+      'não há build de produção em `.next` (BUILD_ID ausente).\n' +
+        '  Rode `npm run build`, ou chame este script com --build.\n' +
+        '  Para medir a edição em curso sem build, use --dev.',
+    )
+  }
+  const fonte = maisRecente(FONTES)
+  if (IGNORAR_IDADE || fonte.ms <= build.mtimeMs) return { build: build.mtimeMs, fonte }
+
+  const atraso = Math.round((fonte.ms - build.mtimeMs) / 1000)
+  throw new Error(
+    `o build está mais velho que o código: \`${fonte.arquivo.replace(`${RAIZ}/`, '')}\` mudou ` +
+      `${atraso}s depois do último \`npm run build\`.\n` +
+      '  Medir isso devolveria o número da página de ontem. Rode `npm run build`,\n' +
+      '  ou chame com --build. (--dev mede a edição em curso; --ignorar-idade força.)',
+  )
 }
 
 let servidor = null
@@ -164,24 +274,40 @@ async function sobeServidor() {
     return { base: BASE_EXTERNA, descricao: `servidor externo em ${BASE_EXTERNA}`, segundos: 0 }
   }
 
-  if (MODO_PROD && !SEM_BUILD) {
-    log('· npm run build (modo --prod; use --sem-build para reusar o .next atual)\n')
+  if (FAZER_BUILD) {
+    log('· npm run build\n')
     await roda('npm', ['run', 'build'], 'npm run build')
   }
 
-  const porta = await portaLivre(MODO_PROD ? 3128 : 3117)
-  const cmdArgs = MODO_PROD
-    ? ['next', 'start', '--port', String(porta)]
-    : ['next', 'dev', '--port', String(porta)]
-
-  const r = await tentaSubir(cmdArgs, porta, MODO_PROD ? 90_000 : 240_000)
-  if (r.base) {
-    return { base: r.base, descricao: `${MODO_PROD ? 'next start' : 'next dev'} em ${r.base}`, segundos: r.segundos }
+  if (!MODO_DEV) {
+    // Caminho padrão. Nada de plano B: se o build não está lá ou está velho, o
+    // certo é reclamar, não medir outra coisa e chamar de portão.
+    await esperaBuildEmCurso()
+    const idade = conferaIdadeDoBuild()
+    const porta = await portaLivre(3128)
+    const r = await tentaSubir(['next', 'start', '--port', String(porta)], porta, 90_000)
+    if (r.base) {
+      return {
+        base: r.base,
+        descricao: `next start em ${r.base}`,
+        segundos: r.segundos,
+        buildEm: idade.build,
+      }
+    }
+    throw new Error(
+      `\`next start\` não serviu ${ROTA}: ${r.falha}\n` +
+        '  O build existe mas não sobe. Rode `npm run build` de novo, ou meça com --dev.',
+    )
   }
 
-  // Plano B: um `next dev` de colega já está de pé com esta landing. Medir nele
-  // vale mais que não medir — mas o relatório precisa dizer que foi ali, porque
-  // o arquivo pode estar sendo editado embaixo da medição.
+  // --dev: para quem quer o número da edição em curso, sem esperar build.
+  const porta = await portaLivre(3117)
+  const r = await tentaSubir(['next', 'dev', '--port', String(porta)], porta, 240_000)
+  if (r.base) return { base: r.base, descricao: `next dev em ${r.base}`, segundos: r.segundos }
+
+  // O lock de `.next/dev` costuma estar tomado por um colega. Medir no servidor
+  // dele vale mais que não medir — mas o relatório precisa dizer que foi ali,
+  // porque o arquivo pode estar sendo editado embaixo da medição.
   const emprestado = await procuraServidorVivo()
   if (emprestado) {
     return {
@@ -193,8 +319,9 @@ async function sobeServidor() {
   }
 
   throw new Error(
-    `não consegui servir ${ROTA}: ${r.falha}\n` +
-      '  Saídas: derrube o outro `next dev`, ou passe --base=http://localhost:PORTA de um servidor já rodando.',
+    `--dev não conseguiu servir ${ROTA}: ${r.falha}\n` +
+      '  Saídas: rode sem --dev (mede o build de produção), derrube o outro `next dev`,\n' +
+      '  ou passe --base=http://localhost:PORTA de um servidor já rodando.',
   )
 }
 
@@ -329,6 +456,7 @@ try {
   log(`Medidor de dobra · ${ROTA} · topo de #${ANCORA}\n`)
   BASE = await sobeServidor()
   log(`servidor: ${BASE.descricao}${BASE.segundos ? ` (pronto em ${BASE.segundos.toFixed(1)}s)` : ''}\n`)
+  if (BASE.buildEm) log(`build:    ${new Date(BASE.buildEm).toLocaleString('pt-BR')}\n`)
 
   let navegador
   try {
@@ -354,6 +482,7 @@ try {
         {
           rota: ROTA,
           ancora: ANCORA,
+          modo: MODO_DEV ? 'dev' : BASE_EXTERNA ? 'externo' : 'start',
           portao: { viewport: `${alvo.largura}x${alvo.altura}`, limite: PORTAO_PX, medido: valor, passa },
           medidas: medidas.map((m) => ({
             viewport: `${m.largura}x${m.altura}`,

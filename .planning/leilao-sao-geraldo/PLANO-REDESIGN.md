@@ -91,7 +91,11 @@ id="cadastro" no repo ..................... 1  (Hero.tsx:248)
 href="#cadastro" .......................... 3  (Oferta, Fecho, StickyCta)
 dataLayer.push na landing ................. 0
 router.push / useRouter na landing ........ 0
-topo de #cadastro @390×844 ................ 590px  (valor registrado em Hero.tsx:48)
+topo de #cadastro @390×844 ................ 589px  (medido 28/07 por medir-dobra-saogeraldo.mjs;
+                                                   Hero.tsx:48 ainda diz 590 — comentário a corrigir)
+topo de #cadastro @375×667 ................ 582px  (bate com Hero.tsx:48)
+topo de #cadastro @768×1024 ............... 635px
+topo de #cadastro @1440×900 ............... 190px
 ```
 
 ---
@@ -394,7 +398,9 @@ básico e direto" que o cliente sinalizou.
 
 ## 5. O livro-caixa da dobra (o portão que pode matar o redesign)
 
-`Hero.tsx:48` registra: topo de `#cadastro` a **590px** em 390×844. A data-monumento
+Medido em 28/07 por `scripts/medir-dobra-saogeraldo.mjs`: topo de `#cadastro` a
+**589px** em 390×844 (o comentário em `Hero.tsx:48` diz 590 — 1px de diferença,
+o número bom é o medido). A data-monumento
 está **dentro** da dobra. Se ela empurrar o formulário, o redesign custou o KPI.
 
 **Regra herdada da `ESPACAMENTO.md` §5.2, e ela continua valendo: dentro do Hero
@@ -413,8 +419,9 @@ no celular, todo `+X` exige um `−X`.**
 | **AJUSTE** assento da contagem no `Hero.tsx:239`: `clamp(30px,5.4vw,64px)` → `clamp(20px,5.4vw,64px)` | **−10** |
 | **NET no celular** | **+2,6px** |
 
-Previsão: topo de `#cadastro` vai de **590px** para **~593px**. Portão em §7.2:
-**≤ 596px**, que é o valor que a própria página já teve e foi aceito.
+Previsão: topo de `#cadastro` vai de **589px** (medido) para **~592px**. Portão em
+§7.2: **≤ 596px**, que é o valor que a própria página já teve e foi aceito — sobram
+**7px** de orçamento hoje, e o movimento gasta 2,6.
 
 **Os dois ajustes que pagam a conta são argumentados, não arbitrários:**
 
