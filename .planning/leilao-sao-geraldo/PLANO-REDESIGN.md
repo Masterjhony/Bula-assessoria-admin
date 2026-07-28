@@ -102,7 +102,7 @@ topo de #cadastro @1440×900 ............... 190px
 
 ## 2. O rebanho em pista — os números, medidos
 
-Rodados sobre `.planning/leilao-sao-geraldo/lotes.json` (766 KB, 134 lotes, 160
+Rodados sobre `.planning/leilao-sao-geraldo/lotes.json` (753 KB, 134 lotes, 160
 animais). Nenhum número aqui é estimativa; todos saem do parser do catálogo
 oficial. Comandos reproduzíveis em §7.1.
 
@@ -116,11 +116,18 @@ oficial. Comandos reproduzíveis em §7.1.
 | Idade | 158 de 160 | **156 entre 20 e 24 meses**; mediana **23**; 2 fora da faixa (43 e 48 meses) |
 | Peso | 157 de 160 | mediana **780 kg**; faixa **560–1.045 kg**; 132 com ≥700 kg |
 | CE | 158 de 160 | mediana **37 cm**; faixa **30–43,5 cm**; **140 com ≥34 cm**; 109 com ≥36 cm |
-| IQG (TOP%) | 160 de 160 | **148 no TOP 5%**; 84 no TOP 1%; 155 no TOP 10% |
+| IQG (TOP%) | 158 de 160 | **148 no TOP 5%**; 84 no TOP 1%; 155 no TOP 10% |
 | iABCZ (DECA) | 159 de 160 | **158 na DECA 1**; 1 na DECA 2 |
-| MGTe (TOP%) | 159 de 160 | 123 no TOP 5%; 59 no TOP 1% |
+| MGTe (TOP%) | 158 de 160 | 123 no TOP 5%; 59 no TOP 1% |
 | Selos de touro de central | — | **55 dos 134 lotes** (56 animais). Por parente: 18 MÃE, 26 AVÓ MATERNA, 30 AVÓ PATERNA |
 | Pais distintos | 160 animais | **25 reprodutores diferentes** |
+
+**Por que IQG e MGTe cobrem 158 e não 160.** Os lotes **32** (`N298 DA 7P`) e **92**
+(`N262 DA 7P`) trazem `***` na tabela **DEP/TOP% inteira** do PDF — conferível em
+`catalogo-raw.txt`, no bloco do lote 32. O catálogo simplesmente não publica os
+índices desses dois, então eles não entram no denominador. **Não é falha do
+parser**, e por isso não há o que recuperar reprocessando o PDF. O iABCZ é um
+bloco separado e sobrevive nos dois: só o lote `M3` fica de fora dele, daí 159.
 
 ### 2.2 O que VAI para a página — quatro monumentos e uma linha de apoio
 
@@ -128,7 +135,7 @@ Escolhidos por três critérios: legível para comprador de touro sem legenda,
 verificável no catálogo, e forte o bastante para justificar o espaço.
 
 ```
-TOP 5%    IQG — 148 DOS 160 TOUROS NO TOP 5% DA AVALIAÇÃO
+TOP 5%    IQG — 148 DOS 158 AVALIADOS NO TOP 5% DA AVALIAÇÃO
 20–24     MESES — A IDADE DE 156 DOS 158 COM IDADE NO CATÁLOGO
 37 cm     CE MEDIANA — 140 DOS 158 COM 34 CM OU MAIS
 55        LOTES COM MÃE OU AVÓ DE TOURO DE CENTRAL
@@ -138,7 +145,7 @@ apoio: 780 kg de peso mediano (560 a 1.045) · DECA 1 do iABCZ em 158 dos 159
 ```
 
 **A disciplina que torna isso seguro sem validação do cliente:** todo monumento
-**declara o próprio denominador**. "148 dos 160", "156 dos 158", "140 dos 158".
+**declara o próprio denominador**. "148 dos 158", "156 dos 158", "140 dos 158".
 O BRIEF §7 proíbe claim numérico novo — e um agregado com denominador explícito
 não é claim novo, é **contagem do que o catálogo diz**, com a lacuna do parser
 visível na própria frase. Uma falha de parsing pode reduzir o denominador; nunca
@@ -149,7 +156,7 @@ pode inflar o numerador.
 | Número | Por que fica de fora |
 |---|---|
 | "160 touros" | 1 animal (lote 3000, aspiração) não teve sexo extraído. Vira **"160 animais"**. Um adjetivo a menos, zero risco |
-| MGTe TOP 5% (123 de 159) | Terceiro índice, mais fraco que o IQG e exige mais legenda. Substância não é acumular sigla |
+| MGTe TOP 5% (123 de 158) | Terceiro índice, mais fraco que o IQG e exige mais legenda. Substância não é acumular sigla |
 | Máximo de peso isolado ("1.045 kg") | Um máximo isolado convida "me mostra esse" — pergunta de lote, que a página deliberadamente não responde. Entra só dentro da faixa |
 | 38 dos 160 filhos de CASANOVA BONSUCESSO | Fato verdadeiro e comercialmente útil, mas ambíguo em vitrine: lê como concentração para uns e como pedigree forte para outros. É munição do assessor, não da página |
 | `percentualAVenda: 50` em 2 lotes | É ressalva contratual (compra de fração), não argumento. Material para o assessor |
@@ -159,14 +166,14 @@ pode inflar o numerador.
 ### 2.4 Como o número chega na página sem o JSON chegar junto
 
 **Regra travada** (já está escrita em `copy.ts:99-102` e continua valendo): **nada
-importa `lotes.json` em runtime.** Um `import` daquele arquivo arrasta 766 KB para
+importa `lotes.json` em runtime.** Um `import` daquele arquivo arrasta 753 KB para
 o bundle de uma landing de tráfego pago.
 
 Mecanismo: um script Node lê o JSON e **escreve um módulo TS congelado**,
 versionado no git.
 
 ```
-scripts/agrega-ficha-saogeraldo.mjs   →   src/app/saogeraldo/_lib/ficha.ts   (~500 bytes)
+scripts/agrega-ficha-saogeraldo.mjs   →   src/app/saogeraldo/_lib/ficha.ts   (767 bytes)
 ```
 
 Mesmo padrão de `scripts/parse-catalogo-saogeraldo.mjs`, que já existe no repo.
@@ -498,19 +505,28 @@ comportamento no meio de um redesign paralelo.
 
 ### 6.3 `_lib/ficha.ts` — gerado, congelado
 
+Isto **espelha o arquivo que existe** (gerado na Onda 1, commit `fcf9f25`), não é
+especificação a cumprir. Quem consome copia daqui e confere no arquivo:
+
 ```ts
 export const FICHA = {
-  fonteHash: '<sha256 curto de lotes.json>',
-  lotes: 134, animais: 160,
+  fonteHash: 'aa25784f',                  // sha256 curto da fonte de hoje
+  lotes: 134,
+  animais: 160,
   idade:  { comDado: 158, naFaixa: 156, min: 20, max: 24, mediana: 23 },
   ce:     { comDado: 158, mediana: 37, acima34: 140, min: 30, max: 43.5 },
   peso:   { comDado: 157, mediana: 780, min: 560, max: 1045 },
-  iqg:    { total: 160, top5: 148, top1: 84 },
+  iqg:    { avaliados: 158, top5: 148, top1: 84 },
   iabcz:  { avaliados: 159, deca1: 158 },
   selos:  { lotes: 55, animais: 56 },
   pais:   { distintos: 25 },
 } as const
 ```
+
+**Atenção de quem monta a `Pista`:** o campo é `iqg.avaliados` (**158**), não
+`iqg.total` (160) — o contrato dizia `total: 160` e estava errado; a causa está
+na nota da §2.1. O rótulo do primeiro monumento lê **"148 DOS 158"**. Todo campo
+`comDado`/`avaliados` existe para ser impresso junto do numerador, nunca omitido.
 
 ### 6.4 `_lib/copy.ts` — chaves novas, enumeradas
 
@@ -569,9 +585,9 @@ parser. A linha agora calcula o denominador em vez de afirmá-lo.
 Importa porque **a página imprime esse denominador**: o primeiro monumento da
 `Pista` tem que ler **"148 DOS 158"**. `ficha.ts` emite o campo como
 `iqg.avaliados: 158` (espelhando `iabcz.avaliados`), não `iqg.total: 160`.
-O `'/ 159'` do iABCZ segue chumbado nesta linha, mas foi conferido e bate com a
-contagem. **Pendente para o dono do plano:** §2.1, §2.2 e §6.3 ainda dizem
-`160` — fora do escopo desta correção, que se limitou à §7.1.
+O `'/ 159'` do iABCZ e o `'/ 134'` dos selos seguem chumbados nesta linha, mas
+foram conferidos e batem com a contagem. **§2.1, §2.2 e §6.3 já foram corrigidas**
+na mesma varredura — o documento inteiro diz 158.
 
 ### 7.2 Portões — todos automatizáveis
 
