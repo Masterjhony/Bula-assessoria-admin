@@ -8,7 +8,7 @@ import {
   LayoutDashboard, LogOut, Menu, X, Users, Settings, Calendar,
   MessageCircle, FileText, Sparkles, Gavel, Shield, ChevronDown,
   Target, BarChart3, Megaphone,
-  Mail, ImageIcon, Contact, FileVideo, Clapperboard, ListChecks, Radar,
+  Mail, ImageIcon, Contact, FileVideo, Clapperboard, ListChecks, Radar, Bot,
 } from 'lucide-react'
 import { createClient } from '@/utils/supabase/client'
 import { ThemeProvider } from '@/components/theme-provider'
@@ -39,6 +39,7 @@ const navConfig: NavEntry[] = [
     items: [
       { href: '/sistema/crm/dashboard', label: 'Dashboard', icon: BarChart3 },
       { href: '/sistema/crm', label: 'CRM', icon: Users },
+      { href: '/sistema/crm/atendimento', label: 'Atendimento Automático', icon: Bot },
       { href: '/sistema/crm/campanhas', label: 'Campanhas', icon: Megaphone },
     ],
   },
