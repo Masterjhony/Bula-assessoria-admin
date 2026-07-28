@@ -20,7 +20,8 @@
 
 import type { SupabaseClient } from '@supabase/supabase-js'
 import { sendOutbound } from './whatsapp-gateway'
-import { avisarAssessor } from './whatsapp-operacional'
+import { sendVpsDirect } from './whatsapp-vps'
+import { avisarAssessor, telefoneDoAssessor, sessaoOperacional, ehNumeroInterno } from './whatsapp-operacional'
 import { resolveZona, type Assessor } from './assessor-zona'
 import { ufFromPhone } from './state-registration-provider'
 import { resumoQualificacaoTexto } from './crm-qualificacao'
@@ -42,6 +43,8 @@ export interface LeadHandoff {
     celular: string | null
     estado: string | null
     cidade: string | null
+    cpf?: string | null
+    email?: string | null
     interesse?: string | null
     interesse_principal?: string | null
     o_que_busca?: string | null
@@ -63,6 +66,8 @@ export interface HandoffResult {
     respondido: boolean
     /** Assessor avisado no WhatsApp dele. */
     assessorAvisado: boolean
+    /** Documentos do lead reenviados como anexo pro assessor. */
+    docsEnviados: number
     /** UF declarada e DDD divergem — vale conferência humana. */
     conflitoZona: boolean
     reason?: string
@@ -94,6 +99,60 @@ export function textoParaLead(nome: string, assessor: Assessor | null): string {
     return `${oi} Que bom que você respondeu. Já estou passando seu contato pro assessor da Bula responsável pela sua região — ele te chama por aqui em breve pra entender o que você procura e te acompanhar no leilão. 👊`
 }
 
+const DOCS_BUCKET = 'cliente-documentos'
+
+/** Rótulos legíveis dos tipos de documento, para a legenda do anexo. */
+const DOC_ROTULO: Record<string, string> = {
+    cpf: 'Documento com foto',
+    identidade: 'Documento com foto',
+    endereco: 'Comprovante de endereço',
+    comprovante: 'Comprovante de endereço',
+    matricula: 'Matrícula/certidão da fazenda',
+    contrato: 'Contrato de arrendamento',
+    renda: 'Comprovante de renda',
+    ie: 'Inscrição Estadual',
+    outro: 'Documento',
+}
+
+interface DocLink {
+    nome: string
+    url: string
+    tipo: string
+    contentType: string
+}
+
+/**
+ * Documentos que o lead já mandou, com URL assinada (7 dias) para o VPS baixar.
+ *
+ * Vão como ANEXO na conversa do assessor, não como link: o assessor abre no
+ * próprio WhatsApp, no celular, sem copiar URL de 300 caracteres que ainda por
+ * cima expira. Se o lead mandou o comprovante, o assessor precisa VER o
+ * comprovante — senão vai pedir de novo e queimar a boa vontade do cliente.
+ */
+async function carregarDocs(supabase: SupabaseClient, leadId: string): Promise<DocLink[]> {
+    const { data } = await supabase
+        .from('crm_lead_documentos')
+        .select('nome_arquivo, path, tipo, content_type')
+        .eq('lead_id', leadId)
+    const out: DocLink[] = []
+    const vistos = new Set<string>()
+    for (const d of (data ?? []) as Array<{ nome_arquivo: string; path: string | null; tipo: string | null; content_type: string | null }>) {
+        if (!d.path || vistos.has(d.nome_arquivo)) continue
+        vistos.add(d.nome_arquivo)
+        const { data: signed } = await supabase.storage
+            .from(DOCS_BUCKET)
+            .createSignedUrl(d.path, 7 * 24 * 3600)
+        if (!signed?.signedUrl) continue
+        out.push({
+            nome: d.nome_arquivo,
+            url: signed.signedUrl,
+            tipo: String(d.tipo || 'outro'),
+            contentType: String(d.content_type || ''),
+        })
+    }
+    return out
+}
+
 /** Bloco que o assessor recebe: quem é, onde está, o que quer, e o que ele disse. */
 function textoParaAssessor(
     lead: LeadHandoff,
@@ -101,8 +160,24 @@ function textoParaAssessor(
     fone: string,
     mensagemDoLead: string,
     conflito: string,
+    docs: DocLink[],
 ): string {
     const qual = resumoQualificacaoTexto(lead)
+    const xd = (lead.extra_data ?? {}) as Record<string, unknown>
+    const str = (v: unknown) => String(v ?? '').trim()
+
+    // Dados de cadastro que já temos: poupa o assessor de perguntar de novo o
+    // que o cliente já respondeu — repetir pergunta é o que faz o lead achar
+    // que ninguém se falou.
+    const cadastro: string[] = []
+    if (str((lead as { cpf?: string }).cpf)) cadastro.push(`*CPF:* ${str((lead as { cpf?: string }).cpf)}`)
+    if (str((lead as { email?: string }).email)) cadastro.push(`*E-mail:* ${str((lead as { email?: string }).email)}`)
+    if (str(xd.endereco_titular)) cadastro.push(`*Endereço:* ${str(xd.endereco_titular)}`)
+    const faz = [str(xd.fazenda_nome), str(xd.fazenda_cidade), str(xd.fazenda_uf)].filter(Boolean).join(' · ')
+    if (faz) cadastro.push(`*Fazenda:* ${faz}`)
+    const ie = str(lead.inscricao_estadual) || (str(lead.tem_inscricao_estadual).toLowerCase() === 'sim' ? 'declara ter (nº não informado)' : '')
+    if (ie) cadastro.push(`*I.E.:* ${ie}`)
+
     return [
         '🔔 *Lead respondeu — é seu*',
         '',
@@ -112,6 +187,10 @@ function textoParaAssessor(
         '',
         mensagemDoLead ? `_"${mensagemDoLead.slice(0, 280)}"_` : '',
         qual ? `\n${qual}` : '',
+        cadastro.length ? `\n📇 *Cadastro já coletado*\n${cadastro.join('\n')}` : '',
+        docs.length
+            ? `\n📎 *${docs.length} documento${docs.length > 1 ? 's' : ''}* que ele já enviou vão logo abaixo.`
+            : '\n📎 Nenhum documento enviado ainda.',
         conflito ? `\n⚠ ${conflito}` : '',
         '',
         '_Ele já foi avisado de que você vai chamar._',
@@ -160,9 +239,16 @@ export async function executarHandoff(
     })
     const respondido = r.status === 'sent' || r.status === 'queued'
 
-    // 2) Avisa o assessor — só se ainda não avisamos há pouco.
+    // 2) Avisa o assessor — nunca quando o "lead" é gente da casa testando, e
+    // só se ainda não avisamos há pouco. O sócio conferindo a régua com o
+    // próprio WhatsApp chegou a virar "cliente novo" na caixa de um assessor;
+    // a resposta ao lead continua saindo (dá pra testar a experiência do
+    // cliente), o que não sai é a notificação interna.
+    const interno = await ehNumeroInterno(supabase, fone)
     let assessorAvisado = false
-    if (!jaRepassado) {
+    let docsEnviados = 0
+    if (!jaRepassado && !interno.interno) {
+        const docs = await carregarDocs(supabase, lead.id)
         const aviso = await avisarAssessor(supabase, {
             assessor: zona.assessor,
             leadId: lead.id,
@@ -172,9 +258,30 @@ export async function executarHandoff(
                 fone,
                 String(input.mensagem ?? ''),
                 zona.conflito ? zona.detalhe : '',
+                docs,
             ),
         })
         assessorAvisado = aviso.sent
+
+        // 2b) Os arquivos, logo depois do texto. Best-effort: o recado já foi, e
+        // anexo que falha não pode derrubar o repasse.
+        if (assessorAvisado && docs.length) {
+            const { phone: foneAssessor } = await telefoneDoAssessor(supabase, zona.assessor)
+            const sessao = await sessaoOperacional(supabase)
+            if (foneAssessor) {
+                for (const d of docs) {
+                    const ehPdf = d.contentType.includes('pdf') || /\.pdf$/i.test(d.nome)
+                    const r = await sendVpsDirect(foneAssessor, '', {
+                        type: ehPdf ? 'document' : 'image',
+                        url: d.url,
+                        ...(d.contentType ? { mimetype: d.contentType } : {}),
+                        caption: `${lead.nome || 'Lead'} — ${DOC_ROTULO[d.tipo] ?? DOC_ROTULO.outro}`,
+                        ...(ehPdf ? { fileName: d.nome } : {}),
+                    }, sessao)
+                    if (r.ok) docsEnviados++
+                }
+            }
+        }
     }
 
     // 3) Marca o lead: dono definido, robô fora.
@@ -187,6 +294,14 @@ export async function executarHandoff(
             notes: `Lead respondeu — repassado para ${zona.assessor ?? 'assessor não identificado'} (${zona.detalhe})`,
             by: 'handoff-automatico',
         })
+    }
+
+    if (interno.interno) {
+        return {
+            handled: true, assessor: zona.assessor, respondido,
+            assessorAvisado: false, docsEnviados: 0, conflitoZona: zona.conflito,
+            reason: `numero_interno:${interno.nome ?? 'equipe'}`,
+        }
     }
 
     const update: Record<string, unknown> = {
@@ -211,6 +326,7 @@ export async function executarHandoff(
         assessor: zona.assessor,
         respondido,
         assessorAvisado,
+        docsEnviados,
         conflitoZona: zona.conflito,
         reason: jaRepassado ? 'ja_repassado_recentemente' : undefined,
     }

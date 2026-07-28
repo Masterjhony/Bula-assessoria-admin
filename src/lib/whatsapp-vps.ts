@@ -173,6 +173,33 @@ export interface VpsGroupMedia {
  * na mensagem) — é assim que os documentos da ficha de cadastro chegam como
  * anexo, em vez de um link assinado de 300 caracteres que quebra no "Ler mais".
  */
+/**
+ * Envia 1:1 pelo Baileys com ANEXO. O gateway (`sendOutbound`) cobre texto e é
+ * quem loga; para arquivo não há caminho por lá, então o repasse ao assessor
+ * chama isto direto. Uso interno (assessor/equipe) — nunca para cliente, que é
+ * exclusividade da API oficial.
+ */
+export async function sendVpsDirect(
+    phone: string,
+    message: string,
+    media?: VpsGroupMedia,
+    session?: string | null,
+): Promise<{ ok: boolean; error?: string }> {
+    try {
+        const res = await fetch(withSession('/send-direct', session), {
+            method: 'POST',
+            headers: vpsHeaders({ 'Content-Type': 'application/json' }),
+            body: JSON.stringify({ phone, message, ...(media ? { media } : {}) }),
+            signal: AbortSignal.timeout(20000),
+        })
+        const body = await res.json().catch(() => ({}))
+        if (!res.ok) return { ok: false, error: String(body.error || `http_${res.status}`) }
+        return { ok: !!(body.sent || body.queued) }
+    } catch (e) {
+        return { ok: false, error: e instanceof Error ? e.message : 'vps_unreachable' }
+    }
+}
+
 export async function sendVpsGroup(
     groupId: string,
     message: string,

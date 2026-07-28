@@ -173,6 +173,37 @@ export async function telefoneDoAssessor(
     return { phone: achado?.whatsapp ? normalizePhone(achado.whatsapp) : null, nome: canonico }
 }
 
+/** Mesma canonização do resto do projeto: DDD + 8 últimos dígitos. */
+function canonico(p: string | null | undefined): string {
+    let d = String(p ?? '').replace(/\D/g, '')
+    if (d.startsWith('55') && d.length >= 12) d = d.slice(2)
+    return d.length >= 10 ? d.slice(0, 2) + d.slice(-8) : d
+}
+
+/**
+ * O número é de alguém da equipe (`crm_config.responsaveis`)?
+ *
+ * Existe porque o sócio testou a régua com o próprio WhatsApp e virou "lead
+ * respondeu — é seu" na caixa de um assessor. Gente de dentro entra na base por
+ * mil caminhos (importação, formulário de teste, número antigo), e a automação
+ * não tem como saber pelo nome. Pelo telefone, tem.
+ */
+export async function ehNumeroInterno(
+    supabase: SupabaseClient,
+    phone: string | null | undefined,
+): Promise<{ interno: boolean; nome?: string }> {
+    const alvo = canonico(phone)
+    if (!alvo) return { interno: false }
+    const { data } = await supabase
+        .from('site_settings')
+        .select('value')
+        .eq('key', 'crm_config')
+        .maybeSingle()
+    const responsaveis = ((data?.value ?? {}) as { responsaveis?: ResponsavelConfig[] }).responsaveis ?? []
+    const achado = responsaveis.find(r => r.whatsapp && canonico(r.whatsapp) === alvo)
+    return achado ? { interno: true, nome: achado.name } : { interno: false }
+}
+
 export interface AvisoAssessorResult {
     sent: boolean
     assessor: Assessor | null
