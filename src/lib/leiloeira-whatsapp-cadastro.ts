@@ -28,6 +28,7 @@ import { ufFromPhone, normalizeUf } from './state-registration-provider'
 import { resumoQualificacaoTexto } from './crm-qualificacao'
 import { resolveZona } from './assessor-zona'
 import { sessaoOperacional, avisarAssessor } from './whatsapp-operacional'
+import { loadModulos } from './atendimento-modulos'
 import { syncLeadToClientes } from './crm-to-clientes-sync'
 
 /** UF do lead para as notificações: a do cadastro, ou a da fazenda consultada. */
@@ -317,6 +318,10 @@ export async function submitLeadCadastroToLeiloeiraGroups(
     filtroLeiloeira?: RegExp,
 ): Promise<GroupSubmissionResult> {
     const result: GroupSubmissionResult = { attempted: 0, sent: 0, skipped: [], aguardandoDoc: [] }
+    // Módulo desligado: por decisão do dono a submissão de ficha nos grupos das
+    // leiloeiras está pausada (ver atendimento-modulos.ts). Sai antes de montar
+    // qualquer coisa — e sem erro, porque não é falha, é escolha.
+    if (!(await loadModulos(supabase)).submissao_leiloeiras) return result
     try {
         const { data: leadData } = await supabase
             .from('crm_leads')
@@ -443,6 +448,10 @@ export async function reenviarFichaAtualizada(
     filtroLeiloeira: RegExp,
 ): Promise<{ enviados: { leiloeira: string; codigo: string; anexos: number }[]; erros: string[] }> {
     const out: { enviados: { leiloeira: string; codigo: string; anexos: number }[]; erros: string[] } = { enviados: [], erros: [] }
+    // Módulo desligado: por decisão do dono a submissão de ficha nos grupos das
+    // leiloeiras está pausada (ver atendimento-modulos.ts). Sai antes de montar
+    // qualquer coisa — e sem erro, porque não é falha, é escolha.
+    if (!(await loadModulos(supabase)).submissao_leiloeiras) return out
     try {
         const { data: leadData } = await supabase.from('crm_leads').select(LEAD_FICHA_FIELDS).eq('id', leadId).maybeSingle()
         const lead = leadData as LeadRow | null
@@ -516,6 +525,10 @@ export async function enviarComplementoCadastro(
     leadId: string,
 ): Promise<{ enviados: number }> {
     let enviados = 0
+    // Módulo desligado: por decisão do dono a submissão de ficha nos grupos das
+    // leiloeiras está pausada (ver atendimento-modulos.ts). Sai antes de montar
+    // qualquer coisa — e sem erro, porque não é falha, é escolha.
+    if (!(await loadModulos(supabase)).submissao_leiloeiras) return ({ enviados })
     try {
         const { data: leadData } = await supabase
             .from('crm_leads')
@@ -550,11 +563,9 @@ export async function enviarComplementoCadastro(
         // Sessão do braço operacional (o "funcionário" do sistema): resolvida
         // uma vez por operação, não por chamada — ver whatsapp-operacional.ts.
         const sessao = await sessaoOperacional(supabase)
-        const fazenda = str(xd.fazenda_nome)
-        const cidade = str(xd.fazenda_cidade)
-        const ufFaz = str(xd.fazenda_uf)
-        const ie = str(lead.inscricao_estadual)
-        const temPropriedade = Boolean(fazenda || cidade)
+        // Propriedade só interessa aqui como GATILHO ("mudou desde o último
+        // envio?"); os valores em si saem pela ficha completa do buildFicha.
+        const temPropriedade = Boolean(str(xd.fazenda_nome) || str(xd.fazenda_cidade))
 
         let mudou = false
         for (const cad of cadastros) {
@@ -566,19 +577,26 @@ export async function enviarComplementoCadastro(
             const propriedadeNova = temPropriedade && !regua.propriedade
             if (!docsNovos.length && !propriedadeNova) continue
 
-            if (propriedadeNova) {
-                const linhas = [
-                    `📎 *Complemento do cadastro* · ${cad.codigo} — ${str(lead.nome)}`,
-                    '',
-                    '*Dados da Propriedade onde serão entregues os animais*',
-                    `*Fazenda:* ${fazenda || '—'}`,
-                    `*Cidade:* ${cidade || '—'}`,
-                    `*Estado:* ${ufFaz || '—'}`,
-                ]
-                if (ie) linhas.push(`*I.E.:* ${ie}`)
-                const r = await sendVpsGroup(grupo.whatsapp_group_id, linhas.join('\n'), undefined, sessao)
-                if (!r.queued) continue
-            }
+            // SEMPRE a ficha completa, nunca o delta solto.
+            //
+            // Antes, quando só chegavam documentos novos, este bloco era pulado e
+            // o grupo recebia dois PDFs com uma legenda de código — sem nome
+            // completo, sem CPF, sem propriedade, sem nada. Quem analisa do outro
+            // lado não tem o histórico do grupo na cabeça: recebia anexo órfão e
+            // não sabia de que cadastro se tratava. Economizar mensagem custou o
+            // contexto inteiro, que é justamente o produto aqui.
+            //
+            // O cabeçalho diz que é atualização e o corpo repete tudo, com os
+            // dados mais recentes. Repetir informação é barato; ficha ilegível
+            // volta como retrabalho ou como cadastro parado.
+            const cabecalho = docsNovos.length && propriedadeNova
+                ? '♻️ *Cadastro atualizado* — novos documentos e dados da propriedade.'
+                : docsNovos.length
+                    ? `♻️ *Cadastro atualizado* — ${docsNovos.length} documento${docsNovos.length > 1 ? 's' : ''} novo${docsNovos.length > 1 ? 's' : ''} em anexo.`
+                    : '♻️ *Cadastro atualizado* — dados da propriedade informados.'
+            const corpo = `${cabecalho}\n\n${buildFicha(lead, cad.codigo, docsNovos)}`
+            const r = await sendVpsGroup(grupo.whatsapp_group_id, corpo, undefined, sessao)
+            if (!r.queued) continue
             for (const d of docsNovos) {
                 const ehPdf = d.contentType.includes('pdf') || /\.pdf$/i.test(d.nome)
                 const rotulo = DOC_TIPO_LABEL[d.tipo] ?? DOC_TIPO_LABEL.outro

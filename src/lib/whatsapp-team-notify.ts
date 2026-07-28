@@ -19,6 +19,7 @@
 import type { SupabaseClient } from '@supabase/supabase-js'
 import { sendVpsGroup } from './whatsapp-vps'
 import { sessaoOperacional } from './whatsapp-operacional'
+import { loadModulos } from './atendimento-modulos'
 
 /** Mesmo registro do concierge (evita import circular com whatsapp-concierge). */
 const CONFIG_KEY = 'crm_concierge'
@@ -50,6 +51,11 @@ async function sendToGroup(
     const text = (message || '').trim()
     if (!text) return { sent: false, reason: 'empty_message' }
     if (!groupId) return { sent: false, reason: 'no_group_configured' }
+    // Módulo desligado por decisão do dono: o "funcionário" não reporta em grupo
+    // por enquanto — a única saída dele é o repasse 1:1 ao assessor da região.
+    if (!(await loadModulos(supabase)).report_grupos) {
+        return { sent: false, reason: 'report_grupos_desligado' }
+    }
     try {
         const r = await sendVpsGroup(groupId, text, undefined, await sessaoOperacional(supabase))
         if (r.queued) return { sent: true }

@@ -67,6 +67,7 @@ import {
     normalizeCRMStatus,
 } from './crm-types'
 import { maxStatus, pushStageMove } from './crm-stage-rules'
+import { modoAtendimento, executarHandoff, type LeadHandoff, type ModoAtendimento } from './atendimento-handoff'
 
 export const CONCIERGE_KEY = 'crm_concierge'
 
@@ -75,6 +76,13 @@ export const CONCIERGE_KEY = 'crm_concierge'
 export interface ConciergeConfig {
     /** Liga/desliga o atendimento automático por IA. Default OFF (seguro). */
     enabled: boolean
+    /**
+     * O que o bot faz quando o lead responde.
+     *   'completo' → funil consultivo inteiro (descoberta → cadastro).
+     *   'handoff'  → avisa que o assessor da região vai chamar e repassa na hora.
+     * Decisão do dono em 28/07/2026: 'handoff' por enquanto.
+     */
+    modo: ModoAtendimento
     /** Modelo OpenRouter (vazio = default do código/env). */
     model: string
     /** Override das instruções/persona. Vazio = persona default abaixo. */
@@ -156,6 +164,7 @@ const AI_TOTAL_BUDGET_MS = 45_000
 
 export const DEFAULT_CONCIERGE_CONFIG: ConciergeConfig = {
     enabled: false,
+    modo: 'completo',
     model: '',
     persona: '',
     thinkingSeconds: DEFAULT_THINKING_SECONDS,
@@ -197,6 +206,10 @@ export async function loadConciergeConfig(supabase: SupabaseClient): Promise<Con
     const raw = (data?.value ?? {}) as Partial<ConciergeConfig>
     return {
         enabled: raw.enabled ?? DEFAULT_CONCIERGE_CONFIG.enabled,
+        // O load remonta o objeto campo a campo — campo novo que não for listado
+        // aqui é silenciosamente perdido, e o save o apaga do banco no próximo
+        // clique do cockpit. Foi exatamente o que quase aconteceu com `modo`.
+        modo: modoAtendimento(raw),
         model: typeof raw.model === 'string' ? raw.model : '',
         persona: typeof raw.persona === 'string' ? raw.persona : '',
         thinkingSeconds: raw.thinkingSeconds === undefined ? DEFAULT_THINKING_SECONDS : clampThinking(raw.thinkingSeconds),
@@ -215,6 +228,7 @@ export async function saveConciergeConfig(
     const current = await loadConciergeConfig(supabase)
     const merged: ConciergeConfig = {
         enabled: patch.enabled ?? current.enabled,
+        modo: patch.modo ?? current.modo,
         model: patch.model ?? current.model,
         persona: patch.persona ?? current.persona,
         thinkingSeconds: patch.thinkingSeconds === undefined ? current.thinkingSeconds : clampThinking(patch.thinkingSeconds),
@@ -805,7 +819,6 @@ export async function runConcierge(
     input: RunConciergeInput,
 ): Promise<ConciergeResult> {
     if (!input.config.enabled) return { handled: false, reason: 'disabled' }
-    if (!isOpenRouterConfigured()) return { handled: false, reason: 'no_api_key' }
 
     // Carrega o lead completo (campos extras para personalização).
     const { data: full } = await supabase
@@ -815,6 +828,30 @@ export async function runConcierge(
         .single()
     if (!full) return { handled: false, reason: 'lead_not_found' }
     let lead = full as unknown as FullLead
+
+    // MODO HANDOFF: responder já é passar pro assessor. Sai ANTES da IA — não
+    // há o que gerar, a frase é fixa e o roteamento é por UF. Também antes do
+    // gate de OpenRouter: neste modo o atendimento não pode depender de LLM
+    // estar configurada nem de ela estar no ar.
+    if (modoAtendimento(input.config) === 'handoff') {
+        const r = await executarHandoff(supabase, {
+            lead: lead as unknown as LeadHandoff,
+            phone: input.phone,
+            mensagem: input.text,
+        })
+        // `silent: true` porque o executarHandoff JÁ respondeu o lead pelo
+        // gateway — devolver `reply` aqui faria o chamador mandar de novo.
+        return {
+            handled: true,
+            silent: true,
+            reason: r.assessor
+                ? `handoff:${r.assessor}${r.assessorAvisado ? '' : ' (assessor NAO avisado)'}`
+                : 'handoff:sem_assessor_para_a_uf',
+            postEffects: async () => { /* tudo já foi feito de forma síncrona */ },
+        }
+    }
+
+    if (!isOpenRouterConfigured()) return { handled: false, reason: 'no_api_key' }
 
     const history = await loadThreadHistory(supabase, input.phone)
     const persona = input.config.persona?.trim() || DEFAULT_CONCIERGE_PERSONA
