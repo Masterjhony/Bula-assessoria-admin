@@ -10,10 +10,15 @@
  * cliente). O grupo é configurado no cockpit (site_settings.crm_concierge →
  * notifyGroupId). Sem grupo configurado, vira no-op. Sempre best-effort:
  * nunca derruba a automação que chamou.
+ *
+ * A sessão sai de `whatsapp-operacional.ts` — antes era omitida, o VPS usava a
+ * default, e quando essa default caiu os avisos internos pararam sem ninguém
+ * notar (o best-effort engolia o erro).
  */
 
 import type { SupabaseClient } from '@supabase/supabase-js'
 import { sendVpsGroup } from './whatsapp-vps'
+import { sessaoOperacional } from './whatsapp-operacional'
 
 /** Mesmo registro do concierge (evita import circular com whatsapp-concierge). */
 const CONFIG_KEY = 'crm_concierge'
@@ -37,12 +42,16 @@ export interface TeamNotifyResult {
     reason?: string
 }
 
-async function sendToGroup(groupId: string, message: string): Promise<TeamNotifyResult> {
+async function sendToGroup(
+    supabase: SupabaseClient,
+    groupId: string,
+    message: string,
+): Promise<TeamNotifyResult> {
     const text = (message || '').trim()
     if (!text) return { sent: false, reason: 'empty_message' }
     if (!groupId) return { sent: false, reason: 'no_group_configured' }
     try {
-        const r = await sendVpsGroup(groupId, text)
+        const r = await sendVpsGroup(groupId, text, undefined, await sessaoOperacional(supabase))
         if (r.queued) return { sent: true }
         return { sent: false, reason: r.error || 'vps_error' }
     } catch (e) {
@@ -58,7 +67,7 @@ export async function notifyTeamGroup(
     supabase: SupabaseClient,
     message: string,
 ): Promise<TeamNotifyResult> {
-    return sendToGroup(await loadGroupId(supabase, 'notifyGroupId'), message)
+    return sendToGroup(supabase, await loadGroupId(supabase, 'notifyGroupId'), message)
 }
 
 /**
@@ -71,5 +80,5 @@ export async function notifyAssessoresGroup(
     supabase: SupabaseClient,
     message: string,
 ): Promise<TeamNotifyResult> {
-    return sendToGroup(await loadGroupId(supabase, 'assessoresGroupId'), message)
+    return sendToGroup(supabase, await loadGroupId(supabase, 'assessoresGroupId'), message)
 }

@@ -12,6 +12,7 @@
 import type { SupabaseClient } from '@supabase/supabase-js'
 import { notifyTeamGroup } from './whatsapp-team-notify'
 import { sendVpsGroup } from './whatsapp-vps'
+import { sessaoOperacional } from './whatsapp-operacional'
 import { ufFromPhone, normalizeUf } from './state-registration-provider'
 import {
     CRM_STAGE_ENTRY,
@@ -197,7 +198,9 @@ export async function sendCrmDailyDigest(
 ): Promise<{ sent: boolean; reason?: string; stats: DailyDigestStats }> {
     const { text, stats } = await buildCrmDailyDigest(supabase, { days: opts.days })
     if (opts.groupId) {
-        const r = await sendVpsGroup(opts.groupId, text)
+        // Grupo explícito também sai pelo número operacional — omitir a sessão
+        // cairia na default do VPS, que é justamente o que ficou órfão.
+        const r = await sendVpsGroup(opts.groupId, text, undefined, await sessaoOperacional(supabase))
         return { sent: r.queued, reason: r.error, stats }
     }
     const r = await notifyTeamGroup(supabase, text)

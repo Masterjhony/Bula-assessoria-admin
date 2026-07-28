@@ -27,6 +27,7 @@ import { firstName } from './whatsapp-central'
 import { ufFromPhone, normalizeUf } from './state-registration-provider'
 import { resumoQualificacaoTexto } from './crm-qualificacao'
 import { resolveZona } from './assessor-zona'
+import { sessaoOperacional, avisarAssessor } from './whatsapp-operacional'
 import { syncLeadToClientes } from './crm-to-clientes-sync'
 
 /** UF do lead para as notificações: a do cadastro, ou a da fazenda consultada. */
@@ -361,6 +362,9 @@ export async function submitLeadCadastroToLeiloeiraGroups(
         )
 
         const docs = await loadLeadDocLinks(supabase, lead.id)
+        // Sessão do braço operacional (o "funcionário" do sistema): resolvida
+        // uma vez por operação, não por chamada — ver whatsapp-operacional.ts.
+        const sessao = await sessaoOperacional(supabase)
 
         // O que cada leiloeira recebeu nesta ficha — é a régua do COMPLEMENTO:
         // quando docs/fazenda chegarem depois, `enviarComplementoCadastro` posta
@@ -376,7 +380,7 @@ export async function submitLeadCadastroToLeiloeiraGroups(
             // complemento quando chegar. Ficha só-dados É analisável.
             result.attempted++
             const codigo = gerarCodigo()
-            const r = await sendVpsGroup(leiloeira.whatsapp_group_id, buildFicha(lead, codigo, docs))
+            const r = await sendVpsGroup(leiloeira.whatsapp_group_id, buildFicha(lead, codigo, docs), undefined, sessao)
             if (!r.queued) {
                 result.skipped.push({ leiloeira: leiloeira.nome, reason: r.error || 'falha no envio ao grupo' })
                 continue
@@ -392,7 +396,7 @@ export async function submitLeadCadastroToLeiloeiraGroups(
                     ...(d.contentType ? { mimetype: d.contentType } : {}),
                     caption: `${codigo} · ${str(lead.nome)} — ${rotulo}`,
                     ...(ehPdf ? { fileName: `${codigo}-${d.tipo}.pdf` } : {}),
-                }).catch(() => { /* anexo é best-effort; a ficha já foi */ })
+                }, sessao).catch(() => { /* anexo é best-effort; a ficha já foi */ })
             }
             const { error } = await supabase.from('cliente_leiloeira_cadastro').upsert(
                 {
@@ -452,6 +456,9 @@ export async function reenviarFichaAtualizada(
         const leilById = new Map(((leilData ?? []) as LeiloeiraGroupRow[]).map(l => [l.id, l]))
 
         const docs = await loadLeadDocLinks(supabase, leadId)
+        // Sessão do braço operacional (o "funcionário" do sistema): resolvida
+        // uma vez por operação, não por chamada — ver whatsapp-operacional.ts.
+        const sessao = await sessaoOperacional(supabase)
         const xd = (lead.extra_data ?? {}) as Record<string, unknown>
         const estadoEnviado = { ...((xd.ficha_estado_enviado ?? {}) as Record<string, unknown>) }
         const temPropriedade = Boolean(str(xd.fazenda_nome) || str(xd.fazenda_cidade))
@@ -462,7 +469,7 @@ export async function reenviarFichaAtualizada(
             if (cad.status === 'aprovado' || cad.status === 'recusado') continue // decidido: não mexer
             const codigo = cad.codigo || gerarCodigo()
             const corpo = `♻️ *Ficha completa (atualizada)* — dados confirmados em fontes oficiais.\n\n${buildFicha(lead, codigo, docs)}`
-            const r = await sendVpsGroup(leil.whatsapp_group_id, corpo)
+            const r = await sendVpsGroup(leil.whatsapp_group_id, corpo, undefined, sessao)
             if (!r.queued) { out.erros.push(`${leil.nome}: ${r.error || 'falha no envio'}`); continue }
             for (const d of docs) {
                 const ehPdf = d.contentType.includes('pdf') || /\.pdf$/i.test(d.nome)
@@ -473,7 +480,7 @@ export async function reenviarFichaAtualizada(
                     ...(d.contentType ? { mimetype: d.contentType } : {}),
                     caption: `${codigo} · ${str(lead.nome)} — ${rotulo}`,
                     ...(ehPdf ? { fileName: `${codigo}-${d.tipo}.pdf` } : {}),
-                }).catch(() => { /* anexo é best-effort */ })
+                }, sessao).catch(() => { /* anexo é best-effort */ })
             }
             estadoEnviado[cad.leiloeira_id] = { docs: docs.length, propriedade: temPropriedade }
             await supabase.from('cliente_leiloeira_cadastro')
@@ -540,6 +547,9 @@ export async function enviarComplementoCadastro(
         )
 
         const docs = await loadLeadDocLinks(supabase, leadId)
+        // Sessão do braço operacional (o "funcionário" do sistema): resolvida
+        // uma vez por operação, não por chamada — ver whatsapp-operacional.ts.
+        const sessao = await sessaoOperacional(supabase)
         const fazenda = str(xd.fazenda_nome)
         const cidade = str(xd.fazenda_cidade)
         const ufFaz = str(xd.fazenda_uf)
@@ -566,7 +576,7 @@ export async function enviarComplementoCadastro(
                     `*Estado:* ${ufFaz || '—'}`,
                 ]
                 if (ie) linhas.push(`*I.E.:* ${ie}`)
-                const r = await sendVpsGroup(grupo.whatsapp_group_id, linhas.join('\n'))
+                const r = await sendVpsGroup(grupo.whatsapp_group_id, linhas.join('\n'), undefined, sessao)
                 if (!r.queued) continue
             }
             for (const d of docsNovos) {
@@ -578,7 +588,7 @@ export async function enviarComplementoCadastro(
                     ...(d.contentType ? { mimetype: d.contentType } : {}),
                     caption: `${cad.codigo} · ${str(lead.nome)} — ${rotulo} (complemento)`,
                     ...(ehPdf ? { fileName: `${cad.codigo}-${d.tipo}.pdf` } : {}),
-                }).catch(() => { /* anexo é best-effort */ })
+                }, sessao).catch(() => { /* anexo é best-effort */ })
             }
             estadoEnviado[cad.leiloeira_id] = { docs: docs.length, propriedade: temPropriedade || Boolean(regua.propriedade) }
             enviados++
@@ -697,6 +707,10 @@ export async function handleLeiloeiraGroupMessage(
 
     const parsed = parseDecision(input.text)
     if (!parsed) return { kind: 'ignored', reason: 'sem_decisao' }
+
+    // Tudo que este handler responde — confirmação no grupo da leiloeira, aviso
+    // interno e recado ao assessor — sai pelo número operacional.
+    const sessao = await sessaoOperacional(supabase)
     const decision = parsed.decision
 
     // 1) Código explícito (na resposta ou na ficha citada)
@@ -745,6 +759,8 @@ export async function handleLeiloeiraGroupMessage(
         void sendVpsGroup(
             input.groupJid,
             `🤖 Não consegui identificar de qual cadastro se trata. Responda *citando a ficha* ou inclua o código (ex.: CAD-A1B2C).`,
+            undefined,
+            sessao,
         )
         return { kind: 'unmatched', decision }
     }
@@ -840,6 +856,8 @@ export async function handleLeiloeiraGroupMessage(
     void sendVpsGroup(
         input.groupJid,
         `✅ Registrado: cadastro de *${clienteNome}* marcado como *${decision.toUpperCase()}*. ${clienteAvisado ? 'Cliente avisado.' : 'Cliente ainda não avisado (fora da janela ou sem WhatsApp).'}`,
+        undefined,
+        sessao,
     )
     const linhaCliente = `Cliente: ${clienteNome}${clienteFone ? ` — ${clienteFone}` : ''}`
     const avisoNotify = [
@@ -876,6 +894,29 @@ export async function handleLeiloeiraGroupMessage(
             clienteAvisado ? 'Cliente já avisado pela IA — dar sequência no atendimento.' : 'Cliente ainda não avisado — falar com ele.',
             clienteQualResumo ? `\n${clienteQualResumo}` : '',
         ].filter(Boolean).join('\n')).catch(() => { /* best-effort */ })
+
+        // E, além do grupo, o recado DIRETO no WhatsApp do assessor da zona.
+        // No grupo, "alguém pega esse cliente" vira "ninguém pegou": cliente
+        // aprovado tem um dono só, e é ele que precisa ser acordado. O grupo
+        // continua recebendo — é o log compartilhado, não a atribuição.
+        if (promo.assessor) {
+            void avisarAssessor(supabase, {
+                assessor: promo.assessor,
+                leadId: cadastro.crm_lead_id,
+                texto: [
+                    '🟢 *Cliente seu, aprovado e habilitado a comprar*',
+                    '',
+                    linhaCliente,
+                    ufLineCad(clienteUf, clienteFone),
+                    `Leiloeira: ${leiloeira.nome}`,
+                    '',
+                    clienteAvisado
+                        ? 'Ele já foi avisado da aprovação pelo nosso atendimento — pode chamar que o assunto está quente.'
+                        : '⚠ Ele ainda NÃO foi avisado da aprovação (fora da janela de 24h) — a boa notícia é sua pra dar.',
+                    clienteQualResumo ? `\n${clienteQualResumo}` : '',
+                ].filter(Boolean).join('\n'),
+            }).catch(() => { /* best-effort: o grupo já registrou */ })
+        }
     }
 
     return { kind: 'decided', decision, cliente: clienteNome, leiloeira: leiloeira.nome, clienteAvisado }
