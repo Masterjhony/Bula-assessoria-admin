@@ -35,14 +35,37 @@ export const EVENTO = {
 // Condições de pagamento — literais do catálogo. São a oferta mais forte da
 // página e não dependem de nenhuma informação pendente.
 //
-// NÃO existe seção de frete: o cliente cortou mapa e faixas do escopo (27/07).
-// Um "frete grátis" genérico seria claim falso — o catálogo tem região em
-// "sob consulta" e região sem entrega. Ver BRIEF §4.
+// SOBRE O FRETE (atualizado em 28/07): ele VOLTOU ao escopo por decisão do
+// cliente. O corte de 27/07 — que tirava mapa e faixas — está revertido, e a
+// página passou a reproduzir a página 3 do catálogo. As faixas por UF vivem
+// em `_lib/frete.ts`, lidas do PDF e amostradas pixel a pixel, justamente
+// para que nenhum claim de "frete grátis" seja genérico: o catálogo tem
+// região sob consulta e região sem entrega, e as duas aparecem.
 export const PAGAMENTO = [
   { destaque: '30x', titulo: '30 parcelas', detalhe: '2+2+2+2+2+20 parcelas' },
   { destaque: '10%', titulo: 'de desconto', detalhe: 'para pagamento à vista' },
   { destaque: '4%', titulo: 'de desconto', detalhe: 'para pagamento em 12 parcelas (1+11)' },
   { destaque: '1+29', titulo: 'acima de 4 lotes', detalhe: 'parcelamento estendido' },
+] as const
+
+/**
+ * As MESMAS condições, quebradas como a página 2 do catálogo as escreve.
+ *
+ * Existe em paralelo a `PAGAMENTO` (que serve à grade de cards da versão
+ * anterior) porque o catálogo não usa grade: usa uma LISTA vertical, em que
+ * cada item é uma linha forte seguida de um detalhe entre parênteses, e os
+ * itens são separados por fio pontilhado.
+ *
+ * A quebra importa. "30 PARCELAS" e "(2+2+2+2+2+20 PARCELAS)" são uma frase
+ * só no impresso; separá-las em destaque e rótulo, como a grade fazia,
+ * produzia "30x / 30 parcelas" — que repete o número e não é o que o
+ * catálogo diz.
+ */
+export const PAGAMENTO_CATALOGO = [
+  { linha: '30 parcelas', detalhe: '(2+2+2+2+2+20 parcelas)' },
+  { linha: '10% de desconto', detalhe: 'para pagamento à vista' },
+  { linha: '4% de desconto', detalhe: 'para pagamento em 12 parcelas (1+11)' },
+  { linha: 'Acima de 4 lotes', detalhe: 'pagamento em 1+29 parcelas' },
 ] as const
 
 // NOTA (27/07): existiam aqui helpers de thumbnail de lote (thumbDoLote,

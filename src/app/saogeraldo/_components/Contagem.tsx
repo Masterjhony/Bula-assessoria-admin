@@ -5,6 +5,7 @@ import { dark, font, typo, space } from '../_lib/tokens'
 import { EVENTO } from '../_lib/evento'
 import { contagem as copy } from '../_lib/copy'
 import { useSafeReducedMotion } from '../_lib/useSafeReducedMotion'
+import { FioDuplo, Cerimonia } from './ui'
 
 // Contagem regressiva até o leilão. É o elemento que separa esta landing da
 // perpétua: aqui a data é o argumento de conversão.
@@ -14,6 +15,28 @@ import { useSafeReducedMotion } from '../_lib/useSafeReducedMotion'
 // hidratação. Por isso o componente só calcula DEPOIS de montar — antes disso
 // devolve a mesma estrutura com traços, preservando a altura e evitando
 // layout shift na primeira dobra.
+//
+// ─── A DATA VIROU O TÍTULO (redesign) ────────────────────────────────────
+//
+// Era o pior desperdício da página: `01 de agosto, sábado, às 12h` — a
+// informação mais valiosa que a página tem — vivia num <p> de 15px, o MENOR
+// corpo da coluna, embaixo dos dígitos. O leilão acontece uma vez; a data é o
+// argumento, e ela estava escrita como nota de rodapé.
+//
+// Agora a ordem é: fio duplo → 01 AGOSTO em serifa → SÁBADO · 12H em small
+// caps → os dígitos → fio duplo. Some o <p> de data e some o rótulo "O leilão
+// começa em": o rótulo existia para nomear os dígitos, e o monumento já os
+// nomeia. A informação não se perdeu de lugar nenhum — ela subiu de corpo.
+//
+// A serifa aqui é regra, não gosto: ela é a voz do EVENTO. Os DÍGITOS, esses,
+// continuam em Oswald e intocados — dado tabular é operação, e operação é da
+// condensada, que é a voz da Bula.
+//
+// LÓGICA INTOCADA nesta passada: o estado de três valores, o `undefined` como
+// "ainda não montou", o intervalo condicionado ao `prefers-reduced-motion`, o
+// `aria-hidden` na régua de dígitos e o ramo de evento encerrado. O redesign é
+// de superfície; a hidratação desta seção já estava resolvida e ninguém a
+// reabre para trocar tipografia.
 
 const ALVO = new Date(EVENTO.dataHoraISO).getTime()
 
@@ -55,11 +78,18 @@ export function Contagem() {
   // fingimos urgência que não existe mais.
   if (restante === null) {
     return (
-      <div style={{ borderTop: `1px solid ${dark.hairline}`, paddingTop: space.md }}>
-        <p style={{ ...typo.body, color: dark.text, fontSize: 16 }}>{copy.encerrado}</p>
+      // O ramo de evento encerrado recebe o mesmo fio duplo: a cerimônia não é
+      // da contagem, é da fronteira. Sem ele este bloco seria o único da
+      // coluna sem moldura no dia seguinte ao leilão.
+      <div>
+        <FioDuplo />
+        <p style={{ ...typo.body, color: dark.text, fontSize: 16, marginTop: space.md }}>
+          {copy.encerrado}
+        </p>
         <p style={{ ...typo.body, fontSize: 14, color: dark.muted, marginTop: space.xs }}>
           {copy.encerradoLead}
         </p>
+        <FioDuplo style={{ marginTop: space.md }} />
       </div>
     )
   }
@@ -72,15 +102,33 @@ export function Contagem() {
   if (!reduzirMovimento) blocos.push([restante?.segundos ?? null, copy.unidades.segundos])
 
   return (
-    // A hairline é o que separa a contagem do lead acima. Ela só funciona como
-    // separador se houver ar dos dois lados: o de cima vem da margem que o Hero
-    // aplica neste bloco, o de baixo é este paddingTop.
-    <div style={{ borderTop: `1px solid ${dark.hairline}`, paddingTop: space.md }}>
-      <span style={{ ...typo.monoLabel, color: dark.gold }}>{copy.label}</span>
+    // O fio duplo é o que separa a contagem do lead acima — e ele SUBSTITUI a
+    // hairline de 1px que estava aqui, não se soma a ela. O ar de cima vem da
+    // margem que o Hero aplica neste bloco; o de baixo é o `space.sm` do
+    // monumento. Era `space.md` (20px) enquanto o separador era um fio de 1px:
+    // com 5px de ornamento fazendo o trabalho, 12px bastam.
+    <div>
+      <FioDuplo />
+
+      {/* A DATA COMO MONUMENTO. `dataMonumento` chega em caixa alta da própria
+          copy, porque `typo.dataMonumento` não aplica transform: display
+          serifado grande não fica à mercê de quem copiar o estilo.
+          Não é <h*>: o único título desta dobra é o <h1> do Hero, e a data não
+          disputa hierarquia de documento com a promessa. */}
+      <p style={{ ...typo.dataMonumento, color: dark.text, marginTop: space.sm }}>
+        {copy.dataMonumento(EVENTO.dataExtenso)}
+      </p>
+
+      {/* Dourado herdado do rótulo que saiu: é onde a voltagem deste bloco
+          morava. A 11px sobre #0D0D0D o dourado dá ~8:1 — passa AA com folga. */}
+      <Cerimonia color={dark.gold} style={{ marginTop: space.xs }}>
+        {copy.cerimonia(EVENTO.diaSemana, EVENTO.hora)}
+      </Cerimonia>
 
       {/* aria-live desligado de propósito: um contador que muda a cada segundo
-          seria lido em loop por leitor de tela. A data completa fica abaixo,
-          em texto estático, que é o que realmente importa anunciar. */}
+          seria lido em loop por leitor de tela. Esta régua é `aria-hidden` e a
+          informação que importa anunciar — dia, mês, dia da semana e hora —
+          está logo acima, em texto estático e agora no maior corpo do bloco. */}
       <div className="flex items-start gap-5 sm:gap-7" style={{ marginTop: space.sm }} aria-hidden>
         {blocos.map(([valor, unidade]) => (
           <div key={unidade} className="flex flex-col">
@@ -105,9 +153,7 @@ export function Contagem() {
         ))}
       </div>
 
-      <p style={{ ...typo.body, fontSize: 15, color: dark.body, marginTop: space.md }}>
-        {EVENTO.dataExtenso}, {EVENTO.diaSemana}, às {EVENTO.hora}.
-      </p>
+      <FioDuplo style={{ marginTop: space.sm }} />
     </div>
   )
 }

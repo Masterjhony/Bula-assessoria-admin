@@ -271,7 +271,41 @@ export function LeadForm() {
     : { initial: { opacity: 0, x: 12 }, animate: { opacity: 1, x: 0 }, exit: { opacity: 0, x: -12 } }
 
   return (
-    <form ref={formRef} onSubmit={handleSubmit} noValidate className="p-5 sm:p-8" style={cardStyle}>
+    <form
+      ref={formRef}
+      onSubmit={handleSubmit}
+      noValidate
+      className="p-5 sm:p-8"
+      style={cardStyle}
+      data-sg-form
+    >
+      {/* ANEL DE FOCO DOS CAMPOS — WCAG 2.1 SC 2.4.7, nível AA.
+
+          Até 28/07 os quatro controles do formulário não tinham NENHUM
+          indicador de foco: medido por Tab real, zero pixel mudava ao focar, e
+          o estilo computado devolvia a mesma border-color, o mesmo background,
+          box-shadow none e outline none. Num formulário que é o único KPI da
+          página, quem navega por teclado atravessava os campos às cegas.
+
+          Por que precisa de <style> e de !important, em vez de entrar no
+          `inputStyle()`: estilo inline em React não expressa :focus-visible, e
+          o `outline: 'none'` que o inputStyle aplica é inline — nenhuma regra
+          de folha externa o vence sem !important. A regra .input:focus de
+          globals.css:433 também não alcança estes campos, porque eles não usam
+          aquela classe.
+
+          `outline` e não `box-shadow`: outline não participa do layout, então
+          o anel não empurra vizinho nem muda a altura do campo.
+
+          Champagne sobre o fundo do campo (#1A130D) mede 7,53:1. */}
+      <style>{`
+        [data-sg-form] input:focus-visible,
+        [data-sg-form] select:focus-visible {
+          outline: 2px solid ${dark.gold} !important;
+          outline-offset: 2px;
+          border-color: ${dark.gold} !important;
+        }
+      `}</style>
       {/* Cabeçalho do form — diz O QUE é e O QUE acontece (message match +
           expectativa), pra ninguém preencher sem saber pra quê é o cadastro. */}
       <div className="mb-5 sm:mb-6" style={{ borderBottom: `1px solid ${dark.hairline}`, paddingBottom: 18 }}>
@@ -344,7 +378,21 @@ export function LeadForm() {
                 />
               </Field>
 
-              <label className="mt-1 flex cursor-pointer items-start gap-3" data-invalid={invalid('whatsappConsent')}>
+              {/* `minHeight: 44` — o alvo de toque aqui é o LABEL inteiro, não a
+                  caixa de 20×20: o clique em qualquer ponto dele marca o
+                  consentimento. Medido, ele fechava em 318×40,6 (duas linhas de
+                  14px a 1,45), e 3,4px abaixo do piso de 44 que a página adota.
+                  AA nunca esteve em risco — a SC 2.5.8 pede 24×24 e isso já
+                  passava com folga; o que estava reprovando era a régua AAA de
+                  44px, e era o único alvo da página abaixo dela.
+                  Como o flex é `items-start`, a folga cresce por baixo e nada se
+                  move na tela: a caixa e o texto ficam onde estavam, o que muda
+                  é só a área que aceita o toque. */}
+              <label
+                className="mt-1 flex cursor-pointer items-start gap-3"
+                style={{ minHeight: 44 }}
+                data-invalid={invalid('whatsappConsent')}
+              >
                 <input
                   type="checkbox" checked={data.whatsappConsent}
                   onChange={(e) => set('whatsappConsent', e.target.checked)}
