@@ -98,6 +98,27 @@ topo de #cadastro @768×1024 ............... 635px
 topo de #cadastro @1440×900 ............... 190px
 ```
 
+**E os mesmos números no FIM (28/07, fechada a Onda 4).** É contra esta coluna
+que o redesign se julga:
+
+```
+npm run build ............................. exit 0
+npx tsc --noEmit .......................... exit 0
+wc -c .next/server/app/saogeraldo.html .... 71.290 bytes   (+2.823 · teto 78.000 · sobram 6.710)
+id="cadastro" no repo ..................... 1  (Hero.tsx:269)
+dataLayer.push na landing ................. 0
+router.push / useRouter na landing ........ 0
+topo de #cadastro @390×844 ................ 579px  (−10 · portão 596 · sobram 17)
+topo de #cadastro @375×667 ................ 571px  (−11)
+topo de #cadastro @768×1024 ............... 651px  (+16 · sem portão · ver §5.1)
+topo de #cadastro @1440×900 ............... 190px  (=)
+```
+
+Uma seção nova inteira entrou, a data virou monumento, seis seções ganharam
+ornamento — e a página terminou **2,8 KB mais pesada e 10px mais curta na
+dobra**. O porquê do peso não ter explodido está medido em §7.2, e não é o que
+a equipe supunha.
+
 ---
 
 ## 2. O rebanho em pista — os números, medidos
@@ -231,14 +252,28 @@ ficha técnica ficam em Oswald**, não em serifa. Dado tabular é operação —
 exatamente o que o sistema do catálogo reserva à sans condensada. A serifa não
 toca em número nenhum.
 
-**Os três lugares. Lista fechada, verificável por `grep`:**
+**Os quatro lugares. Lista fechada, verificável por `grep`:**
 
 1. `Contagem.tsx` — a data-monumento (`01 AGOSTO`) e a linha `SÁBADO · 12H`
 2. `Pista.tsx` — o título da abertura sangrada e o eyebrow dela
 3. `Hero.tsx` — o crédito de origem no pé da seção (`LOTES DE FAZENDA SÃO GERALDO · 7P AGRO`)
+4. `Footer.tsx` — o crédito dos criatórios no rodapé
+
+> **Corrigido na Onda 4: eram "três lugares".** A lista original desta seção
+> contradizia a própria §4.2, que manda o `Footer` levar o crédito dos
+> criatórios em `<Cerimonia>` (T8). São dois créditos de vendedor, um no pé do
+> Hero e outro no rodapé, e os dois são fala do EVENTO. O executado seguiu a
+> §4.2; quem manda agora é esta lista de quatro.
+>
+> O `grep` do portão 9 lista um quinto arquivo, `ui.tsx`, e isso é por
+> construção: é onde o primitivo `<Cerimonia>` mora (§6.2), não um consumidor.
 
 Em nenhum outro lugar. Os eyebrows de `Oferta`, `SubHero`, `ProvaSocial` e `Fecho`
-continuam em Oswald, porque ali quem fala é a Bula.
+continuam em Oswald, porque ali quem fala é a Bula — e o eyebrow do próprio
+`Hero` também: ele **já é** a small caps faux que esta seção define (Oswald em
+caixa alta a 0.22em), então "o eyebrow ganha small caps" da §4.2 não pedia serifa
+nenhuma. Dar a serifa a ele seria um quinto uso e entregaria a voz do evento a
+uma linha que é da Bula.
 
 **Como carrega:** `next/font/google`, `Playfair_Display`, **`weight: ['400']` só**,
 `subsets: ['latin']`, `display: 'swap'`, `variable: '--font-serif'`, aplicado em
@@ -271,20 +306,38 @@ total 5px.
 > **Fio duplo marca fronteira de CERIMÔNIA. Hairline de 1px continua marcando
 > fronteira de LISTA.**
 
-Seis usos na página inteira, e nenhum a mais:
+Oito usos na página inteira, e nenhum a mais:
 
 | Onde | Quantos | Papel |
 |---|---|---|
 | `Contagem.tsx` | 2 | Emoldura a data-monumento (substitui o `borderTop` de 1px atual) |
 | `Pista.tsx` | 2 | Fecha a faixa sangrada e abre a ficha |
+| `Hero.tsx` | 1 | Abre o crédito de origem no pé da seção (§4.2) |
+| `Oferta.tsx` | 1 | Abre a grade de condições (§4.2 e §8, T6) |
 | `Fecho.tsx` | 1 | Topo da seção (substitui o `borderTop` de 1px do `<Section>`) |
 | `Footer.tsx` | 1 | Topo do rodapé (substitui o `borderTop` de 1px) |
 
-`Oferta` mantém o `gap-px` da grade — aquilo é tabela, é operação, é hairline
-simples por definição. `SubHero` e `ProvaSocial` não recebem nenhum.
+> **Corrigido na Onda 4: eram "seis usos, em quatro arquivos".** Esta tabela
+> contradizia a §4.2 e a §8, que mandam explicitamente o fio duplo abrir o
+> crédito do `Hero` (T5) e a grade da `Oferta` (T6) — e o parágrafo abaixo
+> chegava a dizer que a `Oferta` não receberia nenhum. O executado seguiu a
+> §4.2/§8. `SubHero` e `ProvaSocial` continuam sem nenhum, como estava escrito.
+>
+> No código-fonte o `grep` conta **10** ocorrências, não 8: a `Contagem` declara
+> 4, porque o ramo de evento encerrado tem os seus 2 e nunca coexiste com o ramo
+> vivo. Oito é o número renderizado.
+
+A grade da `Oferta` mantém o `gap-px` entre as células — aquilo é tabela, é
+operação, é hairline simples por definição. O fio duplo dela abre a grade, não
+divide as células. `SubHero` e `ProvaSocial` não recebem nenhum.
 
 **Small caps de cerimônia.** `typo.cerimonia`: serifa, caixa alta, `0.18em` de
-tracking, `clamp(11px, 1.3vw, 13px)`. Usado só nos três lugares da §3.2.
+tracking, `clamp(11px, 1.3vw, 13px)`. Usado só nos quatro lugares da §3.2.
+
+Uma regra de escrita que saiu da execução: **linha de cerimônia não termina em
+ponto final.** Em caixa alta com 0.18em de tracking o ponto fica órfão — o
+próprio tracking o separa da última palavra e ele lê como sujeira, não como
+pontuação. Vale para o crédito do Hero, o do rodapé e a linha `SÁBADO · 12H`.
 
 **Divisor sangrado.** Faixa full-bleed de foto, proporção ~2,6:1, abrindo a seção
 `Pista`. Segue a regra de ouro do Hero: **nenhum texto de corpo sobre a foto** —
@@ -430,11 +483,63 @@ Previsão: topo de `#cadastro` vai de **589px** (medido) para **~592px**. Portã
 §7.2: **≤ 596px**, que é o valor que a própria página já teve e foi aceito — sobram
 **7px** de orçamento hoje, e o movimento gasta 2,6.
 
+#### O que aconteceu de verdade (medido no fim da Onda 3)
+
+A conta errou de sinal. O movimento não gastou 2,6px: ele **devolveu 10**.
+
+| viewport | antes | depois | Δ |
+|---|---|---|---|
+| **390×844** (portão) | 589px | **579px** | **−10** |
+| 375×667 | 582px | 571px | −11 |
+| 768×1024 | 635px | 651px | +16 |
+| 1440×900 | 190px | 190px | 0 |
+
+**A causa, e ela é uma lição de método:** o rótulo "O leilão começa em" que saiu
+era um `<span>` **inline**. Como inline, a caixa dele não era a entrelinha do
+próprio preset (11px × 1,3 = 14,3px, que é o que a tabela acima assumiu) — era o
+**strut da linha do bloco pai**, herdado a 1,65. Ele custava ~25px, não 14,3.
+O `Hero.tsx:171` já avisava exatamente disso sobre o eyebrow (*"como item de flex
+o eyebrow já era bloco; dentro deste div ele voltaria a ser inline e a linha
+herdaria o strut do pai (1.65), gastando ~6px de dobra sem desenhar nada"*) — o
+livro-caixa não aplicou o próprio aviso ao elemento vizinho.
+
+**Regra para a próxima conta de dobra:** altura de texto só é `fontSize × lineHeight`
+quando o elemento é **bloco**. Para inline, some o strut do pai ou meça no
+navegador. Estimar inline é estimar errado.
+
+O 768 subiu 16px porque naquela largura o monumento está no teto do `clamp`
+(44px) enquanto o `h1` ainda está em `5.6vw` — ver a ressalva no fim desta seção.
+Não há portão em 768 e o formulário continua na primeira tela.
+
 **Os dois ajustes que pagam a conta são argumentados, não arbitrários:**
 
 - O corpo do monumento cai para **26px no mínimo** (contra os 34px que a régua
   desktop pediria) porque no celular ele não pode ser maior que o `h1` (30px):
   a promessa vem antes da cerimônia na ordem de leitura de um anúncio pago.
+
+  **RESSALVA MEDIDA na Onda 4, e ela é uma lacuna aberta.** A regra vale no
+  celular e no desktop, mas **quebra na faixa de 629px a 786px**. O monumento é
+  `clamp(26px, 7vw, 44px)` e o `h1` é `clamp(30px, 5.6vw, 52px)`: o monumento
+  atinge o teto de 44px já em 629px de viewport, e o `h1` só chega lá em 786px.
+  No meio dessa janela a cerimônia passa a promessa:
+
+  | viewport | `h1` | monumento | |
+  |---|---|---|---|
+  | 390 | 30,0 | 27,3 | ok |
+  | 629 | 35,2 | 44,0 | **monumento +25%** |
+  | 700 | 39,2 | 44,0 | monumento +12% |
+  | 768 | 43,0 | 44,0 | monumento +2% |
+  | 786+ | ≥44,0 | 44,0 | ok |
+
+  Na inspeção visual a hierarquia ainda se sustenta por PESO (Oswald 600
+  condensado contra Playfair 400), mas por corpo ela inverte, e a regra escrita
+  acima é sobre corpo. **Correção de uma linha, em `typo.dataMonumento`:
+  `clamp(26px, 7vw, 44px)` → `clamp(26px, 5.2vw, 44px)`.** Isso preserva os dois
+  extremos que o plano especificou (26px no piso do celular, 44px no teto do
+  desktop) e mantém o monumento abaixo do `h1` em **toda** largura, porque 5,2vw
+  fica sempre abaixo dos 5,6vw do `h1`. Não foi aplicada porque `tokens.ts` está
+  congelado desde a Onda 1 e a Onda 4 não recebeu esse arquivo — é a primeira
+  linha a mexer se o plano for reaberto.
 - O assento cai de 30px para 20px porque **o fio duplo passou a fazer o trabalho
   de separação que o vazio fazia**. Ornamento que separa devolve o espaço que a
   ausência de ornamento exigia. Se o ornamento não estivesse entrando, esses 10px
@@ -591,23 +696,67 @@ na mesma varredura — o documento inteiro diz 158.
 
 ### 7.2 Portões — todos automatizáveis
 
-| # | Portão | Comando | Aceite |
-|---|---|---|---|
-| 1 | Tipos | `npx tsc --noEmit` | exit 0 |
-| 2 | Lint | `npm run lint` | zero warning novo |
-| 3 | Build | `npm run build` | exit 0 |
-| 4 | **Peso do HTML** | `wc -c .next/server/app/saogeraldo.html` | **≤ 78.000 bytes** (base 68.467) |
-| 5 | **Sem `lotes.json` no bundle** | `grep -rn "lotes.json" src/` | 0 resultados |
-| 6 | **Ficha em dia** | `node scripts/agrega-ficha-saogeraldo.mjs --check` | exit 0 |
-| 7 | **`#cadastro` único** | `grep -rn 'id="cadastro"' src/app/saogeraldo/` | 1 linha, em `Hero.tsx` |
-| 8 | **Tracking intacto** | `grep -rn "dataLayer" src/app/saogeraldo --include=*.tsx --include=*.ts \| grep -v GoogleTagManager \| grep -v "^.*://" \| grep -v "_lib/analytics"` · `grep -rn "router.push\|useRouter" src/app/saogeraldo/` | 0 · 0 |
-| 9 | **Serifa nos 3 lugares** | `grep -rln "font.serif\|typo.cerimonia\|typo.dataMonumento\|typo.aberturaSerif" src/app/saogeraldo/_components/` | exatamente `Contagem.tsx`, `Pista.tsx`, `Hero.tsx` |
-| 10 | **Anti-ícone** | `grep -rn "lucide-react" src/app/saogeraldo/_components/` | só `Formulario.tsx` (fora de escopo) |
-| 11 | **Fio duplo na conta** | `grep -rc "FioDuplo" src/app/saogeraldo/_components/*.tsx` | 6 usos, em 4 arquivos (§3.3) |
-| 12 | **`typo`/`space` não mutados** | `git diff origin/main -- src/app/saogeraldo/_lib/tokens.ts` | só **adições**; nenhuma linha `-` dentro de `typo` ou `space` |
-| 13 | **Dobra do celular** | `node scripts/medir-dobra-saogeraldo.mjs` (§7.3) | topo de `#cadastro` **≤ 596px** @390×844 |
-| 14 | Reduced motion | Playwright com `reducedMotion: 'reduce'` | marquee parado, contagem em 60s, `Reveal` sem transform |
-| 15 | Contraste | 3 amostras de cor sobre `musgoWash` | ≥ 4,5:1 no corpo |
+Os comandos abaixo já saíram corrigidos da rodada da Onda 4: cinco deles eram
+`grep` ingênuos que **acertavam comentário** e devolviam falso positivo. Onde o
+comando mudou, o motivo está na coluna de aceite.
+
+| # | Portão | Comando | Aceite | **Obtido (Onda 4)** |
+|---|---|---|---|---|
+| 1 | Tipos | `npx tsc --noEmit` | exit 0 | **exit 0** |
+| 2 | Lint | `npm run lint` | zero warning novo | **126 warnings, 0 em `src/app/saogeraldo/` — os 126 são pré-existentes e nenhum é novo** |
+| 3 | Build | `npm run build` | exit 0 | **exit 0** |
+| 4 | **Peso do HTML** | `wc -c .next/server/app/saogeraldo.html` | **≤ 78.000 bytes** (base 68.467) | **71.290 — sobram 6.710** |
+| 5 | **Sem `lotes.json` no bundle** | `grep -rEn "from ['\"].*lotes\.json\|require\(.*lotes\.json" src/` | 0 resultados. *(O grep antigo, por `lotes.json` solto, dava 3 — os três são COMENTÁRIOS avisando para não importar o arquivo. Contar aviso como violação é ruído.)* | **0 imports** (3 menções, todas em comentário) |
+| 6 | **Ficha em dia** | `node scripts/agrega-ficha-saogeraldo.mjs --check` | exit 0 | **exit 0** — `sha256 aa25784f` |
+| 7 | **`#cadastro` único** | `grep -rn 'id="cadastro"' src/app/saogeraldo/` | 1 linha, em `Hero.tsx` | **1**, `Hero.tsx:269` |
+| 8 | **Tracking intacto** | `grep -rn "dataLayer" src/app/saogeraldo --include="*.tsx" --include="*.ts" \| grep -v GoogleTagManager \| grep -v "_lib/analytics"` · `grep -rEn "router\.push\(\|useRouter\(" src/app/saogeraldo/` | 0 · 0. *(As aspas nos `--include` são obrigatórias no zsh, senão o glob morre antes do grep. O segundo padrão pede o parêntese: sem ele, acerta o comentário de `Formulario.tsx:232` que explica por que ali NÃO se usa `router.push`.)* | **0 · 0** |
+| 9 | **Serifa só onde o §3.2 autoriza** | `grep -rln "typo.cerimonia\|typo.dataMonumento\|typo.aberturaSerif\|<Cerimonia" src/app/saogeraldo/_components/` | `ui.tsx` (onde o primitivo mora) + os consumidores da §3.2 | **`ui.tsx`, `Contagem.tsx`, `Pista.tsx`, `Hero.tsx`, `Footer.tsx`** — ver §3.2, que passou a listar 4 consumidores |
+| 10 | **Anti-ícone** | `grep -rn "from 'lucide-react'" src/app/saogeraldo/_components/` | só `Formulario.tsx` (fora de escopo) | **1 import, em `Formulario.tsx`** (o grep antigo também pegava o comentário do `Fecho.tsx` que registra a remoção do `ArrowUp`) |
+| 11 | **Fio duplo na conta** | `grep -rc "<FioDuplo" src/app/saogeraldo/_components/*.tsx` | 8 usos renderizados, em 6 arquivos (§3.3) | **10 ocorrências em 6 arquivos = 8 no caminho renderizado** (a `Contagem` declara 4: 2 no ramo vivo e 2 no ramo de evento encerrado, que nunca coexistem) |
+| 12 | **`typo`/`space` não mutados** | `git diff origin/main -- src/app/saogeraldo/_lib/tokens.ts` | só **adições** | **267 adições, 0 remoções** |
+| 13 | **Dobra do celular** | `node scripts/medir-dobra-saogeraldo.mjs` (§7.3) | topo de `#cadastro` **≤ 596px** @390×844 | **579px — sobram 17** |
+| 14 | Reduced motion | Playwright com `reducedMotion: 'reduce'` | marquee parado, contagem em 60s, `Reveal` sem transform | **marquee: nenhuma animação ativa · contagem sem os segundos e medida com relógio falso (+30s não mexe, +65s mexe) · `Reveal` sem transform.** Ressalva: 4 `TopicCard` do SubHero ficam em `translateY(18px)` permanente sob reduced motion — **pré-existente** (o `TopicCard` não foi tocado no redesign, `ui.tsx` só recebeu adições) |
+| 15 | Contraste | 3 amostras de cor sobre `musgoWash` | ≥ 4,5:1 no corpo | fundo medido `rgb(17,20,17)`: **greige 6,15:1 · muted 8,55:1 · dourado 8,27:1 · branco 17,02:1** |
+
+#### De onde o peso do HTML realmente vem — medido na Onda 4
+
+O plano supôs, e a equipe supôs junto, que **ornamento custa peso**: mais fio,
+mais monumento, mais bytes. A medição diz outra coisa, e a diferença é de uma
+ordem de grandeza.
+
+Medido em worktree isolada, sobre o mesmo commit, mudando **uma variável por vez**:
+
+| O que | Δ bytes no HTML |
+|---|---|
+| **A fronteira servidor↔cliente** — `Hero`, `Pista` e `Footer` como componentes de servidor, contra os três com `'use client'` | **11.245** |
+| Um `<svg>` do `lucide` renderizado inline (o `ArrowUp` que saiu do `Fecho`) | ~297 |
+| Todo o ornamento novo de T5 junto — 2 fios duplos, o monumento em serifa e a linha de cerimônia, já descontando o `<p>` de data e o rótulo que saíram | +914 |
+
+Ou seja: **o ornamento do redesign é 12× mais barato que a fronteira RSC**, e o
+ícone do `lucide` é 38× mais barato. A intuição de que "o redesign engordou a
+página" estava olhando para o lugar errado.
+
+**O mecanismo.** Num componente de servidor, cada `style={{...}}` inline viaja
+**duas vezes**: uma no HTML renderizado e outra no payload RSC, que é JSON
+embutido em `<script>` com **as aspas escapadas a 3 bytes cada** (`\\\"`). Uma
+seção inteira de estilos inline — que é o idioma desta página — paga o dobro mais
+o imposto do escape. Marcar a seção com `'use client'` não muda um pixel do DOM:
+muda **onde a costura cai**, e a subárvore some do payload.
+
+**A conta fechada do redesign:**
+
+```
+antes do redesign ......................... 68.467 bytes
+depois, com as três seções de servidor ..... 82.535   (+14.068 — estouraria o portão em 4,5 KB)
+depois, com 'use client' nas três .......... 71.290   (+2.823 — e uma seção NOVA inteira dentro)
+```
+
+**Regra para a próxima página desta família:** numa landing de estilo inline,
+`'use client'` numa seção estática é decisão de ORÇAMENTO, não de
+interatividade — e é a alavanca mais forte que existe sobre o peso do HTML.
+O contrapeso honesto: o código da seção passa a viajar no chunk de JS da rota.
+Aqui isso é de graça, porque todas as outras seções já eram de cliente e o chunk
+já era baixado; numa página com seções de servidor de verdade, a conta muda.
 
 ### 7.3 O medidor de dobra (Playwright já está no repo — `^1.60.0`, chromium instalado)
 
