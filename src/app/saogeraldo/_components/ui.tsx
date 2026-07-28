@@ -2,7 +2,7 @@
 
 import { motion } from 'framer-motion'
 import type { ReactNode, CSSProperties } from 'react'
-import { dark, light, typo, radius, font, space, type Surface } from '../_lib/tokens'
+import { dark, light, typo, radius, font, space, rule, type Surface } from '../_lib/tokens'
 import { useSafeReducedMotion } from '../_lib/useSafeReducedMotion'
 
 // ── Primitivos editoriais (Ferrari × Bula) ─────────────────────────────────
@@ -106,6 +106,106 @@ export function Hairline({
       className={className}
       style={{ height: 1, width: '100%', background: strong ? p.hairlineStrong : p.hairline, ...style }}
     />
+  )
+}
+
+/**
+ * FIO DUPLO — o ornamento de CERIMÔNIA. 1px + 3px de intervalo + 1px = 5px.
+ *
+ * A regra que decide onde ele entra, e ela é fechada: **fio duplo marca
+ * fronteira de CERIMÔNIA; o `Hairline` de 1px continua marcando fronteira de
+ * LISTA.** A grade da Oferta e a lista do Fecho seguem em hairline simples —
+ * aquilo é tabela, é operação.
+ *
+ * As duas linhas não têm o mesmo peso: a de cima é `hairlineStrong`, a de baixo
+ * é `hairline`. É o fio duplo impresso, com o peso em cima — e é o que separa
+ * este ornamento, à distância de leitura, de dois `Hairline` empilhados.
+ */
+export function FioDuplo({
+  surface = 'dark',
+  className = '',
+  style,
+}: {
+  surface?: Surface
+  className?: string
+  style?: CSSProperties
+}) {
+  const p = palette(surface)
+  return (
+    <div aria-hidden className={className} style={{ width: '100%', ...style }}>
+      <div style={{ height: rule.hair, background: p.hairlineStrong }} />
+      <div style={{ height: rule.gap }} />
+      <div style={{ height: rule.hair, background: p.hairline }} />
+    </div>
+  )
+}
+
+/**
+ * SMALL CAPS DE CERIMÔNIA — serifa, caixa alta, tracking largo.
+ *
+ * Quem fala aqui é o EVENTO: a data, a abertura do rebanho, o crédito dos
+ * criatórios vendedores. O `Eyebrow` (Oswald) continua sendo a voz da BULA.
+ * Duas vozes, dois donos — é isso que deixa a página vestida de catálogo sem
+ * deixar de ser da Bula.
+ *
+ * As small caps são FAUX de propósito: a versão do Google não garante `smcp`
+ * no subset. Caixa alta + corpo menor + tracking é o que o `Eyebrow` já faz.
+ *
+ * Cor padrão `muted` (~8:1 no escuro), não `faint`: este texto vive a 11–13px
+ * e o `faint` reprova AA abaixo de 18px.
+ */
+export function Cerimonia({
+  children,
+  surface = 'dark',
+  color,
+  className = '',
+  style,
+}: {
+  children: ReactNode
+  surface?: Surface
+  color?: string
+  className?: string
+  style?: CSSProperties
+}) {
+  const p = palette(surface)
+  return (
+    <p className={className} style={{ ...typo.cerimonia, color: color ?? p.muted, ...style }}>
+      {children}
+    </p>
+  )
+}
+
+/**
+ * MONUMENTO — um número da ficha do rebanho e o rótulo que declara o
+ * denominador dele.
+ *
+ * O valor é OSWALD, não serifa, e isso é regra e não gosto: dado tabular é
+ * operação, e operação é do condensado. A serifa fala pelo evento; o número
+ * fala pela leitura do catálogo, que é trabalho da Bula.
+ *
+ * Valor em `text` e rótulo em `body`, sem dourado: a Oferta, que vem logo
+ * abaixo, já tem quatro números dourados em fila. Dourado é voltagem única e
+ * escassa — duas fileiras douradas seguidas gastariam a voltagem das duas.
+ */
+export function Monumento({
+  valor,
+  rotulo,
+  surface = 'dark',
+  className = '',
+}: {
+  valor: ReactNode
+  rotulo: ReactNode
+  surface?: Surface
+  className?: string
+}) {
+  const p = palette(surface)
+  return (
+    <div className={className}>
+      <div style={{ ...typo.fichaValor, color: p.text }}>{valor}</div>
+      {/* Rótulo colado no número: são UMA coisa. O degrau é `sm`, o mesmo que a
+          escala reserva para "rótulo → aquilo que ele nomeia". */}
+      <div style={{ ...typo.fichaRotulo, color: p.body, marginTop: space.sm }}>{rotulo}</div>
+    </div>
   )
 }
 
