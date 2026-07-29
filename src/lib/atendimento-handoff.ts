@@ -20,8 +20,9 @@
 
 import type { SupabaseClient } from '@supabase/supabase-js'
 import { sendOutbound } from './whatsapp-gateway'
-import { sendVpsDirect } from './whatsapp-vps'
-import { avisarAssessor, telefoneDoAssessor, sessaoOperacional, ehNumeroInterno } from './whatsapp-operacional'
+import { sendVpsGroup } from './whatsapp-vps'
+import { sessaoOperacional, ehNumeroInterno } from './whatsapp-operacional'
+import { notifyTeamGroup } from './whatsapp-team-notify'
 import { resolveZona, type Assessor } from './assessor-zona'
 import { ufFromPhone } from './state-registration-provider'
 import { resumoQualificacaoTexto } from './crm-qualificacao'
@@ -101,6 +102,12 @@ export function textoParaLead(nome: string, assessor: Assessor | null): string {
 
 const DOCS_BUCKET = 'cliente-documentos'
 
+/** JID do grupo interno de notificações (mesma chave que o notifyTeamGroup usa). */
+async function grupoNotificacoes(supabase: SupabaseClient): Promise<string> {
+    const { data } = await supabase.from('site_settings').select('value').eq('key', 'crm_concierge').maybeSingle()
+    return String(((data?.value ?? {}) as Record<string, unknown>).notifyGroupId ?? '').trim()
+}
+
 /** Rótulos legíveis dos tipos de documento, para a legenda do anexo. */
 const DOC_ROTULO: Record<string, string> = {
     cpf: 'Documento com foto',
@@ -161,6 +168,7 @@ function textoParaAssessor(
     mensagemDoLead: string,
     conflito: string,
     docs: DocLink[],
+    assessor: Assessor | null,
 ): string {
     const qual = resumoQualificacaoTexto(lead)
     const xd = (lead.extra_data ?? {}) as Record<string, unknown>
@@ -179,7 +187,7 @@ function textoParaAssessor(
     if (ie) cadastro.push(`*I.E.:* ${ie}`)
 
     return [
-        '🔔 *Lead respondeu — é seu*',
+        assessor ? `🔔 *${assessor.toUpperCase()}* — lead seu respondeu` : '🔔 *Lead respondeu — SEM assessor definido*',
         '',
         `*${lead.nome || 'Sem nome'}*`,
         `📱 ${fone}`,
@@ -242,46 +250,48 @@ export async function executarHandoff(
     })
     const respondido = r.status === 'sent' || r.status === 'queued'
 
-    // 2) Avisa o assessor — nunca quando o "lead" é gente da casa testando, e
-    // só se ainda não avisamos há pouco. O sócio conferindo a régua com o
-    // próprio WhatsApp chegou a virar "cliente novo" na caixa de um assessor;
-    // a resposta ao lead continua saindo (dá pra testar a experiência do
-    // cliente), o que não sai é a notificação interna.
+    // 2) Avisa no GRUPO interno de notificações, endereçando o assessor pelo
+    // nome — decisão do dono (28/07), depois de o 1:1 com o assessor falhar
+    // repetidamente. O grupo tem duas vantagens que valem mais que a caixa
+    // privada: o dono está dentro e CONSEGUE CONFERIR que chegou, e o recado
+    // não depende do número de um terceiro estar acessível. O nome em negrito
+    // no topo mantém o dono da vez explícito — o que se perde de "caixa
+    // pessoal" se ganha em recado que comprovadamente chega.
+    //
+    // Nunca dispara quando o "lead" é gente da casa testando: o sócio
+    // conferindo a régua com o próprio WhatsApp chegou a virar "cliente novo".
     const interno = await ehNumeroInterno(supabase, fone)
     let assessorAvisado = false
     let docsEnviados = 0
     if (!jaRepassado && !interno.interno) {
         const docs = await carregarDocs(supabase, lead.id)
-        const aviso = await avisarAssessor(supabase, {
-            assessor: zona.assessor,
-            leadId: lead.id,
-            texto: textoParaAssessor(
-                lead,
-                zona.uf,
-                fone,
-                String(input.mensagem ?? ''),
-                zona.conflito ? zona.detalhe : '',
-                docs,
-            ),
-        })
+        const aviso = await notifyTeamGroup(supabase, textoParaAssessor(
+            lead,
+            zona.uf,
+            fone,
+            String(input.mensagem ?? ''),
+            zona.conflito ? zona.detalhe : '',
+            docs,
+            zona.assessor,
+        ))
         assessorAvisado = aviso.sent
 
-        // 2b) Os arquivos, logo depois do texto. Best-effort: o recado já foi, e
-        // anexo que falha não pode derrubar o repasse.
+        // 2b) Os arquivos, logo depois do texto, no mesmo grupo. Best-effort:
+        // o recado já foi, e anexo que falha não pode derrubar o repasse.
         if (assessorAvisado && docs.length) {
-            const { phone: foneAssessor } = await telefoneDoAssessor(supabase, zona.assessor)
+            const grupo = await grupoNotificacoes(supabase)
             const sessao = await sessaoOperacional(supabase)
-            if (foneAssessor) {
+            if (grupo) {
                 for (const d of docs) {
                     const ehPdf = d.contentType.includes('pdf') || /\.pdf$/i.test(d.nome)
-                    const r = await sendVpsDirect(foneAssessor, '', {
+                    const r = await sendVpsGroup(grupo, '', {
                         type: ehPdf ? 'document' : 'image',
                         url: d.url,
                         ...(d.contentType ? { mimetype: d.contentType } : {}),
                         caption: `${lead.nome || 'Lead'} — ${DOC_ROTULO[d.tipo] ?? DOC_ROTULO.outro}`,
                         ...(ehPdf ? { fileName: d.nome } : {}),
                     }, sessao)
-                    if (r.ok) docsEnviados++
+                    if (r.queued) docsEnviados++
                 }
             }
         }
@@ -321,11 +331,18 @@ export async function executarHandoff(
         }
     }
 
+    // `handoff_pendente: null` NÃO tira o lead da fila de retry: em JSONB a
+    // chave passa a valer `null` (JSON), que não é SQL NULL — e o filtro
+    // `.not('extra_data->handoff_pendente','is',null)` continua casando. Some
+    // com a chave de verdade.
+    const xdBase = { ...xd }
+    if (assessorAvisado && pendenteAntes) delete xdBase.handoff_pendente
+
     const update: Record<string, unknown> = {
         handoff_humano: true,
         handoff_at: agora.toISOString(),
         extra_data: {
-            ...xd,
+            ...xdBase,
             // Só carimba "repassado" quando o assessor REALMENTE foi avisado —
             // senão o cooldown de 12h bloquearia a retentativa do que falhou.
             ...(jaRepassado || !assessorAvisado ? {} : { handoff_assessor_at: agora.toISOString() }),
@@ -333,7 +350,6 @@ export async function executarHandoff(
             handoff_zona: zona.detalhe,
             ...(zona.conflito ? { handoff_zona_conflito: true } : {}),
             ...(pendencia ? { handoff_pendente: pendencia } : {}),
-            ...(assessorAvisado && pendenteAntes ? { handoff_pendente: null } : {}),
         },
         ...(jaRepassado ? {} : { contact_history: history }),
         // Não sobrescreve responsável já definido por gente.
@@ -382,8 +398,10 @@ export async function reprocessarHandoffsPendentes(
         out.tentados++
 
         if (Number(pend.tentativas ?? 0) >= MAX_TENTATIVAS_PENDENTE) {
+            const xdLimpo = { ...xd }
+            delete xdLimpo.handoff_pendente
             await supabase.from('crm_leads').update({
-                extra_data: { ...xd, handoff_pendente: null, handoff_desistiu_at: new Date().toISOString() },
+                extra_data: { ...xdLimpo, handoff_desistiu_at: new Date().toISOString() },
             }).eq('id', row.id)
             out.desistidos++
             continue
