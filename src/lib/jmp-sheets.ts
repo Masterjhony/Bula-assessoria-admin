@@ -326,6 +326,13 @@ export interface SheetLead {
   leiloesDescricao?: string | null
   /** Consentimento explícito de contato via WhatsApp (checkbox do formulário). */
   whatsappConsent?: boolean
+  /**
+   * Rótulo do formulário de origem gravado na coluna `form_name` da aba-arquivo.
+   * É por ele que syncTourosLandingTabs() separa os leads da landing dos leads
+   * crus do Meta — e é por ele que distingue o perpétuo do lançamento São
+   * Geraldo. Omitido = perpétuo (TOUROS_FORM_NAME).
+   */
+  formName?: string | null
 }
 
 export interface SheetLeadRow {
@@ -780,7 +787,7 @@ function buildPerpetuoLandingRow(lead: SheetLead, headerRow: string[]): string[]
     ['ad_id', lead.ad_id ?? ''],
     ['ad_name', lead.utm_content ?? ''],
     ['campaign_name', lead.utm_campaign ?? ''],
-    ['form_name', 'Landing Touros — Funil Perpétuo'],
+    ['form_name', lead.formName ?? TOUROS_FORM_NAME],
     ['platform', lead.utm_source ?? 'site'],
     ['seu_momento_na_pecuaria', lead.momento ?? ''],
     ['você_tem_inscrição_estadual?', lead.inscricaoEstadual ?? ''],
@@ -1591,6 +1598,12 @@ interface TourosLeadRow {
   utmCampaign: string
   utmContent: string
   adId: string
+  /**
+   * Campanha de origem, resolvida pelo form_name da aba-arquivo. Só a varredura
+   * preenche (o caminho rápido já sabe para onde está gravando) e serve para
+   * decidir a aba do lançamento — nenhuma coluna da aba lê este campo.
+   */
+  origem?: 'touros' | 'saogeraldo'
 }
 
 /** Monta a linha alinhada ao cabeçalho REAL da aba (resolve por nome de coluna). */
@@ -1890,17 +1903,35 @@ export async function appendLeadToTourosTabs(
 // tourosSeenIds, buildTourosRow, writeTourosRows), então a aba nasce com o mesmo
 // cabeçalho, formatação e dedup das abas de trabalho. Nada acima foi alterado.
 //
-// NÃO escreve na aba-arquivo "LEADS BULA - PERPETUO", de propósito: lá a linha
-// é marcada com o form_name fixo do perpétuo (buildPerpetuoLandingRow) e o cron
-// syncTourosLandingTabs() varre exatamente por esse form_name — um lead do
-// leilão gravado ali acabaria distribuído para as abas dos assessores do
-// perpétuo. Esta aba é o registro ÚNICO do funil do lançamento.
+// MUDANÇA 29/07 (pedido do cliente): o lançamento passou a seguir o MESMO
+// caminho da campanha de touros — aba-arquivo "LEADS BULA - PERPETUO" → "LEADS
+// TOUROS" → divisão por UF em "LEADS DOUGLAS"/"LEADS JOAO ANTONIO". Esta aba
+// continua existindo como vista do leilão (a equipe já trabalha nela), mas
+// deixou de ser o registro único.
 //
-// Também NÃO entra em TOUROS_TABS_DESC: a inserção no topo copia a validação da
-// linha de baixo, o que pressupõe aba com dados. Esta nasce vazia → append-only.
+// O que tornou isso possível sem misturar os funis: a linha na aba-arquivo agora
+// leva o form_name PRÓPRIO do lançamento (SAO_GERALDO_FORM_NAME, ver
+// buildPerpetuoLandingRow + SheetLead.formName). syncTourosLandingTabs() varre
+// os DOIS form_names e sabe de qual campanha cada linha veio — quem quiser
+// separar perpétuo × leilão filtra por essa coluna.
+//
+// A aba NÃO entra em TOUROS_TABS_DESC: a inserção no topo copia a validação da
+// linha de baixo, o que pressupõe aba com dados. Esta nasceu vazia → append-only.
 // ─────────────────────────────────────────────────────────────────────────────
 
 export const LEADS_SAO_GERALDO_TAB = 'LEADS SAO GERALDO'
+
+/** Marca as linhas do lançamento na aba-arquivo (form_name). Ver SheetLead.formName. */
+export const SAO_GERALDO_FORM_NAME = 'Landing Leilão Touros São Geraldo e 7P'
+
+/**
+ * form_name (normalizado) → campanha de origem. É o filtro da varredura: linha
+ * da aba-arquivo cujo form_name não está aqui veio do Meta e não é da landing.
+ */
+const LANDING_FORM_ORIGEM = new Map<string, 'touros' | 'saogeraldo'>([
+  [normalizeHeaderText(TOUROS_FORM_NAME), 'touros'],
+  [normalizeHeaderText(SAO_GERALDO_FORM_NAME), 'saogeraldo'],
+])
 
 /**
  * Grava o lead do lançamento na aba dedicada. Mesmo contrato de
@@ -1934,9 +1965,10 @@ export async function appendLeadToSaoGeraldoTab(
 
 /**
  * Auto-cura das abas de trabalho: relê a aba-arquivo, separa os leads que
- * vieram do formulário da landing de touros e acrescenta nas 3 abas o que
- * ainda não está lá. Idempotente pelo Lead ID — serve de backfill (leads
- * antigos) e de rede de segurança (se o append do cadastro falhar).
+ * vieram dos formulários das landings (touros perpétuo + leilão São Geraldo) e
+ * acrescenta nas abas o que ainda não está lá. Idempotente pelo Lead ID — serve
+ * de backfill (leads antigos) e de rede de segurança (se o append do cadastro
+ * falhar).
  */
 export async function syncTourosLandingTabs(): Promise<{
   total: number
@@ -1946,6 +1978,7 @@ export async function syncTourosLandingTabs(): Promise<{
 }> {
   const vazio = {
     [LEADS_TOUROS_TAB]: 0, [LEADS_TOUROS_DOUGLAS_TAB]: 0, [LEADS_TOUROS_JOAO_TAB]: 0,
+    [LEADS_SAO_GERALDO_TAB]: 0,
   }
   const info = await getStoredInfo()
   if (!info) return { total: 0, appended: vazio, semUf: 0, reason: 'not_provisioned' }
@@ -1982,7 +2015,8 @@ export async function syncTourosLandingTabs(): Promise<{
   let semUf = 0
   for (const r of src.slice(1)) {
     if (!r.some(c => String(c ?? '').trim())) continue
-    if (normalizeHeaderText(at(r, iForm)) !== normalizeHeaderText(TOUROS_FORM_NAME)) continue
+    const origem = LANDING_FORM_ORIGEM.get(normalizeHeaderText(at(r, iForm)))
+    if (!origem) continue
     const nome = at(r, idx.nome)
     if (isTourosTestLead(nome, at(r, idx.teste))) continue
     const uf = at(r, idx.uf).toUpperCase()
@@ -1992,13 +2026,22 @@ export async function syncTourosLandingTabs(): Promise<{
       uf, cidade: at(r, idx.cidade), momento: at(r, idx.momento), cabecas: at(r, idx.cabecas),
       inscricaoEstadual: at(r, idx.ie), qtdTouros: at(r, idx.qtd), leadId: at(r, idx.leadId),
       utmSource: at(r, idx.utmSource), utmCampaign: at(r, idx.utmCampaign),
-      utmContent: at(r, idx.utmContent), adId: at(r, idx.adId),
+      utmContent: at(r, idx.utmContent), adId: at(r, idx.adId), origem,
     })
   }
 
+  // Cada aba recebe o recorte que lhe cabe: a geral leva tudo, as dos assessores
+  // filtram por UF e a do lançamento só o que veio da landing São Geraldo.
   const appended: Record<string, number> = { ...vazio }
-  for (const tab of [LEADS_TOUROS_TAB, LEADS_TOUROS_DOUGLAS_TAB, LEADS_TOUROS_JOAO_TAB]) {
-    const doTab = tab === LEADS_TOUROS_TAB ? leads : leads.filter(l => tourosTabDaUF(l.uf) === tab)
+  const abas = [
+    LEADS_TOUROS_TAB, LEADS_TOUROS_DOUGLAS_TAB, LEADS_TOUROS_JOAO_TAB, LEADS_SAO_GERALDO_TAB,
+  ]
+  for (const tab of abas) {
+    const doTab = tab === LEADS_TOUROS_TAB
+      ? leads
+      : tab === LEADS_SAO_GERALDO_TAB
+        ? leads.filter(l => l.origem === 'saogeraldo')
+        : leads.filter(l => tourosTabDaUF(l.uf) === tab)
     const header = await ensureTourosLayout(sheets, info.spreadsheetId, tab, titles)
     const seen = await tourosSeenIds(sheets, info.spreadsheetId, tab, header)
     const fresh: string[][] = []

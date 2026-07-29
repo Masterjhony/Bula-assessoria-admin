@@ -1,6 +1,11 @@
 import { NextRequest } from 'next/server'
 import { fail, ok } from '@/lib/respond'
-import { appendLeadToSaoGeraldoTab } from '@/lib/jmp-sheets'
+import {
+  appendLeadToPerpetuoSheet,
+  appendLeadToSaoGeraldoTab,
+  appendLeadToTourosTabs,
+  SAO_GERALDO_FORM_NAME,
+} from '@/lib/jmp-sheets'
 import { evaluateMql, DEFAULT_JMP_MQL_RULE } from '@/lib/crm-types'
 import { aplicarMascaraTelefone, normalizarWhatsapp } from '@/lib/telefone'
 
@@ -36,8 +41,8 @@ const VALID_QUANTIDADES_TOUROS = new Set([
 /**
  * Identificador do funil deste lançamento. Hoje ele NÃO vai para o banco — a
  * rota de touros deixou de gravar em crm_leads em 24/07 (ver comentário abaixo)
- * e esta rota herda a mesma arquitetura. A separação real do funil é a ABA
- * dedicada na planilha (LEADS SAO GERALDO).
+ * e esta rota herda a mesma arquitetura. A separação do funil na planilha é a
+ * coluna `form_name` da aba-arquivo (SAO_GERALDO_FORM_NAME) + a aba dedicada.
  *
  * Fica aqui, nomeado, porque é o rótulo canônico do lançamento em log e é o
  * valor de `source` a usar se um dia o insert no CRM voltar.
@@ -49,16 +54,18 @@ const LEAD_SOURCE = 'leilao-sg7p'
 //
 // HERDA a decisão do cliente de 24/07: o lead NÃO entra em crm_leads. Lead em
 // ENTRADA no CRM cai no radar dos disparos/followups e no concierge IA, e esta
-// campanha é de atendimento 100% manual pela equipe, via planilha. Por isso a
-// planilha é o ÚNICO registro — e por isso o append abaixo é bloqueante, não
-// best-effort: se o Google falhar, devolvemos erro e o lead pode reenviar.
+// campanha é de atendimento 100% manual pela equipe, via planilha.
 //
-// DIFERENÇAS vs. a rota de touros (e só estas):
-//  - Grava na aba própria do lançamento, via appendLeadToSaoGeraldoTab().
-//  - NÃO chama appendLeadToPerpetuoSheet(): a aba-arquivo marca a linha com o
-//    form_name do perpétuo, e o cron syncTourosLandingTabs() varre por esse
-//    form_name — o lead do leilão acabaria nas abas dos assessores do perpétuo.
-//  - NÃO chama appendLeadToTourosTabs(): mesmo motivo, são abas do perpétuo.
+// MUDANÇA 29/07 (pedido do cliente): o lead passou a seguir o MESMO caminho da
+// campanha de touros — aba-arquivo "LEADS BULA - PERPETUO" → "LEADS TOUROS" →
+// "LEADS DOUGLAS"/"LEADS JOAO ANTONIO" pela UF —, além de continuar na aba
+// própria do lançamento. Só o append na aba-arquivo é BLOQUEANTE: é o registro
+// do lead e o que o cron relê; as cópias de trabalho são best-effort porque
+// syncTourosLandingTabs() as refaz na próxima passada.
+//
+// DIFERENÇA vs. a rota de touros (e só esta): o form_name gravado na aba-arquivo
+// é o do lançamento, não o do perpétuo — é assim que a varredura distribui o
+// lead SEM perder de qual campanha ele veio.
 //
 // IGUAL à rota de touros, de propósito:
 //  - Revalidação server-side de TODOS os campos (não confiar no client).
@@ -156,20 +163,36 @@ export async function POST(req: NextRequest) {
     leadId: eventId,
     createdAt,
     whatsappConsent,
+    // Marca a linha na aba-arquivo como do lançamento — é o que faz o cron
+    // distribuir o lead nas abas de trabalho sem confundir com o perpétuo.
+    formName: SAO_GERALDO_FORM_NAME,
   }
 
-  // A aba do lançamento é o ÚNICO registro do lead — append bloqueante. Lead de
-  // teste e duplicata contam como sucesso: no primeiro caso a omissão é
-  // proposital, no segundo o lead já está registrado.
+  // A aba-arquivo é o registro do lead — append bloqueante. Duplicata conta como
+  // sucesso (já está lá).
   try {
-    const r = await appendLeadToSaoGeraldoTab(sheetLead)
-    if (r.skipped && r.reason !== 'duplicate' && r.reason !== 'test_lead') {
-      console.error(`[${LEAD_SOURCE} lead] append pulado:`, r.reason)
+    const r = await appendLeadToPerpetuoSheet(sheetLead)
+    if (r.skipped && r.reason !== 'duplicate') {
+      console.error(`[${LEAD_SOURCE} lead] append PERPETUO pulado:`, r.reason)
       return fail('Não foi possível registrar o cadastro. Tente novamente.', 500)
     }
   } catch (e) {
-    console.error(`[${LEAD_SOURCE} lead] append falhou:`, e)
+    console.error(`[${LEAD_SOURCE} lead] append PERPETUO falhou:`, e)
     return fail('Não foi possível registrar o cadastro. Tente novamente.', 500)
+  }
+
+  // Cópias de trabalho: aba do lançamento + "LEADS TOUROS" e a aba do assessor
+  // da UF. Best-effort de propósito — o lead JÁ está registrado acima e o cron
+  // (sheet-perpetuo) refaz o que faltar.
+  try {
+    await appendLeadToSaoGeraldoTab(sheetLead)
+  } catch (e) {
+    console.error(`[${LEAD_SOURCE} lead] aba do lançamento falhou:`, e)
+  }
+  try {
+    await appendLeadToTourosTabs(sheetLead)
+  } catch (e) {
+    console.error(`[${LEAD_SOURCE} lead] abas de trabalho falharam:`, e)
   }
 
   // Veredito de MQL (fonte de verdade = servidor) para o client escolher a URL
