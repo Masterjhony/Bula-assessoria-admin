@@ -879,6 +879,8 @@ async function startSocket(session) {
     if (connection === 'close') {
       const statusCode = lastDisconnect?.error?.output?.statusCode
       const loggedOut = statusCode === DisconnectReason.loggedOut
+      // Precisa ser lido ANTES de zerar currentQr logo abaixo.
+      const estavaNoQr = !!session.currentQr || session.connectionStatus === 'qr'
       session.connectionStatus = 'disconnected'
       session.socket = null
       session.currentQr = null
@@ -905,6 +907,20 @@ async function startSocket(session) {
             }, 1500)
           })
       } else {
+        // QR EXPIRADO NÃO É FALHA. O WhatsApp derruba a conexão (428) toda vez
+        // que o QR vence sem ser lido — é o ciclo normal de rotação. Contar
+        // isso no backoff exponencial fazia o próximo QR demorar minutos para
+        // aparecer, justamente quando tem alguém de celular na mão esperando
+        // para escanear. Reconecta rápido e não incrementa o contador.
+        if (statusCode === 428 && estavaNoQr) {
+          setTimeout(() => {
+            if (!sessions.has(session.id)) return
+            session.connectionStatus = 'connecting'
+            void startSocket(session).catch(error => console.error(`[${session.id}] novo QR:`, error))
+          }, 3000)
+          return
+        }
+
         session.reconnectAttempts += 1
 
         // ── Por que este bloco ficou desse tamanho ──────────────────────────
