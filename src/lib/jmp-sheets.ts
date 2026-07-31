@@ -460,17 +460,22 @@ function cellByHeader(row: string[], layout: HeaderLayout, header: HeaderName): 
 // readSheetLeadRows, então a planilha se "auto-cura" continuamente.
 // ─────────────────────────────────────────────────────────────────────────────
 
+// Vocabulário do que o Meta manda → o rótulo que a planilha usa. É o MESMO
+// rótulo que a consolidação de 31/07 gravou nas 1.7k linhas antigas: se estes
+// mapas voltarem a devolver slug ("nao-trabalho-quero-aprender", "0-50"), a
+// coluna volta a ter dois vocabulários e o filtro da equipe racha em dois.
 const META_MOMENTO = new Map([
-  ['não_trabalho,_quero_aprender', 'nao-trabalho-quero-aprender'],
-  ['nao_trabalho,_quero_aprender', 'nao-trabalho-quero-aprender'],
-  ['trabalho_com_pecuária_de_corte', 'pecuaria-de-corte'],
-  ['trabalho_com_pecuaria_de_corte', 'pecuaria-de-corte'],
-  ['trabalho_com_corte_e_po', 'corte-e-po'],
-  ['sou_criador_renomado_de_po', 'criador-renomado-po'],
+  ['não_trabalho,_quero_aprender', 'Não trabalho, quero aprender'],
+  ['nao_trabalho,_quero_aprender', 'Não trabalho, quero aprender'],
+  ['trabalho_com_pecuária_de_corte', 'Pecuária de corte'],
+  ['trabalho_com_pecuaria_de_corte', 'Pecuária de corte'],
+  ['trabalho_com_corte_e_po', 'Corte e PO'],
+  ['sou_criador_renomado_de_po', 'Criador renomado de PO'],
+  ['criador_renomado_de_po', 'Criador renomado de PO'],
 ])
 const META_CABECAS = new Map([
-  ['0-50', '0-50'], ['51-100', '50-100'], ['101-300', '100-300'],
-  ['301-500', '300-500'], ['500+', '500+'], ['nenhuma', 'nenhuma'],
+  ['0-50', '1 a 50 cabeças'], ['51-100', '51 a 100 cabeças'], ['101-300', '101 a 300 cabeças'],
+  ['301-500', '301 a 500 cabeças'], ['500+', 'mais de 500 cabeças'], ['nenhuma', 'nenhuma'],
 ])
 const META_INTERESSE = new Map([
   ['bezerras_po', 'bezerras-po'], ['touros_po', 'touros-po'],
@@ -482,8 +487,17 @@ const META_NOUN = new Map([
 ])
 const META_QTD = new Map([
   ['0-5', '1 a 5'], ['1-5', '1 a 5'], ['6-10', '6 a 10'],
-  ['11-20', '11 a 20'], ['21-50', '21 a 50'], ['50+', 'Mais de 50'],
+  ['11-20', '11 a 20'], ['21-50', '21 a 50'], ['50+', 'mais de 50'],
+  ['ainda_não_sei', 'ainda não sei'], ['ainda_nao_sei', 'ainda não sei'],
 ])
+
+/** Plataforma do Meta → utm_source legível (a coluna tinha "ig" e "instagram"). */
+function metaPlatformToUtmSource(platform: string): string {
+  const p = String(platform || '').trim().toLowerCase()
+  if (p === 'ig') return 'instagram'
+  if (p === 'fb') return 'facebook'
+  return p
+}
 const UF_BY_NAME = new Map(Object.entries({
   'acre': 'AC', 'alagoas': 'AL', 'amapa': 'AP', 'amazonas': 'AM', 'bahia': 'BA', 'ceara': 'CE',
   'distrito federal': 'DF', 'espirito santo': 'ES', 'goias': 'GO', 'maranhao': 'MA',
@@ -566,39 +580,17 @@ function metaHeaderIndex(headerRow: string[], name: string, fallback: number): n
  * colunas pelo cabeçalho (nunca por posição fixa) — mover/reordenar colunas
  * na planilha não quebra a normalização.
  */
-function buildNormalizedMetaRow(p: RawMetaLead, headerRow: string[], layout: HeaderLayout, width: number): string[] {
-  const interesse = META_INTERESSE.get(p.interesse.toLowerCase()) || p.interesse
-  // Interesse fora do vocabulário da landing (ex.: "sêmen"): mantém o rótulo
-  // cru e a quantidade sem substantivo ("1 a 5").
-  const noun = META_NOUN.get(interesse) || ''
-  const qtdBase = META_QTD.get(p.qtd)
-  const testPrefix = isMetaTestLead(p) ? '[TESTE META] ' : ''
-  const out = Array.from({ length: width }, () => '')
-  const set = (header: HeaderName, value: string) => {
-    const index = layout.indexes.get(header)
-    if (index != null) out[index] = value
-  }
-  out[0] = p.atendidoPor // coluna manual "Atendido por" (sempre a primeira)
-  set('Data', fmtDate(new Date(p.created)))
-  set('Nome', testPrefix + p.fullName)
-  set('E-mail', p.email)
-  set('WhatsApp', metaPhoneToWhatsApp(p.phone))
-  set('UF', metaStateToUF(p.state))
-  set('Momento', META_MOMENTO.get(p.momento.toLowerCase()) || p.momento)
-  set('Cabeças', META_CABECAS.get(p.cabecas) || p.cabecas)
-  set('Interesse', interesse)
-  set('Qtd. desejada', qtdBase ? `${qtdBase}${noun ? ' ' + noun : ''}` : p.qtd)
-  set('utm_source', p.platform)
-  set('utm_campaign', p.campaignName)
-  set('utm_content', p.adName)
-  set('ad-id', p.adId)
-  set('Inscrição Estadual', p.temIe ? (p.temIe.toLowerCase() === 'sim' ? 'Sim' : 'Não') : '')
-  // Bloco de metadados do Meta (cabeçalhos próprios da integração)
-  const m = (name: string, fallback: number, value: string) => { out[metaHeaderIndex(headerRow, name, fallback)] = value }
-  m('id', 18, p.id); m('created_time', 19, p.created); m('ad_id', 20, p.adId); m('ad_name', 21, p.adName)
-  m('adset_id', 22, p.adsetId); m('adset_name', 23, p.adsetName); m('campaign_id', 24, p.campaignId); m('campaign_name', 25, p.campaignName)
-  m('form_id', 26, p.formId); m('form_name', 27, p.formName); m('is_organic', 28, p.isOrganic); m('platform', 29, p.platform)
-  m('lead_status', 39, p.leadStatus)
+function buildNormalizedMetaRow(p: RawMetaLead, headerRow: string[], width: number): string[] {
+  // Uma fonte só de vocabulário: as mesmas regras que montam a linha da base
+  // (rótulos de Momento/Cabeças/Interesse, Zona, Origem, metadados de mídia).
+  // Antes esta função tinha a cópia dela e escrevia "Atendido por" na coluna 0
+  // — que na estrutura de 5 abas é a "Etapa", da equipe.
+  const values = buildPerpetuoValues(p)
+  const out = Array.from({ length: Math.max(width, headerRow.length) }, () => '')
+  headerRow.forEach((h, i) => {
+    const v = values.get(normalizeHeaderText(String(h ?? '')))
+    if (v != null) out[i] = v
+  })
   return out
 }
 
@@ -630,7 +622,7 @@ export async function normalizeMetaRawRows(): Promise<number> {
       const rowNumber = index + 2
       updates.push({
         range: `${TAB}!A${rowNumber}:${endColumn}${rowNumber}`,
-        values: [buildNormalizedMetaRow(parsed, headerRow, layout, width)],
+        values: [buildNormalizedMetaRow(parsed, headerRow, width)],
       })
     })
     if (!updates.length) return 0
@@ -657,7 +649,7 @@ function mapSheetValuesToLeadRows(values: string[][], headerRow: string[], layou
   return values
     .map((raw, index) => {
       const parsed = parseRawMetaLead(raw)
-      const row = parsed ? buildNormalizedMetaRow(parsed, headerRow, layout, width) : raw
+      const row = parsed ? buildNormalizedMetaRow(parsed, headerRow, width) : raw
       return { row, rowNumber: index + 2 }
     })
     .map(({ row, rowNumber }) => ({
@@ -809,8 +801,8 @@ function buildPerpetuoValues(p: RawMetaLead): Map<string, string> {
     ['Interesse', rotulaInteresse(interesse)],
     ['Origem', `Meta — ${p.campaignName || p.formName}`],
     ['Lead ID', p.id],
-    ['Qtd. desejada', qtdBase ? `${qtdBase}${noun ? ' ' + noun : ''}` : p.qtd],
-    ['utm_source', p.platform],
+    ['Qtd. desejada', qtdBase ? `${qtdBase}${noun && qtdBase !== 'ainda não sei' ? ' ' + noun : ''}` : p.qtd],
+    ['utm_source', metaPlatformToUtmSource(p.platform)],
     ['utm_medium', ''],
     ['utm_campaign', p.campaignName],
     ['utm_content', p.adName],
