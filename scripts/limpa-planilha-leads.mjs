@@ -68,12 +68,20 @@ const arrumaTelefone = raw => {
     if (d.length === 10) return `(${d.slice(0, 2)}) ${d.slice(2, 6)}-${d.slice(6)}`
     return x                                                      // curto/estranho: não invento dígito
 }
-const arrumaQtd = raw => {
-    const x = S(raw)
+const NOUN = new Map([['Touros', 'touros'], ['Bezerras PO', 'bezerras'], ['Matrizes PO', 'matrizes'], ['Embriões', 'embriões']])
+/**
+ * "1 a 5" vs "1 a 5 touros": o lead do Meta gravava a faixa sem substantivo e o
+ * da landing com. Completa pelo interesse da própria linha.
+ */
+const arrumaQtd = (raw, interesse) => {
+    let x = S(raw)
     if (!x) return x
     if (/ainda|nao sei|não sei/i.test(x)) return 'ainda não sei'
-    if (/^0-5$/.test(x)) return '1 a 5'
-    return x.replace(/^Mais de/, 'mais de')
+    if (/^0-5$/.test(x)) x = '1 a 5'
+    x = x.replace(/^Mais de/, 'mais de')
+    const noun = NOUN.get(S(interesse))
+    if (noun && /^(1 a 5|6 a 10|11 a 20|21 a 50|mais de 50)$/i.test(x)) x = `${x} ${noun}`
+    return x
 }
 /**
  * Nome do Instagram em letra estilizada do Unicode (𝐈𝐯𝐚𝐧 → Ivan). NFKC devolve
@@ -131,7 +139,7 @@ for (const tab of abas) {
     const C = {
         etapa: ix('Etapa'), atend: ix('Atendido por'), nome: ix('Nome'), tel: ix('WhatsApp'),
         mail: ix('E-mail'), mom: ix('Momento'), cab: ix('Cabeças'), qtd: ix('Qtd. desejada'),
-        origem: ix('Origem'), obs: ix('Observações'), utm: ix('utm_source'),
+        origem: ix('Origem'), obs: ix('Observações'), utm: ix('utm_source'), int: ix('Interesse'),
     }
     const linhas = v.slice(1).map(r => [...r])
     const largura = h.length
@@ -155,7 +163,7 @@ for (const tab of abas) {
         if (C.qtd >= 0) {
             const atual = S(r[C.qtd])
             if (ehLixo(atual)) { if (set(C.qtd, '')) conta('qtd: lixo removido') }
-            else if (set(C.qtd, arrumaQtd(atual))) conta('qtd: vocabulário unificado')
+            else if (set(C.qtd, arrumaQtd(atual, C.int >= 0 ? r[C.int] : ''))) conta('qtd: vocabulário unificado')
         }
         // Nome em letra estilizada do Instagram
         if (C.nome >= 0 && set(C.nome, arrumaNome(r[C.nome]))) conta('nome destravado do Unicode')

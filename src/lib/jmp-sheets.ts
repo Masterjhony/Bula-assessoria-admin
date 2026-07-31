@@ -481,9 +481,15 @@ const META_INTERESSE = new Map([
   ['bezerras_po', 'bezerras-po'], ['touros_po', 'touros-po'],
   ['matrizes_po', 'matrizes-po'], ['não_sei', 'nao-sei'], ['nao_sei', 'nao-sei'],
 ])
+/**
+ * Substantivo da quantidade, resolvido pelo RÓTULO final do interesse — não
+ * pelo slug cru. O Meta manda tanto "touros_po" quanto "touros"; indexar pelo
+ * slug fazia o segundo cair fora do mapa e gravar "1 a 5" onde as outras
+ * linhas dizem "1 a 5 touros".
+ */
 const META_NOUN = new Map([
-  ['bezerras-po', 'bezerras'], ['touros-po', 'touros'],
-  ['matrizes-po', 'matrizes'], ['nao-sei', 'animais'],
+  ['Bezerras PO', 'bezerras'], ['Touros', 'touros'],
+  ['Matrizes PO', 'matrizes'], ['Embriões', 'embriões'],
 ])
 const META_QTD = new Map([
   ['0-5', '1 a 5'], ['1-5', '1 a 5'], ['6-10', '6 a 10'],
@@ -803,7 +809,7 @@ const PERPETUO_HEADER = [
  */
 function buildPerpetuoValues(p: RawMetaLead): Map<string, string> {
   const interesse = META_INTERESSE.get(p.interesse.toLowerCase()) || p.interesse
-  const noun = META_NOUN.get(interesse) || ''
+  const noun = META_NOUN.get(rotulaInteresse(interesse)) || ''
   const qtdBase = META_QTD.get(p.qtd)
   const test = isMetaTestLead(p)
   const testPrefix = test ? '[TESTE META] ' : ''
