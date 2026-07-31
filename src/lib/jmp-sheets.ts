@@ -1804,6 +1804,94 @@ export async function appendLeadToInteresseTab(
 /** Marca as linhas do lançamento na aba-arquivo (form_name). Ver SheetLead.formName. */
 export const SAO_GERALDO_FORM_NAME = 'Landing Leilão Touros São Geraldo e 7P'
 
+/** Colunas que são da equipe — o código só as MOVE entre as abas, nunca inventa. */
+const COLUNAS_DA_EQUIPE = ['Etapa', 'Atendido por', 'Observações'] as const
+
+/**
+ * Espelha "Etapa"/"Atendido por"/"Observações" entre a base e a aba-recorte do
+ * lead. Sem isto a LEADS GERAIS fica eternamente desatualizada: a equipe
+ * trabalha na aba do interesse (em 31/07 eram 399 etapas preenchidas na TOUROS
+ * contra 106 na base) e o dono lê a base.
+ *
+ * Regra: a aba-recorte é a fonte (é a superfície de trabalho). Quando ela está
+ * vazia e a base tem valor, o valor volta pra ela — foi assim que as anotações
+ * antigas, consolidadas na base, chegaram às abas novas.
+ */
+async function espelhaColunasDaEquipe(
+  sheets: SheetsClient, spreadsheetId: string, base: string,
+): Promise<{ paraBase: number; paraAba: number }> {
+  const ler = async (tab: string) => ((await sheets.spreadsheets.values.get({
+    spreadsheetId, range: `${tab}!A1:${columnName(HEADER_READ_COLUMNS)}`,
+  })).data.values ?? []) as string[][]
+
+  const baseVals = await ler(base)
+  if (baseVals.length < 2) return { paraBase: 0, paraAba: 0 }
+  const baseHeader = (baseVals[0] ?? []).map(h => normalizeHeaderText(String(h ?? '')))
+  const idxDe = (header: string[], nome: string) => header.indexOf(normalizeHeaderText(nome))
+  const bTel = idxDe(baseHeader, 'WhatsApp'), bId = idxDe(baseHeader, 'Lead ID'), bNome = idxDe(baseHeader, 'Nome')
+  if (bTel < 0) return { paraBase: 0, paraAba: 0 }
+  const chave = (r: string[], iId: number, iTel: number, iNome: number) =>
+    chaveDoLead(String(r[iId] ?? ''), String(r[iTel] ?? ''), String(r[iNome] ?? ''))
+
+  const baseLinhas = baseVals.slice(1)
+  const porChave = new Map<string, number>()
+  baseLinhas.forEach((r, i) => {
+    const k = chave(r, bId, bTel, bNome)
+    if (!porChave.has(k)) porChave.set(k, i)
+  })
+
+  const baseCols = COLUNAS_DA_EQUIPE.map(c => idxDe(baseHeader, c))
+  const baseNovo = COLUNAS_DA_EQUIPE.map((_, ci) => baseLinhas.map(r => String(r[baseCols[ci]] ?? '')))
+  let paraBase = 0, paraAba = 0
+  const escritas: { range: string; values: string[][] }[] = []
+
+  for (const tab of Object.values(ABAS_INTERESSE)) {
+    const vals = await ler(tab)
+    if (vals.length < 2) continue
+    const header = (vals[0] ?? []).map(h => normalizeHeaderText(String(h ?? '')))
+    const iTel = idxDe(header, 'WhatsApp'), iId = idxDe(header, 'Lead ID'), iNome = idxDe(header, 'Nome')
+    if (iTel < 0) continue
+    const cols = COLUNAS_DA_EQUIPE.map(c => idxDe(header, c))
+    const linhas = vals.slice(1)
+    const abaNovo = COLUNAS_DA_EQUIPE.map((_, ci) => linhas.map(r => String(r[cols[ci]] ?? '')))
+    let mudouAba = false
+
+    linhas.forEach((r, i) => {
+      const b = porChave.get(chave(r, iId, iTel, iNome))
+      if (b == null) return
+      COLUNAS_DA_EQUIPE.forEach((_, ci) => {
+        if (cols[ci] < 0 || baseCols[ci] < 0) return
+        const naAba = String(r[cols[ci]] ?? '').trim()
+        const naBase = baseNovo[ci][b].trim()
+        if (naAba && naAba !== naBase) { baseNovo[ci][b] = naAba; paraBase++ }
+        else if (!naAba && naBase) { abaNovo[ci][i] = naBase; mudouAba = true; paraAba++ }
+      })
+    })
+
+    if (mudouAba) {
+      COLUNAS_DA_EQUIPE.forEach((_, ci) => {
+        if (cols[ci] < 0) return
+        const col = columnName(cols[ci] + 1)
+        escritas.push({ range: `${tab}!${col}2:${col}${linhas.length + 1}`, values: abaNovo[ci].map(v => [v]) })
+      })
+    }
+  }
+
+  if (paraBase) {
+    COLUNAS_DA_EQUIPE.forEach((_, ci) => {
+      if (baseCols[ci] < 0) return
+      const col = columnName(baseCols[ci] + 1)
+      escritas.push({ range: `${base}!${col}2:${col}${baseLinhas.length + 1}`, values: baseNovo[ci].map(v => [v]) })
+    })
+  }
+  if (escritas.length) {
+    await sheets.spreadsheets.values.batchUpdate({
+      spreadsheetId, requestBody: { valueInputOption: 'RAW', data: escritas },
+    })
+  }
+  return { paraBase, paraAba }
+}
+
 /**
  * Varredura das abas-recorte: relê a LEADS GERAIS e acrescenta em
  * TOUROS/FEMEAS/EMBRIÕES/OUTROS o que ainda não está lá, pelo interesse de cada
@@ -1817,6 +1905,7 @@ export const SAO_GERALDO_FORM_NAME = 'Landing Leilão Touros São Geraldo e 7P'
 export async function syncAbasPorInteresse(): Promise<{
   total: number
   appended: Record<string, number>
+  espelho?: { paraBase: number; paraAba: number }
   reason?: string
 }> {
   const vazio = Object.fromEntries(Object.values(ABAS_INTERESSE).map(t => [t, 0]))
@@ -1882,7 +1971,15 @@ export async function syncAbasPorInteresse(): Promise<{
     appended[tab] = fresh.length
   }
 
+  // Depois de distribuir, espelha o que a equipe anotou nas duas pontas.
+  const espelho = await espelhaColunasDaEquipe(sheets, info.spreadsheetId, base).catch(e => {
+    console.error('[jmp-sheets] espelho das colunas da equipe falhou:', e instanceof Error ? e.message : e)
+    return { paraBase: 0, paraAba: 0 }
+  })
+
   const novos = Object.values(appended).reduce((a, b) => a + b, 0)
-  if (novos) console.log(`[jmp-sheets] abas por interesse: ${JSON.stringify(appended)} (de ${leads.length} leads)`)
-  return { total: leads.length, appended }
+  if (novos || espelho.paraBase || espelho.paraAba) {
+    console.log(`[jmp-sheets] abas por interesse: ${JSON.stringify(appended)} (de ${leads.length} leads) | espelho: ${espelho.paraBase}→base, ${espelho.paraAba}→abas`)
+  }
+  return { total: leads.length, appended, espelho }
 }
