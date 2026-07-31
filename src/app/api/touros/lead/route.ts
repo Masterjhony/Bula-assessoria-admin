@@ -1,6 +1,6 @@
 import { NextRequest } from 'next/server'
 import { fail, ok } from '@/lib/respond'
-import { appendLeadToPerpetuoSheet, appendLeadToTourosTabs } from '@/lib/jmp-sheets'
+import { appendLeadToPerpetuoSheet, appendLeadToInteresseTab } from '@/lib/jmp-sheets'
 import { evaluateMql, DEFAULT_JMP_MQL_RULE } from '@/lib/crm-types'
 import { aplicarMascaraTelefone, normalizarWhatsapp } from '@/lib/telefone'
 
@@ -37,7 +37,7 @@ const VALID_QUANTIDADES_TOUROS = new Set([
 // venda de touros).
 //
 // DECISÃO (24/07, pedido do cliente): os leads desta campanha vão APENAS para
-// a aba "LEADS BULA - PERPETUO" da planilha conectada — NÃO entram no CRM.
+// a planilha conectada (aba "LEADS GERAIS") — NÃO entram no CRM.
 // Lead em crm_leads (ENTRADA) entra no radar dos disparos/followups e, ao
 // responder, cai no concierge IA — e esta campanha NÃO deve ser atendida pelo
 // sistema de atendimento. Atendimento 100% manual pela equipe, via planilha.
@@ -155,13 +155,13 @@ export async function POST(req: NextRequest) {
     return fail('Não foi possível registrar o cadastro. Tente novamente.', 500)
   }
 
-  // Cópias de trabalho da campanha ("LEADS TOUROS" + a aba do assessor da UF).
-  // Best-effort de propósito: o lead JÁ está registrado na aba-arquivo acima —
+  // Cópia de trabalho: a aba do INTERESSE do lead (aqui, sempre TOUROS).
+  // Best-effort de propósito: o lead JÁ está registrado na LEADS GERAIS acima —
   // falha aqui não pode derrubar o cadastro, e o cron (sheet-perpetuo) refaz.
   try {
-    await appendLeadToTourosTabs(sheetLead)
+    await appendLeadToInteresseTab(sheetLead)
   } catch (e) {
-    console.error('[touros lead] abas de trabalho falharam:', e)
+    console.error('[touros lead] aba por interesse falhou:', e)
   }
 
   // Devolve o veredito de MQL (fonte de verdade = servidor) para o client

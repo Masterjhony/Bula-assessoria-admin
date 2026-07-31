@@ -2,8 +2,7 @@ import { NextRequest } from 'next/server'
 import { fail, ok } from '@/lib/respond'
 import {
   appendLeadToPerpetuoSheet,
-  appendLeadToSaoGeraldoTab,
-  appendLeadToTourosTabs,
+  appendLeadToInteresseTab,
   SAO_GERALDO_FORM_NAME,
 } from '@/lib/jmp-sheets'
 import { evaluateMql, DEFAULT_JMP_MQL_RULE } from '@/lib/crm-types'
@@ -163,8 +162,8 @@ export async function POST(req: NextRequest) {
     leadId: eventId,
     createdAt,
     whatsappConsent,
-    // Marca a linha na aba-arquivo como do lançamento — é o que faz o cron
-    // distribuir o lead nas abas de trabalho sem confundir com o perpétuo.
+    // Marca a linha na base como do lançamento — é o que separa este funil do
+    // perpétuo depois (coluna "Origem" na planilha).
     formName: SAO_GERALDO_FORM_NAME,
   }
 
@@ -181,18 +180,13 @@ export async function POST(req: NextRequest) {
     return fail('Não foi possível registrar o cadastro. Tente novamente.', 500)
   }
 
-  // Cópias de trabalho: aba do lançamento + "LEADS TOUROS" e a aba do assessor
-  // da UF. Best-effort de propósito — o lead JÁ está registrado acima e o cron
-  // (sheet-perpetuo) refaz o que faltar.
+  // Cópia de trabalho: a aba do INTERESSE do lead (aqui, sempre TOUROS).
+  // Best-effort de propósito — o lead JÁ está registrado na LEADS GERAIS acima
+  // e o cron (sheet-perpetuo) refaz o que faltar.
   try {
-    await appendLeadToSaoGeraldoTab(sheetLead)
+    await appendLeadToInteresseTab(sheetLead)
   } catch (e) {
-    console.error(`[${LEAD_SOURCE} lead] aba do lançamento falhou:`, e)
-  }
-  try {
-    await appendLeadToTourosTabs(sheetLead)
-  } catch (e) {
-    console.error(`[${LEAD_SOURCE} lead] abas de trabalho falharam:`, e)
+    console.error(`[${LEAD_SOURCE} lead] aba por interesse falhou:`, e)
   }
 
   // Veredito de MQL (fonte de verdade = servidor) para o client escolher a URL

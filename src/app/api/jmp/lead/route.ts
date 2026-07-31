@@ -11,7 +11,7 @@ import {
 import { DEFAULT_JMP_CONTENT, sanitizeContent } from '@/lib/jmp-content'
 import { sendJmpWelcomeEmail } from '@/lib/jmp-welcome-email'
 import { enrollLeadInEmailFlow } from '@/lib/jmp-email-flow'
-import { appendLeadToEaoSheet, normalizeMetaRawRows } from '@/lib/jmp-sheets'
+import { appendLeadToSheet, normalizeMetaRawRows } from '@/lib/jmp-sheets'
 import { dispatchCrmWelcome } from '@/lib/crm-welcome'
 
 const CONTENT_TABLE = 'jmp_landing_content'
@@ -188,18 +188,18 @@ export async function POST(req: NextRequest) {
     console.error('[JMP lead] email flow enroll failed:', e)
   }
 
-  // Aba "Leads EAO" — dedicada à campanha do 13º Mega Baviera. A aba
-  // "Leads JMP" fica intacta (histórico do evento anterior + despejo do Meta).
+  // Base única de leads da planilha ("LEADS GERAIS"). Desde 31/07/2026 não há
+  // mais aba por campanha — o lead aparece na aba do interesse dele, e o cron
+  // (sheet-perpetuo) faz esse recorte.
   try {
-    await appendLeadToEaoSheet({ ...leadCtx, ...utm, leadId: data?.id ?? null, createdAt: new Date() })
+    await appendLeadToSheet({ ...leadCtx, ...utm, leadId: data?.id ?? null, createdAt: new Date() })
   } catch (e) {
     console.error('[JMP lead] sheets append failed:', e)
   }
 
-  // Auto-cura oportunista das linhas cruas que o Meta despeja na aba "Leads
-  // JMP". Rodava dentro do antigo appendLeadToSheet; como a landing passou a
-  // gravar na aba do EAO, o gatilho por lead vive aqui — senão só o cron
-  // diário (sheet-heal) realinharia, deixando a planilha torta por até 24h.
+  // Auto-cura oportunista das linhas cruas que o Meta despeja na base. O
+  // gatilho por lead vive aqui — senão só o cron realinharia, deixando a
+  // planilha torta até a próxima passada.
   try {
     await normalizeMetaRawRows()
   } catch (e) {

@@ -1,12 +1,16 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { syncBulaLeadsToPerpetuoTab, syncEaoLeadsToTab, syncTourosLandingTabs } from '@/lib/jmp-sheets'
+import { absorveDumpsCrusDoMeta, syncAbasPorInteresse } from '@/lib/jmp-sheets'
 
 export const maxDuration = 60
 
-// Espelha os leads crus do Meta ("Cópia de LEADS BULA") para a aba organizada
-// "LEADS BULA - PERPETUO", em layout fixo e legível. Append-only e idempotente
-// pelo `id` do Meta — seguro no automático. Roda junto com o sheet-heal (a cada
-// 15 min, via GitHub Actions).
+// Manutenção da planilha de leads (5 abas: LEADS GERAIS + TOUROS/FEMEAS/
+// EMBRIÕES/OUTROS). Roda junto com o sheet-heal, a cada 5 min via GitHub
+// Actions:
+//   1. absorve na LEADS GERAIS os despejos crus do conector do Meta (inclusive
+//      os que caem dentro de uma aba de trabalho) e limpa o lixo que sobra;
+//   2. redistribui os leads da LEADS GERAIS nas abas por interesse.
+// Ambos são append-only e idempotentes — nunca reescrevem linha existente nem
+// as colunas da equipe (Etapa, Atendido por, Observações).
 // Auth: Authorization: Bearer <CRON_SECRET> OU x-webhook-secret == WHATSAPP_GROUP_TASK_SECRET.
 function authorized(req: NextRequest): boolean {
   const cronSecret = process.env.CRON_SECRET
@@ -23,20 +27,14 @@ async function run(req: NextRequest) {
     return NextResponse.json({ error: 'unauthorized' }, { status: 401 })
   }
   try {
-    const result = await syncBulaLeadsToPerpetuoTab()
-    // Aba dedicada da campanha EAO — best-effort para nunca derrubar o PERPETUO.
-    const eao = await syncEaoLeadsToTab().catch(e => {
-      console.error('[sheet-perpetuo] Leads EAO falhou:', e instanceof Error ? e.message : e)
-      return { appended: 0, total: 0, skipped: 0, reason: 'error' as const }
+    // Primeiro absorver, depois distribuir: assim o lead que chegou cru já sai
+    // na aba do interesse dele na MESMA passada.
+    const meta = await absorveDumpsCrusDoMeta()
+    const interesse = await syncAbasPorInteresse().catch((e: unknown) => {
+      console.error('[sheet-perpetuo] abas por interesse falharam:', e instanceof Error ? e.message : e)
+      return { total: 0, appended: {}, reason: 'error' as const }
     })
-    // Abas de trabalho da campanha de touros (geral + Douglas + João Antônio).
-    // Também best-effort: é uma "vista" da aba-arquivo, nunca pode derrubar o
-    // espelho principal.
-    const touros = await syncTourosLandingTabs().catch(e => {
-      console.error('[sheet-perpetuo] abas touros falharam:', e instanceof Error ? e.message : e)
-      return { total: 0, appended: {}, semUf: 0, reason: 'error' as const }
-    })
-    return NextResponse.json({ ok: true, ...result, eao, touros })
+    return NextResponse.json({ ok: true, meta, interesse })
   } catch (e) {
     // Sem isso o cron só vê "500" e o erro real fica escondido nos logs.
     const message = e instanceof Error ? e.message : String(e)

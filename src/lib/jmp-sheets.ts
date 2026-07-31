@@ -6,16 +6,92 @@ import { supabaseAdmin } from './supabase'
 // GA4/Calendar). O id da planilha fica em jmp_config(key='sheets').
 
 const CONFIG_KEY = 'sheets'
-const TAB = 'Leads JMP'
-// Aba "cópia" que recebe os leads do formulário Meta "BULA PERPETUO" — mesmo
-// layout cru da "Leads JMP" (cabeçalho padrão + bloco de metadados do Meta).
-// Só LEMOS dela (sem reescrever) para alimentar o CRM.
+
+// ─────────────────────────────────────────────────────────────────────────────
+// ESTRUTURA DA PLANILHA (31/07/2026, pedido do dono) — 5 abas, só isso:
+//
+//   LEADS GERAIS  base única: TODO lead novo cai aqui, com "Etapa" e
+//                 "Atendido por" (colunas da equipe — o código nunca escreve
+//                 nelas). É a antiga "LEADS BULA - PERPETUO", renomeada.
+//   TOUROS | FEMEAS | EMBRIÕES | OUTROS
+//                 recortes da LEADS GERAIS pelo campo "Interesse".
+//
+// As 14 abas antigas (landings separadas, abas por assessor, dumps crus do
+// Meta, listas soltas) foram consolidadas na LEADS GERAIS por
+// scripts/reestrutura-planilha-leads.mjs — deduplicadas por telefone/e-mail e
+// sem os leads de teste. Manter esta lista fechada: aba nova que apareça (o
+// conector do Meta recria a dele) é absorvida e removida pelo cron. Ver
+// absorveDumpsCrusDoMeta().
+// ─────────────────────────────────────────────────────────────────────────────
+export const LEADS_GERAIS_TAB = 'LEADS GERAIS'
+const TAB = LEADS_GERAIS_TAB
+/**
+ * A aba-arquivo e a base de leads viraram a MESMA aba. O nome antigo continua
+ * exportado porque as rotas das landings importam por ele.
+ */
+export const LEADS_BULA_PERPETUO_TAB = LEADS_GERAIS_TAB
+/** Nome anterior da base — usado só para reconhecer a planilha ainda não migrada. */
+const LEADS_GERAIS_TAB_LEGADO = 'LEADS BULA - PERPETUO'
+// Aba bruta do conector do Meta que existia até 07/2026. Não existe mais; a
+// leitura resiste (devolve vazio) e o cron absorve qualquer dump cru que volte.
 export const LEADS_BULA_TAB = 'Cópia de LEADS BULA'
-// Aba "organizada" para onde despejamos, em layout limpo e fixo, cada lead que
-// chega cru na "Cópia de LEADS BULA". O conector do Meta não tem como entregar
-// formatado, então o app reescreve em colunas estáveis aqui (append-only,
-// idempotente por `id`). Ver syncBulaLeadsToPerpetuoTab().
-export const LEADS_BULA_PERPETUO_TAB = 'LEADS BULA - PERPETUO'
+
+/** Abas-recorte por interesse. A chave é o "balde" resolvido por abaDoInteresse(). */
+export const ABAS_INTERESSE = {
+  touros: 'TOUROS',
+  femeas: 'FEMEAS',
+  embrioes: 'EMBRIÕES',
+  outros: 'OUTROS',
+} as const
+type BaldeInteresse = keyof typeof ABAS_INTERESSE
+/** Todas as abas que a planilha deve ter — nada além disto sobrevive ao cron. */
+const ABAS_OFICIAIS: string[] = [LEADS_GERAIS_TAB, ...Object.values(ABAS_INTERESSE)]
+
+/**
+ * Vocabulário de interesse exibido na planilha. O formulário do Meta e as
+ * landings mandam slugs diferentes para a mesma coisa ("touros_po", "touros-po",
+ * "Matrizes PO"); a planilha guarda UM rótulo por interesse, senão o recorte
+ * por aba fura.
+ */
+const INTERESSE_LABEL = new Map<string, string>([
+  ['touros', 'Touros'], ['tourospo', 'Touros'],
+  ['bezerraspo', 'Bezerras PO'], ['bezerras', 'Bezerras PO'],
+  ['matrizespo', 'Matrizes PO'], ['matrizes', 'Matrizes PO'], ['novilhas', 'Matrizes PO'],
+  ['embrioes', 'Embriões'], ['embrioespo', 'Embriões'],
+  ['semen', 'Sêmen'],
+  ['naosei', 'Não sei ainda'], ['naoseiainda', 'Não sei ainda'],
+  ['false', ''],
+])
+
+/** Slug/rótulo cru de interesse → rótulo canônico da planilha. */
+export function rotulaInteresse(raw: string | null | undefined): string {
+  const bruto = String(raw ?? '').trim()
+  if (!bruto) return ''
+  const k = normalizeHeaderText(bruto)
+  const direto = INTERESSE_LABEL.get(k)
+  if (direto != null) return direto
+  if (/test lead|dummy data/i.test(bruto)) return ''
+  if (k.includes('embri')) return 'Embriões'
+  if (k.includes('touro')) return 'Touros'
+  if (k.includes('bezerr')) return 'Bezerras PO'
+  if (k.includes('matriz') || k.includes('novilh') || k.includes('femea')) return 'Matrizes PO'
+  if (k.includes('semen') || k.includes('semem')) return 'Sêmen'
+  if (k.includes('naosei')) return 'Não sei ainda'
+  return bruto
+}
+
+/**
+ * Aba-recorte do lead. Um lead entra em UMA aba só; quando o interesse vem
+ * vazio ou fora do vocabulário (Meta manda "sêmen", "não sei ainda"), cai em
+ * OUTROS — que é justamente a aba de quem precisa ser qualificado.
+ */
+export function abaDoInteresse(interesse: string, qtdDesejada = ''): BaldeInteresse {
+  const t = normalizeHeaderText(`${interesse} ${qtdDesejada}`)
+  if (t.includes('touro')) return 'touros'
+  if (t.includes('bezerr') || t.includes('matriz') || t.includes('novilh') || t.includes('femea')) return 'femeas'
+  if (t.includes('embri')) return 'embrioes'
+  return 'outros'
+}
 const SHARE_EMAIL = 'formuladoboi@gmail.com'
 const MANUAL_HEADER = 'Atendido por'
 const HEADER = ['Data', 'Nome', 'E-mail', 'WhatsApp', 'UF', 'Cidade', 'Momento', 'Cabeças', 'Interesse', 'Lead ID', 'Qtd. desejada', 'utm_source', 'utm_medium', 'utm_campaign', 'utm_content', 'ad-id', 'Inscrição Estadual'] as const
@@ -668,27 +744,41 @@ export async function readSecondaryTabLeadRows(
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
-// Espelho organizado: "Cópia de LEADS BULA" (cru) → "LEADS BULA - PERPETUO".
+// Absorção dos despejos crus do conector do Meta.
 //
-// O conector do Meta despeja os leads crus/desalinhados e — segundo quem
-// configura o Meta — não há como entregar formatado. Em vez de tentar "curar"
-// a aba bruta (que a equipe e o próprio Meta mexem), reescrevemos cada lead em
-// uma aba dedicada, com layout fixo e legível. Append-only e idempotente pelo
-// `id` do Meta: rodar de novo nunca duplica, e a coluna "Atendido por" (e
-// qualquer edição da equipe nas linhas já existentes) fica intacta.
+// O conector é configurado POR FORMULÁRIO, fora do nosso controle, e despeja os
+// leads crus/desalinhados na aba que estiver mapeada — inclusive dentro de uma
+// aba de trabalho (foi o que aconteceu em 29/07: 14 linhas cruas caíram na
+// "LEADS TOUROS", com `l:<id>` na coluna Etapa, e esses leads nunca chegaram na
+// base). Como a planilha agora tem 5 abas e só 5, esta rotina:
 //
-// Layout exato definido pelo dono (40 colunas A..AN): bloco padrão legível +
-// metadados crus do Meta + perguntas cruas do formulário + flags.
+//   1. lê TODA aba atrás de linha crua do Meta (`l:<id>` + timestamp ISO);
+//   2. traduz cada lead para o layout da LEADS GERAIS e acrescenta lá o que
+//      ainda não existe (dedup por id do Meta OU e-mail OU telefone);
+//   3. apaga a linha crua de dentro das abas oficiais e remove a aba que o
+//      conector tiver recriado.
+//
+// Aba criada pela equipe (sem cara de despejo do Meta) NÃO é removida — o cron
+// não apaga trabalho de ninguém. Append-only na base: linha existente e as
+// colunas da equipe ("Etapa", "Atendido por", "Observações") ficam intactas.
 // ─────────────────────────────────────────────────────────────────────────────
 
+/**
+ * Bloco de trabalho — IDÊNTICO nas 5 abas, para a equipe olhar sempre a mesma
+ * coisa. "Etapa", "Atendido por" e "Observações" são da equipe: o código
+ * escreve a linha nova com elas VAZIAS e nunca reescreve linha existente.
+ */
+const BLOCO_OPERACIONAL = [
+  'Etapa', 'Atendido por', 'Data', 'Nome', 'WhatsApp', 'E-mail', 'UF', 'Zona', 'Cidade',
+  'Momento', 'Cabeças', 'Inscrição Estadual', 'Interesse', 'Qtd. desejada', 'Lead ID',
+  'Origem', 'utm_source', 'utm_campaign', 'utm_content', 'ad-id', 'Observações',
+] as const
+
+/** Só a LEADS GERAIS carrega os metadados de mídia (atribuição de campanha). */
 const PERPETUO_HEADER = [
-  'Atendido por', 'Data', 'Nome', 'E-mail', 'WhatsApp', 'UF', 'Cidade', 'Momento', 'Cabeças',
-  'Inscrição Estadual', 'Interesse', 'Lead ID', 'Qtd. desejada', 'utm_source', 'utm_medium',
-  'utm_campaign', 'utm_content', 'ad-id', 'id', 'created_time', 'ad_id', 'ad_name', 'adset_id',
-  'adset_name', 'campaign_id', 'campaign_name', 'form_id', 'form_name', 'is_organic', 'platform',
-  'seu_momento_na_pecuaria', 'você_tem_inscrição_estadual?', 'qual_o_seu_interesse?',
-  'de_acordo_com_seu_interesse,_qual_a_quantidade_de_animais_desejada?',
-  'full_name', 'email', 'phone', 'state', 'lead de teste', 'lead_status',
+  ...BLOCO_OPERACIONAL,
+  'utm_medium', 'id', 'created_time', 'ad_name', 'adset_name', 'campaign_name',
+  'form_name', 'platform', 'lead de teste', 'lead_status',
 ] as const
 
 /**
@@ -711,11 +801,13 @@ function buildPerpetuoValues(p: RawMetaLead): Map<string, string> {
     ['E-mail', p.email],
     ['WhatsApp', metaPhoneToWhatsApp(p.phone)],
     ['UF', metaStateToUF(p.state)],
+    ['Zona', zonaDaUF(metaStateToUF(p.state))],
     ['Cidade', ''],
     ['Momento', META_MOMENTO.get(p.momento.toLowerCase()) || p.momento],
     ['Cabeças', META_CABECAS.get(p.cabecas) || p.cabecas],
     ['Inscrição Estadual', p.temIe ? (p.temIe.toLowerCase() === 'sim' ? 'Sim' : 'Não') : ''],
-    ['Interesse', interesse],
+    ['Interesse', rotulaInteresse(interesse)],
+    ['Origem', `Meta — ${p.campaignName || p.formName}`],
     ['Lead ID', p.id],
     ['Qtd. desejada', qtdBase ? `${qtdBase}${noun ? ' ' + noun : ''}` : p.qtd],
     ['utm_source', p.platform],
@@ -756,6 +848,16 @@ function buildPerpetuoRow(p: RawMetaLead, headerRow: string[]): string[] {
 }
 
 /**
+ * Origem legível do lead da landing (coluna "Origem"). O `form_name` é o que
+ * separa as duas landings na base — aqui ele vira rótulo de gente.
+ */
+function rotulaOrigemLanding(formName: string): string {
+  if (/s[ãa]o geraldo/i.test(formName)) return 'Landing São Geraldo'
+  if (/touros/i.test(formName)) return 'Landing Touros'
+  return formName
+}
+
+/**
  * Monta a linha dos cadastros feitos diretamente na landing de touros.
  * Preenche o bloco operacional (A..R) e também os campos crus equivalentes
  * (S..AN), mantendo a aba compatível com filtros/automações que leem o layout
@@ -770,11 +872,13 @@ function buildPerpetuoLandingRow(lead: SheetLead, headerRow: string[]): string[]
     ['E-mail', lead.email],
     ['WhatsApp', lead.whatsapp],
     ['UF', lead.uf ?? ''],
+    ['Zona', zonaDaUF(lead.uf ?? '')],
     ['Cidade', lead.cidade ?? ''],
     ['Momento', lead.momento ?? ''],
     ['Cabeças', lead.cabecas ?? ''],
     ['Inscrição Estadual', lead.inscricaoEstadual ?? ''],
-    ['Interesse', lead.interesse ?? 'touros-po'],
+    ['Interesse', rotulaInteresse(lead.interesse ?? 'touros-po')],
+    ['Origem', rotulaOrigemLanding(lead.formName ?? TOUROS_FORM_NAME)],
     ['Lead ID', lead.leadId ?? ''],
     ['Qtd. desejada', lead.oQueBusca ?? ''],
     ['utm_source', lead.utm_source ?? ''],
@@ -860,24 +964,11 @@ export async function appendLeadToPerpetuoSheet(
     if (alreadyExists) return { skipped: true, reason: 'duplicate' }
   }
 
+  // Entra na linha 2, não no fim: a base é DECRESCENTE (mais recente em cima),
+  // igual às abas-recorte. insertTourosRowsAtTop empurra as linhas existentes
+  // inteiras (cor, nota, colunas da equipe) e replica a validação da Etapa.
   const row = buildPerpetuoLandingRow(lead, header)
-  const sheetId = await getTabSheetId(sheets, info.spreadsheetId, LEADS_BULA_PERPETUO_TAB)
-  await sheets.spreadsheets.batchUpdate({
-    spreadsheetId: info.spreadsheetId,
-    requestBody: {
-      requests: [{
-        appendCells: {
-          sheetId,
-          rows: [{
-            values: row.map(value => ({
-              userEnteredValue: { stringValue: String(value ?? '') },
-            })),
-          }],
-          fields: 'userEnteredValue',
-        },
-      }],
-    },
-  })
+  await insertTourosRowsAtTop(sheets, info.spreadsheetId, LEADS_BULA_PERPETUO_TAB, [row])
 
   return { skipped: false }
 }
@@ -918,51 +1009,35 @@ function buildRowFromHeaderedSource(srcRow: string[], srcHeader: string[], dstHe
  * manuais (nunca reescreve linha existente). Lança em erro de Sheets p/ o cron
  * logar; auth/planilha ausente degrada pra no-op.
  */
-export async function syncBulaLeadsToPerpetuoTab(): Promise<{
-  appended: number; total: number; skipped: number; reason?: string
+export async function absorveDumpsCrusDoMeta(): Promise<{
+  appended: number; total: number; abasRemovidas: string[]; linhasLimpas: number; reason?: string
 }> {
+  const nada = { appended: 0, total: 0, abasRemovidas: [] as string[], linhasLimpas: 0 }
   const info = await getStoredInfo()
-  if (!info) return { appended: 0, total: 0, skipped: 0, reason: 'not_provisioned' }
+  if (!info) return { ...nada, reason: 'not_provisioned' }
   const auth = getAuth()
-  if (!auth) return { appended: 0, total: 0, skipped: 0, reason: 'no_credentials' }
+  if (!auth) return { ...nada, reason: 'no_credentials' }
 
   const sheets = google.sheets({ version: 'v4', auth })
   const meta = await sheets.spreadsheets.get({ spreadsheetId: info.spreadsheetId, includeGridData: false })
-  const titles = (meta.data.sheets ?? []).map(s => s.properties?.title)
-  if (!titles.includes(LEADS_BULA_TAB)) return { appended: 0, total: 0, skipped: 0, reason: 'source_tab_missing' }
+  const abas = (meta.data.sheets ?? []).map(s => s.properties).filter(Boolean) as { title: string; sheetId: number }[]
+  const titles = abas.map(a => a.title)
+  const base = titles.includes(LEADS_GERAIS_TAB)
+    ? LEADS_GERAIS_TAB
+    : titles.includes(LEADS_GERAIS_TAB_LEGADO) ? LEADS_GERAIS_TAB_LEGADO : null
+  if (!base) return { ...nada, reason: 'source_tab_missing' }
 
-  // 1. Lê a bruta COM cabeçalho (preciso dele p/ as linhas que já chegam em
-  //    layout por coluna, como as do Instagram Direct).
-  const srcAll = ((await sheets.spreadsheets.values.get({
-    spreadsheetId: info.spreadsheetId,
-    range: `${LEADS_BULA_TAB}!A1:${columnName(HEADER_READ_COLUMNS)}`,
-  })).data.values ?? []) as string[][]
-  const srcHeader = (srcAll[0] ?? []).map(v => String(v ?? '').trim())
-  const srcRows = srcAll.slice(1).filter(r => r.some(c => String(c ?? '').trim()))
-
-  // 2. Garante a aba de destino + cabeçalho (só escreve o header se estiver vazio).
-  if (!titles.includes(LEADS_BULA_PERPETUO_TAB)) {
-    await sheets.spreadsheets.batchUpdate({
-      spreadsheetId: info.spreadsheetId,
-      requestBody: { requests: [{ addSheet: { properties: { title: LEADS_BULA_PERPETUO_TAB } } }] },
-    })
-  }
-  let header = await readHeaderRow(sheets, info.spreadsheetId, LEADS_BULA_PERPETUO_TAB)
+  let header = await readHeaderRow(sheets, info.spreadsheetId, base)
   if (!header.some(Boolean)) {
     header = [...PERPETUO_HEADER]
-    await sheets.spreadsheets.values.update({
-      spreadsheetId: info.spreadsheetId,
-      range: `${LEADS_BULA_PERPETUO_TAB}!A1:${columnName(header.length)}1`,
-      valueInputOption: 'RAW',
-      requestBody: { values: [header] },
-    })
+    await updateHeaderRow(sheets, info.spreadsheetId, header, base)
   }
 
-  // 3. Índices de dedup/validação no layout do PERPETUO (resolvidos por nome).
+  // Identidade do lead na base: id do Meta OU e-mail OU núcleo do telefone.
   const normHeader = header.map(normalizeHeaderText)
   const idCol = normHeader.indexOf('id')
   const nomeCol = normHeader.indexOf('nome')
-  const emailCols = normHeader.flatMap((h, i) => h === 'email' ? [i] : [])      // "E-mail" e "email"
+  const emailCols = normHeader.flatMap((h, i) => h === 'email' ? [i] : [])
   const phoneCols = normHeader.flatMap((h, i) => (h === 'whatsapp' || h === 'phone') ? [i] : [])
   const identity = (row: string[]) => {
     const id = idCol >= 0 ? String(row[idCol] ?? '').trim() : ''
@@ -974,11 +1049,9 @@ export async function syncBulaLeadsToPerpetuoTab(): Promise<{
     return { id, email, phone, nome }
   }
 
-  // 4. Identidades já presentes no PERPETUO (idempotência entre execuções).
   const endCol = columnName(Math.max(header.length, HEADER_READ_COLUMNS))
   const dstRows = ((await sheets.spreadsheets.values.get({
-    spreadsheetId: info.spreadsheetId,
-    range: `${LEADS_BULA_PERPETUO_TAB}!A2:${endCol}`,
+    spreadsheetId: info.spreadsheetId, range: `${base}!A2:${endCol}`,
   })).data.values ?? []) as string[][]
   const seenId = new Set<string>(), seenEmail = new Set<string>(), seenPhone = new Set<string>()
   for (const r of dstRows) {
@@ -988,182 +1061,78 @@ export async function syncBulaLeadsToPerpetuoTab(): Promise<{
     if (k.phone) seenPhone.add(k.phone)
   }
 
-  // 5. Monta cada candidata (Meta cru → parse; demais → mapeia por cabeçalho) e
-  //    acrescenta só as inéditas (dedup por id OU e-mail OU telefone).
   const fresh: string[][] = []
   let total = 0
-  for (const raw of srcRows) {
-    const metaLead = parseRawMetaLead(raw)
-    const candidate = metaLead
-      ? buildPerpetuoRow(metaLead, header)
-      : buildRowFromHeaderedSource(raw, srcHeader, header)
+  const considera = (candidate: string[]) => {
     const k = identity(candidate)
-    if (!k.nome && !k.email && !k.phone) continue // linha sem lead reconhecível
+    if (!k.nome && !k.email && !k.phone) return
     total++
-    if ((k.id && seenId.has(k.id)) || (k.email && seenEmail.has(k.email)) || (k.phone && seenPhone.has(k.phone))) continue
+    if ((k.id && seenId.has(k.id)) || (k.email && seenEmail.has(k.email)) || (k.phone && seenPhone.has(k.phone))) return
     if (k.id) seenId.add(k.id)
     if (k.email) seenEmail.add(k.email)
     if (k.phone) seenPhone.add(k.phone)
     fresh.push(candidate)
   }
 
-  if (!fresh.length) return { appended: 0, total, skipped: total }
-
-  const sheetId = await getTabSheetId(sheets, info.spreadsheetId, LEADS_BULA_PERPETUO_TAB)
-  await sheets.spreadsheets.batchUpdate({
-    spreadsheetId: info.spreadsheetId,
-    requestBody: {
-      requests: [{
-        appendCells: {
-          sheetId,
-          rows: fresh.map(r => ({ values: r.map(v => ({ userEnteredValue: { stringValue: String(v ?? '') } })) })),
-          fields: 'userEnteredValue',
-        },
-      }],
-    },
-  })
-  console.log(`[jmp-sheets] PERPETUO: ${fresh.length} lead(s) novos espelhados (de ${total} na bruta)`)
-  return { appended: fresh.length, total, skipped: total - fresh.length }
-}
-
-// ─────────────────────────────────────────────────────────────────────────────
-// Aba por campanha: "Leads EAO" (só os leads da campanha EAO, layout limpo).
-//
-// Espelho ADICIONAL e independente do PERPETUO: lê a mesma bruta ("Cópia de
-// LEADS BULA"), filtra as linhas do Meta cujo campaign_id é o da campanha EAO e
-// as escreve numa aba dedicada, em colunas legíveis. Não altera em nada o
-// PERPETUO nem a leitura do CRM — é só uma "vista" organizada por campanha.
-// Append-only e idempotente pelo Lead ID (rodar de novo nunca duplica).
-// ─────────────────────────────────────────────────────────────────────────────
-
-export const LEADS_EAO_TAB = 'Leads EAO'
-/** Campanha "LEADS - FORMS INST EAO" (conta CA2 - Bula 360). */
-const EAO_CAMPAIGN_ID = '120249047242270708'
-
-// Cabeçalho limpo — só o que interessa pra operação da campanha (sem o dump cru
-// de metadados do Meta que existe no PERPETUO).
-//
-// A aba recebe DUAS fontes: os leads do Meta (espelhados por syncEaoLeadsToTab)
-// e os leads do formulário da landing (appendLeadToEaoSheet). As duas últimas
-// colunas só existem para a landing — nas linhas vindas do Meta ficam vazias,
-// porque buildEaoRow resolve por nome de coluna e devolve '' no que não conhece.
-const EAO_HEADER = [
-  'Data', 'Nome', 'E-mail', 'WhatsApp', 'UF', 'Cidade', 'Momento', 'Cabeças',
-  'Inscrição Estadual', 'Interesse', 'Qtd. desejada', 'Lead ID', 'Campanha', 'Anúncio',
-  'Leilão de interesse', 'Consentimento WhatsApp',
-] as const
-type EaoHeaderName = (typeof EAO_HEADER)[number]
-
-/** Monta a linha da aba "Leads EAO" alinhada ao cabeçalho REAL (resolve por nome). */
-function buildEaoRow(p: RawMetaLead, header: string[]): string[] {
-  const interesse = META_INTERESSE.get(p.interesse.toLowerCase()) || p.interesse
-  const noun = META_NOUN.get(interesse) || ''
-  const qtdBase = META_QTD.get(p.qtd)
-  const testPrefix = isMetaTestLead(p) ? '[TESTE META] ' : ''
-  const values = new Map<string, string>([
-    ['data', fmtDate(new Date(p.created))],
-    ['nome', testPrefix + p.fullName],
-    ['email', p.email],
-    ['whatsapp', metaPhoneToWhatsApp(p.phone)],
-    ['uf', metaStateToUF(p.state)],
-    ['cidade', ''],
-    ['momento', META_MOMENTO.get(p.momento.toLowerCase()) || p.momento],
-    ['cabecas', META_CABECAS.get(p.cabecas) || p.cabecas],
-    ['inscricaoestadual', p.temIe ? (p.temIe.toLowerCase() === 'sim' ? 'Sim' : 'Não') : ''],
-    ['interesse', interesse],
-    ['qtddesejada', qtdBase ? `${qtdBase}${noun ? ' ' + noun : ''}` : p.qtd],
-    ['leadid', p.id],
-    ['campanha', p.campaignName],
-    ['anuncio', p.adName],
-  ])
-  return header.map(h => values.get(normalizeHeaderText(h)) ?? '')
-}
-
-/**
- * Espelha os leads da campanha EAO (da bruta "Cópia de LEADS BULA") para a aba
- * dedicada "Leads EAO", em layout limpo. Cria a aba/cabeçalho se faltarem. Só
- * ACRESCENTA o que ainda não está lá (idempotente pelo Lead ID do Meta), nunca
- * reescreve linha existente. Best-effort: auth/planilha ausente degrada pra
- * no-op; erro de Sheets sobe para o cron logar. Não toca no PERPETUO.
- */
-export async function syncEaoLeadsToTab(): Promise<{
-  appended: number; total: number; skipped: number; reason?: string
-}> {
-  const info = await getStoredInfo()
-  if (!info) return { appended: 0, total: 0, skipped: 0, reason: 'not_provisioned' }
-  const auth = getAuth()
-  if (!auth) return { appended: 0, total: 0, skipped: 0, reason: 'no_credentials' }
-
-  const sheets = google.sheets({ version: 'v4', auth })
-  const meta = await sheets.spreadsheets.get({ spreadsheetId: info.spreadsheetId, includeGridData: false })
-  const titles = (meta.data.sheets ?? []).map(s => s.properties?.title)
-  if (!titles.includes(LEADS_BULA_TAB)) return { appended: 0, total: 0, skipped: 0, reason: 'source_tab_missing' }
-
-  // Fonte: mesma bruta que alimenta o PERPETUO.
-  const srcAll = ((await sheets.spreadsheets.values.get({
-    spreadsheetId: info.spreadsheetId,
-    range: `${LEADS_BULA_TAB}!A1:${columnName(HEADER_READ_COLUMNS)}`,
-  })).data.values ?? []) as string[][]
-  const srcRows = srcAll.slice(1).filter(r => r.some(c => String(c ?? '').trim()))
-
-  // Garante a aba de destino + cabeçalho (só escreve o header se estiver vazio).
-  if (!titles.includes(LEADS_EAO_TAB)) {
-    await sheets.spreadsheets.batchUpdate({
+  const abasRemovidas: string[] = []
+  const limpezas: { sheetId: number; linha: number }[] = []
+  for (const aba of abas) {
+    const oficial = ABAS_OFICIAIS.includes(aba.title) || aba.title === base
+    const values = ((await sheets.spreadsheets.values.get({
       spreadsheetId: info.spreadsheetId,
-      requestBody: { requests: [{ addSheet: { properties: { title: LEADS_EAO_TAB } } }] },
+      range: `'${aba.title}'!A1:${columnName(HEADER_READ_COLUMNS)}`,
+    })).data.values ?? []) as string[][]
+    const srcHeader = (values[0] ?? []).map(v => String(v ?? '').trim())
+    const linhasCruas: number[] = []
+    values.slice(1).forEach((raw, i) => {
+      const metaLead = parseRawMetaLead(raw)
+      if (metaLead) {
+        considera(buildPerpetuoRow(metaLead, header))
+        linhasCruas.push(i + 1) // índice 0-based da linha na aba
+      } else if (!oficial && raw.some(c => String(c ?? '').trim())) {
+        considera(buildRowFromHeaderedSource(raw, srcHeader, header))
+      }
     })
-  }
-  let header = await readHeaderRow(sheets, info.spreadsheetId, LEADS_EAO_TAB)
-  if (!header.some(Boolean)) {
-    header = [...EAO_HEADER]
-    await sheets.spreadsheets.values.update({
-      spreadsheetId: info.spreadsheetId,
-      range: `${LEADS_EAO_TAB}!A1:${columnName(header.length)}1`,
-      valueInputOption: 'RAW',
-      requestBody: { values: [header] },
-    })
+
+    if (oficial) {
+      // Linha crua DENTRO de aba oficial: o lead já foi absorvido acima, a
+      // linha some (é lixo desalinhado que suja a coluna Etapa da equipe).
+      for (const linha of linhasCruas) limpezas.push({ sheetId: aba.sheetId, linha })
+      continue
+    }
+    // Aba de fora da estrutura: só removemos se for despejo do conector do
+    // Meta (cabeçalho cru id/created_time ou linhas l:<id>). Aba que a equipe
+    // criou fica onde está — o cron não apaga trabalho de ninguém.
+    const cabecalhoCru = normalizeHeaderText(srcHeader[0] ?? '') === 'id'
+      && normalizeHeaderText(srcHeader[1] ?? '') === 'createdtime'
+    if (cabecalhoCru || linhasCruas.length) abasRemovidas.push(aba.title)
   }
 
-  // Idempotência: Lead IDs já presentes na aba.
-  const idCol = header.map(normalizeHeaderText).indexOf('leadid')
-  const dstRows = ((await sheets.spreadsheets.values.get({
-    spreadsheetId: info.spreadsheetId,
-    range: `${LEADS_EAO_TAB}!A2:${columnName(header.length)}`,
-  })).data.values ?? []) as string[][]
-  const seen = new Set<string>()
-  for (const r of dstRows) {
-    const id = idCol >= 0 ? String(r[idCol] ?? '').trim() : ''
-    if (id) seen.add(id)
+  // `fresh` vem do mais antigo para o mais novo; a helper inverte e insere no
+  // topo, mantendo a base decrescente.
+  if (fresh.length) await insertTourosRowsAtTop(sheets, info.spreadsheetId, base, fresh)
+
+  // Apaga de baixo para cima: apagar a linha 5 antes da 3 desloca a 3.
+  const requests: object[] = []
+  const porAba = new Map<number, number[]>()
+  for (const l of limpezas) porAba.set(l.sheetId, [...(porAba.get(l.sheetId) ?? []), l.linha])
+  for (const [sheetId, linhas] of porAba) {
+    for (const linha of [...linhas].sort((a, b) => b - a)) {
+      requests.push({ deleteDimension: { range: { sheetId, dimension: 'ROWS', startIndex: linha, endIndex: linha + 1 } } })
+    }
+  }
+  for (const title of abasRemovidas) {
+    const id = abas.find(a => a.title === title)?.sheetId
+    if (id != null) requests.push({ deleteSheet: { sheetId: id } })
+  }
+  if (requests.length) {
+    await sheets.spreadsheets.batchUpdate({ spreadsheetId: info.spreadsheetId, requestBody: { requests } })
   }
 
-  // Só as linhas do Meta cuja campanha é a EAO, ainda não espelhadas.
-  const fresh: string[][] = []
-  let total = 0
-  for (const raw of srcRows) {
-    const p = parseRawMetaLead(raw)
-    if (!p || p.campaignId !== EAO_CAMPAIGN_ID) continue
-    total++
-    if (p.id && seen.has(p.id)) continue
-    if (p.id) seen.add(p.id)
-    fresh.push(buildEaoRow(p, header))
+  if (fresh.length || limpezas.length || abasRemovidas.length) {
+    console.log(`[jmp-sheets] dumps do Meta absorvidos: +${fresh.length} lead(s), ${limpezas.length} linha(s) crua(s) limpa(s), abas removidas: ${abasRemovidas.join(', ') || '—'}`)
   }
-  if (!fresh.length) return { appended: 0, total, skipped: total }
-
-  const sheetId = await getTabSheetId(sheets, info.spreadsheetId, LEADS_EAO_TAB)
-  await sheets.spreadsheets.batchUpdate({
-    spreadsheetId: info.spreadsheetId,
-    requestBody: {
-      requests: [{
-        appendCells: {
-          sheetId,
-          rows: fresh.map(r => ({ values: r.map(v => ({ userEnteredValue: { stringValue: String(v ?? '') } })) })),
-          fields: 'userEnteredValue',
-        },
-      }],
-    },
-  })
-  console.log(`[jmp-sheets] Leads EAO: ${fresh.length} lead(s) novos espelhados (de ${total} na bruta)`)
-  return { appended: fresh.length, total, skipped: total - fresh.length }
+  return { appended: fresh.length, total, abasRemovidas, linhasLimpas: limpezas.length }
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -1405,100 +1374,6 @@ export async function appendLeadToSheet(lead: SheetLead): Promise<{ skipped: boo
   return { skipped: false }
 }
 
-// ── Leads da LANDING na aba "Leads EAO" ────────────────────────────────────
-// A mesma aba que syncEaoLeadsToTab alimenta com os leads do Meta recebe também
-// os leads do formulário de eao.bulaassessoria.com. Não colidem: o espelho do
-// Meta é idempotente pelo Lead ID (id do Meta) e nunca reescreve linha alheia;
-// as linhas da landing carregam o uuid do crm_leads.
-//
-// Layout próprio: começa em "Data" na coluna A (NÃO tem o "Atendido por" da aba
-// Leads JMP) e não recebe o despejo cru do Meta — por isso não reusa
-// ensureSheetLayout, cujo alinhamento é específico daquele layout.
-
-/**
- * Garante que a aba tenha todas as colunas de EAO_HEADER. Colunas que faltam
- * são acrescentadas no FIM — nunca sobrescrevemos uma coluna já preenchida
- * (a equipe pode ter adicionado as suas).
- */
-async function ensureEaoLayout(sheets: SheetsClient, spreadsheetId: string): Promise<Map<EaoHeaderName, number>> {
-  const headerRow = await readHeaderRow(sheets, spreadsheetId, LEADS_EAO_TAB)
-
-  const next = headerRow.some(Boolean) ? [...headerRow] : [...EAO_HEADER]
-  for (const header of EAO_HEADER) {
-    if (next.some((h) => normalizeHeaderText(String(h ?? '')) === normalizeHeaderText(header))) continue
-    next.push(header)
-  }
-
-  if (next.join(' ') !== headerRow.join(' ')) {
-    await updateHeaderRow(sheets, spreadsheetId, next, LEADS_EAO_TAB)
-  }
-
-  const indexes = new Map<EaoHeaderName, number>()
-  next.forEach((h, i) => {
-    const match = EAO_HEADER.find((e) => normalizeHeaderText(e) === normalizeHeaderText(String(h ?? '')))
-    if (match && !indexes.has(match)) indexes.set(match, i)
-  })
-  return indexes
-}
-
-/** Grava o lead da landing do EAO na aba dedicada da campanha. */
-export async function appendLeadToEaoSheet(lead: SheetLead): Promise<{ skipped: boolean; reason?: string }> {
-  const info = await getStoredInfo()
-  if (!info) return { skipped: true, reason: 'not_provisioned' }
-  const auth = getAuth()
-  if (!auth) {
-    console.error('[jmp-sheets] append EAO PULADO (credenciais ausentes/inválidas) — lead não foi para a planilha:', lead.nome)
-    return { skipped: true, reason: 'no_credentials' }
-  }
-
-  const sheets = google.sheets({ version: 'v4', auth })
-  const indexes = await ensureEaoLayout(sheets, info.spreadsheetId)
-
-  const row = Array.from({ length: Math.max(...indexes.values()) + 1 }, () => '')
-  const set = (header: EaoHeaderName, value: string | null | undefined) => {
-    const index = indexes.get(header)
-    if (index != null) row[index] = value ?? ''
-  }
-
-  set('Data', fmtDate(lead.createdAt ?? new Date()))
-  set('Nome', lead.nome)
-  set('E-mail', lead.email)
-  set('WhatsApp', lead.whatsapp)
-  set('UF', lead.uf)
-  set('Cidade', lead.cidade)
-  set('Momento', lead.momento)
-  set('Cabeças', lead.cabecas)
-  set('Inscrição Estadual', lead.inscricaoEstadual)
-  set('Interesse', lead.interesse)
-  set('Qtd. desejada', lead.oQueBusca)
-  set('Lead ID', lead.leadId)
-  // A aba da equipe chama de "Campanha"/"Anúncio" o que a landing manda como
-  // utm_campaign / utm_content (o criativo). ad_id entra como reserva.
-  set('Campanha', lead.utm_campaign)
-  set('Anúncio', lead.utm_content || lead.ad_id)
-  set('Leilão de interesse', lead.leiloesDescricao)
-  set('Consentimento WhatsApp', lead.whatsappConsent ? 'Sim' : 'Não')
-
-  // appendCells (e não values.append) pelo mesmo motivo da aba Leads JMP:
-  // o append clássico usa detecção de tabela e desloca linhas quando há
-  // células órfãs abaixo da tabela.
-  const sheetId = await getTabSheetId(sheets, info.spreadsheetId, LEADS_EAO_TAB)
-  await sheets.spreadsheets.batchUpdate({
-    spreadsheetId: info.spreadsheetId,
-    requestBody: {
-      requests: [{
-        appendCells: {
-          sheetId,
-          rows: [{ values: row.map((v) => ({ userEnteredValue: { stringValue: String(v ?? '') } })) }],
-          fields: 'userEnteredValue',
-        },
-      }],
-    },
-  })
-
-  return { skipped: false }
-}
-
 // ─────────────────────────────────────────────────────────────────────────────
 // Abas de TRABALHO da campanha de touros (touros.bulaassessoria.com)
 //
@@ -1522,18 +1397,12 @@ export async function appendLeadToEaoSheet(lead: SheetLead): Promise<{ skipped: 
 // outras duas seguem no fim.
 // ─────────────────────────────────────────────────────────────────────────────
 
-export const LEADS_TOUROS_TAB = 'LEADS TOUROS'
-export const LEADS_TOUROS_DOUGLAS_TAB = 'LEADS DOUGLAS'
-export const LEADS_TOUROS_JOAO_TAB = 'LEADS JOAO ANTONIO'
-
 /**
- * Abas que ficam em ordem DECRESCENTE (pedido da equipe 25/07): o lead novo
- * entra na linha 2, empurrando os antigos para baixo — quem abre a aba vê
- * primeiro quem acabou de se cadastrar. As demais seguem append-only no fim.
- * Para virar outra aba, basta acrescentá-la aqui (a ordem já existente na aba
- * se inverte uma única vez com scripts/ordena-aba-leads-touros-desc.mjs).
+ * TODAS as abas ficam em ordem DECRESCENTE (pedido da equipe 25/07, estendido
+ * às 4 abas-recorte em 31/07): o lead novo entra na linha 2, empurrando os
+ * antigos para baixo — quem abre a aba vê primeiro quem acabou de se cadastrar.
  */
-const TOUROS_TABS_DESC = new Set<string>([LEADS_TOUROS_TAB])
+const TABS_DESC = new Set<string>([...ABAS_OFICIAIS])
 
 /** Marca as linhas da landing na aba-arquivo (form_name). Ver buildPerpetuoLandingRow. */
 export const TOUROS_FORM_NAME = 'Landing Touros — Funil Perpétuo'
@@ -1556,30 +1425,9 @@ function zonaDaUF(uf: string): string {
   return ''
 }
 
-/**
- * Aba de destino do lead pela UF (divisão pedida em 24/07):
- *   Douglas      ← zona do Douglas (Norte + MA) + zona do Leozinho (C-Oeste + Sul)
- *   João Antônio ← o resto (Nordeste exc. MA + Sudeste)
- * UF vazia/desconhecida não entra em nenhuma das duas — só na aba geral, para
- * a operação distribuir na mão (e para o lead não sumir).
- */
-function tourosTabDaUF(uf: string | null | undefined): string | null {
-  const u = String(uf ?? '').trim().toUpperCase()
-  if (!u) return null
-  if (u === 'MA' || ZONA_NORTE.has(u) || ZONA_CENTRO_OESTE.has(u) || ZONA_SUL.has(u)) {
-    return LEADS_TOUROS_DOUGLAS_TAB
-  }
-  if (ZONA_NORDESTE.has(u) || ZONA_SUDESTE.has(u)) return LEADS_TOUROS_JOAO_TAB
-  return null
-}
-
-// Cabeçalho enxuto de operação: sem o dump cru do Meta que existe no PERPETUO.
-// "Atendido por" e "Observações" são da equipe — o código nunca os escreve.
-const TOUROS_HEADER = [
-  'Atendido por', 'Data', 'Nome', 'WhatsApp', 'E-mail', 'UF', 'Zona', 'Cidade',
-  'Momento', 'Cabeças', 'Inscrição Estadual', 'Qtd. de touros', 'Lead ID',
-  'utm_source', 'utm_campaign', 'utm_content', 'ad-id', 'Observações',
-] as const
+// As abas-recorte usam o MESMO bloco da LEADS GERAIS, sem os metadados de
+// mídia. "Etapa", "Atendido por" e "Observações" são da equipe — nunca escritos.
+const TOUROS_HEADER = BLOCO_OPERACIONAL
 
 /** Campos de um lead da landing, já normalizados, para montar a linha das abas. */
 interface TourosLeadRow {
@@ -1598,12 +1446,10 @@ interface TourosLeadRow {
   utmCampaign: string
   utmContent: string
   adId: string
-  /**
-   * Campanha de origem, resolvida pelo form_name da aba-arquivo. Só a varredura
-   * preenche (o caminho rápido já sabe para onde está gravando) e serve para
-   * decidir a aba do lançamento — nenhuma coluna da aba lê este campo.
-   */
-  origem?: 'touros' | 'saogeraldo'
+  /** Interesse já no vocabulário da planilha — é ele que decide a aba-recorte. */
+  interesse: string
+  /** Rótulo legível da origem ("Landing Touros", "Meta — <campanha>"). */
+  origem: string
 }
 
 /** Monta a linha alinhada ao cabeçalho REAL da aba (resolve por nome de coluna). */
@@ -1619,8 +1465,12 @@ function buildTourosRow(lead: TourosLeadRow, header: string[]): string[] {
     ['momento', lead.momento],
     ['cabecas', lead.cabecas],
     ['inscricaoestadual', lead.inscricaoEstadual],
+    ['interesse', lead.interesse],
+    // "Qtd. desejada" é o nome atual; "Qtd. de touros" era o da aba antiga.
+    ['qtddesejada', lead.qtdTouros],
     ['qtddetouros', lead.qtdTouros],
     ['leadid', lead.leadId],
+    ['origem', lead.origem],
     ['utmsource', lead.utmSource],
     ['utmcampaign', lead.utmCampaign],
     ['utmcontent', lead.utmContent],
@@ -1643,6 +1493,8 @@ function tourosRowFromLead(lead: SheetLead): TourosLeadRow {
     inscricaoEstadual: lead.inscricaoEstadual ?? '',
     qtdTouros: lead.oQueBusca ?? '',
     leadId: lead.leadId ?? '',
+    interesse: rotulaInteresse(lead.interesse ?? 'touros-po'),
+    origem: rotulaOrigemLanding(lead.formName ?? TOUROS_FORM_NAME),
     utmSource: lead.utm_source ?? '',
     utmCampaign: lead.utm_campaign ?? '',
     utmContent: lead.utm_content ?? '',
@@ -1733,19 +1585,43 @@ async function ensureTourosLayout(
 }
 
 /** Lead IDs já presentes na aba (idempotência do append). */
-async function tourosSeenIds(
+/**
+ * Identidade do lead para dedup entre abas. O Lead ID é a chave boa; leads
+ * antigos (importados das listas soltas na consolidação de 31/07) não têm ID,
+ * então o núcleo do telefone entra como reserva — sem isso o cron
+ * reacrescentaria esses leads a cada passada.
+ */
+function chaveDoLead(leadId: string, whatsapp: string, nome: string): string {
+  const id = String(leadId ?? '').trim()
+  if (id) return `id:${id}`
+  const tel = phoneNucleo(whatsapp)
+  if (tel) return `tel:${tel}`
+  return `nome:${normalizeHeaderText(nome)}`
+}
+
+/** Chaves dos leads já presentes na aba (idempotência do append). */
+async function tourosSeenKeys(
   sheets: SheetsClient, spreadsheetId: string, tab: string, header: string[],
 ): Promise<Set<string>> {
-  const idCol = header.map(normalizeHeaderText).indexOf('leadid')
-  if (idCol < 0) return new Set()
+  const norm = header.map(normalizeHeaderText)
+  const idCol = norm.indexOf('leadid')
+  const telCol = norm.indexOf('whatsapp')
+  const nomeCol = norm.indexOf('nome')
   const rows = ((await sheets.spreadsheets.values.get({
     spreadsheetId,
     range: `${tab}!A2:${columnName(header.length)}`,
   })).data.values ?? []) as string[][]
   const seen = new Set<string>()
   for (const r of rows) {
-    const id = String(r[idCol] ?? '').trim()
-    if (id) seen.add(id)
+    const id = idCol >= 0 ? String(r[idCol] ?? '').trim() : ''
+    const tel = telCol >= 0 ? String(r[telCol] ?? '').trim() : ''
+    const nome = nomeCol >= 0 ? String(r[nomeCol] ?? '').trim() : ''
+    if (!id && !tel && !nome) continue
+    // Grava as DUAS chaves quando dá: o mesmo lead pode ter entrado sem ID em
+    // uma passada e com ID em outra.
+    if (id) seen.add(`id:${id}`)
+    if (phoneNucleo(tel)) seen.add(`tel:${phoneNucleo(tel)}`)
+    else if (!id && nome) seen.add(`nome:${normalizeHeaderText(nome)}`)
   }
   return seen
 }
@@ -1844,7 +1720,7 @@ async function insertTourosRowsAtTop(
 }
 
 /**
- * Grava as linhas na aba respeitando a ordem dela: as abas de TOUROS_TABS_DESC
+ * Grava as linhas na aba respeitando a ordem dela: as abas de TABS_DESC
  * recebem no topo (mais recente primeiro), as demais no fim (append-only).
  * `rows` sempre chega do mais antigo para o mais novo.
  */
@@ -1852,7 +1728,7 @@ async function writeTourosRows(
   sheets: SheetsClient, spreadsheetId: string, tab: string, rows: string[][],
 ): Promise<void> {
   if (!rows.length) return
-  if (TOUROS_TABS_DESC.has(tab)) {
+  if (TABS_DESC.has(tab)) {
     await insertTourosRowsAtTop(sheets, spreadsheetId, tab, [...rows].reverse())
     return
   }
@@ -1860,12 +1736,12 @@ async function writeTourosRows(
 }
 
 /**
- * Caminho rápido: grava o lead recém-cadastrado na landing nas abas de
- * trabalho, logo depois de ele entrar na aba-arquivo. Best-effort — quem
- * garante o registro do lead é o append no PERPETUO; se isto falhar, o
- * syncTourosLandingTabs() (cron) recupera na próxima passada.
+ * Caminho rápido: depois de o lead entrar na LEADS GERAIS, copia-o para a
+ * aba-recorte do interesse dele (TOUROS/FEMEAS/EMBRIÕES/OUTROS). Best-effort —
+ * quem garante o registro é o append na LEADS GERAIS; se isto falhar, o
+ * syncAbasPorInteresse() (cron) recupera na próxima passada.
  */
-export async function appendLeadToTourosTabs(
+export async function appendLeadToInteresseTab(
   lead: SheetLead,
 ): Promise<{ skipped: boolean; reason?: string; tabs?: string[] }> {
   const info = await getStoredInfo()
@@ -1880,174 +1756,102 @@ export async function appendLeadToTourosTabs(
   const meta = await sheets.spreadsheets.get({ spreadsheetId: info.spreadsheetId, includeGridData: false })
   const titles = (meta.data.sheets ?? []).map(s => s.properties?.title)
 
-  const alvo = tourosTabDaUF(row.uf)
-  const destinos = alvo ? [LEADS_TOUROS_TAB, alvo] : [LEADS_TOUROS_TAB]
-  const gravadas: string[] = []
-  for (const tab of destinos) {
-    const header = await ensureTourosLayout(sheets, info.spreadsheetId, tab, titles)
-    if (row.leadId) {
-      const seen = await tourosSeenIds(sheets, info.spreadsheetId, tab, header)
-      if (seen.has(row.leadId)) continue
-    }
-    await writeTourosRows(sheets, info.spreadsheetId, tab, [buildTourosRow(row, header)])
-    gravadas.push(tab)
-  }
-  return { skipped: false, tabs: gravadas }
-}
-
-
-// ─────────────────────────────────────────────────────────────────────────────
-// Lançamento "Leilão Touros São Geraldo e 7P" — aba própria.
-//
-// ADITIVO ao bloco de touros acima: reusa os mesmos helpers (ensureTourosLayout,
-// tourosSeenIds, buildTourosRow, writeTourosRows), então a aba nasce com o mesmo
-// cabeçalho, formatação e dedup das abas de trabalho. Nada acima foi alterado.
-//
-// MUDANÇA 29/07 (pedido do cliente): o lançamento passou a seguir o MESMO
-// caminho da campanha de touros — aba-arquivo "LEADS BULA - PERPETUO" → "LEADS
-// TOUROS" → divisão por UF em "LEADS DOUGLAS"/"LEADS JOAO ANTONIO". Esta aba
-// continua existindo como vista do leilão (a equipe já trabalha nela), mas
-// deixou de ser o registro único.
-//
-// O que tornou isso possível sem misturar os funis: a linha na aba-arquivo agora
-// leva o form_name PRÓPRIO do lançamento (SAO_GERALDO_FORM_NAME, ver
-// buildPerpetuoLandingRow + SheetLead.formName). syncTourosLandingTabs() varre
-// os DOIS form_names e sabe de qual campanha cada linha veio — quem quiser
-// separar perpétuo × leilão filtra por essa coluna.
-//
-// A aba NÃO entra em TOUROS_TABS_DESC: a inserção no topo copia a validação da
-// linha de baixo, o que pressupõe aba com dados. Esta nasceu vazia → append-only.
-// ─────────────────────────────────────────────────────────────────────────────
-
-export const LEADS_SAO_GERALDO_TAB = 'LEADS SAO GERALDO'
-
-/** Marca as linhas do lançamento na aba-arquivo (form_name). Ver SheetLead.formName. */
-export const SAO_GERALDO_FORM_NAME = 'Landing Leilão Touros São Geraldo e 7P'
-
-/**
- * form_name (normalizado) → campanha de origem. É o filtro da varredura: linha
- * da aba-arquivo cujo form_name não está aqui veio do Meta e não é da landing.
- */
-const LANDING_FORM_ORIGEM = new Map<string, 'touros' | 'saogeraldo'>([
-  [normalizeHeaderText(TOUROS_FORM_NAME), 'touros'],
-  [normalizeHeaderText(SAO_GERALDO_FORM_NAME), 'saogeraldo'],
-])
-
-/**
- * Grava o lead do lançamento na aba dedicada. Mesmo contrato de
- * appendLeadToTourosTabs, com destino único e sem divisão por assessor: o
- * leilão é evento de janela curta, atendido pela equipe inteira.
- */
-export async function appendLeadToSaoGeraldoTab(
-  lead: SheetLead,
-): Promise<{ skipped: boolean; reason?: string; tabs?: string[] }> {
-  const info = await getStoredInfo()
-  if (!info) return { skipped: true, reason: 'not_provisioned' }
-  const auth = getAuth()
-  if (!auth) return { skipped: true, reason: 'no_credentials' }
-
-  const row = tourosRowFromLead(lead)
-  if (isTourosTestLead(row.nome, 'Não')) return { skipped: true, reason: 'test_lead' }
-
-  const sheets = google.sheets({ version: 'v4', auth })
-  const meta = await sheets.spreadsheets.get({ spreadsheetId: info.spreadsheetId, includeGridData: false })
-  const titles = (meta.data.sheets ?? []).map(s => s.properties?.title)
-
-  const tab = LEADS_SAO_GERALDO_TAB
+  const tab = ABAS_INTERESSE[abaDoInteresse(row.interesse, row.qtdTouros)]
   const header = await ensureTourosLayout(sheets, info.spreadsheetId, tab, titles)
-  if (row.leadId) {
-    const seen = await tourosSeenIds(sheets, info.spreadsheetId, tab, header)
-    if (seen.has(row.leadId)) return { skipped: true, reason: 'duplicate' }
+  const seen = await tourosSeenKeys(sheets, info.spreadsheetId, tab, header)
+  if (seen.has(chaveDoLead(row.leadId, row.whatsapp, row.nome))) {
+    return { skipped: true, reason: 'duplicate' }
   }
   await writeTourosRows(sheets, info.spreadsheetId, tab, [buildTourosRow(row, header)])
   return { skipped: false, tabs: [tab] }
 }
 
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Lançamento "Leilão Touros São Geraldo e 7P".
+//
+// Desde 29/07 o lead do lançamento segue o MESMO caminho da campanha de touros;
+// desde 31/07 não há mais aba própria por campanha — todo lead vive na LEADS
+// GERAIS e aparece na aba do INTERESSE dele. Quem quiser separar perpétuo ×
+// leilão filtra a coluna "Origem" (ou o form_name), que continua marcando de
+// qual landing o lead veio.
+// ─────────────────────────────────────────────────────────────────────────────
+
+/** Marca as linhas do lançamento na aba-arquivo (form_name). Ver SheetLead.formName. */
+export const SAO_GERALDO_FORM_NAME = 'Landing Leilão Touros São Geraldo e 7P'
+
 /**
- * Auto-cura das abas de trabalho: relê a aba-arquivo, separa os leads que
- * vieram dos formulários das landings (touros perpétuo + leilão São Geraldo) e
- * acrescenta nas abas o que ainda não está lá. Idempotente pelo Lead ID — serve
- * de backfill (leads antigos) e de rede de segurança (se o append do cadastro
- * falhar).
+ * Varredura das abas-recorte: relê a LEADS GERAIS e acrescenta em
+ * TOUROS/FEMEAS/EMBRIÕES/OUTROS o que ainda não está lá, pelo interesse de cada
+ * lead. Idempotente — serve de backfill e de rede de segurança quando o append
+ * do cadastro falha.
+ *
+ * Chave de dedup: o Lead ID quando existe e, na falta dele (leads antigos
+ * importados de listas soltas), o núcleo do telefone. Sem esse fallback o lead
+ * sem ID seria reacrescentado a cada passada do cron.
  */
-export async function syncTourosLandingTabs(): Promise<{
+export async function syncAbasPorInteresse(): Promise<{
   total: number
   appended: Record<string, number>
-  semUf: number
   reason?: string
 }> {
-  const vazio = {
-    [LEADS_TOUROS_TAB]: 0, [LEADS_TOUROS_DOUGLAS_TAB]: 0, [LEADS_TOUROS_JOAO_TAB]: 0,
-    [LEADS_SAO_GERALDO_TAB]: 0,
-  }
+  const vazio = Object.fromEntries(Object.values(ABAS_INTERESSE).map(t => [t, 0]))
   const info = await getStoredInfo()
-  if (!info) return { total: 0, appended: vazio, semUf: 0, reason: 'not_provisioned' }
+  if (!info) return { total: 0, appended: vazio, reason: 'not_provisioned' }
   const auth = getAuth()
-  if (!auth) return { total: 0, appended: vazio, semUf: 0, reason: 'no_credentials' }
+  if (!auth) return { total: 0, appended: vazio, reason: 'no_credentials' }
 
   const sheets = google.sheets({ version: 'v4', auth })
   const meta = await sheets.spreadsheets.get({ spreadsheetId: info.spreadsheetId, includeGridData: false })
   const titles = (meta.data.sheets ?? []).map(s => s.properties?.title)
-  if (!titles.includes(LEADS_BULA_PERPETUO_TAB)) {
-    return { total: 0, appended: vazio, semUf: 0, reason: 'source_tab_missing' }
-  }
+  const base = titles.includes(LEADS_GERAIS_TAB)
+    ? LEADS_GERAIS_TAB
+    : titles.includes(LEADS_GERAIS_TAB_LEGADO) ? LEADS_GERAIS_TAB_LEGADO : null
+  if (!base) return { total: 0, appended: vazio, reason: 'source_tab_missing' }
 
-  // Fonte: a aba-arquivo (é lá que a landing grava). Somente LEITURA.
   const src = ((await sheets.spreadsheets.values.get({
     spreadsheetId: info.spreadsheetId,
-    range: `${LEADS_BULA_PERPETUO_TAB}!A1:${columnName(HEADER_READ_COLUMNS)}`,
+    range: `${base}!A1:${columnName(HEADER_READ_COLUMNS)}`,
   })).data.values ?? []) as string[][]
   const srcHeader = (src[0] ?? []).map(h => normalizeHeaderText(String(h ?? '')))
   const col = (name: string) => srcHeader.indexOf(normalizeHeaderText(name))
-  const iForm = col('form_name')
-  if (iForm < 0) return { total: 0, appended: vazio, semUf: 0, reason: 'form_name_column_missing' }
   const at = (r: string[], i: number) => (i >= 0 ? String(r[i] ?? '').trim() : '')
-
   const idx = {
     data: col('Data'), nome: col('Nome'), email: col('E-mail'), whatsapp: col('WhatsApp'),
     uf: col('UF'), cidade: col('Cidade'), momento: col('Momento'), cabecas: col('Cabeças'),
-    ie: col('Inscrição Estadual'), qtd: col('Qtd. desejada'), leadId: col('Lead ID'),
-    utmSource: col('utm_source'), utmCampaign: col('utm_campaign'), utmContent: col('utm_content'),
-    adId: col('ad-id'), teste: col('lead de teste'),
+    ie: col('Inscrição Estadual'), interesse: col('Interesse'), qtd: col('Qtd. desejada'),
+    leadId: col('Lead ID'), origem: col('Origem'), utmSource: col('utm_source'),
+    utmCampaign: col('utm_campaign'), utmContent: col('utm_content'), adId: col('ad-id'),
+    teste: col('lead de teste'),
   }
+  if (idx.nome < 0) return { total: 0, appended: vazio, reason: 'header_missing' }
 
   const leads: TourosLeadRow[] = []
-  let semUf = 0
   for (const r of src.slice(1)) {
     if (!r.some(c => String(c ?? '').trim())) continue
-    const origem = LANDING_FORM_ORIGEM.get(normalizeHeaderText(at(r, iForm)))
-    if (!origem) continue
     const nome = at(r, idx.nome)
     if (isTourosTestLead(nome, at(r, idx.teste))) continue
-    const uf = at(r, idx.uf).toUpperCase()
-    if (!tourosTabDaUF(uf)) semUf++
     leads.push({
       data: at(r, idx.data), nome, whatsapp: at(r, idx.whatsapp), email: at(r, idx.email),
-      uf, cidade: at(r, idx.cidade), momento: at(r, idx.momento), cabecas: at(r, idx.cabecas),
-      inscricaoEstadual: at(r, idx.ie), qtdTouros: at(r, idx.qtd), leadId: at(r, idx.leadId),
+      uf: at(r, idx.uf).toUpperCase(), cidade: at(r, idx.cidade), momento: at(r, idx.momento),
+      cabecas: at(r, idx.cabecas), inscricaoEstadual: at(r, idx.ie),
+      interesse: rotulaInteresse(at(r, idx.interesse)), qtdTouros: at(r, idx.qtd),
+      leadId: at(r, idx.leadId), origem: at(r, idx.origem),
       utmSource: at(r, idx.utmSource), utmCampaign: at(r, idx.utmCampaign),
-      utmContent: at(r, idx.utmContent), adId: at(r, idx.adId), origem,
+      utmContent: at(r, idx.utmContent), adId: at(r, idx.adId),
     })
   }
 
-  // Cada aba recebe o recorte que lhe cabe: a geral leva tudo, as dos assessores
-  // filtram por UF e a do lançamento só o que veio da landing São Geraldo.
   const appended: Record<string, number> = { ...vazio }
-  const abas = [
-    LEADS_TOUROS_TAB, LEADS_TOUROS_DOUGLAS_TAB, LEADS_TOUROS_JOAO_TAB, LEADS_SAO_GERALDO_TAB,
-  ]
-  for (const tab of abas) {
-    const doTab = tab === LEADS_TOUROS_TAB
-      ? leads
-      : tab === LEADS_SAO_GERALDO_TAB
-        ? leads.filter(l => l.origem === 'saogeraldo')
-        : leads.filter(l => tourosTabDaUF(l.uf) === tab)
+  for (const [balde, tab] of Object.entries(ABAS_INTERESSE)) {
+    const doTab = leads.filter(l => abaDoInteresse(l.interesse, l.qtdTouros) === balde)
     const header = await ensureTourosLayout(sheets, info.spreadsheetId, tab, titles)
-    const seen = await tourosSeenIds(sheets, info.spreadsheetId, tab, header)
+    const seen = await tourosSeenKeys(sheets, info.spreadsheetId, tab, header)
     const fresh: string[][] = []
     for (const lead of doTab) {
-      if (lead.leadId && seen.has(lead.leadId)) continue
-      if (lead.leadId) seen.add(lead.leadId)
+      const chave = chaveDoLead(lead.leadId, lead.whatsapp, lead.nome)
+      if (seen.has(chave)) continue
+      seen.add(chave)
       fresh.push(buildTourosRow(lead, header))
     }
     await writeTourosRows(sheets, info.spreadsheetId, tab, fresh)
@@ -2055,6 +1859,6 @@ export async function syncTourosLandingTabs(): Promise<{
   }
 
   const novos = Object.values(appended).reduce((a, b) => a + b, 0)
-  if (novos) console.log(`[jmp-sheets] abas touros: ${JSON.stringify(appended)} (de ${leads.length} leads da landing)`)
-  return { total: leads.length, appended, semUf }
+  if (novos) console.log(`[jmp-sheets] abas por interesse: ${JSON.stringify(appended)} (de ${leads.length} leads)`)
+  return { total: leads.length, appended }
 }
