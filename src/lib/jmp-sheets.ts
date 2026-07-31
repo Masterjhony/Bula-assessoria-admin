@@ -81,12 +81,14 @@ export function rotulaInteresse(raw: string | null | undefined): string {
 }
 
 /**
- * Aba-recorte do lead. Um lead entra em UMA aba só; quando o interesse vem
- * vazio ou fora do vocabulário (Meta manda "sêmen", "não sei ainda"), cai em
- * OUTROS — que é justamente a aba de quem precisa ser qualificado.
+ * Aba-recorte do lead, decidida SÓ pela coluna "Interesse" — é o que a aba
+ * promete ser. Já olhou também a "Qtd. desejada" e isso levou 2 leads de
+ * bezerras para a TOUROS só porque a quantidade dizia "1 a 5 touros".
+ * Um lead entra em UMA aba só; interesse vazio ou fora do vocabulário (sêmen,
+ * "não sei ainda") cai em OUTROS, que é a aba de quem falta qualificar.
  */
-export function abaDoInteresse(interesse: string, qtdDesejada = ''): BaldeInteresse {
-  const t = normalizeHeaderText(`${interesse} ${qtdDesejada}`)
+export function abaDoInteresse(interesse: string): BaldeInteresse {
+  const t = normalizeHeaderText(interesse)
   if (t.includes('touro')) return 'touros'
   if (t.includes('bezerr') || t.includes('matriz') || t.includes('novilh') || t.includes('femea')) return 'femeas'
   if (t.includes('embri')) return 'embrioes'
@@ -1780,7 +1782,7 @@ export async function appendLeadToInteresseTab(
   const meta = await sheets.spreadsheets.get({ spreadsheetId: info.spreadsheetId, includeGridData: false })
   const titles = (meta.data.sheets ?? []).map(s => s.properties?.title)
 
-  const tab = ABAS_INTERESSE[abaDoInteresse(row.interesse, row.qtdTouros)]
+  const tab = ABAS_INTERESSE[abaDoInteresse(row.interesse)]
   const header = await ensureTourosLayout(sheets, info.spreadsheetId, tab, titles)
   const seen = await tourosSeenKeys(sheets, info.spreadsheetId, tab, header)
   if (seen.has(chaveDoLead(row.leadId, row.whatsapp, row.nome))) {
@@ -1957,7 +1959,7 @@ export async function syncAbasPorInteresse(): Promise<{
 
   const appended: Record<string, number> = { ...vazio }
   for (const [balde, tab] of Object.entries(ABAS_INTERESSE)) {
-    const doTab = leads.filter(l => abaDoInteresse(l.interesse, l.qtdTouros) === balde)
+    const doTab = leads.filter(l => abaDoInteresse(l.interesse) === balde)
     const header = await ensureTourosLayout(sheets, info.spreadsheetId, tab, titles)
     const seen = await tourosSeenKeys(sheets, info.spreadsheetId, tab, header)
     const fresh: string[][] = []
