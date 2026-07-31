@@ -23,11 +23,24 @@ export interface ModulosAtendimento {
     submissao_leiloeiras: boolean
     /** Avisos automáticos nos grupos internos (automações e assessores). */
     report_grupos: boolean
+    /**
+     * O bot RESPONDER dentro do grupo da leiloeira (confirmação de decisão,
+     * pedido de código). Decisão do dono (31/07/2026): DESLIGADO — o grupo da
+     * leiloeira é conversa com parceiro, e o robô ficava pedindo "responda
+     * citando a ficha" toda vez que alguém escrevia "reprovado" sem match.
+     *
+     * Único módulo cujo padrão é `false`: ausência de configuração aqui
+     * significa silêncio, não permissão. Nada do processamento muda — a decisão
+     * continua sendo lida, gravada e repassada ao cliente/equipe; o que para é
+     * a fala no grupo do parceiro.
+     */
+    resposta_grupo_leiloeira: boolean
 }
 
 const PADRAO: ModulosAtendimento = {
     submissao_leiloeiras: true,
     report_grupos: true,
+    resposta_grupo_leiloeira: false,
 }
 
 let cache: { at: number; v: ModulosAtendimento } | null = null
@@ -44,6 +57,9 @@ export async function loadModulos(supabase: SupabaseClient): Promise<ModulosAten
     const out: ModulosAtendimento = {
         submissao_leiloeiras: v.submissao_leiloeiras !== false,
         report_grupos: v.report_grupos !== false,
+        // `=== true` (e não `!== false`): este nasce desligado e só fala se
+        // alguém ligar de propósito.
+        resposta_grupo_leiloeira: v.resposta_grupo_leiloeira === true,
     }
     cache = { at: Date.now(), v: out }
     return out

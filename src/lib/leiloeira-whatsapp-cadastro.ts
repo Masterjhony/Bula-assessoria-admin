@@ -15,7 +15,12 @@
  *      idealmente citando a ficha ou incluindo o código). O VPS encaminha a
  *      mensagem do grupo para /api/whatsapp/group-inbound, que chama
  *      handleLeiloeiraGroupMessage: casa a resposta com a submissão, atualiza
- *      o status, avisa o CLIENTE pela API oficial e confirma no grupo.
+ *      o status e avisa o CLIENTE pela API oficial — em silêncio no grupo.
+ *
+ * O bot NÃO conversa no grupo da leiloeira (decisão do dono, 31/07/2026): nem
+ * confirma decisão, nem pede código quando não identifica a ficha. O que ele
+ * tem a dizer sai nos grupos internos. Religar: `resposta_grupo_leiloeira` em
+ * site_settings.crm_atendimento_modulos (ver atendimento-modulos.ts).
  */
 
 import type { SupabaseClient } from '@supabase/supabase-js'
@@ -726,9 +731,6 @@ export async function handleLeiloeiraGroupMessage(
     const parsed = parseDecision(input.text)
     if (!parsed) return { kind: 'ignored', reason: 'sem_decisao' }
 
-    // Tudo que este handler responde — confirmação no grupo da leiloeira, aviso
-    // interno e recado ao assessor — sai pelo número operacional.
-    const sessao = await sessaoOperacional(supabase)
     const decision = parsed.decision
 
     // 1) Código explícito (na resposta ou na ficha citada)
@@ -773,13 +775,21 @@ export async function handleLeiloeiraGroupMessage(
     }
 
     if (!cadastro) {
-        // Pede o dado que falta — melhor do que decidir errado.
-        void sendVpsGroup(
-            input.groupJid,
-            `🤖 Não consegui identificar de qual cadastro se trata. Responda *citando a ficha* ou inclua o código (ex.: CAD-A1B2C).`,
-            undefined,
-            sessao,
-        )
+        // NÃO cobrar a leiloeira. Até 31/07/2026 o bot respondia no grupo
+        // "não consegui identificar de qual cadastro se trata, responda citando
+        // a ficha" — ou seja, pedia ao parceiro que trabalhasse no formato do
+        // nosso robô, e repetia isso toda vez que alguém escrevia "reprovado"
+        // sem match. Quem tem de resolver o não-casado somos nós: o caso vai
+        // para o grupo INTERNO (respeita report_grupos) e alguém confere lendo
+        // a conversa. Se o módulo interno estiver desligado também, o outcome
+        // 'unmatched' continua no log da rota.
+        void notifyTeamGroup(supabase, [
+            '🟡 *Decisão no grupo da leiloeira sem cadastro identificado*',
+            `Leiloeira: ${leiloeira.nome} · por ${input.senderName || 'participante do grupo'}`,
+            `Veredito lido: *${decision.toUpperCase()}*`,
+            `Mensagem: "${input.text.slice(0, 240)}"`,
+            'Conferir no grupo de qual cliente se trata e marcar na ficha.',
+        ].join('\n')).catch(() => { /* best-effort */ })
         return { kind: 'unmatched', decision }
     }
 
@@ -870,13 +880,19 @@ export async function handleLeiloeiraGroupMessage(
         }
     }
 
-    // ── Confirmação no grupo da leiloeira + aviso interno ──
-    void sendVpsGroup(
-        input.groupJid,
-        `✅ Registrado: cadastro de *${clienteNome}* marcado como *${decision.toUpperCase()}*. ${clienteAvisado ? 'Cliente avisado.' : 'Cliente ainda não avisado (fora da janela ou sem WhatsApp).'}`,
-        undefined,
-        sessao,
-    )
+    // ── Confirmação no grupo da leiloeira (opcional) + aviso interno ──
+    // A confirmação só sai com `resposta_grupo_leiloeira` ligado. Desligada por
+    // padrão desde 31/07/2026: para a leiloeira, o "✅ Registrado" é eco de uma
+    // decisão que ela acabou de tomar — o que precisa acontecer com o registro
+    // é problema nosso, e sai nos avisos internos logo abaixo.
+    if ((await loadModulos(supabase)).resposta_grupo_leiloeira) {
+        void sendVpsGroup(
+            input.groupJid,
+            `✅ Registrado: cadastro de *${clienteNome}* marcado como *${decision.toUpperCase()}*. ${clienteAvisado ? 'Cliente avisado.' : 'Cliente ainda não avisado (fora da janela ou sem WhatsApp).'}`,
+            undefined,
+            await sessaoOperacional(supabase),
+        )
+    }
     const linhaCliente = `Cliente: ${clienteNome}${clienteFone ? ` — ${clienteFone}` : ''}`
     const avisoNotify = [
         decision === 'aprovado' ? '🟢 *Cadastro APROVADO pela leiloeira*' : '🔴 *Cadastro RECUSADO pela leiloeira*',
