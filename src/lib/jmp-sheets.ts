@@ -507,6 +507,27 @@ const UF_BY_NAME = new Map(Object.entries({
   'santa catarina': 'SC', 'sao paulo': 'SP', 'sergipe': 'SE', 'tocantins': 'TO',
 }))
 
+/**
+ * Nome do Instagram costuma vir nas letras "estilizadas" do Unicode
+ * (𝐈𝐯𝐚𝐧 𝐕𝐞𝐥𝐥𝐨𝐬𝐨, 𝓝𝓪𝓷𝓭𝓪). NFKC devolve a letra normal. Sem isso o nome fica
+ * impossível de buscar na planilha e some na normalização — 14 leads reais
+ * estavam sendo tratados como "teste" e não entravam nas abas de trabalho.
+ */
+const SMALL_CAPS = new Map(Object.entries({
+  'ᴀ': 'a', 'ʙ': 'b', 'ᴄ': 'c', 'ᴅ': 'd', 'ᴇ': 'e', 'ꜰ': 'f', 'ɢ': 'g', 'ʜ': 'h', 'ɪ': 'i',
+  'ᴊ': 'j', 'ᴋ': 'k', 'ʟ': 'l', 'ᴍ': 'm', 'ɴ': 'n', 'ᴏ': 'o', 'ᴘ': 'p', 'ʀ': 'r', 'ꜱ': 's',
+  'ᴛ': 't', 'ᴜ': 'u', 'ᴠ': 'v', 'ᴡ': 'w', 'ʏ': 'y', 'ᴢ': 'z',
+}))
+
+export function nomeLegivel(raw: string | null | undefined): string {
+  const base = String(raw ?? '').normalize('NFKC').replace(/\s+/g, ' ').trim()
+  // Small caps (ɢᴜꜱᴛᴀᴠᴏ ᴍɪʀᴀɴᴅᴀ) o NFKC não cobre: são letras fonéticas, não
+  // variantes de compatibilidade. Convertidas na mão e recapitalizadas.
+  const convertido = [...base].map(c => SMALL_CAPS.get(c) ?? c).join('')
+  if (convertido === base) return base
+  return convertido.replace(/(^|\s)(\p{L})/gu, (_m, sp: string, l: string) => sp + l.toUpperCase())
+}
+
 function deaccent(s: string): string {
   return String(s || '').normalize('NFD').replace(/[̀-ͯ]/g, '').trim()
 }
@@ -789,7 +810,7 @@ function buildPerpetuoValues(p: RawMetaLead): Map<string, string> {
   const entries: [string, string][] = [
     ['Atendido por', p.atendidoPor],
     ['Data', fmtDate(new Date(p.created))],
-    ['Nome', testPrefix + p.fullName],
+    ['Nome', testPrefix + nomeLegivel(p.fullName)],
     ['E-mail', p.email],
     ['WhatsApp', metaPhoneToWhatsApp(p.phone)],
     ['UF', metaStateToUF(p.state)],
@@ -860,7 +881,7 @@ function buildPerpetuoLandingRow(lead: SheetLead, headerRow: string[]): string[]
   const entries: [string, string][] = [
     ['Atendido por', ''],
     ['Data', fmtDate(createdAt)],
-    ['Nome', lead.nome],
+    ['Nome', nomeLegivel(lead.nome)],
     ['E-mail', lead.email],
     ['WhatsApp', lead.whatsapp],
     ['UF', lead.uf ?? ''],
@@ -1475,7 +1496,7 @@ function buildTourosRow(lead: TourosLeadRow, header: string[]): string[] {
 function tourosRowFromLead(lead: SheetLead): TourosLeadRow {
   return {
     data: fmtDate(lead.createdAt ?? new Date()),
-    nome: lead.nome,
+    nome: nomeLegivel(lead.nome),
     whatsapp: lead.whatsapp,
     email: lead.email,
     uf: String(lead.uf ?? '').trim().toUpperCase(),
@@ -1501,8 +1522,13 @@ function tourosRowFromLead(lead: SheetLead): TourosLeadRow {
  */
 function isTourosTestLead(nome: string, flagTeste: string): boolean {
   if (String(flagTeste ?? '').trim().toLowerCase() === 'sim') return true
-  const n = normalizeHeaderText(nome)
-  return !n || n.startsWith('teste') || n.startsWith('test') || n.includes('testeclaude')
+  const bruto = nomeLegivel(nome)
+  if (!bruto) return true
+  const n = normalizeHeaderText(bruto)
+  // Nome que só tem símbolo/pontuação (".", "@bigode_jm") é lead de verdade
+  // com nome mal preenchido — não é teste, e não pode sumir da aba da equipe.
+  if (!n) return false
+  return n.startsWith('teste') || n.startsWith('test') || n.includes('testeclaude')
 }
 
 /**

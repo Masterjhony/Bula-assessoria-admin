@@ -75,6 +75,24 @@ const arrumaQtd = raw => {
     if (/^0-5$/.test(x)) return '1 a 5'
     return x.replace(/^Mais de/, 'mais de')
 }
+/**
+ * Nome do Instagram em letra estilizada do Unicode (𝐈𝐯𝐚𝐧 → Ivan). NFKC devolve
+ * a letra normal — sem isso ninguém acha o lead buscando o nome dele.
+ */
+const SMALL_CAPS = new Map(Object.entries({
+    'ᴀ': 'a', 'ʙ': 'b', 'ᴄ': 'c', 'ᴅ': 'd', 'ᴇ': 'e', 'ꜰ': 'f', 'ɢ': 'g', 'ʜ': 'h', 'ɪ': 'i',
+    'ᴊ': 'j', 'ᴋ': 'k', 'ʟ': 'l', 'ᴍ': 'm', 'ɴ': 'n', 'ᴏ': 'o', 'ᴘ': 'p', 'ʀ': 'r', 'ꜱ': 's',
+    'ᴛ': 't', 'ᴜ': 'u', 'ᴠ': 'v', 'ᴡ': 'w', 'ʏ': 'y', 'ᴢ': 'z',
+}))
+const arrumaNome = raw => {
+    const base = S(raw).normalize('NFKC').replace(/\s+/g, ' ').trim()
+    // small caps (ɢᴜꜱᴛᴀᴠᴏ) o NFKC não cobre — são letras fonéticas, não variantes
+    const convertido = [...base].map(c => SMALL_CAPS.get(c) ?? c).join('')
+    if (convertido === base) return base
+    // veio tudo em minúscula: devolve capitalizado, como nome de gente
+    return convertido.replace(/(^|\s)(\p{L})/gu, (m, sp, l) => sp + l.toUpperCase())
+}
+
 const arrumaOrigem = raw => {
     const x = S(raw)
     if (/^meta\s*—?\s*$/i.test(x)) return 'Meta'
@@ -139,6 +157,8 @@ for (const tab of abas) {
             if (ehLixo(atual)) { if (set(C.qtd, '')) conta('qtd: lixo removido') }
             else if (set(C.qtd, arrumaQtd(atual))) conta('qtd: vocabulário unificado')
         }
+        // Nome em letra estilizada do Instagram
+        if (C.nome >= 0 && set(C.nome, arrumaNome(r[C.nome]))) conta('nome destravado do Unicode')
         // E-mail: só e-mail de verdade
         if (C.mail >= 0) {
             const atual = S(r[C.mail])
