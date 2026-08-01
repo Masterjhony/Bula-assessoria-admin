@@ -152,6 +152,89 @@ export const APROVADOS_GRUPO = [
         uf: null, ufFonte: 'não está na base', cpf: '465.863.346-91', assessorForcado: 'Leonardo Serafim',
         obs: 'I.E. 0011334910025. Grupo direcionou: "Direcionado para Leonardo Serafim".',
     },
+    // ── 2ª leva: tarde de 31/07 e manhã de 01/08, só no grupo da Remates ──
+    {
+        cliente: 'Cliente CPF 142.395.151-49 (nome não citado no grupo)', grupo: 'Remates', data: '31/07',
+        evidencia: 'Consulta feita pelo João → "Top" → "Direcionado para Leonardo Serafim"',
+        uf: null, ufFonte: 'não informada', cpf: '142.395.151-49', assessorForcado: 'Leonardo Serafim',
+        obs: 'Aprovação implícita (não houve "apto" escrito) — confirmar o nome com o João.',
+    },
+    {
+        cliente: 'Hênio Suassuna Ferreira — Faz. Várzea da Carnaúba', grupo: 'Remates', data: '31/07',
+        evidencia: '"Henio aprovado" + ficha de Guilherme Galassi: Score 762 · sem restrições · I.E. 3 anos (documento enviado) · 600 ha próprios — "Apto"',
+        uf: 'RN', ufFonte: 'cadastro do titular — Pau dos Ferros/RN (fazenda em Santa Cruz/PB)',
+        cidade: 'Pau dos Ferros', fone: '(84) 99990-0070', cpf: '021.928.644-26',
+        assessorForcado: 'Fábio Omena Gaia',
+        obs: '⚠ CONFLITO: em 01/08 a consulta interna devolveu "Henio; sem i.e e com restrição. reprovado". Decidir qual vale antes de vender. A leiloeira ainda pediu conferir mapa de frete (Paraíba).',
+    },
+    {
+        cliente: 'Marusan Mendes de Souza', grupo: 'Remates', data: '31/07',
+        evidencia: '"Marusan aprovado" → Marcelo: "já está com Leonardo Serafim, foi aprovado no Hipólito"',
+        uf: null, ufFonte: 'não está na base', assessorForcado: 'Leonardo Serafim',
+        obs: '⚠ Foi "não autorizado" na Programa em 14/07 e 20/07 (renda presumida baixa) — aprovado agora por outra leiloeira. Veio da revisão dos recusados pela PL.',
+    },
+    {
+        cliente: 'Leandro O. Rios N. Santos', grupo: 'Remates', data: '31/07',
+        evidencia: '"Leandro aprovado" + ficha: Score 988 · sem restrições · I.E. 1 ano MG · sem área própria — "Apto"',
+        uf: 'MG', ufFonte: 'I.E. de MG citada na ficha', assessorForcado: 'Leonardo Serafim',
+        obs: '⚠ A zona de MG é do Fábio, mas o grupo direcionou ao Leonardo — confirmar. Sem área própria: só I.E.',
+    },
+    {
+        cliente: 'Rodrigo (sobrenome não citado no grupo)', grupo: 'Remates', data: '31/07',
+        evidencia: 'Ficha: Score 689 · sem restrições · I.E. 2 meses · sem área própria — "Apto"',
+        uf: null, ufFonte: 'não informada', assessorForcado: 'Fábio Omena Gaia',
+        obs: 'Grupo direcionou: "Direcionado Fábio Omena". I.E. de 2 meses e sem área própria — perfil mais raso.',
+    },
+    {
+        cliente: 'Carlos Augusto dos Santos Sousa', grupo: 'Remates', data: '31/07',
+        evidencia: 'Ficha: Score 900 · sem restrições · 139 ha imóvel próprio MA — "Apto"',
+        uf: 'MA', ufFonte: 'imóvel próprio no MA citado na ficha', cpf: '942.300.993-04',
+        obs: 'I.E. 12.825307-0. A confirmação da I.E. falhou porque o Maranhão bloqueia consulta no Sintegra — a leiloeira registrou que isso NÃO desabona.',
+    },
+    {
+        cliente: 'Wellington Ferreira dos Santos', grupo: 'Remates', data: '01/08',
+        evidencia: '"cadastro bom do wellington"',
+        uf: null, ufFonte: 'não está na base', cpf: '820.500.232-00',
+        obs: 'Ele mesmo disse ter I.E., mas ainda ia procurar o número — cobrar antes de fechar.',
+    },
+    {
+        cliente: 'Braz de Oliveira', grupo: 'Remates', data: '01/08',
+        evidencia: '"BRAZ DE OLIVEIRA dá pra vender com cautela — 1 ou 2 lotes"',
+        uf: null, ufFonte: 'homônimos na base (Bueno/Curionópolis-PA e Pinto/MT)', assessorForcado: 'Douglas Bispo',
+        obs: '⚠ Aprovado COM LIMITE: 1 ou 2 lotes. Grupo direcionou ao Douglas — o que aponta para o Braz de Oliveira Bueno (Curionópolis/PA); confirmar.',
+    },
+    {
+        cliente: 'Cliente do Fábio consultado em 01/08 (nome não citado)', grupo: 'Remates', data: '01/08',
+        evidencia: '"cadastro ok Fabio"',
+        uf: null, ufFonte: 'não informada', assessorForcado: 'Leonardo Serafim',
+        obs: '⚠ Dois minutos depois o grupo escreveu "Direcionado para Leonardo Serafim" — o cadastro foi pedido pelo Fábio e direcionado ao Leonardo. Confirmar de quem é.',
+    },
+    {
+        cliente: 'Geniuce (CNPJ 53.748.659/0001-07)', grupo: 'Remates', data: '01/08',
+        evidencia: 'Análise de Guilherme Galassi: 5 CNPJs desde 1985 (4 baixados), sem dívidas · "tem I.E. ativa de corte, não está inapta"',
+        uf: null, ufFonte: 'não informada', assessorForcado: 'Fábio Omena Gaia',
+        obs: 'Liberado com recomendação: como não tem área própria, alinhar prazo de arrendamento × prazo da parcela (30 meses) antes de fechar. Quer dois touros.',
+    },
+    {
+        cliente: 'Davison Avelino Gomes Pinto', grupo: 'Remates', data: '01/08',
+        evidencia: '"DAVISON AVELINO GOMES PINTO — cadastro bom"',
+        uf: null, ufFonte: 'não está na base', assessorForcado: 'Fábio Omena Gaia',
+        obs: 'Grupo direcionou: "Direcionado para Fábio Omena".',
+    },
+]
+
+/* ── Recusados / inaptos SÓ do grupo da Remates (para o relatório do grupo) ── */
+export const NAO_APROVADOS_REMATES = [
+    { cliente: 'Maria Sabrina Neta / neto (Galdino)', data: '31/07', motivo: 'Bloqueado com a leiloeira: "bloqueia até na assessoria, pra ninguém tentar vender em outra". CPF restrito, não consulta.' },
+    { cliente: 'José Dias Dantas (CAD-8B5ED)', data: '28/07', motivo: 'RECUSADO — único cadastro submetido pela ficha automática no período' },
+    { cliente: 'Denis Igor Silva Santos', data: '31/07', motivo: '23 anos e com restrição — reprovado' },
+    { cliente: 'Cadastro enviado 30/07 (I.E. em PDF)', data: '31/07', motivo: 'Score 689, sem I.E. e processo trabalhista de R$ 500 mil — "talvez possa cilada"' },
+    { cliente: 'Hênio Suassuna Ferreira', data: '01/08', motivo: '⚠ "sem i.e e com restrição — reprovado" na consulta interna, DEPOIS de ter sido aprovado pela leiloeira em 31/07' },
+    { cliente: 'Gabriel Licínio Holanda Peruchi', data: '01/08', motivo: 'INAPTO — "única opção pra ele é à vista, caso contrário não será aceita a venda"' },
+    { cliente: 'Hélio (sobrenome não citado)', data: '01/08', motivo: 'Com restrições e protestos — reprovado' },
+    { cliente: 'Dienifer', data: '01/08', motivo: 'INAPTA — Score 387, restrições de R$ 1.297, I.E. não compatível com produção rural, sem área própria' },
+    { cliente: 'Cliente sem nome (manhã de 01/08)', data: '01/08', motivo: 'Não possui I.E.; score razoável — não aprovado' },
+    { cliente: 'CNPJ aberto há 2 meses', data: '01/08', motivo: '"averiguar melhor" — sem decisão até o fechamento desta apuração' },
 ]
 
 /* ── 2. aprovados que o sistema conhece pela LISTA DA LEILOEIRA (e-mail) ── */
