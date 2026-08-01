@@ -580,14 +580,59 @@ function parseRawMetaLead(row: string[]): RawMetaLead | null {
   const off = offset
   const f = (i: number) => String(row[off + i] ?? '').trim()
   if (!/^\d{4}-\d{2}-\d{2}T/.test(f(1))) return null
+  const largura = row.length - off
+
+  // ── Bloco das PERGUNTAS: tamanho VARIÁVEL ────────────────────────────────
+  // O conector despeja os 12 campos fixos (id..platform), depois as respostas
+  // do formulário — uma coluna por pergunta — e só então nome/e-mail/telefone.
+  // Cada formulário tem o seu conjunto: o de São Geraldo veio com 6 perguntas
+  // onde o do perpétuo tem 5, e ler por posição fixa jogou o NOME do lead na
+  // coluna de e-mail ("Nome=50+", "E-mail=Vilmar Leal barbosa"). Por isso a
+  // âncora é o TELEFONE, que o conector sempre escreve como "p:+55...".
+  let iPhone = -1
+  for (let i = 12; i < largura; i++) { if (/^p:/.test(f(i))) { iPhone = i; break } }
+  if (iPhone < 0) {
+    // Sem "p:" (lead de teste, telefone vazio): ancora pelo e-mail.
+    for (let i = 12; i < largura; i++) { if (f(i).includes('@')) { iPhone = i + 1; break } }
+  }
+  if (iPhone < 14) iPhone = 19 // formulário fora do padrão: volta ao layout clássico
+  const iEmail = iPhone - 1, iNome = iPhone - 2
+
+  const perguntas: string[] = []
+  for (let i = 12; i < iNome; i++) perguntas.push(f(i))
+  const acha = (re: RegExp, desde = 0) => {
+    for (let i = desde; i < perguntas.length; i++) if (re.test(deaccent(perguntas[i]).toLowerCase())) return i
+    return -1
+  }
+  const iInteresse = acha(/touro|bezerr|matriz|embri|semen|semem|nao_sei|nao sei/)
+  // "sim/não" é a inscrição estadual — mas um form com pergunta sim/não a mais
+  // no começo confundiria: vale a ÚLTIMA antes do interesse.
+  let iIe = -1
+  perguntas.forEach((v, i) => {
+    if (!/^(sim|nao)$/.test(deaccent(v).toLowerCase())) return
+    if (iInteresse < 0 || i < iInteresse) iIe = i
+  })
+  if (iIe < 0) iIe = acha(/^(sim|nao)$/)
+  const iMomento = acha(/trabalho|criador|aprender|corte|pecuaria/)
+  // Faixa numérica ("0-50", "51-100", "50+"): antes do interesse é rebanho,
+  // depois é a quantidade desejada — é a ordem de toda pergunta destes forms.
+  const faixa = /^(\d+\s*-\s*\d+|\d+\+|nenhuma|ainda.*sei)$/
+  let iCabecas = -1, iQtd = -1
+  perguntas.forEach((v, i) => {
+    if (!faixa.test(deaccent(v).toLowerCase())) return
+    if (iInteresse >= 0 && i > iInteresse) { if (iQtd < 0) iQtd = i }
+    else if (iCabecas < 0) iCabecas = i
+  })
+  const q = (i: number) => (i >= 0 ? perguntas[i] : '')
+
   return {
     atendidoPor,
     id: stripPrefix(f(0), 'l:'), created: f(1), adId: stripPrefix(f(2), 'ag:'), adName: f(3),
     adsetId: stripPrefix(f(4), 'as:'), adsetName: f(5), campaignId: stripPrefix(f(6), 'c:'), campaignName: f(7),
     formId: stripPrefix(f(8), 'f:'), formName: f(9), isOrganic: f(10), platform: f(11),
-    momento: f(12), cabecas: f(13), temIe: f(14), interesse: f(15), qtd: f(16),
-    fullName: f(17), email: f(18), phone: f(19), state: f(20),
-    leadStatus: String(row[39] ?? '').trim() || f(21) || 'CREATED',
+    momento: q(iMomento), cabecas: q(iCabecas), temIe: q(iIe), interesse: q(iInteresse), qtd: q(iQtd),
+    fullName: f(iNome), email: f(iEmail), phone: f(iPhone), state: f(iPhone + 1),
+    leadStatus: String(row[39] ?? '').trim() || f(iPhone + 2) || 'CREATED',
   }
 }
 
