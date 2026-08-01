@@ -101,7 +101,9 @@ const html = `<!doctype html><html lang="pt-BR"><head><meta charset="utf-8">
 <div class="box">
   <strong>De onde saiu.</strong> Do registro que o próprio sistema faz do grupo (${stat.n} mensagens), lidas uma a uma —
   a leiloeira decide em texto livre (“Apto”, “cadastro bom”, “Fulano aprovado”), então cada linha abaixo carrega a frase exata
-  que a sustenta. Horários no fuso de Brasília, iguais aos do WhatsApp.
+  que a sustenta. Onde a mensagem trazia só o primeiro nome ou um CPF solto, o nome completo, a I.E. e a cidade vieram
+  <strong>dos próprios documentos anexados no grupo</strong> — CNH, ficha de I.E., CAP, CAR e prints do AgRisk, 56 arquivos abertos um a um.
+  Horários no fuso de Brasília, iguais aos do WhatsApp.
   <br><strong>O que falta:</strong> o grupo foi criado em <strong>10/06/2026</strong> e o sistema só registra a partir de 08/07 —
   esse primeiro mês não está aqui. O WhatsApp Web também não resolve: hoje ele carrega apenas 31/07 e 01/08 e para de puxar histórico.
   Para cobrir junho, só exportando a conversa pelo celular.
@@ -116,7 +118,10 @@ const html = `<!doctype html><html lang="pt-BR"><head><meta charset="utf-8">
   </tr></thead>
   <tbody>${aprovados.map(r => `
     <tr>
-      <td class="nome">${esc(r.cliente)}${r.cpf ? `<br><span class="micro">CPF ${esc(r.cpf)}</span>` : ''}${r.fone ? `<br><span class="micro">${esc(r.fone)}</span>` : ''}</td>
+      <td class="nome">${esc(r.cliente)}
+        ${r.cpf ? `<br><span class="micro">CPF ${esc(r.cpf)}</span>` : ''}
+        ${r.fone ? `<br><span class="micro">📞 ${esc(r.fone)}</span>` : '<br><span class="micro">sem telefone</span>'}
+        ${r.cidade ? `<br><span class="micro">${esc(r.cidade)}${r.uf ? '/' + esc(r.uf) : ''}</span>` : ''}</td>
       <td class="num">${esc(r.data)}</td>
       <td class="ev">${esc(r.evidencia)}</td>
       <td class="num">${r.uf ? esc(r.uf) : '<span class="warn">—</span>'}</td>
@@ -178,11 +183,13 @@ ${semAssessor.length ? `
 <h2>6. O que fazer com isto</h2>
 <div class="box">
   <ul>
-    <li><strong>Hênio Suassuna é o caso urgente:</strong> a leiloeira deu “Apto” em 31/07 (score 762, I.E. 3 anos, 600 ha) e a consulta interna deu “reprovado” em 01/08. Alguém precisa bater o martelo antes de o Fábio trabalhar o cliente.</li>
+    <li><strong>Existem DOIS Hênios e isso quase virou erro:</strong> o aprovado é o <strong>Hênio Suassuna Ferreira</strong> (Santa Cruz/PB, I.E. de 2023); o reprovado de 01/08 é o <strong>Hênio Pablo Farias Silva</strong> (Malhada/BA), cujos documentos o Fábio mandou na noite anterior. Não são o mesmo cadastro.</li>
+    <li><strong>Quatro aprovados de MG foram direcionados ao Leonardo</strong> — Hermann Gomes Sarmento, Trajano Pinheiro, Leandro Rios e Fabio Rafael da Cunha Silva. Pela regra de zona, MG é do Fábio Omena. Ou a regra muda, ou os quatro trocam de mão.</li>
     <li><strong>Marusan Mendes de Souza</strong> foi recusado duas vezes pela Programa e aprovado pela Remates — é o efeito da revisão dos recusados da PL; vale repetir com os outros recusados.</li>
-    <li><strong>Leandro O. Rios N. Santos</strong> é de MG (zona do Fábio) mas foi direcionado ao Leonardo — confirmar quem fica.</li>
     <li><strong>Braz de Oliveira</strong> está aprovado com teto de 1 ou 2 lotes — não tratar como cadastro cheio.</li>
-    <li><strong>${semAssessor.length} aprovados seguem sem dono.</strong> Sem a UF da propriedade a regra de zona não decide — pedir cidade/UF a quem levou o cliente ao grupo.</li>
+    <li><strong>Rodrigo de Proença</strong> tem um processo trabalhista de R$ 500 mil apontado na 1ª consulta e “Apto” na 2ª — conferir antes de parcelar.</li>
+    <li><strong>Quase ninguém tem telefone.</strong> Os documentos dão nome, CPF, I.E. e cidade, mas contato só existe para Trajano, Wellington, Braz e Hênio Suassuna — os outros precisam ser pedidos a quem levou o cliente ao grupo.</li>
+    ${semAssessor.length ? `<li><strong>${semAssessor.length} aprovados seguem sem dono</strong> — nem UF nem direcionamento; é o que sobrou depois de abrir os arquivos.</li>` : ''}
     <li><strong>Nenhum destes vira registro sozinho:</strong> só o cadastro do José Dias Dantas passou pela ficha automática (e foi recusado). Todo o resto é conversa no grupo, que o sistema não casa com cliente nenhum.</li>
   </ul>
 </div>
