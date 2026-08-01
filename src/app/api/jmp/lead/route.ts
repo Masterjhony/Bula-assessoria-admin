@@ -192,7 +192,12 @@ export async function POST(req: NextRequest) {
   // mais aba por campanha — o lead aparece na aba do interesse dele, e o cron
   // (sheet-perpetuo) faz esse recorte.
   try {
-    await appendLeadToSheet({ ...leadCtx, ...utm, leadId: data?.id ?? null, createdAt: new Date() })
+    await appendLeadToSheet({
+      ...leadCtx, ...utm, leadId: data?.id ?? null, createdAt: new Date(),
+      // Marca a origem na planilha (coluna "Origem"); sem isso a linha entra
+      // sem dizer de qual landing veio.
+      formName: 'Landing EAO — 13º Mega Baviera',
+    })
   } catch (e) {
     console.error('[JMP lead] sheets append failed:', e)
   }

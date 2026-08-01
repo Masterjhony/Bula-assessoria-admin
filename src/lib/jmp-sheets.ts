@@ -919,6 +919,7 @@ function buildPerpetuoRow(p: RawMetaLead, headerRow: string[]): string[] {
  */
 function rotulaOrigemLanding(formName: string): string {
   if (/s[ãa]o geraldo/i.test(formName)) return 'Landing São Geraldo'
+  if (/eao|baviera/i.test(formName)) return 'Landing EAO'
   if (/touros/i.test(formName)) return 'Landing Touros'
   return formName
 }
@@ -1374,70 +1375,13 @@ export async function readCadastroSheetRows(): Promise<{ info: SheetInfo | null;
   return { info, rows }
 }
 
-/** Acrescenta o lead na planilha. Só grava se a planilha já foi conectada. */
+/**
+ * Acrescenta o lead da landing do JMP/EAO na planilha. Desde 31/07 a base é a
+ * mesma das outras landings, então este caminho delega — antes ele montava a
+ * linha por conta própria e o lead entrava no FIM da aba, sem Zona nem Origem.
+ */
 export async function appendLeadToSheet(lead: SheetLead): Promise<{ skipped: boolean; reason?: string }> {
-  const info = await getStoredInfo()
-  if (!info) return { skipped: true, reason: 'not_provisioned' }
-  const auth = getAuth()
-  if (!auth) {
-    // Skip silencioso esconde perda de leads — deixa rastro no log.
-    console.error('[jmp-sheets] append PULADO (credenciais ausentes/inválidas) — lead não foi para a planilha:', lead.nome)
-    return { skipped: true, reason: 'no_credentials' }
-  }
-
-  const sheets = google.sheets({ version: 'v4', auth })
-
-  const layout = await ensureSheetLayout(sheets, info.spreadsheetId)
-  const row = Array.from({ length: layout.lastColumn }, () => '')
-  const set = (header: HeaderName, value: string | null | undefined) => {
-    const index = layout.indexes.get(header)
-    if (index != null) row[index] = value ?? ''
-  }
-
-  set('Data', fmtDate(lead.createdAt ?? new Date()))
-  set('Nome', lead.nome)
-  set('E-mail', lead.email)
-  set('WhatsApp', lead.whatsapp)
-  set('UF', lead.uf)
-  set('Cidade', lead.cidade)
-  set('Momento', lead.momento)
-  set('Cabeças', lead.cabecas)
-  set('Interesse', lead.interesse)
-  set('Lead ID', lead.leadId)
-  set('Qtd. desejada', lead.oQueBusca)
-  set('utm_source', lead.utm_source)
-  set('utm_medium', lead.utm_medium)
-  set('utm_campaign', lead.utm_campaign)
-  set('utm_content', lead.utm_content)
-  set('ad-id', lead.ad_id)
-  set('Inscrição Estadual', lead.inscricaoEstadual)
-
-  // appendCells em vez de values.append: o append clássico usa "detecção de
-  // tabela" e, quando alguém deixa uma célula órfã abaixo da tabela, passa a
-  // gravar os leads deslocados (linhas distantes, colunas erradas) — foi assim
-  // que leads "sumiram" da planilha em 11/06. appendCells grava sempre após a
-  // última linha com dados da aba, alinhado à coluna A.
-  const sheetId = await getTabSheetId(sheets, info.spreadsheetId)
-  await sheets.spreadsheets.batchUpdate({
-    spreadsheetId: info.spreadsheetId,
-    requestBody: {
-      requests: [{
-        appendCells: {
-          sheetId,
-          rows: [{ values: row.map((v) => ({ userEnteredValue: { stringValue: String(v ?? '') } })) }],
-          fields: 'userEnteredValue',
-        },
-      }],
-    },
-  })
-
-  // Auto-cura oportunista: cada lead da landing também realinha eventuais
-  // linhas cruas que o Meta tenha despejado desde a última passagem.
-  // AWAIT obrigatório: em serverless (Vercel) trabalho não-aguardado é
-  // congelado quando a resposta sai — com `void` a normalização nunca rodava.
-  await normalizeMetaRawRows()
-
-  return { skipped: false }
+  return appendLeadToPerpetuoSheet(lead)
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
