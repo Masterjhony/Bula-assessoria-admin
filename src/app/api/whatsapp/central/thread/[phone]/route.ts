@@ -189,6 +189,9 @@ export async function POST(
         channelHint,
         inboxId,
         origin: 'inbox-sdr',
+        // Quem clicou "enviar" foi um atendente logado. A pausa global cala o
+        // robô; o humano segue atendendo pelo cockpit normalmente.
+        bypassPause: true,
     })
 
     // Mensagens manuais usando template iniciador garantem a tag de audiência —

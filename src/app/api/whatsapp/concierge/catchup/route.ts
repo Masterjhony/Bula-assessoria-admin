@@ -18,6 +18,7 @@ import { normalizePhone, phoneVariants, classifyMessage } from '@/lib/whatsapp-c
 import { findLeadByPhone } from '@/lib/whatsapp-inbound'
 import { loadConciergeConfig, runConcierge } from '@/lib/whatsapp-concierge'
 import { sendOutbound } from '@/lib/whatsapp-gateway'
+import { isCentralPaused } from '@/lib/whatsapp-pause'
 
 export const maxDuration = 300
 
@@ -120,6 +121,13 @@ async function botRespondeuAgora(supabase: ReturnType<typeof svc>, phone: string
 
 async function runCatchup({ limit, dryRun }: { limit: number; dryRun: boolean }) {
     const supabase = svc()
+
+    // Central pausada: este cron existe justamente para responder quem ficou sem
+    // resposta — durante a pausa, TODO mundo fica sem resposta de propósito.
+    // Sem esta saída, o catchup viraria a porta dos fundos da pausa.
+    if (await isCentralPaused(supabase)) {
+        return NextResponse.json({ ok: true, skipped: 'central_pausada' })
+    }
 
     const config = await loadConciergeConfig(supabase)
     if (!config.enabled) {

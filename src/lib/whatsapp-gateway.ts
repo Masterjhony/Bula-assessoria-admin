@@ -23,6 +23,7 @@
  *   horário:        broadcast, campaign, bot (fluxos não iniciados por humano)
  *   cap diário:     broadcast, campaign (bloqueia); demais só contabilizam
  *   dedup:          broadcast, campaign
+ *   pausa global:   tudo que sai sozinho (ver whatsapp-pause.ts)
  */
 
 import type { SupabaseClient } from '@supabase/supabase-js'
@@ -40,6 +41,7 @@ import {
 } from './whatsapp-guardrails'
 import { isWhatsappCloudApiConfigured, sendSingleViaCloudApi } from './whatsapp-cloud-api'
 import { WHATSAPP_SERVER_URL, vpsHeaders } from './whatsapp-vps'
+import { readPauseState } from './whatsapp-pause'
 
 export type OutboundIntent = 'crm_reply' | 'assessor' | 'operation' | 'campaign' | 'bot' | 'broadcast'
 export type Channel = GuardChannel
@@ -83,6 +85,12 @@ export interface OutboundRequest {
     botStep?: string | null
     /** Pula guard rails (uso interno/transacional consciente). */
     skipGuardrails?: boolean
+    /**
+     * Envio com HUMANO no comando (botão do cockpit). Passa mesmo com a Central
+     * pausada — a pausa existe para calar o robô, não para impedir a equipe de
+     * atender. Nunca marcar em código que roda sozinho (cron, webhook, IA).
+     */
+    bypassPause?: boolean
 }
 
 // sent/queued = entregue ao transporte; failed = transporte tentou e errou;
@@ -272,6 +280,18 @@ export async function sendOutbound(
 
     if (!req.text && !req.templateName) {
         return { status: 'blocked', channel: null, reason: 'empty_message' }
+    }
+
+    // 0) Pausa global da Central. Vem ANTES de tudo e `skipGuardrails` NÃO a
+    // fura: guard rail é regra anti-ban, pausa é decisão do dono. Passa só o que
+    // tem gente no comando — recado ao assessor, plano operacional aprovado e o
+    // envio manual do cockpit (bypassPause).
+    const automatizado = !req.bypassPause
+        && req.intent !== 'assessor'
+        && req.intent !== 'operation'
+    if (automatizado && (await readPauseState(supabase)).paused) {
+        await logOutbound(supabase, req, phone, null, 'blocked', { reason: 'central_paused' })
+        return { status: 'blocked', channel: null, reason: 'central_paused' }
     }
 
     const cfg = await loadGuardrails(supabase)

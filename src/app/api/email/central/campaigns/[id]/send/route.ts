@@ -21,6 +21,7 @@ import { requireAdmin } from '@/lib/auth-helpers'
 import { resolveEmailSegment, type EmailSegmentFilters } from '@/lib/email-segment'
 import { resolveEmailStepContent } from '@/lib/email-campaign-step'
 import { addDelay, sendCampaignEmail } from '@/lib/email-marketing'
+import { readPauseState } from '@/lib/whatsapp-pause'
 
 export const maxDuration = 300  // Vercel: até 5min pro disparo do passo 0
 
@@ -40,6 +41,20 @@ export async function POST(
         process.env.NEXT_PUBLIC_SUPABASE_URL!,
         process.env.SUPABASE_SERVICE_ROLE_KEY!,
     )
+
+    // Mesma regra do disparo em massa do WhatsApp: com a Central pausada, nada
+    // de campanha — nem por e-mail (ver whatsapp-pause.ts).
+    const pausa = await readPauseState(supabase)
+    if (pausa.paused) {
+        return NextResponse.json(
+            {
+                error: 'Central WhatsApp está PAUSADA — disparo de campanha de e-mail bloqueado. Despause antes de disparar.',
+                blocked_by: 'central_paused',
+                paused_at: pausa.paused_at,
+            },
+            { status: 409 },
+        )
+    }
 
     const { data: campaign, error: cErr } = await supabase
         .from('email_campaigns')

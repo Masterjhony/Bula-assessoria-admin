@@ -35,6 +35,7 @@ import {
     nextAllowedSendAt,
 } from '@/lib/whatsapp-guardrails'
 import { WHATSAPP_SERVER_URL, vpsHeaders } from '@/lib/whatsapp-vps'
+import { readPauseState } from '@/lib/whatsapp-pause'
 
 export async function POST(
     _req: NextRequest,
@@ -96,6 +97,22 @@ export async function POST(
     }
 
     // ── Guard rails de massa ────────────────────────────────────────────────
+    // Central pausada recusa disparo em massa, mesmo com admin logado. Envio
+    // manual 1:1 pelo cockpit continua liberado (é atendimento); soltar uma
+    // campanha inteira com o atendimento pausado não é atender — é justamente
+    // o que a pausa mandou parar. Erro explícito para o operador saber por quê.
+    const pausa = await readPauseState(supabase)
+    if (pausa.paused) {
+        return NextResponse.json(
+            {
+                error: 'Central WhatsApp está PAUSADA — disparo de campanha bloqueado. Despause em Central › Pausa antes de disparar.',
+                blocked_by: 'central_paused',
+                paused_at: pausa.paused_at,
+            },
+            { status: 409 },
+        )
+    }
+
     // O canal de massa é Cloud quando configurada (não toma ban), senão VPS.
     const channel: 'cloud' | 'baileys' = isWhatsappCloudApiConfigured() ? 'cloud' : 'baileys'
     const guardrails = await loadGuardrails(supabase)

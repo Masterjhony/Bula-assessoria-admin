@@ -22,6 +22,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { createClient, type SupabaseClient } from '@supabase/supabase-js'
 import { addDelay, sendCampaignEmail } from '@/lib/email-marketing'
 import { resolveEmailStepContent } from '@/lib/email-campaign-step'
+import { isCentralPaused } from '@/lib/whatsapp-pause'
 
 export const maxDuration = 60
 
@@ -219,6 +220,13 @@ export async function GET(req: NextRequest) {
         process.env.NEXT_PUBLIC_SUPABASE_URL!,
         process.env.SUPABASE_SERVICE_ROLE_KEY!,
     )
+
+    // Mesma pausa da Central vale aqui: pausar o atendimento e seguir mandando
+    // e-mail de sequência seria o mesmo robô falando por outra porta. A régua
+    // congela onde está — `current_step` só avança quando voltar a rodar.
+    if (await isCentralPaused(supabase)) {
+        return NextResponse.json({ ok: true, skipped: 'central_pausada' })
+    }
 
     const now = new Date()
 

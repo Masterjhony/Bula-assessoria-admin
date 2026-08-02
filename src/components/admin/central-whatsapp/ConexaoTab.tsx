@@ -197,13 +197,15 @@ export function ConexaoTab() {
                     <div className="space-y-1.5 max-w-2xl">
                         <p className="text-sm">
                             {isPaused
-                                ? "A Central está conectada, mas todos os disparos automatizados estão suspensos."
+                                ? "Atendimento automático SUSPENSO: motor diário, bot, follow-ups agendados e campanhas (WhatsApp e e-mail) não enviam nada."
                                 : "A Central responde automaticamente: welcome em novos leads e fluxo nas mensagens recebidas."}
                         </p>
                         <p className="text-xs text-muted-foreground">
-                            Pausar mantém o número logado e o histórico do Inbox atualizado, mas
-                            bloqueia o welcome e o fluxo. Útil para investigar problemas ou
-                            atender manualmente sem que o bot intervenha.
+                            Pausar mantém o número logado e o Inbox atualizado. Quem escrever
+                            durante a pausa é registrado normalmente e a equipe é chamada no
+                            grupo interno para atender — o envio manual pelo cockpit continua
+                            liberado. Nada é cancelado: a fila do motor e os follow-ups
+                            agendados voltam a sair quando o fluxo for retomado.
                         </p>
                         {isPaused && pause?.paused_at && (
                             <p className="text-xs text-muted-foreground">

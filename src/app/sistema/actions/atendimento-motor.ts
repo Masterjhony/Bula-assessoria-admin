@@ -15,6 +15,7 @@ import {
     type MotorConfig,
 } from '@/lib/atendimento-motor'
 import { PLAY_LABEL, type PlayId } from '@/lib/atendimento-ontologia'
+import { isCentralPaused } from '@/lib/whatsapp-pause'
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Leitura e controle do MOTOR DE ATENDIMENTO para /sistema/crm/atendimento.
@@ -62,6 +63,12 @@ export interface MetricaPlay {
 
 export interface MotorPainel {
     config: MotorConfig
+    /**
+     * Pausa global da Central. Manda no motor mesmo com `config.enabled = true`
+     * — sem isso a tela diria "motor ligado" enquanto nada sai, e o operador
+     * procuraria o defeito no lugar errado.
+     */
+    centralPausada: boolean
     dia: string
     capHoje: number
     /** Fila de hoje ainda não enviada. */
@@ -177,6 +184,7 @@ export async function getMotorPainel(): Promise<MotorPainel> {
 
     return {
         config,
+        centralPausada: await isCentralPaused(supabase),
         dia,
         capHoje: capDoDia(config, diasComEnvio),
         planejados: hoje.filter(r => r.status === 'planejado').map(r => toLinha(r, nomes)),

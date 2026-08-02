@@ -20,6 +20,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { createClient, type SupabaseClient } from '@supabase/supabase-js'
 import { executarLote, casarRespostas, loadMotorConfig, diaLocal } from '@/lib/atendimento-motor'
 import { reprocessarHandoffsPendentes } from '@/lib/atendimento-handoff'
+import { isCentralPaused } from '@/lib/whatsapp-pause'
 
 export const maxDuration = 300
 
@@ -45,6 +46,12 @@ async function handler(req: NextRequest) {
 
     const supabase = svc()
     const agora = new Date()
+    // Pausa global da Central: não entrega o lote nem casa respostas de toque.
+    // A fila planejada continua de pé em `crm_toques` — nada é cancelado.
+    if (await isCentralPaused(supabase)) {
+        return NextResponse.json({ ok: true, skipped: 'central_pausada', dia: diaLocal(agora) })
+    }
+
     const config = await loadMotorConfig(supabase)
 
     if (!config.enabled) {

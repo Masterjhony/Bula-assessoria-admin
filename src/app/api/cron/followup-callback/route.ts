@@ -22,6 +22,7 @@ import { createClient } from '@supabase/supabase-js'
 import { requireAdmin } from '@/lib/auth-helpers'
 import { sendOutbound } from '@/lib/whatsapp-gateway'
 import { pickFollowupPlan } from '@/lib/followup-schedule'
+import { isCentralPaused } from '@/lib/whatsapp-pause'
 
 export const maxDuration = 120
 
@@ -88,6 +89,16 @@ interface LeadRow {
 
 async function run({ limit, dryRun }: { limit: number; dryRun: boolean }) {
     const supabase = svc()
+
+    // Central pausada: sai ANTES de tentar enviar. O gateway bloquearia mesmo,
+    // mas cada bloqueio contaria uma tentativa aqui e, em 3 ciclos (1h30), o
+    // `bumpAttempt` apagaria o followup_due_at do lead. Uma pausa administrativa
+    // não pode destruir os callbacks que o cliente pediu — eles esperam de pé
+    // e voltam a sair sozinhos quando a Central for despausada.
+    if (await isCentralPaused(supabase)) {
+        return NextResponse.json({ ok: true, skipped: 'central_pausada' })
+    }
+
     if (!dryRun && !(await acquireLock(supabase))) {
         return NextResponse.json({ ok: true, skipped: 'locked' })
     }

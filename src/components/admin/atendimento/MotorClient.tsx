@@ -148,6 +148,16 @@ export function MotorClient({ dados }: { dados: MotorPainel }) {
                 </div>
             </div>
 
+            {dados.centralPausada && (
+                <div className="mb-4 flex items-start gap-2 rounded-md border border-amber-300 bg-amber-100 p-3 text-sm text-amber-900">
+                    <AlertTriangle className="mt-0.5 h-4 w-4 shrink-0" />
+                    <span>
+                        <strong>Central WhatsApp PAUSADA</strong> — nada sai por aqui, mesmo com o
+                        motor ligado, e os botões abaixo não vão enviar. A fila do dia continua
+                        de pé. Para retomar: Central WhatsApp › Conexão › Retomar fluxo.
+                    </span>
+                </div>
+            )}
             {!config.enabled && (
                 <div className="mb-4 flex items-start gap-2 rounded-md border border-amber-200 bg-amber-50 p-3 text-sm text-amber-800">
                     <AlertTriangle className="mt-0.5 h-4 w-4 shrink-0" />

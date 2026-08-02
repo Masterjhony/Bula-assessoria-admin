@@ -39,6 +39,7 @@ import {
     withinBusinessHours,
     nextAllowedSendAt,
 } from '@/lib/whatsapp-guardrails'
+import { isCentralPaused } from '@/lib/whatsapp-pause'
 
 export const maxDuration = 60
 
@@ -261,6 +262,14 @@ export async function GET(req: NextRequest) {
         process.env.NEXT_PUBLIC_SUPABASE_URL!,
         process.env.SUPABASE_SERVICE_ROLE_KEY!
     )
+
+    // Central pausada: sequência congela onde está. Este cron manda direto pro
+    // VPS/Cloud (não passa pelo gateway), então a trava precisa estar aqui — e
+    // sair antes de avançar `current_step` mantém a régua intacta para quando
+    // a pausa acabar: ninguém pula etapa nem recebe duas.
+    if (await isCentralPaused(supabase)) {
+        return NextResponse.json({ ok: true, skipped: 'central_pausada' })
+    }
 
     const now = new Date()
 

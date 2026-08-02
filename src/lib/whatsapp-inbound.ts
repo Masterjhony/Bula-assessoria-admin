@@ -20,6 +20,8 @@ import { loadConciergeConfig, runConcierge } from './whatsapp-concierge'
 import { transcribeAudioOpenRouter } from './openrouter'
 import { CRM_STAGE_ENTRY } from './crm-types'
 import { reactivateLeadIfLost } from './crm-stage-rules'
+import { notifyTeamGroup } from './whatsapp-team-notify'
+import { ehNumeroInterno } from './whatsapp-operacional'
 
 const LEAD_FIELDS =
     'id, nome, telefone, interesse_principal, handoff_humano, handoff_at, optout_whatsapp, contact_history, contact_count, tags_whatsapp, stage, status, notes'
@@ -261,6 +263,63 @@ async function isLatestInbound(
     return !latestWamid || latestWamid === messageId
 }
 
+/** Uma chamada de equipe por lead a cada 6h — rajada de balões não vira 5 avisos. */
+const PAUSA_AVISO_COOLDOWN_MS = 6 * 3_600_000
+
+/**
+ * Chama a equipe no grupo interno quando alguém escreve com a Central pausada.
+ * Best-effort em tudo: falha aqui nunca pode derrubar o registro da inbound —
+ * a mensagem do lead já está salva e é isso que não pode se perder.
+ */
+async function avisarEquipeNaPausa(
+    supabase: SupabaseClient,
+    input: { lead: LeadShape | null; phone: string; senderName: string; text: string },
+): Promise<void> {
+    try {
+        // Gente da casa testando o número não vira chamado (mesmo critério do
+        // handoff: o sócio conferindo a régua já virou "cliente novo" uma vez).
+        if ((await ehNumeroInterno(supabase, input.phone)).interno) return
+
+        const leadId = input.lead?.id ?? null
+        let xd: Record<string, unknown> = {}
+        if (leadId) {
+            const { data } = await supabase
+                .from('crm_leads')
+                .select('extra_data')
+                .eq('id', leadId)
+                .maybeSingle()
+            xd = ((data?.extra_data ?? {}) as Record<string, unknown>)
+            const ultimo = String(xd.pausa_aviso_at ?? '')
+            const t = ultimo ? new Date(ultimo).getTime() : 0
+            if (Number.isFinite(t) && t > 0 && Date.now() - t < PAUSA_AVISO_COOLDOWN_MS) return
+        }
+
+        const nome = (input.lead?.nome || input.senderName || '').trim()
+        const msg = input.text.trim().slice(0, 300)
+        const aviso = [
+            '⏸ *Atendimento pausado — cliente escreveu*',
+            '',
+            `👤 ${nome || 'Sem nome'} · ${input.phone}`,
+            msg ? `💬 "${msg}"` : '💬 (mídia sem texto)',
+            '',
+            '_Nenhuma resposta automática foi enviada. Para atender, responda pelo cockpit da Central._',
+        ].join('\n')
+
+        const r = await notifyTeamGroup(supabase, aviso)
+
+        // Só carimba o cooldown se o recado saiu. Se o grupo estava fora do ar,
+        // a próxima mensagem tenta de novo em vez de silenciar por 6h.
+        if (r.sent && leadId) {
+            await supabase
+                .from('crm_leads')
+                .update({ extra_data: { ...xd, pausa_aviso_at: new Date().toISOString() } })
+                .eq('id', leadId)
+        }
+    } catch (e) {
+        console.warn('[Inbound] aviso de pausa falhou:', e instanceof Error ? e.message : e)
+    }
+}
+
 /**
  * `after` carrega os efeitos que só podem rodar DEPOIS de a resposta chegar ao
  * lead (consulta de crédito, avisos ao grupo, ficha às leiloeiras). O caller
@@ -346,9 +405,17 @@ export async function processInboundMessage(
     }
 
     // Pausa global: segue logando a inbound, mas nenhum fluxo automatizado roda.
+    // O robô cala; a equipe não fica cega. Quem escreve durante a pausa vira
+    // recado no grupo interno para um humano assumir pelo cockpit — sem isso a
+    // pausa transformaria "lead escreveu" em silêncio que ninguém vê.
     const pause = await readPauseState(supabase)
     if (pause.paused) {
-        return { kind: 'silent', reason: 'paused', lead }
+        return {
+            kind: 'silent',
+            reason: 'paused',
+            lead,
+            after: () => avisarEquipeNaPausa(supabase, { lead, phone, senderName, text }),
+        }
     }
 
     const { graph, settings } = await loadActiveFlowWithSettings(supabase)

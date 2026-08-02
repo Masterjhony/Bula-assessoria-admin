@@ -26,6 +26,7 @@ import {
     MOTOR_SETTINGS_KEY,
 } from '@/lib/atendimento-motor'
 import { getWhatsappCloudConfig } from '@/lib/whatsapp-cloud-api'
+import { isCentralPaused } from '@/lib/whatsapp-pause'
 
 export const maxDuration = 300
 
@@ -69,6 +70,12 @@ async function handler(req: NextRequest) {
 
     const supabase = svc()
     const agora = new Date()
+    // Pausa global da Central manda no motor: nem planeja. Fila montada durante
+    // a pausa sairia toda de uma vez no dia em que ela caísse.
+    if (await isCentralPaused(supabase)) {
+        return NextResponse.json({ ok: true, skipped: 'central_pausada', dia: diaLocal(agora) })
+    }
+
     const config = await loadMotorConfig(supabase)
 
     if (!config.enabled) {
