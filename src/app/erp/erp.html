@@ -3567,21 +3567,56 @@ async function renderBalanco() {
 /* ==========================================================================
    PAGE: FLUXO DE CAIXA
    ========================================================================== */
+const FX_STYLE = `<style>
+  .fx-wrap{overflow:auto;max-height:600px;border:1px solid var(--border);border-radius:var(--r);background:var(--s1)}
+  .fx-t{border-collapse:separate;border-spacing:0;width:max-content;min-width:100%;font-size:11.5px}
+  .fx-t th,.fx-t td{padding:6px 12px;border-bottom:1px solid var(--border);white-space:nowrap;text-align:right;font-variant-numeric:tabular-nums}
+  .fx-t th:first-child,.fx-t td:first-child{position:sticky;left:0;background:var(--s1);text-align:left;z-index:2;min-width:220px;max-width:280px;overflow:hidden;text-overflow:ellipsis;border-right:1px solid var(--border)}
+  .fx-t thead th{position:sticky;top:0;background:var(--s2);z-index:3;font-size:10px;text-transform:uppercase;letter-spacing:.5px;color:var(--text3)}
+  .fx-t thead th:first-child{z-index:4;background:var(--s2)}
+  .fx-t th.fx-now{color:var(--gold);font-weight:800}
+  .fx-c.pos{color:var(--olive)} .fx-c.neg{color:var(--red)} .fx-c.dim{color:var(--text3);opacity:.4}
+  .fx-c.fx-in-now{background:rgba(200,169,110,0.07)}
+  .fx-grp td{background:var(--s2)!important;font-weight:700;cursor:pointer;text-transform:uppercase;font-size:10px;letter-spacing:.6px;color:var(--text2)}
+  .fx-grp .material-symbols-outlined{font-size:14px;vertical-align:-3px;margin-right:4px}
+  .fx-tot td{font-weight:700}
+  .fx-saldo td{font-weight:700;background:var(--s2)!important;border-top:2px solid var(--border)}
+  .fx-cat{display:flex;align-items:center;gap:7px;font-weight:600;color:var(--text)}
+  .fx-dot{width:8px;height:8px;border-radius:2px;flex:none}
+</style>`;
+
+function toggleFluxoGrupo(g) {
+  state.fluxoFechados = state.fluxoFechados || {};
+  state.fluxoFechados[g] = !state.fluxoFechados[g];
+  document.querySelectorAll('.fx-row-' + g).forEach(tr => { tr.style.display = state.fluxoFechados[g] ? 'none' : ''; });
+  const ico = document.getElementById('fx-ico-' + g);
+  if (ico) ico.textContent = state.fluxoFechados[g] ? 'chevron_right' : 'expand_more';
+}
+function fxSet(key, val) { state.filters[key] = val; render(); }
+
 async function renderFluxo() {
-  const dias = state.filters.fluxoDias || 60;
+  const f = state.filters;
+  const dias = f.fluxoDias || 60;
+  const passado = f.fluxoPassado != null ? f.fluxoPassado : 30;
+  const gran = f.fluxoGran || 'semana';
+  const orc = f.fluxoOrc != null ? f.fluxoOrc : true;
   const [d, cp, cr] = await Promise.all([
-    api(`/api/erp/fluxo-caixa?dias=${dias}`),
+    api(`/api/erp/fluxo-caixa?dias=${dias}&passado=${passado}&gran=${gran}&orcamento=${orc?1:0}`),
     api('/api/erp/contas-pagar'),
     api('/api/erp/contas-receber'),
   ]);
   const serie = d.serie || [];
+  const M = d.matriz || { buckets:[], receitas:[], despesas:[], totais:{} };
+  const B = M.buckets || [];
+  const T = M.totais || {};
   const entradas = serie.reduce((s,r)=>s+Number(r.entrada_prev||0),0);
   const saidas = serie.reduce((s,r)=>s+Number(r.saida_prev||0),0);
   const resultado = entradas - saidas;
   const saldoFinal = serie[serie.length-1]?.saldo ?? d.saldo_atual ?? 0;
   // menor saldo projetado no periodo (alerta de aperto de caixa)
+  const hoje = d.hoje || new Date().toISOString().slice(0,10);
   let menor = { saldo: Infinity, data: null };
-  for (const r of serie) if (Number(r.saldo) < menor.saldo) menor = { saldo: Number(r.saldo), data: r.data };
+  for (const r of serie) if (r.data >= hoje && Number(r.saldo) < menor.saldo) menor = { saldo: Number(r.saldo), data: r.data };
   if (!isFinite(menor.saldo)) menor = { saldo: saldoFinal, data: null };
 
   const fdc = (x) => (typeof flDataCurta==='function' ? flDataCurta(x) : (x||'—'));
@@ -3591,20 +3626,7 @@ async function renderFluxo() {
   const proxCR = prox(cr,false), proxCP = prox(cp,true);
   const totCR = proxCR.reduce((s,r)=>s+restante(r,false),0);
   const totCP = proxCP.reduce((s,r)=>s+restante(r,true),0);
-  const hoje = new Date().toISOString().slice(0,10);
   const venceuChip = (r)=> r.status==='vencido' ? '<span class="chip danger" style="padding:0 6px">vencido</span>' : (r.vencimento && r.vencimento<=hoje ? '<span class="chip warn" style="padding:0 6px">hoje</span>' : '');
-
-  // resumo semanal (blocos de 7 dias da serie)
-  const semanas = [];
-  for (let i=0;i<serie.length;i+=7) {
-    const ch = serie.slice(i,i+7); if (!ch.length) continue;
-    semanas.push({
-      ini: ch[0].data, fim: ch[ch.length-1].data,
-      ent: ch.reduce((s,r)=>s+Number(r.entrada_real||0)+Number(r.entrada_prev||0),0),
-      sai: ch.reduce((s,r)=>s+Number(r.saida_real||0)+Number(r.saida_prev||0),0),
-      saldo: Number(ch[ch.length-1].saldo||0),
-    });
-  }
 
   const linhaTitulo = (r,isCP) => `<tr>
     <td style="white-space:nowrap;color:var(--gold);font-weight:600">${fdc(r.vencimento)}</td>
@@ -3612,17 +3634,78 @@ async function renderFluxo() {
     <td style="text-align:right" class="money ${isCP?'negative':'positive'}">${fmtBRL(restante(r,isCP))} ${venceuChip(r)}</td>
   </tr>`;
 
+  // ---------- matriz estilo Omie: categoria x periodo ----------
+  const fxNum = (v, sign) => {
+    if (!v) return '<td class="fx-c dim">–</td>';
+    return `<td class="fx-c ${sign>0?'pos':'neg'}">${fxBRL(v*sign)}</td>`;
+  };
+  const linhaCat = (l, grupo, sign) => {
+    const fechado = (state.fluxoFechados||{})[grupo];
+    const vals = B.map((b,i) => fxNum((l.realizado[i]||0)+(l.previsto[i]||0), sign)).join('');
+    return `<tr class="fx-row-${grupo}" style="${fechado?'display:none':''}">
+      <td><div class="fx-cat"><span class="fx-dot" style="background:${l.cor||'#8892a0'}"></span>${escapeHtml(l.nome)}</div></td>
+      ${vals}
+      <td class="fx-c ${sign>0?'pos':'neg'}" style="font-weight:700">${fmtBRL(l.total*sign)}</td>
+    </tr>`;
+  };
+  const linhaGrupo = (nome, grupo, itens, totalPorBucket, sign) => {
+    const fechado = (state.fluxoFechados||{})[grupo];
+    const totGeral = itens.reduce((s,l)=>s+l.total,0);
+    return `<tr class="fx-grp" onclick="toggleFluxoGrupo('${grupo}')">
+      <td><span class="material-symbols-outlined" id="fx-ico-${grupo}">${fechado?'chevron_right':'expand_more'}</span>${nome} (${itens.length})</td>
+      ${B.map((b,i)=>`<td class="fx-c ${sign>0?'pos':'neg'}">${totalPorBucket[i]?fxBRL(totalPorBucket[i]*sign):'–'}</td>`).join('')}
+      <td class="fx-c ${sign>0?'pos':'neg'}">${fmtBRL(totGeral*sign)}</td>
+    </tr>` + itens.map(l=>linhaCat(l,grupo,sign)).join('');
+  };
+  const entPorBucket = B.map((b,i)=>(T.entrada_real?.[i]||0)+(T.entrada_prev?.[i]||0));
+  const saiPorBucket = B.map((b,i)=>(T.saida_real?.[i]||0)+(T.saida_prev?.[i]||0));
+  const resPorBucket = B.map((b,i)=>entPorBucket[i]-saiPorBucket[i]);
+  const matrizHtml = B.length ? `
+    ${FX_STYLE}
+    <div class="card" style="margin-top:16px">
+      <div class="card-title"><span class="material-symbols-outlined">grid_on</span>Fluxo por Categoria
+        <span style="margin-left:auto;font-size:10.5px;color:var(--text3);font-weight:400">colunas passadas = realizado · futuras = previsto · vencidos caem na coluna de hoje${orc?'':' · orçamento oculto'}</span>
+      </div>
+      <div class="fx-wrap">
+        <table class="fx-t">
+          <thead><tr>
+            <th>Categoria</th>
+            ${B.map(b=>`<th class="${b.atual?'fx-now':''}" title="${b.from} a ${b.to}">${b.atual?'▸ ':''}${escapeHtml(b.label)}</th>`).join('')}
+            <th>Total</th>
+          </tr></thead>
+          <tbody>
+            ${linhaGrupo('Entradas','rec',M.receitas||[],entPorBucket,1)}
+            ${linhaGrupo('Saídas','desp',M.despesas||[],saiPorBucket,-1)}
+            <tr class="fx-tot">
+              <td>Resultado do período</td>
+              ${resPorBucket.map(v=>`<td class="fx-c ${v>=0?'pos':'neg'}">${fxBRL(v)}</td>`).join('')}
+              <td class="fx-c ${resPorBucket.reduce((s,v)=>s+v,0)>=0?'pos':'neg'}">${fmtBRL(resPorBucket.reduce((s,v)=>s+v,0))}</td>
+            </tr>
+            <tr class="fx-saldo">
+              <td>Saldo final projetado</td>
+              ${B.map((b,i)=>{const v=T.saldo_final?.[i]||0;return `<td class="fx-c ${v>=0?'pos':'neg'}">${fxBRL(v)}</td>`;}).join('')}
+              <td class="fx-c ${saldoFinal>=0?'pos':'neg'}">${fmtBRL(saldoFinal)}</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>` : '';
+
+  const seg = (opts, cur, key) => `<div class="seg">${opts.map(([v,l])=>`<button class="${String(cur)===String(v)?'on':''}" onclick="fxSet('${key}',${typeof v==='string'?`'${v}'`:v})">${l}</button>`).join('')}</div>`;
+
   const html = `
     <div class="page-header">
-      <div><div class="page-title">Fluxo de Caixa <small>projecao ${dias} dias</small></div></div>
-      <div class="page-actions">
-        <select class="table-filter" onchange="state.filters.fluxoDias=Number(this.value);render()">
-          <option value="30" ${dias===30?'selected':''}>30 dias</option>
-          <option value="60" ${dias===60?'selected':''}>60 dias</option>
-          <option value="90" ${dias===90?'selected':''}>90 dias</option>
-          <option value="180" ${dias===180?'selected':''}>180 dias</option>
-        </select>
-      </div>
+      <div><div class="page-title">Fluxo de Caixa <small>realizado + projeção por categoria</small></div></div>
+    </div>
+
+    <div class="period-bar">
+      ${seg([['dia','Dia'],['semana','Semana'],['mes','Mês']], gran, 'fluxoGran')}
+      ${seg([[0,'Só futuro'],[30,'-30d'],[60,'-60d'],[90,'-90d']], passado, 'fluxoPassado')}
+      ${seg([[30,'+30d'],[60,'+60d'],[90,'+90d'],[180,'+180d']], dias, 'fluxoDias')}
+      <label class="field-checkbox" style="margin-left:auto;font-size:11px;color:var(--text2);display:flex;align-items:center;gap:6px;cursor:pointer">
+        <input type="checkbox" ${orc?'checked':''} onchange="fxSet('fluxoOrc',this.checked)">
+        <span>incluir orçamento (folha/fixos futuros)</span>
+      </label>
     </div>
 
     <div class="kpi-grid" style="grid-template-columns:repeat(auto-fit,minmax(180px,1fr))">
@@ -3642,6 +3725,8 @@ async function renderFluxo() {
       <div style="display:flex;align-items:center;gap:10px;color:var(--red);font-size:12px;font-weight:600">
         <span class="material-symbols-outlined">warning</span>Caixa fica negativo em ${fdc(menor.data)} (menor saldo projetado: ${fmtBRL(menor.saldo)}). Antecipe recebimentos ou renegocie vencimentos.</div>
     </div>` : ''}
+
+    ${matrizHtml}
 
     ${state.bancos && state.bancos.length ? `
     <div class="card" style="margin-top:16px">
@@ -3669,20 +3754,6 @@ async function renderFluxo() {
         ${proxCP.length ? `<div class="table-wrap" style="border:none"><table><tbody>${proxCP.slice(0,8).map(r=>linhaTitulo(r,true)).join('')}</tbody></table></div>${proxCP.length>8?`<div style="font-size:10px;color:var(--text3);margin-top:6px">+${proxCP.length-8} titulos a pagar</div>`:''}` : '<div class="empty" style="padding:18px"><p>Nada a pagar em aberto.</p></div>'}
       </div>
     </div>
-
-    ${semanas.length ? `<div class="card" style="margin-top:16px">
-      <div class="card-title"><span class="material-symbols-outlined">calendar_view_week</span>Resumo Semanal</div>
-      <div class="table-wrap" style="border:none"><table>
-        <thead><tr><th>Semana</th><th style="text-align:right">Entradas</th><th style="text-align:right">Saidas</th><th style="text-align:right">Liquido</th><th style="text-align:right">Saldo Final</th></tr></thead>
-        <tbody>${semanas.map(w=>{const liq=w.ent-w.sai;return `<tr>
-          <td style="white-space:nowrap;color:var(--text2)">${fdc(w.ini)} – ${fdc(w.fim)}</td>
-          <td class="money positive" style="text-align:right">${fmtBRL(w.ent)}</td>
-          <td class="money negative" style="text-align:right">${fmtBRL(w.sai)}</td>
-          <td class="money ${liq>=0?'positive':'negative'}" style="text-align:right">${fmtBRL(liq)}</td>
-          <td class="money ${w.saldo>=0?'positive':'negative'}" style="text-align:right;font-weight:700">${fmtBRL(w.saldo)}</td>
-        </tr>`;}).join('')}</tbody>
-      </table></div>
-    </div>` : ''}
 
     <div class="chart-wrap" style="margin-top:16px">
       <div class="chart-header"><div class="chart-title">Entradas vs Saidas</div></div>
