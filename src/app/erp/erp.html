@@ -1002,9 +1002,9 @@ async function renderDashboard() {
       </div>
       <div class="kpi danger">
         <div class="kpi-icon"><span class="material-symbols-outlined">trending_down</span></div>
-        <div class="kpi-label">A Pagar (em aberto)</div>
+        <div class="kpi-label">A Pagar (obrigação real)</div>
         <div class="kpi-value money negative">${fmtBRL(d.a_pagar)}</div>
-        <div class="kpi-sub down">${fmtBRL(d.vencidos_pagar)} vencidos</div>
+        <div class="kpi-sub down">${fmtBRL(d.vencidos_pagar)} vencidos${d.a_pagar_orcamento ? ` · orçamento futuro ${fmtBRL(d.a_pagar_orcamento)}` : ''}</div>
       </div>
       <div class="kpi info">
         <div class="kpi-icon"><span class="material-symbols-outlined">trending_up</span></div>
@@ -1037,6 +1037,27 @@ async function renderDashboard() {
         <div class="sm">títulos com vencimento no período</div>
       </div>
     </div>
+
+    ${(d.fluxo_15d && d.fluxo_15d.length) ? `
+    <div class="card" style="margin-bottom:16px">
+      <div class="card-title"><span class="material-symbols-outlined">event_upcoming</span>Projeção de Caixa · próximos 15 dias
+        <span style="margin-left:auto;font-size:11px;color:var(--text3)">parte de ${fmtBRL(d.saldo_total_bancos)} em bancos · só títulos com data (vencidos a reprogramar ficam fora)</span>
+      </div>
+      <div class="table-wrap" style="max-height:280px;overflow-y:auto">
+        <table class="table">
+          <thead><tr><th style="width:90px">Data</th><th>Título</th><th style="text-align:right;width:130px">Valor</th><th style="text-align:right;width:150px">Saldo projetado</th></tr></thead>
+          <tbody>
+            ${d.fluxo_15d.map(e => `
+              <tr>
+                <td>${fmtDateShort(e.data)}</td>
+                <td title="${escapeHtml(e.descricao)}">${escapeHtml(String(e.descricao).slice(0,70))}</td>
+                <td class="money ${e.valor>=0?'positive':'negative'}" style="text-align:right">${fmtBRL(e.valor)}</td>
+                <td class="money ${e.saldo_projetado>=0?'positive':'negative'}" style="text-align:right;font-weight:700">${fmtBRL(e.saldo_projetado)}</td>
+              </tr>`).join('')}
+          </tbody>
+        </table>
+      </div>
+    </div>` : ''}
 
     <div class="grid-row">
       <div class="chart-wrap">
@@ -1404,12 +1425,14 @@ async function renderContas(modo) {
     const liquido = Number(r.valor||0) - Number(r.desconto||0) + Number(r.juros||0) + Number(r.multa||0);
     const ultimo = isCP ? r.data_pagamento : r.data_recebimento;
     const na = '<span style="color:var(--text3)">—</span>';
+    const orcBadge = (Array.isArray(r.tags) && r.tags.includes('orcamento'))
+      ? `<span class="chip" style="background:#8892a022;color:#8892a0;margin-left:6px" title="Título pré-lançado de fato gerador futuro — ainda não é dívida">orçamento</span>` : '';
     if (simples) return `
       <tr class="${state.contasSel.has(r.id)?'selected':''}" style="cursor:pointer" onclick="if(!event.target.closest('input,button,select,a'))openTituloDrawer('${modo}','${r.id}')">
         <td class="sel-cell"><input type="checkbox" ${state.contasSel.has(r.id)?'checked':''} onchange="toggleSelConta('${r.id}',this.checked)"></td>
         <td>${statusChip(r.status)}</td>
         <td>
-          <div style="font-weight:600;white-space:normal;min-width:180px">${escapeHtml(r.descricao)}</div>
+          <div style="font-weight:600;white-space:normal;min-width:180px">${escapeHtml(r.descricao)}${orcBadge}</div>
           ${r.numero_documento?`<div style="font-size:10px;color:var(--text3)">Doc: ${escapeHtml(r.numero_documento)}</div>`:''}
         </td>
         <td>${escapeHtml(parceiro(r) || '--')}</td>
@@ -1430,7 +1453,7 @@ async function renderContas(modo) {
         <td class="sel-cell"><input type="checkbox" ${state.contasSel.has(r.id)?'checked':''} onchange="toggleSelConta('${r.id}',this.checked)"></td>
         <td>${statusChip(r.status)}</td>
         <td>
-          <div style="font-weight:600;white-space:normal;min-width:180px">${escapeHtml(r.descricao)}</div>
+          <div style="font-weight:600;white-space:normal;min-width:180px">${escapeHtml(r.descricao)}${orcBadge}</div>
           ${r.numero_documento?`<div style="font-size:10px;color:var(--text3)">Doc: ${escapeHtml(r.numero_documento)}</div>`:''}
         </td>
         <td style="font-variant-numeric:tabular-nums">${r.total_parcelas>1?`${String(r.parcela).padStart(3,'0')}/${String(r.total_parcelas).padStart(3,'0')}`:na}</td>

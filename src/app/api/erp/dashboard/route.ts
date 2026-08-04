@@ -33,8 +33,8 @@ export async function GET(req: NextRequest) {
     prevPagar, prevReceber, movPeriodo, movPrev, ultimosLanc,
     pagasPeriodo, recebPeriodo, categorias,
   ] = await Promise.all([
-    sb.from('erp_contas_pagar').select('valor,desconto,juros,multa,valor_pago,vencimento,status').in('status', ['aberto', 'parcial', 'vencido']),
-    sb.from('erp_contas_receber').select('valor,desconto,juros,multa,valor_recebido,vencimento,status').in('status', ['aberto', 'parcial', 'vencido']),
+    sb.from('erp_contas_pagar').select('descricao,valor,desconto,juros,multa,valor_pago,vencimento,status,tags').in('status', ['aberto', 'parcial', 'vencido']),
+    sb.from('erp_contas_receber').select('descricao,valor,desconto,juros,multa,valor_recebido,vencimento,status').in('status', ['aberto', 'parcial', 'vencido']),
     sb.from('erp_contas_pagar').select('valor,desconto,juros,multa,valor_pago').eq('status', 'vencido'),
     sb.from('erp_contas_receber').select('valor,desconto,juros,multa,valor_recebido').eq('status', 'vencido'),
     sb.from('erp_contas_bancarias').select('id,nome,saldo_atual,cor,tipo,ativo').eq('ativo', true).order('nome'),
@@ -114,11 +114,34 @@ export async function GET(req: NextRequest) {
   const previstoEntrada = sumDue(prevReceber.data, 'valor_recebido')
   const previstoSaida = sumDue(prevPagar.data, 'valor_pago')
 
+  // ---- obrigacao real x orcamento futuro (tag 'orcamento' = titulo pre-lancado
+  // de fato gerador futuro; nao e divida ainda) ----
+  type CpRow = Titulo & { descricao: string; vencimento: string; tags: string[] | null }
+  type CrRow = Titulo & { descricao: string; vencimento: string }
+  const isOrcamento = (r: CpRow) => Array.isArray(r.tags) && r.tags.includes('orcamento')
+  const cpRows = (cpAbertos.data || []) as CpRow[]
+  const cpReais = cpRows.filter((r) => !isOrcamento(r))
+  const cpOrcamento = cpRows.filter(isOrcamento)
+  const due = (r: Titulo, key: 'valor_pago' | 'valor_recebido') =>
+    Number(r.valor || 0) - Number(r.desconto || 0) + Number(r.juros || 0) + Number(r.multa || 0) - Number(r[key] || 0)
+
+  // ---- projecao de caixa 15 dias: saldo bancos + titulos datados (CP real + CR) ----
+  const fimJanela = iso(addDays(hojeDate, 15))
+  const eventos: { data: string; descricao: string; valor: number }[] = []
+  for (const r of cpReais) if (r.vencimento >= hoje && r.vencimento <= fimJanela) eventos.push({ data: r.vencimento, descricao: r.descricao, valor: -due(r, 'valor_pago') })
+  for (const r of (crAbertos.data || []) as CrRow[]) if (r.vencimento >= hoje && r.vencimento <= fimJanela) eventos.push({ data: r.vencimento, descricao: r.descricao, valor: due(r, 'valor_recebido') })
+  eventos.sort((a, b) => a.data.localeCompare(b.data) || a.valor - b.valor)
+  const saldoBancos = (contasBancarias.data || []).reduce((s: number, c: { saldo_atual: number }) => s + Number(c.saldo_atual || 0), 0)
+  let acumulado = saldoBancos
+  const fluxo15d = eventos.map((e) => ({ ...e, saldo_projetado: (acumulado += e.valor) }))
+
   return ok({
     periodo: { from, to, dias: lenDias, granularidade: gran, prev_from: prevFrom, prev_to: prevTo },
     // ponto no tempo (independente do periodo)
-    saldo_total_bancos: (contasBancarias.data || []).reduce((s: number, c: { saldo_atual: number }) => s + Number(c.saldo_atual || 0), 0),
-    a_pagar: sumDue(cpAbertos.data, 'valor_pago'),
+    saldo_total_bancos: saldoBancos,
+    a_pagar: sumDue(cpReais, 'valor_pago'),
+    a_pagar_orcamento: sumDue(cpOrcamento, 'valor_pago'),
+    fluxo_15d: fluxo15d,
     a_receber: sumDue(crAbertos.data, 'valor_recebido'),
     vencidos_pagar: sumDue(vencidosCp.data, 'valor_pago'),
     vencidos_receber: sumDue(vencidosCr.data, 'valor_recebido'),
