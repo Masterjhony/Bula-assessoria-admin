@@ -3635,6 +3635,7 @@ async function renderFluxo() {
   </tr>`;
 
   // ---------- matriz estilo Omie: categoria x periodo ----------
+  const fxBRL = (v) => fmtBRL(v).replace(/R\$\s?/, ''); // celula sem simbolo (pt-BR usa NBSP)
   const fxNum = (v, sign) => {
     if (!v) return '<td class="fx-c dim">–</td>';
     return `<td class="fx-c ${sign>0?'pos':'neg'}">${fxBRL(v*sign)}</td>`;
