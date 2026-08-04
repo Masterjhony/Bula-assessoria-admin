@@ -4648,6 +4648,68 @@ async function renderPrevistoRealizado() {
     </div>`;
   };
 
+  // ---------- matriz anual estilo Omie: categoria x mes, par Previsto | Realizado ----------
+  const pBRL = (v) => fmtBRL(v).replace(/R\$\s?/, '');
+  const MZ = Array.from({ length: 12 }, (_, i) => i);
+  const prCell = (prev, real, futuro, tipo) => {
+    const p = prev ? `<span style="color:var(--text3)">${pBRL(prev)}</span>` : '<span style="color:var(--text3);opacity:.4">–</span>';
+    let rCls = '';
+    if (!futuro && real != null && (prev > 0 || real > 0)) {
+      const bom = tipo === 'receita' ? real >= prev : real <= prev;
+      rCls = bom ? 'pos' : 'neg';
+    }
+    const r = futuro ? '<span style="opacity:.35">–</span>' : (real ? pBRL(real) : '<span style="opacity:.4">–</span>');
+    return `<td class="fx-c" style="border-right:1px dashed var(--border)">${p}</td><td class="fx-c ${rCls}">${r}</td>`;
+  };
+  const linhaCatPR = (c, grupo) => {
+    const fechado = (state.fluxoFechados || {})[grupo];
+    const totP = c.prev.reduce((s, v) => s + v, 0), totR = c.real.reduce((s, v) => s + v, 0);
+    return `<tr class="fx-row-${grupo}" style="${fechado ? 'display:none' : ''}">
+      <td><div class="fx-cat"><span class="fx-dot" style="background:${c.cor || '#8892a0'}"></span>${escapeHtml(c.nome)}</div></td>
+      ${MZ.map(i => prCell(c.prev[i] || 0, temReal(i) ? (c.real[i] || 0) : null, !temReal(i), c.tipo)).join('')}
+      ${prCell(totP, totR, false, c.tipo)}
+    </tr>`;
+  };
+  const grupoPR = (nome, grupo, tipo) => {
+    const itens = (d.categorias || []).filter(c => c.tipo === tipo);
+    const fechado = (state.fluxoFechados || {})[grupo];
+    const somaP = MZ.map(i => itens.reduce((s, c) => s + (c.prev[i] || 0), 0));
+    const somaR = MZ.map(i => itens.reduce((s, c) => s + (c.real[i] || 0), 0));
+    return `<tr class="fx-grp" onclick="toggleFluxoGrupo('${grupo}')">
+      <td><span class="material-symbols-outlined" id="fx-ico-${grupo}">${fechado ? 'chevron_right' : 'expand_more'}</span>${nome} (${itens.length})</td>
+      ${MZ.map(i => prCell(somaP[i], temReal(i) ? somaR[i] : null, !temReal(i), tipo)).join('')}
+      ${prCell(somaP.reduce((s, v) => s + v, 0), somaR.reduce((s, v) => s + v, 0), false, tipo)}
+    </tr>` + itens.map(c => linhaCatPR(c, grupo)).join('');
+  };
+  const resPrev = MZ.map(i => (meses[i]?.prev_entrada || 0) - (meses[i]?.prev_saida || 0));
+  const resReal = MZ.map(i => temReal(i) ? (meses[i]?.real_entrada || 0) - (meses[i]?.real_saida || 0) : null);
+  const resRealTot = resReal.filter(v => v != null).reduce((s, v) => s + v, 0);
+  const matrizPR = `
+    ${FX_STYLE}
+    <div class="card" style="margin:4px 0 20px">
+      <div class="card-title"><span class="material-symbols-outlined">grid_on</span>Previsto × Realizado por Categoria · ${d.ano}
+        <span style="margin-left:auto;font-size:10.5px;color:var(--text3);font-weight:400">em cada mês: esquerda = previsto · direita = realizado (verde/vermelho = desvio a favor/contra) · clique no mês para o detalhe</span>
+      </div>
+      <div class="fx-wrap">
+        <table class="fx-t">
+          <thead>
+            <tr><th rowspan="2" style="vertical-align:bottom">Categoria</th>${MZ.map(i => `<th colspan="2" class="${i === mi ? 'fx-now' : ''}" style="cursor:pointer;text-align:center" onclick="prSetMes(${i + 1})" title="Ver detalhe de ${RES_MESES[i]}">${i === mi ? '▸ ' : ''}${RES_MESES[i]}${!temReal(i) ? ' <span style="opacity:.5;font-size:8px">prev</span>' : ''}</th>`).join('')}<th colspan="2" style="text-align:center">Total ${d.ano}</th></tr>
+            <tr>${MZ.map(() => '<th style="font-size:8.5px">Prev</th><th style="font-size:8.5px">Real</th>').join('')}<th style="font-size:8.5px">Prev</th><th style="font-size:8.5px">Real</th></tr>
+          </thead>
+          <tbody>
+            ${grupoPR('Entradas', 'prrec', 'receita')}
+            ${grupoPR('Saídas', 'prdesp', 'despesa')}
+            <tr class="fx-saldo">
+              <td>Resultado do mês</td>
+              ${MZ.map(i => `<td class="fx-c" style="border-right:1px dashed var(--border)"><span style="color:var(--text3)">${resPrev[i] ? pBRL(resPrev[i]) : '–'}</span></td><td class="fx-c ${resReal[i] == null ? '' : (resReal[i] >= 0 ? 'pos' : 'neg')}">${resReal[i] == null ? '–' : pBRL(resReal[i])}</td>`).join('')}
+              <td class="fx-c"><span style="color:var(--text3)">${pBRL(resPrev.reduce((s, v) => s + v, 0))}</span></td>
+              <td class="fx-c ${resRealTot >= 0 ? 'pos' : 'neg'}">${pBRL(resRealTot)}</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>`;
+
   const html = `
     <div class="page-header">
       <div><div class="page-title">Previsto x Realizado <small>previsao gerencial vs caixa conciliado</small></div></div>
@@ -4710,6 +4772,8 @@ async function renderPrevistoRealizado() {
         { key: 'prev_r', color: '#8a8f98', label: 'Previsto', dash: true },
       ]})}
     </div>
+
+    ${matrizPR}
 
     <div style="display:flex;gap:6px;flex-wrap:wrap;margin:4px 0 14px">
       ${RES_MESES.map((nm, i) => `
