@@ -45,7 +45,11 @@ export async function GET(req: NextRequest) {
     for (const t of [...cps, ...crs]) { const y = Number((t.vencimento || '').slice(0, 4)); if (y) anosSet.add(y) }
     for (const m of movs) { const y = Number((m.data || '').slice(0, 4)); if (y) anosSet.add(y) }
     const anos = [...anosSet].sort((a, b) => b - a)
-    const anoParam = Number(req.nextUrl.searchParams.get('ano')) || anos[0] || new Date().getFullYear()
+    // default = ano corrente quando ha dados nele (um titulo vencendo em
+    // janeiro do ano seguinte nao pode puxar a pagina para um ano vazio)
+    const anoCorrente = new Date().getFullYear()
+    const anoParam = Number(req.nextUrl.searchParams.get('ano'))
+      || (anosSet.has(anoCorrente) ? anoCorrente : anos[0] || anoCorrente)
 
     type MesAgg = { mes: number; prev_entrada: number; prev_saida: number; real_entrada: number | null; real_saida: number | null }
     const meses: MesAgg[] = Array.from({ length: 12 }, (_, i) => ({ mes: i + 1, prev_entrada: 0, prev_saida: 0, real_entrada: null, real_saida: null }))
