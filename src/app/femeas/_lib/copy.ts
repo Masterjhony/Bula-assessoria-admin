@@ -232,6 +232,18 @@ export const form = {
     projeto: 'Conte um pouco do seu projeto',
   },
 
+  // Os quatro passos, na ordem em que o formulário pergunta. A ORDEM É O PONTO
+  // e não é a do /touros: lá contato sobe para o passo 1 ("captura o dado de
+  // lead o quanto antes", Formulario.tsx:73-74). Aqui projeto vem primeiro de
+  // propósito — quem não se reconhece no passo 1 sai ANTES de virar lead, e sai
+  // de graça. Inverter isto desfaz a página.
+  passos: ['Seu projeto', 'Sua fazenda', 'Seus dados', 'Formalização'],
+
+  // Consentimento de contato. É texto legal-comercial: mexer aqui muda o que a
+  // pessoa autorizou, não só como soa.
+  consent:
+    'Autorizo a Bula Assessoria a entrar em contato comigo pelo WhatsApp sobre este cadastro.',
+
   // O texto pequeno sob cada campo sensível.
   porques: {
     cpf: 'É o documento que habilita a compra em leilão. Não consultamos crédito sem falar com você antes.',
@@ -281,8 +293,62 @@ export const form = {
   ],
 
   submit: 'Enviar para análise',
+  submitting: 'Enviando…',
   // [JA] Esta linha é o último filtro antes do clique. Está clara?
   submitNote: 'Você recebe nosso retorno pelo WhatsApp. Nem todo cadastro é aprovado para reunião.',
+
+  placeholders: {
+    nome: 'Seu nome',
+    whatsapp: '(00) 00000-0000',
+    email: 'voce@email.com',
+    documento: 'CPF ou CNPJ',
+    projeto:
+      'Ex.: tenho 80 hectares em Goiás com gado comercial e quero começar um núcleo de PO para, daqui a alguns anos, produzir touro para vender.',
+  },
+
+  // Rótulos MECÂNICOS da interface (navegação, estados de carregamento). Não é
+  // copy comercial, mas mora aqui pelo mesmo motivo: INV-5 diz "zero string em
+  // componente", e abrir exceção para "só as pequenas" é como a lista do
+  // /saogeraldo virou três listas.
+  ui: {
+    selecione: 'Selecione…',
+    carregando: 'Carregando…',
+    escolhaUf: 'Escolha o estado primeiro',
+    opcional: '(opcional)',
+    voltar: 'Voltar',
+    continuar: 'Continuar',
+    // "Passo 2 / 4" — o separador vive aqui para não virar string no JSX.
+    passo: 'Passo',
+    passoSep: '/',
+    sigilo: 'Seus dados ficam só com a Bula.',
+    // Fallback de quando o servidor cai sem devolver mensagem (rede fora, 502
+    // do proxy). O caso normal é o formulário mostrar a mensagem do servidor.
+    falhaEnvio: 'Não foi possível enviar o cadastro.',
+    // Sufixo do erro de servidor. O texto do erro vem do servidor e é mostrado
+    // como veio; esta linha só acrescenta a informação que o servidor não tem —
+    // que nada foi perdido. NÃO repetir "tente novamente" aqui: as mensagens de
+    // 500 da rota já terminam assim, e o resultado é a frase duplicada na tela.
+    tenteNovamente: 'O que você digitou continua aqui.',
+  },
+
+  // Mensagens de validação do CLIENT. Espelham as do servidor
+  // (src/app/api/femeas/lead/route.ts) de propósito: quando as duas divergem, o
+  // lead passa no browser, é recusado no servidor e vê um texto que não bate com
+  // o campo que ele preencheu.
+  erros: {
+    nome: 'Preencha seu nome completo.',
+    whatsapp: 'Informe um WhatsApp válido com DDD.',
+    email: 'Informe um e-mail válido.',
+    uf: 'Selecione seu estado.',
+    cabecas: 'Selecione quantas cabeças você tem hoje.',
+    momento: 'Selecione em que momento você está.',
+    categoria: 'Selecione por qual categoria pensa em começar.',
+    quantidade: 'Selecione quantas matrizes pretende comprar.',
+    projeto: 'Conte um pouco do seu projeto — é o que a nossa equipe lê antes da reunião.',
+    documento: 'Informe um CPF ou CNPJ válido.',
+    inscricaoEstadual: 'Informe se você tem inscrição estadual.',
+    whatsappConsent: 'Autorize o contato via WhatsApp para continuar.',
+  },
 }
 
 // ─────────────────────────────────────────────────────────────────────────
@@ -294,14 +360,56 @@ export const form = {
 // de verdade é do SDR e ainda não aconteceu quando a pessoa chega aqui.
 // ─────────────────────────────────────────────────────────────────────────
 export const obrigado = {
+  // Bloco COMUM às duas variantes.
+  //
+  // As duas descrevem a reunião (fazenda, projeto, orçamento) porque é isso que
+  // reduz no-show depois — a pessoa chega sabendo do que se trata. O que muda
+  // entre as variantes é a expectativa de FILA, nunca a promessa: com triagem
+  // manual, quem decide se vira reunião é o SDR, e ele ainda não olhou.
+  //
+  // NÃO existe redirect para WhatsApp aqui, e não é esquecimento: o /touros tem
+  // um (WhatsappRedirect.tsx) e copiá-lo tira o lead da página antes do
+  // agendamento, que é o KPI deste funil. Também não há grupo de WhatsApp —
+  // decidido que não.
+  comum: {
+    eyebrow: 'CADASTRO RECEBIDO',
+    reuniaoTitle: 'O que a gente conversa na reunião',
+    reuniao: [
+      'A sua fazenda: onde fica, que estrutura você já tem e como é o seu manejo hoje.',
+      'O seu projeto: onde você quer chegar com o criatório e em quanto tempo.',
+      'O seu orçamento, em aberto — é ele que define por qual categoria faz sentido começar.',
+    ],
+    ressalva:
+      'A conversa é sem custo e sem compromisso de compra. Se o seu projeto não for para agora, a gente também te diz.',
+    prazoLabel: 'PRAZO DE CONTATO',
+  },
+  // ⚠️ Nenhuma das duas pode dizer "aprovado". A aprovação é do SDR e ainda não
+  // aconteceu quando a pessoa chega aqui — prometer o que não se controla é o
+  // caminho mais curto para queimar o assessor na reunião seguinte.
   mql: {
     title: 'Recebemos o seu cadastro.',
-    lead: 'Seu perfil tem tudo a ver com o que a gente faz. Nossa equipe vai analisar e te chamar no WhatsApp para marcar a reunião com um assessor.',
+    lead: 'Seu perfil tem tudo a ver com o que a gente faz. Nossa equipe vai analisar o seu projeto e te chamar no WhatsApp para conversar sobre a reunião com um assessor.',
+    // [VALIDAR] o prazo é pendência de cliente — ver semMarcacao(), que apaga a
+    // marcação na renderização para ela nunca aparecer na tela do lead.
     prazo: '[VALIDAR] Em até 24 horas úteis.',
   },
   lead: {
     title: 'Recebemos o seu cadastro.',
     lead: 'Nossa equipe vai analisar o seu projeto e entrar em contato pelo WhatsApp.',
+    // [VALIDAR] idem.
     prazo: '[VALIDAR] Em até 24 horas úteis.',
   },
 } as const
+
+/**
+ * Apaga as marcações de revisão ([VALIDAR], [JA]) no momento de renderizar.
+ *
+ * Por que existe em vez de simplesmente tirar a marcação do texto: a marcação é
+ * PENDÊNCIA DE CLIENTE e precisa continuar visível para quem lê este arquivo —
+ * é o lembrete de que o prazo "24 horas úteis" ainda não foi confirmado. Tirar
+ * do arquivo faria a pendência sumir do radar; deixar chegar à tela faria o lead
+ * ler "[VALIDAR]" numa página de conversão. Esta função resolve os dois.
+ */
+export function semMarcacao(texto: string): string {
+  return texto.replace(/\[(VALIDAR|JA)\]\s*/g, '').trim()
+}

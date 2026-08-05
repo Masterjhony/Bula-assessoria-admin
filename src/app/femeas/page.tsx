@@ -29,9 +29,11 @@ import {
 // inteira. O problema declarado pelo cliente é volume de lead errado, não falta
 // de lead.
 //
-// ESTADO: copy da Fase 4 no lugar, para revisão do João Antônio. O tratamento
-// visual é provisório (Fase 7) e o formulário ainda não existe (Fase 6) — os
-// CTAs apontam para #cadastro, que a Fase 6 cria.
+// ESTADO: copy da Fase 4 no lugar, para revisão do João Antônio. O formulário
+// da Fase 6 já está pendurado em `#cadastro`, dentro do Hero — instância única
+// (INV-7), com submit para /api/femeas/lead e navegação hard para
+// /obrigado-femeas-mql | -lead conforme o veredito do servidor (INV-1/INV-3).
+// O tratamento visual continua provisório: é a Fase 7.
 export default function FemeasPage() {
   return (
     <main>

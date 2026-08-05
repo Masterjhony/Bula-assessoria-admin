@@ -11,15 +11,15 @@
 // /touros. O que está aqui é tipografia honesta sobre o near-black da marca —
 // suficiente para julgar TEXTO, não para julgar página.
 //
-// O formulário ainda não existe: ele é a Fase 6 e depende do contrato da API
-// (Fase 5) e da lista final de campos, que é decisão do cliente. Os CTAs abaixo
-// apontam para #cadastro, que ainda não existe — é intencional, e a Fase 6
-// fecha o laço.
+// O formulário (Fase 6) já existe e vive em `#cadastro`, dentro do card do
+// hero — instância única na página (INV-7). Os CTAs daqui e do Fecho apontam
+// para a âncora; nenhum deles instancia um segundo <LeadForm/>.
 // ─────────────────────────────────────────────────────────────────────────
 import type { ReactNode } from 'react'
 import { dark, typo } from '../_lib/tokens'
 import { categorias } from '../_lib/categorias'
 import { hero, paraQuem, categoriasSecao, jornada, assessoria, fecho } from '../_lib/copy'
+import { LeadForm } from './Formulario'
 
 const wrap = { maxWidth: 940, margin: '0 auto' } as const
 const pad = 'clamp(48px, 9vw, 96px) clamp(20px, 5vw, 40px)'
@@ -127,6 +127,16 @@ export function Hero() {
         {hero.cta}
       </a>
       <p style={notaCta}>{hero.ctaNote}</p>
+
+      {/* O formulário mora AQUI, dentro do card do hero, e é o ÚNICO da página
+          (INV-7): o Fecho e o StickyCta apontam para #cadastro, nunca duplicam a
+          instância — duas instâncias duplicariam os eventos de funil e o
+          femeas_form_started deixaria de significar alguma coisa.
+          O tratamento visual desta dobra é da Fase 7; aqui o form só é
+          pendurado na âncora. */}
+      <div id="cadastro" style={{ marginTop: 'clamp(36px, 6vw, 56px)', scrollMarginTop: 16 }}>
+        <LeadForm />
+      </div>
     </Secao>
   )
 }
