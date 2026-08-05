@@ -37,6 +37,18 @@ const nextConfig = {
           { key: 'Cache-Control', value: 'public, max-age=86400, stale-while-revalidate=604800' },
         ],
       },
+      {
+        // Assets da landing do perpétuo de fêmeas (public/femeas/*). Regra
+        // própria pelo mesmo motivo da do São Geraldo acima: entrar no grupo
+        // :dir(touros|...) mexeria numa regex que serve a rota de touros, que
+        // está em produção convertendo. O plano da fase 3 pedia o contrário
+        // (somar ao grupo), mas o precedente do São Geraldo é o que vale — e é
+        // o que o invariante de não tocar em /touros manda.
+        source: '/femeas/:path*.(jpg|jpeg|png|webp|svg|ico)',
+        headers: [
+          { key: 'Cache-Control', value: 'public, max-age=86400, stale-while-revalidate=604800' },
+        ],
+      },
     ]
   },
 }

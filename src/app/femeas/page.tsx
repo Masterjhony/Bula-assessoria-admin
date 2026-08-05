@@ -1,0 +1,46 @@
+import {
+  Hero,
+  ParaQuem,
+  Categorias,
+  Jornada,
+  ProvaSocial,
+  Fecho,
+  Footer,
+  StickyCta,
+} from './_components/Stubs'
+
+// Landing do funil perpétuo de FÊMEAS — Bula Assessoria.
+// Roda ao mesmo tempo que o perpétuo de touros (/touros); não substitui nada.
+//
+// A diferença estrutural em relação ao /touros: o KPI aqui é REUNIÃO AGENDADA,
+// não cadastro. Quem compra fêmea PO está montando criatório próprio, o ciclo é
+// consultivo, e a decisão do cliente (05/08) é que pós-cadastro se agenda uma
+// reunião com assessor em vez de passar o número dele no WhatsApp. Isso muda
+// formulário, página de obrigado e instrumentação — não é o /touros com texto
+// trocado.
+//
+// Ordem das seções (travada na Fase 3, conteúdo nas Fases 4 e 7):
+//
+//   Hero+form → ParaQuem (o filtro) → Categorias → Jornada → ProvaSocial
+//   → Fecho → Footer → StickyCta
+//
+// ParaQuem vem LOGO DEPOIS do hero de propósito: é a seção que existe para
+// desqualificar, e desqualificar tarde desperdiça o lead que já rolou a página
+// inteira. O problema declarado pelo cliente é volume de lead errado, não falta
+// de lead.
+//
+// ESTADO: esqueleto. Todas as seções são stubs de _components/Stubs.tsx.
+export default function FemeasPage() {
+  return (
+    <main>
+      <Hero />
+      <ParaQuem />
+      <Categorias />
+      <Jornada />
+      <ProvaSocial />
+      <Fecho />
+      <Footer />
+      <StickyCta />
+    </main>
+  )
+}
