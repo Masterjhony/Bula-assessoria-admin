@@ -19,9 +19,9 @@ quem for continuar precisa saber se pode voltar atrás.
 | 3 — rota/tokens/esqueleto | ✅ feita | `3d8c894` |
 | 4 — copy e categorias | ✅ 1ª versão revisada pelo João Antônio | `ecb9af7`, `c0e77d0` |
 | 5 — API + régua | ✅ **feita** | `7642809` |
-| 6 — formulário | 🔵 em execução (Frontend Developer) | — |
+| 6 — formulário | ✅ **feita** | `d092d62` |
 | 7 — seções (visual) | ⏳ não começada | — |
-| 8 — obrigado | 🔵 T8.1/T8.4 em execução; T8.3 (agendamento) aberta | — |
+| 8 — obrigado | ✅ T8.1/T8.4 feitas · ⏳ **T8.3 (agendamento) aberta** | `d092d62` |
 | 9 — instrumentação/GTM | ⏳ depende de 6 | — |
 | 10 — QA e go-live | ⏳ | — |
 | 11 — melhoria contínua | ⏳ | — |
@@ -188,6 +188,41 @@ pessoa com login vê e escreve em tudo (agendamentos, CRM, financeiro — este
 forem contratados novos, eles entram com o mesmo alcance da diretoria. Vale
 levantar com o cliente **antes** de criar os três logins; não é bloqueio do
 go-live da landing.
+
+---
+
+## Fases 6 e 8 — o que foi medido, e o que ficou por medir
+
+O formulário e as duas páginas de obrigado foram verificados **em navegador
+real** (Playwright, 390×844), não por leitura de código: um `<form>` só na página
+(INV-7), sem overflow horizontal, `font-size: 16px` nos quatro controles (é o
+mecanismo do zoom do iOS, não estética), alvos de 50–56px, "Continuar" vazio
+produzindo 4 `role="alert"` e levando o foco ao primeiro inválido, IBGE
+devolvendo 247 cidades para GO, CPF de dígito repetido barrado com a mesma
+mensagem da rota.
+
+**INV-1 foi medido, não presumido:** um marcador em `window` não sobrevive à
+navegação nas duas variantes — prova de load completo, não SPA. Sem isso o
+gatilho Page View do GTM não roda e a conversão some **sem erro visível**.
+
+**Quatro coisas continuam sem verificação, e três delas bloqueiam mídia:**
+
+| O que | Por que não foi verificado | Bloqueia? |
+|---|---|---|
+| **Nenhum lead real caiu na aba FEMEAS** | O `fetch` foi stubado para não sujar a planilha de produção. Contrato conferido por leitura, payload por interceptação (bate campo a campo) — mas **ninguém viu uma linha cair** | **sim** |
+| PostHog não recebeu nada | Sem `NEXT_PUBLIC_POSTHOG_KEY` o `analytics.ts` é no-op por desenho. As 5 chamadas existem com o prefixo certo; ingestão, não | **sim** — sem os eventos por passo, C-01 não tem como ser decidida |
+| Tag de conversão do Meta na URL de obrigado | É configuração de container (GTM Preview). O mecanismo foi verificado; a tag, não | **sim** |
+| `next build` | Outro dev server segurando o lock do `.next`. `tsc` + `eslint` + as 3 rotas renderizando em dev cobrem parte | não |
+
+**Correção a uma leitura do agente:** ele registrou T8.3 como bloqueada por
+`requireAdmin()`. **Não é uma questão de permissão** — ver a seção acima: qualquer
+usuário autenticado passa. O que bloqueia T8.3 é o **desenho do caminho de
+agendamento**, não o acesso a ele.
+
+**Copy nova que o João Antônio ainda não leu:** `form.consent` (é texto legal —
+define o que a pessoa autorizou), as mensagens de erro, o placeholder do campo
+projeto e todo o bloco `obrigado.comum`. Ele revisou a v2 do `copy.ts`, que é
+anterior a isso.
 
 ---
 

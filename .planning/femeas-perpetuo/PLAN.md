@@ -1681,9 +1681,9 @@ Com C-02, C-03, C-05 e C-13 fechadas, este é o estado de cada fase **hoje**.
 | **3** — rota/tokens/cache | ✅ **FEITA** — commit `3d8c894` | Rota, tokens, `ui.tsx`, GTM, `analytics.ts`, `utm.ts` (com `femeas_utm`), layout, stubs, `public/femeas/README.md` e a regra de cache. **Desvio registrado em T3.4** (regra própria em vez do grupo `:dir`) |
 | **4** — copy e categorias | 🔵 **EM ANDAMENTO** — não mexer | `_lib/copy.ts` e `_lib/categorias.ts` estão sendo escritos agora, 1ª versão para o João Antônio corrigir. O **texto final** espera C-07/C-08/C-09 e a revisão dele (janela: **antes de 13/08**) |
 | **5** — API + régua | ✅ **FEITA** — commit `7642809` | `src/app/api/femeas/lead/route.ts` + `_lib/qualificacao.ts` (régua própria, sem `min_cabecas`). C-04 ficou com o default do plano. Ver `EXECUCAO.md`, desvios 4 e 5 |
-| **6** — formulário | 🔵 **EM EXECUÇÃO** | 4 passos, campos de atrito e instrumentação por passo. C-01 continua aberta — o formulário nasce com o default e medindo |
+| **6** — formulário | ✅ **FEITA** — commit `d092d62` | 4 passos, campos de atrito e os 5 eventos por passo. C-01 segue aberta — o formulário nasce com o default e **medindo** |
 | **7** — seções | 🟡 **liberada, depende só de conteúdo** | Tratamento visual. C-07 (prova social de fêmeas) e C-08 (preço) seguem abertas |
-| **8** — obrigado + agendamento | 🔵 **T8.1/T8.4 em execução** | As duas páginas de obrigado estão sendo feitas. **T8.3 (o caminho de agendamento) continua aberta** e é o KPI da página. ⚠️ Verificar o acesso do SDR ao `POST /api/agendamentos` (`requireAdmin`) — **ainda não foi checado** |
+| **8** — obrigado + agendamento | ✅ **T8.1/T8.4 FEITAS** — `d092d62` · ⏳ **T8.3 aberta** | As duas páginas existem, sem WhatsApp e sem dizer "aprovado". **T8.3 (o caminho de agendamento) é o KPI e continua aberta.** ✅ O acesso do SDR foi checado: `requireAdmin()` só exige sessão — não é problema de permissão (ver `EXECUCAO.md`) |
 | **9–11** | 🔴 | Dependem das anteriores |
 
 ### Confirmação pedida: Fases 2 e 3 podem rodar em paralelo?
