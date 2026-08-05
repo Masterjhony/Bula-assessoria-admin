@@ -20,7 +20,7 @@ quem for continuar precisa saber se pode voltar atrás.
 | 4 — copy e categorias | ✅ 1ª versão revisada pelo João Antônio | `ecb9af7`, `c0e77d0` |
 | 5 — API + régua | ✅ **feita** | `7642809` |
 | 6 — formulário | ✅ **feita** | `d092d62` |
-| 7 — seções (visual) | ⏳ não começada | — |
+| 7 — seções (visual) | ✅ **feita, sem foto** — ver Desvio 6 | — |
 | 8 — obrigado | ✅ T8.1/T8.4 feitas · ⏳ **T8.3 (agendamento) aberta** | `d092d62` |
 | 9 — instrumentação/GTM | ⏳ depende de 6 | — |
 | 10 — QA e go-live | ⏳ | — |
@@ -164,6 +164,66 @@ decisão tomada na direção da tese da página (atrito é o produto), **não um
 medido**. Está instrumentado (`femeas_validation_failed` traz o campo) e é o
 primeiro candidato a virar opcional se a Fase 11 mostrar que ele derruba o funil.
 **Pendência C-01.**
+
+---
+
+## Desvio 6 — a Fase 7 foi executada SEM FOTO NENHUMA, de propósito
+
+**O plano dizia** (T7.1, T7.3): hero com imagem `priority` e cartões de categoria
+"com foto, nome e uma linha".
+
+**O que existia quando a fase foi executada:** `public/femeas/` só tinha o
+`README.md`. As únicas fotos de gado do repositório estão em
+`public/touros/ensaio/` e são **apartação de touro** — e o próprio
+`public/femeas/README.md` proíbe usá-las aqui: *"o assunto das fotos aqui é
+matriz e recria, não touro. Foto de touro nesta landing contradiz a segmentação
+que a página inteira existe para fazer."* As gravações na fazenda são 14–15/08.
+
+**O que foi feito:** tratamento **editorial-tipográfico** que não depende de
+imagem, e não um layout fotográfico com buracos. Concretamente:
+
+- ritmo de superfície como divisor — near-black → pergaminho → near-black →
+  pergaminho → near-black(#141414) → near-black → pergaminho → near-black. A
+  troca de fundo entre blocos vizinhos é o que separa as seções; não há faixa
+  colorida nem borda grossa em lugar nenhum;
+- manchete um degrau maior que a do `/touros` (lá a foto divide o palco), com
+  medida curta e `text-wrap: balance` para virar bloco visual;
+- ficha técnica do hero com filete sobre cada célula — no celular é tabela de
+  especificação, e é ela que segura o olho antes do formulário;
+- grades de filete de 1px (categorias, jornada) em vez de cartão com sombra;
+- inicial de livery a 4,5% ocupando o vão que sobra no desktop entre o aviso de
+  análise e a ficha técnica.
+
+**Os encaixes de foto existem e são invisíveis enquanto vazios:** duas
+constantes `null` no `Hero.tsx` e um mapa vazio no `Categorias.tsx`. Nenhum
+retângulo cinza, nenhuma proporção reservada, nenhum "imagem aqui". O passo a
+passo de como ligar está em `public/femeas/README.md`.
+
+**Três buracos de grade foram encontrados MEDINDO em 1440 e corrigidos** — todos
+por causa de `repeat(auto-fit,…)`, que abre colunas demais quando sobra largura:
+seis categorias viravam 4+2 (duas células vazias aparecendo como painel cinza,
+porque o fundo da grade é o filete) e quatro itens de assessoria viravam 3+1. As
+duas grades passaram a ter número **fixo** de colunas por faixa (6÷1/2/3 e
+4÷1/2 fecham exatas). Não voltar para auto-fit.
+
+**Arquivos:** `Secoes.tsx` (a "versão de leitura de copy" da Fase 4) foi
+**removido** e virou nove componentes com os nomes que o plano previa — `Hero`,
+`ParaQuem`, `Categorias`, `Jornada`, `Assessoria`, `ProvaSocial`, `Fecho`,
+`Footer`, `StickyCta` — mais `editorial.tsx`, com os primitivos de seção.
+
+⚠️ `editorial.tsx` existe **separado de `ui.tsx`** por uma razão técnica, não
+estética: `ui.tsx` é `'use client'`, e todo export de módulo cliente vira
+referência de cliente no App Router. Dá para renderizar `<Hairline/>` de lá num
+componente de servidor, mas **não dá para chamar a função `palette()`**. As
+seções desta página são de servidor, então os helpers que elas chamam
+(`pele()`, `acento()`) moram no módulo de servidor.
+
+**Copy nova, e ela precisa de revisão do João Antônio** (INV-5 respeitado — nada
+disso está em componente): `provaSocial` (a frase qualitativa que substitui o
+"+1.000 touros PO apartados", que para este público é fraca), os `eyebrow` de
+cada seção, `rodape` e `hero.fotoAlt`. A flag `destaque` dos passos da jornada
+também entrou no `copy.ts`, e não no JSX, para que reordenar os passos mova o
+destaque junto.
 
 ---
 

@@ -40,6 +40,11 @@
 
 export const hero = {
   eyebrow: 'MATRIZES PO NELORE · BULA ASSESSORIA',
+  // Texto alternativo da foto do topo. Vive aqui, e não no componente, porque
+  // quando o material da fazenda (14–15/08) chegar, quem troca a foto troca a
+  // descrição junto — e alt é conteúdo, não estilo. Enquanto o encaixe está
+  // vazio, esta linha não é renderizada em lugar nenhum.
+  fotoAlt: 'Matrizes Nelore PO a pasto, em fazenda atendida pela Bula Assessoria',
   // A promessa é a marca própria, não o animal. Veio quase literal da reunião:
   // "crie sua própria marca de Nelore PO, seu próprio criatório".
   title: 'Crie a sua própria marca de Nelore PO.',
@@ -86,6 +91,11 @@ export const hero = {
 // sério é o tipo de frase que afasta justamente o comprador grande.
 // ─────────────────────────────────────────────────────────────────────────
 export const paraQuem = {
+  // Os `eyebrow` de seção nasceram como string solta dentro do componente na
+  // versão de leitura da Fase 4. Vieram para cá na Fase 7: rótulo de seção é
+  // copy — é a primeira palavra que a pessoa lê do bloco — e INV-5 não abre
+  // exceção "para as pequenas".
+  eyebrow: 'O FILTRO',
   title: 'Antes de você preencher: isto aqui não é para todo mundo.',
   lead: 'Preferimos te dizer agora do que tomar seu tempo numa reunião que não vai levar a nada.',
 
@@ -120,6 +130,7 @@ export const paraQuem = {
 }
 
 export const categoriasSecao = {
+  eyebrow: 'CATEGORIAS',
   title: 'Por onde começar o seu plantel.',
   lead: 'Não existe uma porta única. A certa depende do que você já tem, de quanto tempo você pode esperar e do caixa disponível — e é isso que a reunião com o assessor resolve.',
   // As seis categorias vivem em _lib/categorias.ts (fonte única). Esta seção só
@@ -127,7 +138,14 @@ export const categoriasSecao = {
   nota: 'Todas as categorias podem ser parceladas em 30× no boleto, com frete grátis sob consulta.',
 }
 
+// `destaque` decide qual passo ganha peso visual — e a decisão mora AQUI, não no
+// componente, por dois motivos. O primeiro é INV-5. O segundo é que a razão do
+// destaque está escrita na própria copy: o `lead` diz "o terceiro é o que nos
+// diferencia". Se um dia o time reordenar os passos, quem edita este arquivo
+// move a flag junto com a frase; um `if (n === '03')` escondido no JSX ficaria
+// para trás e destacaria o passo errado sem ninguém perceber.
 export const jornada = {
+  eyebrow: 'COMO FUNCIONA',
   title: 'Como funciona daqui até a sua primeira matriz.',
   lead: 'São quatro passos. O terceiro é o que nos diferencia: você não recebe um número de WhatsApp, você recebe uma reunião.',
   passos: [
@@ -136,29 +154,34 @@ export const jornada = {
       titulo: 'Você preenche o cadastro',
       texto:
         'É mais longo que o normal, de propósito. Pedimos os dados que permitem entender o seu projeto antes da conversa — inclusive documento e inscrição estadual, que são o que habilita a compra em leilão.',
+      destaque: false,
     },
     {
       n: '02',
       titulo: 'Nossa equipe analisa',
       texto:
         'Uma pessoa de verdade lê o que você escreveu e faz um pré-diagnóstico do seu projeto. Não é automático, e nem todo cadastro é aprovado.',
+      destaque: false,
     },
     {
       n: '03',
       titulo: 'Cadastro aprovado, reunião agendada',
       texto:
         'Você é chamado para uma reunião com um assessor Bula. Sem custo e sem compromisso de compra.',
+      destaque: true,
     },
     {
       n: '04',
       titulo: 'Na reunião, o projeto toma forma',
       texto:
         'A gente entende a sua fazenda, o seu projeto e o seu orçamento — e a partir daí te direciona para a categoria por onde faz sentido você começar.',
+      destaque: false,
     },
   ],
 }
 
 export const assessoria = {
+  eyebrow: 'A ASSESSORIA',
   title: 'O que vem junto, sem custo nenhum.',
   lead: 'A Bula não vende o animal e some. O acompanhamento é o serviço — e ele é de graça para quem compra com a gente.',
   itens: [
@@ -196,11 +219,47 @@ export const assessoria = {
   ],
 }
 
+// ─────────────────────────────────────────────────────────────────────────
+// PROVA SOCIAL — a faixa de logos de criatórios.
+//
+// ⚠️ SEM NÚMERO, e a ausência é a decisão. A prova social do /touros é
+// "+1.000 touros PO apartados" (`src/app/touros/_lib/copy.ts`), e ela aqui é
+// pior que fraca: fala do produto que esta página existe para NÃO vender, para
+// um comprador que quer ver criatório formado, não animal apartado. Prova
+// social própria deste funil é a pendência C-07 — enquanto ela não chega, a
+// formulação é qualitativa e não estima nada.
+//
+// O que os logos provam sem número: são criatórios que EXISTEM, com nome no
+// catálogo. É literalmente o que a página vende no hero ("crie a sua própria
+// marca"), e é por isso que a faixa fecha o argumento em vez de só decorar.
+// Quando C-07 fechar, o número entra AQUI — não no componente.
+export const provaSocial = {
+  eyebrow: 'QUEM JÁ ESTÁ DO OUTRO LADO',
+  title: 'Criatórios que hoje vendem genética com o nome deles no catálogo. Todos começaram menores do que são.',
+  // Rótulo da faixa para quem usa leitor de tela: sem ele, a lista de logos é
+  // um monte de nome de fazenda solto no meio da página.
+  faixaLabel: 'Criatórios e fazendas atendidos pela Bula Assessoria',
+}
+
 export const fecho = {
+  eyebrow: 'PARA FECHAR',
   title: 'Todo criatório de Nelore PO que existe hoje começou com alguém decidindo começar.',
   lead: 'Se o seu projeto é esse, preencha o cadastro. Se não for, obrigado por ter lido até aqui — e a porta dos touros continua aberta.',
   cta: 'Quero montar meu criatório',
   ctaNote: 'Cadastro analisado · Reunião com assessor se aprovado',
+}
+
+// Rodapé. Não é copy comercial, mas mora aqui pela mesma razão que `form.ui`:
+// INV-5 diz "zero string em componente", e a marca ("Bula Assessoria") aparece
+// como alt de imagem em dois lugares — hero e rodapé. Uma fonte só evita a
+// divergência boba de um deles virar "Bula" num refactor.
+export const rodape = {
+  marca: 'Bula Assessoria',
+  privacidade: 'Privacidade',
+  termos: 'Termos',
+  privacidadeHref: '/privacidade',
+  termosHref: '/termos',
+  direitos: 'Todos os direitos reservados.',
 }
 
 // ─────────────────────────────────────────────────────────────────────────
