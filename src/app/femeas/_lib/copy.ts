@@ -247,6 +247,39 @@ export const form = {
     'Ainda estou estudando o assunto',
   ],
 
+  // As duas listas abaixo são opções de select, e o texto delas é copy como
+  // qualquer outro — mas com uma diferença que importa: o RÓTULO é o que fica
+  // gravado na planilha, nas colunas "Cabeças" e "Qtd. desejada", que a equipe
+  // já lê há meses com o vocabulário do formulário do Meta. Por isso as faixas
+  // são exatamente as de lá (ver META_CABECAS/META_QTD em src/lib/jmp-sheets.ts)
+  // e não faixas novas: inventar um terceiro vocabulário na mesma coluna é como
+  // o relatório por faixa deixa de fechar.
+  //
+  // Reescrever uma destas linhas muda o valor gravado dos leads NOVOS e não
+  // migra os antigos — mexer aqui é decisão de dado, não de texto.
+  rebanhos: [
+    'nenhuma',
+    '1 a 50 cabeças',
+    '51 a 100 cabeças',
+    '101 a 300 cabeças',
+    '301 a 500 cabeças',
+    'mais de 500 cabeças',
+  ],
+
+  // "mais de 50 matrizes" existe de propósito, e não pode ser tirada da lista
+  // para "filtrar melhor": é a faixa que a rodada anterior trouxe em massa
+  // (gente querendo 50 a 70 cabeças a preço de comercial). Tirar a opção não
+  // tira a pessoa — só esconde da equipe que ela chegou. Ver a régua em
+  // _lib/qualificacao.ts, que trata essa faixa como sinal, não como recusa.
+  quantidades: [
+    '1 a 5 matrizes',
+    '6 a 10 matrizes',
+    '11 a 20 matrizes',
+    '21 a 50 matrizes',
+    'mais de 50 matrizes',
+    'ainda não sei',
+  ],
+
   submit: 'Enviar para análise',
   // [JA] Esta linha é o último filtro antes do clique. Está clara?
   submitNote: 'Você recebe nosso retorno pelo WhatsApp. Nem todo cadastro é aprovado para reunião.',
