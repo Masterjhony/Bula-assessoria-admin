@@ -3030,7 +3030,7 @@ async function mvLoadTitulo(movId){
       return;
     }
     const mc = Math.round(Number(m.valor)*100);
-    const abertos = (list||[]).filter(t=>['aberto','vencido','parcial'].includes(t.status));
+    const abertos = (list||[]).filter(t=>['aberto','vencido','parcial'].includes(t.status) && restoDe(t) > 0.009);
     const score = (t)=>{
       const dv = Math.abs(Math.round(restoDe(t)*100)-mc);
       const dd = Math.abs((new Date((t.vencimento||m.data)+'T00:00:00') - new Date(m.data+'T00:00:00'))/86400000);
