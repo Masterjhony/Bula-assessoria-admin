@@ -15,12 +15,14 @@ quem for continuar precisa saber se pode voltar atrás.
 |---|---|---|
 | 0 — modelo do funil | ✅ **feita** — `MODELO-FUNIL.md` | (documento, sem código) |
 | 1 — decisões/infra | ⏳ aberta (C-10 domínio) | — |
+
+**Material de imagem pedido ao cliente:** `MATERIAL-NECESSARIO.md` — a lista para a gravação de 14–15/08, com o impacto de cada arquivo. O `og-femeas.jpg` é o único que **já causa dano hoje**: o `layout.tsx` aponta para ele e todo link compartilhado sai com o card quebrado.
 | 2 — separação nos dados | ✅ **feita**, com desvio | `7642809` |
 | 3 — rota/tokens/esqueleto | ✅ feita | `3d8c894` |
 | 4 — copy e categorias | ✅ 1ª versão revisada pelo João Antônio | `ecb9af7`, `c0e77d0` |
 | 5 — API + régua | ✅ **feita** | `7642809` |
 | 6 — formulário | ✅ **feita** | `d092d62` |
-| 7 — seções (visual) | ✅ **feita, sem foto** — ver Desvio 6 | — |
+| 7 — seções (visual) | ✅ **feita, sem foto** — ver Desvio 6 | `68369cd` |
 | 8 — obrigado | ✅ T8.1/T8.4 feitas · ⏳ **T8.3 (agendamento) aberta** | `d092d62` |
 | 9 — instrumentação/GTM | ⏳ depende de 6 | — |
 | 10 — QA e go-live | ⏳ | — |
