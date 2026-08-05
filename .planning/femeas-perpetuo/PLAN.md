@@ -256,9 +256,16 @@ Fases 5+6+7+8 ─► Fase 9 (instrumentação) ─► Fase 10 (QA + go-live) ─
 **Ordem recomendada:** 0 e 1 em paralelo → **2 e 3 em paralelo** → 4 → 5 →
 6 (paralelo com 7) → 8 → 9 → 10 → 11 (contínua).
 
-**Estado em 05/08:** Fase 3 **feita** (`3d8c894`), Fase 4 **em andamento**.
-Fases 0, 1, 2 e o desenho da 8 estão desbloqueados. Ver "🟢 Por onde começar" no
-fim do plano, com as três ordens que não devem ser invertidas.
+**Estado em 05/08 (fim do dia):** Fases **3, 4, 2 e 5 feitas** (`3d8c894`,
+`ecb9af7`, `c0e77d0`, `7642809`). Fases **6 e 8** em execução. Fases 0, 1 e 7
+seguem desbloqueadas e não começadas.
+
+⚠️ **Antes de executar qualquer fase, leia `EXECUCAO.md` neste diretório.** A
+Fase 2 deste plano foi escrita contra uma versão de `src/lib/jmp-sheets.ts` que
+mudou em 31/07 — a aba `LEADS FEMEAS` que ele manda criar **não deve ser
+criada**, porque a aba `FEMEAS` já existe e é ela que virou a fila do SDR. As
+âncoras de linha do plano para aquele arquivo também não batem mais. O
+`EXECUCAO.md` registra esse e os outros quatro desvios, com o motivo de cada um.
 
 **Caminho crítico:** `0 → 1 → 2 → 3 → 4 → 5 → 6 → 8 → 9 → 10`.
 
@@ -1668,15 +1675,15 @@ Com C-02, C-03, C-05 e C-13 fechadas, este é o estado de cada fase **hoje**.
 
 | Fase | Estado | O que ainda falta |
 |---|---|---|
-| **0** — modelo do funil | 🟢 **completável agora** | C-05 fechou os números, C-02/C-03 o desenho, e a correção dos 3 SDRs removeu o bloqueio de capacidade. Falta **escrever** o `MODELO-FUNIL.md` e **mandar C-14** (6 pessoas ou 3 acumulando) |
+| **0** — modelo do funil | ✅ **FEITA** — `MODELO-FUNIL.md` escrito | Falta só **mandar C-14 ao cliente** (6 pessoas ou 3 acumulando). O documento entrega os dois cenários com seus limiares (~22% e ~43%); escolher entre eles é decisão de quem monta o time |
 | **1** — decisões/infra | 🟢 **pode rodar** | T1.2 (criar domínio) espera C-10, mas T1.1 (auditar Vercel) e T1.3 (GTM) rodam já |
-| **2** — separação nos dados | 🟢 **liberada, sem ressalva** | Nada. O destino é a fila do SDR, aba única, cabeçalho definido em T2.2 |
+| **2** — separação nos dados | ✅ **FEITA** — commit `7642809` | Feita **de outro jeito**: a aba `FEMEAS` que já existia virou a fila do SDR, com 9 colunas próprias. Não existe aba `LEADS FEMEAS`. Ver `EXECUCAO.md`, desvios 1 e 2 |
 | **3** — rota/tokens/cache | ✅ **FEITA** — commit `3d8c894` | Rota, tokens, `ui.tsx`, GTM, `analytics.ts`, `utm.ts` (com `femeas_utm`), layout, stubs, `public/femeas/README.md` e a regra de cache. **Desvio registrado em T3.4** (regra própria em vez do grupo `:dir`) |
 | **4** — copy e categorias | 🔵 **EM ANDAMENTO** — não mexer | `_lib/copy.ts` e `_lib/categorias.ts` estão sendo escritos agora, 1ª versão para o João Antônio corrigir. O **texto final** espera C-07/C-08/C-09 e a revisão dele (janela: **antes de 13/08**) |
-| **5** — API + régua | 🟡 **depende de 2 e 4** | Precisa de `appendLeadToFemeasTab` (Fase 2) e dos `id` de `categorias.ts` (Fase 4). C-04 tem default |
-| **6** — formulário | 🟡 **depende de 4 e 5** | C-01 tem default; construir com ele e medir |
-| **7** — seções | 🟡 **depende de 4** | Conteúdo |
-| **8** — obrigado + agendamento | 🟢 **desenho liberado** | C-02 fechada. Implementação depende da copy (Fase 4) e do veredito (Fase 5). ⚠️ Verificar o acesso do SDR ao `POST /api/agendamentos` (`requireAdmin`) — **isso pode ser checado hoje** |
+| **5** — API + régua | ✅ **FEITA** — commit `7642809` | `src/app/api/femeas/lead/route.ts` + `_lib/qualificacao.ts` (régua própria, sem `min_cabecas`). C-04 ficou com o default do plano. Ver `EXECUCAO.md`, desvios 4 e 5 |
+| **6** — formulário | 🔵 **EM EXECUÇÃO** | 4 passos, campos de atrito e instrumentação por passo. C-01 continua aberta — o formulário nasce com o default e medindo |
+| **7** — seções | 🟡 **liberada, depende só de conteúdo** | Tratamento visual. C-07 (prova social de fêmeas) e C-08 (preço) seguem abertas |
+| **8** — obrigado + agendamento | 🔵 **T8.1/T8.4 em execução** | As duas páginas de obrigado estão sendo feitas. **T8.3 (o caminho de agendamento) continua aberta** e é o KPI da página. ⚠️ Verificar o acesso do SDR ao `POST /api/agendamentos` (`requireAdmin`) — **ainda não foi checado** |
 | **9–11** | 🔴 | Dependem das anteriores |
 
 ### Confirmação pedida: Fases 2 e 3 podem rodar em paralelo?
