@@ -1,12 +1,26 @@
 // ─────────────────────────────────────────────────────────────────────────
 // Copy comercial da landing do perpétuo de FÊMEAS.
 //
-// ⚠️ PRIMEIRA VERSÃO — ESCRITA PARA SER CORRIGIDA.
+// ESTADO: v2 — revisada pelo João Antônio em 05/08/2026.
 //
-// Nada aqui foi aprovado. Isto é um rascunho para o João Antônio marcar o que
-// está errado, e ele é criador — onde eu escrevi jargão torto, o jargão está
-// torto mesmo. Editar direto neste arquivo; a página inteira lê daqui (INV-5),
-// então corrigir aqui corrige na página, sem tocar em componente.
+// Ele aprovou o conjunto ("qualifica pra cacete, não vai entrar um bobo
+// perdido") e pediu três coisas. Duas eram texto e já estão aplicadas:
+//
+//   1. Frete → "frete grátis sob consulta", a praxe de leilão. Ver hero.stats.
+//   2. Saiu "e criatório sério não começa por volume" do bloco "não é para
+//      você". Ver paraQuem.nao.
+//
+// A terceira NÃO é texto e continua aberta:
+//
+//   3. A promessa de ACASALAMENTO precisa de validação da equipe técnica —
+//      ele a elogiou, mas alertou que exige formação e ir ao curral. Ver o
+//      comentário em `assessoria.itens`. É risco de ENTREGA, não de copy.
+//
+// Editar direto neste arquivo; a página inteira lê daqui (INV-5), então
+// corrigir aqui corrige na página, sem tocar em componente.
+//
+// Marcações que sobraram: [VALIDAR] em claim que depende do cliente, [JA] em
+// pergunta ainda não respondida.
 //
 // Marcações:
 //   [VALIDAR]  — claim que não pode ir ao ar sem o cliente confirmar
@@ -33,13 +47,18 @@ export const hero = {
   cta: 'Quero montar meu criatório',
   // Contra-intuitivo de propósito: avisa que tem análise. Ver cabeçalho.
   ctaNote: 'Cadastro analisado pela nossa equipe · Se aprovado, você é chamado para uma reunião com um assessor',
-  // [VALIDAR] Nenhum número inventado. Os três abaixo saem de fatos que a
-  // reunião declarou (30x, frete grátis, assessoria sem custo). Se o cliente
-  // quiser prova de escala aqui (nº de criatórios atendidos, animais vendidos),
-  // ele precisa fornecer o número — não estimar.
+  // Nenhum número inventado — os três saem de fatos declarados na reunião. Se o
+  // cliente quiser prova de escala aqui (nº de criatórios atendidos, animais
+  // vendidos), ele precisa fornecer o número; não estimar.
+  //
+  // "sob consulta" no frete é correção do João Antônio (05/08) e NÃO é hedge
+  // jurídico: é a praxe de leilão. A maioria entrega sem custo, mas para praças
+  // de logística difícil — o Acre foi o exemplo dele — quase não existe leilão
+  // que entregue. Prometer frete grátis seco criaria promessa que o time teria
+  // de desdizer na reunião, que é o pior lugar para desdizer.
   stats: [
     { value: '30x', label: 'no boleto' },
-    { value: 'Frete', label: 'por nossa conta' },
+    { value: 'Frete grátis', label: 'sob consulta' },
     { value: 'R$ 0', label: 'custo da assessoria' },
   ],
   titleVariants: [
@@ -57,9 +76,14 @@ export const hero = {
 // custo disso não é o lead perdido, é a hora do SDR queimada em quem nunca ia
 // comprar.
 //
-// [JA] O tom está certo? Tentei ser direto sem ser grosseiro: quem não é o
-// público tem que se reconhecer e sair, mas sem sair ofendido — ele pode ser
-// comprador de touro, e o Bula quer esse cara no outro funil.
+// TOM APROVADO (João Antônio, 05/08): direto sem ser grosseiro — quem não é o
+// público se reconhece e sai, mas sem sair ofendido, porque ele pode ser
+// comprador de touro e a Bula quer esse cara no outro funil.
+//
+// O único ajuste que ele pediu foi cirúrgico e já está aplicado abaixo: o
+// filtro julga EXPECTATIVA DE PREÇO, nunca a ambição do comprador. Ao editar
+// esta lista, manter essa linha — dizer a alguém que o projeto dele não é
+// sério é o tipo de frase que afasta justamente o comprador grande.
 // ─────────────────────────────────────────────────────────────────────────
 export const paraQuem = {
   title: 'Antes de você preencher: isto aqui não é para todo mundo.',
@@ -77,7 +101,12 @@ export const paraQuem = {
   naoTitle: 'NÃO é para você se',
   nao: [
     'Você procura fêmea de gado comercial, para cria ou engorda. A Bula não trabalha com fêmea comercial — só PO registrado.',
-    'Você quer dezenas de matrizes de uma vez a preço de comercial. Matriz PO não tem esse preço, e criatório sério não começa por volume.',
+    // Revisão João Antônio (05/08): a segunda oração era "e criatório sério não
+    // começa por volume" e SAIU. O filtro aqui é expectativa de PREÇO, não
+    // ambição de volume — existe (raro) o comprador que quer volume de matriz
+    // cara, e a frase anterior dizia a ele que seu criatório não seria sério.
+    // Não reintroduzir.
+    'Você quer dezenas de matrizes de uma vez a preço de comercial. Matriz PO não tem esse preço.',
     'Você quer só uma tabela de preços. Aqui o preço depende do projeto, e o projeto a gente descobre conversando.',
     'Você quer comprar hoje e receber amanhã sem falar com ninguém. Todo cadastro passa por análise antes de virar reunião.',
   ],
@@ -95,7 +124,7 @@ export const categoriasSecao = {
   lead: 'Não existe uma porta única. A certa depende do que você já tem, de quanto tempo você pode esperar e do caixa disponível — e é isso que a reunião com o assessor resolve.',
   // As seis categorias vivem em _lib/categorias.ts (fonte única). Esta seção só
   // aporta o texto ao redor delas.
-  nota: 'Todas as categorias podem ser parceladas em 30× no boleto, com frete por nossa conta. [VALIDAR] o frete grátis vale para o Brasil todo ou tem limite de distância?',
+  nota: 'Todas as categorias podem ser parceladas em 30× no boleto, com frete grátis sob consulta.',
 }
 
 export const jornada = {
@@ -138,6 +167,17 @@ export const assessoria = {
       texto:
         'Técnicos especializados ajudam a ler o catálogo, entender a genética e escolher a fêmea que serve ao seu projeto — não a mais cara nem a mais bonita.',
     },
+    // ⚠️ [VALIDAR — ENTREGA, NÃO TEXTO] João Antônio (05/08) aprovou a promessa
+    // e disse que "chama muita atenção", MAS levantou que ela precisa de
+    // validação da equipe técnica antes do go-live: acasalamento bem feito
+    // exige formação e ir ao curral, e é preciso confirmar que a Bula e as
+    // assessorias vão sustentar esse atendimento no volume que a campanha
+    // trouxer.
+    //
+    // O risco não é a copy estar errada — é ela estar CERTA e o serviço não
+    // aparecer. Promessa forte que não se cumpre queima o assessor na reunião,
+    // que é justamente o KPI do funil. Se o time decidir que não sustenta,
+    // suavizar AQUI antes de subir; não deixar para descobrir depois.
     {
       titulo: 'Acasalamento',
       texto:
@@ -151,7 +191,7 @@ export const assessoria = {
     {
       titulo: 'Entrega',
       texto:
-        'Frete por nossa conta. [VALIDAR] confirmar abrangência.',
+        'Frete grátis sob consulta, como é a praxe do leilão. A gente confirma a entrega para a sua região antes da compra — não depois.',
     },
   ],
 }
