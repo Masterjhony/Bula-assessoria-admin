@@ -7,7 +7,7 @@ import {
   Fecho,
   Footer,
   StickyCta,
-} from './_components/Stubs'
+} from './_components/Secoes'
 
 // Landing do funil perpétuo de FÊMEAS — Bula Assessoria.
 // Roda ao mesmo tempo que o perpétuo de touros (/touros); não substitui nada.
@@ -29,7 +29,9 @@ import {
 // inteira. O problema declarado pelo cliente é volume de lead errado, não falta
 // de lead.
 //
-// ESTADO: esqueleto. Todas as seções são stubs de _components/Stubs.tsx.
+// ESTADO: copy da Fase 4 no lugar, para revisão do João Antônio. O tratamento
+// visual é provisório (Fase 7) e o formulário ainda não existe (Fase 6) — os
+// CTAs apontam para #cadastro, que a Fase 6 cria.
 export default function FemeasPage() {
   return (
     <main>

@@ -82,6 +82,11 @@ Três decisões do cliente que mudam o **desenho**, não só a configuração:
 | 1 | **São 3 assessores**, não 2 | C-13 |
 | 2 | **O pré-diagnóstico é manual.** Nada de automatizar triagem nesta versão — o formulário coleta e organiza; **quem decide é gente** | C-03 |
 | 3 | **Quem opera o agendamento é o SDR — e é o mesmo SDR que faz o pré-diagnóstico** | C-02 |
+| 4 | **São 3 SDRs**, não um (correção de 05/08) | — |
+
+⚠️ **Aberto: 3 SDRs + 3 assessores (seis pessoas) ou as mesmas 3 acumulando os
+dois papéis?** É a pendência **C-14**, e ela muda o limiar de `t_aprov` de ~22%
+para ~43% (Fase 0, T0.3). Não resolvida aqui.
 
 ```
 formulário → SDR (pré-diagnóstico manual + agendamento) → reunião com assessor
@@ -93,8 +98,9 @@ formulário e o assessor, e três consequências saem daí:
 - **O lead de fêmeas NÃO é roteado direto para aba de assessor**, como o de
   touros faz via `tourosTabDaUF()` (`src/lib/jmp-sheets.ts:1559`). Ele vai para
   uma **fila do SDR** — aba única, sem divisão por UF (Fase 2).
-- **Triagem e agendamento são toques da MESMA pessoa** e competem pelo mesmo
-  dia. A conta de capacidade tem que somar os dois (Fase 0, T0.3).
+- **Triagem e agendamento são toques da mesma pessoa** e competem pelo mesmo
+  dia — agora com teto de **3 × 7 = 21 toques/dia**. A conta de capacidade soma
+  os dois, e no cenário (b) de C-14 soma também a reunião (Fase 0, T0.3).
 - **Existem dois portões, e confundi-los quebra a medição** (Fase 5, T5.3):
   o veredito do servidor (`is_mql`, instantâneo) é **sinal para o algoritmo de
   mídia**; o veredito do SDR (`Aprovado`, manual) é **o portão real do funil**.
@@ -250,9 +256,9 @@ Fases 5+6+7+8 ─► Fase 9 (instrumentação) ─► Fase 10 (QA + go-live) ─
 **Ordem recomendada:** 0 e 1 em paralelo → **2 e 3 em paralelo** → 4 → 5 →
 6 (paralelo com 7) → 8 → 9 → 10 → 11 (contínua).
 
-**Estado em 05/08, depois das 4 pendências fechadas:** Fases 0, 1, 2, 3 e o
-desenho da 8 estão **desbloqueados**. Ver a seção "🟢 Por onde começar" no fim
-do plano, com as três ordens que não devem ser invertidas.
+**Estado em 05/08:** Fase 3 **feita** (`3d8c894`), Fase 4 **em andamento**.
+Fases 0, 1, 2 e o desenho da 8 estão desbloqueados. Ver "🟢 Por onde começar" no
+fim do plano, com as três ordens que não devem ser invertidas.
 
 **Caminho crítico:** `0 → 1 → 2 → 3 → 4 → 5 → 6 → 8 → 9 → 10`.
 
@@ -397,83 +403,138 @@ quantos campos de atrito ficam no formulário.
 medido é o funil de touros, e ele é o análogo mais próximo disponível — não é o
 mesmo público.
 
-### T0.3 — Capacidade: o gargalo agora tem dono, e ele é uma pessoa
+### T0.3 — Capacidade: **são 3 SDRs**, e o gargalo vira condição
+
+**Correção de premissa em 05/08:** são **3 SDRs**, não um. A versão anterior
+desta fase modelou uma pessoa e produziu um pedido de recurso que **não existe**.
+O que existe é uma **condição**, e ela é mensurável nas primeiras semanas.
 
 **Decidido em 05/08 (fecha C-02 e C-03):** o pré-diagnóstico é **manual** — nada
 de automatizar triagem nesta versão — e quem o faz é o **SDR**, que também opera
-o agendamento. O fluxo é:
+o agendamento:
 
 ```
 formulário → SDR (pré-diagnóstico manual + agendamento) → reunião com assessor
 ```
 
-Isso não cria o gargalo que a versão anterior deste plano identificou. **Cria o
-dono dele.** E muda o cálculo: triagem e agendamento são **os dois toques da
-mesma pessoa**, então competem pelo mesmo dia.
+Triagem e agendamento continuam sendo **toques da mesma pessoa** e competem pelo
+mesmo dia. O que mudou é o teto: **3 × 7 = 21 toques/dia**, 462/mês.
 
-**Capacidade dos assessores — passa, e agora com folga maior ainda.** São **3
-assessores** (C-13 fechada; o `tourosTabDaUF()` em `src/lib/jmp-sheets.ts:1559`,
-que divide entre 2, está desatualizado — mas ele descreve o roteamento do funil
-de **touros**, e o de fêmeas nem passa por lá; ver Fase 2). 40 reuniões ÷ 3 =
-13,3/assessor/mês ≈ **0,6 por dia útil**, mesmo com reunião consultiva longa.
+#### Antes de tudo: uma divergência de conta que muda a conclusão
 
-**Capacidade do SDR — não passa.** Carga diária do SDR, por premissa de
-`t_aprov`, somando triagem **e** agendamento (`R = 40` reuniões/mês, 22 dias
-úteis):
+A conta rápida do coordenador — *"a 12,9% de aprovação, 40 reuniões/mês pedem
+~310 leads/mês, ~14 toques/dia no time, ~4,7 por SDR"* — **está aritmeticamente
+certa, mas para `t_aprov` = 35%, não para 12,9%.**
 
-| `t_aprov` | leads a triar/mês | triagem/dia | agendamentos/dia | **carga total/dia** |
-|---|---:|---:|---:|---:|
-| **12,9%** [MEDIDO] | 689 | 31,3 | 2,4 | **33,7** |
-| 30% | 296 | 13,5 | 2,4 | **15,9** |
-| 35% [premissa otimista] | 254 | 11,5 | 2,4 | **13,9** |
-| 50% | 178 | 8,1 | 2,4 | **10,5** |
+O motivo é que ela colapsa dois elos da cadeia: `310 × 0,129 ≈ 40` trata
+**aprovado como sinônimo de reunião realizada**. Entre um e outro existem
+`t_agenda` (60%) e `t_show` (75%) — combinados, **45%**. Com eles, 40 reuniões
+exigem **88,9 aprovados**, não 40.
 
-**A única referência medida de throughput é 7 toques/dia** — e ela é do **time
-inteiro**, durante o lançamento do São Geraldo
-(`ANALISE-VERBA-SAOGERALDO-2026-07-31.md` §7 e §10 item 16). Um SDR **dedicado**
-é outro regime e provavelmente rende mais, mas **não existe medição disso em
-lugar nenhum deste repositório**: a capacidade de um SDR dedicado é
-**[ASSUMIDO]**, e é a premissa mais frágil do modelo.
-
-**A conta pelo outro lado — o que UM SDR a 7 toques/dia entrega de verdade:**
-com `L` leads triados e `A` agendamentos disputando o mesmo teto,
-`L + A = 154` toques/mês, e `A = L × t_aprov × 0,60`, `R = A × 0,75`:
-
-| `t_aprov` | leads triados/mês | agendamentos | **reuniões/mês** |
-|---|---:|---:|---:|
-| 12,9% [MEDIDO] | 143 | 11 | **8** |
-| 35% | 127 | 27 | **20** |
-
-> **Meta: 40 reuniões/mês. Entrega de um SDR no único throughput medido: 8 a 20.**
-> A lacuna não é de verba nem de criativo. É de capacidade de triagem.
-
-### T0.3.1 — O pedido de recurso, quantificado
-
-Isto vai ao cliente como **pedido explícito**, não como premissa escondida no
-plano. Para as 40 reuniões/mês fecharem, uma destas três tem que ser verdade:
-
-| Saída | O número | O que custa |
+| | conta rápida | modelo completo |
 |---|---|---|
-| **(A) O SDR sustenta mais que 7 toques/dia** | **10,5/dia** se `t_aprov` = 50% · **14/dia** se 35% · **34/dia** se 12,9% | Nada em dinheiro. Mas 34/dia não é plausível para conversa de WhatsApp consultiva, e 49% dos leads chegam entre 17h e 22h (`ANALISE` §10 item 13) — a carga não é distribuível pelo dia |
-| **(B) Um segundo SDR** | Com 2 SDRs a 7 toques/dia (308 toques/mês) e `t_aprov` 35%: **~40 reuniões/mês**. Fecha | Uma contratação |
-| **(C) A meta cai** | 8 a 20 reuniões/mês com um SDR, conforme `t_aprov` | Nada — mas é metade ou um quinto do que foi pedido |
+| Aprovados para 40 reuniões | 40 | **88,9** |
+| Leads a 12,9% | ~310 | **689** |
+| Toques/dia no time | ~14 | **33,7** |
+| Por SDR/dia | ~4,7 | **11,2** |
 
-**Com o pré-diagnóstico manual por decisão (C-03), a régua automática no servidor
-sai de cena como alavanca de escala.** Sobra **uma só**: o formulário.
+**Os ~14/dia e ~4,7/SDR aparecem no modelo — em `t_aprov` = 35%.** A conta estava
+certa; o rótulo é que trocou. E a diferença importa: a 12,9% o time fica **1,6x
+acima** da referência de 7/dia; a 35% fica **33% abaixo**.
 
-> **É por isso que o atrito do formulário deixou de ser "filtro" e virou
-> infraestrutura de capacidade.** Cada ponto de `t_aprov` que o formulário
-> compra é carga que não cai no SDR. De 12,9% para 35%, a carga diária cai de
-> 33,7 para 14,0 — **2,4x**. Nenhuma outra decisão deste plano tem essa alavanca.
+#### Cenário (a) — 3 SDRs + 3 assessores (seis pessoas)
 
-⚠️ **E há um limite que o formulário não vence sozinho.** Para as 40 reuniões
-saírem de **um** SDR a 7 toques/dia — 154 toques/mês, dos quais 53 são
-agendamentos —, `t_aprov` teria que ser **88%**. Ou seja: 9 de cada 10 leads
-comprados teriam que virar reunião marcada. **Isso não existe em nenhum funil.**
-Mesmo a `t_aprov` de 50%, a carga fica em 10,5/dia contra a referência de 7.
+Teto do time de SDR: **21 toques/dia · 462/mês**. Os assessores não competem por
+esse teto (0,6 reunião/dia cada, folgado).
 
-> **O formulário estreita a lacuna; ele não a fecha. Quem fecha é (B) ou (C).**
-> Escrever isso agora, com o número, é mais barato que descobrir em setembro.
+| `t_aprov` | leads/mês | toques/mês | time/dia | **por SDR/dia** | vs. referência de 7 |
+|---|---:|---:|---:|---:|---|
+| **12,9%** [MEDIDO] | 689 | 742 | 33,7 | **11,2** | 🔴 1,6x acima |
+| 20% | 444 | 498 | 22,6 | 7,5 | 🟡 no limite |
+| **21,8%** | 408 | 461 | 21,0 | **7,0** | ⚖️ **break-even** |
+| 30% | 296 | 350 | 15,9 | 5,3 | 🟢 folga |
+| **35%** [premissa otimista] | 254 | 307 | 14,0 | **4,7** | 🟢 33% abaixo |
+| 50% | 178 | 231 | 10,5 | 3,5 | 🟢 folga larga |
+
+> **Cenário (a) fecha se `t_aprov` ≥ ~22%.** Não é "fecha com folga" nem "não
+> fecha" — é **condicional**, e a condição é exatamente o que o formulário de
+> alto atrito existe para comprar. O análogo medido (12,9%, funil de touros)
+> está **abaixo**; a premissa otimista (35%) está **bem acima**. A resposta vem
+> nas primeiras 200 submissões, não de estimativa.
+
+#### Cenário (b) — as mesmas 3 pessoas acumulando SDR e assessor
+
+Aqui a reunião consultiva **sai do mesmo dia** que a triagem e o agendamento.
+Para somar, é preciso converter uma reunião de 1h em toques — e **essa conversão
+é [ASSUMIDO], nunca foi medida**. Adoto **1 reunião = 5 toque-equivalentes**
+(1h de reunião + preparo + follow-up ≈ 1,5h, contra ~15–20 min por toque).
+
+Carga fixa/mês = 53 agendamentos + 40 reuniões × 5 = **253 toque-equivalentes**,
+antes de triar um único lead.
+
+| `t_aprov` | carga total/mês | time/dia | **por pessoa/dia** |
+|---|---:|---:|---:|
+| 12,9% [MEDIDO] | 942 | 42,8 | **14,3** 🔴 |
+| 35% [premissa otimista] | 507 | 23,1 | **7,7** 🔴 |
+| 50% | 431 | 19,6 | **6,5** 🟢 |
+| **42,6%** | 462 | 21,0 | **7,0** ⚖️ break-even |
+
+> **Cenário (b) exige `t_aprov` ≥ ~43% — quase o dobro do (a).** E 43% está
+> **acima da premissa otimista de 35%**: no cenário (b), nem o cenário bom fecha.
+
+⚠️ **E (b) é frágil na premissa que ninguém mediu.** Sensibilidade ao custo da
+reunião:
+
+| 1 reunião = | break-even `t_aprov` |
+|---|---|
+| 3 toque-equivalentes | 30,8% |
+| **5** (adotado) | **42,6%** |
+| 8 toque-equivalentes | **impossível** — a carga fixa sozinha estoura o teto |
+
+**A viabilidade de (b) depende de um número que não existe em lugar nenhum.**
+Se a reunião consultiva de fêmeas for mais pesada que 5 toques — e ela é longa
+por desenho (fazenda, projeto, orçamento) —, (b) não fecha em nenhuma `t_aprov`.
+
+### T0.3.1 — O que decidir, e o que apenas medir
+
+**O pedido de recurso saiu.** No lugar dele ficam uma pendência e um limiar.
+
+**A pendência — C-14, e o plano não a resolve.** O cliente disse "3 assessores"
+antes e "3 SDRs" agora. São seis pessoas (a) ou as mesmas três acumulando (b)?
+
+| | Cenário (a) — 6 pessoas | Cenário (b) — 3 acumulando |
+|---|---|---|
+| Limiar de `t_aprov` para 40 reuniões/mês | **~22%** | **~43%** |
+| A premissa otimista (35%) fecha? | **sim, com folga** | **não** |
+| Depende de número não medido? | não | **sim** (custo da reunião em toques) |
+
+> **Sim, muda a decisão** — e muda de forma binária na premissa que já temos:
+> a 35%, (a) fecha com 33% de folga e (b) fica 10% acima do teto. Enquanto C-14
+> não for respondida, **planejar por (a) e medir para (b)**: (a) é o cenário
+> declarado pelo cliente e o mais provável, mas se (b) for a realidade, o limiar
+> dobra e o formulário passa a ser o único caminho.
+
+**O limiar, que vale nos dois cenários.** `t_aprov` deixou de ser curiosidade e
+virou **o número que decide se a meta fecha**:
+
+```
+t_aprov < 22%   → nem o cenário (a) fecha. Reabrir capacidade ou meta.
+22% ≤ t < 43%   → (a) fecha; (b) não. A resposta de C-14 passa a ser decisiva.
+t_aprov ≥ 43%   → fecha nos dois. A meta de 40 deixa de ser a restrição.
+```
+
+**O formulário continua sendo a alavanca — mudou o que ele precisa entregar.**
+Com triagem manual (C-03), a régua automática no servidor sai de cena como
+alavanca de escala e sobra **uma só**: o formulário. A diferença é que ele não
+precisa mais fazer o impossível (a versão anterior deste plano pedia 88% de
+aprovação com um SDR). **Ele precisa levar `t_aprov` de 12,9% para ~22%** —
+uma melhora de 1,7x, plausível para um formulário desenhado para filtrar somada
+às seções "para quem é / para quem não é".
+
+⚠️ **O que a folga NÃO compra:** margem para comprar lead sem triar. A 12,9% e
+com 3 SDRs, a carga ainda é 11,2/SDR/dia — acima da referência. **A folga é
+condicional ao formulário funcionar**, e o sinal de que não funcionou aparece na
+fila, não no relatório de mídia (T0.4).
 
 ### T0.4 — Sinais de falsificação do modelo
 
@@ -496,20 +557,24 @@ custo/formulário > R$ 45       → o público de fêmea é mais caro que o de t
 custo/aprovado > R$ 500        → passou do teto do perpétuo isolado (R$ 496,17).
                                  Parar antes de escalar verba, não depois.
 
-── capacidade do SDR (T0.3) ──────────────────────────────────────────────
-fila do SDR cresce 2 semanas    → a entrada é maior que a vazão. NÃO comprar
-  seguidas                        mais lead: o backlog já é mídia paga parada
-                                  (`ANALISE` §7 mediu R$ 603 nessa situação).
-lead sem 1º toque em >24h        → a cadência quebrou, e cadência é tratada
-  em >20% dos casos               como o fator decisivo de conversão. É sinal
-                                  de teto, não de desleixo.
-SDR sustenta <10 toques/dia      → a saída (A) de T0.3.1 está descartada por
-  por 3 semanas                   evidência. Acionar (B) ou (C) — decisão do
-                                  cliente, com o número na mão.
+── capacidade dos 3 SDRs (T0.3) ─────────────────────────────────────────
+fila cresce 2 semanas seguidas   → a entrada é maior que a vazão. NÃO comprar
+                                   mais lead: o backlog já é mídia paga parada
+                                   (`ANALISE` §7 mediu R$ 603 nessa situação).
+lead sem 1º toque em >24h         → a cadência quebrou, e cadência é tratada
+  em >20% dos casos                como o fator decisivo de conversão. É sinal
+                                   de teto, não de desleixo.
+ritmo médio por SDR <5/dia         → o teto real é menor que os 7/dia assumidos.
+  com fila NÃO vazia               Recalcular os limiares de T0.3: a 5/dia o
+                                   break-even do cenário (a) sobe de 22% p/ ~30%.
+t_aprov < 22% após 200 leads       → nem o cenário (a) fecha. A meta de 40 volta
+                                   à mesa junto com C-14.
 ```
 
-**Regra de leitura:** os três sinais de capacidade valem **mais** que os de
-mídia. Verba resolve numerador; nenhum deles resolve denominador.
+**Regra de leitura, e ela não mudou com os 3 SDRs:** os sinais de capacidade
+valem **mais** que os de mídia. Verba resolve numerador; nenhum deles resolve
+denominador. **O que mudou é que agora há folga para testar isso em vez de ser
+bloqueio** — mas a folga é condicional a `t_aprov`, e só a fila responde.
 
 **Critério de verificação:**
 - `.planning/femeas-perpetuo/MODELO-FUNIL.md` existe, com as 5 taxas nomeadas, os
@@ -523,11 +588,14 @@ mídia. Verba resolve numerador; nenhum deles resolve denominador.
   no documento, não só neste plano.
 - Nenhum lugar do documento usa R$ 226,55 e R$ 29,30 na mesma conta.
 - O documento responde, em uma frase: *quantos leads/mês esta página precisa
-  entregar, quanto isso custa, e quantas pessoas precisam triar.*
-- **O pedido de recurso de T0.3.1 foi enviado ao cliente**, com as três saídas e
-  o número de cada uma — não como observação no plano, como pergunta que exige
-  resposta. A meta de 40 reuniões/mês **não é premissa aceita** enquanto uma das
-  três não for escolhida.
+  entregar, quanto isso custa, e qual `t_aprov` faz a meta fechar.*
+- Os **dois cenários de C-14** estão modelados com seus limiares (~22% e ~43%),
+  e a pendência foi **enviada ao cliente** — o plano não escolhe entre eles.
+- A conversão "1 reunião = 5 toque-equivalentes" do cenário (b) está marcada
+  **[ASSUMIDO]** com a tabela de sensibilidade (3 / 5 / 8), porque ela sozinha
+  decide se aquele cenário é viável.
+- A divergência entre a conta rápida e o modelo completo (t_agenda × t_show)
+  está registrada — para ninguém refazer a conta colapsada depois.
 
 **Dependências:** nenhuma.
 
@@ -761,10 +829,22 @@ no lugar e assets servidos com cache correto.
   (`hero-mobile.webp`, `hero-desktop.webp`, `og-femeas.jpg` 1200×630, fotos de
   categoria). **OG em JPG, não WEBP** — o WhatsApp não renderiza WEBP de forma
   confiável no preview (`src/app/saogeraldo/README.md:27`).
-- **T3.4** — Adicionar `femeas` ao grupo `:dir` da regra de cache em
-  `next.config.mjs:25`. **Não criar bloco novo** — a regra existente já cobre
-  `touros|criatorios|institucional` com o perfil correto
-  (`max-age=86400, stale-while-revalidate=604800`).
+- **T3.4** — ~~Adicionar `femeas` ao grupo `:dir` da regra de cache~~ →
+  **regra PRÓPRIA em `next.config.mjs`.** ✅ Feito no commit `3d8c894`.
+
+  **Desvio deliberado em relação ao que este plano pedia, e o desvio está certo.**
+  A instrução original era somar `femeas` ao grupo
+  `:dir(touros|criatorios|institucional)`. Isso **editaria uma regex que serve a
+  rota de touros**, que está em produção convertendo — colide com **INV-8**. O
+  precedente já existia no repositório: o São Geraldo ganhou bloco próprio pelo
+  mesmo motivo, com a justificativa escrita em `next.config.mjs`
+  (*"Regra PRÓPRIA, e não um item a mais na regra do /touros acima: aquela rota
+  está em produção convertendo e não se mexe"*).
+
+  Perfil idêntico (`max-age=86400, stale-while-revalidate=604800`); o que muda é
+  a superfície de risco. **Custo: 12 linhas duplicadas. Benefício: zero chance de
+  quebrar o cache do `/touros` por um erro de regex.** Registrado aqui porque o
+  plano estava errado, não o executor.
 - **T3.5** — Confirmar que a landing é chrome-free (nenhum header/nav global do
   app vaza), igual ao `/touros` e ao `/saogeraldo`.
 
@@ -1051,13 +1131,15 @@ inverso (excesso de lead ruim, não escassez de lead).
 formulário nasce instrumentado por passo (T6.4) para que a decisão de manter ou
 tirar campo seja tomada com dado, não com opinião.
 
-> **E há uma segunda consequência, que veio da decisão de 05/08:** com a triagem
-> manual e concentrada em **um SDR**, o formulário é a **única alavanca de escala
-> que sobra** no funil. Cada ponto de `t_aprov` que ele compra é carga que não
-> cai na fila de uma pessoa — de 12,9% para 35%, a carga diária do SDR cai
-> **2,4x** (Fase 0, T0.3.1). O formulário deixou de ser filtro de qualidade e
-> virou **infraestrutura de capacidade**. É o que justifica ir contra a
-> recomendação do `ANALISE` §10 item 9 de reduzir campos.
+> **E há uma segunda consequência, que veio das decisões de 05/08:** com a
+> triagem **manual** (C-03), a régua automática sai de cena e o formulário é a
+> **única alavanca de escala** do funil. Com **3 SDRs**, o alvo dele é concreto e
+> modesto: **levar `t_aprov` de 12,9% para ~22%** — 1,7x —, que é o break-even do
+> cenário (a) da Fase 0. Se C-14 resolver para o cenário (b) (3 pessoas
+> acumulando), o alvo dobra para ~43% e o formulário vira o **único** caminho.
+> Em qualquer dos dois, ele deixou de ser filtro de qualidade e virou
+> **infraestrutura de capacidade** — é o que justifica ir contra a recomendação
+> do `ANALISE` §10 item 9 de reduzir campos.
 
 ### T6.1 — Reestruturar em 4 passos, ordenados por custo psicológico crescente
 
@@ -1241,10 +1323,13 @@ registra via `POST /api/agendamentos` (`source: 'manual'`,
 - `invitee_phone` — sem `lead_id` (decisão C-11), o telefone é o que amarra a
   reunião ao lead da planilha.
 
-⚠️ **`POST /api/agendamentos` exige `requireAdmin()`** (`route.ts:71`). Confirmar
-que o SDR tem esse nível de acesso, **ou** que ele registra o agendamento pela
-tela existente da agenda. Se nenhum dos dois for verdade, o registro do KPI
-depende de alguém repassar — e o loop de T8.5 quebra em silêncio.
+⚠️ **`POST /api/agendamentos` exige `requireAdmin()`** (`route.ts:71`) — e agora
+são **3 pessoas**, não uma. Confirmar que os três SDRs têm esse nível de acesso,
+**ou** que registram pela tela existente da agenda. Se nenhum dos dois for
+verdade, o registro do KPI depende de repasse e o loop de T8.5 quebra em
+silêncio. **Continua sendo bloqueio, e triplicou de superfície:** dar admin a
+três pessoas é decisão de segurança, não de conveniência — vale checar se a tela
+da agenda resolve sem elevar privilégio.
 
 **As duas opções descartadas, e por quê (registrado para não voltarem):**
 
@@ -1261,10 +1346,12 @@ depende de alguém repassar — e o loop de T8.5 quebra em silêncio.
 | **(B) Agendamento manual pós-aprovação** | A página de obrigado diz "vamos analisar e chamar para marcar"; a equipe agenda via `POST /api/agendamentos` (`source='manual'`, `src/app/api/agendamentos/route.ts:70`) | Preserva o pré-diagnóstico **antes** do agendamento — que é a jornada acordada | Depende de operação humana; latência mata conversão |
 | **(C) Agendar direto no obrigado, sem pré-diagnóstico** | Calendly aberto para todo mundo | Máxima conversão | **Contradiz a jornada da reunião** e enche a agenda dos 3 assessores de lead desqualificado. É exatamente o problema que a página existe para resolver |
 
-⚠️ **A latência é o risco assumido da opção (B), e ele é real.** "Depende de
-operação humana" numa fila de uma pessoa só é exatamente o gargalo da Fase 0.
-A mitigação **não é técnica** — é a coluna `'1º toque em'` (Fase 2, T2.2) e o
-sinal de falsificação "lead sem 1º toque em >24h em >20% dos casos" (T0.4).
+⚠️ **A latência continua sendo o risco assumido da opção (B)** — "depende de
+operação humana" —, mas **com 3 SDRs ela deixa de ser gargalo estrutural e vira
+risco de cadência**. A mitigação não é técnica: é a coluna `'1º toque em'`
+(Fase 2, T2.2) e o sinal "lead sem 1º toque em >24h em >20% dos casos" (T0.4).
+Cadência é tratada na reunião como o fator decisivo de conversão, e três pessoas
+não garantem cadência sozinhas — só tornam-na possível.
 
 ### T8.4 — Copy do obrigado por variante
 
@@ -1293,9 +1380,16 @@ fechada, o dono está definido: **o SDR** preenche `'1º toque em'`, `'Aprovado'
 `'Motivo da recusa'`, `'Reunião agendada'` e `'Assessor da reunião'` na aba
 `LEADS FEMEAS` (Fase 2, T2.2).
 
-Registrar em `INFRA.md`: **o nome da pessoa**, a frequência de atualização e o
-que acontece quando ela está de folga. **Sem isso o funil não tem numerador** e a
-Fase 0 vira ficção — e é uma pessoa só, então "de folga" não é hipótese remota.
+Registrar em `INFRA.md`: **os nomes dos 3 SDRs**, a frequência de atualização e
+como a fila é dividida entre eles. **Sem isso o funil não tem numerador** e a
+Fase 0 vira ficção.
+
+⚠️ **Cobertura em folga deixou de ser item crítico.** Com uma pessoa, ausência
+parava o funil; com três, é redistribuição. Fica como nota operacional — **o que
+continua valendo é a divisão da fila**: sem regra de quem pega qual lead, três
+pessoas na mesma aba produzem lead tocado duas vezes e lead tocado nenhuma. Um
+critério simples (por ordem de chegada, ou por faixa de UF) resolve, e precisa
+estar escrito antes do primeiro dia de tráfego.
 
 **Critério de verificação:**
 - `/obrigado-femeas-mql` e `/obrigado-femeas-lead` retornam 200 e trazem o GTM no HTML.
@@ -1543,14 +1637,13 @@ semana desde o go-live, e pelo menos uma taxa mudou de `[ASSUMIDO]` para
 | **C-05** | Unidade e fonte do benchmark "R$250 por cadastro" | **Etapa CADASTRO OK.** Apuração 25/07–01/08, duas campanhas: R$ 3.398,27 → 116 formulários (R$ 29,30) · 109 contatos (R$ 31,18) · **15 cadastros (R$ 226,55)** | Fase 0 T0.1, T0.2 |
 | **C-13** | Quantos assessores e como dividir | **São 3.** O `tourosTabDaUF()` (2 assessores) está desatualizado — mas descreve o funil de **touros**; o de fêmeas roteia para a **fila do SDR** | §2.1 · Fase 2 T2.1 · Fase 8 T8.3 |
 
-⚠️ **C-03 fechou como "manual", e isso NÃO fecha o problema de capacidade — ele
-ficou maior.** A Fase 0 T0.3.1 virou um **pedido de recurso quantificado** ao
-cliente: com um SDR no único throughput medido (7 toques/dia), o funil entrega
-**8 a 20 reuniões/mês**, contra a meta de 40. Isso precisa de resposta antes do
-go-live, e é a pendência mais cara em aberto — mesmo não estando na tabela abaixo,
-porque não é dado que falta, é decisão de recurso.
+⚠️ **A correção de 05/08 (são 3 SDRs, não um) removeu o pedido de recurso que
+esta seção trazia.** Com 3 SDRs, a meta de 40 reuniões/mês **fecha** — desde que
+`t_aprov` cruze **~22%** (cenário a) ou **~43%** (cenário b). O que sobrou no
+lugar é a pendência **C-14** abaixo e um limiar mensurável nas primeiras 200
+submissões. Ver Fase 0, T0.3 e T0.3.1.
 
-### ⏳ Abertas (9)
+### ⏳ Abertas (10)
 
 Nenhuma delas bloqueia o caminho crítico. **Nenhuma foi inventada por este plano.**
 
@@ -1565,6 +1658,7 @@ Nenhuma delas bloqueia o caminho crítico. **Nenhuma foi inventada por este plan
 | **C-10** | **Domínio/subdomínio** da landing | 1, 3 | não (mas lead time longo) | `femeas.bulaassessoria.com` |
 | **C-11** | **Lead de fêmeas entra no `crm_leads`?** | 2, 8 | não | **Não** no go-live. O SDR reforça isso: fila em planilha, superfície única |
 | **C-12** | **Grupo de WhatsApp na página de obrigado?** | 8 | não | **Não** — o destino do fêmeas é a reunião, não o grupo |
+| **C-14** | **3 SDRs + 3 assessores (6 pessoas) ou as mesmas 3 acumulando os dois papéis?** | 0, 8 | não (mas muda o limiar) | **(a) 6 pessoas** — é o que a leitura literal das duas falas do cliente sugere. Muda o break-even de `t_aprov` de **~22%** para **~43%**, e a 35% o cenário (b) **não fecha**. Ver Fase 0 T0.3 |
 
 ---
 
@@ -1574,11 +1668,11 @@ Com C-02, C-03, C-05 e C-13 fechadas, este é o estado de cada fase **hoje**.
 
 | Fase | Estado | O que ainda falta |
 |---|---|---|
-| **0** — modelo do funil | 🟢 **completável agora** | Nada. C-05 fechou os números e C-03/C-02 fecharam o desenho. Falta **escrever** o `MODELO-FUNIL.md` e **enviar o pedido de recurso** de T0.3.1 |
+| **0** — modelo do funil | 🟢 **completável agora** | C-05 fechou os números, C-02/C-03 o desenho, e a correção dos 3 SDRs removeu o bloqueio de capacidade. Falta **escrever** o `MODELO-FUNIL.md` e **mandar C-14** (6 pessoas ou 3 acumulando) |
 | **1** — decisões/infra | 🟢 **pode rodar** | T1.2 (criar domínio) espera C-10, mas T1.1 (auditar Vercel) e T1.3 (GTM) rodam já |
 | **2** — separação nos dados | 🟢 **liberada, sem ressalva** | Nada. O destino é a fila do SDR, aba única, cabeçalho definido em T2.2 |
-| **3** — rota/tokens/cache | 🟢 **liberada, sem ressalva** | `metadataBase` usa o domínio de C-10 — é **uma string**, trocável em 1 linha. Não bloqueia |
-| **4** — copy e categorias | 🟡 **estrutura sim, conteúdo não** | `_lib/categorias.ts` e o esqueleto de `copy.ts` rodam já. O **texto** espera C-07/C-08/C-09 e a revisão do João Antônio (janela: **antes de 13/08**) |
+| **3** — rota/tokens/cache | ✅ **FEITA** — commit `3d8c894` | Rota, tokens, `ui.tsx`, GTM, `analytics.ts`, `utm.ts` (com `femeas_utm`), layout, stubs, `public/femeas/README.md` e a regra de cache. **Desvio registrado em T3.4** (regra própria em vez do grupo `:dir`) |
+| **4** — copy e categorias | 🔵 **EM ANDAMENTO** — não mexer | `_lib/copy.ts` e `_lib/categorias.ts` estão sendo escritos agora, 1ª versão para o João Antônio corrigir. O **texto final** espera C-07/C-08/C-09 e a revisão dele (janela: **antes de 13/08**) |
 | **5** — API + régua | 🟡 **depende de 2 e 4** | Precisa de `appendLeadToFemeasTab` (Fase 2) e dos `id` de `categorias.ts` (Fase 4). C-04 tem default |
 | **6** — formulário | 🟡 **depende de 4 e 5** | C-01 tem default; construir com ele e medir |
 | **7** — seções | 🟡 **depende de 4** | Conteúdo |
@@ -1693,13 +1787,20 @@ Registro explícito, para ninguém tratar suposição como fato:
    galeria de touros e logos de criatórios; não auditei se há foto de matriz
    utilizável. A Fase 7 assume que Marcelo produz — e ele está em gravação em
    14–15/08.
-8. **Não existe medição de throughput de um SDR dedicado.** O número de
-   7 toques/dia da Fase 0 é do **time inteiro**, durante um lançamento
-   (`ANALISE-VERBA-SAOGERALDO-2026-07-31.md` §7) — não é o teto de uma pessoa
-   dedicada ao papel, que provavelmente é maior. **É a premissa mais frágil de
-   todo o modelo**, e ela sustenta o pedido de recurso de T0.3.1. A primeira
-   semana de operação real vale mais que qualquer estimativa: medir e substituir.
-9. **Não verifiquei se o SDR tem permissão de admin.** `POST /api/agendamentos`
-   exige `requireAdmin()` (`src/app/api/agendamentos/route.ts:71`). Se não tiver,
-   o registro do KPI depende de repasse e o loop de T8.5 quebra em silêncio.
-   **Checável hoje, antes de qualquer código.**
+8. **Não existe medição de throughput de um SDR dedicado.** Os 7 toques/dia da
+   Fase 0 são do **time inteiro**, durante um lançamento
+   (`ANALISE-VERBA-SAOGERALDO-2026-07-31.md` §7) — não são o teto de uma pessoa
+   dedicada, que provavelmente é maior. Com 3 SDRs isso deixou de ser bloqueio,
+   mas continua sendo a premissa que define o limiar de `t_aprov`: se o ritmo
+   real for 5/dia em vez de 7, o break-even do cenário (a) sobe de 22% para ~30%.
+   Medir na primeira semana e substituir.
+9. **Ninguém mediu quanto custa uma reunião consultiva em "toques".** A
+   conversão de 1 reunião = 5 toque-equivalentes, usada no cenário (b) de C-14,
+   é **[ASSUMIDO] e sustenta a conclusão inteira daquele cenário**: a 3
+   toque-equivalentes o break-even é 31%, a 8 é impossível. Se C-14 resolver
+   para (b), este número precisa ser medido antes de qualquer promessa de meta.
+10. **Não verifiquei se os 3 SDRs têm permissão de admin.**
+   `POST /api/agendamentos` exige `requireAdmin()`
+   (`src/app/api/agendamentos/route.ts:71`). Se não tiverem, o registro do KPI
+   depende de repasse e o loop de T8.5 quebra em silêncio. **Checável hoje** — e
+   dar admin a três pessoas é decisão de segurança, não de conveniência.

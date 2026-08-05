@@ -1,0 +1,234 @@
+// ─────────────────────────────────────────────────────────────────────────
+// Copy comercial da landing do perpétuo de FÊMEAS.
+//
+// ⚠️ PRIMEIRA VERSÃO — ESCRITA PARA SER CORRIGIDA.
+//
+// Nada aqui foi aprovado. Isto é um rascunho para o João Antônio marcar o que
+// está errado, e ele é criador — onde eu escrevi jargão torto, o jargão está
+// torto mesmo. Editar direto neste arquivo; a página inteira lê daqui (INV-5),
+// então corrigir aqui corrige na página, sem tocar em componente.
+//
+// Marcações:
+//   [VALIDAR]  — claim que não pode ir ao ar sem o cliente confirmar
+//   [JA]       — pergunta específica para o João Antônio
+//
+// A DIFERENÇA DE TOM em relação ao /touros, que é deliberada e não deve ser
+// "corrigida" para ficar igual: a landing de touros vende RETORNO no bezerro,
+// promessa concreta em R$, ciclo curto. Esta vende PROJETO — o cara está
+// montando uma indústria de seleção que vai levar anos. Promessa de retorno
+// rápido aqui atrai exatamente o público errado, que é o problema que esta
+// página existe para resolver.
+//
+// E o atrito é o produto. A copy NÃO deve minimizar o cadastro ("é rapidinho",
+// "1 minuto"). Ela deve avisar que existe análise e que nem todo mundo passa —
+// isso é o filtro trabalhando antes do formulário.
+// ─────────────────────────────────────────────────────────────────────────
+
+export const hero = {
+  eyebrow: 'MATRIZES PO NELORE · BULA ASSESSORIA',
+  // A promessa é a marca própria, não o animal. Veio quase literal da reunião:
+  // "crie sua própria marca de Nelore PO, seu próprio criatório".
+  title: 'Crie a sua própria marca de Nelore PO.',
+  lead: 'Quem compra touro melhora o bezerro que vende. Quem compra matriz PO passa a produzir o touro que os outros compram. A Bula te acompanha nessa virada — da escolha da primeira fêmea ao acasalamento do seu plantel.',
+  cta: 'Quero montar meu criatório',
+  // Contra-intuitivo de propósito: avisa que tem análise. Ver cabeçalho.
+  ctaNote: 'Cadastro analisado pela nossa equipe · Se aprovado, você é chamado para uma reunião com um assessor',
+  // [VALIDAR] Nenhum número inventado. Os três abaixo saem de fatos que a
+  // reunião declarou (30x, frete grátis, assessoria sem custo). Se o cliente
+  // quiser prova de escala aqui (nº de criatórios atendidos, animais vendidos),
+  // ele precisa fornecer o número — não estimar.
+  stats: [
+    { value: '30x', label: 'no boleto' },
+    { value: 'Frete', label: 'por nossa conta' },
+    { value: 'R$ 0', label: 'custo da assessoria' },
+  ],
+  titleVariants: [
+    'O seu nome no\ncatálogo, um dia.',
+    'Pare de comprar genética.\nComece a produzir.',
+    'Todo criatório começou\ncom a primeira matriz.',
+  ],
+}
+
+// ─────────────────────────────────────────────────────────────────────────
+// A SEÇÃO MAIS IMPORTANTE DA PÁGINA.
+//
+// Ela existe para desqualificar. A rodada anterior de fêmeas trouxe gente
+// querendo fêmea de gado COMERCIAL e gente querendo 50 a 70 cabeças — e o
+// custo disso não é o lead perdido, é a hora do SDR queimada em quem nunca ia
+// comprar.
+//
+// [JA] O tom está certo? Tentei ser direto sem ser grosseiro: quem não é o
+// público tem que se reconhecer e sair, mas sem sair ofendido — ele pode ser
+// comprador de touro, e o Bula quer esse cara no outro funil.
+// ─────────────────────────────────────────────────────────────────────────
+export const paraQuem = {
+  title: 'Antes de você preencher: isto aqui não é para todo mundo.',
+  lead: 'Preferimos te dizer agora do que tomar seu tempo numa reunião que não vai levar a nada.',
+
+  simTitle: 'É para você se',
+  sim: [
+    'Você quer criar Nelore PO registrado e, um dia, vender genética com o seu nome.',
+    'Você já tem fazenda e estrutura para criar — ou está montando agora, com projeto na cabeça.',
+    'Você tem inscrição estadual, ou está disposto a tirar. Sem ela não há como comprar em leilão.',
+    'Você quer alguém do lado para escolher o animal, montar o acasalamento e organizar a compra.',
+    'Você entende que criatório é projeto de anos, não de safra.',
+  ],
+
+  naoTitle: 'NÃO é para você se',
+  nao: [
+    'Você procura fêmea de gado comercial, para cria ou engorda. A Bula não trabalha com fêmea comercial — só PO registrado.',
+    'Você quer dezenas de matrizes de uma vez a preço de comercial. Matriz PO não tem esse preço, e criatório sério não começa por volume.',
+    'Você quer só uma tabela de preços. Aqui o preço depende do projeto, e o projeto a gente descobre conversando.',
+    'Você quer comprar hoje e receber amanhã sem falar com ninguém. Todo cadastro passa por análise antes de virar reunião.',
+  ],
+
+  // Saída digna para quem não é o público — e que aproveita o outro funil.
+  // [VALIDAR] confirmar a URL do perpétuo de touros antes do go-live.
+  escape:
+    'Procura touro para melhorar a vacada que você já tem? Esse é o nosso outro trabalho, e ele é bem mais rápido.',
+  escapeCta: 'Ver a assessoria de touros',
+  escapeHref: '/touros',
+}
+
+export const categoriasSecao = {
+  title: 'Por onde começar o seu plantel.',
+  lead: 'Não existe uma porta única. A certa depende do que você já tem, de quanto tempo você pode esperar e do caixa disponível — e é isso que a reunião com o assessor resolve.',
+  // As seis categorias vivem em _lib/categorias.ts (fonte única). Esta seção só
+  // aporta o texto ao redor delas.
+  nota: 'Todas as categorias podem ser parceladas em 30× no boleto, com frete por nossa conta. [VALIDAR] o frete grátis vale para o Brasil todo ou tem limite de distância?',
+}
+
+export const jornada = {
+  title: 'Como funciona daqui até a sua primeira matriz.',
+  lead: 'São quatro passos. O terceiro é o que nos diferencia: você não recebe um número de WhatsApp, você recebe uma reunião.',
+  passos: [
+    {
+      n: '01',
+      titulo: 'Você preenche o cadastro',
+      texto:
+        'É mais longo que o normal, de propósito. Pedimos os dados que permitem entender o seu projeto antes da conversa — inclusive documento e inscrição estadual, que são o que habilita a compra em leilão.',
+    },
+    {
+      n: '02',
+      titulo: 'Nossa equipe analisa',
+      texto:
+        'Uma pessoa de verdade lê o que você escreveu e faz um pré-diagnóstico do seu projeto. Não é automático, e nem todo cadastro é aprovado.',
+    },
+    {
+      n: '03',
+      titulo: 'Cadastro aprovado, reunião agendada',
+      texto:
+        'Você é chamado para uma reunião com um assessor Bula. Sem custo e sem compromisso de compra.',
+    },
+    {
+      n: '04',
+      titulo: 'Na reunião, o projeto toma forma',
+      texto:
+        'A gente entende a sua fazenda, o seu projeto e o seu orçamento — e a partir daí te direciona para a categoria por onde faz sentido você começar.',
+    },
+  ],
+}
+
+export const assessoria = {
+  title: 'O que vem junto, sem custo nenhum.',
+  lead: 'A Bula não vende o animal e some. O acompanhamento é o serviço — e ele é de graça para quem compra com a gente.',
+  itens: [
+    {
+      titulo: 'Escolha do animal',
+      texto:
+        'Técnicos especializados ajudam a ler o catálogo, entender a genética e escolher a fêmea que serve ao seu projeto — não a mais cara nem a mais bonita.',
+    },
+    {
+      titulo: 'Acasalamento',
+      texto:
+        'Definir com quem cruzar cada matriz é o que constrói (ou destrói) um plantel. Você não decide isso sozinho.',
+    },
+    {
+      titulo: 'Parte financeira',
+      texto:
+        'Parcelamento em 30× no boleto e o cadastro nas leiloeiras feito por nós, para habilitar a compra parcelada.',
+    },
+    {
+      titulo: 'Entrega',
+      texto:
+        'Frete por nossa conta. [VALIDAR] confirmar abrangência.',
+    },
+  ],
+}
+
+export const fecho = {
+  title: 'Todo criatório de Nelore PO que existe hoje começou com alguém decidindo começar.',
+  lead: 'Se o seu projeto é esse, preencha o cadastro. Se não for, obrigado por ter lido até aqui — e a porta dos touros continua aberta.',
+  cta: 'Quero montar meu criatório',
+  ctaNote: 'Cadastro analisado · Reunião com assessor se aprovado',
+}
+
+// ─────────────────────────────────────────────────────────────────────────
+// FORMULÁRIO — os rótulos e, principalmente, os PORQUÊS.
+//
+// Cada campo de atrito vem com uma justificativa curta ao lado. Não é
+// decoração: pedir CPF sem explicar derruba conversão de gente boa junto com a
+// ruim. Explicar mantém o atrito para o curioso e o remove para quem é sério.
+//
+// [PENDENTE C-01] A lista final de campos é decisão do cliente. O que está
+// aqui é a proposta; se algum campo cair, apagar daqui também.
+// ─────────────────────────────────────────────────────────────────────────
+export const form = {
+  title: 'Cadastro para análise',
+  lead: 'Leva uns minutos. Quanto mais claro for o seu projeto, melhor a reunião.',
+
+  labels: {
+    nome: 'Nome completo',
+    whatsapp: 'WhatsApp',
+    email: 'E-mail',
+    cpf: 'CPF ou CNPJ',
+    inscricaoEstadual: 'Você tem inscrição estadual?',
+    uf: 'Estado',
+    cidade: 'Cidade',
+    momento: 'Em que momento você está?',
+    rebanho: 'Quantas cabeças você tem hoje?',
+    categoria: 'Por qual categoria você pensa em começar?',
+    quantidade: 'Quantas matrizes pretende comprar agora?',
+    projeto: 'Conte um pouco do seu projeto',
+  },
+
+  // O texto pequeno sob cada campo sensível.
+  porques: {
+    cpf: 'É o documento que habilita a compra em leilão. Não consultamos crédito sem falar com você antes.',
+    inscricaoEstadual: 'Sem IE não é possível comprar em leilão nem transportar o animal. Se você não tem, dá para resolver — marque "não" e a gente orienta.',
+    rebanho: 'Serve para entendermos seu ponto de partida. Não existe número mínimo.',
+    projeto: 'É o campo que mais pesa na análise. Escreva do seu jeito.',
+  },
+
+  momentos: [
+    'Já crio PO e quero ampliar o plantel',
+    'Tenho gado comercial e quero começar no PO',
+    'Estou montando a fazenda agora',
+    'Ainda estou estudando o assunto',
+  ],
+
+  submit: 'Enviar para análise',
+  // [JA] Esta linha é o último filtro antes do clique. Está clara?
+  submitNote: 'Você recebe nosso retorno pelo WhatsApp. Nem todo cadastro é aprovado para reunião.',
+}
+
+// ─────────────────────────────────────────────────────────────────────────
+// PÁGINAS DE OBRIGADO — dois destinos.
+//
+// A separação não é cosmética: é ela que separa a conversão de valor alto da
+// de valor baixo na tag do GTM (o veredito vem do servidor, INV-3). Mas
+// atenção — nenhum dos dois textos pode dizer "aprovado", porque a aprovação
+// de verdade é do SDR e ainda não aconteceu quando a pessoa chega aqui.
+// ─────────────────────────────────────────────────────────────────────────
+export const obrigado = {
+  mql: {
+    title: 'Recebemos o seu cadastro.',
+    lead: 'Seu perfil tem tudo a ver com o que a gente faz. Nossa equipe vai analisar e te chamar no WhatsApp para marcar a reunião com um assessor.',
+    prazo: '[VALIDAR] Em até 24 horas úteis.',
+  },
+  lead: {
+    title: 'Recebemos o seu cadastro.',
+    lead: 'Nossa equipe vai analisar o seu projeto e entrar em contato pelo WhatsApp.',
+    prazo: '[VALIDAR] Em até 24 horas úteis.',
+  },
+} as const
