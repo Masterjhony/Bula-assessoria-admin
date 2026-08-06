@@ -89,6 +89,29 @@ export function ProvaSocial() {
               from { transform: translateX(0); }
               to { transform: translateX(-50%); }
             }
+
+            /* ── A DURAÇÃO É POR LARGURA, e isso é uma CORREÇÃO ─────────────
+               A animação percorre -50% da trilha, e a trilha não tem a mesma
+               largura em toda tela: os logos são dimensionados por clamp() em
+               vw, então em 1440 a fileira mede 4108px e em 390 mede 2615px.
+               Com 38s fixos para as duas, a MESMA declaração produzia
+               velocidades diferentes — medido em navegador:
+
+                 1440 → 2054px / 38s = 54 px/s   ← o ritmo que o dono aprovou
+                  390 → 1307px / 38s = 34 px/s   ← 63% disso
+
+               Não era lentidão de gosto, era o desktop e o celular rodando em
+               velocidades diferentes por acidente de unidade. 24s no celular
+               devolvem 54 px/s — o MESMO ritmo do desktop, não um mais rápido.
+               O desktop continua em 38s, intocado.
+
+               Se um dia mudar o tamanho ou o número dos logos, as duas durações
+               precisam ser recalculadas juntas: duração = (trilha/2) ÷ 54. */
+            .femeas-marquee { animation: femeas-marquee 38s linear infinite; }
+            @media (max-width: 639.98px) {
+              .femeas-marquee { animation-duration: 24s; }
+            }
+
             /* Reduced motion: sem marquee — vira grade centralizada com wrap.
                A faixa estática cortada na borda leria como bug, não como pausa.
                Esconde a cópia duplicada, que só existe para o loop. */
@@ -98,10 +121,7 @@ export function ProvaSocial() {
               .femeas-marquee > div[aria-hidden="true"] { display: none; }
             }
           `}</style>
-          <div
-            className="femeas-marquee flex w-max items-center"
-            style={{ animation: 'femeas-marquee 38s linear infinite' }}
-          >
+          <div className="femeas-marquee flex w-max items-center">
             {[0, 1].map((dup) => (
               <div key={dup} aria-hidden={dup === 1} className="flex items-center">
                 {CRIATORIOS.map((c) => (

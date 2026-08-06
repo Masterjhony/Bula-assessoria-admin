@@ -90,6 +90,34 @@ export const hero = {
 // esta lista, manter essa linha — dizer a alguém que o projeto dele não é
 // sério é o tipo de frase que afasta justamente o comprador grande.
 // ─────────────────────────────────────────────────────────────────────────
+/**
+ * Um critério do filtro, em DUAS REDAÇÕES.
+ *
+ * ⚠️ PENDENTE DE REVISÃO DO JOÃO ANTÔNIO. Ele aprovou a redação longa em
+ * 05/08. A curta — que é simplesmente o `criterio` sozinho — nasceu em 06/08,
+ * a pedido do dono ("tem texto demais no celular"), e ele ainda NÃO leu.
+ *
+ * Onde cada uma aparece:
+ *   · abaixo de 640px  → só `criterio`
+ *   · a partir de 640px → `criterio` + ' ' + `explicacao`, que reproduz
+ *     caractere a caractere a frase aprovada em 05/08
+ *
+ * A REGRA DO CORTE FOI MECÂNICA, NÃO EDITORIAL, e é isso que a torna segura de
+ * repetir: só vira `explicacao` uma SEGUNDA ORAÇÃO INTEIRA, o que vem depois de
+ * um ponto final. Nenhum critério foi removido — continuam 5 de um lado e 4 do
+ * outro. Cortar critério é cortar o filtro, e o filtro é o produto desta
+ * página: o problema declarado pelo cliente é volume de lead ERRADO.
+ *
+ * Ao editar: o `criterio` precisa fechar sentido sozinho e terminar em ponto,
+ * porque no celular ele é o texto inteiro. Se a frase não tiver segunda oração,
+ * deixe `explicacao` de fora — os itens 1, 2, 4 e 5 da coluna do "é" estão
+ * assim, e não é esquecimento: eles já eram curtos.
+ */
+export interface CriterioFiltro {
+  criterio: string
+  explicacao?: string
+}
+
 export const paraQuem = {
   // Os `eyebrow` de seção nasceram como string solta dentro do componente na
   // versão de leitura da Fase 4. Vieram para cá na Fase 7: rótulo de seção é
@@ -101,25 +129,46 @@ export const paraQuem = {
 
   simTitle: 'É para você se',
   sim: [
-    'Você quer criar Nelore PO registrado e, um dia, vender genética com o seu nome.',
-    'Você já tem fazenda e estrutura para criar — ou está montando agora, com projeto na cabeça.',
-    'Você tem inscrição estadual, ou está disposto a tirar. Sem ela não há como comprar em leilão.',
-    'Você quer alguém do lado para escolher o animal, montar o acasalamento e organizar a compra.',
-    'Você entende que criatório é projeto de anos, não de safra.',
-  ],
+    // Sem `explicacao`: uma oração só. O "um dia" é a promessa da página
+    // inteira (a marca própria) — não é explicação, é o critério.
+    { criterio: 'Você quer criar Nelore PO registrado e, um dia, vender genética com o seu nome.' },
+    { criterio: 'Você já tem fazenda e estrutura para criar — ou está montando agora, com projeto na cabeça.' },
+    {
+      criterio: 'Você tem inscrição estadual, ou está disposto a tirar.',
+      explicacao: 'Sem ela não há como comprar em leilão.',
+    },
+    { criterio: 'Você quer alguém do lado para escolher o animal, montar o acasalamento e organizar a compra.' },
+    { criterio: 'Você entende que criatório é projeto de anos, não de safra.' },
+  ] as CriterioFiltro[],
 
   naoTitle: 'NÃO é para você se',
   nao: [
-    'Você procura fêmea de gado comercial, para cria ou engorda. A Bula não trabalha com fêmea comercial — só PO registrado.',
+    // ⚠️ Este é o item que mais desqualifica — fêmea comercial foi a origem nº 1
+    // do lead errado na rodada anterior. O critério (a frase que a pessoa usa
+    // para se reconhecer) fica NO CELULAR; o que virou `explicacao` é a
+    // justificativa institucional, que não muda o reconhecimento de ninguém.
+    {
+      criterio: 'Você procura fêmea de gado comercial, para cria ou engorda.',
+      explicacao: 'A Bula não trabalha com fêmea comercial — só PO registrado.',
+    },
     // Revisão João Antônio (05/08): a segunda oração era "e criatório sério não
     // começa por volume" e SAIU. O filtro aqui é expectativa de PREÇO, não
     // ambição de volume — existe (raro) o comprador que quer volume de matriz
     // cara, e a frase anterior dizia a ele que seu criatório não seria sério.
-    // Não reintroduzir.
-    'Você quer dezenas de matrizes de uma vez a preço de comercial. Matriz PO não tem esse preço.',
-    'Você quer só uma tabela de preços. Aqui o preço depende do projeto, e o projeto a gente descobre conversando.',
-    'Você quer comprar hoje e receber amanhã sem falar com ninguém. Todo cadastro passa por análise antes de virar reunião.',
-  ],
+    // Não reintroduzir. A `explicacao` atual mantém o julgamento no preço.
+    {
+      criterio: 'Você quer dezenas de matrizes de uma vez a preço de comercial.',
+      explicacao: 'Matriz PO não tem esse preço.',
+    },
+    {
+      criterio: 'Você quer só uma tabela de preços.',
+      explicacao: 'Aqui o preço depende do projeto, e o projeto a gente descobre conversando.',
+    },
+    {
+      criterio: 'Você quer comprar hoje e receber amanhã sem falar com ninguém.',
+      explicacao: 'Todo cadastro passa por análise antes de virar reunião.',
+    },
+  ] as CriterioFiltro[],
 
   // Saída digna para quem não é o público — e que aproveita o outro funil.
   // [VALIDAR] confirmar a URL do perpétuo de touros antes do go-live.

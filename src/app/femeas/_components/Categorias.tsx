@@ -4,6 +4,7 @@ import { categorias } from '../_lib/categorias'
 import { categoriasSecao } from '../_lib/copy'
 import { Section, Container, Reveal } from './ui'
 import { CabecalhoSecao, Indice } from './editorial'
+import { CarrosselCategorias } from './CarrosselCategorias'
 
 // ─────────────────────────────────────────────────────────────────────────
 // AS SEIS PORTAS DE ENTRADA. A lista vem inteira de _lib/categorias.ts (fonte
@@ -78,18 +79,17 @@ export function Categorias() {
               todas as faixas. Com `auto-fit`, o 1440 abria quatro colunas e
               sobravam DUAS células vazias — e, como o fundo da grade é o
               filete, a sobra aparecia na tela como um painel cinza vazio.
-              Medido em 1440 antes de trocar; não voltar para auto-fit. */}
-          <div
-            className="mt-[clamp(36px,5vw,64px)] grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3"
-            style={{
-              // gap de 1px sobre fundo hairline: as "bordas" da grade são o
-              // próprio espaço entre cartões. Um filete só entre vizinhos,
-              // nunca dois grudados.
-              gap: 1,
-              background: dark.hairline,
-              border: `1px solid ${dark.hairline}`,
-            }}
-          >
+              Medido em 1440 antes de trocar; não voltar para auto-fit.
+
+              ⚠️ ABAIXO DE 640px esta mesma grade vira CARROSSEL horizontal, e a
+              troca é toda de CSS — os seis <article> abaixo não mudam, não são
+              reordenados e não saem do DOM. O gap de 1px, o fundo e a borda
+              migraram do style inline para a classe `.femeas-trilha` dentro do
+              CarrosselCategorias: estilo inline vence media query, e o gap
+              precisa ir a zero no modo carrossel para o cartão medir exatamente
+              a largura visível. Em 1440 o resultado renderizado é o mesmo de
+              antes. Ver o cabeçalho de ./CarrosselCategorias.tsx. */}
+          <CarrosselCategorias total={categorias.length} rotulo={categoriasSecao.title}>
             {categorias.map((c, i) => {
               const foto = FOTOS[c.id]
               return (
@@ -158,7 +158,7 @@ export function Categorias() {
                 </article>
               )
             })}
-          </div>
+          </CarrosselCategorias>
         </Reveal>
 
         {/* Condições comerciais — filete dourado à esquerda, do mesmo jeito que o
