@@ -87,19 +87,23 @@ function FichaTecnica({ className }: { className: string }) {
 // femeas_form_started e o funil deixaria de significar alguma coisa.
 // ─────────────────────────────────────────────────────────────────────────
 
-// ── ENCAIXE DE FOTO — hoje VAZIO, e invisível enquanto estiver vazio ────────
-// Quando o material de 14–15/08 chegar, é só apontar as duas constantes para os
-// arquivos (o nome está em public/femeas/README.md) e o hero passa a renderizar
-// a banda fotográfica com o mesmo scrim do /touros. Nada mais muda.
+// ── FOTO — ligada em 06/08/2026 ─────────────────────────────────────────────
+// O encaixe ficou dormente por uma semana porque não havia foto de fêmea
+// utilizável no projeto (a `galeria-femeas` do JMP é de machos, confirmado pelo
+// dono). Estas vieram dele, escolhidas a dedo, e são o mesmo lote em pasto:
+// animal nítido no centro, sem gente no quadro e — o que reprovou metade do
+// material anterior — **sem marca de terceiro**.
 //
-//   FOTO_MOBILE  → '/femeas/hero-mobile.webp'   (retrato, preenche a banda alta)
-//   FOTO_DESKTOP → '/femeas/hero-desktop.webp'  (paisagem, full-bleed)
+// As duas bandas são `absolute`, então a foto NÃO empurra o formulário para
+// baixo: ela entra atrás do texto, com scrim até o preto sólido. É por isso que
+// ligar a foto não custou nenhum pixel do `primeiroCampo` no celular.
 //
-// Enquanto forem `null`, nenhum elemento é emitido: sem caixa cinza, sem espaço
-// reservado, sem "imagem aqui". A página não parece quebrada esperando material
-// — ela parece uma página tipográfica, que é o que ela é hoje.
-const FOTO_MOBILE: string | null = null
-const FOTO_DESKTOP: string | null = null
+// ⚠️ Para trocar a foto depois, troque o ARQUIVO em `public/femeas/`, não estas
+// constantes — os recortes já estão calibrados para as duas bandas (a do
+// celular é em pé, 780×920; a do desktop é paisagem, 1201×801, na resolução
+// nativa do original: ampliar não cria detalhe, só peso).
+const FOTO_MOBILE: string | null = '/femeas/hero-mobile.webp'
+const FOTO_DESKTOP: string | null = '/femeas/hero-desktop.webp'
 const temFoto = FOTO_MOBILE !== null || FOTO_DESKTOP !== null
 
 export function Hero() {
@@ -137,11 +141,18 @@ export function Hero() {
       {FOTO_MOBILE && (
         <div className="absolute inset-x-0 top-0 h-[clamp(300px,44svh,460px)] lg:hidden">
           <Image src={FOTO_MOBILE} alt={hero.fotoAlt} fill priority sizes="100vw" className="object-cover object-[50%_35%]" />
+          {/* ⚠️ O scrim foi FECHADO em 06/08 depois de medir, e o número está
+              aqui para ninguém "abrir a foto" de novo sem refazer a conta: com
+              o gradiente anterior (0,44 no meio da banda) o eyebrow dourado
+              media 2,50:1 sobre a foto — reprova em AA, que pede 4,5:1 para
+              texto pequeno. O pelo do Nelore é quase branco; qualquer véu leve
+              deixa texto claro sobre fundo claro.
+              Medir com: scripts/femeas/ (ou amostrando o pixel do print). */}
           <div
             className="absolute inset-0"
             style={{
               background:
-                'linear-gradient(180deg, rgba(13,13,13,0.72) 0%, rgba(13,13,13,0.44) 30%, rgba(13,13,13,0.90) 78%, #0D0D0D 100%)',
+                'linear-gradient(180deg, rgba(13,13,13,0.72) 0%, rgba(13,13,13,0.80) 26%, rgba(13,13,13,0.90) 62%, rgba(13,13,13,0.97) 84%, #0D0D0D 100%)',
             }}
           />
         </div>

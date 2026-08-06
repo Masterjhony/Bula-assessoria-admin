@@ -330,6 +330,39 @@ export const rodape = {
 }
 
 // ─────────────────────────────────────────────────────────────────────────
+// GALERIA — as fotos do lote, sem legenda de venda.
+//
+// [JA] Texto novo, ainda não revisado pelo João Antônio.
+//
+// ⚠️ O texto aqui NÃO descreve as fotos nem promete o que elas mostram: são
+// fotos de um lote em manejo, não de um animal à venda. Escrever "a matriz que
+// vai começar o seu plantel" embaixo de uma foto de lote seria vender o que a
+// imagem não entrega — e o público desta página nota antes de nós.
+//
+// Os `alt` moram aqui (INV-5) e descrevem o que está na foto, não o que a gente
+// gostaria que estivesse.
+// ─────────────────────────────────────────────────────────────────────────
+export const galeria = {
+  eyebrow: 'NO CURRAL',
+  title: 'É disto que a gente está falando.',
+  lead: 'Nelore PO em fazenda atendida pela Bula. Nenhuma foto de banco de imagens.',
+  fotos: [
+    {
+      src: '/femeas/lote-close.webp',
+      alt: 'Duas fêmeas Nelore de frente, no curral, em dia claro',
+    },
+    {
+      src: '/femeas/curral-dourado.webp',
+      alt: 'Lote de Nelore no curral ao entardecer, com peões a cavalo ao fundo',
+    },
+    {
+      src: '/femeas/curral-lote.webp',
+      alt: 'Lote de Nelore reunido no curral, visto de cima',
+    },
+  ],
+}
+
+// ─────────────────────────────────────────────────────────────────────────
 // FORMULÁRIO — os rótulos e, principalmente, os PORQUÊS.
 //
 // Cada campo de atrito vem com uma justificativa curta ao lado. Não é

@@ -34,11 +34,15 @@ disparar** — provavelmente alguém removeu o `<ConversaoObrigado/>`.
 > obrigado eram, para a medição, indistinguíveis da landing. A URL própria e a
 > navegação hard estavam certas; faltava alguém empurrar o evento.
 
-⚠️ **`Meta /tr: NENHUM` é o estado conhecido, e não é culpa do nosso evento.** Em
-06/08 o pixel não enviava nada em página nenhuma — nem na landing de produção de
-touros, nem o `PageView` que o próprio container manda disparar. Enquanto isso
-não for resolvido no Gerenciador de Eventos, **o GA4 é a única medição confiável
-deste funil**. Detalhes em `.planning/femeas-perpetuo/TESTE-GTM-2026-08-06.md`.
+⚠️ **`Meta /tr: NENHUM` é esperado neste script e NÃO quer dizer tag quebrada.**
+O `fbevents.js` não dispara em navegador **headless** — ele detecta automação.
+Este script mede **GA4** de forma confiável; **o Meta, não**.
+
+Para conferir o Meta, use o **Pixel Helper num navegador de gente** ou o **Testar
+Eventos** do Gerenciador. Em 06/08/2026 o Pixel Helper confirmou `PageView`
+ativo no pixel `1539780341180483` em `femeas.bulaassessoria.com` — depois de eu
+ter concluído o contrário com este script. A história do erro está em
+`.planning/femeas-perpetuo/TESTE-GTM-2026-08-06.md` §4-ter.
 
 ---
 

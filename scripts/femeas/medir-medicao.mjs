@@ -107,11 +107,12 @@ COMO LER O RESULTADO
   Se as duas páginas de obrigado mostrarem só "page_view", a conversão
   parou de disparar — provavelmente alguém tirou o <ConversaoObrigado/>.
 
-⚠️ "Meta /tr: NENHUM" era o estado em 06/08/2026 em TODAS as páginas,
-   inclusive na landing de produção de touros, e inclusive para o PageView
-   que o container manda disparar. Não é consequência do nosso evento.
-   Enquanto isso não for resolvido no Gerenciador de Eventos, o GA4 é a
-   única medição confiável deste funil.
+⚠️ "Meta /tr: NENHUM" é ESPERADO aqui e NÃO significa tag quebrada.
+   O fbevents.js não dispara em navegador headless — ele detecta automação.
+   Este script mede GA4 de forma confiável; o Meta, NÃO.
+   Para conferir o Meta, use o Pixel Helper num navegador de gente, ou o
+   Testar Eventos do Gerenciador. Em 06/08/2026 o Pixel Helper confirmou
+   PageView ativo no pixel 1539780341180483, em femeas.bulaassessoria.com.
 ─────────────────────────────────────────────────────────────────────`)
 
 await navegador.close()
