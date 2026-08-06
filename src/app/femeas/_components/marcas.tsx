@@ -1,6 +1,10 @@
 // ─────────────────────────────────────────────────────────────────────────
 // MARCAS — a camada gráfica da landing de fêmeas. SVG inline, desenhado aqui.
 //
+// Sobraram DUAS famílias, e elas são as duas que funcionam:
+//   · os quatro diagramas da Assessoria (`MarcaServico`);
+//   · o trilho da Jornada (`TrilhoJornada`), que é CSS, não SVG.
+//
 // POR QUE NÃO `lucide-react` (que está no package.json e seria uma linha):
 // ícone de biblioteca tem traço arredondado, cantos macios e peso uniforme. O
 // sistema desta página é o oposto — canto reto, filete de 1px, Oswald
@@ -14,25 +18,34 @@
 // marca em `ParaQuem` nem na ficha técnica do hero (ver o comentário no fim
 // deste arquivo).
 //
-// ── O VOCABULÁRIO, e ele é UM SÓ na página inteira ────────────────────────
-//   traço neutro (#7A7A7A)  → o animal / o objeto
-//   ponto dourado cheio     → uma vida que vem junto no negócio (embrião,
-//                             prenhez, bezerro)
-//   dourado no traço        → a parte que a seção está afirmando
+// ── ⚠️ AS SEIS MARCAS DE CATEGORIA FORAM REMOVIDAS (06/08/2026) ───────────
+// Pedido direto do dono do projeto: "os ícones em CATEGORIAS estão totalmente
+// feios e desconfigurados, retire eles". Não foi só julgamento estético — a
+// medição em 390/768/1440 antes de remover achou defeito real, e fica
+// registrado aqui para ninguém redesenhar o mesmo erro:
 //
-// As seis categorias e os quatro serviços usam o MESMO desenho de matriz e o
-// MESMO ponto dourado. É isso que faz a página ter uma camada gráfica, e não
-// dois conjuntos de ícones que por acaso convivem.
+//   1. A silhueta facetada NÃO lia como bovino. Cabeça e corpo eram uma massa
+//      só, sem pescoço, e a barbela virava um zigue-zague; a 72px o glifo lia
+//      como sapato/automóvel. O público desta página é criador — ele nota.
+//   2. As seis marcas tinham LARGURAS DESENHADAS diferentes (111, 64, 100,
+//      100, 146 e 100 px em 1440), todas alinhadas à direita pelo
+//      `justify-between`. Como o que alinhava era a CAIXA do SVG e não o
+//      traço, a borda direita das marcas variava até ~13px entre cartões
+//      vizinhos — numa grade cujo sistema inteiro é filete de 1px, isso lê
+//      exatamente como "desconfigurado".
+//   3. O `pacote-3-em-1` prometia, em comentário, "abrir espaço real ao
+//      bezerro". O espaço real era de 0,7 unidade de viewBox — menos de 1px na
+//      tela. A bezerra dourada encostava no rabo da matriz.
+//
+// Se um dia isto voltar, volta como FOTO (o encaixe existe em Categorias.tsx),
+// não como pictograma redesenhado.
 //
 // ── ACESSIBILIDADE ────────────────────────────────────────────────────────
 // Todas as marcas são `aria-hidden` e nenhuma entra na ordem de foco. Não é
 // desleixo, é a regra do WCAG para imagem REDUNDANTE: tudo que os desenhos
-// mostram já está escrito na prosa do próprio cartão ("três animais no negócio
-// de uma vez", "você compra o embrião e implanta nas receptoras que já tem").
-// O que a marca acrescenta é VELOCIDADE DE VARREDURA — e quem lê com leitor de
-// tela lê linearmente, já recebe a informação pelo texto. Anunciar "diagrama:
-// matriz adulta com bezerro ao pé" logo depois de "Pacote 3 em 1" seria
-// tagarelice, não acessibilidade.
+// mostram já está escrito na prosa vizinha. O que a marca acrescenta é
+// VELOCIDADE DE VARREDURA — e quem lê com leitor de tela lê linearmente, já
+// recebe a informação pelo texto.
 //
 // Consequência prática: nada aqui vai para `_lib/copy.ts`, porque não há
 // `alt`/`aria-label` para escrever. Se um dia alguma marca passar a carregar
@@ -50,156 +63,15 @@ import { dark, light } from '../_lib/tokens'
 // WCAG 1.4.11 pede para gráfico que carrega significado. Não clarear "para
 // ficar bonito" sem medir de novo; não escurecer, ou a marca some.
 //
-// Só existe versão para fundo ESCURO porque as duas seções marcadas (categorias
-// e assessoria) são escuras. Se um dia entrar marca sobre o pergaminho, este
-// cinza mede 2,4:1 lá e REPROVA — a versão clara seria #6F6F6F (4,7:1).
+// Só existe versão para fundo ESCURO porque a única seção marcada (assessoria)
+// é escura. Se um dia entrar marca sobre o pergaminho, este cinza mede 2,4:1 lá
+// e REPROVA — a versão clara seria #6F6F6F (4,7:1).
 const TRACO_ESCURO = '#7A7A7A'
 
-// Espessura em unidades do viewBox. Os glifos das categorias têm 84 unidades de
-// largura e são renderizados com ~72px, então 1,5 × (72/84) ≈ 1,3px na tela —
+// Espessura em unidades do viewBox. Os diagramas da assessoria têm 60 unidades
+// de largura e são renderizados com 54px, então 1,5 × (54/60) = 1,35px na tela —
 // da mesma família do filete de 1px do resto da página.
 const PESO = 1.5
-
-// ─────────────────────────────────────────────────────────────────────────
-// O PERFIL DE MATRIZ NELORE — desenhado uma vez, usado por seis marcas.
-//
-// Facetado em retas com junta em esquadria, que é o canto reto da página
-// aplicado a uma forma orgânica. As três coisas que o traço PRECISA manter,
-// senão vira "vaca genérica" e o público desta página nota: o cupim sobre a
-// cernelha, o dorso reto e a barbela funda.
-//
-// Sistema de coordenadas: viewBox 84×46, patas fincadas em y=39 SEMPRE. É essa
-// linha de chão compartilhada que faz a bezerra (escala 0,64) ler como "o mesmo
-// animal, mais novo" em vez de "o mesmo desenho, menor". Sem a linha comum, a
-// diferença de estágio — que é a informação da seção — desaparece.
-// ─────────────────────────────────────────────────────────────────────────
-const CHAO = 39
-
-// garupa → dorso → cupim → pescoço → cabeça → focinho → queixo → barbela →
-// peito → barriga → flanco.
-const CORPO =
-  'M 10 18 L 27 17 L 32 9 L 37 10 L 42 16 L 49 19 L 55 21' +
-  ' L 60 28 L 61 32 L 56 33 L 52 30' +
-  ' L 47 33 L 44 34 L 40 26 L 37 28 L 20 29 L 12 26 Z'
-const PERNAS = 'M 38 28 L 38 39 M 15 28 L 15 39'
-const RABO = 'M 10 19 L 7 25 L 8 33'
-
-/**
- * Uma matriz. `escala` < 1 é um animal mais novo — e a escala é aplicada com a
- * origem no chão, não no canto do viewBox, para as patas continuarem na mesma
- * linha.
- *
- * A espessura do traço é dividida pela escala de propósito: sem isso a bezerra
- * sairia com traço mais fino que a novilha e leria como "mais fraca" em vez de
- * "menor". O que muda entre os glifos é o TAMANHO do animal, nunca o peso da
- * linha.
- */
-function Matriz({ cor, escala = 1, x = 0 }: { cor: string; escala?: number; x?: number }) {
-  return (
-    <g
-      transform={`translate(${x}, ${CHAO - CHAO * escala}) scale(${escala})`}
-      fill="none"
-      stroke={cor}
-      strokeWidth={PESO / escala}
-      strokeLinejoin="miter"
-      strokeLinecap="butt"
-    >
-      <path d={CORPO} />
-      <path d={PERNAS} />
-      <path d={RABO} />
-    </g>
-  )
-}
-
-/** Uma vida que vem junto: embrião, prenhez, bezerro. Sempre dourada, sempre cheia. */
-function Vida({ x, y, r = 3 }: { x: number; y: number; r?: number }) {
-  return <circle cx={x} cy={y} r={r} fill={dark.gold} />
-}
-
-function Quadro({ children, largura }: { children: ReactNode; largura: string }) {
-  return (
-    <svg
-      viewBox="0 0 84 46"
-      aria-hidden="true"
-      focusable="false"
-      style={{ width: largura, height: 'auto', display: 'block', flex: '0 0 auto' }}
-    >
-      {children}
-    </svg>
-  )
-}
-
-// ─────────────────────────────────────────────────────────────────────────
-// AS SEIS CATEGORIAS.
-//
-// O que cada marca informa, e que o texto informa mas não DE RELANCE — a
-// diferença entre as seis é o ESTÁGIO do animal e QUANTAS VIDAS entram no
-// negócio, e hoje isso só existe espalhado em duas frases por cartão:
-//
-//   embriões  · não chega animal nenhum: chega uma palheta. É a única marca
-//               sem bicho, e é por isso que ela é a porta mais barata.
-//   bezerras  · o mesmo animal, pequeno, na mesma linha de chão → recria.
-//   novilhas  · adulta, nada dourado → pronta, mas ainda não gera nada.
-//   prenhes   · adulta + 1 ponto dentro → o bezerro já está no negócio.
-//   3 em 1    · adulta + 1 ponto dentro + 1 bezerro ao pé → conta três.
-//   doadoras  · adulta + pontos SAINDO → ela produz a palheta do cartão 01.
-//               É o único glifo em que o dourado sai do animal em vez de entrar.
-//
-// A contagem é o ponto: 0 → 1 → 1 → 2 → 3 → n. Quem bate o olho na grade lê a
-// progressão sem ler uma linha, que é exatamente o serviço que a foto prestaria.
-//
-// ⚠️ A chave é o `id` de _lib/categorias.ts. Categoria nova sem marca aqui
-// renderiza sem marca (e não quebra) — mas a grade fica com cinco cartões
-// marcados e um pelado, que lê como defeito. Ao acrescentar categoria, desenhar
-// a marca junto.
-// ─────────────────────────────────────────────────────────────────────────
-const CATEGORIA: Record<string, ReactNode> = {
-  // Palheta (French straw): retângulo com os dois lacres, e o embrião dentro.
-  // Deliberadamente NÃO é um animal — é o que diferencia esta porta das outras
-  // cinco, e é a informação que a frase "você compra o embrião" dá em duas
-  // leituras e o desenho dá em zero.
-  embrioes: (
-    <>
-      <g fill="none" stroke={TRACO_ESCURO} strokeWidth={PESO} strokeLinejoin="miter">
-        <rect x="12" y="19" width="60" height="11" />
-        <path d="M 24 19 L 24 30 M 60 19 L 60 30" />
-      </g>
-      <Vida x={42} y={24.5} r={3.2} />
-    </>
-  ),
-  bezerras: <Matriz cor={TRACO_ESCURO} escala={0.64} x={20} />,
-  novilhas: <Matriz cor={TRACO_ESCURO} x={12} />,
-  prenhes: (
-    <>
-      <Matriz cor={TRACO_ESCURO} x={12} />
-      <Vida x={38} y={24} />
-    </>
-  ),
-  // A matriz vai para a direita para abrir espaço real ao bezerro — sobreposição
-  // aqui custaria a contagem, que é a informação inteira deste cartão.
-  'pacote-3-em-1': (
-    <>
-      <Matriz cor={TRACO_ESCURO} x={23} />
-      <Vida x={49} y={24} />
-      <Matriz cor={dark.gold} escala={0.48} x={0} />
-    </>
-  ),
-  doadoras: (
-    <>
-      <Matriz cor={TRACO_ESCURO} x={12} />
-      <Vida x={26} y={12} r={2.4} />
-      <Vida x={34} y={8} r={2.4} />
-      <Vida x={42} y={4} r={2.4} />
-    </>
-  ),
-}
-
-/** Marca de uma categoria. Devolve `null` para id sem desenho — nunca quebra a grade. */
-export function MarcaCategoria({ id, largura }: { id: string; largura: string }) {
-  const desenho = CATEGORIA[id]
-  if (!desenho) return null
-  return <Quadro largura={largura}>{desenho}</Quadro>
-}
 
 // ─────────────────────────────────────────────────────────────────────────
 // OS QUATRO SERVIÇOS DA ASSESSORIA.

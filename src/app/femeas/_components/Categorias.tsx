@@ -4,7 +4,6 @@ import { categorias } from '../_lib/categorias'
 import { categoriasSecao } from '../_lib/copy'
 import { Section, Container, Reveal } from './ui'
 import { CabecalhoSecao, Indice } from './editorial'
-import { MarcaCategoria } from './marcas'
 
 // ─────────────────────────────────────────────────────────────────────────
 // AS SEIS PORTAS DE ENTRADA. A lista vem inteira de _lib/categorias.ts (fonte
@@ -37,20 +36,16 @@ import { MarcaCategoria } from './marcas'
 // ⚠️ Ou todos, ou nenhum: com duas ou três fotos, a grade vira um cartão bonito
 // ao lado de cinco carentes — pior que a versão tipográfica inteira.
 //
-// ── DECISÃO JÁ TOMADA: QUANDO A FOTO CHEGAR, O PICTOGRAMA FICA ─────────────
-// A marca de estágio (./marcas.tsx) NÃO sai de cena e NÃO vira marca d'água.
-// Ela continua exatamente onde está, na linha do índice, como selo do cartão.
+// ── O PICTOGRAMA SAIU; A FOTO CONTINUA SENDO O PLANO ──────────────────────
+// Até 06/08/2026 cada cartão abria com uma marca de estágio (silhueta de matriz)
+// na linha do índice. Foi removida a pedido do dono — e a medição feita antes de
+// remover confirmou defeito real, não só gosto: ver o topo de ./marcas.tsx.
 //
-// O motivo não é apego ao desenho — é que os dois não dizem a mesma coisa. A
-// foto mostra ESTE ANIMAL: porte, estágio, condição de pelo. O pictograma mostra
-// O QUE ENTRA NO NEGÓCIO, que é contagem, e contagem nenhuma foto resolve:
-// não existe fotografia de "pacote 3 em 1" que deixe claro que a prenhez está
-// incluída, nem foto de doadora que mostre que ela produz embrião em série.
-// São camadas complementares, não concorrentes.
-//
-// A única coisa a rever quando as seis fotos entrarem é o PESO do traço: sobre
-// uma foto 4:3 logo acima, um cinza de 3,65:1 pode ficar tímido. Medir de novo,
-// não chutar.
+// Isso NÃO cancela a foto. O que a marca tentava dizer (o estágio do animal) é
+// justamente o que a fotografia diz melhor: porte, idade, condição de pelo. O
+// que fica sem representação gráfica é a CONTAGEM ("pacote 3 em 1" inclui a
+// prenhez; a doadora produz embrião em série) — e isso continua morando na
+// prosa do cartão, que é onde já estava.
 const FOTOS: Record<string, string | undefined> = {}
 
 export function Categorias() {
@@ -115,17 +110,13 @@ export function Categorias() {
                     </div>
                   )}
 
-                  {/* Linha de cabeçalho do cartão: índice à esquerda, marca à
-                      direita. A marca fica NESTA linha, e não num bloco
-                      próprio, porque assim ela ocupa altura que o índice já
-                      reservava — o cartão cresce ~22px, não ~60px. Como esta
-                      seção está bem abaixo da dobra, isso não move o
-                      formulário; ainda assim, marca gráfica que empurra
-                      conversão é troca ruim, e o hábito vale a pena. */}
-                  <div className="flex items-start justify-between gap-4">
-                    <Indice n={String(i + 1).padStart(2, '0')} surface="dark" />
-                    <MarcaCategoria id={c.id} largura="clamp(64px, 8vw, 76px)" />
-                  </div>
+                  {/* Só o índice. Havia aqui um pictograma de animal alinhado à
+                      direita; saiu em 06/08/2026 a pedido do dono, e o registro
+                      de POR QUE (defeito medido, não só gosto) está no topo de
+                      ./marcas.tsx. O `flex justify-between` foi junto: sem o
+                      segundo filho ele não distribuía nada, e a caixa do SVG era
+                      a única coisa que dava altura extra à linha. */}
+                  <Indice n={String(i + 1).padStart(2, '0')} surface="dark" />
 
                   <h3
                     style={{

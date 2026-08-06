@@ -5,8 +5,8 @@ de 7 dias (regra própria em `next.config.mjs`, não compartilhada com `/touros`
 
 ## O que falta chegar
 
-Nada aqui ainda. A página renderiza sem estes arquivos — os stubs da Fase 3 não
-referenciam imagem —, mas o card de compartilhamento sai quebrado sem o OG.
+Continua **vazio**. A página renderiza sem estes arquivos, mas o card de
+compartilhamento sai quebrado sem o OG.
 
 | Arquivo | Formato | Uso | Bloqueia |
 |---|---|---|---|
@@ -14,6 +14,41 @@ referenciam imagem —, mas o card de compartilhamento sai quebrado sem o OG.
 | `hero-mobile.webp` | WEBP, retrato | banda fotográfica do hero no mobile | melhora a Fase 7 |
 | `hero-desktop.webp` | WEBP, paisagem | fundo full-bleed do hero no desktop | melhora a Fase 7 |
 | `categoria-<id>.webp` | WEBP, 4:3 | cartões da seção de categorias — **seis arquivos** | melhora a Fase 7 |
+
+Tudo isso depende da gravação de **14–15/08** (`.planning/femeas-perpetuo/
+MATERIAL-NECESSARIO.md`). Hoje a primeira dobra no celular é 100% texto, e é
+uma perda conhecida — não um esquecimento.
+
+## ⚠️ `public/jmp/galeria-femeas/` NÃO serve. Já foi conferida (06/08/2026)
+
+O nome engana e a pasta já foi puxada uma vez como solução para o hero. **Não
+é.** As quatro fotos foram abertas e ampliadas uma a uma; nenhuma passou:
+
+| Arquivo | Por que foi descartada |
+|---|---|
+| `IMG_0106.jpg` | Os animais em primeiro plano **não são matrizes**. Cupim alto com capa escura sobre cernelha e quartos, cernelha grossa, e — decisivo — **linha inferior reta, sem úbere**, num ângulo de três-quartos traseiro em que o úbere de uma vaca adulta seria inevitável. É boiada em terminação (há cocho e brete no quadro) |
+| `IMG_0109.jpg` | Mesmo lote, mesmo curral, mesmos cupins. Mesmo problema |
+| `IMG_0062.jpg` | Mesmo problema de sexo, **mais duas marcas de terceiro**: jaqueta "7P AGRO" nas costas do rapaz na cerca e logo Chevrolet na camisa em primeiro plano. Também é escura e enlameada |
+| `IMG_0117.jpg` | Logo **"7P AGRO"** ocupando o centro do quadro. A pessoa É o assunto — recortar a marca é recortar a foto inteira |
+
+Duas regras saíram daí, e valem para a próxima tentativa:
+
+1. **Foto de macho contradiz a segmentação que esta página inteira existe para
+   fazer.** O assunto tem que ser **matriz e recria**. Na dúvida sobre o sexo de
+   um animal, a foto não entra.
+2. **Nada de marca de outra empresa numa landing de captação da Bula.** Vale
+   para jaqueta, boné, camisa, placa e brinco.
+
+`public/jmp/capa-playlist-femeas.jpg` também não serve: é arte de flyer de
+leilão, coberta de logos de terceiros (Canal Rural, ANCP, PMGZ, Leiloboi…).
+
+## As fotos de categoria são tudo ou nada — e são fotos de LOTE, não de matriz
+
+Mesmo quando chegar material da fazenda, foto de **manejo/lote** não resolve a
+seção de categorias: ela existe para a pessoa se encaixar em uma das seis, e
+lote no curral não distingue bezerra de novilha. Usar uma foto genérica em seis
+cartões diferentes seria informação falsa exatamente onde a página pede decisão.
+São necessários seis recortes que mostrem o **estágio** do animal.
 
 ## A Fase 7 NÃO está bloqueada por foto — os encaixes já existem e estão vazios
 
