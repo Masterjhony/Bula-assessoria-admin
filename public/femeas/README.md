@@ -19,10 +19,15 @@ Tudo isso depende da gravação de **14–15/08** (`.planning/femeas-perpetuo/
 MATERIAL-NECESSARIO.md`). Hoje a primeira dobra no celular é 100% texto, e é
 uma perda conhecida — não um esquecimento.
 
-## ⚠️ `public/jmp/galeria-femeas/` NÃO serve. Já foi conferida (06/08/2026)
+## ⚠️ `public/jmp/galeria-femeas/` NÃO serve. Conferida e **confirmada pelo dono** (06/08/2026)
 
 O nome engana e a pasta já foi puxada uma vez como solução para o hero. **Não
-é.** As quatro fotos foram abertas e ampliadas uma a uma; nenhuma passou:
+é.** As quatro fotos foram abertas e ampliadas uma a uma; nenhuma passou.
+
+> **A dúvida do sexo foi levada ao dono do projeto com os recortes ampliados, e
+> ele respondeu: "são machos mesmo, pode deixar sem foto."** Isto não é mais
+> leitura de quem programou — é decisão de quem conhece o lote. **Não reabrir.**
+> Se alguém achar que "dá para usar uma só", a resposta já foi dada.
 
 | Arquivo | Por que foi descartada |
 |---|---|
