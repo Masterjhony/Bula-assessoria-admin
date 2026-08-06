@@ -18,9 +18,18 @@ import { chromium } from 'playwright'
 
 const base = process.argv[2] ?? 'http://localhost:3000'
 
-/** Estado conhecido em 06/08/2026, depois do carrossel. Serve de linha de base. */
+/**
+ * Estado conhecido em 06/08/2026, depois de a ficha técnica passar para depois
+ * do formulário no celular. Serve de linha de base.
+ *
+ * Histórico do `primeiroCampo` no celular, que é o número que importa:
+ *   1113 → antes de tudo
+ *    950 → depois do carrossel de categorias
+ *    763 → depois de a ficha técnica sair da frente   ← hoje
+ *    633 → o /touros, que é o análogo e a meta
+ */
 const REFERENCIA = {
-  'MOBILE 390': { primeiroCampo: 950, paraQuem: 1421, categorias: 838, pagina: 7301 },
+  'MOBILE 390': { primeiroCampo: 763, paraQuem: 1421, categorias: 838, pagina: 7297 },
   'DESKTOP 1440': { primeiroCampo: 399, paraQuem: 1192, categorias: 1254, pagina: 6947 },
 }
 

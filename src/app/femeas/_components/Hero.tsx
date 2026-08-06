@@ -5,6 +5,63 @@ import { MultiLine } from './ui'
 import { LeadForm } from './Formulario'
 
 // ─────────────────────────────────────────────────────────────────────────
+// FICHA TÉCNICA — 30x · frete · custo da assessoria.
+//
+// Renderizada DUAS VEZES no hero, com visibilidade trocada por breakpoint:
+// no desktop dentro da coluna de promessa (ancorando o pé dela), no celular
+// depois do formulário. Só uma existe por vez — `hidden`/`sm:hidden` é
+// `display:none`, então a outra sai também da árvore de acessibilidade e o
+// leitor de tela nunca ouve as condições duas vezes.
+//
+// ⚠️ Duas instâncias em vez de reordenar por CSS (`order`) DE PROPÓSITO: com
+// `order` o texto seria lido pelo leitor de tela numa ordem e visto em outra.
+// Aqui a ordem do DOM é a ordem da leitura nos dois tamanhos.
+//
+// O conteúdo continua vindo de `hero.stats` (INV-5): é uma lista só, exibida
+// em dois lugares — não duas listas para alguém editar pela metade.
+//
+// No celular são três linhas com filete (valor à esquerda, rótulo à direita);
+// no desktop, grade de três. Nada de três colunas espremidas em 390px, onde
+// "Frete grátis" quebraria no meio da palavra.
+// ─────────────────────────────────────────────────────────────────────────
+function FichaTecnica({ className }: { className: string }) {
+  return (
+    <div className={className}>
+      {hero.stats.map((s) => (
+        <div
+          key={s.label}
+          className="flex items-baseline justify-between gap-4 py-3 sm:block sm:py-0"
+          style={{ borderTop: `1px solid ${dark.hairline}`, paddingTop: 14 }}
+        >
+          <span
+            style={{
+              fontFamily: font.display,
+              fontWeight: 600,
+              letterSpacing: '-0.015em',
+              fontSize: 'clamp(24px, 3vw, 36px)',
+              lineHeight: 1.05,
+              color: dark.text,
+              display: 'block',
+            }}
+          >
+            {s.value}
+          </span>
+          {/* À direita no celular (onde valor e rótulo dividem a mesma linha) e
+              à esquerda no desktop (onde o rótulo fica sob o valor, e alinhar à
+              direita descolaria os dois). */}
+          <span
+            className="text-right sm:mt-2 sm:text-left"
+            style={{ ...typo.monoLabel, fontSize: 11, color: dark.gold, display: 'block' }}
+          >
+            {s.label}
+          </span>
+        </div>
+      ))}
+    </div>
+  )
+}
+
+// ─────────────────────────────────────────────────────────────────────────
 // HERO — marca · promessa · cadastro na 1ª dobra.
 //
 // Fork ESTRUTURAL do /touros (logo → kicker → manchete → card do formulário,
@@ -215,42 +272,10 @@ export function Hero() {
               </p>
             </div>
 
-            {/* FICHA TÉCNICA — no celular, três linhas com filete: valor à
-                esquerda, rótulo à direita. Nada de três colunas espremidas em
-                390px, onde "Frete grátis" quebraria no meio da palavra.
-                No desktop vira grade de três e ancora o pé da coluna. */}
-            <div className="mt-[clamp(32px,4vw,48px)] flex flex-col sm:mt-auto sm:grid sm:grid-cols-3 sm:gap-x-8 sm:pt-[clamp(32px,4vw,56px)]">
-              {hero.stats.map((s) => (
-                <div
-                  key={s.label}
-                  className="flex items-baseline justify-between gap-4 py-3 sm:block sm:py-0"
-                  style={{ borderTop: `1px solid ${dark.hairline}`, paddingTop: 14 }}
-                >
-                  <span
-                    style={{
-                      fontFamily: font.display,
-                      fontWeight: 600,
-                      letterSpacing: '-0.015em',
-                      fontSize: 'clamp(24px, 3vw, 36px)',
-                      lineHeight: 1.05,
-                      color: dark.text,
-                      display: 'block',
-                    }}
-                  >
-                    {s.value}
-                  </span>
-                  {/* À direita no celular (onde valor e rótulo dividem a mesma
-                      linha) e à esquerda no desktop (onde o rótulo fica sob o
-                      valor, e alinhar à direita descolaria os dois). */}
-                  <span
-                    className="text-right sm:mt-2 sm:text-left"
-                    style={{ ...typo.monoLabel, fontSize: 11, color: dark.gold, display: 'block' }}
-                  >
-                    {s.label}
-                  </span>
-                </div>
-              ))}
-            </div>
+            {/* No desktop a ficha ancora o pé desta coluna, como sempre. No
+                celular ela NÃO aparece aqui — ver a segunda instância, depois
+                do formulário. */}
+            <FichaTecnica className="hidden sm:mt-auto sm:grid sm:grid-cols-3 sm:gap-x-8 sm:pt-[clamp(32px,4vw,56px)]" />
           </div>
 
           {/* CARD DO CADASTRO — o único formulário da página (INV-7). O guarda
@@ -267,6 +292,15 @@ export function Hero() {
           >
             <LeadForm />
           </div>
+
+          {/* A MESMA FICHA, agora DEPOIS do formulário — e só no celular.
+              Não é preferência estética: no celular a primeira dobra era 100%
+              texto e o primeiro campo do formulário caía a 950px numa tela de
+              844 (o /touros, que é o análogo, faz 633). A ficha valia ~200px
+              empurrando o campo para baixo, e ela é argumento de REFORÇO —
+              quem já decidiu preencher não precisa dela antes, e quem ainda
+              não decidiu lê o filtro logo abaixo, não a tabela de condições. */}
+          <FichaTecnica className="mt-[clamp(28px,5vw,40px)] flex flex-col sm:hidden" />
         </div>
       </div>
     </section>
