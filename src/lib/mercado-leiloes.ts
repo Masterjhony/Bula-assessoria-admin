@@ -25,7 +25,11 @@ import { crawlSite, isApifyConfigured } from './apify'
 const CANONICO: Array<{ re: RegExp; nome: string; slug: string }> = [
     { re: /programa/i,          nome: 'Programa Leilões',  slug: 'programa-leiloes' },
     { re: /bula\s*remates?/i,   nome: 'Bula Remates',      slug: 'bula-remates' },
-    { re: /e-?\s*rural/i,       nome: 'E-Rural',           slug: 'e-rural' },
+    // Ordem importa: "Lance Rural" vem ANTES, senão o padrão do E-Rural o
+    // engole ("Lanc·e Rural" casa com /e-?\s*rural/). O \b resolve o caso geral;
+    // a entrada explícita garante o nome canônico da plataforma do Canal Rural.
+    { re: /lance\s*rural/i,     nome: 'Lance Rural',       slug: 'lance-rural' },
+    { re: /\be-?\s*rural\b/i,   nome: 'E-Rural',           slug: 'e-rural' },
     { re: /agreste/i,           nome: 'Agreste Leilões',   slug: 'agreste-leiloes' },
     { re: /central/i,           nome: 'Central Leilões',   slug: 'central-leiloes' },
     { re: /capitaliza/i,        nome: 'Capitaliza',        slug: 'capitaliza' },
@@ -88,6 +92,17 @@ export interface EventoColetado {
     local: string | null
     uf: string | null
     url: string | null
+    /**
+     * Promotor REAL do leilão, quando a fonte informa quem é.
+     *
+     * Existe porque fonte ≠ leiloeira: a Lance Rural transmite leilão dos
+     * outros — 21 dos 36 eventos dela são da Programa Leilões. Gravar
+     * "Lance Rural" nesses casos criaria um evento duplicado com fingerprint
+     * diferente do mesmo pregão. Com o promotor real, o upsert casa os dois e
+     * a categoria mais específica (a Programa diz "Nelore PO", a Lance Rural
+     * só "Nelore") prevalece na última coleta.
+     */
+    leiloeira?: string | null
 }
 
 function htmlParaLinhas(html: string): string[] {
@@ -258,6 +273,53 @@ export function parseMediasLeiloboi(html: string): MediaColetada[] {
     return out
 }
 
+/* ─── Parse: Lance Rural (API pública do Canal Rural) ────────────────────── */
+
+/**
+ * A Lance Rural roda WordPress e expõe `/wp-json/leiloes/v1/lista`, um endpoint
+ * feito sob medida que devolve a agenda já estruturada — sem HTML, sem parser
+ * frágil, custo zero. É a fonte de melhor qualidade do radar: traz o promotor
+ * real, a praça, a raça, o contato e se existe catálogo.
+ *
+ * A raça vem GROSSA ("Nelore", nunca "Nelore PO") — conferido também na página
+ * de detalhe, que não distingue. Guardamos o valor como veio: quem separa PO é
+ * `ehNelorePo` na exibição, e o casamento por fingerprint com a Programa (que
+ * publica a categoria completa) é o que refina o registro.
+ */
+export function parseListaLanceRural(payload: unknown): EventoColetado[] {
+    const lista = Array.isArray(payload)
+        ? payload
+        : (Object.values((payload ?? {}) as Record<string, unknown>).find(Array.isArray) ?? [])
+
+    const out: EventoColetado[] = []
+    for (const item of lista as Array<Record<string, unknown>>) {
+        const nome = decodeEntidades(String(item.titulo ?? '')).replace(/\s+/g, ' ').trim()
+        if (!nome) continue
+
+        // "07-08-2026 19:00:00" → data ISO + hora. Sem abertura não há evento.
+        const abertura = String(item.abertura ?? '').trim()
+        const m = /^(\d{2})-(\d{2})-(\d{4})(?:\s+(\d{2}):(\d{2}))?/.exec(abertura)
+        if (!m) continue
+
+        const local = decodeEntidades(String(item.local ?? '')).trim() || null
+        const raca = decodeEntidades(String(item.raca ?? '')).trim() || null
+        const promotor = decodeEntidades(String(item.leiloeira ?? '')).trim() || null
+
+        out.push({
+            nome,
+            data: `${m[3]}-${m[2]}-${m[1]}`,
+            hora: m[4] ? `${m[4]}:${m[5]}` : null,
+            categoria: raca,
+            local,
+            // A praça aqui é "Cidade (UF)" — a Programa usa "Cidade - UF".
+            uf: local ? (local.match(/\(([A-Z]{2})\)/)?.[1] ?? null) : null,
+            url: String(item.url_original ?? '').trim() || null,
+            leiloeira: promotor,
+        })
+    }
+    return out
+}
+
 /** Entidades numéricas e nomeadas que os sites de leiloeira usam à vontade. */
 function decodeEntidades(s: string): string {
     return s
@@ -277,7 +339,8 @@ export interface FonteRow {
     slug: string
     site_url: string
     agenda_url: string | null
-    modo: 'http' | 'apify'
+    /** 'api' = endpoint JSON público (melhor caso: estruturado e de graça). */
+    modo: 'http' | 'apify' | 'api'
     /** COMO ler o site. `modo` diz como buscar; os dois são independentes. */
     parser?: string | null
     ativo: boolean
@@ -302,6 +365,20 @@ async function buscarHtml(url: string): Promise<string | null> {
         const res = await fetch(url, { headers: { 'User-Agent': UA }, signal: AbortSignal.timeout(20_000) })
         if (!res.ok) return null
         return await res.text()
+    } catch {
+        return null
+    }
+}
+
+/** Igual a `buscarHtml`, mas já devolve o JSON — usado pelo modo 'api'. */
+async function buscarJson(url: string): Promise<unknown | null> {
+    try {
+        const res = await fetch(url, {
+            headers: { 'User-Agent': UA, Accept: 'application/json' },
+            signal: AbortSignal.timeout(30_000),
+        })
+        if (!res.ok) return null
+        return await res.json()
     } catch {
         return null
     }
@@ -365,7 +442,15 @@ export async function coletarFonte(fonte: FonteRow, dias = 30): Promise<Resultad
                     if (m.length) base.medias.set(ev.url, m)
                 }
             }
-        } else {
+        } else if (fonte.modo === 'api' && fonte.agenda_url && parser === 'lancerural') {
+            // Uma requisição, a agenda inteira, JSON pronto. É o melhor custo-
+            // benefício do radar: nada de paginação, nada de HTML, custo zero.
+            const json = await buscarJson(fonte.agenda_url)
+            if (json) {
+                base.paginas = 1
+                base.eventos.push(...parseListaLanceRural(json))
+            }
+        } else if (fonte.modo === 'apify') {
             if (!isApifyConfigured()) throw new Error('APIFY_TOKEN ausente — fonte em modo apify não pode ser coletada.')
             // Crawler genérico: por ora traz o conteúdo bruto para inspeção. O
             // parser específico de cada site entra depois que a estrutura for
@@ -377,6 +462,14 @@ export async function coletarFonte(fonte: FonteRow, dias = 30): Promise<Resultad
             })
             base.paginas = r.paginas.length
             base.custoUsd = r.custoUsd
+        } else {
+            // Antes esta combinação caía no `else` do Apify e QUEIMAVA CRÉDITO em
+            // silêncio: fonte marcada 'http' sem parser conhecido ia parar no
+            // crawler genérico, que não preenche `eventos`. Agora falha explícito.
+            throw new Error(
+                `Fonte '${fonte.leiloeira}': modo='${fonte.modo}' com parser='${parser}' não tem coletor. `
+                + 'Escreva o parser ou desative a fonte — o Apify não é fallback.',
+            )
         }
     } catch (e) {
         base.erro = e instanceof Error ? e.message : String(e)
@@ -401,9 +494,14 @@ export async function salvarEventos(
     if (!eventos.length) return { novos: 0, atualizados: 0 }
     const agora = new Date().toISOString()
 
+    // Quem promove o pregão manda no registro; a fonte é só por onde a gente
+    // ficou sabendo. Sem isto, o mesmo leilão visto pela Programa e pela Lance
+    // Rural viraria duas linhas.
+    const promotor = (e: EventoColetado) => e.leiloeira || fonte.leiloeira
+
     const linhas = eventos.map(e => ({
         fonte_id: fonte.id,
-        leiloeira: normalizeLeiloeira(fonte.leiloeira).nome,
+        leiloeira: normalizeLeiloeira(promotor(e)).nome,
         nome: e.nome,
         data: e.data,
         hora: e.hora,
@@ -411,7 +509,7 @@ export async function salvarEventos(
         local: e.local,
         uf: e.uf,
         url: e.url,
-        fingerprint: fingerprintEvento(fonte.leiloeira, e.data, e.nome),
+        fingerprint: fingerprintEvento(promotor(e), e.data, e.nome),
         visto_em: agora,
         raw: e as unknown as Record<string, unknown>,
     }))
@@ -441,14 +539,16 @@ export async function salvarMedias(
     medias: Map<string, MediaColetada[]>,
 ): Promise<number> {
     if (medias.size === 0) return 0
-    const leiloeira = normalizeLeiloeira(fonte.leiloeira).nome
+    // Mesma regra de `salvarEventos`: o fingerprint tem que bater com o que foi
+    // gravado lá, senão a média fica órfã do evento.
+    const promotor = (e: EventoColetado) => e.leiloeira || fonte.leiloeira
     const porUrl = new Map(eventos.filter(e => e.url).map(e => [e.url as string, e]))
 
     // Resolve o id do evento já gravado, para amarrar a média nele.
     const fps = [...medias.keys()]
         .map(url => porUrl.get(url))
         .filter((e): e is EventoColetado => !!e)
-        .map(e => fingerprintEvento(fonte.leiloeira, e.data, e.nome))
+        .map(e => fingerprintEvento(promotor(e), e.data, e.nome))
     const { data: evRows } = await supabase
         .from('mercado_eventos').select('id, fingerprint').in('fingerprint', fps)
     const idPorFp = new Map((evRows ?? []).map(r => {
@@ -460,11 +560,11 @@ export async function salvarMedias(
     for (const [url, lista] of medias) {
         const ev = porUrl.get(url)
         if (!ev) continue
-        const fp = fingerprintEvento(fonte.leiloeira, ev.data, ev.nome)
+        const fp = fingerprintEvento(promotor(ev), ev.data, ev.nome)
         for (const m of lista) {
             linhas.push({
                 evento_id: idPorFp.get(fp) ?? null,
-                leiloeira,
+                leiloeira: normalizeLeiloeira(promotor(ev)).nome,
                 evento_nome: ev.nome,
                 data: ev.data,
                 sexo: m.sexo,
