@@ -297,6 +297,12 @@ export const MUTACOES: Record<string, MutacaoDef> = {
             return { ok: true, clean: { runner, descricao } }
         },
         async execute(sb, clean, ctx) {
+            // Fila é sequencial (uma tarefa por vez na bridge) — avisa a posição
+            // pra ninguém achar que a tarefa sumiu quando há outra rodando.
+            const { count } = await sb
+                .from('agente_dev_tarefas')
+                .select('id', { count: 'exact', head: true })
+                .in('status', ['pendente', 'rodando'])
             const row = {
                 runner: clean.runner,
                 descricao: clean.descricao,
@@ -307,7 +313,8 @@ export const MUTACOES: Record<string, MutacaoDef> = {
             if (error) throw new Error(error.message)
             await auditLog('agente:dev_tarefas', 'create', { id: data?.id, ...row }, { email: `whatsapp:${ctx.phone}` })
             const nomeRunner = clean.runner === 'claude' ? 'Claude Code' : 'Codex'
-            return { resumo: `Tarefa enfileirada pro *${nomeRunner}* no PC do João. Te aviso aqui quando terminar (se o PC estiver ligado com a bridge rodando).` }
+            const fila = (count ?? 0) > 0 ? ` Há ${count} tarefa(s) na frente — elas rodam uma por vez.` : ''
+            return { resumo: `Tarefa enfileirada pro *${nomeRunner}* no PC do João. Te aviso aqui quando terminar (se o PC estiver ligado com a bridge rodando).${fila}` }
         },
     },
 

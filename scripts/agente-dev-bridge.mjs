@@ -11,10 +11,10 @@
 //
 // Uso: node scripts/agente-dev-bridge.mjs   (o Startup do Windows chama isso;
 // trava de instância única via porta local 47821)
-import { readFileSync, existsSync, statSync } from 'node:fs'
+import { readFileSync, existsSync, statSync, mkdirSync, cpSync, rmSync, rmdirSync, symlinkSync } from 'node:fs'
 import { basename, dirname, join } from 'node:path'
 import { fileURLToPath } from 'node:url'
-import { spawn } from 'node:child_process'
+import { spawn, execSync } from 'node:child_process'
 import { createServer } from 'node:net'
 import { createClient } from '@supabase/supabase-js'
 
@@ -86,34 +86,71 @@ async function enviarArquivo(phone, caminho) {
     }
 }
 
+// ------------------------- worktree isolada (runner claude) -------------------------
+// Cada tarefa de código roda numa WORKTREE própria baseada na origin/main mais
+// recente — nunca em cima do repo de trabalho. Assim, tarefa simultânea a
+// alguém mexendo no repo (ou a outra tarefa recém-pushada) não baguncca nada:
+// a tarefa parte de um estado limpo, commita só o que é dela e faz push com
+// rebase. node_modules entra por junction (link), .env.local é copiado.
+const WORKTREES_DIR = join(dirname(ROOT), 'web-bula-tarefas')
+
+function prepararWorktree(id) {
+    const short = id.slice(0, 8)
+    const dir = join(WORKTREES_DIR, short)
+    mkdirSync(WORKTREES_DIR, { recursive: true })
+    execSync('git fetch origin main', { cwd: ROOT, stdio: 'pipe' })
+    execSync(`git worktree add -b tarefa/${short} "${dir}" origin/main`, { cwd: ROOT, stdio: 'pipe' })
+    symlinkSync(join(ROOT, 'node_modules'), join(dir, 'node_modules'), 'junction')
+    cpSync(join(ROOT, '.env.local'), join(dir, '.env.local'))
+    mkdirSync(join(dir, 'outputs'), { recursive: true })
+    return dir
+}
+
+function limparWorktree(id) {
+    const short = id.slice(0, 8)
+    const dir = join(WORKTREES_DIR, short)
+    // remove a JUNCTION antes de qualquer remoção recursiva — apagar através
+    // dela destruiria o node_modules REAL do repo.
+    try { rmdirSync(join(dir, 'node_modules')) } catch { /* já foi */ }
+    try {
+        execSync(`git worktree remove --force "${dir}"`, { cwd: ROOT, stdio: 'pipe' })
+    } catch {
+        try { rmSync(dir, { recursive: true, force: true }) } catch { /* melhor esforço */ }
+        try { execSync('git worktree prune', { cwd: ROOT, stdio: 'pipe' }) } catch { /* idem */ }
+    }
+    try { execSync(`git branch -D tarefa/${short}`, { cwd: ROOT, stdio: 'pipe' }) } catch { /* branch já foi */ }
+}
+
 // ------------------------- execução das CLIs -------------------------
-function montarPrompt(tarefa) {
+function montarPrompt(tarefa, workdir) {
     const rodape = `
 
 ---
 Instruções fixas da ponte (obrigatórias):
 - Responda em português do Brasil. Termine com um RESUMO curto (3-6 linhas) do que foi feito, escrito para o WhatsApp de quem pediu.
-- Se gerar arquivo para o solicitante (relatório, planilha, PDF...), salve em ${join(ROOT, 'outputs')} e liste no FINAL da resposta uma linha por arquivo no formato exato: ARQUIVO: <caminho absoluto>`
+- Se gerar arquivo para o solicitante (relatório, planilha, PDF...), salve em ${join(workdir, 'outputs')} e liste no FINAL da resposta uma linha por arquivo no formato exato: ARQUIVO: <caminho absoluto>`
     if (tarefa.runner === 'claude') {
         return `Tarefa pedida por ${tarefa.solicitante || 'admin'} via WhatsApp (agente interno da Bula):
 
 ${tarefa.descricao}
 
-Você está no repositório web-bula (sistema da Bula Assessoria). Se a tarefa alterar código: valide com \`npx tsc --noEmit\` (e build se fizer sentido), commite SÓ os arquivos da tarefa e dê push na main (padrão do projeto). Para relatórios, capriche no visual (brandbook preto/branco, dourado <5%) — Playwright está disponível localmente para HTML→PDF.${rodape}`
+Você está numa WORKTREE ISOLADA do repositório web-bula (sistema da Bula Assessoria), criada agora a partir da origin/main mais recente — o repo principal não é seu; trabalhe SÓ neste diretório. Se a tarefa alterar código: valide com \`npx tsc --noEmit\` (e build se fizer sentido), commite SÓ os arquivos da tarefa e publique com \`git pull --rebase origin main && git push origin HEAD:main\`. Para relatórios, capriche no visual (brandbook preto/branco, dourado <5%) — Playwright está disponível localmente para HTML→PDF.${rodape}`
     }
     return `Tarefa pedida por ${tarefa.solicitante || 'admin'} via WhatsApp (agente interno da Bula Assessoria, assessoria de leilões de gado):
 
-${tarefa.descricao}${rodape}`
+${tarefa.descricao}
+
+Importante: NÃO altere arquivos do repositório nem faça commit/push — tarefas de código são do runner "claude". Seu papel aqui é monitorar/pesquisar/executar e reportar.${rodape}`
 }
 
-function executarCli(tarefa) {
+function executarCli(tarefa, workdir) {
     return new Promise((resolve) => {
-        const prompt = montarPrompt(tarefa)
+        const prompt = montarPrompt(tarefa, workdir)
         const cmd = tarefa.runner === 'claude'
             ? 'claude -p --dangerously-skip-permissions'
             : 'codex exec --sandbox danger-full-access --skip-git-repo-check --color never -'
-        log(`executando [${tarefa.runner}]:`, tarefa.descricao.slice(0, 90))
-        const child = spawn(cmd, { cwd: ROOT, shell: true, windowsHide: true })
+        log(`executando [${tarefa.runner}] em ${workdir}:`, tarefa.descricao.slice(0, 90))
+        const child = spawn(cmd, { cwd: workdir, shell: true, windowsHide: true })
         let out = ''
         const add = (chunk) => { out = (out + chunk.toString('utf-8')).slice(-OUTPUT_CAP) }
         child.stdout.on('data', add)
@@ -155,7 +192,27 @@ async function processarUma() {
         .select('id')
     if (!claimed?.length) return true
 
-    const { code, out } = await executarCli(tarefa)
+    // Tarefa de código roda em worktree isolada; se a criação falhar, é ERRO
+    // (rodar no repo de trabalho poderia bagunçar o que estiver aberto lá).
+    let workdir = ROOT
+    let comWorktree = false
+    if (tarefa.runner === 'claude') {
+        try {
+            workdir = prepararWorktree(tarefa.id)
+            comWorktree = true
+        } catch (e) {
+            log('worktree falhou:', e.message)
+            await sb.from('agente_dev_tarefas').update({
+                status: 'erro',
+                resultado: `worktree falhou: ${e.message}`,
+                finished_at: new Date().toISOString(),
+            }).eq('id', tarefa.id)
+            await enviarWhats(tarefa.phone, `⚠️ Não consegui preparar o ambiente isolado pra tarefa (${e.message}). Nada foi alterado.`)
+            return true
+        }
+    }
+
+    const { code, out } = await executarCli(tarefa, workdir)
     const ok = code === 0
     const texto = out.trim()
 
@@ -177,6 +234,7 @@ async function processarUma() {
     const cabecalho = ok ? `✅ Tarefa dev concluída (${nomeRunner})` : `⚠️ Tarefa dev terminou com erro (${nomeRunner}, exit ${code})`
     await enviarWhats(tarefa.phone, `${cabecalho}\n\n${resumo || '(sem resumo)'}`)
     for (const arq of arquivos) await enviarArquivo(tarefa.phone, arq)
+    if (comWorktree) limparWorktree(tarefa.id)
     log(`tarefa ${tarefa.id.slice(0, 8)} → ${ok ? 'concluida' : 'erro'} (exit ${code})`)
     return true
 }
