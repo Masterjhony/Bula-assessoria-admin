@@ -1,6 +1,9 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   reactStrictMode: true,
+  // node-firebird (HastaPro, só leitura) fica fora do bundle do servidor —
+  // driver JS puro com require dinâmico interno que confunde o bundler.
+  serverExternalPackages: ['node-firebird'],
   async headers() {
     return [
       {

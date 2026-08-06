@@ -24,6 +24,7 @@ import { getCrmRelatorios } from '@/app/sistema/actions/relatorios'
 import { getAtendimentoStats } from '@/app/sistema/actions/atendimento'
 import { MUTACOES } from './whatsapp-agente-mutacoes'
 import { gerarEEnviarRelatorio, type RelatorioDestino } from './whatsapp-agente-relatorio'
+import { hastaproConsulta, isHastaproConfigured, type HastaproConsulta } from './hastapro'
 
 // Tabelas que o agente pode consultar. NUNCA site_settings (tokens/segredos).
 const TABELAS_ADMIN = [
@@ -212,6 +213,24 @@ export function buildTools(role: AgenteRole): ToolDef[] {
             {
                 type: 'function',
                 function: {
+                    name: 'hastapro_consulta',
+                    description: 'Consulta o HastaPró (sistema de leilões da pista, Firebird, SÓ leitura, consultas fixas). FIL 2 = Bula Assessoria (cobertura, escopo padrão); FIL 01 = Bula Remates (leilão INTEIRO da leiloeira — não é faturamento da Bula). VGV = LOT_TOTAL (lance x 30). Receita oficial segue sendo a dos fechamentos do sistema. Consultas: resumo (VGV período + CP/CR abertos), leiloes, vendas (lotes vendidos), contas_pagar, contas_receber, movimento (baixas), cliente (busca por nome/CPF via termo).',
+                    parameters: {
+                        type: 'object',
+                        properties: {
+                            consulta: { type: 'string', enum: ['resumo', 'leiloes', 'vendas', 'contas_pagar', 'contas_receber', 'movimento', 'cliente'] },
+                            de: { type: 'string', description: 'YYYY-MM-DD (padrão: 60 dias atrás)' },
+                            ate: { type: 'string', description: 'YYYY-MM-DD (padrão: +120 dias)' },
+                            termo: { type: 'string', description: 'obrigatório na consulta cliente' },
+                            fil: { type: 'string', enum: ['2', '01'], description: 'padrão 2 (Bula Assessoria)' },
+                        },
+                        required: ['consulta'],
+                    },
+                },
+            },
+            {
+                type: 'function',
+                function: {
                     name: 'erp_fluxo_caixa',
                     description: 'Fluxo de caixa realizado + previsto (matriz categoria x período), saldo projetado dia a dia.',
                     parameters: {
@@ -368,6 +387,23 @@ export async function executeTool(
                     typeof args.ate === 'string' ? args.ate : undefined,
                 )
                 break
+            case 'hastapro_consulta': {
+                if (ctx.role !== 'admin') {
+                    result = { error: 'restrito_admin' }
+                    break
+                }
+                if (!isHastaproConfigured()) {
+                    result = { error: 'hastapro_nao_configurado' }
+                    break
+                }
+                result = await hastaproConsulta(String(args.consulta ?? '') as HastaproConsulta, {
+                    de: typeof args.de === 'string' ? args.de : null,
+                    ate: typeof args.ate === 'string' ? args.ate : null,
+                    termo: typeof args.termo === 'string' ? args.termo : null,
+                    fil: typeof args.fil === 'string' ? args.fil : null,
+                })
+                break
+            }
             case 'erp_dashboard':
             case 'erp_dre':
             case 'erp_fluxo_caixa': {
