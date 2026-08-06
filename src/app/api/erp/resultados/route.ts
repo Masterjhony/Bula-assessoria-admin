@@ -127,15 +127,23 @@ export async function GET(req: NextRequest) {
   }
 
   // ── anos históricos (só onde NÃO há fechamentos) ────────────
-  type Hist = { ano: number; mes: number; leiloes: number | null; lotes: number | null; vgv: number | null; vendedores: number | null; compradores: number | null; observacao: string | null }
-  for (const h of (historico.data || []) as Hist[]) {
+  type Hist = { ano: number; mes: number; leiloes: number | null; lotes: number | null; vgv: number | null; receita: number | null; vendedores: number | null; compradores: number | null; observacao: string | null }
+  const histRows = (historico.data || []) as Hist[]
+  // meses primeiro, consolidado anual (mes 0) por último: assim o total oficial
+  // do ano realmente prevalece sobre a soma mês a mês.
+  const histOrdenado = [...histRows.filter(h => h.mes !== 0), ...histRows.filter(h => h.mes === 0)]
+  for (const h of histOrdenado) {
     const anoKey = String(h.ano)
     if (porAno[anoKey] && porAno[anoKey].fonte === 'fechamentos') continue
     const a = anoOf(anoKey)
-    a.fonte = 'historico'
-    // financeiro não existe no histórico consolidado
-    a.total.receita = null; a.total.comissao = null; a.total.imposto = null
-    a.total.despesas = null; a.total.lucro_liquido = null
+    if (a.fonte !== 'historico') {
+      a.fonte = 'historico'
+      // comissão/imposto/lucro não existem no consolidado histórico; receita
+      // pode existir se tiver sido apurada (coluna `receita`).
+      a.total.leiloes = 0; a.total.lotes = 0; a.total.vgv = 0
+      a.total.receita = null; a.total.comissao = null; a.total.imposto = null
+      a.total.despesas = null; a.total.lucro_liquido = null
+    }
     if (h.mes === 0) {
       a.vendedores = h.vendedores
       if (h.compradores != null) { a.compradores = h.compradores; a.compradores_tipo = 'unicos' }
@@ -144,11 +152,17 @@ export async function GET(req: NextRequest) {
       if (h.leiloes != null) a.total.leiloes = h.leiloes
       if (h.lotes != null) a.total.lotes = h.lotes
       if (h.vgv != null) a.total.vgv = Number(h.vgv)
+      if (h.receita != null) a.total.receita = Number(h.receita)
     } else {
       const m = a.meses[h.mes - 1]
       m.leiloes = h.leiloes
       m.lotes = h.lotes
       m.vgv = h.vgv != null ? Number(h.vgv) : null
+      m.receita = h.receita != null ? Number(h.receita) : null
+      a.total.leiloes += Number(h.leiloes) || 0
+      a.total.lotes += Number(h.lotes) || 0
+      a.total.vgv += Number(h.vgv) || 0
+      if (h.receita != null) a.total.receita = (a.total.receita || 0) + Number(h.receita)
     }
   }
 
