@@ -288,6 +288,48 @@ anterior a isso.
 
 ---
 
+## O teste da rota — o que já está provado, e o que só um deploy prova
+
+Executado contra o servidor de desenvolvimento em **06/08**. Cada linha é um
+`curl` de verdade, com a resposta que voltou:
+
+| Caso | Resposta |
+|---|---|
+| sem consentimento de WhatsApp | 400 · *"Autorize o contato via WhatsApp para continuar."* |
+| CPF com dígito verificador inválido | 400 · *"Informe um CPF ou CNPJ válido."* |
+| categoria fora de `categorias.ts` | 400 · *"Selecione por qual categoria pensa em começar."* |
+| quantidade fora do vocabulário | 400 · *"Selecione quantas matrizes pretende comprar."* |
+| projeto com menos de 10 caracteres | 400 · *"Conte um pouco do seu projeto…"* |
+| UF inválida | 400 · *"Selecione um estado válido."* |
+| rebanho no vocabulário do `/touros` (`1 a 99 cabeças`) | 400 · *"Selecione o tamanho do rebanho."* |
+
+A última linha é a que mais importa: ela prova que o servidor recusa o
+vocabulário da **outra** landing, que é exatamente o tipo de divergência
+silenciosa que o Desvio 3 existe para evitar.
+
+**Payload válido → 500, e nenhuma linha em planilha nenhuma.** O ambiente de
+desenvolvimento não tem credenciais (a sonda somente-leitura `GET
+/api/agendamentos` devolve *"Falha ao validar sessão"*, que é o `catch` do
+`requireAdmin`, e não o *"Não autenticado"* de sessão ausente). Sem
+`getStoredInfo()`, o append é `not_provisioned` e a rota devolve erro.
+
+⚠️ **Isso é uma verificação a favor, não contra:** prova que o append da base é
+**bloqueante de verdade** — quando a planilha não pode receber, o lead recebe
+erro e pode reenviar, em vez de sucesso silencioso com lead perdido.
+
+**O que continua sem prova, e onde ela precisa acontecer:** que a linha **cai na
+aba FEMEAS com as 9 colunas próprias**, que o segundo POST com o mesmo
+`event_id` é recusado como duplicata, e que nada aparece em
+TOUROS/EMBRIÕES/OUTROS. Isso **não é testável localmente** — exige um ambiente
+com credenciais (preview ou produção).
+
+⚠️ **E, quando for feito, ele escreve mesmo:** o `spreadsheetId` vem do
+`jmp_config` no Supabase, que é **compartilhado** — não existe planilha de
+teste. Um lead cujo nome comece por "teste" fica fora da aba de trabalho do SDR
+(`isTourosTestLead`), **mas entra na `LEADS GERAIS`**, e a remoção é manual.
+
+---
+
 ## O que NÃO foi feito, e por quê
 
 1. **Não houve POST real na rota.** Escreveria na planilha de **produção** (a
