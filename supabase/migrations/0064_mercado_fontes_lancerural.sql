@@ -61,11 +61,15 @@ UPDATE public.mercado_fontes
 -- Entram cadastradas e INATIVAS para não sumirem do mapa. A medição de cada uma
 -- está na observação — é o que decide se um dia precisam de Apify (nenhuma
 -- precisa, exceto a eRural).
+--
+-- `parser` é NOT NULL DEFAULT 'generico' (0059), então usamos 'pendente': se
+-- alguém ativar por engano, o coletor falha com "parser='pendente' não tem
+-- coletor", que diz exatamente o que está faltando. 'generico' mentiria.
 INSERT INTO public.mercado_fontes (leiloeira, slug, site_url, agenda_url, modo, parser, ativo, observacoes) VALUES
-    ('SBA1', 'sba1', 'https://sba1.com', 'https://sba1.com/leiloes', 'http', NULL, false,
+    ('SBA1', 'sba1', 'https://sba1.com', 'https://sba1.com/leiloes', 'http', 'pendente', false,
      'MEDIDO 06/08/2026: server-rendered (166kb, 35 datas, 35x "leilão"), custo zero. Sem API JSON (testado /wp-json e /api/leiloes). Falta parser.'),
-    ('MF Leilões', 'mf-leiloes', 'https://www.mfleiloes.com.br', 'https://www.mfleiloes.com.br', 'http', NULL, false,
+    ('MF Leilões', 'mf-leiloes', 'https://www.mfleiloes.com.br', 'https://www.mfleiloes.com.br', 'http', 'pendente', false,
      'MEDIDO 06/08/2026: server-rendered (142kb, 37 referências de mês), custo zero. Sem API JSON. Falta parser.'),
-    ('eRural', 'e-rural-portal', 'https://www.erural.net', 'https://www.erural.net/agenda-eventos', 'apify', NULL, false,
+    ('eRural', 'e-rural-portal', 'https://www.erural.net', 'https://www.erural.net/agenda-eventos', 'apify', 'pendente', false,
      'MEDIDO 06/08/2026: /agenda-eventos responde 200 com 102kb mas só 25 linhas de texto — conteúdo montado no cliente. Sem API pública (nenhum endpoint JSON citado no bundle). ÚNICA fonte que realmente justifica Apify/Playwright. Nota: /leiloes dá 404, o caminho certo é /agenda-eventos.')
 ON CONFLICT (slug) DO NOTHING;
