@@ -21,8 +21,10 @@ const config = {
     maxHistory: 30,
     thinkingSeconds: 4,
     numeros: [
-        { phone: '5567998894887', nome: 'João', role: 'admin', assessor: null },
+        // Admin (irrestrito): SÓ João Eduardo e Marcelo.
+        { phone: '5537984044850', nome: 'João', role: 'admin', assessor: null },
         { phone: '5531994149161', nome: 'Marcelo', role: 'admin', assessor: null },
+        { phone: '5567998894887', nome: 'João Antônio', role: 'assessor', assessor: 'Antônio' },
         { phone: '5599984901010', nome: 'Douglas', role: 'assessor', assessor: 'Douglas' },
         { phone: '5582981313050', nome: 'Fábio', role: 'assessor', assessor: 'Omena' },
         { phone: '5566999399319', nome: 'Leonardo', role: 'assessor', assessor: 'Serafim' },
