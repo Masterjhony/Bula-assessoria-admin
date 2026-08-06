@@ -182,6 +182,48 @@ export const paraQuem = {
   escapeHref: 'https://touros.bulaassessoria.com',
 }
 
+// ─────────────────────────────────────────────────────────────────────────
+// ⚠️ [JA] PROPOSTA DE CORTE — NÃO APLICADA. Quem aprova copy é o João Antônio;
+// o que está aqui é o número, para a decisão ser tomada com ele na mão.
+//
+// Esta é a seção mais densa da página, e por larga margem: 270 palavras em
+// 858px no celular = 315 palavras/1000px, contra 101 na jornada e 111 na
+// assessoria. É também a única que NÃO pode receber foto (as seis categorias se
+// distinguem pelo estágio do animal, e todo material existente é de lote em
+// manejo — ilustrar aqui seria informação falsa numa seção que orienta compra).
+// Na rodada de 06/08 ela ganhou peso visual pela escala tipográfica; o que
+// sobra, se ainda parecer densa, é palavra.
+//
+// De onde vêm as 270 palavras, medido campo a campo:
+//
+//   ~103  os seis `resumo`     (_lib/categorias.ts)
+//    ~90  os seis `paraQuem`   (_lib/categorias.ts)
+//     32  o `lead` daqui
+//     15  a `nota` daqui
+//    ~30  títulos e nomes
+//
+// AS DUAS PROPOSTAS, em ordem de risco:
+//
+//  1. BAIXO RISCO — o `lead` termina em "e é isso que a reunião com o assessor
+//     resolve" (10 palavras). A jornada já diz isso literalmente no passo 04
+//     ("a partir daí te direciona para a categoria por onde faz sentido você
+//     começar"), e o hero já promete reunião duas vezes. Cortar as 10 palavras
+//     tira 3,7% da seção sem tirar informação que só exista aqui.
+//
+//  2. ALTO RISCO, E EU RECOMENDO NÃO FAZER — esconder os seis `paraQuem` no
+//     celular, do jeito que a `explicacao` do filtro já é escondida. Valeria
+//     90 palavras (-33%, de 315 para ~210 palavras/1000px), que é de longe o
+//     maior corte disponível na página inteira. É por isso que está escrito
+//     aqui, e não porque seja boa ideia: `paraQuem` é a linha que a pessoa
+//     procura quando está tentando se encaixar em alguma das seis, ou seja, é
+//     exatamente a função da seção. Escondê-la no celular deixa a seção mais
+//     leve e sem serventia — e o celular é onde está o tráfego.
+//
+// Se for para cortar 90 palavras em algum lugar, o lugar barato é o `resumo`:
+// cinco dos seis têm duas orações e a segunda repete o que o nome da categoria
+// já diz ("Fêmea prenha: o próximo bezerro do seu criatório já vem a caminho na
+// compra"). Isso é reescrita, não corte mecânico — precisa da mão do JA.
+// ─────────────────────────────────────────────────────────────────────────
 export const categoriasSecao = {
   eyebrow: 'CATEGORIAS',
   title: 'Por onde começar o seu plantel.',
@@ -198,6 +240,19 @@ export const categoriasSecao = {
 // move a flag junto com a frase; um `if (n === '03')` escondido no JSX ficaria
 // para trás e destacaria o passo errado sem ninguém perceber.
 export const jornada = {
+  // A faixa de foto que ABRE esta seção. Ela não ilustra a jornada e não tem
+  // legenda: é respiro, e o lugar dela foi escolhido com régua. Sem ela, quatro
+  // seções seguidas (filtro → categorias → jornada → assessoria) somavam
+  // ~4.700px de texto sem uma única âncora visual no celular; entrando aqui,
+  // esse trecho vira dois de ~2.300px.
+  //
+  // ⚠️ NÃO ESCREVER LEGENDA DE VENDA embaixo dela, pela mesma razão da galeria:
+  // é foto de lote em manejo, não de animal à venda. O `alt` descreve o que
+  // está na foto, não o que a gente gostaria que estivesse.
+  foto: {
+    src: '/femeas/lote-close.webp',
+    alt: 'Duas fêmeas Nelore de frente, no curral, em dia claro',
+  },
   eyebrow: 'COMO FUNCIONA',
   title: 'Como funciona daqui até a sua primeira matriz.',
   lead: 'São quatro passos. O terceiro é o que nos diferencia: você não recebe um número de WhatsApp, você recebe uma reunião.',
@@ -342,22 +397,31 @@ export const rodape = {
 // Os `alt` moram aqui (INV-5) e descrevem o que está na foto, não o que a gente
 // gostaria que estivesse.
 // ─────────────────────────────────────────────────────────────────────────
+// ⚠️ A GALERIA PERDEU UMA FOTO EM 06/08 e a foto NÃO foi descartada: ela desceu
+// para `jornada.foto`. A razão está medida no topo de _components/FaixaFoto.tsx
+// — a página tinha toda a fotografia em dois pontos e ~4.700px de texto seguido
+// depois deles. Duas fotos edge-to-edge cobrem mais área que as três antigas
+// dentro do container, e a terceira passou a fazer o trabalho que faltava lá
+// embaixo.
+//
+// A ESCOLHA DE QUAL FOTO DESCE FOI POR RESOLUÇÃO, não por gosto: a faixa da
+// jornada é a única que ocupa a largura inteira de um monitor de 1440, e
+// `lote-close` é o único arquivo com 1400px de largura (as outras duas têm
+// 900). Nas duas células da galeria nenhuma passa de ~840px de largura, então
+// os arquivos de 900 servem sem ampliação. Trocar as fotos de lugar sem olhar
+// esse número devolve foto borrada no desktop.
 export const galeria = {
   eyebrow: 'NO CURRAL',
   title: 'É disto que a gente está falando.',
   lead: 'Nelore PO em fazenda atendida pela Bula. Nenhuma foto de banco de imagens.',
   fotos: [
     {
-      src: '/femeas/lote-close.webp',
-      alt: 'Duas fêmeas Nelore de frente, no curral, em dia claro',
+      src: '/femeas/curral-lote.webp',
+      alt: 'Lote de Nelore reunido no curral, visto de cima',
     },
     {
       src: '/femeas/curral-dourado.webp',
       alt: 'Lote de Nelore no curral ao entardecer, com peões a cavalo ao fundo',
-    },
-    {
-      src: '/femeas/curral-lote.webp',
-      alt: 'Lote de Nelore reunido no curral, visto de cima',
     },
   ],
 }

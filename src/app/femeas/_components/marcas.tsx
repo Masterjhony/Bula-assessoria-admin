@@ -59,9 +59,15 @@
 import type { ReactNode } from 'react'
 import { dark, light } from '../_lib/tokens'
 
-// Cinza do traço. Medido: 3,65:1 sobre #0D0D0D — acima do mínimo de 3:1 que o
-// WCAG 1.4.11 pede para gráfico que carrega significado. Não clarear "para
-// ficar bonito" sem medir de novo; não escurecer, ou a marca some.
+// Cinza do traço. Acima do mínimo de 3:1 que o WCAG 1.4.11 pede para gráfico
+// que carrega significado. Não clarear "para ficar bonito" sem medir de novo;
+// não escurecer, ou a marca some.
+//
+// Duas medições, e a que vale é a segunda: 3,65:1 sobre #0D0D0D (o canvas
+// padrão) e 4,29:1 sobre #141414 — que é o fundo REAL da assessoria, a única
+// seção marcada. Medido no navegador em 06/08, amostrando o `stroke` calculado
+// contra o fundo herdado. A folga sobre o mínimo é o que permitiu engrossar o
+// desenho na mesma rodada sem refazer a conta.
 //
 // Só existe versão para fundo ESCURO porque a única seção marcada (assessoria)
 // é escura. Se um dia entrar marca sobre o pergaminho, este cinza mede 2,4:1 lá
@@ -69,9 +75,39 @@ import { dark, light } from '../_lib/tokens'
 const TRACO_ESCURO = '#7A7A7A'
 
 // Espessura em unidades do viewBox. Os diagramas da assessoria têm 60 unidades
-// de largura e são renderizados com 54px, então 1,5 × (54/60) = 1,35px na tela —
-// da mesma família do filete de 1px do resto da página.
-const PESO = 1.5
+// de largura.
+//
+// ⚠️ ESTE NÚMERO ANDA JUNTO COM `LARGURA_SERVICO`, e a conta é a única razão de
+// ele existir: o traço na tela mede PESO × (largura renderizada ÷ 60), e ele
+// tem que ficar na família do filete de 1px do resto da página. Em 06/08 o
+// diagrama cresceu de 54px para clamp(64–78) — a 78px o peso antigo (1,5) daria
+// 1,95px, quase o dobro do filete, e a marca passaria a ler como ícone
+// desenhado a caneta grossa no meio de uma página de fios.
+//
+//   antes  1,5 × 54/60          = 1,35px
+//   agora  1,0 × 72/60 … 88/60  = 1,20 … 1,47px
+//
+// A faixa nova cerca a antiga em vez de escapar dela — que é o objetivo.
+const PESO = 1.0
+
+// Largura renderizada do diagrama de serviço.
+//
+// Cresceu de 54px fixos em 06/08/2026, na rodada de "está pouco visual". A
+// assessoria é uma das seções que NÃO pode ganhar foto (o que ela descreve é
+// serviço, não animal), então o peso visual dela tem que vir do que já existe —
+// e o que já existe são estes quatro diagramas, que o dono nunca reprovou (o
+// que saiu foram as seis silhuetas de bovino das categorias; ver o aviso mais
+// acima). Aumentar um desenho aprovado é o metro quadrado mais barato de peso
+// visual que esta página tinha sobrando.
+//
+// ⚠️ CRESCER AQUI É SEGURO E CRESCER NAS CATEGORIAS NÃO ERA — a diferença está
+// no `viewBox`. Os quatro diagramas dividem o MESMO quadro de 60×40, então as
+// quatro caixas medem exatamente igual em qualquer tamanho e empilham alinhadas
+// por construção. As seis marcas de categoria tinham larguras desenhadas
+// diferentes (111, 64, 100, 100, 146, 100px) — ampliar aquilo teria ampliado o
+// desalinhamento junto, que foi o defeito medido. Se um dia entrar uma quinta
+// marca de serviço, ela nasce no mesmo 60×40 ou nada disto vale.
+const LARGURA_SERVICO = 'clamp(72px, 7vw, 88px)'
 
 // ─────────────────────────────────────────────────────────────────────────
 // OS QUATRO SERVIÇOS DA ASSESSORIA.
@@ -108,7 +144,7 @@ function QuadroServico({ children }: { children: ReactNode }) {
       viewBox="0 0 60 40"
       aria-hidden="true"
       focusable="false"
-      style={{ width: 54, height: 'auto', display: 'block' }}
+      style={{ width: LARGURA_SERVICO, height: 'auto', display: 'block' }}
     >
       {children}
     </svg>
@@ -206,9 +242,17 @@ export function MarcaServico({ id }: { id: string }) {
 // do painel e da coluna do número. Se um daqueles mudar em Jornada.tsx, muda aqui
 // junto — está anotado lá.
 // ─────────────────────────────────────────────────────────────────────────
+//
+// ⚠️ OS TRÊS CRESCERAM JUNTOS em 06/08 (o número subiu de clamp(26–38) para
+// clamp(34–46), a coluna de clamp(46–74) para clamp(54–84)), e crescer junto é
+// obrigatório: a coluna precisa caber DOIS DÍGITOS do número, e o trilho se
+// alinha pela metade dela. Subir o número sem subir a coluna espreme o "04"
+// contra o título ao lado; subir a coluna sem subir o número deixa o algarismo
+// boiando no meio de um vão. O `tabular-nums` do <NumeroPasso/> é o que garante
+// que os quatro rótulos meçam igual entre si.
 export const JORNADA_PADDING = 'clamp(22px, 2.8vw, 32px)'
-export const JORNADA_COLUNA = 'clamp(46px, 6vw, 74px)'
-export const JORNADA_NUMERO = 'clamp(26px, 3.4vw, 38px)'
+export const JORNADA_COLUNA = 'clamp(54px, 6.6vw, 84px)'
+export const JORNADA_NUMERO = 'clamp(34px, 4.2vw, 46px)'
 
 export function TrilhoJornada() {
   return (

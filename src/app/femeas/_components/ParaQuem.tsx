@@ -1,4 +1,4 @@
-import { light, typo } from '../_lib/tokens'
+import { light, typo, font } from '../_lib/tokens'
 import { paraQuem, type CriterioFiltro } from '../_lib/copy'
 import { Section, Container, Reveal } from './ui'
 import { CabecalhoSecao } from './editorial'
@@ -59,8 +59,42 @@ function Coluna({ titulo, itens, filete }: { titulo: string; itens: CriterioFilt
     // pegadinha para o próximo — ele procura a regra e não acha.
     <div>
       <div aria-hidden style={{ width: 40, height: 2, background: filete }} />
-      <h3 style={{ ...typo.monoLabel, fontSize: 12, color: light.text, marginTop: 18 }}>{titulo}</h3>
-      <ul style={{ listStyle: 'none', padding: 0, margin: '18px 0 0' }}>
+      {/* ── O TÍTULO DA COLUNA SUBIU DE 12px MONO PARA OSWALD (06/08/2026) ──
+          Este era o defeito mais barato de consertar da página inteira. A
+          seção tem NOVE frases de 16px seguidas e dois rótulos de 12px; num
+          iPhone, os dois únicos marcos da estrutura mediam menos que o texto
+          que eles organizam, e o filtro — a seção que existe para
+          desqualificar — lia como um bloco só. Não se viam duas colunas: viam-
+          se dezenove linhas.
+
+          Oswald 20–26px devolve à seção os dois marcos que ela já tinha na
+          estrutura e não tinha na tela. Não entra um traço, não entra uma
+          caixa e não entra uma palavra: é a mesma copy, com a hierarquia que a
+          copy já supunha.
+
+          ⚠️ 20px no celular contra os 27px do <Titulo/> da seção: a distância
+          entre h2 e h3 tinha que continuar visível. Empatar os dois faz a
+          coluna competir com o título da seção, e a hierarquia piora em vez de
+          melhorar.
+
+          ⚠️ E O TRATAMENTO CONTINUA IDÊNTICO NOS DOIS LADOS. Mesmo tamanho,
+          mesma cor, mesmo peso, mesmo espaçamento. A única diferença entre as
+          colunas segue sendo a cor do filete de 2px, como sempre foi — ver o
+          aviso no cabeçalho deste arquivo. */}
+      <h3
+        style={{
+          fontFamily: font.display,
+          fontWeight: 600,
+          fontSize: 'clamp(20px, 2.4vw, 26px)',
+          letterSpacing: '-0.01em',
+          lineHeight: 1.15,
+          color: light.text,
+          marginTop: 16,
+        }}
+      >
+        {titulo}
+      </h3>
+      <ul style={{ listStyle: 'none', padding: 0, margin: '20px 0 0' }}>
         {itens.map(({ criterio, explicacao }) => (
           <li
             key={criterio}

@@ -66,15 +66,44 @@ import { Galeria } from './_components/Galeria'
 // #141414: é o mesmo recurso que a Assessoria já usava, não uma invenção.
 //
 // FOTO — em 06/08 a página deixou de ser 100% tipográfica. O dono enviou o
-// material dele, e duas fotos entraram: o hero (banda no celular, full-bleed no
-// desktop) e uma faixa antes do fecho. As outras que ele mandou foram
+// material dele, e quatro arquivos entraram. As outras que ele mandou foram
 // recusadas por trazerem marca de terceiro no quadro; o motivo de cada uma está
 // em public/femeas/README.md.
+//
+// ── ONDE CADA FOTO MORA, E POR QUÊ (revisto em 06/08, 3ª rodada de design) ──
+//
+//   hero-mobile / hero-desktop   #topo       banda atrás da promessa
+//   curral-lote                  #galeria    célula larga, edge-to-edge
+//   curral-dourado               #galeria    célula em pé, edge-to-edge
+//   lote-close                   #jornada    faixa full-bleed abrindo a seção
+//
+// O dono revisou num iPhone e disse, pela terceira vez, "muito texto, sem
+// respiro, pouco visual". As duas rodadas anteriores mexeram em espaçamento e
+// em traço — aliviaram e não resolveram, porque o problema medido não era ar,
+// era PROPORÇÃO:
+//
+//   · 1.004 palavras, imagem em 16% da área da página;
+//   · toda a fotografia concentrada em DOIS pontos (hero e galeria);
+//   · e entre eles e a faixa de logos, ~4.700px de texto contínuo em QUATRO
+//     seções seguidas, todas com 0% de imagem.
+//
+// A correção foi de DISTRIBUIÇÃO, não de espaçamento — o mesmo material, em
+// mais pontos e edge-to-edge em vez de dentro do container. O maior trecho sem
+// nenhuma imagem caiu de ~4.700px para ~2.300px, e a imagem passou de 16% para
+// 19% da área sem uma foto nova. Ver FaixaFoto.tsx (o porquê) e Galeria.tsx (o
+// que saiu de onde).
+//
+// ⚠️ NÃO HÁ FOTO SOBRANDO. Os quatro arquivos de public/femeas/ estão todos em
+// uso, cada um em UM lugar só. Repetir a mesma foto em dois pontos é o tipo de
+// coisa que ninguém aponta e todo mundo sente — a página passa a parecer que
+// tem pouco material. Só há mais foto a partir de 14–15/08.
 //
 // ⚠️ A seção de CATEGORIAS continua sem foto de propósito, e não é por falta de
 // material: foto de LOTE não distingue bezerra de novilha, e aquela seção
 // existe para a pessoa escolher por onde entrar no plantel. Ilustrar com um
-// lote genérico ali seria informação falsa numa seção que orienta decisão.
+// lote genérico ali seria informação falsa numa seção que orienta decisão. O
+// peso visual dela veio da ESCALA TIPOGRÁFICA (o índice de cada cartão virou um
+// algarismo de 40–52px) — mesma informação, zero traço novo. Ver Categorias.tsx.
 export default function FemeasPage() {
   return (
     <main>
@@ -83,10 +112,17 @@ export default function FemeasPage() {
           de ver o card de cadastro vê o animal antes de ler qualquer outra
           coisa. Custo medido no cabeçalho deste arquivo.
           ⚠️ Galeria é a única seção escura colada em outra seção escura na
-          página inteira — por isso ela sobe um tom (#141414). Ver Galeria.tsx. */}
+          página inteira — por isso ela sobe um tom (#141414). Ver Galeria.tsx.
+          ⚠️ Ela termina NA FOTO (paddingBottom 0): a borda da imagem encostando
+          no pergaminho do filtro é o divisor entre as duas seções. */}
       <Galeria />
       <ParaQuem />
       <Categorias />
+      {/* ⚠️ A JORNADA ABRE COM UMA FAIXA DE FOTO, e o lugar dela foi escolhido
+          com régua, não por gosto: o meio geométrico do trecho sem imagem
+          (filtro → categorias → jornada → assessoria) cai exatamente aqui. A
+          faixa é filha desta seção — e não um bloco solto entre as duas — para
+          que o medidor de densidade, que lê por seção, consiga contá-la. */}
       <Jornada />
       <Assessoria />
       <ProvaSocial />

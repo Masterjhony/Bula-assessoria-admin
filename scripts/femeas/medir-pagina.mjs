@@ -55,10 +55,39 @@ const base = process.argv[2] ?? 'http://localhost:3000'
  * medida registrada ninguém liga uma coisa à outra semanas depois.
  * ⚠️ Ele NÃO reprova sozinho: subir de propósito é uma decisão de negócio.
  * Reprova quem sobe sem querer.
+ *
+ * ── AJUSTE DE 06/08 (3ª rodada de "está pouco visual") ────────────────────
+ * O dono revisou em iPhone e repetiu a queixa pela terceira vez. As duas
+ * rodadas anteriores mexeram em espaçamento e traço; esta mexeu em PROPORÇÃO,
+ * que era o que a medição apontava:
+ *
+ *   maior vão sem NENHUMA imagem   mobile 4878 → 2671   desktop 4916 → 2439
+ *   imagem sobre a área da página          16% → 19%
+ *
+ * O que mudou de altura, e por quê:
+ *
+ *   topoParaQuem  mobile 2821→2592 (-229)  desktop 2186→2042 (-144)
+ *     A galeria saiu do <Container>, virou díptico edge-to-edge e passou a
+ *     terminar NA foto (sem padding embaixo). ⚠️ Isto é o inverso da decisão de
+ *     06/08 que desceu o filtro: o filtro SUBIU 229px sem que a galeria saísse
+ *     da frente dele. É ganho puro na alavanca da página.
+ *   paraQuem      mobile 1360→1374 (+14)   desktop 1084→1098 (+14)
+ *     Os títulos das duas colunas saíram de rótulo mono de 12px para Oswald de
+ *     20–26px. Os 14px são o preço de a seção passar a ter dois marcos visíveis
+ *     em vez de nenhum.
+ *   categorias    mobile 838→858 (+20)     desktop 1254→1318 (+64)
+ *     O índice de cada cartão virou algarismo de 40–52px. Mesma informação, sem
+ *     traço novo — é o peso visual da única seção que não pode ganhar foto.
+ *   pagina        mobile 8494→8665 (+171)  desktop 7955→8526 (+571)
+ *     Quase tudo é a faixa de foto que abre a jornada (293px no celular, 617px
+ *     em 1440). Cresceu ABAIXO da dobra, e o `primeiroCampo` não se moveu.
+ *
+ * O `primeiroCampo` continua 763/399 — é o único número desta lista que não
+ * podia mudar, e não mudou.
  */
 const REFERENCIA = {
-  'MOBILE 390': { primeiroCampo: 763, topoParaQuem: 2821, paraQuem: 1360, categorias: 838, pagina: 8494 },
-  'DESKTOP 1440': { primeiroCampo: 399, topoParaQuem: 2186, paraQuem: 1084, categorias: 1254, pagina: 7955 },
+  'MOBILE 390': { primeiroCampo: 763, topoParaQuem: 2592, paraQuem: 1374, categorias: 858, pagina: 8665 },
+  'DESKTOP 1440': { primeiroCampo: 399, topoParaQuem: 2042, paraQuem: 1098, categorias: 1318, pagina: 8526 },
 }
 
 const navegador = await chromium.launch()
