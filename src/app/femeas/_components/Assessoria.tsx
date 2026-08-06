@@ -2,6 +2,7 @@ import { dark, typo, font } from '../_lib/tokens'
 import { assessoria } from '../_lib/copy'
 import { Section, Container, Reveal } from './ui'
 import { CabecalhoSecao } from './editorial'
+import { MarcaServico } from './marcas'
 
 // ─────────────────────────────────────────────────────────────────────────
 // O QUE VEM JUNTO — o serviço que acompanha a compra.
@@ -42,10 +43,14 @@ export function Assessoria() {
               trocar. Quatro itens nunca devem cair numa grade de três. */}
           <div className="mt-[clamp(36px,5vw,64px)] grid grid-cols-1 gap-x-[clamp(28px,4vw,72px)] gap-y-[clamp(30px,4vw,52px)] sm:grid-cols-2">
             {assessoria.itens.map((i) => (
-              <div key={i.titulo}>
-                {/* Filete dourado curto abrindo cada item — a mesma assinatura
-                    do kicker de seção, um degrau abaixo na hierarquia. */}
-                <div aria-hidden style={{ width: 34, height: 2, background: dark.gold }} />
+              <div key={i.id}>
+                {/* Aqui havia um filete dourado de 34×2 — o MESMO nos quatro
+                    itens. Quatro aberturas idênticas para quatro serviços
+                    diferentes: a seção prometia "o que vem junto" e entregava
+                    quatro parágrafos que só se distinguiam depois de lidos.
+                    A marca substitui o filete (não se soma a ele), então o item
+                    cresce só a diferença entre 2px e ~36px de altura. */}
+                <MarcaServico id={i.id} />
                 <h3
                   style={{
                     fontFamily: font.display,

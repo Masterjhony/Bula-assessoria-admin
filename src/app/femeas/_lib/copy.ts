@@ -180,12 +180,23 @@ export const jornada = {
   ],
 }
 
+// O `id` de cada item NÃO é copy — é a chave que liga o item à marca gráfica
+// desenhada em `_components/marcas.tsx`. Ele mora aqui, e não no JSX, pela mesma
+// razão que a flag `destaque` da jornada mora aqui: reordenar ou reescrever a
+// lista tem que levar o desenho junto. Se a chave fosse o `titulo`, bastaria o
+// João Antônio trocar "Parte financeira" por "Financeiro" na revisão para a
+// marca sumir — sem erro, sem aviso, e ninguém olharia o console.
+//
+// Trocar um `id` sem trocar a chave correspondente em `marcas.tsx` faz o item
+// renderizar sem marca. Não quebra, mas fica um item pelado ao lado de três
+// marcados, que lê como defeito.
 export const assessoria = {
   eyebrow: 'A ASSESSORIA',
   title: 'O que vem junto, sem custo nenhum.',
   lead: 'A Bula não vende o animal e some. O acompanhamento é o serviço — e ele é de graça para quem compra com a gente.',
   itens: [
     {
+      id: 'escolha-do-animal',
       titulo: 'Escolha do animal',
       texto:
         'Técnicos especializados ajudam a ler o catálogo, entender a genética e escolher a fêmea que serve ao seu projeto — não a mais cara nem a mais bonita.',
@@ -202,16 +213,19 @@ export const assessoria = {
     // que é justamente o KPI do funil. Se o time decidir que não sustenta,
     // suavizar AQUI antes de subir; não deixar para descobrir depois.
     {
+      id: 'acasalamento',
       titulo: 'Acasalamento',
       texto:
         'Definir com quem cruzar cada matriz é o que constrói (ou destrói) um plantel. Você não decide isso sozinho.',
     },
     {
+      id: 'parte-financeira',
       titulo: 'Parte financeira',
       texto:
         'Parcelamento em 30× no boleto e o cadastro nas leiloeiras feito por nós, para habilitar a compra parcelada.',
     },
     {
+      id: 'entrega',
       titulo: 'Entrega',
       texto:
         'Frete grátis sob consulta, como é a praxe do leilão. A gente confirma a entrega para a sua região antes da compra — não depois.',
