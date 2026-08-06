@@ -7,6 +7,7 @@ import { ProvaSocial } from './_components/ProvaSocial'
 import { Fecho } from './_components/Fecho'
 import { Footer } from './_components/Footer'
 import { StickyCta } from './_components/StickyCta'
+import { FaixaFoto } from './_components/FaixaFoto'
 
 // Landing do funil perpétuo de FÊMEAS — Bula Assessoria.
 // Roda ao mesmo tempo que o perpétuo de touros (/touros); não substitui nada.
@@ -41,12 +42,16 @@ import { StickyCta } from './_components/StickyCta'
 //   Fecho       pergaminho  #F5F3EF
 //   Footer      near-black  #0D0D0D
 //
-// ⚠️ NÃO EXISTE FOTO NA PÁGINA, e isso é estado, não desenho inacabado: o
-// material de fêmeas só é gravado na fazenda em 14–15/08, e as fotos que já
-// existem no repositório são de touro (usar uma delas contradiz a segmentação
-// que esta página inteira existe para fazer — public/femeas/README.md).
-// Os encaixes de imagem estão marcados em Hero.tsx e Categorias.tsx, e são
-// INVISÍVEIS enquanto vazios: nenhum retângulo cinza, nenhum espaço reservado.
+// FOTO — em 06/08 a página deixou de ser 100% tipográfica. O dono enviou o
+// material dele, e duas fotos entraram: o hero (banda no celular, full-bleed no
+// desktop) e uma faixa antes do fecho. As outras que ele mandou foram
+// recusadas por trazerem marca de terceiro no quadro; o motivo de cada uma está
+// em public/femeas/README.md.
+//
+// ⚠️ A seção de CATEGORIAS continua sem foto de propósito, e não é por falta de
+// material: foto de LOTE não distingue bezerra de novilha, e aquela seção
+// existe para a pessoa escolher por onde entrar no plantel. Ilustrar com um
+// lote genérico ali seria informação falsa numa seção que orienta decisão.
 export default function FemeasPage() {
   return (
     <main>
@@ -56,6 +61,8 @@ export default function FemeasPage() {
       <Jornada />
       <Assessoria />
       <ProvaSocial />
+      {/* Respiro antes do último convite. Ver o cabeçalho de FaixaFoto.tsx. */}
+      <FaixaFoto src="/femeas/lote-close.webp" posicao="50% 42%" />
       <Fecho />
       <Footer />
       <StickyCta />
