@@ -19,8 +19,8 @@ import { chromium } from 'playwright'
 const base = process.argv[2] ?? 'http://localhost:3000'
 
 /**
- * Estado conhecido em 06/08/2026, depois de a ficha técnica passar para depois
- * do formulário no celular. Serve de linha de base.
+ * Estado conhecido em 06/08/2026, depois da rodada de leveza (ficha técnica e
+ * filtro sem molduras) e da subida da galeria para logo depois do formulário.
  *
  * Histórico do `primeiroCampo` no celular, que é o número que importa:
  *   1113 → antes de tudo
@@ -31,10 +31,34 @@ const base = process.argv[2] ?? 'http://localhost:3000'
  * A altura total subiu em 06/08 com as fotos: primeiro a faixa antes do fecho,
  * depois a galeria que a substituiu (mobile 7297→8578, desktop 6947→8063). Foi
  * ganho ABAIXO da dobra e o `primeiroCampo` não se moveu — que é o que importa.
+ *
+ * ── AJUSTE DE 06/08 (rodada de leveza) ────────────────────────────────────
+ * `paraQuem` e `pagina` DIMINUÍRAM, e é de propósito: o filtro perdeu os dois
+ * painéis brancos (com a borda e os ~72px de padding de cada um) e os sete
+ * filetes entre critérios, trocados por espaço. Menos moldura, menos altura.
+ *   paraQuem  mobile 1421→1360 (-61)   desktop 1192→1084 (-108)
+ *   pagina    mobile 8578→8494 (-84)   desktop 8063→7955 (-108)
+ * A ficha técnica do hero também encolheu (um filete no lugar de três, número
+ * de 36→26px): o hero no celular caiu de 1563 para 1541.
+ *
+ * ── `topoParaQuem`: A MEDIDA NOVA, e por que ela passou a existir ──────────
+ * Em 06/08 o dono pediu a galeria logo depois do formulário. O `primeiroCampo`
+ * não se mexe com isso (a galeria entra DEPOIS do form), mas o FILTRO desce a
+ * altura inteira da galeria — e o filtro é a alavanca desta página, a seção que
+ * existe para desqualificar antes de a pessoa virar lead.
+ *
+ *   topo de #para-quem   mobile 1563 → 2843*   desktop 1070 → 2186
+ *   (*medido 2821 com o filtro já aliviado; 2843 seria sem o alívio)
+ *
+ * A decisão é do dono e está tomada. O número fica aqui porque, se a fila do
+ * SDR voltar a encher de lead errado, este é o primeiro suspeito — e sem a
+ * medida registrada ninguém liga uma coisa à outra semanas depois.
+ * ⚠️ Ele NÃO reprova sozinho: subir de propósito é uma decisão de negócio.
+ * Reprova quem sobe sem querer.
  */
 const REFERENCIA = {
-  'MOBILE 390': { primeiroCampo: 763, paraQuem: 1421, categorias: 838, pagina: 8578 },
-  'DESKTOP 1440': { primeiroCampo: 399, paraQuem: 1192, categorias: 1254, pagina: 8063 },
+  'MOBILE 390': { primeiroCampo: 763, topoParaQuem: 2821, paraQuem: 1360, categorias: 838, pagina: 8494 },
+  'DESKTOP 1440': { primeiroCampo: 399, topoParaQuem: 2186, paraQuem: 1084, categorias: 1254, pagina: 7955 },
 }
 
 const navegador = await chromium.launch()
@@ -65,6 +89,12 @@ for (const [rotulo, largura, altura, celular] of [
       primeiroCampo: primeiro
         ? Math.round(primeiro.getBoundingClientRect().top + window.scrollY)
         : null,
+      // Onde o FILTRO começa. Não é a altura dele — é a rolagem que a pessoa
+      // precisa fazer para chegar na seção que existe para desqualificá-la.
+      topoParaQuem: (() => {
+        const el = document.querySelector('#para-quem')
+        return el ? Math.round(el.getBoundingClientRect().top + window.scrollY) : null
+      })(),
       paraQuem: altura('#para-quem'),
       categorias: altura('#categorias'),
       prova: altura('#prova'),
@@ -92,6 +122,9 @@ for (const [rotulo, medida] of Object.entries(resultados)) {
       const delta = valor - ref[chave]
       nota = delta === 0 ? '  (igual à referência)' : `  (${delta > 0 ? '+' : ''}${delta} vs. referência)`
       if (chave === 'primeiroCampo' && delta > 0) { nota += '  ⚠️ PIOROU'; falhas++ }
+      // Avisa, mas NÃO reprova: descer o filtro pode ser decisão de negócio
+      // (foi, em 06/08). O que não pode é descer sem ninguém perceber.
+      if (chave === 'topoParaQuem' && delta > 0) nota += '  ← o filtro desceu; foi de propósito?'
     }
     console.log(`  ${chave.padEnd(15)} ${String(valor).padEnd(8)}${nota}`)
   }

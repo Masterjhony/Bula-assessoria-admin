@@ -47,7 +47,9 @@ function Foto({
   sizes: string
 }) {
   return (
-    <div className={`relative overflow-hidden ${className}`} style={{ background: '#141414' }}>
+    // Fundo de espera MAIS ESCURO que a seção (que agora é #141414): se a foto
+    // demorar, a célula ainda tem que se distinguir do bloco atrás dela.
+    <div className={`relative overflow-hidden ${className}`} style={{ background: dark.bg }}>
       <Image src={foto.src} alt={foto.alt} fill sizes={sizes} className="object-cover" />
     </div>
   )
@@ -55,7 +57,14 @@ function Foto({
 
 export function Galeria() {
   return (
-    <Section surface="dark" id="galeria">
+    // ⚠️ FUNDO UM TOM ACIMA (#141414), e não é preferência: desde 06/08 esta
+    // seção vem LOGO DEPOIS do hero, que também é escuro. O divisor editorial
+    // desta página é a TROCA DE FUNDO entre blocos vizinhos — e dois blocos
+    // #0D0D0D colados viram uma faixa de ~200px de preto contínuo entre o
+    // último campo do formulário e o título daqui, sem nada marcando que uma
+    // seção terminou. O recurso é o mesmo que a Assessoria já usa.
+    // Se a galeria voltar para o fim da página, este override sai junto.
+    <Section surface="dark" id="galeria" style={{ background: dark.surface }}>
       <Container>
         <Reveal>
           <CabecalhoSecao

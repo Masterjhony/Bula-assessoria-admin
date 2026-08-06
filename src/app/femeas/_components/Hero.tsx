@@ -20,26 +20,44 @@ import { LeadForm } from './Formulario'
 // O conteúdo continua vindo de `hero.stats` (INV-5): é uma lista só, exibida
 // em dois lugares — não duas listas para alguém editar pela metade.
 //
-// No celular são três linhas com filete (valor à esquerda, rótulo à direita);
-// no desktop, grade de três. Nada de três colunas espremidas em 390px, onde
-// "Frete grátis" quebraria no meio da palavra.
+// No celular são três linhas (valor à esquerda, rótulo à direita); no desktop,
+// grade de três. Nada de três colunas espremidas em 390px, onde "Frete grátis"
+// quebraria no meio da palavra.
+//
+// ── ALIVIADA EM 06/08, depois da revisão do dono em iPhone ──────────────────
+// A versão anterior empilhava TRÊS ênfases nas mesmas três linhas: filete acima
+// de cada célula, número em Oswald 600 a 24–36px, e rótulo mono em DOURADO
+// caixa alta. Três sinais de destaque disputando o mesmo bloco — e um bloco que
+// no celular vem DEPOIS do formulário, onde ele é reforço, não argumento.
+// Quem chegou ali já viu a promessa; a ficha só confirma as condições.
+//
+// O que mudou, e o que cada corte alivia:
+//
+//   · TRÊS filetes viraram UM, acima do bloco inteiro. O filete agora diz
+//     "começou a ficha", que é trabalho de abertura; antes ele reticulava cada
+//     linha e transformava a ficha em tabela de formulário. Menos traço, mesma
+//     ancoragem — o espaço entre as linhas já separa as três.
+//   · O número caiu de clamp(24,3vw,36) para clamp(20,2.2vw,26). Não é "fonte
+//     menor por leveza": é hierarquia. A 36px ele competia com a manchete de
+//     68px do mesmo hero; a 26px ele é claramente subordinado a ela.
+//   · O rótulo saiu do DOURADO para o cinza secundário. O dourado é voltagem
+//     ÚNICA e escassa nesta linguagem (ver tokens.ts) — gastá-lo em três
+//     rótulos de condição comercial enfraquece os lugares onde ele carrega
+//     decisão: o eyebrow, o aviso de análise e o botão. `dark.muted` mede ~8:1
+//     sobre o near-black, então passa AA nos 11px do rótulo.
 // ─────────────────────────────────────────────────────────────────────────
 function FichaTecnica({ className }: { className: string }) {
   return (
-    <div className={className}>
+    <div className={className} style={{ borderTop: `1px solid ${dark.hairline}` }}>
       {hero.stats.map((s) => (
-        <div
-          key={s.label}
-          className="flex items-baseline justify-between gap-4 py-3 sm:block sm:py-0"
-          style={{ borderTop: `1px solid ${dark.hairline}`, paddingTop: 14 }}
-        >
+        <div key={s.label} className="flex items-baseline justify-between gap-4 sm:block">
           <span
             style={{
               fontFamily: font.display,
               fontWeight: 600,
               letterSpacing: '-0.015em',
-              fontSize: 'clamp(24px, 3vw, 36px)',
-              lineHeight: 1.05,
+              fontSize: 'clamp(20px, 2.2vw, 26px)',
+              lineHeight: 1.1,
               color: dark.text,
               display: 'block',
             }}
@@ -51,7 +69,7 @@ function FichaTecnica({ className }: { className: string }) {
               direita descolaria os dois). */}
           <span
             className="text-right sm:mt-2 sm:text-left"
-            style={{ ...typo.monoLabel, fontSize: 11, color: dark.gold, display: 'block' }}
+            style={{ ...typo.monoLabel, fontSize: 11, color: dark.muted, display: 'block' }}
           >
             {s.label}
           </span>
@@ -78,8 +96,8 @@ function FichaTecnica({ className }: { className: string }) {
 //   · banho radial dourado quase imperceptível saindo do canto superior
 //     esquerdo — dá profundidade ao near-black sem glass e sem sombra;
 //   · inicial de livery gigante a 5% de opacidade (mesmo recurso do /touros);
-//   · ficha técnica com filete em cima de cada célula: no celular ela é uma
-//     tabela de especificação, e é ela que segura o olho antes do formulário.
+//   · ficha técnica ancorando o pé da coluna de promessa — um filete só abrindo
+//     o bloco, e o resto separado por ar (ver o cabeçalho de FichaTecnica).
 //
 // ⚠️ O formulário continua sendo UM SÓ na página inteira (INV-7) e mora aqui, em
 // #cadastro. O Fecho e o StickyCta apontam para a âncora; nenhum dos dois
@@ -286,7 +304,10 @@ export function Hero() {
             {/* No desktop a ficha ancora o pé desta coluna, como sempre. No
                 celular ela NÃO aparece aqui — ver a segunda instância, depois
                 do formulário. */}
-            <FichaTecnica className="hidden sm:mt-auto sm:grid sm:grid-cols-3 sm:gap-x-8 sm:pt-[clamp(32px,4vw,56px)]" />
+            {/* O `pt` vem DEPOIS do filete do bloco: rasteira de 1px, respiro,
+                e só então os três números. É o filete abrindo a ficha, não
+                reticulando cada célula. */}
+            <FichaTecnica className="hidden sm:mt-auto sm:grid sm:grid-cols-3 sm:gap-x-8 sm:pt-[clamp(28px,3.4vw,44px)]" />
           </div>
 
           {/* CARD DO CADASTRO — o único formulário da página (INV-7). O guarda
@@ -310,8 +331,14 @@ export function Hero() {
               844 (o /touros, que é o análogo, faz 633). A ficha valia ~200px
               empurrando o campo para baixo, e ela é argumento de REFORÇO —
               quem já decidiu preencher não precisa dela antes, e quem ainda
-              não decidiu lê o filtro logo abaixo, não a tabela de condições. */}
-          <FichaTecnica className="mt-[clamp(28px,5vw,40px)] flex flex-col sm:hidden" />
+              não decidiu lê o filtro logo abaixo, não a tabela de condições.
+
+              O `gap-[20px]` é o que substituiu os filetes entre as linhas: com
+              o rótulo mono a 11px e o valor a 20px, vinte pixels de ar separam
+              as três condições com folga — o branco entre duas linhas do mesmo
+              parágrafo tem menos de 10px, então a distância de grupo é o dobro
+              da distância de linha e o olho não confunde. */}
+          <FichaTecnica className="mt-[clamp(28px,5vw,40px)] flex flex-col gap-[20px] pt-[22px] sm:hidden" />
         </div>
       </div>
     </section>

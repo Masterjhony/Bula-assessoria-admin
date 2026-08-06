@@ -19,21 +19,37 @@ import { Galeria } from './_components/Galeria'
 // formulário, página de obrigado e instrumentação — não é o /touros com texto
 // trocado.
 //
-// ORDEM DAS SEÇÕES (travada na Fase 3; tratamento visual na Fase 7):
+// ORDEM DAS SEÇÕES (revista em 06/08 a pedido do dono — ver o aviso abaixo):
 //
-//   Hero+form → ParaQuem (o filtro) → Categorias → Jornada → Assessoria
-//   → ProvaSocial → Fecho → Footer → StickyCta
+//   Hero+form → Galeria (as fotos do lote) → ParaQuem (o filtro) → Categorias
+//   → Jornada → Assessoria → ProvaSocial → Fecho → Footer → StickyCta
 //
-// ParaQuem vem LOGO DEPOIS do hero de propósito: é a seção que existe para
-// desqualificar, e desqualificar tarde desperdiça o lead que já rolou a página
-// inteira. O problema declarado pelo cliente é volume de lead errado, não falta
-// de lead. Mover esta seção para baixo anula a alavanca sem quebrar nada — é o
-// tipo de regressão que só aparece na fila do SDR, semanas depois.
+// ⚠️ O FILTRO DEIXOU DE SER A PRIMEIRA SEÇÃO DEPOIS DO FORMULÁRIO, e isso tem
+// preço medido. A galeria mede 1280px no celular e 1116px no desktop; com ela
+// na frente, o topo de #para-quem saiu de 1563 para 2843 no celular (+1280) e
+// de 1070 para 2186 no desktop (+1116). Ou seja: no celular a pessoa passa a
+// rolar UMA TELA E MEIA A MAIS de fotos antes de chegar ao texto que existe
+// para desqualificá-la.
+//
+// A razão de o filtro estar logo depois do hero continua valendo: ele existe
+// para desqualificar, e desqualificar tarde desperdiça o lead que já rolou a
+// página inteira — o problema declarado pelo cliente é volume de lead ERRADO,
+// não falta de lead. O contra-argumento do dono também é real: as fotos são a
+// prova de que existe animal, e prova cedo segura quem ainda não decidiu.
+//
+// A DECISÃO É DO DONO e está tomada. O que fica registrado aqui é o número, e
+// o lugar onde ele vai aparecer se a aposta não pagar: a fila do SDR, semanas
+// depois. Se o volume de lead errado subir, esta é a primeira coisa a desfazer.
+//
+// ⚠️ O `primeiroCampo` (a distância do topo até o primeiro campo no celular)
+// NÃO se moveu — a galeria entra DEPOIS do formulário, não antes. O que desceu
+// foi o filtro.
 //
 // RITMO DE SUPERFÍCIE (o divisor editorial desta página é a troca de fundo,
 // não filete grosso nem faixa colorida):
 //
 //   Hero        near-black  #0D0D0D
+//   Galeria     near-black  #141414   ← um tom acima; ver o ⚠️ abaixo
 //   ParaQuem    pergaminho  #F5F3EF   ← o "documento", onde se lê linha a linha
 //   Categorias  near-black  #0D0D0D
 //   Jornada     pergaminho  #F5F3EF
@@ -41,6 +57,13 @@ import { Galeria } from './_components/Galeria'
 //   ProvaSocial near-black  #0D0D0D
 //   Fecho       pergaminho  #F5F3EF
 //   Footer      near-black  #0D0D0D
+//
+// ⚠️ Mudar a galeria de lugar custou um DIVISOR. No fim da página ela ficava
+// entre Assessoria (#141414) e ProvaSocial (#0D0D0D), e a troca de fundo fazia
+// o trabalho sozinha. Logo depois do hero ela encosta em outro bloco escuro, e
+// entre o último campo do formulário e o título da galeria há ~200px de preto
+// contínuo — sem nada dizendo que uma seção acabou. Por isso ela sobe para
+// #141414: é o mesmo recurso que a Assessoria já usava, não uma invenção.
 //
 // FOTO — em 06/08 a página deixou de ser 100% tipográfica. O dono enviou o
 // material dele, e duas fotos entraram: o hero (banda no celular, full-bleed no
@@ -56,14 +79,16 @@ export default function FemeasPage() {
   return (
     <main>
       <Hero />
+      {/* As fotos do lote LOGO DEPOIS do formulário (dono, 06/08). Quem acabou
+          de ver o card de cadastro vê o animal antes de ler qualquer outra
+          coisa. Custo medido no cabeçalho deste arquivo.
+          ⚠️ Galeria é a única seção escura colada em outra seção escura na
+          página inteira — por isso ela sobe um tom (#141414). Ver Galeria.tsx. */}
+      <Galeria />
       <ParaQuem />
       <Categorias />
       <Jornada />
       <Assessoria />
-      {/* As fotos do lote entram DEPOIS da assessoria e ANTES dos logos: a
-          pessoa acabou de ler o que vem junto, vê o animal, e só então vê quem
-          já está do outro lado. Ver o cabeçalho de Galeria.tsx. */}
-      <Galeria />
       <ProvaSocial />
       <Fecho />
       <Footer />

@@ -27,6 +27,48 @@ texto: eyebrow **4,99:1**, manchete **11,10:1**, olho **7,93:1**. Todos passam.
 
 **Se a foto do hero for trocada por uma mais clara, refaça essa medição.**
 
+### O método, para quem for repetir
+
+Esconder o **texto** (`visibility: hidden` no elemento — o fundo atrás continua
+igual), fotografar a página, recortar a caixa de cada texto e procurar o pixel
+**mais claro** dentro dela. O contraste é calculado entre a cor declarada do
+texto e esse pixel. É o pior caso: se passa nele, passa no resto da caixa.
+
+### ⚠️ O DESKTOP NUNCA TINHA SIDO MEDIDO — e o olho reprova
+
+Medição de **06/08/2026**, em 1440×900, com o mesmo método (os números do
+celular batem com os de cima, o que valida o procedimento):
+
+| Texto | Celular 390 | Desktop 1440 |
+|---|---|---|
+| eyebrow (`#C8A96E`) | 5,00:1 ✅ | 5,34:1 ✅ |
+| manchete (`#F5F5F5`) | 11,25:1 ✅ | 9,17:1 ✅ |
+| olho (`#B0B0B0`, 18px) | 7,95:1 ✅ | **4,11:1 ❌** |
+
+O olho do hero no desktop pede 4,5:1 (18px regular **não** conta como texto
+grande — a régua é 24px, ou 18,66px em negrito) e entrega 4,11:1.
+
+**É defeito ANTERIOR, não regressão.** Foi medido nas duas pontas da rodada de
+leveza de 06/08 e deu exatamente igual — nada do que se mexeu ali (ficha
+técnica, filtro, ordem das seções) toca no scrim ou no olho.
+
+Onde exatamente: **4,0% da caixa** do parágrafo, toda ela na **borda direita**
+(o pior pixel fica a 96% da largura), que é onde o scrim horizontal do desktop
+afina — `linear-gradient(90deg, …0.52 46%, 0.18 74%…)`.
+
+**Não foi corrigido de propósito**, e o motivo é escolha, não esquecimento: todo
+conserto cobra em cima de um hero que o dono acabou de aprovar —
+
+1. fechar o scrim no meio (`0.52` → ~`0.62`) escurece a foto justo onde ela
+   respira;
+2. encurtar a medida do parágrafo (`max-w-[52ch]` → ~46ch) tira o texto da faixa
+   clara, mas reflui a coluna inteira;
+3. clarear o olho para `#F5F5F5` contraria a regra da linguagem — corpo é cinza
+   editorial, nunca branco (ver `_lib/tokens.ts`).
+
+Qualquer uma resolve. **É decisão de quem manda na página, não do próximo a
+passar por aqui** — e agora está medida, então dá para decidir com número.
+
 ## O que foi RECUSADO, e por quê
 
 Do material enviado em 06/08, duas fotos não entraram:
