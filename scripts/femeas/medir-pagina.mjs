@@ -28,13 +28,13 @@ const base = process.argv[2] ?? 'http://localhost:3000'
  *    763 → depois de a ficha técnica sair da frente   ← hoje
  *    633 → o /touros, que é o análogo e a meta
  *
- * A altura total subiu em 06/08 (mobile 7297→7517, desktop 6947→7367) com a
- * faixa fotográfica antes do fecho. Foi ganho de altura ABAIXO da dobra e o
- * `primeiroCampo` não se moveu — que é o que importa.
+ * A altura total subiu em 06/08 com as fotos: primeiro a faixa antes do fecho,
+ * depois a galeria que a substituiu (mobile 7297→8578, desktop 6947→8063). Foi
+ * ganho ABAIXO da dobra e o `primeiroCampo` não se moveu — que é o que importa.
  */
 const REFERENCIA = {
-  'MOBILE 390': { primeiroCampo: 763, paraQuem: 1421, categorias: 838, pagina: 7517 },
-  'DESKTOP 1440': { primeiroCampo: 399, paraQuem: 1192, categorias: 1254, pagina: 7367 },
+  'MOBILE 390': { primeiroCampo: 763, paraQuem: 1421, categorias: 838, pagina: 8578 },
+  'DESKTOP 1440': { primeiroCampo: 399, paraQuem: 1192, categorias: 1254, pagina: 8063 },
 }
 
 const navegador = await chromium.launch()
