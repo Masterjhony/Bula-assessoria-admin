@@ -7,7 +7,7 @@ import { ProvaSocial } from './_components/ProvaSocial'
 import { Fecho } from './_components/Fecho'
 import { Footer } from './_components/Footer'
 import { StickyCta } from './_components/StickyCta'
-import { FaixaFoto } from './_components/FaixaFoto'
+import { Galeria } from './_components/Galeria'
 
 // Landing do funil perpétuo de FÊMEAS — Bula Assessoria.
 // Roda ao mesmo tempo que o perpétuo de touros (/touros); não substitui nada.
@@ -60,9 +60,11 @@ export default function FemeasPage() {
       <Categorias />
       <Jornada />
       <Assessoria />
+      {/* As fotos do lote entram DEPOIS da assessoria e ANTES dos logos: a
+          pessoa acabou de ler o que vem junto, vê o animal, e só então vê quem
+          já está do outro lado. Ver o cabeçalho de Galeria.tsx. */}
+      <Galeria />
       <ProvaSocial />
-      {/* Respiro antes do último convite. Ver o cabeçalho de FaixaFoto.tsx. */}
-      <FaixaFoto src="/femeas/lote-close.webp" posicao="50% 42%" />
       <Fecho />
       <Footer />
       <StickyCta />
