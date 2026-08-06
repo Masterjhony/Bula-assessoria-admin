@@ -278,6 +278,39 @@ export const MUTACOES: Record<string, MutacaoDef> = {
         },
     },
 
+    tarefa_dev: {
+        descricao: 'Enfileira uma tarefa para o computador do João executar localmente: runner "claude" = Claude Code (alterar o sistema/site, corrigir bug, gerar relatório completo e bem formatado) | runner "codex" = Codex (monitorar leilões no YouTube, pesquisas e tarefas avulsas pedidas expressamente). A bridge local executa e avisa aqui quando terminar. O PC precisa estar ligado.',
+        adminOnly: true,
+        schema: {
+            type: 'object',
+            properties: {
+                runner: { type: 'string', enum: ['claude', 'codex'], description: 'claude = mexer no sistema/relatórios; codex = monitoramento/pesquisa' },
+                descricao: { type: 'string', description: 'A tarefa, completa e específica, como se estivesse instruindo um dev' },
+            },
+            required: ['runner', 'descricao'],
+        },
+        validate(args) {
+            const runner = str(args.runner)
+            const descricao = str(args.descricao)
+            if (runner !== 'claude' && runner !== 'codex') return { ok: false, error: 'runner deve ser claude ou codex' }
+            if (descricao.length < 10) return { ok: false, error: 'descreva a tarefa com mais detalhe' }
+            return { ok: true, clean: { runner, descricao } }
+        },
+        async execute(sb, clean, ctx) {
+            const row = {
+                runner: clean.runner,
+                descricao: clean.descricao,
+                solicitante: ctx.nome,
+                phone: ctx.phone || null,
+            }
+            const { data, error } = await sb.from('agente_dev_tarefas').insert(row).select('id').single()
+            if (error) throw new Error(error.message)
+            await auditLog('agente:dev_tarefas', 'create', { id: data?.id, ...row }, { email: `whatsapp:${ctx.phone}` })
+            const nomeRunner = clean.runner === 'claude' ? 'Claude Code' : 'Codex'
+            return { resumo: `Tarefa enfileirada pro *${nomeRunner}* no PC do João. Te aviso aqui quando terminar (se o PC estiver ligado com a bridge rodando).` }
+        },
+    },
+
     agenda_criar_evento: {
         descricao: 'Cria um evento na agenda interna (reunião, tarefa, lembrete).',
         schema: {
