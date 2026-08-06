@@ -143,38 +143,91 @@ function Coluna({ titulo, itens, cor }: { titulo: string; itens: CriterioFiltro[
           frases de 16px, e texto colorido em bloco vira aviso de sistema. A cor
           vive no marco (filete + título), o corpo segue em `light.body` nos dois
           lados. */}
+      {/* ── O TÍTULO SUBIU AO POSTO DE MANCHETE (auditoria de 06/08) ────────
+          Era `clamp(20px, 2.4vw, 26px)`, travado ali para "não competir com os
+          27px do <Titulo/> da seção". **A auditoria derrubou esse travamento**:
+          no celular o `<h2>` da seção e este `<h3>` NUNCA dividem a tela — o
+          título da seção fica no topo e o "NÃO é para você se" nasce em y=887,
+          119px abaixo da dobra útil. A competição que a regra evitava só existe
+          no desktop, e lá o clamp do `<h2>` sobe até 44px enquanto este para em
+          34px: a distância continua. */}
       <h3
         style={{
           fontFamily: font.display,
           fontWeight: 600,
-          fontSize: 'clamp(20px, 2.4vw, 26px)',
-          letterSpacing: '-0.01em',
-          lineHeight: 1.15,
+          fontSize: 'clamp(26px, 3vw, 34px)',
+          letterSpacing: '-0.015em',
+          lineHeight: 1.12,
           color: cor,
           marginTop: 16,
         }}
       >
         {titulo}
       </h3>
-      <ul style={{ listStyle: 'none', padding: 0, margin: '20px 0 0' }}>
-        {itens.map(({ criterio, explicacao }) => (
+      {/* ── ALGARISMO POR CRITÉRIO (auditoria de 06/08) ─────────────────────
+          O diagnóstico que motivou isto: existe uma regra que TODA seção desta
+          página obedece menos o filtro — ou ela quebra 2,0× de razão tipográfica
+          (maior tipo ÷ corpo de 16px), ou carrega ≥3% de área não-texto.
+          Categorias passa por escala (2,50×, e não tem imagem nenhuma);
+          assessoria passa por diagrama (3,0%). O filtro fazia 1,69× e 0,0% — o
+          único sem nenhum dos dois. Não era o mais DENSO da página (127
+          palavras/1000px contra 315 das categorias); era o mais MONÓTONO.
+
+          O algarismo é o dispositivo que o dono já aprovou DUAS vezes aqui
+          (categorias e jornada), e resolve as duas coisas de uma vez: leva a
+          razão acima de 2,0× e cria nove âncoras de varredura numa seção que
+          antes era prosa corrida.
+
+          ⚠️ POR QUE ELE RECEBE A COR DA COLUNA: a auditoria mediu que os dois
+          filetes semânticos somam 0,26% da área da seção — a cor estava
+          tecnicamente correta (6,29:1 e 6,23:1) e sumia por FALTA DE ÁREA. Nove
+          algarismos grandes multiplicam a presença do par oliva/terracota sem
+          colorir uma única palavra de corpo (texto de corpo colorido em bloco
+          vira aviso de sistema).
+
+          ⚠️ DOIS DÍGITOS SEMPRE, `tabular-nums`, coluna de largura fixa. É a
+          lição medida dos pictogramas que foram removidos: seis desenhos de
+          larguras 111/64/100/100/146/100px alinhados à direita produziram uma
+          borda serrilhada que o dono leu como "desconfigurado". Algarismo de
+          largura travada não tem esse defeito por construção.
+
+          ⚠️ E O TRATAMENTO SEGUE IDÊNTICO NOS DOIS LADOS — mesmo tamanho, mesma
+          luminosidade, mesma geometria. Numerar não ordena mérito: são índices
+          de leitura, como os das categorias, não um ranking de gravidade. */}
+      <ul style={{ listStyle: 'none', padding: 0, margin: '22px 0 0' }}>
+        {itens.map(({ criterio, explicacao }, i) => (
           <li
             key={criterio}
-            className="femeas-filtro-item"
-            style={{
-              ...typo.body,
-              fontSize: 16,
-              lineHeight: 1.6,
-              color: light.body,
-            }}
+            className="femeas-filtro-item grid gap-x-4"
+            style={{ gridTemplateColumns: 'clamp(38px, 4.6vw, 52px) 1fr' }}
           >
-            {criterio}
-            {/* UM nó de texto por critério, partido em dois. `display:none` no
-                celular tira a segunda oração da tela E da árvore de
-                acessibilidade — o leitor de tela do celular ouve a versão
-                curta, não as duas. A alternativa (dois blocos completos, um
-                escondido) faria o leitor ler o critério duas vezes. */}
-            {explicacao && <span className="femeas-filtro-explica"> {explicacao}</span>}
+            <span
+              aria-hidden
+              style={{
+                fontFamily: font.display,
+                fontWeight: 600,
+                fontSize: 'clamp(32px, 3.6vw, 38px)',
+                lineHeight: 1,
+                letterSpacing: '-0.02em',
+                color: cor,
+                fontVariantNumeric: 'tabular-nums',
+                // Sobe o algarismo até a linha de base da primeira linha do
+                // critério: sem isto ele flutua ~6px acima do texto, porque
+                // Oswald em 32px tem altura de linha maior que Inter em 16px.
+                marginTop: 2,
+              }}
+            >
+              {String(i + 1).padStart(2, '0')}
+            </span>
+            <span style={{ ...typo.body, fontSize: 16, lineHeight: 1.6, color: light.body }}>
+              {criterio}
+              {/* UM nó de texto por critério, partido em dois. `display:none` no
+                  celular tira a segunda oração da tela E da árvore de
+                  acessibilidade — o leitor de tela do celular ouve a versão
+                  curta, não as duas. A alternativa (dois blocos completos, um
+                  escondido) faria o leitor ler o critério duas vezes. */}
+              {explicacao && <span className="femeas-filtro-explica"> {explicacao}</span>}
+            </span>
           </li>
         ))}
       </ul>

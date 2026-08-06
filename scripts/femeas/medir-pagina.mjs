@@ -88,7 +88,7 @@ const base = process.argv[2] ?? 'http://localhost:3000'
  * podia mudar, e não mudou.
  */
 const REFERENCIA = {
-  'MOBILE 390': { primeiroCampo: 640, topoParaQuem: 2469, paraQuem: 1374, categorias: 858, pagina: 8542 },
+  'MOBILE 390': { primeiroCampo: 640, topoParaQuem: 2469, paraQuem: 1425, categorias: 858, pagina: 8592 },
   'DESKTOP 1440': { primeiroCampo: 399, topoParaQuem: 2042, paraQuem: 1098, categorias: 1318, pagina: 8487 },
 }
 
