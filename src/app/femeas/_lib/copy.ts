@@ -171,11 +171,15 @@ export const paraQuem = {
   ] as CriterioFiltro[],
 
   // Saída digna para quem não é o público — e que aproveita o outro funil.
-  // [VALIDAR] confirmar a URL do perpétuo de touros antes do go-live.
+  // URL ABSOLUTA de propósito: no host femeas.* o path '/touros' não está na
+  // allowlist do middleware, então um href relativo levaria a pessoa para um
+  // 308 → '/' — ou seja, de volta para a mesma página. O perpétuo de touros
+  // mora em host próprio (touros.bulaassessoria.com), e é para lá que se manda
+  // quem procura touro.
   escape:
     'Procura touro para melhorar a vacada que você já tem? Esse é o nosso outro trabalho, e ele é bem mais rápido.',
   escapeCta: 'Ver a assessoria de touros',
-  escapeHref: '/touros',
+  escapeHref: 'https://touros.bulaassessoria.com',
 }
 
 export const categoriasSecao = {
