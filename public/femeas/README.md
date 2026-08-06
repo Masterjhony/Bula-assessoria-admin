@@ -16,7 +16,44 @@ de 7 dias.
 recortes já estão calibrados para cada banda, e o scrim do hero foi medido em
 cima deste material (ver abaixo).
 
-## O scrim do hero foi MEDIDO, não estimado
+## O scrim do hero foi MEDIDO — e refeito em 06/08
+
+**Estado atual (todos passam AA), medido no ponto MAIS CLARO do fundo atrás de
+cada texto:**
+
+| | celular | desktop |
+|---|---|---|
+| eyebrow dourado (mín. 4,5) | **5,15** | — |
+| manchete (mín. 3,0, texto grande) | **11,25** | **10,73** |
+| olho / corpo (mín. 4,5) | 7,95 | **4,69** |
+| aviso de análise (mín. 4,5) | **8,47** | **6,18** |
+
+⚠️ **O desktop reprovava e agora não reprova.** O olho media **4,11:1** contra os
+4,5 exigidos — em ~4% da caixa, na borda direita, onde o scrim horizontal afina.
+Nunca tinha sido medido; só o celular era. Corrigido fechando o stop do meio do
+gradiente (0,52 → 0,62) e, no celular, o primeiro stop (0,72 → 0,78). **O stop de
+74% ficou intocado**, que é onde a foto respira — o animal à direita continua
+aparecendo.
+
+**Se a foto do hero for trocada por uma mais clara, refaça a medição.** O método
+está descrito abaixo.
+
+---
+
+## Como medir (o método, e as duas formas erradas de fazer)
+
+1. Abrir a página no navegador e **esconder só o texto** (`visibility: hidden`
+   nos `h1`/`p`/`a` da seção) — **sem esconder a `<img>`**.
+2. Fotografar e amostrar **exatamente as caixas onde o texto cai**
+   (`getBoundingClientRect`), procurando o pixel **mais claro** de cada caixa.
+3. Comparar com a cor computada do texto (`getComputedStyle().color`).
+
+⚠️ **Dois jeitos de errar que já custaram tempo aqui:**
+- amostrar "o pixel mais claro da região" **com o texto visível** — o pixel mais
+  claro é o próprio texto, e o número sai bonito e sem sentido;
+- esconder também a `<img>` — aí se mede o scrim sobre preto, e tudo passa.
+
+## O scrim antigo, para referência histórica
 
 O pelo do Nelore é quase branco: qualquer véu leve deixa texto claro sobre fundo
 claro. Com o gradiente original, o eyebrow dourado media **2,50:1** sobre a foto

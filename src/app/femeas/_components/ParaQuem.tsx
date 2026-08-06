@@ -16,12 +16,11 @@ import { CabecalhoSecao } from './editorial'
 // sem faixa colorida.
 //
 // ⚠️ A COLUNA DA DIREITA NÃO PODE PARECER PUNITIVA. As duas colunas têm a mesma
-// geometria, o mesmo tamanho de título, a mesma cor de texto e o mesmo
-// espaçamento. A ÚNICA diferença é o filete de 2px no topo — dourado de um
-// lado, neutro do outro. Sem vermelho, sem ícone de proibido, sem "×": quem sai
-// daqui pode ser comprador do outro funil da Bula, e o convite para ele está no
-// pé da seção. Trocar o filete neutro por qualquer coisa que leia como erro
-// custa esse lead duas vezes: perde aqui e não chega lá.
+// geometria, o mesmo tamanho de título, a mesma cor de CORPO e o mesmo
+// espaçamento. A diferença é de MATIZ, e só de matiz. Sem vermelho de alarme,
+// sem ícone de proibido, sem "×": quem sai daqui pode ser comprador do outro
+// funil da Bula, e o convite para ele está no pé da seção. Qualquer coisa que
+// leia como erro custa esse lead duas vezes: perde aqui e não chega lá.
 //
 // ── OS PAINÉIS SAÍRAM EM 06/08, depois da revisão do dono em iPhone ─────────
 // Até aqui a seção era: duas caixas BRANCAS COM BORDA de 1px, sobre o
@@ -48,17 +47,68 @@ import { CabecalhoSecao } from './editorial'
 //     é o jeito clássico de os dois lerem como um só.
 //
 // ⚠️ O TRATAMENTO CONTINUA IDÊNTICO NOS DOIS LADOS. Nada aqui é assimétrico
-// exceto a cor do filete de 2px, como sempre foi. Nenhum critério saiu: seguem
-// 5 e 4.
+// exceto o MATIZ, como sempre foi. Nenhum critério saiu: seguem 5 e 4.
 // ─────────────────────────────────────────────────────────────────────────
 
-function Coluna({ titulo, itens, filete }: { titulo: string; itens: CriterioFiltro[]; filete: string }) {
+// ─────────────────────────────────────────────────────────────────────────
+// O PAR SEMÂNTICO — sim/não em cor TERROSA, não em semáforo de interface.
+//
+// Pedido do dono em 06/08: "talvez com algo vermelho e verde para dar sentido à
+// negação". O diagnóstico dele está certo e a medição confirma: até aqui a única
+// diferença entre as colunas era um filete de 40×2px, dourado de um lado e
+// cinza do outro — dois traços de 40px numa seção de 1.374px de altura. No
+// iPhone eles não existem. A seção lia como dezenove linhas de texto, e nada
+// dizia que a segunda metade NEGA a primeira.
+//
+// ⚠️ MAS NÃO É #22C55E CONTRA #EF4444, e a recusa é comercial, não estética.
+// Vermelho de alarme é a cor de erro de formulário: quem se reconhece na coluna
+// da direita lê "você foi reprovado" e fecha a aba. Essa pessoa é justamente
+// quem a Bula quer no funil de TOUROS — o link de escape no pé desta seção
+// existe para ela. Alarme aqui perde o lead duas vezes: não converte aqui e não
+// chega lá.
+//
+// O que carrega o mesmo significado sem o alarme é o par terroso. São as duas
+// cores de pasto e barro, e pertencem ao mesmo universo do dourado da marca:
+//
+//   oliva     #4E5F35  H 84°  S 28%  L 29%   — sálvia/pasto, dessaturado
+//   terracota #824D28  H 25°  S 53%  L 33%   — argila queimada/couro
+//   (dourado  #6E5A2E  H 41°  S 41%  L 31%   — o acento da marca, para comparar)
+//
+// Os três têm luminosidade de 29 a 33%: lidos juntos são UMA paleta, não uma
+// cor de marca com dois avisos de sistema colados em cima.
+//
+// ⚠️ AS DUAS LUMINÂNCIAS SÃO CASADAS DE PROPÓSITO — 6,29:1 e 6,23:1 sobre o
+// pergaminho (#F5F3EF). A diferença de 0,06 é invisível, e isso é o requisito:
+// se a terracota fosse mais escura que a oliva, a coluna do "não" pesaria mais
+// na página, que é exatamente o efeito punitivo que a decisão travada proíbe.
+// Ao mexer numa das duas, MEXER NA OUTRA e refazer a conta — o par só funciona
+// casado. Medidor: scripts/femeas/ + o método do public/femeas/README.md.
+//
+// ⚠️ E A COR NÃO É O ÚNICO SINAL (WCAG 1.4.1). Quem não distingue as duas — e
+// oliva contra terracota é justamente o eixo que a deuteranopia achata — segue
+// lendo "É para você se" e "NÃO é para você se", que é o sinal PRIMÁRIO e sempre
+// foi. A cor reforça; ela nunca é a portadora. Por isso também não entra ícone:
+// o ✓/✗ que "resolveria" o daltonismo é precisamente o vocabulário de aprovado/
+// reprovado que não pode aparecer aqui.
+// ─────────────────────────────────────────────────────────────────────────
+const filtroCor = {
+  sim: '#4E5F35',
+  nao: '#824D28',
+} as const
+
+function Coluna({ titulo, itens, cor }: { titulo: string; itens: CriterioFiltro[]; cor: string }) {
   return (
     // Sem className: a `.femeas-filtro-coluna` existia só para carregar o
     // padding do painel, e o painel saiu. Seletor que não estiliza nada é
     // pegadinha para o próximo — ele procura a regra e não acha.
     <div>
-      <div aria-hidden style={{ width: 40, height: 2, background: filete }} />
+      {/* O filete passou de 40px para a LARGURA DA COLUNA, e continua com os
+          mesmos 2px de espessura — o número de traços da seção não mudou (eram
+          dois, são dois). O que mudou é o trabalho dele: a 40px ele era um tique
+          decorativo; na largura inteira ele DELIMITA a coluna, que é a segunda
+          queixa do dono ("não se veem duas colunas"). Sem painel e sem borda, é
+          o filete que diz onde uma começa. */}
+      <div aria-hidden style={{ width: '100%', height: 2, background: cor }} />
       {/* ── O TÍTULO DA COLUNA SUBIU DE 12px MONO PARA OSWALD (06/08/2026) ──
           Este era o defeito mais barato de consertar da página inteira. A
           seção tem NOVE frases de 16px seguidas e dois rótulos de 12px; num
@@ -78,9 +128,21 @@ function Coluna({ titulo, itens, filete }: { titulo: string; itens: CriterioFilt
           melhorar.
 
           ⚠️ E O TRATAMENTO CONTINUA IDÊNTICO NOS DOIS LADOS. Mesmo tamanho,
-          mesma cor, mesmo peso, mesmo espaçamento. A única diferença entre as
-          colunas segue sendo a cor do filete de 2px, como sempre foi — ver o
-          aviso no cabeçalho deste arquivo. */}
+          mesmo peso, mesmo espaçamento, mesma luminosidade. A única diferença
+          entre as colunas é o MATIZ — ver o par semântico no topo deste arquivo.
+
+          ⚠️ POR QUE O TÍTULO TAMBÉM RECEBE A COR, e não só o filete: 2px de cor
+          numa coluna de ~690px de altura não afirmam nem negam nada — foi
+          exatamente o que o dono não conseguiu ver. O título é o único elemento
+          da coluna que a pessoa lê ANTES dos critérios, e é nele que a palavra
+          "NÃO" já está escrita: pintar a palavra da cor faz a cor e o texto
+          dizerem a mesma coisa, no mesmo lugar, ao mesmo tempo. Se o daltonismo
+          derruba a cor, sobra a palavra — que continua sendo o sinal primário.
+
+          ⚠️ O corpo dos critérios NÃO recebe cor e não pode receber: são 9
+          frases de 16px, e texto colorido em bloco vira aviso de sistema. A cor
+          vive no marco (filete + título), o corpo segue em `light.body` nos dois
+          lados. */}
       <h3
         style={{
           fontFamily: font.display,
@@ -88,7 +150,7 @@ function Coluna({ titulo, itens, filete }: { titulo: string; itens: CriterioFilt
           fontSize: 'clamp(20px, 2.4vw, 26px)',
           letterSpacing: '-0.01em',
           lineHeight: 1.15,
-          color: light.text,
+          color: cor,
           marginTop: 16,
         }}
       >
@@ -140,9 +202,11 @@ export function ParaQuem() {
 
           ⚠️ O que NÃO muda, e não pode mudar: as duas colunas continuam com
           tratamento idêntico. O corte foi o mesmo dos dois lados, a geometria é
-          a mesma, e a única diferença entre elas segue sendo o filete de 2px no
-          topo. Nada de vermelho, ✗ ou acordeão escondendo a coluna da direita —
-          filtro que a pessoa precisa abrir para ler não filtra ninguém. */}
+          a mesma, e a única diferença entre elas é o MATIZ do filete e do
+          título — com a luminosidade casada, para nenhuma das duas pesar mais
+          que a outra. Nada de vermelho de alarme, ✗ ou acordeão escondendo a
+          coluna da direita — filtro que a pessoa precisa abrir para ler não
+          filtra ninguém. */}
       <style>{`
         .femeas-filtro-item + .femeas-filtro-item { margin-top: 30px; }
         @media (max-width: 639.98px) {
@@ -172,10 +236,10 @@ export function ParaQuem() {
             className="mt-[clamp(32px,4.5vw,56px)] grid gap-x-[clamp(44px,6vw,72px)] gap-y-[clamp(52px,6vw,72px)]"
             style={{ gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 300px), 1fr))' }}
           >
-            {/* Filete dourado à esquerda, filete neutro à direita — é toda a
-                diferença de tratamento entre as duas, de propósito. */}
-            <Coluna titulo={paraQuem.simTitle} itens={paraQuem.sim} filete={light.goldText} />
-            <Coluna titulo={paraQuem.naoTitle} itens={paraQuem.nao} filete={light.hairlineStrong} />
+            {/* Oliva à esquerda, terracota à direita — é toda a diferença de
+                tratamento entre as duas, de propósito. */}
+            <Coluna titulo={paraQuem.simTitle} itens={paraQuem.sim} cor={filtroCor.sim} />
+            <Coluna titulo={paraQuem.naoTitle} itens={paraQuem.nao} cor={filtroCor.nao} />
           </div>
         </Reveal>
 

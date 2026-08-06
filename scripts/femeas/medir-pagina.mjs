@@ -25,7 +25,9 @@ const base = process.argv[2] ?? 'http://localhost:3000'
  * Histórico do `primeiroCampo` no celular, que é o número que importa:
  *   1113 → antes de tudo
  *    950 → depois do carrossel de categorias
- *    763 → depois de a ficha técnica sair da frente   ← hoje
+ *    763 → depois de a ficha técnica sair da frente
+ *    640 → depois do reagrupamento de espaço do hero (-33) e do corte de copy
+ *          do parágrafo de abertura (-90)                        ← hoje
  *    633 → o /touros, que é o análogo e a meta
  *
  * A altura total subiu em 06/08 com as fotos: primeiro a faixa antes do fecho,
@@ -86,8 +88,8 @@ const base = process.argv[2] ?? 'http://localhost:3000'
  * podia mudar, e não mudou.
  */
 const REFERENCIA = {
-  'MOBILE 390': { primeiroCampo: 763, topoParaQuem: 2592, paraQuem: 1374, categorias: 858, pagina: 8665 },
-  'DESKTOP 1440': { primeiroCampo: 399, topoParaQuem: 2042, paraQuem: 1098, categorias: 1318, pagina: 8526 },
+  'MOBILE 390': { primeiroCampo: 640, topoParaQuem: 2469, paraQuem: 1374, categorias: 858, pagina: 8542 },
+  'DESKTOP 1440': { primeiroCampo: 399, topoParaQuem: 2042, paraQuem: 1098, categorias: 1318, pagina: 8487 },
 }
 
 const navegador = await chromium.launch()
