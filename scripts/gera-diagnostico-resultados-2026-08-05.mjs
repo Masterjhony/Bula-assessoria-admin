@@ -43,7 +43,19 @@ const ASSESSORIA_2026 = { cab: 677, vgv: 18784069 }
 // Cruzamento de julho/2026 (checagem de subregistro): ERP x HastaPro FIL 2.
 const JULHO = { erpLei: 11, erpVgv: 2182500, hpLei: 15, hpVgv: 2350500 }
 
-const ARROBA_QUEDA = 15 // % informado pelo usuario (serie externa nao validada aqui)
+// Indicador do Boi Gordo CEPEA/ESALQ — VERIFICADO na fonte em 05/08/2026.
+// A arroba esta MAIS CARA em 2026, em recorde nominal. O ancoramento YoY usa a
+// comparacao abril-contra-abril, que e a que o CEPEA publica explicitamente.
+const ARROBA = {
+  abr25: 324.00,          // media 1a quinzena abr/2025
+  abr26: 364.20,          // media 1a quinzena abr/2026 — +12,4% YoY
+  min25: 308.40,          // maio/2025, minima daquele ano
+  mar26: 356.00,          // fechamento de marco/26 — recorde nominal da serie CEPEA
+  jun26: 347.59,          // media de junho/26
+  jul26: 335.50,          // media de julho/26 — maior valor nominal para julho da serie
+  hoje: 348.55,           // 05/08/2026
+}
+const arrobaVar = ((ARROBA.abr26 - ARROBA.abr25) / ARROBA.abr25) * 100
 
 // ── calculos ─────────────────────────────────────────────────────────────
 const soma = (a, n) => a.slice(0, n).reduce((x, y) => x + y, 0)
@@ -81,9 +93,16 @@ const remCab25 = REMATES.a2025.vgv / REMATES.a2025.cab
 const remCab26 = REMATES.a2026.vgv / REMATES.a2026.cab
 const remVar = pct(remCab26, remCab25)
 const assCab = ASSESSORIA_2026.vgv / ASSESSORIA_2026.cab
-const elastElite = Math.abs(pct(F.tk26, F.tk25)) / ARROBA_QUEDA
-const elastCom = Math.abs(remVar) / ARROBA_QUEDA
 const lotesPraEmpatar = F.vgv25 / F.tk26
+
+// O mesmo preco medido em ARROBAS: separa o que e queda de preco do que e alta
+// da commodity. Se o lote cai em reais ENQUANTO a arroba sobe, a genetica esta
+// descolando para baixo do boi gordo — retracao de demanda, nao indexacao.
+const emArrobas = (v, ano) => v / (ano === 25 ? ARROBA.abr25 : ARROBA.abr26)
+const tkAr25 = emArrobas(F.tk25, 25), tkAr26 = emArrobas(F.tk26, 26)
+const tkArVar = pct(tkAr26, tkAr25)
+const comAr25 = emArrobas(remCab25, 25), comAr26 = emArrobas(remCab26, 26)
+const comArVar = pct(comAr26, comAr25)
 
 // ── formatadores ─────────────────────────────────────────────────────────
 const brl = (v, d = 0) => 'R$ ' + Number(v).toLocaleString('pt-BR', { minimumFractionDigits: d, maximumFractionDigits: d })
@@ -288,14 +307,14 @@ ul{margin:0 0 8px 16px}li{margin-bottom:5px}
   <div class="kicker">Bula Assessoria · Inteligência Comercial</div>
   <h1>Por que 2026 está menor<br>que 2025</h1>
   <div class="gold-rule"></div>
-  <p style="max-width:700px" class="muted">Diagnóstico da queda de resultado do exercício de 2026 contra 2025, decomposta em volume e preço, e teste da hipótese do ciclo da arroba sobre o mercado de genética PO. Base: meses fechados de janeiro a julho.</p>
+  <p style="max-width:700px" class="muted">Diagnóstico da queda de resultado do exercício de 2026 contra 2025, decomposta em volume e preço, e leitura do efeito do ciclo da arroba — em recorde nominal — sobre o mercado de genética. Base: meses fechados de janeiro a julho.</p>
   <div class="tiles" style="margin-top:26px">
     <div class="tile"><div class="lb">Queda de VGV · jan–jul</div><div class="v">${sg(pct(F.vgv26, F.vgv25), 1)}</div><div class="sub">${mi(F.vgv26)} contra ${mi(F.vgv25)}</div></div>
     <div class="tile"><div class="lb">Leilões assessorados</div><div class="v">${sg(pct(F.lei26, F.lei25), 1)}</div><div class="sub">${F.lei26} praças contra ${F.lei25} — atividade estável</div></div>
     <div class="tile au"><div class="lb">Preço por lote</div><div class="v">${sg(pct(F.tk26, F.tk25), 1)}</div><div class="sub">${brl(F.tk26)} contra ${brl(F.tk25)}</div></div>
-    <div class="tile au"><div class="lb">Parcela da queda que é preço</div><div class="v">${LG.tk.toFixed(0)}%</div><div class="sub">o resto é composição de lote, não esforço</div></div>
+    <div class="tile au"><div class="lb">Preço por lote em arrobas</div><div class="v">${sg(tkArVar, 1)}</div><div class="sub">${dec(tkAr25, 1)} @ → ${dec(tkAr26, 1)} @ · a arroba subiu ${sg(arrobaVar, 1)}</div></div>
   </div>
-  <p class="muted" style="margin-top:18px;font-size:11px">Emitido em 05/08/2026 · Fontes: ERP Bula (bula_leilao_fechamento, jan–ago/26 · erp_resultados_historico, 2025 Power BI) e HastaPro (Firebird, consulta somente leitura)</p>
+  <p class="muted" style="margin-top:18px;font-size:11px">Emitido em 05/08/2026 · Fontes: ERP Bula (bula_leilao_fechamento, jan–ago/26 · erp_resultados_historico, 2025 Power BI), HastaPro (Firebird, consulta somente leitura) e Indicador do Boi Gordo CEPEA/ESALQ</p>
   ${rodape(1)}
 </div>
 
@@ -306,8 +325,9 @@ ul{margin:0 0 8px 16px}li{margin-bottom:5px}
     <div>
       <p><b>A queda de 50,8% que aparece na tela de Resultados não é real.</b> Ela compara os quatro primeiros dias de agosto de 2026 com um agosto de 2025 recorde — R$ 15,43 mi, sozinho <b>36,6%</b> de todo o acumulado jan–ago daquele ano. Comparado mês fechado contra mês fechado, o recuo é de <b>${sg(pct(F.vgv26, F.vgv25), 1)}</b>.</p>
       <p><b>E esse recuo é quase inteiramente preço.</b> A equipe cobriu <b>${F.lei26} praças contra ${F.lei25}</b> — atividade praticamente idêntica, com ${dec(F.lpl26)} lotes por leilão contra ${dec(F.lpl25)}. O que mudou foi quanto vale cada lote: <b>${brl(F.tk26)} contra ${brl(F.tk25)}</b>, ${sg(pct(F.tk26, F.tk25), 1)}. Na decomposição do VGV, o preço responde por <b>${LG.tk.toFixed(0)}%</b> da variação; o número de leilões chegou a <i>devolver</i> ${Math.abs(LG.lei).toFixed(0)}%.</p>
-      <p><b>A causa é o ciclo da arroba — e ele age ao contrário no PO.</b> No gado comercial, arroba barata melhora a margem da engorda e aumenta o giro. Na genética PO o comprador não é um negociante: é o pecuarista, cuja receita é vendida em arroba. Arroba ${ARROBA_QUEDA}% menor significa caixa ${ARROBA_QUEDA}% menor, e genética é exatamente a rubrica que se adia. <b>O segmento elite amplifica o ciclo em vez de amortecê-lo.</b></p>
-      <p>O diagnóstico prático: <b>não há problema de execução comercial a corrigir.</b> A capacidade produtiva está intacta. O que caiu foi o valor unitário de um ativo cujo preço é indexado, na prática, à arroba.</p>
+      <p><b>A causa está no ciclo da arroba — mas pela escassez, não pela fartura.</b> O boi gordo está em <b>recorde nominal em 2026</b> (${brl(ARROBA.abr26, 2)} em abril contra ${brl(ARROBA.abr25, 2)} em 2025, ${sg(arrobaVar, 1)}), e o CEPEA atribui a alta à <b>oferta reduzida de machos</b>. Arroba barata movimenta pista e é boa para assessoria; arroba cara por escassez trava a pista: há menos animal circulando, o pecuarista realiza em vez de investir, e a reposição — em máxima histórica medida em arrobas — disputa o mesmo caixa da genética.</p>
+      <p><b>E o efeito é mais severo do que a queda em reais sugere.</b> Medido em arrobas, o preço do nosso lote passou de <b>${dec(tkAr25, 1)} @ para ${dec(tkAr26, 1)} @ — ${sg(tkArVar, 1)}</b>. O lote caiu ${sg(pct(F.tk26, F.tk25), 1)} em reais <i>enquanto</i> a commodity subia ${sg(arrobaVar, 1)}: a genética <b>descolou para baixo</b> do boi gordo. Não é indexação — é retração de demanda.</p>
+      <p>O diagnóstico prático: <b>não há problema de execução comercial a corrigir.</b> A capacidade produtiva está intacta. O que caiu foi a disposição a pagar por genética num ano em que o boi gordo nunca valeu tanto.</p>
     </div>
     <div>
       <div class="note"><b>O que este relatório corrige.</b> O indicador exibido hoje no ERP (−50,8%) mistura um mês em curso com um mês fechado recorde. Enquanto agosto não terminar, o único comparativo defensável é jan–jul. Toda a análise a seguir usa essa base.</div>
@@ -316,7 +336,7 @@ ul{margin:0 0 8px 16px}li{margin-bottom:5px}
         <li><b>Atividade preservada.</b> ${F.lei26} leilões contra ${F.lei25}; ${int(F.lot26)} lotes contra ${int(F.lot25)} (${sg(pct(F.lot26, F.lot25), 1)}).</li>
         <li><b>Preço comprimido.</b> ${sg(pct(F.tk26, F.tk25), 1)} no valor médio por lote — ${LG.tk.toFixed(0)}% da queda total.</li>
         <li><b>Compressão recente.</b> Até abril o ticket estava <i>acima</i> de 2025. A deterioração começa em maio e se aprofunda até julho (${sg(pct(Y26.vgv[6] / Y26.lot[6], Y25.vgv[6] / Y25.lot[6]), 0)}).</li>
-        <li><b>Elite cai mais que comercial.</b> Na mesma leiloeira, o gado comercial recuou ${sg(remVar, 1)} por cabeça; nossa pista de elite recuou ${sg(pct(F.tk26, F.tk25), 1)} por lote.</li>
+        <li><b>Queda real maior que a nominal.</b> Em arrobas, o lote recuou ${sg(tkArVar, 1)} — contra ${sg(comArVar, 1)} do gado comercial na mesma medida.</li>
       </ul>
       <h3>Consequência para o segundo semestre</h3>
       <p style="font-size:11.8px">Para igualar o VGV de jan–jul de 2025 com o ticket de hoje seriam necessários <b>${int(Math.round(lotesPraEmpatar))} lotes contra os ${int(F.lot26)} realizados — ${sg(pct(lotesPraEmpatar, F.lot26), 0)} de volume</b>. O ano se decide de agosto em diante: agosto de 2025 sozinho fez ${mi(Y25.vgv[7])}, e a agenda mapeada para agosto de 2026 soma R$ 68,0 mi de faturamento potencial.</p>
@@ -373,38 +393,39 @@ ul{margin:0 0 8px 16px}li{margin-bottom:5px}
 
 <!-- 04 A TESE -->
 <div class="page">
-  <h2><span class="num">03</span>O Ciclo da Arroba Age ao Contrário no PO</h2>
+  <h2><span class="num">03</span>A Arroba em Recorde é Vento Contra</h2>
   <div class="cols c37">
     <div>
-      <h3 style="margin-top:0">A assimetria</h3>
-      <p>No <b>gado comercial</b>, arroba mais barata é estímulo: o comprador adquire peso para engordar e revender, e um custo de entrada menor melhora a margem da engorda. O giro aumenta. É o reflexo comercial clássico.</p>
-      <p>No <b>PO / genética</b>, o comprador não é um negociante — é o pecuarista investindo no próprio rebanho. <b>A receita dele é vendida em arroba.</b> Quando a arroba cai ${ARROBA_QUEDA}%, o caixa dele cai junto, e a compra de genética é precisamente a rubrica discricionária que se adia ou se rebaixa de categoria. Genética é investimento de capital contra uma receita precificada em arroba.</p>
-      <p>Há ainda o mecanismo direto de formação de preço: touro e matriz PO são negociados em <b>equivalência-arroba</b> — "esse touro vale X arrobas". Se a referência cai ${ARROBA_QUEDA}% e a equivalência se mantém, o preço em reais cai na mesma proporção, mecanicamente.</p>
-      <div class="note"><b>Conclusão da tese.</b> O segmento elite <b>amplifica</b> o ciclo da arroba, não o amortece. Arroba −${ARROBA_QUEDA}% se traduziu em ${sg(remVar, 1)} por cabeça no gado comercial e ${sg(pct(F.tk26, F.tk25), 1)} por lote na nossa pista de elite.</div>
-      <h3>Três sinais que confirmam ou refutam a tese</h3>
-      <p style="font-size:11.5px;margin-bottom:6px">A tese é verificável. Se estiver certa, os próximos meses devem mostrar:</p>
-      <ul style="font-size:11.5px">
-        <li><b>Preço por lote se recupera antes do volume</b> quando a arroba virar. Se o volume voltar primeiro e o preço não, a causa é outra.</li>
-        <li><b>A taxa de repasse (lotes vendidos ÷ lotes ofertados) cai menos que o preço.</b> O pecuarista compra menos caro, não deixa de comprar — se o repasse despencar junto, há retração de demanda, não só repactuação.</li>
-        <li><b>A queda é maior nas categorias de ticket alto</b> (touro PO, matriz de elite) que nas de entrada. Se for uniforme, o efeito é macro e não do segmento.</li>
+      <h3 style="margin-top:0">O que a arroba realmente fez</h3>
+      <p>O Indicador do Boi Gordo CEPEA/ESALQ está em <b>recorde nominal em 2026</b>. Março fechou a <b>${brl(ARROBA.mar26, 2)}</b>, maior valor da série histórica; julho fez média de <b>${brl(ARROBA.jul26, 2)}</b>, o maior valor nominal já registrado para um mês de julho; em 05/08 o indicador estava em <b>${brl(ARROBA.hoje, 2)}</b>. Contra o mesmo mês de 2025, abril de 2026 ficou <b>${sg(arrobaVar, 1)}</b> acima (${brl(ARROBA.abr26, 2)} contra ${brl(ARROBA.abr25, 2)}). Em 2025 a arroba chegou a operar na mínima de ${brl(ARROBA.min25, 2)}.</p>
+      <h3>Por que arroba cara reduz o nosso negócio</h3>
+      <p>Uma assessoria vive de <b>transação</b>: quantidade de pista e valor negociado. Arroba cara atua contra os dois.</p>
+      <ul>
+        <li><b>Menos animal circulando.</b> O CEPEA atribui a alta de 2026 justamente à <b>oferta reduzida de machos desde o início do ano</b>, somada à demanda externa aquecida. Preço alto por escassez significa menos animal disponível para ir a leilão.</li>
+        <li><b>O pecuarista realiza em vez de investir.</b> Com o boi gordo em máxima histórica, o incentivo é vender o que está pronto e capturar o preço — não comprar genética no topo do ciclo.</li>
+        <li><b>A reposição ficou cara e disputa o mesmo caixa.</b> Em julho de 2026 a relação arrobas-de-boi-por-bezerro atingiu máxima histórica: repor o rebanho consome mais arrobas do que nunca, e reposição concorre diretamente com genética.</li>
       </ul>
+      <div class="note"><b>Confirmação.</b> Arroba barata movimenta o mercado e é boa para assessoria; arroba cara por escassez trava a pista. 2025 teve a arroba mais baixa e mais negócio. 2026 tem recorde de preço e menos negócio.</div>
     </div>
     <div>
-      <h3 style="margin-top:0">A evidência: mesma leiloeira, dois segmentos</h3>
-      <p style="font-size:11.8px">O HastaPro permite separar os dois mundos. A filial <b>Bula Remates</b> concentra pista majoritariamente comercial; a filial <b>Bula Assessoria</b> é a nossa cobertura, de elite. A diferença de patamar entre elas é de mais de seis vezes por cabeça.</p>
-      <div class="tiles t2" style="margin-top:8px">
-        <div class="tile"><div class="lb">Comercial · R$ por cabeça</div><div class="v">${brl(remCab26)}</div><div class="sub">contra ${brl(remCab25)} — ${sg(remVar, 1)}</div></div>
-        <div class="tile au"><div class="lb">Elite / PO · R$ por cabeça</div><div class="v">${brl(assCab)}</div><div class="sub">nossa cobertura em 2026</div></div>
-      </div>
-      <table style="margin-top:10px">
-        <thead><tr><th>Sensibilidade implícita à arroba</th><th class="r">Variação</th><th class="r">Multiplicador</th></tr></thead>
+      <h3 style="margin-top:0">O achado: a genética descolou para baixo</h3>
+      <p style="font-size:11.8px">Medir o nosso preço <b>em arrobas</b> separa o que é queda nossa do que é movimento da commodity. O resultado é mais severo que a leitura em reais: o lote perdeu quase um terço do seu valor medido em boi gordo.</p>
+      <table style="margin-top:8px">
+        <thead><tr><th>Jan–jul</th><th class="r">2025</th><th class="r">2026</th><th class="r">Variação</th></tr></thead>
         <tbody>
-          <tr><td>Referência da arroba <span class="muted">(informada)</span></td><td class="r">−${ARROBA_QUEDA},0%</td><td class="r">1,00×</td></tr>
-          <tr><td>Gado comercial <span class="muted">— R$/cabeça, Bula Remates</span></td><td class="r">${sg(remVar, 1)}</td><td class="r">${dec(elastCom)}×</td></tr>
-          <tr class="total"><td>Elite / PO <span class="muted">— R$/lote, nossa cobertura</span></td><td class="r">${sg(pct(F.tk26, F.tk25), 1)}</td><td class="r">${dec(elastElite)}×</td></tr>
+          <tr><td>Arroba do boi gordo <span class="muted">CEPEA, abr/abr</span></td><td class="r">${brl(ARROBA.abr25, 2)}</td><td class="r">${brl(ARROBA.abr26, 2)}</td><td class="r">${sg(arrobaVar, 1)}</td></tr>
+          <tr><td>Preço por lote <span class="muted">nossa cobertura</span></td><td class="r">${brl(F.tk25)}</td><td class="r">${brl(F.tk26)}</td><td class="r">${sg(pct(F.tk26, F.tk25), 1)}</td></tr>
+          <tr class="total"><td>Preço por lote <b>em arrobas</b></td><td class="r">${dec(tkAr25, 1)} @</td><td class="r">${dec(tkAr26, 1)} @</td><td class="r">${sg(tkArVar, 1)}</td></tr>
         </tbody>
       </table>
-      <div class="note dark" style="font-size:11px"><b>Ressalva metodológica.</b> A série do comercial compara out–dez/2025 com jan–jul/2026, porque o HastaPro só foi implantado em 30/09/2025 — não há janela sobreposta. O número carrega efeito de safra e deve ser lido como ordem de grandeza, não como medida exata. A queda de ${ARROBA_QUEDA}% na arroba é dado informado pela diretoria; não validamos a série externa.</div>
+      <div class="note dark"><b>Leitura.</b> O preço do lote caiu ${sg(pct(F.tk26, F.tk25), 1)} em reais <i>enquanto</i> a commodity subia ${sg(arrobaVar, 1)}. Em arrobas, o mesmo lote passou de ${dec(tkAr25, 1)} para ${dec(tkAr26, 1)} — <b>${sg(tkArVar, 1)}</b>. Não é indexação à arroba: é <b>retração de demanda por genética</b>, num ano em que o boi gordo nunca valeu tanto.</div>
+      <h3>O mesmo teste no gado comercial</h3>
+      <div class="tiles t2" style="margin-top:6px">
+        <div class="tile"><div class="lb">Comercial · Bula Remates</div><div class="v">${sg(comArVar, 1)}</div><div class="sub">${dec(comAr25, 1)} @ → ${dec(comAr26, 1)} @ por cabeça</div></div>
+        <div class="tile au"><div class="lb">Elite / PO · nossa pista</div><div class="v">${sg(tkArVar, 1)}</div><div class="sub">${dec(tkAr25, 1)} @ → ${dec(tkAr26, 1)} @ por lote</div></div>
+      </div>
+      <p style="font-size:11.5px;margin-top:8px">Os dois segmentos recuaram em arrobas, mas o <b>elite recuou mais</b> — o que se esperaria de uma compra discricionária contra uma compra de necessidade.</p>
+      <div class="note dark" style="font-size:10.8px"><b>Ressalvas.</b> A série do comercial compara out–dez/2025 com jan–jul/2026 (o HastaPro só existe desde 30/09/2025) e carrega efeito de safra — leia como ordem de grandeza. A conversão em arrobas usa a âncora abril/abril do CEPEA, não a média jan–jul de cada ano.</div>
     </div>
   </div>
   ${rodape(4)}
@@ -467,8 +488,9 @@ ul{margin:0 0 8px 16px}li{margin-bottom:5px}
         <li><b>Não cobrar volume de praça da equipe como resposta.</b> ${F.lei26} leilões contra ${F.lei25} mostra que a capacidade produtiva está intacta. A alavanca não está no esforço.</li>
         <li><b>A recomposição por volume é cara.</b> Empatar com jan–jul/2025 no ticket atual exigiria ${int(Math.round(lotesPraEmpatar))} lotes — ${sg(pct(lotesPraEmpatar, F.lot26), 0)} sobre o realizado. É muito para o segundo semestre absorver sozinho.</li>
         <li><b>Mix é a alavanca disponível.</b> Como o recuo é de preço unitário, subir a categoria média da pista compensa mais rápido que somar lotes. Isso significa priorizar praças de elite na agenda, não apenas encher calendário.</li>
-        <li><b>Reler a meta de agosto sob essa luz.</b> A agenda de agosto soma R$ 68,0 mi de faturamento potencial e a meta de cobertura definida é 12%. Num ciclo de arroba comprimida, a defesa da meta está no ticket da pista escolhida.</li>
-        <li><b>Passar a acompanhar o preço por lote como indicador próprio.</b> Hoje o ERP mostra VGV, leilões e lotes. O preço por lote é o indicador que antecipou a virada de maio e que continuará antecipando.</li>
+        <li><b>Reler a meta de agosto sob essa luz.</b> A agenda de agosto soma R$ 68,0 mi de faturamento potencial e a meta de cobertura definida é 12%. Com a disposição a pagar comprimida, a defesa da meta está no ticket da pista escolhida.</li>
+        <li><b>O gatilho de virada é a oferta, não o preço da arroba.</b> Como a alta de 2026 vem de escassez de animal, o que devolve pista é a normalização da oferta — acompanhar abate e retenção antecipa melhor a retomada do que o próprio indicador da arroba.</li>
+        <li><b>Passar a acompanhar preço por lote e preço por lote em arrobas.</b> Hoje o ERP mostra VGV, leilões e lotes. O preço por lote antecipou a virada de maio; medido em arrobas, separa o que é mercado do que é commodity.</li>
       </ul>
     </div>
     <div>
@@ -478,7 +500,7 @@ ul{margin:0 0 8px 16px}li{margin-bottom:5px}
       <p style="font-size:11.5px"><b>Decomposição:</b> atribuição sequencial encadeada na ordem leilões → lotes por leilão → preço por lote (as parcelas somam exatamente a variação). Os pesos percentuais usam decomposição logarítmica, invariante à ordem.</p>
       <h3>Limites desta análise</h3>
       <ul style="font-size:11.5px">
-        <li>A queda de ${ARROBA_QUEDA}% na arroba é premissa informada pela diretoria; a série externa não foi validada aqui. O que se mediu foi o efeito-preço interno.</li>
+        <li>A arroba vem do Indicador do Boi Gordo CEPEA/ESALQ, conferido na fonte em 05/08/2026. A conversão em arrobas usa a âncora abril/abril (o comparativo anual que o CEPEA publica), não a média jan–jul de cada ano — o percentual muda alguns pontos conforme a âncora, o sentido não.</li>
         <li>A comparação de R$/cabeça no comercial não tem janela sobreposta entre os anos e carrega efeito de safra.</li>
         <li>O VGV de 2025 é agregado consolidado: não permite abrir por leiloeira, categoria ou assessor. A decomposição por mix de categoria só existe para 2026.</li>
         <li>Fechamentos de 2026 sem receita lançada não afetam esta análise, que compara VGV, mas impedem a leitura de margem no mesmo recorte.</li>
