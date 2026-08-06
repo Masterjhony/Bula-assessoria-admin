@@ -15,8 +15,12 @@ const env = Object.fromEntries(readFileSync(join(root, '.env.local'), 'utf-8').s
 const config = {
     enabled: true,
     session: 'operacional',
-    trigger: '@bula',
-    groupJid: null, // preencher com o JID do grupo interno quando decidir qual é
+    trigger: '@bula', // legado, não usado — em grupo vale a MENÇÃO ao numeroBot
+    groupJid: null,
+    // Grupos internos onde o agente responde QUANDO MENCIONADO (@ do contato):
+    // Notificações/Automações CRM + grupo dos assessores.
+    groupJids: ['120363408309548059@g.us', '120363425959659407@g.us'],
+    numeroBot: '553184143874', // número do WhatsApp operacional
     model: 'anthropic/claude-sonnet-5',
     maxHistory: 30,
     thinkingSeconds: 4,

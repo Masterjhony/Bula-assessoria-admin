@@ -70,6 +70,11 @@ export async function gruposRelevantes(supabase: SupabaseClient): Promise<Set<st
         if (s.key === 'whatsapp_agente') {
             const v = limpo(value.groupJid)
             if (v) jids.add(v)
+            const arr = Array.isArray(value.groupJids) ? value.groupJids : []
+            for (const j of arr) {
+                const g = limpo(j)
+                if (g) jids.add(g)
+            }
         }
     }
 

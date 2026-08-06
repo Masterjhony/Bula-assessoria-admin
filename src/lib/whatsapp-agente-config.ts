@@ -39,9 +39,13 @@ export interface AgenteConfig {
     /** Sessão Baileys cujas mensagens 1:1 da equipe vão pro agente. */
     session: string
     numeros: AgenteNumero[]
-    /** Grupo interno onde o gatilho vale (NULL = só 1:1). */
+    /** Grupos internos onde o agente pode ser chamado (menção ao numeroBot). */
+    groupJids: string[]
+    /** Legado (um grupo só) — migrado pra groupJids no load. */
     groupJid: string | null
-    /** Prefixo que invoca o agente no grupo. */
+    /** Número do WhatsApp operacional — em grupo, o agente SÓ responde quando mencionado (@numero). */
+    numeroBot: string
+    /** Prefixo legado de invocação (não usado — menção substituiu). */
     trigger: string
     model: string
     maxHistory: number
@@ -53,7 +57,9 @@ export const DEFAULT_AGENTE_CONFIG: AgenteConfig = {
     enabled: false,
     session: 'operacional',
     numeros: [],
+    groupJids: [],
     groupJid: null,
+    numeroBot: '',
     trigger: '@bula',
     model: 'anthropic/claude-sonnet-5',
     maxHistory: 30,
@@ -100,11 +106,18 @@ export async function loadAgenteConfig(supabase: SupabaseClient): Promise<Agente
         .maybeSingle()
     const v = (data?.value ?? {}) as Record<string, unknown>
     const d = DEFAULT_AGENTE_CONFIG
+    const legadoGroupJid = String(v.groupJid ?? '').trim() || null
+    const groupJids = [...new Set([
+        ...(Array.isArray(v.groupJids) ? v.groupJids.map(j => String(j ?? '').trim()).filter(Boolean) : []),
+        ...(legadoGroupJid ? [legadoGroupJid] : []),
+    ])]
     return {
         enabled: v.enabled === true,
         session: String(v.session ?? '').trim() || d.session,
         numeros: normalizeNumeros(v.numeros),
-        groupJid: String(v.groupJid ?? '').trim() || null,
+        groupJids,
+        groupJid: legadoGroupJid,
+        numeroBot: String(v.numeroBot ?? '').trim(),
         trigger: String(v.trigger ?? '').trim() || d.trigger,
         model: String(v.model ?? '').trim() || d.model,
         maxHistory: clampInt(v.maxHistory, d.maxHistory, 6, 100),
@@ -121,7 +134,9 @@ export async function saveAgenteConfig(
         enabled: patch.enabled ?? current.enabled,
         session: patch.session ?? current.session,
         numeros: patch.numeros ?? current.numeros,
+        groupJids: patch.groupJids ?? current.groupJids,
         groupJid: patch.groupJid !== undefined ? patch.groupJid : current.groupJid,
+        numeroBot: patch.numeroBot ?? current.numeroBot,
         trigger: patch.trigger ?? current.trigger,
         model: patch.model ?? current.model,
         maxHistory: patch.maxHistory ?? current.maxHistory,
@@ -133,6 +148,28 @@ export async function saveAgenteConfig(
     )
     invalidarCacheGrupos() // groupJid alimenta a porteira de grupos
     return merged
+}
+
+/**
+ * O texto menciona este número? No WhatsApp, marcar um contato injeta
+ * "@<numero completo>" no corpo da mensagem (ex.: "@553184143874 e aí").
+ * Compara pelo telefone canônico pra tolerar o nono dígito.
+ */
+export function mencionaNumero(texto: string, numero: string): boolean {
+    const alvo = telefoneCanonico(numero)
+    if (!alvo) return false
+    for (const m of texto.matchAll(/@(\d{8,15})/g)) {
+        if (telefoneCanonico(m[1]) === alvo) return true
+    }
+    return false
+}
+
+/** Remove a(s) menção(ões) ao número do texto — sobra só a pergunta. */
+export function removerMencao(texto: string, numero: string): string {
+    const alvo = telefoneCanonico(numero)
+    return texto.replace(/@(\d{8,15})/g, (full, digits) =>
+        telefoneCanonico(String(digits)) === alvo ? '' : full,
+    ).replace(/\s{2,}/g, ' ').trim()
 }
 
 /** Retorna o membro da allowlist dono deste telefone, ou null. */

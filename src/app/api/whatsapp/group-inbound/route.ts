@@ -19,7 +19,7 @@ import { handleLanceGroupMessage } from '@/lib/whatsapp-lances'
 import { ingestOperationalSignal } from '@/lib/operational-center'
 import { grupoRelevante } from '@/lib/whatsapp-grupos-relevantes'
 import { normalizePhone } from '@/lib/whatsapp-central'
-import { loadAgenteConfigCached, agenteNumeroAutorizado } from '@/lib/whatsapp-agente-config'
+import { loadAgenteConfigCached, agenteNumeroAutorizado, mencionaNumero, removerMencao } from '@/lib/whatsapp-agente-config'
 import { handleAgenteMessage } from '@/lib/whatsapp-agente'
 
 // O agente interno roda no after() desta rota e pode levar mais que 30s.
@@ -129,18 +129,21 @@ export async function POST(req: NextRequest) {
         console.warn('[group-inbound] triagem operacional falhou:', error instanceof Error ? error.message : error)
     }))
 
-    // Agente interno: no grupo configurado, mensagem começando com o gatilho
-    // (ex.: "@bula ...") vira pergunta pro agente. O grupo é a fronteira de
-    // auth (participant pode vir como @lid, sem telefone resolvível); quem não
-    // está na allowlist participa como papel 'geral' — nunca finance.
+    // Agente interno: nos grupos configurados, o agente SÓ responde quando o
+    // contato dele é MENCIONADO (@numero do operacional) — marcar o contato
+    // injeta "@<numero>" no corpo. Sem menção, silêncio total. O grupo é a
+    // fronteira de auth (participant pode vir como @lid, sem telefone
+    // resolvível); quem não está na allowlist participa como papel mais
+    // restrito — nunca admin.
     const agenteCfg = await loadAgenteConfigCached(supabase)
     if (
-        agenteCfg.enabled && agenteCfg.groupJid && groupJid === agenteCfg.groupJid &&
-        text.toLowerCase().startsWith(agenteCfg.trigger.toLowerCase())
+        agenteCfg.enabled && agenteCfg.numeroBot &&
+        agenteCfg.groupJids.includes(groupJid) &&
+        mencionaNumero(text, agenteCfg.numeroBot)
     ) {
         const participantPhone = normalizePhone((body.participant || '').split('@')[0] || '') || ''
         const membro = participantPhone ? agenteNumeroAutorizado(agenteCfg, participantPhone) : null
-        const pergunta = text.slice(agenteCfg.trigger.length).trim()
+        const pergunta = removerMencao(text, agenteCfg.numeroBot)
         if (pergunta) {
             after(() => handleAgenteMessage(supabase, {
                 phone: membro ? participantPhone : '',
