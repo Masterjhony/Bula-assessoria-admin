@@ -101,7 +101,7 @@ export interface InboundMedia {
  * multimodal via OpenRouter). Best-effort: retorna null em qualquer erro — o
  * inbound segue sem transcrição (lead fica "aguardando", como antes).
  */
-async function transcribeInboundAudio(
+export async function transcribeInboundAudio(
     supabase: SupabaseClient,
     media: InboundMedia,
 ): Promise<string | null> {
@@ -242,7 +242,7 @@ export async function mirrorOutboundMessage(
  * é descartada para que só a última responda. Sem messageId (ex.: Baileys), não
  * há como comparar → assume que sim (responde).
  */
-async function isLatestInbound(
+export async function isLatestInbound(
     supabase: SupabaseClient,
     phone: string,
     messageId: string | null,

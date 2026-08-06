@@ -18,8 +18,12 @@ import { handleLeiloeiraGroupMessage } from '@/lib/leiloeira-whatsapp-cadastro'
 import { handleLanceGroupMessage } from '@/lib/whatsapp-lances'
 import { ingestOperationalSignal } from '@/lib/operational-center'
 import { grupoRelevante } from '@/lib/whatsapp-grupos-relevantes'
+import { normalizePhone } from '@/lib/whatsapp-central'
+import { loadAgenteConfigCached, agenteNumeroAutorizado } from '@/lib/whatsapp-agente-config'
+import { handleAgenteMessage } from '@/lib/whatsapp-agente'
 
-export const maxDuration = 30
+// O agente interno roda no after() desta rota e pode levar mais que 30s.
+export const maxDuration = 120
 
 export async function POST(req: NextRequest) {
     const SECRET = process.env.WHATSAPP_GROUP_TASK_SECRET || ''
@@ -124,6 +128,35 @@ export async function POST(req: NextRequest) {
     }).catch(error => {
         console.warn('[group-inbound] triagem operacional falhou:', error instanceof Error ? error.message : error)
     }))
+
+    // Agente interno: no grupo configurado, mensagem começando com o gatilho
+    // (ex.: "@bula ...") vira pergunta pro agente. O grupo é a fronteira de
+    // auth (participant pode vir como @lid, sem telefone resolvível); quem não
+    // está na allowlist participa como papel 'geral' — nunca finance.
+    const agenteCfg = await loadAgenteConfigCached(supabase)
+    if (
+        agenteCfg.enabled && agenteCfg.groupJid && groupJid === agenteCfg.groupJid &&
+        text.toLowerCase().startsWith(agenteCfg.trigger.toLowerCase())
+    ) {
+        const participantPhone = normalizePhone((body.participant || '').split('@')[0] || '') || ''
+        const membro = participantPhone ? agenteNumeroAutorizado(agenteCfg, participantPhone) : null
+        const pergunta = text.slice(agenteCfg.trigger.length).trim()
+        if (pergunta) {
+            after(() => handleAgenteMessage(supabase, {
+                phone: membro ? participantPhone : '',
+                nome: membro?.nome || body.name || 'membro',
+                // @lid não resolvido / fora da allowlist → papel mais restrito
+                role: membro?.role ?? 'assessor',
+                assessor: membro?.assessor ?? null,
+                text: pergunta,
+                messageId: messageId || null,
+                session: agenteCfg.session,
+                origem: { kind: 'grupo', groupJid },
+                config: agenteCfg,
+            }).catch(err => console.warn('[agente:grupo]', err)))
+            return NextResponse.json({ ok: true, agente: true })
+        }
+    }
 
     const outcome = text ? await handleLeiloeiraGroupMessage(supabase, {
         groupJid,

@@ -1,0 +1,446 @@
+/**
+ * Ferramentas do agente interno "Bula" (WhatsApp operacional).
+ *
+ * Leitura direta com service-role, SEM sessão de cookie — por isso a whitelist
+ * de tabelas é explícita e `site_settings` (segredos/config) fica fora.
+ *
+ * Papéis (a restrição é NO CÓDIGO, não só no prompt):
+ *  - admin: irrestrito — todos os dados, ERP, fechamentos, comissões.
+ *  - assessor: só os PRÓPRIOS leads (filtro forçado por responsavel), sem
+ *    ERP/fechamentos/faturamento, sem conversas, sem busca global. As
+ *    ferramentas restritas nem entram no schema — o modelo não as vê.
+ *
+ * Mutações NUNCA executam aqui: `propor_alteracao` grava a pendência e o
+ * "sim" do solicitante executa (whatsapp-agente-mutacoes.ts).
+ */
+
+import type { SupabaseClient } from '@supabase/supabase-js'
+import type { ToolDef } from './openrouter'
+import type { AgenteRole } from './whatsapp-agente-config'
+import { supabaseAdmin } from './supabase'
+import { clienteMatchKey } from './clientes'
+import { computeDre, computeErpDashboard, computeFluxoCaixa } from './erp-dashboards'
+import { getCrmRelatorios } from '@/app/sistema/actions/relatorios'
+import { getAtendimentoStats } from '@/app/sistema/actions/atendimento'
+import { MUTACOES } from './whatsapp-agente-mutacoes'
+import { gerarEEnviarRelatorio, type RelatorioDestino } from './whatsapp-agente-relatorio'
+
+// Tabelas que o agente pode consultar. NUNCA site_settings (tokens/segredos).
+const TABELAS_ADMIN = [
+    'crm_leads', 'crm_toques', 'crm_funis', 'whatsapp_messages',
+    'bula_leiloes', 'cronograma_leiloes', 'bula_leilao_fechamento', 'bula_leilao_vendas',
+    'clientes', 'leiloeiras', 'agenda_events', 'agendamentos', 'tactical_tasks',
+    'erp_contas_pagar', 'erp_contas_receber', 'erp_movimentos_bancarios',
+    'erp_lancamentos', 'erp_categorias', 'erp_pessoas', 'erp_folha_estrutura',
+]
+// Assessor: nada de fechamentos (comissão/faturamento), clientes agregados,
+// conversas de terceiros, tarefas internas nem ERP. crm_leads leva filtro
+// forçado por responsavel (ver queryTable).
+const TABELAS_ASSESSOR = [
+    'crm_leads', 'cronograma_leiloes', 'bula_leiloes', 'leiloeiras',
+    'agenda_events', 'agendamentos',
+]
+
+const MAX_ROWS = 50
+const MAX_RESULT_CHARS = 12_000
+
+export interface AgenteToolCtx {
+    role: AgenteRole
+    /** Nome em crm_leads.responsavel (papel assessor). */
+    assessor?: string | null
+    phone: string
+    nome: string
+    destino: RelatorioDestino
+    /** Registrada quando o modelo chama propor_alteracao — o núcleo grava a pendência. */
+    onProposta?: (p: { tool_name: string; args: Record<string, unknown>; resumo: string }) => Promise<void>
+}
+
+function allowedTables(role: AgenteRole): string[] {
+    return role === 'admin' ? TABELAS_ADMIN : TABELAS_ASSESSOR
+}
+
+export function buildTools(role: AgenteRole): ToolDef[] {
+    const tables = allowedTables(role)
+    const mutacoes = Object.entries(MUTACOES)
+        .filter(([, def]) => role === 'admin' || !def.adminOnly)
+
+    const tools: ToolDef[] = [
+        {
+            type: 'function',
+            function: {
+                name: 'query_table',
+                description: 'Consulta uma tabela do banco (somente leitura, máx 50 linhas). Prefira colunas específicas e filtros.',
+                parameters: {
+                    type: 'object',
+                    properties: {
+                        table: { type: 'string', enum: tables },
+                        select: { type: 'string', description: "Colunas, ex.: 'id, nome, status' (evite '*')" },
+                        filters: {
+                            type: 'array',
+                            items: {
+                                type: 'object',
+                                properties: {
+                                    column: { type: 'string' },
+                                    operator: { type: 'string', enum: ['eq', 'neq', 'gt', 'gte', 'lt', 'lte', 'like', 'ilike', 'is'] },
+                                    value: { type: 'string' },
+                                },
+                                required: ['column', 'operator', 'value'],
+                            },
+                        },
+                        limit: { type: 'number', description: 'padrão 20, máx 50' },
+                        order_by: { type: 'string' },
+                        order_asc: { type: 'boolean', description: 'padrão false (mais recente primeiro)' },
+                    },
+                    required: ['table', 'select'],
+                },
+            },
+        },
+        {
+            type: 'function',
+            function: {
+                name: 'agenda_leiloes',
+                description: 'Leilões no período: cronograma (agenda geral) + leilões da Bula, com data, local, leiloeira e modalidade.',
+                parameters: {
+                    type: 'object',
+                    properties: {
+                        de: { type: 'string', description: 'YYYY-MM-DD (padrão hoje)' },
+                        ate: { type: 'string', description: 'YYYY-MM-DD (padrão +30 dias)' },
+                    },
+                },
+            },
+        },
+        {
+            type: 'function',
+            function: {
+                name: 'gerar_relatorio',
+                description: 'Gera um arquivo XLSX (ou PDF) com uma tabela e ENVIA como documento nesta conversa. Use para listas com mais de ~15 linhas em vez de responder texto gigante.',
+                parameters: {
+                    type: 'object',
+                    properties: {
+                        titulo: { type: 'string' },
+                        colunas: { type: 'array', items: { type: 'string' } },
+                        linhas: { type: 'array', items: { type: 'array', items: { type: ['string', 'number', 'null'] } } },
+                        formato: { type: 'string', enum: ['xlsx', 'pdf'], description: 'padrão xlsx' },
+                    },
+                    required: ['titulo', 'colunas', 'linhas'],
+                },
+            },
+        },
+        {
+            type: 'function',
+            function: {
+                name: 'propor_alteracao',
+                description: `Registra uma ALTERAÇÃO para o usuário confirmar com "sim" (você nunca altera nada direto). Ações disponíveis:\n${mutacoes.map(([nome, def]) => `- ${nome}: ${def.descricao}`).join('\n')}`,
+                parameters: {
+                    type: 'object',
+                    properties: {
+                        tool_name: { type: 'string', enum: mutacoes.map(([nome]) => nome) },
+                        args: { type: 'object', description: 'argumentos da ação (veja o schema da ação)' },
+                        resumo: { type: 'string', description: 'frase curta do que vai ser feito, pra pessoa confirmar' },
+                    },
+                    required: ['tool_name', 'args', 'resumo'],
+                },
+            },
+        },
+    ]
+
+    if (role === 'admin') {
+        tools.push(
+            {
+                type: 'function',
+                function: {
+                    name: 'buscar_global',
+                    description: 'Busca por nome em leilões, fechamentos, clientes/compradores, leads e empresas de uma vez. Use quando não souber em que tabela está.',
+                    parameters: {
+                        type: 'object',
+                        properties: { q: { type: 'string', description: 'termo (mín. 2 letras)' } },
+                        required: ['q'],
+                    },
+                },
+            },
+            {
+                type: 'function',
+                function: {
+                    name: 'crm_relatorios',
+                    description: 'Relatório consolidado do CRM: funil por etapa/origem, status de cadastro, lead score, gargalos, atendimento.',
+                    parameters: {
+                        type: 'object',
+                        properties: { dias: { type: 'number', description: '7, 30 ou 90 (padrão 30)' } },
+                    },
+                },
+            },
+            {
+                type: 'function',
+                function: {
+                    name: 'atendimento_stats',
+                    description: 'Métricas de atendimento no WhatsApp (respostas, crescimento, janela 72h).',
+                    parameters: {
+                        type: 'object',
+                        properties: { dias: { type: 'number', description: 'padrão 90' } },
+                    },
+                },
+            },
+            {
+                type: 'function',
+                function: {
+                    name: 'erp_dashboard',
+                    description: 'Painel financeiro: saldo dos bancos, a pagar/receber, vencidos, entradas/saídas do período, projeção 15 dias.',
+                    parameters: {
+                        type: 'object',
+                        properties: {
+                            from: { type: 'string', description: 'YYYY-MM-DD (padrão: 1º dia do mês)' },
+                            to: { type: 'string', description: 'YYYY-MM-DD (padrão: último dia do mês)' },
+                        },
+                    },
+                },
+            },
+            {
+                type: 'function',
+                function: {
+                    name: 'erp_dre',
+                    description: 'DRE por regime de caixa ou competência, com grupos por categoria.',
+                    parameters: {
+                        type: 'object',
+                        properties: {
+                            from: { type: 'string' },
+                            to: { type: 'string' },
+                            regime: { type: 'string', enum: ['caixa', 'competencia'] },
+                        },
+                    },
+                },
+            },
+            {
+                type: 'function',
+                function: {
+                    name: 'erp_fluxo_caixa',
+                    description: 'Fluxo de caixa realizado + previsto (matriz categoria x período), saldo projetado dia a dia.',
+                    parameters: {
+                        type: 'object',
+                        properties: {
+                            dias: { type: 'number', description: 'dias futuros (padrão 60)' },
+                            passado: { type: 'number', description: 'dias passados (padrão 30)' },
+                            gran: { type: 'string', enum: ['dia', 'semana', 'mes'] },
+                        },
+                    },
+                },
+            },
+        )
+    }
+
+    return tools
+}
+
+async function queryTable(
+    ctx: AgenteToolCtx,
+    params: {
+        table?: string; select?: string
+        filters?: { column: string; operator: string; value: string }[]
+        limit?: number; order_by?: string; order_asc?: boolean
+    },
+): Promise<unknown> {
+    const table = String(params.table ?? '')
+    if (!allowedTables(ctx.role).includes(table)) {
+        return { error: `Tabela '${table}' não disponível.` }
+    }
+    // Assessor em crm_leads: filtro FORÇADO pelos próprios leads — vale mesmo
+    // que o modelo tente consultar de outro jeito.
+    if (ctx.role !== 'admin' && table === 'crm_leads' && !(ctx.assessor ?? '').trim()) {
+        return { error: 'Seu número não tem assessor vinculado — fale com o João.' }
+    }
+    try {
+        const supabase = supabaseAdmin()
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        let query: any = supabase.from(table).select(params.select || '*')
+        if (ctx.role !== 'admin' && table === 'crm_leads') {
+            query = query.ilike('responsavel', `%${(ctx.assessor ?? '').trim()}%`)
+        }
+        for (const f of params.filters ?? []) {
+            switch (f.operator) {
+                case 'eq': query = query.eq(f.column, f.value); break
+                case 'neq': query = query.neq(f.column, f.value); break
+                case 'gt': query = query.gt(f.column, f.value); break
+                case 'gte': query = query.gte(f.column, f.value); break
+                case 'lt': query = query.lt(f.column, f.value); break
+                case 'lte': query = query.lte(f.column, f.value); break
+                case 'like': query = query.like(f.column, f.value); break
+                case 'ilike': query = query.ilike(f.column, f.value); break
+                case 'is': query = query.is(f.column, f.value === 'null' ? null : f.value); break
+            }
+        }
+        query = query.limit(Math.min(params.limit ?? 20, MAX_ROWS))
+        if (params.order_by) query = query.order(params.order_by, { ascending: params.order_asc === true })
+        const { data, error } = await query
+        if (error) return { error: error.message }
+        return { data: data ?? [], total: data?.length ?? 0 }
+    } catch (e) {
+        return { error: e instanceof Error ? e.message : 'erro desconhecido' }
+    }
+}
+
+/** Mesmas consultas da busca global do app, com service-role. */
+async function buscarGlobal(q: string): Promise<unknown> {
+    const termo = q.trim()
+    if (termo.length < 2) return { error: 'termo curto demais' }
+    const like = `%${termo.replace(/[%_]/g, '\\$&')}%`
+    const sb = supabaseAdmin()
+
+    const [leiloes, fechamentos, clientes, compradores, leads, empresas] = await Promise.all([
+        sb.from('bula_leiloes').select('id, nome, data, local, leiloeira').ilike('nome', like).order('data', { ascending: false }).limit(5),
+        sb.from('bula_leilao_fechamento').select('id, nome, data, local').ilike('nome', like).order('data', { ascending: false }).limit(5),
+        sb.from('clientes').select('id, nome, cidade, uf').ilike('nome', like).limit(5),
+        sb.from('bula_leilao_fechamento').select('nome, data, compradores').order('data', { ascending: false }).limit(120),
+        sb.from('crm_leads').select('id, nome, status, responsavel, telefone, regiao').ilike('nome', like).order('updated_at', { ascending: false }).limit(5),
+        sb.from('erp_empresas').select('id, razao_social, nome_fantasia, cnpj').or(`razao_social.ilike.${like},nome_fantasia.ilike.${like}`).limit(5),
+    ])
+
+    // Compradores dentro dos fechamentos (JSONB), dedup por nome normalizado.
+    const termKey = clienteMatchKey(termo)
+    const compradoresHits: Array<{ nome: string; cidade?: string; uf?: string; leilao: string; data: string }> = []
+    const seen = new Set<string>()
+    if (termKey) {
+        type CompradorRow = { fazenda?: string; comprador?: string; cidade?: string; uf?: string }
+        for (const f of (compradores.data ?? []) as Array<{ nome: string; data: string; compradores: CompradorRow[] | null }>) {
+            for (const c of f.compradores ?? []) {
+                const nome = String(c.fazenda || c.comprador || '').trim()
+                const k = clienteMatchKey(nome)
+                if (!k || seen.has(k) || !k.includes(termKey)) continue
+                seen.add(k)
+                compradoresHits.push({ nome, cidade: c.cidade, uf: c.uf, leilao: f.nome, data: f.data })
+                if (compradoresHits.length >= 5) break
+            }
+            if (compradoresHits.length >= 5) break
+        }
+    }
+
+    return {
+        leiloes: leiloes.data ?? [],
+        fechamentos: fechamentos.data ?? [],
+        clientes: clientes.data ?? [],
+        compradores_em_fechamentos: compradoresHits,
+        leads: leads.data ?? [],
+        empresas: empresas.data ?? [],
+    }
+}
+
+async function agendaLeiloes(de?: string, ate?: string): Promise<unknown> {
+    const sb = supabaseAdmin()
+    const iso = (d: Date) => d.toISOString().slice(0, 10)
+    const from = de || iso(new Date())
+    const to = ate || iso(new Date(Date.now() + 30 * 86400_000))
+    const [cronograma, bula] = await Promise.all([
+        sb.from('cronograma_leiloes').select('*').gte('data', from).lte('data', to).order('data', { ascending: true }).limit(MAX_ROWS),
+        sb.from('bula_leiloes').select('*').gte('data', from).lte('data', to).order('data', { ascending: true }).limit(MAX_ROWS),
+    ])
+    return { periodo: { de: from, ate: to }, cronograma: cronograma.data ?? [], bula_leiloes: bula.data ?? [] }
+}
+
+/** Executa uma ferramenta e devolve o resultado JÁ serializado (truncado). */
+export async function executeTool(
+    name: string,
+    rawArgs: string,
+    ctx: AgenteToolCtx,
+): Promise<string> {
+    let args: Record<string, unknown> = {}
+    try {
+        args = rawArgs ? JSON.parse(rawArgs) : {}
+    } catch {
+        return JSON.stringify({ error: 'argumentos inválidos (JSON malformado)' })
+    }
+
+    let result: unknown
+    try {
+        switch (name) {
+            case 'query_table':
+                result = await queryTable(ctx, args as Parameters<typeof queryTable>[1])
+                break
+            case 'buscar_global':
+                result = ctx.role !== 'admin' ? { error: 'restrito_admin' } : await buscarGlobal(String(args.q ?? ''))
+                break
+            case 'crm_relatorios':
+                result = ctx.role !== 'admin' ? { error: 'restrito_admin' } : await getCrmRelatorios(Number(args.dias) || 30)
+                break
+            case 'atendimento_stats':
+                result = ctx.role !== 'admin' ? { error: 'restrito_admin' } : await getAtendimentoStats(Number(args.dias) || 90)
+                break
+            case 'agenda_leiloes':
+                result = await agendaLeiloes(
+                    typeof args.de === 'string' ? args.de : undefined,
+                    typeof args.ate === 'string' ? args.ate : undefined,
+                )
+                break
+            case 'erp_dashboard':
+            case 'erp_dre':
+            case 'erp_fluxo_caixa': {
+                if (ctx.role !== 'admin') {
+                    result = { error: 'restrito_admin' }
+                    break
+                }
+                const sb = supabaseAdmin()
+                if (name === 'erp_dashboard') {
+                    result = await computeErpDashboard(sb, { from: args.from as string | undefined, to: args.to as string | undefined })
+                } else if (name === 'erp_dre') {
+                    result = await computeDre(sb, {
+                        from: args.from as string | undefined,
+                        to: args.to as string | undefined,
+                        regime: args.regime === 'competencia' ? 'competencia' : 'caixa',
+                    })
+                } else {
+                    result = await computeFluxoCaixa(sb, {
+                        dias: Number(args.dias) || 60,
+                        passado: Number(args.passado ?? 30),
+                        gran: typeof args.gran === 'string' ? args.gran : null,
+                    })
+                }
+                break
+            }
+            case 'gerar_relatorio': {
+                const colunas = Array.isArray(args.colunas) ? (args.colunas as string[]).map(String) : []
+                const linhas = Array.isArray(args.linhas) ? (args.linhas as (string | number | null)[][]) : []
+                result = await gerarEEnviarRelatorio(supabaseAdmin(), {
+                    titulo: String(args.titulo ?? 'Relatório'),
+                    colunas,
+                    linhas,
+                    formato: args.formato === 'pdf' ? 'pdf' : 'xlsx',
+                    destino: ctx.destino,
+                })
+                break
+            }
+            case 'propor_alteracao': {
+                const toolName = String(args.tool_name ?? '')
+                const def = MUTACOES[toolName]
+                if (!def) {
+                    result = { error: `ação desconhecida: ${toolName}` }
+                    break
+                }
+                if (def.adminOnly && ctx.role !== 'admin') {
+                    result = { error: 'restrito_admin' }
+                    break
+                }
+                const mArgs = (args.args ?? {}) as Record<string, unknown>
+                const val = def.validate(mArgs)
+                if (!val.ok) {
+                    result = { error: `argumentos inválidos: ${val.error}` }
+                    break
+                }
+                const resumo = String(args.resumo ?? '').trim() || `Executar ${toolName}`
+                await ctx.onProposta?.({ tool_name: toolName, args: mArgs, resumo })
+                result = {
+                    registrado: true,
+                    resumo,
+                    instrucao: 'Repasse o resumo ao usuário e peça: "Responda *sim* para confirmar ou *não* para cancelar." Não execute mais nada nesta resposta.',
+                }
+                break
+            }
+            default:
+                result = { error: `ferramenta desconhecida: ${name}` }
+        }
+    } catch (e) {
+        result = { error: e instanceof Error ? e.message : String(e) }
+    }
+
+    let json = JSON.stringify(result)
+    if (json.length > MAX_RESULT_CHARS) {
+        json = json.slice(0, MAX_RESULT_CHARS) + ' …[TRUNCADO — refine a consulta com filtros/menos colunas]'
+    }
+    return json
+}

@@ -20,6 +20,8 @@ import { processInboundMessage, mirrorOutboundMessage, type InboundMedia } from 
 import { resolveBaileysInbox } from '@/lib/whatsapp-inboxes'
 import { ingestOperationalSignal } from '@/lib/operational-center'
 import { resumeOperationalPlansForReply } from '@/lib/operational-executor'
+import { loadAgenteConfigCached, agenteNumeroAutorizado } from '@/lib/whatsapp-agente-config'
+import { handleAgenteMessage } from '@/lib/whatsapp-agente'
 
 export const maxDuration = 120
 
@@ -78,6 +80,30 @@ export async function POST(req: NextRequest) {
             channel: 'baileys',
         })
         return NextResponse.json({ silent: true, reason: 'mirror_outbound' })
+    }
+
+    // Agente interno: equipe falando com o número operacional NUNCA entra no
+    // CRM (sem isso viraria lead). Acka rápido — o VPS tem timeout de 25s e o
+    // loop de ferramentas pode passar disso; a resposta sai por sendVpsDirect
+    // dentro do after().
+    const agenteCfg = await loadAgenteConfigCached(supabase)
+    if (agenteCfg.enabled && (body.session || '') === agenteCfg.session) {
+        const membro = agenteNumeroAutorizado(agenteCfg, phone)
+        if (membro) {
+            after(() => handleAgenteMessage(supabase, {
+                phone,
+                nome: membro.nome,
+                role: membro.role,
+                assessor: membro.assessor ?? null,
+                text,
+                messageId: body.message_id ?? null,
+                session: agenteCfg.session,
+                origem: { kind: 'dm' },
+                config: agenteCfg,
+                media,
+            }).catch(err => console.warn('[agente]', err)))
+            return NextResponse.json({ silent: true, reason: 'agente_interno' })
+        }
     }
 
     const outcome = await processInboundMessage(supabase, {

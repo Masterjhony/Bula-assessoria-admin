@@ -2,7 +2,8 @@ import { createClient as createSupabaseClient } from '@supabase/supabase-js';
 import { NextRequest, NextResponse } from 'next/server';
 
 const GLM_API_URL = 'https://open.bigmodel.cn/api/paas/v4/chat/completions';
-const GLM_API_KEY = process.env.GLM_API_KEY ?? 'cc315be9de774348a411618c653faad0.ITLRcDX7Memszozq';
+// Chave SEMPRE via env — nunca hardcode credencial no fonte.
+const GLM_API_KEY = process.env.GLM_API_KEY ?? '';
 const GLM_MODEL = process.env.GLM_MODEL ?? 'glm-4.7';
 
 const ALLOWED_TABLES = [
@@ -200,6 +201,9 @@ async function callGLM(messages: unknown[], useTools = true) {
 
 export async function POST(request: NextRequest) {
     try {
+        if (!GLM_API_KEY) {
+            return NextResponse.json({ error: 'GLM_API_KEY não configurada' }, { status: 500 });
+        }
         const { messages } = await request.json();
 
         if (!Array.isArray(messages) || messages.length === 0) {

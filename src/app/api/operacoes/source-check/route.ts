@@ -4,6 +4,8 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
 import { resolveOperationalSource } from '@/lib/operational-center'
+import { normalizePhone } from '@/lib/whatsapp-central'
+import { loadAgenteConfigCached, agenteNumeroAutorizado } from '@/lib/whatsapp-agente-config'
 
 export async function POST(req: NextRequest) {
     const secret = process.env.WHATSAPP_GROUP_TASK_SECRET || ''
@@ -30,5 +32,22 @@ export async function POST(req: NextRequest) {
         senderName: body.sender_name || null,
         isGroup: !!body.is_group,
     })
-    return NextResponse.json({ allowed: !!source, source: source ? { id: source.id, label: source.label, areas: source.areas } : null })
+    if (source) {
+        return NextResponse.json({ allowed: true, source: { id: source.id, label: source.label, areas: source.areas } })
+    }
+
+    // Agente interno: áudio 1:1 da equipe pro número operacional precisa ser
+    // baixado pelo VPS pra transcrição — sem este ramo o VPS descarta e a
+    // mensagem de voz nunca chega no agente.
+    if (!body.is_group && body.phone) {
+        const cfg = await loadAgenteConfigCached(supabase)
+        if (cfg.enabled && (body.session || '') === cfg.session) {
+            const membro = agenteNumeroAutorizado(cfg, normalizePhone(body.phone) || '')
+            if (membro) {
+                return NextResponse.json({ allowed: true, source: { id: 'agente', label: 'Agente interno', areas: [] } })
+            }
+        }
+    }
+
+    return NextResponse.json({ allowed: false, source: null })
 }

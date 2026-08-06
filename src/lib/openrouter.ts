@@ -111,6 +111,84 @@ export async function openRouterChat(
     return data.choices?.[0]?.message?.content ?? ''
 }
 
+// ---------------------------------------------------------------------------
+// Tool calling (OpenAI-compatible) — usado pelo agente interno de WhatsApp.
+// `openRouterChat` continua intocado (retorna só o texto); `openRouterChatRaw`
+// devolve a mensagem completa da 1ª escolha, incluindo `tool_calls`.
+// ---------------------------------------------------------------------------
+
+export interface ToolDef {
+    type: 'function'
+    function: { name: string; description: string; parameters: Record<string, unknown> }
+}
+
+export interface ToolCall {
+    id: string
+    type: 'function'
+    function: { name: string; arguments: string }
+}
+
+/** Superset de ChatMessage usável no loop de ferramentas (role 'tool'). */
+export interface AgentMessage {
+    role: 'system' | 'user' | 'assistant' | 'tool'
+    content: string | null
+    tool_calls?: ToolCall[]
+    tool_call_id?: string
+}
+
+export interface OpenRouterToolOptions extends OpenRouterOptions {
+    tools?: ToolDef[]
+    toolChoice?: 'auto' | 'none'
+}
+
+export async function openRouterChatRaw(
+    messages: AgentMessage[],
+    opts: OpenRouterToolOptions = {},
+): Promise<{ message: AgentMessage; finishReason: string | null }> {
+    const apiKey = process.env.OPENROUTER_API_KEY
+    if (!apiKey) throw new Error('OPENROUTER_API_KEY ausente')
+
+    const body: Record<string, unknown> = {
+        model: opts.model || DEFAULT_OPENROUTER_MODEL,
+        messages,
+        temperature: opts.temperature ?? 0.3,
+        max_tokens: opts.maxTokens ?? 1600,
+        usage: { include: true },
+    }
+    if (opts.tools?.length) {
+        body.tools = opts.tools
+        body.tool_choice = opts.toolChoice ?? 'auto'
+    }
+
+    const res = await fetch(OPENROUTER_URL, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${apiKey}`,
+            'HTTP-Referer': 'https://bulaassessoria.com',
+            'X-Title': 'Bula Assessoria CRM',
+        },
+        body: JSON.stringify(body),
+        signal: opts.signal,
+    })
+
+    if (!res.ok) {
+        const detail = await res.text().catch(() => '')
+        throw new Error(`OpenRouter ${res.status}: ${detail.slice(0, 300)}`)
+    }
+
+    const data = (await res.json()) as {
+        choices?: Array<{ message?: AgentMessage; finish_reason?: string }>
+        usage?: unknown
+    }
+    logAiUsage(String(body.model), opts.logKind || 'agente', data.usage)
+    const choice = data.choices?.[0]
+    return {
+        message: choice?.message ?? { role: 'assistant', content: '' },
+        finishReason: choice?.finish_reason ?? null,
+    }
+}
+
 /**
  * Chat completion que devolve JSON já parseado. Tolera modelos que embrulham o
  * JSON em ```json … ``` ou em texto — extrai o primeiro objeto `{…}` válido.

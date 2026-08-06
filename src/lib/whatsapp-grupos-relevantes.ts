@@ -43,7 +43,7 @@ export async function gruposRelevantes(supabase: SupabaseClient): Promise<Set<st
 
     const [leiloeiras, settings, sources] = await Promise.all([
         supabase.from('leiloeiras').select('whatsapp_group_id').not('whatsapp_group_id', 'is', null),
-        supabase.from('site_settings').select('key, value').in('key', ['whatsapp_lances_groups', 'crm_concierge']),
+        supabase.from('site_settings').select('key, value').in('key', ['whatsapp_lances_groups', 'crm_concierge', 'whatsapp_agente']),
         supabase.from('operational_sources').select('whatsapp_jid').eq('source_kind', 'group').eq('active', true),
     ])
 
@@ -66,6 +66,10 @@ export async function gruposRelevantes(supabase: SupabaseClient): Promise<Set<st
                 const v = limpo(value[campo])
                 if (v) jids.add(v)
             }
+        }
+        if (s.key === 'whatsapp_agente') {
+            const v = limpo(value.groupJid)
+            if (v) jids.add(v)
         }
     }
 
