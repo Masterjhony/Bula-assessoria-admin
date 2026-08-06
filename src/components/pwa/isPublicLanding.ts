@@ -12,11 +12,19 @@ export const PUBLIC_LANDING_PREFIXES = [
   '/saogeraldo',
   '/obrigado-saogeraldo-mql',
   '/obrigado-saogeraldo-lead',
+  // Funil perpétuo de fêmeas. Entrou depois e repetiu o mesmo sintoma acima —
+  // medido em 390px: o banner cobria o botão "Continuar" do formulário na
+  // primeira dobra. **Toda landing nova precisa entrar aqui no mesmo commit em
+  // que a rota nasce**, senão o esquecimento só aparece quando alguém abre a
+  // página no celular — e pode aparecer depois de a campanha já estar rodando.
+  '/femeas',
+  '/obrigado-femeas-mql',
+  '/obrigado-femeas-lead',
 ]
 
 // Subdomínios de landing pública. O host resolve antes do pathname porque em
 // `saogeraldo.bulaassessoria.com` a raiz `/` também é landing.
-const PUBLIC_LANDING_SUBDOMAINS = ['touros.', 'saogeraldo.']
+const PUBLIC_LANDING_SUBDOMAINS = ['touros.', 'saogeraldo.', 'femeas.']
 
 export function isPublicLanding(
   pathname: string | null | undefined,

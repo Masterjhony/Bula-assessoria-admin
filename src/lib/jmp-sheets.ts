@@ -1974,3 +1974,141 @@ export async function syncAbasPorInteresse(): Promise<{
   }
   return { total: leads.length, appended, espelho }
 }
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Funil perpétuo de FÊMEAS (landing /femeas) — Fase 2 do plano.
+//
+// O lead de fêmeas segue o MESMO caminho das outras landings: entra na LEADS
+// GERAIS (que é o registro) e aparece na aba do INTERESSE dele. Como a landing
+// manda sempre `interesse: 'femeas-po'`, rotulaInteresse() devolve "Matrizes PO"
+// e abaDoInteresse() manda para a aba FEMEAS — que já existe desde a
+// consolidação de 31/07. Quem separa esta landing dos leads de fêmeas que vêm
+// do formulário do Meta é a coluna "Origem" (FEMEAS_FORM_NAME).
+//
+// O plano previa criar uma aba nova, "LEADS FEMEAS", espelhando o que a landing
+// do São Geraldo fazia. NÃO é mais o certo: aquilo virou a aba FEMEAS, e criar
+// uma segunda aba de fêmeas daria ao SDR duas superfícies para a mesma fila —
+// com o cron syncAbasPorInteresse() alimentando só uma delas.
+//
+// O que a aba FEMEAS ganha aqui são as colunas da FILA DO SDR: o funil de
+// fêmeas é consultivo e o KPI é reunião agendada, então cadência de 1º toque,
+// aprovação, motivo da recusa e agendamento precisam de coluna. Elas existem SÓ
+// nesta aba — pendurá-las no BLOCO_OPERACIONAL espalharia a fila do SDR pelas
+// abas TOUROS/EMBRIÕES/OUTROS, que são de outro funil.
+// ─────────────────────────────────────────────────────────────────────────────
+
+/** Marca as linhas desta landing na LEADS GERAIS (form_name) e na coluna "Origem". */
+export const FEMEAS_FORM_NAME = 'Landing Fêmeas — Funil Perpétuo'
+
+/**
+ * Colunas que existem só na aba FEMEAS, acrescentadas DEPOIS do bloco comum.
+ *
+ * As quatro primeiras o código escreve; as cinco últimas são da operação e
+ * nascem vazias — o código nunca escreve nelas, igual a "Etapa"/"Atendido
+ * por"/"Observações". Cada uma existe por um motivo medido:
+ *
+ *   · "1º toque em"          → cadência, tratada na reunião como o fator
+ *                              decisivo. Sem a coluna, "atende rápido" não é
+ *                              verificável.
+ *   · "Aprovado"             → o portão REAL do funil (quem decide é gente, a
+ *                              triagem é manual por decisão de 05/08). É o
+ *                              numerador da taxa de aprovação.
+ *   · "Motivo da recusa"     → é o que ensina o formulário. Sem ele, decidir
+ *                              quais campos de atrito ficam vira achismo.
+ *   · "Reunião agendada"     → numerador do KPI da página.
+ *   · "Assessor da reunião"  → distribui entre os 3 assessores no agendamento.
+ *
+ * "Régua automática" é o veredito do SERVIDOR (is_mql) gravado ao lado do
+ * veredito humano de propósito: são coisas diferentes (um escolhe o valor da
+ * conversão enviado ao Meta, o outro decide se vira reunião) e a única forma de
+ * saber se a mídia está sendo treinada pelo sinal certo é confrontar as duas
+ * colunas depois de algumas dezenas de leads.
+ */
+const FEMEAS_COLUNAS_PROPRIAS = [
+  'CPF/CNPJ', 'Categoria de interesse', 'Projeto', 'Régua automática',
+  '1º toque em', 'Aprovado', 'Motivo da recusa', 'Reunião agendada', 'Assessor da reunião',
+] as const
+
+/** Lead da landing de fêmeas: o mesmo shape das outras + os campos de atrito. */
+export interface FemeasSheetLead extends SheetLead {
+  /** CPF ou CNPJ, já mascarado. Habilita a compra em leilão. */
+  cpf?: string | null
+  /** Rótulo legível da categoria escolhida ("Novilhas", "Doadoras", ...). */
+  categoria?: string | null
+  /** Texto livre do projeto — é o campo que mais pesa na triagem do SDR. */
+  projeto?: string | null
+  /** Veredito da régua do servidor (is_mql). */
+  reguaAutomatica?: boolean
+}
+
+/**
+ * Garante a aba FEMEAS com o bloco comum MAIS as colunas da fila do SDR.
+ * Reusa ensureTourosLayout para a parte comum (é ele que cria a aba, formata e
+ * acrescenta coluna faltante) e só acrescenta o resto — assim o cron continua
+ * dono do bloco comum e ninguém precisa editar função em produção.
+ */
+async function ensureFemeasLayout(
+  sheets: SheetsClient, spreadsheetId: string, tab: string, existingTitles: (string | null | undefined)[],
+): Promise<string[]> {
+  const header = await ensureTourosLayout(sheets, spreadsheetId, tab, existingTitles)
+  const next = [...header]
+  for (const coluna of FEMEAS_COLUNAS_PROPRIAS) {
+    if (next.some(h => normalizeHeaderText(String(h ?? '')) === normalizeHeaderText(coluna))) continue
+    next.push(coluna)
+  }
+  if (next.length !== header.length) {
+    await updateHeaderRow(sheets, spreadsheetId, next, tab)
+  }
+  return next
+}
+
+/** Linha da aba FEMEAS: o bloco comum + os campos que só esta landing coleta. */
+function buildFemeasRow(lead: FemeasSheetLead, row: TourosLeadRow, header: string[]): string[] {
+  const base = buildTourosRow(row, header)
+  const proprios = new Map<string, string>([
+    ['cpfcnpj', lead.cpf ?? ''],
+    ['categoriadeinteresse', lead.categoria ?? ''],
+    ['projeto', lead.projeto ?? ''],
+    ['reguaautomatica', lead.reguaAutomatica == null ? '' : lead.reguaAutomatica ? 'Sim' : 'Não'],
+  ])
+  // As colunas da operação não estão no mapa: caem no '' do bloco comum e a
+  // célula nasce REALMENTE vazia (ver cellValue).
+  return header.map((h, i) => proprios.get(normalizeHeaderText(String(h ?? ''))) ?? base[i] ?? '')
+}
+
+/**
+ * Caminho rápido do cadastro da landing de fêmeas: copia o lead para a aba
+ * FEMEAS, que é a fila de trabalho do SDR. Best-effort de propósito — quem
+ * garante o registro é o append na LEADS GERAIS (bloqueante na rota); se isto
+ * falhar, o syncAbasPorInteresse() recupera na próxima passada do cron, só sem
+ * as colunas próprias (o cron lê da base, que não as tem).
+ *
+ * Idempotente pela mesma chave das outras abas (Lead ID, telefone como reserva).
+ */
+export async function appendLeadToFemeasTab(
+  lead: FemeasSheetLead,
+): Promise<{ skipped: boolean; reason?: string; tab?: string }> {
+  const info = await getStoredInfo()
+  if (!info) return { skipped: true, reason: 'not_provisioned' }
+  const auth = getAuth()
+  if (!auth) return { skipped: true, reason: 'no_credentials' }
+
+  const row = tourosRowFromLead(lead)
+  if (isTourosTestLead(row.nome, 'Não')) return { skipped: true, reason: 'test_lead' }
+
+  const sheets = google.sheets({ version: 'v4', auth })
+  const meta = await sheets.spreadsheets.get({ spreadsheetId: info.spreadsheetId, includeGridData: false })
+  const titles = (meta.data.sheets ?? []).map(s => s.properties?.title)
+
+  // A aba é fixa: esta função é só desta landing, e o interesse dela é sempre
+  // fêmeas. Se um dia o interesse mudar de vocabulário, o lead continua caindo
+  // na fila certa em vez de sumir numa aba que o SDR não abre.
+  const tab = ABAS_INTERESSE.femeas
+  const header = await ensureFemeasLayout(sheets, info.spreadsheetId, tab, titles)
+  const seen = await tourosSeenKeys(sheets, info.spreadsheetId, tab, header)
+  if (seen.has(chaveDoLead(row.leadId, row.whatsapp, row.nome))) {
+    return { skipped: true, reason: 'duplicate' }
+  }
+  await writeTourosRows(sheets, info.spreadsheetId, tab, [buildFemeasRow(lead, row, header)])
+  return { skipped: false, tab }
+}
