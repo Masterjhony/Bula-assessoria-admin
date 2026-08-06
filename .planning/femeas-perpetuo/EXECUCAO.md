@@ -297,6 +297,50 @@ anterior a isso.
 
 ---
 
+## ⚠️ O que NÃO pode ser verificado por quem escreveu o código
+
+Registrado em **06/08**, porque muda quem tem que fazer o quê e não é evidente
+lendo o plano:
+
+- **Não há acesso à Vercel** de quem está construindo. Apontar o subdomínio,
+  conferir variáveis de ambiente e subir preview **são de outra pessoa**.
+- **Não há credenciais de Google/Supabase no ambiente local** (`.env.local` não
+  existe neste projeto, e o do `dash_ads` não tem chave de Google nem Supabase).
+
+**Consequência prática: as duas pontas do funil — a planilha e a medição — não
+podem ser provadas aqui, de jeito nenhum.** Não é falta de rigor nem de tempo; é
+falta de acesso, e nenhuma quantidade de teste local substitui.
+
+O que **está** provado sem credencial: as sete recusas do servidor, a página
+inteira renderizando nos dois viewports, e o fato de o append ser bloqueante (ver
+a seção seguinte).
+
+### O roteiro para quem tiver o acesso — 6 conferências, uma vez só
+
+Feito num ambiente com credenciais (preview ou produção), **na ordem**:
+
+1. **Enviar um cadastro** com nome começando por "teste". → Deve terminar em
+   `/obrigado-femeas-mql` (com IE = Sim e documento válido) **com load completo**,
+   não navegação de SPA.
+2. **Abrir a aba `FEMEAS`** e conferir a linha: as 9 colunas próprias
+   preenchidas (CPF/CNPJ, categoria, projeto, régua automática) e as 5 da
+   operação **vazias**. ⚠️ Como o nome começa por "teste", `isTourosTestLead` a
+   mantém **fora** desta aba — para ver a linha aqui, usar um nome normal e
+   apagar depois.
+3. **Abrir `LEADS GERAIS`** e conferir que a linha entrou, com `Origem` =
+   "Landing Fêmeas — Funil Perpétuo" e `Interesse` = "Matrizes PO".
+4. **Conferir TOUROS, EMBRIÕES e OUTROS**: a linha **não** pode estar em
+   nenhuma das três. É o ponto inteiro da Fase 2.
+5. **Reenviar o mesmo cadastro** (mesmo `event_id`). → **Nenhuma linha nova.**
+6. **GTM Preview**: a tag de conversão do Meta dispara no Page View da URL de
+   obrigado, e **uma vez só**.
+
+⚠️ **Isso escreve na planilha viva.** O `spreadsheetId` vem do `jmp_config` no
+Supabase e é compartilhado com as outras landings — **não existe planilha de
+teste**. As linhas de teste saem na mão.
+
+---
+
 ## O teste da rota — o que já está provado, e o que só um deploy prova
 
 Executado contra o servidor de desenvolvimento em **06/08**. Cada linha é um
