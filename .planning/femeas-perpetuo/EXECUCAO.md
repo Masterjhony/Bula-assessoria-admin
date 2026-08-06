@@ -14,7 +14,16 @@ quem for continuar precisa saber se pode voltar atrás.
 | Fase | Estado | Commit |
 |---|---|---|
 | 0 — modelo do funil | ✅ **feita** — `MODELO-FUNIL.md` | (documento, sem código) |
-| 1 — decisões/infra | ⏳ aberta (C-10 domínio) | — |
+| 1 — decisões/infra | ⏳ aberta — **C-10 fechada em 06/08**, falta apontar o subdomínio (T1.2) | — |
+
+**Domínio confirmado em 06/08: `femeas.bulaassessoria.com`**, com o 'e'. A
+confirmação veio depois de uma dúvida que valia perguntar: o nome chegou escrito
+`femas.` (sem o primeiro 'e'), e a diferença **não é cosmética** — o guarda de
+landing pública casa o subdomínio por texto (`'femeas.'` em
+`src/components/pwa/isPublicLanding.ts`), então a grafia errada traria de volta o
+banner "Instalar o app" **em produção**, cobrindo o botão de enviar. Era
+digitação; o código já estava certo nos três lugares (`layout.tsx`, o `host`
+default da rota, e o guarda). Nada mudou no código.
 
 **Material de imagem pedido ao cliente:** `MATERIAL-NECESSARIO.md` — a lista para a gravação de 14–15/08, com o impacto de cada arquivo. O `og-femeas.jpg` é o único que **já causa dano hoje**: o `layout.tsx` aponta para ele e todo link compartilhado sai com o card quebrado.
 | 2 — separação nos dados | ✅ **feita**, com desvio | `7642809` |

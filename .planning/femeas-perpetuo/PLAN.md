@@ -3,7 +3,7 @@ project: web-bula
 feature: femeas-perpetuo
 type: phased-build-plan
 route: /femeas
-domain: femeas.bulaassessoria.com   # [PENDENTE C-10]
+domain: femeas.bulaassessoria.com   # CONFIRMADO 06/08 (C-10 fechada)
 base_fork: src/app/touros/
 analogo_secundario: src/app/saogeraldo/
 source_of_truth: reunião 05/08/2026 — Marcelo Carneiro, João Antônio, João Gabriel
@@ -233,7 +233,7 @@ Definidas aqui para nenhum executor inventar variação. É a correção direta 
 | Chave de UTM em `sessionStorage` | `'femeas_utm'` (**não** `touros_utm`) |
 | Prefixo de eventos PostHog | `femeas_*` (`femeas_view`, `femeas_form_started`, `femeas_lead_submitted`, `femeas_reuniao_agendada`, …) |
 | Container GTM | `GTM-K8RXFDDT` (o mesmo — decisão do cliente 27/07) |
-| Domínio | `femeas.bulaassessoria.com` — **[PENDENTE C-10]** |
+| Domínio | `femeas.bulaassessoria.com` — **CONFIRMADO em 06/08** (C-10 fechada) |
 
 ---
 
@@ -1662,7 +1662,7 @@ Nenhuma delas bloqueia o caminho crítico. **Nenhuma foi inventada por este plan
 | **C-07** | **Prova social de fêmeas** (a do `/touros` é de touro apartado) | 7 | não | Formulação qualitativa sem número até chegar material |
 | **C-08** | **Preço/faixa de preço e disponibilidade por categoria** | 7 | não | Campo `null` → omitido da UI. Nunca "sob consulta" na tela |
 | **C-09** | **Condições exatas de 30× no boleto e de frete grátis** (restrição geográfica!) | 4 | não | Transcrição literal do que o cliente enviar. **Sem divisão UF→faixa, não escrever "frete grátis"** |
-| **C-10** | **Domínio/subdomínio** da landing | 1, 3 | não (mas lead time longo) | `femeas.bulaassessoria.com` |
+| ~~**C-10**~~ | ~~Domínio/subdomínio da landing~~ | 1, 3 | — | ✅ **FECHADA em 06/08: `femeas.bulaassessoria.com`**, com o 'e'. Já era a grafia no código, em três lugares |
 | **C-11** | **Lead de fêmeas entra no `crm_leads`?** | 2, 8 | não | **Não** no go-live. O SDR reforça isso: fila em planilha, superfície única |
 | **C-12** | **Grupo de WhatsApp na página de obrigado?** | 8 | não | **Não** — o destino do fêmeas é a reunião, não o grupo |
 | **C-14** | **3 SDRs + 3 assessores (6 pessoas) ou as mesmas 3 acumulando os dois papéis?** | 0, 8 | não (mas muda o limiar) | **(a) 6 pessoas** — é o que a leitura literal das duas falas do cliente sugere. Muda o break-even de `t_aprov` de **~22%** para **~43%**, e a 35% o cenário (b) **não fecha**. Ver Fase 0 T0.3 |
@@ -1676,7 +1676,7 @@ Com C-02, C-03, C-05 e C-13 fechadas, este é o estado de cada fase **hoje**.
 | Fase | Estado | O que ainda falta |
 |---|---|---|
 | **0** — modelo do funil | ✅ **FEITA** — `MODELO-FUNIL.md` escrito | Falta só **mandar C-14 ao cliente** (6 pessoas ou 3 acumulando). O documento entrega os dois cenários com seus limiares (~22% e ~43%); escolher entre eles é decisão de quem monta o time |
-| **1** — decisões/infra | 🟢 **pode rodar** | T1.2 (criar domínio) espera C-10, mas T1.1 (auditar Vercel) e T1.3 (GTM) rodam já |
+| **1** — decisões/infra | 🟢 **desbloqueada** | C-10 fechou (`femeas.bulaassessoria.com`). **T1.2 — apontar o subdomínio na Vercel — virou o próximo passo de infra**, e tem lead time de propagação: fazer com antecedência, não na véspera |
 | **2** — separação nos dados | ✅ **FEITA** — commit `7642809` | Feita **de outro jeito**: a aba `FEMEAS` que já existia virou a fila do SDR, com 9 colunas próprias. Não existe aba `LEADS FEMEAS`. Ver `EXECUCAO.md`, desvios 1 e 2 |
 | **3** — rota/tokens/cache | ✅ **FEITA** — commit `3d8c894` | Rota, tokens, `ui.tsx`, GTM, `analytics.ts`, `utm.ts` (com `femeas_utm`), layout, stubs, `public/femeas/README.md` e a regra de cache. **Desvio registrado em T3.4** (regra própria em vez do grupo `:dir`) |
 | **4** — copy e categorias | 🔵 **EM ANDAMENTO** — não mexer | `_lib/copy.ts` e `_lib/categorias.ts` estão sendo escritos agora, 1ª versão para o João Antônio corrigir. O **texto final** espera C-07/C-08/C-09 e a revisão dele (janela: **antes de 13/08**) |
@@ -1788,8 +1788,10 @@ Registro explícito, para ninguém tratar suposição como fato:
    campanha anterior de fêmeas que o cliente mencionou (a do criativo "crie seu
    criatório") **não tem apuração versionada aqui** — se existir em algum lugar,
    é o dado mais valioso disponível e deve substituir os cenários da Fase 0.
-6. **Não sei se `femeas.bulaassessoria.com` está disponível** nem qual nome o
-   cliente prefere (C-10).
+6. ~~**Não sei se `femeas.bulaassessoria.com` está disponível**~~ — **RESOLVIDO
+   em 06/08:** o nome foi confirmado pelo coordenador, com o 'e'
+   (`femeas.`, não `femas.`). Continua sem verificação **minha** se o
+   subdomínio já está apontado na Vercel — isso é a T1.2.
 7. **Não vi material de criativo, foto ou vídeo de fêmeas.** `public/` tem
    galeria de touros e logos de criatórios; não auditei se há foto de matriz
    utilizável. A Fase 7 assume que Marcelo produz — e ele está em gravação em
