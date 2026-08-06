@@ -544,6 +544,7 @@ const fmtBRL = (n) => {
   return v.toLocaleString('pt-BR', { style:'currency', currency:'BRL' });
 };
 const fmtNum = (n) => Number(n||0).toLocaleString('pt-BR', { minimumFractionDigits:2, maximumFractionDigits:2 });
+const fmtInt = (n) => Number(n||0).toLocaleString('pt-BR', { maximumFractionDigits:0 });
 // Formato compacto p/ rótulos de gráfico (R$ 15,4M · 761,7k · 25,2k)
 const fmtCompact = (n, money=true) => {
   const v = Number(n||0), abs = Math.abs(v);
@@ -2954,6 +2955,7 @@ function openMovEdit(movId){
           <span>${escapeHtml(m.conta?.nome||'')}</span>
         </div>
       </div>
+      ${(m.tipo==='entrada'||m.tipo==='saida') ? `<div id="mvTitulo" style="margin-bottom:14px"><div style="padding:8px;color:var(--text3);font-size:11px">Carregando título correspondente…</div></div>` : ''}
       <div class="form-grid">
         <div class="field full">
           <label>Cliente / Fornecedor</label>
@@ -2996,6 +2998,62 @@ function openMovEdit(movId){
       <button class="btn btn-primary" onclick="saveMovEdit('${movId}')"><span class="material-symbols-outlined">check</span>Salvar</button>
     </div>`;
   openModal(html, { wide:true });
+  mvLoadTitulo(movId);
+}
+
+// ── Seção "conta a pagar/receber correspondente" do modal (estilo Omie):
+// mostra o título vinculado (com opção de desvincular) ou sugere os títulos
+// em aberto mais próximos por valor/vencimento. Vincular = baixa no título,
+// que é o que transforma o PREVISTO (título) em REALIZADO (caixa).
+async function mvLoadTitulo(movId){
+  const m = concGetMov(movId);
+  const el = document.getElementById('mvTitulo');
+  if(!el || !m || (m.tipo!=='entrada' && m.tipo!=='saida')) { if(el) el.innerHTML=''; return; }
+  const isCP = m.tipo==='saida';
+  const rotulo = isCP ? 'Conta a Pagar' : 'Conta a Receber';
+  const restoDe = (t)=> Number(t.valor||0)-Number(t.desconto||0)+Number(t.juros||0)+Number(t.multa||0)-Number((isCP?t.valor_pago:t.valor_recebido)||0);
+  const cabec = `<div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.6px;color:var(--text3);margin-bottom:6px">${rotulo} correspondente</div>`;
+  try {
+    const list = await api(isCP?'/api/erp/contas-pagar':'/api/erp/contas-receber');
+    const tituloId = isCP ? m.conta_pagar_id : m.conta_receber_id;
+    if (tituloId) {
+      const t = (list||[]).find(x=>x.id===tituloId);
+      el.innerHTML = cabec + (t ? `
+        <div style="display:flex;align-items:center;gap:10px;background:var(--olive-bg);border:1px solid rgba(107,143,92,.35);border-radius:10px;padding:10px 12px">
+          <span class="material-symbols-outlined" style="color:var(--olive)">link</span>
+          <div style="flex:1;min-width:0">
+            <div style="font-size:12.5px;font-weight:600">${escapeHtml(t.descricao||'--')}</div>
+            <div style="font-size:11px;color:var(--text3)">Venc. ${fmtDate(t.vencimento)} · ${t.status}${t.numero_documento?' · '+escapeHtml(t.numero_documento):''} · ${escapeHtml((isCP?t.fornecedor:t.cliente)?.nome||'')}</div>
+          </div>
+          <div class="money" style="font-weight:700">${fmtBRL(t.valor)}</div>
+          <button class="btn btn-sm" onclick="closeModal();desvincularTitulo('${movId}')"><span class="material-symbols-outlined" style="font-size:14px">link_off</span>Desvincular</button>
+        </div>` : `<div style="font-size:11px;color:var(--text3)">Vinculado a um título que não está mais na lista.</div>`);
+      return;
+    }
+    const mc = Math.round(Number(m.valor)*100);
+    const abertos = (list||[]).filter(t=>['aberto','vencido','parcial'].includes(t.status) && restoDe(t) > 0.009);
+    const score = (t)=>{
+      const dv = Math.abs(Math.round(restoDe(t)*100)-mc);
+      const dd = Math.abs((new Date((t.vencimento||m.data)+'T00:00:00') - new Date(m.data+'T00:00:00'))/86400000);
+      return dv*10 + dd; // valor pesa muito mais que a distância de data
+    };
+    const sug = abertos.slice().sort((a,b)=>score(a)-score(b)).slice(0,3);
+    el.innerHTML = cabec + (sug.length ? sug.map(t=>{
+      const resto = restoDe(t);
+      const exato = Math.round(resto*100)===mc;
+      return `<div style="display:flex;align-items:center;gap:10px;padding:8px 10px;border:1px solid var(--border);border-radius:10px;margin-bottom:6px">
+        <div style="flex:1;min-width:0">
+          <div style="font-size:12px">${escapeHtml(t.descricao||'--')} ${exato?'<span class="chip" style="background:#6B8F5C22;color:#6B8F5C;font-size:9px;padding:0 6px">valor exato</span>':''}</div>
+          <div style="font-size:10.5px;color:var(--text3)">Venc. ${fmtDate(t.vencimento)} · ${t.status} · em aberto ${fmtBRL(resto)}</div>
+        </div>
+        <button class="btn btn-primary btn-sm" onclick="vincularTitulo('${isCP?'CP':'CR'}','${t.id}','${movId}',this)">Vincular</button>
+      </div>`;
+    }).join('') : `<div style="font-size:11px;color:var(--text3);margin-bottom:6px">Nenhum título em aberto para sugerir.</div>`)
+      + `<div style="display:flex;align-items:center;gap:10px;margin-top:2px">
+           <button class="btn btn-sm" onclick="closeModal();openVincularTitulo('${movId}')"><span class="material-symbols-outlined" style="font-size:14px">search</span>Buscar outro título…</button>
+           <span style="font-size:10px;color:var(--text3)">Vincular dá baixa no título (parcial se o valor não cobrir) — é o que liga o previsto ao realizado.</span>
+         </div>`;
+  } catch(e){ el.innerHTML = cabec + `<div style="font-size:11px;color:var(--red)">${escapeHtml(e.message)}</div>`; }
 }
 function mvToggleNovaPessoa(){
   const el = document.getElementById('mvNovaPessoa');
@@ -4400,6 +4458,190 @@ function resDeltaVsPrev(a, prev, key) {
   return { pct: ((cur - base) / base) * 100, meses: n };
 }
 
+// Comparativo ano x ano-1. Compara SÓ os meses em que o ano atual já tem dado
+// (jan-ago/2026 contra jan-ago/2025) — ano parcial nunca é medido contra ano
+// cheio. O fechamento do ano anterior aparece à parte, como referência.
+function resCmp(a, prev) {
+  if (!prev) return null;
+  const idx = [];
+  for (let i = 0; i < 12; i++) {
+    const m = a.meses[i];
+    if (m.vgv != null || m.leiloes != null || m.lotes != null) idx.push(i);
+  }
+  if (!idx.length) return null;
+  const soma = (ano, key) => {
+    let s = 0, tem = false;
+    for (const i of idx) { const v = ano.meses[i][key]; if (v != null) { s += Number(v); tem = true; } }
+    return tem ? s : null;
+  };
+  const cur = {}, base = {};
+  for (const k of ['leiloes','lotes','vgv','receita']) { cur[k] = soma(a,k); base[k] = soma(prev,k); }
+  return { idx, ultimo: idx[idx.length-1], primeiro: idx[0], cur, base };
+}
+
+const resRatio = (a, b) => (a != null && Number(b)) ? Number(a)/Number(b) : null;
+
+// Chip de variação. opts.inverso = menor é melhor (custo, prazo).
+function resDelta(cur, base, opts={}) {
+  if (cur == null || base == null || !Number(base)) return '<span style="color:var(--text4);font-size:11px">—</span>';
+  const pct = ((Number(cur) - Number(base)) / Math.abs(Number(base))) * 100;
+  const flat = Math.abs(pct) < 0.5;
+  const bom = opts.inverso ? pct < 0 : pct > 0;
+  const cls = flat ? 'flat' : (bom ? 'up' : 'down');
+  const ic = flat ? 'remove' : (pct > 0 ? 'trending_up' : 'trending_down');
+  return `<span class="delta ${cls}"><span class="material-symbols-outlined">${ic}</span>${pct>=0?'+':''}${pct.toFixed(Math.abs(pct)>=100?0:1)}%</span>`;
+}
+
+function resCmpCard(label, cur, base, prevAno, fmt, sub) {
+  const f = fmt || fmtBRL;
+  return `<div class="card" style="margin-bottom:0">
+    <div class="card-title">${escapeHtml(label)}</div>
+    <div style="font-size:21px;font-weight:700;letter-spacing:-0.3px">${cur != null ? f(cur) : '<span style="color:var(--text4)">—</span>'}</div>
+    <div style="display:flex;align-items:center;gap:8px;margin-top:8px;flex-wrap:wrap">
+      ${resDelta(cur, base)}
+      <span style="font-size:11px;color:var(--text3)">${prevAno}: ${base != null ? f(base) : 'nao apurado'}</span>
+    </div>
+    ${sub ? `<div style="font-size:10.5px;color:var(--text4);margin-top:6px">${escapeHtml(sub)}</div>` : ''}
+  </div>`;
+}
+
+// Bloco "Comparativo {ano} × {ano-1}": cards do acumulado (mesmos meses),
+// curva de corrida, faturamento e tabela mês a mês com as duas colunas lado a
+// lado. Meses sem dado nos dois anos ficam apagados — nunca viram zero.
+function resCmpSecao({ ano, prevAno, a, prev, cmp, acumSerie, fin, takeRate, mesesAp, recAp }) {
+  const em = '<span style="color:var(--text4)">—</span>';
+  const jan = RES_MESES[cmp.primeiro], ult = RES_MESES[cmp.ultimo];
+  const equiv = (takeRate && prev.total.vgv) ? takeRate * Number(prev.total.vgv) : null;
+  const temFatPrev = fin && cmp.base.receita != null;
+
+  const fatBloco = !fin ? '' : `
+    <div class="card" style="margin-bottom:20px">
+      <div class="card-title"><span class="material-symbols-outlined">account_balance_wallet</span>Faturamento da Bula · ${ano} × ${prevAno}</div>
+      ${temFatPrev ? `
+      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:16px">
+        ${resCmpCard(`Faturamento ${jan}–${ult}`, cmp.cur.receita, cmp.base.receita, prevAno)}
+        ${resCmpCard('Take rate sobre o VGV', resRatio(cmp.cur.receita, cmp.cur.vgv), resRatio(cmp.base.receita, cmp.base.vgv), prevAno, (v)=>((v||0)*100).toFixed(2).replace('.',',')+'%')}
+        ${resCmpCard(`Faturamento por leilao`, resRatio(cmp.cur.receita, cmp.cur.leiloes), resRatio(cmp.base.receita, cmp.base.leiloes), prevAno)}
+      </div>` : `
+      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:16px">
+        <div class="card" style="margin-bottom:0">
+          <div class="card-title">Apurado em ${ano}</div>
+          <div class="money" style="font-size:21px;font-weight:700;color:var(--gold)">${fmtBRL(recAp)}</div>
+          <div style="font-size:10.5px;color:var(--text4);margin-top:8px">${mesesAp} ${mesesAp===1?'mes':'meses'} com receita lancada nos fechamentos</div>
+        </div>
+        <div class="card" style="margin-bottom:0">
+          <div class="card-title">Take rate realizado</div>
+          <div style="font-size:21px;font-weight:700">${takeRate != null ? ((takeRate*100).toFixed(2).replace('.',',')+'%') : em}</div>
+          <div style="font-size:10.5px;color:var(--text4);margin-top:8px">receita da Bula sobre a venda da equipe, nos meses apurados</div>
+        </div>
+        <div class="card" style="margin-bottom:0;border-style:dashed">
+          <div class="card-title">Equivalente ${prevAno} <span class="chip" style="background:var(--s3);color:var(--text3);padding:1px 7px">simulacao</span></div>
+          <div class="money" style="font-size:21px;font-weight:700;color:var(--text2)">${equiv != null ? fmtBRL(equiv) : em}</div>
+          <div style="font-size:10.5px;color:var(--text4);margin-top:8px">take rate de ${ano} aplicado ao VGV fechado de ${prevAno} — nao e faturamento apurado</div>
+        </div>
+      </div>
+      <div style="display:flex;gap:8px;margin-top:14px;align-items:flex-start">
+        <span class="material-symbols-outlined" style="font-size:16px;color:var(--text4)">info</span>
+        <div style="font-size:11.5px;color:var(--text3);line-height:1.5">
+          ${prevAno} entrou no sistema pelo consolidado do relatorio da equipe, que trouxe apenas a operacao (leiloes, lotes e VGV) — o faturamento da assessoria nunca foi apurado mes a mes naquele ano.
+          Assim que a apuracao de ${prevAno} existir, basta gravar a receita em <code style="font-size:10.5px">erp_resultados_historico.receita</code> que este bloco passa a comparar valores reais.
+        </div>
+      </div>`}
+    </div>`;
+
+  const linha = (i) => {
+    const c = a.meses[i], p = prev.meses[i];
+    const vazio = c.vgv == null && c.leiloes == null && p.vgv == null && p.leiloes == null;
+    const dif = (c.vgv != null && p.vgv != null) ? Number(c.vgv) - Number(p.vgv) : null;
+    return `<tr${vazio ? ' style="opacity:.35"' : ''}>
+      <td style="text-transform:capitalize">${RES_MESES[i]}</td>
+      <td style="text-align:right">${c.leiloes != null ? fmtInt(c.leiloes) : em}</td>
+      <td style="text-align:right;color:var(--text3)">${p.leiloes != null ? fmtInt(p.leiloes) : em}</td>
+      <td style="text-align:right">${c.lotes != null ? fmtInt(c.lotes) : em}</td>
+      <td style="text-align:right;color:var(--text3)">${p.lotes != null ? fmtInt(p.lotes) : em}</td>
+      <td class="money" style="text-align:right">${c.vgv != null ? fmtBRL(c.vgv) : em}</td>
+      <td class="money" style="text-align:right;color:var(--text3)">${p.vgv != null ? fmtBRL(p.vgv) : em}</td>
+      <td class="money ${dif != null && dif < 0 ? 'negative' : 'positive'}" style="text-align:right">${dif != null ? (dif >= 0 ? '+' : '') + fmtBRL(dif) : em}</td>
+      <td style="text-align:right">${resDelta(c.vgv, p.vgv)}</td>
+    </tr>`;
+  };
+
+  const difAcum = (cmp.cur.vgv != null && cmp.base.vgv != null) ? cmp.cur.vgv - cmp.base.vgv : null;
+
+  return `
+    <div style="display:flex;align-items:center;gap:10px;margin:30px 0 16px;padding-top:24px;border-top:1px solid var(--border)">
+      <span class="material-symbols-outlined" style="color:var(--gold)">compare_arrows</span>
+      <div>
+        <div style="font-size:15px;font-weight:700">Comparativo ${ano} × ${prevAno}</div>
+        <div style="font-size:11.5px;color:var(--text3)">mesmos meses nos dois anos (${jan}–${ult}) · ${ult}/${ano} ainda em andamento</div>
+      </div>
+    </div>
+
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:16px;margin-bottom:20px">
+      ${resCmpCard('Venda da equipe (VGV)', cmp.cur.vgv, cmp.base.vgv, prevAno)}
+      ${resCmpCard('Leiloes', cmp.cur.leiloes, cmp.base.leiloes, prevAno, fmtInt)}
+      ${resCmpCard('Lotes vendidos', cmp.cur.lotes, cmp.base.lotes, prevAno, fmtInt)}
+      ${resCmpCard('Ticket medio por lote', resRatio(cmp.cur.vgv, cmp.cur.lotes), resRatio(cmp.base.vgv, cmp.base.lotes), prevAno, fmtBRL, 'VGV dividido pelos lotes vendidos')}
+      ${resCmpCard('VGV medio por leilao', resRatio(cmp.cur.vgv, cmp.cur.leiloes), resRatio(cmp.base.vgv, cmp.base.leiloes), prevAno, fmtBRL, 'quanto a equipe vende em cada praca')}
+    </div>
+
+    ${fatBloco}
+
+    <div class="chart-wrap">
+      <div class="chart-header">
+        <div class="chart-title">Acumulado no ano · ${ano} x ${prevAno}</div>
+        <div style="font-size:11px;color:var(--text3)">${prevAno} fechou em ${fmtBRL(prev.total.vgv)}</div>
+      </div>
+      ${resChart(acumSerie, { series: [
+        { key:'acum', color:'#C8A96E', label:`${ano} acumulado`, labels:true, area:true },
+        { key:'acum_prev', color:'#79808c', label:`${prevAno} acumulado`, dash:true },
+      ]})}
+    </div>
+
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>Mes</th>
+            <th style="text-align:right">Leiloes ${ano}</th>
+            <th style="text-align:right">Leiloes ${prevAno}</th>
+            <th style="text-align:right">Lotes ${ano}</th>
+            <th style="text-align:right">Lotes ${prevAno}</th>
+            <th style="text-align:right">VGV ${ano}</th>
+            <th style="text-align:right">VGV ${prevAno}</th>
+            <th style="text-align:right">Diferenca</th>
+            <th style="text-align:right">Variacao</th>
+          </tr>
+        </thead>
+        <tbody>
+          ${Array.from({length:12},(_,i)=>linha(i)).join('')}
+          <tr style="font-weight:700;border-top:2px solid var(--border)">
+            <td>${jan}–${ult}</td>
+            <td style="text-align:right">${cmp.cur.leiloes != null ? fmtInt(cmp.cur.leiloes) : em}</td>
+            <td style="text-align:right;color:var(--text3)">${cmp.base.leiloes != null ? fmtInt(cmp.base.leiloes) : em}</td>
+            <td style="text-align:right">${cmp.cur.lotes != null ? fmtInt(cmp.cur.lotes) : em}</td>
+            <td style="text-align:right;color:var(--text3)">${cmp.base.lotes != null ? fmtInt(cmp.base.lotes) : em}</td>
+            <td class="money" style="text-align:right;color:var(--gold)">${cmp.cur.vgv != null ? fmtBRL(cmp.cur.vgv) : em}</td>
+            <td class="money" style="text-align:right;color:var(--text3)">${cmp.base.vgv != null ? fmtBRL(cmp.base.vgv) : em}</td>
+            <td class="money ${difAcum != null && difAcum < 0 ? 'negative' : 'positive'}" style="text-align:right">${difAcum != null ? (difAcum >= 0 ? '+' : '') + fmtBRL(difAcum) : em}</td>
+            <td style="text-align:right">${resDelta(cmp.cur.vgv, cmp.base.vgv)}</td>
+          </tr>
+          <tr style="color:var(--text3)">
+            <td>Ano ${prevAno} fechado</td>
+            <td style="text-align:right">—</td>
+            <td style="text-align:right">${fmtInt(prev.total.leiloes)}</td>
+            <td style="text-align:right">—</td>
+            <td style="text-align:right">${fmtInt(prev.total.lotes)}</td>
+            <td style="text-align:right">—</td>
+            <td class="money" style="text-align:right">${fmtBRL(prev.total.vgv)}</td>
+            <td colspan="2" style="text-align:right;font-size:11px">${cmp.cur.vgv != null && Number(prev.total.vgv) ? `${ano} ja alcancou ${((cmp.cur.vgv/Number(prev.total.vgv))*100).toFixed(0)}% do ano cheio de ${prevAno}` : ''}</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  `;
+}
+
 function resSetAno(v) { state.filters.resAno = v; renderResultados(); }
 function resReload() { state.resultados = null; renderResultados(); }
 
@@ -4421,6 +4663,27 @@ async function renderResultados() {
 
   // série do gráfico principal com overlay do ano anterior
   const vgvSerie = a.meses.map((m,i) => ({ vgv: m.vgv, vgv_prev: prev ? prev.meses[i].vgv : null }));
+
+  // ── comparativo ano × ano-1 ───────────────────────────────────
+  const prevAno = ano - 1;
+  const cmp = resCmp(a, prev);
+  // take rate realizado = receita Bula / VGV dos meses que JÁ têm receita
+  // apurada. Mês sem receita lançada rebaixaria a média sem significar nada.
+  let recAp = 0, vgvAp = 0, mesesAp = 0;
+  for (const m of a.meses) if (Number(m.receita) > 0) { recAp += Number(m.receita); vgvAp += Number(m.vgv) || 0; mesesAp++; }
+  const takeRate = vgvAp ? recAp / vgvAp : null;
+  // curva de corrida: acumulado no ano nos dois anos, mostra o gap abrindo/fechando
+  const acumSerie = [];
+  let acCur = 0, acPrev = 0;
+  for (let i = 0; i < 12; i++) {
+    if (a.meses[i].vgv != null) acCur += Number(a.meses[i].vgv);
+    if (prev && prev.meses[i].vgv != null) acPrev += Number(prev.meses[i].vgv);
+    acumSerie.push({
+      acum: (cmp && i <= cmp.ultimo) ? acCur : null,
+      acum_prev: acPrev > 0 ? acPrev : null,
+    });
+  }
+  const cmpHtml = !cmp ? '' : resCmpSecao({ ano, prevAno, a, prev, cmp, acumSerie, fin, takeRate, mesesAp, recAp });
 
   const html = `
     <div class="page-header">
@@ -4549,6 +4812,8 @@ async function renderResultados() {
         </tbody>
       </table>
     </div>
+
+    ${cmpHtml}
   `;
   document.getElementById('page').innerHTML = html;
 }

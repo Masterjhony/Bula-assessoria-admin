@@ -137,6 +137,47 @@ function isSaoGeraldoPublicPath(pathname: string): boolean {
   )
 }
 
+// Host femeas.* → landing do funil PERPÉTUO de fêmeas (/femeas). Roda ao mesmo
+// tempo que o perpétuo de touros e tem host próprio pelo mesmo motivo: a
+// campanha paga aponta para ele, e a conversão de um funil não pode contar no
+// outro.
+function isFemeasHost(host: string | null): boolean {
+  if (!host) return false
+  const h = host.toLowerCase().split(':')[0]
+  return h === 'femeas.localhost' || h.startsWith('femeas.')
+}
+
+const FEMEAS_PUBLIC_PATHS = new Set([
+  '/',
+  '/femeas',
+  '/obrigado-femeas-mql',
+  '/obrigado-femeas-lead',
+  '/privacidade',
+  '/termos',
+  '/exclusao-de-dados',
+  '/api/femeas/lead',
+  '/manifest.webmanifest',
+  '/favicon.ico',
+])
+// '/criatorios/' entra porque a prova social reusa as logos dos parceiros, e
+// '/femeas/' porque é onde ficam os assets próprios da landing — sem os dois
+// prefixos o otimizador do next/image busca o arquivo-fonte, cai no 308 → '/'
+// e as imagens somem (foi exatamente o que aconteceu no São Geraldo).
+const FEMEAS_PUBLIC_PREFIXES = [
+  '/_next/',
+  '/femeas/',
+  '/criatorios/',
+  '/icons/',
+  '/logo-',
+]
+
+function isFemeasPublicPath(pathname: string): boolean {
+  return (
+    FEMEAS_PUBLIC_PATHS.has(pathname) ||
+    FEMEAS_PUBLIC_PREFIXES.some((prefix) => pathname.startsWith(prefix))
+  )
+}
+
 export async function updateSession(req: NextRequest) {
   const host = req.headers.get('host')
   const erp = isErpHost(host)
@@ -146,6 +187,8 @@ export async function updateSession(req: NextRequest) {
   const touros = !erp && !adminJmp && !jmp && !lp && isTourosHost(host)
   const saoGeraldo =
     !erp && !adminJmp && !jmp && !lp && !touros && isSaoGeraldoHost(host)
+  const femeas =
+    !erp && !adminJmp && !jmp && !lp && !touros && !saoGeraldo && isFemeasHost(host)
   const pathname = req.nextUrl.pathname
 
   const isSistemaPath =
@@ -275,6 +318,26 @@ export async function updateSession(req: NextRequest) {
       url.search = ''
       return NextResponse.redirect(url, 308)
     }
+  } else if (femeas) {
+    // Host femeas.* → landing do perpétuo de fêmeas em /femeas. Mesmo contrato
+    // dos outros dois hosts públicos: só as rotas do funil passam; qualquer
+    // outra volta para a raiz, para que /sistema e as APIs internas não
+    // contornem o gate de autenticação por um domínio de tráfego pago.
+    //
+    // A raiz é REWRITE (não redirect) porque o anúncio aponta para
+    // femeas.bulaassessoria.com e a URL precisa continuar limpa na barra — um
+    // 308 para /femeas sujaria o compartilhamento no WhatsApp.
+    const url = req.nextUrl.clone()
+    if (pathname === '/') {
+      url.pathname = '/femeas'
+      res = NextResponse.rewrite(url, { request: req })
+    } else if (isFemeasPublicPath(pathname)) {
+      res = NextResponse.next({ request: req })
+    } else {
+      url.pathname = '/'
+      url.search = ''
+      return NextResponse.redirect(url, 308)
+    }
   } else {
     res = NextResponse.next({ request: req })
   }
@@ -287,6 +350,7 @@ export async function updateSession(req: NextRequest) {
   // Supabase em cada pageview de tráfego pago.
   if (touros && isTourosPublicPath(pathname)) return res
   if (saoGeraldo && isSaoGeraldoPublicPath(pathname)) return res
+  if (femeas && isFemeasPublicPath(pathname)) return res
 
   const supabase = createServerClient(supaUrl, supaKey, {
     cookies: {
