@@ -483,7 +483,6 @@ svg.chart { width:100%; height:100%; display:block; }
     <div class="sidebar-item" data-page="cr"><span class="material-symbols-outlined">request_quote</span><span>Contas a Receber</span></div>
     <div class="sidebar-item" data-page="bancos"><span class="material-symbols-outlined">account_balance</span><span>Contas Bancarias</span></div>
     <div class="sidebar-item" data-page="cartoes"><span class="material-symbols-outlined">credit_card</span><span>Cartoes de Credito</span></div>
-    <div class="sidebar-item" data-page="openfinance"><span class="material-symbols-outlined">sync_alt</span><span>Open Finance</span></div>
     <div class="sidebar-item" data-page="conciliacao"><span class="material-symbols-outlined">fact_check</span><span>Conciliacao</span></div>
     <div class="sidebar-item" data-page="fila_conciliacao"><span class="material-symbols-outlined">rule</span><span>Fila de Conciliacao</span></div>
 
@@ -777,7 +776,6 @@ async function render() {
     if (state.page === 'bancos') return renderBancos();
     if (state.page === 'cartoes') return renderCartoes();
     if (state.page === 'conciliacao') return renderConciliacao();
-    if (state.page === 'openfinance') return renderOpenFinance();
     if (state.page === 'fila_conciliacao') return renderFilaConciliacao();
     if (state.page === 'lancamentos') return renderLancamentos();
     if (state.page === 'plano') return renderPlano();
@@ -2539,100 +2537,6 @@ async function saveCartao(id) {
 /* ==========================================================================
    FILA DE CONCILIACAO SUGERIDA (titulo aberto <-> movimento do extrato)
    ========================================================================== */
-// ── Open Finance: contas conectadas (leitura via consentimento) + transacoes
-// que chegam sozinhas dos bancos. Conciliar continua sendo decisao humana:
-// daqui o titulo vai pra Fila de Conciliacao / Conciliacao.
-async function renderOpenFinance() {
-  document.getElementById('page').innerHTML = '<div class="empty"><div class="spinner"></div></div>';
-  let d;
-  try { d = await api('/api/openfinance/status'); }
-  catch(e){ document.getElementById('page').innerHTML = `<div class="empty"><p>${escapeHtml(e.message)}</p></div>`; return; }
-
-  const itens = d.itens || [];
-  const txs = d.transacoes || [];
-  const pend = txs.filter(t => !t.processado).length;
-
-  const cardConexao = (it) => `
-    <div class="card" style="margin-bottom:10px">
-      <div style="display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap">
-        <div style="font-weight:700">${escapeHtml(it.connector || 'Banco')}</div>
-        <span class="chip" style="background:#6B8F5C22;color:#6B8F5C">${escapeHtml(it.status || '-')}</span>
-      </div>
-      <div style="margin-top:8px;display:flex;flex-direction:column;gap:4px">
-        ${(it.contas||[]).map(c=>`
-          <div style="display:flex;justify-content:space-between;font-size:13px">
-            <span class="muted">${escapeHtml(c.nome||'Conta')}</span>
-            <span class="money">${fmtBRL(c.saldo||0)}</span>
-          </div>`).join('')}
-      </div>
-      <div class="muted" style="font-size:11px;margin-top:8px">Sincronizado em ${it.last_sync ? new Date(it.last_sync).toLocaleString('pt-BR') : '-'}</div>
-    </div>`;
-
-  document.getElementById('page').innerHTML = `
-    <div class="page-header">
-      <div><div class="page-title">Open Finance <small>transacoes chegando automaticamente dos bancos conectados</small></div></div>
-      <div class="page-actions">
-        <button class="btn btn-primary btn-sm" onclick="openFinanceConectar(this)"><span class="material-symbols-outlined">add_link</span>Conectar conta</button>
-        <button class="btn btn-ghost btn-sm" onclick="renderOpenFinance()"><span class="material-symbols-outlined">refresh</span>Atualizar</button>
-      </div>
-    </div>
-    <div style="font-size:12px;color:var(--text3);margin-bottom:14px">
-      A autorizacao acontece dentro do app do proprio banco, e <strong>somente leitura</strong> (nada movimenta dinheiro)
-      e pode ser revogada a qualquer momento pelo aplicativo. Transacoes novas entram como <strong>pendentes</strong>
-      e um aviso vai pro WhatsApp; a baixa de titulo continua na Fila de Conciliacao.
-    </div>
-
-    <div style="font-weight:700;font-size:13px;margin:0 0 8px">Conexoes ativas</div>
-    ${itens.length===0
-      ? '<div class="empty"><span class="material-symbols-outlined">account_balance</span><h3>Nenhuma conta conectada</h3><p>Clique em "Conectar conta" e autorize pelo app do banco.</p></div>'
-      : itens.map(cardConexao).join('')}
-
-    <div style="font-weight:700;font-size:13px;margin:18px 0 8px">Transacoes recebidas ${pend?`<span class="chip" style="background:#D4A84322;color:#A8791F">${pend} pendente(s)</span>`:''}</div>
-    <div class="card" style="padding:0;overflow:auto">
-      <table class="table">
-        <thead><tr><th>Data</th><th>Conta</th><th>Descricao</th><th style="text-align:right">Valor</th><th style="text-align:center">Status</th></tr></thead>
-        <tbody>
-          ${txs.length===0 ? '<tr><td colspan="5" class="muted" style="text-align:center;padding:18px">Nenhuma transacao recebida ainda.</td></tr>'
-          : txs.map(t=>`
-            <tr>
-              <td style="white-space:nowrap">${fmtDate(t.data)}</td>
-              <td class="muted">${escapeHtml(t.conta||'-')}</td>
-              <td>${escapeHtml(t.descricao||'-')}</td>
-              <td class="money" style="text-align:right;color:${Number(t.valor)<0?'#C0504D':'#6B8F5C'}">${fmtBRL(t.valor||0)}</td>
-              <td style="text-align:center"><span class="chip" style="background:${t.processado?'#6B8F5C22':'#D4A84322'};color:${t.processado?'#6B8F5C':'#A8791F'}">${t.processado?'conciliada':'pendente'}</span></td>
-            </tr>`).join('')}
-        </tbody>
-      </table>
-    </div>`;
-}
-
-async function openFinanceConectar(btn) {
-  const original = btn.innerHTML;
-  btn.disabled = true;
-  btn.innerHTML = '<span class="material-symbols-outlined">hourglass_top</span>Abrindo...';
-  try {
-    const { accessToken } = await api('/api/openfinance/connect-token', { method: 'POST' });
-    await new Promise((res, rej) => {
-      if (window.PluggyConnect) return res();
-      const s = document.createElement('script');
-      s.src = 'https://cdn.pluggy.ai/pluggy-connect/v2.9.2/pluggy-connect.js';
-      s.onload = res; s.onerror = () => rej(new Error('falha ao carregar o widget'));
-      document.head.appendChild(s);
-    });
-    new window.PluggyConnect({
-      connectToken: accessToken,
-      includeSandbox: false,
-      onSuccess: () => { setTimeout(renderOpenFinance, 4000); },
-      onClose: () => { renderOpenFinance(); },
-    }).init();
-  } catch (e) {
-    toast(e.message || 'erro ao abrir o consentimento', 'error');
-  } finally {
-    btn.disabled = false;
-    btn.innerHTML = original;
-  }
-}
-
 async function renderFilaConciliacao() {
   document.getElementById('page').innerHTML = '<div class="empty"><div class="spinner"></div></div>';
   let d;
