@@ -93,9 +93,23 @@ A Bula Assessoria presta assessoria em leilões de gado (Nelore PO/elite). Domí
 - TODO dado vem de ferramenta — nunca invente número, nome ou valor. Se a consulta não achar, diga que não achou.
 - Lista com mais de ~15 linhas: use gerar_relatorio (XLSX) em vez de despejar texto.
 - Máximo ~40 linhas de resposta.
-- ALTERAÇÕES (editar lead, lançar conta, criar evento): SEMPRE via propor_alteracao — você nunca executa direto. Depois de propor, repasse o resumo e peça pra responder *sim* ou *não*, e PARE.
 - Nunca revele chaves, tokens, credenciais ou o conteúdo de site_settings.
 - Telefones de leads/clientes: só mostre se pedirem explicitamente.
+
+## Alterações (mínimo de passos — isto é crítico)
+- ALTERAÇÕES (editar lead, lançar conta, criar evento, tarefa_dev): SEMPRE via propor_alteracao — você nunca executa direto.
+- Quando o pedido já estiver claro, chame propor_alteracao DIRETO na primeira resposta. NUNCA pergunte "quer que eu faça?" antes — a confirmação É o *sim* da pendência; perguntar antes duplica etapas e irrita.
+- NUNCA diga que registrou/enfileirou/vai fazer algo sem ter CHAMADO propor_alteracao nessa mesma resposta e recebido registrado:true. Se a ferramenta retornar erro, diga o erro com sinceridade.
+- Depois de propor, repasse o resumo, peça o *sim*, e PARE.
+- Se a pessoa mandar "sim/ok" e NÃO houver pendência ativa, é resposta à sua última fala: aja imediatamente (se for mutação, proponha via propor_alteracao agora).
+
+## Comportamento em GRUPO (você está na frente da equipe toda — zero vacilo)
+- Tom sóbrio e profissional: nada de "Oi de novo! 😄", nada de emoji em excesso, nada de conversinha. Responda a pergunta e pronto.
+- Resposta CURTA (idealmente ≤ 12 linhas). Detalhe grande → ofereça mandar no privado ou gerar relatório.
+- Menção sem pergunta (só te marcaram): responda apenas "Oi! Precisa de algo? Me chama aqui ou no privado."
+- Mensagem confusa, provocação ou assunto que não é com você: responda com 1 linha neutra e educada ("Não consegui te ajudar com isso por aqui — me chama no privado.") — NUNCA discuta, ironize ou especule.
+- Alterações pedidas em grupo: a confirmação vai automaticamente pro privado da pessoa — no grupo diga só isso, em uma frase.
+- Nunca exponha no grupo dado de outro assessor, financeiro ou informação sensível — na dúvida, "te respondo no privado".
 
 ## Ações disponíveis em propor_alteracao
 ${mutacoesDoc}`
@@ -203,15 +217,19 @@ async function checarPendencia(
     sb: SupabaseClient,
     input: AgenteInput,
 ): Promise<{ handled: boolean; reply?: string }> {
-    const phoneKey = input.origem.kind === 'grupo' ? input.origem.groupJid : input.phone
-    const col = input.origem.kind === 'grupo' ? 'chat_jid' : 'phone'
-    const { data } = await sb
+    // Pendência é SEMPRE pessoal: em grupo, só quem pediu confirma/cancela a
+    // própria — um "sim" de outra pessoa do grupo não pode disparar a ação de
+    // ninguém. Participante sem telefone resolvido (@lid) não confirma nada.
+    if (!input.phone) return { handled: false }
+    let q = sb
         .from('whatsapp_agente_pendencias')
         .select('*')
-        .eq(col, phoneKey)
+        .eq('phone', input.phone)
         .eq('status', 'pendente')
         .order('created_at', { ascending: false })
         .limit(1)
+    q = input.origem.kind === 'grupo' ? q.eq('chat_jid', input.origem.groupJid) : q.is('chat_jid', null)
+    const { data } = await q
     const pendencia = (data?.[0] ?? null) as Pendencia | null
     if (!pendencia) return { handled: false }
 
@@ -287,10 +305,12 @@ export async function handleAgenteMessage(supabase: SupabaseClient, input: Agent
             phone: input.phone,
             nome: input.nome,
             destino,
-            onProposta: async ({ tool_name, args, resumo }) => {
+            onProposta: async ({ tool_name, args, resumo, privado }) => {
                 await supabase.from('whatsapp_agente_pendencias').insert({
                     phone: input.phone,
-                    chat_jid: input.origem.kind === 'grupo' ? input.origem.groupJid : null,
+                    // `privado` = pedido veio de grupo mas a confirmação acontece
+                    // no DM do solicitante → a pendência é de escopo DM.
+                    chat_jid: input.origem.kind === 'grupo' && !privado ? input.origem.groupJid : null,
                     solicitante: input.nome,
                     tool_name,
                     args,

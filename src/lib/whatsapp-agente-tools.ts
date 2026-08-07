@@ -25,6 +25,7 @@ import { getAtendimentoStats } from '@/app/sistema/actions/atendimento'
 import { MUTACOES } from './whatsapp-agente-mutacoes'
 import { gerarEEnviarRelatorio, type RelatorioDestino } from './whatsapp-agente-relatorio'
 import { hastaproConsulta, isHastaproConfigured, type HastaproConsulta } from './hastapro'
+import { sendVpsDirect } from './whatsapp-vps'
 
 // Tabelas que o agente pode consultar. NUNCA site_settings (tokens/segredos).
 const TABELAS_ADMIN = [
@@ -52,8 +53,8 @@ export interface AgenteToolCtx {
     phone: string
     nome: string
     destino: RelatorioDestino
-    /** Registrada quando o modelo chama propor_alteracao — o núcleo grava a pendência. */
-    onProposta?: (p: { tool_name: string; args: Record<string, unknown>; resumo: string }) => Promise<void>
+    /** Registrada quando o modelo chama propor_alteracao — o núcleo grava a pendência. `privado` = confirmação vai no DM (pedido veio de grupo). */
+    onProposta?: (p: { tool_name: string; args: Record<string, unknown>; resumo: string; privado?: boolean }) => Promise<void>
 }
 
 function allowedTables(role: AgenteRole): string[] {
@@ -459,6 +460,28 @@ export async function executeTool(
                     break
                 }
                 const resumo = String(args.resumo ?? '').trim() || `Executar ${toolName}`
+                // Em GRUPO a confirmação vai pro PRIVADO do solicitante: o
+                // vai-e-vem de "sim/não" não polui o grupo e ninguém confirma
+                // ação dos outros. Sem telefone resolvido (@lid), sem mutação.
+                if (ctx.destino.kind === 'grupo') {
+                    if (!ctx.phone) {
+                        result = { error: 'não deu pra identificar seu número — me chama no privado pra fazer alterações' }
+                        break
+                    }
+                    await ctx.onProposta?.({ tool_name: toolName, args: mArgs, resumo, privado: true })
+                    await sendVpsDirect(
+                        ctx.phone,
+                        `📌 ${resumo}\n\nResponda *sim* aqui para confirmar ou *não* para cancelar. (pedido feito no grupo)`,
+                        undefined,
+                        ctx.destino.session,
+                    )
+                    result = {
+                        registrado: true,
+                        confirmacao_no_privado: true,
+                        instrucao: 'Diga NO GRUPO, em UMA frase curta, que mandou a confirmação no privado da pessoa. Nada mais.',
+                    }
+                    break
+                }
                 await ctx.onProposta?.({ tool_name: toolName, args: mArgs, resumo })
                 result = {
                     registrado: true,

@@ -221,7 +221,10 @@ async function processarUma() {
     // resumo: o que vier depois de "RESUMO" se existir; senão o fim da saída
     const idxResumo = texto.toUpperCase().lastIndexOf('RESUMO')
     let resumo = idxResumo >= 0 ? texto.slice(idxResumo) : texto.slice(-900)
-    resumo = resumo.replace(/^ARQUIVO:.*$/gim, '').trim().slice(0, 1200)
+    resumo = resumo
+        .replace(/^RESUMO[^\n:]*:?\s*/i, '') // tira o rótulo ("RESUMO**", "RESUMO (WhatsApp):"…)
+        .replace(/^ARQUIVO:.*$/gim, '')
+        .trim().slice(0, 1200)
 
     await sb.from('agente_dev_tarefas').update({
         status: ok ? 'concluida' : 'erro',
