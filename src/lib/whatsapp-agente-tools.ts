@@ -540,7 +540,7 @@ export async function executeTool(
                 if (fonte?.tipo === 'templates_meta') {
                     if (ctx.role !== 'admin') { result = { error: 'restrito_admin' }; break }
                     if (!isWhatsappCloudApiConfigured()) { result = { error: 'api_oficial_nao_configurada' }; break }
-                    const templates = await fetchWhatsappCloudTemplatesFull() as Array<Record<string, unknown>>
+                    const templates = (await fetchWhatsappCloudTemplatesFull()) as unknown as Array<Record<string, unknown>>
                     colunas = ['nome', 'status', 'categoria', 'idioma']
                     linhas = templates.map(t => [
                         String(t.name ?? ''), String(t.status ?? ''), String(t.category ?? ''), String(t.language ?? ''),
