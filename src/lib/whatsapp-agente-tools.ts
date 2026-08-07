@@ -123,6 +123,20 @@ export function buildTools(role: AgenteRole): ToolDef[] {
         {
             type: 'function',
             function: {
+                name: 'conversas_recentes',
+                description: 'Quem (clientes/leads) mandou mensagem no WhatsApp recentemente e o que disseram: nome, responsável e as últimas mensagens de cada um, já compacto. Use para "quem respondeu hoje", "o que o fulano falou", acompanhamento de atendimento.',
+                parameters: {
+                    type: 'object',
+                    properties: {
+                        horas: { type: 'number', description: 'janela em horas (padrão 24)' },
+                        limite: { type: 'number', description: 'máx de contatos (padrão 10, máx 20)' },
+                    },
+                },
+            },
+        },
+        {
+            type: 'function',
+            function: {
                 name: 'agenda_leiloes',
                 description: 'Leilões no período: cronograma (agenda geral) + leilões da Bula, com data, local, leiloeira e modalidade.',
                 parameters: {
@@ -409,6 +423,74 @@ async function buscarGlobal(q: string): Promise<unknown> {
     }
 }
 
+/**
+ * Conversas de CLIENTES (1:1, nunca grupos, nunca as do próprio agente) na
+ * janela, já agrupadas e compactas — a pergunta "quem respondeu e o quê"
+ * estourava o tempo quando o modelo varria whatsapp_messages na unha.
+ * Assessor só enxerga conversas dos próprios leads.
+ */
+async function conversasRecentes(
+    ctx: AgenteToolCtx,
+    horas: number,
+    limite: number,
+): Promise<unknown> {
+    const sb = supabaseAdmin()
+    const desde = new Date(Date.now() - Math.min(Math.max(horas, 1), 168) * 3600_000).toISOString()
+    const { data, error } = await sb
+        .from('whatsapp_messages')
+        .select('phone, name, body, direction, created_at, lead_id')
+        .gte('created_at', desde)
+        .eq('direction', 'inbound')
+        .not('phone', 'like', '%@g.us')
+        .not('origin', 'in', '(agente-inbound,group-inbound)')
+        .order('created_at', { ascending: false })
+        .limit(400)
+    if (error) return { error: error.message }
+
+    const porPhone = new Map<string, { name: string | null; leadId: string | null; msgs: { hora: string; texto: string }[] }>()
+    for (const m of (data ?? []) as Array<{ phone: string; name: string | null; body: string | null; created_at: string; lead_id: string | null }>) {
+        if (!m.body) continue
+        const cur = porPhone.get(m.phone) ?? { name: m.name, leadId: m.lead_id, msgs: [] }
+        if (cur.msgs.length < 4) {
+            cur.msgs.push({
+                hora: new Date(m.created_at).toLocaleString('pt-BR', { timeZone: 'America/Sao_Paulo', day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' }),
+                texto: m.body.slice(0, 200),
+            })
+        }
+        if (!cur.leadId && m.lead_id) cur.leadId = m.lead_id
+        porPhone.set(m.phone, cur)
+    }
+
+    // dados do lead (nome oficial, responsável, etapa) + trava de assessor
+    const leadIds = [...new Set([...porPhone.values()].map(v => v.leadId).filter(Boolean))] as string[]
+    const leadPorId = new Map<string, { nome: string | null; responsavel: string | null; status: string | null }>()
+    if (leadIds.length) {
+        const { data: leads } = await sb.from('crm_leads').select('id, nome, responsavel, status').in('id', leadIds)
+        for (const l of (leads ?? []) as Array<{ id: string; nome: string | null; responsavel: string | null; status: string | null }>) {
+            leadPorId.set(l.id, { nome: l.nome, responsavel: l.responsavel, status: l.status })
+        }
+    }
+
+    const alvoAssessor = (ctx.assessor ?? '').trim().toLowerCase()
+    const conversas: unknown[] = []
+    for (const [phone, v] of porPhone) {
+        const lead = v.leadId ? leadPorId.get(v.leadId) : null
+        if (ctx.role !== 'admin') {
+            if (!alvoAssessor) return { error: 'Seu número não tem assessor vinculado — fale com o João.' }
+            if (!lead?.responsavel || !lead.responsavel.toLowerCase().includes(alvoAssessor)) continue
+        }
+        conversas.push({
+            nome: lead?.nome || v.name || phone,
+            telefone: phone,
+            responsavel: lead?.responsavel ?? null,
+            etapa: lead?.status ?? null,
+            mensagens: v.msgs.reverse(),
+        })
+        if (conversas.length >= Math.min(Math.max(limite, 1), 20)) break
+    }
+    return { janela_horas: horas, total_contatos: porPhone.size, conversas }
+}
+
 async function agendaLeiloes(de?: string, ate?: string): Promise<unknown> {
     const sb = supabaseAdmin()
     const iso = (d: Date) => d.toISOString().slice(0, 10)
@@ -448,6 +530,9 @@ export async function executeTool(
                 break
             case 'atendimento_stats':
                 result = ctx.role !== 'admin' ? { error: 'restrito_admin' } : await getAtendimentoStats(Number(args.dias) || 90)
+                break
+            case 'conversas_recentes':
+                result = await conversasRecentes(ctx, Number(args.horas) || 24, Number(args.limite) || 10)
                 break
             case 'agenda_leiloes':
                 result = await agendaLeiloes(
