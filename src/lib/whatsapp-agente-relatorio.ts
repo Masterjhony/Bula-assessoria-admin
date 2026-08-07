@@ -108,7 +108,8 @@ export async function gerarEEnviarRelatorio(
         if (!okSend) return { sent: false, error: ('error' in res && res.error) || 'falha no envio' }
 
         // Log na thread da Central (o VPS não espelha envios próprios).
-        void supabase.from('whatsapp_messages').insert({
+        // AWAIT obrigatório: fire-and-forget morre quando a Vercel congela a função.
+        await supabase.from('whatsapp_messages').insert({
             phone: destino.to,
             name: 'Bula (agente)',
             direction: 'outbound',
