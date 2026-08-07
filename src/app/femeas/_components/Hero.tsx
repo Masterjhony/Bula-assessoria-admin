@@ -25,11 +25,12 @@ import { LeadForm } from './Formulario'
 //
 // ⚠️ ESTE COMENTÁRIO DIZIA O CONTRÁRIO ATÉ 06/08 — "nada de três colunas
 // espremidas em 390px, onde 'Frete grátis' quebraria no meio da palavra". Era
-// uma suposição, e a medição no canvas com a Oswald real desmentiu: em 390px a
-// coluna do meio tem 96px úteis e "Frete grátis" mede 83px a 18px. Cabe, com
-// 13px de folga. A frase ficou aqui porque ela custou uma rodada inteira de
-// desenho — o empilhamento que ela justificava foi o que o dono chamou de
-// "horroroso".
+// SUPOSIÇÃO, nunca medida, e sustentou o empilhamento que o dono chamou de
+// "horroroso". Medido com a Range API sobre o texto: "Frete grátis" tem 79,7px
+// de tinta a 18px, numa coluna com 98px úteis em 390. Cabia desde sempre.
+//
+// A frase fica aqui porque ela custou uma rodada inteira de desenho — foi ela
+// que fez alguém concluir que o bloco precisava de ícone.
 //
 // ── ALIVIADA EM 06/08, depois da revisão do dono em iPhone ──────────────────
 // A versão anterior empilhava TRÊS ênfases nas mesmas três linhas: filete acima
@@ -53,36 +54,20 @@ import { LeadForm } from './Formulario'
 //     decisão: o eyebrow, o aviso de análise e o botão. `dark.muted` mede ~8:1
 //     sobre o near-black, então passa AA nos 11px do rótulo.
 //
-// ── E O DONO VOLTOU A APONTÁ-LA. O QUE FALTAVA ERA A GEOMETRIA (06/08) ─────
+// ── E O DONO VOLTOU A APONTÁ-LA. UMA VEZ ERA GEOMETRIA (06/08) ────────────
 // As três ênfases tinham sido aliviadas, mas o ARRANJO continuava o mesmo, e o
 // arranjo era o defeito: `justify-between` jogava o valor na margem esquerda e o
 // rótulo na direita, com ~330px de nada entre os dois num iPhone. Medido no
-// print: "30x" terminava em x=95 e "NO BOLETO" só começava em x=598.
+// print: "30x" terminava em x=95 e "NO BOLETO" só começava em x=598. Uma tabela
+// de duas colunas — e tabela foi o que o olho leu.
 //
-// Isso é uma TABELA DE DUAS COLUNAS, e uma tabela é o que o olho leu — planilha
-// de condições, não ficha. Três defeitos, todos do mesmo vão:
-//
-//   · valor e rótulo são UM dado ("30x no boleto"), e a lei da proximidade diz
-//     que o que está junto pertence junto. A 330px de distância eles viram dois
-//     dados, e o leitor tem de reatar o par três vezes;
-//   · os rótulos alinhados à DIREITA criavam uma segunda margem, ragged do lado
-//     esquerdo — a borda serrilhada que faz qualquer bloco parecer formulário;
-//   · o vão vazio no meio pedia régua. É o instinto certo diante do arranjo
-//     errado: a tabela quer filete porque a tabela não deveria estar ali.
-//
-// O par agora é BINDADO — valor e rótulo na mesma linha, encostados, com 10px
-// entre eles e ambos ancorados na margem esquerda. Lê-se "30x no boleto",
-// "Frete grátis sob consulta", "R$ 0 custo da assessoria", que é literalmente
-// como a frase é dita em voz alta. Nenhum traço entrou, nenhum saiu, o texto é o
-// mesmo e a altura é a mesma (as três linhas já eram três linhas).
-//
-// ⚠️ `flex-wrap` + `gap-y` não são enfeite: se o usuário aumentar a fonte do
-// sistema (Dynamic Type), o rótulo desce para a linha de baixo em vez de espremer
-// o valor. Sem isso o "R$ 0 CUSTO DA ASSESSORIA" estoura a 200% de zoom.
-//
-// ⚠️ NO DESKTOP NADA MUDA — lá a ficha é grade de três, o rótulo já mora sob o
-// valor e nunca houve vão. O defeito era exclusivo do arranjo de celular, e foi
-// no celular que ele foi revisado.
+// ⚠️ O CONSERTO DAQUELA VEZ (valor e rótulo na MESMA LINHA, encostados) NÃO É O
+// QUE ESTÁ NO CÓDIGO HOJE, e a diferença importa para quem for mexer: naquele
+// arranjo os três dados eram três LINHAS empilhadas; hoje são três COLUNAS, e o
+// rótulo voltou para debaixo do valor. O que continua valendo daquela rodada é a
+// regra que ela descobriu — valor e rótulo são UM dado e ficam juntos, nunca em
+// margens opostas com vão morto no meio. Numa coluna estreita eles ficam juntos
+// empilhando, não lado a lado.
 //
 // ── QUARTA RODADA: ENTRARAM MARCAS. QUINTA: SAÍRAM, E VIROU FAIXA ─────────
 // Na quarta rodada a ficha ganhou três marcas SVG de 34–40px. O raciocínio
@@ -125,29 +110,43 @@ function FichaTecnica({ className }: { className: string }) {
             paddingRight: i === hero.stats.length - 1 ? 0 : 'clamp(10px, 2.6vw, 22px)',
           }}
         >
-          {/* ⚠️ 18px NO CELULAR NÃO É TIMIDEZ, É A LARGURA QUE EXISTE. O valor
-              mais longo é "Frete grátis", e ele mora na coluna do meio, que é a
-              única com filete e recuo dos DOIS lados. Medido no navegador, com
-              a fonte já carregada:
+          {/* ⚠️ O TAMANHO DESTE VALOR FOI MEDIDO TRÊS VEZES E ERRADO DUAS. As
+              duas medições ruins ficam registradas porque as duas são armadilha
+              de ferramenta, não descuido:
 
-                390px    "Frete grátis"  97px   coluna de 118px   folga 21px
-                1440px   "Frete grátis" 150px   coluna de 195px   folga 45px
+                canvas `measureText`          83,0px   ← mediu antes de a Oswald
+                                                         carregar, caiu no fallback
+                `getBoundingClientRect`       97,0px   ← este span é `display:block`,
+                                                         então devolveu a largura
+                                                         da CÉLULA, não do texto
+                Range API sobre o texto       79,7px   ← a tinta de verdade
 
-              ⚠️ E MEÇA NO NAVEGADOR, NÃO NO CANVAS. A primeira medição desta
-              rodada foi feita com `measureText` e deu 83px para o mesmo texto —
-              14px a menos que o real, porque o canvas caiu no fallback antes de
-              a Oswald carregar. Com 83px a conta ainda fecharia a 20px, e a
-              20px o real (108px) já estaria a 10px da borda.
+              Só a terceira mede glifo. As outras duas concordavam com o valor a
+              18px por coincidência, e uma delas ia me fazer travar o tipo 2px
+              abaixo do que cabe.
 
-              Se o valor estourar, ele quebra em duas linhas e a faixa perde a
-              linha de base comum — que é a única coisa que faz três colunas
-              lerem como UM objeto em vez de três. */}
+              ⚠️ E O PONTO APERTADO NÃO É O CELULAR — É 1024px. Lá o card do
+              formulário (468px) já entrou na grade, a coluna da promessa
+              encolheu e o `clamp` já subiu o valor para 22,5px. Medido com a
+              faixa em terços iguais:
+
+                390     tinta  79,7  ·  conteúdo  98,0  ·  folga 18,3
+                768     tinta  79,7  ·  conteúdo 197,4  ·  folga 117,7
+                1024    tinta  99,8  ·  conteúdo 105,6  ·  folga  5,9  ← aqui
+                1440    tinta 115,2  ·  conteúdo 150,7  ·  folga 35,5
+
+              5,9px de folga é o que separa a faixa de quebrar em duas linhas e
+              perder a linha de base comum — que é a única coisa que faz três
+              colunas lerem como UM objeto em vez de três. Por isso a coluna do
+              meio ficou 15% mais larga que as vizinhas (ver `gridTemplateColumns`
+              nas duas chamadas): a coluna mais estreita não pode ser justamente
+              a que carrega o valor mais longo. */}
           <span
             style={{
               fontFamily: font.display,
               fontWeight: 600,
               letterSpacing: '-0.015em',
-              fontSize: 'clamp(18px, 2.2vw, 26px)',
+              fontSize: 'clamp(20px, 2.2vw, 26px)',
               lineHeight: 1.1,
               color: dark.text,
               display: 'block',
@@ -485,7 +484,7 @@ export function Hero() {
             {/* O `pt` vem DEPOIS do filete do bloco: rasteira de 1px, respiro,
                 e só então os três números. É o filete abrindo a ficha, não
                 reticulando cada célula. */}
-            <FichaTecnica className="hidden sm:mt-auto sm:grid sm:grid-cols-3 sm:pt-[clamp(28px,3.4vw,44px)]" />
+            <FichaTecnica className="hidden sm:mt-auto sm:grid sm:grid-cols-[1fr_1.15fr_1fr] sm:pt-[clamp(28px,3.4vw,44px)]" />
           </div>
 
           {/* CARD DO CADASTRO — o único formulário da página (INV-7). O guarda
@@ -518,7 +517,7 @@ export function Hero() {
               filete de 1px, as mesmas três condições viram UM objeto — uma
               faixa de condições, que é o que elas são: não se lê uma de cada
               vez, lê-se a faixa. E custa 100px a menos de altura. */}
-          <FichaTecnica className="mt-[clamp(28px,5vw,40px)] grid grid-cols-3 pt-[22px] sm:hidden" />
+          <FichaTecnica className="mt-[clamp(28px,5vw,40px)] grid grid-cols-[1fr_1.15fr_1fr] pt-[22px] sm:hidden" />
         </div>
       </div>
     </section>

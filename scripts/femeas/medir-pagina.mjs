@@ -8,7 +8,8 @@
 // O NÚMERO SAGRADO é o `primeiroCampo`: a distância, em pixels, do topo da
 // página até o primeiro campo do formulário no celular. Se ele cresce, a pessoa
 // precisa rolar mais para começar a preencher — e isso se paga em conversão num
-// funil de tráfego pago. Referência: 950px numa tela de 844 (o /touros faz 633).
+// funil de tráfego pago. Hoje ele é 537px numa tela de 844 — MENOR que o do
+// /touros (633), que é o análogo que converte e era a meta.
 //
 // USO:
 //   node scripts/femeas/medir-pagina.mjs
@@ -27,8 +28,10 @@ const base = process.argv[2] ?? 'http://localhost:3000'
  *    950 → depois do carrossel de categorias
  *    763 → depois de a ficha técnica sair da frente
  *    640 → depois do reagrupamento de espaço do hero (-33) e do corte de copy
- *          do parágrafo de abertura (-90)                        ← hoje
- *    633 → o /touros, que é o análogo e a meta
+ *          do parágrafo de abertura (-90)
+ *    633 → o /touros, que é o análogo e era a meta
+ *    537 → depois da limpeza da primeira dobra: saiu o eyebrow e o aviso de
+ *          análise desceu para dentro do card (-103)              ← hoje
  *
  * A altura total subiu em 06/08 com as fotos: primeiro a faixa antes do fecho,
  * depois a galeria que a substituiu (mobile 7297→8578, desktop 6947→8063). Foi
@@ -151,7 +154,7 @@ const base = process.argv[2] ?? 'http://localhost:3000'
  * sobra ao lado do card, e o que saiu de texto saiu de um espaço que sobrava.
  */
 const REFERENCIA = {
-  'MOBILE 390': { primeiroCampo: 537, topoParaQuem: 2315, paraQuem: 1551, categorias: 858, pagina: 8564 },
+  'MOBILE 390': { primeiroCampo: 537, topoParaQuem: 2317, paraQuem: 1551, categorias: 858, pagina: 8566 },
   'DESKTOP 1440': { primeiroCampo: 399, topoParaQuem: 2044, paraQuem: 1277, categorias: 1318, pagina: 8720 },
 }
 

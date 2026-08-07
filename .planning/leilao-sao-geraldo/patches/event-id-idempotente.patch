@@ -1,0 +1,79 @@
+diff --git a/src/app/saogeraldo/_components/Formulario.tsx b/src/app/saogeraldo/_components/Formulario.tsx
+index e49837b..363c7d6 100644
+--- a/src/app/saogeraldo/_components/Formulario.tsx
++++ b/src/app/saogeraldo/_components/Formulario.tsx
+@@ -108,6 +108,31 @@ export function LeadForm() {
+   const [step, setStep] = useState(0)
+   const utmRef = useRef<Utm>(EMPTY_UTM)
+   const startedRef = useRef(false)
++  // ── IDEMPOTÊNCIA DO CADASTRO ──────────────────────────────────────────────
++  //
++  // `eventIdRef` guarda o event_id da PRIMEIRA tentativa de envio e o reusa em
++  // todas as seguintes. Ele é a chave de deduplicação da planilha: a coluna
++  // "Lead ID" da aba LEADS SAO GERALDO é lida por `tourosSeenIds()` e, se o id
++  // já estiver lá, `appendLeadToSaoGeraldoTab()` devolve
++  // `{skipped:true, reason:'duplicate'}` e nenhuma linha nova é escrita.
++  //
++  // Antes disto o id era sorteado DENTRO do handler, a cada tentativa. Logo, a
++  // dedup nunca podia disparar para o caso que ela existe para cobrir: quem
++  // envia, o servidor grava, a resposta se perde no 4G, o formulário mostra
++  // erro e a pessoa clica ENVIAR de novo. Segunda tentativa, id novo, segunda
++  // linha — o mesmo produtor, duas vezes na aba da equipe. Com o id estável, a
++  // segunda tentativa cai na dedup e a aba fica com uma linha só.
++  //
++  // Vale também para o Meta: o event_id é a chave de dedup navegador×CAPI, e
++  // uma chave que muda a cada tentativa não deduplica nada lá também.
++  //
++  // O id não vaza entre cadastros diferentes: o sucesso navega para a página de
++  // obrigado (load completo), o formulário desmonta e o ref morre com ele.
++  const eventIdRef = useRef<string | null>(null)
++  // Trava de reentrada em REF, não em estado: `status` só vale na renderização
++  // em que o handler foi criado, então dois cliques disparados antes do React
++  // recommitar leem os dois `'idle'` e passam. O ref é escrito no mesmo tique.
++  const submittingRef = useRef(false)
+   // A troca de passo rola até o CARD (não até a seção): o hero tem marca +
+   // manchete acima do form, e alinhar pela seção deixaria o passo novo fora da
+   // tela no mobile.
+@@ -180,7 +205,7 @@ export function LeadForm() {
+   async function handleSubmit(ev: React.FormEvent) {
+     ev.preventDefault()
+     if (step < TOTAL - 1) { goNext(); return }
+-    if (status === 'submitting') return
++    if (submittingRef.current) return
+     const e = validate(data)
+     setErrors(e)
+     trackFunnel('saogeraldo_submit_attempt')
+@@ -190,12 +215,17 @@ export function LeadForm() {
+       return
+     }
+ 
++    submittingRef.current = true
+     setStatus('submitting')
+     setServerError(null)
+-    const eventId =
+-      typeof crypto !== 'undefined' && crypto.randomUUID
+-        ? crypto.randomUUID()
+-        : `evt_${Date.now()}_${Math.round(Math.random() * 1e9)}`
++    // Sorteia UMA vez por formulário montado; reenvio reusa (ver eventIdRef).
++    if (!eventIdRef.current) {
++      eventIdRef.current =
++        typeof crypto !== 'undefined' && crypto.randomUUID
++          ? crypto.randomUUID()
++          : `evt_${Date.now()}_${Math.round(Math.random() * 1e9)}`
++    }
++    const eventId = eventIdRef.current
+     try {
+       const res = await fetch('/api/saogeraldo/lead', {
+         method: 'POST',
+@@ -239,6 +269,11 @@ export function LeadForm() {
+         body?.is_mql === true ? '/obrigado-saogeraldo-mql' : '/obrigado-saogeraldo-lead',
+       )
+     } catch (err) {
++      // Libera a trava para a pessoa poder reenviar. O `eventIdRef` NÃO é
++      // limpo: é justamente o reenvio que precisa carregar o id anterior para
++      // cair na dedup da planilha, caso a gravação tenha dado certo e só a
++      // resposta tenha se perdido.
++      submittingRef.current = false
+       setStatus('error')
+       setServerError(err instanceof Error ? err.message : 'Falha ao enviar.')
+     }

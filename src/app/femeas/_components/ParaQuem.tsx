@@ -1,4 +1,4 @@
-import { light, typo, font } from '../_lib/tokens'
+import { light, typo, font, radius } from '../_lib/tokens'
 import { paraQuem, type CriterioFiltro } from '../_lib/copy'
 import { Section, Container, Reveal } from './ui'
 import { CabecalhoSecao } from './editorial'
@@ -148,20 +148,36 @@ const filtroCor = {
 //      "sim" — 0,28 de diferença onde o limite para não ler como carimbo é
 //      ~0,10. A 0,08 o rebaixo continua legível e a barra cai para dentro da
 //      faixa. Afundar é direcionamento; carimbar no topo é veredito.
+// ⚠️ CANTO ARREDONDADO E SOMBRA MAIS FORTE — pedido do dono, 06/08 à noite:
+// "coloque borda arredondada e um pouquinho mais de sombra". O raio mora em
+// `radius.card` (tokens.ts) e é a ÚNICA exceção ao canto reto da página; o
+// aviso de por que ele não deve virar hábito está lá.
 const superficie = {
   alta: {
     background: '#FFFFFF',
     border: '1px solid rgba(26,20,10,0.14)',
+    borderRadius: radius.card,
     // Duas sombras: a larga e difusa dá a altura, a curta e fechada dá o
     // contato. Sombra única lê como adesivo; duas leem como objeto.
-    boxShadow: '0 22px 40px -22px rgba(26,20,10,0.42), 0 5px 12px -8px rgba(26,20,10,0.22)',
+    // Subiram um degrau (de 0,42/0,22 para 0,50/0,28, e o raio de 40 para 52):
+    // com canto arredondado a silhueta perde a aresta dura que segurava a borda
+    // do card, e a sombra passa a ser o que define onde ele termina.
+    boxShadow: '0 28px 52px -24px rgba(26,20,10,0.50), 0 8px 18px -10px rgba(26,20,10,0.28)',
   },
   baixa: {
     background: '#EDEAE2',
     border: '1px solid rgba(26,20,10,0.14)',
+    borderRadius: radius.card,
     // Sombra INTERNA no topo + fio de luz de 1px embaixo dela: é o desenho de
     // um rebaixo. Sem o fio de luz a sombra interna lê como sujeira.
-    boxShadow: 'inset 0 3px 9px rgba(26,20,10,0.08), inset 0 1px 0 rgba(255,255,255,0.5)',
+    //
+    // ⚠️ ESTA NÃO ACOMPANHOU O AUMENTO DA OUTRA, e é de propósito. A auditoria
+    // mediu que a inset a 0,12 desenhava uma barra escura de 12px no topo deste
+    // card — 1,34:1 contra 1,06:1 no topo do card de cima, quando o limite para
+    // não ler como carimbo de reprovação é ~0,10 de diferença. "Um pouquinho
+    // mais de sombra" no card que AFUNDA é justamente o que o transforma em
+    // veredito. O canto arredondado já ajuda aqui: a barra vira uma curva.
+    boxShadow: 'inset 0 3px 10px rgba(26,20,10,0.09), inset 0 1px 0 rgba(255,255,255,0.5)',
   },
 } as const
 

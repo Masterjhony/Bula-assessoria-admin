@@ -281,7 +281,18 @@ export const paraQuem = {
   escape:
     'Procura touro para melhorar a vacada que você já tem? Esse é o nosso outro trabalho, e ele é bem mais rápido.',
   escapeCta: 'Ver a assessoria de touros',
-  escapeHref: 'https://touros.bulaassessoria.com',
+  // ⚠️ COM UTM DESDE 06/08, e a razão é de argumento, não de tracking: o filtro
+  // desta página é duro de propósito, e a ÚNICA coisa que justifica a dureza é
+  // que quem sai por aqui não se perde — vai para o outro funil. Até hoje isso
+  // era uma afirmação sem número: o link saía pelado e chegava no touros como
+  // tráfego direto, indistinguível de quem digitou o endereço.
+  //
+  // Agora dá para responder "quantos leads de touro vieram do filtro de fêmeas
+  // este mês?" — e essa resposta é o que diz se o filtro está desqualificando ou
+  // só perdendo gente. Se vier zero por semanas, o problema não é o filtro: é a
+  // saída, que ninguém está usando.
+  escapeHref:
+    'https://touros.bulaassessoria.com/?utm_source=femeas&utm_medium=escape&utm_campaign=filtro-para-quem',
 }
 
 // ─────────────────────────────────────────────────────────────────────────
