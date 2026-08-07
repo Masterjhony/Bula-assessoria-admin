@@ -103,10 +103,20 @@ const base = process.argv[2] ?? 'http://localhost:3000'
  *     A soma dos dois itens acima. Nada cresceu acima do formulário.
  *
  * O `primeiroCampo` segue 640/399 — de novo, o número que não podia mudar.
+ *
+ * ── E MAIS 5px: A PROSA DO FORMULÁRIO SUBIU DE 12,5 PARA 14px ────────────
+ * Dica e mensagem de erro dos campos eram o menor texto de LEITURA da página
+ * (12,5px em Inter), e a mensagem de erro é o único texto que a pessoa precisa
+ * ler para conseguir continuar. O rótulo continua em 12,5 — ele é Oswald caixa
+ * alta, que é a família de rótulo desta página, não prosa.
+ *
+ *   topoParaQuem  mobile 2501→2506 (+5)   desktop 2042→2044 (+2)
+ *     É a dica que mora sob o primeiro campo ficando 1,5px mais alta por linha.
+ *     `primeiroCampo` não se move: dica e erro nascem DEPOIS do controle.
  */
 const REFERENCIA = {
-  'MOBILE 390': { primeiroCampo: 640, topoParaQuem: 2501, paraQuem: 1425, categorias: 858, pagina: 8624 },
-  'DESKTOP 1440': { primeiroCampo: 399, topoParaQuem: 2042, paraQuem: 1134, categorias: 1318, pagina: 8523 },
+  'MOBILE 390': { primeiroCampo: 640, topoParaQuem: 2506, paraQuem: 1425, categorias: 858, pagina: 8628 },
+  'DESKTOP 1440': { primeiroCampo: 399, topoParaQuem: 2044, paraQuem: 1134, categorias: 1318, pagina: 8525 },
 }
 
 const navegador = await chromium.launch()

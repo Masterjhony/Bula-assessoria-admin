@@ -510,8 +510,13 @@ export function LeadForm() {
                   {copy.consent}
                 </span>
               </label>
+              {/* Mesma regra do <Campo/>: erro é prosa, e prosa de erro vai em
+                  14px. `fontFamily` explícito porque este <p> está fora do
+                  <Campo/> e não herda a família do formulário. */}
               {errors.whatsappConsent && (
-                <p role="alert" style={{ fontSize: 12.5, color: ERR, marginTop: -8 }}>{errors.whatsappConsent}</p>
+                <p role="alert" style={{ fontFamily: font.body, fontSize: 14, lineHeight: 1.45, color: ERR, marginTop: -8 }}>
+                  {errors.whatsappConsent}
+                </p>
               )}
             </>
           )}
@@ -705,13 +710,22 @@ function Field({
         <label htmlFor={fieldId} className="mb-2 block" style={labelStyle}>{label}</label>
       )}
       {control}
+      {/* ⚠️ 14px, NÃO 12,5px (06/08). O RÓTULO acima continua em 12,5 e está
+          certo: ele é Oswald caixa-alta com tracking, que é a família de rótulo
+          desta página. Estes dois são PROSA em Inter — e prosa de 12,5px num
+          iPhone é o menor texto de leitura da página inteira, justamente no
+          único ponto em que a pessoa PRECISA ler para conseguir continuar (a
+          mensagem de erro). O próprio formulário já usava 14px para prosa
+          auxiliar em dois lugares (o olho do card e o texto do consentimento);
+          isto aqui era a exceção, não a regra.
+          ⚠️ Não mexe no `primeiroCampo`: os dois nascem DEPOIS do controle. */}
       {hint && (
-        <p id={hintId} className="mt-1.5" style={{ fontFamily: font.body, fontSize: 12.5, color: dark.muted, lineHeight: 1.45 }}>
+        <p id={hintId} className="mt-1.5" style={{ fontFamily: font.body, fontSize: 14, color: dark.muted, lineHeight: 1.45 }}>
           {hint}
         </p>
       )}
       {error && (
-        <p id={errId} role="alert" className="mt-1.5" style={{ fontFamily: font.body, fontSize: 12.5, color: ERR }}>
+        <p id={errId} role="alert" className="mt-1.5" style={{ fontFamily: font.body, fontSize: 14, lineHeight: 1.45, color: ERR }}>
           {error}
         </p>
       )}

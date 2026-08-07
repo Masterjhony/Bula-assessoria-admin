@@ -57,7 +57,13 @@ export function ProvaSocial() {
           >
             {provaSocial.eyebrow}
           </p>
-          <p
+          {/* ⚠️ <h2>, NÃO <p> — corrigido em 06/08. Esta era a única manchete
+              de seção da página fora da árvore de títulos: quem navega por
+              cabeçalhos (VoiceOver rotor, TalkBack) pulava do "Por onde começar
+              o seu plantel" direto para "Todo criatório de Nelore PO...", e a
+              prova social simplesmente não existia nessa lista. Nada muda na
+              tela — o tamanho vem do `style` inline, não do elemento. */}
+          <h2
             className="mx-auto mt-5 max-w-[700px] text-center"
             style={{
               ...typo.displayLg,
@@ -70,7 +76,7 @@ export function ProvaSocial() {
             }}
           >
             {provaSocial.title}
-          </p>
+          </h2>
         </Reveal>
       </Container>
 
