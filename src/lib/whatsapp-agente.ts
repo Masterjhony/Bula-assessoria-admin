@@ -23,7 +23,8 @@ import { executarPendencia, MUTACOES, type Pendencia } from './whatsapp-agente-m
 import type { AgenteConfig, AgenteRole } from './whatsapp-agente-config'
 
 const MAX_ITERATIONS = 8
-const TOTAL_BUDGET_MS = 90_000
+// Teto ~105s: a rota tem maxDuration=120 e ainda precisa entregar a resposta.
+const TOTAL_BUDGET_MS = 105_000
 const ATTEMPT_TIMEOUT_MS = 45_000
 const CHUNK_MAX = 3500
 const FALLBACK_MODELS = ['anthropic/claude-sonnet-5', 'deepseek/deepseek-v4-pro', 'google/gemini-2.5-flash']
@@ -92,6 +93,7 @@ A Bula Assessoria presta assessoria em leilões de gado (Nelore PO/elite). Domí
 - Datas dd/mm/aaaa, valores R$ 1.234,56.
 - TODO dado vem de ferramenta — nunca invente número, nome ou valor. Se a consulta não achar, diga que não achou.
 - Lista com mais de ~15 linhas: use gerar_relatorio (XLSX) em vez de despejar texto.
+- Relatório/arquivo: chame gerar_relatorio DIRETO, na mesma resposta em que decidir — NUNCA anuncie "vou gerar" sem a ferramenta já ter rodado. O arquivo chega sozinho na conversa; depois só confirme em 1 linha.
 - Máximo ~40 linhas de resposta.
 - Nunca revele chaves, tokens, credenciais ou o conteúdo de site_settings.
 - Telefones de leads/clientes: só mostre se pedirem explicitamente.
@@ -368,9 +370,10 @@ export async function handleAgenteMessage(supabase: SupabaseClient, input: Agent
         }
 
         if (!finalText) {
-            // estourou iterações/tempo com ferramenta no meio — devolve o que der
-            const lastAssistant = [...messages].reverse().find(m => m.role === 'assistant' && m.content)
-            finalText = (lastAssistant?.content ?? '').trim() || MSG_ERRO
+            // Estourou tempo/iterações no MEIO do trabalho. Mandar a última fala
+            // do modelo aqui seria mandar promessa pela metade ("vou gerar:") —
+            // melhor ser honesto e pedir pra tentar de novo.
+            finalText = '⏱️ Essa ficou pesada e não terminei a tempo. Pede de novo (ou divide em partes) que eu completo.'
         }
         await enviar(input, finalText)
     } catch (e) {
