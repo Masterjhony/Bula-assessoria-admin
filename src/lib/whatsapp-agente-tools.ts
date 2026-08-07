@@ -58,6 +58,8 @@ const TABELAS_ADMIN = [
     'erp_cartao_lancamentos', 'erp_resultados_historico', 'erp_auditoria',
     // Meta/observabilidade do próprio agente
     'ai_usage_log', 'agente_dev_tarefas', 'whatsapp_agente_pendencias', 'agente_rotinas',
+    // Open Finance (staging de transações bancárias — leitura via Pluggy)
+    'openfinance_transacoes', 'openfinance_itens',
 ]
 // Assessor: nada de fechamentos (comissão/faturamento), clientes agregados,
 // conversas de terceiros, tarefas internas nem ERP. crm_leads leva filtro

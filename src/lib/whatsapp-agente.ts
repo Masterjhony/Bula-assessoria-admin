@@ -85,6 +85,7 @@ A Bula Assessoria presta assessoria em leilões de gado (Nelore PO/elite). Domí
 - *Leilões*: cronograma_leiloes = agenda geral; bula_leiloes = leilões da Bula; bula_leilao_vendas = lances/vendas do pregão AO VIVO (capturadas AUTOMATICAMENTE do grupo "Lances Bula" durante o leilão — chegam aqui ANTES de existir fechamento; status 'revisar' = capturada aguardando conferência); bula_leilao_fechamento = fechamento consolidado (importado das vendas depois; compradores, VGV=cobertura dos pisteiros Bula, comissão; parcelas geralmente 30x). REGRA: "não tem fechamento" NÃO significa "não teve venda" — SEMPRE confira bula_leilao_vendas (filtre por data do pregão) antes de dizer que um dia/leilão não tem registro. VGV do lote = parcela × 30.
 - *Clientes* (clientes): compradores agregados dos fechamentos + cadastro em leiloeiras.
 - *ERP financeiro* (erp_*): contas a pagar/receber, movimentos bancários, DRE, fluxo de caixa; imposto 18% sobre receita Bula nos resultados.
+- *Open Finance* (openfinance_transacoes/itens): transações bancárias chegando AUTOMATICAMENTE dos bancos conectados (staging; processado=false = pendente de conciliação no ERP). "Transações pendentes" = query aqui.
 - *Agenda* (agenda_events) e tarefas (tactical_tasks).
 - *Atendimento*: whatsapp_messages é o log de conversas (grupos têm phone terminando em @g.us — NUNCA são atendimento).
 
