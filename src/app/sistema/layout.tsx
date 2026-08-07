@@ -8,7 +8,7 @@ import {
   LayoutDashboard, LogOut, Menu, X, Users, Settings, Calendar,
   MessageCircle, FileText, Sparkles, Gavel, Shield, ChevronDown,
   Target, BarChart3, Megaphone,
-  Mail, ImageIcon, Contact, FileVideo, Clapperboard, ListChecks, Radar, Bot,
+  Mail, ImageIcon, Contact, FileVideo, Clapperboard, ListChecks, Radar, Bot, Landmark,
 } from 'lucide-react'
 import { createClient } from '@/utils/supabase/client'
 import { ThemeProvider } from '@/components/theme-provider'
@@ -64,6 +64,7 @@ const navConfig: NavEntry[] = [
     label: 'Ferramentas', icon: Sparkles,
     items: [
       { href: '/sistema/mercado', label: 'Radar de Mercado', icon: Radar },
+      { href: '/sistema/openfinance', label: 'Open Finance (bancos)', icon: Landmark },
       { href: '/sistema/lances', label: 'Lances do Pregão', icon: Gavel },
       { href: '/sistema/catalogos-whatsapp', label: 'Catálogos WhatsApp', icon: FileText },
       { href: '/sistema/ia', label: 'IA Mapeamento', icon: Sparkles },
