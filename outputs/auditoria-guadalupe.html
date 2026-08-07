@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<title>Auditoria — Leilão Guadalupe × Sistema Bula</title>
+<style>
+  @page { size: A4; margin: 0; }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { font-family: 'Segoe UI', Arial, sans-serif; color: #1a1a1a; font-size: 10.5px; line-height: 1.45; }
+  .page { width: 210mm; min-height: 297mm; padding: 14mm 14mm 12mm; page-break-after: always; position: relative; }
+  .page:last-child { page-break-after: auto; }
+
+  h1, h2, h3, .kicker { font-family: 'Oswald', 'Arial Narrow', Arial, sans-serif; text-transform: uppercase; }
+  .header { background: #111; color: #fff; margin: -14mm -14mm 8mm; padding: 10mm 14mm 8mm; }
+  .kicker { color: #C9A84C; font-size: 10px; letter-spacing: 3px; margin-bottom: 4px; }
+  h1 { font-size: 25px; font-weight: 600; letter-spacing: 1px; line-height: 1.15; }
+  .header .sub { color: #bbb; margin-top: 5px; font-size: 10.5px; }
+
+  h2 { font-size: 15px; font-weight: 600; letter-spacing: 1.2px; border-bottom: 2px solid #111; padding-bottom: 3px; margin: 14px 0 8px; }
+  h3 { font-size: 12px; font-weight: 600; letter-spacing: 1px; margin: 10px 0 5px; color: #333; }
+
+  .cards { display: flex; gap: 8px; margin: 10px 0; }
+  .card { flex: 1; border: 1px solid #ccc; border-top: 3px solid #111; padding: 8px 10px; }
+  .card.gold { border-top-color: #C9A84C; }
+  .card .num { font-family: 'Oswald', 'Arial Narrow', Arial, sans-serif; font-size: 19px; font-weight: 600; }
+  .card .lbl { font-size: 8.5px; text-transform: uppercase; letter-spacing: 1px; color: #666; margin-top: 2px; }
+
+  table { width: 100%; border-collapse: collapse; margin: 6px 0 10px; }
+  th { background: #111; color: #fff; font-family: 'Oswald', 'Arial Narrow', Arial, sans-serif; font-weight: 500; text-transform: uppercase; letter-spacing: .8px; font-size: 8.5px; padding: 5px 7px; text-align: left; }
+  td { border-bottom: 1px solid #ddd; padding: 4.5px 7px; vertical-align: top; }
+  tr:nth-child(even) td { background: #f5f5f5; }
+  td.r, th.r { text-align: right; white-space: nowrap; }
+  .tot td { background: #eae6da !important; font-weight: 700; border-top: 2px solid #111; }
+
+  .ok { font-weight: 700; }
+  .warn { font-weight: 700; }
+  .badge { display: inline-block; font-size: 8px; font-weight: 700; text-transform: uppercase; letter-spacing: .5px; padding: 1px 5px; border: 1px solid #111; }
+  .badge.fora { background: #111; color: #fff; }
+  .badge.gold { border-color: #C9A84C; color: #8a6d1f; }
+
+  .note { border-left: 3px solid #C9A84C; background: #f7f5ef; padding: 7px 10px; margin: 8px 0; }
+  .quote { font-style: italic; color: #444; }
+  .muted { color: #777; font-size: 9.5px; }
+  ul { margin: 4px 0 8px 16px; }
+  li { margin-bottom: 3px; }
+  .footer { position: absolute; bottom: 7mm; left: 14mm; right: 14mm; display: flex; justify-content: space-between; border-top: 1px solid #ccc; padding-top: 3px; font-size: 8px; color: #888; text-transform: uppercase; letter-spacing: 1px; }
+</style>
+</head>
+<body>
+
+<!-- PÁGINA 1 -->
+<div class="page">
+  <div class="header">
+    <div class="kicker">Bula Assessoria · Auditoria de Lances</div>
+    <h1>20º Leilão Guadalupe — Grupos de WhatsApp × Sistema</h1>
+    <div class="sub">Etapas de 17 a 20/07/2026 · Fontes: grupos "Lances Bula Assessoria" e "LANCES GUADALUPE" (sessão João Automation / espelho whatsapp_messages) × bula_leilao_fechamento e bula_leilao_vendas · Gerado em 07/08/2026</div>
+  </div>
+
+  <div class="cards">
+    <div class="card"><div class="num">2 lotes · R$ 60.000</div><div class="lbl">No sistema (só Fêmeas 18/07)</div></div>
+    <div class="card gold"><div class="num">11 lotes · R$ 299.100</div><div class="lbl">Vendas Guadalupe fora do sistema (19 e 20/07)</div></div>
+    <div class="card"><div class="num">0 vendas</div><div class="lbl">Doadoras 17/07 — nenhum lote postado nos grupos</div></div>
+  </div>
+
+  <h2>1 · Por que o sistema só tem o dia 18/07</h2>
+  <p>Na manhã de <b>19/07</b> a equipe dividiu os pregões entre dois grupos — registrado no próprio "Lances Bula Assessoria" (09h17–09h23 BRT):</p>
+  <div class="note quote">"Acho que com o Leozinho está na Guadalupe, a gente deixa o Equipe Bula para Guadalupe e essa pro Santa Cruz" · "Era no outro grupo Guadalupe" · "Quem for lança Guadalupe 👆🏼"</div>
+  <p>A partir daí, <b>toda a Guadalupe (Touros 19 e 20/07) rodou no grupo "LANCES GUADALUPE"</b> (15 membros, confirmado na sessão João Automation). Só que o robô de captura de vendas do sistema escuta apenas o grupo configurado em <span class="muted">site_settings.whatsapp_lances_groups</span> — que contém unicamente o "Lances Bula Assessoria". Resultado: as vendas postadas no LANCES GUADALUPE foram espelhadas no banco de mensagens, mas <b>nunca viraram registro em bula_leilao_vendas nem fechamento</b>.</p>
+
+  <h2>2 · O que cada dia mostra nos grupos</h2>
+
+  <h3>17/07 — Doadoras e Aspirações · <span class="badge">sem vendas postadas</span></h3>
+  <p>Nos dois grupos, o dia teve apenas divulgação (cards, catálogos, link da live) e uma renegociação de lote de aspiração: <span class="quote">"Alteração do lote aspiração — fica sócio 50% de todas, ou aparta e leva 8 100%"</span>, além de <span class="quote">"Leilão quente demais"</span>. <b>Nenhum "levamos"/venda foi registrado</b> — coerente com o comentário do dia seguinte: <span class="quote">"Douglas e eu lançamos num punhado… mas não vendemo nada"</span>. Ou seja: a ausência de fechamento de 17/07 aparenta ser real (sem venda da cobertura Bula), e não falha de captura.</p>
+
+  <h3>18/07 — Fêmeas (Matrizes Guadalupe) · <span class="badge gold">2 lotes · R$ 60.000 — no sistema, com 1 erro</span></h3>
+  <table>
+    <tr><th>Lote</th><th class="r">Parcela</th><th class="r">VGV (×30)</th><th>Assessor</th><th>Comprador (grupo)</th><th>Situação no sistema</th></tr>
+    <tr><td>20</td><td class="r">1.350</td><td class="r">40.500</td><td>Léo Serafim</td><td>Nelore Tavares · João Pinheiro/MG</td><td class="ok">OK — batido</td></tr>
+    <tr><td><b>52</b></td><td class="r">650</td><td class="r">19.500</td><td>Douglas Bispo</td><td>Gilberto Sarubi · Faz. Garantido · Oriximiná/PA</td><td class="warn">Gravado errado (ver §4)</td></tr>
+    <tr class="tot"><td>2 lotes</td><td class="r">2.000</td><td class="r">60.000</td><td colspan="3">VGV total confere com o fechamento automático</td></tr>
+  </table>
+  <p class="muted">A ficha do 2º lote saiu sem número ("Levamos - 650 - 1F"); três mensagens depois o próprio grupo identificou: "Descobre aí o lt" → "52".</p>
+
+  <div class="footer"><span>Bula Assessoria</span><span>Auditoria Guadalupe · pág. 1/2</span></div>
+</div>
+
+<!-- PÁGINA 2 -->
+<div class="page">
+  <h3>19/07 — Touros (dia 1) · grupo LANCES GUADALUPE · <span class="badge fora">9 lotes · R$ 234.900 — fora do sistema</span></h3>
+  <table>
+    <tr><th>Lote</th><th class="r">Parcela</th><th class="r">VGV (×30)</th><th>Assessor</th><th>Comprador</th></tr>
+    <tr><td>01</td><td class="r">1.200</td><td class="r">36.000</td><td>Douglas Bispo</td><td>Marcelo Braga · Faz. São Miguel · Maracajá/PA</td></tr>
+    <tr><td>06</td><td class="r">870</td><td class="r">26.100</td><td>Nane</td><td>Eduardo Leite · Faz. Quendera · Capela/SE</td></tr>
+    <tr><td>10</td><td class="r">870</td><td class="r">26.100</td><td>Nane</td><td>Jerônimo Heberle · Faz. Progresso · Matupá/MT ⚠</td></tr>
+    <tr><td>16</td><td class="r">1.150</td><td class="r">34.500</td><td>Nane</td><td>Jerônimo Heberle · Faz. Progresso · Matupá/MT</td></tr>
+    <tr><td>25</td><td class="r">700</td><td class="r">21.000</td><td>Fábio Omena</td><td>Reinaldo Tavares · Faz. N. Sra. de Fátima</td></tr>
+    <tr><td>49</td><td class="r">870</td><td class="r">26.100</td><td>Nane</td><td>Eduardo Leite · Faz. Quendera · Capela/SE</td></tr>
+    <tr><td>59</td><td class="r">820</td><td class="r">24.600</td><td>Nane</td><td>Jerônimo Heberle · Faz. Progresso · Matupá/MT</td></tr>
+    <tr><td>60</td><td class="r">700</td><td class="r">21.000</td><td>Nane + Fábio Omena</td><td>Reinaldo e Maria Tavares · Vila Bela/MT</td></tr>
+    <tr><td>99</td><td class="r">650</td><td class="r">19.500</td><td><i>não citado</i></td><td>Elielton Taveira · Faz. Caiçara · Niquelândia/GO</td></tr>
+    <tr class="tot"><td>9 lotes</td><td class="r">7.830</td><td class="r">234.900</td><td colspan="2">nenhum registro em bula_leilao_vendas / fechamento</td></tr>
+  </table>
+  <p class="muted">⚠ Lote 10 foi postado duas vezes com compradores diferentes: 09h41 "Com a Laila — Faz. Burrinha, Alessandro Consolaro" e 11h05 "Com a Nane — Jerônimo Heberle". A segunda ficha parece ser a correção — confirmar com a equipe. O dia teve fêmeas e machos na pista (lotes 1F e 1M).</p>
+
+  <h3>20/07 — Touros (dia 2) · grupo LANCES GUADALUPE · <span class="badge fora">2 lotes · R$ 64.200 — fora do sistema</span></h3>
+  <table>
+    <tr><th>Lote</th><th class="r">Parcela</th><th class="r">VGV (×30)</th><th>Assessor</th><th>Comprador</th></tr>
+    <tr><td>4</td><td class="r">1.220</td><td class="r">36.600</td><td>Douglas Bispo</td><td>Anésio Santarém · Faz. Córrego da Onça · Maracajá/PA</td></tr>
+    <tr><td>91</td><td class="r">920</td><td class="r">27.600</td><td>Douglas Bispo</td><td>Anésio Santarém · Faz. Córrego da Onça · Novo Repartimento/PA</td></tr>
+    <tr class="tot"><td>2 lotes (1M cada)</td><td class="r">2.140</td><td class="r">64.200</td><td colspan="2">nenhum registro no sistema</td></tr>
+  </table>
+  <p class="muted">O grupo "Lances Bula Assessoria" tem ZERO mensagens em 20/07 (captura ativa e sem buracos de 09/07 a 07/08) — o pregão inteiro rodou no LANCES GUADALUPE.</p>
+
+  <h2>3 · Dia 19/07 no "Lances Bula Assessoria" era outro leilão</h2>
+  <p>As 6 vendas postadas ali em 19/07 (lotes 42, 45, 46, 47, 108 e 39 — R$ 247.200) são do <b>NELORE SANTA CRUZ</b>, conforme a divisão combinada, e <b>já estão no sistema</b> no fechamento manual "NELORE SANTA CRUZ - 19/07/2026" (alinhado ao HastaPro em 27/07). Não confundir com Guadalupe Touros.</p>
+
+  <h2>4 · Divergências encontradas</h2>
+  <ul>
+    <li><b>Fechamento Guadalupe Fêmeas 18/07 — lote "1F":</b> o sistema gravou lote <b>"1F"</b> (era a quantidade, 1 fêmea), comprador <b>"Douglas Bispo"</b> (era o assessor) e assessor "A definir". O correto, pelo grupo: <b>lote 52 · assessor Douglas Bispo · comprador Gilberto Sarubi, Faz. Garantido, Oriximiná/PA</b>. VGV não muda (650×30 = 19.500).</li>
+    <li><b>Fechamento Santa Cruz 19/07 — lotes 45/46/47:</b> constam com assessor "A definir", mas o grupo diz <b>"Foi com Fábio Omena da Bula Assessoria"</b> (comprador Lúcio de Barros Lima, Faz. Peixoto, Candiba/BA — cidade/UF também faltam no sistema).</li>
+    <li><b>bula_leilao_vendas 19/07:</b> os 3 registros capturados (42, 108, 39) estão presos em status "revisar" porque havia 2 leilões na mesma data no cronograma; os lotes 45/46/47 nem entraram (mensagem com 3 lotes numa ficha só é rejeitada pelo parser). O fechamento manual cobre tudo, então é só inconsistência interna da tabela de vendas.</li>
+    <li><b>Guadalupe Touros 19–20/07:</b> 11 vendas (R$ 299.100 em VGV, regra parcela×30) sem nenhum lançamento — é a divergência principal. Inclui compradores novos relevantes (Anésio Santarém levou os 2 touros de 20/07; comentário no grupo: "Me comprou 8 touro" na EAO).</li>
+  </ul>
+
+  <div class="note"><b>Recomendação:</b> (1) lançar os fechamentos Guadalupe Touros 19/07 e 20/07 a partir das fichas acima (conferindo lote 10 e o assessor do lote 99 com a equipe); (2) corrigir o lote "1F"→52 no fechamento de 18/07; (3) incluir o JID do grupo LANCES GUADALUPE (120363428091574257) em whatsapp_lances_groups se ele continuar sendo usado em pregões.</div>
+
+  <div class="footer"><span>Bula Assessoria</span><span>Auditoria Guadalupe · pág. 2/2</span></div>
+</div>
+
+</body>
+</html>
