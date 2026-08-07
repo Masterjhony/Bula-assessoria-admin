@@ -28,6 +28,7 @@ import { hastaproConsulta, isHastaproConfigured, type HastaproConsulta } from '.
 import { sendVpsDirect } from './whatsapp-vps'
 import { fetchWhatsappCloudTemplatesFull, isWhatsappCloudApiConfigured } from './whatsapp-cloud-api'
 import { buildCrmDailyDigest } from './crm-daily-digest'
+import { conferirLeilaoTriFonte } from './conferencia-leilao'
 
 // Tabelas que o agente pode consultar. NUNCA site_settings (tokens/segredos).
 // Admin cobre o sistema INTEIRO em leitura — o agente deve resolver sozinho
@@ -285,6 +286,18 @@ export function buildTools(role: AgenteRole): ToolDef[] {
                             to: { type: 'string' },
                             regime: { type: 'string', enum: ['caixa', 'competencia'] },
                         },
+                    },
+                },
+            },
+            {
+                type: 'function',
+                function: {
+                    name: 'conferir_leilao',
+                    description: 'Conferência TRI-FONTE de um pregão (por data): cruza lote a lote o grupo de lances, o fechamento consolidado e o HastaPró. Retorna alinhado (lotes só numa fonte, divergências de valor, somas). SEU papel depois: raciocinar e CONCLUIR — qual fonte parece completa, qual está desatualizada, o que falta lançar e onde. Nenhuma fonte é verdade absoluta.',
+                    parameters: {
+                        type: 'object',
+                        properties: { data: { type: 'string', description: 'data do pregão, YYYY-MM-DD' } },
+                        required: ['data'],
                     },
                 },
             },
@@ -582,6 +595,14 @@ export async function executeTool(
                     typeof args.ate === 'string' ? args.ate : undefined,
                 )
                 break
+            case 'conferir_leilao': {
+                if (ctx.role !== 'admin') {
+                    result = { error: 'restrito_admin' }
+                    break
+                }
+                result = await conferirLeilaoTriFonte(supabaseAdmin(), String(args.data ?? ''))
+                break
+            }
             case 'whatsapp_templates_meta': {
                 if (ctx.role !== 'admin') {
                     result = { error: 'restrito_admin' }
