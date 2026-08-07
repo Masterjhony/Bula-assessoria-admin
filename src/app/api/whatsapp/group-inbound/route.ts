@@ -144,6 +144,13 @@ export async function POST(req: NextRequest) {
         const participantPhone = normalizePhone((body.participant || '').split('@')[0] || '') || ''
         const membro = participantPhone ? agenteNumeroAutorizado(agenteCfg, participantPhone) : null
         const pergunta = removerMencaoBot(text, agenteCfg)
+        // Só marcaram, sem pergunta: resposta fixa curta (não gasta modelo).
+        if (!pergunta) {
+            const { sendVpsGroup } = await import('@/lib/whatsapp-vps')
+            after(() => sendVpsGroup(groupJid, 'Oi! Precisa de algo? Me chama aqui ou no privado.', undefined, agenteCfg.session)
+                .catch(err => console.warn('[agente:grupo]', err)))
+            return NextResponse.json({ ok: true, agente: true, saudacao: true })
+        }
         if (pergunta) {
             after(() => handleAgenteMessage(supabase, {
                 phone: membro ? participantPhone : '',

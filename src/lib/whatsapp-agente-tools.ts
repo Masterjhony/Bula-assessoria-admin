@@ -26,14 +26,37 @@ import { MUTACOES } from './whatsapp-agente-mutacoes'
 import { gerarEEnviarRelatorio, type RelatorioDestino } from './whatsapp-agente-relatorio'
 import { hastaproConsulta, isHastaproConfigured, type HastaproConsulta } from './hastapro'
 import { sendVpsDirect } from './whatsapp-vps'
+import { fetchWhatsappCloudTemplatesFull, isWhatsappCloudApiConfigured } from './whatsapp-cloud-api'
+import { buildCrmDailyDigest } from './crm-daily-digest'
 
 // Tabelas que o agente pode consultar. NUNCA site_settings (tokens/segredos).
+// Admin cobre o sistema INTEIRO em leitura — o agente deve resolver sozinho
+// tudo que já existe no banco, sem empurrar pro tarefa_dev.
 const TABELAS_ADMIN = [
-    'crm_leads', 'crm_toques', 'crm_funis', 'whatsapp_messages',
+    // CRM / leads
+    'crm_leads', 'crm_toques', 'crm_funis', 'crm_lead_documentos', 'crm_conversa_auditorias',
+    // WhatsApp / atendimento / campanhas
+    'whatsapp_messages', 'whatsapp_templates', 'whatsapp_campaigns', 'whatsapp_campaign_recipients',
+    'whatsapp_inboxes', 'whatsapp_optouts', 'whatsapp_catalog_groups', 'whatsapp_catalog_detections',
+    // E-mail marketing
+    'email_campaigns', 'email_messages', 'email_templates',
+    // Leilões / clientes
     'bula_leiloes', 'cronograma_leiloes', 'bula_leilao_fechamento', 'bula_leilao_vendas',
-    'clientes', 'leiloeiras', 'agenda_events', 'agendamentos', 'tactical_tasks',
-    'erp_contas_pagar', 'erp_contas_receber', 'erp_movimentos_bancarios',
-    'erp_lancamentos', 'erp_categorias', 'erp_pessoas', 'erp_folha_estrutura',
+    'bula_leilao_recebimento', 'leiloes_equipe', 'clientes', 'cliente_leiloeira_cadastro',
+    'cliente_documentos', 'cliente_interacoes', 'leiloeiras',
+    // Agenda / tático / OKR
+    'agenda_events', 'agendamentos', 'tactical_tasks', 'tactical_objectives', 'tactical_key_results',
+    // Radar de mercado
+    'mercado_eventos', 'mercado_fontes', 'mercado_medias', 'mercado_criadores',
+    // Central operacional
+    'operational_sources', 'operational_plans', 'operational_items', 'operational_diary_entries',
+    // ERP financeiro
+    'erp_contas_pagar', 'erp_contas_receber', 'erp_movimentos_bancarios', 'erp_contas_bancarias',
+    'erp_lancamentos', 'erp_categorias', 'erp_centros_custo', 'erp_pessoas', 'erp_empresas',
+    'erp_folha_estrutura', 'erp_notas_fiscais', 'erp_cartoes', 'erp_cartao_faturas',
+    'erp_cartao_lancamentos', 'erp_resultados_historico', 'erp_auditoria',
+    // Meta/observabilidade do próprio agente
+    'ai_usage_log', 'agente_dev_tarefas', 'whatsapp_agente_pendencias',
 ]
 // Assessor: nada de fechamentos (comissão/faturamento), clientes agregados,
 // conversas de terceiros, tarefas internas nem ERP. crm_leads leva filtro
@@ -214,6 +237,25 @@ export function buildTools(role: AgenteRole): ToolDef[] {
             {
                 type: 'function',
                 function: {
+                    name: 'whatsapp_templates_meta',
+                    description: 'Lista AO VIVO os templates da API oficial do WhatsApp (Meta/WABA): nome, status de aprovação, categoria e idioma. Use para "quais templates aprovados/pendentes/rejeitados".',
+                    parameters: { type: 'object', properties: {} },
+                },
+            },
+            {
+                type: 'function',
+                function: {
+                    name: 'resumo_dia',
+                    description: 'Resumo narrativo do dia do CRM/WhatsApp (o mesmo do grupo de notificações): leads novos, chamados, respostas, funil, habilitação. dias=N para retrospecto.',
+                    parameters: {
+                        type: 'object',
+                        properties: { dias: { type: 'number', description: 'padrão 1' } },
+                    },
+                },
+            },
+            {
+                type: 'function',
+                function: {
                     name: 'hastapro_consulta',
                     description: 'Consulta o HastaPró (sistema de leilões da pista, Firebird, SÓ leitura, consultas fixas). FIL 2 = Bula Assessoria (cobertura, escopo padrão); FIL 01 = Bula Remates (leilão INTEIRO da leiloeira — não é faturamento da Bula). VGV = LOT_TOTAL (lance x 30). Receita oficial segue sendo a dos fechamentos do sistema. Consultas: resumo (VGV período + CP/CR abertos), leiloes, vendas (lotes vendidos), contas_pagar, contas_receber, movimento (baixas), cliente (busca por nome/CPF via termo).',
                     parameters: {
@@ -388,6 +430,36 @@ export async function executeTool(
                     typeof args.ate === 'string' ? args.ate : undefined,
                 )
                 break
+            case 'whatsapp_templates_meta': {
+                if (ctx.role !== 'admin') {
+                    result = { error: 'restrito_admin' }
+                    break
+                }
+                if (!isWhatsappCloudApiConfigured()) {
+                    result = { error: 'api_oficial_nao_configurada' }
+                    break
+                }
+                const templates = await fetchWhatsappCloudTemplatesFull()
+                result = {
+                    total: templates.length,
+                    templates: templates.map(t => ({
+                        name: (t as { name?: string }).name,
+                        status: (t as { status?: string }).status,
+                        category: (t as { category?: string }).category,
+                        language: (t as { language?: string }).language,
+                    })),
+                }
+                break
+            }
+            case 'resumo_dia': {
+                if (ctx.role !== 'admin') {
+                    result = { error: 'restrito_admin' }
+                    break
+                }
+                const digest = await buildCrmDailyDigest(supabaseAdmin(), { days: Number(args.dias) || 1 })
+                result = { texto: digest.text }
+                break
+            }
             case 'hastapro_consulta': {
                 if (ctx.role !== 'admin') {
                     result = { error: 'restrito_admin' }
