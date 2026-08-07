@@ -28,6 +28,17 @@ cada texto:**
 | olho / corpo (mín. 4,5) | 7,95 | **4,69** |
 | aviso de análise (mín. 4,5) | **8,47** | **6,18** |
 
+**⚠️ ESTA TABELA ENVELHECEU NA NOITE DE 06/08, e fica aqui como histórico.** A
+primeira dobra foi limpa: o eyebrow SAIU da página e o aviso de análise desceu
+para dentro do card do formulário. O que sobrou de texto sobre a foto subiu de
+posição — e nesta banda quem mexe na POSIÇÃO do texto mexe no CONTRASTE dele,
+porque o fundo é um degradê. Remedido depois do corte, no pior pixel:
+
+| | celular |
+|---|---|
+| manchete (mín. 3,0) | **10,60** |
+| olho / corpo (mín. 4,5) | **7,23** |
+
 ⚠️ **O desktop reprovava e agora não reprova.** O olho media **4,11:1** contra os
 4,5 exigidos — em ~4% da caixa, na borda direita, onde o scrim horizontal afina.
 Nunca tinha sido medido; só o celular era. Corrigido fechando o stop do meio do
@@ -37,6 +48,33 @@ aparecendo.
 
 **Se a foto do hero for trocada por uma mais clara, refaça a medição.** O método
 está descrito abaixo.
+
+### ⚠️ E DESDE 06/08 A FOTO DO HERO SUSTENTA MAIS UMA COISA: O CARD DE VIDRO
+
+O card do formulário deixou de ser um painel opaco e virou vidro translúcido
+(`Formulario.tsx`, classe `.femeas-card-vidro`, pedido do dono). **No desktop a
+foto cobre 100% da altura do card** — ou seja, o texto do formulário inteiro
+passou a depender do brilho da foto que estiver atrás dele.
+
+Medido com a foto atual, no pior pixel:
+
+| | celular | desktop | mínimo |
+|---|---|---|---|
+| título do card | 13,66:1 | 10,18:1 | 3,0 |
+| **linha dourada** | 6,83:1 | **4,88:1** | 4,5 |
+| rótulo do campo | 14,77:1 | 9,36:1 | 4,5 |
+| passo (mono) | 7,00:1 | 4,97:1 | 4,5 |
+
+**A linha dourada tem 0,38 de folga, e é o teto do efeito.** Ela mede pouco
+porque o card mora no lado DIREITO do hero, que é justamente onde o scrim
+direcional afina (0,18) e onde o pelo branco do Nelore aparece.
+
+**Trocar a foto do desktop por uma mais clara reprova o formulário em AA sem que
+ninguém toque numa linha de CSS.** Ao trocar: medir os quatro textos da tabela
+acima, não só os do hero. Se reprovar, as saídas em ordem de preferência são
+escurecer o scrim direcional (não o de cima, que já foi calibrado), aumentar o
+`rgba(13,13,13,0.52)` do card, ou recortar a foto para deixar o lado direito
+mais escuro.
 
 ---
 
@@ -48,10 +86,22 @@ está descrito abaixo.
    (`getBoundingClientRect`), procurando o pixel **mais claro** de cada caixa.
 3. Comparar com a cor computada do texto (`getComputedStyle().color`).
 
-⚠️ **Dois jeitos de errar que já custaram tempo aqui:**
+⚠️ **Quatro jeitos de errar que já custaram tempo aqui.** Os dois primeiros são
+antigos; os dois últimos foram descobertos em 06/08, medindo o card de vidro, e
+os dois devolveram números que PARECIAM plausíveis:
+
 - amostrar "o pixel mais claro da região" **com o texto visível** — o pixel mais
   claro é o próprio texto, e o número sai bonito e sem sentido;
-- esconder também a `<img>` — aí se mede o scrim sobre preto, e tudo passa.
+- esconder também a `<img>` — aí se mede o scrim sobre preto, e tudo passa;
+- **ler `getComputedStyle(el).color` DEPOIS de aplicar `color: transparent`.**
+  O objeto devolvido é **vivo**: a leitura volta `rgba(0,0,0,0)`, o texto é
+  tratado como preto e cinco elementos "reprovam" de uma vez. Guardar a cor numa
+  variável ANTES de esconder;
+- **medir largura de texto com `getBoundingClientRect` num elemento
+  `display:block`.** Devolve a largura da CAIXA, não da tinta. Para tinta, é a
+  Range API: `range.selectNodeContents(el)` → `getBoundingClientRect()`. A
+  diferença medida na faixa de condições foi de 17px, o bastante para travar o
+  tipo 2px abaixo do que cabia.
 
 ## O scrim antigo, para referência histórica
 

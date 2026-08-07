@@ -1682,7 +1682,7 @@ Com C-02, C-03, C-05 e C-13 fechadas, este é o estado de cada fase **hoje**.
 | **4** — copy e categorias | 🔵 **EM ANDAMENTO** — não mexer | `_lib/copy.ts` e `_lib/categorias.ts` estão sendo escritos agora, 1ª versão para o João Antônio corrigir. O **texto final** espera C-07/C-08/C-09 e a revisão dele (janela: **antes de 13/08**) |
 | **5** — API + régua | ✅ **FEITA** — commit `7642809` | `src/app/api/femeas/lead/route.ts` + `_lib/qualificacao.ts` (régua própria, sem `min_cabecas`). C-04 ficou com o default do plano. Ver `EXECUCAO.md`, desvios 4 e 5 |
 | **6** — formulário | ✅ **FEITA** — commit `d092d62` | 4 passos, campos de atrito e os 5 eventos por passo. C-01 segue aberta — o formulário nasce com o default e **medindo** |
-| **7** — seções | 🟡 **liberada, depende só de conteúdo** | Tratamento visual. C-07 (prova social de fêmeas) e C-08 (preço) seguem abertas |
+| **7** — seções | 🟢 **CONSTRUÍDA · tratamento visual em rodadas** | As oito seções existem e passaram por dez rodadas de revisão do dono em 06/08 — **ver `RODADA-VISUAL-2026-08-06.md`**, que registra os pedidos literais, os números antes/depois, as três decisões travadas que foram revertidas e os quatro erros de medição do dia. C-07 (prova social de fêmeas) e C-08 (preço) seguem abertas |
 | **8** — obrigado + agendamento | ✅ **T8.1/T8.4 FEITAS** — `d092d62` · ⏳ **T8.3 aberta** | As duas páginas existem, sem WhatsApp e sem dizer "aprovado". **T8.3 (o caminho de agendamento) é o KPI e continua aberta.** ✅ O acesso do SDR foi checado: `requireAdmin()` só exige sessão — não é problema de permissão (ver `EXECUCAO.md`) |
 | **9–11** | 🔴 | Dependem das anteriores |
 
