@@ -2,7 +2,7 @@
 
 /**
  * Ferramentas → Lances do Pregão — validação das vendas capturadas
- * automaticamente do grupo "Lances Bula Assessoria" (WhatsApp) e importação
+ * automaticamente de TODOS os grupos "Lances*" (WhatsApp) e importação
  * direta pro Fechamento de Leilões.
  *
  * Edição inline por linha (o parser erra pouco, mas o grupo é informal:
@@ -106,10 +106,12 @@ export function LancesClient({ initial }: { initial: LancesPregaoData }) {
                         Lances do Pregão
                     </h1>
                     <p className="text-sm text-muted-foreground mt-1 max-w-2xl">
-                        Vendas capturadas automaticamente do grupo <strong>Lances Bula Assessoria</strong> (WhatsApp).
-                        Revise/corrija o que precisar e importe pro Fechamento de Leilões — a importação recalcula
-                        VGV (parcela × {PARCELAS} por lote), comissão de pisteiro (2%) e os agregados. Fechamentos
-                        manuais nunca são sobrescritos.
+                        Vendas capturadas automaticamente de <strong>todos os grupos de WhatsApp que começam com
+                        &ldquo;Lances&rdquo;</strong> (Lances Bula Assessoria, Lances Mafra, LANCES GUADALUPE…) — grupo novo
+                        de leiloeira entra sozinho na escuta, sem cadastro. Revise/corrija o que precisar e importe
+                        pro Fechamento de Leilões — a importação recalcula VGV (parcela × {PARCELAS} por lote),
+                        comissão de pisteiro (2%) e os agregados. Fechamentos manuais nunca são sobrescritos, e
+                        nome de assessor da equipe nunca entra como comprador.
                     </p>
                 </div>
             </div>
