@@ -317,6 +317,69 @@ export const MUTACOES: Record<string, MutacaoDef> = {
         },
     },
 
+    rotina_criar: {
+        descricao: 'Cria uma ROTINA RECORRENTE: o agente executa a instrução sozinho no horário combinado e manda o resultado aqui (ex.: "todo dia às 08:00 resumo financeiro", "toda segunda acompanhamento da meta do mês"). frequencia: diaria | dias_uteis | semanal:0..6 (0=domingo) | mensal:D (dia do mês).',
+        schema: {
+            type: 'object',
+            properties: {
+                instrucao: { type: 'string', description: 'O pedido completo que o agente vai executar sozinho (como se o dono tivesse mandado essa mensagem)' },
+                horario: { type: 'string', description: 'HH:MM em horário de Brasília' },
+                frequencia: { type: 'string', description: 'diaria | dias_uteis | semanal:N | mensal:D' },
+            },
+            required: ['instrucao', 'horario'],
+        },
+        validate(args) {
+            const instrucao = str(args.instrucao)
+            const horario = str(args.horario)
+            const frequencia = str(args.frequencia) || 'diaria'
+            if (instrucao.length < 8) return { ok: false, error: 'descreva a instrução da rotina' }
+            if (!/^([01]\d|2[0-3]):[0-5]\d$/.test(horario)) return { ok: false, error: 'horario deve ser HH:MM' }
+            if (!/^(diaria|dias_uteis|semanal:[0-6]|mensal:([1-9]|[12]\d|3[01]))$/.test(frequencia)) {
+                return { ok: false, error: 'frequencia inválida (diaria | dias_uteis | semanal:0..6 | mensal:1..31)' }
+            }
+            return { ok: true, clean: { instrucao, horario, frequencia } }
+        },
+        async execute(sb, clean, ctx) {
+            if (!ctx.phone) throw new Error('sem telefone identificado — crie a rotina pelo privado')
+            const { error } = await sb.from('agente_rotinas').insert({
+                phone: ctx.phone,
+                solicitante: ctx.nome,
+                instrucao: clean.instrucao,
+                horario: clean.horario,
+                frequencia: clean.frequencia,
+            })
+            if (error) throw new Error(error.message)
+            await auditLog('agente:rotinas', 'create', { ...clean, phone: ctx.phone }, { email: `whatsapp:${ctx.phone}` })
+            return { resumo: `⏰ Rotina criada: "${clean.instrucao}" — ${clean.frequencia === 'diaria' ? 'todo dia' : clean.frequencia} às ${clean.horario}. Chega aqui automaticamente.` }
+        },
+    },
+
+    rotina_cancelar: {
+        descricao: 'Cancela uma rotina recorrente do solicitante (por trecho da instrução, ex.: "financeiro").',
+        schema: {
+            type: 'object',
+            properties: { trecho: { type: 'string', description: 'parte do texto da rotina a cancelar' } },
+            required: ['trecho'],
+        },
+        validate(args) {
+            const trecho = str(args.trecho)
+            if (trecho.length < 3) return { ok: false, error: 'informe um trecho da rotina' }
+            return { ok: true, clean: { trecho } }
+        },
+        async execute(sb, clean, ctx) {
+            if (!ctx.phone) throw new Error('sem telefone identificado')
+            const { data, error } = await sb.from('agente_rotinas')
+                .update({ ativo: false })
+                .eq('phone', ctx.phone).eq('ativo', true)
+                .ilike('instrucao', `%${clean.trecho}%`)
+                .select('instrucao')
+            if (error) throw new Error(error.message)
+            if (!data?.length) return { resumo: `Nenhuma rotina sua ativa combina com "${clean.trecho}".` }
+            await auditLog('agente:rotinas', 'cancel', { trecho: clean.trecho, phone: ctx.phone }, { email: `whatsapp:${ctx.phone}` })
+            return { resumo: `Rotina(s) cancelada(s): ${data.map(r => `"${String(r.instrucao).slice(0, 60)}"`).join('; ')}` }
+        },
+    },
+
     agenda_criar_evento: {
         descricao: 'Cria um evento na agenda interna (reunião, tarefa, lembrete).',
         schema: {

@@ -57,7 +57,7 @@ const TABELAS_ADMIN = [
     'erp_folha_estrutura', 'erp_notas_fiscais', 'erp_cartoes', 'erp_cartao_faturas',
     'erp_cartao_lancamentos', 'erp_resultados_historico', 'erp_auditoria',
     // Meta/observabilidade do próprio agente
-    'ai_usage_log', 'agente_dev_tarefas', 'whatsapp_agente_pendencias',
+    'ai_usage_log', 'agente_dev_tarefas', 'whatsapp_agente_pendencias', 'agente_rotinas',
 ]
 // Assessor: nada de fechamentos (comissão/faturamento), clientes agregados,
 // conversas de terceiros, tarefas internas nem ERP. crm_leads leva filtro
