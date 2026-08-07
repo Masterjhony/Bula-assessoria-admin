@@ -15,7 +15,7 @@
 import { NextRequest, NextResponse, after } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
 import { handleLeiloeiraGroupMessage } from '@/lib/leiloeira-whatsapp-cadastro'
-import { handleLanceGroupMessage } from '@/lib/whatsapp-lances'
+import { handleLanceGroupMessage, ehGrupoDeLancesPorNome } from '@/lib/whatsapp-lances'
 import { ingestOperationalSignal } from '@/lib/operational-center'
 import { grupoRelevante } from '@/lib/whatsapp-grupos-relevantes'
 import { normalizePhone } from '@/lib/whatsapp-central'
@@ -68,7 +68,11 @@ export async function POST(req: NextRequest) {
     // passou pelo gate dele (catálogo/allowlist do Radar), então mídia presente
     // significa que outra porteira já aprovou — descartar aqui perderia catálogo.
     const midiaJaIngerida = !!body.media?.path
-    if (!midiaJaIngerida && !(await grupoRelevante(supabase, groupJid))) {
+    // Grupos "Lances*" passam pela porteira PELO NOME: a leiloeira cria um
+    // grupo novo por leilão e a captura de lances precisa começar a ouvir na
+    // hora, sem depender de alguém cadastrar o JID (o handler auto-registra).
+    const grupoDeLancesPorNome = ehGrupoDeLancesPorNome(body.group_name)
+    if (!midiaJaIngerida && !grupoDeLancesPorNome && !(await grupoRelevante(supabase, groupJid))) {
         return NextResponse.json({ ok: true, ignored: 'grupo_sem_consumidor' })
     }
 
@@ -176,9 +180,10 @@ export async function POST(req: NextRequest) {
         quotedText: body.quoted_body || null,
     }) : { kind: 'ignored', reason: 'media_only' }
 
-    // Lances do pregão ao vivo (grupo "Lances Bula Assessoria") → vendas.
+    // Lances do pregão ao vivo (qualquer grupo "Lances*") → vendas.
     const lance = text ? await handleLanceGroupMessage(supabase, {
         groupJid,
+        groupName: body.group_name || null,
         text,
         quotedText: body.quoted_body || null,
         messageId: messageId || null,

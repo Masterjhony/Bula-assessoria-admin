@@ -44,6 +44,36 @@ async function getLanceGroups(sb: SupabaseClient): Promise<Set<string>> {
     return jids
 }
 
+/**
+ * Grupo de lances por NOME: todo grupo que começa com "Lances" é fonte
+ * (Lances Bula Assessoria, Lances Mafra, LANCES GUADALUPE, Lances Genética
+ * Aditiva…). A leiloeira cria um por leilão — ninguém vai lembrar de
+ * cadastrar JID um a um.
+ */
+export function ehGrupoDeLancesPorNome(nome: string | null | undefined): boolean {
+    return /^\s*lances\b/i.test(String(nome ?? ''))
+}
+
+/** Auto-registro: grupo "Lances*" visto pela 1ª vez entra na config (e na
+ *  porteira, que lê a mesma chave). Best-effort — nunca lança. */
+export async function registrarGrupoLances(sb: SupabaseClient, jid: string): Promise<void> {
+    try {
+        const jids = await getLanceGroups(sb)
+        if (jids.has(jid)) return
+        const atualizados = [...jids, jid]
+        await sb.from('site_settings').upsert(
+            { key: 'whatsapp_lances_groups', value: { jids: atualizados }, updated_at: new Date().toISOString() },
+            { onConflict: 'key' },
+        )
+        groupsCache = { jids: new Set(atualizados), at: Date.now() }
+        const { invalidarCacheGrupos } = await import('./whatsapp-grupos-relevantes')
+        invalidarCacheGrupos()
+        console.log('[lances] grupo auto-registrado:', jid)
+    } catch (e) {
+        console.warn('[lances] auto-registro falhou:', e instanceof Error ? e.message : e)
+    }
+}
+
 // ── Parser determinístico ───────────────────────────────────────────────
 
 export type ParsedLance = {
@@ -101,6 +131,10 @@ function parseCidadeUf(line: string): { cidade: string; uf: string } | null {
 
 const LOTE_LINE = /\b(?:lotes?|lts?|its?)\s*\.?\s*n?[º°]?\s*([A-Z]?\d+(?:\s*(?:[e,+|]|\se\s)\s*[A-Z]?\d+)*)/i
 const LEVAMOS_HEADER = /^\s*lev(?:amos|ou)\s+(?:o\s+)?(?:lotes?\s*|lts?\s*|its?\s*)?\.?\s*([A-Z]?\d+(?:\s*(?:[e,+|]|\se\s)\s*[A-Z]?\d+)*)/i
+// "Ficha de leiloeira": "Lote 16- $ 1.150" no cabeçalho (lote + VALOR na mesma
+// linha) seguido de comprador/fazenda/cidade — formato comum nos grupos de
+// lances das leiloeiras (Guadalupe etc.), sem verbo "levamos" nem "da Bula".
+const FICHA_HEADER = /^\s*lotes?\s*[A-Z]?\d+\s*[-–]\s*(?:R?\$\s*)?[\d][\d.,]*/i
 const ASSESSOR_LINE = /(?:foi com|^com)\s+(?:[ao]\s+)?(.+?)\s+d[ae]\s*bula/i
 // "Assessorado pela Nane e pelo Felipinho Capucci," — nem sempre fecha com "da Bula".
 const ASSESSOR_PELA = /^assessorad[oa]s?\s+pel[ao]s?\s+(.+?)(?:\s*d[ae]\s*bula.*)?[,.]?\s*$/i
@@ -124,6 +158,7 @@ export function parseLanceMessage(text: string): ParsedLance | null {
     }
     let hasLevamos = false
     let hasCompradorDo = false
+    let hasFicha = false
     const rest: string[] = []
 
     // O endereço (cidade/UF) é a ÚLTIMA linha com cara de UF — marcas como
@@ -138,11 +173,12 @@ export function parseLanceMessage(text: string): ParsedLance | null {
         if (loteM && !out.lotes.length) {
             if (header || /^\s*lotes?\b|^\s*lts?\b/i.test(line) || /comprador/i.test(line)) {
                 if (header) hasLevamos = true
-                if (/comprador\s+d[oe]/i.test(line)) hasCompradorDo = true
+                if (/comprador\s+d[oe]/i.test(line) || /^\s*comprador(es)?\b/i.test(line)) hasCompradorDo = true
+                if (FICHA_HEADER.test(line)) hasFicha = true
                 out.lotes = loteM[1].split(/[e,+|]|\se\s/i).map((s) => s.trim()).filter(Boolean)
-                // valor e qtd/sexo no restante da linha ("- 800,00 - 1F parida")
+                // valor e qtd/sexo no restante da linha ("- 800,00 - 1F" / "- $ 1.150")
                 const tail = line.slice((loteM.index ?? 0) + loteM[0].length)
-                const valorM = tail.match(/[-–]\s*([\d][\d.,]*)/)
+                const valorM = tail.match(/[-–]\s*(?:R?\$\s*)?([\d][\d.,]*)/)
                 if (valorM && out.parcela == null) out.parcela = parseValor(valorM[1])
                 const qs = tail.match(QTD_SEXO) || line.match(QTD_SEXO)
                 if (qs) { out.animais = parseInt(qs[1], 10); out.sexo = qs[2].toUpperCase() }
@@ -181,7 +217,10 @@ export function parseLanceMessage(text: string): ParsedLance | null {
     }
 
     if (!out.lotes.length) return null
-    if (!hasLevamos && !hasCompradorDo && !out.assessor) return null
+    // Ficha de leiloeira: lote+valor no cabeçalho E pelo menos uma linha de
+    // identificação (comprador/fazenda/cidade) — "Lote 3 - 750" solto não passa.
+    const fichaCompleta = hasFicha && out.parcela != null && (rest.length > 0 || out.fazenda != null || out.cidade != null)
+    if (!hasLevamos && !hasCompradorDo && !out.assessor && !fichaCompleta) return null
     // "Lote 3 - 750" solto (sem verbo/assessor/comprador) já foi barrado acima.
     out.comprador = rest.length ? rest.slice(0, 3).join(' - ') : null
     return out
@@ -271,10 +310,62 @@ async function extractSaleIA(text: string, quoted?: string | null, signal?: Abor
     )
 }
 
+// ── Correção por roster: nome da EQUIPE nunca é comprador ───────────────
+
+/** Aliases fixos da pista + nomes de crm_config.responsaveis (cache 5min). */
+const EQUIPE_BASE = [
+    'douglas bispo', 'douglas', 'fabio omena', 'fábio omena', 'fabio mena', 'omena',
+    'leonardo serafim', 'leozinho', 'leo', 'léo', 'nane', 'peralta', 'felipe peralta',
+    'felipinho', 'felipinho capucci', 'bulinha', 'felipe andrade', 'joao antonio', 'joão antônio',
+    'lucas freitas', 'matheus', 'gustavo rusa', 'rusa',
+]
+let equipeCache: { nomes: string[]; at: number } | null = null
+
+function normalizaNome(s: string): string {
+    return s.normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase().replace(/[^a-z\s]/g, ' ').replace(/\s+/g, ' ').trim()
+}
+
+async function nomesDaEquipe(sb: SupabaseClient): Promise<string[]> {
+    if (equipeCache && Date.now() - equipeCache.at < 5 * 60 * 1000) return equipeCache.nomes
+    const nomes = new Set(EQUIPE_BASE.map(normalizaNome))
+    try {
+        const { data } = await sb.from('site_settings').select('value').eq('key', 'crm_config').maybeSingle()
+        const responsaveis = ((data?.value ?? {}) as { responsaveis?: Array<{ name?: string }> }).responsaveis ?? []
+        for (const r of responsaveis) {
+            const n = normalizaNome(String(r.name ?? ''))
+            if (n) nomes.add(n)
+        }
+    } catch { /* segue com a base fixa */ }
+    equipeCache = { nomes: [...nomes], at: Date.now() }
+    return equipeCache.nomes
+}
+
+/**
+ * "Douglas Bispo" numa linha solta vira comprador no parser — mas é ASSESSOR.
+ * Se o comprador extraído é alguém da equipe, move pra assessor (quando vazio)
+ * e limpa o comprador. Best-effort, nunca lança.
+ */
+export async function corrigirEquipeComoComprador(sb: SupabaseClient, p: ParsedLance): Promise<ParsedLance> {
+    try {
+        if (!p.comprador) return p
+        const nomes = await nomesDaEquipe(sb)
+        const comp = normalizaNome(p.comprador)
+        if (!comp) return p
+        const bate = nomes.some(n => n.length >= 4 && (comp === n || comp.includes(n) || n.includes(comp)))
+        if (bate) {
+            if (!p.assessor) p.assessor = p.comprador
+            p.comprador = null
+        }
+    } catch { /* mantém como está */ }
+    return p
+}
+
 // ── Entrada principal ───────────────────────────────────────────────────
 
 export type LanceArgs = {
     groupJid: string
+    /** Nome do grupo (quando disponível) — "Lances*" é fonte mesmo sem JID cadastrado. */
+    groupName?: string | null
     text: string
     quotedText?: string | null
     messageId?: string | null
@@ -290,7 +381,10 @@ export type LanceArgs = {
 export async function handleLanceGroupMessage(sb: SupabaseClient, args: LanceArgs): Promise<Record<string, unknown>> {
     if (!args.skipGroupCheck) {
         const groups = await getLanceGroups(sb)
-        if (!groups.has(args.groupJid)) return { skipped: 'nao_e_grupo_de_lances' }
+        const porNome = ehGrupoDeLancesPorNome(args.groupName)
+        if (!groups.has(args.groupJid) && !porNome) return { skipped: 'nao_e_grupo_de_lances' }
+        // "Lances*" novo → registra pra porteira/config conhecerem daqui em diante
+        if (porNome && !groups.has(args.groupJid)) void registrarGrupoLances(sb, args.groupJid)
     }
 
     let parsed = parseLanceMessage(args.text)
@@ -309,6 +403,7 @@ export async function handleLanceGroupMessage(sb: SupabaseClient, args: LanceArg
         }
     }
     if (!parsed) return { is_sale: false }
+    parsed = await corrigirEquipeComoComprador(sb, parsed)
 
     const dateISO = pregaoDateISO(args.ts)
     const cronogramaId = await resolveAuction(sb, dateISO)
