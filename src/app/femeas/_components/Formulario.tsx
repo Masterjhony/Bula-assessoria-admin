@@ -299,10 +299,15 @@ export function LeadForm() {
 
   const invalid = (k: keyof FormData) => (errors[k] ? 'true' : undefined)
 
-  // ── PELE: card flat near-black + hairline. Sem blur, sem sombra, radius 2. ──
+  // ── PELE: VIDRO (dono, 06/08) ───────────────────────────────────────────
+  // "O forms quero fundo liquid glass para dar leveza à primeira sessão."
+  //
+  // ⚠️ A SUPERFÍCIE MORA NO CSS, NÃO AQUI, e não é preferência: o efeito precisa
+  // de media query (blur só do tablet para cima), de `@supports` (navegador sem
+  // backdrop-filter tem que cair num fundo sólido, não num card transparente) e
+  // de `prefers-reduced-transparency`. Estilo inline em React não expressa
+  // nenhuma das três. O que sobrou aqui é o que não varia.
   const cardStyle: React.CSSProperties = {
-    background: dark.surface,
-    border: `1px solid ${dark.hairline}`,
     borderRadius: radius.xs,
     colorScheme: 'dark',
     scrollMarginTop: 12,
@@ -313,14 +318,102 @@ export function LeadForm() {
     : { initial: { opacity: 0, x: 12 }, animate: { opacity: 1, x: 0 }, exit: { opacity: 0, x: -12 } }
 
   return (
-    <form ref={formRef} onSubmit={handleSubmit} noValidate className="p-5 sm:p-8" style={cardStyle} data-femeas-form>
+    <form
+      ref={formRef}
+      onSubmit={handleSubmit}
+      noValidate
+      className="femeas-card-vidro p-5 sm:p-8"
+      style={cardStyle}
+      data-femeas-form
+    >
       {/* ANEL DE FOCO — WCAG 2.1 SC 2.4.7 (AA), herdado do /saogeraldo (6ba4085).
           Precisa de <style> e de !important porque `inputStyle()` aplica
           `outline: 'none'` INLINE, e estilo inline em React não expressa
           :focus-visible — nenhuma regra de folha externa vence sem !important.
           `outline` e não `box-shadow` porque outline não participa do layout:
           o anel não empurra vizinho nem muda a altura do campo. */}
+      {/* ── O VIDRO ──────────────────────────────────────────────────────────
+          ⚠️ ISTO CONTRARIA A LINHA 12 DO tokens.ts ("sem glass/blur, sem sombra
+          suave"). Foi pedido do dono em 06/08 e a decisão é dele. Está confinado
+          a UM elemento — este card. Nada mais na página vira vidro.
+
+          O QUE O EFEITO PRECISA FAZER, e é diferente em cada tamanho, porque o
+          que está ATRÁS do card é diferente (medido):
+
+            desktop 1440   a foto cobre 794px de 794 → 100% do card
+            celular 390    a foto cobre  60px de 766 →   8% do card
+
+          No desktop é vidro de verdade: embaça e satura a foto atrás. No celular
+          não há quase nada para embaçar — 92% do card está sobre near-black
+          chapado. Por isso a camada de cima é um degradê BRANCO translúcido, e
+          não uma tinta preta: sobre a foto ele vira brilho de vidro, e sobre o
+          preto ele CLAREIA o painel, que é a "leveza" que foi pedida. Um vidro
+          escuro sobre fundo escuro não teria efeito nenhum no celular, que é
+          onde ele revisa.
+
+          ⚠️ O `backdrop-filter` SÓ ENTRA A PARTIR DE 640px, e é decisão de
+          desempenho, não de gosto: embaçar o fundo de um card de 766px de altura
+          custa recomposição a cada quadro de rolagem no Safari do iPhone, e no
+          celular ele embaçaria 8% de foto e 92% de preto liso — pagar jank por
+          isso seria pagar por nada.
+
+          ⚠️ DOIS ESCAPES OBRIGATÓRIOS, os dois testados por `@supports`/media:
+          navegador sem `backdrop-filter` e usuário com "reduzir transparência"
+          ligado recebem o card SÓLIDO de sempre (#141414). Sem esses dois, o
+          primeiro caso vira um card translúcido sem embaçamento — texto de
+          formulário direto sobre foto de boi — e o segundo ignora um ajuste de
+          acessibilidade do sistema.
+
+          ── CONTRASTE MEDIDO COM O VIDRO NO AR ─────────────────────────────
+          Amostrando o pixel do fundo REAL atrás de cada texto (percentil 90, o
+          ponto mais claro que importa), com a foto ligada:
+
+                              celular      desktop     mínimo
+            título do card    14,07:1      10,84:1       3,0
+            linha dourada      7,01:1       5,20:1       4,5   ← a apertada
+            rótulo do campo   15,29:1      10,23:1       4,5
+            passo (mono)       7,26:1       5,30:1       4,5
+            dica de 14px       8,42:1       7,38:1       4,5
+
+          ⚠️ A LINHA DOURADA NO DESKTOP É O TETO DESTE EFEITO: 0,70 de folga
+          sobre o mínimo. Ela mede pouco porque o card mora no lado DIREITO do
+          hero, que é justamente onde o scrim direcional é mais fraco (0,18) e
+          onde o pelo branco do Nelore aparece. Duas consequências práticas:
+          quem baixar o `rgba(13,13,13,0.58)` para "ver mais foto" gasta essa
+          folga, e quem TROCAR A FOTO (o material novo chega em 14–15/08)
+          precisa refazer esta medição — foto mais clara aqui reprova sem que
+          ninguém mexa numa linha de CSS. */}
       <style>{`
+        .femeas-card-vidro {
+          background:
+            linear-gradient(160deg,
+              rgba(255,255,255,0.10) 0%,
+              rgba(255,255,255,0.038) 46%,
+              rgba(255,255,255,0.018) 100%),
+            rgba(13,13,13,0.58);
+          border: 1px solid rgba(255,255,255,0.14);
+          /* Fio de luz na aresta de cima: é o que faz a chapa parecer ter
+             espessura em vez de ser um retângulo mais claro. */
+          box-shadow: inset 0 1px 0 rgba(255,255,255,0.10);
+        }
+        @media (min-width: 640px) {
+          .femeas-card-vidro {
+            -webkit-backdrop-filter: blur(24px) saturate(135%);
+            backdrop-filter: blur(24px) saturate(135%);
+          }
+        }
+        @supports not ((backdrop-filter: blur(2px)) or (-webkit-backdrop-filter: blur(2px))) {
+          .femeas-card-vidro { background: ${dark.surface}; border-color: ${dark.hairline}; }
+        }
+        @media (prefers-reduced-transparency: reduce) {
+          .femeas-card-vidro {
+            background: ${dark.surface};
+            border-color: ${dark.hairline};
+            -webkit-backdrop-filter: none;
+            backdrop-filter: none;
+          }
+        }
+
         [data-femeas-form] input:focus-visible,
         [data-femeas-form] select:focus-visible,
         [data-femeas-form] textarea:focus-visible,
@@ -759,7 +852,14 @@ function inputStyle(hasError: boolean): React.CSSProperties {
     borderRadius: radius.xs,
     fontSize: 16, // ⚠️ ≥16px — abaixo disso o iOS dá zoom ao focar o campo
     fontFamily: 'Inter, sans-serif',
-    background: dark.bg, // inset editorial sobre o card #141414
+    // ⚠️ TRANSLÚCIDO DESDE 06/08, quando o card virou vidro. Preto CHAPADO
+    // dentro de um card de vidro lê como buraco: oito retângulos opacos
+    // recortados numa chapa translúcida, que é o oposto da leveza que o vidro
+    // foi buscar. A 0,55 de preto sobre o que o card já embaçou, o campo
+    // continua sendo a área mais escura da chapa (que é o trabalho dele —
+    // dizer onde se escreve) sem virar furo.
+    // A conta de contraste do texto digitado está no comentário do vidro.
+    background: 'rgba(6,6,6,0.55)',
     color: dark.text,
     border: `1px solid ${hasError ? ERR : dark.hairlineStrong}`,
     outline: 'none',
