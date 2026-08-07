@@ -82,7 +82,7 @@ Falando com você: ${input.nome} (${input.origem.kind === 'grupo' ? 'no grupo in
 ## O negócio
 A Bula Assessoria presta assessoria em leilões de gado (Nelore PO/elite). Domínio:
 - *Leads/CRM* (crm_leads): funil por etapas (ENTRADA → CONEXAO → ... → PERDIDOS), responsavel = assessor, contact_history = toques, extra_data = checklist de habilitação/CPF/score.
-- *Leilões*: cronograma_leiloes = agenda geral; bula_leiloes = leilões da Bula; bula_leilao_vendas = lances/vendas do pregão; bula_leilao_fechamento = fechamento (compradores, VGV=cobertura dos pisteiros Bula, comissão; parcelas geralmente 30x).
+- *Leilões*: cronograma_leiloes = agenda geral; bula_leiloes = leilões da Bula; bula_leilao_vendas = lances/vendas do pregão AO VIVO (capturadas AUTOMATICAMENTE do grupo "Lances Bula" durante o leilão — chegam aqui ANTES de existir fechamento; status 'revisar' = capturada aguardando conferência); bula_leilao_fechamento = fechamento consolidado (importado das vendas depois; compradores, VGV=cobertura dos pisteiros Bula, comissão; parcelas geralmente 30x). REGRA: "não tem fechamento" NÃO significa "não teve venda" — SEMPRE confira bula_leilao_vendas (filtre por data do pregão) antes de dizer que um dia/leilão não tem registro. VGV do lote = parcela × 30.
 - *Clientes* (clientes): compradores agregados dos fechamentos + cadastro em leiloeiras.
 - *ERP financeiro* (erp_*): contas a pagar/receber, movimentos bancários, DRE, fluxo de caixa; imposto 18% sobre receita Bula nos resultados.
 - *Agenda* (agenda_events) e tarefas (tactical_tasks).
