@@ -369,14 +369,19 @@ export function LeadForm() {
           ponto mais claro que importa), com a foto ligada:
 
                               celular      desktop     mínimo
-            título do card    14,07:1      10,84:1       3,0
-            linha dourada      7,01:1       5,20:1       4,5   ← a apertada
-            rótulo do campo   15,29:1      10,23:1       4,5
-            passo (mono)       7,26:1       5,30:1       4,5
-            dica de 14px       8,42:1       7,38:1       4,5
+            título do card    13,66:1      10,18:1       3,0
+            linha dourada      6,83:1       4,88:1       4,5   ← a apertada
+            rótulo do campo   14,77:1       9,36:1       4,5
+            passo (mono)       7,00:1       4,97:1       4,5
+            dica de 14px       8,19:1       7,03:1       4,5
+            rodapé (mono)      6,83:1       4,88:1       4,5
 
-          ⚠️ A LINHA DOURADA NO DESKTOP É O TETO DESTE EFEITO: 0,70 de folga
-          sobre o mínimo. Ela mede pouco porque o card mora no lado DIREITO do
+          ⚠️ A LINHA DOURADA NO DESKTOP É O TETO DESTE EFEITO: 0,38 de folga
+          sobre o mínimo — e ela ERA 0,70 antes de o vidro ser reforçado a
+          pedido do dono ("aumente a sombra e a opacidade para parecer vidro
+          mesmo"). Essa folga é o que se gastou para a chapa ficar mais
+          transparente; não sobra para uma terceira rodada de "mais vidro" sem
+          trocar a cor do texto ou escurecer o scrim do hero atrás do card. Ela mede pouco porque o card mora no lado DIREITO do
           hero, que é justamente onde o scrim direcional é mais fraco (0,18) e
           onde o pelo branco do Nelore aparece. Duas consequências práticas:
           quem baixar o `rgba(13,13,13,0.58)` para "ver mais foto" gasta essa
@@ -385,21 +390,51 @@ export function LeadForm() {
           ninguém mexa numa linha de CSS. */}
       <style>{`
         .femeas-card-vidro {
+          /* ⚠️ O QUE FAZ PARECER VIDRO É A TRANSPARÊNCIA, NÃO O VÉU BRANCO —
+             e isso foi descoberto errando duas vezes, com número:
+
+               véu 0,17 no topo          linha dourada 4,46:1   REPROVA
+               véu com o pico deslocado  linha dourada 3,97:1   REPROVA (pior)
+
+             A segunda tentativa foi mover o pico do brilho para baixo do
+             cabeçalho. Ficou PIOR, e o motivo é geometria: o degradê é de 157°,
+             então a posição ao longo do eixo não é a altura em % — a linha
+             dourada ocupa a largura inteira e o fim dela já entra na rampa. Véu
+             que "desvia" de um texto que atravessa o card é ilusão.
+
+             O caminho certo era o oposto: BAIXAR o véu e subir a transparência
+             do preto (0,58 → 0,52). Vidro fica vítreo por deixar passar, não
+             por ficar leitoso — e o borrão de 44px é o que segura o contraste
+             enquanto a chapa fica mais transparente. */
           background:
-            linear-gradient(160deg,
-              rgba(255,255,255,0.10) 0%,
-              rgba(255,255,255,0.038) 46%,
-              rgba(255,255,255,0.018) 100%),
-            rgba(13,13,13,0.58);
-          border: 1px solid rgba(255,255,255,0.14);
-          /* Fio de luz na aresta de cima: é o que faz a chapa parecer ter
-             espessura em vez de ser um retângulo mais claro. */
-          box-shadow: inset 0 1px 0 rgba(255,255,255,0.10);
+            linear-gradient(157deg,
+              rgba(255,255,255,0.115) 0%,
+              rgba(255,255,255,0.052) 44%,
+              rgba(255,255,255,0.030) 72%,
+              rgba(255,255,255,0.070) 100%),
+            rgba(13,13,13,0.52);
+          border: 1px solid rgba(255,255,255,0.22);
+          box-shadow:
+            /* A sombra que descola a chapa do fundo. Duas camadas: a larga dá a
+               distância, a curta e fechada dá a espessura da borda. */
+            0 34px 72px -28px rgba(0,0,0,0.78),
+            0 12px 26px -14px rgba(0,0,0,0.55),
+            /* E os dois fios de luz: em cima, a aresta iluminada; embaixo, o
+               retorno mais fraco. É o par que faz uma chapa TER espessura em
+               vez de ser um retângulo mais claro. */
+            inset 0 1px 0 rgba(255,255,255,0.20),
+            inset 0 -1px 0 rgba(255,255,255,0.06);
         }
         @media (min-width: 640px) {
           .femeas-card-vidro {
-            -webkit-backdrop-filter: blur(24px) saturate(135%);
-            backdrop-filter: blur(24px) saturate(135%);
+            /* ⚠️ 44px, e o embaçamento maior NÃO é só estética: ele é o que
+               PAGA o brilho a mais. Borrão largo mistura o pelo branco do
+               Nelore com o fundo escuro e derruba o pico claro do fundo — o
+               mesmo movimento que deixa mais vítreo devolve contraste. Foi o
+               que permitiu subir o véu branco de 0,10 para 0,17 sem estourar a
+               linha dourada, que é o texto com menos folga do card. */
+            -webkit-backdrop-filter: blur(44px) saturate(155%);
+            backdrop-filter: blur(44px) saturate(155%);
           }
         }
         @supports not ((backdrop-filter: blur(2px)) or (-webkit-backdrop-filter: blur(2px))) {
