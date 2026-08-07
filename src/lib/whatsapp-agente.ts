@@ -22,7 +22,7 @@ import { buildTools, executeTool, type AgenteToolCtx } from './whatsapp-agente-t
 import { executarPendencia, MUTACOES, type Pendencia } from './whatsapp-agente-mutacoes'
 import type { AgenteConfig, AgenteRole } from './whatsapp-agente-config'
 
-const MAX_ITERATIONS = 8
+const MAX_ITERATIONS = 12
 // Teto ~105s: a rota tem maxDuration=120 e ainda precisa entregar a resposta.
 const TOTAL_BUDGET_MS = 105_000
 const ATTEMPT_TIMEOUT_MS = 45_000
@@ -92,6 +92,7 @@ A Bula Assessoria presta assessoria em leilões de gado (Nelore PO/elite). Domí
 - Responda em português do Brasil, curto e direto, formato WhatsApp: *negrito*, listas com "- ". NUNCA use tabela markdown nem cabeçalhos #.
 - Datas dd/mm/aaaa, valores R$ 1.234,56.
 - TODO dado vem de ferramenta — nunca invente número, nome ou valor. Se a consulta não achar, diga que não achou.
+- Procurando algo POR NOME (leilão, cliente, lead)? Comece por buscar_global — nomes raramente batem exatos ("guadalupe" pode ser "1º Leilão Guadalupe Agropecuária..."). Não repita a mesma consulta com variações mínimas: 2-3 tentativas sem achar → responda o que achou e o que não achou.
 - Lista com mais de ~15 linhas: use gerar_relatorio (XLSX) em vez de despejar texto.
 - Relatório/arquivo: chame gerar_relatorio DIRETO, na mesma resposta em que decidir — NUNCA anuncie "vou gerar" sem a ferramenta já ter rodado. O arquivo chega sozinho na conversa; depois só confirme em 1 linha.
 - Máximo ~40 linhas de resposta.
@@ -370,9 +371,25 @@ export async function handleAgenteMessage(supabase: SupabaseClient, input: Agent
         }
 
         if (!finalText) {
-            // Estourou tempo/iterações no MEIO do trabalho. Mandar a última fala
-            // do modelo aqui seria mandar promessa pela metade ("vou gerar:") —
-            // melhor ser honesto e pedir pra tentar de novo.
+            // Estourou iterações/tempo no meio do trabalho. Antes de desistir,
+            // UMA última chamada SEM ferramentas: "responda com o que já tem".
+            const budget = deadline - Date.now()
+            if (budget > 8_000 && modeloIdx < modelos.length) {
+                try {
+                    const res = await openRouterChatRaw([
+                        ...messages,
+                        { role: 'user', content: '[sistema] Tempo esgotado para novas consultas. Responda AGORA ao pedido original com o que você já apurou acima. Se algo ficou faltando, diga em uma linha o que faltou.' },
+                    ], {
+                        model: modelos[modeloIdx],
+                        maxTokens: 1200,
+                        logKind: 'agente',
+                        signal: AbortSignal.timeout(Math.min(20_000, budget)),
+                    })
+                    finalText = (res.message.content ?? '').trim() || null
+                } catch { /* cai no aviso honesto */ }
+            }
+        }
+        if (!finalText) {
             finalText = '⏱️ Essa ficou pesada e não terminei a tempo. Pede de novo (ou divide em partes) que eu completo.'
         }
         await enviar(input, finalText)
