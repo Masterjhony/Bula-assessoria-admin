@@ -279,7 +279,7 @@ export const MUTACOES: Record<string, MutacaoDef> = {
     },
 
     tarefa_dev: {
-        descricao: 'Enfileira uma tarefa para o computador do João executar localmente: runner "claude" = Claude Code (alterar o sistema/site, corrigir bug, gerar relatório completo e bem formatado) | runner "codex" = Codex (monitorar leilões no YouTube, pesquisas e tarefas avulsas pedidas expressamente). A bridge local executa e avisa aqui quando terminar. O PC precisa estar ligado.',
+        descricao: 'Tarefa em segundo plano que ALTERA o sistema/site (corrigir bug, mudar página, criar funcionalidade, relatório elaborado que exige gerar código). Para investigação/pesquisa SEM alteração use a ferramenta investigar_em_segundo_plano (não precisa de confirmação). Você escolhe o runner internamente: claude = sistema/código; codex = mundo externo. NUNCA exponha o nome do runner pro usuário.',
         adminOnly: true,
         schema: {
             type: 'object',
@@ -312,9 +312,8 @@ export const MUTACOES: Record<string, MutacaoDef> = {
             const { data, error } = await sb.from('agente_dev_tarefas').insert(row).select('id').single()
             if (error) throw new Error(error.message)
             await auditLog('agente:dev_tarefas', 'create', { id: data?.id, ...row }, { email: `whatsapp:${ctx.phone}` })
-            const nomeRunner = clean.runner === 'claude' ? 'Claude Code' : 'Codex'
-            const fila = (count ?? 0) > 0 ? ` Há ${count} tarefa(s) na frente — elas rodam uma por vez.` : ''
-            return { resumo: `Tarefa enfileirada pro *${nomeRunner}* no PC do João. Te aviso aqui quando terminar (se o PC estiver ligado com a bridge rodando).${fila}` }
+            const fila = (count ?? 0) > 0 ? ` Há ${count} tarefa(s) na frente — rodam uma por vez.` : ''
+            return { resumo: `🛠️ Tarefa em andamento em segundo plano. Te aviso aqui quando terminar.${fila}` }
         },
     },
 

@@ -123,6 +123,21 @@ export function buildTools(role: AgenteRole): ToolDef[] {
         {
             type: 'function',
             function: {
+                name: 'investigar_em_segundo_plano',
+                description: 'Despacha uma INVESTIGAÇÃO (somente leitura — nada é alterado) para rodar em segundo plano no computador da empresa quando suas ferramentas não alcançam: análise profunda de dados/conversas, conferências linha a linha, monitorar/pesquisar YouTube ou sites, etc. Roda na hora, sem confirmação; o resultado chega nesta conversa em alguns minutos. VOCÊ escolhe o motor: claude = dados internos/sistema/análises; codex = mundo externo (YouTube, sites, pesquisa web).',
+                parameters: {
+                    type: 'object',
+                    properties: {
+                        objetivo: { type: 'string', description: 'Brief completo, como um gerente passando pra um analista: o que apurar, onde, o que reportar' },
+                        runner: { type: 'string', enum: ['claude', 'codex'], description: 'claude = interno; codex = externo/web' },
+                    },
+                    required: ['objetivo', 'runner'],
+                },
+            },
+        },
+        {
+            type: 'function',
+            function: {
                 name: 'conversas_recentes',
                 description: 'Quem (clientes/leads) mandou mensagem no WhatsApp recentemente e o que disseram: nome, responsável e as últimas mensagens de cada um, já compacto. Use para "quem respondeu hoje", "o que o fulano falou", acompanhamento de atendimento.',
                 parameters: {
@@ -531,6 +546,33 @@ export async function executeTool(
             case 'atendimento_stats':
                 result = ctx.role !== 'admin' ? { error: 'restrito_admin' } : await getAtendimentoStats(Number(args.dias) || 90)
                 break
+            case 'investigar_em_segundo_plano': {
+                if (ctx.role !== 'admin') {
+                    result = { error: 'restrito_admin' }
+                    break
+                }
+                const objetivo = String(args.objetivo ?? '').trim()
+                if (objetivo.length < 15) {
+                    result = { error: 'descreva melhor o objetivo da investigação' }
+                    break
+                }
+                const runner = args.runner === 'codex' ? 'codex' : 'claude'
+                const { error } = await supabaseAdmin().from('agente_dev_tarefas').insert({
+                    runner,
+                    descricao: `${objetivo}\n\nREGRA DESTA TAREFA (investigação): SOMENTE LEITURA — não altere código, não commite, não dê push, não modifique dados. Apenas apure e reporte.`,
+                    solicitante: ctx.nome,
+                    phone: ctx.phone || null,
+                })
+                if (error) {
+                    result = { error: error.message }
+                    break
+                }
+                result = {
+                    despachada: true,
+                    instrucao: 'Diga em UMA linha: "🔎 Já estou apurando em segundo plano — te aviso aqui quando terminar (alguns minutos)." Nada de mencionar Claude/Codex/runner.',
+                }
+                break
+            }
             case 'conversas_recentes':
                 result = await conversasRecentes(ctx, Number(args.horas) || 24, Number(args.limite) || 10)
                 break
