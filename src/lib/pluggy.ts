@@ -96,9 +96,23 @@ export async function syncItem(
 
     for (const conta of contas) {
         const rotulo = `${item.connector?.name ?? 'banco'} · ${conta.name}`
-        const { results: txs } = await get<{ results: PluggyTx[] }>(
-            `/transactions?accountId=${conta.id}&from=${desde}&pageSize=200`,
-        )
+        // /v2/transactions: paginação por cursor ({results, next}); o v1 com
+        // pageSize foi DESATIVADO (410). Caminhamos até esgotar ou até a
+        // janela `desde` (resultados vêm do mais novo pro mais velho).
+        interface PaginaTx { results: PluggyTx[]; next: string | null }
+        const txs: PluggyTx[] = []
+        let cursor: string | null = null
+        for (let pagina = 0; pagina < 20; pagina++) {
+            const qs: string = `accountId=${conta.id}` + (cursor ? `&cursor=${encodeURIComponent(cursor)}` : '')
+            const page: PaginaTx = await get<PaginaTx>(`/v2/transactions?${qs}`)
+            let antigaDemais = false
+            for (const tx of page.results ?? []) {
+                if ((tx.date ?? '').slice(0, 10) < desde) { antigaDemais = true; break }
+                txs.push(tx)
+            }
+            cursor = page.next
+            if (!cursor || antigaDemais) break
+        }
         for (const tx of txs) {
             const { data: ins, error } = await sb.from('openfinance_transacoes')
                 .insert({
