@@ -86,10 +86,27 @@ const base = process.argv[2] ?? 'http://localhost:3000'
  *
  * O `primeiroCampo` continua 763/399 — é o único número desta lista que não
  * podia mudar, e não mudou.
+ *
+ * ── AJUSTE DE 06/08, FIM DO DIA (marcas na ficha técnica do hero) ─────────
+ * A ficha (30× · frete · R$ 0) ganhou três marcas de 34–40px. O que mudou:
+ *
+ *   topoParaQuem  mobile 2469→2501 (+32)   desktop 2042→2042 (0)
+ *     No celular a marca fica À ESQUERDA do par valor+rótulo e a ficha mora
+ *     DEPOIS do formulário — os 32px caem abaixo do primeiro campo. No desktop
+ *     a marca sobe para cima do valor dentro de uma coluna que já tinha altura
+ *     de sobra na grade de três, e o hero não muda de altura.
+ *   paraQuem      mobile 1425 (já estava)   desktop 1098→1134 (+36)
+ *     ⚠️ Estes 36px NÃO são desta rodada — são do algarismo por critério
+ *     (commit e4b4a75), que atualizou a referência do celular e esqueceu a do
+ *     desktop. Ficam registrados aqui para o próximo diff nascer em zero.
+ *   pagina        mobile 8592→8624 (+32)   desktop 8487→8523 (+36)
+ *     A soma dos dois itens acima. Nada cresceu acima do formulário.
+ *
+ * O `primeiroCampo` segue 640/399 — de novo, o número que não podia mudar.
  */
 const REFERENCIA = {
-  'MOBILE 390': { primeiroCampo: 640, topoParaQuem: 2469, paraQuem: 1425, categorias: 858, pagina: 8592 },
-  'DESKTOP 1440': { primeiroCampo: 399, topoParaQuem: 2042, paraQuem: 1098, categorias: 1318, pagina: 8487 },
+  'MOBILE 390': { primeiroCampo: 640, topoParaQuem: 2501, paraQuem: 1425, categorias: 858, pagina: 8624 },
+  'DESKTOP 1440': { primeiroCampo: 399, topoParaQuem: 2042, paraQuem: 1134, categorias: 1318, pagina: 8523 },
 }
 
 const navegador = await chromium.launch()

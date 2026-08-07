@@ -3,6 +3,7 @@ import { dark, typo, font } from '../_lib/tokens'
 import { hero, rodape } from '../_lib/copy'
 import { MultiLine } from './ui'
 import { LeadForm } from './Formulario'
+import { MARCAS_FICHA } from './marcas'
 
 // ─────────────────────────────────────────────────────────────────────────
 // FICHA TÉCNICA — 30x · frete · custo da assessoria.
@@ -76,34 +77,65 @@ import { LeadForm } from './Formulario'
 // ⚠️ NO DESKTOP NADA MUDA — lá a ficha é grade de três, o rótulo já mora sob o
 // valor e nunca houve vão. O defeito era exclusivo do arranjo de celular, e foi
 // no celular que ele foi revisado.
+//
+// ── QUARTA RODADA: ENTRARAM AS MARCAS (06/08) ─────────────────────────────
+// O dono voltou pela terceira vez ao mesmo elemento — "quero melhorar essa,
+// tópicos mais visuais". As três rodadas anteriores mexeram em ÊNFASE (duas) e
+// em GEOMETRIA (uma). Nenhuma deu ao bloco um DISPOSITIVO VISUAL, e medido é
+// isto: a ficha entregava 1,25× de razão tipográfica e 0,0% de área não-texto
+// no celular (1,63× / 0,0% no desktop) — os dois lados da régua da página
+// reprovados, com folga maior que a do filtro que ele reprovou quatro vezes.
+//
+// Subir o tipo até 2,0× (32px+) está fechado: a manchete deste mesmo hero é
+// clamp(38,6.2vw,68) e ele a elogiou. Um número de 32px volta a brigar com ela
+// — foi literalmente a rodada 1, com o valor em 36px. Restava área não-texto, e
+// área não-texto é desenho. As três marcas moram em `marcas.tsx`, com a conta
+// de espessura e o motivo de não reusarem os diagramas da assessoria.
+//
+// ⚠️ SE `hero.stats` E `MARCAS_FICHA` DEIXAREM DE TER O MESMO TAMANHO, NENHUMA
+// MARCA É DESENHADA. Não é paranoia: uma ficha com três itens marcados e um
+// pelado lê como renderização quebrada, e esse é um defeito já medido nesta
+// página (as seis marcas de categoria que saíram). Ou todas, ou nenhuma — e o
+// fallback é a ficha de hoje, que funciona.
 // ─────────────────────────────────────────────────────────────────────────
+const MARCAS_BATEM = hero.stats.length === MARCAS_FICHA.length
+
 function FichaTecnica({ className }: { className: string }) {
   return (
     <div className={className} style={{ borderTop: `1px solid ${dark.hairline}` }}>
-      {hero.stats.map((s) => (
-        <div key={s.label} className="flex flex-wrap items-baseline gap-x-[10px] gap-y-1 sm:block">
-          <span
-            style={{
-              fontFamily: font.display,
-              fontWeight: 600,
-              letterSpacing: '-0.015em',
-              fontSize: 'clamp(20px, 2.2vw, 26px)',
-              lineHeight: 1.1,
-              color: dark.text,
-              display: 'block',
-            }}
-          >
-            {s.value}
-          </span>
-          {/* Encostado no valor no celular (os dois são um dado só) e sob ele no
-              desktop, onde a grade de três já dá a coluna. Em nenhum dos dois
-              casos o rótulo é jogado contra a margem oposta — ver o cabeçalho. */}
-          <span
-            className="sm:mt-2"
-            style={{ ...typo.monoLabel, fontSize: 11, color: dark.muted, display: 'block' }}
-          >
-            {s.label}
-          </span>
+      {hero.stats.map((s, i) => (
+        // No celular: marca à esquerda, par valor+rótulo à direita, os dois
+        // centrados entre si — a marca é o "tópico" e o texto é o que ele diz.
+        // No desktop (`sm:block`) a marca sobe para cima do valor e a célula
+        // vira marca / valor / rótulo, que é o empilhamento que a grade de três
+        // já pedia.
+        <div key={s.label} className="flex items-center gap-x-[14px] sm:block">
+          {MARCAS_BATEM && MARCAS_FICHA[i]}
+          <div className="flex flex-wrap items-baseline gap-x-[10px] gap-y-1 sm:mt-3 sm:block">
+            <span
+              style={{
+                fontFamily: font.display,
+                fontWeight: 600,
+                letterSpacing: '-0.015em',
+                fontSize: 'clamp(20px, 2.2vw, 26px)',
+                lineHeight: 1.1,
+                color: dark.text,
+                display: 'block',
+              }}
+            >
+              {s.value}
+            </span>
+            {/* Encostado no valor no celular (os dois são um dado só) e sob ele
+                no desktop, onde a grade de três já dá a coluna. Em nenhum dos
+                dois casos o rótulo é jogado contra a margem oposta — ver o
+                cabeçalho. */}
+            <span
+              className="sm:mt-2"
+              style={{ ...typo.monoLabel, fontSize: 11, color: dark.muted, display: 'block' }}
+            >
+              {s.label}
+            </span>
+          </div>
         </div>
       ))}
     </div>

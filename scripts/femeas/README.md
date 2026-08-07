@@ -1,6 +1,6 @@
 # Como conferir a landing de fêmeas
 
-Três scripts. Nenhum precisa de credencial, de acesso ao GTM ou de deploy —
+Quatro scripts. Nenhum precisa de credencial, de acesso ao GTM ou de deploy —
 todos abrem a página num navegador de verdade e **anotam o que acontece**.
 
 Antes de rodar qualquer um, o servidor tem que estar de pé:
@@ -56,7 +56,7 @@ Mede alturas, rolagem lateral e os invariantes estruturais, e **compara com a
 referência** conhecida.
 
 **O número que importa é o `primeiroCampo`:** a distância do topo até o primeiro
-campo do formulário no celular. Hoje são **950px** numa tela de 844 — o
+campo do formulário no celular. Hoje são **640px** numa tela de 844 — o
 `/touros`, que é o análogo, faz 633. Se esse número **cresce**, a pessoa precisa
 rolar mais para começar a preencher, e isso se paga em conversão. O script marca
 com ⚠️ quando piora.
@@ -71,7 +71,35 @@ Ele também reprova se:
 
 ---
 
-## 3. Ver a página inteira, seção por seção
+## 3. Alguma seção está "só texto"?
+
+```bash
+node scripts/femeas/medir-densidade.mjs
+```
+
+Mede, seção por seção, as duas metades da régua desta página:
+
+> toda seção **ou** quebra **2,0×** de razão tipográfica (maior tipo ÷ 16px de
+> corpo) **ou** carrega **≥3% de área não-texto**.
+
+Seção que não faz nem um nem outro é a que o dono lê como *"muito texto, sem
+respiro, pouco visual"*. Foi essa conta que achou o filtro (1,25× / 0,0%) e
+depois a ficha técnica do hero (1,25× / 0,0%) — as duas **antes** de ele
+reclamar de novo. Rode antes de escolher um tratamento visual e depois de
+acrescentar seção nova.
+
+⚠️ **A saída nem sempre é aumentar o tipo.** As duas metades valem igual: as
+categorias passam por escala (2,50×, sem imagem nenhuma) e a assessoria passa
+por diagrama (3,0%, com razão baixíssima).
+
+⚠️ **`área não-texto` conta só `img`/`svg`/`video`** — a mesma conta da
+auditoria, para as tabelas continuarem comparáveis. Bloco pintado não entra, e
+por isso o `#fecho` (cuja âncora é o botão dourado preenchido) está na lista de
+exceções dentro do script, não reprovando.
+
+---
+
+## 4. Ver a página inteira, seção por seção
 
 ```bash
 node scripts/femeas/capturar-secoes.mjs
