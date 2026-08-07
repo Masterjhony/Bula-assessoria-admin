@@ -19,7 +19,7 @@ import { handleLanceGroupMessage } from '@/lib/whatsapp-lances'
 import { ingestOperationalSignal } from '@/lib/operational-center'
 import { grupoRelevante } from '@/lib/whatsapp-grupos-relevantes'
 import { normalizePhone } from '@/lib/whatsapp-central'
-import { loadAgenteConfigCached, agenteNumeroAutorizado, mencionaNumero, removerMencao } from '@/lib/whatsapp-agente-config'
+import { loadAgenteConfigCached, agenteNumeroAutorizado, mencionaBot, removerMencaoBot } from '@/lib/whatsapp-agente-config'
 import { handleAgenteMessage } from '@/lib/whatsapp-agente'
 
 // O agente interno roda no after() desta rota e pode levar mais que 30s.
@@ -137,13 +137,13 @@ export async function POST(req: NextRequest) {
     // restrito — nunca admin.
     const agenteCfg = await loadAgenteConfigCached(supabase)
     if (
-        agenteCfg.enabled && agenteCfg.numeroBot &&
+        agenteCfg.enabled && (agenteCfg.numeroBot || agenteCfg.lidBot) &&
         agenteCfg.groupJids.includes(groupJid) &&
-        mencionaNumero(text, agenteCfg.numeroBot)
+        mencionaBot(text, agenteCfg)
     ) {
         const participantPhone = normalizePhone((body.participant || '').split('@')[0] || '') || ''
         const membro = participantPhone ? agenteNumeroAutorizado(agenteCfg, participantPhone) : null
-        const pergunta = removerMencao(text, agenteCfg.numeroBot)
+        const pergunta = removerMencaoBot(text, agenteCfg)
         if (pergunta) {
             after(() => handleAgenteMessage(supabase, {
                 phone: membro ? participantPhone : '',

@@ -21,6 +21,7 @@ const config = {
     // Notificações/Automações CRM + grupo dos assessores.
     groupJids: ['120363408309548059@g.us', '120363425959659407@g.us'],
     numeroBot: '553184143874', // número do WhatsApp operacional
+    lidBot: '241876099711227', // LID do contato (menção pode chegar como @<lid>)
     model: 'anthropic/claude-sonnet-5',
     maxHistory: 30,
     thinkingSeconds: 4,

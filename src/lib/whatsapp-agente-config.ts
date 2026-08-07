@@ -45,6 +45,8 @@ export interface AgenteConfig {
     groupJid: string | null
     /** Número do WhatsApp operacional — em grupo, o agente SÓ responde quando mencionado (@numero). */
     numeroBot: string
+    /** LID do contato operacional (@lid, endereçamento novo do WhatsApp) — a menção pode chegar como @<lid> em vez de @<numero>. */
+    lidBot: string
     /** Prefixo legado de invocação (não usado — menção substituiu). */
     trigger: string
     model: string
@@ -60,6 +62,7 @@ export const DEFAULT_AGENTE_CONFIG: AgenteConfig = {
     groupJids: [],
     groupJid: null,
     numeroBot: '',
+    lidBot: '',
     trigger: '@bula',
     model: 'anthropic/claude-sonnet-5',
     maxHistory: 30,
@@ -118,6 +121,7 @@ export async function loadAgenteConfig(supabase: SupabaseClient): Promise<Agente
         groupJids,
         groupJid: legadoGroupJid,
         numeroBot: String(v.numeroBot ?? '').trim(),
+        lidBot: String(v.lidBot ?? '').replace(/\D/g, ''),
         trigger: String(v.trigger ?? '').trim() || d.trigger,
         model: String(v.model ?? '').trim() || d.model,
         maxHistory: clampInt(v.maxHistory, d.maxHistory, 6, 100),
@@ -137,6 +141,7 @@ export async function saveAgenteConfig(
         groupJids: patch.groupJids ?? current.groupJids,
         groupJid: patch.groupJid !== undefined ? patch.groupJid : current.groupJid,
         numeroBot: patch.numeroBot ?? current.numeroBot,
+        lidBot: patch.lidBot ?? current.lidBot,
         trigger: patch.trigger ?? current.trigger,
         model: patch.model ?? current.model,
         maxHistory: patch.maxHistory ?? current.maxHistory,
@@ -151,24 +156,28 @@ export async function saveAgenteConfig(
 }
 
 /**
- * O texto menciona este número? No WhatsApp, marcar um contato injeta
- * "@<numero completo>" no corpo da mensagem (ex.: "@553184143874 e aí").
- * Compara pelo telefone canônico pra tolerar o nono dígito.
+ * O texto menciona o bot? Marcar um contato injeta "@<id>" no corpo — e o id
+ * pode ser o NÚMERO ("@553184143874", comparado por telefone canônico) ou o
+ * LID do endereçamento novo do WhatsApp ("@241876099711227"), que não tem
+ * relação com o número. Por isso a config guarda os dois.
  */
-export function mencionaNumero(texto: string, numero: string): boolean {
-    const alvo = telefoneCanonico(numero)
-    if (!alvo) return false
+function ehMencaoAoBot(digits: string, cfg: Pick<AgenteConfig, 'numeroBot' | 'lidBot'>): boolean {
+    if (cfg.lidBot && digits === cfg.lidBot) return true
+    const alvo = telefoneCanonico(cfg.numeroBot)
+    return !!alvo && telefoneCanonico(digits) === alvo
+}
+
+export function mencionaBot(texto: string, cfg: Pick<AgenteConfig, 'numeroBot' | 'lidBot'>): boolean {
     for (const m of texto.matchAll(/@(\d{8,15})/g)) {
-        if (telefoneCanonico(m[1]) === alvo) return true
+        if (ehMencaoAoBot(m[1], cfg)) return true
     }
     return false
 }
 
-/** Remove a(s) menção(ões) ao número do texto — sobra só a pergunta. */
-export function removerMencao(texto: string, numero: string): string {
-    const alvo = telefoneCanonico(numero)
+/** Remove a(s) menção(ões) ao bot do texto — sobra só a pergunta. */
+export function removerMencaoBot(texto: string, cfg: Pick<AgenteConfig, 'numeroBot' | 'lidBot'>): string {
     return texto.replace(/@(\d{8,15})/g, (full, digits) =>
-        telefoneCanonico(String(digits)) === alvo ? '' : full,
+        ehMencaoAoBot(String(digits), cfg) ? '' : full,
     ).replace(/\s{2,}/g, ' ').trim()
 }
 
