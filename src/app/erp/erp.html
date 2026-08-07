@@ -2606,6 +2606,128 @@ async function renderConciliacao() {
   paintConc();
 }
 
+/* ==========================================================================
+   IMPORTAR EXTRATO (OFX / CSV / colado)
+   Substitui os scripts-por-periodo. O fluxo tem duas etapas de proposito:
+   "Conferir" roda dry_run e mostra o que vai entrar + a diferenca de saldo
+   contra o que o proprio extrato afirma; so depois o "Importar" grava. Nada
+   entra classificado — cai como pendente na tela de Conciliacao.
+   ========================================================================== */
+function openImportarExtrato() {
+  const contas = state.bancos || [];
+  const sel = state.filters.conta || (contas[0] && contas[0].id) || '';
+  openModal(`
+    <div class="modal-header"><div class="modal-title">Importar extrato</div><button class="icon-btn" onclick="closeModal()"><span class="material-symbols-outlined">close</span></button></div>
+    <div class="modal-body">
+      <div class="form-grid">
+        <div class="field"><label>Conta*</label>
+          <select id="impConta">
+            ${contas.map(b=>`<option value="${b.id}" ${sel===b.id?'selected':''}>${escapeHtml(b.nome)}</option>`).join('')}
+          </select>
+        </div>
+        <div class="field"><label>Arquivo (OFX, CSV ou TXT)</label>
+          <input type="file" id="impArquivo" accept=".ofx,.csv,.txt,.qfx" onchange="impCarregaArquivo(this)">
+        </div>
+        <div class="field full"><label>…ou cole o extrato aqui</label>
+          <textarea id="impConteudo" rows="7" style="font-family:ui-monospace,monospace;font-size:12px" placeholder="Data;Documento;Historico;Valor;Saldo&#10;04/08/2026;000123;PIX RECEBIDO;1.500,00;24.106,86"></textarea>
+        </div>
+      </div>
+      <div style="font-size:12px;color:var(--text3);margin-top:10px">
+        O OFX traz um identificador por lancamento, entao reimportar o mesmo periodo nunca duplica.
+        No CSV a chave e o conteudo da linha + a ordem no dia — tambem idempotente.
+      </div>
+      <div id="impResultado" style="margin-top:12px"></div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn" onclick="closeModal()">Cancelar</button>
+      <button class="btn" id="impBtnConferir" onclick="impExecuta(true)"><span class="material-symbols-outlined">search</span>Conferir</button>
+      <button class="btn btn-primary" id="impBtnGravar" onclick="impExecuta(false)" disabled><span class="material-symbols-outlined">download</span>Importar</button>
+    </div>`, { wide:true });
+}
+
+function impCarregaArquivo(input) {
+  const f = input.files && input.files[0];
+  if (!f) return;
+  const r = new FileReader();
+  r.onload = () => {
+    document.getElementById('impConteudo').value = String(r.result || '');
+    document.getElementById('impBtnGravar').disabled = true;
+    document.getElementById('impResultado').innerHTML = '';
+  };
+  // extrato de banco costuma vir em latin-1; o OFX declara o charset no header
+  r.readAsText(f, /win|latin|8859/i.test(String(f.name)) ? 'ISO-8859-1' : 'UTF-8');
+}
+
+async function impExecuta(dryRun) {
+  const conta = document.getElementById('impConta').value;
+  const conteudo = document.getElementById('impConteudo').value;
+  const alvo = document.getElementById('impResultado');
+  if (!conteudo.trim()) { toast('Cole o extrato ou escolha um arquivo','error'); return; }
+  alvo.innerHTML = '<div class="empty" style="padding:14px"><div class="spinner"></div></div>';
+  let d;
+  try {
+    d = await api('/api/erp/movimentos/importar', {
+      method:'POST',
+      body: JSON.stringify({ conta_bancaria_id: conta, conteudo, dry_run: !!dryRun }),
+    });
+  } catch(e) {
+    alvo.innerHTML = `<div class="card" style="border-color:var(--red)"><strong style="color:var(--red)">Nao deu</strong><div style="font-size:12px;margin-top:4px">${escapeHtml(e.message)}</div></div>`;
+    return;
+  }
+
+  const difOk = d.diferenca === null || Math.abs(Number(d.diferenca)) < 0.005;
+  const linhaSaldo = d.saldo_extrato === null
+    ? '<div class="muted" style="font-size:12px">O extrato nao trouxe saldo final — sem conferencia automatica de saldo.</div>'
+    : `<div style="font-size:12px;color:${difOk?'var(--olive)':'var(--red)'};font-weight:600">
+         ${difOk ? '✓ Bate com o saldo do extrato' : '⚠ NAO bate'} —
+         extrato ${fmtBRL(d.saldo_extrato)} × sistema ${fmtBRL(dryRun ? d.saldo_previsto : d.saldo_apos)}
+         ${difOk ? '' : `(diferenca ${fmtBRL(d.diferenca)})`}
+       </div>`;
+
+  const ignoradas = (d.ignoradas||[]).length ? `
+    <details style="margin-top:10px">
+      <summary style="cursor:pointer;font-size:12px;color:var(--text2)">${d.ignoradas_total} linha(s) ignorada(s) — conferir</summary>
+      <div style="margin-top:6px;font-size:11px;font-family:ui-monospace,monospace;color:var(--text3);max-height:150px;overflow:auto">
+        ${d.ignoradas.map(x=>`<div>${escapeHtml(x.linha)} <span style="color:var(--red)">← ${escapeHtml(x.motivo)}</span></div>`).join('')}
+      </div>
+    </details>` : '';
+
+  const amostra = (d.amostra||[]).length ? `
+    <div class="card" style="padding:0;overflow:auto;margin-top:10px">
+      <table class="table"><thead><tr><th>Data</th><th>Historico</th><th style="text-align:right">Valor</th></tr></thead>
+      <tbody>${d.amostra.map(l=>`<tr>
+        <td style="white-space:nowrap">${fmtDate(l.data)}</td>
+        <td>${escapeHtml(l.descricao)}</td>
+        <td class="money" style="text-align:right;color:${l.tipo==='saida'?'var(--red)':'var(--olive)'}">${l.tipo==='saida'?'-':'+'}${fmtBRL(l.valor)}</td>
+      </tr>`).join('')}</tbody></table>
+      ${d.novos > d.amostra.length ? `<div class="muted" style="font-size:11px;padding:8px">… e mais ${d.novos - d.amostra.length} lancamento(s).</div>` : ''}
+    </div>` : '';
+
+  alvo.innerHTML = `
+    <div class="card">
+      <div style="font-weight:700;font-size:13px;margin-bottom:6px">
+        ${dryRun ? 'Previa' : 'Importado'} — ${escapeHtml(d.conta)} · ${escapeHtml(String(d.formato).toUpperCase())}
+      </div>
+      <div style="font-size:12px;color:var(--text2);margin-bottom:6px">
+        Periodo ${fmtDate(d.periodo.de)} a ${fmtDate(d.periodo.ate)} ·
+        <strong>${d.novos} novo(s)</strong> · ${d.duplicados} ja existia(m) ·
+        <span style="color:var(--olive)">+${fmtBRL(d.entradas)}</span>
+        <span style="color:var(--red)">-${fmtBRL(d.saidas)}</span>
+      </div>
+      ${linhaSaldo}
+      ${ignoradas}
+    </div>
+    ${amostra}`;
+
+  const btn = document.getElementById('impBtnGravar');
+  if (dryRun) { btn.disabled = d.novos === 0; }
+  else {
+    btn.disabled = true;
+    toast(`${d.novos} lancamento(s) importado(s)`, difOk ? 'success' : 'info');
+    renderConciliacao();
+  }
+}
+
 /* ---- período do extrato de conciliação ---- */
 function concSetPeriod(preset){
   const t = today(); const c = new Date(t+'T00:00:00'); const y=c.getFullYear(), m=c.getMonth();
@@ -2705,6 +2827,7 @@ function paintConc(){
       </div>
       <div class="page-actions">
         <button class="btn" onclick="renderConciliacao()" title="Recarregar"><span class="material-symbols-outlined">refresh</span>Atualizar</button>
+        <button class="btn" onclick="openImportarExtrato()" title="Trazer o extrato do banco (OFX, CSV ou colado)"><span class="material-symbols-outlined">upload_file</span>Importar extrato</button>
         <button class="btn btn-primary" onclick="openMovimento()"><span class="material-symbols-outlined">add</span>Novo Lançamento</button>
       </div>
     </div>
