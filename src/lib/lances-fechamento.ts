@@ -72,12 +72,22 @@ export async function rebuildFechamentoFromLances(
     const comValor = vendas.filter((v) => v.valor != null)
     if (!comValor.length) return { skipped: 'sem_vendas_com_valor' }
 
-    // Fechamento manual na mesma data → não tocar (as vendas ficam na tabela).
+    // Fechamento manual DO MESMO LEILÃO → não tocar (as vendas ficam na tabela).
+    // A comparação é por data + NOME (normalizado): num dia com dois pregões
+    // (ex.: 19/07 = Santa Cruz manual + Guadalupe Touros capturado), o manual
+    // de um não pode bloquear o fechamento automático do outro.
+    const normNome = (s: unknown) => String(s ?? '')
+        .normalize('NFD').replace(/[̀-ͯ]/g, '')
+        .toUpperCase().replace(/\d{2}\/\d{2}(\/\d{2,4})?/g, '').replace(/[^A-Z]/g, '')
+    const mesmoLeilao = (a: unknown, b: unknown) => {
+        const na = normNome(a); const nb = normNome(b)
+        return !!na && !!nb && (na.includes(nb) || nb.includes(na))
+    }
     const { data: existentes } = await sb.from('bula_leilao_fechamento')
         .select('id, nome, origem').eq('data', cron.data)
-    const manual = (existentes ?? []).find((f) => f.origem !== 'lances-auto')
+    const manual = (existentes ?? []).find((f) => f.origem !== 'lances-auto' && mesmoLeilao(f.nome, cron.nome))
     if (manual) return { skipped: 'fechamento_manual_existente', fechamento_id: manual.id }
-    const auto = (existentes ?? []).find((f) => f.origem === 'lances-auto')
+    const auto = (existentes ?? []).find((f) => f.origem === 'lances-auto' && mesmoLeilao(f.nome, cron.nome))
 
     const L = comValor.map((v) => ({
         ...v,

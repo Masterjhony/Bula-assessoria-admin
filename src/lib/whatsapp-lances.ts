@@ -221,6 +221,9 @@ export function parseLanceMessage(text: string): ParsedLance | null {
     // identificação (comprador/fazenda/cidade) — "Lote 3 - 750" solto não passa.
     const fichaCompleta = hasFicha && out.parcela != null && (rest.length > 0 || out.fazenda != null || out.cidade != null)
     if (!hasLevamos && !hasCompradorDo && !out.assessor && !fichaCompleta) return null
+    // "Levou 950" solto: o número vira "lote" mas não há NADA além dele
+    // (sem valor, comprador, assessor, fazenda) — é lance/papo, não venda.
+    if (hasLevamos && out.parcela == null && !out.comprador && !out.assessor && !out.fazenda && !rest.length) return null
     // "Lote 3 - 750" solto (sem verbo/assessor/comprador) já foi barrado acima.
     out.comprador = rest.length ? rest.slice(0, 3).join(' - ') : null
     return out
