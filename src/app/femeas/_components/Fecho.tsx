@@ -72,7 +72,16 @@ export function Fecho() {
 
           <p
             className="mx-auto mt-6 max-w-[44ch]"
-            style={{ ...typo.body, fontSize: 'clamp(16px, 1.8vw, 18px)', lineHeight: 1.6, color: light.body }}
+            style={{
+              ...typo.body,
+              fontSize: 'clamp(16px, 1.8vw, 18px)',
+              lineHeight: 1.6,
+              color: light.body,
+              // Bloco centralizado sem `balance` termina em pirâmide torta —
+              // e a última linha curta, no meio da coluna, é o lugar onde a
+              // órfã mais aparece. Vale para os dois parágrafos daqui.
+              textWrap: 'balance',
+            }}
           >
             {fecho.lead}
           </p>
@@ -84,9 +93,20 @@ export function Fecho() {
             <PillButton href="#cadastro" surface="light">
               {fecho.cta}
             </PillButton>
+            {/* ⚠️ `balance` AQUI NÃO É REFINAMENTO — é conserto de um defeito
+                medido: sem ele a nota quebrava em 329px + 67px e a palavra
+                "aprovado" ficava sozinha, centralizada, como ÚLTIMA PALAVRA DA
+                PÁGINA, nos dois tamanhos de tela. */}
             <p
               className="mx-auto max-w-[40ch]"
-              style={{ ...typo.body, fontSize: 15, lineHeight: 1.55, color: light.muted, marginTop: 16 }}
+              style={{
+                ...typo.body,
+                fontSize: 15,
+                lineHeight: 1.55,
+                color: light.muted,
+                marginTop: 16,
+                textWrap: 'balance',
+              }}
             >
               {fecho.ctaNote}
             </p>

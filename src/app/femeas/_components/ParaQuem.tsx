@@ -134,20 +134,34 @@ const filtroCor = {
 // voltam. Voltam duas superfícies, com espessura diferente uma da outra, e é a
 // diferença entre elas que carrega significado. Caixa que informa não é a
 // mesma coisa que caixa que só emoldura.
+// ⚠️ OS DOIS NÚMEROS ABAIXO FORAM CORRIGIDOS NA AUDITORIA DA MESMA NOITE, e os
+// dois erros valem ser lidos porque são o tipo que passa despercebido:
+//
+//   1. A BORDA ERA rgba(26,20,10,0.08) E NÃO EXISTIA. Sobre o branco ela media
+//      1,06:1 — MENOS que o próprio card branco contra o pergaminho (1,11:1).
+//      Ou seja: o comentário aqui dizia que a borda salvava o card do sumiço no
+//      sol do iPhone, e a borda era mais invisível que o problema que ela
+//      resolvia. A 0,14 ela mede ~1,20:1 e passa a ser a aresta mais visível
+//      das duas, que é o trabalho dela.
+//   2. A SOMBRA INTERNA ERA 0,12 E PESAVA DEMAIS. Ela desenhava uma barra de
+//      12px a 1,34:1 no topo do card do "não", contra 1,06:1 no topo do card do
+//      "sim" — 0,28 de diferença onde o limite para não ler como carimbo é
+//      ~0,10. A 0,08 o rebaixo continua legível e a barra cai para dentro da
+//      faixa. Afundar é direcionamento; carimbar no topo é veredito.
 const superficie = {
   alta: {
     background: '#FFFFFF',
-    border: '1px solid rgba(26,20,10,0.08)',
+    border: '1px solid rgba(26,20,10,0.14)',
     // Duas sombras: a larga e difusa dá a altura, a curta e fechada dá o
     // contato. Sombra única lê como adesivo; duas leem como objeto.
     boxShadow: '0 22px 40px -22px rgba(26,20,10,0.42), 0 5px 12px -8px rgba(26,20,10,0.22)',
   },
   baixa: {
     background: '#EDEAE2',
-    border: '1px solid rgba(26,20,10,0.10)',
+    border: '1px solid rgba(26,20,10,0.14)',
     // Sombra INTERNA no topo + fio de luz de 1px embaixo dela: é o desenho de
     // um rebaixo. Sem o fio de luz a sombra interna lê como sujeira.
-    boxShadow: 'inset 0 3px 9px rgba(26,20,10,0.12), inset 0 1px 0 rgba(255,255,255,0.5)',
+    boxShadow: 'inset 0 3px 9px rgba(26,20,10,0.08), inset 0 1px 0 rgba(255,255,255,0.5)',
   },
 } as const
 

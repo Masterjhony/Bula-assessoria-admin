@@ -4,7 +4,12 @@ import { cloneElement, isValidElement, useEffect, useId, useRef, useState } from
 import { AnimatePresence, motion } from 'framer-motion'
 import { Loader2, ShieldCheck, ArrowRight, ArrowLeft } from 'lucide-react'
 import { dark, typo, font, radius } from '../_lib/tokens'
-import { form as copy } from '../_lib/copy'
+// `hero` entra aqui por causa de UMA string: `hero.ctaNote`, o aviso de que o
+// cadastro é analisado. Ele era um bloco solto no hero e virou a linha de baixo
+// deste card em 06/08 (ver o comentário no Hero.tsx). A string ficou em `hero`
+// de propósito — é lá que mora a documentação dela e é lá que a revisão de copy
+// do João Antônio vai procurar.
+import { form as copy, hero } from '../_lib/copy'
 import { categorias, CATEGORIA_INDECISO } from '../_lib/categorias'
 import { documentoValido, mascaraDocumento } from '../_lib/qualificacao'
 import { useSafeReducedMotion } from '../_lib/useSafeReducedMotion'
@@ -341,8 +346,21 @@ export function LeadForm() {
         >
           {copy.title}
         </h2>
-        <p className="mt-2.5" style={{ fontFamily: font.body, fontSize: 14, lineHeight: 1.5, color: dark.muted }}>
-          {copy.lead}
+        {/* ⚠️ ESTA LINHA TROCOU DE CONTEÚDO EM 06/08 e a troca é o miolo da
+            limpeza do hero. Antes: `copy.lead` — "Leva uns minutos. Quanto mais
+            claro for o seu projeto, melhor a reunião.", que é conforto. Agora:
+            `hero.ctaNote` — "Cadastro analisado pela nossa equipe · Se
+            aprovado, reunião com um assessor", que é a REGRA DO JOGO.
+
+            Dourada, e não cinza: ela deixou de ser legenda do card e passou a
+            ser a condição impressa em cima do balcão. O dourado sobre #141414
+            mede ~8:1, folga larga sobre os 4,5:1 que 14px exige.
+
+            ⚠️ `form.lead` continua em _lib/copy.ts sem uso, pelo mesmo motivo
+            do `hero.eyebrow`: a copy está pendente de revisão e string apagada
+            é o que ninguém consegue reconstituir depois. */}
+        <p className="mt-2.5" style={{ fontFamily: font.body, fontSize: 14, lineHeight: 1.5, color: dark.gold }}>
+          {hero.ctaNote}
         </p>
       </div>
 

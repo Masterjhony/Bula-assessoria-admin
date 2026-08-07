@@ -131,8 +131,27 @@ const base = process.argv[2] ?? 'http://localhost:3000'
  * `primeiroCampo` 640/399 e `topoParaQuem` 2506/2044 INTOCADOS — o filtro
  * inteiro mora abaixo do formulário, então engordar a seção não custa dobra.
  */
+/*
+ * ── A LIMPEZA DO HERO (dono, 06/08 à noite) — E A MELHOR NOTÍCIA DO DIA ───
+ * "A pessoa chega, tem um título, tem um subtítulo, tem outro subtítulo, tem
+ * subtítulo do subtítulo." Saíram DUAS paradas da primeira dobra: o eyebrow
+ * (que repetia a logo acima e a manchete abaixo) e o aviso dourado, que não foi
+ * cortado — foi para dentro do card, no lugar do "Leva uns minutos…". A ficha
+ * de condições virou faixa de três colunas, sem ícone nenhum.
+ *
+ *   primeiroCampo  mobile 640→537 (−103)   desktop 399 (intocado)
+ *     ⚠️ ESTE NÚMERO SÓ TINHA DESCIDO POR REDISTRIBUIÇÃO DE BRANCO ANTES. Agora
+ *     desceu por CORTE, e passou a ser MENOR que o do /touros (633), que é o
+ *     análogo que converte. Numa tela útil de 767px (a barra fixa come 77), o
+ *     primeiro campo agora nasce dentro da primeira dobra.
+ *   topoParaQuem   mobile 2506→2315 (−191)  desktop 2044 (intocado)
+ *   pagina         mobile 8755→8564 (−191)  desktop 8720 (intocado)
+ *
+ * O desktop não se move em nada: lá a coluna da promessa já tinha altura de
+ * sobra ao lado do card, e o que saiu de texto saiu de um espaço que sobrava.
+ */
 const REFERENCIA = {
-  'MOBILE 390': { primeiroCampo: 640, topoParaQuem: 2506, paraQuem: 1551, categorias: 858, pagina: 8755 },
+  'MOBILE 390': { primeiroCampo: 537, topoParaQuem: 2315, paraQuem: 1551, categorias: 858, pagina: 8564 },
   'DESKTOP 1440': { primeiroCampo: 399, topoParaQuem: 2044, paraQuem: 1277, categorias: 1318, pagina: 8720 },
 }
 

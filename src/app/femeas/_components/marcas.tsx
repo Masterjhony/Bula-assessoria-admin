@@ -1,9 +1,8 @@
 // ─────────────────────────────────────────────────────────────────────────
 // MARCAS — a camada gráfica da landing de fêmeas. SVG inline, desenhado aqui.
 //
-// São TRÊS famílias, e elas são as três que funcionam:
+// Sobraram DUAS famílias, e elas são as duas que funcionam:
 //   · os quatro diagramas da Assessoria (`MarcaServico`);
-//   · as três marcas da ficha técnica do hero (`MARCAS_FICHA`, 06/08);
 //   · o trilho da Jornada (`TrilhoJornada`), que é CSS, não SVG.
 //
 // POR QUE NÃO `lucide-react` (que está no package.json e seria uma linha):
@@ -20,10 +19,11 @@
 // lado de "não é para você se" é o vocabulário de aprovado/reprovado que a
 // decisão travada proíbe.
 //
-// ⚠️ A FICHA TÉCNICA DO HERO ESTAVA NESTA MESMA FRASE ATÉ 06/08 e saiu dela —
-// as três marcas dela estão em `MARCAS_FICHA`, no meio deste arquivo, com a
-// medida que fez a decisão virar. O item 2 do comentário no fim do arquivo
-// guarda o argumento antigo e mostra por que ele caducou.
+// E também não há marca na FICHA TÉCNICA do hero. Ela chegou a ter, por
+// algumas horas em 06/08, e o dono mandou tirar com todas as letras: "sem
+// emoji, sem ícone". O que ficou no lugar é agrupamento — três colunas
+// divididas por filete —, e o que a rodada ensinou está no aviso mais abaixo,
+// onde as marcas moravam.
 //
 // ── ⚠️ AS SEIS MARCAS DE CATEGORIA FORAM REMOVIDAS (06/08/2026) ───────────
 // Pedido direto do dono do projeto: "os ícones em CATEGORIAS estão totalmente
@@ -222,135 +222,29 @@ export function MarcaServico({ id }: { id: string }) {
 }
 
 // ─────────────────────────────────────────────────────────────────────────
-// AS TRÊS MARCAS DA FICHA TÉCNICA DO HERO (30× · frete · R$ 0).
+// ⚠️ AS TRÊS MARCAS DA FICHA TÉCNICA VIVERAM ALGUMAS HORAS, EM 06/08.
 //
-// ⚠️ ISTO CONTRADIZ o que o fim deste arquivo dizia até 06/08 ("a ficha não
-// ganha marca"). A contradição é deliberada e está explicada lá embaixo — o
-// argumento de antes era sobre uma ficha que não existe mais.
+// Elas existiram, foram medidas, foram desenhadas no mesmo idioma dos diagramas
+// da assessoria (viewBox 32×32, traço de ~1px na tela, dourado como voltagem
+// única) e foram removidas no mesmo dia, por decisão direta do dono:
 //
-// O QUE FEZ ENTRAR, em número: a régua desta página é que uma seção ou quebra
-// 2,0× de razão tipográfica (maior tipo ÷ 16px de corpo) ou carrega ≥3% de área
-// não-texto. A ficha media 1,25× / 0,0% no celular e 1,63× / 0,0% no desktop —
-// falhava as duas metades, nos dois tamanhos, e por margem maior que qualquer
-// outro ponto da página. Subir o tipo para bater 2,0× (32px+) está FECHADO: a
-// ficha mora dentro de um hero cuja manchete é clamp(38,6.2vw,68), e um número
-// de 32px ali volta a competir com ela — foi exatamente o defeito da rodada em
-// que o valor estava em Oswald 36px. Sobrava a outra metade da régua, e a outra
-// metade é desenho.
+//   "esse 30 vezes no boleto, frete grátis e zero reais tá horroroso. Procura
+//    um design em tópicos melhor, SEM EMOJI, SEM ÍCONE."
 //
-// ── POR QUE NÃO REUSAR `parte-financeira` E `entrega` DA ASSESSORIA ─────────
-// Eles descrevem os mesmos dois assuntos, e reusar teria custado zero desenho.
-// Não dá, e a razão é de TAMANHO, não de gosto:
+// O código está inteiro em 431575f para quem quiser ver o desenho. Fica aqui só
+// o que a rodada ensinou, que é o que evita repeti-la:
 //
-//   · o quadro da assessoria é calibrado para 72–88px de largura, e a espessura
-//     do traço lá é PESO × (largura ÷ 60). Na ficha a marca não pode passar de
-//     ~40px (acima disso ela fica maior que o próprio número de 20–26px que
-//     deveria ilustrar), e a 40px aquele traço mede 1,0 × 40/60 = 0,67px —
-//     ABAIXO do filete de 1px que é o piso da linguagem desta página. O
-//     comentário de `PESO` existe justamente para impedir esse desvio;
-//   · a barra do financeiro tem 12 células em 52 unidades. A 40px de largura
-//     cada célula mede 2,9px e as divisórias somem — a barra vira um borrão
-//     cinza, e some junto a única coisa que ela dizia.
+//   A régua da página ("ou 2,0× de razão tipográfica ou ≥3% de área não-texto")
+//   é medida POR SEÇÃO, e a ficha não é uma seção — é um bloco dentro do hero,
+//   que passa folgado pela foto (2,38× e 27%). Aplicar a régua a um bloco levou
+//   à conclusão errada de que faltava DESENHO ali. O que faltava era AGRUPAMENTO:
+//   três condições empilhadas são três objetos, e três colunas divididas por
+//   filete são um objeto só. A ficha nova não tem nenhum traço a mais que a
+//   antiga — tem dois filetes verticais e nenhum ícone.
 //
-// Então as três nasceram aqui, no MESMO idioma (traço de 1px na tela, canto
-// reto, dourado como voltagem única) e com um `viewBox` próprio de 32×32
-// compartilhado pelas três — a mesma regra que faz os quatro diagramas da
-// assessoria empilharem alinhados por construção, e cuja ausência foi o defeito
-// medido das seis marcas de categoria que saíram (larguras de 111 a 146px).
-//
-// O que se reusa é a GRAMÁTICA, não a figura: a primeira parcela em ouro, a
-// seta dourada chegando na porteira, o feixe que converge num ponto dourado
-// (a mesma forquilha do `acasalamento`). A página rima sem repetir desenho.
+// ⚠️ NÃO REVERTER 431575f INTEIRO para "desfazer as marcas": aquele commit
+// também criou scripts/femeas/medir-densidade.mjs, que é a régua rodável.
 // ─────────────────────────────────────────────────────────────────────────
-
-// Teto de 40px porque acima disso a marca fica maior que o número de 26px que
-// ela acompanha no desktop — e marca maior que o dado inverte a hierarquia, que
-// é o erro que esta rodada existe para não repetir. Piso de 34px porque abaixo
-// disso a porteira (5 traços) fecha e vira mancha.
-const LARGURA_FICHA = 'clamp(34px, 3vw, 40px)'
-
-// ⚠️ Anda junto com `LARGURA_FICHA`, mesma conta do `PESO` da assessoria: o
-// traço na tela mede PESO_FICHA × (largura ÷ 32).
-//
-//   34px → 0,85 × 34/32 = 0,90px
-//   40px → 0,85 × 40/32 = 1,06px
-//
-// A faixa CERCA 1px em vez de escapar dele — é o que mantém estas marcas na
-// mesma família dos filetes do resto da página.
-const PESO_FICHA = 0.85
-
-function QuadroFicha({ children }: { children: ReactNode }) {
-  return (
-    <svg
-      viewBox="0 0 32 32"
-      aria-hidden="true"
-      focusable="false"
-      style={{ width: LARGURA_FICHA, height: 'auto', display: 'block', flex: '0 0 auto' }}
-    >
-      {children}
-    </svg>
-  )
-}
-
-// ⚠️ A ORDEM É A DE `hero.stats` (copy.ts). Quem reordenar lá reordena aqui —
-// e quem ACRESCENTAR um item lá sem acrescentar aqui não ganha uma ficha com
-// três marcas e uma linha pelada: o Hero confere os dois comprimentos e, se não
-// baterem, não desenha marca NENHUMA. Três marcados e um sem lê como bug, e
-// esse já é um erro medido nesta página (ver o aviso das categorias).
-export const MARCAS_FICHA: ReactNode[] = [
-  // 30× NO BOLETO — a barra de parcelas, com a primeira em ouro.
-  //
-  // ⚠️ A barra tem 36 unidades de largura num quadro de 32: ela SAI PELA
-  // DIREITA de propósito, e o `viewBox` a corta. É o que resolve, neste
-  // tamanho, o mesmo problema que a assessoria resolve com 12 células ilegíveis
-  // de contar: uma barra fechada com 4 células conta-se em meio segundo e o
-  // desenho passaria a dizer "4×" ao lado de um texto que diz "30×". Cortada
-  // pela moldura, ela não afirma quantidade nenhuma — afirma que continua.
-  // Não fechar esta barra.
-  <QuadroFicha key="parcelamento">
-    <g fill="none" stroke={TRACO_ESCURO} strokeWidth={PESO_FICHA} strokeLinejoin="miter">
-      <rect x="1" y="8" width="36" height="16" />
-      <path d="M 9 8 L 9 24 M 17 8 L 17 24 M 25 8 L 25 24" />
-    </g>
-    <rect x="1.55" y="8.55" width="6.9" height="14.9" fill={dark.gold} />
-  </QuadroFicha>,
-
-  // FRETE GRÁTIS SOB CONSULTA — o trajeto dourado chegando na porteira.
-  // Mesma ideia do `entrega` da assessoria, redesenhada com os traços que
-  // sobrevivem a 34px. Responde "chega até onde?" — até a sua porteira.
-  //
-  // ⚠️ SÃO DUAS RIPAS, não uma. A primeira versão tinha uma só e a porteira
-  // lia como a letra "A" a 34px: dois montantes e um travessão no meio é
-  // exatamente o desenho de um A. A segunda ripa é o que desfaz a leitura, e
-  // ela ocupa o mesmo espaço morto que já existia entre a ripa única e o pé.
-  <QuadroFicha key="entrega">
-    <g fill="none" stroke={TRACO_ESCURO} strokeWidth={PESO_FICHA} strokeLinejoin="miter">
-      <path d="M 19 27 L 19 6 M 30 27 L 30 6" />
-      <path d="M 16 6 L 31 6" />
-      <path d="M 19 12.5 L 30 12.5 M 19 19 L 30 19" />
-    </g>
-    <g fill="none" stroke={dark.gold} strokeWidth={PESO_FICHA} strokeLinejoin="miter" strokeLinecap="butt">
-      <path d="M 1 23.5 L 15 23.5" />
-      <path d="M 11.5 20 L 15 23.5 L 11.5 27" />
-    </g>
-  </QuadroFicha>,
-
-  // R$ 0 CUSTO DA ASSESSORIA — o feixe que converge num ponto dourado.
-  //
-  // Este é o único dos três sem antecedente na assessoria, e é o que mais
-  // precisava de desenho: o texto diz o PREÇO (zero) e não diz O QUE é. As três
-  // linhas se reúnem e chegam a um ponto — "várias frentes, e todas chegam em
-  // você". É a forquilha do `acasalamento` (muitos → um, terminando em ouro),
-  // que é a gramática já estabelecida desta página para "converge".
-  <QuadroFicha key="assessoria">
-    <g fill="none" stroke={TRACO_ESCURO} strokeWidth={PESO_FICHA} strokeLinejoin="miter" strokeLinecap="butt">
-      <path d="M 1 6 L 12 6 M 1 16 L 12 16 M 1 26 L 12 26" />
-      <path d="M 12 6 L 12 26" />
-      <path d="M 12 16 L 21 16" />
-    </g>
-    <circle cx="25" cy="16" r="3.4" fill={dark.gold} />
-  </QuadroFicha>,
-]
 
 // ─────────────────────────────────────────────────────────────────────────
 // O TRILHO DA JORNADA — 1px, e não é SVG de propósito.
@@ -426,26 +320,27 @@ export function TrilhoJornada() {
 //    entra nada. Nada de ✓/✗, nada de vermelho, nada de proibido: isso custaria
 //    o lead duas vezes (perde aqui e não chega lá).
 //
-// 2. ⚠️ A FICHA TÉCNICA DO HERO GANHOU MARCA EM 06/08 — ver `MARCAS_FICHA`
-//    mais acima. Este item foi mantido porque as duas razões que ele dava
-//    CADUCARAM, e quem for reabrir o assunto precisa saber por quê:
+// 2. Ficha técnica do hero (30× · frete · R$ 0). Ela GANHOU marca em 06/08 e
+//    PERDEU no mesmo dia — "sem emoji, sem ícone", palavra do dono. O item
+//    continua aqui, e agora com as três voltas completas, porque este é o
+//    elemento mais reaberto da página e quem chegar depois vai querer tentar de
+//    novo:
 //
-//    · "o número gigante já é a coisa mais varrível da página, a marca
-//      disputaria com ele". Verdade quando o número era Oswald 36px e o rótulo
-//      era mono DOURADO. Depois de duas rodadas de alívio o número está em
-//      clamp(20,2.2vw,26) e o rótulo em cinza — a ficha deixou de ter ênfase
-//      demais e passou a ter ênfase de menos. Medida: 1,25× de razão
-//      tipográfica no celular, 0,0% de área não-texto, o pior ponto da página
-//      pela régua da auditoria. A marca não disputa com número nenhum; ela é o
-//      único peso que sobrou possível, porque subir o tipo recriaria o defeito
-//      de 36px;
-//    · "qualquer coisa que cresça no hero empurra o formulário para baixo".
-//      Deixou de valer quando a ficha foi movida para DEPOIS do formulário no
-//      celular. As marcas custam ~30px de altura, e esses 30px caem abaixo do
-//      primeiro campo — `primeiroCampo` não se mexe (conferido com
-//      scripts/femeas/medir-pagina.mjs).
+//    · a razão original para não marcar ("o número gigante já é a coisa mais
+//      varrível da página, a marca disputaria com ele") era verdadeira quando o
+//      número era Oswald 36px e o rótulo era mono dourado. Depois de duas
+//      rodadas de alívio o número está em clamp(18,2.2vw,26) e o rótulo em
+//      cinza: a ficha deixou de ter ênfase demais;
+//    · daí veio a conclusão errada — "então falta desenho". Ela nasceu de
+//      aplicar ao BLOCO uma régua que é medida por SEÇÃO. O hero passa folgado
+//      (2,38× de razão, 27% de imagem); a ficha nunca foi uma seção;
+//    · o defeito real era de AGRUPAMENTO. Três condições empilhadas são três
+//      objetos com o mesmo peso; três colunas divididas por dois filetes são um
+//      objeto só. A ficha de hoje não tem nenhum traço a mais que a de ontem, e
+//      tem zero ícone.
 //
-//    O que continua valendo do argumento antigo é o TETO: a marca da ficha não
-//    pode crescer até competir com o número. Por isso `LARGURA_FICHA` para em
-//    40px e o comentário lá diz o motivo.
+//    O que continua valendo, e é a única regra que sobreviveu às três voltas: o
+//    que estiver ali não pode competir com a manchete de clamp(38,6.2vw,68) do
+//    próprio hero. Foi o que derrubou o valor a 36px na primeira rodada e o que
+//    derrubaria uma marca grande demais na quarta.
 // ─────────────────────────────────────────────────────────────────────────

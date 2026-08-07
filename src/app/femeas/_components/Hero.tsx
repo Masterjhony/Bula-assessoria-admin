@@ -3,7 +3,6 @@ import { dark, typo, font } from '../_lib/tokens'
 import { hero, rodape } from '../_lib/copy'
 import { MultiLine } from './ui'
 import { LeadForm } from './Formulario'
-import { MARCAS_FICHA } from './marcas'
 
 // ─────────────────────────────────────────────────────────────────────────
 // FICHA TÉCNICA — 30x · frete · custo da assessoria.
@@ -21,9 +20,16 @@ import { MARCAS_FICHA } from './marcas'
 // O conteúdo continua vindo de `hero.stats` (INV-5): é uma lista só, exibida
 // em dois lugares — não duas listas para alguém editar pela metade.
 //
-// No celular são três linhas (valor à esquerda, rótulo à direita); no desktop,
-// grade de três. Nada de três colunas espremidas em 390px, onde "Frete grátis"
-// quebraria no meio da palavra.
+// São TRÊS COLUNAS nos dois tamanhos, divididas por filete de 1px. O que muda
+// por breakpoint é só a escala e o respiro.
+//
+// ⚠️ ESTE COMENTÁRIO DIZIA O CONTRÁRIO ATÉ 06/08 — "nada de três colunas
+// espremidas em 390px, onde 'Frete grátis' quebraria no meio da palavra". Era
+// uma suposição, e a medição no canvas com a Oswald real desmentiu: em 390px a
+// coluna do meio tem 96px úteis e "Frete grátis" mede 83px a 18px. Cabe, com
+// 13px de folga. A frase ficou aqui porque ela custou uma rodada inteira de
+// desenho — o empilhamento que ela justificava foi o que o dono chamou de
+// "horroroso".
 //
 // ── ALIVIADA EM 06/08, depois da revisão do dono em iPhone ──────────────────
 // A versão anterior empilhava TRÊS ênfases nas mesmas três linhas: filete acima
@@ -78,64 +84,98 @@ import { MARCAS_FICHA } from './marcas'
 // valor e nunca houve vão. O defeito era exclusivo do arranjo de celular, e foi
 // no celular que ele foi revisado.
 //
-// ── QUARTA RODADA: ENTRARAM AS MARCAS (06/08) ─────────────────────────────
-// O dono voltou pela terceira vez ao mesmo elemento — "quero melhorar essa,
-// tópicos mais visuais". As três rodadas anteriores mexeram em ÊNFASE (duas) e
-// em GEOMETRIA (uma). Nenhuma deu ao bloco um DISPOSITIVO VISUAL, e medido é
-// isto: a ficha entregava 1,25× de razão tipográfica e 0,0% de área não-texto
-// no celular (1,63× / 0,0% no desktop) — os dois lados da régua da página
-// reprovados, com folga maior que a do filtro que ele reprovou quatro vezes.
+// ── QUARTA RODADA: ENTRARAM MARCAS. QUINTA: SAÍRAM, E VIROU FAIXA ─────────
+// Na quarta rodada a ficha ganhou três marcas SVG de 34–40px. O raciocínio
+// estava medido e continua correto no que ele mediu: o bloco entregava 1,25× de
+// razão tipográfica e 0,0% de área não-texto, reprovando os dois lados da régua
+// da página, e subir o tipo até 2,0× (32px+) está fechado porque a manchete
+// deste mesmo hero é clamp(38,6.2vw,68) — um número de 32px volta a brigar com
+// ela, que foi exatamente o defeito da rodada 1, com o valor em 36px.
 //
-// Subir o tipo até 2,0× (32px+) está fechado: a manchete deste mesmo hero é
-// clamp(38,6.2vw,68) e ele a elogiou. Um número de 32px volta a brigar com ela
-// — foi literalmente a rodada 1, com o valor em 36px. Restava área não-texto, e
-// área não-texto é desenho. As três marcas moram em `marcas.tsx`, com a conta
-// de espessura e o motivo de não reusarem os diagramas da assessoria.
+// O erro foi concluir que, se não pode ser escala, TEM que ser desenho. O dono
+// olhou e respondeu no mesmo dia: "tá horroroso. Procura um design em tópicos
+// melhor, SEM EMOJI, SEM ÍCONE." As marcas foram removidas (o commit é
+// reversível: 431575f).
 //
-// ⚠️ SE `hero.stats` E `MARCAS_FICHA` DEIXAREM DE TER O MESMO TAMANHO, NENHUMA
-// MARCA É DESENHADA. Não é paranoia: uma ficha com três itens marcados e um
-// pelado lê como renderização quebrada, e esse é um defeito já medido nesta
-// página (as seis marcas de categoria que saíram). Ou todas, ou nenhuma — e o
-// fallback é a ficha de hoje, que funciona.
+// ⚠️ O DEFEITO QUE SOBROU, quando o ícone sai, não era falta de ilustração: era
+// que TRÊS CONDIÇÕES EMPILHADAS SÃO TRÊS OBJETOS. Uma embaixo da outra, mesmo
+// peso, mesmo alinhamento, o olho conta três paradas e nenhuma delas é
+// importante o bastante para justificar a parada. É o mesmo diagnóstico da
+// primeira dobra inteira ("muita informação"), na escala do bloco.
+//
+// A saída é AGRUPAR, não ilustrar: três colunas divididas por filete de 1px, em
+// TODOS os tamanhos. Vira uma faixa de condições — um objeto só, lido de uma
+// vez, do jeito que se lê o rodapé de um contrato. Zero ícone, zero palavra
+// nova, ~100px a menos de altura no celular, e a régua da página segue paga
+// pelo hero inteiro (2,38× de razão, 27% de imagem), que é a unidade que a
+// régua mede — a ficha nunca foi uma seção.
 // ─────────────────────────────────────────────────────────────────────────
-const MARCAS_BATEM = hero.stats.length === MARCAS_FICHA.length
-
 function FichaTecnica({ className }: { className: string }) {
   return (
     <div className={className} style={{ borderTop: `1px solid ${dark.hairline}` }}>
       {hero.stats.map((s, i) => (
-        // No celular: marca à esquerda, par valor+rótulo à direita, os dois
-        // centrados entre si — a marca é o "tópico" e o texto é o que ele diz.
-        // No desktop (`sm:block`) a marca sobe para cima do valor e a célula
-        // vira marca / valor / rótulo, que é o empilhamento que a grade de três
-        // já pedia.
-        <div key={s.label} className="flex items-center gap-x-[14px] sm:block">
-          {MARCAS_BATEM && MARCAS_FICHA[i]}
-          <div className="flex flex-wrap items-baseline gap-x-[10px] gap-y-1 sm:mt-3 sm:block">
-            <span
-              style={{
-                fontFamily: font.display,
-                fontWeight: 600,
-                letterSpacing: '-0.015em',
-                fontSize: 'clamp(20px, 2.2vw, 26px)',
-                lineHeight: 1.1,
-                color: dark.text,
-                display: 'block',
-              }}
-            >
-              {s.value}
-            </span>
-            {/* Encostado no valor no celular (os dois são um dado só) e sob ele
-                no desktop, onde a grade de três já dá a coluna. Em nenhum dos
-                dois casos o rótulo é jogado contra a margem oposta — ver o
-                cabeçalho. */}
-            <span
-              className="sm:mt-2"
-              style={{ ...typo.monoLabel, fontSize: 11, color: dark.muted, display: 'block' }}
-            >
-              {s.label}
-            </span>
-          </div>
+        <div
+          key={s.label}
+          // A COLUNA É A CÉLULA. O divisor é a borda esquerda de quem não é o
+          // primeiro — dois filetes para três colunas, que é o mínimo que
+          // divide. Filete em volta de cada célula daria seis.
+          style={{
+            borderLeft: i === 0 ? undefined : `1px solid ${dark.hairline}`,
+            paddingLeft: i === 0 ? 0 : 'clamp(10px, 2.6vw, 22px)',
+            paddingRight: i === hero.stats.length - 1 ? 0 : 'clamp(10px, 2.6vw, 22px)',
+          }}
+        >
+          {/* ⚠️ 18px NO CELULAR NÃO É TIMIDEZ, É A LARGURA QUE EXISTE. O valor
+              mais longo é "Frete grátis", e ele mora na coluna do meio, que é a
+              única com filete e recuo dos DOIS lados. Medido no navegador, com
+              a fonte já carregada:
+
+                390px    "Frete grátis"  97px   coluna de 118px   folga 21px
+                1440px   "Frete grátis" 150px   coluna de 195px   folga 45px
+
+              ⚠️ E MEÇA NO NAVEGADOR, NÃO NO CANVAS. A primeira medição desta
+              rodada foi feita com `measureText` e deu 83px para o mesmo texto —
+              14px a menos que o real, porque o canvas caiu no fallback antes de
+              a Oswald carregar. Com 83px a conta ainda fecharia a 20px, e a
+              20px o real (108px) já estaria a 10px da borda.
+
+              Se o valor estourar, ele quebra em duas linhas e a faixa perde a
+              linha de base comum — que é a única coisa que faz três colunas
+              lerem como UM objeto em vez de três. */}
+          <span
+            style={{
+              fontFamily: font.display,
+              fontWeight: 600,
+              letterSpacing: '-0.015em',
+              fontSize: 'clamp(18px, 2.2vw, 26px)',
+              lineHeight: 1.1,
+              color: dark.text,
+              display: 'block',
+              whiteSpace: 'nowrap',
+            }}
+          >
+            {s.value}
+          </span>
+          {/* O rótulo SOB o valor nos dois tamanhos — nunca jogado contra a
+              margem oposta (foi o "vão morto" corrigido de manhã).
+              `minHeight` de duas linhas porque "custo da assessoria" mede 120px
+              a 10px e não cabe nos 106px da terceira coluna do celular: ele
+              quebra em duas, e sem a altura reservada as outras duas células
+              terminariam mais alto que ela — três colunas com pés diferentes é
+              exatamente o "desconfigurado" que derrubou os pictogramas das
+              categorias. Reservando, o pé é um só. */}
+          <span
+            className="mt-2 block sm:mt-2.5"
+            style={{
+              ...typo.monoLabel,
+              fontSize: 'clamp(10px, 1vw, 11px)',
+              lineHeight: 1.35,
+              minHeight: '2.7em',
+              color: dark.muted,
+            }}
+          >
+            {s.label}
+          </span>
         </div>
       ))}
     </div>
@@ -373,19 +413,29 @@ export function Hero() {
             )}
 
             <div className="relative">
-              <p className="flex items-center gap-3" style={{ ...typo.eyebrow, color: dark.gold }}>
-                <span aria-hidden style={{ display: 'block', width: 22, height: 1, background: dark.gold, flex: '0 0 auto' }} />
-                {hero.eyebrow}
-              </p>
+              {/* ── O EYEBROW SAIU (dono, 06/08 à noite) ────────────────────
+                  "A pessoa chega, tem um título, tem um subtítulo, tem outro
+                  subtítulo, tem subtítulo do subtítulo."
 
+                  Ele dizia 'MATRIZES PO NELORE · BULA ASSESSORIA' — e as duas
+                  metades já estavam na tela, dentro dos mesmos 200px: a logo
+                  logo acima assina BULA ASSESSORIA em 56px de altura, e a
+                  manchete imediatamente abaixo termina em "Nelore PO". Era o
+                  único bloco da primeira dobra que não acrescentava informação
+                  nenhuma — só mais uma parada para o olho contar.
+
+                  ⚠️ `hero.eyebrow` continua em _lib/copy.ts, sem uso. Não
+                  apaguei porque a copy inteira está pendente de revisão do João
+                  Antônio e apagar string é a mudança mais difícil de desfazer
+                  numa revisão que ainda não aconteceu. */}
               {/* Manchete: um degrau ACIMA da do /touros de propósito. Lá a foto
                   divide o palco; aqui ela é o palco. Medida curta força 3–4
                   linhas — o bloco de texto passa a ter massa visual. */}
-              {/* `mt-4` no celular gruda o eyebrow na manchete — ele É a linha
-                  de cima dela. No `sm:` volta a 20: com a manchete a 68px, 16px
-                  de vão espremem os dois. */}
+              {/* Sem `mt`: o vão que existia aqui era para colar o eyebrow na
+                  manchete, e o eyebrow saiu. Quem separa a manchete da logo
+                  agora é o `mt-[clamp(26px,4.6vw,56px)]` do contêiner. */}
               <h1
-                className="mt-4 max-w-[14ch] sm:mt-5"
+                className="max-w-[14ch]"
                 style={{
                   ...typo.displayXL,
                   fontSize: 'clamp(38px, 6.2vw, 68px)',
@@ -408,29 +458,25 @@ export function Hero() {
                 {hero.lead}
               </p>
 
-              {/* O aviso de que existe análise. Não é rodapé de cortesia: é o
-                  filtro trabalhando antes do primeiro campo, e por isso fica
-                  logo acima do card no celular.
-                  Vai em 15px (não em rótulo mono de 11px, como o /touros faz):
-                  é uma frase inteira, e frase inteira em 11px no celular não é
-                  lida — a alavanca da página depende dela ser lida. O filete
-                  dourado à esquerda dá o destaque que o tamanho pequeno daria. */}
-              {/* `mt-8` (era 7): o aviso se desgruda do olho para se colar no
-                  card logo abaixo. É o par que ele forma — o aviso explica o
-                  formulário, não o parágrafo de cima. */}
-              <p
-                className="mt-8 max-w-[46ch]"
-                style={{
-                  ...typo.body,
-                  fontSize: 15,
-                  lineHeight: 1.55,
-                  color: dark.gold,
-                  borderLeft: `1px solid ${dark.gold}`,
-                  paddingLeft: 16,
-                }}
-              >
-                {hero.ctaNote}
-              </p>
+              {/* ── O AVISO DE ANÁLISE MUDOU DE CASA, NÃO SAIU (06/08) ──────
+                  Ele era o quarto bloco de texto da primeira dobra e vivia
+                  entre o olho e o card, dourado, com filete à esquerda. O que
+                  ele diz — existe ANÁLISE, ela é CONDICIONAL, e o que se ganha
+                  é REUNIÃO — é a coisa mais importante da página para quem vai
+                  se cadastrar: é o que separa "deixei meu telefone num anúncio"
+                  de "entrei numa fila que é analisada".
+
+                  Por isso ele não foi cortado, foi MOVIDO para dentro do card
+                  do formulário (Formulario.tsx), no lugar do "Leva uns minutos.
+                  Quanto mais claro for o seu projeto, melhor a reunião." — que
+                  era conforto, não informação, e era o outro subtítulo de que o
+                  dono reclamou.
+
+                  A troca resolve os dois lados de uma vez: a coluna da promessa
+                  perde uma parada, e a linha que qualifica passa a ser lida
+                  colada no primeiro campo, que é onde ela decide alguma coisa.
+                  A string continua sendo `hero.ctaNote` — ver o comentário dela
+                  em _lib/copy.ts, que é onde o João Antônio vai procurar. */}
             </div>
 
             {/* No desktop a ficha ancora o pé desta coluna, como sempre. No
@@ -439,7 +485,7 @@ export function Hero() {
             {/* O `pt` vem DEPOIS do filete do bloco: rasteira de 1px, respiro,
                 e só então os três números. É o filete abrindo a ficha, não
                 reticulando cada célula. */}
-            <FichaTecnica className="hidden sm:mt-auto sm:grid sm:grid-cols-3 sm:gap-x-8 sm:pt-[clamp(28px,3.4vw,44px)]" />
+            <FichaTecnica className="hidden sm:mt-auto sm:grid sm:grid-cols-3 sm:pt-[clamp(28px,3.4vw,44px)]" />
           </div>
 
           {/* CARD DO CADASTRO — o único formulário da página (INV-7). O guarda
@@ -465,12 +511,14 @@ export function Hero() {
               quem já decidiu preencher não precisa dela antes, e quem ainda
               não decidiu lê o filtro logo abaixo, não a tabela de condições.
 
-              O `gap-[20px]` é o que substituiu os filetes entre as linhas: com
-              o rótulo mono a 11px e o valor a 20px, vinte pixels de ar separam
-              as três condições com folga — o branco entre duas linhas do mesmo
-              parágrafo tem menos de 10px, então a distância de grupo é o dobro
-              da distância de linha e o olho não confunde. */}
-          <FichaTecnica className="mt-[clamp(28px,5vw,40px)] flex flex-col gap-[20px] pt-[22px] sm:hidden" />
+              ⚠️ E DESDE 06/08 À NOITE ELA É UMA FAIXA DE TRÊS COLUNAS TAMBÉM
+              NO CELULAR — não mais três linhas empilhadas. O empilhamento era
+              três objetos com o mesmo peso, um embaixo do outro, e o dono leu
+              exatamente isso: "tá horroroso". Em três colunas divididas por
+              filete de 1px, as mesmas três condições viram UM objeto — uma
+              faixa de condições, que é o que elas são: não se lê uma de cada
+              vez, lê-se a faixa. E custa 100px a menos de altura. */}
+          <FichaTecnica className="mt-[clamp(28px,5vw,40px)] grid grid-cols-3 pt-[22px] sm:hidden" />
         </div>
       </div>
     </section>
