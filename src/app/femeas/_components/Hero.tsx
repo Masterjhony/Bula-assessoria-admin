@@ -20,38 +20,158 @@ import { LeadForm } from './Formulario'
 // O conteúdo continua vindo de `hero.stats` (INV-5): é uma lista só, exibida
 // em dois lugares — não duas listas para alguém editar pela metade.
 //
-// No celular são três linhas com filete (valor à esquerda, rótulo à direita);
-// no desktop, grade de três. Nada de três colunas espremidas em 390px, onde
-// "Frete grátis" quebraria no meio da palavra.
+// São TRÊS COLUNAS nos dois tamanhos, divididas por filete de 1px. O que muda
+// por breakpoint é só a escala e o respiro.
+//
+// ⚠️ ESTE COMENTÁRIO DIZIA O CONTRÁRIO ATÉ 06/08 — "nada de três colunas
+// espremidas em 390px, onde 'Frete grátis' quebraria no meio da palavra". Era
+// SUPOSIÇÃO, nunca medida, e sustentou o empilhamento que o dono chamou de
+// "horroroso". Medido com a Range API sobre o texto: "Frete grátis" tem 79,7px
+// de tinta a 18px, numa coluna com 98px úteis em 390. Cabia desde sempre.
+//
+// A frase fica aqui porque ela custou uma rodada inteira de desenho — foi ela
+// que fez alguém concluir que o bloco precisava de ícone.
+//
+// ── ALIVIADA EM 06/08, depois da revisão do dono em iPhone ──────────────────
+// A versão anterior empilhava TRÊS ênfases nas mesmas três linhas: filete acima
+// de cada célula, número em Oswald 600 a 24–36px, e rótulo mono em DOURADO
+// caixa alta. Três sinais de destaque disputando o mesmo bloco — e um bloco que
+// no celular vem DEPOIS do formulário, onde ele é reforço, não argumento.
+// Quem chegou ali já viu a promessa; a ficha só confirma as condições.
+//
+// O que mudou, e o que cada corte alivia:
+//
+//   · TRÊS filetes viraram UM, acima do bloco inteiro. O filete agora diz
+//     "começou a ficha", que é trabalho de abertura; antes ele reticulava cada
+//     linha e transformava a ficha em tabela de formulário. Menos traço, mesma
+//     ancoragem — o espaço entre as linhas já separa as três.
+//   · O número caiu de clamp(24,3vw,36) para clamp(20,2.2vw,26). Não é "fonte
+//     menor por leveza": é hierarquia. A 36px ele competia com a manchete de
+//     68px do mesmo hero; a 26px ele é claramente subordinado a ela.
+//   · O rótulo saiu do DOURADO para o cinza secundário. O dourado é voltagem
+//     ÚNICA e escassa nesta linguagem (ver tokens.ts) — gastá-lo em três
+//     rótulos de condição comercial enfraquece os lugares onde ele carrega
+//     decisão: o eyebrow, o aviso de análise e o botão. `dark.muted` mede ~8:1
+//     sobre o near-black, então passa AA nos 11px do rótulo.
+//
+// ── E O DONO VOLTOU A APONTÁ-LA. UMA VEZ ERA GEOMETRIA (06/08) ────────────
+// As três ênfases tinham sido aliviadas, mas o ARRANJO continuava o mesmo, e o
+// arranjo era o defeito: `justify-between` jogava o valor na margem esquerda e o
+// rótulo na direita, com ~330px de nada entre os dois num iPhone. Medido no
+// print: "30x" terminava em x=95 e "NO BOLETO" só começava em x=598. Uma tabela
+// de duas colunas — e tabela foi o que o olho leu.
+//
+// ⚠️ O CONSERTO DAQUELA VEZ (valor e rótulo na MESMA LINHA, encostados) NÃO É O
+// QUE ESTÁ NO CÓDIGO HOJE, e a diferença importa para quem for mexer: naquele
+// arranjo os três dados eram três LINHAS empilhadas; hoje são três COLUNAS, e o
+// rótulo voltou para debaixo do valor. O que continua valendo daquela rodada é a
+// regra que ela descobriu — valor e rótulo são UM dado e ficam juntos, nunca em
+// margens opostas com vão morto no meio. Numa coluna estreita eles ficam juntos
+// empilhando, não lado a lado.
+//
+// ── QUARTA RODADA: ENTRARAM MARCAS. QUINTA: SAÍRAM, E VIROU FAIXA ─────────
+// Na quarta rodada a ficha ganhou três marcas SVG de 34–40px. O raciocínio
+// estava medido e continua correto no que ele mediu: o bloco entregava 1,25× de
+// razão tipográfica e 0,0% de área não-texto, reprovando os dois lados da régua
+// da página, e subir o tipo até 2,0× (32px+) está fechado porque a manchete
+// deste mesmo hero é clamp(38,6.2vw,68) — um número de 32px volta a brigar com
+// ela, que foi exatamente o defeito da rodada 1, com o valor em 36px.
+//
+// O erro foi concluir que, se não pode ser escala, TEM que ser desenho. O dono
+// olhou e respondeu no mesmo dia: "tá horroroso. Procura um design em tópicos
+// melhor, SEM EMOJI, SEM ÍCONE." As marcas foram removidas (o commit é
+// reversível: 431575f).
+//
+// ⚠️ O DEFEITO QUE SOBROU, quando o ícone sai, não era falta de ilustração: era
+// que TRÊS CONDIÇÕES EMPILHADAS SÃO TRÊS OBJETOS. Uma embaixo da outra, mesmo
+// peso, mesmo alinhamento, o olho conta três paradas e nenhuma delas é
+// importante o bastante para justificar a parada. É o mesmo diagnóstico da
+// primeira dobra inteira ("muita informação"), na escala do bloco.
+//
+// A saída é AGRUPAR, não ilustrar: três colunas divididas por filete de 1px, em
+// TODOS os tamanhos. Vira uma faixa de condições — um objeto só, lido de uma
+// vez, do jeito que se lê o rodapé de um contrato. Zero ícone, zero palavra
+// nova, ~100px a menos de altura no celular, e a régua da página segue paga
+// pelo hero inteiro (2,38× de razão, 27% de imagem), que é a unidade que a
+// régua mede — a ficha nunca foi uma seção.
 // ─────────────────────────────────────────────────────────────────────────
 function FichaTecnica({ className }: { className: string }) {
   return (
-    <div className={className}>
-      {hero.stats.map((s) => (
+    <div className={className} style={{ borderTop: `1px solid ${dark.hairline}` }}>
+      {hero.stats.map((s, i) => (
         <div
           key={s.label}
-          className="flex items-baseline justify-between gap-4 py-3 sm:block sm:py-0"
-          style={{ borderTop: `1px solid ${dark.hairline}`, paddingTop: 14 }}
+          // A COLUNA É A CÉLULA. O divisor é a borda esquerda de quem não é o
+          // primeiro — dois filetes para três colunas, que é o mínimo que
+          // divide. Filete em volta de cada célula daria seis.
+          style={{
+            borderLeft: i === 0 ? undefined : `1px solid ${dark.hairline}`,
+            paddingLeft: i === 0 ? 0 : 'clamp(10px, 2.6vw, 22px)',
+            paddingRight: i === hero.stats.length - 1 ? 0 : 'clamp(10px, 2.6vw, 22px)',
+          }}
         >
+          {/* ⚠️ O TAMANHO DESTE VALOR FOI MEDIDO TRÊS VEZES E ERRADO DUAS. As
+              duas medições ruins ficam registradas porque as duas são armadilha
+              de ferramenta, não descuido:
+
+                canvas `measureText`          83,0px   ← mediu antes de a Oswald
+                                                         carregar, caiu no fallback
+                `getBoundingClientRect`       97,0px   ← este span é `display:block`,
+                                                         então devolveu a largura
+                                                         da CÉLULA, não do texto
+                Range API sobre o texto       79,7px   ← a tinta de verdade
+
+              Só a terceira mede glifo. As outras duas concordavam com o valor a
+              18px por coincidência, e uma delas ia me fazer travar o tipo 2px
+              abaixo do que cabe.
+
+              ⚠️ E O PONTO APERTADO NÃO É O CELULAR — É 1024px. Lá o card do
+              formulário (468px) já entrou na grade, a coluna da promessa
+              encolheu e o `clamp` já subiu o valor para 22,5px. Medido com a
+              faixa em terços iguais:
+
+                390     tinta  79,7  ·  conteúdo  98,0  ·  folga 18,3
+                768     tinta  79,7  ·  conteúdo 197,4  ·  folga 117,7
+                1024    tinta  99,8  ·  conteúdo 105,6  ·  folga  5,9  ← aqui
+                1440    tinta 115,2  ·  conteúdo 150,7  ·  folga 35,5
+
+              5,9px de folga é o que separa a faixa de quebrar em duas linhas e
+              perder a linha de base comum — que é a única coisa que faz três
+              colunas lerem como UM objeto em vez de três. Por isso a coluna do
+              meio ficou 15% mais larga que as vizinhas (ver `gridTemplateColumns`
+              nas duas chamadas): a coluna mais estreita não pode ser justamente
+              a que carrega o valor mais longo. */}
           <span
             style={{
               fontFamily: font.display,
               fontWeight: 600,
               letterSpacing: '-0.015em',
-              fontSize: 'clamp(24px, 3vw, 36px)',
-              lineHeight: 1.05,
+              fontSize: 'clamp(20px, 2.2vw, 26px)',
+              lineHeight: 1.1,
               color: dark.text,
               display: 'block',
+              whiteSpace: 'nowrap',
             }}
           >
             {s.value}
           </span>
-          {/* À direita no celular (onde valor e rótulo dividem a mesma linha) e
-              à esquerda no desktop (onde o rótulo fica sob o valor, e alinhar à
-              direita descolaria os dois). */}
+          {/* O rótulo SOB o valor nos dois tamanhos — nunca jogado contra a
+              margem oposta (foi o "vão morto" corrigido de manhã).
+              `minHeight` de duas linhas porque "custo da assessoria" mede 120px
+              a 10px e não cabe nos 106px da terceira coluna do celular: ele
+              quebra em duas, e sem a altura reservada as outras duas células
+              terminariam mais alto que ela — três colunas com pés diferentes é
+              exatamente o "desconfigurado" que derrubou os pictogramas das
+              categorias. Reservando, o pé é um só. */}
           <span
-            className="text-right sm:mt-2 sm:text-left"
-            style={{ ...typo.monoLabel, fontSize: 11, color: dark.gold, display: 'block' }}
+            className="mt-2 block sm:mt-2.5"
+            style={{
+              ...typo.monoLabel,
+              fontSize: 'clamp(10px, 1vw, 11px)',
+              lineHeight: 1.35,
+              minHeight: '2.7em',
+              color: dark.muted,
+            }}
           >
             {s.label}
           </span>
@@ -78,8 +198,8 @@ function FichaTecnica({ className }: { className: string }) {
 //   · banho radial dourado quase imperceptível saindo do canto superior
 //     esquerdo — dá profundidade ao near-black sem glass e sem sombra;
 //   · inicial de livery gigante a 5% de opacidade (mesmo recurso do /touros);
-//   · ficha técnica com filete em cima de cada célula: no celular ela é uma
-//     tabela de especificação, e é ela que segura o olho antes do formulário.
+//   · ficha técnica ancorando o pé da coluna de promessa — um filete só abrindo
+//     o bloco, e o resto separado por ar (ver o cabeçalho de FichaTecnica).
 //
 // ⚠️ O formulário continua sendo UM SÓ na página inteira (INV-7) e mora aqui, em
 // #cadastro. O Fecho e o StickyCta apontam para a âncora; nenhum dos dois
@@ -147,12 +267,25 @@ export function Hero() {
               media 2,50:1 sobre a foto — reprova em AA, que pede 4,5:1 para
               texto pequeno. O pelo do Nelore é quase branco; qualquer véu leve
               deixa texto claro sobre fundo claro.
-              Medir com: scripts/femeas/ (ou amostrando o pixel do print). */}
+              Medir com: scripts/femeas/ (ou amostrando o pixel do print).
+
+              ⚠️ O PRIMEIRO STOP SUBIU DE 0,72 PARA 0,78 EM 06/08, e é
+              consequência direta do reagrupamento do ritmo logo abaixo: ao
+              encurtar os vãos do topo, o eyebrow subiu ~14px e entrou numa faixa
+              MAIS CLARA do próprio gradiente. Os três números, medidos:
+
+                5,00:1  documentado antes desta rodada
+                4,78:1  ritmo novo com o scrim antigo — passa, mas com 0,28 de
+                        folga sobre o mínimo, pouco para uma foto trocável
+                5,15:1  ritmo novo com o primeiro stop em 0,78   ← hoje
+
+              É a regra desta banda: quem mexe na POSIÇÃO do texto mexe no
+              CONTRASTE dele, porque o fundo aqui é um degradê, não uma cor. */}
           <div
             className="absolute inset-0"
             style={{
               background:
-                'linear-gradient(180deg, rgba(13,13,13,0.72) 0%, rgba(13,13,13,0.80) 26%, rgba(13,13,13,0.90) 62%, rgba(13,13,13,0.97) 84%, #0D0D0D 100%)',
+                'linear-gradient(180deg, rgba(13,13,13,0.78) 0%, rgba(13,13,13,0.82) 26%, rgba(13,13,13,0.90) 62%, rgba(13,13,13,0.97) 84%, #0D0D0D 100%)',
             }}
           />
         </div>
@@ -171,17 +304,67 @@ export function Hero() {
                 'linear-gradient(180deg, rgba(13,13,13,0.68) 0%, rgba(13,13,13,0.52) 44%, rgba(13,13,13,0.92) 100%)',
             }}
           />
+          {/* ⚠️ O STOP DO MEIO SUBIU DE 0,52 PARA 0,62 EM 06/08 — é o conserto
+              de uma REPROVAÇÃO EM AA que estava medida e documentada desde a
+              rodada anterior (public/femeas/README.md): o olho do hero no
+              desktop media 4,11:1 contra os 4,5:1 que 18px regular exige (18px
+              NÃO conta como texto grande — a régua é 24px, ou 18,66px em
+              negrito). O pior pixel ficava a 96% da largura do parágrafo, na
+              faixa onde este gradiente afinava.
+
+              Das três saídas que o README listou, esta é a que não cobra em
+              cima do que o dono aprovou: encurtar a medida do parágrafo reflui
+              a coluna inteira e depende do comprimento do texto (que muda);
+              clarear o olho para branco contraria a regra da linguagem (corpo é
+              cinza editorial, nunca branco — ver _lib/tokens.ts). Fechar o véu
+              custa só o pedaço da foto que já está ATRÁS DO TEXTO.
+
+              E o custo é pequeno de propósito: o stop de 74% ficou intocado, e é
+              ele que governa o lado direito — que é onde a foto respira e onde o
+              animal aparece. Escurece onde tem letra, não onde tem bicho.
+              Medido depois: 4,69:1. */}
           <div
             className="absolute inset-0"
             style={{
               background:
-                'linear-gradient(90deg, rgba(13,13,13,0.86) 0%, rgba(13,13,13,0.52) 46%, rgba(13,13,13,0.18) 74%, rgba(13,13,13,0.28) 100%)',
+                'linear-gradient(90deg, rgba(13,13,13,0.86) 0%, rgba(13,13,13,0.62) 46%, rgba(13,13,13,0.18) 74%, rgba(13,13,13,0.28) 100%)',
             }}
           />
         </div>
       )}
 
-      <div className="relative mx-auto w-full max-w-[1180px] px-5 pb-[clamp(56px,8vw,104px)] pt-8 sm:px-8 sm:pt-10">
+      {/* ── O RITMO DA 1ª DOBRA, REAGRUPADO EM 06/08 ─────────────────────────
+          Terceira vez que o dono diz que o hero está pesado. O texto está sendo
+          encurtado em paralelo; o que se resolve AQUI é o tratamento, e o
+          defeito do tratamento era ESPAÇAMENTO UNIFORME.
+
+          Os vãos do celular eram 32 · 56(logo) · 32 · 20 · 24 · 28 · 36. Todos
+          na mesma faixa. Vão igual entre tudo não hierarquiza nada: o olho conta
+          SEIS paradas de peso idêntico (marca, eyebrow, manchete, olho, aviso,
+          card) e a soma disso é o que se sente como "muito texto" — mesmo que
+          cada bloco, sozinho, seja curto.
+
+          Os vãos agora agrupam, e a primeira dobra passa a ter QUATRO paradas:
+
+            marca            ·  26 abaixo
+            [eyebrow 16 manchete]        ← o eyebrow é a linha de cima da
+              manchete, não um bloco à parte: 16 gruda os dois
+            olho             ·  24 acima
+            [aviso 26 card]  ·  32 acima  ← o aviso fala DO formulário; 32 em
+              cima e 26 embaixo o desgruda do olho e o cola no card
+
+          Nada encolheu de tamanho, nada saiu, e a manchete grande que ele
+          elogiou está intacta. É só o branco redistribuído — e como sobrou
+          branco, o `primeiroCampo` caiu junto, o que é o número que este arquivo
+          não pode piorar (scripts/femeas/medir-pagina.mjs).
+
+          ⚠️ Os cortes são de CELULAR. Todo `clamp()` abaixo preserva o teto, e
+          onde não havia clamp entrou `sm:` — em 1440 os vãos deste hero são os
+          mesmos de antes, porque a queixa foi em iPhone e o desktop já respira.
+          ⚠️ Mexer nestes números move o texto dentro do scrim da foto, e o pelo
+          do Nelore é quase branco: refazer a medição de contraste
+          (public/femeas/README.md) antes de subir. */}
+      <div className="relative mx-auto w-full max-w-[1180px] px-5 pb-[clamp(56px,8vw,104px)] pt-6 sm:px-8 sm:pt-10">
         {/* Marca — centralizada e grande, como no /touros (pedido do cliente
             24/07). É o primeiro sinal de que a página não é de um vendedor
             avulso, e num hero sem foto ela carrega mais peso ainda. */}
@@ -196,7 +379,7 @@ export function Hero() {
           />
         </div>
 
-        <div className="mt-[clamp(32px,5vw,56px)] lg:grid lg:grid-cols-[1fr_minmax(380px,468px)] lg:items-stretch lg:gap-x-[clamp(40px,5vw,80px)]">
+        <div className="mt-[clamp(26px,4.6vw,56px)] lg:grid lg:grid-cols-[1fr_minmax(380px,468px)] lg:items-stretch lg:gap-x-[clamp(40px,5vw,80px)]">
           {/* COLUNA DA PROMESSA. No celular ela vem inteira antes do card — e a
               ordem do DOM é a ordem da leitura: kicker → manchete → olho →
               aviso de análise → ficha técnica → formulário. */}
@@ -229,16 +412,29 @@ export function Hero() {
             )}
 
             <div className="relative">
-              <p className="flex items-center gap-3" style={{ ...typo.eyebrow, color: dark.gold }}>
-                <span aria-hidden style={{ display: 'block', width: 22, height: 1, background: dark.gold, flex: '0 0 auto' }} />
-                {hero.eyebrow}
-              </p>
+              {/* ── O EYEBROW SAIU (dono, 06/08 à noite) ────────────────────
+                  "A pessoa chega, tem um título, tem um subtítulo, tem outro
+                  subtítulo, tem subtítulo do subtítulo."
 
+                  Ele dizia 'MATRIZES PO NELORE · BULA ASSESSORIA' — e as duas
+                  metades já estavam na tela, dentro dos mesmos 200px: a logo
+                  logo acima assina BULA ASSESSORIA em 56px de altura, e a
+                  manchete imediatamente abaixo termina em "Nelore PO". Era o
+                  único bloco da primeira dobra que não acrescentava informação
+                  nenhuma — só mais uma parada para o olho contar.
+
+                  ⚠️ `hero.eyebrow` continua em _lib/copy.ts, sem uso. Não
+                  apaguei porque a copy inteira está pendente de revisão do João
+                  Antônio e apagar string é a mudança mais difícil de desfazer
+                  numa revisão que ainda não aconteceu. */}
               {/* Manchete: um degrau ACIMA da do /touros de propósito. Lá a foto
                   divide o palco; aqui ela é o palco. Medida curta força 3–4
                   linhas — o bloco de texto passa a ter massa visual. */}
+              {/* Sem `mt`: o vão que existia aqui era para colar o eyebrow na
+                  manchete, e o eyebrow saiu. Quem separa a manchete da logo
+                  agora é o `mt-[clamp(26px,4.6vw,56px)]` do contêiner. */}
               <h1
-                className="mt-5 max-w-[14ch]"
+                className="max-w-[14ch]"
                 style={{
                   ...typo.displayXL,
                   fontSize: 'clamp(38px, 6.2vw, 68px)',
@@ -261,32 +457,34 @@ export function Hero() {
                 {hero.lead}
               </p>
 
-              {/* O aviso de que existe análise. Não é rodapé de cortesia: é o
-                  filtro trabalhando antes do primeiro campo, e por isso fica
-                  logo acima do card no celular.
-                  Vai em 15px (não em rótulo mono de 11px, como o /touros faz):
-                  é uma frase inteira, e frase inteira em 11px no celular não é
-                  lida — a alavanca da página depende dela ser lida. O filete
-                  dourado à esquerda dá o destaque que o tamanho pequeno daria. */}
-              <p
-                className="mt-7 max-w-[46ch]"
-                style={{
-                  ...typo.body,
-                  fontSize: 15,
-                  lineHeight: 1.55,
-                  color: dark.gold,
-                  borderLeft: `1px solid ${dark.gold}`,
-                  paddingLeft: 16,
-                }}
-              >
-                {hero.ctaNote}
-              </p>
+              {/* ── O AVISO DE ANÁLISE MUDOU DE CASA, NÃO SAIU (06/08) ──────
+                  Ele era o quarto bloco de texto da primeira dobra e vivia
+                  entre o olho e o card, dourado, com filete à esquerda. O que
+                  ele diz — existe ANÁLISE, ela é CONDICIONAL, e o que se ganha
+                  é REUNIÃO — é a coisa mais importante da página para quem vai
+                  se cadastrar: é o que separa "deixei meu telefone num anúncio"
+                  de "entrei numa fila que é analisada".
+
+                  Por isso ele não foi cortado, foi MOVIDO para dentro do card
+                  do formulário (Formulario.tsx), no lugar do "Leva uns minutos.
+                  Quanto mais claro for o seu projeto, melhor a reunião." — que
+                  era conforto, não informação, e era o outro subtítulo de que o
+                  dono reclamou.
+
+                  A troca resolve os dois lados de uma vez: a coluna da promessa
+                  perde uma parada, e a linha que qualifica passa a ser lida
+                  colada no primeiro campo, que é onde ela decide alguma coisa.
+                  A string continua sendo `hero.ctaNote` — ver o comentário dela
+                  em _lib/copy.ts, que é onde o João Antônio vai procurar. */}
             </div>
 
             {/* No desktop a ficha ancora o pé desta coluna, como sempre. No
                 celular ela NÃO aparece aqui — ver a segunda instância, depois
                 do formulário. */}
-            <FichaTecnica className="hidden sm:mt-auto sm:grid sm:grid-cols-3 sm:gap-x-8 sm:pt-[clamp(32px,4vw,56px)]" />
+            {/* O `pt` vem DEPOIS do filete do bloco: rasteira de 1px, respiro,
+                e só então os três números. É o filete abrindo a ficha, não
+                reticulando cada célula. */}
+            <FichaTecnica className="hidden sm:mt-auto sm:grid sm:grid-cols-[1fr_1.15fr_1fr] sm:pt-[clamp(28px,3.4vw,44px)]" />
           </div>
 
           {/* CARD DO CADASTRO — o único formulário da página (INV-7). O guarda
@@ -299,7 +497,7 @@ export function Hero() {
           <div
             id="cadastro"
             style={{ scrollMarginTop: 12 }}
-            className="mt-[clamp(36px,6vw,56px)] w-full sm:mx-auto sm:max-w-[560px] lg:mx-0 lg:mt-0 lg:max-w-none lg:self-start"
+            className="mt-[clamp(26px,4.6vw,56px)] w-full sm:mx-auto sm:max-w-[560px] lg:mx-0 lg:mt-0 lg:max-w-none lg:self-start"
           >
             <LeadForm />
           </div>
@@ -310,8 +508,16 @@ export function Hero() {
               844 (o /touros, que é o análogo, faz 633). A ficha valia ~200px
               empurrando o campo para baixo, e ela é argumento de REFORÇO —
               quem já decidiu preencher não precisa dela antes, e quem ainda
-              não decidiu lê o filtro logo abaixo, não a tabela de condições. */}
-          <FichaTecnica className="mt-[clamp(28px,5vw,40px)] flex flex-col sm:hidden" />
+              não decidiu lê o filtro logo abaixo, não a tabela de condições.
+
+              ⚠️ E DESDE 06/08 À NOITE ELA É UMA FAIXA DE TRÊS COLUNAS TAMBÉM
+              NO CELULAR — não mais três linhas empilhadas. O empilhamento era
+              três objetos com o mesmo peso, um embaixo do outro, e o dono leu
+              exatamente isso: "tá horroroso". Em três colunas divididas por
+              filete de 1px, as mesmas três condições viram UM objeto — uma
+              faixa de condições, que é o que elas são: não se lê uma de cada
+              vez, lê-se a faixa. E custa 100px a menos de altura. */}
+          <FichaTecnica className="mt-[clamp(28px,5vw,40px)] grid grid-cols-[1fr_1.15fr_1fr] pt-[22px] sm:hidden" />
         </div>
       </div>
     </section>

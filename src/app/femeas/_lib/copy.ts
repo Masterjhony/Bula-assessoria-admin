@@ -26,6 +26,26 @@
 //   [VALIDAR]  — claim que não pode ir ao ar sem o cliente confirmar
 //   [JA]       — pergunta específica para o João Antônio
 //
+// ⚠️ A MARCAÇÃO VIVE NO COMENTÁRIO, NÃO DENTRO DA STRING. Só `obrigado.*.prazo`
+// carrega "[VALIDAR]" no próprio texto, e carrega porque aquele campo é o único
+// renderizado através de `semMarcacao()` (fim deste arquivo). Todo o resto da
+// página imprime a string como ela está — `{hero.lead}`, `{provaSocial.title}` —
+// então um "[JA]" colado no texto vai parar na tela do lead.
+//
+// ── RODADA DE 06/08 (enxugar) — PROPOSTAS AINDA NÃO LIDAS PELO JA ──────────
+// Pedido do dono, em duas frases: "o hero segue pesado, há muito texto" e "na
+// parte onde tem logos, quero melhorar o texto". O que mudou nesta rodada, e
+// onde está o antes de cada um (a redação de 05/08 ficou COMENTADA ao lado, para
+// comparação — nada foi apagado):
+//
+//   · hero.lead      — 37 → 21 palavras. Ver o comentário do campo.
+//   · hero.ctaNote   — 16 → 11 palavras. Ver o comentário do campo.
+//   · provaSocial    — o eyebrow passou a dizer de quem são os logos, e o
+//                      título inverteu a ordem das duas frases. Ver a seção.
+//   · paraQuem.lead  — OLHADA E NÃO CORTADA, de propósito. O motivo está
+//                      escrito lá; é o único ponto desta rodada onde encurtar
+//                      custava mais do que ganhava.
+//
 // A DIFERENÇA DE TOM em relação ao /touros, que é deliberada e não deve ser
 // "corrigida" para ficar igual: a landing de touros vende RETORNO no bezerro,
 // promessa concreta em R$, ciclo curto. Esta vende PROJETO — o cara está
@@ -48,10 +68,76 @@ export const hero = {
   // A promessa é a marca própria, não o animal. Veio quase literal da reunião:
   // "crie sua própria marca de Nelore PO, seu próprio criatório".
   title: 'Crie a sua própria marca de Nelore PO.',
-  lead: 'Quem compra touro melhora o bezerro que vende. Quem compra matriz PO passa a produzir o touro que os outros compram. A Bula te acompanha nessa virada — da escolha da primeira fêmea ao acasalamento do seu plantel.',
+  // ── ENXUGADO EM 06/08 · 37 → 21 palavras · pendente do JA ─────────────────
+  // A redação de 05/08, íntegra:
+  //
+  //   'Quem compra touro melhora o bezerro que vende. Quem compra matriz PO
+  //    passa a produzir o touro que os outros compram. A Bula te acompanha nessa
+  //    virada — da escolha da primeira fêmea ao acasalamento do seu plantel.'
+  //
+  // O QUE FICOU são as duas primeiras frases, caractere a caractere. Elas são a
+  // oposição que sustenta a página inteira (touro melhora o que você vende /
+  // matriz faz de você quem vende), e mexer nelas não estava em discussão —
+  // encurtar aqui é escolher O QUE SAI DEPOIS delas, não reescrevê-las.
+  //
+  // O QUE SAIU foi a terceira frase, e ela saiu por três razões somadas:
+  //
+  //  1. É a única do parágrafo que a página REPETE em outro lugar. "A Bula te
+  //     acompanha" é a tese inteira da seção `assessoria` ("A Bula não vende o
+  //     animal e some"), e os dois exemplos que ela enumera — escolha do animal
+  //     e acasalamento — são dois dos quatro cartões de lá, com mais espaço e
+  //     mais detalhe do que cabe numa oração de olho.
+  //  2. Ela diluía o remate. Terminar em "o touro que os outros compram" deixa a
+  //     virada como última coisa lida antes do aviso de análise; terminar numa
+  //     lista de serviços troca o argumento por um índice.
+  //  3. Ela era o único ponto do HERO a prometer acasalamento — que é a
+  //     promessa [VALIDAR] pendente de aval da equipe técnica (ver
+  //     `assessoria.itens`). Enquanto ela não fecha, tê-la em um lugar só, e
+  //     abaixo da dobra, é menos exposição, não mais.
+  //
+  // O ganho medido é de LINHA, não de palavra: 212 → 116 caracteres tira o olho
+  // de ~5 para ~3 linhas num iPhone (~44 caracteres por linha a 16px dentro dos
+  // 350px úteis), ou seja ~52px a menos entre a manchete e o primeiro campo.
+  // Este parágrafo está no caminho de quem JÁ decidiu preencher.
+  //
+  // ⚠️ SE O JA QUISER A MARCA DE VOLTA NO OLHO, o meio-termo é acrescentar uma
+  // terceira frase de 8 palavras em vez das 16 antigas — fica em 29 palavras e
+  // ~4 linhas, e mantém o remate na virada porque a nova frase é curta:
+  //
+  //   lead: 'Quem compra touro melhora o bezerro que vende. Quem compra matriz
+  //          PO passa a produzir o touro que os outros compram. É essa virada
+  //          que a Bula acompanha.'
+  //
+  // Não é a versão em uso porque "acompanhamento" já chega ao leitor no hero por
+  // outros dois caminhos: o `ctaNote` promete reunião com assessor, e a ficha
+  // técnica diz "R$ 0 · custo da assessoria".
+  lead: 'Quem compra touro melhora o bezerro que vende. Quem compra matriz PO passa a produzir o touro que os outros compram.',
   cta: 'Quero montar meu criatório',
   // Contra-intuitivo de propósito: avisa que tem análise. Ver cabeçalho.
-  ctaNote: 'Cadastro analisado pela nossa equipe · Se aprovado, você é chamado para uma reunião com um assessor',
+  //
+  // ── ENXUGADO EM 06/08 · 16 → 11 palavras · pendente do JA ─────────────────
+  // Antes: 'Cadastro analisado pela nossa equipe · Se aprovado, você é chamado
+  //         para uma reunião com um assessor'
+  //
+  // Saiu "você é chamado para uma", que é construção, não informação. As três
+  // coisas que esta linha existe para dizer continuam todas de pé, e na mesma
+  // ordem: existe ANÁLISE (feita por gente — "nossa equipe" fica), ela é
+  // CONDICIONAL ("se aprovado" — nem todo mundo passa), e o que se ganha do
+  // outro lado é REUNIÃO COM ASSESSOR, não um número de WhatsApp.
+  //
+  // A forma telegráfica não é economia de gosto: são 99 → 75 caracteres, que a
+  // 15px dentro dos 46ch tiram esta linha de 3 para 2 linhas — e ela fica logo
+  // acima do card do formulário no celular. O ritmo de ficha com "·" já é o
+  // desta linha, e o `fecho.ctaNote` (aprovado em 05/08) já é assim: "Cadastro
+  // analisado · Reunião com assessor se aprovado".
+  //
+  // ⚠️ O QUE O CORTE CUSTA, e é honesto dizer: "você é chamado" era o único
+  // lugar do hero que deixava claro que QUEM CHAMA É A BULA — a pessoa não
+  // escolhe horário sozinha, o SDR é que agenda. A jornada (passo 03) e as
+  // páginas de obrigado dizem isso com todas as letras, então a informação não
+  // se perde do funil; ela sai do hero. Se o JA achar que precisa estar já na
+  // primeira dobra, a versão de 05/08 acima volta inteira.
+  ctaNote: 'Cadastro analisado pela nossa equipe · Se aprovado, reunião com um assessor',
   // Nenhum número inventado — os três saem de fatos declarados na reunião. Se o
   // cliente quiser prova de escala aqui (nº de criatórios atendidos, animais
   // vendidos), ele precisa fornecer o número; não estimar.
@@ -125,6 +211,22 @@ export const paraQuem = {
   // exceção "para as pequenas".
   eyebrow: 'O FILTRO',
   title: 'Antes de você preencher: isto aqui não é para todo mundo.',
+  // ── OLHADA NA RODADA DE 06/08 E MANTIDA INTACTA ───────────────────────────
+  // Entrou na lista de "ver se dá para encurtar" e sai dela sem uma palavra a
+  // menos. O registro fica aqui para ninguém refazer a análise daqui a um mês:
+  //
+  //  · O PROBLEMA DE DENSIDADE DESTA SEÇÃO NÃO ESTÁ AQUI. São 17 palavras (≈2
+  //    linhas no celular) contra as ~9 frases dos critérios, que é onde o peso
+  //    mora — e o corte que valia a pena ali já foi feito, escondendo a segunda
+  //    oração abaixo de 640px (ver `CriterioFiltro`). Cortar 3 palavras do olho
+  //    valeria ~0 pixel: continuariam 2 linhas.
+  //  · E ELA É A ÚNICA FRASE DA PÁGINA QUE JUSTIFICA O FILTRO PELO LADO DO
+  //    LEITOR. O título acima dele diz "não é para todo mundo", que sozinho é
+  //    porta na cara; esta linha explica que a porta existe para não tomar o
+  //    tempo dele. É exatamente o tom aprovado em 05/08 — direto sem ser
+  //    grosseiro — e é o que segura o comprador de touro na página até o convite
+  //    do outro funil, no pé da seção. Encurtar aqui não deixa a página mais
+  //    leve, deixa mais seca.
   lead: 'Preferimos te dizer agora do que tomar seu tempo numa reunião que não vai levar a nada.',
 
   simTitle: 'É para você se',
@@ -179,9 +281,62 @@ export const paraQuem = {
   escape:
     'Procura touro para melhorar a vacada que você já tem? Esse é o nosso outro trabalho, e ele é bem mais rápido.',
   escapeCta: 'Ver a assessoria de touros',
-  escapeHref: 'https://touros.bulaassessoria.com',
+  // ⚠️ COM UTM DESDE 06/08, e a razão é de argumento, não de tracking: o filtro
+  // desta página é duro de propósito, e a ÚNICA coisa que justifica a dureza é
+  // que quem sai por aqui não se perde — vai para o outro funil. Até hoje isso
+  // era uma afirmação sem número: o link saía pelado e chegava no touros como
+  // tráfego direto, indistinguível de quem digitou o endereço.
+  //
+  // Agora dá para responder "quantos leads de touro vieram do filtro de fêmeas
+  // este mês?" — e essa resposta é o que diz se o filtro está desqualificando ou
+  // só perdendo gente. Se vier zero por semanas, o problema não é o filtro: é a
+  // saída, que ninguém está usando.
+  escapeHref:
+    'https://touros.bulaassessoria.com/?utm_source=femeas&utm_medium=escape&utm_campaign=filtro-para-quem',
 }
 
+// ─────────────────────────────────────────────────────────────────────────
+// ⚠️ [JA] PROPOSTA DE CORTE — NÃO APLICADA. Quem aprova copy é o João Antônio;
+// o que está aqui é o número, para a decisão ser tomada com ele na mão.
+//
+// Esta é a seção mais densa da página, e por larga margem: 270 palavras em
+// 858px no celular = 315 palavras/1000px, contra 101 na jornada e 111 na
+// assessoria. É também a única que NÃO pode receber foto (as seis categorias se
+// distinguem pelo estágio do animal, e todo material existente é de lote em
+// manejo — ilustrar aqui seria informação falsa numa seção que orienta compra).
+// Na rodada de 06/08 ela ganhou peso visual pela escala tipográfica; o que
+// sobra, se ainda parecer densa, é palavra.
+//
+// De onde vêm as 270 palavras, medido campo a campo:
+//
+//   ~103  os seis `resumo`     (_lib/categorias.ts)
+//    ~90  os seis `paraQuem`   (_lib/categorias.ts)
+//     32  o `lead` daqui
+//     15  a `nota` daqui
+//    ~30  títulos e nomes
+//
+// AS DUAS PROPOSTAS, em ordem de risco:
+//
+//  1. BAIXO RISCO — o `lead` termina em "e é isso que a reunião com o assessor
+//     resolve" (10 palavras). A jornada já diz isso literalmente no passo 04
+//     ("a partir daí te direciona para a categoria por onde faz sentido você
+//     começar"), e o hero já promete reunião duas vezes. Cortar as 10 palavras
+//     tira 3,7% da seção sem tirar informação que só exista aqui.
+//
+//  2. ALTO RISCO, E EU RECOMENDO NÃO FAZER — esconder os seis `paraQuem` no
+//     celular, do jeito que a `explicacao` do filtro já é escondida. Valeria
+//     90 palavras (-33%, de 315 para ~210 palavras/1000px), que é de longe o
+//     maior corte disponível na página inteira. É por isso que está escrito
+//     aqui, e não porque seja boa ideia: `paraQuem` é a linha que a pessoa
+//     procura quando está tentando se encaixar em alguma das seis, ou seja, é
+//     exatamente a função da seção. Escondê-la no celular deixa a seção mais
+//     leve e sem serventia — e o celular é onde está o tráfego.
+//
+// Se for para cortar 90 palavras em algum lugar, o lugar barato é o `resumo`:
+// cinco dos seis têm duas orações e a segunda repete o que o nome da categoria
+// já diz ("Fêmea prenha: o próximo bezerro do seu criatório já vem a caminho na
+// compra"). Isso é reescrita, não corte mecânico — precisa da mão do JA.
+// ─────────────────────────────────────────────────────────────────────────
 export const categoriasSecao = {
   eyebrow: 'CATEGORIAS',
   title: 'Por onde começar o seu plantel.',
@@ -198,6 +353,19 @@ export const categoriasSecao = {
 // move a flag junto com a frase; um `if (n === '03')` escondido no JSX ficaria
 // para trás e destacaria o passo errado sem ninguém perceber.
 export const jornada = {
+  // A faixa de foto que ABRE esta seção. Ela não ilustra a jornada e não tem
+  // legenda: é respiro, e o lugar dela foi escolhido com régua. Sem ela, quatro
+  // seções seguidas (filtro → categorias → jornada → assessoria) somavam
+  // ~4.700px de texto sem uma única âncora visual no celular; entrando aqui,
+  // esse trecho vira dois de ~2.300px.
+  //
+  // ⚠️ NÃO ESCREVER LEGENDA DE VENDA embaixo dela, pela mesma razão da galeria:
+  // é foto de lote em manejo, não de animal à venda. O `alt` descreve o que
+  // está na foto, não o que a gente gostaria que estivesse.
+  foto: {
+    src: '/femeas/lote-close.webp',
+    alt: 'Duas fêmeas Nelore de frente, no curral, em dia claro',
+  },
   eyebrow: 'COMO FUNCIONA',
   title: 'Como funciona daqui até a sua primeira matriz.',
   lead: 'São quatro passos. O terceiro é o que nos diferencia: você não recebe um número de WhatsApp, você recebe uma reunião.',
@@ -300,11 +468,62 @@ export const assessoria = {
 // catálogo. É literalmente o que a página vende no hero ("crie a sua própria
 // marca"), e é por isso que a faixa fecha o argumento em vez de só decorar.
 // Quando C-07 fechar, o número entra AQUI — não no componente.
+//
+// ── REESCRITA EM 06/08 · pendente do JA ("quero melhorar o texto dos logos") ─
+// A redação anterior, íntegra:
+//
+//   eyebrow: 'QUEM JÁ ESTÁ DO OUTRO LADO'
+//   title:   'Criatórios que hoje vendem genética com o nome deles no catálogo.
+//             Todos começaram menores do que são.'
+//
+// TRÊS DEFEITOS, em ordem de quanto custam:
+//
+//  1. O TEXTO NÃO DIZIA QUE OS LOGOS SÃO CLIENTES — e sem isso a faixa não
+//     prova nada sobre a Bula, prova só que criatórios de Nelore existem, o que
+//     ninguém duvida. A informação existia na página, mas só no `faixaLabel`,
+//     que é `aria-label`: quem enxerga a tela nunca lê. É o defeito grave, e é
+//     de PROVA, não de estilo — a seção chama-se prova social e a atribuição é
+//     a prova. Agora ela está no eyebrow, visível.
+//     ⚠️ Não é claim novo: é a mesma frase que já vai ao ar hoje para leitor de
+//     tela ("atendidos pela Bula Assessoria"), passando para o texto visível.
+//     Nenhum número entrou — C-07 continua aberta e nada aqui a antecipa.
+//  2. O EYEBROW NARRAVA EM VEZ DE ROTULAR. "Quem já está do outro lado" pede
+//     que a pessoa deduza qual é o outro lado (o de quem vende genética, não o
+//     de quem compra) na primeira linha de uma seção nova, e "do outro lado"
+//     ainda flerta com "do outro lado do balcão". Rótulo de seção é a primeira
+//     coisa lida do bloco: ele tem que dizer O QUE ESTÁ ALI.
+//  3. O TÍTULO ABRIA PELO FIM DA HISTÓRIA. 17 palavras em display centralizado
+//     de até 34px, começando por um sintagma sem verbo ("Criatórios que hoje
+//     vendem…") e terminando na frase curta que é o gancho. Invertido, a ordem
+//     passa a ser a do leitor: ele está no começo, então a página começa pelo
+//     começo — e o remate cai em "catálogo", que é palavra por palavra a
+//     promessa do hero ("o seu nome no catálogo, um dia").
+//
+// São 17 → 13 palavras no título, mas o ponto aqui NÃO é o corte: é a
+// atribuição que entrou. Se fosse só encurtar, bastava tirar "do que são".
+//
+// ⚠️ O COMPONENTE SÓ RENDERIZA ESTES TRÊS CAMPOS (eyebrow, title, faixaLabel).
+// Não acrescentar um `lead` aqui esperando que ele apareça — não aparece, e o
+// texto novo some sem erro nenhum.
+//
+// ALTERNATIVA, se o JA quiser preservar o enquadramento narrativo do eyebrow
+// antigo — mas aí a atribuição volta a existir só para leitor de tela, que é o
+// defeito nº 1:
+//
+//   eyebrow: 'QUEM JÁ ESTÁ DO OUTRO LADO'
+//   title:   'Todos eles começaram pequenos.'
 export const provaSocial = {
-  eyebrow: 'QUEM JÁ ESTÁ DO OUTRO LADO',
-  title: 'Criatórios que hoje vendem genética com o nome deles no catálogo. Todos começaram menores do que são.',
+  eyebrow: 'CRIATÓRIOS ATENDIDOS PELA BULA',
+  title: 'Todos eles começaram pequenos. Hoje vendem genética com o nome deles no catálogo.',
   // Rótulo da faixa para quem usa leitor de tela: sem ele, a lista de logos é
   // um monte de nome de fazenda solto no meio da página.
+  //
+  // MANTIDO PALAVRA POR PALAVRA mesmo agora que o eyebrow diz quase o mesmo. A
+  // repetição para quem ouve a página é de duas palavras e custa um segundo; o
+  // `aria-label` é o ÚNICO contexto que o leitor de tela tem antes de entrar
+  // numa lista de dez nomes de fazenda, e ele precisa fechar sentido sozinho —
+  // o eyebrow é um parágrafo fora do `role="group"`, então não há garantia de
+  // que tenha sido lido antes.
   faixaLabel: 'Criatórios e fazendas atendidos pela Bula Assessoria',
 }
 
@@ -342,22 +561,31 @@ export const rodape = {
 // Os `alt` moram aqui (INV-5) e descrevem o que está na foto, não o que a gente
 // gostaria que estivesse.
 // ─────────────────────────────────────────────────────────────────────────
+// ⚠️ A GALERIA PERDEU UMA FOTO EM 06/08 e a foto NÃO foi descartada: ela desceu
+// para `jornada.foto`. A razão está medida no topo de _components/FaixaFoto.tsx
+// — a página tinha toda a fotografia em dois pontos e ~4.700px de texto seguido
+// depois deles. Duas fotos edge-to-edge cobrem mais área que as três antigas
+// dentro do container, e a terceira passou a fazer o trabalho que faltava lá
+// embaixo.
+//
+// A ESCOLHA DE QUAL FOTO DESCE FOI POR RESOLUÇÃO, não por gosto: a faixa da
+// jornada é a única que ocupa a largura inteira de um monitor de 1440, e
+// `lote-close` é o único arquivo com 1400px de largura (as outras duas têm
+// 900). Nas duas células da galeria nenhuma passa de ~840px de largura, então
+// os arquivos de 900 servem sem ampliação. Trocar as fotos de lugar sem olhar
+// esse número devolve foto borrada no desktop.
 export const galeria = {
   eyebrow: 'NO CURRAL',
   title: 'É disto que a gente está falando.',
   lead: 'Nelore PO em fazenda atendida pela Bula. Nenhuma foto de banco de imagens.',
   fotos: [
     {
-      src: '/femeas/lote-close.webp',
-      alt: 'Duas fêmeas Nelore de frente, no curral, em dia claro',
+      src: '/femeas/curral-lote.webp',
+      alt: 'Lote de Nelore reunido no curral, visto de cima',
     },
     {
       src: '/femeas/curral-dourado.webp',
       alt: 'Lote de Nelore no curral ao entardecer, com peões a cavalo ao fundo',
-    },
-    {
-      src: '/femeas/curral-lote.webp',
-      alt: 'Lote de Nelore reunido no curral, visto de cima',
     },
   ],
 }

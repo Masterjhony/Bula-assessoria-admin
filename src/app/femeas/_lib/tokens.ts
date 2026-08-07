@@ -59,7 +59,16 @@ export const font = {
 } as const
 
 /** Raios retos — o vocabulário editorial. Nada de 14–18px. */
-export const radius = { none: 0, xs: 2, sm: 4 } as const
+// ⚠️ `card: 16` É EXCEÇÃO DECLARADA, E ENTROU POR DECISÃO DO DONO (06/08).
+// O resto desta linguagem é canto reto — 0 a 4px, filete de 1px, sem sombra
+// suave. O único lugar que usa `card` são as duas superfícies do filtro
+// (ParaQuem.tsx), onde ele foi pedido junto com a sombra: "coloque borda
+// arredondada e um pouquinho mais de sombra".
+//
+// Fica no token, e não solto no componente, exatamente para NÃO virar hábito:
+// quem quiser arredondar outra coisa vai ter que vir aqui e ler este aviso.
+// Botão, campo, painel e faixa continuam em `none`/`xs`/`sm`.
+export const radius = { none: 0, xs: 2, sm: 4, card: 16 } as const
 
 /**
  * Presets de tipografia. Regra:

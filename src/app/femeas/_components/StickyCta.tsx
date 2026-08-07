@@ -23,37 +23,73 @@ import { hero } from '../_lib/copy'
 // abaixo zera a duração para quem pediu menos movimento — a barra passa a
 // simplesmente aparecer.
 // ─────────────────────────────────────────────────────────────────────────
+// ⚠️ ISTO AQUI ERA UM IntersectionObserver E VIROU CONTA DE RETÂNGULO (06/08).
+// Não foi preferência de estilo: o observer TINHA UM BUG, medido em 390×844.
+//
+// Um observer guarda o NÓ que recebeu `observe()`. E `<Reveal/>` (ui.tsx) troca
+// de árvore depois da montagem: ele renderiza `<motion.div>` no primeiro render
+// e, quando `useSafeReducedMotion()` resolve para `true`, passa a renderizar um
+// `<div>` pelado. Tipos diferentes → o React DESMONTA a subárvore e monta
+// outra. O `#fecho-cta`, que mora dentro de um `<Reveal/>`, some e volta como
+// um nó novo — e o observer fica olhando o nó velho, já destacado do documento,
+// que nunca mais intersecta nada.
+//
+// O sintoma, só para quem tem "reduzir movimento" ligado no aparelho (ajuste
+// comum no iPhone): no pé da página a barra fixa NÃO some, e o dourado dela
+// empilha com o botão dourado do fecho — exatamente o que o comentário do
+// Fecho.tsx promete que não acontece. Medido:
+//
+//   sem reduzir movimento   scrollY 7784 · aria-hidden=true   (some, correto)
+//   com reduzir movimento   scrollY 8002 · aria-hidden=false  (fica, errado)
+//
+// A conta de retângulo lê o DOM de novo a cada avaliação, então troca de nó não
+// a afeta. `0.15` é a mesma fração do `threshold` que estava aqui.
+//
+// ⚠️ O `#cadastro` escapava do bug por acidente — ele não mora dentro de um
+// `<Reveal/>`. Quem envolver o card do hero num Reveal recriaria o mesmo
+// defeito, e desta vez no pior lugar possível: a barra cobrindo o campo que a
+// pessoa está preenchendo. A conta de retângulo tira essa armadilha do caminho.
+const FRACAO_VISIVEL = 0.15
+
+function estaNaTela(id: string) {
+  const el = document.getElementById(id)
+  if (!el) return false
+  const r = el.getBoundingClientRect()
+  if (!r.height) return false
+  const visivel = Math.min(r.bottom, window.innerHeight) - Math.max(r.top, 0)
+  return visivel > 0 && visivel / r.height >= FRACAO_VISIVEL
+}
+
 export function StickyCta() {
   const [show, setShow] = useState(false)
-  // Visibilidade guardada em ref para o handler de scroll enxergar o valor
-  // corrente sem re-registrar o listener a cada render.
-  const hideRef = useRef<Record<string, boolean>>({ cadastro: false, 'fecho-cta': false })
+  // rAF para não ler layout a cada evento de scroll — são dois
+  // getBoundingClientRect por avaliação, e sem a trava eles rodariam dezenas de
+  // vezes por segundo durante a rolagem.
+  const agendado = useRef(false)
 
   useEffect(() => {
-    const onScroll = () => {
-      const oculto = Object.values(hideRef.current).some(Boolean)
+    const avaliar = () => {
+      agendado.current = false
+      const oculto = estaNaTela('cadastro') || estaNaTela('fecho-cta')
       setShow(!oculto && window.scrollY > window.innerHeight * 0.9)
     }
-    onScroll()
+    const onScroll = () => {
+      if (agendado.current) return
+      agendado.current = true
+      requestAnimationFrame(avaliar)
+    }
+    avaliar()
     window.addEventListener('scroll', onScroll, { passive: true })
-
-    const observers = (['cadastro', 'fecho-cta'] as const).map((id) => {
-      const el = document.getElementById(id)
-      if (!el) return null
-      const io = new IntersectionObserver(
-        ([e]) => {
-          hideRef.current[id] = e.isIntersecting
-          onScroll()
-        },
-        { threshold: 0.15 },
-      )
-      io.observe(el)
-      return io
-    })
+    // O <Reveal/> muda de árvore DEPOIS da montagem e a página muda de altura
+    // junto; sem esta segunda leitura a barra podia nascer com o estado do
+    // layout antigo.
+    const t = setTimeout(avaliar, 300)
+    window.addEventListener('resize', onScroll, { passive: true })
 
     return () => {
+      clearTimeout(t)
       window.removeEventListener('scroll', onScroll)
-      observers.forEach((io) => io?.disconnect())
+      window.removeEventListener('resize', onScroll)
     }
   }, [])
 

@@ -4,7 +4,12 @@ import { cloneElement, isValidElement, useEffect, useId, useRef, useState } from
 import { AnimatePresence, motion } from 'framer-motion'
 import { Loader2, ShieldCheck, ArrowRight, ArrowLeft } from 'lucide-react'
 import { dark, typo, font, radius } from '../_lib/tokens'
-import { form as copy } from '../_lib/copy'
+// `hero` entra aqui por causa de UMA string: `hero.ctaNote`, o aviso de que o
+// cadastro é analisado. Ele era um bloco solto no hero e virou a linha de baixo
+// deste card em 06/08 (ver o comentário no Hero.tsx). A string ficou em `hero`
+// de propósito — é lá que mora a documentação dela e é lá que a revisão de copy
+// do João Antônio vai procurar.
+import { form as copy, hero } from '../_lib/copy'
 import { categorias, CATEGORIA_INDECISO } from '../_lib/categorias'
 import { documentoValido, mascaraDocumento } from '../_lib/qualificacao'
 import { useSafeReducedMotion } from '../_lib/useSafeReducedMotion'
@@ -341,8 +346,21 @@ export function LeadForm() {
         >
           {copy.title}
         </h2>
-        <p className="mt-2.5" style={{ fontFamily: font.body, fontSize: 14, lineHeight: 1.5, color: dark.muted }}>
-          {copy.lead}
+        {/* ⚠️ ESTA LINHA TROCOU DE CONTEÚDO EM 06/08 e a troca é o miolo da
+            limpeza do hero. Antes: `copy.lead` — "Leva uns minutos. Quanto mais
+            claro for o seu projeto, melhor a reunião.", que é conforto. Agora:
+            `hero.ctaNote` — "Cadastro analisado pela nossa equipe · Se
+            aprovado, reunião com um assessor", que é a REGRA DO JOGO.
+
+            Dourada, e não cinza: ela deixou de ser legenda do card e passou a
+            ser a condição impressa em cima do balcão. O dourado sobre #141414
+            mede ~8:1, folga larga sobre os 4,5:1 que 14px exige.
+
+            ⚠️ `form.lead` continua em _lib/copy.ts sem uso, pelo mesmo motivo
+            do `hero.eyebrow`: a copy está pendente de revisão e string apagada
+            é o que ninguém consegue reconstituir depois. */}
+        <p className="mt-2.5" style={{ fontFamily: font.body, fontSize: 14, lineHeight: 1.5, color: dark.gold }}>
+          {hero.ctaNote}
         </p>
       </div>
 
@@ -510,8 +528,13 @@ export function LeadForm() {
                   {copy.consent}
                 </span>
               </label>
+              {/* Mesma regra do <Campo/>: erro é prosa, e prosa de erro vai em
+                  14px. `fontFamily` explícito porque este <p> está fora do
+                  <Campo/> e não herda a família do formulário. */}
               {errors.whatsappConsent && (
-                <p role="alert" style={{ fontSize: 12.5, color: ERR, marginTop: -8 }}>{errors.whatsappConsent}</p>
+                <p role="alert" style={{ fontFamily: font.body, fontSize: 14, lineHeight: 1.45, color: ERR, marginTop: -8 }}>
+                  {errors.whatsappConsent}
+                </p>
               )}
             </>
           )}
@@ -705,13 +728,22 @@ function Field({
         <label htmlFor={fieldId} className="mb-2 block" style={labelStyle}>{label}</label>
       )}
       {control}
+      {/* ⚠️ 14px, NÃO 12,5px (06/08). O RÓTULO acima continua em 12,5 e está
+          certo: ele é Oswald caixa-alta com tracking, que é a família de rótulo
+          desta página. Estes dois são PROSA em Inter — e prosa de 12,5px num
+          iPhone é o menor texto de leitura da página inteira, justamente no
+          único ponto em que a pessoa PRECISA ler para conseguir continuar (a
+          mensagem de erro). O próprio formulário já usava 14px para prosa
+          auxiliar em dois lugares (o olho do card e o texto do consentimento);
+          isto aqui era a exceção, não a regra.
+          ⚠️ Não mexe no `primeiroCampo`: os dois nascem DEPOIS do controle. */}
       {hint && (
-        <p id={hintId} className="mt-1.5" style={{ fontFamily: font.body, fontSize: 12.5, color: dark.muted, lineHeight: 1.45 }}>
+        <p id={hintId} className="mt-1.5" style={{ fontFamily: font.body, fontSize: 14, color: dark.muted, lineHeight: 1.45 }}>
           {hint}
         </p>
       )}
       {error && (
-        <p id={errId} role="alert" className="mt-1.5" style={{ fontFamily: font.body, fontSize: 12.5, color: ERR }}>
+        <p id={errId} role="alert" className="mt-1.5" style={{ fontFamily: font.body, fontSize: 14, lineHeight: 1.45, color: ERR }}>
           {error}
         </p>
       )}

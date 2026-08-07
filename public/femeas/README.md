@@ -16,7 +16,44 @@ de 7 dias.
 recortes já estão calibrados para cada banda, e o scrim do hero foi medido em
 cima deste material (ver abaixo).
 
-## O scrim do hero foi MEDIDO, não estimado
+## O scrim do hero foi MEDIDO — e refeito em 06/08
+
+**Estado atual (todos passam AA), medido no ponto MAIS CLARO do fundo atrás de
+cada texto:**
+
+| | celular | desktop |
+|---|---|---|
+| eyebrow dourado (mín. 4,5) | **5,15** | — |
+| manchete (mín. 3,0, texto grande) | **11,25** | **10,73** |
+| olho / corpo (mín. 4,5) | 7,95 | **4,69** |
+| aviso de análise (mín. 4,5) | **8,47** | **6,18** |
+
+⚠️ **O desktop reprovava e agora não reprova.** O olho media **4,11:1** contra os
+4,5 exigidos — em ~4% da caixa, na borda direita, onde o scrim horizontal afina.
+Nunca tinha sido medido; só o celular era. Corrigido fechando o stop do meio do
+gradiente (0,52 → 0,62) e, no celular, o primeiro stop (0,72 → 0,78). **O stop de
+74% ficou intocado**, que é onde a foto respira — o animal à direita continua
+aparecendo.
+
+**Se a foto do hero for trocada por uma mais clara, refaça a medição.** O método
+está descrito abaixo.
+
+---
+
+## Como medir (o método, e as duas formas erradas de fazer)
+
+1. Abrir a página no navegador e **esconder só o texto** (`visibility: hidden`
+   nos `h1`/`p`/`a` da seção) — **sem esconder a `<img>`**.
+2. Fotografar e amostrar **exatamente as caixas onde o texto cai**
+   (`getBoundingClientRect`), procurando o pixel **mais claro** de cada caixa.
+3. Comparar com a cor computada do texto (`getComputedStyle().color`).
+
+⚠️ **Dois jeitos de errar que já custaram tempo aqui:**
+- amostrar "o pixel mais claro da região" **com o texto visível** — o pixel mais
+  claro é o próprio texto, e o número sai bonito e sem sentido;
+- esconder também a `<img>` — aí se mede o scrim sobre preto, e tudo passa.
+
+## O scrim antigo, para referência histórica
 
 O pelo do Nelore é quase branco: qualquer véu leve deixa texto claro sobre fundo
 claro. Com o gradiente original, o eyebrow dourado media **2,50:1** sobre a foto
@@ -26,6 +63,48 @@ Depois de fechar o scrim, medido no ponto **mais claro** do fundo atrás de cada
 texto: eyebrow **4,99:1**, manchete **11,10:1**, olho **7,93:1**. Todos passam.
 
 **Se a foto do hero for trocada por uma mais clara, refaça essa medição.**
+
+### O método, para quem for repetir
+
+Esconder o **texto** (`visibility: hidden` no elemento — o fundo atrás continua
+igual), fotografar a página, recortar a caixa de cada texto e procurar o pixel
+**mais claro** dentro dela. O contraste é calculado entre a cor declarada do
+texto e esse pixel. É o pior caso: se passa nele, passa no resto da caixa.
+
+### ⚠️ O DESKTOP NUNCA TINHA SIDO MEDIDO — e o olho reprova
+
+Medição de **06/08/2026**, em 1440×900, com o mesmo método (os números do
+celular batem com os de cima, o que valida o procedimento):
+
+| Texto | Celular 390 | Desktop 1440 |
+|---|---|---|
+| eyebrow (`#C8A96E`) | 5,00:1 ✅ | 5,34:1 ✅ |
+| manchete (`#F5F5F5`) | 11,25:1 ✅ | 9,17:1 ✅ |
+| olho (`#B0B0B0`, 18px) | 7,95:1 ✅ | **4,11:1 ❌** |
+
+O olho do hero no desktop pede 4,5:1 (18px regular **não** conta como texto
+grande — a régua é 24px, ou 18,66px em negrito) e entrega 4,11:1.
+
+**É defeito ANTERIOR, não regressão.** Foi medido nas duas pontas da rodada de
+leveza de 06/08 e deu exatamente igual — nada do que se mexeu ali (ficha
+técnica, filtro, ordem das seções) toca no scrim ou no olho.
+
+Onde exatamente: **4,0% da caixa** do parágrafo, toda ela na **borda direita**
+(o pior pixel fica a 96% da largura), que é onde o scrim horizontal do desktop
+afina — `linear-gradient(90deg, …0.52 46%, 0.18 74%…)`.
+
+**Não foi corrigido de propósito**, e o motivo é escolha, não esquecimento: todo
+conserto cobra em cima de um hero que o dono acabou de aprovar —
+
+1. fechar o scrim no meio (`0.52` → ~`0.62`) escurece a foto justo onde ela
+   respira;
+2. encurtar a medida do parágrafo (`max-w-[52ch]` → ~46ch) tira o texto da faixa
+   clara, mas reflui a coluna inteira;
+3. clarear o olho para `#F5F5F5` contraria a regra da linguagem — corpo é cinza
+   editorial, nunca branco (ver `_lib/tokens.ts`).
+
+Qualquer uma resolve. **É decisão de quem manda na página, não do próximo a
+passar por aqui** — e agora está medida, então dá para decidir com número.
 
 ## O que foi RECUSADO, e por quê
 

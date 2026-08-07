@@ -15,8 +15,15 @@
 // A REGRA QUE DECIDE SE UMA MARCA ENTRA: ela precisa dizer algo que o texto
 // não diz DE RELANCE. Marca que repete o título é ruído — deixa a página mais
 // cheia e menos legível, que é o contrário do que foi pedido. Por isso não há
-// marca em `ParaQuem` nem na ficha técnica do hero (ver o comentário no fim
-// deste arquivo).
+// marca em `ParaQuem`: lá o dispositivo é o algarismo por critério, e ícone ao
+// lado de "não é para você se" é o vocabulário de aprovado/reprovado que a
+// decisão travada proíbe.
+//
+// E também não há marca na FICHA TÉCNICA do hero. Ela chegou a ter, por
+// algumas horas em 06/08, e o dono mandou tirar com todas as letras: "sem
+// emoji, sem ícone". O que ficou no lugar é agrupamento — três colunas
+// divididas por filete —, e o que a rodada ensinou está no aviso mais abaixo,
+// onde as marcas moravam.
 //
 // ── ⚠️ AS SEIS MARCAS DE CATEGORIA FORAM REMOVIDAS (06/08/2026) ───────────
 // Pedido direto do dono do projeto: "os ícones em CATEGORIAS estão totalmente
@@ -59,9 +66,15 @@
 import type { ReactNode } from 'react'
 import { dark, light } from '../_lib/tokens'
 
-// Cinza do traço. Medido: 3,65:1 sobre #0D0D0D — acima do mínimo de 3:1 que o
-// WCAG 1.4.11 pede para gráfico que carrega significado. Não clarear "para
-// ficar bonito" sem medir de novo; não escurecer, ou a marca some.
+// Cinza do traço. Acima do mínimo de 3:1 que o WCAG 1.4.11 pede para gráfico
+// que carrega significado. Não clarear "para ficar bonito" sem medir de novo;
+// não escurecer, ou a marca some.
+//
+// Duas medições, e a que vale é a segunda: 3,65:1 sobre #0D0D0D (o canvas
+// padrão) e 4,29:1 sobre #141414 — que é o fundo REAL da assessoria, a única
+// seção marcada. Medido no navegador em 06/08, amostrando o `stroke` calculado
+// contra o fundo herdado. A folga sobre o mínimo é o que permitiu engrossar o
+// desenho na mesma rodada sem refazer a conta.
 //
 // Só existe versão para fundo ESCURO porque a única seção marcada (assessoria)
 // é escura. Se um dia entrar marca sobre o pergaminho, este cinza mede 2,4:1 lá
@@ -69,9 +82,39 @@ import { dark, light } from '../_lib/tokens'
 const TRACO_ESCURO = '#7A7A7A'
 
 // Espessura em unidades do viewBox. Os diagramas da assessoria têm 60 unidades
-// de largura e são renderizados com 54px, então 1,5 × (54/60) = 1,35px na tela —
-// da mesma família do filete de 1px do resto da página.
-const PESO = 1.5
+// de largura.
+//
+// ⚠️ ESTE NÚMERO ANDA JUNTO COM `LARGURA_SERVICO`, e a conta é a única razão de
+// ele existir: o traço na tela mede PESO × (largura renderizada ÷ 60), e ele
+// tem que ficar na família do filete de 1px do resto da página. Em 06/08 o
+// diagrama cresceu de 54px para clamp(64–78) — a 78px o peso antigo (1,5) daria
+// 1,95px, quase o dobro do filete, e a marca passaria a ler como ícone
+// desenhado a caneta grossa no meio de uma página de fios.
+//
+//   antes  1,5 × 54/60          = 1,35px
+//   agora  1,0 × 72/60 … 88/60  = 1,20 … 1,47px
+//
+// A faixa nova cerca a antiga em vez de escapar dela — que é o objetivo.
+const PESO = 1.0
+
+// Largura renderizada do diagrama de serviço.
+//
+// Cresceu de 54px fixos em 06/08/2026, na rodada de "está pouco visual". A
+// assessoria é uma das seções que NÃO pode ganhar foto (o que ela descreve é
+// serviço, não animal), então o peso visual dela tem que vir do que já existe —
+// e o que já existe são estes quatro diagramas, que o dono nunca reprovou (o
+// que saiu foram as seis silhuetas de bovino das categorias; ver o aviso mais
+// acima). Aumentar um desenho aprovado é o metro quadrado mais barato de peso
+// visual que esta página tinha sobrando.
+//
+// ⚠️ CRESCER AQUI É SEGURO E CRESCER NAS CATEGORIAS NÃO ERA — a diferença está
+// no `viewBox`. Os quatro diagramas dividem o MESMO quadro de 60×40, então as
+// quatro caixas medem exatamente igual em qualquer tamanho e empilham alinhadas
+// por construção. As seis marcas de categoria tinham larguras desenhadas
+// diferentes (111, 64, 100, 100, 146, 100px) — ampliar aquilo teria ampliado o
+// desalinhamento junto, que foi o defeito medido. Se um dia entrar uma quinta
+// marca de serviço, ela nasce no mesmo 60×40 ou nada disto vale.
+const LARGURA_SERVICO = 'clamp(72px, 7vw, 88px)'
 
 // ─────────────────────────────────────────────────────────────────────────
 // OS QUATRO SERVIÇOS DA ASSESSORIA.
@@ -108,7 +151,7 @@ function QuadroServico({ children }: { children: ReactNode }) {
       viewBox="0 0 60 40"
       aria-hidden="true"
       focusable="false"
-      style={{ width: 54, height: 'auto', display: 'block' }}
+      style={{ width: LARGURA_SERVICO, height: 'auto', display: 'block' }}
     >
       {children}
     </svg>
@@ -179,6 +222,31 @@ export function MarcaServico({ id }: { id: string }) {
 }
 
 // ─────────────────────────────────────────────────────────────────────────
+// ⚠️ AS TRÊS MARCAS DA FICHA TÉCNICA VIVERAM ALGUMAS HORAS, EM 06/08.
+//
+// Elas existiram, foram medidas, foram desenhadas no mesmo idioma dos diagramas
+// da assessoria (viewBox 32×32, traço de ~1px na tela, dourado como voltagem
+// única) e foram removidas no mesmo dia, por decisão direta do dono:
+//
+//   "esse 30 vezes no boleto, frete grátis e zero reais tá horroroso. Procura
+//    um design em tópicos melhor, SEM EMOJI, SEM ÍCONE."
+//
+// O código está inteiro em 431575f para quem quiser ver o desenho. Fica aqui só
+// o que a rodada ensinou, que é o que evita repeti-la:
+//
+//   A régua da página ("ou 2,0× de razão tipográfica ou ≥3% de área não-texto")
+//   é medida POR SEÇÃO, e a ficha não é uma seção — é um bloco dentro do hero,
+//   que passa folgado pela foto (2,38× e 27%). Aplicar a régua a um bloco levou
+//   à conclusão errada de que faltava DESENHO ali. O que faltava era AGRUPAMENTO:
+//   três condições empilhadas são três objetos, e três colunas divididas por
+//   filete são um objeto só. A ficha nova não tem nenhum traço a mais que a
+//   antiga — tem dois filetes verticais e nenhum ícone.
+//
+// ⚠️ NÃO REVERTER 431575f INTEIRO para "desfazer as marcas": aquele commit
+// também criou scripts/femeas/medir-densidade.mjs, que é a régua rodável.
+// ─────────────────────────────────────────────────────────────────────────
+
+// ─────────────────────────────────────────────────────────────────────────
 // O TRILHO DA JORNADA — 1px, e não é SVG de propósito.
 //
 // Os quatro passos hoje são quatro painéis empilhados. A numeração diz que há
@@ -206,9 +274,17 @@ export function MarcaServico({ id }: { id: string }) {
 // do painel e da coluna do número. Se um daqueles mudar em Jornada.tsx, muda aqui
 // junto — está anotado lá.
 // ─────────────────────────────────────────────────────────────────────────
+//
+// ⚠️ OS TRÊS CRESCERAM JUNTOS em 06/08 (o número subiu de clamp(26–38) para
+// clamp(34–46), a coluna de clamp(46–74) para clamp(54–84)), e crescer junto é
+// obrigatório: a coluna precisa caber DOIS DÍGITOS do número, e o trilho se
+// alinha pela metade dela. Subir o número sem subir a coluna espreme o "04"
+// contra o título ao lado; subir a coluna sem subir o número deixa o algarismo
+// boiando no meio de um vão. O `tabular-nums` do <NumeroPasso/> é o que garante
+// que os quatro rótulos meçam igual entre si.
 export const JORNADA_PADDING = 'clamp(22px, 2.8vw, 32px)'
-export const JORNADA_COLUNA = 'clamp(46px, 6vw, 74px)'
-export const JORNADA_NUMERO = 'clamp(26px, 3.4vw, 38px)'
+export const JORNADA_COLUNA = 'clamp(54px, 6.6vw, 84px)'
+export const JORNADA_NUMERO = 'clamp(34px, 4.2vw, 46px)'
 
 export function TrilhoJornada() {
   return (
@@ -244,11 +320,27 @@ export function TrilhoJornada() {
 //    entra nada. Nada de ✓/✗, nada de vermelho, nada de proibido: isso custaria
 //    o lead duas vezes (perde aqui e não chega lá).
 //
-// 2. Ficha técnica do hero (30× · frete · R$ 0). Duas razões, e a segunda é a
-//    que decide. A primeira: os três já são a coisa mais varrível da página —
-//    número gigante em Oswald com rótulo mono dourado; uma marca ao lado
-//    disputaria com o número em vez de ajudar. A segunda: qualquer coisa que
-//    cresça no hero empurra o formulário para baixo, e no celular o primeiro
-//    campo já está a 1,13 tela de rolagem (contra 0,75 no /touros). Estética no
-//    hero se paga em conversão, e a primeira dobra é decisão pendente do dono.
+// 2. Ficha técnica do hero (30× · frete · R$ 0). Ela GANHOU marca em 06/08 e
+//    PERDEU no mesmo dia — "sem emoji, sem ícone", palavra do dono. O item
+//    continua aqui, e agora com as três voltas completas, porque este é o
+//    elemento mais reaberto da página e quem chegar depois vai querer tentar de
+//    novo:
+//
+//    · a razão original para não marcar ("o número gigante já é a coisa mais
+//      varrível da página, a marca disputaria com ele") era verdadeira quando o
+//      número era Oswald 36px e o rótulo era mono dourado. Depois de duas
+//      rodadas de alívio o número está em clamp(18,2.2vw,26) e o rótulo em
+//      cinza: a ficha deixou de ter ênfase demais;
+//    · daí veio a conclusão errada — "então falta desenho". Ela nasceu de
+//      aplicar ao BLOCO uma régua que é medida por SEÇÃO. O hero passa folgado
+//      (2,38× de razão, 27% de imagem); a ficha nunca foi uma seção;
+//    · o defeito real era de AGRUPAMENTO. Três condições empilhadas são três
+//      objetos com o mesmo peso; três colunas divididas por dois filetes são um
+//      objeto só. A ficha de hoje não tem nenhum traço a mais que a de ontem, e
+//      tem zero ícone.
+//
+//    O que continua valendo, e é a única regra que sobreviveu às três voltas: o
+//    que estiver ali não pode competir com a manchete de clamp(38,6.2vw,68) do
+//    próprio hero. Foi o que derrubou o valor a 36px na primeira rodada e o que
+//    derrubaria uma marca grande demais na quarta.
 // ─────────────────────────────────────────────────────────────────────────

@@ -2,7 +2,8 @@ import { light, typo, font } from '../_lib/tokens'
 import { jornada } from '../_lib/copy'
 import { Section, Container, Reveal } from './ui'
 import { CabecalhoSecao, NumeroPasso } from './editorial'
-import { TrilhoJornada, JORNADA_PADDING, JORNADA_COLUNA } from './marcas'
+import { FaixaFoto } from './FaixaFoto'
+import { TrilhoJornada, JORNADA_PADDING, JORNADA_COLUNA, JORNADA_NUMERO } from './marcas'
 
 // ─────────────────────────────────────────────────────────────────────────
 // A JORNADA — o que acontece DEPOIS de enviar o cadastro.
@@ -17,11 +18,46 @@ import { TrilhoJornada, JORNADA_PADDING, JORNADA_COLUNA } from './marcas'
 // uma barra dourada à esquerda porque é ele que a copy chama de diferencial —
 // e a decisão de QUAL passo destacar mora em _lib/copy.ts (`destaque: true`),
 // não neste arquivo. Reordenar os passos lá move o destaque junto.
+//
+// ── A FAIXA DE FOTO QUE ABRE A SEÇÃO (06/08/2026) ─────────────────────────
+// Ela não ilustra a jornada e não tem legenda: está aqui por MEDIDA. Antes
+// desta rodada, filtro → categorias → jornada → assessoria somavam ~4.700px de
+// texto seguido no celular sem uma única âncora visual, e o meio geométrico
+// desse trecho cai exatamente no encontro entre categorias e jornada. Com a
+// faixa aqui, o trecho vira dois de ~2.300px.
+//
+// ⚠️ ELA ESTÁ DENTRO DESTA SEÇÃO, E NÃO SOLTA ENTRE AS DUAS, por dois motivos:
+//   1. o medidor de densidade lê por seção (`#jornada`, `#categorias`…). Faixa
+//      solta entre seções não é contada por ninguém — a foto apareceria na tela
+//      e sumiria do número que a justifica.
+//   2. ela pertence ao lado CLARO da emenda. Vindo depois do near-black das
+//      categorias, a própria borda de cima da foto é o divisor, e por isso a
+//      seção zera o `paddingTop`: não há faixa de pergaminho antes da imagem.
+//
+// ⚠️ NÃO PÔR A FAIXA NAS CATEGORIAS. Aquela seção existe para a pessoa escolher
+// por onde entrar no plantel, e as seis categorias se distinguem pelo ESTÁGIO
+// do animal (embrião, bezerra, novilha, prenhe, 3 em 1, doadora). Toda foto que
+// existe hoje é de lote em manejo e não distingue bezerra de novilha: ali a
+// imagem seria informação falsa numa seção que orienta decisão de compra. O
+// peso visual das categorias veio da escala tipográfica — ver Categorias.tsx.
 // ─────────────────────────────────────────────────────────────────────────
 export function Jornada() {
   return (
-    <Section surface="light" id="jornada">
-      <Container>
+    <Section surface="light" id="jornada" style={{ paddingTop: 0 }}>
+      {/* Fora do <Container> (o full-bleed depende disso) e sem <Reveal/>: a
+          faixa é o divisor entre duas seções, e divisor que entra com fade lê
+          como a página se ajeitando depois de carregada.
+          O corte é largo no desktop e quase quadrado no celular; `posicao`
+          puxa o enquadramento para cima porque o assunto da foto é a cabeça dos
+          dois animais, e um corte 16/7 centrado passa na altura do focinho. */}
+      <FaixaFoto
+        src={jornada.foto.src}
+        alt={jornada.foto.alt}
+        className="aspect-[4/3] sm:aspect-[16/7]"
+        posicao="50% 38%"
+      />
+
+      <Container className="mt-[clamp(56px,8vw,104px)]">
         <Reveal>
           <CabecalhoSecao
             surface="light"
@@ -120,7 +156,12 @@ export function Jornada() {
                       alignSelf: 'start',
                     }}
                   >
-                    <NumeroPasso n={p.n} surface="light" />
+                    {/* O tamanho vem de `JORNADA_NUMERO`, e não do padrão do
+                        componente, porque é ESSA constante que o trilho usa
+                        para achar o meio do algarismo. Deixar os dois valores
+                        soltos em arquivos diferentes é como a linha sai do
+                        centro do "01" sem ninguém entender por quê. */}
+                    <NumeroPasso n={p.n} surface="light" tamanho={JORNADA_NUMERO} />
                   </div>
                   <div>
                     <h3

@@ -3,7 +3,7 @@ import { dark, typo, font } from '../_lib/tokens'
 import { categorias } from '../_lib/categorias'
 import { categoriasSecao } from '../_lib/copy'
 import { Section, Container, Reveal } from './ui'
-import { CabecalhoSecao, Indice } from './editorial'
+import { CabecalhoSecao, NumeroPasso } from './editorial'
 import { CarrosselCategorias } from './CarrosselCategorias'
 
 // ─────────────────────────────────────────────────────────────────────────
@@ -110,13 +110,32 @@ export function Categorias() {
                     </div>
                   )}
 
-                  {/* Só o índice. Havia aqui um pictograma de animal alinhado à
-                      direita; saiu em 06/08/2026 a pedido do dono, e o registro
-                      de POR QUE (defeito medido, não só gosto) está no topo de
-                      ./marcas.tsx. O `flex justify-between` foi junto: sem o
-                      segundo filho ele não distribuía nada, e a caixa do SVG era
-                      a única coisa que dava altura extra à linha. */}
-                  <Indice n={String(i + 1).padStart(2, '0')} surface="dark" />
+                  {/* O ÍNDICE VIROU O DESENHO DO CARTÃO (06/08/2026).
+                      Ele era um rótulo mono de 12px — informação correta e peso
+                      visual zero. Agora é um algarismo Oswald de 40–52px, e a
+                      troca resolve o problema desta seção pelo único caminho
+                      que sobrou:
+
+                      · foto não pode entrar (as seis categorias se distinguem
+                        pelo ESTÁGIO do animal, e todo material existente é de
+                        lote em manejo — ilustrar aqui seria informação falsa
+                        numa seção que orienta compra);
+                      · pictograma já foi tentado e reprovado, com defeito
+                        medido de alinhamento (ver o topo de ./marcas.tsx);
+                      · caixa e filete já saíram por deixarem tudo pesado.
+
+                      O algarismo não acrescenta informação nenhuma (o número já
+                      estava lá), não acrescenta um traço, e não pode
+                      desalinhar: são sempre dois dígitos, à esquerda, com
+                      `tabular-nums`. Seis deles na grade dão à seção um padrão
+                      gráfico que antes só existia na Jornada — que é, aliás, a
+                      seção que o próprio desenho da página já provava
+                      funcionar. */}
+                  <NumeroPasso
+                    n={String(i + 1).padStart(2, '0')}
+                    surface="dark"
+                    tamanho="clamp(40px, 4.6vw, 52px)"
+                  />
 
                   <h3
                     style={{
@@ -126,7 +145,12 @@ export function Categorias() {
                       letterSpacing: '-0.01em',
                       lineHeight: 1.1,
                       color: dark.text,
-                      marginTop: 14,
+                      // 14px quando o índice era um rótulo de 12px. Com o
+                      // algarismo grande, o nome precisa encostar mais nele:
+                      // são a mesma unidade de leitura ("categoria 03 ·
+                      // Novilhas"), e o respiro de antes agora os separaria em
+                      // dois blocos.
+                      marginTop: 10,
                     }}
                   >
                     {c.nome}

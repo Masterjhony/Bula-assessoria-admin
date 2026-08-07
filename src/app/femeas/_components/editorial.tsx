@@ -159,17 +159,49 @@ export function Indice({
   )
 }
 
-/** Número grande de passo — Oswald, para a Jornada. */
-export function NumeroPasso({ n, surface = 'dark' }: { n: string; surface?: Surface }) {
+/**
+ * Número grande em Oswald dourado — a ESCALA TIPOGRÁFICA USADA COMO IMAGEM.
+ *
+ * Nasceu para a Jornada e passou a servir também às Categorias (06/08/2026), e
+ * é a resposta desta página ao problema de "seção sem foto fica sem âncora
+ * visual": o algarismo grande dá massa gráfica ao bloco sem acrescentar UMA
+ * INFORMAÇÃO NOVA (o índice já estava lá, em 12px) e sem acrescentar UM TRAÇO
+ * (que é o que já tinha sido removido por deixar tudo pesado).
+ *
+ * ⚠️ POR QUE ISTO NÃO REPETE O ERRO DOS PICTOGRAMAS (ver o topo de ./marcas.tsx):
+ * o defeito medido lá foi de ALINHAMENTO — seis desenhos de larguras diferentes
+ * (111, 64, 100, 100, 146, 100px) encostados à direita, variando ~13px entre
+ * cartões vizinhos numa grade cujo sistema é filete de 1px. Aqui os rótulos são
+ * sempre DOIS DÍGITOS, alinhados à ESQUERDA, com `tabular-nums` travando a
+ * largura do algarismo. Desalinhar é geometricamente impossível.
+ *
+ * `tamanho` existe porque o mesmo recurso pesa diferente em cada seção: na
+ * Jornada o número divide a linha com o título do passo (coluna estreita), nas
+ * Categorias ele abre o cartão sozinho e pode crescer mais.
+ */
+export function NumeroPasso({
+  n,
+  surface = 'dark',
+  tamanho = 'clamp(34px, 4.2vw, 46px)',
+}: {
+  n: string
+  surface?: Surface
+  tamanho?: string
+}) {
   return (
     <span
       aria-hidden
       style={{
         fontFamily: font.display,
         fontWeight: 600,
-        fontSize: 'clamp(26px, 3.4vw, 38px)',
+        fontSize: tamanho,
         lineHeight: 1,
         letterSpacing: '-0.02em',
+        // Trava a largura do algarismo. Oswald não garante figura tabular por
+        // padrão, e sem isto o "01" mede menos que o "06" — a coluna do número
+        // da Jornada é calculada em `clamp()` fixo, então largura variável
+        // deslocaria o título ao lado de um passo para o outro.
+        fontVariantNumeric: 'tabular-nums',
         color: acento(surface),
       }}
     >
