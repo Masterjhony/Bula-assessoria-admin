@@ -138,16 +138,41 @@ export function buildTools(role: AgenteRole): ToolDef[] {
             type: 'function',
             function: {
                 name: 'gerar_relatorio',
-                description: 'Gera um arquivo XLSX (ou PDF) com uma tabela e ENVIA como documento nesta conversa. Use para listas com mais de ~15 linhas em vez de responder texto gigante.',
+                description: 'Gera um arquivo XLSX (ou PDF) com uma tabela e ENVIA como documento nesta conversa. PREFIRA `fonte` (o servidor busca os dados — rápido, até 2000 linhas) em vez de digitar `linhas` (só pra tabelinhas pequenas que você mesmo montou).',
                 parameters: {
                     type: 'object',
                     properties: {
                         titulo: { type: 'string' },
-                        colunas: { type: 'array', items: { type: 'string' } },
-                        linhas: { type: 'array', items: { type: 'array', items: { type: ['string', 'number', 'null'] } } },
                         formato: { type: 'string', enum: ['xlsx', 'pdf'], description: 'padrão xlsx' },
+                        fonte: {
+                            type: 'object',
+                            description: 'O servidor busca e monta as linhas. tipo=query_table exige table/select; tipo=templates_meta não exige nada.',
+                            properties: {
+                                tipo: { type: 'string', enum: ['query_table', 'templates_meta'] },
+                                table: { type: 'string', enum: tables },
+                                select: { type: 'string', description: "colunas separadas por vírgula, ex.: 'nome, status, valor'" },
+                                filters: {
+                                    type: 'array',
+                                    items: {
+                                        type: 'object',
+                                        properties: {
+                                            column: { type: 'string' },
+                                            operator: { type: 'string', enum: ['eq', 'neq', 'gt', 'gte', 'lt', 'lte', 'like', 'ilike', 'is'] },
+                                            value: { type: 'string' },
+                                        },
+                                        required: ['column', 'operator', 'value'],
+                                    },
+                                },
+                                limit: { type: 'number', description: 'padrão 500, máx 2000' },
+                                order_by: { type: 'string' },
+                                order_asc: { type: 'boolean' },
+                            },
+                            required: ['tipo'],
+                        },
+                        colunas: { type: 'array', items: { type: 'string' }, description: 'só no modo manual (sem fonte)' },
+                        linhas: { type: 'array', items: { type: 'array', items: { type: ['string', 'number', 'null'] } }, description: 'só no modo manual (sem fonte)' },
                     },
-                    required: ['titulo', 'colunas', 'linhas'],
+                    required: ['titulo'],
                 },
             },
         },
@@ -503,8 +528,65 @@ export async function executeTool(
                 break
             }
             case 'gerar_relatorio': {
-                const colunas = Array.isArray(args.colunas) ? (args.colunas as string[]).map(String) : []
-                const linhas = Array.isArray(args.linhas) ? (args.linhas as (string | number | null)[][]) : []
+                let colunas = Array.isArray(args.colunas) ? (args.colunas as string[]).map(String) : []
+                let linhas = Array.isArray(args.linhas) ? (args.linhas as (string | number | null)[][]) : []
+                const fonte = (args.fonte ?? null) as {
+                    tipo?: string; table?: string; select?: string
+                    filters?: { column: string; operator: string; value: string }[]
+                    limit?: number; order_by?: string; order_asc?: boolean
+                } | null
+                // `fonte`: o SERVIDOR busca os dados — o modelo não redigita linha
+                // a linha (relatório grande estourava o tempo do loop).
+                if (fonte?.tipo === 'templates_meta') {
+                    if (ctx.role !== 'admin') { result = { error: 'restrito_admin' }; break }
+                    if (!isWhatsappCloudApiConfigured()) { result = { error: 'api_oficial_nao_configurada' }; break }
+                    const templates = await fetchWhatsappCloudTemplatesFull() as Array<Record<string, unknown>>
+                    colunas = ['nome', 'status', 'categoria', 'idioma']
+                    linhas = templates.map(t => [
+                        String(t.name ?? ''), String(t.status ?? ''), String(t.category ?? ''), String(t.language ?? ''),
+                    ])
+                } else if (fonte?.tipo === 'query_table') {
+                    const table = String(fonte.table ?? '')
+                    const select = String(fonte.select ?? '').trim()
+                    if (!allowedTables(ctx.role).includes(table)) { result = { error: `Tabela '${table}' não disponível.` }; break }
+                    if (!select || select.includes('*')) { result = { error: 'informe as colunas explicitamente no select' }; break }
+                    if (ctx.role !== 'admin' && table === 'crm_leads' && !(ctx.assessor ?? '').trim()) {
+                        result = { error: 'Seu número não tem assessor vinculado — fale com o João.' }
+                        break
+                    }
+                    const cols = select.split(',').map(s => s.trim()).filter(Boolean)
+                    const supabase = supabaseAdmin()
+                    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                    let query: any = supabase.from(table).select(cols.join(','))
+                    if (ctx.role !== 'admin' && table === 'crm_leads') {
+                        query = query.ilike('responsavel', `%${(ctx.assessor ?? '').trim()}%`)
+                    }
+                    for (const f of fonte.filters ?? []) {
+                        switch (f.operator) {
+                            case 'eq': query = query.eq(f.column, f.value); break
+                            case 'neq': query = query.neq(f.column, f.value); break
+                            case 'gt': query = query.gt(f.column, f.value); break
+                            case 'gte': query = query.gte(f.column, f.value); break
+                            case 'lt': query = query.lt(f.column, f.value); break
+                            case 'lte': query = query.lte(f.column, f.value); break
+                            case 'like': query = query.like(f.column, f.value); break
+                            case 'ilike': query = query.ilike(f.column, f.value); break
+                            case 'is': query = query.is(f.column, f.value === 'null' ? null : f.value); break
+                        }
+                    }
+                    query = query.limit(Math.min(Number(fonte.limit) || 500, 2000))
+                    if (fonte.order_by) query = query.order(fonte.order_by, { ascending: fonte.order_asc === true })
+                    const { data, error } = await query
+                    if (error) { result = { error: error.message }; break }
+                    colunas = cols
+                    linhas = ((data ?? []) as Record<string, unknown>[]).map(row =>
+                        cols.map(cf => {
+                            const v = row[cf]
+                            if (v == null) return null
+                            return typeof v === 'number' ? v : typeof v === 'object' ? JSON.stringify(v) : String(v)
+                        }),
+                    )
+                }
                 result = await gerarEEnviarRelatorio(supabaseAdmin(), {
                     titulo: String(args.titulo ?? 'Relatório'),
                     colunas,
