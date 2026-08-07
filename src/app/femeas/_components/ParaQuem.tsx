@@ -96,19 +96,87 @@ const filtroCor = {
   nao: '#824D28',
 } as const
 
-function Coluna({ titulo, itens, cor }: { titulo: string; itens: CriterioFiltro[]; cor: string }) {
+// ─────────────────────────────────────────────────────────────────────────
+// AS DUAS SUPERFÍCIES — uma SALTA, a outra AFUNDA (pedido do dono, 06/08).
+//
+// "O 'é para você' eu colocaria um card com sombras, um pouco 3D, como se
+// estivesse pulando da tela. E o 'não é para você' um pouco afundado."
+//
+// ⚠️ ISTO REABRE UMA DECISÃO QUE ESTAVA TRAVADA NESTE ARQUIVO — "as duas
+// colunas têm tratamento idêntico, a diferença é só de MATIZ". O dono decidiu o
+// contrário e a decisão é dele. O que a decisão NÃO libera, e segue proibido:
+// vermelho de alarme, ✓/✗, acordeão escondendo a coluna da direita, e qualquer
+// coisa que leia como "reprovado". A pessoa que se reconhece à direita é
+// comprador do funil de TOUROS, e o link de escape no pé da seção é para ela.
+//
+// A DIFERENÇA É DE PROFUNDIDADE, NÃO DE TINTA — e isso é literal:
+//
+//   · o corpo dos critérios continua em `light.body` NOS DOIS lados;
+//   · os dois títulos continuam no mesmo tamanho, peso e geometria;
+//   · os algarismos continuam idênticos;
+//   · nenhuma palavra muda de cor.
+//
+// O que muda é a superfície DEBAIXO do texto. Medido sobre o pergaminho:
+//
+//   sim   #FFFFFF   sombra projetada, borda de 1px       corpo 9,0:1
+//   não   #EDEAE2   sombra INTERNA, mesma borda          corpo 7,5:1
+//
+// ⚠️ POR QUE A BORDA DE 1px CONTINUA EM CIMA DOS DOIS, inclusive do branco:
+// a auditoria mediu que #FFFFFF sobre #F5F3EF dá 1,1:1 — no brilho de um iPhone
+// ao sol o card branco SOME e sobra a sombra flutuando. Sombra não é borda: ela
+// desaparece no reflexo antes da borda desaparecer. Ou o card tem os dois, ou
+// ele é um retângulo fantasma.
+//
+// ⚠️ E POR QUE O CARD PODE VOLTAR, se ele saiu HOJE de manhã pelo mesmo dono
+// ("caixa dentro de caixa, o olho lia formulário"): o que lia como formulário
+// eram DUAS caixas iguais mais SETE filetes separando critérios dentro delas —
+// dezesseis traços numa seção de nove frases. Os sete filetes internos não
+// voltam. Voltam duas superfícies, com espessura diferente uma da outra, e é a
+// diferença entre elas que carrega significado. Caixa que informa não é a
+// mesma coisa que caixa que só emoldura.
+const superficie = {
+  alta: {
+    background: '#FFFFFF',
+    border: '1px solid rgba(26,20,10,0.08)',
+    // Duas sombras: a larga e difusa dá a altura, a curta e fechada dá o
+    // contato. Sombra única lê como adesivo; duas leem como objeto.
+    boxShadow: '0 22px 40px -22px rgba(26,20,10,0.42), 0 5px 12px -8px rgba(26,20,10,0.22)',
+  },
+  baixa: {
+    background: '#EDEAE2',
+    border: '1px solid rgba(26,20,10,0.10)',
+    // Sombra INTERNA no topo + fio de luz de 1px embaixo dela: é o desenho de
+    // um rebaixo. Sem o fio de luz a sombra interna lê como sujeira.
+    boxShadow: 'inset 0 3px 9px rgba(26,20,10,0.12), inset 0 1px 0 rgba(255,255,255,0.5)',
+  },
+} as const
+
+function Coluna({
+  titulo,
+  itens,
+  cor,
+  relevo,
+}: {
+  titulo: string
+  itens: CriterioFiltro[]
+  cor: string
+  relevo: keyof typeof superficie
+}) {
   return (
-    // Sem className: a `.femeas-filtro-coluna` existia só para carregar o
-    // padding do painel, e o painel saiu. Seletor que não estiliza nada é
-    // pegadinha para o próximo — ele procura a regra e não acha.
-    <div>
+    // ⚠️ `overflow: hidden` para o filete de 2px poder encostar nas três bordas
+    // do card sem escapar pelo canto. E `height: 100%` para as duas colunas
+    // terminarem na mesma linha no desktop: card com altura sobrando de um lado
+    // é o que faria a coluna mais curta parecer "incompleta".
+    <div style={{ ...superficie[relevo], height: '100%', overflow: 'hidden' }}>
       {/* O filete passou de 40px para a LARGURA DA COLUNA, e continua com os
           mesmos 2px de espessura — o número de traços da seção não mudou (eram
           dois, são dois). O que mudou é o trabalho dele: a 40px ele era um tique
           decorativo; na largura inteira ele DELIMITA a coluna, que é a segunda
-          queixa do dono ("não se veem duas colunas"). Sem painel e sem borda, é
-          o filete que diz onde uma começa. */}
+          queixa do dono ("não se veem duas colunas").
+          Agora ele é a ARESTA DE CIMA do card — fora do padding, encostado nas
+          bordas. É a única cor que sobra em cada superfície. */}
       <div aria-hidden style={{ width: '100%', height: 2, background: cor }} />
+      <div className="p-[clamp(20px,3.6vw,32px)]">
       {/* ── O TÍTULO DA COLUNA SUBIU DE 12px MONO PARA OSWALD (06/08/2026) ──
           Este era o defeito mais barato de consertar da página inteira. A
           seção tem NOVE frases de 16px seguidas e dois rótulos de 12px; num
@@ -230,7 +298,8 @@ function Coluna({ titulo, itens, cor }: { titulo: string; itens: CriterioFiltro[
             </span>
           </li>
         ))}
-      </ul>
+        </ul>
+      </div>
     </div>
   )
 }
@@ -289,10 +358,11 @@ export function ParaQuem() {
             className="mt-[clamp(32px,4.5vw,56px)] grid gap-x-[clamp(44px,6vw,72px)] gap-y-[clamp(52px,6vw,72px)]"
             style={{ gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 300px), 1fr))' }}
           >
-            {/* Oliva à esquerda, terracota à direita — é toda a diferença de
-                tratamento entre as duas, de propósito. */}
-            <Coluna titulo={paraQuem.simTitle} itens={paraQuem.sim} cor={filtroCor.sim} />
-            <Coluna titulo={paraQuem.naoTitle} itens={paraQuem.nao} cor={filtroCor.nao} />
+            {/* Oliva à esquerda e SALTANDO da página; terracota à direita e
+                AFUNDADA nela (dono, 06/08). A conta das duas superfícies e o
+                que continua proibido estão no bloco `superficie`, acima. */}
+            <Coluna titulo={paraQuem.simTitle} itens={paraQuem.sim} cor={filtroCor.sim} relevo="alta" />
+            <Coluna titulo={paraQuem.naoTitle} itens={paraQuem.nao} cor={filtroCor.nao} relevo="baixa" />
           </div>
         </Reveal>
 

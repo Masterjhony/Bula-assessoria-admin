@@ -114,9 +114,26 @@ const base = process.argv[2] ?? 'http://localhost:3000'
  *     É a dica que mora sob o primeiro campo ficando 1,5px mais alta por linha.
  *     `primeiroCampo` não se move: dica e erro nascem DEPOIS do controle.
  */
+/*
+ * ── RODADA DO DONO, 06/08 À NOITE: CARD ELEVADO × CARD AFUNDADO ───────────
+ * Pedido literal: "o 'é para você' com card com sombras, um pouco 3D, como se
+ * estivesse pulando da tela; o 'não é para você' um pouco afundado". As duas
+ * colunas do filtro viraram superfícies (branco com sombra projetada / bege com
+ * sombra interna), e o fecho inteiro foi centralizado.
+ *
+ *   paraQuem  mobile 1425→1551 (+126)  desktop 1134→1277 (+143)
+ *     É o padding interno dos dois cards (clamp 20–32px em cima, embaixo e nos
+ *     dois lados). Nenhum critério entrou ou saiu — seguem 5 e 4.
+ *   pagina    mobile 8628→8755 (+127)  desktop 8525→8720 (+195)
+ *     Os cards, mais 52px no desktop pelo fecho: centralizar cobrou medida de
+ *     linha (o olho caiu de 56ch para 44ch) e o parágrafo ganhou uma linha.
+ *
+ * `primeiroCampo` 640/399 e `topoParaQuem` 2506/2044 INTOCADOS — o filtro
+ * inteiro mora abaixo do formulário, então engordar a seção não custa dobra.
+ */
 const REFERENCIA = {
-  'MOBILE 390': { primeiroCampo: 640, topoParaQuem: 2506, paraQuem: 1425, categorias: 858, pagina: 8628 },
-  'DESKTOP 1440': { primeiroCampo: 399, topoParaQuem: 2044, paraQuem: 1134, categorias: 1318, pagina: 8525 },
+  'MOBILE 390': { primeiroCampo: 640, topoParaQuem: 2506, paraQuem: 1551, categorias: 858, pagina: 8755 },
+  'DESKTOP 1440': { primeiroCampo: 399, topoParaQuem: 2044, paraQuem: 1277, categorias: 1318, pagina: 8720 },
 }
 
 const navegador = await chromium.launch()
