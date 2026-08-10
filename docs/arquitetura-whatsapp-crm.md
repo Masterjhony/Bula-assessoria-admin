@@ -31,7 +31,7 @@ Typecheck e `next build` limpos.
   - `GET /api/whatsapp/cockpit` (saúde Baileys + Cloud, uso/cap, guard rails).
   - `CRMWhatsappView` reescrito: dois canais, uso do dia, guard rails, deep-links,
     telemetria de assessor.
-- ✅ **Fase 0 (VPS):** **deployado e no ar** em `161.35.100.177:3001`.
+- ✅ **Fase 0 (VPS):** **deployado e no ar** em `76.13.169.168:3001` (Hostinger srv1301771; o droplet DigitalOcean 161.35.100.177 expirou em 08/2026).
   - `server.js` reescrito p/ produção: inbound webhook → `/api/whatsapp/inbound`,
     `/campaign-send` (com mídia + enquete), **jitter** 8–25s, e **guard de token**
     (`API_TOKEN` / header `x-vps-token`) — porta pública protegida.
