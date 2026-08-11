@@ -975,6 +975,55 @@ function buildPerpetuoLandingRow(lead: SheetLead, headerRow: string[]): string[]
   return headerRow.map(header => values.get(normalizeHeaderText(header)) ?? '')
 }
 
+// ─────────────────────────────────────────────────────────────────────────────
+// Reentrada nas escritas da planilha.
+//
+// 11/08: o primeiro lead da landing de fêmeas entrou na LEADS GERAIS e NÃO
+// chegou à aba FEMEAS — a cópia para a fila do SDR morreu no meio e o erro só
+// existiu no log. Sob tráfego pago é o pior modo de falha possível: o cadastro
+// responde "ok" para quem preencheu e some da superfície onde a equipe trabalha.
+//
+// O que derruba um append aqui é quase sempre transitório: 429 de cota do
+// Sheets (60 escritas/min por usuário — uma rajada de anúncio estoura), 5xx do
+// Google e conexão cortada. Repetir resolve; o que não pode é repetir
+// cegamente e duplicar a linha.
+//
+// Repetir É seguro porque toda função de append começa checando se o lead já
+// está lá (Lead ID na LEADS GERAIS, chaveDoLead nas abas-recorte): se a
+// primeira tentativa gravou e só a resposta se perdeu, a segunda devolve
+// { skipped: true, reason: 'duplicate' } em vez de escrever de novo.
+// ─────────────────────────────────────────────────────────────────────────────
+
+/** Erro que vale repetir: cota, indisponibilidade do Google, conexão cortada. */
+function erroTransitorioDoSheets(e: unknown): boolean {
+  const err = e as { code?: unknown; status?: unknown; message?: unknown }
+  const codigo = Number(err?.code ?? err?.status)
+  if (codigo === 429 || (codigo >= 500 && codigo <= 599)) return true
+  const msg = String(err?.message ?? '').toLowerCase()
+  return /quota|rate limit|backenderror|internal error|timeout|etimedout|econnreset|socket hang up|eai_again/.test(msg)
+}
+
+/** Esperas entre as tentativas. Curtas: o lead está esperando a resposta. */
+const ESPERAS_DE_RETRY = [500, 1500] as const
+
+async function comRetryDeEscrita<T>(rotulo: string, escreve: () => Promise<T>): Promise<T> {
+  let ultimo: unknown
+  for (let tentativa = 0; ; tentativa++) {
+    try {
+      return await escreve()
+    } catch (e) {
+      ultimo = e
+      if (tentativa >= ESPERAS_DE_RETRY.length || !erroTransitorioDoSheets(e)) break
+      console.error(
+        `[jmp-sheets] ${rotulo}: erro transitório na tentativa ${tentativa + 1}, repetindo —`,
+        e instanceof Error ? e.message : e,
+      )
+      await new Promise(r => setTimeout(r, ESPERAS_DE_RETRY[tentativa]))
+    }
+  }
+  throw ultimo
+}
+
 /**
  * Grava imediatamente na aba organizada o lead capturado pela landing de
  * touros. O CRM continua sendo a fonte primária, mas o append é aguardado para
@@ -984,6 +1033,12 @@ function buildPerpetuoLandingRow(lead: SheetLead, headerRow: string[]): string[]
  * não duplica a linha na planilha.
  */
 export async function appendLeadToPerpetuoSheet(
+  lead: SheetLead,
+): Promise<{ skipped: boolean; reason?: string }> {
+  return comRetryDeEscrita('LEADS GERAIS', () => gravaNaLeadsGerais(lead))
+}
+
+async function gravaNaLeadsGerais(
   lead: SheetLead,
 ): Promise<{ skipped: boolean; reason?: string }> {
   const info = await getStoredInfo()
@@ -1759,6 +1814,12 @@ async function writeTourosRows(
 export async function appendLeadToInteresseTab(
   lead: SheetLead,
 ): Promise<{ skipped: boolean; reason?: string; tabs?: string[] }> {
+  return comRetryDeEscrita('aba por interesse', () => gravaNaAbaDoInteresse(lead))
+}
+
+async function gravaNaAbaDoInteresse(
+  lead: SheetLead,
+): Promise<{ skipped: boolean; reason?: string; tabs?: string[] }> {
   const info = await getStoredInfo()
   if (!info) return { skipped: true, reason: 'not_provisioned' }
   const auth = getAuth()
@@ -2086,6 +2147,12 @@ function buildFemeasRow(lead: FemeasSheetLead, row: TourosLeadRow, header: strin
  * Idempotente pela mesma chave das outras abas (Lead ID, telefone como reserva).
  */
 export async function appendLeadToFemeasTab(
+  lead: FemeasSheetLead,
+): Promise<{ skipped: boolean; reason?: string; tab?: string }> {
+  return comRetryDeEscrita('aba FEMEAS', () => gravaNaAbaFemeas(lead))
+}
+
+async function gravaNaAbaFemeas(
   lead: FemeasSheetLead,
 ): Promise<{ skipped: boolean; reason?: string; tab?: string }> {
   const info = await getStoredInfo()

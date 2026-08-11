@@ -4,6 +4,15 @@ import { appendLeadToPerpetuoSheet, appendLeadToInteresseTab } from '@/lib/jmp-s
 import { evaluateMql, DEFAULT_JMP_MQL_RULE } from '@/lib/crm-types'
 import { aplicarMascaraTelefone, normalizarWhatsapp } from '@/lib/telefone'
 
+// O cadastro conversa com o Google Sheets várias vezes em SEQUÊNCIA (base +
+// aba de trabalho, cada uma com leitura de cabeçalho e checagem de duplicata),
+// e cada chamada dessas é rede. No limite padrão da função isso cabe raspando:
+// foi assim que, em 11/08, o primeiro lead da landing de fêmeas entrou na
+// LEADS GERAIS e não chegou à aba do SDR. 60s dá folga para a rajada do
+// tráfego pago sem mudar nada do caminho feliz — quem responde rápido continua
+// respondendo rápido.
+export const maxDuration = 60
+
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
 const VALID_UFS = new Set([
   'AC', 'AL', 'AP', 'AM', 'BA', 'CE', 'DF', 'ES', 'GO', 'MA', 'MT', 'MS', 'MG', 'PA',
@@ -161,7 +170,12 @@ export async function POST(req: NextRequest) {
   try {
     await appendLeadToInteresseTab(sheetLead)
   } catch (e) {
-    console.error('[touros lead] aba por interesse falhou:', e)
+    // Com o lead no log: a linha já está na LEADS GERAIS, mas quem trabalha é
+    // a aba TOUROS — sem isto ninguém sabe QUAL lead ficou fora dela até o
+    // cron passar.
+    console.error('[touros lead] aba por interesse falhou:', e, {
+      leadId: eventId, nome, whatsapp, uf,
+    })
   }
 
   // Devolve o veredito de MQL (fonte de verdade = servidor) para o client

@@ -8,6 +8,15 @@ import {
 import { evaluateMql, DEFAULT_JMP_MQL_RULE } from '@/lib/crm-types'
 import { aplicarMascaraTelefone, normalizarWhatsapp } from '@/lib/telefone'
 
+// O cadastro conversa com o Google Sheets várias vezes em SEQUÊNCIA (base +
+// aba de trabalho, cada uma com leitura de cabeçalho e checagem de duplicata),
+// e cada chamada dessas é rede. No limite padrão da função isso cabe raspando:
+// foi assim que, em 11/08, o primeiro lead da landing de fêmeas entrou na
+// LEADS GERAIS e não chegou à aba do SDR. 60s dá folga para a rajada do
+// tráfego pago sem mudar nada do caminho feliz — quem responde rápido continua
+// respondendo rápido.
+export const maxDuration = 60
+
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
 const VALID_UFS = new Set([
   'AC', 'AL', 'AP', 'AM', 'BA', 'CE', 'DF', 'ES', 'GO', 'MA', 'MT', 'MS', 'MG', 'PA',

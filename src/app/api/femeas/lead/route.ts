@@ -17,6 +17,15 @@ import {
   mascaraDocumento,
 } from '@/app/femeas/_lib/qualificacao'
 
+// O cadastro conversa com o Google Sheets várias vezes em SEQUÊNCIA (base +
+// aba de trabalho, cada uma com leitura de cabeçalho e checagem de duplicata),
+// e cada chamada dessas é rede. No limite padrão da função isso cabe raspando:
+// foi assim que, em 11/08, o primeiro lead da landing de fêmeas entrou na
+// LEADS GERAIS e não chegou à aba do SDR. 60s dá folga para a rajada do
+// tráfego pago sem mudar nada do caminho feliz — quem responde rápido continua
+// respondendo rápido.
+export const maxDuration = 60
+
 // ─────────────────────────────────────────────────────────────────────────────
 // Endpoint PÚBLICO da landing de FÊMEAS (funil perpétuo de matrizes PO).
 //
@@ -208,7 +217,13 @@ export async function POST(req: NextRequest) {
       console.error('[femeas lead] fila do SDR pulada:', r.reason)
     }
   } catch (e) {
-    console.error('[femeas lead] fila do SDR falhou:', e)
+    // O lead vai junto no log de propósito: as colunas do SDR (CPF, categoria,
+    // interesse, projeto) existem SÓ nesta aba — se o append morre, elas não
+    // ficam em lugar nenhum e o cron, que lê da base, não as recupera. Com o
+    // log dá para reconstruir a linha à mão em vez de perder a triagem.
+    console.error('[femeas lead] fila do SDR falhou:', e, {
+      leadId: eventId, nome, whatsapp, uf, categoria, quantidade, projeto,
+    })
   }
 
   // `is_mql` é o contrato que o formulário e o GTM já esperam — o nome fica,
