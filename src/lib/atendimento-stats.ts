@@ -1,33 +1,81 @@
 /**
  * Fonte ÚNICA da métrica de atendimento (WhatsApp).
  *
- * Regras que valem em toda tela (aba Métricas, Dashboard de Growth, scripts):
- *  1. GRUPO NÃO CONTA. Conversas de grupos internos/leiloeiras são Baileys e vivem
- *     na mesma tabela (`phone` termina em `@g.us`). Incluí-las inflava tudo — em
- *     14/07/2026 o total saltou de ~1,3k p/ >10k porque 6k inbounds eram de 27
- *     grupos. Nunca entram.
- *  2. UMA PESSOA = UM CONTATO. O telefone é canonicalizado (sem DDI, sem 9º dígito)
- *     e cada pessoa conta UMA vez, mesmo que tenha levado vários disparos. Somar por
- *     origem contava o mesmo lead 2x.
- *  3. DISPARO ≠ RESPOSTA DO BOT. Origens que são resposta nossa numa conversa em
- *     curso (concierge, SDR, catch-up) não são "abordagem" — só abordagens contam
- *     como disparo. Uma inbound conta como resposta se vier em até 72h do 1º disparo.
+ * Reescrito em 11/08/2026 depois de uma apuração que fechou o nosso registro
+ * contra o faturamento da própria Meta: 1.837 disparos apurados aqui contra
+ * 1.832 mensagens cobradas por ela no mesmo período (0,3% de diferença, que é
+ * arredondamento de fuso na virada do dia). O que mudou:
+ *
+ *  1. SÓ API OFICIAL. Antes nenhuma função filtrava canal — bastava a tela não
+ *     filtrar para o Baileys entrar junto e o mesmo lead aparecer duas vezes.
+ *     Atendimento é canal único desde a decisão de 2026; Baileys é assessor e
+ *     grupo de leiloeira, nunca métrica.
+ *  2. DISPARO É POR JANELA, NÃO POR LISTA DE ORIGENS. Antes havia uma lista
+ *     manual de origens "que não são disparo", que envelhecia a cada script novo
+ *     e classificava errado (`crm-sheet-import` entrava como abordagem mesmo
+ *     quando era resposta dentro da conversa). Agora vale a regra que a própria
+ *     Meta usa para cobrar: é disparo se NÃO houve mensagem do lead nas 24h
+ *     anteriores — que é exatamente quando ela exige template. Por isso a conta
+ *     pode ser conferida contra a fatura.
+ *  3. GRUPO NÃO CONTA. Conversa de grupo (`phone` termina em `@g.us`) é Baileys
+ *     e vive na mesma tabela. Em 14/07/2026 o total saltou de ~1,3k para >10k
+ *     porque 6k inbounds eram de 27 grupos. Nunca entram.
+ *  4. UMA PESSOA = UM CONTATO. Telefone canonicalizado; quem levou três
+ *     disparos é uma pessoa, não três.
  */
 
 /** Janela em que uma inbound conta como "resposta" ao disparo. */
 export const JANELA_RESPOSTA_MS = 72 * 3600_000
 
-/** Origens que são resposta NOSSA numa conversa em curso, não abordagem. */
-export const ORIGENS_NAO_DISPARO = new Set([
-    'central-inbound', 'central-bot', 'concierge-catchup', 'inbox-sdr',
-    'crm-assessor', 'manual-admin', 'teste-manual', 'cadastro-leiloeira',
-])
+/** Janela de sessão da Meta: dentro dela a resposta é livre e grátis. */
+export const JANELA_SESSAO_MS = 24 * 3600_000
 
-/** Status de envio que valem como "chegou/enfileirou" (não falha/bloqueio). */
-const STATUS_ENVIADO = new Set(['sent', 'delivered', 'read', 'queued'])
+/** Status de envio que significam "saiu de fato". `queued`/`held`/`blocked` não saíram. */
+const STATUS_ENTREGUE = new Set(['sent', 'delivered', 'read'])
+
+/**
+ * Preço por MENSAGEM cobrado pela Meta no Brasil, derivado da nossa própria
+ * fatura (custo ÷ volume no `pricing_analytics` da WABA), não de tabela.
+ * A cobrança é por mensagem desde a mudança de modelo — não por conversa.
+ */
+export const META_PRECO_USD: Record<string, number> = {
+    MARKETING: 0.0625,
+    UTILITY: 0.0068,
+    /** Resposta dentro da janela de 24h não é cobrada. */
+    SERVICE: 0,
+}
 
 /** Mensagem de grupo (Baileys). Nunca conta em métrica de atendimento. */
 export const isGrupo = (phone: unknown) => String(phone ?? '').includes('@g.us')
+
+/**
+ * Instante da mensagem em ms. Precisa aceitar tanto a string ISO que o Supabase
+ * devolve quanto o objeto Date que o driver do Postgres devolve — `Date.parse`
+ * num Date passa pelo toString() e PERDE os milissegundos, o que basta para
+ * inverter a ordem de duas mensagens do mesmo segundo e classificar errado a
+ * janela de sessão.
+ */
+const ms = (v: string | Date): number => (v instanceof Date ? v.getTime() : Date.parse(v))
+
+/**
+ * Até 01/08/2026 alguns scripts e o flow-engine gravavam sem preencher `channel`
+ * mesmo enviando pela Cloud API. São 127 linhas, todas com `status='sent'` e
+ * envio confirmado via graph.facebook.com. O corte de data impede que registro
+ * novo sem canal (que seria Baileys) entre por essa porta.
+ */
+const CORTE_CANAL_LEGADO = Date.parse('2026-08-02T00:00:00Z')
+
+/** A mensagem saiu pelo número oficial (Cloud API)? */
+export function isApiOficial(m: Pick<AtendimentoMsg, 'channel' | 'status' | 'created_at'>): boolean {
+    if (m.channel === 'cloud') return true
+    if (m.channel != null) return false
+    return m.status === 'sent' && ms(m.created_at) < CORTE_CANAL_LEGADO
+}
+
+/** Recorte oficial da métrica: só Cloud API, nunca grupo. */
+export function somenteApiOficial<T extends AtendimentoMsg>(msgs: T[]): T[] {
+    return msgs.filter(m => !isGrupo(m.phone) && isApiOficial(m))
+}
 
 /**
  * Chave canônica do telefone: sem DDI e sem o nono dígito. Une "5567998894887",
@@ -50,6 +98,55 @@ export interface AtendimentoMsg {
     created_at: string
 }
 
+/** Uma abordagem ativa: saiu de fato e não foi resposta em conversa aberta. */
+export interface Disparo {
+    key: string
+    t: number
+    origin: string
+}
+
+/**
+ * Separa o que é abordagem do que é resposta nossa dentro de uma conversa em
+ * curso. Recebe as mensagens JÁ no recorte oficial.
+ */
+export function classificaDisparos(msgs: AtendimentoMsg[]): {
+    disparos: Disparo[]
+    inboundPorFone: Map<string, number[]>
+} {
+    const inboundPorFone = new Map<string, number[]>()
+    for (const m of msgs) {
+        if (m.direction !== 'inbound') continue
+        const k = foneKey(m.phone)
+        if (!k) continue
+        const arr = inboundPorFone.get(k)
+        if (arr) arr.push(ms(m.created_at))
+        else inboundPorFone.set(k, [ms(m.created_at)])
+    }
+    for (const arr of inboundPorFone.values()) arr.sort((a, b) => a - b)
+
+    /** O lead escreveu nas 24h anteriores? Então a conversa estava aberta. */
+    const sessaoAberta = (k: string, t: number) => {
+        const arr = inboundPorFone.get(k)
+        if (!arr) return false
+        for (let i = arr.length - 1; i >= 0; i--) {
+            if (arr[i] < t && t - arr[i] < JANELA_SESSAO_MS) return true
+            if (arr[i] < t - JANELA_SESSAO_MS) break
+        }
+        return false
+    }
+
+    const disparos: Disparo[] = []
+    for (const m of msgs) {
+        if (m.direction !== 'outbound') continue
+        if (!STATUS_ENTREGUE.has(String(m.status))) continue
+        const k = foneKey(m.phone)
+        const t = ms(m.created_at)
+        if (!k || sessaoAberta(k, t)) continue
+        disparos.push({ key: k, t, origin: m.origin || '(sem origem)' })
+    }
+    return { disparos, inboundPorFone }
+}
+
 export interface AtendimentoStats {
     /** Pessoas distintas que receberam ao menos um disparo (abordagem) nosso. */
     disparados: number
@@ -57,63 +154,52 @@ export interface AtendimentoStats {
     responderam: number
     /** responderam / disparados, em %. */
     pct: number
-    /** Mensagens enviadas (sem grupo). */
+    /** Mensagens de abordagem enviadas (uma pessoa pode ter levado várias). */
+    disparos: number
+    /** Mensagens enviadas que saíram (sem grupo, só oficial). */
     enviadas: number
-    /** Mensagens recebidas (sem grupo). */
+    /** Mensagens recebidas (sem grupo, só oficial). */
     recebidas: number
-    /** Contatos distintos com quem houve qualquer troca (in ou out), sem grupo. */
+    /** Contatos distintos com quem houve qualquer troca. */
     contatos: number
 }
 
 /**
  * Calcula a taxa de resposta por PESSOA sobre um conjunto de mensagens já no
- * recorte desejado (período/canal/campanha). Ignora grupos internamente.
+ * recorte desejado (período/campanha). Filtra canal e grupo internamente.
  */
-export function atendimentoResposta(msgs: AtendimentoMsg[]): AtendimentoStats {
-    const inboundPorFone = new Map<string, number[]>()
+export function atendimentoResposta(todas: AtendimentoMsg[]): AtendimentoStats {
+    const msgs = somenteApiOficial(todas)
+    const { disparos, inboundPorFone } = classificaDisparos(msgs)
+
     const contatos = new Set<string>()
     let enviadas = 0
     let recebidas = 0
-
     for (const m of msgs) {
-        if (isGrupo(m.phone)) continue
         const k = foneKey(m.phone)
         if (k) contatos.add(k)
-        if (m.direction === 'inbound') {
-            recebidas++
-            if (!k) continue
-            const arr = inboundPorFone.get(k)
-            if (arr) arr.push(new Date(m.created_at).getTime())
-            else inboundPorFone.set(k, [new Date(m.created_at).getTime()])
-        } else if (m.direction === 'outbound') {
-            enviadas++
-        }
+        if (m.direction === 'inbound') recebidas++
+        else if (m.direction === 'outbound' && STATUS_ENTREGUE.has(String(m.status))) enviadas++
     }
 
-    // origin → fone → instante do PRIMEIRO disparo (a resposta tem que vir depois).
-    const primeiroDisparo = new Map<string, number>()
-    for (const m of msgs) {
-        if (isGrupo(m.phone) || m.direction !== 'outbound' || !m.origin) continue
-        if (ORIGENS_NAO_DISPARO.has(m.origin)) continue
-        if (!STATUS_ENVIADO.has(String(m.status))) continue
-        const k = foneKey(m.phone)
-        if (!k) continue
-        const t = new Date(m.created_at).getTime()
-        const prev = primeiroDisparo.get(k)
-        if (prev === undefined || t < prev) primeiroDisparo.set(k, t)
+    const primeiro = new Map<string, number>()
+    for (const d of disparos) {
+        const p = primeiro.get(d.key)
+        if (p === undefined || d.t < p) primeiro.set(d.key, d.t)
     }
 
     let responderam = 0
-    for (const [k, t] of primeiroDisparo) {
+    for (const [k, t] of primeiro) {
         const ins = inboundPorFone.get(k)
         if (ins && ins.some(x => x > t && x - t < JANELA_RESPOSTA_MS)) responderam++
     }
 
-    const disparados = primeiroDisparo.size
+    const disparados = primeiro.size
     return {
         disparados,
         responderam,
         pct: disparados ? Number(((responderam / disparados) * 100).toFixed(1)) : 0,
+        disparos: disparos.length,
         enviadas,
         recebidas,
         contatos: contatos.size,
@@ -132,7 +218,7 @@ export interface AtendimentoGrowth extends AtendimentoStats {
     /** Séries diárias (mais antigo → hoje), tamanho = min(janela, 90). */
     serie_contatados: number[]
     serie_responderam: number[]
-    /** Taxa de resposta por disparo (lista fria vs reengajamento vs evento…). */
+    /** Taxa de resposta por origem (lista fria vs reengajamento vs evento…). */
     por_origem: OrigemResposta[]
     /** foneKey das pessoas que responderam — para cruzar com leads (funil). */
     respondentes_keys: string[]
@@ -143,39 +229,26 @@ export interface AtendimentoGrowth extends AtendimentoStats {
  * série temporal (coorte por dia do 1º disparo), o recorte por origem e as
  * chaves dos respondentes (para o funil contatado→respondeu→MQL→cliente).
  */
-export function atendimentoGrowth(msgs: AtendimentoMsg[], dias: number, nowMs: number): AtendimentoGrowth {
+export function atendimentoGrowth(todas: AtendimentoMsg[], dias: number, nowMs: number): AtendimentoGrowth {
+    const msgs = somenteApiOficial(todas)
     const base = atendimentoResposta(msgs)
+    const { disparos, inboundPorFone } = classificaDisparos(msgs)
 
-    const inboundPorFone = new Map<string, number[]>()
-    for (const m of msgs) {
-        if (isGrupo(m.phone) || m.direction !== 'inbound') continue
-        const k = foneKey(m.phone)
-        if (!k) continue
-        const arr = inboundPorFone.get(k)
-        if (arr) arr.push(new Date(m.created_at).getTime())
-        else inboundPorFone.set(k, [new Date(m.created_at).getTime()])
-    }
     const respondeu = (k: string, t: number) => {
         const ins = inboundPorFone.get(k)
         return !!ins && ins.some(x => x > t && x - t < JANELA_RESPOSTA_MS)
     }
 
-    // 1º disparo por pessoa (global) + por origem.
-    const primeiroDisparo = new Map<string, number>()
+    // 1º disparo por pessoa (global) e por origem.
+    const primeiro = new Map<string, number>()
     const porOrigemMap = new Map<string, Map<string, number>>()
-    for (const m of msgs) {
-        if (isGrupo(m.phone) || m.direction !== 'outbound' || !m.origin) continue
-        if (ORIGENS_NAO_DISPARO.has(m.origin)) continue
-        if (!STATUS_ENVIADO.has(String(m.status))) continue
-        const k = foneKey(m.phone)
-        if (!k) continue
-        const t = new Date(m.created_at).getTime()
-        const prev = primeiroDisparo.get(k)
-        if (prev === undefined || t < prev) primeiroDisparo.set(k, t)
-        let om = porOrigemMap.get(m.origin)
-        if (!om) { om = new Map(); porOrigemMap.set(m.origin, om) }
-        const pv = om.get(k)
-        if (pv === undefined || t < pv) om.set(k, t)
+    for (const d of disparos) {
+        const p = primeiro.get(d.key)
+        if (p === undefined || d.t < p) primeiro.set(d.key, d.t)
+        let om = porOrigemMap.get(d.origin)
+        if (!om) { om = new Map(); porOrigemMap.set(d.origin, om) }
+        const pv = om.get(d.key)
+        if (pv === undefined || d.t < pv) om.set(d.key, d.t)
     }
 
     // Série diária por coorte (dia do 1º disparo).
@@ -189,7 +262,7 @@ export function atendimentoGrowth(msgs: AtendimentoMsg[], dias: number, nowMs: n
     const serie_contatados = new Array(DAYS).fill(0)
     const serie_responderam = new Array(DAYS).fill(0)
     const respondentes_keys: string[] = []
-    for (const [k, t] of primeiroDisparo) {
+    for (const [k, t] of primeiro) {
         const i = idxDoDia(t)
         if (i >= 0) serie_contatados[i]++
         if (respondeu(k, t)) {

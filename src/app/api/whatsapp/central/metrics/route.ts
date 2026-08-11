@@ -4,7 +4,12 @@
  * Filtros (query string):
  *   ?dias=1|7|30|90      janela do período (default 30)
  *   ?campanha=<chave>    recorta tudo para os leads daquela campanha
- *   ?canal=cloud|baileys recorta por canal de envio
+ *
+ * SÓ A API OFICIAL ENTRA. Desde 11/08/2026 esta rota mede exclusivamente o
+ * número oficial (Cloud API) — o filtro vive em `somenteApiOficial`, na fonte
+ * única. Antes não havia filtro de canal nenhum: bastava não escolher "API
+ * oficial" no seletor para o Baileys entrar junto e o mesmo lead ser contado
+ * duas vezes. Baileys é assessor e grupo de leiloeira, não é atendimento.
  *
  * GRUPOS NÃO ENTRAM EM MÉTRICA. As conversas dos grupos internos e das leiloeiras
  * são do Baileys e vivem na MESMA tabela das conversas com lead (`phone` termina
@@ -22,12 +27,9 @@ import { createClient } from '@supabase/supabase-js'
 import { requireAdmin } from '@/lib/auth-helpers'
 import { INTERESSES } from '@/lib/whatsapp-central'
 import {
-    JANELA_RESPOSTA_MS, ORIGENS_NAO_DISPARO, isGrupo, foneKey, atendimentoResposta,
+    isGrupo, foneKey, somenteApiOficial, atendimentoResposta, atendimentoGrowth,
 } from '@/lib/atendimento-stats'
-
-// Tarifa média estimada de conversa marketing (USD). Só para ESTIMAR o gasto de
-// WhatsApp — o valor faturado real fica no WhatsApp Manager.
-const WA_TARIFA_USD = 0.07
+import { getMetaBilling } from '@/lib/whatsapp-billing'
 
 interface Msg {
     phone: string
@@ -85,7 +87,6 @@ export async function GET(req: NextRequest) {
     const url = new URL(req.url)
     const dias = Math.min(Math.max(Number(url.searchParams.get('dias')) || 30, 1), 365)
     const campanha = url.searchParams.get('campanha')?.trim() || null
-    const canal = url.searchParams.get('canal')?.trim() || null
 
     const now = Date.now()
     const todayStart = new Date(); todayStart.setHours(0, 0, 0, 0)
@@ -130,46 +131,13 @@ export async function GET(req: NextRequest) {
     )
 
     const mensagens_grupo_excluidas = brutas.filter(m => isGrupo(m.phone)).length
-    let msgs = brutas.filter(m => !isGrupo(m.phone))
-    if (canal) msgs = msgs.filter(m => m.channel === canal)
-    if (campanha) msgs = msgs.filter(m => fonesCampanha.has(foneKey(m.phone)))
+    const oficiais = somenteApiOficial(brutas)
+    const mensagens_outro_canal_excluidas = brutas.length - mensagens_grupo_excluidas - oficiais.length
+    const msgs = campanha ? oficiais.filter(m => fonesCampanha.has(foneKey(m.phone))) : oficiais
 
-    // ── Taxa de resposta: de quem recebeu um disparo, quantos responderam? ──
-    const inboundPorFone = new Map<string, number[]>()
-    for (const m of msgs) {
-        if (m.direction !== 'inbound') continue
-        const k = foneKey(m.phone)
-        if (!inboundPorFone.has(k)) inboundPorFone.set(k, [])
-        inboundPorFone.get(k)!.push(new Date(m.created_at).getTime())
-    }
-
-    // origin → fone → instante do PRIMEIRO envio (a resposta tem que vir depois dele)
-    const porOrigem = new Map<string, Map<string, number>>()
-    for (const m of msgs) {
-        if (m.direction !== 'outbound' || !m.origin) continue
-        if (ORIGENS_NAO_DISPARO.has(m.origin)) continue
-        if (!['sent', 'delivered', 'read', 'queued'].includes(String(m.status))) continue
-        const k = foneKey(m.phone)
-        if (!k) continue
-        if (!porOrigem.has(m.origin)) porOrigem.set(m.origin, new Map())
-        const mapa = porOrigem.get(m.origin)!
-        const t = new Date(m.created_at).getTime()
-        if (!mapa.has(k) || t < mapa.get(k)!) mapa.set(k, t)
-    }
-
-    const taxa_resposta = [...porOrigem.entries()].map(([origin, fones]) => {
-        let responderam = 0
-        for (const [k, t] of fones) {
-            const ins = inboundPorFone.get(k) ?? []
-            if (ins.some(x => x > t && x - t < JANELA_RESPOSTA_MS)) responderam++
-        }
-        return {
-            origin,
-            enviados: fones.size,
-            responderam,
-            pct: fones.size ? Number(((responderam / fones.size) * 100).toFixed(1)) : 0,
-        }
-    }).sort((a, b) => b.enviados - a.enviados)
+    // Taxa de resposta por origem e no total. A regra de "o que é disparo" mora
+    // na fonte única (janela de 24h), não numa lista de origens mantida à mão.
+    const taxa_resposta = atendimentoGrowth(msgs, dias, now).por_origem
 
     // Total por PESSOA (não soma de origens — senão quem levou 2 disparos conta 2x).
     const totalPessoas = atendimentoResposta(msgs)
@@ -182,10 +150,11 @@ export async function GET(req: NextRequest) {
     for (const m of msgs) ultimaPorFone.set(foneKey(m.phone), m.direction) // ordem asc → sobra a última
 
     // ── Custos ──────────────────────────────────────────────────────────────
-    const [waConvRes, aiUsageRes, campTotalRes] = await Promise.all([
-        supabase.from('whatsapp_messages').select('id', { count: 'exact', head: true })
-            .eq('direction', 'outbound').gte('created_at', trintaDias.toISOString())
-            .or('intent.eq.campaign,bot_step.eq.welcome,origin.eq.backlog-frio'),
+    // WhatsApp: valor FATURADO pela Meta, não estimativa. IA: custo real logado
+    // por chamada. Se a Meta não responder, `ok:false` e a tela mostra
+    // indisponível — nunca um número inventado.
+    const [metaBilling, aiUsageRes, campTotalRes] = await Promise.all([
+        getMetaBilling(trintaDias, new Date(now)),
         supabase.from('ai_usage_log').select('created_at, cost_usd')
             .gte('created_at', trintaDias.toISOString()).limit(20000),
         supabase.from('whatsapp_campaigns').select('id', { count: 'exact', head: true })
@@ -198,7 +167,6 @@ export async function GET(req: NextRequest) {
         gasto_ia_30d += c
         if (new Date(r.created_at as string) >= todayStart) gasto_ia_hoje += c
     }
-    const wa_conversas_empresa_30d = waConvRes.count ?? 0
 
     // ── Distribuição de interesse (do recorte) ──────────────────────────────
     const distribuicao_interesse: Record<string, number> = {}
@@ -211,9 +179,9 @@ export async function GET(req: NextRequest) {
     return NextResponse.json({
         periodo_dias: dias,
         campanha,
-        canal,
         campanhas,
         mensagens_grupo_excluidas,
+        mensagens_outro_canal_excluidas,
         leads_no_recorte: leadsFiltrados.length,
 
         novos_contatos_7d: leadsFiltrados.filter(l => new Date(l.created_at) >= seteDias).length,
@@ -234,11 +202,9 @@ export async function GET(req: NextRequest) {
             pct: totalPessoas.pct,
         },
 
-        wa_conversas_empresa_30d,
-        gasto_whatsapp_estimado_30d: Number((wa_conversas_empresa_30d * WA_TARIFA_USD).toFixed(2)),
+        wa_billing: metaBilling,
         gasto_ia_30d: Number(gasto_ia_30d.toFixed(4)),
         gasto_ia_hoje: Number(gasto_ia_hoje.toFixed(4)),
-        wa_tarifa_usd: WA_TARIFA_USD,
         distribuicao_interesse,
     })
 }

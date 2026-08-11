@@ -190,11 +190,11 @@ export interface TaxaRespostaLinha {
 export interface CentralMetrics {
     periodo_dias: number
     campanha: string | null
-    canal: string | null
     /** Campanhas disponíveis no seletor, com o total de leads de cada uma. */
     campanhas: Array<{ key: string; leads: number }>
     /** Mensagens de grupo (Baileys) que ficaram FORA de toda contagem. */
     mensagens_grupo_excluidas: number
+    mensagens_outro_canal_excluidas: number
     leads_no_recorte: number
     mensagens_enviadas_periodo: number
     mensagens_recebidas_periodo: number
@@ -209,12 +209,18 @@ export interface CentralMetrics {
     mensagens_recebidas_hoje: number
     campanhas_disparadas_30d: number
     leads_aguardando_resposta: number
-    // Custos: WhatsApp é ESTIMATIVA (conversas iniciadas × tarifa); IA é real (log).
-    wa_conversas_empresa_30d: number
-    gasto_whatsapp_estimado_30d: number
+    // Custos REAIS: WhatsApp vem do faturamento da Meta (pricing_analytics), IA
+    // do log por chamada. Nenhum dos dois é estimativa.
+    wa_billing: {
+        volume_cobrado: number
+        volume_gratis: number
+        custo_usd: number
+        por_categoria: { categoria: string; volume: number; custo_usd: number }[]
+        ok: boolean
+        erro?: string
+    }
     gasto_ia_30d: number
     gasto_ia_hoje: number
-    wa_tarifa_usd: number
     distribuicao_interesse: Record<string, number>
 }
 

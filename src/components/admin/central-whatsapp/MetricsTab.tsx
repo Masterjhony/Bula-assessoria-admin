@@ -54,18 +54,16 @@ export function MetricsTab() {
     const [loading, setLoading] = useState(true)
     const [dias, setDias] = useState(30)
     const [campanha, setCampanha] = useState("")
-    const [canal, setCanal] = useState("")
 
     useEffect(() => {
         setLoading(true)
         const q = new URLSearchParams({ dias: String(dias) })
         if (campanha) q.set("campanha", campanha)
-        if (canal) q.set("canal", canal)
         fetch(`/api/whatsapp/central/metrics?${q}`)
             .then(r => r.json())
             .then(d => setData(d))
             .finally(() => setLoading(false))
-    }, [dias, campanha, canal])
+    }, [dias, campanha])
 
     if (loading && !data) {
         return (
@@ -109,19 +107,13 @@ export function MetricsTab() {
                     ))}
                 </select>
 
-                <select
-                    value={canal}
-                    onChange={e => setCanal(e.target.value)}
-                    className="rounded-lg border bg-background px-3 py-1.5 text-xs"
-                >
-                    <option value="">Todos os canais</option>
-                    <option value="cloud">API oficial</option>
-                    <option value="baileys">Baileys</option>
-                </select>
+                <span className="rounded-lg border bg-muted/50 px-3 py-1.5 text-xs text-muted-foreground">
+                    Somente API oficial
+                </span>
 
-                {(campanha || canal || dias !== 30) && (
+                {(campanha || dias !== 30) && (
                     <button
-                        onClick={() => { setDias(30); setCampanha(""); setCanal("") }}
+                        onClick={() => { setDias(30); setCampanha("") }}
                         className="text-xs text-muted-foreground underline underline-offset-2 hover:text-foreground"
                     >
                         limpar
@@ -220,9 +212,15 @@ export function MetricsTab() {
                     <div className="bg-card text-card-foreground rounded-xl border p-4 flex items-start gap-3">
                         <div className="bg-primary/10 p-2 rounded-lg flex-shrink-0"><MessageSquare className="h-4 w-4 text-primary" /></div>
                         <div>
-                            <p className="text-xs text-muted-foreground">Gasto WhatsApp (30d) · estimado</p>
-                            <p className="text-2xl font-bold tabular-nums">US$ {data.gasto_whatsapp_estimado_30d.toFixed(2)}</p>
-                            <p className="text-[11px] text-muted-foreground mt-0.5">{data.wa_conversas_empresa_30d} conversas × US$ {data.wa_tarifa_usd.toFixed(2)}</p>
+                            <p className="text-xs text-muted-foreground">Gasto WhatsApp (30d) · faturado</p>
+                            <p className="text-2xl font-bold tabular-nums">
+                                {data.wa_billing.ok ? `US$ ${data.wa_billing.custo_usd.toFixed(2)}` : "—"}
+                            </p>
+                            <p className="text-[11px] text-muted-foreground mt-0.5">
+                                {data.wa_billing.ok
+                                    ? `${data.wa_billing.volume_cobrado} cobradas · ${data.wa_billing.volume_gratis} grátis (janela 24h)`
+                                    : "Meta indisponível no momento"}
+                            </p>
                         </div>
                     </div>
                     <div className="bg-card text-card-foreground rounded-xl border p-4 flex items-start gap-3">
@@ -241,7 +239,7 @@ export function MetricsTab() {
                     </div>
                 </div>
                 <p className="text-[11px] text-muted-foreground mt-2">
-                    WhatsApp é estimativa (conversas iniciadas pela empresa × tarifa média); o valor faturado oficial fica no WhatsApp Manager. IA é o custo real logado por chamada (conta a partir de agora).
+                    Os dois valores são reais, não estimativa: o do WhatsApp vem do faturamento da própria Meta (por mensagem, com marketing custando 9x mais que utilidade e resposta em 24h grátis); o de IA é o custo logado por chamada.
                 </p>
             </div>
 
