@@ -236,6 +236,23 @@ async function sendViaCloud(input: {
     return { status: 'failed', error: lastError }
 }
 
+/**
+ * uuid do template na nossa tabela, a partir do nome que a Meta conhece.
+ * Devolve null quando o template só existe lá (os criados direto no WhatsApp
+ * Manager e os de teste não têm linha local) — nesse caso vale o `template_name`,
+ * que é gravado sempre. Cache em memória: o nome do template não muda de id.
+ */
+const cacheTemplateId = new Map<string, string | null>()
+async function templateIdPorNome(supabase: SupabaseClient, nome: string): Promise<string | null> {
+    const cached = cacheTemplateId.get(nome)
+    if (cached !== undefined) return cached
+    const { data } = await supabase
+        .from('whatsapp_templates').select('id').eq('slug', nome).limit(1).maybeSingle()
+    const id = data?.id ?? null
+    cacheTemplateId.set(nome, id)
+    return id
+}
+
 async function logOutbound(
     supabase: SupabaseClient,
     req: OutboundRequest,
@@ -255,6 +272,12 @@ async function logOutbound(
         intent: req.intent,
         origin: req.origin ?? req.intent,
         bot_step: req.botStep ?? null,
+        // Qual template a Meta recebeu. Sem isto não dá para responder "qual
+        // template converteu melhor?" — a apuração de 11/08/2026 teve que
+        // reconstruir a atribuição casando o corpo com os 52 templates
+        // aprovados, porque `template_id` estava vazio nas 3.998 linhas.
+        template_name: req.templateName ?? null,
+        template_id: req.templateName ? await templateIdPorNome(supabase, req.templateName) : null,
         lead_id: req.to.leadId ?? null,
         campaign_id: req.campaignId ?? null,
         reason: extra.messageId ?? extra.reason ?? null,

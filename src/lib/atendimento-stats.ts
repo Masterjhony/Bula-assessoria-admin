@@ -72,6 +72,20 @@ export function isApiOficial(m: Pick<AtendimentoMsg, 'channel' | 'status' | 'cre
     return m.status === 'sent' && ms(m.created_at) < CORTE_CANAL_LEGADO
 }
 
+/**
+ * O MESMO recorte, mas no nível da consulta — para não trazer 30 mil linhas de
+ * Baileys e grupo só para descartar em memória depois. Use com `.or(...)` do
+ * PostgREST e sempre junto de um filtro de grupo (`not.like.%@g.us`), porque a
+ * coluna `phone` do grupo também tem canal `baileys` mas nem sempre.
+ *
+ *   .or(FILTRO_API_OFICIAL).not('phone', 'like', '%@g.us')
+ */
+export const FILTRO_API_OFICIAL = 'channel.eq.cloud,and(channel.is.null,status.eq.sent)'
+
+/** Equivalente em SQL, para os scripts de relatório que falam direto com o banco. */
+export const SQL_API_OFICIAL =
+    `(phone not like '%@g.us' and (channel = 'cloud' or (channel is null and status = 'sent')))`
+
 /** Recorte oficial da métrica: só Cloud API, nunca grupo. */
 export function somenteApiOficial<T extends AtendimentoMsg>(msgs: T[]): T[] {
     return msgs.filter(m => !isGrupo(m.phone) && isApiOficial(m))

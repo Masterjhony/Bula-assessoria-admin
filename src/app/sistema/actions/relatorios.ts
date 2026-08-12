@@ -7,7 +7,7 @@
  */
 import { requireUser, supabaseAdmin } from '@/lib/supabase';
 import { normalizeCRMStatus, CRM_STAGE_ENTRY } from '@/lib/crm-types';
-import { atendimentoGrowth, type AtendimentoMsg, type OrigemResposta } from '@/lib/atendimento-stats';
+import { atendimentoGrowth, FILTRO_API_OFICIAL, type AtendimentoMsg, type OrigemResposta } from '@/lib/atendimento-stats';
 
 export interface RelatorioFunilEtapa { etapa: string; total: number }
 export interface RelatorioBucket { label: string; total: number }
@@ -123,12 +123,14 @@ export async function getCrmRelatorios(periodoDias: number = 30): Promise<CrmRel
         }
     }
 
-    // ── Atendimento (whatsapp_messages do período, fonte única de métricas) ──
+    // ── Atendimento (só API oficial — fonte única em atendimento-stats.ts) ──
     const msgs = await fetchAll<AtendimentoMsg>((from, to) => supa
         .from('whatsapp_messages')
         .select('phone, direction, status, origin, channel, created_at')
         .gte('created_at', cutoffIso)
         .not('phone', 'is', null)
+        .or(FILTRO_API_OFICIAL)
+        .not('phone', 'like', '%@g.us')
         .order('created_at', { ascending: true })
         .range(from, to) as never);
     const growth = atendimentoGrowth(msgs, dias, nowMs);

@@ -15,6 +15,10 @@ import { sendVpsGroup } from './whatsapp-vps'
 import { sessaoOperacional } from './whatsapp-operacional'
 import { ufFromPhone, normalizeUf } from './state-registration-provider'
 import {
+    FILTRO_API_OFICIAL, classificaDisparos, foneKey, JANELA_RESPOSTA_MS,
+    type AtendimentoMsg,
+} from './atendimento-stats'
+import {
     CRM_STAGE_ENTRY,
     CRM_STAGE_CONNECTION,
     CRM_STAGE_QUALIFICATION,
@@ -44,8 +48,12 @@ const isClientPhone = (p: string) => /^\d{8,15}$/.test(p)
 export interface DailyDigestStats {
     date: string
     novosLeads: number
+    /** Pessoas que levaram uma abordagem que saiu de fato. */
     contatados: number
+    /** Dessas, quantas responderam em até 72h. */
     responderam: number
+    /** Quem escreveu no dia, tenha sido chamado ou não (inclui quem procurou). */
+    escreveramNoDia: number
     aguardandoAgora: number
     handoffs: number
     optouts: number
@@ -69,23 +77,59 @@ export async function buildCrmDailyDigest(
         : new Date(new Date(today.iso).getTime() - (days - 1) * 86_400_000).toISOString()
     const label = days === 1 ? today.label : `últimos ${days} dias (até ${today.label})`
 
-    // ── Mensagens de hoje (conversas de cliente) ──
-    const { data: msgs } = await supabase
-        .from('whatsapp_messages')
-        .select('phone, name, direction, origin, intent, created_at')
-        .gte('created_at', start)
-        .not('phone', 'is', null)
-        .order('created_at', { ascending: true })
-        .limit(5000)
+    // ── Mensagens de hoje (só API oficial — a conversa com cliente) ──
+    // Recorte e contagem seguem a fonte única. Antes este bloco somava qualquer
+    // outbound de qualquer canal: Baileys (histórico importado, espelho, agente
+    // da equipe) entrava como "cliente chamado", e mensagem que FALHOU contava
+    // igual — nos dias do bloqueio de pagamento da Meta o resumo dizia que 190
+    // pessoas tinham sido chamadas quando nenhuma recebeu nada.
+    // PostgREST devolve no máximo 1000 linhas por chamada e ignora `.limit`
+    // acima disso — o `.limit(5000)` que estava aqui truncava em silêncio, e num
+    // dia movimentado o resumo saía com menos gente do que houve de verdade.
+    type DigestMsg = AtendimentoMsg & { name?: string | null; intent?: string | null }
+    const msgs: DigestMsg[] = []
+    for (let from = 0; ; from += 1000) {
+        const { data } = await supabase
+            .from('whatsapp_messages')
+            .select('phone, name, direction, status, origin, channel, intent, created_at')
+            .gte('created_at', start)
+            .not('phone', 'is', null)
+            .or(FILTRO_API_OFICIAL)
+            .not('phone', 'like', '%@g.us')
+            .order('created_at', { ascending: true })
+            .range(from, from + 999)
+        if (!data?.length) break
+        msgs.push(...(data as unknown as DigestMsg[]))
+        if (data.length < 1000) break
+    }
+
+    const doCliente = msgs.filter(m =>
+        isClientPhone(m.phone)
+        && !INTERNAL_ORIGINS.has(m.origin ?? '')
+        && m.intent !== 'assessor')
+
+    // "Chamados" = quem levou ABORDAGEM que saiu de fato (não resposta nossa
+    // dentro de conversa aberta, não mensagem que falhou). "Responderam" = dos
+    // chamados, quem escreveu depois — não é o total de quem escreveu no dia,
+    // que incluía quem procurou a Bula sozinho e inflava a taxa.
+    const { disparos, inboundPorFone } = classificaDisparos(doCliente)
+    const primeiroDisparo = new Map<string, number>()
+    for (const d of disparos) {
+        const p = primeiroDisparo.get(d.key)
+        if (p === undefined || d.t < p) primeiroDisparo.set(d.key, d.t)
+    }
+    let responderamAoDisparo = 0
+    for (const [k, t] of primeiroDisparo) {
+        const ins = inboundPorFone.get(k)
+        if (ins?.some(x => x > t && x - t < JANELA_RESPOSTA_MS)) responderamAoDisparo++
+    }
 
     const outboundPhones = new Set<string>()
     const inboundPhones = new Set<string>()
     // Última direção por phone (pra saber quem está aguardando resposta agora).
     const lastByPhone = new Map<string, { direction: string; name: string }>()
-    for (const m of msgs ?? []) {
-        const phone = m.phone as string
-        if (!isClientPhone(phone)) continue
-        if (INTERNAL_ORIGINS.has(m.origin ?? '') || m.intent === 'assessor') continue
+    for (const m of doCliente) {
+        const phone = m.phone
         if (m.direction === 'outbound') outboundPhones.add(phone)
         if (m.direction === 'inbound') inboundPhones.add(phone)
         lastByPhone.set(phone, { direction: m.direction, name: m.name || phone })
@@ -141,8 +185,9 @@ export async function buildCrmDailyDigest(
     const stats: DailyDigestStats = {
         date: label,
         novosLeads: novosLeads ?? 0,
-        contatados: outboundPhones.size,
-        responderam: inboundPhones.size,
+        contatados: primeiroDisparo.size,
+        responderam: responderamAoDisparo,
+        escreveramNoDia: inboundPhones.size,
         aguardandoAgora: aguardando.length,
         handoffs: handoffs ?? 0,
         optouts: optouts ?? 0,
@@ -156,7 +201,7 @@ export async function buildCrmDailyDigest(
 
     // ── Texto ──
     const taxa = stats.contatados > 0
-        ? ` (${Math.round((stats.responderam / stats.contatados) * 100)}% dos chamados)`
+        ? ` (${Math.round((stats.responderam / stats.contatados) * 100)}% dos chamados, em até 72h)`
         : ''
     const f = (k: string) => funil[k] ?? 0
     const linhas = [
@@ -166,6 +211,7 @@ export async function buildCrmDailyDigest(
         `• Leads novos: ${stats.novosLeads}`,
         `• Clientes chamados: ${stats.contatados}`,
         `• Responderam: ${stats.responderam}${taxa}`,
+        `• Escreveram no dia (chamados ou não): ${stats.escreveramNoDia}`,
         `• Aguardando resposta agora: ${stats.aguardandoAgora}`,
         `• Pediram humano: ${stats.handoffs} · Opt-out: ${stats.optouts}`,
         '',

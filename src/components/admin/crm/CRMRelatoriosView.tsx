@@ -149,7 +149,7 @@ export function CRMRelatoriosView() {
             <div className="flex flex-wrap items-center justify-between gap-3">
                 <div className="flex items-center gap-2 text-xs text-gray-500">
                     <BarChart3 size={14} className="text-[#A68B4B] shrink-0" />
-                    Governança do CRM: funil, atendimento, habilitação, termômetro e qualidade da IA — tudo do banco, nada estimado.
+                    Governança do CRM: funil, atendimento, habilitação, termômetro e qualidade da IA — tudo do banco, nada estimado. O atendimento conta <b>só a API oficial</b>: disparo é mensagem que saiu sem o lead ter escrito nas 24h anteriores, e cada pessoa conta uma vez.
                 </div>
                 <div className="flex items-center gap-2">
                     {[7, 30, 90].map(d => (

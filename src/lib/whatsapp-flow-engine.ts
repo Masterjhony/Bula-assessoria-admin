@@ -683,6 +683,11 @@ function logOutbound(
         body: args.body,
         direction: 'outbound',
         origin: 'central-bot',
+        // O fluxo só responde a inbound da API oficial (as caixas Baileys estão
+        // com automação desligada). Sem gravar o canal estas linhas ficavam
+        // nulas e precisavam de regra de exceção para entrar na métrica.
+        channel: 'cloud',
+        inbox_id: 'cloud',
         lead_id: args.lead_id,
         bot_step: args.bot_step,
     }).then(({ error }) => {

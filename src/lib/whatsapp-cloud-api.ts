@@ -633,7 +633,9 @@ export async function sendCampaignViaCloudApi(
                 body: recipient.message || recipient.caption || null,
                 origin: input.origin || 'campanha',
                 campaign_id: input.campaignId,
-                template_id: null,
+                // Qual template a Meta recebeu — a coluna existia e ficava nula,
+                // e sem ela "qual template converteu melhor?" não tem resposta.
+                template_name: input.templateName ?? null,
             })
 
             results.push({ recipient_id: recipient.recipient_id, phone: to, ok: true, message_id: messageId })
@@ -657,7 +659,9 @@ export async function sendCampaignViaCloudApi(
                 body: recipient.message || recipient.caption || null,
                 origin: input.origin || 'campanha',
                 campaign_id: input.campaignId,
-                template_id: null,
+                // Qual template a Meta recebeu — a coluna existia e ficava nula,
+                // e sem ela "qual template converteu melhor?" não tem resposta.
+                template_name: input.templateName ?? null,
             })
 
             results.push({ recipient_id: recipient.recipient_id, phone: to, ok: false, error })

@@ -1,12 +1,13 @@
 'use server'
 
 import { supabaseAdmin } from '@/lib/supabase'
-import { atendimentoGrowth, type AtendimentoMsg, type AtendimentoGrowth } from '@/lib/atendimento-stats'
+import { atendimentoGrowth, FILTRO_API_OFICIAL, type AtendimentoMsg, type AtendimentoGrowth } from '@/lib/atendimento-stats'
 
 /**
  * Números do atendimento (WhatsApp) para o Dashboard de Growth.
- * Usa a MESMA regra da aba Métricas (fonte única em atendimento-stats.ts):
- * grupo não conta, telefone canônico, resposta em até 72h do 1º disparo.
+ * Usa a MESMA regra da aba Métricas (fonte única em atendimento-stats.ts): só
+ * API oficial, grupo não conta, telefone canônico, disparo é o que sai sem
+ * inbound nas 24h anteriores, resposta em até 72h do 1º disparo.
  *
  * @param dias janela em dias (default 90; cobre a base atual de mensagens).
  */
@@ -21,6 +22,10 @@ export async function getAtendimentoStats(dias = 90): Promise<AtendimentoGrowth>
             .from('whatsapp_messages')
             .select('phone, direction, status, origin, channel, created_at')
             .gte('created_at', inicio)
+            // Recorte já na consulta: sem isso vinham ~30 mil linhas de Baileys
+            // e grupo para serem descartadas em memória logo depois.
+            .or(FILTRO_API_OFICIAL)
+            .not('phone', 'like', '%@g.us')
             .order('created_at')
             .range(from, from + 999)
         if (error) throw new Error(error.message)
