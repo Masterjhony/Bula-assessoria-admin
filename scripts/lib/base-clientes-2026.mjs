@@ -74,17 +74,29 @@ export function nomeTokens(v) {
     return new Set(nomeKey(v).split(' ').filter(x => x.length > 2))
 }
 /**
- * Dois nomes são a mesma pessoa quando compartilham ao menos 2 tokens e esses
- * tokens cobrem o nome mais curto quase inteiro. É o que faz
- * "NELORE GRÃO PARA - DR CELSO LOPES" casar com "Dr Celso Lopes" sem casar
- * "José Carlos Silva" com "Ana Paula Silva" (1 token só, e cobertura baixa).
+ * Dois nomes são a mesma pessoa quando compartilham ao menos 2 tokens, esses
+ * tokens cobrem o nome mais curto quase inteiro, E o sobrenome bate.
+ *
+ * A exigência do sobrenome não é preciosismo: sem ela, "José Luiz Antunes" casa
+ * com "José Luiz Sarti" — dois prenomes comuns em três tokens dão 67% de
+ * cobertura e o teste passa. Foi exatamente esse falso positivo que atribuiu a
+ * compra do Sarti ao Antunes na primeira apuração. Como o último token é o
+ * sobrenome principal em português, basta pedir que o último de um dos dois
+ * lados esteja na interseção — o que continua casando "Dr Celso Lopes" com
+ * "NELORE GRÃO PARÁ - DR CELSO LOPES" e "Mauro Cesar" com "MAURO CESAR DA SILVA".
  */
 export function mesmoNome(a, b) {
     const A = nomeTokens(a), B = nomeTokens(b)
     if (!A.size || !B.size) return false
-    const inter = [...A].filter(x => B.has(x)).length
-    if (inter < 2) return inter === 1 && A.size === 1 && B.size === 1
-    return inter / Math.min(A.size, B.size) >= 0.6
+    const comuns = [...A].filter(x => B.has(x))
+    if (comuns.length < 2) {
+        // nome de um token só (apelido, razão social curta) exige igualdade
+        return comuns.length === 1 && A.size === 1 && B.size === 1
+    }
+    if (comuns.length / Math.min(A.size, B.size) < 0.6) return false
+    const ultimoA = [...A][A.size - 1]
+    const ultimoB = [...B][B.size - 1]
+    return comuns.includes(ultimoA) || comuns.includes(ultimoB)
 }
 
 /* ── casamento de leilões entre HastaPro e fechamentos ────────────────────── */

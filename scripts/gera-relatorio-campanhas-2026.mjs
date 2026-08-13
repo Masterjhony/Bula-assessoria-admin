@@ -113,7 +113,7 @@ const funil = `
     <tr><td class="et">Cadastros submetidos</td><td class="num q">${num(cadastrosSubmetidos)}</td><td class="num">${pct(cadastrosSubmetidos, f.atendimento.responderam)}</td>
       <td>${num(f.cadastros.sistema.registros)} envios para ${num(cadastrosSubmetidos)} pessoas, em 2 leiloeiras (Bula Remates e Programa Leilões). Só julho — depois disso o registro parou.</td></tr>
     <tr><td class="et">Aprovados</td><td class="num q">${num(aprovadosTotal)}</td><td class="num"><span class="off">não comparável</span></td>
-      <td>Apuração manual dos grupos até 01/08 (${num(f.cadastros.manual.recusados)} recusados, ou seja ${pct(aprovadosTotal, aprovadosTotal + f.cadastros.manual.recusados)} de aprovação entre as decisões lidas).
+      <td>Pessoas, não registros: a apuração dos grupos até 01/08 tem ${num(f.cadastros.manual.registros)} registros de aprovação, mas ${num(f.cadastros.manual.registros - aprovadosTotal)} são a mesma pessoa aprovada duas vezes (no grupo e na consolidação). Houve ${num(f.cadastros.manual.recusados)} recusas — ${pct(aprovadosTotal, aprovadosTotal + f.cadastros.manual.recusados)} de aprovação entre as decisões lidas.
       <strong>Não divida por 53:</strong> os aprovados vêm de um universo maior que o registrado no sistema — dividir um pelo outro produziria uma taxa de aprovação falsa. No sistema constam ${num(f.cadastros.sistema.pessoasAprovadas)} pessoas aprovadas.</td></tr>
     <tr><td class="et">Aprovados que compraram</td><td class="num q">${num(f.conversao.aprovadosQueCompraram)}</td><td class="num">${pct(f.conversao.aprovadosQueCompraram, aprovadosTotal)}</td>
       <td>Cruzamento com os ${num(f.compradores.total)} compradores de 2026 por CPF, telefone ou nome.</td></tr>

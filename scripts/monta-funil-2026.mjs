@@ -89,10 +89,21 @@ const sistema = {
 }
 
 // Apuração manual dos grupos (08/07 → 01/08), com a frase que sustenta cada uma.
-const aprovadosManual = [
+// São 51 REGISTROS, não 51 pessoas: quem foi aprovado no grupo e depois entrou
+// na consolidação de 01/08 aparece duas vezes (o material já sinalizava isso em
+// José Luiz Antunes e Marcelo Cataldo). Sem deduplicar, a mesma compra entrava
+// duas vezes na conversão.
+const registrosAprovacao = [
     ...APROVADOS_GRUPO.map(a => ({ nome: a.cliente, uf: a.uf, fone: a.fone, cpf: a.cpf, fonte: `grupo ${a.grupo}`, data: a.data })),
     ...APROVADOS_LISTA.map(a => ({ nome: a.cliente, uf: a.uf, fone: a.fone, cpf: a.cpf, fonte: 'lista consolidada', data: a.data })),
 ]
+const idxAprovados = new Identidades()
+const aprovadosManual = []
+for (const r of registrosAprovacao) {
+    if (idxAprovados.busca({ doc: r.cpf, fone: r.fone, nome: r.nome })) continue
+    aprovadosManual.push(r)
+    idxAprovados.add(r, { doc: r.cpf, fone: r.fone, nome: r.nome })
+}
 const recusadosManual = [...NAO_APROVADOS, ...NAO_APROVADOS_REMATES]
 
 /* ── 3. quem, de tudo isso, comprou ───────────────────────────────────────── */
@@ -154,7 +165,7 @@ const funil = {
         importados: pgLeads.filter(l => /base unificada|contatos whatsapp/i.test(l.origem || '')).length,
         mql: pgLeads.filter(l => l.is_mql).length,
     },
-    cadastros: { sistema, manual: { aprovados: aprovadosManual.length, recusados: recusadosManual.length } },
+    cadastros: { sistema, manual: { registros: registrosAprovacao.length, aprovados: aprovadosManual.length, recusados: recusadosManual.length } },
     conversao: {
         aprovadosQueCompraram: aprovadosQueCompraram.length,
         aprovadosTotal: aprovadosManual.length,
@@ -185,7 +196,7 @@ console.log('  de campanha:', funil.leads.deCampanha, '| MQL total:', funil.lead
 console.log('  1ª data registrada:', funil.leads.primeiraData)
 console.log('CRM:', funil.crm.total, '| importados em massa:', funil.crm.importados, '| is_mql:', funil.crm.mql)
 console.log('CADASTROS no sistema:', JSON.stringify(sistema))
-console.log('CADASTROS apurados à mão: aprovados', funil.cadastros.manual.aprovados, '| recusados', funil.cadastros.manual.recusados)
+console.log('CADASTROS apurados à mão:', registrosAprovacao.length, 'registros →', funil.cadastros.manual.aprovados, 'pessoas | recusados:', funil.cadastros.manual.recusados)
 console.log('CONVERSÃO:', JSON.stringify(funil.conversao))
 console.log('ATENDIMENTO:', JSON.stringify(atendimento))
 console.log('COMPRADORES:', JSON.stringify(funil.compradores))
