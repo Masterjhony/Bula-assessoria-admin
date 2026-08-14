@@ -25,6 +25,7 @@ import { pagina, paraPdf, esc, brl, brl0, num, pct, dataBr, mesBr } from './lib/
 import {
     INVESTIDO_APURADO, LEADS_META, FUNIL_WHATSAPP, DIVULGACAO_LEILOES, META_LIVE,
 } from './lib/midia-2026.mjs'
+import { PATROCINADOS_LEOZINHO } from './lib/patrocinados-confirmados.mjs'
 
 const ROOT = path.join(path.dirname(fileURLToPath(import.meta.url)), '..')
 const DIR = path.join(ROOT, 'outputs', 'base-clientes-2026')
@@ -34,6 +35,7 @@ const HOJE = '14/08/2026'
 const f = JSON.parse(fs.readFileSync(path.join(DIR, 'funil-2026.json'), 'utf8'))
 const base = JSON.parse(fs.readFileSync(path.join(DIR, 'base-clientes.json'), 'utf8'))
 const compras = JSON.parse(fs.readFileSync(path.join(DIR, 'compras-2026.json'), 'utf8'))
+const atr = JSON.parse(fs.readFileSync(path.join(DIR, 'atribuicao-campanha-2026.json'), 'utf8'))
 
 /* ── agregados da Meta (mês a mês, funil digital) ─────────────────────────── */
 
@@ -50,24 +52,17 @@ const CLI = MESES.reduce((a, m) => a + mm[m].cliques, 0)
 
 /* ── animais e compras pós-lead dos atribuíveis (lote a lote, do ERP) ─────── */
 
-const norm = s => String(s || '').normalize('NFD').replace(/[̀-ͯ]/g, '').toUpperCase()
-const atribuiveis = base.filter(p => p.atribuivelCampanha).map(p => {
-    const m = String(p.dataEntradaLead || '').match(/(\d{2})\/(\d{2})\/(\d{4})/)
-    const dl = m ? `${m[3]}-${m[2]}-${m[1]}` : String(p.dataEntradaLead || '').slice(0, 10)
-    const nomes = [p.nome, ...(p.nomesAlternativos || [])].map(norm)
-    const pos = compras.filter(c => nomes.includes(norm(c.cliente)) && c.data >= dl)
-    return {
-        nome: p.nome, campanha: p.campanha, uf: p.uf, assessor: p.assessor,
-        dataLead: dl, primeiraCompra: p.primeiraCompra,
-        comprasPos: pos.length,
-        animais: pos.reduce((a, c) => a + (c.animais || 0), 0),
-        valor: Math.round(pos.reduce((a, c) => a + c.valor, 0) * 100) / 100,
-        leiloes: [...new Set(pos.map(c => c.leilao))],
-    }
-})
+/* ── venda atribuível: vem do apurador dedicado (atribuicao-campanha-2026.mjs),
+   que cruza lead de campanha × ERP em TODAS as filiais e classifica a evidência
+   de cada casamento. Ver o cabeçalho daquele script para a regra completa. ── */
+
+const atribuiveis = [...atr.comprovados, ...atr.aRevisar].sort((a, b) => b.valor - a.valor)
 const ANIMAIS = atribuiveis.reduce((a, p) => a + p.animais, 0)
 const VGV_ATR = atribuiveis.reduce((a, p) => a + p.valor, 0)
+const ARREMATES = atribuiveis.reduce((a, p) => a + p.arremates, 0)
 const TICKET_ANIMAL = ANIMAIS ? VGV_ATR / ANIMAIS : 0
+const EVID_FORTE = atr.comprovados.length
+const VGV_FORTE = atr.comprovados.reduce((a, p) => a + p.valor, 0)
 
 /* ── funil exato: quantidades ─────────────────────────────────────────────── */
 
@@ -79,7 +74,7 @@ const apr = f.cadastros.manual.aprovados
 const aprCamp = f.cadastros.manual.aprovadosDeCampanha
 const aprFora = f.cadastros.manual.aprovadosPorFora
 const aprPlanNao = f.cadastros.manual.aprovadosPlanilhaNaoCampanha
-const CLIENTES = f.conversao.atribuiveis
+const CLIENTES = atribuiveis.length
 
 const cpl = INVESTIDO_APURADO / leadsCamp
 const cpMql = INVESTIDO_APURADO / mqlCamp
@@ -205,7 +200,7 @@ operação não registra (acessos, cadastros de agosto), a célula diz “sem re
       <td class="num" colspan="3" style="text-align:center">${num(CLIENTES)} clientes com compra APÓS o lead</td>
       <td class="num q">${num(CLIENTES)}</td><td class="micro">ERP lote a lote × data do lead</td></tr>
     <tr><td class="et">Animais vendidos</td><td class="num">${num(ALVO.animais)}</td>
-      <td class="num" colspan="3" style="text-align:center">${num(ANIMAIS)} animais em ${num(atribuiveis.reduce((a, p) => a + p.comprasPos, 0))} arremates</td>
+      <td class="num" colspan="3" style="text-align:center">${num(ANIMAIS)} animais em ${num(ARREMATES)} arremates</td>
       <td class="num q">${num(ANIMAIS)}</td><td class="micro">ERP (QTD por lote)</td></tr>
     <tr><td class="et">Ticket médio (por animal)</td><td class="num">${brl0(ALVO.ticket)}</td>
       <td class="num" colspan="3" style="text-align:center">—</td>
@@ -288,28 +283,49 @@ o form de bezerras (PERPETUO) qualifica ${pct(pc['LEADS - FORMS INST PERPETUO']?
 
 const vendas = `
 <h2>A venda da campanha, cliente a cliente</h2>
-<p>Regra dura de atribuição: <strong>só conta a compra feita DEPOIS de a pessoa virar lead.</strong> Quem já comprava
-antes e preencheu formulário depois não entra (são ${num(base.filter(p => p.origemClasse === 'campanha' && !p.atribuivelCampanha).length)}
-casos, excluídos de propósito). Cada linha abaixo é conferível no ERP, lote a lote.</p>
+<p>Regra dura: <strong>só conta a compra feita DEPOIS de a pessoa virar lead</strong>, e o cruzamento vale para
+<strong>qualquer filial do ERP</strong> — não só a da Bula. Foi o que revelou os arremates do Leilão São Geraldo, que
+ficavam invisíveis na apuração anterior. A coluna EVIDÊNCIA diz o que sustenta cada linha: casamento de telefone,
+confirmação do assessor que atendeu, ou a janela curta entre o lead e o arremate na campanha do próprio leilão.</p>
 <table>
-  <thead><tr><th>Cliente</th><th>Origem (campanha)</th><th>Virou lead</th><th>Comprou</th><th class="r">Arremates</th><th class="r">Animais</th><th class="r">Valor pós-lead</th></tr></thead>
+  <thead><tr><th>Cliente</th><th>UF</th><th>Campanha de entrada</th><th>Lead</th><th class="r">Dias</th><th>Leilão</th><th class="r">An.</th><th class="r">Valor</th><th>Evidência</th></tr></thead>
   <tbody>
-    ${atribuiveis.sort((a, b) => b.valor - a.valor).map(p => `<tr>
+    ${atribuiveis.map(p => `<tr>
       <td class="nome">${esc(p.nome)}</td>
-      <td class="micro">${esc(p.campanha || 'Landing JMP — jun')}</td>
+      <td>${esc(p.uf || '—')}</td>
+      <td class="micro">${esc(String(p.campanha || '').slice(0, 30))}</td>
       <td class="num">${dataBr(p.dataLead)}</td>
-      <td class="micro">${esc(p.leiloes.slice(0, 2).join(' · ').slice(0, 46))}</td>
-      <td class="num">${num(p.comprasPos)}</td>
+      <td class="num">${p.diasAteCompra ?? '—'}</td>
+      <td class="micro">${esc(p.leiloes.join(' · ').slice(0, 40))}${p.filiais.includes('01') ? ' <strong>(fil. 01)</strong>' : ''}</td>
       <td class="num">${num(p.animais)}</td>
-      <td class="num">${brl0(p.valor)}</td></tr>`).join('')}
+      <td class="num">${brl0(p.valor)}</td>
+      <td class="micro">${esc(p.evidencia)}</td></tr>`).join('')}
   </tbody>
-  <tfoot><tr><td>TOTAL</td><td></td><td></td><td></td><td class="num">${num(atribuiveis.reduce((a, p) => a + p.comprasPos, 0))}</td>
-    <td class="num">${num(ANIMAIS)}</td><td class="num">${brl0(VGV_ATR)}</td></tr></tfoot>
+  <tfoot><tr><td>TOTAL</td><td></td><td></td><td></td><td></td><td class="num">${num(ARREMATES)} arremates</td>
+    <td class="num">${num(ANIMAIS)}</td><td class="num">${brl0(VGV_ATR)}</td><td></td></tr></tfoot>
 </table>
-<p class="micro">Dos ${num(apr)} aprovados nos grupos, ${num(f.conversao.aprovadosQueCompraram)} compraram — e os
-${num(f.conversao.aprovadosDeCampanhaQueCompraram)} são todos de campanha (nenhum cadastro “por fora” aprovado comprou
-até 14/08). O ciclo lead→arremate vai de 1 a 37 dias (mediana 6): a campanha de junho ainda colhia em agosto, então o
-número de clientes tende a subir com a janela, não a cair.</p>`
+<p class="micro">Dos ${num(CLIENTES)} clientes, ${num(EVID_FORTE)} têm evidência forte (telefone conferindo com o
+cadastro do ERP ou confirmação do assessor que atendeu), somando ${brl0(VGV_FORTE)}. Os outros
+${num(CLIENTES - EVID_FORTE)} entraram pela Landing JMP e arremataram no leilão daquela campanha entre 2 e 6 dias
+depois — nexo forte, mas sem telefone no cadastro do ERP para provar documentalmente.</p>
+
+<h3>Conferência da lista de patrocinados do assessor</h3>
+<p>A diretoria enviou a relação de clientes “provenientes de patrocinados” do Leonardo. Cada nome foi buscado no ERP
+ao vivo, em todas as filiais, e cruzado com as bases de leads. <strong>Três dos cinco se confirmam; dois não.</strong></p>
+<table>
+  <thead><tr><th>Nome na lista</th><th class="r">Lista diz</th><th class="r">ERP diz</th><th>Veredito</th></tr></thead>
+  <tbody>
+    ${PATROCINADOS_LEOZINHO.map(x => `<tr>
+      <td class="nome">${esc(x.nome)}</td>
+      <td class="num">${x.listaAnimais ? x.listaAnimais + ' an · ' : ''}${brl0(x.listaValor)}</td>
+      <td class="num">${x.erpValor ? num(x.erpAnimais) + ' an · ' + brl0(x.erpValor) : '<span class="off">não existe</span>'}</td>
+      <td class="micro">${x.confere && x.leadOrigem ? '<strong>CONFIRMA</strong> — ' : '<strong>NÃO ENTRA</strong> — '}${esc(x.nota)}</td></tr>`).join('')}
+  </tbody>
+</table>
+<p class="micro">O total da lista é ${brl0(373500)} / 20 animais; o que se sustenta como campanha é
+${brl0(330900)} / 18 animais (Marcelo Clemente, Patrick e Laércio). A apuração completa desta página encontrou ainda
+outros ${num(CLIENTES - 3)} clientes de campanha que a lista não trazia — inclusive um do mesmo Leilão São Geraldo
+atendido por outro assessor.</p>`
 
 const verificacao = `
 <h2>Verificação — como saber que estes números estão certos</h2>
@@ -334,8 +350,8 @@ cadastros parou em 08/07 e o CRM é 91% importação em massa). Cada variável f
       <td>Grupos (frase a frase) × leads de campanha (planilha + CRM) × lista consolidada</td>
       <td><strong>Separado</strong>: ${num(apr)} pessoas aprovadas; ${num(aprFora)} por fora e ${num(aprPlanNao)} sem anúncio excluídas da conta da campanha.</td></tr>
     <tr><td class="et">Clientes / animais / valor</td><td class="num q">${num(CLIENTES)} / ${num(ANIMAIS)} / ${brl0(VGV_ATR)}</td>
-      <td>ERP FIL 2 lote a lote (QTD × valor × data) × data de entrada do lead × fechamentos</td>
-      <td><strong>Conferido lote a lote</strong> — homônimo é recusado, não chutado; o valor exclui compra anterior ao lead.</td></tr>
+      <td>ERP em TODAS as filiais, lote a lote × data de entrada do lead × telefone do cadastro × lista do assessor</td>
+      <td><strong>Refeito em 14/08.</strong> A apuração anterior só olhava a filial da Bula e perdia os arremates do São Geraldo; e contava 2 clientes cuja origem era importação em massa, não anúncio. Nome só vale com telefone ou UF conferindo.</td></tr>
   </tbody>
 </table>
 
