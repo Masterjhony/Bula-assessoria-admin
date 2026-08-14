@@ -26,7 +26,7 @@ import {
     INVESTIDO_APURADO, LEADS_META, FUNIL_WHATSAPP, DIVULGACAO_LEILOES, META_LIVE,
 } from './lib/midia-2026.mjs'
 import { PATROCINADOS_LEOZINHO } from './lib/patrocinados-confirmados.mjs'
-import { RESUMO_AGOSTO, META_CADASTROS_AGOSTO } from './lib/cadastros-agosto-2026.mjs'
+import { RESUMO_AGOSTO, META_CADASTROS_AGOSTO, NOVOS_EM_AGOSTO, DE_CAMPANHA_EM_AGOSTO, IDENTIFICAVEIS } from './lib/cadastros-agosto-2026.mjs'
 
 const ROOT = path.join(path.dirname(fileURLToPath(import.meta.url)), '..')
 const DIR = path.join(ROOT, 'outputs', 'base-clientes-2026')
@@ -78,10 +78,16 @@ const aprCamp = f.cadastros.manual.aprovadosDeCampanha
 const aprFora = f.cadastros.manual.aprovadosPorFora
 const aprPlanNao = f.cadastros.manual.aprovadosPlanilhaNaoCampanha
 const CLIENTES = atribuiveis.length
-/* Cadastro e aprovação somam duas janelas de fontes diferentes: o sistema cobre
-   julho (parou de registrar em 08/07) e a leitura dos grupos cobre agosto. */
-const CADASTROS_TOTAL = cadSistemaCamp + RESUMO_AGOSTO.pessoas
-const APROVADOS_TOTAL = aprCamp + RESUMO_AGOSTO.aprovados
+/* ⚠ NÃO SOMAR cadastro de agosto ao funil de campanha. Verificado em 14/08:
+   nenhum dos 15 cadastros identificáveis que entraram no grupo em agosto está
+   nas bases de lead de campanha — vieram da carteira dos assessores. E 6 dos 22
+   já constavam na apuração até 01/08, então somar as listas contaria duas vezes.
+   O funil de campanha usa só o que é comprovadamente de campanha. */
+const CADASTROS_TOTAL = cadSistemaCamp
+const APROVADOS_TOTAL = aprCamp
+const AGO_NOVOS = NOVOS_EM_AGOSTO.length
+const AGO_APROV = NOVOS_EM_AGOSTO.filter(c => c.status === 'aprovado').length
+const AGO_RECUS = NOVOS_EM_AGOSTO.filter(c => c.status === 'recusado').length
 
 /* ESCOPO DOS CUSTOS. Quatro das 13 campanhas do funil (Corte Perpétuo ×2, Corte
    Tupã e a EAO que não veiculou) têm o formulário na conta da leiloeira: o lead
@@ -197,8 +203,8 @@ mesma ordem — agora com fonte que se pode cobrar.</p>
         ['Acessos', 5850, null, 'num', 'Não medível: só campanha de landing tem page view instrumentado (3.047 registrados).'],
         ['Leads gerados', 702, leadsCamp, 'num', 'Planilha de leads, todas as abas, só origem de anúncio ou landing.'],
         ['Leads qualificados', 140.4, mqlCamp, 'num', 'Regra do sistema: piso ≥ 100 cabeças e Inscrição Estadual.'],
-        ['Cadastros submetidos', 56.16, CADASTROS_TOTAL, 'num', `${num(cadSistemaCamp)} no sistema (jul, só de campanha) + ${num(RESUMO_AGOSTO.pessoas)} apurados nos grupos em agosto.`],
-        ['Cadastros aprovados', 33.696, APROVADOS_TOTAL, 'num', `${num(aprCamp)} de campanha até 01/08 + ${num(RESUMO_AGOSTO.aprovados)} em agosto, lidos mensagem a mensagem no grupo.`],
+        ['Cadastros submetidos', 56.16, CADASTROS_TOTAL, 'num', `Sistema, julho, só quem é lead de campanha. Em agosto o grupo registrou mais ${num(AGO_NOVOS)} cadastros, mas NENHUM deles é lead de campanha — não entram aqui.`],
+        ['Cadastros aprovados', 33.696, APROVADOS_TOTAL, 'num', 'Grupos de WhatsApp, frase a frase, só origem campanha (até 01/08).'],
         ['Clientes compraram', 13.5, CLIENTES, 'num', 'HastaPro ao vivo, todas as filiais, só compra posterior ao lead, cada uma com evidência.'],
         ['Animais vendidos', 40, ANIMAIS, 'num', 'HastaPro, quantidade por lote.'],
         ['Ticket médio', 25000, TICKET_ANIMAL, 'brl', 'Valor arrematado ÷ animais.'],
@@ -255,7 +261,7 @@ nas abas de trabalho da planilha.</p>
       <td class="micro">Mesma fonte, mensagem de entrada do mesmo telefone.</td></tr>
     <tr><td class="et">Cadastros submetidos</td><td class="num q">${num(CADASTROS_TOTAL)}</td>
       <td class="num">${pct(CADASTROS_TOTAL, at.whatsapp.responderam)}</td>
-      <td class="micro">Sistema (jul) + grupos de WhatsApp (ago).</td></tr>
+      <td class="micro">Sistema, julho. PISO: o registro parou em 08/07.</td></tr>
     <tr><td class="et">Aprovados</td><td class="num q">${num(APROVADOS_TOTAL)}</td>
       <td class="num">${pct(APROVADOS_TOTAL, CADASTROS_TOTAL)}</td>
       <td class="micro">Grupos, frase a frase, só origem campanha.</td></tr>
@@ -270,7 +276,7 @@ do SDR ou não ter sido atendidos — não há como distinguir os dois casos, e 
 
 <div class="box alerta avoid">
   <h3>O gargalo tem nome e tem tamanho</h3>
-  <p><strong>De cada 100 leads que responderam, ${(CADASTROS_TOTAL / at.whatsapp.responderam * 100).toFixed(0)} viraram cadastro.</strong>
+  <p><strong>De cada 100 leads que responderam, ${(CADASTROS_TOTAL / at.whatsapp.responderam * 100).toFixed(0)} viraram cadastro registrado.</strong>
   Não é falta de lead (são ${num(leadsCamp)}), não é falta de abordagem (${pct(at.whatsapp.abordados, at.whatsapp.leadsComFone)} foram abordados)
   e não é falta de resposta (${num(at.whatsapp.responderam)} responderam). A perda está na conversão da conversa em
   cadastro — e as abas de trabalho mostram que ela depende muito de quem atende:</p>
@@ -311,15 +317,19 @@ do SDR ou não ter sido atendidos — não há como distinguir os dois casos, e 
     <tr><td class="et">Leads → qualificados</td><td class="num">20%</td>
       <td class="num">13,7%</td><td class="num">12,9%</td><td class="num q">22,2%</td>
       <td class="num"><strong>111%</strong></td><td class="micro">Cumprida, e é a melhor taxa do ano: menos lead, lead melhor. Efeito das campanhas de touro.</td></tr>
-    <tr><td class="et">Cadastros submetidos</td><td class="num">60 no mês</td>
-      <td class="num"><span class="off">—</span></td><td class="num">${num(cadSistemaCamp)}</td><td class="num q">${num(RESUMO_AGOSTO.pessoas)}</td>
-      <td class="num"><strong>${(RESUMO_AGOSTO.pessoas / 60 * 100).toFixed(0)}%</strong></td>
-      <td class="micro">Com 45% do mês corrido. No ritmo atual fecha em ~${Math.round(RESUMO_AGOSTO.pessoas / 14 * 31)} — ${(Math.round(RESUMO_AGOSTO.pessoas / 14 * 31) / 60 * 100).toFixed(0)}% da meta.</td></tr>
+    <tr><td class="et">Cadastros submetidos (todos)</td><td class="num">60 no mês</td>
+      <td class="num"><span class="off">—</span></td><td class="num">${num(cadSistemaCamp)}</td><td class="num q">${num(AGO_NOVOS)}</td>
+      <td class="num"><strong>${(AGO_NOVOS / 60 * 100).toFixed(0)}%</strong></td>
+      <td class="micro">Novos no grupo em agosto (6 dos 22 já constavam antes). Com 45% do mês corrido; no ritmo atual fecha em ~${Math.round(AGO_NOVOS / 14 * 31)}.</td></tr>
+    <tr><td class="et">…destes, vindos de campanha</td><td class="num">—</td>
+      <td class="num"><span class="off">—</span></td><td class="num">${num(cadSistemaCamp)}</td><td class="num q">${num(DE_CAMPANHA_EM_AGOSTO)}</td>
+      <td class="num"><strong>0%</strong></td>
+      <td class="micro"><strong>Nenhum</strong> dos ${num(IDENTIFICAVEIS)} cadastros identificáveis de agosto está nas bases de lead de campanha. Vieram da carteira dos assessores. Os outros 7 registros são anônimos.</td></tr>
     <tr><td class="et">Cadastros → aprovados</td><td class="num">60%</td>
       <td class="num"><span class="off">—</span></td><td class="num">60,98%</td>
-      <td class="num q">${(RESUMO_AGOSTO.aprovados / (RESUMO_AGOSTO.aprovados + RESUMO_AGOSTO.recusados) * 100).toFixed(1)}%</td>
-      <td class="num"><strong>${(RESUMO_AGOSTO.aprovados / (RESUMO_AGOSTO.aprovados + RESUMO_AGOSTO.recusados) / 0.6 * 100).toFixed(0)}%</strong></td>
-      <td class="micro">Cumprida. ${num(RESUMO_AGOSTO.aprovados)} aprovados e ${num(RESUMO_AGOSTO.recusados)} recusados entre as decisões de agosto; ${num(RESUMO_AGOSTO.pendentes)} ainda pendentes.</td></tr>
+      <td class="num q">${(AGO_APROV / (AGO_APROV + AGO_RECUS) * 100).toFixed(1)}%</td>
+      <td class="num"><strong>${(AGO_APROV / (AGO_APROV + AGO_RECUS) / 0.6 * 100).toFixed(0)}%</strong></td>
+      <td class="micro">Cumprida — mas sobre cadastro de carteira, não de campanha. ${num(AGO_APROV)} aprovados e ${num(AGO_RECUS)} recusados entre as decisões novas de agosto.</td></tr>
     <tr><td class="et">Aprovados → compraram</td><td class="num">40%</td>
       <td class="num" colspan="2" style="text-align:center">24,00% no acumulado</td>
       <td class="num q">3 clientes</td>

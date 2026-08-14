@@ -142,3 +142,34 @@ export const RESUMO_AGOSTO = {
     comRessalva: CADASTROS_AGOSTO.filter(c => c.ressalva).length,
     janela: ['2026-08-01', '2026-08-14'],
 }
+
+/**
+ * ⚠ DOIS CUIDADOS OBRIGATÓRIOS AO USAR ESTA LISTA — verificados em 14/08:
+ *
+ * 1) SEIS destas pessoas JÁ CONSTAM na apuração anterior (cadastros-aprovados-
+ *    grupos.mjs, que vai até 01/08): Wellington Ferreira dos Santos, Gabriel
+ *    Licinio Holanda Peruchi, Braz de Oliveira Bueno, Dienifer, Davison Avelino
+ *    Gomes Pinto e Carlos Augusto dos Santos Sousa. Somar as duas listas sem
+ *    deduplicar conta essas seis duas vezes.
+ *
+ * 2) NENHUM dos 15 nomes identificáveis foi localizado nas bases de lead de
+ *    campanha (planilha, todas as abas, + crm_leads com origem de anúncio).
+ *    Ou seja: os cadastros que entraram no grupo em agosto vieram da carteira
+ *    dos assessores, não da mídia. Isso confirma, por medição, o alerta da
+ *    diretoria de que "os grupos têm submissão que não é da campanha".
+ *    Os outros 7 registros são anônimos (só CPF ou descrição) e não dá para
+ *    classificar sem chutar.
+ *
+ * Consequência prática: estes números medem a OPERAÇÃO DE CADASTRO (que está
+ * funcionando: 12 aprovados em 18 decisões), mas NÃO podem ser somados ao funil
+ * de campanha. Para a campanha, agosto tem zero cadastro comprovado.
+ */
+export const JA_CONTADOS_ANTES = [
+    'Wellington Ferreira dos Santos', 'Gabriel Licinio Holanda Peruchi', 'Braz de Oliveira Bueno',
+    'Dienifer', 'Davison Avelino Gomes Pinto', 'Carlos Augusto dos Santos Sousa',
+]
+/** Registros que são novidade em agosto (não estavam na apuração até 01/08). */
+export const NOVOS_EM_AGOSTO = CADASTROS_AGOSTO.filter(c => !JA_CONTADOS_ANTES.includes(c.nome))
+/** Quantos destes são comprovadamente lead de campanha. Medido: nenhum. */
+export const DE_CAMPANHA_EM_AGOSTO = 0
+export const IDENTIFICAVEIS = CADASTROS_AGOSTO.filter(c => !/^\(/.test(c.nome)).length
