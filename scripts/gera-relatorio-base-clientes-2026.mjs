@@ -21,7 +21,7 @@ const leiloes = JSON.parse(fs.readFileSync(path.join(DIR, 'leiloes-2026.json'), 
 const compras = JSON.parse(fs.readFileSync(path.join(DIR, 'compras-2026.json'), 'utf8'))
 const f = JSON.parse(fs.readFileSync(path.join(DIR, 'funil-2026.json'), 'utf8'))
 
-const HOJE = '13/08/2026'
+const HOJE = '14/08/2026'
 const VGV_UNIVERSO = Math.round(leiloes.reduce((a, l) => a + l.vgv, 0) * 100) / 100
 const VGV_BASE = Math.round(base.reduce((a, p) => a + p.volumeCompra, 0) * 100) / 100
 const ticket = VGV_BASE / base.length
@@ -257,6 +257,6 @@ const html = pagina('Base de clientes — Bula 2026',
 
 fs.mkdirSync(saida, { recursive: true })
 fs.writeFileSync(path.join(DIR, 'relatorio-base-clientes-2026.html'), html)
-const pdfPath = path.join(saida, '2 - Base de Clientes Ativos - 2026.pdf')
+const pdfPath = path.join(saida, '3 - Base de Clientes Ativos - 2026.pdf')
 await paraPdf(html, pdfPath)
 console.log('PDF:', pdfPath)

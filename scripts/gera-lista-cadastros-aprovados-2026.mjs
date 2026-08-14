@@ -24,7 +24,7 @@ const ROOT = path.join(path.dirname(fileURLToPath(import.meta.url)), '..')
 const DIR = path.join(ROOT, 'outputs', 'base-clientes-2026')
 const F = path.join(DIR, 'fontes')
 const saida = process.argv[2] || DIR
-const HOJE = '13/08/2026'
+const HOJE = '14/08/2026'
 
 const hpClientes = carrega(F, 'hp-clientes')
 const hpFazendas = carrega(F, 'hp-fazendas')
@@ -302,7 +302,7 @@ Apuração: scripts/lib/cadastros-aprovados-grupos.mjs · enriquecimento cruzado
 
 fs.mkdirSync(saida, { recursive: true })
 fs.writeFileSync(path.join(DIR, 'cadastros-aprovados-2026.html'), html)
-const pdfPath = path.join(saida, '3 - Cadastros Aprovados nas Leiloeiras - 2026.pdf')
+const pdfPath = path.join(saida, '4 - Cadastros Aprovados nas Leiloeiras - 2026.pdf')
 await paraPdf(html, pdfPath)
 
 console.log('registros:', registros.length, '→ pessoas:', pessoas.length)

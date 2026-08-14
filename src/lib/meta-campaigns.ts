@@ -35,11 +35,16 @@ export interface MetaCampaignsSnapshot {
 }
 
 export const META_CAMPAIGNS: MetaCampaignsSnapshot = {
-    // TODAS as 7 campanhas da conta CA2 - Bula 360 (todas já encerradas/pausadas).
-    // Entrega (spend/impressões/alcance/cliques/ctr/cpc/cpm) e `leads` puxados ao
-    // vivo do conector da Meta em 14/07/2026 (date_preset=maximum). MQL e interesses
-    // são recalculados da nossa base (crm_leads.is_mql / o_que_busca) cruzando pelo
-    // NOME da campanha. CPL = spend ÷ leads (Meta).
+    // TODAS as 10 campanhas da conta CA2 - Bula 360. Entrega (spend/impressões/
+    // alcance/cliques/ctr/cpc/cpm) puxada AO VIVO do conector da Meta em
+    // 14/08/2026 — primeira extração com acesso real às contas da BM Bula 360
+    // (dump auditável: outputs/base-clientes-2026/fontes/meta-live-2026-08-14.json).
+    //
+    // `leads`/`mql`: nas campanhas de FORMULÁRIO, é o que a Meta reporta + o
+    // cruzamento da planilha; nas campanhas de LANDING (PERPETUO TOURO/FEMEAS,
+    // SÃO GERALDO), a Meta subnotifica de propósito (o formulário é nosso), então
+    // leads/MQL vêm da planilha de leads, somando as variantes de utm que apontam
+    // para a mesma campanha (ex.: "CA - PERPETUO TOURO WEB" + "Landing Touros").
     //
     // As campanhas "JMP SITE" mandavam tráfego para o site (não form da Meta): a
     // Meta reporta leads N/A e a base não as tagueia por nome, então ficam com
@@ -50,9 +55,71 @@ export const META_CAMPAIGNS: MetaCampaignsSnapshot = {
     // INST EAO — Cópia", ou seja, é a MESMA campanha, só que entraram pela landing
     // page com os vídeos de touros/fêmeas. Por isso somam em EAO — Cópia, não viram
     // linha nova.
-    updatedAt: '2026-07-14',
+    //
+    // FORA deste snapshot (contas irmãs, ver dump): CORTE PERPÉTUO ×2 + CORTE TUPÃ
+    // na CA1 (R$ 4.279,58, 254 leads) e o piloto "funil whatsapp" de abr–jun na
+    // conta Formula do Boi (R$ 1.261,19, 239 leads).
+    updatedAt: '2026-08-14',
     account: 'CA2 - Bula 360',
     campaigns: [
+        {
+            // Landing touros (perpétuo). Meta reporta 1 lead; a planilha registra
+            // 93 (83 "CA - PERPETUO TOURO WEB" + 1 form + 9 "Landing Touros") e
+            // 23 MQL. CPL = spend ÷ leads da planilha.
+            id: '120249455058620708',
+            name: 'LEAD - PERPETUO TOURO',
+            status: 'ACTIVE',
+            start: '2026-07-24',
+            spend: 3118.98,
+            leads: 93,
+            mql: 23,
+            impressions: 209610,
+            reach: 94854,
+            clicks: 3224,
+            ctr: 1.54,
+            cpc: 0.97,
+            cpm: 14.88,
+            cpl: 33.54,
+            interesses: [],
+        },
+        {
+            // Landing São Geraldo. Planilha: 50 leads (24 form + 21 web aberto +
+            // 2 cópia + 3 landing) e 21 MQL — a melhor taxa de qualificação do ano.
+            id: '120249560579230708',
+            name: 'LEADS - SAO GERALDO',
+            status: 'PAUSED',
+            start: '2026-07-29',
+            spend: 1413.59,
+            leads: 50,
+            mql: 21,
+            impressions: 123241,
+            reach: 96363,
+            clicks: 2398,
+            ctr: 1.95,
+            cpc: 0.59,
+            cpm: 11.47,
+            cpl: 28.27,
+            interesses: [],
+        },
+        {
+            // Landing fêmeas (perpétuo), no ar desde 01/08. Planilha: 16 leads
+            // (4+10 web + 2 landing) e 2 MQL. Meta só vê 6 conversões custom.
+            id: '120249845218920708',
+            name: 'LEADS - PERPETUO FEMEAS',
+            status: 'ACTIVE',
+            start: '2026-08-01',
+            spend: 579.45,
+            leads: 16,
+            mql: 2,
+            impressions: 30841,
+            reach: 16350,
+            clicks: 577,
+            ctr: 1.87,
+            cpc: 1.00,
+            cpm: 18.79,
+            cpl: 36.22,
+            interesses: [],
+        },
         {
             // leads/MQL = formulário da Meta (216 leads / 37 MQL) + os que entraram
             // pela LANDING PAGE com os vídeos de touros/fêmeas (37 leads / 7 MQL,

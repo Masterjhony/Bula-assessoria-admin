@@ -1,49 +1,64 @@
 /**
- * INVESTIMENTO EM MÍDIA 2026 — o que está apurado, e com que janela.
+ * INVESTIMENTO EM MÍDIA 2026 — NÚMEROS OFICIAIS, puxados AO VIVO da Meta.
  *
- * ⚠ ISTO É UM PISO, NÃO O NÚMERO OFICIAL. O conector da Meta (mcp.facebook.com)
- * está registrado nesta máquina mas responde 401 sem OAuth, e o token do
- * WhatsApp Cloud não tem `ads_read` — então não deu para puxar 2026 inteiro ao
- * vivo. O que existe aqui são os snapshots que a equipe tirou do conector em
- * datas diferentes, cada um com a janela que tinha na hora.
+ * Em 14/08/2026 o conector Meta Ads MCP ganhou acesso às contas da BM Bula 360
+ * (CA1 1155240258865815, CA2 2705134163151418, Bula 1, Formula do Boi). Este
+ * módulo agora lê o dump auditável dessa extração —
+ * outputs/base-clientes-2026/fontes/meta-live-2026-08-14.json — e NÃO é mais um
+ * "piso" de snapshots colados: é o acumulado real por campanha e por mês.
  *
- * Como cada número foi escolhido: quando a mesma campanha aparece em mais de um
- * snapshot, vale o MAIOR valor, porque o acumulado (date_preset=maximum) nunca
- * é menor que o de uma janela recortada. Isso deixa o total conservador para
- * baixo — campanha que continuou rodando depois do último snapshot está
- * subcontada, nunca superestimada.
+ * ESCOPOS (não misturar — cada relatório diz qual usa):
+ *   • funilDigitalBula  — CA2 inteira + CORTE PERPÉTUO/TUPÃ (CA1). São as
+ *     campanhas cujos leads caem na planilha da Bula. R$ 19.054,30 (jun–14/08).
+ *   • funilWhatsAppFDB  — abr–jun, conta Formula do Boi ("FB - funil whatsapp").
+ *     Primeiras campanhas digitais do ano; lead caía direto no WhatsApp, não na
+ *     planilha. R$ 1.261,19 / 239 leads.
+ *   • ca1DivulgacaoLeiloes2026 — 64 campanhas da agência divulgando leilões
+ *     (SóCriador, Cachoeirão, Tresmar…). Lead vai pra leiloeira. R$ 18.328,87.
+ *   • awareness — Santa Casa + FB Leilao 09/05, R$ 279,30.
  *
- * PARA FECHAR O NÚMERO OFICIAL: autenticar o conector (`/mcp` no Claude Code) e
- * puxar level=campaign, time_range 2026-01-01→hoje, nas contas CA1
- * (1155240258865815) e CA2 (2705134163151418). Substituir esta tabela.
+ * O 16.500 que a diretoria usou no RELATÓRIO CAMPANHAS era o retrato de 02/08 do
+ * escopo funil (nosso piso dava 16.499,31 — batia). Entre 02/08 e 14/08 as
+ * campanhas PERPETUO TOURO/FEMEAS e SÃO GERALDO continuaram rodando e o
+ * acumulado subiu para 19.054,30.
+ *
+ * Para reapurar: rodar ads_get_ad_entities (level=campaign, time_increment
+ * monthly, 2026-01-01→hoje) nas 4 contas e regravar o JSON.
  */
+import fs from 'node:fs'
+import path from 'node:path'
+import { fileURLToPath } from 'node:url'
 
-/** Fonte de cada linha, para o leitor poder cobrar. */
+const AQUI = path.dirname(fileURLToPath(import.meta.url))
+export const META_LIVE = JSON.parse(fs.readFileSync(
+    path.join(AQUI, '..', '..', 'outputs', 'base-clientes-2026', 'fontes', 'meta-live-2026-08-14.json'), 'utf8'))
+
+/** Compatibilidade com os geradores antigos: lista plana das campanhas do funil. */
+export const CAMPANHAS = META_LIVE.campanhasFunil.map(c => ({
+    conta: c.conta,
+    nome: c.nome,
+    inicio: c.inicio ?? Object.keys(c.mensal)[0] + '-01',
+    investido: c.total.investido,
+    leads: c.total.leadsMeta ?? 0,
+    impressoes: c.total.impressoes,
+    cliques: c.total.cliques,
+    alcance: c.total.alcance,
+    mensal: c.mensal,
+    obsLeads: c.total.obsLeads ?? null,
+    fonte: 'live0814',
+}))
+
 export const SNAPSHOTS = {
-    max0714: 'conector Meta, date_preset=maximum, extraído 14/07/2026 (src/lib/meta-campaigns.ts)',
-    jan0802: 'conector Meta, janela 01/07→02/08/2026, extraído 03/08/2026 (scripts/gera-relatorio-campanhas-2026-08-03.mjs)',
-    jul0725: 'conector Meta, acumulado da campanha, extraído 25/07/2026 (scripts/gera-relatorio-meta-ads-2026-07-25.mjs)',
+    live0814: 'conector Meta Ads MCP, extração ao vivo 14/08/2026, time_range 2026-01-01→2026-08-14 (fontes/meta-live-2026-08-14.json)',
 }
 
-export const CAMPANHAS = [
-    // conta CA2 — as campanhas da Bula, que alimentam a planilha de leads
-    { conta: 'CA2', nome: 'LEADS - FORMS INST EAO — Cópia', inicio: '2026-07-08', investido: 2887.76, leads: 253, fonte: 'max0714' },
-    { conta: 'CA2', nome: 'LEADS - FORMS INST EAO', inicio: '2026-07-08', investido: 35.39, leads: 0, fonte: 'max0714' },
-    { conta: 'CA2', nome: 'LEADS - FORMS INST MAGDA Macho', inicio: '2026-06-25', investido: 1223.30, leads: 369, fonte: 'max0714' },
-    { conta: 'CA2', nome: 'LEADS - FORMS INST PERPETUO', inicio: '2026-06-23', investido: 1124.55, leads: 557, fonte: 'max0714' },
-    { conta: 'CA2', nome: '13/06 e 14/06 LEADS JMP SITE', inicio: '2026-06-09', investido: 2498.26, leads: 0, fonte: 'max0714' },
-    { conta: 'CA2', nome: '13/06 e 14/06 LEADS JMP SITE — Cópia', inicio: '2026-06-11', investido: 606.91, leads: 31, fonte: 'max0714' },
-    { conta: 'CA2', nome: 'Leilao JMP 13 14/06 Forms Insta', inicio: '2026-06-10', investido: 1286.53, leads: 110, fonte: 'max0714' },
-    { conta: 'CA2', nome: 'LEAD - PERPETUO TOURO', inicio: '2026-07-24', investido: 2100.41, leads: 74, fonte: 'jan0802' },
-    { conta: 'CA2', nome: 'LEADS - SAO GERALDO', inicio: '2026-07-29', investido: 1413.59, leads: 51, fonte: 'jan0802' },
-    // conta CA1 — campanhas de leilão; o lead cai no formulário da leiloeira
-    { conta: 'CA1', nome: 'CORTE PERPÉTUO / 13 de Julho', inicio: '2026-07-13', investido: 2706.57, leads: 154, fonte: 'jan0802' },
-    { conta: 'CA1', nome: 'CORTE TUPÃ', inicio: '2026-07-01', investido: 345.48, leads: 7, fonte: 'jan0802' },
-    { conta: 'CA1', nome: 'CORTE PERPÉTUO', inicio: '2026-07-01', investido: 270.56, leads: 20, fonte: 'jan0802' },
-]
-
-export const INVESTIDO_APURADO = Math.round(CAMPANHAS.reduce((a, c) => a + c.investido, 0) * 100) / 100
-export const LEADS_META = CAMPANHAS.reduce((a, c) => a + (c.leads || 0), 0)
-/** Data do snapshot mais novo — depois disso não há apuração. */
-export const APURADO_ATE = '2026-08-02'
-export const PRIMEIRA_CAMPANHA = '2026-06-09'
+export const INVESTIDO_APURADO = META_LIVE.totais.funilDigitalBula.investido      // 19054.30
+export const LEADS_META = META_LIVE.totais.funilDigitalBula.leadsMeta             // 1674
+export const INVESTIDO_MENSAL = META_LIVE.totais.funilDigitalBula.mensal          // jun/jul/ago
+export const FUNIL_WHATSAPP = META_LIVE.totais.funilWhatsAppFDB                    // abr–jun, FDB
+export const DIVULGACAO_LEILOES = META_LIVE.ca1DivulgacaoLeiloes2026               // fora do funil
+export const APURADO_ATE = '2026-08-14'
+/** Primeira campanha digital do ano (funil WhatsApp na conta Formula do Boi). */
+export const PRIMEIRA_CAMPANHA = '2026-04-23'
+/** Primeira campanha do funil de cadastros (planilha). */
+export const PRIMEIRA_CAMPANHA_FUNIL = '2026-06-09'
