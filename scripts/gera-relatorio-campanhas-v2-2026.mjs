@@ -139,7 +139,7 @@ const capa = `
     <tr><td class="et">Quanto foi investido</td><td class="num q">${brl(INVESTIDO_APURADO)}</td>
       <td>API da Meta, 13 campanhas, 09/06→14/08. O “R$ 16.500” apurado à mão estava certo para 02/08; a diferença é o que rodou depois.</td></tr>
     <tr><td class="et">Quantos leads entraram</td><td class="num q">${num(LEADS)}</td>
-      <td>Planilha, todas as abas, só origem de anúncio ou landing. <strong>Mais que o dobro dos 702 contados à mão.</strong></td></tr>
+      <td>Pessoas únicas, sem duplicata. <strong>Mais que o dobro dos 702 contados à mão.</strong></td></tr>
     <tr><td class="et">Quantos se qualificaram</td><td class="num q">${num(MQL)}</td>
       <td>${pct(MQL, LEADS)} — regra do sistema: piso ≥ 100 cabeças e Inscrição Estadual.</td></tr>
     <tr><td class="et">Quantos viraram cadastro</td><td class="num q">${num(CADASTROS)}</td>
@@ -184,7 +184,7 @@ haver acesso à conta de anúncio. Abaixo, essa coluna refeita — mesma etapa, 
     <tr><td class="et">Impressões</td><td class="num">${num(AMAO.impressoes)}</td><td class="num q">${num(IMP)}</td><td class="num"><strong>${dif(IMP, AMAO.impressoes)}</strong></td><td class="micro">API da Meta.</td></tr>
     <tr><td class="et">Cliques</td><td class="num">${num(AMAO.cliques)}</td><td class="num q">${num(CLI)}</td><td class="num"><strong>${dif(CLI, AMAO.cliques)}</strong></td><td class="micro">API da Meta.</td></tr>
     <tr><td class="et">Acessos</td><td class="num">${num(AMAO.acessos)}</td><td class="num"><span class="off">não medível</span></td><td class="num"><span class="off">—</span></td><td class="micro">Só campanha de landing tem page view instrumentado (3.047 registrados); as de formulário não têm site.</td></tr>
-    <tr><td class="et">Leads gerados</td><td class="num">${num(AMAO.leads)}</td><td class="num q">${num(LEADS)}</td><td class="num"><strong>${dif(LEADS, AMAO.leads)}</strong></td><td class="micro">Planilha, todas as abas.</td></tr>
+    <tr><td class="et">Leads gerados</td><td class="num">${num(AMAO.leads)}</td><td class="num q">${num(LEADS)}</td><td class="num"><strong>${dif(LEADS, AMAO.leads)}</strong></td><td class="micro">Aba LEADS GERAIS (o universo) + ${num(f.leads.deLandingSoNoCrm)} das landings que gravaram só no CRM. Sem duplicata — ver nota.</td></tr>
     <tr><td class="et">Leads qualificados</td><td class="num">140,4</td><td class="num q">${num(MQL)}</td><td class="num"><strong>${dif(MQL, AMAO.mql)}</strong></td><td class="micro">≥ 100 cabeças + I.E.</td></tr>
     <tr><td class="et">Cadastros submetidos</td><td class="num">56,16</td><td class="num q">${num(CADASTROS)}</td><td class="num"><strong>${dif(CADASTROS, AMAO.cadastros)}</strong></td><td class="micro">Sistema, julho, só lead de campanha. PISO.</td></tr>
     <tr><td class="et">Cadastros aprovados</td><td class="num">33,696</td><td class="num q">${num(APROVADOS)}</td><td class="num"><strong>${dif(APROVADOS, AMAO.aprovados)}</strong></td><td class="micro">Grupos, frase a frase, só origem campanha.</td></tr>
@@ -194,6 +194,21 @@ haver acesso à conta de anúncio. Abaixo, essa coluna refeita — mesma etapa, 
     <tr><td class="et">Faturamento digital</td><td class="num">${brl0(AMAO.faturamento)}</td><td class="num q">${brl0(VGV)}</td><td class="num"><strong>${dif(VGV, AMAO.faturamento)}</strong></td><td class="micro">Só compra posterior à entrada do lead.</td></tr>
   </tbody>
 </table>
+
+<div class="box avoid">
+  <h3>Os ${num(LEADS)} leads estão duplicados? Não — foi verificado</h3>
+  <p>A planilha tem cinco abas, e as quatro de trabalho (TOUROS, FEMEAS, EMBRIÕES, OUTROS) são a distribuição por
+  interesse do que entra em LEADS GERAIS. <strong>Conferido linha a linha: as quatro são 100% subconjunto de
+  GERAIS</strong> — 394, 926, 47 e 151 leads de campanha, nenhum fora. Somar as cinco abas contaria a mesma pessoa
+  até três vezes; por isso o número sai só de GERAIS.</p>
+  <p>Dentro de GERAIS, a duplicata é residual: <strong>4 telefones repetidos</strong> em ${num(LEADS)}, e os quatro
+  são a mesma pessoa entrando por campanhas diferentes em meses diferentes — não é repreenchimento do mesmo
+  formulário. Foram descartados ainda ${num(f.leads.lixoDescartado)} registros de lixo: leads de teste da equipe e os
+  “dummy data” que a própria Meta injeta para validar integração.</p>
+  <p>E a conferência achou o inverso do que se procurava: <strong>${num(f.leads.deLandingSoNoCrm)} leads de campanha
+  existem só no CRM e nunca subiram para a planilha</strong> — são as landings de JMP (junho) e EAO Baviera (julho),
+  que gravaram direto no banco. Estavam faltando na conta e agora entram, deduplicados por telefone.</p>
+</div>
 
 <div class="box alerta avoid">
   <h3>O erro não foi aleatório — errou para baixo no topo e para cima no fundo</h3>
@@ -221,7 +236,7 @@ trabalho trazem a etapa anotada pelo próprio SDR.</p>
   <tbody>
     <tr><td class="et">Impressões</td><td class="num q">${num(IMP)}</td><td class="num">—</td><td class="micro">API da Meta.</td></tr>
     <tr><td class="et">Cliques</td><td class="num q">${num(CLI)}</td><td class="num">${pct(CLI, IMP, 2)}</td><td class="micro">API da Meta. Meta de agosto: 1,20%.</td></tr>
-    <tr><td class="et">Leads</td><td class="num q">${num(LEADS)}</td><td class="num">${pct(LEADS, tx.base.cliquesComparaveis, 2)}</td><td class="micro">Planilha. Denominador exclui ${num(tx.base.cliquesFora)} cliques de campanhas cujo formulário fica na leiloeira.</td></tr>
+    <tr><td class="et">Leads</td><td class="num q">${num(LEADS)}</td><td class="num">${pct(LEADS, tx.base.cliquesComparaveis, 2)}</td><td class="micro">Pessoas únicas. Denominador exclui ${num(tx.base.cliquesFora)} cliques de campanhas cujo formulário fica na leiloeira.</td></tr>
     <tr><td class="et">Qualificados (MQL)</td><td class="num q">${num(MQL)}</td><td class="num">${pct(MQL, LEADS)}</td><td class="micro">≥ 100 cabeças + I.E.</td></tr>
     <tr><td class="et">Abordados no WhatsApp</td><td class="num q">${num(at.whatsapp.abordados)}</td><td class="num">${pct(at.whatsapp.abordados, at.whatsapp.leadsComFone)}</td><td class="micro">Mensagem de saída por número conectado, sobre os ${num(at.whatsapp.leadsComFone)} leads com telefone.</td></tr>
     <tr><td class="et">Responderam</td><td class="num q">${num(at.whatsapp.responderam)}</td><td class="num">${pct(at.whatsapp.responderam, at.whatsapp.abordados)}</td><td class="micro">Mensagem de entrada do mesmo telefone.</td></tr>

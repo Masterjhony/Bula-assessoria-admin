@@ -18,7 +18,7 @@
 import fs from 'node:fs'
 import path from 'node:path'
 import { fileURLToPath } from 'node:url'
-import { Identidades, carrega, docKey, foneKey, semAcento } from './lib/base-clientes-2026.mjs'
+import { Identidades, carrega, docKey, foneKey, nomeKey, semAcento } from './lib/base-clientes-2026.mjs'
 import { APROVADOS_GRUPO, APROVADOS_LISTA, NAO_APROVADOS, NAO_APROVADOS_REMATES } from './lib/cadastros-aprovados-grupos.mjs'
 
 const ROOT = path.join(path.dirname(fileURLToPath(import.meta.url)), '..')
@@ -64,6 +64,13 @@ function classe(origem, campanha) {
     return o ? 'outro' : 'sem-origem'
 }
 
+/**
+ * LEADS GERAIS é o universo: a diretoria confirmou (14/08) que todo lead entra
+ * lá e depois é distribuído por interesse para TOUROS / FEMEAS / EMBRIÕES /
+ * OUTROS. Conferido: as quatro abas de trabalho são 100% subconjunto de GERAIS
+ * (394, 926, 47 e 151 leads de campanha, nenhum fora). Ler as cinco abas
+ * contaria a mesma pessoa até três vezes; por isso aqui se lê só GERAIS.
+ */
 const leads = aba('LEADS GERAIS').map(l => ({
     nome: l['Nome'], fone: l['WhatsApp'], email: l['E-mail'], uf: l['UF'], cidade: l['Cidade'],
     cabecas: l['Cabeças'], ie: l['Inscrição Estadual'], interesse: l['Interesse'],
@@ -71,9 +78,49 @@ const leads = aba('LEADS GERAIS').map(l => ({
     mes: mesDe(l['Data']),
     classe: classe(l['Origem'], l['campaign_name'] || l['utm_campaign']),
     mql: ehMql(l['Cabeças'], l['Inscrição Estadual'], null),
+    fonte: 'planilha',
 }))
 
-const deCampanha = leads.filter(l => l.classe === 'campanha')
+/**
+ * …mas GERAIS não é TUDO. As landings de junho e julho (JMP e EAO Baviera)
+ * gravaram direto no crm_leads e nunca subiram para a planilha: são 85 pessoas
+ * que existem só lá. Ignorá-las subestima o topo do funil em 5%. Entram aqui,
+ * deduplicadas contra a planilha por telefone (ou nome, quando não há telefone).
+ */
+const chaveLead = (nome, fone) => foneKey(fone) || nomeKey(nome) || null
+const naPlanilha = new Set(leads.map(l => chaveLead(l.nome, l.fone)).filter(Boolean))
+for (const l of pgLeads) {
+    if (classe(l.origem, l.campaign) !== 'campanha') continue
+    const k = chaveLead(l.nome, l.telefone || l.celular)
+    if (!k || naPlanilha.has(k)) continue
+    naPlanilha.add(k)
+    const data = String(l.data_entrada || l.created_at || '').slice(0, 10)
+    leads.push({
+        nome: l.nome, fone: l.telefone || l.celular, email: l.email, uf: l.estado, cidade: l.cidade,
+        cabecas: l.quantidade_animais, ie: l.inscricao_estadual, interesse: l.interesse,
+        origem: l.origem, campanha: l.campaign, data,
+        mes: data.slice(0, 7) || null,
+        classe: 'campanha',
+        mql: ehMql(l.quantidade_animais, l.tem_inscricao_estadual, l.inscricao_estadual),
+        fonte: 'crm',
+    })
+}
+
+/**
+ * Lixo de formulário: leads de teste da equipe e os "dummy data" que a própria
+ * Meta injeta para validar integração. São 5 e não representam pessoa nenhuma.
+ */
+const ehLixo = l => {
+    const n = semAcento(String(l.nome ?? '')).trim()
+    if (/^(teste|test)$/i.test(n)) return true
+    if (/^\d{4}-\d{2}-\d{2}T/.test(n)) return true              // nome veio como timestamp
+    if (/<test lead|dummy data/i.test(String(l.campanha ?? ''))) return true
+    return false
+}
+const lixo = leads.filter(ehLixo)
+const limpos = leads.filter(l => !ehLixo(l))
+
+const deCampanha = limpos.filter(l => l.classe === 'campanha')
 
 /* ── 2. cadastros submetidos e aprovados ──────────────────────────────────── */
 
@@ -129,7 +176,7 @@ for (const l of pgLeads) {
     }
 }
 const idxPlanilhaQualquer = new Identidades()
-for (const l of leads) idxPlanilhaQualquer.add(l, { fone: l.fone, nome: l.nome })
+for (const l of limpos) idxPlanilhaQualquer.add(l, { fone: l.fone, nome: l.nome })
 
 const origemCadastro = alvo => {
     if (idxCampanhaPlanilha.busca(alvo)) return 'campanha'
@@ -170,7 +217,7 @@ const atendimento = {
 /* ── 5. saída ─────────────────────────────────────────────────────────────── */
 
 const porMes = {}
-for (const l of leads) {
+for (const l of limpos) {
     const k = l.mes || '(sem data)'
     porMes[k] = porMes[k] || { total: 0, campanha: 0, mql: 0, mqlCampanha: 0 }
     porMes[k].total++
@@ -191,14 +238,16 @@ for (const l of deCampanha) {
 const funil = {
     geradoEm: new Date().toISOString().slice(0, 10),
     leads: {
-        total: leads.length,
-        porClasse: leads.reduce((a, l) => (a[l.classe] = (a[l.classe] || 0) + 1, a), {}),
+        total: limpos.length,
+        porClasse: limpos.reduce((a, l) => (a[l.classe] = (a[l.classe] || 0) + 1, a), {}),
         deCampanha: deCampanha.length,
-        mql: leads.filter(l => l.mql).length,
+        mql: limpos.filter(l => l.mql).length,
         mqlDeCampanha: deCampanha.filter(l => l.mql).length,
-        comIe: leads.filter(l => temIE(l.ie)).length,
+        comIe: limpos.filter(l => temIE(l.ie)).length,
         porMes, porCampanha,
-        primeiraData: leads.map(l => l.data).filter(Boolean).map(dataISO).filter(Boolean).sort()[0],
+        primeiraData: limpos.map(l => l.data).filter(Boolean).map(dataISO).filter(Boolean).sort()[0],
+        deLandingSoNoCrm: limpos.filter(l => l.fonte === 'crm').length,
+        lixoDescartado: lixo.length,
     },
     crm: {
         total: pgLeads.length,
