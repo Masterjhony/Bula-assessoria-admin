@@ -162,23 +162,74 @@ const capa = `
 </div>
 
 <div class="cards avoid">
-  <div class="card"><div class="z">Leads de campanha</div><div class="n">${num(leadsCamp)}<small>meta de 702/mês batida em jun e jul</small></div></div>
-  <div class="card"><div class="z">Qualificados (MQL)</div><div class="n">${num(mqlCamp)}<small>${pct(mqlCamp, leadsCamp)} · meta era 20%</small></div></div>
+  <div class="card"><div class="z">Leads de campanha</div><div class="n">${num(leadsCamp)}<small>mais que o dobro dos 702 apurados à mão</small></div></div>
+  <div class="card"><div class="z">Qualificados (MQL)</div><div class="n">${num(mqlCamp)}<small>${pct(mqlCamp, leadsCamp)} dos leads · meta de agosto: 20%</small></div></div>
   <div class="card"><div class="z">Cadastros de campanha</div><div class="n">${num(cadSistemaCamp)}<small>submetidos no sistema (julho)</small></div></div>
   <div class="card"><div class="z">Aprovados de campanha</div><div class="n">${num(aprCamp)}<small>de ${num(apr)} no grupo — ${num(aprFora + aprPlanNao)} eram por fora</small></div></div>
   <div class="card"><div class="z">Clientes · animais · venda</div><div class="n">${num(CLIENTES)} · ${num(ANIMAIS)}<small>${brl0(VGV_ATR)} comprados após o lead</small></div></div>
 </div>`
 
 const funilExato = `
-<h2>Realizado × meta — taxa por taxa</h2>
-<p><strong>A meta do funil é a coluna de percentual</strong>, não os volumes. Os números da tabela da diretoria
-(650.000 impressões, 702 leads, 56,16 cadastros) são a aritmética dessas taxas aplicada a R$ 6.500/mês — tanto que
-saem com casa decimal: ninguém aprova “33,696 cadastros”. Julgar a operação por volume seria injusto nos dois
-sentidos, porque volume depende de quanto se investiu e de quantos meses rodaram. A comparação honesta é
-<strong>taxa contra taxa</strong>, degrau a degrau — independe de escala e responde à única pergunta que importa:
-<em>em qual degrau o funil perde?</em></p>
+<h2>A planilha da diretoria × a apuração com fonte</h2>
+<p>A tabela “Meta Funil de Vendas Mensal” tem duas coisas diferentes: a <strong>coluna de percentual é a meta
+definida para agosto</strong>, e a coluna do meio é o <strong>total que foi apurado à mão</strong>, juntando dado de
+várias pontas antes de haver acesso à conta de anúncio. Este relatório refaz exatamente essa coluna — mesma etapa,
+mesma ordem — agora com fonte que se pode cobrar. A meta percentual fica como está: é o alvo daqui para frente.</p>
 <table class="funil">
-  <thead><tr><th>Degrau do funil</th><th class="r">Meta</th><th class="r">Real</th><th class="r">Cumpre</th><th></th><th>Conta e ressalva</th></tr></thead>
+  <thead><tr><th>Etapa</th><th class="r">Apuração à mão</th><th class="r">Apurado com fonte</th><th class="r">Diferença</th><th>De onde vem o número certo</th></tr></thead>
+  <tbody>
+    ${[
+        ['Impressões', 650000, IMP, 'num', 'API da Meta, 13 campanhas do funil, 09/06→14/08.'],
+        ['Cliques', 7800, CLI, 'num', 'API da Meta.'],
+        ['Acessos', 5850, null, 'num', 'Não medível: só campanha de landing tem page view instrumentado (3.047 registrados); as de formulário não têm site.'],
+        ['Leads gerados', 702, leadsCamp, 'num', 'Planilha de leads, linha a linha, só origem de anúncio ou landing.'],
+        ['Leads qualificados', 140.4, mqlCamp, 'num', 'Regra do sistema: piso ≥ 100 cabeças e Inscrição Estadual.'],
+        ['Cadastros submetidos', 56.16, cadSistemaCamp, 'num', 'Sistema, só quem é lead de campanha. PISO — o registro parou em 08/07.'],
+        ['Cadastros aprovados', 33.696, aprCamp, 'num', 'Grupos de WhatsApp, frase a frase, menos os ' + (aprFora + aprPlanNao) + ' que vieram por fora.'],
+        ['Clientes compraram', 13.5, CLIENTES, 'num', 'HastaPro ao vivo, todas as filiais, só compra posterior ao lead, cada uma com evidência.'],
+        ['Animais vendidos', 40, ANIMAIS, 'num', 'HastaPro, quantidade por lote.'],
+        ['Ticket médio', 25000, TICKET_ANIMAL, 'brl', 'Valor arrematado ÷ animais.'],
+        ['Faturamento clientes digital', 1010880, VGV_ATR, 'brl', 'Soma do arrematado após a entrada do lead.'],
+    ].map(([etapa, dele, meu, fmt, fonte]) => {
+        const fmtV = v => fmt === 'brl' ? brl0(v) : (Number.isInteger(v) ? num(v) : String(v).replace('.', ','))
+        if (meu == null) return `<tr><td class="et">${etapa}</td><td class="num">${fmtV(dele)}</td>
+          <td class="num"><span class="off">não medível</span></td><td class="num"><span class="off">—</span></td>
+          <td class="micro">${esc(fonte)}</td></tr>`
+        const dif = (meu / dele - 1) * 100
+        const sinal = dif >= 0 ? '+' : '−'
+        return `<tr>
+      <td class="et">${etapa}</td>
+      <td class="num">${fmtV(dele)}</td>
+      <td class="num q" style="font-size:14px">${fmtV(fmt === 'brl' ? meu : Math.round(meu))}</td>
+      <td class="num"><strong>${sinal}${Math.abs(dif).toFixed(0)}%</strong></td>
+      <td class="micro">${esc(fonte)}</td></tr>`
+    }).join('')}
+  </tbody>
+</table>
+
+<div class="box alerta avoid">
+  <h3>O que a comparação revela</h3>
+  <p>O erro da apuração manual não foi aleatório: <strong>ela errou para baixo no topo e para cima no fundo.</strong></p>
+  <ul>
+    <li><strong>O topo é muito maior do que se imaginava.</strong> A mídia entregou 1,58 milhão de impressões
+      (não 650 mil), 26.701 cliques (não 7.800) e <strong>1.519 leads — mais que o dobro dos 702 contados</strong>.
+      Sem acesso à conta de anúncio, não havia como enxergar isso: contava-se o que chegava na planilha por amostra.</li>
+    <li><strong>O fundo é menor do que se imaginava.</strong> Clientes que compraram: 7, não 13,5. Faturamento:
+      ${brl0(VGV_ATR)}, não R$ 1.010.880. A diferença tem duas causas identificadas — havia gente contada como
+      campanha que na verdade veio por fora (cliente direto do assessor, ou lista importada), e contava-se a compra
+      total do ano da pessoa, inclusive o que ela arrematou <em>antes</em> de virar lead.</li>
+    <li><strong>Junto, os dois erros se anulavam na conversa e escondiam o diagnóstico.</strong> Com o topo
+      subestimado e o fundo superestimado, o funil parecia razoavelmente eficiente. Com os números certos, fica claro
+      que a mídia entrega muito mais do que se pensava e que a perda está inteira no meio do caminho.</li>
+  </ul>
+</div>
+
+<h2>As metas de agosto — onde estamos hoje</h2>
+<p>A coluna de percentual da planilha é a meta a valer <strong>de agosto em diante</strong>. Abaixo, cada uma delas
+contra a taxa que a operação vem entregando de junho até 14/08 — é o ponto de partida de agosto, não uma nota
+retroativa.</p>
+<table class="funil">
+  <thead><tr><th>Degrau do funil</th><th class="r">Meta ago.</th><th class="r">Hoje</th><th class="r">Cumpre</th><th></th><th>Conta e ressalva</th></tr></thead>
   <tbody>
     ${tx.taxas.map(t => {
     const real = t.real == null ? '<span class="off">não medível</span>' : t.real.toFixed(2).replace('.', ',') + '%'
@@ -197,16 +248,15 @@ sentidos, porque volume depende de quanto se investiu e de quantos meses rodaram
 </table>
 
 <div class="cards avoid">
-  <div class="card"><div class="z">Onde ganhamos</div><div class="n">141%<small>CTR 1,69% contra 1,20% — o anúncio atrai mais que o planejado</small></div></div>
-  <div class="card"><div class="z">Onde está na meta</div><div class="n">102%<small>cadastro → aprovação, 60,98% contra 60% — a leiloeira aprova quem mandamos</small></div></div>
-  <div class="card"><div class="z">Onde mais perde</div><div class="n">50%<small>MQL → cadastro, 19,9% contra 40% — metade da meta</small></div></div>
+  <div class="card"><div class="z">Já acima da meta</div><div class="n">141%<small>CTR 1,69% contra 1,20% — o anúncio atrai mais que o pedido</small></div></div>
+  <div class="card"><div class="z">Já na meta</div><div class="n">102%<small>cadastro → aprovação, 60,98% contra 60% — a leiloeira aprova quem mandamos</small></div></div>
+  <div class="card"><div class="z">Onde agosto precisa atacar</div><div class="n">50%<small>MQL → cadastro, 19,9% contra 40% — metade da meta</small></div></div>
   <div class="card"><div class="z">Ponta a ponta</div><div class="n">18%<small>1 cliente a cada 263 mil impressões; a meta pede 1 a cada 48 mil</small></div></div>
 </div>
 
-<p>A leitura em uma frase: <strong>o problema não está no anúncio nem na leiloeira — está no meio do funil.</strong>
-O criativo entrega 41% acima da meta e a aprovação bate a meta; entre o lead qualificado e o cadastro submetido
-perde-se metade do que o plano previa, e é esse degrau que, sozinho, derruba o resultado ponta a ponta para 18% da
-meta. E é exatamente o degrau que hoje ninguém consegue enxergar.</p>
+<p>Duas das sete metas já estão cumpridas — e são justamente as das pontas, que dependem de mídia e da leiloeira.
+<strong>As cinco que faltam estão todas no miolo, que é trabalho de atendimento.</strong> Dobrar a taxa de MQL para
+cadastro, sozinha, dobraria o resultado final sem gastar um real a mais de mídia.</p>
 
 <div class="box grey avoid">
   <h3>A zona cega entre o MQL e o cadastro</h3>
@@ -215,15 +265,15 @@ meta. E é exatamente o degrau que hoje ninguém consegue enxergar.</p>
   quantos desistiram: <strong>só se fica sabendo do desfecho quando aparece um cadastro no grupo ou uma compra no
   leilão.</strong> Por isso este relatório não publica nenhuma taxa dentro desse trecho. O canal oficial da API
   (1.075 pessoas abordadas em jun–jul) é uma fração do atendimento real e não serve de universo. É o degrau que mais
-  fica atrás da meta e o único que não se mede sozinho — não é coincidência.</p>
+  fica atrás da meta e o único que não se mede sozinho — não é coincidência, e é a primeira coisa a corrigir se a
+  meta de agosto for para valer.</p>
 </div>
 
 <h3>Por que o custo por lead ficou acima — decomposição</h3>
-<p>O CPL de meta (R$ 9,26) não é alvo independente: é o que sai de R$ 6.500 ÷ 702 leads. O CPL real
-(${brl(cpl)}) se explica inteiramente por três fatores, dois contra e um a favor — e a conta fecha exatamente,
-o que confirma que não há fator escondido.</p>
+<p>O CPL de referência (R$ 9,26) é R$ 6.500 ÷ 702 leads. O CPL real (${brl(cpl)}) se explica inteiramente por três
+fatores, dois contra e um a favor — e a conta fecha exatamente, o que confirma que não há fator escondido.</p>
 <table class="avoid">
-  <thead><tr><th>Fator</th><th class="r">Meta</th><th class="r">Real</th><th>Leitura</th></tr></thead>
+  <thead><tr><th>Fator</th><th class="r">Referência</th><th class="r">Real</th><th>Leitura</th></tr></thead>
   <tbody>
     <tr><td class="et">CPM — custo de mil impressões</td><td class="num">${brl(10)}</td><td class="num">${brl(INVESTIDO_APURADO / IMP * 1000)}</td>
       <td><strong>Contra:</strong> mídia ${((INVESTIDO_APURADO / IMP * 1000 / 10 - 1) * 100).toFixed(0)}% mais cara que o plano — leilão é nicho e a disputa por esse público subiu.</td></tr>
@@ -235,24 +285,21 @@ o que confirma que não há fator escondido.</p>
   <tfoot><tr><td>CPL RESULTANTE</td><td class="num">${brl(9.26)}</td><td class="num">${brl(cpl)}</td><td class="micro">CPM ÷ (CTR × taxa de lead)</td></tr></tfoot>
 </table>
 
-<h3>Os volumes, como contexto — não como meta</h3>
+<h3>Mês a mês, para acompanhar agosto</h3>
 <table class="avoid">
-  <thead><tr><th>Etapa</th><th class="r">Junho</th><th class="r">Julho</th><th class="r">Ago (1–14)</th><th class="r">Total</th><th class="micro">Referência p/ R$ 6.500/mês</th></tr></thead>
+  <thead><tr><th>Etapa</th><th class="r">Junho</th><th class="r">Julho</th><th class="r">Ago (1–14)</th><th class="r">Total</th></tr></thead>
   <tbody>
-    <tr><td class="et">Investimento</td><td class="num">${brl0(mm['2026-06'].investido)}</td><td class="num">${brl0(mm['2026-07'].investido)}</td><td class="num">${brl0(mm['2026-08'].investido)}</td><td class="num q">${brl0(INVESTIDO_APURADO)}</td><td class="micro">${brl0(6500)}</td></tr>
-    <tr><td class="et">Impressões</td><td class="num">${num(mm['2026-06'].impressoes)}</td><td class="num">${num(mm['2026-07'].impressoes)}</td><td class="num">${num(mm['2026-08'].impressoes)}</td><td class="num q">${num(IMP)}</td><td class="micro">650.000</td></tr>
-    <tr><td class="et">Cliques</td><td class="num">${num(mm['2026-06'].cliques)}</td><td class="num">${num(mm['2026-07'].cliques)}</td><td class="num">${num(mm['2026-08'].cliques)}</td><td class="num q">${num(CLI)}</td><td class="micro">7.800</td></tr>
-    <tr><td class="et">Leads</td><td class="num">${num(f.leads.porMes['2026-06']?.campanha || 0)}</td><td class="num">${num(f.leads.porMes['2026-07']?.campanha || 0)}</td><td class="num">${num(f.leads.porMes['2026-08']?.campanha || 0)}</td><td class="num q">${num(leadsCamp)}</td><td class="micro">702</td></tr>
-    <tr><td class="et">Qualificados (MQL)</td><td class="num">${num(f.leads.porMes['2026-06']?.mqlCampanha || 0)}</td><td class="num">${num(f.leads.porMes['2026-07']?.mqlCampanha || 0)}</td><td class="num">${num(f.leads.porMes['2026-08']?.mqlCampanha || 0)}</td><td class="num q">${num(mqlCamp)}</td><td class="micro">140,4</td></tr>
-    <tr><td class="et">Cadastros submetidos</td><td class="num"><span class="off">—</span></td><td class="num">${num(cadSistemaCamp)}</td><td class="num"><span class="off">sem registro</span></td><td class="num q">${num(cadSistemaCamp)}</td><td class="micro">56,16</td></tr>
-    <tr><td class="et">Cadastros aprovados</td><td class="num" colspan="3" style="text-align:center">${num(aprCamp)} no período (de ${num(apr)} no grupo; ${num(aprFora + aprPlanNao)} vieram por fora)</td><td class="num q">${num(aprCamp)}</td><td class="micro">33,696</td></tr>
-    <tr><td class="et">Clientes que compraram</td><td class="num" colspan="3" style="text-align:center">${num(CLIENTES)} com compra posterior ao lead</td><td class="num q">${num(CLIENTES)}</td><td class="micro">13,5</td></tr>
-    <tr><td class="et">Animais · faturamento</td><td class="num" colspan="3" style="text-align:center">${num(ANIMAIS)} animais em ${num(ARREMATES)} arremates · ticket ${brl0(TICKET_ANIMAL)}/animal</td><td class="num q">${brl0(VGV_ATR)}</td><td class="micro">40 an · R$ 1.010.880</td></tr>
+    <tr><td class="et">Investimento</td><td class="num">${brl0(mm['2026-06'].investido)}</td><td class="num">${brl0(mm['2026-07'].investido)}</td><td class="num">${brl0(mm['2026-08'].investido)}</td><td class="num q">${brl0(INVESTIDO_APURADO)}</td></tr>
+    <tr><td class="et">Impressões</td><td class="num">${num(mm['2026-06'].impressoes)}</td><td class="num">${num(mm['2026-07'].impressoes)}</td><td class="num">${num(mm['2026-08'].impressoes)}</td><td class="num q">${num(IMP)}</td></tr>
+    <tr><td class="et">Cliques</td><td class="num">${num(mm['2026-06'].cliques)}</td><td class="num">${num(mm['2026-07'].cliques)}</td><td class="num">${num(mm['2026-08'].cliques)}</td><td class="num q">${num(CLI)}</td></tr>
+    <tr><td class="et">CTR</td><td class="num">${pct(mm['2026-06'].cliques, mm['2026-06'].impressoes, 2)}</td><td class="num">${pct(mm['2026-07'].cliques, mm['2026-07'].impressoes, 2)}</td><td class="num">${pct(mm['2026-08'].cliques, mm['2026-08'].impressoes, 2)}</td><td class="num q">${pct(CLI, IMP, 2)}</td></tr>
+    <tr><td class="et">Leads</td><td class="num">${num(f.leads.porMes['2026-06']?.campanha || 0)}</td><td class="num">${num(f.leads.porMes['2026-07']?.campanha || 0)}</td><td class="num">${num(f.leads.porMes['2026-08']?.campanha || 0)}</td><td class="num q">${num(leadsCamp)}</td></tr>
+    <tr><td class="et">Qualificados (MQL)</td><td class="num">${num(f.leads.porMes['2026-06']?.mqlCampanha || 0)}</td><td class="num">${num(f.leads.porMes['2026-07']?.mqlCampanha || 0)}</td><td class="num">${num(f.leads.porMes['2026-08']?.mqlCampanha || 0)}</td><td class="num q">${num(mqlCamp)}</td></tr>
+    <tr><td class="et">Taxa de qualificação</td><td class="num">${pct(f.leads.porMes['2026-06']?.mqlCampanha || 0, f.leads.porMes['2026-06']?.campanha || 1)}</td><td class="num">${pct(f.leads.porMes['2026-07']?.mqlCampanha || 0, f.leads.porMes['2026-07']?.campanha || 1)}</td><td class="num">${pct(f.leads.porMes['2026-08']?.mqlCampanha || 0, f.leads.porMes['2026-08']?.campanha || 1)}</td><td class="num q">${pct(mqlCamp, leadsCamp)}</td></tr>
   </tbody>
 </table>
-<p class="micro">A coluna da direita é a referência da planilha da diretoria para UM mês a R$ 6.500. O realizado tem
-2 meses e meio e investiu ${brl0(INVESTIDO_APURADO)} — está aqui como régua de ordem de grandeza, não como nota de
-aprovação. O julgamento está na tabela de taxas, no alto desta página.</p>`
+<p class="micro">Agosto está com 14 dias corridos e já mostra a melhor taxa de qualificação do período — sinal de que
+a virada para campanhas de touro e São Geraldo, que trazem menos lead e mais produtor com escala, está funcionando.</p>`
 
 const custos = `
 <h2>Custos unitários — meta × exato</h2>
