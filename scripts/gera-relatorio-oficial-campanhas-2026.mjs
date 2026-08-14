@@ -169,8 +169,8 @@ const capa = `
 </div>
 
 <div class="cards avoid">
-  <div class="card"><div class="z">Leads de campanha</div><div class="n">${num(leadsCamp)}<small>mais que o dobro dos 702 apurados à mão</small></div></div>
-  <div class="card"><div class="z">Qualificados (MQL)</div><div class="n">${num(mqlCamp)}<small>${pct(mqlCamp, leadsCamp)} dos leads · meta de agosto: 20%</small></div></div>
+  <div class="card"><div class="z">Leads de campanha</div><div class="n">${num(leadsCamp)}<small>jun a 14/08 · mais que o dobro dos 702 apurados à mão</small></div></div>
+  <div class="card"><div class="z">Qualificados (MQL)</div><div class="n">${num(mqlCamp)}<small>${pct(mqlCamp, leadsCamp)} dos leads no acumulado · 22,2% em agosto</small></div></div>
   <div class="card"><div class="z">Cadastros de campanha</div><div class="n">${num(cadSistemaCamp)}<small>submetidos no sistema (julho)</small></div></div>
   <div class="card"><div class="z">Aprovados de campanha</div><div class="n">${num(aprCamp)}<small>de ${num(apr)} no grupo — ${num(aprFora + aprPlanNao)} eram por fora</small></div></div>
   <div class="card"><div class="z">Clientes · animais · venda</div><div class="n">${num(CLIENTES)} · ${num(ANIMAIS)}<small>${brl0(VGV_ATR)} comprados após o lead</small></div></div>
@@ -181,7 +181,7 @@ const funilExato = `
 <p>A tabela “Meta Funil de Vendas Mensal” tem duas coisas diferentes: a <strong>coluna de percentual é a meta
 definida para agosto</strong>, e a coluna do meio é o <strong>total que foi apurado à mão</strong>, juntando dado de
 várias pontas antes de haver acesso à conta de anúncio. Este relatório refaz exatamente essa coluna — mesma etapa,
-mesma ordem — agora com fonte que se pode cobrar. A meta percentual fica como está: é o alvo daqui para frente.</p>
+mesma ordem — agora com fonte que se pode cobrar.</p>
 <table class="funil">
   <thead><tr><th>Etapa</th><th class="r">Apuração à mão</th><th class="r">Apurado com fonte</th><th class="r">Diferença</th><th>De onde vem o número certo</th></tr></thead>
   <tbody>
@@ -189,7 +189,7 @@ mesma ordem — agora com fonte que se pode cobrar. A meta percentual fica como 
         ['Impressões', 650000, IMP, 'num', 'API da Meta, 13 campanhas do funil, 09/06→14/08.'],
         ['Cliques', 7800, CLI, 'num', 'API da Meta.'],
         ['Acessos', 5850, null, 'num', 'Não medível: só campanha de landing tem page view instrumentado (3.047 registrados); as de formulário não têm site.'],
-        ['Leads gerados', 702, leadsCamp, 'num', 'Planilha de leads, linha a linha, só origem de anúncio ou landing.'],
+        ['Leads gerados', 702, leadsCamp, 'num', 'Planilha de leads, todas as abas, só origem de anúncio ou landing.'],
         ['Leads qualificados', 140.4, mqlCamp, 'num', 'Regra do sistema: piso ≥ 100 cabeças e Inscrição Estadual.'],
         ['Cadastros submetidos', 56.16, cadSistemaCamp, 'num', 'Sistema, só quem é lead de campanha. PISO — o registro parou em 08/07.'],
         ['Cadastros aprovados', 33.696, aprCamp, 'num', 'Grupos de WhatsApp, frase a frase, menos os ' + (aprFora + aprPlanNao) + ' que vieram por fora.'],
@@ -203,16 +203,17 @@ mesma ordem — agora com fonte que se pode cobrar. A meta percentual fica como 
           <td class="num"><span class="off">não medível</span></td><td class="num"><span class="off">—</span></td>
           <td class="micro">${esc(fonte)}</td></tr>`
         const dif = (meu / dele - 1) * 100
-        const sinal = dif >= 0 ? '+' : '−'
         return `<tr>
       <td class="et">${etapa}</td>
       <td class="num">${fmtV(dele)}</td>
       <td class="num q" style="font-size:14px">${fmtV(fmt === 'brl' ? meu : Math.round(meu))}</td>
-      <td class="num"><strong>${sinal}${Math.abs(dif).toFixed(0)}%</strong></td>
+      <td class="num"><strong>${dif >= 0 ? '+' : '−'}${Math.abs(dif).toFixed(0)}%</strong></td>
       <td class="micro">${esc(fonte)}</td></tr>`
     }).join('')}
   </tbody>
 </table>
+<p class="micro">Estes são os totais de 09/06 a 14/08 — o período inteiro em que houve campanha. Não são de agosto,
+e não devem ser comparados com a meta de agosto: essa comparação vem na próxima página, mês a mês.</p>
 
 <div class="box alerta avoid">
   <h3>O que a comparação revela</h3>
@@ -220,23 +221,78 @@ mesma ordem — agora com fonte que se pode cobrar. A meta percentual fica como 
   <ul>
     <li><strong>O topo é muito maior do que se imaginava.</strong> A mídia entregou 1,58 milhão de impressões
       (não 650 mil), 26.701 cliques (não 7.800) e <strong>1.519 leads — mais que o dobro dos 702 contados</strong>.
-      Sem acesso à conta de anúncio, não havia como enxergar isso: contava-se o que chegava na planilha por amostra.</li>
-    <li><strong>O fundo é menor do que se imaginava.</strong> Clientes que compraram: 7, não 13,5. Faturamento:
-      ${brl0(VGV_ATR)}, não R$ 1.010.880. A diferença tem duas causas identificadas — havia gente contada como
-      campanha que na verdade veio por fora (cliente direto do assessor, ou lista importada), e contava-se a compra
-      total do ano da pessoa, inclusive o que ela arrematou <em>antes</em> de virar lead.</li>
-    <li><strong>Junto, os dois erros se anulavam na conversa e escondiam o diagnóstico.</strong> Com o topo
-      subestimado e o fundo superestimado, o funil parecia razoavelmente eficiente. Com os números certos, fica claro
-      que a mídia entrega muito mais do que se pensava e que a perda está inteira no meio do caminho.</li>
+      Sem acesso à conta de anúncio não havia como enxergar isso.</li>
+    <li><strong>O fundo é menor do que se imaginava.</strong> Clientes que compraram: ${num(CLIENTES)}, não 13,5.
+      Faturamento: ${brl0(VGV_ATR)}, não R$ 1.010.880. Havia gente contada como campanha que veio por fora, e
+      contava-se a compra total do ano da pessoa, inclusive o que ela arrematou <em>antes</em> de virar lead.</li>
+    <li><strong>Junto, os dois erros se anulavam e escondiam o diagnóstico.</strong> Com topo subestimado e fundo
+      superestimado, o funil parecia razoavelmente eficiente. Com os números certos, fica claro que a mídia entrega
+      muito mais do que se pensava e que a perda está no meio do caminho.</li>
   </ul>
 </div>
 
-<h2>As metas de agosto — onde estamos hoje</h2>
-<p>A coluna de percentual da planilha é a meta a valer <strong>de agosto em diante</strong>. Abaixo, cada uma delas
-contra a taxa que a operação vem entregando de junho até 14/08 — é o ponto de partida de agosto, não uma nota
-retroativa.</p>
+<div class="pg"></div>
+<h2>A meta de agosto — o que já dá para medir</h2>
+<div class="box alerta avoid">
+  <h3>Leia antes de olhar os percentuais</h3>
+  <p>A meta percentual vale <strong>para agosto</strong>. Agosto tem <strong>14 dias corridos de 31</strong> e, mais
+  importante, <strong>três das sete etapas não têm registro nenhum no mês</strong>: o sistema parou de registrar
+  cadastro em 08/07 e a apuração manual dos grupos vai só até 01/08. Ou seja: <strong>a meta de agosto ainda não pode
+  ser avaliada de ponta a ponta.</strong> O que dá para medir hoje é o topo do funil — e o topo de agosto está pior
+  que o de junho e julho, não melhor.</p>
+</div>
 <table class="funil">
-  <thead><tr><th>Degrau do funil</th><th class="r">Meta ago.</th><th class="r">Hoje</th><th class="r">Cumpre</th><th></th><th>Conta e ressalva</th></tr></thead>
+  <thead><tr><th>Degrau</th><th class="r">Meta ago.</th><th class="r">Junho</th><th class="r">Julho</th><th class="r">Ago 1–14</th><th class="r">Ago × meta</th><th>Situação</th></tr></thead>
+  <tbody>
+    <tr><td class="et">Impressões → cliques (CTR)</td><td class="num">1,20%</td>
+      <td class="num">${pct(mm['2026-06'].cliques, mm['2026-06'].impressoes, 2)}</td>
+      <td class="num">${pct(mm['2026-07'].cliques, mm['2026-07'].impressoes, 2)}</td>
+      <td class="num q">${pct(mm['2026-08'].cliques, mm['2026-08'].impressoes, 2)}</td>
+      <td class="num"><strong>138%</strong></td><td class="micro">Única meta cumprida em agosto. O criativo entrega.</td></tr>
+    <tr><td class="et">Cliques → leads</td><td class="num">9,00%</td>
+      <td class="num">8,00%</td><td class="num">7,12%</td><td class="num q">2,73%</td>
+      <td class="num"><strong>30%</strong></td><td class="micro">Caiu muito. Agosto roda só landing (Perpétuo Touro/Fêmeas, São Geraldo), onde o lead demora a chegar à planilha — mas mesmo descontando isso, está abaixo de junho e julho.</td></tr>
+    <tr><td class="et">Leads → qualificados</td><td class="num">20%</td>
+      <td class="num">13,7%</td><td class="num">12,9%</td><td class="num q">22,2%</td>
+      <td class="num"><strong>111%</strong></td><td class="micro">A melhor taxa do ano e acima da meta: menos lead, e lead melhor. Efeito das campanhas de touro.</td></tr>
+    <tr><td class="et">MQL → cadastros submetidos</td><td class="num">40%</td>
+      <td class="num"><span class="off">—</span></td><td class="num">19,9%</td><td class="num"><span class="off">sem registro</span></td>
+      <td class="num"><span class="off">n/d</span></td><td class="micro">O sistema parou em 08/07. Julho, único mês medido, entregou metade da meta.</td></tr>
+    <tr><td class="et">Cadastros → aprovados</td><td class="num">60%</td>
+      <td class="num" colspan="3" style="text-align:center">60,98% no acumulado até 01/08</td>
+      <td class="num"><span class="off">n/d</span></td><td class="micro">Apuração dos grupos não cobre agosto.</td></tr>
+    <tr><td class="et">Aprovados → compraram</td><td class="num">40%</td>
+      <td class="num" colspan="3" style="text-align:center">24,00% no acumulado</td>
+      <td class="num"><span class="off">n/d</span></td><td class="micro">Em agosto compraram 3 clientes de campanha (Aier, Laércio, Patrick), mas o denominador de aprovados do mês não existe.</td></tr>
+    <tr><td class="et">CPL — custo por lead</td><td class="num">${brl(9.26)}</td>
+      <td class="num">${brl(7.89)}</td><td class="num">${brl(9.76)}</td><td class="num q">${brl(39.76)}</td>
+      <td class="num"><strong>429%</strong></td><td class="micro">O alerta do mês. Junho e julho ficaram na meta; agosto está em 4,3× — consequência direta da queda de clique→lead.</td></tr>
+  </tbody>
+</table>
+<p class="micro">Junho e julho estão aqui como referência do que a operação já entregou, não como cumprimento de
+meta — a meta é de agosto. As três linhas “sem registro” são o custo de o funil não se medir sozinho: sem elas, não
+há como dizer se a meta de agosto está sendo cumprida, só que o topo piorou e a qualificação melhorou.</p>
+
+<div class="box grey avoid">
+  <h3>O que agosto está dizendo até aqui</h3>
+  <ul>
+    <li><strong>Investiu-se pouco: ${brl(mm['2026-08'].investido)} em 14 dias</strong>, contra ${brl(mm['2026-07'].investido)} em julho.
+      No ritmo atual, agosto fecha bem abaixo dos R$ 6.500 planejados.</li>
+    <li><strong>O lead ficou caro: ${brl(39.76)} contra ${brl(7.89)} em junho.</strong> A causa aparente é que agosto
+      roda só campanha de landing, cuja conversão a Meta não enxerga e cujo lead chega à planilha com atraso — parte
+      desses 45 leads ainda pode aparecer. Vale reconferir no fim do mês antes de concluir que piorou de verdade.</li>
+    <li><strong>Mas o lead ficou melhor: 22,2% de qualificação, acima da meta de 20%</strong> e quase o dobro de
+      junho. A troca de bezerra por touro está funcionando: menos volume, mais produtor com escala.</li>
+    <li><strong>Três etapas não têm como ser medidas.</strong> Enquanto cadastro e aprovação não voltarem para o
+      sistema, a meta de agosto não é verificável de ponta a ponta — nem para cobrar, nem para defender.</li>
+  </ul>
+</div>
+
+<h3>Onde o funil perdeu no acumulado (junho a 14/08)</h3>
+<p>Este quadro é <strong>histórico</strong>, não avaliação da meta de agosto: mostra em que degrau se perdeu ao longo
+dos dois meses e meio em que houve campanha, usando as mesmas definições da meta.</p>
+<table class="funil">
+  <thead><tr><th>Degrau do funil</th><th class="r">Referência</th><th class="r">Acumulado</th><th class="r">Razão</th><th></th><th>Conta e ressalva</th></tr></thead>
   <tbody>
     ${tx.taxas.map(t => {
     const real = t.real == null ? '<span class="off">não medível</span>' : t.real.toFixed(2).replace('.', ',') + '%'
@@ -246,76 +302,47 @@ retroativa.</p>
     return `<tr>
       <td class="et">${esc(t.etapa)}</td>
       <td class="num">${meta}</td>
-      <td class="num q" style="font-size:14px">${real}</td>
+      <td class="num q" style="font-size:13px">${real}</td>
       <td class="num">${cumpre}</td>
       <td><span class="bar${t.cumpre != null && t.cumpre >= 1 ? '' : ' o'}" style="width:${larg}px"></span></td>
       <td class="micro">${t.den ? `${num(t.num)} ÷ ${num(t.den)}. ` : ''}${esc(t.obs)}</td></tr>`
 }).join('')}
   </tbody>
 </table>
-
-<div class="cards avoid">
-  <div class="card"><div class="z">Já acima da meta</div><div class="n">141%<small>CTR 1,69% contra 1,20% — o anúncio atrai mais que o pedido</small></div></div>
-  <div class="card"><div class="z">Já na meta</div><div class="n">102%<small>cadastro → aprovação, 60,98% contra 60% — a leiloeira aprova quem mandamos</small></div></div>
-  <div class="card"><div class="z">Onde agosto precisa atacar</div><div class="n">50%<small>MQL → cadastro, 19,9% contra 40% — metade da meta</small></div></div>
-  <div class="card"><div class="z">Ponta a ponta</div><div class="n">18%<small>1 cliente a cada 263 mil impressões; a meta pede 1 a cada 48 mil</small></div></div>
-</div>
-
-<p>Duas das sete metas já estão cumpridas — e são justamente as das pontas, que dependem de mídia e da leiloeira.
-<strong>As cinco que faltam estão todas no miolo, que é trabalho de atendimento.</strong> Dobrar a taxa de MQL para
-cadastro, sozinha, dobraria o resultado final sem gastar um real a mais de mídia.</p>
+<p class="micro">A coluna “razão” compara a taxa histórica com o percentual que virou meta de agosto. Serve para
+localizar o degrau problemático, não para dizer que a meta foi cumprida — ela nem estava em vigor no período.</p>
 
 <div class="box grey avoid">
   <h3>A zona cega entre o MQL e o cadastro</h3>
   <p>Entre “lead qualificado” e “cadastro submetido” está o atendimento dos SDRs — e grande parte dele roda em
-  telefones pessoais, fora do sistema. Não há como medir quantos MQL foram de fato abordados, quantos responderam ou
-  quantos desistiram: <strong>só se fica sabendo do desfecho quando aparece um cadastro no grupo ou uma compra no
-  leilão.</strong> Por isso este relatório não publica nenhuma taxa dentro desse trecho. O canal oficial da API
-  (1.075 pessoas abordadas em jun–jul) é uma fração do atendimento real e não serve de universo. É o degrau que mais
-  fica atrás da meta e o único que não se mede sozinho — não é coincidência, e é a primeira coisa a corrigir se a
-  meta de agosto for para valer.</p>
+  telefones pessoais, fora do sistema. Só se fica sabendo do desfecho quando aparece um cadastro no grupo ou uma
+  compra no leilão. É o degrau que mais fica atrás e o único que não se mede sozinho.</p>
+  <p><strong>Há uma fonte parcial que cobre isso e vale explorar:</strong> a aba TOUROS da planilha tem a etapa do
+  atendimento preenchida em 89% dos leads de campanha, com o SDR responsável em mais da metade. Ela mostra que, dos
+  337 leads contatáveis, 68 (20%) não responderam, 118 (35%) avançaram e apenas 18 chegaram a cadastro — e que a taxa
+  de cadastro varia de 6% a 23% conforme quem atendeu. É o material para a próxima apuração e a rota mais curta para
+  enxergar esse degrau sem depender de mudança de sistema.</p>
 </div>
 
-<h3>O custo por lead está na meta — decomposição</h3>
+<h3>O custo por lead — decomposição e escopo</h3>
 <div class="box avoid">
-  <p><strong>Cuidado com o escopo, porque ele muda o número.</strong> Quatro das 13 campanhas do funil (Corte
-  Perpétuo ×2, Corte Tupã e a EAO que quase não veiculou) têm o formulário na conta da leiloeira: o lead delas fica
-  lá e nunca chega à nossa planilha. Dividir o investimento das 13 (${brl(INVESTIDO_APURADO)}) pelos
-  ${num(leadsCamp)} leads que só 9 delas produzem infla o custo artificialmente — daria R$ 12,54, e seria comparação
-  errada. O custo de captação usa o investimento das campanhas cujo lead chega aqui:
-  <strong>${brl(INVESTIDO_CAPTACAO)}</strong>. As outras quatro (${brl(tx.base.investidoFora)}) geraram
-  ${num(tx.base.leadsMetaFora)} leads reportados pela Meta, que foram para a leiloeira.</p>
+  <p><strong>Cuidado com o escopo.</strong> Quatro das 13 campanhas do funil (Corte Perpétuo ×2, Corte Tupã e a EAO
+  que quase não veiculou) têm o formulário na conta da leiloeira: o lead delas nunca chega à nossa planilha. Dividir
+  o investimento das 13 (${brl(INVESTIDO_APURADO)}) pelos ${num(leadsCamp)} leads que só 9 produzem infla o custo.
+  Os custos aqui usam <strong>${brl(INVESTIDO_CAPTACAO)}</strong>, o investimento das campanhas cujo lead chega.</p>
 </div>
-<p>Com o escopo certo, o CPL real é <strong>${brl(cpl)}</strong> contra a referência de R$ 9,26 —
-${(cpl / 9.26 * 100).toFixed(0)}% dela, ou seja, praticamente em cima da meta. A decomposição mostra por quê:</p>
 <table class="avoid">
-  <thead><tr><th>Fator</th><th class="r">Referência</th><th class="r">Real</th><th>Leitura</th></tr></thead>
+  <thead><tr><th>Fator</th><th class="r">Referência</th><th class="r">Acumulado</th><th class="r">Agosto</th><th>Leitura</th></tr></thead>
   <tbody>
-    <tr><td class="et">CPM — custo de mil impressões</td><td class="num">${brl(10)}</td><td class="num">${brl(INVESTIDO_APURADO / IMP * 1000)}</td>
-      <td><strong>Contra:</strong> mídia ${((INVESTIDO_APURADO / IMP * 1000 / 10 - 1) * 100).toFixed(0)}% mais cara que o plano — leilão é nicho e a disputa por esse público subiu.</td></tr>
-    <tr><td class="et">CTR — cliques por impressão</td><td class="num">1,20%</td><td class="num">${pct(CLI, IMP, 2)}</td>
-      <td><strong>A favor:</strong> o criativo entrega 41% acima e compensa o CPM mais caro.</td></tr>
-    <tr><td class="et">Clique → lead</td><td class="num">9,00%</td><td class="num">${(tx.base.leads / tx.base.cliquesComparaveis * 100).toFixed(2).replace('.', ',')}%</td>
-      <td><strong>Quase lá:</strong> de cada 100 cliques chegam ${(tx.base.leads / tx.base.cliquesComparaveis * 100).toFixed(1).replace('.', ',')} leads, contra 9 planejados — 80% da meta.</td></tr>
+    <tr><td class="et">CPM — custo de mil impressões</td><td class="num">${brl(10)}</td><td class="num">${brl(INVESTIDO_APURADO / IMP * 1000)}</td><td class="num">${brl(mm['2026-08'].investido / mm['2026-08'].impressoes * 1000)}</td>
+      <td>Mídia mais cara que o plano — leilão é nicho e a disputa por esse público subiu.</td></tr>
+    <tr><td class="et">CTR</td><td class="num">1,20%</td><td class="num">${pct(CLI, IMP, 2)}</td><td class="num">${pct(mm['2026-08'].cliques, mm['2026-08'].impressoes, 2)}</td>
+      <td>A favor em todos os meses: o criativo entrega acima do pedido.</td></tr>
+    <tr><td class="et">Clique → lead</td><td class="num">9,00%</td><td class="num">${(tx.base.leads / tx.base.cliquesComparaveis * 100).toFixed(2).replace('.', ',')}%</td><td class="num">2,73%</td>
+      <td>O fator que decide o CPL. Estável em jun/jul, despencou no parcial de agosto.</td></tr>
   </tbody>
-  <tfoot><tr><td>CPL RESULTANTE</td><td class="num">${brl(9.26)}</td><td class="num">${brl(cpl)}</td><td class="micro">CPM ÷ (CTR × taxa de lead) — a conta fecha nos dois lados</td></tr></tfoot>
-</table>
-
-<h3>Mês a mês, para acompanhar agosto</h3>
-<table class="avoid">
-  <thead><tr><th>Etapa</th><th class="r">Junho</th><th class="r">Julho</th><th class="r">Ago (1–14)</th><th class="r">Total</th></tr></thead>
-  <tbody>
-    <tr><td class="et">Investimento</td><td class="num">${brl0(mm['2026-06'].investido)}</td><td class="num">${brl0(mm['2026-07'].investido)}</td><td class="num">${brl0(mm['2026-08'].investido)}</td><td class="num q">${brl0(INVESTIDO_APURADO)}</td></tr>
-    <tr><td class="et">Impressões</td><td class="num">${num(mm['2026-06'].impressoes)}</td><td class="num">${num(mm['2026-07'].impressoes)}</td><td class="num">${num(mm['2026-08'].impressoes)}</td><td class="num q">${num(IMP)}</td></tr>
-    <tr><td class="et">Cliques</td><td class="num">${num(mm['2026-06'].cliques)}</td><td class="num">${num(mm['2026-07'].cliques)}</td><td class="num">${num(mm['2026-08'].cliques)}</td><td class="num q">${num(CLI)}</td></tr>
-    <tr><td class="et">CTR</td><td class="num">${pct(mm['2026-06'].cliques, mm['2026-06'].impressoes, 2)}</td><td class="num">${pct(mm['2026-07'].cliques, mm['2026-07'].impressoes, 2)}</td><td class="num">${pct(mm['2026-08'].cliques, mm['2026-08'].impressoes, 2)}</td><td class="num q">${pct(CLI, IMP, 2)}</td></tr>
-    <tr><td class="et">Leads</td><td class="num">${num(f.leads.porMes['2026-06']?.campanha || 0)}</td><td class="num">${num(f.leads.porMes['2026-07']?.campanha || 0)}</td><td class="num">${num(f.leads.porMes['2026-08']?.campanha || 0)}</td><td class="num q">${num(leadsCamp)}</td></tr>
-    <tr><td class="et">Qualificados (MQL)</td><td class="num">${num(f.leads.porMes['2026-06']?.mqlCampanha || 0)}</td><td class="num">${num(f.leads.porMes['2026-07']?.mqlCampanha || 0)}</td><td class="num">${num(f.leads.porMes['2026-08']?.mqlCampanha || 0)}</td><td class="num q">${num(mqlCamp)}</td></tr>
-    <tr><td class="et">Taxa de qualificação</td><td class="num">${pct(f.leads.porMes['2026-06']?.mqlCampanha || 0, f.leads.porMes['2026-06']?.campanha || 1)}</td><td class="num">${pct(f.leads.porMes['2026-07']?.mqlCampanha || 0, f.leads.porMes['2026-07']?.campanha || 1)}</td><td class="num">${pct(f.leads.porMes['2026-08']?.mqlCampanha || 0, f.leads.porMes['2026-08']?.campanha || 1)}</td><td class="num q">${pct(mqlCamp, leadsCamp)}</td></tr>
-  </tbody>
-</table>
-<p class="micro">Agosto está com 14 dias corridos e já mostra a melhor taxa de qualificação do período — sinal de que
-a virada para campanhas de touro e São Geraldo, que trazem menos lead e mais produtor com escala, está funcionando.</p>`
+  <tfoot><tr><td>CPL RESULTANTE</td><td class="num">${brl(9.26)}</td><td class="num">${brl(cpl)}</td><td class="num">${brl(39.76)}</td><td class="micro">CPM ÷ (CTR × taxa de lead)</td></tr></tfoot>
+</table>`
 
 const custos = `
 <h2>Custos unitários — meta × exato</h2>
