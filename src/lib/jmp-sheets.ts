@@ -1132,7 +1132,8 @@ function buildRowFromHeaderedSource(srcRow: string[], srcHeader: string[], dstHe
  * logar; auth/planilha ausente degrada pra no-op.
  */
 export async function absorveDumpsCrusDoMeta(): Promise<{
-  appended: number; total: number; abasRemovidas: string[]; linhasLimpas: number; reason?: string
+  appended: number; total: number; abasRemovidas: string[]; linhasLimpas: number
+  cabecalhosARestaurar?: string[]; reason?: string
 }> {
   const nada = { appended: 0, total: 0, abasRemovidas: [] as string[], linhasLimpas: 0 }
   const info = await getStoredInfo()
@@ -1198,19 +1199,27 @@ export async function absorveDumpsCrusDoMeta(): Promise<{
 
   const abasRemovidas: string[] = []
   const limpezas: { sheetId: number; linha: number }[] = []
+  /** Abas cuja linha 1 foi comida pelo despejo e precisa voltar ao canônico. */
+  const cabecalhosARestaurar: string[] = []
   for (const aba of abas) {
     const oficial = ABAS_OFICIAIS.includes(aba.title) || aba.title === base
     const values = ((await sheets.spreadsheets.values.get({
       spreadsheetId: info.spreadsheetId,
       range: `'${aba.title}'!A1:${columnName(HEADER_READ_COLUMNS)}`,
     })).data.values ?? []) as string[][]
-    const srcHeader = (values[0] ?? []).map(v => String(v ?? '').trim())
+    // A linha 1 também entra na varredura. O conector do Meta às vezes despeja
+    // o lead EM CIMA dela e, enquanto esta rotina começava na linha 2, esse
+    // lead ficava invisível aqui e virava "cabeçalho" lá no ensureTourosLayout
+    // — a corrupção da TOUROS em 13/08 nasceu desse ponto cego.
+    const linha1Crua = parseRawMetaLead(values[0] ?? []) != null
+    const primeira = linha1Crua ? 0 : 1
+    const srcHeader = (linha1Crua ? [] : (values[0] ?? [])).map(v => String(v ?? '').trim())
     const linhasCruas: number[] = []
-    values.slice(1).forEach((raw, i) => {
+    values.slice(primeira).forEach((raw, i) => {
       const metaLead = parseRawMetaLead(raw)
       if (metaLead) {
         considera(buildPerpetuoRow(metaLead, header))
-        linhasCruas.push(i + 1) // índice 0-based da linha na aba
+        linhasCruas.push(i + primeira) // índice 0-based da linha na aba
       } else if (!oficial && raw.some(c => String(c ?? '').trim())) {
         considera(buildRowFromHeaderedSource(raw, srcHeader, header))
       }
@@ -1219,7 +1228,18 @@ export async function absorveDumpsCrusDoMeta(): Promise<{
     if (oficial) {
       // Linha crua DENTRO de aba oficial: o lead já foi absorvido acima, a
       // linha some (é lixo desalinhado que suja a coluna Etapa da equipe).
-      for (const linha of linhasCruas) limpezas.push({ sheetId: aba.sheetId, linha })
+      for (const linha of linhasCruas) {
+        if (linha > 0) { limpezas.push({ sheetId: aba.sheetId, linha }); continue }
+        // Linha 1: o despejo ocupou o lugar do cabeçalho. Só dá para APAGAR a
+        // linha se o cabeçalho estiver logo abaixo (o conector inseriu uma
+        // linha); se não estiver, ele foi sobrescrito e precisa ser
+        // REESCRITO — apagar deixaria a aba sem cabeçalho nenhum.
+        if (pareceCabecalho((values[1] ?? []).map(v => String(v ?? '').trim()))) {
+          limpezas.push({ sheetId: aba.sheetId, linha })
+        } else {
+          cabecalhosARestaurar.push(aba.title)
+        }
+      }
       continue
     }
     // Aba de fora da estrutura: só removemos se for despejo do conector do
@@ -1251,10 +1271,20 @@ export async function absorveDumpsCrusDoMeta(): Promise<{
     await sheets.spreadsheets.batchUpdate({ spreadsheetId: info.spreadsheetId, requestBody: { requests } })
   }
 
-  if (fresh.length || limpezas.length || abasRemovidas.length) {
-    console.log(`[jmp-sheets] dumps do Meta absorvidos: +${fresh.length} lead(s), ${limpezas.length} linha(s) crua(s) limpa(s), abas removidas: ${abasRemovidas.join(', ') || '—'}`)
+  // Reescreve a linha 1 das abas em que o despejo comeu o cabeçalho. O lead
+  // que estava ali já foi absorvido na LEADS GERAIS acima, então sobrescrever
+  // não perde nada — e sem cabeçalho a aba inteira fica ilegível pro código.
+  for (const title of cabecalhosARestaurar) {
+    await updateHeaderRow(sheets, info.spreadsheetId, cabecalhoCanonico(title), title)
+    console.warn(`[jmp-sheets] cabeçalho da aba "${title}" restaurado: o conector do Meta havia escrito um lead na linha 1.`)
   }
-  return { appended: fresh.length, total, abasRemovidas, linhasLimpas: limpezas.length }
+
+  if (fresh.length || limpezas.length || abasRemovidas.length || cabecalhosARestaurar.length) {
+    console.log(`[jmp-sheets] dumps do Meta absorvidos: +${fresh.length} lead(s), ${limpezas.length} linha(s) crua(s) limpa(s), abas removidas: ${abasRemovidas.join(', ') || '—'}, cabeçalhos restaurados: ${cabecalhosARestaurar.join(', ') || '—'}`)
+  }
+  return {
+    appended: fresh.length, total, abasRemovidas, linhasLimpas: limpezas.length, cabecalhosARestaurar,
+  }
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -1622,6 +1652,45 @@ export async function formatTourosTab(
 }
 
 /**
+ * Colunas sem as quais a linha 1 NÃO é cabeçalho de coisa nenhuma.
+ *
+ * O conector do Meta despeja o lead cru a partir da coluna A e, quando cai em
+ * cima da linha 1, o que sobra ali é um lead — não um cabeçalho. Sem esta
+ * checagem o ensureTourosLayout adotava a linha do lead como cabeçalho e
+ * ACRESCENTAVA as colunas canônicas depois dela: em 13/08 a TOUROS ficou com
+ * 66 colunas (as 21 de verdade repetidas em AS..BM), o dedup passou a ler
+ * colunas vazias, não reconheceu NENHUM lead como já presente e o cron
+ * reacrescentou a aba inteira — 431 linhas duplicadas empurrando o cabeçalho
+ * real para a linha 433.
+ */
+const COLUNAS_DE_CABECALHO = ['Nome', 'WhatsApp'] as const
+
+function pareceCabecalho(row: string[]): boolean {
+  const nomes = new Set(row.map(c => normalizeHeaderText(String(c ?? ''))))
+  return COLUNAS_DE_CABECALHO.every(c => nomes.has(normalizeHeaderText(c)))
+}
+
+/**
+ * A aba está com a linha 1 fora do lugar. Falha ALTO de propósito: quem chama
+ * (landing e cron) já trata o erro sem derrubar o lead — a LEADS GERAIS é
+ * quem registra —, e o absorveDumpsCrusDoMeta conserta a linha 1 na passada
+ * seguinte. Escrever mesmo assim é que não: foi o que corrompeu a TOUROS.
+ */
+class AbaDesalinhada extends Error {
+  constructor(tab: string, detalhe: string) {
+    super(`Aba "${tab}" desalinhada: ${detalhe}. Nada foi escrito.`)
+    this.name = 'AbaDesalinhada'
+  }
+}
+
+/** Cabeçalho canônico da aba, para reescrever a linha 1 quando ela for perdida. */
+function cabecalhoCanonico(tab: string): string[] {
+  return tab === LEADS_GERAIS_TAB || tab === LEADS_GERAIS_TAB_LEGADO
+    ? [...PERPETUO_HEADER]
+    : [...TOUROS_HEADER]
+}
+
+/**
  * Garante a aba + todas as colunas de TOUROS_HEADER. Cria a aba se faltar e
  * ACRESCENTA no fim as colunas ausentes — nunca sobrescreve/reordena o que já
  * existe (a equipe pode ter criado colunas próprias).
@@ -1643,6 +1712,9 @@ async function ensureTourosLayout(
     await formatTourosTab(sheets, spreadsheetId, tab)
   }
   const headerRow = await readHeaderRow(sheets, spreadsheetId, tab)
+  if (headerRow.some(Boolean) && !pareceCabecalho(headerRow)) {
+    throw new AbaDesalinhada(tab, `a linha 1 não tem ${COLUNAS_DE_CABECALHO.join('/')} — parece um despejo cru do Meta`)
+  }
   const next = headerRow.some(Boolean) ? [...headerRow] : [...TOUROS_HEADER]
   for (const header of TOUROS_HEADER) {
     if (next.some(h => normalizeHeaderText(String(h ?? '')) === normalizeHeaderText(header))) continue
@@ -1682,7 +1754,11 @@ async function tourosSeenKeys(
     range: `${tab}!A2:${columnName(header.length)}`,
   })).data.values ?? []) as string[][]
   const seen = new Set<string>()
+  // Quantas linhas TÊM conteúdo, independentemente de o cabeçalho achá-lo:
+  // é o contraste entre as duas contagens que denuncia desalinhamento.
+  let comConteudo = 0
   for (const r of rows) {
+    if (r.some(c => String(c ?? '').trim())) comConteudo++
     const id = idCol >= 0 ? String(r[idCol] ?? '').trim() : ''
     const tel = telCol >= 0 ? String(r[telCol] ?? '').trim() : ''
     const nome = nomeCol >= 0 ? String(r[nomeCol] ?? '').trim() : ''
@@ -1692,6 +1768,13 @@ async function tourosSeenKeys(
     if (id) seen.add(`id:${id}`)
     if (phoneNucleo(tel)) seen.add(`tel:${phoneNucleo(tel)}`)
     else if (!id && nome) seen.add(`nome:${normalizeHeaderText(nome)}`)
+  }
+  // Aba cheia e nenhuma chave lida = o cabeçalho aponta para colunas que não
+  // são as dos dados. Seguir daqui significa considerar TODO lead como novo e
+  // reacrescentar a aba inteira — exatamente o que duplicou 431 linhas na
+  // TOUROS em 13/08. Melhor não gravar nada e deixar o erro aparecer.
+  if (comConteudo && !seen.size) {
+    throw new AbaDesalinhada(tab, `${comConteudo} linha(s) com dado e nenhuma reconhecida pelo cabeçalho`)
   }
   return seen
 }
@@ -1958,6 +2041,7 @@ export async function syncAbasPorInteresse(): Promise<{
   total: number
   appended: Record<string, number>
   espelho?: { paraBase: number; paraAba: number }
+  falhas?: string[]
   reason?: string
 }> {
   const vazio = Object.fromEntries(Object.values(ABAS_INTERESSE).map(t => [t, 0]))
@@ -2008,19 +2092,27 @@ export async function syncAbasPorInteresse(): Promise<{
   }
 
   const appended: Record<string, number> = { ...vazio }
+  const falhas: string[] = []
   for (const [balde, tab] of Object.entries(ABAS_INTERESSE)) {
-    const doTab = leads.filter(l => abaDoInteresse(l.interesse) === balde)
-    const header = await ensureTourosLayout(sheets, info.spreadsheetId, tab, titles)
-    const seen = await tourosSeenKeys(sheets, info.spreadsheetId, tab, header)
-    const fresh: string[][] = []
-    for (const lead of doTab) {
-      const chave = chaveDoLead(lead.leadId, lead.whatsapp, lead.nome)
-      if (seen.has(chave)) continue
-      seen.add(chave)
-      fresh.push(buildTourosRow(lead, header))
+    // Cada aba por sua conta: uma desalinhada (despejo do Meta na linha 1) não
+    // pode impedir que as outras três recebam os leads do dia.
+    try {
+      const doTab = leads.filter(l => abaDoInteresse(l.interesse) === balde)
+      const header = await ensureTourosLayout(sheets, info.spreadsheetId, tab, titles)
+      const seen = await tourosSeenKeys(sheets, info.spreadsheetId, tab, header)
+      const fresh: string[][] = []
+      for (const lead of doTab) {
+        const chave = chaveDoLead(lead.leadId, lead.whatsapp, lead.nome)
+        if (seen.has(chave)) continue
+        seen.add(chave)
+        fresh.push(buildTourosRow(lead, header))
+      }
+      await writeTourosRows(sheets, info.spreadsheetId, tab, fresh)
+      appended[tab] = fresh.length
+    } catch (e) {
+      console.error(`[jmp-sheets] aba "${tab}" não sincronizou:`, e instanceof Error ? e.message : e)
+      falhas.push(tab)
     }
-    await writeTourosRows(sheets, info.spreadsheetId, tab, fresh)
-    appended[tab] = fresh.length
   }
 
   // Depois de distribuir, espelha o que a equipe anotou nas duas pontas.
@@ -2030,10 +2122,10 @@ export async function syncAbasPorInteresse(): Promise<{
   })
 
   const novos = Object.values(appended).reduce((a, b) => a + b, 0)
-  if (novos || espelho.paraBase || espelho.paraAba) {
-    console.log(`[jmp-sheets] abas por interesse: ${JSON.stringify(appended)} (de ${leads.length} leads) | espelho: ${espelho.paraBase}→base, ${espelho.paraAba}→abas`)
+  if (novos || espelho.paraBase || espelho.paraAba || falhas.length) {
+    console.log(`[jmp-sheets] abas por interesse: ${JSON.stringify(appended)} (de ${leads.length} leads) | espelho: ${espelho.paraBase}→base, ${espelho.paraAba}→abas${falhas.length ? ` | FALHARAM: ${falhas.join(', ')}` : ''}`)
   }
-  return { total: leads.length, appended, espelho }
+  return { total: leads.length, appended, espelho, falhas }
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
