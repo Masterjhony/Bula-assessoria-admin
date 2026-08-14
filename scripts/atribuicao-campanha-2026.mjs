@@ -29,6 +29,7 @@ import { fileURLToPath } from 'node:url'
 import Firebird from 'node-firebird'
 import { Identidades, foneKey, docKey, nomeKey, semAcento } from './lib/base-clientes-2026.mjs'
 import { CONFIRMADO_PELO_ASSESSOR, PATROCINADOS_LEOZINHO } from './lib/patrocinados-confirmados.mjs'
+import { APROVADOS_GRUPO, APROVADOS_LISTA } from './lib/cadastros-aprovados-grupos.mjs'
 
 /** CPF e telefone são prova direta; nome nunca é, sozinho. */
 const achou_via_forte = via => via === 'cpf' || via === 'telefone'
@@ -151,7 +152,7 @@ try {
     const compras = await q(`
         select l.FIL_CODIGO fil, l.LEI_NOME, l.LEI_DATA, lo.LOT_LOTE, lo.LOT_QTD, lo.LOT_TOTAL,
                lo.LOT_PISTEIRO, c.COP_PORCENTAGEM, cl.CLI_NOME, cl.CLI_CODIGO, cl.CLI_CPFCNPJ,
-               cl.CLI_UF, cl.CLI_CELULAR, cl.CLI_FONECOM1, cl.CLI_FONERES, cl.CLI_EMAIL
+               cl.CLI_UF, cl.CLI_CELULAR, cl.CLI_FONECOM1, cl.CLI_FONERES, cl.CLI_EMAIL, cl.CLI_DATACADASTRO
           from COMPRADORES c
           join LEILAO l    on l.FIL_CODIGO = c.FIL_CODIGO and l.LEI_CODIGO = c.LEI_CODIGO
           join LOTES lo    on lo.FIL_CODIGO = c.FIL_CODIGO and lo.LEI_CODIGO = c.LEI_CODIGO and lo.LOT_LOTE = c.LOT_LOTE
@@ -165,7 +166,8 @@ try {
         const k = String(r.cli_codigo)
         compradores[k] = compradores[k] || {
             nome: r.cli_nome, cpf: r.cli_cpfcnpj, uf: r.cli_uf,
-            fone: r.cli_celular || r.cli_fonecom1 || r.cli_foneres, email: r.cli_email, compras: [],
+            fone: r.cli_celular || r.cli_fonecom1 || r.cli_foneres, email: r.cli_email,
+            dataCadastro: r.cli_datacadastro ? dia(r.cli_datacadastro) : null, compras: [],
         }
         compradores[k].compras.push({
             fil: String(r.fil).trim(), data: dia(r.lei_data), leilao: String(r.lei_nome).trim(),
@@ -184,8 +186,20 @@ try {
     // todas as pessoas-lead que casam com ele. Sem isso, quando a mesma pessoa tem
     // dois registros de lead (landing + form), o primeiro a ser processado "trava"
     // o comprador e, se a data dele for posterior à compra, o caso inteiro some.
+    // Índice dos aprovados nos grupos de cadastro. Quem foi submetido e aprovado
+    // teve o nome COMPLETO apurado à mão, com a frase do grupo — então serve para
+    // estabelecer identidade quando o cadastro do HastaPro veio abreviado
+    // ("Amadeu Ferino de Medeiros" no grupo × "AMADEU FERINO" no HastaPro).
+    const idxAprovadoGrupo = new Identidades()
+    for (const a of [...APROVADOS_GRUPO, ...APROVADOS_LISTA]) {
+        idxAprovadoGrupo.add(a, { doc: a.cpf, fone: a.fone, nome: a.cliente })
+    }
+
     const descartados = []
     const porComprador = new Map()
+    // quantas pessoas-lead DIFERENTES casam com o mesmo comprador. Muitas = o nome
+    // é comum e a identidade não está estabelecida (ex.: "LUIS ANTONIO", 14 leads).
+    const disputam = new Map()
     for (const p of pessoas) {
         const achou = idxComprador.busca({ doc: p.cpf, fone: p.fone, nome: p.nome })
         if (!achou) continue
@@ -205,6 +219,7 @@ try {
         const fonesErp = [c.fone].map(foneKey).filter(Boolean)
         const bate = fonesErp.length > 0 && p.leads.some(l => fonesErp.includes(foneKey(l.fone)))
         const cand = { c, p, conf, via: achou.via, ufLead, ufErp, telefoneBate: bate }
+        disputam.set(c.k, (disputam.get(c.k) || 0) + 1)
         const ja = porComprador.get(c.k)
         if (!ja) { porComprador.set(c.k, cand); continue }
         const peso = x => (x.telefoneBate ? 100 : 0) + ({ alta: 3, media: 2, 'a-confirmar': 1 }[x.conf] || 0)
@@ -224,6 +239,7 @@ try {
     const atribuiveis = []
     const compraramAntes = []
     for (const { c, p, conf, via, ufLead, ufErp, telefoneBate } of porComprador.values()) {
+        const disputantes = disputam.get(c.k) || 1
         const pos = c.compras.filter(x => p.dataLead && x.data >= p.dataLead)
         const registro = {
             nome: c.nome, nomeLead: p.nome, uf: c.uf || p.uf, cpf: c.cpf || null,
@@ -244,26 +260,45 @@ try {
         const fLead = fonesDoLead(p)
         const telefoneRefuta = fErp.length > 0 && fLead.length > 0 && !telefoneBate
         const assessorConfirma = CONFIRMADO_PELO_ASSESSOR.has(String(c.nome).trim().toUpperCase())
+        // A CADEIA COMPLETA DO FUNIL: virou lead → foi submetido e aprovado numa
+        // leiloeira (nome completo apurado no grupo) → ganhou cadastro no HastaPro
+        // depois disso → comprou. Quando os quatro elos existem, a identidade está
+        // estabelecida por três fontes independentes.
+        const aprovadoNoGrupo = !!idxAprovadoGrupo.busca({ doc: c.cpf, fone: c.fone, nome: c.nome })
+        registro.aprovadoNoGrupo = aprovadoNoGrupo
         // janela curta entre o lead e a compra, na campanha do próprio leilão
         const diasAteCompra = pos.length && p.dataLead
             ? Math.round((new Date(pos.map(x => x.data).sort()[0]) - new Date(p.dataLead)) / 86400000) : null
+        // PROVA INDEPENDENTE: o cadastro do comprador no HastaPro foi criado DEPOIS
+        // de a pessoa virar lead. Cliente de carteira antiga tem cadastro de 2025;
+        // quem nasceu do funil tem cadastro de junho em diante, na semana da compra.
+        // É a evidência mais forte disponível para quem não tem telefone no cadastro.
+        const cadastroNasceuNoFunil = !!(c.dataCadastro && p.dataLead && c.dataCadastro >= p.dataLead)
+        registro.dataCadastroErp = c.dataCadastro
+        registro.cadastroNasceuNoFunil = cadastroNasceuNoFunil
         registro.telefoneBate = telefoneBate
         registro.assessorConfirma = assessorConfirma
         registro.diasAteCompra = diasAteCompra
+        registro.disputantes = disputantes
+        // ORDEM IMPORTA. A identidade precisa estar estabelecida ANTES de qualquer
+        // reforço: a data de cadastro prova que o COMPRADOR é novo no HastaPro, não
+        // que ele é a MESMA pessoa do lead. Foi assim que "Ivan alves de Sousa"
+        // quase levou de volta a compra de "Mauro Cesar Alves de Sousa".
         registro.evidencia =
             (achou_via_forte(via) || telefoneBate) ? 'telefone/CPF confere'
-                : assessorConfirma ? 'confirmado pelo assessor'
-                    : telefoneRefuta ? 'REFUTADO (telefone do ERP é outro)'
-                        : (conf === 'media') ? 'nome + UF conferem'
-                            : (diasAteCompra != null && diasAteCompra <= 7) ? 'janela curta lead→compra'
-                                : 'fraco (só nome)'
+                : telefoneRefuta ? 'REFUTADO (telefone do HastaPro é outro)'
+                    : disputantes > 2 ? 'REFUTADO (nome comum, vários leads disputam)'
+                        : assessorConfirma ? 'confirmado pelo assessor'
+                            : (aprovadoNoGrupo && cadastroNasceuNoFunil) ? 'cadeia completa: lead → aprovado → cadastro → compra'
+                                : (conf === 'media') ? 'nome + UF conferem'
+                                    : 'identidade não estabelecida'
 
-        if (registro.evidencia.startsWith('REFUTADO') || registro.evidencia === 'fraco (só nome)') { descartados.push(registro); continue }
+        if (registro.evidencia.startsWith('REFUTADO') || registro.evidencia === 'identidade não estabelecida') { descartados.push(registro); continue }
         if (pos.length) atribuiveis.push(registro); else compraramAntes.push(registro)
     }
 
     atribuiveis.sort((a, b) => b.valor - a.valor)
-    const FORTE = new Set(['telefone/CPF confere', 'confirmado pelo assessor', 'nome + UF conferem'])
+    const FORTE = new Set(['telefone/CPF confere', 'confirmado pelo assessor', 'cadeia completa: lead → aprovado → cadastro → compra', 'nome + UF conferem'])
     const PROVA = atribuiveis.filter(p => FORTE.has(p.evidencia))
     const REVISAR = atribuiveis.filter(p => !FORTE.has(p.evidencia))
     const soma = arr => Math.round(arr.reduce((a, p) => a + p.valor, 0) * 100) / 100

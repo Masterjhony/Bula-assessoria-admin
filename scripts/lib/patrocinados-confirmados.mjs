@@ -31,21 +31,21 @@ export const PATROCINADOS_LEOZINHO = [
         erpValor: 55800, erpAnimais: 3, filiais: ['01'],
         confere: true,
         leadOrigem: 'Landing São Geraldo', leadData: '2026-07-30',
-        nota: 'O caso mais limpo do ano: entrou pela Landing São Geraldo em 30/07 e arrematou 3 touros no Leilão São Geraldo em 01/08. Telefone do lead é idêntico ao do cadastro no ERP.',
+        nota: 'O caso mais limpo do ano: entrou pela Landing São Geraldo em 30/07 e arrematou 3 touros no Leilão São Geraldo em 01/08. Telefone do lead é idêntico ao do cadastro no HastaPro.',
     },
     {
         nome: 'JOSE LUIZ ANTUNES', listaAnimais: 1, listaValor: 18000,
         erpValor: 13500, erpAnimais: 1, filiais: ['01'],
         confere: false,
         leadOrigem: 'Cadastro habilitação / Base Unificada', leadData: null,
-        nota: 'DUAS divergências: o ERP registra R$ 13.500 (não 18.000) no Leilão Kriz Matrizes de 16/06; e o cadastro dele não veio de anúncio — entrou por habilitação e pela base importada. Não conta como campanha.',
+        nota: 'DUAS divergências: o HastaPro registra R$ 13.500 (não 18.000) no Leilão Kriz Matrizes de 16/06; e o cadastro dele não veio de anúncio — entrou por habilitação e pela base importada. Não conta como campanha.',
     },
     {
         nome: 'THALES DE OLIVEIRA', listaAnimais: 1, listaValor: 24600,
         erpValor: 24600, erpAnimais: 1, filiais: ['2'],
         confere: true,
         leadOrigem: null, leadData: null,
-        nota: 'O valor bate exatamente (Leilão Fêmeas Jacamim, 07/06), mas ele não existe em nenhuma base de leads — nem planilha, nem CRM. É carteira do assessor, não campanha. (Grafia no ERP é THALES, com H — por isso não aparecia nas buscas por "TALES".)',
+        nota: 'O valor bate exatamente (Leilão Fêmeas Jacamim, 07/06), mas ele não existe em nenhuma base de leads — nem planilha, nem CRM. É carteira do assessor, não campanha. (Grafia no HastaPro é THALES, com H — por isso não aparecia nas buscas por "TALES".)',
     },
 ]
 

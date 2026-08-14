@@ -151,6 +151,9 @@ const capa = `
     <li><strong>Cadastro só conta se a pessoa é lead de campanha.</strong> Os grupos de cadastro também recebem gente
       “por fora” (cliente direto do assessor): dos ${num(apr)} aprovados do período, <strong>${num(aprCamp)} são de
       campanha</strong> e ${num(aprFora + aprPlanNao)} não são — estes ficam fora de toda conta desta página.</li>
+    <li><strong>Toda venda foi conferida no HastaPro ao vivo</strong> — o sistema da leiloeira, consultado direto no
+      banco em 14/08, lote a lote, em todas as filiais. Não se usou aqui o ERP interno da Bula, que é alimentado à mão
+      e não fica atualizado.</li>
     <li><strong>O atendimento dos SDRs é zona cega declarada.</strong> Boa parte roda em telefones pessoais, sem
       registro no sistema — só se fica sabendo quando aparece cadastro no grupo ou compra. Nenhuma taxa aqui usa
       “abordados/responderam” como denominador.</li>
@@ -198,10 +201,10 @@ operação não registra (acessos, cadastros de agosto), a célula diz “sem re
       <td class="num q">${num(aprCamp)}</td><td class="micro">grupos, cruzado lead a lead; ${num(aprFora)} por fora + ${num(aprPlanNao)} planilha sem anúncio excluídos</td></tr>
     <tr><td class="et">Clientes compraram</td><td class="num">13,5 <span class="micro">(40%)</span></td>
       <td class="num" colspan="3" style="text-align:center">${num(CLIENTES)} clientes com compra APÓS o lead</td>
-      <td class="num q">${num(CLIENTES)}</td><td class="micro">ERP lote a lote × data do lead</td></tr>
+      <td class="num q">${num(CLIENTES)}</td><td class="micro">HastaPro lote a lote × data do lead</td></tr>
     <tr><td class="et">Animais vendidos</td><td class="num">${num(ALVO.animais)}</td>
       <td class="num" colspan="3" style="text-align:center">${num(ANIMAIS)} animais em ${num(ARREMATES)} arremates</td>
-      <td class="num q">${num(ANIMAIS)}</td><td class="micro">ERP (QTD por lote)</td></tr>
+      <td class="num q">${num(ANIMAIS)}</td><td class="micro">HastaPro (QTD por lote)</td></tr>
     <tr><td class="et">Ticket médio (por animal)</td><td class="num">${brl0(ALVO.ticket)}</td>
       <td class="num" colspan="3" style="text-align:center">—</td>
       <td class="num q">${brl0(TICKET_ANIMAL)}</td><td class="micro">${brl0(VGV_ATR)} ÷ ${num(ANIMAIS)} animais</td></tr>
@@ -284,7 +287,7 @@ o form de bezerras (PERPETUO) qualifica ${pct(pc['LEADS - FORMS INST PERPETUO']?
 const vendas = `
 <h2>A venda da campanha, cliente a cliente</h2>
 <p>Regra dura: <strong>só conta a compra feita DEPOIS de a pessoa virar lead</strong>, e o cruzamento vale para
-<strong>qualquer filial do ERP</strong> — não só a da Bula. Foi o que revelou os arremates do Leilão São Geraldo, que
+<strong>qualquer filial do HastaPro</strong> — não só a da Bula. Foi o que revelou os arremates do Leilão São Geraldo, que
 ficavam invisíveis na apuração anterior. A coluna EVIDÊNCIA diz o que sustenta cada linha: casamento de telefone,
 confirmação do assessor que atendeu, ou a janela curta entre o lead e o arremate na campanha do próprio leilão.</p>
 <table>
@@ -304,16 +307,17 @@ confirmação do assessor que atendeu, ou a janela curta entre o lead e o arrema
   <tfoot><tr><td>TOTAL</td><td></td><td></td><td></td><td></td><td class="num">${num(ARREMATES)} arremates</td>
     <td class="num">${num(ANIMAIS)}</td><td class="num">${brl0(VGV_ATR)}</td><td></td></tr></tfoot>
 </table>
-<p class="micro">Dos ${num(CLIENTES)} clientes, ${num(EVID_FORTE)} têm evidência forte (telefone conferindo com o
-cadastro do ERP ou confirmação do assessor que atendeu), somando ${brl0(VGV_FORTE)}. Os outros
-${num(CLIENTES - EVID_FORTE)} entraram pela Landing JMP e arremataram no leilão daquela campanha entre 2 e 6 dias
-depois — nexo forte, mas sem telefone no cadastro do ERP para provar documentalmente.</p>
+<p class="micro">Os ${num(CLIENTES)} clientes têm evidência forte, cada um por uma via: dois pelo telefone do lead
+sendo idêntico ao do cadastro no HastaPro, dois pela confirmação do assessor que atendeu, e três pela cadeia completa
+do funil (viraram lead, foram submetidos e aprovados no grupo, ganharam cadastro novo no HastaPro na semana do
+arremate e compraram). Nenhuma linha aqui depende só de nome. Casos que não passaram nesse crivo foram descartados e
+estão nomeados adiante.</p>
 
 <h3>Conferência da lista de patrocinados do assessor</h3>
-<p>A diretoria enviou a relação de clientes “provenientes de patrocinados” do Leonardo. Cada nome foi buscado no ERP
+<p>A diretoria enviou a relação de clientes “provenientes de patrocinados” do Leonardo. Cada nome foi buscado no HastaPro
 ao vivo, em todas as filiais, e cruzado com as bases de leads. <strong>Três dos cinco se confirmam; dois não.</strong></p>
 <table>
-  <thead><tr><th>Nome na lista</th><th class="r">Lista diz</th><th class="r">ERP diz</th><th>Veredito</th></tr></thead>
+  <thead><tr><th>Nome na lista</th><th class="r">Lista diz</th><th class="r">HastaPro diz</th><th>Veredito</th></tr></thead>
   <tbody>
     ${PATROCINADOS_LEOZINHO.map(x => `<tr>
       <td class="nome">${esc(x.nome)}</td>
@@ -326,6 +330,30 @@ ao vivo, em todas as filiais, e cruzado com as bases de leads. <strong>Três dos
 ${brl0(330900)} / 18 animais (Marcelo Clemente, Patrick e Laércio). A apuração completa desta página encontrou ainda
 outros ${num(CLIENTES - 3)} clientes de campanha que a lista não trazia — inclusive um do mesmo Leilão São Geraldo
 atendido por outro assessor.</p>`
+
+const aprovadosHastapro = `
+<h2>Os aprovados, conferidos no HastaPro</h2>
+<p>As etapas de cadastro e aprovação vinham só de fontes internas: a tabela do sistema (que parou de registrar em
+08/07) e a leitura manual dos grupos. O HastaPro é a terceira fonte, independente — e a mais dura, porque quem é
+aprovado numa leiloeira vira cadastro lá, com data. Cruzando os ${num(apr)} aprovados contra os 2.663 cadastros do
+HastaPro:</p>
+<table>
+  <thead><tr><th>Verificação</th><th class="r">Resultado</th><th>O que significa</th></tr></thead>
+  <tbody>
+    <tr><td class="et">Aprovados com cadastro localizável</td><td class="num q">10 de ${num(apr)}</td>
+      <td>Só 20%. Não é prova de que os outros 39 não foram aprovados — as leiloeiras onde submetemos (Bula Remates, Programa Leilões) podem não operar neste HastaPro, e cadastro só é criado quando há arremate. Mas significa que <strong>“aprovado” não é sinônimo de “cliente ativo”</strong>.</td></tr>
+    <tr><td class="et">Cadastro criado a partir de jun/2026</td><td class="num q">6</td>
+      <td>Nasceram no período do funil. Os demais têm cadastro de 2025 — já eram conhecidos da casa.</td></tr>
+    <tr><td class="et">Aprovados que compraram em 2026</td><td class="num q">7</td>
+      <td>27 animais, R$ 505.800 em qualquer filial. (Um oitavo caso, R$ 93.500, foi descartado: “Edvaldo Lemos Fernandes Silva” casou com “SUELE FERNANDES DA SILVA” só pelos sobrenomes.)</td></tr>
+  </tbody>
+</table>
+<p class="micro">Este cruzamento produziu a prova mais forte do relatório: <strong>Pablo Pinheiro, Amadeu Ferino e
+Maxwell Carvalho têm cadastro no HastaPro criado em 14, 16 e 18 de junho</strong> — dias depois de virarem lead e no
+dia do próprio arremate. Cliente de carteira antiga tem cadastro de 2025 (como aparece em dois casos desta mesma
+lista). A cadeia lead → cadastro submetido → aprovado no grupo → cadastro no HastaPro → compra fecha nos quatro elos,
+por três fontes que não se falam.</p>`
+
 
 const verificacao = `
 <h2>Verificação — como saber que estes números estão certos</h2>
@@ -347,10 +375,10 @@ cadastros parou em 08/07 e o CRM é 91% importação em massa). Cada variável f
       <td>Sistema × cruzamento pessoa a pessoa com leads (fone/CPF/nome) × alerta “tem cadastro por fora”</td>
       <td><strong>Separado</strong>: ${num(cadSistema)} pessoas no sistema, ${num(cadSistemaCamp)} de campanha. Envios manuais pós-08/07 não têm rastro — este número é piso.</td></tr>
     <tr><td class="et">Aprovados de campanha</td><td class="num q">${num(aprCamp)}</td>
-      <td>Grupos (frase a frase) × leads de campanha (planilha + CRM) × lista consolidada</td>
+      <td>Grupos (frase a frase) × leads de campanha (planilha + CRM) × lista consolidada × cadastros do HastaPro</td>
       <td><strong>Separado</strong>: ${num(apr)} pessoas aprovadas; ${num(aprFora)} por fora e ${num(aprPlanNao)} sem anúncio excluídas da conta da campanha.</td></tr>
     <tr><td class="et">Clientes / animais / valor</td><td class="num q">${num(CLIENTES)} / ${num(ANIMAIS)} / ${brl0(VGV_ATR)}</td>
-      <td>ERP em TODAS as filiais, lote a lote × data de entrada do lead × telefone do cadastro × lista do assessor</td>
+      <td>HastaPro em TODAS as filiais, lote a lote × data de entrada do lead × telefone do cadastro × lista do assessor</td>
       <td><strong>Refeito em 14/08.</strong> A apuração anterior só olhava a filial da Bula e perdia os arremates do São Geraldo; e contava 2 clientes cuja origem era importação em massa, não anúncio. Nome só vale com telefone ou UF conferindo.</td></tr>
   </tbody>
 </table>
@@ -362,7 +390,7 @@ cadastros parou em 08/07 e o CRM é 91% importação em massa). Cada variável f
       registrar TODO envio no sistema, mesmo o feito à mão.</li>
     <li><strong>O atendimento em telefone pessoal de SDR</strong> — o meio do funil é invisível. Destrava: SDR em
       canal registrado (API oficial ou sessão monitorada).</li>
-    <li><strong>Compradores sem CPF/telefone no ERP</strong> (só 32% têm CPF) — o cruzamento lead×comprador por nome
+    <li><strong>Compradores sem CPF/telefone no HastaPro</strong> (só 32% têm CPF no HastaPro) — o cruzamento lead×comprador por nome
       recusa homônimo, então clientes de campanha podem existir sem serem provados. O número de clientes é piso.
       Destrava: CPF obrigatório no arremate.</li>
     <li><strong>Leads do Corte Perpétuo/Tupã presos no form da Meta</strong> — não descem pra planilha. Destrava:
@@ -390,13 +418,13 @@ const apendice = `
 <p class="micro">Fontes: Meta Ads (conector oficial MCP, extração ao vivo 14/08/2026, contas CA1/CA2 da BM Bula 360 e
 Formula do Boi — dump em <code>outputs/base-clientes-2026/fontes/meta-live-2026-08-14.json</code>) · planilha “Leads -
 Bula Assessoria” · crm_leads (só leads de campanha; importação em massa excluída) · cliente_leiloeira_cadastro ·
-grupos de cadastro no WhatsApp (apuração frase a frase) · ERP HastaPro, filial Bula Assessoria, lote a lote.
+grupos de cadastro no WhatsApp (apuração frase a frase) · HastaPro (sistema da leiloeira, Firebird), consultado ao vivo, lote a lote.
 Reprodução: <code>extrai-fontes-2026 → monta-base-2026 → monta-funil-2026 → gera-relatorio-oficial-campanhas-2026</code>.
 Mapa de aliases campanha↔planilha no código do gerador, conferido por soma (${num(leadsCamp)} leads / ${num(mqlCamp)} MQL).</p>
 <footer><span>Bula Assessoria — Desempenho das campanhas digitais 2026</span><span>Emitido em ${HOJE}</span></footer>`
 
 const html = pagina('Desempenho das campanhas digitais — Bula 2026',
-    capa + funilExato + custos + porCampanha + vendas + verificacao + apendice)
+    capa + funilExato + custos + porCampanha + vendas + aprovadosHastapro + verificacao + apendice)
 
 fs.mkdirSync(saida, { recursive: true })
 fs.writeFileSync(path.join(DIR, 'relatorio-oficial-campanhas-2026.html'), html)
