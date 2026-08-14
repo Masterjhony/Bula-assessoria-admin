@@ -201,10 +201,15 @@ haver acesso à conta de anúncio. Abaixo, essa coluna refeita — mesma etapa, 
   interesse do que entra em LEADS GERAIS. <strong>Conferido linha a linha: as quatro são 100% subconjunto de
   GERAIS</strong> — 394, 926, 47 e 151 leads de campanha, nenhum fora. Somar as cinco abas contaria a mesma pessoa
   até três vezes; por isso o número sai só de GERAIS.</p>
-  <p>Dentro de GERAIS, a duplicata é residual: <strong>4 telefones repetidos</strong> em ${num(LEADS)}, e os quatro
-  são a mesma pessoa entrando por campanhas diferentes em meses diferentes — não é repreenchimento do mesmo
-  formulário. Foram descartados ainda ${num(f.leads.lixoDescartado)} registros de lixo: leads de teste da equipe e os
-  “dummy data” que a própria Meta injeta para validar integração.</p>
+  <p>Dentro de GERAIS a duplicata existe, é pequena e foi removida: <strong>${num(f.leads.repreenchimentos)} pessoas
+  preencheram o formulário duas vezes</strong>, com o mesmo telefone e grafias diferentes do nome (“Francisney Dutra
+  Moreira” e “Francisney Dutra”). Para a Meta são dois leads — ela cobra por preenchimento —, mas para o funil é uma
+  pessoa só, e é pessoa que vira cadastro e cliente. Saíram também
+  <strong>${num(f.leads.lixoDescartado)} registros de lixo</strong>: leads de teste da equipe (“TESTE UTM (apagar)”,
+  “Teste Codex CRM”), telefones falsos do tipo 99999-9999 e os “dummy data” que a própria Meta injeta para validar
+  integração.</p>
+  <p class="micro">Portanto: ${num(f.leads.registrosBrutos)} registros de lead de campanha, que correspondem a
+  <strong>${num(LEADS)} pessoas únicas</strong>. É o número de pessoas que este relatório usa em todas as contas.</p>
   <p>E a conferência achou o inverso do que se procurava: <strong>${num(f.leads.deLandingSoNoCrm)} leads de campanha
   existem só no CRM e nunca subiram para a planilha</strong> — são as landings de JMP (junho) e EAO Baviera (julho),
   que gravaram direto no banco. Estavam faltando na conta e agora entram, deduplicados por telefone.</p>

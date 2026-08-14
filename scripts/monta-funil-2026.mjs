@@ -87,13 +87,18 @@ const leads = aba('LEADS GERAIS').map(l => ({
  * que existem só lá. Ignorá-las subestima o topo do funil em 5%. Entram aqui,
  * deduplicadas contra a planilha por telefone (ou nome, quando não há telefone).
  */
-const chaveLead = (nome, fone) => foneKey(fone) || nomeKey(nome) || null
-const naPlanilha = new Set(leads.map(l => chaveLead(l.nome, l.fone)).filter(Boolean))
+// Dedup em DUAS chaves: telefone E nome. Usar só a primeira que existir deixa
+// passar quem está na planilha com um telefone e no CRM com outro — foi o caso
+// de "Carlos Roberto Ramos Leite", que entrava duas vezes.
+const fonesPlanilha = new Set(leads.map(l => foneKey(l.fone)).filter(Boolean))
+const nomesPlanilha = new Set(leads.map(l => nomeKey(l.nome)).filter(Boolean))
 for (const l of pgLeads) {
     if (classe(l.origem, l.campaign) !== 'campanha') continue
-    const k = chaveLead(l.nome, l.telefone || l.celular)
-    if (!k || naPlanilha.has(k)) continue
-    naPlanilha.add(k)
+    const kf = foneKey(l.telefone || l.celular), kn = nomeKey(l.nome)
+    if (!kf && !kn) continue
+    if ((kf && fonesPlanilha.has(kf)) || (kn && nomesPlanilha.has(kn))) continue
+    if (kf) fonesPlanilha.add(kf)
+    if (kn) nomesPlanilha.add(kn)
     const data = String(l.data_entrada || l.created_at || '').slice(0, 10)
     leads.push({
         nome: l.nome, fone: l.telefone || l.celular, email: l.email, uf: l.estado, cidade: l.cidade,
@@ -112,13 +117,35 @@ for (const l of pgLeads) {
  */
 const ehLixo = l => {
     const n = semAcento(String(l.nome ?? '')).trim()
-    if (/^(teste|test)$/i.test(n)) return true
+    const d = String(l.fone ?? '').replace(/\D/g, '')
+    // nome de teste, em qualquer posição, e teclado batido
+    if (/test(e)?|\[teste\]|apagar|^(sdsad|asdf|qwer|aaa+|xxx+)/i.test(n)) return true
     if (/^\d{4}-\d{2}-\d{2}T/.test(n)) return true              // nome veio como timestamp
     if (/<test lead|dummy data/i.test(String(l.campanha ?? ''))) return true
+    if (/importacao de validacao/i.test(semAcento(String(l.origem ?? '')))) return true
+    // telefone claramente falso: 999999999, 000000000, 313131313…
+    if (d && (/(\d){6,}/.test(d) || /^(\d\d){3,}/.test(d.slice(2)))) return true
     return false
 }
 const lixo = leads.filter(ehLixo)
-const limpos = leads.filter(l => !ehLixo(l))
+const semLixo = leads.filter(l => !ehLixo(l))
+
+/**
+ * DEDUP FINAL, dentro da própria planilha. Três pessoas preencheram formulário
+ * duas vezes com o mesmo telefone e grafias diferentes do nome ("Francisney
+ * Dutra Moreira" e "Francisney Dutra"). Para a Meta são dois leads — ela cobra
+ * por preenchimento —, mas para o funil de conversão é uma pessoa só, e é pessoa
+ * que se transforma em cadastro e em cliente. Fica o registro mais antigo.
+ */
+const vistos = new Set()
+const limpos = []
+const repreenchimentos = []
+for (const l of semLixo) {
+    const k = foneKey(l.fone)
+    if (k && vistos.has(k)) { repreenchimentos.push(l); continue }
+    if (k) vistos.add(k)
+    limpos.push(l)
+}
 
 const deCampanha = limpos.filter(l => l.classe === 'campanha')
 
@@ -248,6 +275,8 @@ const funil = {
         primeiraData: limpos.map(l => l.data).filter(Boolean).map(dataISO).filter(Boolean).sort()[0],
         deLandingSoNoCrm: limpos.filter(l => l.fonte === 'crm').length,
         lixoDescartado: lixo.length,
+        repreenchimentos: repreenchimentos.length,
+        registrosBrutos: semLixo.filter(l => l.classe === 'campanha').length,
     },
     crm: {
         total: pgLeads.length,
