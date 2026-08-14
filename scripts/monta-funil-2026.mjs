@@ -106,6 +106,46 @@ for (const r of registrosAprovacao) {
 }
 const recusadosManual = [...NAO_APROVADOS, ...NAO_APROVADOS_REMATES]
 
+/* ── 2b. de onde veio cada cadastro: campanha × planilha fria × por fora ──── */
+// A diretoria alertou (14/08): os grupos também recebem cadastro "por fora" —
+// cliente do assessor que nunca passou por anúncio. Para medir o desempenho
+// EXATO da campanha, cada aprovado (e cada pessoa do sistema) é cruzado contra
+// os leads: se está entre os leads de campanha, o cadastro é mérito da mídia;
+// se só está na base fria, ou não está em lugar nenhum, é trabalho do assessor.
+// O universo de lead de campanha NÃO é só a planilha: os leads das landings de
+// junho (JMP) vivem apenas no crm_leads ("Landing JMP — Nelore 13/14 jun").
+// Sem eles, Amadeu/Maxwell/Marcelo Clemente — atribuíveis comprovados — cairiam
+// como "por fora". A importação em massa (base unificada) segue fora.
+//
+// A busca é em CAMADAS, do índice mais limpo pro mais sujo: um índice único com
+// os 16 mil nomes do CRM cria homônimo e faz a busca por nome recusar matches
+// legítimos (foi o que rebaixou o Pablo Pinheiro, atribuível, a "por fora").
+const idxCampanhaPlanilha = new Identidades()
+for (const l of deCampanha) idxCampanhaPlanilha.add(l, { fone: l.fone, nome: l.nome })
+const idxCampanhaCrm = new Identidades()
+for (const l of pgLeads) {
+    if (classe(l.origem, l.campaign) === 'campanha') {
+        idxCampanhaCrm.add(l, { doc: l.cpf, fone: l.telefone || l.celular, nome: l.nome })
+    }
+}
+const idxPlanilhaQualquer = new Identidades()
+for (const l of leads) idxPlanilhaQualquer.add(l, { fone: l.fone, nome: l.nome })
+
+const origemCadastro = alvo => {
+    if (idxCampanhaPlanilha.busca(alvo)) return 'campanha'
+    if (idxCampanhaCrm.busca(alvo)) return 'campanha'
+    if (idxPlanilhaQualquer.busca(alvo)) return 'planilha-nao-campanha'
+    return 'por-fora'
+}
+for (const a of aprovadosManual) a.origemCadastro = origemCadastro({ doc: a.cpf, fone: a.fone, nome: a.nome })
+const aprovadosDeCampanha = aprovadosManual.filter(a => a.origemCadastro === 'campanha')
+const aprovadosPorFora = aprovadosManual.filter(a => a.origemCadastro === 'por-fora')
+
+// No sistema só existe o nome normalizado (cliente_key) — cruzamento por nome,
+// com a mesma regra de recusar homônimo.
+const pessoasSistema = [...new Set(pgCadastro.map(c => c.cliente_key))]
+const pessoasSistemaCampanha = pessoasSistema.filter(k => idxCampanhaPlanilha.busca({ nome: k }) || idxCampanhaCrm.busca({ nome: k }))
+
 /* ── 3. quem, de tudo isso, comprou ───────────────────────────────────────── */
 
 /** Índice dos 240 compradores de 2026, para perguntar "fulano comprou?". */
@@ -165,9 +205,22 @@ const funil = {
         importados: pgLeads.filter(l => /base unificada|contatos whatsapp/i.test(l.origem || '')).length,
         mql: pgLeads.filter(l => l.is_mql).length,
     },
-    cadastros: { sistema, manual: { registros: registrosAprovacao.length, aprovados: aprovadosManual.length, recusados: recusadosManual.length } },
+    cadastros: {
+        sistema: { ...sistema, pessoasDeCampanha: pessoasSistemaCampanha.length },
+        manual: {
+            registros: registrosAprovacao.length,
+            aprovados: aprovadosManual.length,
+            // De onde veio cada aprovado (alerta da diretoria 14/08: os grupos
+            // também recebem cadastro "por fora", que NÃO é mérito da campanha).
+            aprovadosDeCampanha: aprovadosDeCampanha.length,
+            aprovadosPlanilhaNaoCampanha: aprovadosManual.filter(a => a.origemCadastro === 'planilha-nao-campanha').length,
+            aprovadosPorFora: aprovadosPorFora.length,
+            recusados: recusadosManual.length,
+        },
+    },
     conversao: {
         aprovadosQueCompraram: aprovadosQueCompraram.length,
+        aprovadosDeCampanhaQueCompraram: aprovadosQueCompraram.filter(a => a.origemCadastro === 'campanha').length,
         aprovadosTotal: aprovadosManual.length,
         vgvDosAprovados: Math.round(aprovadosQueCompraram.reduce((a, x) => a + x.cliente.volumeCompra, 0) * 100) / 100,
         leadsCampanhaQueCompraram: leadsCampanhaQueCompraram.length,
@@ -184,7 +237,8 @@ const funil = {
         comScore: base.filter(p => p.score !== '' && p.score != null).length,
     },
     detalhe: {
-        aprovadosQueCompraram: aprovadosQueCompraram.map(a => ({ nome: a.nome, uf: a.uf, fonte: a.fonte, cliente: a.cliente.nome, volume: a.cliente.volumeCompra })),
+        aprovadosQueCompraram: aprovadosQueCompraram.map(a => ({ nome: a.nome, uf: a.uf, fonte: a.fonte, origemCadastro: a.origemCadastro, cliente: a.cliente.nome, volume: a.cliente.volumeCompra })),
+        aprovados: aprovadosManual.map(a => ({ nome: a.nome, uf: a.uf, fonte: a.fonte, origemCadastro: a.origemCadastro })),
         atribuiveis: base.filter(p => p.atribuivelCampanha).map(p => ({ nome: p.nome, campanha: p.campanha, lead: p.dataEntradaLead, primeiraCompra: p.primeiraCompra, valor: p.valorAposEntradaDoLead })),
     },
 }
