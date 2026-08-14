@@ -26,6 +26,7 @@ import {
     INVESTIDO_APURADO, LEADS_META, FUNIL_WHATSAPP, DIVULGACAO_LEILOES, META_LIVE,
 } from './lib/midia-2026.mjs'
 import { PATROCINADOS_LEOZINHO } from './lib/patrocinados-confirmados.mjs'
+import { RESUMO_AGOSTO, META_CADASTROS_AGOSTO } from './lib/cadastros-agosto-2026.mjs'
 
 const ROOT = path.join(path.dirname(fileURLToPath(import.meta.url)), '..')
 const DIR = path.join(ROOT, 'outputs', 'base-clientes-2026')
@@ -37,6 +38,7 @@ const base = JSON.parse(fs.readFileSync(path.join(DIR, 'base-clientes.json'), 'u
 const compras = JSON.parse(fs.readFileSync(path.join(DIR, 'compras-2026.json'), 'utf8'))
 const atr = JSON.parse(fs.readFileSync(path.join(DIR, 'atribuicao-campanha-2026.json'), 'utf8'))
 const tx = JSON.parse(fs.readFileSync(path.join(DIR, 'taxas-funil-2026.json'), 'utf8'))
+const at = JSON.parse(fs.readFileSync(path.join(DIR, 'atendimento-real-2026.json'), 'utf8'))
 
 /* ── agregados da Meta (mês a mês, funil digital) ─────────────────────────── */
 
@@ -76,6 +78,10 @@ const aprCamp = f.cadastros.manual.aprovadosDeCampanha
 const aprFora = f.cadastros.manual.aprovadosPorFora
 const aprPlanNao = f.cadastros.manual.aprovadosPlanilhaNaoCampanha
 const CLIENTES = atribuiveis.length
+/* Cadastro e aprovação somam duas janelas de fontes diferentes: o sistema cobre
+   julho (parou de registrar em 08/07) e a leitura dos grupos cobre agosto. */
+const CADASTROS_TOTAL = cadSistemaCamp + RESUMO_AGOSTO.pessoas
+const APROVADOS_TOTAL = aprCamp + RESUMO_AGOSTO.aprovados
 
 /* ESCOPO DOS CUSTOS. Quatro das 13 campanhas do funil (Corte Perpétuo ×2, Corte
    Tupã e a EAO que não veiculou) têm o formulário na conta da leiloeira: o lead
@@ -188,11 +194,11 @@ mesma ordem — agora com fonte que se pode cobrar.</p>
     ${[
         ['Impressões', 650000, IMP, 'num', 'API da Meta, 13 campanhas do funil, 09/06→14/08.'],
         ['Cliques', 7800, CLI, 'num', 'API da Meta.'],
-        ['Acessos', 5850, null, 'num', 'Não medível: só campanha de landing tem page view instrumentado (3.047 registrados); as de formulário não têm site.'],
+        ['Acessos', 5850, null, 'num', 'Não medível: só campanha de landing tem page view instrumentado (3.047 registrados).'],
         ['Leads gerados', 702, leadsCamp, 'num', 'Planilha de leads, todas as abas, só origem de anúncio ou landing.'],
         ['Leads qualificados', 140.4, mqlCamp, 'num', 'Regra do sistema: piso ≥ 100 cabeças e Inscrição Estadual.'],
-        ['Cadastros submetidos', 56.16, cadSistemaCamp, 'num', 'Sistema, só quem é lead de campanha. PISO — o registro parou em 08/07.'],
-        ['Cadastros aprovados', 33.696, aprCamp, 'num', 'Grupos de WhatsApp, frase a frase, menos os ' + (aprFora + aprPlanNao) + ' que vieram por fora.'],
+        ['Cadastros submetidos', 56.16, CADASTROS_TOTAL, 'num', `${num(cadSistemaCamp)} no sistema (jul, só de campanha) + ${num(RESUMO_AGOSTO.pessoas)} apurados nos grupos em agosto.`],
+        ['Cadastros aprovados', 33.696, APROVADOS_TOTAL, 'num', `${num(aprCamp)} de campanha até 01/08 + ${num(RESUMO_AGOSTO.aprovados)} em agosto, lidos mensagem a mensagem no grupo.`],
         ['Clientes compraram', 13.5, CLIENTES, 'num', 'HastaPro ao vivo, todas as filiais, só compra posterior ao lead, cada uma com evidência.'],
         ['Animais vendidos', 40, ANIMAIS, 'num', 'HastaPro, quantidade por lote.'],
         ['Ticket médio', 25000, TICKET_ANIMAL, 'brl', 'Valor arrematado ÷ animais.'],
@@ -212,34 +218,84 @@ mesma ordem — agora com fonte que se pode cobrar.</p>
     }).join('')}
   </tbody>
 </table>
-<p class="micro">Estes são os totais de 09/06 a 14/08 — o período inteiro em que houve campanha. Não são de agosto,
-e não devem ser comparados com a meta de agosto: essa comparação vem na próxima página, mês a mês.</p>
+<p class="micro">Totais de 09/06 a 14/08 — o período inteiro em que houve campanha. Não são de agosto e não devem ser
+comparados com a meta de agosto; essa comparação vem a seguir, mês a mês.</p>
 
 <div class="box alerta avoid">
   <h3>O que a comparação revela</h3>
-  <p>O erro da apuração manual não foi aleatório: <strong>ela errou para baixo no topo e para cima no fundo.</strong></p>
+  <p>O erro da apuração manual não foi aleatório: <strong>errou para baixo no topo e para cima no fundo.</strong></p>
   <ul>
-    <li><strong>O topo é muito maior do que se imaginava.</strong> A mídia entregou 1,58 milhão de impressões
-      (não 650 mil), 26.701 cliques (não 7.800) e <strong>1.519 leads — mais que o dobro dos 702 contados</strong>.
-      Sem acesso à conta de anúncio não havia como enxergar isso.</li>
-    <li><strong>O fundo é menor do que se imaginava.</strong> Clientes que compraram: ${num(CLIENTES)}, não 13,5.
-      Faturamento: ${brl0(VGV_ATR)}, não R$ 1.010.880. Havia gente contada como campanha que veio por fora, e
-      contava-se a compra total do ano da pessoa, inclusive o que ela arrematou <em>antes</em> de virar lead.</li>
-    <li><strong>Junto, os dois erros se anulavam e escondiam o diagnóstico.</strong> Com topo subestimado e fundo
-      superestimado, o funil parecia razoavelmente eficiente. Com os números certos, fica claro que a mídia entrega
-      muito mais do que se pensava e que a perda está no meio do caminho.</li>
+    <li><strong>O topo é muito maior.</strong> A mídia entregou 1,58 milhão de impressões (não 650 mil), 26.701
+      cliques (não 7.800) e <strong>1.519 leads — mais que o dobro dos 702 contados</strong>. Sem acesso à conta de
+      anúncio não havia como enxergar isso.</li>
+    <li><strong>O fundo é menor.</strong> Clientes: ${num(CLIENTES)}, não 13,5. Faturamento: ${brl0(VGV_ATR)}, não
+      R$ 1.010.880. Havia gente contada como campanha que veio por fora, e contava-se a compra total do ano da pessoa,
+      inclusive o que ela arrematou <em>antes</em> de virar lead.</li>
+    <li><strong>O meio estava simplesmente em branco</strong> — e agora não está: as duas linhas de cadastro acima
+      juntam o sistema com a leitura dos grupos de WhatsApp, mensagem a mensagem, inclusive agosto inteiro.</li>
   </ul>
 </div>
 
 <div class="pg"></div>
-<h2>A meta de agosto — o que já dá para medir</h2>
+<h2>O meio do funil — o que era zona cega e agora tem número</h2>
+<p>Este relatório dizia que o trecho entre o lead qualificado e o cadastro era invisível, porque o atendimento roda
+em telefone pessoal de SDR. <strong>Isso estava exagerado.</strong> Duas fontes enxergam a maior parte dele: o
+histórico de WhatsApp dos números conectados e as colunas “Etapa” e “Atendido por” que os próprios SDRs preenchem
+nas abas de trabalho da planilha.</p>
+<table class="funil">
+  <thead><tr><th>Etapa do atendimento</th><th class="r">Quantidade</th><th class="r">Da etapa anterior</th><th>Fonte</th></tr></thead>
+  <tbody>
+    <tr><td class="et">Leads de campanha com telefone</td><td class="num q">${num(at.whatsapp.leadsComFone)}</td><td class="num">—</td>
+      <td class="micro">Planilha, todas as abas.</td></tr>
+    <tr><td class="et">Receberam mensagem nossa</td><td class="num q">${num(at.whatsapp.abordados)}</td>
+      <td class="num">${pct(at.whatsapp.abordados, at.whatsapp.leadsComFone)}</td>
+      <td class="micro">whatsapp_messages, saída por número conectado (API oficial ou Baileys), desde 01/06.</td></tr>
+    <tr><td class="et">Responderam</td><td class="num q">${num(at.whatsapp.responderam)}</td>
+      <td class="num">${pct(at.whatsapp.responderam, at.whatsapp.abordados)}</td>
+      <td class="micro">Mesma fonte, mensagem de entrada do mesmo telefone.</td></tr>
+    <tr><td class="et">Cadastros submetidos</td><td class="num q">${num(CADASTROS_TOTAL)}</td>
+      <td class="num">${pct(CADASTROS_TOTAL, at.whatsapp.responderam)}</td>
+      <td class="micro">Sistema (jul) + grupos de WhatsApp (ago).</td></tr>
+    <tr><td class="et">Aprovados</td><td class="num q">${num(APROVADOS_TOTAL)}</td>
+      <td class="num">${pct(APROVADOS_TOTAL, CADASTROS_TOTAL)}</td>
+      <td class="micro">Grupos, frase a frase, só origem campanha.</td></tr>
+    <tr><td class="et">Compraram</td><td class="num q">${num(CLIENTES)}</td>
+      <td class="num">${pct(CLIENTES, APROVADOS_TOTAL)}</td>
+      <td class="micro">HastaPro ao vivo, compra posterior ao lead.</td></tr>
+  </tbody>
+</table>
+<p class="micro">Restam ${num(at.whatsapp.leadsComFone - at.whatsapp.abordados)} leads (${pct(at.whatsapp.leadsComFone - at.whatsapp.abordados, at.whatsapp.leadsComFone)})
+que não receberam mensagem por número conectado. Esses sim são cegos: podem ter sido atendidos no telefone pessoal
+do SDR ou não ter sido atendidos — não há como distinguir os dois casos, e a diferença entre eles é enorme.</p>
+
 <div class="box alerta avoid">
-  <h3>Leia antes de olhar os percentuais</h3>
-  <p>A meta percentual vale <strong>para agosto</strong>. Agosto tem <strong>14 dias corridos de 31</strong> e, mais
-  importante, <strong>três das sete etapas não têm registro nenhum no mês</strong>: o sistema parou de registrar
-  cadastro em 08/07 e a apuração manual dos grupos vai só até 01/08. Ou seja: <strong>a meta de agosto ainda não pode
-  ser avaliada de ponta a ponta.</strong> O que dá para medir hoje é o topo do funil — e o topo de agosto está pior
-  que o de junho e julho, não melhor.</p>
+  <h3>O gargalo tem nome e tem tamanho</h3>
+  <p><strong>De cada 100 leads que responderam, ${(CADASTROS_TOTAL / at.whatsapp.responderam * 100).toFixed(0)} viraram cadastro.</strong>
+  Não é falta de lead (são ${num(leadsCamp)}), não é falta de abordagem (${pct(at.whatsapp.abordados, at.whatsapp.leadsComFone)} foram abordados)
+  e não é falta de resposta (${num(at.whatsapp.responderam)} responderam). A perda está na conversão da conversa em
+  cadastro — e as abas de trabalho mostram que ela depende muito de quem atende:</p>
+  <table class="avoid">
+    <thead><tr><th>SDR</th><th class="r">Leads com etapa anotada</th><th class="r">Viraram cadastro</th><th class="r">Taxa</th><th class="r">Sem resposta</th></tr></thead>
+    <tbody>
+      ${Object.entries(at.abas.porSdr).filter(([k]) => !/sem responsável/i.test(k)).sort((a, b) => b[1].n - a[1].n).slice(0, 7).map(([k, v]) => `<tr>
+        <td class="nome">${esc(k)}</td><td class="num">${num(v.n)}</td><td class="num">${num(v.cad)}</td>
+        <td class="num q" style="font-size:13px">${(v.cad / v.n * 100).toFixed(0)}%</td>
+        <td class="num">${(v.semResp / v.n * 100).toFixed(0)}%</td></tr>`).join('')}
+    </tbody>
+  </table>
+  <p class="micro">A taxa de cadastro varia de 0% a 23% conforme quem atendeu — com volumes parecidos. Essa é a
+  alavanca mais barata que existe no funil: não custa mídia, custa método. Vale notar que a diretoria chegou à mesma
+  conclusão por conta própria: em 14/08 entrou uma SDR nova no grupo, apresentada como “responsável pelo atendimento
+  dos leads e conseguir novos cadastros”.</p>
+</div>
+
+<div class="pg"></div>
+<h2>A meta de agosto — o que já dá para medir</h2>
+<div class="box avoid">
+  <p>A meta percentual vale <strong>para agosto</strong>, que tem <strong>14 dias corridos de 31</strong> nesta
+  apuração. A meta de volume também apareceu, dita pela diretoria no próprio grupo de cadastros em 14/08:
+  <em>“Estamos com a meta de 60 cadastros para esse mês de Agosto”</em> — o que confirma, por outra via, o 56,16
+  da planilha.</p>
 </div>
 <table class="funil">
   <thead><tr><th>Degrau</th><th class="r">Meta ago.</th><th class="r">Junho</th><th class="r">Julho</th><th class="r">Ago 1–14</th><th class="r">Ago × meta</th><th>Situação</th></tr></thead>
@@ -248,49 +304,40 @@ e não devem ser comparados com a meta de agosto: essa comparação vem na próx
       <td class="num">${pct(mm['2026-06'].cliques, mm['2026-06'].impressoes, 2)}</td>
       <td class="num">${pct(mm['2026-07'].cliques, mm['2026-07'].impressoes, 2)}</td>
       <td class="num q">${pct(mm['2026-08'].cliques, mm['2026-08'].impressoes, 2)}</td>
-      <td class="num"><strong>138%</strong></td><td class="micro">Única meta cumprida em agosto. O criativo entrega.</td></tr>
+      <td class="num"><strong>138%</strong></td><td class="micro">Cumprida. O criativo entrega.</td></tr>
     <tr><td class="et">Cliques → leads</td><td class="num">9,00%</td>
       <td class="num">8,00%</td><td class="num">7,12%</td><td class="num q">2,73%</td>
-      <td class="num"><strong>30%</strong></td><td class="micro">Caiu muito. Agosto roda só landing (Perpétuo Touro/Fêmeas, São Geraldo), onde o lead demora a chegar à planilha — mas mesmo descontando isso, está abaixo de junho e julho.</td></tr>
+      <td class="num"><strong>30%</strong></td><td class="micro">Caiu. Agosto roda só landing (Perpétuo Touro/Fêmeas, São Geraldo), onde o lead chega à planilha com atraso — parte dos 45 ainda pode aparecer. Reconferir no fechamento.</td></tr>
     <tr><td class="et">Leads → qualificados</td><td class="num">20%</td>
       <td class="num">13,7%</td><td class="num">12,9%</td><td class="num q">22,2%</td>
-      <td class="num"><strong>111%</strong></td><td class="micro">A melhor taxa do ano e acima da meta: menos lead, e lead melhor. Efeito das campanhas de touro.</td></tr>
-    <tr><td class="et">MQL → cadastros submetidos</td><td class="num">40%</td>
-      <td class="num"><span class="off">—</span></td><td class="num">19,9%</td><td class="num"><span class="off">sem registro</span></td>
-      <td class="num"><span class="off">n/d</span></td><td class="micro">O sistema parou em 08/07. Julho, único mês medido, entregou metade da meta.</td></tr>
+      <td class="num"><strong>111%</strong></td><td class="micro">Cumprida, e é a melhor taxa do ano: menos lead, lead melhor. Efeito das campanhas de touro.</td></tr>
+    <tr><td class="et">Cadastros submetidos</td><td class="num">60 no mês</td>
+      <td class="num"><span class="off">—</span></td><td class="num">${num(cadSistemaCamp)}</td><td class="num q">${num(RESUMO_AGOSTO.pessoas)}</td>
+      <td class="num"><strong>${(RESUMO_AGOSTO.pessoas / 60 * 100).toFixed(0)}%</strong></td>
+      <td class="micro">Com 45% do mês corrido. No ritmo atual fecha em ~${Math.round(RESUMO_AGOSTO.pessoas / 14 * 31)} — ${(Math.round(RESUMO_AGOSTO.pessoas / 14 * 31) / 60 * 100).toFixed(0)}% da meta.</td></tr>
     <tr><td class="et">Cadastros → aprovados</td><td class="num">60%</td>
-      <td class="num" colspan="3" style="text-align:center">60,98% no acumulado até 01/08</td>
-      <td class="num"><span class="off">n/d</span></td><td class="micro">Apuração dos grupos não cobre agosto.</td></tr>
+      <td class="num"><span class="off">—</span></td><td class="num">60,98%</td>
+      <td class="num q">${(RESUMO_AGOSTO.aprovados / (RESUMO_AGOSTO.aprovados + RESUMO_AGOSTO.recusados) * 100).toFixed(1)}%</td>
+      <td class="num"><strong>${(RESUMO_AGOSTO.aprovados / (RESUMO_AGOSTO.aprovados + RESUMO_AGOSTO.recusados) / 0.6 * 100).toFixed(0)}%</strong></td>
+      <td class="micro">Cumprida. ${num(RESUMO_AGOSTO.aprovados)} aprovados e ${num(RESUMO_AGOSTO.recusados)} recusados entre as decisões de agosto; ${num(RESUMO_AGOSTO.pendentes)} ainda pendentes.</td></tr>
     <tr><td class="et">Aprovados → compraram</td><td class="num">40%</td>
-      <td class="num" colspan="3" style="text-align:center">24,00% no acumulado</td>
-      <td class="num"><span class="off">n/d</span></td><td class="micro">Em agosto compraram 3 clientes de campanha (Aier, Laércio, Patrick), mas o denominador de aprovados do mês não existe.</td></tr>
+      <td class="num" colspan="2" style="text-align:center">24,00% no acumulado</td>
+      <td class="num q">3 clientes</td>
+      <td class="num"><span class="off">parcial</span></td>
+      <td class="micro">Aier, Laércio e Patrick compraram em agosto. O ciclo lead→arremate vai a 37 dias, então parte dos ${num(RESUMO_AGOSTO.aprovados)} aprovados do mês ainda não teve leilão.</td></tr>
     <tr><td class="et">CPL — custo por lead</td><td class="num">${brl(9.26)}</td>
       <td class="num">${brl(7.89)}</td><td class="num">${brl(9.76)}</td><td class="num q">${brl(39.76)}</td>
-      <td class="num"><strong>429%</strong></td><td class="micro">O alerta do mês. Junho e julho ficaram na meta; agosto está em 4,3× — consequência direta da queda de clique→lead.</td></tr>
+      <td class="num"><strong>429%</strong></td><td class="micro">O alerta do mês. Junho e julho ficaram na meta; agosto está em 4,3×, consequência direta da queda de clique→lead.</td></tr>
   </tbody>
 </table>
-<p class="micro">Junho e julho estão aqui como referência do que a operação já entregou, não como cumprimento de
-meta — a meta é de agosto. As três linhas “sem registro” são o custo de o funil não se medir sozinho: sem elas, não
-há como dizer se a meta de agosto está sendo cumprida, só que o topo piorou e a qualificação melhorou.</p>
-
-<div class="box grey avoid">
-  <h3>O que agosto está dizendo até aqui</h3>
-  <ul>
-    <li><strong>Investiu-se pouco: ${brl(mm['2026-08'].investido)} em 14 dias</strong>, contra ${brl(mm['2026-07'].investido)} em julho.
-      No ritmo atual, agosto fecha bem abaixo dos R$ 6.500 planejados.</li>
-    <li><strong>O lead ficou caro: ${brl(39.76)} contra ${brl(7.89)} em junho.</strong> A causa aparente é que agosto
-      roda só campanha de landing, cuja conversão a Meta não enxerga e cujo lead chega à planilha com atraso — parte
-      desses 45 leads ainda pode aparecer. Vale reconferir no fim do mês antes de concluir que piorou de verdade.</li>
-    <li><strong>Mas o lead ficou melhor: 22,2% de qualificação, acima da meta de 20%</strong> e quase o dobro de
-      junho. A troca de bezerra por touro está funcionando: menos volume, mais produtor com escala.</li>
-    <li><strong>Três etapas não têm como ser medidas.</strong> Enquanto cadastro e aprovação não voltarem para o
-      sistema, a meta de agosto não é verificável de ponta a ponta — nem para cobrar, nem para defender.</li>
-  </ul>
-</div>
+<p class="micro">Junho e julho estão como referência do que a operação já entregou, não como cumprimento de meta — a
+meta é de agosto. <strong>Três das sete linhas já estão cumpridas em agosto</strong> (CTR, qualificação e aprovação);
+a de cadastro está em ritmo de ${(Math.round(RESUMO_AGOSTO.pessoas / 14 * 31) / 60 * 100).toFixed(0)}% e o CPL é o
+ponto de atenção.</p>
 
 <h3>Onde o funil perdeu no acumulado (junho a 14/08)</h3>
-<p>Este quadro é <strong>histórico</strong>, não avaliação da meta de agosto: mostra em que degrau se perdeu ao longo
-dos dois meses e meio em que houve campanha, usando as mesmas definições da meta.</p>
+<p>Quadro <strong>histórico</strong>, não avaliação da meta de agosto: mostra em que degrau se perdeu ao longo dos
+dois meses e meio de campanha, usando as mesmas definições.</p>
 <table class="funil">
   <thead><tr><th>Degrau do funil</th><th class="r">Referência</th><th class="r">Acumulado</th><th class="r">Razão</th><th></th><th>Conta e ressalva</th></tr></thead>
   <tbody>
@@ -309,20 +356,8 @@ dos dois meses e meio em que houve campanha, usando as mesmas definições da me
 }).join('')}
   </tbody>
 </table>
-<p class="micro">A coluna “razão” compara a taxa histórica com o percentual que virou meta de agosto. Serve para
-localizar o degrau problemático, não para dizer que a meta foi cumprida — ela nem estava em vigor no período.</p>
-
-<div class="box grey avoid">
-  <h3>A zona cega entre o MQL e o cadastro</h3>
-  <p>Entre “lead qualificado” e “cadastro submetido” está o atendimento dos SDRs — e grande parte dele roda em
-  telefones pessoais, fora do sistema. Só se fica sabendo do desfecho quando aparece um cadastro no grupo ou uma
-  compra no leilão. É o degrau que mais fica atrás e o único que não se mede sozinho.</p>
-  <p><strong>Há uma fonte parcial que cobre isso e vale explorar:</strong> a aba TOUROS da planilha tem a etapa do
-  atendimento preenchida em 89% dos leads de campanha, com o SDR responsável em mais da metade. Ela mostra que, dos
-  337 leads contatáveis, 68 (20%) não responderam, 118 (35%) avançaram e apenas 18 chegaram a cadastro — e que a taxa
-  de cadastro varia de 6% a 23% conforme quem atendeu. É o material para a próxima apuração e a rota mais curta para
-  enxergar esse degrau sem depender de mudança de sistema.</p>
-</div>
+<p class="micro">A coluna “razão” compara a taxa histórica com o percentual que virou meta de agosto — serve para
+localizar o degrau problemático, não para dizer que a meta foi cumprida, já que ela nem estava em vigor no período.</p>
 
 <h3>O custo por lead — decomposição e escopo</h3>
 <div class="box avoid">
