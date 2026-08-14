@@ -77,12 +77,19 @@ const aprFora = f.cadastros.manual.aprovadosPorFora
 const aprPlanNao = f.cadastros.manual.aprovadosPlanilhaNaoCampanha
 const CLIENTES = atribuiveis.length
 
-const cpl = INVESTIDO_APURADO / leadsCamp
-const cpMql = INVESTIDO_APURADO / mqlCamp
-const cpCadastro = INVESTIDO_APURADO / cadSistemaCamp
-const cpAprovado = INVESTIDO_APURADO / aprCamp
-const cac = INVESTIDO_APURADO / CLIENTES
-const cpAnimal = INVESTIDO_APURADO / ANIMAIS
+/* ESCOPO DOS CUSTOS. Quatro das 13 campanhas do funil (Corte Perpétuo ×2, Corte
+   Tupã e a EAO que não veiculou) têm o formulário na conta da leiloeira: o lead
+   delas nunca chega à nossa planilha. Dividir o investimento das 13 pelos leads
+   que só 9 produzem inflaria todo custo — foi o erro que fez o CPL parecer
+   R$ 12,54. O custo de captação usa o investimento das campanhas cujo lead chega
+   aqui; o investimento total continua reportado à parte. */
+const INVESTIDO_CAPTACAO = Math.round((INVESTIDO_APURADO - tx.base.investidoFora) * 100) / 100
+const cpl = INVESTIDO_CAPTACAO / leadsCamp
+const cpMql = INVESTIDO_CAPTACAO / mqlCamp
+const cpCadastro = INVESTIDO_CAPTACAO / cadSistemaCamp
+const cpAprovado = INVESTIDO_CAPTACAO / aprCamp
+const cac = INVESTIDO_CAPTACAO / CLIENTES
+const cpAnimal = INVESTIDO_CAPTACAO / ANIMAIS
 
 /** Funil-meta MENSAL da diretoria (imagem de 14/08), transcrito na íntegra. */
 const ALVO = {
@@ -269,20 +276,29 @@ cadastro, sozinha, dobraria o resultado final sem gastar um real a mais de mídi
   meta de agosto for para valer.</p>
 </div>
 
-<h3>Por que o custo por lead ficou acima — decomposição</h3>
-<p>O CPL de referência (R$ 9,26) é R$ 6.500 ÷ 702 leads. O CPL real (${brl(cpl)}) se explica inteiramente por três
-fatores, dois contra e um a favor — e a conta fecha exatamente, o que confirma que não há fator escondido.</p>
+<h3>O custo por lead está na meta — decomposição</h3>
+<div class="box avoid">
+  <p><strong>Cuidado com o escopo, porque ele muda o número.</strong> Quatro das 13 campanhas do funil (Corte
+  Perpétuo ×2, Corte Tupã e a EAO que quase não veiculou) têm o formulário na conta da leiloeira: o lead delas fica
+  lá e nunca chega à nossa planilha. Dividir o investimento das 13 (${brl(INVESTIDO_APURADO)}) pelos
+  ${num(leadsCamp)} leads que só 9 delas produzem infla o custo artificialmente — daria R$ 12,54, e seria comparação
+  errada. O custo de captação usa o investimento das campanhas cujo lead chega aqui:
+  <strong>${brl(INVESTIDO_CAPTACAO)}</strong>. As outras quatro (${brl(tx.base.investidoFora)}) geraram
+  ${num(tx.base.leadsMetaFora)} leads reportados pela Meta, que foram para a leiloeira.</p>
+</div>
+<p>Com o escopo certo, o CPL real é <strong>${brl(cpl)}</strong> contra a referência de R$ 9,26 —
+${(cpl / 9.26 * 100).toFixed(0)}% dela, ou seja, praticamente em cima da meta. A decomposição mostra por quê:</p>
 <table class="avoid">
   <thead><tr><th>Fator</th><th class="r">Referência</th><th class="r">Real</th><th>Leitura</th></tr></thead>
   <tbody>
     <tr><td class="et">CPM — custo de mil impressões</td><td class="num">${brl(10)}</td><td class="num">${brl(INVESTIDO_APURADO / IMP * 1000)}</td>
       <td><strong>Contra:</strong> mídia ${((INVESTIDO_APURADO / IMP * 1000 / 10 - 1) * 100).toFixed(0)}% mais cara que o plano — leilão é nicho e a disputa por esse público subiu.</td></tr>
     <tr><td class="et">CTR — cliques por impressão</td><td class="num">1,20%</td><td class="num">${pct(CLI, IMP, 2)}</td>
-      <td><strong>A favor:</strong> o criativo compensa boa parte do CPM mais caro.</td></tr>
-    <tr><td class="et">Clique → lead</td><td class="num">9,00%</td><td class="num">${(tx.base.leads / tx.base.cliques * 100).toFixed(2).replace('.', ',')}%</td>
-      <td><strong>Contra:</strong> de cada 100 cliques chegam ${(tx.base.leads / tx.base.cliques * 100).toFixed(1).replace('.', ',')} leads, não 9. É aqui que o CPL sobe.</td></tr>
+      <td><strong>A favor:</strong> o criativo entrega 41% acima e compensa o CPM mais caro.</td></tr>
+    <tr><td class="et">Clique → lead</td><td class="num">9,00%</td><td class="num">${(tx.base.leads / tx.base.cliquesComparaveis * 100).toFixed(2).replace('.', ',')}%</td>
+      <td><strong>Quase lá:</strong> de cada 100 cliques chegam ${(tx.base.leads / tx.base.cliquesComparaveis * 100).toFixed(1).replace('.', ',')} leads, contra 9 planejados — 80% da meta.</td></tr>
   </tbody>
-  <tfoot><tr><td>CPL RESULTANTE</td><td class="num">${brl(9.26)}</td><td class="num">${brl(cpl)}</td><td class="micro">CPM ÷ (CTR × taxa de lead)</td></tr></tfoot>
+  <tfoot><tr><td>CPL RESULTANTE</td><td class="num">${brl(9.26)}</td><td class="num">${brl(cpl)}</td><td class="micro">CPM ÷ (CTR × taxa de lead) — a conta fecha nos dois lados</td></tr></tfoot>
 </table>
 
 <h3>Mês a mês, para acompanhar agosto</h3>
@@ -307,7 +323,7 @@ const custos = `
   <thead><tr><th>Indicador</th><th class="r">Meta</th><th class="r">Real</th><th class="r">Razão</th><th>Conta exata</th></tr></thead>
   <tbody>
     <tr><td class="et">CPL — custo por lead</td><td class="num">${brl(ALVO.cpl)}</td><td class="num q">${brl(cpl)}</td>
-      <td class="num">${(cpl / ALVO.cpl).toFixed(1).replace('.', ',')}×</td><td class="micro">${brl(INVESTIDO_APURADO)} ÷ ${num(leadsCamp)} leads de campanha</td></tr>
+      <td class="num">${(cpl / ALVO.cpl).toFixed(1).replace('.', ',')}×</td><td class="micro">${brl(INVESTIDO_CAPTACAO)} ÷ ${num(leadsCamp)} leads de campanha</td></tr>
     <tr><td class="et">CPMQL — custo por qualificado</td><td class="num">${brl(ALVO.cpmql)}</td><td class="num q">${brl(cpMql)}</td>
       <td class="num">${(cpMql / ALVO.cpmql).toFixed(1).replace('.', ',')}×</td><td class="micro">÷ ${num(mqlCamp)} MQL</td></tr>
     <tr><td class="et">Custo por cadastro (de campanha)</td><td class="num">${brl(ALVO.custoCadastro)}</td><td class="num q">${brl(cpCadastro)}</td>
@@ -319,12 +335,15 @@ const custos = `
     <tr><td class="et">CAC — custo por cliente</td><td class="num">${brl0(ALVO.investimento / ALVO.compram)}</td><td class="num q">${brl(cac)}</td>
       <td class="num">${(cac / (ALVO.investimento / ALVO.compram)).toFixed(1).replace('.', ',')}×</td><td class="micro">÷ ${num(CLIENTES)} clientes com compra após o lead</td></tr>
     <tr><td class="et">Retorno por real investido</td><td class="num">${(ALVO.faturamento / ALVO.investimento).toFixed(0)}×</td><td class="num q">${(VGV_ATR / INVESTIDO_APURADO).toFixed(1).replace('.', ',')}×</td>
-      <td class="num">—</td><td class="micro">${brl0(VGV_ATR)} vendidos ÷ ${brl0(INVESTIDO_APURADO)} investidos (VGV, não margem)</td></tr>
+      <td class="num">—</td><td class="micro">${brl0(VGV_ATR)} vendidos ÷ ${brl0(INVESTIDO_APURADO)} investidos, aqui usando o investimento TOTAL do funil (VGV, não margem)</td></tr>
   </tbody>
 </table>
-<p class="micro">Os custos por cadastro/aprovado usam SÓ os casos de campanha — por isso são maiores (e mais honestos)
-do que dividir pelo total dos grupos, que incluiria cadastro feito por fora. O retorno em VGV não é lucro: a receita
-da Bula é a comissão sobre esse VGV.</p>`
+<p class="micro">Todos os custos acima dividem por <strong>${brl(INVESTIDO_CAPTACAO)}</strong> — o investimento das
+campanhas cujo lead chega à nossa planilha — e não pelos ${brl(INVESTIDO_APURADO)} do funil inteiro, porque
+${brl(tx.base.investidoFora)} foram para campanhas cujo formulário fica na conta da leiloeira. Misturar as duas
+coisas inflaria todo custo em cerca de 30%. Os custos por cadastro e por aprovado usam SÓ os casos de campanha, o que
+os torna maiores e mais honestos do que dividir pelo total dos grupos, que incluiria cadastro feito por fora. O
+retorno em VGV não é lucro: a receita da Bula é a comissão sobre esse VGV.</p>`
 
 const porCampanha = `
 <div class="pg"></div>
@@ -361,7 +380,8 @@ const vendas = `
 <p>Regra dura: <strong>só conta a compra feita DEPOIS de a pessoa virar lead</strong>, e o cruzamento vale para
 <strong>qualquer filial do HastaPro</strong> — não só a da Bula. Foi o que revelou os arremates do Leilão São Geraldo, que
 ficavam invisíveis na apuração anterior. A coluna EVIDÊNCIA diz o que sustenta cada linha: casamento de telefone,
-confirmação do assessor que atendeu, ou a janela curta entre o lead e o arremate na campanha do próprio leilão.</p>
+confirmação do assessor que atendeu, ou a cadeia completa do funil (virou lead, foi aprovado no grupo, ganhou
+cadastro novo no HastaPro na semana do arremate e comprou).</p>
 <table>
   <thead><tr><th>Cliente</th><th>UF</th><th>Campanha de entrada</th><th>Lead</th><th class="r">Dias</th><th>Leilão</th><th class="r">An.</th><th class="r">Valor</th><th>Evidência</th></tr></thead>
   <tbody>

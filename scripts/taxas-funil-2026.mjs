@@ -53,6 +53,18 @@ for (const c of META_LIVE.campanhasFunil) {
 }
 // os LPV vieram no dump por campanha/mês; somados à parte porque nem toda campanha tem
 const LPV_CONHECIDO = 275 + 1114 + 435 + 723 + 89 + 75 + 79 + 75 + 172 + 10
+// ESCOPO COMPARÁVEL: 4 campanhas do funil têm o formulário na conta da leiloeira
+// (Corte Perpétuo x2, Corte Tupã) ou não veicularam — o lead delas NUNCA chega à
+// nossa planilha. Incluir os cliques delas no denominador, e não incluir os leads
+// no numerador, produz uma taxa artificialmente baixa e um CPL inflado. Por isso
+// o funil de captação da Bula é medido só sobre as campanhas cujo lead chega aqui.
+const SEM_PLANILHA = ['CORTE PERPÉTUO', 'CORTE PERPÉTUO / 13 de Julho', 'CORTE TUPÃ', 'LEADS - FORMS INST EAO']
+let cliquesFora = 0, investidoFora = 0, leadsMetaFora = 0
+for (const c of META_LIVE.campanhasFunil) {
+    if (!SEM_PLANILHA.includes(c.nome)) continue
+    cliquesFora += c.total.cliques; investidoFora += c.total.investido; leadsMetaFora += c.total.leadsMeta ?? 0
+}
+const cliquesComparaveis = cliques - cliquesFora
 const leads = f.leads.deCampanha
 const mql = f.leads.mqlDeCampanha
 const cadastros = f.cadastros.sistema.pessoasDeCampanha
@@ -76,8 +88,8 @@ const TAXAS = [
         'NÃO MEDÍVEL: só as campanhas de landing têm page view instrumentado; as de formulário não têm site. Os ' + LPV_CONHECIDO + ' registrados cobrem parte do tráfego.'),
     linha('Acessos → leads', null, META.leads, leads, null,
         'Sem o denominador de acessos, esta taxa não se calcula. O que dá para medir é leads ÷ cliques (abaixo).'),
-    linha('Cliques → leads (composta)', pct(leads, cliques), META.acessos * META.leads / 100, leads, cliques,
-        'Junta os dois degraus acima: na meta, 75% × 12% = 9,0% dos cliques viram lead.'),
+    linha('Cliques → leads (composta)', pct(leads, cliquesComparaveis), META.acessos * META.leads / 100, leads, cliquesComparaveis,
+        'Junta os dois degraus acima: na meta, 75% × 12% = 9,0% dos cliques viram lead. Denominador exclui ' + cliquesFora + ' cliques das campanhas cujo formulário fica na conta da leiloeira (Corte Perpétuo/Tupã) e cujo lead não chega à planilha.'),
     linha('Leads → qualificados (MQL)', pct(mql, leads), META.mql, mql, leads,
         'Regra do sistema: ≥100 cabeças + Inscrição Estadual.'),
     linha('MQL → cadastros submetidos', pct(cadastros, mql), META.cadastros, cadastros, mql,
@@ -101,7 +113,7 @@ for (const t of TAXAS) {
 
 // conversão ponta a ponta
 const pontaMeta = (META.ctr / 100) * (META.acessos / 100) * (META.leads / 100) * (META.mql / 100) * (META.cadastros / 100) * (META.aprovados / 100) * (META.compraram / 100)
-const pontaReal = (cliques / impressoes) * (leads / cliques) * (mql / leads) * (cadastros / mql) * (aprovados / cadastros) * (clientesQueEramAprovados.length / aprovados)
+const pontaReal = (cliques / impressoes) * (leads / cliquesComparaveis) * (mql / leads) * (cadastros / mql) * (aprovados / cadastros) * (clientesQueEramAprovados.length / aprovados)
 console.log(`\nPONTA A PONTA (impressão → cliente que comprou)`)
 console.log(`  meta: ${(pontaMeta * 100).toFixed(5)}%  →  1 cliente a cada ${Math.round(1 / pontaMeta).toLocaleString('pt-BR')} impressões`)
 console.log(`  real: ${(pontaReal * 100).toFixed(5)}%  →  1 cliente a cada ${Math.round(1 / pontaReal).toLocaleString('pt-BR')} impressões`)
@@ -110,7 +122,7 @@ console.log(`  cumpre ${(pontaReal / pontaMeta * 100).toFixed(0)}% da meta`)
 fs.writeFileSync(path.join(DIR, 'taxas-funil-2026.json'), JSON.stringify({
     geradoEm: new Date().toISOString().slice(0, 10),
     regra: 'A meta do funil é a TAXA de conversão de cada degrau (coluna de percentual). Os volumes da planilha da diretoria são a aritmética dessas taxas sobre R$ 6.500 e não são alvo em si.',
-    base: { impressoes, cliques, lpvConhecido: LPV_CONHECIDO, leads, mql, cadastros, aprovados, clientes: clientes.length, clientesQueEramAprovados: clientesQueEramAprovados.length },
+    base: { impressoes, cliques, cliquesComparaveis, cliquesFora, investidoFora, leadsMetaFora, lpvConhecido: LPV_CONHECIDO, leads, mql, cadastros, aprovados, clientes: clientes.length, clientesQueEramAprovados: clientesQueEramAprovados.length },
     taxas: TAXAS, pontaAPonta: { meta: pontaMeta, real: pontaReal, cumpre: pontaReal / pontaMeta },
 }, null, 1))
 console.log('\ngravado em outputs/base-clientes-2026/taxas-funil-2026.json')
