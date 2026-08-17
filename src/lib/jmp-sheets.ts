@@ -2271,3 +2271,46 @@ async function gravaNaAbaFemeas(
   await writeTourosRows(sheets, info.spreadsheetId, tab, [buildFemeasRow(lead, row, header)])
   return { skipped: false, tab }
 }
+
+/**
+ * Leitura CRUA de abas inteiras — cabeçalho + linhas, exatamente como estão.
+ *
+ * Existe para o painel de growth, que precisa de TODAS as colunas (inclusive as
+ * que a equipe criou à mão: "Etapa", "Atendido por", e as colunas do conector
+ * do Meta) e das abas de trabalho, não só da base. Difere de readLeadRows() em
+ * dois pontos que importam: não mapeia para o layout canônico — devolve o que
+ * está lá — e NÃO escreve nada na planilha (readLeadRows chama
+ * normalizeMetaRawRows, que reescreve linhas cruas do conector).
+ *
+ * Aba que não existe volta vazia em vez de estourar.
+ */
+export async function readTabsRaw(
+  tabs: string[],
+): Promise<Record<string, { head: string[]; rows: string[][] }>> {
+  const out: Record<string, { head: string[]; rows: string[][] }> = {}
+  const info = await getStoredInfo()
+  const auth = getAuth()
+  if (!info || !auth) return out
+
+  const sheets = google.sheets({ version: 'v4', auth })
+  const meta = await sheets.spreadsheets.get({ spreadsheetId: info.spreadsheetId, includeGridData: false })
+  const existentes = new Set((meta.data.sheets ?? []).map(s => s.properties?.title).filter(Boolean) as string[])
+
+  // Uma chamada só para todas as abas: batchGet evita N round-trips e mantém a
+  // leitura consistente entre elas (a planilha é editada o tempo todo).
+  const alvos = tabs.filter(t => existentes.has(t))
+  if (!alvos.length) return out
+  const res = await sheets.spreadsheets.values.batchGet({
+    spreadsheetId: info.spreadsheetId,
+    ranges: alvos.map(t => `'${t}'`),
+  })
+  const faixas = res.data.valueRanges ?? []
+  alvos.forEach((tab, i) => {
+    const v = (faixas[i]?.values ?? []) as string[][]
+    out[tab] = {
+      head: v[0] ?? [],
+      rows: v.slice(1).filter(r => r.some(c => String(c ?? '').trim() !== '')),
+    }
+  })
+  return out
+}

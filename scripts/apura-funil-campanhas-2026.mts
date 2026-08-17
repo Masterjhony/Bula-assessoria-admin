@@ -1,7 +1,7 @@
 /**
  * FUNIL POR CAMPANHA 2026 — um funil por campanha, cada etapa com sua fonte.
  *
- *   node scripts/apura-funil-campanhas-2026.mjs
+ *   npx tsx scripts/apura-funil-campanhas-2026.mts
  *   (exige scripts/extrai-fontes-2026.mjs rodado antes, e o dump
  *    outputs/funil-campanhas-2026/meta-estrutura-AAAA-MM-DD.json da Meta)
  *
@@ -24,16 +24,42 @@
  */
 import fs from 'node:fs'
 import path from 'node:path'
+// O MOTOR DA REGRA É O DO APP, NÃO UMA CÓPIA. Este script e o painel precisam
+// responder a mesma pergunta ("de qual campanha veio este lead") — e quando a
+// mesma conta mora em dois arquivos, os dois divergem sem ninguém ver. Por isso
+// aqui se importa src/lib/funil-motor.ts, o mesmo que a leitura ao vivo usa.
+// (scripts/funil-consistencia.mts confere que as duas superfícies batem.)
 import {
-    OUT, F, carregaPlanilha, carregaMeta, atribuiCampanha, classeOrigem, ehLixo,
-    foneKey, docKey, nomeKey, dataIso, ehMql, temIE, pisoCabecas, semAcento,
-} from './lib/funil-campanhas-2026.mjs'
+    indexaMeta, atribuiCampanha, classeOrigem, ehLixo, juntaPessoas,
+    foneKey, nomeKey, dataIso, ehMql, temIE, pesoEtapa,
+} from '../src/lib/funil-motor'
 import { Identidades, carrega } from './lib/base-clientes-2026.mjs'
 import { APROVADOS_GRUPO, APROVADOS_LISTA, NAO_APROVADOS, NAO_APROVADOS_REMATES } from './lib/cadastros-aprovados-grupos.mjs'
 import { CADASTROS_AGOSTO } from './lib/cadastros-agosto-2026.mjs'
 import { CONFIRMADO_PELO_ASSESSOR } from './lib/patrocinados-confirmados.mjs'
 
-const ROOT_SRC = path.join(OUT, '..', '..', 'src', 'lib')
+const ROOT = process.cwd()
+const OUT = path.join(ROOT, 'outputs', 'funil-campanhas-2026')
+const F = path.join(ROOT, 'outputs', 'base-clientes-2026', 'fontes')
+const ROOT_SRC = path.join(ROOT, 'src', 'lib')
+
+/** Abas da planilha, como saíram do extrator, em forma de dicionário. */
+function carregaPlanilha() {
+    const p = JSON.parse(fs.readFileSync(path.join(F, 'planilha-leads.json'), 'utf8'))
+    const abas = {}
+    for (const [aba, { head, rows }] of Object.entries(p)) {
+        abas[aba] = rows.map(r => Object.fromEntries(head.map((h, i) => [h, r[i] ?? ''])))
+    }
+    return abas
+}
+
+/** Estrutura da conta de anúncios — o dump mais recente que existir. */
+function carregaMeta() {
+    const arquivos = fs.readdirSync(OUT).filter(f => /^meta-estrutura-\d{4}-\d{2}-\d{2}\.json$/.test(f)).sort()
+    const bruto = JSON.parse(fs.readFileSync(path.join(OUT, arquivos[arquivos.length - 1]), 'utf8'))
+    const idx = indexaMeta(bruto)
+    return { ...idx, snapshot: bruto }
+}
 const meta = carregaMeta()
 const abas = carregaPlanilha()
 const pgLeads = carrega(F, 'pg-crm-leads')
@@ -87,51 +113,11 @@ for (const l of pgLeads) {
     doCrm++
 }
 
-/* DEDUP EM PESSOA. A Meta cobra por preenchimento, então duas submissões da
-   mesma pessoa são dois leads para ela — mas para o funil de conversão é uma
-   pessoa só, e é pessoa que vira cadastro e cliente. Fica a entrada MAIS ANTIGA
-   (é a partir dela que a campanha pode reivindicar o que veio depois).
-   Chave: Lead ID (mesmo lead exportado duas vezes) → telefone → nome. */
-// Registro SEM data não é "o mais antigo" — é registro sem data. As listas
-// importadas ("Lista antiga de fazendas (sem data)") entram assim, e colocá-las
-// na frente fazia a pessoa herdar a data vazia; com data vazia, QUALQUER compra
-// do ano passava no teste "comprou depois de virar lead". Por isso os sem data
-// vão para o fim da fila.
-registros.sort((a, b) => (a.data ? 0 : 1) - (b.data ? 0 : 1) || String(a.data).localeCompare(String(b.data)))
-const pessoas = new Map()
-const repetidos = []
-for (const r of registros) {
-    const k = (r.leadId && `L:${r.leadId}`) || (foneKey(r.fone) && `F:${foneKey(r.fone)}`) || (nomeKey(r.nome) && `N:${nomeKey(r.nome)}`)
-    if (!k) { repetidos.push({ ...r, motivo: 'sem chave' }); continue }
-    const ja = pessoas.get(k)
-    if (!ja) {
-        pessoas.set(k, {
-            ...r, toques: 1, campanhas: new Set(r.campanha ? [r.campanha] : []),
-            // data do toque que veio de anúncio — é a partir dela que a campanha
-            // pode reivindicar cadastro e compra
-            dataCampanha: r.campanha ? r.data : '',
-            jaEstavaNaBaseFria: r.classe === 'base-fria',
-        })
-        continue
-    }
-    ja.toques++
-    if (r.classe === 'base-fria') ja.jaEstavaNaBaseFria = true
-    if (r.campanha) {
-        ja.campanhas.add(r.campanha)
-        if (!ja.dataCampanha || (r.data && r.data < ja.dataCampanha)) ja.dataCampanha = r.data
-    }
-    // a pessoa fica com a campanha do PRIMEIRO toque de anúncio; se o primeiro
-    // registro não tinha prova e um toque posterior tem, a prova preenche o vazio
-    if (!ja.campanha && r.campanha) { ja.campanha = r.campanha; ja.via = r.via + ' (toque posterior)' }
-    if (!ja.data && r.data) ja.data = r.data
-    if (!ja.cabecas && r.cabecas) ja.cabecas = r.cabecas
-    if (!temIE(ja.ie) && temIE(r.ie)) ja.ie = r.ie
-    repetidos.push({ nome: r.nome, data: r.data, campanha: r.campanha })
-}
-const leads = [...pessoas.values()]
-// A data que vale para tudo que vem DEPOIS do lead (cadastro e compra) é a do
-// toque de anúncio. Lead sem data de campanha não reivindica compra nenhuma.
-for (const l of leads) if (l.campanha) l.data = l.dataCampanha || l.data
+/* DEDUP EM PESSOA — a mesma função que o painel usa (src/lib/funil-motor.ts).
+   A Meta cobra por preenchimento, então duas submissões da mesma pessoa são
+   dois leads para ela; para o funil de conversão é uma pessoa só, e é pessoa
+   que vira cadastro e cliente. */
+const { pessoas: leads, repreenchimentos } = juntaPessoas(registros)
 
 /* ══ 2. ETAPA E RESPONSÁVEL (abas de trabalho) ════════════════════════════
    A aba de trabalho é onde o time move o lead: TOUROS/FEMEAS/EMBRIÕES/OUTROS
@@ -148,15 +134,8 @@ for (const aba of ['TOUROS', 'FEMEAS', 'EMBRIÕES', 'OUTROS']) {
         if (!etapa && !quem) continue
         const ja = etapaPorFone.get(k)
         // uma pessoa pode estar em duas abas; fica a etapa mais avançada
-        if (!ja || peso(etapa) > peso(ja.etapa)) etapaPorFone.set(k, { etapa, quem, aba })
+        if (!ja || pesoEtapa(etapa) > pesoEtapa(ja.etapa)) etapaPorFone.set(k, { etapa, quem, aba })
     }
-}
-function peso(e) {
-    return ({
-        'CADASTRO OK': 6, 'JÁ COMPROU': 7, 'CADASTRO REPROVADO': 5,
-        'SEM INFORMAÇÃO PARA CADASTRO': 4, 'QUALIFICAÇÃO': 3, 'CONEXÃO': 2,
-        'NÃO RESPONDEU': 1, 'NUMERO ERRADO': 1,
-    })[String(e ?? '').trim()] ?? 0
 }
 for (const l of leads) {
     const e = etapaPorFone.get(foneKey(l.fone))
@@ -168,7 +147,6 @@ for (const l of leads) {
 /* ══ 3. QUALIFICAÇÃO ══════════════════════════════════════════════════════
    MQL pela regra do próprio app (crm_config → mql_rule): piso ≥100 cabeças E
    Inscrição Estadual. Não é uma regra inventada aqui. */
-for (const l of leads) l.mql = ehMql(l.cabecas, l.ie, null)
 
 /* ══ 4. CADASTROS ═════════════════════════════════════════════════════════
    Três fontes, deduplicadas em pessoa, cada uma com o buraco declarado:
@@ -526,7 +504,7 @@ const saida = {
         registrosDoCrmSoNoCrm: doCrm,
         lixoDescartado: lixo,
         pessoasDepoisDaDedup: leads.length,
-        repreenchimentos: repetidos.length,
+        repreenchimentos,
         pessoasDeCampanha: deCampanha.length,
     },
     totais: {

@@ -28,8 +28,20 @@ import {
 } from 'lucide-react';
 import {
     FUNIL_CAMPANHAS, funisComLeads, funisSemLead, versusMeta, corDaMeta, nomeDoMes,
-    type FunilCampanha,
+    type FunilCampanha, type FunilCampanhasDados,
 } from '@/lib/funil-campanhas';
+
+/**
+ * Os dados chegam do servidor, que relê a planilha a cada carregamento. O
+ * import estático fica como fallback: se a página for renderizada sem passar
+ * nada (ou a leitura ao vivo falhar), o painel mostra a última apuração em vez
+ * de quebrar — e avisa na tela que está congelado.
+ */
+export interface DadosDoFunil extends FunilCampanhasDados {
+    frescor?: 'ao-vivo' | 'congelado';
+    lidoEm?: string | null;
+    motivoCongelado?: string;
+}
 
 const card = 'rounded-2xl border border-gray-200 dark:border-[#2A2A2A] bg-white dark:bg-[#141414]';
 const OURO = '#C9A84C';
@@ -148,8 +160,8 @@ function LinhaEtapa({ e, larguraMax }: { e: Etapa; larguraMax: number }) {
 
 /* ── painel ──────────────────────────────────────────────────────────────── */
 
-export function FunilPorCampanha() {
-    const d = FUNIL_CAMPANHAS;
+export function FunilPorCampanha({ dados }: { dados?: DadosDoFunil }) {
+    const d: DadosDoFunil = dados ?? FUNIL_CAMPANHAS;
     const comLeads = useMemo(() => funisComLeads(d), [d]);
     const semLead = useMemo(() => funisSemLead(d), [d]);
     const [sel, setSel] = useState(comLeads[0]?.id ?? '');
@@ -177,11 +189,30 @@ export function FunilPorCampanha() {
                         </p>
                     </div>
                     <div className="text-right shrink-0">
-                        <p className="text-[10px] uppercase tracking-wider text-gray-400">Apurado em</p>
-                        <p className="text-[13px] font-bold text-gray-900 dark:text-white tabular-nums">
-                            {d.geradoEm.split('-').reverse().join('/')}
-                        </p>
-                        <p className="text-[10px] text-gray-400 mt-0.5">mídia lida no dia {d.metaExtraidoEm.slice(8)}</p>
+                        {d.frescor === 'ao-vivo' ? (
+                            <>
+                                <p className="text-[10px] uppercase tracking-wider text-emerald-500 flex items-center gap-1 justify-end">
+                                    <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 inline-block" />
+                                    Leads ao vivo
+                                </p>
+                                <p className="text-[13px] font-bold text-gray-900 dark:text-white tabular-nums">
+                                    {d.lidoEm ? new Date(d.lidoEm).toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' }) : '—'}
+                                </p>
+                                <p className="text-[10px] text-gray-400 mt-0.5">
+                                    lido da planilha agora · mídia e vendas de {d.geradoEm.split('-').reverse().join('/')}
+                                </p>
+                            </>
+                        ) : (
+                            <>
+                                <p className="text-[10px] uppercase tracking-wider text-gray-400">Apurado em</p>
+                                <p className="text-[13px] font-bold text-gray-900 dark:text-white tabular-nums">
+                                    {d.geradoEm.split('-').reverse().join('/')}
+                                </p>
+                                <p className="text-[10px] text-amber-500 mt-0.5">
+                                    {d.motivoCongelado ? 'planilha não respondeu — mostrando o congelado' : `mídia lida no dia ${d.metaExtraidoEm.slice(8)}`}
+                                </p>
+                            </>
+                        )}
                     </div>
                 </div>
 

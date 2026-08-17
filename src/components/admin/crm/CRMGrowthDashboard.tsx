@@ -16,7 +16,7 @@ import {
     CRM_STAGE_REGISTRATION, CRM_STAGE_LOST,
 } from '@/lib/crm-types';
 import { Sparkline } from '@/components/admin/Sparkline';
-import { FunilPorCampanha } from '@/components/admin/crm/FunilPorCampanha';
+import { FunilPorCampanha, type DadosDoFunil } from '@/components/admin/crm/FunilPorCampanha';
 import { foneKey } from '@/lib/atendimento-stats';
 
 const card = 'rounded-2xl border border-gray-200 dark:border-[#2A2A2A] bg-white dark:bg-[#141414]';
@@ -98,9 +98,11 @@ interface Props {
     archived: CRMLead[];
     crmConfig: CRMConfig;
     atendimento: AtendimentoGrowth | null;
+    /** Funil por campanha, com o topo relido da planilha pelo servidor. */
+    funil?: DadosDoFunil;
 }
 
-export function CRMGrowthDashboard({ leads, archived, crmConfig, atendimento }: Props) {
+export function CRMGrowthDashboard({ leads, archived, crmConfig, atendimento, funil }: Props) {
     const stages = crmConfig.funnels[0]?.stages ?? crmConfig.stages;
 
     const m = useMemo(() => {
@@ -492,7 +494,7 @@ export function CRMGrowthDashboard({ leads, archived, crmConfig, atendimento }: 
                 planilha. Por isso este bloco não é alimentado pelos `leads` desta
                 página, e sim pela apuração multi-fonte versionada em
                 src/lib/funil-campanhas.json. */}
-            <FunilPorCampanha />
+            <FunilPorCampanha dados={funil} />
 
             {/* Tendências */}
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
