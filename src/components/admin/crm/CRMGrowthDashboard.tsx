@@ -4,8 +4,7 @@ import { useMemo, useState } from 'react';
 import Link from 'next/link';
 import {
     Users, Crown, TrendingUp, TrendingDown, CheckCircle2, XCircle,
-    ArrowRight, Filter, Megaphone, Wallet, DollarSign,
-    MousePointerClick, Target, MapPin, Activity, Reply, MessageSquare, MessageCircle, Send,
+    ArrowRight, Filter, Target, MapPin, Activity, Reply, MessageSquare, MessageCircle, Send,
     Hand, BellOff, Sprout,
 } from 'lucide-react';
 import type { CRMLead } from '@/app/sistema/actions/crm-leads';
@@ -17,15 +16,13 @@ import {
     CRM_STAGE_REGISTRATION, CRM_STAGE_LOST,
 } from '@/lib/crm-types';
 import { Sparkline } from '@/components/admin/Sparkline';
-import { META_CAMPAIGNS, metaCampaignTotals, cpmqlOf } from '@/lib/meta-campaigns';
+import { FunilPorCampanha } from '@/components/admin/crm/FunilPorCampanha';
 import { foneKey } from '@/lib/atendimento-stats';
 
 const card = 'rounded-2xl border border-gray-200 dark:border-[#2A2A2A] bg-white dark:bg-[#141414]';
 const BRONZE = '#A68B4B';
 
 const fmtInt = (n: number) => n.toLocaleString('pt-BR');
-const fmtBRL = (n: number) =>
-    n.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL', minimumFractionDigits: 2 });
 
 function leadDate(l: CRMLead): Date | null {
     const d = l.data_entrada || l.created_at;
@@ -105,19 +102,6 @@ interface Props {
 
 export function CRMGrowthDashboard({ leads, archived, crmConfig, atendimento }: Props) {
     const stages = crmConfig.funnels[0]?.stages ?? crmConfig.stages;
-    const media = META_CAMPAIGNS;
-
-    // Filtro da seção de mídia por campanha — recalcula chips, funil e a lista
-    // a partir do subconjunto selecionado. (Filtro por período exige a
-    // integração ao vivo do Meta; o snapshot atual é acumulado/lifetime.)
-    const [campaignFilter, setCampaignFilter] = useState<string>('all');
-    const filteredSnap = useMemo(
-        () => (campaignFilter === 'all'
-            ? media
-            : { ...media, campaigns: media.campaigns.filter(c => c.id === campaignFilter) }),
-        [media, campaignFilter],
-    );
-    const mediaTotals = useMemo(() => metaCampaignTotals(filteredSnap), [filteredSnap]);
 
     const m = useMemo(() => {
         const total = leads.length;
@@ -197,21 +181,14 @@ export function CRMGrowthDashboard({ leads, archived, crmConfig, atendimento }: 
         }
         const ufs = [...byUf.entries()].sort((a, b) => b[1] - a[1]).slice(0, 8);
 
-        // Interesses consolidados das campanhas (mídia).
-        const interMap = new Map<string, number>();
-        for (const c of media.campaigns)
-            for (const it of c.interesses) interMap.set(it.label, (interMap.get(it.label) ?? 0) + it.n);
-        const interesses = [...interMap.entries()].sort((a, b) => b[1] - a[1]);
-        const interTotal = interesses.reduce((a, b) => a + b[1], 0);
-
         const taxaConversao = total > 0 ? +(((cCadastro + aprovados) / total) * 100).toFixed(1) : 0;
 
         return {
             total, mql, perdidos, aprovados, cCadastro,
             convFunnel, dist, distMax, series, mqlSeries, last7, prev7, trend7, mqlLast7,
-            sources, ufs, interesses, interTotal, taxaConversao,
+            sources, ufs, taxaConversao,
         };
-    }, [leads, archived, stages, media]);
+    }, [leads, archived, stages]);
 
     // Atendimento cruzado com o CRM: funil contatado→respondeu→MQL→cadastro→cliente
     // (cruzando o telefone dos respondentes com os leads) + interesse/handoff/opt-out.
@@ -299,15 +276,6 @@ export function CRMGrowthDashboard({ leads, archived, crmConfig, atendimento }: 
         { label: 'Perdidos', value: fmtInt(m.perdidos), icon: XCircle, color: '#6b7280', sub: `${pct(m.perdidos, m.total)}% do total` },
     ];
 
-    // Funil de mídia (Meta): Impressões → Alcance → Cliques → Leads → MQL.
-    const mediaFunnel: FunnelNode[] = [
-        { label: 'Impressões', value: mediaTotals.impressions, color: '#6366f1' },
-        { label: 'Alcance', value: mediaTotals.reach, color: '#3b82f6' },
-        { label: 'Cliques', value: mediaTotals.clicks, color: '#06b6d4' },
-        { label: 'Leads', value: mediaTotals.leads, color: '#22c55e' },
-        { label: 'MQL', value: mediaTotals.mql, color: BRONZE },
-    ];
-
     return (
         <div className="space-y-4">
             <div className="page-head flex items-start justify-between gap-3">
@@ -315,7 +283,8 @@ export function CRMGrowthDashboard({ leads, archived, crmConfig, atendimento }: 
                     <small>CRM</small>
                     Dashboard de Growth
                     <span className="block text-[12px] font-normal subtle mt-2">
-                        Funil de conversão, qualificação e desempenho de mídia (Meta Ads).
+                        Um funil por campanha, apurado no Meta, na planilha, nos grupos de cadastro e no ERP —
+                        e, embaixo, a operação do CRM.
                     </span>
                 </h1>
                 <Link href="/sistema/crm" className="btn ghost shrink-0">
@@ -346,7 +315,14 @@ export function CRMGrowthDashboard({ leads, archived, crmConfig, atendimento }: 
                         <Filter size={16} className="text-[#A68B4B]" />
                         <h2 className="text-sm font-semibold text-gray-900 dark:text-white">Funil de conversão</h2>
                     </div>
-                    <p className="text-[11px] text-gray-400 mb-4">% à direita = conversão da etapa anterior.</p>
+                    <p className="text-[11px] text-gray-400 mb-1">% à direita = conversão da etapa anterior.</p>
+                    {/* Este funil descreve o CRM, não a mídia. Dizer isso na tela evita a
+                        confusão que motivou a reforma do painel: as campanhas de landing
+                        gravam na planilha e nunca aparecem aqui. */}
+                    <p className="text-[11px] text-amber-600 dark:text-amber-400/90 mb-4 leading-snug">
+                        Só o que está dentro do CRM. Os leads das campanhas de landing (touros, fêmeas, São Geraldo)
+                        gravam na planilha e não entram nesta contagem — eles estão no funil por campanha, acima.
+                    </p>
                     <FunnelChart nodes={m.convFunnel} exponent={0.65} minPct={14} />
                 </section>
 
@@ -511,81 +487,12 @@ export function CRMGrowthDashboard({ leads, archived, crmConfig, atendimento }: 
                 </section>
             )}
 
-            {/* Mídia & Aquisição (Meta Ads) */}
-            <section className={`${card} p-5`}>
-                <div className="flex items-center justify-between gap-3 mb-4 flex-wrap">
-                    <div className="flex items-center gap-2">
-                        <Megaphone size={16} className="text-[#A68B4B]" />
-                        <h2 className="text-sm font-semibold text-gray-900 dark:text-white">Mídia &amp; Aquisição — Meta Ads</h2>
-                    </div>
-                    <div className="flex items-center gap-2 flex-wrap">
-                        <div className="flex items-center gap-1.5">
-                            <Filter size={13} className="text-gray-400" />
-                            <select
-                                value={campaignFilter}
-                                onChange={e => setCampaignFilter(e.target.value)}
-                                className="text-[11px] rounded-lg border border-gray-200 dark:border-[#2A2A2A] bg-white dark:bg-[#1A1A1A] px-2 py-1 text-gray-700 dark:text-gray-200 focus:outline-none focus:ring-2 focus:ring-[#A68B4B]/40 max-w-[220px]"
-                            >
-                                <option value="all">Todas as campanhas ({media.campaigns.length})</option>
-                                {media.campaigns.map(c => (
-                                    <option key={c.id} value={c.id}>
-                                        {c.status === 'ACTIVE' ? '● ' : '○ '}{c.name}
-                                    </option>
-                                ))}
-                            </select>
-                        </div>
-                        <span className="text-[10px] text-gray-400">
-                            {media.account} · atualizado {new Date(media.updatedAt).toLocaleDateString('pt-BR')}
-                        </span>
-                    </div>
-                </div>
-
-                <div className="grid grid-cols-2 sm:grid-cols-3 xl:grid-cols-6 gap-2.5 mb-5">
-                    <StatChip icon={Wallet} label="Investimento" value={fmtBRL(mediaTotals.spend)} color="#a855f7" />
-                    <StatChip icon={Users} label="Leads (mídia)" value={fmtInt(mediaTotals.leads)} color="#22c55e" />
-                    <StatChip icon={DollarSign} label="CPL médio" value={fmtBRL(mediaTotals.cpl)} color="#3b82f6" />
-                    <StatChip icon={Crown} label="MQL (mídia)" value={fmtInt(mediaTotals.mql)} color={BRONZE} />
-                    <StatChip icon={Target} label="CPMQL médio" value={fmtBRL(mediaTotals.cpmql)} color="#ef4444" />
-                    <StatChip icon={MousePointerClick} label="CTR médio" value={`${mediaTotals.ctr.toFixed(2)}%`} color="#06b6d4" />
-                </div>
-
-                <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
-                    {/* Funil de mídia */}
-                    <div>
-                        <h3 className="text-[11px] font-bold uppercase tracking-widest text-gray-500 mb-3">Funil de mídia</h3>
-                        <FunnelChart nodes={mediaFunnel} exponent={0.42} minPct={13} />
-                        <div className="flex justify-around mt-3 text-center">
-                            <div><p className="text-sm font-bold text-gray-900 dark:text-white tabular-nums">{mediaTotals.ctr.toFixed(2)}%</p><p className="text-[10px] text-gray-400">CTR (cliques/impr.)</p></div>
-                            <div><p className="text-sm font-bold text-gray-900 dark:text-white tabular-nums">{((mediaTotals.leads / Math.max(1, mediaTotals.clicks)) * 100).toFixed(1)}%</p><p className="text-[10px] text-gray-400">Leads/cliques</p></div>
-                            <div><p className="text-sm font-bold text-gray-900 dark:text-white tabular-nums">{mediaTotals.mqlRate.toFixed(1)}%</p><p className="text-[10px] text-gray-400">MQL/leads</p></div>
-                        </div>
-                    </div>
-
-                    {/* Por campanha */}
-                    <div>
-                        <h3 className="text-[11px] font-bold uppercase tracking-widest text-gray-500 mb-3">Desempenho por campanha</h3>
-                        <div className="space-y-2.5">
-                            {filteredSnap.campaigns.map(c => (
-                                <div key={c.id} className="rounded-xl border border-gray-100 dark:border-[#2A2A2A] p-3">
-                                    <div className="flex items-center justify-between gap-2 mb-2">
-                                        <span className="text-xs font-semibold text-gray-800 dark:text-gray-100 truncate">{c.name}</span>
-                                        <span className={`text-[9px] font-bold uppercase px-1.5 py-0.5 rounded-full shrink-0 ${c.status === 'ACTIVE' ? 'bg-emerald-500/15 text-emerald-600 dark:text-emerald-400' : 'bg-gray-500/15 text-gray-500'}`}>
-                                            {c.status === 'ACTIVE' ? 'Ativa' : 'Pausada'}
-                                        </span>
-                                    </div>
-                                    <div className="grid grid-cols-5 gap-1.5 text-center">
-                                        <div><p className="text-sm font-bold text-gray-900 dark:text-white tabular-nums">{fmtInt(c.leads)}</p><p className="text-[9px] text-gray-400">Leads</p></div>
-                                        <div><p className="text-sm font-bold text-gray-900 dark:text-white tabular-nums">{fmtInt(c.mql)}</p><p className="text-[9px] text-gray-400">MQL</p></div>
-                                        <div><p className="text-sm font-bold tabular-nums" style={{ color: '#3b82f6' }}>{fmtBRL(c.cpl)}</p><p className="text-[9px] text-gray-400">CPL</p></div>
-                                        <div><p className="text-sm font-bold tabular-nums" style={{ color: '#ef4444' }}>{fmtBRL(cpmqlOf(c))}</p><p className="text-[9px] text-gray-400">CPMQL</p></div>
-                                        <div><p className="text-sm font-bold text-gray-900 dark:text-white tabular-nums">{fmtBRL(c.spend)}</p><p className="text-[9px] text-gray-400">Investido</p></div>
-                                    </div>
-                                </div>
-                            ))}
-                        </div>
-                    </div>
-                </div>
-            </section>
+            {/* GROWTH — um funil por campanha, apurado fora do CRM.
+                As campanhas de landing não passam pelo crm_leads: elas gravam na
+                planilha. Por isso este bloco não é alimentado pelos `leads` desta
+                página, e sim pela apuração multi-fonte versionada em
+                src/lib/funil-campanhas.json. */}
+            <FunilPorCampanha />
 
             {/* Tendências */}
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
@@ -614,7 +521,7 @@ export function CRMGrowthDashboard({ leads, archived, crmConfig, atendimento }: 
             </div>
 
             {/* Origem · Interesses · Estados */}
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
                 <section className={`${card} p-5`}>
                     <h2 className="text-sm font-semibold text-gray-900 dark:text-white mb-4">Leads por origem</h2>
                     {m.sources.length === 0 ? (
@@ -628,25 +535,6 @@ export function CRMGrowthDashboard({ leads, archived, crmConfig, atendimento }: 
                                         <div className="h-full rounded-full bg-[#A68B4B]" style={{ width: `${pct(count, m.total)}%` }} />
                                     </div>
                                     <span className="w-12 shrink-0 text-right text-[10px] text-gray-400 tabular-nums">{count}</span>
-                                </div>
-                            ))}
-                        </div>
-                    )}
-                </section>
-
-                <section className={`${card} p-5`}>
-                    <h2 className="text-sm font-semibold text-gray-900 dark:text-white mb-4">Interesses (mídia)</h2>
-                    {m.interesses.length === 0 ? (
-                        <p className="text-xs text-gray-400">Sem dados de interesse.</p>
-                    ) : (
-                        <div className="space-y-2.5">
-                            {m.interesses.map(([label, n]) => (
-                                <div key={label} className="flex items-center gap-2.5">
-                                    <span className="w-28 shrink-0 text-[11px] text-gray-600 dark:text-gray-300 truncate">{label}</span>
-                                    <div className="flex-1 h-2 rounded-full bg-gray-100 dark:bg-[#1A1A1A] overflow-hidden">
-                                        <div className="h-full rounded-full" style={{ width: `${pct(n, m.interTotal)}%`, backgroundColor: '#22c55e' }} />
-                                    </div>
-                                    <span className="w-14 shrink-0 text-right text-[10px] text-gray-400 tabular-nums">{n} · {pct(n, m.interTotal)}%</span>
                                 </div>
                             ))}
                         </div>
