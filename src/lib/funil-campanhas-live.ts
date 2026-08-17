@@ -8,8 +8,9 @@
  *     caindo, SDR mexendo na etapa. É lida AO VIVO, a cada carregamento.
  *   CRM — mesma coisa, lido ao vivo do Postgres.
  *   MÍDIA (investimento, impressões, cliques) — só muda quando a campanha
- *     veicula, e o servidor não tem credencial da Marketing API. Vem do dump
- *     versionado, com a data na tela.
+ *     veicula. Vem do dump versionado, com a data na tela; passa a ser lida ao
+ *     vivo assim que existir META_ADS_ACCESS_TOKEN (ver meta-ads-live.ts, que
+ *     explica por que hoje nenhum dos dois tokens da casa serve).
  *   CADASTROS e COMPRAS — cadastro dos grupos é leitura manual (texto livre,
  *     sem parser); compra só muda em dia de leilão. Vêm da apuração.
  *
@@ -27,6 +28,7 @@ import {
 } from './funil-motor';
 import { FUNIL_CAMPANHAS, type FunilCampanhasDados, type FunilCampanha } from './funil-campanhas';
 import estruturaJson from './meta-estrutura.json';
+import { buscaMidiaAoVivo, midiaAoVivoDisponivel } from './meta-ads-live';
 
 const ABAS_TRABALHO = Object.values(ABAS_INTERESSE) as string[];
 const META = indexaMeta(estruturaJson as unknown as MetaEstrutura);
@@ -36,6 +38,8 @@ export interface FunilAoVivo extends FunilCampanhasDados {
     frescor: 'ao-vivo' | 'congelado';
     lidoEm: string | null;
     motivoCongelado?: string;
+    /** true quando o investimento também veio da Meta agora, e não do dump. */
+    midiaAoVivo?: boolean;
 }
 
 /** Converte uma aba crua em linhas-dicionário. */
@@ -54,7 +58,12 @@ function comoObjetos(aba?: { head: string[]; rows: string[][] }): Record<string,
 export async function carregaFunilAoVivo(): Promise<FunilAoVivo> {
     const base = FUNIL_CAMPANHAS;
     try {
-        const abas = await readTabsRaw([LEADS_GERAIS_TAB, ...ABAS_TRABALHO]);
+        // A mídia só vem ao vivo se houver token com ads_read; senão é o dump.
+        const [abas, midia] = await Promise.all([
+            readTabsRaw([LEADS_GERAIS_TAB, ...ABAS_TRABALHO]),
+            midiaAoVivoDisponivel() ? buscaMidiaAoVivo() : Promise.resolve(null),
+        ]);
+        const midiaPorId = new Map((midia ?? []).map(c => [c.id, c]));
         const gerais = comoObjetos(abas[LEADS_GERAIS_TAB]);
         if (!gerais.length) {
             return { ...base, frescor: 'congelado', lidoEm: null, motivoCongelado: 'a planilha respondeu sem linhas' };
@@ -139,7 +148,8 @@ export async function carregaFunilAoVivo(): Promise<FunilAoVivo> {
 
         /* ── 4. costura com a apuração ────────────────────────────────────── */
         const deCampanha = pessoas.filter(p => p.campanha);
-        const funis: FunilCampanha[] = base.funis.map(f => {
+        const funis: FunilCampanha[] = base.funis.map(fBase => {
+            const f = aplicaMidia(fBase, midiaPorId.get(fBase.id));
             const meus = deCampanha.filter(p => p.campanha === f.id);
             const mql = meus.filter(p => p.mql).length;
             // As etapas de baixo continuam as da apuração: cadastro e compra não
@@ -174,6 +184,7 @@ export async function carregaFunilAoVivo(): Promise<FunilAoVivo> {
         return {
             ...base,
             frescor: 'ao-vivo',
+            midiaAoVivo: !!midia,
             lidoEm: new Date().toISOString(),
             totais,
             funis,
@@ -210,6 +221,34 @@ export async function carregaFunilAoVivo(): Promise<FunilAoVivo> {
             motivoCongelado: e instanceof Error ? e.message : 'erro desconhecido',
         };
     }
+}
+
+/**
+ * Troca os números de mídia do dump pelos que a Meta acabou de devolver — e
+ * refaz junto o que é DERIVADO deles: se o investimento muda, o tipo da
+ * campanha (landing/formulário, medido pelo clique de saída) e a confiança no
+ * pixel de acessos têm de ser recalculados, senão o painel mistura um retrato
+ * novo com uma classificação velha.
+ */
+function aplicaMidia(f: FunilCampanha, novo?: { investido: number; impressoes: number; alcance: number; cliques: number; cliquesSaida: number | null; acessos: number | null; leadsMeta: number | null; ctr: number; cpc: number; cpm: number; status: string }): FunilCampanha {
+    if (!novo) return f;
+    const saida = novo.cliques ? (novo.cliquesSaida ?? 0) / novo.cliques : 0;
+    const tipo = saida >= 0.30 ? 'landing' : saida < 0.05 ? 'formulario' : 'mista';
+    const acessosConfiaveis = (novo.cliquesSaida ?? 0) > 0 && (novo.acessos ?? 0) / novo.cliquesSaida! >= 0.5;
+    const ehLanding = tipo === 'landing' && acessosConfiaveis;
+    return {
+        ...f,
+        status: novo.status || f.status,
+        tipo,
+        cliqueDeSaidaPct: Math.round(saida * 1000) / 10,
+        acessosConfiaveis,
+        midia: {
+            investido: novo.investido, impressoes: novo.impressoes, alcance: novo.alcance,
+            cliques: novo.cliques, cliquesSaida: novo.cliquesSaida,
+            acessos: novo.acessos, acessosNaTaxa: ehLanding ? novo.acessos : null,
+            leadsMeta: novo.leadsMeta ?? 0, ctr: novo.ctr, cpc: novo.cpc, cpm: novo.cpm,
+        },
+    };
 }
 
 function recalculaTaxas(f: FunilCampanha, e: FunilCampanha['etapas']): FunilCampanha['taxas'] {

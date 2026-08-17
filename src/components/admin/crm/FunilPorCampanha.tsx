@@ -41,6 +41,7 @@ export interface DadosDoFunil extends FunilCampanhasDados {
     frescor?: 'ao-vivo' | 'congelado';
     lidoEm?: string | null;
     motivoCongelado?: string;
+    midiaAoVivo?: boolean;
 }
 
 const card = 'rounded-2xl border border-gray-200 dark:border-[#2A2A2A] bg-white dark:bg-[#141414]';
@@ -199,7 +200,9 @@ export function FunilPorCampanha({ dados }: { dados?: DadosDoFunil }) {
                                     {d.lidoEm ? new Date(d.lidoEm).toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' }) : '—'}
                                 </p>
                                 <p className="text-[10px] text-gray-400 mt-0.5">
-                                    lido da planilha agora · mídia e vendas de {d.geradoEm.split('-').reverse().join('/')}
+                                    {d.midiaAoVivo
+                                        ? `planilha e mídia agora · vendas de ${d.geradoEm.split('-').reverse().join('/')}`
+                                        : `lido da planilha agora · mídia e vendas de ${d.geradoEm.split('-').reverse().join('/')}`}
                                 </p>
                             </>
                         ) : (
