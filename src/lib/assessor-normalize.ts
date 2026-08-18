@@ -41,6 +41,13 @@ const CANONICAL_BY_KEY: ReadonlyMap<string, string> = new Map([
   ['lm assessoria', 'Leonardo Serafim'],
   // Grafia unificada (tabela de percentuais do chefe 22/07 usa "Matheus")
   ['mateus alves', 'Matheus Alves'],
+  // assessoras que entraram na tabela de comissão em 05/08/2026 (1%)
+  ['laila', 'Laila Oliveira'],
+  ['laila oliveira', 'Laila Oliveira'],
+  ['laila de sousa oliveira', 'Laila Oliveira'],
+  ['valeria', 'Valeria Borges'],
+  ['valeria borges', 'Valeria Borges'],
+  ['valeria borges da silva araujo', 'Valeria Borges'],
   // Bulinha (Felipe Andrade) — várias grafias com/sem "Vilela"
   ['bulinha', 'Bulinha (Felipe Andrade)'],
   ['felipe andrade', 'Bulinha (Felipe Andrade)'],
