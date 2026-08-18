@@ -169,6 +169,19 @@ const melhor = (map, ...keys) => {
     const m = k ? map.get(k) : null
     if (m) for (const [a, v] of m) agg.set(a, (agg.get(a) || 0) + v)
   }
+  // fallback por CONTINÊNCIA: "vinicius baleeiro" (lance) casa com
+  // "vinicius baleeiro pereira guimaraes" (comprador) — nomes curtos vs completos.
+  if (!agg.size) {
+    for (const k of keys) {
+      if (!k || k.length < 8) continue
+      for (const [mk2, m] of map) {
+        if (mk2.length < 8) continue
+        if (k.startsWith(mk2 + ' ') || mk2.startsWith(k + ' ') || k === mk2) {
+          for (const [a, v] of m) agg.set(a, (agg.get(a) || 0) + v)
+        }
+      }
+    }
+  }
   if (!agg.size) return null
   return [...agg.entries()].sort((a, b) => b[1] - a[1])[0][0]
 }
