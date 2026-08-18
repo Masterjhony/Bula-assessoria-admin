@@ -2363,6 +2363,20 @@ const CONC_ORIGEM_LABEL = {
   importacao_sicoob_2026:'Extrato Sicoob', importacao_ofx:'OFX', manual:'Manual',
   pagamento:'Pagamento', recebimento:'Recebimento', transferencia:'Transferencia',
 };
+// Os MESMOS valores de DreGrupo em src/lib/erp-dashboards.ts e na migration
+// 0073. Este select ja ofereceu um vocabulario proprio ('receita_bruta',
+// 'despesa_op', ...) que o calculo da DRE nao reconhecia: salvar a categoria
+// pela tela jogava a linha no grupo padrao e a DRE errava sem avisar.
+// Mudou la, muda aqui — e o check em erp_categorias.dre_grupo barra o resto.
+const DRE_GRUPOS = [
+  ['receita',          'Receita'],
+  ['imposto',          'Imposto sobre receita'],
+  ['custo_direto',     'Custo direto (operacao do leilao)'],
+  ['despesa_variavel', 'Despesa variavel'],
+  ['despesa_fixa',     'Despesa fixa'],
+  ['financeiro',       'Resultado financeiro'],
+  ['ignorar',          'Ignorar (nao entra na DRE)'],
+];
 function concStatus(m){
   if (m.status_conciliacao) return m.status_conciliacao;
   if (m.conta_pagar_id || m.conta_receber_id) return 'conciliado';
@@ -3624,7 +3638,7 @@ function openConta(id) {
         <div class="field"><label>Grupo DRE</label>
           <select name="dre_grupo">
             <option value="">--</option>
-            ${['receita_bruta','deducao','custo','despesa_op','desp_fin','rec_fin','outros'].map(o=>`<option value="${o}" ${c?.dre_grupo===o?'selected':''}>${o}</option>`).join('')}
+            ${DRE_GRUPOS.map(([v,rot])=>`<option value="${v}" ${c?.dre_grupo===v?'selected':''}>${rot}</option>`).join('')}
           </select>
         </div>
       </form>
