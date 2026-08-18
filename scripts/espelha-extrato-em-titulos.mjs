@@ -122,8 +122,43 @@ if (!APPLY) {
   process.exit(0)
 }
 
-let okCp = 0, okCr = 0, erros = 0
+/* GUARDA CONTRA CÓPIA ─────────────────────────────────────────────────────
+ * Espelhar o extrato sem olhar o que já existe foi o que criou títulos em
+ * duplicidade: o financeiro já tinha lançado "REF. COMISSAO DE ABRIL" e o
+ * espelho criou um segundo título para o mesmo PIX. Antes de criar, procura um
+ * título de negócio com o MESMO valor ao centavo, em uma janela de 3 dias e
+ * ainda sem movimento próprio. Achando, vincula em vez de criar — o título de
+ * negócio tem categoria, leilão e histórico; a cópia não teria nada disso.
+ */
+const centavos = (n) => Math.round(Number(n || 0) * 100)
+const jan = (a, b) => Math.abs(new Date(a).getTime() - new Date(b).getTime()) <= 3 * 86400000
+
+async function tituloJaExistente(tabela, m) {
+  const campoData = tabela === 'erp_contas_pagar' ? 'data_pagamento' : 'data_recebimento'
+  const { data } = await sb.from(tabela)
+    .select(`id,descricao,valor,status,vencimento,${campoData},tags`)
+    .eq('valor', r2(m.valor))
+    .neq('status', 'cancelado')
+  const semEspelho = (data || []).filter(t => !(t.tags || []).includes(TAG))
+  const { data: ocupados } = await sb.from('erp_movimentos_bancarios')
+    .select(tabela === 'erp_contas_pagar' ? 'conta_pagar_id' : 'conta_receber_id')
+    .not(tabela === 'erp_contas_pagar' ? 'conta_pagar_id' : 'conta_receber_id', 'is', null)
+  const usados = new Set((ocupados || []).map(x => Object.values(x)[0]))
+  const cands = semEspelho.filter(t => !usados.has(t.id)
+    && centavos(t.valor) === centavos(m.valor)
+    && (jan(t[campoData] || t.vencimento, m.data)))
+  return cands.length === 1 ? cands[0] : null
+}
+
+let okCp = 0, okCr = 0, erros = 0, reaproveitados = 0
 for (const m of saidas) {
+  const existente = await tituloJaExistente('erp_contas_pagar', m)
+  if (existente) {
+    await sb.from('erp_movimentos_bancarios').update({ conta_pagar_id: existente.id }).eq('id', m.id)
+    reaproveitados++
+    console.log(`  = vinculado ao título existente: ${String(existente.descricao).slice(0, 60)}`)
+    continue
+  }
   const payload = {
     descricao: descricaoDe(m),
     valor: r2(m.valor),
@@ -146,6 +181,13 @@ for (const m of saidas) {
   if (okCp % 100 === 0) console.log(`  ... ${okCp} contas a pagar criadas`)
 }
 for (const m of entradas) {
+  const existenteCr = await tituloJaExistente('erp_contas_receber', m)
+  if (existenteCr) {
+    await sb.from('erp_movimentos_bancarios').update({ conta_receber_id: existenteCr.id }).eq('id', m.id)
+    reaproveitados++
+    console.log(`  = vinculado ao título existente: ${String(existenteCr.descricao).slice(0, 60)}`)
+    continue
+  }
   const payload = {
     descricao: descricaoDe(m),
     valor: r2(m.valor),

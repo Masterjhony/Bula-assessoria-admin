@@ -173,7 +173,7 @@ export function ehDespesaOperacional(texto: string): boolean {
 
 /** Leilão virtual não gera deslocamento/estadia — o nome é quem diz. */
 export function ehLeilaoVirtual(nome: string | null | undefined): boolean {
-  return /virtual|online|web/i.test(semAcento(String(nome || '')))
+  return /\bvirtual\b|\bonline\b|\bweb\b/i.test(semAcento(String(nome || '')))
 }
 
 /**

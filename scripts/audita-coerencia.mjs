@@ -232,7 +232,7 @@ console.log('\n■ Previsão x real')
   const cats = await all('erp_categorias', 'id,nome,dre_grupo')
   const ignorar = new Set(cats.filter(c => c.dre_grupo === 'ignorar').map(c => c.id))
   const movs = await all('erp_movimentos_bancarios', 'id,data,tipo,valor,categoria_id,conta_pagar_id')
-  const cps = await all('erp_contas_pagar', 'id,valor,valor_pago,status,data_pagamento,categoria_id,origem,evento_key,substituido_por')
+  const cps = await all('erp_contas_pagar', 'id,descricao,valor,valor_pago,status,data_pagamento,categoria_id,fechamento_id,tags,origem,evento_key,substituido_por')
 
   // (a) o que os títulos dizem que foi pago tem de bater com o que saiu do banco.
   // Esta é a rede de segurança geral: qualquer duplicidade nova — previsão que
@@ -265,6 +265,18 @@ console.log('\n■ Previsão x real')
   semDono.length === 0
     ? ok('previsões substituídas estão encerradas', `${subs.length} substituições registradas`)
     : bad('previsões substituídas estão encerradas', `${semDono.length} ainda em aberto`)
+
+  // (d) leilão virtual não desloca equipe: despesa de campo nele é atribuição
+  // errada. O padrão vem do HastaPro (FIN_TITULOS.LEI_CODIGO): dos 83 leilões
+  // com despesa em 2026, os 23 que têm deslocamento/estadia são presenciais.
+  const fech = await all('bula_leilao_fechamento', 'id,nome')
+  const virtual = new Set(fech.filter(f => /virtual|online/i.test(String(f.nome || ''))).map(f => f.id))
+  const OPER = /deslocament|passage|bilhete|hotel|hosped|estad|alimenta|di[aá]ria|uber|combustiv|despesa[s]? operacion/i
+  const emVirtual = cps.filter(c => c.fechamento_id && virtual.has(c.fechamento_id) && c.status !== 'cancelado'
+    && ((c.tags || []).includes('despesa-leilao') || OPER.test(String(c.descricao || ''))))
+  emVirtual.length === 0
+    ? ok('leilão virtual sem despesa de campo')
+    : meh('leilão virtual sem despesa de campo', `${emVirtual.length} títulos (${brl(emVirtual.reduce((s, c) => s + Number(c.valor || 0), 0))}) — despesa no leilão errado ou leilão classificado errado`)
 }
 
 /* ════════ resultado ═══════════════════════════════════════════════════════ */

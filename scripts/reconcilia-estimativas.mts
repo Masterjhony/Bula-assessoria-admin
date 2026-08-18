@@ -196,6 +196,58 @@ console.log('\n══════ ETAPA 2: PAGAMENTO EM LOTE x ANALÍTICOS ═�
   }
 }
 
+/* ══ ETAPA 2.5 — o extrato copiou um título que já existia ═══════════════ */
+console.log('\n══════ ETAPA 2.5: CÓPIA DO EXTRATO SOBRE TÍTULO EXISTENTE ══════')
+{
+  // Quando o financeiro já tinha lançado o título ("REF. COMISSAO DE ABRIL") e
+  // depois o extrato foi espelhado, nasceu um SEGUNDO título para o mesmo
+  // pagamento — o do extrato, que ficou com o movimento bancário, enquanto o
+  // original ficou pago e sem movimento. Somados, dobram a despesa.
+  //
+  // O par é seguro quando o valor bate ao centavo, as datas são vizinhas e há
+  // um único candidato. Nesse caso o título do extrato é a cópia: o movimento
+  // passa para o título de negócio (que tem categoria, leilão e histórico) e a
+  // cópia é encerrada apontando para ele.
+  const movs = await todos('erp_movimentos_bancarios', 'id,data,tipo,valor,descricao,conta_pagar_id')
+  const cps = await todos('erp_contas_pagar', COLS)
+  const pago = (c: any) => ['pago', 'parcial'].includes(c.status)
+  const vl = (c: any) => Number(c.valor_pago || c.valor || 0)
+  const ehEspelho = (c: any) => (c.tags || []).includes('espelho-extrato')
+  const movDe = new Map<string, any>()
+  for (const m of movs) if (m.conta_pagar_id) movDe.set(m.conta_pagar_id, m)
+
+  const negocio = cps.filter(c => pago(c) && !ehEspelho(c) && !movDe.has(c.id) && c.origem !== 'sintetico')
+  const copias = cps.filter(c => pago(c) && ehEspelho(c) && movDe.has(c.id) && c.status !== 'cancelado')
+  console.log(`  títulos de negócio pagos sem movimento: ${negocio.length} | cópias do extrato: ${copias.length}`)
+
+  const usada = new Set<string>()
+  let n = 0, valor = 0
+  for (const c of negocio) {
+    const alvo = cent(vl(c))
+    const ref = new Date(c.data_pagamento).getTime()
+    const cands = copias.filter(e => !usada.has(e.id) && cent(vl(e)) === alvo
+      && Math.abs(new Date(e.data_pagamento).getTime() - ref) <= 3 * 86400000)
+    if (cands.length !== 1) continue
+    const copia = cands[0]
+    usada.add(copia.id); n++; valor += vl(c)
+    console.log(`  x ${String(c.data_pagamento).slice(0, 10)} ${brl(vl(c)).padStart(12)}  ${String(c.descricao).slice(0, 42)}`)
+    console.log(`      cópia encerrada: ${String(copia.descricao).slice(0, 58)}`)
+    if (APPLY) {
+      const mov = movDe.get(copia.id)
+      await sb.from('erp_movimentos_bancarios').update({ conta_pagar_id: c.id }).eq('id', mov.id)
+      await sb.from('erp_contas_pagar').update({
+        status: 'cancelado',
+        substituido_por: c.id,
+        substituido_em: new Date().toISOString(),
+        observacoes: [String(copia.observacoes || '').trim(),
+          `[reconciliação] Cópia do extrato para um pagamento que já tinha título próprio: "${c.descricao}" (${brl(vl(c))}). O movimento bancário passou para o título original e esta linha foi encerrada — mantê-la contaria a despesa duas vezes.`,
+        ].filter(Boolean).join('\n'),
+      }).eq('id', copia.id)
+    }
+  }
+  console.log(`  -> ${n} cópias encerradas | ${brl(valor)} de despesa contada em dobro`)
+}
+
 /* ══ ETAPA 3 — o caixa fecha? ═══════════════════════════════════════════ */
 console.log('\n══════ ETAPA 3: TÍTULOS PAGOS x SAÍDA DO BANCO ══════')
 {
