@@ -5,7 +5,7 @@ import {
     CRM_STAGE_CONNECTION, CRM_STAGE_QUALIFICATION, CRM_STAGE_INFO_CAPTURED,
     CRM_STAGE_REGISTRATION, CRM_STAGE_LOST,
 } from '@/lib/crm-types';
-import { FUNIL_CAMPANHAS } from '@/lib/funil-campanhas';
+import { carregaFunilAoVivo } from '@/lib/funil-campanhas-live';
 import type { FechamentoAnalyticsItem } from './leiloes/LeiloesAnalyticsBlock';
 import DashboardClient, {
     type DashboardProps,
@@ -23,23 +23,25 @@ import DashboardClient, {
 export const dynamic = 'force-dynamic';
 export const revalidate = 0;
 
-// ── Growth: resumo do funil pago (apuração multi-fonte versionada no repo) ──
-function growthPulse(): GrowthPulse | null {
-    try {
-        const t = FUNIL_CAMPANHAS.totais;
-        return {
-            investido: t.investido,
-            leads: t.leads,
-            mql: t.mql,
-            aprovados: t.cadastrosAprovados,
-            clientes: t.clientes,
-            faturamento: t.faturamento,
-            roas: t.investido > 0 ? t.faturamento / t.investido : 0,
-            apuradoEm: FUNIL_CAMPANHAS.geradoEm,
-        };
-    } catch {
-        return null;
-    }
+// ── Growth + faixa geral: funil pago com topo relido da planilha a cada
+// acesso (carregaFunilAoVivo dedupa planilha × CRM por telefone; se a leitura
+// falhar, cai na última apuração congelada — nunca derruba o dashboard).
+type FunilVivo = Awaited<ReturnType<typeof carregaFunilAoVivo>>;
+
+function growthPulse(funil: FunilVivo | null): GrowthPulse | null {
+    if (!funil) return null;
+    const t = funil.totais;
+    return {
+        investido: t.investido,
+        leads: t.leads,
+        mql: t.mql,
+        aprovados: t.cadastrosAprovados,
+        clientes: t.clientes,
+        faturamento: t.faturamento,
+        roas: t.investido > 0 ? t.faturamento / t.investido : 0,
+        apuradoEm: funil.geradoEm,
+        aoVivo: funil.frescor === 'ao-vivo',
+    };
 }
 
 const MONTH_ABBR = ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun', 'Jul', 'Ago', 'Set', 'Out', 'Nov', 'Dez'];
@@ -291,8 +293,6 @@ export default async function AdminDashboard({ searchParams }: { searchParams?: 
     // funil. Contamos o pipeline (CONEXÃO→CADASTRO) com um fetch enxuto que passa
     // longe do teto de 1000 do PostgREST, e usamos count exato p/ os totais.
     const ENTRADA_LABELS = ['Lead', 'Sem Status', 'ENTRADA', 'entrada'];
-    const rangeFromTs = `${range.from}T00:00:00`;
-    const rangeToTs = `${range.to}T23:59:59`;
 
     // Pipeline (não-ENTRADA, ativo). Pagina — o PostgREST corta em 1000 por chamada.
     async function loadPipelineStatuses() {
@@ -315,20 +315,27 @@ export default async function AdminDashboard({ searchParams }: { searchParams?: 
     const [
         pipelineRows,
         totalAtivosRes,
-        novosPeriodoRes,
+        outrosCanaisRes,
         mqlRes,
+        mqlOutrosRes,
         altaPrioridadeRes,
+        funilVivo,
     ] = await Promise.all([
         loadPipelineStatuses(),
         supabase.from('crm_leads').select('id', { count: 'exact', head: true }).eq('arquivado', false),
-        // "Novos" = leads que ENTRARAM de verdade no período — listas frias
-        // importadas em massa (Base Unificada / agenda WhatsApp) ficam fora,
-        // senão o KPI vira o tamanho do import (16k) e não diz nada.
+        // "Outros canais" = quem chegou fora das campanhas de mídia e fora das
+        // listas frias (WhatsApp inbound, Instagram, indicação, habilitação).
+        // As campanhas (jmp-*) ficam de fora porque a faixa de campanha (funil
+        // ao vivo) já as conta — somar as duas seria dupla contagem.
         supabase.from('crm_leads').select('id', { count: 'exact', head: true })
-            .eq('arquivado', false).gte('created_at', rangeFromTs).lte('created_at', rangeToTs)
-            .not('source', 'in', '(planilha,whatsapp-contatos)'),
+            .eq('arquivado', false)
+            .not('source', 'in', '(planilha,whatsapp-contatos,jmp-bula-perpetuo-sheet,jmp-landing,jmp-sheet-repair)'),
         supabase.from('crm_leads').select('id', { count: 'exact', head: true }).eq('arquivado', false).eq('is_mql', true),
+        supabase.from('crm_leads').select('id', { count: 'exact', head: true })
+            .eq('arquivado', false).eq('is_mql', true)
+            .not('source', 'in', '(jmp-bula-perpetuo-sheet,jmp-landing,jmp-sheet-repair)'),
         supabase.from('crm_leads').select('id', { count: 'exact', head: true }).eq('arquivado', false).eq('prioridade', 'Alta'),
+        carregaFunilAoVivo().catch(() => null),
     ]);
 
     const stageCount = new Map<string, number>();
@@ -348,12 +355,29 @@ export default async function AdminDashboard({ searchParams }: { searchParams?: 
     const perdidos = stageCount.get(CRM_STAGE_LOST) || 0;
     const entrada = Math.max(0, totalAtivos - pipelineTotal - perdidos);
 
+    // Faixa GERAL do sistema (pedido do chefe 18/08): campanha (funil ao vivo,
+    // dedup planilha × CRM) + outros canais do CRM, sem dupla contagem.
+    const campanhaLeads = funilVivo?.totais.leads ?? 0;
+    const campanhaMql = funilVivo?.totais.mql ?? 0;
+    const outrosCanais = outrosCanaisRes.count ?? 0;
+    const mqlOutros = mqlOutrosRes.count ?? 0;
+
     const crm: CrmPulse = {
         totalAtivos,
-        novosPeriodo: novosPeriodoRes.count ?? 0,
+        leadsGeral: campanhaLeads + outrosCanais,
+        mqlGeral: campanhaMql + mqlOutros,
+        outrosCanais,
         mql: mqlRes.count ?? 0,
         altaPrioridade: altaPrioridadeRes.count ?? 0,
         funnel,
+        campanha: funilVivo ? {
+            leads: campanhaLeads,
+            mql: campanhaMql,
+            cadastros: funilVivo.totais.cadastrosSubmetidos,
+            aprovados: funilVivo.totais.cadastrosAprovados,
+            clientes: funilVivo.totais.clientes,
+            aoVivo: funilVivo.frescor === 'ao-vivo',
+        } : null,
         entrada,
         perdidos,
     };
@@ -388,7 +412,7 @@ export default async function AdminDashboard({ searchParams }: { searchParams?: 
         fechamentoItems,
         feed,
         crm,
-        growth: growthPulse(),
+        growth: growthPulse(funilVivo),
     };
 
     return <DashboardClient {...props} />;

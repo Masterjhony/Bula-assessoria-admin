@@ -54,10 +54,18 @@ export type FeedItem = {
 
 export type CrmPulse = {
   totalAtivos: number
-  novosPeriodo: number
+  /** campanha (dedup planilha × CRM) + outros canais — sem dupla contagem */
+  leadsGeral: number
+  mqlGeral: number
+  outrosCanais: number
   mql: number
   altaPrioridade: number
   funnel: { label: string; value: number; color: string }[]
+  /** funil das campanhas, com o topo relido da planilha a cada acesso */
+  campanha: {
+    leads: number; mql: number; cadastros: number; aprovados: number; clientes: number
+    aoVivo: boolean
+  } | null
   entrada: number
   perdidos: number
 }
@@ -72,6 +80,7 @@ export type GrowthPulse = {
   faturamento: number
   roas: number
   apuradoEm: string
+  aoVivo: boolean
 }
 
 export type DashboardProps = {
@@ -496,17 +505,29 @@ function PulseChip({ icon: Icon, label, value, tone }: {
   )
 }
 
-function CrmPulseCard({ crm, periodLabel }: { crm: CrmPulse; periodLabel: string }) {
+
+function CrmPulseCard({ crm }: { crm: CrmPulse }) {
   const funnelMax = Math.max(1, ...crm.funnel.map(n => n.value))
   const pipelineTotal = crm.funnel.reduce((s, n) => s + n.value, 0)
+  const camp = crm.campanha
+  const campMax = Math.max(1, camp?.leads ?? 1)
+  const campStages = camp ? [
+    { label: 'Leads', value: camp.leads, color: GOLD },
+    { label: 'MQL', value: camp.mql, color: '#b8952f' },
+    { label: 'Cadastros', value: camp.cadastros, color: '#8a6d2f' },
+    { label: 'Aprovados', value: camp.aprovados, color: '#6b7280' },
+    { label: 'Clientes', value: camp.clientes, color: '#22c55e' },
+  ] : []
   return (
     <div className="rounded-2xl border border-gray-100 dark:border-[#2A2A2A] bg-white dark:bg-[#141414] p-5 flex flex-col">
       <div className="flex items-center justify-between mb-4">
         <div>
           <p className="text-xs font-black uppercase tracking-wider text-gray-900 dark:text-white flex items-center gap-1.5">
-            <Users size={13} className="text-[#A68B4B]" /> CRM · Pipeline de leads
+            <Users size={13} className="text-[#A68B4B]" /> Leads · Visão geral
           </p>
-          <p className="text-[10px] text-gray-400 mt-0.5">Leads ativos no CRM por etapa</p>
+          <p className="text-[10px] text-gray-400 mt-0.5">
+            Todas as frentes: campanhas (planilha{camp?.aoVivo ? ', ao vivo' : ''}), WhatsApp, Instagram e CRM
+          </p>
         </div>
         <Link
           href="/sistema/leads"
@@ -517,31 +538,63 @@ function CrmPulseCard({ crm, periodLabel }: { crm: CrmPulse; periodLabel: string
       </div>
 
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 mb-5">
-        <PulseChip icon={Users} label="No pipeline" value={fmtNum(pipelineTotal)} />
-        <PulseChip icon={UserPlus} label={`Novos reais · ${periodLabel}`} value={fmtNum(crm.novosPeriodo)} tone="gold" />
-        <PulseChip icon={StarIcon} label="MQL" value={fmtNum(crm.mql)} tone="gold" />
+        <PulseChip icon={Users} label="Leads captados (geral)" value={fmtNum(crm.leadsGeral)} tone="gold" />
+        <PulseChip icon={StarIcon} label="MQL (geral)" value={fmtNum(crm.mqlGeral)} tone="gold" />
+        <PulseChip icon={UserPlus} label="No pipeline do CRM" value={fmtNum(pipelineTotal)} />
         <PulseChip icon={Flame} label="Prior. alta" value={fmtNum(crm.altaPrioridade)} tone="red" />
       </div>
 
-      {/* Distribuição do pipeline por etapa (barras + % do pipeline) */}
-      <div className="space-y-2.5 mt-auto">
-        {crm.funnel.map((n) => {
-          const share = pipelineTotal > 0 ? Math.round((n.value / pipelineTotal) * 100) : 0
-          return (
-            <div key={n.label} className="flex items-center gap-3">
-              <span className="w-28 shrink-0 text-[10px] font-semibold text-gray-600 dark:text-gray-300 text-right truncate">{n.label}</span>
-              <div className="flex-1 h-6 rounded-lg bg-gray-50 dark:bg-[#1A1A1A] overflow-hidden relative">
-                <div
-                  className="h-full rounded-lg transition-all duration-700 flex items-center px-2"
-                  style={{ width: `${Math.max((n.value / funnelMax) * 100, 6)}%`, background: `linear-gradient(90deg, ${n.color}cc, ${n.color})` }}
-                >
-                  <span className="text-[11px] font-black text-white tabular-nums drop-shadow">{fmtNum(n.value)}</span>
+      {/* Funil das campanhas — topo relido da planilha (dedup com o CRM) */}
+      {camp && (
+        <div className="mb-5">
+          <p className="text-[9px] uppercase tracking-widest text-gray-400 mb-2">
+            Funil das campanhas {camp.aoVivo ? '· planilha ao vivo' : '· última apuração'}
+          </p>
+          <div className="space-y-1.5">
+            {campStages.map(n => (
+              <div key={n.label} className="flex items-center gap-3">
+                <span className="w-28 shrink-0 text-[10px] font-semibold text-gray-600 dark:text-gray-300 text-right truncate">{n.label}</span>
+                <div className="flex-1 h-5 rounded-lg bg-gray-50 dark:bg-[#1A1A1A] overflow-hidden">
+                  <div
+                    className="h-full rounded-lg flex items-center px-2 transition-all duration-700"
+                    style={{ width: `${Math.max((n.value / campMax) * 100, 5)}%`, background: `linear-gradient(90deg, ${n.color}bb, ${n.color})` }}
+                  >
+                    <span className="text-[10px] font-black text-white tabular-nums drop-shadow">{fmtNum(n.value)}</span>
+                  </div>
                 </div>
+                <span className="w-9 shrink-0 text-right text-[9px] font-bold tabular-nums text-gray-400">
+                  {camp.leads > 0 ? Math.round((n.value / camp.leads) * 100) : 0}%
+                </span>
               </div>
-              <span className="w-9 shrink-0 text-right text-[10px] font-bold tabular-nums text-gray-400">{share}%</span>
-            </div>
-          )
-        })}
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* Pipeline do CRM por etapa */}
+      <div className="mt-auto">
+        <p className="text-[9px] uppercase tracking-widest text-gray-400 mb-2">
+          Pipeline do CRM · {fmtNum(crm.outrosCanais)} leads de outros canais
+        </p>
+        <div className="space-y-1.5">
+          {crm.funnel.map((n) => {
+            const share = pipelineTotal > 0 ? Math.round((n.value / pipelineTotal) * 100) : 0
+            return (
+              <div key={n.label} className="flex items-center gap-3">
+                <span className="w-28 shrink-0 text-[10px] font-semibold text-gray-600 dark:text-gray-300 text-right truncate">{n.label}</span>
+                <div className="flex-1 h-5 rounded-lg bg-gray-50 dark:bg-[#1A1A1A] overflow-hidden">
+                  <div
+                    className="h-full rounded-lg flex items-center px-2 transition-all duration-700"
+                    style={{ width: `${Math.max((n.value / funnelMax) * 100, 6)}%`, background: `linear-gradient(90deg, ${n.color}cc, ${n.color})` }}
+                  >
+                    <span className="text-[10px] font-black text-white tabular-nums drop-shadow">{fmtNum(n.value)}</span>
+                  </div>
+                </div>
+                <span className="w-9 shrink-0 text-right text-[9px] font-bold tabular-nums text-gray-400">{share}%</span>
+              </div>
+            )
+          })}
+        </div>
       </div>
 
       <div className="flex items-center justify-between gap-3 mt-4 pt-3 border-t border-gray-50 dark:border-[#262626] text-[10px] text-gray-400 flex-wrap">
@@ -631,7 +684,7 @@ export default function DashboardClient(props: DashboardProps) {
       {/* Pulso da operação: CRM + growth pago (financeiro vive no ERP) */}
       <div className="sec-label">Operação &amp; crescimento</div>
       <div className="grid gap-4 items-stretch lg:grid-cols-2">
-        <CrmPulseCard crm={props.crm} periodLabel={f.label} />
+        <CrmPulseCard crm={props.crm} />
         {props.growth
           ? <GrowthPulseCard g={props.growth} />
           : (
