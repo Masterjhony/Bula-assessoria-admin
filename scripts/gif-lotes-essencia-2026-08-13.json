@@ -1,0 +1,53 @@
+{
+ "leilao": "7º LEILÃO ESSÊNCIA GENÉTICA — NELORE DA BAMBÚ, quinta 13/08/2026, 19h00 (e-Rural, virtual)",
+ "slug": "essencia-2026-08-13",
+ "group_id": "120363426815790951@g.us",
+ "session": "joao-automation",
+ "contato": "Grupo Workflows e Validações",
+ "gifs_dir": "F:/Projetos/Desktop/web-bula/outputs/gif-lotes-essencia-2026-08-13",
+ "media_width": 480,
+ "media_height": 270,
+ "observacoes": [
+  "Pedido do João (13/08): lotes 3, 5 e 19.",
+  "Catálogo: F:/1786472447409_Cat_logo_7__Leil_o_de_F_meas_Ess_ncia_Gen_tica_YT.pdf (49 pág.). Lotes INDIVIDUAIS 1–20 = páginas 3–22 (lote N = página N+2); pág. 23+ são lotes MÚLTIPLOS (vários animais por página).",
+  "Link de YouTube é annotation da própria página. ⚠️ O título do vídeo usa OUTRA numeração de lote (lote 3 = 'Lote 11', lote 5 = 'Lote 13', lote 19 = 'Lote 27') — quem valida o casamento é o RG (LBMN E3320, AFOM 3212, AFOM 5089), não o número no título.",
+  "Pedigree explícito: spans 'PAI' (esquerda) e 'MÃE' (direita) em y≈641, nomes em y≈642 com o 'X' no meio (x≈402); avós em y≈600 (paterno esq./materno dir.) e y≈684.",
+  "Índices PRÓPRIOS do animal em y≈787/805: bloco esquerdo PMGZ (iABCZ | DECA | P%), direito ANCP (MGTe | TOP). O bloco 'INFORMAÇÕES DO VENTRE' (y≈1165/1194) é a projeção animal+prenhez — usado só como gancho, nunca no bloco de índices.",
+  "Sem IQG/GenePlus neste catálogo. DEPs ANCP (DEP | ÍNDICE | TOP) nas linhas y=885..1101.",
+  "Rankings conferidos nos 20 lotes individuais: lote 19 é o 4º maior iABCZ do catálogo (24,72) e o MAIOR DACAB (1,21).",
+  "Condições (pág. 45): 30x (2+2+2+2+2+20), 12% de desconto à vista, frete grátis a partir de 2 animais (BA/MT/MS/MG/GO/SP/PR) ou 3 animais (TO/MA/PI/CE/SE/AL/PE/PB/RN); ES/RJ/PA sob consulta.",
+  "Cortes por contact sheet (lateral limpa): lote 3 -ss 18, lote 5 -ss 27, lote 19 -ss 18. Close de cabeça 0–3s em todos."
+ ],
+ "lotes": [
+  {
+   "lote": 3,
+   "nome": "E3320 DA MN",
+   "rg": "LBMN E3320",
+   "arquivo": "lote003.mp4",
+   "caption": "🔥 LOTE 3 - E3320 DA MN\n\nVaca feita, com DSTAY 91,12 — TOP 4% da raça em permanência no rebanho: é o ventre que continua parindo ano após ano.\n\nFêmea • Nasc: 28/09/2018\n\nApiaca da MN x E0106 da MN\n\n✨ MGTe: 17,54 • TOP 24%\n✨ iABCZ: 16,87 • DECA 1 • P: 6%\n✨ DSTAY: 91,12 • TOP 4%\n\nPrenhe do 8108S FIV JMP (parto 23/01/27) — com a prenhez, o ventre projeta iABCZ 27,15 (DECA 1) e MGTe 27,95, TOP 6%!\n\nLEILÃO HOJE (13/08), ÀS 19H\n30X NO BOLETO (2+2+2+2+2+20) • 12% DE DESCONTO À VISTA • FRETE GRÁTIS\n\nHabilite-se para o leilão e receba uma assessoria da Bula! 📲",
+   "video_youtube": "https://youtu.be/AZKdxQz_F4M",
+   "video_titulo": "Lote 11 - LBMN E3320",
+   "corte": "18s-24s"
+  },
+  {
+   "lote": 5,
+   "nome": "3212 FIV DA BAMBU",
+   "rg": "AFOM 3212",
+   "arquivo": "lote005.mp4",
+   "caption": "🔥 LOTE 5 - 3212 FIV DA BAMBU\n\nNeta do REM Armador com D3P 88,03 — TOP 5% da raça em probabilidade de prenhez aos 3 anos. Fertilidade que se paga sozinha.\n\nFêmea • Nasc: 01/12/2021\n\nComboio FIV da S.Nice x Alcaparra FIV FVC\n\n✨ MGTe: 22,38 • TOP 14%\n✨ iABCZ: 16,15 • DECA 1 • P: 7%\n✨ D3P: 88,03 • TOP 5%\n\nPrenhe do 10535C FIV JMP (parto 23/01/27) — com a prenhez, o ventre projeta iABCZ 25,69 (DECA 1) e MGTe 28,79, TOP 5%!\n\nLEILÃO HOJE (13/08), ÀS 19H\n30X NO BOLETO (2+2+2+2+2+20) • 12% DE DESCONTO À VISTA • FRETE GRÁTIS\n\nHabilite-se para o leilão e receba uma assessoria da Bula! 📲",
+   "video_youtube": "https://youtu.be/KCDX0_4Umcs",
+   "video_titulo": "Lote 13 - AFOM 3212",
+   "corte": "27s-33s"
+  },
+  {
+   "lote": 19,
+   "nome": "5089 FIV DA BAMBU",
+   "rg": "AFOM 5089",
+   "arquivo": "lote019.mp4",
+   "caption": "🔥 LOTE 19 - 5089 FIV DA BAMBU\n\nFilha do REM Hermoso e o 4º maior iABCZ do catálogo: 24,72, TOP 1% do país. E ainda o MAIOR acabamento de todos os lotes — DACAB 1,21, TOP 1% da raça.\n\nFêmea • Nasc: 28/11/2023\n\nRem Hermoso FIV Genética Aditiva x 2392 da Bambu\n\n✨ MGTe: 28,17 • TOP 6%\n✨ iABCZ: 24,72 • DECA 1 • P: 1%\n✨ DACAB: 1,21 • TOP 1%\n✨ DP450: 31,13 • TOP 4%\n\nPrenhe do Heron Sino (parto 18/12/26) — com a prenhez, o ventre projeta iABCZ 28,39 (DECA 1) e MGTe 28,46, TOP 5%!\n\nLEILÃO HOJE (13/08), ÀS 19H\n30X NO BOLETO (2+2+2+2+2+20) • 12% DE DESCONTO À VISTA • FRETE GRÁTIS\n\nHabilite-se para o leilão e receba uma assessoria da Bula! 📲",
+   "video_youtube": "https://youtu.be/xYSToNh-Vg8",
+   "video_titulo": "Lote 27 - AFOM 5089",
+   "corte": "18s-24s"
+  }
+ ]
+}

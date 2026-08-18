@@ -97,7 +97,8 @@ if (!dryRun && !uploadOnly && health.status !== 'connected') {
 
 let enviados = 0
 for (const l of lots) {
-  const caption = l.caption || buildCaption(l, job.condicoes)
+  // `caption: ""` no job = envio sem legenda (só o GIF). Sem o campo, monta a padrão.
+  const caption = l.caption ?? buildCaption(l, job.condicoes)
   const file = join(job.gifs_dir, `lote${String(l.lote).padStart(3, '0')}.mp4`)
 
   if (dryRun) {

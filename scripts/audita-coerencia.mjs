@@ -148,6 +148,35 @@ console.log('\n■ ERP')
   crOrfao === 0 ? ok('CR de fechamento aponta p/ fechamento existente', `${crFech.length} CRs`) : bad('CR de fechamento aponta p/ fechamento existente', `${crOrfao} órfãs`)
 }
 
+/* ════════ 2b. CP/CR x EXTRATO: o caixa e os titulos contam a mesma historia ═ */
+console.log('\n■ ERP · títulos x extrato')
+{
+  const cats2 = await all('erp_categorias', 'id,nome')
+  const nomeCat = new Map(cats2.map(c => [c.id, c.nome]))
+  const fora = id => /transfer|aplica|resgate/i.test(nomeCat.get(id) || '')
+  const movs2 = await all('erp_movimentos_bancarios', 'id,tipo,valor,categoria_id,conta_pagar_id,conta_receber_id')
+  const saidas = movs2.filter(m => m.tipo === 'saida' && !fora(m.categoria_id))
+  const entradas = movs2.filter(m => m.tipo === 'entrada' && !fora(m.categoria_id))
+  const semTitS = saidas.filter(m => !m.conta_pagar_id)
+  const semTitE = entradas.filter(m => !m.conta_receber_id)
+  const vS = r2(semTitS.reduce((s, m) => s + Number(m.valor || 0), 0))
+  const vE = r2(semTitE.reduce((s, m) => s + Number(m.valor || 0), 0))
+  vS <= 2000 ? ok('toda saída operacional tem título', `${saidas.length} movimentos · ${brl(vS)} sem título`)
+             : bad('toda saída operacional tem título', `${semTitS.length} sem título (${brl(vS)})`)
+  vE <= 2000 ? ok('toda entrada operacional tem título', `${entradas.length} movimentos · ${brl(vE)} sem título`)
+             : bad('toda entrada operacional tem título', `${semTitE.length} sem título (${brl(vE)})`)
+
+  // título baixado sem lastro no extrato: só é aceitável quando o pagamento foi
+  // agregado (um PIX cobre vários títulos) — por isso entra como WARN com valor.
+  const cpsPagos = await all('erp_contas_pagar', 'id,valor_pago,status,data_pagamento')
+  const comMov = new Set(movs2.filter(m => m.conta_pagar_id).map(m => m.conta_pagar_id))
+  const semLastro = cpsPagos.filter(t => t.status === 'pago' && !comMov.has(t.id))
+  const vL = r2(semLastro.reduce((s, t) => s + Number(t.valor_pago || 0), 0))
+  semLastro.length === 0
+    ? ok('todo título pago tem movimento no extrato')
+    : meh('título pago sem movimento próprio no extrato', `${semLastro.length} (${brl(vL)}) — pagamentos agregados ou baixa manual`)
+}
+
 /* ════════ 3. CLIENTES ↔ FECHAMENTOS ═══════════════════════════════════════ */
 console.log('\n■ Clientes')
 {

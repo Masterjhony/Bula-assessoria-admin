@@ -1,0 +1,133 @@
+{
+ "leilao": "BEZERRAS PARANÃ (Leilão Nelore Paranã Produtividade) — domingo 09/08/2026, 9h de Brasília, 100% virtual — 200 fêmeas: bezerras, novilhas super precoces e vacas Nelore PO",
+ "slug": "parana-2026-08-09",
+ "group_id": "120363426815790951@g.us",
+ "session": "joao-automation",
+ "contato": "Grupo Workflows e Validações",
+ "gifs_dir": "F:/Projetos/Desktop/web-bula/outputs/gif-lotes-parana-2026-08-09",
+ "media_width": 480,
+ "media_height": 270,
+ "observacoes": [
+  "Catálogo: catalogo_url de cronograma_leiloes (id 20e561a6) — 'Leilão Nelore Paranã - Produtividade (CAT VIRTUAL)', 128 páginas, 123 lotes, 1 lote por página.",
+  "Vídeo por lote: link de YouTube na própria página do lote (page.get_links()). Títulos conferidos um a um — saem como 'LOTE NN <RG>' e batem com lote + RG do catálogo nos 14. O parâmetro &index= do link é inconfiável (lote 03 vem com index=9); o que vale é o watch?v=.",
+  "Pedigree extraído por coordenada: PAI = caixa escura à ESQUERDA do fan, MÃE = caixa escura à DIREITA (fonte 21.8); avós são as caixas bege (fonte 16) acima/abaixo de cada lado. Validado contra 8 páginas renderizadas.",
+  "Índices no rodapé da tabela: iABCZ | DECA | P% (PMGZ), MGTe | TOP% (ANCP), IQG | TOP% (GenePlus). Em alguns lotes o P% do iABCZ vem '-' (7, 42, 57) — omitido na legenda.",
+  "'iABCZ (ventre)' é a projeção do ventre (animal + prenhez), diferente do iABCZ do próprio animal — usada só no gancho, nunca no bloco de índices.",
+  "Corte de 6s escolhido por contact sheet (animal de perfil); mosaico início/meio/fim conferido nos 14 clipes.",
+  "Todos os 14 lotes são FÊMEAS e todos estão prenhes. Condições do catálogo: 30 parcelas (1+29) e frete grátis (qualquer quantidade em MT/MS/GO/SP/PR/MG/TO/BA/PI/MA; a partir de 2 lotes em PA/CE/RN/PB/PE/AL/SE/ES/RJ; carga fechada em RO; não entrega em AM/AC/AP/RR/SC/RS)."
+ ],
+ "lotes": [
+  {
+   "lote": 1,
+   "nome": "4643 DA ANP",
+   "arquivo": "lote001.mp4",
+   "caption": "🔥 LOTE 01 - 4643 DA ANP\n\nTOP 0,5% da raça em IQG e média de 41 oócitos por aspiração — e a irmã dela já está escalada como destaque do Leilão Paranã Expogenética 2026.\n\nFêmea • Nasc: 07/09/2024\n\nRem CH Líder Gen.Adt x 2283 da ANP\n\n✨ MGTe: 34,89 • TOP 1%\n✨ IQG: 34,52 • TOP 0,5%\n✨ iABCZ: 29,49 • DECA 1 • P: 0,5%\n\nPrenhe do CAPITÃO DA ANP (parto 27/12/26)!\n\n30X NO BOLETO (1+29) • FRETE GRÁTIS\n\nDomingo (09/08), 9h de Brasília — leilão virtual.\n\nHabilite-se para o leilão e receba uma assessoria da Bula! 📲",
+   "video_youtube": "https://www.youtube.com/watch?v=V2nMblwUQSM",
+   "corte": "9s-15s"
+  },
+  {
+   "lote": 2,
+   "nome": "4656 DA ANP",
+   "arquivo": "lote002.mp4",
+   "caption": "🔥 LOTE 02 - 4656 DA ANP\n\nIrmã completa dos Lotes 01 e 03, com média de 38 oócitos por aspiração e prenhez adiantada: pare em setembro, você leva a novilha e a cria junto.\n\nFêmea • Nasc: 08/09/2024\n\nRem CH Líder Gen.Adt x 2283 da ANP\n\n✨ MGTe: 32,63 • TOP 2%\n✨ IQG: 23,22 • TOP 6%\n✨ iABCZ: 22,57 • DECA 1 • P: 2%\n\nPrenhe do ALAGOANO CATARI (parto 20/09/26)!\n\n30X NO BOLETO (1+29) • FRETE GRÁTIS\n\nDomingo (09/08), 9h de Brasília — leilão virtual.\n\nHabilite-se para o leilão e receba uma assessoria da Bula! 📲",
+   "video_youtube": "https://www.youtube.com/watch?v=Sju_BIrIuuA",
+   "corte": "9s-15s"
+  },
+  {
+   "lote": 3,
+   "nome": "4659 DA ANP",
+   "arquivo": "lote003.mp4",
+   "caption": "🔥 LOTE 03 - 4659 DA ANP\n\nFecha o trio de irmãs completas (Lotes 01, 02 e 03): ventre projetado em iABCZ 29,18, DECA 1, e prenhez que pare já em setembro.\n\nFêmea • Nasc: 09/09/2024\n\nRem CH Líder Gen.Adt x 2283 da ANP\n\n✨ MGTe: 32,09 • TOP 3%\n✨ IQG: 26,45 • TOP 4%\n✨ iABCZ: 23,33 • DECA 1 • P: 2%\n\nPrenhe do BOEING DA ANP (parto 20/09/26)!\n\n30X NO BOLETO (1+29) • FRETE GRÁTIS\n\nDomingo (09/08), 9h de Brasília — leilão virtual.\n\nHabilite-se para o leilão e receba uma assessoria da Bula! 📲",
+   "video_youtube": "https://www.youtube.com/watch?v=b5w_-EUemWc",
+   "corte": "9s-15s"
+  },
+  {
+   "lote": 4,
+   "nome": "4635 DA ANP",
+   "arquivo": "lote004.mp4",
+   "caption": "🔥 LOTE 04 - 4635 DA ANP\n\nTOP 0,1% da raça em iABCZ e filha da 4531 FIV Katispera, que foi destaque do Leilão Paranã Expogenética — média de 40 oócitos e ventre projetado em iABCZ 32,02.\n\nFêmea • Nasc: 06/09/2024\n\nRem CH Líder Gen.Adt x 4531 FIV Katispera\n\n✨ MGTe: 33,92 • TOP 2%\n✨ IQG: 35,25 • TOP 0,5%\n✨ iABCZ: 30,90 • DECA 1 • P: 0,1%\n\nPrenhe do GABARITO DA EAO (parto 15/11/26)!\n\n30X NO BOLETO (1+29) • FRETE GRÁTIS\n\nDomingo (09/08), 9h de Brasília — leilão virtual.\n\nHabilite-se para o leilão e receba uma assessoria da Bula! 📲",
+   "video_youtube": "https://www.youtube.com/watch?v=3YadJ1tXx5Y",
+   "corte": "18s-24s"
+  },
+  {
+   "lote": 5,
+   "nome": "4634 DA ANP",
+   "arquivo": "lote005.mp4",
+   "caption": "🔥 LOTE 05 - 4634 DA ANP\n\nMédia de 42 oócitos por aspiração e a mesma mãe do Lote 04: a 4531 FIV Katispera, destaque do Leilão Paranã Expogenética.\n\nFêmea • Nasc: 06/09/2024\n\nRem CH Líder Gen.Adt x 4531 FIV Katispera\n\n✨ MGTe: 33,17 • TOP 2%\n✨ IQG: 26,82 • TOP 3%\n✨ iABCZ: 23,82 • DECA 1 • P: 1%\n\nPrenhe do GOLFE DA EAO (parto 15/11/26)!\n\n30X NO BOLETO (1+29) • FRETE GRÁTIS\n\nDomingo (09/08), 9h de Brasília — leilão virtual.\n\nHabilite-se para o leilão e receba uma assessoria da Bula! 📲",
+   "video_youtube": "https://www.youtube.com/watch?v=qKlU74-ZHos",
+   "corte": "12s-18s"
+  },
+  {
+   "lote": 6,
+   "nome": "4794 DA ANP",
+   "arquivo": "lote006.mp4",
+   "caption": "🔥 LOTE 06 - 4794 DA ANP\n\nIrmã completa dos Lotes 04 e 05, filha da destaque 4531 FIV Katispera — MGTe 33,53, TOP 2% da raça, e prenhez que pare já em setembro.\n\nFêmea • Nasc: 01/10/2024\n\nRem CH Líder Gen.Adt x 4531 FIV Katispera\n\n✨ MGTe: 33,53 • TOP 2%\n✨ IQG: 27,25 • TOP 3%\n✨ iABCZ: 21,87 • DECA 1 • P: 2%\n\nPrenhe do D50 ALO BRASIL (parto 20/09/26)!\n\n30X NO BOLETO (1+29) • FRETE GRÁTIS\n\nDomingo (09/08), 9h de Brasília — leilão virtual.\n\nHabilite-se para o leilão e receba uma assessoria da Bula! 📲",
+   "video_youtube": "https://www.youtube.com/watch?v=GjVqtFNRRZ4",
+   "corte": "18s-24s"
+  },
+  {
+   "lote": 7,
+   "nome": "4668 DA ANP",
+   "arquivo": "lote007.mp4",
+   "caption": "🔥 LOTE 07 - 4668 DA ANP\n\nDupla coroa: TOP 1% da raça em MGTe (34,46) E em IQG (32,32), com média de 43 oócitos por aspiração e ventre projetado em iABCZ 32,7.\n\nFêmea • Nasc: 10/09/2024\n\nRem CH Líder Gen.Adt x 2399 da ANP\n\n✨ MGTe: 34,46 • TOP 1%\n✨ IQG: 32,32 • TOP 1%\n✨ iABCZ: 29,14 • DECA 1\n\nPrenhe do EGITO DA ANP (parto 20/09/26)!\n\n30X NO BOLETO (1+29) • FRETE GRÁTIS\n\nDomingo (09/08), 9h de Brasília — leilão virtual.\n\nHabilite-se para o leilão e receba uma assessoria da Bula! 📲",
+   "video_youtube": "https://www.youtube.com/watch?v=Arl66Kq-QWE",
+   "corte": "9s-15s"
+  },
+  {
+   "lote": 10,
+   "nome": "5374 DA ANP",
+   "arquivo": "lote010.mp4",
+   "caption": "🔥 LOTE 10 - 5374 DA ANP\n\nSuper precoce de verdade: nascida em janeiro de 2025 e já prenhe. Da Família Cevada, que tem irmã escalada como destaque do Leilão Paranã Expogenética 2026.\n\nFêmea • Nasc: 23/01/2025\n\nLuck FIV Katispera x ANP960\n\n✨ MGTe: 31,44 • TOP 3%\n✨ IQG: 28,03 • TOP 3%\n✨ iABCZ: 22,21 • DECA 1 • P: 2%\n\nPrenhe do URCO MAFRA (parto 22/10/26)!\n\n30X NO BOLETO (1+29) • FRETE GRÁTIS\n\nDomingo (09/08), 9h de Brasília — leilão virtual.\n\nHabilite-se para o leilão e receba uma assessoria da Bula! 📲",
+   "video_youtube": "https://www.youtube.com/watch?v=7RAQa9Vnm5w",
+   "corte": "4s-10s"
+  },
+  {
+   "lote": 11,
+   "nome": "4689 DA ANP",
+   "arquivo": "lote011.mp4",
+   "caption": "🔥 LOTE 11 - 4689 DA ANP\n\nFamília 2321 FIV Terra Brava: IQG 32,51 — TOP 1% da raça — com ventre projetado em iABCZ 30,51, DECA 1.\n\nFêmea • Nasc: 20/09/2024\n\nExército FIV da EAO x 2244 da ANP\n\n✨ MGTe: 30,72 • TOP 3%\n✨ IQG: 32,51 • TOP 1%\n✨ iABCZ: 28,86 • DECA 1 • P: 0,5%\n\nPrenhe do BOEING DA ANP (parto 21/09/26)!\n\n30X NO BOLETO (1+29) • FRETE GRÁTIS\n\nDomingo (09/08), 9h de Brasília — leilão virtual.\n\nHabilite-se para o leilão e receba uma assessoria da Bula! 📲",
+   "video_youtube": "https://www.youtube.com/watch?v=U_1x9JXSI5c",
+   "corte": "9s-15s"
+  },
+  {
+   "lote": 31,
+   "nome": "A7299 PARANÃ",
+   "arquivo": "lote031.mp4",
+   "caption": "🔥 LOTE 31 - A7299 PARANÃ\n\nTOP 0,1% da raça em DOIS índices ao mesmo tempo: IQG 40,41 e iABCZ 31,95. Irmã completa do Lote 32, com ventre projetado em iABCZ 31,9.\n\nFêmea • Nasc: 14/11/2024\n\nLuck FIV Katispera x A5912 Paranã\n\n✨ MGTe: 32,26 • TOP 2%\n✨ IQG: 40,41 • TOP 0,1%\n✨ iABCZ: 31,95 • DECA 1 • P: 0,1%\n\nPrenhe do BOND CONFIANÇA (parto 21/09/26)!\n\n30X NO BOLETO (1+29) • FRETE GRÁTIS\n\nDomingo (09/08), 9h de Brasília — leilão virtual.\n\nHabilite-se para o leilão e receba uma assessoria da Bula! 📲",
+   "video_youtube": "https://www.youtube.com/watch?v=lMEw-JuAAAc",
+   "corte": "9s-15s"
+  },
+  {
+   "lote": 37,
+   "nome": "4516 DA ANP",
+   "arquivo": "lote037.mp4",
+   "caption": "🔥 LOTE 37 - 4516 DA ANP\n\nFamília 139 da Furn: IQG 29,07, TOP 2% da raça, e prenhez do Urco Mafra que pare já em setembro.\n\nFêmea • Nasc: 15/08/2024\n\nCoringa da ANP x 2249 da ANP\n\n✨ MGTe: 31,73 • TOP 3%\n✨ IQG: 29,07 • TOP 2%\n✨ iABCZ: 23,30 • DECA 1 • P: 2%\n\nPrenhe do URCO MAFRA (parto 20/09/26)!\n\n30X NO BOLETO (1+29) • FRETE GRÁTIS\n\nDomingo (09/08), 9h de Brasília — leilão virtual.\n\nHabilite-se para o leilão e receba uma assessoria da Bula! 📲",
+   "video_youtube": "https://www.youtube.com/watch?v=FXaJaD2zpwA",
+   "corte": "11s-17s"
+  },
+  {
+   "lote": 42,
+   "nome": "4756 DA ANP",
+   "arquivo": "lote042.mp4",
+   "caption": "🔥 LOTE 42 - 4756 DA ANP\n\nDa Família Grapa TE de Naviraí — IQG 31,99, TOP 1% da raça, somado a iABCZ 30,06 com DECA 1.\n\nFêmea • Nasc: 15/10/2024\n\nDiplomata da Agronova x 2734 da ANP\n\n✨ MGTe: 29,24 • TOP 5%\n✨ IQG: 31,99 • TOP 1%\n✨ iABCZ: 30,06 • DECA 1\n\nPrenhe do ANP 1991 (parto 31/12/26)!\n\n30X NO BOLETO (1+29) • FRETE GRÁTIS\n\nDomingo (09/08), 9h de Brasília — leilão virtual.\n\nHabilite-se para o leilão e receba uma assessoria da Bula! 📲",
+   "video_youtube": "https://www.youtube.com/watch?v=EORe8IlPLBU",
+   "corte": "18s-24s"
+  },
+  {
+   "lote": 57,
+   "nome": "4780 DA ANP",
+   "arquivo": "lote057.mp4",
+   "caption": "🔥 LOTE 57 - 4780 DA ANP\n\nFilha do Campari da ANP com IQG 29,92 — TOP 2% da raça — e ventre projetado em iABCZ 27,2, DECA 1. Pare já em setembro.\n\nFêmea • Nasc: 20/10/2024\n\nCampari da ANP x 2651 da ANP\n\n✨ MGTe: 31,38 • TOP 3%\n✨ IQG: 29,92 • TOP 2%\n✨ iABCZ: 27,39 • DECA 1\n\nPrenhe do ALAGOANO CATARI (parto 20/09/26)!\n\n30X NO BOLETO (1+29) • FRETE GRÁTIS\n\nDomingo (09/08), 9h de Brasília — leilão virtual.\n\nHabilite-se para o leilão e receba uma assessoria da Bula! 📲",
+   "video_youtube": "https://www.youtube.com/watch?v=48RhrGJPWYY",
+   "corte": "12s-18s"
+  },
+  {
+   "lote": 75,
+   "nome": "4904 DA ANP",
+   "arquivo": "lote075.mp4",
+   "caption": "🔥 LOTE 75 - 4904 DA ANP\n\nSobrinha própria do FENÔMENO FIV CAMPARINO: a mãe dela é irmã completa do touro — e o ventre projeta iABCZ 23,32, DECA 1.\n\nFêmea • Nasc: 13/11/2024\n\nGuerreiro da Hora x JHVM 12660 FIV Camparino\n\n✨ MGTe: 25,10 • TOP 10%\n✨ IQG: 16,17 • TOP 17%\n✨ iABCZ: 18,58 • DECA 1 • P: 4%\n\nPrenhe do CAPITÃO DA ANP (parto 21/12/26)!\n\n30X NO BOLETO (1+29) • FRETE GRÁTIS\n\nDomingo (09/08), 9h de Brasília — leilão virtual.\n\nHabilite-se para o leilão e receba uma assessoria da Bula! 📲",
+   "video_youtube": "https://www.youtube.com/watch?v=_ma5BD2F_No",
+   "corte": "18s-24s"
+  }
+ ]
+}

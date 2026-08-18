@@ -1,0 +1,76 @@
+{
+ "leilao": "LEILÃO MEGA GENÉTICA EAO — sexta 14/08/2026, 12h, Tatersal Rubico Carvalho, Uberaba-MG (Expogenética)",
+ "slug": "mega-eao-2026-08-14",
+ "group_id": "120363426815790951@g.us",
+ "session": "joao-automation",
+ "contato": "Grupo Workflows e Validações",
+ "gifs_dir": "F:/Projetos/Desktop/web-bula/outputs/gif-lotes-mega-eao-2026-08-14",
+ "media_width": 480,
+ "media_height": 270,
+ "observacoes": [
+  "Leva 2 — destaques pedidos pelo João no meio da leva 1 (14/08): lotes 1000, 17, 18, 19 (parida), 20 (pintada) e 21.",
+  "Mesmo catálogo e mesmo mapeamento da leva 1 (ver scripts/gif-lotes-mega-eao-2026-08-14.json): p7 = LOTE 1000, p25..p28 = lotes 17..20, p29-32 = LOTE 21 (quádruplo, 4 bezerras dividindo UM vídeo).",
+  "LOTE 21 é QUÁDRUPLO (4 bezerras: EAON 7532, 7478, 7477 e 7408) → condição de lote múltiplo, 1+39 (40x). Todos os outros são IND. → 30x.",
+  "GIF do LOTE 21 = montagem de 4 trechos de 1,5s. O rodapé do próprio vídeo nomeia cada bezerra: 9s = EAON 7478, 20s = EAON 7408, 25,5s = EAON 7532, 58s = as quatro juntas no pasto. A EAON 7477 não tem trecho solo no vídeo (é irmã própria da 7478, mesmo pai x mãe) — aparece na tomada do grupo.",
+  "⚠️ No vídeo do LOTE 21, o trecho de 29s a 35s é a MÃE EAO B7500 (rótulo na tela), não as bezerras — cortado fora.",
+  "LOTE 20 (pintada vermelha): o VENTRE PROJETADO dele é fraco (iABCZg 6,82 DECA 4 · IQG 9,26 TOP 37%) e não traz MGTe — ficou fora da legenda, só a prenhez do Nobre FIV GC da SL. Os índices próprios dela (MGTe 16,82 TOP 26%) entraram como estão, sem maquiar.",
+  "LOTE 1000 e LOTE 19 são paridas: o GIF pega a vaca com a cria ao pé, que é como o vídeo mostra.",
+  "Vídeos do 1000 e do 17 trocam para IRMÃ/MÃE/AVÓ depois de ~30-36s; o 17 ainda tem pan traseiro em 27-32s. Cortes feitos antes disso."
+ ],
+ "lotes": [
+  {
+   "lote": "1000",
+   "nome": "EAO B8736",
+   "arquivo": "lote1000.mp4",
+   "caption": "🔥 LOTE 1000 - EAO B8736\n\nIrmã própria das recordistas B8888 (Expogenética 2024) e B8722 (Chave de Ouro 2025) — família com média de valorização de 42 MILHÕES, que já produziu o Golfe EAO, recordista da Expogenética 2025, e a C6336, bezerra avaliada em quase 3 milhões.\n\nDoadora parida • Nasc: 22/12/2021 • 50% à venda • Média de 52 oócitos\n\nREM Galo x EAO B2037\n\n✨ MGTe: 35,28 • TOP 0,5%\n✨ IQG: 40,86 • TOP 0,1%\n✨ iABCZ: 30,44 • DECA 1 • P: 0,1%\n\nParida de um macho do Embate da Agronova (EAON 7436, nasc. 03/10/2025) e prenhe do FERRARI EAO (parto set/26) — com a prenhez o ventre projeta IQG 44,91 (TOP 0,1%) e MGTe 35,56 (TOP 0,5%)!\n\nLEILÃO HOJE (14/08), ÀS 12H — TATERSAL RUBICO CARVALHO, UBERABA-MG\n30X NO BOLETO (2+2+2+2+2+20) • 10% DE DESCONTO À VISTA • FRETE GRÁTIS PRO BRASIL TODO\n\nHabilite-se para o leilão e receba uma assessoria da Bula! 📲",
+   "video_youtube": "https://www.youtube.com/watch?v=sl_ZimHTJ5c",
+   "video_titulo": "LOTE 1000",
+   "corte": "9s-15s"
+  },
+  {
+   "lote": "17",
+   "nome": "EAO C5962",
+   "arquivo": "lote017.mp4",
+   "caption": "🔥 LOTE 17 - EAO C5962\n\nFamília Gabarito: irmã materna do recordista Gabarito. A mãe dela, a B2981, produziu TRÊS touros — Gabarito, Gringo e Grande EAO. No pedigree, a união das duas melhores famílias da casa: B1371 pelo pai Embaixador e Gabarito pela mãe.\n\nNovilha • Nasc: 17/12/2024 • 50% à venda\n\nEmbaixador FIV EAO x EAO B2981\n\n✨ MGTe: 34,69 • TOP 1%\n✨ IQG: 23,05 • TOP 6%\n✨ iABCZ: 22,72 • DECA 1 • P: 2%\n\nHiperprecoce, emprenhou com 11 meses. Prenhe do Grandioso da EAO (parto set/26) — com a prenhez o ventre projeta IQG 33,37 (TOP 1%), MGTe 34,30 (TOP 1%) e iABCZ 27,21 (DECA 1)!\n\nLEILÃO HOJE (14/08), ÀS 12H — TATERSAL RUBICO CARVALHO, UBERABA-MG\n30X NO BOLETO (2+2+2+2+2+20) • 10% DE DESCONTO À VISTA • FRETE GRÁTIS PRO BRASIL TODO\n\nHabilite-se para o leilão e receba uma assessoria da Bula! 📲",
+   "video_youtube": "https://www.youtube.com/watch?v=uy_xY1sue74",
+   "video_titulo": "LOTE 17",
+   "corte": "9s-15s"
+  },
+  {
+   "lote": "18",
+   "nome": "EAON 7035",
+   "arquivo": "lote018.mp4",
+   "caption": "🔥 LOTE 18 - EAON 7035\n\nFILHA DIRETA da recordista B1371 — a matriarca da família de doadoras de prova com maior faturamento da raça. Novilha superprecoce com régua de DEPs equilibrada, TOP 0,1% na ANCP.\n\nDoadora • Nasc: 30/12/2024 • 50% à venda • Média de 44 oócitos\n\nREM Passaporte x EAO B1371\n\n✨ MGTe: 37,73 • TOP 0,1%\n✨ IQG: 33,84 • TOP 1%\n✨ iABCZ: 26,93 • DECA 1 • P: 0,5%\n\nPrenhe do Gerente da EAO (parto abr/27) — com a prenhez o ventre projeta MGTe 38,85 (TOP 0,1%) e IQG 36,82 (TOP 0,5%)!\n\nLEILÃO HOJE (14/08), ÀS 12H — TATERSAL RUBICO CARVALHO, UBERABA-MG\n30X NO BOLETO (2+2+2+2+2+20) • 10% DE DESCONTO À VISTA • FRETE GRÁTIS PRO BRASIL TODO\n\nHabilite-se para o leilão e receba uma assessoria da Bula! 📲",
+   "video_youtube": "https://www.youtube.com/watch?v=tV6bX17gXms",
+   "video_titulo": "LOTE 18",
+   "corte": "9s-15s"
+  },
+  {
+   "lote": "19",
+   "nome": "EAO C3832",
+   "arquivo": "lote019.mp4",
+   "caption": "🔥 LOTE 19 - EAO C3832\n\nFamília Federal: a mãe dela é irmã própria do recordista Federal da EAO, touro da bateria da CRV Lagoa. A avó materna é mãe do Federal, a bisavó é mãe do Alquimista e a tataravó é mãe do Único EAO.\n\nVaca parida • Nasc: 21/06/2024\n\nREM Hórus x EAO B7022\n\n✨ MGTe: 30,94 • TOP 3%\n✨ IQG: 31,04 • TOP 2%\n✨ iABCZ: 25,34 • DECA 1 • P: 1%\n\nPariu superprecoce, exatamente aos 24 meses: está com um macho do Embaixador EAO ao pé (EAON 7922, nasc. 21/06/2026) e já foi inseminada de novo com o Embaixador da EAO (parto mai/27).\n\nLEILÃO HOJE (14/08), ÀS 12H — TATERSAL RUBICO CARVALHO, UBERABA-MG\n30X NO BOLETO (2+2+2+2+2+20) • 10% DE DESCONTO À VISTA • FRETE GRÁTIS PRO BRASIL TODO\n\nHabilite-se para o leilão e receba uma assessoria da Bula! 📲",
+   "video_youtube": "https://www.youtube.com/watch?v=hOQScRvaiQs",
+   "video_titulo": "LOTE 19",
+   "corte": "15s-21s"
+  },
+  {
+   "lote": "20",
+   "nome": "EAO C6021",
+   "arquivo": "lote020.mp4",
+   "caption": "🔥 LOTE 20 - EAO C6021\n\nPela PRIMEIRA VEZ a EAO oferta uma fêmea da linhagem pintada — e ainda neta da B1371. Uma das melhores fêmeas da variedade pintado vermelho, com avaliação forte dentro do PMGZ.\n\nNovilha pintada vermelha • Nasc: 12/01/2025 • 50% à venda\n\nGolpe FIV GC da SL x EAO B9095\n\n✨ IQG: 25,80 • TOP 4%\n✨ iABCZ: 20,46 • DECA 1 • P: 3%\n✨ MGTe: 16,82 • TOP 26%\n\nPrenhe do Nobre FIV GC da SL (parto mar/27).\n\nLEILÃO HOJE (14/08), ÀS 12H — TATERSAL RUBICO CARVALHO, UBERABA-MG\n30X NO BOLETO (2+2+2+2+2+20) • 10% DE DESCONTO À VISTA • FRETE GRÁTIS PRO BRASIL TODO\n\nHabilite-se para o leilão e receba uma assessoria da Bula! 📲",
+   "video_youtube": "https://www.youtube.com/watch?v=l7TFPG9HYRg",
+   "video_titulo": "LOTE 20",
+   "corte": "9s-15s"
+  },
+  {
+   "lote": "21",
+   "nome": "QUÁDRUPLO DE 4 BEZERRAS",
+   "arquivo": "lote021.mp4",
+   "caption": "🔥 LOTE 21 - QUÁDRUPLO DE 4 BEZERRAS\n\nQuatro bezerras já cobertas num lote só — duas delas irmãs próprias, netas da B1371 e filhas da B7500, recordista do Mega Expozebu 2023. Três emprenharam antes dos 10 meses de idade.\n\nBezerras • Lote quádruplo\n\nAs 4 bezerras:\n• EAON 7532 — Xarp Col x EAO B3590 • iABCZ 35,16 • MGTe 34,65 • IQG 41,43 • inseminada do Hornet da EAO (parto mai/27)\n• EAON 7478 — Dominator FIV EAO x EAO B7500 • iABCZ 34,84 • MGTe 35,59 • IQG 38,91 • emprenhou aos 8 meses, prenhe do Brutão ARFS (parto abr/27)\n• EAON 7477 — Dominator FIV EAO x EAO B7500 • iABCZ 34,84 • MGTe 34,98 • IQG 38,91 • irmã própria da 7478, inseminada do Brutão ARFS (parto mai/27)\n• EAON 7408 — Trem Bala FIV da EAO x EAON 6216 • iABCZ 26,95 • MGTe 31,77 • IQG 36,56 • emprenhou aos 9 meses, prenhe do Herdeiro da EAO (parto abr/27)\n\nMédias das 4 bezerras:\n✨ MGTe: 34,25\n✨ IQG: 38,95\n✨ iABCZ: 32,95\n\nLEILÃO HOJE (14/08), ÀS 12H — TATERSAL RUBICO CARVALHO, UBERABA-MG\n40X NO BOLETO (1+39) • 10% DE DESCONTO À VISTA • FRETE GRÁTIS PRO BRASIL TODO\n\nHabilite-se para o leilão e receba uma assessoria da Bula! 📲",
+   "video_youtube": "https://www.youtube.com/watch?v=4qCaSfrR-rI",
+   "video_titulo": "LOTE 21",
+   "corte": "montagem de 4 trechos de 1,5s (9s=EAON 7478, 20s=EAON 7408, 25,5s=EAON 7532, 58s=as 4 juntas)"
+  }
+ ]
+}

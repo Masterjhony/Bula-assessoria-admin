@@ -1,0 +1,16 @@
+{
+ "premissas": { "rs_kg": 15, "bezerros_ano": 30, "safras": 4 },
+ "lotes": [
+  { "lote": 1,   "nome": "NAURU DA XARAÉS",      "rg": "XRGM 5509", "peso": 850, "ce": 40, "nasc": "03/10/2024", "meses": 21, "pai": "K4645 FIV da Xaraés",   "mae": "Louge da Xaraés" },
+  { "lote": 2,   "nome": "N198 DA 7P",           "rg": "FNFJ 198",  "peso": 893, "ce": 41, "nasc": "10/08/2024", "meses": 23, "pai": "Esteio da EAO",        "mae": "Jardim Florido da Xaraés" },
+  { "lote": 4,   "nome": "NORTH DA 7P",          "rg": "FNFJ 155",  "peso": 835, "ce": 41, "nasc": "19/08/2024", "meses": 23, "pai": "Demolidor FIV da EAO", "mae": "Jordânia da Xaraés" },
+  { "lote": 5,   "nome": "NOTÓRIO DA 7P",        "rg": "FNFJ 54",   "peso": 871, "ce": 38, "nasc": "23/07/2024", "meses": 24, "pai": "Esteio da EAO",        "mae": "Limma FIV da Xaraés" },
+  { "lote": 12,  "nome": "N130 DA 7P",           "rg": "FNFJ 130",  "peso": 826, "ce": 37, "nasc": "07/08/2024", "meses": 23, "pai": "Esteio da EAO",        "mae": "Gráfica da Xaraés" },
+  { "lote": 16,  "nome": "NEON DA 7P",           "rg": "FNFJ 60",   "peso": 824, "ce": 37, "nasc": "23/07/2024", "meses": 24, "pai": "Esteio da EAO",        "mae": "Gráfica da Xaraés" },
+  { "lote": 26,  "nome": "NOTÁVEL II DA XARAÉS", "rg": "XRGM 5449", "peso": 794, "ce": 40, "nasc": "02/08/2024", "meses": 23, "pai": "REM Passaporte Gen.Adt", "mae": "Líbia da Xaraés" },
+  { "lote": 65,  "nome": "NUEVO DA XARAÉS",      "rg": "XRGM 5515", "peso": 812, "ce": 40, "nasc": "05/10/2024", "meses": 21, "pai": "Casanova Bonsucesso",  "mae": "Brasília da Xaraés" },
+  { "lote": 71,  "nome": "NOVO DA XARAÉS",       "rg": "XRGM 5451", "peso": 866, "ce": 39, "nasc": "03/08/2024", "meses": 23, "pai": "Nero do Morro",        "mae": "Linda da Xaraés" },
+  { "lote": 72,  "nome": "NOSTHAURO DA 7P",      "rg": "FNFJ 335",  "peso": 793, "ce": 38, "nasc": "24/10/2024", "meses": 21, "pai": "Casanova Bonsucesso",  "mae": "Jardim Florido da Xaraés" },
+  { "lote": 101, "nome": "NITERÓI DA XARAÉS",    "rg": "XRGM 5442", "peso": 784, "ce": 36, "nasc": "30/07/2024", "meses": 24, "pai": "Jacareh FIV da Xaraés", "mae": "K4612 da Xaraés" }
+ ]
+}

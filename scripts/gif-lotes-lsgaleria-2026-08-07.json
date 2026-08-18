@@ -1,0 +1,204 @@
+{
+ "leilao": "2º Leilão LS Galeria — sexta-feira 07/08/2026, recepção 19h e transmissão 20h — Galeria OM Incorporadora, R. 1139, St. Marista, Goiânia/GO",
+ "slug": "lsgaleria-2026-08-07",
+ "group_id": "120363426815790951@g.us",
+ "session": "joao-automation",
+ "contato": "Grupo Workflows e Validações",
+ "gifs_dir": "F:/Projetos/Desktop/web-bula/outputs/gif-lotes-lsgaleria-2026-08-07",
+ "media_width": 480,
+ "media_height": 270,
+ "observacoes": [
+  "Catálogo: F:\\Leilão LS Galeria II - Catálogo Oficial [SC] V3.pdf (33 pág., 23 lotes, 1 lote por página).",
+  "Vídeo por lote: link do eRural na página do lote -> id do YouTube no HTML (video_id). Títulos conferidos: 'LOTE NN <RG>' bate com o catálogo nos 23.",
+  "Pedigree extraído por posição na caixa (pai à esquerda do X, mãe à direita); validado por consistência cruzada entre lotes e contra as páginas renderizadas.",
+  "Corte de 6s escolhido por contact sheet (animal de perfil); mosaico início/meio/fim conferido nos 23 clipes.",
+  "Lote 02 é macho (touro contratado por central, 50% à venda); lote 23 é pacote de ASPIRAÇÃO com garantia de 20 prenhezes.",
+  "Condições do catálogo: 30 parcelas corridas (1+29) e frete grátis para todo o Brasil."
+ ],
+ "lotes": [
+  {
+   "lote": 1,
+   "nome": "BRENA DA S.CLARA",
+   "arquivo": "lote001.mp4",
+   "caption": "🔥 LOTE 01 - BRENA DA S.CLARA\n\nA matriarca desta seleção: doadora provada de família de central, mãe do Lote 03 e avó do Lote 02 — o touro contratado por central deste leilão.\n\nFêmea • Nasc: 26/01/2018\n\nRem Armador x Lituana da S. Clara\n\n✨ MGTe: 24,70 • TOP 10%\n✨ iABCZ: 15,48 • DECA 1 • P: 8%\n\nPrenhe do REM NOCAUTE (parto previsto 18/08/26)!\n\n30X NO BOLETO (1+29) • FRETE GRÁTIS PRO BRASIL TODO\n\nSexta-feira (07/08), 20h — Galeria OM, Goiânia/GO e online.\n\nHabilite-se para o leilão e receba uma assessoria da Bula! 📲",
+   "video_youtube": "https://www.youtube.com/watch?v=P5TA6Vv7Z7Q",
+   "corte": "12s-18s"
+  },
+  {
+   "lote": 2,
+   "nome": "DAKAR FIV DA LSA",
+   "arquivo": "lote002.mp4",
+   "caption": "🔥 LOTE 02 - DAKAR FIV DA LSA\n\nTouro contratado por central e o MAIOR MGTe do leilão: 37,37, TOP 0,1% da raça. Neto da matriarca Brena da S.Clara, o Lote 01.\n\nMacho • Nasc: 16/09/2024 • 50% à venda\n\nRem Lariat x 1142 FIV da LSA\n\n✨ MGTe: 37,37 • TOP 0,1%\n✨ iABCZ: 33,00 • DECA 1 • P: 0,1%\n\n30X NO BOLETO (1+29) • FRETE GRÁTIS PRO BRASIL TODO\n\nSexta-feira (07/08), 20h — Galeria OM, Goiânia/GO e online.\n\nHabilite-se para o leilão e receba uma assessoria da Bula! 📲",
+   "video_youtube": "https://www.youtube.com/watch?v=pHgzjm6rJ3A",
+   "corte": "14s-20s"
+  },
+  {
+   "lote": 3,
+   "nome": "EVOLUÇÃO FIV DA LSA",
+   "arquivo": "lote003.mp4",
+   "caption": "🔥 LOTE 03 - EVOLUÇÃO FIV DA LSA\n\nFilha direta da matriarca Brena da S.Clara (Lote 01), doadora jovem com selo Super Precoce e ventre projetado em iABCZ 35,62 — DECA 1.\n\nFêmea • Nasc: 23/09/2024\n\nRem Lariat x Brena da S.Clara\n\n✨ MGTe: 31,72 • TOP 3%\n✨ iABCZ: 28,53 • DECA 1 • P: 0,5%\n\nPrenhe do LANDROVER (parto previsto 18/08/26)!\n\n30X NO BOLETO (1+29) • FRETE GRÁTIS PRO BRASIL TODO\n\nSexta-feira (07/08), 20h — Galeria OM, Goiânia/GO e online.\n\nHabilite-se para o leilão e receba uma assessoria da Bula! 📲",
+   "video_youtube": "https://www.youtube.com/watch?v=mJOoH6Ia5EE",
+   "corte": "11s-17s"
+  },
+  {
+   "lote": 4,
+   "nome": "DANDARA DA LSA",
+   "arquivo": "lote004.mp4",
+   "caption": "🔥 LOTE 04 - DANDARA DA LSA\n\nPrenhez de ouro: ventre projetado em MGTe 37,21 — TOP 0,1% da raça — e média de 50 oócitos por aspiração.\n\nFêmea • Nasc: 18/11/2023\n\nLotus FIV Katispera x 924 da LSA\n\n✨ MGTe: 30,89 • TOP 3%\n✨ iABCZ: 27,71 • DECA 1 • P: 0,5%\n\nPrenhe do ALL IN JBJ (parto previsto 10/11/26)!\n\n30X NO BOLETO (1+29) • FRETE GRÁTIS PRO BRASIL TODO\n\nSexta-feira (07/08), 20h — Galeria OM, Goiânia/GO e online.\n\nHabilite-se para o leilão e receba uma assessoria da Bula! 📲",
+   "video_youtube": "https://www.youtube.com/watch?v=a_2ccRRU8SM",
+   "corte": "13s-19s"
+  },
+  {
+   "lote": 5,
+   "nome": "DALINI GENY",
+   "arquivo": "lote005.mp4",
+   "caption": "🔥 LOTE 05 - DALINI GENY\n\n2º MAIOR MGTe do leilão (36,59 — TOP 0,1%), doadora especial prenhe do Rem Nocaute com ventre projetado em MGTe 37,65.\n\nFêmea • Nasc: 03/09/2023\n\nLuck FIV Katispera x ANP1471\n\n✨ MGTe: 36,59 • TOP 0,1%\n✨ iABCZ: 29,76 • DECA 1 • P: 0,5%\n\nPrenhe do REM NOCAUTE (parto previsto 29/09/26)!\n\n30X NO BOLETO (1+29) • FRETE GRÁTIS PRO BRASIL TODO\n\nSexta-feira (07/08), 20h — Galeria OM, Goiânia/GO e online.\n\nHabilite-se para o leilão e receba uma assessoria da Bula! 📲",
+   "video_youtube": "https://www.youtube.com/watch?v=Svzt71rPYYc",
+   "corte": "13s-19s"
+  },
+  {
+   "lote": 6,
+   "nome": "ESTRELA FIV DA LSA",
+   "arquivo": "lote006.mp4",
+   "caption": "🔥 LOTE 06 - ESTRELA FIV DA LSA\n\nDoadora especial DECA 1 e TOP 0,1% em iABCZ, prenhe do Emblema EAO com ventre projetado em iABCZ 35,88 — DECA 1.\n\nFêmea • Nasc: 15/11/2024\n\nRem Passaporte FIV GEN.A x Bianca da LSA\n\n✨ MGTe: 34,54 • TOP 1%\n✨ iABCZ: 31,70 • DECA 1 • P: 0,1%\n\nPrenhe do EMBLEMA EAO (parto previsto 06/02/27)!\n\n30X NO BOLETO (1+29) • FRETE GRÁTIS PRO BRASIL TODO\n\nSexta-feira (07/08), 20h — Galeria OM, Goiânia/GO e online.\n\nHabilite-se para o leilão e receba uma assessoria da Bula! 📲",
+   "video_youtube": "https://www.youtube.com/watch?v=ZKwfhETrKi4",
+   "corte": "13s-19s"
+  },
+  {
+   "lote": 7,
+   "nome": "ESTÂNCIA FIV DA LSA",
+   "arquivo": "lote007.mp4",
+   "caption": "🔥 LOTE 07 - ESTÂNCIA FIV DA LSA\n\nFilha do Diplomata da Agronova com selo Super Precoce: doadora especial prenhe do All In JBJ, ventre projetado em iABCZ 36,51 — DECA 1.\n\nFêmea • Nasc: 15/08/2024\n\nDiplomata da Agronova x Carmen FIV da LSA\n\n✨ MGTe: 33,26 • TOP 2%\n✨ iABCZ: 33,31 • DECA 1 • P: 0,1%\n\nPrenhe do ALL IN JBJ (parto previsto 18/08/26)!\n\n30X NO BOLETO (1+29) • FRETE GRÁTIS PRO BRASIL TODO\n\nSexta-feira (07/08), 20h — Galeria OM, Goiânia/GO e online.\n\nHabilite-se para o leilão e receba uma assessoria da Bula! 📲",
+   "video_youtube": "https://www.youtube.com/watch?v=9fXaVTkp2Rk",
+   "corte": "11s-17s"
+  },
+  {
+   "lote": 8,
+   "nome": "ELITE DA LSA",
+   "arquivo": "lote008.mp4",
+   "caption": "🔥 LOTE 08 - ELITE DA LSA\n\nO MAIOR ventre projetado do leilão: iABCZ 38,75 (DECA 1) e MGTe 38,63 (TOP 0,1%). É também o 3º maior iABCZ da seleção.\n\nFêmea • Nasc: 29/11/2024\n\nDiplomata da Agronova x 571 da LSA\n\n✨ MGTe: 34,85 • TOP 1%\n✨ iABCZ: 37,79 • DECA 1 • P: 0,1%\n\nPrenhe do ALL IN JBJ (parto previsto 10/11/26)!\n\n30X NO BOLETO (1+29) • FRETE GRÁTIS PRO BRASIL TODO\n\nSexta-feira (07/08), 20h — Galeria OM, Goiânia/GO e online.\n\nHabilite-se para o leilão e receba uma assessoria da Bula! 📲",
+   "video_youtube": "https://www.youtube.com/watch?v=zcdz68zNuHc",
+   "corte": "14s-20s"
+  },
+  {
+   "lote": 9,
+   "nome": "FLOR FIV DA LSA",
+   "arquivo": "lote009.mp4",
+   "caption": "🔥 LOTE 09 - FLOR FIV DA LSA\n\nBezerra de 2025 que já nasceu pronta: iABCZ 35,01 em DECA 1 e TOP 0,1% — o 6º maior do leilão. Filha do Landrover da Xaraés.\n\nFêmea • Nasc: 26/06/2025\n\nLandrover da Xaraes x Daya da LSA\n\n✨ MGTe: 32,78 • TOP 2%\n✨ iABCZ: 35,01 • DECA 1 • P: 0,1%\n\n30X NO BOLETO (1+29) • FRETE GRÁTIS PRO BRASIL TODO\n\nSexta-feira (07/08), 20h — Galeria OM, Goiânia/GO e online.\n\nHabilite-se para o leilão e receba uma assessoria da Bula! 📲",
+   "video_youtube": "https://www.youtube.com/watch?v=xaVU9n5DhYM",
+   "corte": "11s-17s"
+  },
+  {
+   "lote": 10,
+   "nome": "FLORENÇA FIV DA LSA",
+   "arquivo": "lote010.mp4",
+   "caption": "🔥 LOTE 10 - FLORENÇA FIV DA LSA\n\nBezerra de 2025 com MGTe 34,86 — TOP 1% da raça — em parceria Agropecuária LS & Nelore DM.\n\nFêmea • Nasc: 29/06/2025\n\nRem CH Lider GEN.ADT x Danada da LSA\n\n✨ MGTe: 34,86 • TOP 1%\n✨ iABCZ: 27,22 • DECA 1 • P: 0,5%\n\n30X NO BOLETO (1+29) • FRETE GRÁTIS PRO BRASIL TODO\n\nSexta-feira (07/08), 20h — Galeria OM, Goiânia/GO e online.\n\nHabilite-se para o leilão e receba uma assessoria da Bula! 📲",
+   "video_youtube": "https://www.youtube.com/watch?v=KZJvDh0YHwU",
+   "corte": "11s-17s"
+  },
+  {
+   "lote": 11,
+   "nome": "REM FASSIATA FIV",
+   "arquivo": "lote011.mp4",
+   "caption": "🔥 LOTE 11 - REM FASSIATA FIV\n\nDoadora especial de FAMÍLIA DE CENTRAL direto do Nelore do Crispim: Rem Caballero x Rem Constelação, DECA 1 em iABCZ.\n\nFêmea • Nasc: 13/09/2016\n\nRem Caballero x Rem Constelação\n\n✨ MGTe: 25,32 • TOP 9%\n✨ iABCZ: 27,17 • DECA 1 • P: 0,5%\n\n30X NO BOLETO (1+29) • FRETE GRÁTIS PRO BRASIL TODO\n\nSexta-feira (07/08), 20h — Galeria OM, Goiânia/GO e online.\n\nHabilite-se para o leilão e receba uma assessoria da Bula! 📲",
+   "video_youtube": "https://www.youtube.com/watch?v=gykCSg2mcXo",
+   "corte": "7s-13s"
+  },
+  {
+   "lote": 12,
+   "nome": "8033 FIV PO DA VC",
+   "arquivo": "lote012.mp4",
+   "caption": "🔥 LOTE 12 - 8033 FIV PO DA VC\n\nVem com cria ao pé do Xarp Col e já prenhe do Defender: doadora jovem de família de central avaliada nos TRÊS programas — iABCZ DECA 1, MGTe TOP 2% e IQG TOP 1%.\n\nFêmea • Nasc: 13/11/2022\n\nRem Incrivel Genetica Aditiva x 6125 PO da VC\n\n✨ MGTe: 32,21 • TOP 2%\n✨ IQG: 33,32 • TOP 1%\n✨ iABCZ: 28,15 • DECA 1 • P: 0,5%\n\nParida de macho do XARP COL e prenhe do DEFENDER FIV PO DA VC (parto previsto 21/03/27)!\n\n30X NO BOLETO (1+29) • FRETE GRÁTIS PRO BRASIL TODO\n\nSexta-feira (07/08), 20h — Galeria OM, Goiânia/GO e online.\n\nHabilite-se para o leilão e receba uma assessoria da Bula! 📲",
+   "video_youtube": "https://www.youtube.com/watch?v=HFUSyXk9CRs",
+   "corte": "18s-24s"
+  },
+  {
+   "lote": 13,
+   "nome": "9309P FIV JMP",
+   "arquivo": "lote013.mp4",
+   "caption": "🔥 LOTE 13 - 9309P FIV JMP\n\nFilha do Diplomata da Agronova com cria fêmea ao pé e prenhe do Orion Katispera — doadora especial de família de central, iABCZ TOP 0,1%.\n\nFêmea • Nasc: 17/04/2023\n\nDiplomata da Agronova x 1360C JMP\n\n✨ MGTe: 29,36 • TOP 5%\n✨ IQG: 29,83 • TOP 2%\n✨ iABCZ: 31,41 • DECA 1 • P: 0,1%\n\nParida de fêmea do XERIFE FIV JMP e prenhe do ORION KATISPERA (parto previsto 01/08/26)!\n\n30X NO BOLETO (1+29) • FRETE GRÁTIS PRO BRASIL TODO\n\nSexta-feira (07/08), 20h — Galeria OM, Goiânia/GO e online.\n\nHabilite-se para o leilão e receba uma assessoria da Bula! 📲",
+   "video_youtube": "https://www.youtube.com/watch?v=Q_rns-WHD2s",
+   "corte": "24s-30s"
+  },
+  {
+   "lote": 14,
+   "nome": "XAVANTA FIV COL",
+   "arquivo": "lote014.mp4",
+   "caption": "🔥 LOTE 14 - XAVANTA FIV COL\n\nDoadora provada com média de 67 oócitos por aspiração — a 2ª maior do leilão — e iABCZ 36,41, o 4º maior desta seleção.\n\nFêmea • Nasc: 24/09/2022\n\nDiplomata da Agronova x Urora FIV COL\n\n✨ MGTe: 34,32 • TOP 1%\n✨ iABCZ: 36,41 • DECA 1 • P: 0,1%\n\nPrenhe do GREGO CACHOEIRÃO (parto previsto 12/07/26)!\n\n30X NO BOLETO (1+29) • FRETE GRÁTIS PRO BRASIL TODO\n\nSexta-feira (07/08), 20h — Galeria OM, Goiânia/GO e online.\n\nHabilite-se para o leilão e receba uma assessoria da Bula! 📲",
+   "video_youtube": "https://www.youtube.com/watch?v=dzw-NJvEi0o",
+   "corte": "4s-10s"
+  },
+  {
+   "lote": 15,
+   "nome": "FERRARI DA AGRONOVA",
+   "arquivo": "lote015.mp4",
+   "caption": "🔥 LOTE 15 - FERRARI DA AGRONOVA\n\nFilha direta da Batom da Agronova, a mesma mãe do Diplomata da Agronova — pai dos Lotes 07, 08, 13 e 14 deste leilão.\n\nFêmea • Nasc: 24/09/2021\n\nQuarup Bons x Batom da Agronova\n\n✨ MGTe: 32,32 • TOP 2%\n✨ iABCZ: 21,09 • DECA 1 • P: 2%\n\nPrenhe do ESTUDANTE DA AGRONOVA (parto previsto 19/01/27)!\n\n30X NO BOLETO (1+29) • FRETE GRÁTIS PRO BRASIL TODO\n\nSexta-feira (07/08), 20h — Galeria OM, Goiânia/GO e online.\n\nHabilite-se para o leilão e receba uma assessoria da Bula! 📲",
+   "video_youtube": "https://www.youtube.com/watch?v=Nbq9Aq4hsBA",
+   "corte": "30s-36s"
+  },
+  {
+   "lote": 16,
+   "nome": "3298 FIV DA MARCONDES",
+   "arquivo": "lote016.mp4",
+   "caption": "🔥 LOTE 16 - 3298 FIV DA MARCONDES\n\nMeia parte de uma doadora avaliada nos TRÊS programas: MGTe 36,11 (TOP 0,1%), IQG 31,94 (TOP 1%) e iABCZ em DECA 1.\n\nFêmea • Nasc: 30/10/2022 • 50% à venda\n\nInvencivel da Hora x 2276 da Marcondes\n\n✨ MGTe: 36,11 • TOP 0,1%\n✨ IQG: 31,94 • TOP 1%\n✨ iABCZ: 31,04 • DECA 1 • P: 0,1%\n\nPrenhe do WANTUCK G.SALES (parto previsto 26/08/26)!\n\n30X NO BOLETO (1+29) • FRETE GRÁTIS PRO BRASIL TODO\n\nSexta-feira (07/08), 20h — Galeria OM, Goiânia/GO e online.\n\nHabilite-se para o leilão e receba uma assessoria da Bula! 📲",
+   "video_youtube": "https://www.youtube.com/watch?v=YBTN_RB0cjg",
+   "corte": "24s-30s"
+  },
+  {
+   "lote": 17,
+   "nome": "5547 FIV PO CONFIANCA",
+   "arquivo": "lote017.mp4",
+   "caption": "🔥 LOTE 17 - 5547 FIV PO CONFIANCA\n\nMeia parte da mãe do Lote 18, com IQG 40,47 — TOP 0,1% da raça — e cria ao pé do Handi da Matinha.\n\nFêmea • Nasc: 23/10/2022 • 50% à venda\n\nLuck FIV Katispera x 4037 PO Confianca\n\n✨ MGTe: 33,01 • TOP 2%\n✨ IQG: 40,47 • TOP 0,1%\n✨ iABCZ: 28,39 • DECA 1 • P: 0,5%\n\nParida do HANDI DA MATINHA (cria nascida em 17/03/26)!\n\n30X NO BOLETO (1+29) • FRETE GRÁTIS PRO BRASIL TODO\n\nSexta-feira (07/08), 20h — Galeria OM, Goiânia/GO e online.\n\nHabilite-se para o leilão e receba uma assessoria da Bula! 📲",
+   "video_youtube": "https://www.youtube.com/watch?v=oYj_QDyf5AQ",
+   "corte": "14s-20s"
+  },
+  {
+   "lote": 18,
+   "nome": "CORRENTINA CONFIANCA",
+   "arquivo": "lote018.mp4",
+   "caption": "🔥 LOTE 18 - CORRENTINA CONFIANCA\n\nFilha direta do Lote 17 e o 2º MAIOR IQG do leilão: 45,45, TOP 0,1%. Traz ainda o maior MGTe projetado de ventre da seleção: 39,01.\n\nFêmea • Nasc: 20/08/2024\n\nElo FIV da Agronova x 5547 FIV PO Confianca\n\n✨ MGTe: 35,84 • TOP 0,5%\n✨ IQG: 45,45 • TOP 0,1%\n✨ iABCZ: 35,56 • DECA 1 • P: 0,1%\n\nPrenhe do CORONEL FIV CONFIANÇA (parto previsto 03/02/27)!\n\n30X NO BOLETO (1+29) • FRETE GRÁTIS PRO BRASIL TODO\n\nSexta-feira (07/08), 20h — Galeria OM, Goiânia/GO e online.\n\nHabilite-se para o leilão e receba uma assessoria da Bula! 📲",
+   "video_youtube": "https://www.youtube.com/watch?v=PlEPiK9urJQ",
+   "corte": "6s-12s"
+  },
+  {
+   "lote": 19,
+   "nome": "2025 FIV DA SORRISO MP",
+   "arquivo": "lote019.mp4",
+   "caption": "🔥 LOTE 19 - 2025 FIV DA SORRISO MP\n\nO MAIOR iABCZ do leilão: 38,73, DECA 1 e TOP 0,1% da raça — numa bezerra nascida em outubro de 2025, filha do Landrover da Xaraés.\n\nFêmea • Nasc: 18/10/2025\n\nLandrover da Xaraes x Ayla FIV GLMP\n\n✨ MGTe: 28,32 • TOP 6%\n✨ iABCZ: 38,73 • DECA 1 • P: 0,1%\n\n30X NO BOLETO (1+29) • FRETE GRÁTIS PRO BRASIL TODO\n\nSexta-feira (07/08), 20h — Galeria OM, Goiânia/GO e online.\n\nHabilite-se para o leilão e receba uma assessoria da Bula! 📲",
+   "video_youtube": "https://www.youtube.com/watch?v=_iPQtUXAJQg",
+   "corte": "7s-13s"
+  },
+  {
+   "lote": 20,
+   "nome": "A6660 DA NELORE OL",
+   "arquivo": "lote020.mp4",
+   "caption": "🔥 LOTE 20 - A6660 DA NELORE OL\n\nSelo Super Precoce e prenhe do Governo da Agronova, com ventre projetado em iABCZ 33,95 — DECA 1.\n\nFêmea • Nasc: 22/12/2023\n\nDelta da EAO x AVCAA2593 da Nelore OL\n\n✨ MGTe: 32,15 • TOP 3%\n✨ iABCZ: 33,25 • DECA 1 • P: 0,1%\n\nPrenhe do GOVERNO DA AGRONOVA (parto previsto 09/11/26)!\n\n30X NO BOLETO (1+29) • FRETE GRÁTIS PRO BRASIL TODO\n\nSexta-feira (07/08), 20h — Galeria OM, Goiânia/GO e online.\n\nHabilite-se para o leilão e receba uma assessoria da Bula! 📲",
+   "video_youtube": "https://www.youtube.com/watch?v=5pNWP98a3jE",
+   "corte": "22s-28s"
+  },
+  {
+   "lote": 21,
+   "nome": "77 FIV RG",
+   "arquivo": "lote021.mp4",
+   "caption": "🔥 LOTE 21 - 77 FIV RG\n\nO MAIOR IQG do leilão (47,21 — TOP 0,1%) e o 2º maior iABCZ (38,37). Doadora especial de família de central prenhe do Quiron FIV RG.\n\nFêmea • Nasc: 02/12/2024\n\nB4556 FIV da EAO x 1446H da ARZ\n\n✨ MGTe: 35,40 • TOP 0,5%\n✨ IQG: 47,21 • TOP 0,1%\n✨ iABCZ: 38,37 • DECA 1 • P: 0,1%\n\nPrenhe do QUIRON FIV RG (parto previsto 02/12/26)!\n\n30X NO BOLETO (1+29) • FRETE GRÁTIS PRO BRASIL TODO\n\nSexta-feira (07/08), 20h — Galeria OM, Goiânia/GO e online.\n\nHabilite-se para o leilão e receba uma assessoria da Bula! 📲",
+   "video_youtube": "https://www.youtube.com/watch?v=BQsrVwOccFE",
+   "corte": "7s-13s"
+  },
+  {
+   "lote": 22,
+   "nome": "4834 DA ANP",
+   "arquivo": "lote022.mp4",
+   "caption": "🔥 LOTE 22 - 4834 DA ANP\n\nTOP 0,1% em iABCZ e em MGTe, avaliada nos TRÊS programas e com média de 48 oócitos — prenhe do All In JBJ.\n\nFêmea • Nasc: 28/09/2024\n\nD 50 da Alo Brasil x 2681 da ANP\n\n✨ MGTe: 36,22 • TOP 0,1%\n✨ IQG: 34,03 • TOP 1%\n✨ iABCZ: 34,38 • DECA 1 • P: 0,1%\n\nPrenhe do ALL IN JBJ (parto previsto 15/09/26)!\n\n30X NO BOLETO (1+29) • FRETE GRÁTIS PRO BRASIL TODO\n\nSexta-feira (07/08), 20h — Galeria OM, Goiânia/GO e online.\n\nHabilite-se para o leilão e receba uma assessoria da Bula! 📲",
+   "video_youtube": "https://www.youtube.com/watch?v=k_SEcx06FVs",
+   "corte": "11s-17s"
+  },
+  {
+   "lote": 23,
+   "nome": "DULLY FIV FVC",
+   "arquivo": "lote023.mp4",
+   "caption": "🔥 LOTE 23 - DULLY FIV FVC\n\nAspiração de uma doadora com média de 300 oócitos: você leva a GARANTIA de 20 prenhezes, sendo 6 fêmeas.\n\nAspiração • Garantia de 20 prenhezes (sendo 6 fêmeas)\n\nArmeiro da IPB x Ajeitar FIV FVC\n\n✨ MGTe: 34,89 • TOP 1%\n✨ iABCZ: 30,00 • DECA 1 • P: 0,5%\n\n30X NO BOLETO (1+29) • FRETE GRÁTIS PRO BRASIL TODO\n\nSexta-feira (07/08), 20h — Galeria OM, Goiânia/GO e online.\n\nHabilite-se para o leilão e receba uma assessoria da Bula! 📲",
+   "video_youtube": "https://www.youtube.com/watch?v=nvTKoGBUrOo",
+   "corte": "8s-14s"
+  }
+ ]
+}

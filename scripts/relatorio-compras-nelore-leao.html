@@ -1,0 +1,401 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<title>Relatório de Aquisições — Nelore Leão</title>
+<style>
+  :root {
+    --verde-escuro: #1d3a2a;
+    --verde: #2e5740;
+    --verde-claro: #6b8f5c;
+    --creme: #f6f4ee;
+    --dourado: #b08d3e;
+    --cinza: #5b6058;
+    --linha: #e3e0d7;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: 'Segoe UI', 'Helvetica Neue', Arial, sans-serif;
+    color: #25291f;
+    background: #fff;
+    font-size: 11px;
+  }
+  .page { padding: 0; }
+
+  /* ── Cabeçalho ─────────────────────────── */
+  .header {
+    background: var(--verde-escuro);
+    color: #fff;
+    padding: 30px 44px 26px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  .header .titulo h1 {
+    font-size: 23px;
+    font-weight: 700;
+    letter-spacing: 0.4px;
+    margin-bottom: 5px;
+  }
+  .header .titulo .sub {
+    font-size: 11.5px;
+    color: #cfd9c8;
+    letter-spacing: 1.6px;
+    text-transform: uppercase;
+  }
+  .header .logo-box {
+    background: var(--creme);
+    border-radius: 10px;
+    padding: 10px 16px;
+  }
+  .header .logo-box img { height: 52px; display: block; }
+
+  .faixa {
+    background: var(--verde-claro);
+    height: 5px;
+  }
+
+  /* ── Bloco cliente ─────────────────────── */
+  .cliente {
+    display: flex;
+    justify-content: space-between;
+    padding: 18px 44px;
+    background: var(--creme);
+    border-bottom: 1px solid var(--linha);
+  }
+  .cliente .campo .label {
+    font-size: 8.5px;
+    text-transform: uppercase;
+    letter-spacing: 1.2px;
+    color: var(--cinza);
+    margin-bottom: 3px;
+  }
+  .cliente .campo .valor {
+    font-size: 12.5px;
+    font-weight: 600;
+    color: var(--verde-escuro);
+  }
+
+  /* ── Cards resumo ──────────────────────── */
+  .resumo {
+    display: flex;
+    gap: 14px;
+    padding: 22px 44px 6px;
+  }
+  .card {
+    flex: 1;
+    border: 1px solid var(--linha);
+    border-top: 3px solid var(--verde-claro);
+    border-radius: 8px;
+    padding: 13px 14px 11px;
+    text-align: center;
+    background: #fff;
+  }
+  .card.destaque {
+    border-top-color: var(--dourado);
+    background: #fdfbf5;
+  }
+  .card .num {
+    font-size: 21px;
+    font-weight: 700;
+    color: var(--verde-escuro);
+    margin-bottom: 2px;
+  }
+  .card.destaque .num { color: var(--dourado); }
+  .card .desc {
+    font-size: 8.5px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: var(--cinza);
+  }
+
+  /* ── Seções ────────────────────────────── */
+  .secao { padding: 20px 44px 0; }
+  .secao h2 {
+    font-size: 13px;
+    color: var(--verde-escuro);
+    text-transform: uppercase;
+    letter-spacing: 1.4px;
+    border-bottom: 2px solid var(--verde-claro);
+    padding-bottom: 6px;
+    margin-bottom: 12px;
+  }
+
+  /* ── Tabela ────────────────────────────── */
+  table { width: 100%; border-collapse: collapse; }
+  thead th {
+    background: var(--verde-escuro);
+    color: #fff;
+    font-size: 9px;
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+    padding: 8px 9px;
+    text-align: left;
+  }
+  thead th.right, td.right { text-align: right; }
+  tbody td {
+    padding: 7px 9px;
+    border-bottom: 1px solid var(--linha);
+    font-size: 10.5px;
+    vertical-align: top;
+  }
+  tr.leilao-row td {
+    background: var(--creme);
+    font-weight: 700;
+    color: var(--verde-escuro);
+    font-size: 10.5px;
+    padding: 8px 9px 7px;
+    border-bottom: 1px solid var(--linha);
+  }
+  tr.leilao-row .data-leilao {
+    float: right;
+    font-weight: 600;
+    color: var(--cinza);
+    font-size: 9.5px;
+  }
+  td .obs {
+    display: block;
+    color: var(--cinza);
+    font-size: 9px;
+    margin-top: 2px;
+    font-style: italic;
+  }
+  td .badge {
+    display: inline-block;
+    background: #f3ecd9;
+    color: var(--dourado);
+    border: 1px solid #e0d3ae;
+    border-radius: 4px;
+    font-size: 8px;
+    font-weight: 700;
+    letter-spacing: 0.6px;
+    padding: 1.5px 6px;
+    margin-left: 6px;
+    text-transform: uppercase;
+    vertical-align: middle;
+  }
+  tr.subtotal td {
+    font-weight: 700;
+    color: var(--verde);
+    background: #fbfaf6;
+    font-size: 10px;
+    border-bottom: 2px solid var(--verde-claro);
+  }
+  tr.total-geral td {
+    background: var(--verde-escuro);
+    color: #fff;
+    font-weight: 700;
+    font-size: 12.5px;
+    padding: 11px 9px;
+    white-space: nowrap;
+  }
+
+  /* quebras de página limpas */
+  tr { page-break-inside: avoid; }
+  .secao h2 { page-break-after: avoid; }
+  .destaques, .nota, .resumo, .cliente { page-break-inside: avoid; }
+  .footer { page-break-inside: avoid; }
+
+  /* ── Destaques ─────────────────────────── */
+  .destaques { margin-top: 4px; }
+  .destaques ul { list-style: none; }
+  .destaques li {
+    position: relative;
+    padding: 5px 0 5px 18px;
+    font-size: 10.8px;
+    color: #3a3f35;
+    line-height: 1.45;
+  }
+  .destaques li::before {
+    content: '';
+    position: absolute;
+    left: 0; top: 10px;
+    width: 8px; height: 8px;
+    border-radius: 50%;
+    background: var(--verde-claro);
+  }
+
+  .nota {
+    margin: 16px 44px 0;
+    background: var(--creme);
+    border-left: 4px solid var(--verde-claro);
+    border-radius: 0 6px 6px 0;
+    padding: 10px 14px;
+    font-size: 9.5px;
+    color: var(--cinza);
+    line-height: 1.5;
+  }
+
+  /* ── Rodapé ────────────────────────────── */
+  .footer {
+    margin-top: 24px;
+    background: var(--verde-escuro);
+    color: #cfd9c8;
+    padding: 14px 44px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 9px;
+    letter-spacing: 0.6px;
+  }
+  .footer strong { color: #fff; }
+</style>
+</head>
+<body>
+<div class="page">
+
+  <div class="header">
+    <div class="titulo">
+      <h1>Relatório de Aquisições em Leilões</h1>
+      <div class="sub">Temporada 2026 &nbsp;•&nbsp; Abril a Junho</div>
+    </div>
+    <div class="logo-box">
+      <img src="../public/logo-bula-assessoria-dark.png" alt="Bula Assessoria Pecuária">
+    </div>
+  </div>
+  <div class="faixa"></div>
+
+  <div class="cliente">
+    <div class="campo">
+      <div class="label">Cliente</div>
+      <div class="valor">Orismar Moreira Leão — Nelore Leão</div>
+    </div>
+    <div class="campo">
+      <div class="label">Localidade</div>
+      <div class="valor">João Pinheiro / MG</div>
+    </div>
+    <div class="campo">
+      <div class="label">Período</div>
+      <div class="valor">14/04/2026 a 07/06/2026</div>
+    </div>
+    <div class="campo">
+      <div class="label">Emissão</div>
+      <div class="valor">12/06/2026</div>
+    </div>
+  </div>
+
+  <div class="resumo">
+    <div class="card"><div class="num">7</div><div class="desc">Leilões</div></div>
+    <div class="card"><div class="num">10</div><div class="desc">Lotes arrematados</div></div>
+    <div class="card"><div class="num">10</div><div class="desc">Animais adquiridos</div></div>
+    <div class="card destaque"><div class="num">R$ 471.000</div><div class="desc">Valor total (VGV)</div></div>
+  </div>
+
+  <div class="secao">
+    <h2>Detalhamento das aquisições</h2>
+    <table>
+      <thead>
+        <tr>
+          <th style="width:52px">Lote</th>
+          <th>Descrição</th>
+          <th style="width:90px" class="right">Parcela</th>
+          <th style="width:62px" class="right">Parcelas</th>
+          <th style="width:95px" class="right">Valor (VGV)</th>
+        </tr>
+      </thead>
+      <tbody>
+
+        <tr class="leilao-row"><td colspan="5">Leilão Pérolas Cachoeirão <span class="data-leilao">14/04/2026</span></td></tr>
+        <tr>
+          <td>09</td>
+          <td>1 animal</td>
+          <td class="right">R$ 1.300,00</td><td class="right">30</td><td class="right">R$ 39.000,00</td>
+        </tr>
+        <tr>
+          <td>ASP01</td>
+          <td>1 animal</td>
+          <td class="right">R$ 1.100,00</td><td class="right">30</td><td class="right">R$ 33.000,00</td>
+        </tr>
+        <tr class="subtotal"><td colspan="4">Subtotal — 2 lotes</td><td class="right">R$ 72.000,00</td></tr>
+
+        <tr class="leilao-row"><td colspan="5">6º Mega EAO – Fêmeas – Expozebu <span class="data-leilao">02/05/2026</span></td></tr>
+        <tr>
+          <td>64</td>
+          <td>EAON 6735 — 1 fêmea</td>
+          <td class="right">R$ 1.600,00</td><td class="right">30</td><td class="right">R$ 48.000,00</td>
+        </tr>
+        <tr class="subtotal"><td colspan="4">Subtotal — 1 lote</td><td class="right">R$ 48.000,00</td></tr>
+
+        <tr class="leilao-row"><td colspan="5">Leilão Matinha Embrio <span class="data-leilao">05/05/2026</span></td></tr>
+        <tr>
+          <td>04</td>
+          <td>1 animal <span class="badge">Maior comprador do leilão</span></td>
+          <td class="right">R$ 1.600,00</td><td class="right">30</td><td class="right">R$ 48.000,00</td>
+        </tr>
+        <tr class="subtotal"><td colspan="4">Subtotal — 1 lote</td><td class="right">R$ 48.000,00</td></tr>
+
+        <tr class="leilao-row"><td colspan="5">Leilão Matrizes Fazenda Santa Fé <span class="data-leilao">07/05/2026</span></td></tr>
+        <tr>
+          <td>20</td>
+          <td>1 animal</td>
+          <td class="right">R$ 1.000,00</td><td class="right">30</td><td class="right">R$ 30.000,00</td>
+        </tr>
+        <tr class="subtotal"><td colspan="4">Subtotal — 1 lote</td><td class="right">R$ 30.000,00</td></tr>
+
+        <tr class="leilao-row"><td colspan="5">32º Leilão 4R <span class="data-leilao">09/05/2026</span></td></tr>
+        <tr>
+          <td>91</td>
+          <td>1 animal — vendedor: Cabanha MRA <span class="badge">Maior comprador do leilão</span>
+            <span class="obs">Animal integrado ao programa Aceleradora de Touros — coleta na Central Bela Vista.</span>
+          </td>
+          <td class="right">R$ 2.300,00</td><td class="right">30</td><td class="right">R$ 69.000,00</td>
+        </tr>
+        <tr class="subtotal"><td colspan="4">Subtotal — 1 lote</td><td class="right">R$ 69.000,00</td></tr>
+
+        <tr class="leilao-row"><td colspan="5">Leilão Matrizes Matinha <span class="data-leilao">17/05/2026</span></td></tr>
+        <tr>
+          <td>18</td>
+          <td>1 animal <span class="badge">Maior comprador do leilão</span></td>
+          <td class="right">R$ 800,00</td><td class="right">30</td><td class="right">R$ 24.000,00</td>
+        </tr>
+        <tr>
+          <td>77</td>
+          <td>1 animal</td>
+          <td class="right">R$ 3.050,00</td><td class="right">30</td><td class="right">R$ 91.500,00</td>
+        </tr>
+        <tr>
+          <td>78</td>
+          <td>1 animal</td>
+          <td class="right">R$ 2.050,00</td><td class="right">30</td><td class="right">R$ 61.500,00</td>
+        </tr>
+        <tr class="subtotal"><td colspan="4">Subtotal — 3 lotes</td><td class="right">R$ 177.000,00</td></tr>
+
+        <tr class="leilao-row"><td colspan="5">8º Leilão Jacamim Fêmeas <span class="data-leilao">07/06/2026</span></td></tr>
+        <tr>
+          <td>43</td>
+          <td>1 fêmea — vendedor: Fazenda Jacamim</td>
+          <td class="right">R$ 900,00</td><td class="right">30</td><td class="right">R$ 27.000,00</td>
+        </tr>
+        <tr class="subtotal"><td colspan="4">Subtotal — 1 lote</td><td class="right">R$ 27.000,00</td></tr>
+
+        <tr class="total-geral">
+          <td colspan="4">TOTAL GERAL — 10 LOTES • 10 ANIMAIS</td>
+          <td class="right">R$ 471.000,00</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="secao destaques">
+    <h2>Destaques do período</h2>
+    <ul>
+      <li><strong>1º colocado no ranking de compradores em 3 dos 7 leilões</strong> — Matinha Embrio, 32º Leilão 4R e Matrizes Matinha.</li>
+      <li>Maior aquisição do período no <strong>Leilão Matrizes Matinha</strong> (17/05): 3 lotes somando <strong>R$ 177.000,00</strong>.</li>
+      <li>O animal do lote 91 (32º Leilão 4R) foi integrado ao programa <strong>Aceleradora de Touros</strong>, com coleta na Central Bela Vista.</li>
+      <li>Investimento médio de <strong>R$ 47.100,00 por lote</strong> ao longo da temporada.</li>
+    </ul>
+  </div>
+
+  <div class="nota">
+    Todas as aquisições foram negociadas na condição de <strong>30 parcelas</strong> (valor total = parcela × 30).
+    Valores expressos em reais (BRL), conforme registros oficiais de fechamento dos leilões.
+  </div>
+
+  <div class="footer">
+    <div><strong>Bula Assessoria Pecuária</strong> &nbsp;•&nbsp; Fórmula do Boi / Bula Remates</div>
+    <div>Relatório gerado em 12/06/2026 — uso exclusivo do cliente</div>
+  </div>
+
+</div>
+</body>
+</html>

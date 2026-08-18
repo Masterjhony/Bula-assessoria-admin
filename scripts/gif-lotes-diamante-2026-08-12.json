@@ -1,0 +1,44 @@
+{
+ "leilao": "LEILÃO DE TOUROS NELORE DIAMANTE — Oferta Especial Touros Nelore P.O., quarta 12/08/2026, 19h00",
+ "slug": "diamante-2026-08-12",
+ "group_id": "120363426815790951@g.us",
+ "session": "joao-automation",
+ "contato": "Grupo Workflows e Validações",
+ "gifs_dir": "F:/Projetos/Desktop/web-bula/outputs/gif-lotes-diamante-2026-08-12",
+ "media_width": 480,
+ "media_height": 270,
+ "observacoes": [
+  "Pedido do João (12/08): lotes 8, 12 e 20.",
+  "Catálogo: F:/Catalogo diamante.pdf (37 pág., 31 lotes, lote N = página N+2; não existe lote 13).",
+  "Link de YouTube por página (annotation 'Assista ao vídeo'); títulos validados por yt-dlp (Lote 08 - TJL-2645, Lote 12 - TJL-2547, Lote 20 - TJL-2459).",
+  "Pedigree posicional: PAI à esquerda do X (y≈700), MÃE à direita; avós nas linhas y≈657 (pai/mãe do pai à esq., da mãe à dir.) e y≈745.",
+  "Índices: bloco esquerdo PMGZ (iABCZ|DECA|P%), bloco direito ANCP (MGTe|TOP). P% em branco no catálogo para os lotes 8 e 12 — não inventar.",
+  "Cortes escolhidos por contact sheet: vinheta/close de cabeça 0–3s em todos; lateral limpa a partir de ~3s."
+ ],
+ "lotes": [
+  {
+   "lote": 8,
+   "nome": "2645 FIV Nelore Diamante",
+   "arquivo": "lote008.mp4",
+   "caption": "🔥 LOTE 8 - 2645 FIV NELORE DIAMANTE\n\n610 kg aos 20 meses e TOP 2% do país em desmama (DP210 19,35): é peso que aparece cedo no bezerro.\n\nTouro • Nasc: 05/12/2024 • 610 kg • PE 39 cm\n\nDiplomata da Agronova x 1734 Nel Diamante\n\n✨ MGTe: 32,11 • TOP 3%\n✨ iABCZ: 29,73 • DECA 1\n✨ DP210: 19,35 • TOP 2%\n\nLEILÃO HOJE (12/08), ÀS 19H\n30X NO BOLETO (2+2+2+2+2+20) • FRETE GRÁTIS\n\nHabilite-se para o leilão e receba uma assessoria da Bula! 📲",
+   "video_youtube": "https://youtu.be/DHakf5jw7sM",
+   "corte": "12s-18s"
+  },
+  {
+   "lote": 12,
+   "nome": "2547 FIV Nelore Diamante",
+   "arquivo": "lote012.mp4",
+   "caption": "🔥 LOTE 12 - 2547 FIV NELORE DIAMANTE\n\nO 2º maior MGTe de todo o catálogo: 35,39, TOP 0,5% da raça — e TOP 0,5% também em D3P, o índice que segura a vaca parindo todo ano.\n\nTouro • Nasc: 17/10/2024 • 579 kg • PE 37 cm\n\nB7222 FIV da EAO x 1079G da ARZ\n\n✨ MGTe: 35,39 • TOP 0,5%\n✨ iABCZ: 31,51 • DECA 1\n✨ D3P: 95 • TOP 0,5%\n\nLEILÃO HOJE (12/08), ÀS 19H\n30X NO BOLETO (2+2+2+2+2+20) • FRETE GRÁTIS\n\nHabilite-se para o leilão e receba uma assessoria da Bula! 📲",
+   "video_youtube": "https://youtu.be/tDsoYe8NJRM",
+   "corte": "18s-24s"
+  },
+  {
+   "lote": 20,
+   "nome": "2459 FIV Nelore Diamante",
+   "arquivo": "lote020.mp4",
+   "caption": "🔥 LOTE 20 - 2459 FIV NELORE DIAMANTE\n\nTOP 1% do país em área de olho de lombo (AOL 5,834) e TOP 2% em DAOL: carcaça de verdade pra quem vende no gancho.\n\nTouro • Nasc: 08/05/2024 • 582 kg • PE 38 cm\n\nEstoril Mat. x 1824 Nel Diamante\n\n✨ MGTe: 27,97 • TOP 6%\n✨ iABCZ: 18,42 • DECA 1 • P: 4%\n✨ DAOL: 5,51 • TOP 2%\n\nLEILÃO HOJE (12/08), ÀS 19H\n30X NO BOLETO (2+2+2+2+2+20) • FRETE GRÁTIS\n\nHabilite-se para o leilão e receba uma assessoria da Bula! 📲",
+   "video_youtube": "https://youtu.be/tWKGzfY5AGw",
+   "corte": "9s-15s"
+  }
+ ]
+}

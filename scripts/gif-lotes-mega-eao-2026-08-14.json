@@ -1,0 +1,160 @@
+{
+ "leilao": "LEILÃO MEGA GENÉTICA EAO — sexta 14/08/2026, 12h, Tatersal Rubico Carvalho, Uberaba-MG (Expogenética)",
+ "slug": "mega-eao-2026-08-14",
+ "group_id": "120363426815790951@g.us",
+ "session": "joao-automation",
+ "contato": "Grupo Workflows e Validações",
+ "gifs_dir": "F:/Projetos/Desktop/web-bula/outputs/gif-lotes-mega-eao-2026-08-14",
+ "media_width": 480,
+ "media_height": 270,
+ "observacoes": [
+  "Pedido do João (14/08): lotes 1,3,4,5,6,8,9,10,11,12,13,14,16, ASP 1 e ASP 2.",
+  "Catálogo: F:/Catálogo Digital Mega Genética EAO..pdf (43 pág.). O número do lote é IMAGEM no cabeçalho (não sai no get_text) — mapeamento feito por render: p7 = LOTE 1000 (doadora parida), p8 = LOTE 2000 (touro central), p9..p28 = lotes 01..20 (lote N = página N+8), p29-32 = LOTE 21 (quádruplo, 1 vídeo só), p33-40 = ASP 1 (8 doadoras, 1 vídeo só), p41 = ASP 2, p42 = Mangalarga Marchador.",
+  "Link do YouTube é annotation da própria página; o título do vídeo (LOTE NN / ASP 01) valida o casamento — 15/15 conferidos.",
+  "Pedigree em leque à esquerda: fonte 36.6 em x≈123 → PAI em cima (y≈945), MÃE embaixo (y≈1156); avós fonte 29.2 em x≈338; bisavós fonte 24.4 em x≈704.",
+  "Índices próprios do animal: iABCZ (y≈1340, com DECA e P%), MGTe (y≈1590, TOP%), IQG (y≈1820, TOP%). O bloco VENTRE PROJETADO do rodapé é a projeção animal+prenhez — vira gancho, nunca entra no bloco de índices. Lote 4 e a doadora C4389 NÃO têm P% impresso: deixar fora, não inventar.",
+  "Rankings recalculados e batendo com o que o próprio catálogo afirma: lote 16 é líder do PMGZ (iABCZ 42,30) e maior IQG do leilão (47,44); lote 9 é o 2º maior iABCZ (41,63); lote 13 é líder da ANCP (MGTe 40,50).",
+  "ASP 1: as 8 doadoras são TODAS filhas do 1789 FIV DA EAO. C4389 e C6052 não têm média de oócitos impressa (conferido no PDF e no rodapé do vídeo). Médias calculadas das 8: iABCZ 34,80 · MGTe 35,21 · IQG 40,98.",
+  "ASP 1 é lote MÚLTIPLO → condição 1+39 (40x). Todos os outros são IND. → 30x (2+2+2+2+2+20).",
+  "Condições (pág. 3): frete grátis para todo o Brasil (animais PO), animais segurados 60 dias após a batida do martelo, 10% de desconto à vista, 5% em 12x (1+11).",
+  "⚠️ Todos os vídeos trocam para MÃE/AVÓ/BISAVÓ depois de ~27-35s (rótulo no canto da tela) — todos os cortes foram feitos antes disso. O lote 16 ainda tem um pan traseiro em 27-36s.",
+  "O GIF do ASP 1 é uma montagem de 8 trechos de 0,75s (uma doadora cada, na mesma ordem da legenda), porque é lote múltiplo."
+ ],
+ "lotes": [
+  {
+   "lote": "1",
+   "nome": "EAON 7644",
+   "arquivo": "lote001.mp4",
+   "caption": "🔥 LOTE 1 - EAON 7644\n\nNeta da B1371 e filha da recordista do 12º Mega Baviera — a bezerra mais nova do leilão, saindo da família de doadoras de maior faturamento da raça.\n\nBezerra • Nasc: 19/12/2025 • 50% à venda\n\nDominator FIV EAO x EAO C2982\n\n✨ MGTe: 32,17 • TOP 2%\n✨ IQG: 36,98 • TOP 0,5%\n✨ iABCZ: 34,75 • DECA 1 • P: 0,1%\n\nLEILÃO HOJE (14/08), ÀS 12H — TATERSAL RUBICO CARVALHO, UBERABA-MG\n30X NO BOLETO (2+2+2+2+2+20) • 10% DE DESCONTO À VISTA • FRETE GRÁTIS PRO BRASIL TODO\n\nHabilite-se para o leilão e receba uma assessoria da Bula! 📲",
+   "video_youtube": "https://www.youtube.com/watch?v=0BOAGB3q9lY",
+   "video_titulo": "LOTE 01",
+   "corte": "12s-18s"
+  },
+  {
+   "lote": "3",
+   "nome": "EAON 7582",
+   "arquivo": "lote003.mp4",
+   "caption": "🔥 LOTE 3 - EAON 7582\n\nA recordista de precocidade do leilão: emprenhou com 7,32 meses e tem previsão de parto aos 16 meses de idade.\n\nBezerra • Nasc: 23/11/2025\n\nFênix FIV da EAO x EAO B7512\n\n✨ MGTe: 33,19 • TOP 2%\n✨ IQG: 39,91 • TOP 0,5%\n✨ iABCZ: 32,48 • DECA 1 • P: 0,1%\n\nPrenhe do Landrover da Xaraes (parto abr/27) — com a prenhez o ventre projeta IQG 45,68 (TOP 0,1%), MGTe 36,52 (TOP 0,1%) e iABCZ 37,54 (DECA 1)!\n\nLEILÃO HOJE (14/08), ÀS 12H — TATERSAL RUBICO CARVALHO, UBERABA-MG\n30X NO BOLETO (2+2+2+2+2+20) • 10% DE DESCONTO À VISTA • FRETE GRÁTIS PRO BRASIL TODO\n\nHabilite-se para o leilão e receba uma assessoria da Bula! 📲",
+   "video_youtube": "https://www.youtube.com/watch?v=KW7szsfy9wA",
+   "video_titulo": "LOTE 03",
+   "corte": "9s-15s"
+  },
+  {
+   "lote": "4",
+   "nome": "EAON 7565",
+   "arquivo": "lote004.mp4",
+   "caption": "🔥 LOTE 4 - EAON 7565\n\nFamília Campeã EAO: neta direta da Campeã e filha da recordista do 5º Mega EAO Expozebu 2025. Hiperprecoce, emprenhou com 7,45 meses.\n\nBezerra • Nasc: 19/11/2025 • 50% à venda\n\nXarp Col x EAON 5637\n\n✨ MGTe: 34,73 • TOP 1%\n✨ IQG: 39,19 • TOP 0,5%\n✨ iABCZ: 33,82 • DECA 1\n\nPrenhe do Guardião da EAO (parto abr/27) — com a prenhez o ventre projeta IQG 40,87 (TOP 0,1%), MGTe 35,19 (TOP 0,5%) e iABCZ 32,35 (DECA 1)!\n\nLEILÃO HOJE (14/08), ÀS 12H — TATERSAL RUBICO CARVALHO, UBERABA-MG\n30X NO BOLETO (2+2+2+2+2+20) • 10% DE DESCONTO À VISTA • FRETE GRÁTIS PRO BRASIL TODO\n\nHabilite-se para o leilão e receba uma assessoria da Bula! 📲",
+   "video_youtube": "https://www.youtube.com/watch?v=UCbjzcbnjXQ",
+   "video_titulo": "LOTE 04",
+   "corte": "12s-18s"
+  },
+  {
+   "lote": "5",
+   "nome": "EAON 7585",
+   "arquivo": "lote005.mp4",
+   "caption": "🔥 LOTE 5 - EAON 7585\n\nIrmã própria do lote 3, o recordista de precocidade do leilão — mesmo pai, mesma mãe, mesma linha de fertilidade.\n\nBezerra • Nasc: 24/11/2025\n\nFênix FIV da EAO x EAO B7512\n\n✨ MGTe: 32,68 • TOP 2%\n✨ IQG: 39,91 • TOP 0,5%\n✨ iABCZ: 34,52 • DECA 1 • P: 0,1%\n\nInseminada com o Herdeiro da EAO (parto abr/27) — com a prenhez o ventre projeta IQG 42,40, MGTe 37,19 e iABCZ 37,64, todos TOP 0,1%!\n\nLEILÃO HOJE (14/08), ÀS 12H — TATERSAL RUBICO CARVALHO, UBERABA-MG\n30X NO BOLETO (2+2+2+2+2+20) • 10% DE DESCONTO À VISTA • FRETE GRÁTIS PRO BRASIL TODO\n\nHabilite-se para o leilão e receba uma assessoria da Bula! 📲",
+   "video_youtube": "https://www.youtube.com/watch?v=EbjTfY4xdjw",
+   "video_titulo": "LOTE 05",
+   "corte": "12s-18s"
+  },
+  {
+   "lote": "6",
+   "nome": "EAON 7412",
+   "arquivo": "lote006.mp4",
+   "caption": "🔥 LOTE 6 - EAON 7412\n\nFamília B3912: neta direta da recordista B3912, com pedigree aberto pra cruzar com o que você quiser.\n\nBezerra • Nasc: 27/09/2025\n\nLandrover da Xaraes x EAON 6266\n\n✨ MGTe: 35,68 • TOP 0,5%\n✨ IQG: 40,43 • TOP 0,1%\n✨ iABCZ: 32,96 • DECA 1 • P: 0,1%\n\nInseminada com o Hornet da EAO (parto mai/27) — com a prenhez o ventre projeta IQG 42,38 e MGTe 36,30, ambos TOP 0,1%!\n\nLEILÃO HOJE (14/08), ÀS 12H — TATERSAL RUBICO CARVALHO, UBERABA-MG\n30X NO BOLETO (2+2+2+2+2+20) • 10% DE DESCONTO À VISTA • FRETE GRÁTIS PRO BRASIL TODO\n\nHabilite-se para o leilão e receba uma assessoria da Bula! 📲",
+   "video_youtube": "https://www.youtube.com/watch?v=bW42CwgIQew",
+   "video_titulo": "LOTE 06",
+   "corte": "10s-16s"
+  },
+  {
+   "lote": "8",
+   "nome": "EAON 7516",
+   "arquivo": "lote008.mp4",
+   "caption": "🔥 LOTE 8 - EAON 7516\n\nHiperprecoce: emprenhou com 8 meses de idade. MGTe 37,32 coloca ela no TOP 0,1% da raça — avaliação genética consistente e equilibrada.\n\nBezerra • Nasc: 30/10/2025\n\n8108S FIV JMP x JBJ 2245\n\n✨ MGTe: 37,32 • TOP 0,1%\n✨ IQG: 36,02 • TOP 0,5%\n✨ iABCZ: 27,83 • DECA 1 • P: 0,5%\n\nPrenhe do Marques Xaraes (parto abr/27) — com a prenhez o ventre projeta IQG 40,27, MGTe 37,71 e iABCZ 31,45, todos TOP 0,1%!\n\nLEILÃO HOJE (14/08), ÀS 12H — TATERSAL RUBICO CARVALHO, UBERABA-MG\n30X NO BOLETO (2+2+2+2+2+20) • 10% DE DESCONTO À VISTA • FRETE GRÁTIS PRO BRASIL TODO\n\nHabilite-se para o leilão e receba uma assessoria da Bula! 📲",
+   "video_youtube": "https://www.youtube.com/watch?v=jTSMju02JTs",
+   "video_titulo": "LOTE 08",
+   "corte": "9s-15s"
+  },
+  {
+   "lote": "9",
+   "nome": "EAO C6816",
+   "arquivo": "lote009.mp4",
+   "caption": "🔥 LOTE 9 - EAO C6816\n\nFilha do recordista Ferrari EAO: 2ª maior avaliação do PMGZ do leilão e o MAIOR maternal do leilão no PMGZ.\n\nBezerra • Nasc: 31/07/2025\n\nFerrari da EAO x EAO C1782\n\n✨ MGTe: 36,57 • TOP 0,1%\n✨ IQG: 45,91 • TOP 0,1%\n✨ iABCZ: 41,63 • DECA 1 • P: 0,1%\n\nInseminada com o Herdeiro da EAO (parto abr/27) — com a prenhez o ventre projeta IQG 45,40, MGTe 39,14 e iABCZ 41,19, todos TOP 0,1%!\n\nLEILÃO HOJE (14/08), ÀS 12H — TATERSAL RUBICO CARVALHO, UBERABA-MG\n30X NO BOLETO (2+2+2+2+2+20) • 10% DE DESCONTO À VISTA • FRETE GRÁTIS PRO BRASIL TODO\n\nHabilite-se para o leilão e receba uma assessoria da Bula! 📲",
+   "video_youtube": "https://www.youtube.com/watch?v=jHKs2e-iw5s",
+   "video_titulo": "LOTE 09",
+   "corte": "18s-24s"
+  },
+  {
+   "lote": "10",
+   "nome": "EAON 7429",
+   "arquivo": "lote010.mp4",
+   "caption": "🔥 LOTE 10 - EAON 7429\n\nFamília Discovery EAO: a avó materna dela é mãe de TRÊS touros de central — Discovery EAO, Extrato e Fire EAO.\n\nBezerra • Nasc: 01/10/2025\n\nPara Tudo RG x EAON 6326\n\n✨ MGTe: 37,87 • TOP 0,1%\n✨ IQG: 36,25 • TOP 0,5%\n✨ iABCZ: 31,35 • DECA 1 • P: 0,1%\n\nInseminada com o Golfe da EAO (parto abr/27) — com a prenhez o ventre projeta MGTe 37,89 (TOP 0,1%) e IQG 37,13!\n\nLEILÃO HOJE (14/08), ÀS 12H — TATERSAL RUBICO CARVALHO, UBERABA-MG\n30X NO BOLETO (2+2+2+2+2+20) • 10% DE DESCONTO À VISTA • FRETE GRÁTIS PRO BRASIL TODO\n\nHabilite-se para o leilão e receba uma assessoria da Bula! 📲",
+   "video_youtube": "https://www.youtube.com/watch?v=wX67OKuExhs",
+   "video_titulo": "LOTE 10",
+   "corte": "9s-15s"
+  },
+  {
+   "lote": "11",
+   "nome": "EAON 7320",
+   "arquivo": "lote011.mp4",
+   "caption": "🔥 LOTE 11 - EAON 7320\n\nAlta consistência genética: a mãe é doadora muito regular na EAO, com várias filhas destaque de valorização em leilão.\n\nBezerra • Nasc: 14/08/2025\n\nDurango FIV da EAO x EAO B4254\n\n✨ MGTe: 32,75 • TOP 2%\n✨ IQG: 40,11 • TOP 0,5%\n✨ iABCZ: 31,37 • DECA 1 • P: 0,1%\n\nInseminada com o Herdeiro da EAO (parto abr/27) — com a prenhez o ventre projeta IQG 42,50, MGTe 37,23 e iABCZ 36,06, todos TOP 0,1%!\n\nLEILÃO HOJE (14/08), ÀS 12H — TATERSAL RUBICO CARVALHO, UBERABA-MG\n30X NO BOLETO (2+2+2+2+2+20) • 10% DE DESCONTO À VISTA • FRETE GRÁTIS PRO BRASIL TODO\n\nHabilite-se para o leilão e receba uma assessoria da Bula! 📲",
+   "video_youtube": "https://www.youtube.com/watch?v=k_C_g4skF_M",
+   "video_titulo": "LOTE 11",
+   "corte": "18s-24s"
+  },
+  {
+   "lote": "12",
+   "nome": "EAON 7402",
+   "arquivo": "lote012.mp4",
+   "caption": "🔥 LOTE 12 - EAON 7402\n\nFamília B3912: neta direta da recordista B3912, com pedigree aberto — MGTe 36,32 no TOP 0,1% da raça.\n\nBezerra • Nasc: 22/09/2025\n\nPara Tudo RG x EAON 6266\n\n✨ MGTe: 36,32 • TOP 0,1%\n✨ IQG: 35,88 • TOP 0,5%\n✨ iABCZ: 31,93 • DECA 1 • P: 0,1%\n\nInseminada com o Golfe da EAO (parto abr/27) — com a prenhez o ventre projeta MGTe 37,11 (TOP 0,1%)!\n\nLEILÃO HOJE (14/08), ÀS 12H — TATERSAL RUBICO CARVALHO, UBERABA-MG\n30X NO BOLETO (2+2+2+2+2+20) • 10% DE DESCONTO À VISTA • FRETE GRÁTIS PRO BRASIL TODO\n\nHabilite-se para o leilão e receba uma assessoria da Bula! 📲",
+   "video_youtube": "https://www.youtube.com/watch?v=XhoBdbde8iA",
+   "video_titulo": "LOTE 12",
+   "corte": "18s-24s"
+  },
+  {
+   "lote": "13",
+   "nome": "EAO C6362",
+   "arquivo": "lote013.mp4",
+   "caption": "🔥 LOTE 13 - EAO C6362\n\nLÍDER DA ANCP DE TODO O LEILÃO: MGTe 40,50, o maior do catálogo. Filha do recordista Ferrari EAO, com alta avaliação maternal nos 3 programas da raça.\n\nBezerra • Nasc: 12/06/2025\n\nFerrari da EAO x EAO C1609\n\n✨ MGTe: 40,50 • TOP 0,1%\n✨ IQG: 44,17 • TOP 0,1%\n✨ iABCZ: 31,19 • DECA 1 • P: 0,1%\n\nInseminada com o Herdeiro da EAO (parto abr/27) — com a prenhez o ventre projeta MGTe 41,10 e IQG 44,53, ambos TOP 0,1%!\n\nLEILÃO HOJE (14/08), ÀS 12H — TATERSAL RUBICO CARVALHO, UBERABA-MG\n30X NO BOLETO (2+2+2+2+2+20) • 10% DE DESCONTO À VISTA • FRETE GRÁTIS PRO BRASIL TODO\n\nHabilite-se para o leilão e receba uma assessoria da Bula! 📲",
+   "video_youtube": "https://www.youtube.com/watch?v=4OG3gO7fMXM",
+   "video_titulo": "LOTE 13",
+   "corte": "9s-15s"
+  },
+  {
+   "lote": "14",
+   "nome": "EAO C6341",
+   "arquivo": "lote014.mp4",
+   "caption": "🔥 LOTE 14 - EAO C6341\n\nLíder para maternal de todo o leilão na ANCP, com uma régua de DEPs super equilibrada. Filha do Ferrari EAO.\n\nBezerra • Nasc: 10/06/2025 • 50% à venda\n\nFerrari da EAO x EAO C1555\n\n✨ MGTe: 38,17 • TOP 0,1%\n✨ IQG: 45,04 • TOP 0,1%\n✨ iABCZ: 30,99 • DECA 1 • P: 0,1%\n\nInseminada com o Herdeiro da EAO (parto abr/27) — com a prenhez o ventre projeta IQG 44,96, MGTe 39,94 e iABCZ 35,87, todos TOP 0,1%!\n\nLEILÃO HOJE (14/08), ÀS 12H — TATERSAL RUBICO CARVALHO, UBERABA-MG\n30X NO BOLETO (2+2+2+2+2+20) • 10% DE DESCONTO À VISTA • FRETE GRÁTIS PRO BRASIL TODO\n\nHabilite-se para o leilão e receba uma assessoria da Bula! 📲",
+   "video_youtube": "https://www.youtube.com/watch?v=DzsOhshKsz4",
+   "video_titulo": "LOTE 14",
+   "corte": "9s-15s"
+  },
+  {
+   "lote": "16",
+   "nome": "EAON 7326",
+   "arquivo": "lote016.mp4",
+   "caption": "🔥 LOTE 16 - EAON 7326\n\nA MAIOR avaliação da ABCZ do leilão inteiro: líder do PMGZ com iABCZ 42,30 e o maior IQG do catálogo, 47,44. Hiperprecoce, emprenhou com 9 meses. Bisavó materna: a B1371.\n\nBezerra • Nasc: 17/08/2025\n\nREM Passaporte x EAO C3023\n\n✨ MGTe: 36,23 • TOP 0,1%\n✨ IQG: 47,44 • TOP 0,1%\n✨ iABCZ: 42,30 • DECA 1 • P: 0,1%\n\nPrenhe do Guardião da EAO (parto mar/27) — com a prenhez o ventre projeta IQG 44,99 (TOP 0,1%) e iABCZ 36,59 (DECA 1)!\n\nLEILÃO HOJE (14/08), ÀS 12H — TATERSAL RUBICO CARVALHO, UBERABA-MG\n30X NO BOLETO (2+2+2+2+2+20) • 10% DE DESCONTO À VISTA • FRETE GRÁTIS PRO BRASIL TODO\n\nHabilite-se para o leilão e receba uma assessoria da Bula! 📲",
+   "video_youtube": "https://www.youtube.com/watch?v=51w-1wsf9_Y",
+   "video_titulo": "LOTE 16",
+   "corte": "9s-15s"
+  },
+  {
+   "lote": "ASP1",
+   "nome": "PACOTE DE 8 DOADORAS",
+   "arquivo": "loteASP1.mp4",
+   "caption": "🔥 LOTE ASP 1 - ASPIRAÇÃO EM 8 DOADORAS\n\nOito doadoras da reserva exclusiva da EAO, todas filhas do 1789 FIV da EAO — e entre elas está a C3023, mãe do lote 16, a bezerra líder do PMGZ deste leilão.\n\nAspiração • Livre acasalamento — você escolhe o touro\n\nAs 8 doadoras:\n• EAO C4404 — média de 15 oócitos • MGTe 39,39, o maior do pacote\n• EAO C4389 — novilha destaque do 13º Mega Baviera\n• EAO C3099 — média de 20 oócitos • neta da recordista B1371\n• EAO C3026 — média de 36 oócitos • neta da recordista B1371\n• EAO C3023 — média de 20 oócitos • mãe do LOTE 16 • iABCZ 40,05\n• EAON 6064 — média de 103 oócitos\n• EAO C6052 — destaque do último Mega Expozebu\n• EAO C6074 — média de 15 oócitos • IQG 44,38\n\nMédias das 8 doadoras:\n✨ MGTe: 35,21\n✨ IQG: 40,98\n✨ iABCZ: 34,80\n\nQuatro delas são netas diretas da B1371 e três são irmãs próprias do touro de central Galeão da EAO.\n\nLEILÃO HOJE (14/08), ÀS 12H — TATERSAL RUBICO CARVALHO, UBERABA-MG\n40X NO BOLETO (1+39) • 10% DE DESCONTO À VISTA • FRETE GRÁTIS PRO BRASIL TODO\n\nHabilite-se para o leilão e receba uma assessoria da Bula! 📲",
+   "video_youtube": "https://www.youtube.com/watch?v=7aFVTjsBKdM",
+   "video_titulo": "ASP 01",
+   "corte": "montagem de 8 trechos de 0,75s (20/50/65/90/115/140/165/190s)"
+  },
+  {
+   "lote": "ASP2",
+   "nome": "EAO C4253",
+   "arquivo": "loteASP2.mp4",
+   "caption": "🔥 LOTE ASP 2 - EAO C4253\n\nFilha DIRETA da B1371 — a matriarca da família de doadoras de prova com maior faturamento dentro da raça. IQG 46,86: o 2º maior do leilão inteiro.\n\nAspiração • Livre acasalamento — você escolhe o touro\nMédia de 36 oócitos • Parida de uma bezerra espetacular\n\nREM Passaporte x EAO B1371\n\n✨ MGTe: 36,70 • TOP 0,1%\n✨ IQG: 46,86 • TOP 0,1%\n✨ iABCZ: 34,11 • DECA 1 • P: 0,1%\n\nLEILÃO HOJE (14/08), ÀS 12H — TATERSAL RUBICO CARVALHO, UBERABA-MG\n30X NO BOLETO (2+2+2+2+2+20) • 10% DE DESCONTO À VISTA • FRETE GRÁTIS PRO BRASIL TODO\n\nHabilite-se para o leilão e receba uma assessoria da Bula! 📲",
+   "video_youtube": "https://www.youtube.com/watch?v=GJXLNacvBr4",
+   "video_titulo": "ASP 02",
+   "corte": "18s-24s"
+  }
+ ]
+}

@@ -1,0 +1,115 @@
+{
+ "leilao": "Leilão Touros São Geraldo e 7P Agro — 01/08/2026 (sábado, 12h)",
+ "slug": "saogeraldo-touros-2026-08-01",
+ "group_id": "120363426815790951@g.us",
+ "session": "joao-automation",
+ "contato": "Grupo Workflows e Validações",
+ "gifs_dir": "C:/Users/Notebook-Acer/AppData/Local/Temp/claude/F--Projetos-Desktop-web-bula/5c86e906-a38f-4572-b0c1-fccdc9c20a18/scratchpad/sg/gifs",
+ "media_width": 480,
+ "media_height": 270,
+ "condicoes": {
+  "linhaPagamento": "30X NO BOLETO (2+2+2+2+2+20) • FRETE GRÁTIS",
+  "linhaFecho": "Habilite-se para o leilão e receba uma assessoria da Bula! 📲"
+ },
+ "lotes": [
+  {
+   "lote": 1,
+   "nome": "NAURU DA XARAÉS",
+   "rg": "XRGM 5509",
+   "grade": "A++",
+   "youtube": "https://www.youtube.com/watch?v=gIKIv05b4jY",
+   "caption": "🔥 LOTE 1 - NAURU DA XARAÉS\n\nAbre o leilão com 850 kg aos 21 meses: TOP 0,1% em MGTe e DECA 1 em iABCZ — precocidade de verdade.\n\nTouro • Nasc: 03/10/2024 • 850 kg • CE 40 cm\n\nK4645 FIV da Xaraés x Louge da Xaraés\n\n✨ MGTe: 33,93 • TOP 0,1%\n✨ IQG: 35,31 • TOP 0,5%\n✨ iABCZ: 23,63 • DECA 1\n\n30X NO BOLETO (2+2+2+2+2+20) • FRETE GRÁTIS\n\nHabilite-se para o leilão e receba uma assessoria da Bula! 📲",
+   "media_url": "https://nfjkzigvxegnhaxxbevt.supabase.co/storage/v1/object/public/lote-gifs/saogeraldo-touros-2026-08-01/lote001.mp4"
+  },
+  {
+   "lote": 2,
+   "nome": "N198 DA 7P",
+   "rg": "FNFJ 198",
+   "grade": "A++",
+   "youtube": "https://www.youtube.com/watch?v=L8fKIVp20mk",
+   "caption": "🔥 LOTE 2 - N198 DA 7P\n\n893 kg aos 23 meses e o 4º maior IQG do leilão (44,30) — TOP 0,1% e DECA 1 em iABCZ.\n\nTouro • Nasc: 10/08/2024 • 893 kg • CE 41 cm\n\nEsteio da EAO x Jardim Florido da Xaraés\n\n✨ MGTe: 32,48 • TOP 0,5%\n✨ IQG: 44,30 • TOP 0,1%\n✨ iABCZ: 32,02 • DECA 1\n\n30X NO BOLETO (2+2+2+2+2+20) • FRETE GRÁTIS\n\nHabilite-se para o leilão e receba uma assessoria da Bula! 📲",
+   "media_url": "https://nfjkzigvxegnhaxxbevt.supabase.co/storage/v1/object/public/lote-gifs/saogeraldo-touros-2026-08-01/lote002.mp4"
+  },
+  {
+   "lote": 4,
+   "nome": "NORTH DA 7P",
+   "rg": "FNFJ 155",
+   "grade": "A++",
+   "youtube": "https://www.youtube.com/watch?v=uOdPOeYTkJs",
+   "caption": "🔥 LOTE 4 - NORTH DA 7P\n\nDECA 1 com iABCZ 35,17 e P 0,1% — 835 kg e CE 41 cm aos 23 meses.\n\nTouro • Nasc: 19/08/2024 • 835 kg • CE 41 cm\n\nDemolidor FIV da EAO x Jordânia da Xaraés\n\n✨ MGTe: 32,93 • TOP 0,5%\n✨ IQG: 40,22 • TOP 0,5%\n✨ iABCZ: 35,17 • DECA 1 • P: 0,1%\n\n30X NO BOLETO (2+2+2+2+2+20) • FRETE GRÁTIS\n\nHabilite-se para o leilão e receba uma assessoria da Bula! 📲",
+   "media_url": "https://nfjkzigvxegnhaxxbevt.supabase.co/storage/v1/object/public/lote-gifs/saogeraldo-touros-2026-08-01/lote004.mp4"
+  },
+  {
+   "lote": 5,
+   "nome": "NOTÓRIO DA 7P",
+   "rg": "FNFJ 54",
+   "grade": "A++",
+   "youtube": "https://www.youtube.com/watch?v=3SM7NcNsa1U",
+   "caption": "🔥 LOTE 5 - NOTÓRIO DA 7P\n\n5º maior IQG do leilão (42,98 • TOP 0,1%) — 871 kg aos 24 meses e DECA 1 em iABCZ.\n\nTouro • Nasc: 23/07/2024 • 871 kg • CE 38 cm\n\nEsteio da EAO x Limma FIV da Xaraés\n\n✨ MGTe: 33,75 • TOP 0,5%\n✨ IQG: 42,98 • TOP 0,1%\n✨ iABCZ: 34,74 • DECA 1 • P: 0,1%\n\n30X NO BOLETO (2+2+2+2+2+20) • FRETE GRÁTIS\n\nHabilite-se para o leilão e receba uma assessoria da Bula! 📲",
+   "media_url": "https://nfjkzigvxegnhaxxbevt.supabase.co/storage/v1/object/public/lote-gifs/saogeraldo-touros-2026-08-01/lote005.mp4"
+  },
+  {
+   "lote": 12,
+   "nome": "N130 DA 7P",
+   "rg": "FNFJ 130",
+   "grade": "A++",
+   "youtube": "https://www.youtube.com/watch?v=-hQLkZjC3_8",
+   "caption": "🔥 LOTE 12 - N130 DA 7P\n\nIrmão completo do lote 16 (Esteio da EAO x Gráfica da Xaraés): TOP 0,5% em MGTe e IQG, DECA 1 em iABCZ.\n\nTouro • Nasc: 07/08/2024 • 826 kg • CE 37 cm\n\nEsteio da EAO x Gráfica da Xaraés\n\n✨ MGTe: 33,69 • TOP 0,5%\n✨ IQG: 38,41 • TOP 0,5%\n✨ iABCZ: 31,41 • DECA 1 • P: 0,1%\n\n30X NO BOLETO (2+2+2+2+2+20) • FRETE GRÁTIS\n\nHabilite-se para o leilão e receba uma assessoria da Bula! 📲",
+   "media_url": "https://nfjkzigvxegnhaxxbevt.supabase.co/storage/v1/object/public/lote-gifs/saogeraldo-touros-2026-08-01/lote012.mp4"
+  },
+  {
+   "lote": 16,
+   "nome": "NEON DA 7P",
+   "rg": "FNFJ 60",
+   "grade": "A++",
+   "youtube": "https://www.youtube.com/watch?v=io2a3GjLwlA",
+   "caption": "🔥 LOTE 16 - NEON DA 7P\n\nIrmão completo do lote 12 — DECA 1 em iABCZ com P 0,1%, 824 kg aos 24 meses.\n\nTouro • Nasc: 23/07/2024 • 824 kg • CE 37 cm\n\nEsteio da EAO x Gráfica da Xaraés\n\n✨ MGTe: 30,96 • TOP 1%\n✨ IQG: 38,68 • TOP 0,5%\n✨ iABCZ: 30,82 • DECA 1 • P: 0,1%\n\n30X NO BOLETO (2+2+2+2+2+20) • FRETE GRÁTIS\n\nHabilite-se para o leilão e receba uma assessoria da Bula! 📲",
+   "media_url": "https://nfjkzigvxegnhaxxbevt.supabase.co/storage/v1/object/public/lote-gifs/saogeraldo-touros-2026-08-01/lote016.mp4"
+  },
+  {
+   "lote": 26,
+   "nome": "NOTÁVEL II DA XARAÉS",
+   "rg": "XRGM 5449",
+   "grade": "A++",
+   "youtube": "https://www.youtube.com/watch?v=TTuDbId3CkY",
+   "caption": "🔥 LOTE 26 - NOTÁVEL II DA XARAÉS\n\nFilho do REM Passaporte Gen.Adt — DECA 1 em iABCZ e TOP 0,5% em MGTe e IQG, com CE 40 cm aos 23 meses.\n\nTouro • Nasc: 02/08/2024 • 794 kg • CE 40 cm\n\nREM Passaporte Gen.Adt x Líbia da Xaraés\n\n✨ MGTe: 33,26 • TOP 0,5%\n✨ IQG: 36,50 • TOP 0,5%\n✨ iABCZ: 29,24 • DECA 1 • P: 0,5%\n\n30X NO BOLETO (2+2+2+2+2+20) • FRETE GRÁTIS\n\nHabilite-se para o leilão e receba uma assessoria da Bula! 📲",
+   "media_url": "https://nfjkzigvxegnhaxxbevt.supabase.co/storage/v1/object/public/lote-gifs/saogeraldo-touros-2026-08-01/lote026.mp4"
+  },
+  {
+   "lote": 65,
+   "nome": "NUEVO DA XARAÉS",
+   "rg": "XRGM 5515",
+   "grade": "A++",
+   "youtube": "https://www.youtube.com/watch?v=gwGLGuZkylY",
+   "caption": "🔥 LOTE 65 - NUEVO DA XARAÉS\n\n812 kg e CE 40 cm com apenas 21 meses: filho do Casanova Bonsucesso, o reprodutor mais usado do leilão (37 filhos), e DECA 1 em iABCZ.\n\nTouro • Nasc: 05/10/2024 • 812 kg • CE 40 cm\n\nCasanova Bonsucesso x Brasília da Xaraés\n\n✨ MGTe: 28,22 • TOP 5%\n✨ IQG: 22,69 • TOP 7%\n✨ iABCZ: 22,71 • DECA 1 • P: 2%\n\n30X NO BOLETO (2+2+2+2+2+20) • FRETE GRÁTIS\n\nHabilite-se para o leilão e receba uma assessoria da Bula! 📲",
+   "media_url": "https://nfjkzigvxegnhaxxbevt.supabase.co/storage/v1/object/public/lote-gifs/saogeraldo-touros-2026-08-01/lote065.mp4"
+  },
+  {
+   "lote": 71,
+   "nome": "NOVO DA XARAÉS",
+   "rg": "XRGM 5451",
+   "grade": "A++",
+   "youtube": "https://www.youtube.com/watch?v=S_2osxO75bQ",
+   "caption": "🔥 LOTE 71 - NOVO DA XARAÉS\n\n866 kg aos 23 meses com IQG TOP 0,5% — DECA 1 em iABCZ e DSTAY TOP 1% (permanência das filhas no rebanho).\n\nTouro • Nasc: 03/08/2024 • 866 kg • CE 39 cm\n\nNero do Morro x Linda da Xaraés\n\n✨ MGTe: 29,87 • TOP 2%\n✨ IQG: 34,99 • TOP 0,5%\n✨ iABCZ: 22,91 • DECA 1 • P: 2%\n\n30X NO BOLETO (2+2+2+2+2+20) • FRETE GRÁTIS\n\nHabilite-se para o leilão e receba uma assessoria da Bula! 📲",
+   "media_url": "https://nfjkzigvxegnhaxxbevt.supabase.co/storage/v1/object/public/lote-gifs/saogeraldo-touros-2026-08-01/lote071.mp4"
+  },
+  {
+   "lote": 72,
+   "nome": "NOSTHAURO DA 7P",
+   "rg": "FNFJ 335",
+   "grade": "A++",
+   "youtube": "https://www.youtube.com/watch?v=aARDpxZsarw",
+   "caption": "🔥 LOTE 72 - NOSTHAURO DA 7P\n\nMeio-irmão do lote 2 pela mãe (Jardim Florido da Xaraés) — 793 kg aos 21 meses e DECA 1 em iABCZ.\n\nTouro • Nasc: 24/10/2024 • 793 kg • CE 38 cm\n\nCasanova Bonsucesso x Jardim Florido da Xaraés\n\n✨ MGTe: 27,83 • TOP 5%\n✨ IQG: 30,53 • TOP 2%\n✨ iABCZ: 24,58 • DECA 1\n\n30X NO BOLETO (2+2+2+2+2+20) • FRETE GRÁTIS\n\nHabilite-se para o leilão e receba uma assessoria da Bula! 📲",
+   "media_url": "https://nfjkzigvxegnhaxxbevt.supabase.co/storage/v1/object/public/lote-gifs/saogeraldo-touros-2026-08-01/lote072.mp4"
+  },
+  {
+   "lote": 101,
+   "nome": "NITERÓI DA XARAÉS",
+   "rg": "XRGM 5442",
+   "grade": "A++",
+   "youtube": "https://www.youtube.com/watch?v=BN35Ni87Zug",
+   "caption": "🔥 LOTE 101 - NITERÓI DA XARAÉS\n\nNeto do REM Garantido Gen.Adt pelo lado paterno — DECA 1 em iABCZ com 784 kg aos 24 meses.\n\nTouro • Nasc: 30/07/2024 • 784 kg • CE 36 cm\n\nJacareh FIV da Xaraés x K4612 da Xaraés\n\n✨ MGTe: 24,73 • TOP 10%\n✨ IQG: 20,83 • TOP 9%\n✨ iABCZ: 17,28 • DECA 1 • P: 6%\n\n30X NO BOLETO (2+2+2+2+2+20) • FRETE GRÁTIS\n\nHabilite-se para o leilão e receba uma assessoria da Bula! 📲",
+   "media_url": "https://nfjkzigvxegnhaxxbevt.supabase.co/storage/v1/object/public/lote-gifs/saogeraldo-touros-2026-08-01/lote101.mp4"
+  }
+ ]
+}

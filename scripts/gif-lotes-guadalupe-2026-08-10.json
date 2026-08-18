@@ -1,0 +1,89 @@
+{
+ "leilao": "1º LEILÃO GUADALUPE AGROPECUÁRIA EXPOGENÉTICA — segunda 10/08/2026, 20h de Brasília, virtual pelo Canal Rural (Londrina/PR), Nelore PO",
+ "slug": "guadalupe-2026-08-10",
+ "group_id": "120363426815790951@g.us",
+ "session": "joao-automation",
+ "contato": "Grupo Workflows e Validações",
+ "gifs_dir": "F:/Projetos/Desktop/web-bula/outputs/gif-lotes-guadalupe-2026-08-10",
+ "media_width": 480,
+ "media_height": 270,
+ "observacoes": [
+  "Curadoria A++ do Leonardo (msg 19:29): 11,20,24,27,28 + Paridas A++ 31,32,33,37.",
+  "Catálogo virtual baixado de programaleiloes.com (leilao/download/24590) — 59 páginas, 1 lote por página a partir da pág.17.",
+  "Mapeamento lote->vídeo veio do alt/label DENTRO da tag <a> da página do leilão; o rótulo vem DEPOIS do href (parsear ao contrário desloca 1 lote)."
+ ],
+ "lotes": [
+  {
+   "lote": 11,
+   "nome": "A4795 FIV Guadalupe",
+   "arquivo": "lote011.mp4",
+   "caption": "🔥 LOTE 11 - A4795 FIV Guadalupe\n\nIrmã completa do lote 31, com a 533 Guadalupe na genealogia e MGTe entre os 0,5% melhores da raça.\n\nFêmea • Nasc: 01/09/2023\n\nDiplomata da Agronova x 9592 FIV Guadalupe\n\n✨ MGTe: 35,95 • TOP 0,5%\n✨ IQG: 26,41 • TOP 4%\n✨ iABCZ: 25,11 • DECA 1 • P: 1%\n\nPrenhe do GRAFITE FIV GUADALUPE (parto 02/11/26)!\n\n30X NO BOLETO (2+2+2+2+2+20) • FRETE GRÁTIS\n\nAO VIVO AGORA — Canal Rural.\n\nHabilite-se para o leilão e receba uma assessoria da Bula! 📲",
+   "video_youtube": "https://www.youtube.com/watch?v=vMgosYoxsso",
+   "corte": "15s-21s"
+  },
+  {
+   "lote": 20,
+   "nome": "A4611 Guadalupe",
+   "arquivo": "lote020.mp4",
+   "caption": "🔥 LOTE 20 - A4611 Guadalupe\n\nIQG 34,40 — TOP 1% da raça — e já prenhe do Jeep FIV Guadalupe.\n\nFêmea • Nasc: 20/08/2023\n\nLendário FIV Katispera x A1572 Guadalupe\n\n✨ MGTe: 27,62 • TOP 6%\n✨ IQG: 34,40 • TOP 1%\n✨ iABCZ: 22,48 • DECA 1 • P: 2%\n\nPrenhe do JEEP FIV GUADALUPE (parto 21/09/26)!\n\n30X NO BOLETO (2+2+2+2+2+20) • FRETE GRÁTIS\n\nAO VIVO AGORA — Canal Rural.\n\nHabilite-se para o leilão e receba uma assessoria da Bula! 📲",
+   "video_youtube": "https://www.youtube.com/watch?v=a0pR4hivDtk",
+   "corte": "18s-24s"
+  },
+  {
+   "lote": 24,
+   "nome": "A5251 Guadalupe",
+   "arquivo": "lote024.mp4",
+   "caption": "🔥 LOTE 24 - A5251 Guadalupe\n\nNovilha de dezembro/23 já prenhe, filha do Demolidor FIV da EAO e DECA 1 em iABCZ.\n\nFêmea • Nasc: 23/12/2023\n\nDemolidor FIV da EAO x A2786 FIV Guadalupe\n\n✨ MGTe: 26,19 • TOP 8%\n✨ IQG: 19,48 • TOP 11%\n✨ iABCZ: 18,61 • DECA 1 • P: 4%\n\nPrenhe do LANDROVER XARAÉS (parto 21/09/26)!\n\n30X NO BOLETO (2+2+2+2+2+20) • FRETE GRÁTIS\n\nAO VIVO AGORA — Canal Rural.\n\nHabilite-se para o leilão e receba uma assessoria da Bula! 📲",
+   "video_youtube": "https://www.youtube.com/watch?v=KGomEklbCKk",
+   "corte": "18s-24s"
+  },
+  {
+   "lote": 27,
+   "nome": "A3428 FIV Guadalupe",
+   "arquivo": "lote027.mp4",
+   "caption": "🔥 LOTE 27 - A3428 FIV Guadalupe\n\nO destaque de índices da oferta: MGTe TOP 0,1%, IQG TOP 0,5% e iABCZ DECA 1 — TOP 0,1%.\n\nFêmea • Nasc: 11/08/2022\n\nDiplomata da Agronova x 9596 FIV Guadalupe\n\n✨ MGTe: 37,86 • TOP 0,1%\n✨ IQG: 38,63 • TOP 0,5%\n✨ iABCZ: 34,05 • DECA 1 • P: 0,1%\n\nPrenhe do DOMINATOR FIV DA EAO (parto 07/09/26)!\n\n30X NO BOLETO (2+2+2+2+2+20) • FRETE GRÁTIS\n\nAO VIVO AGORA — Canal Rural.\n\nHabilite-se para o leilão e receba uma assessoria da Bula! 📲",
+   "video_youtube": "https://www.youtube.com/watch?v=dj1h2NGQwf0",
+   "corte": "12s-18s"
+  },
+  {
+   "lote": 28,
+   "nome": "A3030 FIV Guadalupe",
+   "arquivo": "lote028.mp4",
+   "caption": "🔥 LOTE 28 - A3030 FIV Guadalupe\n\nFilha do Trooper da Alo Brasil, com a 533 Guadalupe na genealogia e IQG TOP 2%.\n\nFêmea • Nasc: 03/04/2022\n\nTrooper da Alo Brasil x A936 FIV Guadalupe\n\n✨ MGTe: 28,75 • TOP 5%\n✨ IQG: 31,06 • TOP 2%\n✨ iABCZ: 22,67 • DECA 1 • P: 2%\n\nPrenhe do REM NOCAUTE (parto 29/08/26)!\n\n30X NO BOLETO (2+2+2+2+2+20) • FRETE GRÁTIS\n\nAO VIVO AGORA — Canal Rural.\n\nHabilite-se para o leilão e receba uma assessoria da Bula! 📲",
+   "video_youtube": "https://www.youtube.com/watch?v=schgyX_tmcI",
+   "corte": "15s-21s"
+  },
+  {
+   "lote": 31,
+   "nome": "A4709 FIV Guadalupe",
+   "arquivo": "lote031.mp4",
+   "caption": "🔥 LOTE 31 - A4709 FIV Guadalupe\n\nIrmã completa do lote 11: parida de fêmea do D50 da Alo Brasil, já prenhe de novo e MGTe TOP 1%.\n\nFêmea • Nasc: 26/08/2023\n\nDiplomata da Agronova x 9592 FIV Guadalupe\n\n✨ MGTe: 34,61 • TOP 1%\n✨ IQG: 25,70 • TOP 4%\n✨ iABCZ: 25,97 • DECA 1 • P: 0,5%\n\nParida de fêmea do D50 DA ALO BRASIL e prenhe do LANDROVER XARAÉS (parto 29/08/26)!\n\n30X NO BOLETO (2+2+2+2+2+20) • FRETE GRÁTIS\n\nAO VIVO AGORA — Canal Rural.\n\nHabilite-se para o leilão e receba uma assessoria da Bula! 📲",
+   "video_youtube": "https://www.youtube.com/watch?v=P41bY2HV1uI",
+   "corte": "22s-28s"
+  },
+  {
+   "lote": 32,
+   "nome": "A3246 FIV Guadalupe",
+   "arquivo": "lote032.mp4",
+   "caption": "🔥 LOTE 32 - A3246 FIV Guadalupe\n\nParida de fêmea do Jeep FIV Guadalupe em julho — e a cria já vem com IQG TOP 1%.\n\nFêmea • Nasc: 29/06/2022\n\nFabuloso FIV Guadalupe x Sara Jones FIV KA\n\n✨ MGTe: 26,30 • TOP 8%\n✨ IQG: 23,21 • TOP 6%\n✨ iABCZ: 14,03 • DECA 2 • P: 11%\n\nParida de fêmea do JEEP FIV GUADALUPE!\n\n30X NO BOLETO (2+2+2+2+2+20) • FRETE GRÁTIS\n\nAO VIVO AGORA — Canal Rural.\n\nHabilite-se para o leilão e receba uma assessoria da Bula! 📲",
+   "video_youtube": "https://www.youtube.com/watch?v=fBE6gA-6Qlo",
+   "corte": "15s-21s"
+  },
+  {
+   "lote": 33,
+   "nome": "A3359 FIV Guadalupe",
+   "arquivo": "lote033.mp4",
+   "caption": "🔥 LOTE 33 - A3359 FIV Guadalupe\n\nParida de macho do Jeep FIV Guadalupe — a cria traz MGTe TOP 2% e IQG TOP 1%.\n\nFêmea • Nasc: 02/08/2022\n\nRem Hórus Gen.Adt x 5007 FIV da EAO\n\n✨ MGTe: 31,91 • TOP 3%\n✨ IQG: 27,34 • TOP 3%\n✨ iABCZ: 22,49 • DECA 1 • P: 2%\n\nParida de macho do JEEP FIV GUADALUPE!\n\n30X NO BOLETO (2+2+2+2+2+20) • FRETE GRÁTIS\n\nAO VIVO AGORA — Canal Rural.\n\nHabilite-se para o leilão e receba uma assessoria da Bula! 📲",
+   "video_youtube": "https://www.youtube.com/watch?v=764kG9NO4ic",
+   "corte": "21s-27s"
+  },
+  {
+   "lote": 37,
+   "nome": "A4694 FIV Guadalupe",
+   "arquivo": "lote037.mp4",
+   "caption": "🔥 LOTE 37 - A4694 FIV Guadalupe\n\nIQG 38,96 — TOP 0,5% da raça: parida de macho do Gibson e prenhe do Grafite.\n\nFêmea • Nasc: 25/08/2023\n\nD8 da EAO x A2807 FIV Guadalupe\n\n✨ MGTe: 29,70 • TOP 4%\n✨ IQG: 38,96 • TOP 0,5%\n✨ iABCZ: 27,76 • DECA 1 • P: 0,5%\n\nParida de macho do GIBSON FIV GUADALUPE e prenhe do GRAFITE FIV GUADALUPE (parto 01/01/27)!\n\n30X NO BOLETO (2+2+2+2+2+20) • FRETE GRÁTIS\n\nAO VIVO AGORA — Canal Rural.\n\nHabilite-se para o leilão e receba uma assessoria da Bula! 📲",
+   "video_youtube": "https://www.youtube.com/watch?v=1QPAqEekniU",
+   "corte": "15s-21s"
+  }
+ ]
+}

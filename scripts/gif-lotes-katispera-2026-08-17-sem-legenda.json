@@ -1,0 +1,32 @@
+{
+  "leilao": "Leilão Matrizes Premium Katispera (17/08) — ExpoGenética, Tatersal Rubico de Carvalho, Uberaba-MG",
+  "slug": "katispera-matrizes-premium-2026-08-17",
+  "session": "joao-automation",
+  "group_id": "120363426815790951@g.us",
+  "contato": "Workflows e Validações",
+  "gifs_dir": "F:/Projetos/Desktop/web-bula/outputs/gif-lotes-katispera-2026-08-17",
+  "media_width": 480,
+  "media_height": 270,
+  "lotes": [
+    {
+      "lote": 1,
+      "nome": "NICOLE FIV KATISPERA",
+      "caption": ""
+    },
+    {
+      "lote": 3,
+      "nome": "6092 KATISPERA",
+      "caption": ""
+    },
+    {
+      "lote": 7,
+      "nome": "7680 FIV KATISPERA",
+      "caption": ""
+    },
+    {
+      "lote": 11,
+      "nome": "7547 KATISPERA",
+      "caption": ""
+    }
+  ]
+}
