@@ -180,6 +180,11 @@ export async function computeErpDashboard(
 // DRE
 // ---------------------------------------------------------------------------
 
+// Grupos da DRE em cascata. O grupo de cada categoria vem de
+// erp_categorias.dre_grupo (migration 0073). Categoria sem grupo cai em
+// receita/despesa_variavel pelo tipo do movimento — nada some em silêncio.
+export type DreGrupo = 'receita' | 'imposto' | 'custo_direto' | 'despesa_variavel' | 'despesa_fixa' | 'financeiro' | 'ignorar'
+
 export async function computeDre(
   sb: SupabaseClient,
   opts: { from?: string | null; to?: string | null; regime?: 'caixa' | 'competencia' } = {},
@@ -190,71 +195,113 @@ export async function computeDre(
   // DRE pelo regime de competencia: soma dos titulos (cp/cr) com vencimento no periodo
   // ou pelo regime de caixa: soma de movimentos com data no periodo.
   const regime = opts.regime === 'competencia' ? 'competencia' : 'caixa'
-  const nonOperationalCategory = (name: string) =>
-    name
-      .normalize('NFD')
-      .replace(/[̀-ͯ]/g, '')
-      .toLowerCase()
-      .includes('transferencias internas')
 
-  let receitas = 0
-  let despesas = 0
-  type GrupoLinha = { nome: string; valor: number }
-  const porCategoriaReceita: Record<string, GrupoLinha> = {}
-  const porCategoriaDespesa: Record<string, GrupoLinha> = {}
+  const { data: catsData } = await sb.from('erp_categorias').select('id,nome,dre_grupo')
+  const catById = new Map((catsData || []).map((c: { id: string; nome: string; dre_grupo: string | null }) => [c.id, c]))
+
+  // acumulação: por categoria, com sinal (+entrada / -saida) — estorno dentro
+  // da mesma categoria abate em vez de virar linha nova.
+  type Acc = { nome: string; grupo: DreGrupo; entrada: number; saida: number }
+  const acc = new Map<string, Acc>()
+  const lanca = (categoriaId: string | null, fallbackNome: string, lado: 'entrada' | 'saida', valor: number) => {
+    const cat = categoriaId ? catById.get(categoriaId) : null
+    const nome = cat?.nome || fallbackNome
+    const grupo = ((cat?.dre_grupo as DreGrupo | null) ?? (lado === 'entrada' ? 'receita' : 'despesa_variavel'))
+    if (grupo === 'ignorar') return
+    const a = acc.get(nome) || { nome, grupo, entrada: 0, saida: 0 }
+    a[lado] += valor
+    acc.set(nome, a)
+  }
 
   if (regime === 'caixa') {
     const { data: movs } = await sb
       .from('erp_movimentos_bancarios')
-      .select('tipo,valor,categoria_id,categoria:erp_categorias!categoria_id(nome,tipo)')
+      .select('tipo,valor,categoria_id')
       .gte('data', from).lte('data', to)
       .in('tipo', ['entrada', 'saida'])
-    for (const m of (movs || []) as unknown as { tipo: string; valor: number; categoria?: { nome?: string; tipo?: string } }[]) {
-      const cat = m.categoria?.nome || (m.tipo === 'entrada' ? 'Outras Receitas' : 'Outras Despesas')
-      if (nonOperationalCategory(cat)) continue
-      if (m.tipo === 'entrada') {
-        receitas += Number(m.valor || 0)
-        porCategoriaReceita[cat] = { nome: cat, valor: (porCategoriaReceita[cat]?.valor || 0) + Number(m.valor || 0) }
-      } else if (m.tipo === 'saida') {
-        despesas += Number(m.valor || 0)
-        porCategoriaDespesa[cat] = { nome: cat, valor: (porCategoriaDespesa[cat]?.valor || 0) + Number(m.valor || 0) }
-      }
+    for (const m of (movs || []) as { tipo: string; valor: number; categoria_id: string | null }[]) {
+      lanca(m.categoria_id, m.tipo === 'entrada' ? 'Outras Receitas' : 'Outras Despesas', m.tipo === 'entrada' ? 'entrada' : 'saida', Number(m.valor || 0))
     }
   } else {
-    const { data: cps } = await sb
-      .from('erp_contas_pagar')
-      .select('valor,desconto,juros,multa,categoria:erp_categorias!categoria_id(nome)')
-      .gte('vencimento', from).lte('vencimento', to)
-      .neq('status', 'cancelado')
-    const { data: crs } = await sb
-      .from('erp_contas_receber')
-      .select('valor,desconto,juros,multa,categoria:erp_categorias!categoria_id(nome)')
-      .gte('vencimento', from).lte('vencimento', to)
-      .neq('status', 'cancelado')
-    for (const r of (cps || []) as unknown as { valor: number; desconto: number; juros: number; multa: number; categoria?: { nome?: string } }[]) {
-      const v = Number(r.valor || 0) - Number(r.desconto || 0) + Number(r.juros || 0) + Number(r.multa || 0)
-      const cat = r.categoria?.nome || 'Outras Despesas'
-      despesas += v
-      porCategoriaDespesa[cat] = { nome: cat, valor: (porCategoriaDespesa[cat]?.valor || 0) + v }
-    }
-    for (const r of (crs || []) as unknown as { valor: number; desconto: number; juros: number; multa: number; categoria?: { nome?: string } }[]) {
-      const v = Number(r.valor || 0) - Number(r.desconto || 0) + Number(r.juros || 0) + Number(r.multa || 0)
-      const cat = r.categoria?.nome || 'Outras Receitas'
-      receitas += v
-      porCategoriaReceita[cat] = { nome: cat, valor: (porCategoriaReceita[cat]?.valor || 0) + v }
-    }
+    const [{ data: cps }, { data: crs }] = await Promise.all([
+      sb.from('erp_contas_pagar')
+        .select('valor,desconto,juros,multa,categoria_id')
+        .gte('vencimento', from).lte('vencimento', to)
+        .neq('status', 'cancelado'),
+      sb.from('erp_contas_receber')
+        .select('valor,desconto,juros,multa,categoria_id')
+        .gte('vencimento', from).lte('vencimento', to)
+        .neq('status', 'cancelado'),
+    ])
+    type Tit = { valor: number; desconto: number; juros: number; multa: number; categoria_id: string | null }
+    const liq = (r: Tit) => Number(r.valor || 0) - Number(r.desconto || 0) + Number(r.juros || 0) + Number(r.multa || 0)
+    for (const r of (cps || []) as Tit[]) lanca(r.categoria_id, 'Outras Despesas', 'saida', liq(r))
+    for (const r of (crs || []) as Tit[]) lanca(r.categoria_id, 'Outras Receitas', 'entrada', liq(r))
   }
 
-  const resultado = receitas - despesas
+  // linhas por grupo (net por categoria; sinal do ponto de vista do grupo)
+  const linhasDe = (grupo: DreGrupo, sinal: 1 | -1) =>
+    [...acc.values()].filter((a) => a.grupo === grupo)
+      .map((a) => ({ nome: a.nome, valor: r2(sinal === 1 ? a.entrada - a.saida : a.saida - a.entrada) }))
+      .filter((l) => Math.abs(l.valor) > 0.005)
+      .sort((a, b) => b.valor - a.valor)
+  const soma = (ls: { valor: number }[]) => r2(ls.reduce((s, l) => s + l.valor, 0))
+
+  const gReceita = linhasDe('receita', 1)
+  const gImposto = linhasDe('imposto', -1)
+  const gCusto = linhasDe('custo_direto', -1)
+  const gVar = linhasDe('despesa_variavel', -1)
+  const gFixa = linhasDe('despesa_fixa', -1)
+  const gFin = linhasDe('financeiro', 1) // net: receitas financeiras (+), custos financeiros (−)
+
+  const receitaBruta = soma(gReceita)
+  const impostos = soma(gImposto)
+  const receitaLiquida = r2(receitaBruta - impostos)
+  const custoDireto = soma(gCusto)
+  const lucroBruto = r2(receitaLiquida - custoDireto)
+  const despVariaveis = soma(gVar)
+  const despFixas = soma(gFixa)
+  const ebitda = r2(lucroBruto - despVariaveis - despFixas)
+  const resultadoFinanceiro = soma(gFin)
+  const lucroLiquido = r2(ebitda + resultadoFinanceiro)
+
+  // legado (agente WhatsApp / gráficos): totais brutos de entradas e saídas
+  let receitas = 0
+  let despesas = 0
+  const porCategoriaReceita: { nome: string; valor: number }[] = []
+  const porCategoriaDespesa: { nome: string; valor: number }[] = []
+  for (const a of acc.values()) {
+    if (a.entrada > 0) { receitas += a.entrada; porCategoriaReceita.push({ nome: a.nome, valor: r2(a.entrada) }) }
+    if (a.saida > 0) { despesas += a.saida; porCategoriaDespesa.push({ nome: a.nome, valor: r2(a.saida) }) }
+  }
+  receitas = r2(receitas); despesas = r2(despesas)
+  const resultado = r2(receitas - despesas)
+
   return {
     regime,
     from, to,
+    // ── cascata contábil ──
+    cascata: {
+      receita_bruta: { total: receitaBruta, linhas: gReceita },
+      impostos: { total: impostos, linhas: gImposto },
+      receita_liquida: receitaLiquida,
+      custo_direto: { total: custoDireto, linhas: gCusto },
+      lucro_bruto: lucroBruto,
+      despesas_variaveis: { total: despVariaveis, linhas: gVar },
+      despesas_fixas: { total: despFixas, linhas: gFixa },
+      ebitda,
+      resultado_financeiro: { total: resultadoFinanceiro, linhas: gFin },
+      lucro_liquido: lucroLiquido,
+      margem_liquida: receitaBruta > 0 ? r2(lucroLiquido / receitaBruta * 10000) / 100 : 0,
+      margem_ebitda: receitaBruta > 0 ? r2(ebitda / receitaBruta * 10000) / 100 : 0,
+    },
+    // ── legado ──
     receitas,
     despesas,
     resultado,
     margem: receitas > 0 ? (resultado / receitas) : 0,
-    grupos_receita: Object.values(porCategoriaReceita).sort((a, b) => b.valor - a.valor),
-    grupos_despesa: Object.values(porCategoriaDespesa).sort((a, b) => b.valor - a.valor),
+    grupos_receita: porCategoriaReceita.sort((a, b) => b.valor - a.valor),
+    grupos_despesa: porCategoriaDespesa.sort((a, b) => b.valor - a.valor),
   }
 }
 

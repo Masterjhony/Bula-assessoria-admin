@@ -8,10 +8,13 @@ export async function GET(req: NextRequest) {
   const dataRef = sp.get('data') || new Date().toISOString().slice(0, 10)
   const sb = admin()
 
-  const [partidas, plano, bancos] = await Promise.all([
+  const [partidas, plano, bancos, crAbertos, cpAbertos] = await Promise.all([
     sb.from('erp_lancamento_partidas').select('plano_conta_id,natureza,valor,lancamento:erp_lancamentos!lancamento_id(data,status)'),
     sb.from('erp_plano_contas').select('*').order('codigo'),
     sb.from('erp_contas_bancarias').select('id,nome,saldo_atual,ativo').eq('ativo', true),
+    // posicao operacional: direitos e obrigacoes em aberto (independe de lancamentos manuais)
+    sb.from('erp_contas_receber').select('valor,desconto,juros,multa,valor_recebido').in('status', ['aberto', 'parcial', 'vencido']),
+    sb.from('erp_contas_pagar').select('valor,desconto,juros,multa,valor_pago,tags').in('status', ['aberto', 'parcial', 'vencido']),
   ])
 
   const saldos: Record<string, number> = {}
@@ -39,6 +42,19 @@ export async function GET(req: NextRequest) {
 
   const saldoBancos = (bancos.data || []).reduce((s: number, c: { saldo_atual: number }) => s + Number(c.saldo_atual || 0), 0)
 
+  // ── balanço operacional: bancos + CR em aberto (ativo) x CP em aberto
+  // (passivo). Títulos com tag 'orcamento' são fato gerador futuro — ficam
+  // fora do passivo real e aparecem como linha informativa.
+  type Tit = { valor: number; desconto: number; juros: number; multa: number; valor_recebido?: number; valor_pago?: number; tags?: string[] | null }
+  const due = (r: Tit, k: 'valor_recebido' | 'valor_pago') =>
+    Number(r.valor || 0) - Number(r.desconto || 0) + Number(r.juros || 0) + Number(r.multa || 0) - Number(r[k] || 0)
+  const contasReceber = ((crAbertos.data || []) as Tit[]).reduce((s, r) => s + due(r, 'valor_recebido'), 0)
+  const cpRows = (cpAbertos.data || []) as Tit[]
+  const isOrc = (r: Tit) => Array.isArray(r.tags) && r.tags.includes('orcamento')
+  const contasPagar = cpRows.filter((r) => !isOrc(r)).reduce((s, r) => s + due(r, 'valor_pago'), 0)
+  const cpOrcamento = cpRows.filter(isOrc).reduce((s, r) => s + due(r, 'valor_pago'), 0)
+  const bancosDetalhe = (bancos.data || []).map((c: { nome: string; saldo_atual: number }) => ({ nome: c.nome, valor: Number(c.saldo_atual || 0) }))
+
   return ok({
     data_ref: dataRef,
     linhas,
@@ -48,5 +64,15 @@ export async function GET(req: NextRequest) {
     patrimonio_total: totalPorTipo.patrimonio,
     resultado: totalPorTipo.receita - totalPorTipo.despesa,
     saldo_bancos: saldoBancos,
+    operacional: {
+      bancos: saldoBancos,
+      bancos_detalhe: bancosDetalhe,
+      contas_a_receber: contasReceber,
+      ativo: saldoBancos + contasReceber,
+      contas_a_pagar: contasPagar,
+      orcamento_futuro: cpOrcamento,
+      passivo: contasPagar,
+      patrimonio_liquido: saldoBancos + contasReceber - contasPagar,
+    },
   })
 }
