@@ -87,6 +87,8 @@ export interface Cliente {
   clienteRowId?: string
   // De onde o registro veio: agregado dos fechamentos, cadastrado à mão, ou só CRM.
   origem?: 'fechamento' | 'manual' | 'crm'
+  // Assessor responsável (pisteiro dos lotes no HastaPro; editável na ficha).
+  assessor?: string
 
   // ── Dados de cadastro p/ leiloeiras (overlay manual / vindo do CRM) ──
   cpf?: string

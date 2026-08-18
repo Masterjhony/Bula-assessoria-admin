@@ -646,6 +646,7 @@ export type GroupDecisionOutcome =
     | { kind: 'ignored'; reason: string }
     | { kind: 'unmatched'; decision: 'aprovado' | 'recusado' }
     | { kind: 'decided'; decision: 'aprovado' | 'recusado'; cliente: string; leiloeira: string; clienteAvisado: boolean }
+    | { kind: 'ficha_ingerida'; cliente: string; leiloeira: string }
 
 interface ParsedDecision {
     decision: 'aprovado' | 'recusado'
@@ -694,6 +695,129 @@ function parseDecision(text: string): ParsedDecision | null {
     return null
 }
 
+/* ─── Ficha postada manualmente no grupo ─────────────────────────────────
+   Assessores e equipe também postam fichas DIRETO no grupo da leiloeira, sem
+   passar pelo bot — e essas nunca viravam registro: a decisão posterior saía
+   como "unmatched" e o cadastro não existia no sistema (pedido do chefe,
+   18/08/2026: "todos os cadastros devem estar aqui, inclusive os mais
+   recentes"). A ingestão é CONSERVADORA de propósito: só entra mensagem com
+   CPF + nome identificável — o sinal mais forte de que aquilo é uma ficha e
+   não conversa. */
+
+export interface FichaManual {
+    nome: string
+    cpf: string | null
+    telefone: string | null
+    cidade: string | null
+    uf: string | null
+}
+
+const SAUDACAO_RE = /^(bom dia|boa tarde|boa noite|ol[áa]\b|oi\b|segue\b|seguem\b|ficha\b|cadastro\b|por favor|pfv\b|favor\b|dados\b|novo cadastro)/i
+
+export function parseFichaManual(text: string): FichaManual | null {
+    const t = String(text ?? '').trim()
+    if (t.length < 10) return null
+    const cpfM = /(\d{3}\.?\d{3}\.?\d{3}-?\d{2})(?!\d)/.exec(t)
+    if (!cpfM) return null // sem CPF não é ficha confiável — não arrisca
+
+    // nome: rótulo explícito primeiro…
+    let nome = (/(?:^|\n)\s*(?:nome(?:\s+completo)?|cliente|comprador)\s*[:\-]\s*(.{3,90})/i.exec(t)?.[1] ?? '').trim()
+    // …senão, a primeira linha que parece um nome próprio (2+ palavras, só letras)
+    if (!nome) {
+        for (const linhaRaw of t.split('\n')) {
+            const linha = linhaRaw.trim()
+            if (!linha || SAUDACAO_RE.test(linha)) continue
+            const soLetras = /^[\p{L}][\p{L} '.\-]{5,89}$/u.test(linha)
+            if (soLetras && linha.split(/\s+/).length >= 2 && !/\d/.test(linha)) { nome = linha; break }
+            // a primeira linha "não-nome" (número, frase longa) encerra a busca:
+            // ficha de verdade traz o nome no topo.
+            break
+        }
+    }
+    if (!nome || clienteMatchKey(nome).split(' ').length < 2) return null
+
+    const telM = /\(?\b(\d{2})\)?[\s.]?(9?\d{4})[-\s.]?(\d{4})\b/.exec(t.replace(cpfM[1], ''))
+    const cidadeM = /([\p{L}][\p{L} .']{2,40})\s*[\/\-]\s*([A-Z]{2})\b/u.exec(t)
+    return {
+        nome,
+        cpf: cpfM[1].replace(/\D/g, ''),
+        telefone: telM ? `${telM[1]}${telM[2]}${telM[3]}` : null,
+        cidade: cidadeM ? cidadeM[1].trim() : null,
+        uf: cidadeM ? cidadeM[2] : null,
+    }
+}
+
+/** Registra a ficha manual como submissão 'enviado' — em tempo real. */
+async function ingereFichaManual(
+    supabase: SupabaseClient,
+    leiloeira: LeiloeiraGroupRow,
+    input: GroupMessageInput,
+    ficha: FichaManual,
+): Promise<GroupDecisionOutcome> {
+    const key = clienteMatchKey(ficha.nome)
+    if (!key) return { kind: 'ignored', reason: 'ficha_sem_nome' }
+
+    // idempotente: uma submissão por (leiloeira, cliente)
+    const { data: existente } = await supabase
+        .from('cliente_leiloeira_cadastro')
+        .select('id, status')
+        .eq('leiloeira_id', leiloeira.id)
+        .eq('cliente_key', key)
+        .maybeSingle()
+    if (existente) return { kind: 'ignored', reason: 'ficha_ja_registrada' }
+
+    // vincula o lead: CPF (dígitos ou formatado) > nome
+    let leadId: string | null = null
+    if (ficha.cpf) {
+        const { data } = await supabase
+            .from('crm_leads')
+            .select('id')
+            .or(`cpf.eq.${ficha.cpf},cpf.eq.${fmtCpf(ficha.cpf)}`)
+            .limit(1)
+        leadId = data?.[0]?.id ?? null
+    }
+    if (!leadId) {
+        const { data } = await supabase
+            .from('crm_leads')
+            .select('id')
+            .ilike('nome', ficha.nome)
+            .eq('arquivado', false)
+            .limit(1)
+        leadId = data?.[0]?.id ?? null
+    }
+
+    const now = new Date().toISOString()
+    const obs = [
+        `Ficha postada manualmente no grupo por ${input.senderName || input.participant || 'participante'} — ingerida automaticamente.`,
+        ficha.cpf ? `CPF ${fmtCpf(ficha.cpf)}` : '',
+        ficha.telefone ? `Fone ${ficha.telefone}` : '',
+        ficha.cidade ? `${ficha.cidade}${ficha.uf ? `/${ficha.uf}` : ''}` : '',
+    ].filter(Boolean).join(' · ')
+    const { error } = await supabase.from('cliente_leiloeira_cadastro').insert({
+        cliente_key: key,
+        leiloeira_id: leiloeira.id,
+        status: 'enviado',
+        canal: 'whatsapp',
+        enviado_at: now,
+        crm_lead_id: leadId,
+        observacoes: obs,
+    })
+    if (error) {
+        console.warn('[cadastro-grupo] ficha manual não gravada:', error.message)
+        return { kind: 'ignored', reason: 'ficha_erro_gravar' }
+    }
+
+    void notifyTeamGroup(supabase, [
+        '📄 *Ficha capturada no grupo da leiloeira*',
+        `Cliente: ${ficha.nome}${ficha.uf ? ` (${ficha.uf})` : ''}`,
+        `Leiloeira: ${leiloeira.nome} · postada por ${input.senderName || 'participante'}`,
+        leadId ? 'Vinculada ao lead do CRM.' : 'Sem lead correspondente no CRM — carteira de assessor.',
+        'Registrada como SUBMETIDA; quando a leiloeira responder aprovado/recusado, o ciclo fecha sozinho.',
+    ].join('\n')).catch(() => { /* best-effort */ })
+
+    return { kind: 'ficha_ingerida', cliente: ficha.nome, leiloeira: leiloeira.nome }
+}
+
 function parseCodigo(...texts: (string | null | undefined)[]): string | null {
     for (const t of texts) {
         const m = /CAD-([A-Z0-9]{4,10})/i.exec(t || '')
@@ -729,7 +853,12 @@ export async function handleLeiloeiraGroupMessage(
     if (!leiloeira) return { kind: 'ignored', reason: 'grupo_sem_leiloeira' }
 
     const parsed = parseDecision(input.text)
-    if (!parsed) return { kind: 'ignored', reason: 'sem_decisao' }
+    if (!parsed) {
+        // Não é decisão — pode ser uma FICHA postada manualmente no grupo.
+        const ficha = parseFichaManual(input.text)
+        if (ficha) return ingereFichaManual(supabase, leiloeira, input, ficha)
+        return { kind: 'ignored', reason: 'sem_decisao' }
+    }
 
     const decision = parsed.decision
 
@@ -759,7 +888,9 @@ export async function handleLeiloeiraGroupMessage(
         // Nada pendente e nenhum código citado → é conversa normal do grupo
         // que por acaso contém "aprovado"; não incomodar.
         if (!pendentes.length && !codigo) return { kind: 'ignored', reason: 'sem_pendencias' }
-        const hay = `${input.text}\n${input.quotedText || ''}`.toLowerCase()
+        // clienteMatchKey também no texto: a chave é sem acento ("joao carlos"),
+        // e o .toLowerCase() puro deixava "João Carlos - ok" sem match.
+        const hay = clienteMatchKey(`${input.text}\n${input.quotedText || ''}`)
         const porNome = pendentes.filter(p => p.cliente_key && hay.includes(p.cliente_key))
         if (porNome.length === 1) cadastro = porNome[0]
         // Fallback "só existe uma pendente" vale apenas para a forma EXPLÍCITA.

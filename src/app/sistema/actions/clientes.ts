@@ -49,6 +49,7 @@ type ClienteRow = {
   score_credito: number | null; score_faixa: string | null; score_consultado_at: string | null
   protestos: unknown; protestos_consultado_at: string | null
   momento_pecuaria: string | null; operacao_pecuaria: string | null
+  assessor: string | null
 }
 
 type InteracaoRow = {
@@ -417,6 +418,7 @@ export async function getClientes(): Promise<Cliente[]> {
         proximoFollowup: row.proximo_followup ? String(row.proximo_followup).slice(0, 10) : existing.proximoFollowup,
         crmLeadId: existing.crmLeadId || row.crm_lead_id || undefined,
         clienteRowId: row.id,
+        assessor: row.assessor || undefined,
         ...cadastroFields(row, linkedLead || leadByName.get(key)),
       })
     } else {
@@ -445,6 +447,7 @@ export async function getClientes(): Promise<Cliente[]> {
         matchKey: key,
         clienteRowId: row.id,
         origem: 'manual',
+        assessor: row.assessor || undefined,
         ...cadastroFields(row, lead),
       })
     }
@@ -630,6 +633,7 @@ export interface UpdateClienteCamposInput {
   preferencias?: string
   preferenciasCategorias?: PreferenciaCategoria[]
   tags?: string[]
+  assessor?: string
 }
 
 /**
@@ -647,6 +651,7 @@ export async function updateClienteCampos(input: UpdateClienteCamposInput): Prom
   if (input.preferencias !== undefined) patch.preferencias = input.preferencias
   if (input.preferenciasCategorias !== undefined) patch.preferencias_categorias = input.preferenciasCategorias.filter((c) => VALID_PREF_CAT.includes(c))
   if (input.tags !== undefined) patch.tags = input.tags
+  if (input.assessor !== undefined) patch.assessor = input.assessor.trim() || null
   if (Object.keys(patch).length === 0) return
 
   const { data: existing } = await supabase

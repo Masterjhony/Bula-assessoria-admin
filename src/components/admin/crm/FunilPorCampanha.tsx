@@ -414,7 +414,8 @@ export function FunilPorCampanha({ dados }: { dados?: DadosDoFunil }) {
                                 <th className="py-2 pr-3 font-medium text-right">Cad./MQL<br /><span className="text-[9px]">meta {d.metas.cadastroPorMql}%</span></th>
                                 <th className="py-2 pr-3 font-medium text-right">Aprov./cad.<br /><span className="text-[9px]">meta {d.metas.aprovadoPorCadastro}%</span></th>
                                 <th className="py-2 pr-3 font-medium text-right">Clientes</th>
-                                <th className="py-2 font-medium text-right">Faturamento</th>
+                                <th className="py-2 pr-3 font-medium text-right">Faturamento</th>
+                                <th className="py-2 font-medium text-right">Gargalo</th>
                             </tr>
                         </thead>
                         <tbody className="divide-y divide-gray-100 dark:divide-[#1E1E1E]">
@@ -430,7 +431,18 @@ export function FunilPorCampanha({ dados }: { dados?: DadosDoFunil }) {
                                     <Celula taxa={c.taxas.cadastroPorMql} meta={d.metas.cadastroPorMql} />
                                     <Celula taxa={c.taxas.aprovadoPorCadastro} meta={d.metas.aprovadoPorCadastro} />
                                     <td className="py-2 pr-3 text-right tabular-nums">{c.etapas.clientes || '—'}</td>
-                                    <td className="py-2 text-right tabular-nums font-semibold">{c.resultado.faturamento ? brl0(c.resultado.faturamento) : '—'}</td>
+                                    <td className="py-2 pr-3 text-right tabular-nums font-semibold">{c.resultado.faturamento ? brl0(c.resultado.faturamento) : '—'}</td>
+                                    <td className="py-2 text-right">
+                                        {(() => {
+                                            const g = gargaloDaCampanha(c, d.metas);
+                                            if (!g) return <span className="text-gray-400">—</span>;
+                                            return (
+                                                <span className="text-[11px] font-semibold whitespace-nowrap" style={{ color: corDaMeta(g.pctDaMeta) }}>
+                                                    {g.rotulo} · {g.pctDaMeta}% da meta
+                                                </span>
+                                            );
+                                        })()}
+                                    </td>
                                 </tr>
                             ))}
                         </tbody>
@@ -444,7 +456,8 @@ export function FunilPorCampanha({ dados }: { dados?: DadosDoFunil }) {
                                 <td className="py-2 pr-3 text-right tabular-nums">{taxaTxt(Math.round((d.totais.cadastrosSubmetidos / d.totais.mql) * 10000) / 100)}</td>
                                 <td className="py-2 pr-3 text-right tabular-nums">{taxaTxt(Math.round((d.totais.cadastrosAprovados / d.totais.cadastrosSubmetidos) * 10000) / 100)}</td>
                                 <td className="py-2 pr-3 text-right tabular-nums">{int(d.totais.clientes)}</td>
-                                <td className="py-2 text-right tabular-nums">{brl0(d.totais.faturamento)}</td>
+                                <td className="py-2 pr-3 text-right tabular-nums">{brl0(d.totais.faturamento)}</td>
+                                <td className="py-2" />
                             </tr>
                         </tfoot>
                     </table>
@@ -508,6 +521,27 @@ export function FunilPorCampanha({ dados }: { dados?: DadosDoFunil }) {
  * comparação de palavra-chave de propósito: o nome da campanha é escrito à mão
  * no Gerenciador e nunca vai casar exatamente com o nome da página.
  */
+/**
+ * Gargalo da campanha: etapa (com meta comparável) cuja taxa apurada ficou mais
+ * longe da meta. Devolve null quando nenhuma etapa é comparável.
+ */
+function gargaloDaCampanha(f: FunilCampanha, metas: FunilCampanhasDados['metas']): { rotulo: string; pctDaMeta: number } | null {
+    const candidatas: Array<{ rotulo: string; taxa: number | null; meta: number }> = [
+        { rotulo: 'CTR', taxa: f.taxas.ctr, meta: metas.ctr },
+        { rotulo: 'MQL/lead', taxa: f.taxas.mqlPorLead, meta: metas.mqlPorLead },
+        { rotulo: 'Cadastro/MQL', taxa: f.taxas.cadastroPorMql, meta: metas.cadastroPorMql },
+        { rotulo: 'Aprovação', taxa: f.taxas.aprovadoPorCadastro, meta: metas.aprovadoPorCadastro },
+        { rotulo: 'Compra', taxa: f.taxas.clientePorAprovado, meta: metas.clientePorAprovado },
+    ];
+    let pior: { rotulo: string; pctDaMeta: number } | null = null;
+    for (const c of candidatas) {
+        const p = versusMeta(c.taxa, c.meta);
+        if (p == null) continue;
+        if (!pior || p < pior.pctDaMeta) pior = { rotulo: c.rotulo, pctDaMeta: p };
+    }
+    return pior;
+}
+
 function pertence(landing: string, campanha: string): boolean {
     const norm = (t: string) => t.toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '');
     const l = norm(landing), c = norm(campanha);

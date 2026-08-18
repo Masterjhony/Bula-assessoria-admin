@@ -1283,6 +1283,7 @@ async function renderContas(modo) {
   const fParc = state.filters.parceiro_id;
   const fAge = state.filters.aging; // vencer | d30 | d60 | d90 | d90p | ok
   const agingBucket = (r) => {
+    if (r.status === 'cancelado') return 'cancelado';
     if (isDone(r)) return 'ok';
     const d = diasAtraso(r.vencimento);
     if (d == null || d <= 0) return 'vencer';
@@ -1326,9 +1327,9 @@ async function renderContas(modo) {
   });
 
   // ---- KPIs (sobre a lista já filtrada) ----
-  let kAberto=0, kAbertoN=0, kVenc=0, kVencN=0, kDone=0, kDoneN=0, kAtrasoSum=0, totalFiltro=0;
+  let kAberto=0, kAbertoN=0, kVenc=0, kVencN=0, kDone=0, kDoneN=0, kAtrasoSum=0, totalFiltro=0, totalFiltroN=0;
   for (const r of list) {
-    totalFiltro += Number(r.valor||0);
+    if (r.status !== 'cancelado') { totalFiltro += Number(r.valor||0); totalFiltroN++; } // cancelados ficam fora dos totais
     if (r.status === 'vencido') { kVenc += calcRestante(r); kVencN++; const d=diasAtraso(r.vencimento); if(d>0) kAtrasoSum+=d; }
     else if (['aberto','parcial'].includes(r.status)) { kAberto += calcRestante(r); kAbertoN++; }
     else if (isDone(r)) { kDone += Number(isCP?r.valor_pago:r.valor_recebido)||0; kDoneN++; }
@@ -1347,6 +1348,7 @@ async function renderContas(modo) {
   const buckets = { vencer:{v:0,n:0}, d30:{v:0,n:0}, d60:{v:0,n:0}, d90:{v:0,n:0}, d90p:{v:0,n:0}, ok:{v:0,n:0} };
   for (const r of baseAging) {
     const b = agingBucket(r);
+    if (!buckets[b]) continue; // cancelados nao entram no aging
     buckets[b].v += (b==='ok') ? (Number(isCP?r.valor_pago:r.valor_recebido)||0) : calcRestante(r);
     buckets[b].n++;
   }
@@ -1536,9 +1538,9 @@ async function renderContas(modo) {
       </div>
       <div class="kpi info">
         <div class="kpi-icon"><span class="material-symbols-outlined">functions</span></div>
-        <div class="kpi-label">Total no filtro <small>(${list.length})</small></div>
+        <div class="kpi-label">Total no filtro <small>(${totalFiltroN})</small></div>
         <div class="kpi-value money">${fmtBRL(totalFiltro)}</div>
-        <div class="kpi-sub">Ticket médio ${fmtBRL(list.length?totalFiltro/list.length:0)}</div>
+        <div class="kpi-sub">Ticket médio ${fmtBRL(totalFiltroN?totalFiltro/totalFiltroN:0)}${totalFiltroN<list.length?` · ${list.length-totalFiltroN} cancelado${list.length-totalFiltroN===1?'':'s'} fora`:''}</div>
       </div>
     </div>
 
@@ -1846,7 +1848,7 @@ function toggleSelAllContas(modo, on) {
   const fCat=state.filters.categoria_id, fParc=state.filters.parceiro_id, fAge=state.filters.aging;
   const isCP=modo==='pagar';
   const hojeMs=new Date(today()+'T00:00:00').getTime();
-  const bucket=(r)=>{ if(['pago','recebido'].includes(r.status))return'ok'; const d=r.vencimento?Math.round((hojeMs-new Date(r.vencimento+'T00:00:00').getTime())/86400000):null; if(d==null||d<=0)return'vencer'; if(d<=30)return'd30'; if(d<=60)return'd60'; if(d<=90)return'd90'; return'd90p'; };
+  const bucket=(r)=>{ if(r.status==='cancelado')return'cancelado'; if(['pago','recebido'].includes(r.status))return'ok'; const d=r.vencimento?Math.round((hojeMs-new Date(r.vencimento+'T00:00:00').getTime())/86400000):null; if(d==null||d<=0)return'vencer'; if(d<=30)return'd30'; if(d<=60)return'd60'; if(d<=90)return'd90'; return'd90p'; };
   const vis=list.filter(r=>{ if(fCat&&r.categoria_id!==fCat)return false; if(fParc&&(isCP?r.fornecedor_id:r.cliente_id)!==fParc)return false; if(fAge&&bucket(r)!==fAge)return false; return true; });
   if (on) vis.forEach(r=>state.contasSel.add(r.id)); else vis.forEach(r=>state.contasSel.delete(r.id));
   render();
@@ -1924,7 +1926,7 @@ function exportContasCsv(modo, onlySelected) {
   // aplica os mesmos filtros client-side da tela
   const fCat=state.filters.categoria_id, fParc=state.filters.parceiro_id, fAge=state.filters.aging;
   const hojeMs=new Date(today()+'T00:00:00').getTime();
-  const bucket=(r)=>{ if(['pago','recebido'].includes(r.status))return'ok'; const d=r.vencimento?Math.round((hojeMs-new Date(r.vencimento+'T00:00:00').getTime())/86400000):null; if(d==null||d<=0)return'vencer'; if(d<=30)return'd30'; if(d<=60)return'd60'; if(d<=90)return'd90'; return'd90p'; };
+  const bucket=(r)=>{ if(r.status==='cancelado')return'cancelado'; if(['pago','recebido'].includes(r.status))return'ok'; const d=r.vencimento?Math.round((hojeMs-new Date(r.vencimento+'T00:00:00').getTime())/86400000):null; if(d==null||d<=0)return'vencer'; if(d<=30)return'd30'; if(d<=60)return'd60'; if(d<=90)return'd90'; return'd90p'; };
   list = list.filter(r=>{ if(fCat&&r.categoria_id!==fCat)return false; if(fParc&&(isCP?r.fornecedor_id:r.cliente_id)!==fParc)return false; if(fAge&&bucket(r)!==fAge)return false; return true; });
   if (onlySelected) list = list.filter(r=>state.contasSel.has(r.id));
   if (!list.length) { toast('Nada para exportar','error'); return; }

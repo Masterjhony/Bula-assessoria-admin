@@ -51,9 +51,9 @@ export async function computeErpDashboard(
     sb.from('erp_contas_pagar').select('valor,desconto,juros,multa,valor_pago').eq('status', 'vencido'),
     sb.from('erp_contas_receber').select('valor,desconto,juros,multa,valor_recebido').eq('status', 'vencido'),
     sb.from('erp_contas_bancarias').select('id,nome,saldo_atual,cor,tipo,ativo').eq('ativo', true).order('nome'),
-    // previsao do periodo (titulos com vencimento no periodo)
-    sb.from('erp_contas_pagar').select('valor,desconto,juros,multa,valor_pago').gte('vencimento', from).lte('vencimento', to),
-    sb.from('erp_contas_receber').select('valor,desconto,juros,multa,valor_recebido').gte('vencimento', from).lte('vencimento', to),
+    // previsao do periodo (titulos com vencimento no periodo; cancelados fora)
+    sb.from('erp_contas_pagar').select('valor,desconto,juros,multa,valor_pago').gte('vencimento', from).lte('vencimento', to).neq('status', 'cancelado'),
+    sb.from('erp_contas_receber').select('valor,desconto,juros,multa,valor_recebido').gte('vencimento', from).lte('vencimento', to).neq('status', 'cancelado'),
     // movimentos realizados no periodo e no periodo anterior
     sb.from('erp_movimentos_bancarios').select('data,tipo,valor,categoria_id,conta_bancaria_id').gte('data', from).lte('data', to),
     sb.from('erp_movimentos_bancarios').select('data,tipo,valor,categoria_id,conta_bancaria_id').gte('data', prevFrom).lte('data', prevTo),
@@ -225,10 +225,12 @@ export async function computeDre(
       .from('erp_contas_pagar')
       .select('valor,desconto,juros,multa,categoria:erp_categorias!categoria_id(nome)')
       .gte('vencimento', from).lte('vencimento', to)
+      .neq('status', 'cancelado')
     const { data: crs } = await sb
       .from('erp_contas_receber')
       .select('valor,desconto,juros,multa,categoria:erp_categorias!categoria_id(nome)')
       .gte('vencimento', from).lte('vencimento', to)
+      .neq('status', 'cancelado')
     for (const r of (cps || []) as unknown as { valor: number; desconto: number; juros: number; multa: number; categoria?: { nome?: string } }[]) {
       const v = Number(r.valor || 0) - Number(r.desconto || 0) + Number(r.juros || 0) + Number(r.multa || 0)
       const cat = r.categoria?.nome || 'Outras Despesas'

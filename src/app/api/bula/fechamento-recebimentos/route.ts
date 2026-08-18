@@ -15,7 +15,8 @@ export async function GET() {
     sb
       .from('erp_contas_receber')
       .select('id,fechamento_id,descricao,valor,valor_recebido,status,data_recebimento,vencimento,numero_documento')
-      .not('fechamento_id', 'is', null),
+      .not('fechamento_id', 'is', null)
+      .neq('status', 'cancelado'),
   ])
   if (e1) return NextResponse.json({ error: e1.message }, { status: 500 })
   if (e2) return NextResponse.json({ error: e2.message }, { status: 500 })

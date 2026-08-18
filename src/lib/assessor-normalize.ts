@@ -25,6 +25,12 @@ const CANONICAL_BY_KEY: ReadonlyMap<string, string> = new Map([
   ['fabio omena', FABIO_OMENA],
   ['fabio o mena', FABIO_OMENA],
   ['fabio omenna', FABIO_OMENA],
+  // Fechamentos antigos usam o nome completo — mesma pessoa
+  ['fabio omena gaia', FABIO_OMENA],
+  ['fabio de omena gaia', FABIO_OMENA],
+  ['fabio mena', FABIO_OMENA],
+  ['fabinho', FABIO_OMENA],
+  ['fabinho mena', FABIO_OMENA],
   // Leonardo Serafim aparece nos fechamentos também como apelido/parcial
   ['leo', 'Leonardo Serafim'],
   ['leo serafim', 'Leonardo Serafim'],

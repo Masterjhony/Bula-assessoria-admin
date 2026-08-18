@@ -25,6 +25,7 @@ import {
   type NovoClienteInput, type ClientesVgvSummary,
 } from '@/app/sistema/actions/clientes'
 import { getLeiloeiras, getClienteLeiloeiraStatus, setClienteLeiloeiraStatus } from '@/app/sistema/actions/leiloeiras'
+import { Pagination } from '@/components/admin/ui/Pagination'
 import {
   type Leiloeira, type ClienteLeiloeiraStatus, type CadastroStatus, CADASTRO_STATUS_META,
 } from '@/lib/leiloeiras'
@@ -427,6 +428,7 @@ function DetailDrawer({
               {cliente.email && <InfoRow icon={Mail} label="E-mail" value={cliente.email} />}
               <InfoRow icon={MapPin} label="Cidade / UF" value={`${cliente.cidade} — ${cliente.uf}`} />
               <InfoRow icon={Users} label="Responsável" value={cliente.responsavel} />
+              <InfoRow icon={Users} label="Assessor" value={cliente.assessor || '— (sem assessor vinculado)'} />
               <InfoRow icon={TrendingUp} label="Perfil de consumo" value={cliente.perfil} />
 
               {/* ── cadastro p/ leiloeiras ── */}
@@ -1026,6 +1028,7 @@ export function ClientesClient({ initialClientes, vgvSummary }: { initialCliente
   const [fInteresse, setFInteresse] = useState<'' | Interesse>('')
   const [fPreferencia, setFPreferencia] = useState<'' | PreferenciaCategoria>('')
   const [fReadiness, setFReadiness] = useState<'' | ClienteReadiness>('')
+  const [fAssessor, setFAssessor] = useState('')
 
   // Modo de exibição (cards / tabela / lista) — default cards, persistido em localStorage.
   const [viewMode, setViewMode] = useState<'cards' | 'tabela' | 'lista'>('cards')
@@ -1063,6 +1066,10 @@ export function ClientesClient({ initialClientes, vgvSummary }: { initialCliente
     () => [...new Set(clientes.map((c) => `${c.cidade}/${c.uf}`))].sort(),
     [clientes],
   )
+  const assessores = useMemo(
+    () => [...new Set(clientes.map((c) => c.assessor).filter((a): a is string => !!a))].sort(),
+    [clientes],
+  )
 
   // métricas por cliente (memo) para ordenação e filtro.
   const enriched = useMemo(
@@ -1086,9 +1093,10 @@ export function ClientesClient({ initialClientes, vgvSummary }: { initialCliente
         if (fInteresse && !c.interesses.includes(fInteresse)) return false
         if (fPreferencia && !(c.preferenciasCategorias ?? []).includes(fPreferencia)) return false
         if (fReadiness && clienteReadiness(c) !== fReadiness) return false
+        if (fAssessor && c.assessor !== fAssessor) return false
         return true
       })
-  }, [enriched, busca, fCidade, fStatus, fPerfil, fInteresse, fPreferencia, fReadiness])
+  }, [enriched, busca, fCidade, fStatus, fPerfil, fInteresse, fPreferencia, fReadiness, fAssessor])
 
   // Lista ordenada usada por todos os modos de exibição.
   const displayed = useMemo(() => {
@@ -1104,6 +1112,16 @@ export function ClientesClient({ initialClientes, vgvSummary }: { initialCliente
     })
   }, [filtered, sort])
 
+  // ── paginação (Frente A) ─────────────────────────────────────────────────────
+  const [page, setPage] = useState(1)
+  const [pageSize, setPageSize] = useState(50)
+  // volta pra página 1 quando muda o conjunto filtrado/ordenado ou o tamanho.
+  useEffect(() => { setPage(1) }, [busca, fCidade, fStatus, fPerfil, fInteresse, fPreferencia, fReadiness, fAssessor, sort, pageSize])
+  const paged = useMemo(
+    () => displayed.slice((page - 1) * pageSize, page * pageSize),
+    [displayed, page, pageSize],
+  )
+
   // ── KPIs ────────────────────────────────────────────────────────────────────
   const kpis = useMemo(() => {
     const total = enriched.length
@@ -1117,8 +1135,8 @@ export function ClientesClient({ initialClientes, vgvSummary }: { initialCliente
     return { total, ativos, recorrentes, volume, ticket, ultimaCompra, aptos }
   }, [enriched])
 
-  const hasFilter = busca || fCidade || fStatus || fPerfil || fInteresse || fPreferencia || fReadiness
-  const clearFilters = () => { setBusca(''); setFCidade(''); setFStatus(''); setFPerfil(''); setFInteresse(''); setFPreferencia(''); setFReadiness('') }
+  const hasFilter = busca || fCidade || fStatus || fPerfil || fInteresse || fPreferencia || fReadiness || fAssessor
+  const clearFilters = () => { setBusca(''); setFCidade(''); setFStatus(''); setFPerfil(''); setFInteresse(''); setFPreferencia(''); setFReadiness(''); setFAssessor('') }
 
   // ── ações ─────────────────────────────────────────────────────────────────────
   const exportCSV = useCallback(() => {
@@ -1306,6 +1324,10 @@ export function ClientesClient({ initialClientes, vgvSummary }: { initialCliente
               <option value="">Perfil</option>
               {PERFIS.map((p) => <option key={p} value={p}>{p}</option>)}
             </select>
+            <select className="select lg:w-[170px]" value={fAssessor} onChange={(e) => setFAssessor(e.target.value)}>
+              <option value="">Todos os assessores</option>
+              {assessores.map((a) => <option key={a} value={a}>{a}</option>)}
+            </select>
             <select className="select lg:w-[140px]" value={fInteresse} onChange={(e) => setFInteresse(e.target.value as Interesse | '')}>
               <option value="">Interesse</option>
               {INTERESSES.map((i) => <option key={i} value={i}>{i}</option>)}
@@ -1343,7 +1365,7 @@ export function ClientesClient({ initialClientes, vgvSummary }: { initialCliente
       ) : viewMode === 'cards' ? (
         /* ── CARDS ── */
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill,minmax(300px,1fr))', gap: 12 }}>
-          {displayed.map(({ c, m }) => {
+          {paged.map(({ c, m }) => {
             const r = clienteReadiness(c)
             const sm = STATUS_META[c.status]
             return (
@@ -1433,6 +1455,7 @@ export function ClientesClient({ initialClientes, vgvSummary }: { initialCliente
                   <SortTh label="Cliente" col="nome" sort={sort} onSort={toggleSort} />
                   <th>Telefone / WhatsApp</th>
                   <th>Cidade / UF</th>
+                  <th>Assessor</th>
                   <th>Perfil</th>
                   <SortTh label="Score" col="score" sort={sort} onSort={toggleSort} />
                   <th>Cadastro</th>
@@ -1444,7 +1467,7 @@ export function ClientesClient({ initialClientes, vgvSummary }: { initialCliente
                 </tr>
               </thead>
               <tbody>
-                {displayed.map(({ c, m }) => {
+                {paged.map(({ c, m }) => {
                   const sm = STATUS_META[c.status]
                   const r = clienteReadiness(c)
                   return (
@@ -1493,6 +1516,7 @@ export function ClientesClient({ initialClientes, vgvSummary }: { initialCliente
                         )}
                       </td>
                       <td style={{ color: 'var(--text2)' }}>{c.cidade} / {c.uf}</td>
+                      <td style={{ color: c.assessor ? 'var(--text2)' : 'var(--text3)' }}>{c.assessor || '—'}</td>
                       <td><Badge tone={PERFIL_BADGE[c.perfil]}>{c.perfil}</Badge></td>
                       <td><ScoreSelo cliente={c} /></td>
                       <td>
@@ -1522,7 +1546,7 @@ export function ClientesClient({ initialClientes, vgvSummary }: { initialCliente
         /* ── LISTA ── */
         <div className="card card-p0">
           <div className="card-b" style={{ padding: 0 }}>
-            {displayed.map(({ c, m }, idx) => {
+            {paged.map(({ c, m }, idx) => {
               const r = clienteReadiness(c)
               const faixa = c.scoreFaixa || scoreToFaixa(c.scoreCredito)
               return (
@@ -1570,6 +1594,18 @@ export function ClientesClient({ initialClientes, vgvSummary }: { initialCliente
             })}
           </div>
         </div>
+      )}
+
+      {/* paginação (Frente A) */}
+      {displayed.length > pageSize && (
+        <Pagination
+          page={page}
+          pageSize={pageSize}
+          total={displayed.length}
+          onPage={setPage}
+          onPageSize={setPageSize}
+          label="clientes"
+        />
       )}
 
       {/* drawer */}
