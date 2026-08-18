@@ -1,10 +1,21 @@
 'use client'
 
-import { useMemo } from 'react'
-import Link from 'next/link'
+/**
+ * LEILÕES & VENDAS — bloco de analytics do dashboard (reformado 18/08/2026).
+ *
+ * Visual novo, dados os mesmos (fechamentos alinhados ao HastaPro FIL 2):
+ *   1. KPIs com subtítulo explicando cada número;
+ *   2. VGV por mês — colunas SVG (a leitura executiva);
+ *   3. Timeline de leilões — cada evento em linha, com barra de VGV e chip de
+ *      cobertura (substitui a floresta de barras verticais);
+ *   4. Cobertura da pista — área SVG com linha de média;
+ *   5. Rankings — assessores e compradores com posição em medalha + donut por UF.
+ */
+
+import { useMemo, useState } from 'react'
 import {
   DollarSign, BarChart3, Percent, Hash, TrendingUp, ShoppingCart,
-  MapPin, Briefcase, Activity, Eye, Star,
+  MapPin, Briefcase, Users, CalendarDays,
 } from 'lucide-react'
 import { normalizeAssessorNome } from '@/lib/assessor-normalize'
 
@@ -26,17 +37,29 @@ export type FechamentoAnalyticsItem = {
 
 // ── Helpers ──────────────────────────────────────────────────
 
+const OURO = '#C9A84C'
+const GRAFITE = '#3d4451'
+
 const R = (v: number | null | undefined) =>
   v ? `R$ ${v.toLocaleString('pt-BR', { minimumFractionDigits: 0 })}` : 'R$ —'
+
+const compact = (v: number) => {
+  const abs = Math.abs(v)
+  if (abs >= 1_000_000) return `${(v / 1_000_000).toFixed(1).replace('.', ',')}M`
+  if (abs >= 1_000) return `${Math.round(v / 1_000)}k`
+  return String(Math.round(v))
+}
 
 const MES: Record<string, string> = {
   '01': 'Jan', '02': 'Fev', '03': 'Mar', '04': 'Abr', '05': 'Mai', '06': 'Jun',
   '07': 'Jul', '08': 'Ago', '09': 'Set', '10': 'Out', '11': 'Nov', '12': 'Dez',
 }
+
 function fmtDate(iso: string) {
-  const [y, m, d] = iso.split('-')
-  return { dia: Number(d), mes: MES[m] ?? m, ano: y, full: `${Number(d)} ${MES[m] ?? m} ${y}` }
+  const [y, m, d] = String(iso).slice(0, 10).split('-')
+  return { dia: Number(d), mes: MES[m] ?? m, ano: y, curto: `${Number(d)}/${m}`, full: `${Number(d)} ${MES[m] ?? m} ${y}` }
 }
+
 // Cobertura = % do faturamento total do leilão que a Bula cobriu.
 function coveragePct(f: { vgv_total?: number | null; faturamento_total_leilao?: number | null }) {
   const vgv = Number(f.vgv_total ?? 0)
@@ -44,18 +67,24 @@ function coveragePct(f: { vgv_total?: number | null; faturamento_total_leilao?: 
   if (!fat || !vgv) return 0
   return Math.round((vgv / fat) * 100)
 }
-// Aproveitamento dos lotes — métrica secundária.
-function lotesPct(vendidos: number, ofertados: number) {
-  if (!ofertados) return 0
-  return Math.round((vendidos / ofertados) * 100)
-}
-function fmtCompact(v: number) {
-  if (v >= 1_000_000) return `R$ ${(v / 1_000_000).toFixed(v >= 10_000_000 ? 0 : 1)}M`
-  if (v >= 1_000) return `R$ ${Math.round(v / 1_000)}K`
-  return `R$ ${v}`
-}
 
-// ── KPI Card ─────────────────────────────────────────────────
+const card = 'rounded-2xl border border-gray-100 dark:border-[#2A2A2A] bg-white dark:bg-[#141414]'
+
+function SecTitle({ icon: Icon, title, sub, right }: {
+  icon: React.ElementType; title: string; sub?: string; right?: React.ReactNode
+}) {
+  return (
+    <div className="flex items-start justify-between gap-3 mb-4 flex-wrap">
+      <div>
+        <p className="text-xs font-black uppercase tracking-wider text-gray-900 dark:text-white flex items-center gap-1.5">
+          <Icon size={13} style={{ color: OURO }} /> {title}
+        </p>
+        {sub && <p className="text-[10px] text-gray-400 mt-0.5">{sub}</p>}
+      </div>
+      {right}
+    </div>
+  )
+}
 
 function KpiCard({ icon: Icon, label, value, sub, gold }: {
   icon: React.ElementType; label: string; value: string; sub?: string; gold?: boolean
@@ -63,40 +92,319 @@ function KpiCard({ icon: Icon, label, value, sub, gold }: {
   return (
     <div className={`relative rounded-2xl border px-5 py-4 overflow-hidden transition-all hover:shadow-md
       ${gold
-        ? 'border-[#A68B4B]/30 bg-gradient-to-br from-[#A68B4B]/12 to-[#A68B4B]/4 hover:shadow-[#A68B4B]/10'
+        ? 'border-[#C9A84C]/40 bg-gradient-to-br from-[#C9A84C]/14 to-[#C9A84C]/4 hover:shadow-[#C9A84C]/10'
         : 'border-gray-100 dark:border-[#2A2A2A] bg-white dark:bg-[#141414] hover:border-gray-200 dark:hover:border-[#333]'}`}>
       <div className="flex items-center gap-2 mb-2.5">
         <div className={`w-6 h-6 rounded-lg flex items-center justify-center flex-shrink-0
-          ${gold ? 'bg-[#A68B4B]/15 text-[#A68B4B]' : 'bg-gray-50 dark:bg-[#1A1A1A] text-gray-400'}`}>
+          ${gold ? 'bg-[#C9A84C]/15 text-[#C9A84C]' : 'bg-gray-50 dark:bg-[#1A1A1A] text-gray-400'}`}>
           <Icon size={12} />
         </div>
         <span className="text-[10px] font-semibold uppercase tracking-wider text-gray-400">{label}</span>
       </div>
-      <p className={`text-2xl font-black leading-none ${gold ? 'text-[#A68B4B]' : 'text-gray-900 dark:text-white'}`}>{value}</p>
+      <p className={`text-2xl font-black leading-none ${gold ? 'text-[#C9A84C]' : 'text-gray-900 dark:text-white'}`}>{value}</p>
       {sub && <p className="text-[10px] text-gray-400 mt-1.5">{sub}</p>}
     </div>
   )
 }
 
-// ── Insights Section ─────────────────────────────────────────
+// ── 1. VGV por mês (colunas SVG) ─────────────────────────────
+
+function MonthlyVgvChart({ meses }: { meses: { key: string; label: string; vgv: number; leiloes: number }[] }) {
+  const [hover, setHover] = useState<number | null>(null)
+  if (!meses.length) return null
+  const H = 190
+  const PAD_TOP = 30
+  const max = Math.max(1, ...meses.map(m => m.vgv))
+  return (
+    <div>
+      <div className="flex items-end gap-2 sm:gap-3" style={{ height: H }}>
+        {meses.map((m, i) => {
+          const h = Math.max(((m.vgv / max) * (H - PAD_TOP)), 3)
+          const on = hover === i
+          return (
+            <div
+              key={m.key}
+              className="flex-1 min-w-0 flex flex-col items-center justify-end h-full cursor-default"
+              onMouseEnter={() => setHover(i)}
+              onMouseLeave={() => setHover(null)}
+            >
+              <span className={`text-[10px] font-black tabular-nums mb-1 transition-colors ${on ? 'text-[#C9A84C]' : 'text-gray-500 dark:text-gray-400'}`}>
+                {compact(m.vgv)}
+              </span>
+              <div
+                className="w-full rounded-t-xl transition-all duration-300"
+                style={{
+                  height: h,
+                  maxWidth: 72,
+                  background: on
+                    ? `linear-gradient(180deg, ${OURO}, ${OURO}99)`
+                    : `linear-gradient(180deg, ${GRAFITE}, ${GRAFITE}55)`,
+                  boxShadow: on ? `0 0 0 1px ${OURO}55` : undefined,
+                }}
+                title={`${m.label}: ${R(m.vgv)} em ${m.leiloes} leilão(ões)`}
+              />
+            </div>
+          )
+        })}
+      </div>
+      <div className="flex gap-2 sm:gap-3 mt-2 border-t border-gray-100 dark:border-[#262626] pt-2">
+        {meses.map((m, i) => (
+          <div key={m.key} className="flex-1 min-w-0 text-center">
+            <p className={`text-[10px] font-bold ${hover === i ? 'text-[#C9A84C]' : 'text-gray-600 dark:text-gray-300'}`}>{m.label}</p>
+            <p className="text-[9px] text-gray-400 tabular-nums">{m.leiloes} leilão{m.leiloes === 1 ? '' : 'es'}</p>
+          </div>
+        ))}
+      </div>
+    </div>
+  )
+}
+
+// ── 2. Timeline de leilões ───────────────────────────────────
+
+function LeilaoTimeline({ sorted, maxVgv }: { sorted: FechamentoAnalyticsItem[]; maxVgv: number }) {
+  const [verTodos, setVerTodos] = useState(false)
+  const recentes = useMemo(() => [...sorted].reverse(), [sorted]) // mais novo primeiro
+  const lista = verTodos ? recentes : recentes.slice(0, 10)
+  return (
+    <div>
+      <div className="space-y-1.5">
+        {lista.map(f => {
+          const dt = fmtDate(f.data)
+          const pct = coveragePct(f)
+          const w = Math.max((f.vgv_total / Math.max(1, maxVgv)) * 100, 1.2)
+          return (
+            <div key={f.id} className="group flex items-center gap-3 rounded-xl px-2 py-1.5 hover:bg-gray-50 dark:hover:bg-[#1A1A1A] transition-colors">
+              <div className="w-11 shrink-0 text-center rounded-lg border border-gray-100 dark:border-[#2A2A2A] py-1">
+                <p className="text-[13px] font-black leading-none text-gray-900 dark:text-white tabular-nums">{dt.dia}</p>
+                <p className="text-[8px] uppercase tracking-wider text-gray-400">{dt.mes}</p>
+              </div>
+              <div className="flex-1 min-w-0">
+                <div className="flex items-center justify-between gap-2 mb-1">
+                  <p className="text-[11px] font-semibold text-gray-700 dark:text-gray-200 truncate" title={f.nome}>{f.nome}</p>
+                  <div className="flex items-center gap-2 shrink-0">
+                    {pct > 0 && (
+                      <span className="text-[9px] font-bold px-1.5 py-0.5 rounded-full border border-[#C9A84C]/40 text-[#C9A84C]" title="Fatia do faturamento total do leilão coberta pela Bula">
+                        {pct}% cob.
+                      </span>
+                    )}
+                    <span className="text-[11px] font-black tabular-nums text-gray-900 dark:text-white">{R(f.vgv_total)}</span>
+                  </div>
+                </div>
+                <div className="h-1.5 rounded-full bg-gray-100 dark:bg-[#1E1E1E] overflow-hidden">
+                  <div
+                    className="h-full rounded-full transition-all duration-500"
+                    style={{ width: `${w}%`, background: `linear-gradient(90deg, ${GRAFITE}, ${OURO})` }}
+                  />
+                </div>
+                <p className="text-[9px] text-gray-400 mt-0.5 tabular-nums">
+                  {f.lotes_vendidos}/{f.lotes_ofertados} lotes · {f.animais_vendidos} animais
+                </p>
+              </div>
+            </div>
+          )
+        })}
+      </div>
+      {recentes.length > 10 && (
+        <button
+          type="button"
+          onClick={() => setVerTodos(v => !v)}
+          className="mt-3 w-full text-center text-[10px] font-bold uppercase tracking-wider text-[#C9A84C] hover:opacity-80 transition-opacity"
+        >
+          {verTodos ? 'Mostrar só os 10 últimos' : `Ver todos os ${recentes.length} leilões`}
+        </button>
+      )}
+    </div>
+  )
+}
+
+// ── 3. Cobertura da pista (área SVG) ─────────────────────────
+
+function CoberturaArea({ serie, media }: { serie: { nome: string; data: string; pct: number }[]; media: number }) {
+  const [hover, setHover] = useState<number | null>(null)
+  if (serie.length < 2) return null
+  const H = 120
+  const W = 100
+  const max = Math.max(10, ...serie.map(s => s.pct))
+  const x = (i: number) => (i / (serie.length - 1)) * W
+  const y = (v: number) => H - (v / max) * (H - 14)
+  const pts = serie.map((s, i) => `${x(i).toFixed(2)},${y(s.pct).toFixed(2)}`).join(' ')
+  const sel = hover != null ? serie[hover] : null
+  return (
+    <div>
+      <div className="relative">
+        <svg viewBox={`0 0 ${W} ${H}`} className="w-full" preserveAspectRatio="none" style={{ height: H }}>
+          <defs>
+            <linearGradient id="cob-area" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stopColor={OURO} stopOpacity="0.35" />
+              <stop offset="100%" stopColor={OURO} stopOpacity="0" />
+            </linearGradient>
+          </defs>
+          <line x1="0" x2={W} y1={y(media)} y2={y(media)} stroke={GRAFITE} strokeOpacity="0.5" strokeWidth="0.7" strokeDasharray="2 2" vectorEffect="non-scaling-stroke" />
+          <polygon points={`0,${H} ${pts} ${W},${H}`} fill="url(#cob-area)" />
+          <polyline points={pts} fill="none" stroke={OURO} strokeWidth="1.8" strokeLinejoin="round" strokeLinecap="round" vectorEffect="non-scaling-stroke" />
+        </svg>
+        {/* hit-areas + marcadores redondos em HTML (o SVG está esticado) */}
+        <div className="absolute inset-0 flex">
+          {serie.map((s, i) => (
+            <div key={`${s.data}-${i}`} className="flex-1 relative" onMouseEnter={() => setHover(i)} onMouseLeave={() => setHover(null)}>
+              <span
+                className="absolute w-2 h-2 rounded-full -translate-x-1/2 -translate-y-1/2 transition-transform"
+                style={{
+                  left: '50%',
+                  top: `${(y(s.pct) / H) * 100}%`,
+                  background: hover === i ? OURO : 'var(--s1, #fff)',
+                  border: `1.5px solid ${OURO}`,
+                  transform: hover === i ? 'translate(-50%,-50%) scale(1.35)' : 'translate(-50%,-50%)',
+                }}
+              />
+            </div>
+          ))}
+        </div>
+      </div>
+      <div className="mt-2 min-h-[30px]">
+        {sel ? (
+          <p className="text-[10px] text-gray-600 dark:text-gray-300">
+            <b className="text-[#C9A84C] tabular-nums">{sel.pct}%</b> · {sel.nome} · {fmtDate(sel.data).full}
+          </p>
+        ) : (
+          <p className="text-[10px] text-gray-400">Linha pontilhada = média ponderada ({media}%). Passe o mouse para ver cada leilão.</p>
+        )}
+      </div>
+    </div>
+  )
+}
+
+// ── 4. Rankings ──────────────────────────────────────────────
+
+function Medal({ pos }: { pos: number }) {
+  const top = pos === 1
+  return (
+    <div
+      className="w-7 h-7 rounded-full flex items-center justify-center shrink-0 text-[11px] font-black tabular-nums"
+      style={top
+        ? { background: `linear-gradient(135deg, ${OURO}, #A6852F)`, color: '#141414' }
+        : { background: 'transparent', border: '1.5px solid var(--border, #E5E5E5)', color: 'var(--text3, #9ca3af)' }}
+    >
+      {pos}
+    </div>
+  )
+}
+
+function RankRow({ pos, nome, detalhe, vgv, share, max }: {
+  pos: number; nome: string; detalhe: string; vgv: number; share: number; max: number
+}) {
+  return (
+    <div className="flex items-center gap-3 py-2">
+      <Medal pos={pos} />
+      <div className="flex-1 min-w-0">
+        <div className="flex items-center justify-between gap-2">
+          <p className="text-[11.5px] font-bold text-gray-800 dark:text-gray-100 truncate" title={nome}>{nome}</p>
+          <p className="text-[11.5px] font-black tabular-nums shrink-0" style={{ color: pos === 1 ? OURO : undefined }}>{R(vgv)}</p>
+        </div>
+        <div className="flex items-center gap-2 mt-1">
+          <div className="flex-1 h-1 rounded-full bg-gray-100 dark:bg-[#1E1E1E] overflow-hidden">
+            <div className="h-full rounded-full" style={{ width: `${Math.max((vgv / Math.max(1, max)) * 100, 2)}%`, background: pos === 1 ? OURO : GRAFITE }} />
+          </div>
+          <span className="text-[9px] text-gray-400 tabular-nums w-8 text-right">{share}%</span>
+        </div>
+        <p className="text-[9px] text-gray-400 mt-0.5">{detalhe}</p>
+      </div>
+    </div>
+  )
+}
+
+// donut por UF
+const UF_CORES = [OURO, GRAFITE, '#8a6d2f', '#6b7280', '#b8b0a0', '#4b5563', '#d6c28a', '#9ca3af']
+
+function UfDonut({ estados, total }: { estados: [string, { vgv: number; lotes: number; animais: number }][]; total: number }) {
+  const [hover, setHover] = useState<number | null>(null)
+  if (!estados.length || total <= 0) return null
+  const CIRC = 2 * Math.PI * 40
+  const fracs = estados.map(([, d]) => d.vgv / total)
+  const segs = estados.map(([uf, d], i) => ({
+    uf, d, i, frac: fracs[i],
+    offset: fracs.slice(0, i).reduce((s, f) => s + f, 0),
+  }))
+  const resto = Math.max(0, 1 - fracs.reduce((s, f) => s + f, 0))
+  const sel = hover != null ? segs[hover] : null
+  return (
+    <div className="flex items-center gap-5">
+      <div className="relative shrink-0" style={{ width: 130, height: 130 }}>
+        <svg viewBox="0 0 100 100" className="w-full h-full -rotate-90">
+          <circle cx="50" cy="50" r="40" fill="none" stroke="var(--s2, #f3f4f6)" strokeWidth="12" />
+          {segs.map(s => (
+            <circle
+              key={s.uf}
+              cx="50" cy="50" r="40" fill="none"
+              stroke={UF_CORES[s.i % UF_CORES.length]}
+              strokeWidth={hover === s.i ? 15 : 12}
+              strokeDasharray={`${Math.max(s.frac * CIRC - 1.5, 0.5)} ${CIRC}`}
+              strokeDashoffset={-s.offset * CIRC}
+              strokeLinecap="butt"
+              className="transition-all cursor-default"
+              onMouseEnter={() => setHover(s.i)}
+              onMouseLeave={() => setHover(null)}
+            />
+          ))}
+        </svg>
+        <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
+          <p className="text-lg font-black leading-none" style={{ color: sel ? UF_CORES[sel.i % UF_CORES.length] : undefined }}>
+            {sel ? `${Math.round(sel.frac * 100)}%` : estados.length + (resto > 0.001 ? '+' : '')}
+          </p>
+          <p className="text-[8px] uppercase tracking-wider text-gray-400">{sel ? sel.uf : 'estados'}</p>
+        </div>
+      </div>
+      <div className="flex-1 min-w-0 space-y-1.5">
+        {segs.map(s => (
+          <div
+            key={s.uf}
+            className={`flex items-center gap-2 rounded-md px-1.5 py-0.5 transition-colors ${hover === s.i ? 'bg-gray-50 dark:bg-[#1A1A1A]' : ''}`}
+            onMouseEnter={() => setHover(s.i)}
+            onMouseLeave={() => setHover(null)}
+          >
+            <span className="w-2.5 h-2.5 rounded-[4px] shrink-0" style={{ background: UF_CORES[s.i % UF_CORES.length] }} />
+            <span className="text-[11px] font-bold text-gray-700 dark:text-gray-200 w-7">{s.uf}</span>
+            <span className="flex-1 text-right text-[10.5px] font-black tabular-nums text-gray-900 dark:text-white">{R(s.d.vgv)}</span>
+            <span className="w-9 text-right text-[9px] text-gray-400 tabular-nums">{Math.round(s.frac * 100)}%</span>
+          </div>
+        ))}
+        {resto > 0.001 && (
+          <p className="text-[9px] text-gray-400 pl-6">demais UFs: {Math.round(resto * 100)}%</p>
+        )}
+      </div>
+    </div>
+  )
+}
+
+// ── Seção interna (dados agregados) ──────────────────────────
 
 function InsightsSection({ items }: { items: FechamentoAnalyticsItem[] }) {
   const data = useMemo(() => {
     if (items.length < 2) return null
+    const sorted = [...items].sort((a, b) => a.data.localeCompare(b.data))
+    const maxVgv = Math.max(1, ...sorted.map(f => f.vgv_total))
 
-    const sorted = [...items].sort((a, b) => new Date(a.data).getTime() - new Date(b.data).getTime())
-    const maxVgv = Math.max(...sorted.map(f => f.vgv_total), 1)
-    const maxIdx = sorted.findIndex(f => f.vgv_total === maxVgv)
+    // VGV por mês
+    const mesMap = new Map<string, { vgv: number; leiloes: number }>()
+    for (const f of sorted) {
+      const k = String(f.data).slice(0, 7)
+      const cur = mesMap.get(k) ?? { vgv: 0, leiloes: 0 }
+      cur.vgv += f.vgv_total
+      cur.leiloes += 1
+      mesMap.set(k, cur)
+    }
+    const meses = [...mesMap.entries()].sort((a, b) => a[0].localeCompare(b[0]))
+      .map(([k, v]) => ({ key: k, label: `${MES[k.slice(5, 7)] ?? k.slice(5, 7)}/${k.slice(2, 4)}`, ...v }))
 
-    // Aggregate by Fazenda (compradores)
-    const compradorMap = new Map<string, { vgv: number; lotes: number; animais: number; cidade: string; uf: string; leiloes: number }>()
+    // Compradores
+    const compradorMap = new Map<string, { nome: string; cidade: string; uf: string; vgv: number; animais: number; leiloes: number }>()
     items.forEach(f => {
       (f.compradores ?? []).forEach(c => {
-        if (!c.fazenda) return
-        const key = c.fazenda
-        const cur = compradorMap.get(key) ?? { vgv: 0, lotes: 0, animais: 0, cidade: '', uf: '', leiloes: 0 }
+        const nome = (c.fazenda || '').trim()
+        if (!nome) return
+        const key = nome.toLowerCase()
+        const cur = compradorMap.get(key) ?? { nome, cidade: c.cidade || '', uf: c.uf || '', vgv: 0, animais: 0, leiloes: 0 }
         cur.vgv += c.vgv
-        cur.lotes += c.lotes
         cur.animais += c.animais
         cur.leiloes += 1
         if (c.cidade && !cur.cidade) cur.cidade = c.cidade
@@ -104,11 +412,11 @@ function InsightsSection({ items }: { items: FechamentoAnalyticsItem[] }) {
         compradorMap.set(key, cur)
       })
     })
-    const topCompradores = [...compradorMap.entries()].sort((a, b) => b[1].vgv - a[1].vgv).slice(0, 5)
+    const topCompradores = [...compradorMap.values()].sort((a, b) => b.vgv - a.vgv).slice(0, 5)
     const totalCompradoresVgv = [...compradorMap.values()].reduce((s, d) => s + d.vgv, 0)
-    const maxCVgv = topCompradores.length ? topCompradores[0][1].vgv : 1
+    const maxCVgv = topCompradores[0]?.vgv || 1
 
-    // Geographic spread
+    // UFs
     const estadoMap = new Map<string, { vgv: number; lotes: number; animais: number }>()
     items.forEach(f => {
       (f.por_estado ?? []).forEach(e => {
@@ -123,22 +431,18 @@ function InsightsSection({ items }: { items: FechamentoAnalyticsItem[] }) {
     const topEstados = [...estadoMap.entries()].sort((a, b) => b[1].vgv - a[1].vgv).slice(0, 6)
     const totalEstadoVgv = [...estadoMap.values()].reduce((s, d) => s + d.vgv, 0)
 
-    // Aggregate by Assessor
-    const assessorMap = new Map<string, { nome: string; empresa: string; vgv: number; transacoes: number; animais: number; leiloes: number }>()
+    // Assessores (nomes canônicos)
+    const assessorMap = new Map<string, { nome: string; vgv: number; transacoes: number; animais: number; leiloes: number }>()
     items.forEach(f => {
       const seenInLeilao = new Set<string>()
       ;(f.por_assessor ?? []).forEach(a => {
         const canon = normalizeAssessorNome(a.nome)
         if (!canon) return
-        const cur = assessorMap.get(canon) ?? { nome: canon, empresa: a.empresa || '', vgv: 0, transacoes: 0, animais: 0, leiloes: 0 }
+        const cur = assessorMap.get(canon) ?? { nome: canon, vgv: 0, transacoes: 0, animais: 0, leiloes: 0 }
         cur.vgv += a.vgv
         cur.transacoes += a.transacoes
         cur.animais += a.animais
-        if (!seenInLeilao.has(canon)) {
-          cur.leiloes += 1
-          seenInLeilao.add(canon)
-        }
-        if (!cur.empresa && a.empresa) cur.empresa = a.empresa
+        if (!seenInLeilao.has(canon)) { cur.leiloes += 1; seenInLeilao.add(canon) }
         assessorMap.set(canon, cur)
       })
     })
@@ -146,498 +450,117 @@ function InsightsSection({ items }: { items: FechamentoAnalyticsItem[] }) {
     const totalAssessorVgv = [...assessorMap.values()].reduce((s, d) => s + d.vgv, 0)
     const maxAVgv = topAssessores[0]?.vgv || 1
 
-    // Cobertura por leilão (chronological) — % do faturamento do leilão que a Bula cobriu.
-    // Só entram itens com faturamento_total_leilao informado.
+    // Cobertura por leilão (mesmo subconjunto no numerador e denominador)
     const cobertura = sorted
       .filter(f => f.faturamento_total_leilao && f.vgv_total)
-      .map(f => ({
-        nome: f.nome,
-        data: f.data,
-        pct: coveragePct(f),
-        vgv: f.vgv_total,
-        fat: f.faturamento_total_leilao ?? 0,
-      }))
-    // MESMO subconjunto no numerador e no denominador — misturar o VGV de todos
-    // os leilões com o faturamento só dos informados distorcia a média.
+      .map(f => ({ nome: f.nome, data: f.data, pct: coveragePct(f) }))
     const comFat = items.filter(f => (Number(f.faturamento_total_leilao) || 0) > 0)
     const totalFatLeilao = comFat.reduce((s, f) => s + (Number(f.faturamento_total_leilao) || 0), 0)
-    const totalVgv = comFat.reduce((s, f) => s + f.vgv_total, 0)
-    const coberturaMedia = totalFatLeilao > 0 ? Math.round((totalVgv / totalFatLeilao) * 100) : 0
-    const coberturaAvgSimple = cobertura.length > 0
-      ? Math.round(cobertura.reduce((s, c) => s + c.pct, 0) / cobertura.length)
-      : 0
-    const coberturaMin = cobertura.length ? Math.min(...cobertura.map(c => c.pct)) : 0
-    const coberturaMax = cobertura.length ? Math.max(...cobertura.map(c => c.pct)) : 0
-    // Aproveitamento de lotes — métrica secundária mantida para contexto.
-    const totalOfertados = items.reduce((s, f) => s + f.lotes_ofertados, 0)
-    const totalVendidos = items.reduce((s, f) => s + f.lotes_vendidos, 0)
+    const vgvComFat = comFat.reduce((s, f) => s + f.vgv_total, 0)
+    const coberturaMedia = totalFatLeilao > 0 ? Math.round((vgvComFat / totalFatLeilao) * 100) : 0
 
     return {
-      sorted, maxVgv, maxIdx,
+      sorted, maxVgv, meses,
       topCompradores, totalCompradoresVgv, maxCVgv,
       topEstados, totalEstadoVgv,
       topAssessores, totalAssessorVgv, maxAVgv,
-      cobertura, coberturaMedia, coberturaAvgSimple, coberturaMin, coberturaMax,
-      totalVendidos, totalOfertados,
+      cobertura, coberturaMedia,
     }
   }, [items])
 
   if (!data) return null
   const {
-    sorted, maxVgv, maxIdx,
+    sorted, maxVgv, meses,
     topCompradores, totalCompradoresVgv, maxCVgv,
     topEstados, totalEstadoVgv,
     topAssessores, totalAssessorVgv, maxAVgv,
-    cobertura, coberturaMedia, coberturaAvgSimple, coberturaMin, coberturaMax,
-    totalVendidos, totalOfertados,
+    cobertura, coberturaMedia,
   } = data
 
   return (
     <div className="space-y-4">
 
-      {/* Vendas por leilão — full width (VGV bars) */}
-      <div className="rounded-2xl border border-gray-100 dark:border-[#2A2A2A] bg-white dark:bg-[#141414] p-5">
-        <div className="flex items-center justify-between mb-5 flex-wrap gap-2">
-          <div>
-            <p className="text-xs font-black uppercase tracking-wider text-gray-900 dark:text-white">Vendas por leilão</p>
-            <p className="text-[10px] text-gray-400 mt-0.5">VGV por evento · cor indica cobertura</p>
-          </div>
-          <div className="flex items-center gap-2">
-            <span className="text-[10px] px-2.5 py-1 rounded-full bg-[#A68B4B]/10 text-[#A68B4B] font-bold">
-              {sorted.length} leilões
-            </span>
-            <span className="text-[10px] px-2.5 py-1 rounded-full bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 font-bold">
-              Total {R(sorted.reduce((s, f) => s + f.vgv_total, 0))}
-            </span>
-          </div>
-        </div>
-
-        <div className="relative h-44 pl-14">
-          {/* Y-axis labels */}
-          <div className="absolute left-0 top-0 bottom-7 w-12 flex flex-col justify-between text-[9px] text-gray-400 font-semibold pointer-events-none text-right pr-2">
-            <span>{fmtCompact(maxVgv)}</span>
-            <span>{fmtCompact(maxVgv * 0.75)}</span>
-            <span>{fmtCompact(maxVgv * 0.5)}</span>
-            <span>{fmtCompact(maxVgv * 0.25)}</span>
-            <span className="text-gray-300 dark:text-gray-600">0</span>
-          </div>
-          {/* Grid lines */}
-          <div className="absolute left-14 right-0 top-0 bottom-7 flex flex-col justify-between pointer-events-none">
-            {[0, 1, 2, 3, 4].map(i => (
-              <div key={i} className="w-full border-t border-dashed border-gray-100 dark:border-[#2A2A2A]" />
-            ))}
-          </div>
-          {/* Bars */}
-          <div className="relative flex items-end gap-2 h-full pb-7">
-            {sorted.map((f, i) => {
-              const pct = coveragePct(f)
-              const barH = Math.max((f.vgv_total / maxVgv) * 100, 1.5)
-              const dt = fmtDate(f.data)
-              const color = pct >= 60 ? '#22c55e' : pct >= 30 ? '#A68B4B' : '#ef4444'
-              const isMax = i === maxIdx
-              const isFirst = i === 0
-              const isLast = i === sorted.length - 1
-              const tooltipPos = isFirst ? 'left-0' : isLast ? 'right-0' : 'left-1/2 -translate-x-1/2'
-              return (
-                <div key={f.id} className="flex flex-col justify-end h-full flex-1 min-w-0 group relative">
-                  {/* Tooltip */}
-                  <div className={`absolute bottom-full mb-1.5 bg-gray-900 dark:bg-[#0D0D0D] border border-gray-700 text-white text-[9px] rounded-xl px-3 py-2 whitespace-nowrap opacity-0 group-hover:opacity-100 transition-all duration-150 pointer-events-none z-30 shadow-2xl ${tooltipPos}`}>
-                    <p className="font-bold text-[#A68B4B] text-[11px]">{R(f.vgv_total)}</p>
-                    <p className="text-gray-200 mt-1 max-w-[200px] truncate font-semibold">{f.nome}</p>
-                    <div className="flex items-center gap-3 mt-1 text-gray-400">
-                      <span>{f.lotes_vendidos}/{f.lotes_ofertados} lotes</span>
-                      <span className="font-bold" style={{ color }}>{pct}%</span>
-                      <span>{f.animais_vendidos} an.</span>
-                    </div>
-                  </div>
-                  {/* Star marker on max */}
-                  {isMax && (
-                    <Star
-                      size={12}
-                      className="absolute text-[#A68B4B] fill-[#A68B4B] z-10 left-1/2 -translate-x-1/2 drop-shadow-md"
-                      style={{ bottom: `calc(${barH}% + 4px)` }}
-                    />
-                  )}
-                  {/* Bar */}
-                  <div
-                    className="w-full rounded-t-lg transition-all duration-500 group-hover:brightness-125 cursor-pointer relative overflow-hidden"
-                    style={{
-                      height: `${barH}%`,
-                      background: `linear-gradient(to top, ${color}99, ${color})`,
-                      minHeight: 2,
-                      boxShadow: isMax
-                        ? `0 0 0 1.5px ${color}66, 0 -3px 12px ${color}44`
-                        : `inset 0 -1px 0 ${color}66`,
-                    }}
-                  >
-                    {/* Subtle shine */}
-                    <div className="absolute inset-x-0 top-0 h-1/3 bg-gradient-to-b from-white/20 to-transparent rounded-t-lg" />
-                  </div>
-                  {/* Date label */}
-                  <span className="absolute -bottom-5 left-0 right-0 text-[9px] text-gray-400 font-semibold truncate text-center">
-                    {dt.dia}/{dt.mes.slice(0, 3)}
-                  </span>
-                </div>
-              )
-            })}
-          </div>
-        </div>
-
-        <div className="flex items-center justify-between gap-4 mt-3 pt-3 border-t border-gray-50 dark:border-[#262626] flex-wrap">
-          <div className="flex gap-3 flex-wrap">
-            {[
-              { color: '#22c55e', label: '≥ 60% cobertura' },
-              { color: '#A68B4B', label: '30–59%' },
-              { color: '#ef4444', label: '< 30%' },
-            ].map(({ color, label }) => (
-              <div key={label} className="flex items-center gap-1.5">
-                <div className="w-2 h-2 rounded-sm flex-shrink-0" style={{ backgroundColor: color }} />
-                <span className="text-[10px] text-gray-400">{label}</span>
-              </div>
-            ))}
-          </div>
-          <span className="text-[10px] text-gray-400 flex items-center gap-1">
-            <Star size={10} className="text-[#A68B4B] fill-[#A68B4B]" /> melhor resultado
-          </span>
-        </div>
-      </div>
-
-      {/* Cobertura média — full width line chart */}
-      <div className="rounded-2xl border border-gray-100 dark:border-[#2A2A2A] bg-white dark:bg-[#141414] p-5">
-        <div className="flex items-center justify-between mb-5 flex-wrap gap-2">
-          <div>
-            <p className="text-xs font-black uppercase tracking-wider text-gray-900 dark:text-white">Cobertura média</p>
-            <p className="text-[10px] text-gray-400 mt-0.5">VGV nosso / faturamento total do leilão</p>
-          </div>
-          <div className="flex items-center gap-3">
-            <div className="text-right">
-              <p className="text-[9px] font-bold uppercase tracking-widest text-gray-400">Mín</p>
-              <p className="text-sm font-black text-gray-700 dark:text-gray-300 tabular-nums">{coberturaMin}%</p>
-            </div>
-            <div className="text-right">
-              <p className="text-[9px] font-bold uppercase tracking-widest text-gray-400">Média</p>
-              <p className="text-2xl font-black text-[#A68B4B] tabular-nums leading-none">{coberturaMedia}%</p>
-              <p className="text-[9px] text-gray-500 tabular-nums mt-0.5">{cobertura.length} leilão(ões) com fat. informado · {totalVendidos}/{totalOfertados} lotes</p>
-            </div>
-            <div className="text-right">
-              <p className="text-[9px] font-bold uppercase tracking-widest text-gray-400">Máx</p>
-              <p className="text-sm font-black text-gray-700 dark:text-gray-300 tabular-nums">{coberturaMax}%</p>
-            </div>
-          </div>
-        </div>
-
-        {/* Line chart of cobertura over time */}
-        <div className="relative h-32 pl-12">
-          {/* Y-axis labels */}
-          <div className="absolute left-0 top-0 bottom-7 w-10 flex flex-col justify-between text-[9px] text-gray-400 font-semibold pointer-events-none text-right pr-2 tabular-nums">
-            <span>100%</span>
-            <span>75%</span>
-            <span>50%</span>
-            <span>25%</span>
-            <span className="text-gray-300 dark:text-gray-600">0%</span>
-          </div>
-          {/* Grid lines */}
-          <div className="absolute left-10 right-0 top-0 bottom-7 flex flex-col justify-between pointer-events-none">
-            {[0, 1, 2, 3, 4].map(i => (
-              <div key={i} className="w-full border-t border-dashed border-gray-100 dark:border-[#2A2A2A]" />
-            ))}
-          </div>
-          {/* Average reference line */}
-          <div
-            className="absolute left-10 right-0 pointer-events-none flex items-center"
-            style={{ bottom: `${28 + ((coberturaAvgSimple / 100) * 100) * 0.95}%` }}
-          >
-            <div className="flex-1 border-t-2 border-dashed border-[#A68B4B]/40" />
-            <span className="ml-1 text-[8px] font-bold tabular-nums text-[#A68B4B] bg-white dark:bg-[#141414] px-1.5 -translate-y-1/2">
-              {coberturaAvgSimple}% méd
-            </span>
-          </div>
-          {/* SVG Line */}
-          <svg className="absolute left-10 right-0 top-0 bottom-7 w-[calc(100%-2.5rem)] h-[calc(100%-1.75rem)]" preserveAspectRatio="none" viewBox="0 0 100 100">
-            <defs>
-              <linearGradient id="cob-grad-dashboard" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="0%" stopColor="#A68B4B" stopOpacity="0.35" />
-                <stop offset="100%" stopColor="#A68B4B" stopOpacity="0.02" />
-              </linearGradient>
-            </defs>
-            {(() => {
-              const N = cobertura.length
-              if (N === 0) return null
-              const pts = cobertura.map((c, i) => ({
-                x: N === 1 ? 50 : (i / (N - 1)) * 100,
-                y: 100 - c.pct,
-              }))
-              let line = ''
-              pts.forEach((p, i) => {
-                if (i === 0) { line = `M ${p.x} ${p.y}`; return }
-                const pr = pts[i - 1]
-                const cx1 = pr.x + (p.x - pr.x) * 0.5
-                const cx2 = p.x - (p.x - pr.x) * 0.5
-                line += ` C ${cx1} ${pr.y}, ${cx2} ${p.y}, ${p.x} ${p.y}`
-              })
-              const area = `${line} L ${pts[N - 1].x} 100 L ${pts[0].x} 100 Z`
-              return (
-                <>
-                  <path d={area} fill="url(#cob-grad-dashboard)" vectorEffect="non-scaling-stroke" />
-                  <path d={line} fill="none" stroke="#A68B4B" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" vectorEffect="non-scaling-stroke" />
-                </>
-              )
-            })()}
-          </svg>
-          {/* Markers (HTML overlay so dots stay round) */}
-          <div className="absolute left-10 right-0 top-0 bottom-7 pointer-events-none">
-            {cobertura.map((c, i) => {
-              const N = cobertura.length
-              const xPct = N === 1 ? 50 : (i / (N - 1)) * 100
-              const yPct = 100 - c.pct
-              const dotColor = c.pct >= 60 ? '#22c55e' : c.pct >= 30 ? '#A68B4B' : '#ef4444'
-              return (
-                <div key={i} className="absolute group" style={{ left: `${xPct}%`, top: `${yPct}%`, transform: 'translate(-50%, -50%)' }}>
-                  <div className="w-2.5 h-2.5 rounded-full border-2 border-white dark:border-[#1d1d1d] pointer-events-auto cursor-pointer transition-transform hover:scale-150" style={{ backgroundColor: dotColor }} />
-                  <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-1 bg-gray-900 dark:bg-[#0D0D0D] border border-gray-700 text-white text-[9px] rounded-lg px-2 py-1 whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-20 shadow-xl">
-                    <p className="font-bold text-[#A68B4B]">{c.pct}%</p>
-                    <p className="text-gray-300 max-w-[160px] truncate">{c.nome}</p>
-                    <p className="text-gray-500 tabular-nums">{R(c.vgv)} de {R(c.fat)}</p>
-                  </div>
-                </div>
-              )
-            })}
-          </div>
-          {/* X-axis labels */}
-          <div className="absolute left-10 right-0 bottom-0 h-6 flex items-start justify-between text-[9px] text-gray-400 font-semibold tabular-nums">
-            {cobertura.map((c, i) => {
-              const showLabel = i === 0 || i === cobertura.length - 1 || i % Math.max(Math.floor(cobertura.length / 6), 1) === 0
-              if (!showLabel) return <span key={i} className="invisible">·</span>
-              const dt = fmtDate(c.data)
-              return <span key={i}>{dt.dia}/{dt.mes.slice(0, 3)}</span>
-            })}
-          </div>
-        </div>
-      </div>
-
-      {/* Compradores + Estados */}
-      <div className="grid lg:grid-cols-[3fr_2fr] gap-4">
-
-        {/* Top Compradores */}
-        <div className="rounded-2xl border border-gray-100 dark:border-[#2A2A2A] bg-white dark:bg-[#141414] p-5">
-          <div className="flex items-center justify-between mb-5">
-            <div>
-              <p className="text-xs font-black uppercase tracking-wider text-gray-900 dark:text-white">Top Compradores</p>
-              <p className="text-[10px] text-gray-400 mt-0.5">Fazendas com maior volume · todos os leilões</p>
-            </div>
-            <ShoppingCart size={14} className="text-[#A68B4B]" />
-          </div>
-
-          {topCompradores.length === 0 ? (
-            <p className="text-center text-gray-400 text-xs py-8">Nenhum comprador registrado</p>
-          ) : (
-            <div className="space-y-3">
-              {topCompradores.map(([fazenda, d], i) => {
-                const pctTotal = totalCompradoresVgv ? d.vgv / totalCompradoresVgv : 0
-                return (
-                  <div key={fazenda} className="space-y-1.5">
-                    <div className="flex items-center justify-between gap-2">
-                      <div className="flex items-center gap-2 min-w-0">
-                        <span className={`w-5 h-5 rounded-full flex items-center justify-center text-[9px] font-black flex-shrink-0
-                          ${i === 0
-                            ? 'bg-[#A68B4B] text-black shadow-md shadow-[#A68B4B]/40'
-                            : i === 1
-                              ? 'bg-gray-300 dark:bg-gray-600 text-gray-800 dark:text-gray-100'
-                              : i === 2
-                                ? 'bg-amber-700 text-white'
-                                : 'bg-gray-100 dark:bg-[#1A1A1A] text-gray-500 dark:text-gray-400'}`}>
-                          {i + 1}
-                        </span>
-                        <div className="min-w-0">
-                          <p className="text-xs font-bold text-gray-900 dark:text-white truncate">{fazenda}</p>
-                          {(d.cidade || d.uf) && (
-                            <p className="text-[9px] text-gray-400 flex items-center gap-1 truncate">
-                              <MapPin size={8} />
-                              {d.cidade}{d.cidade && d.uf ? ', ' : ''}{d.uf}
-                            </p>
-                          )}
-                        </div>
-                      </div>
-                      <span className="text-xs font-black text-[#A68B4B] whitespace-nowrap flex-shrink-0">{R(d.vgv)}</span>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <div className="flex-1 h-1.5 rounded-full bg-gray-100 dark:bg-[#1A1A1A] overflow-hidden">
-                        <div
-                          className="h-full rounded-full transition-all duration-700"
-                          style={{
-                            width: `${(d.vgv / maxCVgv) * 100}%`,
-                            background: i === 0 ? 'linear-gradient(90deg, #A68B4B, #C8A96E)' : '#A68B4B',
-                            opacity: 1 - i * 0.13,
-                          }}
-                        />
-                      </div>
-                      <span className="text-[9px] text-gray-400 whitespace-nowrap flex-shrink-0 w-24 text-right tabular-nums">
-                        {d.animais}an · {(pctTotal * 100).toFixed(0)}%
-                      </span>
-                    </div>
-                  </div>
-                )
-              })}
-            </div>
-          )}
-        </div>
-
-        {/* Distribuição Geográfica */}
-        <div className="rounded-2xl border border-gray-100 dark:border-[#2A2A2A] bg-white dark:bg-[#141414] p-5">
-          <div className="flex items-center justify-between mb-5">
-            <div>
-              <p className="text-xs font-black uppercase tracking-wider text-gray-900 dark:text-white">Distribuição por UF</p>
-              <p className="text-[10px] text-gray-400 mt-0.5">Estados alcançados</p>
-            </div>
-            <MapPin size={14} className="text-[#A68B4B]" />
-          </div>
-
-          {topEstados.length === 0 ? (
-            <p className="text-center text-gray-400 text-xs py-8">Sem dados geográficos</p>
-          ) : (
-            <div className="space-y-2.5">
-              {topEstados.map(([uf, d]) => {
-                const pctTotal = totalEstadoVgv ? d.vgv / totalEstadoVgv : 0
-                return (
-                  <div key={uf} className="flex items-center gap-2.5">
-                    <div className="w-9 h-9 rounded-lg bg-[#A68B4B]/10 flex items-center justify-center flex-shrink-0">
-                      <span className="text-[#A68B4B] font-black text-[11px]">{uf}</span>
-                    </div>
-                    <div className="flex-1 min-w-0">
-                      <div className="flex items-center justify-between mb-1">
-                        <span className="text-[10px] text-gray-500 dark:text-gray-400 tabular-nums">
-                          {d.lotes} lote{d.lotes !== 1 ? 's' : ''} · {d.animais} an.
-                        </span>
-                        <span className="text-xs font-black text-[#A68B4B] tabular-nums">{R(d.vgv)}</span>
-                      </div>
-                      <div className="h-1.5 rounded-full bg-gray-100 dark:bg-[#1A1A1A] overflow-hidden">
-                        <div
-                          className="h-full rounded-full transition-all duration-700"
-                          style={{ width: `${pctTotal * 100}%`, background: '#A68B4B' }}
-                        />
-                      </div>
-                    </div>
-                  </div>
-                )
-              })}
-            </div>
-          )}
-        </div>
-      </div>
-
-      {/* Vendas por Assessor — full width ranking */}
-      <div className="rounded-2xl border border-gray-100 dark:border-[#2A2A2A] bg-white dark:bg-[#141414] p-5">
-        <div className="flex items-center justify-between mb-5 flex-wrap gap-2">
-          <div>
-            <p className="text-xs font-black uppercase tracking-wider text-gray-900 dark:text-white">Vendas por assessor</p>
-            <p className="text-[10px] text-gray-400 mt-0.5">VGV agregado por profissional · todos os leilões</p>
-          </div>
-          <div className="flex items-center gap-2">
-            <Link
-              href="/sistema/leiloes/vendas-por-assessor"
-              title="Ver relatório completo de Vendas por Assessor"
-              className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full border border-[#A68B4B]/30 bg-[#A68B4B]/5 hover:bg-[#A68B4B]/15 hover:border-[#A68B4B]/60 text-[#A68B4B] transition-colors"
-            >
-              <Eye size={12} />
-              <span className="text-[10px] font-bold uppercase tracking-wider">Relatório</span>
-            </Link>
-            <Briefcase size={14} className="text-[#A68B4B]" />
-            <span className="text-[10px] px-2.5 py-1 rounded-full bg-[#A68B4B]/10 text-[#A68B4B] font-bold">
-              {topAssessores.length} {topAssessores.length === 1 ? 'assessor' : 'assessores'}
-            </span>
-          </div>
-        </div>
-
-        {topAssessores.length === 0 ? (
-          <p className="text-center text-gray-400 text-xs py-8">Nenhuma venda atribuída a assessor</p>
-        ) : (
-          <div className="overflow-x-auto -mx-5 px-5">
-            <div className="grid gap-3" style={{ gridTemplateColumns: 'minmax(180px,1fr) minmax(120px,1fr) repeat(3, minmax(80px, auto))' }}>
-              {/* Header */}
-              <div className="text-[9px] font-bold uppercase tracking-widest text-gray-400">Assessor</div>
-              <div className="text-[9px] font-bold uppercase tracking-widest text-gray-400">VGV</div>
-              <div className="text-[9px] font-bold uppercase tracking-widest text-gray-400 text-right">Trans.</div>
-              <div className="text-[9px] font-bold uppercase tracking-widest text-gray-400 text-right">Animais</div>
-              <div className="text-[9px] font-bold uppercase tracking-widest text-gray-400 text-right">Leilões</div>
-
-              {/* Rows */}
-              {topAssessores.map((a, i) => {
-                const pctTotal = totalAssessorVgv ? a.vgv / totalAssessorVgv : 0
-                const widthPct = (a.vgv / maxAVgv) * 100
-                return (
-                  <div key={a.nome} className="contents">
-                    {/* Assessor */}
-                    <div className="flex items-center gap-2.5 min-w-0 py-2.5 border-t border-gray-50 dark:border-[#262626]">
-                      <span className={`w-6 h-6 rounded-full flex items-center justify-center text-[9px] font-black flex-shrink-0
-                        ${i === 0
-                          ? 'bg-[#A68B4B] text-black shadow-md shadow-[#A68B4B]/40'
-                          : i === 1
-                            ? 'bg-gray-300 dark:bg-gray-600 text-gray-800 dark:text-gray-100'
-                            : i === 2
-                              ? 'bg-amber-700 text-white'
-                              : 'bg-gray-100 dark:bg-[#1A1A1A] text-gray-500 dark:text-gray-400'}`}>
-                        {i + 1}
-                      </span>
-                      <div className="min-w-0">
-                        <p className="text-xs font-bold text-gray-900 dark:text-white truncate">{a.nome}</p>
-                        {a.empresa && (
-                          <p className="text-[9px] text-gray-400 truncate uppercase tracking-wider">{a.empresa}</p>
-                        )}
-                      </div>
-                    </div>
-                    {/* VGV with bar */}
-                    <div className="py-2.5 border-t border-gray-50 dark:border-[#262626] min-w-0 flex flex-col justify-center gap-1">
-                      <div className="flex items-center justify-between gap-2">
-                        <span className="text-xs font-black text-[#A68B4B] tabular-nums whitespace-nowrap">{R(a.vgv)}</span>
-                        <span className="text-[9px] text-gray-400 tabular-nums">{(pctTotal * 100).toFixed(0)}%</span>
-                      </div>
-                      <div className="h-1.5 rounded-full bg-gray-100 dark:bg-[#1A1A1A] overflow-hidden">
-                        <div
-                          className="h-full rounded-full transition-all duration-700"
-                          style={{
-                            width: `${widthPct}%`,
-                            background: i === 0 ? 'linear-gradient(90deg, #A68B4B, #C8A96E)' : '#A68B4B',
-                            opacity: 1 - i * 0.13,
-                          }}
-                        />
-                      </div>
-                    </div>
-                    {/* Transações */}
-                    <div className="py-2.5 border-t border-gray-50 dark:border-[#262626] flex items-center justify-end">
-                      <span className="text-sm font-bold text-gray-700 dark:text-gray-300 tabular-nums">{a.transacoes}</span>
-                    </div>
-                    {/* Animais */}
-                    <div className="py-2.5 border-t border-gray-50 dark:border-[#262626] flex items-center justify-end">
-                      <span className="text-sm font-bold text-gray-700 dark:text-gray-300 tabular-nums">{a.animais}</span>
-                    </div>
-                    {/* Leilões */}
-                    <div className="py-2.5 border-t border-gray-50 dark:border-[#262626] flex items-center justify-end">
-                      <span className="text-sm font-bold text-gray-700 dark:text-gray-300 tabular-nums">{a.leiloes}</span>
-                    </div>
-                  </div>
-                )
-              })}
-            </div>
-
-            {/* Footer total */}
-            <div className="flex items-center justify-between mt-4 pt-3 border-t border-gray-100 dark:border-[#262626]">
-              <span className="text-[10px] text-gray-500 flex items-center gap-1.5">
-                <Activity size={10} className="text-[#A68B4B]" />
-                Comissão e pagamento ficam restritos ao ERP
+      {/* VGV por mês + timeline */}
+      <div className="grid grid-cols-1 xl:grid-cols-5 gap-4 items-stretch">
+        <div className={`${card} p-5 xl:col-span-3`}>
+          <SecTitle
+            icon={BarChart3}
+            title="VGV por mês"
+            sub="cobertura Bula somada por mês do leilão"
+            right={
+              <span className="text-[10px] px-2.5 py-1 rounded-full font-bold" style={{ background: `${OURO}1A`, color: OURO }}>
+                Total {R(sorted.reduce((s, f) => s + f.vgv_total, 0))}
               </span>
-              <div className="flex items-center gap-2">
-                <span className="text-[10px] text-gray-400">Total acumulado</span>
-                <span className="text-sm font-black text-gray-900 dark:text-white tabular-nums">{R(totalAssessorVgv)}</span>
-              </div>
-            </div>
+            }
+          />
+          <MonthlyVgvChart meses={meses} />
+        </div>
+
+        <div className={`${card} p-5 xl:col-span-2`}>
+          <SecTitle icon={CalendarDays} title="Leilão a leilão" sub="mais recente primeiro · barra proporcional ao maior VGV" />
+          <LeilaoTimeline sorted={sorted} maxVgv={maxVgv} />
+        </div>
+      </div>
+
+      {/* Cobertura + rankings */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 items-stretch">
+        <div className={`${card} p-5`}>
+          <SecTitle
+            icon={Percent}
+            title="Cobertura da pista"
+            sub={`nossa fatia do faturamento total, leilão a leilão · ${cobertura.length} com faturamento informado`}
+            right={<span className="text-2xl font-black tabular-nums" style={{ color: OURO }}>{coberturaMedia}%</span>}
+          />
+          {cobertura.length >= 2
+            ? <CoberturaArea serie={cobertura} media={coberturaMedia} />
+            : <p className="text-[10px] text-gray-400">Informe o faturamento total dos leilões para acompanhar a cobertura.</p>}
+        </div>
+
+        <div className={`${card} p-5`}>
+          <SecTitle icon={Briefcase} title="Top assessores" sub={`${R(totalAssessorVgv)} atribuídos no período`} />
+          <div className="divide-y divide-gray-50 dark:divide-[#1E1E1E]">
+            {topAssessores.map((a, i) => (
+              <RankRow
+                key={a.nome}
+                pos={i + 1}
+                nome={a.nome}
+                detalhe={`${a.leiloes} leilões · ${a.transacoes} lotes · ${a.animais} animais`}
+                vgv={a.vgv}
+                share={totalAssessorVgv ? Math.round((a.vgv / totalAssessorVgv) * 100) : 0}
+                max={maxAVgv}
+              />
+            ))}
           </div>
-        )}
+        </div>
+
+        <div className={`${card} p-5`}>
+          <SecTitle icon={Users} title="Top compradores" sub={`${R(totalCompradoresVgv)} atribuídos a compradores`} />
+          <div className="divide-y divide-gray-50 dark:divide-[#1E1E1E]">
+            {topCompradores.map((c, i) => (
+              <RankRow
+                key={c.nome}
+                pos={i + 1}
+                nome={c.nome}
+                detalhe={[c.cidade, c.uf].filter(Boolean).join('/') || `${c.leiloes} leilões · ${c.animais} animais`}
+                vgv={c.vgv}
+                share={totalCompradoresVgv ? Math.round((c.vgv / totalCompradoresVgv) * 100) : 0}
+                max={maxCVgv}
+              />
+            ))}
+          </div>
+        </div>
+      </div>
+
+      {/* Distribuição por UF */}
+      <div className={`${card} p-5`}>
+        <SecTitle icon={MapPin} title="Distribuição por UF" sub="para onde a genética está indo — VGV por estado do comprador" />
+        <UfDonut estados={topEstados} total={totalEstadoVgv} />
       </div>
     </div>
   )
 }
 
-// ── Block público ────────────────────────────────────────────
+// ── Bloco público ────────────────────────────────────────────
 
 export function LeiloesAnalyticsBlock({ items }: { items: FechamentoAnalyticsItem[] }) {
   if (items.length === 0) return null

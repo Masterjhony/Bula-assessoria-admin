@@ -6,8 +6,6 @@ import {
     CRM_STAGE_REGISTRATION, CRM_STAGE_LOST,
 } from '@/lib/crm-types';
 import { FUNIL_CAMPANHAS } from '@/lib/funil-campanhas';
-import { getIsFinanceAdmin } from '@/lib/auth-helpers';
-import { admin as erpAdmin } from '@/lib/erp';
 import type { FechamentoAnalyticsItem } from './leiloes/LeiloesAnalyticsBlock';
 import DashboardClient, {
     type DashboardProps,
@@ -18,8 +16,12 @@ import DashboardClient, {
     type AssessorOption,
     type CrmPulse,
     type GrowthPulse,
-    type FinanceiroPulse,
 } from './DashboardClient';
+
+// O dashboard reflete o banco a CADA acesso — nada de cache de página:
+// fechamentos, CRM e agenda mudam o dia inteiro e o painel tem de acompanhar.
+export const dynamic = 'force-dynamic';
+export const revalidate = 0;
 
 // ── Growth: resumo do funil pago (apuração multi-fonte versionada no repo) ──
 function growthPulse(): GrowthPulse | null {
@@ -34,36 +36,6 @@ function growthPulse(): GrowthPulse | null {
             faturamento: t.faturamento,
             roas: t.investido > 0 ? t.faturamento / t.investido : 0,
             apuradoEm: FUNIL_CAMPANHAS.geradoEm,
-        };
-    } catch {
-        return null;
-    }
-}
-
-// ── Financeiro: posição de agora (só finance-admin; cancelados fora) ──
-async function financeiroPulse(): Promise<FinanceiroPulse | null> {
-    try {
-        if (!(await getIsFinanceAdmin())) return null;
-        const sb = erpAdmin();
-        const due = (r: { valor: number | null; desconto: number | null; juros: number | null; multa: number | null }, pago: number | null) =>
-            Number(r.valor || 0) - Number(r.desconto || 0) + Number(r.juros || 0) + Number(r.multa || 0) - Number(pago || 0);
-        const [bancos, cr, cp] = await Promise.all([
-            sb.from('erp_contas_bancarias').select('saldo_atual').eq('ativo', true),
-            sb.from('erp_contas_receber').select('valor,desconto,juros,multa,valor_recebido,status').in('status', ['aberto', 'parcial', 'vencido']),
-            sb.from('erp_contas_pagar').select('valor,desconto,juros,multa,valor_pago,status,tags').in('status', ['aberto', 'parcial', 'vencido']),
-        ]);
-        const saldoBancos = (bancos.data || []).reduce((s, c) => s + Number(c.saldo_atual || 0), 0);
-        type Cr = { valor: number; desconto: number; juros: number; multa: number; valor_recebido: number; status: string };
-        type Cp = { valor: number; desconto: number; juros: number; multa: number; valor_pago: number; status: string; tags: string[] | null };
-        const crRows = (cr.data || []) as Cr[];
-        // orçamento futuro (fato gerador ainda não ocorrido) fica fora do "a pagar"
-        const cpRows = ((cp.data || []) as Cp[]).filter((r) => !(Array.isArray(r.tags) && r.tags.includes('orcamento')));
-        return {
-            saldoBancos,
-            aReceber: crRows.reduce((s, r) => s + due(r, r.valor_recebido), 0),
-            aPagar: cpRows.reduce((s, r) => s + due(r, r.valor_pago), 0),
-            vencidosReceber: crRows.filter((r) => r.status === 'vencido').reduce((s, r) => s + due(r, r.valor_recebido), 0),
-            vencidosPagar: cpRows.filter((r) => r.status === 'vencido').reduce((s, r) => s + due(r, r.valor_pago), 0),
         };
     } catch {
         return null;
@@ -346,7 +318,6 @@ export default async function AdminDashboard({ searchParams }: { searchParams?: 
         novosPeriodoRes,
         mqlRes,
         altaPrioridadeRes,
-        financeiro,
     ] = await Promise.all([
         loadPipelineStatuses(),
         supabase.from('crm_leads').select('id', { count: 'exact', head: true }).eq('arquivado', false),
@@ -358,7 +329,6 @@ export default async function AdminDashboard({ searchParams }: { searchParams?: 
             .not('source', 'in', '(planilha,whatsapp-contatos)'),
         supabase.from('crm_leads').select('id', { count: 'exact', head: true }).eq('arquivado', false).eq('is_mql', true),
         supabase.from('crm_leads').select('id', { count: 'exact', head: true }).eq('arquivado', false).eq('prioridade', 'Alta'),
-        financeiroPulse(),
     ]);
 
     const stageCount = new Map<string, number>();
@@ -419,7 +389,6 @@ export default async function AdminDashboard({ searchParams }: { searchParams?: 
         feed,
         crm,
         growth: growthPulse(),
-        financeiro,
     };
 
     return <DashboardClient {...props} />;

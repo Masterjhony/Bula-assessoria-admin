@@ -6,7 +6,7 @@ import { useRouter, usePathname, useSearchParams } from 'next/navigation'
 import {
   Gavel, Calendar, MapPin, Filter, ChevronDown, User, X,
   Users, UserPlus, Star as StarIcon, Flame, ArrowUpRight,
-  Target, Wallet, TrendingUp, Landmark, ShoppingCart, BadgeCheck,
+  Target, Wallet, TrendingUp, ShoppingCart, BadgeCheck,
 } from 'lucide-react'
 import { LeiloesAnalyticsBlock, type FechamentoAnalyticsItem } from './leiloes/LeiloesAnalyticsBlock'
 
@@ -74,15 +74,6 @@ export type GrowthPulse = {
   apuradoEm: string
 }
 
-/** Posição financeira (só para finance-admin; null esconde o card). */
-export type FinanceiroPulse = {
-  saldoBancos: number
-  aReceber: number
-  aPagar: number
-  vencidosReceber: number
-  vencidosPagar: number
-}
-
 export type DashboardProps = {
   today: string
   proximo: ProximoLeilao | null
@@ -99,7 +90,6 @@ export type DashboardProps = {
   feed: FeedItem[]
   crm: CrmPulse
   growth: GrowthPulse | null
-  financeiro: FinanceiroPulse | null
 }
 
 // ─── Helpers ────────────────────────────────────────────────────────────────
@@ -612,51 +602,6 @@ function GrowthPulseCard({ g }: { g: GrowthPulse }) {
   )
 }
 
-function FinanceiroPulseCard({ fin }: { fin: FinanceiroPulse }) {
-  const linhas = [
-    { label: 'Saldo em bancos', value: fin.saldoBancos, tone: 'neutral' as const, sub: '' },
-    { label: 'A receber', value: fin.aReceber, tone: 'pos' as const, sub: fin.vencidosReceber > 0.005 ? `${fmtBRLCompact(fin.vencidosReceber)} vencidos` : '' },
-    { label: 'A pagar', value: fin.aPagar, tone: 'neg' as const, sub: fin.vencidosPagar > 0.005 ? `${fmtBRLCompact(fin.vencidosPagar)} vencidos` : '' },
-  ]
-  const posicao = fin.saldoBancos + fin.aReceber - fin.aPagar
-  return (
-    <div className="rounded-2xl border border-gray-100 dark:border-[#2A2A2A] bg-white dark:bg-[#141414] p-5 flex flex-col">
-      <div className="flex items-center justify-between mb-4">
-        <div>
-          <p className="text-xs font-black uppercase tracking-wider text-gray-900 dark:text-white flex items-center gap-1.5">
-            <Landmark size={13} className="text-[#A68B4B]" /> Financeiro
-          </p>
-          <p className="text-[10px] text-gray-400 mt-0.5">Posição de agora · títulos cancelados fora</p>
-        </div>
-        <Link
-          href="/erp"
-          className="inline-flex items-center gap-1 text-[10px] font-bold uppercase tracking-wider text-[#A68B4B] hover:opacity-80 transition-opacity"
-        >
-          abrir ERP <ArrowUpRight size={12} />
-        </Link>
-      </div>
-
-      <div className="space-y-2.5">
-        {linhas.map(l => (
-          <div key={l.label} className="flex items-center justify-between rounded-xl border border-gray-100 dark:border-[#2A2A2A] px-3.5 py-3">
-            <div>
-              <p className="text-[10px] uppercase tracking-wider text-gray-400">{l.label}</p>
-              {l.sub && <p className="text-[9px] text-red-400 mt-0.5">{l.sub}</p>}
-            </div>
-            <p className={`text-lg font-black leading-none tabular-nums ${l.tone === 'pos' ? 'text-emerald-500' : l.tone === 'neg' ? 'text-red-400' : 'text-gray-900 dark:text-white'}`}>
-              {fmtBRLCompact(l.value)}
-            </p>
-          </div>
-        ))}
-      </div>
-
-      <div className="flex items-center justify-between mt-auto pt-3 border-t border-gray-50 dark:border-[#262626]">
-        <span className="text-[10px] uppercase tracking-wider text-gray-400">Posição líquida (bancos + receber − pagar)</span>
-        <span className={`text-sm font-black tabular-nums ${posicao >= 0 ? 'text-emerald-500' : 'text-red-400'}`}>{fmtBRLCompact(posicao)}</span>
-      </div>
-    </div>
-  )
-}
 
 // ─── Main ───────────────────────────────────────────────────────────────────
 
@@ -683,9 +628,9 @@ export default function DashboardClient(props: DashboardProps) {
       <div className="sec-label">Leilões &amp; vendas</div>
       <LeiloesAnalyticsBlock items={props.fechamentoItems} />
 
-      {/* Pulso da operação: CRM, growth pago e financeiro (independentes do filtro de leilão) */}
+      {/* Pulso da operação: CRM + growth pago (financeiro vive no ERP) */}
       <div className="sec-label">Operação &amp; crescimento</div>
-      <div className={`grid gap-4 items-stretch ${props.financeiro ? 'lg:grid-cols-3' : 'lg:grid-cols-2'}`}>
+      <div className="grid gap-4 items-stretch lg:grid-cols-2">
         <CrmPulseCard crm={props.crm} periodLabel={f.label} />
         {props.growth
           ? <GrowthPulseCard g={props.growth} />
@@ -694,7 +639,6 @@ export default function DashboardClient(props: DashboardProps) {
               <span className="text-xs subtle">Apuração de growth indisponível.</span>
             </div>
           )}
-        {props.financeiro && <FinanceiroPulseCard fin={props.financeiro} />}
       </div>
 
       <div className="g2">
