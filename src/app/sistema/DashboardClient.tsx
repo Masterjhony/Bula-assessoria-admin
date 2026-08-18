@@ -505,8 +505,8 @@ function CrmPulseCard({ crm, periodLabel }: { crm: CrmPulse; periodLabel: string
       </div>
 
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 mb-5">
-        <PulseChip icon={Users} label="Ativos" value={fmtNum(crm.totalAtivos)} />
-        <PulseChip icon={UserPlus} label={`Novos · ${periodLabel}`} value={fmtNum(crm.novosPeriodo)} tone="gold" />
+        <PulseChip icon={Users} label="No pipeline" value={fmtNum(pipelineTotal)} />
+        <PulseChip icon={UserPlus} label={`Novos reais · ${periodLabel}`} value={fmtNum(crm.novosPeriodo)} tone="gold" />
         <PulseChip icon={StarIcon} label="MQL" value={fmtNum(crm.mql)} tone="gold" />
         <PulseChip icon={Flame} label="Prior. alta" value={fmtNum(crm.altaPrioridade)} tone="red" />
       </div>
@@ -532,9 +532,12 @@ function CrmPulseCard({ crm, periodLabel }: { crm: CrmPulse; periodLabel: string
         })}
       </div>
 
-      <div className="flex items-center justify-between gap-3 mt-4 pt-3 border-t border-gray-50 dark:border-[#262626] text-[10px] text-gray-400">
+      <div className="flex items-center justify-between gap-3 mt-4 pt-3 border-t border-gray-50 dark:border-[#262626] text-[10px] text-gray-400 flex-wrap">
         <span className="flex items-center gap-1.5">
-          <span className="w-1.5 h-1.5 rounded-full bg-gray-400" /> Fila de entrada <b className="text-gray-600 dark:text-gray-300 tabular-nums">{fmtNum(crm.entrada)}</b>
+          <span className="w-1.5 h-1.5 rounded-full bg-gray-400" /> Fila de entrada (base fria) <b className="text-gray-600 dark:text-gray-300 tabular-nums">{fmtNum(crm.entrada)}</b>
+        </span>
+        <span className="flex items-center gap-1.5">
+          <span className="w-1.5 h-1.5 rounded-full bg-gray-300" /> Total na base <b className="text-gray-600 dark:text-gray-300 tabular-nums">{fmtNum(crm.totalAtivos)}</b>
         </span>
         <span className="flex items-center gap-1.5">
           <span className="w-1.5 h-1.5 rounded-full bg-[#ef4444]" /> Perdidos <b className="text-gray-600 dark:text-gray-300 tabular-nums">{fmtNum(crm.perdidos)}</b>

@@ -297,8 +297,12 @@ export default async function AdminDashboard({ searchParams }: { searchParams?: 
     ] = await Promise.all([
         loadPipelineStatuses(),
         supabase.from('crm_leads').select('id', { count: 'exact', head: true }).eq('arquivado', false),
+        // "Novos" = leads que ENTRARAM de verdade no período — listas frias
+        // importadas em massa (Base Unificada / agenda WhatsApp) ficam fora,
+        // senão o KPI vira o tamanho do import (16k) e não diz nada.
         supabase.from('crm_leads').select('id', { count: 'exact', head: true })
-            .eq('arquivado', false).gte('created_at', rangeFromTs).lte('created_at', rangeToTs),
+            .eq('arquivado', false).gte('created_at', rangeFromTs).lte('created_at', rangeToTs)
+            .not('source', 'in', '(planilha,whatsapp-contatos)'),
         supabase.from('crm_leads').select('id', { count: 'exact', head: true }).eq('arquivado', false).eq('is_mql', true),
         supabase.from('crm_leads').select('id', { count: 'exact', head: true }).eq('arquivado', false).eq('prioridade', 'Alta'),
         getAtendimentoStats(90).catch(() => null),

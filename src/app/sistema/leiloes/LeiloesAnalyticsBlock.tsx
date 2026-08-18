@@ -157,8 +157,11 @@ function InsightsSection({ items }: { items: FechamentoAnalyticsItem[] }) {
         vgv: f.vgv_total,
         fat: f.faturamento_total_leilao ?? 0,
       }))
-    const totalFatLeilao = items.reduce((s, f) => s + (Number(f.faturamento_total_leilao) || 0), 0)
-    const totalVgv = items.reduce((s, f) => s + f.vgv_total, 0)
+    // MESMO subconjunto no numerador e no denominador — misturar o VGV de todos
+    // os leilões com o faturamento só dos informados distorcia a média.
+    const comFat = items.filter(f => (Number(f.faturamento_total_leilao) || 0) > 0)
+    const totalFatLeilao = comFat.reduce((s, f) => s + (Number(f.faturamento_total_leilao) || 0), 0)
+    const totalVgv = comFat.reduce((s, f) => s + f.vgv_total, 0)
     const coberturaMedia = totalFatLeilao > 0 ? Math.round((totalVgv / totalFatLeilao) * 100) : 0
     const coberturaAvgSimple = cobertura.length > 0
       ? Math.round(cobertura.reduce((s, c) => s + c.pct, 0) / cobertura.length)
@@ -654,11 +657,21 @@ export function LeiloesAnalyticsBlock({ items }: { items: FechamentoAnalyticsIte
   return (
     <div className="space-y-4">
       <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3">
-        <KpiCard icon={DollarSign} label="VGV Total" value={R(totalVgv)} gold />
-        <KpiCard icon={BarChart3} label="Lotes Vendidos" value={`${totalLotesVendidos}/${totalLotesOfertados}`} />
-        <KpiCard icon={Percent} label="Cobertura Média" value={`${coberturaMedia}%`} />
+        <KpiCard icon={DollarSign} label="VGV Total" value={R(totalVgv)} gold sub="cobertura Bula (HastaPro FIL 2)" />
+        <KpiCard
+          icon={BarChart3}
+          label="Lotes Vendidos"
+          value={`${totalLotesVendidos}/${totalLotesOfertados}`}
+          sub={totalLotesOfertados ? `${Math.round((totalLotesVendidos / totalLotesOfertados) * 100)}% dos lotes ofertados` : undefined}
+        />
+        <KpiCard
+          icon={Percent}
+          label="Cobertura Média"
+          value={`${coberturaMedia}%`}
+          sub={itemsComFat.length ? `nossa fatia do faturamento total · ${itemsComFat.length} leilões com faturamento informado` : 'nenhum leilão com faturamento informado'}
+        />
         <KpiCard icon={Hash} label="Animais Vendidos" value={totalAnimais.toLocaleString('pt-BR')} />
-        <KpiCard icon={TrendingUp} label="Ticket Médio Geral" value={R(ticketMedioGeral)} />
+        <KpiCard icon={TrendingUp} label="Ticket Médio Geral" value={R(ticketMedioGeral)} sub="VGV por animal vendido" />
         <KpiCard icon={ShoppingCart} label="Leilões Fechados" value={items.length.toString()} />
       </div>
 
