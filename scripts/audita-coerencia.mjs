@@ -152,12 +152,27 @@ console.log('\n■ ERP')
 console.log('\n■ Clientes')
 {
   const fes = await all('bula_leilao_fechamento', 'compradores')
-  const PLACEHOLDER = /^(a identificar|a definir|nao identificado|sem comprador|comprador)$/
-  const keys = new Set()
-  for (const f of fes) for (const c of (f.compradores || [])) {
-    const k = mk(c.fazenda || c.comprador)
-    if (k && !PLACEHOLDER.test(k)) keys.add(k)
+  // MESMA regra de src/lib/clientes.ts (nomeCompradorCanonico): marcador de
+  // pendência no campo fazenda não é identidade — o comprador assume.
+  const PLACEHOLDER_SET = new Set(['', 'a identificar', 'a definir', 'confirmar', 'confirmar fazenda',
+    'fazenda confirmar', 'nao identificado', 'sem fazenda', 'sem comprador', 'comprador', 'fazenda', 'x', 'xx', 'na', 'nd'])
+  const ehPlaceholder = (nome) => {
+    const k = mk(nome)
+    return !k || k.length < 3 || PLACEHOLDER_SET.has(k) || /^confirmar/.test(k)
   }
+  const nomeComprador = (fazenda, comprador) => {
+    const f = String(fazenda ?? '').trim(), c = String(comprador ?? '').trim()
+    if (f && !ehPlaceholder(f)) return f
+    if (c && !ehPlaceholder(c)) return c
+    return null
+  }
+  const keys = new Set()
+  let semNome = 0
+  for (const f of fes) for (const c of (f.compradores || [])) {
+    const nome = nomeComprador(c.fazenda, c.comprador)
+    if (nome) keys.add(mk(nome)); else semNome++
+  }
+  if (semNome) meh('compradores sem nome identificável na fonte', `${semNome} linhas (marcador de pendência no HastaPro)`)
   const rows = await all('clientes', 'match_key,assessor,uf')
   const byKey = new Map(rows.map(r => [r.match_key, r]))
   const semRow = [...keys].filter(k => !byKey.has(k))
