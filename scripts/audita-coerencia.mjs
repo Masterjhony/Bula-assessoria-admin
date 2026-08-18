@@ -226,6 +226,47 @@ console.log('\n■ CRM / Dashboard')
     : bad('partição de fontes cobre 100% dos leads', `${frias}+${jmp}+${outros} ≠ ${total}`)
 }
 
+/* ════════ 5. Previsão x real: o mesmo compromisso não pode contar duas vezes ═ */
+console.log('\n■ Previsão x real')
+{
+  const cats = await all('erp_categorias', 'id,nome,dre_grupo')
+  const ignorar = new Set(cats.filter(c => c.dre_grupo === 'ignorar').map(c => c.id))
+  const movs = await all('erp_movimentos_bancarios', 'id,data,tipo,valor,categoria_id,conta_pagar_id')
+  const cps = await all('erp_contas_pagar', 'id,valor,valor_pago,status,data_pagamento,categoria_id,origem,evento_key,substituido_por')
+
+  // (a) o que os títulos dizem que foi pago tem de bater com o que saiu do banco.
+  // Esta é a rede de segurança geral: qualquer duplicidade nova — previsão que
+  // sobreviveu ao pagamento, lote espelhado além dos analíticos — aparece aqui
+  // como excesso, sem precisar de um teste específico para cada caso.
+  const banco = movs.filter(m => m.tipo === 'saida' && !ignorar.has(m.categoria_id))
+    .reduce((s, m) => s + Number(m.valor || 0), 0)
+  const titulos = cps.filter(c => ['pago', 'parcial'].includes(c.status) && c.data_pagamento
+    && !ignorar.has(c.categoria_id) && c.origem !== 'sintetico')
+    .reduce((s, c) => s + Number(c.valor_pago || c.valor || 0), 0)
+  const dif = titulos - banco
+  const pct = banco ? Math.abs(dif) / banco * 100 : 0
+  const msg = `títulos ${brl(titulos)} x banco ${brl(banco)} — dif ${brl(dif)} (${pct.toFixed(1)}%)`
+  pct <= 2 ? ok('despesa paga bate com a saída do banco', msg) : meh('despesa paga bate com a saída do banco', msg)
+
+  // (b) nenhuma previsão viva quando o real do mesmo evento já existe
+  const vivas = cps.filter(c => c.origem === 'estimativa' && !['cancelado', 'pago'].includes(c.status) && c.evento_key)
+  const reais = new Map()
+  for (const c of cps.filter(c => c.origem === 'real' && c.status !== 'cancelado' && c.evento_key)) {
+    reais.set(c.evento_key, (reais.get(c.evento_key) || 0) + Number(c.valor || 0))
+  }
+  const orfas = vivas.filter(c => reais.has(c.evento_key))
+  orfas.length === 0
+    ? ok('nenhuma previsão viva com título real do mesmo evento', `${vivas.length} previsões com chave`)
+    : bad('nenhuma previsão viva com título real do mesmo evento', `${orfas.length} previsões deveriam ter sido substituídas`)
+
+  // (c) toda previsão substituída aponta para quem a substituiu
+  const subs = cps.filter(c => c.substituido_por)
+  const semDono = subs.filter(c => c.status !== 'cancelado')
+  semDono.length === 0
+    ? ok('previsões substituídas estão encerradas', `${subs.length} substituições registradas`)
+    : bad('previsões substituídas estão encerradas', `${semDono.length} ainda em aberto`)
+}
+
 /* ════════ resultado ═══════════════════════════════════════════════════════ */
 console.log(`\n═══ ${pass} PASS · ${warn} WARN · ${fail} FAIL ═══`)
 process.exit(fail > 0 ? 1 : 0)

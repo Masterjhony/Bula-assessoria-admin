@@ -223,15 +223,21 @@ export async function computeDre(
       lanca(m.categoria_id, m.tipo === 'entrada' ? 'Outras Receitas' : 'Outras Despesas', m.tipo === 'entrada' ? 'entrada' : 'saida', Number(m.valor || 0))
     }
   } else {
+    // 'sintetico' fica de fora: e o titulo do pagamento em lote vindo do
+    // extrato, que existe para o regime de CAIXA. Na competencia quem responde
+    // pela despesa sao os titulos analiticos (comissao por leilao/assessor) —
+    // somar os dois contaria a mesma comissao duas vezes.
     const [{ data: cps }, { data: crs }] = await Promise.all([
       sb.from('erp_contas_pagar')
         .select('valor,desconto,juros,multa,categoria_id')
         .gte('vencimento', from).lte('vencimento', to)
-        .neq('status', 'cancelado'),
+        .neq('status', 'cancelado')
+        .neq('origem', 'sintetico'),
       sb.from('erp_contas_receber')
         .select('valor,desconto,juros,multa,categoria_id')
         .gte('vencimento', from).lte('vencimento', to)
-        .neq('status', 'cancelado'),
+        .neq('status', 'cancelado')
+        .neq('origem', 'sintetico'),
     ])
     type Tit = { valor: number; desconto: number; juros: number; multa: number; categoria_id: string | null }
     const liq = (r: Tit) => Number(r.valor || 0) - Number(r.desconto || 0) + Number(r.juros || 0) + Number(r.multa || 0)
