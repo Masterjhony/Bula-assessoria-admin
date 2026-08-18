@@ -563,7 +563,25 @@ interface RawMetaLead {
   adsetId: string; adsetName: string; campaignId: string; campaignName: string
   formId: string; formName: string; isOrganic: string; platform: string
   momento: string; cabecas: string; temIe: string; interesse: string; qtd: string
-  fullName: string; email: string; phone: string; state: string; leadStatus: string
+  fullName: string; cpf: string; email: string; phone: string; state: string; leadStatus: string
+}
+
+/**
+ * "cpf_(brazil)" é campo NATIVO do Meta (não é pergunta) e o conector o despeja
+ * entre o nome e o e-mail. Reconhecê-lo é obrigatório: sem isto o nome do lead
+ * vira o CPF na planilha (18/08, form "BULA PERPETUO v1" da Expogenética).
+ */
+/** Status que o Meta usa na coluna lead_status (o resto é campo oculto do form). */
+function ehLeadStatus(v: string): string {
+  const s = String(v || '').trim()
+  return /^(created|active|archived|converted|disqualified|contacted|closed)$/i.test(s) ? s.toUpperCase() : ''
+}
+
+function ehCpfOuCnpj(v: string): boolean {
+  const d = String(v || '').replace(/\D/g, '')
+  if (d.length !== 11 && d.length !== 14) return false
+  // Só conta como documento se a célula não tiver letra nenhuma (nome não entra).
+  return !/\p{L}/u.test(String(v || ''))
 }
 
 /**
@@ -571,7 +589,7 @@ interface RawMetaLead {
  * (linhas atuais) ou em B (linhas antigas, deslocadas quando a coluna
  * "Atendido por" foi inserida — nesse caso A é preservada).
  */
-function parseRawMetaLead(row: string[]): RawMetaLead | null {
+export function parseRawMetaLead(row: string[]): RawMetaLead | null {
   let offset: number | null = null
   let atendidoPor = ''
   if (/^l:\d+/.test(String(row[0] ?? ''))) offset = 0
@@ -596,7 +614,18 @@ function parseRawMetaLead(row: string[]): RawMetaLead | null {
     for (let i = 12; i < largura; i++) { if (f(i).includes('@')) { iPhone = i + 1; break } }
   }
   if (iPhone < 14) iPhone = 19 // formulário fora do padrão: volta ao layout clássico
-  const iEmail = iPhone - 1, iNome = iPhone - 2
+  const iEmail = iPhone - 1
+  // Entre o nome e o e-mail pode haver o campo nativo "cpf_(brazil)" (os forms
+  // de 2026 em diante pedem CPF). Se a célula anterior ao e-mail for documento
+  // — ou o placeholder do lead de teste, ou simplesmente vazia porque o campo é
+  // opcional —, o nome está uma coluna mais à esquerda. O CPF a gente aproveita.
+  const ehColunaDeCpf = (v: string) => ehCpfOuCnpj(v) || /cpf/i.test(v)
+  let iCpf = -1, iNome = iPhone - 2
+  const temLetra = (v: string) => /\p{L}/u.test(v)
+  if (iNome > 12 && (ehColunaDeCpf(f(iNome)) || !temLetra(f(iNome))) && temLetra(f(iNome - 1))) {
+    if (ehColunaDeCpf(f(iNome))) iCpf = iNome
+    iNome -= 1
+  }
 
   const perguntas: string[] = []
   for (let i = 12; i < iNome; i++) perguntas.push(f(i))
@@ -631,8 +660,11 @@ function parseRawMetaLead(row: string[]): RawMetaLead | null {
     adsetId: stripPrefix(f(4), 'as:'), adsetName: f(5), campaignId: stripPrefix(f(6), 'c:'), campaignName: f(7),
     formId: stripPrefix(f(8), 'f:'), formName: f(9), isOrganic: f(10), platform: f(11),
     momento: q(iMomento), cabecas: q(iCabecas), temIe: q(iIe), interesse: q(iInteresse), qtd: q(iQtd),
-    fullName: f(iNome), email: f(iEmail), phone: f(iPhone), state: f(iPhone + 1),
-    leadStatus: String(row[39] ?? '').trim() || f(iPhone + 2) || 'CREATED',
+    fullName: f(iNome), cpf: iCpf >= 0 && ehCpfOuCnpj(f(iCpf)) ? f(iCpf) : '',
+    email: f(iEmail), phone: f(iPhone), state: f(iPhone + 1),
+    // Depois do estado o form novo ainda despeja campos ocultos ("canal"), que
+    // não são status: só vale o que tem cara de status do Meta.
+    leadStatus: ehLeadStatus(String(row[39] ?? '')) || ehLeadStatus(f(iPhone + 2)) || 'CREATED',
   }
 }
 
@@ -668,12 +700,61 @@ function buildNormalizedMetaRow(p: RawMetaLead, headerRow: string[], width: numb
   return out
 }
 
+// ── Trava da auto-cura ──────────────────────────────────────────────────────
+// Um UPDATE ... WHERE no Postgres é atômico: quem consegue mudar a linha leva a
+// trava. Expira sozinha em 2 min, então processo derrubado no meio não trava a
+// planilha para sempre.
+const HEAL_LOCK_KEY = 'sheets_heal_lock'
+const HEAL_LOCK_MS = 120_000
+const LIVRE = new Date(0).toISOString()
+
+async function tomaTravaDeCura(): Promise<boolean> {
+  try {
+    const db = supabaseAdmin()
+    // Garante a linha sem nunca zerar uma trava em uso.
+    await db.from('jmp_config')
+      .upsert({ key: HEAL_LOCK_KEY, value: {}, updated_at: LIVRE }, { onConflict: 'key', ignoreDuplicates: true })
+    const { data } = await db.from('jmp_config')
+      .update({ updated_at: new Date().toISOString() })
+      .eq('key', HEAL_LOCK_KEY)
+      .lt('updated_at', new Date(Date.now() - HEAL_LOCK_MS).toISOString())
+      .select('key')
+    return Boolean(data?.length)
+  } catch (e) {
+    // Sem banco não dá para coordenar — melhor não mexer na planilha.
+    console.warn('[jmp-sheets] trava da auto-cura indisponível:', e instanceof Error ? e.message : e)
+    return false
+  }
+}
+
+async function liberaTravaDeCura(): Promise<void> {
+  try {
+    await supabaseAdmin().from('jmp_config').update({ updated_at: LIVRE }).eq('key', HEAL_LOCK_KEY)
+  } catch { /* expira sozinha em 2 min */ }
+}
+
 /**
- * Reescreve in place as linhas cruas do Meta no layout padrão. Best-effort:
- * falha vira warn (nunca quebra o fluxo de quem chamou). Retorna quantas
- * linhas foram normalizadas.
+ * Normaliza as linhas cruas do Meta e as MOVE para o topo da LEADS GERAIS.
+ *
+ * Até 18/08 esta rotina reescrevia a linha in place. O conector do Meta despeja
+ * no FIM da aba, então o lead ficava formatado mas parado na última linha — e,
+ * já normalizado, o absorveDumpsCrusDoMeta não o reconhecia mais como cru e
+ * nunca o levava para o topo. Resultado que a equipe viu: "os leads estão
+ * caindo no final". Aqui a linha nova nasce no topo (a base é decrescente por
+ * Data) e a linha crua original é apagada — tudo num batchUpdate só, que o
+ * Google aplica na ordem ou não aplica nada: sem janela para duplicar.
+ *
+ * Roda sob trava: como agora ela APAGA linha por índice, duas execuções ao
+ * mesmo tempo (o cron e um lead da landing, por exemplo) apagariam a linha
+ * errada — a primeira inserção desloca os índices que a segunda leu. Com a
+ * reescrita in place isso era inofensivo; aqui não é.
+ *
+ * Best-effort: falha vira warn (nunca quebra o fluxo de quem chamou). Retorna
+ * quantas linhas foram normalizadas.
  */
 export async function normalizeMetaRawRows(): Promise<number> {
+  const trava = await tomaTravaDeCura()
+  if (!trava) return 0
   try {
     const info = await getStoredInfo()
     if (!info) return 0
@@ -689,26 +770,63 @@ export async function normalizeMetaRawRows(): Promise<number> {
       range: `${TAB}!A2:${endColumn}`,
     })
     const values = (res.data.values ?? []) as string[][]
-    const updates: { range: string; values: string[][] }[] = []
+    const crus: { index: number; quando: number; row: string[] }[] = []
     values.forEach((row, index) => {
       const parsed = parseRawMetaLead(row)
       if (!parsed) return
-      const rowNumber = index + 2
-      updates.push({
-        range: `${TAB}!A${rowNumber}:${endColumn}${rowNumber}`,
-        values: [buildNormalizedMetaRow(parsed, headerRow, width)],
+      crus.push({
+        index,
+        quando: Date.parse(parsed.created) || 0,
+        row: buildNormalizedMetaRow(parsed, headerRow, width),
       })
     })
-    if (!updates.length) return 0
-    await sheets.spreadsheets.values.batchUpdate({
+    if (!crus.length) return 0
+    const sheetId = await getTabSheetId(sheets, info.spreadsheetId, TAB)
+    const n = crus.length
+    // Mais novo primeiro, para o bloco entrar já na ordem da aba.
+    const novas = [...crus].sort((a, b) => b.quando - a.quando).map(c => c.row)
+    const requests: object[] = [
+      {
+        insertDimension: {
+          range: { sheetId, dimension: 'ROWS', startIndex: 1, endIndex: 1 + n },
+          inheritFromBefore: false,
+        },
+      },
+      {
+        updateCells: {
+          start: { sheetId, rowIndex: 1, columnIndex: 0 },
+          rows: novas.map(r => ({ values: r.map(cellValue) })),
+          fields: 'userEnteredValue',
+        },
+      },
+      {
+        // Lead novo entra sem cor = ENTRADA (a equipe pinta conforme atende).
+        repeatCell: {
+          range: { sheetId, startRowIndex: 1, endRowIndex: 1 + n },
+          cell: { userEnteredFormat: { backgroundColorStyle: { themeColor: 'BACKGROUND' } } },
+          fields: 'userEnteredFormat.backgroundColorStyle',
+        },
+      },
+      // As linhas cruas desceram n posições com a inserção; apaga de baixo para
+      // cima para um índice não deslocar o outro.
+      ...crus
+        .map(c => c.index + 1 + n)
+        .sort((a, b) => b - a)
+        .map(startIndex => ({
+          deleteDimension: { range: { sheetId, dimension: 'ROWS', startIndex, endIndex: startIndex + 1 } },
+        })),
+    ]
+    await sheets.spreadsheets.batchUpdate({
       spreadsheetId: info.spreadsheetId,
-      requestBody: { valueInputOption: 'RAW', data: updates },
+      requestBody: { requests },
     })
-    console.log(`[jmp-sheets] ${updates.length} linha(s) do Meta normalizadas na planilha`)
-    return updates.length
+    console.log(`[jmp-sheets] ${n} linha(s) do Meta normalizadas e movidas para o topo`)
+    return n
   } catch (e) {
     console.warn('[jmp-sheets] normalizeMetaRawRows falhou:', e instanceof Error ? e.message : e)
     return 0
+  } finally {
+    await liberaTravaDeCura()
   }
 }
 
@@ -864,6 +982,11 @@ function buildPerpetuoValues(p: RawMetaLead): Map<string, string> {
     ['Atendido por', p.atendidoPor],
     ['Data', fmtDate(new Date(p.created))],
     ['Nome', testPrefix + nomeLegivel(p.fullName)],
+    // O form pede CPF desde 08/2026: alimenta a coluna da equipe (CPF/CNPJ nas
+    // abas-recorte) e as colunas cruas que o próprio conector criou.
+    ['CPF/CNPJ', p.cpf],
+    ['cpf', p.cpf],
+    ['cpf_(brazil)', p.cpf],
     ['E-mail', p.email],
     ['WhatsApp', metaPhoneToWhatsApp(p.phone)],
     ['UF', metaStateToUF(p.state)],
@@ -1131,10 +1254,24 @@ function buildRowFromHeaderedSource(srcRow: string[], srcHeader: string[], dstHe
  * manuais (nunca reescreve linha existente). Lança em erro de Sheets p/ o cron
  * logar; auth/planilha ausente degrada pra no-op.
  */
-export async function absorveDumpsCrusDoMeta(): Promise<{
+export async function absorveDumpsCrusDoMeta(): Promise<AbsorveResultado> {
+  // Mesma trava da auto-cura: as duas apagam linha por índice na mesma aba, e
+  // uma rodando dentro da outra faria o delete acertar a linha errada.
+  const trava = await tomaTravaDeCura()
+  if (!trava) return { appended: 0, total: 0, abasRemovidas: [], linhasLimpas: 0, reason: 'locked' }
+  try {
+    return await absorveDumpsCrusDoMetaSemTrava()
+  } finally {
+    await liberaTravaDeCura()
+  }
+}
+
+interface AbsorveResultado {
   appended: number; total: number; abasRemovidas: string[]; linhasLimpas: number
   cabecalhosARestaurar?: string[]; reason?: string
-}> {
+}
+
+async function absorveDumpsCrusDoMetaSemTrava(): Promise<AbsorveResultado> {
   const nada = { appended: 0, total: 0, abasRemovidas: [] as string[], linhasLimpas: 0 }
   const info = await getStoredInfo()
   if (!info) return { ...nada, reason: 'not_provisioned' }
@@ -1252,12 +1389,19 @@ export async function absorveDumpsCrusDoMeta(): Promise<{
 
   // `fresh` vem do mais antigo para o mais novo; a helper inverte e insere no
   // topo, mantendo a base decrescente.
-  if (fresh.length) await insertTourosRowsAtTop(sheets, info.spreadsheetId, base, fresh)
+  if (fresh.length) await insertTourosRowsAtTop(sheets, info.spreadsheetId, base, [...fresh].reverse())
 
   // Apaga de baixo para cima: apagar a linha 5 antes da 3 desloca a 3.
+  // A inserção acima já empurrou a base para baixo — linha crua que estava LÁ
+  // (é onde o conector despeja hoje) precisa do mesmo deslocamento, senão o
+  // delete acerta um lead de verdade algumas linhas acima.
+  const baseSheetId = abas.find(a => a.title === base)?.sheetId
   const requests: object[] = []
   const porAba = new Map<number, number[]>()
-  for (const l of limpezas) porAba.set(l.sheetId, [...(porAba.get(l.sheetId) ?? []), l.linha])
+  for (const l of limpezas) {
+    const linha = l.sheetId === baseSheetId ? l.linha + fresh.length : l.linha
+    porAba.set(l.sheetId, [...(porAba.get(l.sheetId) ?? []), linha])
+  }
   for (const [sheetId, linhas] of porAba) {
     for (const linha of [...linhas].sort((a, b) => b - a)) {
       requests.push({ deleteDimension: { range: { sheetId, dimension: 'ROWS', startIndex: linha, endIndex: linha + 1 } } })

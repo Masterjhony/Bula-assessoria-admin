@@ -3,10 +3,12 @@ import { normalizeMetaRawRows } from '@/lib/jmp-sheets'
 
 export const maxDuration = 60
 
-// Auto-cura agendada da planilha "Leads JMP": realinha linhas cruas que o
-// Meta Ads despeja a partir da coluna A. Os outros gatilhos (lead da landing,
-// abertura da Validação) são oportunistas — sem tráfego, as linhas cruas
-// ficariam paradas até alguém mexer. Acionado pelo GitHub Actions
+// Auto-cura agendada da planilha "Leads JMP": realinha as linhas cruas que o
+// Meta Ads despeja a partir da coluna A e as leva para o TOPO da LEADS GERAIS
+// (o conector despeja no fim da aba; normalizar sem mover deixava o lead novo
+// parado na última linha — foi o que a equipe viu em 18/08). Os outros
+// gatilhos (lead da landing, abertura da Validação) são oportunistas — sem
+// tráfego, as linhas cruas ficariam paradas até alguém mexer. Acionado pelo GitHub Actions
 // (jmp-sheet-heal.yml, a cada 15 min) + Vercel Cron diário como reserva.
 // Auth: Authorization: Bearer <CRON_SECRET> (padrão Vercel Cron) OU
 // x-webhook-secret == WHATSAPP_GROUP_TASK_SECRET (cron externo).
