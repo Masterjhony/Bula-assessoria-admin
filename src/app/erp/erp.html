@@ -202,6 +202,11 @@ body { background:var(--bg); color:var(--text); font-family:'Inter',-apple-syste
 .grp-row td { background:var(--s2); font-weight:700; font-size:11px; text-transform:uppercase; letter-spacing:.5px; color:var(--text2); padding:9px 14px; }
 .grp-row .grp-tot { float:right; font-weight:700; }
 
+.age-block { margin-bottom: 12px; }
+.age-head { display:flex; align-items:baseline; justify-content:space-between; gap:10px; flex-wrap:wrap; margin:0 2px 6px; }
+.age-head-t { font-size:10px; font-weight:700; text-transform:uppercase; letter-spacing:1.2px; color:var(--text3); }
+.age-head-v { font-size:11px; color:var(--text3); }
+.age-head-v b { color:var(--text); font-weight:700; }
 /* Badge de dias em atraso / a vencer */
 .atraso { display:inline-block; margin-top:2px; font-size:9.5px; font-weight:700; padding:1px 6px; border-radius:8px; letter-spacing:.3px; }
 .atraso.late { background:var(--red-bg); color:var(--red); }
@@ -1282,15 +1287,29 @@ async function renderContas(modo) {
   const fCat = state.filters.categoria_id;
   const fParc = state.filters.parceiro_id;
   const fAge = state.filters.aging; // vencer | d30 | d60 | d90 | d90p | ok
+  // DUAS reguas, porque sao perguntas diferentes:
+  //   . futuro = "o que tenho de pagar/receber nos proximos N dias" (caixa)
+  //   . atraso = "o que ja venceu e ha quanto tempo" (cobranca)
+  // Antes havia um balde unico "A vencer" + faixas de ATRASO rotuladas
+  // "1-30 dias" — todos liam como "vence em 30 dias" e o numero parecia
+  // absurdamente baixo (corrigido em 18/08/2026).
   const agingBucket = (r) => {
     if (r.status === 'cancelado') return 'cancelado';
     if (isDone(r)) return 'ok';
     const d = diasAtraso(r.vencimento);
-    if (d == null || d <= 0) return 'vencer';
-    if (d <= 30) return 'd30';
-    if (d <= 60) return 'd60';
-    if (d <= 90) return 'd90';
-    return 'd90p';
+    if (d == null) return 'sem_data';
+    if (d <= 0) {
+      const falta = -d;
+      if (falta <= 7) return 'f7';
+      if (falta <= 30) return 'f30';
+      if (falta <= 60) return 'f60';
+      if (falta <= 90) return 'f90';
+      return 'f90p';
+    }
+    if (d <= 30) return 'a30';
+    if (d <= 60) return 'a60';
+    if (d <= 90) return 'a90';
+    return 'a90p';
   };
 
   let list = listAll.filter(r => {
@@ -1345,21 +1364,42 @@ async function renderContas(modo) {
     if (fParc && (isCP?r.fornecedor_id:r.cliente_id) !== fParc) return false;
     return true;
   });
-  const buckets = { vencer:{v:0,n:0}, d30:{v:0,n:0}, d60:{v:0,n:0}, d90:{v:0,n:0}, d90p:{v:0,n:0}, ok:{v:0,n:0} };
+  const buckets = {
+    f7:{v:0,n:0}, f30:{v:0,n:0}, f60:{v:0,n:0}, f90:{v:0,n:0}, f90p:{v:0,n:0}, sem_data:{v:0,n:0},
+    a30:{v:0,n:0}, a60:{v:0,n:0}, a90:{v:0,n:0}, a90p:{v:0,n:0}, ok:{v:0,n:0},
+  };
   for (const r of baseAging) {
     const b = agingBucket(r);
     if (!buckets[b]) continue; // cancelados nao entram no aging
     buckets[b].v += (b==='ok') ? (Number(isCP?r.valor_pago:r.valor_recebido)||0) : calcRestante(r);
     buckets[b].n++;
   }
-  const ageDefs = [
-    { k:'vencer', cls:'c-vencer', label:'A vencer' },
-    { k:'d30',    cls:'c-30',     label:'1–30 dias' },
-    { k:'d60',    cls:'c-60',     label:'31–60 dias' },
-    { k:'d90',    cls:'c-90',     label:'61–90 dias' },
-    { k:'d90p',   cls:'c-90p',    label:'+90 dias' },
-    { k:'ok',     cls:'c-ok',     label:isCP?'Pagos':'Recebidos' },
+  const CHIP_TPL = (a) => `
+        <button class="age-chip ${a.cls} ${fAge===a.k?'active':''}" onclick="onFilterAging('${a.k}')" title="Filtrar por esta faixa">
+          <span class="age-l"><span class="dot"></span>${a.label}</span>
+          <span class="age-v">${fmtBRL(buckets[a.k].v)}</span>
+          <span class="age-n">${buckets[a.k].n} titulo${buckets[a.k].n===1?'':'s'}</span>
+        </button>`;
+  const rotulo = isCP ? 'pagar' : 'receber';
+  const ageFuturo = [
+    { k:'f7',   cls:'c-vencer', label:'Até 7 dias' },
+    { k:'f30',  cls:'c-vencer', label:'8–30 dias' },
+    { k:'f60',  cls:'c-30',     label:'31–60 dias' },
+    { k:'f90',  cls:'c-60',     label:'61–90 dias' },
+    { k:'f90p', cls:'c-90',     label:'+90 dias' },
   ];
+  if (buckets.sem_data.n) ageFuturo.push({ k:'sem_data', cls:'c-90p', label:'Sem vencimento' });
+  const ageAtraso = [
+    { k:'a30',  cls:'c-30',     label:'1–30 dias' },
+    { k:'a60',  cls:'c-60',     label:'31–60 dias' },
+    { k:'a90',  cls:'c-90',     label:'61–90 dias' },
+    { k:'a90p', cls:'c-90p',    label:'+90 dias' },
+  ];
+  const ageOk = [{ k:'ok', cls:'c-ok', label:isCP?'Pagos':'Recebidos' }];
+  const somaB = (defs) => defs.reduce((acc,d)=>({ v: acc.v + buckets[d.k].v, n: acc.n + buckets[d.k].n }), {v:0,n:0});
+  const totFuturo = somaB(ageFuturo), totAtraso = somaB(ageAtraso);
+  const proximos30 = { v: buckets.f7.v + buckets.f30.v, n: buckets.f7.n + buckets.f30.n };
+  const chip = (a) => CHIP_TPL(a);
 
   // ---- pessoas para o filtro de cliente/fornecedor (só quem aparece na lista) ----
   const parcMap = new Map();
@@ -1544,13 +1584,20 @@ async function renderContas(modo) {
       </div>
     </div>
 
-    <div class="age-row">
-      ${ageDefs.map(a=>`
-        <button class="age-chip ${a.cls} ${fAge===a.k?'active':''}" onclick="onFilterAging('${a.k}')" title="Filtrar por esta faixa">
-          <span class="age-l"><span class="dot"></span>${a.label}</span>
-          <span class="age-v">${fmtBRL(buckets[a.k].v)}</span>
-          <span class="age-n">${buckets[a.k].n} titulo${buckets[a.k].n===1?'':'s'}</span>
-        </button>`).join('')}
+    <div class="age-block">
+      <div class="age-head">
+        <span class="age-head-t">A ${rotulo} — por prazo de vencimento</span>
+        <span class="age-head-v">Próximos 30 dias <b class="money">${fmtBRL(proximos30.v)}</b> <small>(${proximos30.n} título${proximos30.n===1?'':'s'})</small> · total futuro <b class="money">${fmtBRL(totFuturo.v)}</b></span>
+      </div>
+      <div class="age-row">${ageFuturo.map(chip).join('')}</div>
+    </div>
+
+    <div class="age-block">
+      <div class="age-head">
+        <span class="age-head-t">Já venceu — por tempo de atraso</span>
+        <span class="age-head-v">Total vencido <b class="money${totAtraso.v>0?' negative':''}">${fmtBRL(totAtraso.v)}</b> <small>(${totAtraso.n} título${totAtraso.n===1?'':'s'})</small></span>
+      </div>
+      <div class="age-row">${ageAtraso.map(chip).join('')}${ageOk.map(chip).join('')}</div>
     </div>
 
     ${isCP && centrosResumo.length ? `
@@ -1848,7 +1895,7 @@ function toggleSelAllContas(modo, on) {
   const fCat=state.filters.categoria_id, fParc=state.filters.parceiro_id, fAge=state.filters.aging;
   const isCP=modo==='pagar';
   const hojeMs=new Date(today()+'T00:00:00').getTime();
-  const bucket=(r)=>{ if(r.status==='cancelado')return'cancelado'; if(['pago','recebido'].includes(r.status))return'ok'; const d=r.vencimento?Math.round((hojeMs-new Date(r.vencimento+'T00:00:00').getTime())/86400000):null; if(d==null||d<=0)return'vencer'; if(d<=30)return'd30'; if(d<=60)return'd60'; if(d<=90)return'd90'; return'd90p'; };
+  const bucket=(r)=>{ if(r.status==='cancelado')return'cancelado'; if(['pago','recebido'].includes(r.status))return'ok'; const d=r.vencimento?Math.round((hojeMs-new Date(r.vencimento+'T00:00:00').getTime())/86400000):null; if(d==null)return'sem_data'; if(d<=0){const f=-d; if(f<=7)return'f7'; if(f<=30)return'f30'; if(f<=60)return'f60'; if(f<=90)return'f90'; return'f90p';} if(d<=30)return'a30'; if(d<=60)return'a60'; if(d<=90)return'a90'; return'a90p'; };
   const vis=list.filter(r=>{ if(fCat&&r.categoria_id!==fCat)return false; if(fParc&&(isCP?r.fornecedor_id:r.cliente_id)!==fParc)return false; if(fAge&&bucket(r)!==fAge)return false; return true; });
   if (on) vis.forEach(r=>state.contasSel.add(r.id)); else vis.forEach(r=>state.contasSel.delete(r.id));
   render();
@@ -1926,7 +1973,7 @@ function exportContasCsv(modo, onlySelected) {
   // aplica os mesmos filtros client-side da tela
   const fCat=state.filters.categoria_id, fParc=state.filters.parceiro_id, fAge=state.filters.aging;
   const hojeMs=new Date(today()+'T00:00:00').getTime();
-  const bucket=(r)=>{ if(r.status==='cancelado')return'cancelado'; if(['pago','recebido'].includes(r.status))return'ok'; const d=r.vencimento?Math.round((hojeMs-new Date(r.vencimento+'T00:00:00').getTime())/86400000):null; if(d==null||d<=0)return'vencer'; if(d<=30)return'd30'; if(d<=60)return'd60'; if(d<=90)return'd90'; return'd90p'; };
+  const bucket=(r)=>{ if(r.status==='cancelado')return'cancelado'; if(['pago','recebido'].includes(r.status))return'ok'; const d=r.vencimento?Math.round((hojeMs-new Date(r.vencimento+'T00:00:00').getTime())/86400000):null; if(d==null)return'sem_data'; if(d<=0){const f=-d; if(f<=7)return'f7'; if(f<=30)return'f30'; if(f<=60)return'f60'; if(f<=90)return'f90'; return'f90p';} if(d<=30)return'a30'; if(d<=60)return'a60'; if(d<=90)return'a90'; return'a90p'; };
   list = list.filter(r=>{ if(fCat&&r.categoria_id!==fCat)return false; if(fParc&&(isCP?r.fornecedor_id:r.cliente_id)!==fParc)return false; if(fAge&&bucket(r)!==fAge)return false; return true; });
   if (onlySelected) list = list.filter(r=>state.contasSel.has(r.id));
   if (!list.length) { toast('Nada para exportar','error'); return; }
