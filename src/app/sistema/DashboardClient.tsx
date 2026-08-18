@@ -113,6 +113,34 @@ const fmtBRLCompact = (v: number) => {
 }
 const fmtNum = (v: number) => v.toLocaleString('pt-BR')
 
+// mesma linguagem visual do bloco Leilões & Vendas (brandbook: grafite + ouro)
+const OURO = '#C9A84C'
+const CARD = 'rounded-2xl border border-gray-100 dark:border-[#242424] bg-white dark:bg-[#131313] shadow-[0_1px_2px_rgba(0,0,0,.04)]'
+
+function CardHead({ icon: Icon, title, sub, href, hrefLabel = 'abrir' }: {
+  icon: React.ElementType; title: string; sub?: string; href?: string; hrefLabel?: string
+}) {
+  return (
+    <div className="flex items-start justify-between gap-3 mb-4">
+      <div className="min-w-0">
+        <p className="text-[11px] font-black uppercase tracking-[0.14em] text-gray-800 dark:text-gray-100 flex items-center gap-2">
+          <Icon size={13} style={{ color: OURO }} />{title}
+        </p>
+        {sub && <p className="text-[10.5px] text-gray-400 mt-1 leading-snug">{sub}</p>}
+      </div>
+      {href && (
+        <Link
+          href={href}
+          className="shrink-0 inline-flex items-center gap-1 text-[9.5px] font-black uppercase tracking-[0.12em] transition-opacity hover:opacity-70"
+          style={{ color: OURO }}
+        >
+          {hrefLabel} <ArrowUpRight size={11} />
+        </Link>
+      )}
+    </div>
+  )
+}
+
 function useCountdown(target: number | null) {
   const [now, setNow] = useState<number>(() => Date.now())
   useEffect(() => {
@@ -409,7 +437,7 @@ function UpcomingList({ rows }: { rows: ProximoLeilaoRow[] }) {
     )
   }
   return (
-    <div className="card card-p0">
+    <div className="card card-p0 h-full flex flex-col">
       <div className="card-h">
         <div className="card-t">Próximos leilões</div>
         <Link href="/sistema/leiloes" className="text-[11px] subtle hover:text-[var(--gold)] transition-colors">
@@ -456,7 +484,7 @@ function UpcomingList({ rows }: { rows: ProximoLeilaoRow[] }) {
 
 function ActivityCard({ items, title, href }: { items: FeedItem[]; title: string; href: string }) {
   return (
-    <div className="card">
+    <div className="card h-full flex flex-col">
       <div className="card-h">
         <div className="card-t">{title}</div>
         {items.length > 0 && (
@@ -519,23 +547,13 @@ function CrmPulseCard({ crm }: { crm: CrmPulse }) {
     { label: 'Clientes', value: camp.clientes, color: '#22c55e' },
   ] : []
   return (
-    <div className="rounded-2xl border border-gray-100 dark:border-[#2A2A2A] bg-white dark:bg-[#141414] p-5 flex flex-col">
-      <div className="flex items-center justify-between mb-4">
-        <div>
-          <p className="text-xs font-black uppercase tracking-wider text-gray-900 dark:text-white flex items-center gap-1.5">
-            <Users size={13} className="text-[#A68B4B]" /> Leads · Visão geral
-          </p>
-          <p className="text-[10px] text-gray-400 mt-0.5">
-            Todas as frentes: campanhas (planilha{camp?.aoVivo ? ', ao vivo' : ''}), WhatsApp, Instagram e CRM
-          </p>
-        </div>
-        <Link
-          href="/sistema/leads"
-          className="inline-flex items-center gap-1 text-[10px] font-bold uppercase tracking-wider text-[#A68B4B] hover:opacity-80 transition-opacity"
-        >
-          abrir <ArrowUpRight size={12} />
-        </Link>
-      </div>
+    <div className={`${CARD} p-5 flex flex-col h-full`}>
+      <CardHead
+        icon={Users}
+        title="Leads · Visão geral"
+        sub={`Campanhas${camp?.aoVivo ? ' (planilha ao vivo)' : ''}, WhatsApp, Instagram e CRM — sem dupla contagem`}
+        href="/sistema/leads"
+      />
 
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 mb-5">
         <PulseChip icon={Users} label="Leads captados (geral)" value={fmtNum(crm.leadsGeral)} tone="gold" />
@@ -624,28 +642,20 @@ function GrowthPulseCard({ g }: { g: GrowthPulse }) {
     { icon: TrendingUp, label: 'Faturamento', value: fmtBRLCompact(g.faturamento) },
   ]
   return (
-    <div className="rounded-2xl border border-gray-100 dark:border-[#2A2A2A] bg-white dark:bg-[#141414] p-5 flex flex-col">
-      <div className="flex items-center justify-between mb-4">
-        <div>
-          <p className="text-xs font-black uppercase tracking-wider text-gray-900 dark:text-white flex items-center gap-1.5">
-            <Target size={13} className="text-[#A68B4B]" /> Growth · Tráfego pago
-          </p>
-          <p className="text-[10px] text-gray-400 mt-0.5">Do anúncio à compra · apurado em {g.apuradoEm.split('-').reverse().join('/')}</p>
-        </div>
-        <Link
-          href="/sistema/crm/dashboard"
-          className="inline-flex items-center gap-1 text-[10px] font-bold uppercase tracking-wider text-[#A68B4B] hover:opacity-80 transition-opacity"
-        >
-          abrir <ArrowUpRight size={12} />
-        </Link>
-      </div>
+    <div className={`${CARD} p-5 flex flex-col h-full`}>
+      <CardHead
+        icon={Target}
+        title="Growth · Tráfego pago"
+        sub={`Do anúncio à compra · ${g.aoVivo ? 'leads ao vivo' : 'apuração'} de ${g.apuradoEm.split('-').reverse().join('/')}`}
+        href="/sistema/crm/dashboard"
+      />
 
       <div className="rounded-xl border border-[#A68B4B]/30 bg-[#A68B4B]/5 px-4 py-3 mb-4 flex items-center justify-between">
         <div>
           <p className="text-[9px] uppercase tracking-widest font-bold text-[#A68B4B]">Retorno sobre a mídia (ROAS)</p>
           <p className="text-[10px] text-gray-400 mt-0.5">{fmtBRLCompact(g.faturamento)} vendidos com {fmtBRLCompact(g.investido)} de anúncio</p>
         </div>
-        <p className="text-3xl font-black leading-none tabular-nums text-[#A68B4B]">{g.roas.toFixed(1)}×</p>
+        <p className="text-[34px] font-black leading-none tabular-nums" style={{ color: OURO }}>{g.roas.toFixed(1)}×</p>
       </div>
 
       <div className="grid grid-cols-2 sm:grid-cols-3 gap-2 mt-auto">
@@ -663,7 +673,7 @@ export default function DashboardClient(props: DashboardProps) {
   const feedLeads = props.feed.filter(i => i.kind === 'lead').slice(0, 6)
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-5 pb-4">
       <div className="page-head">
         <h1>
           <small>Dashboard</small>
@@ -678,23 +688,25 @@ export default function DashboardClient(props: DashboardProps) {
       <FilterBar filters={f} />
 
       {/* O negócio primeiro: leilões & vendas (HastaPro FIL 2) */}
-      <div className="sec-label">Leilões &amp; vendas</div>
+      <div className="sec-label">Leilões &amp; vendas · {f.label}</div>
       <LeiloesAnalyticsBlock items={props.fechamentoItems} />
 
-      {/* Pulso da operação: CRM + growth pago (financeiro vive no ERP) */}
-      <div className="sec-label">Operação &amp; crescimento</div>
-      <div className="grid gap-4 items-stretch lg:grid-cols-2">
+      {/* Operação: leads de todas as frentes + growth pago */}
+      <div className="sec-label pt-2">Operação &amp; crescimento</div>
+      <div className="grid gap-4 lg:grid-cols-2 items-stretch">
         <CrmPulseCard crm={props.crm} />
         {props.growth
           ? <GrowthPulseCard g={props.growth} />
           : (
-            <div className="rounded-2xl border border-gray-100 dark:border-[#2A2A2A] bg-white dark:bg-[#141414] p-5 flex items-center justify-center">
+            <div className={`${CARD} p-5 flex items-center justify-center min-h-[220px]`}>
               <span className="text-xs subtle">Apuração de growth indisponível.</span>
             </div>
           )}
       </div>
 
-      <div className="g2">
+      {/* Agenda e entrada de leads */}
+      <div className="sec-label pt-2">Agenda &amp; entrada</div>
+      <div className="grid gap-4 lg:grid-cols-2 items-stretch">
         <UpcomingList rows={props.upcoming} />
         <ActivityCard items={feedLeads} title="Leads recentes" href="/sistema/leads" />
       </div>

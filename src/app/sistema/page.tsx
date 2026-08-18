@@ -278,8 +278,9 @@ export default async function AdminDashboard({ searchParams }: { searchParams?: 
             lotes: Number(e.lotes) || 0,
             animais: Number(e.animais) || 0,
         })),
-        compradores: ((f.compradores ?? []) as Array<{ fazenda?: string; cidade?: string; uf?: string; vgv?: number; lotes?: number; animais?: number }>).map(c => ({
+        compradores: ((f.compradores ?? []) as Array<{ fazenda?: string; comprador?: string; cidade?: string; uf?: string; vgv?: number; lotes?: number; animais?: number }>).map(c => ({
             fazenda: c.fazenda || '',
+            comprador: c.comprador || '',
             cidade: c.cidade || '',
             uf: c.uf || '',
             vgv: Number(c.vgv) || 0,

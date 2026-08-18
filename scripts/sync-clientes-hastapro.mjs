@@ -56,7 +56,20 @@ const CANON = new Map([
   ['felipe vilela andrade', 'Bulinha (Felipe Andrade)'],
 ])
 const canonAssessor = nome => CANON.get(matchKey(nome)) || str(nome)
-const PLACEHOLDER_RE = /^(a identificar|a definir|nao identificado|sem comprador|comprador)$/
+// espelho de ehNomeCompradorPlaceholder (src/lib/clientes.ts): fazenda
+// placeholder não pode virar identidade — fundia 32 compradores em 1 cliente.
+const PLACEHOLDER_SET = new Set(['', 'a identificar', 'a definir', 'confirmar', 'confirmar fazenda',
+  'fazenda confirmar', 'nao identificado', 'sem fazenda', 'sem comprador', 'comprador', 'fazenda', 'x', 'xx', 'na', 'nd'])
+const ehPlaceholder = nome => {
+  const k = matchKey(nome)
+  return !k || k.length < 3 || PLACEHOLDER_SET.has(k) || /^confirmar/.test(k)
+}
+const nomeComprador = (fazenda, comprador) => {
+  const f = str(fazenda), c = str(comprador)
+  if (f && !ehPlaceholder(f)) return f
+  if (c && !ehPlaceholder(c)) return c
+  return null
+}
 
 // HastaPro PRESTADORES (LOT_PISTEIRO) -> nome canonico (mesmo mapa do alinhador)
 const PISTEIRO = {
@@ -145,9 +158,9 @@ const lancesAssessorVgv = new Map() // key -> Map(assessor -> vgv)   (correlaç�
 const compradores = new Map() // key -> { nome, comprador, uf, fazenda }
 for (const f of fes || []) {
   for (const c of f.compradores || []) {
-    const fazenda = str(c.fazenda || c.comprador)
-    const k = matchKey(fazenda)
-    if (!k || PLACEHOLDER_RE.test(k)) continue
+    const fazenda = nomeComprador(c.fazenda, c.comprador)
+    const k = fazenda ? matchKey(fazenda) : ''
+    if (!k) continue
     if (!compradores.has(k)) {
       compradores.set(k, { nome: fazenda, comprador: str(c.comprador) || null, uf: str(c.uf).toUpperCase() || null, fazenda: str(c.fazenda) || null })
     } else if (!compradores.get(k).uf && str(c.uf)) compradores.get(k).uf = str(c.uf).toUpperCase()
@@ -157,7 +170,7 @@ for (const f of fes || []) {
     if (!assessor || /a definir/i.test(assessor)) continue
     const vgv = Number(l.vgv) || 0
     // comprador do lance vem como "NOME · FAZENDA · UF" — registra cada parte
-    const partes = str(l.comprador).split('·').map(p => matchKey(p)).filter(p => p.length > 2 && !PLACEHOLDER_RE.test(p))
+    const partes = str(l.comprador).split('·').map(p => matchKey(p)).filter(p => p.length > 2 && !ehPlaceholder(p))
     for (const p of new Set(partes)) addVgv(lancesAssessorVgv, p, assessor, vgv)
   }
 }

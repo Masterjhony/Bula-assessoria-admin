@@ -127,6 +127,41 @@ export function clienteMatchKey(nome: string | null | undefined): string {
     .trim()
 }
 
+/**
+ * O campo `fazenda` do fechamento vem do HastaPro e MUITAS vezes é um
+ * marcador de pendência ("Confirmar Fazenda", ".", "A identificar"), não o
+ * nome de uma propriedade. Usar isso como chave funde pessoas diferentes num
+ * cliente só — foi o que fazia "Confirmar Fazenda" aparecer comprando R$ 1,35
+ * milhão (32 compradores distintos colapsados, 18/08/2026).
+ *
+ * Regra: fazenda só vale como identidade se NÃO for placeholder; senão manda
+ * o nome do comprador. Sem nenhum dos dois, o registro não vira cliente.
+ */
+const PLACEHOLDER_COMPRADOR = new Set([
+  '', 'a identificar', 'a definir', 'confirmar', 'confirmar fazenda', 'fazenda confirmar',
+  'nao identificado', 'sem fazenda', 'sem comprador', 'comprador', 'fazenda', 'x', 'xx', 'na', 'nd',
+])
+
+export function ehNomeCompradorPlaceholder(nome: string | null | undefined): boolean {
+  const k = clienteMatchKey(nome)
+  if (!k || k.length < 3) return true            // ".", "-", "AB"
+  if (PLACEHOLDER_COMPRADOR.has(k)) return true
+  if (/^confirmar\b/.test(k)) return true        // "confirmar fazenda joao"
+  return false
+}
+
+/** Identidade do comprador num fechamento: fazenda válida > comprador > null. */
+export function nomeCompradorCanonico(
+  fazenda: string | null | undefined,
+  comprador: string | null | undefined,
+): string | null {
+  const faz = String(fazenda ?? '').trim()
+  const cmp = String(comprador ?? '').trim()
+  if (faz && !ehNomeCompradorPlaceholder(faz)) return faz
+  if (cmp && !ehNomeCompradorPlaceholder(cmp)) return cmp
+  return null
+}
+
 // Métricas derivadas para não duplicar fonte de verdade.
 export interface ClienteMetrics {
   totalComprado: number

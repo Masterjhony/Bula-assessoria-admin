@@ -8,7 +8,7 @@ import {
   type Cliente, type CompraHist, type InteracaoHist, type Interesse,
   type ClienteStatus, type PerfilConsumo, type PreferenciaCategoria,
   type ScoreFaixa, type Protesto, type ClienteDocumento,
-  clienteMatchKey, scoreToFaixa, onlyDigits,
+  clienteMatchKey, scoreToFaixa, onlyDigits, nomeCompradorCanonico,
 } from '@/lib/clientes'
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -305,7 +305,9 @@ export async function getClientes(): Promise<Cliente[]> {
     const auction = f.nome || 'Leilão'
     const data = f.data || ''
     for (const c of f.compradores ?? []) {
-      const fazenda = String(c.fazenda || c.comprador || '').trim()
+      // identidade real do comprador: fazenda placeholder ("Confirmar Fazenda",
+      // ".") não pode virar chave — fundia pessoas distintas num cliente só.
+      const fazenda = nomeCompradorCanonico(c.fazenda, c.comprador) ?? ''
       const key = nameKey(fazenda)
       if (!key) continue
 
