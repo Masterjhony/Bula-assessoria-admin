@@ -5,10 +5,10 @@ import Link from 'next/link'
 import { useRouter, usePathname, useSearchParams } from 'next/navigation'
 import {
   Gavel, Calendar, MapPin, Filter, ChevronDown, User, X,
-  Users, UserPlus, Star as StarIcon, Flame, MessageCircle, Reply, Send, ArrowUpRight,
+  Users, UserPlus, Star as StarIcon, Flame, ArrowUpRight,
+  Target, Wallet, TrendingUp, Landmark, ShoppingCart, BadgeCheck,
 } from 'lucide-react'
 import { LeiloesAnalyticsBlock, type FechamentoAnalyticsItem } from './leiloes/LeiloesAnalyticsBlock'
-import type { AtendimentoGrowth } from '@/lib/atendimento-stats'
 
 // ─── Types ──────────────────────────────────────────────────────────────────
 
@@ -62,6 +62,27 @@ export type CrmPulse = {
   perdidos: number
 }
 
+/** Resumo do funil de tráfego pago (apuração multi-fonte do growth). */
+export type GrowthPulse = {
+  investido: number
+  leads: number
+  mql: number
+  aprovados: number
+  clientes: number
+  faturamento: number
+  roas: number
+  apuradoEm: string
+}
+
+/** Posição financeira (só para finance-admin; null esconde o card). */
+export type FinanceiroPulse = {
+  saldoBancos: number
+  aReceber: number
+  aPagar: number
+  vencidosReceber: number
+  vencidosPagar: number
+}
+
 export type DashboardProps = {
   today: string
   proximo: ProximoLeilao | null
@@ -77,7 +98,8 @@ export type DashboardProps = {
   fechamentoItems: FechamentoAnalyticsItem[]
   feed: FeedItem[]
   crm: CrmPulse
-  atendimento: AtendimentoGrowth | null
+  growth: GrowthPulse | null
+  financeiro: FinanceiroPulse | null
 }
 
 // ─── Helpers ────────────────────────────────────────────────────────────────
@@ -549,86 +571,89 @@ function CrmPulseCard({ crm, periodLabel }: { crm: CrmPulse; periodLabel: string
 
 // ─── Pulso da operação: Atendimento (WhatsApp) ──────────────────────────────
 
-function DualSpark({ a, b, height = 56 }: { a: number[]; b: number[]; height?: number }) {
-  const n = Math.max(a.length, b.length)
-  if (n < 2) return null
-  const max = Math.max(1, ...a, ...b)
-  const w = 100
-  const stepX = w / (n - 1)
-  const toPts = (data: number[]) =>
-    data.map((v, i) => `${(i * stepX).toFixed(2)},${(height - (v / max) * height).toFixed(2)}`).join(' ')
-  return (
-    <svg viewBox={`0 0 ${w} ${height}`} className="w-full" preserveAspectRatio="none" style={{ height }}>
-      <defs>
-        <linearGradient id="atd-area" x1="0" y1="0" x2="0" y2="1">
-          <stop offset="0%" stopColor={GOLD} stopOpacity="0.28" />
-          <stop offset="100%" stopColor={GOLD} stopOpacity="0" />
-        </linearGradient>
-      </defs>
-      <polygon points={`0,${height} ${toPts(a)} ${w},${height}`} fill="url(#atd-area)" />
-      <polyline points={toPts(a)} fill="none" stroke={GOLD} strokeWidth="1.6" strokeLinejoin="round" strokeLinecap="round" vectorEffect="non-scaling-stroke" />
-      <polyline points={toPts(b)} fill="none" stroke="#22c55e" strokeWidth="1.6" strokeLinejoin="round" strokeLinecap="round" vectorEffect="non-scaling-stroke" />
-    </svg>
-  )
-}
-
-function AtendimentoPulseCard({ atd }: { atd: AtendimentoGrowth }) {
-  const topOrigem = atd.por_origem.filter(o => o.enviados >= 3).slice(0, 3)
-  const maxOrigem = Math.max(1, ...topOrigem.map(o => o.enviados))
+function GrowthPulseCard({ g }: { g: GrowthPulse }) {
+  const chips: { icon: React.ElementType; label: string; value: string }[] = [
+    { icon: Wallet, label: 'Investido', value: fmtBRLCompact(g.investido) },
+    { icon: UserPlus, label: 'Leads', value: fmtNum(g.leads) },
+    { icon: StarIcon, label: 'MQL', value: fmtNum(g.mql) },
+    { icon: BadgeCheck, label: 'Aprovados', value: fmtNum(g.aprovados) },
+    { icon: ShoppingCart, label: 'Clientes', value: fmtNum(g.clientes) },
+    { icon: TrendingUp, label: 'Faturamento', value: fmtBRLCompact(g.faturamento) },
+  ]
   return (
     <div className="rounded-2xl border border-gray-100 dark:border-[#2A2A2A] bg-white dark:bg-[#141414] p-5 flex flex-col">
       <div className="flex items-center justify-between mb-4">
         <div>
           <p className="text-xs font-black uppercase tracking-wider text-gray-900 dark:text-white flex items-center gap-1.5">
-            <MessageCircle size={13} className="text-[#A68B4B]" /> Atendimento · WhatsApp
+            <Target size={13} className="text-[#A68B4B]" /> Growth · Tráfego pago
           </p>
-          <p className="text-[10px] text-gray-400 mt-0.5">Abordagem → resposta · últimos 90 dias</p>
+          <p className="text-[10px] text-gray-400 mt-0.5">Do anúncio à compra · apurado em {g.apuradoEm.split('-').reverse().join('/')}</p>
         </div>
         <Link
-          href="/sistema/whatsapp"
+          href="/sistema/crm/dashboard"
           className="inline-flex items-center gap-1 text-[10px] font-bold uppercase tracking-wider text-[#A68B4B] hover:opacity-80 transition-opacity"
         >
           abrir <ArrowUpRight size={12} />
         </Link>
       </div>
 
-      <div className="grid grid-cols-3 gap-2 mb-4">
-        <div className="rounded-xl border border-gray-100 dark:border-[#2A2A2A] px-3 py-3">
-          <div className="flex items-center gap-1.5 text-gray-400 mb-1.5"><Send size={12} /><span className="text-[9px] uppercase tracking-wider">Contatados</span></div>
-          <p className="text-2xl font-black leading-none tabular-nums text-gray-900 dark:text-white">{fmtNum(atd.disparados)}</p>
+      <div className="rounded-xl border border-[#A68B4B]/30 bg-[#A68B4B]/5 px-4 py-3 mb-4 flex items-center justify-between">
+        <div>
+          <p className="text-[9px] uppercase tracking-widest font-bold text-[#A68B4B]">Retorno sobre a mídia (ROAS)</p>
+          <p className="text-[10px] text-gray-400 mt-0.5">{fmtBRLCompact(g.faturamento)} vendidos com {fmtBRLCompact(g.investido)} de anúncio</p>
         </div>
-        <div className="rounded-xl border border-gray-100 dark:border-[#2A2A2A] px-3 py-3">
-          <div className="flex items-center gap-1.5 text-gray-400 mb-1.5"><Reply size={12} /><span className="text-[9px] uppercase tracking-wider">Responderam</span></div>
-          <p className="text-2xl font-black leading-none tabular-nums text-emerald-500">{fmtNum(atd.responderam)}</p>
-        </div>
-        <div className="rounded-xl border border-[#A68B4B]/30 bg-[#A68B4B]/5 px-3 py-3">
-          <div className="flex items-center gap-1.5 text-[#A68B4B] mb-1.5"><span className="text-[9px] uppercase tracking-wider font-bold">Taxa</span></div>
-          <p className="text-2xl font-black leading-none tabular-nums text-[#A68B4B]">{atd.pct}%</p>
-        </div>
+        <p className="text-3xl font-black leading-none tabular-nums text-[#A68B4B]">{g.roas.toFixed(1)}×</p>
       </div>
 
-      <div className="relative">
-        <DualSpark a={atd.serie_contatados} b={atd.serie_responderam} />
-        <div className="flex items-center gap-4 mt-1.5">
-          <span className="flex items-center gap-1.5 text-[9px] text-gray-400"><span className="w-2 h-0.5 rounded" style={{ background: GOLD }} /> contatados/dia</span>
-          <span className="flex items-center gap-1.5 text-[9px] text-gray-400"><span className="w-2 h-0.5 rounded bg-emerald-500" /> responderam</span>
+      <div className="grid grid-cols-2 sm:grid-cols-3 gap-2 mt-auto">
+        {chips.map(c => <PulseChip key={c.label} icon={c.icon} label={c.label} value={c.value} />)}
+      </div>
+    </div>
+  )
+}
+
+function FinanceiroPulseCard({ fin }: { fin: FinanceiroPulse }) {
+  const linhas = [
+    { label: 'Saldo em bancos', value: fin.saldoBancos, tone: 'neutral' as const, sub: '' },
+    { label: 'A receber', value: fin.aReceber, tone: 'pos' as const, sub: fin.vencidosReceber > 0.005 ? `${fmtBRLCompact(fin.vencidosReceber)} vencidos` : '' },
+    { label: 'A pagar', value: fin.aPagar, tone: 'neg' as const, sub: fin.vencidosPagar > 0.005 ? `${fmtBRLCompact(fin.vencidosPagar)} vencidos` : '' },
+  ]
+  const posicao = fin.saldoBancos + fin.aReceber - fin.aPagar
+  return (
+    <div className="rounded-2xl border border-gray-100 dark:border-[#2A2A2A] bg-white dark:bg-[#141414] p-5 flex flex-col">
+      <div className="flex items-center justify-between mb-4">
+        <div>
+          <p className="text-xs font-black uppercase tracking-wider text-gray-900 dark:text-white flex items-center gap-1.5">
+            <Landmark size={13} className="text-[#A68B4B]" /> Financeiro
+          </p>
+          <p className="text-[10px] text-gray-400 mt-0.5">Posição de agora · títulos cancelados fora</p>
         </div>
+        <Link
+          href="/erp"
+          className="inline-flex items-center gap-1 text-[10px] font-bold uppercase tracking-wider text-[#A68B4B] hover:opacity-80 transition-opacity"
+        >
+          abrir ERP <ArrowUpRight size={12} />
+        </Link>
       </div>
 
-      {topOrigem.length > 0 && (
-        <div className="space-y-1.5 mt-4 pt-3 border-t border-gray-50 dark:border-[#262626]">
-          <p className="text-[9px] uppercase tracking-widest text-gray-400 mb-1">Taxa por origem de disparo</p>
-          {topOrigem.map(o => (
-            <div key={o.origin} className="flex items-center gap-2.5">
-              <span className="w-32 shrink-0 text-[10px] text-gray-600 dark:text-gray-300 truncate">{o.origin}</span>
-              <div className="flex-1 h-1.5 rounded-full bg-gray-100 dark:bg-[#1A1A1A] overflow-hidden">
-                <div className="h-full rounded-full" style={{ width: `${(o.enviados / maxOrigem) * 100}%`, background: GOLD }} />
-              </div>
-              <span className="w-24 shrink-0 text-right text-[9px] text-gray-400 tabular-nums">{fmtNum(o.enviados)} · {o.pct}%</span>
+      <div className="space-y-2.5">
+        {linhas.map(l => (
+          <div key={l.label} className="flex items-center justify-between rounded-xl border border-gray-100 dark:border-[#2A2A2A] px-3.5 py-3">
+            <div>
+              <p className="text-[10px] uppercase tracking-wider text-gray-400">{l.label}</p>
+              {l.sub && <p className="text-[9px] text-red-400 mt-0.5">{l.sub}</p>}
             </div>
-          ))}
-        </div>
-      )}
+            <p className={`text-lg font-black leading-none tabular-nums ${l.tone === 'pos' ? 'text-emerald-500' : l.tone === 'neg' ? 'text-red-400' : 'text-gray-900 dark:text-white'}`}>
+              {fmtBRLCompact(l.value)}
+            </p>
+          </div>
+        ))}
+      </div>
+
+      <div className="flex items-center justify-between mt-auto pt-3 border-t border-gray-50 dark:border-[#262626]">
+        <span className="text-[10px] uppercase tracking-wider text-gray-400">Posição líquida (bancos + receber − pagar)</span>
+        <span className={`text-sm font-black tabular-nums ${posicao >= 0 ? 'text-emerald-500' : 'text-red-400'}`}>{fmtBRLCompact(posicao)}</span>
+      </div>
     </div>
   )
 }
@@ -654,20 +679,23 @@ export default function DashboardClient(props: DashboardProps) {
 
       <FilterBar filters={f} />
 
-      {/* Pulso da operação: CRM + Atendimento (independentes do filtro de leilão) */}
-      <div className="grid lg:grid-cols-2 gap-4 items-stretch">
-        <CrmPulseCard crm={props.crm} periodLabel={f.label} />
-        {props.atendimento
-          ? <AtendimentoPulseCard atd={props.atendimento} />
-          : (
-            <div className="rounded-2xl border border-gray-100 dark:border-[#2A2A2A] bg-white dark:bg-[#141414] p-5 flex items-center justify-center">
-              <span className="text-xs subtle">Métricas de atendimento indisponíveis.</span>
-            </div>
-          )}
-      </div>
-
+      {/* O negócio primeiro: leilões & vendas (HastaPro FIL 2) */}
       <div className="sec-label">Leilões &amp; vendas</div>
       <LeiloesAnalyticsBlock items={props.fechamentoItems} />
+
+      {/* Pulso da operação: CRM, growth pago e financeiro (independentes do filtro de leilão) */}
+      <div className="sec-label">Operação &amp; crescimento</div>
+      <div className={`grid gap-4 items-stretch ${props.financeiro ? 'lg:grid-cols-3' : 'lg:grid-cols-2'}`}>
+        <CrmPulseCard crm={props.crm} periodLabel={f.label} />
+        {props.growth
+          ? <GrowthPulseCard g={props.growth} />
+          : (
+            <div className="rounded-2xl border border-gray-100 dark:border-[#2A2A2A] bg-white dark:bg-[#141414] p-5 flex items-center justify-center">
+              <span className="text-xs subtle">Apuração de growth indisponível.</span>
+            </div>
+          )}
+        {props.financeiro && <FinanceiroPulseCard fin={props.financeiro} />}
+      </div>
 
       <div className="g2">
         <UpcomingList rows={props.upcoming} />
