@@ -141,6 +141,66 @@ D.taxaTributaria = {
 D.entradasAgostoRealizado = r2(entradasMes['2026-08'] || 0)
 D.entradasAgostoProjetado = r2(D.entradasAgostoRealizado + D.receber.filter(x => x.data <= '2026-08-31').reduce((s, x) => s + x.valor, 0))
 
+/* ================= 3b. Custo corrente: o que sai do banco e NUNCA vira conta a pagar =================
+ * O ERP so pre-lanca folha, comissao e alguns debitos agendados. Cartao, combustivel, viagem,
+ * marketing, manutencao, alimentacao e despesa operacional de leilao aparecem so quando o extrato
+ * chega. Projetar setembro e outubro so com os titulos lancados subestima a saida em ~R$ 49 mil/mes.
+ */
+const GRP_COM = ['Comissão Funcionário', 'Repasse Assessorias/Parceiros']
+const GRP_IMP = ['Impostos e Taxas', 'Encargos Sociais']
+const GRP_INT = ['Transferencias Internas - Saida', 'Aplicacao Financeira', 'Integralizacao Capital Cooperativa']
+const GRP_FOL = ['Folha de Pagamento']
+const eCorrente = nome => !GRP_COM.includes(nome) && !GRP_IMP.includes(nome) && !GRP_INT.includes(nome) && !GRP_FOL.includes(nome)
+const correnteMes = {}
+mv.filter(m => m.tipo === 'saida' && eCorrente(CN[m.categoria_id] || '?'))
+  .forEach(m => { const k = m.data.slice(0, 7); correnteMes[k] = r2((correnteMes[k] || 0) + Number(m.valor)) })
+const MESES_CHEIOS = ['2026-04', '2026-05', '2026-06', '2026-07']
+D.custoCorrente = {
+  porMes: Object.keys(correnteMes).sort().map(m => ({ mes: m, valor: correnteMes[m], parcial: m === '2026-08' })),
+  mesesBase: MESES_CHEIOS,
+  media: r2(MESES_CHEIOS.reduce((s, m) => s + (correnteMes[m] || 0), 0) / MESES_CHEIOS.length),
+  agostoAte18: r2(correnteMes['2026-08'] || 0),
+}
+
+/* --- FGTS + DARF de empregados: mensais, fora do DAS e fora do ISSQN --- */
+const fgtsCP = cpAb.find(c => /FGTS/i.test(c.descricao))
+const darfCP = cpAb.find(c => /DARF funcionarios/i.test(c.descricao))
+D.encargos = { fgts: fgtsCP ? sCP(fgtsCP) : 950, darf: darfCP ? sCP(darfCP) : 1114.60 }
+D.encargos.mensal = r2(D.encargos.fgts + D.encargos.darf)
+
+/* --- o que ja esta lancado como custo corrente, para nao contar duas vezes --- */
+const bucket = desc =>
+  /^Folha /i.test(desc) ? 'folha'
+    : /^COMISSAO|BULINHA|RUSA|Repasse/i.test(desc) ? 'comissao'
+      : /Simples|DAS|ISSQN|DARF|FGTS|INSS/i.test(desc) ? 'imposto'
+        : 'corrente'
+D.pagar.forEach(p => { p.bucket = bucket(p.desc) })
+const correnteLancado = (de, ate) => r2(D.pagar.filter(p => p.bucket === 'corrente' && p.data >= de && p.data <= ate).reduce((s, p) => s + p.valor, 0))
+
+/* --- residuo a acrescentar em cada janela, rateado em parcelas semanais --- */
+const DIAS_MES = { '2026-08': 31, '2026-09': 30, '2026-10': 31 }
+function residuoCorrente(mes, de, ate) {
+  const prop = (dias(de, ate) + 1) / DIAS_MES[mes]
+  const esperado = r2(D.custoCorrente.media * prop)
+  const lancado = correnteLancado(de, ate)
+  return { mes, de, ate, prop: r2(prop * 100), esperado, lancado, residuo: r2(Math.max(0, esperado - lancado)) }
+}
+D.residuos = [
+  residuoCorrente('2026-08', HOJE, '2026-08-31'),
+  residuoCorrente('2026-09', '2026-09-01', '2026-09-30'),
+  residuoCorrente('2026-10', '2026-10-01', '2026-10-31'),
+]
+// datas de aplicacao: uma parcela por semana dentro de cada janela
+const TRANCHES = {
+  '2026-08': ['2026-08-22', '2026-08-28'],
+  '2026-09': ['2026-09-04', '2026-09-11', '2026-09-18', '2026-09-26'],
+  '2026-10': ['2026-10-02', '2026-10-09', '2026-10-16', '2026-10-23', '2026-10-30'],
+}
+D.correnteTranches = D.residuos.flatMap(x => {
+  const ds = TRANCHES[x.mes]
+  return ds.map(d => ({ data: d, valor: r2(x.residuo / ds.length) }))
+}).filter(t => t.valor > 0)
+
 /* --- composicao da guia (DAS x ISSQN) observada na ultima competencia --- */
 const ultimaComp = D.cargaTributaria[D.cargaTributaria.length - 1]
 D.mixIss = ultimaComp.total ? Math.round(ultimaComp.iss / ultimaComp.total * 10000) / 10000 : 0.3
@@ -189,6 +249,15 @@ function simula(op) {
   sai.push({ data: '2026-10-15', valor: r2(impOut * D.mixIss), desc: 'ISSQN ref. setembro — estimado', novo: true, estimado: true })
   sai.push({ data: '2026-10-20', valor: r2(impOut * (1 - D.mixIss)), desc: 'DAS do Simples ref. setembro — estimado', novo: true, estimado: true })
   sai.push({ data: '2026-10-26', valor: r2(op.comissoesOut != null ? op.comissoesOut : D.comissoes25set), desc: 'Comissões dos leilões de setembro — estimado', novo: true, estimado: true })
+  // custo corrente que nunca vira conta a pagar (cartao, viagem, marketing, despesa de leilao...)
+  const fatorCor = op.custoCorrenteFator != null ? op.custoCorrenteFator : 1
+  for (const t of D.correnteTranches) sai.push({ data: t.data, valor: r2(t.valor * fatorCor), desc: 'Custo corrente não lançado (cartão, viagem, leilão, marketing) — estimado', novo: true, estimado: true })
+  // FGTS e DARF de empregados: mensais, fora do DAS e do ISSQN
+  const NOMEMES = { '2026-09': 'setembro', '2026-10': 'outubro' }
+  for (const m of ['2026-09', '2026-10']) {
+    sai.push({ data: m + '-07', valor: D.encargos.fgts, desc: 'FGTS ref. ' + NOMEMES[m] + ' — estimado', novo: true, estimado: true })
+    sai.push({ data: m + '-20', valor: D.encargos.darf, desc: 'DARF de empregados ref. ' + NOMEMES[m] + ' — estimado', novo: true, estimado: true })
+  }
   const fatorOut = op.entradaOutFator != null ? op.entradaOutFator : 1
   if (fatorOut > 0) for (const t of D.entradaOutubro.tranches) {
     ent.push({ data: t.data, valor: r2(t.valor * fatorOut), desc: 'Recebíveis dos leilões de 19/08 a 15/09 (D+45) — estimado', estimado: true })
@@ -334,5 +403,9 @@ console.log('MARGEM: atraso que zera ->', JSON.stringify(D.margemSeguranca))
 console.log('RISCOS sobre 30/09 (base ' + f2(D.base30set) + ')'); D.riscos.forEach(r => console.log('  ', f2(r.valor).padStart(13), r.rot))
 console.log('Entrada estimada de outubro:', f2(D.entradaOutubro.total), '(' + D.entradaOutubro.nEventos + ' leiloes x media', f2(D.entradaOutubro.receitaMediaEvento) + ')')
 console.log('Mix ISSQN na guia:', (D.mixIss * 100).toFixed(1) + '%')
+console.log('CUSTO CORRENTE media abr-jul:', f2(D.custoCorrente.media), '| ago ate 18:', f2(D.custoCorrente.agostoAte18))
+D.custoCorrente.porMes.forEach(m => console.log('   ', m.mes, f2(m.valor).padStart(12), m.parcial ? '(parcial)' : ''))
+D.residuos.forEach(x => console.log('   residuo', x.mes, 'esperado', f2(x.esperado).padStart(11), 'lancado', f2(x.lancado).padStart(11), '-> add', f2(x.residuo).padStart(11)))
+console.log('Encargos mensais (FGTS+DARF):', f2(D.encargos.mensal))
 console.log('Imposto sobre a parcela repassada:', f2(D.impostoSobreRepasse.media), '(media) /', f2(D.impostoSobreRepasse.max), '(teto)')
 D.cenarios.forEach(c => console.log('  minimo global ' + c.chave.padEnd(5), f2(c.minimo.saldo).padStart(12), c.minimo.data))

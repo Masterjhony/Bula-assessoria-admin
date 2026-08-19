@@ -450,7 +450,8 @@
    "desc": "REMAT - deferimento de marcas (1o pagamento) - deb. agendado 20/08",
    "orcamento": false,
    "realocado": false,
-   "vencOriginal": "2026-08-20"
+   "vencOriginal": "2026-08-20",
+   "bucket": "corrente"
   },
   {
    "data": "2026-08-20",
@@ -458,7 +459,8 @@
    "desc": "DARF funcionarios (deb. agendado 20/08)",
    "orcamento": false,
    "realocado": false,
-   "vencOriginal": "2026-08-20"
+   "vencOriginal": "2026-08-20",
+   "bucket": "imposto"
   },
   {
    "data": "2026-08-20",
@@ -466,7 +468,8 @@
    "desc": "FGTS/Guia CEF ref. julho/2026 (ESTIMADO)",
    "orcamento": true,
    "realocado": true,
-   "vencOriginal": "2026-08-07"
+   "vencOriginal": "2026-08-07",
+   "bucket": "imposto"
   },
   {
    "data": "2026-08-20",
@@ -474,7 +477,8 @@
    "desc": "Simples Nacional (DAS) ref. julho/2026 - deb. agendado 20/08 (doc 2996829)",
    "orcamento": false,
    "realocado": false,
-   "vencOriginal": "2026-08-20"
+   "vencOriginal": "2026-08-20",
+   "bucket": "imposto"
   },
   {
    "data": "2026-08-20",
@@ -482,7 +486,8 @@
    "desc": "SALDO DEVIDO A BULINHA (FELIPE ANDRADE) - residual do acerto de julho",
    "orcamento": false,
    "realocado": true,
-   "vencOriginal": "2026-07-27"
+   "vencOriginal": "2026-07-27",
+   "bucket": "comissao"
   },
   {
    "data": "2026-08-21",
@@ -490,7 +495,8 @@
    "desc": "BILHETE/BOLETO - LEONARDO FRANCISCO (viagem Expogenetica)",
    "orcamento": false,
    "realocado": false,
-   "vencOriginal": "2026-08-21"
+   "vencOriginal": "2026-08-21",
+   "bucket": "corrente"
   },
   {
    "data": "2026-08-21",
@@ -498,7 +504,8 @@
    "desc": "BILHETE/BOLETO - FABIO OMENA GAIA (viagem Expogenetica)",
    "orcamento": false,
    "realocado": false,
-   "vencOriginal": "2026-08-21"
+   "vencOriginal": "2026-08-21",
+   "bucket": "corrente"
   },
   {
    "data": "2026-08-24",
@@ -506,7 +513,8 @@
    "desc": "Fatura cartao VISA (DEB.CONV.DEM.EMPRES / DBAUTO VIS) - deb. agendado 24/08",
    "orcamento": false,
    "realocado": false,
-   "vencOriginal": "2026-08-24"
+   "vencOriginal": "2026-08-24",
+   "bucket": "corrente"
   },
   {
    "data": "2026-08-24",
@@ -514,7 +522,8 @@
    "desc": "Fatura cartao MASTERCARD (DEB.CONV.DEM.EMPRES) - deb. agendado 24/08",
    "orcamento": false,
    "realocado": false,
-   "vencOriginal": "2026-08-24"
+   "vencOriginal": "2026-08-24",
+   "bucket": "corrente"
   },
   {
    "data": "2026-08-25",
@@ -522,7 +531,8 @@
    "desc": "COMISSAO 30º NELORAÇO IRMÃOS HIPÓLITO - DOUGLAS BISPO (2%)",
    "orcamento": false,
    "realocado": false,
-   "vencOriginal": "2026-08-25"
+   "vencOriginal": "2026-08-25",
+   "bucket": "comissao"
   },
   {
    "data": "2026-08-25",
@@ -530,7 +540,8 @@
    "desc": "COMISSAO 20º LEILÃO GUADALUPE AGROPECUÁRIA Fêmeas - DOUGLAS BISPO (2%)",
    "orcamento": false,
    "realocado": false,
-   "vencOriginal": "2026-08-25"
+   "vencOriginal": "2026-08-25",
+   "bucket": "comissao"
   },
   {
    "data": "2026-08-25",
@@ -538,7 +549,8 @@
    "desc": "COMISSAO LEILÃO VIRTUAL BASE GENÉTICA SANTA CRUZ - 1ª ETAPA – 14/07/2026 - FABIO OMENA (2%)",
    "orcamento": false,
    "realocado": false,
-   "vencOriginal": "2026-08-25"
+   "vencOriginal": "2026-08-25",
+   "bucket": "comissao"
   },
   {
    "data": "2026-08-25",
@@ -546,7 +558,8 @@
    "desc": "COMISSAO LEILÃO NELORE SORRISO - ETAPA FÊMEAS – 12/07/2026 - DOUGLAS BISPO (2%)",
    "orcamento": false,
    "realocado": false,
-   "vencOriginal": "2026-08-25"
+   "vencOriginal": "2026-08-25",
+   "bucket": "comissao"
   },
   {
    "data": "2026-08-25",
@@ -554,7 +567,8 @@
    "desc": "COMISSAO 20º LEILÃO GUADALUPE AGROPECUÁRIA Fêmeas - LEONARDO SERAFIM (2%)",
    "orcamento": false,
    "realocado": false,
-   "vencOriginal": "2026-08-25"
+   "vencOriginal": "2026-08-25",
+   "bucket": "comissao"
   },
   {
    "data": "2026-08-25",
@@ -562,7 +576,8 @@
    "desc": "COMISSAO 2º ETAPA NAVIRAÍ MATRIZES - LEONARDO SERAFIM (2%)",
    "orcamento": false,
    "realocado": false,
-   "vencOriginal": "2026-08-25"
+   "vencOriginal": "2026-08-25",
+   "bucket": "comissao"
   },
   {
    "data": "2026-08-25",
@@ -570,7 +585,8 @@
    "desc": "COMISSAO LEILÃO VIRTUAL NAVIRAÍ - MATRIZES – 05/07/2026 - FABIO OMENA (2%)",
    "orcamento": false,
    "realocado": false,
-   "vencOriginal": "2026-08-25"
+   "vencOriginal": "2026-08-25",
+   "bucket": "comissao"
   },
   {
    "data": "2026-08-25",
@@ -578,7 +594,8 @@
    "desc": "COMISSAO LEILÃO VIRTUAL BASE GENÉTICA SANTA CRUZ - 1ª ETAPA – 14/07/2026 - LEONARDO SERAFIM (2%)",
    "orcamento": false,
    "realocado": false,
-   "vencOriginal": "2026-08-25"
+   "vencOriginal": "2026-08-25",
+   "bucket": "comissao"
   },
   {
    "data": "2026-08-25",
@@ -586,7 +603,8 @@
    "desc": "COMISSAO LEILÃO VIRTUAL NAVIRAÍ - MATRIZES – 05/07/2026 - LEONARDO SERAFIM (2%)",
    "orcamento": false,
    "realocado": false,
-   "vencOriginal": "2026-08-25"
+   "vencOriginal": "2026-08-25",
+   "bucket": "comissao"
   },
   {
    "data": "2026-08-25",
@@ -594,7 +612,8 @@
    "desc": "COMISSAO 20º LEILÃO GUADALUPE AGROPECUÁRIA Touros - FABIO OMENA (2%)",
    "orcamento": false,
    "realocado": false,
-   "vencOriginal": "2026-08-25"
+   "vencOriginal": "2026-08-25",
+   "bucket": "comissao"
   },
   {
    "data": "2026-08-25",
@@ -602,7 +621,8 @@
    "desc": "COMISSAO MEGA EVENTO EAO BAVIERA — Fêmeas - DOUGLAS BISPO (2%)",
    "orcamento": false,
    "realocado": false,
-   "vencOriginal": "2026-08-25"
+   "vencOriginal": "2026-08-25",
+   "bucket": "comissao"
   },
   {
    "data": "2026-08-25",
@@ -610,7 +630,8 @@
    "desc": "COMISSAO NELORE SANTA CRUZ - DOUGLAS BISPO (2%)",
    "orcamento": false,
    "realocado": false,
-   "vencOriginal": "2026-08-25"
+   "vencOriginal": "2026-08-25",
+   "bucket": "comissao"
   },
   {
    "data": "2026-08-25",
@@ -618,7 +639,8 @@
    "desc": "COMISSAO 20º LEILÃO GUADALUPE AGROPECUÁRIA Touros - A DEFINIR (2%)",
    "orcamento": false,
    "realocado": false,
-   "vencOriginal": "2026-08-25"
+   "vencOriginal": "2026-08-25",
+   "bucket": "comissao"
   },
   {
    "data": "2026-08-25",
@@ -626,7 +648,8 @@
    "desc": "COMISSAO 2º ETAPA NAVIRAÍ MATRIZES - DOUGLAS BISPO (2%)",
    "orcamento": false,
    "realocado": false,
-   "vencOriginal": "2026-08-25"
+   "vencOriginal": "2026-08-25",
+   "bucket": "comissao"
   },
   {
    "data": "2026-08-25",
@@ -634,7 +657,8 @@
    "desc": "COMISSAO MEGA EVENTO EAO BAVIERA — Fêmeas - LEONARDO SERAFIM (2%)",
    "orcamento": false,
    "realocado": false,
-   "vencOriginal": "2026-08-25"
+   "vencOriginal": "2026-08-25",
+   "bucket": "comissao"
   },
   {
    "data": "2026-08-25",
@@ -642,7 +666,8 @@
    "desc": "COMISSAO 20º LEILÃO GUADALUPE AGROPECUÁRIA Touros - DOUGLAS BISPO (2%)",
    "orcamento": false,
    "realocado": false,
-   "vencOriginal": "2026-08-25"
+   "vencOriginal": "2026-08-25",
+   "bucket": "comissao"
   },
   {
    "data": "2026-08-25",
@@ -650,7 +675,8 @@
    "desc": "COMISSAO 2º ETAPA NAVIRAÍ MATRIZES - FABIO OMENA (2%)",
    "orcamento": false,
    "realocado": false,
-   "vencOriginal": "2026-08-25"
+   "vencOriginal": "2026-08-25",
+   "bucket": "comissao"
   },
   {
    "data": "2026-08-25",
@@ -658,7 +684,8 @@
    "desc": "COMISSAO 20º LEILÃO GUADALUPE AGROPECUÁRIA Touros - DOUGLAS BISPO (2%)",
    "orcamento": false,
    "realocado": false,
-   "vencOriginal": "2026-08-25"
+   "vencOriginal": "2026-08-25",
+   "bucket": "comissao"
   },
   {
    "data": "2026-08-25",
@@ -666,7 +693,8 @@
    "desc": "COMISSAO 2º ETAPA NAVIRAÍ MATRIZES - PERALTA (2%)",
    "orcamento": false,
    "realocado": false,
-   "vencOriginal": "2026-08-25"
+   "vencOriginal": "2026-08-25",
+   "bucket": "comissao"
   },
   {
    "data": "2026-08-25",
@@ -674,7 +702,8 @@
    "desc": "COMISSAO NELORE SANTA CRUZ - 19/07/2026 - DOUGLAS BISPO (2%)",
    "orcamento": false,
    "realocado": false,
-   "vencOriginal": "2026-08-25"
+   "vencOriginal": "2026-08-25",
+   "bucket": "comissao"
   },
   {
    "data": "2026-08-25",
@@ -682,7 +711,8 @@
    "desc": "COMISSAO 23º LEILÃO GENÉTICA ADITIVA - 2ª ETAPA TOUROS – 26/07/2026 - LEONARDO SERAFIM (2%)",
    "orcamento": false,
    "realocado": false,
-   "vencOriginal": "2026-08-25"
+   "vencOriginal": "2026-08-25",
+   "bucket": "comissao"
   },
   {
    "data": "2026-08-25",
@@ -690,7 +720,8 @@
    "desc": "COMISSAO 23º LEILÃO GENÉTICA ADITIVA - 1ª ETAPA FÊMEAS – 25/07/2026 - DOUGLAS BISPO (2%)",
    "orcamento": false,
    "realocado": false,
-   "vencOriginal": "2026-08-25"
+   "vencOriginal": "2026-08-25",
+   "bucket": "comissao"
   },
   {
    "data": "2026-08-25",
@@ -698,7 +729,8 @@
    "desc": "COMISSAO MEGA EVENTO EAO BAVIERA — Machos - DOUGLAS BISPO (2%)",
    "orcamento": false,
    "realocado": false,
-   "vencOriginal": "2026-08-25"
+   "vencOriginal": "2026-08-25",
+   "bucket": "comissao"
   },
   {
    "data": "2026-08-25",
@@ -706,7 +738,8 @@
    "desc": "COMISSAO LEILÃO VIRTUAL NAVIRAÍ - MATRIZES – 05/07/2026 - DOUGLAS BISPO (2%)",
    "orcamento": false,
    "realocado": false,
-   "vencOriginal": "2026-08-25"
+   "vencOriginal": "2026-08-25",
+   "bucket": "comissao"
   },
   {
    "data": "2026-08-25",
@@ -714,7 +747,8 @@
    "desc": "COMISSAO MEGA EVENTO EAO BAVIERA — Machos - LEONARDO SERAFIM (2%)",
    "orcamento": false,
    "realocado": false,
-   "vencOriginal": "2026-08-25"
+   "vencOriginal": "2026-08-25",
+   "bucket": "comissao"
   },
   {
    "data": "2026-08-25",
@@ -722,7 +756,8 @@
    "desc": "COMISSAO 23º LEILÃO GENÉTICA ADITIVA - 2ª ETAPA TOUROS – 26/07/2026 - FABIO OMENA (2%)",
    "orcamento": false,
    "realocado": false,
-   "vencOriginal": "2026-08-25"
+   "vencOriginal": "2026-08-25",
+   "bucket": "comissao"
   },
   {
    "data": "2026-08-25",
@@ -730,7 +765,8 @@
    "desc": "COMISSAO MEGA EVENTO EAO BAVIERA — Machos - FABIO OMENA (2%)",
    "orcamento": false,
    "realocado": false,
-   "vencOriginal": "2026-08-25"
+   "vencOriginal": "2026-08-25",
+   "bucket": "comissao"
   },
   {
    "data": "2026-08-25",
@@ -738,7 +774,8 @@
    "desc": "COMISSAO MEGA EVENTO EAO BAVIERA — Fêmeas - FABIO OMENA (2%)",
    "orcamento": false,
    "realocado": false,
-   "vencOriginal": "2026-08-25"
+   "vencOriginal": "2026-08-25",
+   "bucket": "comissao"
   },
   {
    "data": "2026-08-31",
@@ -746,7 +783,8 @@
    "desc": "Despesas operacionais - Melhoradores Especial 30 Anos, ACRISSUL/Campo Grande (29/08) (ESTIMADO)",
    "orcamento": true,
    "realocado": false,
-   "vencOriginal": "2026-08-31"
+   "vencOriginal": "2026-08-31",
+   "bucket": "corrente"
   },
   {
    "data": "2026-09-05",
@@ -754,7 +792,8 @@
    "desc": "Folha Agosto/2026 - LEONARDO",
    "orcamento": true,
    "realocado": false,
-   "vencOriginal": "2026-09-05"
+   "vencOriginal": "2026-09-05",
+   "bucket": "folha"
   },
   {
    "data": "2026-09-05",
@@ -762,7 +801,8 @@
    "desc": "Folha Agosto/2026 - FABIO OMENNA",
    "orcamento": true,
    "realocado": false,
-   "vencOriginal": "2026-09-05"
+   "vencOriginal": "2026-09-05",
+   "bucket": "folha"
   },
   {
    "data": "2026-09-05",
@@ -770,7 +810,8 @@
    "desc": "Folha Agosto/2026 - JOÃO EDUARDO",
    "orcamento": true,
    "realocado": false,
-   "vencOriginal": "2026-09-05"
+   "vencOriginal": "2026-09-05",
+   "bucket": "folha"
   },
   {
    "data": "2026-09-05",
@@ -778,7 +819,8 @@
    "desc": "Folha Agosto/2026 - JOÃO GABRIEL",
    "orcamento": true,
    "realocado": false,
-   "vencOriginal": "2026-09-05"
+   "vencOriginal": "2026-09-05",
+   "bucket": "folha"
   },
   {
    "data": "2026-09-05",
@@ -786,7 +828,8 @@
    "desc": "Folha Agosto/2026 - JOÃO ANTONIO",
    "orcamento": true,
    "realocado": false,
-   "vencOriginal": "2026-09-05"
+   "vencOriginal": "2026-09-05",
+   "bucket": "folha"
   },
   {
    "data": "2026-09-05",
@@ -794,7 +837,8 @@
    "desc": "Folha Agosto/2026 - DOUGLAS BISPO",
    "orcamento": true,
    "realocado": false,
-   "vencOriginal": "2026-09-05"
+   "vencOriginal": "2026-09-05",
+   "bucket": "folha"
   },
   {
    "data": "2026-09-10",
@@ -802,7 +846,8 @@
    "desc": "Honorários de contabilidade",
    "orcamento": true,
    "realocado": false,
-   "vencOriginal": "2026-09-10"
+   "vencOriginal": "2026-09-10",
+   "bucket": "corrente"
   },
   {
    "data": "2026-09-15",
@@ -810,7 +855,8 @@
    "desc": "Seguro Sicoob (deb. automatico 15/09)",
    "orcamento": false,
    "realocado": false,
-   "vencOriginal": "2026-09-15"
+   "vencOriginal": "2026-09-15",
+   "bucket": "corrente"
   },
   {
    "data": "2026-09-15",
@@ -818,7 +864,8 @@
    "desc": "Seguro Sicoob (deb. automatico 15/09)",
    "orcamento": false,
    "realocado": false,
-   "vencOriginal": "2026-09-15"
+   "vencOriginal": "2026-09-15",
+   "bucket": "corrente"
   },
   {
    "data": "2026-09-25",
@@ -826,7 +873,8 @@
    "desc": "COMISSAO FIXA SDR - JOÃO ANTONIO - ref. Agosto/2026",
    "orcamento": true,
    "realocado": false,
-   "vencOriginal": "2026-09-25"
+   "vencOriginal": "2026-09-25",
+   "bucket": "comissao"
   },
   {
    "data": "2026-09-25",
@@ -834,7 +882,8 @@
    "desc": "COMISSAO LEILÃO TOUROS NELORE GRUPO COSTA - FÁBIO OMENA (2,00%)",
    "orcamento": false,
    "realocado": false,
-   "vencOriginal": "2026-09-25"
+   "vencOriginal": "2026-09-25",
+   "bucket": "comissao"
   },
   {
    "data": "2026-09-25",
@@ -842,7 +891,8 @@
    "desc": "COMISSAO LEILÃO NELORE PARANÃ PRODUTIVIDADE - FÁBIO OMENA (2,00%)",
    "orcamento": false,
    "realocado": false,
-   "vencOriginal": "2026-09-25"
+   "vencOriginal": "2026-09-25",
+   "bucket": "comissao"
   },
   {
    "data": "2026-09-25",
@@ -850,7 +900,8 @@
    "desc": "COMISSAO LEILÃO TOUROS NELORE MAFRA - DOUGLAS BISPO (2,00%)",
    "orcamento": false,
    "realocado": false,
-   "vencOriginal": "2026-09-25"
+   "vencOriginal": "2026-09-25",
+   "bucket": "comissao"
   },
   {
    "data": "2026-09-25",
@@ -858,7 +909,8 @@
    "desc": "COMISSAO 14º LEILÃO PÉROLAS DO TAPAJÓS - DOUGLAS BISPO (2,00%)",
    "orcamento": false,
    "realocado": false,
-   "vencOriginal": "2026-09-25"
+   "vencOriginal": "2026-09-25",
+   "bucket": "comissao"
   },
   {
    "data": "2026-09-25",
@@ -866,7 +918,8 @@
    "desc": "COMISSAO LEILÃO NELORE PARANÃ PRODUTIVIDADE - DOUGLAS BISPO (2,00%)",
    "orcamento": false,
    "realocado": false,
-   "vencOriginal": "2026-09-25"
+   "vencOriginal": "2026-09-25",
+   "bucket": "comissao"
   },
   {
    "data": "2026-09-25",
@@ -874,7 +927,8 @@
    "desc": "COMISSAO 7º LEILÃO ESSÊNCIA GENÉTICA - NELORE DA BAMBÚ - LEONARDO SERAFIM (2,00%)",
    "orcamento": false,
    "realocado": false,
-   "vencOriginal": "2026-09-25"
+   "vencOriginal": "2026-09-25",
+   "bucket": "comissao"
   },
   {
    "data": "2026-09-25",
@@ -882,7 +936,8 @@
    "desc": "COMISSAO LEILÃO TERRA BRAVA AGROPECUÁRIA EXPOGENÉTICA - FÁBIO OMENA (2,00%)",
    "orcamento": false,
    "realocado": false,
-   "vencOriginal": "2026-09-25"
+   "vencOriginal": "2026-09-25",
+   "bucket": "comissao"
   },
   {
    "data": "2026-09-25",
@@ -890,7 +945,8 @@
    "desc": "COMISSAO LEILÃO NELORE MAFRA EDIÇÃO REDENÇÃO/PA - FÊMEAS - FÁBIO OMENA (2,00%)",
    "orcamento": false,
    "realocado": false,
-   "vencOriginal": "2026-09-25"
+   "vencOriginal": "2026-09-25",
+   "bucket": "comissao"
   },
   {
    "data": "2026-09-25",
@@ -898,7 +954,8 @@
    "desc": "COMISSAO LEILÃO DE TOUROS NELORE SORRISO - FÁBIO OMENA (2,00%)",
    "orcamento": false,
    "realocado": false,
-   "vencOriginal": "2026-09-25"
+   "vencOriginal": "2026-09-25",
+   "bucket": "comissao"
   },
   {
    "data": "2026-09-25",
@@ -906,7 +963,8 @@
    "desc": "COMISSAO LEILÃO MATINHA EXPOGENÉTICA 2026 - DOUGLAS BISPO (2,00%)",
    "orcamento": false,
    "realocado": false,
-   "vencOriginal": "2026-09-25"
+   "vencOriginal": "2026-09-25",
+   "bucket": "comissao"
   },
   {
    "data": "2026-09-25",
@@ -914,7 +972,8 @@
    "desc": "COMISSAO LEILÃO TOUROS NELORE MAFRA - FÁBIO OMENA (2,00%)",
    "orcamento": false,
    "realocado": false,
-   "vencOriginal": "2026-09-25"
+   "vencOriginal": "2026-09-25",
+   "bucket": "comissao"
   },
   {
    "data": "2026-09-25",
@@ -922,7 +981,8 @@
    "desc": "COMISSAO LEILÃO DE TOUROS NELORE SORRISO - LEONARDO SERAFIM (2,00%)",
    "orcamento": false,
    "realocado": false,
-   "vencOriginal": "2026-09-25"
+   "vencOriginal": "2026-09-25",
+   "bucket": "comissao"
   },
   {
    "data": "2026-09-25",
@@ -930,7 +990,8 @@
    "desc": "COMISSAO LEILÃO NELORE MAFRA EDIÇÃO REDENÇÃO/PA - FÊMEAS - DOUGLAS BISPO (2,00%)",
    "orcamento": false,
    "realocado": false,
-   "vencOriginal": "2026-09-25"
+   "vencOriginal": "2026-09-25",
+   "bucket": "comissao"
   },
   {
    "data": "2026-09-25",
@@ -938,7 +999,8 @@
    "desc": "COMISSAO 2º LEILÃO LS GALERIA - FÁBIO OMENA (2,00%)",
    "orcamento": false,
    "realocado": false,
-   "vencOriginal": "2026-09-25"
+   "vencOriginal": "2026-09-25",
+   "bucket": "comissao"
   },
   {
    "data": "2026-10-05",
@@ -946,7 +1008,8 @@
    "desc": "Folha Setembro/2026 - LEONARDO",
    "orcamento": true,
    "realocado": false,
-   "vencOriginal": "2026-10-05"
+   "vencOriginal": "2026-10-05",
+   "bucket": "folha"
   },
   {
    "data": "2026-10-05",
@@ -954,7 +1017,8 @@
    "desc": "Folha Setembro/2026 - JOÃO GABRIEL",
    "orcamento": true,
    "realocado": false,
-   "vencOriginal": "2026-10-05"
+   "vencOriginal": "2026-10-05",
+   "bucket": "folha"
   },
   {
    "data": "2026-10-05",
@@ -962,7 +1026,8 @@
    "desc": "Folha Setembro/2026 - JOÃO EDUARDO",
    "orcamento": true,
    "realocado": false,
-   "vencOriginal": "2026-10-05"
+   "vencOriginal": "2026-10-05",
+   "bucket": "folha"
   },
   {
    "data": "2026-10-05",
@@ -970,7 +1035,8 @@
    "desc": "Folha Setembro/2026 - FABIO OMENNA",
    "orcamento": true,
    "realocado": false,
-   "vencOriginal": "2026-10-05"
+   "vencOriginal": "2026-10-05",
+   "bucket": "folha"
   },
   {
    "data": "2026-10-05",
@@ -978,7 +1044,8 @@
    "desc": "Folha Setembro/2026 - JOÃO ANTONIO",
    "orcamento": true,
    "realocado": false,
-   "vencOriginal": "2026-10-05"
+   "vencOriginal": "2026-10-05",
+   "bucket": "folha"
   },
   {
    "data": "2026-10-05",
@@ -986,7 +1053,8 @@
    "desc": "Folha Setembro/2026 - DOUGLAS BISPO",
    "orcamento": true,
    "realocado": false,
-   "vencOriginal": "2026-10-05"
+   "vencOriginal": "2026-10-05",
+   "bucket": "folha"
   },
   {
    "data": "2026-10-10",
@@ -994,7 +1062,8 @@
    "desc": "Honorários de contabilidade",
    "orcamento": true,
    "realocado": false,
-   "vencOriginal": "2026-10-10"
+   "vencOriginal": "2026-10-10",
+   "bucket": "corrente"
   },
   {
    "data": "2026-10-26",
@@ -1002,7 +1071,8 @@
    "desc": "COMISSAO FIXA SDR - JOÃO ANTONIO - ref. Setembro/2026",
    "orcamento": true,
    "realocado": false,
-   "vencOriginal": "2026-10-26"
+   "vencOriginal": "2026-10-26",
+   "bucket": "comissao"
   }
  ],
  "pagarAgosto": 126588.66,
@@ -1095,6 +1165,138 @@
  },
  "entradasAgostoRealizado": 205226.48,
  "entradasAgostoProjetado": 352720.28,
+ "custoCorrente": {
+  "porMes": [
+   {
+    "mes": "2026-01",
+    "valor": 76631.55,
+    "parcial": false
+   },
+   {
+    "mes": "2026-02",
+    "valor": 95756.7,
+    "parcial": false
+   },
+   {
+    "mes": "2026-03",
+    "valor": 68449.86,
+    "parcial": false
+   },
+   {
+    "mes": "2026-04",
+    "valor": 51339.33,
+    "parcial": false
+   },
+   {
+    "mes": "2026-05",
+    "valor": 41763.9,
+    "parcial": false
+   },
+   {
+    "mes": "2026-06",
+    "valor": 61534.36,
+    "parcial": false
+   },
+   {
+    "mes": "2026-07",
+    "valor": 40530.23,
+    "parcial": false
+   },
+   {
+    "mes": "2026-08",
+    "valor": 32115.58,
+    "parcial": true
+   }
+  ],
+  "mesesBase": [
+   "2026-04",
+   "2026-05",
+   "2026-06",
+   "2026-07"
+  ],
+  "media": 48791.96,
+  "agostoAte18": 32115.58
+ },
+ "encargos": {
+  "fgts": 950,
+  "darf": 1114.6,
+  "mensal": 2064.6
+ },
+ "residuos": [
+  {
+   "mes": "2026-08",
+   "de": "2026-08-19",
+   "ate": "2026-08-31",
+   "prop": 41.94,
+   "esperado": 20461.14,
+   "lancado": 17203.42,
+   "residuo": 3257.72
+  },
+  {
+   "mes": "2026-09",
+   "de": "2026-09-01",
+   "ate": "2026-09-30",
+   "prop": 100,
+   "esperado": 48791.96,
+   "lancado": 1242.64,
+   "residuo": 47549.32
+  },
+  {
+   "mes": "2026-10",
+   "de": "2026-10-01",
+   "ate": "2026-10-31",
+   "prop": 100,
+   "esperado": 48791.96,
+   "lancado": 1058,
+   "residuo": 47733.96
+  }
+ ],
+ "correnteTranches": [
+  {
+   "data": "2026-08-22",
+   "valor": 1628.86
+  },
+  {
+   "data": "2026-08-28",
+   "valor": 1628.86
+  },
+  {
+   "data": "2026-09-04",
+   "valor": 11887.33
+  },
+  {
+   "data": "2026-09-11",
+   "valor": 11887.33
+  },
+  {
+   "data": "2026-09-18",
+   "valor": 11887.33
+  },
+  {
+   "data": "2026-09-26",
+   "valor": 11887.33
+  },
+  {
+   "data": "2026-10-02",
+   "valor": 9546.79
+  },
+  {
+   "data": "2026-10-09",
+   "valor": 9546.79
+  },
+  {
+   "data": "2026-10-16",
+   "valor": 9546.79
+  },
+  {
+   "data": "2026-10-23",
+   "valor": 9546.79
+  },
+  {
+   "data": "2026-10-30",
+   "valor": 9546.79
+  }
+ ],
  "mixIss": 0.3051,
  "entradaOutubro": {
   "nEventos": 16,
@@ -1123,28 +1325,28 @@
    "resumo": "Só o que já está contratado. Nem o repasse do JMP, nem a participação do Marcelo.",
    "minimo": {
     "data": "2026-08-24",
-    "saldo": 27549.27
+    "saldo": 25920.41
    },
-   "saldo31ago": 99550.57,
-   "saldo30set": 424490.89,
-   "saldo31out": 433045.99,
+   "saldo31ago": 96292.85,
+   "saldo30set": 371619.25,
+   "saldo31out": 330375.8,
    "minAgo": {
     "data": "2026-08-24",
-    "saldo": 27549.27
+    "saldo": 25920.41
    },
    "minSet": {
-    "data": "2026-09-01",
-    "saldo": 102550.57
+    "data": "2026-09-07",
+    "saldo": 95356.87
    },
    "minOut": {
     "data": "2026-10-26",
-    "saldo": 366118.53
+    "saldo": 272995.13
    },
    "impSet": 85711.03,
    "impOut": 123238.42,
    "diasNegativos": 0,
    "entSet": 507153.99,
-   "saiSet": 182213.67,
+   "saiSet": 231827.59,
    "saidaNova": 0,
    "saidaNovaSet": 0
   },
@@ -1154,28 +1356,28 @@
    "resumo": "Participação societária de R$ 40.000 em 25/09. A 2ª parcela do JMP fica na Bula.",
    "minimo": {
     "data": "2026-08-24",
-    "saldo": 27549.27
+    "saldo": 25920.41
    },
-   "saldo31ago": 99550.57,
-   "saldo30set": 384490.89,
-   "saldo31out": 393045.99,
+   "saldo31ago": 96292.85,
+   "saldo30set": 331619.25,
+   "saldo31out": 290375.8,
    "minAgo": {
     "data": "2026-08-24",
-    "saldo": 27549.27
+    "saldo": 25920.41
    },
    "minSet": {
-    "data": "2026-09-01",
-    "saldo": 102550.57
+    "data": "2026-09-07",
+    "saldo": 95356.87
    },
    "minOut": {
     "data": "2026-10-26",
-    "saldo": 326118.53
+    "saldo": 232995.13
    },
    "impSet": 85711.03,
    "impOut": 123238.42,
    "diasNegativos": 0,
    "entSet": 507153.99,
-   "saiSet": 222213.67,
+   "saiSet": 271827.59,
    "saidaNova": 40000,
    "saidaNovaSet": 40000
   },
@@ -1185,28 +1387,28 @@
    "resumo": "R$ 40.000 ao Marcelo em 25/09 e metade da 2ª parcela do JMP repassada ao Felipe em 13/09.",
    "minimo": {
     "data": "2026-08-24",
-    "saldo": 27549.27
+    "saldo": 25920.41
    },
-   "saldo31ago": 99550.57,
-   "saldo30set": 301657.14,
-   "saldo31out": 310212.24,
+   "saldo31ago": 96292.85,
+   "saldo30set": 248785.5,
+   "saldo31out": 207542.05,
    "minAgo": {
     "data": "2026-08-24",
-    "saldo": 27549.27
+    "saldo": 25920.41
    },
    "minSet": {
-    "data": "2026-09-01",
-    "saldo": 102550.57
+    "data": "2026-09-07",
+    "saldo": 95356.87
    },
    "minOut": {
     "data": "2026-10-26",
-    "saldo": 243284.78
+    "saldo": 150161.38
    },
    "impSet": 85711.03,
    "impOut": 123238.42,
    "diasNegativos": 0,
    "entSet": 507153.99,
-   "saiSet": 305047.42,
+   "saiSet": 354661.34,
    "saidaNova": 122833.75,
    "saidaNovaSet": 122833.75
   },
@@ -1216,28 +1418,28 @@
    "resumo": "O caso levantado: R$ 40.000 de participação em 25/09 e a 2ª parcela do JMP inteira repassada ao Felipe em 13/09.",
    "minimo": {
     "data": "2026-08-24",
-    "saldo": 27549.27
+    "saldo": 25920.41
    },
-   "saldo31ago": 99550.57,
-   "saldo30set": 218823.39,
-   "saldo31out": 227378.49,
+   "saldo31ago": 96292.85,
+   "saldo30set": 165951.75,
+   "saldo31out": 124708.3,
    "minAgo": {
     "data": "2026-08-24",
-    "saldo": 27549.27
+    "saldo": 25920.41
    },
    "minSet": {
-    "data": "2026-09-01",
-    "saldo": 102550.57
+    "data": "2026-09-07",
+    "saldo": 95356.87
    },
    "minOut": {
     "data": "2026-10-26",
-    "saldo": 160451.03
+    "saldo": 67327.63
    },
    "impSet": 85711.03,
    "impOut": 123238.42,
    "diasNegativos": 0,
    "entSet": 507153.99,
-   "saiSet": 387881.17,
+   "saiSet": 437495.09,
    "saidaNova": 205667.5,
    "saidaNovaSet": 205667.5
   },
@@ -1247,28 +1449,28 @@
    "resumo": "O mesmo dinheiro, em duas datas cada: JMP 50% em 13/09 e 50% em 15/10; Marcelo R$ 20.000 em 25/09 e R$ 20.000 em 25/10.",
    "minimo": {
     "data": "2026-08-24",
-    "saldo": 27549.27
+    "saldo": 25920.41
    },
-   "saldo31ago": 99550.57,
-   "saldo30set": 321657.14,
-   "saldo31out": 227378.49,
+   "saldo31ago": 96292.85,
+   "saldo30set": 268785.5,
+   "saldo31out": 124708.3,
    "minAgo": {
     "data": "2026-08-24",
-    "saldo": 27549.27
+    "saldo": 25920.41
    },
    "minSet": {
-    "data": "2026-09-01",
-    "saldo": 102550.57
+    "data": "2026-09-07",
+    "saldo": 95356.87
    },
    "minOut": {
     "data": "2026-10-26",
-    "saldo": 160451.03
+    "saldo": 67327.63
    },
    "impSet": 85711.03,
    "impOut": 123238.42,
    "diasNegativos": 0,
    "entSet": 507153.99,
-   "saiSet": 285047.42,
+   "saiSet": 334661.34,
    "saidaNova": 205667.5,
    "saidaNovaSet": 102833.75
   },
@@ -1277,29 +1479,29 @@
    "nome": "Estresse",
    "resumo": "Tudo do cenário integral, mais: 30% dos recebíveis de setembro e outubro atrasam 30 dias, a receita estimada de outubro entra pela metade, o São Geraldo paga 0,5% em vez de 1% e a carga tributária vem no teto observado.",
    "minimo": {
-    "data": "2026-09-25",
-    "saldo": 2531.47
+    "data": "2026-09-26",
+    "saldo": -50340.17
    },
-   "saldo31ago": 99550.57,
-   "saldo30set": 30660.61,
-   "saldo31out": 95879.3,
+   "saldo31ago": 96292.85,
+   "saldo30set": -22211.03,
+   "saldo31out": -6790.89,
    "minAgo": {
     "data": "2026-08-24",
-    "saldo": 27549.27
+    "saldo": 25920.41
    },
    "minSet": {
-    "data": "2026-09-25",
-    "saldo": 2531.47
+    "data": "2026-09-26",
+    "saldo": -50340.17
    },
    "minOut": {
     "data": "2026-10-05",
-    "saldo": 15975.01
+    "saldo": -46443.42
    },
    "impSet": 104158.3,
    "impOut": 99645.58,
-   "diasNegativos": 0,
+   "diasNegativos": 24,
    "entSet": 337438.48,
-   "saiSet": 406328.44,
+   "saiSet": 455942.36,
    "saidaNova": 205667.5,
    "saidaNovaSet": 205667.5
   }
@@ -1386,22 +1588,31 @@
    {
     "data": "2026-08-22",
     "ent": 0,
-    "sai": 0,
-    "saldo": 34879.24,
-    "itens": []
+    "sai": 1628.86,
+    "saldo": 33250.38,
+    "itens": [
+     {
+      "t": "s",
+      "data": "2026-08-22",
+      "valor": 1628.86,
+      "desc": "Custo corrente não lançado (cartão, viagem, leilão, marketing) — estimado",
+      "novo": true,
+      "estimado": true
+     }
+    ]
    },
    {
     "data": "2026-08-23",
     "ent": 0,
     "sai": 0,
-    "saldo": 34879.24,
+    "saldo": 33250.38,
     "itens": []
    },
    {
     "data": "2026-08-24",
     "ent": 0,
     "sai": 7329.97,
-    "saldo": 27549.27,
+    "saldo": 25920.41,
     "itens": [
      {
       "t": "s",
@@ -1421,7 +1632,7 @@
     "data": "2026-08-25",
     "ent": 48556.5,
     "sai": 44082,
-    "saldo": 32023.77,
+    "saldo": 30394.91,
     "itens": [
      {
       "t": "e",
@@ -1603,7 +1814,7 @@
     "data": "2026-08-26",
     "ent": 39451.8,
     "sai": 0,
-    "saldo": 71475.57,
+    "saldo": 69846.71,
     "itens": [
      {
       "t": "e",
@@ -1623,20 +1834,28 @@
     "data": "2026-08-27",
     "ent": 0,
     "sai": 0,
-    "saldo": 71475.57,
+    "saldo": 69846.71,
     "itens": []
    },
    {
     "data": "2026-08-28",
     "ent": 6180,
-    "sai": 0,
-    "saldo": 77655.57,
+    "sai": 1628.86,
+    "saldo": 74397.85,
     "itens": [
      {
       "t": "e",
       "data": "2026-08-28",
       "valor": 6180,
       "desc": "LEILÃO VIRTUAL BASE GENÉTICA SANTA CRUZ - 1ª ETAPA – 14/07/2026 (14/07) - COMISSAO BULA"
+     },
+     {
+      "t": "s",
+      "data": "2026-08-28",
+      "valor": 1628.86,
+      "desc": "Custo corrente não lançado (cartão, viagem, leilão, marketing) — estimado",
+      "novo": true,
+      "estimado": true
      }
     ]
    },
@@ -1644,7 +1863,7 @@
     "data": "2026-08-29",
     "ent": 2130,
     "sai": 0,
-    "saldo": 79785.57,
+    "saldo": 76527.85,
     "itens": [
      {
       "t": "e",
@@ -1658,7 +1877,7 @@
     "data": "2026-08-30",
     "ent": 22965,
     "sai": 0,
-    "saldo": 102750.57,
+    "saldo": 99492.85,
     "itens": [
      {
       "t": "e",
@@ -1678,7 +1897,7 @@
     "data": "2026-08-31",
     "ent": 0,
     "sai": 3200,
-    "saldo": 99550.57,
+    "saldo": 96292.85,
     "itens": [
      {
       "t": "s",
@@ -1692,7 +1911,7 @@
     "data": "2026-09-01",
     "ent": 3000,
     "sai": 0,
-    "saldo": 102550.57,
+    "saldo": 99292.85,
     "itens": [
      {
       "t": "e",
@@ -1706,7 +1925,7 @@
     "data": "2026-09-02",
     "ent": 42001.35,
     "sai": 0,
-    "saldo": 144551.92,
+    "saldo": 141294.2,
     "itens": [
      {
       "t": "e",
@@ -1726,21 +1945,30 @@
     "data": "2026-09-03",
     "ent": 0,
     "sai": 0,
-    "saldo": 144551.92,
+    "saldo": 141294.2,
     "itens": []
    },
    {
     "data": "2026-09-04",
     "ent": 0,
-    "sai": 0,
-    "saldo": 144551.92,
-    "itens": []
+    "sai": 11887.33,
+    "saldo": 129406.87,
+    "itens": [
+     {
+      "t": "s",
+      "data": "2026-09-04",
+      "valor": 11887.33,
+      "desc": "Custo corrente não lançado (cartão, viagem, leilão, marketing) — estimado",
+      "novo": true,
+      "estimado": true
+     }
+    ]
    },
    {
     "data": "2026-09-05",
     "ent": 0,
     "sai": 33100,
-    "saldo": 111451.92,
+    "saldo": 96306.87,
     "itens": [
      {
       "t": "s",
@@ -1784,21 +2012,30 @@
     "data": "2026-09-06",
     "ent": 0,
     "sai": 0,
-    "saldo": 111451.92,
+    "saldo": 96306.87,
     "itens": []
    },
    {
     "data": "2026-09-07",
     "ent": 0,
-    "sai": 0,
-    "saldo": 111451.92,
-    "itens": []
+    "sai": 950,
+    "saldo": 95356.87,
+    "itens": [
+     {
+      "t": "s",
+      "data": "2026-09-07",
+      "valor": 950,
+      "desc": "FGTS ref. setembro — estimado",
+      "novo": true,
+      "estimado": true
+     }
+    ]
    },
    {
     "data": "2026-09-08",
     "ent": 7743.9,
     "sai": 0,
-    "saldo": 119195.82,
+    "saldo": 103100.77,
     "itens": [
      {
       "t": "e",
@@ -1818,7 +2055,7 @@
     "data": "2026-09-09",
     "ent": 21443.75,
     "sai": 0,
-    "saldo": 140639.57,
+    "saldo": 124544.52,
     "itens": [
      {
       "t": "e",
@@ -1832,7 +2069,7 @@
     "data": "2026-09-10",
     "ent": 0,
     "sai": 1058,
-    "saldo": 139581.57,
+    "saldo": 123486.52,
     "itens": [
      {
       "t": "s",
@@ -1845,22 +2082,31 @@
    {
     "data": "2026-09-11",
     "ent": 0,
-    "sai": 0,
-    "saldo": 139581.57,
-    "itens": []
+    "sai": 11887.33,
+    "saldo": 111599.19,
+    "itens": [
+     {
+      "t": "s",
+      "data": "2026-09-11",
+      "valor": 11887.33,
+      "desc": "Custo corrente não lançado (cartão, viagem, leilão, marketing) — estimado",
+      "novo": true,
+      "estimado": true
+     }
+    ]
    },
    {
     "data": "2026-09-12",
     "ent": 0,
     "sai": 0,
-    "saldo": 139581.57,
+    "saldo": 111599.19,
     "itens": []
    },
    {
     "data": "2026-09-13",
     "ent": 165667.5,
     "sai": 0,
-    "saldo": 305249.07,
+    "saldo": 277266.69,
     "itens": [
      {
       "t": "e",
@@ -1880,14 +2126,14 @@
     "data": "2026-09-14",
     "ent": 0,
     "sai": 0,
-    "saldo": 305249.07,
+    "saldo": 277266.69,
     "itens": []
    },
    {
     "data": "2026-09-15",
     "ent": 70345,
     "sai": 26335.08,
-    "saldo": 349258.99,
+    "saldo": 321276.61,
     "itens": [
      {
       "t": "e",
@@ -1921,7 +2167,7 @@
     "data": "2026-09-16",
     "ent": 17857,
     "sai": 0,
-    "saldo": 367115.99,
+    "saldo": 339133.61,
     "itens": [
      {
       "t": "e",
@@ -1935,14 +2181,14 @@
     "data": "2026-09-17",
     "ent": 0,
     "sai": 0,
-    "saldo": 367115.99,
+    "saldo": 339133.61,
     "itens": []
    },
    {
     "data": "2026-09-18",
     "ent": 6318,
-    "sai": 0,
-    "saldo": 373433.99,
+    "sai": 11887.33,
+    "saldo": 333564.28,
     "itens": [
      {
       "t": "e",
@@ -1955,6 +2201,14 @@
       "data": "2026-09-18",
       "valor": 5715,
       "desc": "LEILAO DE TOUROS NELORE SORRISO (04/08) - COMISSAO BULA"
+     },
+     {
+      "t": "s",
+      "data": "2026-09-18",
+      "valor": 11887.33,
+      "desc": "Custo corrente não lançado (cartão, viagem, leilão, marketing) — estimado",
+      "novo": true,
+      "estimado": true
      }
     ]
    },
@@ -1962,20 +2216,28 @@
     "data": "2026-09-19",
     "ent": 0,
     "sai": 0,
-    "saldo": 373433.99,
+    "saldo": 333564.28,
     "itens": []
    },
    {
     "data": "2026-09-20",
     "ent": 50198,
-    "sai": 0,
-    "saldo": 423631.99,
+    "sai": 1114.6,
+    "saldo": 382647.68,
     "itens": [
      {
       "t": "e",
       "data": "2026-09-20",
       "valor": 50198,
       "desc": "LEILAO TOUROS FAZENDA SAO GERALDO (01/08) - BULA REMATES"
+     },
+     {
+      "t": "s",
+      "data": "2026-09-20",
+      "valor": 1114.6,
+      "desc": "DARF de empregados ref. setembro — estimado",
+      "novo": true,
+      "estimado": true
      }
     ]
    },
@@ -1983,7 +2245,7 @@
     "data": "2026-09-21",
     "ent": 57840,
     "sai": 59560.59,
-    "saldo": 421911.4,
+    "saldo": 380927.09,
     "itens": [
      {
       "t": "e",
@@ -2005,7 +2267,7 @@
     "data": "2026-09-22",
     "ent": 10650,
     "sai": 0,
-    "saldo": 432561.4,
+    "saldo": 391577.09,
     "itens": [
      {
       "t": "e",
@@ -2019,7 +2281,7 @@
     "data": "2026-09-23",
     "ent": 13905,
     "sai": 0,
-    "saldo": 446466.4,
+    "saldo": 405482.09,
     "itens": [
      {
       "t": "e",
@@ -2033,14 +2295,14 @@
     "data": "2026-09-24",
     "ent": 0,
     "sai": 0,
-    "saldo": 446466.4,
+    "saldo": 405482.09,
     "itens": []
    },
    {
     "data": "2026-09-25",
     "ent": 0,
     "sai": 62160,
-    "saldo": 384306.4,
+    "saldo": 343322.09,
     "itens": [
      {
       "t": "s",
@@ -2137,15 +2399,24 @@
    {
     "data": "2026-09-26",
     "ent": 0,
-    "sai": 0,
-    "saldo": 384306.4,
-    "itens": []
+    "sai": 11887.33,
+    "saldo": 331434.76,
+    "itens": [
+     {
+      "t": "s",
+      "data": "2026-09-26",
+      "valor": 11887.33,
+      "desc": "Custo corrente não lançado (cartão, viagem, leilão, marketing) — estimado",
+      "novo": true,
+      "estimado": true
+     }
+    ]
    },
    {
     "data": "2026-09-27",
     "ent": 825,
     "sai": 0,
-    "saldo": 385131.4,
+    "saldo": 332259.76,
     "itens": [
      {
       "t": "e",
@@ -2159,14 +2430,14 @@
     "data": "2026-09-28",
     "ent": 0,
     "sai": 0,
-    "saldo": 385131.4,
+    "saldo": 332259.76,
     "itens": []
    },
    {
     "data": "2026-09-29",
     "ent": 11984.49,
     "sai": 0,
-    "saldo": 397115.89,
+    "saldo": 344244.25,
     "itens": [
      {
       "t": "e",
@@ -2180,7 +2451,7 @@
     "data": "2026-09-30",
     "ent": 27375,
     "sai": 0,
-    "saldo": 424490.89,
+    "saldo": 371619.25,
     "itens": [
      {
       "t": "e",
@@ -2194,7 +2465,7 @@
     "data": "2026-10-01",
     "ent": 7020,
     "sai": 0,
-    "saldo": 431510.89,
+    "saldo": 378639.25,
     "itens": [
      {
       "t": "e",
@@ -2207,29 +2478,38 @@
    {
     "data": "2026-10-02",
     "ent": 0,
-    "sai": 0,
-    "saldo": 431510.89,
-    "itens": []
+    "sai": 9546.79,
+    "saldo": 369092.46,
+    "itens": [
+     {
+      "t": "s",
+      "data": "2026-10-02",
+      "valor": 9546.79,
+      "desc": "Custo corrente não lançado (cartão, viagem, leilão, marketing) — estimado",
+      "novo": true,
+      "estimado": true
+     }
+    ]
    },
    {
     "data": "2026-10-03",
     "ent": 0,
     "sai": 0,
-    "saldo": 431510.89,
+    "saldo": 369092.46,
     "itens": []
    },
    {
     "data": "2026-10-04",
     "ent": 0,
     "sai": 0,
-    "saldo": 431510.89,
+    "saldo": 369092.46,
     "itens": []
    },
    {
     "data": "2026-10-05",
     "ent": 0,
     "sai": 33100,
-    "saldo": 398410.89,
+    "saldo": 335992.46,
     "itens": [
      {
       "t": "s",
@@ -2273,7 +2553,7 @@
     "data": "2026-10-06",
     "ent": 78082.03,
     "sai": 0,
-    "saldo": 476492.92,
+    "saldo": 414074.49,
     "itens": [
      {
       "t": "e",
@@ -2287,29 +2567,47 @@
    {
     "data": "2026-10-07",
     "ent": 0,
-    "sai": 0,
-    "saldo": 476492.92,
-    "itens": []
+    "sai": 950,
+    "saldo": 413124.49,
+    "itens": [
+     {
+      "t": "s",
+      "data": "2026-10-07",
+      "valor": 950,
+      "desc": "FGTS ref. outubro — estimado",
+      "novo": true,
+      "estimado": true
+     }
+    ]
    },
    {
     "data": "2026-10-08",
     "ent": 0,
     "sai": 0,
-    "saldo": 476492.92,
+    "saldo": 413124.49,
     "itens": []
    },
    {
     "data": "2026-10-09",
     "ent": 0,
-    "sai": 0,
-    "saldo": 476492.92,
-    "itens": []
+    "sai": 9546.79,
+    "saldo": 403577.7,
+    "itens": [
+     {
+      "t": "s",
+      "data": "2026-10-09",
+      "valor": 9546.79,
+      "desc": "Custo corrente não lançado (cartão, viagem, leilão, marketing) — estimado",
+      "novo": true,
+      "estimado": true
+     }
+    ]
    },
    {
     "data": "2026-10-10",
     "ent": 0,
     "sai": 1058,
-    "saldo": 475434.92,
+    "saldo": 402519.7,
     "itens": [
      {
       "t": "s",
@@ -2323,35 +2621,35 @@
     "data": "2026-10-11",
     "ent": 0,
     "sai": 0,
-    "saldo": 475434.92,
+    "saldo": 402519.7,
     "itens": []
    },
    {
     "data": "2026-10-12",
     "ent": 0,
     "sai": 0,
-    "saldo": 475434.92,
+    "saldo": 402519.7,
     "itens": []
    },
    {
     "data": "2026-10-13",
     "ent": 0,
     "sai": 0,
-    "saldo": 475434.92,
+    "saldo": 402519.7,
     "itens": []
    },
    {
     "data": "2026-10-14",
     "ent": 0,
     "sai": 0,
-    "saldo": 475434.92,
+    "saldo": 402519.7,
     "itens": []
    },
    {
     "data": "2026-10-15",
     "ent": 0,
     "sai": 37600.04,
-    "saldo": 437834.88,
+    "saldo": 364919.66,
     "itens": [
      {
       "t": "s",
@@ -2366,14 +2664,22 @@
    {
     "data": "2026-10-16",
     "ent": 78082.03,
-    "sai": 0,
-    "saldo": 515916.91,
+    "sai": 9546.79,
+    "saldo": 433454.9,
     "itens": [
      {
       "t": "e",
       "data": "2026-10-16",
       "valor": 78082.03,
       "desc": "Recebíveis dos leilões de 19/08 a 15/09 (D+45) — estimado",
+      "estimado": true
+     },
+     {
+      "t": "s",
+      "data": "2026-10-16",
+      "valor": 9546.79,
+      "desc": "Custo corrente não lançado (cartão, viagem, leilão, marketing) — estimado",
+      "novo": true,
       "estimado": true
      }
     ]
@@ -2382,34 +2688,42 @@
     "data": "2026-10-17",
     "ent": 0,
     "sai": 0,
-    "saldo": 515916.91,
+    "saldo": 433454.9,
     "itens": []
    },
    {
     "data": "2026-10-18",
     "ent": 0,
     "sai": 0,
-    "saldo": 515916.91,
+    "saldo": 433454.9,
     "itens": []
    },
    {
     "data": "2026-10-19",
     "ent": 0,
     "sai": 0,
-    "saldo": 515916.91,
+    "saldo": 433454.9,
     "itens": []
    },
    {
     "data": "2026-10-20",
     "ent": 0,
-    "sai": 85638.38,
-    "saldo": 430278.53,
+    "sai": 86752.98,
+    "saldo": 346701.92,
     "itens": [
      {
       "t": "s",
       "data": "2026-10-20",
       "valor": 85638.38,
       "desc": "DAS do Simples ref. setembro — estimado",
+      "novo": true,
+      "estimado": true
+     },
+     {
+      "t": "s",
+      "data": "2026-10-20",
+      "valor": 1114.6,
+      "desc": "DARF de empregados ref. outubro — estimado",
       "novo": true,
       "estimado": true
      }
@@ -2419,42 +2733,51 @@
     "data": "2026-10-21",
     "ent": 0,
     "sai": 0,
-    "saldo": 430278.53,
+    "saldo": 346701.92,
     "itens": []
    },
    {
     "data": "2026-10-22",
     "ent": 0,
     "sai": 0,
-    "saldo": 430278.53,
+    "saldo": 346701.92,
     "itens": []
    },
    {
     "data": "2026-10-23",
     "ent": 0,
-    "sai": 0,
-    "saldo": 430278.53,
-    "itens": []
+    "sai": 9546.79,
+    "saldo": 337155.13,
+    "itens": [
+     {
+      "t": "s",
+      "data": "2026-10-23",
+      "valor": 9546.79,
+      "desc": "Custo corrente não lançado (cartão, viagem, leilão, marketing) — estimado",
+      "novo": true,
+      "estimado": true
+     }
+    ]
    },
    {
     "data": "2026-10-24",
     "ent": 0,
     "sai": 0,
-    "saldo": 430278.53,
+    "saldo": 337155.13,
     "itens": []
    },
    {
     "data": "2026-10-25",
     "ent": 0,
     "sai": 0,
-    "saldo": 430278.53,
+    "saldo": 337155.13,
     "itens": []
    },
    {
     "data": "2026-10-26",
     "ent": 0,
     "sai": 64160,
-    "saldo": 366118.53,
+    "saldo": 272995.13,
     "itens": [
      {
       "t": "s",
@@ -2476,7 +2799,7 @@
     "data": "2026-10-27",
     "ent": 66927.46,
     "sai": 0,
-    "saldo": 433045.99,
+    "saldo": 339922.59,
     "itens": [
      {
       "t": "e",
@@ -2491,28 +2814,37 @@
     "data": "2026-10-28",
     "ent": 0,
     "sai": 0,
-    "saldo": 433045.99,
+    "saldo": 339922.59,
     "itens": []
    },
    {
     "data": "2026-10-29",
     "ent": 0,
     "sai": 0,
-    "saldo": 433045.99,
+    "saldo": 339922.59,
     "itens": []
    },
    {
     "data": "2026-10-30",
     "ent": 0,
-    "sai": 0,
-    "saldo": 433045.99,
-    "itens": []
+    "sai": 9546.79,
+    "saldo": 330375.8,
+    "itens": [
+     {
+      "t": "s",
+      "data": "2026-10-30",
+      "valor": 9546.79,
+      "desc": "Custo corrente não lançado (cartão, viagem, leilão, marketing) — estimado",
+      "novo": true,
+      "estimado": true
+     }
+    ]
    },
    {
     "data": "2026-10-31",
     "ent": 0,
     "sai": 0,
-    "saldo": 433045.99,
+    "saldo": 330375.8,
     "itens": []
    }
   ],
@@ -2597,22 +2929,31 @@
    {
     "data": "2026-08-22",
     "ent": 0,
-    "sai": 0,
-    "saldo": 34879.24,
-    "itens": []
+    "sai": 1628.86,
+    "saldo": 33250.38,
+    "itens": [
+     {
+      "t": "s",
+      "data": "2026-08-22",
+      "valor": 1628.86,
+      "desc": "Custo corrente não lançado (cartão, viagem, leilão, marketing) — estimado",
+      "novo": true,
+      "estimado": true
+     }
+    ]
    },
    {
     "data": "2026-08-23",
     "ent": 0,
     "sai": 0,
-    "saldo": 34879.24,
+    "saldo": 33250.38,
     "itens": []
    },
    {
     "data": "2026-08-24",
     "ent": 0,
     "sai": 7329.97,
-    "saldo": 27549.27,
+    "saldo": 25920.41,
     "itens": [
      {
       "t": "s",
@@ -2632,7 +2973,7 @@
     "data": "2026-08-25",
     "ent": 48556.5,
     "sai": 44082,
-    "saldo": 32023.77,
+    "saldo": 30394.91,
     "itens": [
      {
       "t": "e",
@@ -2814,7 +3155,7 @@
     "data": "2026-08-26",
     "ent": 39451.8,
     "sai": 0,
-    "saldo": 71475.57,
+    "saldo": 69846.71,
     "itens": [
      {
       "t": "e",
@@ -2834,20 +3175,28 @@
     "data": "2026-08-27",
     "ent": 0,
     "sai": 0,
-    "saldo": 71475.57,
+    "saldo": 69846.71,
     "itens": []
    },
    {
     "data": "2026-08-28",
     "ent": 6180,
-    "sai": 0,
-    "saldo": 77655.57,
+    "sai": 1628.86,
+    "saldo": 74397.85,
     "itens": [
      {
       "t": "e",
       "data": "2026-08-28",
       "valor": 6180,
       "desc": "LEILÃO VIRTUAL BASE GENÉTICA SANTA CRUZ - 1ª ETAPA – 14/07/2026 (14/07) - COMISSAO BULA"
+     },
+     {
+      "t": "s",
+      "data": "2026-08-28",
+      "valor": 1628.86,
+      "desc": "Custo corrente não lançado (cartão, viagem, leilão, marketing) — estimado",
+      "novo": true,
+      "estimado": true
      }
     ]
    },
@@ -2855,7 +3204,7 @@
     "data": "2026-08-29",
     "ent": 2130,
     "sai": 0,
-    "saldo": 79785.57,
+    "saldo": 76527.85,
     "itens": [
      {
       "t": "e",
@@ -2869,7 +3218,7 @@
     "data": "2026-08-30",
     "ent": 22965,
     "sai": 0,
-    "saldo": 102750.57,
+    "saldo": 99492.85,
     "itens": [
      {
       "t": "e",
@@ -2889,7 +3238,7 @@
     "data": "2026-08-31",
     "ent": 0,
     "sai": 3200,
-    "saldo": 99550.57,
+    "saldo": 96292.85,
     "itens": [
      {
       "t": "s",
@@ -2903,7 +3252,7 @@
     "data": "2026-09-01",
     "ent": 3000,
     "sai": 0,
-    "saldo": 102550.57,
+    "saldo": 99292.85,
     "itens": [
      {
       "t": "e",
@@ -2917,7 +3266,7 @@
     "data": "2026-09-02",
     "ent": 42001.35,
     "sai": 0,
-    "saldo": 144551.92,
+    "saldo": 141294.2,
     "itens": [
      {
       "t": "e",
@@ -2937,21 +3286,30 @@
     "data": "2026-09-03",
     "ent": 0,
     "sai": 0,
-    "saldo": 144551.92,
+    "saldo": 141294.2,
     "itens": []
    },
    {
     "data": "2026-09-04",
     "ent": 0,
-    "sai": 0,
-    "saldo": 144551.92,
-    "itens": []
+    "sai": 11887.33,
+    "saldo": 129406.87,
+    "itens": [
+     {
+      "t": "s",
+      "data": "2026-09-04",
+      "valor": 11887.33,
+      "desc": "Custo corrente não lançado (cartão, viagem, leilão, marketing) — estimado",
+      "novo": true,
+      "estimado": true
+     }
+    ]
    },
    {
     "data": "2026-09-05",
     "ent": 0,
     "sai": 33100,
-    "saldo": 111451.92,
+    "saldo": 96306.87,
     "itens": [
      {
       "t": "s",
@@ -2995,21 +3353,30 @@
     "data": "2026-09-06",
     "ent": 0,
     "sai": 0,
-    "saldo": 111451.92,
+    "saldo": 96306.87,
     "itens": []
    },
    {
     "data": "2026-09-07",
     "ent": 0,
-    "sai": 0,
-    "saldo": 111451.92,
-    "itens": []
+    "sai": 950,
+    "saldo": 95356.87,
+    "itens": [
+     {
+      "t": "s",
+      "data": "2026-09-07",
+      "valor": 950,
+      "desc": "FGTS ref. setembro — estimado",
+      "novo": true,
+      "estimado": true
+     }
+    ]
    },
    {
     "data": "2026-09-08",
     "ent": 7743.9,
     "sai": 0,
-    "saldo": 119195.82,
+    "saldo": 103100.77,
     "itens": [
      {
       "t": "e",
@@ -3029,7 +3396,7 @@
     "data": "2026-09-09",
     "ent": 21443.75,
     "sai": 0,
-    "saldo": 140639.57,
+    "saldo": 124544.52,
     "itens": [
      {
       "t": "e",
@@ -3043,7 +3410,7 @@
     "data": "2026-09-10",
     "ent": 0,
     "sai": 1058,
-    "saldo": 139581.57,
+    "saldo": 123486.52,
     "itens": [
      {
       "t": "s",
@@ -3056,22 +3423,31 @@
    {
     "data": "2026-09-11",
     "ent": 0,
-    "sai": 0,
-    "saldo": 139581.57,
-    "itens": []
+    "sai": 11887.33,
+    "saldo": 111599.19,
+    "itens": [
+     {
+      "t": "s",
+      "data": "2026-09-11",
+      "valor": 11887.33,
+      "desc": "Custo corrente não lançado (cartão, viagem, leilão, marketing) — estimado",
+      "novo": true,
+      "estimado": true
+     }
+    ]
    },
    {
     "data": "2026-09-12",
     "ent": 0,
     "sai": 0,
-    "saldo": 139581.57,
+    "saldo": 111599.19,
     "itens": []
    },
    {
     "data": "2026-09-13",
     "ent": 165667.5,
     "sai": 0,
-    "saldo": 305249.07,
+    "saldo": 277266.69,
     "itens": [
      {
       "t": "e",
@@ -3091,14 +3467,14 @@
     "data": "2026-09-14",
     "ent": 0,
     "sai": 0,
-    "saldo": 305249.07,
+    "saldo": 277266.69,
     "itens": []
    },
    {
     "data": "2026-09-15",
     "ent": 70345,
     "sai": 26335.08,
-    "saldo": 349258.99,
+    "saldo": 321276.61,
     "itens": [
      {
       "t": "e",
@@ -3132,7 +3508,7 @@
     "data": "2026-09-16",
     "ent": 17857,
     "sai": 0,
-    "saldo": 367115.99,
+    "saldo": 339133.61,
     "itens": [
      {
       "t": "e",
@@ -3146,14 +3522,14 @@
     "data": "2026-09-17",
     "ent": 0,
     "sai": 0,
-    "saldo": 367115.99,
+    "saldo": 339133.61,
     "itens": []
    },
    {
     "data": "2026-09-18",
     "ent": 6318,
-    "sai": 0,
-    "saldo": 373433.99,
+    "sai": 11887.33,
+    "saldo": 333564.28,
     "itens": [
      {
       "t": "e",
@@ -3166,6 +3542,14 @@
       "data": "2026-09-18",
       "valor": 5715,
       "desc": "LEILAO DE TOUROS NELORE SORRISO (04/08) - COMISSAO BULA"
+     },
+     {
+      "t": "s",
+      "data": "2026-09-18",
+      "valor": 11887.33,
+      "desc": "Custo corrente não lançado (cartão, viagem, leilão, marketing) — estimado",
+      "novo": true,
+      "estimado": true
      }
     ]
    },
@@ -3173,20 +3557,28 @@
     "data": "2026-09-19",
     "ent": 0,
     "sai": 0,
-    "saldo": 373433.99,
+    "saldo": 333564.28,
     "itens": []
    },
    {
     "data": "2026-09-20",
     "ent": 50198,
-    "sai": 0,
-    "saldo": 423631.99,
+    "sai": 1114.6,
+    "saldo": 382647.68,
     "itens": [
      {
       "t": "e",
       "data": "2026-09-20",
       "valor": 50198,
       "desc": "LEILAO TOUROS FAZENDA SAO GERALDO (01/08) - BULA REMATES"
+     },
+     {
+      "t": "s",
+      "data": "2026-09-20",
+      "valor": 1114.6,
+      "desc": "DARF de empregados ref. setembro — estimado",
+      "novo": true,
+      "estimado": true
      }
     ]
    },
@@ -3194,7 +3586,7 @@
     "data": "2026-09-21",
     "ent": 57840,
     "sai": 59560.59,
-    "saldo": 421911.4,
+    "saldo": 380927.09,
     "itens": [
      {
       "t": "e",
@@ -3216,7 +3608,7 @@
     "data": "2026-09-22",
     "ent": 10650,
     "sai": 0,
-    "saldo": 432561.4,
+    "saldo": 391577.09,
     "itens": [
      {
       "t": "e",
@@ -3230,7 +3622,7 @@
     "data": "2026-09-23",
     "ent": 13905,
     "sai": 0,
-    "saldo": 446466.4,
+    "saldo": 405482.09,
     "itens": [
      {
       "t": "e",
@@ -3244,14 +3636,14 @@
     "data": "2026-09-24",
     "ent": 0,
     "sai": 0,
-    "saldo": 446466.4,
+    "saldo": 405482.09,
     "itens": []
    },
    {
     "data": "2026-09-25",
     "ent": 0,
     "sai": 102160,
-    "saldo": 344306.4,
+    "saldo": 303322.09,
     "itens": [
      {
       "t": "s",
@@ -3355,15 +3747,24 @@
    {
     "data": "2026-09-26",
     "ent": 0,
-    "sai": 0,
-    "saldo": 344306.4,
-    "itens": []
+    "sai": 11887.33,
+    "saldo": 291434.76,
+    "itens": [
+     {
+      "t": "s",
+      "data": "2026-09-26",
+      "valor": 11887.33,
+      "desc": "Custo corrente não lançado (cartão, viagem, leilão, marketing) — estimado",
+      "novo": true,
+      "estimado": true
+     }
+    ]
    },
    {
     "data": "2026-09-27",
     "ent": 825,
     "sai": 0,
-    "saldo": 345131.4,
+    "saldo": 292259.76,
     "itens": [
      {
       "t": "e",
@@ -3377,14 +3778,14 @@
     "data": "2026-09-28",
     "ent": 0,
     "sai": 0,
-    "saldo": 345131.4,
+    "saldo": 292259.76,
     "itens": []
    },
    {
     "data": "2026-09-29",
     "ent": 11984.49,
     "sai": 0,
-    "saldo": 357115.89,
+    "saldo": 304244.25,
     "itens": [
      {
       "t": "e",
@@ -3398,7 +3799,7 @@
     "data": "2026-09-30",
     "ent": 27375,
     "sai": 0,
-    "saldo": 384490.89,
+    "saldo": 331619.25,
     "itens": [
      {
       "t": "e",
@@ -3412,7 +3813,7 @@
     "data": "2026-10-01",
     "ent": 7020,
     "sai": 0,
-    "saldo": 391510.89,
+    "saldo": 338639.25,
     "itens": [
      {
       "t": "e",
@@ -3425,29 +3826,38 @@
    {
     "data": "2026-10-02",
     "ent": 0,
-    "sai": 0,
-    "saldo": 391510.89,
-    "itens": []
+    "sai": 9546.79,
+    "saldo": 329092.46,
+    "itens": [
+     {
+      "t": "s",
+      "data": "2026-10-02",
+      "valor": 9546.79,
+      "desc": "Custo corrente não lançado (cartão, viagem, leilão, marketing) — estimado",
+      "novo": true,
+      "estimado": true
+     }
+    ]
    },
    {
     "data": "2026-10-03",
     "ent": 0,
     "sai": 0,
-    "saldo": 391510.89,
+    "saldo": 329092.46,
     "itens": []
    },
    {
     "data": "2026-10-04",
     "ent": 0,
     "sai": 0,
-    "saldo": 391510.89,
+    "saldo": 329092.46,
     "itens": []
    },
    {
     "data": "2026-10-05",
     "ent": 0,
     "sai": 33100,
-    "saldo": 358410.89,
+    "saldo": 295992.46,
     "itens": [
      {
       "t": "s",
@@ -3491,7 +3901,7 @@
     "data": "2026-10-06",
     "ent": 78082.03,
     "sai": 0,
-    "saldo": 436492.92,
+    "saldo": 374074.49,
     "itens": [
      {
       "t": "e",
@@ -3505,29 +3915,47 @@
    {
     "data": "2026-10-07",
     "ent": 0,
-    "sai": 0,
-    "saldo": 436492.92,
-    "itens": []
+    "sai": 950,
+    "saldo": 373124.49,
+    "itens": [
+     {
+      "t": "s",
+      "data": "2026-10-07",
+      "valor": 950,
+      "desc": "FGTS ref. outubro — estimado",
+      "novo": true,
+      "estimado": true
+     }
+    ]
    },
    {
     "data": "2026-10-08",
     "ent": 0,
     "sai": 0,
-    "saldo": 436492.92,
+    "saldo": 373124.49,
     "itens": []
    },
    {
     "data": "2026-10-09",
     "ent": 0,
-    "sai": 0,
-    "saldo": 436492.92,
-    "itens": []
+    "sai": 9546.79,
+    "saldo": 363577.7,
+    "itens": [
+     {
+      "t": "s",
+      "data": "2026-10-09",
+      "valor": 9546.79,
+      "desc": "Custo corrente não lançado (cartão, viagem, leilão, marketing) — estimado",
+      "novo": true,
+      "estimado": true
+     }
+    ]
    },
    {
     "data": "2026-10-10",
     "ent": 0,
     "sai": 1058,
-    "saldo": 435434.92,
+    "saldo": 362519.7,
     "itens": [
      {
       "t": "s",
@@ -3541,35 +3969,35 @@
     "data": "2026-10-11",
     "ent": 0,
     "sai": 0,
-    "saldo": 435434.92,
+    "saldo": 362519.7,
     "itens": []
    },
    {
     "data": "2026-10-12",
     "ent": 0,
     "sai": 0,
-    "saldo": 435434.92,
+    "saldo": 362519.7,
     "itens": []
    },
    {
     "data": "2026-10-13",
     "ent": 0,
     "sai": 0,
-    "saldo": 435434.92,
+    "saldo": 362519.7,
     "itens": []
    },
    {
     "data": "2026-10-14",
     "ent": 0,
     "sai": 0,
-    "saldo": 435434.92,
+    "saldo": 362519.7,
     "itens": []
    },
    {
     "data": "2026-10-15",
     "ent": 0,
     "sai": 37600.04,
-    "saldo": 397834.88,
+    "saldo": 324919.66,
     "itens": [
      {
       "t": "s",
@@ -3584,14 +4012,22 @@
    {
     "data": "2026-10-16",
     "ent": 78082.03,
-    "sai": 0,
-    "saldo": 475916.91,
+    "sai": 9546.79,
+    "saldo": 393454.9,
     "itens": [
      {
       "t": "e",
       "data": "2026-10-16",
       "valor": 78082.03,
       "desc": "Recebíveis dos leilões de 19/08 a 15/09 (D+45) — estimado",
+      "estimado": true
+     },
+     {
+      "t": "s",
+      "data": "2026-10-16",
+      "valor": 9546.79,
+      "desc": "Custo corrente não lançado (cartão, viagem, leilão, marketing) — estimado",
+      "novo": true,
       "estimado": true
      }
     ]
@@ -3600,34 +4036,42 @@
     "data": "2026-10-17",
     "ent": 0,
     "sai": 0,
-    "saldo": 475916.91,
+    "saldo": 393454.9,
     "itens": []
    },
    {
     "data": "2026-10-18",
     "ent": 0,
     "sai": 0,
-    "saldo": 475916.91,
+    "saldo": 393454.9,
     "itens": []
    },
    {
     "data": "2026-10-19",
     "ent": 0,
     "sai": 0,
-    "saldo": 475916.91,
+    "saldo": 393454.9,
     "itens": []
    },
    {
     "data": "2026-10-20",
     "ent": 0,
-    "sai": 85638.38,
-    "saldo": 390278.53,
+    "sai": 86752.98,
+    "saldo": 306701.92,
     "itens": [
      {
       "t": "s",
       "data": "2026-10-20",
       "valor": 85638.38,
       "desc": "DAS do Simples ref. setembro — estimado",
+      "novo": true,
+      "estimado": true
+     },
+     {
+      "t": "s",
+      "data": "2026-10-20",
+      "valor": 1114.6,
+      "desc": "DARF de empregados ref. outubro — estimado",
       "novo": true,
       "estimado": true
      }
@@ -3637,42 +4081,51 @@
     "data": "2026-10-21",
     "ent": 0,
     "sai": 0,
-    "saldo": 390278.53,
+    "saldo": 306701.92,
     "itens": []
    },
    {
     "data": "2026-10-22",
     "ent": 0,
     "sai": 0,
-    "saldo": 390278.53,
+    "saldo": 306701.92,
     "itens": []
    },
    {
     "data": "2026-10-23",
     "ent": 0,
-    "sai": 0,
-    "saldo": 390278.53,
-    "itens": []
+    "sai": 9546.79,
+    "saldo": 297155.13,
+    "itens": [
+     {
+      "t": "s",
+      "data": "2026-10-23",
+      "valor": 9546.79,
+      "desc": "Custo corrente não lançado (cartão, viagem, leilão, marketing) — estimado",
+      "novo": true,
+      "estimado": true
+     }
+    ]
    },
    {
     "data": "2026-10-24",
     "ent": 0,
     "sai": 0,
-    "saldo": 390278.53,
+    "saldo": 297155.13,
     "itens": []
    },
    {
     "data": "2026-10-25",
     "ent": 0,
     "sai": 0,
-    "saldo": 390278.53,
+    "saldo": 297155.13,
     "itens": []
    },
    {
     "data": "2026-10-26",
     "ent": 0,
     "sai": 64160,
-    "saldo": 326118.53,
+    "saldo": 232995.13,
     "itens": [
      {
       "t": "s",
@@ -3694,7 +4147,7 @@
     "data": "2026-10-27",
     "ent": 66927.46,
     "sai": 0,
-    "saldo": 393045.99,
+    "saldo": 299922.59,
     "itens": [
      {
       "t": "e",
@@ -3709,28 +4162,37 @@
     "data": "2026-10-28",
     "ent": 0,
     "sai": 0,
-    "saldo": 393045.99,
+    "saldo": 299922.59,
     "itens": []
    },
    {
     "data": "2026-10-29",
     "ent": 0,
     "sai": 0,
-    "saldo": 393045.99,
+    "saldo": 299922.59,
     "itens": []
    },
    {
     "data": "2026-10-30",
     "ent": 0,
-    "sai": 0,
-    "saldo": 393045.99,
-    "itens": []
+    "sai": 9546.79,
+    "saldo": 290375.8,
+    "itens": [
+     {
+      "t": "s",
+      "data": "2026-10-30",
+      "valor": 9546.79,
+      "desc": "Custo corrente não lançado (cartão, viagem, leilão, marketing) — estimado",
+      "novo": true,
+      "estimado": true
+     }
+    ]
    },
    {
     "data": "2026-10-31",
     "ent": 0,
     "sai": 0,
-    "saldo": 393045.99,
+    "saldo": 290375.8,
     "itens": []
    }
   ],
@@ -3815,22 +4277,31 @@
    {
     "data": "2026-08-22",
     "ent": 0,
-    "sai": 0,
-    "saldo": 34879.24,
-    "itens": []
+    "sai": 1628.86,
+    "saldo": 33250.38,
+    "itens": [
+     {
+      "t": "s",
+      "data": "2026-08-22",
+      "valor": 1628.86,
+      "desc": "Custo corrente não lançado (cartão, viagem, leilão, marketing) — estimado",
+      "novo": true,
+      "estimado": true
+     }
+    ]
    },
    {
     "data": "2026-08-23",
     "ent": 0,
     "sai": 0,
-    "saldo": 34879.24,
+    "saldo": 33250.38,
     "itens": []
    },
    {
     "data": "2026-08-24",
     "ent": 0,
     "sai": 7329.97,
-    "saldo": 27549.27,
+    "saldo": 25920.41,
     "itens": [
      {
       "t": "s",
@@ -3850,7 +4321,7 @@
     "data": "2026-08-25",
     "ent": 48556.5,
     "sai": 44082,
-    "saldo": 32023.77,
+    "saldo": 30394.91,
     "itens": [
      {
       "t": "e",
@@ -4032,7 +4503,7 @@
     "data": "2026-08-26",
     "ent": 39451.8,
     "sai": 0,
-    "saldo": 71475.57,
+    "saldo": 69846.71,
     "itens": [
      {
       "t": "e",
@@ -4052,20 +4523,28 @@
     "data": "2026-08-27",
     "ent": 0,
     "sai": 0,
-    "saldo": 71475.57,
+    "saldo": 69846.71,
     "itens": []
    },
    {
     "data": "2026-08-28",
     "ent": 6180,
-    "sai": 0,
-    "saldo": 77655.57,
+    "sai": 1628.86,
+    "saldo": 74397.85,
     "itens": [
      {
       "t": "e",
       "data": "2026-08-28",
       "valor": 6180,
       "desc": "LEILÃO VIRTUAL BASE GENÉTICA SANTA CRUZ - 1ª ETAPA – 14/07/2026 (14/07) - COMISSAO BULA"
+     },
+     {
+      "t": "s",
+      "data": "2026-08-28",
+      "valor": 1628.86,
+      "desc": "Custo corrente não lançado (cartão, viagem, leilão, marketing) — estimado",
+      "novo": true,
+      "estimado": true
      }
     ]
    },
@@ -4073,7 +4552,7 @@
     "data": "2026-08-29",
     "ent": 2130,
     "sai": 0,
-    "saldo": 79785.57,
+    "saldo": 76527.85,
     "itens": [
      {
       "t": "e",
@@ -4087,7 +4566,7 @@
     "data": "2026-08-30",
     "ent": 22965,
     "sai": 0,
-    "saldo": 102750.57,
+    "saldo": 99492.85,
     "itens": [
      {
       "t": "e",
@@ -4107,7 +4586,7 @@
     "data": "2026-08-31",
     "ent": 0,
     "sai": 3200,
-    "saldo": 99550.57,
+    "saldo": 96292.85,
     "itens": [
      {
       "t": "s",
@@ -4121,7 +4600,7 @@
     "data": "2026-09-01",
     "ent": 3000,
     "sai": 0,
-    "saldo": 102550.57,
+    "saldo": 99292.85,
     "itens": [
      {
       "t": "e",
@@ -4135,7 +4614,7 @@
     "data": "2026-09-02",
     "ent": 42001.35,
     "sai": 0,
-    "saldo": 144551.92,
+    "saldo": 141294.2,
     "itens": [
      {
       "t": "e",
@@ -4155,21 +4634,30 @@
     "data": "2026-09-03",
     "ent": 0,
     "sai": 0,
-    "saldo": 144551.92,
+    "saldo": 141294.2,
     "itens": []
    },
    {
     "data": "2026-09-04",
     "ent": 0,
-    "sai": 0,
-    "saldo": 144551.92,
-    "itens": []
+    "sai": 11887.33,
+    "saldo": 129406.87,
+    "itens": [
+     {
+      "t": "s",
+      "data": "2026-09-04",
+      "valor": 11887.33,
+      "desc": "Custo corrente não lançado (cartão, viagem, leilão, marketing) — estimado",
+      "novo": true,
+      "estimado": true
+     }
+    ]
    },
    {
     "data": "2026-09-05",
     "ent": 0,
     "sai": 33100,
-    "saldo": 111451.92,
+    "saldo": 96306.87,
     "itens": [
      {
       "t": "s",
@@ -4213,21 +4701,30 @@
     "data": "2026-09-06",
     "ent": 0,
     "sai": 0,
-    "saldo": 111451.92,
+    "saldo": 96306.87,
     "itens": []
    },
    {
     "data": "2026-09-07",
     "ent": 0,
-    "sai": 0,
-    "saldo": 111451.92,
-    "itens": []
+    "sai": 950,
+    "saldo": 95356.87,
+    "itens": [
+     {
+      "t": "s",
+      "data": "2026-09-07",
+      "valor": 950,
+      "desc": "FGTS ref. setembro — estimado",
+      "novo": true,
+      "estimado": true
+     }
+    ]
    },
    {
     "data": "2026-09-08",
     "ent": 7743.9,
     "sai": 0,
-    "saldo": 119195.82,
+    "saldo": 103100.77,
     "itens": [
      {
       "t": "e",
@@ -4247,7 +4744,7 @@
     "data": "2026-09-09",
     "ent": 21443.75,
     "sai": 0,
-    "saldo": 140639.57,
+    "saldo": 124544.52,
     "itens": [
      {
       "t": "e",
@@ -4261,7 +4758,7 @@
     "data": "2026-09-10",
     "ent": 0,
     "sai": 1058,
-    "saldo": 139581.57,
+    "saldo": 123486.52,
     "itens": [
      {
       "t": "s",
@@ -4274,22 +4771,31 @@
    {
     "data": "2026-09-11",
     "ent": 0,
-    "sai": 0,
-    "saldo": 139581.57,
-    "itens": []
+    "sai": 11887.33,
+    "saldo": 111599.19,
+    "itens": [
+     {
+      "t": "s",
+      "data": "2026-09-11",
+      "valor": 11887.33,
+      "desc": "Custo corrente não lançado (cartão, viagem, leilão, marketing) — estimado",
+      "novo": true,
+      "estimado": true
+     }
+    ]
    },
    {
     "data": "2026-09-12",
     "ent": 0,
     "sai": 0,
-    "saldo": 139581.57,
+    "saldo": 111599.19,
     "itens": []
    },
    {
     "data": "2026-09-13",
     "ent": 165667.5,
     "sai": 82833.75,
-    "saldo": 222415.32,
+    "saldo": 194432.94,
     "itens": [
      {
       "t": "e",
@@ -4316,14 +4822,14 @@
     "data": "2026-09-14",
     "ent": 0,
     "sai": 0,
-    "saldo": 222415.32,
+    "saldo": 194432.94,
     "itens": []
    },
    {
     "data": "2026-09-15",
     "ent": 70345,
     "sai": 26335.08,
-    "saldo": 266425.24,
+    "saldo": 238442.86,
     "itens": [
      {
       "t": "e",
@@ -4357,7 +4863,7 @@
     "data": "2026-09-16",
     "ent": 17857,
     "sai": 0,
-    "saldo": 284282.24,
+    "saldo": 256299.86,
     "itens": [
      {
       "t": "e",
@@ -4371,14 +4877,14 @@
     "data": "2026-09-17",
     "ent": 0,
     "sai": 0,
-    "saldo": 284282.24,
+    "saldo": 256299.86,
     "itens": []
    },
    {
     "data": "2026-09-18",
     "ent": 6318,
-    "sai": 0,
-    "saldo": 290600.24,
+    "sai": 11887.33,
+    "saldo": 250730.53,
     "itens": [
      {
       "t": "e",
@@ -4391,6 +4897,14 @@
       "data": "2026-09-18",
       "valor": 5715,
       "desc": "LEILAO DE TOUROS NELORE SORRISO (04/08) - COMISSAO BULA"
+     },
+     {
+      "t": "s",
+      "data": "2026-09-18",
+      "valor": 11887.33,
+      "desc": "Custo corrente não lançado (cartão, viagem, leilão, marketing) — estimado",
+      "novo": true,
+      "estimado": true
      }
     ]
    },
@@ -4398,20 +4912,28 @@
     "data": "2026-09-19",
     "ent": 0,
     "sai": 0,
-    "saldo": 290600.24,
+    "saldo": 250730.53,
     "itens": []
    },
    {
     "data": "2026-09-20",
     "ent": 50198,
-    "sai": 0,
-    "saldo": 340798.24,
+    "sai": 1114.6,
+    "saldo": 299813.93,
     "itens": [
      {
       "t": "e",
       "data": "2026-09-20",
       "valor": 50198,
       "desc": "LEILAO TOUROS FAZENDA SAO GERALDO (01/08) - BULA REMATES"
+     },
+     {
+      "t": "s",
+      "data": "2026-09-20",
+      "valor": 1114.6,
+      "desc": "DARF de empregados ref. setembro — estimado",
+      "novo": true,
+      "estimado": true
      }
     ]
    },
@@ -4419,7 +4941,7 @@
     "data": "2026-09-21",
     "ent": 57840,
     "sai": 59560.59,
-    "saldo": 339077.65,
+    "saldo": 298093.34,
     "itens": [
      {
       "t": "e",
@@ -4441,7 +4963,7 @@
     "data": "2026-09-22",
     "ent": 10650,
     "sai": 0,
-    "saldo": 349727.65,
+    "saldo": 308743.34,
     "itens": [
      {
       "t": "e",
@@ -4455,7 +4977,7 @@
     "data": "2026-09-23",
     "ent": 13905,
     "sai": 0,
-    "saldo": 363632.65,
+    "saldo": 322648.34,
     "itens": [
      {
       "t": "e",
@@ -4469,14 +4991,14 @@
     "data": "2026-09-24",
     "ent": 0,
     "sai": 0,
-    "saldo": 363632.65,
+    "saldo": 322648.34,
     "itens": []
    },
    {
     "data": "2026-09-25",
     "ent": 0,
     "sai": 102160,
-    "saldo": 261472.65,
+    "saldo": 220488.34,
     "itens": [
      {
       "t": "s",
@@ -4580,15 +5102,24 @@
    {
     "data": "2026-09-26",
     "ent": 0,
-    "sai": 0,
-    "saldo": 261472.65,
-    "itens": []
+    "sai": 11887.33,
+    "saldo": 208601.01,
+    "itens": [
+     {
+      "t": "s",
+      "data": "2026-09-26",
+      "valor": 11887.33,
+      "desc": "Custo corrente não lançado (cartão, viagem, leilão, marketing) — estimado",
+      "novo": true,
+      "estimado": true
+     }
+    ]
    },
    {
     "data": "2026-09-27",
     "ent": 825,
     "sai": 0,
-    "saldo": 262297.65,
+    "saldo": 209426.01,
     "itens": [
      {
       "t": "e",
@@ -4602,14 +5133,14 @@
     "data": "2026-09-28",
     "ent": 0,
     "sai": 0,
-    "saldo": 262297.65,
+    "saldo": 209426.01,
     "itens": []
    },
    {
     "data": "2026-09-29",
     "ent": 11984.49,
     "sai": 0,
-    "saldo": 274282.14,
+    "saldo": 221410.5,
     "itens": [
      {
       "t": "e",
@@ -4623,7 +5154,7 @@
     "data": "2026-09-30",
     "ent": 27375,
     "sai": 0,
-    "saldo": 301657.14,
+    "saldo": 248785.5,
     "itens": [
      {
       "t": "e",
@@ -4637,7 +5168,7 @@
     "data": "2026-10-01",
     "ent": 7020,
     "sai": 0,
-    "saldo": 308677.14,
+    "saldo": 255805.5,
     "itens": [
      {
       "t": "e",
@@ -4650,29 +5181,38 @@
    {
     "data": "2026-10-02",
     "ent": 0,
-    "sai": 0,
-    "saldo": 308677.14,
-    "itens": []
+    "sai": 9546.79,
+    "saldo": 246258.71,
+    "itens": [
+     {
+      "t": "s",
+      "data": "2026-10-02",
+      "valor": 9546.79,
+      "desc": "Custo corrente não lançado (cartão, viagem, leilão, marketing) — estimado",
+      "novo": true,
+      "estimado": true
+     }
+    ]
    },
    {
     "data": "2026-10-03",
     "ent": 0,
     "sai": 0,
-    "saldo": 308677.14,
+    "saldo": 246258.71,
     "itens": []
    },
    {
     "data": "2026-10-04",
     "ent": 0,
     "sai": 0,
-    "saldo": 308677.14,
+    "saldo": 246258.71,
     "itens": []
    },
    {
     "data": "2026-10-05",
     "ent": 0,
     "sai": 33100,
-    "saldo": 275577.14,
+    "saldo": 213158.71,
     "itens": [
      {
       "t": "s",
@@ -4716,7 +5256,7 @@
     "data": "2026-10-06",
     "ent": 78082.03,
     "sai": 0,
-    "saldo": 353659.17,
+    "saldo": 291240.74,
     "itens": [
      {
       "t": "e",
@@ -4730,29 +5270,47 @@
    {
     "data": "2026-10-07",
     "ent": 0,
-    "sai": 0,
-    "saldo": 353659.17,
-    "itens": []
+    "sai": 950,
+    "saldo": 290290.74,
+    "itens": [
+     {
+      "t": "s",
+      "data": "2026-10-07",
+      "valor": 950,
+      "desc": "FGTS ref. outubro — estimado",
+      "novo": true,
+      "estimado": true
+     }
+    ]
    },
    {
     "data": "2026-10-08",
     "ent": 0,
     "sai": 0,
-    "saldo": 353659.17,
+    "saldo": 290290.74,
     "itens": []
    },
    {
     "data": "2026-10-09",
     "ent": 0,
-    "sai": 0,
-    "saldo": 353659.17,
-    "itens": []
+    "sai": 9546.79,
+    "saldo": 280743.95,
+    "itens": [
+     {
+      "t": "s",
+      "data": "2026-10-09",
+      "valor": 9546.79,
+      "desc": "Custo corrente não lançado (cartão, viagem, leilão, marketing) — estimado",
+      "novo": true,
+      "estimado": true
+     }
+    ]
    },
    {
     "data": "2026-10-10",
     "ent": 0,
     "sai": 1058,
-    "saldo": 352601.17,
+    "saldo": 279685.95,
     "itens": [
      {
       "t": "s",
@@ -4766,35 +5324,35 @@
     "data": "2026-10-11",
     "ent": 0,
     "sai": 0,
-    "saldo": 352601.17,
+    "saldo": 279685.95,
     "itens": []
    },
    {
     "data": "2026-10-12",
     "ent": 0,
     "sai": 0,
-    "saldo": 352601.17,
+    "saldo": 279685.95,
     "itens": []
    },
    {
     "data": "2026-10-13",
     "ent": 0,
     "sai": 0,
-    "saldo": 352601.17,
+    "saldo": 279685.95,
     "itens": []
    },
    {
     "data": "2026-10-14",
     "ent": 0,
     "sai": 0,
-    "saldo": 352601.17,
+    "saldo": 279685.95,
     "itens": []
    },
    {
     "data": "2026-10-15",
     "ent": 0,
     "sai": 37600.04,
-    "saldo": 315001.13,
+    "saldo": 242085.91,
     "itens": [
      {
       "t": "s",
@@ -4809,14 +5367,22 @@
    {
     "data": "2026-10-16",
     "ent": 78082.03,
-    "sai": 0,
-    "saldo": 393083.16,
+    "sai": 9546.79,
+    "saldo": 310621.15,
     "itens": [
      {
       "t": "e",
       "data": "2026-10-16",
       "valor": 78082.03,
       "desc": "Recebíveis dos leilões de 19/08 a 15/09 (D+45) — estimado",
+      "estimado": true
+     },
+     {
+      "t": "s",
+      "data": "2026-10-16",
+      "valor": 9546.79,
+      "desc": "Custo corrente não lançado (cartão, viagem, leilão, marketing) — estimado",
+      "novo": true,
       "estimado": true
      }
     ]
@@ -4825,34 +5391,42 @@
     "data": "2026-10-17",
     "ent": 0,
     "sai": 0,
-    "saldo": 393083.16,
+    "saldo": 310621.15,
     "itens": []
    },
    {
     "data": "2026-10-18",
     "ent": 0,
     "sai": 0,
-    "saldo": 393083.16,
+    "saldo": 310621.15,
     "itens": []
    },
    {
     "data": "2026-10-19",
     "ent": 0,
     "sai": 0,
-    "saldo": 393083.16,
+    "saldo": 310621.15,
     "itens": []
    },
    {
     "data": "2026-10-20",
     "ent": 0,
-    "sai": 85638.38,
-    "saldo": 307444.78,
+    "sai": 86752.98,
+    "saldo": 223868.17,
     "itens": [
      {
       "t": "s",
       "data": "2026-10-20",
       "valor": 85638.38,
       "desc": "DAS do Simples ref. setembro — estimado",
+      "novo": true,
+      "estimado": true
+     },
+     {
+      "t": "s",
+      "data": "2026-10-20",
+      "valor": 1114.6,
+      "desc": "DARF de empregados ref. outubro — estimado",
       "novo": true,
       "estimado": true
      }
@@ -4862,42 +5436,51 @@
     "data": "2026-10-21",
     "ent": 0,
     "sai": 0,
-    "saldo": 307444.78,
+    "saldo": 223868.17,
     "itens": []
    },
    {
     "data": "2026-10-22",
     "ent": 0,
     "sai": 0,
-    "saldo": 307444.78,
+    "saldo": 223868.17,
     "itens": []
    },
    {
     "data": "2026-10-23",
     "ent": 0,
-    "sai": 0,
-    "saldo": 307444.78,
-    "itens": []
+    "sai": 9546.79,
+    "saldo": 214321.38,
+    "itens": [
+     {
+      "t": "s",
+      "data": "2026-10-23",
+      "valor": 9546.79,
+      "desc": "Custo corrente não lançado (cartão, viagem, leilão, marketing) — estimado",
+      "novo": true,
+      "estimado": true
+     }
+    ]
    },
    {
     "data": "2026-10-24",
     "ent": 0,
     "sai": 0,
-    "saldo": 307444.78,
+    "saldo": 214321.38,
     "itens": []
    },
    {
     "data": "2026-10-25",
     "ent": 0,
     "sai": 0,
-    "saldo": 307444.78,
+    "saldo": 214321.38,
     "itens": []
    },
    {
     "data": "2026-10-26",
     "ent": 0,
     "sai": 64160,
-    "saldo": 243284.78,
+    "saldo": 150161.38,
     "itens": [
      {
       "t": "s",
@@ -4919,7 +5502,7 @@
     "data": "2026-10-27",
     "ent": 66927.46,
     "sai": 0,
-    "saldo": 310212.24,
+    "saldo": 217088.84,
     "itens": [
      {
       "t": "e",
@@ -4934,28 +5517,37 @@
     "data": "2026-10-28",
     "ent": 0,
     "sai": 0,
-    "saldo": 310212.24,
+    "saldo": 217088.84,
     "itens": []
    },
    {
     "data": "2026-10-29",
     "ent": 0,
     "sai": 0,
-    "saldo": 310212.24,
+    "saldo": 217088.84,
     "itens": []
    },
    {
     "data": "2026-10-30",
     "ent": 0,
-    "sai": 0,
-    "saldo": 310212.24,
-    "itens": []
+    "sai": 9546.79,
+    "saldo": 207542.05,
+    "itens": [
+     {
+      "t": "s",
+      "data": "2026-10-30",
+      "valor": 9546.79,
+      "desc": "Custo corrente não lançado (cartão, viagem, leilão, marketing) — estimado",
+      "novo": true,
+      "estimado": true
+     }
+    ]
    },
    {
     "data": "2026-10-31",
     "ent": 0,
     "sai": 0,
-    "saldo": 310212.24,
+    "saldo": 207542.05,
     "itens": []
    }
   ],
@@ -5040,22 +5632,31 @@
    {
     "data": "2026-08-22",
     "ent": 0,
-    "sai": 0,
-    "saldo": 34879.24,
-    "itens": []
+    "sai": 1628.86,
+    "saldo": 33250.38,
+    "itens": [
+     {
+      "t": "s",
+      "data": "2026-08-22",
+      "valor": 1628.86,
+      "desc": "Custo corrente não lançado (cartão, viagem, leilão, marketing) — estimado",
+      "novo": true,
+      "estimado": true
+     }
+    ]
    },
    {
     "data": "2026-08-23",
     "ent": 0,
     "sai": 0,
-    "saldo": 34879.24,
+    "saldo": 33250.38,
     "itens": []
    },
    {
     "data": "2026-08-24",
     "ent": 0,
     "sai": 7329.97,
-    "saldo": 27549.27,
+    "saldo": 25920.41,
     "itens": [
      {
       "t": "s",
@@ -5075,7 +5676,7 @@
     "data": "2026-08-25",
     "ent": 48556.5,
     "sai": 44082,
-    "saldo": 32023.77,
+    "saldo": 30394.91,
     "itens": [
      {
       "t": "e",
@@ -5257,7 +5858,7 @@
     "data": "2026-08-26",
     "ent": 39451.8,
     "sai": 0,
-    "saldo": 71475.57,
+    "saldo": 69846.71,
     "itens": [
      {
       "t": "e",
@@ -5277,20 +5878,28 @@
     "data": "2026-08-27",
     "ent": 0,
     "sai": 0,
-    "saldo": 71475.57,
+    "saldo": 69846.71,
     "itens": []
    },
    {
     "data": "2026-08-28",
     "ent": 6180,
-    "sai": 0,
-    "saldo": 77655.57,
+    "sai": 1628.86,
+    "saldo": 74397.85,
     "itens": [
      {
       "t": "e",
       "data": "2026-08-28",
       "valor": 6180,
       "desc": "LEILÃO VIRTUAL BASE GENÉTICA SANTA CRUZ - 1ª ETAPA – 14/07/2026 (14/07) - COMISSAO BULA"
+     },
+     {
+      "t": "s",
+      "data": "2026-08-28",
+      "valor": 1628.86,
+      "desc": "Custo corrente não lançado (cartão, viagem, leilão, marketing) — estimado",
+      "novo": true,
+      "estimado": true
      }
     ]
    },
@@ -5298,7 +5907,7 @@
     "data": "2026-08-29",
     "ent": 2130,
     "sai": 0,
-    "saldo": 79785.57,
+    "saldo": 76527.85,
     "itens": [
      {
       "t": "e",
@@ -5312,7 +5921,7 @@
     "data": "2026-08-30",
     "ent": 22965,
     "sai": 0,
-    "saldo": 102750.57,
+    "saldo": 99492.85,
     "itens": [
      {
       "t": "e",
@@ -5332,7 +5941,7 @@
     "data": "2026-08-31",
     "ent": 0,
     "sai": 3200,
-    "saldo": 99550.57,
+    "saldo": 96292.85,
     "itens": [
      {
       "t": "s",
@@ -5346,7 +5955,7 @@
     "data": "2026-09-01",
     "ent": 3000,
     "sai": 0,
-    "saldo": 102550.57,
+    "saldo": 99292.85,
     "itens": [
      {
       "t": "e",
@@ -5360,7 +5969,7 @@
     "data": "2026-09-02",
     "ent": 42001.35,
     "sai": 0,
-    "saldo": 144551.92,
+    "saldo": 141294.2,
     "itens": [
      {
       "t": "e",
@@ -5380,21 +5989,30 @@
     "data": "2026-09-03",
     "ent": 0,
     "sai": 0,
-    "saldo": 144551.92,
+    "saldo": 141294.2,
     "itens": []
    },
    {
     "data": "2026-09-04",
     "ent": 0,
-    "sai": 0,
-    "saldo": 144551.92,
-    "itens": []
+    "sai": 11887.33,
+    "saldo": 129406.87,
+    "itens": [
+     {
+      "t": "s",
+      "data": "2026-09-04",
+      "valor": 11887.33,
+      "desc": "Custo corrente não lançado (cartão, viagem, leilão, marketing) — estimado",
+      "novo": true,
+      "estimado": true
+     }
+    ]
    },
    {
     "data": "2026-09-05",
     "ent": 0,
     "sai": 33100,
-    "saldo": 111451.92,
+    "saldo": 96306.87,
     "itens": [
      {
       "t": "s",
@@ -5438,21 +6056,30 @@
     "data": "2026-09-06",
     "ent": 0,
     "sai": 0,
-    "saldo": 111451.92,
+    "saldo": 96306.87,
     "itens": []
    },
    {
     "data": "2026-09-07",
     "ent": 0,
-    "sai": 0,
-    "saldo": 111451.92,
-    "itens": []
+    "sai": 950,
+    "saldo": 95356.87,
+    "itens": [
+     {
+      "t": "s",
+      "data": "2026-09-07",
+      "valor": 950,
+      "desc": "FGTS ref. setembro — estimado",
+      "novo": true,
+      "estimado": true
+     }
+    ]
    },
    {
     "data": "2026-09-08",
     "ent": 7743.9,
     "sai": 0,
-    "saldo": 119195.82,
+    "saldo": 103100.77,
     "itens": [
      {
       "t": "e",
@@ -5472,7 +6099,7 @@
     "data": "2026-09-09",
     "ent": 21443.75,
     "sai": 0,
-    "saldo": 140639.57,
+    "saldo": 124544.52,
     "itens": [
      {
       "t": "e",
@@ -5486,7 +6113,7 @@
     "data": "2026-09-10",
     "ent": 0,
     "sai": 1058,
-    "saldo": 139581.57,
+    "saldo": 123486.52,
     "itens": [
      {
       "t": "s",
@@ -5499,22 +6126,31 @@
    {
     "data": "2026-09-11",
     "ent": 0,
-    "sai": 0,
-    "saldo": 139581.57,
-    "itens": []
+    "sai": 11887.33,
+    "saldo": 111599.19,
+    "itens": [
+     {
+      "t": "s",
+      "data": "2026-09-11",
+      "valor": 11887.33,
+      "desc": "Custo corrente não lançado (cartão, viagem, leilão, marketing) — estimado",
+      "novo": true,
+      "estimado": true
+     }
+    ]
    },
    {
     "data": "2026-09-12",
     "ent": 0,
     "sai": 0,
-    "saldo": 139581.57,
+    "saldo": 111599.19,
     "itens": []
    },
    {
     "data": "2026-09-13",
     "ent": 165667.5,
     "sai": 165667.5,
-    "saldo": 139581.57,
+    "saldo": 111599.19,
     "itens": [
      {
       "t": "e",
@@ -5541,14 +6177,14 @@
     "data": "2026-09-14",
     "ent": 0,
     "sai": 0,
-    "saldo": 139581.57,
+    "saldo": 111599.19,
     "itens": []
    },
    {
     "data": "2026-09-15",
     "ent": 70345,
     "sai": 26335.08,
-    "saldo": 183591.49,
+    "saldo": 155609.11,
     "itens": [
      {
       "t": "e",
@@ -5582,7 +6218,7 @@
     "data": "2026-09-16",
     "ent": 17857,
     "sai": 0,
-    "saldo": 201448.49,
+    "saldo": 173466.11,
     "itens": [
      {
       "t": "e",
@@ -5596,14 +6232,14 @@
     "data": "2026-09-17",
     "ent": 0,
     "sai": 0,
-    "saldo": 201448.49,
+    "saldo": 173466.11,
     "itens": []
    },
    {
     "data": "2026-09-18",
     "ent": 6318,
-    "sai": 0,
-    "saldo": 207766.49,
+    "sai": 11887.33,
+    "saldo": 167896.78,
     "itens": [
      {
       "t": "e",
@@ -5616,6 +6252,14 @@
       "data": "2026-09-18",
       "valor": 5715,
       "desc": "LEILAO DE TOUROS NELORE SORRISO (04/08) - COMISSAO BULA"
+     },
+     {
+      "t": "s",
+      "data": "2026-09-18",
+      "valor": 11887.33,
+      "desc": "Custo corrente não lançado (cartão, viagem, leilão, marketing) — estimado",
+      "novo": true,
+      "estimado": true
      }
     ]
    },
@@ -5623,20 +6267,28 @@
     "data": "2026-09-19",
     "ent": 0,
     "sai": 0,
-    "saldo": 207766.49,
+    "saldo": 167896.78,
     "itens": []
    },
    {
     "data": "2026-09-20",
     "ent": 50198,
-    "sai": 0,
-    "saldo": 257964.49,
+    "sai": 1114.6,
+    "saldo": 216980.18,
     "itens": [
      {
       "t": "e",
       "data": "2026-09-20",
       "valor": 50198,
       "desc": "LEILAO TOUROS FAZENDA SAO GERALDO (01/08) - BULA REMATES"
+     },
+     {
+      "t": "s",
+      "data": "2026-09-20",
+      "valor": 1114.6,
+      "desc": "DARF de empregados ref. setembro — estimado",
+      "novo": true,
+      "estimado": true
      }
     ]
    },
@@ -5644,7 +6296,7 @@
     "data": "2026-09-21",
     "ent": 57840,
     "sai": 59560.59,
-    "saldo": 256243.9,
+    "saldo": 215259.59,
     "itens": [
      {
       "t": "e",
@@ -5666,7 +6318,7 @@
     "data": "2026-09-22",
     "ent": 10650,
     "sai": 0,
-    "saldo": 266893.9,
+    "saldo": 225909.59,
     "itens": [
      {
       "t": "e",
@@ -5680,7 +6332,7 @@
     "data": "2026-09-23",
     "ent": 13905,
     "sai": 0,
-    "saldo": 280798.9,
+    "saldo": 239814.59,
     "itens": [
      {
       "t": "e",
@@ -5694,14 +6346,14 @@
     "data": "2026-09-24",
     "ent": 0,
     "sai": 0,
-    "saldo": 280798.9,
+    "saldo": 239814.59,
     "itens": []
    },
    {
     "data": "2026-09-25",
     "ent": 0,
     "sai": 102160,
-    "saldo": 178638.9,
+    "saldo": 137654.59,
     "itens": [
      {
       "t": "s",
@@ -5805,15 +6457,24 @@
    {
     "data": "2026-09-26",
     "ent": 0,
-    "sai": 0,
-    "saldo": 178638.9,
-    "itens": []
+    "sai": 11887.33,
+    "saldo": 125767.26,
+    "itens": [
+     {
+      "t": "s",
+      "data": "2026-09-26",
+      "valor": 11887.33,
+      "desc": "Custo corrente não lançado (cartão, viagem, leilão, marketing) — estimado",
+      "novo": true,
+      "estimado": true
+     }
+    ]
    },
    {
     "data": "2026-09-27",
     "ent": 825,
     "sai": 0,
-    "saldo": 179463.9,
+    "saldo": 126592.26,
     "itens": [
      {
       "t": "e",
@@ -5827,14 +6488,14 @@
     "data": "2026-09-28",
     "ent": 0,
     "sai": 0,
-    "saldo": 179463.9,
+    "saldo": 126592.26,
     "itens": []
    },
    {
     "data": "2026-09-29",
     "ent": 11984.49,
     "sai": 0,
-    "saldo": 191448.39,
+    "saldo": 138576.75,
     "itens": [
      {
       "t": "e",
@@ -5848,7 +6509,7 @@
     "data": "2026-09-30",
     "ent": 27375,
     "sai": 0,
-    "saldo": 218823.39,
+    "saldo": 165951.75,
     "itens": [
      {
       "t": "e",
@@ -5862,7 +6523,7 @@
     "data": "2026-10-01",
     "ent": 7020,
     "sai": 0,
-    "saldo": 225843.39,
+    "saldo": 172971.75,
     "itens": [
      {
       "t": "e",
@@ -5875,29 +6536,38 @@
    {
     "data": "2026-10-02",
     "ent": 0,
-    "sai": 0,
-    "saldo": 225843.39,
-    "itens": []
+    "sai": 9546.79,
+    "saldo": 163424.96,
+    "itens": [
+     {
+      "t": "s",
+      "data": "2026-10-02",
+      "valor": 9546.79,
+      "desc": "Custo corrente não lançado (cartão, viagem, leilão, marketing) — estimado",
+      "novo": true,
+      "estimado": true
+     }
+    ]
    },
    {
     "data": "2026-10-03",
     "ent": 0,
     "sai": 0,
-    "saldo": 225843.39,
+    "saldo": 163424.96,
     "itens": []
    },
    {
     "data": "2026-10-04",
     "ent": 0,
     "sai": 0,
-    "saldo": 225843.39,
+    "saldo": 163424.96,
     "itens": []
    },
    {
     "data": "2026-10-05",
     "ent": 0,
     "sai": 33100,
-    "saldo": 192743.39,
+    "saldo": 130324.96,
     "itens": [
      {
       "t": "s",
@@ -5941,7 +6611,7 @@
     "data": "2026-10-06",
     "ent": 78082.03,
     "sai": 0,
-    "saldo": 270825.42,
+    "saldo": 208406.99,
     "itens": [
      {
       "t": "e",
@@ -5955,29 +6625,47 @@
    {
     "data": "2026-10-07",
     "ent": 0,
-    "sai": 0,
-    "saldo": 270825.42,
-    "itens": []
+    "sai": 950,
+    "saldo": 207456.99,
+    "itens": [
+     {
+      "t": "s",
+      "data": "2026-10-07",
+      "valor": 950,
+      "desc": "FGTS ref. outubro — estimado",
+      "novo": true,
+      "estimado": true
+     }
+    ]
    },
    {
     "data": "2026-10-08",
     "ent": 0,
     "sai": 0,
-    "saldo": 270825.42,
+    "saldo": 207456.99,
     "itens": []
    },
    {
     "data": "2026-10-09",
     "ent": 0,
-    "sai": 0,
-    "saldo": 270825.42,
-    "itens": []
+    "sai": 9546.79,
+    "saldo": 197910.2,
+    "itens": [
+     {
+      "t": "s",
+      "data": "2026-10-09",
+      "valor": 9546.79,
+      "desc": "Custo corrente não lançado (cartão, viagem, leilão, marketing) — estimado",
+      "novo": true,
+      "estimado": true
+     }
+    ]
    },
    {
     "data": "2026-10-10",
     "ent": 0,
     "sai": 1058,
-    "saldo": 269767.42,
+    "saldo": 196852.2,
     "itens": [
      {
       "t": "s",
@@ -5991,35 +6679,35 @@
     "data": "2026-10-11",
     "ent": 0,
     "sai": 0,
-    "saldo": 269767.42,
+    "saldo": 196852.2,
     "itens": []
    },
    {
     "data": "2026-10-12",
     "ent": 0,
     "sai": 0,
-    "saldo": 269767.42,
+    "saldo": 196852.2,
     "itens": []
    },
    {
     "data": "2026-10-13",
     "ent": 0,
     "sai": 0,
-    "saldo": 269767.42,
+    "saldo": 196852.2,
     "itens": []
    },
    {
     "data": "2026-10-14",
     "ent": 0,
     "sai": 0,
-    "saldo": 269767.42,
+    "saldo": 196852.2,
     "itens": []
    },
    {
     "data": "2026-10-15",
     "ent": 0,
     "sai": 37600.04,
-    "saldo": 232167.38,
+    "saldo": 159252.16,
     "itens": [
      {
       "t": "s",
@@ -6034,14 +6722,22 @@
    {
     "data": "2026-10-16",
     "ent": 78082.03,
-    "sai": 0,
-    "saldo": 310249.41,
+    "sai": 9546.79,
+    "saldo": 227787.4,
     "itens": [
      {
       "t": "e",
       "data": "2026-10-16",
       "valor": 78082.03,
       "desc": "Recebíveis dos leilões de 19/08 a 15/09 (D+45) — estimado",
+      "estimado": true
+     },
+     {
+      "t": "s",
+      "data": "2026-10-16",
+      "valor": 9546.79,
+      "desc": "Custo corrente não lançado (cartão, viagem, leilão, marketing) — estimado",
+      "novo": true,
       "estimado": true
      }
     ]
@@ -6050,34 +6746,42 @@
     "data": "2026-10-17",
     "ent": 0,
     "sai": 0,
-    "saldo": 310249.41,
+    "saldo": 227787.4,
     "itens": []
    },
    {
     "data": "2026-10-18",
     "ent": 0,
     "sai": 0,
-    "saldo": 310249.41,
+    "saldo": 227787.4,
     "itens": []
    },
    {
     "data": "2026-10-19",
     "ent": 0,
     "sai": 0,
-    "saldo": 310249.41,
+    "saldo": 227787.4,
     "itens": []
    },
    {
     "data": "2026-10-20",
     "ent": 0,
-    "sai": 85638.38,
-    "saldo": 224611.03,
+    "sai": 86752.98,
+    "saldo": 141034.42,
     "itens": [
      {
       "t": "s",
       "data": "2026-10-20",
       "valor": 85638.38,
       "desc": "DAS do Simples ref. setembro — estimado",
+      "novo": true,
+      "estimado": true
+     },
+     {
+      "t": "s",
+      "data": "2026-10-20",
+      "valor": 1114.6,
+      "desc": "DARF de empregados ref. outubro — estimado",
       "novo": true,
       "estimado": true
      }
@@ -6087,42 +6791,51 @@
     "data": "2026-10-21",
     "ent": 0,
     "sai": 0,
-    "saldo": 224611.03,
+    "saldo": 141034.42,
     "itens": []
    },
    {
     "data": "2026-10-22",
     "ent": 0,
     "sai": 0,
-    "saldo": 224611.03,
+    "saldo": 141034.42,
     "itens": []
    },
    {
     "data": "2026-10-23",
     "ent": 0,
-    "sai": 0,
-    "saldo": 224611.03,
-    "itens": []
+    "sai": 9546.79,
+    "saldo": 131487.63,
+    "itens": [
+     {
+      "t": "s",
+      "data": "2026-10-23",
+      "valor": 9546.79,
+      "desc": "Custo corrente não lançado (cartão, viagem, leilão, marketing) — estimado",
+      "novo": true,
+      "estimado": true
+     }
+    ]
    },
    {
     "data": "2026-10-24",
     "ent": 0,
     "sai": 0,
-    "saldo": 224611.03,
+    "saldo": 131487.63,
     "itens": []
    },
    {
     "data": "2026-10-25",
     "ent": 0,
     "sai": 0,
-    "saldo": 224611.03,
+    "saldo": 131487.63,
     "itens": []
    },
    {
     "data": "2026-10-26",
     "ent": 0,
     "sai": 64160,
-    "saldo": 160451.03,
+    "saldo": 67327.63,
     "itens": [
      {
       "t": "s",
@@ -6144,7 +6857,7 @@
     "data": "2026-10-27",
     "ent": 66927.46,
     "sai": 0,
-    "saldo": 227378.49,
+    "saldo": 134255.09,
     "itens": [
      {
       "t": "e",
@@ -6159,28 +6872,37 @@
     "data": "2026-10-28",
     "ent": 0,
     "sai": 0,
-    "saldo": 227378.49,
+    "saldo": 134255.09,
     "itens": []
    },
    {
     "data": "2026-10-29",
     "ent": 0,
     "sai": 0,
-    "saldo": 227378.49,
+    "saldo": 134255.09,
     "itens": []
    },
    {
     "data": "2026-10-30",
     "ent": 0,
-    "sai": 0,
-    "saldo": 227378.49,
-    "itens": []
+    "sai": 9546.79,
+    "saldo": 124708.3,
+    "itens": [
+     {
+      "t": "s",
+      "data": "2026-10-30",
+      "valor": 9546.79,
+      "desc": "Custo corrente não lançado (cartão, viagem, leilão, marketing) — estimado",
+      "novo": true,
+      "estimado": true
+     }
+    ]
    },
    {
     "data": "2026-10-31",
     "ent": 0,
     "sai": 0,
-    "saldo": 227378.49,
+    "saldo": 124708.3,
     "itens": []
    }
   ],
@@ -6265,22 +6987,31 @@
    {
     "data": "2026-08-22",
     "ent": 0,
-    "sai": 0,
-    "saldo": 34879.24,
-    "itens": []
+    "sai": 1628.86,
+    "saldo": 33250.38,
+    "itens": [
+     {
+      "t": "s",
+      "data": "2026-08-22",
+      "valor": 1628.86,
+      "desc": "Custo corrente não lançado (cartão, viagem, leilão, marketing) — estimado",
+      "novo": true,
+      "estimado": true
+     }
+    ]
    },
    {
     "data": "2026-08-23",
     "ent": 0,
     "sai": 0,
-    "saldo": 34879.24,
+    "saldo": 33250.38,
     "itens": []
    },
    {
     "data": "2026-08-24",
     "ent": 0,
     "sai": 7329.97,
-    "saldo": 27549.27,
+    "saldo": 25920.41,
     "itens": [
      {
       "t": "s",
@@ -6300,7 +7031,7 @@
     "data": "2026-08-25",
     "ent": 48556.5,
     "sai": 44082,
-    "saldo": 32023.77,
+    "saldo": 30394.91,
     "itens": [
      {
       "t": "e",
@@ -6482,7 +7213,7 @@
     "data": "2026-08-26",
     "ent": 39451.8,
     "sai": 0,
-    "saldo": 71475.57,
+    "saldo": 69846.71,
     "itens": [
      {
       "t": "e",
@@ -6502,20 +7233,28 @@
     "data": "2026-08-27",
     "ent": 0,
     "sai": 0,
-    "saldo": 71475.57,
+    "saldo": 69846.71,
     "itens": []
    },
    {
     "data": "2026-08-28",
     "ent": 6180,
-    "sai": 0,
-    "saldo": 77655.57,
+    "sai": 1628.86,
+    "saldo": 74397.85,
     "itens": [
      {
       "t": "e",
       "data": "2026-08-28",
       "valor": 6180,
       "desc": "LEILÃO VIRTUAL BASE GENÉTICA SANTA CRUZ - 1ª ETAPA – 14/07/2026 (14/07) - COMISSAO BULA"
+     },
+     {
+      "t": "s",
+      "data": "2026-08-28",
+      "valor": 1628.86,
+      "desc": "Custo corrente não lançado (cartão, viagem, leilão, marketing) — estimado",
+      "novo": true,
+      "estimado": true
      }
     ]
    },
@@ -6523,7 +7262,7 @@
     "data": "2026-08-29",
     "ent": 2130,
     "sai": 0,
-    "saldo": 79785.57,
+    "saldo": 76527.85,
     "itens": [
      {
       "t": "e",
@@ -6537,7 +7276,7 @@
     "data": "2026-08-30",
     "ent": 22965,
     "sai": 0,
-    "saldo": 102750.57,
+    "saldo": 99492.85,
     "itens": [
      {
       "t": "e",
@@ -6557,7 +7296,7 @@
     "data": "2026-08-31",
     "ent": 0,
     "sai": 3200,
-    "saldo": 99550.57,
+    "saldo": 96292.85,
     "itens": [
      {
       "t": "s",
@@ -6571,7 +7310,7 @@
     "data": "2026-09-01",
     "ent": 3000,
     "sai": 0,
-    "saldo": 102550.57,
+    "saldo": 99292.85,
     "itens": [
      {
       "t": "e",
@@ -6585,7 +7324,7 @@
     "data": "2026-09-02",
     "ent": 42001.35,
     "sai": 0,
-    "saldo": 144551.92,
+    "saldo": 141294.2,
     "itens": [
      {
       "t": "e",
@@ -6605,21 +7344,30 @@
     "data": "2026-09-03",
     "ent": 0,
     "sai": 0,
-    "saldo": 144551.92,
+    "saldo": 141294.2,
     "itens": []
    },
    {
     "data": "2026-09-04",
     "ent": 0,
-    "sai": 0,
-    "saldo": 144551.92,
-    "itens": []
+    "sai": 11887.33,
+    "saldo": 129406.87,
+    "itens": [
+     {
+      "t": "s",
+      "data": "2026-09-04",
+      "valor": 11887.33,
+      "desc": "Custo corrente não lançado (cartão, viagem, leilão, marketing) — estimado",
+      "novo": true,
+      "estimado": true
+     }
+    ]
    },
    {
     "data": "2026-09-05",
     "ent": 0,
     "sai": 33100,
-    "saldo": 111451.92,
+    "saldo": 96306.87,
     "itens": [
      {
       "t": "s",
@@ -6663,21 +7411,30 @@
     "data": "2026-09-06",
     "ent": 0,
     "sai": 0,
-    "saldo": 111451.92,
+    "saldo": 96306.87,
     "itens": []
    },
    {
     "data": "2026-09-07",
     "ent": 0,
-    "sai": 0,
-    "saldo": 111451.92,
-    "itens": []
+    "sai": 950,
+    "saldo": 95356.87,
+    "itens": [
+     {
+      "t": "s",
+      "data": "2026-09-07",
+      "valor": 950,
+      "desc": "FGTS ref. setembro — estimado",
+      "novo": true,
+      "estimado": true
+     }
+    ]
    },
    {
     "data": "2026-09-08",
     "ent": 7743.9,
     "sai": 0,
-    "saldo": 119195.82,
+    "saldo": 103100.77,
     "itens": [
      {
       "t": "e",
@@ -6697,7 +7454,7 @@
     "data": "2026-09-09",
     "ent": 21443.75,
     "sai": 0,
-    "saldo": 140639.57,
+    "saldo": 124544.52,
     "itens": [
      {
       "t": "e",
@@ -6711,7 +7468,7 @@
     "data": "2026-09-10",
     "ent": 0,
     "sai": 1058,
-    "saldo": 139581.57,
+    "saldo": 123486.52,
     "itens": [
      {
       "t": "s",
@@ -6724,22 +7481,31 @@
    {
     "data": "2026-09-11",
     "ent": 0,
-    "sai": 0,
-    "saldo": 139581.57,
-    "itens": []
+    "sai": 11887.33,
+    "saldo": 111599.19,
+    "itens": [
+     {
+      "t": "s",
+      "data": "2026-09-11",
+      "valor": 11887.33,
+      "desc": "Custo corrente não lançado (cartão, viagem, leilão, marketing) — estimado",
+      "novo": true,
+      "estimado": true
+     }
+    ]
    },
    {
     "data": "2026-09-12",
     "ent": 0,
     "sai": 0,
-    "saldo": 139581.57,
+    "saldo": 111599.19,
     "itens": []
    },
    {
     "data": "2026-09-13",
     "ent": 165667.5,
     "sai": 82833.75,
-    "saldo": 222415.32,
+    "saldo": 194432.94,
     "itens": [
      {
       "t": "e",
@@ -6766,14 +7532,14 @@
     "data": "2026-09-14",
     "ent": 0,
     "sai": 0,
-    "saldo": 222415.32,
+    "saldo": 194432.94,
     "itens": []
    },
    {
     "data": "2026-09-15",
     "ent": 70345,
     "sai": 26335.08,
-    "saldo": 266425.24,
+    "saldo": 238442.86,
     "itens": [
      {
       "t": "e",
@@ -6807,7 +7573,7 @@
     "data": "2026-09-16",
     "ent": 17857,
     "sai": 0,
-    "saldo": 284282.24,
+    "saldo": 256299.86,
     "itens": [
      {
       "t": "e",
@@ -6821,14 +7587,14 @@
     "data": "2026-09-17",
     "ent": 0,
     "sai": 0,
-    "saldo": 284282.24,
+    "saldo": 256299.86,
     "itens": []
    },
    {
     "data": "2026-09-18",
     "ent": 6318,
-    "sai": 0,
-    "saldo": 290600.24,
+    "sai": 11887.33,
+    "saldo": 250730.53,
     "itens": [
      {
       "t": "e",
@@ -6841,6 +7607,14 @@
       "data": "2026-09-18",
       "valor": 5715,
       "desc": "LEILAO DE TOUROS NELORE SORRISO (04/08) - COMISSAO BULA"
+     },
+     {
+      "t": "s",
+      "data": "2026-09-18",
+      "valor": 11887.33,
+      "desc": "Custo corrente não lançado (cartão, viagem, leilão, marketing) — estimado",
+      "novo": true,
+      "estimado": true
      }
     ]
    },
@@ -6848,20 +7622,28 @@
     "data": "2026-09-19",
     "ent": 0,
     "sai": 0,
-    "saldo": 290600.24,
+    "saldo": 250730.53,
     "itens": []
    },
    {
     "data": "2026-09-20",
     "ent": 50198,
-    "sai": 0,
-    "saldo": 340798.24,
+    "sai": 1114.6,
+    "saldo": 299813.93,
     "itens": [
      {
       "t": "e",
       "data": "2026-09-20",
       "valor": 50198,
       "desc": "LEILAO TOUROS FAZENDA SAO GERALDO (01/08) - BULA REMATES"
+     },
+     {
+      "t": "s",
+      "data": "2026-09-20",
+      "valor": 1114.6,
+      "desc": "DARF de empregados ref. setembro — estimado",
+      "novo": true,
+      "estimado": true
      }
     ]
    },
@@ -6869,7 +7651,7 @@
     "data": "2026-09-21",
     "ent": 57840,
     "sai": 59560.59,
-    "saldo": 339077.65,
+    "saldo": 298093.34,
     "itens": [
      {
       "t": "e",
@@ -6891,7 +7673,7 @@
     "data": "2026-09-22",
     "ent": 10650,
     "sai": 0,
-    "saldo": 349727.65,
+    "saldo": 308743.34,
     "itens": [
      {
       "t": "e",
@@ -6905,7 +7687,7 @@
     "data": "2026-09-23",
     "ent": 13905,
     "sai": 0,
-    "saldo": 363632.65,
+    "saldo": 322648.34,
     "itens": [
      {
       "t": "e",
@@ -6919,14 +7701,14 @@
     "data": "2026-09-24",
     "ent": 0,
     "sai": 0,
-    "saldo": 363632.65,
+    "saldo": 322648.34,
     "itens": []
    },
    {
     "data": "2026-09-25",
     "ent": 0,
     "sai": 82160,
-    "saldo": 281472.65,
+    "saldo": 240488.34,
     "itens": [
      {
       "t": "s",
@@ -7030,15 +7812,24 @@
    {
     "data": "2026-09-26",
     "ent": 0,
-    "sai": 0,
-    "saldo": 281472.65,
-    "itens": []
+    "sai": 11887.33,
+    "saldo": 228601.01,
+    "itens": [
+     {
+      "t": "s",
+      "data": "2026-09-26",
+      "valor": 11887.33,
+      "desc": "Custo corrente não lançado (cartão, viagem, leilão, marketing) — estimado",
+      "novo": true,
+      "estimado": true
+     }
+    ]
    },
    {
     "data": "2026-09-27",
     "ent": 825,
     "sai": 0,
-    "saldo": 282297.65,
+    "saldo": 229426.01,
     "itens": [
      {
       "t": "e",
@@ -7052,14 +7843,14 @@
     "data": "2026-09-28",
     "ent": 0,
     "sai": 0,
-    "saldo": 282297.65,
+    "saldo": 229426.01,
     "itens": []
    },
    {
     "data": "2026-09-29",
     "ent": 11984.49,
     "sai": 0,
-    "saldo": 294282.14,
+    "saldo": 241410.5,
     "itens": [
      {
       "t": "e",
@@ -7073,7 +7864,7 @@
     "data": "2026-09-30",
     "ent": 27375,
     "sai": 0,
-    "saldo": 321657.14,
+    "saldo": 268785.5,
     "itens": [
      {
       "t": "e",
@@ -7087,7 +7878,7 @@
     "data": "2026-10-01",
     "ent": 7020,
     "sai": 0,
-    "saldo": 328677.14,
+    "saldo": 275805.5,
     "itens": [
      {
       "t": "e",
@@ -7100,29 +7891,38 @@
    {
     "data": "2026-10-02",
     "ent": 0,
-    "sai": 0,
-    "saldo": 328677.14,
-    "itens": []
+    "sai": 9546.79,
+    "saldo": 266258.71,
+    "itens": [
+     {
+      "t": "s",
+      "data": "2026-10-02",
+      "valor": 9546.79,
+      "desc": "Custo corrente não lançado (cartão, viagem, leilão, marketing) — estimado",
+      "novo": true,
+      "estimado": true
+     }
+    ]
    },
    {
     "data": "2026-10-03",
     "ent": 0,
     "sai": 0,
-    "saldo": 328677.14,
+    "saldo": 266258.71,
     "itens": []
    },
    {
     "data": "2026-10-04",
     "ent": 0,
     "sai": 0,
-    "saldo": 328677.14,
+    "saldo": 266258.71,
     "itens": []
    },
    {
     "data": "2026-10-05",
     "ent": 0,
     "sai": 33100,
-    "saldo": 295577.14,
+    "saldo": 233158.71,
     "itens": [
      {
       "t": "s",
@@ -7166,7 +7966,7 @@
     "data": "2026-10-06",
     "ent": 78082.03,
     "sai": 0,
-    "saldo": 373659.17,
+    "saldo": 311240.74,
     "itens": [
      {
       "t": "e",
@@ -7180,29 +7980,47 @@
    {
     "data": "2026-10-07",
     "ent": 0,
-    "sai": 0,
-    "saldo": 373659.17,
-    "itens": []
+    "sai": 950,
+    "saldo": 310290.74,
+    "itens": [
+     {
+      "t": "s",
+      "data": "2026-10-07",
+      "valor": 950,
+      "desc": "FGTS ref. outubro — estimado",
+      "novo": true,
+      "estimado": true
+     }
+    ]
    },
    {
     "data": "2026-10-08",
     "ent": 0,
     "sai": 0,
-    "saldo": 373659.17,
+    "saldo": 310290.74,
     "itens": []
    },
    {
     "data": "2026-10-09",
     "ent": 0,
-    "sai": 0,
-    "saldo": 373659.17,
-    "itens": []
+    "sai": 9546.79,
+    "saldo": 300743.95,
+    "itens": [
+     {
+      "t": "s",
+      "data": "2026-10-09",
+      "valor": 9546.79,
+      "desc": "Custo corrente não lançado (cartão, viagem, leilão, marketing) — estimado",
+      "novo": true,
+      "estimado": true
+     }
+    ]
    },
    {
     "data": "2026-10-10",
     "ent": 0,
     "sai": 1058,
-    "saldo": 372601.17,
+    "saldo": 299685.95,
     "itens": [
      {
       "t": "s",
@@ -7216,35 +8034,35 @@
     "data": "2026-10-11",
     "ent": 0,
     "sai": 0,
-    "saldo": 372601.17,
+    "saldo": 299685.95,
     "itens": []
    },
    {
     "data": "2026-10-12",
     "ent": 0,
     "sai": 0,
-    "saldo": 372601.17,
+    "saldo": 299685.95,
     "itens": []
    },
    {
     "data": "2026-10-13",
     "ent": 0,
     "sai": 0,
-    "saldo": 372601.17,
+    "saldo": 299685.95,
     "itens": []
    },
    {
     "data": "2026-10-14",
     "ent": 0,
     "sai": 0,
-    "saldo": 372601.17,
+    "saldo": 299685.95,
     "itens": []
    },
    {
     "data": "2026-10-15",
     "ent": 0,
     "sai": 120433.79,
-    "saldo": 252167.38,
+    "saldo": 179252.16,
     "itens": [
      {
       "t": "s",
@@ -7266,14 +8084,22 @@
    {
     "data": "2026-10-16",
     "ent": 78082.03,
-    "sai": 0,
-    "saldo": 330249.41,
+    "sai": 9546.79,
+    "saldo": 247787.4,
     "itens": [
      {
       "t": "e",
       "data": "2026-10-16",
       "valor": 78082.03,
       "desc": "Recebíveis dos leilões de 19/08 a 15/09 (D+45) — estimado",
+      "estimado": true
+     },
+     {
+      "t": "s",
+      "data": "2026-10-16",
+      "valor": 9546.79,
+      "desc": "Custo corrente não lançado (cartão, viagem, leilão, marketing) — estimado",
+      "novo": true,
       "estimado": true
      }
     ]
@@ -7282,34 +8108,42 @@
     "data": "2026-10-17",
     "ent": 0,
     "sai": 0,
-    "saldo": 330249.41,
+    "saldo": 247787.4,
     "itens": []
    },
    {
     "data": "2026-10-18",
     "ent": 0,
     "sai": 0,
-    "saldo": 330249.41,
+    "saldo": 247787.4,
     "itens": []
    },
    {
     "data": "2026-10-19",
     "ent": 0,
     "sai": 0,
-    "saldo": 330249.41,
+    "saldo": 247787.4,
     "itens": []
    },
    {
     "data": "2026-10-20",
     "ent": 0,
-    "sai": 85638.38,
-    "saldo": 244611.03,
+    "sai": 86752.98,
+    "saldo": 161034.42,
     "itens": [
      {
       "t": "s",
       "data": "2026-10-20",
       "valor": 85638.38,
       "desc": "DAS do Simples ref. setembro — estimado",
+      "novo": true,
+      "estimado": true
+     },
+     {
+      "t": "s",
+      "data": "2026-10-20",
+      "valor": 1114.6,
+      "desc": "DARF de empregados ref. outubro — estimado",
       "novo": true,
       "estimado": true
      }
@@ -7319,35 +8153,44 @@
     "data": "2026-10-21",
     "ent": 0,
     "sai": 0,
-    "saldo": 244611.03,
+    "saldo": 161034.42,
     "itens": []
    },
    {
     "data": "2026-10-22",
     "ent": 0,
     "sai": 0,
-    "saldo": 244611.03,
+    "saldo": 161034.42,
     "itens": []
    },
    {
     "data": "2026-10-23",
     "ent": 0,
-    "sai": 0,
-    "saldo": 244611.03,
-    "itens": []
+    "sai": 9546.79,
+    "saldo": 151487.63,
+    "itens": [
+     {
+      "t": "s",
+      "data": "2026-10-23",
+      "valor": 9546.79,
+      "desc": "Custo corrente não lançado (cartão, viagem, leilão, marketing) — estimado",
+      "novo": true,
+      "estimado": true
+     }
+    ]
    },
    {
     "data": "2026-10-24",
     "ent": 0,
     "sai": 0,
-    "saldo": 244611.03,
+    "saldo": 151487.63,
     "itens": []
    },
    {
     "data": "2026-10-25",
     "ent": 0,
     "sai": 20000,
-    "saldo": 224611.03,
+    "saldo": 131487.63,
     "itens": [
      {
       "t": "s",
@@ -7362,7 +8205,7 @@
     "data": "2026-10-26",
     "ent": 0,
     "sai": 64160,
-    "saldo": 160451.03,
+    "saldo": 67327.63,
     "itens": [
      {
       "t": "s",
@@ -7384,7 +8227,7 @@
     "data": "2026-10-27",
     "ent": 66927.46,
     "sai": 0,
-    "saldo": 227378.49,
+    "saldo": 134255.09,
     "itens": [
      {
       "t": "e",
@@ -7399,28 +8242,37 @@
     "data": "2026-10-28",
     "ent": 0,
     "sai": 0,
-    "saldo": 227378.49,
+    "saldo": 134255.09,
     "itens": []
    },
    {
     "data": "2026-10-29",
     "ent": 0,
     "sai": 0,
-    "saldo": 227378.49,
+    "saldo": 134255.09,
     "itens": []
    },
    {
     "data": "2026-10-30",
     "ent": 0,
-    "sai": 0,
-    "saldo": 227378.49,
-    "itens": []
+    "sai": 9546.79,
+    "saldo": 124708.3,
+    "itens": [
+     {
+      "t": "s",
+      "data": "2026-10-30",
+      "valor": 9546.79,
+      "desc": "Custo corrente não lançado (cartão, viagem, leilão, marketing) — estimado",
+      "novo": true,
+      "estimado": true
+     }
+    ]
    },
    {
     "data": "2026-10-31",
     "ent": 0,
     "sai": 0,
-    "saldo": 227378.49,
+    "saldo": 124708.3,
     "itens": []
    }
   ],
@@ -7505,22 +8357,31 @@
    {
     "data": "2026-08-22",
     "ent": 0,
-    "sai": 0,
-    "saldo": 34879.24,
-    "itens": []
+    "sai": 1628.86,
+    "saldo": 33250.38,
+    "itens": [
+     {
+      "t": "s",
+      "data": "2026-08-22",
+      "valor": 1628.86,
+      "desc": "Custo corrente não lançado (cartão, viagem, leilão, marketing) — estimado",
+      "novo": true,
+      "estimado": true
+     }
+    ]
    },
    {
     "data": "2026-08-23",
     "ent": 0,
     "sai": 0,
-    "saldo": 34879.24,
+    "saldo": 33250.38,
     "itens": []
    },
    {
     "data": "2026-08-24",
     "ent": 0,
     "sai": 7329.97,
-    "saldo": 27549.27,
+    "saldo": 25920.41,
     "itens": [
      {
       "t": "s",
@@ -7540,7 +8401,7 @@
     "data": "2026-08-25",
     "ent": 48556.5,
     "sai": 44082,
-    "saldo": 32023.77,
+    "saldo": 30394.91,
     "itens": [
      {
       "t": "e",
@@ -7722,7 +8583,7 @@
     "data": "2026-08-26",
     "ent": 39451.8,
     "sai": 0,
-    "saldo": 71475.57,
+    "saldo": 69846.71,
     "itens": [
      {
       "t": "e",
@@ -7742,20 +8603,28 @@
     "data": "2026-08-27",
     "ent": 0,
     "sai": 0,
-    "saldo": 71475.57,
+    "saldo": 69846.71,
     "itens": []
    },
    {
     "data": "2026-08-28",
     "ent": 6180,
-    "sai": 0,
-    "saldo": 77655.57,
+    "sai": 1628.86,
+    "saldo": 74397.85,
     "itens": [
      {
       "t": "e",
       "data": "2026-08-28",
       "valor": 6180,
       "desc": "LEILÃO VIRTUAL BASE GENÉTICA SANTA CRUZ - 1ª ETAPA – 14/07/2026 (14/07) - COMISSAO BULA"
+     },
+     {
+      "t": "s",
+      "data": "2026-08-28",
+      "valor": 1628.86,
+      "desc": "Custo corrente não lançado (cartão, viagem, leilão, marketing) — estimado",
+      "novo": true,
+      "estimado": true
      }
     ]
    },
@@ -7763,7 +8632,7 @@
     "data": "2026-08-29",
     "ent": 2130,
     "sai": 0,
-    "saldo": 79785.57,
+    "saldo": 76527.85,
     "itens": [
      {
       "t": "e",
@@ -7777,7 +8646,7 @@
     "data": "2026-08-30",
     "ent": 22965,
     "sai": 0,
-    "saldo": 102750.57,
+    "saldo": 99492.85,
     "itens": [
      {
       "t": "e",
@@ -7797,7 +8666,7 @@
     "data": "2026-08-31",
     "ent": 0,
     "sai": 3200,
-    "saldo": 99550.57,
+    "saldo": 96292.85,
     "itens": [
      {
       "t": "s",
@@ -7811,7 +8680,7 @@
     "data": "2026-09-01",
     "ent": 2100,
     "sai": 0,
-    "saldo": 101650.57,
+    "saldo": 98392.85,
     "itens": [
      {
       "t": "e",
@@ -7825,7 +8694,7 @@
     "data": "2026-09-02",
     "ent": 29400.94,
     "sai": 0,
-    "saldo": 131051.51,
+    "saldo": 127793.79,
     "itens": [
      {
       "t": "e",
@@ -7845,21 +8714,30 @@
     "data": "2026-09-03",
     "ent": 0,
     "sai": 0,
-    "saldo": 131051.51,
+    "saldo": 127793.79,
     "itens": []
    },
    {
     "data": "2026-09-04",
     "ent": 0,
-    "sai": 0,
-    "saldo": 131051.51,
-    "itens": []
+    "sai": 11887.33,
+    "saldo": 115906.46,
+    "itens": [
+     {
+      "t": "s",
+      "data": "2026-09-04",
+      "valor": 11887.33,
+      "desc": "Custo corrente não lançado (cartão, viagem, leilão, marketing) — estimado",
+      "novo": true,
+      "estimado": true
+     }
+    ]
    },
    {
     "data": "2026-09-05",
     "ent": 0,
     "sai": 33100,
-    "saldo": 97951.51,
+    "saldo": 82806.46,
     "itens": [
      {
       "t": "s",
@@ -7903,21 +8781,30 @@
     "data": "2026-09-06",
     "ent": 0,
     "sai": 0,
-    "saldo": 97951.51,
+    "saldo": 82806.46,
     "itens": []
    },
    {
     "data": "2026-09-07",
     "ent": 0,
-    "sai": 0,
-    "saldo": 97951.51,
-    "itens": []
+    "sai": 950,
+    "saldo": 81856.46,
+    "itens": [
+     {
+      "t": "s",
+      "data": "2026-09-07",
+      "valor": 950,
+      "desc": "FGTS ref. setembro — estimado",
+      "novo": true,
+      "estimado": true
+     }
+    ]
    },
    {
     "data": "2026-09-08",
     "ent": 5420.73,
     "sai": 0,
-    "saldo": 103372.24,
+    "saldo": 87277.19,
     "itens": [
      {
       "t": "e",
@@ -7937,7 +8824,7 @@
     "data": "2026-09-09",
     "ent": 15010.62,
     "sai": 0,
-    "saldo": 118382.86,
+    "saldo": 102287.81,
     "itens": [
      {
       "t": "e",
@@ -7951,7 +8838,7 @@
     "data": "2026-09-10",
     "ent": 0,
     "sai": 1058,
-    "saldo": 117324.86,
+    "saldo": 101229.81,
     "itens": [
      {
       "t": "s",
@@ -7964,22 +8851,31 @@
    {
     "data": "2026-09-11",
     "ent": 0,
-    "sai": 0,
-    "saldo": 117324.86,
-    "itens": []
+    "sai": 11887.33,
+    "saldo": 89342.48,
+    "itens": [
+     {
+      "t": "s",
+      "data": "2026-09-11",
+      "valor": 11887.33,
+      "desc": "Custo corrente não lançado (cartão, viagem, leilão, marketing) — estimado",
+      "novo": true,
+      "estimado": true
+     }
+    ]
    },
    {
     "data": "2026-09-12",
     "ent": 0,
     "sai": 0,
-    "saldo": 117324.86,
+    "saldo": 89342.48,
     "itens": []
    },
    {
     "data": "2026-09-13",
     "ent": 115967.25,
     "sai": 165667.5,
-    "saldo": 67624.61,
+    "saldo": 39642.23,
     "itens": [
      {
       "t": "e",
@@ -8006,14 +8902,14 @@
     "data": "2026-09-14",
     "ent": 0,
     "sai": 0,
-    "saldo": 67624.61,
+    "saldo": 39642.23,
     "itens": []
    },
    {
     "data": "2026-09-15",
     "ent": 49241.5,
     "sai": 31963.34,
-    "saldo": 84902.77,
+    "saldo": 56920.39,
     "itens": [
      {
       "t": "e",
@@ -8047,7 +8943,7 @@
     "data": "2026-09-16",
     "ent": 12499.9,
     "sai": 0,
-    "saldo": 97402.67,
+    "saldo": 69420.29,
     "itens": [
      {
       "t": "e",
@@ -8061,14 +8957,14 @@
     "data": "2026-09-17",
     "ent": 0,
     "sai": 0,
-    "saldo": 97402.67,
+    "saldo": 69420.29,
     "itens": []
    },
    {
     "data": "2026-09-18",
     "ent": 4422.6,
-    "sai": 0,
-    "saldo": 101825.27,
+    "sai": 11887.33,
+    "saldo": 61955.56,
     "itens": [
      {
       "t": "e",
@@ -8081,6 +8977,14 @@
       "data": "2026-09-18",
       "valor": 4000.5,
       "desc": "LEILAO DE TOUROS NELORE SORRISO (04/08) - COMISSAO BULA"
+     },
+     {
+      "t": "s",
+      "data": "2026-09-18",
+      "valor": 11887.33,
+      "desc": "Custo corrente não lançado (cartão, viagem, leilão, marketing) — estimado",
+      "novo": true,
+      "estimado": true
      }
     ]
    },
@@ -8088,20 +8992,28 @@
     "data": "2026-09-19",
     "ent": 0,
     "sai": 0,
-    "saldo": 101825.27,
+    "saldo": 61955.56,
     "itens": []
    },
    {
     "data": "2026-09-20",
     "ent": 17569.3,
-    "sai": 0,
-    "saldo": 119394.57,
+    "sai": 1114.6,
+    "saldo": 78410.26,
     "itens": [
      {
       "t": "e",
       "data": "2026-09-20",
       "valor": 17569.3,
       "desc": "LEILAO TOUROS FAZENDA SAO GERALDO (01/08) - BULA REMATES"
+     },
+     {
+      "t": "s",
+      "data": "2026-09-20",
+      "valor": 1114.6,
+      "desc": "DARF de empregados ref. setembro — estimado",
+      "novo": true,
+      "estimado": true
      }
     ]
    },
@@ -8109,7 +9021,7 @@
     "data": "2026-09-21",
     "ent": 40488,
     "sai": 72379.6,
-    "saldo": 87502.97,
+    "saldo": 46518.66,
     "itens": [
      {
       "t": "e",
@@ -8131,7 +9043,7 @@
     "data": "2026-09-22",
     "ent": 7455,
     "sai": 0,
-    "saldo": 94957.97,
+    "saldo": 53973.66,
     "itens": [
      {
       "t": "e",
@@ -8145,7 +9057,7 @@
     "data": "2026-09-23",
     "ent": 9733.5,
     "sai": 0,
-    "saldo": 104691.47,
+    "saldo": 63707.16,
     "itens": [
      {
       "t": "e",
@@ -8159,14 +9071,14 @@
     "data": "2026-09-24",
     "ent": 0,
     "sai": 0,
-    "saldo": 104691.47,
+    "saldo": 63707.16,
     "itens": []
    },
    {
     "data": "2026-09-25",
     "ent": 0,
     "sai": 102160,
-    "saldo": 2531.47,
+    "saldo": -38452.84,
     "itens": [
      {
       "t": "s",
@@ -8270,15 +9182,24 @@
    {
     "data": "2026-09-26",
     "ent": 0,
-    "sai": 0,
-    "saldo": 2531.47,
-    "itens": []
+    "sai": 11887.33,
+    "saldo": -50340.17,
+    "itens": [
+     {
+      "t": "s",
+      "data": "2026-09-26",
+      "valor": 11887.33,
+      "desc": "Custo corrente não lançado (cartão, viagem, leilão, marketing) — estimado",
+      "novo": true,
+      "estimado": true
+     }
+    ]
    },
    {
     "data": "2026-09-27",
     "ent": 577.5,
     "sai": 0,
-    "saldo": 3108.97,
+    "saldo": -49762.67,
     "itens": [
      {
       "t": "e",
@@ -8292,14 +9213,14 @@
     "data": "2026-09-28",
     "ent": 0,
     "sai": 0,
-    "saldo": 3108.97,
+    "saldo": -49762.67,
     "itens": []
    },
    {
     "data": "2026-09-29",
     "ent": 8389.14,
     "sai": 0,
-    "saldo": 11498.11,
+    "saldo": -41373.53,
     "itens": [
      {
       "t": "e",
@@ -8313,7 +9234,7 @@
     "data": "2026-09-30",
     "ent": 19162.5,
     "sai": 0,
-    "saldo": 30660.61,
+    "saldo": -22211.03,
     "itens": [
      {
       "t": "e",
@@ -8327,7 +9248,7 @@
     "data": "2026-10-01",
     "ent": 5814,
     "sai": 0,
-    "saldo": 36474.61,
+    "saldo": -16397.03,
     "itens": [
      {
       "t": "e",
@@ -8346,8 +9267,8 @@
    {
     "data": "2026-10-02",
     "ent": 12600.4,
-    "sai": 0,
-    "saldo": 49075.01,
+    "sai": 9546.79,
+    "saldo": -13343.42,
     "itens": [
      {
       "t": "e",
@@ -8360,6 +9281,14 @@
       "data": "2026-10-02",
       "valor": 3708,
       "desc": "NELORE SANTA CRUZ - 19/07/2026 (19/07) - COMISSAO BULA (atraso)"
+     },
+     {
+      "t": "s",
+      "data": "2026-10-02",
+      "valor": 9546.79,
+      "desc": "Custo corrente não lançado (cartão, viagem, leilão, marketing) — estimado",
+      "novo": true,
+      "estimado": true
      }
     ]
    },
@@ -8367,21 +9296,21 @@
     "data": "2026-10-03",
     "ent": 0,
     "sai": 0,
-    "saldo": 49075.01,
+    "saldo": -13343.42,
     "itens": []
    },
    {
     "data": "2026-10-04",
     "ent": 0,
     "sai": 0,
-    "saldo": 49075.01,
+    "saldo": -13343.42,
     "itens": []
    },
    {
     "data": "2026-10-05",
     "ent": 0,
     "sai": 33100,
-    "saldo": 15975.01,
+    "saldo": -46443.42,
     "itens": [
      {
       "t": "s",
@@ -8425,7 +9354,7 @@
     "data": "2026-10-06",
     "ent": 39041.02,
     "sai": 0,
-    "saldo": 55016.03,
+    "saldo": -7402.4,
     "itens": [
      {
       "t": "e",
@@ -8439,15 +9368,24 @@
    {
     "data": "2026-10-07",
     "ent": 0,
-    "sai": 0,
-    "saldo": 55016.03,
-    "itens": []
+    "sai": 950,
+    "saldo": -8352.4,
+    "itens": [
+     {
+      "t": "s",
+      "data": "2026-10-07",
+      "valor": 950,
+      "desc": "FGTS ref. outubro — estimado",
+      "novo": true,
+      "estimado": true
+     }
+    ]
    },
    {
     "data": "2026-10-08",
     "ent": 2323.17,
     "sai": 0,
-    "saldo": 57339.2,
+    "saldo": -6029.23,
     "itens": [
      {
       "t": "e",
@@ -8466,14 +9404,22 @@
    {
     "data": "2026-10-09",
     "ent": 6433.13,
-    "sai": 0,
-    "saldo": 63772.33,
+    "sai": 9546.79,
+    "saldo": -9142.89,
     "itens": [
      {
       "t": "e",
       "data": "2026-10-09",
       "valor": 6433.13,
       "desc": "23o MEGA LEILAO GENETICA ADITIVA - TOUROS (26/07) - COMISSAO BULA (atraso)"
+     },
+     {
+      "t": "s",
+      "data": "2026-10-09",
+      "valor": 9546.79,
+      "desc": "Custo corrente não lançado (cartão, viagem, leilão, marketing) — estimado",
+      "novo": true,
+      "estimado": true
      }
     ]
    },
@@ -8481,7 +9427,7 @@
     "data": "2026-10-10",
     "ent": 0,
     "sai": 1058,
-    "saldo": 62714.33,
+    "saldo": -10200.89,
     "itens": [
      {
       "t": "s",
@@ -8495,21 +9441,21 @@
     "data": "2026-10-11",
     "ent": 0,
     "sai": 0,
-    "saldo": 62714.33,
+    "saldo": -10200.89,
     "itens": []
    },
    {
     "data": "2026-10-12",
     "ent": 0,
     "sai": 0,
-    "saldo": 62714.33,
+    "saldo": -10200.89,
     "itens": []
    },
    {
     "data": "2026-10-13",
     "ent": 49700.25,
     "sai": 0,
-    "saldo": 112414.58,
+    "saldo": 39499.36,
     "itens": [
      {
       "t": "e",
@@ -8529,14 +9475,14 @@
     "data": "2026-10-14",
     "ent": 0,
     "sai": 0,
-    "saldo": 112414.58,
+    "saldo": 39499.36,
     "itens": []
    },
    {
     "data": "2026-10-15",
     "ent": 21103.5,
     "sai": 30401.87,
-    "saldo": 103116.21,
+    "saldo": 30200.99,
     "itens": [
      {
       "t": "e",
@@ -8557,8 +9503,8 @@
    {
     "data": "2026-10-16",
     "ent": 44398.12,
-    "sai": 0,
-    "saldo": 147514.33,
+    "sai": 9546.79,
+    "saldo": 65052.32,
     "itens": [
      {
       "t": "e",
@@ -8572,6 +9518,14 @@
       "valor": 39041.02,
       "desc": "Recebíveis dos leilões de 19/08 a 15/09 (D+45) — estimado",
       "estimado": true
+     },
+     {
+      "t": "s",
+      "data": "2026-10-16",
+      "valor": 9546.79,
+      "desc": "Custo corrente não lançado (cartão, viagem, leilão, marketing) — estimado",
+      "novo": true,
+      "estimado": true
      }
     ]
    },
@@ -8579,14 +9533,14 @@
     "data": "2026-10-17",
     "ent": 0,
     "sai": 0,
-    "saldo": 147514.33,
+    "saldo": 65052.32,
     "itens": []
    },
    {
     "data": "2026-10-18",
     "ent": 1895.4,
     "sai": 0,
-    "saldo": 149409.73,
+    "saldo": 66947.72,
     "itens": [
      {
       "t": "e",
@@ -8606,14 +9560,14 @@
     "data": "2026-10-19",
     "ent": 0,
     "sai": 0,
-    "saldo": 149409.73,
+    "saldo": 66947.72,
     "itens": []
    },
    {
     "data": "2026-10-20",
     "ent": 7529.7,
-    "sai": 69243.71,
-    "saldo": 87695.72,
+    "sai": 70358.31,
+    "saldo": 4119.11,
     "itens": [
      {
       "t": "e",
@@ -8628,6 +9582,14 @@
       "desc": "DAS do Simples ref. setembro — estimado",
       "novo": true,
       "estimado": true
+     },
+     {
+      "t": "s",
+      "data": "2026-10-20",
+      "valor": 1114.6,
+      "desc": "DARF de empregados ref. outubro — estimado",
+      "novo": true,
+      "estimado": true
      }
     ]
    },
@@ -8635,7 +9597,7 @@
     "data": "2026-10-21",
     "ent": 17352,
     "sai": 0,
-    "saldo": 105047.72,
+    "saldo": 21471.11,
     "itens": [
      {
       "t": "e",
@@ -8649,7 +9611,7 @@
     "data": "2026-10-22",
     "ent": 3195,
     "sai": 0,
-    "saldo": 108242.72,
+    "saldo": 24666.11,
     "itens": [
      {
       "t": "e",
@@ -8662,14 +9624,22 @@
    {
     "data": "2026-10-23",
     "ent": 4171.5,
-    "sai": 0,
-    "saldo": 112414.22,
+    "sai": 9546.79,
+    "saldo": 19290.82,
     "itens": [
      {
       "t": "e",
       "data": "2026-10-23",
       "valor": 4171.5,
       "desc": "LEILAO NELORE PARANA PRODUTIVIDADE (09/08) - COMISSAO BULA (atraso)"
+     },
+     {
+      "t": "s",
+      "data": "2026-10-23",
+      "valor": 9546.79,
+      "desc": "Custo corrente não lançado (cartão, viagem, leilão, marketing) — estimado",
+      "novo": true,
+      "estimado": true
      }
     ]
    },
@@ -8677,21 +9647,21 @@
     "data": "2026-10-24",
     "ent": 0,
     "sai": 0,
-    "saldo": 112414.22,
+    "saldo": 19290.82,
     "itens": []
    },
    {
     "data": "2026-10-25",
     "ent": 0,
     "sai": 0,
-    "saldo": 112414.22,
+    "saldo": 19290.82,
     "itens": []
    },
    {
     "data": "2026-10-26",
     "ent": 0,
     "sai": 64160,
-    "saldo": 48254.22,
+    "saldo": -44869.18,
     "itens": [
      {
       "t": "s",
@@ -8713,7 +9683,7 @@
     "data": "2026-10-27",
     "ent": 33711.23,
     "sai": 0,
-    "saldo": 81965.45,
+    "saldo": -11157.95,
     "itens": [
      {
       "t": "e",
@@ -8734,14 +9704,14 @@
     "data": "2026-10-28",
     "ent": 0,
     "sai": 0,
-    "saldo": 81965.45,
+    "saldo": -11157.95,
     "itens": []
    },
    {
     "data": "2026-10-29",
     "ent": 3595.35,
     "sai": 0,
-    "saldo": 85560.8,
+    "saldo": -7562.6,
     "itens": [
      {
       "t": "e",
@@ -8754,14 +9724,22 @@
    {
     "data": "2026-10-30",
     "ent": 8212.5,
-    "sai": 0,
-    "saldo": 93773.3,
+    "sai": 9546.79,
+    "saldo": -8896.89,
     "itens": [
      {
       "t": "e",
       "data": "2026-10-30",
       "valor": 8212.5,
       "desc": "LEILÃO MATINHA EXPOGENÉTICA 2026 (16/08) - COMISSAO BULA (atraso)"
+     },
+     {
+      "t": "s",
+      "data": "2026-10-30",
+      "valor": 9546.79,
+      "desc": "Custo corrente não lançado (cartão, viagem, leilão, marketing) — estimado",
+      "novo": true,
+      "estimado": true
      }
     ]
    },
@@ -8769,7 +9747,7 @@
     "data": "2026-10-31",
     "ent": 2106,
     "sai": 0,
-    "saldo": 95879.3,
+    "saldo": -6790.89,
     "itens": [
      {
       "t": "e",
@@ -8860,10 +9838,26 @@
    ]
   },
   {
+   "data": "2026-08-22",
+   "ent": 0,
+   "sai": 1628.86,
+   "saldo": 33250.38,
+   "itens": [
+    {
+     "t": "s",
+     "data": "2026-08-22",
+     "valor": 1628.86,
+     "desc": "Custo corrente não lançado (cartão, viagem, leilão, marketing) — estimado",
+     "novo": true,
+     "estimado": true
+    }
+   ]
+  },
+  {
    "data": "2026-08-24",
    "ent": 0,
    "sai": 7329.97,
-   "saldo": 27549.27,
+   "saldo": 25920.41,
    "itens": [
     {
      "t": "s",
@@ -8883,7 +9877,7 @@
    "data": "2026-08-25",
    "ent": 48556.5,
    "sai": 44082,
-   "saldo": 32023.77,
+   "saldo": 30394.91,
    "itens": [
     {
      "t": "e",
@@ -9065,7 +10059,7 @@
    "data": "2026-08-26",
    "ent": 39451.8,
    "sai": 0,
-   "saldo": 71475.57,
+   "saldo": 69846.71,
    "itens": [
     {
      "t": "e",
@@ -9084,14 +10078,22 @@
   {
    "data": "2026-08-28",
    "ent": 6180,
-   "sai": 0,
-   "saldo": 77655.57,
+   "sai": 1628.86,
+   "saldo": 74397.85,
    "itens": [
     {
      "t": "e",
      "data": "2026-08-28",
      "valor": 6180,
      "desc": "LEILÃO VIRTUAL BASE GENÉTICA SANTA CRUZ - 1ª ETAPA – 14/07/2026 (14/07) - COMISSAO BULA"
+    },
+    {
+     "t": "s",
+     "data": "2026-08-28",
+     "valor": 1628.86,
+     "desc": "Custo corrente não lançado (cartão, viagem, leilão, marketing) — estimado",
+     "novo": true,
+     "estimado": true
     }
    ]
   },
@@ -9099,7 +10101,7 @@
    "data": "2026-08-29",
    "ent": 2130,
    "sai": 0,
-   "saldo": 79785.57,
+   "saldo": 76527.85,
    "itens": [
     {
      "t": "e",
@@ -9113,7 +10115,7 @@
    "data": "2026-08-30",
    "ent": 22965,
    "sai": 0,
-   "saldo": 102750.57,
+   "saldo": 99492.85,
    "itens": [
     {
      "t": "e",
@@ -9133,7 +10135,7 @@
    "data": "2026-08-31",
    "ent": 0,
    "sai": 3200,
-   "saldo": 99550.57,
+   "saldo": 96292.85,
    "itens": [
     {
      "t": "s",
@@ -9147,7 +10149,7 @@
    "data": "2026-09-01",
    "ent": 3000,
    "sai": 0,
-   "saldo": 102550.57,
+   "saldo": 99292.85,
    "itens": [
     {
      "t": "e",
@@ -9161,7 +10163,7 @@
    "data": "2026-09-02",
    "ent": 42001.35,
    "sai": 0,
-   "saldo": 144551.92,
+   "saldo": 141294.2,
    "itens": [
     {
      "t": "e",
@@ -9178,10 +10180,26 @@
    ]
   },
   {
+   "data": "2026-09-04",
+   "ent": 0,
+   "sai": 11887.33,
+   "saldo": 129406.87,
+   "itens": [
+    {
+     "t": "s",
+     "data": "2026-09-04",
+     "valor": 11887.33,
+     "desc": "Custo corrente não lançado (cartão, viagem, leilão, marketing) — estimado",
+     "novo": true,
+     "estimado": true
+    }
+   ]
+  },
+  {
    "data": "2026-09-05",
    "ent": 0,
    "sai": 33100,
-   "saldo": 111451.92,
+   "saldo": 96306.87,
    "itens": [
     {
      "t": "s",
@@ -9222,10 +10240,26 @@
    ]
   },
   {
+   "data": "2026-09-07",
+   "ent": 0,
+   "sai": 950,
+   "saldo": 95356.87,
+   "itens": [
+    {
+     "t": "s",
+     "data": "2026-09-07",
+     "valor": 950,
+     "desc": "FGTS ref. setembro — estimado",
+     "novo": true,
+     "estimado": true
+    }
+   ]
+  },
+  {
    "data": "2026-09-08",
    "ent": 7743.9,
    "sai": 0,
-   "saldo": 119195.82,
+   "saldo": 103100.77,
    "itens": [
     {
      "t": "e",
@@ -9245,7 +10279,7 @@
    "data": "2026-09-09",
    "ent": 21443.75,
    "sai": 0,
-   "saldo": 140639.57,
+   "saldo": 124544.52,
    "itens": [
     {
      "t": "e",
@@ -9259,7 +10293,7 @@
    "data": "2026-09-10",
    "ent": 0,
    "sai": 1058,
-   "saldo": 139581.57,
+   "saldo": 123486.52,
    "itens": [
     {
      "t": "s",
@@ -9270,10 +10304,26 @@
    ]
   },
   {
+   "data": "2026-09-11",
+   "ent": 0,
+   "sai": 11887.33,
+   "saldo": 111599.19,
+   "itens": [
+    {
+     "t": "s",
+     "data": "2026-09-11",
+     "valor": 11887.33,
+     "desc": "Custo corrente não lançado (cartão, viagem, leilão, marketing) — estimado",
+     "novo": true,
+     "estimado": true
+    }
+   ]
+  },
+  {
    "data": "2026-09-13",
    "ent": 165667.5,
    "sai": 165667.5,
-   "saldo": 139581.57,
+   "saldo": 111599.19,
    "itens": [
     {
      "t": "e",
@@ -9300,7 +10350,7 @@
    "data": "2026-09-15",
    "ent": 70345,
    "sai": 26335.08,
-   "saldo": 183591.49,
+   "saldo": 155609.11,
    "itens": [
     {
      "t": "e",
@@ -9334,7 +10384,7 @@
    "data": "2026-09-16",
    "ent": 17857,
    "sai": 0,
-   "saldo": 201448.49,
+   "saldo": 173466.11,
    "itens": [
     {
      "t": "e",
@@ -9347,8 +10397,8 @@
   {
    "data": "2026-09-18",
    "ent": 6318,
-   "sai": 0,
-   "saldo": 207766.49,
+   "sai": 11887.33,
+   "saldo": 167896.78,
    "itens": [
     {
      "t": "e",
@@ -9361,20 +10411,36 @@
      "data": "2026-09-18",
      "valor": 5715,
      "desc": "LEILAO DE TOUROS NELORE SORRISO (04/08) - COMISSAO BULA"
+    },
+    {
+     "t": "s",
+     "data": "2026-09-18",
+     "valor": 11887.33,
+     "desc": "Custo corrente não lançado (cartão, viagem, leilão, marketing) — estimado",
+     "novo": true,
+     "estimado": true
     }
    ]
   },
   {
    "data": "2026-09-20",
    "ent": 50198,
-   "sai": 0,
-   "saldo": 257964.49,
+   "sai": 1114.6,
+   "saldo": 216980.18,
    "itens": [
     {
      "t": "e",
      "data": "2026-09-20",
      "valor": 50198,
      "desc": "LEILAO TOUROS FAZENDA SAO GERALDO (01/08) - BULA REMATES"
+    },
+    {
+     "t": "s",
+     "data": "2026-09-20",
+     "valor": 1114.6,
+     "desc": "DARF de empregados ref. setembro — estimado",
+     "novo": true,
+     "estimado": true
     }
    ]
   },
@@ -9382,7 +10448,7 @@
    "data": "2026-09-21",
    "ent": 57840,
    "sai": 59560.59,
-   "saldo": 256243.9,
+   "saldo": 215259.59,
    "itens": [
     {
      "t": "e",
@@ -9404,7 +10470,7 @@
    "data": "2026-09-22",
    "ent": 10650,
    "sai": 0,
-   "saldo": 266893.9,
+   "saldo": 225909.59,
    "itens": [
     {
      "t": "e",
@@ -9418,7 +10484,7 @@
    "data": "2026-09-23",
    "ent": 13905,
    "sai": 0,
-   "saldo": 280798.9,
+   "saldo": 239814.59,
    "itens": [
     {
      "t": "e",
@@ -9432,7 +10498,7 @@
    "data": "2026-09-25",
    "ent": 0,
    "sai": 102160,
-   "saldo": 178638.9,
+   "saldo": 137654.59,
    "itens": [
     {
      "t": "s",
@@ -9534,10 +10600,26 @@
    ]
   },
   {
+   "data": "2026-09-26",
+   "ent": 0,
+   "sai": 11887.33,
+   "saldo": 125767.26,
+   "itens": [
+    {
+     "t": "s",
+     "data": "2026-09-26",
+     "valor": 11887.33,
+     "desc": "Custo corrente não lançado (cartão, viagem, leilão, marketing) — estimado",
+     "novo": true,
+     "estimado": true
+    }
+   ]
+  },
+  {
    "data": "2026-09-27",
    "ent": 825,
    "sai": 0,
-   "saldo": 179463.9,
+   "saldo": 126592.26,
    "itens": [
     {
      "t": "e",
@@ -9551,7 +10633,7 @@
    "data": "2026-09-29",
    "ent": 11984.49,
    "sai": 0,
-   "saldo": 191448.39,
+   "saldo": 138576.75,
    "itens": [
     {
      "t": "e",
@@ -9565,7 +10647,7 @@
    "data": "2026-09-30",
    "ent": 27375,
    "sai": 0,
-   "saldo": 218823.39,
+   "saldo": 165951.75,
    "itens": [
     {
      "t": "e",
@@ -9579,7 +10661,7 @@
    "data": "2026-10-01",
    "ent": 7020,
    "sai": 0,
-   "saldo": 225843.39,
+   "saldo": 172971.75,
    "itens": [
     {
      "t": "e",
@@ -9590,10 +10672,26 @@
    ]
   },
   {
+   "data": "2026-10-02",
+   "ent": 0,
+   "sai": 9546.79,
+   "saldo": 163424.96,
+   "itens": [
+    {
+     "t": "s",
+     "data": "2026-10-02",
+     "valor": 9546.79,
+     "desc": "Custo corrente não lançado (cartão, viagem, leilão, marketing) — estimado",
+     "novo": true,
+     "estimado": true
+    }
+   ]
+  },
+  {
    "data": "2026-10-05",
    "ent": 0,
    "sai": 33100,
-   "saldo": 192743.39,
+   "saldo": 130324.96,
    "itens": [
     {
      "t": "s",
@@ -9637,7 +10735,7 @@
    "data": "2026-10-06",
    "ent": 78082.03,
    "sai": 0,
-   "saldo": 270825.42,
+   "saldo": 208406.99,
    "itens": [
     {
      "t": "e",
@@ -9649,10 +10747,42 @@
    ]
   },
   {
+   "data": "2026-10-07",
+   "ent": 0,
+   "sai": 950,
+   "saldo": 207456.99,
+   "itens": [
+    {
+     "t": "s",
+     "data": "2026-10-07",
+     "valor": 950,
+     "desc": "FGTS ref. outubro — estimado",
+     "novo": true,
+     "estimado": true
+    }
+   ]
+  },
+  {
+   "data": "2026-10-09",
+   "ent": 0,
+   "sai": 9546.79,
+   "saldo": 197910.2,
+   "itens": [
+    {
+     "t": "s",
+     "data": "2026-10-09",
+     "valor": 9546.79,
+     "desc": "Custo corrente não lançado (cartão, viagem, leilão, marketing) — estimado",
+     "novo": true,
+     "estimado": true
+    }
+   ]
+  },
+  {
    "data": "2026-10-10",
    "ent": 0,
    "sai": 1058,
-   "saldo": 269767.42,
+   "saldo": 196852.2,
    "itens": [
     {
      "t": "s",
@@ -9666,7 +10796,7 @@
    "data": "2026-10-15",
    "ent": 0,
    "sai": 37600.04,
-   "saldo": 232167.38,
+   "saldo": 159252.16,
    "itens": [
     {
      "t": "s",
@@ -9681,8 +10811,8 @@
   {
    "data": "2026-10-16",
    "ent": 78082.03,
-   "sai": 0,
-   "saldo": 310249.41,
+   "sai": 9546.79,
+   "saldo": 227787.4,
    "itens": [
     {
      "t": "e",
@@ -9690,20 +10820,52 @@
      "valor": 78082.03,
      "desc": "Recebíveis dos leilões de 19/08 a 15/09 (D+45) — estimado",
      "estimado": true
+    },
+    {
+     "t": "s",
+     "data": "2026-10-16",
+     "valor": 9546.79,
+     "desc": "Custo corrente não lançado (cartão, viagem, leilão, marketing) — estimado",
+     "novo": true,
+     "estimado": true
     }
    ]
   },
   {
    "data": "2026-10-20",
    "ent": 0,
-   "sai": 85638.38,
-   "saldo": 224611.03,
+   "sai": 86752.98,
+   "saldo": 141034.42,
    "itens": [
     {
      "t": "s",
      "data": "2026-10-20",
      "valor": 85638.38,
      "desc": "DAS do Simples ref. setembro — estimado",
+     "novo": true,
+     "estimado": true
+    },
+    {
+     "t": "s",
+     "data": "2026-10-20",
+     "valor": 1114.6,
+     "desc": "DARF de empregados ref. outubro — estimado",
+     "novo": true,
+     "estimado": true
+    }
+   ]
+  },
+  {
+   "data": "2026-10-23",
+   "ent": 0,
+   "sai": 9546.79,
+   "saldo": 131487.63,
+   "itens": [
+    {
+     "t": "s",
+     "data": "2026-10-23",
+     "valor": 9546.79,
+     "desc": "Custo corrente não lançado (cartão, viagem, leilão, marketing) — estimado",
      "novo": true,
      "estimado": true
     }
@@ -9713,7 +10875,7 @@
    "data": "2026-10-26",
    "ent": 0,
    "sai": 64160,
-   "saldo": 160451.03,
+   "saldo": 67327.63,
    "itens": [
     {
      "t": "s",
@@ -9735,7 +10897,7 @@
    "data": "2026-10-27",
    "ent": 66927.46,
    "sai": 0,
-   "saldo": 227378.49,
+   "saldo": 134255.09,
    "itens": [
     {
      "t": "e",
@@ -9747,10 +10909,26 @@
    ]
   },
   {
+   "data": "2026-10-30",
+   "ent": 0,
+   "sai": 9546.79,
+   "saldo": 124708.3,
+   "itens": [
+    {
+     "t": "s",
+     "data": "2026-10-30",
+     "valor": 9546.79,
+     "desc": "Custo corrente não lançado (cartão, viagem, leilão, marketing) — estimado",
+     "novo": true,
+     "estimado": true
+    }
+   ]
+  },
+  {
    "data": "2026-10-31",
    "ent": 0,
    "sai": 0,
-   "saldo": 227378.49,
+   "saldo": 124708.3,
    "itens": []
   }
  ],
@@ -9766,30 +10944,30 @@
    "rot": "30% dos recebíveis de set–out atrasam 30 dias",
    "colchao": 50000,
    "ate": "2026-10-31",
-   "valor": 154215.54
+   "valor": 101343.9
   },
   {
    "rot": "Os leilões de agora até 15/09 rendem metade da média",
    "colchao": 50000,
    "ate": "2026-10-31",
-   "valor": 165667.5
+   "valor": 104913.11
   },
   {
    "rot": "Os dois ao mesmo tempo, com a carga tributária no teto",
    "colchao": 50000,
    "ate": "2026-10-31",
-   "valor": 135768.27
+   "valor": 82896.63
   }
  ],
  "capacidadeColchao": 50000,
  "margemSeguranca": [
   {
    "piso": 50000,
-   "pct": 27.548000000000002
+   "pct": 16.225
   },
   {
    "piso": 0,
-   "pct": 38.255
+   "pct": 26.933
   }
  ],
  "saoGeraldo": {
@@ -9829,7 +11007,7 @@
    "jaEmbutido": false
   }
  ],
- "base30set": 218823.39,
+ "base30set": 165951.75,
  "impostoSobreRepasse": {
   "media": 40257.2,
   "max": 48921.61
