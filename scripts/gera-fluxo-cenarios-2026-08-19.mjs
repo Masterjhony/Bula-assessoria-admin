@@ -41,7 +41,7 @@ D.caixa.consolidado = r2(D.caixa.sicoob + D.caixa.sicrediLiquido)
 
 /* ================= 2. Titulos ================= */
 const cps = await page('erp_contas_pagar', 'descricao,valor,valor_pago,vencimento,data_pagamento,status,tags')
-const crs = await page('erp_contas_receber', 'descricao,valor,valor_recebido,vencimento,data_recebimento,status,numero_documento')
+const crs = await page('erp_contas_receber', 'descricao,valor,valor_recebido,vencimento,data_recebimento,status,numero_documento,created_at,observacoes')
 const sCP = c => r2(Number(c.valor) - Number(c.valor_pago || 0))
 const sCR = c => r2(Number(c.valor) - Number(c.valor_recebido || 0))
 const crAb = crs.filter(c => !['recebido', 'cancelado'].includes(c.status))
@@ -78,13 +78,43 @@ D.vencidos = {
   itens: vencidos.map(c => ({ data: c.vencimento, idade: dias(c.vencimento, HOJE), valor: sCR(c), desc: c.descricao })).sort((a, b) => b.idade - a.idade),
 }
 
+/* ===== FIRMEZA DO RECEBIMENTO =====
+ * O vencimento das CR e, na quase totalidade, "data do leilao + 45 dias" gerado no lancamento
+ * em massa de 17-18/08. NAO e data acordada com a leiloeira. So entram como certas as que tem
+ * acordo expresso (boleto emitido, contrato de parcelamento, repasse ja confirmado).
+ * Editar esta tabela quando uma cobranca for de fato negociada.
+ */
+const FIRMES = {
+  'BULA-2026-CR-KIRZ-TOUROS-20260707': 'Planilha de NF da leiloeira; repasse confirmado para 20/08',
+  'BULA-2026-CR-NELORACO-PO-20260725': 'Planilha de NF da leiloeira; repasse confirmado para 20/08',
+  'BULA-2026-CR-KITO-20260509-B2': 'Boleto 2/2 emitido, vencimento 30/08 (conferencia Ana Paula)',
+  'BULA-2026-CR-JMP-FEMEAS-20260613-P2': 'Contrato JBJ: pagamento em 2x, 30 e 60 dias; 1a parcela entrou em 09/08',
+  'BULA-2026-CR-JMP-TOUROS-20260614-P2': 'Contrato JBJ: pagamento em 2x, 30 e 60 dias; 1a parcela entrou em 09/08',
+}
+const EM_NEGOCIACAO = {
+  'BULA-2026-CR-GUADALUPE-FEMEAS-20260718': 'Em negociacao pelo Joao em 19/08',
+  'BULA-2026-CR-GUADALUPE-TOUROS-20260719': 'Em negociacao pelo Joao em 19/08',
+}
+
 /* --- recebiveis datados no horizonte --- */
 const crH = crAb.filter(c => c.vencimento >= HOJE && c.vencimento <= FIM)
 D.receber = crH.map(c => ({
   data: c.vencimento, valor: AJUSTE[c.numero_documento] ?? sCR(c), desc: c.descricao,
   ajustado: AJUSTE[c.numero_documento] !== undefined, doc: c.numero_documento || null,
   jmp: /JMP/i.test(c.descricao),
+  firme: !!FIRMES[c.numero_documento], negociando: !!EM_NEGOCIACAO[c.numero_documento],
+  motivo: FIRMES[c.numero_documento] || EM_NEGOCIACAO[c.numero_documento] || null,
+  criadoEm: (c.created_at || '').slice(0, 10),
 })).sort((a, b) => a.data < b.data ? -1 : 1)
+D.firmeza = {
+  firme: r2(D.receber.filter(x => x.firme).reduce((s, x) => s + x.valor, 0)),
+  negociando: r2(D.receber.filter(x => x.negociando).reduce((s, x) => s + x.valor, 0)),
+  semData: r2(D.receber.filter(x => !x.firme && !x.negociando).reduce((s, x) => s + x.valor, 0)),
+  nFirme: D.receber.filter(x => x.firme).length,
+  nSemData: D.receber.filter(x => !x.firme && !x.negociando).length,
+}
+D.firmeza.total = r2(D.firmeza.firme + D.firmeza.negociando + D.firmeza.semData)
+D.firmeza.pctSemData = r2(100 * (D.firmeza.semData + D.firmeza.negociando) / D.firmeza.total)
 D.receberAgosto = r2(D.receber.filter(x => x.data <= '2026-08-31').reduce((s, x) => s + x.valor, 0))
 D.receberSetembro = r2(D.receber.filter(x => x.data >= '2026-09-01' && x.data <= '2026-09-30').reduce((s, x) => s + x.valor, 0))
 D.receberOutubro = r2(D.receber.filter(x => x.data >= '2026-10-01').reduce((s, x) => s + x.valor, 0))
@@ -225,16 +255,23 @@ for (let d = new Date(HOJE + 'T12:00:00Z'); d.toISOString().slice(0, 10) <= FIM;
 
 function simula(op) {
   const ent = [], sai = []
+  // regime de recebimento: o que NAO tem data acordada nao entra pela data nominal
+  const REG = op.recebimento || 'firme'
   for (const c of D.receber) {
     let v = c.valor
     if (op.saoGeraldoMeio && c.doc === 'BULA-2026-CR-SAO-GERALDO-20260801') v = r2(v / 2)
-    if (op.slipPct && c.data >= '2026-09-01') {
-      ent.push({ data: c.data, valor: r2(v * (1 - op.slipPct)), desc: c.desc })
-      const novo = addDias(c.data, op.slipDias || 30)
+    const temData = c.firme || (REG !== 'firme' && c.negociando) || REG === 'nominal' || REG === 'atrasado'
+    if (!temData) continue                                   // sem acordo: nao entra no fluxo
+    let dt = c.data
+    if (REG === 'atrasado' && !c.firme) dt = addDias(c.data, op.atrasoDias != null ? op.atrasoDias : 30)
+    if (dt > FIM) continue
+    if (op.slipPct && !c.firme && dt >= '2026-09-01') {
+      ent.push({ data: dt, valor: r2(v * (1 - op.slipPct)), desc: c.desc })
+      const novo = addDias(dt, op.slipDias || 30)
       if (novo <= FIM) ent.push({ data: novo, valor: r2(v * op.slipPct), desc: c.desc + ' (atraso)' })
       continue
     }
-    ent.push({ data: c.data, valor: r2(v), desc: c.desc })
+    ent.push({ data: dt, valor: r2(v), desc: c.desc })
   }
   if (op.recuperaVencidos) ent.push({ data: op.recuperaData || '2026-09-10', valor: r2(D.vencidos.ate60 * op.recuperaVencidos), desc: 'Recuperação de vencidos (cobrança)' })
   for (const c of D.pagar) sai.push({ data: c.data, valor: c.valor, desc: c.desc })
@@ -258,7 +295,8 @@ function simula(op) {
     sai.push({ data: m + '-07', valor: D.encargos.fgts, desc: 'FGTS ref. ' + NOMEMES[m] + ' — estimado', novo: true, estimado: true })
     sai.push({ data: m + '-20', valor: D.encargos.darf, desc: 'DARF de empregados ref. ' + NOMEMES[m] + ' — estimado', novo: true, estimado: true })
   }
-  const fatorOut = op.entradaOutFator != null ? op.entradaOutFator : 1
+  // leiloes que ainda nem aconteceram: menos firmes ainda que os titulos sem data
+  const fatorOut = op.entradaOutFator != null ? op.entradaOutFator : (REG === 'firme' ? 0 : REG === 'firmeNeg' ? 0 : 1)
   if (fatorOut > 0) for (const t of D.entradaOutubro.tranches) {
     ent.push({ data: t.data, valor: r2(t.valor * fatorOut), desc: 'Recebíveis dos leilões de 19/08 a 15/09 (D+45) — estimado', estimado: true })
   }
@@ -288,15 +326,78 @@ function simula(op) {
 
 /* ================= 5. Cenarios ================= */
 const MARCELO = 40000
+const PAGA_TUDO = { marcelo: [{ data: '2026-09-25', valor: MARCELO }], felipe: [{ data: '2026-09-13', pct: 1 }] }
+const PAGA_ESC = { marcelo: [{ data: '2026-09-25', valor: MARCELO / 2 }, { data: '2026-10-25', valor: MARCELO / 2 }], felipe: [{ data: '2026-09-13', pct: 0.5 }, { data: '2026-10-15', pct: 0.5 }] }
 const CEN = [
-  { chave: 'REF', nome: 'Referência', resumo: 'Só o que já está contratado. Nem o repasse do JMP, nem a participação do Marcelo.', op: {} },
-  { chave: 'M', nome: 'Só o Marcelo', resumo: 'Participação societária de R$ 40.000 em 25/09. A 2ª parcela do JMP fica na Bula.', op: { marcelo: [{ data: '2026-09-25', valor: MARCELO }] } },
-  { chave: 'M50', nome: 'Marcelo + metade do JMP', resumo: 'R$ 40.000 ao Marcelo em 25/09 e metade da 2ª parcela do JMP repassada ao Felipe em 13/09.', op: { marcelo: [{ data: '2026-09-25', valor: MARCELO }], felipe: [{ data: '2026-09-13', pct: 0.5 }] } },
-  { chave: 'M100', nome: 'Marcelo + JMP integral', resumo: 'O caso levantado: R$ 40.000 de participação em 25/09 e a 2ª parcela do JMP inteira repassada ao Felipe em 13/09.', op: { marcelo: [{ data: '2026-09-25', valor: MARCELO }], felipe: [{ data: '2026-09-13', pct: 1 }] } },
-  { chave: 'ESC', nome: 'Integral escalonado', resumo: 'O mesmo dinheiro, em duas datas cada: JMP 50% em 13/09 e 50% em 15/10; Marcelo R$ 20.000 em 25/09 e R$ 20.000 em 25/10.', op: { marcelo: [{ data: '2026-09-25', valor: MARCELO / 2 }, { data: '2026-10-25', valor: MARCELO / 2 }], felipe: [{ data: '2026-09-13', pct: 0.5 }, { data: '2026-10-15', pct: 0.5 }] } },
-  { chave: 'STR', nome: 'Estresse', resumo: 'Tudo do cenário integral, mais: 30% dos recebíveis de setembro e outubro atrasam 30 dias, a receita estimada de outubro entra pela metade, o São Geraldo paga 0,5% em vez de 1% e a carga tributária vem no teto observado.', op: { marcelo: [{ data: '2026-09-25', valor: MARCELO }], felipe: [{ data: '2026-09-13', pct: 1 }], slipPct: 0.30, slipDias: 30, entradaOutFator: 0.5, saoGeraldoMeio: true, taxaTributaria: null } },
+  { chave: 'PISO', nome: 'Piso: só o que tem data', resumo: 'Nada é pago ao Felipe nem ao Marcelo, e entram apenas as cobranças com acordo expresso. É o piso do caixa se a cobrança não avançar.', op: { recebimento: 'firme' } },
+  { chave: 'PISO100', nome: 'Piso + os dois pagamentos', resumo: 'Mesma cobrança travada, mas pagando o JMP integral em 13/09 e os R$ 40.000 do Marcelo em 25/09.', op: Object.assign({ recebimento: 'firme' }, PAGA_TUDO) },
+  { chave: 'GUA100', nome: 'Com o Guadalupe fechado', resumo: 'O piso mais as duas cobranças do Guadalupe (R$ 32.641,35), que estão em negociação agora, e os dois pagamentos.', op: Object.assign({ recebimento: 'firmeNeg' }, PAGA_TUDO) },
+  { chave: 'NEG100', nome: 'Cobrança negociada, +30 dias', resumo: 'Todas as cobranças são negociadas e entram 30 dias depois da data nominal do ERP, com os dois pagamentos feitos.', op: Object.assign({ recebimento: 'atrasado', atrasoDias: 30 }, PAGA_TUDO) },
+  { chave: 'NEGESC', nome: 'Negociada + escalonado', resumo: 'Mesma cobrança do anterior, mas pagando em duas datas cada: JMP 50% em 13/09 e 50% em 15/10; Marcelo R$ 20.000 em 25/09 e R$ 20.000 em 25/10.', op: Object.assign({ recebimento: 'atrasado', atrasoDias: 30 }, PAGA_ESC) },
+  { chave: 'NOM100', nome: 'Tudo na data do ERP', resumo: 'A premissa da versão anterior deste relatório: cada título entra no vencimento calculado pelo sistema. Nenhuma dessas datas foi acordada com as leiloeiras.', op: Object.assign({ recebimento: 'nominal' }, PAGA_TUDO) },
 ]
-CEN[5].op.taxaTributaria = D.taxaTributaria.max
+
+/* --- eixo do recebimento: e ele, nao a decisao de pagamento, que manda no mes --- */
+D.regimes = [
+  { chave: 'firme', nome: 'Só o que tem data', op: { recebimento: 'firme' }, desc: 'Entram apenas as cobranças com acordo expresso: o repasse da Bula Remates de 20/08, o boleto do Kito em 30/08 e as duas parcelas do JMP em 13/09. Mais nada, nem a receita dos leilões novos. É o piso, não uma previsão — serve para dimensionar o tamanho do trabalho de cobrança.' },
+  { chave: 'firmeNeg', nome: 'Firme + Guadalupe', op: { recebimento: 'firmeNeg' }, desc: 'O anterior mais as duas cobranças do Guadalupe (R$ 32.641,35), que estão em negociação agora.' },
+  { chave: 'neg15', nome: 'Cobrança fechada, +15 dias', op: { recebimento: 'atrasado', atrasoDias: 15 }, desc: 'Todas as cobranças são negociadas e entram 15 dias depois da data nominal do ERP — ou seja, cerca de 60 dias após o leilão.' },
+  { chave: 'neg30', nome: 'Cobrança fechada, +30 dias', op: { recebimento: 'atrasado', atrasoDias: 30 }, desc: 'O mesmo, com 30 dias de folga sobre a data nominal — cerca de 75 dias após o leilão.' },
+  { chave: 'nominal', nome: 'Tudo na data do ERP', op: { recebimento: 'nominal' }, desc: 'Cada título entra no vencimento que o ERP calculou (leilão + 45 dias). É a premissa da versão anterior deste relatório — e nenhuma dessas datas foi acordada com as leiloeiras.' },
+]
+const DECISOES = [
+  { chave: 'nada', nome: 'Sem pagar nada', op: {} },
+  { chave: 'M100', nome: 'Marcelo + JMP integral', op: { marcelo: [{ data: '2026-09-25', valor: MARCELO }], felipe: [{ data: '2026-09-13', pct: 1 }] } },
+  { chave: 'ESC', nome: 'Escalonado', op: { marcelo: [{ data: '2026-09-25', valor: MARCELO / 2 }, { data: '2026-10-25', valor: MARCELO / 2 }], felipe: [{ data: '2026-09-13', pct: 0.5 }, { data: '2026-10-15', pct: 0.5 }] } },
+]
+D.matriz = D.regimes.map(rg => ({
+  regime: rg.chave, nome: rg.nome, desc: rg.desc,
+  celulas: DECISOES.map(dc => {
+    const r = simula(Object.assign({}, dc.op, rg.op))
+    return { decisao: dc.chave, nome: dc.nome, minimo: r.minimo, saldo31ago: r.saldo31ago, saldo30set: r.saldo30set, saldo31out: r.saldo31out, diasNegativos: r.diasNegativos }
+  }),
+}))
+
+/* --- curva do prazo de cobranca: o mes inteiro depende dela --- */
+D.curvaLag = []
+for (let lag = 0; lag <= 60; lag += 5) {
+  const linha = { lag }
+  for (const dc of DECISOES) {
+    const r = simula(Object.assign({}, dc.op, { recebimento: 'atrasado', atrasoDias: lag }))
+    linha[dc.chave] = { minimo: r.minimo.saldo, data: r.minimo.data, saldo30set: r.saldo30set, saldo31out: r.saldo31out }
+  }
+  D.curvaLag.push(linha)
+}
+// maior atraso tolerado por decisao, mantendo o colchao
+D.lagMaximo = DECISOES.map(dc => {
+  let lo = 0, hi = 90
+  for (let i = 0; i < 30; i++) {
+    const mid = Math.round((lo + hi) / 2)
+    const r = simula(Object.assign({}, dc.op, { recebimento: 'atrasado', atrasoDias: mid }))
+    if (r.minimo.saldo >= 0) lo = mid; else hi = mid
+  }
+  return { decisao: dc.chave, nome: dc.nome, dias: lo }
+})
+
+/* --- necessidade de cobranca: quanto precisa ser negociado ate cada data --- */
+function necessidade(op, colchao) {
+  const r = simula(Object.assign({}, op, { recebimento: 'firme' }))
+  let pior = 0
+  const marcos = ['2026-08-25', '2026-08-31', '2026-09-15', '2026-09-30', '2026-10-31']
+  const out = []
+  for (const m of marcos) {
+    r.linha.filter(x => x.data <= m).forEach(x => { const falta = colchao - x.saldo; if (falta > pior) pior = falta })
+    out.push({ ate: m, precisa: r2(Math.max(0, pior)) })
+  }
+  return out
+}
+D.colchaoAlvo = 30000
+D.necessidade = {
+  nada: necessidade({}, D.colchaoAlvo),
+  M100: necessidade(DECISOES[1].op, D.colchaoAlvo),
+  ESC: necessidade(DECISOES[2].op, D.colchaoAlvo),
+}
+
 D.cenarios = CEN.map(c => {
   const r = simula(c.op)
   return {
@@ -309,7 +410,7 @@ D.cenarios = CEN.map(c => {
   }
 })
 D.linhas = Object.fromEntries(CEN.map(c => [c.chave, simula(c.op).linha]))
-D.escadaDetalhe = D.linhas.M100.filter(x => x.ent || x.sai || x.data === HOJE || x.data === FIM)
+D.escadaDetalhe = D.linhas.NEG100.filter(x => x.ent || x.sai || x.data === HOJE || x.data === FIM)
 
 /* ================= 6. Capacidade de repasse ================= */
 // maior repasse pagavel ao Felipe em 13/09 mantendo o saldo acima do colchao de 13/09 ate a data-limite.
@@ -318,7 +419,7 @@ function capacidade(colchao, ate, extra) {
   let lo = 0, hi = D.jmp2
   for (let i = 0; i < 44; i++) {
     const mid = (lo + hi) / 2
-    const op = Object.assign({ marcelo: [{ data: '2026-09-25', valor: MARCELO }], felipe: [{ data: '2026-09-13', pct: mid / D.jmp2 }] }, extra || {})
+    const op = Object.assign({ recebimento: 'atrasado', atrasoDias: 30, marcelo: [{ data: '2026-09-25', valor: MARCELO }], felipe: [{ data: '2026-09-13', pct: mid / D.jmp2 }] }, extra || {})
     const r = simula(op)
     const min = r.linha.filter(x => x.data >= '2026-09-13' && x.data <= ate).reduce((a, b) => b.saldo < a.saldo ? b : a).saldo
     if (min >= colchao) lo = mid; else hi = mid
@@ -339,7 +440,7 @@ function rupturaSlip(piso) {
   let lo = 0, hi = 1
   for (let i = 0; i < 40; i++) {
     const mid = (lo + hi) / 2
-    const r = simula({ marcelo: [{ data: '2026-09-25', valor: MARCELO }], felipe: [{ data: '2026-09-13', pct: 1 }], slipPct: mid, slipDias: 30 })
+    const r = simula({ recebimento: 'atrasado', atrasoDias: 30, marcelo: [{ data: '2026-09-25', valor: MARCELO }], felipe: [{ data: '2026-09-13', pct: 1 }], slipPct: mid, slipDias: 30 })
     const min = r.linha.filter(x => x.data >= '2026-09-13').reduce((a, b) => b.saldo < a.saldo ? b : a).saldo
     if (min >= piso) lo = mid; else hi = mid
   }
@@ -351,7 +452,7 @@ D.margemSeguranca = [
 ]
 
 /* ============ 6b. Ponte de riscos sobre o saldo de 30/09 no cenario integral ============ */
-const baseOp = { marcelo: [{ data: '2026-09-25', valor: MARCELO }], felipe: [{ data: '2026-09-13', pct: 1 }] }
+const baseOp = { recebimento: 'atrasado', atrasoDias: 30, marcelo: [{ data: '2026-09-25', valor: MARCELO }], felipe: [{ data: '2026-09-13', pct: 1 }] }
 const base30 = simula(baseOp).saldo30set
 const variacao = extra => r2(simula(Object.assign({}, baseOp, extra)).saldo30set - base30)
 const sg = D.receber.find(x => x.doc === 'BULA-2026-CR-SAO-GERALDO-20260801')
@@ -407,5 +508,22 @@ console.log('CUSTO CORRENTE media abr-jul:', f2(D.custoCorrente.media), '| ago a
 D.custoCorrente.porMes.forEach(m => console.log('   ', m.mes, f2(m.valor).padStart(12), m.parcial ? '(parcial)' : ''))
 D.residuos.forEach(x => console.log('   residuo', x.mes, 'esperado', f2(x.esperado).padStart(11), 'lancado', f2(x.lancado).padStart(11), '-> add', f2(x.residuo).padStart(11)))
 console.log('Encargos mensais (FGTS+DARF):', f2(D.encargos.mensal))
+
+console.log('')
+console.log('FIRMEZA DO RECEBIMENTO')
+console.log('  com data acordada  ', f2(D.firmeza.firme).padStart(12), '(' + D.firmeza.nFirme + ' titulos)')
+console.log('  em negociacao      ', f2(D.firmeza.negociando).padStart(12))
+console.log('  SEM data nenhuma   ', f2(D.firmeza.semData).padStart(12), '(' + D.firmeza.nSemData + ' titulos) =', D.firmeza.pctSemData + '% do horizonte')
+console.log('')
+console.log('MATRIZ regime x decisao (minimo | 30/09 | 31/10 | dias negativos)')
+D.matriz.forEach(m => m.celulas.forEach(c => console.log('  ' + m.nome.padEnd(24), c.nome.padEnd(24), f2(c.minimo.saldo).padStart(12), c.minimo.data, f2(c.saldo30set).padStart(12), f2(c.saldo31out).padStart(12), String(c.diasNegativos).padStart(3))))
+console.log('')
+console.log('NECESSIDADE DE COBRANCA (colchao ' + f2(D.colchaoAlvo) + ')')
+for (const k of ['nada','M100','ESC']) console.log('  ' + k.padEnd(6), D.necessidade[k].map(x => x.ate.slice(5) + ': ' + f2(x.precisa)).join(' | '))
+console.log('')
+console.log('CURVA DO PRAZO DE COBRANCA (minimo do periodo)')
+D.curvaLag.forEach(l => console.log('  +' + String(l.lag).padStart(2) + 'd', 'sem pagar', f2(l.nada.minimo).padStart(12), '| pagando tudo', f2(l.M100.minimo).padStart(12), '| escalonado', f2(l.ESC.minimo).padStart(12)))
+console.log('ATRASO MAXIMO ANTES DE FICAR NEGATIVO:', D.lagMaximo.map(x => x.nome + ' ' + x.dias + 'd').join(' | '))
+
 console.log('Imposto sobre a parcela repassada:', f2(D.impostoSobreRepasse.media), '(media) /', f2(D.impostoSobreRepasse.max), '(teto)')
 D.cenarios.forEach(c => console.log('  minimo global ' + c.chave.padEnd(5), f2(c.minimo.saldo).padStart(12), c.minimo.data))
