@@ -15,22 +15,6 @@
  "gerado": "2026-08-18",
  "custos": [
   {
-   "data": "2026-07-17",
-   "item": "Passagem aérea — Marcelo (ida e volta CG)",
-   "quem": "ADN Viagens",
-   "valor": 2081.92,
-   "situacao": "pago",
-   "fonte": "ERP · contas a pagar"
-  },
-  {
-   "data": "2026-07-17",
-   "item": "Passagem aérea — Leonardo (ida e volta)",
-   "quem": "ADN Viagens",
-   "valor": 2421.43,
-   "situacao": "pago",
-   "fonte": "ERP · contas a pagar"
-  },
-  {
    "data": "2026-08-11",
    "item": "Casa em Uberaba — 1ª parcela",
    "quem": "Locador Uberaba",
@@ -97,14 +81,14 @@
  ],
  "casaPaga": 2000,
  "unifPago": 240,
- "custoPago": 11769.69,
+ "custoPago": 7266.34,
  "custoAgendado": 13418.45,
  "custoEstimado": 9000,
- "custoTotal": 34188.14,
- "custoMin": 32188.14,
- "custoMax": 37188.14,
- "custoConfirmado": 25188.14,
- "passagensTotal": 15708.14,
+ "custoTotal": 29684.79,
+ "custoMin": 27684.79,
+ "custoMax": 32684.79,
+ "custoConfirmado": 20684.79,
+ "passagensTotal": 11204.79,
  "realizados": [
   {
    "data": "2026-08-10",
@@ -248,15 +232,15 @@
   "receita": 46379.49,
   "comissao": 15432,
   "imposto": 8348.31,
-  "custo": 34188.14,
-  "resultado": -11588.96
+  "custo": 29684.79,
+  "resultado": -7085.61
  },
  "parcialRusa": {
   "receita": 46379.49,
   "comissao": 30282,
   "imposto": 8348.31,
-  "custo": 34188.14,
-  "resultado": -26438.96
+  "custo": 29684.79,
+  "resultado": -21935.61
  },
  "projecaoBase": {
   "linhas": [
@@ -340,9 +324,9 @@
    "receita": 99025.49,
    "comissao": 28752,
    "imposto": 17824.59,
-   "custo": 34188.14,
-   "resultado": 18260.76,
-   "resultadoRusa": 3410.76
+   "custo": 29684.79,
+   "resultado": 22764.11,
+   "resultadoRusa": 7914.11
   },
   {
    "nome": "base",
@@ -354,9 +338,9 @@
    "receita": 140789.49,
    "comissao": 37632,
    "imposto": 25342.11,
-   "custo": 34188.14,
-   "resultado": 43627.24,
-   "resultadoRusa": 28777.24
+   "custo": 29684.79,
+   "resultado": 48130.59,
+   "resultadoRusa": 33280.59
   },
   {
    "nome": "otimista",
@@ -368,23 +352,23 @@
    "receita": 202553.49,
    "comissao": 46512,
    "imposto": 36459.63,
-   "custo": 34188.14,
-   "resultado": 85393.72,
-   "resultadoRusa": 70543.72
+   "custo": 29684.79,
+   "resultado": 89897.07,
+   "resultadoRusa": 75047.07
   }
  ],
  "margemUnitaria": 0.02,
  "margemUnitariaRusa": -0.01,
- "coberturaEquilibrio": 1709407,
- "pctEquilibrioFeito": 0.45,
- "faltaCobertura": 937807,
+ "coberturaEquilibrio": 1484239.5,
+ "pctEquilibrioFeito": 0.52,
+ "faltaCobertura": 712639.5,
  "caixa": {
-  "saiuJulho": 4503.35,
+  "saiuJulho": 0,
   "saiAgosto": 20444.79,
   "saiSetembro": 24432,
   "primeiraEntrada": "2026-09-29",
-  "giroNegativo": 49380.14
+  "giroNegativo": 44876.79
  },
  "folhaAlocada": 8033.33,
- "parcialComFolha": -19622.29
+ "parcialComFolha": -15118.94
 }

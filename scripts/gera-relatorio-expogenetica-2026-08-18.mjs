@@ -55,9 +55,10 @@ const { data: cps } = await sb.from('erp_contas_pagar').select('*')
   .gte('vencimento', '2026-07-01').lte('vencimento', '2026-09-30')
 const acha = frag => cps.find(c => c.descricao.toUpperCase().includes(frag.toUpperCase()) && c.status !== 'cancelado')
 
+// Os dois PIX de 17/07 para a ADN Viagens (Marcelo R$ 2.081,92 e Leo R$ 2.421,43), cujo memo
+// dizia "EXPOGENETICA", foram excluidos a pedido do Joao em 18/08: nao sao desta feira.
+// Continuam no ERP com a tag despesa-multi-leilao apontando para Terra Brava/Matinha — reclassificar.
 const CUSTO_IDS = [
-  { k: 'EXPOGENETICA passagem Marcelo', rot: 'Passagem aérea — Marcelo (ida e volta CG)', quem: 'ADN Viagens' },
-  { k: 'EXPOGENETICA Passagem Leo', rot: 'Passagem aérea — Leonardo (ida e volta)', quem: 'ADN Viagens' },
   { k: 'Despesas EXPOGENETICA - casa/estrutura', rot: 'Casa em Uberaba — 1ª parcela', quem: 'Locador Uberaba' },
   { k: 'ENTRADA UNIFORMES EXPOGENETICA', rot: 'Uniformes da equipe — entrada', quem: '68.392.671/0001-89' },
   { k: 'REEMBOLSO BULA REMATES - reemissao', rot: 'Reemissão de passagens (reembolso Bula Remates)', quem: 'Bula Remates' },
@@ -463,8 +464,8 @@ dos fechamentos do ERP. Custo fixo em ${brl0(D.custoTotal)} nos três cenários.
 <div class="page brk">
 
 <h2><span class="n">07</span>O efeito no caixa</h2>
-<p>O custo sai agora e a receita entra em outubro. Saíram ${brl0(D.caixa.saiuJulho)} em julho (passagens),
-saem ${brl0(D.caixa.saiAgosto)} em agosto (casa, uniformes e bilhetes) e ${brl0(D.caixa.saiSetembro)} em setembro
+<p>O custo sai agora e a receita entra em outubro. Saem ${brl0(D.caixa.saiAgosto)} em agosto
+(casa, uniformes e bilhetes aéreos) e ${brl0(D.caixa.saiSetembro)} em setembro
 (reembolso e comissões em 25/09). A primeira entrada é só em <b>${dt(D.caixa.primeiraEntrada)}</b>,
 e os ${brl0(D.receitaRealizada)} se completam em outubro.
 Em caixa, a feira é um desembolso de cerca de ${brl0(D.caixa.giroNegativo)} antes da primeira cobrança ser paga.</p>
@@ -484,6 +485,10 @@ o resultado parcial vai para <b class="${sinal(D.parcialComFolha)}">${brl0(D.par
   <li><b>Critério do Terra Brava</b> — a conta a receber de ${brl(11984.49)} usa 11,19%, o percentual efetivo do
       Terra Brava de junho. Se o acordo desta edição for de 5%, a receita cai para ${brl(107100 * 0.05)}.</li>
   <li><b>Comissão do KatiSpera</b> — ainda não lançada; aguarda o leilão entrar no HastaPro.</li>
+  <li><b>Passagens de 17/07</b> — os dois PIX para a ADN Viagens (Marcelo ${brl(2081.92)} e Léo ${brl(2421.43)})
+      saíram do cálculo a seu pedido: não são desta feira. Só que o memo no extrato dizia "EXPOGENETICA" e no ERP
+      elas seguem marcadas como despesa de Terra Brava/Matinha — precisam ser reclassificadas para o evento certo,
+      senão voltam a aparecer como custo da Expogenética no fechamento do mês.</li>
   <li><b>EAO e Mafra</b> — leilões grandes, equipe presente e zero venda registrada. Vale conferir com os assessores
       se houve venda não reportada no grupo antes de dar o mês por fechado.</li>
   <li><b>JMP de 21/08</b> — é o único leilão restante cujo acordo paga sobre o faturamento total (0,5%) e não sobre a
@@ -530,8 +535,16 @@ XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(D.cenarios.map(c => ({
   'Cenário': c.nome, 'Cobertura da feira': c.coberturaFeira, Receita: c.receita, 'Comissão': c.comissao,
   Imposto: c.imposto, Custo: c.custo, Resultado: c.resultado, 'Resultado se Rusa 5%': c.resultadoRusa,
 }))), 'Cenarios')
-const xlsxPath = path.join(DESKTOP, 'Bula - Expogenetica 2026 - Custo x Resultado - 18-08-2026.xlsx')
-XLSX.writeFile(wb, xlsxPath)
+let xlsxPath = path.join(DESKTOP, 'Bula - Expogenetica 2026 - Custo x Resultado - 18-08-2026.xlsx')
+try {
+  XLSX.writeFile(wb, xlsxPath)
+} catch (e) {
+  // Excel segura o arquivo aberto (EBUSY) — grava ao lado em vez de perder a rodada
+  if (e.code !== 'EBUSY') throw e
+  xlsxPath = xlsxPath.replace(/\.xlsx$/, ' (atualizado).xlsx')
+  XLSX.writeFile(wb, xlsxPath)
+  console.log('AVISO: o xlsx original estava aberto no Excel; gravei em', xlsxPath)
+}
 
 console.log('PDF   ->', pdfPath)
 console.log('XLSX  ->', xlsxPath)
