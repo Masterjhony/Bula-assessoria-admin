@@ -1,0 +1,390 @@
+{
+ "P": {
+  "casaTotal": 9000,
+  "uniformesTotal": 480,
+  "reembolsoBase": 9000,
+  "reembolsoMin": 7000,
+  "reembolsoMax": 12000,
+  "pessoasCampo": 4,
+  "diasCasa": 10,
+  "aliquota": 0.18,
+  "comissaoPadrao": 0.02,
+  "comissaoRusa": 0.05,
+  "fixoMesEquipeCampo": 24100
+ },
+ "gerado": "2026-08-18",
+ "custos": [
+  {
+   "data": "2026-07-17",
+   "item": "Passagem aérea — Marcelo (ida e volta CG)",
+   "quem": "ADN Viagens",
+   "valor": 2081.92,
+   "situacao": "pago",
+   "fonte": "ERP · contas a pagar"
+  },
+  {
+   "data": "2026-07-17",
+   "item": "Passagem aérea — Leonardo (ida e volta)",
+   "quem": "ADN Viagens",
+   "valor": 2421.43,
+   "situacao": "pago",
+   "fonte": "ERP · contas a pagar"
+  },
+  {
+   "data": "2026-08-11",
+   "item": "Casa em Uberaba — 1ª parcela",
+   "quem": "Locador Uberaba",
+   "valor": 2000,
+   "situacao": "pago",
+   "fonte": "ERP · contas a pagar"
+  },
+  {
+   "data": "2026-08-11",
+   "item": "Uniformes da equipe — entrada",
+   "quem": "68.392.671/0001-89",
+   "valor": 240,
+   "situacao": "pago",
+   "fonte": "ERP · contas a pagar"
+  },
+  {
+   "data": "2026-08-14",
+   "item": "Reemissão de passagens (reembolso Bula Remates)",
+   "quem": "Bula Remates",
+   "valor": 5026.34,
+   "situacao": "pago",
+   "fonte": "ERP · contas a pagar"
+  },
+  {
+   "data": "2026-08-21",
+   "item": "Bilhete aéreo — Leonardo Francisco",
+   "quem": "ADN Viagens",
+   "valor": 1981.58,
+   "situacao": "agendado",
+   "fonte": "ERP · contas a pagar"
+  },
+  {
+   "data": "2026-08-21",
+   "item": "Bilhete aéreo — Fábio Omena Gaia",
+   "quem": "ADN Viagens",
+   "valor": 4196.87,
+   "situacao": "agendado",
+   "fonte": "ERP · contas a pagar"
+  },
+  {
+   "data": "até 24/08",
+   "item": "Casa em Uberaba — saldo do aluguel",
+   "quem": "Locador Uberaba",
+   "valor": 7000,
+   "situacao": "a pagar",
+   "fonte": "Total de R$ 9.000 informado pelo João"
+  },
+  {
+   "data": "a definir",
+   "item": "Uniformes da equipe — saldo",
+   "quem": "68.392.671/0001-89",
+   "valor": 240,
+   "situacao": "a pagar",
+   "fonte": "Total de R$ 480 informado pelo João"
+  },
+  {
+   "data": "set/2026",
+   "item": "Reembolso da equipe (prestação de contas)",
+   "quem": "Fábio, Leonardo, Douglas, Marcelo",
+   "valor": 9000,
+   "situacao": "estimado",
+   "fonte": "Estimativa — critério na seção 02"
+  }
+ ],
+ "casaPaga": 2000,
+ "unifPago": 240,
+ "custoPago": 11769.69,
+ "custoAgendado": 13418.45,
+ "custoEstimado": 9000,
+ "custoTotal": 34188.14,
+ "custoMin": 32188.14,
+ "custoMax": 37188.14,
+ "custoConfirmado": 25188.14,
+ "passagensTotal": 15708.14,
+ "realizados": [
+  {
+   "data": "2026-08-10",
+   "nome": "Leilão Guadalupe Agropecuária",
+   "cobertura": 0,
+   "lotes": 0,
+   "receita": 0,
+   "criterio": "—",
+   "recebimento": "—",
+   "obs": "sem venda registrada pela Bula"
+  },
+  {
+   "data": "2026-08-12",
+   "nome": "Leilão Elo de Prova (RG, Sino e Beem)",
+   "cobertura": 0,
+   "lotes": 0,
+   "receita": 0,
+   "criterio": "—",
+   "recebimento": "—",
+   "obs": "sem venda registrada pela Bula"
+  },
+  {
+   "data": "2026-08-14",
+   "nome": "Mega Genética EAO",
+   "cobertura": 0,
+   "lotes": 0,
+   "receita": 0,
+   "criterio": "—",
+   "recebimento": "—",
+   "obs": "sem venda registrada pela Bula"
+  },
+  {
+   "data": "2026-08-15",
+   "nome": "Terra Brava Agropecuária",
+   "cobertura": 107100,
+   "lotes": 4,
+   "receita": 11984.49,
+   "criterio": "11.19%",
+   "recebimento": "2026-09-29",
+   "obs": ""
+  },
+  {
+   "data": "2026-08-16",
+   "nome": "Matinha Expogenética",
+   "cobertura": 547500,
+   "lotes": 9,
+   "receita": 27375,
+   "criterio": "5.00%",
+   "recebimento": "2026-09-30",
+   "obs": ""
+  },
+  {
+   "data": "2026-08-17",
+   "nome": "Matrizes Premium KatiSpera",
+   "cobertura": 117000,
+   "lotes": 1,
+   "receita": 7020,
+   "criterio": "6.00%",
+   "recebimento": "2026-10-01",
+   "obs": ""
+  },
+  {
+   "data": "2026-08-18",
+   "nome": "Nelore Mafra Agronova & Amigos",
+   "cobertura": 0,
+   "lotes": 0,
+   "receita": 0,
+   "criterio": "—",
+   "recebimento": "—",
+   "obs": "sem venda registrada pela Bula"
+  }
+ ],
+ "coberturaRealizada": 771600,
+ "receitaRealizada": 46379.49,
+ "lotesRealizados": 14,
+ "leiloesComVenda": 3,
+ "leiloesZerados": 4,
+ "comissoesERP": [
+  {
+   "leilao": "LEILÃO TERRA BRAVA AGROPECUÁRIA EXPOGENÉTICA",
+   "quem": "Fábio Omena",
+   "base": 107100,
+   "pctv": 0.02,
+   "valor": 2142
+  },
+  {
+   "leilao": "LEILÃO MATINHA EXPOGENÉTICA 2026",
+   "quem": "Douglas Bispo",
+   "base": 462000,
+   "pctv": 0.02,
+   "valor": 9240
+  },
+  {
+   "leilao": "LEILÃO MATINHA EXPOGENÉTICA 2026",
+   "quem": "Nane",
+   "base": 85500,
+   "pctv": 0.02,
+   "valor": 1710
+  },
+  {
+   "leilao": "LEILÃO MATRIZES PREMIUM KATISPERA",
+   "quem": "Douglas Bispo",
+   "base": 117000,
+   "pctv": 0.02,
+   "valor": 2340
+  }
+ ],
+ "comissaoERPTotal": 15432,
+ "rusaLotes": [
+  {
+   "leilao": "Matinha Expogenética",
+   "lote": "12",
+   "vgv": 108000
+  },
+  {
+   "leilao": "Matinha Expogenética",
+   "lote": "15",
+   "vgv": 93000
+  },
+  {
+   "leilao": "Matinha Expogenética",
+   "lote": "34",
+   "vgv": 90000
+  },
+  {
+   "leilao": "Matinha Expogenética",
+   "lote": "22",
+   "vgv": 87000
+  },
+  {
+   "leilao": "Matrizes Premium KatiSpera",
+   "lote": "3",
+   "vgv": 117000
+  }
+ ],
+ "rusaBase": 495000,
+ "rusaPctCobertura": 0.64,
+ "comissaoCenarioRusa": 30282,
+ "rusaImpacto": 14850,
+ "parcialERP": {
+  "receita": 46379.49,
+  "comissao": 15432,
+  "imposto": 8348.31,
+  "custo": 34188.14,
+  "resultado": -11588.96
+ },
+ "parcialRusa": {
+  "receita": 46379.49,
+  "comissao": 30282,
+  "imposto": 8348.31,
+  "custo": 34188.14,
+  "resultado": -26438.96
+ },
+ "projecaoBase": {
+  "linhas": [
+   {
+    "data": "2026-08-19",
+    "nome": "9º Genética Aditiva Expogenética",
+    "cob": 150000,
+    "pctEfetivo": 0.095,
+    "base": "jul/26: R$ 27.762,65 sobre cobertura de R$ 292.200 (2 etapas)",
+    "cobProjetada": 150000,
+    "receitaProjetada": 14250
+   },
+   {
+    "data": "2026-08-19",
+    "nome": "Reserva Expogenética Santa Nice",
+    "cob": 150000,
+    "pctEfetivo": 0.0436,
+    "base": "jun/26: R$ 15.030 sobre cobertura de R$ 345.000",
+    "cobProjetada": 150000,
+    "receitaProjetada": 6540
+   },
+   {
+    "data": "2026-08-20",
+    "nome": "Nelore Paranã e Casabranca",
+    "cob": 250000,
+    "pctEfetivo": 0.05,
+    "base": "09/08/26: 5% sobre cobertura de R$ 278.100",
+    "cobProjetada": 250000,
+    "receitaProjetada": 12500
+   },
+   {
+    "data": "2026-08-21",
+    "nome": "12º Premium Colonial",
+    "cob": 100000,
+    "pctEfetivo": 0.05,
+    "base": "sem histórico — usado o padrão de 5% da cobertura",
+    "cobProjetada": 100000,
+    "receitaProjetada": 5000
+   },
+   {
+    "data": "2026-08-21",
+    "nome": "Fêmeas JMP",
+    "cob": 150000,
+    "pctEfetivo": null,
+    "receitaFixa": true,
+    "base": "acordo JMP/JBJ paga 0,5% do FATURAMENTO TOTAL. 10º JMP (jun): R$ 116.968 só nas fêmeas/bezerras",
+    "cobProjetada": 150000,
+    "receitaProjetada": 40000
+   },
+   {
+    "data": "2026-08-22",
+    "nome": "Naviraí Camparino — Bezerras e Novilhas",
+    "cob": 160000,
+    "pctEfetivo": 0.052,
+    "base": "média Camparino/Naviraí 2026: R$ 26.579 sobre R$ 510.800",
+    "cobProjetada": 160000,
+    "receitaProjetada": 8320
+   },
+   {
+    "data": "2026-08-23",
+    "nome": "28º Naviraí Camparino — Reprodutores",
+    "cob": 150000,
+    "pctEfetivo": 0.052,
+    "base": "média Camparino/Naviraí 2026: R$ 26.579 sobre R$ 510.800",
+    "cobProjetada": 150000,
+    "receitaProjetada": 7800
+   }
+  ],
+  "cobertura": 1110000,
+  "receita": 94410,
+  "comissao": 22200
+ },
+ "cenarios": [
+  {
+   "nome": "conservador",
+   "fator": 0.6,
+   "jmp": 20000,
+   "coberturaRestante": 666000,
+   "receitaRestante": 52646,
+   "coberturaFeira": 1437600,
+   "receita": 99025.49,
+   "comissao": 28752,
+   "imposto": 17824.59,
+   "custo": 34188.14,
+   "resultado": 18260.76,
+   "resultadoRusa": 3410.76
+  },
+  {
+   "nome": "base",
+   "fator": 1,
+   "jmp": 40000,
+   "coberturaRestante": 1110000,
+   "receitaRestante": 94410,
+   "coberturaFeira": 1881600,
+   "receita": 140789.49,
+   "comissao": 37632,
+   "imposto": 25342.11,
+   "custo": 34188.14,
+   "resultado": 43627.24,
+   "resultadoRusa": 28777.24
+  },
+  {
+   "nome": "otimista",
+   "fator": 1.4,
+   "jmp": 80000,
+   "coberturaRestante": 1554000,
+   "receitaRestante": 156174,
+   "coberturaFeira": 2325600,
+   "receita": 202553.49,
+   "comissao": 46512,
+   "imposto": 36459.63,
+   "custo": 34188.14,
+   "resultado": 85393.72,
+   "resultadoRusa": 70543.72
+  }
+ ],
+ "margemUnitaria": 0.02,
+ "margemUnitariaRusa": -0.01,
+ "coberturaEquilibrio": 1709407,
+ "pctEquilibrioFeito": 0.45,
+ "faltaCobertura": 937807,
+ "caixa": {
+  "saiuJulho": 4503.35,
+  "saiAgosto": 20444.79,
+  "saiSetembro": 24432,
+  "primeiraEntrada": "2026-09-29",
+  "giroNegativo": 49380.14
+ },
+ "folhaAlocada": 8033.33,
+ "parcialComFolha": -19622.29
+}
