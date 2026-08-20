@@ -148,6 +148,19 @@ D.retidos = {
 }
 D.retidos.total = r2(D.retidos.itens.reduce((s, x) => s + x.valor, 0))
 
+/* --- acerto Bulinha x fatura de cartao de 24/08 --- */
+const cpBul = cps.find(c => c.numero_documento === 'acerto-bulinha:residual-julho-2026')
+const cpCart = cps.filter(c => ['sicoob17:cartao-visa-ago', 'sicoob17:cartao-master-ago'].includes(c.numero_documento))
+D.acertoBulinha = cpBul ? {
+  devidoOriginal: r2(cpBul.valor),
+  compensado: r2(Number(cpBul.valor_pago || 0)),
+  residual: sCP(cpBul),
+  data: '2026-08-24',
+  faturas: cpCart.map(c => ({ desc: /VISA/i.test(c.descricao) ? 'VISA 6495' : 'MASTERCARD 3880', valor: r2(c.valor) }))
+    .sort((a, b) => b.valor - a.valor),
+  duplicidadeEliminada: r2(Number(cpBul.valor_pago || 0)),
+} : null
+
 D.comissoes25ago = r2(D.pagar.filter(x => x.data === '2026-08-25' && x.bucket === 'comissao').reduce((s, x) => s + x.valor, 0))
 D.comissoes25agoItens = D.pagar.filter(x => x.data === '2026-08-25' && x.bucket === 'comissao').sort((a, b) => b.valor - a.valor)
 D.folhaAgosto = r2(D.pagar.filter(x => x.bucket === 'folha').reduce((s, x) => s + x.valor, 0))
@@ -460,6 +473,7 @@ console.log('Sicoob            ', f2(D.caixa.sicoob), D.caixa.confere ? '(bate c
 console.log('Comissoes 25/08   ', f2(D.comissoes25ago), '(' + D.comissoes25agoItens.length + ' titulos)')
 console.log('Folha 05/09       ', f2(D.folhaAgosto), '(' + D.folhaItens.length + ' pessoas)')
 console.log('A pagar na janela ', f2(D.pagarTotal), '| RETIDO fora do fluxo', f2(D.retidos.total), '(' + D.retidos.itens.length + ')')
+if (D.acertoBulinha) console.log('ACERTO Bulinha x cartao 24/08: devido', f2(D.acertoBulinha.devidoOriginal), '- compensado', f2(D.acertoBulinha.compensado), '= residual', f2(D.acertoBulinha.residual))
 D.retidos.itens.forEach(r => console.log('    retido', f2(r.valor).padStart(11), 'venc', r.vencOriginal, '(' + r.idade + 'd)', r.desc.slice(0, 56)))
 D.pagarPorBucket.forEach(b => console.log('   ', b.bucket.padEnd(10), f2(b.valor).padStart(12), '(' + b.n + ')'))
 console.log('A receber (datado)', f2(D.firmeza.total), '| firme', f2(D.firmeza.firme), '(' + D.firmeza.nFirme + ') | sem data', f2(D.firmeza.semData), '(' + D.firmeza.nSemData + ') =', D.firmeza.pctSemData + '%')

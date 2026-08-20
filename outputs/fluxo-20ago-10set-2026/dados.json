@@ -820,13 +820,30 @@
  "retidos": {
   "itens": [
    {
-    "valor": 7392,
+    "valor": 62.03,
     "desc": "SALDO DEVIDO A BULINHA (FELIPE ANDRADE) - residual do acerto de julho",
     "vencOriginal": "2026-07-27",
     "idade": 24
    }
   ],
-  "total": 7392
+  "total": 62.03
+ },
+ "acertoBulinha": {
+  "devidoOriginal": 7392,
+  "compensado": 7329.97,
+  "residual": 62.03,
+  "data": "2026-08-24",
+  "faturas": [
+   {
+    "desc": "VISA 6495",
+    "valor": 5949.84
+   },
+   {
+    "desc": "MASTERCARD 3880",
+    "valor": 1380.13
+   }
+  ],
+  "duplicidadeEliminada": 7329.97
  },
  "comissoes25ago": 44082,
  "comissoes25agoItens": [

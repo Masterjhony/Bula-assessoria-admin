@@ -315,10 +315,17 @@ const html = `<!doctype html><html lang="pt-BR"><head><meta charset="utf-8">
     </tbody>
   </table>
 
-  ${D.retidos.total > 0 ? `<div class="box">
-    <div class="t">Fora do fluxo: dívida reconhecida, sem data de pagamento</div>
-    <p class="small" style="margin:0 0 2mm">${D.retidos.itens.map(r => `<strong>R$ ${brl(r.valor)}</strong> — ${esc(r.desc)} (vencido em ${dm(r.vencOriginal)}, ${r.idade} dias)`).join('; ')}.</p>
-    <p class="small" style="margin:0">Está no ERP marcado como <em>retido por decisão</em> e <strong>não entra em nenhum cenário deste relatório</strong> — pelo mesmo motivo que os recebíveis vencidos também não entram: ninguém combinou data. A dívida continua reconhecida; o que saiu foi a suposição de que ela seria paga nestas três semanas. Se for paga dentro da janela, todos os saldos daqui para a frente pioram em R$ ${brl(D.retidos.total)}.</p>
+  ${D.acertoBulinha ? `<div class="box">
+    <div class="t">O saldo do Bulinha sai pela fatura do cartão, não pelo caixa</div>
+    <p style="margin:0 0 2mm">A Bula devia <strong>R$ ${brl(D.acertoBulinha.devidoOriginal)}</strong> ao Bulinha (Felipe Andrade), resto da comissão de junho. As duas faturas de cartão que caem em ${dm(D.acertoBulinha.data)} — ${D.acertoBulinha.faturas.map(f => `${esc(f.desc)} R$ ${brl(f.valor)}`).join(' e ')} — <strong>abatem esse saldo</strong>: o gasto do cartão é dele. Pagando a fatura, a Bula quita a dívida sem transferir nada para o Felipe.</p>
+    <table style="margin:2mm 0">
+      <tbody>
+        <tr><td>Saldo de comissão devido ao Bulinha</td><td class="num">${brl(D.acertoBulinha.devidoOriginal)}</td></tr>
+        <tr><td class="muted">Abatido pelas faturas de ${dm(D.acertoBulinha.data)}</td><td class="num muted">− ${brl(D.acertoBulinha.compensado)}</td></tr>
+        <tr class="total"><td>Residual ainda devido</td><td class="num">${brl(D.acertoBulinha.residual)}</td></tr>
+      </tbody>
+    </table>
+    <p class="small" style="margin:0">A evidência está no próprio ERP: das 410 compras já registradas nos cartões da Bula, <strong>100% têm portador FELIPE V ANDRADE</strong> (finais 6495, 3880 e 3883) — as únicas linhas de outro portador são anuidade e seguro, lançados na conta. Antes deste acerto o sistema esperava que <strong>R$ ${brl(r2(D.acertoBulinha.compensado + D.acertoBulinha.devidoOriginal))}</strong> saíssem do caixa nessas três contas, quando o desembolso real é de R$ ${brl(D.acertoBulinha.compensado)}. As faturas seguem no fluxo pelo valor cheio, porque são débito automático de verdade em ${dm(D.acertoBulinha.data)}; o que saiu foi a duplicidade. O residual de R$ ${brl(D.acertoBulinha.residual)} continua em aberto e retido por decisão, fora de todos os cenários.</p>
   </div>` : ''}
 
   <h3>Entra até 10/09 — e o que sustenta cada data</h3>
@@ -544,7 +551,7 @@ const html = `<!doctype html><html lang="pt-BR"><head><meta charset="utf-8">
 
   <div class="box">
     <div class="t">O que este relatório não sabe</div>
-    <p class="small" style="margin:0">(a) O Sicoob está conciliado 1:1 com o extrato de hoje 13h47 — R$ ${brl(D.caixa.sicoob)}. (b) O extrato do Sicredi de agosto nunca foi importado. Os R$ ${brl(D.sicredi.liquido)} são a posição do ERP em ${dm(D.sicredi.ultimoMovimentoApp)}, conferida no app naquele dia — não um saldo bancário de hoje. O resgate de R$ ${brl0(D.sicredi.valorCorrecao)} que faltava foi lançado hoje e zerou a conta corrente, mas movimento posterior a ${dm(D.sicredi.ultimoMovimentoCC)} é desconhecido. (c) As guias de agosto são estimativa por carga efetiva, não cálculo do contador. (d) O FGTS de julho (R$ ${brl(D.encargos.fgts)}) segue em aberto no sistema e não apareceu no extrato — conferir se foi pago por fora. (e) A classificação “tem data acordada” vem de uma tabela única no script gerador: se alguma cobrança da lista da página 2 já foi combinada por telefone, avisar que os números mudam na hora. (f) A 2ª parcela do Guadalupe foi lançada para 25/09 por convenção — a conversa só fixou a primeira. (g) O saldo de R$ ${brl(D.retidos.total)} devido ao Bulinha continua reconhecido no ERP, marcado como retido por decisão, e ficou fora de todos os cenários — se for pago dentro da janela, todos os saldos pioram nesse valor.</p>
+    <p class="small" style="margin:0">(a) O Sicoob está conciliado 1:1 com o extrato de hoje 13h47 — R$ ${brl(D.caixa.sicoob)}. (b) O extrato do Sicredi de agosto nunca foi importado. Os R$ ${brl(D.sicredi.liquido)} são a posição do ERP em ${dm(D.sicredi.ultimoMovimentoApp)}, conferida no app naquele dia — não um saldo bancário de hoje. O resgate de R$ ${brl0(D.sicredi.valorCorrecao)} que faltava foi lançado hoje e zerou a conta corrente, mas movimento posterior a ${dm(D.sicredi.ultimoMovimentoCC)} é desconhecido. (c) As guias de agosto são estimativa por carga efetiva, não cálculo do contador. (d) O FGTS de julho (R$ ${brl(D.encargos.fgts)}) segue em aberto no sistema e não apareceu no extrato — conferir se foi pago por fora. (e) A classificação “tem data acordada” vem de uma tabela única no script gerador: se alguma cobrança da lista da página 2 já foi combinada por telefone, avisar que os números mudam na hora. (f) A 2ª parcela do Guadalupe foi lançada para 25/09 por convenção — a conversa só fixou a primeira. (g) O saldo devido ao Bulinha foi abatido pelas faturas de cartão de ${dm(D.acertoBulinha.data)}; restam R$ ${brl(D.retidos.total)}, ainda retidos por decisão e fora de todos os cenários. A fatura de agosto ainda não existe detalhada no módulo de cartões — o rateio por portador foi conferido nas 410 compras de janeiro a julho, não nas compras que compõem a fatura de ${dm(D.acertoBulinha.data)}.</p>
   </div>
 
   ${foot()}

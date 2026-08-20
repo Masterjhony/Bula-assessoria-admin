@@ -197,9 +197,16 @@
   </table>
 
   <div class="box">
-    <div class="t">Fora do fluxo: dívida reconhecida, sem data de pagamento</div>
-    <p class="small" style="margin:0 0 2mm"><strong>R$ 7.392,00</strong> — SALDO DEVIDO A BULINHA (FELIPE ANDRADE) - residual do acerto de julho (vencido em 27/07, 24 dias).</p>
-    <p class="small" style="margin:0">Está no ERP marcado como <em>retido por decisão</em> e <strong>não entra em nenhum cenário deste relatório</strong> — pelo mesmo motivo que os recebíveis vencidos também não entram: ninguém combinou data. A dívida continua reconhecida; o que saiu foi a suposição de que ela seria paga nestas três semanas. Se for paga dentro da janela, todos os saldos daqui para a frente pioram em R$ 7.392,00.</p>
+    <div class="t">O saldo do Bulinha sai pela fatura do cartão, não pelo caixa</div>
+    <p style="margin:0 0 2mm">A Bula devia <strong>R$ 7.392,00</strong> ao Bulinha (Felipe Andrade), resto da comissão de junho. As duas faturas de cartão que caem em 24/08 — VISA 6495 R$ 5.949,84 e MASTERCARD 3880 R$ 1.380,13 — <strong>abatem esse saldo</strong>: o gasto do cartão é dele. Pagando a fatura, a Bula quita a dívida sem transferir nada para o Felipe.</p>
+    <table style="margin:2mm 0">
+      <tbody>
+        <tr><td>Saldo de comissão devido ao Bulinha</td><td class="num">7.392,00</td></tr>
+        <tr><td class="muted">Abatido pelas faturas de 24/08</td><td class="num muted">− 7.329,97</td></tr>
+        <tr class="total"><td>Residual ainda devido</td><td class="num">62,03</td></tr>
+      </tbody>
+    </table>
+    <p class="small" style="margin:0">A evidência está no próprio ERP: das 410 compras já registradas nos cartões da Bula, <strong>100% têm portador FELIPE V ANDRADE</strong> (finais 6495, 3880 e 3883) — as únicas linhas de outro portador são anuidade e seguro, lançados na conta. Antes deste acerto o sistema esperava que <strong>R$ 14.721,97</strong> saíssem do caixa nessas três contas, quando o desembolso real é de R$ 7.329,97. As faturas seguem no fluxo pelo valor cheio, porque são débito automático de verdade em 24/08; o que saiu foi a duplicidade. O residual de R$ 62,03 continua em aberto e retido por decisão, fora de todos os cenários.</p>
   </div>
 
   <h3>Entra até 10/09 — e o que sustenta cada data</h3>
@@ -463,7 +470,7 @@
 
   <div class="box">
     <div class="t">O que este relatório não sabe</div>
-    <p class="small" style="margin:0">(a) O Sicoob está conciliado 1:1 com o extrato de hoje 13h47 — R$ 29.169,19. (b) O extrato do Sicredi de agosto nunca foi importado. Os R$ 12.598,64 são a posição do ERP em 04/08, conferida no app naquele dia — não um saldo bancário de hoje. O resgate de R$ 15.000 que faltava foi lançado hoje e zerou a conta corrente, mas movimento posterior a 04/08 é desconhecido. (c) As guias de agosto são estimativa por carga efetiva, não cálculo do contador. (d) O FGTS de julho (R$ 950,00) segue em aberto no sistema e não apareceu no extrato — conferir se foi pago por fora. (e) A classificação “tem data acordada” vem de uma tabela única no script gerador: se alguma cobrança da lista da página 2 já foi combinada por telefone, avisar que os números mudam na hora. (f) A 2ª parcela do Guadalupe foi lançada para 25/09 por convenção — a conversa só fixou a primeira. (g) O saldo de R$ 7.392,00 devido ao Bulinha continua reconhecido no ERP, marcado como retido por decisão, e ficou fora de todos os cenários — se for pago dentro da janela, todos os saldos pioram nesse valor.</p>
+    <p class="small" style="margin:0">(a) O Sicoob está conciliado 1:1 com o extrato de hoje 13h47 — R$ 29.169,19. (b) O extrato do Sicredi de agosto nunca foi importado. Os R$ 12.598,64 são a posição do ERP em 04/08, conferida no app naquele dia — não um saldo bancário de hoje. O resgate de R$ 15.000 que faltava foi lançado hoje e zerou a conta corrente, mas movimento posterior a 04/08 é desconhecido. (c) As guias de agosto são estimativa por carga efetiva, não cálculo do contador. (d) O FGTS de julho (R$ 950,00) segue em aberto no sistema e não apareceu no extrato — conferir se foi pago por fora. (e) A classificação “tem data acordada” vem de uma tabela única no script gerador: se alguma cobrança da lista da página 2 já foi combinada por telefone, avisar que os números mudam na hora. (f) A 2ª parcela do Guadalupe foi lançada para 25/09 por convenção — a conversa só fixou a primeira. (g) O saldo devido ao Bulinha foi abatido pelas faturas de cartão de 24/08; restam R$ 62,03, ainda retidos por decisão e fora de todos os cenários. A fatura de agosto ainda não existe detalhada no módulo de cartões — o rateio por portador foi conferido nas 410 compras de janeiro a julho, não nas compras que compõem a fatura de 24/08.</p>
   </div>
 
   <div class="pfoot"><span>Bula Assessoria Pecuária — documento interno</span><span>Fluxo de caixa 20/08 a 10/09/2026 · gerado em 20/08/2026</span></div>
