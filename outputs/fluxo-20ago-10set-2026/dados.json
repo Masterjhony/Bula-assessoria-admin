@@ -1,0 +1,5296 @@
+{
+ "hoje": "2026-08-20",
+ "fim": "2026-09-10",
+ "geradoEm": "2026-08-20",
+ "caixa": {
+  "sicoob": 29169.19,
+  "sicrediCC": -15000,
+  "sicrediApp": 27598.64,
+  "sicrediLiquido": 12598.64,
+  "consolidado": 41767.83,
+  "saldoExtrato": 29169.19,
+  "confere": true
+ },
+ "saidasRecentes": [
+  {
+   "data": "2026-08-18",
+   "valor": 180,
+   "desc": "PIX EMITIDO OUTRA IF - ***.037.156-** - Ref pagamento sistema fatura banco de dados"
+  },
+  {
+   "data": "2026-08-18",
+   "valor": 240,
+   "desc": "PIX EMITIDO OUTRA IF - 68.392.671 0001-89 - Ref restante uniformes expogenetica"
+  },
+  {
+   "data": "2026-08-20",
+   "valor": 495,
+   "desc": "DEB.TIT.COMPE.EFETIVADO - Ref Remat deferimento marcas 1 pgto"
+  },
+  {
+   "data": "2026-08-20",
+   "valor": 55846.64,
+   "desc": "DB.CONV.TR FD-RFB - Ref Simples Nacional Julho (DAS)"
+  },
+  {
+   "data": "2026-08-20",
+   "valor": 1114.6,
+   "desc": "DB.CONV.TR FD-RFB - Darf funcionarios"
+  }
+ ],
+ "saidasRecentesTotal": 57876.24,
+ "remates": {
+  "previstoPara": "2026-08-20",
+  "entrou": false,
+  "itens": [
+   {
+    "doc": "BULA-2026-CR-KIRZ-TOUROS-20260707",
+    "real": 7623,
+    "erp": 10164,
+    "desc": "LEILAO TOUROS NELORE KIRZ (07/07) - BULA REMATES",
+    "delta": -2541
+   },
+   {
+    "doc": "BULA-2026-CR-NELORACO-PO-20260725",
+    "real": 12187.5,
+    "erp": 25155,
+    "desc": "NELORACO PO (25/07) - BULA REMATES",
+    "delta": -12967.5
+   }
+  ],
+  "totalReal": 19810.5,
+  "totalErp": 35319,
+  "delta": -15508.5
+ },
+ "vencidos": {
+  "total": 213361.6,
+  "n": 22,
+  "ate60": 95302,
+  "mais60": 118059.6,
+  "itens": [
+   {
+    "data": "2026-04-22",
+    "idade": 120,
+    "valor": 19401.6,
+    "desc": "10º LEILÃO VIRTUAL EAO - TOUROS, MATRIZES E BEZERRAS – 08/03/2026 (08/03) - COMISSAO BULA"
+   },
+   {
+    "data": "2026-04-23",
+    "idade": 119,
+    "valor": 8643,
+    "desc": "10º LEILÃO VIRTUAL EAO - BEZERRAS E MATRIZES – 09/03/2026 (09/03) - COMISSAO BULA"
+   },
+   {
+    "data": "2026-04-29",
+    "idade": 113,
+    "valor": 33840,
+    "desc": "3° LEILÃO LS NEXT – 15/03/2026 (15/03) - COMISSAO BULA"
+   },
+   {
+    "data": "2026-05-02",
+    "idade": 110,
+    "valor": 6500,
+    "desc": "LEILAO LAGOA DOS PATOS"
+   },
+   {
+    "data": "2026-05-17",
+    "idade": 95,
+    "valor": 2965,
+    "desc": "2º LEILÃO FB AGRO - FAZENDA BELA ROSA – 02/04/2026 (02/04) - COMISSAO BULA"
+   },
+   {
+    "data": "2026-05-24",
+    "idade": 88,
+    "valor": 6360,
+    "desc": "Leilão Matrizes de Vanguarda (09/04) - COMISSAO BULA"
+   },
+   {
+    "data": "2026-05-29",
+    "idade": 83,
+    "valor": 14340,
+    "desc": "LEILAO CACHOEIRAO - REMATES"
+   },
+   {
+    "data": "2026-05-30",
+    "idade": 82,
+    "valor": 6720,
+    "desc": "18ª MEGA LEILÃO NELORE - GUSTAVO/HENRIQUE - COMISSAO BULA"
+   },
+   {
+    "data": "2026-06-06",
+    "idade": 75,
+    "valor": 19290,
+    "desc": "Nelore MRA – 50 Anos de Seleção (22/04) - COMISSAO BULA"
+   },
+   {
+    "data": "2026-06-28",
+    "idade": 53,
+    "valor": 11428,
+    "desc": "LEILAO TOUROS SANTA NAZARE EXCELENCIA - PROGRAMA"
+   },
+   {
+    "data": "2026-07-10",
+    "idade": 41,
+    "valor": 4588,
+    "desc": "LEILAO NELORE PINTADO RAIZ - AGRESTE"
+   },
+   {
+    "data": "2026-07-14",
+    "idade": 37,
+    "valor": 10140,
+    "desc": "2o Leilao LS Now - 30/05/2026 (30/05) - COMISSAO BULA"
+   },
+   {
+    "data": "2026-07-14",
+    "idade": 37,
+    "valor": 19950,
+    "desc": "18o Mega Leilao Nelore Para - 30/05/2026 (30/05) - COMISSAO BULA"
+   },
+   {
+    "data": "2026-07-15",
+    "idade": 36,
+    "valor": 5760,
+    "desc": "2o Leilao LS Collection - 31/05/2026 (31/05) - COMISSAO BULA"
+   },
+   {
+    "data": "2026-07-15",
+    "idade": 36,
+    "valor": 3040,
+    "desc": "1o DIA - LEILAO KATAYAMA TRILOGIA - LT 84"
+   },
+   {
+    "data": "2026-07-22",
+    "idade": 29,
+    "valor": 6756,
+    "desc": "1o NELORE SAO FRANCISCO - FECHAMENTO BULA"
+   },
+   {
+    "data": "2026-07-25",
+    "idade": 26,
+    "valor": 900,
+    "desc": "Nelore MNO - 10/06/2026 (10/06) - COMISSAO BULA"
+   },
+   {
+    "data": "2026-07-29",
+    "idade": 22,
+    "valor": 2800,
+    "desc": "LEILÃO VIRTUAL TOUROS MATINHA - THIAGO (1/2)"
+   },
+   {
+    "data": "2026-07-31",
+    "idade": 20,
+    "valor": 7215,
+    "desc": "LEILÃO TOUROS PROVADOS TERRA BRAVA - JUNHO/2026 (16-18/06) - COMISSAO BULA"
+   },
+   {
+    "data": "2026-08-07",
+    "idade": 13,
+    "valor": 8775,
+    "desc": "Venda Touros RS - 23/06/2026 (23/06) - COMISSAO BULA"
+   },
+   {
+    "data": "2026-08-12",
+    "idade": 8,
+    "valor": 5550,
+    "desc": "Leilão Nelore Magda Na Origem - 28/06/2026 (28/06) - COMISSAO BULA"
+   },
+   {
+    "data": "2026-08-19",
+    "idade": 1,
+    "valor": 8400,
+    "desc": "LEILAO VIRTUAL NAVIRAI - MATRIZES (05/07) - COMISSAO BULA"
+   }
+  ]
+ },
+ "receber": [
+  {
+   "data": "2026-08-20",
+   "valor": 7623,
+   "valorErp": 10164,
+   "ajustado": true,
+   "desc": "LEILAO TOUROS NELORE KIRZ (07/07) - BULA REMATES",
+   "doc": "BULA-2026-CR-KIRZ-TOUROS-20260707",
+   "firme": true,
+   "motivo": "Repasse da Bula Remates, planilha de NF da leiloeira",
+   "obs": "estava previsto para 20/08 e ainda nao entrou"
+  },
+  {
+   "data": "2026-08-20",
+   "valor": 12187.5,
+   "valorErp": 25155,
+   "ajustado": true,
+   "desc": "NELORACO PO (25/07) - BULA REMATES",
+   "doc": "BULA-2026-CR-NELORACO-PO-20260725",
+   "firme": true,
+   "motivo": "Repasse da Bula Remates, planilha de NF da leiloeira",
+   "obs": "estava previsto para 20/08 e ainda nao entrou"
+  },
+  {
+   "data": "2026-08-25",
+   "valor": 3000,
+   "valorErp": 3000,
+   "ajustado": false,
+   "desc": "20o LEILAO GUADALUPE AGROPECUARIA - FEMEAS 18/07 (5% cobertura) - COMISSAO BULA - parc. 1/2",
+   "doc": "BULA-2026-CR-GUADALUPE-FEMEAS-20260718",
+   "firme": true,
+   "motivo": "Acordo fechado no WhatsApp em 20/08: 2x, 1a parcela ate 25/08",
+   "obs": null
+  },
+  {
+   "data": "2026-08-25",
+   "valor": 48556.5,
+   "valorErp": 48556.5,
+   "ajustado": false,
+   "desc": "MEGA EVENTO EAO BAVIERA (10-11/07) - COMISSAO BULA",
+   "doc": "BULA-2026-CR-EAO-BAVIERA-20260711",
+   "firme": false,
+   "motivo": null,
+   "obs": null
+  },
+  {
+   "data": "2026-08-25",
+   "valor": 7712.95,
+   "valorErp": 7712.95,
+   "ajustado": false,
+   "desc": "20o LEILAO GUADALUPE AGROPECUARIA - TOUROS 19/07 domingo (0,5% faturamento) - COMISSAO BULA - parc. 1/2",
+   "doc": "BULA-2026-CR-GUADALUPE-TOUROS-20260719",
+   "firme": true,
+   "motivo": "Acordo fechado no WhatsApp em 20/08: 2x, 1a parcela ate 25/08",
+   "obs": null
+  },
+  {
+   "data": "2026-08-26",
+   "valor": 7950,
+   "valorErp": 7950,
+   "ajustado": false,
+   "desc": "LEILAO NELORE SORRISO - ETAPA FEMEAS (12/07) - COMISSAO BULA",
+   "doc": "BULA-2026-CR-SORRISO-FEMEAS-20260712",
+   "firme": false,
+   "motivo": null,
+   "obs": null
+  },
+  {
+   "data": "2026-08-26",
+   "valor": 31501.8,
+   "valorErp": 31501.8,
+   "ajustado": false,
+   "desc": "MEGA EVENTO EAO BAVIERA — Machos (12/07) - COMISSAO BULA",
+   "doc": null,
+   "firme": false,
+   "motivo": null,
+   "obs": null
+  },
+  {
+   "data": "2026-08-28",
+   "valor": 6180,
+   "valorErp": 6180,
+   "ajustado": false,
+   "desc": "LEILÃO VIRTUAL BASE GENÉTICA SANTA CRUZ - 1ª ETAPA – 14/07/2026 (14/07) - COMISSAO BULA",
+   "doc": null,
+   "firme": false,
+   "motivo": null,
+   "obs": null
+  },
+  {
+   "data": "2026-08-29",
+   "valor": 2130,
+   "valorErp": 2130,
+   "ajustado": false,
+   "desc": "NELORE SANTA CRUZ (15/07) - COMISSAO BULA",
+   "doc": null,
+   "firme": false,
+   "motivo": null,
+   "obs": null
+  },
+  {
+   "data": "2026-08-30",
+   "valor": 7935,
+   "valorErp": 7935,
+   "ajustado": false,
+   "desc": "2a ETAPA NAVIRAI MATRIZES (16/07) - COMISSAO BULA",
+   "doc": "BULA-2026-CR-NAVIRAI-2ETAPA-20260716",
+   "firme": false,
+   "motivo": null,
+   "obs": null
+  },
+  {
+   "data": "2026-08-30",
+   "valor": 15030,
+   "valorErp": 15030,
+   "ajustado": false,
+   "desc": "LEILAO 09/05 - KITO - COMISSAO BULA (2/2)",
+   "doc": "BULA-2026-CR-KITO-20260509-B2",
+   "firme": true,
+   "motivo": "Boleto 2/2 emitido, vencimento 30/08 (conferencia Ana Paula)",
+   "obs": null
+  },
+  {
+   "data": "2026-09-02",
+   "valor": 12360,
+   "valorErp": 12360,
+   "ajustado": false,
+   "desc": "NELORE SANTA CRUZ - 19/07/2026 (19/07) - COMISSAO BULA",
+   "doc": null,
+   "firme": false,
+   "motivo": null,
+   "obs": null
+  },
+  {
+   "data": "2026-09-08",
+   "valor": 6318.9,
+   "valorErp": 6318.9,
+   "ajustado": false,
+   "desc": "23o MEGA LEILAO GENETICA ADITIVA - FEMEAS (25/07) - COMISSAO BULA",
+   "doc": "BULA-2026-CR-GEN-ADITIVA-FEMEAS-20260725",
+   "firme": false,
+   "motivo": null,
+   "obs": null
+  },
+  {
+   "data": "2026-09-08",
+   "valor": 1425,
+   "valorErp": 1425,
+   "ajustado": false,
+   "desc": "30º NELORAÇO IRMÃOS HIPÓLITO (25/07) - COMISSAO BULA",
+   "doc": null,
+   "firme": false,
+   "motivo": null,
+   "obs": null
+  },
+  {
+   "data": "2026-09-09",
+   "valor": 21443.75,
+   "valorErp": 21443.75,
+   "ajustado": false,
+   "desc": "23o MEGA LEILAO GENETICA ADITIVA - TOUROS (26/07) - COMISSAO BULA",
+   "doc": "BULA-2026-CR-GEN-ADITIVA-TOUROS-20260726",
+   "firme": false,
+   "motivo": null,
+   "obs": null
+  }
+ ],
+ "firmeza": {
+  "firme": 45553.45,
+  "semData": 145800.95,
+  "nFirme": 5,
+  "nSemData": 10,
+  "total": 191354.4,
+  "pctSemData": 76.19
+ },
+ "depois": [
+  {
+   "data": "2026-09-13",
+   "valor": 58484,
+   "desc": "10o LEILAO NELORE JMP - FEMEAS/BEZERRAS - COMISSAO BULA (2/2)",
+   "doc": "BULA-2026-CR-JMP-FEMEAS-20260613-P2",
+   "firme": true
+  },
+  {
+   "data": "2026-09-13",
+   "valor": 107183.5,
+   "desc": "10o LEILAO NELORE JMP - TOUROS - COMISSAO BULA (2/2)",
+   "doc": "BULA-2026-CR-JMP-TOUROS-20260614-P2",
+   "firme": true
+  },
+  {
+   "data": "2026-09-15",
+   "valor": 70345,
+   "desc": "LEILAO FEMEAS NELORE MAFRA - REDENCAO/PA (01/08) - COMISSAO BULA",
+   "doc": "BULA-2026-CR-MAFRA-FEMEAS-20260801",
+   "firme": false
+  },
+  {
+   "data": "2026-09-16",
+   "valor": 17857,
+   "desc": "LEILAO TOUROS NELORE MAFRA - REDENCAO/PA (02/08) - COMISSAO BULA",
+   "doc": "BULA-2026-CR-MAFRA-TOUROS-20260802",
+   "firme": false
+  },
+  {
+   "data": "2026-09-18",
+   "valor": 603,
+   "desc": "LEILAO TOUROS NELORE GRUPO COSTA (04/08) - COMISSAO BULA",
+   "doc": "BULA-2026-CR-GRUPO-COSTA-20260804",
+   "firme": false
+  },
+  {
+   "data": "2026-09-18",
+   "valor": 5715,
+   "desc": "LEILAO DE TOUROS NELORE SORRISO (04/08) - COMISSAO BULA",
+   "doc": "BULA-2026-CR-SORRISO-TOUROS-20260804",
+   "firme": false
+  },
+  {
+   "data": "2026-09-20",
+   "valor": 50198,
+   "desc": "LEILAO TOUROS FAZENDA SAO GERALDO (01/08) - BULA REMATES",
+   "doc": "BULA-2026-CR-SAO-GERALDO-20260801",
+   "firme": false
+  },
+  {
+   "data": "2026-09-21",
+   "valor": 57840,
+   "desc": "2o LEILAO LS GALERIA II (07/08) - COMISSAO BULA",
+   "doc": "BULA-2026-CR-LS-GALERIA-II-20260807",
+   "firme": false
+  },
+  {
+   "data": "2026-09-22",
+   "valor": 10650,
+   "desc": "14o LEILAO PEROLAS DO TAPAJOS (08/08) - COMISSAO BULA",
+   "doc": "BULA-2026-CR-PEROLAS-TAPAJOS-20260808",
+   "firme": false
+  },
+  {
+   "data": "2026-09-23",
+   "valor": 13905,
+   "desc": "LEILAO NELORE PARANA PRODUTIVIDADE (09/08) - COMISSAO BULA",
+   "doc": "BULA-2026-CR-PARANA-PRODUTIVIDADE-20260809",
+   "firme": false
+  },
+  {
+   "data": "2026-09-25",
+   "valor": 7502.95,
+   "desc": "20o LEILAO GUADALUPE AGROPECUARIA - TOUROS 19/07 domingo (0,5% faturamento) - COMISSAO BULA - parc. 2/2",
+   "doc": "BULA-2026-CR-GUADALUPE-TOUROS-20260719-P2",
+   "firme": false
+  },
+  {
+   "data": "2026-09-25",
+   "valor": 3210,
+   "desc": "20o LEILAO GUADALUPE AGROPECUARIA - TOUROS 20/07 segunda (5% cobertura) - COMISSAO BULA - parc. 2/2",
+   "doc": "BULA-2026-CR-GUADALUPE-TOUROS-20260720",
+   "firme": false
+  },
+  {
+   "data": "2026-09-27",
+   "valor": 825,
+   "desc": "7º LEILÃO ESSÊNCIA GENÉTICA - NELORE DA BAMBÚ (13/08) - COMISSAO BULA",
+   "doc": "",
+   "firme": false
+  },
+  {
+   "data": "2026-09-29",
+   "valor": 11984.49,
+   "desc": "LEILÃO TERRA BRAVA AGROPECUÁRIA EXPOGENÉTICA (15/08) - COMISSAO BULA",
+   "doc": "",
+   "firme": false
+  },
+  {
+   "data": "2026-09-30",
+   "valor": 27375,
+   "desc": "LEILÃO MATINHA EXPOGENÉTICA 2026 (16/08) - COMISSAO BULA",
+   "doc": "",
+   "firme": false
+  }
+ ],
+ "depoisTotal": 443677.94,
+ "depoisFirme": 165667.5,
+ "jmp2": 165667.5,
+ "pagar": [
+  {
+   "data": "2026-08-20",
+   "valor": 950,
+   "desc": "FGTS/Guia CEF ref. julho/2026 (ESTIMADO)",
+   "realocado": true,
+   "vencOriginal": "2026-08-07",
+   "bucket": "imposto"
+  },
+  {
+   "data": "2026-08-20",
+   "valor": 7392,
+   "desc": "SALDO DEVIDO A BULINHA (FELIPE ANDRADE) - residual do acerto de julho",
+   "realocado": true,
+   "vencOriginal": "2026-07-27",
+   "bucket": "comissao"
+  },
+  {
+   "data": "2026-08-21",
+   "valor": 1981.58,
+   "desc": "BILHETE/BOLETO - LEONARDO FRANCISCO (viagem Expogenetica)",
+   "realocado": false,
+   "vencOriginal": "2026-08-21",
+   "bucket": "corrente"
+  },
+  {
+   "data": "2026-08-21",
+   "valor": 4196.87,
+   "desc": "BILHETE/BOLETO - FABIO OMENA GAIA (viagem Expogenetica)",
+   "realocado": false,
+   "vencOriginal": "2026-08-21",
+   "bucket": "corrente"
+  },
+  {
+   "data": "2026-08-24",
+   "valor": 5949.84,
+   "desc": "Fatura cartao VISA (DEB.CONV.DEM.EMPRES / DBAUTO VIS) - deb. agendado 24/08",
+   "realocado": false,
+   "vencOriginal": "2026-08-24",
+   "bucket": "corrente"
+  },
+  {
+   "data": "2026-08-24",
+   "valor": 1380.13,
+   "desc": "Fatura cartao MASTERCARD (DEB.CONV.DEM.EMPRES) - deb. agendado 24/08",
+   "realocado": false,
+   "vencOriginal": "2026-08-24",
+   "bucket": "corrente"
+  },
+  {
+   "data": "2026-08-25",
+   "valor": 570,
+   "desc": "COMISSAO 30º NELORAÇO IRMÃOS HIPÓLITO - DOUGLAS BISPO (2%)",
+   "realocado": false,
+   "vencOriginal": "2026-08-25",
+   "bucket": "comissao"
+  },
+  {
+   "data": "2026-08-25",
+   "valor": 390,
+   "desc": "COMISSAO 20º LEILÃO GUADALUPE AGROPECUÁRIA Fêmeas - DOUGLAS BISPO (2%)",
+   "realocado": false,
+   "vencOriginal": "2026-08-25",
+   "bucket": "comissao"
+  },
+  {
+   "data": "2026-08-25",
+   "valor": 1962,
+   "desc": "COMISSAO LEILÃO VIRTUAL BASE GENÉTICA SANTA CRUZ - 1ª ETAPA – 14/07/2026 - FABIO OMENA (2%)",
+   "realocado": false,
+   "vencOriginal": "2026-08-25",
+   "bucket": "comissao"
+  },
+  {
+   "data": "2026-08-25",
+   "valor": 3180,
+   "desc": "COMISSAO LEILÃO NELORE SORRISO - ETAPA FÊMEAS – 12/07/2026 - DOUGLAS BISPO (2%)",
+   "realocado": false,
+   "vencOriginal": "2026-08-25",
+   "bucket": "comissao"
+  },
+  {
+   "data": "2026-08-25",
+   "valor": 810,
+   "desc": "COMISSAO 20º LEILÃO GUADALUPE AGROPECUÁRIA Fêmeas - LEONARDO SERAFIM (2%)",
+   "realocado": false,
+   "vencOriginal": "2026-08-25",
+   "bucket": "comissao"
+  },
+  {
+   "data": "2026-08-25",
+   "valor": 612,
+   "desc": "COMISSAO 2º ETAPA NAVIRAÍ MATRIZES - LEONARDO SERAFIM (2%)",
+   "realocado": false,
+   "vencOriginal": "2026-08-25",
+   "bucket": "comissao"
+  },
+  {
+   "data": "2026-08-25",
+   "valor": 1170,
+   "desc": "COMISSAO LEILÃO VIRTUAL NAVIRAÍ - MATRIZES – 05/07/2026 - FABIO OMENA (2%)",
+   "realocado": false,
+   "vencOriginal": "2026-08-25",
+   "bucket": "comissao"
+  },
+  {
+   "data": "2026-08-25",
+   "valor": 510,
+   "desc": "COMISSAO LEILÃO VIRTUAL BASE GENÉTICA SANTA CRUZ - 1ª ETAPA – 14/07/2026 - LEONARDO SERAFIM (2%)",
+   "realocado": false,
+   "vencOriginal": "2026-08-25",
+   "bucket": "comissao"
+  },
+  {
+   "data": "2026-08-25",
+   "valor": 480,
+   "desc": "COMISSAO LEILÃO VIRTUAL NAVIRAÍ - MATRIZES – 05/07/2026 - LEONARDO SERAFIM (2%)",
+   "realocado": false,
+   "vencOriginal": "2026-08-25",
+   "bucket": "comissao"
+  },
+  {
+   "data": "2026-08-25",
+   "valor": 420,
+   "desc": "COMISSAO 20º LEILÃO GUADALUPE AGROPECUÁRIA Touros - FABIO OMENA (2%)",
+   "realocado": false,
+   "vencOriginal": "2026-08-25",
+   "bucket": "comissao"
+  },
+  {
+   "data": "2026-08-25",
+   "valor": 6450,
+   "desc": "COMISSAO MEGA EVENTO EAO BAVIERA — Fêmeas - DOUGLAS BISPO (2%)",
+   "realocado": false,
+   "vencOriginal": "2026-08-25",
+   "bucket": "comissao"
+  },
+  {
+   "data": "2026-08-25",
+   "valor": 852,
+   "desc": "COMISSAO NELORE SANTA CRUZ - DOUGLAS BISPO (2%)",
+   "realocado": false,
+   "vencOriginal": "2026-08-25",
+   "bucket": "comissao"
+  },
+  {
+   "data": "2026-08-25",
+   "valor": 390,
+   "desc": "COMISSAO 20º LEILÃO GUADALUPE AGROPECUÁRIA Touros - A DEFINIR (2%)",
+   "realocado": false,
+   "vencOriginal": "2026-08-25",
+   "bucket": "comissao"
+  },
+  {
+   "data": "2026-08-25",
+   "valor": 1050,
+   "desc": "COMISSAO 2º ETAPA NAVIRAÍ MATRIZES - DOUGLAS BISPO (2%)",
+   "realocado": false,
+   "vencOriginal": "2026-08-25",
+   "bucket": "comissao"
+  },
+  {
+   "data": "2026-08-25",
+   "valor": 1200,
+   "desc": "COMISSAO MEGA EVENTO EAO BAVIERA — Fêmeas - LEONARDO SERAFIM (2%)",
+   "realocado": false,
+   "vencOriginal": "2026-08-25",
+   "bucket": "comissao"
+  },
+  {
+   "data": "2026-08-25",
+   "valor": 1284,
+   "desc": "COMISSAO 20º LEILÃO GUADALUPE AGROPECUÁRIA Touros - DOUGLAS BISPO (2%)",
+   "realocado": false,
+   "vencOriginal": "2026-08-25",
+   "bucket": "comissao"
+  },
+  {
+   "data": "2026-08-25",
+   "valor": 432,
+   "desc": "COMISSAO 2º ETAPA NAVIRAÍ MATRIZES - FABIO OMENA (2%)",
+   "realocado": false,
+   "vencOriginal": "2026-08-25",
+   "bucket": "comissao"
+  },
+  {
+   "data": "2026-08-25",
+   "valor": 720,
+   "desc": "COMISSAO 20º LEILÃO GUADALUPE AGROPECUÁRIA Touros - DOUGLAS BISPO (2%)",
+   "realocado": false,
+   "vencOriginal": "2026-08-25",
+   "bucket": "comissao"
+  },
+  {
+   "data": "2026-08-25",
+   "valor": 1080,
+   "desc": "COMISSAO 2º ETAPA NAVIRAÍ MATRIZES - PERALTA (2%)",
+   "realocado": false,
+   "vencOriginal": "2026-08-25",
+   "bucket": "comissao"
+  },
+  {
+   "data": "2026-08-25",
+   "valor": 1992,
+   "desc": "COMISSAO NELORE SANTA CRUZ - 19/07/2026 - DOUGLAS BISPO (2%)",
+   "realocado": false,
+   "vencOriginal": "2026-08-25",
+   "bucket": "comissao"
+  },
+  {
+   "data": "2026-08-25",
+   "valor": 4068,
+   "desc": "COMISSAO 23º LEILÃO GENÉTICA ADITIVA - 2ª ETAPA TOUROS – 26/07/2026 - LEONARDO SERAFIM (2%)",
+   "realocado": false,
+   "vencOriginal": "2026-08-25",
+   "bucket": "comissao"
+  },
+  {
+   "data": "2026-08-25",
+   "valor": 1134,
+   "desc": "COMISSAO 23º LEILÃO GENÉTICA ADITIVA - 1ª ETAPA FÊMEAS – 25/07/2026 - DOUGLAS BISPO (2%)",
+   "realocado": false,
+   "vencOriginal": "2026-08-25",
+   "bucket": "comissao"
+  },
+  {
+   "data": "2026-08-25",
+   "valor": 2916,
+   "desc": "COMISSAO MEGA EVENTO EAO BAVIERA — Machos - DOUGLAS BISPO (2%)",
+   "realocado": false,
+   "vencOriginal": "2026-08-25",
+   "bucket": "comissao"
+  },
+  {
+   "data": "2026-08-25",
+   "valor": 1710,
+   "desc": "COMISSAO LEILÃO VIRTUAL NAVIRAÍ - MATRIZES – 05/07/2026 - DOUGLAS BISPO (2%)",
+   "realocado": false,
+   "vencOriginal": "2026-08-25",
+   "bucket": "comissao"
+  },
+  {
+   "data": "2026-08-25",
+   "valor": 3060,
+   "desc": "COMISSAO MEGA EVENTO EAO BAVIERA — Machos - LEONARDO SERAFIM (2%)",
+   "realocado": false,
+   "vencOriginal": "2026-08-25",
+   "bucket": "comissao"
+  },
+  {
+   "data": "2026-08-25",
+   "valor": 642,
+   "desc": "COMISSAO 23º LEILÃO GENÉTICA ADITIVA - 2ª ETAPA TOUROS – 26/07/2026 - FABIO OMENA (2%)",
+   "realocado": false,
+   "vencOriginal": "2026-08-25",
+   "bucket": "comissao"
+  },
+  {
+   "data": "2026-08-25",
+   "valor": 1350,
+   "desc": "COMISSAO MEGA EVENTO EAO BAVIERA — Machos - FABIO OMENA (2%)",
+   "realocado": false,
+   "vencOriginal": "2026-08-25",
+   "bucket": "comissao"
+  },
+  {
+   "data": "2026-08-25",
+   "valor": 3648,
+   "desc": "COMISSAO MEGA EVENTO EAO BAVIERA — Fêmeas - FABIO OMENA (2%)",
+   "realocado": false,
+   "vencOriginal": "2026-08-25",
+   "bucket": "comissao"
+  },
+  {
+   "data": "2026-08-31",
+   "valor": 3200,
+   "desc": "Despesas operacionais - Melhoradores Especial 30 Anos, ACRISSUL/Campo Grande (29/08) (ESTIMADO)",
+   "realocado": false,
+   "vencOriginal": "2026-08-31",
+   "bucket": "corrente"
+  },
+  {
+   "data": "2026-09-05",
+   "valor": 13500,
+   "desc": "Folha Agosto/2026 - LEONARDO",
+   "realocado": false,
+   "vencOriginal": "2026-09-05",
+   "bucket": "folha"
+  },
+  {
+   "data": "2026-09-05",
+   "valor": 7000,
+   "desc": "Folha Agosto/2026 - FABIO OMENNA",
+   "realocado": false,
+   "vencOriginal": "2026-09-05",
+   "bucket": "folha"
+  },
+  {
+   "data": "2026-09-05",
+   "valor": 5000,
+   "desc": "Folha Agosto/2026 - JOÃO EDUARDO",
+   "realocado": false,
+   "vencOriginal": "2026-09-05",
+   "bucket": "folha"
+  },
+  {
+   "data": "2026-09-05",
+   "valor": 2000,
+   "desc": "Folha Agosto/2026 - JOÃO GABRIEL",
+   "realocado": false,
+   "vencOriginal": "2026-09-05",
+   "bucket": "folha"
+  },
+  {
+   "data": "2026-09-05",
+   "valor": 2000,
+   "desc": "Folha Agosto/2026 - JOÃO ANTONIO",
+   "realocado": false,
+   "vencOriginal": "2026-09-05",
+   "bucket": "folha"
+  },
+  {
+   "data": "2026-09-05",
+   "valor": 3600,
+   "desc": "Folha Agosto/2026 - DOUGLAS BISPO",
+   "realocado": false,
+   "vencOriginal": "2026-09-05",
+   "bucket": "folha"
+  },
+  {
+   "data": "2026-09-10",
+   "valor": 1058,
+   "desc": "Honorários de contabilidade",
+   "realocado": false,
+   "vencOriginal": "2026-09-10",
+   "bucket": "corrente"
+  }
+ ],
+ "comissoes25ago": 44082,
+ "comissoes25agoItens": [
+  {
+   "data": "2026-08-25",
+   "valor": 6450,
+   "desc": "COMISSAO MEGA EVENTO EAO BAVIERA — Fêmeas - DOUGLAS BISPO (2%)",
+   "realocado": false,
+   "vencOriginal": "2026-08-25",
+   "bucket": "comissao"
+  },
+  {
+   "data": "2026-08-25",
+   "valor": 4068,
+   "desc": "COMISSAO 23º LEILÃO GENÉTICA ADITIVA - 2ª ETAPA TOUROS – 26/07/2026 - LEONARDO SERAFIM (2%)",
+   "realocado": false,
+   "vencOriginal": "2026-08-25",
+   "bucket": "comissao"
+  },
+  {
+   "data": "2026-08-25",
+   "valor": 3648,
+   "desc": "COMISSAO MEGA EVENTO EAO BAVIERA — Fêmeas - FABIO OMENA (2%)",
+   "realocado": false,
+   "vencOriginal": "2026-08-25",
+   "bucket": "comissao"
+  },
+  {
+   "data": "2026-08-25",
+   "valor": 3180,
+   "desc": "COMISSAO LEILÃO NELORE SORRISO - ETAPA FÊMEAS – 12/07/2026 - DOUGLAS BISPO (2%)",
+   "realocado": false,
+   "vencOriginal": "2026-08-25",
+   "bucket": "comissao"
+  },
+  {
+   "data": "2026-08-25",
+   "valor": 3060,
+   "desc": "COMISSAO MEGA EVENTO EAO BAVIERA — Machos - LEONARDO SERAFIM (2%)",
+   "realocado": false,
+   "vencOriginal": "2026-08-25",
+   "bucket": "comissao"
+  },
+  {
+   "data": "2026-08-25",
+   "valor": 2916,
+   "desc": "COMISSAO MEGA EVENTO EAO BAVIERA — Machos - DOUGLAS BISPO (2%)",
+   "realocado": false,
+   "vencOriginal": "2026-08-25",
+   "bucket": "comissao"
+  },
+  {
+   "data": "2026-08-25",
+   "valor": 1992,
+   "desc": "COMISSAO NELORE SANTA CRUZ - 19/07/2026 - DOUGLAS BISPO (2%)",
+   "realocado": false,
+   "vencOriginal": "2026-08-25",
+   "bucket": "comissao"
+  },
+  {
+   "data": "2026-08-25",
+   "valor": 1962,
+   "desc": "COMISSAO LEILÃO VIRTUAL BASE GENÉTICA SANTA CRUZ - 1ª ETAPA – 14/07/2026 - FABIO OMENA (2%)",
+   "realocado": false,
+   "vencOriginal": "2026-08-25",
+   "bucket": "comissao"
+  },
+  {
+   "data": "2026-08-25",
+   "valor": 1710,
+   "desc": "COMISSAO LEILÃO VIRTUAL NAVIRAÍ - MATRIZES – 05/07/2026 - DOUGLAS BISPO (2%)",
+   "realocado": false,
+   "vencOriginal": "2026-08-25",
+   "bucket": "comissao"
+  },
+  {
+   "data": "2026-08-25",
+   "valor": 1350,
+   "desc": "COMISSAO MEGA EVENTO EAO BAVIERA — Machos - FABIO OMENA (2%)",
+   "realocado": false,
+   "vencOriginal": "2026-08-25",
+   "bucket": "comissao"
+  },
+  {
+   "data": "2026-08-25",
+   "valor": 1284,
+   "desc": "COMISSAO 20º LEILÃO GUADALUPE AGROPECUÁRIA Touros - DOUGLAS BISPO (2%)",
+   "realocado": false,
+   "vencOriginal": "2026-08-25",
+   "bucket": "comissao"
+  },
+  {
+   "data": "2026-08-25",
+   "valor": 1200,
+   "desc": "COMISSAO MEGA EVENTO EAO BAVIERA — Fêmeas - LEONARDO SERAFIM (2%)",
+   "realocado": false,
+   "vencOriginal": "2026-08-25",
+   "bucket": "comissao"
+  },
+  {
+   "data": "2026-08-25",
+   "valor": 1170,
+   "desc": "COMISSAO LEILÃO VIRTUAL NAVIRAÍ - MATRIZES – 05/07/2026 - FABIO OMENA (2%)",
+   "realocado": false,
+   "vencOriginal": "2026-08-25",
+   "bucket": "comissao"
+  },
+  {
+   "data": "2026-08-25",
+   "valor": 1134,
+   "desc": "COMISSAO 23º LEILÃO GENÉTICA ADITIVA - 1ª ETAPA FÊMEAS – 25/07/2026 - DOUGLAS BISPO (2%)",
+   "realocado": false,
+   "vencOriginal": "2026-08-25",
+   "bucket": "comissao"
+  },
+  {
+   "data": "2026-08-25",
+   "valor": 1080,
+   "desc": "COMISSAO 2º ETAPA NAVIRAÍ MATRIZES - PERALTA (2%)",
+   "realocado": false,
+   "vencOriginal": "2026-08-25",
+   "bucket": "comissao"
+  },
+  {
+   "data": "2026-08-25",
+   "valor": 1050,
+   "desc": "COMISSAO 2º ETAPA NAVIRAÍ MATRIZES - DOUGLAS BISPO (2%)",
+   "realocado": false,
+   "vencOriginal": "2026-08-25",
+   "bucket": "comissao"
+  },
+  {
+   "data": "2026-08-25",
+   "valor": 852,
+   "desc": "COMISSAO NELORE SANTA CRUZ - DOUGLAS BISPO (2%)",
+   "realocado": false,
+   "vencOriginal": "2026-08-25",
+   "bucket": "comissao"
+  },
+  {
+   "data": "2026-08-25",
+   "valor": 810,
+   "desc": "COMISSAO 20º LEILÃO GUADALUPE AGROPECUÁRIA Fêmeas - LEONARDO SERAFIM (2%)",
+   "realocado": false,
+   "vencOriginal": "2026-08-25",
+   "bucket": "comissao"
+  },
+  {
+   "data": "2026-08-25",
+   "valor": 720,
+   "desc": "COMISSAO 20º LEILÃO GUADALUPE AGROPECUÁRIA Touros - DOUGLAS BISPO (2%)",
+   "realocado": false,
+   "vencOriginal": "2026-08-25",
+   "bucket": "comissao"
+  },
+  {
+   "data": "2026-08-25",
+   "valor": 642,
+   "desc": "COMISSAO 23º LEILÃO GENÉTICA ADITIVA - 2ª ETAPA TOUROS – 26/07/2026 - FABIO OMENA (2%)",
+   "realocado": false,
+   "vencOriginal": "2026-08-25",
+   "bucket": "comissao"
+  },
+  {
+   "data": "2026-08-25",
+   "valor": 612,
+   "desc": "COMISSAO 2º ETAPA NAVIRAÍ MATRIZES - LEONARDO SERAFIM (2%)",
+   "realocado": false,
+   "vencOriginal": "2026-08-25",
+   "bucket": "comissao"
+  },
+  {
+   "data": "2026-08-25",
+   "valor": 570,
+   "desc": "COMISSAO 30º NELORAÇO IRMÃOS HIPÓLITO - DOUGLAS BISPO (2%)",
+   "realocado": false,
+   "vencOriginal": "2026-08-25",
+   "bucket": "comissao"
+  },
+  {
+   "data": "2026-08-25",
+   "valor": 510,
+   "desc": "COMISSAO LEILÃO VIRTUAL BASE GENÉTICA SANTA CRUZ - 1ª ETAPA – 14/07/2026 - LEONARDO SERAFIM (2%)",
+   "realocado": false,
+   "vencOriginal": "2026-08-25",
+   "bucket": "comissao"
+  },
+  {
+   "data": "2026-08-25",
+   "valor": 480,
+   "desc": "COMISSAO LEILÃO VIRTUAL NAVIRAÍ - MATRIZES – 05/07/2026 - LEONARDO SERAFIM (2%)",
+   "realocado": false,
+   "vencOriginal": "2026-08-25",
+   "bucket": "comissao"
+  },
+  {
+   "data": "2026-08-25",
+   "valor": 432,
+   "desc": "COMISSAO 2º ETAPA NAVIRAÍ MATRIZES - FABIO OMENA (2%)",
+   "realocado": false,
+   "vencOriginal": "2026-08-25",
+   "bucket": "comissao"
+  },
+  {
+   "data": "2026-08-25",
+   "valor": 420,
+   "desc": "COMISSAO 20º LEILÃO GUADALUPE AGROPECUÁRIA Touros - FABIO OMENA (2%)",
+   "realocado": false,
+   "vencOriginal": "2026-08-25",
+   "bucket": "comissao"
+  },
+  {
+   "data": "2026-08-25",
+   "valor": 390,
+   "desc": "COMISSAO 20º LEILÃO GUADALUPE AGROPECUÁRIA Fêmeas - DOUGLAS BISPO (2%)",
+   "realocado": false,
+   "vencOriginal": "2026-08-25",
+   "bucket": "comissao"
+  },
+  {
+   "data": "2026-08-25",
+   "valor": 390,
+   "desc": "COMISSAO 20º LEILÃO GUADALUPE AGROPECUÁRIA Touros - A DEFINIR (2%)",
+   "realocado": false,
+   "vencOriginal": "2026-08-25",
+   "bucket": "comissao"
+  }
+ ],
+ "folhaAgosto": 33100,
+ "folhaItens": [
+  {
+   "data": "2026-09-05",
+   "valor": 13500,
+   "desc": "Folha Agosto/2026 - LEONARDO",
+   "realocado": false,
+   "vencOriginal": "2026-09-05",
+   "bucket": "folha"
+  },
+  {
+   "data": "2026-09-05",
+   "valor": 7000,
+   "desc": "Folha Agosto/2026 - FABIO OMENNA",
+   "realocado": false,
+   "vencOriginal": "2026-09-05",
+   "bucket": "folha"
+  },
+  {
+   "data": "2026-09-05",
+   "valor": 5000,
+   "desc": "Folha Agosto/2026 - JOÃO EDUARDO",
+   "realocado": false,
+   "vencOriginal": "2026-09-05",
+   "bucket": "folha"
+  },
+  {
+   "data": "2026-09-05",
+   "valor": 3600,
+   "desc": "Folha Agosto/2026 - DOUGLAS BISPO",
+   "realocado": false,
+   "vencOriginal": "2026-09-05",
+   "bucket": "folha"
+  },
+  {
+   "data": "2026-09-05",
+   "valor": 2000,
+   "desc": "Folha Agosto/2026 - JOÃO GABRIEL",
+   "realocado": false,
+   "vencOriginal": "2026-09-05",
+   "bucket": "folha"
+  },
+  {
+   "data": "2026-09-05",
+   "valor": 2000,
+   "desc": "Folha Agosto/2026 - JOÃO ANTONIO",
+   "realocado": false,
+   "vencOriginal": "2026-09-05",
+   "bucket": "folha"
+  }
+ ],
+ "pagarTotal": 103290.42,
+ "pagarPorBucket": [
+  {
+   "bucket": "comissao",
+   "valor": 51474,
+   "n": 29
+  },
+  {
+   "bucket": "folha",
+   "valor": 33100,
+   "n": 6
+  },
+  {
+   "bucket": "imposto",
+   "valor": 950,
+   "n": 1
+  },
+  {
+   "bucket": "corrente",
+   "valor": 17766.42,
+   "n": 6
+  }
+ ],
+ "custoCorrente": {
+  "porMes": [
+   {
+    "mes": "2026-01",
+    "valor": 76631.55,
+    "parcial": false
+   },
+   {
+    "mes": "2026-02",
+    "valor": 95756.7,
+    "parcial": false
+   },
+   {
+    "mes": "2026-03",
+    "valor": 68449.86,
+    "parcial": false
+   },
+   {
+    "mes": "2026-04",
+    "valor": 51339.33,
+    "parcial": false
+   },
+   {
+    "mes": "2026-05",
+    "valor": 41763.9,
+    "parcial": false
+   },
+   {
+    "mes": "2026-06",
+    "valor": 61534.36,
+    "parcial": false
+   },
+   {
+    "mes": "2026-07",
+    "valor": 40530.23,
+    "parcial": false
+   },
+   {
+    "mes": "2026-08",
+    "valor": 33030.58,
+    "parcial": true
+   }
+  ],
+  "mesesBase": [
+   "2026-04",
+   "2026-05",
+   "2026-06",
+   "2026-07"
+  ],
+  "media": 48791.96,
+  "agostoAte20": 33030.58
+ },
+ "entradasMes": {
+  "2026-01": 170854.26,
+  "2026-07": 272139.3,
+  "2026-08": 205226.48,
+  "2026-05": 77823.19,
+  "2026-04": 84550.33,
+  "2026-06": 174367.37,
+  "2026-03": 42220.4,
+  "2026-02": 245591.78
+ },
+ "residuos": [
+  {
+   "mes": "2026-08",
+   "de": "2026-08-20",
+   "ate": "2026-08-31",
+   "prop": 38.71,
+   "esperado": 18887.21,
+   "lancado": 16708.42,
+   "residuo": 2178.79
+  },
+  {
+   "mes": "2026-09",
+   "de": "2026-09-01",
+   "ate": "2026-09-10",
+   "prop": 33.33,
+   "esperado": 16263.99,
+   "lancado": 1058,
+   "residuo": 15205.99
+  }
+ ],
+ "correnteTranches": [
+  {
+   "data": "2026-08-24",
+   "valor": 726.26
+  },
+  {
+   "data": "2026-08-28",
+   "valor": 726.26
+  },
+  {
+   "data": "2026-08-31",
+   "valor": 726.26
+  },
+  {
+   "data": "2026-09-03",
+   "valor": 7603
+  },
+  {
+   "data": "2026-09-08",
+   "valor": 7603
+  }
+ ],
+ "encargos": {
+  "fgts": 950,
+  "darf": 1114.6,
+  "mensal": 2064.6
+ },
+ "encargosJaLancado": true,
+ "cargaTributaria": [
+  {
+   "mes": "2026-05",
+   "das": 15362.21,
+   "iss": 0,
+   "total": 15362.21,
+   "base": 77823.19,
+   "pct": 19.74,
+   "pagoEm": "2026-06"
+  },
+  {
+   "mes": "2026-06",
+   "das": 28660.03,
+   "iss": 12566.78,
+   "total": 41226.81,
+   "base": 174367.37,
+   "pct": 23.64,
+   "pagoEm": "2026-07"
+  },
+  {
+   "mes": "2026-07",
+   "das": 55846.64,
+   "iss": 24524.81,
+   "total": 80371.45,
+   "base": 272139.3,
+   "pct": 29.53,
+   "pagoEm": "2026-08"
+  }
+ ],
+ "taxaTributaria": {
+  "min": 19.74,
+  "max": 29.53,
+  "media": 24.3
+ },
+ "entradasAgostoRealizado": 205226.48,
+ "cenarios": [
+  {
+   "chave": "FIRME",
+   "nome": "Só o que tem data acordada",
+   "resumo": "Entram apenas as cobranças com acordo expresso: o repasse da Bula Remates, a 1ª parcela do Guadalupe em 25/08 e o boleto do Kito em 30/08. Nenhuma outra leiloeira paga no período. É o piso, não uma previsão.",
+   "minimo": {
+    "data": "2026-09-10",
+    "saldo": -46902.56
+   },
+   "saldo25ago": -6966.04,
+   "saldo31ago": 3411.44,
+   "saldo05set": -37291.56,
+   "saldo10set": -46902.56,
+   "antesComissao": 26403.01,
+   "antesFolha": -4191.56,
+   "minAteFolha": -7692.3,
+   "diasNegativos": 13,
+   "entTotal": 45553.45,
+   "saiTotal": 121625.2,
+   "pagaComissao": false,
+   "pagaFolha": false
+  },
+  {
+   "chave": "REM5",
+   "nome": "Piso com o repasse da Bula Remates 5 dias atrasado",
+   "resumo": "O mesmo piso, mas o repasse que era para ter entrado hoje só cai em 25/08 — exatamente no dia das comissões.",
+   "minimo": {
+    "data": "2026-09-10",
+    "saldo": -46902.56
+   },
+   "saldo25ago": -6966.04,
+   "saldo31ago": 3411.44,
+   "saldo05set": -37291.56,
+   "saldo10set": -46902.56,
+   "antesComissao": 6592.51,
+   "antesFolha": -4191.56,
+   "minAteFolha": -7692.3,
+   "diasNegativos": 13,
+   "entTotal": 45553.45,
+   "saiTotal": 121625.2,
+   "pagaComissao": false,
+   "pagaFolha": false
+  },
+  {
+   "chave": "NOMINAL",
+   "nome": "Tudo na data do ERP",
+   "resumo": "Cada título entra no vencimento que o sistema calculou (leilão + 45 dias). Nenhuma dessas datas foi acordada com as leiloeiras — é o cenário otimista.",
+   "minimo": {
+    "data": "2026-08-24",
+    "saldo": 26403.01
+   },
+   "saldo25ago": 41590.46,
+   "saldo31ago": 107664.74,
+   "saldo05set": 79321.74,
+   "saldo10set": 98898.39,
+   "antesComissao": 26403.01,
+   "antesFolha": 112421.74,
+   "minAteFolha": 26403.01,
+   "diasNegativos": 0,
+   "entTotal": 191354.4,
+   "saiTotal": 121625.2,
+   "pagaComissao": true,
+   "pagaFolha": true
+  },
+  {
+   "chave": "NOM15",
+   "nome": "Cobrança fechada, +15 dias",
+   "resumo": "As cobranças sem acordo são negociadas e entram 15 dias depois da data nominal do ERP.",
+   "minimo": {
+    "data": "2026-09-08",
+    "saldo": -45844.56
+   },
+   "saldo25ago": -6966.04,
+   "saldo31ago": 3411.44,
+   "saldo05set": -37291.56,
+   "saldo10set": 41105.74,
+   "antesComissao": 26403.01,
+   "antesFolha": -4191.56,
+   "minAteFolha": -7692.3,
+   "diasNegativos": 11,
+   "entTotal": 133561.75,
+   "saiTotal": 121625.2,
+   "pagaComissao": false,
+   "pagaFolha": false
+  },
+  {
+   "chave": "ADIA",
+   "nome": "Piso, adiando as comissões para 05/09",
+   "resumo": "O piso de cobrança, mas pagando as comissões de julho junto com a folha, em 05/09, em vez de 25/08.",
+   "minimo": {
+    "data": "2026-09-10",
+    "saldo": -46902.56
+   },
+   "saldo25ago": 37115.96,
+   "saldo31ago": 47493.44,
+   "saldo05set": -37291.56,
+   "saldo10set": -46902.56,
+   "antesComissao": 26403.01,
+   "antesFolha": 39890.44,
+   "minAteFolha": 26403.01,
+   "diasNegativos": 6,
+   "entTotal": 45553.45,
+   "saiTotal": 121625.2,
+   "pagaComissao": true,
+   "pagaFolha": false
+  },
+  {
+   "chave": "EAO",
+   "nome": "Piso + o EAO Baviera pagando",
+   "resumo": "O piso mais os dois títulos do Mega Evento EAO Baviera (25 e 26/08), que sozinhos valem quase metade de tudo que a Bula tem para receber na janela. É a cobrança de maior alavanca do período.",
+   "minimo": {
+    "data": "2026-08-24",
+    "saldo": 26403.01
+   },
+   "saldo25ago": 41590.46,
+   "saldo31ago": 83469.74,
+   "saldo05set": 42766.74,
+   "saldo10set": 33155.74,
+   "antesComissao": 26403.01,
+   "antesFolha": 75866.74,
+   "minAteFolha": 26403.01,
+   "diasNegativos": 0,
+   "entTotal": 125611.75,
+   "saiTotal": 121625.2,
+   "pagaComissao": true,
+   "pagaFolha": true
+  }
+ ],
+ "linhas": {
+  "FIRME": [
+   {
+    "data": "2026-08-20",
+    "ent": 19810.5,
+    "sai": 8342,
+    "saldo": 40637.69,
+    "itens": [
+     {
+      "t": "e",
+      "data": "2026-08-20",
+      "valor": 7623,
+      "desc": "LEILAO TOUROS NELORE KIRZ (07/07) - BULA REMATES",
+      "firme": true
+     },
+     {
+      "t": "e",
+      "data": "2026-08-20",
+      "valor": 12187.5,
+      "desc": "NELORACO PO (25/07) - BULA REMATES",
+      "firme": true
+     },
+     {
+      "t": "s",
+      "data": "2026-08-20",
+      "valor": 950,
+      "desc": "FGTS/Guia CEF ref. julho/2026 (ESTIMADO)"
+     },
+     {
+      "t": "s",
+      "data": "2026-08-20",
+      "valor": 7392,
+      "desc": "SALDO DEVIDO A BULINHA (FELIPE ANDRADE) - residual do acerto de julho"
+     }
+    ]
+   },
+   {
+    "data": "2026-08-21",
+    "ent": 0,
+    "sai": 6178.45,
+    "saldo": 34459.24,
+    "itens": [
+     {
+      "t": "s",
+      "data": "2026-08-21",
+      "valor": 1981.58,
+      "desc": "BILHETE/BOLETO - LEONARDO FRANCISCO (viagem Expogenetica)"
+     },
+     {
+      "t": "s",
+      "data": "2026-08-21",
+      "valor": 4196.87,
+      "desc": "BILHETE/BOLETO - FABIO OMENA GAIA (viagem Expogenetica)"
+     }
+    ]
+   },
+   {
+    "data": "2026-08-22",
+    "ent": 0,
+    "sai": 0,
+    "saldo": 34459.24,
+    "itens": []
+   },
+   {
+    "data": "2026-08-23",
+    "ent": 0,
+    "sai": 0,
+    "saldo": 34459.24,
+    "itens": []
+   },
+   {
+    "data": "2026-08-24",
+    "ent": 0,
+    "sai": 8056.23,
+    "saldo": 26403.01,
+    "itens": [
+     {
+      "t": "s",
+      "data": "2026-08-24",
+      "valor": 5949.84,
+      "desc": "Fatura cartao VISA (DEB.CONV.DEM.EMPRES / DBAUTO VIS) - deb. agendado 24/08"
+     },
+     {
+      "t": "s",
+      "data": "2026-08-24",
+      "valor": 1380.13,
+      "desc": "Fatura cartao MASTERCARD (DEB.CONV.DEM.EMPRES) - deb. agendado 24/08"
+     },
+     {
+      "t": "s",
+      "data": "2026-08-24",
+      "valor": 726.26,
+      "desc": "Custo corrente não lançado (cartão, viagem, leilão, marketing) — estimado",
+      "estimado": true
+     }
+    ]
+   },
+   {
+    "data": "2026-08-25",
+    "ent": 10712.95,
+    "sai": 44082,
+    "saldo": -6966.04,
+    "itens": [
+     {
+      "t": "e",
+      "data": "2026-08-25",
+      "valor": 3000,
+      "desc": "20o LEILAO GUADALUPE AGROPECUARIA - FEMEAS 18/07 (5% cobertura) - COMISSAO BULA - parc. 1/2",
+      "firme": true
+     },
+     {
+      "t": "e",
+      "data": "2026-08-25",
+      "valor": 7712.95,
+      "desc": "20o LEILAO GUADALUPE AGROPECUARIA - TOUROS 19/07 domingo (0,5% faturamento) - COMISSAO BULA - parc. 1/2",
+      "firme": true
+     },
+     {
+      "t": "s",
+      "data": "2026-08-25",
+      "valor": 570,
+      "desc": "COMISSAO 30º NELORAÇO IRMÃOS HIPÓLITO - DOUGLAS BISPO (2%)"
+     },
+     {
+      "t": "s",
+      "data": "2026-08-25",
+      "valor": 390,
+      "desc": "COMISSAO 20º LEILÃO GUADALUPE AGROPECUÁRIA Fêmeas - DOUGLAS BISPO (2%)"
+     },
+     {
+      "t": "s",
+      "data": "2026-08-25",
+      "valor": 1962,
+      "desc": "COMISSAO LEILÃO VIRTUAL BASE GENÉTICA SANTA CRUZ - 1ª ETAPA – 14/07/2026 - FABIO OMENA (2%)"
+     },
+     {
+      "t": "s",
+      "data": "2026-08-25",
+      "valor": 3180,
+      "desc": "COMISSAO LEILÃO NELORE SORRISO - ETAPA FÊMEAS – 12/07/2026 - DOUGLAS BISPO (2%)"
+     },
+     {
+      "t": "s",
+      "data": "2026-08-25",
+      "valor": 810,
+      "desc": "COMISSAO 20º LEILÃO GUADALUPE AGROPECUÁRIA Fêmeas - LEONARDO SERAFIM (2%)"
+     },
+     {
+      "t": "s",
+      "data": "2026-08-25",
+      "valor": 612,
+      "desc": "COMISSAO 2º ETAPA NAVIRAÍ MATRIZES - LEONARDO SERAFIM (2%)"
+     },
+     {
+      "t": "s",
+      "data": "2026-08-25",
+      "valor": 1170,
+      "desc": "COMISSAO LEILÃO VIRTUAL NAVIRAÍ - MATRIZES – 05/07/2026 - FABIO OMENA (2%)"
+     },
+     {
+      "t": "s",
+      "data": "2026-08-25",
+      "valor": 510,
+      "desc": "COMISSAO LEILÃO VIRTUAL BASE GENÉTICA SANTA CRUZ - 1ª ETAPA – 14/07/2026 - LEONARDO SERAFIM (2%)"
+     },
+     {
+      "t": "s",
+      "data": "2026-08-25",
+      "valor": 480,
+      "desc": "COMISSAO LEILÃO VIRTUAL NAVIRAÍ - MATRIZES – 05/07/2026 - LEONARDO SERAFIM (2%)"
+     },
+     {
+      "t": "s",
+      "data": "2026-08-25",
+      "valor": 420,
+      "desc": "COMISSAO 20º LEILÃO GUADALUPE AGROPECUÁRIA Touros - FABIO OMENA (2%)"
+     },
+     {
+      "t": "s",
+      "data": "2026-08-25",
+      "valor": 6450,
+      "desc": "COMISSAO MEGA EVENTO EAO BAVIERA — Fêmeas - DOUGLAS BISPO (2%)"
+     },
+     {
+      "t": "s",
+      "data": "2026-08-25",
+      "valor": 852,
+      "desc": "COMISSAO NELORE SANTA CRUZ - DOUGLAS BISPO (2%)"
+     },
+     {
+      "t": "s",
+      "data": "2026-08-25",
+      "valor": 390,
+      "desc": "COMISSAO 20º LEILÃO GUADALUPE AGROPECUÁRIA Touros - A DEFINIR (2%)"
+     },
+     {
+      "t": "s",
+      "data": "2026-08-25",
+      "valor": 1050,
+      "desc": "COMISSAO 2º ETAPA NAVIRAÍ MATRIZES - DOUGLAS BISPO (2%)"
+     },
+     {
+      "t": "s",
+      "data": "2026-08-25",
+      "valor": 1200,
+      "desc": "COMISSAO MEGA EVENTO EAO BAVIERA — Fêmeas - LEONARDO SERAFIM (2%)"
+     },
+     {
+      "t": "s",
+      "data": "2026-08-25",
+      "valor": 1284,
+      "desc": "COMISSAO 20º LEILÃO GUADALUPE AGROPECUÁRIA Touros - DOUGLAS BISPO (2%)"
+     },
+     {
+      "t": "s",
+      "data": "2026-08-25",
+      "valor": 432,
+      "desc": "COMISSAO 2º ETAPA NAVIRAÍ MATRIZES - FABIO OMENA (2%)"
+     },
+     {
+      "t": "s",
+      "data": "2026-08-25",
+      "valor": 720,
+      "desc": "COMISSAO 20º LEILÃO GUADALUPE AGROPECUÁRIA Touros - DOUGLAS BISPO (2%)"
+     },
+     {
+      "t": "s",
+      "data": "2026-08-25",
+      "valor": 1080,
+      "desc": "COMISSAO 2º ETAPA NAVIRAÍ MATRIZES - PERALTA (2%)"
+     },
+     {
+      "t": "s",
+      "data": "2026-08-25",
+      "valor": 1992,
+      "desc": "COMISSAO NELORE SANTA CRUZ - 19/07/2026 - DOUGLAS BISPO (2%)"
+     },
+     {
+      "t": "s",
+      "data": "2026-08-25",
+      "valor": 4068,
+      "desc": "COMISSAO 23º LEILÃO GENÉTICA ADITIVA - 2ª ETAPA TOUROS – 26/07/2026 - LEONARDO SERAFIM (2%)"
+     },
+     {
+      "t": "s",
+      "data": "2026-08-25",
+      "valor": 1134,
+      "desc": "COMISSAO 23º LEILÃO GENÉTICA ADITIVA - 1ª ETAPA FÊMEAS – 25/07/2026 - DOUGLAS BISPO (2%)"
+     },
+     {
+      "t": "s",
+      "data": "2026-08-25",
+      "valor": 2916,
+      "desc": "COMISSAO MEGA EVENTO EAO BAVIERA — Machos - DOUGLAS BISPO (2%)"
+     },
+     {
+      "t": "s",
+      "data": "2026-08-25",
+      "valor": 1710,
+      "desc": "COMISSAO LEILÃO VIRTUAL NAVIRAÍ - MATRIZES – 05/07/2026 - DOUGLAS BISPO (2%)"
+     },
+     {
+      "t": "s",
+      "data": "2026-08-25",
+      "valor": 3060,
+      "desc": "COMISSAO MEGA EVENTO EAO BAVIERA — Machos - LEONARDO SERAFIM (2%)"
+     },
+     {
+      "t": "s",
+      "data": "2026-08-25",
+      "valor": 642,
+      "desc": "COMISSAO 23º LEILÃO GENÉTICA ADITIVA - 2ª ETAPA TOUROS – 26/07/2026 - FABIO OMENA (2%)"
+     },
+     {
+      "t": "s",
+      "data": "2026-08-25",
+      "valor": 1350,
+      "desc": "COMISSAO MEGA EVENTO EAO BAVIERA — Machos - FABIO OMENA (2%)"
+     },
+     {
+      "t": "s",
+      "data": "2026-08-25",
+      "valor": 3648,
+      "desc": "COMISSAO MEGA EVENTO EAO BAVIERA — Fêmeas - FABIO OMENA (2%)"
+     }
+    ]
+   },
+   {
+    "data": "2026-08-26",
+    "ent": 0,
+    "sai": 0,
+    "saldo": -6966.04,
+    "itens": []
+   },
+   {
+    "data": "2026-08-27",
+    "ent": 0,
+    "sai": 0,
+    "saldo": -6966.04,
+    "itens": []
+   },
+   {
+    "data": "2026-08-28",
+    "ent": 0,
+    "sai": 726.26,
+    "saldo": -7692.3,
+    "itens": [
+     {
+      "t": "s",
+      "data": "2026-08-28",
+      "valor": 726.26,
+      "desc": "Custo corrente não lançado (cartão, viagem, leilão, marketing) — estimado",
+      "estimado": true
+     }
+    ]
+   },
+   {
+    "data": "2026-08-29",
+    "ent": 0,
+    "sai": 0,
+    "saldo": -7692.3,
+    "itens": []
+   },
+   {
+    "data": "2026-08-30",
+    "ent": 15030,
+    "sai": 0,
+    "saldo": 7337.7,
+    "itens": [
+     {
+      "t": "e",
+      "data": "2026-08-30",
+      "valor": 15030,
+      "desc": "LEILAO 09/05 - KITO - COMISSAO BULA (2/2)",
+      "firme": true
+     }
+    ]
+   },
+   {
+    "data": "2026-08-31",
+    "ent": 0,
+    "sai": 3926.26,
+    "saldo": 3411.44,
+    "itens": [
+     {
+      "t": "s",
+      "data": "2026-08-31",
+      "valor": 3200,
+      "desc": "Despesas operacionais - Melhoradores Especial 30 Anos, ACRISSUL/Campo Grande (29/08) (ESTIMADO)"
+     },
+     {
+      "t": "s",
+      "data": "2026-08-31",
+      "valor": 726.26,
+      "desc": "Custo corrente não lançado (cartão, viagem, leilão, marketing) — estimado",
+      "estimado": true
+     }
+    ]
+   },
+   {
+    "data": "2026-09-01",
+    "ent": 0,
+    "sai": 0,
+    "saldo": 3411.44,
+    "itens": []
+   },
+   {
+    "data": "2026-09-02",
+    "ent": 0,
+    "sai": 0,
+    "saldo": 3411.44,
+    "itens": []
+   },
+   {
+    "data": "2026-09-03",
+    "ent": 0,
+    "sai": 7603,
+    "saldo": -4191.56,
+    "itens": [
+     {
+      "t": "s",
+      "data": "2026-09-03",
+      "valor": 7603,
+      "desc": "Custo corrente não lançado (cartão, viagem, leilão, marketing) — estimado",
+      "estimado": true
+     }
+    ]
+   },
+   {
+    "data": "2026-09-04",
+    "ent": 0,
+    "sai": 0,
+    "saldo": -4191.56,
+    "itens": []
+   },
+   {
+    "data": "2026-09-05",
+    "ent": 0,
+    "sai": 33100,
+    "saldo": -37291.56,
+    "itens": [
+     {
+      "t": "s",
+      "data": "2026-09-05",
+      "valor": 13500,
+      "desc": "Folha Agosto/2026 - LEONARDO"
+     },
+     {
+      "t": "s",
+      "data": "2026-09-05",
+      "valor": 7000,
+      "desc": "Folha Agosto/2026 - FABIO OMENNA"
+     },
+     {
+      "t": "s",
+      "data": "2026-09-05",
+      "valor": 5000,
+      "desc": "Folha Agosto/2026 - JOÃO EDUARDO"
+     },
+     {
+      "t": "s",
+      "data": "2026-09-05",
+      "valor": 2000,
+      "desc": "Folha Agosto/2026 - JOÃO GABRIEL"
+     },
+     {
+      "t": "s",
+      "data": "2026-09-05",
+      "valor": 2000,
+      "desc": "Folha Agosto/2026 - JOÃO ANTONIO"
+     },
+     {
+      "t": "s",
+      "data": "2026-09-05",
+      "valor": 3600,
+      "desc": "Folha Agosto/2026 - DOUGLAS BISPO"
+     }
+    ]
+   },
+   {
+    "data": "2026-09-06",
+    "ent": 0,
+    "sai": 0,
+    "saldo": -37291.56,
+    "itens": []
+   },
+   {
+    "data": "2026-09-07",
+    "ent": 0,
+    "sai": 950,
+    "saldo": -38241.56,
+    "itens": [
+     {
+      "t": "s",
+      "data": "2026-09-07",
+      "valor": 950,
+      "desc": "FGTS ref. agosto — estimado",
+      "estimado": true
+     }
+    ]
+   },
+   {
+    "data": "2026-09-08",
+    "ent": 0,
+    "sai": 7603,
+    "saldo": -45844.56,
+    "itens": [
+     {
+      "t": "s",
+      "data": "2026-09-08",
+      "valor": 7603,
+      "desc": "Custo corrente não lançado (cartão, viagem, leilão, marketing) — estimado",
+      "estimado": true
+     }
+    ]
+   },
+   {
+    "data": "2026-09-09",
+    "ent": 0,
+    "sai": 0,
+    "saldo": -45844.56,
+    "itens": []
+   },
+   {
+    "data": "2026-09-10",
+    "ent": 0,
+    "sai": 1058,
+    "saldo": -46902.56,
+    "itens": [
+     {
+      "t": "s",
+      "data": "2026-09-10",
+      "valor": 1058,
+      "desc": "Honorários de contabilidade"
+     }
+    ]
+   }
+  ],
+  "REM5": [
+   {
+    "data": "2026-08-20",
+    "ent": 0,
+    "sai": 8342,
+    "saldo": 20827.19,
+    "itens": [
+     {
+      "t": "s",
+      "data": "2026-08-20",
+      "valor": 950,
+      "desc": "FGTS/Guia CEF ref. julho/2026 (ESTIMADO)"
+     },
+     {
+      "t": "s",
+      "data": "2026-08-20",
+      "valor": 7392,
+      "desc": "SALDO DEVIDO A BULINHA (FELIPE ANDRADE) - residual do acerto de julho"
+     }
+    ]
+   },
+   {
+    "data": "2026-08-21",
+    "ent": 0,
+    "sai": 6178.45,
+    "saldo": 14648.74,
+    "itens": [
+     {
+      "t": "s",
+      "data": "2026-08-21",
+      "valor": 1981.58,
+      "desc": "BILHETE/BOLETO - LEONARDO FRANCISCO (viagem Expogenetica)"
+     },
+     {
+      "t": "s",
+      "data": "2026-08-21",
+      "valor": 4196.87,
+      "desc": "BILHETE/BOLETO - FABIO OMENA GAIA (viagem Expogenetica)"
+     }
+    ]
+   },
+   {
+    "data": "2026-08-22",
+    "ent": 0,
+    "sai": 0,
+    "saldo": 14648.74,
+    "itens": []
+   },
+   {
+    "data": "2026-08-23",
+    "ent": 0,
+    "sai": 0,
+    "saldo": 14648.74,
+    "itens": []
+   },
+   {
+    "data": "2026-08-24",
+    "ent": 0,
+    "sai": 8056.23,
+    "saldo": 6592.51,
+    "itens": [
+     {
+      "t": "s",
+      "data": "2026-08-24",
+      "valor": 5949.84,
+      "desc": "Fatura cartao VISA (DEB.CONV.DEM.EMPRES / DBAUTO VIS) - deb. agendado 24/08"
+     },
+     {
+      "t": "s",
+      "data": "2026-08-24",
+      "valor": 1380.13,
+      "desc": "Fatura cartao MASTERCARD (DEB.CONV.DEM.EMPRES) - deb. agendado 24/08"
+     },
+     {
+      "t": "s",
+      "data": "2026-08-24",
+      "valor": 726.26,
+      "desc": "Custo corrente não lançado (cartão, viagem, leilão, marketing) — estimado",
+      "estimado": true
+     }
+    ]
+   },
+   {
+    "data": "2026-08-25",
+    "ent": 30523.45,
+    "sai": 44082,
+    "saldo": -6966.04,
+    "itens": [
+     {
+      "t": "e",
+      "data": "2026-08-25",
+      "valor": 7623,
+      "desc": "LEILAO TOUROS NELORE KIRZ (07/07) - BULA REMATES",
+      "firme": true
+     },
+     {
+      "t": "e",
+      "data": "2026-08-25",
+      "valor": 12187.5,
+      "desc": "NELORACO PO (25/07) - BULA REMATES",
+      "firme": true
+     },
+     {
+      "t": "e",
+      "data": "2026-08-25",
+      "valor": 3000,
+      "desc": "20o LEILAO GUADALUPE AGROPECUARIA - FEMEAS 18/07 (5% cobertura) - COMISSAO BULA - parc. 1/2",
+      "firme": true
+     },
+     {
+      "t": "e",
+      "data": "2026-08-25",
+      "valor": 7712.95,
+      "desc": "20o LEILAO GUADALUPE AGROPECUARIA - TOUROS 19/07 domingo (0,5% faturamento) - COMISSAO BULA - parc. 1/2",
+      "firme": true
+     },
+     {
+      "t": "s",
+      "data": "2026-08-25",
+      "valor": 570,
+      "desc": "COMISSAO 30º NELORAÇO IRMÃOS HIPÓLITO - DOUGLAS BISPO (2%)"
+     },
+     {
+      "t": "s",
+      "data": "2026-08-25",
+      "valor": 390,
+      "desc": "COMISSAO 20º LEILÃO GUADALUPE AGROPECUÁRIA Fêmeas - DOUGLAS BISPO (2%)"
+     },
+     {
+      "t": "s",
+      "data": "2026-08-25",
+      "valor": 1962,
+      "desc": "COMISSAO LEILÃO VIRTUAL BASE GENÉTICA SANTA CRUZ - 1ª ETAPA – 14/07/2026 - FABIO OMENA (2%)"
+     },
+     {
+      "t": "s",
+      "data": "2026-08-25",
+      "valor": 3180,
+      "desc": "COMISSAO LEILÃO NELORE SORRISO - ETAPA FÊMEAS – 12/07/2026 - DOUGLAS BISPO (2%)"
+     },
+     {
+      "t": "s",
+      "data": "2026-08-25",
+      "valor": 810,
+      "desc": "COMISSAO 20º LEILÃO GUADALUPE AGROPECUÁRIA Fêmeas - LEONARDO SERAFIM (2%)"
+     },
+     {
+      "t": "s",
+      "data": "2026-08-25",
+      "valor": 612,
+      "desc": "COMISSAO 2º ETAPA NAVIRAÍ MATRIZES - LEONARDO SERAFIM (2%)"
+     },
+     {
+      "t": "s",
+      "data": "2026-08-25",
+      "valor": 1170,
+      "desc": "COMISSAO LEILÃO VIRTUAL NAVIRAÍ - MATRIZES – 05/07/2026 - FABIO OMENA (2%)"
+     },
+     {
+      "t": "s",
+      "data": "2026-08-25",
+      "valor": 510,
+      "desc": "COMISSAO LEILÃO VIRTUAL BASE GENÉTICA SANTA CRUZ - 1ª ETAPA – 14/07/2026 - LEONARDO SERAFIM (2%)"
+     },
+     {
+      "t": "s",
+      "data": "2026-08-25",
+      "valor": 480,
+      "desc": "COMISSAO LEILÃO VIRTUAL NAVIRAÍ - MATRIZES – 05/07/2026 - LEONARDO SERAFIM (2%)"
+     },
+     {
+      "t": "s",
+      "data": "2026-08-25",
+      "valor": 420,
+      "desc": "COMISSAO 20º LEILÃO GUADALUPE AGROPECUÁRIA Touros - FABIO OMENA (2%)"
+     },
+     {
+      "t": "s",
+      "data": "2026-08-25",
+      "valor": 6450,
+      "desc": "COMISSAO MEGA EVENTO EAO BAVIERA — Fêmeas - DOUGLAS BISPO (2%)"
+     },
+     {
+      "t": "s",
+      "data": "2026-08-25",
+      "valor": 852,
+      "desc": "COMISSAO NELORE SANTA CRUZ - DOUGLAS BISPO (2%)"
+     },
+     {
+      "t": "s",
+      "data": "2026-08-25",
+      "valor": 390,
+      "desc": "COMISSAO 20º LEILÃO GUADALUPE AGROPECUÁRIA Touros - A DEFINIR (2%)"
+     },
+     {
+      "t": "s",
+      "data": "2026-08-25",
+      "valor": 1050,
+      "desc": "COMISSAO 2º ETAPA NAVIRAÍ MATRIZES - DOUGLAS BISPO (2%)"
+     },
+     {
+      "t": "s",
+      "data": "2026-08-25",
+      "valor": 1200,
+      "desc": "COMISSAO MEGA EVENTO EAO BAVIERA — Fêmeas - LEONARDO SERAFIM (2%)"
+     },
+     {
+      "t": "s",
+      "data": "2026-08-25",
+      "valor": 1284,
+      "desc": "COMISSAO 20º LEILÃO GUADALUPE AGROPECUÁRIA Touros - DOUGLAS BISPO (2%)"
+     },
+     {
+      "t": "s",
+      "data": "2026-08-25",
+      "valor": 432,
+      "desc": "COMISSAO 2º ETAPA NAVIRAÍ MATRIZES - FABIO OMENA (2%)"
+     },
+     {
+      "t": "s",
+      "data": "2026-08-25",
+      "valor": 720,
+      "desc": "COMISSAO 20º LEILÃO GUADALUPE AGROPECUÁRIA Touros - DOUGLAS BISPO (2%)"
+     },
+     {
+      "t": "s",
+      "data": "2026-08-25",
+      "valor": 1080,
+      "desc": "COMISSAO 2º ETAPA NAVIRAÍ MATRIZES - PERALTA (2%)"
+     },
+     {
+      "t": "s",
+      "data": "2026-08-25",
+      "valor": 1992,
+      "desc": "COMISSAO NELORE SANTA CRUZ - 19/07/2026 - DOUGLAS BISPO (2%)"
+     },
+     {
+      "t": "s",
+      "data": "2026-08-25",
+      "valor": 4068,
+      "desc": "COMISSAO 23º LEILÃO GENÉTICA ADITIVA - 2ª ETAPA TOUROS – 26/07/2026 - LEONARDO SERAFIM (2%)"
+     },
+     {
+      "t": "s",
+      "data": "2026-08-25",
+      "valor": 1134,
+      "desc": "COMISSAO 23º LEILÃO GENÉTICA ADITIVA - 1ª ETAPA FÊMEAS – 25/07/2026 - DOUGLAS BISPO (2%)"
+     },
+     {
+      "t": "s",
+      "data": "2026-08-25",
+      "valor": 2916,
+      "desc": "COMISSAO MEGA EVENTO EAO BAVIERA — Machos - DOUGLAS BISPO (2%)"
+     },
+     {
+      "t": "s",
+      "data": "2026-08-25",
+      "valor": 1710,
+      "desc": "COMISSAO LEILÃO VIRTUAL NAVIRAÍ - MATRIZES – 05/07/2026 - DOUGLAS BISPO (2%)"
+     },
+     {
+      "t": "s",
+      "data": "2026-08-25",
+      "valor": 3060,
+      "desc": "COMISSAO MEGA EVENTO EAO BAVIERA — Machos - LEONARDO SERAFIM (2%)"
+     },
+     {
+      "t": "s",
+      "data": "2026-08-25",
+      "valor": 642,
+      "desc": "COMISSAO 23º LEILÃO GENÉTICA ADITIVA - 2ª ETAPA TOUROS – 26/07/2026 - FABIO OMENA (2%)"
+     },
+     {
+      "t": "s",
+      "data": "2026-08-25",
+      "valor": 1350,
+      "desc": "COMISSAO MEGA EVENTO EAO BAVIERA — Machos - FABIO OMENA (2%)"
+     },
+     {
+      "t": "s",
+      "data": "2026-08-25",
+      "valor": 3648,
+      "desc": "COMISSAO MEGA EVENTO EAO BAVIERA — Fêmeas - FABIO OMENA (2%)"
+     }
+    ]
+   },
+   {
+    "data": "2026-08-26",
+    "ent": 0,
+    "sai": 0,
+    "saldo": -6966.04,
+    "itens": []
+   },
+   {
+    "data": "2026-08-27",
+    "ent": 0,
+    "sai": 0,
+    "saldo": -6966.04,
+    "itens": []
+   },
+   {
+    "data": "2026-08-28",
+    "ent": 0,
+    "sai": 726.26,
+    "saldo": -7692.3,
+    "itens": [
+     {
+      "t": "s",
+      "data": "2026-08-28",
+      "valor": 726.26,
+      "desc": "Custo corrente não lançado (cartão, viagem, leilão, marketing) — estimado",
+      "estimado": true
+     }
+    ]
+   },
+   {
+    "data": "2026-08-29",
+    "ent": 0,
+    "sai": 0,
+    "saldo": -7692.3,
+    "itens": []
+   },
+   {
+    "data": "2026-08-30",
+    "ent": 15030,
+    "sai": 0,
+    "saldo": 7337.7,
+    "itens": [
+     {
+      "t": "e",
+      "data": "2026-08-30",
+      "valor": 15030,
+      "desc": "LEILAO 09/05 - KITO - COMISSAO BULA (2/2)",
+      "firme": true
+     }
+    ]
+   },
+   {
+    "data": "2026-08-31",
+    "ent": 0,
+    "sai": 3926.26,
+    "saldo": 3411.44,
+    "itens": [
+     {
+      "t": "s",
+      "data": "2026-08-31",
+      "valor": 3200,
+      "desc": "Despesas operacionais - Melhoradores Especial 30 Anos, ACRISSUL/Campo Grande (29/08) (ESTIMADO)"
+     },
+     {
+      "t": "s",
+      "data": "2026-08-31",
+      "valor": 726.26,
+      "desc": "Custo corrente não lançado (cartão, viagem, leilão, marketing) — estimado",
+      "estimado": true
+     }
+    ]
+   },
+   {
+    "data": "2026-09-01",
+    "ent": 0,
+    "sai": 0,
+    "saldo": 3411.44,
+    "itens": []
+   },
+   {
+    "data": "2026-09-02",
+    "ent": 0,
+    "sai": 0,
+    "saldo": 3411.44,
+    "itens": []
+   },
+   {
+    "data": "2026-09-03",
+    "ent": 0,
+    "sai": 7603,
+    "saldo": -4191.56,
+    "itens": [
+     {
+      "t": "s",
+      "data": "2026-09-03",
+      "valor": 7603,
+      "desc": "Custo corrente não lançado (cartão, viagem, leilão, marketing) — estimado",
+      "estimado": true
+     }
+    ]
+   },
+   {
+    "data": "2026-09-04",
+    "ent": 0,
+    "sai": 0,
+    "saldo": -4191.56,
+    "itens": []
+   },
+   {
+    "data": "2026-09-05",
+    "ent": 0,
+    "sai": 33100,
+    "saldo": -37291.56,
+    "itens": [
+     {
+      "t": "s",
+      "data": "2026-09-05",
+      "valor": 13500,
+      "desc": "Folha Agosto/2026 - LEONARDO"
+     },
+     {
+      "t": "s",
+      "data": "2026-09-05",
+      "valor": 7000,
+      "desc": "Folha Agosto/2026 - FABIO OMENNA"
+     },
+     {
+      "t": "s",
+      "data": "2026-09-05",
+      "valor": 5000,
+      "desc": "Folha Agosto/2026 - JOÃO EDUARDO"
+     },
+     {
+      "t": "s",
+      "data": "2026-09-05",
+      "valor": 2000,
+      "desc": "Folha Agosto/2026 - JOÃO GABRIEL"
+     },
+     {
+      "t": "s",
+      "data": "2026-09-05",
+      "valor": 2000,
+      "desc": "Folha Agosto/2026 - JOÃO ANTONIO"
+     },
+     {
+      "t": "s",
+      "data": "2026-09-05",
+      "valor": 3600,
+      "desc": "Folha Agosto/2026 - DOUGLAS BISPO"
+     }
+    ]
+   },
+   {
+    "data": "2026-09-06",
+    "ent": 0,
+    "sai": 0,
+    "saldo": -37291.56,
+    "itens": []
+   },
+   {
+    "data": "2026-09-07",
+    "ent": 0,
+    "sai": 950,
+    "saldo": -38241.56,
+    "itens": [
+     {
+      "t": "s",
+      "data": "2026-09-07",
+      "valor": 950,
+      "desc": "FGTS ref. agosto — estimado",
+      "estimado": true
+     }
+    ]
+   },
+   {
+    "data": "2026-09-08",
+    "ent": 0,
+    "sai": 7603,
+    "saldo": -45844.56,
+    "itens": [
+     {
+      "t": "s",
+      "data": "2026-09-08",
+      "valor": 7603,
+      "desc": "Custo corrente não lançado (cartão, viagem, leilão, marketing) — estimado",
+      "estimado": true
+     }
+    ]
+   },
+   {
+    "data": "2026-09-09",
+    "ent": 0,
+    "sai": 0,
+    "saldo": -45844.56,
+    "itens": []
+   },
+   {
+    "data": "2026-09-10",
+    "ent": 0,
+    "sai": 1058,
+    "saldo": -46902.56,
+    "itens": [
+     {
+      "t": "s",
+      "data": "2026-09-10",
+      "valor": 1058,
+      "desc": "Honorários de contabilidade"
+     }
+    ]
+   }
+  ],
+  "NOMINAL": [
+   {
+    "data": "2026-08-20",
+    "ent": 19810.5,
+    "sai": 8342,
+    "saldo": 40637.69,
+    "itens": [
+     {
+      "t": "e",
+      "data": "2026-08-20",
+      "valor": 7623,
+      "desc": "LEILAO TOUROS NELORE KIRZ (07/07) - BULA REMATES",
+      "firme": true
+     },
+     {
+      "t": "e",
+      "data": "2026-08-20",
+      "valor": 12187.5,
+      "desc": "NELORACO PO (25/07) - BULA REMATES",
+      "firme": true
+     },
+     {
+      "t": "s",
+      "data": "2026-08-20",
+      "valor": 950,
+      "desc": "FGTS/Guia CEF ref. julho/2026 (ESTIMADO)"
+     },
+     {
+      "t": "s",
+      "data": "2026-08-20",
+      "valor": 7392,
+      "desc": "SALDO DEVIDO A BULINHA (FELIPE ANDRADE) - residual do acerto de julho"
+     }
+    ]
+   },
+   {
+    "data": "2026-08-21",
+    "ent": 0,
+    "sai": 6178.45,
+    "saldo": 34459.24,
+    "itens": [
+     {
+      "t": "s",
+      "data": "2026-08-21",
+      "valor": 1981.58,
+      "desc": "BILHETE/BOLETO - LEONARDO FRANCISCO (viagem Expogenetica)"
+     },
+     {
+      "t": "s",
+      "data": "2026-08-21",
+      "valor": 4196.87,
+      "desc": "BILHETE/BOLETO - FABIO OMENA GAIA (viagem Expogenetica)"
+     }
+    ]
+   },
+   {
+    "data": "2026-08-22",
+    "ent": 0,
+    "sai": 0,
+    "saldo": 34459.24,
+    "itens": []
+   },
+   {
+    "data": "2026-08-23",
+    "ent": 0,
+    "sai": 0,
+    "saldo": 34459.24,
+    "itens": []
+   },
+   {
+    "data": "2026-08-24",
+    "ent": 0,
+    "sai": 8056.23,
+    "saldo": 26403.01,
+    "itens": [
+     {
+      "t": "s",
+      "data": "2026-08-24",
+      "valor": 5949.84,
+      "desc": "Fatura cartao VISA (DEB.CONV.DEM.EMPRES / DBAUTO VIS) - deb. agendado 24/08"
+     },
+     {
+      "t": "s",
+      "data": "2026-08-24",
+      "valor": 1380.13,
+      "desc": "Fatura cartao MASTERCARD (DEB.CONV.DEM.EMPRES) - deb. agendado 24/08"
+     },
+     {
+      "t": "s",
+      "data": "2026-08-24",
+      "valor": 726.26,
+      "desc": "Custo corrente não lançado (cartão, viagem, leilão, marketing) — estimado",
+      "estimado": true
+     }
+    ]
+   },
+   {
+    "data": "2026-08-25",
+    "ent": 59269.45,
+    "sai": 44082,
+    "saldo": 41590.46,
+    "itens": [
+     {
+      "t": "e",
+      "data": "2026-08-25",
+      "valor": 3000,
+      "desc": "20o LEILAO GUADALUPE AGROPECUARIA - FEMEAS 18/07 (5% cobertura) - COMISSAO BULA - parc. 1/2",
+      "firme": true
+     },
+     {
+      "t": "e",
+      "data": "2026-08-25",
+      "valor": 48556.5,
+      "desc": "MEGA EVENTO EAO BAVIERA (10-11/07) - COMISSAO BULA",
+      "firme": false
+     },
+     {
+      "t": "e",
+      "data": "2026-08-25",
+      "valor": 7712.95,
+      "desc": "20o LEILAO GUADALUPE AGROPECUARIA - TOUROS 19/07 domingo (0,5% faturamento) - COMISSAO BULA - parc. 1/2",
+      "firme": true
+     },
+     {
+      "t": "s",
+      "data": "2026-08-25",
+      "valor": 570,
+      "desc": "COMISSAO 30º NELORAÇO IRMÃOS HIPÓLITO - DOUGLAS BISPO (2%)"
+     },
+     {
+      "t": "s",
+      "data": "2026-08-25",
+      "valor": 390,
+      "desc": "COMISSAO 20º LEILÃO GUADALUPE AGROPECUÁRIA Fêmeas - DOUGLAS BISPO (2%)"
+     },
+     {
+      "t": "s",
+      "data": "2026-08-25",
+      "valor": 1962,
+      "desc": "COMISSAO LEILÃO VIRTUAL BASE GENÉTICA SANTA CRUZ - 1ª ETAPA – 14/07/2026 - FABIO OMENA (2%)"
+     },
+     {
+      "t": "s",
+      "data": "2026-08-25",
+      "valor": 3180,
+      "desc": "COMISSAO LEILÃO NELORE SORRISO - ETAPA FÊMEAS – 12/07/2026 - DOUGLAS BISPO (2%)"
+     },
+     {
+      "t": "s",
+      "data": "2026-08-25",
+      "valor": 810,
+      "desc": "COMISSAO 20º LEILÃO GUADALUPE AGROPECUÁRIA Fêmeas - LEONARDO SERAFIM (2%)"
+     },
+     {
+      "t": "s",
+      "data": "2026-08-25",
+      "valor": 612,
+      "desc": "COMISSAO 2º ETAPA NAVIRAÍ MATRIZES - LEONARDO SERAFIM (2%)"
+     },
+     {
+      "t": "s",
+      "data": "2026-08-25",
+      "valor": 1170,
+      "desc": "COMISSAO LEILÃO VIRTUAL NAVIRAÍ - MATRIZES – 05/07/2026 - FABIO OMENA (2%)"
+     },
+     {
+      "t": "s",
+      "data": "2026-08-25",
+      "valor": 510,
+      "desc": "COMISSAO LEILÃO VIRTUAL BASE GENÉTICA SANTA CRUZ - 1ª ETAPA – 14/07/2026 - LEONARDO SERAFIM (2%)"
+     },
+     {
+      "t": "s",
+      "data": "2026-08-25",
+      "valor": 480,
+      "desc": "COMISSAO LEILÃO VIRTUAL NAVIRAÍ - MATRIZES – 05/07/2026 - LEONARDO SERAFIM (2%)"
+     },
+     {
+      "t": "s",
+      "data": "2026-08-25",
+      "valor": 420,
+      "desc": "COMISSAO 20º LEILÃO GUADALUPE AGROPECUÁRIA Touros - FABIO OMENA (2%)"
+     },
+     {
+      "t": "s",
+      "data": "2026-08-25",
+      "valor": 6450,
+      "desc": "COMISSAO MEGA EVENTO EAO BAVIERA — Fêmeas - DOUGLAS BISPO (2%)"
+     },
+     {
+      "t": "s",
+      "data": "2026-08-25",
+      "valor": 852,
+      "desc": "COMISSAO NELORE SANTA CRUZ - DOUGLAS BISPO (2%)"
+     },
+     {
+      "t": "s",
+      "data": "2026-08-25",
+      "valor": 390,
+      "desc": "COMISSAO 20º LEILÃO GUADALUPE AGROPECUÁRIA Touros - A DEFINIR (2%)"
+     },
+     {
+      "t": "s",
+      "data": "2026-08-25",
+      "valor": 1050,
+      "desc": "COMISSAO 2º ETAPA NAVIRAÍ MATRIZES - DOUGLAS BISPO (2%)"
+     },
+     {
+      "t": "s",
+      "data": "2026-08-25",
+      "valor": 1200,
+      "desc": "COMISSAO MEGA EVENTO EAO BAVIERA — Fêmeas - LEONARDO SERAFIM (2%)"
+     },
+     {
+      "t": "s",
+      "data": "2026-08-25",
+      "valor": 1284,
+      "desc": "COMISSAO 20º LEILÃO GUADALUPE AGROPECUÁRIA Touros - DOUGLAS BISPO (2%)"
+     },
+     {
+      "t": "s",
+      "data": "2026-08-25",
+      "valor": 432,
+      "desc": "COMISSAO 2º ETAPA NAVIRAÍ MATRIZES - FABIO OMENA (2%)"
+     },
+     {
+      "t": "s",
+      "data": "2026-08-25",
+      "valor": 720,
+      "desc": "COMISSAO 20º LEILÃO GUADALUPE AGROPECUÁRIA Touros - DOUGLAS BISPO (2%)"
+     },
+     {
+      "t": "s",
+      "data": "2026-08-25",
+      "valor": 1080,
+      "desc": "COMISSAO 2º ETAPA NAVIRAÍ MATRIZES - PERALTA (2%)"
+     },
+     {
+      "t": "s",
+      "data": "2026-08-25",
+      "valor": 1992,
+      "desc": "COMISSAO NELORE SANTA CRUZ - 19/07/2026 - DOUGLAS BISPO (2%)"
+     },
+     {
+      "t": "s",
+      "data": "2026-08-25",
+      "valor": 4068,
+      "desc": "COMISSAO 23º LEILÃO GENÉTICA ADITIVA - 2ª ETAPA TOUROS – 26/07/2026 - LEONARDO SERAFIM (2%)"
+     },
+     {
+      "t": "s",
+      "data": "2026-08-25",
+      "valor": 1134,
+      "desc": "COMISSAO 23º LEILÃO GENÉTICA ADITIVA - 1ª ETAPA FÊMEAS – 25/07/2026 - DOUGLAS BISPO (2%)"
+     },
+     {
+      "t": "s",
+      "data": "2026-08-25",
+      "valor": 2916,
+      "desc": "COMISSAO MEGA EVENTO EAO BAVIERA — Machos - DOUGLAS BISPO (2%)"
+     },
+     {
+      "t": "s",
+      "data": "2026-08-25",
+      "valor": 1710,
+      "desc": "COMISSAO LEILÃO VIRTUAL NAVIRAÍ - MATRIZES – 05/07/2026 - DOUGLAS BISPO (2%)"
+     },
+     {
+      "t": "s",
+      "data": "2026-08-25",
+      "valor": 3060,
+      "desc": "COMISSAO MEGA EVENTO EAO BAVIERA — Machos - LEONARDO SERAFIM (2%)"
+     },
+     {
+      "t": "s",
+      "data": "2026-08-25",
+      "valor": 642,
+      "desc": "COMISSAO 23º LEILÃO GENÉTICA ADITIVA - 2ª ETAPA TOUROS – 26/07/2026 - FABIO OMENA (2%)"
+     },
+     {
+      "t": "s",
+      "data": "2026-08-25",
+      "valor": 1350,
+      "desc": "COMISSAO MEGA EVENTO EAO BAVIERA — Machos - FABIO OMENA (2%)"
+     },
+     {
+      "t": "s",
+      "data": "2026-08-25",
+      "valor": 3648,
+      "desc": "COMISSAO MEGA EVENTO EAO BAVIERA — Fêmeas - FABIO OMENA (2%)"
+     }
+    ]
+   },
+   {
+    "data": "2026-08-26",
+    "ent": 39451.8,
+    "sai": 0,
+    "saldo": 81042.26,
+    "itens": [
+     {
+      "t": "e",
+      "data": "2026-08-26",
+      "valor": 7950,
+      "desc": "LEILAO NELORE SORRISO - ETAPA FEMEAS (12/07) - COMISSAO BULA",
+      "firme": false
+     },
+     {
+      "t": "e",
+      "data": "2026-08-26",
+      "valor": 31501.8,
+      "desc": "MEGA EVENTO EAO BAVIERA — Machos (12/07) - COMISSAO BULA",
+      "firme": false
+     }
+    ]
+   },
+   {
+    "data": "2026-08-27",
+    "ent": 0,
+    "sai": 0,
+    "saldo": 81042.26,
+    "itens": []
+   },
+   {
+    "data": "2026-08-28",
+    "ent": 6180,
+    "sai": 726.26,
+    "saldo": 86496,
+    "itens": [
+     {
+      "t": "e",
+      "data": "2026-08-28",
+      "valor": 6180,
+      "desc": "LEILÃO VIRTUAL BASE GENÉTICA SANTA CRUZ - 1ª ETAPA – 14/07/2026 (14/07) - COMISSAO BULA",
+      "firme": false
+     },
+     {
+      "t": "s",
+      "data": "2026-08-28",
+      "valor": 726.26,
+      "desc": "Custo corrente não lançado (cartão, viagem, leilão, marketing) — estimado",
+      "estimado": true
+     }
+    ]
+   },
+   {
+    "data": "2026-08-29",
+    "ent": 2130,
+    "sai": 0,
+    "saldo": 88626,
+    "itens": [
+     {
+      "t": "e",
+      "data": "2026-08-29",
+      "valor": 2130,
+      "desc": "NELORE SANTA CRUZ (15/07) - COMISSAO BULA",
+      "firme": false
+     }
+    ]
+   },
+   {
+    "data": "2026-08-30",
+    "ent": 22965,
+    "sai": 0,
+    "saldo": 111591,
+    "itens": [
+     {
+      "t": "e",
+      "data": "2026-08-30",
+      "valor": 7935,
+      "desc": "2a ETAPA NAVIRAI MATRIZES (16/07) - COMISSAO BULA",
+      "firme": false
+     },
+     {
+      "t": "e",
+      "data": "2026-08-30",
+      "valor": 15030,
+      "desc": "LEILAO 09/05 - KITO - COMISSAO BULA (2/2)",
+      "firme": true
+     }
+    ]
+   },
+   {
+    "data": "2026-08-31",
+    "ent": 0,
+    "sai": 3926.26,
+    "saldo": 107664.74,
+    "itens": [
+     {
+      "t": "s",
+      "data": "2026-08-31",
+      "valor": 3200,
+      "desc": "Despesas operacionais - Melhoradores Especial 30 Anos, ACRISSUL/Campo Grande (29/08) (ESTIMADO)"
+     },
+     {
+      "t": "s",
+      "data": "2026-08-31",
+      "valor": 726.26,
+      "desc": "Custo corrente não lançado (cartão, viagem, leilão, marketing) — estimado",
+      "estimado": true
+     }
+    ]
+   },
+   {
+    "data": "2026-09-01",
+    "ent": 0,
+    "sai": 0,
+    "saldo": 107664.74,
+    "itens": []
+   },
+   {
+    "data": "2026-09-02",
+    "ent": 12360,
+    "sai": 0,
+    "saldo": 120024.74,
+    "itens": [
+     {
+      "t": "e",
+      "data": "2026-09-02",
+      "valor": 12360,
+      "desc": "NELORE SANTA CRUZ - 19/07/2026 (19/07) - COMISSAO BULA",
+      "firme": false
+     }
+    ]
+   },
+   {
+    "data": "2026-09-03",
+    "ent": 0,
+    "sai": 7603,
+    "saldo": 112421.74,
+    "itens": [
+     {
+      "t": "s",
+      "data": "2026-09-03",
+      "valor": 7603,
+      "desc": "Custo corrente não lançado (cartão, viagem, leilão, marketing) — estimado",
+      "estimado": true
+     }
+    ]
+   },
+   {
+    "data": "2026-09-04",
+    "ent": 0,
+    "sai": 0,
+    "saldo": 112421.74,
+    "itens": []
+   },
+   {
+    "data": "2026-09-05",
+    "ent": 0,
+    "sai": 33100,
+    "saldo": 79321.74,
+    "itens": [
+     {
+      "t": "s",
+      "data": "2026-09-05",
+      "valor": 13500,
+      "desc": "Folha Agosto/2026 - LEONARDO"
+     },
+     {
+      "t": "s",
+      "data": "2026-09-05",
+      "valor": 7000,
+      "desc": "Folha Agosto/2026 - FABIO OMENNA"
+     },
+     {
+      "t": "s",
+      "data": "2026-09-05",
+      "valor": 5000,
+      "desc": "Folha Agosto/2026 - JOÃO EDUARDO"
+     },
+     {
+      "t": "s",
+      "data": "2026-09-05",
+      "valor": 2000,
+      "desc": "Folha Agosto/2026 - JOÃO GABRIEL"
+     },
+     {
+      "t": "s",
+      "data": "2026-09-05",
+      "valor": 2000,
+      "desc": "Folha Agosto/2026 - JOÃO ANTONIO"
+     },
+     {
+      "t": "s",
+      "data": "2026-09-05",
+      "valor": 3600,
+      "desc": "Folha Agosto/2026 - DOUGLAS BISPO"
+     }
+    ]
+   },
+   {
+    "data": "2026-09-06",
+    "ent": 0,
+    "sai": 0,
+    "saldo": 79321.74,
+    "itens": []
+   },
+   {
+    "data": "2026-09-07",
+    "ent": 0,
+    "sai": 950,
+    "saldo": 78371.74,
+    "itens": [
+     {
+      "t": "s",
+      "data": "2026-09-07",
+      "valor": 950,
+      "desc": "FGTS ref. agosto — estimado",
+      "estimado": true
+     }
+    ]
+   },
+   {
+    "data": "2026-09-08",
+    "ent": 7743.9,
+    "sai": 7603,
+    "saldo": 78512.64,
+    "itens": [
+     {
+      "t": "e",
+      "data": "2026-09-08",
+      "valor": 6318.9,
+      "desc": "23o MEGA LEILAO GENETICA ADITIVA - FEMEAS (25/07) - COMISSAO BULA",
+      "firme": false
+     },
+     {
+      "t": "e",
+      "data": "2026-09-08",
+      "valor": 1425,
+      "desc": "30º NELORAÇO IRMÃOS HIPÓLITO (25/07) - COMISSAO BULA",
+      "firme": false
+     },
+     {
+      "t": "s",
+      "data": "2026-09-08",
+      "valor": 7603,
+      "desc": "Custo corrente não lançado (cartão, viagem, leilão, marketing) — estimado",
+      "estimado": true
+     }
+    ]
+   },
+   {
+    "data": "2026-09-09",
+    "ent": 21443.75,
+    "sai": 0,
+    "saldo": 99956.39,
+    "itens": [
+     {
+      "t": "e",
+      "data": "2026-09-09",
+      "valor": 21443.75,
+      "desc": "23o MEGA LEILAO GENETICA ADITIVA - TOUROS (26/07) - COMISSAO BULA",
+      "firme": false
+     }
+    ]
+   },
+   {
+    "data": "2026-09-10",
+    "ent": 0,
+    "sai": 1058,
+    "saldo": 98898.39,
+    "itens": [
+     {
+      "t": "s",
+      "data": "2026-09-10",
+      "valor": 1058,
+      "desc": "Honorários de contabilidade"
+     }
+    ]
+   }
+  ],
+  "NOM15": [
+   {
+    "data": "2026-08-20",
+    "ent": 19810.5,
+    "sai": 8342,
+    "saldo": 40637.69,
+    "itens": [
+     {
+      "t": "e",
+      "data": "2026-08-20",
+      "valor": 7623,
+      "desc": "LEILAO TOUROS NELORE KIRZ (07/07) - BULA REMATES",
+      "firme": true
+     },
+     {
+      "t": "e",
+      "data": "2026-08-20",
+      "valor": 12187.5,
+      "desc": "NELORACO PO (25/07) - BULA REMATES",
+      "firme": true
+     },
+     {
+      "t": "s",
+      "data": "2026-08-20",
+      "valor": 950,
+      "desc": "FGTS/Guia CEF ref. julho/2026 (ESTIMADO)"
+     },
+     {
+      "t": "s",
+      "data": "2026-08-20",
+      "valor": 7392,
+      "desc": "SALDO DEVIDO A BULINHA (FELIPE ANDRADE) - residual do acerto de julho"
+     }
+    ]
+   },
+   {
+    "data": "2026-08-21",
+    "ent": 0,
+    "sai": 6178.45,
+    "saldo": 34459.24,
+    "itens": [
+     {
+      "t": "s",
+      "data": "2026-08-21",
+      "valor": 1981.58,
+      "desc": "BILHETE/BOLETO - LEONARDO FRANCISCO (viagem Expogenetica)"
+     },
+     {
+      "t": "s",
+      "data": "2026-08-21",
+      "valor": 4196.87,
+      "desc": "BILHETE/BOLETO - FABIO OMENA GAIA (viagem Expogenetica)"
+     }
+    ]
+   },
+   {
+    "data": "2026-08-22",
+    "ent": 0,
+    "sai": 0,
+    "saldo": 34459.24,
+    "itens": []
+   },
+   {
+    "data": "2026-08-23",
+    "ent": 0,
+    "sai": 0,
+    "saldo": 34459.24,
+    "itens": []
+   },
+   {
+    "data": "2026-08-24",
+    "ent": 0,
+    "sai": 8056.23,
+    "saldo": 26403.01,
+    "itens": [
+     {
+      "t": "s",
+      "data": "2026-08-24",
+      "valor": 5949.84,
+      "desc": "Fatura cartao VISA (DEB.CONV.DEM.EMPRES / DBAUTO VIS) - deb. agendado 24/08"
+     },
+     {
+      "t": "s",
+      "data": "2026-08-24",
+      "valor": 1380.13,
+      "desc": "Fatura cartao MASTERCARD (DEB.CONV.DEM.EMPRES) - deb. agendado 24/08"
+     },
+     {
+      "t": "s",
+      "data": "2026-08-24",
+      "valor": 726.26,
+      "desc": "Custo corrente não lançado (cartão, viagem, leilão, marketing) — estimado",
+      "estimado": true
+     }
+    ]
+   },
+   {
+    "data": "2026-08-25",
+    "ent": 10712.95,
+    "sai": 44082,
+    "saldo": -6966.04,
+    "itens": [
+     {
+      "t": "e",
+      "data": "2026-08-25",
+      "valor": 3000,
+      "desc": "20o LEILAO GUADALUPE AGROPECUARIA - FEMEAS 18/07 (5% cobertura) - COMISSAO BULA - parc. 1/2",
+      "firme": true
+     },
+     {
+      "t": "e",
+      "data": "2026-08-25",
+      "valor": 7712.95,
+      "desc": "20o LEILAO GUADALUPE AGROPECUARIA - TOUROS 19/07 domingo (0,5% faturamento) - COMISSAO BULA - parc. 1/2",
+      "firme": true
+     },
+     {
+      "t": "s",
+      "data": "2026-08-25",
+      "valor": 570,
+      "desc": "COMISSAO 30º NELORAÇO IRMÃOS HIPÓLITO - DOUGLAS BISPO (2%)"
+     },
+     {
+      "t": "s",
+      "data": "2026-08-25",
+      "valor": 390,
+      "desc": "COMISSAO 20º LEILÃO GUADALUPE AGROPECUÁRIA Fêmeas - DOUGLAS BISPO (2%)"
+     },
+     {
+      "t": "s",
+      "data": "2026-08-25",
+      "valor": 1962,
+      "desc": "COMISSAO LEILÃO VIRTUAL BASE GENÉTICA SANTA CRUZ - 1ª ETAPA – 14/07/2026 - FABIO OMENA (2%)"
+     },
+     {
+      "t": "s",
+      "data": "2026-08-25",
+      "valor": 3180,
+      "desc": "COMISSAO LEILÃO NELORE SORRISO - ETAPA FÊMEAS – 12/07/2026 - DOUGLAS BISPO (2%)"
+     },
+     {
+      "t": "s",
+      "data": "2026-08-25",
+      "valor": 810,
+      "desc": "COMISSAO 20º LEILÃO GUADALUPE AGROPECUÁRIA Fêmeas - LEONARDO SERAFIM (2%)"
+     },
+     {
+      "t": "s",
+      "data": "2026-08-25",
+      "valor": 612,
+      "desc": "COMISSAO 2º ETAPA NAVIRAÍ MATRIZES - LEONARDO SERAFIM (2%)"
+     },
+     {
+      "t": "s",
+      "data": "2026-08-25",
+      "valor": 1170,
+      "desc": "COMISSAO LEILÃO VIRTUAL NAVIRAÍ - MATRIZES – 05/07/2026 - FABIO OMENA (2%)"
+     },
+     {
+      "t": "s",
+      "data": "2026-08-25",
+      "valor": 510,
+      "desc": "COMISSAO LEILÃO VIRTUAL BASE GENÉTICA SANTA CRUZ - 1ª ETAPA – 14/07/2026 - LEONARDO SERAFIM (2%)"
+     },
+     {
+      "t": "s",
+      "data": "2026-08-25",
+      "valor": 480,
+      "desc": "COMISSAO LEILÃO VIRTUAL NAVIRAÍ - MATRIZES – 05/07/2026 - LEONARDO SERAFIM (2%)"
+     },
+     {
+      "t": "s",
+      "data": "2026-08-25",
+      "valor": 420,
+      "desc": "COMISSAO 20º LEILÃO GUADALUPE AGROPECUÁRIA Touros - FABIO OMENA (2%)"
+     },
+     {
+      "t": "s",
+      "data": "2026-08-25",
+      "valor": 6450,
+      "desc": "COMISSAO MEGA EVENTO EAO BAVIERA — Fêmeas - DOUGLAS BISPO (2%)"
+     },
+     {
+      "t": "s",
+      "data": "2026-08-25",
+      "valor": 852,
+      "desc": "COMISSAO NELORE SANTA CRUZ - DOUGLAS BISPO (2%)"
+     },
+     {
+      "t": "s",
+      "data": "2026-08-25",
+      "valor": 390,
+      "desc": "COMISSAO 20º LEILÃO GUADALUPE AGROPECUÁRIA Touros - A DEFINIR (2%)"
+     },
+     {
+      "t": "s",
+      "data": "2026-08-25",
+      "valor": 1050,
+      "desc": "COMISSAO 2º ETAPA NAVIRAÍ MATRIZES - DOUGLAS BISPO (2%)"
+     },
+     {
+      "t": "s",
+      "data": "2026-08-25",
+      "valor": 1200,
+      "desc": "COMISSAO MEGA EVENTO EAO BAVIERA — Fêmeas - LEONARDO SERAFIM (2%)"
+     },
+     {
+      "t": "s",
+      "data": "2026-08-25",
+      "valor": 1284,
+      "desc": "COMISSAO 20º LEILÃO GUADALUPE AGROPECUÁRIA Touros - DOUGLAS BISPO (2%)"
+     },
+     {
+      "t": "s",
+      "data": "2026-08-25",
+      "valor": 432,
+      "desc": "COMISSAO 2º ETAPA NAVIRAÍ MATRIZES - FABIO OMENA (2%)"
+     },
+     {
+      "t": "s",
+      "data": "2026-08-25",
+      "valor": 720,
+      "desc": "COMISSAO 20º LEILÃO GUADALUPE AGROPECUÁRIA Touros - DOUGLAS BISPO (2%)"
+     },
+     {
+      "t": "s",
+      "data": "2026-08-25",
+      "valor": 1080,
+      "desc": "COMISSAO 2º ETAPA NAVIRAÍ MATRIZES - PERALTA (2%)"
+     },
+     {
+      "t": "s",
+      "data": "2026-08-25",
+      "valor": 1992,
+      "desc": "COMISSAO NELORE SANTA CRUZ - 19/07/2026 - DOUGLAS BISPO (2%)"
+     },
+     {
+      "t": "s",
+      "data": "2026-08-25",
+      "valor": 4068,
+      "desc": "COMISSAO 23º LEILÃO GENÉTICA ADITIVA - 2ª ETAPA TOUROS – 26/07/2026 - LEONARDO SERAFIM (2%)"
+     },
+     {
+      "t": "s",
+      "data": "2026-08-25",
+      "valor": 1134,
+      "desc": "COMISSAO 23º LEILÃO GENÉTICA ADITIVA - 1ª ETAPA FÊMEAS – 25/07/2026 - DOUGLAS BISPO (2%)"
+     },
+     {
+      "t": "s",
+      "data": "2026-08-25",
+      "valor": 2916,
+      "desc": "COMISSAO MEGA EVENTO EAO BAVIERA — Machos - DOUGLAS BISPO (2%)"
+     },
+     {
+      "t": "s",
+      "data": "2026-08-25",
+      "valor": 1710,
+      "desc": "COMISSAO LEILÃO VIRTUAL NAVIRAÍ - MATRIZES – 05/07/2026 - DOUGLAS BISPO (2%)"
+     },
+     {
+      "t": "s",
+      "data": "2026-08-25",
+      "valor": 3060,
+      "desc": "COMISSAO MEGA EVENTO EAO BAVIERA — Machos - LEONARDO SERAFIM (2%)"
+     },
+     {
+      "t": "s",
+      "data": "2026-08-25",
+      "valor": 642,
+      "desc": "COMISSAO 23º LEILÃO GENÉTICA ADITIVA - 2ª ETAPA TOUROS – 26/07/2026 - FABIO OMENA (2%)"
+     },
+     {
+      "t": "s",
+      "data": "2026-08-25",
+      "valor": 1350,
+      "desc": "COMISSAO MEGA EVENTO EAO BAVIERA — Machos - FABIO OMENA (2%)"
+     },
+     {
+      "t": "s",
+      "data": "2026-08-25",
+      "valor": 3648,
+      "desc": "COMISSAO MEGA EVENTO EAO BAVIERA — Fêmeas - FABIO OMENA (2%)"
+     }
+    ]
+   },
+   {
+    "data": "2026-08-26",
+    "ent": 0,
+    "sai": 0,
+    "saldo": -6966.04,
+    "itens": []
+   },
+   {
+    "data": "2026-08-27",
+    "ent": 0,
+    "sai": 0,
+    "saldo": -6966.04,
+    "itens": []
+   },
+   {
+    "data": "2026-08-28",
+    "ent": 0,
+    "sai": 726.26,
+    "saldo": -7692.3,
+    "itens": [
+     {
+      "t": "s",
+      "data": "2026-08-28",
+      "valor": 726.26,
+      "desc": "Custo corrente não lançado (cartão, viagem, leilão, marketing) — estimado",
+      "estimado": true
+     }
+    ]
+   },
+   {
+    "data": "2026-08-29",
+    "ent": 0,
+    "sai": 0,
+    "saldo": -7692.3,
+    "itens": []
+   },
+   {
+    "data": "2026-08-30",
+    "ent": 15030,
+    "sai": 0,
+    "saldo": 7337.7,
+    "itens": [
+     {
+      "t": "e",
+      "data": "2026-08-30",
+      "valor": 15030,
+      "desc": "LEILAO 09/05 - KITO - COMISSAO BULA (2/2)",
+      "firme": true
+     }
+    ]
+   },
+   {
+    "data": "2026-08-31",
+    "ent": 0,
+    "sai": 3926.26,
+    "saldo": 3411.44,
+    "itens": [
+     {
+      "t": "s",
+      "data": "2026-08-31",
+      "valor": 3200,
+      "desc": "Despesas operacionais - Melhoradores Especial 30 Anos, ACRISSUL/Campo Grande (29/08) (ESTIMADO)"
+     },
+     {
+      "t": "s",
+      "data": "2026-08-31",
+      "valor": 726.26,
+      "desc": "Custo corrente não lançado (cartão, viagem, leilão, marketing) — estimado",
+      "estimado": true
+     }
+    ]
+   },
+   {
+    "data": "2026-09-01",
+    "ent": 0,
+    "sai": 0,
+    "saldo": 3411.44,
+    "itens": []
+   },
+   {
+    "data": "2026-09-02",
+    "ent": 0,
+    "sai": 0,
+    "saldo": 3411.44,
+    "itens": []
+   },
+   {
+    "data": "2026-09-03",
+    "ent": 0,
+    "sai": 7603,
+    "saldo": -4191.56,
+    "itens": [
+     {
+      "t": "s",
+      "data": "2026-09-03",
+      "valor": 7603,
+      "desc": "Custo corrente não lançado (cartão, viagem, leilão, marketing) — estimado",
+      "estimado": true
+     }
+    ]
+   },
+   {
+    "data": "2026-09-04",
+    "ent": 0,
+    "sai": 0,
+    "saldo": -4191.56,
+    "itens": []
+   },
+   {
+    "data": "2026-09-05",
+    "ent": 0,
+    "sai": 33100,
+    "saldo": -37291.56,
+    "itens": [
+     {
+      "t": "s",
+      "data": "2026-09-05",
+      "valor": 13500,
+      "desc": "Folha Agosto/2026 - LEONARDO"
+     },
+     {
+      "t": "s",
+      "data": "2026-09-05",
+      "valor": 7000,
+      "desc": "Folha Agosto/2026 - FABIO OMENNA"
+     },
+     {
+      "t": "s",
+      "data": "2026-09-05",
+      "valor": 5000,
+      "desc": "Folha Agosto/2026 - JOÃO EDUARDO"
+     },
+     {
+      "t": "s",
+      "data": "2026-09-05",
+      "valor": 2000,
+      "desc": "Folha Agosto/2026 - JOÃO GABRIEL"
+     },
+     {
+      "t": "s",
+      "data": "2026-09-05",
+      "valor": 2000,
+      "desc": "Folha Agosto/2026 - JOÃO ANTONIO"
+     },
+     {
+      "t": "s",
+      "data": "2026-09-05",
+      "valor": 3600,
+      "desc": "Folha Agosto/2026 - DOUGLAS BISPO"
+     }
+    ]
+   },
+   {
+    "data": "2026-09-06",
+    "ent": 0,
+    "sai": 0,
+    "saldo": -37291.56,
+    "itens": []
+   },
+   {
+    "data": "2026-09-07",
+    "ent": 0,
+    "sai": 950,
+    "saldo": -38241.56,
+    "itens": [
+     {
+      "t": "s",
+      "data": "2026-09-07",
+      "valor": 950,
+      "desc": "FGTS ref. agosto — estimado",
+      "estimado": true
+     }
+    ]
+   },
+   {
+    "data": "2026-09-08",
+    "ent": 0,
+    "sai": 7603,
+    "saldo": -45844.56,
+    "itens": [
+     {
+      "t": "s",
+      "data": "2026-09-08",
+      "valor": 7603,
+      "desc": "Custo corrente não lançado (cartão, viagem, leilão, marketing) — estimado",
+      "estimado": true
+     }
+    ]
+   },
+   {
+    "data": "2026-09-09",
+    "ent": 48556.5,
+    "sai": 0,
+    "saldo": 2711.94,
+    "itens": [
+     {
+      "t": "e",
+      "data": "2026-09-09",
+      "valor": 48556.5,
+      "desc": "MEGA EVENTO EAO BAVIERA (10-11/07) - COMISSAO BULA",
+      "firme": false
+     }
+    ]
+   },
+   {
+    "data": "2026-09-10",
+    "ent": 39451.8,
+    "sai": 1058,
+    "saldo": 41105.74,
+    "itens": [
+     {
+      "t": "e",
+      "data": "2026-09-10",
+      "valor": 7950,
+      "desc": "LEILAO NELORE SORRISO - ETAPA FEMEAS (12/07) - COMISSAO BULA",
+      "firme": false
+     },
+     {
+      "t": "e",
+      "data": "2026-09-10",
+      "valor": 31501.8,
+      "desc": "MEGA EVENTO EAO BAVIERA — Machos (12/07) - COMISSAO BULA",
+      "firme": false
+     },
+     {
+      "t": "s",
+      "data": "2026-09-10",
+      "valor": 1058,
+      "desc": "Honorários de contabilidade"
+     }
+    ]
+   }
+  ],
+  "ADIA": [
+   {
+    "data": "2026-08-20",
+    "ent": 19810.5,
+    "sai": 8342,
+    "saldo": 40637.69,
+    "itens": [
+     {
+      "t": "e",
+      "data": "2026-08-20",
+      "valor": 7623,
+      "desc": "LEILAO TOUROS NELORE KIRZ (07/07) - BULA REMATES",
+      "firme": true
+     },
+     {
+      "t": "e",
+      "data": "2026-08-20",
+      "valor": 12187.5,
+      "desc": "NELORACO PO (25/07) - BULA REMATES",
+      "firme": true
+     },
+     {
+      "t": "s",
+      "data": "2026-08-20",
+      "valor": 950,
+      "desc": "FGTS/Guia CEF ref. julho/2026 (ESTIMADO)"
+     },
+     {
+      "t": "s",
+      "data": "2026-08-20",
+      "valor": 7392,
+      "desc": "SALDO DEVIDO A BULINHA (FELIPE ANDRADE) - residual do acerto de julho"
+     }
+    ]
+   },
+   {
+    "data": "2026-08-21",
+    "ent": 0,
+    "sai": 6178.45,
+    "saldo": 34459.24,
+    "itens": [
+     {
+      "t": "s",
+      "data": "2026-08-21",
+      "valor": 1981.58,
+      "desc": "BILHETE/BOLETO - LEONARDO FRANCISCO (viagem Expogenetica)"
+     },
+     {
+      "t": "s",
+      "data": "2026-08-21",
+      "valor": 4196.87,
+      "desc": "BILHETE/BOLETO - FABIO OMENA GAIA (viagem Expogenetica)"
+     }
+    ]
+   },
+   {
+    "data": "2026-08-22",
+    "ent": 0,
+    "sai": 0,
+    "saldo": 34459.24,
+    "itens": []
+   },
+   {
+    "data": "2026-08-23",
+    "ent": 0,
+    "sai": 0,
+    "saldo": 34459.24,
+    "itens": []
+   },
+   {
+    "data": "2026-08-24",
+    "ent": 0,
+    "sai": 8056.23,
+    "saldo": 26403.01,
+    "itens": [
+     {
+      "t": "s",
+      "data": "2026-08-24",
+      "valor": 5949.84,
+      "desc": "Fatura cartao VISA (DEB.CONV.DEM.EMPRES / DBAUTO VIS) - deb. agendado 24/08"
+     },
+     {
+      "t": "s",
+      "data": "2026-08-24",
+      "valor": 1380.13,
+      "desc": "Fatura cartao MASTERCARD (DEB.CONV.DEM.EMPRES) - deb. agendado 24/08"
+     },
+     {
+      "t": "s",
+      "data": "2026-08-24",
+      "valor": 726.26,
+      "desc": "Custo corrente não lançado (cartão, viagem, leilão, marketing) — estimado",
+      "estimado": true
+     }
+    ]
+   },
+   {
+    "data": "2026-08-25",
+    "ent": 10712.95,
+    "sai": 0,
+    "saldo": 37115.96,
+    "itens": [
+     {
+      "t": "e",
+      "data": "2026-08-25",
+      "valor": 3000,
+      "desc": "20o LEILAO GUADALUPE AGROPECUARIA - FEMEAS 18/07 (5% cobertura) - COMISSAO BULA - parc. 1/2",
+      "firme": true
+     },
+     {
+      "t": "e",
+      "data": "2026-08-25",
+      "valor": 7712.95,
+      "desc": "20o LEILAO GUADALUPE AGROPECUARIA - TOUROS 19/07 domingo (0,5% faturamento) - COMISSAO BULA - parc. 1/2",
+      "firme": true
+     }
+    ]
+   },
+   {
+    "data": "2026-08-26",
+    "ent": 0,
+    "sai": 0,
+    "saldo": 37115.96,
+    "itens": []
+   },
+   {
+    "data": "2026-08-27",
+    "ent": 0,
+    "sai": 0,
+    "saldo": 37115.96,
+    "itens": []
+   },
+   {
+    "data": "2026-08-28",
+    "ent": 0,
+    "sai": 726.26,
+    "saldo": 36389.7,
+    "itens": [
+     {
+      "t": "s",
+      "data": "2026-08-28",
+      "valor": 726.26,
+      "desc": "Custo corrente não lançado (cartão, viagem, leilão, marketing) — estimado",
+      "estimado": true
+     }
+    ]
+   },
+   {
+    "data": "2026-08-29",
+    "ent": 0,
+    "sai": 0,
+    "saldo": 36389.7,
+    "itens": []
+   },
+   {
+    "data": "2026-08-30",
+    "ent": 15030,
+    "sai": 0,
+    "saldo": 51419.7,
+    "itens": [
+     {
+      "t": "e",
+      "data": "2026-08-30",
+      "valor": 15030,
+      "desc": "LEILAO 09/05 - KITO - COMISSAO BULA (2/2)",
+      "firme": true
+     }
+    ]
+   },
+   {
+    "data": "2026-08-31",
+    "ent": 0,
+    "sai": 3926.26,
+    "saldo": 47493.44,
+    "itens": [
+     {
+      "t": "s",
+      "data": "2026-08-31",
+      "valor": 3200,
+      "desc": "Despesas operacionais - Melhoradores Especial 30 Anos, ACRISSUL/Campo Grande (29/08) (ESTIMADO)"
+     },
+     {
+      "t": "s",
+      "data": "2026-08-31",
+      "valor": 726.26,
+      "desc": "Custo corrente não lançado (cartão, viagem, leilão, marketing) — estimado",
+      "estimado": true
+     }
+    ]
+   },
+   {
+    "data": "2026-09-01",
+    "ent": 0,
+    "sai": 0,
+    "saldo": 47493.44,
+    "itens": []
+   },
+   {
+    "data": "2026-09-02",
+    "ent": 0,
+    "sai": 0,
+    "saldo": 47493.44,
+    "itens": []
+   },
+   {
+    "data": "2026-09-03",
+    "ent": 0,
+    "sai": 7603,
+    "saldo": 39890.44,
+    "itens": [
+     {
+      "t": "s",
+      "data": "2026-09-03",
+      "valor": 7603,
+      "desc": "Custo corrente não lançado (cartão, viagem, leilão, marketing) — estimado",
+      "estimado": true
+     }
+    ]
+   },
+   {
+    "data": "2026-09-04",
+    "ent": 0,
+    "sai": 0,
+    "saldo": 39890.44,
+    "itens": []
+   },
+   {
+    "data": "2026-09-05",
+    "ent": 0,
+    "sai": 77182,
+    "saldo": -37291.56,
+    "itens": [
+     {
+      "t": "s",
+      "data": "2026-09-05",
+      "valor": 570,
+      "desc": "COMISSAO 30º NELORAÇO IRMÃOS HIPÓLITO - DOUGLAS BISPO (2%)",
+      "adiado": true
+     },
+     {
+      "t": "s",
+      "data": "2026-09-05",
+      "valor": 390,
+      "desc": "COMISSAO 20º LEILÃO GUADALUPE AGROPECUÁRIA Fêmeas - DOUGLAS BISPO (2%)",
+      "adiado": true
+     },
+     {
+      "t": "s",
+      "data": "2026-09-05",
+      "valor": 1962,
+      "desc": "COMISSAO LEILÃO VIRTUAL BASE GENÉTICA SANTA CRUZ - 1ª ETAPA – 14/07/2026 - FABIO OMENA (2%)",
+      "adiado": true
+     },
+     {
+      "t": "s",
+      "data": "2026-09-05",
+      "valor": 3180,
+      "desc": "COMISSAO LEILÃO NELORE SORRISO - ETAPA FÊMEAS – 12/07/2026 - DOUGLAS BISPO (2%)",
+      "adiado": true
+     },
+     {
+      "t": "s",
+      "data": "2026-09-05",
+      "valor": 810,
+      "desc": "COMISSAO 20º LEILÃO GUADALUPE AGROPECUÁRIA Fêmeas - LEONARDO SERAFIM (2%)",
+      "adiado": true
+     },
+     {
+      "t": "s",
+      "data": "2026-09-05",
+      "valor": 612,
+      "desc": "COMISSAO 2º ETAPA NAVIRAÍ MATRIZES - LEONARDO SERAFIM (2%)",
+      "adiado": true
+     },
+     {
+      "t": "s",
+      "data": "2026-09-05",
+      "valor": 1170,
+      "desc": "COMISSAO LEILÃO VIRTUAL NAVIRAÍ - MATRIZES – 05/07/2026 - FABIO OMENA (2%)",
+      "adiado": true
+     },
+     {
+      "t": "s",
+      "data": "2026-09-05",
+      "valor": 510,
+      "desc": "COMISSAO LEILÃO VIRTUAL BASE GENÉTICA SANTA CRUZ - 1ª ETAPA – 14/07/2026 - LEONARDO SERAFIM (2%)",
+      "adiado": true
+     },
+     {
+      "t": "s",
+      "data": "2026-09-05",
+      "valor": 480,
+      "desc": "COMISSAO LEILÃO VIRTUAL NAVIRAÍ - MATRIZES – 05/07/2026 - LEONARDO SERAFIM (2%)",
+      "adiado": true
+     },
+     {
+      "t": "s",
+      "data": "2026-09-05",
+      "valor": 420,
+      "desc": "COMISSAO 20º LEILÃO GUADALUPE AGROPECUÁRIA Touros - FABIO OMENA (2%)",
+      "adiado": true
+     },
+     {
+      "t": "s",
+      "data": "2026-09-05",
+      "valor": 6450,
+      "desc": "COMISSAO MEGA EVENTO EAO BAVIERA — Fêmeas - DOUGLAS BISPO (2%)",
+      "adiado": true
+     },
+     {
+      "t": "s",
+      "data": "2026-09-05",
+      "valor": 852,
+      "desc": "COMISSAO NELORE SANTA CRUZ - DOUGLAS BISPO (2%)",
+      "adiado": true
+     },
+     {
+      "t": "s",
+      "data": "2026-09-05",
+      "valor": 390,
+      "desc": "COMISSAO 20º LEILÃO GUADALUPE AGROPECUÁRIA Touros - A DEFINIR (2%)",
+      "adiado": true
+     },
+     {
+      "t": "s",
+      "data": "2026-09-05",
+      "valor": 1050,
+      "desc": "COMISSAO 2º ETAPA NAVIRAÍ MATRIZES - DOUGLAS BISPO (2%)",
+      "adiado": true
+     },
+     {
+      "t": "s",
+      "data": "2026-09-05",
+      "valor": 1200,
+      "desc": "COMISSAO MEGA EVENTO EAO BAVIERA — Fêmeas - LEONARDO SERAFIM (2%)",
+      "adiado": true
+     },
+     {
+      "t": "s",
+      "data": "2026-09-05",
+      "valor": 1284,
+      "desc": "COMISSAO 20º LEILÃO GUADALUPE AGROPECUÁRIA Touros - DOUGLAS BISPO (2%)",
+      "adiado": true
+     },
+     {
+      "t": "s",
+      "data": "2026-09-05",
+      "valor": 432,
+      "desc": "COMISSAO 2º ETAPA NAVIRAÍ MATRIZES - FABIO OMENA (2%)",
+      "adiado": true
+     },
+     {
+      "t": "s",
+      "data": "2026-09-05",
+      "valor": 720,
+      "desc": "COMISSAO 20º LEILÃO GUADALUPE AGROPECUÁRIA Touros - DOUGLAS BISPO (2%)",
+      "adiado": true
+     },
+     {
+      "t": "s",
+      "data": "2026-09-05",
+      "valor": 1080,
+      "desc": "COMISSAO 2º ETAPA NAVIRAÍ MATRIZES - PERALTA (2%)",
+      "adiado": true
+     },
+     {
+      "t": "s",
+      "data": "2026-09-05",
+      "valor": 1992,
+      "desc": "COMISSAO NELORE SANTA CRUZ - 19/07/2026 - DOUGLAS BISPO (2%)",
+      "adiado": true
+     },
+     {
+      "t": "s",
+      "data": "2026-09-05",
+      "valor": 4068,
+      "desc": "COMISSAO 23º LEILÃO GENÉTICA ADITIVA - 2ª ETAPA TOUROS – 26/07/2026 - LEONARDO SERAFIM (2%)",
+      "adiado": true
+     },
+     {
+      "t": "s",
+      "data": "2026-09-05",
+      "valor": 1134,
+      "desc": "COMISSAO 23º LEILÃO GENÉTICA ADITIVA - 1ª ETAPA FÊMEAS – 25/07/2026 - DOUGLAS BISPO (2%)",
+      "adiado": true
+     },
+     {
+      "t": "s",
+      "data": "2026-09-05",
+      "valor": 2916,
+      "desc": "COMISSAO MEGA EVENTO EAO BAVIERA — Machos - DOUGLAS BISPO (2%)",
+      "adiado": true
+     },
+     {
+      "t": "s",
+      "data": "2026-09-05",
+      "valor": 1710,
+      "desc": "COMISSAO LEILÃO VIRTUAL NAVIRAÍ - MATRIZES – 05/07/2026 - DOUGLAS BISPO (2%)",
+      "adiado": true
+     },
+     {
+      "t": "s",
+      "data": "2026-09-05",
+      "valor": 3060,
+      "desc": "COMISSAO MEGA EVENTO EAO BAVIERA — Machos - LEONARDO SERAFIM (2%)",
+      "adiado": true
+     },
+     {
+      "t": "s",
+      "data": "2026-09-05",
+      "valor": 642,
+      "desc": "COMISSAO 23º LEILÃO GENÉTICA ADITIVA - 2ª ETAPA TOUROS – 26/07/2026 - FABIO OMENA (2%)",
+      "adiado": true
+     },
+     {
+      "t": "s",
+      "data": "2026-09-05",
+      "valor": 1350,
+      "desc": "COMISSAO MEGA EVENTO EAO BAVIERA — Machos - FABIO OMENA (2%)",
+      "adiado": true
+     },
+     {
+      "t": "s",
+      "data": "2026-09-05",
+      "valor": 3648,
+      "desc": "COMISSAO MEGA EVENTO EAO BAVIERA — Fêmeas - FABIO OMENA (2%)",
+      "adiado": true
+     },
+     {
+      "t": "s",
+      "data": "2026-09-05",
+      "valor": 13500,
+      "desc": "Folha Agosto/2026 - LEONARDO"
+     },
+     {
+      "t": "s",
+      "data": "2026-09-05",
+      "valor": 7000,
+      "desc": "Folha Agosto/2026 - FABIO OMENNA"
+     },
+     {
+      "t": "s",
+      "data": "2026-09-05",
+      "valor": 5000,
+      "desc": "Folha Agosto/2026 - JOÃO EDUARDO"
+     },
+     {
+      "t": "s",
+      "data": "2026-09-05",
+      "valor": 2000,
+      "desc": "Folha Agosto/2026 - JOÃO GABRIEL"
+     },
+     {
+      "t": "s",
+      "data": "2026-09-05",
+      "valor": 2000,
+      "desc": "Folha Agosto/2026 - JOÃO ANTONIO"
+     },
+     {
+      "t": "s",
+      "data": "2026-09-05",
+      "valor": 3600,
+      "desc": "Folha Agosto/2026 - DOUGLAS BISPO"
+     }
+    ]
+   },
+   {
+    "data": "2026-09-06",
+    "ent": 0,
+    "sai": 0,
+    "saldo": -37291.56,
+    "itens": []
+   },
+   {
+    "data": "2026-09-07",
+    "ent": 0,
+    "sai": 950,
+    "saldo": -38241.56,
+    "itens": [
+     {
+      "t": "s",
+      "data": "2026-09-07",
+      "valor": 950,
+      "desc": "FGTS ref. agosto — estimado",
+      "estimado": true
+     }
+    ]
+   },
+   {
+    "data": "2026-09-08",
+    "ent": 0,
+    "sai": 7603,
+    "saldo": -45844.56,
+    "itens": [
+     {
+      "t": "s",
+      "data": "2026-09-08",
+      "valor": 7603,
+      "desc": "Custo corrente não lançado (cartão, viagem, leilão, marketing) — estimado",
+      "estimado": true
+     }
+    ]
+   },
+   {
+    "data": "2026-09-09",
+    "ent": 0,
+    "sai": 0,
+    "saldo": -45844.56,
+    "itens": []
+   },
+   {
+    "data": "2026-09-10",
+    "ent": 0,
+    "sai": 1058,
+    "saldo": -46902.56,
+    "itens": [
+     {
+      "t": "s",
+      "data": "2026-09-10",
+      "valor": 1058,
+      "desc": "Honorários de contabilidade"
+     }
+    ]
+   }
+  ],
+  "EAO": [
+   {
+    "data": "2026-08-20",
+    "ent": 19810.5,
+    "sai": 8342,
+    "saldo": 40637.69,
+    "itens": [
+     {
+      "t": "e",
+      "data": "2026-08-20",
+      "valor": 7623,
+      "desc": "LEILAO TOUROS NELORE KIRZ (07/07) - BULA REMATES",
+      "firme": true
+     },
+     {
+      "t": "e",
+      "data": "2026-08-20",
+      "valor": 12187.5,
+      "desc": "NELORACO PO (25/07) - BULA REMATES",
+      "firme": true
+     },
+     {
+      "t": "s",
+      "data": "2026-08-20",
+      "valor": 950,
+      "desc": "FGTS/Guia CEF ref. julho/2026 (ESTIMADO)"
+     },
+     {
+      "t": "s",
+      "data": "2026-08-20",
+      "valor": 7392,
+      "desc": "SALDO DEVIDO A BULINHA (FELIPE ANDRADE) - residual do acerto de julho"
+     }
+    ]
+   },
+   {
+    "data": "2026-08-21",
+    "ent": 0,
+    "sai": 6178.45,
+    "saldo": 34459.24,
+    "itens": [
+     {
+      "t": "s",
+      "data": "2026-08-21",
+      "valor": 1981.58,
+      "desc": "BILHETE/BOLETO - LEONARDO FRANCISCO (viagem Expogenetica)"
+     },
+     {
+      "t": "s",
+      "data": "2026-08-21",
+      "valor": 4196.87,
+      "desc": "BILHETE/BOLETO - FABIO OMENA GAIA (viagem Expogenetica)"
+     }
+    ]
+   },
+   {
+    "data": "2026-08-22",
+    "ent": 0,
+    "sai": 0,
+    "saldo": 34459.24,
+    "itens": []
+   },
+   {
+    "data": "2026-08-23",
+    "ent": 0,
+    "sai": 0,
+    "saldo": 34459.24,
+    "itens": []
+   },
+   {
+    "data": "2026-08-24",
+    "ent": 0,
+    "sai": 8056.23,
+    "saldo": 26403.01,
+    "itens": [
+     {
+      "t": "s",
+      "data": "2026-08-24",
+      "valor": 5949.84,
+      "desc": "Fatura cartao VISA (DEB.CONV.DEM.EMPRES / DBAUTO VIS) - deb. agendado 24/08"
+     },
+     {
+      "t": "s",
+      "data": "2026-08-24",
+      "valor": 1380.13,
+      "desc": "Fatura cartao MASTERCARD (DEB.CONV.DEM.EMPRES) - deb. agendado 24/08"
+     },
+     {
+      "t": "s",
+      "data": "2026-08-24",
+      "valor": 726.26,
+      "desc": "Custo corrente não lançado (cartão, viagem, leilão, marketing) — estimado",
+      "estimado": true
+     }
+    ]
+   },
+   {
+    "data": "2026-08-25",
+    "ent": 59269.45,
+    "sai": 44082,
+    "saldo": 41590.46,
+    "itens": [
+     {
+      "t": "e",
+      "data": "2026-08-25",
+      "valor": 3000,
+      "desc": "20o LEILAO GUADALUPE AGROPECUARIA - FEMEAS 18/07 (5% cobertura) - COMISSAO BULA - parc. 1/2",
+      "firme": true
+     },
+     {
+      "t": "e",
+      "data": "2026-08-25",
+      "valor": 48556.5,
+      "desc": "MEGA EVENTO EAO BAVIERA (10-11/07) - COMISSAO BULA",
+      "firme": false
+     },
+     {
+      "t": "e",
+      "data": "2026-08-25",
+      "valor": 7712.95,
+      "desc": "20o LEILAO GUADALUPE AGROPECUARIA - TOUROS 19/07 domingo (0,5% faturamento) - COMISSAO BULA - parc. 1/2",
+      "firme": true
+     },
+     {
+      "t": "s",
+      "data": "2026-08-25",
+      "valor": 570,
+      "desc": "COMISSAO 30º NELORAÇO IRMÃOS HIPÓLITO - DOUGLAS BISPO (2%)"
+     },
+     {
+      "t": "s",
+      "data": "2026-08-25",
+      "valor": 390,
+      "desc": "COMISSAO 20º LEILÃO GUADALUPE AGROPECUÁRIA Fêmeas - DOUGLAS BISPO (2%)"
+     },
+     {
+      "t": "s",
+      "data": "2026-08-25",
+      "valor": 1962,
+      "desc": "COMISSAO LEILÃO VIRTUAL BASE GENÉTICA SANTA CRUZ - 1ª ETAPA – 14/07/2026 - FABIO OMENA (2%)"
+     },
+     {
+      "t": "s",
+      "data": "2026-08-25",
+      "valor": 3180,
+      "desc": "COMISSAO LEILÃO NELORE SORRISO - ETAPA FÊMEAS – 12/07/2026 - DOUGLAS BISPO (2%)"
+     },
+     {
+      "t": "s",
+      "data": "2026-08-25",
+      "valor": 810,
+      "desc": "COMISSAO 20º LEILÃO GUADALUPE AGROPECUÁRIA Fêmeas - LEONARDO SERAFIM (2%)"
+     },
+     {
+      "t": "s",
+      "data": "2026-08-25",
+      "valor": 612,
+      "desc": "COMISSAO 2º ETAPA NAVIRAÍ MATRIZES - LEONARDO SERAFIM (2%)"
+     },
+     {
+      "t": "s",
+      "data": "2026-08-25",
+      "valor": 1170,
+      "desc": "COMISSAO LEILÃO VIRTUAL NAVIRAÍ - MATRIZES – 05/07/2026 - FABIO OMENA (2%)"
+     },
+     {
+      "t": "s",
+      "data": "2026-08-25",
+      "valor": 510,
+      "desc": "COMISSAO LEILÃO VIRTUAL BASE GENÉTICA SANTA CRUZ - 1ª ETAPA – 14/07/2026 - LEONARDO SERAFIM (2%)"
+     },
+     {
+      "t": "s",
+      "data": "2026-08-25",
+      "valor": 480,
+      "desc": "COMISSAO LEILÃO VIRTUAL NAVIRAÍ - MATRIZES – 05/07/2026 - LEONARDO SERAFIM (2%)"
+     },
+     {
+      "t": "s",
+      "data": "2026-08-25",
+      "valor": 420,
+      "desc": "COMISSAO 20º LEILÃO GUADALUPE AGROPECUÁRIA Touros - FABIO OMENA (2%)"
+     },
+     {
+      "t": "s",
+      "data": "2026-08-25",
+      "valor": 6450,
+      "desc": "COMISSAO MEGA EVENTO EAO BAVIERA — Fêmeas - DOUGLAS BISPO (2%)"
+     },
+     {
+      "t": "s",
+      "data": "2026-08-25",
+      "valor": 852,
+      "desc": "COMISSAO NELORE SANTA CRUZ - DOUGLAS BISPO (2%)"
+     },
+     {
+      "t": "s",
+      "data": "2026-08-25",
+      "valor": 390,
+      "desc": "COMISSAO 20º LEILÃO GUADALUPE AGROPECUÁRIA Touros - A DEFINIR (2%)"
+     },
+     {
+      "t": "s",
+      "data": "2026-08-25",
+      "valor": 1050,
+      "desc": "COMISSAO 2º ETAPA NAVIRAÍ MATRIZES - DOUGLAS BISPO (2%)"
+     },
+     {
+      "t": "s",
+      "data": "2026-08-25",
+      "valor": 1200,
+      "desc": "COMISSAO MEGA EVENTO EAO BAVIERA — Fêmeas - LEONARDO SERAFIM (2%)"
+     },
+     {
+      "t": "s",
+      "data": "2026-08-25",
+      "valor": 1284,
+      "desc": "COMISSAO 20º LEILÃO GUADALUPE AGROPECUÁRIA Touros - DOUGLAS BISPO (2%)"
+     },
+     {
+      "t": "s",
+      "data": "2026-08-25",
+      "valor": 432,
+      "desc": "COMISSAO 2º ETAPA NAVIRAÍ MATRIZES - FABIO OMENA (2%)"
+     },
+     {
+      "t": "s",
+      "data": "2026-08-25",
+      "valor": 720,
+      "desc": "COMISSAO 20º LEILÃO GUADALUPE AGROPECUÁRIA Touros - DOUGLAS BISPO (2%)"
+     },
+     {
+      "t": "s",
+      "data": "2026-08-25",
+      "valor": 1080,
+      "desc": "COMISSAO 2º ETAPA NAVIRAÍ MATRIZES - PERALTA (2%)"
+     },
+     {
+      "t": "s",
+      "data": "2026-08-25",
+      "valor": 1992,
+      "desc": "COMISSAO NELORE SANTA CRUZ - 19/07/2026 - DOUGLAS BISPO (2%)"
+     },
+     {
+      "t": "s",
+      "data": "2026-08-25",
+      "valor": 4068,
+      "desc": "COMISSAO 23º LEILÃO GENÉTICA ADITIVA - 2ª ETAPA TOUROS – 26/07/2026 - LEONARDO SERAFIM (2%)"
+     },
+     {
+      "t": "s",
+      "data": "2026-08-25",
+      "valor": 1134,
+      "desc": "COMISSAO 23º LEILÃO GENÉTICA ADITIVA - 1ª ETAPA FÊMEAS – 25/07/2026 - DOUGLAS BISPO (2%)"
+     },
+     {
+      "t": "s",
+      "data": "2026-08-25",
+      "valor": 2916,
+      "desc": "COMISSAO MEGA EVENTO EAO BAVIERA — Machos - DOUGLAS BISPO (2%)"
+     },
+     {
+      "t": "s",
+      "data": "2026-08-25",
+      "valor": 1710,
+      "desc": "COMISSAO LEILÃO VIRTUAL NAVIRAÍ - MATRIZES – 05/07/2026 - DOUGLAS BISPO (2%)"
+     },
+     {
+      "t": "s",
+      "data": "2026-08-25",
+      "valor": 3060,
+      "desc": "COMISSAO MEGA EVENTO EAO BAVIERA — Machos - LEONARDO SERAFIM (2%)"
+     },
+     {
+      "t": "s",
+      "data": "2026-08-25",
+      "valor": 642,
+      "desc": "COMISSAO 23º LEILÃO GENÉTICA ADITIVA - 2ª ETAPA TOUROS – 26/07/2026 - FABIO OMENA (2%)"
+     },
+     {
+      "t": "s",
+      "data": "2026-08-25",
+      "valor": 1350,
+      "desc": "COMISSAO MEGA EVENTO EAO BAVIERA — Machos - FABIO OMENA (2%)"
+     },
+     {
+      "t": "s",
+      "data": "2026-08-25",
+      "valor": 3648,
+      "desc": "COMISSAO MEGA EVENTO EAO BAVIERA — Fêmeas - FABIO OMENA (2%)"
+     }
+    ]
+   },
+   {
+    "data": "2026-08-26",
+    "ent": 31501.8,
+    "sai": 0,
+    "saldo": 73092.26,
+    "itens": [
+     {
+      "t": "e",
+      "data": "2026-08-26",
+      "valor": 31501.8,
+      "desc": "MEGA EVENTO EAO BAVIERA — Machos (12/07) - COMISSAO BULA",
+      "firme": false
+     }
+    ]
+   },
+   {
+    "data": "2026-08-27",
+    "ent": 0,
+    "sai": 0,
+    "saldo": 73092.26,
+    "itens": []
+   },
+   {
+    "data": "2026-08-28",
+    "ent": 0,
+    "sai": 726.26,
+    "saldo": 72366,
+    "itens": [
+     {
+      "t": "s",
+      "data": "2026-08-28",
+      "valor": 726.26,
+      "desc": "Custo corrente não lançado (cartão, viagem, leilão, marketing) — estimado",
+      "estimado": true
+     }
+    ]
+   },
+   {
+    "data": "2026-08-29",
+    "ent": 0,
+    "sai": 0,
+    "saldo": 72366,
+    "itens": []
+   },
+   {
+    "data": "2026-08-30",
+    "ent": 15030,
+    "sai": 0,
+    "saldo": 87396,
+    "itens": [
+     {
+      "t": "e",
+      "data": "2026-08-30",
+      "valor": 15030,
+      "desc": "LEILAO 09/05 - KITO - COMISSAO BULA (2/2)",
+      "firme": true
+     }
+    ]
+   },
+   {
+    "data": "2026-08-31",
+    "ent": 0,
+    "sai": 3926.26,
+    "saldo": 83469.74,
+    "itens": [
+     {
+      "t": "s",
+      "data": "2026-08-31",
+      "valor": 3200,
+      "desc": "Despesas operacionais - Melhoradores Especial 30 Anos, ACRISSUL/Campo Grande (29/08) (ESTIMADO)"
+     },
+     {
+      "t": "s",
+      "data": "2026-08-31",
+      "valor": 726.26,
+      "desc": "Custo corrente não lançado (cartão, viagem, leilão, marketing) — estimado",
+      "estimado": true
+     }
+    ]
+   },
+   {
+    "data": "2026-09-01",
+    "ent": 0,
+    "sai": 0,
+    "saldo": 83469.74,
+    "itens": []
+   },
+   {
+    "data": "2026-09-02",
+    "ent": 0,
+    "sai": 0,
+    "saldo": 83469.74,
+    "itens": []
+   },
+   {
+    "data": "2026-09-03",
+    "ent": 0,
+    "sai": 7603,
+    "saldo": 75866.74,
+    "itens": [
+     {
+      "t": "s",
+      "data": "2026-09-03",
+      "valor": 7603,
+      "desc": "Custo corrente não lançado (cartão, viagem, leilão, marketing) — estimado",
+      "estimado": true
+     }
+    ]
+   },
+   {
+    "data": "2026-09-04",
+    "ent": 0,
+    "sai": 0,
+    "saldo": 75866.74,
+    "itens": []
+   },
+   {
+    "data": "2026-09-05",
+    "ent": 0,
+    "sai": 33100,
+    "saldo": 42766.74,
+    "itens": [
+     {
+      "t": "s",
+      "data": "2026-09-05",
+      "valor": 13500,
+      "desc": "Folha Agosto/2026 - LEONARDO"
+     },
+     {
+      "t": "s",
+      "data": "2026-09-05",
+      "valor": 7000,
+      "desc": "Folha Agosto/2026 - FABIO OMENNA"
+     },
+     {
+      "t": "s",
+      "data": "2026-09-05",
+      "valor": 5000,
+      "desc": "Folha Agosto/2026 - JOÃO EDUARDO"
+     },
+     {
+      "t": "s",
+      "data": "2026-09-05",
+      "valor": 2000,
+      "desc": "Folha Agosto/2026 - JOÃO GABRIEL"
+     },
+     {
+      "t": "s",
+      "data": "2026-09-05",
+      "valor": 2000,
+      "desc": "Folha Agosto/2026 - JOÃO ANTONIO"
+     },
+     {
+      "t": "s",
+      "data": "2026-09-05",
+      "valor": 3600,
+      "desc": "Folha Agosto/2026 - DOUGLAS BISPO"
+     }
+    ]
+   },
+   {
+    "data": "2026-09-06",
+    "ent": 0,
+    "sai": 0,
+    "saldo": 42766.74,
+    "itens": []
+   },
+   {
+    "data": "2026-09-07",
+    "ent": 0,
+    "sai": 950,
+    "saldo": 41816.74,
+    "itens": [
+     {
+      "t": "s",
+      "data": "2026-09-07",
+      "valor": 950,
+      "desc": "FGTS ref. agosto — estimado",
+      "estimado": true
+     }
+    ]
+   },
+   {
+    "data": "2026-09-08",
+    "ent": 0,
+    "sai": 7603,
+    "saldo": 34213.74,
+    "itens": [
+     {
+      "t": "s",
+      "data": "2026-09-08",
+      "valor": 7603,
+      "desc": "Custo corrente não lançado (cartão, viagem, leilão, marketing) — estimado",
+      "estimado": true
+     }
+    ]
+   },
+   {
+    "data": "2026-09-09",
+    "ent": 0,
+    "sai": 0,
+    "saldo": 34213.74,
+    "itens": []
+   },
+   {
+    "data": "2026-09-10",
+    "ent": 0,
+    "sai": 1058,
+    "saldo": 33155.74,
+    "itens": [
+     {
+      "t": "s",
+      "data": "2026-09-10",
+      "valor": 1058,
+      "desc": "Honorários de contabilidade"
+     }
+    ]
+   }
+  ]
+ },
+ "escada": [
+  {
+   "data": "2026-08-20",
+   "ent": 19810.5,
+   "sai": 8342,
+   "saldo": 40637.69,
+   "itens": [
+    {
+     "t": "e",
+     "data": "2026-08-20",
+     "valor": 7623,
+     "desc": "LEILAO TOUROS NELORE KIRZ (07/07) - BULA REMATES",
+     "firme": true
+    },
+    {
+     "t": "e",
+     "data": "2026-08-20",
+     "valor": 12187.5,
+     "desc": "NELORACO PO (25/07) - BULA REMATES",
+     "firme": true
+    },
+    {
+     "t": "s",
+     "data": "2026-08-20",
+     "valor": 950,
+     "desc": "FGTS/Guia CEF ref. julho/2026 (ESTIMADO)"
+    },
+    {
+     "t": "s",
+     "data": "2026-08-20",
+     "valor": 7392,
+     "desc": "SALDO DEVIDO A BULINHA (FELIPE ANDRADE) - residual do acerto de julho"
+    }
+   ]
+  },
+  {
+   "data": "2026-08-21",
+   "ent": 0,
+   "sai": 6178.45,
+   "saldo": 34459.24,
+   "itens": [
+    {
+     "t": "s",
+     "data": "2026-08-21",
+     "valor": 1981.58,
+     "desc": "BILHETE/BOLETO - LEONARDO FRANCISCO (viagem Expogenetica)"
+    },
+    {
+     "t": "s",
+     "data": "2026-08-21",
+     "valor": 4196.87,
+     "desc": "BILHETE/BOLETO - FABIO OMENA GAIA (viagem Expogenetica)"
+    }
+   ]
+  },
+  {
+   "data": "2026-08-24",
+   "ent": 0,
+   "sai": 8056.23,
+   "saldo": 26403.01,
+   "itens": [
+    {
+     "t": "s",
+     "data": "2026-08-24",
+     "valor": 5949.84,
+     "desc": "Fatura cartao VISA (DEB.CONV.DEM.EMPRES / DBAUTO VIS) - deb. agendado 24/08"
+    },
+    {
+     "t": "s",
+     "data": "2026-08-24",
+     "valor": 1380.13,
+     "desc": "Fatura cartao MASTERCARD (DEB.CONV.DEM.EMPRES) - deb. agendado 24/08"
+    },
+    {
+     "t": "s",
+     "data": "2026-08-24",
+     "valor": 726.26,
+     "desc": "Custo corrente não lançado (cartão, viagem, leilão, marketing) — estimado",
+     "estimado": true
+    }
+   ]
+  },
+  {
+   "data": "2026-08-25",
+   "ent": 10712.95,
+   "sai": 44082,
+   "saldo": -6966.04,
+   "itens": [
+    {
+     "t": "e",
+     "data": "2026-08-25",
+     "valor": 3000,
+     "desc": "20o LEILAO GUADALUPE AGROPECUARIA - FEMEAS 18/07 (5% cobertura) - COMISSAO BULA - parc. 1/2",
+     "firme": true
+    },
+    {
+     "t": "e",
+     "data": "2026-08-25",
+     "valor": 7712.95,
+     "desc": "20o LEILAO GUADALUPE AGROPECUARIA - TOUROS 19/07 domingo (0,5% faturamento) - COMISSAO BULA - parc. 1/2",
+     "firme": true
+    },
+    {
+     "t": "s",
+     "data": "2026-08-25",
+     "valor": 570,
+     "desc": "COMISSAO 30º NELORAÇO IRMÃOS HIPÓLITO - DOUGLAS BISPO (2%)"
+    },
+    {
+     "t": "s",
+     "data": "2026-08-25",
+     "valor": 390,
+     "desc": "COMISSAO 20º LEILÃO GUADALUPE AGROPECUÁRIA Fêmeas - DOUGLAS BISPO (2%)"
+    },
+    {
+     "t": "s",
+     "data": "2026-08-25",
+     "valor": 1962,
+     "desc": "COMISSAO LEILÃO VIRTUAL BASE GENÉTICA SANTA CRUZ - 1ª ETAPA – 14/07/2026 - FABIO OMENA (2%)"
+    },
+    {
+     "t": "s",
+     "data": "2026-08-25",
+     "valor": 3180,
+     "desc": "COMISSAO LEILÃO NELORE SORRISO - ETAPA FÊMEAS – 12/07/2026 - DOUGLAS BISPO (2%)"
+    },
+    {
+     "t": "s",
+     "data": "2026-08-25",
+     "valor": 810,
+     "desc": "COMISSAO 20º LEILÃO GUADALUPE AGROPECUÁRIA Fêmeas - LEONARDO SERAFIM (2%)"
+    },
+    {
+     "t": "s",
+     "data": "2026-08-25",
+     "valor": 612,
+     "desc": "COMISSAO 2º ETAPA NAVIRAÍ MATRIZES - LEONARDO SERAFIM (2%)"
+    },
+    {
+     "t": "s",
+     "data": "2026-08-25",
+     "valor": 1170,
+     "desc": "COMISSAO LEILÃO VIRTUAL NAVIRAÍ - MATRIZES – 05/07/2026 - FABIO OMENA (2%)"
+    },
+    {
+     "t": "s",
+     "data": "2026-08-25",
+     "valor": 510,
+     "desc": "COMISSAO LEILÃO VIRTUAL BASE GENÉTICA SANTA CRUZ - 1ª ETAPA – 14/07/2026 - LEONARDO SERAFIM (2%)"
+    },
+    {
+     "t": "s",
+     "data": "2026-08-25",
+     "valor": 480,
+     "desc": "COMISSAO LEILÃO VIRTUAL NAVIRAÍ - MATRIZES – 05/07/2026 - LEONARDO SERAFIM (2%)"
+    },
+    {
+     "t": "s",
+     "data": "2026-08-25",
+     "valor": 420,
+     "desc": "COMISSAO 20º LEILÃO GUADALUPE AGROPECUÁRIA Touros - FABIO OMENA (2%)"
+    },
+    {
+     "t": "s",
+     "data": "2026-08-25",
+     "valor": 6450,
+     "desc": "COMISSAO MEGA EVENTO EAO BAVIERA — Fêmeas - DOUGLAS BISPO (2%)"
+    },
+    {
+     "t": "s",
+     "data": "2026-08-25",
+     "valor": 852,
+     "desc": "COMISSAO NELORE SANTA CRUZ - DOUGLAS BISPO (2%)"
+    },
+    {
+     "t": "s",
+     "data": "2026-08-25",
+     "valor": 390,
+     "desc": "COMISSAO 20º LEILÃO GUADALUPE AGROPECUÁRIA Touros - A DEFINIR (2%)"
+    },
+    {
+     "t": "s",
+     "data": "2026-08-25",
+     "valor": 1050,
+     "desc": "COMISSAO 2º ETAPA NAVIRAÍ MATRIZES - DOUGLAS BISPO (2%)"
+    },
+    {
+     "t": "s",
+     "data": "2026-08-25",
+     "valor": 1200,
+     "desc": "COMISSAO MEGA EVENTO EAO BAVIERA — Fêmeas - LEONARDO SERAFIM (2%)"
+    },
+    {
+     "t": "s",
+     "data": "2026-08-25",
+     "valor": 1284,
+     "desc": "COMISSAO 20º LEILÃO GUADALUPE AGROPECUÁRIA Touros - DOUGLAS BISPO (2%)"
+    },
+    {
+     "t": "s",
+     "data": "2026-08-25",
+     "valor": 432,
+     "desc": "COMISSAO 2º ETAPA NAVIRAÍ MATRIZES - FABIO OMENA (2%)"
+    },
+    {
+     "t": "s",
+     "data": "2026-08-25",
+     "valor": 720,
+     "desc": "COMISSAO 20º LEILÃO GUADALUPE AGROPECUÁRIA Touros - DOUGLAS BISPO (2%)"
+    },
+    {
+     "t": "s",
+     "data": "2026-08-25",
+     "valor": 1080,
+     "desc": "COMISSAO 2º ETAPA NAVIRAÍ MATRIZES - PERALTA (2%)"
+    },
+    {
+     "t": "s",
+     "data": "2026-08-25",
+     "valor": 1992,
+     "desc": "COMISSAO NELORE SANTA CRUZ - 19/07/2026 - DOUGLAS BISPO (2%)"
+    },
+    {
+     "t": "s",
+     "data": "2026-08-25",
+     "valor": 4068,
+     "desc": "COMISSAO 23º LEILÃO GENÉTICA ADITIVA - 2ª ETAPA TOUROS – 26/07/2026 - LEONARDO SERAFIM (2%)"
+    },
+    {
+     "t": "s",
+     "data": "2026-08-25",
+     "valor": 1134,
+     "desc": "COMISSAO 23º LEILÃO GENÉTICA ADITIVA - 1ª ETAPA FÊMEAS – 25/07/2026 - DOUGLAS BISPO (2%)"
+    },
+    {
+     "t": "s",
+     "data": "2026-08-25",
+     "valor": 2916,
+     "desc": "COMISSAO MEGA EVENTO EAO BAVIERA — Machos - DOUGLAS BISPO (2%)"
+    },
+    {
+     "t": "s",
+     "data": "2026-08-25",
+     "valor": 1710,
+     "desc": "COMISSAO LEILÃO VIRTUAL NAVIRAÍ - MATRIZES – 05/07/2026 - DOUGLAS BISPO (2%)"
+    },
+    {
+     "t": "s",
+     "data": "2026-08-25",
+     "valor": 3060,
+     "desc": "COMISSAO MEGA EVENTO EAO BAVIERA — Machos - LEONARDO SERAFIM (2%)"
+    },
+    {
+     "t": "s",
+     "data": "2026-08-25",
+     "valor": 642,
+     "desc": "COMISSAO 23º LEILÃO GENÉTICA ADITIVA - 2ª ETAPA TOUROS – 26/07/2026 - FABIO OMENA (2%)"
+    },
+    {
+     "t": "s",
+     "data": "2026-08-25",
+     "valor": 1350,
+     "desc": "COMISSAO MEGA EVENTO EAO BAVIERA — Machos - FABIO OMENA (2%)"
+    },
+    {
+     "t": "s",
+     "data": "2026-08-25",
+     "valor": 3648,
+     "desc": "COMISSAO MEGA EVENTO EAO BAVIERA — Fêmeas - FABIO OMENA (2%)"
+    }
+   ]
+  },
+  {
+   "data": "2026-08-28",
+   "ent": 0,
+   "sai": 726.26,
+   "saldo": -7692.3,
+   "itens": [
+    {
+     "t": "s",
+     "data": "2026-08-28",
+     "valor": 726.26,
+     "desc": "Custo corrente não lançado (cartão, viagem, leilão, marketing) — estimado",
+     "estimado": true
+    }
+   ]
+  },
+  {
+   "data": "2026-08-30",
+   "ent": 15030,
+   "sai": 0,
+   "saldo": 7337.7,
+   "itens": [
+    {
+     "t": "e",
+     "data": "2026-08-30",
+     "valor": 15030,
+     "desc": "LEILAO 09/05 - KITO - COMISSAO BULA (2/2)",
+     "firme": true
+    }
+   ]
+  },
+  {
+   "data": "2026-08-31",
+   "ent": 0,
+   "sai": 3926.26,
+   "saldo": 3411.44,
+   "itens": [
+    {
+     "t": "s",
+     "data": "2026-08-31",
+     "valor": 3200,
+     "desc": "Despesas operacionais - Melhoradores Especial 30 Anos, ACRISSUL/Campo Grande (29/08) (ESTIMADO)"
+    },
+    {
+     "t": "s",
+     "data": "2026-08-31",
+     "valor": 726.26,
+     "desc": "Custo corrente não lançado (cartão, viagem, leilão, marketing) — estimado",
+     "estimado": true
+    }
+   ]
+  },
+  {
+   "data": "2026-09-03",
+   "ent": 0,
+   "sai": 7603,
+   "saldo": -4191.56,
+   "itens": [
+    {
+     "t": "s",
+     "data": "2026-09-03",
+     "valor": 7603,
+     "desc": "Custo corrente não lançado (cartão, viagem, leilão, marketing) — estimado",
+     "estimado": true
+    }
+   ]
+  },
+  {
+   "data": "2026-09-05",
+   "ent": 0,
+   "sai": 33100,
+   "saldo": -37291.56,
+   "itens": [
+    {
+     "t": "s",
+     "data": "2026-09-05",
+     "valor": 13500,
+     "desc": "Folha Agosto/2026 - LEONARDO"
+    },
+    {
+     "t": "s",
+     "data": "2026-09-05",
+     "valor": 7000,
+     "desc": "Folha Agosto/2026 - FABIO OMENNA"
+    },
+    {
+     "t": "s",
+     "data": "2026-09-05",
+     "valor": 5000,
+     "desc": "Folha Agosto/2026 - JOÃO EDUARDO"
+    },
+    {
+     "t": "s",
+     "data": "2026-09-05",
+     "valor": 2000,
+     "desc": "Folha Agosto/2026 - JOÃO GABRIEL"
+    },
+    {
+     "t": "s",
+     "data": "2026-09-05",
+     "valor": 2000,
+     "desc": "Folha Agosto/2026 - JOÃO ANTONIO"
+    },
+    {
+     "t": "s",
+     "data": "2026-09-05",
+     "valor": 3600,
+     "desc": "Folha Agosto/2026 - DOUGLAS BISPO"
+    }
+   ]
+  },
+  {
+   "data": "2026-09-07",
+   "ent": 0,
+   "sai": 950,
+   "saldo": -38241.56,
+   "itens": [
+    {
+     "t": "s",
+     "data": "2026-09-07",
+     "valor": 950,
+     "desc": "FGTS ref. agosto — estimado",
+     "estimado": true
+    }
+   ]
+  },
+  {
+   "data": "2026-09-08",
+   "ent": 0,
+   "sai": 7603,
+   "saldo": -45844.56,
+   "itens": [
+    {
+     "t": "s",
+     "data": "2026-09-08",
+     "valor": 7603,
+     "desc": "Custo corrente não lançado (cartão, viagem, leilão, marketing) — estimado",
+     "estimado": true
+    }
+   ]
+  },
+  {
+   "data": "2026-09-10",
+   "ent": 0,
+   "sai": 1058,
+   "saldo": -46902.56,
+   "itens": [
+    {
+     "t": "s",
+     "data": "2026-09-10",
+     "valor": 1058,
+     "desc": "Honorários de contabilidade"
+    }
+   ]
+  }
+ ],
+ "colchao": 30000,
+ "necessidade": [
+  {
+   "rot": "Colchão zero (só não ficar negativo)",
+   "colchao": 0,
+   "linha": [
+    {
+     "ate": "2026-08-25",
+     "precisa": 6966.04
+    },
+    {
+     "ate": "2026-08-31",
+     "precisa": 7692.3
+    },
+    {
+     "ate": "2026-09-05",
+     "precisa": 37291.56
+    },
+    {
+     "ate": "2026-09-10",
+     "precisa": 46902.56
+    }
+   ]
+  },
+  {
+   "rot": "Colchão de R$ 30.000",
+   "colchao": 30000,
+   "linha": [
+    {
+     "ate": "2026-08-25",
+     "precisa": 36966.04
+    },
+    {
+     "ate": "2026-08-31",
+     "precisa": 37692.3
+    },
+    {
+     "ate": "2026-09-05",
+     "precisa": 67291.56
+    },
+    {
+     "ate": "2026-09-10",
+     "precisa": 76902.56
+    }
+   ]
+  },
+  {
+   "rot": "Colchão de R$ 30.000, adiando as comissões para 05/09",
+   "colchao": 30000,
+   "linha": [
+    {
+     "ate": "2026-08-25",
+     "precisa": 3596.99
+    },
+    {
+     "ate": "2026-08-31",
+     "precisa": 3596.99
+    },
+    {
+     "ate": "2026-09-05",
+     "precisa": 67291.56
+    },
+    {
+     "ate": "2026-09-10",
+     "precisa": 76902.56
+    }
+   ]
+  }
+ ],
+ "sensibilidade": [
+  {
+   "atrasoRemates": 0,
+   "antesComissao": 26403.01,
+   "saldo25ago": -6966.04,
+   "minAteFolha": -7692.3,
+   "minimo": -46902.56,
+   "data": "2026-09-10",
+   "saldo05set": -37291.56,
+   "saldo10set": -46902.56
+  },
+  {
+   "atrasoRemates": 3,
+   "antesComissao": 26403.01,
+   "saldo25ago": -6966.04,
+   "minAteFolha": -7692.3,
+   "minimo": -46902.56,
+   "data": "2026-09-10",
+   "saldo05set": -37291.56,
+   "saldo10set": -46902.56
+  },
+  {
+   "atrasoRemates": 5,
+   "antesComissao": 6592.51,
+   "saldo25ago": -6966.04,
+   "minAteFolha": -7692.3,
+   "minimo": -46902.56,
+   "data": "2026-09-10",
+   "saldo05set": -37291.56,
+   "saldo10set": -46902.56
+  },
+  {
+   "atrasoRemates": 7,
+   "antesComissao": 6592.51,
+   "saldo25ago": -26776.54,
+   "minAteFolha": -26776.54,
+   "minimo": -46902.56,
+   "data": "2026-09-10",
+   "saldo05set": -37291.56,
+   "saldo10set": -46902.56
+  },
+  {
+   "atrasoRemates": 10,
+   "antesComissao": 6592.51,
+   "saldo25ago": -26776.54,
+   "minAteFolha": -27502.8,
+   "minimo": -46902.56,
+   "data": "2026-09-10",
+   "saldo05set": -37291.56,
+   "saldo10set": -46902.56
+  },
+  {
+   "atrasoRemates": 15,
+   "antesComissao": 6592.51,
+   "saldo25ago": -26776.54,
+   "minAteFolha": -27502.8,
+   "minimo": -46902.56,
+   "data": "2026-09-10",
+   "saldo05set": -37291.56,
+   "saldo10set": -46902.56
+  }
+ ],
+ "impactoGuadalupe": {
+  "valor": 10712.95,
+  "data": "2026-08-25",
+  "minimoSem": -57615.51,
+  "dataMin": "2026-09-10",
+  "saldo05setSem": -48004.51,
+  "saldo10setSem": -57615.51
+ },
+ "capacidade": [
+  {
+   "rot": "Sem colchão — só não ficar negativo",
+   "colchao": 0,
+   "valor": 36389.69,
+   "pct": 82.55,
+   "valorEao": 44082,
+   "pctEao": 100
+  },
+  {
+   "rot": "Colchão de R$ 10.000",
+   "colchao": 10000,
+   "valor": 26389.76,
+   "pct": 59.87,
+   "valorEao": 44082,
+   "pctEao": 100
+  },
+  {
+   "rot": "Colchão de R$ 30.000",
+   "colchao": 30000,
+   "valor": 0,
+   "pct": 0,
+   "valorEao": 0,
+   "pctEao": 0
+  }
+ ],
+ "concentracao": [
+  {
+   "grupo": "EAO Baviera",
+   "valor": 80058.3,
+   "n": 2,
+   "firme": 0,
+   "pct": 41.84,
+   "aCobrar": 80058.3
+  },
+  {
+   "grupo": "Genética Aditiva",
+   "valor": 27762.65,
+   "n": 2,
+   "firme": 0,
+   "pct": 14.51,
+   "aCobrar": 27762.65
+  },
+  {
+   "grupo": "Nelore Santa Cruz",
+   "valor": 20670,
+   "n": 3,
+   "firme": 0,
+   "pct": 10.8,
+   "aCobrar": 20670
+  },
+  {
+   "grupo": "Bula Remates",
+   "valor": 19810.5,
+   "n": 2,
+   "firme": 19810.5,
+   "pct": 10.35,
+   "aCobrar": 0
+  },
+  {
+   "grupo": "Kito",
+   "valor": 15030,
+   "n": 1,
+   "firme": 15030,
+   "pct": 7.85,
+   "aCobrar": 0
+  },
+  {
+   "grupo": "Guadalupe",
+   "valor": 10712.95,
+   "n": 2,
+   "firme": 10712.95,
+   "pct": 5.6,
+   "aCobrar": 0
+  },
+  {
+   "grupo": "Nelore Sorriso",
+   "valor": 7950,
+   "n": 1,
+   "firme": 0,
+   "pct": 4.15,
+   "aCobrar": 7950
+  },
+  {
+   "grupo": "Naviraí",
+   "valor": 7935,
+   "n": 1,
+   "firme": 0,
+   "pct": 4.15,
+   "aCobrar": 7935
+  },
+  {
+   "grupo": "Irmãos Hipólito",
+   "valor": 1425,
+   "n": 1,
+   "firme": 0,
+   "pct": 0.74,
+   "aCobrar": 1425
+  }
+ ],
+ "impostosAgosto": {
+  "basePiso": 250779.93,
+  "baseNominal": 355033.23,
+  "taxa": 24.3,
+  "piso": 60939.52,
+  "nominal": 86273.07,
+  "issVence": "2026-09-15",
+  "dasVence": "2026-09-20"
+ },
+ "agenda": [
+  {
+   "data": "2026-08-20",
+   "nome": "LEILÃO NELORE PARANÃ E CASABRANCA EXPOGENÉTICA",
+   "leiloeira": "PROGRAMA LEILOES"
+  },
+  {
+   "data": "2026-08-21",
+   "nome": "FÊMEAS JMP",
+   "leiloeira": "PROGRAMA LEILOES"
+  },
+  {
+   "data": "2026-08-21",
+   "nome": "12º LEILÃO PREMIUM COLONIAL",
+   "leiloeira": "PROGRAMA LEILOES"
+  },
+  {
+   "data": "2026-08-22",
+   "nome": "LEILÃO NAVIRAÍ CAMPARINO ESSÊNCIA BEZERRAS E NOVILHAS",
+   "leiloeira": "PROGRAMA LEILOES"
+  },
+  {
+   "data": "2026-08-23",
+   "nome": "28º LEILÃO NAVIRAÍ CAMPARINO REPRODUTORES",
+   "leiloeira": "PROGRAMA LEILOES"
+  },
+  {
+   "data": "2026-08-27",
+   "nome": "3º LEILÃO SELEÇÕES DA SAFRA NELORE BAMBU",
+   "leiloeira": "E-RURAL"
+  },
+  {
+   "data": "2026-08-29",
+   "nome": "LEILÃO MELHORADORES ESPECIAL 30 ANOS",
+   "leiloeira": "BULA REMATES"
+  },
+  {
+   "data": "2026-08-30",
+   "nome": "LEILÃO SABIÁ DOURADO",
+   "leiloeira": "BULA REMATES"
+  },
+  {
+   "data": "2026-08-30",
+   "nome": "VENTRES VIP MATINHA",
+   "leiloeira": ""
+  },
+  {
+   "data": "2026-09-05",
+   "nome": "TOUROS JACAMIN",
+   "leiloeira": ""
+  },
+  {
+   "data": "2026-09-06",
+   "nome": "TOUROS PREMIUM NELORE MAFRA - EDIÇÃO UBERABA",
+   "leiloeira": ""
+  }
+ ],
+ "guadalupeAcordo": {
+  "total": 21425.9,
+  "parcela": 10712.95,
+  "p1": "2026-08-25",
+  "p2": "2026-09-25",
+  "antesNoErp": 32641.35,
+  "delta": -11215.45,
+  "memoria": [
+   {
+    "rot": "Sábado 18/07 — 5% sobre a venda da cobertura Bula",
+    "base": 60000,
+    "pct": 5,
+    "valor": 3000
+   },
+   {
+    "rot": "Domingo 19/07 — 0,5% sobre o faturamento do pregão",
+    "base": 3043180,
+    "pct": 0.5,
+    "valor": 15215.9
+   },
+   {
+    "rot": "Segunda 20/07 — 5% sobre a venda da cobertura Bula",
+    "base": 64200,
+    "pct": 5,
+    "valor": 3210
+   }
+  ],
+  "comissaoAssessores": 4014,
+  "comissaoAssessoresVenc": "2026-08-25",
+  "comissaoNane": 3168,
+  "comissaoTotal": 7182
+ },
+ "pos25set": {
+  "comissoes": 62160,
+  "n": 15,
+  "guadalupeP2": 10712.95,
+  "total": 62160
+ },
+ "mixIss": 0.3051
+}
