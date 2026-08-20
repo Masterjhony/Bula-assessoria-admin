@@ -125,8 +125,14 @@ D.depoisTotal = r2(D.depois.reduce((s, x) => s + x.valor, 0))
 D.depoisFirme = r2(D.depois.filter(x => x.firme).reduce((s, x) => s + x.valor, 0))
 D.jmp2 = r2(D.depois.filter(x => /JMP/i.test(x.desc)).reduce((s, x) => s + x.valor, 0))
 
-/* --- pagaveis: vencidos realocados para hoje --- */
-const cpH = cpAb.filter(c => c.vencimento <= FIM)
+/* --- pagaveis: vencidos realocados para hoje ---
+ * EXCECAO: titulo com a tag 'retido-por-decisao' e divida reconhecida SEM data de pagamento.
+ * Nao entra no fluxo, pelo mesmo motivo que recebivel vencido nao entra: ninguem combinou data.
+ * Aparece separado, como estoque, para nao sumir do relatorio.
+ */
+const retido = c => (c.tags || []).includes('retido-por-decisao')
+const cpRet = cpAb.filter(c => c.vencimento <= FIM && retido(c))
+const cpH = cpAb.filter(c => c.vencimento <= FIM && !retido(c))
 const bucket = desc =>
   /^Folha /i.test(desc) ? 'folha'
     : /^COMISSAO|BULINHA|RUSA|^Repasse/i.test(desc) ? 'comissao'
@@ -136,6 +142,12 @@ D.pagar = cpH.map(c => ({
   data: c.vencimento < HOJE ? HOJE : c.vencimento, valor: sCP(c), desc: c.descricao,
   realocado: c.vencimento < HOJE, vencOriginal: c.vencimento, bucket: bucket(c.descricao),
 })).sort((a, b) => a.data < b.data ? -1 : 1)
+D.retidos = {
+  itens: cpRet.map(c => ({ valor: sCP(c), desc: c.descricao, vencOriginal: c.vencimento, idade: dias(c.vencimento, HOJE) }))
+    .sort((a, b) => b.valor - a.valor),
+}
+D.retidos.total = r2(D.retidos.itens.reduce((s, x) => s + x.valor, 0))
+
 D.comissoes25ago = r2(D.pagar.filter(x => x.data === '2026-08-25' && x.bucket === 'comissao').reduce((s, x) => s + x.valor, 0))
 D.comissoes25agoItens = D.pagar.filter(x => x.data === '2026-08-25' && x.bucket === 'comissao').sort((a, b) => b.valor - a.valor)
 D.folhaAgosto = r2(D.pagar.filter(x => x.bucket === 'folha').reduce((s, x) => s + x.valor, 0))
@@ -447,7 +459,8 @@ const f2 = n => Number(n).toLocaleString('pt-BR', { minimumFractionDigits: 2, ma
 console.log('Sicoob            ', f2(D.caixa.sicoob), D.caixa.confere ? '(bate com o extrato)' : '(NAO BATE!)')
 console.log('Comissoes 25/08   ', f2(D.comissoes25ago), '(' + D.comissoes25agoItens.length + ' titulos)')
 console.log('Folha 05/09       ', f2(D.folhaAgosto), '(' + D.folhaItens.length + ' pessoas)')
-console.log('A pagar na janela ', f2(D.pagarTotal))
+console.log('A pagar na janela ', f2(D.pagarTotal), '| RETIDO fora do fluxo', f2(D.retidos.total), '(' + D.retidos.itens.length + ')')
+D.retidos.itens.forEach(r => console.log('    retido', f2(r.valor).padStart(11), 'venc', r.vencOriginal, '(' + r.idade + 'd)', r.desc.slice(0, 56)))
 D.pagarPorBucket.forEach(b => console.log('   ', b.bucket.padEnd(10), f2(b.valor).padStart(12), '(' + b.n + ')'))
 console.log('A receber (datado)', f2(D.firmeza.total), '| firme', f2(D.firmeza.firme), '(' + D.firmeza.nFirme + ') | sem data', f2(D.firmeza.semData), '(' + D.firmeza.nSemData + ') =', D.firmeza.pctSemData + '%')
 console.log('Depois de 10/09   ', f2(D.depoisTotal), '| JMP 2a parcela', f2(D.jmp2))

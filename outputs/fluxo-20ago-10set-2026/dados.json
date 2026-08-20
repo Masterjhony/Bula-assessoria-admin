@@ -497,14 +497,6 @@
    "bucket": "imposto"
   },
   {
-   "data": "2026-08-20",
-   "valor": 7392,
-   "desc": "SALDO DEVIDO A BULINHA (FELIPE ANDRADE) - residual do acerto de julho",
-   "realocado": true,
-   "vencOriginal": "2026-07-27",
-   "bucket": "comissao"
-  },
-  {
    "data": "2026-08-21",
    "valor": 1981.58,
    "desc": "BILHETE/BOLETO - LEONARDO FRANCISCO (viagem Expogenetica)",
@@ -825,6 +817,17 @@
    "bucket": "corrente"
   }
  ],
+ "retidos": {
+  "itens": [
+   {
+    "valor": 7392,
+    "desc": "SALDO DEVIDO A BULINHA (FELIPE ANDRADE) - residual do acerto de julho",
+    "vencOriginal": "2026-07-27",
+    "idade": 24
+   }
+  ],
+  "total": 7392
+ },
  "comissoes25ago": 44082,
  "comissoes25agoItens": [
   {
@@ -1103,12 +1106,12 @@
    "bucket": "folha"
   }
  ],
- "pagarTotal": 103290.42,
+ "pagarTotal": 95898.42,
  "pagarPorBucket": [
   {
    "bucket": "comissao",
-   "valor": 51474,
-   "n": 29
+   "valor": 44082,
+   "n": 28
   },
   {
    "bucket": "folha",
@@ -1278,30 +1281,30 @@
    "resumo": "Entram apenas as cobranças com acordo expresso: o repasse da Bula Remates, a 1ª parcela do Guadalupe em 25/08 e o boleto do Kito em 30/08. Nenhuma outra leiloeira paga no período. É o piso, não uma previsão.",
    "minimo": {
     "data": "2026-09-10",
-    "saldo": -46902.56
+    "saldo": -39510.56
    },
-   "saldo25ago": -6966.04,
-   "saldo31ago": 3411.44,
-   "saldo05set": -37291.56,
-   "saldo10set": -46902.56,
-   "antesComissao": 26403.01,
-   "antesFolha": -4191.56,
-   "minAteFolha": -7692.3,
-   "diasNegativos": 13,
+   "saldo25ago": 425.96,
+   "saldo31ago": 10803.44,
+   "saldo05set": -29899.56,
+   "saldo10set": -39510.56,
+   "antesComissao": 33795.01,
+   "antesFolha": 3200.44,
+   "minAteFolha": -300.3,
+   "diasNegativos": 8,
    "entTotal": 45553.45,
-   "saiTotal": 121625.2,
-   "pagaComissao": false,
+   "saiTotal": 114233.2,
+   "pagaComissao": true,
    "pagaFolha": false,
    "sic": {
     "minimo": {
      "data": "2026-09-10",
-     "saldo": -34303.92
+     "saldo": -26911.92
     },
-    "saldo25ago": 5632.6,
-    "saldo05set": -24692.92,
-    "saldo10set": -34303.92,
-    "antesComissao": 39001.65,
-    "minAteFolha": 4906.34,
+    "saldo25ago": 13024.6,
+    "saldo05set": -17300.92,
+    "saldo10set": -26911.92,
+    "antesComissao": 46393.65,
+    "minAteFolha": 12298.34,
     "diasNegativos": 6,
     "pagaComissao": true,
     "pagaFolha": false
@@ -1313,30 +1316,30 @@
    "resumo": "O mesmo piso, mas o repasse que era para ter entrado hoje só cai em 25/08 — exatamente no dia das comissões.",
    "minimo": {
     "data": "2026-09-10",
-    "saldo": -46902.56
+    "saldo": -39510.56
    },
-   "saldo25ago": -6966.04,
-   "saldo31ago": 3411.44,
-   "saldo05set": -37291.56,
-   "saldo10set": -46902.56,
-   "antesComissao": 6592.51,
-   "antesFolha": -4191.56,
-   "minAteFolha": -7692.3,
-   "diasNegativos": 13,
+   "saldo25ago": 425.96,
+   "saldo31ago": 10803.44,
+   "saldo05set": -29899.56,
+   "saldo10set": -39510.56,
+   "antesComissao": 13984.51,
+   "antesFolha": 3200.44,
+   "minAteFolha": -300.3,
+   "diasNegativos": 8,
    "entTotal": 45553.45,
-   "saiTotal": 121625.2,
-   "pagaComissao": false,
+   "saiTotal": 114233.2,
+   "pagaComissao": true,
    "pagaFolha": false,
    "sic": {
     "minimo": {
      "data": "2026-09-10",
-     "saldo": -34303.92
+     "saldo": -26911.92
     },
-    "saldo25ago": 5632.6,
-    "saldo05set": -24692.92,
-    "saldo10set": -34303.92,
-    "antesComissao": 19191.15,
-    "minAteFolha": 4906.34,
+    "saldo25ago": 13024.6,
+    "saldo05set": -17300.92,
+    "saldo10set": -26911.92,
+    "antesComissao": 26583.15,
+    "minAteFolha": 12298.34,
     "diasNegativos": 6,
     "pagaComissao": true,
     "pagaFolha": false
@@ -1348,30 +1351,30 @@
    "resumo": "Cada título entra no vencimento que o sistema calculou (leilão + 45 dias). Nenhuma dessas datas foi acordada com as leiloeiras — é o cenário otimista.",
    "minimo": {
     "data": "2026-08-24",
-    "saldo": 26403.01
+    "saldo": 33795.01
    },
-   "saldo25ago": 41590.46,
-   "saldo31ago": 107664.74,
-   "saldo05set": 79321.74,
-   "saldo10set": 98898.39,
-   "antesComissao": 26403.01,
-   "antesFolha": 112421.74,
-   "minAteFolha": 26403.01,
+   "saldo25ago": 48982.46,
+   "saldo31ago": 115056.74,
+   "saldo05set": 86713.74,
+   "saldo10set": 106290.39,
+   "antesComissao": 33795.01,
+   "antesFolha": 119813.74,
+   "minAteFolha": 33795.01,
    "diasNegativos": 0,
    "entTotal": 191354.4,
-   "saiTotal": 121625.2,
+   "saiTotal": 114233.2,
    "pagaComissao": true,
    "pagaFolha": true,
    "sic": {
     "minimo": {
      "data": "2026-08-24",
-     "saldo": 39001.65
+     "saldo": 46393.65
     },
-    "saldo25ago": 54189.1,
-    "saldo05set": 91920.38,
-    "saldo10set": 111497.03,
-    "antesComissao": 39001.65,
-    "minAteFolha": 39001.65,
+    "saldo25ago": 61581.1,
+    "saldo05set": 99312.38,
+    "saldo10set": 118889.03,
+    "antesComissao": 46393.65,
+    "minAteFolha": 46393.65,
     "diasNegativos": 0,
     "pagaComissao": true,
     "pagaFolha": true
@@ -1383,30 +1386,30 @@
    "resumo": "As cobranças sem acordo são negociadas e entram 15 dias depois da data nominal do ERP.",
    "minimo": {
     "data": "2026-09-08",
-    "saldo": -45844.56
+    "saldo": -38452.56
    },
-   "saldo25ago": -6966.04,
-   "saldo31ago": 3411.44,
-   "saldo05set": -37291.56,
-   "saldo10set": 41105.74,
-   "antesComissao": 26403.01,
-   "antesFolha": -4191.56,
-   "minAteFolha": -7692.3,
-   "diasNegativos": 11,
+   "saldo25ago": 425.96,
+   "saldo31ago": 10803.44,
+   "saldo05set": -29899.56,
+   "saldo10set": 48497.74,
+   "antesComissao": 33795.01,
+   "antesFolha": 3200.44,
+   "minAteFolha": -300.3,
+   "diasNegativos": 6,
    "entTotal": 133561.75,
-   "saiTotal": 121625.2,
-   "pagaComissao": false,
+   "saiTotal": 114233.2,
+   "pagaComissao": true,
    "pagaFolha": false,
    "sic": {
     "minimo": {
      "data": "2026-09-08",
-     "saldo": -33245.92
+     "saldo": -25853.92
     },
-    "saldo25ago": 5632.6,
-    "saldo05set": -24692.92,
-    "saldo10set": 53704.38,
-    "antesComissao": 39001.65,
-    "minAteFolha": 4906.34,
+    "saldo25ago": 13024.6,
+    "saldo05set": -17300.92,
+    "saldo10set": 61096.38,
+    "antesComissao": 46393.65,
+    "minAteFolha": 12298.34,
     "diasNegativos": 4,
     "pagaComissao": true,
     "pagaFolha": false
@@ -1418,30 +1421,30 @@
    "resumo": "O piso de cobrança, mas pagando as comissões de julho junto com a folha, em 05/09, em vez de 25/08.",
    "minimo": {
     "data": "2026-09-10",
-    "saldo": -46902.56
+    "saldo": -39510.56
    },
-   "saldo25ago": 37115.96,
-   "saldo31ago": 47493.44,
-   "saldo05set": -37291.56,
-   "saldo10set": -46902.56,
-   "antesComissao": 26403.01,
-   "antesFolha": 39890.44,
-   "minAteFolha": 26403.01,
+   "saldo25ago": 44507.96,
+   "saldo31ago": 54885.44,
+   "saldo05set": -29899.56,
+   "saldo10set": -39510.56,
+   "antesComissao": 33795.01,
+   "antesFolha": 47282.44,
+   "minAteFolha": 33795.01,
    "diasNegativos": 6,
    "entTotal": 45553.45,
-   "saiTotal": 121625.2,
+   "saiTotal": 114233.2,
    "pagaComissao": true,
    "pagaFolha": false,
    "sic": {
     "minimo": {
      "data": "2026-09-10",
-     "saldo": -34303.92
+     "saldo": -26911.92
     },
-    "saldo25ago": 49714.6,
-    "saldo05set": -24692.92,
-    "saldo10set": -34303.92,
-    "antesComissao": 39001.65,
-    "minAteFolha": 39001.65,
+    "saldo25ago": 57106.6,
+    "saldo05set": -17300.92,
+    "saldo10set": -26911.92,
+    "antesComissao": 46393.65,
+    "minAteFolha": 46393.65,
     "diasNegativos": 6,
     "pagaComissao": true,
     "pagaFolha": false
@@ -1453,30 +1456,30 @@
    "resumo": "O piso mais os dois títulos do Mega Evento EAO Baviera (25 e 26/08), que sozinhos valem quase metade de tudo que a Bula tem para receber na janela. É a cobrança de maior alavanca do período.",
    "minimo": {
     "data": "2026-08-24",
-    "saldo": 26403.01
+    "saldo": 33795.01
    },
-   "saldo25ago": 41590.46,
-   "saldo31ago": 83469.74,
-   "saldo05set": 42766.74,
-   "saldo10set": 33155.74,
-   "antesComissao": 26403.01,
-   "antesFolha": 75866.74,
-   "minAteFolha": 26403.01,
+   "saldo25ago": 48982.46,
+   "saldo31ago": 90861.74,
+   "saldo05set": 50158.74,
+   "saldo10set": 40547.74,
+   "antesComissao": 33795.01,
+   "antesFolha": 83258.74,
+   "minAteFolha": 33795.01,
    "diasNegativos": 0,
    "entTotal": 125611.75,
-   "saiTotal": 121625.2,
+   "saiTotal": 114233.2,
    "pagaComissao": true,
    "pagaFolha": true,
    "sic": {
     "minimo": {
      "data": "2026-08-24",
-     "saldo": 39001.65
+     "saldo": 46393.65
     },
-    "saldo25ago": 54189.1,
-    "saldo05set": 55365.38,
-    "saldo10set": 45754.38,
-    "antesComissao": 39001.65,
-    "minAteFolha": 39001.65,
+    "saldo25ago": 61581.1,
+    "saldo05set": 62757.38,
+    "saldo10set": 53146.38,
+    "antesComissao": 46393.65,
+    "minAteFolha": 46393.65,
     "diasNegativos": 0,
     "pagaComissao": true,
     "pagaFolha": true
@@ -1488,8 +1491,8 @@
    {
     "data": "2026-08-20",
     "ent": 19810.5,
-    "sai": 8342,
-    "saldo": 40637.69,
+    "sai": 950,
+    "saldo": 48029.69,
     "itens": [
      {
       "t": "e",
@@ -1510,12 +1513,6 @@
       "data": "2026-08-20",
       "valor": 950,
       "desc": "FGTS/Guia CEF ref. julho/2026 (ESTIMADO)"
-     },
-     {
-      "t": "s",
-      "data": "2026-08-20",
-      "valor": 7392,
-      "desc": "SALDO DEVIDO A BULINHA (FELIPE ANDRADE) - residual do acerto de julho"
      }
     ]
    },
@@ -1523,7 +1520,7 @@
     "data": "2026-08-21",
     "ent": 0,
     "sai": 6178.45,
-    "saldo": 34459.24,
+    "saldo": 41851.24,
     "itens": [
      {
       "t": "s",
@@ -1543,21 +1540,21 @@
     "data": "2026-08-22",
     "ent": 0,
     "sai": 0,
-    "saldo": 34459.24,
+    "saldo": 41851.24,
     "itens": []
    },
    {
     "data": "2026-08-23",
     "ent": 0,
     "sai": 0,
-    "saldo": 34459.24,
+    "saldo": 41851.24,
     "itens": []
    },
    {
     "data": "2026-08-24",
     "ent": 0,
     "sai": 8056.23,
-    "saldo": 26403.01,
+    "saldo": 33795.01,
     "itens": [
      {
       "t": "s",
@@ -1584,7 +1581,7 @@
     "data": "2026-08-25",
     "ent": 10712.95,
     "sai": 44082,
-    "saldo": -6966.04,
+    "saldo": 425.96,
     "itens": [
      {
       "t": "e",
@@ -1774,21 +1771,21 @@
     "data": "2026-08-26",
     "ent": 0,
     "sai": 0,
-    "saldo": -6966.04,
+    "saldo": 425.96,
     "itens": []
    },
    {
     "data": "2026-08-27",
     "ent": 0,
     "sai": 0,
-    "saldo": -6966.04,
+    "saldo": 425.96,
     "itens": []
    },
    {
     "data": "2026-08-28",
     "ent": 0,
     "sai": 726.26,
-    "saldo": -7692.3,
+    "saldo": -300.3,
     "itens": [
      {
       "t": "s",
@@ -1803,14 +1800,14 @@
     "data": "2026-08-29",
     "ent": 0,
     "sai": 0,
-    "saldo": -7692.3,
+    "saldo": -300.3,
     "itens": []
    },
    {
     "data": "2026-08-30",
     "ent": 15030,
     "sai": 0,
-    "saldo": 7337.7,
+    "saldo": 14729.7,
     "itens": [
      {
       "t": "e",
@@ -1825,7 +1822,7 @@
     "data": "2026-08-31",
     "ent": 0,
     "sai": 3926.26,
-    "saldo": 3411.44,
+    "saldo": 10803.44,
     "itens": [
      {
       "t": "s",
@@ -1846,21 +1843,21 @@
     "data": "2026-09-01",
     "ent": 0,
     "sai": 0,
-    "saldo": 3411.44,
+    "saldo": 10803.44,
     "itens": []
    },
    {
     "data": "2026-09-02",
     "ent": 0,
     "sai": 0,
-    "saldo": 3411.44,
+    "saldo": 10803.44,
     "itens": []
    },
    {
     "data": "2026-09-03",
     "ent": 0,
     "sai": 7603,
-    "saldo": -4191.56,
+    "saldo": 3200.44,
     "itens": [
      {
       "t": "s",
@@ -1875,14 +1872,14 @@
     "data": "2026-09-04",
     "ent": 0,
     "sai": 0,
-    "saldo": -4191.56,
+    "saldo": 3200.44,
     "itens": []
    },
    {
     "data": "2026-09-05",
     "ent": 0,
     "sai": 33100,
-    "saldo": -37291.56,
+    "saldo": -29899.56,
     "itens": [
      {
       "t": "s",
@@ -1926,14 +1923,14 @@
     "data": "2026-09-06",
     "ent": 0,
     "sai": 0,
-    "saldo": -37291.56,
+    "saldo": -29899.56,
     "itens": []
    },
    {
     "data": "2026-09-07",
     "ent": 0,
     "sai": 950,
-    "saldo": -38241.56,
+    "saldo": -30849.56,
     "itens": [
      {
       "t": "s",
@@ -1948,7 +1945,7 @@
     "data": "2026-09-08",
     "ent": 0,
     "sai": 7603,
-    "saldo": -45844.56,
+    "saldo": -38452.56,
     "itens": [
      {
       "t": "s",
@@ -1963,14 +1960,14 @@
     "data": "2026-09-09",
     "ent": 0,
     "sai": 0,
-    "saldo": -45844.56,
+    "saldo": -38452.56,
     "itens": []
    },
    {
     "data": "2026-09-10",
     "ent": 0,
     "sai": 1058,
-    "saldo": -46902.56,
+    "saldo": -39510.56,
     "itens": [
      {
       "t": "s",
@@ -1985,20 +1982,14 @@
    {
     "data": "2026-08-20",
     "ent": 0,
-    "sai": 8342,
-    "saldo": 20827.19,
+    "sai": 950,
+    "saldo": 28219.19,
     "itens": [
      {
       "t": "s",
       "data": "2026-08-20",
       "valor": 950,
       "desc": "FGTS/Guia CEF ref. julho/2026 (ESTIMADO)"
-     },
-     {
-      "t": "s",
-      "data": "2026-08-20",
-      "valor": 7392,
-      "desc": "SALDO DEVIDO A BULINHA (FELIPE ANDRADE) - residual do acerto de julho"
      }
     ]
    },
@@ -2006,7 +1997,7 @@
     "data": "2026-08-21",
     "ent": 0,
     "sai": 6178.45,
-    "saldo": 14648.74,
+    "saldo": 22040.74,
     "itens": [
      {
       "t": "s",
@@ -2026,21 +2017,21 @@
     "data": "2026-08-22",
     "ent": 0,
     "sai": 0,
-    "saldo": 14648.74,
+    "saldo": 22040.74,
     "itens": []
    },
    {
     "data": "2026-08-23",
     "ent": 0,
     "sai": 0,
-    "saldo": 14648.74,
+    "saldo": 22040.74,
     "itens": []
    },
    {
     "data": "2026-08-24",
     "ent": 0,
     "sai": 8056.23,
-    "saldo": 6592.51,
+    "saldo": 13984.51,
     "itens": [
      {
       "t": "s",
@@ -2067,7 +2058,7 @@
     "data": "2026-08-25",
     "ent": 30523.45,
     "sai": 44082,
-    "saldo": -6966.04,
+    "saldo": 425.96,
     "itens": [
      {
       "t": "e",
@@ -2271,21 +2262,21 @@
     "data": "2026-08-26",
     "ent": 0,
     "sai": 0,
-    "saldo": -6966.04,
+    "saldo": 425.96,
     "itens": []
    },
    {
     "data": "2026-08-27",
     "ent": 0,
     "sai": 0,
-    "saldo": -6966.04,
+    "saldo": 425.96,
     "itens": []
    },
    {
     "data": "2026-08-28",
     "ent": 0,
     "sai": 726.26,
-    "saldo": -7692.3,
+    "saldo": -300.3,
     "itens": [
      {
       "t": "s",
@@ -2300,14 +2291,14 @@
     "data": "2026-08-29",
     "ent": 0,
     "sai": 0,
-    "saldo": -7692.3,
+    "saldo": -300.3,
     "itens": []
    },
    {
     "data": "2026-08-30",
     "ent": 15030,
     "sai": 0,
-    "saldo": 7337.7,
+    "saldo": 14729.7,
     "itens": [
      {
       "t": "e",
@@ -2322,7 +2313,7 @@
     "data": "2026-08-31",
     "ent": 0,
     "sai": 3926.26,
-    "saldo": 3411.44,
+    "saldo": 10803.44,
     "itens": [
      {
       "t": "s",
@@ -2343,21 +2334,21 @@
     "data": "2026-09-01",
     "ent": 0,
     "sai": 0,
-    "saldo": 3411.44,
+    "saldo": 10803.44,
     "itens": []
    },
    {
     "data": "2026-09-02",
     "ent": 0,
     "sai": 0,
-    "saldo": 3411.44,
+    "saldo": 10803.44,
     "itens": []
    },
    {
     "data": "2026-09-03",
     "ent": 0,
     "sai": 7603,
-    "saldo": -4191.56,
+    "saldo": 3200.44,
     "itens": [
      {
       "t": "s",
@@ -2372,14 +2363,14 @@
     "data": "2026-09-04",
     "ent": 0,
     "sai": 0,
-    "saldo": -4191.56,
+    "saldo": 3200.44,
     "itens": []
    },
    {
     "data": "2026-09-05",
     "ent": 0,
     "sai": 33100,
-    "saldo": -37291.56,
+    "saldo": -29899.56,
     "itens": [
      {
       "t": "s",
@@ -2423,14 +2414,14 @@
     "data": "2026-09-06",
     "ent": 0,
     "sai": 0,
-    "saldo": -37291.56,
+    "saldo": -29899.56,
     "itens": []
    },
    {
     "data": "2026-09-07",
     "ent": 0,
     "sai": 950,
-    "saldo": -38241.56,
+    "saldo": -30849.56,
     "itens": [
      {
       "t": "s",
@@ -2445,7 +2436,7 @@
     "data": "2026-09-08",
     "ent": 0,
     "sai": 7603,
-    "saldo": -45844.56,
+    "saldo": -38452.56,
     "itens": [
      {
       "t": "s",
@@ -2460,14 +2451,14 @@
     "data": "2026-09-09",
     "ent": 0,
     "sai": 0,
-    "saldo": -45844.56,
+    "saldo": -38452.56,
     "itens": []
    },
    {
     "data": "2026-09-10",
     "ent": 0,
     "sai": 1058,
-    "saldo": -46902.56,
+    "saldo": -39510.56,
     "itens": [
      {
       "t": "s",
@@ -2482,8 +2473,8 @@
    {
     "data": "2026-08-20",
     "ent": 19810.5,
-    "sai": 8342,
-    "saldo": 40637.69,
+    "sai": 950,
+    "saldo": 48029.69,
     "itens": [
      {
       "t": "e",
@@ -2504,12 +2495,6 @@
       "data": "2026-08-20",
       "valor": 950,
       "desc": "FGTS/Guia CEF ref. julho/2026 (ESTIMADO)"
-     },
-     {
-      "t": "s",
-      "data": "2026-08-20",
-      "valor": 7392,
-      "desc": "SALDO DEVIDO A BULINHA (FELIPE ANDRADE) - residual do acerto de julho"
      }
     ]
    },
@@ -2517,7 +2502,7 @@
     "data": "2026-08-21",
     "ent": 0,
     "sai": 6178.45,
-    "saldo": 34459.24,
+    "saldo": 41851.24,
     "itens": [
      {
       "t": "s",
@@ -2537,21 +2522,21 @@
     "data": "2026-08-22",
     "ent": 0,
     "sai": 0,
-    "saldo": 34459.24,
+    "saldo": 41851.24,
     "itens": []
    },
    {
     "data": "2026-08-23",
     "ent": 0,
     "sai": 0,
-    "saldo": 34459.24,
+    "saldo": 41851.24,
     "itens": []
    },
    {
     "data": "2026-08-24",
     "ent": 0,
     "sai": 8056.23,
-    "saldo": 26403.01,
+    "saldo": 33795.01,
     "itens": [
      {
       "t": "s",
@@ -2578,7 +2563,7 @@
     "data": "2026-08-25",
     "ent": 59269.45,
     "sai": 44082,
-    "saldo": 41590.46,
+    "saldo": 48982.46,
     "itens": [
      {
       "t": "e",
@@ -2775,7 +2760,7 @@
     "data": "2026-08-26",
     "ent": 39451.8,
     "sai": 0,
-    "saldo": 81042.26,
+    "saldo": 88434.26,
     "itens": [
      {
       "t": "e",
@@ -2797,14 +2782,14 @@
     "data": "2026-08-27",
     "ent": 0,
     "sai": 0,
-    "saldo": 81042.26,
+    "saldo": 88434.26,
     "itens": []
    },
    {
     "data": "2026-08-28",
     "ent": 6180,
     "sai": 726.26,
-    "saldo": 86496,
+    "saldo": 93888,
     "itens": [
      {
       "t": "e",
@@ -2826,7 +2811,7 @@
     "data": "2026-08-29",
     "ent": 2130,
     "sai": 0,
-    "saldo": 88626,
+    "saldo": 96018,
     "itens": [
      {
       "t": "e",
@@ -2841,7 +2826,7 @@
     "data": "2026-08-30",
     "ent": 22965,
     "sai": 0,
-    "saldo": 111591,
+    "saldo": 118983,
     "itens": [
      {
       "t": "e",
@@ -2863,7 +2848,7 @@
     "data": "2026-08-31",
     "ent": 0,
     "sai": 3926.26,
-    "saldo": 107664.74,
+    "saldo": 115056.74,
     "itens": [
      {
       "t": "s",
@@ -2884,14 +2869,14 @@
     "data": "2026-09-01",
     "ent": 0,
     "sai": 0,
-    "saldo": 107664.74,
+    "saldo": 115056.74,
     "itens": []
    },
    {
     "data": "2026-09-02",
     "ent": 12360,
     "sai": 0,
-    "saldo": 120024.74,
+    "saldo": 127416.74,
     "itens": [
      {
       "t": "e",
@@ -2906,7 +2891,7 @@
     "data": "2026-09-03",
     "ent": 0,
     "sai": 7603,
-    "saldo": 112421.74,
+    "saldo": 119813.74,
     "itens": [
      {
       "t": "s",
@@ -2921,14 +2906,14 @@
     "data": "2026-09-04",
     "ent": 0,
     "sai": 0,
-    "saldo": 112421.74,
+    "saldo": 119813.74,
     "itens": []
    },
    {
     "data": "2026-09-05",
     "ent": 0,
     "sai": 33100,
-    "saldo": 79321.74,
+    "saldo": 86713.74,
     "itens": [
      {
       "t": "s",
@@ -2972,14 +2957,14 @@
     "data": "2026-09-06",
     "ent": 0,
     "sai": 0,
-    "saldo": 79321.74,
+    "saldo": 86713.74,
     "itens": []
    },
    {
     "data": "2026-09-07",
     "ent": 0,
     "sai": 950,
-    "saldo": 78371.74,
+    "saldo": 85763.74,
     "itens": [
      {
       "t": "s",
@@ -2994,7 +2979,7 @@
     "data": "2026-09-08",
     "ent": 7743.9,
     "sai": 7603,
-    "saldo": 78512.64,
+    "saldo": 85904.64,
     "itens": [
      {
       "t": "e",
@@ -3023,7 +3008,7 @@
     "data": "2026-09-09",
     "ent": 21443.75,
     "sai": 0,
-    "saldo": 99956.39,
+    "saldo": 107348.39,
     "itens": [
      {
       "t": "e",
@@ -3038,7 +3023,7 @@
     "data": "2026-09-10",
     "ent": 0,
     "sai": 1058,
-    "saldo": 98898.39,
+    "saldo": 106290.39,
     "itens": [
      {
       "t": "s",
@@ -3053,8 +3038,8 @@
    {
     "data": "2026-08-20",
     "ent": 19810.5,
-    "sai": 8342,
-    "saldo": 40637.69,
+    "sai": 950,
+    "saldo": 48029.69,
     "itens": [
      {
       "t": "e",
@@ -3075,12 +3060,6 @@
       "data": "2026-08-20",
       "valor": 950,
       "desc": "FGTS/Guia CEF ref. julho/2026 (ESTIMADO)"
-     },
-     {
-      "t": "s",
-      "data": "2026-08-20",
-      "valor": 7392,
-      "desc": "SALDO DEVIDO A BULINHA (FELIPE ANDRADE) - residual do acerto de julho"
      }
     ]
    },
@@ -3088,7 +3067,7 @@
     "data": "2026-08-21",
     "ent": 0,
     "sai": 6178.45,
-    "saldo": 34459.24,
+    "saldo": 41851.24,
     "itens": [
      {
       "t": "s",
@@ -3108,21 +3087,21 @@
     "data": "2026-08-22",
     "ent": 0,
     "sai": 0,
-    "saldo": 34459.24,
+    "saldo": 41851.24,
     "itens": []
    },
    {
     "data": "2026-08-23",
     "ent": 0,
     "sai": 0,
-    "saldo": 34459.24,
+    "saldo": 41851.24,
     "itens": []
    },
    {
     "data": "2026-08-24",
     "ent": 0,
     "sai": 8056.23,
-    "saldo": 26403.01,
+    "saldo": 33795.01,
     "itens": [
      {
       "t": "s",
@@ -3149,7 +3128,7 @@
     "data": "2026-08-25",
     "ent": 10712.95,
     "sai": 44082,
-    "saldo": -6966.04,
+    "saldo": 425.96,
     "itens": [
      {
       "t": "e",
@@ -3339,21 +3318,21 @@
     "data": "2026-08-26",
     "ent": 0,
     "sai": 0,
-    "saldo": -6966.04,
+    "saldo": 425.96,
     "itens": []
    },
    {
     "data": "2026-08-27",
     "ent": 0,
     "sai": 0,
-    "saldo": -6966.04,
+    "saldo": 425.96,
     "itens": []
    },
    {
     "data": "2026-08-28",
     "ent": 0,
     "sai": 726.26,
-    "saldo": -7692.3,
+    "saldo": -300.3,
     "itens": [
      {
       "t": "s",
@@ -3368,14 +3347,14 @@
     "data": "2026-08-29",
     "ent": 0,
     "sai": 0,
-    "saldo": -7692.3,
+    "saldo": -300.3,
     "itens": []
    },
    {
     "data": "2026-08-30",
     "ent": 15030,
     "sai": 0,
-    "saldo": 7337.7,
+    "saldo": 14729.7,
     "itens": [
      {
       "t": "e",
@@ -3390,7 +3369,7 @@
     "data": "2026-08-31",
     "ent": 0,
     "sai": 3926.26,
-    "saldo": 3411.44,
+    "saldo": 10803.44,
     "itens": [
      {
       "t": "s",
@@ -3411,21 +3390,21 @@
     "data": "2026-09-01",
     "ent": 0,
     "sai": 0,
-    "saldo": 3411.44,
+    "saldo": 10803.44,
     "itens": []
    },
    {
     "data": "2026-09-02",
     "ent": 0,
     "sai": 0,
-    "saldo": 3411.44,
+    "saldo": 10803.44,
     "itens": []
    },
    {
     "data": "2026-09-03",
     "ent": 0,
     "sai": 7603,
-    "saldo": -4191.56,
+    "saldo": 3200.44,
     "itens": [
      {
       "t": "s",
@@ -3440,14 +3419,14 @@
     "data": "2026-09-04",
     "ent": 0,
     "sai": 0,
-    "saldo": -4191.56,
+    "saldo": 3200.44,
     "itens": []
    },
    {
     "data": "2026-09-05",
     "ent": 0,
     "sai": 33100,
-    "saldo": -37291.56,
+    "saldo": -29899.56,
     "itens": [
      {
       "t": "s",
@@ -3491,14 +3470,14 @@
     "data": "2026-09-06",
     "ent": 0,
     "sai": 0,
-    "saldo": -37291.56,
+    "saldo": -29899.56,
     "itens": []
    },
    {
     "data": "2026-09-07",
     "ent": 0,
     "sai": 950,
-    "saldo": -38241.56,
+    "saldo": -30849.56,
     "itens": [
      {
       "t": "s",
@@ -3513,7 +3492,7 @@
     "data": "2026-09-08",
     "ent": 0,
     "sai": 7603,
-    "saldo": -45844.56,
+    "saldo": -38452.56,
     "itens": [
      {
       "t": "s",
@@ -3528,7 +3507,7 @@
     "data": "2026-09-09",
     "ent": 48556.5,
     "sai": 0,
-    "saldo": 2711.94,
+    "saldo": 10103.94,
     "itens": [
      {
       "t": "e",
@@ -3543,7 +3522,7 @@
     "data": "2026-09-10",
     "ent": 39451.8,
     "sai": 1058,
-    "saldo": 41105.74,
+    "saldo": 48497.74,
     "itens": [
      {
       "t": "e",
@@ -3572,8 +3551,8 @@
    {
     "data": "2026-08-20",
     "ent": 19810.5,
-    "sai": 8342,
-    "saldo": 40637.69,
+    "sai": 950,
+    "saldo": 48029.69,
     "itens": [
      {
       "t": "e",
@@ -3594,12 +3573,6 @@
       "data": "2026-08-20",
       "valor": 950,
       "desc": "FGTS/Guia CEF ref. julho/2026 (ESTIMADO)"
-     },
-     {
-      "t": "s",
-      "data": "2026-08-20",
-      "valor": 7392,
-      "desc": "SALDO DEVIDO A BULINHA (FELIPE ANDRADE) - residual do acerto de julho"
      }
     ]
    },
@@ -3607,7 +3580,7 @@
     "data": "2026-08-21",
     "ent": 0,
     "sai": 6178.45,
-    "saldo": 34459.24,
+    "saldo": 41851.24,
     "itens": [
      {
       "t": "s",
@@ -3627,21 +3600,21 @@
     "data": "2026-08-22",
     "ent": 0,
     "sai": 0,
-    "saldo": 34459.24,
+    "saldo": 41851.24,
     "itens": []
    },
    {
     "data": "2026-08-23",
     "ent": 0,
     "sai": 0,
-    "saldo": 34459.24,
+    "saldo": 41851.24,
     "itens": []
    },
    {
     "data": "2026-08-24",
     "ent": 0,
     "sai": 8056.23,
-    "saldo": 26403.01,
+    "saldo": 33795.01,
     "itens": [
      {
       "t": "s",
@@ -3668,7 +3641,7 @@
     "data": "2026-08-25",
     "ent": 10712.95,
     "sai": 0,
-    "saldo": 37115.96,
+    "saldo": 44507.96,
     "itens": [
      {
       "t": "e",
@@ -3690,21 +3663,21 @@
     "data": "2026-08-26",
     "ent": 0,
     "sai": 0,
-    "saldo": 37115.96,
+    "saldo": 44507.96,
     "itens": []
    },
    {
     "data": "2026-08-27",
     "ent": 0,
     "sai": 0,
-    "saldo": 37115.96,
+    "saldo": 44507.96,
     "itens": []
    },
    {
     "data": "2026-08-28",
     "ent": 0,
     "sai": 726.26,
-    "saldo": 36389.7,
+    "saldo": 43781.7,
     "itens": [
      {
       "t": "s",
@@ -3719,14 +3692,14 @@
     "data": "2026-08-29",
     "ent": 0,
     "sai": 0,
-    "saldo": 36389.7,
+    "saldo": 43781.7,
     "itens": []
    },
    {
     "data": "2026-08-30",
     "ent": 15030,
     "sai": 0,
-    "saldo": 51419.7,
+    "saldo": 58811.7,
     "itens": [
      {
       "t": "e",
@@ -3741,7 +3714,7 @@
     "data": "2026-08-31",
     "ent": 0,
     "sai": 3926.26,
-    "saldo": 47493.44,
+    "saldo": 54885.44,
     "itens": [
      {
       "t": "s",
@@ -3762,21 +3735,21 @@
     "data": "2026-09-01",
     "ent": 0,
     "sai": 0,
-    "saldo": 47493.44,
+    "saldo": 54885.44,
     "itens": []
    },
    {
     "data": "2026-09-02",
     "ent": 0,
     "sai": 0,
-    "saldo": 47493.44,
+    "saldo": 54885.44,
     "itens": []
    },
    {
     "data": "2026-09-03",
     "ent": 0,
     "sai": 7603,
-    "saldo": 39890.44,
+    "saldo": 47282.44,
     "itens": [
      {
       "t": "s",
@@ -3791,14 +3764,14 @@
     "data": "2026-09-04",
     "ent": 0,
     "sai": 0,
-    "saldo": 39890.44,
+    "saldo": 47282.44,
     "itens": []
    },
    {
     "data": "2026-09-05",
     "ent": 0,
     "sai": 77182,
-    "saldo": -37291.56,
+    "saldo": -29899.56,
     "itens": [
      {
       "t": "s",
@@ -4038,14 +4011,14 @@
     "data": "2026-09-06",
     "ent": 0,
     "sai": 0,
-    "saldo": -37291.56,
+    "saldo": -29899.56,
     "itens": []
    },
    {
     "data": "2026-09-07",
     "ent": 0,
     "sai": 950,
-    "saldo": -38241.56,
+    "saldo": -30849.56,
     "itens": [
      {
       "t": "s",
@@ -4060,7 +4033,7 @@
     "data": "2026-09-08",
     "ent": 0,
     "sai": 7603,
-    "saldo": -45844.56,
+    "saldo": -38452.56,
     "itens": [
      {
       "t": "s",
@@ -4075,14 +4048,14 @@
     "data": "2026-09-09",
     "ent": 0,
     "sai": 0,
-    "saldo": -45844.56,
+    "saldo": -38452.56,
     "itens": []
    },
    {
     "data": "2026-09-10",
     "ent": 0,
     "sai": 1058,
-    "saldo": -46902.56,
+    "saldo": -39510.56,
     "itens": [
      {
       "t": "s",
@@ -4097,8 +4070,8 @@
    {
     "data": "2026-08-20",
     "ent": 19810.5,
-    "sai": 8342,
-    "saldo": 40637.69,
+    "sai": 950,
+    "saldo": 48029.69,
     "itens": [
      {
       "t": "e",
@@ -4119,12 +4092,6 @@
       "data": "2026-08-20",
       "valor": 950,
       "desc": "FGTS/Guia CEF ref. julho/2026 (ESTIMADO)"
-     },
-     {
-      "t": "s",
-      "data": "2026-08-20",
-      "valor": 7392,
-      "desc": "SALDO DEVIDO A BULINHA (FELIPE ANDRADE) - residual do acerto de julho"
      }
     ]
    },
@@ -4132,7 +4099,7 @@
     "data": "2026-08-21",
     "ent": 0,
     "sai": 6178.45,
-    "saldo": 34459.24,
+    "saldo": 41851.24,
     "itens": [
      {
       "t": "s",
@@ -4152,21 +4119,21 @@
     "data": "2026-08-22",
     "ent": 0,
     "sai": 0,
-    "saldo": 34459.24,
+    "saldo": 41851.24,
     "itens": []
    },
    {
     "data": "2026-08-23",
     "ent": 0,
     "sai": 0,
-    "saldo": 34459.24,
+    "saldo": 41851.24,
     "itens": []
    },
    {
     "data": "2026-08-24",
     "ent": 0,
     "sai": 8056.23,
-    "saldo": 26403.01,
+    "saldo": 33795.01,
     "itens": [
      {
       "t": "s",
@@ -4193,7 +4160,7 @@
     "data": "2026-08-25",
     "ent": 59269.45,
     "sai": 44082,
-    "saldo": 41590.46,
+    "saldo": 48982.46,
     "itens": [
      {
       "t": "e",
@@ -4390,7 +4357,7 @@
     "data": "2026-08-26",
     "ent": 31501.8,
     "sai": 0,
-    "saldo": 73092.26,
+    "saldo": 80484.26,
     "itens": [
      {
       "t": "e",
@@ -4405,14 +4372,14 @@
     "data": "2026-08-27",
     "ent": 0,
     "sai": 0,
-    "saldo": 73092.26,
+    "saldo": 80484.26,
     "itens": []
    },
    {
     "data": "2026-08-28",
     "ent": 0,
     "sai": 726.26,
-    "saldo": 72366,
+    "saldo": 79758,
     "itens": [
      {
       "t": "s",
@@ -4427,14 +4394,14 @@
     "data": "2026-08-29",
     "ent": 0,
     "sai": 0,
-    "saldo": 72366,
+    "saldo": 79758,
     "itens": []
    },
    {
     "data": "2026-08-30",
     "ent": 15030,
     "sai": 0,
-    "saldo": 87396,
+    "saldo": 94788,
     "itens": [
      {
       "t": "e",
@@ -4449,7 +4416,7 @@
     "data": "2026-08-31",
     "ent": 0,
     "sai": 3926.26,
-    "saldo": 83469.74,
+    "saldo": 90861.74,
     "itens": [
      {
       "t": "s",
@@ -4470,21 +4437,21 @@
     "data": "2026-09-01",
     "ent": 0,
     "sai": 0,
-    "saldo": 83469.74,
+    "saldo": 90861.74,
     "itens": []
    },
    {
     "data": "2026-09-02",
     "ent": 0,
     "sai": 0,
-    "saldo": 83469.74,
+    "saldo": 90861.74,
     "itens": []
    },
    {
     "data": "2026-09-03",
     "ent": 0,
     "sai": 7603,
-    "saldo": 75866.74,
+    "saldo": 83258.74,
     "itens": [
      {
       "t": "s",
@@ -4499,14 +4466,14 @@
     "data": "2026-09-04",
     "ent": 0,
     "sai": 0,
-    "saldo": 75866.74,
+    "saldo": 83258.74,
     "itens": []
    },
    {
     "data": "2026-09-05",
     "ent": 0,
     "sai": 33100,
-    "saldo": 42766.74,
+    "saldo": 50158.74,
     "itens": [
      {
       "t": "s",
@@ -4550,14 +4517,14 @@
     "data": "2026-09-06",
     "ent": 0,
     "sai": 0,
-    "saldo": 42766.74,
+    "saldo": 50158.74,
     "itens": []
    },
    {
     "data": "2026-09-07",
     "ent": 0,
     "sai": 950,
-    "saldo": 41816.74,
+    "saldo": 49208.74,
     "itens": [
      {
       "t": "s",
@@ -4572,7 +4539,7 @@
     "data": "2026-09-08",
     "ent": 0,
     "sai": 7603,
-    "saldo": 34213.74,
+    "saldo": 41605.74,
     "itens": [
      {
       "t": "s",
@@ -4587,14 +4554,14 @@
     "data": "2026-09-09",
     "ent": 0,
     "sai": 0,
-    "saldo": 34213.74,
+    "saldo": 41605.74,
     "itens": []
    },
    {
     "data": "2026-09-10",
     "ent": 0,
     "sai": 1058,
-    "saldo": 33155.74,
+    "saldo": 40547.74,
     "itens": [
      {
       "t": "s",
@@ -4611,8 +4578,8 @@
    {
     "data": "2026-08-20",
     "ent": 19810.5,
-    "sai": 8342,
-    "saldo": 53236.33,
+    "sai": 950,
+    "saldo": 60628.33,
     "itens": [
      {
       "t": "e",
@@ -4633,12 +4600,6 @@
       "data": "2026-08-20",
       "valor": 950,
       "desc": "FGTS/Guia CEF ref. julho/2026 (ESTIMADO)"
-     },
-     {
-      "t": "s",
-      "data": "2026-08-20",
-      "valor": 7392,
-      "desc": "SALDO DEVIDO A BULINHA (FELIPE ANDRADE) - residual do acerto de julho"
      }
     ]
    },
@@ -4646,7 +4607,7 @@
     "data": "2026-08-21",
     "ent": 0,
     "sai": 6178.45,
-    "saldo": 47057.88,
+    "saldo": 54449.88,
     "itens": [
      {
       "t": "s",
@@ -4666,21 +4627,21 @@
     "data": "2026-08-22",
     "ent": 0,
     "sai": 0,
-    "saldo": 47057.88,
+    "saldo": 54449.88,
     "itens": []
    },
    {
     "data": "2026-08-23",
     "ent": 0,
     "sai": 0,
-    "saldo": 47057.88,
+    "saldo": 54449.88,
     "itens": []
    },
    {
     "data": "2026-08-24",
     "ent": 0,
     "sai": 8056.23,
-    "saldo": 39001.65,
+    "saldo": 46393.65,
     "itens": [
      {
       "t": "s",
@@ -4707,7 +4668,7 @@
     "data": "2026-08-25",
     "ent": 10712.95,
     "sai": 44082,
-    "saldo": 5632.6,
+    "saldo": 13024.6,
     "itens": [
      {
       "t": "e",
@@ -4897,21 +4858,21 @@
     "data": "2026-08-26",
     "ent": 0,
     "sai": 0,
-    "saldo": 5632.6,
+    "saldo": 13024.6,
     "itens": []
    },
    {
     "data": "2026-08-27",
     "ent": 0,
     "sai": 0,
-    "saldo": 5632.6,
+    "saldo": 13024.6,
     "itens": []
    },
    {
     "data": "2026-08-28",
     "ent": 0,
     "sai": 726.26,
-    "saldo": 4906.34,
+    "saldo": 12298.34,
     "itens": [
      {
       "t": "s",
@@ -4926,14 +4887,14 @@
     "data": "2026-08-29",
     "ent": 0,
     "sai": 0,
-    "saldo": 4906.34,
+    "saldo": 12298.34,
     "itens": []
    },
    {
     "data": "2026-08-30",
     "ent": 15030,
     "sai": 0,
-    "saldo": 19936.34,
+    "saldo": 27328.34,
     "itens": [
      {
       "t": "e",
@@ -4948,7 +4909,7 @@
     "data": "2026-08-31",
     "ent": 0,
     "sai": 3926.26,
-    "saldo": 16010.08,
+    "saldo": 23402.08,
     "itens": [
      {
       "t": "s",
@@ -4969,21 +4930,21 @@
     "data": "2026-09-01",
     "ent": 0,
     "sai": 0,
-    "saldo": 16010.08,
+    "saldo": 23402.08,
     "itens": []
    },
    {
     "data": "2026-09-02",
     "ent": 0,
     "sai": 0,
-    "saldo": 16010.08,
+    "saldo": 23402.08,
     "itens": []
    },
    {
     "data": "2026-09-03",
     "ent": 0,
     "sai": 7603,
-    "saldo": 8407.08,
+    "saldo": 15799.08,
     "itens": [
      {
       "t": "s",
@@ -4998,14 +4959,14 @@
     "data": "2026-09-04",
     "ent": 0,
     "sai": 0,
-    "saldo": 8407.08,
+    "saldo": 15799.08,
     "itens": []
    },
    {
     "data": "2026-09-05",
     "ent": 0,
     "sai": 33100,
-    "saldo": -24692.92,
+    "saldo": -17300.92,
     "itens": [
      {
       "t": "s",
@@ -5049,14 +5010,14 @@
     "data": "2026-09-06",
     "ent": 0,
     "sai": 0,
-    "saldo": -24692.92,
+    "saldo": -17300.92,
     "itens": []
    },
    {
     "data": "2026-09-07",
     "ent": 0,
     "sai": 950,
-    "saldo": -25642.92,
+    "saldo": -18250.92,
     "itens": [
      {
       "t": "s",
@@ -5071,7 +5032,7 @@
     "data": "2026-09-08",
     "ent": 0,
     "sai": 7603,
-    "saldo": -33245.92,
+    "saldo": -25853.92,
     "itens": [
      {
       "t": "s",
@@ -5086,14 +5047,14 @@
     "data": "2026-09-09",
     "ent": 0,
     "sai": 0,
-    "saldo": -33245.92,
+    "saldo": -25853.92,
     "itens": []
    },
    {
     "data": "2026-09-10",
     "ent": 0,
     "sai": 1058,
-    "saldo": -34303.92,
+    "saldo": -26911.92,
     "itens": [
      {
       "t": "s",
@@ -5108,20 +5069,14 @@
    {
     "data": "2026-08-20",
     "ent": 0,
-    "sai": 8342,
-    "saldo": 33425.83,
+    "sai": 950,
+    "saldo": 40817.83,
     "itens": [
      {
       "t": "s",
       "data": "2026-08-20",
       "valor": 950,
       "desc": "FGTS/Guia CEF ref. julho/2026 (ESTIMADO)"
-     },
-     {
-      "t": "s",
-      "data": "2026-08-20",
-      "valor": 7392,
-      "desc": "SALDO DEVIDO A BULINHA (FELIPE ANDRADE) - residual do acerto de julho"
      }
     ]
    },
@@ -5129,7 +5084,7 @@
     "data": "2026-08-21",
     "ent": 0,
     "sai": 6178.45,
-    "saldo": 27247.38,
+    "saldo": 34639.38,
     "itens": [
      {
       "t": "s",
@@ -5149,21 +5104,21 @@
     "data": "2026-08-22",
     "ent": 0,
     "sai": 0,
-    "saldo": 27247.38,
+    "saldo": 34639.38,
     "itens": []
    },
    {
     "data": "2026-08-23",
     "ent": 0,
     "sai": 0,
-    "saldo": 27247.38,
+    "saldo": 34639.38,
     "itens": []
    },
    {
     "data": "2026-08-24",
     "ent": 0,
     "sai": 8056.23,
-    "saldo": 19191.15,
+    "saldo": 26583.15,
     "itens": [
      {
       "t": "s",
@@ -5190,7 +5145,7 @@
     "data": "2026-08-25",
     "ent": 30523.45,
     "sai": 44082,
-    "saldo": 5632.6,
+    "saldo": 13024.6,
     "itens": [
      {
       "t": "e",
@@ -5394,21 +5349,21 @@
     "data": "2026-08-26",
     "ent": 0,
     "sai": 0,
-    "saldo": 5632.6,
+    "saldo": 13024.6,
     "itens": []
    },
    {
     "data": "2026-08-27",
     "ent": 0,
     "sai": 0,
-    "saldo": 5632.6,
+    "saldo": 13024.6,
     "itens": []
    },
    {
     "data": "2026-08-28",
     "ent": 0,
     "sai": 726.26,
-    "saldo": 4906.34,
+    "saldo": 12298.34,
     "itens": [
      {
       "t": "s",
@@ -5423,14 +5378,14 @@
     "data": "2026-08-29",
     "ent": 0,
     "sai": 0,
-    "saldo": 4906.34,
+    "saldo": 12298.34,
     "itens": []
    },
    {
     "data": "2026-08-30",
     "ent": 15030,
     "sai": 0,
-    "saldo": 19936.34,
+    "saldo": 27328.34,
     "itens": [
      {
       "t": "e",
@@ -5445,7 +5400,7 @@
     "data": "2026-08-31",
     "ent": 0,
     "sai": 3926.26,
-    "saldo": 16010.08,
+    "saldo": 23402.08,
     "itens": [
      {
       "t": "s",
@@ -5466,21 +5421,21 @@
     "data": "2026-09-01",
     "ent": 0,
     "sai": 0,
-    "saldo": 16010.08,
+    "saldo": 23402.08,
     "itens": []
    },
    {
     "data": "2026-09-02",
     "ent": 0,
     "sai": 0,
-    "saldo": 16010.08,
+    "saldo": 23402.08,
     "itens": []
    },
    {
     "data": "2026-09-03",
     "ent": 0,
     "sai": 7603,
-    "saldo": 8407.08,
+    "saldo": 15799.08,
     "itens": [
      {
       "t": "s",
@@ -5495,14 +5450,14 @@
     "data": "2026-09-04",
     "ent": 0,
     "sai": 0,
-    "saldo": 8407.08,
+    "saldo": 15799.08,
     "itens": []
    },
    {
     "data": "2026-09-05",
     "ent": 0,
     "sai": 33100,
-    "saldo": -24692.92,
+    "saldo": -17300.92,
     "itens": [
      {
       "t": "s",
@@ -5546,14 +5501,14 @@
     "data": "2026-09-06",
     "ent": 0,
     "sai": 0,
-    "saldo": -24692.92,
+    "saldo": -17300.92,
     "itens": []
    },
    {
     "data": "2026-09-07",
     "ent": 0,
     "sai": 950,
-    "saldo": -25642.92,
+    "saldo": -18250.92,
     "itens": [
      {
       "t": "s",
@@ -5568,7 +5523,7 @@
     "data": "2026-09-08",
     "ent": 0,
     "sai": 7603,
-    "saldo": -33245.92,
+    "saldo": -25853.92,
     "itens": [
      {
       "t": "s",
@@ -5583,14 +5538,14 @@
     "data": "2026-09-09",
     "ent": 0,
     "sai": 0,
-    "saldo": -33245.92,
+    "saldo": -25853.92,
     "itens": []
    },
    {
     "data": "2026-09-10",
     "ent": 0,
     "sai": 1058,
-    "saldo": -34303.92,
+    "saldo": -26911.92,
     "itens": [
      {
       "t": "s",
@@ -5605,8 +5560,8 @@
    {
     "data": "2026-08-20",
     "ent": 19810.5,
-    "sai": 8342,
-    "saldo": 53236.33,
+    "sai": 950,
+    "saldo": 60628.33,
     "itens": [
      {
       "t": "e",
@@ -5627,12 +5582,6 @@
       "data": "2026-08-20",
       "valor": 950,
       "desc": "FGTS/Guia CEF ref. julho/2026 (ESTIMADO)"
-     },
-     {
-      "t": "s",
-      "data": "2026-08-20",
-      "valor": 7392,
-      "desc": "SALDO DEVIDO A BULINHA (FELIPE ANDRADE) - residual do acerto de julho"
      }
     ]
    },
@@ -5640,7 +5589,7 @@
     "data": "2026-08-21",
     "ent": 0,
     "sai": 6178.45,
-    "saldo": 47057.88,
+    "saldo": 54449.88,
     "itens": [
      {
       "t": "s",
@@ -5660,21 +5609,21 @@
     "data": "2026-08-22",
     "ent": 0,
     "sai": 0,
-    "saldo": 47057.88,
+    "saldo": 54449.88,
     "itens": []
    },
    {
     "data": "2026-08-23",
     "ent": 0,
     "sai": 0,
-    "saldo": 47057.88,
+    "saldo": 54449.88,
     "itens": []
    },
    {
     "data": "2026-08-24",
     "ent": 0,
     "sai": 8056.23,
-    "saldo": 39001.65,
+    "saldo": 46393.65,
     "itens": [
      {
       "t": "s",
@@ -5701,7 +5650,7 @@
     "data": "2026-08-25",
     "ent": 59269.45,
     "sai": 44082,
-    "saldo": 54189.1,
+    "saldo": 61581.1,
     "itens": [
      {
       "t": "e",
@@ -5898,7 +5847,7 @@
     "data": "2026-08-26",
     "ent": 39451.8,
     "sai": 0,
-    "saldo": 93640.9,
+    "saldo": 101032.9,
     "itens": [
      {
       "t": "e",
@@ -5920,14 +5869,14 @@
     "data": "2026-08-27",
     "ent": 0,
     "sai": 0,
-    "saldo": 93640.9,
+    "saldo": 101032.9,
     "itens": []
    },
    {
     "data": "2026-08-28",
     "ent": 6180,
     "sai": 726.26,
-    "saldo": 99094.64,
+    "saldo": 106486.64,
     "itens": [
      {
       "t": "e",
@@ -5949,7 +5898,7 @@
     "data": "2026-08-29",
     "ent": 2130,
     "sai": 0,
-    "saldo": 101224.64,
+    "saldo": 108616.64,
     "itens": [
      {
       "t": "e",
@@ -5964,7 +5913,7 @@
     "data": "2026-08-30",
     "ent": 22965,
     "sai": 0,
-    "saldo": 124189.64,
+    "saldo": 131581.64,
     "itens": [
      {
       "t": "e",
@@ -5986,7 +5935,7 @@
     "data": "2026-08-31",
     "ent": 0,
     "sai": 3926.26,
-    "saldo": 120263.38,
+    "saldo": 127655.38,
     "itens": [
      {
       "t": "s",
@@ -6007,14 +5956,14 @@
     "data": "2026-09-01",
     "ent": 0,
     "sai": 0,
-    "saldo": 120263.38,
+    "saldo": 127655.38,
     "itens": []
    },
    {
     "data": "2026-09-02",
     "ent": 12360,
     "sai": 0,
-    "saldo": 132623.38,
+    "saldo": 140015.38,
     "itens": [
      {
       "t": "e",
@@ -6029,7 +5978,7 @@
     "data": "2026-09-03",
     "ent": 0,
     "sai": 7603,
-    "saldo": 125020.38,
+    "saldo": 132412.38,
     "itens": [
      {
       "t": "s",
@@ -6044,14 +5993,14 @@
     "data": "2026-09-04",
     "ent": 0,
     "sai": 0,
-    "saldo": 125020.38,
+    "saldo": 132412.38,
     "itens": []
    },
    {
     "data": "2026-09-05",
     "ent": 0,
     "sai": 33100,
-    "saldo": 91920.38,
+    "saldo": 99312.38,
     "itens": [
      {
       "t": "s",
@@ -6095,14 +6044,14 @@
     "data": "2026-09-06",
     "ent": 0,
     "sai": 0,
-    "saldo": 91920.38,
+    "saldo": 99312.38,
     "itens": []
    },
    {
     "data": "2026-09-07",
     "ent": 0,
     "sai": 950,
-    "saldo": 90970.38,
+    "saldo": 98362.38,
     "itens": [
      {
       "t": "s",
@@ -6117,7 +6066,7 @@
     "data": "2026-09-08",
     "ent": 7743.9,
     "sai": 7603,
-    "saldo": 91111.28,
+    "saldo": 98503.28,
     "itens": [
      {
       "t": "e",
@@ -6146,7 +6095,7 @@
     "data": "2026-09-09",
     "ent": 21443.75,
     "sai": 0,
-    "saldo": 112555.03,
+    "saldo": 119947.03,
     "itens": [
      {
       "t": "e",
@@ -6161,7 +6110,7 @@
     "data": "2026-09-10",
     "ent": 0,
     "sai": 1058,
-    "saldo": 111497.03,
+    "saldo": 118889.03,
     "itens": [
      {
       "t": "s",
@@ -6176,8 +6125,8 @@
    {
     "data": "2026-08-20",
     "ent": 19810.5,
-    "sai": 8342,
-    "saldo": 53236.33,
+    "sai": 950,
+    "saldo": 60628.33,
     "itens": [
      {
       "t": "e",
@@ -6198,12 +6147,6 @@
       "data": "2026-08-20",
       "valor": 950,
       "desc": "FGTS/Guia CEF ref. julho/2026 (ESTIMADO)"
-     },
-     {
-      "t": "s",
-      "data": "2026-08-20",
-      "valor": 7392,
-      "desc": "SALDO DEVIDO A BULINHA (FELIPE ANDRADE) - residual do acerto de julho"
      }
     ]
    },
@@ -6211,7 +6154,7 @@
     "data": "2026-08-21",
     "ent": 0,
     "sai": 6178.45,
-    "saldo": 47057.88,
+    "saldo": 54449.88,
     "itens": [
      {
       "t": "s",
@@ -6231,21 +6174,21 @@
     "data": "2026-08-22",
     "ent": 0,
     "sai": 0,
-    "saldo": 47057.88,
+    "saldo": 54449.88,
     "itens": []
    },
    {
     "data": "2026-08-23",
     "ent": 0,
     "sai": 0,
-    "saldo": 47057.88,
+    "saldo": 54449.88,
     "itens": []
    },
    {
     "data": "2026-08-24",
     "ent": 0,
     "sai": 8056.23,
-    "saldo": 39001.65,
+    "saldo": 46393.65,
     "itens": [
      {
       "t": "s",
@@ -6272,7 +6215,7 @@
     "data": "2026-08-25",
     "ent": 10712.95,
     "sai": 44082,
-    "saldo": 5632.6,
+    "saldo": 13024.6,
     "itens": [
      {
       "t": "e",
@@ -6462,21 +6405,21 @@
     "data": "2026-08-26",
     "ent": 0,
     "sai": 0,
-    "saldo": 5632.6,
+    "saldo": 13024.6,
     "itens": []
    },
    {
     "data": "2026-08-27",
     "ent": 0,
     "sai": 0,
-    "saldo": 5632.6,
+    "saldo": 13024.6,
     "itens": []
    },
    {
     "data": "2026-08-28",
     "ent": 0,
     "sai": 726.26,
-    "saldo": 4906.34,
+    "saldo": 12298.34,
     "itens": [
      {
       "t": "s",
@@ -6491,14 +6434,14 @@
     "data": "2026-08-29",
     "ent": 0,
     "sai": 0,
-    "saldo": 4906.34,
+    "saldo": 12298.34,
     "itens": []
    },
    {
     "data": "2026-08-30",
     "ent": 15030,
     "sai": 0,
-    "saldo": 19936.34,
+    "saldo": 27328.34,
     "itens": [
      {
       "t": "e",
@@ -6513,7 +6456,7 @@
     "data": "2026-08-31",
     "ent": 0,
     "sai": 3926.26,
-    "saldo": 16010.08,
+    "saldo": 23402.08,
     "itens": [
      {
       "t": "s",
@@ -6534,21 +6477,21 @@
     "data": "2026-09-01",
     "ent": 0,
     "sai": 0,
-    "saldo": 16010.08,
+    "saldo": 23402.08,
     "itens": []
    },
    {
     "data": "2026-09-02",
     "ent": 0,
     "sai": 0,
-    "saldo": 16010.08,
+    "saldo": 23402.08,
     "itens": []
    },
    {
     "data": "2026-09-03",
     "ent": 0,
     "sai": 7603,
-    "saldo": 8407.08,
+    "saldo": 15799.08,
     "itens": [
      {
       "t": "s",
@@ -6563,14 +6506,14 @@
     "data": "2026-09-04",
     "ent": 0,
     "sai": 0,
-    "saldo": 8407.08,
+    "saldo": 15799.08,
     "itens": []
    },
    {
     "data": "2026-09-05",
     "ent": 0,
     "sai": 33100,
-    "saldo": -24692.92,
+    "saldo": -17300.92,
     "itens": [
      {
       "t": "s",
@@ -6614,14 +6557,14 @@
     "data": "2026-09-06",
     "ent": 0,
     "sai": 0,
-    "saldo": -24692.92,
+    "saldo": -17300.92,
     "itens": []
    },
    {
     "data": "2026-09-07",
     "ent": 0,
     "sai": 950,
-    "saldo": -25642.92,
+    "saldo": -18250.92,
     "itens": [
      {
       "t": "s",
@@ -6636,7 +6579,7 @@
     "data": "2026-09-08",
     "ent": 0,
     "sai": 7603,
-    "saldo": -33245.92,
+    "saldo": -25853.92,
     "itens": [
      {
       "t": "s",
@@ -6651,7 +6594,7 @@
     "data": "2026-09-09",
     "ent": 48556.5,
     "sai": 0,
-    "saldo": 15310.58,
+    "saldo": 22702.58,
     "itens": [
      {
       "t": "e",
@@ -6666,7 +6609,7 @@
     "data": "2026-09-10",
     "ent": 39451.8,
     "sai": 1058,
-    "saldo": 53704.38,
+    "saldo": 61096.38,
     "itens": [
      {
       "t": "e",
@@ -6695,8 +6638,8 @@
    {
     "data": "2026-08-20",
     "ent": 19810.5,
-    "sai": 8342,
-    "saldo": 53236.33,
+    "sai": 950,
+    "saldo": 60628.33,
     "itens": [
      {
       "t": "e",
@@ -6717,12 +6660,6 @@
       "data": "2026-08-20",
       "valor": 950,
       "desc": "FGTS/Guia CEF ref. julho/2026 (ESTIMADO)"
-     },
-     {
-      "t": "s",
-      "data": "2026-08-20",
-      "valor": 7392,
-      "desc": "SALDO DEVIDO A BULINHA (FELIPE ANDRADE) - residual do acerto de julho"
      }
     ]
    },
@@ -6730,7 +6667,7 @@
     "data": "2026-08-21",
     "ent": 0,
     "sai": 6178.45,
-    "saldo": 47057.88,
+    "saldo": 54449.88,
     "itens": [
      {
       "t": "s",
@@ -6750,21 +6687,21 @@
     "data": "2026-08-22",
     "ent": 0,
     "sai": 0,
-    "saldo": 47057.88,
+    "saldo": 54449.88,
     "itens": []
    },
    {
     "data": "2026-08-23",
     "ent": 0,
     "sai": 0,
-    "saldo": 47057.88,
+    "saldo": 54449.88,
     "itens": []
    },
    {
     "data": "2026-08-24",
     "ent": 0,
     "sai": 8056.23,
-    "saldo": 39001.65,
+    "saldo": 46393.65,
     "itens": [
      {
       "t": "s",
@@ -6791,7 +6728,7 @@
     "data": "2026-08-25",
     "ent": 10712.95,
     "sai": 0,
-    "saldo": 49714.6,
+    "saldo": 57106.6,
     "itens": [
      {
       "t": "e",
@@ -6813,21 +6750,21 @@
     "data": "2026-08-26",
     "ent": 0,
     "sai": 0,
-    "saldo": 49714.6,
+    "saldo": 57106.6,
     "itens": []
    },
    {
     "data": "2026-08-27",
     "ent": 0,
     "sai": 0,
-    "saldo": 49714.6,
+    "saldo": 57106.6,
     "itens": []
    },
    {
     "data": "2026-08-28",
     "ent": 0,
     "sai": 726.26,
-    "saldo": 48988.34,
+    "saldo": 56380.34,
     "itens": [
      {
       "t": "s",
@@ -6842,14 +6779,14 @@
     "data": "2026-08-29",
     "ent": 0,
     "sai": 0,
-    "saldo": 48988.34,
+    "saldo": 56380.34,
     "itens": []
    },
    {
     "data": "2026-08-30",
     "ent": 15030,
     "sai": 0,
-    "saldo": 64018.34,
+    "saldo": 71410.34,
     "itens": [
      {
       "t": "e",
@@ -6864,7 +6801,7 @@
     "data": "2026-08-31",
     "ent": 0,
     "sai": 3926.26,
-    "saldo": 60092.08,
+    "saldo": 67484.08,
     "itens": [
      {
       "t": "s",
@@ -6885,21 +6822,21 @@
     "data": "2026-09-01",
     "ent": 0,
     "sai": 0,
-    "saldo": 60092.08,
+    "saldo": 67484.08,
     "itens": []
    },
    {
     "data": "2026-09-02",
     "ent": 0,
     "sai": 0,
-    "saldo": 60092.08,
+    "saldo": 67484.08,
     "itens": []
    },
    {
     "data": "2026-09-03",
     "ent": 0,
     "sai": 7603,
-    "saldo": 52489.08,
+    "saldo": 59881.08,
     "itens": [
      {
       "t": "s",
@@ -6914,14 +6851,14 @@
     "data": "2026-09-04",
     "ent": 0,
     "sai": 0,
-    "saldo": 52489.08,
+    "saldo": 59881.08,
     "itens": []
    },
    {
     "data": "2026-09-05",
     "ent": 0,
     "sai": 77182,
-    "saldo": -24692.92,
+    "saldo": -17300.92,
     "itens": [
      {
       "t": "s",
@@ -7161,14 +7098,14 @@
     "data": "2026-09-06",
     "ent": 0,
     "sai": 0,
-    "saldo": -24692.92,
+    "saldo": -17300.92,
     "itens": []
    },
    {
     "data": "2026-09-07",
     "ent": 0,
     "sai": 950,
-    "saldo": -25642.92,
+    "saldo": -18250.92,
     "itens": [
      {
       "t": "s",
@@ -7183,7 +7120,7 @@
     "data": "2026-09-08",
     "ent": 0,
     "sai": 7603,
-    "saldo": -33245.92,
+    "saldo": -25853.92,
     "itens": [
      {
       "t": "s",
@@ -7198,14 +7135,14 @@
     "data": "2026-09-09",
     "ent": 0,
     "sai": 0,
-    "saldo": -33245.92,
+    "saldo": -25853.92,
     "itens": []
    },
    {
     "data": "2026-09-10",
     "ent": 0,
     "sai": 1058,
-    "saldo": -34303.92,
+    "saldo": -26911.92,
     "itens": [
      {
       "t": "s",
@@ -7220,8 +7157,8 @@
    {
     "data": "2026-08-20",
     "ent": 19810.5,
-    "sai": 8342,
-    "saldo": 53236.33,
+    "sai": 950,
+    "saldo": 60628.33,
     "itens": [
      {
       "t": "e",
@@ -7242,12 +7179,6 @@
       "data": "2026-08-20",
       "valor": 950,
       "desc": "FGTS/Guia CEF ref. julho/2026 (ESTIMADO)"
-     },
-     {
-      "t": "s",
-      "data": "2026-08-20",
-      "valor": 7392,
-      "desc": "SALDO DEVIDO A BULINHA (FELIPE ANDRADE) - residual do acerto de julho"
      }
     ]
    },
@@ -7255,7 +7186,7 @@
     "data": "2026-08-21",
     "ent": 0,
     "sai": 6178.45,
-    "saldo": 47057.88,
+    "saldo": 54449.88,
     "itens": [
      {
       "t": "s",
@@ -7275,21 +7206,21 @@
     "data": "2026-08-22",
     "ent": 0,
     "sai": 0,
-    "saldo": 47057.88,
+    "saldo": 54449.88,
     "itens": []
    },
    {
     "data": "2026-08-23",
     "ent": 0,
     "sai": 0,
-    "saldo": 47057.88,
+    "saldo": 54449.88,
     "itens": []
    },
    {
     "data": "2026-08-24",
     "ent": 0,
     "sai": 8056.23,
-    "saldo": 39001.65,
+    "saldo": 46393.65,
     "itens": [
      {
       "t": "s",
@@ -7316,7 +7247,7 @@
     "data": "2026-08-25",
     "ent": 59269.45,
     "sai": 44082,
-    "saldo": 54189.1,
+    "saldo": 61581.1,
     "itens": [
      {
       "t": "e",
@@ -7513,7 +7444,7 @@
     "data": "2026-08-26",
     "ent": 31501.8,
     "sai": 0,
-    "saldo": 85690.9,
+    "saldo": 93082.9,
     "itens": [
      {
       "t": "e",
@@ -7528,14 +7459,14 @@
     "data": "2026-08-27",
     "ent": 0,
     "sai": 0,
-    "saldo": 85690.9,
+    "saldo": 93082.9,
     "itens": []
    },
    {
     "data": "2026-08-28",
     "ent": 0,
     "sai": 726.26,
-    "saldo": 84964.64,
+    "saldo": 92356.64,
     "itens": [
      {
       "t": "s",
@@ -7550,14 +7481,14 @@
     "data": "2026-08-29",
     "ent": 0,
     "sai": 0,
-    "saldo": 84964.64,
+    "saldo": 92356.64,
     "itens": []
    },
    {
     "data": "2026-08-30",
     "ent": 15030,
     "sai": 0,
-    "saldo": 99994.64,
+    "saldo": 107386.64,
     "itens": [
      {
       "t": "e",
@@ -7572,7 +7503,7 @@
     "data": "2026-08-31",
     "ent": 0,
     "sai": 3926.26,
-    "saldo": 96068.38,
+    "saldo": 103460.38,
     "itens": [
      {
       "t": "s",
@@ -7593,21 +7524,21 @@
     "data": "2026-09-01",
     "ent": 0,
     "sai": 0,
-    "saldo": 96068.38,
+    "saldo": 103460.38,
     "itens": []
    },
    {
     "data": "2026-09-02",
     "ent": 0,
     "sai": 0,
-    "saldo": 96068.38,
+    "saldo": 103460.38,
     "itens": []
    },
    {
     "data": "2026-09-03",
     "ent": 0,
     "sai": 7603,
-    "saldo": 88465.38,
+    "saldo": 95857.38,
     "itens": [
      {
       "t": "s",
@@ -7622,14 +7553,14 @@
     "data": "2026-09-04",
     "ent": 0,
     "sai": 0,
-    "saldo": 88465.38,
+    "saldo": 95857.38,
     "itens": []
    },
    {
     "data": "2026-09-05",
     "ent": 0,
     "sai": 33100,
-    "saldo": 55365.38,
+    "saldo": 62757.38,
     "itens": [
      {
       "t": "s",
@@ -7673,14 +7604,14 @@
     "data": "2026-09-06",
     "ent": 0,
     "sai": 0,
-    "saldo": 55365.38,
+    "saldo": 62757.38,
     "itens": []
    },
    {
     "data": "2026-09-07",
     "ent": 0,
     "sai": 950,
-    "saldo": 54415.38,
+    "saldo": 61807.38,
     "itens": [
      {
       "t": "s",
@@ -7695,7 +7626,7 @@
     "data": "2026-09-08",
     "ent": 0,
     "sai": 7603,
-    "saldo": 46812.38,
+    "saldo": 54204.38,
     "itens": [
      {
       "t": "s",
@@ -7710,14 +7641,14 @@
     "data": "2026-09-09",
     "ent": 0,
     "sai": 0,
-    "saldo": 46812.38,
+    "saldo": 54204.38,
     "itens": []
    },
    {
     "data": "2026-09-10",
     "ent": 0,
     "sai": 1058,
-    "saldo": 45754.38,
+    "saldo": 53146.38,
     "itens": [
      {
       "t": "s",
@@ -7733,8 +7664,8 @@
   {
    "data": "2026-08-20",
    "ent": 19810.5,
-   "sai": 8342,
-   "saldo": 40637.69,
+   "sai": 950,
+   "saldo": 48029.69,
    "itens": [
     {
      "t": "e",
@@ -7755,12 +7686,6 @@
      "data": "2026-08-20",
      "valor": 950,
      "desc": "FGTS/Guia CEF ref. julho/2026 (ESTIMADO)"
-    },
-    {
-     "t": "s",
-     "data": "2026-08-20",
-     "valor": 7392,
-     "desc": "SALDO DEVIDO A BULINHA (FELIPE ANDRADE) - residual do acerto de julho"
     }
    ]
   },
@@ -7768,7 +7693,7 @@
    "data": "2026-08-21",
    "ent": 0,
    "sai": 6178.45,
-   "saldo": 34459.24,
+   "saldo": 41851.24,
    "itens": [
     {
      "t": "s",
@@ -7788,7 +7713,7 @@
    "data": "2026-08-24",
    "ent": 0,
    "sai": 8056.23,
-   "saldo": 26403.01,
+   "saldo": 33795.01,
    "itens": [
     {
      "t": "s",
@@ -7815,7 +7740,7 @@
    "data": "2026-08-25",
    "ent": 10712.95,
    "sai": 44082,
-   "saldo": -6966.04,
+   "saldo": 425.96,
    "itens": [
     {
      "t": "e",
@@ -8005,7 +7930,7 @@
    "data": "2026-08-28",
    "ent": 0,
    "sai": 726.26,
-   "saldo": -7692.3,
+   "saldo": -300.3,
    "itens": [
     {
      "t": "s",
@@ -8020,7 +7945,7 @@
    "data": "2026-08-30",
    "ent": 15030,
    "sai": 0,
-   "saldo": 7337.7,
+   "saldo": 14729.7,
    "itens": [
     {
      "t": "e",
@@ -8035,7 +7960,7 @@
    "data": "2026-08-31",
    "ent": 0,
    "sai": 3926.26,
-   "saldo": 3411.44,
+   "saldo": 10803.44,
    "itens": [
     {
      "t": "s",
@@ -8056,7 +7981,7 @@
    "data": "2026-09-03",
    "ent": 0,
    "sai": 7603,
-   "saldo": -4191.56,
+   "saldo": 3200.44,
    "itens": [
     {
      "t": "s",
@@ -8071,7 +7996,7 @@
    "data": "2026-09-05",
    "ent": 0,
    "sai": 33100,
-   "saldo": -37291.56,
+   "saldo": -29899.56,
    "itens": [
     {
      "t": "s",
@@ -8115,7 +8040,7 @@
    "data": "2026-09-07",
    "ent": 0,
    "sai": 950,
-   "saldo": -38241.56,
+   "saldo": -30849.56,
    "itens": [
     {
      "t": "s",
@@ -8130,7 +8055,7 @@
    "data": "2026-09-08",
    "ent": 0,
    "sai": 7603,
-   "saldo": -45844.56,
+   "saldo": -38452.56,
    "itens": [
     {
      "t": "s",
@@ -8145,7 +8070,7 @@
    "data": "2026-09-10",
    "ent": 0,
    "sai": 1058,
-   "saldo": -46902.56,
+   "saldo": -39510.56,
    "itens": [
     {
      "t": "s",
@@ -8165,19 +8090,19 @@
    "linha": [
     {
      "ate": "2026-08-25",
-     "precisa": 6966.04
+     "precisa": 0
     },
     {
      "ate": "2026-08-31",
-     "precisa": 7692.3
+     "precisa": 300.3
     },
     {
      "ate": "2026-09-05",
-     "precisa": 37291.56
+     "precisa": 29899.56
     },
     {
      "ate": "2026-09-10",
-     "precisa": 46902.56
+     "precisa": 39510.56
     }
    ]
   },
@@ -8196,11 +8121,11 @@
     },
     {
      "ate": "2026-09-05",
-     "precisa": 24692.92
+     "precisa": 17300.92
     },
     {
      "ate": "2026-09-10",
-     "precisa": 34303.92
+     "precisa": 26911.92
     }
    ]
   },
@@ -8211,19 +8136,19 @@
    "linha": [
     {
      "ate": "2026-08-25",
-     "precisa": 24367.4
+     "precisa": 16975.4
     },
     {
      "ate": "2026-08-31",
-     "precisa": 25093.66
+     "precisa": 17701.66
     },
     {
      "ate": "2026-09-05",
-     "precisa": 54692.92
+     "precisa": 47300.92
     },
     {
      "ate": "2026-09-10",
-     "precisa": 64303.92
+     "precisa": 56911.92
     }
    ]
   },
@@ -8242,11 +8167,11 @@
     },
     {
      "ate": "2026-09-05",
-     "precisa": 24692.92
+     "precisa": 17300.92
     },
     {
      "ate": "2026-09-10",
-     "precisa": 34303.92
+     "precisa": 26911.92
     }
    ]
   }
@@ -8254,79 +8179,79 @@
  "sensibilidade": [
   {
    "atrasoRemates": 0,
-   "antesComissao": 26403.01,
-   "saldo25ago": -6966.04,
-   "minAteFolha": -7692.3,
-   "minimo": -46902.56,
+   "antesComissao": 33795.01,
+   "saldo25ago": 425.96,
+   "minAteFolha": -300.3,
+   "minimo": -39510.56,
    "data": "2026-09-10",
-   "saldo05set": -37291.56,
-   "saldo10set": -46902.56
+   "saldo05set": -29899.56,
+   "saldo10set": -39510.56
   },
   {
    "atrasoRemates": 3,
-   "antesComissao": 26403.01,
-   "saldo25ago": -6966.04,
-   "minAteFolha": -7692.3,
-   "minimo": -46902.56,
+   "antesComissao": 33795.01,
+   "saldo25ago": 425.96,
+   "minAteFolha": -300.3,
+   "minimo": -39510.56,
    "data": "2026-09-10",
-   "saldo05set": -37291.56,
-   "saldo10set": -46902.56
+   "saldo05set": -29899.56,
+   "saldo10set": -39510.56
   },
   {
    "atrasoRemates": 5,
-   "antesComissao": 6592.51,
-   "saldo25ago": -6966.04,
-   "minAteFolha": -7692.3,
-   "minimo": -46902.56,
+   "antesComissao": 13984.51,
+   "saldo25ago": 425.96,
+   "minAteFolha": -300.3,
+   "minimo": -39510.56,
    "data": "2026-09-10",
-   "saldo05set": -37291.56,
-   "saldo10set": -46902.56
+   "saldo05set": -29899.56,
+   "saldo10set": -39510.56
   },
   {
    "atrasoRemates": 7,
-   "antesComissao": 6592.51,
-   "saldo25ago": -26776.54,
-   "minAteFolha": -26776.54,
-   "minimo": -46902.56,
+   "antesComissao": 13984.51,
+   "saldo25ago": -19384.54,
+   "minAteFolha": -19384.54,
+   "minimo": -39510.56,
    "data": "2026-09-10",
-   "saldo05set": -37291.56,
-   "saldo10set": -46902.56
+   "saldo05set": -29899.56,
+   "saldo10set": -39510.56
   },
   {
    "atrasoRemates": 10,
-   "antesComissao": 6592.51,
-   "saldo25ago": -26776.54,
-   "minAteFolha": -27502.8,
-   "minimo": -46902.56,
+   "antesComissao": 13984.51,
+   "saldo25ago": -19384.54,
+   "minAteFolha": -20110.8,
+   "minimo": -39510.56,
    "data": "2026-09-10",
-   "saldo05set": -37291.56,
-   "saldo10set": -46902.56
+   "saldo05set": -29899.56,
+   "saldo10set": -39510.56
   },
   {
    "atrasoRemates": 15,
-   "antesComissao": 6592.51,
-   "saldo25ago": -26776.54,
-   "minAteFolha": -27502.8,
-   "minimo": -46902.56,
+   "antesComissao": 13984.51,
+   "saldo25ago": -19384.54,
+   "minAteFolha": -20110.8,
+   "minimo": -39510.56,
    "data": "2026-09-10",
-   "saldo05set": -37291.56,
-   "saldo10set": -46902.56
+   "saldo05set": -29899.56,
+   "saldo10set": -39510.56
   }
  ],
  "impactoGuadalupe": {
   "valor": 10712.95,
   "data": "2026-08-25",
-  "minimoSem": -57615.51,
+  "minimoSem": -50223.51,
   "dataMin": "2026-09-10",
-  "saldo05setSem": -48004.51,
-  "saldo10setSem": -57615.51
+  "saldo05setSem": -40612.51,
+  "saldo10setSem": -50223.51
  },
  "capacidade": [
   {
    "rot": "Sem colchão — só não ficar negativo",
    "colchao": 0,
-   "valor": 36389.69,
-   "pct": 82.55,
+   "valor": 43781.7,
+   "pct": 99.32,
    "valorSic": 44082,
    "pctSic": 100,
    "valorEao": 44082,
@@ -8335,22 +8260,22 @@
   {
    "rot": "Colchão de R$ 10.000",
    "colchao": 10000,
-   "valor": 26389.76,
-   "pct": 59.87,
-   "valorSic": 38988.34,
-   "pctSic": 88.45,
+   "valor": 33781.71,
+   "pct": 76.63,
+   "valorSic": 44082,
+   "pctSic": 100,
    "valorEao": 44082,
    "pctEao": 100
   },
   {
    "rot": "Colchão de R$ 30.000",
    "colchao": 30000,
-   "valor": 0,
-   "pct": 0,
-   "valorSic": 18988.36,
-   "pctSic": 43.08,
-   "valorEao": 0,
-   "pctEao": 0
+   "valor": 13781.69,
+   "pct": 31.26,
+   "valorSic": 26380.34,
+   "pctSic": 59.84,
+   "valorEao": 44082,
+   "pctEao": 100
   }
  ],
  "concentracao": [

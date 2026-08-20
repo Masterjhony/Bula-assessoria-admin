@@ -220,7 +220,7 @@ const html = `<!doctype html><html lang="pt-BR"><head><meta charset="utf-8">
   <img src="${logo}" alt="Bula Assessoria">
   <h1>Fluxo de caixa<br>20/08 a 10/09</h1>
   <div class="rule"></div>
-  <div class="sub">Dá para pagar as comissões de julho em 25/08 e a folha de agosto em 05/09? <strong style="color:#fff">As comissões passam usando a reserva do Sicredi. A folha, não</strong> — falta R$ ${brl0(D.necessidade[1].linha.find(x => x.ate === '2026-09-05').precisa)} de cobrança até lá. O dinheiro existe: R$ ${brl0(D.firmeza.total)} vencem dentro da própria janela, mas ${pc(D.firmeza.pctSemData)} sem data acordada com ninguém.</div>
+  <div class="sub"><strong style="color:#fff">As comissões de 25/08 passam. A folha de 05/09 não</strong> — faltam R$ ${brl0(necSic('2026-09-05'))} de cobrança até lá. O dinheiro existe: R$ ${brl0(D.firmeza.total)} vencem dentro da própria janela, mas ${pc(D.firmeza.pctSemData)} sem data acordada com ninguém — e a maior entrada do trimestre cai em 13/09, três dias depois do fim deste relatório.</div>
   <div class="meta">
     <div><span>Posição</span><strong>20 de agosto de 2026, 13h47</strong></div>
     <div><span>Sicoob</span><strong>R$ ${brl(D.caixa.sicoob)}</strong></div>
@@ -234,17 +234,17 @@ const html = `<!doctype html><html lang="pt-BR"><head><meta charset="utf-8">
 <section class="page">
   <div class="head"><h2>A resposta</h2><span class="n">01 · Síntese</span></div>
 
-  <p class="lead"><strong>As comissões de 25/08 passam; a folha de 05/09 não.</strong> Só com o Sicoob e só com as cobranças que têm data acordada, o dia 25/08 fecharia em ${sinal(PISO.saldo25ago)}. <strong>Somando a reserva de R$ ${brl(D.sicredi.liquido)} parada no Sicredi, o dia 25/08 fecha em ${sinal(PISO.sic.saldo25ago)}</strong> e a comissão sai integral, sem depender de ninguém. A folha de agosto é outra história: mesmo com a reserva, 05/09 fecha em <strong>${sinal(PISO.sic.saldo05set)}</strong>. Faltam <strong>R$ ${brl(necSic('2026-09-05'))}</strong> de cobrança até lá — e não é falta de dinheiro, é falta de <em>data</em>: há R$ ${brl(D.firmeza.semData)} vencendo na janela sem acordo, mais R$ ${brl(D.vencidos.total)} já vencidos.</p>
+  <p class="lead"><strong>As comissões de 25/08 passam; a folha de 05/09 não.</strong> Contando só as cobranças com data acordada, o dia 25/08 fecha em ${sinal(PISO.saldo25ago)} apenas com o Sicoob — passa, mas raspando. <strong>Somando a reserva de R$ ${brl(D.sicredi.liquido)} parada no Sicredi, fecha em ${sinal(PISO.sic.saldo25ago)}</strong> e a comissão sai integral com folga, sem depender de ninguém. A folha de agosto é outra história: nem com a reserva ela passa — 05/09 fecha em <strong>${sinal(PISO.sic.saldo05set)}</strong>. Faltam <strong>R$ ${brl(necSic('2026-09-05'))}</strong> de cobrança até lá, e não é falta de dinheiro, é falta de <em>data</em>: há R$ ${brl(D.firmeza.semData)} vencendo na janela sem acordo, mais R$ ${brl(D.vencidos.total)} já vencidos.</p>
 
   <div class="tiles">
     <div class="tile"><div class="k">Caixa hoje (Sicoob)</div><div class="v"><span class="cur">R$</span>${brl0(D.caixa.sicoob)}</div><div class="d">Conciliado 1:1 com o extrato de hoje 13h47</div></div>
-    <div class="tile"><div class="k">Reserva no Sicredi</div><div class="v"><span class="cur">R$</span>${brl0(D.sicredi.liquido)}</div><div class="d">Parada na aplicação desde 04/08; é o que salva 25/08</div></div>
-    <div class="tile gold"><div class="k">Precisa cobrar até 05/09</div><div class="v"><span class="cur">R$</span>${brl0(necSic('2026-09-05'))}</div><div class="d">Já contando com a reserva, para a folha não furar</div></div>
+    <div class="tile"><div class="k">Reserva no Sicredi</div><div class="v"><span class="cur">R$</span>${brl0(D.sicredi.liquido)}</div><div class="d">Parada na aplicação desde 04/08; dá folga a 25/08</div></div>
+    <div class="tile gold"><div class="k">Precisa cobrar até 05/09</div><div class="v"><span class="cur">R$</span>${brl0(necSic('2026-09-05'))}</div><div class="d">Já com a reserva; é a folha que exige, não a comissão</div></div>
     <div class="tile gold"><div class="k">Precisa cobrar até 10/09</div><div class="v"><span class="cur">R$</span>${brl0(necSic('2026-09-10'))}</div><div class="d">Para atravessar a janela inteira</div></div>
   </div>
 
   <figure>${gLinha()}
-    <figcaption>Saldo diário, contando só as cobranças com data acordada. A linha preta é o Sicoob sozinho; a cinza tracejada soma a reserva do Sicredi — é ela que faz o dia 25/08 passar. A dourada mostra o efeito de uma única cobrança sobre o consolidado: o EAO Baviera. Nenhuma das três inclui as ${D.firmeza.nSemData} cobranças sem data acordada.</figcaption>
+    <figcaption>Saldo diário, contando só as cobranças com data acordada. A linha preta é o Sicoob sozinho; a cinza tracejada soma a reserva do Sicredi — ela dá folga em 25/08, mas não chega na folha. A dourada mostra o efeito de uma única cobrança sobre o consolidado: o EAO Baviera. Nenhuma das três inclui as ${D.firmeza.nSemData} cobranças sem data acordada.</figcaption>
   </figure>
 
   <h3>Os cenários, nas duas leituras de caixa</h3>
@@ -298,7 +298,7 @@ const html = `<!doctype html><html lang="pt-BR"><head><meta charset="utf-8">
     <tbody>
       ${(() => {
         const grupos = [
-          { data: '2026-08-20', rot: 'Títulos vencidos ainda em aberto (Bulinha e FGTS de julho)', v: r2(D.pagar.filter(p => p.realocado).reduce((s, p) => s + p.valor, 0)) },
+          { data: '2026-08-20', rot: 'FGTS de julho, vencido e ainda em aberto', v: r2(D.pagar.filter(p => p.realocado).reduce((s, p) => s + p.valor, 0)) },
           { data: '2026-08-21', rot: 'Passagens da Expogenética — Fábio e Leonardo', v: r2(D.pagar.filter(p => p.data === '2026-08-21').reduce((s, p) => s + p.valor, 0)) },
           { data: '2026-08-24', rot: 'Faturas dos cartões Visa e Mastercard (débito automático)', v: r2(D.pagar.filter(p => p.data === '2026-08-24').reduce((s, p) => s + p.valor, 0)) },
           { data: '2026-08-25', rot: `<strong>Comissões de julho — ${D.comissoes25agoItens.length} títulos</strong>`, v: D.comissoes25ago, d: true },
@@ -314,6 +314,12 @@ const html = `<!doctype html><html lang="pt-BR"><head><meta charset="utf-8">
       })()}
     </tbody>
   </table>
+
+  ${D.retidos.total > 0 ? `<div class="box">
+    <div class="t">Fora do fluxo: dívida reconhecida, sem data de pagamento</div>
+    <p class="small" style="margin:0 0 2mm">${D.retidos.itens.map(r => `<strong>R$ ${brl(r.valor)}</strong> — ${esc(r.desc)} (vencido em ${dm(r.vencOriginal)}, ${r.idade} dias)`).join('; ')}.</p>
+    <p class="small" style="margin:0">Está no ERP marcado como <em>retido por decisão</em> e <strong>não entra em nenhum cenário deste relatório</strong> — pelo mesmo motivo que os recebíveis vencidos também não entram: ninguém combinou data. A dívida continua reconhecida; o que saiu foi a suposição de que ela seria paga nestas três semanas. Se for paga dentro da janela, todos os saldos daqui para a frente pioram em R$ ${brl(D.retidos.total)}.</p>
+  </div>` : ''}
 
   <h3>Entra até 10/09 — e o que sustenta cada data</h3>
   <table>
@@ -377,7 +383,7 @@ const html = `<!doctype html><html lang="pt-BR"><head><meta charset="utf-8">
   <div class="head"><h2>Comissões e folha</h2><span class="n">04 · Decisão</span></div>
 
   <h3>25/08 — comissões de julho: R$ ${brl(D.comissoes25ago)}</h3>
-  <p><strong>Puxando a reserva do Sicredi, a comissão sai integral</strong> sem cobrar nada de ninguém. Só com o Sicoob o teto seria R$ ${brl(capZero.valor)} — ${pc(capZero.pct)} do devido. A reserva cobre exatamente a diferença.</p>
+  <p><strong>A comissão integral cabe</strong> sem cobrar nada de ninguém. Só com o Sicoob o teto é R$ ${brl(capZero.valor)} — ${pc(capZero.pct)} do devido, ou seja, falta pouco mais de R$ ${brl0(r2(D.comissoes25ago - capZero.valor))} para fechar os ${brl(D.comissoes25ago)}. <strong>Puxando a reserva do Sicredi, sai integral com folga</strong>, e ainda sobra colchão.</p>
   <table>
     <thead><tr><th style="width:38%">Regra de segurança</th><th class="num">Só o Sicoob</th><th class="num">% do devido</th><th class="num">+ reserva do Sicredi</th><th class="num">% do devido</th><th class="num">Com o EAO pagando</th></tr></thead>
     <tbody>
@@ -387,7 +393,7 @@ const html = `<!doctype html><html lang="pt-BR"><head><meta charset="utf-8">
         <td class="num">${brl(c.valorEao)}${c.pctEao >= 99.9 ? ' <span class="tag ok">integral</span>' : ''}</td></tr>`).join('')}
     </tbody>
   </table>
-  <p class="small">O colchão de R$ 30.000 não é alcançável só com o Sicoob porque o caixa já entra em 24/08 abaixo dele (R$ ${brl(PISO.antesComissao)}) — não é a comissão que impede, é o saldo de partida. Com a reserva, dá para pagar R$ ${brl(D.capacidade[2].valorSic)} e ainda manter os R$ 30.000.</p>
+  <p class="small">Querendo manter R$ 30.000 de colchão até a folha, o teto cai para R$ ${brl(D.capacidade[2].valor)} só com o Sicoob ou R$ ${brl(D.capacidade[2].valorSic)} com a reserva — mas colchão aqui é ilusório: ele some em 05/09 de qualquer forma se a cobrança não andar.</p>
 
   <h3>05/09 — folha de agosto: R$ ${brl(D.folhaAgosto)}</h3>
   <table>
@@ -404,7 +410,7 @@ const html = `<!doctype html><html lang="pt-BR"><head><meta charset="utf-8">
       })()}
     </tbody>
   </table>
-  <p>Aqui a reserva não alcança: mesmo com os R$ ${brl(D.sicredi.liquido)} do Sicredi, 05/09 fecha em ${sinal(PISO.sic.saldo05set)}. <strong>É a folha que exige cobrança, não a comissão.</strong> São R$ ${brl(necSic('2026-09-05'))} a fechar até 05/09 — menos de metade do que o EAO Baviera sozinho vale. E é por isso que usar a reserva em 25/08 não é gratuito: ela sai do caixa e não estará lá em setembro.</p>
+  <p>Aqui a reserva não alcança: mesmo com os R$ ${brl(D.sicredi.liquido)} do Sicredi, 05/09 fecha em ${sinal(PISO.sic.saldo05set)}. <strong>É a folha que exige cobrança, não a comissão.</strong> São R$ ${brl(necSic('2026-09-05'))} a fechar até 05/09 — ${pc(100 * necSic('2026-09-05') / eaoTotal)} do que o EAO Baviera sozinho vale, ou ${pc(100 * necSic('2026-09-05') / D.vencidos.ate60)} do vencido recente. E é por isso que usar a reserva em 25/08 não é gratuito: ela sai do caixa e não estará lá em setembro.</p>
 
   <div class="box rule">
     <p style="margin:0"><strong>Adiar as comissões inteiras para 05/09 não é solução.</strong> Com a reserva, 05/09 fecha em ${sinal(ADIA.sic.saldo05set)} — idêntico ao cenário em que elas são pagas em 25/08. Só empurra o buraco de onze dias e concentra R$ ${brl(r2(D.comissoes25ago + D.folhaAgosto))} num único dia, sem ganhar um centavo.</p>
@@ -516,7 +522,7 @@ const html = `<!doctype html><html lang="pt-BR"><head><meta charset="utf-8">
     <li><strong>Hoje: cobrar o repasse da Bula Remates com o Felipe.</strong> R$ ${brl(D.remates.totalReal)} estavam previstos para entrar hoje e não entraram. É dinheiro interno, resolve-se com um telefonema, e é o que sustenta o dia 24/08 em R$ ${brl0(PISO.antesComissao)}.</li>
     <li><strong>Até 22/08: fechar data com o EAO Baviera.</strong> R$ ${brl(eaoTotal)} entre as duas etapas — ${pc(D.concentracao[0].pct)} de tudo que está datado na janela. Sozinho, tira o período inteiro do negativo e libera a comissão integral em 25/08. Contato: Max Pereira.</li>
     <li><strong>Antes de 25/08, abrir o app do Sicredi e confirmar os R$ ${brl(D.sicredi.liquido)}.</strong> É essa reserva que faz a comissão sair integral, e o extrato daquela conta não é importado desde ${dm(D.sicredi.ultimoMovimentoCC)}. Se o saldo estiver lá, transferir para o Sicoob no dia 24.</li>
-    <li><strong>Em 25/08, pagar a comissão integral usando a reserva.</strong> O dia fecha em ${sinal(PISO.sic.saldo25ago)}. Só com o Sicoob o teto seria R$ ${brl(capZero.valor)} — e aí o restante teria de ser combinado com a equipe para 05/09.</li>
+    <li><strong>Em 25/08, pagar a comissão integral.</strong> Com a reserva o dia fecha em ${sinal(PISO.sic.saldo25ago)}; só com o Sicoob fecha em ${sinal(PISO.saldo25ago)} — passa, mas sem margem para nenhum imprevisto na semana.</li>
     <li><strong>Não adiar a folha — e não contar com a reserva duas vezes.</strong> R$ ${brl(D.folhaAgosto)} em 05/09 é a saída menos adiável do período. Gasta a reserva em 25/08, sobram R$ ${brl(necSic('2026-09-05'))} de cobrança a fechar até 05/09.</li>
     <li><strong>Cobrar a Genética Aditiva e a Nelore Santa Cruz na sequência.</strong> Juntas são R$ ${brl0(r2(D.concentracao.find(g => g.grupo === 'Genética Aditiva').valor + D.concentracao.find(g => g.grupo === 'Nelore Santa Cruz').valor))} vencendo entre 28/08 e 09/09, com contato conhecido (Claudinei Sandim e Nelore Santa Cruz).</li>
     <li><strong>Atacar os R$ ${brl(D.vencidos.ate60)} vencidos há menos de 60 dias.</strong> Não entram em nenhum cenário deste relatório. Recuperar ${pc(100 * necZero('2026-09-10') / D.vencidos.ate60)} deles já fecha a janela inteira.</li>
@@ -530,7 +536,7 @@ const html = `<!doctype html><html lang="pt-BR"><head><meta charset="utf-8">
       <tr class="destaque"><td><strong>hoje</strong></td><td>Repasse da Bula Remates caiu</td><td>24/08 fecha em R$ ${brl0(PISO.antesComissao)}</td><td>Cobrar o Felipe antes de 25/08</td></tr>
       <tr><td>até 22/08</td><td>Data do EAO Baviera fechada</td><td>Comissão integral em 25/08</td><td>Pagar comissão parcial (teto R$ ${brl0(capZero.valor)})</td></tr>
       <tr><td>até 25/08</td><td>1ª parcela do Guadalupe (R$ ${brl0(D.guadalupeAcordo.parcela)})</td><td>Acordo cumprido, cobrar a 2ª em 25/09</td><td>Ligar para a Valéria — foi acordo de hoje</td></tr>
-      <tr><td>até 24/08</td><td>Saldo do Sicredi confirmado no app</td><td>Transferir e pagar a comissão integral</td><td>Teto de R$ ${brl0(capZero.valor)} em 25/08</td></tr>
+      <tr><td>até 24/08</td><td>Saldo do Sicredi confirmado no app</td><td>Transferir e pagar a comissão com folga</td><td>Ainda dá para pagar R$ ${brl0(capZero.valor)}, sem margem</td></tr>
       <tr><td>até 02/09</td><td>R$ ${brl0(necSic('2026-09-05'))} de cobrança fechados</td><td>Folha de 05/09 garantida</td><td>Negociar prazo da folha com a equipe</td></tr>
       <tr><td>até 10/09</td><td>Confirmação da 2ª parcela do JMP para 13/09</td><td>Setembro vira mês de folga</td><td>Refazer esta projeção antes de qualquer compromisso novo</td></tr>
     </tbody>
@@ -538,7 +544,7 @@ const html = `<!doctype html><html lang="pt-BR"><head><meta charset="utf-8">
 
   <div class="box">
     <div class="t">O que este relatório não sabe</div>
-    <p class="small" style="margin:0">(a) O Sicoob está conciliado 1:1 com o extrato de hoje 13h47 — R$ ${brl(D.caixa.sicoob)}. (b) O extrato do Sicredi de agosto nunca foi importado. Os R$ ${brl(D.sicredi.liquido)} são a posição do ERP em ${dm(D.sicredi.ultimoMovimentoApp)}, conferida no app naquele dia — não um saldo bancário de hoje. O resgate de R$ ${brl0(D.sicredi.valorCorrecao)} que faltava foi lançado hoje e zerou a conta corrente, mas movimento posterior a ${dm(D.sicredi.ultimoMovimentoCC)} é desconhecido. (c) As guias de agosto são estimativa por carga efetiva, não cálculo do contador. (d) O FGTS de julho (R$ ${brl(D.encargos.fgts)}) segue em aberto no sistema e não apareceu no extrato — conferir se foi pago por fora. (e) A classificação “tem data acordada” vem de uma tabela única no script gerador: se alguma cobrança da lista da página 2 já foi combinada por telefone, avisar que os números mudam na hora. (f) A 2ª parcela do Guadalupe foi lançada para 25/09 por convenção — a conversa só fixou a primeira.</p>
+    <p class="small" style="margin:0">(a) O Sicoob está conciliado 1:1 com o extrato de hoje 13h47 — R$ ${brl(D.caixa.sicoob)}. (b) O extrato do Sicredi de agosto nunca foi importado. Os R$ ${brl(D.sicredi.liquido)} são a posição do ERP em ${dm(D.sicredi.ultimoMovimentoApp)}, conferida no app naquele dia — não um saldo bancário de hoje. O resgate de R$ ${brl0(D.sicredi.valorCorrecao)} que faltava foi lançado hoje e zerou a conta corrente, mas movimento posterior a ${dm(D.sicredi.ultimoMovimentoCC)} é desconhecido. (c) As guias de agosto são estimativa por carga efetiva, não cálculo do contador. (d) O FGTS de julho (R$ ${brl(D.encargos.fgts)}) segue em aberto no sistema e não apareceu no extrato — conferir se foi pago por fora. (e) A classificação “tem data acordada” vem de uma tabela única no script gerador: se alguma cobrança da lista da página 2 já foi combinada por telefone, avisar que os números mudam na hora. (f) A 2ª parcela do Guadalupe foi lançada para 25/09 por convenção — a conversa só fixou a primeira. (g) O saldo de R$ ${brl(D.retidos.total)} devido ao Bulinha continua reconhecido no ERP, marcado como retido por decisão, e ficou fora de todos os cenários — se for pago dentro da janela, todos os saldos pioram nesse valor.</p>
   </div>
 
   ${foot()}
