@@ -28,6 +28,8 @@ const r2 = n => Math.round(Number(n || 0) * 100) / 100
 const HOJE = '2026-08-20'
 const FIM = '2026-09-10'
 const SICOOB = 'e0eca43c-1a2c-4077-ab54-801eb5d692e7'
+const SICREDI_CC = 'af4724ec-e098-4e13-b172-04b2bfb1949d'
+const SICREDI_APP = '5879aa04-2d69-4b9a-a80c-d9e3eca7ac06'
 const dias = (a, b) => Math.round((new Date(b + 'T12:00:00Z') - new Date(a + 'T12:00:00Z')) / 86400000)
 const addDias = (iso, n) => { const d = new Date(iso + 'T12:00:00Z'); d.setUTCDate(d.getUTCDate() + n); return d.toISOString().slice(0, 10) }
 
@@ -233,7 +235,7 @@ function simula(op) {
   const porDia = {}
   for (const e of ent) { porDia[e.data] = porDia[e.data] || { ent: 0, sai: 0, itens: [] }; porDia[e.data].ent += e.valor; porDia[e.data].itens.push(Object.assign({ t: 'e' }, e)) }
   for (const s of sai) { porDia[s.data] = porDia[s.data] || { ent: 0, sai: 0, itens: [] }; porDia[s.data].sai += s.valor; porDia[s.data].itens.push(Object.assign({ t: 's' }, s)) }
-  let saldo = D.caixa.sicoob
+  let saldo = D.caixa.sicoob + (op.sicredi ? D.caixa.sicrediLiquido : 0)
   const linha = [{ data: HOJE, ent: 0, sai: 0, saldo: r2(saldo), itens: (porDia[HOJE] || { itens: [] }).itens }]
   // o dia de hoje ja esta no saldo do extrato: entradas/saidas de hoje entram como movimento do dia
   if (porDia[HOJE]) { saldo += porDia[HOJE].ent - porDia[HOJE].sai; linha[0] = { data: HOJE, ent: r2(porDia[HOJE].ent), sai: r2(porDia[HOJE].sai), saldo: r2(saldo), itens: porDia[HOJE].itens } }
@@ -277,14 +279,21 @@ const CEN = [
 ]
 D.cenarios = CEN.map(c => {
   const r = simula(c.op)
+  const rs = simula(Object.assign({}, c.op, { sicredi: true }))
   return Object.assign({ chave: c.chave, nome: c.nome, resumo: c.resumo }, {
     minimo: r.minimo, saldo25ago: r.saldo25ago, saldo31ago: r.saldo31ago, saldo05set: r.saldo05set, saldo10set: r.saldo10set,
     antesComissao: r.antesComissao, antesFolha: r.antesFolha, minAteFolha: r.minAteFolha, diasNegativos: r.diasNegativos,
     entTotal: r.entTotal, saiTotal: r.saiTotal,
     pagaComissao: r.saldo25ago >= 0, pagaFolha: r.saldo05set >= 0,
+    sic: {
+      minimo: rs.minimo, saldo25ago: rs.saldo25ago, saldo05set: rs.saldo05set, saldo10set: rs.saldo10set,
+      antesComissao: rs.antesComissao, minAteFolha: rs.minAteFolha, diasNegativos: rs.diasNegativos,
+      pagaComissao: rs.saldo25ago >= 0, pagaFolha: rs.saldo05set >= 0,
+    },
   })
 })
 D.linhas = Object.fromEntries(CEN.map(c => [c.chave, simula(c.op).linha]))
+D.linhasSic = Object.fromEntries(CEN.map(c => [c.chave, simula(Object.assign({}, c.op, { sicredi: true })).linha]))
 D.escada = D.linhas.FIRME.filter(x => x.ent || x.sai || x.data === HOJE || x.data === FIM)
 
 /* --- quanto precisa ser cobrado ate cada marco para manter o colchao --- */
@@ -300,9 +309,10 @@ function necessidade(colchao, op) {
   return out
 }
 D.necessidade = [
-  { rot: 'Colchão zero (só não ficar negativo)', colchao: 0, linha: necessidade(0, {}) },
-  { rot: 'Colchão de R$ 30.000', colchao: 30000, linha: necessidade(30000, {}) },
-  { rot: 'Colchão de R$ 30.000, adiando as comissões para 05/09', colchao: 30000, linha: necessidade(30000, { adiaComissoes: '2026-09-05' }) },
+  { rot: 'Só o Sicoob, sem ficar negativo', colchao: 0, sicredi: false, linha: necessidade(0, {}) },
+  { rot: 'Sicoob + reserva do Sicredi, sem ficar negativo', colchao: 0, sicredi: true, linha: necessidade(0, { sicredi: true }) },
+  { rot: 'Sicoob + Sicredi, mantendo colchão de R$ 30.000', colchao: 30000, sicredi: true, linha: necessidade(30000, { sicredi: true }) },
+  { rot: 'Sicoob + Sicredi, adiando as comissões para 05/09', colchao: 0, sicredi: true, linha: necessidade(0, { sicredi: true, adiaComissoes: '2026-09-05' }) },
 ]
 
 /* --- sensibilidade: quanto de atraso o piso aguenta --- */
@@ -347,8 +357,14 @@ D.capacidade = [
   { rot: 'Colchão de R$ 30.000', colchao: 30000 },
 ].map(c => {
   const v = capacidadeComissao(c.colchao, {})
+  const vSic = capacidadeComissao(c.colchao, { sicredi: true })
   const vEao = capacidadeComissao(c.colchao, { cobra: [/EAO BAVIERA/i] })
-  return { rot: c.rot, colchao: c.colchao, valor: v, pct: r2(100 * v / D.comissoes25ago), valorEao: vEao, pctEao: r2(100 * vEao / D.comissoes25ago) }
+  return {
+    rot: c.rot, colchao: c.colchao,
+    valor: v, pct: r2(100 * v / D.comissoes25ago),
+    valorSic: vSic, pctSic: r2(100 * vSic / D.comissoes25ago),
+    valorEao: vEao, pctEao: r2(100 * vEao / D.comissoes25ago),
+  }
 })
 
 /* --- concentracao da cobranca: quem devo cobrar primeiro --- */
@@ -410,6 +426,19 @@ D.guadalupeAcordo.comissaoTotal = r2(D.guadalupeAcordo.comissaoAssessores + D.gu
 const ultima = D.cargaTributaria[D.cargaTributaria.length - 1]
 D.mixIss = ultima && ultima.total ? Math.round(ultima.iss / ultima.total * 10000) / 10000 : 0.305
 
+/* --- Sicredi: reserva parada, e a correcao do resgate que faltava --- */
+const mvSic = await page('erp_movimentos_bancarios', 'data,tipo,valor,descricao,conta_bancaria_id',
+  q => q.in('conta_bancaria_id', [SICREDI_CC, SICREDI_APP]))
+const datasCC = mvSic.filter(m => m.conta_bancaria_id === SICREDI_CC).map(m => m.data).sort()
+const datasApp = mvSic.filter(m => m.conta_bancaria_id === SICREDI_APP).map(m => m.data).sort()
+D.sicredi = {
+  liquido: D.caixa.sicrediLiquido, cc: D.caixa.sicrediCC, aplicacao: D.caixa.sicrediApp,
+  ultimoMovimentoCC: datasCC.slice(-1)[0] || null, ultimoMovimentoApp: datasApp.slice(-1)[0] || null,
+  diasSemExtrato: datasCC.length ? dias(datasCC.slice(-1)[0], HOJE) : null,
+  ccZerada: Math.abs(D.caixa.sicrediCC) < 0.005,
+  corrigidoEm: '2026-08-20', valorCorrecao: 15000,
+}
+
 const OUT = 'outputs/fluxo-20ago-10set-2026'
 fs.mkdirSync(OUT, { recursive: true })
 fs.writeFileSync(path.join(OUT, 'dados.json'), JSON.stringify(D, null, 1))
@@ -425,8 +454,12 @@ console.log('Depois de 10/09   ', f2(D.depoisTotal), '| JMP 2a parcela', f2(D.jm
 console.log('Vencidos          ', f2(D.vencidos.total), '(' + D.vencidos.n + ')  ate 60d', f2(D.vencidos.ate60))
 console.log('Custo corrente    media', f2(D.custoCorrente.media), '| residuo', D.residuos.map(x => x.mes + ' ' + f2(x.residuo)).join(' / '))
 console.log('')
-console.log('CENARIOS  (24/08 antes das comissoes | 25/08 | 04/09 antes da folha | 05/09 | 10/09 | minimo | dias neg)')
-D.cenarios.forEach(c => console.log('  ' + c.chave.padEnd(8), f2(c.antesComissao).padStart(11), f2(c.saldo25ago).padStart(11), f2(c.antesFolha).padStart(11), f2(c.saldo05set).padStart(11), f2(c.saldo10set).padStart(11), f2(c.minimo.saldo).padStart(11), c.minimo.data, String(c.diasNegativos).padStart(3)))
+console.log('SICREDI  liquido', f2(D.sicredi.liquido), '| CC', f2(D.sicredi.cc), '| aplicacao', f2(D.sicredi.aplicacao), '| ultimo mov', D.sicredi.ultimoMovimentoCC, '(' + D.sicredi.diasSemExtrato + 'd atras)')
+console.log('')
+console.log('CENARIOS — SO SICOOB      (25/08 | 05/09 | 10/09 | minimo | dias neg)')
+D.cenarios.forEach(c => console.log('  ' + c.chave.padEnd(8), f2(c.saldo25ago).padStart(12), f2(c.saldo05set).padStart(12), f2(c.saldo10set).padStart(12), f2(c.minimo.saldo).padStart(12), String(c.diasNegativos).padStart(3)))
+console.log('CENARIOS — SICOOB+SICREDI')
+D.cenarios.forEach(c => console.log('  ' + c.chave.padEnd(8), f2(c.sic.saldo25ago).padStart(12), f2(c.sic.saldo05set).padStart(12), f2(c.sic.saldo10set).padStart(12), f2(c.sic.minimo.saldo).padStart(12), String(c.sic.diasNegativos).padStart(3), c.sic.pagaComissao ? 'comissao OK' : '', c.sic.pagaFolha ? 'folha OK' : ''))
 console.log('')
 console.log('NECESSIDADE DE COBRANCA')
 D.necessidade.forEach(n => console.log('  ' + n.rot.padEnd(48), n.linha.map(x => x.ate.slice(5) + ': ' + f2(x.precisa)).join(' | ')))
@@ -436,7 +469,7 @@ D.sensibilidade.forEach(s => console.log('  +' + String(s.atrasoRemates).padStar
 console.log('')
 console.log('SEM o Guadalupe (' + f2(D.impactoGuadalupe.valor) + ' em ' + D.impactoGuadalupe.data + '): minimo', f2(D.impactoGuadalupe.minimoSem), D.impactoGuadalupe.dataMin, '| 10/09', f2(D.impactoGuadalupe.saldo10setSem))
 console.log('CAPACIDADE de comissao pagavel em 25/08 (minimo ate 04/09):')
-D.capacidade.forEach(c => console.log('   ' + c.rot.padEnd(38), 'piso', f2(c.valor).padStart(12), '(' + c.pct + '%)', '| com EAO', f2(c.valorEao).padStart(12), '(' + c.pctEao + '%)'))
+D.capacidade.forEach(c => console.log('   ' + c.rot.padEnd(38), 'so Sicoob', f2(c.valor).padStart(12), '(' + c.pct + '%)', '| +Sicredi', f2(c.valorSic).padStart(12), '(' + c.pctSic + '%)', '| com EAO', f2(c.valorEao).padStart(12), '(' + c.pctEao + '%)'))
 console.log('')
 console.log('CONCENTRACAO da cobranca na janela')
 D.concentracao.forEach(g => console.log('   ' + g.grupo.padEnd(20), f2(g.valor).padStart(12), (g.pct + '%').padStart(7), '| a cobrar', f2(g.aCobrar).padStart(12)))
