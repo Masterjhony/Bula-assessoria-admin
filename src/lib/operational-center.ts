@@ -15,6 +15,9 @@ import type { SupabaseClient } from '@supabase/supabase-js'
 import { isOpenRouterConfigured, openRouterJSON } from './openrouter'
 import { normalizePhone, phoneVariants } from './whatsapp-central'
 
+/** Ids que apontam para a MESMA caixa de entrada da Central Operacional. */
+const INBOX_ALIASES = ['joao', 'joao-automation']
+
 export type OperationalArea = 'cadastros' | 'comercial' | 'marketing' | 'financeiro' | 'cobrancas'
 export type OperationalKind =
     | 'solicitacao' | 'decisao' | 'prazo' | 'tarefa' | 'catalogo' | 'lance'
@@ -146,15 +149,16 @@ export async function resolveOperationalSource(
     input: OperationalInbound,
 ): Promise<OperationalSource | null> {
     const incomingInbox = input.inboxId || input.sessionId || 'joao'
-    // `joao-automation` é o id usado quando a sessão está em modo somente
-    // coleta; `joao` é o id lógico/canônico salvo na allowlist.
-    if (!['joao', 'joao-automation'].includes(incomingInbox)) return null
-    const inboxId = 'joao'
+    // `joao` e `joao-automation` são a MESMA caixa: `joao` é o id lógico antigo
+    // e `joao-automation` é a sessão que de fato roda na VPS. A allowlist tem
+    // linhas gravadas nos dois ids ao longo do tempo, então aceita os dois —
+    // fixar um só derruba toda a captura quando as fontes são migradas.
+    if (!INBOX_ALIASES.includes(incomingInbox)) return null
 
     const { data, error } = await supabase
         .from('operational_sources')
         .select('id, label, source_kind, inbox_id, phone, whatsapp_jid, areas, aliases, active')
-        .eq('inbox_id', inboxId)
+        .in('inbox_id', INBOX_ALIASES)
         .eq('active', true)
         .limit(100)
     if (error || !data?.length) return null
