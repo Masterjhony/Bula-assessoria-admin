@@ -124,6 +124,23 @@ export function eventoKey(t: TituloParaChave): string | null {
     return null
   }
 
+  // participação do sócio no resultado — 35% do lucro, por trimestre.
+  // A competência é o TRIMESTRE, não o mês: "ref. 3o trimestre/2026" ou
+  // "ref. junho–agosto/2026" apontam para o mesmo compromisso, e o pagamento
+  // que chega do extrato precisa encontrar a previsão que já está aberta.
+  if (/remuneracao de socio|participacao no resultado|distribuicao de lucro/.test(d)) {
+    const pessoa = pessoaDoTexto(bruto)
+    // "1o trimestre do contrato, ref. junho a agosto de 2026" → 2026-T1.
+    // O ano vem de qualquer ponto do texto: exigir que ele venha colado em
+    // "trimestre" fazia a chave cair para a competência do último mês citado
+    // ("agosto/2026"), e aí o pagamento do trimestre seguinte casaria errado.
+    const tri = d.match(/\b([1-4])\s*[oº]?\s*trimestre\b/)
+    const ano = d.match(/\b(20\d{2})\b/)
+    const comp = tri && ano ? `${ano[1]}-T${tri[1]}` : competenciaDoTexto(bruto)
+    if (pessoa && comp) return `distribuicao:${pessoa}:${comp}`
+    return null
+  }
+
   // comissão FIXA mensal (não depende de leilão)
   if (/comissao fixa/.test(d)) {
     const pessoa = pessoaDoTexto(bruto)

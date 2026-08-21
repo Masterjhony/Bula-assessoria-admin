@@ -2375,6 +2375,7 @@ const DRE_GRUPOS = [
   ['despesa_variavel', 'Despesa variavel'],
   ['despesa_fixa',     'Despesa fixa'],
   ['financeiro',       'Resultado financeiro'],
+  ['distribuicao',     'Distribuicao de resultado (socio)'],
   ['ignorar',          'Ignorar (nao entra na DRE)'],
 ];
 function concStatus(m){
@@ -3727,6 +3728,10 @@ async function renderDRE() {
         dreSubtotalRow('(=) EBITDA', c.ebitda),
         dreGrupoRows('(+/−) Resultado Financeiro', c.resultado_financeiro, c.resultado_financeiro.total>=0?'pos':'neg'),
         dreSubtotalRow('(=) LUCRO LÍQUIDO', c.lucro_liquido, true),
+        ...(c.distribuicao && c.distribuicao.total !== 0
+          ? [dreGrupoRows('(−) Participação no resultado', c.distribuicao, 'neg'),
+             dreSubtotalRow('(=) RESULTADO RETIDO', c.resultado_retido, true)]
+          : []),
       ].join('')}</table>
       <div style="margin-top:10px;font-size:11px;color:var(--text3)">
         Regime de ${regime === 'caixa' ? 'caixa: movimentos bancários conciliados por categoria (transferências internas e resgates de aplicação ficam fora)' : 'competência: títulos (CP/CR) pelo vencimento, cancelados fora'}.

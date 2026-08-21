@@ -183,7 +183,7 @@ export async function computeErpDashboard(
 // Grupos da DRE em cascata. O grupo de cada categoria vem de
 // erp_categorias.dre_grupo (migration 0073). Categoria sem grupo cai em
 // receita/despesa_variavel pelo tipo do movimento — nada some em silêncio.
-export type DreGrupo = 'receita' | 'imposto' | 'custo_direto' | 'despesa_variavel' | 'despesa_fixa' | 'financeiro' | 'ignorar'
+export type DreGrupo = 'receita' | 'imposto' | 'custo_direto' | 'despesa_variavel' | 'despesa_fixa' | 'financeiro' | 'distribuicao' | 'ignorar'
 
 export async function computeDre(
   sb: SupabaseClient,
@@ -259,6 +259,10 @@ export async function computeDre(
   const gVar = linhasDe('despesa_variavel', -1)
   const gFixa = linhasDe('despesa_fixa', -1)
   const gFin = linhasDe('financeiro', 1) // net: receitas financeiras (+), custos financeiros (−)
+  // participação no resultado (35% do lucro do sócio): sai DEPOIS do lucro
+  // líquido operacional, nunca antes — não é custo da operação e não pode
+  // entrar no EBITDA nem no ponto de equilíbrio.
+  const gDist = linhasDe('distribuicao', -1)
 
   const receitaBruta = soma(gReceita)
   const impostos = soma(gImposto)
@@ -270,6 +274,8 @@ export async function computeDre(
   const ebitda = r2(lucroBruto - despVariaveis - despFixas)
   const resultadoFinanceiro = soma(gFin)
   const lucroLiquido = r2(ebitda + resultadoFinanceiro)
+  const distribuicao = soma(gDist)
+  const resultadoRetido = r2(lucroLiquido - distribuicao)
 
   // legado (agente WhatsApp / gráficos): totais brutos de entradas e saídas
   let receitas = 0
@@ -298,6 +304,8 @@ export async function computeDre(
       ebitda,
       resultado_financeiro: { total: resultadoFinanceiro, linhas: gFin },
       lucro_liquido: lucroLiquido,
+      distribuicao: { total: distribuicao, linhas: gDist },
+      resultado_retido: resultadoRetido,
       margem_liquida: receitaBruta > 0 ? r2(lucroLiquido / receitaBruta * 10000) / 100 : 0,
       margem_ebitda: receitaBruta > 0 ? r2(ebitda / receitaBruta * 10000) / 100 : 0,
     },

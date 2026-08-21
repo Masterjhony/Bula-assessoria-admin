@@ -135,9 +135,9 @@ D.ano = {
 
 /* ══ 2. Quanto a Bula tem a receber ═══════════════════════════════════════ */
 
-type Cr = { valor: number; valor_recebido: number | null; vencimento: string | null; status: string; cliente_id: string | null; categoria_id: string | null; descricao: string }
+type Cr = { valor: number; desconto: number | null; valor_recebido: number | null; vencimento: string | null; status: string; cliente_id: string | null; categoria_id: string | null; descricao: string; tags: string[] | null }
 const [crs, pessoas, categorias] = await Promise.all([
-  todos<Cr>('erp_contas_receber', 'valor,valor_recebido,vencimento,status,cliente_id,categoria_id,descricao'),
+  todos<Cr>('erp_contas_receber', 'valor,desconto,valor_recebido,vencimento,status,cliente_id,categoria_id,descricao,tags'),
   todos<{ id: string; nome: string }>('erp_pessoas', 'id,nome'),
   todos<{ id: string; nome: string; dre_grupo: string | null }>('erp_categorias', 'id,nome,dre_grupo'),
 ])
@@ -157,7 +157,9 @@ const ehOperacional = (c: Cr) => {
   const g = c.categoria_id ? catById[c.categoria_id]?.dre_grupo : null
   return g !== 'financeiro' && g !== 'ignorar'
 }
-const saldoCr = (c: Cr) => r2(num(c.valor) - num(c.valor_recebido))
+// o que ainda entra é o LÍQUIDO: o desconto à vista da leiloeira já foi
+// concedido, não é dinheiro a receber (caso Naviraí, 21/08)
+const saldoCr = (c: Cr) => r2(num(c.valor) - num(c.desconto) - num(c.valor_recebido))
 
 const abertos = crs.filter((c) => ['aberto', 'vencido', 'parcial'].includes(c.status) && ehOperacional(c))
 const porLeiloeira: Record<string, { leiloeira: string; vencido: number; aVencer: number; total: number; n: number }> = {}
@@ -173,7 +175,12 @@ for (const c of abertos) {
 const listaLeiloeira = Object.values(porLeiloeira)
   .map((e) => ({ ...e, vencido: r2(e.vencido), aVencer: r2(e.aVencer), total: r2(e.total) }))
   .sort((a, b) => b.total - a.total)
+// título com data confirmada pela leiloeira x vencimento automático de
+// leilão+45d — a distinção que separa cobrança de palpite
+const acordado = (c: Cr) => Array.isArray(c.tags) && c.tags.includes('data-acordada')
 D.receber = {
+  comDataAcordada: r2(abertos.filter(acordado).reduce((s, c) => s + saldoCr(c), 0)),
+  titulosAcordados: abertos.filter(acordado).length,
   total: r2(listaLeiloeira.reduce((s, e) => s + e.total, 0)),
   vencido: r2(listaLeiloeira.reduce((s, e) => s + e.vencido, 0)),
   aVencer: r2(listaLeiloeira.reduce((s, e) => s + e.aVencer, 0)),
@@ -326,6 +333,62 @@ D.cascata = {
 const margemPct = D.cascata.margemPct
 D.modelo = { takeRate, pctImposto, pctComissao, pctLeilao: pctLeilaoSobreReceita, margemPct }
 
+/* ══ 5b. Lucro mês a mês e a participação do sócio ════════════════════════ */
+
+// Contrato de sociedade (17/07/2026): o Marcelo é remunerado com 35% do LUCRO,
+// pago TRIMESTRALMENTE, contando a partir de junho/2026. Primeiro trimestre =
+// jun–ago, a pagar em setembro. Não é despesa da operação: sai depois do lucro
+// e só existe quando há lucro — por isso não entra no custo fixo nem no ponto
+// de equilíbrio, e por isso a base é o resultado, não a receita.
+const SOCIO_PCT = 0.35
+const SOCIO_INICIO = 6 // junho
+
+// folha lançada por competência (a de agosto vence em 05/09)
+const folhaPorMes = new Map<number, number>()
+for (const c of folhaCps) {
+  const m = MES_NOME.findIndex((n) => new RegExp(`Folha ${n}/2026`, 'i').test(c.descricao)) + 1
+  if (m > 0) folhaPorMes.set(m, r2((folhaPorMes.get(m) || 0) + liq(c)))
+}
+for (const l of mensal) {
+  l.despesaLeilao = r2(l.receita * pctLeilaoSobreReceita)
+  l.folha = folhaPorMes.get(l.mes) ?? 0
+  l.custoFixo = r2(l.folha + estruturaMes)
+  l.lucro = r2(l.receita - l.imposto - l.comissao - l.despesaLeilao - l.custoFixo)
+}
+
+const trimestreDe = (m: number) => Math.floor((m - SOCIO_INICIO) / 3) // 0 = jun–ago
+const mesPagamento = (tri: number) => SOCIO_INICIO + tri * 3 + 3      // mês seguinte ao fim
+const FERIADOS_FIXOS = new Set(['01-01', '04-21', '05-01', '09-07', '10-12', '11-02', '11-15', '12-25'])
+const proxDiaUtil = (iso: string) => {
+  const dt = new Date(iso + 'T12:00:00')
+  while (dt.getDay() === 0 || dt.getDay() === 6 || FERIADOS_FIXOS.has(dt.toISOString().slice(5, 10))) dt.setDate(dt.getDate() + 1)
+  return dt.toISOString().slice(0, 10)
+}
+const vencimentoTri = (tri: number) => proxDiaUtil(`2026-${String(mesPagamento(tri)).padStart(2, '0')}-25`)
+const rotuloTri = (tri: number) => {
+  const ini = SOCIO_INICIO + tri * 3
+  return `${MES_NOME[ini - 1]}–${MES_NOME[Math.min(ini + 2, 12) - 1]}/2026`
+}
+
+// trimestre já corrido (jun–ago): base é o lucro apurado mês a mês
+const mesesTri0 = mensal.filter((l) => l.mes >= SOCIO_INICIO && trimestreDe(l.mes) === 0)
+const lucroTri0 = r2(mesesTri0.reduce((s, l) => s + l.lucro, 0))
+D.socio = {
+  pct: SOCIO_PCT,
+  inicio: `${MES_NOME[SOCIO_INICIO - 1]}/2026`,
+  contrato: 'Marcelo — 35% do lucro, pagos trimestralmente (contrato de 17/07/2026). Participação societária de 15% integralizada no ato, mais 5% por semestre em 4 semestres conforme metas do conselho de sócios.',
+  realizado: {
+    trimestre: rotuloTri(0),
+    meses: mesesTri0.map((l) => ({ mes: l.mes, nome: l.nome, receita: l.receita, lucro: l.lucro })),
+    lucro: lucroTri0,
+    // sobre prejuízo não há participação — o contrato remunera lucro
+    valor: r2(Math.max(lucroTri0, 0) * SOCIO_PCT),
+    mesPagamento: MES_NOME[mesPagamento(0) - 1],
+    vencimento: vencimentoTri(0),
+  },
+}
+D.socio.parcelaAoMes = r2(D.socio.realizado.valor / 3)
+
 // break-even: quanto de receita e de cobertura o mês precisa gerar para empatar
 const be = (fixo: number) => ({
   fixo: r2(fixo),
@@ -342,6 +405,142 @@ D.breakEven.deltaReceita = r2(D.breakEven.depois.receita - D.breakEven.antes.rec
 D.breakEven.deltaVgv = r2(D.breakEven.depois.vgv - D.breakEven.antes.vgv)
 D.breakEven.folgaAntes = r2(D.breakEven.receitaMediaMes - D.breakEven.antes.receita)
 D.breakEven.folgaDepois = r2(D.breakEven.receitaMediaMes - D.breakEven.depois.receita)
+
+/* ══ 6. Setembro a dezembro — o trimestre que decide ══════════════════════ */
+
+// A pergunta real por trás do pedido: a estrutura nova cabe no último
+// trimestre? Só há uma régua honesta para o que set–dez pode vender — o que
+// 2025 vendeu nesses mesmos meses, corrigido pelo ritmo que 2026 vem
+// mostrando. O fator T = (VGV 2026 ÷ VGV 2025) da mesma janela.
+const hist = await todos<{ mes: number; vgv: number | null; leiloes: number | null }>(
+  'erp_resultados_historico', 'mes,vgv,leiloes', (q) => q.eq('ano', 2026 - 1))
+const v25 = new Map(hist.filter((h) => h.mes >= 1 && h.mes <= 12).map((h) => [h.mes, num(h.vgv)]))
+const v26 = new Map(mensal.map((m) => [m.mes, m.vgv]))
+const somaJanela = (mapa: Map<number, number>, ini: number, fim: number) => {
+  let s = 0
+  for (let m = ini; m <= fim; m++) s += mapa.get(m) || 0
+  return r2(s)
+}
+// Agosto de 2026 ainda está correndo (o mês fecha em 31/08) e agosto de 2025
+// foi o pico do ano — comparar os dois exagera a queda. As janelas param em
+// julho, o último mês inteiro dos dois lados.
+const fator = (ini: number, fim: number) => r4(somaJanela(v26, ini, fim) / somaJanela(v25, ini, fim))
+const T = { janJul: fator(1, 7), maiJul: fator(5, 7), junJul: fator(6, 7), julho: fator(7, 7) }
+const setDez25 = somaJanela(v25, 9, 12)
+const MESES_TRI = 4
+
+const cenario = (nome: string, t: number, justificativa: string, fixoMes: number) => {
+  const vgv = r2(setDez25 * t)
+  const receita = r2(vgv * takeRate)
+  const margem = r2(receita * margemPct)
+  const fixo = r2(fixoMes * MESES_TRI)
+  return { nome, T: t, justificativa, vgv, receita, margem, fixo, resultado: r2(margem - fixo) }
+}
+const CENARIOS: Array<[string, number, string]> = [
+  ['Otimista', T.janJul, 'Set–dez repete o ritmo do acumulado jan–jul, a janela mais larga e mais favorável.'],
+  ['Base', T.maiJul, 'Usa mai–jul, os três últimos meses inteiros — já carrega a compressão de ticket de 2026.'],
+  ['Conservador', T.junJul, 'Só jun–jul, o par mais recente.'],
+  ['Como foi julho', T.julho, 'O trimestre roda no ritmo de julho, o pior mês inteiro do ano.'],
+]
+D.trimestre = {
+  setDez25,
+  meses: MESES_TRI,
+  fatores: T,
+  cenarios: CENARIOS.map(([n, t, j]) => cenario(n, t, j, D.custo.fixoDepois)),
+  cenariosFolhaAntiga: CENARIOS.map(([n, t, j]) => cenario(n, t, j, D.custo.fixoAntes)),
+}
+// O fator de equilíbrio: quanto de 2025 o trimestre precisa repetir para o
+// resultado ser zero. É a régua que a folha nova moveu.
+const tEquilibrio = (fixoMes: number) => r4((fixoMes * MESES_TRI) / margemPct / takeRate / setDez25)
+D.trimestre.equilibrio = {
+  antes: tEquilibrio(D.custo.fixoAntes),
+  depois: tEquilibrio(D.custo.fixoDepois),
+  vgvAntes: r2(tEquilibrio(D.custo.fixoAntes) * setDez25),
+  vgvDepois: r2(tEquilibrio(D.custo.fixoDepois) * setDez25),
+}
+D.trimestre.equilibrio.vgvExtra = r2(D.trimestre.equilibrio.vgvDepois - D.trimestre.equilibrio.vgvAntes)
+
+/* ══ 7. Prognóstico mês a mês ═════════════════════════════════════════════ */
+
+// O trimestre somado esconde o que importa: a régua não é a mesma todo mês.
+// Setembro e outubro são meses grandes no calendário do leilão; dezembro é o
+// menor do ano. Com um custo fixo que não muda, o mesmo R$ 69 mil pesa muito
+// mais sobre dezembro — e é lá que a conta aperta primeiro.
+const vgvEquilibrioMes = r2(D.custo.fixoDepois / margemPct / takeRate)
+const vgvEquilibrioMesAntes = r2(D.custo.fixoAntes / margemPct / takeRate)
+
+D.prognostico = {
+  vgvEquilibrioMes,
+  vgvEquilibrioMesAntes,
+  receitaEquilibrioMes: D.breakEven.depois.receita,
+  cenarios: CENARIOS.map(([n, t, j]) => ({ nome: n, T: t, justificativa: j })),
+  meses: [] as any[],
+}
+for (let m = 9; m <= 12; m++) {
+  const base25 = v25.get(m) || 0
+  const linha: any = {
+    mes: m, nome: MES_NOME[m - 1], v25: r2(base25),
+    // O fator que ESTE mês precisa entregar para se pagar sozinho. É a régua
+    // que interessa: um número por mês, comparável com o que 2026 vem fazendo.
+    fatorEquilibrio: base25 > 0 ? r4(vgvEquilibrioMes / base25) : null,
+    fatorEquilibrioAntes: base25 > 0 ? r4(vgvEquilibrioMesAntes / base25) : null,
+    cenarios: {} as Record<string, any>,
+  }
+  for (const [nome, t] of CENARIOS.map(([n, t]) => [n, t] as [string, number])) {
+    const vgv = r2(base25 * t)
+    const receita = r2(vgv * takeRate)
+    const margem = r2(receita * margemPct)
+    linha.cenarios[nome] = { vgv, receita, margem, resultado: r2(margem - D.custo.fixoDepois) }
+  }
+  D.prognostico.meses.push(linha)
+}
+// acumulado por cenário, para ver em que mês a conta vira
+for (const [nome] of CENARIOS) {
+  let acc = 0
+  for (const l of D.prognostico.meses) { acc = r2(acc + l.cenarios[nome].resultado); l.cenarios[nome].acumulado = acc }
+}
+// o mês mais exigente e o mais folgado, medidos pela régua própria de cada um
+const comFator = D.prognostico.meses.filter((l: any) => l.fatorEquilibrio != null)
+D.prognostico.mesMaisExigente = comFator.reduce((a: any, b: any) => (b.fatorEquilibrio > a.fatorEquilibrio ? b : a))
+D.prognostico.mesMaisFolgado = comFator.reduce((a: any, b: any) => (b.fatorEquilibrio < a.fatorEquilibrio ? b : a))
+
+/* ══ 7b. Os dois compromissos que caem dentro da janela ═══════════════════ */
+
+// Setembro paga a participação do trimestre jun–ago (já apurada) e dezembro
+// paga a do trimestre set–nov (que depende do cenário). São saídas que não
+// existiam no prognóstico e caem justamente nos dois meses de borda.
+const SOCIO_MES = { 9: 'trimestre jun–ago', 12: 'trimestre set–nov' } as Record<number, string>
+for (const [nome] of CENARIOS) {
+  const lucroTri1 = r2([9, 10, 11]
+    .map((m) => D.prognostico.meses.find((l: any) => l.mes === m).cenarios[nome].resultado)
+    .reduce((s: number, v: number) => s + v, 0))
+  const socioDez = r2(Math.max(lucroTri1, 0) * SOCIO_PCT)
+  let acc = 0
+  for (const l of D.prognostico.meses) {
+    const c = l.cenarios[nome]
+    c.socio = l.mes === 9 ? D.socio.realizado.valor : l.mes === 12 ? socioDez : 0
+    c.socioRef = SOCIO_MES[l.mes] || null
+    c.resultadoComSocio = r2(c.resultado - c.socio)
+    acc = r2(acc + c.resultadoComSocio)
+    c.acumuladoComSocio = acc
+  }
+  D.socio[`tri1${nome}`] = { lucro: lucroTri1, valor: socioDez }
+}
+D.socio.projetado = {
+  trimestre: rotuloTri(1),
+  mesPagamento: MES_NOME[mesPagamento(1) - 1],
+  vencimento: vencimentoTri(1),
+  porCenario: CENARIOS.map(([n]) => ({ nome: n, lucro: D.socio[`tri1${n}`].lucro, valor: D.socio[`tri1${n}`].valor })),
+}
+
+// A Nane não recebe por leilão: o combinado é acumular tudo e pagar em
+// dezembro, o que joga a soma do ano inteiro dentro do mês mais apertado.
+const nane = D.comissao.porAssessor.filter((a: any) => /nane/i.test(a.nome))
+D.nane = {
+  total: r2(nane.reduce((s: number, a: any) => s + a.comissao, 0)),
+  participacoes: nane.reduce((s: number, a: any) => s + a.leiloes, 0),
+  vencimento: '2026-12-28',
+}
 
 /* ══ Grava ═══════════════════════════════════════════════════════════════ */
 
@@ -368,3 +567,31 @@ console.log('  folha nova             ', brl(folhaNova), '(era', brl(folhaAntes)
 console.log('  break-even receita/mês ', brl(D.breakEven.antes.receita), '->', brl(D.breakEven.depois.receita))
 console.log('  break-even cobertura   ', brl(D.breakEven.antes.vgv), '->', brl(D.breakEven.depois.vgv))
 console.log('  receita média/mês      ', brl(D.breakEven.receitaMediaMes), '| folga depois', brl(D.breakEven.folgaDepois))
+
+console.log('  ---')
+console.log('  fator T jan-jul', T.janJul, '| mai-jul', T.maiJul, '| jun-jul', T.junJul, '| julho', T.julho)
+console.log('  set-dez 2025           ', brl(setDez25))
+for (const c of D.trimestre.cenarios) {
+  console.log(`  ${c.nome.padEnd(15)} T=${String(c.T).padEnd(6)} vgv ${brl(c.vgv).padStart(16)} margem ${brl(c.margem).padStart(14)} resultado ${brl(c.resultado).padStart(14)}`)
+}
+console.log('  equilíbrio do trimestre: T', D.trimestre.equilibrio.antes, '->', D.trimestre.equilibrio.depois,
+  '| cobertura', brl(D.trimestre.equilibrio.vgvAntes), '->', brl(D.trimestre.equilibrio.vgvDepois))
+
+console.log('  ---')
+console.log('  cobertura/mês p/ empatar', brl(D.prognostico.vgvEquilibrioMes), '(era', brl(D.prognostico.vgvEquilibrioMesAntes) + ')')
+for (const l of D.prognostico.meses) {
+  console.log(`  ${l.nome.padEnd(9)} 2025 ${brl(l.v25).padStart(16)} · precisa de ${(l.fatorEquilibrio * 100).toFixed(1).padStart(5)}% dele`
+    + ` · base ${brl(l.cenarios['Base'].resultado).padStart(13)} · acum ${brl(l.cenarios['Base'].acumulado).padStart(13)}`)
+}
+console.log('  mês mais exigente:', D.prognostico.mesMaisExigente.nome, (D.prognostico.mesMaisExigente.fatorEquilibrio * 100).toFixed(1) + '%')
+
+console.log('  ---')
+console.log('  SÓCIO 35% do lucro · trimestre', D.socio.realizado.trimestre, '· lucro', brl(D.socio.realizado.lucro), '→ pagar', brl(D.socio.realizado.valor), 'em', D.socio.realizado.vencimento)
+for (const l of D.socio.realizado.meses) console.log(`     ${l.nome.padEnd(9)} lucro ${brl(l.lucro).padStart(14)}`)
+for (const c of D.socio.projetado.porCenario) console.log(`  ${D.socio.projetado.trimestre} ${c.nome.padEnd(15)} lucro ${brl(c.lucro).padStart(13)} → ${brl(c.valor).padStart(12)} em dezembro`)
+console.log('  NANE acumulada até dezembro:', brl(D.nane.total), `(${D.nane.participacoes} participações)`)
+console.log('  --- prognóstico COM os compromissos ---')
+for (const l of D.prognostico.meses) {
+  const c = l.cenarios['Base']
+  console.log(`  ${l.nome.padEnd(9)} base ${brl(c.resultado).padStart(13)} − sócio ${brl(c.socio).padStart(11)} = ${brl(c.resultadoComSocio).padStart(13)} · acum ${brl(c.acumuladoComSocio).padStart(13)}`)
+}
