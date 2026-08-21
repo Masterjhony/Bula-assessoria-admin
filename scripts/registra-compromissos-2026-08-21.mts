@@ -128,10 +128,15 @@ const docSocio = 'BULA-2026-CP-SOCIO-MARCELO-T1'
 // vier do extrato. Só "Junho–Agosto/2026" faria a chave virar a competência de
 // agosto, e o pagamento do trimestre seguinte casaria com o título errado.
 const descSocio = `REMUNERACAO DE SOCIO - MARCELO CARNEIRO - 35% do lucro - 1o trimestre do contrato, ref. ${String(S.trimestre).replace('–', ' a ')}`
-const { data: jaSocio } = await sb.from('erp_contas_pagar').select('id').eq('numero_documento', docSocio).maybeSingle()
+const { data: jaSocio } = await sb.from('erp_contas_pagar').select('id,valor,status').eq('numero_documento', docSocio).maybeSingle()
+// Enquanto o trimestre não é pago, o título acompanha a apuração: reprocessar
+// a folha de um mês muda o lucro e tem de mudar a participação junto. Título
+// já pago não se mexe.
+const socioDivergente = !!jaSocio && jaSocio.status !== 'pago' && Math.abs(Number(jaSocio.valor) - S.valor) > 0.01
 say(`\n4. MARCELO — 35% do lucro de ${S.trimestre}`)
 for (const m of S.meses) say(`   ${String(m.nome).padEnd(9)} lucro ${brl(m.lucro)}`)
-say(`   lucro do trimestre ${brl(S.lucro)} × 35% = ${brl(S.valor)}  · vence ${S.vencimento}  ${jaSocio ? '(já existe)' : '(criar)'}`)
+say(`   lucro do trimestre ${brl(S.lucro)} × 35% = ${brl(S.valor)}  · vence ${S.vencimento}  ${
+  socioDivergente ? `(atualizar: está ${brl(Number(jaSocio!.valor))})` : jaSocio ? '(já existe, sem mudança)' : '(criar)'}`)
 say(`   evento_key: ${eventoKey({ descricao: descSocio, vencimento: S.vencimento })}`)
 
 /* ── grava ───────────────────────────────────────────────────────────────── */
@@ -174,6 +179,14 @@ for (const n of faltamNane) {
   if (error) { console.error('nane', n.doc, error.message); process.exit(1) }
 }
 
+if (socioDivergente) {
+  const { error } = await sb.from('erp_contas_pagar').update({
+    valor: S.valor,
+    observacoes: `[21/08/2026] Contrato de sociedade de 17/07/2026: 35% do LUCRO, pagos trimestralmente, contagem a partir de ${D.socio.inicio}.\nBase reapurada: lucro de ${brl(S.lucro)} no trimestre ${S.trimestre} — ${S.meses.map((m: any) => `${m.nome} ${brl(m.lucro)}`).join(' · ')}.\nNão há participação sobre prejuízo: em trimestre negativo o valor é zero.\nSocietário (não é caixa): 15% integralizados no ato por doação, mais 5% por semestre em 4 semestres conforme metas do conselho de sócios.`,
+  }).eq('id', jaSocio!.id)
+  if (error) { console.error('sócio (update)', error.message); process.exit(1) }
+}
+
 if (!jaSocio && S.valor > 0) {
   const { error } = await sb.from('erp_contas_pagar').insert({
     descricao: descSocio,
@@ -199,4 +212,4 @@ if (!jaSocio && S.valor > 0) {
   if (error) { console.error('sócio', error.message); process.exit(1) }
 }
 
-console.log(`\nOK — Naviraí ${updatesNav.length} título(s) ajustado(s), Guadalupe ${gua?.length} marcado(s), Nane ${faltamNane.length} criado(s), sócio ${jaSocio ? 'já existia' : 'criado'}.\n`)
+console.log(`\nOK — Naviraí ${updatesNav.length} título(s) ajustado(s), Guadalupe ${gua?.length} marcado(s), Nane ${faltamNane.length} criado(s), sócio ${socioDivergente ? 'atualizado' : jaSocio ? 'inalterado' : 'criado'}.\n`)

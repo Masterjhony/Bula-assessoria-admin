@@ -343,10 +343,15 @@ D.modelo = { takeRate, pctImposto, pctComissao, pctLeilao: pctLeilaoSobreReceita
 const SOCIO_PCT = 0.35
 const SOCIO_INICIO = 6 // junho
 
-// folha lançada por competência (a de agosto vence em 05/09)
+// Folha por COMPETÊNCIA. Os títulos da projeção dizem a competência no nome
+// ("Folha Agosto/2026", que vence em 05/09); os de janeiro a março vieram da
+// carga antiga, com o nome do colaborador e sem o mês — para esses vale o
+// vencimento. Casar só pelo nome deixava o 1º trimestre sem folha nenhuma e
+// inflava o lucro daqueles meses.
 const folhaPorMes = new Map<number, number>()
 for (const c of folhaCps) {
-  const m = MES_NOME.findIndex((n) => new RegExp(`Folha ${n}/2026`, 'i').test(c.descricao)) + 1
+  const pelaDescricao = MES_NOME.findIndex((n) => new RegExp(`Folha ${n}/2026`, 'i').test(c.descricao)) + 1
+  const m = pelaDescricao > 0 ? pelaDescricao : Number(String(c.vencimento || '').slice(5, 7))
   if (m > 0) folhaPorMes.set(m, r2((folhaPorMes.get(m) || 0) + liq(c)))
 }
 for (const l of mensal) {
