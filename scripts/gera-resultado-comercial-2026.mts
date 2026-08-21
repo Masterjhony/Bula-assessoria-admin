@@ -261,23 +261,61 @@ const estrutura = await todos<{ nome: string; funcao: string | null; salario_fix
   'erp_folha_estrutura', 'nome,funcao,salario_fixo,ativo')
 const folhaNova = r2(estrutura.filter((e) => e.ativo && num(e.salario_fixo) > 0).reduce((s, e) => s + num(e.salario_fixo), 0))
 
-// estrutura realizada no banco (abr–jul, meses inteiros e já conciliados).
-// Fora: comissão, imposto, folha, despesa de leilão e movimento interno —
-// e fora TAMBÉM o cartão, que é gasto do Bulinha abatendo dívida, não estrutura.
-type Mov = { data: string; tipo: string; valor: number; categoria_id: string | null }
-const movs = await todos<Mov>('erp_movimentos_bancarios', 'data,tipo,valor,categoria_id',
-  (q) => q.eq('tipo', 'saida').gte('data', '2026-04-01').lt('data', '2026-08-01'))
+// Estrutura realizada no banco. A janela começa em JULHO, não em abril: a
+// empresa não tem mais escritório — o contrato de aluguel acabou, e com ele
+// foram embora a internet (o extrato marca "Digital Net - ultimo pagamento"
+// em 02/07), a manutenção de R$ 2.872,63/mês, o seguro Tokio Marine, a faxina
+// e o material de escritório. Nenhum deles aparece em julho nem em agosto.
+// Uma média que começasse em abril carregaria três meses de um custo extinto
+// para dentro do prognóstico e superestimaria o que a estrutura vai custar.
+//
+// Fora do cálculo, além disso: comissão, imposto, folha, despesa de leilão,
+// movimento interno e o cartão, que é gasto do Bulinha abatendo dívida.
+type Mov = { data: string; tipo: string; valor: number; categoria_id: string | null; descricao: string | null }
+const ESTRUTURA_INI = '2026-07-01' // 1º mês inteiro sem escritório
+const movs = await todos<Mov>('erp_movimentos_bancarios', 'data,tipo,valor,categoria_id,descricao',
+  (q) => q.eq('tipo', 'saida').gte('data', ESTRUTURA_INI).lte('data', HOJE))
 const FORA_ESTRUTURA = new Set(['Comissão Funcionário', 'Repasse Assessorias/Parceiros', 'Impostos e Taxas',
   'Encargos Sociais', 'Despesa Operacional Leilão', 'REEMBOLSO', 'Viagem/Passagens', 'Folha de Pagamento',
   'SALÁRIOS', 'Transferencias Internas - Saida', 'Aplicacao Financeira', 'Integralizacao Capital Cooperativa',
-  'Cartão de Crédito', 'Pagamento Fatura'])
-const DE_LEILAO = new Set(['Despesa Operacional Leilão', 'REEMBOLSO', 'Viagem/Passagens'])
+  'Cartão de Crédito', 'Pagamento Fatura',
+  // "Aluguel" agora só aparece como casa alugada para feira (Expogenética),
+  // que é despesa do evento, não estrutura.
+  'Aluguel'])
+const DE_LEILAO = new Set(['Despesa Operacional Leilão', 'REEMBOLSO', 'Viagem/Passagens', 'Aluguel'])
 const nomeCat = (id: string | null) => (id ? catById[id]?.nome : null) || '(sem categoria)'
-const MESES_BASE = 4
-const somaMov = (filtro: (n: string) => boolean) => r2(movs.filter((m) => filtro(nomeCat(m.categoria_id))).reduce((s, m) => s + num(m.valor), 0))
-const estruturaMes = r2(somaMov((n) => !FORA_ESTRUTURA.has(n)) / MESES_BASE)
-const leilaoMes = r2(somaMov((n) => DE_LEILAO.has(n)) / MESES_BASE)
-const cartaoMes = r2(somaMov((n) => n === 'Cartão de Crédito') / MESES_BASE)
+// meses corridos na janela (agosto ainda não fechou — conta pelos dias)
+const diasJanela = Math.round((Date.parse(HOJE) - Date.parse(ESTRUTURA_INI)) / 86400000) + 1
+const MESES_BASE = r4(diasJanela / 30.44)
+const somaMov = (filtro: (m: Mov) => boolean) => r2(movs.filter(filtro).reduce((s, m) => s + num(m.valor), 0))
+const ehEstrutura = (m: Mov) => !FORA_ESTRUTURA.has(nomeCat(m.categoria_id))
+const estruturaMes = r2(somaMov(ehEstrutura) / MESES_BASE)
+
+// Despesa de leilão e cartão pedem uma janela MAIOR, não a mesma. São gastos
+// variáveis, e julho–agosto é o pico do calendário (Expogenética): medi-los só
+// aí superestimaria o ano inteiro. A estrutura é o oposto — mudou de patamar
+// quando o escritório fechou, então só o depois conta.
+const movsLongoTodos = await todos<Mov>('erp_movimentos_bancarios', 'data,tipo,valor,categoria_id,descricao',
+  (q) => q.eq('tipo', 'saida').gte('data', ANO_INI).lte('data', HOJE))
+const movsLongo = movsLongoTodos.filter((m) => String(m.data) >= '2026-04-01')
+const MESES_LONGO = r4((Math.round((Date.parse(HOJE) - Date.parse('2026-04-01')) / 86400000) + 1) / 30.44)
+const somaLongo = (filtro: (m: Mov) => boolean) => r2(movsLongo.filter(filtro).reduce((s, m) => s + num(m.valor), 0))
+const leilaoMes = r2(somaLongo((m) => DE_LEILAO.has(nomeCat(m.categoria_id))) / MESES_LONGO)
+const cartaoMes = r2(somaLongo((m) => nomeCat(m.categoria_id) === 'Cartão de Crédito') / MESES_LONGO)
+
+// Quanto da estrutura ainda é lançamento sem destinatário no extrato. Não é
+// detalhe: o relatório tem de dizer de quanto ele não sabe a origem.
+// O extrato do Sicoob descreve a FORMA do pagamento ("PIX EMIT.OUTRA IF",
+// "DÉB.TIT.COMPE.EFETI"), não o destinatário. Quem lançou às vezes acrescenta
+// o complemento depois de um traço — "… - Contador", "… - UBER". Sem esse
+// complemento, ninguém sabe para onde o dinheiro foi.
+const complemento = (m: Mov) => {
+  const d = String(m.descricao || '')
+  const i = d.indexOf(' - ')
+  return i >= 0 ? d.slice(i + 3).trim() : ''
+}
+const semDestinatario = (m: Mov) => complemento(m).length < 4
+const naoIdentificado = r2(somaMov((m) => ehEstrutura(m) && semDestinatario(m)) / MESES_BASE)
 
 // Folha do período pelos títulos de competência, não pela média do banco: um
 // mês paga a folha do anterior e o extrato mistura as duas. A janela vai até
@@ -290,14 +328,18 @@ const folhaPeriodo = r2(folhaCps.reduce((s, c) => s + liq(c), 0))
 const folhaAntes = r2(vivos.filter((c) => ehFolha(c) && /Folha Julho\/2026/i.test(c.descricao)).reduce((s, c) => s + liq(c), 0))
 
 // despesa de leilão como % da receita: é custo direto do evento, não fixo
-const receitaBase = r2(mensal.filter((m) => m.mes >= 4 && m.mes <= 7).reduce((s, m) => s + m.receita, 0))
-const pctLeilaoSobreReceita = r4((leilaoMes * MESES_BASE) / receitaBase)
+// mesma janela longa da medição, senão o percentual mistura numerador de um
+// período com denominador de outro
+const receitaBase = r2(mensal.filter((m) => m.mes >= 4).reduce((s, m) => s + m.receita, 0))
+const pctLeilaoSobreReceita = r4((leilaoMes * MESES_LONGO) / receitaBase)
 
 D.custo = {
   folhaNova,
   folhaAntes,
   folhaPeriodo,
   estruturaMes,
+  estruturaJanela: `${ESTRUTURA_INI.slice(8, 10)}/${ESTRUTURA_INI.slice(5, 7)} a ${HOJE.slice(8, 10)}/${HOJE.slice(5, 7)}`,
+  estruturaNaoIdentificado: naoIdentificado,
   leilaoMes,
   cartaoMes,
   fixoAntes: r2(folhaAntes + estruturaMes),
@@ -306,6 +348,36 @@ D.custo = {
   equipe: estrutura.filter((e) => e.ativo && num(e.salario_fixo) > 0)
     .map((e) => ({ nome: e.nome, funcao: e.funcao, salario: r2(num(e.salario_fixo)) }))
     .sort((a, b) => b.salario - a.salario),
+}
+
+/* ══ 4b. Custo fixo e lucro de cada mês ══════════════════════════════════ */
+
+// Folha por COMPETÊNCIA. Os títulos da projeção dizem a competência no nome
+// ("Folha Agosto/2026", que vence em 05/09); os de janeiro a março vieram da
+// carga antiga, com o nome do colaborador e sem o mês — para esses vale o
+// vencimento. Casar só pelo nome deixava o 1º trimestre sem folha nenhuma e
+// inflava o lucro daqueles meses.
+const folhaPorMes = new Map<number, number>()
+for (const c of folhaCps) {
+  const pelaDescricao = MES_NOME.findIndex((n) => new RegExp(`Folha ${n}/2026`, 'i').test(c.descricao)) + 1
+  const m = pelaDescricao > 0 ? pelaDescricao : Number(String(c.vencimento || '').slice(5, 7))
+  if (m > 0) folhaPorMes.set(m, r2((folhaPorMes.get(m) || 0) + liq(c)))
+}
+// Estrutura REALIZADA de cada mês para o histórico — não a média do futuro.
+// Janeiro custou R$ 43 mil de estrutura porque ainda havia escritório; usar
+// nele a média pós-escritório inventaria um lucro que não existiu.
+const estruturaPorMes = new Map<number, number>()
+for (const m of movsLongoTodos) {
+  if (!ehEstrutura(m)) continue
+  const mes = Number(String(m.data).slice(5, 7))
+  estruturaPorMes.set(mes, r2((estruturaPorMes.get(mes) || 0) + num(m.valor)))
+}
+for (const l of mensal) {
+  l.despesaLeilao = r2(l.receita * pctLeilaoSobreReceita)
+  l.folha = folhaPorMes.get(l.mes) ?? 0
+  l.estrutura = estruturaPorMes.get(l.mes) ?? estruturaMes
+  l.custoFixo = r2(l.folha + l.estrutura)
+  l.lucro = r2(l.receita - l.imposto - l.comissao - l.despesaLeilao - l.custoFixo)
 }
 
 /* ══ 5. A cascata: da receita ao que sobra ════════════════════════════════ */
@@ -326,9 +398,9 @@ D.cascata = {
   margemPct: r4(margemAno / receitaAno),
   // custo fixo do período = folha realmente lançada mês a mês + estrutura média
   folhaPeriodo: D.custo.folhaPeriodo,
-  estruturaPeriodo: r2(estruturaMes * MESES_ANO),
-  custoFixoPeriodo: r2(D.custo.folhaPeriodo + estruturaMes * MESES_ANO),
-  resultado: r2(margemAno - (D.custo.folhaPeriodo + estruturaMes * MESES_ANO)),
+  estruturaPeriodo: r2(mensal.reduce((s, m) => s + m.estrutura, 0)),
+  custoFixoPeriodo: r2(mensal.reduce((s, m) => s + m.custoFixo, 0)),
+  resultado: r2(margemAno - mensal.reduce((s, m) => s + m.custoFixo, 0)),
   meses: MESES_ANO,
 }
 // a margem que vale para projetar é a REALIZADA do ano, não a modelada por
@@ -346,23 +418,6 @@ D.modelo = { takeRate, pctImposto, pctComissao, pctLeilao: pctLeilaoSobreReceita
 const SOCIO_PCT = 0.35
 const SOCIO_INICIO = 6 // junho
 
-// Folha por COMPETÊNCIA. Os títulos da projeção dizem a competência no nome
-// ("Folha Agosto/2026", que vence em 05/09); os de janeiro a março vieram da
-// carga antiga, com o nome do colaborador e sem o mês — para esses vale o
-// vencimento. Casar só pelo nome deixava o 1º trimestre sem folha nenhuma e
-// inflava o lucro daqueles meses.
-const folhaPorMes = new Map<number, number>()
-for (const c of folhaCps) {
-  const pelaDescricao = MES_NOME.findIndex((n) => new RegExp(`Folha ${n}/2026`, 'i').test(c.descricao)) + 1
-  const m = pelaDescricao > 0 ? pelaDescricao : Number(String(c.vencimento || '').slice(5, 7))
-  if (m > 0) folhaPorMes.set(m, r2((folhaPorMes.get(m) || 0) + liq(c)))
-}
-for (const l of mensal) {
-  l.despesaLeilao = r2(l.receita * pctLeilaoSobreReceita)
-  l.folha = folhaPorMes.get(l.mes) ?? 0
-  l.custoFixo = r2(l.folha + estruturaMes)
-  l.lucro = r2(l.receita - l.imposto - l.comissao - l.despesaLeilao - l.custoFixo)
-}
 
 const trimestreDe = (m: number) => Math.floor((m - SOCIO_INICIO) / 3) // 0 = jun–ago
 const mesPagamento = (tri: number) => SOCIO_INICIO + tri * 3 + 3      // mês seguinte ao fim
@@ -603,3 +658,10 @@ for (const l of D.prognostico.meses) {
   const c = l.cenarios['Base']
   console.log(`  ${l.nome.padEnd(9)} base ${brl(c.resultado).padStart(13)} − sócio ${brl(c.socio).padStart(11)} = ${brl(c.resultadoComSocio).padStart(13)} · acum ${brl(c.acumuladoComSocio).padStart(13)}`)
 }
+
+console.log('  ---')
+console.log('  ESTRUTURA (janela', D.custo.estruturaJanela + ', sem escritório):', brl(D.custo.estruturaMes) + '/mês')
+console.log('    dos quais sem destinatário no extrato:', brl(D.custo.estruturaNaoIdentificado) + '/mês')
+console.log('  despesa de leilão:', brl(D.custo.leilaoMes) + '/mês | cartão:', brl(D.custo.cartaoMes) + '/mês')
+console.log('  CUSTO FIXO MENSAL:', brl(D.custo.fixoDepois), '(folha', brl(D.custo.folhaNova) + ' + estrutura', brl(D.custo.estruturaMes) + ')')
+console.log('  cobertura/mês p/ empatar:', brl(D.prognostico.vgvEquilibrioMes))
