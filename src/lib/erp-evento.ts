@@ -50,7 +50,20 @@ const PESSOAS: ReadonlyArray<{ chave: string; termos: string[] }> = [
   { chave: 'joao-eduardo', termos: ['joao eduardo'] },
   { chave: 'joao-gabriel', termos: ['joao gabriel'] },
   { chave: 'joao-antonio', termos: ['joao antonio'] },
-  { chave: 'matheus-alves', termos: ['matheus alves', 'mateus alves', 'matheus'] },
+  // Entradas de agosto/2026 (folha nova). Luana e Pedro são SDR; "M1" é como
+  // o Matheus do time de fechamentos aparece nas conversas e no cadastro.
+  { chave: 'luana', termos: ['luana'] },
+  { chave: 'pedro-sdr', termos: ['pedro'] },
+  // O 'matheus' solto passou a apontar para o M1: o Matheus Alves saiu do
+  // comissionamento em 04/08 e não recebe mais, então o PIX de "MATHEUS ..."
+  // que chega no extrato hoje é o da folha do M1. A grafia completa continua
+  // valendo e vence por ser mais longa (o termo mais longo ganha).
+  { chave: 'matheus-m1', termos: ['matheus m1', 'matheus'] },
+  { chave: 'matheus-alves', termos: ['matheus alves', 'mateus alves'] },
+  // Marcelo centraliza Pedro Barnabé e Matheus Amormino (cadastro de EQUIPE).
+  // Além de fechar a lacuna, desambigua 'pedro': a grafia completa é mais
+  // longa que o primeiro nome do SDR e ganha dele.
+  { chave: 'marcelo-carneiro', termos: ['marcelo carneiro', 'pedro barnabe', 'matheus amormino'] },
   { chave: 'lucas-martins', termos: ['lucas martins', 'lucas'] },
   { chave: 'laila-oliveira', termos: ['laila oliveira', 'laila'] },
   { chave: 'valeria-borges', termos: ['valeria borges', 'valeria'] },

@@ -16,6 +16,13 @@
 //     mês SEGUINTE (ciclo normal de comissões), categoria Comissão Funcionário
 // Idempotente: numero_documento estável; o que já existe é pulado.
 //
+// ⚠ SUPERADO por scripts/reprojeta-folha.mts (21/08/2026). Este script só CRIA
+// o que falta: mudar um salário no cadastro não mexia em título nenhum, e a
+// projeção de caixa seguia com o valor velho. Além disso o vencimento aqui é o
+// último dia do mês, enquanto a folha sai do banco no dia 05 do mês SEGUINTE
+// (correção de 18/08/2026). Use o reprojeta-folha para qualquer manutenção; este
+// fica só como registro da carga inicial de 21/07/2026.
+//
 // Uso:
 //   DRY_RUN=1 node scripts/projeta-folha-fixa-2026.mjs   # só mostra
 //   node scripts/projeta-folha-fixa-2026.mjs             # grava

@@ -6829,7 +6829,7 @@ function openFolhaPessoa(id) {
         <div class="field"><label>Ativo</label><select name="ativo"><option value="true" ${e?.ativo!==false?'selected':''}>Sim</option><option value="false" ${e?.ativo===false?'selected':''}>Nao</option></select></div>
         <div class="field" style="grid-column:1/-1"><label>Observacao</label><input name="observacao" value="${escapeHtml(e?.observacao||'')}"></div>
       </form>
-      <div style="font-size:10px;color:var(--text3);margin-top:8px">Alterações aqui NÃO mudam títulos já lançados — para reprojetar a folha do ano, rode scripts/projeta-folha-fixa-2026.mjs de novo (idempotente: só cria o que falta).</div>
+      <div style="font-size:10px;color:var(--text3);margin-top:8px">Alterações aqui NÃO mudam títulos já lançados. Para o fluxo de caixa passar a usar o valor novo, rode <code style="font-size:10px">npx tsx scripts/reprojeta-folha.mts</code> (simula) e depois <code style="font-size:10px">--apply</code>: ele reescreve os títulos ABERTOS de folha a partir deste cadastro — atualiza valor, cria quem entrou, cancela quem saiu — e nunca toca no que já foi pago.</div>
     </div>
     <div class="modal-footer">
       <button class="btn" onclick="closeModal()">Cancelar</button>
