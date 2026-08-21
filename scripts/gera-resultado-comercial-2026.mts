@@ -151,7 +151,10 @@ const normLeiloeira = (n: string) => {
   if (/REMATES/.test(s)) return 'Bula Remates'
   if (/AGRESTE/.test(s)) return 'Agreste Leilões'
   if (/E-?RURAL/.test(s)) return 'e-Rural'
-  return n ? String(n) : 'Sem leiloeira identificada'
+  // Sem cliente_id NÃO é título sem dono: a descrição nomeia o leilão e a data.
+  // É lacuna de cadastro, e o rótulo tem de dizer isso — "não identificada"
+  // faz o valor parecer perdido para quem lê o relatório.
+  return n ? String(n) : 'Leiloeira ainda não vinculada no cadastro'
 }
 const ehOperacional = (c: Cr) => {
   const g = c.categoria_id ? catById[c.categoria_id]?.dre_grupo : null
