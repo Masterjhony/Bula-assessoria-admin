@@ -4,19 +4,32 @@
 //   novilhas Nelore P.O. Arte oficial recebida no WhatsApp.
 // - 27/09 PARANÃ TOUROS. Veio como mensagem encaminhada ("27/09 -> PARANÃ
 //   TOUROS", 24/08 12:34), sem arte e sem mais nenhum detalhe.
+// - 13/09 Novo Repartimento e 15/09 Marabá, das mensagens de 12:35 ("Esses
+//   dois que te enviei aí, são Katayama Agropecuária"). Sem arte.
 //
-// Os dois são leilões NOVOS: não existiam em cronograma_leiloes nem em
+// Os dois da Katayama caem em dias que ja tinham leilao da EAO na agenda
+// (TOUROS E MATRIZES EAO em 13/09, ASPIRAÇÕES EAO E CONVIDADOS em 15/09).
+// Sao eventos DIFERENTES: EAO Agropecuária e Nelore Katayama sao criadores
+// distintos, cada um com serie propria no historico. Os registros da EAO nao
+// foram tocados.
+//
+// O nome deles e PROVISORIO: a fonte so deu a cidade. Ficaram no padrao do
+// historico da Katayama ("LEILÃO KATAYAMA - <sufixo>") com a cidade no local,
+// pra serem corrigidos quando a arte ou a ESCALA trouxerem o nome oficial.
+//
+// Os quatro são leilões NOVOS: não existiam em cronograma_leiloes nem em
 // bula_leiloes. Criados nas três tabelas (cronograma_leiloes, bula_leiloes,
-// agenda_events).
+// agenda_events). O script é idempotente: pula o que já existe com o mesmo
+// nome e data, então pode rodar de novo sem duplicar.
 //
-// ATENÇÃO: nenhum dos dois está na planilha ESCALA, então o próximo
+// ATENÇÃO: nenhum dos quatro está na planilha ESCALA, então o próximo
 // `node scripts/sync-escala-leiloes-2026.mjs` sem `--keep-extras` APAGA os
 // registros como "extras no banco" — ver [[sync-escala-capas-checklist]]. O
 // botão do admin passa a flag; rodar o script na mão não passa.
 //
 // Campo que a fonte não informa fica em branco de propósito, em vez de
-// chutado: leiloeira, transmissão, local e modalidade nos dois; e no Paranã
-// também a hora, a raça e o sexo.
+// chutado: leiloeira, transmissão e modalidade nos quatro; local em todos
+// menos os da Katayama; e hora, raça e sexo em todos menos o Crispim.
 //
 // Uso: node scripts/agenda-2026-08-24-inclusoes.mjs [--dry]
 
@@ -73,6 +86,34 @@ const LEILOES = [
     sexo: null,
     condicao: '',
     capa: null, // sem arte ate agora
+    capaMime: null,
+    path: null,
+  },
+  {
+    data: '2026-09-13',
+    dia_semana: 'domingo',
+    nome: 'LEILÃO KATAYAMA - NOVO REPARTIMENTO',
+    hora: null,
+    criador: 'KATAYAMA AGROPECUÁRIA',
+    local: 'NOVO REPARTIMENTO',
+    raca: null,
+    sexo: null,
+    condicao: 'Nome provisorio: a fonte so informou a cidade e o criador.',
+    capa: null,
+    capaMime: null,
+    path: null,
+  },
+  {
+    data: '2026-09-15',
+    dia_semana: 'terça-feira',
+    nome: 'LEILÃO KATAYAMA - MARABÁ',
+    hora: null,
+    criador: 'KATAYAMA AGROPECUÁRIA',
+    local: 'MARABÁ',
+    raca: null,
+    sexo: null,
+    condicao: 'Nome provisorio: a fonte so informou a cidade e o criador.',
+    capa: null,
     capaMime: null,
     path: null,
   },
@@ -139,7 +180,7 @@ for (const leilao of LEILOES) {
     nome: leilao.nome,
     data: leilao.data,
     tipo: leilao.raca ?? 'Leilao',
-    local: '',
+    local: leilao.local ?? '',
     animais: 0,
     status: 'confirmado',
     horario: leilao.hora ?? '',
@@ -158,6 +199,7 @@ for (const leilao of LEILOES) {
     title: leilao.nome,
     description: [
       leilao.criador ? `Criador: ${leilao.criador}` : '',
+      leilao.local ? `Local: ${leilao.local}` : '',
       leilao.raca ? `Raca: ${leilao.raca}` : '',
       leilao.sexo ? `Sexo: ${leilao.sexo}` : '',
       leilao.condicao ? `Obs.: ${leilao.condicao}` : '',
@@ -168,7 +210,7 @@ for (const leilao of LEILOES) {
     start_at: startAt,
     end_at: leilao.hora ? new Date(new Date(startAt).getTime() + 2 * 60 * 60 * 1000).toISOString() : null,
     all_day: !leilao.hora,
-    location: null,
+    location: leilao.local ?? null,
     color: '#A68B4B',
     notes: 'Cadastrado em 24/08/2026 (scripts/agenda-2026-08-24-inclusoes.mjs).',
     linked_leilao_id: cronoId,
