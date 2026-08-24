@@ -1,0 +1,480 @@
+{
+  "removido_em": "2026-08-24",
+  "origem": "Registros vieram da planilha ESCALA — precisam sair de la tambem, senao o sync recria.",
+  "itens": [
+    {
+      "data": "2026-08-27",
+      "nome": "3º LEILÃO SELEÇÕES DA SAFRA NELORE BAMBU",
+      "motivo": "Marcelo no WhatsApp em 24/08/2026 12:30: \"esse bambu pode tirar\".",
+      "cronograma_leiloes": [
+        {
+          "id": "72cd0f66-fe7a-4ecb-bb73-2a108686852b",
+          "data": "2026-08-27",
+          "dia_semana": "quinta-feira",
+          "hora": "",
+          "nome": "3º LEILÃO SELEÇÕES DA SAFRA NELORE BAMBU",
+          "criador": "NELORE BAMBU",
+          "presencial": "VIRTUAL",
+          "leiloeira": "E-RURAL",
+          "raca": "NELORE",
+          "qtd_animais": "",
+          "sexo": "",
+          "comissao": "",
+          "contrato": "",
+          "faturamento_previsto": "",
+          "faturamento_realizado": "",
+          "venda_bula": "",
+          "comissao_receber": "",
+          "recebido": "",
+          "catalogo_url": null,
+          "img": null,
+          "created_at": "2026-08-05T00:11:03.888042+00:00",
+          "updated_at": "2026-08-05T00:11:03.888042+00:00",
+          "catalogo_anexado_em": null,
+          "catalogo_origem": null
+        }
+      ],
+      "bula_leiloes": [
+        {
+          "id": "cb14bfc4-3873-425a-92e5-44e478c50b7d",
+          "nome": "3º LEILÃO SELEÇÕES DA SAFRA NELORE BAMBU",
+          "data": "2026-08-27",
+          "tipo": "NELORE",
+          "local": "VIRTUAL",
+          "animais": 0,
+          "expectativa": 0,
+          "meta_bula": 0,
+          "realizado_bula": 0,
+          "status": "confirmado",
+          "img": "",
+          "tasks": [
+            {
+              "cor": "#111827",
+              "nome": "Produção & Divulgação",
+              "tasks": [
+                {
+                  "id": "plan-catalogo",
+                  "fim": "",
+                  "ini": "",
+                  "done": false,
+                  "nome": "Catálogo",
+                  "resp": {
+                    "ini": "",
+                    "nome": ""
+                  },
+                  "subs": [],
+                  "anexos": [],
+                  "observacao": ""
+                },
+                {
+                  "id": "plan-videos-curral",
+                  "fim": "",
+                  "ini": "",
+                  "done": false,
+                  "nome": "Vídeos de curral",
+                  "resp": {
+                    "ini": "",
+                    "nome": ""
+                  },
+                  "subs": [],
+                  "anexos": [],
+                  "observacao": ""
+                },
+                {
+                  "id": "plan-logo-png",
+                  "fim": "",
+                  "ini": "",
+                  "done": false,
+                  "nome": "Logo (PNG)",
+                  "resp": {
+                    "ini": "",
+                    "nome": ""
+                  },
+                  "subs": [],
+                  "anexos": [],
+                  "observacao": ""
+                },
+                {
+                  "id": "plan-avaliacao",
+                  "fim": "",
+                  "ini": "",
+                  "done": false,
+                  "nome": "Avaliação",
+                  "resp": {
+                    "ini": "",
+                    "nome": ""
+                  },
+                  "subs": [],
+                  "anexos": [],
+                  "observacao": ""
+                },
+                {
+                  "id": "plan-divulgacao-clientes-perfil",
+                  "fim": "",
+                  "ini": "",
+                  "done": false,
+                  "nome": "Divulgação: clientes perfil",
+                  "resp": {
+                    "ini": "",
+                    "nome": ""
+                  },
+                  "subs": [],
+                  "anexos": [],
+                  "observacao": ""
+                },
+                {
+                  "id": "plan-divulgacao-grupo",
+                  "fim": "",
+                  "ini": "",
+                  "done": false,
+                  "nome": "Divulgação: grupo",
+                  "resp": {
+                    "ini": "",
+                    "nome": ""
+                  },
+                  "subs": [],
+                  "anexos": [],
+                  "observacao": ""
+                },
+                {
+                  "id": "plan-divulgacao-instagram",
+                  "fim": "",
+                  "ini": "",
+                  "done": false,
+                  "nome": "Divulgação: Instagram",
+                  "resp": {
+                    "ini": "",
+                    "nome": ""
+                  },
+                  "subs": [],
+                  "anexos": [],
+                  "observacao": ""
+                },
+                {
+                  "id": "plan-leilao-realizado",
+                  "fim": "",
+                  "ini": "",
+                  "done": false,
+                  "nome": "Leilão realizado",
+                  "resp": {
+                    "ini": "",
+                    "nome": ""
+                  },
+                  "subs": [],
+                  "anexos": [],
+                  "observacao": ""
+                },
+                {
+                  "id": "plan-fechamento-realizado",
+                  "fim": "",
+                  "ini": "",
+                  "done": false,
+                  "nome": "Fechamento realizado",
+                  "resp": {
+                    "ini": "",
+                    "nome": ""
+                  },
+                  "subs": [],
+                  "anexos": [],
+                  "observacao": ""
+                },
+                {
+                  "id": "plan-contas-a-receber-e-a-pagar",
+                  "fim": "",
+                  "ini": "",
+                  "done": false,
+                  "nome": "Contas a receber e a pagar",
+                  "resp": {
+                    "ini": "",
+                    "nome": ""
+                  },
+                  "subs": [],
+                  "anexos": [],
+                  "observacao": ""
+                }
+              ],
+              "origem": "seed",
+              "subtitulo": "Checklist padrão"
+            }
+          ],
+          "horario": "",
+          "transmissao": "",
+          "modelo": "VIRTUAL",
+          "leiloeira": "E-RURAL",
+          "condicao": "",
+          "frete_gratis": "",
+          "acordo_comissao": "",
+          "catalogo_url": null,
+          "created_at": "2026-08-05T00:11:05.147322+00:00",
+          "cronograma_id": "72cd0f66-fe7a-4ecb-bb73-2a108686852b"
+        }
+      ],
+      "agenda_events": [
+        {
+          "id": "ed7eae69-3c20-4ed3-8f11-70a167fac08d",
+          "title": "3º LEILÃO SELEÇÕES DA SAFRA NELORE BAMBU",
+          "description": "Criador: NELORE BAMBU\nLeiloeira: E-RURAL\nRaca: NELORE",
+          "event_type": "leilao",
+          "status": "planejado",
+          "priority": "media",
+          "start_at": "2026-08-27T12:00:00+00:00",
+          "end_at": null,
+          "all_day": true,
+          "location": "VIRTUAL",
+          "color": "#A68B4B",
+          "notes": "Sincronizado da planilha escala.xlsx (undefined, linha undefined).",
+          "recurrence_rule": null,
+          "recurrence_until": null,
+          "responsible_member_id": null,
+          "linked_leilao_id": "72cd0f66-fe7a-4ecb-bb73-2a108686852b",
+          "linked_task_id": null,
+          "linked_flow_id": null,
+          "linked_product_id": null,
+          "linked_breeder_id": null,
+          "linked_lead_id": null,
+          "linked_contract_id": null,
+          "created_by": null,
+          "created_at": "2026-08-05T00:11:06.073233+00:00",
+          "updated_at": "2026-08-05T00:11:06.073233+00:00"
+        }
+      ]
+    },
+    {
+      "data": "2026-09-20",
+      "nome": "FÊMEAS JMP",
+      "motivo": "WhatsApp em 24/08/2026 12:34: \"Pode tirar JMP de Setembro, adiciona Paranã Touros\".",
+      "cronograma_leiloes": [
+        {
+          "id": "a2dc4805-9c6f-47e3-b13f-ebbec2dc3d31",
+          "data": "2026-09-20",
+          "dia_semana": "domingo",
+          "hora": "09:00",
+          "nome": "FÊMEAS JMP",
+          "criador": "",
+          "presencial": "",
+          "leiloeira": "PROGRAMA LEILOES",
+          "raca": "",
+          "qtd_animais": "",
+          "sexo": "",
+          "comissao": "",
+          "contrato": "",
+          "faturamento_previsto": "",
+          "faturamento_realizado": "",
+          "venda_bula": "",
+          "comissao_receber": "",
+          "recebido": "",
+          "catalogo_url": null,
+          "img": null,
+          "created_at": "2026-04-27T17:47:37.450835+00:00",
+          "updated_at": "2026-07-01T18:07:02.292377+00:00",
+          "catalogo_anexado_em": null,
+          "catalogo_origem": null
+        }
+      ],
+      "bula_leiloes": [
+        {
+          "id": "c644c43b-8e23-4fdb-962d-1cdd47225dfa",
+          "nome": "FÊMEAS JMP",
+          "data": "2026-09-20",
+          "tipo": "Leilao",
+          "local": "",
+          "animais": 0,
+          "expectativa": 0,
+          "meta_bula": 0,
+          "realizado_bula": 0,
+          "status": "confirmado",
+          "img": "",
+          "tasks": [
+            {
+              "cor": "#111827",
+              "nome": "Produção & Divulgação",
+              "tasks": [
+                {
+                  "id": "plan-catalogo",
+                  "fim": "",
+                  "ini": "",
+                  "done": false,
+                  "nome": "Catálogo",
+                  "resp": {
+                    "ini": "",
+                    "nome": ""
+                  },
+                  "subs": [],
+                  "anexos": [],
+                  "observacao": ""
+                },
+                {
+                  "id": "plan-videos-curral",
+                  "fim": "",
+                  "ini": "",
+                  "done": false,
+                  "nome": "Vídeos de curral",
+                  "resp": {
+                    "ini": "",
+                    "nome": ""
+                  },
+                  "subs": [],
+                  "anexos": [],
+                  "observacao": ""
+                },
+                {
+                  "id": "plan-logo-png",
+                  "fim": "",
+                  "ini": "",
+                  "done": false,
+                  "nome": "Logo (PNG)",
+                  "resp": {
+                    "ini": "",
+                    "nome": ""
+                  },
+                  "subs": [],
+                  "anexos": [],
+                  "observacao": ""
+                },
+                {
+                  "id": "plan-avaliacao",
+                  "fim": "",
+                  "ini": "",
+                  "done": false,
+                  "nome": "Avaliação",
+                  "resp": {
+                    "ini": "",
+                    "nome": ""
+                  },
+                  "subs": [],
+                  "anexos": [],
+                  "observacao": ""
+                },
+                {
+                  "id": "plan-divulgacao-clientes-perfil",
+                  "fim": "",
+                  "ini": "",
+                  "done": false,
+                  "nome": "Divulgação: clientes perfil",
+                  "resp": {
+                    "ini": "",
+                    "nome": ""
+                  },
+                  "subs": [],
+                  "anexos": [],
+                  "observacao": ""
+                },
+                {
+                  "id": "plan-divulgacao-grupo",
+                  "fim": "",
+                  "ini": "",
+                  "done": false,
+                  "nome": "Divulgação: grupo",
+                  "resp": {
+                    "ini": "",
+                    "nome": ""
+                  },
+                  "subs": [],
+                  "anexos": [],
+                  "observacao": ""
+                },
+                {
+                  "id": "plan-divulgacao-instagram",
+                  "fim": "",
+                  "ini": "",
+                  "done": false,
+                  "nome": "Divulgação: Instagram",
+                  "resp": {
+                    "ini": "",
+                    "nome": ""
+                  },
+                  "subs": [],
+                  "anexos": [],
+                  "observacao": ""
+                },
+                {
+                  "id": "plan-leilao-realizado",
+                  "fim": "",
+                  "ini": "",
+                  "done": false,
+                  "nome": "Leilão realizado",
+                  "resp": {
+                    "ini": "",
+                    "nome": ""
+                  },
+                  "subs": [],
+                  "anexos": [],
+                  "observacao": ""
+                },
+                {
+                  "id": "plan-fechamento-realizado",
+                  "fim": "",
+                  "ini": "",
+                  "done": false,
+                  "nome": "Fechamento realizado",
+                  "resp": {
+                    "ini": "",
+                    "nome": ""
+                  },
+                  "subs": [],
+                  "anexos": [],
+                  "observacao": ""
+                },
+                {
+                  "id": "plan-contas-a-receber-e-a-pagar",
+                  "fim": "",
+                  "ini": "",
+                  "done": false,
+                  "nome": "Contas a receber e a pagar",
+                  "resp": {
+                    "ini": "",
+                    "nome": ""
+                  },
+                  "subs": [],
+                  "anexos": [],
+                  "observacao": ""
+                }
+              ],
+              "origem": "seed",
+              "subtitulo": "Checklist padrão"
+            }
+          ],
+          "horario": "09:00",
+          "transmissao": "",
+          "modelo": "",
+          "leiloeira": "PROGRAMA LEILOES",
+          "condicao": "",
+          "frete_gratis": "",
+          "acordo_comissao": "",
+          "catalogo_url": null,
+          "created_at": "2026-05-30T21:35:09.466609+00:00",
+          "cronograma_id": "a2dc4805-9c6f-47e3-b13f-ebbec2dc3d31"
+        }
+      ],
+      "agenda_events": [
+        {
+          "id": "98774f59-04f5-4c4f-871b-f10b87f1a468",
+          "title": "FÊMEAS JMP",
+          "description": "Leiloeira: PROGRAMA LEILOES",
+          "event_type": "leilao",
+          "status": "planejado",
+          "priority": "media",
+          "start_at": "2026-09-20T12:00:00+00:00",
+          "end_at": "2026-09-20T14:00:00+00:00",
+          "all_day": false,
+          "location": "PROGRAMA LEILOES",
+          "color": "#A68B4B",
+          "notes": "Sincronizado da planilha escala-2026.xlsx (undefined, linha undefined).",
+          "recurrence_rule": null,
+          "recurrence_until": null,
+          "responsible_member_id": null,
+          "linked_leilao_id": "a2dc4805-9c6f-47e3-b13f-ebbec2dc3d31",
+          "linked_task_id": null,
+          "linked_flow_id": null,
+          "linked_product_id": null,
+          "linked_breeder_id": null,
+          "linked_lead_id": null,
+          "linked_contract_id": null,
+          "created_by": null,
+          "created_at": "2026-07-01T18:07:03.946059+00:00",
+          "updated_at": "2026-07-01T18:07:03.946059+00:00"
+        }
+      ]
+    }
+  ]
+}
