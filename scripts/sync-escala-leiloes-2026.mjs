@@ -5,7 +5,34 @@ import { createClient } from '@supabase/supabase-js'
 import { unzipSync, strFromU8 } from 'fflate'
 import XLSX from 'xlsx'
 
+// ── DESATIVADO EM 24/08/2026 ────────────────────────────────────────────────
+// A planilha ESCALA deixou de ser a fonte da agenda, a pedido do Joao. O sync
+// desfazia o que era editado no sistema: recriava leilao removido, apagava
+// leilao que so existia no banco e sobrescrevia capa boa pela versao da
+// planilha (por regra, a capa da planilha vence).
+//
+// A agenda passa a ser mantida direto no admin (/sistema/leiloes). O botao
+// "Sincronizar planilha" saiu da tela e a rota POST /api/admin/sync-leiloes-sheets
+// responde 409.
+//
+// Pra rodar assim mesmo -- so depois de alinhar a planilha com o banco, senao
+// o sync desfaz tudo de novo -- passe --sync-desativado-eu-confirmo. Um --dry
+// tambem passa, porque nao escreve nada.
 const dry = process.argv.includes('--dry')
+const confirmaDesativado = process.argv.includes('--sync-desativado-eu-confirmo')
+if (!dry && !confirmaDesativado) {
+  console.error('Sync com a planilha ESCALA DESATIVADO em 24/08/2026.')
+  console.error('A agenda e editada em /sistema/leiloes; a planilha nao e mais a fonte.')
+  console.error('')
+  console.error('Rodar mesmo assim desfaz edicoes feitas no sistema: recria leilao')
+  console.error('removido, apaga leilao que so existe no banco e troca capa boa pela')
+  console.error('da planilha. Alinhe a planilha com o banco antes.')
+  console.error('')
+  console.error('Para so conferir o que ele faria, use --dry.')
+  console.error('Para rodar de verdade, use --sync-desativado-eu-confirmo.')
+  process.exit(1)
+}
+
 const keepExtras = process.argv.includes('--keep-extras')
 const skipImages = process.argv.includes('--skip-images')
 const monthsArg = process.argv.find((arg) => arg.startsWith('--months='))

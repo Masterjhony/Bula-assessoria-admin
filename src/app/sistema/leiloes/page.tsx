@@ -6,7 +6,7 @@ import {
   Check, Link2, Loader2, BookOpen, Clock, MapPin, ChevronDown, ChevronUp,
   AlertCircle, CheckCircle2, Circle, FileText, ChevronRight,
   Save, ImageIcon, Upload, LayoutGrid, Table2, DollarSign,
-  Search, SlidersHorizontal, Download, RefreshCw,
+  Search, SlidersHorizontal, Download,
 } from 'lucide-react'
 import type { BulaLeilao, LeilaoGrupo, LeilaoTask } from '@/lib/bula/types'
 import { createClient as createBrowserSupabase } from '@/utils/supabase/client'
@@ -1657,31 +1657,8 @@ export default function LeiloesPage() {
   const [editBulaCronoId, setEditBulaCronoId] = useState<string | null>(null)
   const [editCrono, setEditCrono] = useState<DbLeilao | null>(null)
 
-  // Sync from Google Sheets (workflow_dispatch via GitHub API)
-  const [syncing, setSyncing] = useState(false)
-  const handleSyncSheets = async () => {
-    if (syncing) return
-    if (!confirm(
-      'Disparar sincronização da planilha do Google Sheets?\n\n'
-      + 'Isso vai puxar os textos (cronograma) e as capas (bula) da planilha '
-      + 'pública. Leva ~1 minuto. A página atualiza automaticamente em 90s.'
-    )) return
-    setSyncing(true)
-    try {
-      const res = await fetch('/api/admin/sync-leiloes-sheets', { method: 'POST' })
-      const body = await res.json().catch(() => ({}))
-      if (res.ok) {
-        alert(body.message || 'Sincronização disparada.')
-        setTimeout(() => fetchAll(), 90_000)
-      } else {
-        alert(`Falha: ${body.error || res.statusText}`)
-      }
-    } catch (err) {
-      alert(`Erro ao disparar sincronização: ${(err as Error).message}`)
-    } finally {
-      setSyncing(false)
-    }
-  }
+  // O sync com a planilha ESCALA foi desligado em 24/08/2026 — ele desfazia o
+  // que era editado aqui. A agenda passa a ser mantida direto neste admin.
 
   const fetchAll = useCallback(async () => {
     setLoading(true)
@@ -1871,15 +1848,9 @@ export default function LeiloesPage() {
 
           <div className="flex-1" />
 
-          <button
-            onClick={handleSyncSheets}
-            disabled={syncing}
-            title="Sincronizar agenda e capas a partir da planilha do Google Sheets"
-            className="flex items-center gap-2 px-3 py-2 rounded-xl text-xs font-bold uppercase tracking-wider border border-gray-200 dark:border-[#333] text-gray-600 dark:text-gray-300 hover:border-[#A68B4B] hover:text-[#A68B4B] disabled:opacity-40 disabled:cursor-not-allowed transition-all"
-          >
-            {syncing ? <Loader2 size={13} className="animate-spin" /> : <RefreshCw size={13} />}
-            {syncing ? 'Sincronizando…' : 'Sincronizar planilha'}
-          </button>
+          {/* Botao "Sincronizar planilha" removido em 24/08/2026: a planilha
+              ESCALA deixou de ser a fonte da agenda porque o sync desfazia o
+              que era editado aqui. Ver src/app/api/admin/sync-leiloes-sheets. */}
 
           <button
             onClick={() => exportLeiloesCSV(filtered)}
