@@ -2,9 +2,9 @@
 // contra o HastaPro (LOT_PISTEIRO, FIL 2 e FIL 01), o nosso ERP e a captura ao vivo
 // do grupo "Lances Bula" (bula_leilao_vendas). Gera PDF na Área de Trabalho.
 //
-// v2 (24/08, após a separação dos lotes do Rusa já aplicada no sistema pelo
-// scripts/separa-lotes-rusa-julho-2026.mjs). CORREÇÃO da v1: os lotes 04 e 91 do
-// Guadalupe de 20/07 NÃO são do Rusa — a captura ao vivo do grupo nomeia o Douglas.
+// v3 (24/08). Os 17 lotes do Rusa já foram separados no sistema. O João confirmou
+// que o Anésio Santarém também é comprador direcionado pelo Rusa — a mensagem do
+// grupo dizer "foi com Douglas Bispo" é exatamente o padrão, não a exceção.
 //
 // Uso: node scripts/confere-comissao-douglas-julho-2026.mjs
 import { join } from 'node:path'
@@ -50,8 +50,8 @@ const L = [
   { d: '19/07', ev: 'Santa Cruz 3ª etapa', lo: '39', an: 1, cp: 'Celso Lopes', pl: null, hp: 25500, erp: 25500, g: 'rusa' },
   { d: '19/07', ev: 'Santa Cruz 3ª etapa', lo: '42', an: 1, cp: 'Celso Lopes', pl: null, hp: 48600, erp: 48600, g: 'rusa' },
   { d: '19/07', ev: 'Guadalupe Touros (dom)', lo: '01', an: 1, cp: 'Marcelo Braga', pl: 36000, hp: null, erp: 36000, g: 'erpso' },
-  { d: '20/07', ev: 'Guadalupe Touros (seg)', lo: '04', an: 1, cp: 'Anésio Santarém', pl: null, hp: null, erp: 36600, g: 'esquec' },
-  { d: '20/07', ev: 'Guadalupe Touros (seg)', lo: '91', an: 1, cp: 'Anésio Santarém', pl: null, hp: null, erp: 27600, g: 'esquec' },
+  { d: '20/07', ev: 'Guadalupe Touros (seg)', lo: '04', an: 1, cp: 'Anésio Santarém', pl: null, hp: null, erp: 36600, g: 'rusa' },
+  { d: '20/07', ev: 'Guadalupe Touros (seg)', lo: '91', an: 1, cp: 'Anésio Santarém', pl: null, hp: null, erp: 27600, g: 'rusa' },
   { d: '25/07', ev: 'Genética Aditiva Fêmeas', lo: '18', an: 1, cp: 'Celso Lopes', pl: null, hp: 20100, erp: 20100, g: 'rusa' },
   { d: '25/07', ev: 'Genética Aditiva Fêmeas', lo: '41', an: 1, cp: 'Celso Lopes', pl: null, hp: 18000, erp: 18000, g: 'rusa' },
   { d: '25/07', ev: 'Genética Aditiva Fêmeas', lo: '42', an: 1, cp: 'Celso Lopes', pl: null, hp: 18600, erp: 18600, g: 'rusa' },
@@ -73,19 +73,20 @@ const COM_ERP_HOJE = VGV_ERP_HOJE * PCT, DEVIDO = VGV_DEVIDO * PCT
 const comRusa = VGV_RUSA * PCT
 const comKriz = soma('pl', (r) => r.g === 'hpso') * PCT
 const com116 = soma('pl', (r) => r.g === 'atrib') * PCT
-const comGuad = soma('erp', (r) => r.g === 'esquec') * PCT
 const difSorriso = (soma('erp', (r) => r.g === 'menos') - soma('pl', (r) => r.g === 'menos')) * PCT
 
 const ck = (nome, a, b) => { if (Math.abs(a - b) > 0.005) throw new Error(`TRAVA ${nome}: ${a} != ${b}`) }
 ck('planilha', COM_PL, 11908)
 ck('HastaPro VGV', VGV_HP, 1074300)
 ck('ERP antes', COM_ERP, 21930)
-ck('ERP hoje (pós separação Rusa)', COM_ERP_HOJE, 11400)
-ck('devido', DEVIDO, 13512)
-ck('ponte planilha→devido', COM_PL + difSorriso + comGuad, DEVIDO)
+ck('lotes do Rusa em julho', VGV_RUSA, 590700)
+ck('Rusa a 5% = o PIX de 10/08', VGV_RUSA * 0.05, 29535)
+ck('ERP hoje (pós separação Rusa)', COM_ERP_HOJE, 10116)
+ck('devido', DEVIDO, 12228)
+ck('ponte planilha→devido', COM_PL + difSorriso, DEVIDO)
 ck('ponte ERP hoje→devido', COM_ERP_HOJE + comKriz + com116, DEVIDO)
 
-const CP_ABERTOS_HOJE = 31476  // comissões abertas em 25/08 depois da separação
+const CP_ABERTOS_HOJE = 30192  // comissões abertas em 25/08 depois da separação
 
 const TAG = {
   ok: ['confere', ''],
@@ -94,7 +95,6 @@ const TAG = {
   hpso: ['falta no ERP', 'alert'],
   atrib: ['atribuição', 'alert'],
   menos: ['a menor', 'alert'],
-  esquec: ['falta na planilha', 'alert'],
 }
 const tag = (g) => `<span class="tag ${TAG[g][1]}">${TAG[g][0]}</span>`
 const cel = (v) => v == null ? '<span class="nil">—</span>' : brl0(v)
@@ -111,8 +111,7 @@ const linhas = L.map((r) => `<tr class="${r.g === 'ok' ? '' : 'x'}">
 const ponte = [
   ['Planilha do Douglas', COM_PL, '', '18 lotes · VGV 595.400 × 2% — aritmética conferida linha a linha, sem erro'],
   ['+ Lote 19 do Nelore Sorriso (13/07)', difSorriso, 'mais', 'ele digitou lance 400 (repetiu a linha do lote 13); HastaPro e ERP registram 500 → 80.000, não 64.000'],
-  ['+ Guadalupe Touros de segunda (20/07)', comGuad, 'mais', 'lotes 04 e 91, Anésio Santarém, VGV 64.200 — ele esqueceu o terceiro dia de pregão; a captura ao vivo do grupo nomeia ele'],
-  ['= Devido ao Douglas por julho/2026', DEVIDO, 'total', 'VGV 675.600 × 2% · 20 lotes'],
+  ['= Devido ao Douglas por julho/2026', DEVIDO, 'total', 'VGV 611.400 × 2% · 18 lotes — exatamente os mesmos 18 lotes que ele listou'],
 ]
 
 const html = `<!doctype html><html lang="pt-BR"><head><meta charset="utf-8">
@@ -204,15 +203,44 @@ ${ponte.map(([l, v, t, e]) => `<tr class="${t === 'total' ? 'total' : ''}">
 </tfoot>
 </table>
 
-<h2>Já corrigido no sistema — os lotes do Gustavo Rusa</h2>
+<h2>Já corrigido no sistema — a regra do direcionamento de parceiro</h2>
 <div class="nota" style="border-left-color:#17181A">
-<strong>Aplicado em 24/08 (backup em <em>outputs/rusa-separacao-2026-08-24/</em>).</strong> 15 lotes de <strong>Dr. Celso Lopes</strong> (14) e <strong>Pedro Pontes</strong> (1), VGV ${brl0(VGV_RUSA)}, saíram do Douglas e passaram para o Gustavo Rusa a 5% — em <em>lances[]</em>, em <em>por_assessor[]</em>, na <em>comissao_assessoria</em>, na <em>sobra_bruta</em> e nos títulos do ERP, nos seis fechamentos afetados.
+<strong>Existe um grupo de compradores direcionado pelo Gustavo Rusa.</strong> Eles são anunciados e arrematados na pista por um assessor da Bula — e a mensagem no grupo diz literalmente <em>"foi com Fulano da Bula Assessoria"</em> — mas a comissão do lote é do <strong>Rusa, a 5%</strong>, e o assessor não recebe os 2%. É a regra do áudio de 30/06, e está na própria planilha de controle do Rusa, que separa a coluna <em>"Assessor venda"</em> da coluna <em>"Direcionamento"</em>: <em>"se pagar Rusa, não pagar Douglas no mesmo caso, para evitar comissão dobrada"</em>.
 <ul>
-<li>O título de 2% do Douglas caiu de <strong>13.740,00 para 3.210,00</strong> nesses seis leilões (o da Genética Aditiva foi cancelado — lá todos os lotes eram do Rusa). Total dele em 25/08: <strong>21.930,00 → ${brl(COM_ERP_HOJE)}</strong>.</li>
-<li><strong>Nenhum título novo do Rusa foi criado</strong>: os 5% dessas bases já foram pagos em 10/08 (PIX de 29.535,00 à Rusa Assessoria, NF 34). Manter os 2% do Douglas pagaria a mesma venda duas vezes — 7% de custo num leilão de ~5% de receita.</li>
-<li>Efeito colateral esperado: a <em>comissao_assessoria</em> dos seis fechamentos <strong>sobe</strong> e a <em>sobra_bruta</em> cai, porque o custo do Rusa (5%) antes não aparecia no fechamento — existia só como título pago. O resultado desses leilões agora mostra o custo real.</li>
-<li><strong>Causa-raiz não resolvida:</strong> o fechamento automático continua gravando o lote no assessor que estava na pista. Enquanto a entrada não nascer como "Gustavo Rusa", agosto vai repetir a dobra — e já há 178.500 de VGV de compradores dele em agosto (Pérolas 08/08 e Paranã 09/08) atribuídos ao Douglas.</li>
+<li><strong>Consequência prática:</strong> nem a mensagem do grupo nem o <em>LOT_PISTEIRO</em> do HastaPro decidem de quem é a comissão — os dois registram quem estava na pista. <strong>Quem manda é o comprador.</strong></li>
+<li><strong>Em julho, 17 lotes (VGV ${brl0(VGV_RUSA)})</strong> do Dr. Celso Lopes (14), Pedro Pontes (1) e Anésio Santarém (2) estavam no nome do Douglas. Foram movidos para o Rusa em <em>lances[]</em>, <em>por_assessor[]</em>, <em>comissao_assessoria</em>, <em>sobra_bruta</em> e nos títulos. O título do Douglas caiu de 21.930,00 para <strong>${brl(COM_ERP_HOJE)}</strong>.</li>
+<li><strong>Fecha com o caixa:</strong> ${brl0(VGV_RUSA)} × 5% = <strong>R$ ${brl(VGV_RUSA * 0.05)}</strong>, exatamente o PIX pago ao Rusa em 10/08 (NF 34). Antes desta correção sobravam 3.210,00 sem lastro no pagamento dele; com o Anésio dentro, não sobra nada.</li>
+<li><strong>A regra virou código:</strong> <em>src/lib/parceiro-direcionamento.ts</em> guarda os compradores direcionados, e o gerador de fechamento automático passa a aplicá-la sozinho — grava o lote no parceiro e registra quem anunciou. Adicionar um comprador é uma linha.</li>
 </ul></div>
+
+<h2>Os compradores do Rusa — a lista completa</h2>
+<table>
+<thead><tr><th style="width:24%">Comprador</th><th style="width:24%">Como aparece</th><th>Onde foi confirmado</th></tr></thead>
+<tbody>
+<tr><td><strong>Dr. Celso Lopes</strong></td><td class="cp">Nelore Grão Pará · Faz. Flor de Minas · PA</td><td class="exp">Planilha do Rusa (mai–jun) e lista do chefe de 22/07. ⚠ Não confundir com <strong>Celso Camargo</strong> nem com Antonio Celso Chaves Gaiotto.</td></tr>
+<tr><td><strong>Pedro Pontes</strong></td><td class="cp">Nelore São Caetano · PA</td><td class="exp">Idem. Em vários lançamentos o nome vem só na fazenda ("A identificar · Fazenda São Caetano").</td></tr>
+<tr><td><strong>Diego Benitah Batista</strong></td><td class="cp">Faz. Paraíso do Acará · Nelore FPA · PA</td><td class="exp">Planilha do Rusa (aba "Lances Rusa", leilão Nelore FPA) e observação do CP do Flor do Aratau de 30/06. <strong>É o maior de todos</strong> — 17 lotes em 2026.</td></tr>
+<tr><td><strong>Itajaí / Parazão</strong></td><td class="cp">Welton Borges de Miranda, Gustavo Miranda</td><td class="exp">Planilha do Rusa e lista do chefe (JMP Bezerras, EAO Expozebu). ⚠ <strong>Welton Costa de Brito</strong> (Faz. Maravilha) é outra pessoa e é comprador legítimo do Douglas.</td></tr>
+<tr><td><strong>Alfredo José Cardoso</strong></td><td class="cp">Faz. Galopeira · PA</td><td class="exp">Lista do chefe 22/07 (Cachoeirão, JMP Touros lote 1004, MEAB).</td></tr>
+<tr><td><strong>C+4</strong></td><td class="cp">lotes de aspiração</td><td class="exp">Lista do chefe 22/07 (Cachoeirão, Naviraí Expozebu, JMP Bezerras, MEAB).</td></tr>
+<tr><td><strong>Lindoalmir / João Alfredo</strong></td><td class="cp">Faz. Santa Isabel</td><td class="exp">Lista do chefe 22/07 (JMP Touros).</td></tr>
+<tr><td><strong>Anésio Santarém</strong></td><td class="cp">Faz. Córrego da Onça · PA</td><td class="exp">Confirmado pelo João em 24/08. ⚠ Casar por "Anésio" ou pela fazenda — <strong>"Santarém" sozinho é cidade do PA</strong> e aparece em endereço de leilão.</td></tr>
+</tbody></table>
+
+<h2>Agosto — a mesma dobra, corrigida antes de vencer</h2>
+<table>
+<thead><tr><th style="width:30%">Leilão</th><th style="width:20%">Comprador</th><th class="val" style="width:11%">VGV</th><th class="val" style="width:13%">Tirado do assessor</th><th class="val" style="width:12%">Direito do Rusa</th></tr></thead>
+<tbody>
+<tr><td>2º LS Galeria · 07/08</td><td class="cp">Diego B. Batista</td><td class="val">456.000</td><td class="val">9.120,00 <span class="cp">(Fábio)</span></td><td class="val">22.800,00</td></tr>
+<tr><td>14º Pérolas do Tapajós · 08/08</td><td class="cp">Alfredo J. Cardoso</td><td class="val">90.000</td><td class="val">1.800,00</td><td class="val">4.500,00</td></tr>
+<tr><td>Nelore Paranã Produtividade · 09/08</td><td class="cp">Dr. Celso Lopes</td><td class="val">88.500</td><td class="val">1.770,00</td><td class="val">4.425,00</td></tr>
+<tr><td>Matinha Expogenética · 16/08</td><td class="cp">Dr. Celso Lopes</td><td class="val">42.000</td><td class="val">840,00</td><td class="val">2.100,00</td></tr>
+<tr><td>Paranã e Casabranca · 20/08</td><td class="cp">Dr. Celso Lopes</td><td class="val">73.500</td><td class="val">1.470,00</td><td class="val">3.675,00</td></tr>
+<tr><td>Naviraí Camparino Essência · 22/08</td><td class="cp">Dr. Celso Lopes</td><td class="val">48.000</td><td class="val">960,00</td><td class="val">2.400,00</td></tr>
+</tbody>
+<tfoot><tr><td colspan="2">6 leilões · vencimento 25/09</td><td class="val">798.000</td><td class="val">15.960,00</td><td class="val">39.900,00</td></tr></tfoot>
+</table>
+<div class="meta" style="margin-top:6px">Os dois últimos ainda não tinham título gerado — foram corrigidos no fechamento, então o título já nasce certo. <strong>Nenhum título do Rusa foi criado</strong>: o direito dele está reconhecido no fechamento, mas o lançamento a pagar é decisão de quem paga.</div>
 
 <h2>O que falta lançar — as duas diferenças a favor dele</h2>
 <table>
@@ -224,23 +252,21 @@ ${ponte.map(([l, v, t, e]) => `<tr class="${t === 'total' ? 'total' : ''}">
 <td class="exp">O HastaPro registra o lote com <strong>pisteiro Douglas</strong>; o nosso fechamento lançou no <strong>Leonardo Serafim</strong> (título de 510,00 aberto para 25/08). O comprador é <strong>Francisca Valéria — Fazenda Água Limpa</strong>, o mesmo do lote 61 do dia seguinte, que o ERP já dá ao Douglas. Em 21/08 o mesmo conflito no Naviraí foi resolvido a favor do LOT_PISTEIRO. Transferência: criar o do Douglas e cancelar o do Leonardo, neutro no caixa.</td></tr>
 </tbody></table>
 
-<h2>Duas coisas que ele deixou de cobrar</h2>
+<h2>O que ele deixou de cobrar</h2>
 <table>
 <thead><tr><th style="width:20%">Item</th><th class="val" style="width:9%">Comissão</th><th>Racional</th></tr></thead>
 <tbody>
-<tr><td><strong>Guadalupe Touros de segunda (20/07)</strong></td><td class="val">${brl(comGuad)}</td>
-<td class="exp">Lotes 04 e 91, <strong>Anésio Santarém</strong>, VGV 64.200. O pregão de segunda foi o <strong>terceiro dia</strong> do Guadalupe e ele listou só o sábado e o domingo. Não existe no HastaPro (o pregão de segunda só está no nosso sistema), mas a <strong>captura ao vivo do grupo "Lances Bula"</strong> nomeia ele nas duas mensagens:
-<span class="cit">Levamos lt 4 - 1220 - 1M · "Foi com Douglas Bispo da Bula Assessoria" · Anésio Santarém, Fazenda córrego da onça, Maracajá-PA</span>
-<span class="cit">Levamos lt 91 - 920 - 1M · "Foi com Douglas Bispo da Bula Assessoria" · Anésio Santarém, Fazenda córrego da onça, Novo Repartimento-PA</span>
-O comprador é lead da base da própria Bula (Novo Repartimento/PA, zona dele) e não consta em nenhuma lista do Rusa. <strong>É dele — o título de 1.284,00 fica.</strong></td></tr>
 <tr><td><strong>Lote 19 — Nelore Sorriso (13/07)</strong></td><td class="val">${brl(difSorriso)}</td>
-<td class="exp">A planilha traz lance <strong>400</strong> (4 animais × 40 parcelas = 64.000) — o mesmo valor que ele digitou na linha do lote 13, logo acima. HastaPro e ERP registram <strong>500</strong> (80.000). Erro de digitação <strong>contra ele mesmo</strong>: faltam 16.000 de VGV. O título de 3.180,00 do Sorriso já está correto no ERP.</td></tr>
+<td class="exp">A planilha traz lance <strong>400</strong> (4 animais × 40 parcelas = 64.000) — o mesmo valor que ele digitou na linha do lote 13, logo acima. HastaPro e ERP registram <strong>500</strong> (80.000). Erro de digitação <strong>contra ele mesmo</strong>: faltam 16.000 de VGV. O título de 3.180,00 do Sorriso já está correto no ERP.
+<br><br>⚠ Fonte única: não existe captura do grupo para as fêmeas do Sorriso, então aqui é o HastaPro contra a memória dele. Nenhum dos três lotes está pago no HastaPro. Se quiser blindar, é um minuto de conversa com a Sorriso.</td></tr>
 </tbody></table>
+<div class="meta" style="margin-top:6px"><strong>Fora esse dígito, a planilha dele está perfeita:</strong> os 18 lotes que ele listou são exatamente os 18 lotes que lhe são devidos — ele excluiu por conta própria todos os 17 lotes do Rusa, inclusive os dois do Anésio.</div>
 
 <h2>Fica em aberto</h2>
 <div class="nota"><ul>
-<li><strong>R$ 3.210,00 do pagamento ao Rusa seguem sem lastro.</strong> O PIX de 10/08 foi de 29.535,00; os lotes dos compradores dele em julho somam ${brl0(VGV_RUSA)} de VGV = <strong>${brl(VGV_RUSA * 0.05)}</strong> a 5%, agora todos identificados e lançados. Sobram 3.210,00 sem base identificada — e o extrato do chefe de 23/07, que fechava o acerto do Rusa, também não os contempla. <strong>Conferir com a Ana e com o Rusa</strong> o que compõe a NF 34. (O título "complemento julho/2026" de 6.045,00 nasceu justamente dessa diferença, com a observação "conferir com a Ana"; ${brl(56700 * 0.05)} dele são a Genética Aditiva de 25/07, que aconteceu depois da lista do chefe.)</li>
-<li><strong>Agosto vai repetir a dobra se ninguém mexer:</strong> Pérolas do Tapajós 08/08 (lote 44, 90.000) e Nelore Paranã 09/08 (lotes 123 e 42, 88.500) são de comprador do Rusa e estão atribuídos ao Douglas — R$ 3.570,00 de 2% indevidos no vencimento de 25/09.</li>
+<li><strong>Lançar o que o Rusa passou a ter direito em agosto:</strong> os R$ ${brl(VGV_RUSA * 0.05)} de julho <em>já foram pagos</em> (PIX de 10/08), mas os <strong>R$ 39.900,00 de agosto</strong> ainda não têm título. O direito está reconhecido nos fechamentos; o CP é decisão de quem paga.</li>
+<li><strong>Histórico não tocado (jan–jun):</strong> a varredura achou <strong>mais 22 lotes</strong> de compradores do Rusa lançados em assessor da Bula, em leilões cujos títulos já foram pagos ou cancelados — 407.100 de VGV com título resolvido, e outros 12 fechamentos sem título de comissão nenhum. Na maioria o acerto já foi feito pelo lado do título (o CP do Douglas no Santa Nice, por exemplo, está cancelado); o que ficou desatualizado é o fechamento. Reescrever mês conciliado muda relatório fechado — <strong>por isso o script não toca nesses e a decisão é sua</strong>. O inventário sai com <em>node scripts/aplica-direcionamento-parceiro.mts</em>.</li>
+<li><strong>O maior comprador da lista nunca tinha sido marcado:</strong> Diego Benitah Batista (Fazenda Paraíso do Acará / Nelore FPA) tem <strong>17 lotes em 2026</strong> e R$ 1,56 milhão de VGV, quase todos no Douglas e no Fábio. Vale confirmar com o Rusa se todos são direcionamento dele — se forem, há acerto retroativo dos dois lados.</li>
 </ul></div>
 
 <div class="nota"><strong>Notas de conferência (não mexem em valor):</strong><ul>

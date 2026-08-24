@@ -17,6 +17,7 @@
 import type { SupabaseClient } from '@supabase/supabase-js'
 import { comissaoPctAssessor } from './assessor-comissao'
 import { assessorKey } from './assessor-normalize'
+import { parceiroDoComprador } from './parceiro-direcionamento'
 
 const PARCELAS = 30
 const EMPRESA = 'Bula Assessoria'
@@ -89,12 +90,22 @@ export async function rebuildFechamentoFromLances(
     if (manual) return { skipped: 'fechamento_manual_existente', fechamento_id: manual.id }
     const auto = (existentes ?? []).find((f) => f.origem === 'lances-auto' && mesmoLeilao(f.nome, cron.nome))
 
-    const L = comValor.map((v) => ({
-        ...v,
-        animais: v.animais && v.animais > 0 ? v.animais : 1,
-        assessor: v.assessor || 'A definir',
-        vgv: r2((v.valor as number) * PARCELAS),
-    }))
+    // Comprador direcionado por parceiro (Gustavo Rusa) leva a comissão do lote,
+    // por mais que a mensagem do grupo diga "foi com Fulano da Bula Assessoria" —
+    // quem estava na pista não decide de quem é a comissão. Ver parceiro-direcionamento.
+    const L = comValor.map((v) => {
+        const anunciante = v.assessor || 'A definir'
+        const direc = parceiroDoComprador(v.comprador, v.fazenda, v.cidade, v.uf)
+        return {
+            ...v,
+            animais: v.animais && v.animais > 0 ? v.animais : 1,
+            assessor: direc ? direc.parceiro : anunciante,
+            anunciado_por: direc ? anunciante : null,
+            direcionamento: direc,
+            vgv: r2((v.valor as number) * PARCELAS),
+        }
+    })
+    const redirecionados = L.filter((l) => l.direcionamento)
     const vgv_total = r2(L.reduce((s, l) => s + l.vgv, 0))
     const total_animais = L.reduce((s, l) => s + l.animais, 0)
 
@@ -143,6 +154,7 @@ export async function rebuildFechamentoFromLances(
     const lances = L.map((l) => ({
         lote: l.lote, animais: l.animais, vgv: l.vgv, parcela: l.valor, parcelas: PARCELAS,
         assessor: l.assessor, empresa: EMPRESA, vendedor: cron.leiloeira || null, comprador: compradorLabel(l),
+        ...(l.anunciado_por ? { anunciado_por: l.anunciado_por } : {}),
     }))
 
     const semValor = vendas.filter((v) => v.valor == null)
@@ -150,6 +162,9 @@ export async function rebuildFechamentoFromLances(
         `Fechamento AUTOMÁTICO gerado das vendas capturadas no grupo "Lances Bula Assessoria" (WhatsApp) — retificável.`,
         `Cobertura Bula: ${L.length} lotes / ${total_animais} animais / VGV = parcela × ${PARCELAS} por lote. Comissão por assessor conforme tabela fixa 22/07 (padrão 2%; Rusa 5%; Lucas/Matheus Alves 0,33%).`,
         semValor.length ? `PENDENTE de valor (fora dos números): lote(s) ${semValor.map((v) => v.lote).join(', ')}.` : null,
+        redirecionados.length
+            ? `DIRECIONAMENTO DE PARCEIRO: lote(s) ${redirecionados.map((l) => `${l.lote} → ${l.direcionamento!.parceiro} (${l.direcionamento!.comprador}, anunciado por ${l.anunciado_por})`).join('; ')}. A comissão desses lotes é do parceiro; o assessor que anunciou NÃO recebe os 2% — pagar os dois é comissão dobrada.`
+            : null,
         `Parte financeira (acordo/receita Bula/imposto) é passo manual no ERP.`,
     ].filter(Boolean).join('\n')
 
