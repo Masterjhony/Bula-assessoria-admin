@@ -282,6 +282,20 @@ export async function updateSession(req: NextRequest) {
     if (pathname === '/') {
       url.pathname = '/agenda'
       res = NextResponse.redirect(url, 308)
+    } else if (pathname === '/manifest.webmanifest') {
+      // Neste host o app É a agenda pública, então /manifest.webmanifest tem
+      // que devolver o manifest dela, e não o do admin.
+      //
+      // Isto existe porque `metadata.manifest` declarado no layout da agenda
+      // NÃO vence o `app/manifest.ts` da raiz no build da Vercel — medido em
+      // produção, em rota dinâmica com `X-Vercel-Cache: MISS`, com todos os
+      // outros campos do mesmo commit (applicationName, themeColor, apple
+      // title) aplicados e só o manifest herdado da raiz. Localmente o mesmo
+      // código resolve pro manifest da agenda, então não dá pra confiar nesse
+      // merge. Aqui a resposta não depende dele: qualquer que seja o link que
+      // o Next emita, neste host ele cai no manifest certo.
+      url.pathname = '/agenda.webmanifest'
+      res = NextResponse.rewrite(url, { request: req })
     } else if (
       !pathname.startsWith('/institucional') &&
       !pathname.startsWith('/agenda') &&
