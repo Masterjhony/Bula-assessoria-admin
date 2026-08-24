@@ -1,0 +1,684 @@
+{
+ "fechamentos": [
+  {
+   "id": "0c5c2ccb-8deb-476a-9970-eb967c58e254",
+   "nome": "LEILÃO MATINHA EXPOGENÉTICA 2026",
+   "data": "2026-08-16",
+   "local": "PROGRAMA LEILOES",
+   "lotes_ofertados": 9,
+   "lotes_vendidos": 9,
+   "animais_vendidos": 9,
+   "vgv_total": 547500,
+   "ticket_medio": 60833.33,
+   "maior_lance": 108000,
+   "compradores_unicos": 5,
+   "estados_alcancados": 0,
+   "por_assessor": [
+    {
+     "vgv": 420000,
+     "nome": "Douglas Bispo",
+     "animais": 5,
+     "empresa": "Bula Assessoria",
+     "posicao": 1,
+     "comissao": 8400,
+     "pct_total": 0.7670999999999999,
+     "transacoes": 5,
+     "comissao_pct": 0.02,
+     "ticket_medio": 84000
+    },
+    {
+     "vgv": 85500,
+     "nome": "Nane",
+     "animais": 3,
+     "empresa": "Bula Assessoria",
+     "posicao": 2,
+     "comissao": 1710,
+     "pct_total": 0.1562,
+     "transacoes": 3,
+     "comissao_pct": 0.02,
+     "ticket_medio": 28500
+    },
+    {
+     "vgv": 42000,
+     "nome": "Gustavo Rusa",
+     "animais": 1,
+     "empresa": "Bula Assessoria",
+     "posicao": 3,
+     "comissao": 2100,
+     "pct_total": 0.0767,
+     "transacoes": 1,
+     "comissao_pct": 0.05,
+     "ticket_medio": 42000
+    }
+   ],
+   "por_estado": [],
+   "compradores": [
+    {
+     "uf": null,
+     "vgv": 291000,
+     "rank": 1,
+     "lotes": 3,
+     "cidade": null,
+     "animais": 3,
+     "fazenda": "NELORE PEROLA",
+     "comprador": "JOSE FABIO"
+    },
+    {
+     "uf": null,
+     "vgv": 87000,
+     "rank": 2,
+     "lotes": 1,
+     "cidade": null,
+     "animais": 1,
+     "fazenda": null,
+     "comprador": "A identificar"
+    },
+    {
+     "uf": null,
+     "vgv": 85500,
+     "rank": 3,
+     "lotes": 3,
+     "cidade": null,
+     "animais": 3,
+     "fazenda": "AGROPECUARIA SOBRE RODAS",
+     "comprador": "AGROPECUARIA SOBRE RODAS"
+    },
+    {
+     "uf": null,
+     "vgv": 42000,
+     "rank": 4,
+     "lotes": 1,
+     "cidade": null,
+     "animais": 1,
+     "fazenda": "FAZENDA SANTA TEREZA",
+     "comprador": "KLYSMANN DOUGLAS NASCIMENTO LEAL"
+    },
+    {
+     "uf": null,
+     "vgv": 42000,
+     "rank": 5,
+     "lotes": 1,
+     "cidade": null,
+     "animais": 1,
+     "fazenda": "FAZENDA FLOR DE MINAS",
+     "comprador": "CELSO LOPES"
+    }
+   ],
+   "lances": [
+    {
+     "vgv": 42000,
+     "lote": "E11",
+     "animais": 1,
+     "empresa": "Bula Assessoria",
+     "parcela": 1400,
+     "assessor": "Douglas Bispo",
+     "parcelas": 30,
+     "comprador": "KLYSMANN DOUGLAS NASCIMENTO LEAL · FAZENDA SANTA TEREZA"
+    },
+    {
+     "vgv": 108000,
+     "lote": "12",
+     "animais": 1,
+     "empresa": "Bula Assessoria",
+     "parcela": 3600,
+     "assessor": "Douglas Bispo",
+     "parcelas": 30,
+     "comprador": "JOSE FABIO · NELORE PEROLA"
+    },
+    {
+     "vgv": 90000,
+     "lote": "34",
+     "animais": 1,
+     "empresa": "Bula Assessoria",
+     "parcela": 3000,
+     "assessor": "Douglas Bispo",
+     "parcelas": 30,
+     "comprador": "JOSE FABIO · NELORE PEROLA"
+    },
+    {
+     "vgv": 93000,
+     "lote": "15",
+     "animais": 1,
+     "empresa": "Bula Assessoria",
+     "parcela": 3100,
+     "assessor": "Douglas Bispo",
+     "parcelas": 30,
+     "comprador": "JOSE FABIO · NELORE PEROLA"
+    },
+    {
+     "vgv": 42000,
+     "lote": "39",
+     "animais": 1,
+     "empresa": "Bula Assessoria",
+     "parcela": 1400,
+     "assessor": "Gustavo Rusa",
+     "parcelas": 30,
+     "comprador": "CELSO LOPES · FAZENDA FLOR DE MINAS",
+     "anunciado_por": "Douglas Bispo"
+    },
+    {
+     "vgv": 36000,
+     "lote": "107",
+     "animais": 1,
+     "empresa": "Bula Assessoria",
+     "parcela": 1200,
+     "assessor": "Nane",
+     "parcelas": 30,
+     "comprador": "AGROPECUARIA SOBRE RODAS · AGROPECUARIA SOBRE RODAS"
+    },
+    {
+     "vgv": 27000,
+     "lote": "134",
+     "animais": 1,
+     "empresa": "Bula Assessoria",
+     "parcela": 900,
+     "assessor": "Nane",
+     "parcelas": 30,
+     "comprador": "AGROPECUARIA SOBRE RODAS · AGROPECUARIA SOBRE RODAS"
+    },
+    {
+     "vgv": 22500,
+     "lote": "136",
+     "animais": 1,
+     "empresa": "Bula Assessoria",
+     "parcela": 750,
+     "assessor": "Nane",
+     "parcelas": 30,
+     "comprador": "AGROPECUARIA SOBRE RODAS · AGROPECUARIA SOBRE RODAS"
+    },
+    {
+     "vgv": 87000,
+     "lote": "22",
+     "fonte": "grupo-lances",
+     "animais": 1,
+     "empresa": "Bula Assessoria",
+     "parcela": 2900,
+     "assessor": "Douglas Bispo",
+     "parcelas": 30,
+     "comprador": "A identificar"
+    }
+   ],
+   "perfil_genetico": [],
+   "comissao_assessoria": 12210,
+   "receita_bula": 0,
+   "sobra_bruta": 0,
+   "observacoes": "Fechamento alinhado ao HastaPro (Bula Assessoria / FIL 2) em 17/08/2026 — origem=hastapro.\n9 lotes / 9 animais. VGV = LOT_TOTAL do HastaPro (lance × parcelas × qtd de animais).\nAssessor = LOT_PISTEIRO do HastaPro (nao mais atribuicao por zona). Comissao padrao 2%; Rusa 5%; Lucas/Matheus Alves 0,33%.\nEXTRA lote 22 (R$ 87.000,00): Capturado no grupo \"Lances Bula\" em 16/08 (\"Levamos lt 22 - 2900 - 1F / Foi com Douglas Bispo\"). Ainda NAO lancado no HastaPro - conferir.\nReceita da Bula depende do acordo com a leiloeira/criador e do faturamento total do leilao — lancada na conta a receber do ERP.\n[DIRECIONAMENTO-PARCEIRO 24/08] 1 lote(s) — 39 (42.000,00, Douglas Bispo) — movidos para Gustavo Rusa (5%): o comprador é Dr. Celso Lopes (Nelore Grão Pará), direcionado pelo parceiro. Quem anunciou na pista não define a comissão. Ver src/lib/parceiro-direcionamento.ts.",
+   "lotes_catalogo": [],
+   "distribuicao_empresa": [
+    {
+     "vgv": 547500,
+     "animais": 9,
+     "empresa": "Bula Assessoria",
+     "pct_total": 1,
+     "transacoes": 9,
+     "ticket_medio": 60833.33
+    }
+   ],
+   "faturamento_total_leilao": null,
+   "acordo_pct_faturamento": null,
+   "acordo_pct_venda_cobertura": null,
+   "acordo_descricao": null,
+   "acordo_criador_id": null,
+   "created_at": "2026-08-16T17:40:14.275624+00:00",
+   "updated_at": "2026-08-17T00:47:51.838+00:00",
+   "despesas_variaveis": 0,
+   "etapa": "realizado",
+   "etapa_atualizada_em": "2026-08-16T17:40:14.275624+00:00",
+   "origem": "hastapro"
+  },
+  {
+   "id": "360b6a1c-ae3b-4b39-b7dd-500205a58f0a",
+   "nome": "LEILÃO MATRIZES PREMIUM KATISPERA",
+   "data": "2026-08-17",
+   "local": "PROGRAMA LEILOES",
+   "lotes_ofertados": 1,
+   "lotes_vendidos": 1,
+   "animais_vendidos": 1,
+   "vgv_total": 117000,
+   "ticket_medio": 117000,
+   "maior_lance": 117000,
+   "compradores_unicos": 1,
+   "estados_alcancados": 1,
+   "por_assessor": [
+    {
+     "vgv": 117000,
+     "nome": "Douglas Bispo",
+     "animais": 1,
+     "empresa": "Bula Assessoria",
+     "posicao": 1,
+     "comissao": 2340,
+     "pct_total": 1,
+     "transacoes": 1,
+     "comissao_pct": 0.02,
+     "ticket_medio": 117000
+    }
+   ],
+   "por_estado": [
+    {
+     "uf": "PA",
+     "vgv": 117000,
+     "lotes": 1,
+     "estado": "PA",
+     "animais": 1,
+     "pct_total": 1,
+     "ticket_medio": 117000
+    }
+   ],
+   "compradores": [
+    {
+     "uf": "PA",
+     "vgv": 117000,
+     "rank": 1,
+     "lotes": 1,
+     "cidade": "É o estadão",
+     "animais": 1,
+     "fazenda": null,
+     "comprador": "A identificar"
+    }
+   ],
+   "lances": [
+    {
+     "vgv": 117000,
+     "lote": "3",
+     "animais": 1,
+     "empresa": "Bula Assessoria",
+     "parcela": 3900,
+     "assessor": "Douglas Bispo",
+     "parcelas": 30,
+     "vendedor": "PROGRAMA LEILOES",
+     "comprador": "É o estadão/PA"
+    }
+   ],
+   "perfil_genetico": [],
+   "comissao_assessoria": 2340,
+   "receita_bula": 0,
+   "sobra_bruta": 0,
+   "observacoes": "Fechamento AUTOMÁTICO gerado das vendas capturadas no grupo \"Lances Bula Assessoria\" (WhatsApp) — retificável.\nCobertura Bula: 1 lotes / 1 animais / VGV = parcela × 30 por lote. Comissão por assessor conforme tabela fixa 22/07 (padrão 2%; Rusa 5%; Lucas/Matheus Alves 0,33%).\nParte financeira (acordo/receita Bula/imposto) é passo manual no ERP.",
+   "lotes_catalogo": [],
+   "distribuicao_empresa": [
+    {
+     "vgv": 117000,
+     "animais": 1,
+     "empresa": "Bula Assessoria",
+     "pct_total": 1,
+     "transacoes": 1,
+     "ticket_medio": 117000
+    }
+   ],
+   "faturamento_total_leilao": null,
+   "acordo_pct_faturamento": null,
+   "acordo_pct_venda_cobertura": null,
+   "acordo_descricao": null,
+   "acordo_criador_id": null,
+   "created_at": "2026-08-18T01:00:27.47162+00:00",
+   "updated_at": "2026-08-18T01:00:27.401+00:00",
+   "despesas_variaveis": 0,
+   "etapa": "realizado",
+   "etapa_atualizada_em": "2026-08-18T01:00:27.47162+00:00",
+   "origem": "lances-auto"
+  },
+  {
+   "id": "e7811a6e-7ed7-4a82-a56f-0536093e8ae0",
+   "nome": "LEILÃO NAVIRAÍ CAMPARINO ESSÊNCIA BEZERRAS E NOVILHAS",
+   "data": "2026-08-22",
+   "local": "PROGRAMA LEILOES",
+   "lotes_ofertados": 11,
+   "lotes_vendidos": 11,
+   "animais_vendidos": 11,
+   "vgv_total": 751500,
+   "ticket_medio": 68318,
+   "maior_lance": 225000,
+   "compradores_unicos": 8,
+   "estados_alcancados": 2,
+   "por_assessor": [
+    {
+     "vgv": 529500,
+     "nome": "Douglas Bispo",
+     "animais": 6,
+     "empresa": "Bula Assessoria",
+     "posicao": 1,
+     "comissao": 10590,
+     "pct_total": 0.7045999999999999,
+     "transacoes": 6,
+     "comissao_pct": 0.02,
+     "ticket_medio": 88250
+    },
+    {
+     "vgv": 93000,
+     "nome": "Peralta / Bula",
+     "animais": 1,
+     "empresa": "Bula Assessoria",
+     "posicao": 2,
+     "comissao": 1860,
+     "pct_total": 0.12380000000000001,
+     "transacoes": 1,
+     "comissao_pct": 0.02,
+     "ticket_medio": 93000
+    },
+    {
+     "vgv": 81000,
+     "nome": "Fábio Omena",
+     "animais": 2,
+     "empresa": "Bula Assessoria",
+     "posicao": 3,
+     "comissao": 1620,
+     "pct_total": 0.10779999999999999,
+     "transacoes": 2,
+     "comissao_pct": 0.02,
+     "ticket_medio": 40500
+    },
+    {
+     "vgv": 48000,
+     "nome": "Gustavo Rusa",
+     "animais": 2,
+     "empresa": "Bula Assessoria",
+     "posicao": 4,
+     "comissao": 2400,
+     "pct_total": 0.0639,
+     "transacoes": 2,
+     "comissao_pct": 0.05,
+     "ticket_medio": 24000
+    }
+   ],
+   "por_estado": [
+    {
+     "uf": "PA",
+     "vgv": 577500,
+     "lotes": 8,
+     "estado": "PA",
+     "animais": 8,
+     "pct_total": 0.7685,
+     "ticket_medio": 72188
+    },
+    {
+     "uf": "AL",
+     "vgv": 21000,
+     "lotes": 1,
+     "estado": "AL",
+     "animais": 1,
+     "pct_total": 0.0279,
+     "ticket_medio": 21000
+    }
+   ],
+   "compradores": [
+    {
+     "uf": "PA",
+     "vgv": 400500,
+     "rank": 1,
+     "lotes": 3,
+     "cidade": "Novo Repartimento",
+     "animais": 3,
+     "fazenda": "Fazenda Estilo",
+     "comprador": "A identificar"
+    },
+    {
+     "uf": null,
+     "vgv": 93000,
+     "rank": 2,
+     "lotes": 1,
+     "cidade": null,
+     "animais": 1,
+     "fazenda": null,
+     "comprador": "A identificar"
+    },
+    {
+     "uf": "PA",
+     "vgv": 72000,
+     "rank": 3,
+     "lotes": 1,
+     "cidade": "Novo Repartimento",
+     "animais": 1,
+     "fazenda": null,
+     "comprador": "Val Bispo - Dra Byanca Bispo"
+    },
+    {
+     "uf": null,
+     "vgv": 60000,
+     "rank": 4,
+     "lotes": 1,
+     "cidade": null,
+     "animais": 1,
+     "fazenda": null,
+     "comprador": "Sr Christian Avalon"
+    },
+    {
+     "uf": "PA",
+     "vgv": 48000,
+     "rank": 5,
+     "lotes": 2,
+     "cidade": "OURILÂNDIA DO NORTE",
+     "animais": 2,
+     "fazenda": "FAZ FLOR DE MINAS",
+     "comprador": "NELORE GRÃO PARÁ - DR CELSO LOPES"
+    },
+    {
+     "uf": "PA",
+     "vgv": 33000,
+     "rank": 6,
+     "lotes": 1,
+     "cidade": "Novo Repartimento",
+     "animais": 1,
+     "fazenda": null,
+     "comprador": "Nelore BF - Bruno Machado, Fabio Machado e Gabriel Machado"
+    },
+    {
+     "uf": "PA",
+     "vgv": 24000,
+     "rank": 7,
+     "lotes": 1,
+     "cidade": "Novo Repartimento",
+     "animais": 1,
+     "fazenda": null,
+     "comprador": "Miguel Sousa - dr Anissé Filho - Nelore AMER"
+    },
+    {
+     "uf": "AL",
+     "vgv": 21000,
+     "rank": 8,
+     "lotes": 1,
+     "cidade": "Capela",
+     "animais": 1,
+     "fazenda": null,
+     "comprador": "João Vitor Moreira - Nelore Zibungo"
+    }
+   ],
+   "lances": [
+    {
+     "vgv": 33000,
+     "lote": "9",
+     "animais": 1,
+     "empresa": "Bula Assessoria",
+     "parcela": 1100,
+     "assessor": "Douglas Bispo",
+     "parcelas": 30,
+     "vendedor": "PROGRAMA LEILOES",
+     "comprador": "Nelore BF - Bruno Machado, Fabio Machado e Gabriel Machado · Novo Repartimento/PA"
+    },
+    {
+     "vgv": 60000,
+     "lote": "37",
+     "animais": 1,
+     "empresa": "Bula Assessoria",
+     "parcela": 2000,
+     "assessor": "Fábio Omena",
+     "parcelas": 30,
+     "vendedor": "PROGRAMA LEILOES",
+     "comprador": "Sr Christian Avalon"
+    },
+    {
+     "vgv": 27000,
+     "lote": "33",
+     "animais": 1,
+     "empresa": "Bula Assessoria",
+     "parcela": 900,
+     "assessor": "Gustavo Rusa",
+     "parcelas": 30,
+     "vendedor": "PROGRAMA LEILOES",
+     "comprador": "NELORE GRÃO PARÁ - DR CELSO LOPES · FAZ FLOR DE MINAS · OURILÂNDIA DO NORTE/PA",
+     "anunciado_por": "Douglas Bispo"
+    },
+    {
+     "vgv": 21000,
+     "lote": "27",
+     "animais": 1,
+     "empresa": "Bula Assessoria",
+     "parcela": 700,
+     "assessor": "Gustavo Rusa",
+     "parcelas": 30,
+     "vendedor": "PROGRAMA LEILOES",
+     "comprador": "NELORE GRÃO PARÁ - DR CELSO LOPES · FAZ FLOR DE MINAS · OURILÂNDIA DO NORTE/PA",
+     "anunciado_por": "Douglas Bispo"
+    },
+    {
+     "vgv": 24000,
+     "lote": "26",
+     "animais": 1,
+     "empresa": "Bula Assessoria",
+     "parcela": 800,
+     "assessor": "Douglas Bispo",
+     "parcelas": 30,
+     "vendedor": "PROGRAMA LEILOES",
+     "comprador": "Miguel Sousa - dr Anissé Filho - Nelore AMER · Novo Repartimento/PA"
+    },
+    {
+     "vgv": 22500,
+     "lote": "25",
+     "animais": 1,
+     "empresa": "Bula Assessoria",
+     "parcela": 750,
+     "assessor": "Douglas Bispo",
+     "parcelas": 30,
+     "vendedor": "PROGRAMA LEILOES",
+     "comprador": "Fazenda Estilo · Novo Repartimento/PA"
+    },
+    {
+     "vgv": 21000,
+     "lote": "24",
+     "animais": 1,
+     "empresa": "Bula Assessoria",
+     "parcela": 700,
+     "assessor": "Fábio Omena",
+     "parcelas": 30,
+     "vendedor": "PROGRAMA LEILOES",
+     "comprador": "João Vitor Moreira - Nelore Zibungo · Capela/AL"
+    },
+    {
+     "vgv": 153000,
+     "lote": "1",
+     "animais": 1,
+     "empresa": "Bula Assessoria",
+     "parcela": 5100,
+     "assessor": "Douglas Bispo",
+     "parcelas": 30,
+     "vendedor": "PROGRAMA LEILOES",
+     "comprador": "É o estadão/PA"
+    },
+    {
+     "vgv": 225000,
+     "lote": "5",
+     "animais": 1,
+     "empresa": "Bula Assessoria",
+     "parcela": 7500,
+     "assessor": "Douglas Bispo",
+     "parcelas": 30,
+     "vendedor": "PROGRAMA LEILOES",
+     "comprador": "É o estadão/PA"
+    },
+    {
+     "vgv": 72000,
+     "lote": "28",
+     "animais": 1,
+     "empresa": "Bula Assessoria",
+     "parcela": 2400,
+     "assessor": "Douglas Bispo",
+     "parcelas": 30,
+     "vendedor": "PROGRAMA LEILOES",
+     "comprador": "Val Bispo - Dra Byanca Bispo · Novo Repartimento/PA"
+    },
+    {
+     "vgv": 93000,
+     "lote": "11",
+     "animais": 1,
+     "empresa": "Bula Assessoria",
+     "parcela": 3100,
+     "assessor": "Peralta / Bula",
+     "parcelas": 30,
+     "vendedor": "PROGRAMA LEILOES",
+     "comprador": "A identificar"
+    }
+   ],
+   "perfil_genetico": [],
+   "comissao_assessoria": 16470,
+   "receita_bula": 0,
+   "sobra_bruta": 0,
+   "observacoes": "Fechamento AUTOMÁTICO gerado das vendas capturadas no grupo \"Lances Bula Assessoria\" (WhatsApp) — retificável.\nCobertura Bula: 11 lotes / 11 animais / VGV = parcela × 30 por lote. Comissão por assessor conforme tabela fixa 22/07 (padrão 2%; Rusa 5%; Lucas/Matheus Alves 0,33%).\nPENDENTE de valor (fora dos números): lote(s) 53, 32, 54, 19.\nParte financeira (acordo/receita Bula/imposto) é passo manual no ERP.\n[DIRECIONAMENTO-PARCEIRO 24/08] 2 lote(s) — 33 (27.000,00, Douglas Bispo); 27 (21.000,00, Douglas Bispo) — movidos para Gustavo Rusa (5%): o comprador é Dr. Celso Lopes (Nelore Grão Pará), direcionado pelo parceiro. Quem anunciou na pista não define a comissão. Ver src/lib/parceiro-direcionamento.ts.",
+   "lotes_catalogo": [],
+   "distribuicao_empresa": [
+    {
+     "vgv": 751500,
+     "animais": 11,
+     "empresa": "Bula Assessoria",
+     "pct_total": 1,
+     "transacoes": 11,
+     "ticket_medio": 68318
+    }
+   ],
+   "faturamento_total_leilao": null,
+   "acordo_pct_faturamento": null,
+   "acordo_pct_venda_cobertura": null,
+   "acordo_descricao": null,
+   "acordo_criador_id": null,
+   "created_at": "2026-08-22T17:29:52.63011+00:00",
+   "updated_at": "2026-08-23T02:19:34.802+00:00",
+   "despesas_variaveis": 0,
+   "etapa": "realizado",
+   "etapa_atualizada_em": "2026-08-22T17:29:52.63011+00:00",
+   "origem": "lances-auto"
+  }
+ ],
+ "contas_pagar": [
+  {
+   "id": "f67bae88-d9f6-410b-9dec-61ba72e2c09a",
+   "descricao": "COMISSAO LEILÃO MATINHA EXPOGENÉTICA 2026 - DOUGLAS BISPO (2,00%)",
+   "fornecedor_id": null,
+   "categoria_id": "d53cf26d-af3b-406f-8a6d-b46dcd65d78e",
+   "centro_custo_id": "52dd8ed0-0c0a-4524-86bd-01dc121487b3",
+   "plano_conta_id": null,
+   "conta_bancaria_id": null,
+   "valor": 8400,
+   "desconto": 0,
+   "juros": 0,
+   "multa": 0,
+   "valor_pago": 0,
+   "emissao": "2026-08-16",
+   "vencimento": "2026-09-25",
+   "data_pagamento": null,
+   "status": "aberto",
+   "forma_pagamento": "",
+   "numero_documento": "com-ago26:0c5c2ccb:douglas-bispo",
+   "parcela": 1,
+   "total_parcelas": 1,
+   "recorrencia": "nenhuma",
+   "recorrencia_proxima": null,
+   "observacoes": "[COMISSOES AGOSTO 17/08] Base = cobertura de R$ 462.000,00 (6 lote(s) / 6 animais) no fechamento alinhado ao HastaPro FIL 2. Ciclo: comissao paga no dia 25 do mes seguinte.\n[DIRECIONAMENTO-PARCEIRO 24/08] Reduzido de 9.240,00 para 8.400,00: lote(s) 1 do comprador Dr. Celso Lopes (Nelore Grão Pará), direcionado pelo Gustavo Rusa. A comissão desses lotes é do parceiro (5%) — pagar os dois é comissão dobrada.",
+   "tags": [
+    "a-pagar",
+    "comissao",
+    "2026",
+    "agosto",
+    "leilao"
+   ],
+   "anexos": [],
+   "created_at": "2026-08-17T19:44:12.92428+00:00",
+   "updated_at": "2026-08-24T16:55:12.501955+00:00",
+   "fechamento_id": "0c5c2ccb-8deb-476a-9970-eb967c58e254",
+   "nota_fiscal": "",
+   "vendedor": "",
+   "projeto": "",
+   "origem": "real",
+   "evento_key": "comissao:0c5c2ccb-8deb-476a-9970-eb967c58e254:douglas-bispo",
+   "substituido_por": null,
+   "substituido_em": null
+  }
+ ]
+}

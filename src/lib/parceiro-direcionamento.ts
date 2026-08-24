@@ -72,9 +72,18 @@ export const COMPRADORES_DIRECIONADOS: readonly CompradorDirecionado[] = [
     },
     {
         parceiro: PARCEIRO_RUSA,
-        comprador: 'Alfredo José Cardoso',
-        padroes: [/ALFREDO\s+JOSE\s+CARDOSO/],
-        fonte: 'lista do chefe 22/07 (Cachoeirão, JMP Touros 1004, MEAB)',
+        comprador: 'Alfredo José Cardoso (Fazenda Galopeira)',
+        padroes: [/ALFREDO\s+JOSE\s+CARDOSO/, /GALOPEIRA/],
+        fonte: 'lista do chefe 22/07 (Cachoeirão, JMP Touros 1004, MEAB) + planilha do Rusa de agosto',
+    },
+    {
+        parceiro: PARCEIRO_RUSA,
+        comprador: 'José Fabio (Nelore Pérola)',
+        // ⚠ Só "JOSE FABIO". NUNCA casar "Fabio" solto: existem "Fabio Lopes da
+        // Selaria Mineira", "Fabio Polizeli Brito" e "Fabio Machado" comprando pelo
+        // Douglas — e "Fábio Omena" é assessor da casa.
+        padroes: [/JOSE\s+FABIO/],
+        fonte: 'planilha do Rusa de agosto/2026 (9 lotes, R$ 1,17 mi — comprador novo, 1ª compra em 16/08)',
     },
     {
         parceiro: PARCEIRO_RUSA,
@@ -125,3 +134,38 @@ export function parceiroDoComprador(...partes: (string | null | undefined)[]): D
 /** true se o lote é direcionado — açúcar para filtros. */
 export const ehCompradorDeParceiro = (...partes: (string | null | undefined)[]): boolean =>
     parceiroDoComprador(...partes) !== null
+
+/**
+ * REGRA PRIMÁRIA — o direcionamento declarado na própria mensagem do grupo.
+ *
+ * Desde julho/2026 as mensagens vêm no formato:
+ *   "Levamos lt 12 - 3600 - 1F
+ *    Foi com Douglas Bispo da Bula Assessoria
+ *    Com direcionamento técnico Gustavo Rusa"
+ *
+ * Quando a mensagem declara, ela manda — vale mais que a tabela de compradores,
+ * porque é dito na hora da venda e cobre gente que não está em lista nenhuma
+ * (em 21/08/2026 apareceu um "Erik Monteiro" que não existia em canto nenhum).
+ *
+ * Devolve o nome canônico do parceiro quando é alguém que sabemos comissionar, e
+ * `{ desconhecido }` quando o texto declara um nome que não conhecemos — nesse caso
+ * o lote NÃO é movido sozinho: fica com quem anunciou e o nome vai para a
+ * observação do fechamento, para alguém decidir.
+ */
+const PARCEIROS_CONHECIDOS: Record<string, string> = {
+    'GUSTAVO RUSA': PARCEIRO_RUSA,
+    'RUSA': PARCEIRO_RUSA,
+}
+
+export function direcionamentoDeclarado(raw: string | null | undefined):
+    { parceiro: string } | { desconhecido: string } | null {
+    const txt = norm(raw)
+    if (!txt) return null
+    const m = txt.match(/DIRECIONAMENTO\s+(?:TECNICO\s+)?(?:D[EO]\s+)?([A-Z][A-Z ]{2,40})/)
+    if (!m) return null
+    const nome = m[1].replace(/\s+(FOI|LEVAMOS|COM|LOTE|LT)\b.*$/, '').replace(/\s+/g, ' ').trim()
+    if (!nome) return null
+    const canonico = PARCEIROS_CONHECIDOS[nome]
+        ?? Object.entries(PARCEIROS_CONHECIDOS).find(([k]) => nome.startsWith(k))?.[1]
+    return canonico ? { parceiro: canonico } : { desconhecido: nome }
+}

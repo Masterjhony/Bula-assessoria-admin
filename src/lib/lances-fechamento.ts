@@ -17,7 +17,7 @@
 import type { SupabaseClient } from '@supabase/supabase-js'
 import { comissaoPctAssessor } from './assessor-comissao'
 import { assessorKey } from './assessor-normalize'
-import { parceiroDoComprador } from './parceiro-direcionamento'
+import { parceiroDoComprador, direcionamentoDeclarado } from './parceiro-direcionamento'
 
 const PARCELAS = 30
 const EMPRESA = 'Bula Assessoria'
@@ -56,6 +56,7 @@ type Venda = {
     cidade: string | null
     uf: string | null
     animais: number | null
+    raw_text?: string | null
 }
 
 export async function rebuildFechamentoFromLances(
@@ -67,7 +68,7 @@ export async function rebuildFechamentoFromLances(
     if (!cron) return { skipped: 'cronograma_nao_encontrado' }
 
     const { data: vendasRaw } = await sb.from('bula_leilao_vendas')
-        .select('lote, valor, comprador, assessor, fazenda, cidade, uf, animais')
+        .select('lote, valor, comprador, assessor, fazenda, cidade, uf, animais, raw_text')
         .eq('cronograma_id', cronogramaId).order('created_at')
     const vendas = (vendasRaw ?? []) as Venda[]
     const comValor = vendas.filter((v) => v.valor != null)
@@ -95,8 +96,13 @@ export async function rebuildFechamentoFromLances(
     // quem estava na pista não decide de quem é a comissão. Ver parceiro-direcionamento.
     const L = comValor.map((v) => {
         const anunciante = v.assessor || 'A definir'
-        const direc = parceiroDoComprador(v.comprador, v.fazenda, v.cidade, v.uf)
+        // 1º o que a mensagem declarou; 2º a tabela de compradores direcionados.
+        const dito = direcionamentoDeclarado(v.raw_text)
+        const direc = dito && 'parceiro' in dito
+            ? { parceiro: dito.parceiro, comprador: v.comprador || 'declarado na mensagem', fonte: 'direcionamento declarado no grupo' }
+            : parceiroDoComprador(v.comprador, v.fazenda, v.cidade, v.uf)
         return {
+            desconhecido: dito && 'desconhecido' in dito ? dito.desconhecido : null,
             ...v,
             animais: v.animais && v.animais > 0 ? v.animais : 1,
             assessor: direc ? direc.parceiro : anunciante,
@@ -106,6 +112,7 @@ export async function rebuildFechamentoFromLances(
         }
     })
     const redirecionados = L.filter((l) => l.direcionamento)
+    const direcDesconhecido = L.filter((l) => l.desconhecido)
     const vgv_total = r2(L.reduce((s, l) => s + l.vgv, 0))
     const total_animais = L.reduce((s, l) => s + l.animais, 0)
 
@@ -164,6 +171,9 @@ export async function rebuildFechamentoFromLances(
         semValor.length ? `PENDENTE de valor (fora dos números): lote(s) ${semValor.map((v) => v.lote).join(', ')}.` : null,
         redirecionados.length
             ? `DIRECIONAMENTO DE PARCEIRO: lote(s) ${redirecionados.map((l) => `${l.lote} → ${l.direcionamento!.parceiro} (${l.direcionamento!.comprador}, anunciado por ${l.anunciado_por})`).join('; ')}. A comissão desses lotes é do parceiro; o assessor que anunciou NÃO recebe os 2% — pagar os dois é comissão dobrada.`
+            : null,
+        direcDesconhecido.length
+            ? `⚠ DIRECIONAMENTO NÃO RECONHECIDO: lote(s) ${direcDesconhecido.map((l) => `${l.lote} → "${l.desconhecido}"`).join('; ')}. A mensagem do grupo declara direcionamento técnico de alguém que não está cadastrado — o lote ficou com quem anunciou. Decidir e, se for parceiro, cadastrar em src/lib/parceiro-direcionamento.ts.`
             : null,
         `Parte financeira (acordo/receita Bula/imposto) é passo manual no ERP.`,
     ].filter(Boolean).join('\n')

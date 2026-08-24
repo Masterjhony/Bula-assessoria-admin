@@ -24,7 +24,7 @@
  */
 import { readFileSync, writeFileSync, mkdirSync } from 'node:fs'
 import { createClient } from '@supabase/supabase-js'
-import { parceiroDoComprador } from '../src/lib/parceiro-direcionamento.ts'
+import { parceiroDoComprador, direcionamentoDeclarado } from '../src/lib/parceiro-direcionamento.ts'
 
 const arg = (k: string, d: string) => (process.argv.find((a) => a.startsWith(`--${k}=`)) || `--${k}=${d}`).split('=')[1]
 const DE = arg('de', '2026-01-01'), ATE = arg('ate', '2026-12-31')
@@ -61,6 +61,18 @@ const { data: cpsAll, error: e2 } = await sb.from('erp_contas_pagar')
   .select('*').not('fechamento_id', 'is', null).limit(5000)
 if (e2) throw e2
 
+// Direcionamento declarado na mensagem do grupo — regra primária.
+const { data: capturas } = await sb.from('bula_leilao_vendas').select('lote, valor, animais, leilao_data, raw_text').limit(5000)
+const declarado = new Map<string, string>()
+const desconhecidos: Any[] = []
+for (const c of capturas ?? []) {
+  const d = direcionamentoDeclarado(c.raw_text)
+  if (!d) continue
+  const k = `${c.leilao_data}|${String(c.lote).replace(/^0+/, '').toUpperCase()}`
+  if ('parceiro' in d) declarado.set(k, d.parceiro)
+  else desconhecidos.push({ ...c, nome: d.desconhecido })
+}
+
 const ativos: Any[] = []
 const historicos: Any[] = []
 const semTitulo: Any[] = []
@@ -68,7 +80,11 @@ const semTitulo: Any[] = []
 for (const f of fechs ?? []) {
   const lances: Any[] = JSON.parse(JSON.stringify(f.lances || []))
   const mover = lances
-    .map((l, i) => ({ i, l, d: parceiroDoComprador(l.comprador) }))
+    .map((l, i) => {
+      const k = `${f.data}|${String(l.lote).replace(/^0+/, '').toUpperCase()}`
+      const p = declarado.get(k)
+      return { i, l, d: p ? { parceiro: p, comprador: `${l.comprador} (direcionamento declarado no grupo)` } : parceiroDoComprador(l.comprador) }
+    })
     .filter((x) => x.d && !new RegExp(x.d!.parceiro.split(' ')[1] || x.d!.parceiro, 'i').test(String(x.l.assessor || '')))
   if (!mover.length) continue
 
@@ -130,6 +146,12 @@ console.log(`  VGV histórico nessa condição: ${brl(vgvHist)} (2% = ${brl(vgvH
 if (semTitulo.length) {
   console.log(`\n■ SEM TÍTULO DE COMISSÃO — fechamento sem CP do assessor (${semTitulo.length})`)
   for (const s of semTitulo) console.log(`  ${s.resumo}  [${s.bloqueio}] · lotes ${linhaLotes(s.mover)}`)
+}
+
+if (desconhecidos.length) {
+  console.log(`
+■ DIRECIONAMENTO DECLARADO MAS NAO CADASTRADO (${desconhecidos.length}) - lote NAO movido, decidir`)
+  for (const d of desconhecidos) console.log(`  ${d.leilao_data} lote ${d.lote} - parcela ${d.valor} -> "${d.nome}"`)
 }
 
 if (!APLICAR) { console.log('\nNada gravado. Use --aplicar (e restrinja com --de/--ate).'); process.exit(0) }
