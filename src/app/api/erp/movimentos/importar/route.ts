@@ -64,7 +64,39 @@ export async function POST(req: NextRequest) {
         for (const r of data || []) if (r.import_key) jaExistentes.add(r.import_key)
     }
 
-    const novas = extrato.linhas.filter(l => !jaExistentes.has(l.import_key))
+    // Segunda linha de defesa, por CONTEÚDO. A `import_key` só protege contra
+    // reimportar o mesmo arquivo: movimento que entrou antes da migration 0069,
+    // que veio de outro formato (o mesmo dia exportado em OFX e em CSV rende
+    // chaves diferentes) ou cujo histórico foi reescrito na conciliação passaria
+    // batido e duplicaria. Aqui compara-se (data, tipo, valor) por CONTAGEM, não
+    // por existência — dois PIX idênticos no mesmo dia continuam sendo dois.
+    const balde = (data: string, tipo: string, valor: number) =>
+        `${data}|${tipo}|${Math.round(valor * 100)}`
+    const saldoExistente = new Map<string, number>()
+    for (let pagina = 0; ; pagina++) {
+        const { data } = await sb
+            .from('erp_movimentos_bancarios')
+            .select('data, tipo, valor')
+            .eq('conta_bancaria_id', contaId)
+            .gte('data', periodo.de)
+            .lte('data', periodo.ate)
+            .range(pagina * 1000, pagina * 1000 + 999)
+        for (const r of data || []) {
+            const k = balde(r.data, r.tipo, Number(r.valor))
+            saldoExistente.set(k, (saldoExistente.get(k) ?? 0) + 1)
+        }
+        if (!data || data.length < 1000) break
+    }
+
+    const novas = extrato.linhas.filter(l => {
+        const k = balde(l.data, l.tipo, l.valor)
+        const restam = saldoExistente.get(k) ?? 0
+        if (jaExistentes.has(l.import_key) || restam > 0) {
+            if (restam > 0) saldoExistente.set(k, restam - 1)
+            return false
+        }
+        return true
+    })
     const duplicadas = extrato.linhas.length - novas.length
 
     const resumo = {
