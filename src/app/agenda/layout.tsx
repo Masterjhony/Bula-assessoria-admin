@@ -1,13 +1,35 @@
-import type { Metadata } from 'next'
+import type { Metadata, Viewport } from 'next'
 import Link from 'next/link'
 import { MessageCircle, Instagram, ArrowRight, Calendar } from 'lucide-react'
+import { InstallButton } from '@/components/pwa/InstallButton'
 import { WHATSAPP_CTA_URL } from './helpers'
 
+// PWA proprio da agenda publica (bulaassessoria.com). Sem isto, o `<link
+// rel="manifest">` herdado do layout raiz aponta pro manifest do app interno:
+// quem instalasse pelo site publico levava pra tela inicial um app chamado
+// "Bula Assessoria Pecuaria" descrito como painel administrativo, com
+// start_url "/". Aqui a identidade e outra (id/start_url "/agenda"), entao o
+// navegador trata como um app separado do admin e do ERP.
+//
+// `scope` fica em "/" de proposito, e nao em "/agenda": o site publico se
+// espalha por /leiloes, /criatorios, /habilitacao e /institucional, e um scope
+// estreito jogaria essas paginas pra fora do app, abrindo o navegador no meio
+// da navegacao. O que cada host serve ja e limitado pelo middleware.
+//
+// Este arquivo vale tambem pra /leiloes, que reexporta layout e metadata daqui.
 export const metadata: Metadata = {
     metadataBase: new URL('https://bulaassessoria.com'),
     title: 'Agenda de Leilões | Bula Assessoria',
     description:
         'Agenda dos principais leilões assessorados pela Bula Assessoria Pecuária, com touros, matrizes, catálogos, transmissões e informações comerciais.',
+    applicationName: 'Agenda Bula',
+    manifest: '/agenda.webmanifest',
+    appleWebApp: {
+        capable: true,
+        statusBarStyle: 'black-translucent',
+        // Nome que o iOS grava embaixo do icone na tela de inicio.
+        title: 'Agenda Bula',
+    },
     openGraph: {
         title: 'Agenda de Leilões | Bula Assessoria',
         description:
@@ -31,6 +53,17 @@ export const metadata: Metadata = {
             'Touros e matrizes dos principais leilões do Brasil, com curadoria e assessoria comercial da Bula.',
         images: ['/agenda-oficial-bula-whatsapp-v2.jpg'],
     },
+}
+
+// O layout raiz declara theme-color #000000, do app admin. Aqui a pagina e
+// #0A0A0A (.agenda-page-bg) — o mesmo valor do background_color do manifest.
+// Sem isto, o app instalado abre com a barra de status num preto e o conteudo
+// noutro, e a emenda aparece.
+export const viewport: Viewport = {
+    themeColor: '#0A0A0A',
+    width: 'device-width',
+    initialScale: 1,
+    viewportFit: 'cover',
 }
 
 export default function AgendaLayout({ children }: { children: React.ReactNode }) {
@@ -61,6 +94,17 @@ export default function AgendaLayout({ children }: { children: React.ReactNode }
                         <Link href="/habilitacao" className="agenda-nav-link hidden sm:inline" style={{ fontFamily: "'Inter',sans-serif", fontSize: '11px', fontWeight: 600, letterSpacing: '0.2em', textTransform: 'uppercase', color: '#C9A84C' }}>
                             Habilite-se
                         </Link>
+                        {/* Instalar a agenda como app. Some sozinho quando ja esta
+                            instalado ou quando o navegador nao permite instalar, entao
+                            nao ocupa espaco a toa. No celular fica so o icone: e onde
+                            instalar importa, e o espaco do header e curto. */}
+                        <InstallButton
+                            label="Baixar app"
+                            tone="light"
+                            align="right"
+                            hideLabelOnMobile
+                            className="inline-flex shrink-0 items-center gap-2 whitespace-nowrap font-['Inter',sans-serif] text-[11px] font-medium uppercase tracking-[0.2em] text-white/60 transition-colors hover:text-[#C9A84C]"
+                        />
                         <a
                             href={WHATSAPP_CTA_URL}
                             target="_blank"

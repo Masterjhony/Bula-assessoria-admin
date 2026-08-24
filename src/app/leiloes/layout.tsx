@@ -1,1 +1,1 @@
-export { default, metadata } from '../agenda/layout'
+export { default, metadata, viewport } from '../agenda/layout'

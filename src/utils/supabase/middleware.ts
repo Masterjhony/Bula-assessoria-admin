@@ -65,6 +65,23 @@ function isLpHost(host: string | null): boolean {
   )
 }
 
+// Arquivos que o navegador busca na RAIZ do host pra tratar o site como PWA:
+// o service worker, os manifests e os ícones. Precisam ser servidos como
+// estão, sem passar pelo rewrite de caminho de nenhum host público.
+//
+// O service worker é o mais sensível: `/sw.js` tem que responder na raiz pra
+// poder controlar o escopo "/" — servido de outro caminho, o navegador recusa
+// o registro, e sem registro não existe evento `beforeinstallprompt`, ou seja,
+// não existe instalação.
+function isPwaAsset(pathname: string): boolean {
+  return (
+    pathname === '/sw.js' ||
+    pathname === '/manifest.webmanifest' ||
+    pathname.endsWith('.webmanifest') ||
+    pathname.startsWith('/icons/')
+  )
+}
+
 // Host touros.* → serve a landing pública de venda de touros (/touros).
 function isTourosHost(host: string | null): boolean {
   if (!host) return false
@@ -275,7 +292,17 @@ export async function updateSession(req: NextRequest) {
       !pathname.startsWith('/_next') &&
       pathname !== '/favicon.ico' &&
       !pathname.startsWith('/logo-') &&
-      !pathname.startsWith('/bula/')
+      !pathname.startsWith('/bula/') &&
+      // Arquivos do PWA. Sem estas saidas o rewrite mandava /sw.js e
+      // /icons/* pra /agenda/sw.js e /agenda/icons/*, que nao existem: os
+      // dois davam 404 neste host. Sem service worker o navegador nunca
+      // considera o site instalavel, entao o botao "Baixar app" nunca
+      // aparecia e a agenda nao era PWA nenhum. Os icones 404 tambem
+      // deixariam o app instalado sem icone.
+      // O manifest precisa ser buscavel pelo mesmo motivo; /agenda.webmanifest
+      // ja escapava por comecar com "/agenda", mas fica explicito aqui pra
+      // ninguem depender desse acaso ao renomear o arquivo.
+      !isPwaAsset(pathname)
     ) {
       url.pathname = `/agenda${pathname}`
       res = NextResponse.rewrite(url, { request: req })
