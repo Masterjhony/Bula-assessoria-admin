@@ -43,6 +43,25 @@ de gate em automação. Na interface: **ERP › Confiança dos Números**
 | `motor.ts` | roda validações, resolve variáveis em ordem de dependência, carimba |
 | `dominios/*.ts` | um módulo por área do ERP, cada um com `VARIAVEIS` e `VALIDACOES` |
 
+### O domínio `cobertura` é diferente dos outros
+
+Todos os outros domínios medem **o que está no ERP**. `cobertura` mede **o que
+deveria estar**: cruza a agenda (`bula_leiloes`) com os fechamentos e transforma
+omissão em número. Sem ele, um leilão que a Bula cobriu e que nunca virou
+fechamento é invisível para as outras 46 validações — e o painel dá 90% de
+confiança sobre um universo que não sabe se está completo.
+
+Agenda e fechamento não têm chave em comum, então o vínculo é heurística. Ela é
+classificada em três estados, e a distinção é o que impede alarme falso:
+
+- `casado` — nome e data conferem
+- `revisar` — o sistema **não sabe**; vira pedido de conferência, nunca acusação
+- `ausente` — não há fechamento disponível na janela; só isto vira falha
+
+A dívida real é a falta de `leilao_id` no fechamento. Enquanto ela existir, a
+validação `casamento_por_heuristica` mantém o custo visível em vez de fingir
+precisão.
+
 ## As três decisões que fazem isto funcionar
 
 **1. Lacuna tem impacto declarado.** Tratar tudo como erro de valor faz o

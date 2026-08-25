@@ -53,6 +53,17 @@ export interface Fechamento {
     created_at: string | null; updated_at: string | null
 }
 
+/**
+ * A AGENDA — o que a Bula realmente cobriu. É o universo contra o qual todo o
+ * resto se mede; sem ela, o ERP só sabe falar do que já está dentro dele.
+ */
+export interface LeilaoAgenda {
+    id: string; nome: string; data: string; status: string
+    tipo: string | null; local: string | null; leiloeira: string | null
+    acordo_comissao: string | null; cronograma_id: string | null
+    created_at: string | null
+}
+
 export interface Cartao {
     id: string; apelido: string; bandeira: string | null; final: string | null
     titular: string | null; limite_credito: number | null; limite_disponivel: number | null
@@ -112,6 +123,7 @@ export interface Fatos {
     cr: Titulo[]
     categorias: Categoria[]
     fechamentos: Fechamento[]
+    agenda: LeilaoAgenda[]
     cartoes: Cartao[]
     faturas: CartaoFatura[]
     cartaoLancamentos: CartaoLancamento[]
@@ -156,7 +168,7 @@ export async function carregarFatos(sb: SupabaseClient, opts: { hoje?: string } 
     const [
         contas, movimentos, cp, cr, categorias, fechamentos,
         cartoes, faturas, cartaoLancamentos, folha, pessoas,
-        plano, lancamentos, partidas, centros, resultadosHistorico,
+        plano, lancamentos, partidas, centros, resultadosHistorico, agenda,
     ] = await Promise.all([
         todos<ContaBancaria>(sb, 'erp_contas_bancarias', 'id,nome,saldo_inicial,saldo_atual,ativo,tipo'),
         todos<Movimento>(sb, 'erp_movimentos_bancarios',
@@ -191,6 +203,8 @@ export async function carregarFatos(sb: SupabaseClient, opts: { hoje?: string } 
         todos<CentroCusto>(sb, 'erp_centros_custo', 'id,codigo,nome,ativo'),
         todos<ResultadoHistorico>(sb, 'erp_resultados_historico',
             'id,ano,mes,leiloes,lotes,vgv,receita,vendedores,compradores'),
+        todos<LeilaoAgenda>(sb, 'bula_leiloes',
+            'id,nome,data,status,tipo,local,leiloeira,acordo_comissao,cronograma_id,created_at'),
     ])
 
     const dreGrupo = new Map<string, string>()
@@ -207,7 +221,7 @@ export async function carregarFatos(sb: SupabaseClient, opts: { hoje?: string } 
     return {
         foto_em, hoje, contas, movimentos, cp, cr, categorias, fechamentos,
         cartoes, faturas, cartaoLancamentos, folha, pessoas,
-        plano, lancamentos, partidas, centros, resultadosHistorico,
+        plano, lancamentos, partidas, centros, resultadosHistorico, agenda,
         dreGrupo, catNome, transferencias,
     }
 }

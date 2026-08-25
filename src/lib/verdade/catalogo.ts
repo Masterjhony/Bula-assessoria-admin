@@ -19,6 +19,7 @@ import { VARIAVEIS as VARS_CARTOES } from './dominios/cartoes'
 import { VARIAVEIS as VARS_FOLHA } from './dominios/folha'
 import { VARIAVEIS as VARS_LEILOES } from './dominios/leiloes'
 import { VARIAVEIS as VARS_CADASTROS } from './dominios/cadastros'
+import { VARIAVEIS as VARS_COBERTURA } from './dominios/cobertura'
 
 const mesDe = (iso: string) => iso.slice(0, 7)
 const primeiroDia = (iso: string) => iso.slice(0, 7) + '-01'
@@ -530,6 +531,7 @@ export const CATALOGO: DefinicaoVariavel<Fatos>[] = [
     ...VARS_FOLHA,
     ...VARS_LEILOES,
     ...VARS_CADASTROS,
+    ...VARS_COBERTURA,
     ...VARS_CONVENCOES,
 ]
 

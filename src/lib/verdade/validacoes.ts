@@ -19,6 +19,7 @@ import { VALIDACOES as VAL_CARTOES } from './dominios/cartoes'
 import { VALIDACOES as VAL_FOLHA } from './dominios/folha'
 import { VALIDACOES as VAL_LEILOES } from './dominios/leiloes'
 import { VALIDACOES as VAL_CADASTROS } from './dominios/cadastros'
+import { VALIDACOES as VAL_COBERTURA } from './dominios/cobertura'
 
 const brl = (n: number) => 'R$ ' + Number(n || 0).toLocaleString('pt-BR', { minimumFractionDigits: 2 })
 const lista = (xs: string[], n = 4) =>
@@ -297,6 +298,7 @@ export const VALIDACOES: DefinicaoValidacao<Fatos>[] = [
     ...VAL_FOLHA,
     ...VAL_LEILOES,
     ...VAL_CADASTROS,
+    ...VAL_COBERTURA,
 ]
 
 /** Frescor da foto: qual o fato mais novo que existe no ERP. */
