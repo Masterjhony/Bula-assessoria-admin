@@ -162,6 +162,24 @@ body { background:var(--bg); color:var(--text); font-family:'Inter',-apple-syste
 .vd-det { color:var(--text3); font-size:11px; margin-top:3px; line-height:1.45; }
 .vd-afeta { font-family:monospace; font-size:10px; color:var(--text3); margin-top:3px; }
 .vd-filtros { display:flex; gap:8px; flex-wrap:wrap; margin-bottom:14px; }
+.cmp-bar { height:5px; border-radius:999px; background:var(--amber); overflow:hidden; margin:8px 0 6px; }
+.cmp-bar > i { display:block; height:100%; background:var(--olive); }
+.cmp-leg { display:flex; gap:10px; flex-wrap:wrap; }
+.cmp-leg button { background:none; border:0; padding:0; cursor:pointer; font-family:inherit; font-size:10.5px; color:var(--text3); display:flex; align-items:center; gap:4px; }
+.cmp-leg button:hover { color:var(--text); }
+.cmp-leg button.on { color:var(--gold); font-weight:700; }
+.cmp-d { width:7px; height:7px; border-radius:2px; display:inline-block; }
+.cmp-d.firme { background:var(--olive); } .cmp-d.proj { background:var(--amber); }
+.fx-drill { cursor:pointer; }
+.fx-drill:hover { background:var(--gold-dim); outline:1px solid var(--gold); }
+.dt-row { display:grid; grid-template-columns:82px 1fr 120px; gap:10px; padding:7px 0; border-bottom:1px solid var(--border); font-size:12px; align-items:start; }
+.dt-row:last-child { border-bottom:0; }
+.dt-d { color:var(--text3); font-family:monospace; font-size:11px; }
+.dt-v { text-align:right; font-weight:600; }
+.dt-tag { font-size:9.5px; font-weight:700; padding:1px 6px; border-radius:999px; background:var(--s2); color:var(--text3); margin-left:6px; }
+.dt-tag.venc { background:var(--red-bg); color:var(--red); }
+.dt-tag.orc { background:var(--amber-bg); color:var(--amber); }
+.dt-sec { font-size:10px; font-weight:700; letter-spacing:1px; text-transform:uppercase; color:var(--text3); margin:14px 0 6px; }
 
 /* TABLE */
 .table-wrap { background:var(--surface); border:1px solid var(--border); border-radius:var(--r-lg); overflow-x:auto; overflow-y:hidden; }
@@ -842,6 +860,57 @@ async function render() {
 }
 
 
+
+
+/** Alterna o filtro compromisso firme x projecao no Contas a Pagar/Receber. */
+function onFilterCompromisso(v) {
+  state.filters.compromisso = state.filters.compromisso === v ? null : v;
+  render();
+}
+
+/* ==========================================================================
+   DETALHE DE UMA CELULA DO FLUXO
+   ========================================================================== */
+async function fxDetalhe(cat, de, ate, nome) {
+  openModal(`
+    <div class="modal-header"><div class="modal-title">${escapeHtml(nome||'Categoria')}</div>
+      <button class="icon-btn" onclick="closeModal()"><span class="material-symbols-outlined">close</span></button></div>
+    <div class="modal-body"><div class="skeleton" style="height:18px;margin-bottom:10px"></div>
+      <div class="skeleton" style="height:14px;width:70%"></div></div>`, {wide:true});
+  let d;
+  try {
+    d = await api(`/api/erp/fluxo-caixa/detalhe?categoria=${encodeURIComponent(cat)}&de=${de}&ate=${ate}`);
+  } catch (e) {
+    document.querySelector('#modalRoot .modal-body').innerHTML =
+      `<p style="color:var(--red);font-size:12px">${escapeHtml(e.message)}</p>`;
+    return;
+  }
+  const linha = (dt, txt, val, tags) => `
+    <div class="dt-row">
+      <span class="dt-d">${fmtDateShort(dt)}</span>
+      <span>${escapeHtml(txt||'—')}${(tags||[]).map(t=>`<span class="dt-tag ${t.cls||''}">${escapeHtml(t.txt)}</span>`).join('')}</span>
+      <span class="dt-v">${fmtBRL(val)}</span>
+    </div>`;
+  const real = d.realizado?.itens || [], prev = d.previsto?.itens || [];
+  const html = `
+    <div style="font-size:11.5px;color:var(--text3);margin-bottom:4px">
+      ${fmtDate(de)} a ${fmtDate(ate)} · ${real.length + prev.length} lançamento(s)
+    </div>
+    ${real.length ? `<div class="dt-sec">Realizado — ${fmtBRL(d.realizado.total)}</div>
+      ${real.map(m=>linha(m.data, m.descricao, m.valor,
+        [{txt: m.tipo === 'entrada' ? 'entrada' : 'saída'}])).join('')}` : ''}
+    ${prev.length ? `<div class="dt-sec">Previsto — ${fmtBRL(d.previsto.total)}</div>
+      ${prev.map(t=>linha(t.vencimento, t.descricao, t.valor, [
+        ...(t.vencido ? [{txt:'vencido', cls:'venc'}] : []),
+        ...(t.origem === 'estimativa' ? [{txt:'projeção', cls:'orc'}] : []),
+      ])).join('')}` : ''}
+    ${(!real.length && !prev.length) ? '<p style="color:var(--text3);font-size:12px">Nada neste período.</p>' : ''}
+    <div class="dt-row" style="border-top:2px solid var(--border);border-bottom:0;margin-top:8px;font-weight:700">
+      <span></span><span>Total</span><span class="dt-v">${fmtBRL(d.total)}</span>
+    </div>`;
+  document.querySelector('#modalRoot .modal-body').innerHTML = html;
+}
+
 /* ==========================================================================
    CONFIANCA DOS NUMEROS (ERP VERDADE)
    Cada variavel do ERP com Valor, Origem, Formula, Composicao, Cobertura,
@@ -1506,10 +1575,21 @@ async function renderContas(modo) {
     return 'a90p';
   };
 
+  // COMPROMISSO FIRME x PROJECAO. A distincao muda a leitura do numero inteiro:
+  // "a pagar R$ 378 mil" era 83% folha lancada adiante, e so R$ 64 mil de divida
+  // de verdade. Quem le o total sem isso conclui que a empresa deve seis vezes
+  // mais do que deve.
+  // As DUAS convencoes valem: `origem = estimativa` (usada no ERP) e a tag
+  // 'orcamento' (usada pelo Balanco). Elas divergem em alguns titulos, e ignorar
+  // uma delas deixa compromisso futuro passando por divida.
+  const ehProjecao = (r) => r.origem === 'estimativa' || (Array.isArray(r.tags) && r.tags.includes('orcamento'));
+  const fComp = state.filters.compromisso; // 'firme' | 'projecao' | null
   let list = listAll.filter(r => {
     if (fCat && r.categoria_id !== fCat) return false;
     if (fParc && (isCP?r.fornecedor_id:r.cliente_id) !== fParc) return false;
     if (fAge && agingBucket(r) !== fAge) return false;
+    if (fComp === 'firme' && ehProjecao(r)) return false;
+    if (fComp === 'projecao' && !ehProjecao(r)) return false;
     return true;
   });
 
@@ -1541,7 +1621,12 @@ async function renderContas(modo) {
 
   // ---- KPIs (sobre a lista já filtrada) ----
   let kAberto=0, kAbertoN=0, kVenc=0, kVencN=0, kDone=0, kDoneN=0, kAtrasoSum=0, totalFiltro=0, totalFiltroN=0;
+  let kFirme=0, kFirmeN=0, kProj=0, kProjN=0;
   for (const r of list) {
+    if (isOpen(r)) {
+      if (ehProjecao(r)) { kProj += calcRestante(r); kProjN++; }
+      else { kFirme += calcRestante(r); kFirmeN++; }
+    }
     if (r.status !== 'cancelado') { totalFiltro += Number(r.valor||0); totalFiltroN++; } // cancelados ficam fora dos totais
     if (r.status === 'vencido') { kVenc += calcRestante(r); kVencN++; const d=diasAtraso(r.vencimento); if(d>0) kAtrasoSum+=d; }
     else if (['aberto','parcial'].includes(r.status)) { kAberto += calcRestante(r); kAbertoN++; }
@@ -1757,6 +1842,14 @@ async function renderContas(modo) {
         <div class="kpi-label">Em Aberto</div>
         <div class="kpi-value money">${fmtBRL(emAbertoTotal)}</div>
         <div class="kpi-sub">${kAbertoN+kVencN} titulos ${isCP?'a pagar':'a receber'}</div>
+        ${kProj ? `<div class="cmp-bar" title="quanto do total ja e compromisso firmado">
+            <i style="width:${Math.round(100*kFirme/Math.max(1,kFirme+kProj))}%"></i></div>
+          <div class="cmp-leg">
+            <button class="${fComp==='firme'?'on':''}" onclick="onFilterCompromisso('firme')">
+              <span class="cmp-d firme"></span>${isCP?'devido':'contratado'} ${fmtBRL(kFirme)}</button>
+            <button class="${fComp==='projecao'?'on':''}" onclick="onFilterCompromisso('projecao')">
+              <span class="cmp-d proj"></span>projeção ${fmtBRL(kProj)}</button>
+          </div>` : ''}
       </div>
       <div class="kpi danger">
         <div class="kpi-icon"><span class="material-symbols-outlined">warning</span></div>
@@ -4117,13 +4210,16 @@ async function renderFluxo() {
 
   // ---------- matriz estilo Omie: categoria x periodo ----------
   const fxBRL = (v) => fmtBRL(v).replace(/R\$\s?/, ''); // celula sem simbolo (pt-BR usa NBSP)
-  const fxNum = (v, sign) => {
+  // Celula com valor abre o detalhamento: o total sozinho nao responde "isso e
+  // o que?", e sem resposta ali a pessoa exporta e confere na mao.
+  const fxNum = (v, sign, cat, b, nome) => {
     if (!v) return '<td class="fx-c dim">–</td>';
-    return `<td class="fx-c ${sign>0?'pos':'neg'}">${fxBRL(v*sign)}</td>`;
+    const arg = `'${cat}','${b.from}','${b.to}',${JSON.stringify(nome||'')}`;
+    return `<td class="fx-c fx-drill ${sign>0?'pos':'neg'}" onclick='fxDetalhe(${arg})' title="ver lancamentos">${fxBRL(v*sign)}</td>`;
   };
   const linhaCat = (l, grupo, sign) => {
     const fechado = (state.fluxoFechados||{})[grupo];
-    const vals = B.map((b,i) => fxNum((l.realizado[i]||0)+(l.previsto[i]||0), sign)).join('');
+    const vals = B.map((b,i) => fxNum((l.realizado[i]||0)+(l.previsto[i]||0), sign, l.categoria_id, b, l.nome)).join('');
     return `<tr class="fx-row-${grupo}" style="${fechado?'display:none':''}">
       <td><div class="fx-cat"><span class="fx-dot" style="background:${l.cor||'#8892a0'}"></span>${escapeHtml(l.nome)}</div></td>
       ${vals}
