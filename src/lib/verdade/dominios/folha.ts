@@ -94,35 +94,66 @@ export const VARIAVEIS: DefinicaoVariavel<Fatos>[] = [
 export const VALIDACOES: DefinicaoValidacao<Fatos>[] = [
     {
         id: 'folha_cadastro_x_projecao',
-        titulo: 'a folha cadastrada bate com a folha projetada no caixa',
+        titulo: 'a folha projetada bate com o cadastro, pessoa a pessoa',
         severidade: 'fail',
         afeta: ['folha.custo_cadastrado', 'folha.custo_projetado_mes', 'fluxo.projetado', 'pagar.projetado'],
         checar: (f) => {
-            const cadastrado = r2(f.folha.filter(x => x.ativo).reduce((s, x) => s + num(x.salario_fixo), 0))
-            if (cadastrado <= 0) return null
-            // Compara mês a mês, do próximo vencimento em diante.
+            // Comparar só os TOTAIS acusava mês legítimo: quem entra no meio do
+            // mês recebe pró-rata, e o primeiro título dela é menor que o
+            // salário de propósito. Comparando pessoa a pessoa dá para separar
+            // "está a menor porque entrou dia 15" de "o salário mudou e ninguém
+            // reprojetou" — que é o erro que esta validação existe para pegar.
+            const ativos = f.folha.filter(x => x.ativo && num(x.salario_fixo) > 0)
+            if (!ativos.length) return null
             const futuros = f.cp.filter(t => aberto(t) && ehFolha(t.descricao) && t.vencimento >= f.hoje)
             if (!futuros.length) {
-                return { detalhe: `folha cadastrada em ${brl(cadastrado)}/mês, mas NENHUM CP de folha em aberto — o caixa não a enxerga` }
-            }
-            const porMes = new Map<string, number>()
-            for (const t of futuros) {
-                const k = mesDe(t.vencimento)
-                porMes.set(k, (porMes.get(k) || 0) + devido(t, 'valor_pago'))
-            }
-            const divergentes: string[] = []
-            for (const [mes, total] of [...porMes.entries()].sort()) {
-                if (Math.abs(r2(total) - cadastrado) > 1) {
-                    divergentes.push(`${mes}: projetado ${brl(total)} × cadastrado ${brl(cadastrado)} (dif ${brl(total - cadastrado)})`)
+                return {
+                    detalhe: `folha cadastrada em ${brl(ativos.reduce((s, x) => s + num(x.salario_fixo), 0))}/mes, ` +
+                        `mas NENHUM CP de folha em aberto — o caixa nao a enxerga`,
                 }
             }
-            return divergentes.length
-                ? {
-                    detalhe: `${divergentes.length} mês(es) com folha projetada diferente do cadastro. ` +
-                        `Editar a tela de Folha NÃO reprojeta o caixa — rode scripts/reprojeta-folha.mts. ` +
-                        lista(divergentes),
+            const norm = (s: string) => String(s || '').normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase()
+            const meses = [...new Set(futuros.map(t => mesDe(t.vencimento)))].sort()
+
+            const aMaior: string[] = []
+            const proRata: string[] = []
+            const semTitulo: string[] = []
+            for (const mes of meses) {
+                const doMes = futuros.filter(t => mesDe(t.vencimento) === mes)
+                for (const pessoa of ativos) {
+                    // Nome COMPLETO, nao o primeiro: a Bula tem Joao Gabriel,
+                    // Joao Eduardo e Joao Antonio, e casar por "joao" fazia o
+                    // titulo de um virar divergencia do outro.
+                    const nomes = [pessoa.nome, pessoa.pagamento_nome, ...(pessoa.apelidos || [])]
+                        .filter(Boolean).map(n => norm(n as string).trim()).filter(n => n.length > 2)
+                        .sort((a, b) => b.length - a.length)
+                    const titulo = doMes.find(t => nomes.some(n => norm(t.descricao).includes(n)))
+                    if (!titulo) { semTitulo.push(`${mes} ${pessoa.nome}`); continue }
+                    const dif = r2(devido(titulo, 'valor_pago') - num(pessoa.salario_fixo))
+                    if (Math.abs(dif) <= 1) continue
+                    if (dif < 0) proRata.push(`${mes} ${pessoa.nome}: ${brl(devido(titulo, 'valor_pago'))} de ${brl(num(pessoa.salario_fixo))}`)
+                    else aMaior.push(`${mes} ${pessoa.nome}: projetado ${brl(devido(titulo, 'valor_pago'))} > cadastro ${brl(num(pessoa.salario_fixo))}`)
                 }
-                : null
+            }
+            // Título A MAIOR que o cadastro nunca é pró-rata: ou o salário caiu e
+            // ninguém reprojetou, ou o título está errado.
+            if (aMaior.length) {
+                return {
+                    detalhe: `${aMaior.length} titulo(s) de folha acima do cadastro — editar a tela de Folha NAO ` +
+                        `reprojeta o caixa, rode scripts/reprojeta-folha.mts: ` + lista(aMaior),
+                }
+            }
+            if (semTitulo.length) {
+                return { severidade: 'warn', detalhe: `${semTitulo.length} pessoa(s) sem titulo de folha no mes: ` + lista(semTitulo) }
+            }
+            if (proRata.length) {
+                return {
+                    severidade: 'warn',
+                    detalhe: `${proRata.length} titulo(s) abaixo do cadastro — compativel com pro-rata de mes de ` +
+                        `entrada; confira se e o caso: ` + lista(proRata),
+                }
+            }
+            return null
         },
     },
     {
