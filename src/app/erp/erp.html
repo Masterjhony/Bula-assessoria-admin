@@ -871,7 +871,8 @@ function onFilterCompromisso(v) {
 /* ==========================================================================
    DETALHE DE UMA CELULA DO FLUXO
    ========================================================================== */
-async function fxDetalhe(cat, de, ate, nome) {
+async function fxDetalhe(el) {
+  const cat = el.dataset.cat, de = el.dataset.de, ate = el.dataset.ate, nome = el.dataset.nome;
   openModal(`
     <div class="modal-header"><div class="modal-title">${escapeHtml(nome||'Categoria')}</div>
       <button class="icon-btn" onclick="closeModal()"><span class="material-symbols-outlined">close</span></button></div>
@@ -4212,10 +4213,14 @@ async function renderFluxo() {
   const fxBRL = (v) => fmtBRL(v).replace(/R\$\s?/, ''); // celula sem simbolo (pt-BR usa NBSP)
   // Celula com valor abre o detalhamento: o total sozinho nao responde "isso e
   // o que?", e sem resposta ali a pessoa exporta e confere na mao.
+  // Os parametros vao em data-attributes, nao interpolados dentro do onclick:
+  // com aspas simples no atributo E no argumento o navegador fecha o atributo
+  // no primeiro apostrofo e o handler chega truncado ("fxDetalhe(").
   const fxNum = (v, sign, cat, b, nome) => {
     if (!v) return '<td class="fx-c dim">–</td>';
-    const arg = `'${cat}','${b.from}','${b.to}',${JSON.stringify(nome||'')}`;
-    return `<td class="fx-c fx-drill ${sign>0?'pos':'neg'}" onclick='fxDetalhe(${arg})' title="ver lancamentos">${fxBRL(v*sign)}</td>`;
+    return `<td class="fx-c fx-drill ${sign>0?'pos':'neg'}" onclick="fxDetalhe(this)" title="ver lancamentos"`
+      + ` data-cat="${escapeHtml(cat)}" data-de="${b.from}" data-ate="${b.to}" data-nome="${escapeHtml(nome||'')}"`
+      + `>${fxBRL(v*sign)}</td>`;
   };
   const linhaCat = (l, grupo, sign) => {
     const fechado = (state.fluxoFechados||{})[grupo];
