@@ -1230,10 +1230,19 @@ const server = http.createServer(async (req, res) => {
       }
       try {
         const participating = await session.socket.groupFetchAllParticipating()
+        // `?participants=1` devolve também os membros (jid/@lid + admin) e a
+        // descrição — usado para mapear quem participa de cada grupo interno.
+        const withParticipants = url.searchParams.get('participants') === '1'
         const groups = Object.values(participating || {}).map(g => ({
           id: g.id,
           subject: g.subject || '',
           size: Array.isArray(g.participants) ? g.participants.length : (g.size ?? null),
+          ...(withParticipants ? {
+            owner: g.owner || null,
+            creation: g.creation || null,
+            desc: g.desc || null,
+            participants: (g.participants || []).map(p => ({ id: p.id, jid: p.jid || null, lid: p.lid || null, admin: p.admin || null })),
+          } : {}),
         }))
         json(res, 200, { groups })
       } catch (error) {
