@@ -1,0 +1,237 @@
+/**
+ * Monta o fechamento de um leilão a partir do HastaPro, INCLUSIVE de outra
+ * filial que não a '2'.
+ *
+ * A premissa "FIL 2 é a cobertura Bula" vale para os leilões que a Bula
+ * assessora como terceiro. Mas quando quem conduz o pregão é a própria BULA
+ * REMATES (filial '01'), o leilão inteiro fica lá — e a cobertura da Bula
+ * Assessoria dentro dele são os lotes cujo PISTEIRO é da equipe. Foi assim que
+ * o "LEILÃO VIRTUAL NELORE KRIZ REPRODUTORES" de 07/07 ficou fora do ERP: não
+ * estava na filial 2, e ninguém olhava a 01.
+ *
+ * O leilão perdido custou caro: a comissão do Douglas de julho fechou R$ 1.602
+ * a menos, e a diferença só apareceu quando ele reclamou.
+ *
+ * A equipe é reconhecida por `erp_folha_estrutura` (nome + apelidos), não por
+ * lista fixa no código — assessor novo entra sozinho.
+ *
+ * REGRA DO BULINHA: Felipe Vilela Andrade recebe 2% normalmente, mas 0% quando
+ * a leiloeira é a Bula Remates — que é exatamente este caso.
+ *
+ *   npx tsx scripts/importa-fechamento-hastapro.mts <FIL> <TRECHO_DO_NOME> <ANO-MES>
+ *   npx tsx scripts/importa-fechamento-hastapro.mts 01 KRIZ 2026-07 --apply
+ */
+import fs from 'node:fs'
+import Firebird from 'node-firebird'
+import { createClient } from '@supabase/supabase-js'
+
+for (const line of fs.readFileSync('.env.local', 'utf8').split(/\r?\n/)) {
+    const m = line.match(/^\s*([A-Z0-9_]+)\s*=\s*(.*)\s*$/); if (!m) continue
+    let v = m[2].trim(); if (v.startsWith('"') && v.endsWith('"')) v = v.slice(1, -1)
+    if (!(m[1] in process.env)) process.env[m[1]] = v
+}
+
+const [FIL, TRECHO, COMPET] = process.argv.slice(2).filter(a => !a.startsWith('--'))
+const APPLY = process.argv.includes('--apply')
+if (!FIL || !TRECHO || !COMPET) {
+    console.error('uso: npx tsx scripts/importa-fechamento-hastapro.mts <FIL> <TRECHO_NOME> <AAAA-MM> [--apply]')
+    process.exit(1)
+}
+const de = `${COMPET}-01`
+const ate = new Date(Number(COMPET.slice(0, 4)), Number(COMPET.slice(5, 7)), 0).toISOString().slice(0, 10)
+
+const sb = createClient(process.env.NEXT_PUBLIC_SUPABASE_URL!, process.env.SUPABASE_SERVICE_ROLE_KEY!, {
+    auth: { autoRefreshToken: false, persistSession: false },
+})
+const fbOpts = {
+    host: process.env.HASTAPRO_HOST, port: +process.env.HASTAPRO_PORT!,
+    database: process.env.HASTAPRO_DATABASE, user: process.env.HASTAPRO_USER,
+    password: process.env.HASTAPRO_PASSWORD, lowercase_keys: true,
+}
+const txt = (v: unknown) => (Buffer.isBuffer(v) ? v.toString('latin1') : v)
+const norm = (o: Record<string, unknown>) => Object.fromEntries(Object.entries(o).map(([k, v]) => [k, txt(v)]))
+const brl = (n: unknown) => Number(n || 0).toLocaleString('pt-BR', { minimumFractionDigits: 2 })
+const r2 = (n: number) => Math.round(n * 100) / 100
+const chave = (s: unknown) => String(s ?? '').normalize('NFD').replace(/[̀-ͯ]/g, '')
+    .toLowerCase().replace(/[^a-z0-9]+/g, ' ').trim()
+
+// ── quem é da equipe Bula (folha do ERP, com apelidos) ──────────────────────
+const { data: folha } = await sb.from('erp_folha_estrutura')
+    .select('nome, apelidos, pagamento_nome, comissao_pct, ativo')
+type Membro = { nome: string; pct: number; tokens: string[] }
+/**
+ * PISTEIRO é quem tem comissão na folha. Administrativo (João Eduardo, Luana,
+ * Pedro…) não vai a pista e não pode reivindicar lote — foi exatamente por
+ * incluí-los que "PEDRO PEREIRA JUNIOR", pisteiro de terceiro, virou "equipe
+ * Bula" e trouxe R$ 4 milhões de VGV que não são nossos.
+ */
+const equipe: Membro[] = (folha ?? [])
+    .filter(f => Number(f.comissao_pct || 0) > 0)
+    .map(f => ({
+        nome: String(f.nome),
+        pct: Number(f.comissao_pct || 0),
+        tokens: [f.nome, f.pagamento_nome, ...((f.apelidos as string[] | null) ?? [])]
+            .filter(Boolean).map(n => chave(n)).filter(Boolean),
+    }))
+/**
+ * Casa o nome do pisteiro do HastaPro com alguém da folha.
+ *
+ * A versão ingênua (substring) errava dos dois lados: "PEDRO PEREIRA JUNIOR"
+ * casava com o funcionário "PEDRO" — que nem comissão tem —, e "Fabio de Omena
+ * Gaia" NÃO casava com "Fábio Omena" porque o "de" no meio quebrava a
+ * comparação posicional. Num universo de R$ 60 milhões, cada erro desses vale
+ * milhões.
+ *
+ * Regra: apelido de uma palavra só exige nome idêntico. Com duas ou mais,
+ * exige o primeiro nome igual E ao menos um sobrenome em comum — o que tolera
+ * partículas ("de", "da") e nomes do meio.
+ */
+function achaMembro(nomePisteiro: string): Membro | null {
+    const alvo = chave(nomePisteiro)
+    if (!alvo) return null
+    const PARTICULAS = new Set(['de', 'da', 'do', 'dos', 'das', 'e'])
+    const partes = (s: string) => s.split(' ').filter(w => w && !PARTICULAS.has(w))
+    const pa = partes(alvo)
+    for (const m of equipe) {
+        for (const t of m.tokens) {
+            if (!t) continue
+            if (alvo === t) return m
+            const pt = partes(t)
+            // Apelido de uma palavra ("Peralta", "Laila") vale se aparecer em
+            // qualquer posição — só chega aqui quem recebe comissão, então o
+            // risco de colidir com um homônimo de terceiro é pequeno.
+            if (pt.length === 1) { if (pa.includes(pt[0])) return m; continue }
+            if (pa.length < 2 || pa[0] !== pt[0]) continue
+            const sobrenomes = new Set(pa.slice(1))
+            if (pt.slice(1).some(w => sobrenomes.has(w))) return m
+        }
+    }
+    return null
+}
+
+// ── HastaPro ────────────────────────────────────────────────────────────────
+const db = await new Promise<any>((res, rej) => Firebird.attach(fbOpts, (e: unknown, d: unknown) => e ? rej(e) : res(d)))
+const q = (sql: string) => new Promise<Record<string, any>[]>((res, rej) =>
+    db.query(sql, [], (e: unknown, r: Record<string, unknown>[]) => e ? rej(e) : res(r.map(norm) as Record<string, any>[])))
+
+try {
+    const leiloes = await q(`select FIL_CODIGO fil, LEI_CODIGO cod, LEI_NOME nome, LEI_DATA data, LEI_LOCAL leilocal, LEI_UF uf
+        from LEILAO where FIL_CODIGO='${FIL}' and upper(LEI_NOME) like '%${TRECHO.toUpperCase()}%'
+          and LEI_DATA between '${de}' and '${ate}'`)
+    if (!leiloes.length) { console.error('nenhum leilao encontrado'); process.exit(1) }
+    if (leiloes.length > 1) {
+        console.error('mais de um leilao casou — refine o trecho:')
+        for (const l of leiloes) console.error('   ' + String(l.data).slice(4, 15) + '  ' + String(l.nome).trim())
+        process.exit(1)
+    }
+    const lei = leiloes[0]
+    const dataISO = new Date(String(lei.data)).toISOString().slice(0, 10)
+    console.log(`LEILAO: [fil ${String(lei.fil).trim()}] ${String(lei.nome).trim()}  ${dataISO}`)
+
+    const lotes = await q(`select lo.LOT_LOTE lote, lo.LOT_QTD qtd, lo.LOT_TOTAL total, lo.LOT_LANCE lance,
+            lo.LOT_PARCELAS parcelas, p.CLI_NOME pisteiro, c.CLI_NOME comprador, c.CLI_UF uf, f.FAZ_NOME fazenda
+        from LOTES lo
+        left join CLIENTES p on p.CLI_CODIGO = lo.LOT_PISTEIRO
+        left join COMPRADORES co on co.FIL_CODIGO=lo.FIL_CODIGO and co.LEI_CODIGO=lo.LEI_CODIGO and co.LOT_LOTE=lo.LOT_LOTE
+        left join CLIENTES c on c.CLI_CODIGO = co.CLI_CODIGO
+        left join FAZENDAS f on f.FAZ_CODIGO = co.FAZ_CODIGO
+        where lo.FIL_CODIGO='${lei.fil}' and lo.LEI_CODIGO='${lei.cod}'
+        order by lo.LOT_LOTE`)
+
+    // ── só os lotes cobertos pela equipe Bula ───────────────────────────────
+    const daBula = lotes.map(l => ({ ...l, membro: achaMembro(String(l.pisteiro || '')) }))
+        .filter(l => l.membro)
+    const foraDaBula = lotes.length - daBula.length
+    if (!daBula.length) { console.error('nenhum lote com pisteiro da equipe Bula'); process.exit(1) }
+
+    // Bulinha não recebe comissão quando a leiloeira é a Bula Remates.
+    const leiloeiraEhBulaRemates = String(lei.fil).trim() === '01'
+    const ehBulinha = (nome: string) => /bulinha|felipe.*andrade/i.test(nome)
+
+    const lances = daBula.map(l => ({
+        lote: String(l.lote).trim(),
+        vgv: r2(Number(l.total || 0)),
+        animais: Number(l.qtd || 1),
+        parcela: Number(l.lance || 0),
+        parcelas: Number(String(l.parcelas || '').replace(/\D/g, '')) || null,
+        assessor: l.membro!.nome,
+        empresa: 'Bula Assessoria',
+        comprador: [String(l.comprador || '').trim(), String(l.fazenda || '').trim()].filter(Boolean).join(' · ') || null,
+    }))
+    const vgvTotal = r2(lances.reduce((s, x) => s + x.vgv, 0))
+    const animais = lances.reduce((s, x) => s + x.animais, 0)
+
+    const porAssessor = [...new Map(lances.map(x => [x.assessor, x.assessor])).keys()].map(nome => {
+        const meus = lances.filter(x => x.assessor === nome)
+        const vgv = r2(meus.reduce((s, x) => s + x.vgv, 0))
+        const membro = equipe.find(m => m.nome === nome)!
+        const pct = leiloeiraEhBulaRemates && ehBulinha(nome) ? 0 : membro.pct / 100
+        return {
+            nome, vgv, animais: meus.reduce((s, x) => s + x.animais, 0),
+            transacoes: meus.length, empresa: 'Bula Assessoria',
+            comissao: r2(vgv * pct), comissao_pct: pct,
+            ticket_medio: r2(vgv / meus.length),
+            pct_total: vgvTotal ? Number((vgv / vgvTotal).toFixed(6)) : 0,
+        }
+    }).sort((a, b) => b.vgv - a.vgv).map((a, i) => ({ ...a, posicao: i + 1 }))
+
+    const porComprador = [...new Map(lances.map(x => [x.comprador || '(sem comprador)', x.comprador || '(sem comprador)'])).keys()]
+        .map(c => {
+            const meus = lances.filter(x => (x.comprador || '(sem comprador)') === c)
+            const orig = daBula.find(l => [String(l.comprador || '').trim(), String(l.fazenda || '').trim()].filter(Boolean).join(' · ') === c)
+            return {
+                comprador: String(orig?.comprador || c).trim(), fazenda: String(orig?.fazenda || '').trim() || null,
+                uf: String(orig?.uf || '').trim() || null, cidade: null,
+                vgv: r2(meus.reduce((s, x) => s + x.vgv, 0)),
+                lotes: meus.length, animais: meus.reduce((s, x) => s + x.animais, 0),
+            }
+        }).sort((a, b) => b.vgv - a.vgv).map((c, i) => ({ ...c, rank: i + 1 }))
+
+    const porEstado = [...new Set(porComprador.map(c => c.uf).filter(Boolean))].map(uf => {
+        const meus = porComprador.filter(c => c.uf === uf)
+        const vgv = r2(meus.reduce((s, c) => s + c.vgv, 0))
+        const lotesN = meus.reduce((s, c) => s + c.lotes, 0)
+        return {
+            uf, estado: uf, vgv, lotes: lotesN,
+            animais: meus.reduce((s, c) => s + c.animais, 0),
+            pct_total: vgvTotal ? Number((vgv / vgvTotal).toFixed(6)) : 0,
+            ticket_medio: lotesN ? r2(vgv / lotesN) : 0,
+        }
+    }).sort((a, b) => b.vgv - a.vgv)
+
+    const comissao = r2(porAssessor.reduce((s, a) => s + a.comissao, 0))
+
+    console.log(`\nlotes no leilao: ${lotes.length}  |  cobertos pela Bula: ${daBula.length}  |  de terceiros: ${foraDaBula}`)
+    console.log(`VGV coberto: R$ ${brl(vgvTotal)}   animais: ${animais}`)
+    console.log('\npor assessor:')
+    for (const a of porAssessor)
+        console.log(`   ${a.nome.padEnd(26)} ${String(a.transacoes).padStart(2)} lotes  R$ ${String(brl(a.vgv)).padStart(12)}` +
+            `  com. ${(a.comissao_pct * 100).toFixed(2)}% = R$ ${brl(a.comissao)}` +
+            (a.comissao_pct === 0 ? '   (Bulinha nao recebe em leilao da Bula Remates)' : ''))
+    console.log(`   ${'TOTAL COMISSAO'.padEnd(26)} ${' '.repeat(24)}R$ ${brl(comissao)}`)
+
+    const { data: jaTem } = await sb.from('bula_leilao_fechamento').select('id, nome').eq('data', dataISO)
+    const dup = (jaTem ?? []).find(f => chave(f.nome).includes(chave(TRECHO)) || chave(TRECHO).includes(chave(f.nome)))
+    if (dup) { console.log(`\nJA EXISTE fechamento "${dup.nome}" em ${dataISO} — nada a fazer.`); process.exit(0) }
+
+    if (!APPLY) { console.log('\n(dry-run) use --apply para gravar'); process.exit(0) }
+
+    const { data: novo, error } = await sb.from('bula_leilao_fechamento').insert({
+        nome: String(lei.nome).trim(), data: dataISO, local: String(lei.leilocal || '').trim() || null,
+        vgv_total: vgvTotal, lotes_vendidos: lances.length, animais_vendidos: animais,
+        ticket_medio: r2(vgvTotal / lances.length),
+        maior_lance: r2(Math.max(...lances.map(x => x.vgv))),
+        compradores_unicos: porComprador.length, estados_alcancados: porEstado.length,
+        lances, por_assessor: porAssessor, compradores: porComprador, por_estado: porEstado,
+        comissao_assessoria: comissao, origem: 'hastapro',
+        observacoes: `Importado do HastaPro filial ${String(lei.fil).trim()} (${leiloeiraEhBulaRemates ? 'BULA REMATES' : 'terceiro'}) por ` +
+            `scripts/importa-fechamento-hastapro.mts. O leilao inteiro tem ${lotes.length} lotes; ` +
+            `${daBula.length} foram cobertos por pisteiro da equipe Bula e ${foraDaBula} por terceiros — ` +
+            `o VGV aqui e a COBERTURA BULA, nao o faturamento do pregao.` +
+            (leiloeiraEhBulaRemates ? ' Bulinha com 0% por ser leilao da Bula Remates.' : ''),
+    }).select('id').single()
+    if (error) { console.error('ERRO:', error.message); process.exit(1) }
+    console.log(`\nfechamento criado: ${novo!.id}`)
+} finally {
+    db.detach()
+}
