@@ -101,8 +101,22 @@ function pesosDeToken(f: Fatos): Map<string, number> {
  */
 function quaseIgual(a: string, b: string) {
     if (a === b) return true
-    if (a.length < 6 || Math.abs(a.length - b.length) > 1) return false
-    // distância de edição ≤ 1, sem montar a matriz inteira
+    if (a.length < 4 || Math.abs(a.length - b.length) > 1) return false
+
+    // Transposição de letras vizinhas conta como UM erro. "KRIZ" e "KIRZ" são o
+    // mesmo leilão — a agenda escreve de um jeito e o HastaPro de outro —, mas
+    // para a distância de edição comum elas estão a DOIS erros de distância e o
+    // leilão seria dado como de terceiro.
+    if (a.length === b.length) {
+        const dif: number[] = []
+        for (let k = 0; k < a.length; k++) if (a[k] !== b[k]) dif.push(k)
+        if (dif.length === 0) return true
+        if (dif.length === 1) return true
+        if (dif.length === 2 && dif[1] === dif[0] + 1
+            && a[dif[0]] === b[dif[1]] && a[dif[1]] === b[dif[0]]) return true
+        if (dif.length > 2) return false
+    }
+
     const [curto, longo] = a.length <= b.length ? [a, b] : [b, a]
     let i = 0, j = 0, erros = 0
     while (i < curto.length && j < longo.length) {
