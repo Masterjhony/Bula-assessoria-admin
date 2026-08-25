@@ -138,11 +138,20 @@ try {
         where lo.FIL_CODIGO='${lei.fil}' and lo.LEI_CODIGO='${lei.cod}'
         order by lo.LOT_LOTE`)
 
-    // ── só os lotes cobertos pela equipe Bula ───────────────────────────────
-    const daBula = lotes.map(l => ({ ...l, membro: achaMembro(String(l.pisteiro || '')) }))
-        .filter(l => l.membro)
+    // ── quais lotes são cobertura da Bula Assessoria ────────────────────────
+    //
+    // Na FILIAL 2 o leilao inteiro ja e cobertura da Assessoria — e a premissa
+    // do cadastro. Filtrar por pisteiro ali descartaria lote legitimo cujo
+    // pisteiro esta grafado diferente ou em branco.
+    //
+    // Na filial 01 (Bula Remates) o pregao e da leiloeira e so os lotes com
+    // pisteiro da equipe sao nossos.
+    const filialEhCoberturaInteira = String(lei.fil).trim() === '2'
+    const daBula = lotes
+        .map(l => ({ ...l, membro: achaMembro(String(l.pisteiro || '')) }))
+        .filter(l => filialEhCoberturaInteira || l.membro)
     const foraDaBula = lotes.length - daBula.length
-    if (!daBula.length) { console.error('nenhum lote com pisteiro da equipe Bula'); process.exit(1) }
+    if (!daBula.length) { console.error('nenhum lote de cobertura da Bula'); process.exit(1) }
 
     // Bulinha não recebe comissão quando a leiloeira é a Bula Remates.
     const leiloeiraEhBulaRemates = String(lei.fil).trim() === '01'
@@ -154,7 +163,7 @@ try {
         animais: Number(l.qtd || 1),
         parcela: Number(l.lance || 0),
         parcelas: Number(String(l.parcelas || '').replace(/\D/g, '')) || null,
-        assessor: l.membro!.nome,
+        assessor: l.membro?.nome ?? '(a definir)',
         empresa: 'Bula Assessoria',
         comprador: [String(l.comprador || '').trim(), String(l.fazenda || '').trim()].filter(Boolean).join(' · ') || null,
     }))
@@ -164,8 +173,10 @@ try {
     const porAssessor = [...new Map(lances.map(x => [x.assessor, x.assessor])).keys()].map(nome => {
         const meus = lances.filter(x => x.assessor === nome)
         const vgv = r2(meus.reduce((s, x) => s + x.vgv, 0))
-        const membro = equipe.find(m => m.nome === nome)!
-        const pct = leiloeiraEhBulaRemates && ehBulinha(nome) ? 0 : membro.pct / 100
+        const membro = equipe.find(m => m.nome === nome)
+        // Lote sem pisteiro identificado nao gera comissao automatica: melhor
+        // ficar visivel como "(a definir)" do que atribuir a alguem por engano.
+        const pct = !membro ? 0 : (leiloeiraEhBulaRemates && ehBulinha(nome) ? 0 : membro.pct / 100)
         return {
             nome, vgv, animais: meus.reduce((s, x) => s + x.animais, 0),
             transacoes: meus.length, empresa: 'Bula Assessoria',
@@ -210,11 +221,28 @@ try {
             (a.comissao_pct === 0 ? '   (Bulinha nao recebe em leilao da Bula Remates)' : ''))
     console.log(`   ${'TOTAL COMISSAO'.padEnd(26)} ${' '.repeat(24)}R$ ${brl(comissao)}`)
 
-    const { data: jaTem } = await sb.from('bula_leilao_fechamento').select('id, nome').eq('data', dataISO)
+    const { data: jaTem } = await sb.from('bula_leilao_fechamento')
+        .select('id, nome, origem, vgv_total, lotes_vendidos').eq('data', dataISO)
     const dup = (jaTem ?? []).find(f => chave(f.nome).includes(chave(TRECHO)) || chave(TRECHO).includes(chave(f.nome)))
-    if (dup) { console.log(`\nJA EXISTE fechamento "${dup.nome}" em ${dataISO} — nada a fazer.`); process.exit(0) }
+    // Fechamento montado a partir dos lances do grupo e provisorio: o parser so
+    // ve o que alguem digitou no WhatsApp e subavalia lote com varios animais.
+    // Quando o HastaPro tem o mesmo leilao, ele SUBSTITUI o provisorio.
+    const substituivel = dup && dup.origem === 'lances-auto'
+    if (dup && !substituivel) {
+        console.log(`\nJA EXISTE fechamento "${dup.nome}" em ${dataISO} — nada a fazer.`)
+        process.exit(0)
+    }
+    if (substituivel) {
+        console.log(`\nSUBSTITUI o fechamento provisorio dos lances: "${dup!.nome}" ` +
+            `(${dup!.lotes_vendidos} lotes, R$ ${brl(dup!.vgv_total)}) -> HastaPro (${lances.length} lotes, R$ ${brl(vgvTotal)})`)
+    }
 
     if (!APPLY) { console.log('\n(dry-run) use --apply para gravar'); process.exit(0) }
+
+    if (substituivel) {
+        const { error } = await sb.from('bula_leilao_fechamento').delete().eq('id', dup!.id)
+        if (error) { console.error('ERRO ao remover o provisorio:', error.message); process.exit(1) }
+    }
 
     const { data: novo, error } = await sb.from('bula_leilao_fechamento').insert({
         nome: String(lei.nome).trim(), data: dataISO, local: String(lei.leilocal || '').trim() || null,
