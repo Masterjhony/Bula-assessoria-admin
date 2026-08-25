@@ -49,8 +49,18 @@ const diasEntre = (a: string, b: string) =>
  */
 const CARENCIA_DIAS = 12
 
+/**
+ * Nome base do evento: tira "2º DIA", "1ª ETAPA" e afins. Um leilão de três
+ * dias aparece na agenda como três linhas ("1º DIA -", "2º DIA -") e no ERP
+ * como um ou dois fechamentos. Sem normalizar isso, o modelo 1:1 acusa os dias
+ * 2 e 3 como leilões perdidos — e criar fechamento para eles DUPLICARIA VGV e
+ * comissão de um evento que já está lançado.
+ */
 const norm = (s: string) => String(s || '').normalize('NFD').replace(/[̀-ͯ]/g, '')
-    .toLowerCase().replace(/[^a-z0-9]+/g, ' ').trim()
+    .toLowerCase()
+    .replace(/\b\d{1,2}\s*[ºoa]?\s*dia\b/g, ' ')
+    .replace(/\b\d{1,2}\s*[ªa]?\s*etapa\b/g, ' ')
+    .replace(/[^a-z0-9]+/g, ' ').trim()
 
 /** Palavras que aparecem em quase todo nome de leilão e não distinguem nada. */
 const VAZIAS = new Set([
@@ -62,6 +72,65 @@ const ehOrdinal = (w: string) => /^\d{1,3}[ºoa]?$/.test(w)
 
 const tokens = (s: string) => new Set(
     norm(s).split(' ').filter(w => w.length >= 2 && !VAZIAS.has(w) && !ehOrdinal(w)))
+
+/**
+ * Peso de cada palavra pela RARIDADE no próprio corpus de nomes de leilão.
+ *
+ * "genética", "premium" e "nelore" aparecem em dezenas de leilões diferentes e
+ * não identificam nada; "katayama", "guadalupe" e "katispera" aparecem em um
+ * evento só. Sem isso, "Mega Genética EAO" casava com "7º Leilão Essência
+ * Genética" — a palavra em comum era justamente a que não distingue.
+ *
+ * Peso = 1/nº de eventos distintos em que a palavra aparece.
+ */
+function pesosDeToken(f: Fatos): Map<string, number> {
+    const freq = new Map<string, number>()
+    const nomes = [...f.agenda.map(l => l.nome), ...f.fechamentos.map(x => x.nome)]
+    for (const nome of nomes) {
+        for (const w of tokens(nome)) freq.set(w, (freq.get(w) || 0) + 1)
+    }
+    const pesos = new Map<string, number>()
+    for (const [w, n] of freq) pesos.set(w, 1 / n)
+    return pesos
+}
+
+/**
+ * Duas palavras longas a uma letra de distância são a mesma palavra digitada
+ * torto. A agenda traz "KATAYAMA TRIOLOGIA" e o fechamento "KATAYAMA TRILOGIA";
+ * sem isto, o evento inteiro virava "leilão perdido".
+ */
+function quaseIgual(a: string, b: string) {
+    if (a === b) return true
+    if (a.length < 6 || Math.abs(a.length - b.length) > 1) return false
+    // distância de edição ≤ 1, sem montar a matriz inteira
+    const [curto, longo] = a.length <= b.length ? [a, b] : [b, a]
+    let i = 0, j = 0, erros = 0
+    while (i < curto.length && j < longo.length) {
+        if (curto[i] === longo[j]) { i++; j++; continue }
+        if (++erros > 1) return false
+        if (curto.length === longo.length) { i++; j++ } else { j++ }
+    }
+    return erros + (longo.length - j) + (curto.length - i) <= 1
+}
+
+/** Quanto os dois nomes se cobrem, ponderado por raridade. 0..1 */
+function similaridade(a: Set<string>, b: Set<string>, pesos: Map<string, number>) {
+    let inter = 0
+    for (const w of a) {
+        if (b.has(w)) { inter += pesos.get(w) ?? 1; continue }
+        for (const v of b) {
+            if (quaseIgual(w, v)) { inter += Math.min(pesos.get(w) ?? 1, pesos.get(v) ?? 1); break }
+        }
+    }
+    const somaA = [...a].reduce((s, w) => s + (pesos.get(w) ?? 1), 0)
+    const somaB = [...b].reduce((s, w) => s + (pesos.get(w) ?? 1), 0)
+    const menor = Math.min(somaA, somaB)
+    return menor > 0 ? Math.min(1, inter / menor) : 0
+}
+
+/** O nome declara que é um dia/etapa de um evento maior? */
+const ehParteDeEvento = (nome: string) =>
+    /\b\d{1,2}\s*[ºoa]?\s*dia\b|\b\d{1,2}\s*[ªa]?\s*etapa\b/i.test(String(nome || ''))
 
 export type EstadoCasamento = 'casado' | 'revisar' | 'ausente'
 
@@ -97,24 +166,25 @@ export function casarAgendaComFechamentos(f: Fatos): Casamento[] {
     const concluidos = f.agenda.filter(l =>
         l.status === 'concluido' && dia(l.data) && dia(l.data) <= f.hoje)
 
-    type Par = { l: LeilaoAgenda; fe: Fechamento; score: number; inter: number }
+    const pesos = pesosDeToken(f)
+    type Par = { l: LeilaoAgenda; fe: Fechamento; score: number; sim: number }
     const pares: Par[] = []
 
     for (const l of concluidos) {
         const d = dia(l.data)
         const t = tokens(l.nome)
+        // Evento de vários dias: a janela é o evento inteiro, não o dia.
+        const janela = ehParteDeEvento(l.nome) ? 8 : 4
         for (const fe of f.fechamentos) {
             const df = dia(fe.data)
             if (!df) continue
             const dist = Math.abs(diasEntre(df, d))
-            if (dist > 4) continue
+            if (dist > janela) continue
             const tf = tokens(fe.nome)
-            let inter = 0
-            for (const w of t) if (tf.has(w)) inter++
-            if (inter === 0) continue // sem palavra em comum não é candidato
-            const denom = Math.max(1, Math.min(t.size, tf.size))
-            const score = (dist === 0 ? 2 : dist <= 1 ? 1 : 0) + 4 * (inter / denom)
-            pares.push({ l, fe, score, inter })
+            const sim = similaridade(t, tf, pesos)
+            if (sim <= 0) continue // sem palavra em comum não é candidato
+            const score = (dist === 0 ? 2 : dist <= 1 ? 1.4 : dist <= 4 ? 0.8 : 0.4) + 4 * sim
+            pares.push({ l, fe, score, sim })
         }
     }
 
@@ -130,10 +200,30 @@ export function casarAgendaComFechamentos(f: Fatos): Casamento[] {
     }
 
     /**
-     * Para quem ficou sem par: existe algum fechamento na janela que AINDA não
-     * pertence a outro leilão? Se todos os do dia já têm dono, o leilão está
-     * mesmo sem fechamento — foi isso que quase escondeu o Kirz de 07/07, que
-     * dividia data com outro pregão já casado.
+     * Um evento de vários dias ocupa N linhas na agenda e vira UM fechamento.
+     * A atribuição 1:1 dá o fechamento ao primeiro dia e deixa os outros
+     * órfãos — e criar fechamento para eles duplicaria o VGV do evento.
+     * Então, antes de declarar ausência, procura-se um fechamento do MESMO
+     * evento, mesmo que já reivindicado por outro dia.
+     */
+    const fechamentoDoMesmoEvento = (l: LeilaoAgenda): Fechamento | null => {
+        const d = dia(l.data)
+        const t = tokens(l.nome)
+        let melhor: { fe: Fechamento; sim: number } | null = null
+        for (const fe of f.fechamentos) {
+            const df = dia(fe.data)
+            if (!df || Math.abs(diasEntre(df, d)) > 8) continue
+            const sim = similaridade(t, tokens(fe.nome), pesos)
+            if (sim >= 0.6 && (!melhor || sim > melhor.sim)) melhor = { fe, sim }
+        }
+        return melhor?.fe ?? null
+    }
+
+    /**
+     * Para quem ficou sem par nem evento: existe algum fechamento na janela que
+     * AINDA não pertence a outro leilão? Se todos os do dia já têm dono, o
+     * leilão está mesmo sem fechamento — foi isso que quase escondeu o Kirz de
+     * 07/07, que dividia data com outro pregão já casado.
      */
     const sobraFechamentoLivre = (l: LeilaoAgenda) => {
         const d = dia(l.data)
@@ -147,13 +237,28 @@ export function casarAgendaComFechamentos(f: Fatos): Casamento[] {
     return concluidos.map((l): Casamento => {
         const p = escolhido.get(l.id)
         if (p) {
-            // 4.0 = data batendo com nome corroborando bem.
-            return p.score >= 4
-                ? { estado: 'casado', leilao: l, fechamento: p.fe, score: r2(p.score), motivo: 'nome e data conferem' }
-                : {
-                    estado: 'revisar', leilao: l, fechamento: p.fe, score: r2(p.score),
-                    motivo: 'nome só confere em parte — conferir se é o mesmo evento',
+            // Nome raro em comum (katayama, guadalupe) fecha o caso mesmo com
+            // dias de diferença; nome genérico não fecha nem no mesmo dia.
+            const forte = p.sim >= 0.5 && p.score >= 3
+            if (forte) {
+                return {
+                    estado: 'casado', leilao: l, fechamento: p.fe, score: r2(p.score),
+                    motivo: ehParteDeEvento(l.nome)
+                        ? 'dia de um evento já lançado como fechamento único'
+                        : 'nome e data conferem',
                 }
+            }
+            return {
+                estado: 'revisar', leilao: l, fechamento: p.fe, score: r2(p.score),
+                motivo: 'nome só confere em parte — conferir se é o mesmo evento',
+            }
+        }
+        const doEvento = fechamentoDoMesmoEvento(l)
+        if (doEvento) {
+            return {
+                estado: 'casado', leilao: l, fechamento: doEvento, score: 0,
+                motivo: 'dia de um evento de vários dias, já lançado num fechamento único',
+            }
         }
         return sobraFechamentoLivre(l)
             ? {
@@ -249,9 +354,9 @@ export const VARIAVEIS: DefinicaoVariavel<Fatos>[] = [
         calcular: (f): ResultadoCalculo => {
             const cs = casarAgendaComFechamentos(f).filter(c => foraDaCarencia(f, c))
             const comCr = new Set(f.cr.filter(vivo).map(t => t.fechamento_id).filter(Boolean) as string[])
-            const chegaram = cs.filter(c => c.estado !== 'ausente' && comCr.has(c.fechamento!.id))
+            const chegaram = cs.filter(c => !!c.fechamento && comCr.has(c.fechamento.id))
             const paramNoFechamento = cs.filter(c =>
-                c.estado !== 'ausente' && !comCr.has(c.fechamento!.id))
+                !!c.fechamento && !comCr.has(c.fechamento.id))
             const semFechamento = cs.filter(c => c.estado === 'ausente')
             return {
                 valor: cs.length ? r2((chegaram.length / cs.length) * 100) : null,
@@ -358,6 +463,35 @@ export const VALIDACOES: DefinicaoValidacao<Fatos>[] = [
                 detalhe: `${orfaos.length} fechamento(s) com receita apurada e nenhum CR — ${brl(total)} que ` +
                     `ninguém está cobrando: ` +
                     lista(orfaos.map(fe => `${dia(fe.data)} ${fe.nome.slice(0, 38)} (${brl(num(fe.receita_bula))})`)),
+            }
+        },
+    },
+    {
+        id: 'venda_capturada_sem_cronograma',
+        titulo: 'lance capturado do grupo foi atribuído a um leilão',
+        severidade: 'fail',
+        afeta: ['cobertura.fechamento', 'cobertura.cadeia_operacional', 'agenda.leiloes_realizados', 'vgv.mes'],
+        checar: (f) => {
+            // O parser captura o arremete do grupo de lances, mas só vira
+            // fechamento depois de ligado a um cronograma. Quando dois leilões
+            // caem no mesmo dia, o sistema não sabe de qual é a venda e a linha
+            // fica órfã — capturada, correta, e invisível para todo o ERP.
+            const orfas = f.vendasCapturadas.filter(v => !v.cronograma_id && v.leilao_data)
+            if (!orfas.length) return null
+            const porData = new Map<string, { n: number; valor: number; grupos: Set<string> }>()
+            for (const v of orfas) {
+                const d = dia(v.leilao_data)
+                const a = porData.get(d) || { n: 0, valor: 0, grupos: new Set<string>() }
+                a.n++; a.valor += num(v.valor)
+                if (v.group_jid) a.grupos.add(v.group_jid)
+                porData.set(d, a)
+            }
+            return {
+                detalhe: `${orfas.length} lance(s) capturado(s) do grupo sem leilão atribuído — ` +
+                    `o arremate existe, foi lido corretamente, e mesmo assim não virou fechamento, ` +
+                    `VGV nem comissão. Costuma acontecer quando dois pregões caem no mesmo dia. ` +
+                    [...porData.entries()].sort().map(([d, a]) =>
+                        `${d}: ${a.n} lote(s), ${a.grupos.size} grupo(s) de origem`).join('; '),
             }
         },
     },

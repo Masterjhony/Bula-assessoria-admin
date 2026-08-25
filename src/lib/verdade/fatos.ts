@@ -64,6 +64,13 @@ export interface LeilaoAgenda {
     created_at: string | null
 }
 
+/** Lance/venda capturado do grupo de lances do WhatsApp — o registro primário do pregão. */
+export interface VendaCapturada {
+    id: string; leilao_data: string | null; lote: string | null; valor: number | null
+    comprador: string | null; assessor: string | null; sexo: string | null; animais: number | null
+    cronograma_id: string | null; group_jid: string | null; status: string | null; fonte: string | null
+}
+
 export interface Cartao {
     id: string; apelido: string; bandeira: string | null; final: string | null
     titular: string | null; limite_credito: number | null; limite_disponivel: number | null
@@ -124,6 +131,7 @@ export interface Fatos {
     categorias: Categoria[]
     fechamentos: Fechamento[]
     agenda: LeilaoAgenda[]
+    vendasCapturadas: VendaCapturada[]
     cartoes: Cartao[]
     faturas: CartaoFatura[]
     cartaoLancamentos: CartaoLancamento[]
@@ -169,6 +177,7 @@ export async function carregarFatos(sb: SupabaseClient, opts: { hoje?: string } 
         contas, movimentos, cp, cr, categorias, fechamentos,
         cartoes, faturas, cartaoLancamentos, folha, pessoas,
         plano, lancamentos, partidas, centros, resultadosHistorico, agenda,
+        vendasCapturadas,
     ] = await Promise.all([
         todos<ContaBancaria>(sb, 'erp_contas_bancarias', 'id,nome,saldo_inicial,saldo_atual,ativo,tipo'),
         todos<Movimento>(sb, 'erp_movimentos_bancarios',
@@ -205,6 +214,8 @@ export async function carregarFatos(sb: SupabaseClient, opts: { hoje?: string } 
             'id,ano,mes,leiloes,lotes,vgv,receita,vendedores,compradores'),
         todos<LeilaoAgenda>(sb, 'bula_leiloes',
             'id,nome,data,status,tipo,local,leiloeira,acordo_comissao,cronograma_id,created_at'),
+        todos<VendaCapturada>(sb, 'bula_leilao_vendas',
+            'id,leilao_data,lote,valor,comprador,assessor,sexo,animais,cronograma_id,group_jid,status,fonte'),
     ])
 
     const dreGrupo = new Map<string, string>()
@@ -222,7 +233,7 @@ export async function carregarFatos(sb: SupabaseClient, opts: { hoje?: string } 
         foto_em, hoje, contas, movimentos, cp, cr, categorias, fechamentos,
         cartoes, faturas, cartaoLancamentos, folha, pessoas,
         plano, lancamentos, partidas, centros, resultadosHistorico, agenda,
-        dreGrupo, catNome, transferencias,
+        vendasCapturadas, dreGrupo, catNome, transferencias,
     }
 }
 
