@@ -7,6 +7,7 @@
  */
 
 import type { SupabaseClient } from '@supabase/supabase-js'
+import { competenciaDoTexto } from './erp-evento'
 
 const iso = (d: Date) => d.toISOString().slice(0, 10)
 const addDays = (d: Date, n: number) => { const x = new Date(d); x.setDate(x.getDate() + n); return x }
@@ -199,6 +200,14 @@ export async function computeDre(
   const { data: catsData } = await sb.from('erp_categorias').select('id,nome,dre_grupo')
   const catById = new Map((catsData || []).map((c: { id: string; nome: string; dre_grupo: string | null }) => [c.id, c]))
 
+  // Títulos do período guardados para abrir o detalhe de cada linha depois.
+  type TitDet = {
+    valor: number; desconto: number; juros: number; multa: number
+    categoria_id: string | null; descricao?: string | null; fechamento_id: string | null
+  }
+  let detCps: TitDet[] = []
+  let detCrs: TitDet[] = []
+
   // acumulação: por categoria, com sinal (+entrada / -saida) — estorno dentro
   // da mesma categoria abate em vez de virar linha nova.
   type Acc = { nome: string; grupo: DreGrupo; entrada: number; saida: number }
@@ -227,22 +236,57 @@ export async function computeDre(
     // extrato, que existe para o regime de CAIXA. Na competencia quem responde
     // pela despesa sao os titulos analiticos (comissao por leilao/assessor) —
     // somar os dois contaria a mesma comissao duas vezes.
-    const [{ data: cps }, { data: crs }] = await Promise.all([
-      sb.from('erp_contas_pagar')
-        .select('valor,desconto,juros,multa,categoria_id')
-        .gte('vencimento', from).lte('vencimento', to)
-        .neq('status', 'cancelado')
-        .neq('origem', 'sintetico'),
-      sb.from('erp_contas_receber')
-        .select('valor,desconto,juros,multa,categoria_id')
-        .gte('vencimento', from).lte('vencimento', to)
-        .neq('status', 'cancelado')
-        .neq('origem', 'sintetico'),
+    // COMPETENCIA DE VERDADE, nao vencimento.
+    //
+    // A comissao de um leilao vence no dia 25 do mes SEGUINTE. Usando o
+    // vencimento como competencia, julho exibia a comissao dos leiloes de
+    // junho: R$ 151.303 contra uma receita de julho, ou 46,6% — numero que nao
+    // corresponde a nenhuma taxa que a Bula pratica. Pela data do leilao a
+    // mesma conta da R$ 72.823, que sao os 2,34% reais sobre o VGV coberto.
+    //
+    // Entao: titulo ligado a um fechamento compete no mes do LEILAO; os demais
+    // seguem pelo vencimento, que para eles e a melhor aproximacao disponivel.
+    const COLS_TIT = 'valor,desconto,juros,multa,categoria_id,vencimento,fechamento_id,descricao'
+    const janela = { de: from, ate: to }
+    const [{ data: cpsRaw }, { data: crsRaw }, { data: fechs }] = await Promise.all([
+      sb.from('erp_contas_pagar').select(COLS_TIT).neq('status', 'cancelado').neq('origem', 'sintetico'),
+      sb.from('erp_contas_receber').select(COLS_TIT).neq('status', 'cancelado').neq('origem', 'sintetico'),
+      sb.from('bula_leilao_fechamento').select('id,data'),
     ])
-    type Tit = { valor: number; desconto: number; juros: number; multa: number; categoria_id: string | null }
+    const dataDoFechamento = new Map(
+      ((fechs || []) as { id: string; data: string }[]).map((f) => [f.id, String(f.data).slice(0, 10)]))
+
+    type Tit = {
+      valor: number; desconto: number; juros: number; multa: number
+      categoria_id: string | null; vencimento: string | null; fechamento_id: string | null
+      descricao?: string | null
+    }
+    /**
+     * Mes em que o fato economico aconteceu, na ordem de confianca:
+     *   1. data do leilao, quando o titulo esta ligado a um fechamento;
+     *   2. competencia declarada no texto ("NF 26 - COMISSAO MAIO/2026"), que e
+     *      como o financeiro escreve quando paga com atraso;
+     *   3. vencimento, ultima aproximacao disponivel.
+     */
+    const competenciaDe = (r: Tit): string | null => {
+      const doLeilao = r.fechamento_id ? dataDoFechamento.get(r.fechamento_id) : null
+      if (doLeilao) return doLeilao
+      const doTexto = competenciaDoTexto(String(r.descricao || ''))
+      if (doTexto) return `${doTexto}-15` // meio do mes: so a competencia importa
+      return String(r.vencimento || '').slice(0, 10) || null
+    }
+    const noPeriodo = (r: Tit) => {
+      const c = competenciaDe(r)
+      return !!c && c >= janela.de && c <= janela.ate
+    }
+    const cps = ((cpsRaw || []) as Tit[]).filter(noPeriodo)
+    const crs = ((crsRaw || []) as Tit[]).filter(noPeriodo)
+    detCps = cps as unknown as TitDet[]
+    detCrs = crs as unknown as TitDet[]
+
     const liq = (r: Tit) => Number(r.valor || 0) - Number(r.desconto || 0) + Number(r.juros || 0) + Number(r.multa || 0)
-    for (const r of (cps || []) as Tit[]) lanca(r.categoria_id, 'Outras Despesas', 'saida', liq(r))
-    for (const r of (crs || []) as Tit[]) lanca(r.categoria_id, 'Outras Receitas', 'entrada', liq(r))
+    for (const r of cps) lanca(r.categoria_id, 'Outras Despesas', 'saida', liq(r))
+    for (const r of crs) lanca(r.categoria_id, 'Outras Receitas', 'entrada', liq(r))
   }
 
   // linhas por grupo (net por categoria; sinal do ponto de vista do grupo)
@@ -254,6 +298,12 @@ export async function computeDre(
   const soma = (ls: { valor: number }[]) => r2(ls.reduce((s, l) => s + l.valor, 0))
 
   const gReceita = linhasDe('receita', 1)
+  // Receita bruta e a base de TODOS os percentuais do DRE. Calculada aqui, antes
+  // dos demais grupos, para cada linha ja sair com o seu peso.
+  const baseReceita = soma(gReceita)
+  const pctDe = (v: number) => (baseReceita > 0 ? Math.round((v / baseReceita) * 10000) / 100 : 0)
+  const comPct = <T extends { valor: number }>(ls: T[]) =>
+    ls.map((l) => ({ ...l, pct: baseReceita > 0 ? Math.round((l.valor / baseReceita) * 10000) / 100 : 0 }))
   const gImposto = linhasDe('imposto', -1)
   const gCusto = linhasDe('custo_direto', -1)
   const gVar = linhasDe('despesa_variavel', -1)
@@ -263,6 +313,63 @@ export async function computeDre(
   // líquido operacional, nunca antes — não é custo da operação e não pode
   // entrar no EBITDA nem no ponto de equilíbrio.
   const gDist = linhasDe('distribuicao', -1)
+
+  // ── detalhe de cada linha: de quais leiloes (ou de quem) ela e feita ──────
+  //
+  // "Comissao de funcionario: R$ 151 mil" nao permite conferir nada. Aberta por
+  // pessoa, e por leilao, vira uma conta que o assessor reconhece — e foi assim
+  // que a diferenca de R$ 1.602 do Douglas apareceu.
+  //
+  // So existe no regime de COMPETENCIA: e la que o titulo esta amarrado ao
+  // fechamento que o gerou.
+  type Detalhe = { rotulo: string; valor: number }
+  const detalhePorLinha = new Map<string, Detalhe[]>()
+  if (regime === 'competencia') {
+    const nomeFech = new Map<string, string>()
+    const { data: fs2 } = await sb.from('bula_leilao_fechamento').select('id,nome,data')
+    for (const f of (fs2 || []) as { id: string; nome: string }[]) nomeFech.set(f.id, f.nome)
+
+    const somaPor = (chave: (r: TitDet) => string | null, rows: TitDet[]) => {
+      const m = new Map<string, number>()
+      for (const r of rows) {
+        const k = chave(r)
+        if (!k) continue
+        const v = Number(r.valor || 0) - Number(r.desconto || 0) + Number(r.juros || 0) + Number(r.multa || 0)
+        m.set(k, (m.get(k) || 0) + v)
+      }
+      return [...m.entries()].map(([rotulo, valor]) => ({ rotulo, valor: r2(valor) }))
+        .filter((d) => Math.abs(d.valor) > 0.005).sort((a, b) => b.valor - a.valor)
+    }
+    const catNome = (id: string | null) => (id ? catById.get(id)?.nome : null) || null
+    const doGrupo = (nome: string) => detCps.filter((r) => catNome(r.categoria_id) === nome)
+
+    // comissao: por pessoa (o titulo traz o nome) e, dentro dela, o leilao
+    // A categoria se chama "Comissões" desde que o repasse a parceiros foi
+    // juntado nela; o nome antigo fica aceito para nao quebrar historico.
+    for (const nomeCat of ['Comissões', 'Comissão Funcionário']) {
+      const rows = doGrupo(nomeCat)
+      if (!rows.length) continue
+      detalhePorLinha.set(nomeCat, somaPor((r) => {
+        const m = String(r.descricao || '').match(/-\s*([A-ZÀ-Ú][^-(]{2,})$/)
+        return (m ? m[1] : String(r.descricao || '')).trim().slice(0, 34) || null
+      }, rows))
+    }
+
+    // viagem e despesa de leilao: por leilao
+    for (const g of ['Viagem/Passagens', 'Despesa Operacional Leilão']) {
+      detalhePorLinha.set(g, somaPor((r) =>
+        r.fechamento_id ? (nomeFech.get(r.fechamento_id) || null) : '(sem leilão)', doGrupo(g)))
+    }
+
+    // receita: por leilao
+    detalhePorLinha.set('__receita__', somaPor((r) =>
+      r.fechamento_id ? (nomeFech.get(r.fechamento_id) || null) : '(sem leilão)', detCrs))
+  }
+  const comDetalhe = <T extends { nome: string; valor: number }>(ls: T[]) =>
+    ls.map((l) => {
+      const d = detalhePorLinha.get(l.nome)
+      return d && d.length ? { ...l, detalhe: d } : l
+    })
 
   const receitaBruta = soma(gReceita)
   const impostos = soma(gImposto)
@@ -294,20 +401,23 @@ export async function computeDre(
     from, to,
     // ── cascata contábil ──
     cascata: {
-      receita_bruta: { total: receitaBruta, linhas: gReceita },
-      impostos: { total: impostos, linhas: gImposto },
+      receita_bruta: {
+        total: receitaBruta, pct: 100, linhas: comPct(gReceita),
+        detalhe: detalhePorLinha.get('__receita__') || [],
+      },
+      impostos: { total: impostos, pct: pctDe(impostos), linhas: comPct(gImposto) },
       receita_liquida: receitaLiquida,
-      custo_direto: { total: custoDireto, linhas: gCusto },
+      custo_direto: { total: custoDireto, pct: pctDe(custoDireto), linhas: comPct(comDetalhe(gCusto)) },
       lucro_bruto: lucroBruto,
-      despesas_variaveis: { total: despVariaveis, linhas: gVar },
-      despesas_fixas: { total: despFixas, linhas: gFixa },
+      despesas_variaveis: { total: despVariaveis, pct: pctDe(despVariaveis), linhas: comPct(comDetalhe(gVar)) },
+      despesas_fixas: { total: despFixas, pct: pctDe(despFixas), linhas: comPct(comDetalhe(gFixa)) },
       ebitda,
-      resultado_financeiro: { total: resultadoFinanceiro, linhas: gFin },
+      resultado_financeiro: { total: resultadoFinanceiro, pct: pctDe(resultadoFinanceiro), linhas: comPct(gFin) },
       lucro_liquido: lucroLiquido,
-      distribuicao: { total: distribuicao, linhas: gDist },
+      distribuicao: { total: distribuicao, pct: pctDe(distribuicao), linhas: comPct(gDist) },
       resultado_retido: resultadoRetido,
-      margem_liquida: receitaBruta > 0 ? r2(lucroLiquido / receitaBruta * 10000) / 100 : 0,
-      margem_ebitda: receitaBruta > 0 ? r2(ebitda / receitaBruta * 10000) / 100 : 0,
+      margem_liquida: receitaBruta > 0 ? Math.round(lucroLiquido / receitaBruta * 10000) / 100 : 0,
+      margem_ebitda: receitaBruta > 0 ? Math.round(ebitda / receitaBruta * 10000) / 100 : 0,
     },
     // ── legado ──
     receitas,

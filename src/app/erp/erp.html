@@ -3961,7 +3961,9 @@ async function renderDRE() {
   const fim = new Date(inicio.getFullYear(), inicio.getMonth()+1, 0);
   const from = state.filters.dreFrom || inicio.toISOString().slice(0,10);
   const to = state.filters.dreTo || fim.toISOString().slice(0,10);
-  const regime = state.filters.dreRegime || 'caixa';
+  // COMPETENCIA como padrao: o DRE responde "quanto a operacao rendeu no mes",
+  // e isso e competencia. Caixa continua a um clique, para conferir banco.
+  const regime = state.filters.dreRegime || 'competencia';
   const d = await api(`/api/erp/dre?from=${from}&to=${to}&regime=${regime}`);
   const c = d.cascata;
 
@@ -3972,8 +3974,8 @@ async function renderDRE() {
         <input type="date" class="table-filter" value="${from}" onchange="state.filters.dreFrom=this.value;render()">
         <input type="date" class="table-filter" value="${to}" onchange="state.filters.dreTo=this.value;render()">
         <select class="table-filter" onchange="state.filters.dreRegime=this.value;render()">
-          <option value="caixa" ${regime==='caixa'?'selected':''}>Regime de Caixa</option>
-          <option value="competencia" ${regime==='competencia'?'selected':''}>Regime de Competencia</option>
+          <option value="competencia" ${regime==='competencia'?'selected':''}>Competência (recomendado)</option>
+          <option value="caixa" ${regime==='caixa'?'selected':''}>Caixa</option>
         </select>
       </div>
     </div>
@@ -4022,7 +4024,9 @@ async function renderDRE() {
           : []),
       ].join('')}</table>
       <div style="margin-top:10px;font-size:11px;color:var(--text3)">
-        Regime de ${regime === 'caixa' ? 'caixa: movimentos bancários conciliados por categoria (transferências internas e resgates de aplicação ficam fora)' : 'competência: títulos (CP/CR) pelo vencimento, cancelados fora'}.
+        Regime de ${regime === 'caixa'
+          ? 'caixa: movimentos bancários conciliados por categoria (transferências internas e resgates de aplicação ficam fora)'
+          : 'competência: cada título entra no mês em que o fato aconteceu — data do LEILÃO quando ele está ligado a um fechamento, a competência declarada no texto (&quot;ref. julho/2026&quot;) em segundo lugar, e o vencimento só quando não há nada melhor. Cancelados fora.'}.
         Estornos abatem dentro da própria categoria.
       </div>
     </div>
@@ -4030,17 +4034,47 @@ async function renderDRE() {
   document.getElementById('page').innerHTML = html;
 }
 
-/* linhas da cascata da DRE */
+/* linhas da cascata da DRE
+   Cada linha traz o % da RECEITA BRUTA ao lado — a pergunta seguinte a "quanto"
+   e sempre "quanto isso pesa" — e abre o detalhe de quem/qual leilao a compoe,
+   que e o que permite conferir a conta com o assessor ou com a leiloeira. */
+let dreDetAberto = {};
+function dreToggleDet(id) {
+  dreDetAberto[id] = !dreDetAberto[id];
+  const el = document.getElementById('dre-det-' + id);
+  const ic = document.getElementById('dre-ico-' + id);
+  if (el) el.style.display = dreDetAberto[id] ? '' : 'none';
+  if (ic) ic.textContent = dreDetAberto[id] ? 'expand_more' : 'chevron_right';
+}
+function drePct(p) {
+  if (p === undefined || p === null) return '';
+  return `<span style="color:var(--text3);font-size:11px;margin-left:8px;font-variant-numeric:tabular-nums">${Number(p).toFixed(1).replace('.', ',')}%</span>`;
+}
+function dreDetalheRows(id, det) {
+  if (!det || !det.length) return '';
+  return `<tr id="dre-det-${id}" style="display:${dreDetAberto[id] ? '' : 'none'}"><td colspan="2" style="padding:0 10px 8px 40px">
+    ${det.map(x => `<div style="display:flex;justify-content:space-between;gap:12px;padding:3px 0;font-size:11.5px;color:var(--text3);border-bottom:1px dashed var(--border)">
+      <span>${escapeHtml(x.rotulo)}</span><span class="money">${fmtBRL(x.valor)}</span></div>`).join('')}
+  </td></tr>`;
+}
 function dreGrupoRows(rotulo, grupo, tom) {
   const cor = tom === 'neg' ? 'var(--danger, #C0504D)' : 'var(--success, #6B8F5C)';
-  const header = `<tr style="background:var(--s2)">
-    <td style="padding:9px 10px;font-weight:700">${rotulo}</td>
+  const idG = rotulo.replace(/[^a-zA-Z]/g, '').slice(0, 18);
+  const temDetG = (grupo.detalhe || []).length > 0;
+  const header = `<tr style="background:var(--s2)" ${temDetG ? `onclick="dreToggleDet('${idG}')" style="cursor:pointer;background:var(--s2)"` : ''}>
+    <td style="padding:9px 10px;font-weight:700">
+      ${temDetG ? `<span class="material-symbols-outlined" id="dre-ico-${idG}" style="font-size:15px;vertical-align:-3px">chevron_right</span> ` : ''}${rotulo}${drePct(grupo.pct)}</td>
     <td style="padding:9px 10px;text-align:right;font-weight:700" class="money"><span style="color:${cor}">${fmtBRL(Math.abs(grupo.total))}</span></td>
-  </tr>`;
-  const linhas = (grupo.linhas || []).map(l => `<tr>
-    <td style="padding:5px 10px 5px 26px;color:var(--text2);border-bottom:1px solid var(--border)">${escapeHtml(l.nome)}</td>
-    <td style="padding:5px 10px;text-align:right;color:var(--text2);border-bottom:1px solid var(--border)" class="money">${l.valor<0?'−':''}${fmtBRL(Math.abs(l.valor))}</td>
-  </tr>`).join('');
+  </tr>` + dreDetalheRows(idG, grupo.detalhe);
+  const linhas = (grupo.linhas || []).map((l, i) => {
+    const id = idG + i;
+    const temDet = (l.detalhe || []).length > 0;
+    return `<tr ${temDet ? `onclick="dreToggleDet('${id}')" style="cursor:pointer"` : ''}>
+      <td style="padding:5px 10px 5px 26px;color:var(--text2);border-bottom:1px solid var(--border)">
+        ${temDet ? `<span class="material-symbols-outlined" id="dre-ico-${id}" style="font-size:14px;vertical-align:-2px">chevron_right</span> ` : ''}${escapeHtml(l.nome)}${drePct(l.pct)}</td>
+      <td style="padding:5px 10px;text-align:right;color:var(--text2);border-bottom:1px solid var(--border)" class="money">${l.valor<0?'−':''}${fmtBRL(Math.abs(l.valor))}</td>
+    </tr>` + dreDetalheRows(id, l.detalhe);
+  }).join('');
   return header + linhas;
 }
 function dreSubtotalRow(rotulo, valor, destaque) {
