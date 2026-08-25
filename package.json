@@ -7,7 +7,10 @@
     "build": "next build --webpack",
     "start": "next start",
     "lint": "eslint .",
-    "whatsapp:reactivar": "powershell -ExecutionPolicy Bypass -File scripts/reactivate-crm-whatsapp.ps1"
+    "whatsapp:reactivar": "powershell -ExecutionPolicy Bypass -File scripts/reactivate-crm-whatsapp.ps1",
+    "verdade": "tsx scripts/verdade.mts",
+    "verdade:curto": "tsx scripts/verdade.mts --curto",
+    "verdade:json": "tsx scripts/verdade.mts --json"
   },
   "dependencies": {
     "@dnd-kit/core": "^6.3.1",

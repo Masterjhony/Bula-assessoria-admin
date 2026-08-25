@@ -127,6 +127,42 @@ body { background:var(--bg); color:var(--text); font-family:'Inter',-apple-syste
 .kpi.warn .kpi-icon { background:var(--amber-bg); color:var(--amber); }
 .kpi.info .kpi-icon { background:var(--blue-bg); color:var(--blue); }
 
+/* --- Confianca dos Numeros ------------------------------------------------ */
+.vd-card { background:var(--surface); border:1px solid var(--border); border-radius:var(--r-lg); padding:16px 18px; margin-bottom:12px; }
+.vd-card.blocked { border-color:var(--red); }
+.vd-head { display:flex; align-items:flex-start; justify-content:space-between; gap:14px; flex-wrap:wrap; }
+.vd-title { font-size:13px; font-weight:600; color:var(--text); }
+.vd-id { font-family:monospace; font-size:10px; color:var(--text3); }
+.vd-value { font-size:24px; font-weight:700; letter-spacing:-0.5px; margin:6px 0 2px; }
+.vd-conf { text-align:right; min-width:130px; }
+.vd-nota { font-size:20px; font-weight:700; }
+.vd-alta .vd-nota { color:var(--olive); } .vd-media .vd-nota { color:var(--amber); }
+.vd-baixa .vd-nota { color:var(--red); } .vd-nao_publicar .vd-nota { color:var(--red); }
+.vd-selo { font-size:9.5px; font-weight:700; text-transform:uppercase; letter-spacing:.8px; padding:2px 7px; border-radius:999px; display:inline-block; }
+.vd-alta .vd-selo { background:var(--olive-bg); color:var(--olive); }
+.vd-media .vd-selo { background:var(--amber-bg); color:var(--amber); }
+.vd-baixa .vd-selo, .vd-nao_publicar .vd-selo { background:var(--red-bg); color:var(--red); }
+.vd-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(230px,1fr)); gap:10px 20px; margin-top:12px; font-size:11.5px; }
+.vd-lab { font-size:9.5px; font-weight:700; color:var(--text3); text-transform:uppercase; letter-spacing:.8px; margin-bottom:3px; }
+.vd-txt { color:var(--text2); line-height:1.45; }
+.vd-bar { height:6px; border-radius:999px; background:var(--s2); overflow:hidden; margin:5px 0 3px; }
+.vd-bar > i { display:block; height:100%; background:var(--gold); }
+.vd-lac { color:var(--amber); font-size:11px; margin-top:4px; line-height:1.4; }
+.vd-lac.valor { color:var(--red); }
+.vd-comp { display:flex; justify-content:space-between; gap:10px; padding:3px 0; border-bottom:1px dashed var(--border); font-size:11.5px; }
+.vd-comp:last-child { border-bottom:0; }
+.vd-motivo { display:flex; justify-content:space-between; gap:10px; font-size:11px; color:var(--text3); padding:2px 0; }
+.vd-motivo b { color:var(--red); font-weight:600; }
+.vd-val { display:flex; gap:8px; align-items:flex-start; padding:9px 0; border-bottom:1px solid var(--border); font-size:12px; }
+.vd-val:last-child { border-bottom:0; }
+.vd-mark { font-size:9.5px; font-weight:700; padding:2px 7px; border-radius:999px; flex-shrink:0; margin-top:1px; }
+.vd-mark.PASS { background:var(--olive-bg); color:var(--olive); }
+.vd-mark.WARN { background:var(--amber-bg); color:var(--amber); }
+.vd-mark.FAIL { background:var(--red-bg); color:var(--red); }
+.vd-det { color:var(--text3); font-size:11px; margin-top:3px; line-height:1.45; }
+.vd-afeta { font-family:monospace; font-size:10px; color:var(--text3); margin-top:3px; }
+.vd-filtros { display:flex; gap:8px; flex-wrap:wrap; margin-bottom:14px; }
+
 /* TABLE */
 .table-wrap { background:var(--surface); border:1px solid var(--border); border-radius:var(--r-lg); overflow-x:auto; overflow-y:hidden; }
 .table-toolbar { display:flex; gap:10px; align-items:center; padding:14px 18px; border-bottom:1px solid var(--border); flex-wrap:wrap; }
@@ -479,6 +515,7 @@ svg.chart { width:100%; height:100%; display:block; }
     </div>
     <div class="sidebar-section">Visao Geral</div>
     <div class="sidebar-item active" data-page="dashboard"><span class="material-symbols-outlined">dashboard</span><span>Dashboard</span></div>
+    <div class="sidebar-item" data-page="verdade"><span class="material-symbols-outlined">verified</span><span>Confianca dos Numeros</span></div>
     <div class="sidebar-item" data-page="fluxo"><span class="material-symbols-outlined">show_chart</span><span>Fluxo de Caixa</span></div>
     <div class="sidebar-item" data-page="previsto_realizado"><span class="material-symbols-outlined">compare_arrows</span><span>Previsto x Realizado</span></div>
     <div class="sidebar-item" data-page="fluxo_operacao"><span class="material-symbols-outlined">view_kanban</span><span>Fluxo Operação</span></div>
@@ -773,6 +810,7 @@ async function render() {
   try {
     await loadBase();
     if (state.page === 'dashboard') return renderDashboard();
+    if (state.page === 'verdade') return renderVerdade();
     if (state.page === 'fluxo') return renderFluxo();
     if (state.page === 'fluxo_operacao') return renderFluxoOperacao();
     if (state.page === 'previsto_realizado') return renderPrevistoRealizado();
@@ -801,6 +839,162 @@ async function render() {
   } catch (e) {
     page.innerHTML = `<div class="card" style="text-align:center"><span class="material-symbols-outlined" style="font-size:36px;color:var(--red)">error</span><h3 style="margin:8px 0">Erro ao carregar</h3><p style="color:var(--text3);font-size:12px">${escapeHtml(e.message)}</p></div>`;
   }
+}
+
+
+/* ==========================================================================
+   CONFIANCA DOS NUMEROS (ERP VERDADE)
+   Cada variavel do ERP com Valor, Origem, Formula, Composicao, Cobertura,
+   Atualizacao e Confianca. Nenhum numero solto: o que nao esta no catalogo
+   (src/lib/verdade/catalogo.ts) nao pode ser apresentado.
+   ========================================================================== */
+async function renderVerdade() {
+  const rel = await api('/api/erp/verdade');
+  state.verdade = rel;
+  const r = rel.resumo;
+  const fmtU = (va) => {
+    if (va.valor === null || va.valor === undefined) return '--';
+    if (va.unidade === 'BRL') return fmtBRL(va.valor);
+    if (va.unidade === 'percentual') return Number(va.valor).toFixed(1) + '%';
+    if (va.unidade === 'contagem') return String(va.valor);
+    return escapeHtml(String(va.valor));
+  };
+  const rot = (n) => n >= 85 ? 'alta' : n >= 70 ? 'media' : n >= 50 ? 'baixa' : 'nao_publicar';
+  const selo = { alta:'Alta', media:'Confira', baixa:'Baixa', nao_publicar:'Nao publicar' };
+
+  const cardVar = (v) => {
+    const k = rot(v.confianca.nota);
+    return `
+    <div class="vd-card vd-${k} ${v.publicavel ? '' : 'blocked'}">
+      <div class="vd-head">
+        <div style="flex:1;min-width:220px">
+          <div class="vd-title">${escapeHtml(v.titulo)}</div>
+          <div class="vd-id">${escapeHtml(v.id)} &middot; ${escapeHtml(v.classe.replace(/_/g,' '))}</div>
+          <div class="vd-value">${fmtU(v)}</div>
+        </div>
+        <div class="vd-conf">
+          <div class="vd-nota">${v.confianca.nota}%</div>
+          <span class="vd-selo">${selo[k]}</span>
+          ${v.publicavel ? '' : '<div style="font-size:10px;color:var(--red);margin-top:4px">bloqueada para relatorio</div>'}
+        </div>
+      </div>
+      <div class="vd-grid">
+        <div>
+          <div class="vd-lab">Origem</div>
+          <div class="vd-txt">${v.origens.map(o => `${escapeHtml(o.fonte)} <span style="color:var(--text3)">(${o.linhas} linhas)</span><br><span style="font-size:10.5px;color:var(--text3)">${escapeHtml(o.filtro)}</span>`).join('<br>') || '--'}</div>
+        </div>
+        <div>
+          <div class="vd-lab">Formula</div>
+          <div class="vd-txt">${escapeHtml(v.formula)}</div>
+        </div>
+        <div>
+          <div class="vd-lab">Cobertura</div>
+          <div class="vd-bar"><i style="width:${(v.cobertura.fracao*100).toFixed(1)}%"></i></div>
+          <div class="vd-txt">${(v.cobertura.fracao*100).toFixed(1)}% &mdash; ${v.cobertura.usados} de ${v.cobertura.universo} fatos</div>
+          ${v.cobertura.lacunas.map(l => `<div class="vd-lac ${escapeHtml(l.impacto)}"><b>${escapeHtml(l.impacto)}</b>: ${escapeHtml(l.motivo)} &mdash; ${l.linhas} linha(s)${l.valor ? ' ' + fmtBRL(l.valor) : ''}${l.exemplos && l.exemplos.length ? `<br><span style="color:var(--text3)">ex.: ${escapeHtml(l.exemplos.slice(0,2).join(' | '))}</span>` : ''}</div>`).join('')}
+        </div>
+        <div>
+          <div class="vd-lab">Atualizacao</div>
+          <div class="vd-txt">${v.atualizado_em ? fmtDate(v.atualizado_em) : '--'}</div>
+          ${v.deriva_de.length ? `<div class="vd-lab" style="margin-top:8px">Deriva de</div><div class="vd-txt" style="font-family:monospace;font-size:10.5px">${v.deriva_de.map(escapeHtml).join('<br>')}</div>` : ''}
+        </div>
+      </div>
+      ${v.composicao && v.composicao.length ? `
+      <div style="margin-top:12px">
+        <div class="vd-lab">Composicao</div>
+        ${v.composicao.map(c => `<div class="vd-comp"><span>${escapeHtml(c.rotulo)}${c.nota ? ` <span style="color:var(--text3)">&mdash; ${escapeHtml(c.nota)}</span>` : ''}</span><strong>${v.unidade === 'BRL' ? fmtBRL(c.valor) : c.valor}</strong></div>`).join('')}
+      </div>` : ''}
+      ${v.conflitos && v.conflitos.length ? `
+      <div style="margin-top:12px">
+        <div class="vd-lab">Conflitos que contaminam este numero</div>
+        ${v.conflitos.map(c => `<div class="vd-val"><span class="vd-mark ${c.severidade.toUpperCase()}">${c.severidade.toUpperCase()}</span><div><div>${escapeHtml(c.titulo)}</div><div class="vd-det">${escapeHtml(c.detalhe)}</div></div></div>`).join('')}
+      </div>` : ''}
+      <div style="margin-top:12px">
+        <div class="vd-lab">Como a confianca foi formada</div>
+        ${v.confianca.motivos.filter(m => Math.abs(m.delta) >= 0.05).map(m => `<div class="vd-motivo"><span>${escapeHtml(m.motivo)}</span><b>${m.delta > 0 ? '+' : ''}${m.delta}</b></div>`).join('') || '<div class="vd-txt">sem penalidades</div>'}
+      </div>
+      ${v.erro ? `<div class="vd-lac valor" style="margin-top:10px">ERRO NO CALCULO: ${escapeHtml(v.erro)}</div>` : ''}
+    </div>`;
+  };
+
+  const linhaVal = (x) => {
+    const mark = x.passou ? 'PASS' : x.severidade === 'fail' ? 'FAIL' : 'WARN';
+    return `
+    <div class="vd-val">
+      <span class="vd-mark ${mark}">${mark}</span>
+      <div style="flex:1">
+        <div>${escapeHtml(x.titulo)}</div>
+        ${x.detalhe ? `<div class="vd-det">${escapeHtml(x.detalhe)}</div>` : ''}
+        ${x.passou ? '' : `<div class="vd-afeta">afeta: ${x.afeta.map(escapeHtml).join(', ')}</div>`}
+      </div>
+    </div>`;
+  };
+
+  const falhas = rel.validacoes.filter(v => !v.passou);
+  const grupos = {};
+  for (const v of rel.variaveis) {
+    const g = v.id.split('.')[0];
+    (grupos[g] = grupos[g] || []).push(v);
+  }
+
+  const html = `
+    <div class="page-header">
+      <div>
+        <div class="page-title">Confianca dos Numeros <small>${r.variaveis} variaveis &middot; foto de ${escapeHtml(rel.foto_em.replace('T',' ').slice(0,16))}</small></div>
+        <div style="font-size:11.5px;color:var(--text3);margin-top:4px;max-width:640px">
+          Todo numero aqui e produzido a partir dos fatos, com formula declarada e validacao cruzada.
+          O que estiver bloqueado nao deve sair em relatorio sem decisao sua.
+        </div>
+      </div>
+    </div>
+
+    <div class="kpi-grid">
+      <div class="kpi ${r.fails ? 'danger' : 'success'}">
+        <div class="kpi-icon"><span class="material-symbols-outlined">${r.fails ? 'error' : 'verified'}</span></div>
+        <div class="kpi-label">Validacoes falhando</div>
+        <div class="kpi-value">${r.fails}</div>
+        <div class="kpi-sub">${rel.validacoes.length - r.fails - r.warns} passando &middot; ${r.warns} alertas</div>
+      </div>
+      <div class="kpi ${r.bloqueadas ? 'warn' : 'success'}">
+        <div class="kpi-icon"><span class="material-symbols-outlined">block</span></div>
+        <div class="kpi-label">Numeros bloqueados</div>
+        <div class="kpi-value">${r.bloqueadas}</div>
+        <div class="kpi-sub">${r.publicaveis} liberados para relatorio</div>
+      </div>
+      <div class="kpi info">
+        <div class="kpi-icon"><span class="material-symbols-outlined">speed</span></div>
+        <div class="kpi-label">Confianca media</div>
+        <div class="kpi-value">${r.confianca_media}%</div>
+        <div class="kpi-sub">piso para publicar: 70%</div>
+      </div>
+    </div>
+
+    ${falhas.length ? `
+    <div class="card" style="margin-bottom:20px">
+      <div class="card-title"><span class="material-symbols-outlined">rule</span>O que esta inconsistente agora (${falhas.length})</div>
+      ${falhas.map(linhaVal).join('')}
+    </div>` : `
+    <div class="card" style="margin-bottom:20px">
+      <div class="card-title"><span class="material-symbols-outlined">check_circle</span>Consistencia</div>
+      <div class="vd-txt">Todas as ${rel.validacoes.length} invariantes do ERP estao passando.</div>
+    </div>`}
+
+    ${Object.entries(grupos).map(([g, vars]) => `
+      <div class="card-title" style="margin:22px 0 10px">
+        <span class="material-symbols-outlined">functions</span>${escapeHtml(g)}
+        <span style="color:var(--text3);font-weight:500;text-transform:none;letter-spacing:0">
+          &middot; ${vars.length} variavel(is), ${vars.filter(v => !v.publicavel).length} bloqueada(s)
+        </span>
+      </div>
+      ${vars.map(cardVar).join('')}
+    `).join('')}
+
+    <div class="card" style="margin-top:22px">
+      <div class="card-title"><span class="material-symbols-outlined">checklist</span>Todas as validacoes (${rel.validacoes.length})</div>
+      ${rel.validacoes.map(linhaVal).join('')}
+    </div>
+  `;
+  document.getElementById('page').innerHTML = html;
 }
 
 /* ==========================================================================
