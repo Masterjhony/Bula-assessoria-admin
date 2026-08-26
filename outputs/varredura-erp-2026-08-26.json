@@ -1,0 +1,92 @@
+[
+ {
+  "sev": "WARN",
+  "grupo": "cartao",
+  "msg": "fatura 2026-07 de 2053032e sem NENHUM lancamento"
+ },
+ {
+  "sev": "WARN",
+  "grupo": "cartao",
+  "msg": "fatura 2026-07 de 34dffe8c sem NENHUM lancamento"
+ },
+ {
+  "sev": "WARN",
+  "grupo": "mov-vinculo",
+  "msg": "mov d9ede8fb 2026-07-03 80.272,01 vinculado a titulo de 54.669,29 (valor_recebido 54.669,29) — CRED.TRANSF.CONTAS INTERCREDIS - EAO"
+ },
+ {
+  "sev": "WARN",
+  "grupo": "mov-vinculo",
+  "msg": "mov 1fcbccc9 2026-07-24 21.788,00 vinculado a titulo de 8.400,00 (valor_pago 8.400,00) — DB.TR.C.DIF.TIT.INT - LEONARDO SERAF"
+ },
+ {
+  "sev": "WARN",
+  "grupo": "mov-vinculo",
+  "msg": "mov 46289412 2026-07-24 28.493,00 vinculado a titulo de 10.185,00 (valor_pago 10.185,00) — PIX EMIT.OUTRA IF - DOUGLAS BISPO"
+ },
+ {
+  "sev": "WARN",
+  "grupo": "mov-vinculo",
+  "msg": "mov dd67f43d 2026-06-29 20.740,00 vinculado a titulo de 64.945,00 (valor_pago 64.945,00) — DB.TR.C.DIF.TIT.INT - RUSA ASSESSORI"
+ },
+ {
+  "sev": "WARN",
+  "grupo": "mov-vinculo",
+  "msg": "mov 6db0547a 2026-07-13 7.455,00 vinculado a titulo de 64.945,00 (valor_pago 64.945,00) — DEB.TRANSF.INTERCRE - RUSA ASSESSORI"
+ },
+ {
+  "sev": "WARN",
+  "grupo": "mov-vinculo",
+  "msg": "mov a53da482 2026-06-12 16.750,00 vinculado a titulo de 64.945,00 (valor_pago 64.945,00) — DB.TR.C.DIF.TIT.INT - FAV.: RUSA ASS"
+ },
+ {
+  "sev": "WARN",
+  "grupo": "mov-vinculo",
+  "msg": "mov 757ba651 2026-05-22 20.000,00 vinculado a titulo de 64.945,00 (valor_pago 64.945,00) — PAGAMENTO PIX 46553675000169 RUSA AS"
+ },
+ {
+  "sev": "WARN",
+  "grupo": "mov-vinculo",
+  "msg": "mov 518ee42f 2026-08-10 165.667,50 vinculado a titulo de 58.484,00 (valor_recebido 58.484,00) — PIX RECEBIDO - OUTRA IF - JBJ AGROPE"
+ },
+ {
+  "sev": "WARN",
+  "grupo": "mov-vinculo",
+  "msg": "mov 9610cd2d 2026-08-10 29.535,00 vinculado a titulo de 13.125,00 (valor_pago 13.125,00) — DEB.TRANSF.CONTAS DIF.TIT. INTERCRED"
+ },
+ {
+  "sev": "WARN",
+  "grupo": "titulo-datas",
+  "msg": "CP 08ed6849 emissao 2026-07-31 > vencimento 2026-07-27 — COMISSAO PARCEIRO GUSTAVO RUSA (5%) - compleme"
+ },
+ {
+  "sev": "WARN",
+  "grupo": "titulo-datas",
+  "msg": "CP 2e665507 emissao 2026-08-11 > vencimento 2026-08-07 — FGTS/Guia CEF ref. julho/2026 (ESTIMADO)"
+ },
+ {
+  "sev": "WARN",
+  "grupo": "titulo-duplicado",
+  "msg": "CP 2x mesmo (descricao,valor,venc): PIX EMIT.OUTRA IF|638.68|2026-02-06 — ids 6bd245e8, 2a54abde"
+ },
+ {
+  "sev": "WARN",
+  "grupo": "titulo-duplicado",
+  "msg": "CP 2x mesmo (descricao,valor,venc): DÉB. CONV. SEGUROS|60.23|2026-06-15 — ids 03adbdbd, 26ca9990"
+ },
+ {
+  "sev": "WARN",
+  "grupo": "titulo-duplicado",
+  "msg": "CP 2x mesmo (descricao,valor,venc): PIX EMIT.OUTRA IF|420|2026-02-04 — ids 935e59f8, c8ce4c1d"
+ },
+ {
+  "sev": "WARN",
+  "grupo": "titulo-duplicado",
+  "msg": "CP 2x mesmo (descricao,valor,venc): DÉB. CONV. SEGUROS|113.85|2026-06-15 — ids fbcbc09a, 8ac22be3"
+ },
+ {
+  "sev": "WARN",
+  "grupo": "titulo-duplicado",
+  "msg": "CP 2x mesmo (descricao,valor,venc): PIX EMIT.OUTRA IF|10|2026-03-02 — ids 0ff114fc, 748aadf4"
+ }
+]
