@@ -92,6 +92,35 @@ const equipe: Membro[] = (folha ?? [])
  * exige o primeiro nome igual E ao menos um sobrenome em comum — o que tolera
  * partículas ("de", "da") e nomes do meio.
  */
+/**
+ * QUEM, NUM PREGAO DA BULA REMATES, ESTA NA PISTA PELA REMATES.
+ *
+ * Num leilao conduzido pela propria Bula Remates (filial '01') a pista tem
+ * gente das DUAS empresas. "Estar na folha da Bula" nao basta para o lote ser
+ * cobertura da Assessoria — foi o que inflou o Sao Geraldo de 01/08 para
+ * R$ 1.830.400 quando a venda da Assessoria ali e R$ 375.800 (decisao do Joao
+ * em 26/08/2026, conferida contra o M1).
+ *
+ * A lista e explicita de proposito. O discriminador obvio seria o `ativo` da
+ * folha — e ele ate acerta este caso por acidente — mas `ativo` fala de folha
+ * de pagamento, nao de por quem a pessoa trabalhou no pregao: a Peralta e a
+ * Laila estao com ativo=false e mesmo assim venderam pela Bula em agosto (CEN,
+ * Marcondes, Camparino). Usar `ativo` daria o numero certo hoje e o errado no
+ * dia em que alguem mexer no cadastro.
+ *
+ * PARA MUDAR: uma linha aqui, e rode
+ * `npx tsx scripts/importa-fechamento-hastapro.mts 01 <TRECHO> <AAAA-MM> --refazer --apply`
+ * nos leiloes da filial 01 afetados.
+ */
+const PISTA_DA_REMATES = [
+    'BULINHA (FELIPE ANDRADE)',  // dono da Bula Remates
+    'PERALTA',
+    'LUCAS MARTINS',
+    'LAILA',
+]
+const naPistaPelaRemates = (nomeDoMembro: string) =>
+    PISTA_DA_REMATES.some(n => chave(n) === chave(nomeDoMembro))
+
 function achaMembro(nomePisteiro: string): Membro | null {
     const alvo = chave(nomePisteiro)
     if (!alvo) return null
@@ -155,7 +184,7 @@ try {
     const filialEhCoberturaInteira = String(lei.fil).trim() === '2'
     const daBula = lotes
         .map(l => ({ ...l, membro: achaMembro(String(l.pisteiro || '')) }))
-        .filter(l => filialEhCoberturaInteira || l.membro)
+        .filter(l => filialEhCoberturaInteira || (l.membro && !naPistaPelaRemates(l.membro.nome)))
     // Contar LINHAS aqui repete o mesmo erro do join: o Sao Geraldo tem 137
     // lotes no HastaPro e a observacao do fechamento dizia 145.
     const lotesDistintos = (xs: typeof lotes) => new Set(xs.map(x => String(x.lote).trim())).size
