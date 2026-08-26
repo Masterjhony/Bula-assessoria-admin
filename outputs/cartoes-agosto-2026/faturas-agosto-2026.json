@@ -1,0 +1,82 @@
+{
+  "fonte": "Sicoob IB > Cartoes > Meus cartoes > Extrato detalhado > Emitir (22/08/2026), lido em 26/08/2026 15:49-15:54",
+  "titular": "BULA A P LTDA",
+  "faturas": [
+    {
+      "conta_cartao": "7564620012254",
+      "bandeira": "Mastercard",
+      "final": "3880",
+      "produto": "Sicoob Mastercard Empresarial Pro",
+      "competencia": "2026-08",
+      "fechamento": "2026-08-12",
+      "vencimento": "2026-08-22",
+      "data_pagamento": "2026-08-24",
+      "saldo_anterior": 1731.74,
+      "pagamento": 1731.74,
+      "debitos": 1376.93,
+      "encargos": 3.20,
+      "total_fatura": 1380.13,
+      "pagamento_minimo": 209.74,
+      "proxima_fatura": 1198.95,
+      "divida_consolidada": 1198.95,
+      "limite_credito": 150000.00,
+      "movimentos": [
+        {"data_compra":null,     "descricao":"SALDO ANTERIOR",              "valor": 1731.74,  "tipo":"saldo_anterior", "portador":null},
+        {"data_compra":"22/07",  "descricao":"PAGAMENTO DEBITO EM CONTA",   "valor": -1731.74, "tipo":"pagamento",      "portador":null},
+        {"data_compra":"04/08",  "descricao":"PROTECAO PERDA OU ROUBO",     "valor": 3.20,     "tipo":"seguro",         "portador":null},
+        {"data_compra":"21/10",  "descricao":"MERCADOLIVRE*MERCADO Osasco", "valor": 177.98,   "tipo":"compra", "parcela":"10/10", "portador":"FELIPE V ANDRADE","portador_final":"3880"},
+        {"data_compra":"23/10",  "descricao":"GLOBO*ComboV RIO DE JANEIRO", "valor": 59.90,    "tipo":"compra", "parcela":"10/12", "portador":"FELIPE V ANDRADE","portador_final":"3880"},
+        {"data_compra":"18/12",  "descricao":"R IMPORTS CAMPO GRANDE",      "valor": 1139.05,  "tipo":"compra", "parcela":"08/12", "portador":"FELIPE V ANDRADE","portador_final":"3880"}
+      ],
+      "perfil_consumo": [
+        {"tipo":"PRESENTES, MKT DIRETO, CATALOG","pct":95.64,"valor":1317.03},
+        {"tipo":"ARTIGOS E SERVICOS PARA O LAR","pct":4.35,"valor":59.90}
+      ]
+    },
+    {
+      "conta_cartao": "7564620013118",
+      "bandeira": "Visa",
+      "final": "6495",
+      "produto": "Sicoob Visa Empresarial",
+      "competencia": "2026-08",
+      "fechamento": "2026-08-12",
+      "vencimento": "2026-08-22",
+      "data_pagamento": "2026-08-24",
+      "saldo_anterior": 8986.15,
+      "pagamento": 8986.15,
+      "debitos": 5946.64,
+      "encargos": 3.20,
+      "total_fatura": 5949.84,
+      "pagamento_minimo": 895.20,
+      "proxima_fatura": 3630.71,
+      "divida_consolidada": 3630.71,
+      "limite_credito": 75000.00,
+      "movimentos": [
+        {"data_compra":null,    "descricao":"SALDO ANTERIOR",            "valor": 8986.15,  "tipo":"saldo_anterior","portador":null},
+        {"data_compra":"22/07", "descricao":"PAGAMENTO DEBITO EM CONTA", "valor": -8986.15, "tipo":"pagamento",     "portador":null},
+        {"data_compra":"04/08", "descricao":"PROTECAO PERDA OU ROUBO",   "valor": 3.20,     "tipo":"seguro",        "portador":null},
+        {"data_compra":"13/10", "descricao":"HOTEL C CUIABA",                  "valor": 297.34, "tipo":"compra","parcela":"10/10","portador":"FELIPE V ANDRADE","portador_final":"6495"},
+        {"data_compra":"21/12", "descricao":"HTM*COMBOVITALICIO2V Brasilia",   "valor": 258.56, "tipo":"compra","parcela":"08/12","portador":"FELIPE V ANDRADE","portador_final":"6495"},
+        {"data_compra":"16/01", "descricao":"SeegmaV SAO PAULO",               "valor": 201.67, "tipo":"compra","parcela":"07/12","portador":"FELIPE V ANDRADE","portador_final":"6495"},
+        {"data_compra":"29/01", "descricao":"MP*MERCADOLIVRE EXTREMA",         "valor": 56.90,  "tipo":"compra","parcela":"07/10","portador":"FELIPE V ANDRADE","portador_final":"6495"},
+        {"data_compra":"11/02", "descricao":"CASASBAHIACOM RIO DE JANEIRO",    "valor": 309.75, "tipo":"compra","parcela":"07/10","portador":"FELIPE V ANDRADE","portador_final":"6495"},
+        {"data_compra":"13/03", "descricao":"AZUL C CUIABA",                   "valor": 433.19, "tipo":"compra","parcela":"05/05","portador":"FELIPE V ANDRADE","portador_final":"6495"},
+        {"data_compra":"23/04", "descricao":"GOL C CUIABA",                    "valor": 247.85, "tipo":"compra","parcela":"04/04","portador":"FELIPE V ANDRADE","portador_final":"6495"},
+        {"data_compra":"23/04", "descricao":"AZUL C CUIABA",                   "valor": 445.56, "tipo":"compra","parcela":"04/05","portador":"FELIPE V ANDRADE","portador_final":"6495"},
+        {"data_compra":"23/04", "descricao":"AZUL C CUIABA",                   "valor": 598.50, "tipo":"compra","parcela":"04/05","portador":"FELIPE V ANDRADE","portador_final":"6495"},
+        {"data_compra":"27/04", "descricao":"LATAM C CUIABA",                  "valor": 405.01, "tipo":"compra","parcela":"04/04","portador":"FELIPE V ANDRADE","portador_final":"6495"},
+        {"data_compra":"02/05", "descricao":"LATAM C CUIABA",                  "valor": 430.61, "tipo":"compra","parcela":"04/04","portador":"FELIPE V ANDRADE","portador_final":"6495"},
+        {"data_compra":"02/05", "descricao":"LATAM C CUIABA",                  "valor": 501.90, "tipo":"compra","parcela":"04/04","portador":"FELIPE V ANDRADE","portador_final":"6495"},
+        {"data_compra":"11/05", "descricao":"AZUL C CUIABA",                   "valor": 346.18, "tipo":"compra","parcela":"04/06","portador":"FELIPE V ANDRADE","portador_final":"6495"},
+        {"data_compra":"15/05", "descricao":"GOL C CUIABA",                    "valor": 672.70, "tipo":"compra","parcela":"03/04","portador":"FELIPE V ANDRADE","portador_final":"6495"},
+        {"data_compra":"15/05", "descricao":"LATAM C CUIABA",                  "valor": 740.92, "tipo":"compra","parcela":"03/04","portador":"FELIPE V ANDRADE","portador_final":"6495"}
+      ],
+      "perfil_consumo": [
+        {"tipo":"ESPORTES LAZER E TURISMO","pct":86.09,"valor":5119.76},
+        {"tipo":"EDUCACAO E CULTURA","pct":4.34,"valor":258.56},
+        {"tipo":"INFORMATICA","pct":4.34,"valor":258.57},
+        {"tipo":"SUPERMERCADO E HIPERMERCADO","pct":5.20,"valor":309.75}
+      ]
+    }
+  ]
+}
