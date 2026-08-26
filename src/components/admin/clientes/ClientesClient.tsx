@@ -12,10 +12,11 @@ import {
 import {
   type Cliente, type ClienteStatus, type Interesse, type PerfilConsumo,
   type InteracaoHist, type PreferenciaCategoria, type ScoreFaixa,
-  type ClienteDocumento, type ClienteReadiness, clienteMetrics, brl, brlCompact,
+  type ClienteDocumento, type ClienteReadiness, type ClienteLeiloeiraVinculo,
+  clienteMetrics, brl, brlCompact,
   fmtDate, timeAgo, waLink, INTERESSES, PERFIS, PREFERENCIA_CATEGORIAS,
   scoreToFaixa, SCORE_FAIXA_META, fmtCpf, isClienteCadastroApto,
-  clienteReadiness, READINESS_META,
+  clienteReadiness, READINESS_META, leiloeirasHabilitadas, nomesHabilitadas,
 } from '@/lib/clientes'
 import {
   createCliente, registrarInteracao, updateClienteCampos,
@@ -52,6 +53,26 @@ const INTERACAO_BADGE: Record<InteracaoHist['tipo'], string> = {
 
 function Badge({ tone, children }: { tone: string; children: React.ReactNode }) {
   return <span className={`badge ${tone}`}>{children}</span>
+}
+
+/**
+ * Leiloeiras onde o cliente está HABILITADO a comprar (status 'aprovado').
+ * Mostra os nomes — saber "em 2 casas" não ajuda o assessor na pista; saber
+ * *quais* casas decide se ele pode dar o lance naquele leilão.
+ */
+function LeiloeirasChips({ cliente, max = 2 }: { cliente: Cliente; max?: number }) {
+  const habilitadas = leiloeirasHabilitadas(cliente)
+  if (habilitadas.length === 0) {
+    return <span className="text-[11px]" style={{ color: 'var(--text3)' }}>Sem habilitação</span>
+  }
+  const visiveis = habilitadas.slice(0, max)
+  const resto = habilitadas.length - visiveis.length
+  return (
+    <span className="inline-flex items-center gap-1 flex-wrap" title={habilitadas.map((l) => l.nome).join(' · ')}>
+      {visiveis.map((l) => <Badge key={l.id} tone="olive"><Gavel size={9} />{l.nome}</Badge>)}
+      {resto > 0 && <Badge tone="">+{resto}</Badge>}
+    </span>
+  )
 }
 
 // ── KPIs ─────────────────────────────────────────────────────────────────────
@@ -248,14 +269,39 @@ function DetailDrawer({
     }
   }
 
+  /**
+   * Reflete o estado da aba Leiloeiras de volta no cliente da lista. Sem isso,
+   * aprovar um cadastro aqui só aparece nos chips depois de recarregar a página
+   * — e a lista passaria a mentir sobre onde o cliente pode comprar.
+   */
+  const propagarVinculos = useCallback((status: ClienteLeiloeiraStatus[], casas: Leiloeira[]) => {
+    const nomePorId = new Map(casas.map((l) => [l.id, l.nome]))
+    const vinculos: ClienteLeiloeiraVinculo[] = status
+      .filter((s) => nomePorId.has(s.leiloeiraId))
+      .map((s) => ({
+        id: s.leiloeiraId,
+        nome: nomePorId.get(s.leiloeiraId) as string,
+        status: s.status,
+        enviadoAt: s.enviadoAt,
+        aprovadoAt: s.aprovadoAt,
+      }))
+      .sort((a, b) => a.nome.localeCompare(b.nome, 'pt-BR'))
+    onApplyCadastro(cliente.id, {
+      leiloeiras: vinculos,
+      leiloeirasAprovadas: vinculos.filter((v) => v.status === 'aprovado').length,
+    })
+  }, [cliente.id, onApplyCadastro])
+
   // Marca/desmarca cadastro aprovado em uma leiloeira.
   const toggleLeilAprovado = async (leiloeiraId: string, aprovar: boolean) => {
     if (!hasMatchKey) return
     const next: CadastroStatus = aprovar ? 'aprovado' : 'pendente'
-    setLeilStatus((prev) => {
-      const others = prev.filter((s) => s.leiloeiraId !== leiloeiraId)
-      return [...others, { leiloeiraId, status: next }]
-    })
+    const otimista = [
+      ...leilStatus.filter((s) => s.leiloeiraId !== leiloeiraId),
+      { leiloeiraId, status: next } as ClienteLeiloeiraStatus,
+    ]
+    setLeilStatus(otimista)
+    propagarVinculos(otimista, leiloeiras)
     try {
       await setClienteLeiloeiraStatus(matchKey, leiloeiraId, next)
     } catch {
@@ -271,7 +317,11 @@ function DetailDrawer({
       const skippedMsg = r.skipped.length ? ` · Ignorados: ${r.skipped.map((s) => `${s.leiloeira} (${s.reason})`).join(', ')}` : ''
       flash(`Enviados: ${r.sent}${skippedMsg}`)
       // recarrega status p/ refletir 'enviado'
-      try { setLeilStatus(await getClienteLeiloeiraStatus(matchKey)) } catch { /* mantém otimista */ }
+      try {
+        const fresh = await getClienteLeiloeiraStatus(matchKey)
+        setLeilStatus(fresh)
+        propagarVinculos(fresh, leiloeiras)
+      } catch { /* mantém otimista */ }
     } catch {
       flash('Falha ao enviar cadastro às leiloeiras.')
     } finally {
@@ -429,6 +479,13 @@ function DetailDrawer({
               <InfoRow icon={MapPin} label="Cidade / UF" value={`${cliente.cidade} — ${cliente.uf}`} />
               <InfoRow icon={Users} label="Responsável" value={cliente.responsavel} />
               <InfoRow icon={Users} label="Assessor" value={cliente.assessor || '— (sem assessor vinculado)'} />
+              <div className="flex items-start gap-2.5">
+                <Gavel size={15} className="shrink-0 mt-0.5" style={{ color: 'var(--text3)' }} />
+                <div className="min-w-0">
+                  <div className="text-[10px] uppercase tracking-wide" style={{ color: 'var(--text3)' }}>Habilitado a comprar em</div>
+                  <div className="mt-1"><LeiloeirasChips cliente={cliente} max={6} /></div>
+                </div>
+              </div>
               <InfoRow icon={TrendingUp} label="Perfil de consumo" value={cliente.perfil} />
 
               {/* ── cadastro p/ leiloeiras ── */}
@@ -1029,6 +1086,7 @@ export function ClientesClient({ initialClientes, vgvSummary }: { initialCliente
   const [fPreferencia, setFPreferencia] = useState<'' | PreferenciaCategoria>('')
   const [fReadiness, setFReadiness] = useState<'' | ClienteReadiness>('')
   const [fAssessor, setFAssessor] = useState('')
+  const [fLeiloeira, setFLeiloeira] = useState('')
 
   // Modo de exibição (cards / tabela / lista) — default cards, persistido em localStorage.
   const [viewMode, setViewMode] = useState<'cards' | 'tabela' | 'lista'>('cards')
@@ -1070,6 +1128,11 @@ export function ClientesClient({ initialClientes, vgvSummary }: { initialCliente
     () => [...new Set(clientes.map((c) => c.assessor).filter((a): a is string => !!a))].sort(),
     [clientes],
   )
+  // Casas onde ao menos um cliente já está habilitado (alimenta o filtro).
+  const casasHabilitadas = useMemo(
+    () => [...new Set(clientes.flatMap((c) => nomesHabilitadas(c)))].sort((a, b) => a.localeCompare(b, 'pt-BR')),
+    [clientes],
+  )
 
   // métricas por cliente (memo) para ordenação e filtro.
   const enriched = useMemo(
@@ -1094,9 +1157,10 @@ export function ClientesClient({ initialClientes, vgvSummary }: { initialCliente
         if (fPreferencia && !(c.preferenciasCategorias ?? []).includes(fPreferencia)) return false
         if (fReadiness && clienteReadiness(c) !== fReadiness) return false
         if (fAssessor && c.assessor !== fAssessor) return false
+        if (fLeiloeira && !nomesHabilitadas(c).includes(fLeiloeira)) return false
         return true
       })
-  }, [enriched, busca, fCidade, fStatus, fPerfil, fInteresse, fPreferencia, fReadiness, fAssessor])
+  }, [enriched, busca, fCidade, fStatus, fPerfil, fInteresse, fPreferencia, fReadiness, fAssessor, fLeiloeira])
 
   // Lista ordenada usada por todos os modos de exibição.
   const displayed = useMemo(() => {
@@ -1116,7 +1180,7 @@ export function ClientesClient({ initialClientes, vgvSummary }: { initialCliente
   const [page, setPage] = useState(1)
   const [pageSize, setPageSize] = useState(50)
   // volta pra página 1 quando muda o conjunto filtrado/ordenado ou o tamanho.
-  useEffect(() => { setPage(1) }, [busca, fCidade, fStatus, fPerfil, fInteresse, fPreferencia, fReadiness, fAssessor, sort, pageSize])
+  useEffect(() => { setPage(1) }, [busca, fCidade, fStatus, fPerfil, fInteresse, fPreferencia, fReadiness, fAssessor, fLeiloeira, sort, pageSize])
   const paged = useMemo(
     () => displayed.slice((page - 1) * pageSize, page * pageSize),
     [displayed, page, pageSize],
@@ -1135,15 +1199,16 @@ export function ClientesClient({ initialClientes, vgvSummary }: { initialCliente
     return { total, ativos, recorrentes, volume, ticket, ultimaCompra, aptos }
   }, [enriched])
 
-  const hasFilter = busca || fCidade || fStatus || fPerfil || fInteresse || fPreferencia || fReadiness || fAssessor
-  const clearFilters = () => { setBusca(''); setFCidade(''); setFStatus(''); setFPerfil(''); setFInteresse(''); setFPreferencia(''); setFReadiness(''); setFAssessor('') }
+  const hasFilter = busca || fCidade || fStatus || fPerfil || fInteresse || fPreferencia || fReadiness || fAssessor || fLeiloeira
+  const clearFilters = () => { setBusca(''); setFCidade(''); setFStatus(''); setFPerfil(''); setFInteresse(''); setFPreferencia(''); setFReadiness(''); setFAssessor(''); setFLeiloeira('') }
 
   // ── ações ─────────────────────────────────────────────────────────────────────
   const exportCSV = useCallback(() => {
-    const head = ['Nome', 'Responsável', 'Telefone', 'Email', 'Cidade', 'UF', 'Perfil', 'Status', 'Recorrente', 'Interesses', 'Total Comprado', 'Compras', 'Ticket Médio', 'Última Compra', 'Última Interação']
+    const head = ['Nome', 'Responsável', 'Assessor', 'Telefone', 'Email', 'Cidade', 'UF', 'Perfil', 'Status', 'Recorrente', 'Interesses', 'Leiloeiras habilitadas', 'Total Comprado', 'Compras', 'Ticket Médio', 'Última Compra', 'Última Interação']
     const rows = filtered.map(({ c, m }) => [
-      c.nome, c.responsavel, c.telefone, c.email ?? '', c.cidade, c.uf, c.perfil,
+      c.nome, c.responsavel, c.assessor ?? '', c.telefone, c.email ?? '', c.cidade, c.uf, c.perfil,
       c.status, c.recorrente ? 'Sim' : 'Não', c.interesses.join(' | '),
+      nomesHabilitadas(c).join(' | '),
       String(m.totalComprado), String(m.numCompras), String(m.ticketMedio),
       m.ultimaCompra ?? '', m.ultimaInteracao ?? '',
     ])
@@ -1336,6 +1401,10 @@ export function ClientesClient({ initialClientes, vgvSummary }: { initialCliente
               <option value="">Preferência</option>
               {PREFERENCIA_CATEGORIAS.map((p) => <option key={p} value={p}>{p}</option>)}
             </select>
+            <select className="select lg:w-[190px]" value={fLeiloeira} onChange={(e) => setFLeiloeira(e.target.value)}>
+              <option value="">Habilitado em…</option>
+              {casasHabilitadas.map((n) => <option key={n} value={n}>{n}</option>)}
+            </select>
             <select className="select lg:w-[140px]" value={fReadiness} onChange={(e) => setFReadiness(e.target.value as ClienteReadiness | '')}>
               <option value="">Prontidão</option>
               <option value="apto">Apto</option>
@@ -1421,7 +1490,7 @@ export function ClientesClient({ initialClientes, vgvSummary }: { initialCliente
                       <b style={{ color: 'var(--text)' }}>{brlCompact(m.totalComprado)}</b>
                       <span style={{ color: 'var(--text3)' }}> · {m.numCompras} {m.numCompras === 1 ? 'compra' : 'compras'}</span>
                     </span>
-                    <span style={{ color: 'var(--text3)' }}>Leiloeiras: {c.leiloeirasAprovadas ?? 0}</span>
+                    <LeiloeirasChips cliente={c} />
                   </div>
 
                   {/* ações */}
@@ -1459,7 +1528,7 @@ export function ClientesClient({ initialClientes, vgvSummary }: { initialCliente
                   <th>Perfil</th>
                   <SortTh label="Score" col="score" sort={sort} onSort={toggleSort} />
                   <th>Cadastro</th>
-                  <th style={{ textAlign: 'right' }}>Leiloeiras</th>
+                  <th>Habilitado em</th>
                   <SortTh label="Total comprado" col="total" sort={sort} onSort={toggleSort} align="right" />
                   <SortTh label="Última interação" col="interacao" sort={sort} onSort={toggleSort} />
                   <th>Status</th>
@@ -1525,7 +1594,7 @@ export function ClientesClient({ initialClientes, vgvSummary }: { initialCliente
                           <span className="inline-flex items-center gap-1 text-[11px]" style={{ color: 'var(--text3)' }}>I.E. <Ok ok={hasIE(c)} /></span>
                         </div>
                       </td>
-                      <td style={{ textAlign: 'right', color: 'var(--text2)' }}>{c.leiloeirasAprovadas ?? 0}</td>
+                      <td><LeiloeirasChips cliente={c} /></td>
                       <td style={{ textAlign: 'right' }}>
                         <div className="font-bold" style={{ color: m.totalComprado ? 'var(--text)' : 'var(--text3)' }}>{m.totalComprado ? brl(m.totalComprado) : '—'}</div>
                         <div className="text-[10px]" style={{ color: 'var(--text3)' }}>{m.numCompras} {m.numCompras === 1 ? 'compra' : 'compras'}</div>
@@ -1581,7 +1650,7 @@ export function ClientesClient({ initialClientes, vgvSummary }: { initialCliente
                       <span>·</span>
                       <span>Docs {c.docsCount ?? 0}</span>
                       <span>·</span>
-                      <span>Leiloeiras {c.leiloeirasAprovadas ?? 0}</span>
+                      <LeiloeirasChips cliente={c} max={2} />
                     </div>
                   </div>
                   <div className="text-right shrink-0">

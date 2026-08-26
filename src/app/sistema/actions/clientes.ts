@@ -8,8 +8,10 @@ import {
   type Cliente, type CompraHist, type InteracaoHist, type Interesse,
   type ClienteStatus, type PerfilConsumo, type PreferenciaCategoria,
   type ScoreFaixa, type Protesto, type ClienteDocumento,
+  type ClienteLeiloeiraVinculo,
   clienteMatchKey, scoreToFaixa, onlyDigits, nomeCompradorCanonico,
 } from '@/lib/clientes'
+import type { CadastroStatus } from '@/lib/leiloeiras'
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Clientes/compradores = agregação dos arremates em `bula_leilao_fechamento`
@@ -241,11 +243,12 @@ export async function getClientes(): Promise<Cliente[]> {
 
   // Tabelas do módulo CLIENTES podem ainda não existir (migration 0028 não
   // aplicada) — degrada para vazio sem quebrar a página.
-  const [clienteRes, interRes, docsRes, leiloeiraRes] = await Promise.all([
+  const [clienteRes, interRes, docsRes, leiloeiraRes, casasRes] = await Promise.all([
     supabase.from('clientes').select('*'),
     supabase.from('cliente_interacoes').select('id, cliente_key, tipo, responsavel, nota, data'),
     supabase.from('cliente_documentos').select('cliente_key'),
-    supabase.from('cliente_leiloeira_cadastro').select('cliente_key, status'),
+    supabase.from('cliente_leiloeira_cadastro').select('cliente_key, leiloeira_id, status, enviado_at, aprovado_at'),
+    supabase.from('leiloeiras').select('id, nome'),
   ])
   if (clienteRes.error) console.warn('[clientes] tabela clientes indisponível:', clienteRes.error.message)
   if (interRes.error) console.warn('[clientes] tabela cliente_interacoes indisponível:', interRes.error.message)
@@ -260,11 +263,31 @@ export async function getClientes(): Promise<Cliente[]> {
   for (const r of (docsRes.data ?? []) as { cliente_key: string }[]) {
     if (r.cliente_key) docsCountByKey.set(r.cliente_key, (docsCountByKey.get(r.cliente_key) ?? 0) + 1)
   }
-  const leiloeirasAprovadasByKey = new Map<string, number>()
-  for (const r of (leiloeiraRes.data ?? []) as { cliente_key: string; status: string | null }[]) {
-    if (r.cliente_key && r.status === 'aprovado') {
-      leiloeirasAprovadasByKey.set(r.cliente_key, (leiloeirasAprovadasByKey.get(r.cliente_key) ?? 0) + 1)
-    }
+  // Vínculos cliente × leiloeira já resolvidos com o NOME da casa: é o que
+  // responde "em quais leiloeiras este cliente pode comprar" sem ida ao banco
+  // na abertura da ficha. `aprovado` = habilitado; os demais status ficam
+  // visíveis porque contam a fila do cadastro.
+  const casaNomeById = new Map<string, string>()
+  for (const r of (casasRes.data ?? []) as { id: string; nome: string | null }[]) {
+    if (r.id) casaNomeById.set(r.id, r.nome || 'Leiloeira')
+  }
+  const VALID_CADASTRO_STATUS: CadastroStatus[] = ['pendente', 'enviado', 'aprovado', 'recusado']
+  const vinculosByKey = new Map<string, ClienteLeiloeiraVinculo[]>()
+  type VinculoRow = {
+    cliente_key: string; leiloeira_id: string; status: string | null
+    enviado_at: string | null; aprovado_at: string | null
+  }
+  for (const r of (leiloeiraRes.data ?? []) as VinculoRow[]) {
+    if (!r.cliente_key || !r.leiloeira_id) continue
+    const arr = vinculosByKey.get(r.cliente_key) ?? []
+    arr.push({
+      id: r.leiloeira_id,
+      nome: casaNomeById.get(r.leiloeira_id) ?? 'Leiloeira',
+      status: (VALID_CADASTRO_STATUS.includes(r.status as CadastroStatus) ? r.status : 'pendente') as CadastroStatus,
+      enviadoAt: r.enviado_at || undefined,
+      aprovadoAt: r.aprovado_at || undefined,
+    })
+    vinculosByKey.set(r.cliente_key, arr)
   }
 
   // índices de leads para o vínculo com o CRM
@@ -464,7 +487,10 @@ export async function getClientes(): Promise<Cliente[]> {
     cliente.interacoes.sort((a, b) => b.data.localeCompare(a.data))
     if (cliente.matchKey) {
       cliente.docsCount = docsCountByKey.get(cliente.matchKey) ?? 0
-      cliente.leiloeirasAprovadas = leiloeirasAprovadasByKey.get(cliente.matchKey) ?? 0
+      const vinculos = (vinculosByKey.get(cliente.matchKey) ?? [])
+        .sort((a, b) => a.nome.localeCompare(b.nome, 'pt-BR'))
+      cliente.leiloeiras = vinculos
+      cliente.leiloeirasAprovadas = vinculos.filter((v) => v.status === 'aprovado').length
     }
   }
 
@@ -918,4 +944,57 @@ export async function submitClienteLeiloeiras(
   const r = await submitClienteToLeiloeiras(supabase as never, matchKey, leiloeiraIds)
   revalidatePath('/sistema/clientes')
   return r
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// CARTEIRA DE ASSESSORES — roster canônico.
+// A carteira é montada a partir de `clientes.assessor`, mas um assessor sem
+// nenhum cliente atribuído precisa aparecer mesmo assim (é exatamente o caso
+// que exige ação). O roster vem de `leiloes_equipe`, a mesma lista que a
+// Escala usa — assim a página não inventa um cadastro paralelo de gente.
+// ─────────────────────────────────────────────────────────────────────────────
+export interface AssessorRoster {
+  nome: string
+  apelido: string
+  empresa: string
+  cor: string
+  telefone: string
+  ativo: boolean
+}
+
+export async function getAssessoresRoster(): Promise<AssessorRoster[]> {
+  const supabase = await createClient()
+  const { data, error } = await supabase
+    .from('leiloes_equipe')
+    .select('nome, apelido, empresa, cor, telefone, ativo, ordem')
+    .order('ordem', { ascending: true })
+  if (error) {
+    console.warn('[clientes] roster de assessores indisponível:', error.message)
+    return []
+  }
+  type Row = {
+    nome: string | null; apelido: string | null; empresa: string | null
+    cor: string | null; telefone: string | null; ativo: boolean | null
+  }
+  return (data ?? [])
+    .map((r) => r as Row)
+    .filter((r) => !!r.nome)
+    .map((r) => ({
+      nome: String(r.nome).trim(),
+      apelido: (r.apelido || '').trim(),
+      empresa: (r.empresa || '').trim(),
+      cor: (r.cor || '#C8A96E').trim(),
+      telefone: (r.telefone || '').trim(),
+      ativo: r.ativo !== false,
+    }))
+}
+
+/**
+ * Reatribui o assessor responsável por um cliente (carteira).
+ * Passar string vazia remove o vínculo. Reaproveita o overlay de `clientes`,
+ * então funciona igual para comprador derivado de fechamento e cadastro manual.
+ */
+export async function setClienteAssessor(matchKey: string, nome: string, assessor: string): Promise<void> {
+  await updateClienteCampos({ matchKey, nome, assessor })
+  revalidatePath('/sistema/clientes/carteira')
 }

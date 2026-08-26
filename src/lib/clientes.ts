@@ -5,6 +5,8 @@
 // Este arquivo guarda apenas o shape `Cliente` e helpers de formatação/derivação.
 // ─────────────────────────────────────────────────────────────────────────────
 
+import type { CadastroStatus } from '@/lib/leiloeiras'
+
 export type ClienteStatus = 'ativo' | 'quente' | 'frio' | 'inativo'
 export type PerfilConsumo = 'Premium' | 'Recorrente' | 'Ocasional' | 'Novo'
 export type Interesse = 'Sêmen' | 'Embriões' | 'Touros' | 'Matrizes' | 'Leilões'
@@ -58,6 +60,19 @@ export interface ClienteDocumento {
   createdAt: string
 }
 
+/**
+ * Vínculo do cliente com uma leiloeira parceira (linha de
+ * `cliente_leiloeira_cadastro` já resolvida com o NOME da leiloeira).
+ * `status === 'aprovado'` é o que significa "habilitado a comprar" naquela casa.
+ */
+export interface ClienteLeiloeiraVinculo {
+  id: string
+  nome: string
+  status: CadastroStatus
+  enviadoAt?: string
+  aprovadoAt?: string
+}
+
 export interface Cliente {
   id: string
   nome: string
@@ -106,6 +121,8 @@ export interface Cliente {
   // Agregados carregados junto da lista (para cards/tabela/lista).
   docsCount?: number
   leiloeirasAprovadas?: number
+  // Vínculos com as leiloeiras (todos os status; 'aprovado' = habilitado a comprar).
+  leiloeiras?: ClienteLeiloeiraVinculo[]
 }
 
 // Prontidão do cliente para cadastro em leiloeiras.
@@ -259,3 +276,83 @@ export function clienteReadiness(c: Cliente): ClienteReadiness {
   if (semScore && semIE) return 'sem-dados'
   return 'pendente'
 }
+
+// ── leiloeiras: habilitação de compra ────────────────────────────────────────
+// "Habilitado a comprar na leiloeira X" = existe vínculo com status 'aprovado'.
+// Enviado/pendente/recusado NÃO habilitam — o cliente não bate martelo lá.
+
+/** Vínculos aprovados (habilitados), ordenados por nome. */
+export function leiloeirasHabilitadas(c: Cliente): ClienteLeiloeiraVinculo[] {
+  return (c.leiloeiras ?? [])
+    .filter((l) => l.status === 'aprovado')
+    .sort((a, b) => a.nome.localeCompare(b.nome, 'pt-BR'))
+}
+
+/** Vínculos em trânsito (enviado) — cadastro na fila da leiloeira. */
+export function leiloeirasEmAnalise(c: Cliente): ClienteLeiloeiraVinculo[] {
+  return (c.leiloeiras ?? [])
+    .filter((l) => l.status === 'enviado')
+    .sort((a, b) => a.nome.localeCompare(b.nome, 'pt-BR'))
+}
+
+/** Nomes das leiloeiras onde o cliente já pode comprar (para tabela/CSV). */
+export const nomesHabilitadas = (c: Cliente): string[] => leiloeirasHabilitadas(c).map((l) => l.nome)
+
+// ── recência de compra ───────────────────────────────────────────────────────
+// O ciclo pecuário é longo: um comprador de leilão não recompra todo mês. Os
+// cortes abaixo (6/12/24 meses) espelham a leitura comercial da casa — quem
+// comprou no último semestre está vivo; passando de 2 anos, é base fria.
+export type ClienteRecencia = 'ativo' | 'atencao' | 'risco' | 'inativo' | 'sem-compra'
+
+export const RECENCIA_META: Record<ClienteRecencia, { label: string; tone: string; hint: string }> = {
+  ativo: { label: 'Ativo', tone: 'olive', hint: 'comprou nos últimos 6 meses' },
+  atencao: { label: 'Atenção', tone: 'amber', hint: '6 a 12 meses sem comprar' },
+  risco: { label: 'Risco', tone: 'red', hint: '12 a 24 meses sem comprar' },
+  inativo: { label: 'Inativo', tone: '', hint: 'mais de 24 meses sem comprar' },
+  'sem-compra': { label: 'Sem compra', tone: 'blue', hint: 'cadastro sem arremate registrado' },
+}
+
+/** Meses desde a última compra (null quando nunca comprou). */
+export function mesesDesdeUltimaCompra(c: Cliente, hojeIso?: string): number | null {
+  const ultima = c.compras.map((x) => x.data).filter(Boolean).sort().at(-1)
+  if (!ultima) return null
+  const a = new Date(`${ultima}T00:00:00`).getTime()
+  const b = hojeIso ? new Date(`${hojeIso}T00:00:00`).getTime() : Date.now()
+  return Math.max(0, Math.floor((b - a) / (86400000 * 30.44)))
+}
+
+export function clienteRecencia(c: Cliente, hojeIso?: string): ClienteRecencia {
+  const m = mesesDesdeUltimaCompra(c, hojeIso)
+  if (m === null) return 'sem-compra'
+  if (m < 6) return 'ativo'
+  if (m < 12) return 'atencao'
+  if (m < 24) return 'risco'
+  return 'inativo'
+}
+
+// ── faixas de ticket (segmentação usada nos relatórios) ──────────────────────
+export type FaixaTicket = 'ate-50k' | '50k-150k' | '150k-500k' | 'acima-500k' | 'sem-compra'
+
+export const FAIXA_TICKET_META: Record<FaixaTicket, { label: string; tone: string }> = {
+  'ate-50k': { label: 'Até R$ 50 mil', tone: '' },
+  '50k-150k': { label: 'R$ 50–150 mil', tone: 'blue' },
+  '150k-500k': { label: 'R$ 150–500 mil', tone: 'amber' },
+  'acima-500k': { label: 'Acima de R$ 500 mil', tone: 'gold' },
+  'sem-compra': { label: 'Sem compra', tone: '' },
+}
+
+export const FAIXAS_TICKET: FaixaTicket[] = ['acima-500k', '150k-500k', '50k-150k', 'ate-50k', 'sem-compra']
+
+/** Faixa pelo TOTAL arrematado no período considerado. */
+export function faixaTicket(total: number, temCompra = total > 0): FaixaTicket {
+  if (!temCompra || total <= 0) return 'sem-compra'
+  if (total > 500_000) return 'acima-500k'
+  if (total > 150_000) return '150k-500k'
+  if (total > 50_000) return '50k-150k'
+  return 'ate-50k'
+}
+
+// ── rótulo do assessor ───────────────────────────────────────────────────────
+/** Rótulo estável para agrupar carteira (clientes sem vínculo caem num balde). */
+export const SEM_ASSESSOR = 'Sem assessor'
+export const assessorLabel = (c: Cliente): string => (c.assessor || '').trim() || SEM_ASSESSOR
