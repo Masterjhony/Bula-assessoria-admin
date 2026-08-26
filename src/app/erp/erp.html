@@ -3887,16 +3887,52 @@ async function renderFluxo() {
   const fdc = (x) => (typeof flDataCurta==='function' ? flDataCurta(x) : (x||'—'));
   const aberto = (r) => ['aberto','vencido','parcial'].includes(r.status);
   const restante = (r,isCP)=> Number(r.valor||0)-Number(r.desconto||0)+Number(r.juros||0)+Number(r.multa||0)-Number(isCP?r.valor_pago||0:r.valor_recebido||0);
-  const prox = (list,isCP) => list.filter(aberto).filter(r=>r.vencimento).sort((a,b)=>(a.vencimento||'').localeCompare(b.vencimento||''));
-  const proxCR = prox(cr,false), proxCP = prox(cp,true);
-  const totCR = proxCR.reduce((s,r)=>s+restante(r,false),0);
-  const totCP = proxCP.reduce((s,r)=>s+restante(r,true),0);
-  const venceuChip = (r)=> r.status==='vencido' ? '<span class="chip danger" style="padding:0 6px">vencido</span>' : (r.vencimento && r.vencimento<=hoje ? '<span class="chip warn" style="padding:0 6px">hoje</span>' : '');
+  // "Proximo" e o que ainda VAI vencer, em ordem de chegada. Ordenar a lista
+  // inteira por vencimento crescente colocava titulo de abril no topo de um
+  // painel chamado "Proximos a Receber". O que ja venceu vai para um bloco
+  // proprio, e ai sim do mais velho pro mais novo — que e a ordem da cobranca.
+  const emAberto = (list) => list.filter(aberto).filter(r=>r.vencimento);
+  const aVencer  = (list) => emAberto(list).filter(r=>r.vencimento>=hoje).sort((a,b)=>a.vencimento.localeCompare(b.vencimento));
+  const atrasado = (list) => emAberto(list).filter(r=>r.vencimento< hoje).sort((a,b)=>a.vencimento.localeCompare(b.vencimento));
+  const soma = (list,isCP) => list.reduce((s,r)=>s+restante(r,isCP),0);
+  const crVencer = aVencer(cr), crAtraso = atrasado(cr);
+  const cpVencer = aVencer(cp), cpAtraso = atrasado(cp);
+  const totCR = soma(emAberto(cr),false), totCP = soma(emAberto(cp),true);
+
+  /* O rotulo precisa dizer QUE TIPO de atraso e, senao mente:
+     - "retroativo": o titulo foi EMITIDO depois da data que carrega. A cobranca
+       retroativa de 18/08 criou titulos vencendo em abril/maio — eles nasceram
+       vencidos, ninguem atrasou nada;
+     - "venc. automatico": vencimento de CR e leilao+45d por padrao, nao data
+       combinada com a leiloeira (vale hoje para 22 dos 24 CR vencidos);
+     - "atrasado": ai sim havia data combinada e ela passou. */
+  const dataAcordada = (r) => (r.tags||[]).includes('data-acordada') || /acordo|acordad/i.test(r.observacoes||'');
+  const nasceuVencido = (r) => r.created_at && String(r.created_at).slice(0,10) > r.vencimento;
+  const venceuChip = (r,isCP)=>{
+    if (!r.vencimento || r.vencimento > hoje) return '';
+    if (r.vencimento === hoje) return '<span class="chip warn" style="padding:0 6px">hoje</span>';
+    if (nasceuVencido(r)) return '<span class="chip" style="padding:0 6px;background:var(--s3);color:var(--text3)" title="Titulo emitido em ' + String(r.created_at).slice(0,10).split('-').reverse().join('/') + ', depois da data de vencimento que ele carrega. Nasceu vencido — nao houve atraso de ninguem.">retroativo</span>';
+    if (!isCP && !dataAcordada(r)) return '<span class="chip" style="padding:0 6px;background:var(--amber-bg);color:var(--amber)" title="Vencimento automatico (leilao+45d), nao data combinada com a leiloeira. Leia como ja podia ter entrado, nao como atraso.">venc. automatico</span>';
+    return '<span class="chip danger" style="padding:0 6px" title="Havia data combinada e ela passou.">atrasado</span>';
+  };
+
+  /* Um card por lado, com o VENCIDO separado do que ainda vai vencer — misturar
+     os dois era o que fazia "Proximos a Receber" abrir com titulo de abril. */
+  const blocoTitulos = (icone,titulo,cor,total,vencer,atraso,isCP) => `
+      <div class="card">
+        <div class="card-title"><span class="material-symbols-outlined">${icone}</span>${titulo} <small style="font-weight:400;color:var(--text3);text-transform:none;letter-spacing:0">em aberto</small> <span style="margin-left:auto;color:${cor};font-weight:700">${fmtBRL(total)}</span></div>
+        ${atraso.length ? `
+          <div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.6px;color:var(--red);margin:2px 0 4px">Vencido &middot; ${atraso.length} titulo(s) &middot; ${fmtBRL(soma(atraso,isCP))}</div>
+          <div class="table-wrap" style="border:none"><table><tbody>${atraso.slice(0,5).map(r=>linhaTitulo(r,isCP)).join('')}</tbody></table></div>
+          ${atraso.length>5?`<div style="font-size:10px;color:var(--text3);margin:4px 0 10px">+${atraso.length-5} vencido(s)</div>`:'<div style="height:10px"></div>'}` : ''}
+        <div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.6px;color:var(--text3);margin:2px 0 4px">A vencer &middot; ${vencer.length} titulo(s) &middot; ${fmtBRL(soma(vencer,isCP))}</div>
+        ${vencer.length ? `<div class="table-wrap" style="border:none"><table><tbody>${vencer.slice(0,8).map(r=>linhaTitulo(r,isCP)).join('')}</tbody></table></div>${vencer.length>8?`<div style="font-size:10px;color:var(--text3);margin-top:6px">+${vencer.length-8} a vencer</div>`:''}` : '<div class="empty" style="padding:14px"><p>Nada a vencer.</p></div>'}
+      </div>`;
 
   const linhaTitulo = (r,isCP) => `<tr>
     <td style="white-space:nowrap;color:var(--gold);font-weight:600">${fdc(r.vencimento)}</td>
     <td><div style="max-width:240px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${escapeHtml(r.descricao||'—')}</div></td>
-    <td style="text-align:right" class="money ${isCP?'negative':'positive'}">${fmtBRL(restante(r,isCP))} ${venceuChip(r)}</td>
+    <td style="text-align:right" class="money ${isCP?'negative':'positive'}">${fmtBRL(restante(r,isCP))} ${venceuChip(r,isCP)}</td>
   </tr>`;
 
   // ---------- matriz estilo Omie: categoria x periodo ----------
@@ -4034,14 +4070,8 @@ async function renderFluxo() {
     </div>
 
     <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(320px,1fr));gap:16px;margin-top:16px">
-      <div class="card">
-        <div class="card-title"><span class="material-symbols-outlined">request_quote</span>Proximos a Receber <span style="margin-left:auto;color:var(--olive);font-weight:700">${fmtBRL(totCR)}</span></div>
-        ${proxCR.length ? `<div class="table-wrap" style="border:none"><table><tbody>${proxCR.slice(0,8).map(r=>linhaTitulo(r,false)).join('')}</tbody></table></div>${proxCR.length>8?`<div style="font-size:10px;color:var(--text3);margin-top:6px">+${proxCR.length-8} titulos a receber</div>`:''}` : '<div class="empty" style="padding:18px"><p>Nada a receber em aberto.</p></div>'}
-      </div>
-      <div class="card">
-        <div class="card-title"><span class="material-symbols-outlined">payments</span>Proximos a Pagar <span style="margin-left:auto;color:var(--red);font-weight:700">${fmtBRL(totCP)}</span></div>
-        ${proxCP.length ? `<div class="table-wrap" style="border:none"><table><tbody>${proxCP.slice(0,8).map(r=>linhaTitulo(r,true)).join('')}</tbody></table></div>${proxCP.length>8?`<div style="font-size:10px;color:var(--text3);margin-top:6px">+${proxCP.length-8} titulos a pagar</div>`:''}` : '<div class="empty" style="padding:18px"><p>Nada a pagar em aberto.</p></div>'}
-      </div>
+      ${blocoTitulos('request_quote','A Receber','var(--olive)',totCR,crVencer,crAtraso,false)}
+      ${blocoTitulos('payments','A Pagar','var(--red)',totCP,cpVencer,cpAtraso,true)}
     </div>
 
     <div class="chart-wrap" style="margin-top:16px">
