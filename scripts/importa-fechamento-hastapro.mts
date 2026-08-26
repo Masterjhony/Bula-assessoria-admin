@@ -33,6 +33,12 @@ for (const line of fs.readFileSync('.env.local', 'utf8').split(/\r?\n/)) {
 
 const [FIL, TRECHO, COMPET] = process.argv.slice(2).filter(a => !a.startsWith('--'))
 const APPLY = process.argv.includes('--apply')
+/**
+ * Reescreve um fechamento que ja veio deste mesmo importador. Existe porque o
+ * join de compradores multiplicava lote de cota e o VGV precisou ser refeito na
+ * fonte — nao para reimportar por cima de fechamento conferido a mao.
+ */
+const REFAZER = process.argv.includes('--refazer')
 if (!FIL || !TRECHO || !COMPET) {
     console.error('uso: npx tsx scripts/importa-fechamento-hastapro.mts <FIL> <TRECHO_NOME> <AAAA-MM> [--apply]')
     process.exit(1)
@@ -150,23 +156,54 @@ try {
     const daBula = lotes
         .map(l => ({ ...l, membro: achaMembro(String(l.pisteiro || '')) }))
         .filter(l => filialEhCoberturaInteira || l.membro)
-    const foraDaBula = lotes.length - daBula.length
+    // Contar LINHAS aqui repete o mesmo erro do join: o Sao Geraldo tem 137
+    // lotes no HastaPro e a observacao do fechamento dizia 145.
+    const lotesDistintos = (xs: typeof lotes) => new Set(xs.map(x => String(x.lote).trim())).size
+    const totalDeLotes = lotesDistintos(lotes)
+    const cobertosPelaBula = lotesDistintos(daBula)
+    const foraDaBula = totalDeLotes - cobertosPelaBula
     if (!daBula.length) { console.error('nenhum lote de cobertura da Bula'); process.exit(1) }
 
     // Bulinha não recebe comissão quando a leiloeira é a Bula Remates.
     const leiloeiraEhBulaRemates = String(lei.fil).trim() === '01'
     const ehBulinha = (nome: string) => /bulinha|felipe.*andrade/i.test(nome)
 
-    const lances = daBula.map(l => ({
-        lote: String(l.lote).trim(),
-        vgv: r2(Number(l.total || 0)),
-        animais: Number(l.qtd || 1),
-        parcela: Number(l.lance || 0),
-        parcelas: Number(String(l.parcelas || '').replace(/\D/g, '')) || null,
-        assessor: l.membro?.nome ?? '(a definir)',
-        empresa: 'Bula Assessoria',
-        comprador: [String(l.comprador || '').trim(), String(l.fazenda || '').trim()].filter(Boolean).join(' · ') || null,
-    }))
+    // UM LOTE E UM LOTE, MESMO VENDIDO EM COTAS.
+    //
+    // `LOTES` tem uma linha por lote e `LOT_TOTAL` e o valor do lote inteiro.
+    // `COMPRADORES` tem uma linha por COMPRADOR — e touro de central e vendido
+    // em fracoes: o lote 2000 do Sao Geraldo tem 4 donos. O left join devolve
+    // entao 4 linhas carregando os mesmos R$ 224.000, e somar as linhas conta o
+    // mesmo touro quatro vezes. Foi assim que aquele leilao virou R$ 3,25 mi
+    // quando a cobertura real e R$ 1,83 mi — R$ 1.422.000 de VGV que nunca
+    // existiram, e comissao calculada em cima deles.
+    //
+    // Aqui as linhas voltam a ser um lote, e os compradores da cota entram
+    // todos no mesmo registro, que e o que eles sao: donos do mesmo animal.
+    const porLote = new Map<string, typeof daBula>()
+    for (const l of daBula) {
+        const k = String(l.lote).trim()
+        porLote.set(k, [...(porLote.get(k) ?? []), l])
+    }
+    const lances = [...porLote.values()].map(linhas => {
+        const l = linhas[0]
+        const donos = [...new Set(linhas
+            .map(x => [String(x.comprador || '').trim(), String(x.fazenda || '').trim()].filter(Boolean).join(' · '))
+            .filter(Boolean))]
+        return {
+            lote: String(l.lote).trim(),
+            vgv: r2(Number(l.total || 0)),
+            animais: Number(l.qtd || 1),
+            parcela: Number(l.lance || 0),
+            parcelas: Number(String(l.parcelas || '').replace(/\D/g, '')) || null,
+            assessor: l.membro?.nome ?? '(a definir)',
+            empresa: 'Bula Assessoria',
+            comprador: donos.join(' + ') || null,
+            // Cota: quantos donos dividem o animal. Fica registrado para o
+            // fechamento poder explicar por que ha varios nomes num lote so.
+            cotas: donos.length > 1 ? donos.length : undefined,
+        }
+    })
     const vgvTotal = r2(lances.reduce((s, x) => s + x.vgv, 0))
     const animais = lances.reduce((s, x) => s + x.animais, 0)
 
@@ -212,7 +249,7 @@ try {
 
     const comissao = r2(porAssessor.reduce((s, a) => s + a.comissao, 0))
 
-    console.log(`\nlotes no leilao: ${lotes.length}  |  cobertos pela Bula: ${daBula.length}  |  de terceiros: ${foraDaBula}`)
+    console.log(`\nlotes no leilao: ${totalDeLotes}  |  cobertos pela Bula: ${cobertosPelaBula}  |  de terceiros: ${foraDaBula}`)
     console.log(`VGV coberto: R$ ${brl(vgvTotal)}   animais: ${animais}`)
     console.log('\npor assessor:')
     for (const a of porAssessor)
@@ -228,9 +265,17 @@ try {
     // ve o que alguem digitou no WhatsApp e subavalia lote com varios animais.
     // Quando o HastaPro tem o mesmo leilao, ele SUBSTITUI o provisorio.
     const substituivel = dup && dup.origem === 'lances-auto'
-    if (dup && !substituivel) {
-        console.log(`\nJA EXISTE fechamento "${dup.nome}" em ${dataISO} — nada a fazer.`)
+    const refazivel = !!dup && dup.origem === 'hastapro' && REFAZER
+    if (dup && !substituivel && !refazivel) {
+        console.log(`
+JA EXISTE fechamento "${dup.nome}" em ${dataISO} — nada a fazer.` +
+            (dup.origem === 'hastapro' ? ' Use --refazer para reescrever a partir do HastaPro.' : ''))
         process.exit(0)
+    }
+    if (refazivel) {
+        console.log(`
+REFAZ "${dup!.nome}": ${dup!.lotes_vendidos} lotes / R$ ${brl(dup!.vgv_total)}` +
+            ` -> ${lances.length} lotes / R$ ${brl(vgvTotal)}`)
     }
     if (substituivel) {
         console.log(`\nSUBSTITUI o fechamento provisorio dos lances: "${dup!.nome}" ` +
@@ -244,7 +289,7 @@ try {
         if (error) { console.error('ERRO ao remover o provisorio:', error.message); process.exit(1) }
     }
 
-    const { data: novo, error } = await sb.from('bula_leilao_fechamento').insert({
+    const registro = {
         nome: String(lei.nome).trim(), data: dataISO, local: String(lei.leilocal || '').trim() || null,
         vgv_total: vgvTotal, lotes_vendidos: lances.length, animais_vendidos: animais,
         ticket_medio: r2(vgvTotal / lances.length),
@@ -253,13 +298,24 @@ try {
         lances, por_assessor: porAssessor, compradores: porComprador, por_estado: porEstado,
         comissao_assessoria: comissao, origem: 'hastapro',
         observacoes: `Importado do HastaPro filial ${String(lei.fil).trim()} (${leiloeiraEhBulaRemates ? 'BULA REMATES' : 'terceiro'}) por ` +
-            `scripts/importa-fechamento-hastapro.mts. O leilao inteiro tem ${lotes.length} lotes; ` +
-            `${daBula.length} foram cobertos por pisteiro da equipe Bula e ${foraDaBula} por terceiros — ` +
+            `scripts/importa-fechamento-hastapro.mts. O leilao inteiro tem ${totalDeLotes} lotes; ` +
+            `${cobertosPelaBula} foram cobertos por pisteiro da equipe Bula e ${foraDaBula} por terceiros — ` +
             `o VGV aqui e a COBERTURA BULA, nao o faturamento do pregao.` +
             (leiloeiraEhBulaRemates ? ' Bulinha com 0% por ser leilao da Bula Remates.' : ''),
-    }).select('id').single()
+    }
+
+    if (refazivel) {
+        const { error } = await sb.from('bula_leilao_fechamento').update(registro).eq('id', dup!.id)
+        if (error) { console.error('ERRO:', error.message); process.exit(1) }
+        console.log(`
+fechamento refeito: ${dup!.id}`)
+        process.exit(0)
+    }
+
+    const { data: criado, error } = await sb.from('bula_leilao_fechamento').insert(registro).select('id').single()
     if (error) { console.error('ERRO:', error.message); process.exit(1) }
-    console.log(`\nfechamento criado: ${novo!.id}`)
+    console.log(`
+fechamento criado: ${criado!.id}`)
 } finally {
     db.detach()
 }
