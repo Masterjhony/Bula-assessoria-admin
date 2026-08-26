@@ -12,7 +12,7 @@ import {
 } from 'lucide-react'
 import type { LeilaoAnaliseRow } from '@/lib/leilao-analise'
 import {
-  parseProcedencia,
+  procedenciaLote,
   type Relatorio,
   type RelatorioLote,
   type Atividade,
@@ -1025,16 +1025,16 @@ function RelatorioModal({ leilaoId, nome, analise, onClose }: { leilaoId: string
               )}
 
               {(() => {
-                const procs = (rel.lotes || []).map((l) => parseProcedencia(l.qa_flags))
+                const procs = (rel.lotes || []).map(procedenciaLote)
                 const nDesacordo = procs.filter((p) => p.desacordo).length
-                const nVisual = procs.filter((p) => p.fonte === 'fusao').length
+                const nVisual = procs.filter((p) => p.temVisual).length
                 const nCompradorNaoAnunciado = (rel.lotes || []).filter((l) => !l.comprador || l.comprador_status === 'pendente').length
                 return (
                   <div className="flex flex-wrap items-center gap-2 mb-2">
                     <h3 className="text-sm font-semibold text-gray-700 dark:text-gray-300">Lotes ({rel.lotes?.length || 0})</h3>
                     {nVisual > 0 && (
                       <span className="inline-flex items-center gap-1 text-[11px] px-2 py-0.5 rounded-full bg-violet-500/10 text-violet-500 border border-violet-500/30">
-                        <Eye size={11} /> {nVisual} com leitura da tarja
+                        <Eye size={11} /> {nVisual} com evidência visual
                       </span>
                     )}
                     {nDesacordo > 0 && (
@@ -1061,13 +1061,13 @@ function RelatorioModal({ leilaoId, nome, analise, onClose }: { leilaoId: string
                       <th className="px-3 py-2 font-medium">Casa / Assessoria</th>
                       <th className="px-3 py-2 font-medium text-right">Valor</th>
                       <th className="px-3 py-2 font-medium text-center">Parc.</th>
-                      <th className="px-3 py-2 font-medium">Fonte</th>
+                      <th className="px-3 py-2 font-medium">Proveniência</th>
                       <th className="px-3 py-2 font-medium">Status</th>
                     </tr>
                   </thead>
                   <tbody>
                     {(rel.lotes || []).map((l) => {
-                      const proc = parseProcedencia(l.qa_flags)
+                      const proc = procedenciaLote(l)
                       const status = liveLotStatus(l, false)
                       return (
                       <tr key={l.id} className={`border-b border-gray-100 dark:border-[#222] ${proc.desacordo ? 'bg-amber-500/5' : ''}`}>
@@ -1152,26 +1152,90 @@ function AssertividadeBlock({ indice, a }: { indice: number; a: NonNullable<Leil
   )
 }
 
-function FonteBadge({ proc, conf }: { proc: ReturnType<typeof parseProcedencia>; conf: number | null }) {
+const ROTULOS_CAMPO_FONTE: Record<string, string> = {
+  numero_lote: 'lote',
+  nome_animal: 'registro',
+  identificacao_animal: 'registro',
+  registros_animais: 'registro',
+  registros_animais_json: 'registro',
+  descricao_lote: 'descrição',
+  vendedor: 'vendedor',
+  peso_kg: 'peso',
+  valor_final: 'lance',
+  valor_parcela: 'lance',
+  total_parcelas: 'pagamento',
+  formula_parcelas: 'pagamento',
+  formula_parcelas_raw: 'pagamento',
+  condicao_pagamento: 'pagamento',
+  unidade_preco: 'unidade',
+  rotulo_unidade_preco: 'unidade',
+  quantidade_animais: 'quantidade',
+  comprador: 'comprador',
+  assessor_nome: 'assessor',
+  assessoria: 'assessoria',
+  assessoria_comprador: 'assessoria',
+  motivo: 'resultado',
+  dados_descritivos: 'dados descritivos',
+}
+
+function camposDaFonte(campos: string[]): { curto: string; completo: string } {
+  const labels = [...new Set(campos.map((campo) => ROTULOS_CAMPO_FONTE[campo] || campo.replaceAll('_', ' ')))]
+  const visible = labels.slice(0, 4)
+  return {
+    curto: `${visible.join(', ')}${labels.length > visible.length ? ` +${labels.length - visible.length}` : ''}`,
+    completo: labels.join(', '),
+  }
+}
+
+function FonteBadge({ proc, conf }: { proc: ReturnType<typeof procedenciaLote>; conf: number | null }) {
   const pct = conf != null ? Math.round(conf * 100) : null
+  const visual = camposDaFonte(proc.camposVisuais)
+  const transcript = camposDaFonte(proc.camposTranscricao)
+  const details = [
+    visual.completo ? `Visual: ${visual.completo}` : '',
+    transcript.completo ? `Transcrição: ${transcript.completo}` : '',
+  ].filter(Boolean)
+  const detailTitle = details.join(' | ')
+
+  let badge: React.ReactNode
   if (proc.desacordo) {
-    return (
-      <span className="inline-flex items-center gap-1 text-[10px] px-1.5 py-0.5 rounded bg-amber-500/10 text-amber-500 border border-amber-500/30" title="Áudio e vídeo divergiram no valor; ficou com a leitura da tarja.">
-        <AlertTriangle size={10} /> desacordo{pct != null ? ` · ${pct}%` : ''}
+    badge = (
+      <span className="inline-flex w-fit items-center gap-1 rounded border border-amber-500/30 bg-amber-500/10 px-1.5 py-0.5 text-[10px] text-amber-500" title={`Fontes multimodais em desacordo. ${detailTitle}`}>
+        <AlertTriangle size={10} /> multimodal · revisar{pct != null ? ` · ${pct}%` : ''}
+      </span>
+    )
+  } else if (proc.tipo === 'multimodal') {
+    badge = (
+      <span className="inline-flex w-fit items-center gap-1 rounded border border-violet-500/30 bg-violet-500/10 px-1.5 py-0.5 text-[10px] text-violet-500" title={detailTitle}>
+        <Eye size={10} /><Mic size={9} /> multimodal{pct != null ? ` · ${pct}%` : ''}
+      </span>
+    )
+  } else if (proc.tipo === 'visual') {
+    badge = (
+      <span className="inline-flex w-fit items-center gap-1 rounded border border-violet-500/30 bg-violet-500/10 px-1.5 py-0.5 text-[10px] text-violet-500" title={detailTitle || 'Dados sustentados por evidência visual.'}>
+        <Eye size={10} /> visual{pct != null ? ` · ${pct}%` : ''}
+      </span>
+    )
+  } else if (proc.tipo === 'transcricao') {
+    badge = (
+      <span className="inline-flex w-fit items-center gap-1 rounded border border-gray-500/20 bg-gray-500/10 px-1.5 py-0.5 text-[10px] text-gray-400" title={detailTitle || 'Extraído da transcrição/legenda.'}>
+        <Mic size={10} /> transcrição{pct != null ? ` · ${pct}%` : ''}
+      </span>
+    )
+  } else {
+    badge = (
+      <span className="inline-flex w-fit items-center gap-1 rounded border border-gray-500/20 bg-gray-500/10 px-1.5 py-0.5 text-[10px] text-gray-400" title="A API não informou uma origem auditável para esta linha.">
+        <AlertCircle size={10} /> origem não informada{pct != null ? ` · ${pct}%` : ''}
       </span>
     )
   }
-  if (proc.fonte === 'fusao') {
-    return (
-      <span className="inline-flex items-center gap-1 text-[10px] px-1.5 py-0.5 rounded bg-violet-500/10 text-violet-500 border border-violet-500/30" title="Campos rígidos lidos da tarja (vídeo); comprador do áudio.">
-        <Eye size={10} /> tarja{pct != null ? ` · ${pct}%` : ''}
-      </span>
-    )
-  }
+
   return (
-    <span className="inline-flex items-center gap-1 text-[10px] px-1.5 py-0.5 rounded bg-gray-500/10 text-gray-400 border border-gray-500/20" title="Extraído só do áudio/transcrição.">
-      <Mic size={10} /> áudio{pct != null ? ` · ${pct}%` : ''}
-    </span>
+    <div className="flex min-w-[150px] flex-col gap-0.5">
+      {badge}
+      {visual.curto && <span className="text-[9px] leading-tight text-violet-500/80" title={`Visual: ${visual.completo}`}>visual: {visual.curto}</span>}
+      {transcript.curto && <span className="text-[9px] leading-tight text-gray-400" title={`Transcrição: ${transcript.completo}`}>transcrição: {transcript.curto}</span>}
+    </div>
   )
 }
 

@@ -83,6 +83,10 @@ export type GrowthPulse = {
   aoVivo: boolean
 }
 
+import { CrescimentoSection } from './CrescimentoSection'
+import type { Crescimento } from '@/lib/dashboard-crescimento'
+import type { DadosDoFunil } from '@/components/admin/crm/FunilPorCampanha'
+
 export type DashboardProps = {
   today: string
   proximo: ProximoLeilao | null
@@ -99,6 +103,10 @@ export type DashboardProps = {
   feed: FeedItem[]
   crm: CrmPulse
   growth: GrowthPulse | null
+  /** Séries diárias e cadastros — contados no servidor. */
+  crescimento: Crescimento
+  /** Apuração do funil pago; null quando a leitura da planilha falha. */
+  funil: DadosDoFunil | null
 }
 
 // ─── Helpers ────────────────────────────────────────────────────────────────
@@ -647,7 +655,6 @@ function GrowthPulseCard({ g }: { g: GrowthPulse }) {
         icon={Target}
         title="Growth · Tráfego pago"
         sub={`Do anúncio à compra · ${g.aoVivo ? 'leads ao vivo' : 'apuração'} de ${g.apuradoEm.split('-').reverse().join('/')}`}
-        href="/sistema/crm/dashboard"
       />
 
       <div className="rounded-xl border border-[#A68B4B]/30 bg-[#A68B4B]/5 px-4 py-3 mb-4 flex items-center justify-between">
@@ -703,6 +710,9 @@ export default function DashboardClient(props: DashboardProps) {
             </div>
           )}
       </div>
+
+      {/* O painel de growth deixou de ser página própria e passou a viver aqui. */}
+      <CrescimentoSection crescimento={props.crescimento} funil={props.funil} />
 
       {/* Agenda e entrada de leads */}
       <div className="sec-label pt-2">Agenda &amp; entrada</div>

@@ -5,6 +5,7 @@ import {
     CRM_STAGE_CONNECTION, CRM_STAGE_QUALIFICATION, CRM_STAGE_INFO_CAPTURED,
     CRM_STAGE_REGISTRATION, CRM_STAGE_LOST,
 } from '@/lib/crm-types';
+import { montaCrescimento } from '@/lib/dashboard-crescimento';
 import { carregaFunilAoVivo } from '@/lib/funil-campanhas-live';
 import type { FechamentoAnalyticsItem } from './leiloes/LeiloesAnalyticsBlock';
 import DashboardClient, {
@@ -321,6 +322,7 @@ export default async function AdminDashboard({ searchParams }: { searchParams?: 
         mqlOutrosRes,
         altaPrioridadeRes,
         funilVivo,
+        crescimento,
     ] = await Promise.all([
         loadPipelineStatuses(),
         supabase.from('crm_leads').select('id', { count: 'exact', head: true }).eq('arquivado', false),
@@ -337,6 +339,7 @@ export default async function AdminDashboard({ searchParams }: { searchParams?: 
             .not('source', 'in', '(jmp-bula-perpetuo-sheet,jmp-landing,jmp-sheet-repair)'),
         supabase.from('crm_leads').select('id', { count: 'exact', head: true }).eq('arquivado', false).eq('prioridade', 'Alta'),
         carregaFunilAoVivo().catch(() => null),
+        montaCrescimento(supabase),
     ]);
 
     const stageCount = new Map<string, number>();
@@ -414,6 +417,8 @@ export default async function AdminDashboard({ searchParams }: { searchParams?: 
         feed,
         crm,
         growth: growthPulse(funilVivo),
+        crescimento,
+        funil: funilVivo,
     };
 
     return <DashboardClient {...props} />;

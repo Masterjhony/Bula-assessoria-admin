@@ -31,13 +31,11 @@ const navConfig: NavEntry[] = [
     label: 'Clientes', icon: Contact,
     items: [
       { href: '/sistema/clientes', label: 'Clientes', icon: Contact },
-      { href: '/sistema/clientes/cadastro-leiloeiras', label: 'Cadastro Leiloeiras', icon: Gavel },
     ],
   },
   {
     label: 'CRM', icon: Users,
     items: [
-      { href: '/sistema/crm/dashboard', label: 'Dashboard', icon: BarChart3 },
       { href: '/sistema/crm', label: 'CRM', icon: Users },
       { href: '/sistema/crm/atendimento', label: 'Atendimento Automático', icon: Bot },
       { href: '/sistema/crm/campanhas', label: 'Campanhas', icon: Megaphone },
