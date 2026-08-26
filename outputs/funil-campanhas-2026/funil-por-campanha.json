@@ -1,22 +1,22 @@
 {
- "geradoEm": "2026-08-17",
- "metaExtraidoEm": "2026-08-17",
+ "geradoEm": "2026-08-26",
+ "metaExtraidoEm": "2026-08-26",
  "universo": {
-  "registrosPlanilha": 1948,
+  "registrosPlanilha": 2023,
   "registrosDoCrmSoNoCrm": 36,
-  "lixoDescartado": 23,
-  "pessoasDepoisDaDedup": 1865,
+  "lixoDescartado": 24,
+  "pessoasDepoisDaDedup": 1939,
   "repreenchimentos": 112,
-  "pessoasDeCampanha": 1566
+  "pessoasDeCampanha": 1640
  },
  "totais": {
-  "investido": 15578.539999999999,
-  "impressoes": 1214233,
-  "cliques": 21842,
-  "leads": 1566,
-  "mql": 218,
-  "cadastrosSubmetidos": 63,
-  "cadastrosAprovados": 32,
+  "investido": 16251.439999999999,
+  "impressoes": 1270488,
+  "cliques": 22884,
+  "leads": 1640,
+  "mql": 236,
+  "cadastrosSubmetidos": 71,
+  "cadastrosAprovados": 38,
   "clientes": 6,
   "faturamento": 479100,
   "animais": 23
@@ -50,40 +50,354 @@
  ],
  "funis": [
   {
-   "id": "120249845218920708",
-   "nome": "LEADS - PERPETUO FEMEAS",
+   "id": "120249975819240708",
+   "nome": "LEADS - Expogenética",
    "status": "ACTIVE",
-   "inicio": "2026-08-11",
-   "tipo": "landing",
-   "cliqueDeSaidaPct": 63,
-   "acessosConfiaveis": true,
+   "inicio": "2026-08-17",
+   "tipo": "formulario",
+   "cliqueDeSaidaPct": 1.1,
+   "acessosConfiaveis": false,
    "mensal": {
     "2026-08": {
-     "investido": 1117.35,
-     "impressoes": 62281,
-     "alcance": 27772,
-     "cliques": 1067,
-     "cliquesSaida": 672,
-     "acessos": 546,
-     "leadsMeta": 4
+     "investido": 261.05,
+     "impressoes": 22554,
+     "alcance": 14890,
+     "cliques": 374,
+     "cliquesSaida": 4,
+     "acessos": 0,
+     "leadsMeta": 26
     }
    },
    "midia": {
-    "investido": 1117.35,
-    "impressoes": 62281,
-    "alcance": 27772,
-    "cliques": 1067,
+    "investido": 261.05,
+    "impressoes": 22554,
+    "alcance": 14890,
+    "cliques": 374,
+    "cliquesSaida": 4,
+    "acessos": 0,
+    "acessosNaTaxa": null,
+    "leadsMeta": 26,
+    "ctr": 1.66,
+    "cpc": 0.7,
+    "cpm": 11.57
+   },
+   "etapas": {
+    "leads": 26,
+    "mql": 5,
+    "cadastrosSubmetidos": 0,
+    "cadastrosAprovados": 0,
+    "clientes": 0
+   },
+   "resultado": {
+    "animais": 0,
+    "faturamento": 0,
+    "ticket": 0,
+    "ticketPorAnimal": 0
+   },
+   "taxas": {
+    "ctr": 1.66,
+    "acessoPorClique": null,
+    "leadPorAcesso": null,
+    "leadPorClique": 6.95,
+    "mqlPorLead": 19.23,
+    "cadastroPorMql": 0,
+    "aprovadoPorCadastro": null,
+    "clientePorAprovado": null,
+    "animaisPorCliente": null
+   },
+   "custos": {
+    "porLead": 10.040384615384616,
+    "porMql": 52.21,
+    "porCadastro": null,
+    "porAprovado": null,
+    "porCliente": null,
+    "porAnimal": null
+   },
+   "trabalho": {
+    "CONEXÃO": 15,
+    "NÃO RESPONDEU": 7,
+    "NUMERO ERRADO": 2,
+    "(sem etapa)": 2
+   },
+   "origensDosLeads": {
+    "Meta — LEADS - Expogenética": 26
+   },
+   "responsaveis": {
+    "Pedro Pereira": 14,
+    "Luana Cruz": 10
+   },
+   "leadsPorMes": {
+    "2026-08": 26
+   },
+   "detalheClientes": [],
+   "detalheCadastros": [],
+   "declarado": []
+  },
+  {
+   "id": "120249455058620708",
+   "nome": "LEAD - PERPETUO TOURO",
+   "status": "ACTIVE",
+   "inicio": "2026-07-24",
+   "tipo": "landing",
+   "cliqueDeSaidaPct": 53.1,
+   "acessosConfiaveis": true,
+   "mensal": {
+    "2026-07": {
+     "investido": 2030.9,
+     "impressoes": 148230,
+     "alcance": 72947,
+     "cliques": 2351,
+     "cliquesSaida": 1493,
+     "acessos": 1114,
+     "leadsMeta": 0
+    },
+    "2026-08": {
+     "investido": 1658.11,
+     "impressoes": 96240,
+     "alcance": 49877,
+     "cliques": 1609,
+     "cliquesSaida": 611,
+     "acessos": 496,
+     "leadsMeta": 44
+    }
+   },
+   "midia": {
+    "investido": 3689.01,
+    "impressoes": 244470,
+    "alcance": 103153,
+    "cliques": 3960,
+    "cliquesSaida": 2104,
+    "acessos": 1610,
+    "acessosNaTaxa": 1610,
+    "leadsMeta": 44,
+    "ctr": 1.62,
+    "cpc": 0.93,
+    "cpm": 15.09
+   },
+   "etapas": {
+    "leads": 130,
+    "mql": 35,
+    "cadastrosSubmetidos": 12,
+    "cadastrosAprovados": 10,
+    "clientes": 1
+   },
+   "resultado": {
+    "animais": 2,
+    "faturamento": 65100,
+    "ticket": 65100,
+    "ticketPorAnimal": 32550
+   },
+   "taxas": {
+    "ctr": 1.62,
+    "acessoPorClique": 40.66,
+    "leadPorAcesso": 8.07,
+    "leadPorClique": 3.28,
+    "mqlPorLead": 26.92,
+    "cadastroPorMql": 34.29,
+    "aprovadoPorCadastro": 83.33,
+    "clientePorAprovado": 10,
+    "animaisPorCliente": 2
+   },
+   "custos": {
+    "porLead": 28.377000000000002,
+    "porMql": 105.40028571428572,
+    "porCadastro": 307.4175,
+    "porAprovado": 368.901,
+    "porCliente": 3689.01,
+    "porAnimal": 1844.505
+   },
+   "trabalho": {
+    "CONEXÃO": 67,
+    "NÃO RESPONDEU": 37,
+    "CADASTRO OK": 9,
+    "(sem etapa)": 8,
+    "NUMERO ERRADO": 7,
+    "CADASTRO REPROVADO": 2
+   },
+   "origensDosLeads": {
+    "Landing Touros": 74,
+    "Meta — LEAD - PERPETUO TOURO": 43,
+    "Landing Fêmeas — Funil Perpétuo": 12,
+    "Landing São Geraldo": 1
+   },
+   "responsaveis": {
+    "João Antônio": 37,
+    "Luana Cruz": 31,
+    "Douglas Bispo": 22,
+    "Pedro Pereira": 18,
+    "Marcelo Carneiro": 6,
+    "Leonardo Serafim": 4,
+    "Fábio Omena": 3,
+    "Pedro Preira": 1
+   },
+   "leadsPorMes": {
+    "2026-07": 67,
+    "2026-08": 63
+   },
+   "detalheClientes": [
+    {
+     "lead": "Laercio Oliveira",
+     "uf": "MS",
+     "dataLead": "2026-07-25",
+     "via": "telefone",
+     "comprador": "AIER FRANSCISCO DE OLIVEIRA",
+     "primeiraCompra": "2026-08-01",
+     "animais": 2,
+     "valor": 65100,
+     "leiloes": [
+      "LEILÃO TOUROS SÃO GERALDO E 7P AGRO"
+     ],
+     "filiais": [
+      "01"
+     ],
+     "etapa": "CONEXÃO",
+     "atendidoPor": "Douglas Bispo"
+    }
+   ],
+   "detalheCadastros": [
+    {
+     "nome": "Paulo dos santos fernandes de sousa",
+     "status": "aprovado",
+     "fontes": [
+      "planilha/Etapa",
+      "grupo Remates",
+      "grupo/agosto"
+     ],
+     "data": "2026-07-25"
+    },
+    {
+     "nome": "Luciano Nogueira",
+     "status": "aprovado",
+     "fontes": [
+      "planilha/Etapa"
+     ],
+     "data": "2026-07-26"
+    },
+    {
+     "nome": "Gabriel Machado",
+     "status": "aprovado",
+     "fontes": [
+      "planilha/Etapa"
+     ],
+     "data": "2026-07-26"
+    },
+    {
+     "nome": "Leandro rios",
+     "status": "aprovado",
+     "fontes": [
+      "planilha/Etapa",
+      "grupo Remates"
+     ],
+     "data": "2026-07-28"
+    },
+    {
+     "nome": "Ruy de freitas",
+     "status": "aprovado",
+     "fontes": [
+      "planilha/Etapa"
+     ],
+     "data": "2026-08-11"
+    },
+    {
+     "nome": "Marcionei Luiz Dos Santos",
+     "status": "aprovado",
+     "fontes": [
+      "planilha/Etapa",
+      "sistema/cliente_leiloeira_cadastro",
+      "grupo/agosto"
+     ],
+     "data": "2026-08-19"
+    },
+    {
+     "nome": "Mauro",
+     "status": "aprovado",
+     "fontes": [
+      "planilha/Etapa"
+     ],
+     "data": "2026-08-19"
+    },
+    {
+     "nome": "Epitacio Garcia Neto Neto",
+     "status": "aprovado",
+     "fontes": [
+      "planilha/Etapa",
+      "grupo/agosto"
+     ],
+     "data": "2026-08-20"
+    },
+    {
+     "nome": "Wandeilson Dias Sabino",
+     "status": "aprovado",
+     "fontes": [
+      "planilha/Etapa",
+      "grupo/agosto"
+     ],
+     "data": "2026-08-20"
+    },
+    {
+     "nome": "Agropecuária Pernambuco",
+     "status": "aprovado",
+     "fontes": [
+      "grupo/agosto"
+     ],
+     "data": "2026-08-23"
+    },
+    {
+     "nome": "Denis igor Silva Santos",
+     "status": "recusado",
+     "fontes": [
+      "planilha/Etapa",
+      "sistema/cliente_leiloeira_cadastro",
+      "grupo"
+     ],
+     "data": "2026-07-27"
+    },
+    {
+     "nome": "Helton carlos",
+     "status": "recusado",
+     "fontes": [
+      "planilha/Etapa"
+     ],
+     "data": "2026-08-18"
+    }
+   ],
+   "declarado": []
+  },
+  {
+   "id": "120249845218920708",
+   "nome": "LEADS - PERPETUO FEMEAS",
+   "status": "PAUSED",
+   "inicio": "2026-08-11",
+   "tipo": "landing",
+   "cliqueDeSaidaPct": 56.9,
+   "acessosConfiaveis": true,
+   "mensal": {
+    "2026-08": {
+     "investido": 1225.09,
+     "impressoes": 70460,
+     "alcance": 31815,
+     "cliques": 1182,
+     "cliquesSaida": 672,
+     "acessos": 546,
+     "leadsMeta": 14
+    }
+   },
+   "midia": {
+    "investido": 1225.09,
+    "impressoes": 70460,
+    "alcance": 31815,
+    "cliques": 1182,
     "cliquesSaida": 672,
     "acessos": 546,
     "acessosNaTaxa": 546,
-    "leadsMeta": 4,
-    "ctr": 1.72,
+    "leadsMeta": 14,
+    "ctr": 1.68,
     "cpc": 1.04,
-    "cpm": 17.92
+    "cpm": 17.39
    },
    "etapas": {
-    "leads": 36,
-    "mql": 3,
+    "leads": 46,
+    "mql": 4,
     "cadastrosSubmetidos": 1,
     "cadastrosAprovados": 0,
     "clientes": 0
@@ -95,46 +409,46 @@
     "ticketPorAnimal": 0
    },
    "taxas": {
-    "ctr": 1.71,
-    "acessoPorClique": 51.17,
-    "leadPorAcesso": 6.59,
-    "leadPorClique": 3.37,
-    "mqlPorLead": 8.33,
-    "cadastroPorMql": 33.33,
+    "ctr": 1.68,
+    "acessoPorClique": 46.19,
+    "leadPorAcesso": 8.42,
+    "leadPorClique": 3.89,
+    "mqlPorLead": 8.7,
+    "cadastroPorMql": 25,
     "aprovadoPorCadastro": 0,
     "clientePorAprovado": null,
     "animaisPorCliente": null
    },
    "custos": {
-    "porLead": 31.037499999999998,
-    "porMql": 372.45,
-    "porCadastro": 1117.35,
+    "porLead": 26.632391304347824,
+    "porMql": 306.2725,
+    "porCadastro": 1225.09,
     "porAprovado": null,
     "porCliente": null,
     "porAnimal": null
    },
    "trabalho": {
+    "NÃO RESPONDEU": 18,
     "CONEXÃO": 17,
-    "(sem etapa)": 12,
-    "NÃO RESPONDEU": 4,
-    "NUMERO ERRADO": 1,
+    "(sem etapa)": 6,
+    "NUMERO ERRADO": 3,
     "CADASTRO REPROVADO": 1,
     "SEM INFORMAÇÃO PARA CADASTRO": 1
    },
    "origensDosLeads": {
     "Landing Fêmeas — Funil Perpétuo": 32,
-    "Meta — LEADS - PERPETUO FEMEAS": 4
+    "Meta — LEADS - PERPETUO FEMEAS": 14
    },
    "responsaveis": {
-    "Luana Cruz": 10,
-    "Pedro Pereira": 5,
-    "João Antônio": 4,
+    "Luana Cruz": 17,
+    "Pedro Pereira": 13,
     "Douglas Bispo": 4,
     "Não Tem Frete": 4,
+    "João Antônio": 3,
     "Fábio Omena": 1
    },
    "leadsPorMes": {
-    "2026-08": 36
+    "2026-08": 46
    },
    "detalheClientes": [],
    "detalheCadastros": [
@@ -223,9 +537,9 @@
     "porAnimal": null
    },
    "trabalho": {
-    "CONEXÃO": 17,
+    "CONEXÃO": 18,
     "NÃO RESPONDEU": 16,
-    "(sem etapa)": 8,
+    "(sem etapa)": 7,
     "CADASTRO OK": 7,
     "CADASTRO REPROVADO": 1
    },
@@ -234,11 +548,12 @@
     "Landing São Geraldo": 23
    },
    "responsaveis": {
-    "Marcelo Carneiro": 19,
+    "Marcelo Carneiro": 18,
     "João Antônio": 17,
+    "Pedro Pereira": 4,
     "Douglas Bispo": 2,
-    "Pedro Pereira": 2,
-    "Não Tem Frete": 1
+    "Não Tem Frete": 1,
+    "Luana Cruz": 1
    },
    "leadsPorMes": {
     "2026-07": 42,
@@ -336,183 +651,6 @@
    ]
   },
   {
-   "id": "120249455058620708",
-   "nome": "LEAD - PERPETUO TOURO",
-   "status": "PAUSED",
-   "inicio": "2026-07-24",
-   "tipo": "landing",
-   "cliqueDeSaidaPct": 61.7,
-   "acessosConfiaveis": true,
-   "mensal": {
-    "2026-07": {
-     "investido": 2030.9,
-     "impressoes": 148230,
-     "alcance": 72947,
-     "cliques": 2351,
-     "cliquesSaida": 1493,
-     "acessos": 1114,
-     "leadsMeta": 0
-    },
-    "2026-08": {
-     "investido": 1354,
-     "impressoes": 70718,
-     "alcance": 40532,
-     "cliques": 1056,
-     "cliquesSaida": 609,
-     "acessos": 495,
-     "leadsMeta": 5
-    }
-   },
-   "midia": {
-    "investido": 3384.9,
-    "impressoes": 218948,
-    "alcance": 96594,
-    "cliques": 3407,
-    "cliquesSaida": 2102,
-    "acessos": 1609,
-    "acessosNaTaxa": 1609,
-    "leadsMeta": 5,
-    "ctr": 1.56,
-    "cpc": 0.99,
-    "cpm": 15.46
-   },
-   "etapas": {
-    "leads": 92,
-    "mql": 23,
-    "cadastrosSubmetidos": 6,
-    "cadastrosAprovados": 5,
-    "clientes": 1
-   },
-   "resultado": {
-    "animais": 2,
-    "faturamento": 65100,
-    "ticket": 65100,
-    "ticketPorAnimal": 32550
-   },
-   "taxas": {
-    "ctr": 1.56,
-    "acessoPorClique": 47.23,
-    "leadPorAcesso": 5.72,
-    "leadPorClique": 2.7,
-    "mqlPorLead": 25,
-    "cadastroPorMql": 26.09,
-    "aprovadoPorCadastro": 83.33,
-    "clientePorAprovado": 20,
-    "animaisPorCliente": 2
-   },
-   "custos": {
-    "porLead": 36.792391304347824,
-    "porMql": 147.1695652173913,
-    "porCadastro": 564.15,
-    "porAprovado": 676.98,
-    "porCliente": 3384.9,
-    "porAnimal": 1692.45
-   },
-   "trabalho": {
-    "CONEXÃO": 49,
-    "NÃO RESPONDEU": 28,
-    "CADASTRO OK": 5,
-    "(sem etapa)": 5,
-    "NUMERO ERRADO": 4,
-    "CADASTRO REPROVADO": 1
-   },
-   "origensDosLeads": {
-    "Landing Touros": 74,
-    "Landing Fêmeas — Funil Perpétuo": 12,
-    "Meta — LEAD - PERPETUO TOURO": 5,
-    "Landing São Geraldo": 1
-   },
-   "responsaveis": {
-    "João Antônio": 37,
-    "Douglas Bispo": 22,
-    "Luana Cruz": 9,
-    "Marcelo Carneiro": 6,
-    "Pedro Pereira": 6,
-    "Leonardo Serafim": 4,
-    "Fábio Omena": 3
-   },
-   "leadsPorMes": {
-    "2026-07": 67,
-    "2026-08": 25
-   },
-   "detalheClientes": [
-    {
-     "lead": "Laercio Oliveira",
-     "uf": "MS",
-     "dataLead": "2026-07-25",
-     "via": "telefone",
-     "comprador": "AIER FRANSCISCO DE OLIVEIRA",
-     "primeiraCompra": "2026-08-01",
-     "animais": 2,
-     "valor": 65100,
-     "leiloes": [
-      "LEILÃO TOUROS SÃO GERALDO E 7P AGRO"
-     ],
-     "filiais": [
-      "01"
-     ],
-     "etapa": "CONEXÃO",
-     "atendidoPor": "Douglas Bispo"
-    }
-   ],
-   "detalheCadastros": [
-    {
-     "nome": "Paulo dos santos fernandes de sousa",
-     "status": "aprovado",
-     "fontes": [
-      "planilha/Etapa",
-      "grupo Remates",
-      "grupo/agosto"
-     ],
-     "data": "2026-07-25"
-    },
-    {
-     "nome": "Luciano Nogueira",
-     "status": "aprovado",
-     "fontes": [
-      "planilha/Etapa"
-     ],
-     "data": "2026-07-26"
-    },
-    {
-     "nome": "Gabriel Machado",
-     "status": "aprovado",
-     "fontes": [
-      "planilha/Etapa"
-     ],
-     "data": "2026-07-26"
-    },
-    {
-     "nome": "Leandro rios",
-     "status": "aprovado",
-     "fontes": [
-      "planilha/Etapa",
-      "grupo Remates"
-     ],
-     "data": "2026-07-28"
-    },
-    {
-     "nome": "Ruy de freitas",
-     "status": "aprovado",
-     "fontes": [
-      "planilha/Etapa"
-     ],
-     "data": "2026-08-11"
-    },
-    {
-     "nome": "Denis igor Silva Santos",
-     "status": "recusado",
-     "fontes": [
-      "planilha/Etapa",
-      "sistema/cliente_leiloeira_cadastro",
-      "grupo"
-     ],
-     "data": "2026-07-27"
-    }
-   ],
-   "declarado": []
-  },
-  {
    "id": "120249049934240708",
    "nome": "LEADS - FORMS INST EAO — Cópia",
    "status": "PAUSED",
@@ -547,8 +685,8 @@
    "etapas": {
     "leads": 216,
     "mql": 48,
-    "cadastrosSubmetidos": 14,
-    "cadastrosAprovados": 3,
+    "cadastrosSubmetidos": 15,
+    "cadastrosAprovados": 4,
     "clientes": 0
    },
    "resultado": {
@@ -563,23 +701,23 @@
     "leadPorAcesso": null,
     "leadPorClique": 6.16,
     "mqlPorLead": 22.22,
-    "cadastroPorMql": 29.17,
-    "aprovadoPorCadastro": 21.43,
+    "cadastroPorMql": 31.25,
+    "aprovadoPorCadastro": 26.67,
     "clientePorAprovado": 0,
     "animaisPorCliente": null
    },
    "custos": {
     "porLead": 13.36925925925926,
     "porMql": 60.16166666666667,
-    "porCadastro": 206.26857142857145,
-    "porAprovado": 962.5866666666667,
+    "porCadastro": 192.51733333333334,
+    "porAprovado": 721.94,
     "porCliente": null,
     "porAnimal": null
    },
    "trabalho": {
     "(sem etapa)": 144,
-    "NÃO RESPONDEU": 35,
-    "CONEXÃO": 24,
+    "NÃO RESPONDEU": 37,
+    "CONEXÃO": 22,
     "NUMERO ERRADO": 6,
     "JÁ COMPROU": 3,
     "CADASTRO OK": 2,
@@ -589,8 +727,8 @@
     "Meta — LEADS - FORMS INST EAO — Cópia": 216
    },
    "responsaveis": {
+    "Luana Cruz": 19,
     "João Antônio": 19,
-    "Luana Cruz": 18,
     "Pedro Pereira": 18,
     "Marcelo Carneiro": 7,
     "Douglas Bispo": 5,
@@ -629,12 +767,21 @@
      "data": "12/07"
     },
     {
+     "nome": "Francisco aluizio de faria",
+     "status": "aprovado",
+     "fontes": [
+      "grupo/agosto"
+     ],
+     "data": "2026-08-18"
+    },
+    {
      "nome": "Tiago Menezes Esposti",
      "status": "recusado",
      "fontes": [
+      "sistema/cliente_leiloeira_cadastro",
       "grupo"
      ],
-     "data": "10/07 e 18/07"
+     "data": "2026-08-18"
     },
     {
      "nome": "José Dias Dantas",
@@ -743,8 +890,8 @@
     "impressoes": 2689,
     "alcance": 2502,
     "cliques": 15,
-    "cliquesSaida": null,
-    "acessos": null,
+    "cliquesSaida": 0,
+    "acessos": 0,
     "acessosNaTaxa": null,
     "leadsMeta": 0,
     "ctr": 0.56,
@@ -826,7 +973,7 @@
    "etapas": {
     "leads": 358,
     "mql": 47,
-    "cadastrosSubmetidos": 12,
+    "cadastrosSubmetidos": 13,
     "cadastrosAprovados": 3,
     "clientes": 1
    },
@@ -842,15 +989,15 @@
     "leadPorAcesso": null,
     "leadPorClique": 12.02,
     "mqlPorLead": 13.13,
-    "cadastroPorMql": 25.53,
-    "aprovadoPorCadastro": 25,
+    "cadastroPorMql": 27.66,
+    "aprovadoPorCadastro": 23.08,
     "clientePorAprovado": 33.33,
     "animaisPorCliente": 2
    },
    "custos": {
     "porLead": 3.417039106145251,
     "porMql": 26.027659574468085,
-    "porCadastro": 101.94166666666666,
+    "porCadastro": 94.1,
     "porAprovado": 407.76666666666665,
     "porCliente": 1223.3,
     "porAnimal": 611.65
@@ -902,7 +1049,8 @@
       "planilha/Etapa",
       "grupo Remates",
       "grupo",
-      "grupo/agosto"
+      "grupo/agosto",
+      "sistema/cliente_leiloeira_cadastro"
      ],
      "data": "2026-06-28"
     },
@@ -994,6 +1142,14 @@
       "sistema/cliente_leiloeira_cadastro"
      ],
      "data": "2026-07-10"
+    },
+    {
+     "nome": "Ricardo Moreira",
+     "status": "submetido",
+     "fontes": [
+      "sistema/cliente_leiloeira_cadastro"
+     ],
+     "data": "2026-08-18"
     }
    ],
    "declarado": []
@@ -1072,10 +1228,10 @@
     "porAnimal": null
    },
    "trabalho": {
-    "(sem etapa)": 531,
-    "CONEXÃO": 14,
-    "NÃO RESPONDEU": 13,
-    "NUMERO ERRADO": 3
+    "(sem etapa)": 530,
+    "NÃO RESPONDEU": 14,
+    "CONEXÃO": 13,
+    "NUMERO ERRADO": 4
    },
    "origensDosLeads": {
     "Meta — LEADS - FORMS INST PERPETUO": 559,
@@ -1083,7 +1239,7 @@
     "Landing Touros": 1
    },
    "responsaveis": {
-    "Pedro Pereira": 22,
+    "Pedro Pereira": 23,
     "João Antônio": 6,
     "Luana Cruz": 3,
     "Fábio Omena": 2,
@@ -1284,7 +1440,7 @@
     "alcance": 102408,
     "cliques": 1712,
     "cliquesSaida": 6,
-    "acessos": null,
+    "acessos": 0,
     "acessosNaTaxa": null,
     "leadsMeta": 110,
     "ctr": 1.08,
@@ -1525,7 +1681,8 @@
      "fontes": [
       "planilha/Etapa",
       "sistema/cliente_leiloeira_cadastro",
-      "grupo/lista consolidada"
+      "grupo/lista consolidada",
+      "grupo/agosto"
      ],
      "data": "2026-06-10"
     },
@@ -1602,7 +1759,8 @@
      "status": "aprovado",
      "fontes": [
       "sistema/cliente_leiloeira_cadastro",
-      "grupo/lista consolidada"
+      "grupo/lista consolidada",
+      "grupo/agosto"
      ],
      "data": "2026-07-08"
     },
@@ -2051,7 +2209,7 @@
     "origem": "Landing Touros",
     "uf": "MG",
     "mql": false,
-    "etapa": "CONEXÃO",
+    "etapa": "NÃO RESPONDEU",
     "comprou": null
    },
    {
@@ -2087,7 +2245,7 @@
     "origem": "Landing Fêmeas — Funil Perpétuo",
     "uf": "SP",
     "mql": false,
-    "etapa": "CONEXÃO",
+    "etapa": "NÃO RESPONDEU",
     "comprou": null
    },
    {
@@ -2123,12 +2281,12 @@
   }
  ],
  "cadastros": {
-  "pessoasComDecisao": 120,
-  "aprovados": 64,
-  "recusados": 27,
-  "submetidosSemDecisao": 29,
-  "casadosComLeadDeCampanha": 63,
-  "semLeadNenhum": 48,
+  "pessoasComDecisao": 137,
+  "aprovados": 76,
+  "recusados": 29,
+  "submetidosSemDecisao": 32,
+  "casadosComLeadDeCampanha": 71,
+  "semLeadNenhum": 57,
   "detalheSemLead": [
    {
     "nome": "ivana s potenza magao",
@@ -2290,11 +2448,55 @@
     "nome": "Tiago de Alencar Brito",
     "status": "aprovado",
     "fontes": [
-     "grupo/agosto"
+     "grupo/agosto",
+     "sistema/cliente_leiloeira_cadastro"
     ]
    },
    {
     "nome": "(esposa do comprador, contadora)",
+    "status": "aprovado",
+    "fontes": [
+     "grupo/agosto"
+    ]
+   },
+   {
+    "nome": "Farley Azevedo Oliveira",
+    "status": "aprovado",
+    "fontes": [
+     "grupo/agosto"
+    ]
+   },
+   {
+    "nome": "Francisco Marcos Araruna",
+    "status": "aprovado",
+    "fontes": [
+     "grupo/agosto",
+     "sistema/cliente_leiloeira_cadastro"
+    ]
+   },
+   {
+    "nome": "(consulta 2 de 19/08)",
+    "status": "aprovado",
+    "fontes": [
+     "grupo/agosto"
+    ]
+   },
+   {
+    "nome": "Carolina Freitas Alencar",
+    "status": "aprovado",
+    "fontes": [
+     "grupo/agosto"
+    ]
+   },
+   {
+    "nome": "Uendel Moreira Lino",
+    "status": "aprovado",
+    "fontes": [
+     "grupo/agosto"
+    ]
+   },
+   {
+    "nome": "(cliente MS do Leilao Sao Jose)",
     "status": "aprovado",
     "fontes": [
      "grupo/agosto"
@@ -2309,9 +2511,10 @@
     ]
    },
    {
-    "nome": "Ferdinando Francisco Ramos dos Santos",
+    "nome": "ferdinando francisco ramos dos santos",
     "status": "recusado",
     "fontes": [
+     "sistema/cliente_leiloeira_cadastro",
      "grupo"
     ]
    },
@@ -2409,6 +2612,13 @@
     ]
    },
    {
+    "nome": "Geraldo Majela de Brito",
+    "status": "recusado",
+    "fontes": [
+     "grupo/agosto"
+    ]
+   },
+   {
     "nome": "helio gomes silva",
     "status": "submetido",
     "fontes": [
@@ -2444,6 +2654,13 @@
     ]
    },
    {
+    "nome": "italo bruno",
+    "status": "submetido",
+    "fontes": [
+     "sistema/cliente_leiloeira_cadastro"
+    ]
+   },
+   {
     "nome": "Geniuce",
     "status": "submetido",
     "fontes": [
@@ -2466,6 +2683,13 @@
    },
    {
     "nome": "(cadastro Expogenética)",
+    "status": "submetido",
+    "fontes": [
+     "grupo/agosto"
+    ]
+   },
+   {
+    "nome": "Alexandre Saraiva de Morais",
     "status": "submetido",
     "fontes": [
      "grupo/agosto"

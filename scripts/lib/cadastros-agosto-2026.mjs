@@ -7,7 +7,7 @@
  * em que a meta passou a valer.
  *
  * Esta lista fecha esse buraco. Fonte: whatsapp_messages, grupos "Cadastros Bula
- * Remates" e "Cadastros Bula e Programa", 01/08 a 14/08/2026, 182 mensagens de
+ * Remates" e "Cadastros Bula e Programa", 01/08 a 26/08/2026, 315 mensagens de
  * texto deduplicadas, lidas uma a uma. Não dá para fazer isso com regex: o grupo
  * é conversa livre, o veredito vem em linguagem natural ("cadastro bom do
  * wellington", "Henio; sem i.e e com restrição. reprovado", "ta apto então? sim
@@ -119,6 +119,101 @@ export const CADASTROS_AGOSTO = [
     {
         nome: '(cadastro Expogenética)', data: '2026-08-14',
         status: 'pendente', evidencia: '"Score ótimo, sem IE" — encaminhado para o grupo da PL, que decide os leilões da Expogenética',
+    },
+    // -- 14/08 --------------------------------------------------------------
+    {
+        nome: 'Farley Azevedo Oliveira', cpf: '029.636.736-20', uf: 'MG', data: '2026-08-14',
+        status: 'aprovado', grupo: 'Programa', leilao: 'Terra Brava',
+        evidencia: 'Ficha (Insc. Produtor Rural MG 001279570.00-50, Fazenda Nova Era) postada 13:58 → "ok" (16:21)',
+    },
+    // -- 15/08 --------------------------------------------------------------
+    {
+        nome: 'Osiel Fernandes Silva', cpf: '047.351.144-40', data: '2026-08-15',
+        status: 'recusado', grupo: 'Programa',
+        evidencia: '"Diz osiel que já tem cadastro" (08:15) → "não possui IE" (12:17)',
+    },
+    {
+        nome: 'Francisco Marcos Araruna', cpf: '625.326.507-53', data: '2026-08-15',
+        status: 'aprovado', grupo: 'Programa',
+        evidencia: '"Francisco Marcos Araruna 625.326.507-53 / Pfv" (13:37) → "ok" (13:46)',
+    },
+    // -- 18/08 --------------------------------------------------------------
+    {
+        nome: 'Francisco Aluízio de Faria', cpf: '085.584.344-68', uf: 'RN', data: '2026-08-18',
+        status: 'aprovado', ressalva: true, grupo: 'Programa + Remates',
+        evidencia: 'CNH + inscrição de produtor postadas 08:35 nos dois grupos → "Não dá p valores alto, no máximo 1.000,00 por parcela" (11:42)',
+    },
+    // -- 19/08 --------------------------------------------------------------
+    {
+        nome: '(consulta 1 de 19/08)', data: '2026-08-19', grupo: 'Remates',
+        status: 'recusado',
+        evidencia: '"Tem IE mas baixo score e muitos apontamentos, reprovado" (11:18) — a ficha veio encaminhada, sem nome no texto',
+    },
+    {
+        nome: '(consulta 2 de 19/08)', data: '2026-08-19', grupo: 'Remates',
+        status: 'aprovado',
+        evidencia: '"Score razoável (692), possui IE, aprovado ✅" (11:47)',
+    },
+    {
+        nome: 'Geraldo Majela de Brito', cpf: '363.246.476-68', uf: 'MG', data: '2026-08-19',
+        status: 'recusado', grupo: 'Programa',
+        evidencia: '"Geraldo Majela de Brito CPF 363.246.476-68 / Nova Serrana-MG" (13:06) → "Não aprovado" (13:33)',
+    },
+    // -- 20/08 --------------------------------------------------------------
+    {
+        nome: 'Epitacio Garcia Neto', cpf: '036.349.991-10', uf: 'MS', data: '2026-08-20',
+        status: 'aprovado', grupo: 'Remates + Programa', deCampanha: 'LEAD - PERPETUO TOURO',
+        evidencia: 'CNH postada por Luana 18:43/18:49 → "Ok com a programa, direcionar para Leonardo" (19:26). Lead da planilha em 20/08 16:29, marcado CADASTRO OK.',
+    },
+    {
+        nome: 'Wandeilson Dias Sabino', uf: 'TO', data: '2026-08-20',
+        status: 'aprovado', grupo: 'Remates + Programa', deCampanha: 'LEAD - PERPETUO TOURO',
+        evidencia: 'Segundo dos "dois clientes para cadastro" enviados por Luana em 20/08 (NF-e de produtor TO, I.E. 29.466.645-1); a planilha marca CADASTRO OK no lead de 20/08 14:37.',
+    },
+    // -- 21/08 --------------------------------------------------------------
+    {
+        nome: 'Carolina Freitas Alencar', cpf: '080.929.594-63', uf: 'SE', data: '2026-08-21',
+        status: 'aprovado', ressalva: true, grupo: 'Programa', leilao: 'Naviraí e Camparino',
+        evidencia: 'Contracheques + CNH postados 10:01 → "Ok - 1 lote" (10:31)',
+    },
+    {
+        nome: 'Itamar José de Almeida', cpf: '136.023.491-87', uf: 'GO', data: '2026-08-21',
+        status: 'recusado', grupo: 'Programa + Remates',
+        evidencia: '"Score muito bom mas não tem IE / 892" (Remates 19:46) → "Não autorizado. Não possui Inscrição Estadual" (Programa 19:47). Fazenda Samara, São Félix do Xingu/PA.',
+    },
+    // -- 22/08 --------------------------------------------------------------
+    {
+        nome: 'Marcionei Luiz dos Santos', cpf: '802.873.879-68', uf: 'PR', data: '2026-08-22',
+        status: 'pendente', grupo: 'Programa', deCampanha: 'LEAD - PERPETUO TOURO',
+        evidencia: 'Ficha postada por Luana 12:01 (única ingerida pelo sistema em agosto) → "não tem cadastro" (12:37) → "Realizar cadastro, por favor!" → "precisa do documento pessoal e contato" (13:08). ATENÇÃO: a planilha marca CADASTRO OK no lead de 19/08 20:37, mas a leiloeira ainda não decidiu.',
+    },
+    {
+        nome: 'Uendel Moreira Lino', cpf: '847.737.583-68', uf: 'PI', data: '2026-08-22',
+        status: 'aprovado', ressalva: true, grupo: 'Programa',
+        evidencia: 'Ficha cadastral SEFAZ-PI (I.E. 19.712.486-0) + DANFE postadas 14:03 → "ok" (14:12) e "ok - 1.000,00 limite mensal" (14:13)',
+    },
+    // -- 23/08 --------------------------------------------------------------
+    {
+        nome: 'Raquel Sousa da Silva', cpf: '073.631.421-06', data: '2026-08-23',
+        status: 'pendente', grupo: 'Programa', leilao: 'Patrocinado Terra',
+        evidencia: '"Raquel Sousa da Silva / 07363142106 / Consulta pfv" (10:25) → "sem cadastro" (10:46) → "Não localizei a ie" (10:56) → "Solicitei aqui" (11:00)',
+    },
+    {
+        nome: 'Agropecuária Pernambuco Ltda (Agropecuária GP)', cpf: '33.328.046/0001-93', uf: 'PA', data: '2026-08-23',
+        status: 'aprovado', grupo: 'Programa + Remates',
+        evidencia: 'Cartão CNPJ postado por Luana 11:12/11:13 → "Cadastro ok" (Programa 11:25); no Remates "Liberou / Lá na PL" (14:11)',
+    },
+    // -- 24/08 --------------------------------------------------------------
+    {
+        nome: '(cliente MS do Leilão São José)', cpf: '010.189.701-42', ie: '288285883', uf: 'MS', data: '2026-08-24',
+        status: 'aprovado', grupo: 'Remates', leilao: 'São José (Bula Remates)',
+        evidencia: '"01018970142 / CPF / 288285883 / IE / Consulta para Leilão São José da Bula Remates, cliente do MS" (23:07) → "cadastro ok!" (25/08 10:20)',
+    },
+    // -- 25/08 --------------------------------------------------------------
+    {
+        nome: 'Alexandre Saraiva de Morais', cpf: '455.831.614-34', uf: 'PE', data: '2026-08-25',
+        status: 'pendente', grupo: 'Programa', leilao: 'Matinha',
+        evidencia: 'CNH + documento postados 11:20 com "cadastro do leilao matinha" — sem veredito até 26/08',
     },
 ]
 
