@@ -57,6 +57,20 @@ export interface BuyerEvidence {
   evidence_text?: string
 }
 
+export interface VisualEvidenceApplication {
+  source?: string
+  consensus_support?: number
+  field_support?: Record<string, string[]>
+  requested_fields?: Record<string, unknown>
+  changed_fields?: string[]
+  after?: Record<string, unknown>
+}
+
+export interface VisualEvidenceAudit {
+  schema_version?: number
+  applications?: VisualEvidenceApplication[]
+}
+
 export interface RelatorioLote {
   id: number | string
   numero_lote: string | null
@@ -90,30 +104,154 @@ export interface RelatorioLote {
   frame_artifact_id?: number | string | null
   live_last_seen_at?: string | null
   live_read_count?: number | null
+  visual_evidence_json?: VisualEvidenceAudit | string | null
+  visual_verified?: boolean | null
+  visual_evidence_count?: number | null
+  fonte_descritiva?: string | null
+  registros_animais?: string[]
+  registros_animais_fonte?: string | null
   financeiro?: RelatorioLoteFinanceiro | null
 }
 
 export interface LoteProcedencia {
-  fonte: string | null // 'fusao' | 'audio'
+  fonte: string | null // valor bruto legado: 'fusao' | 'audio' | ...
+  tipo: 'visual' | 'multimodal' | 'transcricao' | 'desconhecida'
+  temVisual: boolean
+  temTranscricao: boolean
   desacordo: boolean // cross_modal_disagreement em algum campo
   fontesPorCampo: Record<string, string[]>
+  camposVisuais: string[]
+  camposTranscricao: string[]
   flags: string[]
 }
 
 /** Decodifica qa_flags (procedência por campo + flags). Tolerante a formato. */
 export function parseProcedencia(qaFlags: string | null | undefined): LoteProcedencia {
-  const out: LoteProcedencia = { fonte: null, desacordo: false, fontesPorCampo: {}, flags: [] }
+  const out: LoteProcedencia = {
+    fonte: null,
+    tipo: 'desconhecida',
+    temVisual: false,
+    temTranscricao: false,
+    desacordo: false,
+    fontesPorCampo: {},
+    camposVisuais: [],
+    camposTranscricao: [],
+    flags: [],
+  }
   if (!qaFlags) return out
   try {
     const j = JSON.parse(qaFlags)
     out.fonte = j.fonte ?? null
-    out.fontesPorCampo = j.src ?? {}
+    out.fontesPorCampo = normalizarFontesPorCampo(j.src)
     out.flags = Array.isArray(j.flags) ? j.flags : []
     out.desacordo = out.flags.some((f) => f.startsWith('cross_modal_disagreement'))
   } catch {
     // qa_flags antigo (string livre) — ignora.
   }
+  preencherTiposDeFonte(out)
   return out
+}
+
+/**
+ * Resolve a procedência exibida para uma linha do relatório.
+ *
+ * Relatórios antigos codificavam a origem apenas em `qa_flags`. O contrato
+ * atual expõe sinais visuais auditáveis separados; eles têm precedência para
+ * que um enriquecimento visual verificado nunca seja rotulado como áudio.
+ */
+export function procedenciaLote(lote: RelatorioLote): LoteProcedencia {
+  const out = parseProcedencia(lote.qa_flags)
+  const visualFields = new Set(out.camposVisuais)
+  const transcriptFields = new Set(out.camposTranscricao)
+
+  for (const application of visualApplications(lote.visual_evidence_json)) {
+    const supported = application.field_support && typeof application.field_support === 'object'
+      ? Object.keys(application.field_support)
+      : []
+    const requested = application.requested_fields && typeof application.requested_fields === 'object'
+      ? Object.keys(application.requested_fields)
+      : []
+    const changed = Array.isArray(application.changed_fields) ? application.changed_fields : []
+    const after = application.after && typeof application.after === 'object'
+      ? Object.keys(application.after)
+      : []
+    for (const field of [...supported, ...requested, ...changed, ...after]) {
+      if (field) visualFields.add(field)
+    }
+  }
+
+  if (String(lote.registros_animais_fonte || '').toLocaleLowerCase('pt-BR').includes('visual')) {
+    visualFields.add('registros_animais')
+  }
+
+  const visualSignal = Boolean(
+    out.temVisual
+    || lote.visual_verified
+    || Number(lote.visual_evidence_count || 0) > 0
+    || String(lote.fonte_descritiva || '').toLocaleLowerCase('pt-BR') === 'visual'
+    || visualFields.size > 0
+    // Compatibilidade com leituras ao vivo anteriores ao contrato auditável.
+    || Number(lote.live_read_count || 0) > 0
+  )
+  if (visualSignal && visualFields.size === 0) visualFields.add('dados_descritivos')
+
+  out.camposVisuais = [...visualFields]
+  out.camposTranscricao = [...transcriptFields]
+  out.temVisual = visualSignal
+  out.temTranscricao = out.temTranscricao || transcriptFields.size > 0
+  out.tipo = out.temVisual
+    ? (out.temTranscricao ? 'multimodal' : 'visual')
+    : (out.temTranscricao ? 'transcricao' : 'desconhecida')
+  return out
+}
+
+function normalizarFontesPorCampo(value: unknown): Record<string, string[]> {
+  if (!value || typeof value !== 'object' || Array.isArray(value)) return {}
+  const normalized: Record<string, string[]> = {}
+  for (const [field, rawSources] of Object.entries(value)) {
+    const sources = Array.isArray(rawSources) ? rawSources : [rawSources]
+    normalized[field] = sources
+      .filter((source): source is string => typeof source === 'string')
+      .map((source) => source.trim())
+      .filter(Boolean)
+  }
+  return normalized
+}
+
+function preencherTiposDeFonte(out: LoteProcedencia): void {
+  const visualFields = new Set<string>()
+  const transcriptFields = new Set<string>()
+  const isVisual = (source: string) => /visual|video|vídeo|tarja|frame|ocr|vlm/i.test(source)
+  const isTranscript = (source: string) => /audio|áudio|transcri|transcript|legenda|caption|asr/i.test(source)
+
+  for (const [field, sources] of Object.entries(out.fontesPorCampo)) {
+    if (sources.some(isVisual)) visualFields.add(field)
+    if (sources.some(isTranscript)) transcriptFields.add(field)
+  }
+  const rawSource = String(out.fonte || '')
+  out.temVisual = visualFields.size > 0 || isVisual(rawSource) || rawSource === 'fusao'
+  out.temTranscricao = transcriptFields.size > 0 || isTranscript(rawSource) || rawSource === 'fusao'
+  out.camposVisuais = [...visualFields]
+  out.camposTranscricao = [...transcriptFields]
+  out.tipo = out.temVisual
+    ? (out.temTranscricao ? 'multimodal' : 'visual')
+    : (out.temTranscricao ? 'transcricao' : 'desconhecida')
+}
+
+function visualApplications(value: RelatorioLote['visual_evidence_json']): VisualEvidenceApplication[] {
+  let audit: unknown = value
+  if (typeof audit === 'string') {
+    try {
+      audit = JSON.parse(audit)
+    } catch {
+      return []
+    }
+  }
+  if (!audit || typeof audit !== 'object' || Array.isArray(audit)) return []
+  const applications = (audit as VisualEvidenceAudit).applications
+  return Array.isArray(applications)
+    ? applications.filter((item): item is VisualEvidenceApplication => Boolean(item && typeof item === 'object'))
+    : []
 }
 
 export interface Relatorio {
