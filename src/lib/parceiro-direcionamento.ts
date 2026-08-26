@@ -26,6 +26,8 @@
  * lançados que passam a cair na regra.
  */
 
+import { assessorKey, normalizeAssessorNome } from './assessor-normalize'
+
 export type CompradorDirecionado = {
     /** Quem leva a comissão. Precisa existir em erp_folha_estrutura / assessor-comissao. */
     parceiro: string
@@ -168,4 +170,136 @@ export function direcionamentoDeclarado(raw: string | null | undefined):
     const canonico = PARCEIROS_CONHECIDOS[nome]
         ?? Object.entries(PARCEIROS_CONHECIDOS).find(([k]) => nome.startsWith(k))?.[1]
     return canonico ? { parceiro: canonico } : { desconhecido: nome }
+}
+
+/**
+ * ATRIBUIÇÃO DA VENDA — separa, no `por_assessor` do fechamento, o que é venda
+ * do assessor e o que é direcionamento do parceiro.
+ *
+ * Não é a mesma coisa que a comissão. A comissão dos lotes direcionados já é
+ * tratada por `scripts/aplica-direcionamento-parceiro.mts`, que mexe em título
+ * e em dinheiro. Aqui só se responde "quem vendeu isto" — que é o que a tela de
+ * Vendas por assessor e os relatórios de leilão a leilão exibem.
+ *
+ * MOVE, não recalcula. Reconstruir o `por_assessor` inteiro a partir dos lances
+ * daria número diferente do gravado em todo fechamento cujos lances não cobrem o
+ * total (importação do HastaPro, lote sem lance detalhado). O que se faz é tirar
+ * o lote direcionado de quem anunciou e somar no parceiro; o VGV do leilão não
+ * muda de valor, só de dono.
+ *
+ * A comissão de cada linha NÃO é recalculada de propósito: mexer nela aqui
+ * pintaria de "resolvido" um acerto que ainda depende de decisão de quem paga.
+ */
+export type LanceParaAtribuicao = {
+    lote?: unknown
+    vgv?: number | null
+    animais?: number | null
+    assessor?: string | null
+    comprador?: string | null
+    fazenda?: string | null
+    uf?: string | null
+}
+
+export type LinhaDeAssessor = {
+    nome: string
+    empresa?: string
+    vgv: number
+    animais: number
+    transacoes: number
+    ticket_medio?: number
+    pct_total?: number
+    posicao?: number
+    [k: string]: unknown
+}
+
+export type LoteDirecionado = {
+    parceiro: string
+    /** Quem estava na pista e perde a atribuição da venda. */
+    anunciante: string
+    comprador: string
+    lote: string
+    vgv: number
+    animais: number
+}
+
+const r2 = (n: number) => Math.round(n * 100) / 100
+
+export function reatribuiVendasPorDirecionamento(
+    porAssessor: readonly LinhaDeAssessor[] | null | undefined,
+    lances: readonly LanceParaAtribuicao[] | null | undefined,
+): { porAssessor: LinhaDeAssessor[]; direcionados: LoteDirecionado[]; naoMovidos: LoteDirecionado[] } {
+    const linhas = (porAssessor ?? []).map(a => ({ ...a }))
+    // Sem lance não há comprador, e sem comprador não há como saber de quem é a
+    // venda — a atribuição gravada fica de pé.
+    if (!lances?.length || !linhas.length) return { porAssessor: linhas, direcionados: [], naoMovidos: [] }
+
+    const direcionados: LoteDirecionado[] = []
+    const naoMovidos: LoteDirecionado[] = []
+    // O mesmo assessor aparece escrito de várias formas no `por_assessor`
+    // ("Fabio Omena", "Fábio Omena", "Fábio Omena Gaia"), e o lote pode estar em
+    // qualquer uma delas.
+    const mesmaPessoa = (a: string, b: string) =>
+        assessorKey(normalizeAssessorNome(a)) === assessorKey(normalizeAssessorNome(b))
+    const daPessoa = (nome: string) => linhas.filter(l => mesmaPessoa(String(l.nome), nome))
+
+    for (const l of lances) {
+        const d = parceiroDoComprador(l.comprador, l.fazenda, l.uf)
+        if (!d) continue
+        const anunciante = String(l.assessor ?? '').trim()
+        // Já está no parceiro (o script de comissão passou por aqui): nada a mover.
+        if (!anunciante || mesmaPessoa(anunciante, d.parceiro)) continue
+
+        const vgv = Number(l.vgv || 0)
+        const animais = Number(l.animais || 0)
+        // SÓ MOVE DE UMA LINHA QUE REALMENTE CONTÉM O LOTE. Descontar de uma linha
+        // menor que o lote a deixaria negativa e inflaria o VGV do leilão — foi o
+        // que aconteceu no Flor do Aratau, onde o nome do Fábio está escrito de
+        // dois jeitos e o lote de 123 mil vivia na outra grafia.
+        const candidatas = daPessoa(anunciante)
+        const de = candidatas.find(x => x.vgv >= vgv - 0.005)
+        if (!de) {
+            // Linha do parceiro já comporta o lote: o `por_assessor` foi corrigido
+            // na fonte (o script de comissão passou por aqui) e só o lance ainda
+            // guarda o nome de quem estava na pista. Mover de novo dobraria.
+            const jaNoParceiro = daPessoa(d.parceiro).some(x => x.vgv >= vgv - 0.005)
+            if (!jaNoParceiro) {
+                naoMovidos.push({
+                    parceiro: d.parceiro, anunciante, comprador: d.comprador,
+                    lote: String(l.lote ?? ''), vgv, animais,
+                })
+            }
+            continue
+        }
+
+        de.vgv = r2(de.vgv - vgv)
+        de.animais = Math.max(0, de.animais - animais)
+        de.transacoes = Math.max(0, de.transacoes - 1)
+
+        let para = daPessoa(d.parceiro)[0]
+        if (!para) {
+            para = { nome: d.parceiro, empresa: 'Parceiro', vgv: 0, animais: 0, transacoes: 0 }
+            linhas.push(para)
+        }
+        para.vgv = r2(para.vgv + vgv)
+        para.animais += animais
+        para.transacoes += 1
+
+        direcionados.push({
+            parceiro: d.parceiro, anunciante, comprador: d.comprador,
+            lote: String(l.lote ?? ''), vgv, animais,
+        })
+    }
+
+    if (!direcionados.length) return { porAssessor: linhas, direcionados: [], naoMovidos }
+
+    // Quem ficou sem nenhum lote sai da lista; o resto reordena.
+    const vivos = linhas.filter(l => l.transacoes > 0 || l.vgv > 0.005)
+    const total = vivos.reduce((s, l) => s + l.vgv, 0)
+    vivos.sort((a, b) => b.vgv - a.vgv)
+    for (const [i, l] of vivos.entries()) {
+        l.posicao = i + 1
+        l.ticket_medio = l.transacoes ? r2(l.vgv / l.transacoes) : 0
+        l.pct_total = total ? Number((l.vgv / total).toFixed(6)) : 0
+    }
+    return { porAssessor: vivos, direcionados, naoMovidos }
 }

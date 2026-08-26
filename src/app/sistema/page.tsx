@@ -6,8 +6,9 @@ import {
     CRM_STAGE_REGISTRATION, CRM_STAGE_LOST,
 } from '@/lib/crm-types';
 import { montaCrescimento } from '@/lib/dashboard-crescimento';
+import { casarAgendaComFechamentos } from '@/lib/verdade/dominios/cobertura';
 import { carregaFunilAoVivo } from '@/lib/funil-campanhas-live';
-import type { FechamentoAnalyticsItem } from './leiloes/LeiloesAnalyticsBlock';
+import type { FechamentoAnalyticsItem, LeilaoSemVenda } from './leiloes/LeiloesAnalyticsBlock';
 import DashboardClient, {
     type DashboardProps,
     type ProximoLeilao,
@@ -257,6 +258,26 @@ export default async function AdminDashboard({ searchParams }: { searchParams?: 
         return true;
     });
 
+    // ── Leilões que aconteceram e não têm fechamento ─────────────────────────
+    // A agenda é o universo: se um pregão concluído não achou fechamento nenhum,
+    // ele não pode simplesmente sumir da linha do tempo — ou não vendeu, ou o
+    // fechamento não foi lançado, e as duas coisas precisam ser vistas. O
+    // casamento é o MESMO do motor da verdade, para as duas telas nunca
+    // divergirem sobre o que é um leilão perdido.
+    // Com filtro de assessor a lista some: sem fechamento não há a quem atribuir.
+    const semVenda: LeilaoSemVenda[] = assessorFilter ? [] : casarAgendaComFechamentos({
+        agenda: allLeiloes.map(l => ({
+            id: String(l.id), nome: l.nome || '', data: l.data || '', status: l.status || '',
+        })),
+        fechamentos: allFechamentos.map(f => ({
+            id: String(f.id), nome: f.nome || '', data: f.data || '',
+        })),
+        hoje: todayStr,
+    })
+        .filter(c => c.estado === 'ausente')
+        .filter(c => c.leilao.data >= range.from && c.leilao.data <= range.to)
+        .map(c => ({ id: c.leilao.id, nome: c.leilao.nome, data: c.leilao.data, motivo: c.motivo }));
+
     const fechamentoItems: FechamentoAnalyticsItem[] = fechamentosPeriodo.map(f => ({
         id: String(f.id),
         nome: f.nome || '',
@@ -414,6 +435,7 @@ export default async function AdminDashboard({ searchParams }: { searchParams?: 
             assessores: assessorOptions,
         },
         fechamentoItems,
+        semVenda,
         feed,
         crm,
         growth: growthPulse(funilVivo),

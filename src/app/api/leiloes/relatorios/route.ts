@@ -1,5 +1,6 @@
 import { createClient } from '@/utils/supabase/server'
 import { NextResponse } from 'next/server'
+import { reatribuiVendasPorDirecionamento } from '@/lib/parceiro-direcionamento'
 
 export const dynamic = 'force-dynamic'
 
@@ -19,6 +20,18 @@ export async function GET(request: Request) {
   const { data: fechamentos, error: fErr } = await fq
   if (fErr) return NextResponse.json({ error: fErr.message }, { status: 500 })
 
+  // A VENDA É DE QUEM O COMPRADOR É, não de quem estava na pista. Os compradores
+  // direcionados pelo Gustavo Rusa são anunciados por um assessor da Bula (quase
+  // sempre o Douglas) e por isso ficam gravados no nome dele em `por_assessor` —
+  // o que faz a tela de Vendas por assessor somar no Douglas venda que é do Rusa.
+  // Aqui os dois são separados na resposta. É atribuição de VENDA e só isso: a
+  // comissão desses lotes é assunto de `scripts/aplica-direcionamento-parceiro.mts`,
+  // que mexe em título e depende de decisão de quem paga.
+  const fechamentosAtribuidos = (fechamentos ?? []).map(f => {
+    const { porAssessor, direcionados } = reatribuiVendasPorDirecionamento(f.por_assessor, f.lances)
+    return direcionados.length ? { ...f, por_assessor: porAssessor, direcionados } : f
+  })
+
   // Cronograma
   let cq = supabase
     .from('cronograma_leiloes')
@@ -35,7 +48,7 @@ export async function GET(request: Request) {
   const leads: unknown[] = []
 
   return NextResponse.json({
-    fechamentos: fechamentos ?? [],
+    fechamentos: fechamentosAtribuidos,
     cronograma: cronograma ?? [],
     leads,
     range: { from: from ?? null, to: to ?? null },

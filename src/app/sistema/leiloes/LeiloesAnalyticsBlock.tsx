@@ -20,6 +20,18 @@ import {
 import { normalizeAssessorNome } from '@/lib/assessor-normalize'
 import { nomeCompradorCanonico } from '@/lib/clientes'
 
+/**
+ * Leilão que a agenda diz que aconteceu e do qual não existe fechamento nenhum.
+ * Sem isto, "leilão a leilão" só lista o que vendeu, e um pregão que não vendeu
+ * nada — ou cujo fechamento ninguém lançou — some da tela em vez de cobrar.
+ */
+export type LeilaoSemVenda = {
+  id: string
+  nome: string
+  data: string
+  motivo: string
+}
+
 export type FechamentoAnalyticsItem = {
   id: string
   nome: string
@@ -209,12 +221,43 @@ function VgvMensal({ meses }: { meses: { key: string; label: string; vgv: number
 
 // ── 2. Timeline de leilões (rola dentro do card) ─────────────
 
-function Timeline({ sorted, maxVgv }: { sorted: FechamentoAnalyticsItem[]; maxVgv: number }) {
-  const recentes = useMemo(() => [...sorted].reverse(), [sorted])
+function Timeline({ sorted, maxVgv, semVenda }: { sorted: FechamentoAnalyticsItem[]; maxVgv: number; semVenda: LeilaoSemVenda[] }) {
+  // Os dois entram na MESMA linha do tempo: a pergunta é "o que rolou em agosto",
+  // e um pregão sem fechamento faz parte da resposta.
+  const recentes = useMemo(() => {
+    const linhas: Array<{ tipo: 'venda'; f: FechamentoAnalyticsItem } | { tipo: 'sem'; l: LeilaoSemVenda }> = [
+      ...sorted.map(f => ({ tipo: 'venda' as const, f })),
+      ...semVenda.map(l => ({ tipo: 'sem' as const, l })),
+    ]
+    return linhas.sort((a, b) => {
+      const da = a.tipo === 'venda' ? a.f.data : a.l.data
+      const db = b.tipo === 'venda' ? b.f.data : b.l.data
+      return db.localeCompare(da)
+    })
+  }, [sorted, semVenda])
   return (
     <div className="flex-1 min-h-0 overflow-y-auto pr-1 -mr-2 space-y-0.5
       [scrollbar-width:thin] [scrollbar-color:rgba(201,168,76,.35)_transparent]">
-      {recentes.map(f => {
+      {recentes.map(linha => {
+        if (linha.tipo === 'sem') {
+          const d = fmtDate(linha.l.data)
+          return (
+            <div key={`sv-${linha.l.id}`} className="flex items-center gap-3 rounded-xl px-2 py-2 opacity-70 hover:opacity-100 hover:bg-gray-50 dark:hover:bg-[#1b1b1b] transition-all">
+              <div className="w-10 shrink-0 text-center">
+                <p className="text-[15px] font-black leading-none tabular-nums text-gray-400">{d.dia}</p>
+                <p className="text-[8.5px] uppercase tracking-wider text-gray-400 mt-0.5">{d.mes}</p>
+              </div>
+              <div className="flex-1 min-w-0">
+                <div className="flex items-baseline justify-between gap-2">
+                  <p className="text-[11px] font-semibold text-gray-500 dark:text-gray-400 truncate" title={linha.l.nome}>{linha.l.nome}</p>
+                  <p className="text-[10px] font-bold uppercase tracking-wider text-gray-400 shrink-0">sem venda</p>
+                </div>
+                <p className="text-[9px] text-gray-400 mt-1.5">{linha.l.motivo}</p>
+              </div>
+            </div>
+          )
+        }
+        const f = linha.f
         const dt = fmtDate(f.data)
         const pct = coveragePct(f)
         const w = Math.max((f.vgv_total / Math.max(1, maxVgv)) * 100, 1.5)
@@ -409,7 +452,7 @@ function UfDonut({ estados, total }: { estados: [string, { vgv: number; lotes: n
 
 // ── Seção com os dados agregados ─────────────────────────────
 
-function Insights({ items }: { items: FechamentoAnalyticsItem[] }) {
+function Insights({ items, semVenda }: { items: FechamentoAnalyticsItem[]; semVenda: LeilaoSemVenda[] }) {
   const data = useMemo(() => {
     if (items.length < 2) return null
     const sorted = [...items].sort((a, b) => a.data.localeCompare(b.data))
@@ -525,8 +568,12 @@ function Insights({ items }: { items: FechamentoAnalyticsItem[] }) {
         </div>
 
         <div className={`${card} p-5 xl:col-span-2 flex flex-col min-h-[380px]`}>
-          <CardHead icon={CalendarDays} title="Leilão a leilão" sub={`${sorted.length} eventos · mais recente primeiro`} />
-          <Timeline sorted={sorted} maxVgv={maxVgv} />
+          <CardHead
+            icon={CalendarDays}
+            title="Leilão a leilão"
+            sub={`${sorted.length} eventos${semVenda.length ? ` · ${semVenda.length} sem venda` : ''} · mais recente primeiro`}
+          />
+          <Timeline sorted={sorted} maxVgv={maxVgv} semVenda={semVenda} />
         </div>
       </div>
 
@@ -599,8 +646,8 @@ function Insights({ items }: { items: FechamentoAnalyticsItem[] }) {
 
 // ── Bloco público ────────────────────────────────────────────
 
-export function LeiloesAnalyticsBlock({ items }: { items: FechamentoAnalyticsItem[] }) {
-  if (items.length === 0) return null
+export function LeiloesAnalyticsBlock({ items, semVenda = [] }: { items: FechamentoAnalyticsItem[]; semVenda?: LeilaoSemVenda[] }) {
+  if (items.length === 0 && semVenda.length === 0) return null
 
   const totalVgv = items.reduce((s, f) => s + (Number(f.vgv_total) || 0), 0)
   const totalAnimais = items.reduce((s, f) => s + (Number(f.animais_vendidos) || 0), 0)
@@ -633,7 +680,7 @@ export function LeiloesAnalyticsBlock({ items }: { items: FechamentoAnalyticsIte
         <Kpi icon={ShoppingCart} label="Leilões fechados" value={items.length.toString()} sub="no período filtrado" />
       </div>
 
-      {items.length > 1 && <Insights items={items} />}
+      {items.length > 1 && <Insights items={items} semVenda={semVenda} />}
     </div>
   )
 }

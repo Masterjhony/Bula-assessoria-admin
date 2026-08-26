@@ -8,7 +8,7 @@ import {
   Users, UserPlus, Star as StarIcon, Flame, ArrowUpRight,
   Target, Wallet, TrendingUp, ShoppingCart, BadgeCheck,
 } from 'lucide-react'
-import { LeiloesAnalyticsBlock, type FechamentoAnalyticsItem } from './leiloes/LeiloesAnalyticsBlock'
+import { LeiloesAnalyticsBlock, type FechamentoAnalyticsItem, type LeilaoSemVenda } from './leiloes/LeiloesAnalyticsBlock'
 
 // ─── Types ──────────────────────────────────────────────────────────────────
 
@@ -100,6 +100,8 @@ export type DashboardProps = {
     assessores: AssessorOption[]
   }
   fechamentoItems: FechamentoAnalyticsItem[]
+  /** Leilões concluídos da agenda sem fechamento nenhum. */
+  semVenda: LeilaoSemVenda[]
   feed: FeedItem[]
   crm: CrmPulse
   growth: GrowthPulse | null
@@ -696,7 +698,7 @@ export default function DashboardClient(props: DashboardProps) {
 
       {/* O negócio primeiro: leilões & vendas (HastaPro FIL 2) */}
       <div className="sec-label">Leilões &amp; vendas · {f.label}</div>
-      <LeiloesAnalyticsBlock items={props.fechamentoItems} />
+      <LeiloesAnalyticsBlock items={props.fechamentoItems} semVenda={props.semVenda} />
 
       {/* Operação: leads de todas as frentes + growth pago */}
       <div className="sec-label pt-2">Operação &amp; crescimento</div>

@@ -83,7 +83,7 @@ const tokens = (s: string) => new Set(
  *
  * Peso = 1/nº de eventos distintos em que a palavra aparece.
  */
-function pesosDeToken(f: Fatos): Map<string, number> {
+function pesosDeToken(f: { agenda: readonly { nome: string }[]; fechamentos: readonly { nome: string }[] }): Map<string, number> {
     const freq = new Map<string, number>()
     const nomes = [...f.agenda.map(l => l.nome), ...f.fechamentos.map(x => x.nome)]
     for (const nome of nomes) {
@@ -148,10 +148,19 @@ const ehParteDeEvento = (nome: string) =>
 
 export type EstadoCasamento = 'casado' | 'revisar' | 'ausente'
 
-export type Casamento = {
+/**
+ * O casamento não precisa do fato inteiro para funcionar — ele lê nome, data e
+ * status, e nada mais. Ficar genérico é o que deixa a mesma regra servir o
+ * motor da verdade E a tela de "leilão a leilão" do dashboard, sem que ninguém
+ * precise reescrever o matcher e passe a errar de um jeito diferente.
+ */
+export type LeilaoParaCasar = { id: string; nome: string; data: string; status: string }
+export type FechamentoParaCasar = { id: string; nome: string; data: string }
+
+export type Casamento<L = LeilaoAgenda, F = Fechamento> = {
     estado: EstadoCasamento
-    leilao: LeilaoAgenda
-    fechamento?: Fechamento
+    leilao: L
+    fechamento?: F
     score: number
     /** Por que ficou neste estado — vai inteiro para o painel. */
     motivo: string
@@ -176,12 +185,15 @@ export type Casamento = {
  * A atribuição é 1:1 e gulosa pelo melhor score global, para dois leilões não
  * reivindicarem o mesmo fechamento.
  */
-export function casarAgendaComFechamentos(f: Fatos): Casamento[] {
+export function casarAgendaComFechamentos<
+    L extends LeilaoParaCasar,
+    F extends FechamentoParaCasar,
+>(f: { agenda: readonly L[]; fechamentos: readonly F[]; hoje: string }): Casamento<L, F>[] {
     const concluidos = f.agenda.filter(l =>
         l.status === 'concluido' && dia(l.data) && dia(l.data) <= f.hoje)
 
     const pesos = pesosDeToken(f)
-    type Par = { l: LeilaoAgenda; fe: Fechamento; score: number; sim: number }
+    type Par = { l: L; fe: F; score: number; sim: number }
     const pares: Par[] = []
 
     for (const l of concluidos) {
@@ -220,10 +232,10 @@ export function casarAgendaComFechamentos(f: Fatos): Casamento[] {
      * Então, antes de declarar ausência, procura-se um fechamento do MESMO
      * evento, mesmo que já reivindicado por outro dia.
      */
-    const fechamentoDoMesmoEvento = (l: LeilaoAgenda): Fechamento | null => {
+    const fechamentoDoMesmoEvento = (l: L): F | null => {
         const d = dia(l.data)
         const t = tokens(l.nome)
-        let melhor: { fe: Fechamento; sim: number } | null = null
+        let melhor: { fe: F; sim: number } | null = null
         for (const fe of f.fechamentos) {
             const df = dia(fe.data)
             if (!df || Math.abs(diasEntre(df, d)) > 8) continue
@@ -239,7 +251,7 @@ export function casarAgendaComFechamentos(f: Fatos): Casamento[] {
      * leilão está mesmo sem fechamento — foi isso que quase escondeu o Kirz de
      * 07/07, que dividia data com outro pregão já casado.
      */
-    const sobraFechamentoLivre = (l: LeilaoAgenda) => {
+    const sobraFechamentoLivre = (l: L) => {
         const d = dia(l.data)
         return f.fechamentos.some(fe => {
             const df = dia(fe.data)
@@ -248,7 +260,7 @@ export function casarAgendaComFechamentos(f: Fatos): Casamento[] {
         })
     }
 
-    return concluidos.map((l): Casamento => {
+    return concluidos.map((l): Casamento<L, F> => {
         const p = escolhido.get(l.id)
         if (p) {
             // Nome raro em comum (katayama, guadalupe) fecha o caso mesmo com

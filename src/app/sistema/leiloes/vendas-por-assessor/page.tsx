@@ -22,6 +22,8 @@ type Fechamento = {
   vgv_total: number; ticket_medio: number
   por_assessor: Assessor[]
   comissao_assessoria?: number; receita_bula?: number; sobra_bruta?: number
+  /** Lotes cuja venda é de um parceiro, não de quem anunciou na pista. */
+  direcionados?: { parceiro: string; anunciante: string; comprador: string; lote: string; vgv: number }[]
 }
 
 type Payload = {
@@ -105,6 +107,17 @@ export default function VendasPorAssessorPage() {
     transacoes: number; animais: number; vgv: number;
     leiloes: { id: string; nome: string; data: string; transacoes: number; animais: number; vgv: number }[];
   }
+
+  // Resumo do direcionamento de parceiro no período exibido.
+  const direcionamento = useMemo(() => {
+    const todos = (data?.fechamentos ?? []).flatMap(f => f.direcionados ?? [])
+    return {
+      lotes: todos.length,
+      vgv: todos.reduce((s, d) => s + (d.vgv || 0), 0),
+      parceiros: [...new Set(todos.map(d => d.parceiro))],
+      anunciantes: [...new Set(todos.map(d => normalizeAssessorNome(d.anunciante)))],
+    }
+  }, [data])
 
   const { assessores, totalVgv, totalAnim, totalTrans } = useMemo(() => {
     const map = new Map<string, AssessorAgg>()
@@ -536,6 +549,17 @@ export default function VendasPorAssessorPage() {
         </div>
       ) : (
         <>
+          {/* A VENDA É DE QUEM O COMPRADOR É. Sem esta linha, o número do
+              Douglas cai de um dia para o outro e ninguém sabe por quê. */}
+          {direcionamento.lotes > 0 && (
+            <div className="vpa-nota-direcionamento">
+              <strong>{direcionamento.lotes} lote(s)</strong> de {fmtBRLCompact(direcionamento.vgv)} aparecem
+              em <strong>{direcionamento.parceiros.join(', ')}</strong> e não em quem anunciou na pista
+              ({direcionamento.anunciantes.join(', ')}): são compradores direcionados pelo parceiro.
+              O VGV do leilão não muda — muda de dono. A comissão desses lotes é acerto à parte.
+            </div>
+          )}
+
           {/* Stats */}
           <div className="vpa-stats">
             <Stat label="Assessores ativos" value={String(assessores.length)} sub={assessores[0] ? `Líder: ${assessores[0].nome.split(' ')[0]}` : undefined} icon={<Users size={12} />} gold />
@@ -732,6 +756,17 @@ export default function VendasPorAssessorPage() {
         @keyframes vpa-spin { to { transform: rotate(360deg); } }
 
         /* Stats */
+        .vpa-nota-direcionamento {
+          border: 1px solid rgba(166, 139, 75, .35);
+          background: rgba(166, 139, 75, .08);
+          border-radius: 12px;
+          padding: 10px 14px;
+          margin-bottom: 14px;
+          font-size: 12px; line-height: 1.55;
+          color: var(--dcl-text, #d8d8d8);
+        }
+        .vpa-nota-direcionamento strong { color: #C9A84C; font-weight: 700; }
+
         .vpa-stats {
           display: grid; gap: 12px;
           grid-template-columns: repeat(4, minmax(0, 1fr));
