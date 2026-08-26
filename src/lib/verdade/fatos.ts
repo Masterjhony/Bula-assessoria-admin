@@ -246,17 +246,19 @@ export const num = (n: unknown) => Number(n || 0)
 export const r2 = (n: number) => Math.round(n * 100) / 100
 
 /** Cancelado nunca entra em soma nenhuma. Regra fechada na auditoria de 18/08. */
-export const vivo = (t: Titulo) => t.status !== 'cancelado'
+export const vivo = (t: Pick<Titulo, 'status'>) => t.status !== 'cancelado'
 
 /** Estimativa substituída por um real já não é compromisso. */
-export const naoSubstituido = (t: Titulo) => !t.substituido_por
+export const naoSubstituido = (t: Pick<Titulo, 'substituido_por'>) => !t.substituido_por
 
 /** Saldo devido de um título (o que ainda falta entrar/sair). */
-export const devido = (t: Titulo, chave: 'valor_pago' | 'valor_recebido') =>
+export type TituloValorado = Pick<Titulo, 'valor' | 'desconto' | 'juros' | 'multa'>
+    & Partial<Pick<Titulo, 'valor_pago' | 'valor_recebido'>>
+export const devido = (t: TituloValorado, chave: 'valor_pago' | 'valor_recebido') =>
     num(t.valor) - num(t.desconto) + num(t.juros) + num(t.multa) - num(t[chave])
 
 export const EM_ABERTO = ['aberto', 'parcial', 'vencido']
-export const aberto = (t: Titulo) => vivo(t) && EM_ABERTO.includes(t.status)
+export const aberto = (t: Pick<Titulo, 'status'>) => vivo(t) && EM_ABERTO.includes(t.status)
 
 /**
  * DEFINIÇÃO CANÔNICA de transferência interna — dinheiro que anda entre contas
@@ -275,11 +277,14 @@ export const aberto = (t: Titulo) => vivo(t) && EM_ABERTO.includes(t.status)
  * existe par vinculado. `Resgate Aplicacao Financeira` entra por aqui, e é o
  * comportamento certo — resgate de aplicação não é receita.
  */
-export const ehTransferencia = (m: Movimento, f: Pick<Fatos, 'dreGrupo'>) =>
+export type MovimentoClassificavel = Pick<Movimento, 'categoria_id' | 'transferencia_par_id'>
+export type GruposDre = Pick<Fatos, 'dreGrupo'>
+
+export const ehTransferencia = (m: MovimentoClassificavel, f: GruposDre) =>
     f.dreGrupo.get(m.categoria_id || '') === 'ignorar' || !!m.transferencia_par_id
 
 /** Movimento que representa dinheiro de verdade entrando/saindo do grupo. */
-export const operacional = (m: Movimento, f: Pick<Fatos, 'dreGrupo'>) => !ehTransferencia(m, f)
+export const operacional = (m: MovimentoClassificavel, f: GruposDre) => !ehTransferencia(m, f)
 
 /**
  * DEFINIÇÃO CANÔNICA de compromisso ainda não incorrido (folha projetada,
@@ -288,7 +293,8 @@ export const operacional = (m: Movimento, f: Pick<Fatos, 'dreGrupo'>) => !ehTran
  * coincidem — e por causa disso R$ 17.011,00 de CR estimado entravam no
  * Balanço como ativo real.
  */
-export const compromissoFuturo = (t: Titulo) =>
+export type TituloFuturavel = Pick<Titulo, 'origem' | 'tags'>
+export const compromissoFuturo = (t: TituloFuturavel) =>
     t.origem === 'estimativa' || (t.tags || []).includes('orcamento')
 
 /**
@@ -296,7 +302,7 @@ export const compromissoFuturo = (t: Titulo) =>
  * o regime de CAIXA. Na competência quem responde pela despesa são os títulos
  * analíticos — somar os dois conta a mesma comissão duas vezes.
  */
-export const sintetico = (t: Titulo) => t.origem === 'sintetico'
+export const sintetico = (t: Pick<Titulo, 'origem'>) => t.origem === 'sintetico'
 
 export const maxData = (datas: (string | null | undefined)[]): string | null => {
     const validas = datas.filter(Boolean).map(d => String(d).slice(0, 10)).sort()

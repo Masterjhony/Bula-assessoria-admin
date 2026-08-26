@@ -8,6 +8,29 @@
 
 import type { SupabaseClient } from '@supabase/supabase-js'
 import { competenciaDoTexto } from './erp-evento'
+import {
+  aberto, compromissoFuturo, devido, ehTransferencia, naoSubstituido,
+  type GruposDre, type MovimentoClassificavel,
+} from './verdade/fatos'
+
+/**
+ * Os predicados acima são os CANÔNICOS (`src/lib/verdade/fatos.ts`). Não
+ * reescreva nenhum deles aqui.
+ *
+ * Estes painéis já tiveram definição própria de "transferência interna"
+ * (categoria com nome ~ /transfer/i) e de "compromisso futuro" (só a tag
+ * 'orcamento'). Nenhuma das duas estava errada isoladamente — elas apenas não
+ * eram as mesmas que a DRE, o Balanço e o painel de confiança usavam, e por
+ * isso o mesmo mês fechava com números diferentes dependendo da tela aberta.
+ * A regra passou a ser: quem soma dinheiro no ERP importa daqui.
+ */
+
+/** Mapa categoria → dre_grupo, no formato que os predicados canônicos esperam. */
+const gruposDre = (cats: { id: string; dre_grupo?: string | null }[]): GruposDre => {
+  const dreGrupo = new Map<string, string>()
+  for (const c of cats) if (c.dre_grupo) dreGrupo.set(c.id, c.dre_grupo)
+  return { dreGrupo }
+}
 
 const iso = (d: Date) => d.toISOString().slice(0, 10)
 const addDays = (d: Date, n: number) => { const x = new Date(d); x.setDate(x.getDate() + n); return x }
@@ -15,7 +38,7 @@ const daysBetween = (a: string, b: string) => Math.round((new Date(b + 'T00:00:0
 const mondayOf = (d: Date) => { const x = new Date(d); const wd = (x.getDay() + 6) % 7; return addDays(x, -wd) }
 const r2 = (n: number) => Math.round(n * 100) / 100
 
-type Mov = { data: string; tipo: string; valor: number; categoria_id: string | null; conta_bancaria_id: string | null }
+type Mov = MovimentoClassificavel & { data: string; tipo: string; valor: number; conta_bancaria_id: string | null }
 type Titulo = { valor: number; desconto: number; juros: number; multa: number; valor_pago?: number; valor_recebido?: number }
 
 const sumDue = (rows: Titulo[] | null | undefined, key: 'valor_pago' | 'valor_recebido') =>
@@ -42,40 +65,61 @@ export async function computeErpDashboard(
   const prevTo = iso(addDays(new Date(from + 'T00:00:00'), -1))
   const prevFrom = iso(addDays(new Date(prevTo + 'T00:00:00'), -(lenDias - 1)))
 
+  const COLS_MOV = 'data,tipo,valor,categoria_id,conta_bancaria_id,transferencia_par_id'
   const [
-    cpAbertos, crAbertos, vencidosCp, vencidosCr, contasBancarias,
+    cpAbertos, crAbertos, contasBancarias,
     prevPagar, prevReceber, movPeriodo, movPrev, ultimosLanc,
     pagasPeriodo, recebPeriodo, categorias,
   ] = await Promise.all([
-    sb.from('erp_contas_pagar').select('descricao,valor,desconto,juros,multa,valor_pago,vencimento,status,tags').in('status', ['aberto', 'parcial', 'vencido']),
-    sb.from('erp_contas_receber').select('descricao,valor,desconto,juros,multa,valor_recebido,vencimento,status').in('status', ['aberto', 'parcial', 'vencido']),
-    sb.from('erp_contas_pagar').select('valor,desconto,juros,multa,valor_pago').eq('status', 'vencido'),
-    sb.from('erp_contas_receber').select('valor,desconto,juros,multa,valor_recebido').eq('status', 'vencido'),
+    sb.from('erp_contas_pagar').select('descricao,valor,desconto,juros,multa,valor_pago,vencimento,status,tags,origem,substituido_por').in('status', ['aberto', 'parcial', 'vencido']),
+    sb.from('erp_contas_receber').select('descricao,valor,desconto,juros,multa,valor_recebido,vencimento,status,tags,origem,substituido_por').in('status', ['aberto', 'parcial', 'vencido']),
     sb.from('erp_contas_bancarias').select('id,nome,saldo_atual,cor,tipo,ativo').eq('ativo', true).order('nome'),
-    // previsao do periodo (titulos com vencimento no periodo; cancelados fora)
-    sb.from('erp_contas_pagar').select('valor,desconto,juros,multa,valor_pago').gte('vencimento', from).lte('vencimento', to).neq('status', 'cancelado'),
-    sb.from('erp_contas_receber').select('valor,desconto,juros,multa,valor_recebido').gte('vencimento', from).lte('vencimento', to).neq('status', 'cancelado'),
+    // previsao do periodo (titulos com vencimento no periodo; cancelados e
+    // estimativas ja substituidas por um real ficam fora)
+    sb.from('erp_contas_pagar').select('valor,desconto,juros,multa,valor_pago,substituido_por').gte('vencimento', from).lte('vencimento', to).neq('status', 'cancelado'),
+    sb.from('erp_contas_receber').select('valor,desconto,juros,multa,valor_recebido,substituido_por').gte('vencimento', from).lte('vencimento', to).neq('status', 'cancelado'),
     // movimentos realizados no periodo e no periodo anterior
-    sb.from('erp_movimentos_bancarios').select('data,tipo,valor,categoria_id,conta_bancaria_id').gte('data', from).lte('data', to),
-    sb.from('erp_movimentos_bancarios').select('data,tipo,valor,categoria_id,conta_bancaria_id').gte('data', prevFrom).lte('data', prevTo),
+    sb.from('erp_movimentos_bancarios').select(COLS_MOV).gte('data', from).lte('data', to),
+    sb.from('erp_movimentos_bancarios').select(COLS_MOV).gte('data', prevFrom).lte('data', prevTo),
     sb.from('erp_lancamentos').select('*, partidas:erp_lancamento_partidas(*)').order('data', { ascending: false }).limit(6),
     // pago / recebido de fato no periodo (por data de pagamento/recebimento)
     sb.from('erp_contas_pagar').select('valor_pago').gte('data_pagamento', from).lte('data_pagamento', to).eq('status', 'pago'),
     sb.from('erp_contas_receber').select('valor_recebido').gte('data_recebimento', from).lte('data_recebimento', to).eq('status', 'recebido'),
-    sb.from('erp_categorias').select('id,nome,cor,tipo'),
+    sb.from('erp_categorias').select('id,nome,cor,tipo,dre_grupo'),
   ])
 
-  // categorias de transferencia interna nao contam como entrada/saida de caixa
-  const catList = (categorias.data || []) as { id: string; nome: string; cor: string | null; tipo: string }[]
+  // Transferencia interna nao e entrada nem saida de caixa. Definicao canonica
+  // (uniao dre_grupo='ignorar' OU par vinculado) — ver verdade/fatos.ts.
+  const catList = (categorias.data || []) as { id: string; nome: string; cor: string | null; tipo: string; dre_grupo: string | null }[]
   const catMap = new Map(catList.map((c) => [c.id, c]))
-  const transfIds = new Set(catList.filter((c) => /transfer/i.test(c.nome)).map((c) => c.id))
-  const semTransf = (rows: Mov[]) => rows.filter((m) => !(m.categoria_id && transfIds.has(m.categoria_id)))
+  const dre = gruposDre(catList)
+  const semTransf = (rows: Mov[]) => rows.filter((m) => !ehTransferencia(m, dre))
 
   const movP = semTransf((movPeriodo.data || []) as Mov[])
   const movPr = semTransf((movPrev.data || []) as Mov[])
 
-  const entradas = movP.filter((m) => m.tipo === 'entrada').reduce((s, m) => s + Number(m.valor || 0), 0)
-  const saidas = movP.filter((m) => m.tipo === 'saida').reduce((s, m) => s + Number(m.valor || 0), 0)
+  const entradas = r2(movP.filter((m) => m.tipo === 'entrada').reduce((s, m) => s + Number(m.valor || 0), 0))
+  const saidas = r2(movP.filter((m) => m.tipo === 'saida').reduce((s, m) => s + Number(m.valor || 0), 0))
+
+  // ---- ponte caixa → DRE ----------------------------------------------------
+  // O caixa do periodo e o resultado operacional NAO sao o mesmo numero, e a
+  // pagina precisa mostrar os dois ligados: o painel de confianca publica
+  // "resultado do mes" pelos grupos da DRE, e sem a ponte o ERP exibia dois
+  // "resultados" diferentes com o mesmo nome. A identidade que fecha e
+  //   resultado (caixa) = resultado_operacional + nao_operacional
+  // onde `nao_operacional` sao tarifa, ajuste de aplicacao, integralizacao,
+  // estorno e recuperacao de imposto — dinheiro que andou sem ser receita nem
+  // despesa operacional.
+  const GRUPOS_SAIDA_DRE = new Set(['imposto', 'custo_direto', 'despesa_variavel', 'despesa_fixa'])
+  const grupoDe = (m: Mov) => dre.dreGrupo.get(m.categoria_id || '') || null
+  const somaSe = (rows: Mov[], ok: (m: Mov) => boolean) =>
+    r2(rows.filter(ok).reduce((s, m) => s + Number(m.valor || 0), 0))
+  const receitaOperacional = somaSe(movP, (m) => m.tipo === 'entrada' && grupoDe(m) === 'receita')
+  const despesaOperacional = somaSe(movP, (m) => m.tipo === 'saida' && GRUPOS_SAIDA_DRE.has(grupoDe(m) || ''))
+  const naoOperacional = {
+    entrada: r2(entradas - receitaOperacional),
+    saida: r2(saidas - despesaOperacional),
+  }
   const prevEntradas = movPr.filter((m) => m.tipo === 'entrada').reduce((s, m) => s + Number(m.valor || 0), 0)
   const prevSaidas = movPr.filter((m) => m.tipo === 'saida').reduce((s, m) => s + Number(m.valor || 0), 0)
 
@@ -125,44 +169,70 @@ export async function computeErpDashboard(
   const topReceitas = cats.filter((c) => c.entrada > 0).map((c) => ({ nome: c.nome, cor: c.cor, valor: c.entrada })).sort((a, b) => b.valor - a.valor).slice(0, 6)
   const topDespesas = cats.filter((c) => c.saida > 0).map((c) => ({ nome: c.nome, cor: c.cor, valor: c.saida })).sort((a, b) => b.valor - a.valor).slice(0, 6)
 
-  const previstoEntrada = sumDue(prevReceber.data, 'valor_recebido')
-  const previstoSaida = sumDue(prevPagar.data, 'valor_pago')
+  // Estimativa ja substituida por um real nao e previsao: contava duas vezes.
+  type Subst = { substituido_por: string | null }
+  const vivos = <T extends Subst>(rows: T[] | null | undefined) => (rows || []).filter((r) => naoSubstituido(r))
+  const previstoEntrada = sumDue(vivos((prevReceber.data || []) as (Titulo & Subst)[]), 'valor_recebido')
+  const previstoSaida = sumDue(vivos((prevPagar.data || []) as (Titulo & Subst)[]), 'valor_pago')
 
-  // ---- obrigacao real x orcamento futuro (tag 'orcamento' = titulo pre-lancado
-  // de fato gerador futuro; nao e divida ainda) ----
-  type CpRow = Titulo & { descricao: string; vencimento: string; tags: string[] | null }
-  type CrRow = Titulo & { descricao: string; vencimento: string }
-  const isOrcamento = (r: CpRow) => Array.isArray(r.tags) && r.tags.includes('orcamento')
-  const cpRows = (cpAbertos.data || []) as CpRow[]
-  const cpReais = cpRows.filter((r) => !isOrcamento(r))
-  const cpOrcamento = cpRows.filter(isOrcamento)
-  const due = (r: Titulo, key: 'valor_pago' | 'valor_recebido') =>
-    Number(r.valor || 0) - Number(r.desconto || 0) + Number(r.juros || 0) + Number(r.multa || 0) - Number(r[key] || 0)
+  // ---- divida contraida x custo futuro projetado -----------------------------
+  // Duas coisas diferentes, e a diferenca importa: uma a Bula deve hoje, a
+  // outra e folha e recorrente lancados adiante. O criterio e o canonico
+  // (`compromissoFuturo`), nao mais so a tag 'orcamento' — a tag sozinha
+  // deixava 184,64 de estimativa entrar em "obrigacao real".
+  type TitRow = Titulo & { descricao: string; vencimento: string; status: string; tags: string[] | null; origem: string | null; substituido_por: string | null }
+  const abertoVivo = (r: TitRow) => aberto(r) && naoSubstituido(r)
+  const cpRows = ((cpAbertos.data || []) as TitRow[]).filter(abertoVivo)
+  const crRows = ((crAbertos.data || []) as TitRow[]).filter(abertoVivo)
+  const cpReais = cpRows.filter((r) => !compromissoFuturo(r))
+  const cpOrcamento = cpRows.filter(compromissoFuturo)
+  const crContratado = crRows.filter((r) => !compromissoFuturo(r))
+  const crEstimado = crRows.filter(compromissoFuturo)
+  // Vencido pelo criterio canonico (vencimento < hoje entre os abertos), e nao
+  // pelo status: um titulo 'parcial' com vencimento no passado tambem esta
+  // vencido, e o status nao dizia isso.
+  const cpVencidos = cpRows.filter((r) => r.vencimento < hoje)
+  const crVencidos = crRows.filter((r) => r.vencimento < hoje)
 
-  // ---- projecao de caixa 15 dias: saldo bancos + titulos datados (CP real + CR) ----
+  // ---- projecao de caixa 15 dias ---------------------------------------------
+  // Entra TUDO que vence na janela, projetado inclusive: esconder a folha de
+  // 05/09 porque ela e "estimativa" fazia a projecao parecer folgada num mes em
+  // que ela nao e. O que a projecao faz e marcar o que e promessa (`projetado`)
+  // para a tela poder mostrar. Vencido fica de fora — vencimento no passado nao
+  // e entrada dos proximos 15 dias; ele volta declarado em `vencidos_*`.
   const fimJanela = iso(addDays(hojeDate, 15))
-  const eventos: { data: string; descricao: string; valor: number }[] = []
-  for (const r of cpReais) if (r.vencimento >= hoje && r.vencimento <= fimJanela) eventos.push({ data: r.vencimento, descricao: r.descricao, valor: -due(r, 'valor_pago') })
-  for (const r of (crAbertos.data || []) as CrRow[]) if (r.vencimento >= hoje && r.vencimento <= fimJanela) eventos.push({ data: r.vencimento, descricao: r.descricao, valor: due(r, 'valor_recebido') })
+  const naJanela = (r: TitRow) => r.vencimento >= hoje && r.vencimento <= fimJanela
+  const eventos: { data: string; descricao: string; valor: number; projetado: boolean }[] = []
+  for (const r of cpRows) if (naJanela(r)) eventos.push({ data: r.vencimento, descricao: r.descricao, valor: -devido(r, 'valor_pago'), projetado: compromissoFuturo(r) })
+  for (const r of crRows) if (naJanela(r)) eventos.push({ data: r.vencimento, descricao: r.descricao, valor: devido(r, 'valor_recebido'), projetado: compromissoFuturo(r) })
   eventos.sort((a, b) => a.data.localeCompare(b.data) || a.valor - b.valor)
   const saldoBancos = (contasBancarias.data || []).reduce((s: number, c: { saldo_atual: number }) => s + Number(c.saldo_atual || 0), 0)
   let acumulado = saldoBancos
-  const fluxo15d = eventos.map((e) => ({ ...e, saldo_projetado: (acumulado += e.valor) }))
+  const fluxo15d = eventos.map((e) => ({ ...e, saldo_projetado: r2(acumulado += e.valor) }))
+  const somaDevido = (rows: TitRow[], chave: 'valor_pago' | 'valor_recebido') =>
+    r2(rows.reduce((s, r) => s + devido(r, chave), 0))
 
   return {
     periodo: { from, to, dias: lenDias, granularidade: gran, prev_from: prevFrom, prev_to: prevTo },
     // ponto no tempo (independente do periodo)
     saldo_total_bancos: saldoBancos,
-    a_pagar: sumDue(cpReais, 'valor_pago'),
-    a_pagar_orcamento: sumDue(cpOrcamento, 'valor_pago'),
+    a_pagar: somaDevido(cpReais, 'valor_pago'),
+    a_pagar_orcamento: somaDevido(cpOrcamento, 'valor_pago'),
     fluxo_15d: fluxo15d,
-    a_receber: sumDue(crAbertos.data, 'valor_recebido'),
-    vencidos_pagar: sumDue(vencidosCp.data, 'valor_pago'),
-    vencidos_receber: sumDue(vencidosCr.data, 'valor_recebido'),
+    a_receber: somaDevido(crRows, 'valor_recebido'),
+    a_receber_contratado: somaDevido(crContratado, 'valor_recebido'),
+    a_receber_estimado: somaDevido(crEstimado, 'valor_recebido'),
+    vencidos_pagar: somaDevido(cpVencidos, 'valor_pago'),
+    vencidos_receber: somaDevido(crVencidos, 'valor_recebido'),
     bancos: contasBancarias.data || [],
     ultimos_lancamentos: ultimosLanc.data || [],
     // realizado no periodo (fluxo de caixa) + comparacao
-    entradas, saidas, resultado: entradas - saidas,
+    entradas, saidas, resultado: r2(entradas - saidas),
+    // ponte com a DRE (mesma definicao do painel de confianca)
+    receita_operacional: receitaOperacional,
+    despesa_operacional: despesaOperacional,
+    resultado_operacional: r2(receitaOperacional - despesaOperacional),
+    nao_operacional: naoOperacional,
     prev: { entradas: prevEntradas, saidas: prevSaidas, resultado: prevEntradas - prevSaidas },
     // previsto (titulos com vencimento no periodo)
     previsto_entrada: previstoEntrada,
@@ -435,9 +505,11 @@ export async function computeDre(
 
 type TituloRow = {
   vencimento: string; valor: number; desconto: number; juros: number; multa: number
-  valor_pago?: number; valor_recebido?: number; categoria_id: string | null; tags?: string[] | null
+  valor_pago?: number; valor_recebido?: number; categoria_id: string | null
+  tags: string[] | null; origem: string | null; substituido_por: string | null; status: string
+  transferencia_par_id?: string | null
 }
-type MovRow = { data: string; tipo: string; valor: number; categoria_id: string | null }
+type MovRow = MovimentoClassificavel & { data: string; tipo: string; valor: number }
 
 export async function computeFluxoCaixa(
   sb: SupabaseClient,
@@ -457,20 +529,19 @@ export async function computeFluxoCaixa(
 
   const [bancos, mov, cp, cr, cats] = await Promise.all([
     sb.from('erp_contas_bancarias').select('saldo_atual').eq('ativo', true),
-    sb.from('erp_movimentos_bancarios').select('data,tipo,valor,categoria_id').gte('data', inicioIso).lte('data', hojeIso),
-    // sem gte(hoje): titulo VENCIDO e nao pago continua sendo caixa futuro — cai no bucket de hoje
-    sb.from('erp_contas_pagar').select('vencimento,valor,desconto,juros,multa,valor_pago,categoria_id,tags').in('status', ['aberto', 'parcial', 'vencido']).lte('vencimento', fimIso),
-    sb.from('erp_contas_receber').select('vencimento,valor,desconto,juros,multa,valor_recebido,categoria_id').in('status', ['aberto', 'parcial', 'vencido']).lte('vencimento', fimIso),
-    sb.from('erp_categorias').select('id,nome,cor,tipo'),
+    sb.from('erp_movimentos_bancarios').select('data,tipo,valor,categoria_id,transferencia_par_id').gte('data', inicioIso).lte('data', hojeIso),
+    sb.from('erp_contas_pagar').select('vencimento,valor,desconto,juros,multa,categoria_id,tags,origem,substituido_por,status,valor_pago').in('status', ['aberto', 'parcial', 'vencido']).lte('vencimento', fimIso),
+    sb.from('erp_contas_receber').select('vencimento,valor,desconto,juros,multa,categoria_id,tags,origem,substituido_por,status,valor_recebido').in('status', ['aberto', 'parcial', 'vencido']).lte('vencimento', fimIso),
+    sb.from('erp_categorias').select('id,nome,cor,tipo,dre_grupo'),
   ])
-  const catList = (cats.data || []) as { id: string; nome: string; cor: string | null; tipo: string }[]
+  const catList = (cats.data || []) as { id: string; nome: string; cor: string | null; tipo: string; dre_grupo: string | null }[]
   const catMap = new Map(catList.map((c) => [c.id, c]))
-  const transfIds = new Set(catList.filter((c) => /transfer/i.test(c.nome)).map((c) => c.id))
+  const dre = gruposDre(catList)
 
   const saldoAtual = (bancos.data || []).reduce((s: number, r: { saldo_atual: number }) => s + Number(r.saldo_atual || 0), 0)
-  const due = (r: TituloRow, key: 'valor_pago' | 'valor_recebido') =>
-    Number(r.valor || 0) - Number(r.desconto || 0) + Number(r.juros || 0) + Number(r.multa || 0) - Number(r[key] || 0)
-  const isOrc = (r: TituloRow) => Array.isArray(r.tags) && r.tags.includes('orcamento')
+  const due = (r: TituloRow, key: 'valor_pago' | 'valor_recebido') => devido(r, key)
+  const isOrc = (r: TituloRow) => compromissoFuturo(r)
+  const elegivel = (r: TituloRow) => aberto(r) && naoSubstituido(r)
 
   // ---------- serie diaria (mantida p/ graficos) ----------
   const dataMap: Record<string, { data: string; entrada_real: number; saida_real: number; entrada_prev: number; saida_prev: number; saldo: number }> = {}
@@ -498,7 +569,7 @@ export async function computeFluxoCaixa(
 
   for (const m of (mov.data || []) as MovRow[]) {
     if (!dataMap[m.data]) continue
-    if (m.categoria_id && transfIds.has(m.categoria_id)) continue
+    if (ehTransferencia(m, dre)) continue
     if (m.tipo !== 'entrada' && m.tipo !== 'saida') continue // transferencias/aplicacoes fora do fluxo
     const v = Number(m.valor || 0)
     if (m.tipo === 'entrada') dataMap[m.data].entrada_real += v
@@ -507,27 +578,39 @@ export async function computeFluxoCaixa(
     const k = `${ck}|${m.data}`
     celReal.set(k, (celReal.get(k) || 0) + v)
   }
+  // Vencido NAO cai no bucket de hoje. Fazer isso era o jeito mais rapido de
+  // projetar caixa que nunca chega: 22 dos 24 CR "vencidos" tem vencimento
+  // automatico (leilao+45d), nao data combinada com a leiloeira — jogados em
+  // hoje eles viravam uma entrada de centenas de milhares que ninguem prometeu.
+  // Sai da curva e volta declarado, em `vencido`.
+  const vencido = { entrada: 0, saida: 0, titulos_entrada: 0, titulos_saida: 0 }
   for (const r of (cp.data || []) as TituloRow[]) {
+    if (!elegivel(r)) continue
     if (!incluirOrcamento && isOrc(r)) continue
-    if (r.categoria_id && transfIds.has(r.categoria_id)) continue
-    const k = r.vencimento < hojeIso ? hojeIso : r.vencimento
-    if (!dataMap[k]) continue
+    if (ehTransferencia({ categoria_id: r.categoria_id, transferencia_par_id: null }, dre)) continue
     const v = due(r, 'valor_pago')
     if (v <= 0) continue
+    if (r.vencimento < hojeIso) { vencido.saida += v; vencido.titulos_saida++; continue }
+    const k = r.vencimento
+    if (!dataMap[k]) continue
     dataMap[k].saida_prev += v
     const ck = registraCat(r.categoria_id, 'saida')
     celPrev.set(`${ck}|${k}`, (celPrev.get(`${ck}|${k}`) || 0) + v)
   }
   for (const r of (cr.data || []) as TituloRow[]) {
-    if (r.categoria_id && transfIds.has(r.categoria_id)) continue
-    const k = r.vencimento < hojeIso ? hojeIso : r.vencimento
-    if (!dataMap[k]) continue
+    if (!elegivel(r)) continue
+    if (!incluirOrcamento && isOrc(r)) continue
+    if (ehTransferencia({ categoria_id: r.categoria_id, transferencia_par_id: null }, dre)) continue
     const v = due(r, 'valor_recebido')
     if (v <= 0) continue
+    if (r.vencimento < hojeIso) { vencido.entrada += v; vencido.titulos_entrada++; continue }
+    const k = r.vencimento
+    if (!dataMap[k]) continue
     dataMap[k].entrada_prev += v
     const ck = registraCat(r.categoria_id, 'entrada')
     celPrev.set(`${ck}|${k}`, (celPrev.get(`${ck}|${k}`) || 0) + v)
   }
+  vencido.entrada = r2(vencido.entrada); vencido.saida = r2(vencido.saida)
 
   // ---------- saldo dia a dia ancorado no saldo real de HOJE ----------
   // saldo_atual ja reflete todos os movimentos realizados; do passado ao
@@ -618,6 +701,7 @@ export async function computeFluxoCaixa(
   return {
     saldo_atual: saldoAtual,
     dias, passado, gran, incluir_orcamento: incluirOrcamento, hoje: hojeIso,
+    vencido,
     serie: ordered,
     matriz: {
       buckets,

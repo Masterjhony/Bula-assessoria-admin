@@ -127,41 +127,6 @@ body { background:var(--bg); color:var(--text); font-family:'Inter',-apple-syste
 .kpi.warn .kpi-icon { background:var(--amber-bg); color:var(--amber); }
 .kpi.info .kpi-icon { background:var(--blue-bg); color:var(--blue); }
 
-/* --- Confianca dos Numeros ------------------------------------------------ */
-.vd-card { background:var(--surface); border:1px solid var(--border); border-radius:var(--r-lg); padding:16px 18px; margin-bottom:12px; }
-.vd-card.blocked { border-color:var(--red); }
-.vd-head { display:flex; align-items:flex-start; justify-content:space-between; gap:14px; flex-wrap:wrap; }
-.vd-title { font-size:13px; font-weight:600; color:var(--text); }
-.vd-id { font-family:monospace; font-size:10px; color:var(--text3); }
-.vd-value { font-size:24px; font-weight:700; letter-spacing:-0.5px; margin:6px 0 2px; }
-.vd-conf { text-align:right; min-width:130px; }
-.vd-nota { font-size:20px; font-weight:700; }
-.vd-alta .vd-nota { color:var(--olive); } .vd-media .vd-nota { color:var(--amber); }
-.vd-baixa .vd-nota { color:var(--red); } .vd-nao_publicar .vd-nota { color:var(--red); }
-.vd-selo { font-size:9.5px; font-weight:700; text-transform:uppercase; letter-spacing:.8px; padding:2px 7px; border-radius:999px; display:inline-block; }
-.vd-alta .vd-selo { background:var(--olive-bg); color:var(--olive); }
-.vd-media .vd-selo { background:var(--amber-bg); color:var(--amber); }
-.vd-baixa .vd-selo, .vd-nao_publicar .vd-selo { background:var(--red-bg); color:var(--red); }
-.vd-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(230px,1fr)); gap:10px 20px; margin-top:12px; font-size:11.5px; }
-.vd-lab { font-size:9.5px; font-weight:700; color:var(--text3); text-transform:uppercase; letter-spacing:.8px; margin-bottom:3px; }
-.vd-txt { color:var(--text2); line-height:1.45; }
-.vd-bar { height:6px; border-radius:999px; background:var(--s2); overflow:hidden; margin:5px 0 3px; }
-.vd-bar > i { display:block; height:100%; background:var(--gold); }
-.vd-lac { color:var(--amber); font-size:11px; margin-top:4px; line-height:1.4; }
-.vd-lac.valor { color:var(--red); }
-.vd-comp { display:flex; justify-content:space-between; gap:10px; padding:3px 0; border-bottom:1px dashed var(--border); font-size:11.5px; }
-.vd-comp:last-child { border-bottom:0; }
-.vd-motivo { display:flex; justify-content:space-between; gap:10px; font-size:11px; color:var(--text3); padding:2px 0; }
-.vd-motivo b { color:var(--red); font-weight:600; }
-.vd-val { display:flex; gap:8px; align-items:flex-start; padding:9px 0; border-bottom:1px solid var(--border); font-size:12px; }
-.vd-val:last-child { border-bottom:0; }
-.vd-mark { font-size:9.5px; font-weight:700; padding:2px 7px; border-radius:999px; flex-shrink:0; margin-top:1px; }
-.vd-mark.PASS { background:var(--olive-bg); color:var(--olive); }
-.vd-mark.WARN { background:var(--amber-bg); color:var(--amber); }
-.vd-mark.FAIL { background:var(--red-bg); color:var(--red); }
-.vd-det { color:var(--text3); font-size:11px; margin-top:3px; line-height:1.45; }
-.vd-afeta { font-family:monospace; font-size:10px; color:var(--text3); margin-top:3px; }
-.vd-filtros { display:flex; gap:8px; flex-wrap:wrap; margin-bottom:14px; }
 .cmp-bar { height:5px; border-radius:999px; background:var(--amber); overflow:hidden; margin:8px 0 6px; }
 .cmp-bar > i { display:block; height:100%; background:var(--olive); }
 .cmp-leg { display:flex; gap:10px; flex-wrap:wrap; }
@@ -333,30 +298,6 @@ body { background:var(--bg); color:var(--text); font-family:'Inter',-apple-syste
 #tituloDrawer .td-act.primary { background:var(--gold-dim); border-color:var(--gold); color:var(--text); }
 #tituloDrawer .td-act.danger .material-symbols-outlined { color:var(--red); }
 #tituloDrawer .td-act.danger:hover { background:var(--red-bg); color:var(--red); }
-
-/* Kanban Fluxo Operação */
-.kb-board { display:flex; gap:12px; overflow-x:auto; padding-bottom:14px; align-items:flex-start; }
-.kb-col { flex:0 0 264px; background:var(--s2); border:1px solid var(--border); border-radius:var(--r-lg); display:flex; flex-direction:column; max-height:calc(100vh - 260px); }
-.kb-col.drag-over { border-color:var(--gold); box-shadow:inset 0 0 0 1px var(--gold); }
-.kb-col-head { padding:11px 13px; border-bottom:1px solid var(--border); display:flex; align-items:center; gap:8px; position:sticky; top:0; background:var(--s2); border-radius:var(--r-lg) var(--r-lg) 0 0; }
-.kb-col-head .dot { width:8px; height:8px; border-radius:50%; flex:0 0 auto; }
-.kb-col-head .t { font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:.6px; color:var(--text2); }
-.kb-col-head .n { margin-left:auto; font-size:10.5px; font-weight:700; color:var(--text3); background:var(--surface); border:1px solid var(--border); border-radius:10px; padding:1px 8px; }
-.kb-col-sum { font-size:10px; color:var(--text3); padding:5px 13px; border-bottom:1px solid var(--border); }
-.kb-cards { padding:10px; display:flex; flex-direction:column; gap:8px; overflow-y:auto; min-height:60px; }
-.kb-card { background:var(--surface); border:1px solid var(--border); border-left:3px solid var(--border2); border-radius:10px; padding:10px 12px; cursor:grab; transition:all .12s; }
-.kb-card:hover { border-color:var(--border2); transform:translateY(-1px); box-shadow:0 3px 10px rgba(0,0,0,.12); }
-.kb-card.dragging { opacity:.45; }
-.kb-card .kc-nome { font-size:12px; font-weight:700; color:var(--text); line-height:1.3; }
-.kb-card .kc-data { font-size:10px; color:var(--text3); margin-top:2px; }
-.kb-card .kc-vals { display:flex; gap:12px; margin-top:7px; flex-wrap:wrap; }
-.kb-card .kc-v { font-size:10px; color:var(--text3); }
-.kb-card .kc-v b { display:block; font-size:11.5px; color:var(--text); font-variant-numeric:tabular-nums; }
-.kb-card .kc-badges { display:flex; gap:5px; margin-top:8px; flex-wrap:wrap; }
-.kb-card .kc-badges .chip { font-size:9px; padding:2px 7px; }
-.kb-card .kc-nav { display:flex; gap:4px; margin-top:8px; justify-content:space-between; }
-.kb-card .kc-nav button { background:none; border:1px solid var(--border); border-radius:6px; color:var(--text3); cursor:pointer; padding:2px 8px; font-size:11px; }
-.kb-card .kc-nav button:hover { color:var(--gold); border-color:var(--gold); }
 
 /* MODAL */
 .modal-backdrop { position:fixed; inset:0; background:rgba(0,0,0,0.6); backdrop-filter:blur(4px); z-index:200; display:none; align-items:center; justify-content:center; padding:24px; }
@@ -533,10 +474,8 @@ svg.chart { width:100%; height:100%; display:block; }
     </div>
     <div class="sidebar-section">Visao Geral</div>
     <div class="sidebar-item active" data-page="dashboard"><span class="material-symbols-outlined">dashboard</span><span>Dashboard</span></div>
-    <div class="sidebar-item" data-page="verdade"><span class="material-symbols-outlined">verified</span><span>Confianca dos Numeros</span></div>
     <div class="sidebar-item" data-page="fluxo"><span class="material-symbols-outlined">show_chart</span><span>Fluxo de Caixa</span></div>
     <div class="sidebar-item" data-page="previsto_realizado"><span class="material-symbols-outlined">compare_arrows</span><span>Previsto x Realizado</span></div>
-    <div class="sidebar-item" data-page="fluxo_operacao"><span class="material-symbols-outlined">view_kanban</span><span>Fluxo Operação</span></div>
 
     <div class="sidebar-section">Movimentacao</div>
     <div class="sidebar-item" data-page="cp"><span class="material-symbols-outlined">payments</span><span>Contas a Pagar</span></div>
@@ -828,9 +767,7 @@ async function render() {
   try {
     await loadBase();
     if (state.page === 'dashboard') return renderDashboard();
-    if (state.page === 'verdade') return renderVerdade();
     if (state.page === 'fluxo') return renderFluxo();
-    if (state.page === 'fluxo_operacao') return renderFluxoOperacao();
     if (state.page === 'previsto_realizado') return renderPrevistoRealizado();
     if (state.page === 'cp') return renderContas('pagar');
     if (state.page === 'cr') return renderContas('receber');
@@ -912,160 +849,6 @@ async function fxDetalhe(el) {
   document.querySelector('#modalRoot .modal-body').innerHTML = html;
 }
 
-/* ==========================================================================
-   CONFIANCA DOS NUMEROS (ERP VERDADE)
-   Cada variavel do ERP com Valor, Origem, Formula, Composicao, Cobertura,
-   Atualizacao e Confianca. Nenhum numero solto: o que nao esta no catalogo
-   (src/lib/verdade/catalogo.ts) nao pode ser apresentado.
-   ========================================================================== */
-async function renderVerdade() {
-  const rel = await api('/api/erp/verdade');
-  state.verdade = rel;
-  const r = rel.resumo;
-  const fmtU = (va) => {
-    if (va.valor === null || va.valor === undefined) return '--';
-    if (va.unidade === 'BRL') return fmtBRL(va.valor);
-    if (va.unidade === 'percentual') return Number(va.valor).toFixed(1) + '%';
-    if (va.unidade === 'contagem') return String(va.valor);
-    return escapeHtml(String(va.valor));
-  };
-  const rot = (n) => n >= 85 ? 'alta' : n >= 70 ? 'media' : n >= 50 ? 'baixa' : 'nao_publicar';
-  const selo = { alta:'Alta', media:'Confira', baixa:'Baixa', nao_publicar:'Nao publicar' };
-
-  const cardVar = (v) => {
-    const k = rot(v.confianca.nota);
-    return `
-    <div class="vd-card vd-${k} ${v.publicavel ? '' : 'blocked'}">
-      <div class="vd-head">
-        <div style="flex:1;min-width:220px">
-          <div class="vd-title">${escapeHtml(v.titulo)}</div>
-          <div class="vd-id">${escapeHtml(v.id)} &middot; ${escapeHtml(v.classe.replace(/_/g,' '))}</div>
-          <div class="vd-value">${fmtU(v)}</div>
-        </div>
-        <div class="vd-conf">
-          <div class="vd-nota">${v.confianca.nota}%</div>
-          <span class="vd-selo">${selo[k]}</span>
-          ${v.publicavel ? '' : '<div style="font-size:10px;color:var(--red);margin-top:4px">bloqueada para relatorio</div>'}
-        </div>
-      </div>
-      <div class="vd-grid">
-        <div>
-          <div class="vd-lab">Origem</div>
-          <div class="vd-txt">${v.origens.map(o => `${escapeHtml(o.fonte)} <span style="color:var(--text3)">(${o.linhas} linhas)</span><br><span style="font-size:10.5px;color:var(--text3)">${escapeHtml(o.filtro)}</span>`).join('<br>') || '--'}</div>
-        </div>
-        <div>
-          <div class="vd-lab">Formula</div>
-          <div class="vd-txt">${escapeHtml(v.formula)}</div>
-        </div>
-        <div>
-          <div class="vd-lab">Cobertura</div>
-          <div class="vd-bar"><i style="width:${(v.cobertura.fracao*100).toFixed(1)}%"></i></div>
-          <div class="vd-txt">${(v.cobertura.fracao*100).toFixed(1)}% &mdash; ${v.cobertura.usados} de ${v.cobertura.universo} fatos</div>
-          ${v.cobertura.lacunas.map(l => `<div class="vd-lac ${escapeHtml(l.impacto)}"><b>${escapeHtml(l.impacto)}</b>: ${escapeHtml(l.motivo)} &mdash; ${l.linhas} linha(s)${l.valor ? ' ' + fmtBRL(l.valor) : ''}${l.exemplos && l.exemplos.length ? `<br><span style="color:var(--text3)">ex.: ${escapeHtml(l.exemplos.slice(0,2).join(' | '))}</span>` : ''}</div>`).join('')}
-        </div>
-        <div>
-          <div class="vd-lab">Atualizacao</div>
-          <div class="vd-txt">${v.atualizado_em ? fmtDate(v.atualizado_em) : '--'}</div>
-          ${v.deriva_de.length ? `<div class="vd-lab" style="margin-top:8px">Deriva de</div><div class="vd-txt" style="font-family:monospace;font-size:10.5px">${v.deriva_de.map(escapeHtml).join('<br>')}</div>` : ''}
-        </div>
-      </div>
-      ${v.composicao && v.composicao.length ? `
-      <div style="margin-top:12px">
-        <div class="vd-lab">Composicao</div>
-        ${v.composicao.map(c => `<div class="vd-comp"><span>${escapeHtml(c.rotulo)}${c.nota ? ` <span style="color:var(--text3)">&mdash; ${escapeHtml(c.nota)}</span>` : ''}</span><strong>${v.unidade === 'BRL' ? fmtBRL(c.valor) : c.valor}</strong></div>`).join('')}
-      </div>` : ''}
-      ${v.conflitos && v.conflitos.length ? `
-      <div style="margin-top:12px">
-        <div class="vd-lab">Conflitos que contaminam este numero</div>
-        ${v.conflitos.map(c => `<div class="vd-val"><span class="vd-mark ${c.severidade.toUpperCase()}">${c.severidade.toUpperCase()}</span><div><div>${escapeHtml(c.titulo)}</div><div class="vd-det">${escapeHtml(c.detalhe)}</div></div></div>`).join('')}
-      </div>` : ''}
-      <div style="margin-top:12px">
-        <div class="vd-lab">Como a confianca foi formada</div>
-        ${v.confianca.motivos.filter(m => Math.abs(m.delta) >= 0.05).map(m => `<div class="vd-motivo"><span>${escapeHtml(m.motivo)}</span><b>${m.delta > 0 ? '+' : ''}${m.delta}</b></div>`).join('') || '<div class="vd-txt">sem penalidades</div>'}
-      </div>
-      ${v.erro ? `<div class="vd-lac valor" style="margin-top:10px">ERRO NO CALCULO: ${escapeHtml(v.erro)}</div>` : ''}
-    </div>`;
-  };
-
-  const linhaVal = (x) => {
-    const mark = x.passou ? 'PASS' : x.severidade === 'fail' ? 'FAIL' : 'WARN';
-    return `
-    <div class="vd-val">
-      <span class="vd-mark ${mark}">${mark}</span>
-      <div style="flex:1">
-        <div>${escapeHtml(x.titulo)}</div>
-        ${x.detalhe ? `<div class="vd-det">${escapeHtml(x.detalhe)}</div>` : ''}
-        ${x.passou ? '' : `<div class="vd-afeta">afeta: ${x.afeta.map(escapeHtml).join(', ')}</div>`}
-      </div>
-    </div>`;
-  };
-
-  const falhas = rel.validacoes.filter(v => !v.passou);
-  const grupos = {};
-  for (const v of rel.variaveis) {
-    const g = v.id.split('.')[0];
-    (grupos[g] = grupos[g] || []).push(v);
-  }
-
-  const html = `
-    <div class="page-header">
-      <div>
-        <div class="page-title">Confianca dos Numeros <small>${r.variaveis} variaveis &middot; foto de ${escapeHtml(rel.foto_em.replace('T',' ').slice(0,16))}</small></div>
-        <div style="font-size:11.5px;color:var(--text3);margin-top:4px;max-width:640px">
-          Todo numero aqui e produzido a partir dos fatos, com formula declarada e validacao cruzada.
-          O que estiver bloqueado nao deve sair em relatorio sem decisao sua.
-        </div>
-      </div>
-    </div>
-
-    <div class="kpi-grid">
-      <div class="kpi ${r.fails ? 'danger' : 'success'}">
-        <div class="kpi-icon"><span class="material-symbols-outlined">${r.fails ? 'error' : 'verified'}</span></div>
-        <div class="kpi-label">Validacoes falhando</div>
-        <div class="kpi-value">${r.fails}</div>
-        <div class="kpi-sub">${rel.validacoes.length - r.fails - r.warns} passando &middot; ${r.warns} alertas</div>
-      </div>
-      <div class="kpi ${r.bloqueadas ? 'warn' : 'success'}">
-        <div class="kpi-icon"><span class="material-symbols-outlined">block</span></div>
-        <div class="kpi-label">Numeros bloqueados</div>
-        <div class="kpi-value">${r.bloqueadas}</div>
-        <div class="kpi-sub">${r.publicaveis} liberados para relatorio</div>
-      </div>
-      <div class="kpi info">
-        <div class="kpi-icon"><span class="material-symbols-outlined">speed</span></div>
-        <div class="kpi-label">Confianca media</div>
-        <div class="kpi-value">${r.confianca_media}%</div>
-        <div class="kpi-sub">piso para publicar: 70%</div>
-      </div>
-    </div>
-
-    ${falhas.length ? `
-    <div class="card" style="margin-bottom:20px">
-      <div class="card-title"><span class="material-symbols-outlined">rule</span>O que esta inconsistente agora (${falhas.length})</div>
-      ${falhas.map(linhaVal).join('')}
-    </div>` : `
-    <div class="card" style="margin-bottom:20px">
-      <div class="card-title"><span class="material-symbols-outlined">check_circle</span>Consistencia</div>
-      <div class="vd-txt">Todas as ${rel.validacoes.length} invariantes do ERP estao passando.</div>
-    </div>`}
-
-    ${Object.entries(grupos).map(([g, vars]) => `
-      <div class="card-title" style="margin:22px 0 10px">
-        <span class="material-symbols-outlined">functions</span>${escapeHtml(g)}
-        <span style="color:var(--text3);font-weight:500;text-transform:none;letter-spacing:0">
-          &middot; ${vars.length} variavel(is), ${vars.filter(v => !v.publicavel).length} bloqueada(s)
-        </span>
-      </div>
-      ${vars.map(cardVar).join('')}
-    `).join('')}
-
-    <div class="card" style="margin-top:22px">
-      <div class="card-title"><span class="material-symbols-outlined">checklist</span>Todas as validacoes (${rel.validacoes.length})</div>
-      ${rel.validacoes.map(linhaVal).join('')}
-    </div>
-  `;
-  document.getElementById('page').innerHTML = html;
-}
 
 /* ==========================================================================
    SVG MINI CHART (linha)
@@ -1280,13 +1063,15 @@ async function renderDashboard() {
         <div class="kpi-icon"><span class="material-symbols-outlined">trending_up</span></div>
         <div class="kpi-label">A Receber (em aberto)</div>
         <div class="kpi-value money positive">${fmtBRL(d.a_receber)}</div>
-        <div class="kpi-sub down">${fmtBRL(d.vencidos_receber)} vencidos</div>
+        <div class="kpi-sub" title="Contratado = o leilão aconteceu e a comissão está apurada. Estimado = leilão previsto, pode não acontecer ou vir com outro valor.">${fmtBRL(d.a_receber_contratado)} contratado${d.a_receber_estimado ? ` · ${fmtBRL(d.a_receber_estimado)} estimado` : ''}</div>
+        <div class="kpi-sub down" title="Vencimento de CR é leilão+45d automático, não data combinada com a leiloeira — leia como &quot;já podia ter entrado&quot;, não como atraso.">${fmtBRL(d.vencidos_receber)} vencidos (venc. automático)</div>
       </div>
       <div class="kpi warn">
         <div class="kpi-icon"><span class="material-symbols-outlined">insights</span></div>
-        <div class="kpi-label">Resultado do Período</div>
+        <div class="kpi-label">Resultado do Período (caixa)</div>
         <div class="kpi-value money ${d.resultado>=0?'positive':'negative'}">${fmtBRL(d.resultado)}</div>
-        <div class="kpi-sub">${deltaChip(d.resultado, d.prev.resultado)} realizado (caixa)</div>
+        <div class="kpi-sub">${deltaChip(d.resultado, d.prev.resultado)} tudo que entrou − tudo que saiu</div>
+        <div class="kpi-sub" title="O resultado operacional usa os grupos da DRE (receita × imposto, custo direto, despesa variável e fixa). A diferença é o não-operacional: tarifa, ajuste de aplicação, integralização, estorno e recuperação de imposto.">operacional ${fmtBRL(d.resultado_operacional)}${(d.nao_operacional.entrada - d.nao_operacional.saida) ? ` ${(d.nao_operacional.entrada - d.nao_operacional.saida) >= 0 ? '+' : '−'} ${fmtBRL(Math.abs(d.nao_operacional.entrada - d.nao_operacional.saida))} não-operacional` : ''}</div>
       </div>
     </div>
 
@@ -1311,16 +1096,16 @@ async function renderDashboard() {
     ${(d.fluxo_15d && d.fluxo_15d.length) ? `
     <div class="card" style="margin-bottom:16px">
       <div class="card-title"><span class="material-symbols-outlined">event_upcoming</span>Projeção de Caixa · próximos 15 dias
-        <span style="margin-left:auto;font-size:11px;color:var(--text3)">parte de ${fmtBRL(d.saldo_total_bancos)} em bancos · só títulos com data (vencidos a reprogramar ficam fora)</span>
+        <span style="margin-left:auto;font-size:11px;color:var(--text3)">parte de ${fmtBRL(d.saldo_total_bancos)} em bancos · vence nos próximos 15 dias · <span style="color:var(--amber)">projetado</span> = folha e recorrente ainda não incorridos · vencido fica fora</span>
       </div>
       <div class="table-wrap" style="max-height:280px;overflow-y:auto">
         <table class="table">
           <thead><tr><th style="width:90px">Data</th><th>Título</th><th style="text-align:right;width:130px">Valor</th><th style="text-align:right;width:150px">Saldo projetado</th></tr></thead>
           <tbody>
             ${d.fluxo_15d.map(e => `
-              <tr>
+              <tr${e.projetado ? ' style="color:var(--text2)"' : ''}>
                 <td>${fmtDateShort(e.data)}</td>
-                <td title="${escapeHtml(e.descricao)}">${escapeHtml(String(e.descricao).slice(0,70))}</td>
+                <td title="${escapeHtml(e.descricao)}">${escapeHtml(String(e.descricao).slice(0,70))}${e.projetado ? ' <span class="chip" style="background:var(--amber-bg);color:var(--amber);font-size:9px">projetado</span>' : ''}</td>
                 <td class="money ${e.valor>=0?'positive':'negative'}" style="text-align:right">${fmtBRL(e.valor)}</td>
                 <td class="money ${e.saldo_projetado>=0?'positive':'negative'}" style="text-align:right;font-weight:700">${fmtBRL(e.saldo_projetado)}</td>
               </tr>`).join('')}
@@ -1362,11 +1147,11 @@ async function renderDashboard() {
 
     <div class="grid-row" style="grid-template-columns:1fr 1fr">
       <div class="card">
-        <div class="card-title"><span class="material-symbols-outlined">savings</span>Receitas por Categoria <span style="margin-left:auto;color:var(--olive);font-weight:700">${fmtBRL(d.entradas)}</span></div>
+        <div class="card-title"><span class="material-symbols-outlined">savings</span>Entradas por Categoria <span style="margin-left:auto;color:var(--olive);font-weight:700">${fmtBRL(d.entradas)}</span></div>
         ${catBars(d.top_receitas)}
       </div>
       <div class="card">
-        <div class="card-title"><span class="material-symbols-outlined">shopping_cart</span>Despesas por Categoria <span style="margin-left:auto;color:var(--red);font-weight:700">${fmtBRL(d.saidas)}</span></div>
+        <div class="card-title"><span class="material-symbols-outlined">shopping_cart</span>Saídas por Categoria <span style="margin-left:auto;color:var(--red);font-weight:700">${fmtBRL(d.saidas)}</span></div>
         ${catBars(d.top_despesas)}
       </div>
     </div>
@@ -1393,135 +1178,6 @@ async function renderDashboard() {
   document.getElementById('page').innerHTML = html;
 }
 
-/* ==========================================================================
-   PAGE: FLUXO OPERAÇÃO (kanban do leilão → faturamento → resolução)
-   ========================================================================== */
-const FLUXO_ETAPAS = [
-  { k:'realizado',              label:'Realizado',            cor:'#8892a0', hint:'Leilão aconteceu — fechamento cadastrado' },
-  { k:'aguardando_mapa',        label:'Aguardando Mapa',      cor:'#3B82F6', hint:'Esperando mapa/relatório da leiloeira' },
-  { k:'conferencia',            label:'Conferência',          cor:'#D4A843', hint:'Conferindo vendas, comissões e acordo' },
-  { k:'pronto_faturar',         label:'Pronto p/ Faturar',    cor:'#C9A84C', hint:'Validado — emitir NF e lançar contas a receber' },
-  { k:'aguardando_recebimento', label:'Aguard. Recebimento',  cor:'#d98a3d', hint:'Faturado — aguardando repasse da leiloeira' },
-  { k:'pagamentos',             label:'Pagamentos & Repasses',cor:'#C0504D', hint:'Comissões de assessores e impostos a pagar' },
-  { k:'concluido',              label:'Concluído',            cor:'#6B8F5C', hint:'Recebido e pago — negócio resolvido' },
-];
-
-async function renderFluxoOperacao(){
-  const [fechamentos, receb, cps] = await Promise.all([
-    api('/api/bula/fechamento'),
-    api('/api/bula/fechamento-recebimentos').catch(()=>[]),
-    api('/api/erp/contas-pagar').catch(()=>[]),
-  ]);
-  const recMap = {}; for (const r of (receb||[])) recMap[r.fechamento_id] = r;
-  const cpMap = {}; for (const c of (cps||[])) if (c.fechamento_id) (cpMap[c.fechamento_id] ||= []).push(c);
-  state._fluxo = { fechamentos: fechamentos||[], recMap, cpMap };
-  paintFluxo();
-}
-
-function paintFluxo(){
-  const d = state._fluxo; if (!d) return;
-  const q = (state.filters.fluxoBusca||'').trim().toLowerCase();
-  const ano = state.filters.fluxoAno || '';
-  const rows = d.fechamentos.filter(f =>
-    (!q || (f.nome||'').toLowerCase().includes(q)) &&
-    (!ano || String(f.data||'').startsWith(ano)));
-  const anos = [...new Set(d.fechamentos.map(f=>String(f.data||'').slice(0,4)).filter(Boolean))].sort().reverse();
-  const byEtapa = {}; for (const e of FLUXO_ETAPAS) byEtapa[e.k] = [];
-  for (const f of rows){ const k = FLUXO_ETAPAS.some(e=>e.k===f.etapa) ? f.etapa : 'realizado'; byEtapa[k].push(f); }
-  for (const k in byEtapa) byEtapa[k].sort((a,b)=>String(b.data||'').localeCompare(String(a.data||'')));
-
-  const col = (e) => {
-    const cards = byEtapa[e.k];
-    const totReceita = cards.reduce((s,f)=>s+Number(f.receita_bula||0),0);
-    return `
-    <div class="kb-col" data-etapa="${e.k}"
-      ondragover="event.preventDefault();this.classList.add('drag-over')"
-      ondragleave="this.classList.remove('drag-over')"
-      ondrop="this.classList.remove('drag-over');fluxoDrop(event,'${e.k}')">
-      <div class="kb-col-head" title="${escapeHtml(e.hint)}">
-        <span class="dot" style="background:${e.cor}"></span>
-        <span class="t">${e.label}</span>
-        <span class="n">${cards.length}</span>
-      </div>
-      <div class="kb-col-sum">Receita Bula: <b class="money">${fmtBRL(totReceita)}</b></div>
-      <div class="kb-cards">${cards.map(f=>fluxoCard(f,e)).join('') || '<div style="font-size:10.5px;color:var(--text3);text-align:center;padding:14px 6px">— vazio —</div>'}</div>
-    </div>`;
-  };
-
-  document.getElementById('page').innerHTML = `
-    <div class="page-header">
-      <div>
-        <div class="page-title">Fluxo Operação <small>${rows.length} leilões · do fechamento à resolução</small></div>
-      </div>
-      <div class="page-actions">
-        <input class="table-filter" style="min-width:200px" placeholder="Buscar leilão..." value="${escapeHtml(state.filters.fluxoBusca||'')}" oninput="state.filters.fluxoBusca=this.value;paintFluxo()">
-        <select class="table-filter" onchange="state.filters.fluxoAno=this.value;paintFluxo()">
-          <option value="">Todos os anos</option>
-          ${anos.map(a=>`<option value="${a}" ${ano===a?'selected':''}>${a}</option>`).join('')}
-        </select>
-        <button class="btn" onclick="navigate('fechamento_leiloes')"><span class="material-symbols-outlined">table_view</span>Fechamentos</button>
-      </div>
-    </div>
-    <div class="kb-board">${FLUXO_ETAPAS.map(col).join('')}</div>
-  `;
-}
-
-function fluxoCard(f, etapa){
-  const d = state._fluxo || {};
-  const rec = (d.recMap||{})[f.id];
-  const cps = (d.cpMap||{})[f.id] || [];
-  const cpsPagas = cps.filter(c=>c.status==='pago').length;
-  const fat = Number(f.faturamento_total_leilao ?? f.vgv_total ?? 0);
-  const idx = FLUXO_ETAPAS.findIndex(e=>e.k===etapa.k);
-  const prev = FLUXO_ETAPAS[idx-1], next = FLUXO_ETAPAS[idx+1];
-  const badgeCR = rec && Number(rec.titulos)>0
-    ? `<span class="chip ${rec.todos_recebidos?'success':'warn'}" title="Contas a receber vinculadas">${rec.todos_recebidos?'✓ recebido':'CR '+fmtBRL(rec.recebido).replace('R$','').trim()+' / '+fmtBRL(rec.receita_titulos).replace('R$','').trim()}</span>`
-    : `<span class="chip muted" title="Nenhuma conta a receber vinculada">sem CR</span>`;
-  const badgeCP = cps.length
-    ? `<span class="chip ${cpsPagas===cps.length?'success':'info'}" title="Contas a pagar vinculadas (comissões/impostos)">CP ${cpsPagas}/${cps.length} pagas</span>`
-    : '';
-  return `
-  <div class="kb-card" style="border-left-color:${etapa.cor}" draggable="true"
-    ondragstart="fluxoDragStart(event,'${f.id}')" ondragend="this.classList.remove('dragging')">
-    <div class="kc-nome">${escapeHtml(f.nome)}</div>
-    <div class="kc-data">${fmtDate(f.data)}${f.local?' · '+escapeHtml(f.local):''}</div>
-    <div class="kc-vals">
-      <div class="kc-v">Faturamento<b class="money">${fmtBRL(fat)}</b></div>
-      <div class="kc-v">Receita Bula<b class="money" style="color:var(--olive)">${fmtBRL(f.receita_bula)}</b></div>
-    </div>
-    <div class="kc-badges">${badgeCR}${badgeCP}</div>
-    <div class="kc-nav">
-      ${prev?`<button title="Voltar para ${prev.label}" onclick="fluxoMove('${f.id}','${prev.k}')">‹</button>`:'<span></span>'}
-      <button title="Ver fechamento" onclick="navigate('fechamento_leiloes')" style="flex:1">abrir</button>
-      ${next?`<button title="Avançar para ${next.label}" onclick="fluxoMove('${f.id}','${next.k}')">›</button>`:'<span></span>'}
-    </div>
-  </div>`;
-}
-
-function fluxoDragStart(ev, id){
-  ev.dataTransfer.setData('text/plain', id);
-  ev.dataTransfer.effectAllowed = 'move';
-  ev.target.classList.add('dragging');
-}
-function fluxoDrop(ev, etapa){
-  ev.preventDefault();
-  const id = ev.dataTransfer.getData('text/plain');
-  if (id) fluxoMove(id, etapa);
-}
-async function fluxoMove(id, etapa){
-  const d = state._fluxo; if (!d) return;
-  const f = d.fechamentos.find(x=>x.id===id); if (!f || f.etapa===etapa) return;
-  const antes = f.etapa;
-  f.etapa = etapa; paintFluxo(); // otimista
-  try {
-    await api(`/api/bula/fechamento/${id}`, { method:'PUT', body:JSON.stringify({ etapa, etapa_atualizada_em: new Date().toISOString() }) });
-    const meta = FLUXO_ETAPAS.find(e=>e.k===etapa);
-    toast(`${f.nome} → ${meta?meta.label:etapa}`,'success');
-  } catch(e){
-    f.etapa = antes; paintFluxo();
-    toast(e.message,'error');
-  }
-}
 
 /* ==========================================================================
    PAGE: CONTAS A PAGAR / RECEBER
@@ -4329,14 +3985,30 @@ async function renderFluxo() {
       <div class="kpi success"><div class="kpi-icon"><span class="material-symbols-outlined">account_balance_wallet</span></div>
         <div class="kpi-label">Saldo Hoje</div><div class="kpi-value money ${Number(d.saldo_atual)>=0?'positive':'negative'}">${fmtBRL(d.saldo_atual)}</div></div>
       <div class="kpi info"><div class="kpi-icon"><span class="material-symbols-outlined">trending_up</span></div>
-        <div class="kpi-label">Entradas Previstas (${dias}d)</div><div class="kpi-value money positive">${fmtBRL(entradas)}</div></div>
+        <div class="kpi-label">Entradas Previstas (${dias}d)<span style="font-size:9px;color:var(--text4)"> &middot; vencido fora</span></div><div class="kpi-value money positive">${fmtBRL(entradas)}</div></div>
       <div class="kpi danger"><div class="kpi-icon"><span class="material-symbols-outlined">trending_down</span></div>
-        <div class="kpi-label">Saidas Previstas (${dias}d)</div><div class="kpi-value money negative">${fmtBRL(saidas)}</div></div>
+        <div class="kpi-label">Saidas Previstas (${dias}d)<span style="font-size:9px;color:var(--text4)"> &middot; vencido fora</span></div><div class="kpi-value money negative">${fmtBRL(saidas)}</div></div>
       <div class="kpi ${resultado>=0?'success':'danger'}"><div class="kpi-icon"><span class="material-symbols-outlined">${resultado>=0?'savings':'priority_high'}</span></div>
         <div class="kpi-label">Resultado do Periodo</div><div class="kpi-value money ${resultado>=0?'positive':'negative'}">${fmtBRL(resultado)}</div></div>
       <div class="kpi warn"><div class="kpi-icon"><span class="material-symbols-outlined">flag</span></div>
         <div class="kpi-label">Saldo Projetado Final</div><div class="kpi-value money ${saldoFinal>=0?'positive':'negative'}">${fmtBRL(saldoFinal)}</div></div>
     </div>
+
+    ${(d.vencido && (d.vencido.entrada || d.vencido.saida)) ? `
+    <div class="card" style="margin-top:14px;border-color:rgba(212,168,67,0.4)">
+      <div class="card-title"><span class="material-symbols-outlined">schedule</span>Fora da curva &middot; vencido e ainda em aberto</div>
+      <div style="display:flex;gap:26px;flex-wrap:wrap;align-items:baseline">
+        <div><span style="font-size:11px;color:var(--text3)">a receber (${d.vencido.titulos_entrada} tit.)</span>
+          <div class="money positive" style="font-size:17px;font-weight:700">${fmtBRL(d.vencido.entrada)}</div></div>
+        <div><span style="font-size:11px;color:var(--text3)">a pagar (${d.vencido.titulos_saida} tit.)</span>
+          <div class="money negative" style="font-size:17px;font-weight:700">${fmtBRL(d.vencido.saida)}</div></div>
+        <div style="flex:1;min-width:260px;font-size:11px;color:var(--text3);line-height:1.5">
+          Vencimento no passado nao e entrada dos proximos dias, entao nao entra na curva acima.
+          A maior parte dos CR "vencidos" tem vencimento automatico (leilao+45d), nao data combinada
+          com a leiloeira &mdash; jogar isso em "hoje" projetava um caixa que ninguem prometeu.
+        </div>
+      </div>
+    </div>` : ''}
 
     ${menor.data && menor.saldo < 0 ? `<div class="card" style="margin-top:14px;border-color:rgba(192,80,77,0.4);background:var(--red-bg)">
       <div style="display:flex;align-items:center;gap:10px;color:var(--red);font-size:12px;font-weight:600">

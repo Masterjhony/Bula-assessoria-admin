@@ -11,7 +11,7 @@
 import type { DefinicaoVariavel, Lacuna, ResultadoCalculo, VariavelResolvida } from './tipos'
 import { cobertura, cobreTudo } from './tipos'
 import {
-    type Fatos, aberto, devido, maxData, num, operacional, r2,
+    type Fatos, aberto, compromissoFuturo, devido, maxData, naoSubstituido, num, operacional, r2,
 } from './fatos'
 import { VARIAVEIS as VARS_CONVENCOES } from './dominios/convencoes'
 import { VARIAVEIS as VARS_CONTABIL } from './dominios/contabil'
@@ -88,7 +88,7 @@ const NUCLEO_FINANCEIRO: DefinicaoVariavel<Fatos>[] = [
         classe: 'primaria',
         formula: 'Σ devido dos CR abertos com origem = real — o leilão aconteceu e a comissão está apurada',
         calcular: (f): ResultadoCalculo => {
-            const ts = f.cr.filter(t => aberto(t) && !t.substituido_por && t.origem !== 'estimativa')
+            const ts = f.cr.filter(t => aberto(t) && naoSubstituido(t) && !compromissoFuturo(t))
             return {
                 valor: r2(ts.reduce((s, t) => s + devido(t, 'valor_recebido'), 0)),
                 origens: [{ fonte: 'erp_contas_receber', filtro: 'aberto, origem = real, não substituído', linhas: ts.length }],
@@ -104,7 +104,7 @@ const NUCLEO_FINANCEIRO: DefinicaoVariavel<Fatos>[] = [
         classe: 'estimada',
         formula: 'Σ devido dos CR abertos com origem = estimativa',
         calcular: (f): ResultadoCalculo => {
-            const ts = f.cr.filter(t => aberto(t) && !t.substituido_por && t.origem === 'estimativa')
+            const ts = f.cr.filter(t => aberto(t) && naoSubstituido(t) && compromissoFuturo(t))
             return {
                 valor: r2(ts.reduce((s, t) => s + devido(t, 'valor_recebido'), 0)),
                 origens: [{ fonte: 'erp_contas_receber', filtro: 'aberto, origem = estimativa', linhas: ts.length }],
@@ -124,7 +124,7 @@ const NUCLEO_FINANCEIRO: DefinicaoVariavel<Fatos>[] = [
         calcular: (f, dep): ResultadoCalculo => {
             const contratado = Number(dep['receber.contratado']?.valor || 0)
             const estimado = Number(dep['receber.estimado']?.valor || 0)
-            const ts = f.cr.filter(t => aberto(t) && !t.substituido_por)
+            const ts = f.cr.filter(t => aberto(t) && naoSubstituido(t))
             return {
                 valor: r2(contratado + estimado),
                 origens: [{ fonte: 'erp_contas_receber', filtro: 'status ∈ (aberto,parcial,vencido), não substituído', linhas: ts.length }],
@@ -144,7 +144,7 @@ const NUCLEO_FINANCEIRO: DefinicaoVariavel<Fatos>[] = [
         classe: 'primaria',
         formula: 'Σ devido dos CR abertos com vencimento < hoje',
         calcular: (f): ResultadoCalculo => {
-            const ts = f.cr.filter(t => aberto(t) && !t.substituido_por && t.vencimento < f.hoje)
+            const ts = f.cr.filter(t => aberto(t) && naoSubstituido(t) && t.vencimento < f.hoje)
             const valor = r2(ts.reduce((s, t) => s + devido(t, 'valor_recebido'), 0))
             // Vencimento automático (leilão+45d) não é promessa: entra como lacuna.
             const acordados = ts.filter(t =>
@@ -173,7 +173,7 @@ const NUCLEO_FINANCEIRO: DefinicaoVariavel<Fatos>[] = [
         classe: 'primaria',
         formula: 'Σ devido dos CP abertos com origem = real — obrigação que já existe (serviço prestado, comissão apurada)',
         calcular: (f): ResultadoCalculo => {
-            const ts = f.cp.filter(t => aberto(t) && !t.substituido_por && t.origem !== 'estimativa')
+            const ts = f.cp.filter(t => aberto(t) && naoSubstituido(t) && !compromissoFuturo(t))
             return {
                 valor: r2(ts.reduce((s, t) => s + devido(t, 'valor_pago'), 0)),
                 origens: [{ fonte: 'erp_contas_pagar', filtro: 'aberto, origem = real, não substituído', linhas: ts.length }],
@@ -189,7 +189,7 @@ const NUCLEO_FINANCEIRO: DefinicaoVariavel<Fatos>[] = [
         classe: 'estimada',
         formula: 'Σ devido dos CP abertos com origem = estimativa — custo planejado, ainda não incorrido',
         calcular: (f): ResultadoCalculo => {
-            const ts = f.cp.filter(t => aberto(t) && !t.substituido_por && t.origem === 'estimativa')
+            const ts = f.cp.filter(t => aberto(t) && naoSubstituido(t) && compromissoFuturo(t))
             const ate = maxData(ts.map(t => t.vencimento))
             return {
                 valor: r2(ts.reduce((s, t) => s + devido(t, 'valor_pago'), 0)),
@@ -211,7 +211,7 @@ const NUCLEO_FINANCEIRO: DefinicaoVariavel<Fatos>[] = [
         calcular: (f, dep): ResultadoCalculo => {
             const divida = Number(dep['pagar.compromissado']?.valor || 0)
             const projetado = Number(dep['pagar.projetado']?.valor || 0)
-            const ts = f.cp.filter(t => aberto(t) && !t.substituido_por)
+            const ts = f.cp.filter(t => aberto(t) && naoSubstituido(t))
             return {
                 valor: r2(divida + projetado),
                 origens: [{ fonte: 'erp_contas_pagar', filtro: 'status ∈ (aberto,parcial,vencido), não substituído', linhas: ts.length }],
@@ -231,7 +231,7 @@ const NUCLEO_FINANCEIRO: DefinicaoVariavel<Fatos>[] = [
         classe: 'primaria',
         formula: 'Σ devido dos CP abertos com vencimento < hoje',
         calcular: (f): ResultadoCalculo => {
-            const ts = f.cp.filter(t => aberto(t) && !t.substituido_por && t.vencimento < f.hoje)
+            const ts = f.cp.filter(t => aberto(t) && naoSubstituido(t) && t.vencimento < f.hoje)
             return {
                 valor: r2(ts.reduce((s, t) => s + devido(t, 'valor_pago'), 0)),
                 origens: [{ fonte: 'erp_contas_pagar', filtro: `aberto e vencimento < ${f.hoje}`, linhas: ts.length }],
@@ -476,17 +476,17 @@ const NUCLEO_FINANCEIRO: DefinicaoVariavel<Fatos>[] = [
             // vencido acumulado aqui era o jeito mais rápido de projetar caixa
             // que nunca chega — ele entra como parcela à parte, declarada.
             const naJanela = (t: { vencimento: string }) => t.vencimento >= f.hoje && t.vencimento <= ate
-            const crJanela = f.cr.filter(t => aberto(t) && !t.substituido_por && naJanela(t))
-            const cpJanela = f.cp.filter(t => aberto(t) && !t.substituido_por && naJanela(t))
-            const crVencido = f.cr.filter(t => aberto(t) && !t.substituido_por && t.vencimento < f.hoje)
-            const cpVencido = f.cp.filter(t => aberto(t) && !t.substituido_por && t.vencimento < f.hoje)
+            const crJanela = f.cr.filter(t => aberto(t) && naoSubstituido(t) && naJanela(t))
+            const cpJanela = f.cp.filter(t => aberto(t) && naoSubstituido(t) && naJanela(t))
+            const crVencido = f.cr.filter(t => aberto(t) && naoSubstituido(t) && t.vencimento < f.hoje)
+            const cpVencido = f.cp.filter(t => aberto(t) && naoSubstituido(t) && t.vencimento < f.hoje)
             const entra = crJanela.reduce((s, t) => s + devido(t, 'valor_recebido'), 0)
             const sai = cpJanela.reduce((s, t) => s + devido(t, 'valor_pago'), 0)
             const saldo = Number(dep['caixa.saldo']?.valor || 0)
             // Projeção só vale o que valem as promessas: CR sem data acordada
             // e estimativas não são dinheiro. Isso vira lacuna, não nota de rodapé.
             const frouxos = crJanela.filter(t =>
-                t.origem === 'estimativa' ||
+                compromissoFuturo(t) ||
                 !((t.tags || []).includes('data-acordada') || /acordo|acordad/i.test(String(t.observacoes || ''))))
             const lacunas: Lacuna[] = frouxos.length ? [{
                 motivo: 'entrada projetada sem data combinada (ou estimativa) — pode não cair na janela',

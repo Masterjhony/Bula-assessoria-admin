@@ -1,4 +1,5 @@
 import { admin, fail, guard, ok, type NextRequest } from '@/lib/erp'
+import { ehTransferencia, naoSubstituido, type GruposDre } from '@/lib/verdade/fatos'
 
 // Previsto × Realizado por mês (página do ERP).
 // PREVISTO  = títulos (CR/CP) pelo VENCIMENTO no mês — inclui o que já foi
@@ -8,9 +9,14 @@ import { admin, fail, guard, ok, type NextRequest } from '@/lib/erp'
 //             transferências internas — o caixa que de fato aconteceu.
 // As duas fontes são propositalmente diferentes: comparar previsão gerencial
 // com realidade bancária é o ponto da página.
+//
+// "Transferência interna" e "título vivo" seguem os predicados canônicos de
+// `@/lib/verdade/fatos`. Esta página usava o nome da categoria (~ /transfer/i)
+// e não filtrava estimativa já substituída por um real — o que fazia o mesmo
+// compromisso aparecer duas vezes no PREVISTO do mês.
 
-type Titulo = { valor: number; desconto: number; juros: number; multa: number; vencimento: string | null; status: string; categoria_id: string | null }
-type Mov = { data: string; tipo: string; valor: number; categoria_id: string | null }
+type Titulo = { valor: number; desconto: number; juros: number; multa: number; vencimento: string | null; status: string; categoria_id: string | null; substituido_por: string | null }
+type Mov = { data: string; tipo: string; valor: number; categoria_id: string | null; transferencia_par_id: string | null }
 
 const liquido = (t: Titulo) => (Number(t.valor) || 0) - (Number(t.desconto) || 0) + (Number(t.juros) || 0) + (Number(t.multa) || 0)
 
@@ -31,14 +37,16 @@ export async function GET(req: NextRequest) {
   const g = await guard(req); if (g.error) return g.error
   try {
     const [cps, crs, movs, cats] = await Promise.all([
-      fetchAll<Titulo>('erp_contas_pagar', 'valor,desconto,juros,multa,vencimento,status,categoria_id'),
-      fetchAll<Titulo>('erp_contas_receber', 'valor,desconto,juros,multa,vencimento,status,categoria_id'),
-      fetchAll<Mov>('erp_movimentos_bancarios', 'data,tipo,valor,categoria_id'),
-      fetchAll<{ id: string; nome: string; cor: string | null; tipo: string }>('erp_categorias', 'id,nome,cor,tipo'),
+      fetchAll<Titulo>('erp_contas_pagar', 'valor,desconto,juros,multa,vencimento,status,categoria_id,substituido_por'),
+      fetchAll<Titulo>('erp_contas_receber', 'valor,desconto,juros,multa,vencimento,status,categoria_id,substituido_por'),
+      fetchAll<Mov>('erp_movimentos_bancarios', 'data,tipo,valor,categoria_id,transferencia_par_id'),
+      fetchAll<{ id: string; nome: string; cor: string | null; tipo: string; dre_grupo: string | null }>('erp_categorias', 'id,nome,cor,tipo,dre_grupo'),
     ])
 
     const catMap = new Map(cats.map((c) => [c.id, c]))
-    const transfIds = new Set(cats.filter((c) => /transfer/i.test(c.nome)).map((c) => c.id))
+    const dreGrupo = new Map<string, string>()
+    for (const c of cats) if (c.dre_grupo) dreGrupo.set(c.id, c.dre_grupo)
+    const dre: GruposDre = { dreGrupo }
 
     // anos disponíveis (união de vencimentos e movimentos)
     const anosSet = new Set<number>()
@@ -73,14 +81,14 @@ export async function GET(req: NextRequest) {
     }
 
     for (const t of crs) {
-      if (t.status === 'cancelado') continue
+      if (t.status === 'cancelado' || !naoSubstituido(t)) continue
       const i = mesDe(t.vencimento, anoParam); if (i < 0) continue
       const v = liquido(t)
       meses[i].prev_entrada += v
       catAgg(t.categoria_id, 'receita').prev[i] += v
     }
     for (const t of cps) {
-      if (t.status === 'cancelado') continue
+      if (t.status === 'cancelado' || !naoSubstituido(t)) continue
       const i = mesDe(t.vencimento, anoParam); if (i < 0) continue
       const v = liquido(t)
       meses[i].prev_saida += v
@@ -93,7 +101,7 @@ export async function GET(req: NextRequest) {
     const ultimoMesReal = anoParam < hoje.getFullYear() ? 11 : anoParam > hoje.getFullYear() ? -1 : hoje.getMonth()
     for (let i = 0; i <= ultimoMesReal; i++) { meses[i].real_entrada = 0; meses[i].real_saida = 0 }
     for (const m of movs) {
-      if (m.categoria_id && transfIds.has(m.categoria_id)) continue
+      if (ehTransferencia(m, dre)) continue
       const i = mesDe(m.data, anoParam); if (i < 0 || i > ultimoMesReal) continue
       const v = Number(m.valor) || 0
       if (m.tipo === 'entrada') { meses[i].real_entrada! += v; catAgg(m.categoria_id, 'receita').real[i] += v }
