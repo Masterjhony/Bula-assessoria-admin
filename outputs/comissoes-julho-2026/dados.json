@@ -1,0 +1,1370 @@
+{
+  "competencia": "julho/2026",
+  "geradoEm": "2026-08-27",
+  "ciclo": {
+    "gerado": 48664,
+    "titulos": 32,
+    "baixado": 28687,
+    "baixadoCaixa": 28624.97,
+    "aberto": 19977,
+    "diferido": 3168,
+    "vencido": 16809
+  },
+  "saiuDoBanco": [
+    {
+      "quem": "DOUGLAS BISPO",
+      "valor": 11908,
+      "datas": [
+        "2026-08-24"
+      ],
+      "n": 1,
+      "descricao": "PIX EMIT.OUTRA IF - Pagamento Pix - 50.938.748 0001-08 - Ref Comissoes Douglas Julho"
+    },
+    {
+      "quem": "LEONARDO SERAFIM",
+      "valor": 5262,
+      "datas": [
+        "2026-08-25"
+      ],
+      "n": 1,
+      "descricao": "DB.TR.C.DIF.TIT.INT - FAV.: LEONARDO SERAFIM FRANCISCO LTDA - Transferência Pix - BULA ASSESSORIA PECUARIA LTDA - 34.791.630 0001-43 - Ref comissao Julho Leo"
+    },
+    {
+      "quem": "FÁBIO OMENA",
+      "valor": 8826,
+      "datas": [
+        "2026-08-25"
+      ],
+      "n": 1,
+      "descricao": "PIX EMIT.OUTRA IF - Pagamento Pix - 59.791.094 0001-07 - Ref Comissao Julho Fabio Omena"
+    }
+  ],
+  "rusaNota": {
+    "data": "2026-08-10",
+    "valor": 29535,
+    "desc": "DEB.TRANSF.CONTAS DIF.TIT. INTERCREDIS - FAV.: RUSA ASSESSORIA PECUARIA LTDA - Ref Comissao Rusa Julho 2026 NF 34"
+  },
+  "pessoas": [
+    {
+      "quem": "FÁBIO OMENA",
+      "devido": 8886,
+      "baixado": 0,
+      "aberto": 8886,
+      "diferido": 0,
+      "vencido": 8886,
+      "pagoBanco": 8826,
+      "dataBanco": "2026-08-25",
+      "semTitulo": 8826,
+      "titulos": [
+        {
+          "id": "0609dbaa-52ca-41a6-9a4b-9c9b6b3c408c",
+          "valor": 3648,
+          "pago": 0,
+          "status": "vencido",
+          "vencimento": "2026-08-25",
+          "dataPagamento": null,
+          "quem": "FÁBIO OMENA",
+          "desc": "COMISSAO MEGA EVENTO EAO BAVIERA — Fêmeas - FABIO OMENA (2%)",
+          "fechamento": "135016c0-c0be-4e28-b80a-7fca4b759d1e",
+          "evento": {
+            "nome": "MEGA EVENTO EAO BAVIERA — Fêmeas",
+            "data": "2026-07-11"
+          },
+          "diferido": false,
+          "obs": "[CP-AGO-2026] Comissao ref. julho/2026. VGV do assessor R$ 182.400."
+        },
+        {
+          "id": "046b485c-3b75-4fd4-8af0-778329cf0951",
+          "valor": 1962,
+          "pago": 0,
+          "status": "vencido",
+          "vencimento": "2026-08-25",
+          "dataPagamento": null,
+          "quem": "FÁBIO OMENA",
+          "desc": "COMISSAO LEILÃO VIRTUAL BASE GENÉTICA SANTA CRUZ - 1ª ETAPA – 14/07/2026 - FABIO OMENA (2%)",
+          "fechamento": "b40ffd6a-a6ec-4f54-96c8-cf384c1cc037",
+          "evento": {
+            "nome": "LEILÃO VIRTUAL BASE GENÉTICA SANTA CRUZ - 1ª ETAPA – 14/07/2026",
+            "data": "2026-07-14"
+          },
+          "diferido": false,
+          "obs": "[CP-AGO-2026] Comissao ref. julho/2026. VGV do assessor R$ 98.100."
+        },
+        {
+          "id": "0ebcc33d-df43-4780-a79c-ff52ed71d6c5",
+          "valor": 870,
+          "pago": 0,
+          "status": "vencido",
+          "vencimento": "2026-08-25",
+          "dataPagamento": null,
+          "quem": "FÁBIO OMENA",
+          "desc": "COMISSAO MEGA EVENTO EAO BAVIERA — Machos - FABIO OMENA (2%)",
+          "fechamento": "6a67f76b-5d50-48fe-9ab1-7eec161c4591",
+          "evento": {
+            "nome": "MEGA EVENTO EAO BAVIERA — Machos",
+            "data": "2026-07-12"
+          },
+          "diferido": false,
+          "obs": "[CORRECAO 21/08/2026] Os titulos de 25/08 deste leilao somavam o total certo (R$ 7.326,00) com os nomes trocados entre as pessoas. Conferido contra por_assessor do fechamento: Nane 3.060 (paga em 28/12, acumulado), Douglas Bispo 2.046, Laila Oliveira 1.350, Fabio Omena 870."
+        },
+        {
+          "id": "975b6f10-a560-4d14-a8c9-d92e80620ae0",
+          "valor": 864,
+          "pago": 0,
+          "status": "vencido",
+          "vencimento": "2026-08-25",
+          "dataPagamento": null,
+          "quem": "FÁBIO OMENA",
+          "desc": "COMISSAO 2º ETAPA NAVIRAÍ MATRIZES - FABIO OMENA (2%)",
+          "fechamento": "0ba4d4d9-0235-4cfe-9db4-ae49208e7f75",
+          "evento": {
+            "nome": "2º ETAPA NAVIRAÍ MATRIZES",
+            "data": "2026-07-16"
+          },
+          "diferido": false,
+          "obs": "[RETIFICADO 21/08/2026] Era R$ 432,00. Conferência contra a planilha da Naviraí + LOT_PISTEIRO do HastaPro."
+        },
+        {
+          "id": "4729b9c4-f2bb-4cb1-b3e5-b55322424a09",
+          "valor": 642,
+          "pago": 0,
+          "status": "vencido",
+          "vencimento": "2026-08-25",
+          "dataPagamento": null,
+          "quem": "FÁBIO OMENA",
+          "desc": "COMISSAO 23º LEILÃO GENÉTICA ADITIVA - 2ª ETAPA TOUROS – 26/07/2026 - FABIO OMENA (2%)",
+          "fechamento": "50bf395a-fee9-4051-9d00-3a72e3c30cd0",
+          "evento": {
+            "nome": "23º LEILÃO GENÉTICA ADITIVA - 2ª ETAPA TOUROS – 26/07/2026",
+            "data": "2026-07-26"
+          },
+          "diferido": false,
+          "obs": "[CP-AGO-2026] Comissao ref. julho/2026. VGV do assessor R$ 32.100."
+        },
+        {
+          "id": "6e609d0d-af04-4aee-864d-130cf53436f9",
+          "valor": 480,
+          "pago": 0,
+          "status": "vencido",
+          "vencimento": "2026-08-25",
+          "dataPagamento": null,
+          "quem": "FÁBIO OMENA",
+          "desc": "COMISSAO LEILÃO VIRTUAL NAVIRAÍ - MATRIZES – 05/07/2026 - FABIO OMENA (2%)",
+          "fechamento": "e058a74f-1b06-46dc-8152-43f682fc5d09",
+          "evento": {
+            "nome": "LEILÃO VIRTUAL NAVIRAÍ - MATRIZES – 05/07/2026",
+            "data": "2026-07-05"
+          },
+          "diferido": false,
+          "obs": "[RETIFICADO 21/08/2026] Era R$ 1.170,00. Conferência contra a planilha da Naviraí + LOT_PISTEIRO do HastaPro."
+        },
+        {
+          "id": "61accf8d-d8db-4475-af75-f4b6b50b91d7",
+          "valor": 420,
+          "pago": 0,
+          "status": "vencido",
+          "vencimento": "2026-08-25",
+          "dataPagamento": null,
+          "quem": "FÁBIO OMENA",
+          "desc": "COMISSAO 20º LEILÃO GUADALUPE AGROPECUÁRIA Touros - FABIO OMENA (2%)",
+          "fechamento": "c8cba93d-8fa9-4e80-9aa7-e2706a2d54b4",
+          "evento": {
+            "nome": "20º LEILÃO GUADALUPE AGROPECUÁRIA Touros",
+            "data": "2026-07-19"
+          },
+          "diferido": false,
+          "obs": "[CP-AGO-2026] Comissao ref. julho/2026. VGV do assessor R$ 21.000."
+        }
+      ]
+    },
+    {
+      "quem": "LEONARDO SERAFIM",
+      "devido": 9120,
+      "baixado": 3342,
+      "aberto": 5778,
+      "diferido": 0,
+      "vencido": 5778,
+      "pagoBanco": 5262,
+      "dataBanco": "2026-08-25",
+      "semTitulo": 1920,
+      "titulos": [
+        {
+          "id": "b138437f-256b-4325-a23d-6579dce28a3e",
+          "valor": 4068,
+          "pago": 0,
+          "status": "vencido",
+          "vencimento": "2026-08-25",
+          "dataPagamento": null,
+          "quem": "LEONARDO SERAFIM",
+          "desc": "COMISSAO 23º LEILÃO GENÉTICA ADITIVA - 2ª ETAPA TOUROS – 26/07/2026 - LEONARDO SERAFIM (2%)",
+          "fechamento": "50bf395a-fee9-4051-9d00-3a72e3c30cd0",
+          "evento": {
+            "nome": "23º LEILÃO GENÉTICA ADITIVA - 2ª ETAPA TOUROS – 26/07/2026",
+            "data": "2026-07-26"
+          },
+          "diferido": false,
+          "obs": "[CP-AGO-2026] Comissao ref. julho/2026. VGV do assessor R$ 203.400."
+        },
+        {
+          "id": "82220972-211a-43ba-a671-a731fbdc6514",
+          "valor": 1200,
+          "pago": 0,
+          "status": "vencido",
+          "vencimento": "2026-08-25",
+          "dataPagamento": null,
+          "quem": "LEONARDO SERAFIM",
+          "desc": "COMISSAO MEGA EVENTO EAO BAVIERA — Fêmeas - LEONARDO SERAFIM (2%)",
+          "fechamento": "135016c0-c0be-4e28-b80a-7fca4b759d1e",
+          "evento": {
+            "nome": "MEGA EVENTO EAO BAVIERA — Fêmeas",
+            "data": "2026-07-11"
+          },
+          "diferido": false,
+          "obs": "[CP-AGO-2026] Comissao ref. julho/2026. VGV do assessor R$ 60.000."
+        },
+        {
+          "id": "24f3439d-a1ed-414c-bd81-ad5efa72cc70",
+          "valor": 1170,
+          "pago": 1170,
+          "status": "pago",
+          "vencimento": "2026-08-25",
+          "dataPagamento": "2026-08-25",
+          "quem": "LEONARDO SERAFIM",
+          "desc": "COMISSAO LEILÃO VIRTUAL NAVIRAÍ - MATRIZES – 05/07/2026 - LEONARDO SERAFIM (2%)",
+          "fechamento": "e058a74f-1b06-46dc-8152-43f682fc5d09",
+          "evento": {
+            "nome": "LEILÃO VIRTUAL NAVIRAÍ - MATRIZES – 05/07/2026",
+            "data": "2026-07-05"
+          },
+          "diferido": false,
+          "obs": "[RETIFICADO 21/08/2026] Era R$ 480,00. Conferência contra a planilha da Naviraí + LOT_PISTEIRO do HastaPro. [CONCILIADO 26/08] Pago no PIX unico de 25/08 a LEONARDO SERAFIM FRANCISCO LTDA (5.262,00, \"Ref comissao Julho Leo\"). Confere com a planilha do assessor (26/08): 7 lotes, VGV 263.100,00 a 2% = 5.262,00. Item da planilha: Navirai Matrizes 05/07 lt91 (Romualdo Tavares)."
+        },
+        {
+          "id": "6c7d5c50-613e-4899-8dd2-66658b25ba76",
+          "valor": 810,
+          "pago": 810,
+          "status": "pago",
+          "vencimento": "2026-08-25",
+          "dataPagamento": "2026-08-25",
+          "quem": "LEONARDO SERAFIM",
+          "desc": "COMISSAO 20º LEILÃO GUADALUPE AGROPECUÁRIA Fêmeas - LEONARDO SERAFIM (2%)",
+          "fechamento": "1d6e69a3-ff25-404e-9c0a-dc7384620de1",
+          "evento": {
+            "nome": "20º LEILÃO GUADALUPE AGROPECUÁRIA Fêmeas",
+            "data": "2026-07-18"
+          },
+          "diferido": false,
+          "obs": "[CP-AGO-2026] Comissao ref. julho/2026. VGV do assessor R$ 40.500. [CONCILIADO 26/08] Pago no PIX unico de 25/08 a LEONARDO SERAFIM FRANCISCO LTDA (5.262,00, \"Ref comissao Julho Leo\"). Confere com a planilha do assessor (26/08): 7 lotes, VGV 263.100,00 a 2% = 5.262,00. Item da planilha: Guadalupe Femeas 18/07 lt20 (Romualdo Tavares)."
+        },
+        {
+          "id": "f88a3a1d-a323-4966-89a0-10252de1a616",
+          "valor": 750,
+          "pago": 750,
+          "status": "pago",
+          "vencimento": "2026-08-25",
+          "dataPagamento": "2026-08-25",
+          "quem": "LEONARDO SERAFIM",
+          "desc": "COMISSAO LEILÃO VIRTUAL NELORE KRIZ REPRODUTORES – 07/07/2026 - LEONARDO SERAFIM (2%)",
+          "fechamento": "b047dab4-7644-4481-a982-b135e532661e",
+          "evento": {
+            "nome": "LEILÃO VIRTUAL NELORE KRIZ REPRODUTORES",
+            "data": "2026-07-07"
+          },
+          "diferido": false,
+          "obs": "[CP-AGO-2026] Comissao ref. julho/2026. VGV do assessor R$ 37.500 (lote 19 R$ 19.500 + lote 20 R$ 18.000). Titulo emitido em 26/08 na conciliacao: o fechamento do Kriz ja reconhecia os 750,00 ao Leonardo, mas nenhum CP havia sido gerado. [CONCILIADO 26/08] Pago no PIX unico de 25/08 a LEONARDO SERAFIM FRANCISCO LTDA (5.262,00, \"Ref comissao Julho Leo\"). Confere com a planilha do assessor (26/08): 7 lotes, VGV 263.100,00 a 2% = 5.262,00."
+        },
+        {
+          "id": "b4d28beb-e524-4236-bdb3-dbb46ac5b96e",
+          "valor": 612,
+          "pago": 612,
+          "status": "pago",
+          "vencimento": "2026-08-25",
+          "dataPagamento": "2026-08-25",
+          "quem": "LEONARDO SERAFIM",
+          "desc": "COMISSAO 2º ETAPA NAVIRAÍ MATRIZES - LEONARDO SERAFIM (2%)",
+          "fechamento": "0ba4d4d9-0235-4cfe-9db4-ae49208e7f75",
+          "evento": {
+            "nome": "2º ETAPA NAVIRAÍ MATRIZES",
+            "data": "2026-07-16"
+          },
+          "diferido": false,
+          "obs": "[CP-AGO-2026] Comissao ref. julho/2026. VGV do assessor R$ 30.600. [CONCILIADO 26/08] Pago no PIX unico de 25/08 a LEONARDO SERAFIM FRANCISCO LTDA (5.262,00, \"Ref comissao Julho Leo\"). Confere com a planilha do assessor (26/08): 7 lotes, VGV 263.100,00 a 2% = 5.262,00. Item da planilha: 2a Etapa Navirai 16/07 lt25 (Felipe Balbuena)."
+        },
+        {
+          "id": "6a139904-20e0-4acd-b3fc-03cae9743217",
+          "valor": 510,
+          "pago": 0,
+          "status": "vencido",
+          "vencimento": "2026-08-25",
+          "dataPagamento": null,
+          "quem": "LEONARDO SERAFIM",
+          "desc": "COMISSAO LEILÃO VIRTUAL BASE GENÉTICA SANTA CRUZ - 1ª ETAPA – 14/07/2026 - LEONARDO SERAFIM (2%)",
+          "fechamento": "b40ffd6a-a6ec-4f54-96c8-cf384c1cc037",
+          "evento": {
+            "nome": "LEILÃO VIRTUAL BASE GENÉTICA SANTA CRUZ - 1ª ETAPA – 14/07/2026",
+            "data": "2026-07-14"
+          },
+          "diferido": false,
+          "obs": "[CP-AGO-2026] Comissao ref. julho/2026. VGV do assessor R$ 25.500."
+        }
+      ]
+    },
+    {
+      "quem": "PERALTA",
+      "devido": 1080,
+      "baixado": 0,
+      "aberto": 1080,
+      "diferido": 0,
+      "vencido": 1080,
+      "pagoBanco": 0,
+      "dataBanco": null,
+      "semTitulo": 0,
+      "titulos": [
+        {
+          "id": "b0d82692-237b-42de-b083-bcb76b2d7c46",
+          "valor": 1080,
+          "pago": 0,
+          "status": "vencido",
+          "vencimento": "2026-08-25",
+          "dataPagamento": null,
+          "quem": "PERALTA",
+          "desc": "COMISSAO 2º ETAPA NAVIRAÍ MATRIZES - PERALTA (2%)",
+          "fechamento": "0ba4d4d9-0235-4cfe-9db4-ae49208e7f75",
+          "evento": {
+            "nome": "2º ETAPA NAVIRAÍ MATRIZES",
+            "data": "2026-07-16"
+          },
+          "diferido": false,
+          "obs": "[CP-AGO-2026] Comissao ref. julho/2026. VGV do assessor R$ 54.000."
+        }
+      ]
+    },
+    {
+      "quem": "LAILA OLIVEIRA",
+      "devido": 675,
+      "baixado": 0,
+      "aberto": 675,
+      "diferido": 0,
+      "vencido": 675,
+      "pagoBanco": 0,
+      "dataBanco": null,
+      "semTitulo": 0,
+      "titulos": [
+        {
+          "id": "eccf1fc9-e5f2-43d5-92bf-b837628104d6",
+          "valor": 675,
+          "pago": 0,
+          "status": "vencido",
+          "vencimento": "2026-08-25",
+          "dataPagamento": null,
+          "quem": "LAILA OLIVEIRA",
+          "desc": "COMISSAO MEGA EVENTO EAO BAVIERA — Machos - LAILA OLIVEIRA (2%)",
+          "fechamento": "6a67f76b-5d50-48fe-9ab1-7eec161c4591",
+          "evento": {
+            "nome": "MEGA EVENTO EAO BAVIERA — Machos",
+            "data": "2026-07-12"
+          },
+          "diferido": false,
+          "obs": "[CORRECAO 21/08/2026] Os titulos de 25/08 deste leilao somavam o total certo (R$ 7.326,00) com os nomes trocados entre as pessoas. Conferido contra por_assessor do fechamento: Nane 3.060 (paga em 28/12, acumulado), Douglas Bispo 2.046, Laila Oliveira 1.350, Fabio Omena 870.\nCriado: a comissao da Laila estava apurada no fechamento mas nao tinha titulo — o valor dela havia sido lancado sob o nome do Fabio Omena. [COMISSAO 1% 05/08] Comissao de 2% para 1% conforme decisao do grupo financeiro de 05/08/2026."
+        }
+      ]
+    },
+    {
+      "quem": "A DEFINIR",
+      "devido": 390,
+      "baixado": 0,
+      "aberto": 390,
+      "diferido": 0,
+      "vencido": 390,
+      "pagoBanco": 0,
+      "dataBanco": null,
+      "semTitulo": 0,
+      "titulos": [
+        {
+          "id": "30c06085-3ea1-4db2-8614-91137df39b64",
+          "valor": 390,
+          "pago": 0,
+          "status": "vencido",
+          "vencimento": "2026-08-25",
+          "dataPagamento": null,
+          "quem": "A DEFINIR",
+          "desc": "COMISSAO 20º LEILÃO GUADALUPE AGROPECUÁRIA Touros - A DEFINIR (2%)",
+          "fechamento": "c8cba93d-8fa9-4e80-9aa7-e2706a2d54b4",
+          "evento": {
+            "nome": "20º LEILÃO GUADALUPE AGROPECUÁRIA Touros",
+            "data": "2026-07-19"
+          },
+          "diferido": false,
+          "obs": "[CP-AGO-2026] Comissao ref. julho/2026. VGV do assessor R$ 19.500. ATENCAO: beneficiario pendente de atribuicao."
+        }
+      ]
+    },
+    {
+      "quem": "DOUGLAS BISPO",
+      "devido": 11908,
+      "baixado": 11908,
+      "aberto": 0,
+      "diferido": 0,
+      "vencido": 0,
+      "pagoBanco": 11908,
+      "dataBanco": "2026-08-24",
+      "semTitulo": 0,
+      "titulos": [
+        {
+          "id": "580b96ea-a29a-41f1-868e-5b899633eab7",
+          "valor": 3180,
+          "pago": 3180,
+          "status": "pago",
+          "vencimento": "2026-08-25",
+          "dataPagamento": "2026-08-24",
+          "quem": "DOUGLAS BISPO",
+          "desc": "COMISSAO LEILÃO NELORE SORRISO - ETAPA FÊMEAS – 12/07/2026 - DOUGLAS BISPO (2%)",
+          "fechamento": "3df75f54-c2dc-4ba6-8c1d-cf9d1fb098dd",
+          "evento": {
+            "nome": "LEILÃO NELORE SORRISO - ETAPA FÊMEAS – 12/07/2026",
+            "data": "2026-07-12"
+          },
+          "diferido": false,
+          "obs": "[CP-AGO-2026] Comissao ref. julho/2026. VGV do assessor R$ 159.000. [CONCILIADO 24/08] Pago no PIX unico de 24/08 a 50.938.748/0001-08 (11.908,00, \"Ref Comissoes Douglas Julho\")."
+        },
+        {
+          "id": "5ac2a39a-8ca9-463f-a6c8-798910121111",
+          "valor": 2046,
+          "pago": 2046,
+          "status": "pago",
+          "vencimento": "2026-08-25",
+          "dataPagamento": "2026-08-24",
+          "quem": "DOUGLAS BISPO",
+          "desc": "COMISSAO MEGA EVENTO EAO BAVIERA — Machos - DOUGLAS BISPO (2%)",
+          "fechamento": "6a67f76b-5d50-48fe-9ab1-7eec161c4591",
+          "evento": {
+            "nome": "MEGA EVENTO EAO BAVIERA — Machos",
+            "data": "2026-07-12"
+          },
+          "diferido": false,
+          "obs": "[CORRECAO 21/08/2026] Os titulos de 25/08 deste leilao somavam o total certo (R$ 7.326,00) com os nomes trocados entre as pessoas. Conferido contra por_assessor do fechamento: Nane 3.060 (paga em 28/12, acumulado), Douglas Bispo 2.046, Laila Oliveira 1.350, Fabio Omena 870. [CONCILIADO 24/08] Pago no PIX unico de 24/08 a 50.938.748/0001-08 (11.908,00, \"Ref Comissoes Douglas Julho\")."
+        },
+        {
+          "id": "07023e5f-d322-4e3d-9e92-d6d884672239",
+          "valor": 1792,
+          "pago": 1792,
+          "status": "pago",
+          "vencimento": "2026-08-24",
+          "dataPagamento": "2026-08-24",
+          "quem": "DOUGLAS BISPO",
+          "desc": "COMPLEMENTO COMISSAO JULHO/2026 - DOUGLAS BISPO (lotes fora dos fechamentos)",
+          "fechamento": null,
+          "evento": null,
+          "diferido": false,
+          "obs": "[CONCILIADO 24/08] Diferenca entre o PIX de 24/08 (11.908,00) e os titulos lancados (10.116,00). Corresponde a Kriz Reprodutores 07/07 (1.602,00) + lote 116 Santa Cruz 1a (510,00) menos os 320,00 do lote 19 do Nelore Sorriso (ele cobrou 400 em vez de 500). Devido conferido: 12.228,00 — restam 320,00 a favor dele, ainda NAO lancados."
+        },
+        {
+          "id": "9790ad4f-5cf1-4d6b-bef1-653d08de5211",
+          "valor": 1200,
+          "pago": 1200,
+          "status": "pago",
+          "vencimento": "2026-08-25",
+          "dataPagamento": "2026-08-24",
+          "quem": "DOUGLAS BISPO",
+          "desc": "COMISSAO MEGA EVENTO EAO BAVIERA — Fêmeas - DOUGLAS BISPO (2%)",
+          "fechamento": "135016c0-c0be-4e28-b80a-7fca4b759d1e",
+          "evento": {
+            "nome": "MEGA EVENTO EAO BAVIERA — Fêmeas",
+            "data": "2026-07-11"
+          },
+          "diferido": false,
+          "obs": "[CP-AGO-2026] Comissao ref. julho/2026. VGV do assessor R$ 322.500.\n[RUSA-SEP 24/08] Reduzido de 6.450,00 para 1.200,00: lote(s) 20, 27, 28, 31, 36, 135 são do Gustavo Rusa (comprador Celso Lopes (5) + Pedro Pontes (1)), comissionados a 5% e já pagos em 10/08/2026 (PIX 29.535,00, NF 34). Manter o 2% aqui pagaria a mesma venda duas vezes. [CONCILIADO 24/08] Pago no PIX unico de 24/08 a 50.938.748/0001-08 (11.908,00, \"Ref Comissoes Douglas Julho\")."
+        },
+        {
+          "id": "92102ee2-a3e6-48f4-838e-0512d6feab70",
+          "valor": 720,
+          "pago": 720,
+          "status": "pago",
+          "vencimento": "2026-08-25",
+          "dataPagamento": "2026-08-24",
+          "quem": "DOUGLAS BISPO",
+          "desc": "COMISSAO 20º LEILÃO GUADALUPE AGROPECUÁRIA Touros - DOUGLAS BISPO (2%)",
+          "fechamento": "c8cba93d-8fa9-4e80-9aa7-e2706a2d54b4",
+          "evento": {
+            "nome": "20º LEILÃO GUADALUPE AGROPECUÁRIA Touros",
+            "data": "2026-07-19"
+          },
+          "diferido": false,
+          "obs": "[CP-AGO-2026] Comissao ref. julho/2026. VGV do assessor R$ 36.000. [CONCILIADO 24/08] Pago no PIX unico de 24/08 a 50.938.748/0001-08 (11.908,00, \"Ref Comissoes Douglas Julho\")."
+        },
+        {
+          "id": "ea3bf22b-47ce-4b49-a1d1-80a46b13b82b",
+          "valor": 570,
+          "pago": 570,
+          "status": "pago",
+          "vencimento": "2026-08-25",
+          "dataPagamento": "2026-08-24",
+          "quem": "DOUGLAS BISPO",
+          "desc": "COMISSAO 30º NELORAÇO IRMÃOS HIPÓLITO - DOUGLAS BISPO (2%)",
+          "fechamento": "beb48baf-3e40-467f-88ae-06050ee47cf8",
+          "evento": {
+            "nome": "30º NELORAÇO IRMÃOS HIPÓLITO",
+            "data": "2026-07-25"
+          },
+          "diferido": false,
+          "obs": "[CP-AGO-2026] Comissao ref. julho/2026. VGV do assessor R$ 28.500. [CONCILIADO 24/08] Pago no PIX unico de 24/08 a 50.938.748/0001-08 (11.908,00, \"Ref Comissoes Douglas Julho\")."
+        },
+        {
+          "id": "a81f89d5-6399-4d93-b9fd-53331539f1d8",
+          "valor": 570,
+          "pago": 570,
+          "status": "pago",
+          "vencimento": "2026-08-25",
+          "dataPagamento": "2026-08-24",
+          "quem": "DOUGLAS BISPO",
+          "desc": "COMISSAO LEILÃO VIRTUAL NAVIRAÍ - MATRIZES – 05/07/2026 - DOUGLAS BISPO (2%)",
+          "fechamento": "e058a74f-1b06-46dc-8152-43f682fc5d09",
+          "evento": {
+            "nome": "LEILÃO VIRTUAL NAVIRAÍ - MATRIZES – 05/07/2026",
+            "data": "2026-07-05"
+          },
+          "diferido": false,
+          "obs": "[RETIFICADO 21/08/2026] Era R$ 1.710,00. Conferência contra a planilha da Naviraí + LOT_PISTEIRO do HastaPro.\n[RUSA-SEP 24/08] Reduzido de 2.280,00 para 570,00: lote(s) 08, 80 são do Gustavo Rusa (comprador Celso Lopes), comissionados a 5% e já pagos em 10/08/2026 (PIX 29.535,00, NF 34). Manter o 2% aqui pagaria a mesma venda duas vezes. [CONCILIADO 24/08] Pago no PIX unico de 24/08 a 50.938.748/0001-08 (11.908,00, \"Ref Comissoes Douglas Julho\")."
+        },
+        {
+          "id": "b7038849-2099-4603-9366-788da0816e56",
+          "valor": 510,
+          "pago": 510,
+          "status": "pago",
+          "vencimento": "2026-08-25",
+          "dataPagamento": "2026-08-24",
+          "quem": "DOUGLAS BISPO",
+          "desc": "COMISSAO NELORE SANTA CRUZ - 19/07/2026 - DOUGLAS BISPO (2%)",
+          "fechamento": "d397ecf6-cb29-4ed3-b4d6-027dd30f4d24",
+          "evento": {
+            "nome": "NELORE SANTA CRUZ - 19/07/2026",
+            "data": "2026-07-19"
+          },
+          "diferido": false,
+          "obs": "[CP-AGO-2026] Comissao ref. julho/2026. VGV do assessor R$ 99.600.\n[RUSA-SEP 24/08] Reduzido de 1.992,00 para 510,00: lote(s) 39, 42 são do Gustavo Rusa (comprador Celso Lopes), comissionados a 5% e já pagos em 10/08/2026 (PIX 29.535,00, NF 34). Manter o 2% aqui pagaria a mesma venda duas vezes. [CONCILIADO 24/08] Pago no PIX unico de 24/08 a 50.938.748/0001-08 (11.908,00, \"Ref Comissoes Douglas Julho\")."
+        },
+        {
+          "id": "93568dcb-d52b-48e7-8b28-fac8e0b0ef04",
+          "valor": 480,
+          "pago": 480,
+          "status": "pago",
+          "vencimento": "2026-08-25",
+          "dataPagamento": "2026-08-24",
+          "quem": "DOUGLAS BISPO",
+          "desc": "COMISSAO 2º ETAPA NAVIRAÍ MATRIZES - DOUGLAS BISPO (2%)",
+          "fechamento": "0ba4d4d9-0235-4cfe-9db4-ae49208e7f75",
+          "evento": {
+            "nome": "2º ETAPA NAVIRAÍ MATRIZES",
+            "data": "2026-07-16"
+          },
+          "diferido": false,
+          "obs": "[RETIFICADO 21/08/2026] Era R$ 1.050,00. Conferência contra a planilha da Naviraí + LOT_PISTEIRO do HastaPro.\n[RUSA-SEP 24/08] Reduzido de 1.032,00 para 480,00: lote(s) 2 são do Gustavo Rusa (comprador Celso Lopes), comissionados a 5% e já pagos em 10/08/2026 (PIX 29.535,00, NF 34). Manter o 2% aqui pagaria a mesma venda duas vezes. [CONCILIADO 24/08] Pago no PIX unico de 24/08 a 50.938.748/0001-08 (11.908,00, \"Ref Comissoes Douglas Julho\")."
+        },
+        {
+          "id": "91be5eb7-ab0f-47f8-b239-8ac133445b62",
+          "valor": 450,
+          "pago": 450,
+          "status": "pago",
+          "vencimento": "2026-08-25",
+          "dataPagamento": "2026-08-24",
+          "quem": "DOUGLAS BISPO",
+          "desc": "COMISSAO NELORE SANTA CRUZ - DOUGLAS BISPO (2%)",
+          "fechamento": "4d2f3c39-a7e6-4a60-97ca-7e9bff637c0c",
+          "evento": {
+            "nome": "NELORE SANTA CRUZ",
+            "data": "2026-07-15"
+          },
+          "diferido": false,
+          "obs": "[CP-AGO-2026] Comissao ref. julho/2026. VGV do assessor R$ 42.600.\n[RUSA-SEP 24/08] Reduzido de 852,00 para 450,00: lote(s) 124 são do Gustavo Rusa (comprador Celso Lopes), comissionados a 5% e já pagos em 10/08/2026 (PIX 29.535,00, NF 34). Manter o 2% aqui pagaria a mesma venda duas vezes. [CONCILIADO 24/08] Pago no PIX unico de 24/08 a 50.938.748/0001-08 (11.908,00, \"Ref Comissoes Douglas Julho\")."
+        },
+        {
+          "id": "abe0f307-8916-4fc1-b164-1ff142525ed9",
+          "valor": 390,
+          "pago": 390,
+          "status": "pago",
+          "vencimento": "2026-08-25",
+          "dataPagamento": "2026-08-24",
+          "quem": "DOUGLAS BISPO",
+          "desc": "COMISSAO 20º LEILÃO GUADALUPE AGROPECUÁRIA Fêmeas - DOUGLAS BISPO (2%)",
+          "fechamento": "1d6e69a3-ff25-404e-9c0a-dc7384620de1",
+          "evento": {
+            "nome": "20º LEILÃO GUADALUPE AGROPECUÁRIA Fêmeas",
+            "data": "2026-07-18"
+          },
+          "diferido": false,
+          "obs": "[CP-AGO-2026] Comissao ref. julho/2026. VGV do assessor R$ 19.500. [CONCILIADO 24/08] Pago no PIX unico de 24/08 a 50.938.748/0001-08 (11.908,00, \"Ref Comissoes Douglas Julho\")."
+        }
+      ]
+    },
+    {
+      "quem": "BULINHA (FELIPE ANDRADE)",
+      "devido": 7392,
+      "baixado": 7392,
+      "aberto": 0,
+      "diferido": 0,
+      "vencido": 0,
+      "pagoBanco": 0,
+      "dataBanco": null,
+      "semTitulo": 0,
+      "titulos": [
+        {
+          "id": "739d2a76-ed28-4e68-a740-84f2f0345471",
+          "valor": 7392,
+          "pago": 7329.97,
+          "status": "pago",
+          "vencimento": "2026-07-27",
+          "dataPagamento": "2026-08-24",
+          "quem": "BULINHA (FELIPE ANDRADE)",
+          "desc": "SALDO DEVIDO A BULINHA (FELIPE ANDRADE) - residual do acerto de julho",
+          "fechamento": null,
+          "evento": null,
+          "diferido": false,
+          "obs": "[ACERTO 11/08] Sobra do acerto das comissoes de junho (R$ 58.872,00), pagas em julho com desconto dos gastos dele no cartao da empresa. Lancado em \"Repasse Assessorias/Parceiros\" e nao em \"Comissao Funcionario\" de proposito: a despesa de comissao ja foi reconhecida nos seis CP originais, e repetir aqui contaria a mesma despesa duas vezes. Esta linha representa so o caixa que ainda tem de sair.\n[18/08/2026] RETIDO POR DECISÃO (conversa com a Ana, 10/08): perguntado se deveria provisionar o pagamento, a resposta foi \"deixa aguardado\". Não é atraso de pagamento — é retenção deliberada, junto com os acertos do Rusa e 1/3 do Fábio que foram postergados. [ACERTO BULINHA-CARTAO 20/08] Abatido pelas faturas de cartao com debito automatico em 2026-08-24 (VISA 5.949,84 + MASTERCARD 1.380,13 = 7329.97): o gasto do cartao e do proprio Felipe (100% das compras dos cartoes da Bula tem portador FELIPE V ANDRADE), entao a Bula quita a divida pagando a fatura em vez de transferir para ele. Nao houve saida de caixa para o Felipe. Restam R$ 62.03 em aberto, ainda retidos por decisao. [QUITADO 24/08] Encerrado contra as faturas de cartao debitadas em 24/08/2026 e confirmadas no extrato Sicoob: VISA 5.949,84 + MASTERCARD 1.380,13 = 7.329,97. Residual de 62,03 lancado como desconto. Nao houve saida de caixa alem das proprias faturas — 100% das compras nesses cartoes tem portador FELIPE V ANDRADE."
+        }
+      ]
+    },
+    {
+      "quem": "GUSTAVO RUSA",
+      "devido": 6045,
+      "baixado": 6045,
+      "aberto": 0,
+      "diferido": 0,
+      "vencido": 0,
+      "pagoBanco": 0,
+      "dataBanco": null,
+      "semTitulo": 0,
+      "titulos": [
+        {
+          "id": "08ed6849-9c5f-4580-b45c-96413ae8b55d",
+          "valor": 6045,
+          "pago": 6045,
+          "status": "pago",
+          "vencimento": "2026-07-27",
+          "dataPagamento": "2026-08-10",
+          "quem": "GUSTAVO RUSA",
+          "desc": "COMISSAO PARCEIRO GUSTAVO RUSA (5%) - complemento julho/2026",
+          "fechamento": null,
+          "evento": null,
+          "diferido": false,
+          "obs": "[CONCILIADO 11/08] Diferenca apurada na conciliacao: os 4 CP lancados somavam R$ 23.490,00 e o PIX de 10/08 a RUSA ASSESSORIA (NF 34) foi de R$ 29.535,00. Conferir com a Ana quais leiloes de julho geraram os R$ 6.045,00 a mais. [CORRECAO 11/08] Categoria trocada de \"Comissao Funcionario\" para \"Repasse Assessorias/Parceiros\", igual aos outros CP do Rusa: ele e parceiro externo, nao funcionario. Estava divergente e quebrava o agrupamento por categoria."
+        }
+      ]
+    },
+    {
+      "quem": "NANE",
+      "devido": 2748,
+      "baixado": 0,
+      "aberto": 2748,
+      "diferido": 2748,
+      "vencido": 0,
+      "pagoBanco": 0,
+      "dataBanco": null,
+      "semTitulo": 0,
+      "titulos": [
+        {
+          "id": "1c841ff1-fb12-4ee0-893e-748f2741918c",
+          "valor": 2748,
+          "pago": 0,
+          "status": "aberto",
+          "vencimento": "2026-12-28",
+          "dataPagamento": null,
+          "quem": "NANE",
+          "desc": "COMISSAO 20º LEILÃO GUADALUPE AGROPECUÁRIA Touros - NANE (2%)",
+          "fechamento": "c8cba93d-8fa9-4e80-9aa7-e2706a2d54b4",
+          "evento": {
+            "nome": "20º LEILÃO GUADALUPE AGROPECUÁRIA Touros",
+            "data": "2026-07-19"
+          },
+          "diferido": true,
+          "obs": "[CP-AGO-2026] Comissao ref. julho/2026. VGV do assessor R$ 137.400. [REGRA NANE 11/08] A Nane nao recebe mes a mes: a comissao fica acumulada a parte e e paga de uma vez em dezembro. Vencimento remarcado de 2026-08-25 para 2026-12-28."
+        }
+      ]
+    },
+    {
+      "quem": "NANE / FÁBIO OMENA",
+      "devido": 420,
+      "baixado": 0,
+      "aberto": 420,
+      "diferido": 420,
+      "vencido": 0,
+      "pagoBanco": 0,
+      "dataBanco": null,
+      "semTitulo": 0,
+      "titulos": [
+        {
+          "id": "f85f7a4c-c1ee-414b-99e3-d126b40d9f74",
+          "valor": 420,
+          "pago": 0,
+          "status": "aberto",
+          "vencimento": "2026-12-28",
+          "dataPagamento": null,
+          "quem": "NANE / FÁBIO OMENA",
+          "desc": "COMISSAO 20º LEILÃO GUADALUPE AGROPECUÁRIA Touros - NANE / FABIO OMENA (2%)",
+          "fechamento": "c8cba93d-8fa9-4e80-9aa7-e2706a2d54b4",
+          "evento": {
+            "nome": "20º LEILÃO GUADALUPE AGROPECUÁRIA Touros",
+            "data": "2026-07-19"
+          },
+          "diferido": true,
+          "obs": "[CP-AGO-2026] Comissao ref. julho/2026. VGV do assessor R$ 21.000. [REGRA NANE 11/08] A Nane nao recebe mes a mes: a comissao fica acumulada a parte e e paga de uma vez em dezembro. Vencimento remarcado de 2026-08-25 para 2026-12-28. ATENCAO: lote compartilhado com o Fabio Omena - definir a divisao antes de pagar; se for meio a meio, R$ 210.00 sao do Fabio e poderiam sair antes."
+        }
+      ]
+    }
+  ],
+  "conferencia": [
+    {
+      "quem": "FÁBIO OMENA",
+      "pago": 8826,
+      "devidoErp": 9306,
+      "dif": -480,
+      "universo": 8,
+      "combinacoes": 1,
+      "unica": true,
+      "inclui": [
+        {
+          "valor": 1962,
+          "desc": "COMISSAO LEILÃO VIRTUAL BASE GENÉTICA SANTA CRUZ - 1ª ETAPA – 14/07/2026 - FABIO OMENA (2%)",
+          "diferido": false,
+          "evento": {
+            "nome": "LEILÃO VIRTUAL BASE GENÉTICA SANTA CRUZ - 1ª ETAPA – 14/07/2026",
+            "data": "2026-07-14"
+          }
+        },
+        {
+          "valor": 420,
+          "desc": "COMISSAO 20º LEILÃO GUADALUPE AGROPECUÁRIA Touros - FABIO OMENA (2%)",
+          "diferido": false,
+          "evento": {
+            "nome": "20º LEILÃO GUADALUPE AGROPECUÁRIA Touros",
+            "data": "2026-07-19"
+          }
+        },
+        {
+          "valor": 864,
+          "desc": "COMISSAO 2º ETAPA NAVIRAÍ MATRIZES - FABIO OMENA (2%)",
+          "diferido": false,
+          "evento": {
+            "nome": "2º ETAPA NAVIRAÍ MATRIZES",
+            "data": "2026-07-16"
+          }
+        },
+        {
+          "valor": 420,
+          "desc": "COMISSAO 20º LEILÃO GUADALUPE AGROPECUÁRIA Touros - NANE / FABIO OMENA (2%)",
+          "diferido": true,
+          "evento": {
+            "nome": "20º LEILÃO GUADALUPE AGROPECUÁRIA Touros",
+            "data": "2026-07-19"
+          }
+        },
+        {
+          "valor": 642,
+          "desc": "COMISSAO 23º LEILÃO GENÉTICA ADITIVA - 2ª ETAPA TOUROS – 26/07/2026 - FABIO OMENA (2%)",
+          "diferido": false,
+          "evento": {
+            "nome": "23º LEILÃO GENÉTICA ADITIVA - 2ª ETAPA TOUROS – 26/07/2026",
+            "data": "2026-07-26"
+          }
+        },
+        {
+          "valor": 870,
+          "desc": "COMISSAO MEGA EVENTO EAO BAVIERA — Machos - FABIO OMENA (2%)",
+          "diferido": false,
+          "evento": {
+            "nome": "MEGA EVENTO EAO BAVIERA — Machos",
+            "data": "2026-07-12"
+          }
+        },
+        {
+          "valor": 3648,
+          "desc": "COMISSAO MEGA EVENTO EAO BAVIERA — Fêmeas - FABIO OMENA (2%)",
+          "diferido": false,
+          "evento": {
+            "nome": "MEGA EVENTO EAO BAVIERA — Fêmeas",
+            "data": "2026-07-11"
+          }
+        }
+      ],
+      "fora": [
+        {
+          "valor": 480,
+          "desc": "COMISSAO LEILÃO VIRTUAL NAVIRAÍ - MATRIZES – 05/07/2026 - FABIO OMENA (2%)",
+          "evento": {
+            "nome": "LEILÃO VIRTUAL NAVIRAÍ - MATRIZES – 05/07/2026",
+            "data": "2026-07-05"
+          }
+        }
+      ]
+    },
+    {
+      "quem": "LEONARDO SERAFIM",
+      "pago": 5262,
+      "devidoErp": 9120,
+      "dif": -3858,
+      "universo": 7,
+      "combinacoes": 0,
+      "unica": false,
+      "inclui": [],
+      "fora": []
+    },
+    {
+      "quem": "DOUGLAS BISPO",
+      "pago": 11908,
+      "devidoErp": 11908,
+      "dif": 0,
+      "universo": 11,
+      "combinacoes": 1,
+      "unica": true,
+      "inclui": [
+        {
+          "valor": 570,
+          "desc": "COMISSAO 30º NELORAÇO IRMÃOS HIPÓLITO - DOUGLAS BISPO (2%)",
+          "diferido": false,
+          "evento": {
+            "nome": "30º NELORAÇO IRMÃOS HIPÓLITO",
+            "data": "2026-07-25"
+          }
+        },
+        {
+          "valor": 390,
+          "desc": "COMISSAO 20º LEILÃO GUADALUPE AGROPECUÁRIA Fêmeas - DOUGLAS BISPO (2%)",
+          "diferido": false,
+          "evento": {
+            "nome": "20º LEILÃO GUADALUPE AGROPECUÁRIA Fêmeas",
+            "data": "2026-07-18"
+          }
+        },
+        {
+          "valor": 3180,
+          "desc": "COMISSAO LEILÃO NELORE SORRISO - ETAPA FÊMEAS – 12/07/2026 - DOUGLAS BISPO (2%)",
+          "diferido": false,
+          "evento": {
+            "nome": "LEILÃO NELORE SORRISO - ETAPA FÊMEAS – 12/07/2026",
+            "data": "2026-07-12"
+          }
+        },
+        {
+          "valor": 450,
+          "desc": "COMISSAO NELORE SANTA CRUZ - DOUGLAS BISPO (2%)",
+          "diferido": false,
+          "evento": {
+            "nome": "NELORE SANTA CRUZ",
+            "data": "2026-07-15"
+          }
+        },
+        {
+          "valor": 720,
+          "desc": "COMISSAO 20º LEILÃO GUADALUPE AGROPECUÁRIA Touros - DOUGLAS BISPO (2%)",
+          "diferido": false,
+          "evento": {
+            "nome": "20º LEILÃO GUADALUPE AGROPECUÁRIA Touros",
+            "data": "2026-07-19"
+          }
+        },
+        {
+          "valor": 510,
+          "desc": "COMISSAO NELORE SANTA CRUZ - 19/07/2026 - DOUGLAS BISPO (2%)",
+          "diferido": false,
+          "evento": {
+            "nome": "NELORE SANTA CRUZ - 19/07/2026",
+            "data": "2026-07-19"
+          }
+        },
+        {
+          "valor": 1200,
+          "desc": "COMISSAO MEGA EVENTO EAO BAVIERA — Fêmeas - DOUGLAS BISPO (2%)",
+          "diferido": false,
+          "evento": {
+            "nome": "MEGA EVENTO EAO BAVIERA — Fêmeas",
+            "data": "2026-07-11"
+          }
+        },
+        {
+          "valor": 480,
+          "desc": "COMISSAO 2º ETAPA NAVIRAÍ MATRIZES - DOUGLAS BISPO (2%)",
+          "diferido": false,
+          "evento": {
+            "nome": "2º ETAPA NAVIRAÍ MATRIZES",
+            "data": "2026-07-16"
+          }
+        },
+        {
+          "valor": 2046,
+          "desc": "COMISSAO MEGA EVENTO EAO BAVIERA — Machos - DOUGLAS BISPO (2%)",
+          "diferido": false,
+          "evento": {
+            "nome": "MEGA EVENTO EAO BAVIERA — Machos",
+            "data": "2026-07-12"
+          }
+        },
+        {
+          "valor": 570,
+          "desc": "COMISSAO LEILÃO VIRTUAL NAVIRAÍ - MATRIZES – 05/07/2026 - DOUGLAS BISPO (2%)",
+          "diferido": false,
+          "evento": {
+            "nome": "LEILÃO VIRTUAL NAVIRAÍ - MATRIZES – 05/07/2026",
+            "data": "2026-07-05"
+          }
+        },
+        {
+          "valor": 1792,
+          "desc": "COMPLEMENTO COMISSAO JULHO/2026 - DOUGLAS BISPO (lotes fora dos fechamentos)",
+          "diferido": false,
+          "evento": null
+        }
+      ],
+      "fora": []
+    }
+  ],
+  "eaoFemeas": {
+    "id": "135016c0-c0be-4e28-b80a-7fca4b759d1e",
+    "nome": "MEGA EVENTO EAO BAVIERA — Fêmeas",
+    "data": "2026-07-11",
+    "vgv": 564900,
+    "lotes": [
+      {
+        "lote": "M04",
+        "vgv": 86400,
+        "pct": 0.02,
+        "comissao": 1728,
+        "assessor": "Fábio Omena Gaia",
+        "comprador": "JAIME RODRIGUES · NELORE JR · BA"
+      },
+      {
+        "lote": "M13",
+        "vgv": 60000,
+        "pct": 0.02,
+        "comissao": 1200,
+        "assessor": "Douglas Bispo",
+        "comprador": "FABIO LOPES DA SELARIA MINEIRA · FAZENDA RANCHO GRANDE · PA"
+      },
+      {
+        "lote": "19",
+        "vgv": 60000,
+        "pct": 0.02,
+        "comissao": 1200,
+        "assessor": "Leonardo Serafim",
+        "comprador": "A identificar · FAZENDA CORRENTES · MS"
+      },
+      {
+        "lote": "20",
+        "vgv": 57000,
+        "pct": 0.02,
+        "comissao": 1140,
+        "assessor": "Gustavo Rusa",
+        "comprador": "CELSO LOPES · FAZENDA FLOR DE MINAS · PA"
+      },
+      {
+        "lote": "31",
+        "vgv": 57000,
+        "pct": 0.02,
+        "comissao": 1140,
+        "assessor": "Gustavo Rusa",
+        "comprador": "CELSO LOPES · FAZENDA FLOR DE MINAS · PA"
+      },
+      {
+        "lote": "26",
+        "vgv": 49500,
+        "pct": 0.02,
+        "comissao": 990,
+        "assessor": "Fábio Omena Gaia",
+        "comprador": "A identificar · FAZENDA SAO GERONIMO · MG"
+      },
+      {
+        "lote": "27",
+        "vgv": 46500,
+        "pct": 0.02,
+        "comissao": 930,
+        "assessor": "Gustavo Rusa",
+        "comprador": "CELSO LOPES · FAZENDA FLOR DE MINAS · PA"
+      },
+      {
+        "lote": "30",
+        "vgv": 46500,
+        "pct": 0.02,
+        "comissao": 930,
+        "assessor": "Fábio Omena Gaia",
+        "comprador": "A identificar · FAZENDA SAO GERONIMO · MG"
+      },
+      {
+        "lote": "28",
+        "vgv": 36000,
+        "pct": 0.02,
+        "comissao": 720,
+        "assessor": "Gustavo Rusa",
+        "comprador": "CELSO LOPES · FAZENDA FLOR DE MINAS · PA"
+      },
+      {
+        "lote": "36",
+        "vgv": 33000,
+        "pct": 0.02,
+        "comissao": 660,
+        "assessor": "Gustavo Rusa",
+        "comprador": "CELSO LOPES · FAZENDA FLOR DE MINAS · PA"
+      },
+      {
+        "lote": "135",
+        "vgv": 33000,
+        "pct": 0.02,
+        "comissao": 660,
+        "assessor": "Gustavo Rusa",
+        "comprador": "PEDRO PONTES · NELORE SÃO CAETANO · PA"
+      }
+    ]
+  },
+  "disputados": [
+    {
+      "lote": "26",
+      "vgv": 49500,
+      "pct": 0.02,
+      "comissao": 990,
+      "assessor": "Fábio Omena Gaia",
+      "comprador": "A identificar · FAZENDA SAO GERONIMO · MG"
+    },
+    {
+      "lote": "30",
+      "vgv": 46500,
+      "pct": 0.02,
+      "comissao": 930,
+      "assessor": "Fábio Omena Gaia",
+      "comprador": "A identificar · FAZENDA SAO GERONIMO · MG"
+    }
+  ],
+  "disputadoTotal": 1920,
+  "leituras": [
+    {
+      "chave": "ERP",
+      "rot": "A atribuição do ERP está certa",
+      "desc": "Os lotes 26 e 30 são do Fábio, como o fechamento registra. A planilha do Leonardo cobrou lote que não é dele.",
+      "fabio": {
+        "devido": 9306,
+        "pago": 8826,
+        "saldo": 480
+      },
+      "leonardo": {
+        "devido": 9120,
+        "pago": 5262,
+        "saldo": 3858
+      }
+    },
+    {
+      "chave": "PLANILHA",
+      "rot": "A planilha do Leonardo está certa",
+      "desc": "Os lotes 26 e 30 são do Leonardo. O título do Fábio no EAO Fêmeas cai de R$ 3.648,00 para R$ 1.728,00 (só o lote M04).",
+      "fabio": {
+        "devido": 7386,
+        "pago": 8826,
+        "saldo": -1440
+      },
+      "leonardo": {
+        "devido": 11040,
+        "pago": 5262,
+        "saldo": 5778
+      }
+    }
+  ],
+  "grupos": [
+    {
+      "chave": "ja-pago-sem-baixa",
+      "rot": "Já pago em 25/08 — falta baixar o título",
+      "total": 8886,
+      "n": 7,
+      "itens": [
+        {
+          "id": "0609dbaa-52ca-41a6-9a4b-9c9b6b3c408c",
+          "valor": 3648,
+          "pago": 0,
+          "status": "vencido",
+          "vencimento": "2026-08-25",
+          "dataPagamento": null,
+          "quem": "FÁBIO OMENA",
+          "desc": "COMISSAO MEGA EVENTO EAO BAVIERA — Fêmeas - FABIO OMENA (2%)",
+          "fechamento": "135016c0-c0be-4e28-b80a-7fca4b759d1e",
+          "evento": {
+            "nome": "MEGA EVENTO EAO BAVIERA — Fêmeas",
+            "data": "2026-07-11"
+          },
+          "diferido": false,
+          "obs": "[CP-AGO-2026] Comissao ref. julho/2026. VGV do assessor R$ 182.400."
+        },
+        {
+          "id": "046b485c-3b75-4fd4-8af0-778329cf0951",
+          "valor": 1962,
+          "pago": 0,
+          "status": "vencido",
+          "vencimento": "2026-08-25",
+          "dataPagamento": null,
+          "quem": "FÁBIO OMENA",
+          "desc": "COMISSAO LEILÃO VIRTUAL BASE GENÉTICA SANTA CRUZ - 1ª ETAPA – 14/07/2026 - FABIO OMENA (2%)",
+          "fechamento": "b40ffd6a-a6ec-4f54-96c8-cf384c1cc037",
+          "evento": {
+            "nome": "LEILÃO VIRTUAL BASE GENÉTICA SANTA CRUZ - 1ª ETAPA – 14/07/2026",
+            "data": "2026-07-14"
+          },
+          "diferido": false,
+          "obs": "[CP-AGO-2026] Comissao ref. julho/2026. VGV do assessor R$ 98.100."
+        },
+        {
+          "id": "0ebcc33d-df43-4780-a79c-ff52ed71d6c5",
+          "valor": 870,
+          "pago": 0,
+          "status": "vencido",
+          "vencimento": "2026-08-25",
+          "dataPagamento": null,
+          "quem": "FÁBIO OMENA",
+          "desc": "COMISSAO MEGA EVENTO EAO BAVIERA — Machos - FABIO OMENA (2%)",
+          "fechamento": "6a67f76b-5d50-48fe-9ab1-7eec161c4591",
+          "evento": {
+            "nome": "MEGA EVENTO EAO BAVIERA — Machos",
+            "data": "2026-07-12"
+          },
+          "diferido": false,
+          "obs": "[CORRECAO 21/08/2026] Os titulos de 25/08 deste leilao somavam o total certo (R$ 7.326,00) com os nomes trocados entre as pessoas. Conferido contra por_assessor do fechamento: Nane 3.060 (paga em 28/12, acumulado), Douglas Bispo 2.046, Laila Oliveira 1.350, Fabio Omena 870."
+        },
+        {
+          "id": "975b6f10-a560-4d14-a8c9-d92e80620ae0",
+          "valor": 864,
+          "pago": 0,
+          "status": "vencido",
+          "vencimento": "2026-08-25",
+          "dataPagamento": null,
+          "quem": "FÁBIO OMENA",
+          "desc": "COMISSAO 2º ETAPA NAVIRAÍ MATRIZES - FABIO OMENA (2%)",
+          "fechamento": "0ba4d4d9-0235-4cfe-9db4-ae49208e7f75",
+          "evento": {
+            "nome": "2º ETAPA NAVIRAÍ MATRIZES",
+            "data": "2026-07-16"
+          },
+          "diferido": false,
+          "obs": "[RETIFICADO 21/08/2026] Era R$ 432,00. Conferência contra a planilha da Naviraí + LOT_PISTEIRO do HastaPro."
+        },
+        {
+          "id": "4729b9c4-f2bb-4cb1-b3e5-b55322424a09",
+          "valor": 642,
+          "pago": 0,
+          "status": "vencido",
+          "vencimento": "2026-08-25",
+          "dataPagamento": null,
+          "quem": "FÁBIO OMENA",
+          "desc": "COMISSAO 23º LEILÃO GENÉTICA ADITIVA - 2ª ETAPA TOUROS – 26/07/2026 - FABIO OMENA (2%)",
+          "fechamento": "50bf395a-fee9-4051-9d00-3a72e3c30cd0",
+          "evento": {
+            "nome": "23º LEILÃO GENÉTICA ADITIVA - 2ª ETAPA TOUROS – 26/07/2026",
+            "data": "2026-07-26"
+          },
+          "diferido": false,
+          "obs": "[CP-AGO-2026] Comissao ref. julho/2026. VGV do assessor R$ 32.100."
+        },
+        {
+          "id": "6e609d0d-af04-4aee-864d-130cf53436f9",
+          "valor": 480,
+          "pago": 0,
+          "status": "vencido",
+          "vencimento": "2026-08-25",
+          "dataPagamento": null,
+          "quem": "FÁBIO OMENA",
+          "desc": "COMISSAO LEILÃO VIRTUAL NAVIRAÍ - MATRIZES – 05/07/2026 - FABIO OMENA (2%)",
+          "fechamento": "e058a74f-1b06-46dc-8152-43f682fc5d09",
+          "evento": {
+            "nome": "LEILÃO VIRTUAL NAVIRAÍ - MATRIZES – 05/07/2026",
+            "data": "2026-07-05"
+          },
+          "diferido": false,
+          "obs": "[RETIFICADO 21/08/2026] Era R$ 1.170,00. Conferência contra a planilha da Naviraí + LOT_PISTEIRO do HastaPro."
+        },
+        {
+          "id": "61accf8d-d8db-4475-af75-f4b6b50b91d7",
+          "valor": 420,
+          "pago": 0,
+          "status": "vencido",
+          "vencimento": "2026-08-25",
+          "dataPagamento": null,
+          "quem": "FÁBIO OMENA",
+          "desc": "COMISSAO 20º LEILÃO GUADALUPE AGROPECUÁRIA Touros - FABIO OMENA (2%)",
+          "fechamento": "c8cba93d-8fa9-4e80-9aa7-e2706a2d54b4",
+          "evento": {
+            "nome": "20º LEILÃO GUADALUPE AGROPECUÁRIA Touros",
+            "data": "2026-07-19"
+          },
+          "diferido": false,
+          "obs": "[CP-AGO-2026] Comissao ref. julho/2026. VGV do assessor R$ 21.000."
+        }
+      ]
+    },
+    {
+      "chave": "nao-cobrado",
+      "rot": "O assessor não cobrou na planilha dele",
+      "total": 5778,
+      "n": 3,
+      "itens": [
+        {
+          "id": "b138437f-256b-4325-a23d-6579dce28a3e",
+          "valor": 4068,
+          "pago": 0,
+          "status": "vencido",
+          "vencimento": "2026-08-25",
+          "dataPagamento": null,
+          "quem": "LEONARDO SERAFIM",
+          "desc": "COMISSAO 23º LEILÃO GENÉTICA ADITIVA - 2ª ETAPA TOUROS – 26/07/2026 - LEONARDO SERAFIM (2%)",
+          "fechamento": "50bf395a-fee9-4051-9d00-3a72e3c30cd0",
+          "evento": {
+            "nome": "23º LEILÃO GENÉTICA ADITIVA - 2ª ETAPA TOUROS – 26/07/2026",
+            "data": "2026-07-26"
+          },
+          "diferido": false,
+          "obs": "[CP-AGO-2026] Comissao ref. julho/2026. VGV do assessor R$ 203.400."
+        },
+        {
+          "id": "82220972-211a-43ba-a671-a731fbdc6514",
+          "valor": 1200,
+          "pago": 0,
+          "status": "vencido",
+          "vencimento": "2026-08-25",
+          "dataPagamento": null,
+          "quem": "LEONARDO SERAFIM",
+          "desc": "COMISSAO MEGA EVENTO EAO BAVIERA — Fêmeas - LEONARDO SERAFIM (2%)",
+          "fechamento": "135016c0-c0be-4e28-b80a-7fca4b759d1e",
+          "evento": {
+            "nome": "MEGA EVENTO EAO BAVIERA — Fêmeas",
+            "data": "2026-07-11"
+          },
+          "diferido": false,
+          "obs": "[CP-AGO-2026] Comissao ref. julho/2026. VGV do assessor R$ 60.000."
+        },
+        {
+          "id": "6a139904-20e0-4acd-b3fc-03cae9743217",
+          "valor": 510,
+          "pago": 0,
+          "status": "vencido",
+          "vencimento": "2026-08-25",
+          "dataPagamento": null,
+          "quem": "LEONARDO SERAFIM",
+          "desc": "COMISSAO LEILÃO VIRTUAL BASE GENÉTICA SANTA CRUZ - 1ª ETAPA – 14/07/2026 - LEONARDO SERAFIM (2%)",
+          "fechamento": "b40ffd6a-a6ec-4f54-96c8-cf384c1cc037",
+          "evento": {
+            "nome": "LEILÃO VIRTUAL BASE GENÉTICA SANTA CRUZ - 1ª ETAPA – 14/07/2026",
+            "data": "2026-07-14"
+          },
+          "diferido": false,
+          "obs": "[CP-AGO-2026] Comissao ref. julho/2026. VGV do assessor R$ 25.500."
+        }
+      ]
+    },
+    {
+      "chave": "diferido",
+      "rot": "Diferido para dezembro (regra da Nane)",
+      "total": 3168,
+      "n": 2,
+      "itens": [
+        {
+          "id": "1c841ff1-fb12-4ee0-893e-748f2741918c",
+          "valor": 2748,
+          "pago": 0,
+          "status": "aberto",
+          "vencimento": "2026-12-28",
+          "dataPagamento": null,
+          "quem": "NANE",
+          "desc": "COMISSAO 20º LEILÃO GUADALUPE AGROPECUÁRIA Touros - NANE (2%)",
+          "fechamento": "c8cba93d-8fa9-4e80-9aa7-e2706a2d54b4",
+          "evento": {
+            "nome": "20º LEILÃO GUADALUPE AGROPECUÁRIA Touros",
+            "data": "2026-07-19"
+          },
+          "diferido": true,
+          "obs": "[CP-AGO-2026] Comissao ref. julho/2026. VGV do assessor R$ 137.400. [REGRA NANE 11/08] A Nane nao recebe mes a mes: a comissao fica acumulada a parte e e paga de uma vez em dezembro. Vencimento remarcado de 2026-08-25 para 2026-12-28."
+        },
+        {
+          "id": "f85f7a4c-c1ee-414b-99e3-d126b40d9f74",
+          "valor": 420,
+          "pago": 0,
+          "status": "aberto",
+          "vencimento": "2026-12-28",
+          "dataPagamento": null,
+          "quem": "NANE / FÁBIO OMENA",
+          "desc": "COMISSAO 20º LEILÃO GUADALUPE AGROPECUÁRIA Touros - NANE / FABIO OMENA (2%)",
+          "fechamento": "c8cba93d-8fa9-4e80-9aa7-e2706a2d54b4",
+          "evento": {
+            "nome": "20º LEILÃO GUADALUPE AGROPECUÁRIA Touros",
+            "data": "2026-07-19"
+          },
+          "diferido": true,
+          "obs": "[CP-AGO-2026] Comissao ref. julho/2026. VGV do assessor R$ 21.000. [REGRA NANE 11/08] A Nane nao recebe mes a mes: a comissao fica acumulada a parte e e paga de uma vez em dezembro. Vencimento remarcado de 2026-08-25 para 2026-12-28. ATENCAO: lote compartilhado com o Fabio Omena - definir a divisao antes de pagar; se for meio a meio, R$ 210.00 sao do Fabio e poderiam sair antes."
+        }
+      ]
+    },
+    {
+      "chave": "nao-pago",
+      "rot": "Devido e não pago — sem PIX nenhum",
+      "total": 1755,
+      "n": 2,
+      "itens": [
+        {
+          "id": "b0d82692-237b-42de-b083-bcb76b2d7c46",
+          "valor": 1080,
+          "pago": 0,
+          "status": "vencido",
+          "vencimento": "2026-08-25",
+          "dataPagamento": null,
+          "quem": "PERALTA",
+          "desc": "COMISSAO 2º ETAPA NAVIRAÍ MATRIZES - PERALTA (2%)",
+          "fechamento": "0ba4d4d9-0235-4cfe-9db4-ae49208e7f75",
+          "evento": {
+            "nome": "2º ETAPA NAVIRAÍ MATRIZES",
+            "data": "2026-07-16"
+          },
+          "diferido": false,
+          "obs": "[CP-AGO-2026] Comissao ref. julho/2026. VGV do assessor R$ 54.000."
+        },
+        {
+          "id": "eccf1fc9-e5f2-43d5-92bf-b837628104d6",
+          "valor": 675,
+          "pago": 0,
+          "status": "vencido",
+          "vencimento": "2026-08-25",
+          "dataPagamento": null,
+          "quem": "LAILA OLIVEIRA",
+          "desc": "COMISSAO MEGA EVENTO EAO BAVIERA — Machos - LAILA OLIVEIRA (2%)",
+          "fechamento": "6a67f76b-5d50-48fe-9ab1-7eec161c4591",
+          "evento": {
+            "nome": "MEGA EVENTO EAO BAVIERA — Machos",
+            "data": "2026-07-12"
+          },
+          "diferido": false,
+          "obs": "[CORRECAO 21/08/2026] Os titulos de 25/08 deste leilao somavam o total certo (R$ 7.326,00) com os nomes trocados entre as pessoas. Conferido contra por_assessor do fechamento: Nane 3.060 (paga em 28/12, acumulado), Douglas Bispo 2.046, Laila Oliveira 1.350, Fabio Omena 870.\nCriado: a comissao da Laila estava apurada no fechamento mas nao tinha titulo — o valor dela havia sido lancado sob o nome do Fabio Omena. [COMISSAO 1% 05/08] Comissao de 2% para 1% conforme decisao do grupo financeiro de 05/08/2026."
+        }
+      ]
+    },
+    {
+      "chave": "sem-dono",
+      "rot": "Sem assessor definido",
+      "total": 390,
+      "n": 1,
+      "itens": [
+        {
+          "id": "30c06085-3ea1-4db2-8614-91137df39b64",
+          "valor": 390,
+          "pago": 0,
+          "status": "vencido",
+          "vencimento": "2026-08-25",
+          "dataPagamento": null,
+          "quem": "A DEFINIR",
+          "desc": "COMISSAO 20º LEILÃO GUADALUPE AGROPECUÁRIA Touros - A DEFINIR (2%)",
+          "fechamento": "c8cba93d-8fa9-4e80-9aa7-e2706a2d54b4",
+          "evento": {
+            "nome": "20º LEILÃO GUADALUPE AGROPECUÁRIA Touros",
+            "data": "2026-07-19"
+          },
+          "diferido": false,
+          "obs": "[CP-AGO-2026] Comissao ref. julho/2026. VGV do assessor R$ 19.500. ATENCAO: beneficiario pendente de atribuicao."
+        }
+      ]
+    }
+  ],
+  "acao": {
+    "pagarAgora": 7533,
+    "baixarSemCaixa": 8886,
+    "aRecuperar": 1920,
+    "decidir": 390,
+    "dezembro": 3168
+  }
+}
