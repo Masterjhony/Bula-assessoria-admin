@@ -1,0 +1,269 @@
+{
+  "removido_em": "2026-08-27",
+  "motivo": "Leilão da Bula Remates. Diretiva do chefe (João Eduardo) em 27/08/2026: não conta para a Bula Assessoria para fins de fechamento e não deve ter efeitos no sistema.",
+  "preservado_fora_daqui": "cronograma_leiloes id=65757bfe-0673-43d0-ba23-39e551e1f364 (ESCALA) e o CP agregado \"COMISSAO LUCAS MARTINS - MAI/JUN 2026\" (comissão de R$ 90,00 já paga em 27/07).",
+  "bula_leilao_fechamento": {
+    "id": "e9bc79a8-5f25-475a-aba0-b4f315bfcdaf",
+    "nome": "Nelore MNO - 10/06/2026",
+    "data": "2026-06-10",
+    "local": "BULA REMATES",
+    "lotes_ofertados": 0,
+    "lotes_vendidos": 1,
+    "animais_vendidos": 1,
+    "vgv_total": 18000,
+    "ticket_medio": 18000,
+    "maior_lance": 0,
+    "compradores_unicos": 0,
+    "estados_alcancados": 0,
+    "por_assessor": [
+      {
+        "vgv": 18000,
+        "nome": "Lucas Martins",
+        "pago": true,
+        "animais": 1,
+        "empresa": "Bula Assessoria",
+        "posicao": 1,
+        "comissao": 90,
+        "pago_ref": "pago 10/07 NF 04",
+        "pct_total": 1,
+        "transacoes": 1,
+        "comissao_pct": 0.005,
+        "ticket_medio": 18000
+      }
+    ],
+    "por_estado": [],
+    "compradores": [],
+    "lances": [],
+    "perfil_genetico": [],
+    "comissao_assessoria": 90,
+    "receita_bula": 0,
+    "sobra_bruta": 0,
+    "observacoes": "Fechamento MANUAL criado da planilha COMISSAO LUCAS (paga 10/07/2026, NF 04): venda no leilão Nelore MNO (Bula Remates; cronograma 10/06, planilha e PIX citam 11/06), valor 18.000 x 0,5% = 90,00. Sem detalhe de lote na planilha.",
+    "lotes_catalogo": [],
+    "distribuicao_empresa": [],
+    "faturamento_total_leilao": null,
+    "acordo_pct_faturamento": null,
+    "acordo_pct_venda_cobertura": null,
+    "acordo_descricao": null,
+    "acordo_criador_id": null,
+    "created_at": "2026-07-23T14:43:33.973982+00:00",
+    "updated_at": "2026-07-23T14:43:38.204+00:00",
+    "despesas_variaveis": 0,
+    "etapa": "realizado",
+    "etapa_atualizada_em": "2026-07-23T14:43:33.973982+00:00",
+    "origem": "manual"
+  },
+  "erp_contas_receber": {
+    "id": "97aa4189-03c6-4f8c-9f7e-a8a71770f304",
+    "descricao": "Nelore MNO - 10/06/2026 (10/06) - COMISSAO BULA",
+    "cliente_id": null,
+    "categoria_id": "e74434bd-3366-4015-9268-15d6640cf15f",
+    "centro_custo_id": null,
+    "plano_conta_id": null,
+    "conta_bancaria_id": null,
+    "valor": 900,
+    "desconto": 0,
+    "juros": 0,
+    "multa": 0,
+    "valor_recebido": 0,
+    "emissao": "2026-06-10",
+    "vencimento": "2026-07-25",
+    "data_recebimento": null,
+    "status": "vencido",
+    "forma_recebimento": "",
+    "numero_documento": "",
+    "parcela": 1,
+    "total_parcelas": 1,
+    "recorrencia": "nenhuma",
+    "recorrencia_proxima": null,
+    "observacoes": "[18/08/2026] Cobrança retroativa: o leilão foi assessorado (comissão de R$ 90,00 já paga aos assessores) e nunca foi faturado ao criador. Base: VGV de cobertura R$ 18.000,00 × 5.00% — padrão dominante de 5% da cobertura (criador sem recebível anterior). Vencimento = leilão + 45 dias. CRITÉRIO A CONFIRMAR.",
+    "tags": [
+      "criterio-a-confirmar",
+      "cobranca-retroativa"
+    ],
+    "anexos": [],
+    "created_at": "2026-08-18T20:10:50.347229+00:00",
+    "updated_at": "2026-08-18T20:12:43.866754+00:00",
+    "fechamento_id": "e9bc79a8-5f25-475a-aba0-b4f315bfcdaf",
+    "nota_fiscal": "",
+    "vendedor": "",
+    "projeto": "",
+    "origem": "real",
+    "evento_key": null,
+    "substituido_por": null,
+    "substituido_em": null
+  },
+  "bula_leiloes": {
+    "id": "b1a693af-6f8c-4b5c-808c-7bc853363bad",
+    "nome": "NELORE MNO",
+    "data": "2026-06-10",
+    "tipo": "NELORE PADRÃO",
+    "local": "PRESENCIAL",
+    "animais": 50,
+    "expectativa": 0,
+    "meta_bula": 0,
+    "realizado_bula": 0,
+    "status": "concluido",
+    "img": "https://nfjkzigvxegnhaxxbevt.supabase.co/storage/v1/object/public/leilao-covers/escala-2026/2026-06-10-nelore-mno-3ce9b0bd01.webp",
+    "tasks": [
+      {
+        "cor": "#111827",
+        "nome": "Produção & Divulgação",
+        "tasks": [
+          {
+            "id": "plan-catalogo",
+            "fim": "",
+            "ini": "",
+            "done": true,
+            "nome": "Catálogo",
+            "resp": {
+              "ini": "",
+              "nome": ""
+            },
+            "subs": [],
+            "anexos": [],
+            "observacao": ""
+          },
+          {
+            "id": "plan-videos-curral",
+            "fim": "",
+            "ini": "",
+            "done": false,
+            "nome": "Vídeos de curral",
+            "resp": {
+              "ini": "",
+              "nome": ""
+            },
+            "subs": [],
+            "anexos": [],
+            "observacao": ""
+          },
+          {
+            "id": "plan-logo-png",
+            "fim": "",
+            "ini": "",
+            "done": false,
+            "nome": "Logo (PNG)",
+            "resp": {
+              "ini": "",
+              "nome": ""
+            },
+            "subs": [],
+            "anexos": [],
+            "observacao": ""
+          },
+          {
+            "id": "plan-avaliacao",
+            "fim": "",
+            "ini": "",
+            "done": false,
+            "nome": "Avaliação",
+            "resp": {
+              "ini": "",
+              "nome": ""
+            },
+            "subs": [],
+            "anexos": [],
+            "observacao": ""
+          },
+          {
+            "id": "plan-divulgacao-clientes-perfil",
+            "fim": "",
+            "ini": "",
+            "done": false,
+            "nome": "Divulgação: clientes perfil",
+            "resp": {
+              "ini": "",
+              "nome": ""
+            },
+            "subs": [],
+            "anexos": [],
+            "observacao": ""
+          },
+          {
+            "id": "plan-divulgacao-grupo",
+            "fim": "",
+            "ini": "",
+            "done": false,
+            "nome": "Divulgação: grupo",
+            "resp": {
+              "ini": "",
+              "nome": ""
+            },
+            "subs": [],
+            "anexos": [],
+            "observacao": ""
+          },
+          {
+            "id": "plan-divulgacao-instagram",
+            "fim": "",
+            "ini": "",
+            "done": false,
+            "nome": "Divulgação: Instagram",
+            "resp": {
+              "ini": "",
+              "nome": ""
+            },
+            "subs": [],
+            "anexos": [],
+            "observacao": ""
+          },
+          {
+            "id": "plan-leilao-realizado",
+            "fim": "",
+            "ini": "",
+            "done": false,
+            "nome": "Leilão realizado",
+            "resp": {
+              "ini": "",
+              "nome": ""
+            },
+            "subs": [],
+            "anexos": [],
+            "observacao": ""
+          },
+          {
+            "id": "plan-fechamento-realizado",
+            "fim": "",
+            "ini": "",
+            "done": false,
+            "nome": "Fechamento realizado",
+            "resp": {
+              "ini": "",
+              "nome": ""
+            },
+            "subs": [],
+            "anexos": [],
+            "observacao": ""
+          },
+          {
+            "id": "plan-contas-a-receber-e-a-pagar",
+            "fim": "",
+            "ini": "",
+            "done": false,
+            "nome": "Contas a receber e a pagar",
+            "resp": {
+              "ini": "",
+              "nome": ""
+            },
+            "subs": [],
+            "anexos": [],
+            "observacao": ""
+          }
+        ],
+        "origem": "planilha",
+        "subtitulo": "Sincronizado da planilha"
+      }
+    ],
+    "horario": "19:00",
+    "transmissao": "",
+    "modelo": "PRESENCIAL",
+    "leiloeira": "BULA REMATES",
+    "condicao": "",
+    "frete_gratis": "",
+    "acordo_comissao": "1% do faturamento leilão",
+    "catalogo_url": "TRUE",
+    "created_at": "2026-05-30T21:35:09.466609+00:00",
+    "cronograma_id": "65757bfe-0673-43d0-ba23-39e551e1f364"
+  }
+}
