@@ -21,7 +21,15 @@ const comCpf = ['l:222', '2026-08-18T17:00:57-03:00', 'ag:2', 'video-expogenetic
   'trabalho_com_pecuária_de_corte', '101-300', 'sim', 'touros_po', '1-5',
   'Hernani Oliveira', '258.224.466-04', 'hernanioliveira1951@gmail.com', 'p:+5519998395958', 'São Paulo', 'form-insta-perpetuo']
 const cpfVazio = [...comCpf]; cpfVazio[18] = ''
-for (const [rotulo, row] of [['sem CPF', semCpf], ['com CPF', comCpf], ['CPF em branco', cpfVazio]] as [string, string[]][]) {
+// Lead real de 27/08 (l:1614193106884911): digitou "18" no campo Nome. Antes da
+// correção o parser não deslocava (a coluna do nome não tinha letra) e gravava
+// o CPF na coluna Nome da planilha. Esperado: nome="18", cpf="165.076.777-36".
+const nomeSoDigitos = ['l:1614193106884911', '2026-08-27T12:36:30-05:00', 'ag:120249993192200708', 'video-perpetuo-touros03',
+  'as:120249993192190708', 'CA - PERPETUO TOUROS INSTANTANEO — Teste 01', 'c:120249455058620708', 'LEAD - PERPETUO TOURO',
+  'f:2095233067761284', 'Formulário BULA PERPETUO v1', 'false', 'ig',
+  'não_trabalho,_quero_aprender', '0-50', 'não', 'touros', '6-10',
+  '18', '165.076.777-36', 'leonardosm736@gmail.com', 'p:+5524999548425', 'RJ', 'form-insta-perpetuo']
+for (const [rotulo, row] of [['sem CPF', semCpf], ['com CPF', comCpf], ['CPF em branco', cpfVazio], ['nome só dígitos', nomeSoDigitos]] as [string, string[]][]) {
   const p = parseRawMetaLead(row)
   console.log(`${rotulo}: nome="${p?.fullName}" cpf="${p?.cpf}" email="${p?.email}" fone="${p?.phone}" uf="${p?.state}" interesse="${p?.interesse}" qtd="${p?.qtd}" cabeças="${p?.cabecas}" ie="${p?.temIe}" status="${p?.leadStatus}"`)
 }

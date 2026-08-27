@@ -2,7 +2,9 @@
   "crons": [
     { "path": "/api/cron/agente-rotinas", "schedule": "*/15 * * * *" },
     { "path": "/api/jmp/email-cron", "schedule": "0 11 * * *" },
-    { "path": "/api/jmp/sheet-heal", "schedule": "30 11 * * *" },
+    { "path": "/api/jmp/sheet-heal", "schedule": "*/5 * * * *" },
+    { "path": "/api/jmp/sheet-bula-sync", "schedule": "1-56/5 * * * *" },
+    { "path": "/api/jmp/sheet-perpetuo", "schedule": "2-57/5 * * * *" },
     { "path": "/api/jmp/sheet-color-sync", "schedule": "0 12 * * *" },
     { "path": "/api/crm/inactivity-sweep", "schedule": "0 13 * * *" },
     { "path": "/api/cron/crm-daily-digest", "schedule": "30 22 * * *" },

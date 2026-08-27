@@ -1,10 +1,17 @@
-# Auto-cura da planilha "Leads JMP" a cada 15 minutos.
+# Auto-cura da planilha "Leads JMP" — REDE DE SEGURANÇA, não o agendador.
 #
 # O Meta Ads despeja leads crus (desalinhados, a partir da coluna A) na mesma
 # aba que a landing usa. O app normaliza essas linhas quando chega lead da
 # landing ou quando alguém abre a Validação no admin — mas sem esses gatilhos
-# as linhas cruas ficam paradas. O plano Hobby da Vercel só permite cron
-# diário, então o agendamento de 15 min vive aqui.
+# as linhas cruas ficam paradas.
+#
+# Quem agenda de verdade é o Vercel Cron (vercel.json, */5): a conta saiu do
+# Hobby e aceita granularidade de minuto. O "*/5" DESTE arquivo o GitHub não
+# honra — em 26 e 27/08 as execuções agendadas saíram de 1 em 1 hora, com um
+# buraco de 11h entre 05:01 e 16:25 UTC, e os leads do dia ficaram crus no fim
+# da planilha até alguém rodar na mão. Mantido só para cobrir indisponibilidade
+# da Vercel: as duas fontes disputam a mesma trava no banco, então rodar
+# junto não corrompe (a perdedora devolve "locked" e não toca na planilha).
 #
 # Secret necessário no repo: CRON_SECRET (mesmo valor da env de produção na
 # Vercel). O endpoint responde { ok: true, normalized: <n> }.
@@ -12,10 +19,11 @@ name: JMP sheet heal
 
 on:
   schedule:
-    # 5 min é o piso prático do agendador do GitHub Actions — valores menores
-    # (*/2 etc.) não são honrados e ainda atrasam sob carga. Repo público =
-    # Actions gratuito/ilimitado, então a frequência não gera custo.
-    - cron: '*/5 * * * *'
+    # 30 min declarado porque é o que o Actions consegue entregar: pedir "*/5"
+    # aqui não acelerou nada — a fila do agendador atrasa igual e só produz
+    # execução em horário imprevisível. A cadência real do produto é a da
+    # Vercel; esta é a rede de segurança.
+    - cron: '*/30 * * * *'
   workflow_dispatch: {}
 
 jobs:

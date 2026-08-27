@@ -622,9 +622,24 @@ export function parseRawMetaLead(row: string[]): RawMetaLead | null {
   const ehColunaDeCpf = (v: string) => ehCpfOuCnpj(v) || /cpf/i.test(v)
   let iCpf = -1, iNome = iPhone - 2
   const temLetra = (v: string) => /\p{L}/u.test(v)
-  if (iNome > 12 && (ehColunaDeCpf(f(iNome)) || !temLetra(f(iNome))) && temLetra(f(iNome - 1))) {
-    if (ehColunaDeCpf(f(iNome))) iCpf = iNome
-    iNome -= 1
+  // Resposta de pergunta ("0-50", "50+", "sim", "não") NUNCA é nome: enquanto a
+  // coluna candidata a nome for uma delas, o bloco das perguntas ainda não
+  // acabou e não há campo de CPF nenhum para deslocar.
+  const ehRespostaDePergunta = (v: string) => /^(\d+\s*-\s*\d+|\d+\+|sim|nao)$/.test(deaccent(v).toLowerCase())
+  if (iNome > 12 && !ehRespostaDePergunta(f(iNome - 1))) {
+    if (ehColunaDeCpf(f(iNome))) {
+      // CPF logo antes do e-mail já PROVA o layout — o nome é a coluna
+      // anterior, tenha ela letras ou não. Exigir letras aqui escrevia o CPF na
+      // coluna Nome sempre que o lead digitasse só números como nome: em 27/08
+      // o lead 1614193106884911 entrou como "165.076.777-36" porque tinha
+      // digitado "18" no nome.
+      iCpf = iNome
+      iNome -= 1
+    } else if (!temLetra(f(iNome)) && temLetra(f(iNome - 1))) {
+      // Campo de CPF opcional em branco: sem documento para provar o layout, só
+      // desloca se a coluna anterior tiver cara de nome.
+      iNome -= 1
+    }
   }
 
   const perguntas: string[] = []
