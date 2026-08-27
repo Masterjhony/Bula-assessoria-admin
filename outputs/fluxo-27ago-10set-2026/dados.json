@@ -1,6 +1,8 @@
 {
   "hoje": "2026-08-27",
   "fim": "2026-09-10",
+  "nadaAte": "2026-08-31",
+  "lagLeilao": 10,
   "dias": 14,
   "calendario": [
     "2026-08-27",
@@ -41,7 +43,7 @@
       "rot": "Nelore Sorriso — Etapa Fêmeas (12/07)",
       "valor": 7149.98,
       "id": "54128961-6448-4bd0-bf9d-4b31771e04ff",
-      "nota": "NF 635, R$ 7.149,98 — valor retificado em 27/08; portal da e-Rural marca \"aguardando pagamento\""
+      "nota": "NF 635 — valor retificado em 27/08; portal da e-Rural marca \"aguardando pagamento\""
     },
     {
       "data": "2026-09-10",
@@ -287,677 +289,232 @@
   ],
   "emTratativaTotal": 616208.96,
   "vencidoTotal": 134274.8,
-  "vencidoNaJanela": [
+  "abertoSemData": [
     {
-      "id": "6b493826-a523-433c-8b70-bd65500de526",
-      "rot": "LEILAO LAGOA DOS PATOS",
-      "valor": 6500,
-      "vencimento": "2026-05-02",
-      "status": "vencido"
-    },
-    {
-      "id": "1b4566f2-8e47-4d21-ac4a-f332d3756b2f",
-      "rot": "18ª MEGA LEILÃO NELORE - GUSTAVO/HENRIQUE - COMISSAO BULA",
-      "valor": 6720,
-      "vencimento": "2026-05-30",
-      "status": "vencido"
-    },
-    {
-      "id": "a33595fc-21ef-4362-ba81-08a9a96fbc81",
-      "rot": "LEILAO TOUROS SANTA NAZARE EXCELENCIA - PROGRAMA",
-      "valor": 11428,
-      "vencimento": "2026-06-28",
-      "status": "vencido"
-    },
-    {
-      "id": "97aa4189-03c6-4f8c-9f7e-a8a71770f304",
-      "rot": "Nelore MNO - 10/06/2026 (10/06) - COMISSAO BULA",
-      "valor": 900,
-      "vencimento": "2026-07-25",
-      "status": "vencido"
-    },
-    {
-      "id": "a95878e9-5f7f-416e-8fa6-1fd311d94314",
-      "rot": "LEILÃO VIRTUAL TOUROS MATINHA - THIAGO (1/2)",
-      "valor": 2800,
-      "vencimento": "2026-07-29",
-      "status": "vencido"
-    },
-    {
-      "id": "19ac2940-7647-46f8-bb32-f1194ec637ea",
-      "rot": "LEILÃO TOUROS PROVADOS TERRA BRAVA - JUNHO/2026 (16-18/06) - COMISSAO BULA",
-      "valor": 4810,
-      "vencimento": "2026-07-31",
-      "status": "vencido"
-    },
-    {
-      "id": "9ff14750-12d4-4b72-8d05-f5518fea9993",
-      "rot": "Leilão Nelore Magda Na Origem - 28/06/2026 (28/06) - COMISSAO BULA",
-      "valor": 5550,
-      "vencimento": "2026-08-12",
-      "status": "vencido"
-    },
-    {
-      "id": "84700163-3414-4395-a0ad-248657541e1e",
-      "rot": "NELORACO PO (25/07) - BULA REMATES",
-      "valor": 15508.5,
-      "vencimento": "2026-08-20",
-      "status": "vencido"
-    },
-    {
-      "id": "503091cc-4469-4c18-afba-eda906cdd427",
-      "rot": "MEGA EVENTO EAO BAVIERA (10-11/07) - COMISSAO BULA",
-      "valor": 48556.5,
-      "vencimento": "2026-08-25",
-      "status": "vencido"
-    },
-    {
-      "id": "55591ac2-79a4-44e4-ae2f-476b30c15bb9",
-      "rot": "MEGA EVENTO EAO BAVIERA — Machos (12/07) - COMISSAO BULA",
-      "valor": 31501.8,
-      "vencimento": "2026-08-26",
-      "status": "vencido"
-    },
-    {
-      "id": "a3e2d593-e49f-40ff-bd52-be0a1faec641",
-      "rot": "LEILÃO VIRTUAL BASE GENÉTICA SANTA CRUZ - 1ª ETAPA – 14/07/2026 (14/07) - COMISSAO BULA",
-      "valor": 6180,
-      "vencimento": "2026-08-28",
-      "status": "aberto"
-    },
-    {
-      "id": "44f20398-7441-4c2c-9c11-84f0bf0c2e73",
-      "rot": "NELORE SANTA CRUZ (15/07) - COMISSAO BULA",
-      "valor": 2130,
-      "vencimento": "2026-08-29",
-      "status": "aberto"
-    },
-    {
-      "id": "f9c54bc0-1768-400a-b4ed-66a50f031a01",
-      "rot": "NELORE SANTA CRUZ - 19/07/2026 (19/07) - COMISSAO BULA",
-      "valor": 12360,
-      "vencimento": "2026-09-02",
-      "status": "aberto"
-    },
-    {
-      "id": "ab6574a9-3c5b-4561-93b8-f0d39a6abc31",
-      "rot": "23o MEGA LEILAO GENETICA ADITIVA - FEMEAS (25/07) - COMISSAO BULA",
-      "valor": 2708.1,
-      "vencimento": "2026-09-08",
-      "status": "parcial"
-    },
-    {
-      "id": "7ef35494-9778-4b59-9374-a04f1e76a03c",
-      "rot": "30º NELORAÇO IRMÃOS HIPÓLITO (25/07) - COMISSAO BULA",
-      "valor": 1425,
-      "vencimento": "2026-09-08",
-      "status": "aberto"
-    },
-    {
-      "id": "07df3346-2129-4dc0-8fbd-09b78e8aa9b9",
-      "rot": "23o MEGA LEILAO GENETICA ADITIVA - TOUROS (26/07) - COMISSAO BULA",
-      "valor": 6433.12,
-      "vencimento": "2026-09-09",
-      "status": "parcial"
-    }
-  ],
-  "vencidoNaJanelaTotal": 165511.02,
-  "saidasLancadas": [
-    {
-      "data": "2026-08-28",
-      "vencimento": "2026-08-25",
-      "atrasado": true,
-      "rot": "COMISSAO LEILÃO VIRTUAL BASE GENÉTICA SANTA CRUZ - 1ª ETAPA – 14/07/2026 - FABIO OMENA (2%)",
-      "valor": 1962,
-      "categoria": "Comissões",
-      "origem": "real",
-      "tags": [
-        "a-pagar",
-        "comissao",
-        "2026",
-        "julho",
-        "leilao"
-      ]
-    },
-    {
-      "data": "2026-08-28",
-      "vencimento": "2026-08-25",
-      "atrasado": true,
-      "rot": "COMISSAO LEILÃO VIRTUAL BASE GENÉTICA SANTA CRUZ - 1ª ETAPA – 14/07/2026 - LEONARDO SERAFIM (2%)",
-      "valor": 510,
-      "categoria": "Comissões",
-      "origem": "real",
-      "tags": [
-        "a-pagar",
-        "comissao",
-        "2026",
-        "julho",
-        "leilao"
-      ]
-    },
-    {
-      "data": "2026-08-28",
-      "vencimento": "2026-08-25",
-      "atrasado": true,
-      "rot": "COMISSAO 20º LEILÃO GUADALUPE AGROPECUÁRIA Touros - FABIO OMENA (2%)",
-      "valor": 420,
-      "categoria": "Comissões",
-      "origem": "real",
-      "tags": [
-        "a-pagar",
-        "comissao",
-        "2026",
-        "julho",
-        "leilao"
-      ]
-    },
-    {
-      "data": "2026-08-28",
-      "vencimento": "2026-08-25",
-      "atrasado": true,
-      "rot": "COMISSAO MEGA EVENTO EAO BAVIERA — Fêmeas - LEONARDO SERAFIM (2%)",
-      "valor": 1200,
-      "categoria": "Comissões",
-      "origem": "real",
-      "tags": [
-        "a-pagar",
-        "comissao",
-        "2026",
-        "julho",
-        "leilao"
-      ]
-    },
-    {
-      "data": "2026-08-28",
-      "vencimento": "2026-08-25",
-      "atrasado": true,
-      "rot": "COMISSAO 2º ETAPA NAVIRAÍ MATRIZES - FABIO OMENA (2%)",
-      "valor": 864,
-      "categoria": "Comissões",
-      "origem": "real",
-      "tags": [
-        "a-pagar",
-        "comissao",
-        "2026",
-        "julho",
-        "leilao"
-      ]
-    },
-    {
-      "data": "2026-08-28",
-      "vencimento": "2026-08-25",
-      "atrasado": true,
-      "rot": "COMISSAO LEILÃO VIRTUAL NAVIRAÍ - MATRIZES – 05/07/2026 - FABIO OMENA (2%)",
-      "valor": 480,
-      "categoria": "Comissões",
-      "origem": "real",
-      "tags": [
-        "a-pagar",
-        "comissao",
-        "2026",
-        "julho",
-        "leilao"
-      ]
-    },
-    {
-      "data": "2026-08-28",
-      "vencimento": "2026-08-25",
-      "atrasado": true,
-      "rot": "COMISSAO 20º LEILÃO GUADALUPE AGROPECUÁRIA Touros - A DEFINIR (2%)",
-      "valor": 390,
-      "categoria": "Comissões",
-      "origem": "real",
-      "tags": [
-        "a-pagar",
-        "comissao",
-        "2026",
-        "julho",
-        "leilao"
-      ]
-    },
-    {
-      "data": "2026-08-28",
-      "vencimento": "2026-08-25",
-      "atrasado": true,
-      "rot": "COMISSAO 2º ETAPA NAVIRAÍ MATRIZES - PERALTA (2%)",
-      "valor": 1080,
-      "categoria": "Comissões",
-      "origem": "real",
-      "tags": [
-        "a-pagar",
-        "comissao",
-        "2026",
-        "julho",
-        "leilao"
-      ]
-    },
-    {
-      "data": "2026-08-28",
-      "vencimento": "2026-08-07",
-      "atrasado": true,
-      "rot": "FGTS/Guia CEF ref. julho/2026 (ESTIMADO)",
-      "valor": 950,
-      "categoria": "Encargos Sociais",
-      "origem": "estimativa",
-      "tags": [
-        "a-pagar",
-        "estimado",
-        "orcamento",
-        "imposto"
-      ]
-    },
-    {
-      "data": "2026-08-28",
-      "vencimento": "2026-08-25",
-      "atrasado": true,
       "rot": "COMISSAO 23º LEILÃO GENÉTICA ADITIVA - 2ª ETAPA TOUROS – 26/07/2026 - LEONARDO SERAFIM (2%)",
       "valor": 4068,
+      "vencimento": "2026-08-25",
       "categoria": "Comissões",
-      "origem": "real",
-      "tags": [
-        "a-pagar",
-        "comissao",
-        "2026",
-        "julho",
-        "leilao"
-      ]
+      "origem": "real"
     },
     {
-      "data": "2026-08-28",
-      "vencimento": "2026-08-25",
-      "atrasado": true,
-      "rot": "COMISSAO MEGA EVENTO EAO BAVIERA — Machos - LAILA OLIVEIRA (2%)",
-      "valor": 675,
-      "categoria": "Comissões",
-      "origem": "real",
-      "tags": [
-        "a-pagar",
-        "comissao",
-        "2026",
-        "julho",
-        "leilao"
-      ]
-    },
-    {
-      "data": "2026-08-28",
-      "vencimento": "2026-08-25",
-      "atrasado": true,
-      "rot": "COMISSAO 23º LEILÃO GENÉTICA ADITIVA - 2ª ETAPA TOUROS – 26/07/2026 - FABIO OMENA (2%)",
-      "valor": 642,
-      "categoria": "Comissões",
-      "origem": "real",
-      "tags": [
-        "a-pagar",
-        "comissao",
-        "2026",
-        "julho",
-        "leilao"
-      ]
-    },
-    {
-      "data": "2026-08-28",
-      "vencimento": "2026-08-25",
-      "atrasado": true,
-      "rot": "COMISSAO MEGA EVENTO EAO BAVIERA — Machos - FABIO OMENA (2%)",
-      "valor": 870,
-      "categoria": "Comissões",
-      "origem": "real",
-      "tags": [
-        "a-pagar",
-        "comissao",
-        "2026",
-        "julho",
-        "leilao"
-      ]
-    },
-    {
-      "data": "2026-08-28",
-      "vencimento": "2026-08-25",
-      "atrasado": true,
       "rot": "COMISSAO MEGA EVENTO EAO BAVIERA — Fêmeas - FABIO OMENA (2%)",
       "valor": 3648,
+      "vencimento": "2026-08-25",
       "categoria": "Comissões",
-      "origem": "real",
-      "tags": [
-        "a-pagar",
-        "comissao",
-        "2026",
-        "julho",
-        "leilao"
-      ]
+      "origem": "real"
     },
     {
-      "data": "2026-08-31",
-      "vencimento": "2026-08-31",
-      "atrasado": false,
+      "rot": "COMISSAO LEILÃO VIRTUAL BASE GENÉTICA SANTA CRUZ - 1ª ETAPA – 14/07/2026 - FABIO OMENA (2%)",
+      "valor": 1962,
+      "vencimento": "2026-08-25",
+      "categoria": "Comissões",
+      "origem": "real"
+    },
+    {
+      "rot": "COMISSAO MEGA EVENTO EAO BAVIERA — Fêmeas - LEONARDO SERAFIM (2%)",
+      "valor": 1200,
+      "vencimento": "2026-08-25",
+      "categoria": "Comissões",
+      "origem": "real"
+    },
+    {
+      "rot": "COMISSAO 2º ETAPA NAVIRAÍ MATRIZES - PERALTA (2%)",
+      "valor": 1080,
+      "vencimento": "2026-08-25",
+      "categoria": "Comissões",
+      "origem": "real"
+    },
+    {
+      "rot": "COMISSAO MEGA EVENTO EAO BAVIERA — Machos - FABIO OMENA (2%)",
+      "valor": 870,
+      "vencimento": "2026-08-25",
+      "categoria": "Comissões",
+      "origem": "real"
+    },
+    {
+      "rot": "COMISSAO 2º ETAPA NAVIRAÍ MATRIZES - FABIO OMENA (2%)",
+      "valor": 864,
+      "vencimento": "2026-08-25",
+      "categoria": "Comissões",
+      "origem": "real"
+    },
+    {
+      "rot": "COMISSAO MEGA EVENTO EAO BAVIERA — Machos - LAILA OLIVEIRA (2%)",
+      "valor": 675,
+      "vencimento": "2026-08-25",
+      "categoria": "Comissões",
+      "origem": "real"
+    },
+    {
+      "rot": "COMISSAO 23º LEILÃO GENÉTICA ADITIVA - 2ª ETAPA TOUROS – 26/07/2026 - FABIO OMENA (2%)",
+      "valor": 642,
+      "vencimento": "2026-08-25",
+      "categoria": "Comissões",
+      "origem": "real"
+    },
+    {
+      "rot": "COMISSAO LEILÃO VIRTUAL BASE GENÉTICA SANTA CRUZ - 1ª ETAPA – 14/07/2026 - LEONARDO SERAFIM (2%)",
+      "valor": 510,
+      "vencimento": "2026-08-25",
+      "categoria": "Comissões",
+      "origem": "real"
+    },
+    {
+      "rot": "COMISSAO LEILÃO VIRTUAL NAVIRAÍ - MATRIZES – 05/07/2026 - FABIO OMENA (2%)",
+      "valor": 480,
+      "vencimento": "2026-08-25",
+      "categoria": "Comissões",
+      "origem": "real"
+    },
+    {
+      "rot": "COMISSAO 20º LEILÃO GUADALUPE AGROPECUÁRIA Touros - FABIO OMENA (2%)",
+      "valor": 420,
+      "vencimento": "2026-08-25",
+      "categoria": "Comissões",
+      "origem": "real"
+    },
+    {
+      "rot": "COMISSAO 20º LEILÃO GUADALUPE AGROPECUÁRIA Touros - A DEFINIR (2%)",
+      "valor": 390,
+      "vencimento": "2026-08-25",
+      "categoria": "Comissões",
+      "origem": "real"
+    }
+  ],
+  "abertoSemDataTotal": 16809,
+  "estimativasFora": [
+    {
+      "rot": "FGTS/Guia CEF ref. julho/2026 (ESTIMADO)",
+      "valor": 950,
+      "vencimento": "2026-08-07",
+      "categoria": "Encargos Sociais"
+    },
+    {
       "rot": "Despesas operacionais - Melhoradores Especial 30 Anos, ACRISSUL/Campo Grande (29/08) (ESTIMADO)",
       "valor": 3200,
-      "categoria": "Despesa Operacional Leilão",
-      "origem": "estimativa",
-      "tags": [
-        "a-pagar",
-        "estimado",
-        "orcamento",
-        "leilao",
-        "presencial"
-      ]
+      "vencimento": "2026-08-31",
+      "categoria": "Despesa Operacional Leilão"
     },
+    {
+      "rot": "FGTS - competencia agosto/2026",
+      "valor": 950,
+      "vencimento": "2026-09-07",
+      "categoria": "Encargos Sociais"
+    },
+    {
+      "rot": "Marketing - trafego pago",
+      "valor": 2500,
+      "vencimento": "2026-09-10",
+      "categoria": "Marketing e Publicidade"
+    },
+    {
+      "rot": "Honorários de contabilidade",
+      "valor": 1058,
+      "vencimento": "2026-09-10",
+      "categoria": "Servicos de Terceiros"
+    },
+    {
+      "rot": "Site ClickWeb - hospedagem bulaassessoria.com",
+      "valor": 218.3,
+      "vencimento": "2026-09-10",
+      "categoria": "Servicos de Terceiros"
+    },
+    {
+      "rot": "Pacote de servicos bancarios Sicoob",
+      "valor": 129.9,
+      "vencimento": "2026-09-10",
+      "categoria": "Tarifas Bancarias"
+    },
+    {
+      "rot": "Integralizacao de capital cooperativa",
+      "valor": 39,
+      "vencimento": "2026-09-10",
+      "categoria": "Integralizacao Capital Cooperativa"
+    }
+  ],
+  "estimativasForaTotal": 9045.2,
+  "saidasLancadas": [
     {
       "data": "2026-09-05",
       "vencimento": "2026-09-05",
-      "atrasado": false,
       "rot": "Folha Agosto/2026 - LEONARDO",
       "valor": 13500,
       "categoria": "Folha de Pagamento",
-      "origem": "estimativa",
-      "tags": [
-        "folha",
-        "2026",
-        "agosto",
-        "projecao-anual",
-        "orcamento"
-      ]
+      "origem": "estimativa"
     },
     {
       "data": "2026-09-05",
       "vencimento": "2026-09-05",
-      "atrasado": false,
       "rot": "Folha Agosto/2026 - FABIO OMENNA",
       "valor": 7000,
       "categoria": "Folha de Pagamento",
-      "origem": "estimativa",
-      "tags": [
-        "folha",
-        "2026",
-        "agosto",
-        "projecao-anual",
-        "orcamento"
-      ]
+      "origem": "estimativa"
     },
     {
       "data": "2026-09-05",
       "vencimento": "2026-09-05",
-      "atrasado": false,
       "rot": "Folha Agosto/2026 - JOÃO EDUARDO",
       "valor": 5000,
       "categoria": "Folha de Pagamento",
-      "origem": "estimativa",
-      "tags": [
-        "folha",
-        "2026",
-        "agosto",
-        "projecao-anual",
-        "orcamento"
-      ]
+      "origem": "estimativa"
     },
     {
       "data": "2026-09-05",
       "vencimento": "2026-09-05",
-      "atrasado": false,
       "rot": "Folha Agosto/2026 - JOÃO GABRIEL",
       "valor": 2000,
       "categoria": "Folha de Pagamento",
-      "origem": "estimativa",
-      "tags": [
-        "folha",
-        "2026",
-        "agosto",
-        "projecao-anual",
-        "orcamento"
-      ]
+      "origem": "estimativa"
     },
     {
       "data": "2026-09-05",
       "vencimento": "2026-09-05",
-      "atrasado": false,
       "rot": "Folha Agosto/2026 - JOÃO ANTONIO",
       "valor": 2000,
       "categoria": "Folha de Pagamento",
-      "origem": "estimativa",
-      "tags": [
-        "folha",
-        "2026",
-        "agosto",
-        "projecao-anual",
-        "orcamento"
-      ]
+      "origem": "estimativa"
     },
     {
       "data": "2026-09-05",
       "vencimento": "2026-09-05",
-      "atrasado": false,
       "rot": "Folha Agosto/2026 - MATHEUS M1",
       "valor": 6000,
       "categoria": "Folha de Pagamento",
-      "origem": "estimativa",
-      "tags": [
-        "folha",
-        "2026",
-        "agosto",
-        "projecao-anual",
-        "orcamento"
-      ]
+      "origem": "estimativa"
     },
     {
       "data": "2026-09-05",
       "vencimento": "2026-09-05",
-      "atrasado": false,
       "rot": "Folha Agosto/2026 - LUANA",
       "valor": 1161.29,
       "categoria": "Folha de Pagamento",
-      "origem": "estimativa",
-      "tags": [
-        "folha",
-        "2026",
-        "agosto",
-        "projecao-anual",
-        "orcamento"
-      ]
+      "origem": "estimativa"
     },
     {
       "data": "2026-09-05",
       "vencimento": "2026-09-05",
-      "atrasado": false,
       "rot": "Folha Agosto/2026 - PEDRO",
       "valor": 1290.32,
       "categoria": "Folha de Pagamento",
-      "origem": "estimativa",
-      "tags": [
-        "folha",
-        "2026",
-        "agosto",
-        "projecao-anual",
-        "orcamento"
-      ]
+      "origem": "estimativa"
     },
     {
       "data": "2026-09-05",
       "vencimento": "2026-09-05",
-      "atrasado": false,
       "rot": "Folha Agosto/2026 - DOUGLAS BISPO",
       "valor": 12500,
       "categoria": "Folha de Pagamento",
-      "origem": "estimativa",
-      "tags": [
-        "folha",
-        "2026",
-        "agosto",
-        "projecao-anual",
-        "orcamento"
-      ]
-    },
-    {
-      "data": "2026-09-07",
-      "vencimento": "2026-09-07",
-      "atrasado": false,
-      "rot": "FGTS - competencia agosto/2026",
-      "valor": 950,
-      "categoria": "Encargos Sociais",
-      "origem": "estimativa",
-      "tags": [
-        "a-pagar",
-        "setembro",
-        "orcamento"
-      ]
-    },
-    {
-      "data": "2026-09-10",
-      "vencimento": "2026-09-10",
-      "atrasado": false,
-      "rot": "Marketing - trafego pago",
-      "valor": 2500,
-      "categoria": "Marketing e Publicidade",
-      "origem": "estimativa",
-      "tags": [
-        "a-pagar",
-        "setembro",
-        "orcamento"
-      ]
-    },
-    {
-      "data": "2026-09-10",
-      "vencimento": "2026-09-10",
-      "atrasado": false,
-      "rot": "Honorários de contabilidade",
-      "valor": 1058,
-      "categoria": "Servicos de Terceiros",
-      "origem": "estimativa",
-      "tags": [
-        "despesa-fixa",
-        "orcamento"
-      ]
-    },
-    {
-      "data": "2026-09-10",
-      "vencimento": "2026-09-10",
-      "atrasado": false,
-      "rot": "Site ClickWeb - hospedagem bulaassessoria.com",
-      "valor": 218.3,
-      "categoria": "Servicos de Terceiros",
-      "origem": "estimativa",
-      "tags": [
-        "a-pagar",
-        "setembro",
-        "orcamento"
-      ]
-    },
-    {
-      "data": "2026-09-10",
-      "vencimento": "2026-09-10",
-      "atrasado": false,
-      "rot": "Pacote de servicos bancarios Sicoob",
-      "valor": 129.9,
-      "categoria": "Tarifas Bancarias",
-      "origem": "estimativa",
-      "tags": [
-        "a-pagar",
-        "setembro",
-        "orcamento"
-      ]
-    },
-    {
-      "data": "2026-09-10",
-      "vencimento": "2026-09-10",
-      "atrasado": false,
-      "rot": "Integralizacao de capital cooperativa",
-      "valor": 39,
-      "categoria": "Integralizacao Capital Cooperativa",
-      "origem": "estimativa",
-      "tags": [
-        "a-pagar",
-        "setembro",
-        "orcamento"
-      ]
+      "origem": "estimativa"
     }
   ],
-  "saidasLancadasTotal": 76305.81,
-  "retidos": [],
+  "saidasLancadasTotal": 50451.61,
   "blocos": {
     "folha": 50451.61,
-    "comissaoJulhoAberta": 16809,
-    "encargos": 1900,
-    "leilaoLancado": 3200,
-    "recorrentes": 3945.2
+    "outrosReais": 0
   },
-  "comissoesJulhoAbertas": [
-    {
-      "rot": "COMISSAO LEILÃO VIRTUAL BASE GENÉTICA SANTA CRUZ - 1ª ETAPA – 14/07/2026 - FABIO OMENA (2%)",
-      "valor": 1962,
-      "vencimento": "2026-08-25"
-    },
-    {
-      "rot": "COMISSAO LEILÃO VIRTUAL BASE GENÉTICA SANTA CRUZ - 1ª ETAPA – 14/07/2026 - LEONARDO SERAFIM (2%)",
-      "valor": 510,
-      "vencimento": "2026-08-25"
-    },
-    {
-      "rot": "COMISSAO 20º LEILÃO GUADALUPE AGROPECUÁRIA Touros - FABIO OMENA (2%)",
-      "valor": 420,
-      "vencimento": "2026-08-25"
-    },
-    {
-      "rot": "COMISSAO MEGA EVENTO EAO BAVIERA — Fêmeas - LEONARDO SERAFIM (2%)",
-      "valor": 1200,
-      "vencimento": "2026-08-25"
-    },
-    {
-      "rot": "COMISSAO 2º ETAPA NAVIRAÍ MATRIZES - FABIO OMENA (2%)",
-      "valor": 864,
-      "vencimento": "2026-08-25"
-    },
-    {
-      "rot": "COMISSAO LEILÃO VIRTUAL NAVIRAÍ - MATRIZES – 05/07/2026 - FABIO OMENA (2%)",
-      "valor": 480,
-      "vencimento": "2026-08-25"
-    },
-    {
-      "rot": "COMISSAO 20º LEILÃO GUADALUPE AGROPECUÁRIA Touros - A DEFINIR (2%)",
-      "valor": 390,
-      "vencimento": "2026-08-25"
-    },
-    {
-      "rot": "COMISSAO 2º ETAPA NAVIRAÍ MATRIZES - PERALTA (2%)",
-      "valor": 1080,
-      "vencimento": "2026-08-25"
-    },
-    {
-      "rot": "COMISSAO 23º LEILÃO GENÉTICA ADITIVA - 2ª ETAPA TOUROS – 26/07/2026 - LEONARDO SERAFIM (2%)",
-      "valor": 4068,
-      "vencimento": "2026-08-25"
-    },
-    {
-      "rot": "COMISSAO MEGA EVENTO EAO BAVIERA — Machos - LAILA OLIVEIRA (2%)",
-      "valor": 675,
-      "vencimento": "2026-08-25"
-    },
-    {
-      "rot": "COMISSAO 23º LEILÃO GENÉTICA ADITIVA - 2ª ETAPA TOUROS – 26/07/2026 - FABIO OMENA (2%)",
-      "valor": 642,
-      "vencimento": "2026-08-25"
-    },
-    {
-      "rot": "COMISSAO MEGA EVENTO EAO BAVIERA — Machos - FABIO OMENA (2%)",
-      "valor": 870,
-      "vencimento": "2026-08-25"
-    },
-    {
-      "rot": "COMISSAO MEGA EVENTO EAO BAVIERA — Fêmeas - FABIO OMENA (2%)",
-      "valor": 3648,
-      "vencimento": "2026-08-25"
-    }
-  ],
   "premissas": {
     "estrutural": {
-      "meses": [
-        {
-          "mes": "2026-07",
-          "valor": 15447.14
-        },
-        {
-          "mes": "2026-08",
-          "valor": 12917.36
-        }
-      ],
       "serie": [
         {
           "mes": "2026-01",
@@ -994,9 +551,8 @@
       ],
       "media": 14182.25,
       "porDia": 472.74,
-      "bruto": 6618.36,
-      "jaLancado": 3945.2,
-      "aProjetar": 2673.16
+      "diasProjetados": 10,
+      "aProjetar": 4727.4
     },
     "leilao": {
       "meses": [
@@ -1073,98 +629,66 @@
       "fatiaDoLeilao": 0.31
     }
   },
-  "presenciaisJanela": [
+  "presenciais": [
     {
       "nome": "LEILÃO MELHORADORES ESPECIAL 30 ANOS",
       "data": "2026-08-29",
       "local": "ACRISSUL — Campo Grande/MS",
-      "leiloeira": "BULA REMATES",
-      "cpLancado": 3200
+      "caixa": "2026-09-08",
+      "dentro": true
     },
     {
       "nome": "LEILÃO NELORE ASJ & CONVIDADOS ESPECIAIS",
       "data": "2026-08-30",
       "local": "HARAS MUCURI",
-      "leiloeira": "PROGRAMA LEILÕES",
-      "cpLancado": 0
+      "caixa": "2026-09-09",
+      "dentro": true
     },
     {
       "nome": "TOUROS JACAMIN",
       "data": "2026-09-05",
       "local": "NOVA MUTUM/MT",
-      "leiloeira": "PROGRAMA LEILÕES",
-      "cpLancado": 0
+      "caixa": "2026-09-15",
+      "dentro": false
     }
   ],
-  "presenciaisSemCP": [
+  "presenciaisDentro": [
+    {
+      "nome": "LEILÃO MELHORADORES ESPECIAL 30 ANOS",
+      "data": "2026-08-29",
+      "local": "ACRISSUL — Campo Grande/MS",
+      "caixa": "2026-09-08",
+      "dentro": true
+    },
     {
       "nome": "LEILÃO NELORE ASJ & CONVIDADOS ESPECIAIS",
       "data": "2026-08-30",
       "local": "HARAS MUCURI",
-      "leiloeira": "PROGRAMA LEILÕES",
-      "cpLancado": 0
-    },
-    {
-      "nome": "TOUROS JACAMIN",
-      "data": "2026-09-05",
-      "local": "NOVA MUTUM/MT",
-      "leiloeira": "PROGRAMA LEILÕES",
-      "cpLancado": 0
+      "caixa": "2026-09-09",
+      "dentro": true
     }
   ],
   "saidasProjetadas": [
     {
-      "data": "2026-08-30",
-      "rot": "Despesa de leilão presencial — LEILÃO NELORE ASJ & CONVIDADOS ESPECIAIS",
+      "data": "2026-09-08",
+      "rot": "Despesa e reembolso do presencial — LEILÃO MELHORADORES ESPECIAL 30 ANOS",
       "valor": 5553.44,
       "categoria": "Despesa Operacional Leilão",
       "tipo": "projetado",
-      "nota": "operacional + viagens + reembolsos; média de 11 presenciais em jun–ago"
+      "pregao": "2026-08-29"
     },
     {
-      "data": "2026-09-05",
-      "rot": "Despesa de leilão presencial — TOUROS JACAMIN",
+      "data": "2026-09-09",
+      "rot": "Despesa e reembolso do presencial — LEILÃO NELORE ASJ & CONVIDADOS ESPECIAIS",
       "valor": 5553.44,
       "categoria": "Despesa Operacional Leilão",
       "tipo": "projetado",
-      "nota": "operacional + viagens + reembolsos; média de 11 presenciais em jun–ago"
-    },
-    {
-      "data": "2026-08-28",
-      "rot": "Custo estrutural corrente (diluído)",
-      "valor": 190.94,
-      "categoria": "Estrutura",
-      "tipo": "projetado",
-      "oculto": true
-    },
-    {
-      "data": "2026-08-29",
-      "rot": "Custo estrutural corrente (diluído)",
-      "valor": 190.94,
-      "categoria": "Estrutura",
-      "tipo": "projetado",
-      "oculto": true
-    },
-    {
-      "data": "2026-08-30",
-      "rot": "Custo estrutural corrente (diluído)",
-      "valor": 190.94,
-      "categoria": "Estrutura",
-      "tipo": "projetado",
-      "oculto": true
-    },
-    {
-      "data": "2026-08-31",
-      "rot": "Custo estrutural corrente (diluído)",
-      "valor": 190.94,
-      "categoria": "Estrutura",
-      "tipo": "projetado",
-      "oculto": true
+      "pregao": "2026-08-30"
     },
     {
       "data": "2026-09-01",
       "rot": "Custo estrutural corrente (diluído)",
-      "valor": 190.94,
+      "valor": 472.74,
       "categoria": "Estrutura",
       "tipo": "projetado",
       "oculto": true
@@ -1172,7 +696,7 @@
     {
       "data": "2026-09-02",
       "rot": "Custo estrutural corrente (diluído)",
-      "valor": 190.94,
+      "valor": 472.74,
       "categoria": "Estrutura",
       "tipo": "projetado",
       "oculto": true
@@ -1180,7 +704,7 @@
     {
       "data": "2026-09-03",
       "rot": "Custo estrutural corrente (diluído)",
-      "valor": 190.94,
+      "valor": 472.74,
       "categoria": "Estrutura",
       "tipo": "projetado",
       "oculto": true
@@ -1188,7 +712,7 @@
     {
       "data": "2026-09-04",
       "rot": "Custo estrutural corrente (diluído)",
-      "valor": 190.94,
+      "valor": 472.74,
       "categoria": "Estrutura",
       "tipo": "projetado",
       "oculto": true
@@ -1196,7 +720,7 @@
     {
       "data": "2026-09-05",
       "rot": "Custo estrutural corrente (diluído)",
-      "valor": 190.94,
+      "valor": 472.74,
       "categoria": "Estrutura",
       "tipo": "projetado",
       "oculto": true
@@ -1204,7 +728,7 @@
     {
       "data": "2026-09-06",
       "rot": "Custo estrutural corrente (diluído)",
-      "valor": 190.94,
+      "valor": 472.74,
       "categoria": "Estrutura",
       "tipo": "projetado",
       "oculto": true
@@ -1212,7 +736,7 @@
     {
       "data": "2026-09-07",
       "rot": "Custo estrutural corrente (diluído)",
-      "valor": 190.94,
+      "valor": 472.74,
       "categoria": "Estrutura",
       "tipo": "projetado",
       "oculto": true
@@ -1220,7 +744,7 @@
     {
       "data": "2026-09-08",
       "rot": "Custo estrutural corrente (diluído)",
-      "valor": 190.94,
+      "valor": 472.74,
       "categoria": "Estrutura",
       "tipo": "projetado",
       "oculto": true
@@ -1228,7 +752,7 @@
     {
       "data": "2026-09-09",
       "rot": "Custo estrutural corrente (diluído)",
-      "valor": 190.94,
+      "valor": 472.74,
       "categoria": "Estrutura",
       "tipo": "projetado",
       "oculto": true
@@ -1236,39 +760,25 @@
     {
       "data": "2026-09-10",
       "rot": "Custo estrutural corrente (diluído)",
-      "valor": 190.94,
+      "valor": 472.74,
       "categoria": "Estrutura",
       "tipo": "projetado",
       "oculto": true
     }
   ],
-  "saidasProjetadasTotal": 13780.04,
-  "saidasTotal": 90085.85,
+  "saidasProjetadasTotal": 15834.28,
+  "saidasTotal": 66285.89,
   "cenarios": [
     {
       "chave": "BASE",
       "rot": "Base",
-      "desc": "Kito e Sorriso até 31/08, Naviraí em 10/09, e a Bula paga tudo o que está em aberto — inclusive as comissões de julho ainda não quitadas.",
-      "final": -2747.78,
-      "fundo": -17406.64,
+      "desc": "Nada sai até 31/08. Entram Kito, Sorriso e Naviraí; saem a folha de 05/09 e a despesa dos dois presenciais, com o atraso de caixa que ela tem na prática.",
+      "final": 21052.18,
+      "fundo": 2729.92,
       "fundoData": "2026-09-09",
-      "diasNegativos": 6,
+      "diasNegativos": 0,
       "entradas": 40974.98,
-      "saidas": 90085.85
-    },
-    {
-      "chave": "SEM_COM_JUL",
-      "rot": "Segurando as comissões de julho",
-      "desc": "Mesmas entradas, mas os títulos de comissão vencidos em 25/08 ficam para depois da janela.",
-      "opts": {
-        "semComissaoJulho": true
-      },
-      "final": 14061.22,
-      "fundo": -597.64,
-      "fundoData": "2026-09-09",
-      "diasNegativos": 3,
-      "entradas": 40974.98,
-      "saidas": 73276.85
+      "saidas": 66285.89
     },
     {
       "chave": "SO_SICOOB",
@@ -1277,12 +787,12 @@
       "opts": {
         "soSicoob": true
       },
-      "final": -15346.42,
-      "fundo": -30005.28,
+      "final": 8453.54,
+      "fundo": -9868.72,
       "fundoData": "2026-09-09",
-      "diasNegativos": 6,
+      "diasNegativos": 2,
       "entradas": 40974.98,
-      "saidas": 90085.85
+      "saidas": 66285.89
     },
     {
       "chave": "NAVIRAI_1",
@@ -1291,26 +801,40 @@
       "opts": {
         "naviraiMetade": true
       },
-      "final": -11717.78,
-      "fundo": -17406.64,
+      "final": 12082.18,
+      "fundo": 2729.92,
       "fundoData": "2026-09-09",
-      "diasNegativos": 6,
+      "diasNegativos": 0,
       "entradas": 32004.98,
-      "saidas": 90085.85
+      "saidas": 66285.89
     },
     {
       "chave": "ATRASO_5",
       "rot": "Tudo 5 dias atrasado",
-      "desc": "As três promessas de recebimento escorregam 5 dias.",
+      "desc": "As três promessas de recebimento escorregam 5 dias — o Naviraí cai fora da janela.",
       "opts": {
         "atrasoDias": 5
       },
-      "final": -21542.78,
-      "fundo": -21542.78,
+      "final": 2257.18,
+      "fundo": 2257.18,
       "fundoData": "2026-09-10",
-      "diasNegativos": 6,
+      "diasNegativos": 0,
       "entradas": 22179.98,
-      "saidas": 90085.85
+      "saidas": 66285.89
+    },
+    {
+      "chave": "COM_JULHO",
+      "rot": "Se as comissões de julho saírem em 05/09",
+      "desc": "Sensibilidade, não previsão: os R$ 16.809,00 que ficaram fora do relatório entrando junto com a folha.",
+      "opts": {
+        "comissoesEm": "2026-09-05"
+      },
+      "final": 4243.18,
+      "fundo": -14079.08,
+      "fundoData": "2026-09-09",
+      "diasNegativos": 5,
+      "entradas": 40974.98,
+      "saidas": 83094.89
     }
   ],
   "linhas": {
@@ -1319,243 +843,91 @@
         "data": "2026-08-27",
         "entra": 0,
         "sai": 0,
-        "saiLancado": 0,
-        "saiProjetado": 0,
         "saldo": 46363.09
       },
       {
         "data": "2026-08-28",
-        "entra": 0,
-        "sai": 17949.94,
-        "saiLancado": 17759,
-        "saiProjetado": 190.94,
-        "saldo": 28413.15
-      },
-      {
-        "data": "2026-08-29",
-        "entra": 0,
-        "sai": 190.94,
-        "saiLancado": 0,
-        "saiProjetado": 190.94,
-        "saldo": 28222.21
-      },
-      {
-        "data": "2026-08-30",
-        "entra": 15030,
-        "sai": 5744.38,
-        "saiLancado": 0,
-        "saiProjetado": 5744.38,
-        "saldo": 37507.83
-      },
-      {
-        "data": "2026-08-31",
-        "entra": 7149.98,
-        "sai": 3390.94,
-        "saiLancado": 3200,
-        "saiProjetado": 190.94,
-        "saldo": 41266.87
-      },
-      {
-        "data": "2026-09-01",
-        "entra": 0,
-        "sai": 190.94,
-        "saiLancado": 0,
-        "saiProjetado": 190.94,
-        "saldo": 41075.93
-      },
-      {
-        "data": "2026-09-02",
-        "entra": 0,
-        "sai": 190.94,
-        "saiLancado": 0,
-        "saiProjetado": 190.94,
-        "saldo": 40884.99
-      },
-      {
-        "data": "2026-09-03",
-        "entra": 0,
-        "sai": 190.94,
-        "saiLancado": 0,
-        "saiProjetado": 190.94,
-        "saldo": 40694.05
-      },
-      {
-        "data": "2026-09-04",
-        "entra": 0,
-        "sai": 190.94,
-        "saiLancado": 0,
-        "saiProjetado": 190.94,
-        "saldo": 40503.11
-      },
-      {
-        "data": "2026-09-05",
-        "entra": 0,
-        "sai": 56195.99,
-        "saiLancado": 50451.61,
-        "saiProjetado": 5744.38,
-        "saldo": -15692.88
-      },
-      {
-        "data": "2026-09-06",
-        "entra": 0,
-        "sai": 190.94,
-        "saiLancado": 0,
-        "saiProjetado": 190.94,
-        "saldo": -15883.82
-      },
-      {
-        "data": "2026-09-07",
-        "entra": 0,
-        "sai": 1140.94,
-        "saiLancado": 950,
-        "saiProjetado": 190.94,
-        "saldo": -17024.76
-      },
-      {
-        "data": "2026-09-08",
-        "entra": 0,
-        "sai": 190.94,
-        "saiLancado": 0,
-        "saiProjetado": 190.94,
-        "saldo": -17215.7
-      },
-      {
-        "data": "2026-09-09",
-        "entra": 0,
-        "sai": 190.94,
-        "saiLancado": 0,
-        "saiProjetado": 190.94,
-        "saldo": -17406.64
-      },
-      {
-        "data": "2026-09-10",
-        "entra": 18795,
-        "sai": 4136.14,
-        "saiLancado": 3945.2,
-        "saiProjetado": 190.94,
-        "saldo": -2747.78
-      }
-    ],
-    "SEM_COM_JUL": [
-      {
-        "data": "2026-08-27",
         "entra": 0,
         "sai": 0,
-        "saiLancado": 0,
-        "saiProjetado": 0,
         "saldo": 46363.09
-      },
-      {
-        "data": "2026-08-28",
-        "entra": 0,
-        "sai": 1140.94,
-        "saiLancado": 950,
-        "saiProjetado": 190.94,
-        "saldo": 45222.15
       },
       {
         "data": "2026-08-29",
         "entra": 0,
-        "sai": 190.94,
-        "saiLancado": 0,
-        "saiProjetado": 190.94,
-        "saldo": 45031.21
+        "sai": 0,
+        "saldo": 46363.09
       },
       {
         "data": "2026-08-30",
         "entra": 15030,
-        "sai": 5744.38,
-        "saiLancado": 0,
-        "saiProjetado": 5744.38,
-        "saldo": 54316.83
+        "sai": 0,
+        "saldo": 61393.09
       },
       {
         "data": "2026-08-31",
         "entra": 7149.98,
-        "sai": 3390.94,
-        "saiLancado": 3200,
-        "saiProjetado": 190.94,
-        "saldo": 58075.87
+        "sai": 0,
+        "saldo": 68543.07
       },
       {
         "data": "2026-09-01",
         "entra": 0,
-        "sai": 190.94,
-        "saiLancado": 0,
-        "saiProjetado": 190.94,
-        "saldo": 57884.93
+        "sai": 472.74,
+        "saldo": 68070.33
       },
       {
         "data": "2026-09-02",
         "entra": 0,
-        "sai": 190.94,
-        "saiLancado": 0,
-        "saiProjetado": 190.94,
-        "saldo": 57693.99
+        "sai": 472.74,
+        "saldo": 67597.59
       },
       {
         "data": "2026-09-03",
         "entra": 0,
-        "sai": 190.94,
-        "saiLancado": 0,
-        "saiProjetado": 190.94,
-        "saldo": 57503.05
+        "sai": 472.74,
+        "saldo": 67124.85
       },
       {
         "data": "2026-09-04",
         "entra": 0,
-        "sai": 190.94,
-        "saiLancado": 0,
-        "saiProjetado": 190.94,
-        "saldo": 57312.11
+        "sai": 472.74,
+        "saldo": 66652.11
       },
       {
         "data": "2026-09-05",
         "entra": 0,
-        "sai": 56195.99,
-        "saiLancado": 50451.61,
-        "saiProjetado": 5744.38,
-        "saldo": 1116.12
+        "sai": 50924.35,
+        "saldo": 15727.76
       },
       {
         "data": "2026-09-06",
         "entra": 0,
-        "sai": 190.94,
-        "saiLancado": 0,
-        "saiProjetado": 190.94,
-        "saldo": 925.18
+        "sai": 472.74,
+        "saldo": 15255.02
       },
       {
         "data": "2026-09-07",
         "entra": 0,
-        "sai": 1140.94,
-        "saiLancado": 950,
-        "saiProjetado": 190.94,
-        "saldo": -215.76
+        "sai": 472.74,
+        "saldo": 14782.28
       },
       {
         "data": "2026-09-08",
         "entra": 0,
-        "sai": 190.94,
-        "saiLancado": 0,
-        "saiProjetado": 190.94,
-        "saldo": -406.7
+        "sai": 6026.18,
+        "saldo": 8756.1
       },
       {
         "data": "2026-09-09",
         "entra": 0,
-        "sai": 190.94,
-        "saiLancado": 0,
-        "saiProjetado": 190.94,
-        "saldo": -597.64
+        "sai": 6026.18,
+        "saldo": 2729.92
       },
       {
         "data": "2026-09-10",
         "entra": 18795,
-        "sai": 4136.14,
-        "saiLancado": 3945.2,
-        "saiProjetado": 190.94,
-        "saldo": 14061.22
+        "sai": 472.74,
+        "saldo": 21052.18
       }
     ],
     "SO_SICOOB": [
@@ -1563,121 +935,91 @@
         "data": "2026-08-27",
         "entra": 0,
         "sai": 0,
-        "saiLancado": 0,
-        "saiProjetado": 0,
         "saldo": 33764.45
       },
       {
         "data": "2026-08-28",
         "entra": 0,
-        "sai": 17949.94,
-        "saiLancado": 17759,
-        "saiProjetado": 190.94,
-        "saldo": 15814.51
+        "sai": 0,
+        "saldo": 33764.45
       },
       {
         "data": "2026-08-29",
         "entra": 0,
-        "sai": 190.94,
-        "saiLancado": 0,
-        "saiProjetado": 190.94,
-        "saldo": 15623.57
+        "sai": 0,
+        "saldo": 33764.45
       },
       {
         "data": "2026-08-30",
         "entra": 15030,
-        "sai": 5744.38,
-        "saiLancado": 0,
-        "saiProjetado": 5744.38,
-        "saldo": 24909.19
+        "sai": 0,
+        "saldo": 48794.45
       },
       {
         "data": "2026-08-31",
         "entra": 7149.98,
-        "sai": 3390.94,
-        "saiLancado": 3200,
-        "saiProjetado": 190.94,
-        "saldo": 28668.23
+        "sai": 0,
+        "saldo": 55944.43
       },
       {
         "data": "2026-09-01",
         "entra": 0,
-        "sai": 190.94,
-        "saiLancado": 0,
-        "saiProjetado": 190.94,
-        "saldo": 28477.29
+        "sai": 472.74,
+        "saldo": 55471.69
       },
       {
         "data": "2026-09-02",
         "entra": 0,
-        "sai": 190.94,
-        "saiLancado": 0,
-        "saiProjetado": 190.94,
-        "saldo": 28286.35
+        "sai": 472.74,
+        "saldo": 54998.95
       },
       {
         "data": "2026-09-03",
         "entra": 0,
-        "sai": 190.94,
-        "saiLancado": 0,
-        "saiProjetado": 190.94,
-        "saldo": 28095.41
+        "sai": 472.74,
+        "saldo": 54526.21
       },
       {
         "data": "2026-09-04",
         "entra": 0,
-        "sai": 190.94,
-        "saiLancado": 0,
-        "saiProjetado": 190.94,
-        "saldo": 27904.47
+        "sai": 472.74,
+        "saldo": 54053.47
       },
       {
         "data": "2026-09-05",
         "entra": 0,
-        "sai": 56195.99,
-        "saiLancado": 50451.61,
-        "saiProjetado": 5744.38,
-        "saldo": -28291.52
+        "sai": 50924.35,
+        "saldo": 3129.12
       },
       {
         "data": "2026-09-06",
         "entra": 0,
-        "sai": 190.94,
-        "saiLancado": 0,
-        "saiProjetado": 190.94,
-        "saldo": -28482.46
+        "sai": 472.74,
+        "saldo": 2656.38
       },
       {
         "data": "2026-09-07",
         "entra": 0,
-        "sai": 1140.94,
-        "saiLancado": 950,
-        "saiProjetado": 190.94,
-        "saldo": -29623.4
+        "sai": 472.74,
+        "saldo": 2183.64
       },
       {
         "data": "2026-09-08",
         "entra": 0,
-        "sai": 190.94,
-        "saiLancado": 0,
-        "saiProjetado": 190.94,
-        "saldo": -29814.34
+        "sai": 6026.18,
+        "saldo": -3842.54
       },
       {
         "data": "2026-09-09",
         "entra": 0,
-        "sai": 190.94,
-        "saiLancado": 0,
-        "saiProjetado": 190.94,
-        "saldo": -30005.28
+        "sai": 6026.18,
+        "saldo": -9868.72
       },
       {
         "data": "2026-09-10",
         "entra": 18795,
-        "sai": 4136.14,
-        "saiLancado": 3945.2,
-        "saiProjetado": 190.94,
-        "saldo": -15346.42
+        "sai": 472.74,
+        "saldo": 8453.54
       }
     ],
     "NAVIRAI_1": [
@@ -1685,121 +1027,91 @@
         "data": "2026-08-27",
         "entra": 0,
         "sai": 0,
-        "saiLancado": 0,
-        "saiProjetado": 0,
         "saldo": 46363.09
       },
       {
         "data": "2026-08-28",
         "entra": 0,
-        "sai": 17949.94,
-        "saiLancado": 17759,
-        "saiProjetado": 190.94,
-        "saldo": 28413.15
+        "sai": 0,
+        "saldo": 46363.09
       },
       {
         "data": "2026-08-29",
         "entra": 0,
-        "sai": 190.94,
-        "saiLancado": 0,
-        "saiProjetado": 190.94,
-        "saldo": 28222.21
+        "sai": 0,
+        "saldo": 46363.09
       },
       {
         "data": "2026-08-30",
         "entra": 15030,
-        "sai": 5744.38,
-        "saiLancado": 0,
-        "saiProjetado": 5744.38,
-        "saldo": 37507.83
+        "sai": 0,
+        "saldo": 61393.09
       },
       {
         "data": "2026-08-31",
         "entra": 7149.98,
-        "sai": 3390.94,
-        "saiLancado": 3200,
-        "saiProjetado": 190.94,
-        "saldo": 41266.87
+        "sai": 0,
+        "saldo": 68543.07
       },
       {
         "data": "2026-09-01",
         "entra": 0,
-        "sai": 190.94,
-        "saiLancado": 0,
-        "saiProjetado": 190.94,
-        "saldo": 41075.93
+        "sai": 472.74,
+        "saldo": 68070.33
       },
       {
         "data": "2026-09-02",
         "entra": 0,
-        "sai": 190.94,
-        "saiLancado": 0,
-        "saiProjetado": 190.94,
-        "saldo": 40884.99
+        "sai": 472.74,
+        "saldo": 67597.59
       },
       {
         "data": "2026-09-03",
         "entra": 0,
-        "sai": 190.94,
-        "saiLancado": 0,
-        "saiProjetado": 190.94,
-        "saldo": 40694.05
+        "sai": 472.74,
+        "saldo": 67124.85
       },
       {
         "data": "2026-09-04",
         "entra": 0,
-        "sai": 190.94,
-        "saiLancado": 0,
-        "saiProjetado": 190.94,
-        "saldo": 40503.11
+        "sai": 472.74,
+        "saldo": 66652.11
       },
       {
         "data": "2026-09-05",
         "entra": 0,
-        "sai": 56195.99,
-        "saiLancado": 50451.61,
-        "saiProjetado": 5744.38,
-        "saldo": -15692.88
+        "sai": 50924.35,
+        "saldo": 15727.76
       },
       {
         "data": "2026-09-06",
         "entra": 0,
-        "sai": 190.94,
-        "saiLancado": 0,
-        "saiProjetado": 190.94,
-        "saldo": -15883.82
+        "sai": 472.74,
+        "saldo": 15255.02
       },
       {
         "data": "2026-09-07",
         "entra": 0,
-        "sai": 1140.94,
-        "saiLancado": 950,
-        "saiProjetado": 190.94,
-        "saldo": -17024.76
+        "sai": 472.74,
+        "saldo": 14782.28
       },
       {
         "data": "2026-09-08",
         "entra": 0,
-        "sai": 190.94,
-        "saiLancado": 0,
-        "saiProjetado": 190.94,
-        "saldo": -17215.7
+        "sai": 6026.18,
+        "saldo": 8756.1
       },
       {
         "data": "2026-09-09",
         "entra": 0,
-        "sai": 190.94,
-        "saiLancado": 0,
-        "saiProjetado": 190.94,
-        "saldo": -17406.64
+        "sai": 6026.18,
+        "saldo": 2729.92
       },
       {
         "data": "2026-09-10",
         "entra": 9825,
-        "sai": 4136.14,
-        "saiLancado": 3945.2,
-        "saiProjetado": 190.94,
-        "saldo": -11717.78
+        "sai": 472.74,
+        "saldo": 12082.18
       }
     ],
     "ATRASO_5": [
@@ -1807,186 +1119,209 @@
         "data": "2026-08-27",
         "entra": 0,
         "sai": 0,
-        "saiLancado": 0,
-        "saiProjetado": 0,
         "saldo": 46363.09
       },
       {
         "data": "2026-08-28",
         "entra": 0,
-        "sai": 17949.94,
-        "saiLancado": 17759,
-        "saiProjetado": 190.94,
-        "saldo": 28413.15
+        "sai": 0,
+        "saldo": 46363.09
       },
       {
         "data": "2026-08-29",
         "entra": 0,
-        "sai": 190.94,
-        "saiLancado": 0,
-        "saiProjetado": 190.94,
-        "saldo": 28222.21
+        "sai": 0,
+        "saldo": 46363.09
       },
       {
         "data": "2026-08-30",
         "entra": 0,
-        "sai": 5744.38,
-        "saiLancado": 0,
-        "saiProjetado": 5744.38,
-        "saldo": 22477.83
+        "sai": 0,
+        "saldo": 46363.09
       },
       {
         "data": "2026-08-31",
         "entra": 0,
-        "sai": 3390.94,
-        "saiLancado": 3200,
-        "saiProjetado": 190.94,
-        "saldo": 19086.89
+        "sai": 0,
+        "saldo": 46363.09
       },
       {
         "data": "2026-09-01",
         "entra": 0,
-        "sai": 190.94,
-        "saiLancado": 0,
-        "saiProjetado": 190.94,
-        "saldo": 18895.95
+        "sai": 472.74,
+        "saldo": 45890.35
       },
       {
         "data": "2026-09-02",
         "entra": 0,
-        "sai": 190.94,
-        "saiLancado": 0,
-        "saiProjetado": 190.94,
-        "saldo": 18705.01
+        "sai": 472.74,
+        "saldo": 45417.61
       },
       {
         "data": "2026-09-03",
         "entra": 0,
-        "sai": 190.94,
-        "saiLancado": 0,
-        "saiProjetado": 190.94,
-        "saldo": 18514.07
+        "sai": 472.74,
+        "saldo": 44944.87
       },
       {
         "data": "2026-09-04",
         "entra": 15030,
-        "sai": 190.94,
-        "saiLancado": 0,
-        "saiProjetado": 190.94,
-        "saldo": 33353.13
+        "sai": 472.74,
+        "saldo": 59502.13
       },
       {
         "data": "2026-09-05",
         "entra": 7149.98,
-        "sai": 56195.99,
-        "saiLancado": 50451.61,
-        "saiProjetado": 5744.38,
-        "saldo": -15692.88
+        "sai": 50924.35,
+        "saldo": 15727.76
       },
       {
         "data": "2026-09-06",
         "entra": 0,
-        "sai": 190.94,
-        "saiLancado": 0,
-        "saiProjetado": 190.94,
-        "saldo": -15883.82
+        "sai": 472.74,
+        "saldo": 15255.02
       },
       {
         "data": "2026-09-07",
         "entra": 0,
-        "sai": 1140.94,
-        "saiLancado": 950,
-        "saiProjetado": 190.94,
-        "saldo": -17024.76
+        "sai": 472.74,
+        "saldo": 14782.28
       },
       {
         "data": "2026-09-08",
         "entra": 0,
-        "sai": 190.94,
-        "saiLancado": 0,
-        "saiProjetado": 190.94,
-        "saldo": -17215.7
+        "sai": 6026.18,
+        "saldo": 8756.1
       },
       {
         "data": "2026-09-09",
         "entra": 0,
-        "sai": 190.94,
-        "saiLancado": 0,
-        "saiProjetado": 190.94,
-        "saldo": -17406.64
+        "sai": 6026.18,
+        "saldo": 2729.92
       },
       {
         "data": "2026-09-10",
         "entra": 0,
-        "sai": 4136.14,
-        "saiLancado": 3945.2,
-        "saiProjetado": 190.94,
-        "saldo": -21542.78
+        "sai": 472.74,
+        "saldo": 2257.18
+      }
+    ],
+    "COM_JULHO": [
+      {
+        "data": "2026-08-27",
+        "entra": 0,
+        "sai": 0,
+        "saldo": 46363.09
+      },
+      {
+        "data": "2026-08-28",
+        "entra": 0,
+        "sai": 0,
+        "saldo": 46363.09
+      },
+      {
+        "data": "2026-08-29",
+        "entra": 0,
+        "sai": 0,
+        "saldo": 46363.09
+      },
+      {
+        "data": "2026-08-30",
+        "entra": 15030,
+        "sai": 0,
+        "saldo": 61393.09
+      },
+      {
+        "data": "2026-08-31",
+        "entra": 7149.98,
+        "sai": 0,
+        "saldo": 68543.07
+      },
+      {
+        "data": "2026-09-01",
+        "entra": 0,
+        "sai": 472.74,
+        "saldo": 68070.33
+      },
+      {
+        "data": "2026-09-02",
+        "entra": 0,
+        "sai": 472.74,
+        "saldo": 67597.59
+      },
+      {
+        "data": "2026-09-03",
+        "entra": 0,
+        "sai": 472.74,
+        "saldo": 67124.85
+      },
+      {
+        "data": "2026-09-04",
+        "entra": 0,
+        "sai": 472.74,
+        "saldo": 66652.11
+      },
+      {
+        "data": "2026-09-05",
+        "entra": 0,
+        "sai": 67733.35,
+        "saldo": -1081.24
+      },
+      {
+        "data": "2026-09-06",
+        "entra": 0,
+        "sai": 472.74,
+        "saldo": -1553.98
+      },
+      {
+        "data": "2026-09-07",
+        "entra": 0,
+        "sai": 472.74,
+        "saldo": -2026.72
+      },
+      {
+        "data": "2026-09-08",
+        "entra": 0,
+        "sai": 6026.18,
+        "saldo": -8052.9
+      },
+      {
+        "data": "2026-09-09",
+        "entra": 0,
+        "sai": 6026.18,
+        "saldo": -14079.08
+      },
+      {
+        "data": "2026-09-10",
+        "entra": 18795,
+        "sai": 472.74,
+        "saldo": 4243.18
       }
     ]
   },
-  "necessidade": [
+  "margem": {
+    "fundo": 2729.92,
+    "fundoData": "2026-09-09",
+    "final": 21052.18
+  },
+  "consomeMargem": [
     {
-      "colchao": 0,
-      "marcos": [
-        {
-          "ate": "2026-08-31",
-          "pior": 28222.21,
-          "precisa": 0
-        },
-        {
-          "ate": "2026-09-05",
-          "pior": -15692.88,
-          "precisa": 15692.88
-        },
-        {
-          "ate": "2026-09-10",
-          "pior": -17406.64,
-          "precisa": 17406.64
-        }
-      ]
+      "rot": "Comissões de julho em aberto",
+      "valor": 16809,
+      "nota": "13 títulos vencidos em 25/08 — decisão adiada"
     },
     {
-      "colchao": 20000,
-      "marcos": [
-        {
-          "ate": "2026-08-31",
-          "pior": 28222.21,
-          "precisa": 0
-        },
-        {
-          "ate": "2026-09-05",
-          "pior": -15692.88,
-          "precisa": 35692.88
-        },
-        {
-          "ate": "2026-09-10",
-          "pior": -17406.64,
-          "precisa": 37406.64
-        }
-      ]
+      "rot": "Estimativas do ERP retiradas",
+      "valor": 9045.2,
+      "nota": "8 títulos de orçamento; o custo real volta pela média"
     },
     {
-      "colchao": 30000,
-      "marcos": [
-        {
-          "ate": "2026-08-31",
-          "pior": 28222.21,
-          "precisa": 1777.79
-        },
-        {
-          "ate": "2026-09-05",
-          "pior": -15692.88,
-          "precisa": 45692.88
-        },
-        {
-          "ate": "2026-09-10",
-          "pior": -17406.64,
-          "precisa": 47406.64
-        }
-      ]
+      "rot": "Despesa do presencial do Jacamin",
+      "valor": 5553.44,
+      "nota": "pregão 05/09, caixa projetado para 2026-09-15 — fora da janela"
     }
   ],
+  "consomeMargemTotal": 31407.64,
   "candidatos": [
     {
       "id": "503091cc-4469-4c18-afba-eda906cdd427",
