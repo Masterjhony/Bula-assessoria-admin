@@ -66,11 +66,20 @@ const ISS_JUL = 24524.81, DAS_JUL = 55846.64
 const projetados = [
     { desc: 'ISSQN ref. agosto/2026 (estimado)', valor: r2(ISS_JUL * fator), venc: '2026-09-15', cat: 'Impostos e Taxas' },
     { desc: 'Simples Nacional (DAS) ref. agosto/2026 (estimado)', valor: r2(DAS_JUL * fator), venc: '2026-09-22', cat: 'Impostos e Taxas' },
-    { desc: 'DARF empregados - competencia agosto/2026', valor: 2225.46, venc: '2026-09-21', cat: 'Impostos e Taxas' },
-    { desc: 'FGTS - competencia agosto/2026', valor: 950.00, venc: '2026-09-07', cat: 'Encargos Sociais' },
+    // ⚠ REMOVIDOS EM 28/08/2026 — NAO REPOR AO COPIAR ESTE SCRIPT PARA OUTUBRO:
+    //   'DARF empregados' (2.225,46) e 'FGTS' (950,00): encargo de CLT. A folha
+    //     e 100% PJ — os 9 ativos em erp_folha_estrutura pagam por CNPJ. O
+    //     ultimo encargo real no extrato foi o DARF de 20/08 (1.114,60,
+    //     competencia julho) e o FGTS de 01/07 (938,67). Nao ha competencia
+    //     agosto em diante.
+    //   'Marketing - trafego pago' (2.500,00): nao ha contrato mensal. O chefe
+    //     paga o Meta quando paga e lanca na conciliacao (10/08 3.500,00,
+    //     27/08 2.000,00). Projetar valor fixo inventa compromisso.
+    // Regra geral que o chefe firmou em 28/08: despesa operacional e de leilao
+    // NAO se projeta — ela entra na validacao da conciliacao, salvo pedido
+    // expresso. Ver scripts/saneia-contas-a-pagar-2026-08-28.mjs.
     { desc: 'Fatura cartao VISA (deb. automatico)', valor: 5949.84, venc: '2026-09-22', cat: 'Cartão de Crédito' },
     { desc: 'Fatura cartao MASTERCARD (deb. automatico)', valor: 1380.13, venc: '2026-09-22', cat: 'Cartão de Crédito' },
-    { desc: 'Marketing - trafego pago', valor: 2500.00, venc: '2026-09-10', cat: 'Marketing e Publicidade' },
     { desc: 'Site ClickWeb - hospedagem bulaassessoria.com', valor: 218.30, venc: '2026-09-10', cat: 'Servicos de Terceiros' },
     { desc: 'Sistema / banco de dados - fatura mensal', valor: 180.00, venc: '2026-09-18', cat: 'Software/Assinaturas' },
     { desc: 'Assinatura Anthropic / Claude IA', valor: 550.00, venc: '2026-09-24', cat: 'Software/Assinaturas' },
