@@ -3,362 +3,937 @@
 <style>
   @page { size: A4; margin: 0; }
   * { box-sizing: border-box; margin: 0; padding: 0; }
-  body { font-family: Inter, Arial, sans-serif; color: #16181d; font-size: 8.9pt; line-height: 1.4; }
-  .page { padding: 9mm 12mm; }
+  body { font-family: Inter, Arial, sans-serif; color: #16181d; font-size: 9pt; line-height: 1.45; }
+  .page { padding: 10mm 13mm 8mm; }
   .brk { page-break-before: always; }
-  h1, h2, h3, .k { font-family: Oswald, Arial, sans-serif; text-transform: uppercase; letter-spacing: .04em; font-weight: 500; }
-  header { background: #0c0d10; color: #fff; padding: 9mm 12mm 7mm; }
-  header img { height: 34px; opacity: .95; }
-  header h1 { font-size: 20pt; margin-top: 5mm; line-height: 1.05; }
-  header .sub { color: #9aa0aa; font-size: 8.6pt; margin-top: 3mm; }
+  h1,h2,h3,.k,.tag,th,.v { font-family: Oswald, Arial, sans-serif; text-transform: uppercase; letter-spacing: .04em; font-weight: 500; }
+  header { background: #0c0d10; color: #fff; padding: 11mm 13mm 8mm; }
+  header img { height: 32px; opacity: .95; }
+  header h1 { font-size: 21pt; margin-top: 6mm; line-height: 1.05; letter-spacing: .02em; }
   header .gold { color: #C9A84C; }
-  h2 { font-size: 12pt; margin: 5mm 0 2.4mm; padding-bottom: 1.6mm; border-bottom: 1.6pt solid #0c0d10; }
-  h2 .n { color: #C9A84C; margin-right: 3mm; }
-  h3 { font-size: 9.6pt; margin: 5mm 0 2mm; color: #3d424c; }
-  p { margin-bottom: 2.4mm; }
-  .lead { font-size: 10pt; }
-  table { width: 100%; border-collapse: collapse; margin: 2.5mm 0 3mm; }
-  th { font-family: Oswald, Arial, sans-serif; text-transform: uppercase; font-size: 7.4pt; letter-spacing: .05em;
-       text-align: left; color: #5a616e; border-bottom: 1pt solid #c9ccd2; padding: 1.8mm 2mm; font-weight: 500; }
-  td { padding: 1.5mm 2mm; border-bottom: .4pt solid #e6e8ec; vertical-align: top; }
+  header .sub { color: #9aa0aa; font-size: 8.4pt; margin-top: 3.5mm; line-height: 1.5; }
+  h2 { font-size: 11.5pt; margin: 6mm 0 2.5mm; padding-bottom: 1.8mm; border-bottom: 1.5pt solid #0c0d10; }
+  h2 .n { color: #C9A84C; margin-right: 2.5mm; }
+  h2:first-child { margin-top: 0; }
+  h3 { font-size: 9pt; margin: 5mm 0 2mm; color: #4a5058; }
+  p { margin-bottom: 2.5mm; }
+  .lead { font-size: 9.8pt; }
+  table { width: 100%; border-collapse: collapse; margin: 2.5mm 0 2mm; }
+  th { font-size: 7.2pt; text-align: left; color: #5a616e; border-bottom: 1pt solid #c2c6cd; padding: 2mm; }
+  td { padding: 1.7mm 2mm; border-bottom: .4pt solid #e8eaee; vertical-align: middle; }
   td.num, th.num { text-align: right; font-variant-numeric: tabular-nums; white-space: nowrap; }
-  .sub { color: #6b727f; }
-  .small { font-size: 7.6pt; line-height: 1.3; }
-  tr.zero td { color: #9aa0aa; }
-  tr.est td { background: #fbf7ec; }
-  tfoot td { border-top: 1.2pt solid #0c0d10; border-bottom: none; font-weight: 600; padding-top: 2.2mm; }
-  .tag { font-family: Oswald, Arial, sans-serif; font-size: 6.8pt; text-transform: uppercase; letter-spacing: .05em;
-         padding: .6mm 2mm; border-radius: 2mm; white-space: nowrap; }
-  .t-pago { background: #e8f0e9; color: #2f6b3c; }
-  .t-agendado, .t-apagar { background: #eceef2; color: #444a55; }
-  .t-estimado { background: #f6ecd2; color: #8a6a12; }
-  .cards { display: flex; gap: 3mm; margin: 3mm 0 1mm; }
-  .card { flex: 1; border: .6pt solid #d5d8de; border-radius: 2mm; padding: 2.6mm; }
-  .card .k { font-size: 7.2pt; color: #6b727f; }
-  .card .v { font-family: Oswald, Arial, sans-serif; font-size: 14pt; margin-top: 1.2mm; }
-  .card .d { font-size: 7.4pt; color: #6b727f; margin-top: .8mm; line-height: 1.3; }
+  td.ctr, th.ctr { text-align: center; }
+  .sub { color: #6b727f; } .small { font-size: 7.4pt; line-height: 1.35; }
+  tr.zero td { color: #a4a9b2; } tr.est td { background: #fcfaf4; }
+  tfoot td { border-top: 1.2pt solid #0c0d10; border-bottom: none; font-weight: 600; padding-top: 2.4mm; }
+  .bar { display: inline-block; width: 22mm; height: 1.7mm; background: #eceef1; border-radius: 1mm; margin-right: 2.5mm; vertical-align: middle; overflow: hidden; }
+  .bar span { display: block; height: 100%; background: #0c0d10; }
+  .tag { font-size: 6.6pt; padding: .7mm 1.8mm; border-radius: 1.5mm; white-space: nowrap; }
+  .t-ok { background: #e6efe8; color: #2c6539; }
+  .t-est { background: #f7efd9; color: #86680f; }
+  .t-fix { background: #fbeae8; color: #9c2e27; }
+  .mk { color: #C9A84C; font-weight: 600; }
+  .cards { display: flex; gap: 3mm; margin: 4mm 0 2mm; }
+  .card { flex: 1; border: .6pt solid #d7dade; border-radius: 2mm; padding: 3mm; }
+  .card .k { font-size: 6.9pt; color: #6b727f; }
+  .card .v { font-size: 15pt; margin-top: 1.5mm; letter-spacing: 0; }
+  .card .d { font-size: 7.1pt; color: #6b727f; margin-top: 1mm; line-height: 1.35; }
   .card.dark { background: #0c0d10; border-color: #0c0d10; }
   .card.dark .k { color: #9aa0aa; } .card.dark .v { color: #fff; } .card.dark .d { color: #9aa0aa; }
-  .neg { color: #a12a24; } .pos { color: #2f6b3c; }
-  .card .v.neg { color: #e0655c; }
-  .box { border-left: 2.4pt solid #C9A84C; background: #faf7f0; padding: 2.6mm 3.6mm; margin: 2.6mm 0; }
-  .box.alert { border-left-color: #a12a24; background: #fdf3f2; }
-  .box .k { font-size: 8.4pt; margin-bottom: 1.4mm; }
-  ul { margin: 1mm 0 2mm 4.5mm; } li { margin-bottom: 1.2mm; }
-  footer { margin-top: 7mm; padding-top: 2.5mm; border-top: .6pt solid #d5d8de; font-size: 7.4pt; color: #8b919c; }
+  .card.gold { border-color: #C9A84C; border-width: 1pt; }
+  .card.gold .v { color: #8a6d1f; }
+  .neg { color: #9c2e27; } .pos { color: #2c6539; }
+  .box { border-left: 2.2pt solid #C9A84C; background: #faf8f2; padding: 3mm 4mm; margin: 3mm 0; }
+  .box .k { font-size: 8.2pt; margin-bottom: 1.5mm; }
+  .box.dark { border-left-color: #0c0d10; background: #f4f5f7; }
+  ul { margin: 1.5mm 0 2mm 4.5mm; } li { margin-bottom: 1.5mm; }
+  /* DRE */
+  .dre { border: .8pt solid #0c0d10; border-radius: 2mm; overflow: hidden; margin: 3mm 0; }
+  .dre table { margin: 0; }
+  .dre th { background: #0c0d10; color: #fff; font-size: 7.4pt; padding: 2.4mm 4mm; border: none; }
+  .dre td { padding: 2.2mm 4mm; font-size: 9.4pt; }
+  .dre tr.ind td:first-child { padding-left: 8mm; color: #3d434c; }
+  .dre tr.sub-t td { border-top: 1pt solid #0c0d10; border-bottom: none; font-weight: 600;
+       font-family: Oswald, Arial, sans-serif; text-transform: uppercase; letter-spacing: .03em; }
+  .dre tr.final td { background: #0c0d10; color: #fff; font-family: Oswald, Arial, sans-serif;
+       text-transform: uppercase; letter-spacing: .04em; font-size: 12pt; border: none; padding: 3.2mm 4mm; }
+  .dre tr.final td .sub { color: #9aa0aa; }
+  footer { margin-top: 6mm; padding-top: 2.5mm; border-top: .6pt solid #d7dade; font-size: 7.1pt; color: #8b919c; line-height: 1.5; }
 </style></head><body>
 
 <header>
   <img src="data:image/png;base64,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">
-  <h1>Expogenética 2026<br><span class="gold">Custo × Resultado</span></h1>
-  <div class="sub">Bula Assessoria · apuração fechada em 18/08/2026 · 7 dos 14 leilões da agenda já realizados<br>
-  Fonte: ERP (contas a pagar e a receber), fechamentos alinhados ao HastaPro FIL 2 e grupo Lances Bula.</div>
+  <h1>Expogenética 2026<br><span class="gold">Fechamento, Comissões e DRE</span></h1>
+  <div class="sub">Bula Assessoria · 19ª ExpoGenética, Uberaba/MG · agenda comercial de 10 a 23/08 · apuração de 28/08/2026<br>
+  A venda vem do HastaPro lote a lote e está conferida contra duas fontes independentes. A comissão recebida usa o acordo de cada
+  leiloeira, com os percentuais confirmados no grupo Financeiro. A comissão paga segue o comprador, não quem anunciou na pista.</div>
 </header>
 
 <div class="page">
 
-<h2><span class="n">01</span>A resposta curta</h2>
-<p class="lead">Sua impressão está certa. Com o que já aconteceu, a Expogenética está <b>no vermelho</b>:
-os 3 leilões em que a Bula vendeu geraram <b>R$ 46.379,49</b> de receita,
-enquanto a feira já custou <b>R$ 29.684,79</b> — e sobre a receita ainda incidem comissão e imposto.
-Resultado parcial: <b class="neg">R$ -7.085,61</b>.
-A feira só vira positiva se os 7 leilões de 19 a 23/08 entregarem.</p>
-
 <div class="cards">
-  <div class="card dark"><div class="k">Custo da feira</div><div class="v">R$ 29.685</div>
-    <div class="d">R$ 20.685 confirmados + R$ 9.000 de reembolso estimado<br>faixa de R$ 27.685 a R$ 32.685</div></div>
-  <div class="card"><div class="k">Receita até agora</div><div class="v">R$ 46.379</div>
-    <div class="d">sobre R$ 771.600 de cobertura vendida<br>entra a partir de 29/09</div></div>
-  <div class="card"><div class="k">Comissão + imposto</div><div class="v">R$ 23.780</div>
-    <div class="d">R$ 15.432 de comissão (2%) e R$ 8.348 de imposto (18%)</div></div>
-  <div class="card"><div class="k">Resultado parcial</div><div class="v neg">R$ -7.086</div>
-    <div class="d">R$ -21.936 se a comissão do Rusa entrar a 5%</div></div>
+  <div class="card dark"><div class="k">Vendas da Bula</div><div class="v">R$ 3.970.200</div>
+    <div class="d">70 lotes · 70 animais em 16 pregões<br>3,3% dos R$ 114,9 mi da feira</div></div>
+  <div class="card"><div class="k">Comissão recebida</div><div class="v">R$ 191.591</div>
+    <div class="d">4,8% da venda<br>R$ 42.029 já cobrados, R$ 149.562 a emitir</div></div>
+  <div class="card"><div class="k">Comissão paga</div><div class="v">R$ 117.759</div>
+    <div class="d">61% do que a Bula recebe<br>R$ 111.609 vencem em 25/09; R$ 6.150 só em 28/12</div></div>
+  <div class="card gold"><div class="k">Lucro bruto</div><div class="v">R$ 14.661</div>
+    <div class="d">7,7% do faturamento<br>0,37% da venda</div></div>
 </div>
 
-<h2><span class="n">02</span>O custo, item a item</h2>
+<h2><span class="n">01</span>Vendas e comissão por assessor</h2>
 <table>
-  <thead><tr><th>Data</th><th>Item</th><th>Fornecedor</th><th class="num">Valor</th><th>Situação</th></tr></thead>
-  <tbody><tr class="">
-  <td>11/08</td><td>Casa em Uberaba — 1ª parcela</td><td class="sub">Locador Uberaba</td>
-  <td class="num">R$ 2.000,00</td>
-  <td><span class="tag t-pago">pago</span></td></tr><tr class="">
-  <td>11/08</td><td>Uniformes da equipe — entrada</td><td class="sub">68.392.671/0001-89</td>
-  <td class="num">R$ 240,00</td>
-  <td><span class="tag t-pago">pago</span></td></tr><tr class="">
-  <td>14/08</td><td>Reemissão de passagens (reembolso Bula Remates)</td><td class="sub">Bula Remates</td>
-  <td class="num">R$ 5.026,34</td>
-  <td><span class="tag t-pago">pago</span></td></tr><tr class="">
-  <td>21/08</td><td>Bilhete aéreo — Leonardo Francisco</td><td class="sub">ADN Viagens</td>
-  <td class="num">R$ 1.981,58</td>
-  <td><span class="tag t-agendado">agendado</span></td></tr><tr class="">
-  <td>21/08</td><td>Bilhete aéreo — Fábio Omena Gaia</td><td class="sub">ADN Viagens</td>
-  <td class="num">R$ 4.196,87</td>
-  <td><span class="tag t-agendado">agendado</span></td></tr><tr class="">
-  <td>até 24/08</td><td>Casa em Uberaba — saldo do aluguel</td><td class="sub">Locador Uberaba</td>
-  <td class="num">R$ 7.000,00</td>
-  <td><span class="tag t-apagar">a pagar</span></td></tr><tr class="">
-  <td>a definir</td><td>Uniformes da equipe — saldo</td><td class="sub">68.392.671/0001-89</td>
-  <td class="num">R$ 240,00</td>
-  <td><span class="tag t-apagar">a pagar</span></td></tr><tr class="est">
-  <td>set/2026</td><td>Reembolso da equipe (prestação de contas)</td><td class="sub">Fábio, Leonardo, Douglas, Marcelo</td>
-  <td class="num">R$ 9.000,00</td>
-  <td><span class="tag t-estimado">estimado</span></td></tr></tbody>
-  <tfoot>
-    <tr><td colspan="3">Pago até hoje</td><td class="num">R$ 7.266,34</td><td></td></tr>
-    <tr><td colspan="3">Comprometido (agendado ou a pagar)</td><td class="num">R$ 13.418,45</td><td></td></tr>
-    <tr><td colspan="3">Reembolso estimado da equipe</td><td class="num">R$ 9.000,00</td><td></td></tr>
-    <tr><td colspan="3"><b>Custo total da Expogenética</b></td><td class="num"><b>R$ 29.684,79</b></td><td></td></tr>
-  </tfoot>
-</table>
-<p class="sub small">Passagens somam R$ 11.204,79 · hospedagem R$ 9.000 · uniformes R$ 480 · reembolso estimado R$ 9.000.</p>
-
-</div>
-
-<div class="page brk">
-
-<h2><span class="n">02b</span>A estimativa de reembolso</h2>
-<h3>Como cheguei aos R$ 9.000 de reembolso</h3>
-<p>Não há prestação de contas fechada. A estimativa parte de 4 pessoas em campo por 10 dias
-com a hospedagem já paga (a casa cobre de 14 a 24/08), restando alimentação, deslocamento local e extras.
-Âncoras do próprio ERP: reembolsos de julho pagos em 07/08 — Leonardo R$ 6.141 e Fábio R$ 4.008;
-Douglas R$ 1.772 por dois leilões presenciais em junho; diárias do Matheus R$ 2.700 no mês.
-Trabalho com <b>R$ 9.000</b>, em uma faixa de R$ 7.000 a R$ 12.000.</p>
-
-<div class="box">
-  <div class="k">Comparação: a casa da Expozebu custou menos</div>
-  A casa de Uberaba da Expozebu saiu em duas parcelas e a última, de R$ 3.500, foi paga em 29/04
-  ("Final casa Uberaba 2de2" no extrato) — algo em torno de R$ 7.000 no total.
-  A desta Expogenética está em R$ 9.000, cerca de 29% acima.
-</div>
-
-<h2><span class="n">03</span>O que a feira já entregou</h2>
-<table>
-  <thead><tr><th>Data</th><th>Leilão</th><th class="num">Cobertura Bula</th><th class="num">Lotes</th><th class="num">Receita Bula</th><th class="num">Critério</th><th>Recebe em</th></tr></thead>
-  <tbody><tr class="zero">
-  <td>10/08</td><td>Leilão Guadalupe Agropecuária</td>
-  <td class="num">—</td>
-  <td class="num">—</td>
-  <td class="num">—</td>
-  <td class="num sub">—</td>
-  <td class="sub">sem venda registrada pela Bula</td></tr><tr class="zero">
-  <td>12/08</td><td>Leilão Elo de Prova (RG, Sino e Beem)</td>
-  <td class="num">—</td>
-  <td class="num">—</td>
-  <td class="num">—</td>
-  <td class="num sub">—</td>
-  <td class="sub">sem venda registrada pela Bula</td></tr><tr class="zero">
-  <td>14/08</td><td>Mega Genética EAO</td>
-  <td class="num">—</td>
-  <td class="num">—</td>
-  <td class="num">—</td>
-  <td class="num sub">—</td>
-  <td class="sub">sem venda registrada pela Bula</td></tr><tr class="">
-  <td>15/08</td><td>Terra Brava Agropecuária</td>
-  <td class="num">R$ 107.100</td>
-  <td class="num">4</td>
-  <td class="num">R$ 11.984,49</td>
-  <td class="num sub">11.19%</td>
-  <td class="sub">29/09</td></tr><tr class="">
-  <td>16/08</td><td>Matinha Expogenética</td>
-  <td class="num">R$ 547.500</td>
+  <thead><tr><th>Assessor</th><th class="num">Pregões</th><th class="num">Lotes</th><th class="num">Animais</th>
+    <th class="num">Vendas</th><th class="num">Part.</th><th class="num">%</th><th class="num">Comissão paga</th></tr></thead>
+  <tbody><tr>
+  <td><b>Gustavo Rusa</b><div class="sub small">parceiro — comissão por direcionamento de comprador</div></td>
+  <td class="num">8</td>
+  <td class="num">14</td>
+  <td class="num">14</td>
+  <td class="num"><div class="bar"><span style="width:100.0%"></span></div>R$ 1.330.500</td>
+  <td class="num">33,5%</td>
+  <td class="num">5%</td>
+  <td class="num"><b>66.525,00</b></td></tr><tr>
+  <td><b>Fábio Omena</b></td>
+  <td class="num">6</td>
+  <td class="num">18</td>
+  <td class="num">18</td>
+  <td class="num"><div class="bar"><span style="width:77.0%"></span></div>R$ 1.025.100</td>
+  <td class="num">25,8%</td>
+  <td class="num">2%</td>
+  <td class="num"><b>20.502,00</b></td></tr><tr>
+  <td><b>Douglas Bispo</b></td>
+  <td class="num">6</td>
+  <td class="num">11</td>
+  <td class="num">11</td>
+  <td class="num"><div class="bar"><span style="width:34.0%"></span></div>R$ 452.100</td>
+  <td class="num">11,4%</td>
+  <td class="num">2%</td>
+  <td class="num"><b>9.042,00</b></td></tr><tr>
+  <td><b>Nane</b><div class="sub small">acumula e é paga de uma vez em 28/12 — não sai no ciclo de 25/09</div></td>
+  <td class="num">2</td>
   <td class="num">9</td>
-  <td class="num">R$ 27.375,00</td>
-  <td class="num sub">5.00%</td>
-  <td class="sub">30/09</td></tr><tr class="">
-  <td>17/08</td><td>Matrizes Premium KatiSpera</td>
-  <td class="num">R$ 117.000</td>
+  <td class="num">9</td>
+  <td class="num"><div class="bar"><span style="width:23.1%"></span></div>R$ 307.500</td>
+  <td class="num">7,7%</td>
+  <td class="num">2%</td>
+  <td class="num"><b>6.150,00</b></td></tr><tr>
+  <td><b>Leonardo Serafim</b></td>
+  <td class="num">4</td>
+  <td class="num">7</td>
+  <td class="num">7</td>
+  <td class="num"><div class="bar"><span style="width:17.0%"></span></div>R$ 226.500</td>
+  <td class="num">5,7%</td>
+  <td class="num">2%</td>
+  <td class="num"><b>4.530,00</b></td></tr><tr>
+  <td><b>Peralta</b></td>
+  <td class="num">3</td>
+  <td class="num">4</td>
+  <td class="num">4</td>
+  <td class="num"><div class="bar"><span style="width:15.9%"></span></div>R$ 211.500</td>
+  <td class="num">5,3%</td>
+  <td class="num">2%</td>
+  <td class="num"><b>4.230,00</b></td></tr><tr>
+  <td><b>Bulinha (Felipe Andrade)</b></td>
+  <td class="num">2</td>
+  <td class="num">2</td>
+  <td class="num">2</td>
+  <td class="num"><div class="bar"><span style="width:14.9%"></span></div>R$ 198.000</td>
+  <td class="num">5,0%</td>
+  <td class="num">2%</td>
+  <td class="num"><b>3.960,00</b></td></tr><tr>
+  <td><b>Lucas Martins</b></td>
   <td class="num">1</td>
-  <td class="num">R$ 7.020,00</td>
-  <td class="num sub">6.00%</td>
-  <td class="sub">01/10</td></tr><tr class="zero">
-  <td>18/08</td><td>Nelore Mafra Agronova & Amigos</td>
-  <td class="num">—</td>
-  <td class="num">—</td>
-  <td class="num">—</td>
-  <td class="num sub">—</td>
-  <td class="sub">sem venda registrada pela Bula</td></tr></tbody>
-  <tfoot><tr><td colspan="2">Total — 7 leilões realizados</td>
-    <td class="num">R$ 771.600</td><td class="num">14</td>
-    <td class="num">R$ 46.379,49</td><td colspan="2"></td></tr></tfoot>
+  <td class="num">2</td>
+  <td class="num">2</td>
+  <td class="num"><div class="bar"><span style="width:7.2%"></span></div>R$ 96.000</td>
+  <td class="num">2,4%</td>
+  <td class="num">1%</td>
+  <td class="num"><b>960,00</b></td></tr><tr>
+  <td><b>Marcelo Moura</b><span class="mk">*</span></td>
+  <td class="num">1</td>
+  <td class="num">1</td>
+  <td class="num">1</td>
+  <td class="num"><div class="bar"><span style="width:4.7%"></span></div>R$ 63.000</td>
+  <td class="num">1,6%</td>
+  <td class="num">2%</td>
+  <td class="num"><b>1.260,00</b></td></tr><tr>
+  <td><b>Laila</b></td>
+  <td class="num">1</td>
+  <td class="num">2</td>
+  <td class="num">2</td>
+  <td class="num"><div class="bar"><span style="width:4.5%"></span></div>R$ 60.000</td>
+  <td class="num">1,5%</td>
+  <td class="num">1%</td>
+  <td class="num"><b>600,00</b></td></tr></tbody>
+  <tfoot><tr><td>Total</td><td class="num">16</td><td class="num">70</td><td class="num">70</td>
+    <td class="num">R$ 3.970.200</td><td class="num">100%</td><td class="num"></td><td class="num">117.759,00</td></tr></tfoot>
 </table>
-<p class="sub small">Cobertura = valor dos lotes vendidos pela assessoria da Bula (fechamento alinhado ao HastaPro FIL 2).
-Receita Bula = o que se cobra do criador ou da leiloeira, já provisionado em contas a receber com vencimento de leilão + 45 dias.</p>
-
-<div class="box alert">
-  <div class="k">4 dos 7 leilões não renderam nada</div>
-  Guadalupe (10/08), Elo de Prova (12/08), Mega Genética EAO (14/08) e Mafra Agronova (18/08) passaram sem uma
-  única venda registrada pela Bula — nem no HastaPro, nem no grupo Lances Bula. Só o EAO movimentou
-  R$ 4.742.800 de VGV oficial na feira. A equipe estava em campo, com casa e passagem pagas, nesses quatro dias.
-</div>
-
-</div>
-
-<div class="page brk">
-
-<h2><span class="n">04</span>Comissões já comprometidas</h2>
-<table>
-  <thead><tr><th>Leilão</th><th>Quem</th><th class="num">Base</th><th class="num">%</th><th class="num">Comissão</th></tr></thead>
-  <tbody><tr>
-  <td>TERRA BRAVA AGROPECUÁRIA EXPOGENÉTICA</td><td>Fábio Omena</td>
-  <td class="num">R$ 107.100</td><td class="num">2,00%</td>
-  <td class="num">R$ 2.142,00</td></tr><tr>
-  <td>MATINHA EXPOGENÉTICA 2026</td><td>Douglas Bispo</td>
-  <td class="num">R$ 462.000</td><td class="num">2,00%</td>
-  <td class="num">R$ 9.240,00</td></tr><tr>
-  <td>MATINHA EXPOGENÉTICA 2026</td><td>Nane</td>
-  <td class="num">R$ 85.500</td><td class="num">2,00%</td>
-  <td class="num">R$ 1.710,00</td></tr><tr>
-  <td>MATRIZES PREMIUM KATISPERA</td><td>Douglas Bispo</td>
-  <td class="num">R$ 117.000</td><td class="num">2,00%</td>
-  <td class="num">R$ 2.340,00</td></tr></tbody>
-  <tfoot><tr><td colspan="4">Total (vence 25/09, exceto a da Nane em 28/12)</td><td class="num">R$ 15.432,00</td></tr></tfoot>
-</table>
-<p class="sub small">A comissão do KatiSpera (17/08) ainda não virou conta a pagar — o fechamento entrou pelo grupo de lances e
-o HastaPro ainda não registrou o leilão. Pelos 2% padrão seriam R$ 2.340,00.</p>
-
-<div class="box alert">
-  <div class="k">O que explica o resultado: 64,00% da venda saiu com direcionamento do Gustavo Rusa</div>
-  <p>Dos R$ 771.600 vendidos, <b>R$ 495.000</b> vêm de lotes anunciados no grupo como
-  "com direcionamento técnico Gustavo Rusa" — Matinha lotes 12, 15, 34 e 22 (Nelore Pérola / José Fábio) e o lote 3 do KatiSpera.
-  A regra registrada no ERP é explícita: <i>paga-se o Rusa OU o assessor no mesmo lote</i>, e o Rusa recebe <b>5%</b>.</p>
-  <p>Nesses lotes a Bula recebe cerca de 5% do criador e paga 5% ao parceiro: <b>trabalha de graça e ainda recolhe imposto sobre a receita</b>.
-  Aplicada a regra, a comissão sobe de R$ 15.432 para R$ 30.282
-  (R$ 14.850 a mais) e o resultado parcial cai para <b class="neg">R$ -21.936</b>.</p>
-  <p><b>Precisa de decisão:</b> confirmar se esses compradores são clientes do Rusa antes de fechar as comissões de setembro.</p>
-</div>
-
-</div>
-
-<div class="page brk">
-
-<h2><span class="n">05</span>O que ainda pode entrar — 19 a 23/08</h2>
-<p>Sete leilões restantes. A cobertura projetada usa o porte histórico de cada criador; a receita usa o
-percentual efetivo que aquele criador já pagou à Bula em 2026 — não um percentual de tabela.</p>
-<table>
-  <thead><tr><th>Data</th><th>Leilão</th><th class="num">Cobertura projetada</th><th class="num">% efetivo</th><th class="num">Receita projetada</th><th>Base do percentual</th></tr></thead>
-  <tbody><tr>
-  <td>19/08</td><td>9º Genética Aditiva Expogenética</td>
-  <td class="num">R$ 150.000</td>
-  <td class="num">9,50%</td>
-  <td class="num">R$ 14.250</td>
-  <td class="sub small">jul/26: R$ 27.762,65 sobre cobertura de R$ 292.200 (2 etapas)</td></tr><tr>
-  <td>19/08</td><td>Reserva Expogenética Santa Nice</td>
-  <td class="num">R$ 150.000</td>
-  <td class="num">4,36%</td>
-  <td class="num">R$ 6.540</td>
-  <td class="sub small">jun/26: R$ 15.030 sobre cobertura de R$ 345.000</td></tr><tr>
-  <td>20/08</td><td>Nelore Paranã e Casabranca</td>
-  <td class="num">R$ 250.000</td>
-  <td class="num">5,00%</td>
-  <td class="num">R$ 12.500</td>
-  <td class="sub small">09/08/26: 5% sobre cobertura de R$ 278.100</td></tr><tr>
-  <td>21/08</td><td>12º Premium Colonial</td>
-  <td class="num">R$ 100.000</td>
-  <td class="num">5,00%</td>
-  <td class="num">R$ 5.000</td>
-  <td class="sub small">sem histórico — usado o padrão de 5% da cobertura</td></tr><tr>
-  <td>21/08</td><td>Fêmeas JMP</td>
-  <td class="num">R$ 150.000</td>
-  <td class="num">0,5% s/ faturamento</td>
-  <td class="num">R$ 40.000</td>
-  <td class="sub small">acordo JMP/JBJ paga 0,5% do FATURAMENTO TOTAL. 10º JMP (jun): R$ 116.968 só nas fêmeas/bezerras</td></tr><tr>
-  <td>22/08</td><td>Naviraí Camparino — Bezerras e Novilhas</td>
-  <td class="num">R$ 160.000</td>
-  <td class="num">5,20%</td>
-  <td class="num">R$ 8.320</td>
-  <td class="sub small">média Camparino/Naviraí 2026: R$ 26.579 sobre R$ 510.800</td></tr><tr>
-  <td>23/08</td><td>28º Naviraí Camparino — Reprodutores</td>
-  <td class="num">R$ 150.000</td>
-  <td class="num">5,20%</td>
-  <td class="num">R$ 7.800</td>
-  <td class="sub small">média Camparino/Naviraí 2026: R$ 26.579 sobre R$ 510.800</td></tr></tbody>
-  <tfoot><tr><td colspan="2">Cenário base</td><td class="num">R$ 1.110.000</td><td></td>
-    <td class="num">R$ 94.410</td><td></td></tr></tfoot>
-</table>
-
-<h2><span class="n">06</span>Como a feira fecha</h2>
-<table>
-  <thead><tr><th>Cenário</th><th class="num">Cobertura da feira</th><th class="num">Receita</th><th class="num">Comissão</th><th class="num">Imposto</th><th class="num">Custo</th><th class="num">Resultado</th><th class="num">Se Rusa a 5%</th></tr></thead>
-  <tbody><tr>
-  <td><b>Conservador</b><div class="sub small">cobertura a 60% da base · JMP R$ 20.000</div></td>
-  <td class="num">R$ 1.437.600</td>
-  <td class="num">R$ 99.025</td>
-  <td class="num">R$ 28.752</td>
-  <td class="num">R$ 17.825</td>
-  <td class="num">R$ 29.685</td>
-  <td class="num pos"><b>R$ 22.764</b></td>
-  <td class="num pos">R$ 7.914</td></tr><tr>
-  <td><b>Base</b><div class="sub small">cobertura a 100% da base · JMP R$ 40.000</div></td>
-  <td class="num">R$ 1.881.600</td>
-  <td class="num">R$ 140.789</td>
-  <td class="num">R$ 37.632</td>
-  <td class="num">R$ 25.342</td>
-  <td class="num">R$ 29.685</td>
-  <td class="num pos"><b>R$ 48.131</b></td>
-  <td class="num pos">R$ 33.281</td></tr><tr>
-  <td><b>Otimista</b><div class="sub small">cobertura a 140% da base · JMP R$ 80.000</div></td>
-  <td class="num">R$ 2.325.600</td>
-  <td class="num">R$ 202.553</td>
-  <td class="num">R$ 46.512</td>
-  <td class="num">R$ 36.460</td>
-  <td class="num">R$ 29.685</td>
-  <td class="num pos"><b>R$ 89.897</b></td>
-  <td class="num pos">R$ 75.047</td></tr></tbody>
-</table>
-<p class="sub small">Comissão dos leilões restantes a 2% da cobertura projetada. Imposto de 18% sobre a receita, mesmo critério
-dos fechamentos do ERP. Custo fixo em R$ 29.685 nos três cenários.</p>
+<p class="sub small"><span class="mk">*</span> Marcelo Moura assinou 1 lote de R$ 63.000 no 28º Naviraí mas não está no cadastro de folha —
+a comissão foi provisionada pelo padrão de 2% e precisa ser confirmada.
+A comissão segue o <b>comprador</b>, não quem anunciou na pista: lote de comprador direcionado pelo Gustavo Rusa paga 5% a ele e nada ao assessor.
+<b>Nane:</b> os R$ 6.150,00 dela entram no custo da feira, mas não saem do caixa em setembro — a comissão dela acumula
+e é paga de uma vez em <b>28/12</b>. Se a instrução de 27/08 for zerar a comissão dela, e não só adiá-la, o lucro bruto sobe para
+R$ 20.810,94.</p>
 
 <div class="box">
-  <div class="k">Ponto de equilíbrio: R$ 1.484.240 de cobertura na feira inteira</div>
-  <p>No regime normal a Bula recebe ~5% da cobertura, paga 2% ao assessor e 18% de imposto sobre a receita —
-  sobram <b>2,00%</b> de cada real vendido. Para cobrir R$ 29.685 de custo,
-  a feira precisa de <b>R$ 1.484.240</b> de cobertura.
-  Já foram R$ 771.600 — <b>52,00%</b> do necessário.
-  Faltam R$ 712.640 em sete leilões, ou R$ 101.806 por leilão;
-  a média realizada até aqui foi de R$ 110.229.</p>
-  <p>Nos lotes com o Rusa a 5% a margem unitária é <b class="neg">-1,00%</b> — vender mais nessa
-  condição aumenta o prejuízo em vez de reduzir.</p>
+  <div class="k">O parceiro levou 56% da comissão sobre 34% da venda</div>
+  <p style="margin:0">Os 14 lotes de compradores direcionados pelo Gustavo Rusa somam <b>R$ 1.330.500</b> e pagam 5% —
+  <b>R$ 66.525,00</b>. Nos mesmos lotes, um assessor da casa receberia 2% (R$ 26.610,00).
+  A diferença de <b>R$ 39.915,00</b> é o custo do direcionamento: sem ele, o lucro da feira teria sido
+  <b>R$ 54.575,94</b> em vez de R$ 14.660,94.</p>
 </div>
 
 </div>
 
 <div class="page brk">
 
-<h2><span class="n">07</span>O efeito no caixa</h2>
-<p>O custo sai agora e a receita entra em outubro. Saem R$ 20.445 em agosto
-(casa, uniformes e bilhetes aéreos) e R$ 24.432 em setembro
-(reembolso e comissões em 25/09). A primeira entrada é só em <b>29/09</b>,
-e os R$ 46.379 se completam em outubro.
-Em caixa, a feira é um desembolso de cerca de R$ 44.877 antes da primeira cobrança ser paga.</p>
+<h2><span class="n">02</span>Faturamento, comissão recebida e comissão paga — por leilão</h2>
+<table>
+  <thead><tr><th class="ctr">Data</th><th>Leilão</th><th class="num">Faturamento<br>do pregão</th><th class="num">Vendas<br>da Bula</th>
+    <th class="num">Cob.</th><th class="num">Lotes</th>
+    <th class="num">Comissão<br>recebida</th><th class="ctr">Situação</th><th class="num">Comissão<br>paga</th></tr></thead>
+  <tbody><tr class="zero">
+  <td class="ctr">10/08</td>
+  <td>1º Guadalupe Agropecuária Expogenética</td>
+  <td class="num sub">R$ 1.519.500</td>
+  <td class="num">—</td>
+  <td class="num sub">—</td>
+  <td class="num">—</td>
+  <td class="num">—</td>
+  <td class="ctr"></td>
+  <td class="num">—</td></tr><tr class="zero">
+  <td class="ctr">12/08</td>
+  <td>Elo de Prova</td>
+  <td class="num sub">R$ 2.622.000</td>
+  <td class="num">—</td>
+  <td class="num sub">—</td>
+  <td class="num">—</td>
+  <td class="num">—</td>
+  <td class="ctr"></td>
+  <td class="num">—</td></tr><tr class="zero">
+  <td class="ctr">14/08</td>
+  <td>Mega Genética EAO (EAO Expogenética)</td>
+  <td class="num sub">R$ 4.742.800</td>
+  <td class="num">—</td>
+  <td class="num sub">—</td>
+  <td class="num">—</td>
+  <td class="num">—</td>
+  <td class="ctr"></td>
+  <td class="num">—</td></tr><tr class="">
+  <td class="ctr">15/08</td>
+  <td>Terra Brava Agropecuária</td>
+  <td class="num sub">R$ 1.248.600</td>
+  <td class="num">R$ 107.100</td>
+  <td class="num sub">8,6%</td>
+  <td class="num">4</td>
+  <td class="num">11.984,49</td>
+  <td class="ctr"><span class="tag t-ok">emitida</span></td>
+  <td class="num">2.142,00</td></tr><tr class="">
+  <td class="ctr">15/08</td>
+  <td>Shopping Naviraí Expogenética<span class="mk">†</span></td>
+  <td class="num sub">—</td>
+  <td class="num">R$ 96.600</td>
+  <td class="num sub">—</td>
+  <td class="num">2</td>
+  <td class="num">4.830,00</td>
+  <td class="ctr"><span class="tag t-est">estimada</span></td>
+  <td class="num">1.932,00</td></tr><tr class="">
+  <td class="ctr">16/08</td>
+  <td>Matinha Expogenética 2026</td>
+  <td class="num sub">R$ 7.375.000</td>
+  <td class="num">R$ 460.500</td>
+  <td class="num sub">6,2%</td>
+  <td class="num">8</td>
+  <td class="num">23.025,00</td>
+  <td class="ctr"><span class="tag t-fix">a corrigir</span></td>
+  <td class="num">19.200,00</td></tr><tr class="">
+  <td class="ctr">16/08</td>
+  <td>Fazenda Araras e Convidados</td>
+  <td class="num sub">R$ 1.271.400</td>
+  <td class="num">R$ 87.000</td>
+  <td class="num sub">6,8%</td>
+  <td class="num">1</td>
+  <td class="num">2.610,00</td>
+  <td class="ctr"><span class="tag t-est">estimada</span></td>
+  <td class="num">4.350,00</td></tr><tr class="">
+  <td class="ctr">17/08</td>
+  <td>Matrizes Premium KatiSpera</td>
+  <td class="num sub">R$ 2.496.000</td>
+  <td class="num">R$ 117.000</td>
+  <td class="num sub">4,7%</td>
+  <td class="num">1</td>
+  <td class="num">7.020,00</td>
+  <td class="ctr"><span class="tag t-ok">emitida</span></td>
+  <td class="num">5.850,00</td></tr><tr class="zero">
+  <td class="ctr">18/08</td>
+  <td>Agronova, Nelore Mafra & Amigos</td>
+  <td class="num sub">R$ 3.233.000</td>
+  <td class="num">—</td>
+  <td class="num sub">—</td>
+  <td class="num">—</td>
+  <td class="num">—</td>
+  <td class="ctr"></td>
+  <td class="num">—</td></tr><tr class="">
+  <td class="ctr">18/08</td>
+  <td>13º Genética Provada HoRa</td>
+  <td class="num sub">R$ 1.234.500</td>
+  <td class="num">R$ 24.000</td>
+  <td class="num sub">1,9%</td>
+  <td class="num">1</td>
+  <td class="num">960,00</td>
+  <td class="ctr"><span class="tag t-est">estimada</span></td>
+  <td class="num">480,00</td></tr><tr class="">
+  <td class="ctr">19/08</td>
+  <td>9º Genética Aditiva Expogenética</td>
+  <td class="num sub">R$ 5.214.000</td>
+  <td class="num">R$ 444.000</td>
+  <td class="num sub">8,5%</td>
+  <td class="num">3</td>
+  <td class="num">22.211,64</td>
+  <td class="ctr"><span class="tag t-est">estimada</span></td>
+  <td class="num">8.880,00</td></tr><tr class="">
+  <td class="ctr">19/08</td>
+  <td>Reserva Expogenética Santa Nice</td>
+  <td class="num sub">R$ 4.131.000</td>
+  <td class="num">R$ 297.000</td>
+  <td class="num sub">7,2%</td>
+  <td class="num">2</td>
+  <td class="num">14.850,00</td>
+  <td class="ctr"><span class="tag t-est">estimada</span></td>
+  <td class="num">12.420,00</td></tr><tr class="">
+  <td class="ctr">20/08</td>
+  <td>Top Cen Expogenética (CEN & Fz. Modelo)</td>
+  <td class="num sub">R$ 1.416.000</td>
+  <td class="num">R$ 117.000</td>
+  <td class="num sub">8,3%</td>
+  <td class="num">2</td>
+  <td class="num">3.510,00</td>
+  <td class="ctr"><span class="tag t-est">estimada</span></td>
+  <td class="num">2.340,00</td></tr><tr class="">
+  <td class="ctr">20/08</td>
+  <td>Baby de Prova — Acelerar Gerações<span class="mk">†</span><div class="sub small">realizado em Delta/MG, fora da feira</div></td>
+  <td class="num sub">—</td>
+  <td class="num">R$ 73.500</td>
+  <td class="num sub">—</td>
+  <td class="num">2</td>
+  <td class="num">3.675,00</td>
+  <td class="ctr"><span class="tag t-est">estimada</span></td>
+  <td class="num">3.675,00</td></tr><tr class="">
+  <td class="ctr">21/08</td>
+  <td>12º Noite Nacional Matrizes Premium</td>
+  <td class="num sub">R$ 1.996.500</td>
+  <td class="num">R$ 195.000</td>
+  <td class="num sub">9,8%</td>
+  <td class="num">4</td>
+  <td class="num">5.850,00</td>
+  <td class="ctr"><span class="tag t-est">estimada</span></td>
+  <td class="num">6.240,00</td></tr><tr class="">
+  <td class="ctr">22/08</td>
+  <td>Naviraí Camparino Essência</td>
+  <td class="num sub">R$ 3.768.000</td>
+  <td class="num">R$ 543.000</td>
+  <td class="num sub">14,4%</td>
+  <td class="num">4</td>
+  <td class="num">27.150,00</td>
+  <td class="ctr"><span class="tag t-est">estimada</span></td>
+  <td class="num">22.200,00</td></tr><tr class="">
+  <td class="ctr">22/08</td>
+  <td>4º Pepitas Colonial e Convidados</td>
+  <td class="num sub">R$ 2.229.000</td>
+  <td class="num">R$ 325.500</td>
+  <td class="num sub">14,6%</td>
+  <td class="num">11</td>
+  <td class="num">9.765,00</td>
+  <td class="ctr"><span class="tag t-est">estimada</span></td>
+  <td class="num">7.950,00</td></tr><tr class="">
+  <td class="ctr">23/08</td>
+  <td>28º Naviraí Camparino</td>
+  <td class="num sub">R$ 4.185.000</td>
+  <td class="num">R$ 940.500</td>
+  <td class="num sub">22,5%</td>
+  <td class="num">23</td>
+  <td class="num">47.025,00</td>
+  <td class="ctr"><span class="tag t-est">estimada</span></td>
+  <td class="num">17.250,00</td></tr><tr class="">
+  <td class="ctr">23/08</td>
+  <td>Nelore Marcondes — Abertura<span class="mk">†</span></td>
+  <td class="num sub">—</td>
+  <td class="num">R$ 37.500</td>
+  <td class="num sub">—</td>
+  <td class="num">1</td>
+  <td class="num">1.875,00</td>
+  <td class="ctr"><span class="tag t-est">estimada</span></td>
+  <td class="num">750,00</td></tr><tr class="">
+  <td class="ctr">23/08</td>
+  <td>6º Excelência Genética</td>
+  <td class="num sub">R$ 3.602.000</td>
+  <td class="num">R$ 105.000</td>
+  <td class="num sub">2,9%</td>
+  <td class="num">1</td>
+  <td class="num">5.250,00</td>
+  <td class="ctr"><span class="tag t-est">estimada</span></td>
+  <td class="num">2.100,00</td></tr></tbody>
+  <tfoot><tr><td colspan="3">Total — 20 pregões</td>
+    <td class="num">R$ 3.970.200</td><td></td><td class="num">70</td>
+    <td class="num">191.591,13</td><td></td><td class="num">117.759,00</td></tr></tfoot>
+</table>
+<p class="sub small"><b>Faturamento do pregão</b> é o resultado do leilão inteiro, apurado pela ABCZ e pelos replays das leiloeiras;
+<b>vendas da Bula</b> é o que a equipe cobriu dentro dele, e <b>Cob.</b> é a fatia que isso representa. A comissão da Bula incide
+sobre a venda coberta, exceto no Genética Aditiva, cujo acordo é sobre o faturamento total.
+<span class="mk">†</span> pregão que a equipe operou no período mas que <b>não integra a agenda oficializada pela ABCZ</b>:
+somam R$ 207.600 de venda. Só a agenda oficial: R$ 3.762.600 em 13 pregões.</p>
 
-<h3>Leitura mais dura: com o custo da equipe</h3>
-<p>Os R$ 29.685 são só o desembolso extra. Somando 10 dias dos salários dos assessores
-que ficaram em campo (R$ 24.100/mês ÷ 30 × 10 = R$ 8.033),
-o resultado parcial vai para <b class="neg">R$ -15.119</b>.</p>
+<div class="box">
+  <div class="k">4 pregões da agenda oficial passaram sem uma única venda da Bula</div>
+  <p>Guadalupe (10/08), Elo de Prova (12/08), Mega Genética EAO (14/08) e Agronova/Nelore Mafra (18/08) não geraram nenhum
+  lote para a assessoria. Juntos, esses quatro pregões movimentaram <b>R$ 12.117.300</b> — praça em que a equipe
+  estava presente, com casa e passagem já pagas, e não converteu nada. Vale conferir com os assessores se houve venda
+  não reportada antes de fechar o mês.</p>
+  <p style="margin:0"><b>Um deles merece checagem imediata:</b> o pregão de 18/08 é o "Leilão Agronova e JMP", que faturou
+  R$ 3.233.000. O acordo com o JMP paga <b>0,5% do faturamento total, independentemente da cobertura</b> — se a Bula
+  assessorou esse leilão, há cerca de R$ 16.165 de receita que não foi faturada e não está nesta DRE.</p>
+</div>
 
-<h2><span class="n">08</span>O que precisa ser decidido ou confirmado</h2>
+<h2><span class="n">03</span>Margem de contribuição por leilão</h2>
+<p class="sub small">Vendas · comissão recebida · (−) imposto · (−) comissão paga = <b>margem de contribuição</b>. Os custos de
+campo não entram aqui: são da viagem inteira e não se dividem por pregão sem critério de rateio. A soma desta coluna
+(R$ 39.345,72) menos os R$ 24.684,79 de custos de campo é exatamente o lucro bruto da DRE.</p>
+<table>
+  <thead><tr><th>Leilão</th><th class="num">Vendas</th><th class="num">Comissão<br>recebida</th><th class="num">(−) Imposto</th>
+    <th class="num">(−) Comissão<br>paga</th><th class="num">Margem de<br>contribuição</th><th class="num">% da<br>venda</th></tr></thead>
+  <tbody><tr class="">
+    <td>28º Naviraí Camparino</td>
+    <td class="num">R$ 940.500</td>
+    <td class="num">47.025,00</td>
+    <td class="num sub">(8.464,50)</td>
+    <td class="num sub">(17.250,00)</td>
+    <td class="num "><b>21.310,50</b></td>
+    <td class="num ">2,27%</td></tr><tr class="">
+    <td>9º Genética Aditiva Expogenética</td>
+    <td class="num">R$ 444.000</td>
+    <td class="num">22.211,64</td>
+    <td class="num sub">(3.998,10)</td>
+    <td class="num sub">(8.880,00)</td>
+    <td class="num "><b>9.333,54</b></td>
+    <td class="num ">2,10%</td></tr><tr class="">
+    <td>Terra Brava Agropecuária</td>
+    <td class="num">R$ 107.100</td>
+    <td class="num">11.984,49</td>
+    <td class="num sub">(2.157,21)</td>
+    <td class="num sub">(2.142,00)</td>
+    <td class="num "><b>7.685,28</b></td>
+    <td class="num ">7,18%</td></tr><tr class="">
+    <td>6º Excelência Genética</td>
+    <td class="num">R$ 105.000</td>
+    <td class="num">5.250,00</td>
+    <td class="num sub">(945,00)</td>
+    <td class="num sub">(2.100,00)</td>
+    <td class="num "><b>2.205,00</b></td>
+    <td class="num ">2,10%</td></tr><tr class="">
+    <td>Shopping Naviraí Expogenética</td>
+    <td class="num">R$ 96.600</td>
+    <td class="num">4.830,00</td>
+    <td class="num sub">(869,40)</td>
+    <td class="num sub">(1.932,00)</td>
+    <td class="num "><b>2.028,60</b></td>
+    <td class="num ">2,10%</td></tr><tr class="">
+    <td>Nelore Marcondes — Abertura</td>
+    <td class="num">R$ 37.500</td>
+    <td class="num">1.875,00</td>
+    <td class="num sub">(337,50)</td>
+    <td class="num sub">(750,00)</td>
+    <td class="num "><b>787,50</b></td>
+    <td class="num ">2,10%</td></tr><tr class="">
+    <td>Top Cen Expogenética (CEN & Fz. Modelo)</td>
+    <td class="num">R$ 117.000</td>
+    <td class="num">3.510,00</td>
+    <td class="num sub">(631,80)</td>
+    <td class="num sub">(2.340,00)</td>
+    <td class="num "><b>538,20</b></td>
+    <td class="num ">0,46%</td></tr><tr class="">
+    <td>13º Genética Provada HoRa</td>
+    <td class="num">R$ 24.000</td>
+    <td class="num">960,00</td>
+    <td class="num sub">(172,80)</td>
+    <td class="num sub">(480,00)</td>
+    <td class="num "><b>307,20</b></td>
+    <td class="num ">1,28%</td></tr><tr class="">
+    <td>Naviraí Camparino Essência</td>
+    <td class="num">R$ 543.000</td>
+    <td class="num">27.150,00</td>
+    <td class="num sub">(4.887,00)</td>
+    <td class="num sub">(22.200,00)</td>
+    <td class="num "><b>63,00</b></td>
+    <td class="num ">0,01%</td></tr><tr class="">
+    <td>4º Pepitas Colonial e Convidados</td>
+    <td class="num">R$ 325.500</td>
+    <td class="num">9.765,00</td>
+    <td class="num sub">(1.757,70)</td>
+    <td class="num sub">(7.950,00)</td>
+    <td class="num "><b>57,30</b></td>
+    <td class="num ">0,02%</td></tr><tr class="est">
+    <td>Matrizes Premium KatiSpera</td>
+    <td class="num">R$ 117.000</td>
+    <td class="num">7.020,00</td>
+    <td class="num sub">(1.263,60)</td>
+    <td class="num sub">(5.850,00)</td>
+    <td class="num neg"><b>-93,60</b></td>
+    <td class="num neg">-0,08%</td></tr><tr class="est">
+    <td>Reserva Expogenética Santa Nice</td>
+    <td class="num">R$ 297.000</td>
+    <td class="num">14.850,00</td>
+    <td class="num sub">(2.673,00)</td>
+    <td class="num sub">(12.420,00)</td>
+    <td class="num neg"><b>-243,00</b></td>
+    <td class="num neg">-0,08%</td></tr><tr class="est">
+    <td>Matinha Expogenética 2026</td>
+    <td class="num">R$ 460.500</td>
+    <td class="num">23.025,00</td>
+    <td class="num sub">(4.144,50)</td>
+    <td class="num sub">(19.200,00)</td>
+    <td class="num neg"><b>-319,50</b></td>
+    <td class="num neg">-0,07%</td></tr><tr class="est">
+    <td>Baby de Prova — Acelerar Gerações</td>
+    <td class="num">R$ 73.500</td>
+    <td class="num">3.675,00</td>
+    <td class="num sub">(661,50)</td>
+    <td class="num sub">(3.675,00)</td>
+    <td class="num neg"><b>-661,50</b></td>
+    <td class="num neg">-0,90%</td></tr><tr class="est">
+    <td>12º Noite Nacional Matrizes Premium</td>
+    <td class="num">R$ 195.000</td>
+    <td class="num">5.850,00</td>
+    <td class="num sub">(1.053,00)</td>
+    <td class="num sub">(6.240,00)</td>
+    <td class="num neg"><b>-1.443,00</b></td>
+    <td class="num neg">-0,74%</td></tr><tr class="est">
+    <td>Fazenda Araras e Convidados</td>
+    <td class="num">R$ 87.000</td>
+    <td class="num">2.610,00</td>
+    <td class="num sub">(469,80)</td>
+    <td class="num sub">(4.350,00)</td>
+    <td class="num neg"><b>-2.209,80</b></td>
+    <td class="num neg">-2,54%</td></tr></tbody>
+  <tfoot><tr><td>Total</td><td class="num">R$ 3.970.200</td><td class="num">191.591,13</td>
+    <td class="num">(34.486,41)</td><td class="num">(117.759,00)</td>
+    <td class="num">39.345,72</td><td class="num">0,99%</td></tr></tfoot>
+</table>
+
+<div class="box alert">
+  <div class="k">6 pregões fecharam no vermelho — e há uma regra por trás</div>
+  <p><b>Fazenda Araras e Convidados</b> (-2,54%), <b>Baby de Prova — Acelerar Gerações</b> (-0,90%), <b>12º Noite Nacional Matrizes Premium</b> (-0,74%), <b>Reserva Expogenética Santa Nice</b> (-0,08%), <b>Matrizes Premium KatiSpera</b> (-0,08%), <b>Matinha Expogenética 2026</b> (-0,07%) deram margem de contribuição negativa,
+  somando <b>R$ -4.970,40</b> de prejuízo antes dos custos de campo. A conta que decide isso é uma só: sobre cada real
+  vendido a Bula fica com <b>0,82 × (o que recebe do criador) − (o que paga de comissão)</b>. Ou seja,
+  <b>o percentual recebido precisa ser pelo menos o percentual pago dividido por 0,82</b> — pagar 5% ao parceiro exige
+  receber 6,10%; pagar 2% exige receber 2,44%.</p>
+  <p style="margin:0">Os dois caminhos para o vermelho aparecem lado a lado nesta tabela. <b>Direcionamento do parceiro:</b>
+  Baby de Prova e Fazenda Araras venderam quase tudo para comprador do Gustavo Rusa — recebe-se 5% ou menos e paga-se 5%,
+  o que trava a margem em torno de −0,90% (e em −2,54% no Araras, onde o acordo com a leiloeira é de 3%).
+  <b>Acordo apertado com a leiloeira:</b> Santa Nice, Matinha e Noite Nacional não dependem do parceiro — a comissão paga
+  simplesmente chegou perto ou passou dos 82% da comissão recebida. Onde o assessor é da casa e o acordo é de 5%, a mesma
+  conta deixa <b>+2,10%</b>, que é a margem do Genética Aditiva, do Marcondes e do Excelência Genética.</p>
+</div>
+
+<h3>De onde vem cada comissão recebida</h3>
+<table>
+  <thead><tr><th>Leilão</th><th class="num">%</th><th>Critério</th><th class="num">Valor</th></tr></thead>
+  <tbody><tr>
+  <td>Terra Brava Agropecuária</td>
+  <td class="num">11,19%</td>
+  <td class="small">cobrança aberto no ERP, vence 2026-09-29</td>
+  <td class="num">11.984,49</td></tr><tr>
+  <td>Shopping Naviraí Expogenética</td>
+  <td class="num">5,00%</td>
+  <td class="small">Naviraí pagou 5,00% em 05/07 e 16/07</td>
+  <td class="num">4.830,00</td></tr><tr>
+  <td>Matinha Expogenética 2026</td>
+  <td class="num">5,00%</td>
+  <td class="small">cobrança emitida por 27.375 sobre venda maior; recalculada a 5.00% da venda conferida</td>
+  <td class="num">23.025,00</td></tr><tr>
+  <td>Fazenda Araras e Convidados</td>
+  <td class="num">3,00%</td>
+  <td class="small">acordo de 3% da venda — Marcelo, grupo Financeiro 26/08 12:51 ("Acordo Araras: 3% da venda")</td>
+  <td class="num">2.610,00</td></tr><tr>
+  <td>Matrizes Premium KatiSpera</td>
+  <td class="num">6,00%</td>
+  <td class="small">cobrança aberto no ERP, vence 2026-10-01</td>
+  <td class="num">7.020,00</td></tr><tr>
+  <td>13º Genética Provada HoRa</td>
+  <td class="num">4,00%</td>
+  <td class="small">acordo de 4% da venda — Marcelo, grupo Financeiro 26/08 12:51 ("Acordo HORA: 4% da venda")</td>
+  <td class="num">960,00</td></tr><tr>
+  <td>9º Genética Aditiva Expogenética</td>
+  <td class="num">0,43%</td>
+  <td class="small">acordo da Genética Aditiva é 0,35–0,5% do FATURAMENTO TOTAL: sobre os R$ 5.214.000 do pregão dá de R$ 18.249 a R$ 26.070</td>
+  <td class="num">22.211,64</td></tr><tr>
+  <td>Reserva Expogenética Santa Nice</td>
+  <td class="num">5,00%</td>
+  <td class="small">acordo de 5% — Marcelo, 27/08 21:06 ("Por que Santa Nice é 5.7? Acordo e 5"); o ERP vinha usando os 5,70% pagos em 06/06</td>
+  <td class="num">14.850,00</td></tr><tr>
+  <td>Top Cen Expogenética (CEN & Fz. Modelo)</td>
+  <td class="num">3,00%</td>
+  <td class="small">acordo de 3% — Marcelo, 27/08 21:06 ("Fazenda modelo 3%"); o ERP vinha usando os 3,85% pagos em 23/06</td>
+  <td class="num">3.510,00</td></tr><tr>
+  <td>Baby de Prova — Acelerar Gerações</td>
+  <td class="num">5,00%</td>
+  <td class="small">sem histórico do criador — aplicada a mediana de 2026 (5,00%)</td>
+  <td class="num">3.675,00</td></tr><tr>
+  <td>12º Noite Nacional Matrizes Premium</td>
+  <td class="num">3,00%</td>
+  <td class="small">acordo de 3% — Marcelo, 27/08 21:06 ("Nacional premium e pepitas é 3%")</td>
+  <td class="num">5.850,00</td></tr><tr>
+  <td>Naviraí Camparino Essência</td>
+  <td class="num">5,00%</td>
+  <td class="small">Naviraí pagou 5,00% em 05/07 e 16/07</td>
+  <td class="num">27.150,00</td></tr><tr>
+  <td>4º Pepitas Colonial e Convidados</td>
+  <td class="num">3,00%</td>
+  <td class="small">acordo de 3% — Marcelo, 27/08 21:06 ("Nacional premium e pepitas é 3%")</td>
+  <td class="num">9.765,00</td></tr><tr>
+  <td>28º Naviraí Camparino</td>
+  <td class="num">5,00%</td>
+  <td class="small">Naviraí pagou 5,00% em 05/07 e 16/07</td>
+  <td class="num">47.025,00</td></tr><tr>
+  <td>Nelore Marcondes — Abertura</td>
+  <td class="num">5,00%</td>
+  <td class="small">sem histórico do criador — aplicada a mediana de 2026 (5,00%)</td>
+  <td class="num">1.875,00</td></tr><tr>
+  <td>6º Excelência Genética</td>
+  <td class="num">5,00%</td>
+  <td class="small">sem histórico do criador — aplicada a mediana de 2026 (5,00%)</td>
+  <td class="num">5.250,00</td></tr></tbody>
+  <tfoot><tr><td colspan="3">Total</td><td class="num">191.591,13</td></tr></tfoot>
+</table>
+<p class="sub small">Onde há cobrança emitida no ERP, o valor é o da cobrança. Onde não há, vale o acordo confirmado com a leiloeira;
+sem acordo registrado, o percentual que <b>aquele criador</b> pagou à Bula em 2026, e sem histórico, 5% — a mediana das 98 cobranças de 2026.</p>
+
+<div class="box alert">
+  <div class="k">Terra Brava: de onde saíram os 11,19%</div>
+  <p>Os <b>11,19%</b> não são acordo desta edição. A cobrança foi gerada em 18/08 a partir do fechamento e
+  <b>herdou o percentual de junho</b>: a NF 615 do Terra Brava de 16/06 saiu por R$ 7.215,00, que é <b>0,5% do faturamento de
+  R$ 1.443.000</b> daquele pregão — dividido pela cobertura de uma etapa só (R$ 64.500), dá exatamente 11,19%. É um número
+  de conversão, não de contrato.</p>
+  <p style="margin:0">Pela <b>tabela padrão de performance</b>, o pregão de 15/08 tem cobertura de R$ 107.100 sobre
+  faturamento de R$ 1.248.600 — performance de <b>8,58%</b>, faixa de
+  5% a 12,5% → 0,5% do faturamento, o que dá <b>R$ 6.243,00</b>. A cobrança aberta no ERP está
+  <b class="neg">R$ 5.741,49 acima</b> disso. Este relatório mantém o valor emitido porque é o que a Bula tem a
+  receber hoje; se a tabela prevalecer, a receita da feira cai para R$ 185.849,64 e o lucro bruto
+  para R$ 9.952,92. <b>Falta confirmar o acordo desta edição com a leiloeira</b> — é o mesmo
+  tipo de erro já corrigido na NF 636 da Genética Aditiva.</p>
+</div>
+
+</div>
+
+<div class="page brk">
+
+<h2><span class="n">04</span>Custos da feira</h2>
+<table>
+  <thead><tr><th>Grupo</th><th>Item</th><th class="num">Valor</th><th class="ctr">Situação</th><th>Origem do número</th></tr></thead>
+  <tbody><tr class="">
+  <td>Transporte</td><td>Reemissão de passagens da equipe</td>
+  <td class="num">5.026,34</td>
+  <td class="ctr"><span class="tag t-ok">pago</span></td>
+  <td class="sub small">ERP · conta a pagar</td></tr><tr class="">
+  <td>Transporte</td><td>Passagem aérea — Fábio Omena</td>
+  <td class="num">4.196,87</td>
+  <td class="ctr"><span class="tag t-ok">pago</span></td>
+  <td class="sub small">ERP · conta a pagar</td></tr><tr class="">
+  <td>Transporte</td><td>Passagem aérea — Leonardo Serafim</td>
+  <td class="num">1.981,58</td>
+  <td class="ctr"><span class="tag t-ok">pago</span></td>
+  <td class="sub small">ERP · conta a pagar</td></tr><tr class="">
+  <td>Estadia</td><td>Casa em Uberaba — 1ª parcela</td>
+  <td class="num">2.000,00</td>
+  <td class="ctr"><span class="tag t-ok">pago</span></td>
+  <td class="sub small">ERP · conta a pagar</td></tr><tr class="est">
+  <td>Estadia</td><td>Casa em Uberaba — saldo do aluguel</td>
+  <td class="num">6.000,00</td>
+  <td class="ctr"><span class="tag t-fix">a lançar</span></td>
+  <td class="sub small">total de R$ 8.000 confirmado pelo Marcelo em 26/08</td></tr><tr class="est">
+  <td>Alimentação</td><td>Reembolso da equipe — alimentação e deslocamento local</td>
+  <td class="num">5.000,00</td>
+  <td class="ctr"><span class="tag t-est">estimado</span></td>
+  <td class="sub small">valor definido pelo Marcelo em 26/08; prestação de contas chega na 1ª semana de setembro</td></tr><tr class="">
+  <td>Outros</td><td>Uniformes da equipe — entrada</td>
+  <td class="num">240,00</td>
+  <td class="ctr"><span class="tag t-ok">pago</span></td>
+  <td class="sub small">ERP · conta a pagar</td></tr><tr class="">
+  <td>Outros</td><td>Uniformes da equipe — saldo</td>
+  <td class="num">240,00</td>
+  <td class="ctr"><span class="tag t-ok">pago</span></td>
+  <td class="sub small">ERP · conta a pagar</td></tr></tbody>
+  <tfoot><tr><td colspan="2">Transporte 11.204,79 · Estadia 8.000,00 · Alimentação 5.000,00 · Outros 480,00</td>
+    <td class="num">24.684,79</td><td colspan="2"></td></tr></tfoot>
+</table>
+<p class="sub small"><b>Transporte e uniformes</b> são valores fechados: saíram do caixa e estão conciliados no extrato.
+Os dois PIX de 17/07 à ADN Viagens (R$ 2.081,92 e R$ 2.421,43) ficaram fora por decisão sua em 18/08 — não são desta feira.</p>
+
+<div class="box">
+  <div class="k">Estadia e reembolso — valores definidos pelo Marcelo no grupo Financeiro</div>
+  <p><b>Estadia (R$ 8.000).</b> A casa de Uberaba cobriu o período de 14 a 24/08. O ERP tem só a 1ª parcela de
+  R$ 2.000 lançada — faltam <b>R$ 6.000</b> virar conta a pagar. Serve de referência a casa da
+  Expozebu, mesma cidade e mesmo formato, que custou R$ 7.000 em duas parcelas.</p>
+  <p style="margin:0"><b>Reembolso da equipe (R$ 5.000).</b> Valor fixado por você em 27/08 ("reembolso da equipe é menor,
+  pode considerar 5.000"). É a única linha inteiramente projetada: a prestação de contas da viagem só chega na primeira semana de
+  setembro, e é ela que fecha a despesa operacional do evento. Se vier no teto da faixa histórica (R$ 9.000), o
+  lucro bruto cai de R$ 14.660,94 para R$ 10.660,94.</p>
+</div>
+
+<h2><span class="n">05</span>DRE da Expogenética</h2>
+<div class="dre">
+<table>
+  <thead><tr><th>Conta</th><th class="num">Valor</th><th class="num">% do faturamento</th></tr></thead>
+  <tbody>
+    <tr class="">
+  <td><b>Faturamento</b> (comissão recebida)</td>
+  <td class="num">191.591,13</td>
+  <td class="num sub">100,0%</td></tr>
+    <tr class="ind">
+  <td>Imposto (18%)</td>
+  <td class="num">(34.486,40)</td>
+  <td class="num sub">18,0%</td></tr>
+    <tr class="sub-t">
+  <td>Faturamento líquido</td>
+  <td class="num">157.104,73</td>
+  <td class="num sub">82,0%</td></tr>
+    <tr class="ind">
+  <td>Comissões de assessores</td>
+  <td class="num">(117.759,00)</td>
+  <td class="num sub">61,5%</td></tr>
+    <tr class="ind">
+  <td>Custos de transporte</td>
+  <td class="num">(11.204,79)</td>
+  <td class="num sub">5,8%</td></tr>
+    <tr class="ind">
+  <td>Custos de estadia</td>
+  <td class="num">(8.000,00)</td>
+  <td class="num sub">4,2%</td></tr>
+    <tr class="ind">
+  <td>Custos de alimentação</td>
+  <td class="num">(5.000,00)</td>
+  <td class="num sub">2,6%</td></tr>
+    <tr class="ind">
+  <td>Outros custos (uniformes)</td>
+  <td class="num">(480,00)</td>
+  <td class="num sub">0,3%</td></tr>
+    <tr class="final"><td>Lucro bruto</td><td class="num">14.660,94</td>
+      <td class="num"><span class="sub">7,7%</span></td></tr>
+  </tbody>
+</table>
+</div>
+<p class="sub small">Imposto de 18% sobre a receita — critério padrão dos fechamentos do ERP (Simples Nacional Anexo III + ISS).
+A DRE cobre a operação inteira da equipe no período, porque os custos de viagem também são da operação inteira.
+O resultado é <b>lucro bruto</b>, e não líquido: não carrega estrutura, folha nem a distribuição do sócio.</p>
+
+<div class="box dark">
+  <div class="k">Como ler este resultado</div>
+  <p>De cada real que a Bula vendeu na feira, sobraram <b>0,37%</b> de lucro bruto. A feira se paga, mas com folga
+  pequena: <b>75% do faturamento líquido vai para comissão</b> e os custos de campo
+  (R$ 24.685) consomem outros 16%.</p>
+  <p style="margin:0"><b>E nada disso é caixa ainda.</b> O relatório de NFS-e da Prefeitura de Campo Grande emitido em
+  27/08/2026 mostra 9 notas da Bula Assessoria no mês, somando R$ 96.335,08 —
+  e <b>nenhuma delas é da Expogenética</b>: são todas de leilões de julho. Dos R$ 191.591 de comissão apurados aqui,
+  R$ 42.029 têm cobrança aberta no ERP e R$ 149.562 ainda não viraram nem cobrança nem nota.
+  A comissão paga, essa sim, já é compromisso: R$ 111.609 vencem em 25/09.</p>
+</div>
+
+<h3>O que foi faturado em agosto — relatório de NFS-e da Prefeitura</h3>
+<table>
+  <thead><tr><th class="ctr">NF</th><th class="ctr">Emissão</th><th>Refere-se a</th><th class="num">Valor</th></tr></thead>
+  <tbody><tr><td class="ctr">626</td><td class="ctr sub">04/08</td>
+    <td class="sub">leilão de julho</td><td class="num">6.756,00</td></tr><tr><td class="ctr">628</td><td class="ctr sub">20/08</td>
+    <td class="sub">Guadalupe — 3 dias de pregão (julho)</td><td class="num">21.425,90</td></tr><tr><td class="ctr">629</td><td class="ctr sub">20/08</td>
+    <td class="sub">leilão de julho</td><td class="num">19.810,50</td></tr><tr><td class="ctr">630</td><td class="ctr sub">21/08</td>
+    <td class="sub">Naviraí etapas 1 e 2 (julho)</td><td class="num">2.411,25</td></tr><tr><td class="ctr">631</td><td class="ctr sub">21/08</td>
+    <td class="sub">Naviraí (julho)</td><td class="num">8.490,00</td></tr><tr><td class="ctr">632</td><td class="ctr sub">21/08</td>
+    <td class="sub">Naviraí (julho)</td><td class="num">7.473,00</td></tr><tr><td class="ctr">634</td><td class="ctr sub">24/08</td>
+    <td class="sub">Nelore Sorriso (julho)</td><td class="num">4.536,00</td></tr><tr><td class="ctr">635</td><td class="ctr sub">25/08</td>
+    <td class="sub">Nelore Sorriso 12/07</td><td class="num">7.149,98</td></tr><tr><td class="ctr">636</td><td class="ctr sub">25/08</td>
+    <td class="sub">23º Genética Aditiva, etapas 1 e 2 (25 e 26/07)</td><td class="num">18.282,45</td></tr></tbody>
+  <tfoot><tr><td colspan="3">Total — 9 notas, nenhuma da Expogenética</td>
+    <td class="num">96.335,08</td></tr></tfoot>
+</table>
+<p class="sub small">Relatório de Nota Fiscal emitido pela Prefeitura de Campo Grande em 27/08/2026 para o CNPJ
+34.791.630/0001-43, cobrindo as emissões de 01/08 a 27/08. É a prova de que a receita desta feira ainda é <b>inteiramente
+futura</b>: nenhuma das 9 notas do mês corresponde a um pregão da Expogenética.</p>
+
+
+</div>
+
+<div class="page brk">
+
+<h2><span class="n">06</span>O que precisa ser resolvido</h2>
 <ul>
-  <li><b>Comissão do Rusa</b> — confirmar se Nelore Pérola / José Fábio e os demais compradores do Matinha e do KatiSpera
-      são clientes dele. Diferença de R$ 14.850 nas comissões de setembro.</li>
-  <li><b>Casa e uniformes</b> — os totais de R$ 9.000 e R$ 480 vieram de você; o ERP só tem
-      R$ 2.000 e R$ 240 lançados. Os saldos de R$ 7.000 e R$ 240
-      precisam virar conta a pagar para não aparecerem de surpresa no extrato.</li>
-  <li><b>Critério do Terra Brava</b> — a conta a receber de R$ 11.984,49 usa 11,19%, o percentual efetivo do
-      Terra Brava de junho. Se o acordo desta edição for de 5%, a receita cai para R$ 5.355,00.</li>
-  <li><b>Comissão do KatiSpera</b> — ainda não lançada; aguarda o leilão entrar no HastaPro.</li>
-  <li><b>Passagens de 17/07</b> — os dois PIX para a ADN Viagens (Marcelo R$ 2.081,92 e Léo R$ 2.421,43)
-      saíram do cálculo a seu pedido: não são desta feira. Só que o memo no extrato dizia "EXPOGENETICA" e no ERP
-      elas seguem marcadas como despesa de Terra Brava/Matinha — precisam ser reclassificadas para o evento certo,
-      senão voltam a aparecer como custo da Expogenética no fechamento do mês.</li>
-  <li><b>EAO e Mafra</b> — leilões grandes, equipe presente e zero venda registrada. Vale conferir com os assessores
-      se houve venda não reportada no grupo antes de dar o mês por fechado.</li>
-  <li><b>JMP de 21/08</b> — é o único leilão restante cujo acordo paga sobre o faturamento total (0,5%) e não sobre a
-      cobertura. Sozinho ele decide se a feira fecha positiva; vale saber o tamanho esperado do evento.</li>
+  <li><b>Emitir as cobranças que faltam.</b> Dos 16 pregões com venda, só 3 têm conta a receber no ERP
+      (R$ 42.029). Os outros R$ 149.562 estão apurados mas não cobrados — e nenhuma nota
+      da feira foi emitida até 27/08/2026.</li>
+  <li><b>Confirmar o acordo do Terra Brava desta edição.</b> A cobrança aberta (R$ 11.984,49) usa um percentual
+      herdado de junho; pela tabela padrão o valor seria R$ 6.243,00. Enquanto não houver acordo registrado,
+      R$ 5.741,49 de receita ficam em aberto nos dois sentidos.</li>
+  <li><b>Corrigir a cobrança do Matinha.</b> Foi emitida por R$ 27.375,00 (5% sobre R$ 547.500), mas o lote 22
+      (R$ 87.000) pertence ao Fazenda Araras — confirmado no HastaPro. O valor certo é R$ 23.025,00.</li>
+  <li><b>Lançar os títulos de comissão de agosto</b>, que vencem em 25/09. Hoje há título para apenas R$ 4.692,00 dos
+      R$ 117.759,00 devidos — e a comissão do Gustavo Rusa (R$ 66.525,00) não tem título nenhum.</li>
+  <li><b>Genética Aditiva e JMP cobram sobre o faturamento total do pregão</b>, não sobre a venda da Bula — e esse
+      faturamento não está registrado em lugar nenhum. Enquanto não estiver, os R$ 24.270,00 desses dois são estimativa fraca.</li>
+  <li><b>Definir o lote 22 do 28º Naviraí</b> (R$ 63.000, em nome de Marcelo Moura). Os compradores — Marcelo e
+      Gustavo Sarmento, Fazenda São Francisco, Cabaceira do Paraguaçu/BA — foram descritos no grupo como clientes
+      preferenciais do próprio Naviraí. Se a Bula não cobra sobre ele, saem R$ 3.150,00 da receita e R$ 1.260,00 da
+      comissão. Marcelo Moura também não está no cadastro de folha.</li>
+  <li><b>Terra Brava:</b> a comissão do Fábio está marcada como "conferir autoria" desde 18/08 — parte das vendas pode ter
+      sido do Mateus.</li>
+  <li><b>Lançar no ERP o saldo da casa</b> (R$ 6.000) e cobrar a prestação de contas da equipe, para a
+      alimentação sair de estimativa.</li>
+  <li><b>KatiSpera não existe no HastaPro</b> — entrou só pelo grupo de lances, e também não aparece no consolidado de vendas
+      publicado no grupo em 27/08. Já tem cobrança emitida de R$ 7.020,00; confirmar o VGV com a leiloeira antes de fechar o mês.</li>
+  <li><b>Fêmeas JMP saiu deste fechamento</b> (R$ 41.400 de venda e R$ 828,00 de comissão).
+      Existia só no parser do grupo de lances. Não está no HastaPro, não está no consolidado do HastaPro de 27/08 e não está na agenda da ABCZ. O valor é idêntico ao do lote 48 do Shopping Naviraí (mesmo assessor): é o mesmo lote contado duas vezes. Excluído por decisão do João em 28/08.</li>
+  <li><b>Juntar as duas grafias do Douglas no painel de vendas por assessor.</b> No relatório de agosto ele aparece duas vezes —
+      "Douglas Bispo" (R$ 1.600.700, 35 lotes) e "DOUGLAS BISPO" (R$ 968.600, 15 lotes) —, o que infla a lista de top
+      assessores e atrapalha a conferência Douglas × Rusa. Nesta apuração da feira o nome já está unificado.</li>
+  <li><b>Matheus Alves (CPD da Bula Remates) não recebe comissão</b> — decisão sua e do Bula em 28/08. Nenhum lote desta feira
+      está no nome dele no HastaPro, então o fechamento da Expogenética não muda; a regra vale para o resto de agosto.</li>
 </ul>
 
+</div>
+
+<div class="page brk">
+
+<h2><span class="n">07</span>Conferência contra fontes independentes</h2>
+<p>A venda deste relatório foi lida do <b>HastaPro, lote a lote</b>. Para não depender de uma fonte só, cada pregão foi
+conferido contra <b>duas apurações feitas por outros caminhos</b>: o consolidado de vendas que o Matheus publicou no grupo
+Financeiro em 27/08 e o fechamento montado a partir dos <b>replays das leiloeiras</b>.</p>
+
+<h3>Fonte 2 — consolidado de vendas publicado no grupo (27/08)</h3>
+<table>
+  <thead><tr><th>Leilão</th><th class="num">Este relatório</th><th class="num">Consolidado<br>do grupo</th><th class="num">Diferença</th></tr></thead>
+  <tbody>
+    <tr><td>Terra Brava Agropecuária</td><td class="num">R$ 107.100</td>
+      <td class="num">R$ 107.100</td><td class="num pos">confere</td></tr><tr><td>Shopping Naviraí Expogenética</td><td class="num">R$ 96.600</td>
+      <td class="num">R$ 96.600</td><td class="num pos">confere</td></tr><tr><td>Matinha Expogenética 2026</td><td class="num">R$ 460.500</td>
+      <td class="num">R$ 460.500</td><td class="num pos">confere</td></tr><tr><td>Fazenda Araras e Convidados</td><td class="num">R$ 87.000</td>
+      <td class="num">R$ 87.000</td><td class="num pos">confere</td></tr><tr><td>13º Genética Provada HoRa</td><td class="num">R$ 24.000</td>
+      <td class="num">R$ 24.000</td><td class="num pos">confere</td></tr><tr><td>9º Genética Aditiva Expogenética</td><td class="num">R$ 444.000</td>
+      <td class="num">R$ 444.000</td><td class="num pos">confere</td></tr><tr><td>Reserva Expogenética Santa Nice</td><td class="num">R$ 297.000</td>
+      <td class="num">R$ 297.000</td><td class="num pos">confere</td></tr><tr><td>Top Cen Expogenética (CEN & Fz. Modelo)</td><td class="num">R$ 117.000</td>
+      <td class="num">R$ 117.000</td><td class="num pos">confere</td></tr><tr><td>Baby de Prova — Acelerar Gerações</td><td class="num">R$ 73.500</td>
+      <td class="num">R$ 73.500</td><td class="num pos">confere</td></tr><tr><td>12º Noite Nacional Matrizes Premium</td><td class="num">R$ 195.000</td>
+      <td class="num">R$ 195.000</td><td class="num pos">confere</td></tr><tr><td>Naviraí Camparino Essência</td><td class="num">R$ 543.000</td>
+      <td class="num">R$ 543.000</td><td class="num pos">confere</td></tr><tr><td>4º Pepitas Colonial e Convidados</td><td class="num">R$ 325.500</td>
+      <td class="num">R$ 325.500</td><td class="num pos">confere</td></tr><tr><td>28º Naviraí Camparino</td><td class="num">R$ 940.500</td>
+      <td class="num">R$ 940.500</td><td class="num pos">confere</td></tr><tr><td>Nelore Marcondes — Abertura</td><td class="num">R$ 37.500</td>
+      <td class="num">R$ 37.500</td><td class="num pos">confere</td></tr><tr><td>6º Excelência Genética</td><td class="num">R$ 105.000</td>
+      <td class="num">R$ 105.000</td><td class="num pos">confere</td></tr>
+    
+    <tr class="est"><td><b>Matrizes Premium KatiSpera</b></td><td class="num">R$ 117.000</td>
+      <td class="num sub">não consta</td><td class="num neg">R$ 117.000</td></tr>
+  </tbody>
+</table>
+<div class="box">
+  <div class="k">15 dos 16 pregões batem ao centavo — 97% da venda</div>
+  <p style="margin:0">Esta é a conferência mais forte do relatório: o número que a equipe usa no dia a dia e o número apurado
+  aqui, lote a lote, são <b>o mesmo em 15 dos 16 pregões</b>. Ela também resolve a divergência que
+  vinha desde 25/08 no <b>28º Naviraí Camparino</b>: o consolidado de 25/08 trazia R$ 871.500 (22 lotes) e o de 27/08 já
+  traz R$ 940.500 (23 lotes) — o mesmo valor que o HastaPro registra e que este relatório usa. A única exceção é o
+  <b>KatiSpera</b>, que não aparece em nenhuma das duas fontes externas e vive apenas do grupo de lances e da cobrança emitida.</p>
+</div>
+
+<h3>Fonte 3 — fechamento reconstruído dos replays das leiloeiras (25/08)</h3>
+<table>
+  <thead><tr><th>Leilão</th><th class="num">Este relatório<br>(HastaPro)</th><th class="num">Replay das<br>leiloeiras</th><th class="num">Diferença</th></tr></thead>
+  <tbody>
+    <tr><td>Terra Brava Agropecuária</td><td class="num">R$ 107.100</td>
+      <td class="num">R$ 107.100</td><td class="num pos">confere</td></tr><tr><td>Shopping Naviraí Expogenética</td><td class="num">R$ 96.600</td>
+      <td class="num">R$ 96.600</td><td class="num pos">confere</td></tr><tr><td>Matinha Expogenética 2026</td><td class="num">R$ 460.500</td>
+      <td class="num">R$ 460.500</td><td class="num pos">confere</td></tr><tr><td>Fazenda Araras e Convidados</td><td class="num">R$ 87.000</td>
+      <td class="num">R$ 87.000</td><td class="num pos">confere</td></tr><tr><td>13º Genética Provada HoRa</td><td class="num">R$ 24.000</td>
+      <td class="num">R$ 24.000</td><td class="num pos">confere</td></tr><tr><td>9º Genética Aditiva Expogenética</td><td class="num">R$ 444.000</td>
+      <td class="num">R$ 444.000</td><td class="num pos">confere</td></tr><tr><td>Reserva Expogenética Santa Nice</td><td class="num">R$ 297.000</td>
+      <td class="num">R$ 297.000</td><td class="num pos">confere</td></tr><tr><td>Top Cen Expogenética (CEN & Fz. Modelo)</td><td class="num">R$ 117.000</td>
+      <td class="num">R$ 117.000</td><td class="num pos">confere</td></tr><tr><td>Baby de Prova — Acelerar Gerações</td><td class="num">R$ 73.500</td>
+      <td class="num">R$ 73.500</td><td class="num pos">confere</td></tr><tr><td>12º Noite Nacional Matrizes Premium</td><td class="num">R$ 195.000</td>
+      <td class="num">R$ 195.000</td><td class="num pos">confere</td></tr><tr><td>Naviraí Camparino Essência</td><td class="num">R$ 543.000</td>
+      <td class="num">R$ 543.000</td><td class="num pos">confere</td></tr><tr><td>4º Pepitas Colonial e Convidados</td><td class="num">R$ 325.500</td>
+      <td class="num">R$ 325.500</td><td class="num pos">confere</td></tr><tr><td>Nelore Marcondes — Abertura</td><td class="num">R$ 37.500</td>
+      <td class="num">R$ 37.500</td><td class="num pos">confere</td></tr>
+    <tr class="est"><td><b>28º Naviraí Camparino</b></td><td class="num">R$ 940.500</td>
+      <td class="num">R$ 871.500</td><td class="num neg">R$ 69.000</td></tr>
+    <tr class="est"><td><b>Matrizes Premium KatiSpera</b></td><td class="num">R$ 117.000</td>
+      <td class="num sub">não consta</td><td class="num neg">R$ 117.000</td></tr><tr class="est"><td><b>6º Excelência Genética</b></td><td class="num">R$ 105.000</td>
+      <td class="num sub">não consta</td><td class="num neg">R$ 105.000</td></tr>
+  </tbody>
+  <tfoot><tr><td>Total</td><td class="num">R$ 3.970.200</td><td class="num">R$ 3.679.200</td>
+    <td class="num">R$ 291.000</td></tr></tfoot>
+</table>
+
+<div class="box">
+  <div class="k">13 dos 16 pregões batem ao centavo — 71% da venda</div>
+  <p>Duas apurações feitas por caminhos diferentes chegaram ao mesmo número em 13 pregões, somando
+  <b>R$ 2.807.700</b>. As 3 exceções são todas conhecidas e têm explicação —
+  e uma quarta venda, o Fêmeas JMP, já saiu do fechamento por causa desta conferência:</p>
+  <ul style="margin-bottom:0">
+    <li><b>28º Naviraí Camparino</b> — três números para o mesmo pregão: R$ 940.500 no HastaPro (23 lotes),
+        R$ 871.500 no fechamento por replay (22 vendas) e R$ 948.000 no fechamento automático do grupo.
+        Adotei o HastaPro por ser o registro da leiloeira. Parte da diferença já foi resolvida no grupo em 26/08: o
+        <b>lote 20 é de R$ 1.400 e não R$ 1.200</b> (R$ 42.000, Fábio Omena, Marco Túlio Severino) — valor que este
+        relatório já usa. Falta o <b>lote 22 (R$ 63.000, R$ 2.100 × 30)</b>, lançado em nome de Marcelo Moura:
+        os compradores são "clientes preferenciais do Naviraí", então é preciso definir se a Bula recebe e paga comissão
+        sobre ele antes de fechar o mês.</li>
+    <li><b>Matrizes Premium KatiSpera</b> (R$ 117.000) — está na agenda oficial e <b>já tem cobrança emitida de
+        R$ 7.020,00</b> no ERP, mas não existe no HastaPro nem no replay. <b>Atenção ao número de R$ 185.100</b> que
+        circulou no grupo em 26/08: esse é o VGV do <i>3º Leilão Matrizes KatiSpera de 20/06</i> — outro pregão, que rendeu
+        R$ 11.106,00 de comissão a 6%. Confirmar qual é o valor desta edição antes de mexer na cobrança.</li>
+    <li><b>6º Excelência Genética</b> (R$ 105.000) — <b>já confirmado no grupo em 26/08</b>: lote 21, R$ 3.500 × 30,
+        comprador Magda / J. Gouvea, venda de Peralta/Bula, comissão de 2% a ser paga ao Bulinha. Está no HastaPro e na
+        agenda oficial (ORD 32); a ausência no replay era lacuna da fonte, não venda inexistente.</li>
+    <li><b>Fêmeas JMP</b> (R$ 41.400) — <b>excluído deste fechamento</b>. Não está na agenda da ABCZ, não está
+        no HastaPro, não está no replay e não está no consolidado do grupo. O valor é idêntico ao do lote 48 do Shopping Naviraí,
+        do mesmo assessor: era o mesmo lote contado duas vezes pelo parser. Sai R$ 41.400 da venda e
+        R$ 828,00 da comissão.</li>
+  </ul>
+</div>
+<p class="sub small">Se as vendas não confirmadas (R$ 222.000) forem excluídas e o 28º Naviraí for ajustado
+ao replay, a venda cai para R$ 3.679.200 e o lucro bruto para cerca de
+R$ 11.777.
+O resultado da feira continua positivo nos dois cenários.</p>
+
+<h3>O que esta apuração corrigiu no sistema</h3>
+<p>Ler o HastaPro lote a lote em vez de usar os fechamentos automáticos do grupo de WhatsApp corrigiu três erros que
+estavam no ERP: um lote de R$ 84.000 contado duas vezes — o grupo não separa pregões do mesmo dia e criou um
+fechamento "Paranã e Casabranca" com o lote do Top Cen —, o Naviraí de Matrizes inflado em R$ 33.000, e o
+6º Excelência Genética (R$ 105.000), que não estava em relatório nenhum.</p>
+<p>A comissão foi recalculada pela regra do comprador, que estava aplicada em apenas 3 dos 17 fechamentos do ERP. Isso moveu
+R$ 502.500 de venda dos assessores para o parceiro e aumentou a comissão devida em R$ 13.722 — dinheiro que
+seria pago errado se o fechamento de agosto saísse como está no sistema hoje.</p>
+
+<h2><span class="n">08</span>De onde vem cada regra deste fechamento</h2>
+<p class="sub small">Nenhum percentual deste relatório é arbitrado. Cada um tem uma decisão registrada no grupo Financeiro,
+com data e autor — é o que permite conferir o número sem reabrir a conversa.</p>
+<table>
+  <thead><tr><th class="ctr">Quando</th><th class="ctr">Quem</th><th>Regra aplicada</th><th>Efeito neste fechamento</th></tr></thead>
+  <tbody><tr><td class="ctr sub">26/08 12:51</td><td class="ctr sub">Marcelo</td>
+    <td>Acordo HoRa: 4% da venda</td><td class="sub small">receita do HoRa de R$ 1.200,00 para R$ 960,00</td></tr><tr><td class="ctr sub">26/08 12:51</td><td class="ctr sub">Marcelo</td>
+    <td>Acordo Araras: 3% da venda</td><td class="sub small">receita do Araras de R$ 4.350,00 para R$ 2.610,00</td></tr><tr><td class="ctr sub">26/08 18:19</td><td class="ctr sub">Marcelo</td>
+    <td>Estadia de 8.000 na casa de Uberaba</td><td class="sub small">R$ 2.000,00 pagos, R$ 6.000,00 a lançar</td></tr><tr><td class="ctr sub">26/08 21:20</td><td class="ctr sub">Marcelo</td>
+    <td>"Não é lucro líquido, errei. É lucro bruto"</td><td class="sub small">resultado da DRE renomeado — não carrega estrutura nem folha</td></tr><tr><td class="ctr sub">27/08 21:06</td><td class="ctr sub">Marcelo</td>
+    <td>Santa Nice: acordo é 5%, não 5,7%</td><td class="sub small">receita de R$ 16.929,00 para R$ 14.850,00</td></tr><tr><td class="ctr sub">27/08 21:06</td><td class="ctr sub">Marcelo</td>
+    <td>Fazenda Modelo (Top Cen): 3%</td><td class="sub small">receita de R$ 4.504,50 para R$ 3.510,00</td></tr><tr><td class="ctr sub">27/08 21:06</td><td class="ctr sub">Marcelo</td>
+    <td>Nacional Premium e Pepitas: 3%</td><td class="sub small">receita de R$ 26.025,00 para R$ 15.615,00 nos dois somados</td></tr><tr><td class="ctr sub">27/08 21:06</td><td class="ctr sub">Marcelo</td>
+    <td>Reembolso da equipe: considerar 5.000</td><td class="sub small">linha de reembolso fixada em R$ 5.000,00</td></tr><tr><td class="ctr sub">27/08 21:09</td><td class="ctr sub">Marcelo</td>
+    <td>"Não paga 2% para Nane"</td><td class="sub small">os R$ 6.150,00 dela seguem no custo, mas o desembolso é 28/12, não 25/09</td></tr><tr><td class="ctr sub">27/08 21:23</td><td class="ctr sub">Guilherme</td>
+    <td>Peralta e Bula: 2%, pago ao Bulinha</td><td class="sub small">lote 21 do Excelência Genética mantido a 2%</td></tr><tr><td class="ctr sub">28/08</td><td class="ctr sub">João</td>
+    <td>Fêmeas JMP fora do fechamento (duplicata do lote 48 do Shopping Naviraí)</td><td class="sub small">−R$ 41.400,00 de venda e −R$ 828,00 de comissão</td></tr><tr><td class="ctr sub">28/08 16:46</td><td class="ctr sub">Marcelo</td>
+    <td>Matheus Alves (CPD da Remates) não recebe comissão de venda</td><td class="sub small">sem efeito nesta feira — nenhum lote no nome dele no HastaPro</td></tr></tbody>
+</table>
+
 <footer>
-  Bula Assessoria · Expogenética 2026 · gerado em 18/08/2026 a partir do ERP e do HastaPro (FIL 2).
-  Valores marcados como estimados ou projetados não são fato registrado — estão identificados linha a linha.
+  Bula Assessoria · 19ª ExpoGenética (Uberaba/MG, agenda comercial de 10 a 23/08/2026) · fechamento gerado em 28/08/2026.<br>
+  Fontes: HastaPro (filial 2, lote a lote), contas a receber e a pagar do ERP, relatório de NFS-e da Prefeitura de Campo Grande
+  (27/08), consolidado de vendas publicado no grupo Financeiro (27/08), fechamento por replay das leiloeiras (25/08), decisões
+  do grupo Financeiro de 26 a 28/08, cadastro de folha e agenda oficializada da ABCZ.
+  Valores estimados estão marcados linha a linha e explicados na seção de critério.
 </footer>
 
 </div>
