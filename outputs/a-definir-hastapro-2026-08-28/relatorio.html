@@ -1,0 +1,438 @@
+<!doctype html><html lang="pt-BR"><head><meta charset="utf-8">
+<title>A definir — validação HastaPro</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Oswald:wght@500;600&family=Inter:wght@400;600;700&display=swap');
+@page { size: A4 landscape; margin: 12mm 10mm; }
+* { box-sizing:border-box; margin:0; padding:0; }
+body { font-family:'Inter',Arial,sans-serif; color:#111; font-size:9.5px; }
+.head { display:flex; justify-content:space-between; align-items:flex-end; border-bottom:3px solid #111; padding-bottom:9px; }
+.brand { font-family:'Oswald',sans-serif; font-size:19px; letter-spacing:2px; text-transform:uppercase; font-weight:600; }
+.brand small { color:#C9A84C; }
+.doc { text-align:right; font-size:9px; color:#555; text-transform:uppercase; letter-spacing:1px; }
+h1 { font-family:'Oswald',sans-serif; font-size:17px; text-transform:uppercase; letter-spacing:1px; margin:13px 0 3px; }
+.sub { color:#555; font-size:10px; margin-bottom:11px; max-width:1050px; line-height:1.45; }
+h2 { font-family:'Oswald',sans-serif; font-size:12px; text-transform:uppercase; letter-spacing:1px; margin:15px 0 6px; border-left:3px solid #C9A84C; padding-left:7px; }
+.kpis { display:flex; gap:7px; margin:9px 0 4px; }
+.kpi { flex:1; border:1px solid #ccc; padding:7px 9px; }
+.kpi b { display:block; font-size:12.5px; margin-top:2px; white-space:nowrap; font-family:'Oswald',sans-serif; }
+.kpi span { font-size:7.5px; text-transform:uppercase; letter-spacing:.8px; color:#666; }
+.kpi.g { border-color:#C9A84C; }
+table { width:100%; border-collapse:collapse; }
+th { text-align:left; font-size:7.5px; text-transform:uppercase; letter-spacing:.5px; color:#555; border-bottom:2px solid #111; padding:4px 5px; }
+td { border-bottom:1px solid #e6e6e6; padding:3.5px 5px; vertical-align:top; }
+.r { text-align:right; white-space:nowrap; }
+tfoot td { border-top:2px solid #111; border-bottom:0; font-weight:700; }
+tr { page-break-inside:avoid; }
+.ok { color:#4d7a3e; font-weight:600; } .warn { color:#A8791F; font-weight:600; }
+.bad { color:#C0504D; font-weight:600; } .mut { color:#777; font-weight:600; }
+.nt { font-weight:400; color:#777; font-size:7.5px; margin-top:1px; }
+ol, ul { margin:0 0 0 15px; } li { margin-bottom:4px; line-height:1.45; }
+.box { border:1px solid #ccc; padding:9px 11px; margin-top:8px; line-height:1.5; }
+.foot { margin-top:16px; padding-top:7px; border-top:1px solid #ccc; font-size:8px; color:#777; display:flex; justify-content:space-between; }
+.pb { page-break-before:always; }
+</style></head><body>
+<div class="head">
+  <div class="brand">Bula <small>Assessoria</small></div>
+  <div class="doc">Comissionamento — bloco "A definir"<br>Validação no HastaPro · 28/08/2026</div>
+</div>
+<h1>Quem são os assessores por trás dos R$ 2.711.600 "a definir"</h1>
+<div class="sub">Os 43 lotes que a tela de comissionamento mostra sem assessor foram conferidos um a um no HastaPro (campo <b>LOT_PISTEIRO</b> e tabela <b>ASSESSORIA</b>, filial '2' = cobertura Bula), na captura do grupo de lances e nos títulos de comissão do ERP. <b>40 dos 43 têm dono identificado.</b> A maior parte já foi paga — o rótulo "A definir" existe porque o fechamento não recebeu o nome, não porque o assessor ficou sem receber.</div>
+
+<div class="kpis">
+  <div class="kpi g"><span>Lotes analisados</span><b>43 · 2.711.600,00</b></div>
+  <div class="kpi"><span>Identificados no HastaPro</span><b>40 · 2.626.100,00</b></div>
+  <div class="kpi"><span>Comissão já paga (25 lotes)</span><b>47.358,00</b></div>
+  <div class="kpi"><span>A pagar (12 lotes)</span><b>6.906,00</b></div>
+  <div class="kpi"><span>Sai do comissionamento</span><b>1.680,00</b></div>
+  <div class="kpi"><span>Sem dono (3 lotes)</span><b>85.500,00</b></div>
+</div>
+
+<h2>O que muda nos R$ 8.190 que a tela pede</h2>
+<table>
+  <thead><tr><th>Leilão</th><th class="r">Hoje na tela</th><th>Veredito da conferência</th><th class="r">Fica</th></tr></thead>
+  <tbody>
+    <tr><td>20º Guadalupe — Touros (19/07)</td><td class="r">390,00</td><td>Lote 99 (Elielton Taveira) não existe no HastaPro — o leilão inteiro foi cadastrado com zero lotes na filial 2. Só há o registro do grupo, e ele não nomeia assessor. O título de 390,00 venceu em 25/08 e <b>não foi pago</b>.</td><td class="r">390,00</td></tr>
+    <tr><td>Nelore Paranã e Casabranca (20/08)</td><td class="r">1.680,00</td><td><b>Duplicata.</b> A mensagem diz "lote 9 / leilão modelo / 2.800 × 30". É o lote 09 do <b>Nelore CEN &amp; Fazenda Modelo</b>, do mesmo dia, já fechado com o <b>Peralta</b> e comissão de 1.680,00 lançada. O mesmo lote está contado duas vezes.</td><td class="r">0,00</td></tr>
+    <tr><td>28º Naviraí Camparino Reprodutores (23/08)</td><td class="r">6.120,00</td><td>Lotes 16 e 117 = <b>Lucas Martins</b> (1%, regra do Grupo Financeiro de 05/08) → 960,00 · lote 30 = <b>Peralta</b> (2%) → 840,00 · lote 22 = <b>Marcelo Moura / M3 Assessoria</b>, comprador preferencial da leiloeira → não é cobertura Bula · lote 21 é de <b>outro leilão</b> (abaixo).</td><td class="r">1.800,00</td></tr>
+  </tbody>
+  <tfoot><tr><td>Total</td><td class="r">8.190,00</td><td>mais 2.100,00 que migram para o 6º Excelência Genética, que ainda não tem fechamento</td><td class="r">2.190,00</td></tr></tfoot>
+</table>
+
+<h2>O passivo que a tela não mostra: R$ 6.906,00 de comissão identificada e nunca lançada</h2>
+<div class="box">
+De janeiro a maio, sete lotes ficaram com <b>comissão 0,00</b> no fechamento — não é rateio pendente, é zero gravado. O HastaPro tem o pisteiro de todos: <b>Fábio Omena</b> (BEEM lotes 19 e 25, Katayama 02, Matinha 109, 4R 40 e 94 — R$ 4.026,00 a 3%, o percentual dele até junho) e <b>Douglas Bispo</b> (Katayama 03 e 10, Partner RG 93 — R$ 1.080,00 a 2%). Somando o Naviraí de agosto (Lucas 960,00 + Peralta 840,00), o total identificado a pagar é <b>6.906,00</b>.
+<br><br>⚠ <b>Antes de emitir os títulos de jan–mai:</b> existe um pagamento genérico <b>"Despesas — LEILÃO MATINHA" de R$ 5.419,00</b> (quitado em 23/04, fornecedor "ASSESSORES BULA (COMISSÕES)") <b>sem vínculo a fechamento nenhum</b>. BEEM, Katayama e Partner RG não têm título de comissão algum, mas esse acerto solto pode ter absorvido parte do período — conferir antes de pagar de novo.
+</div>
+
+<h2>Divergências estruturais encontradas de quebra</h2>
+<ul>
+  <li><b>Naviraí 23/08 — dois lotes faltando no fechamento:</b> o HastaPro tem 23 lotes (R$ 940.500) e o ERP tem 22 (R$ 948.000). Faltam o <b>lote 12 (R$ 49.500, Leonardo Serafim)</b> e o <b>lote 78 (R$ 48.000, Peralta)</b>; e sobra o lote 21, que é de outro leilão. Corrigido isso, entram +990,00 para o Leonardo e +960,00 para o Peralta.</li>
+  <li><b>Lote 21 (R$ 105.000):</b> pertence ao <b>6º Leilão Excelência Genética (23/08)</b> — comprador Joel de Assis Gouvêa Jr., Fazenda Giovanna/SP. O HastaPro registra o pisteiro <b>Felipe Vilela Andrade (Bulinha)</b>; a mensagem do grupo diz <b>"Peralta / Bula"</b>. Precisa da palavra do chefe antes de virar título (R$ 2.100 a 2% para um dos dois).</li>
+  <li><b>Matinha 01/03:</b> o único título vinculado a esse fechamento é a comissão do <b>Matinha de 21/06</b> (R$ 3.360 do Fábio) — <i>fechamento_id</i> errado. E o HastaPro atribui os 6 lotes do leilão ao Fábio, enquanto o fechamento dá o lote 68 (R$ 19.500) ao Douglas.</li>
+  <li><b>JMP Touros 14/06:</b> o Fábio recebeu R$ 39.450 (3% de R$ 1.315.000), mas o VGV dele no HastaPro é R$ 1.274.500 — R$ 40.500 a mais na base, R$ 1.215 pagos a maior. Vale conferir contra a planilha que originou o pagamento.</li>
+</ul>
+
+<div class="pb"></div>
+<h2>Os 43 lotes, um a um</h2>
+<table>
+  <thead><tr><th>Data</th><th>Leilão</th><th>Lote</th><th class="r">VGV</th><th>Comprador</th><th>HastaPro (pisteiro / assessoria)</th><th>Assessor</th><th class="r">%</th><th class="r">Comissão</th><th>Situação</th></tr></thead>
+  <tbody><tr>
+  <td>29/01</td><td>LEILÃO TOUROS BEEM</td><td>19</td>
+  <td class="r">12.600,00</td>
+  <td>Josimarcos Ferreira</td>
+  <td>Fabio de Omena Gaia</td>
+  <td><b>Fábio Omena</b></td>
+  <td class="r">3%</td>
+  <td class="r">378,00</td>
+  <td class="warn">a pagar</td></tr><tr>
+  <td>29/01</td><td>LEILÃO TOUROS BEEM</td><td>25</td>
+  <td class="r">12.600,00</td>
+  <td>Josimarcos Ferreira</td>
+  <td>Fabio de Omena Gaia</td>
+  <td><b>Fábio Omena</b></td>
+  <td class="r">3%</td>
+  <td class="r">378,00</td>
+  <td class="warn">a pagar</td></tr><tr>
+  <td>01/02</td><td>KATAYAMA ABERTURA DE SAFRA</td><td>02</td>
+  <td class="r">12.400,00</td>
+  <td>Gilmar Couto Soares</td>
+  <td>Fabio de Omena Gaia</td>
+  <td><b>Fábio Omena</b></td>
+  <td class="r">3%</td>
+  <td class="r">372,00</td>
+  <td class="warn">a pagar</td></tr><tr>
+  <td>01/02</td><td>KATAYAMA ABERTURA DE SAFRA</td><td>03</td>
+  <td class="r">16.000,00</td>
+  <td>Valdir Scherer</td>
+  <td>Douglas Bispo Carvalho</td>
+  <td><b>Douglas Bispo</b></td>
+  <td class="r">2%</td>
+  <td class="r">320,00</td>
+  <td class="warn">a pagar</td></tr><tr>
+  <td>01/02</td><td>KATAYAMA ABERTURA DE SAFRA</td><td>10</td>
+  <td class="r">20.000,00</td>
+  <td>Valdir Scherer</td>
+  <td>Douglas Bispo Carvalho</td>
+  <td><b>Douglas Bispo</b></td>
+  <td class="r">2%</td>
+  <td class="r">400,00</td>
+  <td class="warn">a pagar</td></tr><tr>
+  <td>08/02</td><td>PARTNER RG - TOUROS</td><td>93</td>
+  <td class="r">18.000,00</td>
+  <td>Breno José</td>
+  <td>Douglas Bispo Carvalho</td>
+  <td><b>Douglas Bispo</b></td>
+  <td class="r">2%</td>
+  <td class="r">360,00</td>
+  <td class="warn">a pagar</td></tr><tr>
+  <td>01/03</td><td>VIRTUAL TOUROS MATINHA</td><td>109</td>
+  <td class="r">23.100,00</td>
+  <td>Edmilson F. de Souza</td>
+  <td>Fabio de Omena Gaia</td>
+  <td><b>Fábio Omena</b></td>
+  <td class="r">3%</td>
+  <td class="r">693,00</td>
+  <td class="warn">a pagar</td></tr><tr>
+  <td>07/04</td><td>2º TOP GENÉTICA</td><td>19</td>
+  <td class="r">18.000,00</td>
+  <td>Jonauto Freitas Costa</td>
+  <td>(lote existe, pisteiro vazio)</td>
+  <td><b>—</b></td>
+  <td class="r">3%</td>
+  <td class="r">540,00</td>
+  <td class="mut">sem dono</td></tr><tr>
+  <td>09/05</td><td>32º LEILÃO 4R</td><td>42</td>
+  <td class="r">22.500,00</td>
+  <td>Avelino / Ademar</td>
+  <td>Felipe Vilela Andrade</td>
+  <td><b>Bulinha (Felipe Andrade)</b></td>
+  <td class="r">2%</td>
+  <td class="r">450,00</td>
+  <td class="ok">já pago<div class="nt">CP 10.206,00 pago 17/07</div></td></tr><tr>
+  <td>09/05</td><td>32º LEILÃO 4R</td><td>43</td>
+  <td class="r">22.500,00</td>
+  <td>Avelino / Ademar</td>
+  <td>Felipe Vilela Andrade</td>
+  <td><b>Bulinha (Felipe Andrade)</b></td>
+  <td class="r">2%</td>
+  <td class="r">450,00</td>
+  <td class="ok">já pago<div class="nt">CP 10.206,00 pago 17/07</div></td></tr><tr>
+  <td>09/05</td><td>32º LEILÃO 4R</td><td>44</td>
+  <td class="r">22.500,00</td>
+  <td>Avelino / Ademar</td>
+  <td>Felipe Vilela Andrade</td>
+  <td><b>Bulinha (Felipe Andrade)</b></td>
+  <td class="r">2%</td>
+  <td class="r">450,00</td>
+  <td class="ok">já pago<div class="nt">CP 10.206,00 pago 17/07</div></td></tr><tr>
+  <td>09/05</td><td>32º LEILÃO 4R</td><td>66</td>
+  <td class="r">19.200,00</td>
+  <td>Vinicius Maudaner</td>
+  <td>Felipe Vilela Andrade</td>
+  <td><b>Bulinha (Felipe Andrade)</b></td>
+  <td class="r">2%</td>
+  <td class="r">384,00</td>
+  <td class="ok">já pago<div class="nt">CP 10.206,00 pago 17/07</div></td></tr><tr>
+  <td>09/05</td><td>32º LEILÃO 4R</td><td>67</td>
+  <td class="r">19.200,00</td>
+  <td>Vinicius Maudaner</td>
+  <td>Felipe Vilela Andrade</td>
+  <td><b>Bulinha (Felipe Andrade)</b></td>
+  <td class="r">2%</td>
+  <td class="r">384,00</td>
+  <td class="ok">já pago<div class="nt">CP 10.206,00 pago 17/07</div></td></tr><tr>
+  <td>09/05</td><td>32º LEILÃO 4R</td><td>68</td>
+  <td class="r">19.200,00</td>
+  <td>Vinicius Maudaner</td>
+  <td>Felipe Vilela Andrade</td>
+  <td><b>Bulinha (Felipe Andrade)</b></td>
+  <td class="r">2%</td>
+  <td class="r">384,00</td>
+  <td class="ok">já pago<div class="nt">CP 10.206,00 pago 17/07</div></td></tr><tr>
+  <td>09/05</td><td>32º LEILÃO 4R</td><td>54</td>
+  <td class="r">18.000,00</td>
+  <td>Vinicius Maudaner</td>
+  <td>Felipe Vilela Andrade</td>
+  <td><b>Bulinha (Felipe Andrade)</b></td>
+  <td class="r">2%</td>
+  <td class="r">360,00</td>
+  <td class="ok">já pago<div class="nt">CP 10.206,00 pago 17/07</div></td></tr><tr>
+  <td>09/05</td><td>32º LEILÃO 4R</td><td>72</td>
+  <td class="r">20.400,00</td>
+  <td>Vinicius Maudaner</td>
+  <td>Felipe Vilela Andrade</td>
+  <td><b>Bulinha (Felipe Andrade)</b></td>
+  <td class="r">2%</td>
+  <td class="r">408,00</td>
+  <td class="ok">já pago<div class="nt">CP 10.206,00 pago 17/07</div></td></tr><tr>
+  <td>09/05</td><td>32º LEILÃO 4R</td><td>73</td>
+  <td class="r">20.400,00</td>
+  <td>Vinicius Maudaner</td>
+  <td>Felipe Vilela Andrade</td>
+  <td><b>Bulinha (Felipe Andrade)</b></td>
+  <td class="r">2%</td>
+  <td class="r">408,00</td>
+  <td class="ok">já pago<div class="nt">CP 10.206,00 pago 17/07</div></td></tr><tr>
+  <td>09/05</td><td>32º LEILÃO 4R</td><td>74</td>
+  <td class="r">20.400,00</td>
+  <td>Vinicius Maudaner</td>
+  <td>Felipe Vilela Andrade</td>
+  <td><b>Bulinha (Felipe Andrade)</b></td>
+  <td class="r">2%</td>
+  <td class="r">408,00</td>
+  <td class="ok">já pago<div class="nt">CP 10.206,00 pago 17/07</div></td></tr><tr>
+  <td>09/05</td><td>32º LEILÃO 4R</td><td>40</td>
+  <td class="r">24.000,00</td>
+  <td>Ailton Gabriel de Sousa</td>
+  <td>Fabio de Omena Gaia</td>
+  <td><b>Fábio Omena</b></td>
+  <td class="r">3%</td>
+  <td class="r">720,00</td>
+  <td class="warn">a pagar</td></tr><tr>
+  <td>09/05</td><td>32º LEILÃO 4R</td><td>94</td>
+  <td class="r">49.500,00</td>
+  <td>Givaldo Ferreira Neves</td>
+  <td>Fabio de Omena Gaia</td>
+  <td><b>Fábio Omena</b></td>
+  <td class="r">3%</td>
+  <td class="r">1.485,00</td>
+  <td class="warn">a pagar</td></tr><tr>
+  <td>09/05</td><td>32º LEILÃO 4R</td><td>123</td>
+  <td class="r">48.000,00</td>
+  <td>Cristiano C. de A. Brito</td>
+  <td>(lote existe, pisteiro vazio)</td>
+  <td><b>—</b></td>
+  <td class="r">2%</td>
+  <td class="r">960,00</td>
+  <td class="mut">sem dono</td></tr><tr>
+  <td>15/05</td><td>2º TOUROS JEM</td><td>01</td>
+  <td class="r">64.500,00</td>
+  <td>(comprador nao lancado)</td>
+  <td>Felipe Vilela Andrade</td>
+  <td><b>Bulinha (Felipe Andrade)</b></td>
+  <td class="r">2%</td>
+  <td class="r">1.290,00</td>
+  <td class="ok">já pago<div class="nt">CP 2.550,00 pago 17/07</div></td></tr><tr>
+  <td>15/05</td><td>2º TOUROS JEM</td><td>05</td>
+  <td class="r">31.500,00</td>
+  <td>(comprador nao lancado)</td>
+  <td>Felipe Vilela Andrade</td>
+  <td><b>Bulinha (Felipe Andrade)</b></td>
+  <td class="r">2%</td>
+  <td class="r">630,00</td>
+  <td class="ok">já pago<div class="nt">CP 2.550,00 pago 17/07</div></td></tr><tr>
+  <td>15/05</td><td>2º TOUROS JEM</td><td>08</td>
+  <td class="r">31.500,00</td>
+  <td>(comprador nao lancado)</td>
+  <td>Felipe Vilela Andrade</td>
+  <td><b>Bulinha (Felipe Andrade)</b></td>
+  <td class="r">2%</td>
+  <td class="r">630,00</td>
+  <td class="ok">já pago<div class="nt">CP 2.550,00 pago 17/07</div></td></tr><tr>
+  <td>13/06</td><td>BEZERRAS NELORE JMP</td><td>10</td>
+  <td class="r">39.000,00</td>
+  <td>Elvio Severino Pereira</td>
+  <td>Felipe Vilela Andrade</td>
+  <td><b>Bulinha (Felipe Andrade)</b></td>
+  <td class="r">2%</td>
+  <td class="r">780,00</td>
+  <td class="ok">já pago<div class="nt">CP 1.260,00 pago 17/07</div></td></tr><tr>
+  <td>13/06</td><td>BEZERRAS NELORE JMP</td><td>34</td>
+  <td class="r">24.000,00</td>
+  <td>Elvio Severino Pereira</td>
+  <td>Felipe Vilela Andrade</td>
+  <td><b>Bulinha (Felipe Andrade)</b></td>
+  <td class="r">2%</td>
+  <td class="r">480,00</td>
+  <td class="ok">já pago<div class="nt">CP 1.260,00 pago 17/07</div></td></tr><tr>
+  <td>14/06</td><td>10º NELORE JMP - TOUROS</td><td>179</td>
+  <td class="r">107.200,00</td>
+  <td>Sampaio</td>
+  <td>Felipe Vilela Andrade</td>
+  <td><b>Bulinha (Felipe Andrade)</b></td>
+  <td class="r">2%</td>
+  <td class="r">2.144,00</td>
+  <td class="ok">já pago<div class="nt">CP 30.256,00 pago 17/07</div></td></tr><tr>
+  <td>14/06</td><td>10º NELORE JMP - TOUROS</td><td>180</td>
+  <td class="r">80.400,00</td>
+  <td>Sampaio</td>
+  <td>Felipe Vilela Andrade</td>
+  <td><b>Bulinha (Felipe Andrade)</b></td>
+  <td class="r">2%</td>
+  <td class="r">1.608,00</td>
+  <td class="ok">já pago<div class="nt">CP 30.256,00 pago 17/07</div></td></tr><tr>
+  <td>14/06</td><td>10º NELORE JMP - TOUROS</td><td>69</td>
+  <td class="r">25.500,00</td>
+  <td>Borges Guia Lopes da Laguna</td>
+  <td>Felipe Vilela Andrade</td>
+  <td><b>Bulinha (Felipe Andrade)</b></td>
+  <td class="r">2%</td>
+  <td class="r">510,00</td>
+  <td class="ok">já pago<div class="nt">CP 30.256,00 pago 17/07</div></td></tr><tr>
+  <td>14/06</td><td>10º NELORE JMP - TOUROS</td><td>1001</td>
+  <td class="r">500.000,00</td>
+  <td>Guilherme Carvalho e Marcelo</td>
+  <td>Fabio de Omena Gaia</td>
+  <td><b>Fábio Omena</b></td>
+  <td class="r">3%</td>
+  <td class="r">15.000,00</td>
+  <td class="ok">já pago<div class="nt">CP 39.450,00 pago 10/08</div></td></tr><tr>
+  <td>14/06</td><td>10º NELORE JMP - TOUROS</td><td>1003</td>
+  <td class="r">380.000,00</td>
+  <td>Guilherme Carvalho e Marcelo</td>
+  <td>Fabio de Omena Gaia</td>
+  <td><b>Fábio Omena</b></td>
+  <td class="r">3%</td>
+  <td class="r">11.400,00</td>
+  <td class="ok">já pago<div class="nt">CP 39.450,00 pago 10/08</div></td></tr><tr>
+  <td>14/06</td><td>10º NELORE JMP - TOUROS</td><td>1005</td>
+  <td class="r">240.000,00</td>
+  <td>Guilherme Carvalho e Marcelo</td>
+  <td>Fabio de Omena Gaia</td>
+  <td><b>Fábio Omena</b></td>
+  <td class="r">3%</td>
+  <td class="r">7.200,00</td>
+  <td class="ok">já pago<div class="nt">CP 39.450,00 pago 10/08</div></td></tr><tr>
+  <td>14/06</td><td>10º NELORE JMP - TOUROS</td><td>243</td>
+  <td class="r">80.000,00</td>
+  <td>Fernando Diniz (Est. Lucatti)</td>
+  <td>Lucas Martins Durães Bragança</td>
+  <td><b>Lucas Martins</b></td>
+  <td class="r">0,5%</td>
+  <td class="r">400,00</td>
+  <td class="ok">já pago<div class="nt">CP 2.578,50 pago 10/07 (0,5%)</div></td></tr><tr>
+  <td>14/06</td><td>10º NELORE JMP - TOUROS</td><td>244</td>
+  <td class="r">80.000,00</td>
+  <td>Fernando Diniz (Est. Lucatti)</td>
+  <td>Lucas Martins Durães Bragança</td>
+  <td><b>Lucas Martins</b></td>
+  <td class="r">0,5%</td>
+  <td class="r">400,00</td>
+  <td class="ok">já pago<div class="nt">CP 2.578,50 pago 10/07 (0,5%)</div></td></tr><tr>
+  <td>14/06</td><td>10º NELORE JMP - TOUROS</td><td>245</td>
+  <td class="r">80.000,00</td>
+  <td>Fernando Diniz (Est. Lucatti)</td>
+  <td>Lucas Martins Durães Bragança</td>
+  <td><b>Lucas Martins</b></td>
+  <td class="r">0,5%</td>
+  <td class="r">400,00</td>
+  <td class="ok">já pago<div class="nt">CP 2.578,50 pago 10/07 (0,5%)</div></td></tr><tr>
+  <td>14/06</td><td>10º NELORE JMP - TOUROS</td><td>246</td>
+  <td class="r">80.000,00</td>
+  <td>Fernando Diniz (Est. Lucatti)</td>
+  <td>Lucas Martins Durães Bragança</td>
+  <td><b>Lucas Martins</b></td>
+  <td class="r">0,5%</td>
+  <td class="r">400,00</td>
+  <td class="ok">já pago<div class="nt">CP 2.578,50 pago 10/07 (0,5%)</div></td></tr><tr>
+  <td>19/07</td><td>20º GUADALUPE - TOUROS</td><td>99</td>
+  <td class="r">19.500,00</td>
+  <td>Elielton Taveira (Faz. Caiçara)</td>
+  <td>leilão sem lote lançado no HastaPro</td>
+  <td><b>—</b></td>
+  <td class="r">2%</td>
+  <td class="r">390,00</td>
+  <td class="mut">sem dono<div class="nt">CP 390,00 vencido 25/08 — não pago</div></td></tr><tr>
+  <td>20/08</td><td>NELORE PARANÃ E CASABRANCA</td><td>9</td>
+  <td class="r">84.000,00</td>
+  <td>7P Agro (grupo) / Fernando C. P. Carneiro (HP)</td>
+  <td>Luiz Felipe Peralta Garcez</td>
+  <td><b>Peralta</b></td>
+  <td class="r">2%</td>
+  <td class="r">1.680,00</td>
+  <td class="bad">duplicata<div class="nt">já fechado em NELORE CEN & FAZ. MODELO — comissão 1.680,00 lançada lá</div></td></tr><tr>
+  <td>23/08</td><td>28º NAVIRAÍ CAMPARINO REPR.</td><td>16</td>
+  <td class="r">48.000,00</td>
+  <td>Ângelo Munhoz (Nelore Ferradura)</td>
+  <td>Lucas Martins Durães Bragança</td>
+  <td><b>Lucas Martins</b></td>
+  <td class="r">1%</td>
+  <td class="r">480,00</td>
+  <td class="warn">a pagar</td></tr><tr>
+  <td>23/08</td><td>28º NAVIRAÍ CAMPARINO REPR.</td><td>117</td>
+  <td class="r">48.000,00</td>
+  <td>Armindo Martins (Agrop. RMC)</td>
+  <td>Lucas Martins Durães Bragança</td>
+  <td><b>Lucas Martins</b></td>
+  <td class="r">1%</td>
+  <td class="r">480,00</td>
+  <td class="warn">a pagar</td></tr><tr>
+  <td>23/08</td><td>28º NAVIRAÍ CAMPARINO REPR.</td><td>30</td>
+  <td class="r">42.000,00</td>
+  <td>Liberato A. Serafini Filho</td>
+  <td>Luiz Felipe Peralta Garcez</td>
+  <td><b>Peralta</b></td>
+  <td class="r">2%</td>
+  <td class="r">840,00</td>
+  <td class="warn">a pagar</td></tr><tr>
+  <td>23/08</td><td>28º NAVIRAÍ CAMPARINO REPR.</td><td>22</td>
+  <td class="r">63.000,00</td>
+  <td>Gustavo Barretto (Faz. São Francisco)</td>
+  <td>MARCELO MOURA (M3 Assessoria)</td>
+  <td><b>— fora da Bula</b></td>
+  <td class="r">—</td>
+  <td class="r">—</td>
+  <td class="mut">fora da Bula</td></tr><tr>
+  <td>23/08</td><td>28º NAVIRAÍ CAMPARINO REPR.</td><td>21</td>
+  <td class="r">105.000,00</td>
+  <td>Joel de Assis Gouvêa Jr. (Faz. Giovanna)</td>
+  <td>Felipe Vilela Andrade (HP) × "Peralta / Bula" (grupo)</td>
+  <td><b>a decidir</b></td>
+  <td class="r">2%</td>
+  <td class="r">2.100,00</td>
+  <td class="bad">leilão errado<div class="nt">é do 6º LEILÃO EXCELÊNCIA GENÉTICA (23/08), sem fechamento no ERP</div></td></tr></tbody>
+  <tfoot><tr><td colspan="3">43 lotes</td><td class="r">2.711.600,00</td><td colspan="4"></td><td class="r">59.934,00</td><td></td></tr></tfoot>
+</table>
+
+<h2>O que fazer</h2>
+<ol>
+  <li><b>Cancelar o fechamento "Leilão Nelore Paranã e Casabranca Expogenética" (20/08)</b> — é o lote 09 do Nelore CEN &amp; Fazenda Modelo, já fechado com o Peralta. Enquanto existir, o ERP conta R$ 84.000 de VGV e R$ 1.680 de comissão em dobro.</li>
+  <li><b>Nomear os 12 lotes identificados</b> nos fechamentos (Fábio, Douglas, Lucas, Peralta) e emitir os títulos — R$ 6.906,00 —, depois de conferir o acerto solto de R$ 5.419,00 de 23/04.</li>
+  <li><b>Tirar o lote 22 do Naviraí</b> (Marcelo Moura / M3 Assessoria): comprador preferencial da leiloeira, não é cobertura Bula. Saem R$ 63.000 de VGV e R$ 1.260 de comissão.</li>
+  <li><b>Abrir o fechamento do 6º Excelência Genética (23/08)</b> com o lote 21 e decidir entre Bulinha (HastaPro) e Peralta (grupo).</li>
+  <li><b>Completar o Naviraí</b> com os lotes 12 (Leonardo) e 78 (Peralta), que o grupo não capturou.</li>
+  <li><b>Três lotes seguem sem dono</b> — Top Genética 19 (R$ 18.000, Jonauto Freitas Costa), 4R 123 (R$ 48.000, Cristiano Costa de Andrade Brito) e Guadalupe Touros 99 (R$ 19.500, Elielton Taveira). Nos dois primeiros o lote está no HastaPro com o pisteiro em branco; no terceiro a leiloeira nunca lançou o leilão. Perguntar ao Fábio (levou os outros 10 lotes do Top Genética) e à Guadalupe.</li>
+</ol>
+
+<div class="foot"><span>Bula Assessoria — conferência de comissionamento</span><span>HastaPro (FIL 2) · fechamentos · grupo de lances · contas a pagar — 28/08/2026</span></div>
+</body></html>
