@@ -75,35 +75,26 @@ function datePartsSaoPaulo(date: Date) {
     return { year: get('year'), month: get('month'), day: get('day') }
 }
 
-function currentMonthRangeSaoPaulo() {
-    const { year, month } = datePartsSaoPaulo(new Date())
-    const y = Number(year)
-    const m = Number(month)
-    const lastDay = new Date(y, m, 0).getDate()
-    return {
-        start: `${year}-${month}-01`,
-        end: `${year}-${month}-${String(lastDay).padStart(2, '0')}`,
-        year,
-        month,
-    }
-}
+/**
+ * Horizonte da agenda publica: D+60 corridos.
+ *
+ * Ate 31/08/2026 a janela era "ate o fim do mes seguinte", o que fazia o
+ * horizonte encolher ao longo do mes — no dia 31/08 ela terminava em 30/09 e
+ * outubro inteiro sumia da pagina, mesmo com os leiloes ja cadastrados. O
+ * Marcelo pediu D+60 no WhatsApp em 31/08/2026 ("D+60", 12:42), justamente
+ * para outubro aparecer. Agora a janela tem sempre o mesmo tamanho.
+ */
+const PUBLIC_AGENDA_HORIZON_DAYS = 60
 
 function publicAgendaRangeSaoPaulo() {
-    const today = todaySaoPaulo()
-    const current = currentMonthRangeSaoPaulo()
-    const currentYear = Number(current.year)
-    const currentMonth = Number(current.month)
-    const nextMonthDate = new Date(currentYear, currentMonth, 1)
-    const nextYear = String(nextMonthDate.getFullYear())
-    const nextMonth = String(nextMonthDate.getMonth() + 1).padStart(2, '0')
-    const nextMonthLastDay = new Date(currentYear, currentMonth + 1, 0).getDate()
+    const { year, month, day } = datePartsSaoPaulo(new Date())
+    // A soma dos dias e feita em UTC a partir da data-calendario de Sao Paulo:
+    // o servidor roda em UTC e um Date local empurraria a janela um dia.
+    const end = new Date(Date.UTC(Number(year), Number(month) - 1, Number(day) + PUBLIC_AGENDA_HORIZON_DAYS))
 
     return {
-        start: today,
-        // A agenda publica antecipa o mes seguinte. Em julho, por exemplo,
-        // os clientes ja conseguem consultar todos os leiloes de agosto.
-        end: `${nextYear}-${nextMonth}-${String(nextMonthLastDay).padStart(2, '0')}`,
-        current,
+        start: todaySaoPaulo(),
+        end: end.toISOString().slice(0, 10),
     }
 }
 
