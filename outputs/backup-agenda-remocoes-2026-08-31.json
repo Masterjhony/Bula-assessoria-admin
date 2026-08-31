@@ -1,0 +1,94 @@
+{
+  "removido_em": "2026-08-31",
+  "origem": "Pedido do Marcelo no WhatsApp (DM joao-automation). Sync da ESCALA desativado desde 24/08.",
+  "itens": [
+    {
+      "data": "2026-09-15",
+      "nome": "LEILÃO KATAYAMA - MARABÁ",
+      "motivo": "Marcelo no WhatsApp em 31/08/2026 12:04, sobre o print do card: \"Esse pode tirar\".",
+      "cronograma_leiloes": [
+        {
+          "id": "9b72c5f2-98b5-40ed-8652-dbaf3f54b20e",
+          "data": "2026-09-15",
+          "dia_semana": "terça-feira",
+          "hora": null,
+          "nome": "LEILÃO KATAYAMA - MARABÁ",
+          "criador": "KATAYAMA AGROPECUÁRIA",
+          "presencial": null,
+          "leiloeira": null,
+          "raca": null,
+          "qtd_animais": null,
+          "sexo": null,
+          "comissao": null,
+          "contrato": null,
+          "faturamento_previsto": null,
+          "faturamento_realizado": null,
+          "venda_bula": null,
+          "comissao_receber": null,
+          "recebido": null,
+          "catalogo_url": null,
+          "img": null,
+          "created_at": "2026-08-24T15:40:01.300363+00:00",
+          "updated_at": "2026-08-24T15:40:01.300363+00:00",
+          "catalogo_anexado_em": null,
+          "catalogo_origem": null
+        }
+      ],
+      "bula_leiloes": [
+        {
+          "id": "7cc4ba3c-4ffc-4790-bc84-404cd094f910",
+          "nome": "LEILÃO KATAYAMA - MARABÁ",
+          "data": "2026-09-15",
+          "tipo": "Leilao",
+          "local": "MARABÁ",
+          "animais": 0,
+          "expectativa": 0,
+          "meta_bula": 0,
+          "realizado_bula": 0,
+          "status": "confirmado",
+          "img": "",
+          "tasks": [],
+          "horario": "",
+          "transmissao": "",
+          "modelo": "",
+          "leiloeira": "",
+          "condicao": "Nome provisorio: a fonte so informou a cidade e o criador.",
+          "frete_gratis": "",
+          "acordo_comissao": "",
+          "catalogo_url": null,
+          "created_at": "2026-08-24T15:40:01.759028+00:00",
+          "cronograma_id": "9b72c5f2-98b5-40ed-8652-dbaf3f54b20e"
+        }
+      ],
+      "agenda_events": [
+        {
+          "id": "9c62e618-9005-44f7-ad9c-7a2353dddbbb",
+          "title": "LEILÃO KATAYAMA - MARABÁ",
+          "description": "Criador: KATAYAMA AGROPECUÁRIA\nLocal: MARABÁ\nObs.: Nome provisorio: a fonte so informou a cidade e o criador.",
+          "event_type": "leilao",
+          "status": "planejado",
+          "priority": "media",
+          "start_at": "2026-09-15T12:00:00+00:00",
+          "end_at": null,
+          "all_day": true,
+          "location": "MARABÁ",
+          "color": "#A68B4B",
+          "notes": "Cadastrado em 24/08/2026 (scripts/agenda-2026-08-24-inclusoes.mjs).",
+          "recurrence_rule": null,
+          "recurrence_until": null,
+          "responsible_member_id": null,
+          "linked_leilao_id": "9b72c5f2-98b5-40ed-8652-dbaf3f54b20e",
+          "linked_task_id": null,
+          "linked_flow_id": null,
+          "linked_product_id": null,
+          "linked_breeder_id": null,
+          "linked_lead_id": null,
+          "linked_contract_id": null,
+          "created_by": null,
+          "created_at": "2026-08-24T15:40:02.212175+00:00",
+          "updated_at": "2026-08-24T15:40:02.212175+00:00"
+        }
+      ]
+    }
+  ]
+}
