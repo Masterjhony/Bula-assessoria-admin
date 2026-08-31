@@ -1,0 +1,401 @@
+<!doctype html><html lang="pt-BR"><head><meta charset="utf-8">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Oswald:wght@500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<title>Bula — Vendas por assessor (abr–ago/2026)</title>
+<style>
+  @page { size: A4; margin: 0; }
+  * { box-sizing: border-box; }
+  body { font-family: Inter, "Segoe UI", Arial, sans-serif; color: #0A0A0A; margin: 0; font-size: 10.2px; line-height: 1.52; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  h1,h2,h3 { font-family: Oswald, "Arial Narrow", Impact, sans-serif; text-transform: uppercase; letter-spacing: .022em; font-weight: 600; margin: 0; }
+  .page { width: 210mm; min-height: 297mm; padding: 14mm 13mm 17mm; position: relative; page-break-after: always; overflow: hidden; }
+  .page:last-child { page-break-after: auto; }
+  .pfoot { position: absolute; left: 13mm; right: 13mm; bottom: 7mm; font-size: 7.4px; color: #A6A6A6; display: flex; justify-content: space-between; border-top: 1px solid #E6E6E6; padding-top: 2mm; }
+  .capa { background: #0A0A0A; color: #fff; padding: 32mm 20mm 20mm; display: flex; flex-direction: column; }
+  .capa img { width: 42mm; margin-bottom: 24mm; }
+  .capa h1 { font-size: 40px; line-height: 1.05; color: #fff; font-weight: 700; }
+  .capa .sub { font-size: 12.4px; color: #B5B5B5; margin-top: 8mm; max-width: 138mm; line-height: 1.62; font-family: Inter, sans-serif; text-transform: none; letter-spacing: 0; }
+  .capa .rule { width: 26mm; height: 3px; background: #C9A84C; margin: 9mm 0; }
+  .capa .meta { margin-top: auto; flex-wrap: wrap; row-gap: 6mm; display: flex; gap: 11mm; border-top: 1px solid #2A2A2A; padding-top: 6mm; }
+  .capa .meta div span { display: block; font-size: 8.5px; color: #8A8A8A; text-transform: uppercase; letter-spacing: .09em; margin-bottom: 2px; }
+  .capa .meta div strong { font-size: 12px; font-weight: 600; }
+  .head { display: flex; justify-content: space-between; align-items: baseline; border-bottom: 2px solid #0A0A0A; padding-bottom: 3mm; margin-bottom: 6mm; }
+  .head h2 { font-size: 21px; }
+  .head .n { font-size: 9px; color: #6E6E6E; letter-spacing: .12em; text-transform: uppercase; font-family: Oswald, sans-serif; }
+  h3 { font-size: 12.5px; margin: 6mm 0 2mm; }
+  h3:first-of-type { margin-top: 0; }
+  p { margin: 0 0 3mm; }
+  .lead { font-size: 11.4px; line-height: 1.58; }
+  strong { font-weight: 600; }
+  .muted { color: #6E6E6E; }
+  .small { font-size: 8.8px; color: #6E6E6E; line-height: 1.45; margin-top: -1mm; }
+  .tiles { display: grid; grid-template-columns: repeat(4,1fr); gap: 3mm; margin: 4mm 0 6mm; }
+  .tile { border: 1px solid #E6E6E6; border-top: 3px solid #0A0A0A; padding: 3.4mm 3.4mm 3mm; }
+  .tile .k { font-size: 8px; text-transform: uppercase; letter-spacing: .085em; color: #6E6E6E; margin-bottom: 1.6mm; line-height: 1.3; min-height: 5.6mm; }
+  .tile .v { font-family: Oswald, sans-serif; font-size: 19px; font-weight: 600; line-height: 1; }
+  .tile .v .cur { font-size: 11px; font-weight: 500; color: #6E6E6E; margin-right: 1px; }
+  .tile .d { font-size: 8.4px; color: #6E6E6E; margin-top: 1.6mm; line-height: 1.4; }
+  .tile.gold { border-top-color: #C9A84C; }
+  .box { border: 1px solid #E6E6E6; padding: 4mm 4.4mm; margin: 4mm 0; }
+  .box.dark { background: #0A0A0A; color: #fff; border-color: #0A0A0A; }
+  .box.dark .t { color: #C9A84C; }
+  .box.dark p, .box.dark li { color: #D8D8D8; }
+  .box.dark strong { color: #fff; }
+  .box.rule { border: none; border-left: 3px solid #0A0A0A; padding: 1mm 0 1mm 4mm; }
+  .box .t { font-family: Oswald, sans-serif; text-transform: uppercase; font-size: 11px; letter-spacing: .05em; margin-bottom: 2.2mm; font-weight: 600; }
+  table { width: 100%; border-collapse: collapse; font-size: 9.3px; margin: 2.5mm 0; }
+  th { text-align: left; font-family: Oswald, sans-serif; text-transform: uppercase; font-size: 8.4px; letter-spacing: .07em; font-weight: 600; border-bottom: 1.4px solid #0A0A0A; padding: 2mm 1.8mm; }
+  td { padding: 1.6mm 1.8mm; border-bottom: 1px solid #F0F0F0; vertical-align: top; }
+  td.num, th.num { text-align: right; font-variant-numeric: tabular-nums; white-space: nowrap; }
+  tr.total td { border-top: 1.4px solid #0A0A0A; border-bottom: none; font-weight: 700; }
+  figure { margin: 3mm 0 5mm; }
+  figcaption { font-size: 8.6px; color: #6E6E6E; margin-top: 1.8mm; line-height: 1.45; }
+  ol, ul { margin: 0 0 3mm; padding-left: 4.6mm; }
+  li { margin-bottom: 1.6mm; }
+  .cols2 { display: grid; grid-template-columns: 1fr 1fr; gap: 6mm; }
+  .cols3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 5mm; }</style></head><body>
+
+<!-- ══ CAPA ══ -->
+<section class="page capa">
+  <img src="data:image/png;base64,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" alt="Bula Assessoria">
+  <h1>Vendas por<br>assessor</h1>
+  <div class="rule"></div>
+  <div class="sub">Abril a agosto de 2026, no formato do painel — <strong>Pessoa · Faturado · Lotes · Qtd. Animais</strong>.
+  Cada mês foi reconstruído lote a lote no HastaPro e conferido contra o ERP; a última página mostra o que
+  foi corrigido e o que ainda precisa de decisão.</div>
+  <div class="meta">
+    <div><span>Período</span><strong>abril a agosto de 2026</strong></div>
+    <div><span>Vendas no período</span><strong>R$ 24.976.508,80</strong></div>
+    <div><span>Lotes</span><strong>600</strong></div>
+    <div><span>Animais</span><strong>794</strong></div>
+    <div><span>Emitido em</span><strong>31/08/2026</strong></div>
+  </div>
+</section>
+
+<!-- ══ 1. CONSOLIDADO ══ -->
+<section class="page">
+  <div class="head"><h2>O período inteiro</h2><div class="n">01 · Consolidado</div></div>
+
+  <p class="lead">De abril a agosto a equipe vendeu <strong>R$ 24.976.508,80</strong> em
+  <strong>600 lotes</strong> e <strong>794 animais</strong>. Dois nomes respondem por
+  60% do total.</p>
+
+  <figure><svg viewBox="0 0 762 126" width="100%" role="img" aria-label="Vendas totais por mês, de abril a agosto de 2026">
+    <line x1="0" y1="96" x2="762" y2="96" stroke="#E6E6E6" stroke-width="1"/>
+    <rect x="6" y="72.13529824759786" width="118" height="23.864701752402137" fill="#0A0A0A" rx="2"/>
+      <text x="6" y="65.13529824759786" font-family="Oswald" font-size="14" font-weight="600" fill="#0A0A0A">R$ 2,99 mi</text>
+      <text x="6" y="111" font-family="Oswald" font-size="10" font-weight="600" fill="#0A0A0A" letter-spacing=".07em">ABRIL</text>
+      <text x="6" y="123" font-family="Inter" font-size="8.6" fill="#6E6E6E">73 lotes · 97 animais</text><rect x="156" y="60.13785238184491" width="118" height="35.86214761815509" fill="#0A0A0A" rx="2"/>
+      <text x="156" y="53.13785238184491" font-family="Oswald" font-size="14" font-weight="600" fill="#0A0A0A">R$ 4,49 mi</text>
+      <text x="156" y="111" font-family="Oswald" font-size="10" font-weight="600" fill="#0A0A0A" letter-spacing=".07em">MAIO</text>
+      <text x="156" y="123" font-family="Inter" font-size="8.6" fill="#6E6E6E">117 lotes · 145 animais</text><rect x="306" y="30" width="118" height="66" fill="#0A0A0A" rx="2"/>
+      <text x="306" y="23" font-family="Oswald" font-size="14" font-weight="600" fill="#0A0A0A">R$ 8,26 mi</text>
+      <text x="306" y="111" font-family="Oswald" font-size="10" font-weight="600" fill="#0A0A0A" letter-spacing=".07em">JUNHO</text>
+      <text x="306" y="123" font-family="Inter" font-size="8.6" fill="#6E6E6E">213 lotes · 292 animais</text><rect x="456" y="77.40120335331048" width="118" height="18.59879664668952" fill="#0A0A0A" rx="2"/>
+      <text x="456" y="70.40120335331048" font-family="Oswald" font-size="14" font-weight="600" fill="#0A0A0A">R$ 2,33 mi</text>
+      <text x="456" y="111" font-family="Oswald" font-size="10" font-weight="600" fill="#0A0A0A" letter-spacing=".07em">JULHO</text>
+      <text x="456" y="123" font-family="Inter" font-size="8.6" fill="#6E6E6E">67 lotes · 84 animais</text><rect x="606" y="40.83539087877243" width="118" height="55.16460912122757" fill="#0A0A0A" rx="2"/>
+      <text x="606" y="33.83539087877243" font-family="Oswald" font-size="14" font-weight="600" fill="#0A0A0A">R$ 6,91 mi</text>
+      <text x="606" y="111" font-family="Oswald" font-size="10" font-weight="600" fill="#0A0A0A" letter-spacing=".07em">AGOSTO</text>
+      <text x="606" y="123" font-family="Inter" font-size="8.6" fill="#6E6E6E">130 lotes · 176 animais</text>
+  </svg><figcaption>Junho e agosto puxam o período; julho é o vale — mês de agenda magra,
+  não de queda de desempenho.</figcaption></figure>
+
+  <table>
+    <tr><th>Pessoa</th><th class="num">Faturado</th><th class="num">Lotes</th><th class="num">Qtd. Ani.</th>
+        <th class="num">Fora do painel</th><th class="num">% do total</th></tr>
+    <tr>
+    <td>Douglas Bispo Carvalho</td><td class="num">R$ 7.886.208,80</td>
+    <td class="num">189</td><td class="num">267</td>
+    <td class="num">R$ 1.862.000,00</td>
+    <td class="num">31.6%</td>
+  </tr><tr>
+    <td>Fabio de Omena Gaia</td><td class="num">R$ 7.126.900,00</td>
+    <td class="num">162</td><td class="num">192</td>
+    <td class="num">R$ 545.100,00</td>
+    <td class="num">28.5%</td>
+  </tr><tr>
+    <td>Felipe Vilela Andrade</td><td class="num">R$ 3.191.100,00</td>
+    <td class="num">76</td><td class="num">102</td>
+    <td class="num">R$ 49.500,00</td>
+    <td class="num">12.8%</td>
+  </tr><tr>
+    <td>Leonardo Serafim Francisco</td><td class="num">R$ 2.352.900,00</td>
+    <td class="num">63</td><td class="num">100</td>
+    <td class="num">R$ 1.022.000,00</td>
+    <td class="num">9.4%</td>
+  </tr><tr>
+    <td>GUSTAVO RUSA PEREIRA</td><td class="num">R$ 901.500,00</td>
+    <td class="num">14</td><td class="num">14</td>
+    <td class="num">R$ 484.500,00</td>
+    <td class="num">3.6%</td>
+  </tr><tr>
+    <td>MARCELO CARNEIRO</td><td class="num">R$ 886.900,00</td>
+    <td class="num">20</td><td class="num">23</td>
+    <td class="num">R$ 195.600,00</td>
+    <td class="num">3.6%</td>
+  </tr><tr>
+    <td>Luiz Felipe Peralta Garcez</td><td class="num">R$ 777.000,00</td>
+    <td class="num">26</td><td class="num">26</td>
+    <td class="num">—</td>
+    <td class="num">3.1%</td>
+  </tr><tr>
+    <td>Lucas Martins Durães Bragança</td><td class="num">R$ 677.700,00</td>
+    <td class="num">12</td><td class="num">27</td>
+    <td class="num">—</td>
+    <td class="num">2.7%</td>
+  </tr><tr>
+    <td>Regiane C. N. de Abreu (Nane)</td><td class="num">R$ 534.000,00</td>
+    <td class="num">17</td><td class="num">17</td>
+    <td class="num">—</td>
+    <td class="num">2.1%</td>
+  </tr><tr>
+    <td>Laila de Sousa Oliveira</td><td class="num">R$ 216.000,00</td>
+    <td class="num">6</td><td class="num">8</td>
+    <td class="num">—</td>
+    <td class="num">0.9%</td>
+  </tr><tr>
+    <td>Mateus Alves da Silva</td><td class="num">R$ 99.900,00</td>
+    <td class="num">6</td><td class="num">6</td>
+    <td class="num">—</td>
+    <td class="num">0.4%</td>
+  </tr><tr>
+    <td>VALERIA BORGES DA SILVA ARAUJO</td><td class="num">R$ 99.900,00</td>
+    <td class="num">4</td><td class="num">4</td>
+    <td class="num">—</td>
+    <td class="num">0.4%</td>
+  </tr><tr>
+    <td>(sem pisteiro no HastaPro)</td><td class="num">R$ 66.000,00</td>
+    <td class="num">2</td><td class="num">2</td>
+    <td class="num">—</td>
+    <td class="num">0.3%</td>
+  </tr><tr>
+    <td>MARCELO MOURA</td><td class="num">R$ 63.000,00</td>
+    <td class="num">1</td><td class="num">1</td>
+    <td class="num">—</td>
+    <td class="num">0.3%</td>
+  </tr><tr>
+    <td>FABRICIO OSÓRIO HYPPOLITO</td><td class="num">R$ 60.000,00</td>
+    <td class="num">1</td><td class="num">4</td>
+    <td class="num">—</td>
+    <td class="num">0.2%</td>
+  </tr><tr>
+    <td>Bruno dos Reis Ferro</td><td class="num">R$ 37.500,00</td>
+    <td class="num">1</td><td class="num">1</td>
+    <td class="num">—</td>
+    <td class="num">0.2%</td>
+  </tr>
+    <tr class="total"><td>Total</td><td class="num">R$ 24.976.508,80</td><td class="num">600</td>
+      <td class="num">794</td><td class="num">R$ 4.158.700,00</td><td class="num">100%</td></tr>
+  </table>
+
+  <div class="box rule">
+    <div class="t">Como ler a coluna “fora do painel”</div>
+    <p style="margin:0">O painel enxerga só os leilões cadastrados na filial ‘2’ do HastaPro. Existem
+    <strong>18 leilões</strong> no período em que a Bula vendeu e que estão registrados apenas no ERP
+    — <strong>R$ 4.158.700,00</strong> de venda real. Eles estão somados aqui e detalhados mês a mês
+    nas próximas páginas.</p>
+  </div>
+  <div class="pfoot"><span>Bula Assessoria Pecuária · Vendas por assessor · abril a agosto de 2026</span><span>Página 2 de 5</span></div>
+</section>
+
+<!-- ══ 2. ABRIL–JUNHO ══ -->
+<section class="page">
+  <div class="head"><h2>Abril · Maio · Junho</h2><div class="n">02 · Mês a mês</div></div>
+  
+  <h3>ABRIL · R$ 2.987.900,00</h3>
+  <table>
+    <tr><th>Pessoa</th><th class="num">Faturado</th><th class="num">Lotes</th><th class="num">Qtd. Ani.</th></tr>
+    <tr><td>Fabio de Omena Gaia</td><td class="num">R$ 1.280.900,00</td>
+      <td class="num">39</td><td class="num">48</td></tr><tr><td>Douglas Bispo Carvalho</td><td class="num">R$ 832.200,00</td>
+      <td class="num">12</td><td class="num">13</td></tr><tr><td>Leonardo Serafim Francisco</td><td class="num">R$ 434.700,00</td>
+      <td class="num">12</td><td class="num">26</td></tr><tr><td>MARCELO CARNEIRO</td><td class="num">R$ 215.100,00</td>
+      <td class="num">6</td><td class="num">6</td></tr><tr><td>GUSTAVO RUSA PEREIRA</td><td class="num">R$ 207.000,00</td>
+      <td class="num">3</td><td class="num">3</td></tr><tr><td>(sem pisteiro no HastaPro)</td><td class="num">R$ 18.000,00</td>
+      <td class="num">1</td><td class="num">1</td></tr>
+    <tr class="total"><td>Total</td><td class="num">R$ 2.987.900,00</td>
+      <td class="num">73</td><td class="num">97</td></tr>
+  </table>
+  <p class="small">Inclui <strong>R$ 1.196.700,00</strong> de
+   4 leilão(ões) que não aparecem no painel:
+   Leilão Matrizes de Vanguarda (09/04); Leilão IPB Prime (11/04); Leilão Pérolas Cachoeirão (14/04); Nelore MRA – 50 Anos de… (22/04).</p>
+  <h3>MAIO · R$ 4.490.000,00</h3>
+  <table>
+    <tr><th>Pessoa</th><th class="num">Faturado</th><th class="num">Lotes</th><th class="num">Qtd. Ani.</th></tr>
+    <tr><td>Fabio de Omena Gaia</td><td class="num">R$ 1.390.300,00</td>
+      <td class="num">35</td><td class="num">49</td></tr><tr><td>Felipe Vilela Andrade</td><td class="num">R$ 1.340.800,00</td>
+      <td class="num">37</td><td class="num">40</td></tr><tr><td>MARCELO CARNEIRO</td><td class="num">R$ 671.800,00</td>
+      <td class="num">14</td><td class="num">17</td></tr><tr><td>Douglas Bispo Carvalho</td><td class="num">R$ 455.700,00</td>
+      <td class="num">12</td><td class="num">14</td></tr><tr><td>Luiz Felipe Peralta Garcez</td><td class="num">R$ 243.000,00</td>
+      <td class="num">7</td><td class="num">7</td></tr><tr><td>Laila de Sousa Oliveira</td><td class="num">R$ 88.500,00</td>
+      <td class="num">3</td><td class="num">3</td></tr><tr><td>Lucas Martins Durães Bragança</td><td class="num">R$ 66.000,00</td>
+      <td class="num">2</td><td class="num">2</td></tr><tr><td>Leonardo Serafim Francisco</td><td class="num">R$ 60.800,00</td>
+      <td class="num">1</td><td class="num">4</td></tr><tr><td>FABRICIO OSÓRIO HYPPOLITO</td><td class="num">R$ 60.000,00</td>
+      <td class="num">1</td><td class="num">4</td></tr><tr><td>(sem pisteiro no HastaPro)</td><td class="num">R$ 48.000,00</td>
+      <td class="num">1</td><td class="num">1</td></tr><tr><td>Bruno dos Reis Ferro</td><td class="num">R$ 37.500,00</td>
+      <td class="num">1</td><td class="num">1</td></tr><tr><td>Mateus Alves da Silva</td><td class="num">R$ 27.600,00</td>
+      <td class="num">3</td><td class="num">3</td></tr>
+    <tr class="total"><td>Total</td><td class="num">R$ 4.490.000,00</td>
+      <td class="num">117</td><td class="num">145</td></tr>
+  </table>
+  <p class="small">Inclui <strong>R$ 243.800,00</strong> de
+   2 leilão(ões) que não aparecem no painel:
+   Leilão Nelore Tresmar… (21/05); 1o Dia - Leilao Katayama… (31/05).</p>
+  <h3>JUNHO · R$ 8.263.308,80</h3>
+  <table>
+    <tr><th>Pessoa</th><th class="num">Faturado</th><th class="num">Lotes</th><th class="num">Qtd. Ani.</th></tr>
+    <tr><td>Fabio de Omena Gaia</td><td class="num">R$ 2.001.400,00</td>
+      <td class="num">40</td><td class="num">40</td></tr><tr><td>Douglas Bispo Carvalho</td><td class="num">R$ 1.945.208,80</td>
+      <td class="num">73</td><td class="num">94</td></tr><tr><td>Felipe Vilela Andrade</td><td class="num">R$ 1.652.300,00</td>
+      <td class="num">37</td><td class="num">60</td></tr><tr><td>Leonardo Serafim Francisco</td><td class="num">R$ 1.113.400,00</td>
+      <td class="num">28</td><td class="num">48</td></tr><tr><td>GUSTAVO RUSA PEREIRA</td><td class="num">R$ 694.500,00</td>
+      <td class="num">11</td><td class="num">11</td></tr><tr><td>Lucas Martins Durães Bragança</td><td class="num">R$ 515.700,00</td>
+      <td class="num">8</td><td class="num">23</td></tr><tr><td>Luiz Felipe Peralta Garcez</td><td class="num">R$ 268.500,00</td>
+      <td class="num">13</td><td class="num">13</td></tr><tr><td>Mateus Alves da Silva</td><td class="num">R$ 72.300,00</td>
+      <td class="num">3</td><td class="num">3</td></tr>
+    <tr class="total"><td>Total</td><td class="num">R$ 8.263.308,80</td>
+      <td class="num">213</td><td class="num">292</td></tr>
+  </table>
+  <p class="small">Inclui <strong>R$ 2.154.900,00</strong> de
+   6 leilão(ões) que não aparecem no painel:
+   Destaques da Safra Nelore… (03/06); 9o Leilao Nelore Flor do… (07/06); 3º Leilão Nelore Tresmar… (11/06); Leilão Virtual Nelore Kriz… (16/06); 8º Fazenda Rio Bonito… (20/06); Leilão Virtual Nelore MEAB &amp;… (23/06).</p>
+  <div class="pfoot"><span>Bula Assessoria Pecuária · Vendas por assessor · abril a agosto de 2026</span><span>Página 3 de 5</span></div>
+</section>
+
+<!-- ══ 3. JULHO–AGOSTO ══ -->
+<section class="page">
+  <div class="head"><h2>Julho · Agosto</h2><div class="n">03 · Mês a mês</div></div>
+  
+  <h3>JULHO · R$ 2.328.600,00</h3>
+  <table>
+    <tr><th>Pessoa</th><th class="num">Faturado</th><th class="num">Lotes</th><th class="num">Qtd. Ani.</th></tr>
+    <tr><td>Douglas Bispo Carvalho</td><td class="num">R$ 1.074.300,00</td>
+      <td class="num">31</td><td class="num">40</td></tr><tr><td>Fabio de Omena Gaia</td><td class="num">R$ 543.300,00</td>
+      <td class="num">14</td><td class="num">20</td></tr><tr><td>Leonardo Serafim Francisco</td><td class="num">R$ 263.100,00</td>
+      <td class="num">7</td><td class="num">7</td></tr><tr><td>Regiane C. N. de Abreu (Nane)</td><td class="num">R$ 226.500,00</td>
+      <td class="num">8</td><td class="num">8</td></tr><tr><td>VALERIA BORGES DA SILVA ARAUJO</td><td class="num">R$ 99.900,00</td>
+      <td class="num">4</td><td class="num">4</td></tr><tr><td>Laila de Sousa Oliveira</td><td class="num">R$ 67.500,00</td>
+      <td class="num">1</td><td class="num">3</td></tr><tr><td>Luiz Felipe Peralta Garcez</td><td class="num">R$ 54.000,00</td>
+      <td class="num">2</td><td class="num">2</td></tr>
+    <tr class="total"><td>Total</td><td class="num">R$ 2.328.600,00</td>
+      <td class="num">67</td><td class="num">84</td></tr>
+  </table>
+  <p class="small">Inclui <strong>R$ 146.100,00</strong> de
+   2 leilão(ões) que não aparecem no painel:
+   LEILÃO VIRTUAL NELORE KRIZ… (07/07); 30º NELORAÇO IRMÃOS HIPÓLITO (25/07).</p>
+  <h3>AGOSTO · R$ 6.906.700,00</h3>
+  <table>
+    <tr><th>Pessoa</th><th class="num">Faturado</th><th class="num">Lotes</th><th class="num">Qtd. Ani.</th></tr>
+    <tr><td>Douglas Bispo Carvalho</td><td class="num">R$ 3.578.800,00</td>
+      <td class="num">61</td><td class="num">106</td></tr><tr><td>Fabio de Omena Gaia</td><td class="num">R$ 1.911.000,00</td>
+      <td class="num">34</td><td class="num">35</td></tr><tr><td>Leonardo Serafim Francisco</td><td class="num">R$ 480.900,00</td>
+      <td class="num">15</td><td class="num">15</td></tr><tr><td>Regiane C. N. de Abreu (Nane)</td><td class="num">R$ 307.500,00</td>
+      <td class="num">9</td><td class="num">9</td></tr><tr><td>Luiz Felipe Peralta Garcez</td><td class="num">R$ 211.500,00</td>
+      <td class="num">4</td><td class="num">4</td></tr><tr><td>Felipe Vilela Andrade</td><td class="num">R$ 198.000,00</td>
+      <td class="num">2</td><td class="num">2</td></tr><tr><td>Lucas Martins Durães Bragança</td><td class="num">R$ 96.000,00</td>
+      <td class="num">2</td><td class="num">2</td></tr><tr><td>MARCELO MOURA</td><td class="num">R$ 63.000,00</td>
+      <td class="num">1</td><td class="num">1</td></tr><tr><td>Laila de Sousa Oliveira</td><td class="num">R$ 60.000,00</td>
+      <td class="num">2</td><td class="num">2</td></tr>
+    <tr class="total"><td>Total</td><td class="num">R$ 6.906.700,00</td>
+      <td class="num">130</td><td class="num">176</td></tr>
+  </table>
+  <p class="small">Inclui <strong>R$ 417.200,00</strong> de
+   2 leilão(ões) que não aparecem no painel:
+   LEILÃO TOUROS SÃO GERALDO E… (01/08); FÊMEAS JMP (21/08).</p>
+
+  <div class="box">
+    <div class="t">Agosto confere com o painel que circulou no grupo</div>
+    <p style="margin:0">O print do dia 26/08 traz Peralta R$ 211.500 (4 lotes), Lucas Martins R$ 96.000 (2),
+    Laila R$ 60.000 (2) e a linha em branco R$ 307.500 (9) — <strong>idênticos</strong> aos daqui. As diferenças
+    nos demais são os <strong>5 lotes lançados depois</strong> (26 e 27/08): Nelore do Xingu, Terra Brava virtual,
+    Excelência Genética e o lote 22 do Naviraí Camparino. Nada foi recalculado: o painel apenas foi tirado antes.</p>
+  </div>
+  <div class="pfoot"><span>Bula Assessoria Pecuária · Vendas por assessor · abril a agosto de 2026</span><span>Página 4 de 5</span></div>
+</section>
+
+<!-- ══ 4. CONFIABILIDADE ══ -->
+<section class="page">
+  <div class="head"><h2>De onde vem cada número</h2><div class="n">04 · Confiabilidade</div></div>
+
+  <p class="lead">A Bula tem duas bases que respondem “quem vendeu” e elas <strong>não concordam</strong>.
+  Este relatório usa o HastaPro para a atribuição e o ERP para achar o que falta — nunca o contrário.
+  Abaixo, as quatro checagens feitas e o efeito de cada uma.</p>
+
+  <h3>1. A linha “em branco” é a Nane</h3>
+  <p>O painel resolve o pisteiro na tabela <em>PRESTADORES</em>. A Nane só existe em <em>CLIENTES</em>
+  (<strong>Regiane Cristina Neves de Abreu</strong>), então sai sem nome. Aqui ela aparece nomeada, com
+  R$ 534.000,00 no período. Mesmo efeito no cadastro do ERP:
+  o importador de fechamentos procura por “Nane” e não acha “Regiane”, então ela some dos leilões da Remates.</p>
+
+  <h3>2. O ERP atribui por ZONA, não por quem vendeu — não use para ranking</h3>
+  <div class="box dark">
+    <p><strong>17 fechamentos, R$ 9.359.508,80</strong> carregam a nota
+    <em>“Assessor por zona (UF)”</em>: o vendedor foi deduzido do estado do comprador, não do lote. É por isso que,
+    no ERP, <strong>o Bulinha e o Lucas Martins aparecem com ZERO</strong> no período
+    enquanto o HastaPro registra R$ 3.141.600 e R$ 677.700 no nome deles.</p>
+    <p style="margin-bottom:0">Concentração: abril R$ 0,57 mi, maio R$ 2,98 mi, junho R$ 5,29 mi, julho R$ 0,53 mi —
+    inclui os dois maiores eventos do período (JMP Touros 14/06 e 4R 09/05). <strong>Confiar no ERP aqui daria o
+    ranking errado</strong>, tirando R$ 3,14 mi de um vendedor e somando
+    R$ 2,63 mi em outro.</p>
+  </div>
+
+  <h3>3. As divergências que sobram, por pessoa</h3>
+  <table>
+    <tr><th>Pessoa</th><th class="num">HastaPro (filial 2)</th><th class="num">ERP</th><th class="num">Diferença</th><th>Leitura</th></tr>
+    <tr><td>Felipe Vilela Andrade</td><td class="num">R$ 3.141.600,00</td>
+      <td class="num">R$ 0,00</td>
+      <td class="num">−R$ 3.141.600,00</td>
+      <td>zerado pela atribuição por zona</td></tr><tr><td>Leonardo Serafim Francisco</td><td class="num">R$ 1.330.900,00</td>
+      <td class="num">R$ 3.956.900,00</td>
+      <td class="num">+R$ 2.626.000,00</td>
+      <td>ERP credita a mais — conferir</td></tr><tr><td>A definir</td><td class="num">R$ 0,00</td>
+      <td class="num">R$ 2.596.900,00</td>
+      <td class="num">+R$ 2.596.900,00</td>
+      <td>lote sem dono no ERP</td></tr><tr><td>Fabio de Omena Gaia</td><td class="num">R$ 6.581.800,00</td>
+      <td class="num">R$ 4.532.000,00</td>
+      <td class="num">−R$ 2.049.800,00</td>
+      <td>ERP credita a menos — conferir</td></tr><tr><td>GUSTAVO RUSA PEREIRA</td><td class="num">R$ 417.000,00</td>
+      <td class="num">R$ 2.053.200,00</td>
+      <td class="num">+R$ 1.636.200,00</td>
+      <td>ERP credita a mais — conferir</td></tr><tr><td>Lucas Martins Durães Bragança</td><td class="num">R$ 677.700,00</td>
+      <td class="num">R$ 0,00</td>
+      <td class="num">−R$ 677.700,00</td>
+      <td>zerado pela atribuição por zona</td></tr>
+  </table>
+  <p class="small">“A definir” soma <strong>R$ 2.596.900,00</strong> no ERP: lote vendido, comissão
+  sem dono. Cada um se resolve olhando o pisteiro no HastaPro.</p>
+
+  <h3>4. Falhas de cadastro que ficaram de fora da conta</h3>
+  <div class="cols2">
+    <div class="box">
+      <div class="t">O que não entrou em ninguém</div>
+      <ul style="margin-bottom:0">
+        <li><strong>4 lotes sem pisteiro</strong> no HastaPro, R$ 102.000,00
+        — aparecem como “(sem pisteiro no HastaPro)”. Basta preencher o campo para irem ao dono.</li>
+        <li><strong>1 lote com valor zero</strong> (Mafra, 02/05): conta como lote, não como venda.</li>
+      </ul>
+    </div>
+    <div class="box">
+      <div class="t">Como reproduzir</div>
+      <ul style="margin-bottom:0">
+        <li>Base: <em>LOTES</em> da filial ‘2’ com <em>LOT_DATA_VENDA</em> no mês; faturado = <em>LOT_TOTAL</em>;
+        animais = <em>LOT_QTD</em>.</li>
+        <li>Complemento: fechamentos do ERP sem leilão correspondente na filial ‘2’ (casados por valor e data).</li>
+        <li><code>node scripts/gera-vendas-por-assessor-abr-ago-2026.mjs</code> e
+        <code>node scripts/render-vendas-por-assessor-abr-ago-2026.mjs</code>.</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="box rule">
+    <div class="t">O que fazer para o painel parar de divergir</div>
+    <ol style="margin-bottom:0">
+      <li>Cadastrar a <strong>Nane em PRESTADORES</strong> — resolve a linha em branco na origem.</li>
+      <li>Preencher o pisteiro nos 4 lotes em aberto.</li>
+      <li>Substituir a atribuição por zona pelos <strong>pisteiros reais</strong> nos 17 fechamentos marcados.</li>
+      <li>Cadastrar na filial ‘2’ os 18 leilões que hoje só existem no ERP — ou aceitar que o painel
+      sempre mostrará R$ 4.158.700 a menos no período.</li>
+    </ol>
+  </div>
+  <div class="pfoot"><span>Bula Assessoria Pecuária · Vendas por assessor · abril a agosto de 2026</span><span>Página 5 de 5</span></div>
+</section>
+</body></html>

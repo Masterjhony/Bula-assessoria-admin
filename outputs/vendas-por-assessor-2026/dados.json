@@ -1,0 +1,1336 @@
+{
+ "geradoEm": "2026-08-31",
+ "periodo": {
+  "ini": "2026-04-01",
+  "fim": "2026-08-31"
+ },
+ "meses": [
+  {
+   "mes": "2026-04",
+   "painel": [
+    {
+     "pessoa": "Fabio de Omena Gaia",
+     "vgv": 890000,
+     "lotes": 31,
+     "animais": 35
+    },
+    {
+     "pessoa": "Douglas Bispo Carvalho",
+     "vgv": 514200,
+     "lotes": 5,
+     "animais": 5
+    },
+    {
+     "pessoa": "GUSTAVO RUSA PEREIRA",
+     "vgv": 207000,
+     "lotes": 3,
+     "animais": 3
+    },
+    {
+     "pessoa": "MARCELO CARNEIRO",
+     "vgv": 84000,
+     "lotes": 1,
+     "animais": 1
+    },
+    {
+     "pessoa": "Leonardo Serafim Francisco",
+     "vgv": 78000,
+     "lotes": 1,
+     "animais": 1
+    },
+    {
+     "pessoa": "(sem pisteiro no HastaPro)",
+     "vgv": 18000,
+     "lotes": 1,
+     "animais": 1
+    }
+   ],
+   "remates": [
+    {
+     "pessoa": "Fabio de Omena Gaia",
+     "vgv": 390900,
+     "lotes": 8,
+     "animais": 13
+    },
+    {
+     "pessoa": "Leonardo Serafim Francisco",
+     "vgv": 356700,
+     "lotes": 11,
+     "animais": 25
+    },
+    {
+     "pessoa": "Douglas Bispo Carvalho",
+     "vgv": 318000,
+     "lotes": 7,
+     "animais": 8
+    },
+    {
+     "pessoa": "MARCELO CARNEIRO",
+     "vgv": 131100,
+     "lotes": 5,
+     "animais": 5
+    }
+   ],
+   "total": [
+    {
+     "pessoa": "Fabio de Omena Gaia",
+     "vgv": 1280900,
+     "lotes": 39,
+     "animais": 48
+    },
+    {
+     "pessoa": "Douglas Bispo Carvalho",
+     "vgv": 832200,
+     "lotes": 12,
+     "animais": 13
+    },
+    {
+     "pessoa": "Leonardo Serafim Francisco",
+     "vgv": 434700,
+     "lotes": 12,
+     "animais": 26
+    },
+    {
+     "pessoa": "MARCELO CARNEIRO",
+     "vgv": 215100,
+     "lotes": 6,
+     "animais": 6
+    },
+    {
+     "pessoa": "GUSTAVO RUSA PEREIRA",
+     "vgv": 207000,
+     "lotes": 3,
+     "animais": 3
+    },
+    {
+     "pessoa": "(sem pisteiro no HastaPro)",
+     "vgv": 18000,
+     "lotes": 1,
+     "animais": 1
+    }
+   ],
+   "totais": {
+    "painel": {
+     "vgv": 1791200,
+     "lotes": 42,
+     "animais": 46
+    },
+    "remates": {
+     "vgv": 1196700,
+     "lotes": 31,
+     "animais": 51
+    },
+    "total": {
+     "vgv": 2987900,
+     "lotes": 73,
+     "animais": 97
+    }
+   },
+   "leiloes_remates": [
+    {
+     "data": "2026-04-09",
+     "nome": "Leilão Matrizes de Vanguarda",
+     "vgv": 127200
+    },
+    {
+     "data": "2026-04-11",
+     "nome": "Leilão IPB Prime",
+     "vgv": 175200
+    },
+    {
+     "data": "2026-04-14",
+     "nome": "Leilão Pérolas Cachoeirão",
+     "vgv": 508500
+    },
+    {
+     "data": "2026-04-22",
+     "nome": "Nelore MRA – 50 Anos de Seleção",
+     "vgv": 385800
+    }
+   ]
+  },
+  {
+   "mes": "2026-05",
+   "painel": [
+    {
+     "pessoa": "Felipe Vilela Andrade",
+     "vgv": 1340800,
+     "lotes": 37,
+     "animais": 40
+    },
+    {
+     "pessoa": "Fabio de Omena Gaia",
+     "vgv": 1337500,
+     "lotes": 33,
+     "animais": 46
+    },
+    {
+     "pessoa": "MARCELO CARNEIRO",
+     "vgv": 607300,
+     "lotes": 13,
+     "animais": 16
+    },
+    {
+     "pessoa": "Douglas Bispo Carvalho",
+     "vgv": 390000,
+     "lotes": 10,
+     "animais": 10
+    },
+    {
+     "pessoa": "Luiz Felipe Peralta Garcez",
+     "vgv": 243000,
+     "lotes": 7,
+     "animais": 7
+    },
+    {
+     "pessoa": "Laila de Sousa Oliveira",
+     "vgv": 88500,
+     "lotes": 3,
+     "animais": 3
+    },
+    {
+     "pessoa": "Lucas Martins Durães Bragança",
+     "vgv": 66000,
+     "lotes": 2,
+     "animais": 2
+    },
+    {
+     "pessoa": "FABRICIO OSÓRIO HYPPOLITO",
+     "vgv": 60000,
+     "lotes": 1,
+     "animais": 4
+    },
+    {
+     "pessoa": "(sem pisteiro no HastaPro)",
+     "vgv": 48000,
+     "lotes": 1,
+     "animais": 1
+    },
+    {
+     "pessoa": "Bruno dos Reis Ferro",
+     "vgv": 37500,
+     "lotes": 1,
+     "animais": 1
+    },
+    {
+     "pessoa": "Mateus Alves da Silva",
+     "vgv": 27600,
+     "lotes": 3,
+     "animais": 3
+    }
+   ],
+   "remates": [
+    {
+     "pessoa": "Douglas Bispo Carvalho",
+     "vgv": 65700,
+     "lotes": 2,
+     "animais": 4
+    },
+    {
+     "pessoa": "MARCELO CARNEIRO",
+     "vgv": 64500,
+     "lotes": 1,
+     "animais": 1
+    },
+    {
+     "pessoa": "Leonardo Serafim Francisco",
+     "vgv": 60800,
+     "lotes": 1,
+     "animais": 4
+    },
+    {
+     "pessoa": "Fabio de Omena Gaia",
+     "vgv": 52800,
+     "lotes": 2,
+     "animais": 3
+    }
+   ],
+   "total": [
+    {
+     "pessoa": "Fabio de Omena Gaia",
+     "vgv": 1390300,
+     "lotes": 35,
+     "animais": 49
+    },
+    {
+     "pessoa": "Felipe Vilela Andrade",
+     "vgv": 1340800,
+     "lotes": 37,
+     "animais": 40
+    },
+    {
+     "pessoa": "MARCELO CARNEIRO",
+     "vgv": 671800,
+     "lotes": 14,
+     "animais": 17
+    },
+    {
+     "pessoa": "Douglas Bispo Carvalho",
+     "vgv": 455700,
+     "lotes": 12,
+     "animais": 14
+    },
+    {
+     "pessoa": "Luiz Felipe Peralta Garcez",
+     "vgv": 243000,
+     "lotes": 7,
+     "animais": 7
+    },
+    {
+     "pessoa": "Laila de Sousa Oliveira",
+     "vgv": 88500,
+     "lotes": 3,
+     "animais": 3
+    },
+    {
+     "pessoa": "Lucas Martins Durães Bragança",
+     "vgv": 66000,
+     "lotes": 2,
+     "animais": 2
+    },
+    {
+     "pessoa": "Leonardo Serafim Francisco",
+     "vgv": 60800,
+     "lotes": 1,
+     "animais": 4
+    },
+    {
+     "pessoa": "FABRICIO OSÓRIO HYPPOLITO",
+     "vgv": 60000,
+     "lotes": 1,
+     "animais": 4
+    },
+    {
+     "pessoa": "(sem pisteiro no HastaPro)",
+     "vgv": 48000,
+     "lotes": 1,
+     "animais": 1
+    },
+    {
+     "pessoa": "Bruno dos Reis Ferro",
+     "vgv": 37500,
+     "lotes": 1,
+     "animais": 1
+    },
+    {
+     "pessoa": "Mateus Alves da Silva",
+     "vgv": 27600,
+     "lotes": 3,
+     "animais": 3
+    }
+   ],
+   "totais": {
+    "painel": {
+     "vgv": 4246200,
+     "lotes": 111,
+     "animais": 133
+    },
+    "remates": {
+     "vgv": 243800,
+     "lotes": 6,
+     "animais": 12
+    },
+    "total": {
+     "vgv": 4490000,
+     "lotes": 117,
+     "animais": 145
+    }
+   },
+   "leiloes_remates": [
+    {
+     "data": "2026-05-14",
+     "nome": "Leilão Especial 60 Anos de Seleção Ribalta – 14/05/2026",
+     "vgv": 0
+    },
+    {
+     "data": "2026-05-21",
+     "nome": "Leilão Nelore Tresmar – 21/05/2026",
+     "vgv": 183000
+    },
+    {
+     "data": "2026-05-31",
+     "nome": "1o Dia - Leilao Katayama Trilogia - 31/05/2026",
+     "vgv": 60800
+    }
+   ]
+  },
+  {
+   "mes": "2026-06",
+   "painel": [
+    {
+     "pessoa": "Fabio de Omena Gaia",
+     "vgv": 1900000,
+     "lotes": 35,
+     "animais": 35
+    },
+    {
+     "pessoa": "Felipe Vilela Andrade",
+     "vgv": 1602800,
+     "lotes": 36,
+     "animais": 57
+    },
+    {
+     "pessoa": "Douglas Bispo Carvalho",
+     "vgv": 816908.8,
+     "lotes": 20,
+     "animais": 34
+    },
+    {
+     "pessoa": "Leonardo Serafim Francisco",
+     "vgv": 722200,
+     "lotes": 13,
+     "animais": 33
+    },
+    {
+     "pessoa": "Lucas Martins Durães Bragança",
+     "vgv": 515700,
+     "lotes": 8,
+     "animais": 23
+    },
+    {
+     "pessoa": "Luiz Felipe Peralta Garcez",
+     "vgv": 268500,
+     "lotes": 13,
+     "animais": 13
+    },
+    {
+     "pessoa": "GUSTAVO RUSA PEREIRA",
+     "vgv": 210000,
+     "lotes": 3,
+     "animais": 3
+    },
+    {
+     "pessoa": "Mateus Alves da Silva",
+     "vgv": 72300,
+     "lotes": 3,
+     "animais": 3
+    }
+   ],
+   "remates": [
+    {
+     "pessoa": "Douglas Bispo Carvalho",
+     "vgv": 1128300,
+     "lotes": 53,
+     "animais": 60
+    },
+    {
+     "pessoa": "GUSTAVO RUSA PEREIRA",
+     "vgv": 484500,
+     "lotes": 8,
+     "animais": 8
+    },
+    {
+     "pessoa": "Leonardo Serafim Francisco",
+     "vgv": 391200,
+     "lotes": 15,
+     "animais": 15
+    },
+    {
+     "pessoa": "Fabio de Omena Gaia",
+     "vgv": 101400,
+     "lotes": 5,
+     "animais": 5
+    },
+    {
+     "pessoa": "Felipe Vilela Andrade",
+     "vgv": 49500,
+     "lotes": 1,
+     "animais": 3
+    }
+   ],
+   "total": [
+    {
+     "pessoa": "Fabio de Omena Gaia",
+     "vgv": 2001400,
+     "lotes": 40,
+     "animais": 40
+    },
+    {
+     "pessoa": "Douglas Bispo Carvalho",
+     "vgv": 1945208.8,
+     "lotes": 73,
+     "animais": 94
+    },
+    {
+     "pessoa": "Felipe Vilela Andrade",
+     "vgv": 1652300,
+     "lotes": 37,
+     "animais": 60
+    },
+    {
+     "pessoa": "Leonardo Serafim Francisco",
+     "vgv": 1113400,
+     "lotes": 28,
+     "animais": 48
+    },
+    {
+     "pessoa": "GUSTAVO RUSA PEREIRA",
+     "vgv": 694500,
+     "lotes": 11,
+     "animais": 11
+    },
+    {
+     "pessoa": "Lucas Martins Durães Bragança",
+     "vgv": 515700,
+     "lotes": 8,
+     "animais": 23
+    },
+    {
+     "pessoa": "Luiz Felipe Peralta Garcez",
+     "vgv": 268500,
+     "lotes": 13,
+     "animais": 13
+    },
+    {
+     "pessoa": "Mateus Alves da Silva",
+     "vgv": 72300,
+     "lotes": 3,
+     "animais": 3
+    }
+   ],
+   "totais": {
+    "painel": {
+     "vgv": 6108408.8,
+     "lotes": 131,
+     "animais": 201
+    },
+    "remates": {
+     "vgv": 2154900,
+     "lotes": 82,
+     "animais": 91
+    },
+    "total": {
+     "vgv": 8263308.8,
+     "lotes": 213,
+     "animais": 292
+    }
+   },
+   "leiloes_remates": [
+    {
+     "data": "2026-06-03",
+     "nome": "Destaques da Safra Nelore Cachoeirao - 03/06/2026",
+     "vgv": 399000
+    },
+    {
+     "data": "2026-06-07",
+     "nome": "9o Leilao Nelore Flor do Aratau - 07/06/2026",
+     "vgv": 456600
+    },
+    {
+     "data": "2026-06-11",
+     "nome": "3º Leilão Nelore Tresmar - 11/06/2026",
+     "vgv": 211500
+    },
+    {
+     "data": "2026-06-16",
+     "nome": "Leilão Virtual Nelore Kriz Matrizes - 16/06/2026",
+     "vgv": 417600
+    },
+    {
+     "data": "2026-06-20",
+     "nome": "8º Fazenda Rio Bonito - 20/06/2026",
+     "vgv": 16500
+    },
+    {
+     "data": "2026-06-23",
+     "nome": "Leilão Virtual Nelore MEAB & Fazenda Modelo - 23/06/2026",
+     "vgv": 653700
+    },
+    {
+     "data": "2026-06-28",
+     "nome": "Leilão Nelore IPB 2026 - Edição Especial 30 Anos - 28/06/2026",
+     "vgv": 0
+    }
+   ]
+  },
+  {
+   "mes": "2026-07",
+   "painel": [
+    {
+     "pessoa": "Douglas Bispo Carvalho",
+     "vgv": 965700,
+     "lotes": 26,
+     "animais": 35
+    },
+    {
+     "pessoa": "Fabio de Omena Gaia",
+     "vgv": 543300,
+     "lotes": 14,
+     "animais": 20
+    },
+    {
+     "pessoa": "Regiane C. N. de Abreu (Nane)",
+     "vgv": 226500,
+     "lotes": 8,
+     "animais": 8
+    },
+    {
+     "pessoa": "Leonardo Serafim Francisco",
+     "vgv": 225600,
+     "lotes": 5,
+     "animais": 5
+    },
+    {
+     "pessoa": "VALERIA BORGES DA SILVA ARAUJO",
+     "vgv": 99900,
+     "lotes": 4,
+     "animais": 4
+    },
+    {
+     "pessoa": "Laila de Sousa Oliveira",
+     "vgv": 67500,
+     "lotes": 1,
+     "animais": 3
+    },
+    {
+     "pessoa": "Luiz Felipe Peralta Garcez",
+     "vgv": 54000,
+     "lotes": 2,
+     "animais": 2
+    }
+   ],
+   "remates": [
+    {
+     "pessoa": "Douglas Bispo Carvalho",
+     "vgv": 108600,
+     "lotes": 5,
+     "animais": 5
+    },
+    {
+     "pessoa": "Leonardo Serafim Francisco",
+     "vgv": 37500,
+     "lotes": 2,
+     "animais": 2
+    }
+   ],
+   "total": [
+    {
+     "pessoa": "Douglas Bispo Carvalho",
+     "vgv": 1074300,
+     "lotes": 31,
+     "animais": 40
+    },
+    {
+     "pessoa": "Fabio de Omena Gaia",
+     "vgv": 543300,
+     "lotes": 14,
+     "animais": 20
+    },
+    {
+     "pessoa": "Leonardo Serafim Francisco",
+     "vgv": 263100,
+     "lotes": 7,
+     "animais": 7
+    },
+    {
+     "pessoa": "Regiane C. N. de Abreu (Nane)",
+     "vgv": 226500,
+     "lotes": 8,
+     "animais": 8
+    },
+    {
+     "pessoa": "VALERIA BORGES DA SILVA ARAUJO",
+     "vgv": 99900,
+     "lotes": 4,
+     "animais": 4
+    },
+    {
+     "pessoa": "Laila de Sousa Oliveira",
+     "vgv": 67500,
+     "lotes": 1,
+     "animais": 3
+    },
+    {
+     "pessoa": "Luiz Felipe Peralta Garcez",
+     "vgv": 54000,
+     "lotes": 2,
+     "animais": 2
+    }
+   ],
+   "totais": {
+    "painel": {
+     "vgv": 2182500,
+     "lotes": 60,
+     "animais": 77
+    },
+    "remates": {
+     "vgv": 146100,
+     "lotes": 7,
+     "animais": 7
+    },
+    "total": {
+     "vgv": 2328600,
+     "lotes": 67,
+     "animais": 84
+    }
+   },
+   "leiloes_remates": [
+    {
+     "data": "2026-07-07",
+     "nome": "LEILÃO VIRTUAL NELORE KRIZ REPRODUTORES",
+     "vgv": 117600
+    },
+    {
+     "data": "2026-07-25",
+     "nome": "30º NELORAÇO IRMÃOS HIPÓLITO",
+     "vgv": 28500
+    }
+   ]
+  },
+  {
+   "mes": "2026-08",
+   "painel": [
+    {
+     "pessoa": "Douglas Bispo Carvalho",
+     "vgv": 3337400,
+     "lotes": 59,
+     "animais": 104
+    },
+    {
+     "pessoa": "Fabio de Omena Gaia",
+     "vgv": 1911000,
+     "lotes": 34,
+     "animais": 35
+    },
+    {
+     "pessoa": "Regiane C. N. de Abreu (Nane)",
+     "vgv": 307500,
+     "lotes": 9,
+     "animais": 9
+    },
+    {
+     "pessoa": "Leonardo Serafim Francisco",
+     "vgv": 305100,
+     "lotes": 11,
+     "animais": 11
+    },
+    {
+     "pessoa": "Luiz Felipe Peralta Garcez",
+     "vgv": 211500,
+     "lotes": 4,
+     "animais": 4
+    },
+    {
+     "pessoa": "Felipe Vilela Andrade",
+     "vgv": 198000,
+     "lotes": 2,
+     "animais": 2
+    },
+    {
+     "pessoa": "Lucas Martins Durães Bragança",
+     "vgv": 96000,
+     "lotes": 2,
+     "animais": 2
+    },
+    {
+     "pessoa": "MARCELO MOURA",
+     "vgv": 63000,
+     "lotes": 1,
+     "animais": 1
+    },
+    {
+     "pessoa": "Laila de Sousa Oliveira",
+     "vgv": 60000,
+     "lotes": 2,
+     "animais": 2
+    }
+   ],
+   "remates": [
+    {
+     "pessoa": "Douglas Bispo Carvalho",
+     "vgv": 241400,
+     "lotes": 2,
+     "animais": 2
+    },
+    {
+     "pessoa": "Leonardo Serafim Francisco",
+     "vgv": 175800,
+     "lotes": 4,
+     "animais": 4
+    }
+   ],
+   "total": [
+    {
+     "pessoa": "Douglas Bispo Carvalho",
+     "vgv": 3578800,
+     "lotes": 61,
+     "animais": 106
+    },
+    {
+     "pessoa": "Fabio de Omena Gaia",
+     "vgv": 1911000,
+     "lotes": 34,
+     "animais": 35
+    },
+    {
+     "pessoa": "Leonardo Serafim Francisco",
+     "vgv": 480900,
+     "lotes": 15,
+     "animais": 15
+    },
+    {
+     "pessoa": "Regiane C. N. de Abreu (Nane)",
+     "vgv": 307500,
+     "lotes": 9,
+     "animais": 9
+    },
+    {
+     "pessoa": "Luiz Felipe Peralta Garcez",
+     "vgv": 211500,
+     "lotes": 4,
+     "animais": 4
+    },
+    {
+     "pessoa": "Felipe Vilela Andrade",
+     "vgv": 198000,
+     "lotes": 2,
+     "animais": 2
+    },
+    {
+     "pessoa": "Lucas Martins Durães Bragança",
+     "vgv": 96000,
+     "lotes": 2,
+     "animais": 2
+    },
+    {
+     "pessoa": "MARCELO MOURA",
+     "vgv": 63000,
+     "lotes": 1,
+     "animais": 1
+    },
+    {
+     "pessoa": "Laila de Sousa Oliveira",
+     "vgv": 60000,
+     "lotes": 2,
+     "animais": 2
+    }
+   ],
+   "totais": {
+    "painel": {
+     "vgv": 6489500,
+     "lotes": 124,
+     "animais": 170
+    },
+    "remates": {
+     "vgv": 417200,
+     "lotes": 6,
+     "animais": 6
+    },
+    "total": {
+     "vgv": 6906700,
+     "lotes": 130,
+     "animais": 176
+    }
+   },
+   "leiloes_remates": [
+    {
+     "data": "2026-08-01",
+     "nome": "LEILÃO TOUROS SÃO GERALDO E 7P AGRO",
+     "vgv": 375800
+    },
+    {
+     "data": "2026-08-21",
+     "nome": "FÊMEAS JMP",
+     "vgv": 41400
+    }
+   ]
+  }
+ ],
+ "consolidado": {
+  "painel": [
+   {
+    "pessoa": "Fabio de Omena Gaia",
+    "vgv": 6581800,
+    "lotes": 147,
+    "animais": 171
+   },
+   {
+    "pessoa": "Douglas Bispo Carvalho",
+    "vgv": 6024208.8,
+    "lotes": 120,
+    "animais": 188
+   },
+   {
+    "pessoa": "Felipe Vilela Andrade",
+    "vgv": 3141600,
+    "lotes": 75,
+    "animais": 99
+   },
+   {
+    "pessoa": "Leonardo Serafim Francisco",
+    "vgv": 1330900,
+    "lotes": 30,
+    "animais": 50
+   },
+   {
+    "pessoa": "Luiz Felipe Peralta Garcez",
+    "vgv": 777000,
+    "lotes": 26,
+    "animais": 26
+   },
+   {
+    "pessoa": "MARCELO CARNEIRO",
+    "vgv": 691300,
+    "lotes": 14,
+    "animais": 17
+   },
+   {
+    "pessoa": "Lucas Martins Durães Bragança",
+    "vgv": 677700,
+    "lotes": 12,
+    "animais": 27
+   },
+   {
+    "pessoa": "Regiane C. N. de Abreu (Nane)",
+    "vgv": 534000,
+    "lotes": 17,
+    "animais": 17
+   },
+   {
+    "pessoa": "GUSTAVO RUSA PEREIRA",
+    "vgv": 417000,
+    "lotes": 6,
+    "animais": 6
+   },
+   {
+    "pessoa": "Laila de Sousa Oliveira",
+    "vgv": 216000,
+    "lotes": 6,
+    "animais": 8
+   },
+   {
+    "pessoa": "Mateus Alves da Silva",
+    "vgv": 99900,
+    "lotes": 6,
+    "animais": 6
+   },
+   {
+    "pessoa": "VALERIA BORGES DA SILVA ARAUJO",
+    "vgv": 99900,
+    "lotes": 4,
+    "animais": 4
+   },
+   {
+    "pessoa": "(sem pisteiro no HastaPro)",
+    "vgv": 66000,
+    "lotes": 2,
+    "animais": 2
+   },
+   {
+    "pessoa": "MARCELO MOURA",
+    "vgv": 63000,
+    "lotes": 1,
+    "animais": 1
+   },
+   {
+    "pessoa": "FABRICIO OSÓRIO HYPPOLITO",
+    "vgv": 60000,
+    "lotes": 1,
+    "animais": 4
+   },
+   {
+    "pessoa": "Bruno dos Reis Ferro",
+    "vgv": 37500,
+    "lotes": 1,
+    "animais": 1
+   }
+  ],
+  "remates": [
+   {
+    "pessoa": "Douglas Bispo Carvalho",
+    "vgv": 1862000,
+    "lotes": 69,
+    "animais": 79
+   },
+   {
+    "pessoa": "Leonardo Serafim Francisco",
+    "vgv": 1022000,
+    "lotes": 33,
+    "animais": 50
+   },
+   {
+    "pessoa": "Fabio de Omena Gaia",
+    "vgv": 545100,
+    "lotes": 15,
+    "animais": 21
+   },
+   {
+    "pessoa": "GUSTAVO RUSA PEREIRA",
+    "vgv": 484500,
+    "lotes": 8,
+    "animais": 8
+   },
+   {
+    "pessoa": "MARCELO CARNEIRO",
+    "vgv": 195600,
+    "lotes": 6,
+    "animais": 6
+   },
+   {
+    "pessoa": "Felipe Vilela Andrade",
+    "vgv": 49500,
+    "lotes": 1,
+    "animais": 3
+   }
+  ],
+  "total": [
+   {
+    "pessoa": "Douglas Bispo Carvalho",
+    "vgv": 7886208.8,
+    "lotes": 189,
+    "animais": 267
+   },
+   {
+    "pessoa": "Fabio de Omena Gaia",
+    "vgv": 7126900,
+    "lotes": 162,
+    "animais": 192
+   },
+   {
+    "pessoa": "Felipe Vilela Andrade",
+    "vgv": 3191100,
+    "lotes": 76,
+    "animais": 102
+   },
+   {
+    "pessoa": "Leonardo Serafim Francisco",
+    "vgv": 2352900,
+    "lotes": 63,
+    "animais": 100
+   },
+   {
+    "pessoa": "GUSTAVO RUSA PEREIRA",
+    "vgv": 901500,
+    "lotes": 14,
+    "animais": 14
+   },
+   {
+    "pessoa": "MARCELO CARNEIRO",
+    "vgv": 886900,
+    "lotes": 20,
+    "animais": 23
+   },
+   {
+    "pessoa": "Luiz Felipe Peralta Garcez",
+    "vgv": 777000,
+    "lotes": 26,
+    "animais": 26
+   },
+   {
+    "pessoa": "Lucas Martins Durães Bragança",
+    "vgv": 677700,
+    "lotes": 12,
+    "animais": 27
+   },
+   {
+    "pessoa": "Regiane C. N. de Abreu (Nane)",
+    "vgv": 534000,
+    "lotes": 17,
+    "animais": 17
+   },
+   {
+    "pessoa": "Laila de Sousa Oliveira",
+    "vgv": 216000,
+    "lotes": 6,
+    "animais": 8
+   },
+   {
+    "pessoa": "Mateus Alves da Silva",
+    "vgv": 99900,
+    "lotes": 6,
+    "animais": 6
+   },
+   {
+    "pessoa": "VALERIA BORGES DA SILVA ARAUJO",
+    "vgv": 99900,
+    "lotes": 4,
+    "animais": 4
+   },
+   {
+    "pessoa": "(sem pisteiro no HastaPro)",
+    "vgv": 66000,
+    "lotes": 2,
+    "animais": 2
+   },
+   {
+    "pessoa": "MARCELO MOURA",
+    "vgv": 63000,
+    "lotes": 1,
+    "animais": 1
+   },
+   {
+    "pessoa": "FABRICIO OSÓRIO HYPPOLITO",
+    "vgv": 60000,
+    "lotes": 1,
+    "animais": 4
+   },
+   {
+    "pessoa": "Bruno dos Reis Ferro",
+    "vgv": 37500,
+    "lotes": 1,
+    "animais": 1
+   }
+  ]
+ },
+ "conferencia": [
+  {
+   "pessoa": "Felipe Vilela Andrade",
+   "hastapro": 3141600,
+   "erp": 0,
+   "dif": -3141600
+  },
+  {
+   "pessoa": "Leonardo Serafim Francisco",
+   "hastapro": 1330900,
+   "erp": 3956900,
+   "dif": 2626000
+  },
+  {
+   "pessoa": "A definir",
+   "hastapro": 0,
+   "erp": 2596900,
+   "dif": 2596900
+  },
+  {
+   "pessoa": "Fabio de Omena Gaia",
+   "hastapro": 6581800,
+   "erp": 4532000,
+   "dif": -2049800
+  },
+  {
+   "pessoa": "GUSTAVO RUSA PEREIRA",
+   "hastapro": 417000,
+   "erp": 2053200,
+   "dif": 1636200
+  },
+  {
+   "pessoa": "Lucas Martins Durães Bragança",
+   "hastapro": 677700,
+   "erp": 0,
+   "dif": -677700
+  },
+  {
+   "pessoa": "MARCELO CARNEIRO",
+   "hastapro": 691300,
+   "erp": 551800,
+   "dif": -139500
+  },
+  {
+   "pessoa": "Laila de Sousa Oliveira",
+   "hastapro": 216000,
+   "erp": 127500,
+   "dif": -88500
+  },
+  {
+   "pessoa": "Luiz Felipe Peralta Garcez",
+   "hastapro": 777000,
+   "erp": 690900,
+   "dif": -86100
+  },
+  {
+   "pessoa": "Mateus Alves da Silva",
+   "hastapro": 99900,
+   "erp": 27600,
+   "dif": -72300
+  },
+  {
+   "pessoa": "(sem pisteiro no HastaPro)",
+   "hastapro": 66000,
+   "erp": 0,
+   "dif": -66000
+  },
+  {
+   "pessoa": "Regiane C. N. de Abreu (Nane)",
+   "hastapro": 534000,
+   "erp": 597900,
+   "dif": 63900
+  },
+  {
+   "pessoa": "MARCELO MOURA",
+   "hastapro": 63000,
+   "erp": 0,
+   "dif": -63000
+  },
+  {
+   "pessoa": "FABRICIO OSÓRIO HYPPOLITO",
+   "hastapro": 60000,
+   "erp": 0,
+   "dif": -60000
+  },
+  {
+   "pessoa": "Douglas Bispo Carvalho",
+   "hastapro": 6024208.8,
+   "erp": 6070708.8,
+   "dif": 46500
+  },
+  {
+   "pessoa": "Bruno dos Reis Ferro",
+   "hastapro": 37500,
+   "erp": 0,
+   "dif": -37500
+  },
+  {
+   "pessoa": "VALERIA BORGES DA SILVA ARAUJO",
+   "hastapro": 99900,
+   "erp": 75300,
+   "dif": -24600
+  }
+ ],
+ "qualidade": {
+  "lotes_fil2": 474,
+  "sem_pisteiro": {
+   "n": 4,
+   "vgv": 102000,
+   "itens": [
+    {
+     "data": "2026-02-26",
+     "leilao": "1° LEILÃO NELORE SALES",
+     "lote": "26",
+     "vgv": 18000
+    },
+    {
+     "data": "2026-02-26",
+     "leilao": "1° LEILÃO NELORE SALES",
+     "lote": "18",
+     "vgv": 18000
+    },
+    {
+     "data": "2026-05-09",
+     "leilao": "32° LEILÃO 4R",
+     "lote": "123",
+     "vgv": 48000
+    },
+    {
+     "data": "2026-04-07",
+     "leilao": "2º LEILÃO TOP GENÉTICA - NELORE ÁGUA DOCE, BEMACH & 2A",
+     "lote": "19",
+     "vgv": 18000
+    }
+   ]
+  },
+  "valor_zero": {
+   "n": 1,
+   "itens": [
+    {
+     "data": "2026-04-29",
+     "leilao": "LEILÃO MAFRA - EDIÇÃO 91º EXPOZEBU",
+     "lote": "12"
+    }
+   ]
+  },
+  "so_em_clientes": [
+   "Regiane C. N. de Abreu (Nane)"
+  ],
+  "a_definir_erp": 2596900,
+  "fechamentos_complemento": 18,
+  "por_zona": {
+   "n": 17,
+   "vgv": 9359508.8,
+   "por_mes": [
+    {
+     "mes": "2026-04",
+     "vgv": 566700
+    },
+    {
+     "mes": "2026-05",
+     "vgv": 2980800
+    },
+    {
+     "mes": "2026-06",
+     "vgv": 5286708.8
+    },
+    {
+     "mes": "2026-07",
+     "vgv": 525300
+    }
+   ],
+   "leiloes": [
+    {
+     "data": "2026-04-19",
+     "nome": "Leilão Terra Brava 50 Anos",
+     "vgv": 134100
+    },
+    {
+     "data": "2026-04-19",
+     "nome": "Leilão JMP Supreme",
+     "vgv": 432600
+    },
+    {
+     "data": "2026-05-02",
+     "nome": "6º Mega EAO – Fêmeas – Expozebu 02/05/2026",
+     "vgv": 783300
+    },
+    {
+     "data": "2026-05-03",
+     "nome": "6º Mega EAO – Touros – Expozebu 03/05/2026",
+     "vgv": 834000
+    },
+    {
+     "data": "2026-05-09",
+     "nome": "32° Leilão 4R – 09/05/2026",
+     "vgv": 1102800
+    },
+    {
+     "data": "2026-05-15",
+     "nome": "2º Leilão Touros de Produtor para Produtor – Nelore JEM – 15/05/2026",
+     "vgv": 127500
+    },
+    {
+     "data": "2026-05-19",
+     "nome": "Leilão Golden Boys Matinha – 19/05/2026",
+     "vgv": 31800
+    },
+    {
+     "data": "2026-05-30",
+     "nome": "2o Leilao LS Now - 30/05/2026",
+     "vgv": 101400
+    },
+    {
+     "data": "2026-06-06",
+     "nome": "Leilao Matrizes Santa Nice 2026 - 06/06/2026",
+     "vgv": 345000
+    },
+    {
+     "data": "2026-06-07",
+     "nome": "8o Leilao Jacamim Femeas - 07/06/2026",
+     "vgv": 220800
+    },
+    {
+     "data": "2026-06-13",
+     "nome": "Leilao de Bezerras Nelore JMP - 13/06/2026",
+     "vgv": 189000
+    },
+    {
+     "data": "2026-06-14",
+     "nome": "10o Leilao Nelore JMP - Touros - 14/06/2026",
+     "vgv": 4148708.8
+    },
+    {
+     "data": "2026-06-16",
+     "nome": "TOUROS PROVADOS TERRA BRAVA AGROPECUÁRIA - 1º ETAPA",
+     "vgv": 64500
+    },
+    {
+     "data": "2026-06-20",
+     "nome": "3º Leilão Matrizes KatiSpera",
+     "vgv": 185100
+    },
+    {
+     "data": "2026-06-21",
+     "nome": "Leilão Virtual Touros Matinha - 21/06/2026",
+     "vgv": 133600
+    },
+    {
+     "data": "2026-07-12",
+     "nome": "LEILÃO NELORE SORRISO - ETAPA FÊMEAS – 12/07/2026",
+     "vgv": 159000
+    },
+    {
+     "data": "2026-07-12",
+     "nome": "MEGA EVENTO EAO BAVIERA — Machos",
+     "vgv": 366300
+    }
+   ]
+  }
+ }
+}
