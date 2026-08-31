@@ -1,0 +1,3905 @@
+{
+ "geradoEm": "2026-08-31T19:22:47.634Z",
+ "periodo": {
+  "ini": "2026-08-01",
+  "fim": "2026-08-31"
+ },
+ "fontes": {
+  "hastapro_fil2": {
+   "leiloes": 27,
+   "lotes": 128,
+   "vgv": 6590000,
+   "animais": 178
+  },
+  "hastapro_fil01_total": {
+   "leiloes": 7,
+   "lotes": 314,
+   "vgv": 13574150
+  },
+  "hastapro_fil01_bula": {
+   "leiloes": 3,
+   "lotes": 11,
+   "vgv": 640700,
+   "animais": 44
+  },
+  "hastapro_fil01_pela_remates": {
+   "lotes": 78,
+   "vgv": 3429100,
+   "por_pessoa": [
+    {
+     "pessoa": "Luiz Felipe Peralta Garcez",
+     "vgv": 1532350,
+     "lotes": 34,
+     "animais": 152
+    },
+    {
+     "pessoa": "Laila de Sousa Oliveira",
+     "vgv": 722340,
+     "lotes": 8,
+     "animais": 237
+    },
+    {
+     "pessoa": "Felipe Vilela Andrade",
+     "vgv": 720160,
+     "lotes": 23,
+     "animais": 49
+    },
+    {
+     "pessoa": "Lucas Martins Durães Bragança",
+     "vgv": 454250,
+     "lotes": 13,
+     "animais": 47
+    }
+   ]
+  },
+  "erp": {
+   "fechamentos": 26,
+   "vgv": 6845800
+  },
+  "whatsapp": {
+   "lotes": 118,
+   "vgv_indicativo": 7515900,
+   "dias": 17
+  }
+ },
+ "consolidado": {
+  "hp2": {
+   "vgv": 6590000,
+   "lotes": 128,
+   "animais": 178
+  },
+  "hp01_bula": {
+   "vgv": 640700,
+   "lotes": 11,
+   "animais": 44
+  },
+  "erp_sem_par": {
+   "vgv": 242400,
+   "lotes": 3,
+   "n": 3
+  },
+  "wa_pendente": {
+   "vgv": 233400,
+   "lotes": 3
+  },
+  "wa_eco": {
+   "vgv": 123000,
+   "lotes": 2
+  },
+  "oficial": 7230700,
+  "com_pendencias": 7464100
+ },
+ "meta": {
+  "pct": 0.12,
+  "agenda_completa": 68024400,
+  "agenda_divulgada": 57294800,
+  "alvo_agenda_completa": 8162928,
+  "alvo_agenda_divulgada": 6875376,
+  "realizado": 7230700,
+  "realizado_com_pendencias": 7464100,
+  "pct_agenda_completa": 10.63,
+  "pct_agenda_divulgada": 12.62,
+  "bateu_divulgada": true,
+  "bateu_completa": false,
+  "so_painel": {
+   "realizado": 6590000,
+   "pct_agenda_divulgada": 11.5,
+   "pct_agenda_completa": 9.69,
+   "bateu_divulgada": false
+  }
+ },
+ "por_pessoa": {
+  "hp2": [
+   {
+    "pessoa": "Douglas Bispo Carvalho",
+    "vgv": 3374900,
+    "lotes": 60,
+    "animais": 105
+   },
+   {
+    "pessoa": "Fabio de Omena Gaia",
+    "vgv": 1974000,
+    "lotes": 37,
+    "animais": 42
+   },
+   {
+    "pessoa": "Regiane C. N. de Abreu (Nane)",
+    "vgv": 307500,
+    "lotes": 9,
+    "animais": 9
+   },
+   {
+    "pessoa": "Leonardo Serafim Francisco",
+    "vgv": 305100,
+    "lotes": 11,
+    "animais": 11
+   },
+   {
+    "pessoa": "Luiz Felipe Peralta Garcez",
+    "vgv": 211500,
+    "lotes": 4,
+    "animais": 4
+   },
+   {
+    "pessoa": "Felipe Vilela Andrade",
+    "vgv": 198000,
+    "lotes": 2,
+    "animais": 2
+   },
+   {
+    "pessoa": "Lucas Martins Durães Bragança",
+    "vgv": 96000,
+    "lotes": 2,
+    "animais": 2
+   },
+   {
+    "pessoa": "MARCELO MOURA",
+    "vgv": 63000,
+    "lotes": 1,
+    "animais": 1
+   },
+   {
+    "pessoa": "Laila de Sousa Oliveira",
+    "vgv": 60000,
+    "lotes": 2,
+    "animais": 2
+   }
+  ],
+  "hp01": [
+   {
+    "pessoa": "Regiane C. N. de Abreu (Nane)",
+    "vgv": 264900,
+    "lotes": 6,
+    "animais": 39
+   },
+   {
+    "pessoa": "Douglas Bispo Carvalho",
+    "vgv": 200000,
+    "lotes": 1,
+    "animais": 1
+   },
+   {
+    "pessoa": "Leonardo Serafim Francisco",
+    "vgv": 175800,
+    "lotes": 4,
+    "animais": 4
+   }
+  ],
+  "erp": [
+   {
+    "pessoa": "Douglas Bispo Carvalho",
+    "vgv": 2602300,
+    "lotes": 51,
+    "animais": 95
+   },
+   {
+    "pessoa": "Gustavo Rusa Pereira",
+    "vgv": 1462500,
+    "lotes": 12,
+    "animais": 13
+   },
+   {
+    "pessoa": "Fabio de Omena Gaia",
+    "vgv": 1404600,
+    "lotes": 29,
+    "animais": 29
+   },
+   {
+    "pessoa": "Leonardo Serafim Francisco",
+    "vgv": 404400,
+    "lotes": 13,
+    "animais": 13
+   },
+   {
+    "pessoa": "A definir",
+    "vgv": 390000,
+    "lotes": 6,
+    "animais": 6
+   },
+   {
+    "pessoa": "Regiane C. N. de Abreu (Nane)",
+    "vgv": 307500,
+    "lotes": 9,
+    "animais": 9
+   },
+   {
+    "pessoa": "Luiz Felipe Peralta Garcez",
+    "vgv": 214500,
+    "lotes": 3,
+    "animais": 3
+   },
+   {
+    "pessoa": "Laila de Sousa Oliveira",
+    "vgv": 60000,
+    "lotes": 2,
+    "animais": 2
+   }
+  ],
+  "wa": [
+   {
+    "pessoa": "Douglas Bispo Carvalho",
+    "vgv": 4789500,
+    "lotes": 52,
+    "animais": 240
+   },
+   {
+    "pessoa": "Fabio de Omena Gaia",
+    "vgv": 1239900,
+    "lotes": 31,
+    "animais": 32
+   },
+   {
+    "pessoa": "(sem assessor na ficha)",
+    "vgv": 937500,
+    "lotes": 14,
+    "animais": 14
+   },
+   {
+    "pessoa": "Regiane C. N. de Abreu (Nane)",
+    "vgv": 249000,
+    "lotes": 7,
+    "animais": 7
+   },
+   {
+    "pessoa": "Leonardo Serafim Francisco",
+    "vgv": 147000,
+    "lotes": 11,
+    "animais": 11
+   },
+   {
+    "pessoa": "Luiz Felipe Peralta Garcez",
+    "vgv": 93000,
+    "lotes": 1,
+    "animais": 1
+   },
+   {
+    "pessoa": "Laila de Sousa Oliveira",
+    "vgv": 60000,
+    "lotes": 2,
+    "animais": 2
+   }
+  ]
+ },
+ "atribuicao": [
+  {
+   "pessoa": "Douglas Bispo Carvalho",
+   "hp2": 3374900,
+   "hp2_lotes": 60,
+   "hp2_animais": 105,
+   "hp01": 200000,
+   "hp01_lotes": 1,
+   "hp01_animais": 1,
+   "erp": 2602300,
+   "erp_lotes": 51,
+   "wa": 4789500,
+   "wa_lotes": 52,
+   "total": 3574900,
+   "dif_erp_hp2": -772600
+  },
+  {
+   "pessoa": "Fabio de Omena Gaia",
+   "hp2": 1974000,
+   "hp2_lotes": 37,
+   "hp2_animais": 42,
+   "hp01": 0,
+   "hp01_lotes": 0,
+   "hp01_animais": 0,
+   "erp": 1404600,
+   "erp_lotes": 29,
+   "wa": 1239900,
+   "wa_lotes": 31,
+   "total": 1974000,
+   "dif_erp_hp2": -569400
+  },
+  {
+   "pessoa": "Regiane C. N. de Abreu (Nane)",
+   "hp2": 307500,
+   "hp2_lotes": 9,
+   "hp2_animais": 9,
+   "hp01": 264900,
+   "hp01_lotes": 6,
+   "hp01_animais": 39,
+   "erp": 307500,
+   "erp_lotes": 9,
+   "wa": 249000,
+   "wa_lotes": 7,
+   "total": 572400,
+   "dif_erp_hp2": 0
+  },
+  {
+   "pessoa": "Leonardo Serafim Francisco",
+   "hp2": 305100,
+   "hp2_lotes": 11,
+   "hp2_animais": 11,
+   "hp01": 175800,
+   "hp01_lotes": 4,
+   "hp01_animais": 4,
+   "erp": 404400,
+   "erp_lotes": 13,
+   "wa": 147000,
+   "wa_lotes": 11,
+   "total": 480900,
+   "dif_erp_hp2": 99300
+  },
+  {
+   "pessoa": "Luiz Felipe Peralta Garcez",
+   "hp2": 211500,
+   "hp2_lotes": 4,
+   "hp2_animais": 4,
+   "hp01": 0,
+   "hp01_lotes": 0,
+   "hp01_animais": 0,
+   "erp": 214500,
+   "erp_lotes": 3,
+   "wa": 93000,
+   "wa_lotes": 1,
+   "total": 211500,
+   "dif_erp_hp2": 3000
+  },
+  {
+   "pessoa": "Felipe Vilela Andrade",
+   "hp2": 198000,
+   "hp2_lotes": 2,
+   "hp2_animais": 2,
+   "hp01": 0,
+   "hp01_lotes": 0,
+   "hp01_animais": 0,
+   "erp": 0,
+   "erp_lotes": 0,
+   "wa": 0,
+   "wa_lotes": 0,
+   "total": 198000,
+   "dif_erp_hp2": -198000
+  },
+  {
+   "pessoa": "Lucas Martins Durães Bragança",
+   "hp2": 96000,
+   "hp2_lotes": 2,
+   "hp2_animais": 2,
+   "hp01": 0,
+   "hp01_lotes": 0,
+   "hp01_animais": 0,
+   "erp": 0,
+   "erp_lotes": 0,
+   "wa": 0,
+   "wa_lotes": 0,
+   "total": 96000,
+   "dif_erp_hp2": -96000
+  },
+  {
+   "pessoa": "MARCELO MOURA",
+   "hp2": 63000,
+   "hp2_lotes": 1,
+   "hp2_animais": 1,
+   "hp01": 0,
+   "hp01_lotes": 0,
+   "hp01_animais": 0,
+   "erp": 0,
+   "erp_lotes": 0,
+   "wa": 0,
+   "wa_lotes": 0,
+   "total": 63000,
+   "dif_erp_hp2": -63000
+  },
+  {
+   "pessoa": "Laila de Sousa Oliveira",
+   "hp2": 60000,
+   "hp2_lotes": 2,
+   "hp2_animais": 2,
+   "hp01": 0,
+   "hp01_lotes": 0,
+   "hp01_animais": 0,
+   "erp": 60000,
+   "erp_lotes": 2,
+   "wa": 60000,
+   "wa_lotes": 2,
+   "total": 60000,
+   "dif_erp_hp2": 0
+  },
+  {
+   "pessoa": "Gustavo Rusa Pereira",
+   "hp2": 0,
+   "hp2_lotes": 0,
+   "hp2_animais": 0,
+   "hp01": 0,
+   "hp01_lotes": 0,
+   "hp01_animais": 0,
+   "erp": 1462500,
+   "erp_lotes": 12,
+   "wa": 0,
+   "wa_lotes": 0,
+   "total": 0,
+   "dif_erp_hp2": 1462500
+  },
+  {
+   "pessoa": "A definir",
+   "hp2": 0,
+   "hp2_lotes": 0,
+   "hp2_animais": 0,
+   "hp01": 0,
+   "hp01_lotes": 0,
+   "hp01_animais": 0,
+   "erp": 390000,
+   "erp_lotes": 6,
+   "wa": 0,
+   "wa_lotes": 0,
+   "total": 0,
+   "dif_erp_hp2": 390000
+  },
+  {
+   "pessoa": "(sem assessor na ficha)",
+   "hp2": 0,
+   "hp2_lotes": 0,
+   "hp2_animais": 0,
+   "hp01": 0,
+   "hp01_lotes": 0,
+   "hp01_animais": 0,
+   "erp": 0,
+   "erp_lotes": 0,
+   "wa": 937500,
+   "wa_lotes": 14,
+   "total": 0,
+   "dif_erp_hp2": 0
+  }
+ ],
+ "leiloes": {
+  "hp2": [
+   {
+    "nome": "LEILÃO NELORE MAFRA EDIÇÃO REDENÇÃO/PA 2026 - 320 FÊMEAS",
+    "data": "2026-08-01",
+    "vgv": 1042700,
+    "lotes": 20,
+    "animais": 58,
+    "filial": "2"
+   },
+   {
+    "nome": "LEILÃO NELORE MAFRA EDIÇÃO REDENÇÃO/PA 2026 - 220 TOUROS",
+    "data": "2026-08-02",
+    "vgv": 178200,
+    "lotes": 7,
+    "animais": 7,
+    "filial": "2"
+   },
+   {
+    "nome": "LEILÃO TOUROS NELORE GRUPO COSTA",
+    "data": "2026-08-04",
+    "vgv": 20100,
+    "lotes": 1,
+    "animais": 1,
+    "filial": "2"
+   },
+   {
+    "nome": "LEILÃO DE TOUROS NELORE SORRISO",
+    "data": "2026-08-04",
+    "vgv": 114300,
+    "lotes": 6,
+    "animais": 6,
+    "filial": "2"
+   },
+   {
+    "nome": "2º LEILÃO LS GALERIA",
+    "data": "2026-08-07",
+    "vgv": 576000,
+    "lotes": 3,
+    "animais": 3,
+    "filial": "2"
+   },
+   {
+    "nome": "14º LEILÃO PÉROLAS DO TAPAJÓS",
+    "data": "2026-08-08",
+    "vgv": 213000,
+    "lotes": 5,
+    "animais": 5,
+    "filial": "2"
+   },
+   {
+    "nome": "LEILÃO NELORE PARANÃ PRODUTIVIDADE",
+    "data": "2026-08-09",
+    "vgv": 278100,
+    "lotes": 6,
+    "animais": 13,
+    "filial": "2"
+   },
+   {
+    "nome": "7º LEILÃO ESSÊNCIA GENÉTICA - NELORE DA BAMBÚ",
+    "data": "2026-08-13",
+    "vgv": 16500,
+    "lotes": 1,
+    "animais": 1,
+    "filial": "2"
+   },
+   {
+    "nome": "LEILÃO TERRA BRAVA AGROPECUÁRIA EXPOGENÉTICA",
+    "data": "2026-08-15",
+    "vgv": 107100,
+    "lotes": 4,
+    "animais": 4,
+    "filial": "2"
+   },
+   {
+    "nome": "SHOPPING NAVIRAI EXPOGENÉTICA",
+    "data": "2026-08-15",
+    "vgv": 96600,
+    "lotes": 2,
+    "animais": 2,
+    "filial": "2"
+   },
+   {
+    "nome": "LEILÃO MATINHA EXPOGENÉTICA 2026 - EMBRIÕES, FÊMEAS E TOUROS",
+    "data": "2026-08-16",
+    "vgv": 460500,
+    "lotes": 8,
+    "animais": 8,
+    "filial": "2"
+   },
+   {
+    "nome": "LEILÃO FAZENDA ARARAS - ESSÊNCIA GENÉTICA",
+    "data": "2026-08-16",
+    "vgv": 87000,
+    "lotes": 1,
+    "animais": 1,
+    "filial": "2"
+   },
+   {
+    "nome": "13º LEILÃO GENÉTICA TOUROS NELORE HORA",
+    "data": "2026-08-18",
+    "vgv": 24000,
+    "lotes": 1,
+    "animais": 1,
+    "filial": "2"
+   },
+   {
+    "nome": "9º LEILÃO GENÉTICA ADITIVA EXPOGENÉTICA 2026",
+    "data": "2026-08-19",
+    "vgv": 444000,
+    "lotes": 3,
+    "animais": 3,
+    "filial": "2"
+   },
+   {
+    "nome": "LEILÃO RESERVA SANTA NICE EXPOGENÉTICA 2026",
+    "data": "2026-08-19",
+    "vgv": 297000,
+    "lotes": 2,
+    "animais": 2,
+    "filial": "2"
+   },
+   {
+    "nome": "LEILÃO BABY DE PROVA - MÁQUINAS DE ACELERAR GERAÇÕES",
+    "data": "2026-08-20",
+    "vgv": 73500,
+    "lotes": 2,
+    "animais": 2,
+    "filial": "2"
+   },
+   {
+    "nome": "LEILÃO NELORE CEN & FAZENDA MODELO & CONVIDADOS",
+    "data": "2026-08-20",
+    "vgv": 117000,
+    "lotes": 2,
+    "animais": 2,
+    "filial": "2"
+   },
+   {
+    "nome": "12º LEILÃO NOITE NACIONAL MATRIZES PREMIUM",
+    "data": "2026-08-21",
+    "vgv": 195000,
+    "lotes": 4,
+    "animais": 4,
+    "filial": "2"
+   },
+   {
+    "nome": "4º LEILÃO PEPITAS COLONIAL - EXPOGENÉTICA 2026",
+    "data": "2026-08-22",
+    "vgv": 325500,
+    "lotes": 11,
+    "animais": 11,
+    "filial": "2"
+   },
+   {
+    "nome": "LEILÃO NAVIRAÍ CAMPARINO - MATRIZES ESSÊNCIA",
+    "data": "2026-08-22",
+    "vgv": 543000,
+    "lotes": 4,
+    "animais": 4,
+    "filial": "2"
+   },
+   {
+    "nome": "28º LEILÃO NAVIRAÍ CAMPARINO - REPRODUTORES",
+    "data": "2026-08-23",
+    "vgv": 940500,
+    "lotes": 23,
+    "animais": 23,
+    "filial": "2"
+   },
+   {
+    "nome": "LEILÃO NELORE MARCONDES - ABERTURA",
+    "data": "2026-08-23",
+    "vgv": 37500,
+    "lotes": 1,
+    "animais": 1,
+    "filial": "2"
+   },
+   {
+    "nome": "6º LEILÃO EXCELÊNCIA GENÉTICA",
+    "data": "2026-08-23",
+    "vgv": 105000,
+    "lotes": 1,
+    "animais": 1,
+    "filial": "2"
+   },
+   {
+    "nome": "LEILÃO VIRTUAL TERRA BRAVA AGROPECUÁRIA - FÊMEAS PRENHAS",
+    "data": "2026-08-26",
+    "vgv": 46500,
+    "lotes": 2,
+    "animais": 2,
+    "filial": "2"
+   },
+   {
+    "nome": "LEILÃO NELORE DO XINGU",
+    "data": "2026-08-26",
+    "vgv": 93000,
+    "lotes": 1,
+    "animais": 1,
+    "filial": "2"
+   },
+   {
+    "nome": "LEILÃO VIRTUAL VENTRES VIP MATINHA",
+    "data": "2026-08-30",
+    "vgv": 127500,
+    "lotes": 5,
+    "animais": 9,
+    "filial": "2"
+   },
+   {
+    "nome": "1º LEILÃO NELORE ASJ",
+    "data": "2026-08-30",
+    "vgv": 30900,
+    "lotes": 2,
+    "animais": 3,
+    "filial": "2"
+   }
+  ],
+  "hp01_bula": [
+   {
+    "nome": "LEILÃO TOUROS SÃO GERALDO E 7P AGRO",
+    "data": "2026-08-01",
+    "vgv": 459800,
+    "lotes": 7,
+    "animais": 7,
+    "filial": "01"
+   },
+   {
+    "nome": "LEILÃO SÓ CRIADOR FÊMEAS E MACHOS DE ALTO PADRÃO",
+    "data": "2026-08-18",
+    "vgv": 50000,
+    "lotes": 1,
+    "animais": 20,
+    "filial": "01"
+   },
+   {
+    "nome": "LEILÃO GENÉTICA SÃO JOSÉ - 30 ANOS DE SELEÇÃO",
+    "data": "2026-08-26",
+    "vgv": 130900,
+    "lotes": 3,
+    "animais": 17,
+    "filial": "01"
+   }
+  ],
+  "hp01_todos": [
+   {
+    "nome": "LEILÃO TOUROS SÃO GERALDO E 7P AGRO",
+    "data": "2026-08-01",
+    "vgv": 4980800,
+    "lotes": 138,
+    "animais": 160,
+    "filial": "01"
+   },
+   {
+    "nome": "LEILÃO SÓ CRIADOR - O AGRO PELA SAÚDE - ESPECIAL SANTA CASA",
+    "data": "2026-08-11",
+    "vgv": 2856820,
+    "lotes": 27,
+    "animais": 1278,
+    "filial": "01"
+   },
+   {
+    "nome": "LEILÃO SÓ CRIADOR - ESPECIAL SANTA CASA - DOAÇÃO",
+    "data": "2026-08-11",
+    "vgv": 24800,
+    "lotes": 15,
+    "animais": 15,
+    "filial": "01"
+   },
+   {
+    "nome": "LEILÃO SÓ CRIADOR FÊMEAS E MACHOS DE ALTO PADRÃO",
+    "data": "2026-08-18",
+    "vgv": 1001790,
+    "lotes": 15,
+    "animais": 467,
+    "filial": "01"
+   },
+   {
+    "nome": "LEILÃO MELHORADORES - ESPECIAL CORTE",
+    "data": "2026-08-25",
+    "vgv": 1675310,
+    "lotes": 30,
+    "animais": 1574,
+    "filial": "01"
+   },
+   {
+    "nome": "LEILÃO GENÉTICA SÃO JOSÉ - 30 ANOS DE SELEÇÃO",
+    "data": "2026-08-26",
+    "vgv": 1920730,
+    "lotes": 43,
+    "animais": 256,
+    "filial": "01"
+   },
+   {
+    "nome": "LEILÃO MELHORADORES ESPECIAL 30 ANOS & CONVIDADOS ESPECIAIS",
+    "data": "2026-08-29",
+    "vgv": 1113900,
+    "lotes": 46,
+    "animais": 46,
+    "filial": "01"
+   }
+  ]
+ },
+ "cruzamento": [
+  {
+   "data": "2026-08-01",
+   "leilao": "LEILÃO NELORE MAFRA EDIÇÃO REDENÇÃO/PA 2026 - 320 FÊMEAS",
+   "filial": "2",
+   "hp": {
+    "vgv": 1042700,
+    "lotes": 20,
+    "animais": 58
+   },
+   "erp": {
+    "vgv": 1042700,
+    "lotes": 20,
+    "nome": "LEILÃO NELORE MAFRA EDIÇÃO REDENÇÃO/PA - FÊMEAS",
+    "origem": "hastapro",
+    "casou_por": "nome+valor+mesmo dia",
+    "id": "160f04c8-bef6-4eac-a019-756f9790ceb7"
+   },
+   "wa": {
+    "lotes": 28,
+    "vgv_indicativo": 2900700
+   },
+   "dif_erp": 0
+  },
+  {
+   "data": "2026-08-01",
+   "leilao": "LEILÃO TOUROS SÃO GERALDO E 7P AGRO",
+   "filial": "01",
+   "hp": {
+    "vgv": 459800,
+    "lotes": 7,
+    "animais": 7
+   },
+   "erp": {
+    "vgv": 375800,
+    "lotes": 5,
+    "nome": "LEILÃO TOUROS SÃO GERALDO E 7P AGRO",
+    "origem": "hastapro",
+    "casou_por": "nome+mesmo dia",
+    "id": "01b1c70c-f37c-4482-a85d-2513ea05c46f"
+   },
+   "wa": {
+    "lotes": 28,
+    "vgv_indicativo": 2900700
+   },
+   "dif_erp": -84000
+  },
+  {
+   "data": "2026-08-02",
+   "leilao": "LEILÃO NELORE MAFRA EDIÇÃO REDENÇÃO/PA 2026 - 220 TOUROS",
+   "filial": "2",
+   "hp": {
+    "vgv": 178200,
+    "lotes": 7,
+    "animais": 7
+   },
+   "erp": {
+    "vgv": 178200,
+    "lotes": 7,
+    "nome": "LEILÃO TOUROS NELORE MAFRA",
+    "origem": "hastapro",
+    "casou_por": "nome+valor+mesmo dia",
+    "id": "66cda93d-024e-4d16-bf62-2c03a31ac603"
+   },
+   "wa": {
+    "lotes": 28,
+    "vgv_indicativo": 2900700
+   },
+   "dif_erp": 0
+  },
+  {
+   "data": "2026-08-04",
+   "leilao": "LEILÃO TOUROS NELORE GRUPO COSTA",
+   "filial": "2",
+   "hp": {
+    "vgv": 20100,
+    "lotes": 1,
+    "animais": 1
+   },
+   "erp": {
+    "vgv": 20100,
+    "lotes": 1,
+    "nome": "LEILÃO TOUROS NELORE GRUPO COSTA",
+    "origem": "hastapro",
+    "casou_por": "nome+valor+mesmo dia",
+    "id": "7e63204c-a15c-4998-adc1-d77e812acc42"
+   },
+   "wa": {
+    "lotes": 6,
+    "vgv_indicativo": 79200
+   },
+   "dif_erp": 0
+  },
+  {
+   "data": "2026-08-04",
+   "leilao": "LEILÃO DE TOUROS NELORE SORRISO",
+   "filial": "2",
+   "hp": {
+    "vgv": 114300,
+    "lotes": 6,
+    "animais": 6
+   },
+   "erp": {
+    "vgv": 114300,
+    "lotes": 6,
+    "nome": "LEILÃO DE TOUROS NELORE SORRISO",
+    "origem": "hastapro",
+    "casou_por": "nome+valor+mesmo dia",
+    "id": "85d2aa7d-c40d-4b6b-9df8-494a0faa9dcd"
+   },
+   "wa": {
+    "lotes": 6,
+    "vgv_indicativo": 79200
+   },
+   "dif_erp": 0
+  },
+  {
+   "data": "2026-08-07",
+   "leilao": "2º LEILÃO LS GALERIA",
+   "filial": "2",
+   "hp": {
+    "vgv": 576000,
+    "lotes": 3,
+    "animais": 3
+   },
+   "erp": {
+    "vgv": 576000,
+    "lotes": 3,
+    "nome": "2º LEILÃO LS GALERIA",
+    "origem": "hastapro",
+    "casou_por": "nome+valor+mesmo dia",
+    "id": "a125d78a-4047-423f-82ba-22846aeff046"
+   },
+   "wa": {
+    "lotes": 3,
+    "vgv_indicativo": 330000
+   },
+   "dif_erp": 0
+  },
+  {
+   "data": "2026-08-08",
+   "leilao": "14º LEILÃO PÉROLAS DO TAPAJÓS",
+   "filial": "2",
+   "hp": {
+    "vgv": 213000,
+    "lotes": 5,
+    "animais": 5
+   },
+   "erp": {
+    "vgv": 213000,
+    "lotes": 5,
+    "nome": "14º LEILÃO PÉROLAS DO TAPAJÓS",
+    "origem": "hastapro",
+    "casou_por": "nome+valor+mesmo dia",
+    "id": "ef8870d4-f0b5-4fe4-982c-89459c429cc8"
+   },
+   "wa": {
+    "lotes": 9,
+    "vgv_indicativo": 752100
+   },
+   "dif_erp": 0
+  },
+  {
+   "data": "2026-08-09",
+   "leilao": "LEILÃO NELORE PARANÃ PRODUTIVIDADE",
+   "filial": "2",
+   "hp": {
+    "vgv": 278100,
+    "lotes": 6,
+    "animais": 13
+   },
+   "erp": {
+    "vgv": 278100,
+    "lotes": 6,
+    "nome": "LEILÃO NELORE PARANÃ PRODUTIVIDADE",
+    "origem": "hastapro",
+    "casou_por": "nome+valor+mesmo dia",
+    "id": "0187891f-a1eb-481d-afd5-9330c98ab38f"
+   },
+   "wa": {
+    "lotes": 6,
+    "vgv_indicativo": 422100
+   },
+   "dif_erp": 0
+  },
+  {
+   "data": "2026-08-13",
+   "leilao": "7º LEILÃO ESSÊNCIA GENÉTICA - NELORE DA BAMBÚ",
+   "filial": "2",
+   "hp": {
+    "vgv": 16500,
+    "lotes": 1,
+    "animais": 1
+   },
+   "erp": {
+    "vgv": 16500,
+    "lotes": 1,
+    "nome": "7º LEILÃO ESSÊNCIA GENÉTICA - NELORE DA BAMBÚ",
+    "origem": "hastapro",
+    "casou_por": "nome+valor+mesmo dia",
+    "id": "fd14b7d5-d72c-4b2a-b8c0-5922d0459d8b"
+   },
+   "wa": null,
+   "dif_erp": 0
+  },
+  {
+   "data": "2026-08-15",
+   "leilao": "LEILÃO TERRA BRAVA AGROPECUÁRIA EXPOGENÉTICA",
+   "filial": "2",
+   "hp": {
+    "vgv": 107100,
+    "lotes": 4,
+    "animais": 4
+   },
+   "erp": {
+    "vgv": 107100,
+    "lotes": 4,
+    "nome": "LEILÃO TERRA BRAVA AGROPECUÁRIA EXPOGENÉTICA",
+    "origem": "hastapro",
+    "casou_por": "nome+valor+mesmo dia",
+    "id": "6d902ecd-a7ba-4831-a2fa-00803a16b564"
+   },
+   "wa": {
+    "lotes": 13,
+    "vgv_indicativo": 654600
+   },
+   "dif_erp": 0
+  },
+  {
+   "data": "2026-08-15",
+   "leilao": "SHOPPING NAVIRAI EXPOGENÉTICA",
+   "filial": "2",
+   "hp": {
+    "vgv": 96600,
+    "lotes": 2,
+    "animais": 2
+   },
+   "erp": {
+    "vgv": 96600,
+    "lotes": 2,
+    "nome": "SHOPPING NAVIRAI EXPOGENÉTICA",
+    "origem": "hastapro",
+    "casou_por": "nome+valor+mesmo dia",
+    "id": "1c6a9350-4bec-4fbb-b50b-f016742d6add"
+   },
+   "wa": {
+    "lotes": 13,
+    "vgv_indicativo": 654600
+   },
+   "dif_erp": 0
+  },
+  {
+   "data": "2026-08-16",
+   "leilao": "LEILÃO MATINHA EXPOGENÉTICA 2026 - EMBRIÕES, FÊMEAS E TOUROS",
+   "filial": "2",
+   "hp": {
+    "vgv": 460500,
+    "lotes": 8,
+    "animais": 8
+   },
+   "erp": {
+    "vgv": 460500,
+    "lotes": 8,
+    "nome": "LEILÃO MATINHA EXPOGENÉTICA 2026",
+    "origem": "hastapro",
+    "casou_por": "nome+valor+mesmo dia",
+    "id": "0c5c2ccb-8deb-476a-9970-eb967c58e254"
+   },
+   "wa": {
+    "lotes": 14,
+    "vgv_indicativo": 771600
+   },
+   "dif_erp": 0
+  },
+  {
+   "data": "2026-08-16",
+   "leilao": "LEILÃO FAZENDA ARARAS - ESSÊNCIA GENÉTICA",
+   "filial": "2",
+   "hp": {
+    "vgv": 87000,
+    "lotes": 1,
+    "animais": 1
+   },
+   "erp": {
+    "vgv": 87000,
+    "lotes": 1,
+    "nome": "LEILÃO FAZENDA ARARAS - ESSÊNCIA GENÉTICA",
+    "origem": "hastapro",
+    "casou_por": "nome+valor+mesmo dia",
+    "id": "f4ed3ffb-ed6a-4861-b409-d4c53f6e000f"
+   },
+   "wa": {
+    "lotes": 14,
+    "vgv_indicativo": 771600
+   },
+   "dif_erp": 0
+  },
+  {
+   "data": "2026-08-18",
+   "leilao": "13º LEILÃO GENÉTICA TOUROS NELORE HORA",
+   "filial": "2",
+   "hp": {
+    "vgv": 24000,
+    "lotes": 1,
+    "animais": 1
+   },
+   "erp": {
+    "vgv": 24000,
+    "lotes": 1,
+    "nome": "13º LEILÃO GENÉTICA TOUROS NELORE HORA",
+    "origem": "hastapro",
+    "casou_por": "nome+valor+mesmo dia",
+    "id": "3b25e7d7-2bdf-40fe-9e72-13650e5cba3a"
+   },
+   "wa": {
+    "lotes": 7,
+    "vgv_indicativo": 882000
+   },
+   "dif_erp": 0
+  },
+  {
+   "data": "2026-08-18",
+   "leilao": "LEILÃO SÓ CRIADOR FÊMEAS E MACHOS DE ALTO PADRÃO",
+   "filial": "01",
+   "hp": {
+    "vgv": 50000,
+    "lotes": 1,
+    "animais": 20
+   },
+   "erp": null,
+   "wa": {
+    "lotes": 7,
+    "vgv_indicativo": 882000
+   },
+   "dif_erp": null
+  },
+  {
+   "data": "2026-08-19",
+   "leilao": "9º LEILÃO GENÉTICA ADITIVA EXPOGENÉTICA 2026",
+   "filial": "2",
+   "hp": {
+    "vgv": 444000,
+    "lotes": 3,
+    "animais": 3
+   },
+   "erp": {
+    "vgv": 444000,
+    "lotes": 3,
+    "nome": "9º LEILÃO GENÉTICA ADITIVA EXPOGENÉTICA 2026",
+    "origem": "hastapro",
+    "casou_por": "nome+valor+mesmo dia",
+    "id": "f3f25811-d706-48e4-a693-9db1c9fb42a0"
+   },
+   "wa": {
+    "lotes": 10,
+    "vgv_indicativo": 922500
+   },
+   "dif_erp": 0
+  },
+  {
+   "data": "2026-08-19",
+   "leilao": "LEILÃO RESERVA SANTA NICE EXPOGENÉTICA 2026",
+   "filial": "2",
+   "hp": {
+    "vgv": 297000,
+    "lotes": 2,
+    "animais": 2
+   },
+   "erp": {
+    "vgv": 297000,
+    "lotes": 2,
+    "nome": "LEILÃO RESERVA SANTA NICE EXPOGENÉTICA 2026",
+    "origem": "hastapro",
+    "casou_por": "nome+valor+mesmo dia",
+    "id": "81567251-b699-4f28-a9b5-3dd2457041b4"
+   },
+   "wa": {
+    "lotes": 10,
+    "vgv_indicativo": 922500
+   },
+   "dif_erp": 0
+  },
+  {
+   "data": "2026-08-20",
+   "leilao": "LEILÃO BABY DE PROVA - MÁQUINAS DE ACELERAR GERAÇÕES",
+   "filial": "2",
+   "hp": {
+    "vgv": 73500,
+    "lotes": 2,
+    "animais": 2
+   },
+   "erp": {
+    "vgv": 73500,
+    "lotes": 2,
+    "nome": "LEILÃO BABY DE PROVA - MÁQUINAS DE ACELERAR GERAÇÕES",
+    "origem": "hastapro",
+    "casou_por": "nome+valor+mesmo dia",
+    "id": "9e632d05-83ef-496f-88c4-c68326d1f55b"
+   },
+   "wa": {
+    "lotes": 14,
+    "vgv_indicativo": 1107900
+   },
+   "dif_erp": 0
+  },
+  {
+   "data": "2026-08-20",
+   "leilao": "LEILÃO NELORE CEN & FAZENDA MODELO & CONVIDADOS",
+   "filial": "2",
+   "hp": {
+    "vgv": 117000,
+    "lotes": 2,
+    "animais": 2
+   },
+   "erp": {
+    "vgv": 117000,
+    "lotes": 2,
+    "nome": "LEILÃO NELORE CEN & FAZENDA MODELO & CONVIDADOS",
+    "origem": "hastapro",
+    "casou_por": "nome+valor+mesmo dia",
+    "id": "632a16cf-988a-4309-b1e5-45e208045772"
+   },
+   "wa": {
+    "lotes": 14,
+    "vgv_indicativo": 1107900
+   },
+   "dif_erp": 0
+  },
+  {
+   "data": "2026-08-21",
+   "leilao": "12º LEILÃO NOITE NACIONAL MATRIZES PREMIUM",
+   "filial": "2",
+   "hp": {
+    "vgv": 195000,
+    "lotes": 4,
+    "animais": 4
+   },
+   "erp": {
+    "vgv": 195000,
+    "lotes": 4,
+    "nome": "12º LEILÃO NOITE NACIONAL MATRIZES PREMIUM",
+    "origem": "hastapro",
+    "casou_por": "nome+valor+mesmo dia",
+    "id": "7904f010-0493-4505-944f-3a9f1d34de16"
+   },
+   "wa": {
+    "lotes": 24,
+    "vgv_indicativo": 1118400
+   },
+   "dif_erp": 0
+  },
+  {
+   "data": "2026-08-22",
+   "leilao": "4º LEILÃO PEPITAS COLONIAL - EXPOGENÉTICA 2026",
+   "filial": "2",
+   "hp": {
+    "vgv": 325500,
+    "lotes": 11,
+    "animais": 11
+   },
+   "erp": {
+    "vgv": 325500,
+    "lotes": 11,
+    "nome": "4º LEILÃO PEPITAS COLONIAL - EXPOGENÉTICA 2026",
+    "origem": "hastapro",
+    "casou_por": "nome+valor+mesmo dia",
+    "id": "8d11a2ff-1164-4dfe-941e-99dd43f023cc"
+   },
+   "wa": {
+    "lotes": 43,
+    "vgv_indicativo": 1908900
+   },
+   "dif_erp": 0
+  },
+  {
+   "data": "2026-08-22",
+   "leilao": "LEILÃO NAVIRAÍ CAMPARINO - MATRIZES ESSÊNCIA",
+   "filial": "2",
+   "hp": {
+    "vgv": 543000,
+    "lotes": 4,
+    "animais": 4
+   },
+   "erp": {
+    "vgv": 576000,
+    "lotes": 5,
+    "nome": "LEILÃO NAVIRAÍ CAMPARINO ESSÊNCIA BEZERRAS E NOVILHAS",
+    "origem": "lances-auto",
+    "casou_por": "nome+mesmo dia",
+    "id": "e7811a6e-7ed7-4a82-a56f-0536093e8ae0"
+   },
+   "wa": {
+    "lotes": 43,
+    "vgv_indicativo": 1908900
+   },
+   "dif_erp": 33000
+  },
+  {
+   "data": "2026-08-23",
+   "leilao": "28º LEILÃO NAVIRAÍ CAMPARINO - REPRODUTORES",
+   "filial": "2",
+   "hp": {
+    "vgv": 940500,
+    "lotes": 23,
+    "animais": 23
+   },
+   "erp": {
+    "vgv": 948000,
+    "lotes": 22,
+    "nome": "28º LEILÃO NAVIRAÍ CAMPARINO REPRODUTORES",
+    "origem": "lances-auto",
+    "casou_por": "nome+mesmo dia",
+    "id": "41ba14d3-4c76-4180-957d-730d283a3365"
+   },
+   "wa": {
+    "lotes": 38,
+    "vgv_indicativo": 1699500
+   },
+   "dif_erp": 7500
+  },
+  {
+   "data": "2026-08-23",
+   "leilao": "LEILÃO NELORE MARCONDES - ABERTURA",
+   "filial": "2",
+   "hp": {
+    "vgv": 37500,
+    "lotes": 1,
+    "animais": 1
+   },
+   "erp": {
+    "vgv": 37500,
+    "lotes": 1,
+    "nome": "LEILÃO NELORE MARCONDES - ABERTURA",
+    "origem": "hastapro",
+    "casou_por": "nome+valor+mesmo dia",
+    "id": "4f28d2da-7f56-473a-9ac4-12e37ec0da1d"
+   },
+   "wa": {
+    "lotes": 38,
+    "vgv_indicativo": 1699500
+   },
+   "dif_erp": 0
+  },
+  {
+   "data": "2026-08-23",
+   "leilao": "6º LEILÃO EXCELÊNCIA GENÉTICA",
+   "filial": "2",
+   "hp": {
+    "vgv": 105000,
+    "lotes": 1,
+    "animais": 1
+   },
+   "erp": null,
+   "wa": {
+    "lotes": 38,
+    "vgv_indicativo": 1699500
+   },
+   "dif_erp": null
+  },
+  {
+   "data": "2026-08-26",
+   "leilao": "LEILÃO VIRTUAL TERRA BRAVA AGROPECUÁRIA - FÊMEAS PRENHAS",
+   "filial": "2",
+   "hp": {
+    "vgv": 46500,
+    "lotes": 2,
+    "animais": 2
+   },
+   "erp": null,
+   "wa": {
+    "lotes": 2,
+    "vgv_indicativo": 46500
+   },
+   "dif_erp": null
+  },
+  {
+   "data": "2026-08-26",
+   "leilao": "LEILÃO NELORE DO XINGU",
+   "filial": "2",
+   "hp": {
+    "vgv": 93000,
+    "lotes": 1,
+    "animais": 1
+   },
+   "erp": null,
+   "wa": {
+    "lotes": 2,
+    "vgv_indicativo": 46500
+   },
+   "dif_erp": null
+  },
+  {
+   "data": "2026-08-26",
+   "leilao": "LEILÃO GENÉTICA SÃO JOSÉ - 30 ANOS DE SELEÇÃO",
+   "filial": "01",
+   "hp": {
+    "vgv": 130900,
+    "lotes": 3,
+    "animais": 17
+   },
+   "erp": null,
+   "wa": {
+    "lotes": 2,
+    "vgv_indicativo": 46500
+   },
+   "dif_erp": null
+  },
+  {
+   "data": "2026-08-30",
+   "leilao": "LEILÃO VIRTUAL VENTRES VIP MATINHA",
+   "filial": "2",
+   "hp": {
+    "vgv": 127500,
+    "lotes": 5,
+    "animais": 9
+   },
+   "erp": null,
+   "wa": {
+    "lotes": 6,
+    "vgv_indicativo": 134400
+   },
+   "dif_erp": null
+  },
+  {
+   "data": "2026-08-30",
+   "leilao": "1º LEILÃO NELORE ASJ",
+   "filial": "2",
+   "hp": {
+    "vgv": 30900,
+    "lotes": 2,
+    "animais": 3
+   },
+   "erp": null,
+   "wa": {
+    "lotes": 6,
+    "vgv_indicativo": 134400
+   },
+   "dif_erp": null
+  }
+ ],
+ "erp_sem_par": [
+  {
+   "data": "2026-08-17",
+   "nome": "LEILÃO MATRIZES PREMIUM KATISPERA",
+   "vgv": 117000,
+   "origem": "lances-auto",
+   "lotes": 1,
+   "por_assessor": [
+    {
+     "pessoa": "Gustavo Rusa Pereira",
+     "vgv": 117000,
+     "lotes": 1,
+     "animais": 1
+    }
+   ]
+  },
+  {
+   "data": "2026-08-20",
+   "nome": "LEILÃO NELORE PARANÃ E CASABRANCA EXPOGENÉTICA",
+   "vgv": 84000,
+   "origem": "lances-auto",
+   "lotes": 1,
+   "por_assessor": [
+    {
+     "pessoa": "A definir",
+     "vgv": 84000,
+     "lotes": 1,
+     "animais": 1
+    }
+   ]
+  },
+  {
+   "data": "2026-08-21",
+   "nome": "FÊMEAS JMP",
+   "vgv": 41400,
+   "origem": "lances-auto",
+   "lotes": 1,
+   "por_assessor": [
+    {
+     "pessoa": "Douglas Bispo Carvalho",
+     "vgv": 41400,
+     "lotes": 1,
+     "animais": 1
+    }
+   ]
+  }
+ ],
+ "lotes_divergentes": [
+  {
+   "leilao": "LEILÃO TOUROS SÃO GERALDO E 7P AGRO",
+   "data": "2026-08-01",
+   "lote": "14",
+   "tipo": "so_no_hastapro",
+   "vgv_hp": 45000,
+   "assessor_hp": "Regiane C. N. de Abreu (Nane)"
+  },
+  {
+   "leilao": "LEILÃO TOUROS SÃO GERALDO E 7P AGRO",
+   "data": "2026-08-01",
+   "lote": "23",
+   "tipo": "so_no_hastapro",
+   "vgv_hp": 39000,
+   "assessor_hp": "Regiane C. N. de Abreu (Nane)"
+  },
+  {
+   "leilao": "2º LEILÃO LS GALERIA",
+   "data": "2026-08-07",
+   "lote": "04",
+   "tipo": "atribuicao",
+   "vgv_hp": 150000,
+   "assessor_hp": "Fabio de Omena Gaia",
+   "assessor_erp": "Gustavo Rusa Pereira"
+  },
+  {
+   "leilao": "2º LEILÃO LS GALERIA",
+   "data": "2026-08-07",
+   "lote": "19",
+   "tipo": "atribuicao",
+   "vgv_hp": 306000,
+   "assessor_hp": "Fabio de Omena Gaia",
+   "assessor_erp": "Gustavo Rusa Pereira"
+  },
+  {
+   "leilao": "14º LEILÃO PÉROLAS DO TAPAJÓS",
+   "data": "2026-08-08",
+   "lote": "44",
+   "tipo": "atribuicao",
+   "vgv_hp": 90000,
+   "assessor_hp": "Douglas Bispo Carvalho",
+   "assessor_erp": "Gustavo Rusa Pereira"
+  },
+  {
+   "leilao": "LEILÃO NELORE PARANÃ PRODUTIVIDADE",
+   "data": "2026-08-09",
+   "lote": "123",
+   "tipo": "atribuicao",
+   "vgv_hp": 48000,
+   "assessor_hp": "Douglas Bispo Carvalho",
+   "assessor_erp": "Gustavo Rusa Pereira"
+  },
+  {
+   "leilao": "LEILÃO NELORE PARANÃ PRODUTIVIDADE",
+   "data": "2026-08-09",
+   "lote": "42",
+   "tipo": "atribuicao",
+   "vgv_hp": 40500,
+   "assessor_hp": "Douglas Bispo Carvalho",
+   "assessor_erp": "Gustavo Rusa Pereira"
+  },
+  {
+   "leilao": "LEILÃO MATINHA EXPOGENÉTICA 2026 - EMBRIÕES, FÊMEAS E TOUROS",
+   "data": "2026-08-16",
+   "lote": "12",
+   "tipo": "atribuicao",
+   "vgv_hp": 108000,
+   "assessor_hp": "Douglas Bispo Carvalho",
+   "assessor_erp": "Gustavo Rusa Pereira"
+  },
+  {
+   "leilao": "LEILÃO MATINHA EXPOGENÉTICA 2026 - EMBRIÕES, FÊMEAS E TOUROS",
+   "data": "2026-08-16",
+   "lote": "34",
+   "tipo": "atribuicao",
+   "vgv_hp": 90000,
+   "assessor_hp": "Douglas Bispo Carvalho",
+   "assessor_erp": "Gustavo Rusa Pereira"
+  },
+  {
+   "leilao": "LEILÃO MATINHA EXPOGENÉTICA 2026 - EMBRIÕES, FÊMEAS E TOUROS",
+   "data": "2026-08-16",
+   "lote": "15",
+   "tipo": "atribuicao",
+   "vgv_hp": 93000,
+   "assessor_hp": "Douglas Bispo Carvalho",
+   "assessor_erp": "Gustavo Rusa Pereira"
+  },
+  {
+   "leilao": "LEILÃO MATINHA EXPOGENÉTICA 2026 - EMBRIÕES, FÊMEAS E TOUROS",
+   "data": "2026-08-16",
+   "lote": "39",
+   "tipo": "atribuicao",
+   "vgv_hp": 42000,
+   "assessor_hp": "Douglas Bispo Carvalho",
+   "assessor_erp": "Gustavo Rusa Pereira"
+  },
+  {
+   "leilao": "LEILÃO NAVIRAÍ CAMPARINO - MATRIZES ESSÊNCIA",
+   "data": "2026-08-22",
+   "lote": "9",
+   "tipo": "so_no_erp",
+   "vgv_erp": 33000,
+   "assessor_erp": "Douglas Bispo Carvalho"
+  },
+  {
+   "leilao": "LEILÃO NAVIRAÍ CAMPARINO - MATRIZES ESSÊNCIA",
+   "data": "2026-08-22",
+   "lote": "1",
+   "tipo": "atribuicao",
+   "vgv_hp": 153000,
+   "assessor_hp": "Douglas Bispo Carvalho",
+   "assessor_erp": "Gustavo Rusa Pereira"
+  },
+  {
+   "leilao": "LEILÃO NAVIRAÍ CAMPARINO - MATRIZES ESSÊNCIA",
+   "data": "2026-08-22",
+   "lote": "5",
+   "tipo": "atribuicao",
+   "vgv_hp": 225000,
+   "assessor_hp": "Douglas Bispo Carvalho",
+   "assessor_erp": "Gustavo Rusa Pereira"
+  },
+  {
+   "leilao": "LEILÃO NAVIRAÍ CAMPARINO - MATRIZES ESSÊNCIA",
+   "data": "2026-08-22",
+   "lote": "11",
+   "tipo": "atribuicao",
+   "vgv_hp": 93000,
+   "assessor_hp": "Felipe Vilela Andrade",
+   "assessor_erp": "Luiz Felipe Peralta Garcez"
+  },
+  {
+   "leilao": "28º LEILÃO NAVIRAÍ CAMPARINO - REPRODUTORES",
+   "data": "2026-08-23",
+   "lote": "117",
+   "tipo": "atribuicao",
+   "vgv_hp": 48000,
+   "assessor_hp": "Lucas Martins Durães Bragança",
+   "assessor_erp": "A definir"
+  },
+  {
+   "leilao": "28º LEILÃO NAVIRAÍ CAMPARINO - REPRODUTORES",
+   "data": "2026-08-23",
+   "lote": "16",
+   "tipo": "atribuicao",
+   "vgv_hp": 48000,
+   "assessor_hp": "Lucas Martins Durães Bragança",
+   "assessor_erp": "A definir"
+  },
+  {
+   "leilao": "28º LEILÃO NAVIRAÍ CAMPARINO - REPRODUTORES",
+   "data": "2026-08-23",
+   "lote": "30",
+   "tipo": "atribuicao",
+   "vgv_hp": 42000,
+   "assessor_hp": "Luiz Felipe Peralta Garcez",
+   "assessor_erp": "A definir"
+  },
+  {
+   "leilao": "28º LEILÃO NAVIRAÍ CAMPARINO - REPRODUTORES",
+   "data": "2026-08-23",
+   "lote": "22",
+   "tipo": "atribuicao",
+   "vgv_hp": 63000,
+   "assessor_hp": "MARCELO MOURA",
+   "assessor_erp": "A definir"
+  },
+  {
+   "leilao": "28º LEILÃO NAVIRAÍ CAMPARINO - REPRODUTORES",
+   "data": "2026-08-23",
+   "lote": "21",
+   "tipo": "so_no_erp",
+   "vgv_erp": 105000,
+   "assessor_erp": "A definir"
+  },
+  {
+   "leilao": "28º LEILÃO NAVIRAÍ CAMPARINO - REPRODUTORES",
+   "data": "2026-08-23",
+   "lote": "12",
+   "tipo": "so_no_hastapro",
+   "vgv_hp": 49500,
+   "assessor_hp": "Leonardo Serafim Francisco"
+  },
+  {
+   "leilao": "28º LEILÃO NAVIRAÍ CAMPARINO - REPRODUTORES",
+   "data": "2026-08-23",
+   "lote": "78",
+   "tipo": "so_no_hastapro",
+   "vgv_hp": 48000,
+   "assessor_hp": "Luiz Felipe Peralta Garcez"
+  }
+ ],
+ "resumo_lotes": {
+  "so_no_hastapro": {
+   "n": 4,
+   "vgv": 181500
+  },
+  "so_no_erp": {
+   "n": 2,
+   "vgv": 138000
+  },
+  "valor": {
+   "n": 0
+  },
+  "atribuicao": {
+   "n": 16,
+   "vgv": 1639500
+  }
+ },
+ "financeiro": {
+  "comissao_assessores": 180191,
+  "receita_bula": 176915,
+  "fechamentos_sem_receita": [
+   {
+    "data": "2026-08-22",
+    "nome": "LEILÃO NAVIRAÍ CAMPARINO ESSÊNCIA BEZERRAS E NOVILHAS",
+    "vgv": 576000,
+    "comissao": 22860
+   },
+   {
+    "data": "2026-08-16",
+    "nome": "LEILÃO MATINHA EXPOGENÉTICA 2026",
+    "vgv": 460500,
+    "comissao": 19200
+   },
+   {
+    "data": "2026-08-23",
+    "nome": "28º LEILÃO NAVIRAÍ CAMPARINO REPRODUTORES",
+    "vgv": 948000,
+    "comissao": 18360
+   },
+   {
+    "data": "2026-08-19",
+    "nome": "9º LEILÃO GENÉTICA ADITIVA EXPOGENÉTICA 2026",
+    "vgv": 444000,
+    "comissao": 8880
+   },
+   {
+    "data": "2026-08-01",
+    "nome": "LEILÃO TOUROS SÃO GERALDO E 7P AGRO",
+    "vgv": 375800,
+    "comissao": 7516
+   },
+   {
+    "data": "2026-08-22",
+    "nome": "4º LEILÃO PEPITAS COLONIAL - EXPOGENÉTICA 2026",
+    "vgv": 325500,
+    "comissao": 6510
+   },
+   {
+    "data": "2026-08-19",
+    "nome": "LEILÃO RESERVA SANTA NICE EXPOGENÉTICA 2026",
+    "vgv": 297000,
+    "comissao": 5940
+   },
+   {
+    "data": "2026-08-17",
+    "nome": "LEILÃO MATRIZES PREMIUM KATISPERA",
+    "vgv": 117000,
+    "comissao": 5850
+   },
+   {
+    "data": "2026-08-21",
+    "nome": "12º LEILÃO NOITE NACIONAL MATRIZES PREMIUM",
+    "vgv": 195000,
+    "comissao": 3900
+   },
+   {
+    "data": "2026-08-20",
+    "nome": "LEILÃO NELORE CEN & FAZENDA MODELO & CONVIDADOS",
+    "vgv": 117000,
+    "comissao": 2340
+   },
+   {
+    "data": "2026-08-15",
+    "nome": "LEILÃO TERRA BRAVA AGROPECUÁRIA EXPOGENÉTICA",
+    "vgv": 107100,
+    "comissao": 2142
+   },
+   {
+    "data": "2026-08-15",
+    "nome": "SHOPPING NAVIRAI EXPOGENÉTICA",
+    "vgv": 96600,
+    "comissao": 1932
+   },
+   {
+    "data": "2026-08-16",
+    "nome": "LEILÃO FAZENDA ARARAS - ESSÊNCIA GENÉTICA",
+    "vgv": 87000,
+    "comissao": 1740
+   },
+   {
+    "data": "2026-08-20",
+    "nome": "LEILÃO NELORE PARANÃ E CASABRANCA EXPOGENÉTICA",
+    "vgv": 84000,
+    "comissao": 1680
+   },
+   {
+    "data": "2026-08-20",
+    "nome": "LEILÃO BABY DE PROVA - MÁQUINAS DE ACELERAR GERAÇÕES",
+    "vgv": 73500,
+    "comissao": 1470
+   },
+   {
+    "data": "2026-08-21",
+    "nome": "FÊMEAS JMP",
+    "vgv": 41400,
+    "comissao": 828
+   },
+   {
+    "data": "2026-08-23",
+    "nome": "LEILÃO NELORE MARCONDES - ABERTURA",
+    "vgv": 37500,
+    "comissao": 750
+   },
+   {
+    "data": "2026-08-18",
+    "nome": "13º LEILÃO GENÉTICA TOUROS NELORE HORA",
+    "vgv": 24000,
+    "comissao": 480
+   },
+   {
+    "data": "2026-08-13",
+    "nome": "7º LEILÃO ESSÊNCIA GENÉTICA - NELORE DA BAMBÚ",
+    "vgv": 16500,
+    "comissao": 330
+   }
+  ],
+  "comissao_sem_receita": 112708
+ },
+ "comissao_pct": {
+  "Fabio de Omena Gaia": 2,
+  "Douglas Bispo Carvalho": 2,
+  "Leonardo Serafim Francisco": 2,
+  "Regiane C. N. de Abreu (Nane)": 2,
+  "Luiz Felipe Peralta Garcez": 2,
+  "Felipe Vilela Andrade": 2,
+  "Lucas Martins Durães Bragança": 0.33,
+  "Laila de Sousa Oliveira": 1,
+  "MARCELO MOURA": null
+ },
+ "whatsapp": {
+  "pendentes": [
+   {
+    "data": "2026-08-07",
+    "lote": "18",
+    "parcela": 2500,
+    "animais": 1,
+    "vgv_indicativo": 75000,
+    "assessor": null,
+    "comprador": "Nelore 3A",
+    "cidade": null,
+    "uf": null,
+    "status": "auto",
+    "fonte": "parser",
+    "dia_tem_leilao_no_hastapro": true,
+    "eco_no_hastapro": null,
+    "trecho": "Levamos lt 18 - 2500,00 | 50% Nelore 3A",
+    "fechamento_no_erp": null,
+    "mesmo_lote_e_valor_no_mes": null
+   },
+   {
+    "data": "2026-08-17",
+    "lote": "3",
+    "parcela": 3900,
+    "animais": 1,
+    "vgv_indicativo": 117000,
+    "assessor": "Douglas Bispo Carvalho",
+    "comprador": null,
+    "cidade": "É o estadão",
+    "uf": "PA",
+    "status": "auto",
+    "fonte": "parser",
+    "dia_tem_leilao_no_hastapro": false,
+    "eco_no_hastapro": null,
+    "trecho": "Levamos lt 3 - 3900 - 1F Foi com Douglas Bispo da Bula Assessoria Com direcionamento técnico Gustavo Rusa Foi Nelore Pérola É José Fabio É Santarém É o estadão do Pará",
+    "fechamento_no_erp": {
+     "nome": "LEILÃO MATRIZES PREMIUM KATISPERA",
+     "data": "2026-08-17",
+     "vgv": 117000,
+     "origem": "lances-auto"
+    },
+    "mesmo_lote_e_valor_no_mes": null
+   },
+   {
+    "data": "2026-08-21",
+    "lote": "48",
+    "parcela": 1380,
+    "animais": 1,
+    "vgv_indicativo": 41400,
+    "assessor": "Douglas Bispo Carvalho",
+    "comprador": "*Shopping Navirai* - Miguel Sousa - Nelore AMER",
+    "cidade": "Novo Repartimento",
+    "uf": "PA",
+    "status": "revisar",
+    "fonte": "parser",
+    "dia_tem_leilao_no_hastapro": true,
+    "eco_no_hastapro": null,
+    "trecho": "*Shopping Navirai* Levamos lt 48 - 1.380,00 - 1F Com Douglas Bispo da Bula Assessoria Miguel Sousa Nelore AMER Novo Repartimento-PA - Levamos lt 41 - 1.840,00 - 1F Foi com Douglas Bispo da Bula Assessoria Bruno Machado e",
+    "fechamento_no_erp": {
+     "nome": "FÊMEAS JMP",
+     "data": "2026-08-21",
+     "vgv": 41400,
+     "origem": "lances-auto"
+    },
+    "mesmo_lote_e_valor_no_mes": {
+     "leilao": "SHOPPING NAVIRAI EXPOGENÉTICA",
+     "data": "2026-08-15",
+     "lote": "48",
+     "vgv": 41400,
+     "pisteiro": "Douglas Bispo Carvalho"
+    }
+   }
+  ],
+  "sem_chave_no_hastapro": [
+   {
+    "data": "2026-08-07",
+    "lote": "18",
+    "parcela": 2500,
+    "animais": 1,
+    "vgv_indicativo": 75000,
+    "assessor": null,
+    "comprador": "Nelore 3A",
+    "cidade": null,
+    "uf": null,
+    "status": "auto",
+    "fonte": "parser",
+    "dia_tem_leilao_no_hastapro": true,
+    "eco_no_hastapro": null,
+    "trecho": "Levamos lt 18 - 2500,00 | 50% Nelore 3A",
+    "fechamento_no_erp": null,
+    "mesmo_lote_e_valor_no_mes": null
+   },
+   {
+    "data": "2026-08-16",
+    "lote": "11",
+    "parcela": 1400,
+    "animais": 1,
+    "vgv_indicativo": 42000,
+    "assessor": "Douglas Bispo Carvalho",
+    "comprador": null,
+    "cidade": null,
+    "uf": null,
+    "status": "revisar",
+    "fonte": "ia",
+    "dia_tem_leilao_no_hastapro": true,
+    "eco_no_hastapro": {
+     "leilao": "LEILÃO MATINHA EXPOGENÉTICA 2026 - EMBRIÕES, FÊMEAS E TOUROS",
+     "data": "2026-08-16",
+     "lote": "E11",
+     "vgv": 42000
+    },
+    "trecho": "Levamos pacote de embriões lt 11 - 1400x30 - 30 embriões Foi com Douglas Bispo da Bula Assessoria Klysmann Douglas Nascimento Leal Fazenda Santa Tereza Carolina - MA [CORRECAO 17/08: o texto era \"pacote de embrioes lt 11"
+   },
+   {
+    "data": "2026-08-17",
+    "lote": "3",
+    "parcela": 3900,
+    "animais": 1,
+    "vgv_indicativo": 117000,
+    "assessor": "Douglas Bispo Carvalho",
+    "comprador": null,
+    "cidade": "É o estadão",
+    "uf": "PA",
+    "status": "auto",
+    "fonte": "parser",
+    "dia_tem_leilao_no_hastapro": false,
+    "eco_no_hastapro": null,
+    "trecho": "Levamos lt 3 - 3900 - 1F Foi com Douglas Bispo da Bula Assessoria Com direcionamento técnico Gustavo Rusa Foi Nelore Pérola É José Fabio É Santarém É o estadão do Pará",
+    "fechamento_no_erp": {
+     "nome": "LEILÃO MATRIZES PREMIUM KATISPERA",
+     "data": "2026-08-17",
+     "vgv": 117000,
+     "origem": "lances-auto"
+    },
+    "mesmo_lote_e_valor_no_mes": null
+   },
+   {
+    "data": "2026-08-19",
+    "lote": "ASP 5217",
+    "parcela": 2700,
+    "animais": 1,
+    "vgv_indicativo": 81000,
+    "assessor": "Fabio de Omena Gaia",
+    "comprador": null,
+    "cidade": null,
+    "uf": null,
+    "status": "revisar",
+    "fonte": "ia",
+    "dia_tem_leilao_no_hastapro": true,
+    "eco_no_hastapro": {
+     "leilao": "LEILÃO RESERVA SANTA NICE EXPOGENÉTICA 2026",
+     "data": "2026-08-19",
+     "lote": "35",
+     "vgv": 81000
+    },
+    "trecho": "Levamos ASP 5217 - 2.700,00 Foi com Fábio Omena da Bula Assessoria, Guilherme Carvalho Nelore AGC Terra Rica Paraná"
+   },
+   {
+    "data": "2026-08-21",
+    "lote": "48",
+    "parcela": 1380,
+    "animais": 1,
+    "vgv_indicativo": 41400,
+    "assessor": "Douglas Bispo Carvalho",
+    "comprador": "*Shopping Navirai* - Miguel Sousa - Nelore AMER",
+    "cidade": "Novo Repartimento",
+    "uf": "PA",
+    "status": "revisar",
+    "fonte": "parser",
+    "dia_tem_leilao_no_hastapro": true,
+    "eco_no_hastapro": null,
+    "trecho": "*Shopping Navirai* Levamos lt 48 - 1.380,00 - 1F Com Douglas Bispo da Bula Assessoria Miguel Sousa Nelore AMER Novo Repartimento-PA - Levamos lt 41 - 1.840,00 - 1F Foi com Douglas Bispo da Bula Assessoria Bruno Machado e",
+    "fechamento_no_erp": {
+     "nome": "FÊMEAS JMP",
+     "data": "2026-08-21",
+     "vgv": 41400,
+     "origem": "lances-auto"
+    },
+    "mesmo_lote_e_valor_no_mes": {
+     "leilao": "SHOPPING NAVIRAI EXPOGENÉTICA",
+     "data": "2026-08-15",
+     "lote": "48",
+     "vgv": 41400,
+     "pisteiro": "Douglas Bispo Carvalho"
+    }
+   }
+  ],
+  "hp_sem_grupo": 17,
+  "hp_sem_grupo_vgv": 979200
+ },
+ "qualidade": {
+  "sem_pisteiro": {
+   "n": 0,
+   "vgv": 0,
+   "itens": []
+  },
+  "valor_zero": {
+   "n": 0,
+   "itens": []
+  },
+  "so_em_clientes": [
+   "Regiane C. N. de Abreu (Nane)"
+  ],
+  "a_definir": [
+   {
+    "leilao": "LEILÃO NELORE PARANÃ E CASABRANCA EXPOGENÉTICA",
+    "data": "2026-08-20",
+    "vgv": 84000
+   },
+   {
+    "leilao": "28º LEILÃO NAVIRAÍ CAMPARINO REPRODUTORES",
+    "data": "2026-08-23",
+    "vgv": 306000
+   }
+  ],
+  "wa_sem_assessor": {
+   "n": 14,
+   "itens": [
+    {
+     "data": "2026-08-07",
+     "lote": "21",
+     "trecho": "Levamos lt 21 - 3500,00 - 50% Alisson Lunard Nelore 3a"
+    },
+    {
+     "data": "2026-08-07",
+     "lote": "04",
+     "trecho": "Levamos lt 04 - 5.000,00 - 1F"
+    },
+    {
+     "data": "2026-08-07",
+     "lote": "18",
+     "trecho": "Levamos lt 18 - 2500,00 | 50% Nelore 3A"
+    },
+    {
+     "data": "2026-08-16",
+     "lote": "107",
+     "trecho": "Levamos lt 107 - 1200 - 1M"
+    },
+    {
+     "data": "2026-08-16",
+     "lote": "136",
+     "trecho": "Levamos 136 - 750,00 - 1M"
+    },
+    {
+     "data": "2026-08-19",
+     "lote": "106",
+     "trecho": "Levamos lt 106 - 4000 - 1F Luiz Carlos - Tresmar 🙏🏻🕸️👊🏻"
+    },
+    {
+     "data": "2026-08-20",
+     "lote": "9",
+     "trecho": "Lote 9 / leilão modelo 2.800 x 30 Comprador 7P Agro"
+    },
+    {
+     "data": "2026-08-23",
+     "lote": "117",
+     "trecho": "Levamos lt 117 - 1600 - 1M Com Lucas Martins - Bula Assessoria Agropecuária RMC Armindo Martins Rochedo - MS"
+    },
+    {
+     "data": "2026-08-23",
+     "lote": "16",
+     "trecho": "Levamos lt 16 - 1600 - 1M Com Lucas Martins - Bula Assessoria Nelore Ferradura Ângelo Munhoz"
+    },
+    {
+     "data": "2026-08-23",
+     "lote": "30",
+     "trecho": "Lote 30 Comprador é a Fazenda Nova Pantanal do Ms É o LIBERATO Peralta / BULA 1400,00"
+    },
+    {
+     "data": "2026-08-23",
+     "lote": "22",
+     "trecho": "Levamos lt 22 - 2100 - 1M Foi com Marcelo Moura e Claudinho, Eles são clientes preferências Naviraí É Fazenda São Francisco Marcelo e Gustav"
+    },
+    {
+     "data": "2026-08-23",
+     "lote": "21",
+     "trecho": "Lote 21 / 3500 Comprador Magda / J Gouvea Leilão Exelencia Peralta / Bula"
+    },
+    {
+     "data": "2026-08-29",
+     "lote": "42",
+     "trecho": "COMPRADOR LOTE 42 - R$ 600 JULIANO QUEIROZ SANTANA ROSA FAZENDA ÁGUA LIMPA VARJÃO/GO MANDANDO ABRAÇO PARA VITOR SANTANA"
+    },
+    {
+     "data": "2026-08-29",
+     "lote": "32",
+     "trecho": "COMPRADOR LOTE 32 - R$ 700 voltando as compras JULIANO QUEIROZ SANTANA ROSA FAZENDA ÁGUA LIMPA VARJÃO/GO MANDANDO ABRAÇO PARA VITOR SANTANA"
+    }
+   ]
+  },
+  "wa_a_revisar": 49,
+  "venda_fora_do_mes": []
+ },
+ "lotes_detalhe": {
+  "hp2": [
+   {
+    "filial": "2",
+    "leilao": "2º LEILÃO LS GALERIA",
+    "data": "2026-08-07",
+    "data_venda": "2026-08-07",
+    "lote": "04",
+    "qtd": 1,
+    "vgv": 150000,
+    "lance": 5000,
+    "pisteiro": "Fabio de Omena Gaia",
+    "membro": "FABIO OMENNA",
+    "pela_remates": false
+   },
+   {
+    "filial": "2",
+    "leilao": "2º LEILÃO LS GALERIA",
+    "data": "2026-08-07",
+    "data_venda": "2026-08-07",
+    "lote": "19",
+    "qtd": 1,
+    "vgv": 306000,
+    "lance": 10200,
+    "pisteiro": "Fabio de Omena Gaia",
+    "membro": "FABIO OMENNA",
+    "pela_remates": false
+   },
+   {
+    "filial": "2",
+    "leilao": "2º LEILÃO LS GALERIA",
+    "data": "2026-08-07",
+    "data_venda": "2026-08-07",
+    "lote": "21",
+    "qtd": 1,
+    "vgv": 120000,
+    "lance": 4000,
+    "pisteiro": "Fabio de Omena Gaia",
+    "membro": "FABIO OMENNA",
+    "pela_remates": false
+   },
+   {
+    "filial": "2",
+    "leilao": "LEILÃO NELORE MAFRA EDIÇÃO REDENÇÃO/PA 2026 - 320 FÊMEAS",
+    "data": "2026-08-01",
+    "data_venda": "2026-08-04",
+    "lote": "1000",
+    "qtd": 1,
+    "vgv": 60000,
+    "lance": 2000,
+    "pisteiro": "Fabio de Omena Gaia",
+    "membro": "FABIO OMENNA",
+    "pela_remates": false
+   },
+   {
+    "filial": "2",
+    "leilao": "LEILÃO NELORE MAFRA EDIÇÃO REDENÇÃO/PA 2026 - 320 FÊMEAS",
+    "data": "2026-08-01",
+    "data_venda": "2026-08-04",
+    "lote": "39",
+    "qtd": 3,
+    "vgv": 42000,
+    "lance": 350,
+    "pisteiro": "Douglas Bispo Carvalho",
+    "membro": "DOUGLAS BISPO",
+    "pela_remates": false
+   },
+   {
+    "filial": "2",
+    "leilao": "LEILÃO NELORE MAFRA EDIÇÃO REDENÇÃO/PA 2026 - 320 FÊMEAS",
+    "data": "2026-08-01",
+    "data_venda": "2026-08-04",
+    "lote": "41",
+    "qtd": 4,
+    "vgv": 56000,
+    "lance": 350,
+    "pisteiro": "Douglas Bispo Carvalho",
+    "membro": "DOUGLAS BISPO",
+    "pela_remates": false
+   },
+   {
+    "filial": "2",
+    "leilao": "LEILÃO NELORE MAFRA EDIÇÃO REDENÇÃO/PA 2026 - 320 FÊMEAS",
+    "data": "2026-08-01",
+    "data_venda": "2026-08-04",
+    "lote": "42",
+    "qtd": 3,
+    "vgv": 54000,
+    "lance": 450,
+    "pisteiro": "Douglas Bispo Carvalho",
+    "membro": "DOUGLAS BISPO",
+    "pela_remates": false
+   },
+   {
+    "filial": "2",
+    "leilao": "LEILÃO NELORE MAFRA EDIÇÃO REDENÇÃO/PA 2026 - 320 FÊMEAS",
+    "data": "2026-08-01",
+    "data_venda": "2026-08-04",
+    "lote": "43",
+    "qtd": 3,
+    "vgv": 54000,
+    "lance": 450,
+    "pisteiro": "Douglas Bispo Carvalho",
+    "membro": "DOUGLAS BISPO",
+    "pela_remates": false
+   },
+   {
+    "filial": "2",
+    "leilao": "LEILÃO NELORE MAFRA EDIÇÃO REDENÇÃO/PA 2026 - 320 FÊMEAS",
+    "data": "2026-08-01",
+    "data_venda": "2026-08-04",
+    "lote": "44",
+    "qtd": 3,
+    "vgv": 54000,
+    "lance": 450,
+    "pisteiro": "Douglas Bispo Carvalho",
+    "membro": "DOUGLAS BISPO",
+    "pela_remates": false
+   },
+   {
+    "filial": "2",
+    "leilao": "LEILÃO NELORE MAFRA EDIÇÃO REDENÇÃO/PA 2026 - 320 FÊMEAS",
+    "data": "2026-08-01",
+    "data_venda": "2026-08-04",
+    "lote": "49",
+    "qtd": 3,
+    "vgv": 54000,
+    "lance": 450,
+    "pisteiro": "Douglas Bispo Carvalho",
+    "membro": "DOUGLAS BISPO",
+    "pela_remates": false
+   },
+   {
+    "filial": "2",
+    "leilao": "LEILÃO NELORE MAFRA EDIÇÃO REDENÇÃO/PA 2026 - 320 FÊMEAS",
+    "data": "2026-08-01",
+    "data_venda": "2026-08-04",
+    "lote": "50",
+    "qtd": 4,
+    "vgv": 72000,
+    "lance": 450,
+    "pisteiro": "Douglas Bispo Carvalho",
+    "membro": "DOUGLAS BISPO",
+    "pela_remates": false
+   },
+   {
+    "filial": "2",
+    "leilao": "LEILÃO NELORE MAFRA EDIÇÃO REDENÇÃO/PA 2026 - 320 FÊMEAS",
+    "data": "2026-08-01",
+    "data_venda": "2026-08-04",
+    "lote": "17",
+    "qtd": 1,
+    "vgv": 18000,
+    "lance": 600,
+    "pisteiro": "Douglas Bispo Carvalho",
+    "membro": "DOUGLAS BISPO",
+    "pela_remates": false
+   },
+   {
+    "filial": "2",
+    "leilao": "LEILÃO NELORE MAFRA EDIÇÃO REDENÇÃO/PA 2026 - 320 FÊMEAS",
+    "data": "2026-08-01",
+    "data_venda": "2026-08-04",
+    "lote": "65",
+    "qtd": 3,
+    "vgv": 54000,
+    "lance": 450,
+    "pisteiro": "Douglas Bispo Carvalho",
+    "membro": "DOUGLAS BISPO",
+    "pela_remates": false
+   },
+   {
+    "filial": "2",
+    "leilao": "LEILÃO NELORE MAFRA EDIÇÃO REDENÇÃO/PA 2026 - 320 FÊMEAS",
+    "data": "2026-08-01",
+    "data_venda": "2026-08-04",
+    "lote": "66",
+    "qtd": 3,
+    "vgv": 54000,
+    "lance": 450,
+    "pisteiro": "Douglas Bispo Carvalho",
+    "membro": "DOUGLAS BISPO",
+    "pela_remates": false
+   },
+   {
+    "filial": "2",
+    "leilao": "LEILÃO NELORE MAFRA EDIÇÃO REDENÇÃO/PA 2026 - 320 FÊMEAS",
+    "data": "2026-08-01",
+    "data_venda": "2026-08-04",
+    "lote": "62",
+    "qtd": 2,
+    "vgv": 36000,
+    "lance": 450,
+    "pisteiro": "Douglas Bispo Carvalho",
+    "membro": "DOUGLAS BISPO",
+    "pela_remates": false
+   },
+   {
+    "filial": "2",
+    "leilao": "LEILÃO NELORE MAFRA EDIÇÃO REDENÇÃO/PA 2026 - 320 FÊMEAS",
+    "data": "2026-08-01",
+    "data_venda": "2026-08-04",
+    "lote": "63",
+    "qtd": 3,
+    "vgv": 54000,
+    "lance": 450,
+    "pisteiro": "Douglas Bispo Carvalho",
+    "membro": "DOUGLAS BISPO",
+    "pela_remates": false
+   },
+   {
+    "filial": "2",
+    "leilao": "LEILÃO NELORE MAFRA EDIÇÃO REDENÇÃO/PA 2026 - 320 FÊMEAS",
+    "data": "2026-08-01",
+    "data_venda": "2026-08-04",
+    "lote": "56",
+    "qtd": 3,
+    "vgv": 54000,
+    "lance": 450,
+    "pisteiro": "Douglas Bispo Carvalho",
+    "membro": "DOUGLAS BISPO",
+    "pela_remates": false
+   },
+   {
+    "filial": "2",
+    "leilao": "LEILÃO NELORE MAFRA EDIÇÃO REDENÇÃO/PA 2026 - 320 FÊMEAS",
+    "data": "2026-08-01",
+    "data_venda": "2026-08-04",
+    "lote": "57",
+    "qtd": 4,
+    "vgv": 68800,
+    "lance": 430,
+    "pisteiro": "Douglas Bispo Carvalho",
+    "membro": "DOUGLAS BISPO",
+    "pela_remates": false
+   },
+   {
+    "filial": "2",
+    "leilao": "LEILÃO NELORE MAFRA EDIÇÃO REDENÇÃO/PA 2026 - 320 FÊMEAS",
+    "data": "2026-08-01",
+    "data_venda": "2026-08-04",
+    "lote": "60",
+    "qtd": 4,
+    "vgv": 68800,
+    "lance": 430,
+    "pisteiro": "Douglas Bispo Carvalho",
+    "membro": "DOUGLAS BISPO",
+    "pela_remates": false
+   },
+   {
+    "filial": "2",
+    "leilao": "LEILÃO NELORE MAFRA EDIÇÃO REDENÇÃO/PA 2026 - 320 FÊMEAS",
+    "data": "2026-08-01",
+    "data_venda": "2026-08-04",
+    "lote": "73",
+    "qtd": 3,
+    "vgv": 50400,
+    "lance": 420,
+    "pisteiro": "Douglas Bispo Carvalho",
+    "membro": "DOUGLAS BISPO",
+    "pela_remates": false
+   },
+   {
+    "filial": "2",
+    "leilao": "LEILÃO NELORE MAFRA EDIÇÃO REDENÇÃO/PA 2026 - 320 FÊMEAS",
+    "data": "2026-08-01",
+    "data_venda": "2026-08-04",
+    "lote": "51",
+    "qtd": 3,
+    "vgv": 48000,
+    "lance": 400,
+    "pisteiro": "Douglas Bispo Carvalho",
+    "membro": "DOUGLAS BISPO",
+    "pela_remates": false
+   },
+   {
+    "filial": "2",
+    "leilao": "LEILÃO NELORE MAFRA EDIÇÃO REDENÇÃO/PA 2026 - 320 FÊMEAS",
+    "data": "2026-08-01",
+    "data_venda": "2026-08-04",
+    "lote": "82",
+    "qtd": 4,
+    "vgv": 73600,
+    "lance": 460,
+    "pisteiro": "Douglas Bispo Carvalho",
+    "membro": "DOUGLAS BISPO",
+    "pela_remates": false
+   },
+   {
+    "filial": "2",
+    "leilao": "LEILÃO NELORE MAFRA EDIÇÃO REDENÇÃO/PA 2026 - 320 FÊMEAS",
+    "data": "2026-08-01",
+    "data_venda": "2026-08-11",
+    "lote": "18",
+    "qtd": 1,
+    "vgv": 17100,
+    "lance": 570,
+    "pisteiro": "Douglas Bispo Carvalho",
+    "membro": "DOUGLAS BISPO",
+    "pela_remates": false
+   },
+   {
+    "filial": "2",
+    "leilao": "LEILÃO NELORE MAFRA EDIÇÃO REDENÇÃO/PA 2026 - 220 TOUROS",
+    "data": "2026-08-02",
+    "data_venda": "2026-08-05",
+    "lote": "56",
+    "qtd": 1,
+    "vgv": 30000,
+    "lance": 1000,
+    "pisteiro": "Douglas Bispo Carvalho",
+    "membro": "DOUGLAS BISPO",
+    "pela_remates": false
+   },
+   {
+    "filial": "2",
+    "leilao": "LEILÃO NELORE MAFRA EDIÇÃO REDENÇÃO/PA 2026 - 220 TOUROS",
+    "data": "2026-08-02",
+    "data_venda": "2026-08-05",
+    "lote": "58",
+    "qtd": 1,
+    "vgv": 24000,
+    "lance": 800,
+    "pisteiro": "Douglas Bispo Carvalho",
+    "membro": "DOUGLAS BISPO",
+    "pela_remates": false
+   },
+   {
+    "filial": "2",
+    "leilao": "LEILÃO NELORE MAFRA EDIÇÃO REDENÇÃO/PA 2026 - 220 TOUROS",
+    "data": "2026-08-02",
+    "data_venda": "2026-08-05",
+    "lote": "47",
+    "qtd": 1,
+    "vgv": 24600,
+    "lance": 820,
+    "pisteiro": "Douglas Bispo Carvalho",
+    "membro": "DOUGLAS BISPO",
+    "pela_remates": false
+   },
+   {
+    "filial": "2",
+    "leilao": "LEILÃO NELORE MAFRA EDIÇÃO REDENÇÃO/PA 2026 - 220 TOUROS",
+    "data": "2026-08-02",
+    "data_venda": "2026-08-05",
+    "lote": "38",
+    "qtd": 1,
+    "vgv": 33600,
+    "lance": 1120,
+    "pisteiro": "Fabio de Omena Gaia",
+    "membro": "FABIO OMENNA",
+    "pela_remates": false
+   },
+   {
+    "filial": "2",
+    "leilao": "LEILÃO NELORE MAFRA EDIÇÃO REDENÇÃO/PA 2026 - 220 TOUROS",
+    "data": "2026-08-02",
+    "data_venda": "2026-08-05",
+    "lote": "84",
+    "qtd": 1,
+    "vgv": 21000,
+    "lance": 700,
+    "pisteiro": "Douglas Bispo Carvalho",
+    "membro": "DOUGLAS BISPO",
+    "pela_remates": false
+   },
+   {
+    "filial": "2",
+    "leilao": "LEILÃO NELORE MAFRA EDIÇÃO REDENÇÃO/PA 2026 - 220 TOUROS",
+    "data": "2026-08-02",
+    "data_venda": "2026-08-05",
+    "lote": "28",
+    "qtd": 1,
+    "vgv": 21000,
+    "lance": 700,
+    "pisteiro": "Fabio de Omena Gaia",
+    "membro": "FABIO OMENNA",
+    "pela_remates": false
+   },
+   {
+    "filial": "2",
+    "leilao": "LEILÃO NELORE MAFRA EDIÇÃO REDENÇÃO/PA 2026 - 220 TOUROS",
+    "data": "2026-08-02",
+    "data_venda": "2026-08-05",
+    "lote": "49",
+    "qtd": 1,
+    "vgv": 24000,
+    "lance": 800,
+    "pisteiro": "Douglas Bispo Carvalho",
+    "membro": "DOUGLAS BISPO",
+    "pela_remates": false
+   },
+   {
+    "filial": "2",
+    "leilao": "LEILÃO TOUROS NELORE GRUPO COSTA",
+    "data": "2026-08-04",
+    "data_venda": "2026-08-05",
+    "lote": "20",
+    "qtd": 1,
+    "vgv": 20100,
+    "lance": 670,
+    "pisteiro": "Fabio de Omena Gaia",
+    "membro": "FABIO OMENNA",
+    "pela_remates": false
+   },
+   {
+    "filial": "2",
+    "leilao": "LEILÃO DE TOUROS NELORE SORRISO",
+    "data": "2026-08-04",
+    "data_venda": "2026-08-05",
+    "lote": "03",
+    "qtd": 1,
+    "vgv": 17100,
+    "lance": 570,
+    "pisteiro": "Leonardo Serafim Francisco",
+    "membro": "LEONARDO",
+    "pela_remates": false
+   },
+   {
+    "filial": "2",
+    "leilao": "LEILÃO DE TOUROS NELORE SORRISO",
+    "data": "2026-08-04",
+    "data_venda": "2026-08-05",
+    "lote": "05",
+    "qtd": 1,
+    "vgv": 24000,
+    "lance": 800,
+    "pisteiro": "Fabio de Omena Gaia",
+    "membro": "FABIO OMENNA",
+    "pela_remates": false
+   },
+   {
+    "filial": "2",
+    "leilao": "LEILÃO DE TOUROS NELORE SORRISO",
+    "data": "2026-08-04",
+    "data_venda": "2026-08-05",
+    "lote": "07",
+    "qtd": 1,
+    "vgv": 21600,
+    "lance": 720,
+    "pisteiro": "Fabio de Omena Gaia",
+    "membro": "FABIO OMENNA",
+    "pela_remates": false
+   },
+   {
+    "filial": "2",
+    "leilao": "LEILÃO DE TOUROS NELORE SORRISO",
+    "data": "2026-08-04",
+    "data_venda": "2026-08-05",
+    "lote": "15",
+    "qtd": 1,
+    "vgv": 18000,
+    "lance": 600,
+    "pisteiro": "Leonardo Serafim Francisco",
+    "membro": "LEONARDO",
+    "pela_remates": false
+   },
+   {
+    "filial": "2",
+    "leilao": "LEILÃO DE TOUROS NELORE SORRISO",
+    "data": "2026-08-04",
+    "data_venda": "2026-08-05",
+    "lote": "19",
+    "qtd": 1,
+    "vgv": 16500,
+    "lance": 550,
+    "pisteiro": "Fabio de Omena Gaia",
+    "membro": "FABIO OMENNA",
+    "pela_remates": false
+   },
+   {
+    "filial": "2",
+    "leilao": "LEILÃO DE TOUROS NELORE SORRISO",
+    "data": "2026-08-04",
+    "data_venda": "2026-08-05",
+    "lote": "30",
+    "qtd": 1,
+    "vgv": 17100,
+    "lance": 570,
+    "pisteiro": "Fabio de Omena Gaia",
+    "membro": "FABIO OMENNA",
+    "pela_remates": false
+   },
+   {
+    "filial": "2",
+    "leilao": "14º LEILÃO PÉROLAS DO TAPAJÓS",
+    "data": "2026-08-08",
+    "data_venda": "2026-08-08",
+    "lote": "44",
+    "qtd": 1,
+    "vgv": 90000,
+    "lance": 3000,
+    "pisteiro": "Douglas Bispo Carvalho",
+    "membro": "DOUGLAS BISPO",
+    "pela_remates": false
+   },
+   {
+    "filial": "2",
+    "leilao": "14º LEILÃO PÉROLAS DO TAPAJÓS",
+    "data": "2026-08-08",
+    "data_venda": "2026-08-08",
+    "lote": "47",
+    "qtd": 1,
+    "vgv": 42000,
+    "lance": 1400,
+    "pisteiro": "Douglas Bispo Carvalho",
+    "membro": "DOUGLAS BISPO",
+    "pela_remates": false
+   },
+   {
+    "filial": "2",
+    "leilao": "14º LEILÃO PÉROLAS DO TAPAJÓS",
+    "data": "2026-08-08",
+    "data_venda": "2026-08-08",
+    "lote": "40",
+    "qtd": 1,
+    "vgv": 30000,
+    "lance": 1000,
+    "pisteiro": "Douglas Bispo Carvalho",
+    "membro": "DOUGLAS BISPO",
+    "pela_remates": false
+   },
+   {
+    "filial": "2",
+    "leilao": "14º LEILÃO PÉROLAS DO TAPAJÓS",
+    "data": "2026-08-08",
+    "data_venda": "2026-08-08",
+    "lote": "45",
+    "qtd": 1,
+    "vgv": 24000,
+    "lance": 800,
+    "pisteiro": "Douglas Bispo Carvalho",
+    "membro": "DOUGLAS BISPO",
+    "pela_remates": false
+   },
+   {
+    "filial": "2",
+    "leilao": "14º LEILÃO PÉROLAS DO TAPAJÓS",
+    "data": "2026-08-08",
+    "data_venda": "2026-08-08",
+    "lote": "48",
+    "qtd": 1,
+    "vgv": 27000,
+    "lance": 900,
+    "pisteiro": "Douglas Bispo Carvalho",
+    "membro": "DOUGLAS BISPO",
+    "pela_remates": false
+   },
+   {
+    "filial": "2",
+    "leilao": "LEILÃO NELORE PARANÃ PRODUTIVIDADE",
+    "data": "2026-08-09",
+    "data_venda": "2026-08-09",
+    "lote": "123",
+    "qtd": 2,
+    "vgv": 48000,
+    "lance": 800,
+    "pisteiro": "Douglas Bispo Carvalho",
+    "membro": "DOUGLAS BISPO",
+    "pela_remates": false
+   },
+   {
+    "filial": "2",
+    "leilao": "LEILÃO NELORE PARANÃ PRODUTIVIDADE",
+    "data": "2026-08-09",
+    "data_venda": "2026-08-09",
+    "lote": "61",
+    "qtd": 1,
+    "vgv": 21600,
+    "lance": 720,
+    "pisteiro": "Fabio de Omena Gaia",
+    "membro": "FABIO OMENNA",
+    "pela_remates": false
+   },
+   {
+    "filial": "2",
+    "leilao": "LEILÃO NELORE PARANÃ PRODUTIVIDADE",
+    "data": "2026-08-09",
+    "data_venda": "2026-08-09",
+    "lote": "43",
+    "qtd": 1,
+    "vgv": 24000,
+    "lance": 800,
+    "pisteiro": "Fabio de Omena Gaia",
+    "membro": "FABIO OMENNA",
+    "pela_remates": false
+   },
+   {
+    "filial": "2",
+    "leilao": "LEILÃO NELORE PARANÃ PRODUTIVIDADE",
+    "data": "2026-08-09",
+    "data_venda": "2026-08-09",
+    "lote": "42",
+    "qtd": 1,
+    "vgv": 40500,
+    "lance": 1350,
+    "pisteiro": "Douglas Bispo Carvalho",
+    "membro": "DOUGLAS BISPO",
+    "pela_remates": false
+   },
+   {
+    "filial": "2",
+    "leilao": "LEILÃO NELORE PARANÃ PRODUTIVIDADE",
+    "data": "2026-08-09",
+    "data_venda": "2026-08-09",
+    "lote": "94",
+    "qtd": 3,
+    "vgv": 54000,
+    "lance": 600,
+    "pisteiro": "Douglas Bispo Carvalho",
+    "membro": "DOUGLAS BISPO",
+    "pela_remates": false
+   },
+   {
+    "filial": "2",
+    "leilao": "LEILÃO NELORE PARANÃ PRODUTIVIDADE",
+    "data": "2026-08-09",
+    "data_venda": "2026-08-09",
+    "lote": "97",
+    "qtd": 5,
+    "vgv": 90000,
+    "lance": 600,
+    "pisteiro": "Douglas Bispo Carvalho",
+    "membro": "DOUGLAS BISPO",
+    "pela_remates": false
+   },
+   {
+    "filial": "2",
+    "leilao": "7º LEILÃO ESSÊNCIA GENÉTICA - NELORE DA BAMBÚ",
+    "data": "2026-08-13",
+    "data_venda": "2026-08-14",
+    "lote": "12",
+    "qtd": 1,
+    "vgv": 16500,
+    "lance": 550,
+    "pisteiro": "Leonardo Serafim Francisco",
+    "membro": "LEONARDO",
+    "pela_remates": false
+   },
+   {
+    "filial": "2",
+    "leilao": "LEILÃO TERRA BRAVA AGROPECUÁRIA EXPOGENÉTICA",
+    "data": "2026-08-15",
+    "data_venda": "2026-08-16",
+    "lote": "21",
+    "qtd": 1,
+    "vgv": 27000,
+    "lance": 900,
+    "pisteiro": "Fabio de Omena Gaia",
+    "membro": "FABIO OMENNA",
+    "pela_remates": false
+   },
+   {
+    "filial": "2",
+    "leilao": "LEILÃO TERRA BRAVA AGROPECUÁRIA EXPOGENÉTICA",
+    "data": "2026-08-15",
+    "data_venda": "2026-08-16",
+    "lote": "10",
+    "qtd": 1,
+    "vgv": 27000,
+    "lance": 900,
+    "pisteiro": "Fabio de Omena Gaia",
+    "membro": "FABIO OMENNA",
+    "pela_remates": false
+   },
+   {
+    "filial": "2",
+    "leilao": "LEILÃO TERRA BRAVA AGROPECUÁRIA EXPOGENÉTICA",
+    "data": "2026-08-15",
+    "data_venda": "2026-08-16",
+    "lote": "15",
+    "qtd": 1,
+    "vgv": 24000,
+    "lance": 800,
+    "pisteiro": "Fabio de Omena Gaia",
+    "membro": "FABIO OMENNA",
+    "pela_remates": false
+   },
+   {
+    "filial": "2",
+    "leilao": "LEILÃO TERRA BRAVA AGROPECUÁRIA EXPOGENÉTICA",
+    "data": "2026-08-15",
+    "data_venda": "2026-08-16",
+    "lote": "14",
+    "qtd": 1,
+    "vgv": 29100,
+    "lance": 970,
+    "pisteiro": "Fabio de Omena Gaia",
+    "membro": "FABIO OMENNA",
+    "pela_remates": false
+   },
+   {
+    "filial": "2",
+    "leilao": "LEILÃO MATINHA EXPOGENÉTICA 2026 - EMBRIÕES, FÊMEAS E TOUROS",
+    "data": "2026-08-16",
+    "data_venda": "2026-08-16",
+    "lote": "E11",
+    "qtd": 1,
+    "vgv": 42000,
+    "lance": 1400,
+    "pisteiro": "Douglas Bispo Carvalho",
+    "membro": "DOUGLAS BISPO",
+    "pela_remates": false
+   },
+   {
+    "filial": "2",
+    "leilao": "LEILÃO MATINHA EXPOGENÉTICA 2026 - EMBRIÕES, FÊMEAS E TOUROS",
+    "data": "2026-08-16",
+    "data_venda": "2026-08-16",
+    "lote": "12",
+    "qtd": 1,
+    "vgv": 108000,
+    "lance": 3600,
+    "pisteiro": "Douglas Bispo Carvalho",
+    "membro": "DOUGLAS BISPO",
+    "pela_remates": false
+   },
+   {
+    "filial": "2",
+    "leilao": "LEILÃO MATINHA EXPOGENÉTICA 2026 - EMBRIÕES, FÊMEAS E TOUROS",
+    "data": "2026-08-16",
+    "data_venda": "2026-08-16",
+    "lote": "34",
+    "qtd": 1,
+    "vgv": 90000,
+    "lance": 3000,
+    "pisteiro": "Douglas Bispo Carvalho",
+    "membro": "DOUGLAS BISPO",
+    "pela_remates": false
+   },
+   {
+    "filial": "2",
+    "leilao": "LEILÃO MATINHA EXPOGENÉTICA 2026 - EMBRIÕES, FÊMEAS E TOUROS",
+    "data": "2026-08-16",
+    "data_venda": "2026-08-16",
+    "lote": "15",
+    "qtd": 1,
+    "vgv": 93000,
+    "lance": 3100,
+    "pisteiro": "Douglas Bispo Carvalho",
+    "membro": "DOUGLAS BISPO",
+    "pela_remates": false
+   },
+   {
+    "filial": "2",
+    "leilao": "LEILÃO MATINHA EXPOGENÉTICA 2026 - EMBRIÕES, FÊMEAS E TOUROS",
+    "data": "2026-08-16",
+    "data_venda": "2026-08-16",
+    "lote": "39",
+    "qtd": 1,
+    "vgv": 42000,
+    "lance": 1400,
+    "pisteiro": "Douglas Bispo Carvalho",
+    "membro": "DOUGLAS BISPO",
+    "pela_remates": false
+   },
+   {
+    "filial": "2",
+    "leilao": "LEILÃO MATINHA EXPOGENÉTICA 2026 - EMBRIÕES, FÊMEAS E TOUROS",
+    "data": "2026-08-16",
+    "data_venda": "2026-08-16",
+    "lote": "107",
+    "qtd": 1,
+    "vgv": 36000,
+    "lance": 1200,
+    "pisteiro": "Regiane C. N. de Abreu (Nane)",
+    "membro": "NANE",
+    "pela_remates": false
+   },
+   {
+    "filial": "2",
+    "leilao": "LEILÃO MATINHA EXPOGENÉTICA 2026 - EMBRIÕES, FÊMEAS E TOUROS",
+    "data": "2026-08-16",
+    "data_venda": "2026-08-16",
+    "lote": "134",
+    "qtd": 1,
+    "vgv": 27000,
+    "lance": 900,
+    "pisteiro": "Regiane C. N. de Abreu (Nane)",
+    "membro": "NANE",
+    "pela_remates": false
+   },
+   {
+    "filial": "2",
+    "leilao": "LEILÃO MATINHA EXPOGENÉTICA 2026 - EMBRIÕES, FÊMEAS E TOUROS",
+    "data": "2026-08-16",
+    "data_venda": "2026-08-16",
+    "lote": "136",
+    "qtd": 1,
+    "vgv": 22500,
+    "lance": 750,
+    "pisteiro": "Regiane C. N. de Abreu (Nane)",
+    "membro": "NANE",
+    "pela_remates": false
+   },
+   {
+    "filial": "2",
+    "leilao": "9º LEILÃO GENÉTICA ADITIVA EXPOGENÉTICA 2026",
+    "data": "2026-08-19",
+    "data_venda": "2026-08-20",
+    "lote": "1002",
+    "qtd": 1,
+    "vgv": 249000,
+    "lance": 8300,
+    "pisteiro": "Fabio de Omena Gaia",
+    "membro": "FABIO OMENNA",
+    "pela_remates": false
+   },
+   {
+    "filial": "2",
+    "leilao": "9º LEILÃO GENÉTICA ADITIVA EXPOGENÉTICA 2026",
+    "data": "2026-08-19",
+    "data_venda": "2026-08-20",
+    "lote": "107",
+    "qtd": 1,
+    "vgv": 75000,
+    "lance": 2500,
+    "pisteiro": "Fabio de Omena Gaia",
+    "membro": "FABIO OMENNA",
+    "pela_remates": false
+   },
+   {
+    "filial": "2",
+    "leilao": "9º LEILÃO GENÉTICA ADITIVA EXPOGENÉTICA 2026",
+    "data": "2026-08-19",
+    "data_venda": "2026-08-20",
+    "lote": "106",
+    "qtd": 1,
+    "vgv": 120000,
+    "lance": 4000,
+    "pisteiro": "Fabio de Omena Gaia",
+    "membro": "FABIO OMENNA",
+    "pela_remates": false
+   },
+   {
+    "filial": "2",
+    "leilao": "LEILÃO RESERVA SANTA NICE EXPOGENÉTICA 2026",
+    "data": "2026-08-19",
+    "data_venda": "2026-08-20",
+    "lote": "04",
+    "qtd": 1,
+    "vgv": 216000,
+    "lance": 7200,
+    "pisteiro": "Douglas Bispo Carvalho",
+    "membro": "DOUGLAS BISPO",
+    "pela_remates": false
+   },
+   {
+    "filial": "2",
+    "leilao": "LEILÃO RESERVA SANTA NICE EXPOGENÉTICA 2026",
+    "data": "2026-08-19",
+    "data_venda": "2026-08-20",
+    "lote": "35",
+    "qtd": 1,
+    "vgv": 81000,
+    "lance": 2700,
+    "pisteiro": "Fabio de Omena Gaia",
+    "membro": "FABIO OMENNA",
+    "pela_remates": false
+   },
+   {
+    "filial": "2",
+    "leilao": "LEILÃO FAZENDA ARARAS - ESSÊNCIA GENÉTICA",
+    "data": "2026-08-16",
+    "data_venda": "2026-08-20",
+    "lote": "22",
+    "qtd": 1,
+    "vgv": 87000,
+    "lance": 2900,
+    "pisteiro": "Douglas Bispo Carvalho",
+    "membro": "DOUGLAS BISPO",
+    "pela_remates": false
+   },
+   {
+    "filial": "2",
+    "leilao": "13º LEILÃO GENÉTICA TOUROS NELORE HORA",
+    "data": "2026-08-18",
+    "data_venda": "2026-08-21",
+    "lote": "46",
+    "qtd": 1,
+    "vgv": 24000,
+    "lance": 800,
+    "pisteiro": "Fabio de Omena Gaia",
+    "membro": "FABIO OMENNA",
+    "pela_remates": false
+   },
+   {
+    "filial": "2",
+    "leilao": "LEILÃO BABY DE PROVA - MÁQUINAS DE ACELERAR GERAÇÕES",
+    "data": "2026-08-20",
+    "data_venda": "2026-08-21",
+    "lote": "23",
+    "qtd": 1,
+    "vgv": 31500,
+    "lance": 1050,
+    "pisteiro": "Douglas Bispo Carvalho",
+    "membro": "DOUGLAS BISPO",
+    "pela_remates": false
+   },
+   {
+    "filial": "2",
+    "leilao": "LEILÃO BABY DE PROVA - MÁQUINAS DE ACELERAR GERAÇÕES",
+    "data": "2026-08-20",
+    "data_venda": "2026-08-21",
+    "lote": "22",
+    "qtd": 1,
+    "vgv": 42000,
+    "lance": 1400,
+    "pisteiro": "Douglas Bispo Carvalho",
+    "membro": "DOUGLAS BISPO",
+    "pela_remates": false
+   },
+   {
+    "filial": "2",
+    "leilao": "LEILÃO NELORE CEN & FAZENDA MODELO & CONVIDADOS",
+    "data": "2026-08-20",
+    "data_venda": "2026-08-21",
+    "lote": "09",
+    "qtd": 1,
+    "vgv": 84000,
+    "lance": 2800,
+    "pisteiro": "Luiz Felipe Peralta Garcez",
+    "membro": "PERALTA",
+    "pela_remates": true
+   },
+   {
+    "filial": "2",
+    "leilao": "LEILÃO NELORE CEN & FAZENDA MODELO & CONVIDADOS",
+    "data": "2026-08-20",
+    "data_venda": "2026-08-21",
+    "lote": "18",
+    "qtd": 1,
+    "vgv": 33000,
+    "lance": 1100,
+    "pisteiro": "Leonardo Serafim Francisco",
+    "membro": "LEONARDO",
+    "pela_remates": false
+   },
+   {
+    "filial": "2",
+    "leilao": "12º LEILÃO NOITE NACIONAL MATRIZES PREMIUM",
+    "data": "2026-08-21",
+    "data_venda": "2026-08-22",
+    "lote": "18",
+    "qtd": 1,
+    "vgv": 27000,
+    "lance": 900,
+    "pisteiro": "Leonardo Serafim Francisco",
+    "membro": "LEONARDO",
+    "pela_remates": false
+   },
+   {
+    "filial": "2",
+    "leilao": "12º LEILÃO NOITE NACIONAL MATRIZES PREMIUM",
+    "data": "2026-08-21",
+    "data_venda": "2026-08-22",
+    "lote": "29",
+    "qtd": 1,
+    "vgv": 78000,
+    "lance": 2600,
+    "pisteiro": "Douglas Bispo Carvalho",
+    "membro": "DOUGLAS BISPO",
+    "pela_remates": false
+   },
+   {
+    "filial": "2",
+    "leilao": "12º LEILÃO NOITE NACIONAL MATRIZES PREMIUM",
+    "data": "2026-08-21",
+    "data_venda": "2026-08-22",
+    "lote": "24",
+    "qtd": 1,
+    "vgv": 39000,
+    "lance": 1300,
+    "pisteiro": "Douglas Bispo Carvalho",
+    "membro": "DOUGLAS BISPO",
+    "pela_remates": false
+   },
+   {
+    "filial": "2",
+    "leilao": "12º LEILÃO NOITE NACIONAL MATRIZES PREMIUM",
+    "data": "2026-08-21",
+    "data_venda": "2026-08-22",
+    "lote": "19",
+    "qtd": 1,
+    "vgv": 51000,
+    "lance": 1700,
+    "pisteiro": "Douglas Bispo Carvalho",
+    "membro": "DOUGLAS BISPO",
+    "pela_remates": false
+   },
+   {
+    "filial": "2",
+    "leilao": "4º LEILÃO PEPITAS COLONIAL - EXPOGENÉTICA 2026",
+    "data": "2026-08-22",
+    "data_venda": "2026-08-22",
+    "lote": "09",
+    "qtd": 1,
+    "vgv": 33000,
+    "lance": 1100,
+    "pisteiro": "Douglas Bispo Carvalho",
+    "membro": "DOUGLAS BISPO",
+    "pela_remates": false
+   },
+   {
+    "filial": "2",
+    "leilao": "4º LEILÃO PEPITAS COLONIAL - EXPOGENÉTICA 2026",
+    "data": "2026-08-22",
+    "data_venda": "2026-08-22",
+    "lote": "53",
+    "qtd": 1,
+    "vgv": 24000,
+    "lance": 800,
+    "pisteiro": "Leonardo Serafim Francisco",
+    "membro": "LEONARDO",
+    "pela_remates": false
+   },
+   {
+    "filial": "2",
+    "leilao": "4º LEILÃO PEPITAS COLONIAL - EXPOGENÉTICA 2026",
+    "data": "2026-08-22",
+    "data_venda": "2026-08-22",
+    "lote": "32",
+    "qtd": 1,
+    "vgv": 30000,
+    "lance": 1000,
+    "pisteiro": "Leonardo Serafim Francisco",
+    "membro": "LEONARDO",
+    "pela_remates": false
+   },
+   {
+    "filial": "2",
+    "leilao": "4º LEILÃO PEPITAS COLONIAL - EXPOGENÉTICA 2026",
+    "data": "2026-08-22",
+    "data_venda": "2026-08-22",
+    "lote": "37",
+    "qtd": 1,
+    "vgv": 60000,
+    "lance": 2000,
+    "pisteiro": "Fabio de Omena Gaia",
+    "membro": "FABIO OMENNA",
+    "pela_remates": false
+   },
+   {
+    "filial": "2",
+    "leilao": "4º LEILÃO PEPITAS COLONIAL - EXPOGENÉTICA 2026",
+    "data": "2026-08-22",
+    "data_venda": "2026-08-22",
+    "lote": "54",
+    "qtd": 1,
+    "vgv": 36000,
+    "lance": 1200,
+    "pisteiro": "Leonardo Serafim Francisco",
+    "membro": "LEONARDO",
+    "pela_remates": false
+   },
+   {
+    "filial": "2",
+    "leilao": "4º LEILÃO PEPITAS COLONIAL - EXPOGENÉTICA 2026",
+    "data": "2026-08-22",
+    "data_venda": "2026-08-22",
+    "lote": "33",
+    "qtd": 1,
+    "vgv": 27000,
+    "lance": 900,
+    "pisteiro": "Douglas Bispo Carvalho",
+    "membro": "DOUGLAS BISPO",
+    "pela_remates": false
+   },
+   {
+    "filial": "2",
+    "leilao": "4º LEILÃO PEPITAS COLONIAL - EXPOGENÉTICA 2026",
+    "data": "2026-08-22",
+    "data_venda": "2026-08-22",
+    "lote": "19",
+    "qtd": 1,
+    "vgv": 27000,
+    "lance": 900,
+    "pisteiro": "Leonardo Serafim Francisco",
+    "membro": "LEONARDO",
+    "pela_remates": false
+   },
+   {
+    "filial": "2",
+    "leilao": "4º LEILÃO PEPITAS COLONIAL - EXPOGENÉTICA 2026",
+    "data": "2026-08-22",
+    "data_venda": "2026-08-22",
+    "lote": "27",
+    "qtd": 1,
+    "vgv": 21000,
+    "lance": 700,
+    "pisteiro": "Douglas Bispo Carvalho",
+    "membro": "DOUGLAS BISPO",
+    "pela_remates": false
+   },
+   {
+    "filial": "2",
+    "leilao": "4º LEILÃO PEPITAS COLONIAL - EXPOGENÉTICA 2026",
+    "data": "2026-08-22",
+    "data_venda": "2026-08-22",
+    "lote": "26",
+    "qtd": 1,
+    "vgv": 24000,
+    "lance": 800,
+    "pisteiro": "Douglas Bispo Carvalho",
+    "membro": "DOUGLAS BISPO",
+    "pela_remates": false
+   },
+   {
+    "filial": "2",
+    "leilao": "4º LEILÃO PEPITAS COLONIAL - EXPOGENÉTICA 2026",
+    "data": "2026-08-22",
+    "data_venda": "2026-08-22",
+    "lote": "25",
+    "qtd": 1,
+    "vgv": 22500,
+    "lance": 750,
+    "pisteiro": "Douglas Bispo Carvalho",
+    "membro": "DOUGLAS BISPO",
+    "pela_remates": false
+   },
+   {
+    "filial": "2",
+    "leilao": "4º LEILÃO PEPITAS COLONIAL - EXPOGENÉTICA 2026",
+    "data": "2026-08-22",
+    "data_venda": "2026-08-22",
+    "lote": "24",
+    "qtd": 1,
+    "vgv": 21000,
+    "lance": 700,
+    "pisteiro": "Fabio de Omena Gaia",
+    "membro": "FABIO OMENNA",
+    "pela_remates": false
+   },
+   {
+    "filial": "2",
+    "leilao": "SHOPPING NAVIRAI EXPOGENÉTICA",
+    "data": "2026-08-15",
+    "data_venda": "2026-08-22",
+    "lote": "48",
+    "qtd": 1,
+    "vgv": 41400,
+    "lance": 1380,
+    "pisteiro": "Douglas Bispo Carvalho",
+    "membro": "DOUGLAS BISPO",
+    "pela_remates": false
+   },
+   {
+    "filial": "2",
+    "leilao": "SHOPPING NAVIRAI EXPOGENÉTICA",
+    "data": "2026-08-15",
+    "data_venda": "2026-08-22",
+    "lote": "41",
+    "qtd": 1,
+    "vgv": 55200,
+    "lance": 1840,
+    "pisteiro": "Douglas Bispo Carvalho",
+    "membro": "DOUGLAS BISPO",
+    "pela_remates": false
+   },
+   {
+    "filial": "2",
+    "leilao": "LEILÃO NAVIRAÍ CAMPARINO - MATRIZES ESSÊNCIA",
+    "data": "2026-08-22",
+    "data_venda": "2026-08-22",
+    "lote": "01",
+    "qtd": 1,
+    "vgv": 153000,
+    "lance": 5100,
+    "pisteiro": "Douglas Bispo Carvalho",
+    "membro": "DOUGLAS BISPO",
+    "pela_remates": false
+   },
+   {
+    "filial": "2",
+    "leilao": "LEILÃO NAVIRAÍ CAMPARINO - MATRIZES ESSÊNCIA",
+    "data": "2026-08-22",
+    "data_venda": "2026-08-22",
+    "lote": "05",
+    "qtd": 1,
+    "vgv": 225000,
+    "lance": 7500,
+    "pisteiro": "Douglas Bispo Carvalho",
+    "membro": "DOUGLAS BISPO",
+    "pela_remates": false
+   },
+   {
+    "filial": "2",
+    "leilao": "LEILÃO NAVIRAÍ CAMPARINO - MATRIZES ESSÊNCIA",
+    "data": "2026-08-22",
+    "data_venda": "2026-08-22",
+    "lote": "11",
+    "qtd": 1,
+    "vgv": 93000,
+    "lance": 3100,
+    "pisteiro": "Felipe Vilela Andrade",
+    "membro": "BULINHA (FELIPE ANDRADE)",
+    "pela_remates": true
+   },
+   {
+    "filial": "2",
+    "leilao": "LEILÃO NAVIRAÍ CAMPARINO - MATRIZES ESSÊNCIA",
+    "data": "2026-08-22",
+    "data_venda": "2026-08-22",
+    "lote": "28",
+    "qtd": 1,
+    "vgv": 72000,
+    "lance": 2400,
+    "pisteiro": "Douglas Bispo Carvalho",
+    "membro": "DOUGLAS BISPO",
+    "pela_remates": false
+   },
+   {
+    "filial": "2",
+    "leilao": "28º LEILÃO NAVIRAÍ CAMPARINO - REPRODUTORES",
+    "data": "2026-08-23",
+    "data_venda": "2026-08-23",
+    "lote": "62",
+    "qtd": 1,
+    "vgv": 39000,
+    "lance": 1300,
+    "pisteiro": "Regiane C. N. de Abreu (Nane)",
+    "membro": "NANE",
+    "pela_remates": false
+   },
+   {
+    "filial": "2",
+    "leilao": "28º LEILÃO NAVIRAÍ CAMPARINO - REPRODUTORES",
+    "data": "2026-08-23",
+    "data_venda": "2026-08-23",
+    "lote": "64",
+    "qtd": 1,
+    "vgv": 33000,
+    "lance": 1100,
+    "pisteiro": "Regiane C. N. de Abreu (Nane)",
+    "membro": "NANE",
+    "pela_remates": false
+   },
+   {
+    "filial": "2",
+    "leilao": "28º LEILÃO NAVIRAÍ CAMPARINO - REPRODUTORES",
+    "data": "2026-08-23",
+    "data_venda": "2026-08-23",
+    "lote": "29",
+    "qtd": 1,
+    "vgv": 36000,
+    "lance": 1200,
+    "pisteiro": "Regiane C. N. de Abreu (Nane)",
+    "membro": "NANE",
+    "pela_remates": false
+   },
+   {
+    "filial": "2",
+    "leilao": "28º LEILÃO NAVIRAÍ CAMPARINO - REPRODUTORES",
+    "data": "2026-08-23",
+    "data_venda": "2026-08-23",
+    "lote": "16",
+    "qtd": 1,
+    "vgv": 48000,
+    "lance": 1600,
+    "pisteiro": "Lucas Martins Durães Bragança",
+    "membro": "LUCAS MARTINS",
+    "pela_remates": true
+   },
+   {
+    "filial": "2",
+    "leilao": "28º LEILÃO NAVIRAÍ CAMPARINO - REPRODUTORES",
+    "data": "2026-08-23",
+    "data_venda": "2026-08-23",
+    "lote": "01",
+    "qtd": 1,
+    "vgv": 33000,
+    "lance": 1100,
+    "pisteiro": "Fabio de Omena Gaia",
+    "membro": "FABIO OMENNA",
+    "pela_remates": false
+   },
+   {
+    "filial": "2",
+    "leilao": "28º LEILÃO NAVIRAÍ CAMPARINO - REPRODUTORES",
+    "data": "2026-08-23",
+    "data_venda": "2026-08-23",
+    "lote": "12",
+    "qtd": 1,
+    "vgv": 49500,
+    "lance": 1650,
+    "pisteiro": "Leonardo Serafim Francisco",
+    "membro": "LEONARDO",
+    "pela_remates": false
+   },
+   {
+    "filial": "2",
+    "leilao": "28º LEILÃO NAVIRAÍ CAMPARINO - REPRODUTORES",
+    "data": "2026-08-23",
+    "data_venda": "2026-08-23",
+    "lote": "09",
+    "qtd": 1,
+    "vgv": 39000,
+    "lance": 1300,
+    "pisteiro": "Douglas Bispo Carvalho",
+    "membro": "DOUGLAS BISPO",
+    "pela_remates": false
+   },
+   {
+    "filial": "2",
+    "leilao": "28º LEILÃO NAVIRAÍ CAMPARINO - REPRODUTORES",
+    "data": "2026-08-23",
+    "data_venda": "2026-08-23",
+    "lote": "30",
+    "qtd": 1,
+    "vgv": 42000,
+    "lance": 1400,
+    "pisteiro": "Luiz Felipe Peralta Garcez",
+    "membro": "PERALTA",
+    "pela_remates": true
+   },
+   {
+    "filial": "2",
+    "leilao": "28º LEILÃO NAVIRAÍ CAMPARINO - REPRODUTORES",
+    "data": "2026-08-23",
+    "data_venda": "2026-08-23",
+    "lote": "140",
+    "qtd": 1,
+    "vgv": 36000,
+    "lance": 1200,
+    "pisteiro": "Regiane C. N. de Abreu (Nane)",
+    "membro": "NANE",
+    "pela_remates": false
+   },
+   {
+    "filial": "2",
+    "leilao": "28º LEILÃO NAVIRAÍ CAMPARINO - REPRODUTORES",
+    "data": "2026-08-23",
+    "data_venda": "2026-08-23",
+    "lote": "132",
+    "qtd": 1,
+    "vgv": 45000,
+    "lance": 1500,
+    "pisteiro": "Fabio de Omena Gaia",
+    "membro": "FABIO OMENNA",
+    "pela_remates": false
+   },
+   {
+    "filial": "2",
+    "leilao": "28º LEILÃO NAVIRAÍ CAMPARINO - REPRODUTORES",
+    "data": "2026-08-23",
+    "data_venda": "2026-08-23",
+    "lote": "159",
+    "qtd": 1,
+    "vgv": 39000,
+    "lance": 1300,
+    "pisteiro": "Regiane C. N. de Abreu (Nane)",
+    "membro": "NANE",
+    "pela_remates": false
+   },
+   {
+    "filial": "2",
+    "leilao": "28º LEILÃO NAVIRAÍ CAMPARINO - REPRODUTORES",
+    "data": "2026-08-23",
+    "data_venda": "2026-08-23",
+    "lote": "52",
+    "qtd": 1,
+    "vgv": 30000,
+    "lance": 1000,
+    "pisteiro": "Laila de Sousa Oliveira",
+    "membro": "LAILA",
+    "pela_remates": true
+   },
+   {
+    "filial": "2",
+    "leilao": "28º LEILÃO NAVIRAÍ CAMPARINO - REPRODUTORES",
+    "data": "2026-08-23",
+    "data_venda": "2026-08-23",
+    "lote": "42",
+    "qtd": 1,
+    "vgv": 30000,
+    "lance": 1000,
+    "pisteiro": "Fabio de Omena Gaia",
+    "membro": "FABIO OMENNA",
+    "pela_remates": false
+   },
+   {
+    "filial": "2",
+    "leilao": "28º LEILÃO NAVIRAÍ CAMPARINO - REPRODUTORES",
+    "data": "2026-08-23",
+    "data_venda": "2026-08-23",
+    "lote": "44",
+    "qtd": 1,
+    "vgv": 39000,
+    "lance": 1300,
+    "pisteiro": "Regiane C. N. de Abreu (Nane)",
+    "membro": "NANE",
+    "pela_remates": false
+   },
+   {
+    "filial": "2",
+    "leilao": "28º LEILÃO NAVIRAÍ CAMPARINO - REPRODUTORES",
+    "data": "2026-08-23",
+    "data_venda": "2026-08-23",
+    "lote": "77",
+    "qtd": 1,
+    "vgv": 30000,
+    "lance": 1000,
+    "pisteiro": "Laila de Sousa Oliveira",
+    "membro": "LAILA",
+    "pela_remates": true
+   },
+   {
+    "filial": "2",
+    "leilao": "28º LEILÃO NAVIRAÍ CAMPARINO - REPRODUTORES",
+    "data": "2026-08-23",
+    "data_venda": "2026-08-23",
+    "lote": "78",
+    "qtd": 1,
+    "vgv": 48000,
+    "lance": 1600,
+    "pisteiro": "Luiz Felipe Peralta Garcez",
+    "membro": "PERALTA",
+    "pela_remates": true
+   },
+   {
+    "filial": "2",
+    "leilao": "28º LEILÃO NAVIRAÍ CAMPARINO - REPRODUTORES",
+    "data": "2026-08-23",
+    "data_venda": "2026-08-23",
+    "lote": "36",
+    "qtd": 1,
+    "vgv": 42000,
+    "lance": 1400,
+    "pisteiro": "Fabio de Omena Gaia",
+    "membro": "FABIO OMENNA",
+    "pela_remates": false
+   },
+   {
+    "filial": "2",
+    "leilao": "28º LEILÃO NAVIRAÍ CAMPARINO - REPRODUTORES",
+    "data": "2026-08-23",
+    "data_venda": "2026-08-23",
+    "lote": "19",
+    "qtd": 1,
+    "vgv": 36000,
+    "lance": 1200,
+    "pisteiro": "Fabio de Omena Gaia",
+    "membro": "FABIO OMENNA",
+    "pela_remates": false
+   },
+   {
+    "filial": "2",
+    "leilao": "28º LEILÃO NAVIRAÍ CAMPARINO - REPRODUTORES",
+    "data": "2026-08-23",
+    "data_venda": "2026-08-23",
+    "lote": "20",
+    "qtd": 1,
+    "vgv": 42000,
+    "lance": 1400,
+    "pisteiro": "Fabio de Omena Gaia",
+    "membro": "FABIO OMENNA",
+    "pela_remates": false
+   },
+   {
+    "filial": "2",
+    "leilao": "28º LEILÃO NAVIRAÍ CAMPARINO - REPRODUTORES",
+    "data": "2026-08-23",
+    "data_venda": "2026-08-23",
+    "lote": "59",
+    "qtd": 1,
+    "vgv": 33000,
+    "lance": 1100,
+    "pisteiro": "Douglas Bispo Carvalho",
+    "membro": "DOUGLAS BISPO",
+    "pela_remates": false
+   },
+   {
+    "filial": "2",
+    "leilao": "28º LEILÃO NAVIRAÍ CAMPARINO - REPRODUTORES",
+    "data": "2026-08-23",
+    "data_venda": "2026-08-23",
+    "lote": "105",
+    "qtd": 1,
+    "vgv": 60000,
+    "lance": 2000,
+    "pisteiro": "Fabio de Omena Gaia",
+    "membro": "FABIO OMENNA",
+    "pela_remates": false
+   },
+   {
+    "filial": "2",
+    "leilao": "28º LEILÃO NAVIRAÍ CAMPARINO - REPRODUTORES",
+    "data": "2026-08-23",
+    "data_venda": "2026-08-23",
+    "lote": "117",
+    "qtd": 1,
+    "vgv": 48000,
+    "lance": 1600,
+    "pisteiro": "Lucas Martins Durães Bragança",
+    "membro": "LUCAS MARTINS",
+    "pela_remates": true
+   },
+   {
+    "filial": "2",
+    "leilao": "28º LEILÃO NAVIRAÍ CAMPARINO - REPRODUTORES",
+    "data": "2026-08-23",
+    "data_venda": "2026-08-26",
+    "lote": "22",
+    "qtd": 1,
+    "vgv": 63000,
+    "lance": 2100,
+    "pisteiro": "MARCELO MOURA",
+    "membro": null,
+    "pela_remates": false
+   },
+   {
+    "filial": "2",
+    "leilao": "LEILÃO NELORE MARCONDES - ABERTURA",
+    "data": "2026-08-23",
+    "data_venda": "2026-08-23",
+    "lote": "01",
+    "qtd": 1,
+    "vgv": 37500,
+    "lance": 1250,
+    "pisteiro": "Luiz Felipe Peralta Garcez",
+    "membro": "PERALTA",
+    "pela_remates": true
+   },
+   {
+    "filial": "2",
+    "leilao": "6º LEILÃO EXCELÊNCIA GENÉTICA",
+    "data": "2026-08-23",
+    "data_venda": "2026-08-26",
+    "lote": "21",
+    "qtd": 1,
+    "vgv": 105000,
+    "lance": 3500,
+    "pisteiro": "Felipe Vilela Andrade",
+    "membro": "BULINHA (FELIPE ANDRADE)",
+    "pela_remates": true
+   },
+   {
+    "filial": "2",
+    "leilao": "LEILÃO VIRTUAL TERRA BRAVA AGROPECUÁRIA - FÊMEAS PRENHAS",
+    "data": "2026-08-26",
+    "data_venda": "2026-08-27",
+    "lote": "19",
+    "qtd": 1,
+    "vgv": 27000,
+    "lance": 900,
+    "pisteiro": "Leonardo Serafim Francisco",
+    "membro": "LEONARDO",
+    "pela_remates": false
+   },
+   {
+    "filial": "2",
+    "leilao": "LEILÃO VIRTUAL TERRA BRAVA AGROPECUÁRIA - FÊMEAS PRENHAS",
+    "data": "2026-08-26",
+    "data_venda": "2026-08-27",
+    "lote": "45",
+    "qtd": 1,
+    "vgv": 19500,
+    "lance": 650,
+    "pisteiro": "Fabio de Omena Gaia",
+    "membro": "FABIO OMENNA",
+    "pela_remates": false
+   },
+   {
+    "filial": "2",
+    "leilao": "LEILÃO NELORE DO XINGU",
+    "data": "2026-08-26",
+    "data_venda": "2026-08-27",
+    "lote": "EXTRA",
+    "qtd": 1,
+    "vgv": 93000,
+    "lance": 3100,
+    "pisteiro": "Douglas Bispo Carvalho",
+    "membro": "DOUGLAS BISPO",
+    "pela_remates": false
+   },
+   {
+    "filial": "2",
+    "leilao": "LEILÃO VIRTUAL VENTRES VIP MATINHA",
+    "data": "2026-08-30",
+    "data_venda": "2026-08-31",
+    "lote": "18",
+    "qtd": 1,
+    "vgv": 27000,
+    "lance": 900,
+    "pisteiro": "Douglas Bispo Carvalho",
+    "membro": "DOUGLAS BISPO",
+    "pela_remates": false
+   },
+   {
+    "filial": "2",
+    "leilao": "LEILÃO VIRTUAL VENTRES VIP MATINHA",
+    "data": "2026-08-30",
+    "data_venda": "2026-08-31",
+    "lote": "31",
+    "qtd": 1,
+    "vgv": 37500,
+    "lance": 1250,
+    "pisteiro": "Douglas Bispo Carvalho",
+    "membro": "DOUGLAS BISPO",
+    "pela_remates": false
+   },
+   {
+    "filial": "2",
+    "leilao": "LEILÃO VIRTUAL VENTRES VIP MATINHA",
+    "data": "2026-08-30",
+    "data_venda": "2026-08-31",
+    "lote": "138",
+    "qtd": 2,
+    "vgv": 18000,
+    "lance": 300,
+    "pisteiro": "Fabio de Omena Gaia",
+    "membro": "FABIO OMENNA",
+    "pela_remates": false
+   },
+   {
+    "filial": "2",
+    "leilao": "LEILÃO VIRTUAL VENTRES VIP MATINHA",
+    "data": "2026-08-30",
+    "data_venda": "2026-08-31",
+    "lote": "140",
+    "qtd": 2,
+    "vgv": 18000,
+    "lance": 300,
+    "pisteiro": "Fabio de Omena Gaia",
+    "membro": "FABIO OMENNA",
+    "pela_remates": false
+   },
+   {
+    "filial": "2",
+    "leilao": "LEILÃO VIRTUAL VENTRES VIP MATINHA",
+    "data": "2026-08-30",
+    "data_venda": "2026-08-31",
+    "lote": "141",
+    "qtd": 3,
+    "vgv": 27000,
+    "lance": 300,
+    "pisteiro": "Fabio de Omena Gaia",
+    "membro": "FABIO OMENNA",
+    "pela_remates": false
+   },
+   {
+    "filial": "2",
+    "leilao": "1º LEILÃO NELORE ASJ",
+    "data": "2026-08-30",
+    "data_venda": "2026-08-31",
+    "lote": "24",
+    "qtd": 2,
+    "vgv": 19800,
+    "lance": 330,
+    "pisteiro": "Fabio de Omena Gaia",
+    "membro": "FABIO OMENNA",
+    "pela_remates": false
+   },
+   {
+    "filial": "2",
+    "leilao": "1º LEILÃO NELORE ASJ",
+    "data": "2026-08-30",
+    "data_venda": "2026-08-31",
+    "lote": "07",
+    "qtd": 1,
+    "vgv": 11100,
+    "lance": 370,
+    "pisteiro": "Fabio de Omena Gaia",
+    "membro": "FABIO OMENNA",
+    "pela_remates": false
+   }
+  ],
+  "hp01_bula": [
+   {
+    "filial": "01",
+    "leilao": "LEILÃO TOUROS SÃO GERALDO E 7P AGRO",
+    "data": "2026-08-01",
+    "data_venda": "2026-08-01",
+    "lote": "14",
+    "qtd": 1,
+    "vgv": 45000,
+    "lance": 1500,
+    "pisteiro": "Regiane C. N. de Abreu (Nane)",
+    "membro": "NANE",
+    "pela_remates": false
+   },
+   {
+    "filial": "01",
+    "leilao": "LEILÃO TOUROS SÃO GERALDO E 7P AGRO",
+    "data": "2026-08-01",
+    "data_venda": "2026-08-01",
+    "lote": "23",
+    "qtd": 1,
+    "vgv": 39000,
+    "lance": 1300,
+    "pisteiro": "Regiane C. N. de Abreu (Nane)",
+    "membro": "NANE",
+    "pela_remates": false
+   },
+   {
+    "filial": "01",
+    "leilao": "LEILÃO TOUROS SÃO GERALDO E 7P AGRO",
+    "data": "2026-08-01",
+    "data_venda": "2026-08-01",
+    "lote": "56",
+    "qtd": 1,
+    "vgv": 18600,
+    "lance": 620,
+    "pisteiro": "Leonardo Serafim Francisco",
+    "membro": "LEONARDO",
+    "pela_remates": false
+   },
+   {
+    "filial": "01",
+    "leilao": "LEILÃO TOUROS SÃO GERALDO E 7P AGRO",
+    "data": "2026-08-01",
+    "data_venda": "2026-08-01",
+    "lote": "57",
+    "qtd": 1,
+    "vgv": 18600,
+    "lance": 620,
+    "pisteiro": "Leonardo Serafim Francisco",
+    "membro": "LEONARDO",
+    "pela_remates": false
+   },
+   {
+    "filial": "01",
+    "leilao": "LEILÃO TOUROS SÃO GERALDO E 7P AGRO",
+    "data": "2026-08-01",
+    "data_venda": "2026-08-01",
+    "lote": "58",
+    "qtd": 1,
+    "vgv": 18600,
+    "lance": 620,
+    "pisteiro": "Leonardo Serafim Francisco",
+    "membro": "LEONARDO",
+    "pela_remates": false
+   },
+   {
+    "filial": "01",
+    "leilao": "LEILÃO TOUROS SÃO GERALDO E 7P AGRO",
+    "data": "2026-08-01",
+    "data_venda": "2026-08-01",
+    "lote": "3000",
+    "qtd": 1,
+    "vgv": 120000,
+    "lance": 4000,
+    "pisteiro": "Leonardo Serafim Francisco",
+    "membro": "LEONARDO",
+    "pela_remates": false
+   },
+   {
+    "filial": "01",
+    "leilao": "LEILÃO TOUROS SÃO GERALDO E 7P AGRO",
+    "data": "2026-08-01",
+    "data_venda": "2026-08-01",
+    "lote": "1000",
+    "qtd": 1,
+    "vgv": 200000,
+    "lance": 5000,
+    "pisteiro": "Douglas Bispo Carvalho",
+    "membro": "DOUGLAS BISPO",
+    "pela_remates": false
+   },
+   {
+    "filial": "01",
+    "leilao": "LEILÃO SÓ CRIADOR FÊMEAS E MACHOS DE ALTO PADRÃO",
+    "data": "2026-08-18",
+    "data_venda": "2026-08-18",
+    "lote": "16A",
+    "qtd": 20,
+    "vgv": 50000,
+    "lance": 2500,
+    "pisteiro": "Regiane C. N. de Abreu (Nane)",
+    "membro": "NANE",
+    "pela_remates": false
+   },
+   {
+    "filial": "01",
+    "leilao": "LEILÃO GENÉTICA SÃO JOSÉ - 30 ANOS DE SELEÇÃO",
+    "data": "2026-08-26",
+    "data_venda": "2026-08-26",
+    "lote": "28",
+    "qtd": 5,
+    "vgv": 38500,
+    "lance": 550,
+    "pisteiro": "Regiane C. N. de Abreu (Nane)",
+    "membro": "NANE",
+    "pela_remates": false
+   },
+   {
+    "filial": "01",
+    "leilao": "LEILÃO GENÉTICA SÃO JOSÉ - 30 ANOS DE SELEÇÃO",
+    "data": "2026-08-26",
+    "data_venda": "2026-08-26",
+    "lote": "36",
+    "qtd": 6,
+    "vgv": 46200,
+    "lance": 550,
+    "pisteiro": "Regiane C. N. de Abreu (Nane)",
+    "membro": "NANE",
+    "pela_remates": false
+   },
+   {
+    "filial": "01",
+    "leilao": "LEILÃO GENÉTICA SÃO JOSÉ - 30 ANOS DE SELEÇÃO",
+    "data": "2026-08-26",
+    "data_venda": "2026-08-26",
+    "lote": "37",
+    "qtd": 6,
+    "vgv": 46200,
+    "lance": 550,
+    "pisteiro": "Regiane C. N. de Abreu (Nane)",
+    "membro": "NANE",
+    "pela_remates": false
+   }
+  ]
+ }
+}
