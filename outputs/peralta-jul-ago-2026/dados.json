@@ -1,0 +1,1853 @@
+{
+ "geradoEm": "2026-08-31",
+ "periodo": {
+  "ini": "2026-07-01",
+  "fim": "2026-08-31"
+ },
+ "pessoa": {
+  "nome": "Peralta",
+  "hastapro": "Luiz Felipe Peralta Garcez",
+  "pct": 0.02,
+  "folha_ativo": false,
+  "cadastro_fornecedor": true
+ },
+ "fil2": {
+  "leiloes": [
+   {
+    "data": "2026-07-16",
+    "leilao": "LEILÃO VIRTUAL NAVIRAÍ MATRIZES - 2ª ETAPA",
+    "uf": "PR",
+    "lotes": [
+     {
+      "filial": "2",
+      "leilao": "LEILÃO VIRTUAL NAVIRAÍ MATRIZES - 2ª ETAPA",
+      "uf": "PR",
+      "data": "2026-07-16",
+      "data_venda": "2026-07-16",
+      "lote": "36",
+      "qtd": 1,
+      "lance": 850,
+      "vgv": 25500,
+      "captacao": 30,
+      "parcelas": 27,
+      "compradores": [
+       {
+        "nome": "JOSÉ EDUARDO LIPPI",
+        "uf": "MS",
+        "pct": 100
+       }
+      ]
+     },
+     {
+      "filial": "2",
+      "leilao": "LEILÃO VIRTUAL NAVIRAÍ MATRIZES - 2ª ETAPA",
+      "uf": "PR",
+      "data": "2026-07-16",
+      "data_venda": "2026-07-16",
+      "lote": "18",
+      "qtd": 1,
+      "lance": 950,
+      "vgv": 28500,
+      "captacao": 30,
+      "parcelas": 27,
+      "compradores": [
+       {
+        "nome": "JOSÉ EDUARDO LIPPI",
+        "uf": "MS",
+        "pct": 100
+       }
+      ]
+     }
+    ],
+    "n": 2,
+    "cabecas": 2,
+    "vgv": 54000
+   },
+   {
+    "data": "2026-08-20",
+    "leilao": "LEILÃO NELORE CEN & FAZENDA MODELO & CONVIDADOS",
+    "uf": "MG",
+    "lotes": [
+     {
+      "filial": "2",
+      "leilao": "LEILÃO NELORE CEN & FAZENDA MODELO & CONVIDADOS",
+      "uf": "MG",
+      "data": "2026-08-20",
+      "data_venda": "2026-08-21",
+      "lote": "09",
+      "qtd": 1,
+      "lance": 2800,
+      "vgv": 84000,
+      "captacao": 30,
+      "parcelas": 27,
+      "compradores": [
+       {
+        "nome": "FERNANDO CESAR PINHEIRO CARNEIRO",
+        "uf": "MS",
+        "pct": 100
+       }
+      ]
+     }
+    ],
+    "n": 1,
+    "cabecas": 1,
+    "vgv": 84000
+   },
+   {
+    "data": "2026-08-23",
+    "leilao": "28º LEILÃO NAVIRAÍ CAMPARINO - REPRODUTORES",
+    "uf": "MG",
+    "lotes": [
+     {
+      "filial": "2",
+      "leilao": "28º LEILÃO NAVIRAÍ CAMPARINO - REPRODUTORES",
+      "uf": "MG",
+      "data": "2026-08-23",
+      "data_venda": "2026-08-23",
+      "lote": "30",
+      "qtd": 1,
+      "lance": 1400,
+      "vgv": 42000,
+      "captacao": 30,
+      "parcelas": 27,
+      "compradores": [
+       {
+        "nome": "LIBERATO ANTONIO SERAFINI FILHO",
+        "uf": "MS",
+        "pct": 100
+       }
+      ]
+     },
+     {
+      "filial": "2",
+      "leilao": "28º LEILÃO NAVIRAÍ CAMPARINO - REPRODUTORES",
+      "uf": "MG",
+      "data": "2026-08-23",
+      "data_venda": "2026-08-23",
+      "lote": "78",
+      "qtd": 1,
+      "lance": 1600,
+      "vgv": 48000,
+      "captacao": 30,
+      "parcelas": 27,
+      "compradores": [
+       {
+        "nome": "DANIEL ALBUQUERQUE PEREIRA",
+        "uf": "MS",
+        "pct": 100
+       }
+      ]
+     }
+    ],
+    "n": 2,
+    "cabecas": 2,
+    "vgv": 90000
+   },
+   {
+    "data": "2026-08-23",
+    "leilao": "LEILÃO NELORE MARCONDES - ABERTURA",
+    "uf": "MG",
+    "lotes": [
+     {
+      "filial": "2",
+      "leilao": "LEILÃO NELORE MARCONDES - ABERTURA",
+      "uf": "MG",
+      "data": "2026-08-23",
+      "data_venda": "2026-08-23",
+      "lote": "01",
+      "qtd": 1,
+      "lance": 1250,
+      "vgv": 37500,
+      "captacao": 30,
+      "parcelas": 27,
+      "compradores": [
+       {
+        "nome": "FERNANDO CESAR PINHEIRO CARNEIRO",
+        "uf": "MS",
+        "pct": 100
+       }
+      ]
+     }
+    ],
+    "n": 1,
+    "cabecas": 1,
+    "vgv": 37500
+   }
+  ],
+  "lotes": 6,
+  "cabecas": 6,
+  "vgv": 265500,
+  "vgv_julho": 54000,
+  "vgv_agosto": 211500,
+  "comissao": 5310,
+  "compradores": [
+   {
+    "nome": "FERNANDO CESAR PINHEIRO CARNEIRO",
+    "uf": "MS",
+    "vgv": 121500,
+    "lotes": 2
+   },
+   {
+    "nome": "JOSÉ EDUARDO LIPPI",
+    "uf": "MS",
+    "vgv": 54000,
+    "lotes": 2
+   },
+   {
+    "nome": "DANIEL ALBUQUERQUE PEREIRA",
+    "uf": "MS",
+    "vgv": 48000,
+    "lotes": 1
+   },
+   {
+    "nome": "LIBERATO ANTONIO SERAFINI FILHO",
+    "uf": "MS",
+    "vgv": 42000,
+    "lotes": 1
+   }
+  ]
+ },
+ "fil01": {
+  "leiloes": [
+   {
+    "data": "2026-07-07",
+    "leilao": "LEILÃO VIRTUAL NELORE KRIZ REPRODUTORES",
+    "uf": "MS",
+    "lotes": [
+     {
+      "filial": "01",
+      "leilao": "LEILÃO VIRTUAL NELORE KRIZ REPRODUTORES",
+      "uf": "MS",
+      "data": "2026-07-07",
+      "data_venda": "2026-07-07",
+      "lote": "02",
+      "qtd": 1,
+      "lance": 850,
+      "vgv": 25500,
+      "captacao": 30,
+      "parcelas": 1,
+      "compradores": [
+       {
+        "nome": "ELVIO RODRIGUES",
+        "uf": "MS",
+        "pct": 100
+       }
+      ]
+     },
+     {
+      "filial": "01",
+      "leilao": "LEILÃO VIRTUAL NELORE KRIZ REPRODUTORES",
+      "uf": "MS",
+      "data": "2026-07-07",
+      "data_venda": "2026-07-07",
+      "lote": "12",
+      "qtd": 1,
+      "lance": 1050,
+      "vgv": 31500,
+      "captacao": 30,
+      "parcelas": 25,
+      "compradores": [
+       {
+        "nome": "EDUARDO CRUZETTA",
+        "uf": "MS",
+        "pct": 100
+       }
+      ]
+     },
+     {
+      "filial": "01",
+      "leilao": "LEILÃO VIRTUAL NELORE KRIZ REPRODUTORES",
+      "uf": "MS",
+      "data": "2026-07-07",
+      "data_venda": "2026-07-07",
+      "lote": "22",
+      "qtd": 1,
+      "lance": 650,
+      "vgv": 19500,
+      "captacao": 30,
+      "parcelas": 25,
+      "compradores": [
+       {
+        "nome": "EDUARDO CRUZETTA",
+        "uf": "MS",
+        "pct": 100
+       }
+      ]
+     },
+     {
+      "filial": "01",
+      "leilao": "LEILÃO VIRTUAL NELORE KRIZ REPRODUTORES",
+      "uf": "MS",
+      "data": "2026-07-07",
+      "data_venda": "2026-07-07",
+      "lote": "35",
+      "qtd": 1,
+      "lance": 750,
+      "vgv": 22500,
+      "captacao": 30,
+      "parcelas": 25,
+      "compradores": [
+       {
+        "nome": "ONIVALDO MENDONCA LEIRIA",
+        "uf": "MS",
+        "pct": 100
+       }
+      ]
+     },
+     {
+      "filial": "01",
+      "leilao": "LEILÃO VIRTUAL NELORE KRIZ REPRODUTORES",
+      "uf": "MS",
+      "data": "2026-07-07",
+      "data_venda": "2026-07-07",
+      "lote": "27",
+      "qtd": 1,
+      "lance": 620,
+      "vgv": 18600,
+      "captacao": 30,
+      "parcelas": 25,
+      "compradores": [
+       {
+        "nome": "EDUARDO CRUZETTA",
+        "uf": "MS",
+        "pct": 100
+       }
+      ]
+     },
+     {
+      "filial": "01",
+      "leilao": "LEILÃO VIRTUAL NELORE KRIZ REPRODUTORES",
+      "uf": "MS",
+      "data": "2026-07-07",
+      "data_venda": "2026-07-07",
+      "lote": "29",
+      "qtd": 1,
+      "lance": 650,
+      "vgv": 19500,
+      "captacao": 30,
+      "parcelas": 25,
+      "compradores": [
+       {
+        "nome": "EDUARDO CRUZETTA",
+        "uf": "MS",
+        "pct": 100
+       }
+      ]
+     }
+    ],
+    "n": 6,
+    "cabecas": 6,
+    "vgv": 137100
+   },
+   {
+    "data": "2026-07-21",
+    "leilao": "LEILÃO CORTE NELORAÇO VIRTUAL",
+    "uf": "MS",
+    "lotes": [
+     {
+      "filial": "01",
+      "leilao": "LEILÃO CORTE NELORAÇO VIRTUAL",
+      "uf": "MS",
+      "data": "2026-07-21",
+      "data_venda": "2026-07-21",
+      "lote": "14",
+      "qtd": 30,
+      "lance": 2920,
+      "vgv": 87600,
+      "captacao": 1,
+      "parcelas": 1,
+      "compradores": [
+       {
+        "nome": "LUIZ MARCELO HIPOLITO NANTES PEREIRA",
+        "uf": "MS",
+        "pct": 100
+       }
+      ]
+     },
+     {
+      "filial": "01",
+      "leilao": "LEILÃO CORTE NELORAÇO VIRTUAL",
+      "uf": "MS",
+      "data": "2026-07-21",
+      "data_venda": "2026-07-21",
+      "lote": "26",
+      "qtd": 33,
+      "lance": 3270,
+      "vgv": 107910,
+      "captacao": 1,
+      "parcelas": 1,
+      "compradores": [
+       {
+        "nome": "LOCATELLI & MORAIS AGROPECUARIA LTDA",
+        "uf": "MS",
+        "pct": 100
+       }
+      ]
+     },
+     {
+      "filial": "01",
+      "leilao": "LEILÃO CORTE NELORAÇO VIRTUAL",
+      "uf": "MS",
+      "data": "2026-07-21",
+      "data_venda": "2026-07-21",
+      "lote": "28",
+      "qtd": 30,
+      "lance": 3730,
+      "vgv": 111900,
+      "captacao": 1,
+      "parcelas": 1,
+      "compradores": [
+       {
+        "nome": "HELIO SACHT",
+        "uf": "MS",
+        "pct": 100
+       }
+      ]
+     }
+    ],
+    "n": 3,
+    "cabecas": 93,
+    "vgv": 307410
+   },
+   {
+    "data": "2026-07-25",
+    "leilao": "29° LEILÃO NELORAÇO - IRMÃOS HIPÓLITO",
+    "uf": "MS",
+    "lotes": [
+     {
+      "filial": "01",
+      "leilao": "29° LEILÃO NELORAÇO - IRMÃOS HIPÓLITO",
+      "uf": "MS",
+      "data": "2026-07-25",
+      "data_venda": "2026-07-25",
+      "lote": "10",
+      "qtd": 1,
+      "lance": 1250,
+      "vgv": 37500,
+      "captacao": 30,
+      "parcelas": 24,
+      "compradores": [
+       {
+        "nome": "FERNANDO JOSE CAZERTA AGUIAR",
+        "uf": "SP",
+        "pct": 100
+       }
+      ]
+     },
+     {
+      "filial": "01",
+      "leilao": "29° LEILÃO NELORAÇO - IRMÃOS HIPÓLITO",
+      "uf": "MS",
+      "data": "2026-07-25",
+      "data_venda": "2026-07-25",
+      "lote": "50",
+      "qtd": 1,
+      "lance": 1300,
+      "vgv": 39000,
+      "captacao": 30,
+      "parcelas": 24,
+      "compradores": [
+       {
+        "nome": "FERNANDO JOSE CAZERTA AGUIAR",
+        "uf": "SP",
+        "pct": 100
+       }
+      ]
+     },
+     {
+      "filial": "01",
+      "leilao": "29° LEILÃO NELORAÇO - IRMÃOS HIPÓLITO",
+      "uf": "MS",
+      "data": "2026-07-25",
+      "data_venda": "2026-07-25",
+      "lote": "41",
+      "qtd": 1,
+      "lance": 1600,
+      "vgv": 48000,
+      "captacao": 30,
+      "parcelas": 24,
+      "compradores": [
+       {
+        "nome": "DANIEL ALBUQUERQUE PEREIRA",
+        "uf": "MS",
+        "pct": 100
+       }
+      ]
+     },
+     {
+      "filial": "01",
+      "leilao": "29° LEILÃO NELORAÇO - IRMÃOS HIPÓLITO",
+      "uf": "MS",
+      "data": "2026-07-25",
+      "data_venda": "2026-07-25",
+      "lote": "42",
+      "qtd": 1,
+      "lance": 800,
+      "vgv": 24000,
+      "captacao": 30,
+      "parcelas": 24,
+      "compradores": [
+       {
+        "nome": "HELIO CORRÊA DE ASSUNÇÃO",
+        "uf": "MS",
+        "pct": 100
+       }
+      ]
+     },
+     {
+      "filial": "01",
+      "leilao": "29° LEILÃO NELORAÇO - IRMÃOS HIPÓLITO",
+      "uf": "MS",
+      "data": "2026-07-25",
+      "data_venda": "2026-07-25",
+      "lote": "24",
+      "qtd": 1,
+      "lance": 2000,
+      "vgv": 60000,
+      "captacao": 30,
+      "parcelas": 24,
+      "compradores": [
+       {
+        "nome": "NEIRE ALVES DE LIMA",
+        "uf": "MS",
+        "pct": 100
+       }
+      ]
+     },
+     {
+      "filial": "01",
+      "leilao": "29° LEILÃO NELORAÇO - IRMÃOS HIPÓLITO",
+      "uf": "MS",
+      "data": "2026-07-25",
+      "data_venda": "2026-07-25",
+      "lote": "36",
+      "qtd": 1,
+      "lance": 1000,
+      "vgv": 30000,
+      "captacao": 30,
+      "parcelas": 24,
+      "compradores": [
+       {
+        "nome": "FERNANDO JOSE CAZERTA AGUIAR",
+        "uf": "SP",
+        "pct": 100
+       }
+      ]
+     },
+     {
+      "filial": "01",
+      "leilao": "29° LEILÃO NELORAÇO - IRMÃOS HIPÓLITO",
+      "uf": "MS",
+      "data": "2026-07-25",
+      "data_venda": "2026-07-25",
+      "lote": "46",
+      "qtd": 1,
+      "lance": 1300,
+      "vgv": 39000,
+      "captacao": 30,
+      "parcelas": 24,
+      "compradores": [
+       {
+        "nome": "DANIEL ALBUQUERQUE PEREIRA",
+        "uf": "MS",
+        "pct": 100
+       }
+      ]
+     },
+     {
+      "filial": "01",
+      "leilao": "29° LEILÃO NELORAÇO - IRMÃOS HIPÓLITO",
+      "uf": "MS",
+      "data": "2026-07-25",
+      "data_venda": "2026-07-25",
+      "lote": "38",
+      "qtd": 1,
+      "lance": 0,
+      "vgv": 0,
+      "captacao": 30,
+      "parcelas": 1,
+      "compradores": []
+     },
+     {
+      "filial": "01",
+      "leilao": "29° LEILÃO NELORAÇO - IRMÃOS HIPÓLITO",
+      "uf": "MS",
+      "data": "2026-07-25",
+      "data_venda": "2026-07-25",
+      "lote": "29",
+      "qtd": 1,
+      "lance": 2000,
+      "vgv": 60000,
+      "captacao": 30,
+      "parcelas": 24,
+      "compradores": [
+       {
+        "nome": "NEIRE ALVES DE LIMA",
+        "uf": "MS",
+        "pct": 100
+       }
+      ]
+     },
+     {
+      "filial": "01",
+      "leilao": "29° LEILÃO NELORAÇO - IRMÃOS HIPÓLITO",
+      "uf": "MS",
+      "data": "2026-07-25",
+      "data_venda": "2026-07-25",
+      "lote": "39",
+      "qtd": 1,
+      "lance": 2000,
+      "vgv": 60000,
+      "captacao": 30,
+      "parcelas": 24,
+      "compradores": [
+       {
+        "nome": "FERNANDO JOSE CAZERTA AGUIAR",
+        "uf": "SP",
+        "pct": 100
+       }
+      ]
+     }
+    ],
+    "n": 10,
+    "cabecas": 10,
+    "vgv": 397500
+   },
+   {
+    "data": "2026-07-28",
+    "leilao": "LEILÃO ESPECIAL FAZENDA TUPÃ - MOACIR DUIM & CONVIDADOS",
+    "uf": "MS",
+    "lotes": [
+     {
+      "filial": "01",
+      "leilao": "LEILÃO ESPECIAL FAZENDA TUPÃ - MOACIR DUIM & CONVIDADOS",
+      "uf": "MS",
+      "data": "2026-07-28",
+      "data_venda": "2026-07-28",
+      "lote": "02",
+      "qtd": 85,
+      "lance": 1110,
+      "vgv": 283050,
+      "captacao": 3,
+      "parcelas": 1,
+      "compradores": [
+       {
+        "nome": "RUY MORAES TERRA FILHO",
+        "uf": "SP",
+        "pct": 100
+       }
+      ]
+     },
+     {
+      "filial": "01",
+      "leilao": "LEILÃO ESPECIAL FAZENDA TUPÃ - MOACIR DUIM & CONVIDADOS",
+      "uf": "MS",
+      "data": "2026-07-28",
+      "data_venda": "2026-07-28",
+      "lote": "16",
+      "qtd": 40,
+      "lance": 780,
+      "vgv": 93600,
+      "captacao": 3,
+      "parcelas": 1,
+      "compradores": [
+       {
+        "nome": "RUY MORAES TERRA FILHO",
+        "uf": "SP",
+        "pct": 100
+       }
+      ]
+     }
+    ],
+    "n": 2,
+    "cabecas": 125,
+    "vgv": 376650
+   },
+   {
+    "data": "2026-08-01",
+    "leilao": "LEILÃO TOUROS SÃO GERALDO E 7P AGRO",
+    "uf": "MS",
+    "lotes": [
+     {
+      "filial": "01",
+      "leilao": "LEILÃO TOUROS SÃO GERALDO E 7P AGRO",
+      "uf": "MS",
+      "data": "2026-08-01",
+      "data_venda": "2026-08-01",
+      "lote": "2000",
+      "qtd": 1,
+      "lance": 5600,
+      "vgv": 224000,
+      "captacao": 40,
+      "parcelas": 40,
+      "compradores": [
+       {
+        "nome": "VANDERLEY SCHAPPO JUNIOR",
+        "uf": "SC",
+        "pct": 40
+       },
+       {
+        "nome": "WARLEY FABIANO DE SOUZA",
+        "uf": "MS",
+        "pct": 20
+       },
+       {
+        "nome": "NICOLE PERONDI",
+        "uf": "MS",
+        "pct": 20
+       },
+       {
+        "nome": "ADRIANA LIMA NOGUEIRA",
+        "uf": "MS",
+        "pct": 20
+       }
+      ]
+     },
+     {
+      "filial": "01",
+      "leilao": "LEILÃO TOUROS SÃO GERALDO E 7P AGRO",
+      "uf": "MS",
+      "data": "2026-08-01",
+      "data_venda": "2026-08-01",
+      "lote": "90",
+      "qtd": 1,
+      "lance": 670,
+      "vgv": 20100,
+      "captacao": 30,
+      "parcelas": 30,
+      "compradores": [
+       {
+        "nome": "PEDRO MARTINS DE SOUZA",
+        "uf": "MS",
+        "pct": 100
+       }
+      ]
+     },
+     {
+      "filial": "01",
+      "leilao": "LEILÃO TOUROS SÃO GERALDO E 7P AGRO",
+      "uf": "MS",
+      "data": "2026-08-01",
+      "data_venda": "2026-08-01",
+      "lote": "61",
+      "qtd": 1,
+      "lance": 1200,
+      "vgv": 36000,
+      "captacao": 30,
+      "parcelas": 25,
+      "compradores": [
+       {
+        "nome": "CARLOS ALBERTO BARBOSA",
+        "uf": "MS",
+        "pct": 100
+       }
+      ]
+     },
+     {
+      "filial": "01",
+      "leilao": "LEILÃO TOUROS SÃO GERALDO E 7P AGRO",
+      "uf": "MS",
+      "data": "2026-08-01",
+      "data_venda": "2026-08-01",
+      "lote": "91",
+      "qtd": 1,
+      "lance": 750,
+      "vgv": 22500,
+      "captacao": 30,
+      "parcelas": 30,
+      "compradores": [
+       {
+        "nome": "PEDRO MARTINS DE SOUZA",
+        "uf": "MS",
+        "pct": 100
+       }
+      ]
+     },
+     {
+      "filial": "01",
+      "leilao": "LEILÃO TOUROS SÃO GERALDO E 7P AGRO",
+      "uf": "MS",
+      "data": "2026-08-01",
+      "data_venda": "2026-08-01",
+      "lote": "03",
+      "qtd": 1,
+      "lance": 1400,
+      "vgv": 42000,
+      "captacao": 30,
+      "parcelas": 30,
+      "compradores": [
+       {
+        "nome": "NELSON ANTONIO GOMES JUNIOR",
+        "uf": "PR",
+        "pct": 100
+       }
+      ]
+     },
+     {
+      "filial": "01",
+      "leilao": "LEILÃO TOUROS SÃO GERALDO E 7P AGRO",
+      "uf": "MS",
+      "data": "2026-08-01",
+      "data_venda": "2026-08-01",
+      "lote": "73",
+      "qtd": 1,
+      "lance": 750,
+      "vgv": 22500,
+      "captacao": 30,
+      "parcelas": 30,
+      "compradores": [
+       {
+        "nome": "PEDRO MARTINS DE SOUZA",
+        "uf": "MS",
+        "pct": 100
+       }
+      ]
+     },
+     {
+      "filial": "01",
+      "leilao": "LEILÃO TOUROS SÃO GERALDO E 7P AGRO",
+      "uf": "MS",
+      "data": "2026-08-01",
+      "data_venda": "2026-08-01",
+      "lote": "44",
+      "qtd": 1,
+      "lance": 900,
+      "vgv": 27000,
+      "captacao": 30,
+      "parcelas": 30,
+      "compradores": [
+       {
+        "nome": "AGROGRANDE AGROPECUARIA LTDA",
+        "uf": "MS",
+        "pct": 100
+       }
+      ]
+     },
+     {
+      "filial": "01",
+      "leilao": "LEILÃO TOUROS SÃO GERALDO E 7P AGRO",
+      "uf": "MS",
+      "data": "2026-08-01",
+      "data_venda": "2026-08-01",
+      "lote": "05",
+      "qtd": 1,
+      "lance": 1400,
+      "vgv": 42000,
+      "captacao": 30,
+      "parcelas": 25,
+      "compradores": [
+       {
+        "nome": "MOACIR DUIM JUNIOR",
+        "uf": "MS",
+        "pct": 100
+       }
+      ]
+     },
+     {
+      "filial": "01",
+      "leilao": "LEILÃO TOUROS SÃO GERALDO E 7P AGRO",
+      "uf": "MS",
+      "data": "2026-08-01",
+      "data_venda": "2026-08-01",
+      "lote": "25",
+      "qtd": 1,
+      "lance": 1250,
+      "vgv": 37500,
+      "captacao": 30,
+      "parcelas": 2,
+      "compradores": [
+       {
+        "nome": "DENILSON AUGUSTO DA SILVA",
+        "uf": "MS",
+        "pct": 100
+       }
+      ]
+     },
+     {
+      "filial": "01",
+      "leilao": "LEILÃO TOUROS SÃO GERALDO E 7P AGRO",
+      "uf": "MS",
+      "data": "2026-08-01",
+      "data_venda": "2026-08-01",
+      "lote": "45",
+      "qtd": 1,
+      "lance": 900,
+      "vgv": 27000,
+      "captacao": 30,
+      "parcelas": 30,
+      "compradores": [
+       {
+        "nome": "AGROGRANDE AGROPECUARIA LTDA",
+        "uf": "MS",
+        "pct": 100
+       }
+      ]
+     },
+     {
+      "filial": "01",
+      "leilao": "LEILÃO TOUROS SÃO GERALDO E 7P AGRO",
+      "uf": "MS",
+      "data": "2026-08-01",
+      "data_venda": "2026-08-01",
+      "lote": "16",
+      "qtd": 1,
+      "lance": 1500,
+      "vgv": 45000,
+      "captacao": 30,
+      "parcelas": 25,
+      "compradores": [
+       {
+        "nome": "RENATO VARGAS ORDACOWSKI",
+        "uf": "MS",
+        "pct": 100
+       }
+      ]
+     },
+     {
+      "filial": "01",
+      "leilao": "LEILÃO TOUROS SÃO GERALDO E 7P AGRO",
+      "uf": "MS",
+      "data": "2026-08-01",
+      "data_venda": "2026-08-01",
+      "lote": "46",
+      "qtd": 1,
+      "lance": 750,
+      "vgv": 22500,
+      "captacao": 30,
+      "parcelas": 25,
+      "compradores": [
+       {
+        "nome": "MARCOS DOMINGOS NANTES SILVEIRA",
+        "uf": "MS",
+        "pct": 100
+       }
+      ]
+     },
+     {
+      "filial": "01",
+      "leilao": "LEILÃO TOUROS SÃO GERALDO E 7P AGRO",
+      "uf": "MS",
+      "data": "2026-08-01",
+      "data_venda": "2026-08-01",
+      "lote": "07",
+      "qtd": 1,
+      "lance": 1400,
+      "vgv": 42000,
+      "captacao": 30,
+      "parcelas": 30,
+      "compradores": [
+       {
+        "nome": "MARCELO ALVES PINTO E OUTROS",
+        "uf": "MS",
+        "pct": 100
+       }
+      ]
+     },
+     {
+      "filial": "01",
+      "leilao": "LEILÃO TOUROS SÃO GERALDO E 7P AGRO",
+      "uf": "MS",
+      "data": "2026-08-01",
+      "data_venda": "2026-08-01",
+      "lote": "68",
+      "qtd": 1,
+      "lance": 1000,
+      "vgv": 30000,
+      "captacao": 30,
+      "parcelas": 30,
+      "compradores": [
+       {
+        "nome": "NELSON ANTONIO GOMES JUNIOR",
+        "uf": "PR",
+        "pct": 100
+       }
+      ]
+     },
+     {
+      "filial": "01",
+      "leilao": "LEILÃO TOUROS SÃO GERALDO E 7P AGRO",
+      "uf": "MS",
+      "data": "2026-08-01",
+      "data_venda": "2026-08-01",
+      "lote": "09",
+      "qtd": 1,
+      "lance": 1300,
+      "vgv": 39000,
+      "captacao": 30,
+      "parcelas": 30,
+      "compradores": [
+       {
+        "nome": "NELSON ANTONIO GOMES JUNIOR",
+        "uf": "PR",
+        "pct": 100
+       }
+      ]
+     },
+     {
+      "filial": "01",
+      "leilao": "LEILÃO TOUROS SÃO GERALDO E 7P AGRO",
+      "uf": "MS",
+      "data": "2026-08-01",
+      "data_venda": "2026-08-01",
+      "lote": "89",
+      "qtd": 1,
+      "lance": 670,
+      "vgv": 20100,
+      "captacao": 30,
+      "parcelas": 30,
+      "compradores": [
+       {
+        "nome": "PEDRO MARTINS DE SOUZA",
+        "uf": "MS",
+        "pct": 100
+       }
+      ]
+     },
+     {
+      "filial": "01",
+      "leilao": "LEILÃO TOUROS SÃO GERALDO E 7P AGRO",
+      "uf": "MS",
+      "data": "2026-08-01",
+      "data_venda": "2026-08-01",
+      "lote": "LEGADO",
+      "qtd": 1,
+      "lance": 5000,
+      "vgv": 150000,
+      "captacao": 30,
+      "parcelas": 30,
+      "compradores": [
+       {
+        "nome": "NELSON ANTONIO GOMES JUNIOR",
+        "uf": "PR",
+        "pct": 50
+       },
+       {
+        "nome": "ÁLVARO LUIS PINHEIRO CARNEIRO E OUTROS",
+        "uf": "MS",
+        "pct": 50
+       }
+      ]
+     }
+    ],
+    "n": 17,
+    "cabecas": 17,
+    "vgv": 849200
+   },
+   {
+    "data": "2026-08-11",
+    "leilao": "LEILÃO SÓ CRIADOR - ESPECIAL SANTA CASA - DOAÇÃO",
+    "uf": "MS",
+    "lotes": [
+     {
+      "filial": "01",
+      "leilao": "LEILÃO SÓ CRIADOR - ESPECIAL SANTA CASA - DOAÇÃO",
+      "uf": "MS",
+      "data": "2026-08-11",
+      "data_venda": "2026-08-11",
+      "lote": "100",
+      "qtd": 1,
+      "lance": 3000,
+      "vgv": 3000,
+      "captacao": 1,
+      "parcelas": 1,
+      "compradores": [
+       {
+        "nome": "LUIZ FELIPE PERALTA",
+        "uf": null,
+        "pct": 100
+       }
+      ]
+     },
+     {
+      "filial": "01",
+      "leilao": "LEILÃO SÓ CRIADOR - ESPECIAL SANTA CASA - DOAÇÃO",
+      "uf": "MS",
+      "data": "2026-08-11",
+      "data_venda": "2026-08-11",
+      "lote": "101",
+      "qtd": 1,
+      "lance": 4000,
+      "vgv": 4000,
+      "captacao": 1,
+      "parcelas": 1,
+      "compradores": [
+       {
+        "nome": "RENATO VARGAS ORDACOWSKI",
+        "uf": "MS",
+        "pct": 100
+       }
+      ]
+     },
+     {
+      "filial": "01",
+      "leilao": "LEILÃO SÓ CRIADOR - ESPECIAL SANTA CASA - DOAÇÃO",
+      "uf": "MS",
+      "data": "2026-08-11",
+      "data_venda": "2026-08-11",
+      "lote": "102",
+      "qtd": 1,
+      "lance": 3000,
+      "vgv": 3000,
+      "captacao": 1,
+      "parcelas": 1,
+      "compradores": [
+       {
+        "nome": "KIKO MS BOI",
+        "uf": null,
+        "pct": 100
+       }
+      ]
+     },
+     {
+      "filial": "01",
+      "leilao": "LEILÃO SÓ CRIADOR - ESPECIAL SANTA CASA - DOAÇÃO",
+      "uf": "MS",
+      "data": "2026-08-11",
+      "data_venda": "2026-08-11",
+      "lote": "106",
+      "qtd": 1,
+      "lance": 1500,
+      "vgv": 1500,
+      "captacao": 1,
+      "parcelas": 1,
+      "compradores": [
+       {
+        "nome": "IZANELIO JOSE DE REZENDE JUNIOR",
+        "uf": "MS",
+        "pct": 100
+       }
+      ]
+     },
+     {
+      "filial": "01",
+      "leilao": "LEILÃO SÓ CRIADOR - ESPECIAL SANTA CASA - DOAÇÃO",
+      "uf": "MS",
+      "data": "2026-08-11",
+      "data_venda": "2026-08-11",
+      "lote": "107",
+      "qtd": 1,
+      "lance": 1800,
+      "vgv": 1800,
+      "captacao": 1,
+      "parcelas": 1,
+      "compradores": [
+       {
+        "nome": "ALESSANDRO JUNQUEIRA",
+        "uf": null,
+        "pct": 100
+       }
+      ]
+     },
+     {
+      "filial": "01",
+      "leilao": "LEILÃO SÓ CRIADOR - ESPECIAL SANTA CASA - DOAÇÃO",
+      "uf": "MS",
+      "data": "2026-08-11",
+      "data_venda": "2026-08-11",
+      "lote": "108",
+      "qtd": 1,
+      "lance": 1000,
+      "vgv": 1000,
+      "captacao": 1,
+      "parcelas": 1,
+      "compradores": [
+       {
+        "nome": "ALLAN CESAR RIBEIRO ROTTA",
+        "uf": "MS",
+        "pct": 100
+       }
+      ]
+     },
+     {
+      "filial": "01",
+      "leilao": "LEILÃO SÓ CRIADOR - ESPECIAL SANTA CASA - DOAÇÃO",
+      "uf": "MS",
+      "data": "2026-08-11",
+      "data_venda": "2026-08-11",
+      "lote": "109",
+      "qtd": 1,
+      "lance": 1200,
+      "vgv": 1200,
+      "captacao": 1,
+      "parcelas": 1,
+      "compradores": [
+       {
+        "nome": "ALESSANDRO JUNQUEIRA",
+        "uf": null,
+        "pct": 100
+       }
+      ]
+     }
+    ],
+    "n": 7,
+    "cabecas": 7,
+    "vgv": 15500
+   },
+   {
+    "data": "2026-08-11",
+    "leilao": "LEILÃO SÓ CRIADOR - O AGRO PELA SAÚDE - ESPECIAL SANTA CASA",
+    "uf": "MS",
+    "lotes": [
+     {
+      "filial": "01",
+      "leilao": "LEILÃO SÓ CRIADOR - O AGRO PELA SAÚDE - ESPECIAL SANTA CASA",
+      "uf": "MS",
+      "data": "2026-08-11",
+      "data_venda": "2026-08-11",
+      "lote": "12",
+      "qtd": 31,
+      "lance": 3450,
+      "vgv": 106950,
+      "captacao": 1,
+      "parcelas": 1,
+      "compradores": [
+       {
+        "nome": "JULIANE VARGAS ORDACOWSKI",
+        "uf": "MS",
+        "pct": 100
+       }
+      ]
+     },
+     {
+      "filial": "01",
+      "leilao": "LEILÃO SÓ CRIADOR - O AGRO PELA SAÚDE - ESPECIAL SANTA CASA",
+      "uf": "MS",
+      "data": "2026-08-11",
+      "data_venda": "2026-08-11",
+      "lote": "06",
+      "qtd": 32,
+      "lance": 5500,
+      "vgv": 176000,
+      "captacao": 1,
+      "parcelas": 1,
+      "compradores": [
+       {
+        "nome": "JULIANE VARGAS ORDACOWSKI",
+        "uf": "MS",
+        "pct": 100
+       }
+      ]
+     },
+     {
+      "filial": "01",
+      "leilao": "LEILÃO SÓ CRIADOR - O AGRO PELA SAÚDE - ESPECIAL SANTA CASA",
+      "uf": "MS",
+      "data": "2026-08-11",
+      "data_venda": "2026-08-11",
+      "lote": "08",
+      "qtd": 20,
+      "lance": 3650,
+      "vgv": 73000,
+      "captacao": 1,
+      "parcelas": 1,
+      "compradores": [
+       {
+        "nome": "JULIANE VARGAS ORDACOWSKI",
+        "uf": "MS",
+        "pct": 100
+       }
+      ]
+     },
+     {
+      "filial": "01",
+      "leilao": "LEILÃO SÓ CRIADOR - O AGRO PELA SAÚDE - ESPECIAL SANTA CASA",
+      "uf": "MS",
+      "data": "2026-08-11",
+      "data_venda": "2026-08-11",
+      "lote": "19",
+      "qtd": 25,
+      "lance": 4050,
+      "vgv": 101250,
+      "captacao": 1,
+      "parcelas": 1,
+      "compradores": [
+       {
+        "nome": "JULIANE VARGAS ORDACOWSKI",
+        "uf": "MS",
+        "pct": 100
+       }
+      ]
+     }
+    ],
+    "n": 4,
+    "cabecas": 108,
+    "vgv": 457200
+   },
+   {
+    "data": "2026-08-26",
+    "leilao": "LEILÃO GENÉTICA SÃO JOSÉ - 30 ANOS DE SELEÇÃO",
+    "uf": "MS",
+    "lotes": [
+     {
+      "filial": "01",
+      "leilao": "LEILÃO GENÉTICA SÃO JOSÉ - 30 ANOS DE SELEÇÃO",
+      "uf": "MS",
+      "data": "2026-08-26",
+      "data_venda": "2026-08-26",
+      "lote": "11",
+      "qtd": 5,
+      "lance": 315,
+      "vgv": 22050,
+      "captacao": 14,
+      "parcelas": 12,
+      "compradores": [
+       {
+        "nome": "ARY SERENA",
+        "uf": "MS",
+        "pct": 100
+       }
+      ]
+     },
+     {
+      "filial": "01",
+      "leilao": "LEILÃO GENÉTICA SÃO JOSÉ - 30 ANOS DE SELEÇÃO",
+      "uf": "MS",
+      "data": "2026-08-26",
+      "data_venda": "2026-08-26",
+      "lote": "33",
+      "qtd": 5,
+      "lance": 550,
+      "vgv": 38500,
+      "captacao": 14,
+      "parcelas": 12,
+      "compradores": [
+       {
+        "nome": "ARY SERENA",
+        "uf": "MS",
+        "pct": 100
+       }
+      ]
+     },
+     {
+      "filial": "01",
+      "leilao": "LEILÃO GENÉTICA SÃO JOSÉ - 30 ANOS DE SELEÇÃO",
+      "uf": "MS",
+      "data": "2026-08-26",
+      "data_venda": "2026-08-26",
+      "lote": "26",
+      "qtd": 7,
+      "lance": 550,
+      "vgv": 53900,
+      "captacao": 14,
+      "parcelas": 12,
+      "compradores": [
+       {
+        "nome": "ARY SERENA",
+        "uf": "MS",
+        "pct": 100
+       }
+      ]
+     }
+    ],
+    "n": 3,
+    "cabecas": 17,
+    "vgv": 114450
+   },
+   {
+    "data": "2026-08-29",
+    "leilao": "LEILÃO MELHORADORES ESPECIAL 30 ANOS & CONVIDADOS ESPECIAIS",
+    "uf": "MS",
+    "lotes": [
+     {
+      "filial": "01",
+      "leilao": "LEILÃO MELHORADORES ESPECIAL 30 ANOS & CONVIDADOS ESPECIAIS",
+      "uf": "MS",
+      "data": "2026-08-29",
+      "data_venda": "2026-08-29",
+      "lote": "20",
+      "qtd": 1,
+      "lance": 1150,
+      "vgv": 34500,
+      "captacao": 30,
+      "parcelas": 24,
+      "compradores": [
+       {
+        "nome": "GUSTAVO FURQUIM DE GODOY",
+        "uf": "MT",
+        "pct": 100
+       }
+      ]
+     },
+     {
+      "filial": "01",
+      "leilao": "LEILÃO MELHORADORES ESPECIAL 30 ANOS & CONVIDADOS ESPECIAIS",
+      "uf": "MS",
+      "data": "2026-08-29",
+      "data_venda": "2026-08-29",
+      "lote": "04",
+      "qtd": 1,
+      "lance": 900,
+      "vgv": 27000,
+      "captacao": 30,
+      "parcelas": 24,
+      "compradores": [
+       {
+        "nome": "KLEBER SAMPAIO",
+        "uf": "MS",
+        "pct": 100
+       }
+      ]
+     },
+     {
+      "filial": "01",
+      "leilao": "LEILÃO MELHORADORES ESPECIAL 30 ANOS & CONVIDADOS ESPECIAIS",
+      "uf": "MS",
+      "data": "2026-08-29",
+      "data_venda": "2026-08-29",
+      "lote": "14",
+      "qtd": 1,
+      "lance": 1150,
+      "vgv": 34500,
+      "captacao": 30,
+      "parcelas": 1,
+      "compradores": [
+       {
+        "nome": "LUIZ SAVIO VIEGAS BARROS",
+        "uf": "MS",
+        "pct": 100
+       }
+      ]
+     }
+    ],
+    "n": 3,
+    "cabecas": 3,
+    "vgv": 96000
+   }
+  ],
+  "lotes": 55,
+  "cabecas": 386,
+  "vgv": 2751010,
+  "vgv_julho": 1218660,
+  "vgv_agosto": 1532350,
+  "equivalente": 55020.2,
+  "compradores": [
+   {
+    "nome": "JULIANE VARGAS ORDACOWSKI",
+    "uf": "MS",
+    "vgv": 457200,
+    "lotes": 4
+   },
+   {
+    "nome": "RUY MORAES TERRA FILHO",
+    "uf": "SP",
+    "vgv": 376650,
+    "lotes": 2
+   },
+   {
+    "nome": "NELSON ANTONIO GOMES JUNIOR",
+    "uf": "PR",
+    "vgv": 186000,
+    "lotes": 4
+   },
+   {
+    "nome": "FERNANDO JOSE CAZERTA AGUIAR",
+    "uf": "SP",
+    "vgv": 166500,
+    "lotes": 4
+   },
+   {
+    "nome": "NEIRE ALVES DE LIMA",
+    "uf": "MS",
+    "vgv": 120000,
+    "lotes": 2
+   },
+   {
+    "nome": "ARY SERENA",
+    "uf": "MS",
+    "vgv": 114450,
+    "lotes": 3
+   },
+   {
+    "nome": "HELIO SACHT",
+    "uf": "MS",
+    "vgv": 111900,
+    "lotes": 1
+   },
+   {
+    "nome": "LOCATELLI & MORAIS AGROPECUARIA LTDA",
+    "uf": "MS",
+    "vgv": 107910,
+    "lotes": 1
+   },
+   {
+    "nome": "VANDERLEY SCHAPPO JUNIOR",
+    "uf": "SC",
+    "vgv": 89600,
+    "lotes": 1
+   },
+   {
+    "nome": "EDUARDO CRUZETTA",
+    "uf": "MS",
+    "vgv": 89100,
+    "lotes": 4
+   }
+  ]
+ },
+ "erp": {
+  "fechamentos": [
+   {
+    "id": "0ba4d4d9-0235-4cfe-9db4-ae49208e7f75",
+    "leilao": "2º ETAPA NAVIRAÍ MATRIZES",
+    "data": "2026-07-16",
+    "origem": "lances-auto",
+    "rotulo": "Peralta",
+    "vgv": 54000,
+    "comissao": 1080,
+    "pct": 0.02,
+    "lances": [
+     {
+      "lote": "36",
+      "vgv": 25500,
+      "comprador": "Nelore JF José Eduardo Lippi · Fazenda bela ideia",
+      "assessor": "Peralta"
+     },
+     {
+      "lote": "18",
+      "vgv": 28500,
+      "comprador": "Nelore JF José Eduardo Lippi · Fazenda bela ideia · Aquidauana/MS",
+      "assessor": "Peralta"
+     }
+    ]
+   },
+   {
+    "id": "632a16cf-988a-4309-b1e5-45e208045772",
+    "leilao": "LEILÃO NELORE CEN & FAZENDA MODELO & CONVIDADOS",
+    "data": "2026-08-20",
+    "origem": "hastapro",
+    "rotulo": "PERALTA",
+    "vgv": 84000,
+    "comissao": 1680,
+    "pct": 0.02,
+    "lances": [
+     {
+      "lote": "09",
+      "vgv": 84000,
+      "comprador": "FERNANDO CESAR PINHEIRO CARNEIRO · FAZENDA ANDRESSA",
+      "assessor": "PERALTA"
+     }
+    ]
+   },
+   {
+    "id": "e7811a6e-7ed7-4a82-a56f-0536093e8ae0",
+    "leilao": "LEILÃO NAVIRAÍ CAMPARINO ESSÊNCIA BEZERRAS E NOVILHAS",
+    "data": "2026-08-22",
+    "origem": "lances-auto",
+    "rotulo": "Peralta / Bula",
+    "vgv": 93000,
+    "comissao": 1860,
+    "pct": 0.02,
+    "lances": [
+     {
+      "lote": "11",
+      "vgv": 93000,
+      "comprador": "A identificar",
+      "assessor": "Peralta / Bula"
+     }
+    ]
+   },
+   {
+    "id": "4f28d2da-7f56-473a-9ac4-12e37ec0da1d",
+    "leilao": "LEILÃO NELORE MARCONDES - ABERTURA",
+    "data": "2026-08-23",
+    "origem": "hastapro",
+    "rotulo": "PERALTA",
+    "vgv": 37500,
+    "comissao": 750,
+    "pct": 0.02,
+    "lances": [
+     {
+      "lote": "01",
+      "vgv": 37500,
+      "comprador": "FERNANDO CESAR PINHEIRO CARNEIRO · FAZENDA ANDRESSA",
+      "assessor": "PERALTA"
+     }
+    ]
+   }
+  ],
+  "vgv": 268500,
+  "comissao": 5370,
+  "titulos": [
+   {
+    "descricao": "PIX EMIT.OUTRA IF - cesta Iagro solicitado Peralta",
+    "valor": 270,
+    "vencimento": "2026-01-21",
+    "status": "pago",
+    "pago_em": "2026-01-21",
+    "doc": "",
+    "obs": "[18/08/2026] Título criado a partir do extrato conciliado (movimento b06957da-f5d8-4568-a4d7-8911b2b194f2) — o ERP só passou a registrar contas a pagar em jul/2026; este lançamento completa o histórico.",
+    "tags": [
+     "espelho-extrato"
+    ],
+    "atualizado": "2026-08-18"
+   },
+   {
+    "descricao": "COMISSAO VENDA TOUROS RS (23/06) - PERALTA (2%)",
+    "valor": 3510,
+    "vencimento": "2026-07-27",
+    "status": "cancelado",
+    "pago_em": null,
+    "doc": "BULA-2026-CP-COM-TOUROS-RS-PERALTA",
+    "obs": "Comissão 2% sobre VGV de cobertura 175.500,00 no Venda Touros RS. Vinculado ao fechamento 7d20b5f5-0ae8-4658-a395-8dc0820aa1e8. Assessor Peralta (taxa 2% confirmada pelo chefe). [ERP-VERDADE 04/08] CANCELADA: Comissionados reais da operacao sao apenas Douglas, Leonardo, Fabio, Rusa e Bulinha (chefe 04/08). CP de Peralta nao e divida real.",
+    "tags": [
+     "a-pagar",
+     "comissao",
+     "2026",
+     "leilao",
+     "touros-rs",
+     "peralta"
+    ],
+    "atualizado": "2026-08-04"
+   },
+   {
+    "descricao": "PIX EMITIDO OUTRA IF Pagamento Pix 42.640.313 0001-54 Diaria Hotel Peralta Carrelo e Renato Leilao LS 7do8",
+    "valor": 990,
+    "vencimento": "2026-08-07",
+    "status": "pago",
+    "pago_em": "2026-08-07",
+    "doc": "",
+    "obs": "[18/08/2026] Título criado a partir do extrato conciliado (movimento 81aa5473-8b1d-4503-96f6-217f593ab77d) — o ERP só passou a registrar contas a pagar em jul/2026; este lançamento completa o histórico.",
+    "tags": [
+     "espelho-extrato"
+    ],
+    "atualizado": "2026-08-18"
+   },
+   {
+    "descricao": "COMISSAO 2º ETAPA NAVIRAÍ MATRIZES - PERALTA (2%)",
+    "valor": 1080,
+    "vencimento": "2026-08-25",
+    "status": "vencido",
+    "pago_em": null,
+    "doc": "com-jul26:0ba4d4d9:peralta",
+    "obs": "[CP-AGO-2026] Comissao ref. julho/2026. VGV do assessor R$ 54.000.",
+    "tags": [
+     "a-pagar",
+     "comissao",
+     "2026",
+     "julho",
+     "leilao"
+    ],
+    "atualizado": "2026-08-26"
+   },
+   {
+    "descricao": "Hospedagem Hotel Villa Cerrado - Felipe Peralta e Regiane Abreu (03 a 06/09)",
+    "valor": 1914,
+    "vencimento": "2026-09-03",
+    "status": "aberto",
+    "pago_em": null,
+    "doc": "",
+    "obs": "[SANEAMENTO CP 28/08] Reserva confirmada por WhatsApp: 2 hospedes (Felipe Peralta e Regiane Abreu), check-in 03/09 a partir das 12h, check-out 06/09 ate as 12h, diaria de R$ 319,00, total R$ 1.914,00, pagamento em Pix, 02 apartamentos cama casal individual. CNPJ 15.736.254/0001-40. Substitui a estimativa de 3.200,00 do Melhoradores Especial. ⚠ VINCULO DE LEILAO A CONFIRMAR: a estadia (03-06/09) nao coincide com o Melhoradores (29/08, ACRISSUL/Campo Grande); a agenda tem TOUROS JACAMIN em 05/09 (Nova Mutum/MT). Conferir com o chefe a qual evento amarrar.",
+    "tags": [
+     "a-pagar",
+     "setembro",
+     "leilao",
+     "hospedagem"
+    ],
+    "atualizado": "2026-08-28"
+   }
+  ],
+  "extrato": [
+   {
+    "data": "2026-01-21",
+    "valor": 270,
+    "descricao": "PIX EMIT.OUTRA IF - cesta Iagro solicitado Peralta",
+    "tipo": "saida"
+   },
+   {
+    "data": "2026-08-07",
+    "valor": 990,
+    "descricao": "PIX EMITIDO OUTRA IF Pagamento Pix 42.640.313 0001-54 Diaria Hotel Peralta Carrelo e Renato Leilao LS 7do8",
+    "tipo": "saida"
+   }
+  ],
+  "cancelado_junho": [
+   {
+    "descricao": "COMISSAO VENDA TOUROS RS (23/06) - PERALTA (2%)",
+    "valor": 3510,
+    "obs": "Comissão 2% sobre VGV de cobertura 175.500,00 no Venda Touros RS. Vinculado ao fechamento 7d20b5f5-0ae8-4658-a395-8dc0820aa1e8. Assessor Peralta (taxa 2% confirmada pelo chefe). [ERP-VERDADE 04/08] CANCELADA: Comissionados reais da operacao sao apenas Douglas, Leonardo, Fabio, Rusa e Bulinha (chefe 04/08). CP de Peralta nao e divida real.",
+    "atualizado": "2026-08-04"
+   }
+  ]
+ },
+ "cruzamento": [
+  {
+   "filial": "2",
+   "leilao": "LEILÃO VIRTUAL NAVIRAÍ MATRIZES - 2ª ETAPA",
+   "uf": "PR",
+   "data": "2026-07-16",
+   "data_venda": "2026-07-16",
+   "lote": "36",
+   "qtd": 1,
+   "lance": 850,
+   "vgv": 25500,
+   "captacao": 30,
+   "parcelas": 27,
+   "compradores": [
+    {
+     "nome": "JOSÉ EDUARDO LIPPI",
+     "uf": "MS",
+     "pct": 100
+    }
+   ],
+   "erp": {
+    "fechamento": "2º ETAPA NAVIRAÍ MATRIZES",
+    "data": "2026-07-16",
+    "lote": "36",
+    "vgv": 25500,
+    "assessor": "Peralta"
+   },
+   "situacao": "confere"
+  },
+  {
+   "filial": "2",
+   "leilao": "LEILÃO VIRTUAL NAVIRAÍ MATRIZES - 2ª ETAPA",
+   "uf": "PR",
+   "data": "2026-07-16",
+   "data_venda": "2026-07-16",
+   "lote": "18",
+   "qtd": 1,
+   "lance": 950,
+   "vgv": 28500,
+   "captacao": 30,
+   "parcelas": 27,
+   "compradores": [
+    {
+     "nome": "JOSÉ EDUARDO LIPPI",
+     "uf": "MS",
+     "pct": 100
+    }
+   ],
+   "erp": {
+    "fechamento": "2º ETAPA NAVIRAÍ MATRIZES",
+    "data": "2026-07-16",
+    "lote": "18",
+    "vgv": 28500,
+    "assessor": "Peralta"
+   },
+   "situacao": "confere"
+  },
+  {
+   "filial": "2",
+   "leilao": "LEILÃO NELORE CEN & FAZENDA MODELO & CONVIDADOS",
+   "uf": "MG",
+   "data": "2026-08-20",
+   "data_venda": "2026-08-21",
+   "lote": "09",
+   "qtd": 1,
+   "lance": 2800,
+   "vgv": 84000,
+   "captacao": 30,
+   "parcelas": 27,
+   "compradores": [
+    {
+     "nome": "FERNANDO CESAR PINHEIRO CARNEIRO",
+     "uf": "MS",
+     "pct": 100
+    }
+   ],
+   "erp": {
+    "fechamento": "LEILÃO NELORE CEN & FAZENDA MODELO & CONVIDADOS",
+    "data": "2026-08-20",
+    "lote": "9",
+    "vgv": 84000,
+    "assessor": "PERALTA"
+   },
+   "situacao": "confere"
+  },
+  {
+   "filial": "2",
+   "leilao": "28º LEILÃO NAVIRAÍ CAMPARINO - REPRODUTORES",
+   "uf": "MG",
+   "data": "2026-08-23",
+   "data_venda": "2026-08-23",
+   "lote": "30",
+   "qtd": 1,
+   "lance": 1400,
+   "vgv": 42000,
+   "captacao": 30,
+   "parcelas": 27,
+   "compradores": [
+    {
+     "nome": "LIBERATO ANTONIO SERAFINI FILHO",
+     "uf": "MS",
+     "pct": 100
+    }
+   ],
+   "erp": {
+    "fechamento": "28º LEILÃO NAVIRAÍ CAMPARINO REPRODUTORES",
+    "data": "2026-08-23",
+    "lote": "30",
+    "vgv": 42000,
+    "assessor": "A definir"
+   },
+   "situacao": "outro-assessor"
+  },
+  {
+   "filial": "2",
+   "leilao": "28º LEILÃO NAVIRAÍ CAMPARINO - REPRODUTORES",
+   "uf": "MG",
+   "data": "2026-08-23",
+   "data_venda": "2026-08-23",
+   "lote": "78",
+   "qtd": 1,
+   "lance": 1600,
+   "vgv": 48000,
+   "captacao": 30,
+   "parcelas": 27,
+   "compradores": [
+    {
+     "nome": "DANIEL ALBUQUERQUE PEREIRA",
+     "uf": "MS",
+     "pct": 100
+    }
+   ],
+   "erp": null,
+   "situacao": "ausente"
+  },
+  {
+   "filial": "2",
+   "leilao": "LEILÃO NELORE MARCONDES - ABERTURA",
+   "uf": "MG",
+   "data": "2026-08-23",
+   "data_venda": "2026-08-23",
+   "lote": "01",
+   "qtd": 1,
+   "lance": 1250,
+   "vgv": 37500,
+   "captacao": 30,
+   "parcelas": 27,
+   "compradores": [
+    {
+     "nome": "FERNANDO CESAR PINHEIRO CARNEIRO",
+     "uf": "MS",
+     "pct": 100
+    }
+   ],
+   "erp": {
+    "fechamento": "LEILÃO NELORE MARCONDES - ABERTURA",
+    "data": "2026-08-23",
+    "lote": "1",
+    "vgv": 37500,
+    "assessor": "PERALTA"
+   },
+   "situacao": "confere"
+  }
+ ],
+ "soErp": [
+  {
+   "lote": "11",
+   "vgv": 93000,
+   "comprador": "A identificar",
+   "assessor": "Peralta / Bula",
+   "fechamento": "LEILÃO NAVIRAÍ CAMPARINO ESSÊNCIA BEZERRAS E NOVILHAS",
+   "data": "2026-08-22",
+   "hastapro": [
+    {
+     "filial": "2",
+     "leilao": "LEILÃO NAVIRAÍ CAMPARINO - MATRIZES ESSÊNCIA",
+     "lote": "11",
+     "pisteiro": "Felipe Vilela Andrade"
+    }
+   ]
+  }
+ ]
+}
