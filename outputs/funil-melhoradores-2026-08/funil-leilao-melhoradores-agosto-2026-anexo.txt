@@ -1,0 +1,49 @@
+FUNIL — LEILÃO MELHORADORES · campanha 120250144945610708 · apurado em 31/08/2026
+
+MÍDIA  R$ 418,06 · 21.309 impressões · 11.405 pessoas · 388 cliques · CTR 1,82%
+       diário: 27/08 R$ 73,52 (4 leads) · 28/08 R$ 79,25 (3 leads) · 29/08 R$ 117,29 (3 leads) · 30/08 R$ 129,52 (3 leads) · 31/08 R$ 18,48 (1 lead)
+
+LEADS (14)
+  31/08/2026, 04:10  Gil Cesar Ferreira               MG               1 a 50 cabeças       I.E.=Não      Sêmen
+  30/08/2026, 14:58  Andre Rosa Rodrigues             Mt Juína         1 a 50 cabeças       I.E.=Sim      Touros
+  30/08/2026, 08:51  Tarsilo Barcellos Pinto Coelho   MG               1 a 50 cabeças       I.E.=Sim      Touros
+  30/08/2026, 08:28  Rui Escobar                      MS               101 a 300 cabeças    I.E.=Sim  MQL Touros
+  29/08/2026, 16:38  Ordnael Lion Man                 SP               1 a 50 cabeças       I.E.=Sim      Touros
+  29/08/2026, 15:34  Luis Augusto Zampieri            SP               mais de 500 cabeças  I.E.=Sim  MQL Touros
+  29/08/2026, 07:17  Gisleine Fernandes               MT               1 a 50 cabeças       I.E.=Não      Touros
+  28/08/2026, 14:59  Alexandre Silva                  MS               mais de 500 cabeças  I.E.=Sim  MQL Touros
+  28/08/2026, 11:12  Paulo Cesar Magão                SP               101 a 300 cabeças    I.E.=Sim  MQL Touros
+  28/08/2026, 07:35  Roderley aparecido peres         SP               301 a 500 cabeças    I.E.=Sim  MQL Touros
+  27/08/2026, 22:10  Lula missionário                 SP               mais de 500 cabeças  I.E.=Sim  MQL Sêmen
+  27/08/2026, 21:32  Tiago Kyschel                    PR               101 a 300 cabeças    I.E.=Sim  MQL Touros
+  27/08/2026, 21:29  Aníbal Breno                     BA               1 a 50 cabeças       I.E.=Não      Matrizes PO
+  27/08/2026, 15:13  Anthonny Fernandes               Virgem da Lapa   301 a 500 cabeças    I.E.=Sim  MQL Touros
+
+CADASTROS SUBMETIDOS (3)
+  Tiago Marcel Kyschel · CPF 095.528.489-97 · lead "Tiago Kyschel" em 2026-08-27 21:32
+    ficha em 2026-08-28 13:18 no grupo Cadastros Bula e Programa + Cadastros Bula Remates, para LEILÃO MELHORADORES ESPECIAL 30 ANOS (29/08)
+    prova: texto: "Tiago marcel kyschel / CPF 09552848997 / Verifica, por favor, se esse cliente tem cadastro ativo"
+    RECUSADO — "score dele é bom, mas nao encontramos i.e." — sem I.E. não passa em leilão de MS
+  Gisleine Aparecida Fernandes da Silva · CPF 622.433.731-49 · lead "Gisleine Fernandes" em 2026-08-29 06:17
+    ficha em 2026-08-29 06:56 no grupo Cadastros Bula Remates, para LEILÃO MELHORADORES ESPECIAL 30 ANOS (29/08)
+    prova: anexo: RG do Estado de Mato Grosso, registro 0792899-8, CPF 622.433.731-49
+    RECUSADO — "para os leilões do MS nao conseguimos sem a I.E" — a cliente ainda está comprando a propriedade
+  Evaldo Luiz Nunes Escobar · CPF 372.576.921-49 · lead "Rui Escobar" em 2026-08-30 08:28
+    ficha em 2026-08-31 12:22 no grupo Cadastros Bula Remates, para carteira geral (o leilão da campanha já tinha passado)
+    prova: anexos: IRPF 2026 e três comprovantes de saldo do IAGRO/MS, CPF 372.576.921-49
+    APROVADO — "Bom score, tem IE, pelo visto bom de mexida mandou a documentação toda certinho. Aprovado!"
+
+FICHAS DA JANELA QUE NÃO SÃO DA CAMPANHA (9)
+  2026-08-27 Alexandre Soares de Carvalho           CPF 710.569.631-15 · Terra Brava · comprou 1 lote no Melhoradores em 29/08, mas não é lead de campanha nenhuma
+  2026-08-27 Hatila Silva Paes                      CPF 041.342.311-59 · Terra Brava · aprovado
+  2026-08-28 Jessé Martins Mendes                   CPF 040.149.451-97 · eRural · restrições e protestos — liberado 1 lote com cautela
+  2026-08-29 Claudio Eduardo Pupim                  CPF 226.263.838-13 · leilão de MS · aprovado
+  2026-08-29 Ejamal Muhd Shihadeh Khalil            CPF 666.740.349-91 · consulta de cadastro existente · já tinha cadastro
+  2026-08-29 Reginaldo Leandro da Silva             CPF 401.932.171-04 · LEILÃO MELHORADORES (29/08) · ficha aberta pela equipe — "Cadastro novo pra o leilao melhoradores"; I.E. 137211708; não é lead de campanha
+  2026-08-30 Ademir Krause                          CPF 603.232.052-91 · Ventres VIP Matinha · não aprovado, restrições de CPF
+  2026-08-30 Ana Vitoria Martins Lagares            CPF 064.410.281-07 · Ventres VIP Matinha · —
+  2026-08-31 Analice Martins da Silva               CPF 995.283.121-87 · carteira geral · cadastro ruim; atendida pela Laila
+
+O LEILÃO ANUNCIADO — LEILÃO MELHORADORES ESPECIAL 30 ANOS, 2026-08-29
+  45 lotes · 45 animais · R$ 1.167.900,00 · 27 compradores (filial 01, Bula Remates)
+  nenhum deles casa com os 14 leads da campanha, por CPF, telefone ou nome

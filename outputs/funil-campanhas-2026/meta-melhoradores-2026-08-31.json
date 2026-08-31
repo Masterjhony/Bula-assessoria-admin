@@ -1,0 +1,57 @@
+{
+  "extraidoEm": "2026-08-31",
+  "fonte": "Meta Ads MCP (conta 2705134163151418) — level campaign/adset, time_range 2026-08-01..2026-08-31",
+  "nota": "Campanha de FORMULÁRIO INSTANTÂNEO (results indicator actions:leadgen.other). Não passa pelo site: cliques de saída = 1 no período inteiro, logo a etapa ACESSOS do quadro não se aplica.",
+  "campanha": {
+    "id": "120250144945610708",
+    "nome": "LEADS - Leilão Melhorado 30 ANOS",
+    "objetivo": "OUTCOME_LEADS",
+    "status": "PAUSED",
+    "inicio": "2026-08-27T08:33:45-0400",
+    "investido": 418.06,
+    "impressoes": 21309,
+    "alcance": 11405,
+    "frequencia": 1.868391,
+    "cliques": 388,
+    "cliquesSaida": 1,
+    "acessos": 0,
+    "leadsMeta": 14,
+    "ctr": 1.82,
+    "cpc": 1.08,
+    "cpm": 19.62,
+    "custoPorResultado": 29.86
+  },
+  "diario": [
+    { "data": "2026-08-27", "investido": 73.52, "impressoes": 4349, "alcance": 3220, "cliques": 62, "leadsMeta": 4 },
+    { "data": "2026-08-28", "investido": 79.25, "impressoes": 4646, "alcance": 3372, "cliques": 89, "leadsMeta": 3 },
+    { "data": "2026-08-29", "investido": 117.29, "impressoes": 5038, "alcance": 3935, "cliques": 99, "leadsMeta": 3 },
+    { "data": "2026-08-30", "investido": 129.52, "impressoes": 6220, "alcance": 4813, "cliques": 118, "leadsMeta": 3 },
+    { "data": "2026-08-31", "investido": 18.48, "impressoes": 1056, "alcance": 887, "cliques": 20, "leadsMeta": 1 }
+  ],
+  "conjuntos": [
+    { "id": "120250144945630708", "nome": "CA - Leilão Melhorado 30 ANOS - video01", "investido": 193.40, "impressoes": 8172, "alcance": 5422, "cliques": 157, "cliquesSaida": 1, "ctr": 1.92, "cpm": 23.67, "leadsMeta": 6, "custoPorResultado": 32.23 },
+    { "id": "120250163786560708", "nome": "CA - Leilão Melhorado 30 ANOS - video02", "investido": 148.12, "impressoes": 7704, "alcance": 5353, "cliques": 145, "cliquesSaida": 0, "ctr": 1.88, "cpm": 19.23, "leadsMeta": 5, "custoPorResultado": 29.62 },
+    { "id": "120250145464060708", "nome": "CA - Leilão Melhorado 30 ANOS - estatico01", "investido": 76.54, "impressoes": 5433, "alcance": 4050, "cliques": 86, "cliquesSaida": 0, "ctr": 1.58, "cpm": 14.09, "leadsMeta": 3, "custoPorResultado": 25.51 }
+  ],
+  "agostoPublicado": {
+    "nota": "O quadro de agosto que a diretoria já tem em mãos, apurado de 1º a 26/08 sobre Perpétuo Touro, Perpétuo Fêmeas, Expogenética e São Geraldo. Serve de comparação — não é somado a esta campanha.",
+    "investido": 3266.08,
+    "impressoes": 196053,
+    "cliques": 3363,
+    "acessos": 1131,
+    "leads": 142,
+    "mqls": 29,
+    "cadastros": 10,
+    "aprovados": 7,
+    "clientes": 2,
+    "ctr": 1.72,
+    "taxaLeadAcesso": 12.56,
+    "taxaMql": 20.42,
+    "taxaCadastro": 34.48,
+    "taxaAprovacao": 70.00,
+    "taxaCompra": 28.57,
+    "cpl": 23.00,
+    "cpmql": 112.62,
+    "custoPorCadastro": 326.61
+  }
+}
