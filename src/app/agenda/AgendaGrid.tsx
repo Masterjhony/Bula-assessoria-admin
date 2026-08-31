@@ -270,9 +270,10 @@ function LeilaoCard({ leilao, index }: { leilao: LeilaoPublico; index: number })
                                     <Users className="h-3.5 w-3.5" /> {leilao.animais} animais
                                 </span>
                             )}
-                            {leilao.catalogo_url && (
+                            {(leilao.documentos?.length ?? 0) > 0 && (
                                 <span className="inline-flex items-center gap-1.5">
-                                    <BookOpen className="h-3.5 w-3.5" /> Catálogo
+                                    <BookOpen className="h-3.5 w-3.5" />
+                                    {leilao.documentos.length > 1 ? `${leilao.documentos.length} catálogos` : 'Catálogo'}
                                 </span>
                             )}
                         </div>

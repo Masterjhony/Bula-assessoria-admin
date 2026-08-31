@@ -1,16 +1,18 @@
 /**
  * Anexa MANUALMENTE uma detecção a um leilão do cronograma.
- * Body: { cronograma_id: uuid, overwrite?: boolean }
+ * Body: { cronograma_id: uuid, tipo?, titulo?, publico?, principal? }
  *
- * Esse endpoint serve para:
- *   - Detecções que ficaram em `ambiguous` ou `no_match` e o operador escolhe.
- *   - Sobrescrever um catálogo já anexado (com `overwrite=true`).
+ * Um leilão aceita VÁRIOS documentos (catálogo Nelore + catálogo Tropa + ordem
+ * de entrada), então anexar não conflita mais com o que já existe: entra como
+ * mais um. `principal: true` promove este a "o catálogo" do leilão — é ele que
+ * vira `catalogo_url` nas duas tabelas e abre a página pública.
  */
 
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
 import { requireAdmin } from '@/lib/auth-helpers'
 import { resolveCatalogDownloadUrl } from '@/lib/whatsapp-catalogs'
+import { anexarDocumento, tituloDocumento, type TipoDocumentoLeilao } from '@/lib/leilao-documentos'
 
 export const dynamic = 'force-dynamic'
 
@@ -21,12 +23,23 @@ function sb() {
     )
 }
 
+const TIPOS: TipoDocumentoLeilao[] = ['catalogo', 'ordem_entrada', 'outro']
+
 export async function POST(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
     const gate = await requireAdmin()
     if (!gate.ok) return NextResponse.json({ error: gate.error }, { status: gate.status })
     const { id } = await params
 
-    const { cronograma_id, overwrite } = await req.json().catch(() => ({}))
+    const body = await req.json().catch(() => ({})) as {
+        cronograma_id?: string
+        tipo?: string
+        titulo?: string
+        publico?: boolean
+        principal?: boolean
+        /** Compat: a UI antiga mandava overwrite para substituir o catálogo. */
+        overwrite?: boolean
+    }
+    const cronograma_id = body.cronograma_id
     if (!cronograma_id || typeof cronograma_id !== 'string') {
         return NextResponse.json({ error: 'cronograma_id é obrigatório' }, { status: 400 })
     }
@@ -35,52 +48,57 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
 
     const { data: detection, error: errDet } = await client
         .from('whatsapp_catalog_detections')
-        .select('id, r2_key, file_name, group_name')
+        .select('id, r2_key, file_name, file_size, group_name, content_hash, doc_tipo')
         .eq('id', id)
         .single()
     if (errDet || !detection) {
         return NextResponse.json({ error: 'detecção não encontrada' }, { status: 404 })
     }
     if (!detection.r2_key) {
-        return NextResponse.json({ error: 'detecção não tem arquivo (r2_key vazio)' }, { status: 400 })
+        return NextResponse.json({ error: 'detecção não tem arquivo' }, { status: 400 })
     }
 
     const { data: leilao, error: errLeil } = await client
         .from('cronograma_leiloes')
-        .select('id, nome, catalogo_url')
+        .select('id, nome, data')
         .eq('id', cronograma_id)
         .single()
     if (errLeil || !leilao) {
         return NextResponse.json({ error: 'leilão não encontrado' }, { status: 404 })
     }
-    const hadCatalog = !!leilao.catalogo_url
-    if (hadCatalog && !overwrite) {
-        return NextResponse.json({
-            error: 'leilão já tem catálogo. Use overwrite=true para substituir.',
-            existing: leilao.catalogo_url,
-        }, { status: 409 })
-    }
+
+    const tipoPedido = TIPOS.find(t => t === body.tipo)
+    const tipo: TipoDocumentoLeilao =
+        tipoPedido
+        ?? (detection.doc_tipo === 'ordem_entrada' ? 'ordem_entrada' : 'catalogo')
 
     // URL Supabase pública (permanente) quando o produtor usou Storage; ou
     // presign R2 de 7 dias para chaves R2 legadas.
-    const catalogoUrl = await resolveCatalogDownloadUrl(detection.r2_key, {
+    const url = await resolveCatalogDownloadUrl(detection.r2_key, {
         expiresInSeconds: 7 * 24 * 3600,
         downloadAs: detection.file_name,
     })
 
-    const nowIso = new Date().toISOString()
-    const { error: errUpd } = await client
-        .from('cronograma_leiloes')
-        .update({
-            catalogo_url: catalogoUrl,
-            catalogo_anexado_em: nowIso,
-            catalogo_origem: detection.group_name || 'whatsapp-catalogos',
+    let resultado
+    try {
+        resultado = await anexarDocumento(client, {
+            cronograma_id,
+            url,
+            tipo,
+            titulo: body.titulo?.trim() || tituloDocumento(detection.file_name, tipo),
+            file_name: detection.file_name,
+            file_size: detection.file_size,
+            content_hash: detection.content_hash,
+            origem: detection.group_name || 'whatsapp',
+            detection_id: id,
+            publico: typeof body.publico === 'boolean' ? body.publico : undefined,
+            tornarPrincipal: body.principal === true || body.overwrite === true,
         })
-        .eq('id', cronograma_id)
-    if (errUpd) {
-        return NextResponse.json({ error: errUpd.message }, { status: 500 })
+    } catch (e) {
+        return NextResponse.json({ error: e instanceof Error ? e.message : 'falha ao anexar' }, { status: 500 })
     }
 
+    const nowIso = new Date().toISOString()
     await client
         .from('whatsapp_catalog_detections')
         .update({
@@ -90,9 +108,16 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
             attached: true,
             attached_at: nowIso,
             attached_by: gate.userId,
-            overwrote_existing: hadCatalog,
+            error: null,
         })
         .eq('id', id)
 
-    return NextResponse.json({ ok: true, cronograma_id, leilao: leilao.nome })
+    return NextResponse.json({
+        ok: true,
+        cronograma_id,
+        leilao: leilao.nome,
+        documento: resultado.documento,
+        criado: resultado.criado,
+        catalogo_url: resultado.catalogo_url,
+    })
 }

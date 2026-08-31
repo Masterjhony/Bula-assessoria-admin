@@ -53,6 +53,7 @@ export default async function LeilaoDetalhePage({ params }: { params: Promise<{ 
     const countdown = contagemRegressiva(leilao.data)
     const transmissaoUrl = leilao.transmissao?.trim() || null
     const local = localExibivel(leilao.local)
+    const documentos = leilao.documentos ?? []
 
     const infos = [
         { icon: CalendarDays, label: 'Data', value: dataPorExtenso(leilao.data) },
@@ -234,35 +235,50 @@ export default async function LeilaoDetalhePage({ params }: { params: Promise<{ 
                     </main>
 
                     <aside className="space-y-6">
-                        {leilao.catalogo_url && (
+                        {documentos.length > 0 && (
                             <div className="rounded-md border border-white/10 bg-[#141414] p-6 shadow-sm">
                                 <div className="flex items-center gap-3">
                                     <div className="flex h-11 w-11 items-center justify-center rounded-md bg-[#C9A84C] text-[#0A0A0A]">
                                         <BookOpen className="h-5 w-5" />
                                     </div>
                                     <div>
-                                        <h2 className="text-sm font-black text-white">Catálogo do leilão</h2>
+                                        <h2 className="text-sm font-black text-white">
+                                            {documentos.length > 1 ? 'Catálogos do leilão' : 'Catálogo do leilão'}
+                                        </h2>
                                         <p className="text-xs font-semibold text-white/48">Confira os lotes disponíveis</p>
                                     </div>
                                 </div>
-                                <div className="mt-5 flex flex-col gap-2">
-                                    <a
-                                        href={leilao.catalogo_url}
-                                        target="_blank"
-                                        rel="noopener noreferrer"
-                                        className="inline-flex items-center justify-center gap-2 rounded-md bg-[#C9A84C] px-4 py-2.5 text-sm font-black text-[#0A0A0A] transition-all hover:bg-[#d8ba63]"
-                                    >
-                                        <ExternalLink className="h-4 w-4" />
-                                        Abrir catálogo
-                                    </a>
-                                    <a
-                                        href={leilao.catalogo_url}
-                                        download
-                                        className="inline-flex items-center justify-center gap-2 rounded-md border border-[#C9A84C]/40 px-4 py-2.5 text-sm font-bold text-[#C9A84C] transition-colors hover:bg-[#C9A84C]/10"
-                                    >
-                                        <Download className="h-4 w-4" />
-                                        Baixar PDF
-                                    </a>
+                                {/* Um leilão pode ofertar mais de um catálogo (Nelore e Tropa, touros
+                                    e fêmeas). Cada um vira um par abrir/baixar próprio. */}
+                                <div className="mt-5 flex flex-col gap-4">
+                                    {documentos.map((doc, i) => (
+                                        <div key={doc.id} className={i > 0 ? 'border-t border-white/10 pt-4' : undefined}>
+                                            {documentos.length > 1 && (
+                                                <p className="mb-2 text-[11px] font-black uppercase tracking-[0.12em] text-white/45">
+                                                    {doc.titulo}
+                                                </p>
+                                            )}
+                                            <div className="flex flex-col gap-2">
+                                                <a
+                                                    href={doc.url}
+                                                    target="_blank"
+                                                    rel="noopener noreferrer"
+                                                    className="inline-flex items-center justify-center gap-2 rounded-md bg-[#C9A84C] px-4 py-2.5 text-sm font-black text-[#0A0A0A] transition-all hover:bg-[#d8ba63]"
+                                                >
+                                                    <ExternalLink className="h-4 w-4" />
+                                                    {doc.tipo === 'ordem_entrada' ? 'Abrir ordem de entrada' : 'Abrir catálogo'}
+                                                </a>
+                                                <a
+                                                    href={doc.url}
+                                                    download
+                                                    className="inline-flex items-center justify-center gap-2 rounded-md border border-[#C9A84C]/40 px-4 py-2.5 text-sm font-bold text-[#C9A84C] transition-colors hover:bg-[#C9A84C]/10"
+                                                >
+                                                    <Download className="h-4 w-4" />
+                                                    Baixar PDF
+                                                </a>
+                                            </div>
+                                        </div>
+                                    ))}
                                 </div>
                             </div>
                         )}

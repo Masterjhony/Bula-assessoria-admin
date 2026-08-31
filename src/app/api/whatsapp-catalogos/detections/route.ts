@@ -2,7 +2,7 @@
  * Lista de detecções de catálogo (PDFs capturados nos grupos).
  *
  * Filtros via query:
- *   ?status=pending|matched|ambiguous|no_match|attached|manual
+ *   ?status=analyzing|attached|manual|review|no_match|not_catalog|duplicate|error
  *   ?group_jid=<jid>
  *   ?q=<termo>            (busca em file_name, group_name, sender_name)
  *   ?limit=50  ?offset=0
@@ -36,8 +36,11 @@ export async function GET(req: NextRequest) {
         .from('whatsapp_catalog_detections')
         .select(`
             id, received_at, group_jid, group_name, sender_jid, sender_name, message_id,
-            file_name, file_mime, file_size, r2_key,
+            file_name, file_mime, file_size, r2_key, content_hash,
             match_status, match_score, match_method, cronograma_id, candidates,
+            match_reasons, duplicate_of, analyzed_at,
+            doc_tipo, doc_evento, doc_data, doc_hora, doc_leiloeira,
+            doc_criadores, doc_local, doc_lotes, doc_paginas, doc_fonte, doc_confianca,
             attached, attached_at, attached_by, overwrote_existing,
             error, notes,
             cronograma:cronograma_leiloes!whatsapp_catalog_detections_cronograma_id_fkey (
@@ -47,7 +50,12 @@ export async function GET(req: NextRequest) {
         .order('received_at', { ascending: false })
         .range(offset, offset + limit - 1)
 
-    if (status) query = query.eq('match_status', status)
+    // Aceita lista: "attached,manual,duplicate" — a UI agrupa vários estados
+    // sob um filtro só ("Anexados").
+    if (status) {
+        const lista = status.split(',').map(s => s.trim()).filter(Boolean)
+        query = lista.length > 1 ? query.in('match_status', lista) : query.eq('match_status', lista[0])
+    }
     if (groupJid) query = query.eq('group_jid', groupJid)
     if (q) {
         const term = `%${q.replace(/[%_]/g, '\\$&')}%`

@@ -3,7 +3,9 @@ const nextConfig = {
   reactStrictMode: true,
   // node-firebird (HastaPro, só leitura) fica fora do bundle do servidor —
   // driver JS puro com require dinâmico interno que confunde o bundler.
-  serverExternalPackages: ['node-firebird'],
+  // unpdf embute o pdf.js (leitura dos catálogos em PDF), que resolve worker e
+  // fontes por import dinâmico — bundlar quebra essa resolução.
+  serverExternalPackages: ['node-firebird', 'unpdf'],
   async headers() {
     return [
       {

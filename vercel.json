@@ -13,6 +13,7 @@
     { "path": "/api/crm/habilitacao-sweep", "schedule": "15 * * * *" },
     { "path": "/api/cron/followup-callback", "schedule": "*/30 * * * *" },
     { "path": "/api/mercado/coletar", "schedule": "0 9 * * *" },
+    { "path": "/api/cron/catalogos-sweep", "schedule": "*/30 * * * *" },
 
     { "path": "/api/cron/atendimento-plano", "schedule": "0 11 * * *" },
     { "path": "/api/cron/atendimento-executa", "schedule": "*/30 12-23 * * *" },

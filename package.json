@@ -7,7 +7,9 @@
     "build": "next build --webpack",
     "start": "next start",
     "lint": "eslint .",
+    "check:fechamento-writers": "node scripts/check-fechamento-writers.mjs",
     "whatsapp:reactivar": "powershell -ExecutionPolicy Bypass -File scripts/reactivate-crm-whatsapp.ps1",
+    "catalogos:reprocessar": "tsx --env-file=.env.local scripts/catalogos-reprocessar.mts",
     "verdade": "tsx scripts/verdade.mts",
     "verdade:curto": "tsx scripts/verdade.mts --curto",
     "verdade:json": "tsx scripts/verdade.mts --json"
@@ -36,6 +38,7 @@
     "next-themes": "^0.4.6",
     "node-firebird": "^2.14.3",
     "nodemailer": "^6.10.1",
+    "pdf-lib": "^1.17.1",
     "posthog-js": "^1.406.0",
     "posthog-node": "^5.35.4",
     "react": "19.2.3",
@@ -43,6 +46,7 @@
     "react-pluggy-connect": "^2.12.0",
     "sharp": "^0.34.0",
     "tailwind-merge": "^3.4.0",
+    "unpdf": "^1.8.1",
     "xlsx": "^0.18.5"
   },
   "devDependencies": {

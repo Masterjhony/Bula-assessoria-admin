@@ -2,6 +2,7 @@ import { supabaseAdmin } from '@/lib/supabase'
 import type { BulaMembro, LeilaoStatus } from './types'
 import { isLeilaoAtivo } from './leilao-tempo'
 import { CRIATORIO_LOGOS, CRIATORIO_LOGOS_CLAROS } from './criatorio-logos'
+import { listarDocumentos } from '@/lib/leilao-documentos'
 
 /**
  * Leilao exposto na pagina publica (lp / agenda).
@@ -11,6 +12,19 @@ import { CRIATORIO_LOGOS, CRIATORIO_LOGOS_CLAROS } from './criatorio-logos'
  * dados financeiros internos (expectativa, meta_bula, realizado_bula,
  * acordo_comissao, comissoes) - esses vivem apenas no painel/ERP.
  */
+/**
+ * Documento do leilão exposto ao público (catálogo, e a ordem de entrada
+ * quando o operador libera). Um leilão pode ter mais de um — "Catálogo Nelore"
+ * e "Catálogo Tropa" no mesmo evento é rotina.
+ */
+export interface LeilaoDocumentoPublico {
+    id: string
+    tipo: string
+    titulo: string
+    url: string
+    principal: boolean
+}
+
 export interface LeilaoPublico {
     id: string
     nome: string
@@ -26,6 +40,8 @@ export interface LeilaoPublico {
     frete_gratis: string | null
     transmissao: string | null
     catalogo_url: string | null
+    /** Todos os documentos públicos do leilão; o principal vem primeiro. */
+    documentos: LeilaoDocumentoPublico[]
     img: string | null
     status: LeilaoStatus
     assessores: BulaMembro[]
@@ -41,8 +57,72 @@ export interface CriatorioParceiroPublico {
     totalLeiloes: number
 }
 
+// `cronograma_id` entra porque é por ele que se acham os documentos do leilão
+// (`leilao_documentos`). É só o vínculo interno — não vai pro objeto público.
 const PUBLIC_COLS =
-    'id, nome, data, horario, tipo, local, animais, modelo, leiloeira, condicao, frete_gratis, transmissao, catalogo_url, img, status'
+    'id, nome, data, horario, tipo, local, animais, modelo, leiloeira, condicao, frete_gratis, transmissao, catalogo_url, img, status, cronograma_id'
+
+/**
+ * Documentos públicos dos leilões, por `cronograma_id`.
+ *
+ * A automação de catálogos anexa em `leilao_documentos` e espelha o principal
+ * em `catalogo_url` — mas quem manda aqui é a tabela de documentos, porque só
+ * ela tem o leilão com DOIS catálogos.
+ */
+async function documentosPorCronograma(
+    supabase: ReturnType<typeof supabaseAdmin>,
+    ids: Array<string | null | undefined>,
+): Promise<Map<string, LeilaoDocumentoPublico[]>> {
+    const limpos = [...new Set(ids.filter((v): v is string => !!v))]
+    const bruto = await listarDocumentos(supabase, limpos, { somentePublicos: true })
+    const saida = new Map<string, LeilaoDocumentoPublico[]>()
+    for (const [cronoId, docs] of bruto) {
+        saida.set(cronoId, docs.map(d => ({
+            id: d.id,
+            tipo: d.tipo,
+            titulo: d.titulo,
+            url: d.url,
+            principal: d.principal,
+        })))
+    }
+    return saida
+}
+
+/**
+ * Documentos de um leilão, com rede de segurança: leilão sem vínculo com o
+ * cronograma (ou anterior à automação) ainda mostra o `catalogo_url` avulso.
+ */
+function montarDocumentos(
+    cronogramaId: string | null | undefined,
+    catalogoUrl: string | null | undefined,
+    mapa: Map<string, LeilaoDocumentoPublico[]>,
+): LeilaoDocumentoPublico[] {
+    const docs = (cronogramaId && mapa.get(cronogramaId)) || []
+    // `catalogo_url` fora da lista significa catálogo posto na mão pelo form do
+    // admin (que escreve a coluna direto). Ele entra também — melhor mostrar
+    // duas vezes do que sumir com o catálogo que alguém colou lá.
+    const lista = catalogoUrl && !docs.some(d => d.url === catalogoUrl)
+        ? [...docs, { id: 'catalogo-url', tipo: 'catalogo', titulo: 'Catálogo', url: catalogoUrl, principal: docs.length === 0 }]
+        : docs
+    return numerarTitulosRepetidos(lista)
+}
+
+/**
+ * Dois botões escritos igual não ajudam ninguém a escolher. Quando o título
+ * derivado do nome do arquivo empata (dois "Catálogo" de arquivos diferentes),
+ * numera para o visitante saber que são peças distintas.
+ */
+function numerarTitulosRepetidos(docs: LeilaoDocumentoPublico[]): LeilaoDocumentoPublico[] {
+    const total = new Map<string, number>()
+    for (const d of docs) total.set(d.titulo, (total.get(d.titulo) ?? 0) + 1)
+    const visto = new Map<string, number>()
+    return docs.map(d => {
+        if ((total.get(d.titulo) ?? 0) < 2) return d
+        const n = (visto.get(d.titulo) ?? 0) + 1
+        visto.set(d.titulo, n)
+        return { ...d, titulo: `${d.titulo} ${n}` }
+    })
+}
 
 const PUBLIC_STATUSES: LeilaoStatus[] = ['confirmado']
 
@@ -184,6 +264,11 @@ export async function getLeiloesPublicos(): Promise<LeilaoPublico[]> {
         if (hora && !horaByKey.has(noHourKey)) horaByKey.set(noHourKey, hora)
     }
 
+    const docsPorCrono = await documentosPorCronograma(
+        supabase,
+        (data ?? []).map((row: Record<string, unknown>) => row.cronograma_id as string | null),
+    )
+
     return (data ?? [])
         .map((row: Record<string, unknown>) => {
             const cronoHora =
@@ -196,14 +281,18 @@ export async function getLeiloesPublicos(): Promise<LeilaoPublico[]> {
             }
         })
         .filter((row: Record<string, unknown>) => isActivePublicAgendaRow(row))
-        .map((row: Record<string, unknown>) => ({
-            ...(row as object),
-            criador:
-                criadorByKey.get(eventKey(row.data, row.nome, row.horario))
-                ?? criadorByKey.get(eventKey(row.data, row.nome, ''))
-                ?? null,
-            assessores: mapAssessores(row),
-        })) as unknown as LeilaoPublico[]
+        .map((row: Record<string, unknown>) => {
+            const { cronograma_id, ...publico } = row as Record<string, unknown> & { cronograma_id?: string | null }
+            return {
+                ...publico,
+                criador:
+                    criadorByKey.get(eventKey(row.data, row.nome, row.horario))
+                    ?? criadorByKey.get(eventKey(row.data, row.nome, ''))
+                    ?? null,
+                documentos: montarDocumentos(cronograma_id, row.catalogo_url as string | null, docsPorCrono),
+                assessores: mapAssessores(row),
+            }
+        }) as unknown as LeilaoPublico[]
 }
 
 export async function getLeilaoPublico(id: string): Promise<LeilaoPublico | null> {
@@ -236,12 +325,16 @@ export async function getLeilaoPublico(id: string): Promise<LeilaoPublico | null
         eventKey(row.data, row.nome, row.hora) === eventKey(data.data, data.nome, data.horario),
     ) ?? cronoRows?.[0]
 
+    const { cronograma_id, ...publico } = data as Record<string, unknown> & { cronograma_id?: string | null }
+    const docsPorCrono = await documentosPorCronograma(supabase, [cronograma_id])
+
     return {
-        ...(data as object),
+        ...publico,
         horario: String((data as Record<string, unknown>).horario || '').trim()
             || String(cronoMatch?.hora || '').trim()
             || null,
         criador: String(cronoMatch?.criador || '').trim() || null,
+        documentos: montarDocumentos(cronograma_id, data.catalogo_url as string | null, docsPorCrono),
         assessores: mapAssessores(data as Record<string, unknown>),
     } as unknown as LeilaoPublico
 }

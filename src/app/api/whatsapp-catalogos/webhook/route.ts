@@ -1,31 +1,29 @@
 /**
- * Webhook chamado pela SEGUNDA sessão Baileys (catálogos) toda vez que ela
- * recebe um PDF num grupo monitorado.
+ * Webhook chamado pela sessão Baileys de coleta toda vez que um PDF chega num
+ * grupo monitorado.
  *
- * O VPS já fez o trabalho pesado: baixou o anexo do WhatsApp e subiu pro R2.
- * Nós recebemos só os metadados + r2_key. Aqui a gente:
- *   1. Idempotência por message_id (mesmo PDF reenviado não duplica).
+ * O VPS já baixou o anexo e subiu pro Supabase Storage; aqui chega só o
+ * metadado + a URL. A rota faz o mínimo e responde rápido:
+ *
+ *   1. Idempotência por message_id (mesmo PDF reenviado não duplica linha).
  *   2. Confirma que o group_jid está em whatsapp_catalog_groups e ativo.
- *   3. Roda findMatches() contra cronograma_leiloes.
- *   4. Roda decideAutoAttach() — se decide 'attach' E não estamos pausados,
- *      grava catalogo_url no cronograma e marca a detecção como 'attached'.
- *      Senão, registra como 'pending' / 'ambiguous' / 'no_match' / 'has_catalog'
- *      pro operador resolver pela UI.
+ *   3. Grava a detecção como `analyzing` e RESPONDE.
+ *   4. Depois da resposta (`after`), o pipeline baixa o arquivo, ABRE o PDF,
+ *      identifica o documento e — só com prova — anexa ao leilão.
  *
- * Auth: header `x-webhook-secret` deve bater com `WHATSAPP_GROUP_TASK_SECRET`
- * (mesmo secret usado pela Central — facilita a vida no VPS).
+ * A identificação saiu do caminho crítico porque leva segundos (leitura de
+ * texto e, quando a capa é imagem, uma passada de IA). O VPS não fica pendurado
+ * esperando, e a UI mostra a detecção em análise.
+ *
+ * Auth: header `x-webhook-secret` deve bater com `WHATSAPP_GROUP_TASK_SECRET`.
  */
 
 import { NextRequest, NextResponse } from 'next/server'
+import { after } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
-import {
-    findMatches,
-    decideAutoAttach,
-    readCatalogsPauseState,
-    resolveCatalogDownloadUrl,
-} from '@/lib/whatsapp-catalogs'
+import { processarDeteccao } from '@/lib/catalog-pipeline'
 
-export const maxDuration = 30
+export const maxDuration = 300
 
 function sb() {
     return createClient(
@@ -96,113 +94,42 @@ export async function POST(req: NextRequest) {
         })
     }
 
-    // 3) Busca candidatos no cronograma
-    const candidates = await findMatches(client, body.file_name, { limit: 5 })
-    const decision = decideAutoAttach(candidates)
-
-    const pause = await readCatalogsPauseState(client)
-
-    const baseRow = {
-        group_jid: body.group_jid,
-        group_name: body.group_name ?? group.nome,
-        sender_jid: body.sender_jid ?? null,
-        sender_name: body.sender_name ?? null,
-        message_id: body.message_id ?? null,
-        file_name: body.file_name,
-        file_mime: body.file_mime ?? null,
-        file_size: typeof body.file_size === 'number' ? body.file_size : null,
-        r2_key: fileRef,
-        candidates,
-        match_score: candidates[0]?.score ?? null,
-    }
-
-    // 4) Decisão
-    if (decision.decision === 'attach' && !pause.paused) {
-        const catalogoUrl = await resolveCatalogDownloadUrl(fileRef, {
-            expiresInSeconds: 7 * 24 * 3600,
-            downloadAs: body.file_name,
-        })
-        const nowIso = new Date().toISOString()
-
-        const { error: errUpd } = await client
-            .from('cronograma_leiloes')
-            .update({
-                catalogo_url: catalogoUrl,
-                catalogo_anexado_em: nowIso,
-                catalogo_origem: body.group_name ?? group.nome,
-            })
-            .eq('id', decision.cronograma_id)
-        if (errUpd) {
-            // Registra como erro mas não falha o webhook
-            await client.from('whatsapp_catalog_detections').insert({
-                ...baseRow,
-                match_status: 'pending',
-                match_method: 'filename_fuzzy',
-                cronograma_id: decision.cronograma_id,
-                error: `falha ao anexar: ${errUpd.message}`,
-            })
-            return NextResponse.json({ ok: true, attached: false, error: errUpd.message })
-        }
-
-        const { data: inserted } = await client
-            .from('whatsapp_catalog_detections')
-            .insert({
-                ...baseRow,
-                match_status: 'attached',
-                match_method: 'filename_fuzzy',
-                cronograma_id: decision.cronograma_id,
-                attached: true,
-                attached_at: nowIso,
-                attached_by: 'auto',
-                overwrote_existing: false,
-            })
-            .select('id')
-            .single()
-
-        return NextResponse.json({
-            ok: true,
-            attached: true,
-            cronograma_id: decision.cronograma_id,
-            score: decision.score,
-            detection_id: inserted?.id,
-        })
-    }
-
-    // Não anexa — registra estado conforme decisão
-    let match_status: string
-    if (decision.decision === 'no_match') match_status = 'no_match'
-    else if (decision.decision === 'has_catalog') match_status = 'pending'
-    else if (decision.decision === 'ambiguous') match_status = 'ambiguous'
-    else match_status = 'pending'
-
-    const cronograma_id =
-        decision.decision === 'has_catalog' ? decision.cronograma_id : null
-
-    const error_note = pause.paused && decision.decision === 'attach'
-        ? 'pausado — anexo manual necessário'
-        : decision.decision === 'ambiguous'
-            ? (decision as { decision: 'ambiguous'; reason: string }).reason
-            : decision.decision === 'has_catalog'
-                ? 'leilão já tinha catálogo — não sobrescrito'
-                : null
-
-    const { data: inserted } = await client
+    // 3) Registra e responde — a identificação vem logo atrás.
+    const { data: inserted, error: errIns } = await client
         .from('whatsapp_catalog_detections')
         .insert({
-            ...baseRow,
-            match_status,
-            match_method: candidates.length > 0 ? 'filename_fuzzy' : null,
-            cronograma_id,
-            error: error_note,
+            group_jid: body.group_jid,
+            group_name: body.group_name ?? group.nome,
+            sender_jid: body.sender_jid ?? null,
+            sender_name: body.sender_name ?? null,
+            message_id: body.message_id ?? null,
+            file_name: body.file_name,
+            file_mime: body.file_mime ?? null,
+            file_size: typeof body.file_size === 'number' ? body.file_size : null,
+            r2_key: fileRef,
+            match_status: 'analyzing',
+            candidates: [],
         })
         .select('id')
         .single()
 
-    return NextResponse.json({
-        ok: true,
-        attached: false,
-        match_status,
-        detection_id: inserted?.id,
-        reason: error_note,
+    if (errIns || !inserted) {
+        return NextResponse.json({ error: errIns?.message ?? 'falha ao registrar' }, { status: 500 })
+    }
+
+    // 4) Abre o PDF, identifica e anexa — depois da resposta.
+    after(async () => {
+        try {
+            await processarDeteccao(sb(), inserted.id)
+        } catch (e) {
+            console.error('[catalogos] processarDeteccao', inserted.id, e)
+            await sb().from('whatsapp_catalog_detections').update({
+                match_status: 'error',
+                error: e instanceof Error ? e.message : String(e),
+                analyzed_at: new Date().toISOString(),
+            }).eq('id', inserted.id)
+        }
     })
+
+    return NextResponse.json({ ok: true, detection_id: inserted.id, match_status: 'analyzing' })
 }

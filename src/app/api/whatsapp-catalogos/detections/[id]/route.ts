@@ -1,14 +1,17 @@
 /**
  * Detalhe / remoção de uma detecção.
  *
- * GET    → registro + URL R2 presigned para visualizar o PDF
- * DELETE → remove a detecção (não desanexa do leilão; isso é manual no cronograma)
+ * GET    → registro + URL do PDF + candidatos recalculados COM a evidência já
+ *          lida do arquivo (não só o nome), + documentos do leilão casado.
+ * DELETE → remove a detecção do histórico. Não desanexa o documento do leilão:
+ *          isso é feito na tela do leilão, de propósito.
  */
 
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
 import { requireAdmin } from '@/lib/auth-helpers'
-import { findMatches, resolveCatalogDownloadUrl } from '@/lib/whatsapp-catalogs'
+import { findMatches, resolveCatalogDownloadUrl, evidenciaDaDeteccao } from '@/lib/whatsapp-catalogs'
+import { listarDocumentos } from '@/lib/leilao-documentos'
 
 export const dynamic = 'force-dynamic'
 
@@ -49,10 +52,19 @@ export async function GET(_req: NextRequest, { params }: { params: Promise<{ id:
         }
     }
 
-    // Recalcula candidatos atualizados (útil quando o cronograma mudou)
-    const fresh = await findMatches(client, data.file_name, { limit: 5 })
+    // Recalcula candidatos com a evidência do arquivo (útil quando o cronograma
+    // mudou depois da análise).
+    const fresh = await findMatches(client, data.file_name, {
+        limit: 5,
+        evidencia: evidenciaDaDeteccao(data),
+        referencia: data.received_at ? new Date(data.received_at) : undefined,
+    })
 
-    return NextResponse.json({ detection: data, file_url, fresh_candidates: fresh })
+    const documentos = data.cronograma_id
+        ? (await listarDocumentos(client, [data.cronograma_id])).get(data.cronograma_id) ?? []
+        : []
+
+    return NextResponse.json({ detection: data, file_url, fresh_candidates: fresh, documentos })
 }
 
 export async function DELETE(_req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
