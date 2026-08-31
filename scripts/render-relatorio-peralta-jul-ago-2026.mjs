@@ -3,6 +3,11 @@
  * partir de outputs/peralta-jul-ago-2026/dados.json. PDF A4 na Area de
  * Trabalho. Nenhum numero escrito a mao — tudo sai do JSON.
  *
+ * ESCOPO (pedido do Joao, 31/08/2026): SO Bula Assessoria — filial '2' do
+ * HastaPro. Os lotes que ele conduziu em pregao da Bula Remates (filial '01')
+ * ficam de fora do relatorio inteiro; o dados.json continua apurando os dois
+ * para que o recorte seja declaravel, mas nenhuma pagina os apresenta.
+ *
  * Brandbook: preto/grafite/branco, Oswald nos titulos, dourado so no filete da
  * capa e na borda de um tile (acento cirurgico, <5% da peca).
  */
@@ -28,14 +33,12 @@ const corta = (t, n) => {
 }
 const titulo = t => corta(String(t).replace(/^LEILÃO\s+(VIRTUAL\s+)?/i, '').replace(/\s*[-–]\s*\d{2}\/\d{2}\/\d{4}\s*$/, ''), 46)
 
-const INK = '#0A0A0A', GRAF = '#3A3A3A', CINZA = '#9A9A9A', GRID = '#E6E6E6', MUTED = '#6E6E6E', GOLD = '#C9A84C'
+const INK = '#0A0A0A', GRID = '#E6E6E6', MUTED = '#6E6E6E', GOLD = '#C9A84C'
 const PCT = D.pessoa.pct
 const logo = 'data:image/png;base64,' + fs.readFileSync('public/logo-bula-assessoria-white.png').toString('base64')
 
 /* ── o que o cruzamento com o HastaPro produz ────────────────────────────── */
-const confere = D.cruzamento.filter(c => c.situacao === 'confere')
 const semCredito = D.cruzamento.filter(c => c.situacao !== 'confere')
-const vgvConfere = r2(confere.reduce((a, b) => a + b.vgv, 0))
 const vgvSemCredito = r2(semCredito.reduce((a, b) => a + b.vgv, 0))
 const comSemCredito = r2(vgvSemCredito * PCT)
 const emDisputa = r2(D.soErp.reduce((a, b) => a + b.vgv, 0))
@@ -51,28 +54,7 @@ const cancelado = D.erp.cancelado_junho[0]
 const pagoComissao = D.erp.titulos.filter(t => /^COMISSAO/i.test(t.descricao) && t.status === 'pago')
 const totalPagoComissao = r2(pagoComissao.reduce((a, b) => a + b.valor, 0))
 
-/* ═══ G1 — composição por empresa (barra empilhada, rótulos diretos) ══════
- * Os rótulos vão FORA da barra, ancorados nas duas pontas: o segmento da
- * Assessoria é 9% da largura e nenhum texto cabe dentro dele — escrever por
- * cima faria as duas legendas colidirem.                                     */
-function gEmpresa() {
-    const W = 762, BH = 30, T = 22
-    const tot = D.fil2.vgv + D.fil01.vgv
-    const pc = v => (v / tot * 100).toLocaleString('pt-BR', { minimumFractionDigits: 1, maximumFractionDigits: 1 }) + '%'
-    const w1 = (D.fil2.vgv / tot) * W
-    return `<svg viewBox="0 0 ${W} 84" width="100%" role="img" aria-label="Divisão do volume vendido entre Bula Assessoria e Bula Remates">
-    <text x="0" y="${T - 8}" font-family="Oswald" font-size="10.5" font-weight="600" fill="${INK}" letter-spacing=".04em">BULA ASSESSORIA</text>
-    <text x="${W}" y="${T - 8}" text-anchor="end" font-family="Oswald" font-size="10.5" font-weight="600" fill="${INK}" letter-spacing=".04em">BULA REMATES</text>
-    <rect x="0" y="${T}" width="${Math.max(w1 - 2, 1).toFixed(1)}" height="${BH}" fill="${INK}" rx="2"/>
-    <rect x="${w1.toFixed(1)}" y="${T}" width="${(W - w1).toFixed(1)}" height="${BH}" fill="${CINZA}" rx="2"/>
-    <text x="0" y="${T + BH + 15}" font-family="Oswald" font-size="12.5" font-weight="600" fill="${INK}">R$ ${brl0(D.fil2.vgv)}</text>
-    <text x="${W}" y="${T + BH + 15}" text-anchor="end" font-family="Oswald" font-size="12.5" font-weight="600" fill="${INK}">R$ ${brl0(D.fil01.vgv)}</text>
-    <text x="0" y="${T + BH + 27}" font-family="Inter" font-size="9" fill="${MUTED}">${pc(D.fil2.vgv)} · gera comissão</text>
-    <text x="${W}" y="${T + BH + 27}" text-anchor="end" font-family="Inter" font-size="9" fill="${MUTED}">${pc(D.fil01.vgv)} · pista da Remates</text>
-  </svg>`
-}
-
-/* ═══ G2 — julho × agosto na Assessoria (barras, rótulos diretos) ═════════ */
+/* ═══ G1 — julho × agosto na Assessoria (barras, rótulos diretos) ═════════ */
 function gMeses() {
     const W = 360, H = 108, BASE = 78, BW = 96
     const meses = [
@@ -94,14 +76,13 @@ function gMeses() {
 
 /* ═══ tabelas ════════════════════════════════════════════════════════════ */
 const linhasFil2 = D.fil2.leiloes.map(l => {
-    const lts = l.lotes.map(x => x.lote).join(', ')
     const conf = l.lotes.every(x => D.cruzamento.find(c => c.lote === x.lote && c.data === x.data)?.situacao === 'confere')
-    const parc = l.lotes.every(x => D.cruzamento.find(c => c.lote === x.lote && c.data === x.data)?.situacao !== 'confere')
+    const fora = l.lotes.every(x => D.cruzamento.find(c => c.lote === x.lote && c.data === x.data)?.situacao !== 'confere')
     return `<tr>
     <td>${dm(l.data)}</td><td>${esc(titulo(l.leilao))}</td><td>${esc(l.uf || '—')}</td>
     <td class="num">${l.n}</td><td class="num">${l.cabecas}</td>
     <td class="num">R$ ${brl(l.vgv)}</td><td class="num">R$ ${brl(r2(l.vgv * PCT))}</td>
-    <td>${conf ? 'no fechamento' : parc ? '<strong>fora do fechamento</strong>' : 'parcial'}</td>
+    <td>${conf ? 'no fechamento' : fora ? '<strong>fora do fechamento</strong>' : 'parcial'}</td>
   </tr>`
 }).join('')
 
@@ -125,25 +106,18 @@ const linhasErp = D.erp.fechamentos.map(f => `<tr>
     <td>${f.data < '2026-08-01' ? (tJulho ? `título ${tJulho.status}` : 'sem título') : 'sem título'}</td>
   </tr>`).join('')
 
-const linhasFil01 = D.fil01.leiloes.map(l => `<tr>
-    <td>${dm(l.data)}</td><td>${esc(titulo(l.leilao))}</td>
-    <td class="num">${l.n}</td><td class="num">${l.cabecas}</td>
-    <td class="num">R$ ${brl(l.vgv)}</td><td class="num">R$ ${brl(r2(l.vgv * PCT))}</td>
-  </tr>`).join('')
-
 const linhasCompradores = D.fil2.compradores.map(c => `<tr>
     <td>${esc(corta(c.nome, 42))}</td><td>${esc(c.uf || '—')}</td>
     <td class="num">${c.lotes}</td><td class="num">R$ ${brl(c.vgv)}</td>
   </tr>`).join('')
 
 const linhasTitulos = D.erp.titulos.filter(t => /^COMISSAO/i.test(t.descricao)).map(t => `<tr>
-    <td>${dma(t.vencimento)}</td><td>${esc(corta(t.descricao.replace(/^COMISSAO\s+/i, ''), 52))}</td>
+    <td>${dma(t.vencimento)}</td><td>${esc(corta(t.descricao.replace(/^COMISSAO\s+/i, ''), 40))}</td>
     <td class="num">R$ ${brl(t.valor)}</td><td>${t.status === 'vencido' ? '<strong>Vencido</strong>' : esc(t.status[0].toUpperCase() + t.status.slice(1))}</td>
-    <td>${t.pago_em ? dma(t.pago_em) : '—'}</td>
   </tr>`).join('')
 
 const linhasExtrato = D.erp.extrato.map(m => `<tr>
-    <td>${dma(m.data)}</td><td>${esc(corta(m.descricao, 68))}</td><td class="num">R$ ${brl(m.valor)}</td>
+    <td>${dma(m.data)}</td><td>${esc(corta(m.descricao, 44))}</td><td class="num">R$ ${brl(m.valor)}</td>
   </tr>`).join('')
 
 /* ═══ HTML ═══════════════════════════════════════════════════════════════ */
@@ -213,9 +187,8 @@ const html = `<!doctype html><html lang="pt-BR"><head><meta charset="utf-8">
   <img src="${logo}" alt="Bula Assessoria">
   <h1>Vendas e<br>comissões<br>do Peralta</h1>
   <div class="rule"></div>
-  <div class="sub">Apuração de julho e agosto de 2026, lote a lote, com cada venda conferida contra o
-  HastaPro. Separa o que é cobertura da <strong>Bula Assessoria</strong> — e por isso gera comissão —
-  do que foi conduzido na pista da <strong>Bula Remates</strong>.</div>
+  <div class="sub">Julho e agosto de 2026, lote a lote, com cada venda conferida contra o HastaPro.
+  Escopo: <strong>somente a cobertura da Bula Assessoria</strong>.</div>
   <div class="meta">
     <div><span>Período</span><strong>${dma(D.periodo.ini)} a ${dma(D.periodo.fim)}</strong></div>
     <div><span>Assessor</span><strong>${esc(D.pessoa.hastapro)}</strong></div>
@@ -227,42 +200,36 @@ const html = `<!doctype html><html lang="pt-BR"><head><meta charset="utf-8">
 
 <!-- ══ 1. PANORAMA ══ -->
 <section class="page">
-  <div class="head"><h2>O que foi vendido</h2><div class="n">01 · Panorama</div></div>
+  <div class="head"><h2>O que ele vendeu pela Bula</h2><div class="n">01 · Panorama</div></div>
 
-  <p class="lead">Entre ${dma(D.periodo.ini)} e ${dma(D.periodo.fim)} o Peralta conduziu
-  <strong>${D.fil2.lotes + D.fil01.lotes} lotes</strong> em <strong>${D.fil2.leiloes.length + D.fil01.leiloes.length} leilões</strong>,
-  somando <strong>R$ ${brl(D.fil2.vgv + D.fil01.vgv)}</strong>. Esse número inteiro não é base de comissão da
-  Assessoria: só <strong>R$ ${brl(D.fil2.vgv)}</strong> saíram de leilões da Bula Assessoria. O restante foi vendido
-  em pregão da <strong>Bula Remates</strong>, onde ele está na pista pela leiloeira.</p>
-
-  <figure>${gEmpresa()}
-    <figcaption>Divisão do volume por empresa. A regra é explícita no importador de fechamentos
-    (<em>PISTA_DA_REMATES</em>, decisão de 26/08/2026): estar na folha da Bula não basta para o lote virar
-    cobertura da Assessoria quando o pregão é da Remates.</figcaption></figure>
+  <p class="lead">Entre ${dma(D.periodo.ini)} e ${dma(D.periodo.fim)} o Peralta fechou
+  <strong>${D.fil2.lotes} lotes</strong> em <strong>${D.fil2.leiloes.length} leilões</strong> da Bula Assessoria,
+  somando <strong>R$ ${brl(D.fil2.vgv)}</strong> de VGV de cobertura — <strong>R$ ${brl(D.fil2.comissao)}</strong>
+  de comissão a ${(PCT * 100).toFixed(0)}%. Desse total, nada foi pago até hoje.</p>
 
   <div class="tiles">
-    <div class="tile"><div class="k">Vendas · Bula Assessoria</div>
+    <div class="tile"><div class="k">Vendas no período</div>
       <div class="v"><span class="cur">R$</span>${brl0(D.fil2.vgv)}</div>
       <div class="d">${D.fil2.lotes} lotes · ${D.fil2.cabecas} cabeças · ${D.fil2.leiloes.length} leilões</div></div>
     <div class="tile gold"><div class="k">Comissão devida (${(PCT * 100).toFixed(0)}%)</div>
       <div class="v"><span class="cur">R$</span>${brl0(D.fil2.comissao)}</div>
       <div class="d">sobre o VGV confirmado no HastaPro</div></div>
-    <div class="tile"><div class="k">Comissão paga no período</div>
+    <div class="tile"><div class="k">Reconhecido no ERP</div>
+      <div class="v"><span class="cur">R$</span>${brl0(D.erp.comissao)}</div>
+      <div class="d">em ${D.erp.fechamentos.length} fechamentos, com ${semCredito.length + D.soErp.length} lotes divergentes</div></div>
+    <div class="tile"><div class="k">Recebido de comissão em 2026</div>
       <div class="v"><span class="cur">R$</span>${brl0(totalPagoComissao)}</div>
-      <div class="d">nenhum PIX de comissão ao Peralta em 2026</div></div>
-    <div class="tile"><div class="k">Vendas · Bula Remates</div>
-      <div class="v"><span class="cur">R$</span>${brl0(D.fil01.vgv)}</div>
-      <div class="d">${D.fil01.lotes} lotes · fora da comissão da Assessoria</div></div>
+      <div class="d">nenhum PIX de comissão ao Peralta</div></div>
   </div>
 
   <div class="cols2">
     <div>
-      <h3>Ritmo na Assessoria</h3>
+      <h3>Ritmo no bimestre</h3>
       <figure>${gMeses()}<figcaption>Agosto multiplicou por
-      ${(D.fil2.vgv_agosto / D.fil2.vgv_julho).toLocaleString('pt-BR', { minimumFractionDigits: 1, maximumFractionDigits: 1 })}× o volume de julho na cobertura da Bula.</figcaption></figure>
+      ${(D.fil2.vgv_agosto / D.fil2.vgv_julho).toLocaleString('pt-BR', { minimumFractionDigits: 1, maximumFractionDigits: 1 })}× o volume de julho.</figcaption></figure>
     </div>
     <div>
-      <h3>Quem comprou (Assessoria)</h3>
+      <h3>Quem comprou</h3>
       <table>
         <tr><th>Comprador</th><th>UF</th><th class="num">Lotes</th><th class="num">Valor</th></tr>
         ${linhasCompradores}
@@ -270,11 +237,11 @@ const html = `<!doctype html><html lang="pt-BR"><head><meta charset="utf-8">
       </table>
       <p class="small">Dois compradores respondem por
       ${((D.fil2.compradores.slice(0, 2).reduce((a, b) => a + b.vgv, 0) / D.fil2.vgv) * 100).toFixed(0)}% do que ele
-      vendeu pela Assessoria no bimestre.</p>
+      vendeu no bimestre.</p>
     </div>
   </div>
 
-  <h3>Vendas pela Assessoria, leilão a leilão</h3>
+  <h3>Leilão a leilão</h3>
   <table>
     <tr><th>Data</th><th>Leilão</th><th>UF</th><th class="num">Lotes</th><th class="num">Cab.</th>
         <th class="num">VGV</th><th class="num">Comissão ${(PCT * 100).toFixed(0)}%</th><th>No ERP</th></tr>
@@ -283,28 +250,34 @@ const html = `<!doctype html><html lang="pt-BR"><head><meta charset="utf-8">
       <td class="num">${D.fil2.cabecas}</td><td class="num">R$ ${brl(D.fil2.vgv)}</td>
       <td class="num">R$ ${brl(D.fil2.comissao)}</td><td></td></tr>
   </table>
-  <p class="small">“Fora do fechamento” não significa venda sem prova: significa que o HastaPro registra o lote no nome
-  dele e o fechamento do ERP não — é a divergência aberta na página 4.</p>
-  ${foot('Página 2 de 5')}
+  <p class="small">“Fora do fechamento” não significa venda sem prova: significa que o HastaPro registra o lote no
+  nome dele e o fechamento do ERP não — é a divergência aberta na página 4.</p>
+
+  <div class="box rule">
+    <div class="t">O recorte deste relatório</div>
+    <p style="margin:0">Universo: lotes com <strong>pisteiro = Peralta na filial ‘2’ (Bula Assessoria)</strong> do
+    HastaPro, vendidos no período. Lotes que ele conduziu em pregão da <strong>Bula Remates</strong> ficam de fora —
+    ali ele está na pista pela leiloeira e o lote não é cobertura da Assessoria (regra <em>PISTA_DA_REMATES</em>,
+    decisão de 26/08/2026). Nenhum número desta página inclui esses lotes.</p>
+  </div>
+  ${foot('Página 2 de 4')}
 </section>
 
-<!-- ══ 2. VENDAS PELA ASSESSORIA ══ -->
+<!-- ══ 2. LOTE A LOTE ══ -->
 <section class="page">
-  <div class="head"><h2>Vendas pela Bula Assessoria</h2><div class="n">02 · Lote a lote</div></div>
+  <div class="head"><h2>Conferência contra o HastaPro</h2><div class="n">02 · Lote a lote</div></div>
 
-  <p class="lead">Universo: lotes com <strong>pisteiro = Peralta</strong> na filial ‘2’ (Bula Assessoria) do HastaPro,
-  vendidos no período. O VGV é <em>lance × captação × cabeças</em>, lido do próprio lote — não é multiplicação por 30
-  no escuro. A última coluna diz se aquele lote chegou ao fechamento do ERP.</p>
+  <p class="lead">O VGV de cada lote é <em>lance × captação × cabeças</em>, lido do próprio lote — não é
+  multiplicação por 30 no escuro. A última coluna diz se aquele lote chegou ao fechamento do ERP e em nome de quem.</p>
 
-  <h3>Conferência lote a lote contra o HastaPro</h3>
   <table>
     <tr><th>Data</th><th>Leilão</th><th>Lote</th><th class="num">Cab.</th><th class="num">Lance</th>
         <th class="num">Capt.</th><th class="num">VGV</th><th>Comprador</th><th>Situação no ERP</th></tr>
     ${linhasLotes}
   </table>
   <p class="small">Casamento por <strong>número do lote + data (±3 dias)</strong>, nunca só por valor: no 28º Naviraí
-  Camparino há três lotes de R$ 48.000 no mesmo dia, dois deles do Lucas Martins. Casar por valor faria o lote 78
-  do Peralta “virar” lote do Lucas e a falta desaparecer do relatório.</p>
+  Camparino há três lotes de R$ 48.000 no mesmo dia, dois deles de outro assessor. Casar por valor faria o lote 78
+  do Peralta “virar” lote alheio e a falta desaparecer do relatório.</p>
 
   <h3>O que o ERP registra no nome dele</h3>
   <table>
@@ -334,8 +307,9 @@ const html = `<!doctype html><html lang="pt-BR"><head><meta charset="utf-8">
         <li><strong>Comprador</strong> vem de <em>COMPRADORES</em> ligado a <em>CLIENTES</em>, com o rateio quando o
         lote é dividido.</li>
         <li>${autoCompra
-            ? '<strong>Atenção:</strong> há lote em que o próprio Peralta figura como comprador — conferir antes de comissionar.'
-            : '<strong>Nenhum lote do período foi comprado pelo próprio Peralta</strong> na filial ‘2’ — a armadilha de pisteiro que também é comprador não afeta esta apuração.'}</li>
+        ? '<strong>Atenção:</strong> há lote em que o próprio Peralta figura como comprador — conferir antes de comissionar.'
+        : '<strong>Nenhum lote do período foi comprado pelo próprio Peralta</strong> — a armadilha de pisteiro que também é comprador não afeta esta apuração.'}</li>
+        <li><strong>Taxa de ${(PCT * 100).toFixed(0)}%</strong> lida de <em>erp_folha_estrutura</em>, não digitada.</li>
       </ul>
     </div>
   </div>
@@ -346,7 +320,7 @@ const html = `<!doctype html><html lang="pt-BR"><head><meta charset="utf-8">
     divergem em <strong>R$ ${brl(r2(vgvSemCredito + emDisputa))}</strong> de lotes que uma reconhece e a outra não,
     e que quase se cancelam. A página seguinte abre os três casos.</p>
   </div>
-  ${foot('Página 3 de 5')}
+  ${foot('Página 3 de 4')}
 </section>
 
 <!-- ══ 3. COMISSÃO ══ -->
@@ -368,22 +342,27 @@ const html = `<!doctype html><html lang="pt-BR"><head><meta charset="utf-8">
       <div class="d">o extrato só tem reembolsos de viagem</div></div>
   </div>
 
-  <h3>Títulos de comissão no ERP</h3>
-  <table>
-    <tr><th>Vencimento</th><th>Título</th><th class="num">Valor</th><th>Status</th><th>Pago em</th></tr>
-    ${linhasTitulos}
-  </table>
+  <div class="cols2">
+    <div>
+      <h3>Títulos de comissão no ERP</h3>
+      <table>
+        <tr><th>Vencimento</th><th>Título</th><th class="num">Valor</th><th>Status</th></tr>
+        ${linhasTitulos}
+      </table>
+    </div>
+    <div>
+      <h3>Saídas para o Peralta no extrato</h3>
+      <table>
+        <tr><th>Data</th><th>Lançamento</th><th class="num">Valor</th></tr>
+        ${linhasExtrato}
+        <tr class="total"><td colspan="2">Nenhum centavo é comissão</td>
+          <td class="num">R$ ${brl(D.erp.extrato.reduce((a, b) => a + b.valor, 0))}</td></tr>
+      </table>
+    </div>
+  </div>
   <p class="small">Os 14 títulos de comissão de agosto já criados com vencimento em 25/09/2026 cobrem Fábio, Douglas
-  e Leonardo — <strong>nenhum é do Peralta</strong>. Pela regra do dia 25 do mês seguinte, os
-  R$ ${brl(comAgostoErp)} de agosto vencem em <strong>25/09/2026</strong> (sexta-feira, dia útil).</p>
-
-  <h3>Saídas para o Peralta no extrato (2026)</h3>
-  <table>
-    <tr><th>Data</th><th>Lançamento</th><th class="num">Valor</th></tr>
-    ${linhasExtrato}
-    <tr class="total"><td colspan="2">Total — nenhum centavo é comissão</td>
-      <td class="num">R$ ${brl(D.erp.extrato.reduce((a, b) => a + b.valor, 0))}</td></tr>
-  </table>
+  e Leonardo — <strong>nenhum é do Peralta</strong>. Pela regra do dia 25 do mês seguinte, os R$ ${brl(comAgostoErp)}
+  de agosto vencem em <strong>25/09/2026</strong> (sexta-feira, dia útil).</p>
 
   <h3>As três divergências, com o desempate do HastaPro</h3>
   <table>
@@ -408,81 +387,24 @@ const html = `<!doctype html><html lang="pt-BR"><head><meta charset="utf-8">
   </table>
 
   <div class="box dark">
-    <div class="t">Pendência anterior ao período — precisa de decisão</div>
-    <p>A comissão de <strong>R$ ${brl(cancelado.valor)}</strong> do leilão de 23/06 (VGV R$ 175.500) foi
-    <strong>cancelada em ${dma(cancelado.atualizado)}</strong> com esta justificativa gravada no próprio título:
-    <em>“Comissionados reais da operação são apenas Douglas, Leonardo, Fabio, Rusa e Bulinha (chefe 04/08).
-    CP de Peralta não é dívida real.”</em> Nenhum título substituto foi criado.</p>
-    <p style="margin-bottom:0">Só que em <strong>26/08</strong> a regra de importação passou a tratar o Peralta como
-    vendedor pela Bula nos leilões da filial ‘2’ — e é por isso que julho e agosto voltaram a gerar comissão no nome
-    dele. <strong>As duas decisões não convivem:</strong> ou o cancelamento de junho vale e os
-    R$ ${brl(D.fil2.comissao)} do bimestre caem junto, ou a regra de agosto vale e os R$ ${brl(cancelado.valor)}
-    de junho precisam voltar. Isso é decisão da diretoria, não do sistema.</p>
-  </div>
-  ${foot('Página 4 de 5')}
-</section>
-
-<!-- ══ 4. REMATES + MÉTODO ══ -->
-<section class="page">
-  <div class="head"><h2>Pista da Bula Remates</h2><div class="n">04 · Fora da comissão</div></div>
-
-  <p class="lead">O maior volume do Peralta no bimestre está aqui: <strong>R$ ${brl(D.fil01.vgv)}</strong> em
-  ${D.fil01.lotes} lotes e ${D.fil01.cabecas} cabeças. São pregões conduzidos pela <strong>Bula Remates</strong>
-  (filial ‘01’), onde ele atua pela leiloeira — por decisão de 26/08/2026 esses lotes <strong>não</strong> entram no
-  fechamento da Assessoria e <strong>não</strong> geram comissão de assessoria. A coluna de equivalência a
-  ${(PCT * 100).toFixed(0)}% existe só para dimensionar o que essa fronteira decide, não para cobrar.</p>
-
-  <table>
-    <tr><th>Data</th><th>Leilão</th><th class="num">Lotes</th><th class="num">Cab.</th>
-        <th class="num">VGV</th><th class="num">Equivale a ${(PCT * 100).toFixed(0)}%</th></tr>
-    ${linhasFil01}
-    <tr class="total"><td colspan="2">Total na Bula Remates</td><td class="num">${D.fil01.lotes}</td>
-      <td class="num">${D.fil01.cabecas}</td><td class="num">R$ ${brl(D.fil01.vgv)}</td>
-      <td class="num">R$ ${brl(D.fil01.equivalente)}</td></tr>
-  </table>
-
-  <div class="cols2">
-    <div class="box">
-      <div class="t">Ressalvas destes números</div>
-      <ul style="margin-bottom:0">
-        <li>O <strong>Só Criador — Especial Santa Casa</strong> de 11/08 é leilão beneficente: um dos sete lotes
-        (R$ 3.000) foi arrematado pelo próprio Peralta. Ele aparece como pisteiro e comprador do mesmo lote.</li>
-        <li>No 29º Neloraço de 25/07 há um lote com <strong>valor zero</strong> no HastaPro — conta como lote, não
-        como venda.</li>
-        <li>O <strong>São Geraldo de 01/08</strong> concentra R$ 849.200 dos R$ ${brl0(D.fil01.vgv)}. O fechamento
-        da Assessoria para esse mesmo leilão é de R$ 375.800, cobrindo cinco lotes de Douglas e Leonardo — a
-        diferença é exatamente a fronteira entre as duas empresas.</li>
-      </ul>
-    </div>
-    <div class="box">
-      <div class="t">Método e fontes</div>
-      <ul style="margin-bottom:0">
-        <li><strong>HastaPro</strong> (Firebird, somente leitura): <em>LOTES</em> com
-        <em>LOT_PISTEIRO</em> = Luiz Felipe Peralta Garcez, <em>LOT_DATA_VENDA</em> no período, com
-        <em>LEILAO</em>, <em>CONDICOES</em> (captação real do lote) e <em>COMPRADORES</em>.</li>
-        <li><strong>ERP Bula</strong> (Supabase): <em>bula_leilao_fechamento</em> (por_assessor e lances),
-        <em>erp_contas_pagar</em> e <em>erp_movimentos_bancarios</em>.</li>
-        <li>Taxa de ${(PCT * 100).toFixed(0)}% lida de <em>erp_folha_estrutura</em>, não digitada.</li>
-        <li>Reprodutível: <code>node scripts/gera-relatorio-peralta-jul-ago-2026.mjs</code> e
-        <code>node scripts/render-relatorio-peralta-jul-ago-2026.mjs</code>.</li>
-      </ul>
-    </div>
-  </div>
-
-  <div class="box rule">
     <div class="t">O que precisa de decisão</div>
     <ol style="margin-bottom:0">
       <li><strong>Pagar ou não os R$ ${brl(comJulhoErp)} de julho</strong>, vencidos em ${dma(tJulho?.vencimento)} e
       até hoje sem PIX.</li>
-      <li><strong>Lançar os títulos de agosto</strong> (R$ ${brl(comAgostoErp)} pelo ERP, R$ ${brl(r2(D.fil2.vgv_agosto * PCT))}
-      pelo HastaPro) para o vencimento de 25/09/2026.</li>
-      <li><strong>Resolver os três lotes divergentes</strong> do Naviraí Camparino — os dois sem crédito e o de
-      R$ 93.000 atribuído a “Peralta / Bula”.</li>
-      <li><strong>Reconciliar junho com a regra de agosto</strong>: o cancelamento dos R$ ${brl(cancelado.valor)}
-      contradiz o critério que hoje gera comissão para ele.</li>
+      <li><strong>Lançar os títulos de agosto</strong> — R$ ${brl(comAgostoErp)} pelo ERP,
+      R$ ${brl(r2(D.fil2.vgv_agosto * PCT))} pelo HastaPro — para o vencimento de 25/09/2026.</li>
+      <li><strong>Resolver os três lotes divergentes</strong> do Naviraí Camparino: os dois sem crédito e o de
+      R$ ${brl0(emDisputa)} atribuído a “Peralta / Bula”.</li>
+      <li><strong>Reconciliar a regra com junho.</strong> A comissão de R$ ${brl(cancelado.valor)} do leilão de 23/06
+      foi cancelada em ${dma(cancelado.atualizado)} com esta justificativa gravada no título:
+      <em>“Comissionados reais da operação são apenas Douglas, Leonardo, Fabio, Rusa e Bulinha (chefe 04/08).
+      CP de Peralta não é dívida real.”</em> Em 26/08 a regra de importação voltou a tratá-lo como vendedor pela Bula —
+      e é por isso que julho e agosto geraram comissão no nome dele. <strong>As duas decisões não convivem:</strong>
+      ou o cancelamento vale e os R$ ${brl(D.fil2.comissao)} do bimestre caem junto, ou a regra vale e os
+      R$ ${brl(cancelado.valor)} de junho precisam voltar.</li>
     </ol>
   </div>
-  ${foot('Página 5 de 5')}
+  ${foot('Página 4 de 4')}
 </section>
 </body></html>`
 
