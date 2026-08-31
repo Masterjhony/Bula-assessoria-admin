@@ -321,7 +321,7 @@ const anexo = [
     ]),
     '',
     `FICHAS DA JANELA QUE NÃO SÃO DA CAMPANHA (${CADASTROS_FORA_DA_CAMPANHA.length})`,
-    ...CADASTROS_FORA_DA_CAMPANHA.map(c => `  ${c.em} ${c.nome.padEnd(38)} CPF ${c.cpf} · ${c.para} · ${c.nota}`),
+    ...CADASTROS_FORA_DA_CAMPANHA.map(c => `  ${c.submetidaEm.slice(0, 10)} ${c.nome.padEnd(38)} CPF ${c.cpf} · ${c.para} · ${c.campanha ? 'lead de ' + c.campanha : 'não é lead de mídia'} · ${c.status}`),
     '',
     `O LEILÃO ANUNCIADO — ${LEILAO.nome}, ${LEILAO.data}`,
     `  ${leilao.lotes} lotes · ${leilao.animais} animais · ${brl(leilao.total)} · ${leilao.compradores} compradores (filial 01, Bula Remates)`,

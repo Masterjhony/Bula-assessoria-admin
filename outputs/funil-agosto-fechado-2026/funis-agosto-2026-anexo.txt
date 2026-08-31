@@ -1,0 +1,57 @@
+FUNIS DE AGOSTO/2026 — conferência · apurado em 31/08/2026
+
+── AGOSTO CONSOLIDADO (1º a 31/08, seis campanhas)
+   mídia R$ 5.034,95 · 337.259 impressões · 5.760 cliques · 1.402 cliques de saída · 1.134 acessos
+   leads 272 (211 de formulário instantâneo) · MQL 68 · cadastros 17 · aprovados 11 · clientes 2
+
+   por campanha:
+     PERPÉTUO TOURO     R$ 2.594,75 · 151 leads ·  44 MQL ·  7 fichas ·  6 aprov · CPL R$ 17,18 · CPMQL R$ 58,97
+     PERPÉTUO FÊMEAS    R$ 1.225,09 ·  57 leads ·   4 MQL ·  2 fichas ·  1 aprov · CPL R$ 21,49 · CPMQL R$ 306,27
+     MELHORADORES         R$ 418,06 ·  14 leads ·   8 MQL ·  3 fichas ·  1 aprov · CPL R$ 29,86 · CPMQL R$ 52,26
+     JACAMIN              R$ 414,17 ·  19 leads ·   3 MQL ·  2 fichas ·  1 aprov · CPL R$ 21,80 · CPMQL R$ 138,06
+     EXPOGENÉTICA         R$ 261,05 ·  24 leads ·   5 MQL ·  0 fichas ·  0 aprov · CPL R$ 10,88 · CPMQL R$ 52,21
+     SÃO GERALDO          R$ 121,83 ·   7 leads ·   4 MQL ·  3 fichas ·  2 aprov · CPL R$ 17,40 · CPMQL R$ 30,46
+
+   cadastros submetidos:
+     2026-08-01 Hélio Mascarenhas Rocha                CPF 872.581.533-49     SÃO GERALDO      RECUSADO
+     2026-08-01 Davison Avelino Gomes Pinto            CPF 161.913.818-24     SÃO GERALDO      APROVADO
+     2026-08-01 Fabio Rafael da Cunha Silva            CPF 118.141.576-46     SÃO GERALDO      APROVADO
+     2026-08-11 Ruy de Freitas Lima                    CPF 865.466.351-00     PERPÉTUO TOURO   APROVADO
+     2026-08-12 Handerson Soares Arruda Oliveira       CPF 027.700.781-00     PERPÉTUO FÊMEAS  RECUSADO
+     2026-08-13 Bruna Alaise Silva Oliveira Arruda     CPF 016.987.171-13     PERPÉTUO FÊMEAS  APROVADO
+     2026-08-20 Epitacio Garcia Neto                   CPF 036.349.991-10     PERPÉTUO TOURO   APROVADO
+     2026-08-20 Wandeilson Dias Sabino                 CPF —                  PERPÉTUO TOURO   APROVADO
+     2026-08-22 Marcionei Luiz dos Santos              CPF 802.873.879-68     PERPÉTUO TOURO   PENDENTE
+     2026-08-23 Agropecuária Pernambuco Ltda (Agropecuária GP) CPF 33.328.046/0001-93 PERPÉTUO TOURO   APROVADO
+     2026-08-28 Tiago Marcel Kyschel                   CPF 095.528.489-97     MELHORADORES     RECUSADO
+     2026-08-28 Jessé Martins Mendes                   CPF 040.149.451-97     PERPÉTUO TOURO   APROVADO
+     2026-08-29 Gisleine Aparecida Fernandes da Silva  CPF 622.433.731-49     MELHORADORES     RECUSADO
+     2026-08-29 Claudio Eduardo Pupim                  CPF 226.263.838-13     JACAMIN          APROVADO
+     2026-08-29 Ejamal Muhd Shihadeh Khalil            CPF 666.740.349-91     JACAMIN          PENDENTE
+     2026-08-29 Reginaldo Leandro da Silva             CPF 401.932.171-04     PERPÉTUO TOURO   APROVADO
+     2026-08-31 Evaldo Luiz Nunes Escobar              CPF 372.576.921-49     MELHORADORES     APROVADO
+
+   clientes:
+     LAERCIO JOSE OLIVEIRA ALMEIDA          3 an · R$ 55.800,00 ← Landing São Geraldo (30/07/2026, 21:21)
+     PATRICK OLIVEIRA                       2 an · R$ 35.100,00 ← Landing Touros (27/07/2026, 20:12)
+
+── CAMPANHAS ATIVAS (27 a 31/08: Perpétuo Touro, Jacamin, Melhoradores)
+   mídia R$ 1.768,87 · 141.206 impressões · 2.397 cliques · 9 cliques de saída · 3 acessos
+   leads 129 (128 de formulário instantâneo) · MQL 39 · cadastros 7 · aprovados 4 · clientes 0
+
+   por campanha:
+     PERPÉTUO TOURO       R$ 936,64 ·  96 leads ·  28 MQL ·  2 fichas ·  2 aprov · CPL R$ 9,76 · CPMQL R$ 33,45
+     MELHORADORES         R$ 418,06 ·  14 leads ·   8 MQL ·  3 fichas ·  1 aprov · CPL R$ 29,86 · CPMQL R$ 52,26
+     JACAMIN              R$ 414,17 ·  19 leads ·   3 MQL ·  2 fichas ·  1 aprov · CPL R$ 21,80 · CPMQL R$ 138,06
+
+   cadastros submetidos:
+     2026-08-28 Tiago Marcel Kyschel                   CPF 095.528.489-97     MELHORADORES     RECUSADO
+     2026-08-28 Jessé Martins Mendes                   CPF 040.149.451-97     PERPÉTUO TOURO   APROVADO
+     2026-08-29 Gisleine Aparecida Fernandes da Silva  CPF 622.433.731-49     MELHORADORES     RECUSADO
+     2026-08-29 Claudio Eduardo Pupim                  CPF 226.263.838-13     JACAMIN          APROVADO
+     2026-08-29 Ejamal Muhd Shihadeh Khalil            CPF 666.740.349-91     JACAMIN          PENDENTE
+     2026-08-29 Reginaldo Leandro da Silva             CPF 401.932.171-04     PERPÉTUO TOURO   APROVADO
+     2026-08-31 Evaldo Luiz Nunes Escobar              CPF 372.576.921-49     MELHORADORES     APROVADO
+
+   clientes:
+     nenhum

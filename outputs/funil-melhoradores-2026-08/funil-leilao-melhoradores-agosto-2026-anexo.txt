@@ -34,15 +34,15 @@ CADASTROS SUBMETIDOS (3)
     APROVADO — "Bom score, tem IE, pelo visto bom de mexida mandou a documentação toda certinho. Aprovado!"
 
 FICHAS DA JANELA QUE NÃO SÃO DA CAMPANHA (9)
-  2026-08-27 Alexandre Soares de Carvalho           CPF 710.569.631-15 · Terra Brava · comprou 1 lote no Melhoradores em 29/08, mas não é lead de campanha nenhuma
-  2026-08-27 Hatila Silva Paes                      CPF 041.342.311-59 · Terra Brava · aprovado
-  2026-08-28 Jessé Martins Mendes                   CPF 040.149.451-97 · eRural · restrições e protestos — liberado 1 lote com cautela
-  2026-08-29 Claudio Eduardo Pupim                  CPF 226.263.838-13 · leilão de MS · aprovado
-  2026-08-29 Ejamal Muhd Shihadeh Khalil            CPF 666.740.349-91 · consulta de cadastro existente · já tinha cadastro
-  2026-08-29 Reginaldo Leandro da Silva             CPF 401.932.171-04 · LEILÃO MELHORADORES (29/08) · ficha aberta pela equipe — "Cadastro novo pra o leilao melhoradores"; I.E. 137211708; não é lead de campanha
-  2026-08-30 Ademir Krause                          CPF 603.232.052-91 · Ventres VIP Matinha · não aprovado, restrições de CPF
-  2026-08-30 Ana Vitoria Martins Lagares            CPF 064.410.281-07 · Ventres VIP Matinha · —
-  2026-08-31 Analice Martins da Silva               CPF 995.283.121-87 · carteira geral · cadastro ruim; atendida pela Laila
+  2026-08-27 Alexandre Soares de Carvalho           CPF 710.569.631-15 · Terra Brava · não é lead de mídia · aprovado
+  2026-08-27 Hatila Silva Paes                      CPF 041.342.311-59 · Terra Brava · não é lead de mídia · aprovado
+  2026-08-28 Jessé Martins Mendes                   CPF 040.149.451-97 · eRural · lead de PERPÉTUO TOURO · aprovado
+  2026-08-29 Claudio Eduardo Pupim                  CPF 226.263.838-13 · leilão de MS · lead de JACAMIN · aprovado
+  2026-08-29 Ejamal Muhd Shihadeh Khalil            CPF 666.740.349-91 · consulta de cadastro existente · lead de JACAMIN · pendente
+  2026-08-29 Reginaldo Leandro da Silva             CPF 401.932.171-04 · LEILÃO MELHORADORES ESPECIAL 30 ANOS (29/08) · lead de PERPÉTUO TOURO · aprovado
+  2026-08-30 Ademir Krause                          CPF 603.232.052-91 · Ventres VIP Matinha · não é lead de mídia · recusado
+  2026-08-30 Ana Vitoria Martins Lagares            CPF 064.410.281-07 · Ventres VIP Matinha · não é lead de mídia · pendente
+  2026-08-31 Analice Martins da Silva               CPF 995.283.121-87 · carteira geral · não é lead de mídia · recusado
 
 O LEILÃO ANUNCIADO — LEILÃO MELHORADORES ESPECIAL 30 ANOS, 2026-08-29
   45 lotes · 45 animais · R$ 1.167.900,00 · 27 compradores (filial 01, Bula Remates)
