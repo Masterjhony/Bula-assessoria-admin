@@ -72,9 +72,13 @@ const supabase = createClient(env.NEXT_PUBLIC_SUPABASE_URL, env.SUPABASE_SERVICE
   auth: { autoRefreshToken: false, persistSession: false },
 })
 
-const ORIGEM_MARCELO = 'Leilão que a Bula vai atender em setembro/2026 (definido na reunião com o Felipe Mota '
-  + 'e a equipe de assessores; lista passada pelo Marcelo no grupo em 01/09/2026). Horário, leiloeira, cidade '
-  + 'e modalidade entram quando o cartaz for divulgado.'
+// ⚠ `condicao` é campo PÚBLICO — sai no card da agenda e na página do leilão.
+// A primeira versão deste script gravava aqui a procedência ("lista passada pelo
+// Marcelo... horário e leiloeira entram quando o cartaz for divulgado") e o Marcelo
+// mandou tirar no mesmo dia, 15:19: "Tira essas escritas, deixa só o restante".
+// Nota de procedência e ressalva de cadastro ficam no comentário do script e no
+// `notes` do `agenda_events`, que é interno. Limpeza: agenda-2026-09-01-limpa-metatexto.mjs.
+const ORIGEM_MARCELO = ''
 
 const LEILOES = [
   // (A) — cartaz na mão, cadastro completo.
@@ -121,7 +125,7 @@ const LEILOES = [
     animais: 14,
     tipo: 'NELORE',
     transmissao: null,
-    condicao: `Oferta de 14 touros. ${ORIGEM_MARCELO}`,
+    condicao: ORIGEM_MARCELO,
     capa: null,
   },
   {
@@ -140,7 +144,7 @@ const LEILOES = [
     animais: 40,
     tipo: 'NELORE',
     transmissao: null,
-    condicao: `Oferta de 40 touros. ${ORIGEM_MARCELO}`,
+    condicao: ORIGEM_MARCELO,
     capa: null,
   },
   {
@@ -159,7 +163,7 @@ const LEILOES = [
     animais: 30,
     tipo: 'NELORE',
     transmissao: null,
-    condicao: `Oferta de 30 fêmeas. ${ORIGEM_MARCELO}`,
+    condicao: ORIGEM_MARCELO,
     capa: null,
   },
   {
@@ -178,7 +182,7 @@ const LEILOES = [
     animais: 40,
     tipo: 'NELORE',
     transmissao: null,
-    condicao: `Oferta de 40 touros. ${ORIGEM_MARCELO}`,
+    condicao: ORIGEM_MARCELO,
     capa: null,
   },
   {
@@ -197,7 +201,7 @@ const LEILOES = [
     animais: 30,
     tipo: 'NELORE',
     transmissao: null,
-    condicao: `Oferta de 30 fêmeas. ${ORIGEM_MARCELO}`,
+    condicao: ORIGEM_MARCELO,
     capa: null,
   },
 ]
