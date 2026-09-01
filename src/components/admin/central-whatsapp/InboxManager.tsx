@@ -16,6 +16,7 @@ function statusPill(status: string | null | undefined): { label: string; cls: st
         case "connecting": return { label: "Conectando…", cls: "border-sky-500/40 bg-sky-500/10 text-sky-400" }
         case "disconnected": return { label: "Desconectado", cls: "border-red-500/40 bg-red-500/10 text-red-400" }
         case "logged_out": return { label: "Saiu da conta", cls: "border-red-500/40 bg-red-500/10 text-red-400" }
+        case "needs_pairing": return { label: "Precisa parear", cls: "border-amber-500/40 bg-amber-500/10 text-amber-400" }
         default: return { label: status || "—", cls: "border-muted bg-muted text-muted-foreground" }
     }
 }
@@ -100,16 +101,20 @@ function BaileysConnect({ inboxId }: { inboxId: string }) {
                     <p className="text-xs text-muted-foreground">O QR aparece em alguns segundos.</p>
                 </div>
             )}
-            {!loading && (status === "logged_out" || (status === "qr" && !qr)) && (
+            {!loading && (status === "logged_out" || status === "needs_pairing" || (status === "qr" && !qr)) && (
                 <div className="text-center space-y-2 max-w-sm">
                     <AlertCircle className="h-9 w-9 text-red-500 mx-auto" />
                     <p className="text-sm font-semibold">
-                        {status === "logged_out" ? "Esse número saiu da conta" : "Sem QR no ar"}
+                        {status === "logged_out" ? "Esse número saiu da conta"
+                            : status === "needs_pairing" ? "Esperando pareamento"
+                                : "Sem QR no ar"}
                     </p>
                     <p className="text-xs text-muted-foreground">
                         {status === "logged_out"
                             ? "O aparelho conectado foi removido da lista do WhatsApp. As credenciais morreram — precisa parear de novo."
-                            : "A sessão está esperando um QR que não veio. Gere um novo."}
+                            : status === "needs_pairing"
+                                ? "A sessão parou de pedir QR sozinha (ninguém leu os anteriores). Gere um quando estiver com o celular na mão."
+                                : "A sessão está esperando um QR que não veio. Gere um novo."}
                     </p>
                     <button
                         onClick={relink}

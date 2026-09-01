@@ -71,6 +71,14 @@ const MAX_DELAY_MS = Number(process.env.MAX_DELAY_MS || 25000)
 // invalidar antes, é limite do lado do WhatsApp, não desta config.
 const QR_TIMEOUT_MS = Number(process.env.QR_TIMEOUT_MS || 180000)
 
+// Quantos QRs uma sessão pede sem ninguém ler antes de DESISTIR e esperar um
+// humano. Sem esse teto a `joao` (nunca pareada) pediu 15.757 QRs em uma semana,
+// um a cada ~35s para sempre — e o WhatsApp respondeu 405 "Connection Failure"
+// para o IP inteiro. O preço quem paga é a sessão que precisa parear DE VERDADE:
+// em 01/09 o celular recebeu "Não foi possível conectar o dispositivo, tente
+// novamente mais tarde" com o socket sendo cortado 12s depois de cada QR.
+const QR_MAX_CICLOS = Number(process.env.QR_MAX_CICLOS || 12)
+
 // Tolerância a latência alta (ex.: Starlink na roça): aumenta os timeouts do
 // handshake/queries do Baileys para não estourar antes de a rede lenta responder.
 const CONNECT_TIMEOUT_MS = Number(process.env.CONNECT_TIMEOUT_MS || 60000)
@@ -132,6 +140,8 @@ function createSession(id) {
     pairingCode: null,
     authDir: `${SESSIONS_DIR}/${id}`,
     reconnectAttempts: 0,
+    // QRs emitidos sem ninguém ler no ciclo atual (ver QR_MAX_CICLOS).
+    qrCiclos: 0,
     // Auto-recuperação já usada neste ciclo? Evita limpar o auth em loop.
     authResetado: false,
     // IDs de mensagens que ESTE servidor enviou (via fila/gateway). Usado para
@@ -866,6 +876,7 @@ async function startSocket(session) {
       session.connectionStatus = 'connected'
       session.reconnectAttempts = 0
       session.authResetado = false
+      session.qrCiclos = 0
       session.currentQr = null
       session.currentQrDataUrl = null
       session.pairPhone = null
@@ -913,6 +924,17 @@ async function startSocket(session) {
         // aparecer, justamente quando tem alguém de celular na mão esperando
         // para escanear. Reconecta rápido e não incrementa o contador.
         if (statusCode === 428 && estavaNoQr) {
+          // MAS COM TETO (QR_MAX_CICLOS). QR que ninguém lê não é espera, é
+          // martelo: a sessão pede vínculo novo a cada ~35s, o WhatsApp começa a
+          // recusar o IP e quem quebra é o pareamento de verdade da outra
+          // sessão. Depois do teto ela para e espera o botão "Gerar novo QR" da
+          // Central (POST /sessions/relink), que zera este contador.
+          session.qrCiclos += 1
+          if (session.qrCiclos > QR_MAX_CICLOS) {
+            session.connectionStatus = 'needs_pairing'
+            console.warn(`[${session.id}] ${session.qrCiclos} QRs sem ninguém ler — parei de pedir. Use "Gerar novo QR" na Central.`)
+            return
+          }
           setTimeout(() => {
             if (!sessions.has(session.id)) return
             session.connectionStatus = 'connecting'
@@ -1040,6 +1062,11 @@ async function adoptLegacyAuth() {
   }
 }
 
+/** A sessão já foi pareada alguma vez? (creds.json em disco = sim). */
+async function temCreds(authDir) {
+  try { await access(`${authDir}/creds.json`); return true } catch { return false }
+}
+
 /** Descobre sessões existentes em disco e inicia todas (garante a default). */
 async function bootstrapSessions() {
   await mkdir(SESSIONS_DIR, { recursive: true })
@@ -1055,14 +1082,27 @@ async function bootstrapSessions() {
     console.error('[boot] readdir sessões falhou:', error.message)
   }
 
+  const iniciadas = []
+  const aguardando = []
   for (const id of ids) {
     const session = createSession(id)
+    // Sessão SEM credencial em disco nunca foi pareada (ou perdeu o auth). Subir
+    // o socket aqui só serve para entrar no loop de QR que ninguém vai ler — o
+    // caso da `joao`, que fazia isso desde sempre e queimava o IP no WhatsApp.
+    // Ela nasce parada e espera o "Gerar novo QR" da Central.
+    if (!(await temCreds(session.authDir))) {
+      session.connectionStatus = 'needs_pairing'
+      aguardando.push(id)
+      continue
+    }
+    iniciadas.push(id)
     void startSocket(session).catch(error => {
       session.connectionStatus = 'disconnected'
       console.error(`[${id}] erro ao iniciar:`, error)
     })
   }
-  console.log(`[boot] sessões iniciadas: ${[...ids].join(', ')}`)
+  console.log(`[boot] sessões iniciadas: ${iniciadas.join(', ') || '(nenhuma)'}`)
+  if (aguardando.length) console.log(`[boot] sem credencial, aguardando pareamento: ${aguardando.join(', ')}`)
 }
 
 // ── HTTP ─────────────────────────────────────────────────────────────────────
@@ -1076,7 +1116,14 @@ function resolveSession(url) {
     const s = sessions.get(id)
     if (s) return s
     const created = createSession(id)
-    void startSocket(created).catch(error => console.error(`[${id}] start on-demand:`, error))
+    // Mesma regra do boot: sem credencial não sai pedindo QR sozinha, senão um
+    // GET /status sem `?session=` reacende o loop que o boot acabou de evitar.
+    created.connectionStatus = 'needs_pairing'
+    void temCreds(created.authDir).then(ok => {
+      if (!ok || !sessions.has(id)) return
+      created.connectionStatus = 'connecting'
+      return startSocket(created)
+    }).catch(error => console.error(`[${id}] start on-demand:`, error))
     return created
   }
   return sessions.get(id)
@@ -1175,6 +1222,7 @@ const server = http.createServer(async (req, res) => {
       session.currentQrDataUrl = null
       session.reconnectAttempts = 0
       session.authResetado = false
+      session.qrCiclos = 0
       session.connectionStatus = 'connecting'
       console.log(`[${session.id}] relink pedido pela Central${limparAuth ? ' (auth limpo)' : ''}`)
       void startSocket(session).catch(error => console.error(`[${session.id}] relink:`, error.message))
