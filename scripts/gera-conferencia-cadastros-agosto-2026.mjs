@@ -72,20 +72,20 @@ const PONTE = {
     // O AgRisk é onde a consulta acontece de verdade — o grupo é só o canal.
     // Conferido CPF a CPF na tela em 01/09; `agrisk` traz a data da consulta.
     'Tarcisio Tomé de Souza': {
-        ficha: null, veredito: 'provável', agrisk: '01/08/2026 (Adonício)',
-        nota: 'Nenhuma ficha no nome dele, e no AgRisk não existe nenhum Tarcisio Tomé de Souza — o único "Tarcisio" da base é outra pessoa (Tarcisio Vinagre Franjotti). Existe ADONÍCIO TOMÉ DE SOUZA, CPF 663.892.678-00, consultado em 01/08/2026, o dia do lead, e o grupo respondeu "liberado, sem pendências ou restrições". Os sete endereços dele são todos na BAHIA — a mesma UF do lead. Mesmo sobrenome, mesma UF, mesmo dia: é quase certo que seja a mesma pessoa com o primeiro nome trocado. Falta só o nome bater.',
+        ficha: 'Adonício Tomé de Souza (lead entrou como "Tarcisio Tomé de Souza")', agrisk: '01/08/2026',
+        nota: 'FECHADO PELO E-MAIL. O lead escreveu tarcisio.comercialtome@hotmail.com; o AgRisk traz, no cadastro do ADONÍCIO TOMÉ DE SOUZA, o e-mail comercialtome@hotmail.com — a mesma caixa. Telefone do lead (75) 9129-3775, do Adonício (75) 99129-3944: mesmo DDD, mesmo prefixo. Sete endereços, todos na Bahia. Consulta em 01/08, o dia do lead, com "liberado, sem pendências ou restrições". É a mesma casa: o formulário foi preenchido com um primeiro nome, a consulta correu no CPF do titular.',
     },
     'Ruy de freitas': { ficha: 'Ruy de Freitas Lima' },
     'Marcionei Luiz Dos Santos': {
         ficha: 'Marcionei Luiz dos Santos', agrisk: null,
-        nota: 'O CPF 802.873.879-68 não existe no AgRisk, nem o nome. Bate com o que o grupo respondeu em 22/08: "não tem cadastro / realizar cadastro, por favor". A consulta não chegou a ser feita.',
+        nota: 'ERRO MEU, CORRIGIDO. Eu tinha parado a leitura no "não tem cadastro" das 12:37 e o marquei sem veredito. Aquela frase respondia se ele JÁ ERA cadastrado — não era. A Luana pediu "Realizar cadastro, por favor!", a leiloeira pediu documento e contato, os documentos entraram às 14:03 e às 14:13 veio "ok - 1.000,00 limite mensal". Aprovado com limite, no mesmo dia. Não está no AgRisk porque quem cadastrou foi a leiloeira, no sistema dela.',
     },
     'mendesf711': {
         ficha: null, veredito: 'sem ficha', agrisk: null,
         nota: 'Nenhuma consulta nos dois grupos com esse nome, CPF (034.485.819-76), telefone ou e-mail, em nenhum dia de agosto — e o CPF não existe no AgRisk. O formulário dele ainda diz "sem inscrição estadual" e 51 a 100 cabeças, então ele nem chega a ser MQL. É o caso mais frágil dos 14.',
     },
     'Mauro': {
-        ficha: null, veredito: 'aprovado', agrisk: '19/08/2026',
+        ficha: 'Mauro Ribeiro Rodrigues', agrisk: '19/08/2026',
         nota: 'O AgRisk fecha esta: o CPF 231.834.701-87 está lá como MAURO RIBEIRO RODRIGUES, de Caldazinha/GO, consultado em 19/08/2026 — o mesmo dia do lead. É a consulta anônima que o grupo aprovou às 11:47 daquele dia ("Score razoável (692), possui IE, aprovado ✅"), encaminhada pelo Pedro Pereira sem nome no texto. Deixa de ser provável: é aprovado.',
     },
     'Epitacio Garcia Neto Neto': { ficha: 'Epitacio Garcia Neto' },
@@ -130,6 +130,9 @@ const APROVADOS_QUADRO = [
     'Bruna Alaise Silva Oliveira Arruda', 'Epitacio Garcia Neto', 'Wandeilson Dias Sabino',
     'Agropecuária Pernambuco Ltda (Agropecuária GP)', 'Jessé Martins Mendes', 'Claudio Eduardo Pupim',
     'Reginaldo Leandro da Silva', 'Evaldo Luiz Nunes Escobar',
+    // entram na revisão de 01/09, quando AgRisk e a releitura do grupo os identificaram
+    'Mauro Ribeiro Rodrigues', 'Adonício Tomé de Souza (lead entrou como "Tarcisio Tomé de Souza")',
+    'Marcionei Luiz dos Santos',
 ]
 const POR_QUE_FORA = {
     'Davison Avelino Gomes Pinto': { lead: '31/07', campanha: 'São Geraldo', motivo: 'A planilha marca CADASTRO OK, mas o lead entrou em 31/07 — cai fora de um filtro por data de agosto. A ficha foi ao grupo em 01/08 14:45: "DAVISON AVELINO GOMES PINTO | cadastro bom".' },
@@ -218,17 +221,17 @@ const html = `<!doctype html><html lang="pt-BR"><head><meta charset="utf-8">
 <link href="https://fonts.googleapis.com/css2?family=Oswald:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>${CSS}</style></head><body><div class="quadro">
   <div class="capa"><img class="foto" src="${FUNDO}"><div class="marca"><img src="${LOGO}"></div></div>
-  <h1>CADASTROS DE AGOSTO — <span>14 ou 11?</span></h1>
+  <h1>CADASTROS DE AGOSTO — <span>os dois dão 14</span></h1>
   <div class="sub">
-    A planilha, filtrada por <b>CADASTRO OK</b> e pela data do lead, dá <b>14</b>. O quadro do funil conta a ficha que
-    foi ao grupo da leiloeira e voltou aprovada dentro de agosto, e dá <b>11 de 17</b>.<br>
-    Esta versão fecha a conta com a terceira fonte: <b>o AgRisk</b>, onde a consulta acontece de verdade — o grupo é só o canal.
-    Com ele, <b>${batem.length} dos ${conferidas.length} têm aprovação provada</b>, ${jaCliente.length} já era cliente antes de agosto e ${semFicha.length + pendentes.length} não têm consulta aprovada em lugar nenhum.
+    O Marcelo disse 14, o quadro do funil dizia 11. Com o <b>AgRisk</b> na mesa e o grupo relido até o fim,
+    <b>as duas contas fecham em 14</b> — e três casos que estavam em aberto se resolveram: o Mauro, o Tarcisio e o Marcionei.<br>
+    Mas <b>não são os mesmos 14</b>. ${batem.length} nomes estão nas duas listas. Ele conta ${jaCliente.length} que já era cliente
+    e ${semFicha.length + pendentes.length} sem aprovação em lugar nenhum; o quadro conta ${extras.length} que o filtro por data de lead não mostra.
   </div>
   <div class="corpo">
     <div class="destaque">
       <div><div class="z">Planilha · Cadastro OK</div><div class="n">${conferidas.length}</div><div class="p">leads de agosto marcados por quem atendeu</div></div>
-      <div><div class="z">Quadro · aprovados</div><div class="n">${APROVADOS_QUADRO.length}</div><div class="p">de 17 fichas levadas ao grupo em agosto</div></div>
+      <div><div class="z">Quadro · aprovados</div><div class="n">${APROVADOS_QUADRO.length}</div><div class="p">de 19 fichas levadas ao grupo em agosto</div></div>
       <div><div class="z">Aprovação provada</div><div class="n">${batem.length}</div><div class="p">ficha no grupo ou consulta no AgRisk, com veredito</div></div>
       <div><div class="z">Sem aprovação em lugar nenhum</div><div class="n">${semFicha.length + pendentes.length}</div><div class="p">CPF não existe no AgRisk e o grupo não aprovou</div></div>
     </div>
@@ -248,15 +251,16 @@ const html = `<!doctype html><html lang="pt-BR"><head><meta charset="utf-8">
       <td class="nota">${esc(e.motivo)}</td></tr>`).join('')}</tbody></table>
 
     <div class="rodape">
-      <div class="conta">${batem.length} com aprovação provada + ${jaCliente.length} que já era cliente + ${provaveis.length} quase certo + ${semFicha.length + pendentes.length} sem aprovação = ${conferidas.length} na planilha</div>
-      <b>Por que as duas contas divergiam.</b> A consulta é feita no <b>AgRisk</b>, e nem toda consulta passa pelo grupo do WhatsApp. Medir só o grupo é uma régua mais estreita do que a operação — foi o que fez o Mauro aparecer como "provável" na versão anterior deste relatório. Com o AgRisk na mesa, ele é aprovado: consulta em 19/08, o dia do lead.<br>
+      <div class="conta">${batem.length} com aprovação provada + ${jaCliente.length} que já era cliente + ${semFicha.length + pendentes.length} sem aprovação = ${conferidas.length} na planilha &nbsp;·&nbsp; os mesmos ${batem.length} + ${extras.length} fora do filtro dele = ${APROVADOS_QUADRO.length} no quadro</div>
+      <b>O que se resolveu nesta revisão.</b> <b>Mauro</b>: a consulta de 19/08 estava no grupo sem nome nenhum; o AgRisk mostrou o CPF consultado naquele dia e deu nome a ela. <b>Tarcisio</b>: o e-mail do lead (tarcisio.<b>comercialtome</b>@hotmail.com) é a mesma caixa que está no cadastro do Adonício Tomé de Souza, consultado em 01/08. <b>Marcionei</b>: erro meu — parei a leitura no "não tem cadastro" das 12:37, que respondia se ele já era cadastrado; o cadastro foi criado e aprovado às 14:13 do mesmo dia, com limite de R$ 1.000,00.<br>
+      <b>Por que as contas divergiam.</b> Três caminhos de aprovação, e cada régua enxergava um pedaço: consulta da Bula no <b>AgRisk</b>, resposta da <b>leiloeira no grupo</b>, e cadastro criado <b>no sistema da própria leiloeira</b> (o caso do Marcionei, que por isso não aparece no AgRisk).<br>
       <b>Quem já era cliente não gera consulta nova.</b> O Ejamal está no AgRisk desde 13/11/2025. A leiloeira não respondeu no grupo porque não havia o que responder. O CADASTRO OK dele está certo — só não é cadastro novo de agosto, e por isso não entra no funil do mês.<br>
-      <b>Os que não têm lastro nenhum.</b> Thyago Tabulero, mendesf711 e Marcionei estão marcados CADASTRO OK e o CPF deles não existe no AgRisk, nem o nome — e no Marcionei o grupo já tinha dito "não tem cadastro" em 22/08.<br>
+      <b>Os dois que sobraram sem lastro.</b> Thyago Tabulero e mendesf711 estão marcados CADASTRO OK e o CPF deles não existe no AgRisk, nem o nome, nem há mensagem nos grupos. O mendesf711 é o mais frágil: 51 a 100 cabeças e sem inscrição estadual, ele nem chega a ser MQL.<br>
       <b>Por que "não existe no AgRisk" é evidência forte.</b> Reprovado também entra lá: Analice (dívida de R$ 277 mil), Handerson (CADASTRO REPROVADO) e Lucas Krause ("não aprovado, restrições cpf") estão todos na base. A ausência não é filtro de resultado — é ausência de consulta.<br>
       <b>E onde ela não fecha.</b> A consulta pode ter sido feita sob OUTRO documento. Aconteceu em 30/08: o grupo pediu o cadastro do <b>Ademir Krause</b>, e o consultado foi o <b>filho, Lucas Joaquim Krause</b> — o CPF do pai não está no AgRisk, o do filho está. Para os três acima não achamos um documento alternativo, mas ele pode existir.<br>
       <span class="alerta"><b>O que este relatório NÃO enxerga.</b></span> A aprovação às vezes é um <b>👍 no documento</b>, e reação de WhatsApp <b>não é gravada</b> — a tabela whatsapp_messages não tem campo de reação. Quando o veredito veio só como emoji em cima do anexo, ele não existe para esta conferência. É mais um motivo para o AgRisk, e não o grupo, ser a fonte de "houve consulta".<br>
       <b>Onde a planilha atrasa.</b> Reginaldo foi aprovado em 29/08 e segue marcado NÃO RESPONDEU; a Bruna foi aprovada e não tem linha, porque entrou pela ficha do marido.<br>
-      <b>As fontes.</b> Planilha de leads (snapshot de 31/08); os dois grupos de cadastro lidos mensagem a mensagem com os anexos abertos (56 fichas em agosto, 17 casando com lead de campanha por CPF); e o AgRisk, conferido CPF a CPF na tela.
+      <b>As fontes.</b> Planilha de leads (snapshot de 31/08); os dois grupos de cadastro lidos mensagem a mensagem com os anexos abertos (56 fichas em agosto, 19 casando com lead de campanha por CPF); e o AgRisk, conferido CPF a CPF na tela.
       <div class="assinatura">Bula Assessoria Pecuária · conferência gerada em 01/09/2026 · validada contra o AgRisk · scripts/gera-conferencia-cadastros-agosto-2026.mjs</div>
     </div>
   </div>

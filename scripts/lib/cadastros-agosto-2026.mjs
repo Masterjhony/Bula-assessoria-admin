@@ -125,6 +125,13 @@ export const CADASTROS_AGOSTO = [
         status: 'pendente', postadaPor: 'João Antônio',
         evidencia: '"esse o CPF dele, bom dar uma consultada para ver se vale a pena né" (08:54) → "vai usar I.E de um amigo… se averiguar certo e ver essa i.e talvez dê pra liberar" — pendia de termo de autorização',
     },
+    {
+        nome: 'Adonício Tomé de Souza (lead entrou como "Tarcisio Tomé de Souza")', cpf: '663.892.678-00', uf: 'BA', data: '2026-08-01',
+        status: 'aprovado', postadaPor: 'Marcelo Carneiro', grupo: 'Remates',
+        origemLead: 'Meta — LEADS - SAO GERALDO',
+        anexo: 'nenhum — I.E. e CPF em texto',
+        evidencia: '"I.E 101.948.287 PR. Veja essa inscrição aí" (12:17) → "663.892.678-00" / "Adonício Tomé de Souza" (12:21) → "liberado, sem pendencias ou restrições" (12:24). ⚠ IDENTIFICADO em 01/09: o lead do São Geraldo de 01/08 06:36 entrou como "Tarcisio Tomé de Souza", e-mail tarcisio.comercialtome@hotmail.com, telefone (75) 9129-3775. O AgRisk não tem nenhum Tarcisio Tomé de Souza; tem o Adonício, consultado em 01/08 — mesmo dia — com e-mail comercialtome@hotmail.com e telefone (75) 99129-3944, e os sete endereços na BAHIA. Mesma caixa comercial, mesmo DDD, mesma UF, mesmo dia.',
+    },
     // ── 09/08 ────────────────────────────────────────────────────────────────
     {
         nome: 'Rafael Falci Pereira de Mello', cpf: '695.248.36-75', data: '2026-08-09',
@@ -271,16 +278,23 @@ export const CADASTROS_AGOSTO = [
     // ── 22/08 ────────────────────────────────────────────────────────────────
     {
         nome: 'Marcionei Luiz dos Santos', cpf: '802.873.879-68', uf: 'PR', data: '2026-08-22',
-        status: 'pendente', postadaPor: 'Luana Cruz', grupo: 'Programa',
+        status: 'aprovado', ressalva: true, postadaPor: 'Luana Cruz', grupo: 'Programa',
         origemLead: 'Meta — LEAD - PERPETUO TOURO',
-        anexo: 'CNH Digital postada 13:14 (única ficha do mês que o sistema ingeriu sozinho)',
-        evidencia: '"Nome: Marcionei Luiz dos Santos / IE: 95948128-80 / CPF: 802.873.879-68" (12:01) → "não tem cadastro" (12:37) → "Realizar cadastro, por favor!" → "Para fazer o cadastro precisa do documento pessoal e contato" (13:08). ⚠ A planilha marca CADASTRO OK no lead de 19/08 20:37, mas a leiloeira ainda não decidiu.',
+        anexo: 'CNH Digital postada 13:14, mais documento pessoal e contato às 14:03',
+        evidencia: '"Nome: Marcionei Luiz dos Santos / IE: 95948128-80 / CPF: 802.873.879-68" (12:01) → "não tem cadastro" (12:37) → "Realizar cadastro, por favor!" → "Para fazer o cadastro precisa do documento pessoal e contato" (13:08) → docs às 14:03 com "Consulta por favor" → "ok" (14:12) e "ok - 1.000,00 limite mensal" (14:13). ⚠ CORRIGIDO em 01/09: a primeira leitura parou no "não tem cadastro" e o marcou pendente. O "não tem cadastro" respondia se ele JÁ ERA cadastrado; o cadastro foi criado e aprovado uma hora depois, com limite. A planilha estava certa.',
     },
     {
         nome: 'Uendel Moreira Lino', cpf: '847.737.583-68', uf: 'PI', data: '2026-08-22',
         status: 'aprovado', ressalva: true, postadaPor: 'Fábio Omena', grupo: 'Programa',
         anexo: 'Ficha cadastral SEFAZ-PI (I.E. 19.712.486-0, Faz. Santo Expedito, Corrente/PI) + DANFE, 14:03',
         evidencia: '"Consulta por favor" (14:03) → "ok" (14:12) e "ok - 1.000,00 limite mensal" (14:13)',
+    },
+    {
+        nome: 'Mauro Ribeiro Rodrigues', cpf: '231.834.701-87', uf: 'GO', data: '2026-08-19',
+        status: 'aprovado', postadaPor: 'Pedro Pereira', grupo: 'Remates',
+        origemLead: 'Meta — LEAD - PERPETUO TOURO',
+        anexo: 'nenhum — a consulta foi encaminhada sem nome no texto',
+        evidencia: '"Score razoável (692), possui IE, aprovado ✅" (11:47), sem nome nem CPF na mensagem. ⚠ IDENTIFICADO em 01/09 pelo AgRisk: o CPF 231.834.701-87 está lá como MAURO RIBEIRO RODRIGUES, de Caldazinha/GO, consultado em 19/08/2026 — o mesmo dia do lead (19/08 00:07) que o Pedro atendeu e marcou CADASTRO OK. Sem o AgRisk esta ficha era anônima e ficava fora da conta.',
     },
     // ── 23/08 ────────────────────────────────────────────────────────────────
     {
