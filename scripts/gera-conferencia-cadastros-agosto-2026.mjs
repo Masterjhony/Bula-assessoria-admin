@@ -69,31 +69,39 @@ const acha = nome => fichas.find(f => f.nome.toLowerCase() === nome.toLowerCase(
  */
 const PONTE = {
     'Fabio Rafael': { ficha: 'Fabio Rafael da Cunha Silva' },
+    // O AgRisk é onde a consulta acontece de verdade — o grupo é só o canal.
+    // Conferido CPF a CPF na tela em 01/09; `agrisk` traz a data da consulta.
     'Tarcisio Tomé de Souza': {
-        ficha: null, veredito: 'provável',
-        nota: 'Nenhuma ficha no nome dele. No mesmo 01/08, 10h depois do lead, o grupo consultou ADONÍCIO TOMÉ DE SOUZA (CPF 663.892.678-00) → "liberado, sem pendências ou restrições". Mesmo sobrenome, mesmo dia — provável, mas o formulário do São Geraldo não pede CPF, e sem CPF não há prova.',
+        ficha: null, veredito: 'provável', agrisk: '01/08/2026 (Adonício)',
+        nota: 'Nenhuma ficha no nome dele, e no AgRisk não existe nenhum Tarcisio Tomé de Souza — o único "Tarcisio" da base é outra pessoa (Tarcisio Vinagre Franjotti). Existe ADONÍCIO TOMÉ DE SOUZA, CPF 663.892.678-00, consultado em 01/08/2026, o dia do lead, e o grupo respondeu "liberado, sem pendências ou restrições". Os sete endereços dele são todos na BAHIA — a mesma UF do lead. Mesmo sobrenome, mesma UF, mesmo dia: é quase certo que seja a mesma pessoa com o primeiro nome trocado. Falta só o nome bater.',
     },
     'Ruy de freitas': { ficha: 'Ruy de Freitas Lima' },
-    'Marcionei Luiz Dos Santos': { ficha: 'Marcionei Luiz dos Santos' },
+    'Marcionei Luiz Dos Santos': {
+        ficha: 'Marcionei Luiz dos Santos', agrisk: null,
+        nota: 'O CPF 802.873.879-68 não existe no AgRisk, nem o nome. Bate com o que o grupo respondeu em 22/08: "não tem cadastro / realizar cadastro, por favor". A consulta não chegou a ser feita.',
+    },
     'mendesf711': {
-        ficha: null, veredito: 'sem ficha',
-        nota: 'Nenhuma consulta nos dois grupos com esse nome, CPF (034.485.819-76), telefone ou e-mail, em nenhum dia de agosto. E o formulário dele diz "sem inscrição estadual".',
+        ficha: null, veredito: 'sem ficha', agrisk: null,
+        nota: 'Nenhuma consulta nos dois grupos com esse nome, CPF (034.485.819-76), telefone ou e-mail, em nenhum dia de agosto — e o CPF também não existe no AgRisk. Não há consulta em lugar nenhum. O formulário dele ainda diz "sem inscrição estadual".',
     },
     'Mauro': {
-        ficha: null, veredito: 'provável',
-        nota: 'Em 19/08 11:47 o grupo aprovou uma consulta anônima — "Score razoável (692), possui IE, aprovado ✅" — encaminhada pelo Pedro Pereira sem anexo e sem nome no texto. É quase certo que seja ele (o Pedro atendeu o lead e marcou OK), mas não há nome nem CPF para provar.',
+        ficha: null, veredito: 'aprovado', agrisk: '19/08/2026',
+        nota: 'O AgRisk fecha esta: o CPF 231.834.701-87 está lá como MAURO RIBEIRO RODRIGUES, de Caldazinha/GO, consultado em 19/08/2026 — o mesmo dia do lead. É a consulta anônima que o grupo aprovou às 11:47 daquele dia ("Score razoável (692), possui IE, aprovado ✅"), encaminhada pelo Pedro Pereira sem nome no texto. Deixa de ser provável: é aprovado.',
     },
     'Epitacio Garcia Neto Neto': { ficha: 'Epitacio Garcia Neto' },
     'Wandeilson Dias Sabino': { ficha: 'Wandeilson Dias Sabino' },
     'Agropecuária Pernambuco': { ficha: 'Agropecuária Pernambuco Ltda (Agropecuária GP)' },
     'Thyago Tabulero': {
-        ficha: null, veredito: 'sem ficha',
-        nota: 'Nenhuma mensagem dos dois grupos cita o nome, o CPF (008.870.602-85), o telefone ou o e-mail dele — nem em agosto, nem depois.',
+        ficha: null, veredito: 'sem ficha', agrisk: null,
+        nota: 'Nenhuma mensagem dos dois grupos cita o nome, o CPF (008.870.602-85), o telefone ou o e-mail dele — nem em agosto, nem depois. E o AgRisk não tem o CPF nem o nome: a consulta nunca foi feita.',
     },
-    'Cláudio / Kaline': { ficha: 'Claudio Eduardo Pupim' },
-    'jesse martins mendes': { ficha: 'Jessé Martins Mendes' },
-    'Ejamal Muhd Shihadeh Khalil': { ficha: 'Ejamal Muhd Shihadeh Khalil' },
-    'Rui Escobar': { ficha: 'Evaldo Luiz Nunes Escobar' },
+    'Cláudio / Kaline': { ficha: 'Claudio Eduardo Pupim', agrisk: 'sim' },
+    'jesse martins mendes': { ficha: 'Jessé Martins Mendes', agrisk: 'sim' },
+    'Ejamal Muhd Shihadeh Khalil': {
+        ficha: 'Ejamal Muhd Shihadeh Khalil', veredito: 'ja-cliente', agrisk: '13/11/2025',
+        nota: 'A leiloeira não respondeu no grupo porque não precisava: ele JÁ ERA CLIENTE. O AgRisk tem o CPF 666.740.349-91 desde 13/11/2025 — Terra Rica/PR, a mesma cidade do formulário. Foi o que ele disse no grupo em 29/08 ("Ele disse que já tem cadastro conosco") e o time confirmou na tela. O CADASTRO OK está certo; só não é cadastro NOVO de agosto.',
+    },
+    'Rui Escobar': { ficha: 'Evaldo Luiz Nunes Escobar', agrisk: 'sim' },
 }
 
 const CAMPANHA = {
@@ -111,7 +119,7 @@ const conferidas = linhasOk.map(l => {
     if (p.ficha && !f) throw new Error(`ficha "${p.ficha}" não existe mais nas libs`)
     return {
         ...l, campanha: CAMPANHA[l.origem] || l.origem, fichaNome: p.ficha, ficha: f,
-        veredito: f ? f.status : p.veredito, nota: p.nota || '', em: f ? f.em : '',
+        veredito: p.veredito || (f ? f.status : '—'), nota: p.nota || '', em: f ? f.em : '', agrisk: p.agrisk,
     }
 })
 
@@ -135,6 +143,7 @@ const batem = conferidas.filter(c => c.veredito === 'aprovado')
 const pendentes = conferidas.filter(c => c.veredito === 'pendente')
 const semFicha = conferidas.filter(c => c.veredito === 'sem ficha')
 const provaveis = conferidas.filter(c => c.veredito === 'provável')
+const jaCliente = conferidas.filter(c => c.veredito === 'ja-cliente')
 
 /* ── 5. quadro ────────────────────────────────────────────────────────────── */
 const esc = s => String(s ?? '').replace(/[&<>]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;' })[c])
@@ -144,7 +153,8 @@ const LOGO = dataUri('logo-bula-assessoria-white.png', 'image/png')
 
 const PIN = {
     aprovado: ['bom', 'APROVADO'], pendente: ['esperando', 'SEM VEREDITO'], recusado: ['ruim', 'RECUSADO'],
-    'sem ficha': ['ruim', 'SEM FICHA'], 'provável': ['esperando', 'PROVÁVEL'],
+    'sem ficha': ['ruim', 'SEM CONSULTA'], 'provável': ['esperando', 'QUASE CERTO'],
+    'ja-cliente': ['bom', 'JÁ ERA CLIENTE'],
 }
 
 const CSS = `
@@ -199,30 +209,32 @@ const linhaConferida = (c, i) => {
     <td class="dim">${esc(c.campanha)}</td>
     <td class="dim">${esc(c.atendido)}</td>
     <td class="dim">${c.em ? c.em.slice(8, 10) + '/' + c.em.slice(5, 7) : '—'}</td>
+    <td class="dim">${c.agrisk === null ? '<b style="color:#e2695f">não existe</b>' : esc(c.agrisk === 'sim' ? 'consta' : (c.agrisk || 'consta'))}</td>
     <td class="st ${cls}">${rot}</td>
-  </tr>${c.nota ? `<tr><td></td><td class="nota" colspan="6">${esc(c.nota)}</td></tr>` : ''}`
+  </tr>${c.nota ? `<tr><td></td><td class="nota" colspan="7">${esc(c.nota)}</td></tr>` : ''}`
 }
 
 const html = `<!doctype html><html lang="pt-BR"><head><meta charset="utf-8">
 <link href="https://fonts.googleapis.com/css2?family=Oswald:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>${CSS}</style></head><body><div class="quadro">
   <div class="capa"><img class="foto" src="${FUNDO}"><div class="marca"><img src="${LOGO}"></div></div>
-  <h1>CADASTROS DE AGOSTO — <span>14 OU 11?</span></h1>
+  <h1>CADASTROS DE AGOSTO — <span>14 ou 11?</span></h1>
   <div class="sub">
     A planilha, filtrada por <b>CADASTRO OK</b> e pela data do lead, dá <b>14</b>. O quadro do funil conta a ficha que
     foi ao grupo da leiloeira e voltou aprovada dentro de agosto, e dá <b>11 de 17</b>.<br>
-    São duas réguas diferentes — <b>${batem.length} nomes estão nas duas</b>. Abaixo, os ${conferidas.length} da planilha um a um, e os ${extras.length} que só o quadro enxerga.
+    Esta versão fecha a conta com a terceira fonte: <b>o AgRisk</b>, onde a consulta acontece de verdade — o grupo é só o canal.
+    Com ele, <b>${batem.length} dos ${conferidas.length} têm aprovação provada</b>, ${jaCliente.length} já era cliente antes de agosto e ${semFicha.length + pendentes.length} não têm consulta aprovada em lugar nenhum.
   </div>
   <div class="corpo">
     <div class="destaque">
       <div><div class="z">Planilha · Cadastro OK</div><div class="n">${conferidas.length}</div><div class="p">leads de agosto marcados por quem atendeu</div></div>
       <div><div class="z">Quadro · aprovados</div><div class="n">${APROVADOS_QUADRO.length}</div><div class="p">de 17 fichas levadas ao grupo em agosto</div></div>
-      <div><div class="z">Nas duas listas</div><div class="n">${batem.length}</div><div class="p">nome, ficha e veredito da leiloeira</div></div>
-      <div><div class="z">Marcados sem aprovação</div><div class="n">${pendentes.length + semFicha.length + provaveis.length}</div><div class="p">${pendentes.length} sem veredito · ${semFicha.length} sem ficha · ${provaveis.length} prováveis sem prova</div></div>
+      <div><div class="z">Aprovação provada</div><div class="n">${batem.length}</div><div class="p">ficha no grupo ou consulta no AgRisk, com veredito</div></div>
+      <div><div class="z">Sem aprovação em lugar nenhum</div><div class="n">${semFicha.length + pendentes.length}</div><div class="p">CPF não existe no AgRisk e o grupo não aprovou</div></div>
     </div>
 
     <h2>OS ${conferidas.length} DA PLANILHA <small>— e o que a leiloeira respondeu sobre cada um</small></h2>
-    <table><thead><tr><th></th><th>Nome na planilha</th><th>Lead</th><th>Campanha</th><th>Atendeu</th><th>Ficha</th><th>Veredito real</th></tr></thead>
+    <table><thead><tr><th></th><th>Nome na planilha</th><th>Lead</th><th>Campanha</th><th>Atendeu</th><th>Ficha</th><th>AgRisk</th><th>Veredito real</th></tr></thead>
     <tbody>${conferidas.map(linhaConferida).join('')}</tbody></table>
 
     <h2>OS ${extras.length} QUE O QUADRO TEM E ESSE FILTRO NÃO MOSTRA <small>— aprovados de verdade, fora da lista</small></h2>
@@ -236,14 +248,13 @@ const html = `<!doctype html><html lang="pt-BR"><head><meta charset="utf-8">
       <td class="nota">${esc(e.motivo)}</td></tr>`).join('')}</tbody></table>
 
     <div class="rodape">
-      <div class="conta">${batem.length} que batem + ${extras.length} que só o quadro vê = ${APROVADOS_QUADRO.length} aprovados &nbsp;·&nbsp; ${batem.length} + ${pendentes.length} + ${semFicha.length} + ${provaveis.length} = ${conferidas.length} na planilha</div>
-      <b>Nenhum dos ${conferidas.length} é de antes de agosto</b> — o filtro é pela data do lead, e todos entraram no mês. O contrário é que acontece:
-      lead de julho aprovado em agosto (Davison, 31/07) sai da conta dele e entra na nossa.<br>
-      <b>Onde a planilha adianta o veredito.</b> Marcionei está OK e o grupo respondeu "não tem cadastro / realizar cadastro, por favor" em 22/08;
-      Ejamal foi levado em 29/08 e a leiloeira não respondeu até o fim do mês. Thyago e mendesf711 estão OK sem que nenhuma consulta tenha existido nos dois grupos.<br>
+      <div class="conta">${batem.length} com aprovação provada + ${jaCliente.length} que já era cliente + ${provaveis.length} quase certo + ${semFicha.length + pendentes.length} sem aprovação = ${conferidas.length} na planilha</div>
+      <b>Por que as duas contas divergiam.</b> A consulta é feita no <b>AgRisk</b>, e nem toda consulta passa pelo grupo do WhatsApp. Medir só o grupo é uma régua mais estreita do que a operação — foi o que fez o Mauro aparecer como "provável" na versão anterior deste relatório. Com o AgRisk na mesa, ele é aprovado: consulta em 19/08, o dia do lead.<br>
+      <b>Quem já era cliente não gera consulta nova.</b> O Ejamal está no AgRisk desde 13/11/2025. A leiloeira não respondeu no grupo porque não havia o que responder. O CADASTRO OK dele está certo — só não é cadastro novo de agosto, e por isso não entra no funil do mês.<br>
+      <b>Os que não têm lastro nenhum.</b> Thyago Tabulero, mendesf711 e Marcionei estão marcados CADASTRO OK e não existem no AgRisk, por CPF nem por nome — e no Marcionei o grupo já tinha dito "não tem cadastro" em 22/08. Aqui a planilha adianta um veredito que não aconteceu.<br>
       <b>Onde a planilha atrasa.</b> Reginaldo foi aprovado em 29/08 e segue marcado NÃO RESPONDEU; a Bruna foi aprovada e não tem linha, porque entrou pela ficha do marido.<br>
-      <b>As fontes são as mesmas.</b> Planilha de leads (snapshot de 31/08) e os dois grupos de cadastro lidos mensagem a mensagem com os anexos abertos — 56 fichas em agosto no total, das quais 17 casam com lead de campanha por CPF.
-      <div class="assinatura">Bula Assessoria Pecuária · conferência gerada em 01/09/2026 · scripts/gera-conferencia-cadastros-agosto-2026.mjs</div>
+      <b>As fontes.</b> Planilha de leads (snapshot de 31/08); os dois grupos de cadastro lidos mensagem a mensagem com os anexos abertos (56 fichas em agosto, 17 casando com lead de campanha por CPF); e o AgRisk, conferido CPF a CPF na tela.
+      <div class="assinatura">Bula Assessoria Pecuária · conferência gerada em 01/09/2026 · validada contra o AgRisk · scripts/gera-conferencia-cadastros-agosto-2026.mjs</div>
     </div>
   </div>
 </div></body></html>`
