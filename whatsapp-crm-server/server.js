@@ -1139,6 +1139,52 @@ const server = http.createServer(async (req, res) => {
       return
     }
 
+    // Reconecta uma sessão que saiu da conta e ficou parada esperando gente.
+    //
+    // POR QUE ESTA ROTA EXISTE. Quando uma sessão PROTEGIDA leva um logout do
+    // WhatsApp (`<conflict type="device_removed"/>`, o aparelho conectado sumiu
+    // da lista da conta), o handler de `connection.update` marca `logged_out` e
+    // PARA de propósito: não apaga o auth e não reconecta, para não queimar
+    // credencial nem entrar em loop de QR como a `joao` já fez. O efeito
+    // colateral é que a sessão fica num beco sem saída — o painel da Central só
+    // faz poll de `/status`, que devolve `qr: null` para sempre porque ninguém
+    // reinicia o socket, e não havia rota nenhuma para religar (o `POST
+    // /sessions` responde 409 quando a sessão existe, e o `/pair` exige número
+    // e pareia por código). Foi o que aconteceu em 01/09/2026 com a
+    // `joao-automation`.
+    //
+    // O QUE ELA FAZ. Encerra o socket velho, limpa o auth SÓ quando ele está
+    // comprovadamente morto (`logged_out`) e sobe o socket de novo, devolvendo
+    // o QR fresco assim que o WhatsApp o emite (~2s). Com auth vivo (sessão só
+    // caída) não apaga nada: reconectar com a credencial que já existe volta
+    // sem pareamento nenhum.
+    if (req.method === 'POST' && url.pathname === '/sessions/relink') {
+      const body = await readJson(req).catch(() => ({}))
+      const id = (url.searchParams.get('session') || String(body.session || '')).trim()
+      const session = id ? sessions.get(id) : null
+      if (!session) { json(res, 404, { error: 'unknown_session' }); return }
+      // Sessão no ar não se mexe: religar aqui derrubaria quem está atendendo.
+      if (session.connectionStatus === 'connected') { json(res, 409, { error: 'sessão já conectada' }); return }
+
+      const limparAuth = session.connectionStatus === 'logged_out' || body.reset === true
+      if (session.socket) { try { session.socket.end() } catch { /* ignore */ } session.socket = null }
+      if (limparAuth) await rm(session.authDir, { recursive: true, force: true }).catch(() => {})
+      session.pairPhone = null
+      session.pairingCode = null
+      session.currentQr = null
+      session.currentQrDataUrl = null
+      session.reconnectAttempts = 0
+      session.authResetado = false
+      session.connectionStatus = 'connecting'
+      console.log(`[${session.id}] relink pedido pela Central${limparAuth ? ' (auth limpo)' : ''}`)
+      void startSocket(session).catch(error => console.error(`[${session.id}] relink:`, error.message))
+
+      // Espera o QR aparecer (até ~15s) para a tela já mostrar sem novo clique.
+      for (let i = 0; i < 30; i++) { if (session.currentQrDataUrl || session.connectionStatus === 'connected') break; await sleep(500) }
+      json(res, 200, { relinked: true, id: session.id, auth_limpo: limparAuth, status: session.connectionStatus, qr: session.currentQrDataUrl })
+      return
+    }
+
     // ── Sessão-alvo das rotas abaixo (default quando ?session= ausente) ───────
     if (req.method === 'GET' && url.pathname === '/status') {
       const session = resolveSession(url)

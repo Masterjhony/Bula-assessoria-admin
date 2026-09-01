@@ -15,15 +15,26 @@ function statusPill(status: string | null | undefined): { label: string; cls: st
         case "qr": return { label: "Aguardando QR", cls: "border-amber-500/40 bg-amber-500/10 text-amber-400" }
         case "connecting": return { label: "Conectando…", cls: "border-sky-500/40 bg-sky-500/10 text-sky-400" }
         case "disconnected": return { label: "Desconectado", cls: "border-red-500/40 bg-red-500/10 text-red-400" }
+        case "logged_out": return { label: "Saiu da conta", cls: "border-red-500/40 bg-red-500/10 text-red-400" }
         default: return { label: status || "—", cls: "border-muted bg-muted text-muted-foreground" }
     }
 }
 
-/** Card de QR/pareamento de uma sessão Baileys (poll de /status?session=id). */
+/**
+ * Card de QR/pareamento de uma sessão Baileys (poll de /status?session=id).
+ *
+ * `logged_out` é o caso que exige o botão. Quando o WhatsApp remove o aparelho
+ * conectado da conta, a sessão protegida para de propósito no VPS — não apaga o
+ * auth nem reconecta — e o poll de `/status` devolveria `qr: null` para sempre.
+ * "Gerar novo QR" chama `/api/whatsapp/relink`, que religa o socket lá e traz o
+ * QR já na resposta.
+ */
 function BaileysConnect({ inboxId }: { inboxId: string }) {
     const [status, setStatus] = useState<string>("connecting")
     const [qr, setQr] = useState<string | null>(null)
     const [loading, setLoading] = useState(true)
+    const [relinking, setRelinking] = useState(false)
+    const [relinkError, setRelinkError] = useState<string | null>(null)
 
     const fetchStatus = useCallback(async () => {
         try {
@@ -38,8 +49,26 @@ function BaileysConnect({ inboxId }: { inboxId: string }) {
         }
     }, [inboxId])
 
+    const relink = useCallback(async () => {
+        setRelinking(true); setRelinkError(null)
+        try {
+            const res = await fetch(`/api/whatsapp/relink?session=${encodeURIComponent(inboxId)}`, { method: "POST" })
+            const j = await res.json()
+            if (!res.ok) { setRelinkError(String(j.error || "Não consegui religar a sessão.")); return }
+            if (j.status) setStatus(j.status)
+            if (j.qr) setQr(j.qr)
+        } catch {
+            setRelinkError("Servidor do WhatsApp inacessível.")
+        } finally {
+            setRelinking(false)
+            void fetchStatus()
+        }
+    }, [inboxId, fetchStatus])
+
     useEffect(() => {
         fetchStatus()
+        // Enquanto o QR está na tela ele roda a cada ~30s: poll curto para não
+        // deixar o usuário apontando a câmera para um código já vencido.
         const t = setInterval(fetchStatus, 5000)
         return () => clearInterval(t)
     }, [fetchStatus])
@@ -69,6 +98,31 @@ function BaileysConnect({ inboxId }: { inboxId: string }) {
                     <AlertCircle className="h-9 w-9 text-amber-500 mx-auto animate-pulse" />
                     <p className="text-sm font-semibold">{status === "connecting" ? "Conectando…" : "Desconectado"}</p>
                     <p className="text-xs text-muted-foreground">O QR aparece em alguns segundos.</p>
+                </div>
+            )}
+            {!loading && (status === "logged_out" || (status === "qr" && !qr)) && (
+                <div className="text-center space-y-2 max-w-sm">
+                    <AlertCircle className="h-9 w-9 text-red-500 mx-auto" />
+                    <p className="text-sm font-semibold">
+                        {status === "logged_out" ? "Esse número saiu da conta" : "Sem QR no ar"}
+                    </p>
+                    <p className="text-xs text-muted-foreground">
+                        {status === "logged_out"
+                            ? "O aparelho conectado foi removido da lista do WhatsApp. As credenciais morreram — precisa parear de novo."
+                            : "A sessão está esperando um QR que não veio. Gere um novo."}
+                    </p>
+                    <button
+                        onClick={relink}
+                        disabled={relinking}
+                        className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg border text-xs font-semibold hover:bg-muted disabled:opacity-60"
+                    >
+                        {relinking ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <QrCode className="h-3.5 w-3.5" />}
+                        {relinking ? "Religando…" : "Gerar novo QR"}
+                    </button>
+                    <p className="text-[11px] text-muted-foreground">
+                        Tenha o celular em mãos: o QR vence em ~30s e é rotacionado.
+                    </p>
+                    {relinkError && <p className="text-[11px] text-red-500">{relinkError}</p>}
                 </div>
             )}
         </div>

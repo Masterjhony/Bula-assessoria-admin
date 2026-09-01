@@ -152,6 +152,31 @@ export async function pairVpsPhone(
     }
 }
 
+/**
+ * Religa uma sessão Baileys que saiu da conta (`logged_out`) e devolve o QR novo.
+ *
+ * O VPS só limpa as credenciais quando elas estão comprovadamente mortas; com a
+ * sessão apenas caída ele reconecta com o auth que já existe, sem pareamento.
+ * Ver `POST /sessions/relink` no whatsapp-crm-server.
+ */
+export async function relinkVpsSession(
+    session: string,
+): Promise<{ status?: string; qr?: string | null; auth_limpo?: boolean; error?: string }> {
+    try {
+        const res = await fetch(withSession('/sessions/relink', session), {
+            method: 'POST',
+            headers: vpsHeaders({ 'Content-Type': 'application/json' }),
+            body: JSON.stringify({ session }),
+            signal: AbortSignal.timeout(25000),
+        })
+        const body = await res.json().catch(() => ({}))
+        if (!res.ok) return { error: String(body.error || `http_${res.status}`) }
+        return { status: body.status, qr: body.qr ?? null, auth_limpo: body.auth_limpo }
+    } catch (e) {
+        return { error: e instanceof Error ? e.message : 'vps_unreachable' }
+    }
+}
+
 export interface VpsGroupMedia {
     type: 'image' | 'video' | 'audio' | 'document'
     /** URL que o VPS consegue baixar (signed URL do Storage serve). */
