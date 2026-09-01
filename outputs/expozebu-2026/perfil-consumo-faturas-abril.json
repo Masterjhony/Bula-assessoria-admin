@@ -1,0 +1,92 @@
+{
+ "MASTER-2026-04": {
+  "arquivo": "sicoob_2026_06_24_14_30_08.pdf",
+  "perfil": [
+   {
+    "tipo": "AUTOMÓVEIS, VEÍCULOS E TRANSPO",
+    "pct": 22.05,
+    "valor": 2676.61
+   },
+   {
+    "tipo": "SUPERMERCADO E HIPERMERCADO",
+    "pct": 3.04,
+    "valor": 369.8
+   },
+   {
+    "tipo": "DIVERSOS",
+    "pct": 35.12,
+    "valor": 4262.84
+   },
+   {
+    "tipo": "INFORMÁTICA",
+    "pct": 13.92,
+    "valor": 1690.34
+   },
+   {
+    "tipo": "VESTUÁRIO",
+    "pct": 10.12,
+    "valor": 1228.58
+   },
+   {
+    "tipo": "PRESENTES, MKT DIRETO, CATÁLOG",
+    "pct": 10.85,
+    "valor": 1317.05
+   },
+   {
+    "tipo": "ARTIGOS E SERVIÇOS PARA O LAR",
+    "pct": 2.05,
+    "valor": 249.95
+   },
+   {
+    "tipo": "COOPERATIVAS E PRODUTOS AGROPE",
+    "pct": 2.8,
+    "valor": 340.0
+   }
+  ]
+ },
+ "VISA-2026-04": {
+  "arquivo": "sicoob_2026_06_24_14_32_42.pdf",
+  "perfil": [
+   {
+    "tipo": "SUPERMERCADO E HIPERMERCADO",
+    "pct": 6.36,
+    "valor": 1034.55
+   },
+   {
+    "tipo": "ESPORTES LAZER E TURISMO",
+    "pct": 59.95,
+    "valor": 9747.09
+   },
+   {
+    "tipo": "EDUCAÇÃO E CULTURA",
+    "pct": 1.59,
+    "valor": 258.56
+   },
+   {
+    "tipo": "INFORMÁTICA",
+    "pct": 7.99,
+    "valor": 1299.26
+   },
+   {
+    "tipo": "ARTIGOS E SERVIÇOS PARA O LAR",
+    "pct": 10.52,
+    "valor": 1710.87
+   },
+   {
+    "tipo": "CONSTRUÇÃO E REFORMA",
+    "pct": 9.42,
+    "valor": 1532.46
+   },
+   {
+    "tipo": "DIVERSOS",
+    "pct": 4.1,
+    "valor": 666.8
+   },
+   {
+    "tipo": "DÉBITOS AUTOMÁTICOS",
+    "pct": 0.04,
+    "valor": 7.95
+   }
+  ]
+ }
+}
