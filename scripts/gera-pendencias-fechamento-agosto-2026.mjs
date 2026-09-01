@@ -74,8 +74,8 @@ const NOTA_SEM_FECH = {
     },
     'LEILÃO VIRTUAL VENTRES VIP MATINHA': {
         origem: 'HastaPro filial ‘2’, 5 lotes: 18 e 31 do Douglas (R$ 27.000 e R$ 37.500) e 138, 140 e 141 do Fábio (7 animais a R$ 300).',
-        validar: '⚠ Os lotes 18 e 31 foram anunciados no grupo às 15h59 e 17h10 de 30/08 e depois reencaminhados no Financeiro como “vendas do Douglas no leilão Sabiá Dourado”. O HastaPro os coloca aqui, no Matinha. Um dos dois está errado — e a diferença importa: Sabiá Dourado é pregão da Bula Remates (filial ‘01’), Matinha é filial ‘2’.',
-        onde: 'HastaPro · confirmar com Douglas',
+        validar: '✅ RESOLVIDO. Os lotes 18 e 31 do Douglas são DESTE leilão, não do Sabiá Dourado: o HastaPro os traz aqui com o comprador CELSO LOPES, exatamente o da ficha, e no grupo “VENDAS - BULA ASSESSORIA” o Matheus — que é quem faz o lançamento no HastaPro — respondeu “MATINHA” à ficha do lote 18. Só importar.',
+        onde: 'importador de fechamento',
     },
     '1º LEILÃO NELORE ASJ': {
         origem: 'HastaPro filial ‘2’ + grupo (lote 24, 2 fêmeas a R$ 330, e lote 07 a R$ 370 — os dois do Fábio, a ficha do 24 assinada “ASJ 👆🏻”).',
@@ -109,9 +109,9 @@ const CURADOS = [
         leilao: 'LEILÃO SABIÁ DOURADO',
         vgv: null, lotes: null, animais: null, assessor: 'Douglas Bispo',
         detalhe: [],
-        origem: 'Agenda (bula_leiloes, leiloeira Bula Remates, status “concluído”) e um print do Douglas enviado no Grupo Financeiro em 31/08 16h46 (“Vendas Douglas no leilão Sabiá Dourado”). Nenhum lote no HastaPro em nome deste leilão.',
-        validar: '⚠ É o item mais aberto do mês. Ou as vendas do Douglas de 30/08 são estas — e então o HastaPro as lançou no leilão errado (Ventres VIP Matinha) — ou o Sabiá Dourado tem vendas próprias que ninguém registrou. O print do Douglas resolve em um minuto; sem ele não dá para fechar agosto.',
-        onde: 'confirmar com Douglas · HastaPro',
+        origem: 'Agenda (bula_leiloes, leiloeira Bula Remates, status “concluído”) e um print do Douglas enviado no Grupo Financeiro em 31/08 16h46 (“Vendas Douglas no leilão Sabiá Dourado”).',
+        validar: '✅ RESOLVIDO — e o resultado é que NÃO HÁ VENDA A LANÇAR. Os dois lotes que o print mostrava (18 e 31, R$ 64.500) são do Ventres VIP Matinha: o HastaPro os registra lá com o comprador Celso Lopes, o mesmo da ficha, e o Matheus respondeu “MATINHA” no grupo VENDAS. Não existe nenhum leilão “Sabiá Dourado” no HastaPro em 2026, em filial alguma. O print de 31/08 rotulou errado. Resta só o Douglas dizer se, além desses, vendeu algo próprio no pregão.',
+        onde: 'nada a lançar · confirmar com Douglas',
     },
 ]
 const CURADO_VGV = CURADOS.reduce((s, x) => s + (x.vgv || 0), 0)
@@ -125,14 +125,14 @@ const SOBRANDO_VGV = sobrando.reduce((s, x) => s + x.vgv_erp, 0)
 const NOTA_LOTE = {
     'LEILÃO TOUROS SÃO GERALDO E 7P AGRO': 'Os dois lotes são da Nane. O importador só resolve pisteiro em PRESTADORES e ela existe apenas em CLIENTES — cadastrá-la lá conserta painel, fechamento e comissão de uma vez.',
     '28º LEILÃO NAVIRAÍ CAMPARINO - REPRODUTORES': 'Lotes que estão no HastaPro e não entraram no fechamento. O mesmo fechamento carrega o lote 21 (R$ 105.000), que é de outro leilão.',
-    'LEILÃO NAVIRAÍ CAMPARINO - MATRIZES ESSÊNCIA': 'Lote que está no fechamento e não tem par no HastaPro — ou não foi lançado lá, ou o número do lote está trocado.',
+    'LEILÃO NAVIRAÍ CAMPARINO - MATRIZES ESSÊNCIA': '✅ RESOLVIDO: o lote 9 é do 4º PEPITAS COLONIAL, do mesmo dia 22/08. A ficha diz “lt 9 - 1100 - 1F … Nelore BF, Bruno Machado” e o HastaPro traz o lote 09 do Pepitas por 1.100 x 30 = 33.000, Douglas, comprador Bruno Fabio Fernandes Machado. O fechamento do Pepitas já o contém (325.500 bate com o HastaPro): aqui é duplicata, apagar.',
 }
 
 /* ═══ 4. FECHAMENTOS SEM PAR NO HASTAPRO ═════════════════════════════════ */
 const NOTA_SEM_PAR = {
-    'LEILÃO MATRIZES PREMIUM KATISPERA': 'Nasceu do parser de lances (17/08) e existe no grupo, mas não tem um único lote no HastaPro. Ou a venda não foi lançada lá, ou o fechamento é fantasma. Enquanto não se decide, R$ 5.850 de comissão estão comprometidos.',
-    'LEILÃO NELORE PARANÃ E CASABRANCA EXPOGENÉTICA': 'Fechamento com o assessor “A definir” — ninguém está creditado pela venda. Resolve-se no HastaPro, olhando o pisteiro do lote.',
-    'FÊMEAS JMP': '⚠ É duplicata: o lote 48 do Shopping Naviraí de 15/08, repostado num segundo grupo seis dias depois. Já saiu da apuração da Expogenética, mas segue no ERP inflando agosto em R$ 41.400. Apagar.',
+    'LEILÃO MATRIZES PREMIUM KATISPERA': '⚠ O ÚNICO NÃO RESOLVIDO. Não existe leilão nenhum em 17/08 no HastaPro (nas duas filiais), nem um só lote de agosto com lance 3.900 ou total 117.000 — e o “3º Leilão Matrizes Katispera” só existe lá em 20/06. O nome veio da AGENDA daquele dia: o parser casou a ficha com o evento agendado. O texto da ficha é IDÊNTICO ao das quatro de 16/08 que são do Matinha Expogenética (mesmo comprador: Nelore Pérola / José Fábio / Santarém-PA), mas o Matinha no HastaPro tem 8 lotes e nenhum lote 3. Ou é venda do Matinha nunca lançada, ou é de outro pregão do mesmo comprador. Perguntar ao Matheus.',
+    'LEILÃO NELORE PARANÃ E CASABRANCA EXPOGENÉTICA': '✅ RESOLVIDO: é o LOTE 09 DO CEN & FAZENDA MODELO, do mesmo dia. A ficha diz “Lote 9 / leilão modelo 2.800 x 30 Comprador 7P Agro” e o HastaPro traz o lote 09 do CEN por 2.800 x 30 = 84.000, pisteiro Peralta. O fechamento do CEN JÁ tem esses 84.000 (117.000 = 84.000 Peralta + 33.000 Leonardo, bate com o HastaPro). É duplicata: apagar.',
+    'FÊMEAS JMP': '✅ RESOLVIDO: é o lote 48 do Shopping Naviraí de 15/08 (Douglas, R$ 1.380, comprador Miguel Sousa / Nelore AMER), repostado num segundo grupo seis dias depois — a própria ficha começa com “*Shopping Navirai*”, e é o único lote 48 do período no HastaPro. Apagar.',
 }
 const semPar = D.erp_sem_par.map(e => ({ ...e, nota: NOTA_SEM_PAR[e.nome] || '—' }))
 const SEM_PAR_VGV = semPar.reduce((s, x) => s + x.vgv, 0)
@@ -157,10 +157,10 @@ const FIN = D.financeiro
 
 /* ═══ 7. PERGUNTAS ABERTAS DO GRUPO ══════════════════════════════════════ */
 const ABERTAS = [
-    ['29/08', 'LEILÃO MELHORADORES ESPECIAL 30 ANOS (Bula Remates)', 'Marcelo perguntou “Tivemos venda Bula Assessoria?” em 31/08 e a resposta ficou no ar. Nenhuma venda em fonte nenhuma.'],
-    ['27/08', 'TERRA BRAVA 50 ANOS — 2º DIA, TOUROS', 'Agenda tem o pregão, HastaPro não tem lote, grupo não tem ficha. Marcelo perguntou “Não tivemos vendas?”.'],
-    ['29/08', '4º LEILÃO NELORE CRISPIM', 'Mesma situação: GIF de lotes foi produzido, venda nenhuma registrada.'],
-    ['—', 'DOIS LOTES SEM DONO', 'Em 31/08 19h15 alguém respondeu no grupo “teve por mim, conta? rs — vendi dois lotes, restante ngm dos meninos vendeu”. Esses dois lotes não estão em fonte nenhuma. Descobrir quem, qual leilão e se contam como venda da Bula.'],
+    ['29/08', 'MELHORADORES ESPECIAL 30 ANOS (Bula Remates)', '✅ RESPONDIDO: teve venda sim — R$ 577.800 em 20 lotes com pisteiro da casa, num pregão de R$ 1.113.900. Bulinha 268.500 (8 lotes), Lucas Martins 148.200 (6), Peralta 96.000 (3), Matheus Eberts 39.000 (2) e Laila 26.100 (1). Mas é pregão da própria Remates: pela regra vigente, Bulinha, Lucas, Peralta e Laila estavam na pista PELA REMATES e não contam como venda da Assessoria — a mesma regra que já tirou R$ 3.429.100 de agosto.'],
+    ['—', 'OS “DOIS LOTES” DE 31/08', '✅ RESPONDIDO: são do MATHEUS EBERTS — lotes 32 e 42 do Melhoradores 30 Anos (R$ 21.000 + R$ 18.000 = R$ 39.000), o mesmo comprador nos dois: Juliano Queiroz Santana Rosa, Faz. Água Limpa, Varjão-GO. As duas fichas estão no grupo em 29/08. Ele não está na lista da pista da Remates: é o caso novo a decidir.'],
+    ['27/08', 'TERRA BRAVA 50 ANOS — 2º DIA, TOUROS', 'Continua sem venda: a agenda tem o pregão, o HastaPro não tem um lote sequer e o grupo não tem ficha.'],
+    ['29/08', '4º LEILÃO NELORE CRISPIM', 'Idem — não existe nem como leilão no HastaPro. GIF de lotes foi produzido, venda nenhuma registrada.'],
 ]
 
 /* ═══════════════════════════════════ HTML ═══════════════════════════════ */
@@ -377,7 +377,7 @@ const html = `<!doctype html><html lang="pt-BR"><head><meta charset="utf-8">
       <td>${esc(curto(x.assessor_erp))}</td><td class="num">R$ ${brl(x.vgv_erp)}</td></tr>`).join('')}
     <tr class="total"><td></td><td>${sobrando.length} lotes</td><td></td><td></td><td class="num">R$ ${brl(SOBRANDO_VGV)}</td></tr>
   </table>
-  <p class="small"><strong>Lote 21 (R$ 105.000):</strong> é do 6º Leilão Excelência Genética, item 2 da página anterior.
+  <p class="small"><strong>Lote 21 (R$ 105.000):</strong> confirmado no HastaPro — lance 3.500, pisteiro Bulinha, compradores Valdemar Pissinatti Guerra e Joel de Assis Gouvêa Júnior — é do 6º Leilão Excelência Genética, item 2 da página anterior.
   Enquanto ele estiver dentro do Naviraí, criar o fechamento do Excelência conta o valor duas vezes — tirar um antes de pôr o outro.</p>
 
   <h3>Fechamentos sem par no HastaPro — R$ ${brl0(SEM_PAR_VGV)}</h3>
@@ -426,8 +426,8 @@ const html = `<!doctype html><html lang="pt-BR"><head><meta charset="utf-8">
   <div class="box rule">
     <div class="t">A ordem para resolver</div>
     <ol style="margin-bottom:0">
-      <li><strong>Pedir o print do Douglas</strong> (Sabiá Dourado) e fechar a dúvida dos R$ 64.500 — é o que trava o mês.</li>
-      <li><strong>Acertar os R$ 2.500</strong> do Engenho da Serra: 51.100 do Marcelo × 53.600 da ficha.</li>
+      <li><strong>Acertar os R$ 2.500</strong> do Engenho da Serra: 51.100 do Marcelo × 53.600 da ficha — é a única venda do mês fora de toda fonte.</li>
+      <li><strong>Perguntar ao Matheus</strong> de que pregão é a ficha de 17/08 (lote 3, R$ 3.900) — o último lançamento sem leilão identificado.</li>
       <li><strong>Cadastrar a Nane em PRESTADORES</strong> no HastaPro — conserta São Geraldo, Só Criador e São José de uma vez.</li>
       <li><strong>Tirar o lote 21 do Naviraí</strong> e criar o fechamento do 6º Excelência Genética, nessa ordem.</li>
       <li><strong>Apagar a duplicata FÊMEAS JMP</strong> e decidir Katispera e Paranã/Casabranca.</li>
