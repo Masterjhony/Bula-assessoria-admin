@@ -12,6 +12,7 @@
  * Uso: node scripts/gera-dre-bula-2026.mjs
  */
 import ExcelJS from 'exceljs'
+import { readFileSync } from 'node:fs'
 
 const MESES = ['JANEIRO','FEVEREIRO','MARÇO','ABRIL','MAIO','JUNHO','JULHO','AGOSTO','SETEMBRO','OUTUBRO','NOVEMBRO','DEZEMBRO']
 const N = 8 // meses apurados
@@ -180,7 +181,7 @@ const COMISSAO = {
   'Leonardo Serafim':    [      0,  3480.00,  5352.00,  9626.20, 31932.00, 41678.00,  7734.00,  6102.00],
   'Luiz Felipe Peralta': [      0,        0,   720.00,        0,        0,  7020.00,  1080.00,  4230.00],
   'Nane Neves':          [      0,        0,        0,        0,        0,        0,  5808.00,        0],
-  'Felipe Andrade':      [      0,        0,        0,        0,        0,        0,        0,  3960.00],
+  'Felipe Andrade':      [      0,        0,        0,        0, 26816.00, 30796.00,  8652.00,  3960.00],
   'Laila de Sousa':      [      0,  1200.00,        0,        0,        0,        0,   675.00,   600.00],
   'Lucas Martins':       [      0,        0,        0,        0,        0,        0,        0,   960.00],
   'Marcelo Carneiro':    [      0,        0,        0,  3509.20, 12086.00,        0,        0,        0],
@@ -192,8 +193,13 @@ const CUSTO_COMISSAO = zeros()
 for (const v of Object.values(COMISSAO)) v.forEach((x, i) => { CUSTO_COMISSAO[i] = r2(CUSTO_COMISSAO[i] + x) })
 assert('Comissão de agosto = valor fechado pelo financeiro na aba DRE', CUSTO_COMISSAO[7], 154707.00)
 
+// Comissao do Bulinha nao aparece no rateio dos fechamentos: vem dos CP analiticos
+// do ERP (leiloes de mai-jul, pagos em 27/07). Trava contra a soma desses titulos.
+assert('Comissão do Bulinha = soma dos CP analíticos do ERP',
+  r2(COMISSAO['Felipe Andrade'][4] + COMISSAO['Felipe Andrade'][5] + COMISSAO['Felipe Andrade'][6]), 66264.00)
+
 // ---------------------------------------------------------------------------
-// BASE 3 - despesas (aba DRE do financeiro + extrato conciliado em agosto)
+// BASE 3 - folha por competencia (cadastro + aba DRE do financeiro)
 // ---------------------------------------------------------------------------
 const FOLHA = {
   'Ana Paula Munhoz':   [6000, 6000, 6000, 6000, 6000, 6000, 0, 0],
@@ -215,95 +221,59 @@ for (const v of Object.values(FOLHA)) v.forEach((x, i) => { FOLHA_TOT[i] = r2(FO
 ;[38800, 43000, 43000, 34800, 34800, 34800, 33100, 47952.11].forEach((esp, i) =>
   assert('Folha de ' + MESES[i] + ' confere com a planilha', FOLHA_TOT[i], esp))
 
-const ENCARGOS = [1370.48, 4040.64, 2117.21, 2117.21, 2272.89, 3164.13, 1141.09, 1141.09]
+// ---------------------------------------------------------------------------
+// BASE 4 - despesas apuradas (extrato + HastaPro + cartao)
+//   gerado por scripts/apura-despesas-dre-2026.mjs
+// ---------------------------------------------------------------------------
+const APU = JSON.parse(readFileSync('outputs/dre-2026/despesas-apuradas.json', 'utf8'))
+const L = (nome) => (APU.linhas[nome] || Array(N).fill(0)).slice(0, N)
+const DET = (linha) => Object.fromEntries(Object.entries(APU.detalhe)
+  .filter(([k]) => k.startsWith(linha + '||'))
+  .map(([k, v]) => [k.split('||')[1], v.slice(0, N)])
+  .sort((a, b) => soma(b[1]) - soma(a[1])))
 
-const CARROS_DET = {
-  'Unidas Carro 1':                [0, 3316.96, 0, 0, 0, 0, 0, 0],
-  'Unidas Carro 2':                [0, 1945.04, 0, 0, 0, 0, 0, 0],
-  'Reparo de carro':               [0, 0, 689.00, 0, 0, 0, 0, 0],
-  'Multas':                        [0, 0, 249.91, 0, 0, 0, 0, 0],
-  'Volkswagen Tera (Localiza PA)': [0, 0, 0, 0, 0, 0, 0, 1509.68],
-}
-const ESCRITORIO_DET = {
-  'Aluguel':          [3292, 3292, 3292, 3292, 3292, 3292, 3292, 0],
-  'Internet':         [404.80, 404.80, 404.80, 404.80, 404.80, 404.80, 404.80, 0],
-  'Energia':          [0, 0, 1124.09, 554.10, 71.33, 70.21, 34.70, 0],
-  'Café':             [240, 240, 240, 240, 240, 240, 240, 0],
-  'Seguro da equipe': [0, 319.50, 0, 0, 0, 0, 0, 184.64],
-  'Manutenção':       [0, 0, 80.00, 0, 0, 0, 0, 0],
-  'Material':         [0, 0, 352.00, 0, 0, 0, 0, 0],
-}
-const TECNOLOGIA_DET = {
-  'ClickWeb':  [218.39, 218.39, 218.39, 218.39, 218.39, 218.39, 218.39, 218.39],
-  'Claude':    [0, 0, 0, 0, 550, 550, 550, 550],
-  'Codex GPT': [0, 0, 0, 0, 0, 550, 550, 550],
-  'Supabase':  [0, 0, 0, 0, 0, 0, 0, 105],
-  'Vercel':    [0, 0, 0, 0, 0, 0, 0, 105],
-  'DocuSign':  [0, 0, 659.00, 0, 0, 0, 0, 0],
-}
-const CONTABILIDADE = [1058, 1058, 1058, 1058, 1058, 1058, 1058, 1058]
+const ENCARGOS     = L('Encargos (FGTS / INSS / DARF)')
+const CARROS       = L('Carros')
+const ESCRITORIO   = L('Escritório')
+const TECNOLOGIA   = L('Tecnologia')
+const CONTABILIDADE = L('Contabilidade')
+const PARCELAMENTOS = L('Parcelamentos')
+const FINANCEIRAS  = L('Despesas Financeiras')
+const TRABALHISTAS = L('Despesas Trabalhistas')
+const DIARIAS      = L('Diárias e Viagens')
+const MARKETING    = L('Marketing')
+const OPERACIONAIS = L('Operacionais de leilão')
+const ACLASSIFICAR = L('A classificar')
 
-const TRABALHISTAS_DET = {
-  'Rescisão Fátima':                  [0, 0, 8584.83, 0, 0, 0, 0, 0],
-  'Rescisão / acerto (agosto)':       [0, 0, 0, 0, 0, 0, 0, 5500.00],
-  'Acertos finais (Ana Paula / Val)': [0, 0, 0, 0, 0, 0, 0, 455.40],
-}
-const DIARIAS_DET = {
-  'Consultas de cadastros': [0, 0, 600.00, 0, 0, 0, 0, 0],
-  'Motorista':              [0, 0, 1800.00, 0, 0, 0, 0, 0],
-  'Limpeza':                [0, 0, 200.00, 0, 0, 0, 0, 0],
-  'Diárias de equipe':      [0, 0, 0, 0, 0, 0, 0, 2700.00],
-  'Viagens / passagens':    [0, 0, 0, 0, 0, 0, 0, 6178.45],
-}
-const MARKETING_DET = {
-  'Patrocinado Douglas':   [0, 0, 1238.84, 0, 0, 0, 0, 0],
-  'Patrocinado Fábio':     [0, 0, 1000.00, 0, 0, 0, 0, 0],
-  'OpenRouter':            [0, 0, 0, 0, 0, 173.40, 390.00, 0],
-  'Campanhas (Meta Ads)':  [0, 0, 0, 0, 0, 0, 0, 7500.00],
-}
-const OPERACIONAIS_DET = {
-  'Reembolsos (Fábio / Leonardo / FDB)':          [0, 0, 0, 0, 0, 0, 11797.88, 0],
-  'Translado (pedágio, combustível, passagens)':  [0, 1265.70, 12679.46, 0, 0, 0, 0, 0],
-  'Hospedagem':                                   [0, 0, 12872.20, 0, 0, 0, 0, 11468.00],
-  'Alimentação':                                  [0, 0, 3938.73, 0, 0, 0, 0, 0],
-  'Uniformes':                                    [0, 0, 0, 0, 0, 0, 0, 480.00],
-  'Reembolso Bula Remates':                       [0, 0, 0, 0, 0, 0, 0, 5026.34],
-  'Registro de marcas (Remat)':                   [0, 0, 0, 0, 0, 0, 0, 495.00],
-  'Transporte por aplicativo':                    [0, 0, 0, 0, 0, 0, 0, 63.96],
-  'Outras':                                       [0, 0, 0, 0, 0, 0, 0, 39.00],
-}
+// conferencia (nao entram na DRE: tem linha propria)
+const IMPOSTO_PAGO_EXTRATO = L('(fora) Imposto pago no extrato')
+const FOLHA_PAGA_EXTRATO   = L('(fora) Folha paga no extrato')
+const COMISSAO_PAGA_EXTRATO = L('(fora) Comissão paga no extrato')
+const CARTAO_FATURA = APU.cartao_fatura.slice(0, N)
 
 // ---------------------------------------------------------------------------
-// BASE 4 - conferencia externa
+// BASE 5 - conferencia externa
 // ---------------------------------------------------------------------------
 const ISS_PAGO      = [3008.55, 9366.25, 768.86, 5187.27, 6689.01, 12566.78, 24524.81, null]
 const SIMPLES_PAGO  = [14741.92, 29884.16, 2470.92, 12078.62, 15362.21, 28660.03, 55846.64, null]
-const DESP_LEILAO_EXTRATO = [1485.82, 9533.21, 5769.42, 14645.68, 8219.88, 17803.02, 14404.20, 28880.67]
 const COMISSAO_FECHAMENTOS = [2202.00, 16097.00, 54255.20, 65190.00, 89015.23, 139682.18, 69831.00, 180191.00]
+const COMISSAO_HASTAPRO    = [0, 0, 55779.80, 18147.00, 38844.00, 175803.00, 170311.48, 108458.05]
+const ENTRADA_EXTRATO      = [299696.71, 409873.25, 198594.61, 84585.29, 99813.94, 239325.77, 263987.57, 236876.16]
 
 // ---------------------------------------------------------------------------
 // CALCULO
 // ---------------------------------------------------------------------------
 const mapa = (f) => Array.from({ length: N }, (_, i) => r2(f(i)))
-const somaDet = (det) => mapa((i) => Object.values(det).reduce((a, v) => a + (v[i] || 0), 0))
-
 const ISS         = mapa((i) => RECEITA[i] * 0.05)
 const SIMPLES     = mapa((i) => RECEITA[i] * 0.13)
 const IMPOSTO     = mapa((i) => ISS[i] + SIMPLES[i])
 const REC_LIQ     = mapa((i) => RECEITA[i] - IMPOSTO[i])
 const MARGEM      = mapa((i) => REC_LIQ[i] - CUSTO_COMISSAO[i])
-const CARROS      = somaDet(CARROS_DET)
-const ESCRITORIO  = somaDet(ESCRITORIO_DET)
-const TECNOLOGIA  = somaDet(TECNOLOGIA_DET)
-const UTILITARIOS = mapa((i) => ESCRITORIO[i] + TECNOLOGIA[i] + CONTABILIDADE[i])
-const DESP_FIXAS  = mapa((i) => FOLHA_TOT[i] + ENCARGOS[i] + CARROS[i] + UTILITARIOS[i])
-const TRABALHISTAS  = somaDet(TRABALHISTAS_DET)
-const DIARIAS       = somaDet(DIARIAS_DET)
-const MARKETING     = somaDet(MARKETING_DET)
-const OPERACIONAIS  = somaDet(OPERACIONAIS_DET)
-const DESP_VAR = mapa((i) => TRABALHISTAS[i] + DIARIAS[i] + MARKETING[i] + OPERACIONAIS[i])
-const LUCRO    = mapa((i) => MARGEM[i] - DESP_FIXAS[i] - DESP_VAR[i])
+const DESP_FIXAS  = mapa((i) => FOLHA_TOT[i] + ENCARGOS[i] + CARROS[i] + ESCRITORIO[i] + TECNOLOGIA[i] + CONTABILIDADE[i] + PARCELAMENTOS[i] + FINANCEIRAS[i])
+const DESP_VAR    = mapa((i) => TRABALHISTAS[i] + DIARIAS[i] + MARKETING[i] + OPERACIONAIS[i] + ACLASSIFICAR[i])
+const LUCRO       = mapa((i) => MARGEM[i] - DESP_FIXAS[i] - DESP_VAR[i])
 const SOMA_RECEITA = soma(RECEITA.slice(0, N))
+
 
 // ---------------------------------------------------------------------------
 // PLANILHA
@@ -315,7 +285,7 @@ wb.creator = 'Bula Assessoria'
 wb.created = new Date()
 
 const ws = wb.addWorksheet('DRE', { views: [{ state: 'frozen', xSplit: 1, ySplit: 3 }] })
-ws.columns = [{ width: 44 }, ...Array(12).fill({ width: 14 }), { width: 16 }, { width: 10 }]
+ws.columns = [{ width: 46 }, ...Array(12).fill({ width: 14 }), { width: 16 }, { width: 10 }]
 
 const linha = (rotulo, vals, opt = {}) => {
   const arr = Array.from({ length: 12 }, (_, i) => (vals && i < N ? (vals[i] ?? null) : null))
@@ -337,9 +307,8 @@ const linha = (rotulo, vals, opt = {}) => {
 
 const H_PRETO = { fill: PRETO, font: { bold: true, color: { argb: BRANCO }, size: 11 }, height: 20 }
 const H_CINZA = { fill: CINZA, font: { bold: true, color: { argb: PRETO }, size: 10 }, border: true }
-const DET     = { font: { italic: true, size: 9, color: { argb: 'FF595959' } }, indent: 2, height: 15 }
+const DET_    = { font: { italic: true, size: 9, color: { argb: 'FF595959' } }, indent: 2, height: 15 }
 const DET3    = { font: { italic: true, size: 9, color: { argb: 'FF808080' } }, indent: 4, height: 15 }
-const GRUPO   = { font: { size: 9, color: { argb: 'FF404040' }, bold: true }, indent: 2, height: 15 }
 const SUB     = { font: { bold: true, size: 10 }, indent: 1, fill: CINZA2 }
 
 const cab = ws.addRow(['DRE BULA ASSESSORIA — 2026', ...MESES, 'ACUM. JAN–AGO', '% REC.'])
@@ -350,40 +319,42 @@ cab.eachCell((c) => {
 })
 cab.getCell(1).alignment = { horizontal: 'left', vertical: 'middle' }
 cab.height = 24
-const sub1 = ws.addRow(['Regime de competência (mês do leilão) · janeiro a agosto apurados · fechamento de 31/08/2026'])
+const sub1 = ws.addRow(['Competência pelo mês do leilão · receita da aba Leilões · despesas por extrato + HastaPro + cartão · apuração de 31/08/2026'])
 sub1.getCell(1).font = { italic: true, size: 9, color: { argb: 'FF808080' } }
 sub1.height = 15
 ws.addRow([])
 
+const bloco = (rotuloTotal, total, detalhe, estiloTotal) => {
+  linha(rotuloTotal, total, estiloTotal)
+  for (const [nome, v] of Object.entries(detalhe)) if (Math.abs(soma(v)) > 0.005) linha(nome, v, DET3)
+}
+
 linha('RECEITA BRUTA', RECEITA, H_PRETO)
 linha('(-) IMPOSTO', IMPOSTO, H_CINZA)
-linha('ISS (5%)', ISS, DET)
-linha('Simples Nacional (13%)', SIMPLES, DET)
+linha('ISS (5%)', ISS, DET_)
+linha('Simples Nacional (13%)', SIMPLES, DET_)
 linha('RECEITA LÍQUIDA', REC_LIQ, H_PRETO)
 linha('(-) CUSTOS DE COMISSÃO', CUSTO_COMISSAO, H_CINZA)
-for (const [nome, v] of Object.entries(COMISSAO)) if (soma(v) > 0) linha(nome, v, DET)
+for (const [nome, v] of Object.entries(COMISSAO)) if (soma(v) > 0) linha(nome, v, DET_)
 linha('MARGEM DE CONTRIBUIÇÃO', MARGEM, H_PRETO)
+
 linha('(-) DESPESAS FIXAS', DESP_FIXAS, H_CINZA)
 linha('(-) Folha de Pagamento', FOLHA_TOT, SUB)
-for (const [nome, v] of Object.entries(FOLHA)) if (soma(v) > 0) linha(nome, v, DET)
-linha('(-) Encargos (FGTS / INSS / DARF)', ENCARGOS, SUB)
-linha('(-) Carros', CARROS, SUB)
-for (const [nome, v] of Object.entries(CARROS_DET)) if (soma(v) > 0) linha(nome, v, DET)
-linha('(-) Utilitários', UTILITARIOS, SUB)
-linha('Escritório', ESCRITORIO, GRUPO)
-for (const [nome, v] of Object.entries(ESCRITORIO_DET)) if (soma(v) > 0) linha(nome, v, DET3)
-linha('Tecnologia', TECNOLOGIA, GRUPO)
-for (const [nome, v] of Object.entries(TECNOLOGIA_DET)) if (soma(v) > 0) linha(nome, v, DET3)
-linha('Contabilidade', CONTABILIDADE, GRUPO)
+for (const [nome, v] of Object.entries(FOLHA)) if (soma(v) > 0) linha(nome, v, DET3)
+bloco('(-) Encargos (FGTS / INSS / DARF)', ENCARGOS, DET('Encargos (FGTS / INSS / DARF)'), SUB)
+bloco('(-) Carros', CARROS, DET('Carros'), SUB)
+bloco('(-) Escritório', ESCRITORIO, DET('Escritório'), SUB)
+bloco('(-) Tecnologia', TECNOLOGIA, DET('Tecnologia'), SUB)
+bloco('(-) Contabilidade', CONTABILIDADE, DET('Contabilidade'), SUB)
+bloco('(-) Parcelamentos', PARCELAMENTOS, DET('Parcelamentos'), SUB)
+bloco('(-) Despesas Financeiras', FINANCEIRAS, DET('Despesas Financeiras'), SUB)
+
 linha('(-) DESPESAS VARIÁVEIS', DESP_VAR, H_CINZA)
-linha('(-) Despesas Trabalhistas', TRABALHISTAS, SUB)
-for (const [nome, v] of Object.entries(TRABALHISTAS_DET)) if (soma(v) > 0) linha(nome, v, DET)
-linha('(-) Despesas de Diárias', DIARIAS, SUB)
-for (const [nome, v] of Object.entries(DIARIAS_DET)) if (soma(v) > 0) linha(nome, v, DET)
-linha('(-) Despesas de Marketing', MARKETING, SUB)
-for (const [nome, v] of Object.entries(MARKETING_DET)) if (soma(v) > 0) linha(nome, v, DET)
-linha('(-) Despesas Operacionais', OPERACIONAIS, SUB)
-for (const [nome, v] of Object.entries(OPERACIONAIS_DET)) if (soma(v) > 0) linha(nome, v, DET)
+bloco('(-) Despesas Trabalhistas', TRABALHISTAS, DET('Despesas Trabalhistas'), SUB)
+bloco('(-) Diárias e Viagens', DIARIAS, DET('Diárias e Viagens'), SUB)
+bloco('(-) Marketing', MARKETING, DET('Marketing'), SUB)
+bloco('(-) Operacionais de leilão', OPERACIONAIS, DET('Operacionais de leilão'), SUB)
+bloco('(-) A classificar', ACLASSIFICAR, DET('A classificar'), { ...SUB, font: { bold: true, size: 10, color: { argb: 'FFC00000' } } })
 
 const rl = linha('(=) LUCRO LÍQUIDO', LUCRO, { fill: DOURADO, font: { bold: true, size: 11 }, height: 22 })
 rl.eachCell({ includeEmpty: true }, (c) => { c.border = { top: { style: 'double' }, bottom: { style: 'double' } } })
@@ -394,7 +365,7 @@ rm.eachCell({ includeEmpty: true }, (c, i) => { if (i > 1 && i <= 14) c.numFmt =
 // ABA CONFERENCIA
 // ---------------------------------------------------------------------------
 const wc = wb.addWorksheet('Conferência', { views: [{ state: 'frozen', ySplit: 1 }] })
-wc.columns = [{ width: 46 }, ...Array(8).fill({ width: 14 }), { width: 15 }, { width: 62 }]
+wc.columns = [{ width: 46 }, ...Array(8).fill({ width: 14 }), { width: 15 }, { width: 66 }]
 
 const cabC = wc.addRow(['CONFERÊNCIA E PROCEDÊNCIA', ...MESES.slice(0, N), 'ACUM.', 'LEITURA'])
 cabC.eachCell((c) => {
@@ -415,74 +386,79 @@ const linhaC = (rotulo, vals, nota, opt = {}) => {
     if (opt.fill) cell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: opt.fill } }
     if (opt.font) cell.font = opt.font
   })
-  row.getCell(10).alignment = { vertical: 'top', wrapText: true }
+  row.getCell(11).alignment = { vertical: 'top', wrapText: true }
   row.getCell(1).alignment = { vertical: 'top', indent: opt.indent || 0, wrapText: true }
   row.height = opt.height || 15
   return row
 }
 const tituloC = (txt) => {
   const r = wc.addRow([txt])
+  for (let i = 1; i <= 11; i++) r.getCell(i).fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FF404040' } }
   r.getCell(1).font = { bold: true, size: 11, color: { argb: BRANCO } }
-  r.getCell(1).fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FF404040' } }
-  for (let i = 2; i <= 10; i++) r.getCell(i).fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FF404040' } }
   r.height = 20
   return r
 }
 
-tituloC('1. IMPOSTO — provisão adotada na DRE x guias efetivamente pagas')
-linhaC('Provisão 18% adotada na DRE (ISS 5% + Simples 13%)', IMPOSTO, 'Mesma convenção que o financeiro já usava na coluna de agosto e na coluna IMPOSTO (18%) da aba Leilões.')
-linhaC('ISS efetivamente pago (guia SEFAZ Campo Grande)', ISS_PAGO, 'Guia do mês seguinte alocada na competência. Agosto vence em setembro — ainda não pago.')
-linhaC('Simples Nacional efetivamente pago (DAS)', SIMPLES_PAGO, 'Idem. O DAS de julho (R$ 55.846,64) foi pago em 20/08.')
-linhaC('Guia total paga', mapa((i) => (ISS_PAGO[i] || 0) + (SIMPLES_PAGO[i] || 0)), 'Carga real medida em julho: 16,39% (R$ 80.371,45 sobre R$ 490.496,32 de NFS-e). A provisão de 18% tem folga.')
-linhaC('Faturamento em NFS-e implícito (ISS ÷ 5%)', mapa((i) => (ISS_PAGO[i] ? ISS_PAGO[i] / 0.05 : 0)), 'A NF é emitida depois do leilão — por isso este valor não acompanha a receita do mês. Serve para medir o atraso de faturamento.')
+tituloC('1. ESCOPO — janeiro e fevereiro não fecham com a operação da Bula Assessoria')
+linhaC('Entrou na conta Sicoob (classificado como comissão)', ENTRADA_EXTRATO, 'Extrato conciliado.')
+linhaC('Receita apurada pela aba Leilões', RECEITA, 'Jan e fev somam R$ 33.291,90 de receita contra R$ 709.569,96 que entraram na conta.', { font: { bold: true } })
+linhaC('Diferença', mapa((i) => ENTRADA_EXTRATO[i] - RECEITA[i]), 'Em jan/fev entram 2x R$ 128.758,47 da JBJ AGROPECUÁRIA e R$ 153.662,00 de pessoa física — não têm cara de comissão de leilão. E em 20/01 saíram R$ 125.159,67 para a Receita Federal, valor incompatível com o DAS de uma receita de R$ 6 mil.', { font: { bold: true, color: { argb: 'FFC00000' } } })
+linhaC('', null, 'LEITURA: ou a conta carregou operação de 2025 / de outra empresa nesses dois meses, ou a receita de jan-fev está muito subdeclarada. Enquanto isso não for resolvido, o prejuízo de janeiro e fevereiro NÃO deve ser lido como resultado da Bula Assessoria.')
 wc.addRow([])
 
-tituloC('2. CUSTOS DE COMISSÃO — as três leituras')
-linhaC('Adotado na DRE', CUSTO_COMISSAO, 'Jan–jul: apuração por assessor dos fechamentos. Agosto: valor já fechado pelo financeiro na aba DRE (R$ 154.707,00).', { font: { bold: true } })
-linhaC('Apuração dos fechamentos (ERP)', COMISSAO_FECHAMENTOS, 'Soma de por_assessor[].comissao dos fechamentos do mês, com nomes canonizados.')
-linhaC('Coluna COMISSÃO da aba Leilões', COMISSAO_PLANILHA.slice(0, N), 'Registro do financeiro por evento. Está em branco nos maiores leilões de julho (EAO Baviera, Santa Cruz) e em todo agosto — por isso não serve como total do mês.')
-linhaC('Diferença (adotado − fechamentos)', mapa((i) => CUSTO_COMISSAO[i] - COMISSAO_FECHAMENTOS[i]), 'Só agosto diverge: −R$ 25.484,00. O ERP inclui "A definir" (7.800), Nane (6.150) e valores maiores para Douglas e Rusa.')
-linhaC('LUCRO LÍQUIDO com a comissão adotada', LUCRO, 'É o número da aba DRE.', { font: { bold: true }, fill: DOURADO })
-linhaC('LUCRO LÍQUIDO se valer a coluna COMISSÃO da aba Leilões', mapa((i) => LUCRO[i] + CUSTO_COMISSAO[i] - COMISSAO_PLANILHA[i]), 'Sensibilidade: a comissão é a variável que mais mexe no resultado. Fechar a comissão de jan–jul por pessoa move o lucro do ano nesta faixa.', { font: { bold: true }, fill: CINZA })
+tituloC('2. IMPOSTO — provisão adotada na DRE x guias efetivamente pagas')
+linhaC('Provisão de 18% adotada (ISS 5% + Simples 13%)', IMPOSTO, 'Convenção que o próprio financeiro já usava em agosto e na coluna IMPOSTO (18%) da aba Leilões.')
+linhaC('ISS pago (guia SEFAZ Campo Grande)', ISS_PAGO, 'Guia do mês seguinte alocada na competência. A de agosto vence em setembro.')
+linhaC('Simples Nacional pago (DAS)', SIMPLES_PAGO, 'O DAS de julho (R$ 55.846,64) foi debitado em 20/08.')
+linhaC('Total de tributos que saiu do extrato', IMPOSTO_PAGO_EXTRATO, 'Inclui R$ 125.159,67 de 20/01 à Receita Federal ainda sem identificação e R$ 44 mil de guias menores a classificar.')
+linhaC('Faturamento em NFS-e implícito (ISS ÷ 5%)', mapa((i) => (ISS_PAGO[i] ? ISS_PAGO[i] / 0.05 : 0)), 'Julho dá R$ 490.496,20 — bate exatamente com o relatório de NF da Prefeitura. Carga real medida: 16,39%.')
 wc.addRow([])
 
-tituloC('3. DESPESAS — o que o extrato mostra e a DRE não registrava')
-linhaC('Despesas de leilão no extrato conciliado', DESP_LEILAO_EXTRATO, 'Categorias "Despesa Operacional Leilão" + "Viagem/Passagens" nos movimentos do Sicoob.')
-linhaC('Despesas Variáveis lançadas na DRE', DESP_VAR, 'Abril e maio aparecem com R$ 0 na planilha do financeiro — mas a Expozebu aconteceu em abril.')
-linhaC('Lacuna aparente (extrato − DRE)', mapa((i) => Math.max(0, DESP_LEILAO_EXTRATO[i] - DESP_VAR[i])), 'Não foi somado ao lucro: parte pode estar em outro grupo ou em cartão. É a fila de conferência.', { font: { bold: true, color: { argb: 'FFC00000' } } })
+tituloC('3. COMISSÃO — três fontes independentes para o mesmo custo')
+linhaC('Adotado na DRE', CUSTO_COMISSAO, 'Rateio por assessor dos fechamentos (competência do leilão) + CP analíticos do Bulinha; agosto = valor fechado pelo financeiro.', { font: { bold: true } })
+linhaC('Contas a pagar do HastaPro (categoria COMISSÃO)', COMISSAO_HASTAPRO, 'A base que o financeiro vinha usando. Zerada em jan/fev porque o HastaPro só passou a ser alimentado em março.')
+linhaC('Rateio dos fechamentos, sem o Bulinha', COMISSAO_FECHAMENTOS, 'De março a agosto as duas fontes somam R$ 598.164,61 e R$ 567.343,33 — 5% de diferença no acumulado, com meses muito diferentes entre si.')
+linhaC('Coluna COMISSÃO da aba Leilões', COMISSAO_PLANILHA.slice(0, N), 'Fica em branco nos maiores eventos de julho (EAO Baviera, Santa Cruz) e em todo agosto: subdeclara quase metade.')
+linhaC('Comissão paga que apareceu solta no extrato', COMISSAO_PAGA_EXTRATO, 'Não somada de novo: já está nas linhas acima. Inclui o cartão Sicredi do Peralta (R$ 2.998,18).')
 wc.addRow([])
 
-tituloC('4. TRAVAS DE TRANSCRIÇÃO — a base foi conferida contra os totais da própria planilha')
+tituloC('4. CARTÃO DE CRÉDITO — oito meses de fatura, 100% no portador Felipe V Andrade')
+linhaC('Fatura paga (débito automático no Sicoob)', CARTAO_FATURA, 'Os dois cartões Sicoob são titulados à Bula Assessoria.')
+for (const [k, v] of Object.entries(APU.cartao_por_categoria).sort((a, b) => soma(b[1]) - soma(a[1])))
+  linhaC('   ' + k, v.slice(0, N), '', { indent: 1, font: { italic: true, size: 9, color: { argb: 'FF595959' } } })
+linhaC('', null, 'DECISÃO: aqui a fatura entra pelo que foi COMPRADO — passagem em Diárias, mídia em Marketing, assinatura em Tecnologia. O ERP hoje joga a fatura inteira em "comissão do Bulinha"; isso esconderia R$ 141 mil de viagem e mídia em jan-abr, meses em que a receita da Bula nem chegava perto disso. Se o critério voltar a ser "fatura = comissão", o valor apenas muda de linha — o lucro é o mesmo.')
+wc.addRow([])
+
+tituloC('5. COBERTURA DAS FONTES')
+linhaC('Folha paga que apareceu no extrato', FOLHA_PAGA_EXTRATO, 'Não somada: a folha entra por competência, pelo cadastro. O pagamento tem defasagem de um mês.')
+linhaC('A classificar (o que ninguém categorizou)', ACLASSIFICAR, 'É a fila de trabalho. Sai desta linha à medida que o financeiro categorizar no HastaPro.', { font: { bold: true, color: { argb: 'FFC00000' } } })
+const NOTAS_COB = [
+  ['Movimentos lidos no extrato', String(APU.cobertura.movimentos_lidos) + ' saídas entre 01/01 e 27/08 (o extrato do Sicoob ainda não tem 28–31/08).'],
+  ['Títulos do HastaPro (filial 2)', String(APU.cobertura.titulos_hastapro) + ' contas a pagar. ' + String(APU.cobertura.valores_rotulados_pelo_hastapro) + ' valores distintos foram casados com o extrato por valor + data, e o rótulo achado em um mês foi retropropagado para o mesmo valor nos meses anteriores — é assim que janeiro e fevereiro ganham categoria sem que o HastaPro os tenha.'],
+  ['Títulos do HastaPro sem lastro no extrato', 'R$ ' + APU.cobertura.hastapro_sem_lastro_no_extrato.toLocaleString('pt-BR', { minimumFractionDigits: 2 }) + ' entraram na DRE como despesa que não passou pelo Sicoob (pagamento por fora ou título ainda aberto). Comissão, folha, imposto e o que está sob PARTICULAR/FAZENDA ficaram de fora.'],
+  ['O que o HastaPro não cobre', 'A filial 2 só passou a ser alimentada em março/2026, e agosto está com 52 títulos sem categoria (quase todos "COMISSAO ASSESSORIA DE VENDA"). Categorizar agosto no HastaPro é o que mais melhora esta DRE.'],
+  ['Escritório', 'Sem aluguel, internet, energia e café a partir de agosto — o escritório foi encerrado. O último débito de internet é de 02/07.'],
+  ['Erro achado na aba Leilões', 'O TOTAL 2026 (R$ 1.577.363,64) conta duas vezes o Santa Nazaré Excelência: a linha-mãe de R$ 11.428,00 e as duas parcelas de R$ 5.714,00. O total correto é R$ 1.565.935,65.'],
+  ['Erro achado na aba DRE', 'Os subtotais de DESPESAS VARIÁVEIS de agosto estavam em cascata quebrada (159.616 para 79.808 para 39.904, cada um o dobro do seguinte).'],
+  ['Receita de agosto', 'R$ 267.501,12 dos R$ 414.070,12 (65%) vêm de eventos ainda "EM FECHAMENTO" ou "COBRAR". É receita apurada, não recebida.'],
+]
+for (const [t, d] of NOTAS_COB) {
+  const r = wc.addRow([t, d])
+  wc.mergeCells(r.number, 2, r.number, 11)
+  r.getCell(1).font = { bold: true, size: 10 }
+  r.getCell(1).alignment = { vertical: 'top', wrapText: true }
+  r.getCell(2).alignment = { vertical: 'top', wrapText: true }
+  r.height = 30
+}
+wc.addRow([])
+
+tituloC('6. TRAVAS DE TRANSCRIÇÃO — conferidas contra os totais da própria planilha')
 for (const c of checks) {
   const r = wc.addRow([c.nome, c.obtido, c.esperado, c.dif, c.ok ? 'OK' : 'DIVERGE'])
   r.getCell(2).numFmt = MOEDA; r.getCell(3).numFmt = MOEDA; r.getCell(4).numFmt = MOEDA
   r.getCell(5).font = { bold: true, color: { argb: c.ok ? 'FF008000' : 'FFC00000' } }
   r.getCell(1).alignment = { wrapText: true, vertical: 'top' }
   r.height = 15
-}
-wc.addRow([])
-
-tituloC('5. NOTAS DE MÉTODO')
-const NOTAS = [
-  ['Universo', 'Somente Bula Assessoria Pecuária Ltda (CNPJ 34.791.630/0001-43). O que entrou por Bula Remates ou Fórmula do Boi está fora, mesmo transitando na mesma conta Sicoob.'],
-  ['Regime', 'Competência pelo mês do LEILÃO. Receita, imposto e comissão do mesmo evento caem no mesmo mês — é o que torna a margem comparável mês a mês.'],
-  ['Receita Bruta', 'Coluna RECEITA da aba Leilões, somada pelo mês do leilão. Agosto fecha exatamente nos R$ 414.070,12 que já estavam na aba DRE — prova de que a base é a mesma.'],
-  ['Receita de agosto', 'R$ 267.501,12 dos R$ 414.070,12 (65%) vêm de eventos ainda "EM FECHAMENTO" ou "COBRAR". É receita apurada, não recebida.'],
-  ['Erro achado na planilha', 'O TOTAL 2026 da aba Leilões (R$ 1.577.363,64) conta duas vezes o Santa Nazaré Excelência: a linha-mãe de R$ 11.428,00 e as duas parcelas de R$ 5.714,00. O total correto é R$ 1.565.935,65.'],
-  ['Erro achado na aba DRE', 'Os subtotais de DESPESAS VARIÁVEIS de agosto estavam com fórmula em cascata quebrada (159.616 → 79.808 → 39.904, cada um o dobro do seguinte). Foram recalculados a partir do detalhe.'],
-  ['Utilitários de agosto', 'Estava R$ 1.528,39 (só Tecnologia). Faltavam Contabilidade R$ 1.058,00 e Seguros R$ 184,64, ambos débitos confirmados no extrato.'],
-  ['Escritório', 'Sem aluguel, internet, energia e café a partir de agosto — o escritório foi encerrado. O último débito de internet é de 02/07 (Digital Net, "último pagamento").'],
-  ['Comissão jan–mar', 'A aba DRE trazia R$ 0. Não era zero: era falta de lançamento. Os fechamentos mostram R$ 2.202,00 / R$ 16.097,00 / R$ 54.255,20.'],
-  ['Encargos', 'Linha nova, que a planilha não tinha. São as guias de DARF/FGTS de funcionários do extrato, alocadas na competência (guia paga no mês seguinte).'],
-  ['O que falta para fechar', 'Emitir NF dos R$ 267 mil de agosto ainda em fechamento; conciliar 28–31/08 (o extrato do Sicoob vai até 27/08); resolver a divergência de R$ 25.484,00 na comissão de agosto.'],
-]
-for (const [t, d] of NOTAS) {
-  const r = wc.addRow([t, d])
-  wc.mergeCells(r.number, 2, r.number, 10)
-  r.getCell(1).font = { bold: true, size: 10 }
-  r.getCell(1).alignment = { vertical: 'top', wrapText: true }
-  r.getCell(2).alignment = { vertical: 'top', wrapText: true }
-  r.height = 30
 }
 
 // ---------------------------------------------------------------------------
@@ -516,16 +492,14 @@ totL.height = 20
 const destino = process.argv[2] || 'C:/Users/Notebook-Acer/Desktop/DRE BULA ASSESSORIA 2026 - jan a ago.xlsx'
 await wb.xlsx.writeFile(destino)
 
+const fmt = (v) => (v || 0).toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 }).padStart(14)
 console.log('\nDRE BULA ASSESSORIA 2026 — jan a ago')
-console.log('-'.repeat(96))
-const fmt = (v) => (v || 0).toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 }).padStart(13)
-console.log('MÊS'.padEnd(12) + 'RECEITA'.padStart(13) + 'IMPOSTO'.padStart(13) + 'COMISSÃO'.padStart(13) + 'D.FIXAS'.padStart(13) + 'D.VARIÁV.'.padStart(13) + 'LUCRO'.padStart(13))
-for (let i = 0; i < N; i++) {
-  console.log(MESES[i].padEnd(12) + fmt(RECEITA[i]) + fmt(IMPOSTO[i]) + fmt(CUSTO_COMISSAO[i]) + fmt(DESP_FIXAS[i]) + fmt(DESP_VAR[i]) + fmt(LUCRO[i]))
-}
-console.log('-'.repeat(96))
-console.log('ACUM.'.padEnd(12) + fmt(soma(RECEITA.slice(0, N))) + fmt(soma(IMPOSTO)) + fmt(soma(CUSTO_COMISSAO.slice(0, N))) + fmt(soma(DESP_FIXAS)) + fmt(soma(DESP_VAR)) + fmt(soma(LUCRO)))
+console.log('-'.repeat(102))
+console.log('MÊS'.padEnd(12) + 'RECEITA'.padStart(14) + 'IMPOSTO'.padStart(14) + 'COMISSÃO'.padStart(14) + 'D.FIXAS'.padStart(14) + 'D.VARIÁV.'.padStart(14) + 'LUCRO'.padStart(14))
+for (let i = 0; i < N; i++) console.log(MESES[i].padEnd(12) + fmt(RECEITA[i]) + fmt(IMPOSTO[i]) + fmt(CUSTO_COMISSAO[i]) + fmt(DESP_FIXAS[i]) + fmt(DESP_VAR[i]) + fmt(LUCRO[i]))
+console.log('-'.repeat(102))
+console.log('ACUM.'.padEnd(12) + fmt(SOMA_RECEITA) + fmt(soma(IMPOSTO)) + fmt(soma(CUSTO_COMISSAO.slice(0, N))) + fmt(soma(DESP_FIXAS)) + fmt(soma(DESP_VAR)) + fmt(soma(LUCRO)))
+console.log('MAR-AGO'.padEnd(12) + fmt(soma(RECEITA.slice(2, 8))) + fmt(soma(IMPOSTO.slice(2))) + fmt(soma(CUSTO_COMISSAO.slice(2, 8))) + fmt(soma(DESP_FIXAS.slice(2))) + fmt(soma(DESP_VAR.slice(2))) + fmt(soma(LUCRO.slice(2))))
 console.log('\nTravas: ' + checks.filter((c) => c.ok).length + '/' + checks.length + ' OK')
 for (const c of checks.filter((c) => !c.ok)) console.log('  ! ' + c.nome + ': ' + c.obtido + ' vs ' + c.esperado)
 console.log('\nArquivo: ' + destino)
-

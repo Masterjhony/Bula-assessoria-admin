@@ -1,0 +1,875 @@
+{
+ "gerado_em": "2026-09-01T00:01:45.146Z",
+ "meses": [
+  "2026-01",
+  "2026-02",
+  "2026-03",
+  "2026-04",
+  "2026-05",
+  "2026-06",
+  "2026-07",
+  "2026-08"
+ ],
+ "linhas": {
+  "Operacionais de leilão": [
+   4276.59,
+   11243.44,
+   36101.78,
+   24142.78,
+   3449.32,
+   11566.66,
+   7627.1,
+   17368.18
+  ],
+  "Despesas Financeiras": [
+   256.54,
+   256.54,
+   239.63,
+   188.9,
+   188.9,
+   239.63,
+   658.9,
+   173.06
+  ],
+  "Diárias e Viagens": [
+   17686.25,
+   23929.61,
+   23318.72,
+   28242.9,
+   22004.4,
+   23695.7,
+   18546.83,
+   23771.03
+  ],
+  "A classificar": [
+   15429.4,
+   21097.48,
+   17850.93,
+   14425.96,
+   10051.62,
+   8125.28,
+   6672.06,
+   1665.78
+  ],
+  "(fora) Imposto pago no extrato": [
+   126357.87,
+   18735,
+   41827.04,
+   4555.93,
+   18084.37,
+   22051.22,
+   41226.81,
+   80371.45
+  ],
+  "(fora) Comissão paga no extrato": [
+   990,
+   1260,
+   1500,
+   2998.18,
+   0,
+   2400,
+   0,
+   990
+  ],
+  "Escritório": [
+   24222.32,
+   17927.51,
+   4237.52,
+   6299.33,
+   14367.05,
+   2416.11,
+   3806.76,
+   898
+  ],
+  "Encargos (FGTS / INSS / DARF)": [
+   946.32,
+   1370.48,
+   2255.49,
+   2117.21,
+   2117.21,
+   3251.37,
+   3164.13,
+   1141.09
+  ],
+  "Tecnologia": [
+   3200.4,
+   3125.04,
+   3249.25,
+   2069.18,
+   2145.55,
+   980.46,
+   218.3,
+   1525.33
+  ],
+  "Contabilidade": [
+   0,
+   1058,
+   1058,
+   1058,
+   1058,
+   1058,
+   1058,
+   1058
+  ],
+  "Marketing": [
+   1662.29,
+   11380.78,
+   7097.99,
+   9101.1,
+   8819.23,
+   8413.36,
+   6145.03,
+   0
+  ],
+  "(fora) Folha paga no extrato": [
+   7000,
+   0,
+   2000,
+   2550,
+   0,
+   1950,
+   2000,
+   6000
+  ],
+  "Despesas Trabalhistas": [
+   0,
+   0,
+   0,
+   0,
+   0,
+   11443.75,
+   0,
+   455.4
+  ],
+  "Parcelamentos": [
+   2872.63,
+   2872.63,
+   2872.63,
+   2872.63,
+   2872.63,
+   2872.63,
+   0,
+   0
+  ],
+  "Carros": [
+   317.9,
+   2011.35,
+   12620.58,
+   2971.27,
+   968.8,
+   446.02,
+   1910.37,
+   1
+  ]
+ },
+ "detalhe": {
+  "Operacionais de leilão||Estrutura e serviços de leilão": [
+   715.82,
+   3690.51,
+   2358.42,
+   6753.68,
+   1709.59,
+   7735.76,
+   3802.35,
+   17304.22
+  ],
+  "Despesas Financeiras||Integralizacao Capital Cooperativa": [
+   59,
+   59,
+   59,
+   59,
+   59,
+   59,
+   59,
+   39
+  ],
+  "Diárias e Viagens||Passagens e diárias": [
+   570,
+   1754.5,
+   2611,
+   0,
+   3304.29,
+   6173.06,
+   5737.01,
+   9108.45
+  ],
+  "Diárias e Viagens||Diárias de equipe": [
+   0,
+   2400,
+   600,
+   0,
+   2150,
+   500,
+   0,
+   0
+  ],
+  "A classificar||Compras Diversas": [
+   46,
+   17.95,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0
+  ],
+  "Operacionais de leilão||Transporte por aplicativo": [
+   268.64,
+   126.59,
+   85.18,
+   237.04,
+   64.94,
+   0,
+   32.98,
+   63.96
+  ],
+  "Despesas Financeiras||Tarifas Bancarias": [
+   197.54,
+   197.54,
+   180.63,
+   129.9,
+   129.9,
+   180.63,
+   199.62,
+   134.06
+  ],
+  "(fora) Imposto pago no extrato||Tributos a identificar": [
+   1198.2,
+   984.53,
+   2576.63,
+   1316.15,
+   818.48,
+   0,
+   0,
+   0
+  ],
+  "Operacionais de leilão||Alimentação": [
+   1239.32,
+   2474.06,
+   1704.4,
+   410.31,
+   1090.79,
+   1792.37,
+   124.19,
+   0
+  ],
+  "(fora) Comissão paga no extrato||Cartão Sicredi (Peralta)": [
+   0,
+   0,
+   0,
+   2998.18,
+   0,
+   0,
+   0,
+   0
+  ],
+  "Escritório||Seguro da equipe": [
+   493.58,
+   493.58,
+   493.58,
+   1671.13,
+   1735.03,
+   1525.71,
+   182.78,
+   184.64
+  ],
+  "Diárias e Viagens||Hospedagem": [
+   0,
+   3888.2,
+   3500,
+   5342,
+   1156,
+   1168,
+   4864.84,
+   4978
+  ],
+  "Escritório||Limpeza": [
+   200,
+   200,
+   400,
+   200,
+   200,
+   400,
+   0,
+   0
+  ],
+  "Escritório||Serviços de terceiros": [
+   459.26,
+   396,
+   0,
+   0,
+   0,
+   0,
+   444.65,
+   495
+  ],
+  "Escritório||Energia / água": [
+   1894.57,
+   1332.67,
+   20,
+   0,
+   394.8,
+   394.8,
+   0,
+   0
+  ],
+  "Encargos (FGTS / INSS / DARF)||DARF / FGTS de funcionários": [
+   946.32,
+   1370.48,
+   2255.49,
+   2117.21,
+   2117.21,
+   3251.37,
+   3164.13,
+   1141.09
+  ],
+  "Tecnologia||Software e assinaturas": [
+   867.66,
+   975.12,
+   907.56,
+   208.66,
+   238.03,
+   228.66,
+   218.3,
+   948.3
+  ],
+  "Contabilidade||Honorários contábeis": [
+   0,
+   1058,
+   1058,
+   1058,
+   1058,
+   1058,
+   1058,
+   1058
+  ],
+  "Escritório||Internet": [
+   394.8,
+   394.8,
+   394.8,
+   394.8,
+   0,
+   0,
+   142.92,
+   0
+  ],
+  "A classificar||Outras Despesas": [
+   4676.14,
+   4800.9,
+   1760,
+   1263.79,
+   1420,
+   1294.67,
+   6672.06,
+   39
+  ],
+  "Operacionais de leilão||Combustível e pedágio": [
+   1124.26,
+   9.75,
+   1115.11,
+   0,
+   0,
+   55.3,
+   0,
+   0
+  ],
+  "Escritório||Manutenção e obras": [
+   19511.98,
+   3497.36,
+   623.37,
+   0,
+   267.56,
+   5.6,
+   0,
+   0
+  ],
+  "Marketing||Patrocinados e campanhas": [
+   0,
+   9419.84,
+   0,
+   0,
+   0,
+   5286.85,
+   4000,
+   0
+  ],
+  "Escritório||Telefonia": [
+   0,
+   1853.09,
+   0,
+   929.81,
+   0,
+   0,
+   0,
+   0
+  ],
+  "(fora) Imposto pago no extrato||ISSQN": [
+   0,
+   3008.55,
+   9366.25,
+   768.86,
+   5187.27,
+   6689.01,
+   12566.78,
+   24524.81
+  ],
+  "(fora) Folha paga no extrato||FOLHA SALARIAL > DIARIAS": [
+   0,
+   0,
+   0,
+   2550,
+   0,
+   1950,
+   0,
+   0
+  ],
+  "Despesas Financeiras||Juros e Multas": [
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   400.28,
+   0
+  ],
+  "(fora) Imposto pago no extrato||Simples Nacional (DAS)": [
+   0,
+   14741.92,
+   29884.16,
+   2470.92,
+   12078.62,
+   15362.21,
+   28660.03,
+   55846.64
+  ],
+  "Escritório||Material de escritório": [
+   1268.13,
+   3643.89,
+   984.22,
+   0,
+   0,
+   90,
+   0,
+   0
+  ],
+  "(fora) Comissão paga no extrato||COMISSAO LT 112/54": [
+   990,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   990
+  ],
+  "(fora) Folha paga no extrato||FOLHA SALARIAL > SALÁRIO": [
+   0,
+   0,
+   2000,
+   0,
+   0,
+   0,
+   2000,
+   6000
+  ],
+  "Despesas Trabalhistas||Rescisão": [
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   455.4
+  ],
+  "(fora) Imposto pago no extrato||Receita Federal — A IDENTIFICAR": [
+   125159.67,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0
+  ],
+  "(fora) Comissão paga no extrato||COMISSÃO DE VENDA LOTE 93": [
+   0,
+   360,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0
+  ],
+  "A classificar||ESCRITÓRIO": [
+   0,
+   0,
+   0,
+   0,
+   0,
+   207.9,
+   0,
+   0
+  ],
+  "Escritório||Alvará e taxas": [
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   389.63,
+   0
+  ],
+  "Parcelamentos||Parcelamento 17/48": [
+   2872.63,
+   2872.63,
+   2872.63,
+   2872.63,
+   2872.63,
+   2872.63,
+   0,
+   0
+  ],
+  "(fora) Folha paga no extrato||FOLHA SALARIAL": [
+   7000,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0
+  ],
+  "Escritório||Aluguel": [
+   0,
+   6116.12,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0
+  ],
+  "(fora) Comissão paga no extrato||COMISSAO VENDA LT 29": [
+   0,
+   900,
+   0,
+   0,
+   0,
+   900,
+   0,
+   0
+  ],
+  "A classificar||DESLOCAMENTO > DIVERSOS": [
+   0,
+   40,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0
+  ],
+  "Carros||Locação de veículos (Unidas)": [
+   0,
+   0,
+   6527.78,
+   260.32,
+   520.64,
+   0,
+   0,
+   0
+  ],
+  "(fora) Comissão paga no extrato||COMISSÃO DE VENDA LOTE 05/09/10": [
+   0,
+   0,
+   1500,
+   0,
+   0,
+   1500,
+   0,
+   0
+  ],
+  "Despesas Trabalhistas||Acerto de saída": [
+   0,
+   0,
+   0,
+   0,
+   0,
+   11443.75,
+   0,
+   0
+  ],
+  "Diárias e Viagens||Hospedagem e passagens (HastaPro)": [
+   0,
+   0,
+   5871.36,
+   13333.81,
+   6478.15,
+   8023.88,
+   7944.98,
+   4564.82
+  ],
+  "Marketing||Mídia e patrocínio (HastaPro)": [
+   0,
+   0,
+   3238.84,
+   4300,
+   3706.04,
+   1847.39,
+   2145.03,
+   0
+  ],
+  "Escritório||Escritório (HastaPro)": [
+   0,
+   0,
+   1321.55,
+   3103.59,
+   11769.66,
+   0,
+   2646.78,
+   218.36
+  ],
+  "Operacionais de leilão||Estrutura e serviços (HastaPro)": [
+   0,
+   0,
+   27741.4,
+   16555.8,
+   398.05,
+   1805.23,
+   3667.58,
+   0
+  ],
+  "Carros||Veículos (HastaPro)": [
+   0,
+   0,
+   5289.19,
+   2516.8,
+   254.01,
+   446.02,
+   1910.37,
+   1
+  ],
+  "A classificar||SEM CATEGORIA - PAGAMENTOS (só no HastaPro)": [
+   0,
+   0,
+   0,
+   0,
+   0,
+   594.35,
+   0,
+   0
+  ],
+  "Operacionais de leilão||Alimentação (cartão)": [
+   928.55,
+   4942.53,
+   3097.27,
+   185.95,
+   185.95,
+   178,
+   0,
+   0
+  ],
+  "A classificar||Compras no cartão sem categoria": [
+   10707.26,
+   16238.63,
+   16090.93,
+   13162.17,
+   8631.62,
+   6028.36,
+   0,
+   1626.78
+  ],
+  "Tecnologia||Equipamentos (cartão)": [
+   312,
+   251,
+   441.05,
+   0,
+   0,
+   0,
+   0,
+   258.57
+  ],
+  "Marketing||Mídia paga (cartão)": [
+   1662.29,
+   1960.94,
+   3859.15,
+   4801.1,
+   5113.19,
+   1279.12,
+   0,
+   0
+  ],
+  "Tecnologia||Software e assinaturas (cartão)": [
+   2020.74,
+   1898.92,
+   1900.64,
+   1860.52,
+   1907.52,
+   751.8,
+   0,
+   318.46
+  ],
+  "Carros||Manutenção de veículos (cartão)": [
+   317.9,
+   317.9,
+   317.9,
+   194.15,
+   194.15,
+   0,
+   0,
+   0
+  ],
+  "Diárias e Viagens||Passagens e hospedagem (cartão)": [
+   17116.25,
+   15886.91,
+   10736.36,
+   9567.09,
+   8915.96,
+   7830.76,
+   0,
+   5119.76
+  ],
+  "Carros||Combustível (cartão)": [
+   0,
+   1693.45,
+   485.71,
+   0,
+   0,
+   0,
+   0,
+   0
+  ]
+ },
+ "cartao_fatura": [
+  33112.89,
+  43246.39,
+  36985.08,
+  28450.14,
+  24683.55,
+  16078.47,
+  10717.89,
+  7329.97
+ ],
+ "cartao_por_categoria": {
+  "Alimentacao/Refeicoes": [
+   438.95,
+   7.95,
+   7.95,
+   7.95,
+   7.95,
+   0,
+   0,
+   0
+  ],
+  "Compras Diversas": [
+   1993.15,
+   3154.46,
+   3685.3,
+   2195.36,
+   1915.46,
+   1915.46,
+   0,
+   1626.78
+  ],
+  "Informatica/Eletronicos": [
+   312,
+   251,
+   441.05,
+   0,
+   0,
+   0,
+   0,
+   258.57
+  ],
+  "Marketing e Publicidade": [
+   1662.29,
+   1960.94,
+   3859.15,
+   4801.1,
+   5113.19,
+   1279.12,
+   0,
+   0
+  ],
+  "Outras Despesas Cartao": [
+   8714.11,
+   13084.17,
+   12405.63,
+   10966.81,
+   6716.16,
+   4112.9,
+   0,
+   0
+  ],
+  "Software/Assinaturas": [
+   2020.74,
+   1898.92,
+   1900.64,
+   1860.52,
+   1907.52,
+   751.8,
+   0,
+   318.46
+  ],
+  "Supermercado/Alimentos": [
+   489.6,
+   4934.58,
+   3089.32,
+   178,
+   178,
+   178,
+   0,
+   0
+  ],
+  "Veiculos/Manutencao": [
+   317.9,
+   317.9,
+   317.9,
+   194.15,
+   194.15,
+   0,
+   0,
+   0
+  ],
+  "Viagem/Passagens": [
+   17116.25,
+   15886.91,
+   10736.36,
+   9567.09,
+   8915.96,
+   7830.76,
+   0,
+   5119.76
+  ],
+  "Combustivel": [
+   0,
+   1693.45,
+   485.71,
+   0,
+   0,
+   0,
+   0,
+   0
+  ]
+ },
+ "cartao_comissao_bulinha": [
+  33112.89,
+  43246.39,
+  36985.08,
+  28450.14,
+  24683.55,
+  16078.47,
+  0,
+  0
+ ],
+ "cobertura": {
+  "movimentos_lidos": 692,
+  "titulos_hastapro": 519,
+  "valores_rotulados_pelo_hastapro": 113,
+  "hastapro_sem_lastro_no_extrato": 141694.04
+ }
+}
