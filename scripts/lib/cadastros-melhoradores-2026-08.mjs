@@ -98,10 +98,10 @@ export const CADASTROS_JANELA = [
         status: 'aprovado', veredito: '"cadastro ok" — "score meio baixo, vamos na cautela, dois ou tres lotes dependendo do preço"',
     },
     {
-        nome: 'Ademir Krause', cpf: '603.232.052-91', campanha: null,
+        nome: 'Lucas Joaquim Krause (I.E. do pai, Ademir Krause)', cpf: '060.735.962-51', campanha: null,
         submetidaEm: '2026-08-30T10:14', grupo: 'Cadastros Bula e Programa', para: 'Ventres VIP Matinha',
-        prova: 'anexos: FIC da SEFA/PA (I.E. 75.014.237-5) e CNH',
-        status: 'recusado', veredito: '"Não aprovado, restrições cpf" — e a I.E. é do pai, que a leiloeira não aceita',
+        prova: 'anexos: FIC da SEFA/PA em nome de ADEMIR KRAUSE (I.E. 75.014.237-5), CNH do Ademir e RG do filho LUCAS JOAQUIM KRAUSE, CPF 060.735.962-51',
+        status: 'recusado', veredito: '"Não aprovado, restrições cpf" — o consultado foi o FILHO ("passa o cpf do Lucas então"); a I.E. é do pai, e a leiloeira não aceita. Confirmado no AgRisk: Lucas consta, Ademir não.',
     },
     {
         nome: 'Ana Vitoria Martins Lagares', cpf: '064.410.281-07', campanha: null,
