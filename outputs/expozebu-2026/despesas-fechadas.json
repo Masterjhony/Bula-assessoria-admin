@@ -1,0 +1,135 @@
+{
+ "custo_real": 17306.31,
+ "rateio": 22900,
+ "diferenca": 5593.69,
+ "partes": [
+  {
+   "o": "A 6ª linha: o MEGA EAO entrou depois, fora do “dividido em 5”",
+   "v": 3500
+  },
+  {
+   "o": "3 leilões receberam R$ 4.200,00 em vez da cota de R$ 3.400,00",
+   "v": 2400
+  },
+  {
+   "o": "A estimativa de R$ 17.000,00 ficou abaixo do custo real de R$ 17.306,31",
+   "v": -306.31
+  }
+ ],
+ "casa_duplicada": 3500,
+ "receita_semana": 111442.01,
+ "pct_custo_receita": 0.15529430956961385,
+ "pregoes": 7,
+ "itens": [
+  {
+   "pago": "2026-03-27",
+   "desc": "1/2 CASA UBERABA",
+   "forn": "MARIA TERESA GONÇALVES DE OLIVEIRA SALCE",
+   "valor": 3500,
+   "onde": "PIX Sicoob 27/03"
+  },
+  {
+   "pago": "2026-04-24",
+   "desc": "PASSAGEM LEONARDO IDA/VOLTA EXPOZEBU UBERABA",
+   "forn": "AZUL PASSAGEM AEREA",
+   "valor": 2992.49,
+   "onde": "cartão Visa · 1ª de 5 na fatura de 05/26"
+  },
+  {
+   "pago": "2026-04-24",
+   "desc": "PASSAGEM RETORNO FABIO CAMPINAS/MACEIO",
+   "forn": "GOL PASSAGENS",
+   "valor": 991.43,
+   "onde": "cartão Visa · 1ª de 4 na fatura de 05/26"
+  },
+  {
+   "pago": "2026-04-24",
+   "desc": "PASSAGEM IDA FABIO MACEO/CAMPINAS",
+   "forn": "AZUL PASSAGEM AEREA",
+   "valor": 2227.8,
+   "onde": "cartão Visa · 1ª de 5 na fatura de 05/26"
+  },
+  {
+   "pago": "2026-04-27",
+   "desc": "PASSAGEM RETORNO SP/MARABA",
+   "forn": "LATAM PASSAGEM AEREA",
+   "valor": 1620.01,
+   "onde": "cartão Visa · 1ª de 4 na fatura de 05/26"
+  },
+  {
+   "pago": "2026-04-29",
+   "desc": "2/2 CASA UBERABA",
+   "forn": "MARIA TERESA GONÇALVES DE OLIVEIRA SALCE",
+   "valor": 3500,
+   "onde": "PIX Sicoob 29/04"
+  },
+  {
+   "pago": "2026-05-06",
+   "desc": "ALIMENTAÇÃO IDA EXPOZEBU",
+   "forn": "LEONARDO SERAFIM FRANCISCO LTDA",
+   "valor": 164.99,
+   "onde": "transferência 06/05"
+  },
+  {
+   "pago": "2026-05-12",
+   "desc": "PASSAGEM IDA/VOLTA EXPOZEBU DOUGLAS",
+   "forn": "DOUGLAS BISPO CARVALHO",
+   "valor": 956.52,
+   "onde": "PIX Sicoob 12/05 · R$ 1.709,59 com mais 4"
+  },
+  {
+   "pago": "2026-05-12",
+   "desc": "UBER E TAXI EXPOZEBU DOUGLAS",
+   "forn": "DOUGLAS BISPO CARVALHO",
+   "valor": 69.88,
+   "onde": "PIX Sicoob 12/05 · R$ 1.709,59 com mais 4"
+  },
+  {
+   "pago": "2026-05-12",
+   "desc": "HOTEL DOUGLAS EXPOZEBU - RETORNO MARABA",
+   "forn": "DOUGLAS BISPO CARVALHO",
+   "valor": 266,
+   "onde": "PIX Sicoob 12/05 · R$ 1.709,59 com mais 4"
+  },
+  {
+   "pago": "2026-05-12",
+   "desc": "ALIMENTAÇÃO EXPOZEBU DOUGLAS",
+   "forn": "DOUGLAS BISPO CARVALHO",
+   "valor": 163.18,
+   "onde": "PIX Sicoob 12/05 · R$ 1.709,59 com mais 4"
+  },
+  {
+   "pago": "2026-05-12",
+   "desc": "COMBUSTIVEL DOUGLAS EXPOZEBU",
+   "forn": "DOUGLAS BISPO CARVALHO",
+   "valor": 254.01,
+   "onde": "PIX Sicoob 12/05 · R$ 1.709,59 com mais 4"
+  },
+  {
+   "pago": "2026-06-03",
+   "desc": "DIARIA MATHEUS",
+   "forn": "MATHEUS HENRIQUE EBERTS",
+   "valor": 300,
+   "onde": "transferência 03/06"
+  },
+  {
+   "pago": "2026-06-03",
+   "desc": "DIARIA MATHEUS",
+   "forn": "MATHEUS HENRIQUE EBERTS VERDI",
+   "valor": 300,
+   "onde": "transferência 03/06"
+  }
+ ],
+ "sem_titulo_no_cartao": [
+  {
+   "data": "24/04",
+   "desc": "C A HOTELARIA LTDA CAMPINAS",
+   "valor": 303.72
+  },
+  {
+   "data": "02/05",
+   "desc": "LATAM C 01/04 CUIABA",
+   "valor": 430.62
+  }
+ ]
+}
