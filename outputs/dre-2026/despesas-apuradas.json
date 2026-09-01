@@ -1,5 +1,5 @@
 {
- "gerado_em": "2026-09-01T00:01:45.146Z",
+ "gerado_em": "2026-09-01T00:45:08.311Z",
  "meses": [
   "2026-01",
   "2026-02",
@@ -63,7 +63,7 @@
   ],
   "(fora) Comissão paga no extrato": [
    990,
-   1260,
+   18760,
    1500,
    2998.18,
    0,
@@ -134,8 +134,8 @@
   "Despesas Trabalhistas": [
    0,
    0,
-   0,
-   0,
+   8584.83,
+   6300,
    0,
    11443.75,
    0,
@@ -563,6 +563,16 @@
    0,
    0
   ],
+  "(fora) Comissão paga no extrato||Lançado como folha, é comissão": [
+   0,
+   17500,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0
+  ],
   "A classificar||DESLOCAMENTO > DIVERSOS": [
    0,
    40,
@@ -583,6 +593,16 @@
    0,
    0
   ],
+  "Despesas Trabalhistas||Rescisão / acerto de saída": [
+   0,
+   0,
+   8584.83,
+   6300,
+   0,
+   11443.75,
+   0,
+   0
+  ],
   "(fora) Comissão paga no extrato||COMISSÃO DE VENDA LOTE 05/09/10": [
    0,
    0,
@@ -590,16 +610,6 @@
    0,
    0,
    1500,
-   0,
-   0
-  ],
-  "Despesas Trabalhistas||Acerto de saída": [
-   0,
-   0,
-   0,
-   0,
-   0,
-   11443.75,
    0,
    0
   ],

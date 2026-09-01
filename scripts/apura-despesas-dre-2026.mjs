@@ -133,7 +133,20 @@ for (const mv of movs) {
   }
   if (cat === 'Comissões' || cat === 'Repasse Assessorias/Parceiros') continue  // linha propria
   if (cat === 'Cartão de Crédito' || cat === 'Pagamento Fatura') continue       // entra pela fatura
-  if (cat === 'Folha de Pagamento') continue             // entra por competencia
+  // rescisao vem categorizada como folha no extrato — precisa sair ANTES do skip,
+  // senao a verba rescisoria some junto com o salario (que entra por competencia)
+  // rescisoes identificadas uma a uma (data|valor): as de Fatima vem sem descricao,
+  // so o nome da pessoa no movimento denuncia — e 1.065,00 + 7.519,83 sao exatamente
+  // os R$ 8.584,83 que o chefe lancou como "Recisao Fatima".
+  const RESCISAO = new Set(['03-03|7519.83', '03-03|1065.00', '04-02|6300.00', '06-16|11443.75'])
+  if (tem(ds, 'RESCIS', 'ACERTO DA RESCIS', 'ACERTO SAIDA', 'ACERTO DE SAIDA') || RESCISAO.has(mv.dt.slice(5) + '|' + v.toFixed(2))) {
+    lanca('Despesas Trabalhistas', m, v, 'Rescisão / acerto de saída'); continue
+  }
+  if (cat === 'Folha de Pagamento') {
+    // Peralta e comissionado, nao folha: 17.500 em 04/02 estava na categoria errada
+    if (tem(ds, 'PERALTA') || v >= 15000) { lanca('(fora) Comissão paga no extrato', m, v, 'Lançado como folha, é comissão'); continue }
+    continue                                             // entra por competencia
+  }
   if (cat === 'Encargos Sociais') { lanca('Encargos (FGTS / INSS / DARF)', m, v, 'DARF / FGTS de funcionários'); continue }
   if (tem(cat, 'INTEGRALIZACAO', 'TARIFAS BANCARIAS', 'JUROS E MULTAS', 'ANUIDADE CARTAO', 'ENCARGOS CARTAO', 'SEGURO CARTAO')) {
     lanca('Despesas Financeiras', m, v, cat); continue

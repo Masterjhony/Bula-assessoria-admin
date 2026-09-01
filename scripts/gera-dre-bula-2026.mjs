@@ -488,6 +488,97 @@ totL.eachCell({ includeEmpty: true }, (c, i) => {
 })
 totL.height = 20
 
+
+// ---------------------------------------------------------------------------
+// ABA ONTOLOGIA - o que mudou na estrutura e o que isso denuncia
+// ---------------------------------------------------------------------------
+const wo = wb.addWorksheet('Ontologia', { views: [{ state: 'frozen', ySplit: 1 }] })
+wo.columns = [{ width: 15 }, { width: 46 }, { width: 22 }, { width: 62 }, { width: 16 }]
+
+const cabO = wo.addRow(['QUANDO', 'O QUE ACONTECEU', 'ONDE APARECE', 'ASSINATURA NO NÚMERO', 'VALOR'])
+cabO.eachCell((c) => {
+  c.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: PRETO } }
+  c.font = { bold: true, color: { argb: BRANCO }, size: 11 }
+  c.alignment = { horizontal: 'center', vertical: 'middle' }
+})
+cabO.getCell(1).alignment = { horizontal: 'left', vertical: 'middle' }
+cabO.height = 22
+
+const tituloO = (txt, cor) => {
+  const r = wo.addRow([txt])
+  for (let i = 1; i <= 5; i++) r.getCell(i).fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: cor || 'FF404040' } }
+  r.getCell(1).font = { bold: true, size: 11, color: { argb: BRANCO } }
+  r.height = 20
+  return r
+}
+const linhaO = (quando, evento, onde, assinatura, valor, opt = {}) => {
+  const r = wo.addRow([quando, evento, onde, assinatura, valor ?? null])
+  r.getCell(5).numFmt = MOEDA
+  for (let i = 1; i <= 5; i++) {
+    r.getCell(i).alignment = { vertical: 'top', wrapText: i === 2 || i === 4 }
+    if (opt.font) r.getCell(i).font = opt.font
+    if (opt.fill) r.getCell(i).fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: opt.fill } }
+  }
+  r.height = opt.height || 28
+  return r
+}
+
+tituloO('A ESTRUTURA DA BULA MUDOU DE REGIME DUAS VEZES EM 2026 — a DRE só faz sentido lida em três fases')
+linhaO('jan – mar', 'FASE 1 — estrutura CLT + escritório na Av. Afonso Pena', 'Despesas Fixas', 'Cinco pessoas em folha administrativa (Ana Paula 6.000, Flavio 4.000, Francieli 2.220, Fátima 2.000, Valdeneusa 2.000), escritório com aluguel, internet Digital Net, café, limpeza e seguro da equipe, dois carros Unidas e um parcelamento de R$ 2.872,63. Custo fixo médio do trimestre:', r2((DESP_FIXAS[0] + DESP_FIXAS[1] + DESP_FIXAS[2]) / 3), { fill: 'FFF2F2F2', font: { bold: true, size: 10 } })
+linhaO('mar – jun', 'FASE 2 — desmonte da estrutura CLT', 'Trabalhistas + Fixas', 'Saem Fátima (03/03), Francieli (02/04), Flavio (16/06), Valdeneusa (último salário 02/06) e Ana Paula (último salário 02/07). Junto saem o seguro da equipe, a internet, a limpeza e o parcelamento. Custo fixo médio:', r2((DESP_FIXAS[2] + DESP_FIXAS[3] + DESP_FIXAS[4] + DESP_FIXAS[5]) / 4), { fill: 'FFF2F2F2', font: { bold: true, size: 10 } })
+linhaO('jul – ago', 'FASE 3 — estrutura enxuta, PJ, sem escritório', 'Despesas Fixas', 'Todo mundo passa a receber por NF (Fábio, Douglas, Leonardo, João Eduardo). Entram time de SDR e tecnologia (João Gabriel, João Antônio, Matheus Ebert, Pedro, Luana) e o custo de software (Claude, Codex, Supabase, Vercel). O escritório zera. Custo fixo médio:', r2((DESP_FIXAS[6] + DESP_FIXAS[7]) / 2), { fill: 'FFF2F2F2', font: { bold: true, size: 10 } })
+wo.addRow([])
+
+tituloO('LINHA DO TEMPO — cada degrau do número tem um evento atrás')
+const EVENTOS = [
+  ['07/01', 'Delacir Miorando recebe R$ 1.525 — único pagamento do ano', 'Folha', 'Pessoa que não consta em nenhuma folha da planilha.', 1525.00],
+  ['22/01', 'Flavio recebe R$ 5.333,33 além do salário', 'Folha', 'Valor fora do padrão de 4.000/mês; parece 13º ou bônus.', 5333.33],
+  ['03/03', 'FÁTIMA SAI', 'Despesas Trabalhistas', 'R$ 1.065,00 de saldo de salário + R$ 7.519,83 de rescisão. Somam exatamente os R$ 8.584,83 que o chefe lançou como "Recisão Fátima".', 8584.83],
+  ['19/03', 'Nathalia Bacellar recebe R$ 1.080,60 de prestação de serviço', 'Folha', 'Também não consta em nenhuma folha.', 1080.60],
+  ['02/04', 'FRANCIELI SAI', 'Despesas Trabalhistas', 'Rescisão de R$ 6.300,00, descrita no extrato.', 6300.00],
+  ['abr', 'Seguro da equipe (R$ 319,50/mês) para', 'Escritório', 'Rodou de janeiro a abril e não voltou.', 319.50],
+  ['abr – jun', 'Apólice Tokio Marine roda três meses e para', 'Escritório', 'R$ 1.177,55 em 29/04, 18/05 e 24/06. Some junto com o escritório.', 3532.65],
+  ['mai', 'Claude entra no custo de tecnologia', 'Tecnologia', 'R$ 550/mês a partir de maio.', 550.00],
+  ['02/06', 'Valdeneusa recebe o último salário', 'Folha', 'O acerto final só vem em 03/08, e é de R$ 216,34.', 2000.00],
+  ['09/06', 'Contrato de parceria com a Fórmula do Boi: 6 × R$ 5.000', 'Comissão', 'Parcelas 01/06 e 02/06 pagas; a 03/06, vencida em 01/08, continua ABERTA no HastaPro. Está sendo lançada como comissão, mas é contrato.', 30000.00],
+  ['jun', 'Codex GPT entra no custo de tecnologia', 'Tecnologia', 'R$ 550/mês a partir de junho.', 550.00],
+  ['16/06', 'FLAVIO SAI', 'Despesas Trabalhistas', 'Acerto de saída de R$ 11.443,75, com essa descrição no HastaPro.', 11443.75],
+  ['jun', 'Internet e limpeza do escritório param', 'Escritório', 'Digital Net (R$ 404,80/mês) e faxina (R$ 200/mês) rodam até junho; em 02/07 sai um resíduo de R$ 142,92 marcado "último pagamento".', 604.80],
+  ['jun', 'O parcelamento de R$ 2.872,63 para na 22ª de 48', 'Parcelamentos', 'Débito automático mensal de janeiro a junho, descrito no HastaPro como "REF. PARCELA 17/48". Depois disso, nada.', 2872.63],
+  ['06/07', 'João Antônio entra como SDR', 'Folha', 'R$ 1.533,33 proporcionais no primeiro mês.', 2000.00],
+  ['jul', 'Fábio Omena: R$ 11.700 → R$ 7.000', 'Folha', 'A NF 25 (competência junho) foi a última de 11.700. Em 03/08 já sai 7.000.', -4700.00],
+  ['jul', 'João Eduardo: R$ 3.000 → R$ 5.000', 'Folha', 'Fixo de junho pago 06/07 ainda é 3.000; o de julho, pago 03/08, já é 5.000.', 2000.00],
+  ['02/07', 'ANA PAULA RECEBE O ÚLTIMO SALÁRIO', 'Folha', 'Referente a junho. O acerto final é de R$ 239,06, em 03/08.', 6000.00],
+  ['ago', 'O ESCRITÓRIO ZERA', 'Escritório', 'Sem aluguel, internet, energia nem café. Sobram só os dois seguros Sicoob (R$ 184,64).', -3971.50],
+  ['ago', 'Douglas Bispo: R$ 3.600 → R$ 10.000', 'Folha', 'Salta na competência de agosto.', 6400.00],
+  ['ago', 'Entram Matheus Ebert, Pedro e Luana', 'Folha', 'R$ 6.000 + R$ 1.290,82 + R$ 1.161,29 na competência de agosto.', 8452.11],
+  ['ago', 'Supabase e Vercel entram no custo', 'Tecnologia', 'R$ 105 cada — a infraestrutura do sistema passa a ter conta própria.', 210.00],
+  ['ago', 'Localiza (VW Tera) substitui as Unidas', 'Carros', 'As duas Unidas rodam até maio; a Localiza começa em agosto.', 1509.68],
+]
+for (const e of EVENTOS) linhaO(...e)
+wo.addRow([])
+
+tituloO('O QUE A ONTOLOGIA DENUNCIA — buraco a buraco, com valor', 'FF8B0000')
+const BURACOS = [
+  ['jan – jun', 'Leonardo tem R$ 81.000 de salário sem lastro na conta', 'Folha', 'A planilha lança R$ 13.500/mês desde janeiro, mas o primeiro débito de Leonardo no Sicoob é 02/07. Seis meses foram pagos por fora — outra conta ou outra empresa.', 81000.00],
+  ['jan – jul', 'O aluguel do escritório não aparece no extrato', 'Escritório', 'R$ 3.292/mês na planilha (R$ 23.044 no período) e nenhum débito recorrente correspondente no Sicoob. O único lançamento de "Aluguel" no ano é a casa da Expogenética, R$ 2.000 em 11/08.', 23044.00],
+  ['a partir de jul', 'Restam 26 parcelas de R$ 2.872,63 sem destino', 'Parcelamentos', 'O contrato era de 48 parcelas e parou na 22ª. Ou foi quitado (e não há pagamento em lote no extrato), ou renegociado, ou está inadimplente. Em qualquer caso é passivo que não está em lugar nenhum.', 74688.38],
+  ['jun – ago', 'Ana Paula e Valdeneusa saem sem verba rescisória à altura', 'Despesas Trabalhistas', 'Acertos de R$ 239,06 e R$ 216,34 em 03/08, contra R$ 8.584,83 da Fátima e R$ 6.300 da Francieli — que ganhavam menos e tinham menos tempo de casa.', 455.40],
+  ['jul – ago', 'FGTS e DARF continuam depois de todos os CLT saírem', 'Encargos', 'R$ 938,67 de FGTS em 01/07 implica uma folha CLT de R$ 11.733; em 20/08 ainda saem R$ 1.114,60 de "DARF funcionários". Quem ainda é CLT?', 2053.27],
+  ['jan e mar', 'Duas pessoas recebem folha e não existem na estrutura', 'Folha', 'Delacir Miorando da Rosa (R$ 1.525 em 07/01) e Nathalia Bacellar Azevedo (R$ 1.080,60 em 19/03).', 2605.60],
+  ['fev, abr, jun', 'Fábio e Douglas têm meses sem pagamento no extrato', 'Folha', 'Fábio não tem débito em fevereiro, abril e junho; Douglas, em janeiro, junho e julho. Mesmo padrão do Leonardo: parte da folha saía de outra conta até junho.', null],
+  ['04/02', 'R$ 17.500 do Peralta estavam lançados como folha', 'Comissão', 'Peralta é comissionado, não tem fixo. Já corrigido nesta apuração — mas no ERP a categoria segue errada.', 17500.00],
+]
+for (const b of BURACOS) linhaO(...b, { font: { size: 10 }, height: 34 })
+wo.addRow([])
+
+tituloO('A CONCLUSÃO QUE AMARRA TUDO')
+const concl = wo.addRow(['', 'Até junho, boa parte da estrutura fixa NÃO passava pela conta do Sicoob — Leonardo, o aluguel e parte da folha de Fábio e Douglas saíam por fora. A partir de julho, passa tudo. É por isso que o extrato sozinho subdeclara janeiro a junho, e a planilha do chefe subdeclara justamente o que só o extrato enxerga (cartão, viagens, estrutura de leilão). Nenhuma das duas fontes fecha sozinha: a DRE só fica de pé com as duas somadas e com esses buracos nomeados.'])
+wo.mergeCells(concl.number, 2, concl.number, 5)
+concl.getCell(2).alignment = { vertical: 'top', wrapText: true }
+concl.getCell(2).font = { size: 11 }
+concl.height = 64
+
 // ---------------------------------------------------------------------------
 const destino = process.argv[2] || 'C:/Users/Notebook-Acer/Desktop/DRE BULA ASSESSORIA 2026 - jan a ago.xlsx'
 await wb.xlsx.writeFile(destino)
