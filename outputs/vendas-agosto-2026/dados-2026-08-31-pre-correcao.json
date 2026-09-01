@@ -1,5 +1,5 @@
 {
- "geradoEm": "2026-09-01T18:47:43.864Z",
+ "geradoEm": "2026-08-31T19:22:47.634Z",
  "periodo": {
   "ini": "2026-08-01",
   "fim": "2026-08-31"
@@ -53,8 +53,8 @@
    ]
   },
   "erp": {
-   "fechamentos": 32,
-   "vgv": 7401300
+   "fechamentos": 26,
+   "vgv": 6845800
   },
   "whatsapp": {
    "lotes": 118,
@@ -74,9 +74,9 @@
    "animais": 44
   },
   "erp_sem_par": {
-   "vgv": 170600,
-   "lotes": 5,
-   "n": 2
+   "vgv": 242400,
+   "lotes": 3,
+   "n": 3
   },
   "wa_pendente": {
    "vgv": 233400,
@@ -188,15 +188,9 @@
   "erp": [
    {
     "pessoa": "Douglas Bispo Carvalho",
-    "vgv": 2739000,
-    "lotes": 56,
-    "animais": 100
-   },
-   {
-    "pessoa": "Fabio de Omena Gaia",
-    "vgv": 1518000,
-    "lotes": 35,
-    "animais": 40
+    "vgv": 2602300,
+    "lotes": 51,
+    "animais": 95
    },
    {
     "pessoa": "Gustavo Rusa Pereira",
@@ -205,40 +199,34 @@
     "animais": 13
    },
    {
-    "pessoa": "Regiane C. N. de Abreu (Nane)",
-    "vgv": 572400,
-    "lotes": 15,
-    "animais": 48
+    "pessoa": "Fabio de Omena Gaia",
+    "vgv": 1404600,
+    "lotes": 29,
+    "animais": 29
    },
    {
     "pessoa": "Leonardo Serafim Francisco",
-    "vgv": 480900,
-    "lotes": 15,
-    "animais": 15
+    "vgv": 404400,
+    "lotes": 13,
+    "animais": 13
+   },
+   {
+    "pessoa": "A definir",
+    "vgv": 390000,
+    "lotes": 6,
+    "animais": 6
+   },
+   {
+    "pessoa": "Regiane C. N. de Abreu (Nane)",
+    "vgv": 307500,
+    "lotes": 9,
+    "animais": 9
    },
    {
     "pessoa": "Luiz Felipe Peralta Garcez",
-    "vgv": 304500,
-    "lotes": 5,
-    "animais": 5
-   },
-   {
-    "pessoa": "Felipe Vilela Andrade",
-    "vgv": 105000,
-    "lotes": 1,
-    "animais": 1
-   },
-   {
-    "pessoa": "Lucas Martins Durães Bragança",
-    "vgv": 96000,
-    "lotes": 2,
-    "animais": 2
-   },
-   {
-    "pessoa": "(a definir)",
-    "vgv": 63000,
-    "lotes": 1,
-    "animais": 1
+    "vgv": 214500,
+    "lotes": 3,
+    "animais": 3
    },
    {
     "pessoa": "Laila de Sousa Oliveira",
@@ -301,12 +289,12 @@
    "hp01": 200000,
    "hp01_lotes": 1,
    "hp01_animais": 1,
-   "erp": 2739000,
-   "erp_lotes": 56,
+   "erp": 2602300,
+   "erp_lotes": 51,
    "wa": 4789500,
    "wa_lotes": 52,
    "total": 3574900,
-   "dif_erp_hp2": -635900
+   "dif_erp_hp2": -772600
   },
   {
    "pessoa": "Fabio de Omena Gaia",
@@ -316,12 +304,12 @@
    "hp01": 0,
    "hp01_lotes": 0,
    "hp01_animais": 0,
-   "erp": 1518000,
-   "erp_lotes": 35,
+   "erp": 1404600,
+   "erp_lotes": 29,
    "wa": 1239900,
    "wa_lotes": 31,
    "total": 1974000,
-   "dif_erp_hp2": -456000
+   "dif_erp_hp2": -569400
   },
   {
    "pessoa": "Regiane C. N. de Abreu (Nane)",
@@ -331,12 +319,12 @@
    "hp01": 264900,
    "hp01_lotes": 6,
    "hp01_animais": 39,
-   "erp": 572400,
-   "erp_lotes": 15,
+   "erp": 307500,
+   "erp_lotes": 9,
    "wa": 249000,
    "wa_lotes": 7,
    "total": 572400,
-   "dif_erp_hp2": 264900
+   "dif_erp_hp2": 0
   },
   {
    "pessoa": "Leonardo Serafim Francisco",
@@ -346,12 +334,12 @@
    "hp01": 175800,
    "hp01_lotes": 4,
    "hp01_animais": 4,
-   "erp": 480900,
-   "erp_lotes": 15,
+   "erp": 404400,
+   "erp_lotes": 13,
    "wa": 147000,
    "wa_lotes": 11,
    "total": 480900,
-   "dif_erp_hp2": 175800
+   "dif_erp_hp2": 99300
   },
   {
    "pessoa": "Luiz Felipe Peralta Garcez",
@@ -361,12 +349,12 @@
    "hp01": 0,
    "hp01_lotes": 0,
    "hp01_animais": 0,
-   "erp": 304500,
-   "erp_lotes": 5,
+   "erp": 214500,
+   "erp_lotes": 3,
    "wa": 93000,
    "wa_lotes": 1,
    "total": 211500,
-   "dif_erp_hp2": 93000
+   "dif_erp_hp2": 3000
   },
   {
    "pessoa": "Felipe Vilela Andrade",
@@ -376,12 +364,12 @@
    "hp01": 0,
    "hp01_lotes": 0,
    "hp01_animais": 0,
-   "erp": 105000,
-   "erp_lotes": 1,
+   "erp": 0,
+   "erp_lotes": 0,
    "wa": 0,
    "wa_lotes": 0,
    "total": 198000,
-   "dif_erp_hp2": -93000
+   "dif_erp_hp2": -198000
   },
   {
    "pessoa": "Lucas Martins Durães Bragança",
@@ -391,12 +379,12 @@
    "hp01": 0,
    "hp01_lotes": 0,
    "hp01_animais": 0,
-   "erp": 96000,
-   "erp_lotes": 2,
+   "erp": 0,
+   "erp_lotes": 0,
    "wa": 0,
    "wa_lotes": 0,
    "total": 96000,
-   "dif_erp_hp2": 0
+   "dif_erp_hp2": -96000
   },
   {
    "pessoa": "MARCELO MOURA",
@@ -444,19 +432,19 @@
    "dif_erp_hp2": 1462500
   },
   {
-   "pessoa": "(a definir)",
+   "pessoa": "A definir",
    "hp2": 0,
    "hp2_lotes": 0,
    "hp2_animais": 0,
    "hp01": 0,
    "hp01_lotes": 0,
    "hp01_animais": 0,
-   "erp": 63000,
-   "erp_lotes": 1,
+   "erp": 390000,
+   "erp_lotes": 6,
    "wa": 0,
    "wa_lotes": 0,
    "total": 0,
-   "dif_erp_hp2": 63000
+   "dif_erp_hp2": 390000
   },
   {
    "pessoa": "(sem assessor na ficha)",
@@ -812,18 +800,18 @@
     "animais": 7
    },
    "erp": {
-    "vgv": 459800,
-    "lotes": 7,
+    "vgv": 375800,
+    "lotes": 5,
     "nome": "LEILÃO TOUROS SÃO GERALDO E 7P AGRO",
     "origem": "hastapro",
-    "casou_por": "nome+valor+mesmo dia",
+    "casou_por": "nome+mesmo dia",
     "id": "01b1c70c-f37c-4482-a85d-2513ea05c46f"
    },
    "wa": {
     "lotes": 28,
     "vgv_indicativo": 2900700
    },
-   "dif_erp": 0
+   "dif_erp": -84000
   },
   {
    "data": "2026-08-02",
@@ -1107,19 +1095,12 @@
     "lotes": 1,
     "animais": 20
    },
-   "erp": {
-    "vgv": 50000,
-    "lotes": 1,
-    "nome": "LEILÃO SÓ CRIADOR FÊMEAS E MACHOS DE ALTO PADRÃO",
-    "origem": "hastapro",
-    "casou_por": "nome+valor+mesmo dia",
-    "id": "2c4f0dc5-b451-46c8-af84-cd2ccd68cdb8"
-   },
+   "erp": null,
    "wa": {
     "lotes": 7,
     "vgv_indicativo": 882000
    },
-   "dif_erp": 0
+   "dif_erp": null
   },
   {
    "data": "2026-08-19",
@@ -1269,18 +1250,18 @@
     "animais": 4
    },
    "erp": {
-    "vgv": 543000,
-    "lotes": 4,
+    "vgv": 576000,
+    "lotes": 5,
     "nome": "LEILÃO NAVIRAÍ CAMPARINO ESSÊNCIA BEZERRAS E NOVILHAS",
     "origem": "lances-auto",
-    "casou_por": "nome+valor+mesmo dia",
+    "casou_por": "nome+mesmo dia",
     "id": "e7811a6e-7ed7-4a82-a56f-0536093e8ae0"
    },
    "wa": {
     "lotes": 43,
     "vgv_indicativo": 1908900
    },
-   "dif_erp": 0
+   "dif_erp": 33000
   },
   {
    "data": "2026-08-23",
@@ -1292,18 +1273,18 @@
     "animais": 23
    },
    "erp": {
-    "vgv": 940500,
-    "lotes": 23,
-    "nome": "28º LEILÃO NAVIRAÍ CAMPARINO - REPRODUTORES",
-    "origem": "hastapro",
-    "casou_por": "nome+valor+mesmo dia",
-    "id": "4dfcdaec-1806-4b8c-8112-5f99ee5cc412"
+    "vgv": 948000,
+    "lotes": 22,
+    "nome": "28º LEILÃO NAVIRAÍ CAMPARINO REPRODUTORES",
+    "origem": "lances-auto",
+    "casou_por": "nome+mesmo dia",
+    "id": "41ba14d3-4c76-4180-957d-730d283a3365"
    },
    "wa": {
     "lotes": 38,
     "vgv_indicativo": 1699500
    },
-   "dif_erp": 0
+   "dif_erp": 7500
   },
   {
    "data": "2026-08-23",
@@ -1337,19 +1318,12 @@
     "lotes": 1,
     "animais": 1
    },
-   "erp": {
-    "vgv": 105000,
-    "lotes": 1,
-    "nome": "6º LEILÃO EXCELÊNCIA GENÉTICA",
-    "origem": "hastapro",
-    "casou_por": "nome+valor+mesmo dia",
-    "id": "c69e920a-fec8-4334-b22b-3ffbb02f88cb"
-   },
+   "erp": null,
    "wa": {
     "lotes": 38,
     "vgv_indicativo": 1699500
    },
-   "dif_erp": 0
+   "dif_erp": null
   },
   {
    "data": "2026-08-26",
@@ -1360,19 +1334,12 @@
     "lotes": 2,
     "animais": 2
    },
-   "erp": {
-    "vgv": 46500,
-    "lotes": 2,
-    "nome": "LEILÃO VIRTUAL TERRA BRAVA AGROPECUÁRIA - FÊMEAS PRENHAS",
-    "origem": "hastapro",
-    "casou_por": "nome+valor+mesmo dia",
-    "id": "6e00c174-7551-4199-ac8d-3af7e933a065"
-   },
+   "erp": null,
    "wa": {
     "lotes": 2,
     "vgv_indicativo": 46500
    },
-   "dif_erp": 0
+   "dif_erp": null
   },
   {
    "data": "2026-08-26",
@@ -1383,19 +1350,12 @@
     "lotes": 1,
     "animais": 1
    },
-   "erp": {
-    "vgv": 93000,
-    "lotes": 1,
-    "nome": "LEILÃO NELORE DO XINGU",
-    "origem": "hastapro",
-    "casou_por": "nome+valor+mesmo dia",
-    "id": "186fdb8e-e613-47da-946a-8633a5c9c6de"
-   },
+   "erp": null,
    "wa": {
     "lotes": 2,
     "vgv_indicativo": 46500
    },
-   "dif_erp": 0
+   "dif_erp": null
   },
   {
    "data": "2026-08-26",
@@ -1406,19 +1366,12 @@
     "lotes": 3,
     "animais": 17
    },
-   "erp": {
-    "vgv": 130900,
-    "lotes": 3,
-    "nome": "LEILÃO GENÉTICA SÃO JOSÉ - 30 ANOS DE SELEÇÃO",
-    "origem": "hastapro",
-    "casou_por": "nome+valor+mesmo dia",
-    "id": "de29ea19-fd6e-4661-9170-d9ac11fdb70d"
-   },
+   "erp": null,
    "wa": {
     "lotes": 2,
     "vgv_indicativo": 46500
    },
-   "dif_erp": 0
+   "dif_erp": null
   },
   {
    "data": "2026-08-30",
@@ -1429,19 +1382,12 @@
     "lotes": 5,
     "animais": 9
    },
-   "erp": {
-    "vgv": 127500,
-    "lotes": 5,
-    "nome": "LEILÃO VIRTUAL VENTRES VIP MATINHA",
-    "origem": "hastapro",
-    "casou_por": "nome+valor+mesmo dia",
-    "id": "3cf166ae-f4db-42f2-aaf1-15f98860f5b3"
-   },
+   "erp": null,
    "wa": {
     "lotes": 6,
     "vgv_indicativo": 134400
    },
-   "dif_erp": 0
+   "dif_erp": null
   },
   {
    "data": "2026-08-30",
@@ -1452,19 +1398,12 @@
     "lotes": 2,
     "animais": 3
    },
-   "erp": {
-    "vgv": 30900,
-    "lotes": 2,
-    "nome": "1º LEILÃO NELORE ASJ",
-    "origem": "hastapro",
-    "casou_por": "nome+valor+mesmo dia",
-    "id": "22d586a5-3635-48cd-8832-5c37d8dcdb3d"
-   },
+   "erp": null,
    "wa": {
     "lotes": 6,
     "vgv_indicativo": 134400
    },
-   "dif_erp": 0
+   "dif_erp": null
   }
  ],
  "erp_sem_par": [
@@ -1484,22 +1423,53 @@
    ]
   },
   {
-   "data": "2026-08-29",
-   "nome": "LEILÃO NELORE PINTADO ENGENHO DA SERRA",
-   "vgv": 53600,
+   "data": "2026-08-20",
+   "nome": "LEILÃO NELORE PARANÃ E CASABRANCA EXPOGENÉTICA",
+   "vgv": 84000,
    "origem": "lances-auto",
-   "lotes": 4,
+   "lotes": 1,
+   "por_assessor": [
+    {
+     "pessoa": "A definir",
+     "vgv": 84000,
+     "lotes": 1,
+     "animais": 1
+    }
+   ]
+  },
+  {
+   "data": "2026-08-21",
+   "nome": "FÊMEAS JMP",
+   "vgv": 41400,
+   "origem": "lances-auto",
+   "lotes": 1,
    "por_assessor": [
     {
      "pessoa": "Douglas Bispo Carvalho",
-     "vgv": 53600,
-     "lotes": 4,
-     "animais": 4
+     "vgv": 41400,
+     "lotes": 1,
+     "animais": 1
     }
    ]
   }
  ],
  "lotes_divergentes": [
+  {
+   "leilao": "LEILÃO TOUROS SÃO GERALDO E 7P AGRO",
+   "data": "2026-08-01",
+   "lote": "14",
+   "tipo": "so_no_hastapro",
+   "vgv_hp": 45000,
+   "assessor_hp": "Regiane C. N. de Abreu (Nane)"
+  },
+  {
+   "leilao": "LEILÃO TOUROS SÃO GERALDO E 7P AGRO",
+   "data": "2026-08-01",
+   "lote": "23",
+   "tipo": "so_no_hastapro",
+   "vgv_hp": 39000,
+   "assessor_hp": "Regiane C. N. de Abreu (Nane)"
+  },
   {
    "leilao": "2º LEILÃO LS GALERIA",
    "data": "2026-08-07",
@@ -1584,6 +1554,14 @@
   {
    "leilao": "LEILÃO NAVIRAÍ CAMPARINO - MATRIZES ESSÊNCIA",
    "data": "2026-08-22",
+   "lote": "9",
+   "tipo": "so_no_erp",
+   "vgv_erp": 33000,
+   "assessor_erp": "Douglas Bispo Carvalho"
+  },
+  {
+   "leilao": "LEILÃO NAVIRAÍ CAMPARINO - MATRIZES ESSÊNCIA",
+   "data": "2026-08-22",
    "lote": "1",
    "tipo": "atribuicao",
    "vgv_hp": 153000,
@@ -1611,39 +1589,90 @@
   {
    "leilao": "28º LEILÃO NAVIRAÍ CAMPARINO - REPRODUTORES",
    "data": "2026-08-23",
+   "lote": "117",
+   "tipo": "atribuicao",
+   "vgv_hp": 48000,
+   "assessor_hp": "Lucas Martins Durães Bragança",
+   "assessor_erp": "A definir"
+  },
+  {
+   "leilao": "28º LEILÃO NAVIRAÍ CAMPARINO - REPRODUTORES",
+   "data": "2026-08-23",
+   "lote": "16",
+   "tipo": "atribuicao",
+   "vgv_hp": 48000,
+   "assessor_hp": "Lucas Martins Durães Bragança",
+   "assessor_erp": "A definir"
+  },
+  {
+   "leilao": "28º LEILÃO NAVIRAÍ CAMPARINO - REPRODUTORES",
+   "data": "2026-08-23",
+   "lote": "30",
+   "tipo": "atribuicao",
+   "vgv_hp": 42000,
+   "assessor_hp": "Luiz Felipe Peralta Garcez",
+   "assessor_erp": "A definir"
+  },
+  {
+   "leilao": "28º LEILÃO NAVIRAÍ CAMPARINO - REPRODUTORES",
+   "data": "2026-08-23",
    "lote": "22",
    "tipo": "atribuicao",
    "vgv_hp": 63000,
    "assessor_hp": "MARCELO MOURA",
-   "assessor_erp": "(a definir)"
+   "assessor_erp": "A definir"
+  },
+  {
+   "leilao": "28º LEILÃO NAVIRAÍ CAMPARINO - REPRODUTORES",
+   "data": "2026-08-23",
+   "lote": "21",
+   "tipo": "so_no_erp",
+   "vgv_erp": 105000,
+   "assessor_erp": "A definir"
+  },
+  {
+   "leilao": "28º LEILÃO NAVIRAÍ CAMPARINO - REPRODUTORES",
+   "data": "2026-08-23",
+   "lote": "12",
+   "tipo": "so_no_hastapro",
+   "vgv_hp": 49500,
+   "assessor_hp": "Leonardo Serafim Francisco"
+  },
+  {
+   "leilao": "28º LEILÃO NAVIRAÍ CAMPARINO - REPRODUTORES",
+   "data": "2026-08-23",
+   "lote": "78",
+   "tipo": "so_no_hastapro",
+   "vgv_hp": 48000,
+   "assessor_hp": "Luiz Felipe Peralta Garcez"
   }
  ],
  "resumo_lotes": {
   "so_no_hastapro": {
-   "n": 0,
-   "vgv": 0
+   "n": 4,
+   "vgv": 181500
   },
   "so_no_erp": {
-   "n": 0,
-   "vgv": 0
+   "n": 2,
+   "vgv": 138000
   },
   "valor": {
    "n": 0
   },
   "atribuicao": {
-   "n": 13,
-   "vgv": 1501500
+   "n": 16,
+   "vgv": 1639500
   }
  },
  "financeiro": {
-  "comissao_assessores": 188437.8,
+  "comissao_assessores": 180191,
   "receita_bula": 176915,
   "fechamentos_sem_receita": [
    {
     "data": "2026-08-22",
     "nome": "LEILÃO NAVIRAÍ CAMPARINO ESSÊNCIA BEZERRAS E NOVILHAS",
-    "vgv": 543000,
-    "comissao": 22200
+    "vgv": 576000,
+    "comissao": 22860
    },
    {
     "data": "2026-08-16",
@@ -1653,21 +1682,21 @@
    },
    {
     "data": "2026-08-23",
-    "nome": "28º LEILÃO NAVIRAÍ CAMPARINO - REPRODUTORES",
-    "vgv": 940500,
-    "comissao": 15346.8
-   },
-   {
-    "data": "2026-08-01",
-    "nome": "LEILÃO TOUROS SÃO GERALDO E 7P AGRO",
-    "vgv": 459800,
-    "comissao": 9196
+    "nome": "28º LEILÃO NAVIRAÍ CAMPARINO REPRODUTORES",
+    "vgv": 948000,
+    "comissao": 18360
    },
    {
     "data": "2026-08-19",
     "nome": "9º LEILÃO GENÉTICA ADITIVA EXPOGENÉTICA 2026",
     "vgv": 444000,
     "comissao": 8880
+   },
+   {
+    "data": "2026-08-01",
+    "nome": "LEILÃO TOUROS SÃO GERALDO E 7P AGRO",
+    "vgv": 375800,
+    "comissao": 7516
    },
    {
     "data": "2026-08-22",
@@ -1694,18 +1723,6 @@
     "comissao": 3900
    },
    {
-    "data": "2026-08-26",
-    "nome": "LEILÃO GENÉTICA SÃO JOSÉ - 30 ANOS DE SELEÇÃO",
-    "vgv": 130900,
-    "comissao": 2618
-   },
-   {
-    "data": "2026-08-30",
-    "nome": "LEILÃO VIRTUAL VENTRES VIP MATINHA",
-    "vgv": 127500,
-    "comissao": 2550
-   },
-   {
     "data": "2026-08-20",
     "nome": "LEILÃO NELORE CEN & FAZENDA MODELO & CONVIDADOS",
     "vgv": 117000,
@@ -1718,22 +1735,10 @@
     "comissao": 2142
    },
    {
-    "data": "2026-08-23",
-    "nome": "6º LEILÃO EXCELÊNCIA GENÉTICA",
-    "vgv": 105000,
-    "comissao": 2100
-   },
-   {
     "data": "2026-08-15",
     "nome": "SHOPPING NAVIRAI EXPOGENÉTICA",
     "vgv": 96600,
     "comissao": 1932
-   },
-   {
-    "data": "2026-08-26",
-    "nome": "LEILÃO NELORE DO XINGU",
-    "vgv": 93000,
-    "comissao": 1860
    },
    {
     "data": "2026-08-16",
@@ -1743,39 +1748,27 @@
    },
    {
     "data": "2026-08-20",
+    "nome": "LEILÃO NELORE PARANÃ E CASABRANCA EXPOGENÉTICA",
+    "vgv": 84000,
+    "comissao": 1680
+   },
+   {
+    "data": "2026-08-20",
     "nome": "LEILÃO BABY DE PROVA - MÁQUINAS DE ACELERAR GERAÇÕES",
     "vgv": 73500,
     "comissao": 1470
    },
    {
-    "data": "2026-08-29",
-    "nome": "LEILÃO NELORE PINTADO ENGENHO DA SERRA",
-    "vgv": 53600,
-    "comissao": 1072
-   },
-   {
-    "data": "2026-08-18",
-    "nome": "LEILÃO SÓ CRIADOR FÊMEAS E MACHOS DE ALTO PADRÃO",
-    "vgv": 50000,
-    "comissao": 1000
-   },
-   {
-    "data": "2026-08-26",
-    "nome": "LEILÃO VIRTUAL TERRA BRAVA AGROPECUÁRIA - FÊMEAS PRENHAS",
-    "vgv": 46500,
-    "comissao": 930
+    "data": "2026-08-21",
+    "nome": "FÊMEAS JMP",
+    "vgv": 41400,
+    "comissao": 828
    },
    {
     "data": "2026-08-23",
     "nome": "LEILÃO NELORE MARCONDES - ABERTURA",
     "vgv": 37500,
     "comissao": 750
-   },
-   {
-    "data": "2026-08-30",
-    "nome": "1º LEILÃO NELORE ASJ",
-    "vgv": 30900,
-    "comissao": 618
    },
    {
     "data": "2026-08-18",
@@ -1790,7 +1783,7 @@
     "comissao": 330
    }
   ],
-  "comissao_sem_receita": 120954.8
+  "comissao_sem_receita": 112708
  },
  "comissao_pct": {
   "Fabio de Omena Gaia": 2,
@@ -1861,7 +1854,12 @@
     "dia_tem_leilao_no_hastapro": true,
     "eco_no_hastapro": null,
     "trecho": "*Shopping Navirai* Levamos lt 48 - 1.380,00 - 1F Com Douglas Bispo da Bula Assessoria Miguel Sousa Nelore AMER Novo Repartimento-PA - Levamos lt 41 - 1.840,00 - 1F Foi com Douglas Bispo da Bula Assessoria Bruno Machado e",
-    "fechamento_no_erp": null,
+    "fechamento_no_erp": {
+     "nome": "FÊMEAS JMP",
+     "data": "2026-08-21",
+     "vgv": 41400,
+     "origem": "lances-auto"
+    },
     "mesmo_lote_e_valor_no_mes": {
      "leilao": "SHOPPING NAVIRAI EXPOGENÉTICA",
      "data": "2026-08-15",
@@ -1970,7 +1968,12 @@
     "dia_tem_leilao_no_hastapro": true,
     "eco_no_hastapro": null,
     "trecho": "*Shopping Navirai* Levamos lt 48 - 1.380,00 - 1F Com Douglas Bispo da Bula Assessoria Miguel Sousa Nelore AMER Novo Repartimento-PA - Levamos lt 41 - 1.840,00 - 1F Foi com Douglas Bispo da Bula Assessoria Bruno Machado e",
-    "fechamento_no_erp": null,
+    "fechamento_no_erp": {
+     "nome": "FÊMEAS JMP",
+     "data": "2026-08-21",
+     "vgv": 41400,
+     "origem": "lances-auto"
+    },
     "mesmo_lote_e_valor_no_mes": {
      "leilao": "SHOPPING NAVIRAI EXPOGENÉTICA",
      "data": "2026-08-15",
@@ -1998,9 +2001,14 @@
   ],
   "a_definir": [
    {
-    "leilao": "28º LEILÃO NAVIRAÍ CAMPARINO - REPRODUTORES",
+    "leilao": "LEILÃO NELORE PARANÃ E CASABRANCA EXPOGENÉTICA",
+    "data": "2026-08-20",
+    "vgv": 84000
+   },
+   {
+    "leilao": "28º LEILÃO NAVIRAÍ CAMPARINO REPRODUTORES",
     "data": "2026-08-23",
-    "vgv": 63000
+    "vgv": 306000
    }
   ],
   "wa_sem_assessor": {
