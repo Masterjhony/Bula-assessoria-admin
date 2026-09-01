@@ -400,9 +400,9 @@ const html = `<!doctype html><html lang="pt-BR"><head><meta charset="utf-8">
     <tr><td>Direcionamento do Rusa</td><td class="num">${rusa.length}</td><td class="num">R$ ${brl(rusa.reduce((s, x) => s + x.vgv_hp, 0))}</td>
       <td>ERP credita o Rusa, HastaPro credita o pisteiro que estava na pista. É a zona cinzenta do acordo de parceria — decidir a regra, não lote a lote.</td></tr>
     <tr><td>“A definir” no ERP</td><td class="num">${aDefinir.length}</td><td class="num">R$ ${brl(aDefinir.reduce((s, x) => s + x.vgv_hp, 0))}</td>
-      <td>Ninguém está creditado. O HastaPro já sabe quem foi em todos eles — resolve-se copiando o pisteiro.</td></tr>
+      <td>Ninguém está creditado. O HastaPro já sabe quem foi em todos eles — resolve-se copiando o pisteiro. Um deles é o lote 22 do Naviraí (R$ 63.000), que lá está em nome de “MARCELO MOURA”: não é da equipe, é o comprador entrando como pisteiro.</td></tr>
     <tr><td>Outros conflitos</td><td class="num">${outrosAtrib.length}</td><td class="num">R$ ${brl(outrosAtrib.reduce((s, x) => s + x.vgv_hp, 0))}</td>
-      <td>Inclui o lote 22 do Naviraí (R$ 63.000) em nome de “MARCELO MOURA”, que não é da equipe: é o comprador entrando como pisteiro.</td></tr>
+      <td>${esc(outrosAtrib.map(x => `lote ${x.lote} do ${corta(x.leilao, 30)}: HastaPro credita ${curto(x.assessor_hp)}, o ERP credita ${curto(x.assessor_erp)}`).join(' · '))}.</td></tr>
     <tr class="total"><td>Total</td><td class="num">${atribuicao.length}</td><td class="num">R$ ${brl(ATRIB_VGV)}</td><td></td></tr>
   </table>
   <p class="small">A Nane aparece em ${D.qualidade.so_em_clientes.length === 1 ? 'todos' : 'vários'} os pregões da Remates e o importador não a reconhece:
