@@ -1,0 +1,4676 @@
+[
+ {
+  "id": "de29ea19-fd6e-4661-9170-d9ac11fdb70d",
+  "nome": "LEILÃO GENÉTICA SÃO JOSÉ - 30 ANOS DE SELEÇÃO",
+  "data": "2026-08-26",
+  "local": "BULA REMATES",
+  "lotes_ofertados": 0,
+  "lotes_vendidos": 3,
+  "animais_vendidos": 17,
+  "vgv_total": 130900,
+  "ticket_medio": 43633.33,
+  "maior_lance": 46200,
+  "compradores_unicos": 1,
+  "estados_alcancados": 1,
+  "por_assessor": [
+   {
+    "vgv": 130900,
+    "nome": "NANE",
+    "animais": 17,
+    "empresa": "Bula Assessoria",
+    "posicao": 1,
+    "comissao": 2618,
+    "pct_total": 1,
+    "transacoes": 3,
+    "comissao_pct": 0.02,
+    "ticket_medio": 43633.33
+   }
+  ],
+  "por_estado": [
+   {
+    "uf": "SP",
+    "vgv": 130900,
+    "lotes": 3,
+    "estado": "SP",
+    "animais": 17,
+    "pct_total": 1,
+    "ticket_medio": 43633.33
+   }
+  ],
+  "compradores": [
+   {
+    "uf": "SP",
+    "vgv": 130900,
+    "rank": 1,
+    "lotes": 3,
+    "cidade": null,
+    "animais": 17,
+    "fazenda": "FAZENDA FARINHA SECA",
+    "comprador": "MARIO EDUARDO FERREIRA JUNIOR"
+   }
+  ],
+  "lances": [
+   {
+    "vgv": 38500,
+    "lote": "28",
+    "animais": 5,
+    "empresa": "Bula Assessoria",
+    "parcela": 550,
+    "assessor": "NANE",
+    "parcelas": null,
+    "comprador": "MARIO EDUARDO FERREIRA JUNIOR · FAZENDA FARINHA SECA"
+   },
+   {
+    "vgv": 46200,
+    "lote": "36",
+    "animais": 6,
+    "empresa": "Bula Assessoria",
+    "parcela": 550,
+    "assessor": "NANE",
+    "parcelas": null,
+    "comprador": "MARIO EDUARDO FERREIRA JUNIOR · FAZENDA FARINHA SECA"
+   },
+   {
+    "vgv": 46200,
+    "lote": "37",
+    "animais": 6,
+    "empresa": "Bula Assessoria",
+    "parcela": 550,
+    "assessor": "NANE",
+    "parcelas": null,
+    "comprador": "MARIO EDUARDO FERREIRA JUNIOR · FAZENDA FARINHA SECA"
+   }
+  ],
+  "perfil_genetico": [],
+  "comissao_assessoria": 2618,
+  "receita_bula": 0,
+  "sobra_bruta": 0,
+  "observacoes": "Importado do HastaPro filial 01 (BULA REMATES) por scripts/importa-fechamento-hastapro.mts. O leilao inteiro tem 43 lotes; 3 foram cobertos por pisteiro da equipe Bula e 40 por terceiros — o VGV aqui e a COBERTURA BULA, nao o faturamento do pregao. Bulinha com 0% por ser leilao da Bula Remates.",
+  "lotes_catalogo": [],
+  "distribuicao_empresa": [],
+  "faturamento_total_leilao": null,
+  "acordo_pct_faturamento": null,
+  "acordo_pct_venda_cobertura": null,
+  "acordo_descricao": null,
+  "acordo_criador_id": null,
+  "created_at": "2026-09-01T18:45:22.328925+00:00",
+  "updated_at": "2026-09-01T18:45:22.328925+00:00",
+  "despesas_variaveis": 0,
+  "etapa": "realizado",
+  "etapa_atualizada_em": "2026-09-01T18:45:22.328925+00:00",
+  "origem": "hastapro"
+ },
+ {
+  "id": "85d2aa7d-c40d-4b6b-9df8-494a0faa9dcd",
+  "nome": "LEILÃO DE TOUROS NELORE SORRISO",
+  "data": "2026-08-04",
+  "local": "E-RURAL",
+  "lotes_ofertados": 6,
+  "lotes_vendidos": 6,
+  "animais_vendidos": 6,
+  "vgv_total": 114300,
+  "ticket_medio": 19050,
+  "maior_lance": 24000,
+  "compradores_unicos": 4,
+  "estados_alcancados": 0,
+  "por_assessor": [
+   {
+    "vgv": 79200,
+    "nome": "Fábio Omena",
+    "animais": 4,
+    "empresa": "Bula Assessoria",
+    "posicao": 1,
+    "comissao": 1584,
+    "pct_total": 0.692913,
+    "transacoes": 4,
+    "comissao_pct": 0.02,
+    "ticket_medio": 19800
+   },
+   {
+    "vgv": 35100,
+    "nome": "Leonardo Serafim",
+    "animais": 2,
+    "empresa": "Bula Assessoria",
+    "posicao": 2,
+    "comissao": 702,
+    "pct_total": 0.307087,
+    "transacoes": 2,
+    "comissao_pct": 0.02,
+    "ticket_medio": 17550
+   }
+  ],
+  "por_estado": [],
+  "compradores": [
+   {
+    "uf": null,
+    "vgv": 35100,
+    "rank": 1,
+    "lotes": 2,
+    "cidade": null,
+    "animais": 2,
+    "fazenda": "FAZENDA MUQUÉM",
+    "comprador": "PATRICK OLIVEIRA"
+   },
+   {
+    "uf": null,
+    "vgv": 33600,
+    "rank": 2,
+    "lotes": 2,
+    "cidade": null,
+    "animais": 2,
+    "fazenda": "FAZENDA JACIBELLA",
+    "comprador": "LIBERALINO RIBEIRO DE ALMEIDA"
+   },
+   {
+    "uf": null,
+    "vgv": 24000,
+    "rank": 3,
+    "lotes": 1,
+    "cidade": null,
+    "animais": 1,
+    "fazenda": "FAZENDA CAITITU",
+    "comprador": "AGUINALDO JÚNIOR"
+   },
+   {
+    "uf": null,
+    "vgv": 21600,
+    "rank": 4,
+    "lotes": 1,
+    "cidade": null,
+    "animais": 1,
+    "fazenda": "Fazenda Castelo",
+    "comprador": "ELISIO MARINHO ALCANTARA"
+   }
+  ],
+  "lances": [
+   {
+    "vgv": 17100,
+    "lote": "03",
+    "animais": 1,
+    "empresa": "Bula Assessoria",
+    "parcela": 570,
+    "assessor": "Leonardo Serafim",
+    "parcelas": 30,
+    "comprador": "PATRICK OLIVEIRA · FAZENDA MUQUÉM"
+   },
+   {
+    "vgv": 24000,
+    "lote": "05",
+    "animais": 1,
+    "empresa": "Bula Assessoria",
+    "parcela": 800,
+    "assessor": "Fábio Omena",
+    "parcelas": 30,
+    "comprador": "AGUINALDO JÚNIOR · FAZENDA CAITITU"
+   },
+   {
+    "vgv": 21600,
+    "lote": "07",
+    "animais": 1,
+    "empresa": "Bula Assessoria",
+    "parcela": 720,
+    "assessor": "Fábio Omena",
+    "parcelas": 30,
+    "comprador": "ELISIO MARINHO ALCANTARA · Fazenda Castelo"
+   },
+   {
+    "vgv": 18000,
+    "lote": "15",
+    "animais": 1,
+    "empresa": "Bula Assessoria",
+    "parcela": 600,
+    "assessor": "Leonardo Serafim",
+    "parcelas": 30,
+    "comprador": "PATRICK OLIVEIRA · FAZENDA MUQUÉM"
+   },
+   {
+    "vgv": 16500,
+    "lote": "19",
+    "animais": 1,
+    "empresa": "Bula Assessoria",
+    "parcela": 550,
+    "assessor": "Fábio Omena",
+    "parcelas": 30,
+    "comprador": "LIBERALINO RIBEIRO DE ALMEIDA · FAZENDA JACIBELLA"
+   },
+   {
+    "vgv": 17100,
+    "lote": "30",
+    "animais": 1,
+    "empresa": "Bula Assessoria",
+    "parcela": 570,
+    "assessor": "Fábio Omena",
+    "parcelas": 30,
+    "comprador": "LIBERALINO RIBEIRO DE ALMEIDA · FAZENDA JACIBELLA"
+   }
+  ],
+  "perfil_genetico": [],
+  "comissao_assessoria": 2286,
+  "receita_bula": 5715,
+  "sobra_bruta": 2400.3,
+  "observacoes": "Fechamento alinhado ao HastaPro (Bula Assessoria / FIL 2) em 17/08/2026 — origem=hastapro.\n6 lotes / 6 animais. VGV = LOT_TOTAL do HastaPro (lance × parcelas × qtd de animais).\nAssessor = LOT_PISTEIRO do HastaPro (nao mais atribuicao por zona). Comissao padrao 2%; Rusa 5%; Lucas/Matheus Alves 0,33%.\nReceita da Bula depende do acordo com a leiloeira/criador e do faturamento total do leilao — lancada na conta a receber do ERP.\n[RECEITA 17/08] 5% da venda sobre cobertura de R$ 114.300,00 (HastaPro). Sobra bruta = receita x 0,82 (imposto 18%) - comissao dos assessores, igual a coluna LIQUIDO da planilha-mestra.",
+  "lotes_catalogo": [],
+  "distribuicao_empresa": [
+   {
+    "vgv": 114300,
+    "animais": 6,
+    "empresa": "Bula Assessoria",
+    "pct_total": 1,
+    "transacoes": 6,
+    "ticket_medio": 19050
+   }
+  ],
+  "faturamento_total_leilao": null,
+  "acordo_pct_faturamento": null,
+  "acordo_pct_venda_cobertura": null,
+  "acordo_descricao": null,
+  "acordo_criador_id": null,
+  "created_at": "2026-08-05T00:20:31.085717+00:00",
+  "updated_at": "2026-08-07T13:44:58.604+00:00",
+  "despesas_variaveis": 0,
+  "etapa": "realizado",
+  "etapa_atualizada_em": "2026-08-05T00:20:31.085717+00:00",
+  "origem": "hastapro"
+ },
+ {
+  "id": "01b1c70c-f37c-4482-a85d-2513ea05c46f",
+  "nome": "LEILÃO TOUROS SÃO GERALDO E 7P AGRO",
+  "data": "2026-08-01",
+  "local": "FAZENDA SÃO GERALDO",
+  "lotes_ofertados": 0,
+  "lotes_vendidos": 7,
+  "animais_vendidos": 7,
+  "vgv_total": 459800,
+  "ticket_medio": 65685.71,
+  "maior_lance": 200000,
+  "compradores_unicos": 4,
+  "estados_alcancados": 2,
+  "por_assessor": [
+   {
+    "vgv": 200000,
+    "nome": "DOUGLAS BISPO",
+    "animais": 1,
+    "empresa": "Bula Assessoria",
+    "posicao": 1,
+    "comissao": 4000,
+    "pct_total": 0.434972,
+    "transacoes": 1,
+    "comissao_pct": 0.02,
+    "ticket_medio": 200000
+   },
+   {
+    "vgv": 175800,
+    "nome": "LEONARDO",
+    "animais": 4,
+    "empresa": "Bula Assessoria",
+    "posicao": 2,
+    "comissao": 3516,
+    "pct_total": 0.38234,
+    "transacoes": 4,
+    "comissao_pct": 0.02,
+    "ticket_medio": 43950
+   },
+   {
+    "vgv": 84000,
+    "nome": "NANE",
+    "animais": 2,
+    "empresa": "Bula Assessoria",
+    "posicao": 3,
+    "comissao": 1680,
+    "pct_total": 0.182688,
+    "transacoes": 2,
+    "comissao_pct": 0.02,
+    "ticket_medio": 42000
+   }
+  ],
+  "por_estado": [
+   {
+    "uf": "MG",
+    "vgv": 175800,
+    "lotes": 4,
+    "estado": "MG",
+    "animais": 4,
+    "pct_total": 0.38234,
+    "ticket_medio": 43950
+   },
+   {
+    "uf": "SP",
+    "vgv": 84000,
+    "lotes": 2,
+    "estado": "SP",
+    "animais": 2,
+    "pct_total": 0.182688,
+    "ticket_medio": 42000
+   }
+  ],
+  "compradores": [
+   {
+    "uf": null,
+    "vgv": 200000,
+    "rank": 1,
+    "lotes": 1,
+    "cidade": null,
+    "animais": 1,
+    "fazenda": null,
+    "comprador": "IURY KEVEN DA SILVA CARVALHO · FAZENDA IURY + LUCIANO LEITE PEREIRA · FAZENDA SAYONARA V + GIBSON GONÇALVES DE OLIVEIRA · FAZENDA RANCHO GRANDE + ALFREDO JOSÉ CARDOSO · FAZENDA GALOPEIRA"
+   },
+   {
+    "uf": "MG",
+    "vgv": 120000,
+    "rank": 2,
+    "lotes": 1,
+    "cidade": null,
+    "animais": 1,
+    "fazenda": "FAZENDA VISUAL",
+    "comprador": "ANTONIO MARTINS DE ARAUJO NETO E OUTROS"
+   },
+   {
+    "uf": "SP",
+    "vgv": 84000,
+    "rank": 3,
+    "lotes": 2,
+    "cidade": null,
+    "animais": 2,
+    "fazenda": "FAZENDA ALVORADA",
+    "comprador": "MARIO EDUARDO FERREIRA JUNIOR"
+   },
+   {
+    "uf": "MG",
+    "vgv": 55800,
+    "rank": 4,
+    "lotes": 3,
+    "cidade": null,
+    "animais": 3,
+    "fazenda": "FAZENDA SÃO JOSÉ DO SOBRADO",
+    "comprador": "LAERCIO JOSE OLIVEIRA ALMEIDA"
+   }
+  ],
+  "lances": [
+   {
+    "vgv": 200000,
+    "lote": "1000",
+    "cotas": 4,
+    "animais": 1,
+    "empresa": "Bula Assessoria",
+    "parcela": 5000,
+    "assessor": "DOUGLAS BISPO",
+    "parcelas": null,
+    "comprador": "IURY KEVEN DA SILVA CARVALHO · FAZENDA IURY + LUCIANO LEITE PEREIRA · FAZENDA SAYONARA V + GIBSON GONÇALVES DE OLIVEIRA · FAZENDA RANCHO GRANDE + ALFREDO JOSÉ CARDOSO · FAZENDA GALOPEIRA"
+   },
+   {
+    "vgv": 45000,
+    "lote": "14",
+    "animais": 1,
+    "empresa": "Bula Assessoria",
+    "parcela": 1500,
+    "assessor": "NANE",
+    "parcelas": null,
+    "comprador": "MARIO EDUARDO FERREIRA JUNIOR · FAZENDA ALVORADA"
+   },
+   {
+    "vgv": 39000,
+    "lote": "23",
+    "animais": 1,
+    "empresa": "Bula Assessoria",
+    "parcela": 1300,
+    "assessor": "NANE",
+    "parcelas": null,
+    "comprador": "MARIO EDUARDO FERREIRA JUNIOR · FAZENDA ALVORADA"
+   },
+   {
+    "vgv": 120000,
+    "lote": "3000",
+    "animais": 1,
+    "empresa": "Bula Assessoria",
+    "parcela": 4000,
+    "assessor": "LEONARDO",
+    "parcelas": null,
+    "comprador": "ANTONIO MARTINS DE ARAUJO NETO E OUTROS · FAZENDA VISUAL"
+   },
+   {
+    "vgv": 18600,
+    "lote": "56",
+    "animais": 1,
+    "empresa": "Bula Assessoria",
+    "parcela": 620,
+    "assessor": "LEONARDO",
+    "parcelas": null,
+    "comprador": "LAERCIO JOSE OLIVEIRA ALMEIDA · FAZENDA SÃO JOSÉ DO SOBRADO"
+   },
+   {
+    "vgv": 18600,
+    "lote": "57",
+    "animais": 1,
+    "empresa": "Bula Assessoria",
+    "parcela": 620,
+    "assessor": "LEONARDO",
+    "parcelas": null,
+    "comprador": "LAERCIO JOSE OLIVEIRA ALMEIDA · FAZENDA SÃO JOSÉ DO SOBRADO"
+   },
+   {
+    "vgv": 18600,
+    "lote": "58",
+    "animais": 1,
+    "empresa": "Bula Assessoria",
+    "parcela": 620,
+    "assessor": "LEONARDO",
+    "parcelas": null,
+    "comprador": "LAERCIO JOSE OLIVEIRA ALMEIDA · FAZENDA SÃO JOSÉ DO SOBRADO"
+   }
+  ],
+  "perfil_genetico": [],
+  "comissao_assessoria": 9196,
+  "receita_bula": 0,
+  "sobra_bruta": 0,
+  "observacoes": "Importado do HastaPro filial 01 (BULA REMATES) por scripts/importa-fechamento-hastapro.mts. O leilao inteiro tem 138 lotes; 7 foram cobertos por pisteiro da equipe Bula e 131 por terceiros — o VGV aqui e a COBERTURA BULA, nao o faturamento do pregao. Bulinha com 0% por ser leilao da Bula Remates.",
+  "lotes_catalogo": [],
+  "distribuicao_empresa": [],
+  "faturamento_total_leilao": null,
+  "acordo_pct_faturamento": null,
+  "acordo_pct_venda_cobertura": null,
+  "acordo_descricao": null,
+  "acordo_criador_id": null,
+  "created_at": "2026-08-25T19:20:13.787307+00:00",
+  "updated_at": "2026-08-25T19:20:13.787307+00:00",
+  "despesas_variaveis": 0,
+  "etapa": "realizado",
+  "etapa_atualizada_em": "2026-08-25T19:20:13.787307+00:00",
+  "origem": "hastapro"
+ },
+ {
+  "id": "82b065f7-b058-447e-944c-a4836c802230",
+  "nome": "LEILÃO NELORE PINTADO ENGENHO DA SERRA",
+  "data": "2026-08-29",
+  "local": null,
+  "lotes_ofertados": 0,
+  "lotes_vendidos": 4,
+  "animais_vendidos": 4,
+  "vgv_total": 53600,
+  "ticket_medio": 13400,
+  "maior_lance": 15200,
+  "compradores_unicos": 1,
+  "estados_alcancados": 1,
+  "por_assessor": [
+   {
+    "vgv": 53600,
+    "nome": "DOUGLAS BISPO",
+    "animais": 4,
+    "empresa": "Bula Assessoria",
+    "posicao": 1,
+    "comissao": 1072,
+    "pct_total": 1,
+    "transacoes": 4,
+    "comissao_pct": 0.02,
+    "ticket_medio": 13400
+   }
+  ],
+  "por_estado": [
+   {
+    "uf": "PA",
+    "vgv": 53600,
+    "lotes": 4,
+    "estado": "PA",
+    "animais": 4,
+    "pct_total": 1,
+    "ticket_medio": 13400
+   }
+  ],
+  "compradores": [
+   {
+    "uf": "PA",
+    "vgv": 53600,
+    "rank": 1,
+    "lotes": 4,
+    "cidade": "Novo Repartimento",
+    "animais": 4,
+    "fazenda": "RANCHO ALTO BONITO",
+    "comprador": "MARTA CARNEIRO DA SILVA"
+   }
+  ],
+  "lances": [
+   {
+    "vgv": 14000,
+    "lote": "41",
+    "animais": 1,
+    "empresa": "Bula Assessoria",
+    "parcela": 350,
+    "assessor": "DOUGLAS BISPO",
+    "parcelas": 40,
+    "comprador": "MARTA CARNEIRO DA SILVA · RANCHO ALTO BONITO/PA"
+   },
+   {
+    "vgv": 15200,
+    "lote": "52",
+    "animais": 1,
+    "empresa": "Bula Assessoria",
+    "parcela": 380,
+    "assessor": "DOUGLAS BISPO",
+    "parcelas": 40,
+    "comprador": "MARTA CARNEIRO DA SILVA · RANCHO ALTO BONITO/PA"
+   },
+   {
+    "vgv": 12000,
+    "lote": "59",
+    "animais": 1,
+    "empresa": "Bula Assessoria",
+    "parcela": 300,
+    "assessor": "DOUGLAS BISPO",
+    "parcelas": 40,
+    "comprador": "MARTA CARNEIRO DA SILVA · RANCHO ALTO BONITO/PA"
+   },
+   {
+    "vgv": 12400,
+    "lote": "39",
+    "animais": 1,
+    "empresa": "Bula Assessoria",
+    "parcela": 310,
+    "assessor": "DOUGLAS BISPO",
+    "parcelas": 40,
+    "comprador": "MARTA CARNEIRO DA SILVA · RANCHO ALTO BONITO/PA"
+   }
+  ],
+  "perfil_genetico": [],
+  "comissao_assessoria": 1072,
+  "receita_bula": 0,
+  "sobra_bruta": 0,
+  "observacoes": "Montado em 01/09/2026 a partir das fichas do grupo \"Bula Assessoria l Assessor\" (29/08 22h14 a 30/08 00h17), reencaminhadas por Marcelo no Grupo Financeiro em 01/09. NAO existe no HastaPro nem na agenda — origem lances-auto de proposito, para o importador do HastaPro substituir sozinho quando o leilao for lancado la. ATENCAO A PARCELA: este leilao e x40, nao x30 (350+380+300+310 = 1.340 x 40 = 53.600). O Marcelo anunciou \"51.100 a mais de venda no mes\" — a diferenca de R$ 2.500 segue em aberto e muda a comissao do Douglas em R$ 50.",
+  "lotes_catalogo": [],
+  "distribuicao_empresa": [],
+  "faturamento_total_leilao": null,
+  "acordo_pct_faturamento": null,
+  "acordo_pct_venda_cobertura": null,
+  "acordo_descricao": null,
+  "acordo_criador_id": null,
+  "created_at": "2026-09-01T18:47:23.173189+00:00",
+  "updated_at": "2026-09-01T18:47:23.173189+00:00",
+  "despesas_variaveis": 0,
+  "etapa": "realizado",
+  "etapa_atualizada_em": "2026-09-01T18:47:23.173189+00:00",
+  "origem": "lances-auto"
+ },
+ {
+  "id": "a125d78a-4047-423f-82ba-22846aeff046",
+  "nome": "2º LEILÃO LS GALERIA",
+  "data": "2026-08-07",
+  "local": "E-RURAL",
+  "lotes_ofertados": 3,
+  "lotes_vendidos": 3,
+  "animais_vendidos": 3,
+  "vgv_total": 576000,
+  "ticket_medio": 192000,
+  "maior_lance": 306000,
+  "compradores_unicos": 2,
+  "estados_alcancados": 1,
+  "por_assessor": [
+   {
+    "vgv": 456000,
+    "nome": "Gustavo Rusa",
+    "animais": 2,
+    "empresa": "Bula Assessoria",
+    "posicao": 1,
+    "comissao": 22800,
+    "pct_total": 0.7917000000000001,
+    "transacoes": 2,
+    "comissao_pct": 0.05,
+    "ticket_medio": 228000
+   },
+   {
+    "vgv": 120000,
+    "nome": "Fábio Omena",
+    "animais": 1,
+    "empresa": "Bula Assessoria",
+    "posicao": 2,
+    "comissao": 2400,
+    "pct_total": 0.20829999999999999,
+    "transacoes": 1,
+    "comissao_pct": 0.02,
+    "ticket_medio": 120000
+   }
+  ],
+  "por_estado": [
+   {
+    "uf": "PA",
+    "vgv": 456000,
+    "lotes": 2,
+    "estado": "PA",
+    "animais": 2,
+    "pct_total": 0.791667,
+    "ticket_medio": 228000
+   }
+  ],
+  "compradores": [
+   {
+    "uf": "PA",
+    "vgv": 456000,
+    "rank": 1,
+    "lotes": 2,
+    "cidade": null,
+    "animais": 2,
+    "fazenda": "Fazenda Paraíso do Acará",
+    "comprador": "DIEGO BENITAH BATISTA"
+   },
+   {
+    "uf": null,
+    "vgv": 120000,
+    "rank": 2,
+    "lotes": 1,
+    "cidade": null,
+    "animais": 1,
+    "fazenda": ".",
+    "comprador": "ALISSON LUNARD"
+   }
+  ],
+  "lances": [
+   {
+    "vgv": 150000,
+    "lote": "04",
+    "animais": 1,
+    "empresa": "Bula Assessoria",
+    "parcela": 5000,
+    "assessor": "Gustavo Rusa",
+    "parcelas": 30,
+    "comprador": "DIEGO BENITAH BATISTA · Fazenda Paraíso do Acará · PA",
+    "anunciado_por": "Fábio Omena"
+   },
+   {
+    "vgv": 306000,
+    "lote": "19",
+    "animais": 1,
+    "empresa": "Bula Assessoria",
+    "parcela": 10200,
+    "assessor": "Gustavo Rusa",
+    "parcelas": 30,
+    "comprador": "DIEGO BENITAH BATISTA · Fazenda Paraíso do Acará · PA",
+    "anunciado_por": "Fábio Omena"
+   },
+   {
+    "vgv": 120000,
+    "lote": "21",
+    "animais": 1,
+    "empresa": "Bula Assessoria",
+    "parcela": 4000,
+    "assessor": "Fábio Omena",
+    "parcelas": 30,
+    "comprador": "ALISSON LUNARD · ."
+   }
+  ],
+  "perfil_genetico": [],
+  "comissao_assessoria": 25200,
+  "receita_bula": 57840,
+  "sobra_bruta": 22228.8,
+  "observacoes": "Fechamento alinhado ao HastaPro (Bula Assessoria / FIL 2) em 17/08/2026 — origem=hastapro.\n3 lotes / 3 animais. VGV = LOT_TOTAL do HastaPro (lance × parcelas × qtd de animais).\nAssessor = LOT_PISTEIRO do HastaPro (nao mais atribuicao por zona). Comissao padrao 2%; Rusa 5%; Lucas/Matheus Alves 0,33%.\nReceita da Bula depende do acordo com a leiloeira/criador e do faturamento total do leilao — lancada na conta a receber do ERP.\n[RECEITA 17/08] Acordo E-Rural com presencial = 1% do VGV + 4% da venda. Planilha: 1% x 3.680.000 + 4% x 526.000 = 57.840,00. ATENCAO: a cobertura do HastaPro e R$ 576.000,00 (nao 526.000), o que daria R$ 59.840,00 - divergencia de R$ 2.000,00 a conferir antes de faturar. Sobra bruta = receita x 0,82 (imposto 18%) - comissao dos assessores, igual a coluna LIQUIDO da planilha-mestra.\n[DIRECIONAMENTO-PARCEIRO 24/08] 2 lote(s) — 04 (150.000,00, Fábio Omena); 19 (306.000,00, Fábio Omena) — movidos para Gustavo Rusa (5%): o comprador é Diego Benitah Batista (Fazenda Paraíso do Acará / Nelore FPA), direcionado pelo parceiro. Quem anunciou na pista não define a comissão. Ver src/lib/parceiro-direcionamento.ts.",
+  "lotes_catalogo": [],
+  "distribuicao_empresa": [
+   {
+    "vgv": 576000,
+    "animais": 3,
+    "empresa": "Bula Assessoria",
+    "pct_total": 1,
+    "transacoes": 3,
+    "ticket_medio": 192000
+   }
+  ],
+  "faturamento_total_leilao": null,
+  "acordo_pct_faturamento": null,
+  "acordo_pct_venda_cobertura": null,
+  "acordo_descricao": null,
+  "acordo_criador_id": null,
+  "created_at": "2026-08-08T00:07:51.764795+00:00",
+  "updated_at": "2026-08-08T01:46:21.48+00:00",
+  "despesas_variaveis": 0,
+  "etapa": "realizado",
+  "etapa_atualizada_em": "2026-08-08T00:07:51.764795+00:00",
+  "origem": "hastapro"
+ },
+ {
+  "id": "ef8870d4-f0b5-4fe4-982c-89459c429cc8",
+  "nome": "14º LEILÃO PÉROLAS DO TAPAJÓS",
+  "data": "2026-08-08",
+  "local": null,
+  "lotes_ofertados": 5,
+  "lotes_vendidos": 5,
+  "animais_vendidos": 5,
+  "vgv_total": 213000,
+  "ticket_medio": 42600,
+  "maior_lance": 90000,
+  "compradores_unicos": 5,
+  "estados_alcancados": 1,
+  "por_assessor": [
+   {
+    "vgv": 123000,
+    "nome": "Douglas Bispo",
+    "animais": 4,
+    "empresa": "Bula Assessoria",
+    "posicao": 1,
+    "comissao": 2460,
+    "pct_total": 0.5775,
+    "transacoes": 4,
+    "comissao_pct": 0.02,
+    "ticket_medio": 30750
+   },
+   {
+    "vgv": 90000,
+    "nome": "Gustavo Rusa",
+    "animais": 1,
+    "empresa": "Bula Assessoria",
+    "posicao": 2,
+    "comissao": 4500,
+    "pct_total": 0.4225,
+    "transacoes": 1,
+    "comissao_pct": 0.05,
+    "ticket_medio": 90000
+   }
+  ],
+  "por_estado": [
+   {
+    "uf": "PA",
+    "vgv": 189000,
+    "lotes": 4,
+    "estado": "PA",
+    "animais": 4,
+    "pct_total": 0.887324,
+    "ticket_medio": 47250
+   }
+  ],
+  "compradores": [
+   {
+    "uf": "PA",
+    "vgv": 90000,
+    "rank": 1,
+    "lotes": 1,
+    "cidade": null,
+    "animais": 1,
+    "fazenda": "FAZENDA GALOPEIRA",
+    "comprador": "ALFREDO JOSÉ CARDOSO"
+   },
+   {
+    "uf": "PA",
+    "vgv": 42000,
+    "rank": 2,
+    "lotes": 1,
+    "cidade": null,
+    "animais": 1,
+    "fazenda": "FAZENDA NOVA",
+    "comprador": "FABIO POLIZELI BRITO"
+   },
+   {
+    "uf": "PA",
+    "vgv": 30000,
+    "rank": 3,
+    "lotes": 1,
+    "cidade": null,
+    "animais": 1,
+    "fazenda": "FAZENDA SAYONARA V",
+    "comprador": "LUCIANO LEITE PEREIRA"
+   },
+   {
+    "uf": "PA",
+    "vgv": 27000,
+    "rank": 4,
+    "lotes": 1,
+    "cidade": null,
+    "animais": 1,
+    "fazenda": "FAZENDA DONA II",
+    "comprador": "GILBERTO PEREIRA SARUBI"
+   },
+   {
+    "uf": null,
+    "vgv": 24000,
+    "rank": 5,
+    "lotes": 1,
+    "cidade": null,
+    "animais": 1,
+    "fazenda": "FAZENDA RANCHO GRANDE",
+    "comprador": "FABIO LOPES DA SELARIA MINEIRA"
+   }
+  ],
+  "lances": [
+   {
+    "vgv": 90000,
+    "lote": "44",
+    "animais": 1,
+    "empresa": "Bula Assessoria",
+    "parcela": 3000,
+    "assessor": "Gustavo Rusa",
+    "parcelas": 30,
+    "comprador": "ALFREDO JOSÉ CARDOSO · FAZENDA GALOPEIRA · PA",
+    "anunciado_por": "Douglas Bispo"
+   },
+   {
+    "vgv": 42000,
+    "lote": "47",
+    "animais": 1,
+    "empresa": "Bula Assessoria",
+    "parcela": 1400,
+    "assessor": "Douglas Bispo",
+    "parcelas": 30,
+    "comprador": "FABIO POLIZELI BRITO · FAZENDA NOVA · PA"
+   },
+   {
+    "vgv": 30000,
+    "lote": "40",
+    "animais": 1,
+    "empresa": "Bula Assessoria",
+    "parcela": 1000,
+    "assessor": "Douglas Bispo",
+    "parcelas": 30,
+    "comprador": "LUCIANO LEITE PEREIRA · FAZENDA SAYONARA V · PA"
+   },
+   {
+    "vgv": 24000,
+    "lote": "45",
+    "animais": 1,
+    "empresa": "Bula Assessoria",
+    "parcela": 800,
+    "assessor": "Douglas Bispo",
+    "parcelas": 30,
+    "comprador": "FABIO LOPES DA SELARIA MINEIRA · FAZENDA RANCHO GRANDE"
+   },
+   {
+    "vgv": 27000,
+    "lote": "48",
+    "animais": 1,
+    "empresa": "Bula Assessoria",
+    "parcela": 900,
+    "assessor": "Douglas Bispo",
+    "parcelas": 30,
+    "comprador": "GILBERTO PEREIRA SARUBI · FAZENDA DONA II · PA"
+   }
+  ],
+  "perfil_genetico": [],
+  "comissao_assessoria": 6960,
+  "receita_bula": 10650,
+  "sobra_bruta": 1773,
+  "observacoes": "Fechamento alinhado ao HastaPro (Bula Assessoria / FIL 2) em 17/08/2026 — origem=hastapro.\n5 lotes / 5 animais. VGV = LOT_TOTAL do HastaPro (lance × parcelas × qtd de animais).\nAssessor = LOT_PISTEIRO do HastaPro (nao mais atribuicao por zona). Comissao padrao 2%; Rusa 5%; Lucas/Matheus Alves 0,33%.\nReceita da Bula depende do acordo com a leiloeira/criador e do faturamento total do leilao — lancada na conta a receber do ERP.\n[RECEITA 17/08] 5% da venda sobre cobertura de R$ 213.000,00. Sobra bruta = receita x 0,82 (imposto 18%) - comissao dos assessores, igual a coluna LIQUIDO da planilha-mestra.\n[DIRECIONAMENTO-PARCEIRO 24/08] 1 lote(s) — 44 (90.000,00, Douglas Bispo) — movidos para Gustavo Rusa (5%): o comprador é Alfredo José Cardoso, direcionado pelo parceiro. Quem anunciou na pista não define a comissão. Ver src/lib/parceiro-direcionamento.ts.",
+  "lotes_catalogo": [],
+  "distribuicao_empresa": [
+   {
+    "vgv": 213000,
+    "animais": 5,
+    "empresa": "Bula Assessoria",
+    "pct_total": 1,
+    "transacoes": 5,
+    "ticket_medio": 42600
+   }
+  ],
+  "faturamento_total_leilao": null,
+  "acordo_pct_faturamento": null,
+  "acordo_pct_venda_cobertura": null,
+  "acordo_descricao": null,
+  "acordo_criador_id": null,
+  "created_at": "2026-08-17T19:39:46.067007+00:00",
+  "updated_at": "2026-08-17T19:39:46.067007+00:00",
+  "despesas_variaveis": 0,
+  "etapa": "realizado",
+  "etapa_atualizada_em": "2026-08-17T19:39:46.067007+00:00",
+  "origem": "hastapro"
+ },
+ {
+  "id": "0187891f-a1eb-481d-afd5-9330c98ab38f",
+  "nome": "LEILÃO NELORE PARANÃ PRODUTIVIDADE",
+  "data": "2026-08-09",
+  "local": "PROGRAMA LEILOES",
+  "lotes_ofertados": 6,
+  "lotes_vendidos": 6,
+  "animais_vendidos": 13,
+  "vgv_total": 278100,
+  "ticket_medio": 46350,
+  "maior_lance": 90000,
+  "compradores_unicos": 3,
+  "estados_alcancados": 0,
+  "por_assessor": [
+   {
+    "vgv": 144000,
+    "nome": "Douglas Bispo",
+    "animais": 8,
+    "empresa": "Bula Assessoria",
+    "posicao": 1,
+    "comissao": 2880,
+    "pct_total": 0.5178,
+    "transacoes": 2,
+    "comissao_pct": 0.02,
+    "ticket_medio": 18000
+   },
+   {
+    "vgv": 88500,
+    "nome": "Gustavo Rusa",
+    "animais": 3,
+    "empresa": "Bula Assessoria",
+    "posicao": 2,
+    "comissao": 4425,
+    "pct_total": 0.3182,
+    "transacoes": 2,
+    "comissao_pct": 0.05,
+    "ticket_medio": 29500
+   },
+   {
+    "vgv": 45600,
+    "nome": "Fábio Omena",
+    "animais": 2,
+    "empresa": "Bula Assessoria",
+    "posicao": 3,
+    "comissao": 912,
+    "pct_total": 0.16399999999999998,
+    "transacoes": 2,
+    "comissao_pct": 0.02,
+    "ticket_medio": 22800
+   }
+  ],
+  "por_estado": [],
+  "compradores": [
+   {
+    "uf": null,
+    "vgv": 144000,
+    "rank": 1,
+    "lotes": 2,
+    "cidade": null,
+    "animais": 8,
+    "fazenda": "FAZENDA MUDANÇA",
+    "comprador": "MAURO CESAR"
+   },
+   {
+    "uf": null,
+    "vgv": 88500,
+    "rank": 2,
+    "lotes": 2,
+    "cidade": null,
+    "animais": 3,
+    "fazenda": "FAZENDA FLOR DE MINAS",
+    "comprador": "CELSO LOPES"
+   },
+   {
+    "uf": null,
+    "vgv": 45600,
+    "rank": 3,
+    "lotes": 2,
+    "cidade": null,
+    "animais": 2,
+    "fazenda": "NELORE FJLT",
+    "comprador": "JATME LUNA"
+   }
+  ],
+  "lances": [
+   {
+    "vgv": 48000,
+    "lote": "123",
+    "animais": 2,
+    "empresa": "Bula Assessoria",
+    "parcela": 800,
+    "assessor": "Gustavo Rusa",
+    "parcelas": 30,
+    "comprador": "CELSO LOPES · FAZENDA FLOR DE MINAS",
+    "anunciado_por": "Douglas Bispo"
+   },
+   {
+    "vgv": 21600,
+    "lote": "61",
+    "animais": 1,
+    "empresa": "Bula Assessoria",
+    "parcela": 720,
+    "assessor": "Fábio Omena",
+    "parcelas": 30,
+    "comprador": "JATME LUNA · NELORE FJLT"
+   },
+   {
+    "vgv": 24000,
+    "lote": "43",
+    "animais": 1,
+    "empresa": "Bula Assessoria",
+    "parcela": 800,
+    "assessor": "Fábio Omena",
+    "parcelas": 30,
+    "comprador": "JATME LUNA · NELORE FJLT"
+   },
+   {
+    "vgv": 40500,
+    "lote": "42",
+    "animais": 1,
+    "empresa": "Bula Assessoria",
+    "parcela": 1350,
+    "assessor": "Gustavo Rusa",
+    "parcelas": 30,
+    "comprador": "CELSO LOPES · FAZENDA FLOR DE MINAS",
+    "anunciado_por": "Douglas Bispo"
+   },
+   {
+    "vgv": 54000,
+    "lote": "94",
+    "animais": 3,
+    "empresa": "Bula Assessoria",
+    "parcela": 600,
+    "assessor": "Douglas Bispo",
+    "parcelas": 30,
+    "comprador": "MAURO CESAR · FAZENDA MUDANÇA"
+   },
+   {
+    "vgv": 90000,
+    "lote": "97",
+    "animais": 5,
+    "empresa": "Bula Assessoria",
+    "parcela": 600,
+    "assessor": "Douglas Bispo",
+    "parcelas": 30,
+    "comprador": "MAURO CESAR · FAZENDA MUDANÇA"
+   }
+  ],
+  "perfil_genetico": [],
+  "comissao_assessoria": 8217,
+  "receita_bula": 13905,
+  "sobra_bruta": 3185.1,
+  "observacoes": "Fechamento alinhado ao HastaPro (Bula Assessoria / FIL 2) em 17/08/2026 — origem=hastapro.\n6 lotes / 13 animais. VGV = LOT_TOTAL do HastaPro (lance × parcelas × qtd de animais).\nAssessor = LOT_PISTEIRO do HastaPro (nao mais atribuicao por zona). Comissao padrao 2%; Rusa 5%; Lucas/Matheus Alves 0,33%.\nReceita da Bula depende do acordo com a leiloeira/criador e do faturamento total do leilao — lancada na conta a receber do ERP.\n[RECEITA 17/08] 5% da venda sobre cobertura de R$ 278.100,00 (HastaPro). Sobra bruta = receita x 0,82 (imposto 18%) - comissao dos assessores, igual a coluna LIQUIDO da planilha-mestra.\n[DIRECIONAMENTO-PARCEIRO 24/08] 2 lote(s) — 123 (48.000,00, Douglas Bispo); 42 (40.500,00, Douglas Bispo) — movidos para Gustavo Rusa (5%): o comprador é Dr. Celso Lopes (Nelore Grão Pará), direcionado pelo parceiro. Quem anunciou na pista não define a comissão. Ver src/lib/parceiro-direcionamento.ts.",
+  "lotes_catalogo": [],
+  "distribuicao_empresa": [
+   {
+    "vgv": 278100,
+    "animais": 13,
+    "empresa": "Bula Assessoria",
+    "pct_total": 1,
+    "transacoes": 6,
+    "ticket_medio": 46350
+   }
+  ],
+  "faturamento_total_leilao": null,
+  "acordo_pct_faturamento": null,
+  "acordo_pct_venda_cobertura": null,
+  "acordo_descricao": null,
+  "acordo_criador_id": null,
+  "created_at": "2026-08-09T15:52:53.820816+00:00",
+  "updated_at": "2026-08-09T22:55:10.359+00:00",
+  "despesas_variaveis": 0,
+  "etapa": "realizado",
+  "etapa_atualizada_em": "2026-08-09T15:52:53.820816+00:00",
+  "origem": "hastapro"
+ },
+ {
+  "id": "360b6a1c-ae3b-4b39-b7dd-500205a58f0a",
+  "nome": "LEILÃO MATRIZES PREMIUM KATISPERA",
+  "data": "2026-08-17",
+  "local": "PROGRAMA LEILOES",
+  "lotes_ofertados": 1,
+  "lotes_vendidos": 1,
+  "animais_vendidos": 1,
+  "vgv_total": 117000,
+  "ticket_medio": 117000,
+  "maior_lance": 117000,
+  "compradores_unicos": 1,
+  "estados_alcancados": 1,
+  "por_assessor": [
+   {
+    "vgv": 117000,
+    "nome": "Gustavo Rusa",
+    "animais": 1,
+    "empresa": "Bula Assessoria",
+    "posicao": 1,
+    "comissao": 5850,
+    "pct_total": 1,
+    "transacoes": 1,
+    "comissao_pct": 0.05,
+    "ticket_medio": 117000
+   }
+  ],
+  "por_estado": [
+   {
+    "uf": "PA",
+    "vgv": 117000,
+    "lotes": 1,
+    "estado": "PA",
+    "animais": 1,
+    "pct_total": 1,
+    "ticket_medio": 117000
+   }
+  ],
+  "compradores": [
+   {
+    "uf": "PA",
+    "vgv": 117000,
+    "rank": 1,
+    "lotes": 1,
+    "cidade": "É o estadão",
+    "animais": 1,
+    "fazenda": null,
+    "comprador": "A identificar"
+   }
+  ],
+  "lances": [
+   {
+    "vgv": 117000,
+    "lote": "3",
+    "animais": 1,
+    "empresa": "Bula Assessoria",
+    "parcela": 3900,
+    "assessor": "Gustavo Rusa",
+    "parcelas": 30,
+    "vendedor": "PROGRAMA LEILOES",
+    "comprador": "É o estadão/PA",
+    "anunciado_por": "Douglas Bispo"
+   }
+  ],
+  "perfil_genetico": [],
+  "comissao_assessoria": 5850,
+  "receita_bula": 0,
+  "sobra_bruta": 0,
+  "observacoes": "Fechamento AUTOMÁTICO gerado das vendas capturadas no grupo \"Lances Bula Assessoria\" (WhatsApp) — retificável.\nCobertura Bula: 1 lotes / 1 animais / VGV = parcela × 30 por lote. Comissão por assessor conforme tabela fixa 22/07 (padrão 2%; Rusa 5%; Lucas/Matheus Alves 0,33%).\nParte financeira (acordo/receita Bula/imposto) é passo manual no ERP.\n[DIRECIONAMENTO-PARCEIRO 24/08] 1 lote(s) — 3 (117.000,00, Douglas Bispo) — movidos para Gustavo Rusa (5%): o comprador é É o estadão/PA (direcionamento declarado no grupo), direcionado pelo parceiro. Quem anunciou na pista não define a comissão. Ver src/lib/parceiro-direcionamento.ts.",
+  "lotes_catalogo": [],
+  "distribuicao_empresa": [
+   {
+    "vgv": 117000,
+    "animais": 1,
+    "empresa": "Bula Assessoria",
+    "pct_total": 1,
+    "transacoes": 1,
+    "ticket_medio": 117000
+   }
+  ],
+  "faturamento_total_leilao": null,
+  "acordo_pct_faturamento": null,
+  "acordo_pct_venda_cobertura": null,
+  "acordo_descricao": null,
+  "acordo_criador_id": null,
+  "created_at": "2026-08-18T01:00:27.47162+00:00",
+  "updated_at": "2026-08-18T01:00:27.401+00:00",
+  "despesas_variaveis": 0,
+  "etapa": "realizado",
+  "etapa_atualizada_em": "2026-08-18T01:00:27.47162+00:00",
+  "origem": "lances-auto"
+ },
+ {
+  "id": "e7811a6e-7ed7-4a82-a56f-0536093e8ae0",
+  "nome": "LEILÃO NAVIRAÍ CAMPARINO ESSÊNCIA BEZERRAS E NOVILHAS",
+  "data": "2026-08-22",
+  "local": "PROGRAMA LEILOES",
+  "lotes_ofertados": 11,
+  "lotes_vendidos": 4,
+  "animais_vendidos": 4,
+  "vgv_total": 543000,
+  "ticket_medio": 135750,
+  "maior_lance": 225000,
+  "compradores_unicos": 3,
+  "estados_alcancados": 1,
+  "por_assessor": [
+   {
+    "vgv": 378000,
+    "nome": "Gustavo Rusa",
+    "animais": 2,
+    "empresa": "Bula Assessoria",
+    "posicao": 1,
+    "comissao": 18900,
+    "pct_total": 0.696133,
+    "transacoes": 2,
+    "comissao_pct": 0.05,
+    "ticket_medio": 189000
+   },
+   {
+    "vgv": 93000,
+    "nome": "Peralta / Bula",
+    "animais": 1,
+    "empresa": "Bula Assessoria",
+    "posicao": 2,
+    "comissao": 1860,
+    "pct_total": 0.171271,
+    "transacoes": 1,
+    "comissao_pct": 0.02,
+    "ticket_medio": 93000
+   },
+   {
+    "vgv": 72000,
+    "nome": "Douglas Bispo",
+    "animais": 1,
+    "empresa": "Bula Assessoria",
+    "posicao": 3,
+    "comissao": 1440,
+    "pct_total": 0.132597,
+    "transacoes": 1,
+    "comissao_pct": 0.02,
+    "ticket_medio": 72000
+   }
+  ],
+  "por_estado": [
+   {
+    "uf": "PA",
+    "vgv": 450000,
+    "lotes": 3,
+    "estado": "PA",
+    "animais": 3,
+    "pct_total": 0.828729,
+    "ticket_medio": 150000
+   }
+  ],
+  "compradores": [
+   {
+    "uf": "PA",
+    "vgv": 378000,
+    "rank": 1,
+    "lotes": 2,
+    "animais": 2,
+    "comprador": "É o estadão/PA"
+   },
+   {
+    "uf": null,
+    "vgv": 93000,
+    "rank": 2,
+    "lotes": 1,
+    "animais": 1,
+    "comprador": "A identificar"
+   },
+   {
+    "uf": "PA",
+    "vgv": 72000,
+    "rank": 3,
+    "lotes": 1,
+    "animais": 1,
+    "comprador": "Val Bispo - Dra Byanca Bispo · Novo Repartimento/PA"
+   }
+  ],
+  "lances": [
+   {
+    "vgv": 153000,
+    "lote": "1",
+    "animais": 1,
+    "empresa": "Bula Assessoria",
+    "parcela": 5100,
+    "assessor": "Gustavo Rusa",
+    "parcelas": 30,
+    "vendedor": "PROGRAMA LEILOES",
+    "comprador": "É o estadão/PA",
+    "anunciado_por": "Douglas Bispo"
+   },
+   {
+    "vgv": 225000,
+    "lote": "5",
+    "animais": 1,
+    "empresa": "Bula Assessoria",
+    "parcela": 7500,
+    "assessor": "Gustavo Rusa",
+    "parcelas": 30,
+    "vendedor": "PROGRAMA LEILOES",
+    "comprador": "É o estadão/PA",
+    "anunciado_por": "Douglas Bispo"
+   },
+   {
+    "vgv": 72000,
+    "lote": "28",
+    "animais": 1,
+    "empresa": "Bula Assessoria",
+    "parcela": 2400,
+    "assessor": "Douglas Bispo",
+    "parcelas": 30,
+    "vendedor": "PROGRAMA LEILOES",
+    "comprador": "Val Bispo - Dra Byanca Bispo · Novo Repartimento/PA"
+   },
+   {
+    "vgv": 93000,
+    "lote": "11",
+    "animais": 1,
+    "empresa": "Bula Assessoria",
+    "parcela": 3100,
+    "assessor": "Peralta / Bula",
+    "parcelas": 30,
+    "vendedor": "PROGRAMA LEILOES",
+    "comprador": "A identificar"
+   }
+  ],
+  "perfil_genetico": [],
+  "comissao_assessoria": 22200,
+  "receita_bula": 0,
+  "sobra_bruta": 0,
+  "observacoes": "[LANCES SEPARADOS] 6 lote(s) saiu/sairam para \"4º LEILÃO PEPITAS COLONIAL - EXPOGENÉTICA 2026\" conforme o HastaPro — o parser do grupo nao divide por leilao quando ha dois pregoes no mesmo dia. [01/09/2026] Removido o lote 9 (R$ 33.000, Douglas, comprador Bruno Machado): e o lote 09 do 4o LEILAO PEPITAS COLONIAL do mesmo dia 22/08, que ja o contem (mesmo valor, mesma parcela de 1.100 x30, mesmo comprador). A ficha do grupo nao dizia de que leilao era e o parser casou pelo evento da agenda. Atribuicao do Gustavo Rusa nos lotes 1 e 5 preservada de proposito — e decisao de direcionamento, nao o pisteiro do HastaPro.",
+  "lotes_catalogo": [],
+  "distribuicao_empresa": [
+   {
+    "vgv": 751500,
+    "animais": 11,
+    "empresa": "Bula Assessoria",
+    "pct_total": 1,
+    "transacoes": 11,
+    "ticket_medio": 68318
+   }
+  ],
+  "faturamento_total_leilao": null,
+  "acordo_pct_faturamento": null,
+  "acordo_pct_venda_cobertura": null,
+  "acordo_descricao": null,
+  "acordo_criador_id": null,
+  "created_at": "2026-08-22T17:29:52.63011+00:00",
+  "updated_at": "2026-08-23T02:19:34.802+00:00",
+  "despesas_variaveis": 0,
+  "etapa": "realizado",
+  "etapa_atualizada_em": "2026-08-22T17:29:52.63011+00:00",
+  "origem": "lances-auto"
+ },
+ {
+  "id": "4dfcdaec-1806-4b8c-8112-5f99ee5cc412",
+  "nome": "28º LEILÃO NAVIRAÍ CAMPARINO - REPRODUTORES",
+  "data": "2026-08-23",
+  "local": null,
+  "lotes_ofertados": 0,
+  "lotes_vendidos": 23,
+  "animais_vendidos": 23,
+  "vgv_total": 940500,
+  "ticket_medio": 40891.3,
+  "maior_lance": 63000,
+  "compradores_unicos": 15,
+  "estados_alcancados": 2,
+  "por_assessor": [
+   {
+    "vgv": 288000,
+    "nome": "FABIO OMENNA",
+    "animais": 7,
+    "empresa": "Bula Assessoria",
+    "posicao": 1,
+    "comissao": 5760,
+    "pct_total": 0.30622,
+    "transacoes": 7,
+    "comissao_pct": 0.02,
+    "ticket_medio": 41142.86
+   },
+   {
+    "vgv": 222000,
+    "nome": "NANE",
+    "animais": 6,
+    "empresa": "Bula Assessoria",
+    "posicao": 2,
+    "comissao": 4440,
+    "pct_total": 0.236045,
+    "transacoes": 6,
+    "comissao_pct": 0.02,
+    "ticket_medio": 37000
+   },
+   {
+    "vgv": 96000,
+    "nome": "LUCAS MARTINS",
+    "animais": 2,
+    "empresa": "Bula Assessoria",
+    "posicao": 3,
+    "comissao": 316.8,
+    "pct_total": 0.102073,
+    "transacoes": 2,
+    "comissao_pct": 0.0033,
+    "ticket_medio": 48000
+   },
+   {
+    "vgv": 90000,
+    "nome": "PERALTA",
+    "animais": 2,
+    "empresa": "Bula Assessoria",
+    "posicao": 4,
+    "comissao": 1800,
+    "pct_total": 0.095694,
+    "transacoes": 2,
+    "comissao_pct": 0.02,
+    "ticket_medio": 45000
+   },
+   {
+    "vgv": 72000,
+    "nome": "DOUGLAS BISPO",
+    "animais": 2,
+    "empresa": "Bula Assessoria",
+    "posicao": 5,
+    "comissao": 1440,
+    "pct_total": 0.076555,
+    "transacoes": 2,
+    "comissao_pct": 0.02,
+    "ticket_medio": 36000
+   },
+   {
+    "vgv": 63000,
+    "nome": "(a definir)",
+    "animais": 1,
+    "empresa": "Bula Assessoria",
+    "posicao": 6,
+    "comissao": 0,
+    "pct_total": 0.066986,
+    "transacoes": 1,
+    "comissao_pct": 0,
+    "ticket_medio": 63000
+   },
+   {
+    "vgv": 60000,
+    "nome": "LAILA",
+    "animais": 2,
+    "empresa": "Bula Assessoria",
+    "posicao": 7,
+    "comissao": 600,
+    "pct_total": 0.063796,
+    "transacoes": 2,
+    "comissao_pct": 0.01,
+    "ticket_medio": 30000
+   },
+   {
+    "vgv": 49500,
+    "nome": "LEONARDO",
+    "animais": 1,
+    "empresa": "Bula Assessoria",
+    "posicao": 8,
+    "comissao": 990,
+    "pct_total": 0.052632,
+    "transacoes": 1,
+    "comissao_pct": 0.02,
+    "ticket_medio": 49500
+   }
+  ],
+  "por_estado": [
+   {
+    "uf": "MS",
+    "vgv": 186000,
+    "lotes": 4,
+    "estado": "MS",
+    "animais": 4,
+    "pct_total": 0.197767,
+    "ticket_medio": 46500
+   },
+   {
+    "uf": "PA",
+    "vgv": 33000,
+    "lotes": 1,
+    "estado": "PA",
+    "animais": 1,
+    "pct_total": 0.035088,
+    "ticket_medio": 33000
+   }
+  ],
+  "compradores": [
+   {
+    "uf": null,
+    "vgv": 186000,
+    "rank": 1,
+    "lotes": 5,
+    "cidade": null,
+    "animais": 5,
+    "fazenda": "FAZENDA VARGEM DAS FLORES",
+    "comprador": "IRON GOMES"
+   },
+   {
+    "uf": null,
+    "vgv": 102000,
+    "rank": 2,
+    "lotes": 2,
+    "cidade": null,
+    "animais": 2,
+    "fazenda": "FAZENDA RIBEIRÃO BONITO",
+    "comprador": "MARCO TULIO SEVERINO"
+   },
+   {
+    "uf": null,
+    "vgv": 75000,
+    "rank": 3,
+    "lotes": 2,
+    "cidade": null,
+    "animais": 2,
+    "fazenda": "FAZENDA CAPOEIRA GRANDE",
+    "comprador": "GERALDO MAJELA DE BRITO"
+   },
+   {
+    "uf": null,
+    "vgv": 75000,
+    "rank": 4,
+    "lotes": 2,
+    "cidade": null,
+    "animais": 2,
+    "fazenda": "FAZENDA VIDA NOVA",
+    "comprador": "JAIRO MOREIRA MENDES"
+   },
+   {
+    "uf": null,
+    "vgv": 63000,
+    "rank": 5,
+    "lotes": 1,
+    "cidade": null,
+    "animais": 1,
+    "fazenda": "Fazenda São Francisco",
+    "comprador": "GUSTAVO BARRETTO A. SARMENTO"
+   },
+   {
+    "uf": null,
+    "vgv": 60000,
+    "rank": 6,
+    "lotes": 2,
+    "cidade": null,
+    "animais": 2,
+    "fazenda": "FAZENDA SANTA MARIA",
+    "comprador": "HAROLDO HENRIQUE LUIZARI"
+   },
+   {
+    "uf": null,
+    "vgv": 49500,
+    "rank": 7,
+    "lotes": 1,
+    "cidade": null,
+    "animais": 1,
+    "fazenda": null,
+    "comprador": "ROMUALDO HENRIQUE TAVARES DE MIRANDA · FAZENDA SAO GERONIMO + ELIAS ABDO FILHO · Fazenda Abba"
+   },
+   {
+    "uf": "MS",
+    "vgv": 48000,
+    "rank": 8,
+    "lotes": 1,
+    "cidade": null,
+    "animais": 1,
+    "fazenda": "FAZENDA NOSSA SENHORA DE FÁTIMA",
+    "comprador": "ARMINDO MARTINS DA CONCEIÇÃO"
+   },
+   {
+    "uf": "MS",
+    "vgv": 48000,
+    "rank": 9,
+    "lotes": 1,
+    "cidade": null,
+    "animais": 1,
+    "fazenda": "Fazenda Mimoso",
+    "comprador": "ANGELO MUNHOZ"
+   },
+   {
+    "uf": "MS",
+    "vgv": 48000,
+    "rank": 10,
+    "lotes": 1,
+    "cidade": null,
+    "animais": 1,
+    "fazenda": "FAZENDA ESTANCIA PRIMAVERA",
+    "comprador": "DANIEL ALBUQUERQUE PEREIRA"
+   },
+   {
+    "uf": "MS",
+    "vgv": 42000,
+    "rank": 11,
+    "lotes": 1,
+    "cidade": null,
+    "animais": 1,
+    "fazenda": "Fazenda Nova Taquari",
+    "comprador": "LIBERATO ANTONIO SERAFINI FILHO"
+   },
+   {
+    "uf": null,
+    "vgv": 39000,
+    "rank": 12,
+    "lotes": 1,
+    "cidade": null,
+    "animais": 1,
+    "fazenda": "AGROPECUARIA 3 MARIAS",
+    "comprador": "GESSIVALDO LOBO"
+   },
+   {
+    "uf": null,
+    "vgv": 36000,
+    "rank": 13,
+    "lotes": 1,
+    "cidade": null,
+    "animais": 1,
+    "fazenda": "FAZENDA AMARALINA",
+    "comprador": "GILVAN VILELA"
+   },
+   {
+    "uf": null,
+    "vgv": 36000,
+    "rank": 14,
+    "lotes": 1,
+    "cidade": null,
+    "animais": 1,
+    "fazenda": "FAZENDA ALFREDO DE MAYA",
+    "comprador": "VALDO OMENA"
+   },
+   {
+    "uf": "PA",
+    "vgv": 33000,
+    "rank": 15,
+    "lotes": 1,
+    "cidade": null,
+    "animais": 1,
+    "fazenda": "FAZENDA RIO DOS SONHOS",
+    "comprador": "JULIMAR BELARMINO DA SILVA"
+   }
+  ],
+  "lances": [
+   {
+    "vgv": 33000,
+    "lote": "01",
+    "animais": 1,
+    "empresa": "Bula Assessoria",
+    "parcela": 1100,
+    "assessor": "FABIO OMENNA",
+    "parcelas": null,
+    "comprador": "GERALDO MAJELA DE BRITO · FAZENDA CAPOEIRA GRANDE"
+   },
+   {
+    "vgv": 39000,
+    "lote": "09",
+    "animais": 1,
+    "empresa": "Bula Assessoria",
+    "parcela": 1300,
+    "assessor": "DOUGLAS BISPO",
+    "parcelas": null,
+    "comprador": "GESSIVALDO LOBO · AGROPECUARIA 3 MARIAS"
+   },
+   {
+    "vgv": 60000,
+    "lote": "105",
+    "animais": 1,
+    "empresa": "Bula Assessoria",
+    "parcela": 2000,
+    "assessor": "FABIO OMENNA",
+    "parcelas": null,
+    "comprador": "MARCO TULIO SEVERINO · FAZENDA RIBEIRÃO BONITO"
+   },
+   {
+    "vgv": 48000,
+    "lote": "117",
+    "animais": 1,
+    "empresa": "Bula Assessoria",
+    "parcela": 1600,
+    "assessor": "LUCAS MARTINS",
+    "parcelas": null,
+    "comprador": "ARMINDO MARTINS DA CONCEIÇÃO · FAZENDA NOSSA SENHORA DE FÁTIMA"
+   },
+   {
+    "vgv": 49500,
+    "lote": "12",
+    "cotas": 2,
+    "animais": 1,
+    "empresa": "Bula Assessoria",
+    "parcela": 1650,
+    "assessor": "LEONARDO",
+    "parcelas": null,
+    "comprador": "ROMUALDO HENRIQUE TAVARES DE MIRANDA · FAZENDA SAO GERONIMO + ELIAS ABDO FILHO · Fazenda Abba"
+   },
+   {
+    "vgv": 45000,
+    "lote": "132",
+    "animais": 1,
+    "empresa": "Bula Assessoria",
+    "parcela": 1500,
+    "assessor": "FABIO OMENNA",
+    "parcelas": null,
+    "comprador": "JAIRO MOREIRA MENDES · FAZENDA VIDA NOVA"
+   },
+   {
+    "vgv": 36000,
+    "lote": "140",
+    "animais": 1,
+    "empresa": "Bula Assessoria",
+    "parcela": 1200,
+    "assessor": "NANE",
+    "parcelas": null,
+    "comprador": "GILVAN VILELA · FAZENDA AMARALINA"
+   },
+   {
+    "vgv": 39000,
+    "lote": "159",
+    "animais": 1,
+    "empresa": "Bula Assessoria",
+    "parcela": 1300,
+    "assessor": "NANE",
+    "parcelas": null,
+    "comprador": "IRON GOMES · FAZENDA VARGEM DAS FLORES"
+   },
+   {
+    "vgv": 48000,
+    "lote": "16",
+    "animais": 1,
+    "empresa": "Bula Assessoria",
+    "parcela": 1600,
+    "assessor": "LUCAS MARTINS",
+    "parcelas": null,
+    "comprador": "ANGELO MUNHOZ · Fazenda Mimoso"
+   },
+   {
+    "vgv": 36000,
+    "lote": "19",
+    "animais": 1,
+    "empresa": "Bula Assessoria",
+    "parcela": 1200,
+    "assessor": "FABIO OMENNA",
+    "parcelas": null,
+    "comprador": "VALDO OMENA · FAZENDA ALFREDO DE MAYA"
+   },
+   {
+    "vgv": 42000,
+    "lote": "20",
+    "animais": 1,
+    "empresa": "Bula Assessoria",
+    "parcela": 1400,
+    "assessor": "FABIO OMENNA",
+    "parcelas": null,
+    "comprador": "MARCO TULIO SEVERINO · FAZENDA RIBEIRÃO BONITO"
+   },
+   {
+    "vgv": 63000,
+    "lote": "22",
+    "animais": 1,
+    "empresa": "Bula Assessoria",
+    "parcela": 2100,
+    "assessor": "(a definir)",
+    "parcelas": null,
+    "comprador": "GUSTAVO BARRETTO A. SARMENTO · Fazenda São Francisco"
+   },
+   {
+    "vgv": 36000,
+    "lote": "29",
+    "animais": 1,
+    "empresa": "Bula Assessoria",
+    "parcela": 1200,
+    "assessor": "NANE",
+    "parcelas": null,
+    "comprador": "IRON GOMES · FAZENDA VARGEM DAS FLORES"
+   },
+   {
+    "vgv": 42000,
+    "lote": "30",
+    "animais": 1,
+    "empresa": "Bula Assessoria",
+    "parcela": 1400,
+    "assessor": "PERALTA",
+    "parcelas": null,
+    "comprador": "LIBERATO ANTONIO SERAFINI FILHO · Fazenda Nova Taquari"
+   },
+   {
+    "vgv": 42000,
+    "lote": "36",
+    "animais": 1,
+    "empresa": "Bula Assessoria",
+    "parcela": 1400,
+    "assessor": "FABIO OMENNA",
+    "parcelas": null,
+    "comprador": "GERALDO MAJELA DE BRITO · FAZENDA CAPOEIRA GRANDE"
+   },
+   {
+    "vgv": 30000,
+    "lote": "42",
+    "animais": 1,
+    "empresa": "Bula Assessoria",
+    "parcela": 1000,
+    "assessor": "FABIO OMENNA",
+    "parcelas": null,
+    "comprador": "JAIRO MOREIRA MENDES · FAZENDA VIDA NOVA"
+   },
+   {
+    "vgv": 39000,
+    "lote": "44",
+    "animais": 1,
+    "empresa": "Bula Assessoria",
+    "parcela": 1300,
+    "assessor": "NANE",
+    "parcelas": null,
+    "comprador": "IRON GOMES · FAZENDA VARGEM DAS FLORES"
+   },
+   {
+    "vgv": 30000,
+    "lote": "52",
+    "animais": 1,
+    "empresa": "Bula Assessoria",
+    "parcela": 1000,
+    "assessor": "LAILA",
+    "parcelas": null,
+    "comprador": "HAROLDO HENRIQUE LUIZARI · FAZENDA SANTA MARIA"
+   },
+   {
+    "vgv": 33000,
+    "lote": "59",
+    "animais": 1,
+    "empresa": "Bula Assessoria",
+    "parcela": 1100,
+    "assessor": "DOUGLAS BISPO",
+    "parcelas": null,
+    "comprador": "JULIMAR BELARMINO DA SILVA · FAZENDA RIO DOS SONHOS"
+   },
+   {
+    "vgv": 39000,
+    "lote": "62",
+    "animais": 1,
+    "empresa": "Bula Assessoria",
+    "parcela": 1300,
+    "assessor": "NANE",
+    "parcelas": null,
+    "comprador": "IRON GOMES · FAZENDA VARGEM DAS FLORES"
+   },
+   {
+    "vgv": 33000,
+    "lote": "64",
+    "animais": 1,
+    "empresa": "Bula Assessoria",
+    "parcela": 1100,
+    "assessor": "NANE",
+    "parcelas": null,
+    "comprador": "IRON GOMES · FAZENDA VARGEM DAS FLORES"
+   },
+   {
+    "vgv": 30000,
+    "lote": "77",
+    "animais": 1,
+    "empresa": "Bula Assessoria",
+    "parcela": 1000,
+    "assessor": "LAILA",
+    "parcelas": null,
+    "comprador": "HAROLDO HENRIQUE LUIZARI · FAZENDA SANTA MARIA"
+   },
+   {
+    "vgv": 48000,
+    "lote": "78",
+    "animais": 1,
+    "empresa": "Bula Assessoria",
+    "parcela": 1600,
+    "assessor": "PERALTA",
+    "parcelas": null,
+    "comprador": "DANIEL ALBUQUERQUE PEREIRA · FAZENDA ESTANCIA PRIMAVERA"
+   }
+  ],
+  "perfil_genetico": [],
+  "comissao_assessoria": 15346.8,
+  "receita_bula": 0,
+  "sobra_bruta": 0,
+  "observacoes": "Importado do HastaPro filial 2 (terceiro) por scripts/importa-fechamento-hastapro.mts. O leilao inteiro tem 23 lotes; 23 foram cobertos por pisteiro da equipe Bula e 0 por terceiros — o VGV aqui e a COBERTURA BULA, nao o faturamento do pregao.",
+  "lotes_catalogo": [],
+  "distribuicao_empresa": [],
+  "faturamento_total_leilao": null,
+  "acordo_pct_faturamento": null,
+  "acordo_pct_venda_cobertura": null,
+  "acordo_descricao": null,
+  "acordo_criador_id": null,
+  "created_at": "2026-09-01T18:44:38.299952+00:00",
+  "updated_at": "2026-09-01T18:44:38.299952+00:00",
+  "despesas_variaveis": 0,
+  "etapa": "realizado",
+  "etapa_atualizada_em": "2026-09-01T18:44:38.299952+00:00",
+  "origem": "hastapro"
+ },
+ {
+  "id": "186fdb8e-e613-47da-946a-8633a5c9c6de",
+  "nome": "LEILÃO NELORE DO XINGU",
+  "data": "2026-08-26",
+  "local": null,
+  "lotes_ofertados": 0,
+  "lotes_vendidos": 1,
+  "animais_vendidos": 1,
+  "vgv_total": 93000,
+  "ticket_medio": 93000,
+  "maior_lance": 93000,
+  "compradores_unicos": 1,
+  "estados_alcancados": 1,
+  "por_assessor": [
+   {
+    "vgv": 93000,
+    "nome": "DOUGLAS BISPO",
+    "animais": 1,
+    "empresa": "Bula Assessoria",
+    "posicao": 1,
+    "comissao": 1860,
+    "pct_total": 1,
+    "transacoes": 1,
+    "comissao_pct": 0.02,
+    "ticket_medio": 93000
+   }
+  ],
+  "por_estado": [
+   {
+    "uf": "PA",
+    "vgv": 93000,
+    "lotes": 1,
+    "estado": "PA",
+    "animais": 1,
+    "pct_total": 1,
+    "ticket_medio": 93000
+   }
+  ],
+  "compradores": [
+   {
+    "uf": "PA",
+    "vgv": 93000,
+    "rank": 1,
+    "lotes": 1,
+    "cidade": null,
+    "animais": 1,
+    "fazenda": "FAZENDA FLOR DE ARATAU",
+    "comprador": "ERON JOSE DE CARVALHO"
+   }
+  ],
+  "lances": [
+   {
+    "vgv": 93000,
+    "lote": "EXTRA",
+    "animais": 1,
+    "empresa": "Bula Assessoria",
+    "parcela": 3100,
+    "assessor": "DOUGLAS BISPO",
+    "parcelas": null,
+    "comprador": "ERON JOSE DE CARVALHO · FAZENDA FLOR DE ARATAU"
+   }
+  ],
+  "perfil_genetico": [],
+  "comissao_assessoria": 1860,
+  "receita_bula": 0,
+  "sobra_bruta": 0,
+  "observacoes": "Importado do HastaPro filial 2 (terceiro) por scripts/importa-fechamento-hastapro.mts. O leilao inteiro tem 1 lotes; 1 foram cobertos por pisteiro da equipe Bula e 0 por terceiros — o VGV aqui e a COBERTURA BULA, nao o faturamento do pregao.",
+  "lotes_catalogo": [],
+  "distribuicao_empresa": [],
+  "faturamento_total_leilao": null,
+  "acordo_pct_faturamento": null,
+  "acordo_pct_venda_cobertura": null,
+  "acordo_descricao": null,
+  "acordo_criador_id": null,
+  "created_at": "2026-09-01T18:44:54.663215+00:00",
+  "updated_at": "2026-09-01T18:44:54.663215+00:00",
+  "despesas_variaveis": 0,
+  "etapa": "realizado",
+  "etapa_atualizada_em": "2026-09-01T18:44:54.663215+00:00",
+  "origem": "hastapro"
+ },
+ {
+  "id": "2c4f0dc5-b451-46c8-af84-cd2ccd68cdb8",
+  "nome": "LEILÃO SÓ CRIADOR FÊMEAS E MACHOS DE ALTO PADRÃO",
+  "data": "2026-08-18",
+  "local": "BULA REMATES",
+  "lotes_ofertados": 0,
+  "lotes_vendidos": 1,
+  "animais_vendidos": 20,
+  "vgv_total": 50000,
+  "ticket_medio": 50000,
+  "maior_lance": 50000,
+  "compradores_unicos": 1,
+  "estados_alcancados": 1,
+  "por_assessor": [
+   {
+    "vgv": 50000,
+    "nome": "NANE",
+    "animais": 20,
+    "empresa": "Bula Assessoria",
+    "posicao": 1,
+    "comissao": 1000,
+    "pct_total": 1,
+    "transacoes": 1,
+    "comissao_pct": 0.02,
+    "ticket_medio": 50000
+   }
+  ],
+  "por_estado": [
+   {
+    "uf": "MS",
+    "vgv": 50000,
+    "lotes": 1,
+    "estado": "MS",
+    "animais": 20,
+    "pct_total": 1,
+    "ticket_medio": 50000
+   }
+  ],
+  "compradores": [
+   {
+    "uf": "MS",
+    "vgv": 50000,
+    "rank": 1,
+    "lotes": 1,
+    "cidade": null,
+    "animais": 20,
+    "fazenda": "FAZENDA BURITI AREA B",
+    "comprador": "CELINA PEREIRA DE MENEZES E OUTROS"
+   }
+  ],
+  "lances": [
+   {
+    "vgv": 50000,
+    "lote": "16A",
+    "animais": 20,
+    "empresa": "Bula Assessoria",
+    "parcela": 2500,
+    "assessor": "NANE",
+    "parcelas": null,
+    "comprador": "CELINA PEREIRA DE MENEZES E OUTROS · FAZENDA BURITI AREA B"
+   }
+  ],
+  "perfil_genetico": [],
+  "comissao_assessoria": 1000,
+  "receita_bula": 0,
+  "sobra_bruta": 0,
+  "observacoes": "Importado do HastaPro filial 01 (BULA REMATES) por scripts/importa-fechamento-hastapro.mts. O leilao inteiro tem 15 lotes; 1 foram cobertos por pisteiro da equipe Bula e 14 por terceiros — o VGV aqui e a COBERTURA BULA, nao o faturamento do pregao. Bulinha com 0% por ser leilao da Bula Remates.",
+  "lotes_catalogo": [],
+  "distribuicao_empresa": [],
+  "faturamento_total_leilao": null,
+  "acordo_pct_faturamento": null,
+  "acordo_pct_venda_cobertura": null,
+  "acordo_descricao": null,
+  "acordo_criador_id": null,
+  "created_at": "2026-09-01T18:45:16.797183+00:00",
+  "updated_at": "2026-09-01T18:45:16.797183+00:00",
+  "despesas_variaveis": 0,
+  "etapa": "realizado",
+  "etapa_atualizada_em": "2026-09-01T18:45:16.797183+00:00",
+  "origem": "hastapro"
+ },
+ {
+  "id": "1c6a9350-4bec-4fbb-b50b-f016742d6add",
+  "nome": "SHOPPING NAVIRAI EXPOGENÉTICA",
+  "data": "2026-08-15",
+  "local": null,
+  "lotes_ofertados": 0,
+  "lotes_vendidos": 2,
+  "animais_vendidos": 2,
+  "vgv_total": 96600,
+  "ticket_medio": 48300,
+  "maior_lance": 55200,
+  "compradores_unicos": 2,
+  "estados_alcancados": 1,
+  "por_assessor": [
+   {
+    "vgv": 96600,
+    "nome": "DOUGLAS BISPO",
+    "animais": 2,
+    "empresa": "Bula Assessoria",
+    "posicao": 1,
+    "comissao": 1932,
+    "pct_total": 1,
+    "transacoes": 2,
+    "comissao_pct": 0.02,
+    "ticket_medio": 48300
+   }
+  ],
+  "por_estado": [
+   {
+    "uf": "PA",
+    "vgv": 55200,
+    "lotes": 1,
+    "estado": "PA",
+    "animais": 1,
+    "pct_total": 0.571429,
+    "ticket_medio": 55200
+   }
+  ],
+  "compradores": [
+   {
+    "uf": "PA",
+    "vgv": 55200,
+    "rank": 1,
+    "lotes": 1,
+    "cidade": null,
+    "animais": 1,
+    "fazenda": "FAZENDA BOM RETIRO",
+    "comprador": "BRUNO FABIO FERNANDES MACHADO"
+   },
+   {
+    "uf": null,
+    "vgv": 41400,
+    "rank": 2,
+    "lotes": 1,
+    "cidade": null,
+    "animais": 1,
+    "fazenda": "NELORE AMER",
+    "comprador": "MIGUEL SOUSA"
+   }
+  ],
+  "lances": [
+   {
+    "vgv": 55200,
+    "lote": "41",
+    "animais": 1,
+    "empresa": "Bula Assessoria",
+    "parcela": 1840,
+    "assessor": "DOUGLAS BISPO",
+    "parcelas": null,
+    "comprador": "BRUNO FABIO FERNANDES MACHADO · FAZENDA BOM RETIRO"
+   },
+   {
+    "vgv": 41400,
+    "lote": "48",
+    "animais": 1,
+    "empresa": "Bula Assessoria",
+    "parcela": 1380,
+    "assessor": "DOUGLAS BISPO",
+    "parcelas": null,
+    "comprador": "MIGUEL SOUSA · NELORE AMER"
+   }
+  ],
+  "perfil_genetico": [],
+  "comissao_assessoria": 1932,
+  "receita_bula": 0,
+  "sobra_bruta": 0,
+  "observacoes": "Importado do HastaPro filial 2 (terceiro) por scripts/importa-fechamento-hastapro.mts. O leilao inteiro tem 2 lotes; 2 foram cobertos por pisteiro da equipe Bula e 0 por terceiros — o VGV aqui e a COBERTURA BULA, nao o faturamento do pregao.",
+  "lotes_catalogo": [],
+  "distribuicao_empresa": [],
+  "faturamento_total_leilao": null,
+  "acordo_pct_faturamento": null,
+  "acordo_pct_venda_cobertura": null,
+  "acordo_descricao": null,
+  "acordo_criador_id": null,
+  "created_at": "2026-08-25T21:29:30.851168+00:00",
+  "updated_at": "2026-08-25T21:29:30.851168+00:00",
+  "despesas_variaveis": 0,
+  "etapa": "realizado",
+  "etapa_atualizada_em": "2026-08-25T21:29:30.851168+00:00",
+  "origem": "hastapro"
+ },
+ {
+  "id": "f4ed3ffb-ed6a-4861-b409-d4c53f6e000f",
+  "nome": "LEILÃO FAZENDA ARARAS - ESSÊNCIA GENÉTICA",
+  "data": "2026-08-16",
+  "local": "COM CONNECT",
+  "lotes_ofertados": 0,
+  "lotes_vendidos": 1,
+  "animais_vendidos": 1,
+  "vgv_total": 87000,
+  "ticket_medio": 87000,
+  "maior_lance": 87000,
+  "compradores_unicos": 1,
+  "estados_alcancados": 0,
+  "por_assessor": [
+   {
+    "vgv": 87000,
+    "nome": "DOUGLAS BISPO",
+    "animais": 1,
+    "empresa": "Bula Assessoria",
+    "posicao": 1,
+    "comissao": 1740,
+    "pct_total": 1,
+    "transacoes": 1,
+    "comissao_pct": 0.02,
+    "ticket_medio": 87000
+   }
+  ],
+  "por_estado": [],
+  "compradores": [
+   {
+    "uf": null,
+    "vgv": 87000,
+    "rank": 1,
+    "lotes": 1,
+    "cidade": null,
+    "animais": 1,
+    "fazenda": "NELORE PEROLA",
+    "comprador": "JOSE FABIO"
+   }
+  ],
+  "lances": [
+   {
+    "vgv": 87000,
+    "lote": "22",
+    "animais": 1,
+    "empresa": "Bula Assessoria",
+    "parcela": 2900,
+    "assessor": "DOUGLAS BISPO",
+    "parcelas": null,
+    "comprador": "JOSE FABIO · NELORE PEROLA"
+   }
+  ],
+  "perfil_genetico": [],
+  "comissao_assessoria": 1740,
+  "receita_bula": 0,
+  "sobra_bruta": 0,
+  "observacoes": "Importado do HastaPro filial 2 (terceiro) por scripts/importa-fechamento-hastapro.mts. O leilao inteiro tem 1 lotes; 1 foram cobertos por pisteiro da equipe Bula e 0 por terceiros — o VGV aqui e a COBERTURA BULA, nao o faturamento do pregao.",
+  "lotes_catalogo": [],
+  "distribuicao_empresa": [],
+  "faturamento_total_leilao": null,
+  "acordo_pct_faturamento": null,
+  "acordo_pct_venda_cobertura": null,
+  "acordo_descricao": null,
+  "acordo_criador_id": null,
+  "created_at": "2026-08-25T21:29:35.545223+00:00",
+  "updated_at": "2026-08-25T21:29:35.545223+00:00",
+  "despesas_variaveis": 0,
+  "etapa": "realizado",
+  "etapa_atualizada_em": "2026-08-25T21:29:35.545223+00:00",
+  "origem": "hastapro"
+ },
+ {
+  "id": "81567251-b699-4f28-a9b5-3dd2457041b4",
+  "nome": "LEILÃO RESERVA SANTA NICE EXPOGENÉTICA 2026",
+  "data": "2026-08-19",
+  "local": null,
+  "lotes_ofertados": 0,
+  "lotes_vendidos": 2,
+  "animais_vendidos": 2,
+  "vgv_total": 297000,
+  "ticket_medio": 148500,
+  "maior_lance": 216000,
+  "compradores_unicos": 2,
+  "estados_alcancados": 0,
+  "por_assessor": [
+   {
+    "vgv": 216000,
+    "nome": "DOUGLAS BISPO",
+    "animais": 1,
+    "empresa": "Bula Assessoria",
+    "posicao": 1,
+    "comissao": 4320,
+    "pct_total": 0.727273,
+    "transacoes": 1,
+    "comissao_pct": 0.02,
+    "ticket_medio": 216000
+   },
+   {
+    "vgv": 81000,
+    "nome": "FABIO OMENNA",
+    "animais": 1,
+    "empresa": "Bula Assessoria",
+    "posicao": 2,
+    "comissao": 1620,
+    "pct_total": 0.272727,
+    "transacoes": 1,
+    "comissao_pct": 0.02,
+    "ticket_medio": 81000
+   }
+  ],
+  "por_estado": [],
+  "compradores": [
+   {
+    "uf": null,
+    "vgv": 216000,
+    "rank": 1,
+    "lotes": 1,
+    "cidade": null,
+    "animais": 1,
+    "fazenda": "NELORE PEROLA",
+    "comprador": "JOSE FABIO"
+   },
+   {
+    "uf": null,
+    "vgv": 81000,
+    "rank": 2,
+    "lotes": 1,
+    "cidade": null,
+    "animais": 1,
+    "fazenda": "Confirmar Fazenda",
+    "comprador": "GUILHERME CARVALHO E MARCELO"
+   }
+  ],
+  "lances": [
+   {
+    "vgv": 216000,
+    "lote": "04",
+    "animais": 1,
+    "empresa": "Bula Assessoria",
+    "parcela": 7200,
+    "assessor": "DOUGLAS BISPO",
+    "parcelas": null,
+    "comprador": "JOSE FABIO · NELORE PEROLA"
+   },
+   {
+    "vgv": 81000,
+    "lote": "35",
+    "animais": 1,
+    "empresa": "Bula Assessoria",
+    "parcela": 2700,
+    "assessor": "FABIO OMENNA",
+    "parcelas": null,
+    "comprador": "GUILHERME CARVALHO E MARCELO · Confirmar Fazenda"
+   }
+  ],
+  "perfil_genetico": [],
+  "comissao_assessoria": 5940,
+  "receita_bula": 0,
+  "sobra_bruta": 0,
+  "observacoes": "Importado do HastaPro filial 2 (terceiro) por scripts/importa-fechamento-hastapro.mts. O leilao inteiro tem 2 lotes; 2 foram cobertos por pisteiro da equipe Bula e 0 por terceiros — o VGV aqui e a COBERTURA BULA, nao o faturamento do pregao.",
+  "lotes_catalogo": [],
+  "distribuicao_empresa": [],
+  "faturamento_total_leilao": null,
+  "acordo_pct_faturamento": null,
+  "acordo_pct_venda_cobertura": null,
+  "acordo_descricao": null,
+  "acordo_criador_id": null,
+  "created_at": "2026-08-25T21:30:35.684949+00:00",
+  "updated_at": "2026-08-25T21:30:35.684949+00:00",
+  "despesas_variaveis": 0,
+  "etapa": "realizado",
+  "etapa_atualizada_em": "2026-08-25T21:30:35.684949+00:00",
+  "origem": "hastapro"
+ },
+ {
+  "id": "c69e920a-fec8-4334-b22b-3ffbb02f88cb",
+  "nome": "6º LEILÃO EXCELÊNCIA GENÉTICA",
+  "data": "2026-08-23",
+  "local": null,
+  "lotes_ofertados": 0,
+  "lotes_vendidos": 1,
+  "animais_vendidos": 1,
+  "vgv_total": 105000,
+  "ticket_medio": 105000,
+  "maior_lance": 105000,
+  "compradores_unicos": 1,
+  "estados_alcancados": 0,
+  "por_assessor": [
+   {
+    "vgv": 105000,
+    "nome": "BULINHA (FELIPE ANDRADE)",
+    "animais": 1,
+    "empresa": "Bula Assessoria",
+    "posicao": 1,
+    "comissao": 2100,
+    "pct_total": 1,
+    "transacoes": 1,
+    "comissao_pct": 0.02,
+    "ticket_medio": 105000
+   }
+  ],
+  "por_estado": [],
+  "compradores": [
+   {
+    "uf": null,
+    "vgv": 105000,
+    "rank": 1,
+    "lotes": 1,
+    "cidade": null,
+    "animais": 1,
+    "fazenda": null,
+    "comprador": "VALDEMAR PISSINATTI GUERRA · Fazenda Magda + JOEL DE ASSIS GOUVÊA JÚNIOR · FAZENDA GIOVANNA"
+   }
+  ],
+  "lances": [
+   {
+    "vgv": 105000,
+    "lote": "21",
+    "cotas": 2,
+    "animais": 1,
+    "empresa": "Bula Assessoria",
+    "parcela": 3500,
+    "assessor": "BULINHA (FELIPE ANDRADE)",
+    "parcelas": null,
+    "comprador": "VALDEMAR PISSINATTI GUERRA · Fazenda Magda + JOEL DE ASSIS GOUVÊA JÚNIOR · FAZENDA GIOVANNA"
+   }
+  ],
+  "perfil_genetico": [],
+  "comissao_assessoria": 2100,
+  "receita_bula": 0,
+  "sobra_bruta": 0,
+  "observacoes": "Importado do HastaPro filial 2 (terceiro) por scripts/importa-fechamento-hastapro.mts. O leilao inteiro tem 1 lotes; 1 foram cobertos por pisteiro da equipe Bula e 0 por terceiros — o VGV aqui e a COBERTURA BULA, nao o faturamento do pregao.",
+  "lotes_catalogo": [],
+  "distribuicao_empresa": [],
+  "faturamento_total_leilao": null,
+  "acordo_pct_faturamento": null,
+  "acordo_pct_venda_cobertura": null,
+  "acordo_descricao": null,
+  "acordo_criador_id": null,
+  "created_at": "2026-09-01T18:44:43.622883+00:00",
+  "updated_at": "2026-09-01T18:44:43.622883+00:00",
+  "despesas_variaveis": 0,
+  "etapa": "realizado",
+  "etapa_atualizada_em": "2026-09-01T18:44:43.622883+00:00",
+  "origem": "hastapro"
+ },
+ {
+  "id": "6e00c174-7551-4199-ac8d-3af7e933a065",
+  "nome": "LEILÃO VIRTUAL TERRA BRAVA AGROPECUÁRIA - FÊMEAS PRENHAS",
+  "data": "2026-08-26",
+  "local": null,
+  "lotes_ofertados": 0,
+  "lotes_vendidos": 2,
+  "animais_vendidos": 2,
+  "vgv_total": 46500,
+  "ticket_medio": 23250,
+  "maior_lance": 27000,
+  "compradores_unicos": 2,
+  "estados_alcancados": 1,
+  "por_assessor": [
+   {
+    "vgv": 27000,
+    "nome": "LEONARDO",
+    "animais": 1,
+    "empresa": "Bula Assessoria",
+    "posicao": 1,
+    "comissao": 540,
+    "pct_total": 0.580645,
+    "transacoes": 1,
+    "comissao_pct": 0.02,
+    "ticket_medio": 27000
+   },
+   {
+    "vgv": 19500,
+    "nome": "FABIO OMENNA",
+    "animais": 1,
+    "empresa": "Bula Assessoria",
+    "posicao": 2,
+    "comissao": 390,
+    "pct_total": 0.419355,
+    "transacoes": 1,
+    "comissao_pct": 0.02,
+    "ticket_medio": 19500
+   }
+  ],
+  "por_estado": [
+   {
+    "uf": "MG",
+    "vgv": 27000,
+    "lotes": 1,
+    "estado": "MG",
+    "animais": 1,
+    "pct_total": 0.580645,
+    "ticket_medio": 27000
+   }
+  ],
+  "compradores": [
+   {
+    "uf": "MG",
+    "vgv": 27000,
+    "rank": 1,
+    "lotes": 1,
+    "cidade": null,
+    "animais": 1,
+    "fazenda": "FAZENDA FUNIL",
+    "comprador": "ORISMAR MOREIRA LEÃO"
+   },
+   {
+    "uf": null,
+    "vgv": 19500,
+    "rank": 2,
+    "lotes": 1,
+    "cidade": null,
+    "animais": 1,
+    "fazenda": "FAZENDA CASA AMARELA",
+    "comprador": "ADIL JUNIOR"
+   }
+  ],
+  "lances": [
+   {
+    "vgv": 27000,
+    "lote": "19",
+    "animais": 1,
+    "empresa": "Bula Assessoria",
+    "parcela": 900,
+    "assessor": "LEONARDO",
+    "parcelas": null,
+    "comprador": "ORISMAR MOREIRA LEÃO · FAZENDA FUNIL"
+   },
+   {
+    "vgv": 19500,
+    "lote": "45",
+    "animais": 1,
+    "empresa": "Bula Assessoria",
+    "parcela": 650,
+    "assessor": "FABIO OMENNA",
+    "parcelas": null,
+    "comprador": "ADIL JUNIOR · FAZENDA CASA AMARELA"
+   }
+  ],
+  "perfil_genetico": [],
+  "comissao_assessoria": 930,
+  "receita_bula": 0,
+  "sobra_bruta": 0,
+  "observacoes": "Importado do HastaPro filial 2 (terceiro) por scripts/importa-fechamento-hastapro.mts. O leilao inteiro tem 2 lotes; 2 foram cobertos por pisteiro da equipe Bula e 0 por terceiros — o VGV aqui e a COBERTURA BULA, nao o faturamento do pregao.",
+  "lotes_catalogo": [],
+  "distribuicao_empresa": [],
+  "faturamento_total_leilao": null,
+  "acordo_pct_faturamento": null,
+  "acordo_pct_venda_cobertura": null,
+  "acordo_descricao": null,
+  "acordo_criador_id": null,
+  "created_at": "2026-09-01T18:44:49.007286+00:00",
+  "updated_at": "2026-09-01T18:44:49.007286+00:00",
+  "despesas_variaveis": 0,
+  "etapa": "realizado",
+  "etapa_atualizada_em": "2026-09-01T18:44:49.007286+00:00",
+  "origem": "hastapro"
+ },
+ {
+  "id": "3b25e7d7-2bdf-40fe-9e72-13650e5cba3a",
+  "nome": "13º LEILÃO GENÉTICA TOUROS NELORE HORA",
+  "data": "2026-08-18",
+  "local": null,
+  "lotes_ofertados": 0,
+  "lotes_vendidos": 1,
+  "animais_vendidos": 1,
+  "vgv_total": 24000,
+  "ticket_medio": 24000,
+  "maior_lance": 24000,
+  "compradores_unicos": 1,
+  "estados_alcancados": 0,
+  "por_assessor": [
+   {
+    "vgv": 24000,
+    "nome": "FABIO OMENNA",
+    "animais": 1,
+    "empresa": "Bula Assessoria",
+    "posicao": 1,
+    "comissao": 480,
+    "pct_total": 1,
+    "transacoes": 1,
+    "comissao_pct": 0.02,
+    "ticket_medio": 24000
+   }
+  ],
+  "por_estado": [],
+  "compradores": [
+   {
+    "uf": null,
+    "vgv": 24000,
+    "rank": 1,
+    "lotes": 1,
+    "cidade": null,
+    "animais": 1,
+    "fazenda": "RANCHO SÃO JOSÉ",
+    "comprador": "KLAUS TREIN LAINO"
+   }
+  ],
+  "lances": [
+   {
+    "vgv": 24000,
+    "lote": "46",
+    "animais": 1,
+    "empresa": "Bula Assessoria",
+    "parcela": 800,
+    "assessor": "FABIO OMENNA",
+    "parcelas": null,
+    "comprador": "KLAUS TREIN LAINO · RANCHO SÃO JOSÉ"
+   }
+  ],
+  "perfil_genetico": [],
+  "comissao_assessoria": 480,
+  "receita_bula": 0,
+  "sobra_bruta": 0,
+  "observacoes": "Importado do HastaPro filial 2 (terceiro) por scripts/importa-fechamento-hastapro.mts. O leilao inteiro tem 1 lotes; 1 foram cobertos por pisteiro da equipe Bula e 0 por terceiros — o VGV aqui e a COBERTURA BULA, nao o faturamento do pregao.",
+  "lotes_catalogo": [],
+  "distribuicao_empresa": [],
+  "faturamento_total_leilao": null,
+  "acordo_pct_faturamento": null,
+  "acordo_pct_venda_cobertura": null,
+  "acordo_descricao": null,
+  "acordo_criador_id": null,
+  "created_at": "2026-08-25T21:29:40.402228+00:00",
+  "updated_at": "2026-08-25T21:29:40.402228+00:00",
+  "despesas_variaveis": 0,
+  "etapa": "realizado",
+  "etapa_atualizada_em": "2026-08-25T21:29:40.402228+00:00",
+  "origem": "hastapro"
+ },
+ {
+  "id": "22d586a5-3635-48cd-8832-5c37d8dcdb3d",
+  "nome": "1º LEILÃO NELORE ASJ",
+  "data": "2026-08-30",
+  "local": null,
+  "lotes_ofertados": 0,
+  "lotes_vendidos": 2,
+  "animais_vendidos": 3,
+  "vgv_total": 30900,
+  "ticket_medio": 15450,
+  "maior_lance": 19800,
+  "compradores_unicos": 2,
+  "estados_alcancados": 0,
+  "por_assessor": [
+   {
+    "vgv": 30900,
+    "nome": "FABIO OMENNA",
+    "animais": 3,
+    "empresa": "Bula Assessoria",
+    "posicao": 1,
+    "comissao": 618,
+    "pct_total": 1,
+    "transacoes": 2,
+    "comissao_pct": 0.02,
+    "ticket_medio": 15450
+   }
+  ],
+  "por_estado": [],
+  "compradores": [
+   {
+    "uf": null,
+    "vgv": 19800,
+    "rank": 1,
+    "lotes": 1,
+    "cidade": null,
+    "animais": 2,
+    "fazenda": "FAZENDA BARRO ALTO",
+    "comprador": "GLADSTON PEREIRA DOS ANJOS"
+   },
+   {
+    "uf": null,
+    "vgv": 11100,
+    "rank": 2,
+    "lotes": 1,
+    "cidade": null,
+    "animais": 1,
+    "fazenda": "FAZENDA TAMAREIRA",
+    "comprador": "NATÁLIA SATURNINO"
+   }
+  ],
+  "lances": [
+   {
+    "vgv": 11100,
+    "lote": "07",
+    "animais": 1,
+    "empresa": "Bula Assessoria",
+    "parcela": 370,
+    "assessor": "FABIO OMENNA",
+    "parcelas": null,
+    "comprador": "NATÁLIA SATURNINO · FAZENDA TAMAREIRA"
+   },
+   {
+    "vgv": 19800,
+    "lote": "24",
+    "animais": 2,
+    "empresa": "Bula Assessoria",
+    "parcela": 330,
+    "assessor": "FABIO OMENNA",
+    "parcelas": null,
+    "comprador": "GLADSTON PEREIRA DOS ANJOS · FAZENDA BARRO ALTO"
+   }
+  ],
+  "perfil_genetico": [],
+  "comissao_assessoria": 618,
+  "receita_bula": 0,
+  "sobra_bruta": 0,
+  "observacoes": "Importado do HastaPro filial 2 (terceiro) por scripts/importa-fechamento-hastapro.mts. O leilao inteiro tem 2 lotes; 2 foram cobertos por pisteiro da equipe Bula e 0 por terceiros — o VGV aqui e a COBERTURA BULA, nao o faturamento do pregao.",
+  "lotes_catalogo": [],
+  "distribuicao_empresa": [],
+  "faturamento_total_leilao": null,
+  "acordo_pct_faturamento": null,
+  "acordo_pct_venda_cobertura": null,
+  "acordo_descricao": null,
+  "acordo_criador_id": null,
+  "created_at": "2026-09-01T18:45:05.522296+00:00",
+  "updated_at": "2026-09-01T18:45:05.522296+00:00",
+  "despesas_variaveis": 0,
+  "etapa": "realizado",
+  "etapa_atualizada_em": "2026-09-01T18:45:05.522296+00:00",
+  "origem": "hastapro"
+ },
+ {
+  "id": "9e632d05-83ef-496f-88c4-c68326d1f55b",
+  "nome": "LEILÃO BABY DE PROVA - MÁQUINAS DE ACELERAR GERAÇÕES",
+  "data": "2026-08-20",
+  "local": null,
+  "lotes_ofertados": 0,
+  "lotes_vendidos": 2,
+  "animais_vendidos": 2,
+  "vgv_total": 73500,
+  "ticket_medio": 36750,
+  "maior_lance": 42000,
+  "compradores_unicos": 1,
+  "estados_alcancados": 0,
+  "por_assessor": [
+   {
+    "vgv": 73500,
+    "nome": "DOUGLAS BISPO",
+    "animais": 2,
+    "empresa": "Bula Assessoria",
+    "posicao": 1,
+    "comissao": 1470,
+    "pct_total": 1,
+    "transacoes": 2,
+    "comissao_pct": 0.02,
+    "ticket_medio": 36750
+   }
+  ],
+  "por_estado": [],
+  "compradores": [
+   {
+    "uf": null,
+    "vgv": 73500,
+    "rank": 1,
+    "lotes": 2,
+    "cidade": null,
+    "animais": 2,
+    "fazenda": "FAZENDA FLOR DE MINAS",
+    "comprador": "CELSO LOPES"
+   }
+  ],
+  "lances": [
+   {
+    "vgv": 42000,
+    "lote": "22",
+    "animais": 1,
+    "empresa": "Bula Assessoria",
+    "parcela": 1400,
+    "assessor": "DOUGLAS BISPO",
+    "parcelas": null,
+    "comprador": "CELSO LOPES · FAZENDA FLOR DE MINAS"
+   },
+   {
+    "vgv": 31500,
+    "lote": "23",
+    "animais": 1,
+    "empresa": "Bula Assessoria",
+    "parcela": 1050,
+    "assessor": "DOUGLAS BISPO",
+    "parcelas": null,
+    "comprador": "CELSO LOPES · FAZENDA FLOR DE MINAS"
+   }
+  ],
+  "perfil_genetico": [],
+  "comissao_assessoria": 1470,
+  "receita_bula": 0,
+  "sobra_bruta": 0,
+  "observacoes": "Importado do HastaPro filial 2 (terceiro) por scripts/importa-fechamento-hastapro.mts. O leilao inteiro tem 2 lotes; 2 foram cobertos por pisteiro da equipe Bula e 0 por terceiros — o VGV aqui e a COBERTURA BULA, nao o faturamento do pregao.",
+  "lotes_catalogo": [],
+  "distribuicao_empresa": [],
+  "faturamento_total_leilao": null,
+  "acordo_pct_faturamento": null,
+  "acordo_pct_venda_cobertura": null,
+  "acordo_descricao": null,
+  "acordo_criador_id": null,
+  "created_at": "2026-08-25T21:29:45.121436+00:00",
+  "updated_at": "2026-08-25T21:29:45.121436+00:00",
+  "despesas_variaveis": 0,
+  "etapa": "realizado",
+  "etapa_atualizada_em": "2026-08-25T21:29:45.121436+00:00",
+  "origem": "hastapro"
+ },
+ {
+  "id": "4f28d2da-7f56-473a-9ac4-12e37ec0da1d",
+  "nome": "LEILÃO NELORE MARCONDES - ABERTURA",
+  "data": "2026-08-23",
+  "local": null,
+  "lotes_ofertados": 0,
+  "lotes_vendidos": 1,
+  "animais_vendidos": 1,
+  "vgv_total": 37500,
+  "ticket_medio": 37500,
+  "maior_lance": 37500,
+  "compradores_unicos": 1,
+  "estados_alcancados": 1,
+  "por_assessor": [
+   {
+    "vgv": 37500,
+    "nome": "PERALTA",
+    "animais": 1,
+    "empresa": "Bula Assessoria",
+    "posicao": 1,
+    "comissao": 750,
+    "pct_total": 1,
+    "transacoes": 1,
+    "comissao_pct": 0.02,
+    "ticket_medio": 37500
+   }
+  ],
+  "por_estado": [
+   {
+    "uf": "MS",
+    "vgv": 37500,
+    "lotes": 1,
+    "estado": "MS",
+    "animais": 1,
+    "pct_total": 1,
+    "ticket_medio": 37500
+   }
+  ],
+  "compradores": [
+   {
+    "uf": "MS",
+    "vgv": 37500,
+    "rank": 1,
+    "lotes": 1,
+    "cidade": null,
+    "animais": 1,
+    "fazenda": "FAZENDA ANDRESSA",
+    "comprador": "FERNANDO CESAR PINHEIRO CARNEIRO"
+   }
+  ],
+  "lances": [
+   {
+    "vgv": 37500,
+    "lote": "01",
+    "animais": 1,
+    "empresa": "Bula Assessoria",
+    "parcela": 1250,
+    "assessor": "PERALTA",
+    "parcelas": null,
+    "comprador": "FERNANDO CESAR PINHEIRO CARNEIRO · FAZENDA ANDRESSA"
+   }
+  ],
+  "perfil_genetico": [],
+  "comissao_assessoria": 750,
+  "receita_bula": 0,
+  "sobra_bruta": 0,
+  "observacoes": "Importado do HastaPro filial 2 (terceiro) por scripts/importa-fechamento-hastapro.mts. O leilao inteiro tem 1 lotes; 1 foram cobertos por pisteiro da equipe Bula e 0 por terceiros — o VGV aqui e a COBERTURA BULA, nao o faturamento do pregao.",
+  "lotes_catalogo": [],
+  "distribuicao_empresa": [],
+  "faturamento_total_leilao": null,
+  "acordo_pct_faturamento": null,
+  "acordo_pct_venda_cobertura": null,
+  "acordo_descricao": null,
+  "acordo_criador_id": null,
+  "created_at": "2026-08-25T21:29:59.601655+00:00",
+  "updated_at": "2026-08-25T21:29:59.601655+00:00",
+  "despesas_variaveis": 0,
+  "etapa": "realizado",
+  "etapa_atualizada_em": "2026-08-25T21:29:59.601655+00:00",
+  "origem": "hastapro"
+ },
+ {
+  "id": "632a16cf-988a-4309-b1e5-45e208045772",
+  "nome": "LEILÃO NELORE CEN & FAZENDA MODELO & CONVIDADOS",
+  "data": "2026-08-20",
+  "local": null,
+  "lotes_ofertados": 0,
+  "lotes_vendidos": 2,
+  "animais_vendidos": 2,
+  "vgv_total": 117000,
+  "ticket_medio": 58500,
+  "maior_lance": 84000,
+  "compradores_unicos": 2,
+  "estados_alcancados": 2,
+  "por_assessor": [
+   {
+    "vgv": 84000,
+    "nome": "PERALTA",
+    "animais": 1,
+    "empresa": "Bula Assessoria",
+    "posicao": 1,
+    "comissao": 1680,
+    "pct_total": 0.717949,
+    "transacoes": 1,
+    "comissao_pct": 0.02,
+    "ticket_medio": 84000
+   },
+   {
+    "vgv": 33000,
+    "nome": "LEONARDO",
+    "animais": 1,
+    "empresa": "Bula Assessoria",
+    "posicao": 2,
+    "comissao": 660,
+    "pct_total": 0.282051,
+    "transacoes": 1,
+    "comissao_pct": 0.02,
+    "ticket_medio": 33000
+   }
+  ],
+  "por_estado": [
+   {
+    "uf": "MS",
+    "vgv": 84000,
+    "lotes": 1,
+    "estado": "MS",
+    "animais": 1,
+    "pct_total": 0.717949,
+    "ticket_medio": 84000
+   },
+   {
+    "uf": "PR",
+    "vgv": 33000,
+    "lotes": 1,
+    "estado": "PR",
+    "animais": 1,
+    "pct_total": 0.282051,
+    "ticket_medio": 33000
+   }
+  ],
+  "compradores": [
+   {
+    "uf": "MS",
+    "vgv": 84000,
+    "rank": 1,
+    "lotes": 1,
+    "cidade": null,
+    "animais": 1,
+    "fazenda": "FAZENDA ANDRESSA",
+    "comprador": "FERNANDO CESAR PINHEIRO CARNEIRO"
+   },
+   {
+    "uf": "PR",
+    "vgv": 33000,
+    "rank": 2,
+    "lotes": 1,
+    "cidade": null,
+    "animais": 1,
+    "fazenda": "Fazenda Abba",
+    "comprador": "ELIAS ABDO FILHO"
+   }
+  ],
+  "lances": [
+   {
+    "vgv": 84000,
+    "lote": "09",
+    "animais": 1,
+    "empresa": "Bula Assessoria",
+    "parcela": 2800,
+    "assessor": "PERALTA",
+    "parcelas": null,
+    "comprador": "FERNANDO CESAR PINHEIRO CARNEIRO · FAZENDA ANDRESSA"
+   },
+   {
+    "vgv": 33000,
+    "lote": "18",
+    "animais": 1,
+    "empresa": "Bula Assessoria",
+    "parcela": 1100,
+    "assessor": "LEONARDO",
+    "parcelas": null,
+    "comprador": "ELIAS ABDO FILHO · Fazenda Abba"
+   }
+  ],
+  "perfil_genetico": [],
+  "comissao_assessoria": 2340,
+  "receita_bula": 0,
+  "sobra_bruta": 0,
+  "observacoes": "Importado do HastaPro filial 2 (terceiro) por scripts/importa-fechamento-hastapro.mts. O leilao inteiro tem 2 lotes; 2 foram cobertos por pisteiro da equipe Bula e 0 por terceiros — o VGV aqui e a COBERTURA BULA, nao o faturamento do pregao.",
+  "lotes_catalogo": [],
+  "distribuicao_empresa": [],
+  "faturamento_total_leilao": null,
+  "acordo_pct_faturamento": null,
+  "acordo_pct_venda_cobertura": null,
+  "acordo_descricao": null,
+  "acordo_criador_id": null,
+  "created_at": "2026-08-25T21:29:50.091726+00:00",
+  "updated_at": "2026-08-25T21:29:50.091726+00:00",
+  "despesas_variaveis": 0,
+  "etapa": "realizado",
+  "etapa_atualizada_em": "2026-08-25T21:29:50.091726+00:00",
+  "origem": "hastapro"
+ },
+ {
+  "id": "7904f010-0493-4505-944f-3a9f1d34de16",
+  "nome": "12º LEILÃO NOITE NACIONAL MATRIZES PREMIUM",
+  "data": "2026-08-21",
+  "local": null,
+  "lotes_ofertados": 0,
+  "lotes_vendidos": 4,
+  "animais_vendidos": 4,
+  "vgv_total": 195000,
+  "ticket_medio": 48750,
+  "maior_lance": 78000,
+  "compradores_unicos": 3,
+  "estados_alcancados": 2,
+  "por_assessor": [
+   {
+    "vgv": 168000,
+    "nome": "DOUGLAS BISPO",
+    "animais": 3,
+    "empresa": "Bula Assessoria",
+    "posicao": 1,
+    "comissao": 3360,
+    "pct_total": 0.861538,
+    "transacoes": 3,
+    "comissao_pct": 0.02,
+    "ticket_medio": 56000
+   },
+   {
+    "vgv": 27000,
+    "nome": "LEONARDO",
+    "animais": 1,
+    "empresa": "Bula Assessoria",
+    "posicao": 2,
+    "comissao": 540,
+    "pct_total": 0.138462,
+    "transacoes": 1,
+    "comissao_pct": 0.02,
+    "ticket_medio": 27000
+   }
+  ],
+  "por_estado": [
+   {
+    "uf": "MS",
+    "vgv": 90000,
+    "lotes": 2,
+    "estado": "MS",
+    "animais": 2,
+    "pct_total": 0.461538,
+    "ticket_medio": 45000
+   },
+   {
+    "uf": "MG",
+    "vgv": 27000,
+    "lotes": 1,
+    "estado": "MG",
+    "animais": 1,
+    "pct_total": 0.138462,
+    "ticket_medio": 27000
+   }
+  ],
+  "compradores": [
+   {
+    "uf": "MS",
+    "vgv": 90000,
+    "rank": 1,
+    "lotes": 2,
+    "cidade": null,
+    "animais": 2,
+    "fazenda": "FAZENDA CORRENTES",
+    "comprador": "LUIZ CARLOS FREITAS"
+   },
+   {
+    "uf": null,
+    "vgv": 78000,
+    "rank": 2,
+    "lotes": 1,
+    "cidade": null,
+    "animais": 1,
+    "fazenda": "NELORE PEROLA",
+    "comprador": "JOSE FABIO"
+   },
+   {
+    "uf": "MG",
+    "vgv": 27000,
+    "rank": 3,
+    "lotes": 1,
+    "cidade": null,
+    "animais": 1,
+    "fazenda": "FAZENDA SAO GERONIMO",
+    "comprador": "ROMUALDO HENRIQUE TAVARES DE MIRANDA"
+   }
+  ],
+  "lances": [
+   {
+    "vgv": 27000,
+    "lote": "18",
+    "animais": 1,
+    "empresa": "Bula Assessoria",
+    "parcela": 900,
+    "assessor": "LEONARDO",
+    "parcelas": null,
+    "comprador": "ROMUALDO HENRIQUE TAVARES DE MIRANDA · FAZENDA SAO GERONIMO"
+   },
+   {
+    "vgv": 51000,
+    "lote": "19",
+    "animais": 1,
+    "empresa": "Bula Assessoria",
+    "parcela": 1700,
+    "assessor": "DOUGLAS BISPO",
+    "parcelas": null,
+    "comprador": "LUIZ CARLOS FREITAS · FAZENDA CORRENTES"
+   },
+   {
+    "vgv": 39000,
+    "lote": "24",
+    "animais": 1,
+    "empresa": "Bula Assessoria",
+    "parcela": 1300,
+    "assessor": "DOUGLAS BISPO",
+    "parcelas": null,
+    "comprador": "LUIZ CARLOS FREITAS · FAZENDA CORRENTES"
+   },
+   {
+    "vgv": 78000,
+    "lote": "29",
+    "animais": 1,
+    "empresa": "Bula Assessoria",
+    "parcela": 2600,
+    "assessor": "DOUGLAS BISPO",
+    "parcelas": null,
+    "comprador": "JOSE FABIO · NELORE PEROLA"
+   }
+  ],
+  "perfil_genetico": [],
+  "comissao_assessoria": 3900,
+  "receita_bula": 0,
+  "sobra_bruta": 0,
+  "observacoes": "Importado do HastaPro filial 2 (terceiro) por scripts/importa-fechamento-hastapro.mts. O leilao inteiro tem 4 lotes; 4 foram cobertos por pisteiro da equipe Bula e 0 por terceiros — o VGV aqui e a COBERTURA BULA, nao o faturamento do pregao.",
+  "lotes_catalogo": [],
+  "distribuicao_empresa": [],
+  "faturamento_total_leilao": null,
+  "acordo_pct_faturamento": null,
+  "acordo_pct_venda_cobertura": null,
+  "acordo_descricao": null,
+  "acordo_criador_id": null,
+  "created_at": "2026-08-25T21:30:25.392391+00:00",
+  "updated_at": "2026-08-25T21:30:25.392391+00:00",
+  "despesas_variaveis": 0,
+  "etapa": "realizado",
+  "etapa_atualizada_em": "2026-08-25T21:30:25.392391+00:00",
+  "origem": "hastapro"
+ },
+ {
+  "id": "8d11a2ff-1164-4dfe-941e-99dd43f023cc",
+  "nome": "4º LEILÃO PEPITAS COLONIAL - EXPOGENÉTICA 2026",
+  "data": "2026-08-22",
+  "local": null,
+  "lotes_ofertados": 0,
+  "lotes_vendidos": 11,
+  "animais_vendidos": 11,
+  "vgv_total": 325500,
+  "ticket_medio": 29590.91,
+  "maior_lance": 60000,
+  "compradores_unicos": 8,
+  "estados_alcancados": 2,
+  "por_assessor": [
+   {
+    "vgv": 127500,
+    "nome": "DOUGLAS BISPO",
+    "animais": 5,
+    "empresa": "Bula Assessoria",
+    "posicao": 1,
+    "comissao": 2550,
+    "pct_total": 0.391705,
+    "transacoes": 5,
+    "comissao_pct": 0.02,
+    "ticket_medio": 25500
+   },
+   {
+    "vgv": 117000,
+    "nome": "LEONARDO",
+    "animais": 4,
+    "empresa": "Bula Assessoria",
+    "posicao": 2,
+    "comissao": 2340,
+    "pct_total": 0.359447,
+    "transacoes": 4,
+    "comissao_pct": 0.02,
+    "ticket_medio": 29250
+   },
+   {
+    "vgv": 81000,
+    "nome": "FABIO OMENNA",
+    "animais": 2,
+    "empresa": "Bula Assessoria",
+    "posicao": 3,
+    "comissao": 1620,
+    "pct_total": 0.248848,
+    "transacoes": 2,
+    "comissao_pct": 0.02,
+    "ticket_medio": 40500
+   }
+  ],
+  "por_estado": [
+   {
+    "uf": "MG",
+    "vgv": 117000,
+    "lotes": 4,
+    "estado": "MG",
+    "animais": 4,
+    "pct_total": 0.359447,
+    "ticket_medio": 29250
+   },
+   {
+    "uf": "PA",
+    "vgv": 55500,
+    "lotes": 2,
+    "estado": "PA",
+    "animais": 2,
+    "pct_total": 0.170507,
+    "ticket_medio": 27750
+   }
+  ],
+  "compradores": [
+   {
+    "uf": "MG",
+    "vgv": 93000,
+    "rank": 1,
+    "lotes": 3,
+    "cidade": null,
+    "animais": 3,
+    "fazenda": "FAZENDA SAO GERONIMO",
+    "comprador": "ROMUALDO HENRIQUE TAVARES DE MIRANDA"
+   },
+   {
+    "uf": null,
+    "vgv": 60000,
+    "rank": 2,
+    "lotes": 1,
+    "cidade": null,
+    "animais": 1,
+    "fazenda": "FAZENDA AVALON",
+    "comprador": "CHRISTIAN KONIG ISLEIB"
+   },
+   {
+    "uf": null,
+    "vgv": 48000,
+    "rank": 3,
+    "lotes": 2,
+    "cidade": null,
+    "animais": 2,
+    "fazenda": "FAZENDA FLOR DE MINAS",
+    "comprador": "CELSO LOPES"
+   },
+   {
+    "uf": "PA",
+    "vgv": 33000,
+    "rank": 4,
+    "lotes": 1,
+    "cidade": null,
+    "animais": 1,
+    "fazenda": "FAZENDA BOM RETIRO",
+    "comprador": "BRUNO FABIO FERNANDES MACHADO"
+   },
+   {
+    "uf": null,
+    "vgv": 24000,
+    "rank": 5,
+    "lotes": 1,
+    "cidade": null,
+    "animais": 1,
+    "fazenda": "NELORE AMER",
+    "comprador": "MIGUEL SOUSA"
+   },
+   {
+    "uf": "MG",
+    "vgv": 24000,
+    "rank": 6,
+    "lotes": 1,
+    "cidade": null,
+    "animais": 1,
+    "fazenda": "FAZENDA FUNIL",
+    "comprador": "ORISMAR MOREIRA LEÃO"
+   },
+   {
+    "uf": "PA",
+    "vgv": 22500,
+    "rank": 7,
+    "lotes": 1,
+    "cidade": null,
+    "animais": 1,
+    "fazenda": "FAZENDA ESTILO",
+    "comprador": "GILSON LOPES BISPO"
+   },
+   {
+    "uf": null,
+    "vgv": 21000,
+    "rank": 8,
+    "lotes": 1,
+    "cidade": null,
+    "animais": 1,
+    "fazenda": "NELORE ZIBUNGO",
+    "comprador": "JOÃO VITOR MOREIRA"
+   }
+  ],
+  "lances": [
+   {
+    "vgv": 33000,
+    "lote": "09",
+    "animais": 1,
+    "empresa": "Bula Assessoria",
+    "parcela": 1100,
+    "assessor": "DOUGLAS BISPO",
+    "parcelas": null,
+    "comprador": "BRUNO FABIO FERNANDES MACHADO · FAZENDA BOM RETIRO"
+   },
+   {
+    "vgv": 27000,
+    "lote": "19",
+    "animais": 1,
+    "empresa": "Bula Assessoria",
+    "parcela": 900,
+    "assessor": "LEONARDO",
+    "parcelas": null,
+    "comprador": "ROMUALDO HENRIQUE TAVARES DE MIRANDA · FAZENDA SAO GERONIMO"
+   },
+   {
+    "vgv": 21000,
+    "lote": "24",
+    "animais": 1,
+    "empresa": "Bula Assessoria",
+    "parcela": 700,
+    "assessor": "FABIO OMENNA",
+    "parcelas": null,
+    "comprador": "JOÃO VITOR MOREIRA · NELORE ZIBUNGO"
+   },
+   {
+    "vgv": 22500,
+    "lote": "25",
+    "animais": 1,
+    "empresa": "Bula Assessoria",
+    "parcela": 750,
+    "assessor": "DOUGLAS BISPO",
+    "parcelas": null,
+    "comprador": "GILSON LOPES BISPO · FAZENDA ESTILO"
+   },
+   {
+    "vgv": 24000,
+    "lote": "26",
+    "animais": 1,
+    "empresa": "Bula Assessoria",
+    "parcela": 800,
+    "assessor": "DOUGLAS BISPO",
+    "parcelas": null,
+    "comprador": "MIGUEL SOUSA · NELORE AMER"
+   },
+   {
+    "vgv": 21000,
+    "lote": "27",
+    "animais": 1,
+    "empresa": "Bula Assessoria",
+    "parcela": 700,
+    "assessor": "DOUGLAS BISPO",
+    "parcelas": null,
+    "comprador": "CELSO LOPES · FAZENDA FLOR DE MINAS"
+   },
+   {
+    "vgv": 30000,
+    "lote": "32",
+    "animais": 1,
+    "empresa": "Bula Assessoria",
+    "parcela": 1000,
+    "assessor": "LEONARDO",
+    "parcelas": null,
+    "comprador": "ROMUALDO HENRIQUE TAVARES DE MIRANDA · FAZENDA SAO GERONIMO"
+   },
+   {
+    "vgv": 27000,
+    "lote": "33",
+    "animais": 1,
+    "empresa": "Bula Assessoria",
+    "parcela": 900,
+    "assessor": "DOUGLAS BISPO",
+    "parcelas": null,
+    "comprador": "CELSO LOPES · FAZENDA FLOR DE MINAS"
+   },
+   {
+    "vgv": 60000,
+    "lote": "37",
+    "animais": 1,
+    "empresa": "Bula Assessoria",
+    "parcela": 2000,
+    "assessor": "FABIO OMENNA",
+    "parcelas": null,
+    "comprador": "CHRISTIAN KONIG ISLEIB · FAZENDA AVALON"
+   },
+   {
+    "vgv": 24000,
+    "lote": "53",
+    "animais": 1,
+    "empresa": "Bula Assessoria",
+    "parcela": 800,
+    "assessor": "LEONARDO",
+    "parcelas": null,
+    "comprador": "ORISMAR MOREIRA LEÃO · FAZENDA FUNIL"
+   },
+   {
+    "vgv": 36000,
+    "lote": "54",
+    "animais": 1,
+    "empresa": "Bula Assessoria",
+    "parcela": 1200,
+    "assessor": "LEONARDO",
+    "parcelas": null,
+    "comprador": "ROMUALDO HENRIQUE TAVARES DE MIRANDA · FAZENDA SAO GERONIMO"
+   }
+  ],
+  "perfil_genetico": [],
+  "comissao_assessoria": 6510,
+  "receita_bula": 0,
+  "sobra_bruta": 0,
+  "observacoes": "Importado do HastaPro filial 2 (terceiro) por scripts/importa-fechamento-hastapro.mts. O leilao inteiro tem 11 lotes; 11 foram cobertos por pisteiro da equipe Bula e 0 por terceiros — o VGV aqui e a COBERTURA BULA, nao o faturamento do pregao.",
+  "lotes_catalogo": [],
+  "distribuicao_empresa": [],
+  "faturamento_total_leilao": null,
+  "acordo_pct_faturamento": null,
+  "acordo_pct_venda_cobertura": null,
+  "acordo_descricao": null,
+  "acordo_criador_id": null,
+  "created_at": "2026-08-25T21:29:54.896457+00:00",
+  "updated_at": "2026-08-25T21:29:54.896457+00:00",
+  "despesas_variaveis": 0,
+  "etapa": "realizado",
+  "etapa_atualizada_em": "2026-08-25T21:29:54.896457+00:00",
+  "origem": "hastapro"
+ },
+ {
+  "id": "f3f25811-d706-48e4-a693-9db1c9fb42a0",
+  "nome": "9º LEILÃO GENÉTICA ADITIVA EXPOGENÉTICA 2026",
+  "data": "2026-08-19",
+  "local": null,
+  "lotes_ofertados": 0,
+  "lotes_vendidos": 3,
+  "animais_vendidos": 3,
+  "vgv_total": 444000,
+  "ticket_medio": 148000,
+  "maior_lance": 249000,
+  "compradores_unicos": 3,
+  "estados_alcancados": 1,
+  "por_assessor": [
+   {
+    "vgv": 444000,
+    "nome": "FABIO OMENNA",
+    "animais": 3,
+    "empresa": "Bula Assessoria",
+    "posicao": 1,
+    "comissao": 8880,
+    "pct_total": 1,
+    "transacoes": 3,
+    "comissao_pct": 0.02,
+    "ticket_medio": 148000
+   }
+  ],
+  "por_estado": [
+   {
+    "uf": "MS",
+    "vgv": 120000,
+    "lotes": 1,
+    "estado": "MS",
+    "animais": 1,
+    "pct_total": 0.27027,
+    "ticket_medio": 120000
+   }
+  ],
+  "compradores": [
+   {
+    "uf": null,
+    "vgv": 249000,
+    "rank": 1,
+    "lotes": 1,
+    "cidade": null,
+    "animais": 1,
+    "fazenda": "Confirmar Fazenda",
+    "comprador": "GUILHERME CARVALHO E MARCELO"
+   },
+   {
+    "uf": "MS",
+    "vgv": 120000,
+    "rank": 2,
+    "lotes": 1,
+    "cidade": null,
+    "animais": 1,
+    "fazenda": "FAZENDA CORRENTES",
+    "comprador": "LUIZ CARLOS FREITAS"
+   },
+   {
+    "uf": null,
+    "vgv": 75000,
+    "rank": 3,
+    "lotes": 1,
+    "cidade": null,
+    "animais": 1,
+    "fazenda": null,
+    "comprador": "NELORE FLOC · Confirmar Fazenda + AGROPECUÁRIA OLIVAL TENÓRIO · ."
+   }
+  ],
+  "lances": [
+   {
+    "vgv": 249000,
+    "lote": "1002",
+    "animais": 1,
+    "empresa": "Bula Assessoria",
+    "parcela": 8300,
+    "assessor": "FABIO OMENNA",
+    "parcelas": null,
+    "comprador": "GUILHERME CARVALHO E MARCELO · Confirmar Fazenda"
+   },
+   {
+    "vgv": 120000,
+    "lote": "106",
+    "animais": 1,
+    "empresa": "Bula Assessoria",
+    "parcela": 4000,
+    "assessor": "FABIO OMENNA",
+    "parcelas": null,
+    "comprador": "LUIZ CARLOS FREITAS · FAZENDA CORRENTES"
+   },
+   {
+    "vgv": 75000,
+    "lote": "107",
+    "cotas": 2,
+    "animais": 1,
+    "empresa": "Bula Assessoria",
+    "parcela": 2500,
+    "assessor": "FABIO OMENNA",
+    "parcelas": null,
+    "comprador": "NELORE FLOC · Confirmar Fazenda + AGROPECUÁRIA OLIVAL TENÓRIO · ."
+   }
+  ],
+  "perfil_genetico": [],
+  "comissao_assessoria": 8880,
+  "receita_bula": 0,
+  "sobra_bruta": 0,
+  "observacoes": "Importado do HastaPro filial 2 (terceiro) por scripts/importa-fechamento-hastapro.mts. O leilao inteiro tem 3 lotes; 3 foram cobertos por pisteiro da equipe Bula e 0 por terceiros — o VGV aqui e a COBERTURA BULA, nao o faturamento do pregao.",
+  "lotes_catalogo": [],
+  "distribuicao_empresa": [],
+  "faturamento_total_leilao": null,
+  "acordo_pct_faturamento": null,
+  "acordo_pct_venda_cobertura": null,
+  "acordo_descricao": null,
+  "acordo_criador_id": null,
+  "created_at": "2026-08-25T21:30:30.685015+00:00",
+  "updated_at": "2026-08-25T21:30:30.685015+00:00",
+  "despesas_variaveis": 0,
+  "etapa": "realizado",
+  "etapa_atualizada_em": "2026-08-25T21:30:30.685015+00:00",
+  "origem": "hastapro"
+ },
+ {
+  "id": "3cf166ae-f4db-42f2-aaf1-15f98860f5b3",
+  "nome": "LEILÃO VIRTUAL VENTRES VIP MATINHA",
+  "data": "2026-08-30",
+  "local": null,
+  "lotes_ofertados": 0,
+  "lotes_vendidos": 5,
+  "animais_vendidos": 9,
+  "vgv_total": 127500,
+  "ticket_medio": 25500,
+  "maior_lance": 37500,
+  "compradores_unicos": 2,
+  "estados_alcancados": 0,
+  "por_assessor": [
+   {
+    "vgv": 64500,
+    "nome": "DOUGLAS BISPO",
+    "animais": 2,
+    "empresa": "Bula Assessoria",
+    "posicao": 1,
+    "comissao": 1290,
+    "pct_total": 0.505882,
+    "transacoes": 2,
+    "comissao_pct": 0.02,
+    "ticket_medio": 32250
+   },
+   {
+    "vgv": 63000,
+    "nome": "FABIO OMENNA",
+    "animais": 7,
+    "empresa": "Bula Assessoria",
+    "posicao": 2,
+    "comissao": 1260,
+    "pct_total": 0.494118,
+    "transacoes": 3,
+    "comissao_pct": 0.02,
+    "ticket_medio": 21000
+   }
+  ],
+  "por_estado": [],
+  "compradores": [
+   {
+    "uf": null,
+    "vgv": 64500,
+    "rank": 1,
+    "lotes": 2,
+    "cidade": null,
+    "animais": 2,
+    "fazenda": "FAZENDA FLOR DE MINAS",
+    "comprador": "CELSO LOPES"
+   },
+   {
+    "uf": null,
+    "vgv": 63000,
+    "rank": 2,
+    "lotes": 3,
+    "cidade": null,
+    "animais": 7,
+    "fazenda": "FAZENDA SANTA VITÓRIA",
+    "comprador": "AMANDA CARLA"
+   }
+  ],
+  "lances": [
+   {
+    "vgv": 18000,
+    "lote": "138",
+    "animais": 2,
+    "empresa": "Bula Assessoria",
+    "parcela": 300,
+    "assessor": "FABIO OMENNA",
+    "parcelas": null,
+    "comprador": "AMANDA CARLA · FAZENDA SANTA VITÓRIA"
+   },
+   {
+    "vgv": 18000,
+    "lote": "140",
+    "animais": 2,
+    "empresa": "Bula Assessoria",
+    "parcela": 300,
+    "assessor": "FABIO OMENNA",
+    "parcelas": null,
+    "comprador": "AMANDA CARLA · FAZENDA SANTA VITÓRIA"
+   },
+   {
+    "vgv": 27000,
+    "lote": "141",
+    "animais": 3,
+    "empresa": "Bula Assessoria",
+    "parcela": 300,
+    "assessor": "FABIO OMENNA",
+    "parcelas": null,
+    "comprador": "AMANDA CARLA · FAZENDA SANTA VITÓRIA"
+   },
+   {
+    "vgv": 27000,
+    "lote": "18",
+    "animais": 1,
+    "empresa": "Bula Assessoria",
+    "parcela": 900,
+    "assessor": "DOUGLAS BISPO",
+    "parcelas": null,
+    "comprador": "CELSO LOPES · FAZENDA FLOR DE MINAS"
+   },
+   {
+    "vgv": 37500,
+    "lote": "31",
+    "animais": 1,
+    "empresa": "Bula Assessoria",
+    "parcela": 1250,
+    "assessor": "DOUGLAS BISPO",
+    "parcelas": null,
+    "comprador": "CELSO LOPES · FAZENDA FLOR DE MINAS"
+   }
+  ],
+  "perfil_genetico": [],
+  "comissao_assessoria": 2550,
+  "receita_bula": 0,
+  "sobra_bruta": 0,
+  "observacoes": "Importado do HastaPro filial 2 (terceiro) por scripts/importa-fechamento-hastapro.mts. O leilao inteiro tem 5 lotes; 5 foram cobertos por pisteiro da equipe Bula e 0 por terceiros — o VGV aqui e a COBERTURA BULA, nao o faturamento do pregao.",
+  "lotes_catalogo": [],
+  "distribuicao_empresa": [],
+  "faturamento_total_leilao": null,
+  "acordo_pct_faturamento": null,
+  "acordo_pct_venda_cobertura": null,
+  "acordo_descricao": null,
+  "acordo_criador_id": null,
+  "created_at": "2026-09-01T18:45:00.141632+00:00",
+  "updated_at": "2026-09-01T18:45:00.141632+00:00",
+  "despesas_variaveis": 0,
+  "etapa": "realizado",
+  "etapa_atualizada_em": "2026-09-01T18:45:00.141632+00:00",
+  "origem": "hastapro"
+ },
+ {
+  "id": "66cda93d-024e-4d16-bf62-2c03a31ac603",
+  "nome": "LEILÃO TOUROS NELORE MAFRA",
+  "data": "2026-08-02",
+  "local": "PROGRAMA LEILÕES",
+  "lotes_ofertados": 7,
+  "lotes_vendidos": 7,
+  "animais_vendidos": 7,
+  "vgv_total": 178200,
+  "ticket_medio": 25457.14,
+  "maior_lance": 33600,
+  "compradores_unicos": 6,
+  "estados_alcancados": 0,
+  "por_assessor": [
+   {
+    "vgv": 123600,
+    "nome": "Douglas Bispo",
+    "animais": 5,
+    "empresa": "Bula Assessoria",
+    "posicao": 1,
+    "comissao": 2472,
+    "pct_total": 0.693603,
+    "transacoes": 5,
+    "comissao_pct": 0.02,
+    "ticket_medio": 24720
+   },
+   {
+    "vgv": 54600,
+    "nome": "Fábio Omena",
+    "animais": 2,
+    "empresa": "Bula Assessoria",
+    "posicao": 2,
+    "comissao": 1092,
+    "pct_total": 0.306397,
+    "transacoes": 2,
+    "comissao_pct": 0.02,
+    "ticket_medio": 27300
+   }
+  ],
+  "por_estado": [],
+  "compradores": [
+   {
+    "uf": null,
+    "vgv": 45000,
+    "rank": 1,
+    "lotes": 2,
+    "cidade": null,
+    "animais": 2,
+    "fazenda": "FAZENDA SAPUCAYA",
+    "comprador": "MAURICIO SOUSA DE ALMEIDA"
+   },
+   {
+    "uf": null,
+    "vgv": 33600,
+    "rank": 2,
+    "lotes": 1,
+    "cidade": null,
+    "animais": 1,
+    "fazenda": "FAZENDA BEIRA RIO",
+    "comprador": "SEBASTIÃO TRINDADE FLORENTINO"
+   },
+   {
+    "uf": null,
+    "vgv": 30000,
+    "rank": 3,
+    "lotes": 1,
+    "cidade": null,
+    "animais": 1,
+    "fazenda": "FAZENDA VERAS",
+    "comprador": "OSMARINO PEREIRA"
+   },
+   {
+    "uf": null,
+    "vgv": 24600,
+    "rank": 4,
+    "lotes": 1,
+    "cidade": null,
+    "animais": 1,
+    "fazenda": "GRUPO ACONCHEGO",
+    "comprador": "DEREK DANESI DO NASCIMENTO"
+   },
+   {
+    "uf": null,
+    "vgv": 24000,
+    "rank": 5,
+    "lotes": 1,
+    "cidade": null,
+    "animais": 1,
+    "fazenda": "FAZENDA BOA SORTE",
+    "comprador": "ARMANDO DE MATOS"
+   },
+   {
+    "uf": null,
+    "vgv": 21000,
+    "rank": 6,
+    "lotes": 1,
+    "cidade": null,
+    "animais": 1,
+    "fazenda": ".",
+    "comprador": "GUSTAVO BERTO"
+   }
+  ],
+  "lances": [
+   {
+    "vgv": 30000,
+    "lote": "56",
+    "animais": 1,
+    "empresa": "Bula Assessoria",
+    "parcela": 1000,
+    "assessor": "Douglas Bispo",
+    "parcelas": 30,
+    "comprador": "OSMARINO PEREIRA · FAZENDA VERAS"
+   },
+   {
+    "vgv": 24000,
+    "lote": "58",
+    "animais": 1,
+    "empresa": "Bula Assessoria",
+    "parcela": 800,
+    "assessor": "Douglas Bispo",
+    "parcelas": 30,
+    "comprador": "MAURICIO SOUSA DE ALMEIDA · FAZENDA SAPUCAYA"
+   },
+   {
+    "vgv": 24600,
+    "lote": "47",
+    "animais": 1,
+    "empresa": "Bula Assessoria",
+    "parcela": 820,
+    "assessor": "Douglas Bispo",
+    "parcelas": 30,
+    "comprador": "DEREK DANESI DO NASCIMENTO · GRUPO ACONCHEGO"
+   },
+   {
+    "vgv": 33600,
+    "lote": "38",
+    "animais": 1,
+    "empresa": "Bula Assessoria",
+    "parcela": 1120,
+    "assessor": "Fábio Omena",
+    "parcelas": 30,
+    "comprador": "SEBASTIÃO TRINDADE FLORENTINO · FAZENDA BEIRA RIO"
+   },
+   {
+    "vgv": 21000,
+    "lote": "84",
+    "animais": 1,
+    "empresa": "Bula Assessoria",
+    "parcela": 700,
+    "assessor": "Douglas Bispo",
+    "parcelas": 30,
+    "comprador": "MAURICIO SOUSA DE ALMEIDA · FAZENDA SAPUCAYA"
+   },
+   {
+    "vgv": 21000,
+    "lote": "28",
+    "animais": 1,
+    "empresa": "Bula Assessoria",
+    "parcela": 700,
+    "assessor": "Fábio Omena",
+    "parcelas": 30,
+    "comprador": "GUSTAVO BERTO · ."
+   },
+   {
+    "vgv": 24000,
+    "lote": "49",
+    "animais": 1,
+    "empresa": "Bula Assessoria",
+    "parcela": 800,
+    "assessor": "Douglas Bispo",
+    "parcelas": 30,
+    "comprador": "ARMANDO DE MATOS · FAZENDA BOA SORTE"
+   }
+  ],
+  "perfil_genetico": [],
+  "comissao_assessoria": 3564,
+  "receita_bula": 17857,
+  "sobra_bruta": 11078.74,
+  "observacoes": "Fechamento alinhado ao HastaPro (Bula Assessoria / FIL 2) em 17/08/2026 — origem=hastapro.\n7 lotes / 7 animais. VGV = LOT_TOTAL do HastaPro (lance × parcelas × qtd de animais).\nAssessor = LOT_PISTEIRO do HastaPro (nao mais atribuicao por zona). Comissao padrao 2%; Rusa 5%; Lucas/Matheus Alves 0,33%.\nReceita da Bula depende do acordo com a leiloeira/criador e do faturamento total do leilao — lancada na conta a receber do ERP.\n[RECEITA 17/08] 0,35% sobre faturamento de R$ 5.102.000,00 conforme a planilha. ATENCAO: a tabela de acordo do Mafra para 3%-8% de cobertura (aqui 3,49%) e 0,3%, o que daria R$ 15.306,00 - confirmar o percentual com o chefe. Sobra bruta = receita x 0,82 (imposto 18%) - comissao dos assessores, igual a coluna LIQUIDO da planilha-mestra.",
+  "lotes_catalogo": [],
+  "distribuicao_empresa": [
+   {
+    "vgv": 178200,
+    "animais": 7,
+    "empresa": "Bula Assessoria",
+    "pct_total": 1,
+    "transacoes": 7,
+    "ticket_medio": 25457.14
+   }
+  ],
+  "faturamento_total_leilao": null,
+  "acordo_pct_faturamento": null,
+  "acordo_pct_venda_cobertura": null,
+  "acordo_descricao": null,
+  "acordo_criador_id": null,
+  "created_at": "2026-08-07T14:42:49.11973+00:00",
+  "updated_at": "2026-08-07T14:43:02.464+00:00",
+  "despesas_variaveis": 0,
+  "etapa": "realizado",
+  "etapa_atualizada_em": "2026-08-07T14:42:49.11973+00:00",
+  "origem": "hastapro"
+ },
+ {
+  "id": "6d902ecd-a7ba-4831-a2fa-00803a16b564",
+  "nome": "LEILÃO TERRA BRAVA AGROPECUÁRIA EXPOGENÉTICA",
+  "data": "2026-08-15",
+  "local": "PROGRAMA LEILOES",
+  "lotes_ofertados": 4,
+  "lotes_vendidos": 4,
+  "animais_vendidos": 4,
+  "vgv_total": 107100,
+  "ticket_medio": 26775,
+  "maior_lance": 29100,
+  "compradores_unicos": 2,
+  "estados_alcancados": 0,
+  "por_assessor": [
+   {
+    "vgv": 107100,
+    "nome": "Fábio Omena",
+    "animais": 4,
+    "empresa": "Bula Assessoria",
+    "posicao": 1,
+    "comissao": 2142,
+    "pct_total": 1,
+    "transacoes": 4,
+    "comissao_pct": 0.02,
+    "ticket_medio": 26775
+   }
+  ],
+  "por_estado": [],
+  "compradores": [
+   {
+    "uf": null,
+    "vgv": 54000,
+    "rank": 1,
+    "lotes": 2,
+    "cidade": null,
+    "animais": 2,
+    "fazenda": "FAZENDA NEGREIROS",
+    "comprador": "FARLEY AZEVEDO OLIVEIRA"
+   },
+   {
+    "uf": null,
+    "vgv": 53100,
+    "rank": 2,
+    "lotes": 2,
+    "cidade": null,
+    "animais": 2,
+    "fazenda": "FAZENDA GABRIELA 1",
+    "comprador": "ADRIANO OLIVEIRA DA PARANORTE"
+   }
+  ],
+  "lances": [
+   {
+    "vgv": 27000,
+    "lote": "21",
+    "animais": 1,
+    "empresa": "Bula Assessoria",
+    "parcela": 900,
+    "assessor": "Fábio Omena",
+    "parcelas": 30,
+    "comprador": "FARLEY AZEVEDO OLIVEIRA · FAZENDA NEGREIROS"
+   },
+   {
+    "vgv": 27000,
+    "lote": "10",
+    "animais": 1,
+    "empresa": "Bula Assessoria",
+    "parcela": 900,
+    "assessor": "Fábio Omena",
+    "parcelas": 30,
+    "comprador": "FARLEY AZEVEDO OLIVEIRA · FAZENDA NEGREIROS"
+   },
+   {
+    "vgv": 24000,
+    "lote": "15",
+    "animais": 1,
+    "empresa": "Bula Assessoria",
+    "parcela": 800,
+    "assessor": "Fábio Omena",
+    "parcelas": 30,
+    "comprador": "ADRIANO OLIVEIRA DA PARANORTE · FAZENDA GABRIELA 1"
+   },
+   {
+    "vgv": 29100,
+    "lote": "14",
+    "animais": 1,
+    "empresa": "Bula Assessoria",
+    "parcela": 970,
+    "assessor": "Fábio Omena",
+    "parcelas": 30,
+    "comprador": "ADRIANO OLIVEIRA DA PARANORTE · FAZENDA GABRIELA 1"
+   }
+  ],
+  "perfil_genetico": [],
+  "comissao_assessoria": 2142,
+  "receita_bula": 0,
+  "sobra_bruta": 0,
+  "observacoes": "Fechamento alinhado ao HastaPro (Bula Assessoria / FIL 2) em 17/08/2026 — origem=hastapro.\n4 lotes / 4 animais. VGV = LOT_TOTAL do HastaPro (lance × parcelas × qtd de animais).\nAssessor = LOT_PISTEIRO do HastaPro (nao mais atribuicao por zona). Comissao padrao 2%; Rusa 5%; Lucas/Matheus Alves 0,33%.\nReceita da Bula depende do acordo com a leiloeira/criador e do faturamento total do leilao — lancada na conta a receber do ERP.",
+  "lotes_catalogo": [],
+  "distribuicao_empresa": [
+   {
+    "vgv": 107100,
+    "animais": 4,
+    "empresa": "Bula Assessoria",
+    "pct_total": 1,
+    "transacoes": 4,
+    "ticket_medio": 26775
+   }
+  ],
+  "faturamento_total_leilao": null,
+  "acordo_pct_faturamento": null,
+  "acordo_pct_venda_cobertura": null,
+  "acordo_descricao": null,
+  "acordo_criador_id": null,
+  "created_at": "2026-08-15T17:32:50.173122+00:00",
+  "updated_at": "2026-08-15T23:02:11.037+00:00",
+  "despesas_variaveis": 0,
+  "etapa": "realizado",
+  "etapa_atualizada_em": "2026-08-15T17:32:50.173122+00:00",
+  "origem": "hastapro"
+ },
+ {
+  "id": "160f04c8-bef6-4eac-a019-756f9790ceb7",
+  "nome": "LEILÃO NELORE MAFRA EDIÇÃO REDENÇÃO/PA - FÊMEAS",
+  "data": "2026-08-01",
+  "local": null,
+  "lotes_ofertados": 20,
+  "lotes_vendidos": 20,
+  "animais_vendidos": 58,
+  "vgv_total": 1042700,
+  "ticket_medio": 52135,
+  "maior_lance": 73600,
+  "compradores_unicos": 5,
+  "estados_alcancados": 1,
+  "por_assessor": [
+   {
+    "vgv": 982700,
+    "nome": "Douglas Bispo",
+    "animais": 57,
+    "empresa": "Bula Assessoria",
+    "posicao": 1,
+    "comissao": 19654,
+    "pct_total": 0.942457,
+    "transacoes": 19,
+    "comissao_pct": 0.02,
+    "ticket_medio": 51721.05
+   },
+   {
+    "vgv": 60000,
+    "nome": "Fábio Omena",
+    "animais": 1,
+    "empresa": "Bula Assessoria",
+    "posicao": 2,
+    "comissao": 1200,
+    "pct_total": 0.057543,
+    "transacoes": 1,
+    "comissao_pct": 0.02,
+    "ticket_medio": 60000
+   }
+  ],
+  "por_estado": [
+   {
+    "uf": "PA",
+    "vgv": 270000,
+    "lotes": 5,
+    "estado": "PA",
+    "animais": 17,
+    "pct_total": 0.258943,
+    "ticket_medio": 54000
+   }
+  ],
+  "compradores": [
+   {
+    "uf": null,
+    "vgv": 712700,
+    "rank": 1,
+    "lotes": 14,
+    "cidade": null,
+    "animais": 40,
+    "fazenda": "FAZENDA MUDANÇA",
+    "comprador": "MAURO CESAR"
+   },
+   {
+    "uf": "PA",
+    "vgv": 98400,
+    "rank": 2,
+    "lotes": 2,
+    "cidade": null,
+    "animais": 6,
+    "fazenda": "FAZENDA ESTILO",
+    "comprador": "GILSON LOPES BISPO"
+   },
+   {
+    "uf": "PA",
+    "vgv": 98000,
+    "rank": 3,
+    "lotes": 2,
+    "cidade": null,
+    "animais": 7,
+    "fazenda": "FAZENDA ESTILO",
+    "comprador": "ANDRE LUIS CAETANO ROSA"
+   },
+   {
+    "uf": "PA",
+    "vgv": 73600,
+    "rank": 4,
+    "lotes": 1,
+    "cidade": null,
+    "animais": 4,
+    "fazenda": "FAZENDA DONA II",
+    "comprador": "GILBERTO PEREIRA SARUBI"
+   },
+   {
+    "uf": null,
+    "vgv": 60000,
+    "rank": 5,
+    "lotes": 1,
+    "cidade": null,
+    "animais": 1,
+    "fazenda": "FAZENDA CASA AMARELA",
+    "comprador": "ADIL JUNIOR"
+   }
+  ],
+  "lances": [
+   {
+    "vgv": 60000,
+    "lote": "1000",
+    "animais": 1,
+    "empresa": "Bula Assessoria",
+    "parcela": 2000,
+    "assessor": "Fábio Omena",
+    "parcelas": 30,
+    "comprador": "ADIL JUNIOR · FAZENDA CASA AMARELA"
+   },
+   {
+    "vgv": 42000,
+    "lote": "39",
+    "animais": 3,
+    "empresa": "Bula Assessoria",
+    "parcela": 350,
+    "assessor": "Douglas Bispo",
+    "parcelas": 30,
+    "comprador": "ANDRE LUIS CAETANO ROSA · FAZENDA ESTILO · PA"
+   },
+   {
+    "vgv": 56000,
+    "lote": "41",
+    "animais": 4,
+    "empresa": "Bula Assessoria",
+    "parcela": 350,
+    "assessor": "Douglas Bispo",
+    "parcelas": 30,
+    "comprador": "ANDRE LUIS CAETANO ROSA · FAZENDA ESTILO · PA"
+   },
+   {
+    "vgv": 54000,
+    "lote": "42",
+    "animais": 3,
+    "empresa": "Bula Assessoria",
+    "parcela": 450,
+    "assessor": "Douglas Bispo",
+    "parcelas": 30,
+    "comprador": "MAURO CESAR · FAZENDA MUDANÇA"
+   },
+   {
+    "vgv": 54000,
+    "lote": "43",
+    "animais": 3,
+    "empresa": "Bula Assessoria",
+    "parcela": 450,
+    "assessor": "Douglas Bispo",
+    "parcelas": 30,
+    "comprador": "MAURO CESAR · FAZENDA MUDANÇA"
+   },
+   {
+    "vgv": 54000,
+    "lote": "44",
+    "animais": 3,
+    "empresa": "Bula Assessoria",
+    "parcela": 450,
+    "assessor": "Douglas Bispo",
+    "parcelas": 30,
+    "comprador": "MAURO CESAR · FAZENDA MUDANÇA"
+   },
+   {
+    "vgv": 54000,
+    "lote": "49",
+    "animais": 3,
+    "empresa": "Bula Assessoria",
+    "parcela": 450,
+    "assessor": "Douglas Bispo",
+    "parcelas": 30,
+    "comprador": "MAURO CESAR · FAZENDA MUDANÇA"
+   },
+   {
+    "vgv": 72000,
+    "lote": "50",
+    "animais": 4,
+    "empresa": "Bula Assessoria",
+    "parcela": 450,
+    "assessor": "Douglas Bispo",
+    "parcelas": 30,
+    "comprador": "MAURO CESAR · FAZENDA MUDANÇA"
+   },
+   {
+    "vgv": 18000,
+    "lote": "17",
+    "animais": 1,
+    "empresa": "Bula Assessoria",
+    "parcela": 600,
+    "assessor": "Douglas Bispo",
+    "parcelas": 30,
+    "comprador": "MAURO CESAR · FAZENDA MUDANÇA"
+   },
+   {
+    "vgv": 54000,
+    "lote": "65",
+    "animais": 3,
+    "empresa": "Bula Assessoria",
+    "parcela": 450,
+    "assessor": "Douglas Bispo",
+    "parcelas": 30,
+    "comprador": "MAURO CESAR · FAZENDA MUDANÇA"
+   },
+   {
+    "vgv": 54000,
+    "lote": "66",
+    "animais": 3,
+    "empresa": "Bula Assessoria",
+    "parcela": 450,
+    "assessor": "Douglas Bispo",
+    "parcelas": 30,
+    "comprador": "MAURO CESAR · FAZENDA MUDANÇA"
+   },
+   {
+    "vgv": 36000,
+    "lote": "62",
+    "animais": 2,
+    "empresa": "Bula Assessoria",
+    "parcela": 450,
+    "assessor": "Douglas Bispo",
+    "parcelas": 30,
+    "comprador": "MAURO CESAR · FAZENDA MUDANÇA"
+   },
+   {
+    "vgv": 54000,
+    "lote": "63",
+    "animais": 3,
+    "empresa": "Bula Assessoria",
+    "parcela": 450,
+    "assessor": "Douglas Bispo",
+    "parcelas": 30,
+    "comprador": "MAURO CESAR · FAZENDA MUDANÇA"
+   },
+   {
+    "vgv": 54000,
+    "lote": "56",
+    "animais": 3,
+    "empresa": "Bula Assessoria",
+    "parcela": 450,
+    "assessor": "Douglas Bispo",
+    "parcelas": 30,
+    "comprador": "MAURO CESAR · FAZENDA MUDANÇA"
+   },
+   {
+    "vgv": 68800,
+    "lote": "57",
+    "animais": 4,
+    "empresa": "Bula Assessoria",
+    "parcela": 430,
+    "assessor": "Douglas Bispo",
+    "parcelas": 30,
+    "comprador": "MAURO CESAR · FAZENDA MUDANÇA"
+   },
+   {
+    "vgv": 68800,
+    "lote": "60",
+    "animais": 4,
+    "empresa": "Bula Assessoria",
+    "parcela": 430,
+    "assessor": "Douglas Bispo",
+    "parcelas": 30,
+    "comprador": "MAURO CESAR · FAZENDA MUDANÇA"
+   },
+   {
+    "vgv": 50400,
+    "lote": "73",
+    "animais": 3,
+    "empresa": "Bula Assessoria",
+    "parcela": 420,
+    "assessor": "Douglas Bispo",
+    "parcelas": 30,
+    "comprador": "GILSON LOPES BISPO · FAZENDA ESTILO · PA"
+   },
+   {
+    "vgv": 48000,
+    "lote": "51",
+    "animais": 3,
+    "empresa": "Bula Assessoria",
+    "parcela": 400,
+    "assessor": "Douglas Bispo",
+    "parcelas": 30,
+    "comprador": "GILSON LOPES BISPO · FAZENDA ESTILO · PA"
+   },
+   {
+    "vgv": 73600,
+    "lote": "82",
+    "animais": 4,
+    "empresa": "Bula Assessoria",
+    "parcela": 460,
+    "assessor": "Douglas Bispo",
+    "parcelas": 30,
+    "comprador": "GILBERTO PEREIRA SARUBI · FAZENDA DONA II · PA"
+   },
+   {
+    "vgv": 17100,
+    "lote": "18",
+    "animais": 1,
+    "empresa": "Bula Assessoria",
+    "parcela": 570,
+    "assessor": "Douglas Bispo",
+    "parcelas": 30,
+    "comprador": "MAURO CESAR · FAZENDA MUDANÇA"
+   }
+  ],
+  "perfil_genetico": [],
+  "comissao_assessoria": 20854,
+  "receita_bula": 70345,
+  "sobra_bruta": 36828.9,
+  "observacoes": "Fechamento alinhado ao HastaPro (Bula Assessoria / FIL 2) em 17/08/2026 — origem=hastapro.\n20 lotes / 58 animais. VGV = LOT_TOTAL do HastaPro (lance × parcelas × qtd de animais).\nAssessor = LOT_PISTEIRO do HastaPro (nao mais atribuicao por zona). Comissao padrao 2%; Rusa 5%; Lucas/Matheus Alves 0,33%.\nReceita da Bula depende do acordo com a leiloeira/criador e do faturamento total do leilao — lancada na conta a receber do ERP.\n[RECEITA 17/08] 1,25% sobre faturamento de R$ 5.627.600,00 (faixa 15,01%-20% de cobertura; cobertura real do HastaPro = R$ 1.042.700,00 = 18,5%). Sobra bruta = receita x 0,82 (imposto 18%) - comissao dos assessores, igual a coluna LIQUIDO da planilha-mestra.",
+  "lotes_catalogo": [],
+  "distribuicao_empresa": [
+   {
+    "vgv": 1042700,
+    "animais": 58,
+    "empresa": "Bula Assessoria",
+    "pct_total": 1,
+    "transacoes": 20,
+    "ticket_medio": 52135
+   }
+  ],
+  "faturamento_total_leilao": null,
+  "acordo_pct_faturamento": null,
+  "acordo_pct_venda_cobertura": null,
+  "acordo_descricao": null,
+  "acordo_criador_id": null,
+  "created_at": "2026-08-17T19:39:39.32409+00:00",
+  "updated_at": "2026-08-17T19:39:39.32409+00:00",
+  "despesas_variaveis": 0,
+  "etapa": "realizado",
+  "etapa_atualizada_em": "2026-08-17T19:39:39.32409+00:00",
+  "origem": "hastapro"
+ },
+ {
+  "id": "0c5c2ccb-8deb-476a-9970-eb967c58e254",
+  "nome": "LEILÃO MATINHA EXPOGENÉTICA 2026",
+  "data": "2026-08-16",
+  "local": "PROGRAMA LEILOES",
+  "lotes_ofertados": 9,
+  "lotes_vendidos": 8,
+  "animais_vendidos": 8,
+  "vgv_total": 460500,
+  "ticket_medio": 57562.5,
+  "maior_lance": 108000,
+  "compradores_unicos": 5,
+  "estados_alcancados": 0,
+  "por_assessor": [
+   {
+    "vgv": 333000,
+    "nome": "Gustavo Rusa",
+    "animais": 4,
+    "empresa": "Bula Assessoria",
+    "posicao": 1,
+    "comissao": 16650,
+    "pct_total": 0.723127,
+    "transacoes": 4,
+    "comissao_pct": 0.05,
+    "ticket_medio": 83250
+   },
+   {
+    "vgv": 85500,
+    "nome": "Nane",
+    "animais": 3,
+    "empresa": "Bula Assessoria",
+    "posicao": 2,
+    "comissao": 1710,
+    "pct_total": 0.185668,
+    "transacoes": 3,
+    "comissao_pct": 0.02,
+    "ticket_medio": 28500
+   },
+   {
+    "vgv": 42000,
+    "nome": "Douglas Bispo",
+    "animais": 1,
+    "empresa": "Bula Assessoria",
+    "posicao": 3,
+    "comissao": 840,
+    "pct_total": 0.091205,
+    "transacoes": 1,
+    "comissao_pct": 0.02,
+    "ticket_medio": 42000
+   }
+  ],
+  "por_estado": [],
+  "compradores": [
+   {
+    "uf": null,
+    "vgv": 291000,
+    "rank": 1,
+    "lotes": 3,
+    "cidade": null,
+    "animais": 3,
+    "fazenda": "NELORE PEROLA",
+    "comprador": "JOSE FABIO"
+   },
+   {
+    "uf": null,
+    "vgv": 87000,
+    "rank": 2,
+    "lotes": 1,
+    "cidade": null,
+    "animais": 1,
+    "fazenda": null,
+    "comprador": "A identificar"
+   },
+   {
+    "uf": null,
+    "vgv": 85500,
+    "rank": 3,
+    "lotes": 3,
+    "cidade": null,
+    "animais": 3,
+    "fazenda": "AGROPECUARIA SOBRE RODAS",
+    "comprador": "AGROPECUARIA SOBRE RODAS"
+   },
+   {
+    "uf": null,
+    "vgv": 42000,
+    "rank": 4,
+    "lotes": 1,
+    "cidade": null,
+    "animais": 1,
+    "fazenda": "FAZENDA SANTA TEREZA",
+    "comprador": "KLYSMANN DOUGLAS NASCIMENTO LEAL"
+   },
+   {
+    "uf": null,
+    "vgv": 42000,
+    "rank": 5,
+    "lotes": 1,
+    "cidade": null,
+    "animais": 1,
+    "fazenda": "FAZENDA FLOR DE MINAS",
+    "comprador": "CELSO LOPES"
+   }
+  ],
+  "lances": [
+   {
+    "vgv": 42000,
+    "lote": "E11",
+    "animais": 1,
+    "empresa": "Bula Assessoria",
+    "parcela": 1400,
+    "assessor": "Douglas Bispo",
+    "parcelas": 30,
+    "comprador": "KLYSMANN DOUGLAS NASCIMENTO LEAL · FAZENDA SANTA TEREZA"
+   },
+   {
+    "vgv": 108000,
+    "lote": "12",
+    "animais": 1,
+    "empresa": "Bula Assessoria",
+    "parcela": 3600,
+    "assessor": "Gustavo Rusa",
+    "parcelas": 30,
+    "comprador": "JOSE FABIO · NELORE PEROLA",
+    "anunciado_por": "Douglas Bispo"
+   },
+   {
+    "vgv": 90000,
+    "lote": "34",
+    "animais": 1,
+    "empresa": "Bula Assessoria",
+    "parcela": 3000,
+    "assessor": "Gustavo Rusa",
+    "parcelas": 30,
+    "comprador": "JOSE FABIO · NELORE PEROLA",
+    "anunciado_por": "Douglas Bispo"
+   },
+   {
+    "vgv": 93000,
+    "lote": "15",
+    "animais": 1,
+    "empresa": "Bula Assessoria",
+    "parcela": 3100,
+    "assessor": "Gustavo Rusa",
+    "parcelas": 30,
+    "comprador": "JOSE FABIO · NELORE PEROLA",
+    "anunciado_por": "Douglas Bispo"
+   },
+   {
+    "vgv": 42000,
+    "lote": "39",
+    "animais": 1,
+    "empresa": "Bula Assessoria",
+    "parcela": 1400,
+    "assessor": "Gustavo Rusa",
+    "parcelas": 30,
+    "comprador": "CELSO LOPES · FAZENDA FLOR DE MINAS",
+    "anunciado_por": "Douglas Bispo"
+   },
+   {
+    "vgv": 36000,
+    "lote": "107",
+    "animais": 1,
+    "empresa": "Bula Assessoria",
+    "parcela": 1200,
+    "assessor": "Nane",
+    "parcelas": 30,
+    "comprador": "AGROPECUARIA SOBRE RODAS · AGROPECUARIA SOBRE RODAS"
+   },
+   {
+    "vgv": 27000,
+    "lote": "134",
+    "animais": 1,
+    "empresa": "Bula Assessoria",
+    "parcela": 900,
+    "assessor": "Nane",
+    "parcelas": 30,
+    "comprador": "AGROPECUARIA SOBRE RODAS · AGROPECUARIA SOBRE RODAS"
+   },
+   {
+    "vgv": 22500,
+    "lote": "136",
+    "animais": 1,
+    "empresa": "Bula Assessoria",
+    "parcela": 750,
+    "assessor": "Nane",
+    "parcelas": 30,
+    "comprador": "AGROPECUARIA SOBRE RODAS · AGROPECUARIA SOBRE RODAS"
+   }
+  ],
+  "perfil_genetico": [],
+  "comissao_assessoria": 19200,
+  "receita_bula": 0,
+  "sobra_bruta": 0,
+  "observacoes": "Fechamento alinhado ao HastaPro (Bula Assessoria / FIL 2) em 17/08/2026 — origem=hastapro.\n9 lotes / 9 animais. VGV = LOT_TOTAL do HastaPro (lance × parcelas × qtd de animais).\nAssessor = LOT_PISTEIRO do HastaPro (nao mais atribuicao por zona). Comissao padrao 2%; Rusa 5%; Lucas/Matheus Alves 0,33%.\nEXTRA lote 22 (R$ 87.000,00): Capturado no grupo \"Lances Bula\" em 16/08 (\"Levamos lt 22 - 2900 - 1F / Foi com Douglas Bispo\"). Ainda NAO lancado no HastaPro - conferir.\nReceita da Bula depende do acordo com a leiloeira/criador e do faturamento total do leilao — lancada na conta a receber do ERP.\n[DIRECIONAMENTO-PARCEIRO 24/08] 1 lote(s) — 39 (42.000,00, Douglas Bispo) — movidos para Gustavo Rusa (5%): o comprador é Dr. Celso Lopes (Nelore Grão Pará), direcionado pelo parceiro. Quem anunciou na pista não define a comissão. Ver src/lib/parceiro-direcionamento.ts.\n[DIRECIONAMENTO-PARCEIRO 24/08] 4 lote(s) — 12 (108.000,00, Douglas Bispo); 34 (90.000,00, Douglas Bispo); 15 (93.000,00, Douglas Bispo); 22 (87.000,00, Douglas Bispo) — movidos para Gustavo Rusa (5%): o comprador é JOSE FABIO · NELORE PEROLA (direcionamento declarado no grupo), direcionado pelo parceiro. Quem anunciou na pista não define a comissão. Ver src/lib/parceiro-direcionamento.ts. [CONFERIDO CONTRA O HASTAPRO] Removido lote 22 (R$ 87.000,00) — não existe neste pregão no HastaPro (pregões no mesmo dia trocam lote de lugar).",
+  "lotes_catalogo": [],
+  "distribuicao_empresa": [
+   {
+    "vgv": 547500,
+    "animais": 9,
+    "empresa": "Bula Assessoria",
+    "pct_total": 1,
+    "transacoes": 9,
+    "ticket_medio": 60833.33
+   }
+  ],
+  "faturamento_total_leilao": null,
+  "acordo_pct_faturamento": null,
+  "acordo_pct_venda_cobertura": null,
+  "acordo_descricao": null,
+  "acordo_criador_id": null,
+  "created_at": "2026-08-16T17:40:14.275624+00:00",
+  "updated_at": "2026-08-17T00:47:51.838+00:00",
+  "despesas_variaveis": 0,
+  "etapa": "realizado",
+  "etapa_atualizada_em": "2026-08-16T17:40:14.275624+00:00",
+  "origem": "hastapro"
+ },
+ {
+  "id": "fd14b7d5-d72c-4b2a-b8c0-5922d0459d8b",
+  "nome": "7º LEILÃO ESSÊNCIA GENÉTICA - NELORE DA BAMBÚ",
+  "data": "2026-08-13",
+  "local": null,
+  "lotes_ofertados": 1,
+  "lotes_vendidos": 1,
+  "animais_vendidos": 1,
+  "vgv_total": 16500,
+  "ticket_medio": 16500,
+  "maior_lance": 16500,
+  "compradores_unicos": 1,
+  "estados_alcancados": 1,
+  "por_assessor": [
+   {
+    "vgv": 16500,
+    "nome": "Leonardo Serafim",
+    "animais": 1,
+    "empresa": "Bula Assessoria",
+    "posicao": 1,
+    "comissao": 330,
+    "pct_total": 1,
+    "transacoes": 1,
+    "comissao_pct": 0.02,
+    "ticket_medio": 16500
+   }
+  ],
+  "por_estado": [
+   {
+    "uf": "MG",
+    "vgv": 16500,
+    "lotes": 1,
+    "estado": "MG",
+    "animais": 1,
+    "pct_total": 1,
+    "ticket_medio": 16500
+   }
+  ],
+  "compradores": [
+   {
+    "uf": "MG",
+    "vgv": 16500,
+    "rank": 1,
+    "lotes": 1,
+    "cidade": null,
+    "animais": 1,
+    "fazenda": "FAZENDA SAO GERONIMO",
+    "comprador": "ROMUALDO HENRIQUE TAVARES DE MIRANDA"
+   }
+  ],
+  "lances": [
+   {
+    "vgv": 16500,
+    "lote": "12",
+    "animais": 1,
+    "empresa": "Bula Assessoria",
+    "parcela": 550,
+    "assessor": "Leonardo Serafim",
+    "parcelas": 30,
+    "comprador": "ROMUALDO HENRIQUE TAVARES DE MIRANDA · FAZENDA SAO GERONIMO · MG"
+   }
+  ],
+  "perfil_genetico": [],
+  "comissao_assessoria": 330,
+  "receita_bula": 0,
+  "sobra_bruta": 0,
+  "observacoes": "Fechamento alinhado ao HastaPro (Bula Assessoria / FIL 2) em 17/08/2026 — origem=hastapro.\n1 lotes / 1 animais. VGV = LOT_TOTAL do HastaPro (lance × parcelas × qtd de animais).\nAssessor = LOT_PISTEIRO do HastaPro (nao mais atribuicao por zona). Comissao padrao 2%; Rusa 5%; Lucas/Matheus Alves 0,33%.\nReceita da Bula depende do acordo com a leiloeira/criador e do faturamento total do leilao — lancada na conta a receber do ERP.",
+  "lotes_catalogo": [],
+  "distribuicao_empresa": [
+   {
+    "vgv": 16500,
+    "animais": 1,
+    "empresa": "Bula Assessoria",
+    "pct_total": 1,
+    "transacoes": 1,
+    "ticket_medio": 16500
+   }
+  ],
+  "faturamento_total_leilao": null,
+  "acordo_pct_faturamento": null,
+  "acordo_pct_venda_cobertura": null,
+  "acordo_descricao": null,
+  "acordo_criador_id": null,
+  "created_at": "2026-08-17T19:39:49.010447+00:00",
+  "updated_at": "2026-08-17T19:39:49.010447+00:00",
+  "despesas_variaveis": 0,
+  "etapa": "realizado",
+  "etapa_atualizada_em": "2026-08-17T19:39:49.010447+00:00",
+  "origem": "hastapro"
+ },
+ {
+  "id": "7e63204c-a15c-4998-adc1-d77e812acc42",
+  "nome": "LEILÃO TOUROS NELORE GRUPO COSTA",
+  "data": "2026-08-04",
+  "local": null,
+  "lotes_ofertados": 1,
+  "lotes_vendidos": 1,
+  "animais_vendidos": 1,
+  "vgv_total": 20100,
+  "ticket_medio": 20100,
+  "maior_lance": 20100,
+  "compradores_unicos": 1,
+  "estados_alcancados": 0,
+  "por_assessor": [
+   {
+    "vgv": 20100,
+    "nome": "Fábio Omena",
+    "animais": 1,
+    "empresa": "Bula Assessoria",
+    "posicao": 1,
+    "comissao": 402,
+    "pct_total": 1,
+    "transacoes": 1,
+    "comissao_pct": 0.02,
+    "ticket_medio": 20100
+   }
+  ],
+  "por_estado": [],
+  "compradores": [
+   {
+    "uf": null,
+    "vgv": 20100,
+    "rank": 1,
+    "lotes": 1,
+    "cidade": null,
+    "animais": 1,
+    "fazenda": "FAZENDA JACUTINGA",
+    "comprador": "JOERSON FERRONATO"
+   }
+  ],
+  "lances": [
+   {
+    "vgv": 20100,
+    "lote": "20",
+    "animais": 1,
+    "empresa": "Bula Assessoria",
+    "parcela": 670,
+    "assessor": "Fábio Omena",
+    "parcelas": 30,
+    "comprador": "JOERSON FERRONATO · FAZENDA JACUTINGA"
+   }
+  ],
+  "perfil_genetico": [],
+  "comissao_assessoria": 402,
+  "receita_bula": 603,
+  "sobra_bruta": 92.46,
+  "observacoes": "Fechamento alinhado ao HastaPro (Bula Assessoria / FIL 2) em 17/08/2026 — origem=hastapro.\n1 lotes / 1 animais. VGV = LOT_TOTAL do HastaPro (lance × parcelas × qtd de animais).\nAssessor = LOT_PISTEIRO do HastaPro (nao mais atribuicao por zona). Comissao padrao 2%; Rusa 5%; Lucas/Matheus Alves 0,33%.\nReceita da Bula depende do acordo com a leiloeira/criador e do faturamento total do leilao — lancada na conta a receber do ERP.\n[RECEITA 17/08] 3% da venda sobre cobertura de R$ 20.100,00. Sobra bruta = receita x 0,82 (imposto 18%) - comissao dos assessores, igual a coluna LIQUIDO da planilha-mestra.",
+  "lotes_catalogo": [],
+  "distribuicao_empresa": [
+   {
+    "vgv": 20100,
+    "animais": 1,
+    "empresa": "Bula Assessoria",
+    "pct_total": 1,
+    "transacoes": 1,
+    "ticket_medio": 20100
+   }
+  ],
+  "faturamento_total_leilao": null,
+  "acordo_pct_faturamento": null,
+  "acordo_pct_venda_cobertura": null,
+  "acordo_descricao": null,
+  "acordo_criador_id": null,
+  "created_at": "2026-08-17T19:39:42.054289+00:00",
+  "updated_at": "2026-08-17T19:39:42.054289+00:00",
+  "despesas_variaveis": 0,
+  "etapa": "realizado",
+  "etapa_atualizada_em": "2026-08-17T19:39:42.054289+00:00",
+  "origem": "hastapro"
+ }
+]
