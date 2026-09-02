@@ -1,0 +1,1581 @@
+{
+ "geradoEm": "2026-09-02",
+ "hastapro": {
+  "fil2": [
+   {
+    "data": "2026-02-07",
+    "leilao": "LEILÃO PARTNER RG - FÊMEAS",
+    "lote": "75",
+    "vgv": 60000,
+    "pisteiro": "Laila de Sousa Oliveira",
+    "quem": "LAILA"
+   },
+   {
+    "data": "2026-03-29",
+    "leilao": "MEGA GENÉTICA NAVIRAÍ - 1ª ETAPA MATRIZES",
+    "lote": "81",
+    "vgv": 36000,
+    "pisteiro": "Luiz Felipe Peralta Garcez",
+    "quem": "PERALTA"
+   },
+   {
+    "data": "2026-05-09",
+    "leilao": "32° LEILÃO 4R",
+    "lote": "1000",
+    "vgv": 48000,
+    "pisteiro": "Luiz Felipe Peralta Garcez",
+    "quem": "PERALTA"
+   },
+   {
+    "data": "2026-05-09",
+    "leilao": "32° LEILÃO 4R",
+    "lote": "104",
+    "vgv": 34500,
+    "pisteiro": "Laila de Sousa Oliveira",
+    "quem": "LAILA"
+   },
+   {
+    "data": "2026-05-09",
+    "leilao": "32° LEILÃO 4R",
+    "lote": "105",
+    "vgv": 48000,
+    "pisteiro": "Lucas Martins Durães Bragança",
+    "quem": "LUCAS"
+   },
+   {
+    "data": "2026-05-09",
+    "leilao": "32° LEILÃO 4R",
+    "lote": "11",
+    "vgv": 28500,
+    "pisteiro": "Laila de Sousa Oliveira",
+    "quem": "LAILA"
+   },
+   {
+    "data": "2026-05-09",
+    "leilao": "32° LEILÃO 4R",
+    "lote": "129",
+    "vgv": 30000,
+    "pisteiro": "Luiz Felipe Peralta Garcez",
+    "quem": "PERALTA"
+   },
+   {
+    "data": "2026-05-09",
+    "leilao": "32° LEILÃO 4R",
+    "lote": "130",
+    "vgv": 30000,
+    "pisteiro": "Luiz Felipe Peralta Garcez",
+    "quem": "PERALTA"
+   },
+   {
+    "data": "2026-05-09",
+    "leilao": "32° LEILÃO 4R",
+    "lote": "131",
+    "vgv": 30000,
+    "pisteiro": "Luiz Felipe Peralta Garcez",
+    "quem": "PERALTA"
+   },
+   {
+    "data": "2026-05-09",
+    "leilao": "32° LEILÃO 4R",
+    "lote": "17",
+    "vgv": 36000,
+    "pisteiro": "Luiz Felipe Peralta Garcez",
+    "quem": "PERALTA"
+   },
+   {
+    "data": "2026-05-09",
+    "leilao": "32° LEILÃO 4R",
+    "lote": "39",
+    "vgv": 36000,
+    "pisteiro": "Luiz Felipe Peralta Garcez",
+    "quem": "PERALTA"
+   },
+   {
+    "data": "2026-05-09",
+    "leilao": "32° LEILÃO 4R",
+    "lote": "83",
+    "vgv": 25500,
+    "pisteiro": "Laila de Sousa Oliveira",
+    "quem": "LAILA"
+   },
+   {
+    "data": "2026-05-09",
+    "leilao": "32° LEILÃO 4R",
+    "lote": "96",
+    "vgv": 33000,
+    "pisteiro": "Luiz Felipe Peralta Garcez",
+    "quem": "PERALTA"
+   },
+   {
+    "data": "2026-05-19",
+    "leilao": "GOLDEN BOYS MATINHA",
+    "lote": "203",
+    "vgv": 18000,
+    "pisteiro": "Lucas Martins Durães Bragança",
+    "quem": "LUCAS"
+   },
+   {
+    "data": "2026-06-06",
+    "leilao": "4° LEILÃO TOUROS CAMPARINO - EDIÇÃO MT",
+    "lote": "28",
+    "vgv": 23800,
+    "pisteiro": "Luiz Felipe Peralta Garcez",
+    "quem": "PERALTA"
+   },
+   {
+    "data": "2026-06-06",
+    "leilao": "4° LEILÃO TOUROS CAMPARINO - EDIÇÃO MT",
+    "lote": "40",
+    "vgv": 23800,
+    "pisteiro": "Luiz Felipe Peralta Garcez",
+    "quem": "PERALTA"
+   },
+   {
+    "data": "2026-06-06",
+    "leilao": "4° LEILÃO TOUROS CAMPARINO - EDIÇÃO MT",
+    "lote": "60",
+    "vgv": 23800,
+    "pisteiro": "Luiz Felipe Peralta Garcez",
+    "quem": "PERALTA"
+   },
+   {
+    "data": "2026-06-14",
+    "leilao": "10º LEILÃO NELORE JMP - TOUROS",
+    "lote": "109",
+    "vgv": 39000,
+    "pisteiro": "Lucas Martins Durães Bragança",
+    "quem": "LUCAS"
+   },
+   {
+    "data": "2026-06-14",
+    "leilao": "10º LEILÃO NELORE JMP - TOUROS",
+    "lote": "134",
+    "vgv": 25500,
+    "pisteiro": "Lucas Martins Durães Bragança",
+    "quem": "LUCAS"
+   },
+   {
+    "data": "2026-06-14",
+    "leilao": "10º LEILÃO NELORE JMP - TOUROS",
+    "lote": "173",
+    "vgv": 24000,
+    "pisteiro": "Lucas Martins Durães Bragança",
+    "quem": "LUCAS"
+   },
+   {
+    "data": "2026-06-14",
+    "leilao": "10º LEILÃO NELORE JMP - TOUROS",
+    "lote": "208",
+    "vgv": 107200,
+    "pisteiro": "Lucas Martins Durães Bragança",
+    "quem": "LUCAS"
+   },
+   {
+    "data": "2026-06-14",
+    "leilao": "10º LEILÃO NELORE JMP - TOUROS",
+    "lote": "243",
+    "vgv": 80000,
+    "pisteiro": "Lucas Martins Durães Bragança",
+    "quem": "LUCAS"
+   },
+   {
+    "data": "2026-06-14",
+    "leilao": "10º LEILÃO NELORE JMP - TOUROS",
+    "lote": "244",
+    "vgv": 80000,
+    "pisteiro": "Lucas Martins Durães Bragança",
+    "quem": "LUCAS"
+   },
+   {
+    "data": "2026-06-14",
+    "leilao": "10º LEILÃO NELORE JMP - TOUROS",
+    "lote": "245",
+    "vgv": 80000,
+    "pisteiro": "Lucas Martins Durães Bragança",
+    "quem": "LUCAS"
+   },
+   {
+    "data": "2026-06-14",
+    "leilao": "10º LEILÃO NELORE JMP - TOUROS",
+    "lote": "246",
+    "vgv": 80000,
+    "pisteiro": "Lucas Martins Durães Bragança",
+    "quem": "LUCAS"
+   },
+   {
+    "data": "2026-06-21",
+    "leilao": "LEILÃO VIRTUAL TOUROS MATINHA",
+    "lote": "26",
+    "vgv": 21600,
+    "pisteiro": "Luiz Felipe Peralta Garcez",
+    "quem": "PERALTA"
+   },
+   {
+    "data": "2026-06-23",
+    "leilao": "LEILÃO VIRTUAL REPRODUTORES RS AGROPECUÁRIA",
+    "lote": "15",
+    "vgv": 14400,
+    "pisteiro": "Luiz Felipe Peralta Garcez",
+    "quem": "PERALTA"
+   },
+   {
+    "data": "2026-06-23",
+    "leilao": "LEILÃO VIRTUAL REPRODUTORES RS AGROPECUÁRIA",
+    "lote": "18",
+    "vgv": 16200,
+    "pisteiro": "Luiz Felipe Peralta Garcez",
+    "quem": "PERALTA"
+   },
+   {
+    "data": "2026-06-23",
+    "leilao": "LEILÃO VIRTUAL REPRODUTORES RS AGROPECUÁRIA",
+    "lote": "26",
+    "vgv": 26100,
+    "pisteiro": "Luiz Felipe Peralta Garcez",
+    "quem": "PERALTA"
+   },
+   {
+    "data": "2026-06-23",
+    "leilao": "LEILÃO VIRTUAL REPRODUTORES RS AGROPECUÁRIA",
+    "lote": "32",
+    "vgv": 22500,
+    "pisteiro": "Luiz Felipe Peralta Garcez",
+    "quem": "PERALTA"
+   },
+   {
+    "data": "2026-06-23",
+    "leilao": "LEILÃO VIRTUAL REPRODUTORES RS AGROPECUÁRIA",
+    "lote": "33",
+    "vgv": 18000,
+    "pisteiro": "Luiz Felipe Peralta Garcez",
+    "quem": "PERALTA"
+   },
+   {
+    "data": "2026-06-23",
+    "leilao": "LEILÃO VIRTUAL REPRODUTORES RS AGROPECUÁRIA",
+    "lote": "38",
+    "vgv": 21600,
+    "pisteiro": "Luiz Felipe Peralta Garcez",
+    "quem": "PERALTA"
+   },
+   {
+    "data": "2026-06-23",
+    "leilao": "LEILÃO VIRTUAL REPRODUTORES RS AGROPECUÁRIA",
+    "lote": "39",
+    "vgv": 16200,
+    "pisteiro": "Luiz Felipe Peralta Garcez",
+    "quem": "PERALTA"
+   },
+   {
+    "data": "2026-06-23",
+    "leilao": "LEILÃO VIRTUAL REPRODUTORES RS AGROPECUÁRIA",
+    "lote": "46",
+    "vgv": 18000,
+    "pisteiro": "Luiz Felipe Peralta Garcez",
+    "quem": "PERALTA"
+   },
+   {
+    "data": "2026-06-23",
+    "leilao": "LEILÃO VIRTUAL REPRODUTORES RS AGROPECUÁRIA",
+    "lote": "50",
+    "vgv": 22500,
+    "pisteiro": "Luiz Felipe Peralta Garcez",
+    "quem": "PERALTA"
+   },
+   {
+    "data": "2026-07-12",
+    "leilao": "13° MEGA EVENTO EAO BAVIERA - TOUROS",
+    "lote": "349",
+    "vgv": 67500,
+    "pisteiro": "Laila de Sousa Oliveira",
+    "quem": "LAILA"
+   },
+   {
+    "data": "2026-07-16",
+    "leilao": "LEILÃO VIRTUAL NAVIRAÍ MATRIZES - 2ª ETAPA",
+    "lote": "18",
+    "vgv": 28500,
+    "pisteiro": "Luiz Felipe Peralta Garcez",
+    "quem": "PERALTA"
+   },
+   {
+    "data": "2026-07-16",
+    "leilao": "LEILÃO VIRTUAL NAVIRAÍ MATRIZES - 2ª ETAPA",
+    "lote": "36",
+    "vgv": 25500,
+    "pisteiro": "Luiz Felipe Peralta Garcez",
+    "quem": "PERALTA"
+   },
+   {
+    "data": "2026-08-20",
+    "leilao": "LEILÃO NELORE CEN & FAZENDA MODELO & CONVIDADOS",
+    "lote": "09",
+    "vgv": 84000,
+    "pisteiro": "Luiz Felipe Peralta Garcez",
+    "quem": "PERALTA"
+   },
+   {
+    "data": "2026-08-23",
+    "leilao": "LEILÃO NELORE MARCONDES - ABERTURA",
+    "lote": "01",
+    "vgv": 37500,
+    "pisteiro": "Luiz Felipe Peralta Garcez",
+    "quem": "PERALTA"
+   },
+   {
+    "data": "2026-08-23",
+    "leilao": "28º LEILÃO NAVIRAÍ CAMPARINO - REPRODUTORES",
+    "lote": "117",
+    "vgv": 48000,
+    "pisteiro": "Lucas Martins Durães Bragança",
+    "quem": "LUCAS"
+   },
+   {
+    "data": "2026-08-23",
+    "leilao": "28º LEILÃO NAVIRAÍ CAMPARINO - REPRODUTORES",
+    "lote": "16",
+    "vgv": 48000,
+    "pisteiro": "Lucas Martins Durães Bragança",
+    "quem": "LUCAS"
+   },
+   {
+    "data": "2026-08-23",
+    "leilao": "28º LEILÃO NAVIRAÍ CAMPARINO - REPRODUTORES",
+    "lote": "30",
+    "vgv": 42000,
+    "pisteiro": "Luiz Felipe Peralta Garcez",
+    "quem": "PERALTA"
+   },
+   {
+    "data": "2026-08-23",
+    "leilao": "28º LEILÃO NAVIRAÍ CAMPARINO - REPRODUTORES",
+    "lote": "52",
+    "vgv": 30000,
+    "pisteiro": "Laila de Sousa Oliveira",
+    "quem": "LAILA"
+   },
+   {
+    "data": "2026-08-23",
+    "leilao": "28º LEILÃO NAVIRAÍ CAMPARINO - REPRODUTORES",
+    "lote": "77",
+    "vgv": 30000,
+    "pisteiro": "Laila de Sousa Oliveira",
+    "quem": "LAILA"
+   },
+   {
+    "data": "2026-08-23",
+    "leilao": "28º LEILÃO NAVIRAÍ CAMPARINO - REPRODUTORES",
+    "lote": "78",
+    "vgv": 48000,
+    "pisteiro": "Luiz Felipe Peralta Garcez",
+    "quem": "PERALTA"
+   }
+  ],
+  "fil01_total": 37612730,
+  "fil01_lotes": 358,
+  "lote11": [
+   {
+    "pisteiro": "Felipe Vilela Andrade",
+    "vgv": 93000,
+    "leilao": "LEILÃO NAVIRAÍ CAMPARINO - MATRIZES ESSÊNCIA",
+    "data": "2026-08-22"
+   }
+  ]
+ },
+ "erp": {
+  "fechamentos": [
+   {
+    "id": "d487d402-5acd-4092-a110-38d3d291af2d",
+    "leilao": "LEILÃO PARTNER RG - FÊMEAS – 07/02/2026",
+    "data": "2026-02-07",
+    "origem": "hastapro",
+    "quem": "LAILA",
+    "nome_no_fechamento": "Laila Oliveira",
+    "vgv": 60000,
+    "pct": 0.02,
+    "comissao": 1200,
+    "observacao": null,
+    "lotes": [
+     {
+      "lote": "75",
+      "vgv": 60000,
+      "assessor": "Laila Oliveira",
+      "comprador": "ANA EUFROSINA FALCÃO"
+     }
+    ]
+   },
+   {
+    "id": "45fc24ea-f939-420d-82ba-c3c9c92b3b4a",
+    "leilao": "MEGA GENÉTICA NAVIRAÍ - 1ª ETAPA MATRIZES – 29/03/2026",
+    "data": "2026-03-29",
+    "origem": "hastapro",
+    "quem": "PERALTA",
+    "nome_no_fechamento": "Peralta",
+    "vgv": 36000,
+    "pct": 0.02,
+    "comissao": 720,
+    "observacao": null,
+    "lotes": [
+     {
+      "lote": "81",
+      "vgv": 36000,
+      "assessor": "Peralta",
+      "comprador": "CEITA CORÊ · CEITA CORÊ"
+     }
+    ]
+   },
+   {
+    "id": "ebfbce96-4c51-49e9-994b-1d117fdaf486",
+    "leilao": "41o Touros Camparino - 06/06/2026",
+    "data": "2026-06-06",
+    "origem": null,
+    "quem": "PERALTA",
+    "nome_no_fechamento": "Peralta",
+    "vgv": 71400,
+    "pct": null,
+    "comissao": 0,
+    "observacao": "Sem regra de comissao padrao cadastrada; revisar antes de gerar conta a pagar.",
+    "lotes": [
+     {
+      "lote": "40",
+      "vgv": 23800,
+      "assessor": "Peralta",
+      "comprador": "Guilherme Staut / Fazenda Campo Grande"
+     },
+     {
+      "lote": "28",
+      "vgv": 23800,
+      "assessor": "Peralta",
+      "comprador": "Guilherme Staut / Fazenda Campo Grande"
+     },
+     {
+      "lote": "60",
+      "vgv": 23800,
+      "assessor": "Peralta",
+      "comprador": "Guilherme Staut / Fazenda Campo Grande"
+     }
+    ]
+   },
+   {
+    "id": "7d20b5f5-0ae8-4658-a395-8dc0820aa1e8",
+    "leilao": "Venda Touros RS - 23/06/2026",
+    "data": "2026-06-23",
+    "origem": null,
+    "quem": "PERALTA",
+    "nome_no_fechamento": "Peralta",
+    "vgv": 175500,
+    "pct": 0.02,
+    "comissao": 3510,
+    "observacao": null,
+    "lotes": [
+     {
+      "lote": "32",
+      "vgv": 22500,
+      "assessor": "Peralta",
+      "comprador": "Gustavo Macedo"
+     },
+     {
+      "lote": "26",
+      "vgv": 26100,
+      "assessor": "Peralta",
+      "comprador": "Gustavo Macedo"
+     },
+     {
+      "lote": "50",
+      "vgv": 22500,
+      "assessor": "Peralta",
+      "comprador": "Gustavo Macedo"
+     },
+     {
+      "lote": "38",
+      "vgv": 21600,
+      "assessor": "Peralta",
+      "comprador": "Gustavo Macedo"
+     },
+     {
+      "lote": "39",
+      "vgv": 16200,
+      "assessor": "Peralta",
+      "comprador": "Wedson Chimango"
+     },
+     {
+      "lote": "46",
+      "vgv": 18000,
+      "assessor": "Peralta",
+      "comprador": "Wedson Chimango"
+     },
+     {
+      "lote": "33",
+      "vgv": 18000,
+      "assessor": "Peralta",
+      "comprador": "Wedson Chimango"
+     },
+     {
+      "lote": "18",
+      "vgv": 16200,
+      "assessor": "Peralta",
+      "comprador": "Wedson Chimango"
+     },
+     {
+      "lote": "15",
+      "vgv": 14400,
+      "assessor": "Peralta",
+      "comprador": "Wedson Chimango"
+     }
+    ]
+   },
+   {
+    "id": "0d78e2f8-8fd2-4d98-ba1d-b3511cf19c9d",
+    "leilao": "LEILÃO VIRTUAL REPRODUTORES RS AGROPECUÁRIA",
+    "data": "2026-06-23",
+    "origem": "hastapro",
+    "quem": "PERALTA",
+    "nome_no_fechamento": "PERALTA",
+    "vgv": 175500,
+    "pct": 0.02,
+    "comissao": 3510,
+    "observacao": null,
+    "lotes": [
+     {
+      "lote": "15",
+      "vgv": 14400,
+      "assessor": "PERALTA",
+      "comprador": "WEDSON CHIMANGO DIAS DE OLIVEIRA · FAZENDA PONTE FUNDA"
+     },
+     {
+      "lote": "18",
+      "vgv": 16200,
+      "assessor": "PERALTA",
+      "comprador": "WEDSON CHIMANGO DIAS DE OLIVEIRA · FAZENDA PONTE FUNDA"
+     },
+     {
+      "lote": "26",
+      "vgv": 26100,
+      "assessor": "PERALTA",
+      "comprador": "GUSTAVO MACEDO · ."
+     },
+     {
+      "lote": "32",
+      "vgv": 22500,
+      "assessor": "PERALTA",
+      "comprador": "GUSTAVO MACEDO · ."
+     },
+     {
+      "lote": "33",
+      "vgv": 18000,
+      "assessor": "PERALTA",
+      "comprador": "WEDSON CHIMANGO DIAS DE OLIVEIRA · FAZENDA PONTE FUNDA"
+     },
+     {
+      "lote": "38",
+      "vgv": 21600,
+      "assessor": "PERALTA",
+      "comprador": "GUSTAVO MACEDO · ."
+     },
+     {
+      "lote": "39",
+      "vgv": 16200,
+      "assessor": "PERALTA",
+      "comprador": "WEDSON CHIMANGO DIAS DE OLIVEIRA · FAZENDA PONTE FUNDA"
+     },
+     {
+      "lote": "46",
+      "vgv": 18000,
+      "assessor": "PERALTA",
+      "comprador": "WEDSON CHIMANGO DIAS DE OLIVEIRA · FAZENDA PONTE FUNDA"
+     },
+     {
+      "lote": "50",
+      "vgv": 22500,
+      "assessor": "PERALTA",
+      "comprador": "GUSTAVO MACEDO · ."
+     }
+    ]
+   },
+   {
+    "id": "6a67f76b-5d50-48fe-9ab1-7eec161c4591",
+    "leilao": "MEGA EVENTO EAO BAVIERA — Machos",
+    "data": "2026-07-12",
+    "origem": "hastapro",
+    "quem": "LAILA",
+    "nome_no_fechamento": "Laila Oliveira",
+    "vgv": 67500,
+    "pct": 0.01,
+    "comissao": 675,
+    "observacao": null,
+    "lotes": [
+     {
+      "lote": "349",
+      "vgv": 67500,
+      "assessor": "Laila Oliveira",
+      "comprador": "LUIS ANTONIO · FAZENDA SANTA LUCIA PLANALTO"
+     }
+    ]
+   },
+   {
+    "id": "0ba4d4d9-0235-4cfe-9db4-ae49208e7f75",
+    "leilao": "2º ETAPA NAVIRAÍ MATRIZES",
+    "data": "2026-07-16",
+    "origem": "lances-auto",
+    "quem": "PERALTA",
+    "nome_no_fechamento": "Peralta",
+    "vgv": 54000,
+    "pct": 0.02,
+    "comissao": 1080,
+    "observacao": null,
+    "lotes": [
+     {
+      "lote": "36",
+      "vgv": 25500,
+      "assessor": "Peralta",
+      "comprador": "Nelore JF José Eduardo Lippi · Fazenda bela ideia"
+     },
+     {
+      "lote": "18",
+      "vgv": 28500,
+      "assessor": "Peralta",
+      "comprador": "Nelore JF José Eduardo Lippi · Fazenda bela ideia · Aquidauana/MS"
+     }
+    ]
+   },
+   {
+    "id": "632a16cf-988a-4309-b1e5-45e208045772",
+    "leilao": "LEILÃO NELORE CEN & FAZENDA MODELO & CONVIDADOS",
+    "data": "2026-08-20",
+    "origem": "hastapro",
+    "quem": "PERALTA",
+    "nome_no_fechamento": "PERALTA",
+    "vgv": 84000,
+    "pct": 0.02,
+    "comissao": 1680,
+    "observacao": null,
+    "lotes": [
+     {
+      "lote": "09",
+      "vgv": 84000,
+      "assessor": "PERALTA",
+      "comprador": "FERNANDO CESAR PINHEIRO CARNEIRO · FAZENDA ANDRESSA"
+     }
+    ]
+   },
+   {
+    "id": "e7811a6e-7ed7-4a82-a56f-0536093e8ae0",
+    "leilao": "LEILÃO NAVIRAÍ CAMPARINO ESSÊNCIA BEZERRAS E NOVILHAS",
+    "data": "2026-08-22",
+    "origem": "lances-auto",
+    "quem": "PERALTA",
+    "nome_no_fechamento": "Peralta / Bula",
+    "vgv": 93000,
+    "pct": 0.02,
+    "comissao": 1860,
+    "observacao": null,
+    "lotes": [
+     {
+      "lote": "11",
+      "vgv": 93000,
+      "assessor": "Peralta / Bula",
+      "comprador": "A identificar"
+     }
+    ]
+   },
+   {
+    "id": "4dfcdaec-1806-4b8c-8112-5f99ee5cc412",
+    "leilao": "28º LEILÃO NAVIRAÍ CAMPARINO - REPRODUTORES",
+    "data": "2026-08-23",
+    "origem": "hastapro",
+    "quem": "LUCAS",
+    "nome_no_fechamento": "LUCAS MARTINS",
+    "vgv": 96000,
+    "pct": 0.0033,
+    "comissao": 316.8,
+    "observacao": null,
+    "lotes": [
+     {
+      "lote": "117",
+      "vgv": 48000,
+      "assessor": "LUCAS MARTINS",
+      "comprador": "ARMINDO MARTINS DA CONCEIÇÃO · FAZENDA NOSSA SENHORA DE FÁTIMA"
+     },
+     {
+      "lote": "16",
+      "vgv": 48000,
+      "assessor": "LUCAS MARTINS",
+      "comprador": "ANGELO MUNHOZ · Fazenda Mimoso"
+     },
+     {
+      "lote": "30",
+      "vgv": 42000,
+      "assessor": "PERALTA",
+      "comprador": "LIBERATO ANTONIO SERAFINI FILHO · Fazenda Nova Taquari"
+     },
+     {
+      "lote": "52",
+      "vgv": 30000,
+      "assessor": "LAILA",
+      "comprador": "HAROLDO HENRIQUE LUIZARI · FAZENDA SANTA MARIA"
+     },
+     {
+      "lote": "77",
+      "vgv": 30000,
+      "assessor": "LAILA",
+      "comprador": "HAROLDO HENRIQUE LUIZARI · FAZENDA SANTA MARIA"
+     },
+     {
+      "lote": "78",
+      "vgv": 48000,
+      "assessor": "PERALTA",
+      "comprador": "DANIEL ALBUQUERQUE PEREIRA · FAZENDA ESTANCIA PRIMAVERA"
+     }
+    ]
+   },
+   {
+    "id": "4dfcdaec-1806-4b8c-8112-5f99ee5cc412",
+    "leilao": "28º LEILÃO NAVIRAÍ CAMPARINO - REPRODUTORES",
+    "data": "2026-08-23",
+    "origem": "hastapro",
+    "quem": "PERALTA",
+    "nome_no_fechamento": "PERALTA",
+    "vgv": 90000,
+    "pct": 0.02,
+    "comissao": 1800,
+    "observacao": null,
+    "lotes": [
+     {
+      "lote": "117",
+      "vgv": 48000,
+      "assessor": "LUCAS MARTINS",
+      "comprador": "ARMINDO MARTINS DA CONCEIÇÃO · FAZENDA NOSSA SENHORA DE FÁTIMA"
+     },
+     {
+      "lote": "16",
+      "vgv": 48000,
+      "assessor": "LUCAS MARTINS",
+      "comprador": "ANGELO MUNHOZ · Fazenda Mimoso"
+     },
+     {
+      "lote": "30",
+      "vgv": 42000,
+      "assessor": "PERALTA",
+      "comprador": "LIBERATO ANTONIO SERAFINI FILHO · Fazenda Nova Taquari"
+     },
+     {
+      "lote": "52",
+      "vgv": 30000,
+      "assessor": "LAILA",
+      "comprador": "HAROLDO HENRIQUE LUIZARI · FAZENDA SANTA MARIA"
+     },
+     {
+      "lote": "77",
+      "vgv": 30000,
+      "assessor": "LAILA",
+      "comprador": "HAROLDO HENRIQUE LUIZARI · FAZENDA SANTA MARIA"
+     },
+     {
+      "lote": "78",
+      "vgv": 48000,
+      "assessor": "PERALTA",
+      "comprador": "DANIEL ALBUQUERQUE PEREIRA · FAZENDA ESTANCIA PRIMAVERA"
+     }
+    ]
+   },
+   {
+    "id": "4dfcdaec-1806-4b8c-8112-5f99ee5cc412",
+    "leilao": "28º LEILÃO NAVIRAÍ CAMPARINO - REPRODUTORES",
+    "data": "2026-08-23",
+    "origem": "hastapro",
+    "quem": "LAILA",
+    "nome_no_fechamento": "LAILA",
+    "vgv": 60000,
+    "pct": 0.01,
+    "comissao": 600,
+    "observacao": null,
+    "lotes": [
+     {
+      "lote": "117",
+      "vgv": 48000,
+      "assessor": "LUCAS MARTINS",
+      "comprador": "ARMINDO MARTINS DA CONCEIÇÃO · FAZENDA NOSSA SENHORA DE FÁTIMA"
+     },
+     {
+      "lote": "16",
+      "vgv": 48000,
+      "assessor": "LUCAS MARTINS",
+      "comprador": "ANGELO MUNHOZ · Fazenda Mimoso"
+     },
+     {
+      "lote": "30",
+      "vgv": 42000,
+      "assessor": "PERALTA",
+      "comprador": "LIBERATO ANTONIO SERAFINI FILHO · Fazenda Nova Taquari"
+     },
+     {
+      "lote": "52",
+      "vgv": 30000,
+      "assessor": "LAILA",
+      "comprador": "HAROLDO HENRIQUE LUIZARI · FAZENDA SANTA MARIA"
+     },
+     {
+      "lote": "77",
+      "vgv": 30000,
+      "assessor": "LAILA",
+      "comprador": "HAROLDO HENRIQUE LUIZARI · FAZENDA SANTA MARIA"
+     },
+     {
+      "lote": "78",
+      "vgv": 48000,
+      "assessor": "PERALTA",
+      "comprador": "DANIEL ALBUQUERQUE PEREIRA · FAZENDA ESTANCIA PRIMAVERA"
+     }
+    ]
+   },
+   {
+    "id": "4f28d2da-7f56-473a-9ac4-12e37ec0da1d",
+    "leilao": "LEILÃO NELORE MARCONDES - ABERTURA",
+    "data": "2026-08-23",
+    "origem": "hastapro",
+    "quem": "PERALTA",
+    "nome_no_fechamento": "PERALTA",
+    "vgv": 37500,
+    "pct": 0.02,
+    "comissao": 750,
+    "observacao": null,
+    "lotes": [
+     {
+      "lote": "01",
+      "vgv": 37500,
+      "assessor": "PERALTA",
+      "comprador": "FERNANDO CESAR PINHEIRO CARNEIRO · FAZENDA ANDRESSA"
+     }
+    ]
+   }
+  ],
+  "conflitos": [
+   {
+    "data": "2026-05-09",
+    "leilao": "32° LEILÃO 4R",
+    "lote": "1000",
+    "vgv": 48000,
+    "pisteiro": "Luiz Felipe Peralta Garcez",
+    "quem": "PERALTA",
+    "situacao": "creditado-a-outro",
+    "creditado_a": "Leonardo Serafim",
+    "fechamento": "32° Leilão 4R – 09/05/2026"
+   },
+   {
+    "data": "2026-05-09",
+    "leilao": "32° LEILÃO 4R",
+    "lote": "104",
+    "vgv": 34500,
+    "pisteiro": "Laila de Sousa Oliveira",
+    "quem": "LAILA",
+    "situacao": "creditado-a-outro",
+    "creditado_a": "Leonardo Serafim",
+    "fechamento": "32° Leilão 4R – 09/05/2026"
+   },
+   {
+    "data": "2026-05-09",
+    "leilao": "32° LEILÃO 4R",
+    "lote": "105",
+    "vgv": 48000,
+    "pisteiro": "Lucas Martins Durães Bragança",
+    "quem": "LUCAS",
+    "situacao": "creditado-a-outro",
+    "creditado_a": "Leonardo Serafim",
+    "fechamento": "32° Leilão 4R – 09/05/2026"
+   },
+   {
+    "data": "2026-05-09",
+    "leilao": "32° LEILÃO 4R",
+    "lote": "11",
+    "vgv": 28500,
+    "pisteiro": "Laila de Sousa Oliveira",
+    "quem": "LAILA",
+    "situacao": "creditado-a-outro",
+    "creditado_a": "Leonardo Serafim",
+    "fechamento": "32° Leilão 4R – 09/05/2026"
+   },
+   {
+    "data": "2026-05-09",
+    "leilao": "32° LEILÃO 4R",
+    "lote": "129",
+    "vgv": 30000,
+    "pisteiro": "Luiz Felipe Peralta Garcez",
+    "quem": "PERALTA",
+    "situacao": "creditado-a-outro",
+    "creditado_a": "Leonardo Serafim",
+    "fechamento": "32° Leilão 4R – 09/05/2026"
+   },
+   {
+    "data": "2026-05-09",
+    "leilao": "32° LEILÃO 4R",
+    "lote": "130",
+    "vgv": 30000,
+    "pisteiro": "Luiz Felipe Peralta Garcez",
+    "quem": "PERALTA",
+    "situacao": "creditado-a-outro",
+    "creditado_a": "Leonardo Serafim",
+    "fechamento": "32° Leilão 4R – 09/05/2026"
+   },
+   {
+    "data": "2026-05-09",
+    "leilao": "32° LEILÃO 4R",
+    "lote": "131",
+    "vgv": 30000,
+    "pisteiro": "Luiz Felipe Peralta Garcez",
+    "quem": "PERALTA",
+    "situacao": "creditado-a-outro",
+    "creditado_a": "Leonardo Serafim",
+    "fechamento": "32° Leilão 4R – 09/05/2026"
+   },
+   {
+    "data": "2026-05-09",
+    "leilao": "32° LEILÃO 4R",
+    "lote": "17",
+    "vgv": 36000,
+    "pisteiro": "Luiz Felipe Peralta Garcez",
+    "quem": "PERALTA",
+    "situacao": "creditado-a-outro",
+    "creditado_a": "Leonardo Serafim",
+    "fechamento": "32° Leilão 4R – 09/05/2026"
+   },
+   {
+    "data": "2026-05-09",
+    "leilao": "32° LEILÃO 4R",
+    "lote": "39",
+    "vgv": 36000,
+    "pisteiro": "Luiz Felipe Peralta Garcez",
+    "quem": "PERALTA",
+    "situacao": "creditado-a-outro",
+    "creditado_a": "Leonardo Serafim",
+    "fechamento": "32° Leilão 4R – 09/05/2026"
+   },
+   {
+    "data": "2026-05-09",
+    "leilao": "32° LEILÃO 4R",
+    "lote": "83",
+    "vgv": 25500,
+    "pisteiro": "Laila de Sousa Oliveira",
+    "quem": "LAILA",
+    "situacao": "creditado-a-outro",
+    "creditado_a": "Leonardo Serafim",
+    "fechamento": "32° Leilão 4R – 09/05/2026"
+   },
+   {
+    "data": "2026-05-09",
+    "leilao": "32° LEILÃO 4R",
+    "lote": "96",
+    "vgv": 33000,
+    "pisteiro": "Luiz Felipe Peralta Garcez",
+    "quem": "PERALTA",
+    "situacao": "creditado-a-outro",
+    "creditado_a": "Leonardo Serafim",
+    "fechamento": "32° Leilão 4R – 09/05/2026"
+   },
+   {
+    "data": "2026-05-19",
+    "leilao": "GOLDEN BOYS MATINHA",
+    "lote": "203",
+    "vgv": 18000,
+    "pisteiro": "Lucas Martins Durães Bragança",
+    "quem": "LUCAS",
+    "situacao": "creditado-a-outro",
+    "creditado_a": "Leonardo Serafim",
+    "fechamento": "Leilão Golden Boys Matinha – 19/05/2026"
+   },
+   {
+    "data": "2026-06-14",
+    "leilao": "10º LEILÃO NELORE JMP - TOUROS",
+    "lote": "109",
+    "vgv": 39000,
+    "pisteiro": "Lucas Martins Durães Bragança",
+    "quem": "LUCAS",
+    "situacao": "creditado-a-outro",
+    "creditado_a": "Leonardo Serafim",
+    "fechamento": "10o Leilao Nelore JMP - Touros - 14/06/2026"
+   },
+   {
+    "data": "2026-06-14",
+    "leilao": "10º LEILÃO NELORE JMP - TOUROS",
+    "lote": "134",
+    "vgv": 25500,
+    "pisteiro": "Lucas Martins Durães Bragança",
+    "quem": "LUCAS",
+    "situacao": "creditado-a-outro",
+    "creditado_a": "Leonardo Serafim",
+    "fechamento": "10o Leilao Nelore JMP - Touros - 14/06/2026"
+   },
+   {
+    "data": "2026-06-14",
+    "leilao": "10º LEILÃO NELORE JMP - TOUROS",
+    "lote": "173",
+    "vgv": 24000,
+    "pisteiro": "Lucas Martins Durães Bragança",
+    "quem": "LUCAS",
+    "situacao": "creditado-a-outro",
+    "creditado_a": "Leonardo Serafim",
+    "fechamento": "10o Leilao Nelore JMP - Touros - 14/06/2026"
+   },
+   {
+    "data": "2026-06-14",
+    "leilao": "10º LEILÃO NELORE JMP - TOUROS",
+    "lote": "208",
+    "vgv": 107200,
+    "pisteiro": "Lucas Martins Durães Bragança",
+    "quem": "LUCAS",
+    "situacao": "creditado-a-outro",
+    "creditado_a": "Leonardo Serafim",
+    "fechamento": "10o Leilao Nelore JMP - Touros - 14/06/2026"
+   },
+   {
+    "data": "2026-06-14",
+    "leilao": "10º LEILÃO NELORE JMP - TOUROS",
+    "lote": "243",
+    "vgv": 80000,
+    "pisteiro": "Lucas Martins Durães Bragança",
+    "quem": "LUCAS",
+    "situacao": "creditado-a-outro",
+    "creditado_a": "A definir",
+    "fechamento": "10o Leilao Nelore JMP - Touros - 14/06/2026"
+   },
+   {
+    "data": "2026-06-14",
+    "leilao": "10º LEILÃO NELORE JMP - TOUROS",
+    "lote": "244",
+    "vgv": 80000,
+    "pisteiro": "Lucas Martins Durães Bragança",
+    "quem": "LUCAS",
+    "situacao": "creditado-a-outro",
+    "creditado_a": "A definir",
+    "fechamento": "10o Leilao Nelore JMP - Touros - 14/06/2026"
+   },
+   {
+    "data": "2026-06-14",
+    "leilao": "10º LEILÃO NELORE JMP - TOUROS",
+    "lote": "245",
+    "vgv": 80000,
+    "pisteiro": "Lucas Martins Durães Bragança",
+    "quem": "LUCAS",
+    "situacao": "creditado-a-outro",
+    "creditado_a": "A definir",
+    "fechamento": "10o Leilao Nelore JMP - Touros - 14/06/2026"
+   },
+   {
+    "data": "2026-06-14",
+    "leilao": "10º LEILÃO NELORE JMP - TOUROS",
+    "lote": "246",
+    "vgv": 80000,
+    "pisteiro": "Lucas Martins Durães Bragança",
+    "quem": "LUCAS",
+    "situacao": "creditado-a-outro",
+    "creditado_a": "A definir",
+    "fechamento": "10o Leilao Nelore JMP - Touros - 14/06/2026"
+   },
+   {
+    "data": "2026-06-21",
+    "leilao": "LEILÃO VIRTUAL TOUROS MATINHA",
+    "lote": "26",
+    "vgv": 21600,
+    "pisteiro": "Luiz Felipe Peralta Garcez",
+    "quem": "PERALTA",
+    "situacao": "creditado-a-outro",
+    "creditado_a": "Fábio Omena Gaia",
+    "fechamento": "Leilão Virtual Touros Matinha - 21/06/2026"
+   }
+  ],
+  "contas_pagar": [
+   {
+    "id": "84324aa1-adb1-4c37-9537-0d684514a191",
+    "descricao": "PIX EMIT.OUTRA IF - cesta Iagro solicitado Peralta",
+    "fornecedor_id": "b7bc58d0-2030-4427-a01e-3567e5fe426d",
+    "categoria_id": "6d3270c8-2680-4cdd-a709-5b1520d1f430",
+    "centro_custo_id": null,
+    "plano_conta_id": null,
+    "conta_bancaria_id": "e0eca43c-1a2c-4077-ab54-801eb5d692e7",
+    "valor": 270,
+    "desconto": 0,
+    "juros": 0,
+    "multa": 0,
+    "valor_pago": 270,
+    "emissao": "2026-01-21",
+    "vencimento": "2026-01-21",
+    "data_pagamento": "2026-01-21",
+    "status": "pago",
+    "forma_pagamento": "",
+    "numero_documento": "",
+    "parcela": 1,
+    "total_parcelas": 1,
+    "recorrencia": "nenhuma",
+    "recorrencia_proxima": null,
+    "observacoes": "[18/08/2026] Título criado a partir do extrato conciliado (movimento b06957da-f5d8-4568-a4d7-8911b2b194f2) — o ERP só passou a registrar contas a pagar em jul/2026; este lançamento completa o histórico.",
+    "tags": [
+     "espelho-extrato"
+    ],
+    "anexos": [],
+    "created_at": "2026-08-18T19:30:37.475041+00:00",
+    "updated_at": "2026-08-18T19:30:37.475041+00:00",
+    "fechamento_id": null,
+    "nota_fiscal": "",
+    "vendedor": "",
+    "projeto": "",
+    "origem": "real",
+    "evento_key": null,
+    "substituido_por": null,
+    "substituido_em": null
+   },
+   {
+    "id": "ec2218fb-938b-4aa7-8b7e-1ce6f284d07f",
+    "descricao": "PIX EMIT.OUTRA IF - Laila Comissao Leilao 4R 9do5",
+    "fornecedor_id": "858d3c59-bb0c-4c3e-8200-b7271687bff9",
+    "categoria_id": "d53cf26d-af3b-406f-8a6d-b46dcd65d78e",
+    "centro_custo_id": null,
+    "plano_conta_id": null,
+    "conta_bancaria_id": "e0eca43c-1a2c-4077-ab54-801eb5d692e7",
+    "valor": 442.5,
+    "desconto": 0,
+    "juros": 0,
+    "multa": 0,
+    "valor_pago": 442.5,
+    "emissao": "2026-07-13",
+    "vencimento": "2026-07-13",
+    "data_pagamento": "2026-07-13",
+    "status": "pago",
+    "forma_pagamento": "",
+    "numero_documento": "",
+    "parcela": 1,
+    "total_parcelas": 1,
+    "recorrencia": "nenhuma",
+    "recorrencia_proxima": null,
+    "observacoes": "[18/08/2026] Título criado a partir do extrato conciliado (movimento 6aac8260-5437-45c5-a692-c0d7229421e8) — o ERP só passou a registrar contas a pagar em jul/2026; este lançamento completa o histórico.",
+    "tags": [
+     "espelho-extrato"
+    ],
+    "anexos": [],
+    "created_at": "2026-08-18T19:31:36.054234+00:00",
+    "updated_at": "2026-08-18T19:31:36.054234+00:00",
+    "fechamento_id": null,
+    "nota_fiscal": "",
+    "vendedor": "",
+    "projeto": "",
+    "origem": "real",
+    "evento_key": null,
+    "substituido_por": null,
+    "substituido_em": null
+   },
+   {
+    "id": "915bf73e-8fa3-422b-85b5-0b666505812c",
+    "descricao": "COMISSAO LUCAS MARTINS - MAI/JUN 2026 (Matinha Golden 19/05 R$90 + MNO 11/06 R$90 + JMP Touros 14/06 R$2.578,50)",
+    "fornecedor_id": "a2a337fb-efa2-44ff-9dd7-61616510a78c",
+    "categoria_id": "d53cf26d-af3b-406f-8a6d-b46dcd65d78e",
+    "centro_custo_id": "52dd8ed0-0c0a-4524-86bd-01dc121487b3",
+    "plano_conta_id": null,
+    "conta_bancaria_id": "e0eca43c-1a2c-4077-ab54-801eb5d692e7",
+    "valor": 2758.5,
+    "desconto": 0,
+    "juros": 0,
+    "multa": 0,
+    "valor_pago": 2758.5,
+    "emissao": "2026-06-14",
+    "vencimento": "2026-07-27",
+    "data_pagamento": "2026-07-10",
+    "status": "pago",
+    "forma_pagamento": "transferencia",
+    "numero_documento": "BULA-2026-CP-COM-JMP-TOUROS-LUCAS",
+    "parcela": 1,
+    "total_parcelas": 1,
+    "recorrencia": "nenhuma",
+    "recorrencia_proxima": null,
+    "observacoes": "[AGUARDANDO VALIDAÇÃO — RECEITA JMP] Não liberar no lote bancário até concluir a reconciliação ERP x legado dos recebíveis JMP e confirmar base, parcela e beneficiário. Comissão 0,33% sobre VGV de cobertura R$ 515.700,00 no 10o Leilão JMP Touros. Base: relatório de pisteiros (PDF) + regra Bula (Bulinha 2%). Vinculado ao fechamento c0f291bb-17bc-4b10-b320-c5ed6e767057. [CONCILIADO 23/07] Consolidado conforme planilha COMISSAO LUCAS: Matinha Golden 19/05 (18.000x0,5%=90) + MNO 11/06 (18.000x0,5%=90) + JMP Touros 14/06 (515.700x0,5%=2.578,50) = 2.758,50, pago 10/07 NF 04 via PIX Sicoob (movimento 1055adac). O % da época do Lucas era 0,5% (tabela 0,33% vale de 22/07 em diante). Matinha Virtual 21/06 (CP 432,00) NÃO entra: não consta na planilha paga, segue em aberto p/ próximo ciclo.",
+    "tags": [
+     "a-pagar",
+     "comissao",
+     "2026",
+     "leilao",
+     "jmp",
+     "touros",
+     "lucas"
+    ],
+    "anexos": [],
+    "created_at": "2026-06-16T13:34:17.847085+00:00",
+    "updated_at": "2026-07-23T14:43:34.771057+00:00",
+    "fechamento_id": null,
+    "nota_fiscal": "NF 04",
+    "vendedor": "Financeiro / Comercial",
+    "projeto": "Aguardando validação 25/07",
+    "origem": "real",
+    "evento_key": null,
+    "substituido_por": null,
+    "substituido_em": null
+   },
+   {
+    "id": "f95d291c-57c4-4da0-8fae-6bb58031d262",
+    "descricao": "COMISSAO VENDA TOUROS RS (23/06) - PERALTA (2%)",
+    "fornecedor_id": "baca6a9c-7490-4eef-a512-3cf4b063dda0",
+    "categoria_id": "d53cf26d-af3b-406f-8a6d-b46dcd65d78e",
+    "centro_custo_id": "52dd8ed0-0c0a-4524-86bd-01dc121487b3",
+    "plano_conta_id": null,
+    "conta_bancaria_id": null,
+    "valor": 3510,
+    "desconto": 0,
+    "juros": 0,
+    "multa": 0,
+    "valor_pago": 0,
+    "emissao": "2026-06-23",
+    "vencimento": "2026-07-27",
+    "data_pagamento": null,
+    "status": "cancelado",
+    "forma_pagamento": "",
+    "numero_documento": "BULA-2026-CP-COM-TOUROS-RS-PERALTA",
+    "parcela": 1,
+    "total_parcelas": 1,
+    "recorrencia": "nenhuma",
+    "recorrencia_proxima": null,
+    "observacoes": "Comissão 2% sobre VGV de cobertura 175.500,00 no Venda Touros RS. Vinculado ao fechamento 7d20b5f5-0ae8-4658-a395-8dc0820aa1e8. Assessor Peralta (taxa 2% confirmada pelo chefe). [ERP-VERDADE 04/08] CANCELADA: Comissionados reais da operacao sao apenas Douglas, Leonardo, Fabio, Rusa e Bulinha (chefe 04/08). CP de Peralta nao e divida real.",
+    "tags": [
+     "a-pagar",
+     "comissao",
+     "2026",
+     "leilao",
+     "touros-rs",
+     "peralta"
+    ],
+    "anexos": [],
+    "created_at": "2026-06-30T23:00:10.462611+00:00",
+    "updated_at": "2026-08-04T18:00:02.383059+00:00",
+    "fechamento_id": "7d20b5f5-0ae8-4658-a395-8dc0820aa1e8",
+    "nota_fiscal": "",
+    "vendedor": "",
+    "projeto": "",
+    "origem": "real",
+    "evento_key": null,
+    "substituido_por": null,
+    "substituido_em": null
+   },
+   {
+    "id": "b7758083-3b1f-4bad-b027-432afb49889e",
+    "descricao": "COMISSAO LEILÃO VIRTUAL TOUROS MATINHA - 21/06/2026 - LUCAS MARTINS (2%)",
+    "fornecedor_id": "a2a337fb-efa2-44ff-9dd7-61616510a78c",
+    "categoria_id": "d53cf26d-af3b-406f-8a6d-b46dcd65d78e",
+    "centro_custo_id": "52dd8ed0-0c0a-4524-86bd-01dc121487b3",
+    "plano_conta_id": null,
+    "conta_bancaria_id": null,
+    "valor": 432,
+    "desconto": 0,
+    "juros": 0,
+    "multa": 0,
+    "valor_pago": 0,
+    "emissao": "2026-06-21",
+    "vencimento": "2026-07-27",
+    "data_pagamento": null,
+    "status": "cancelado",
+    "forma_pagamento": "",
+    "numero_documento": "BULA-2026-CP-COM-MATINHA-VIRTUAL-20260621-LUCAS-MARTINS",
+    "parcela": 1,
+    "total_parcelas": 1,
+    "recorrencia": "nenhuma",
+    "recorrencia_proxima": null,
+    "observacoes": "Comissão 2% sobre VGV de cobertura R$ 21.600,00 no Leilão Virtual Touros Matinha - 21/06/2026. Vinculado ao fechamento 2ffd63ed-ee77-49cf-afc2-8fe077c9550e. [ERP-VERDADE 04/08] CANCELADA: Comissionados reais da operacao sao apenas Douglas, Leonardo, Fabio, Rusa e Bulinha (chefe 04/08). CP de Lucas Martins nao e divida real.",
+    "tags": [
+     "a-pagar",
+     "comissao",
+     "2026",
+     "leilao",
+     "matinha-virtual-20260621",
+     "lucas-martins"
+    ],
+    "anexos": [],
+    "created_at": "2026-06-25T17:33:35.630659+00:00",
+    "updated_at": "2026-08-18T21:20:01.888106+00:00",
+    "fechamento_id": "4c9ec906-94e9-4467-8384-04801766af14",
+    "nota_fiscal": "",
+    "vendedor": "",
+    "projeto": "",
+    "origem": "real",
+    "evento_key": "comissao:4c9ec906-94e9-4467-8384-04801766af14:lucas-martins",
+    "substituido_por": null,
+    "substituido_em": null
+   },
+   {
+    "id": "846df3f8-5f0e-472c-8eb6-34ab41f8a74e",
+    "descricao": "PIX EMITIDO OUTRA IF Pagamento Pix 42.640.313 0001-54 Diaria Hotel Peralta Carrelo e Renato Leilao LS 7do8",
+    "fornecedor_id": null,
+    "categoria_id": "98083139-0fbf-487a-9988-a08519ebf259",
+    "centro_custo_id": null,
+    "plano_conta_id": null,
+    "conta_bancaria_id": "e0eca43c-1a2c-4077-ab54-801eb5d692e7",
+    "valor": 990,
+    "desconto": 0,
+    "juros": 0,
+    "multa": 0,
+    "valor_pago": 990,
+    "emissao": "2026-08-07",
+    "vencimento": "2026-08-07",
+    "data_pagamento": "2026-08-07",
+    "status": "pago",
+    "forma_pagamento": "",
+    "numero_documento": "",
+    "parcela": 1,
+    "total_parcelas": 1,
+    "recorrencia": "nenhuma",
+    "recorrencia_proxima": null,
+    "observacoes": "[18/08/2026] Título criado a partir do extrato conciliado (movimento 81aa5473-8b1d-4503-96f6-217f593ab77d) — o ERP só passou a registrar contas a pagar em jul/2026; este lançamento completa o histórico.",
+    "tags": [
+     "espelho-extrato"
+    ],
+    "anexos": [],
+    "created_at": "2026-08-18T19:31:21.945727+00:00",
+    "updated_at": "2026-08-18T19:31:21.945727+00:00",
+    "fechamento_id": null,
+    "nota_fiscal": "",
+    "vendedor": "",
+    "projeto": "",
+    "origem": "real",
+    "evento_key": null,
+    "substituido_por": null,
+    "substituido_em": null
+   },
+   {
+    "id": "b0d82692-237b-42de-b083-bcb76b2d7c46",
+    "descricao": "COMISSAO 2º ETAPA NAVIRAÍ MATRIZES - PERALTA (2%)",
+    "fornecedor_id": null,
+    "categoria_id": "d53cf26d-af3b-406f-8a6d-b46dcd65d78e",
+    "centro_custo_id": "52dd8ed0-0c0a-4524-86bd-01dc121487b3",
+    "plano_conta_id": null,
+    "conta_bancaria_id": null,
+    "valor": 1080,
+    "desconto": 0,
+    "juros": 0,
+    "multa": 0,
+    "valor_pago": 0,
+    "emissao": "2026-07-16",
+    "vencimento": "2026-08-25",
+    "data_pagamento": null,
+    "status": "vencido",
+    "forma_pagamento": "",
+    "numero_documento": "com-jul26:0ba4d4d9:peralta",
+    "parcela": 1,
+    "total_parcelas": 1,
+    "recorrencia": "nenhuma",
+    "recorrencia_proxima": null,
+    "observacoes": "[CP-AGO-2026] Comissao ref. julho/2026. VGV do assessor R$ 54.000.",
+    "tags": [
+     "a-pagar",
+     "comissao",
+     "2026",
+     "julho",
+     "leilao"
+    ],
+    "anexos": [],
+    "created_at": "2026-08-11T15:17:04.88344+00:00",
+    "updated_at": "2026-08-26T02:39:01.127527+00:00",
+    "fechamento_id": "0ba4d4d9-0235-4cfe-9db4-ae49208e7f75",
+    "nota_fiscal": "",
+    "vendedor": "PERALTA",
+    "projeto": "",
+    "origem": "real",
+    "evento_key": null,
+    "substituido_por": null,
+    "substituido_em": null
+   },
+   {
+    "id": "eccf1fc9-e5f2-43d5-92bf-b837628104d6",
+    "descricao": "COMISSAO MEGA EVENTO EAO BAVIERA — Machos - LAILA OLIVEIRA (2%)",
+    "fornecedor_id": "5b3d757f-46c3-45eb-8439-dd602c93fad8",
+    "categoria_id": "d53cf26d-af3b-406f-8a6d-b46dcd65d78e",
+    "centro_custo_id": "52dd8ed0-0c0a-4524-86bd-01dc121487b3",
+    "plano_conta_id": null,
+    "conta_bancaria_id": null,
+    "valor": 675,
+    "desconto": 0,
+    "juros": 0,
+    "multa": 0,
+    "valor_pago": 0,
+    "emissao": "2026-07-12",
+    "vencimento": "2026-08-25",
+    "data_pagamento": null,
+    "status": "vencido",
+    "forma_pagamento": "",
+    "numero_documento": "com-jul26:6a67f76b:laila-oliveira",
+    "parcela": 1,
+    "total_parcelas": 1,
+    "recorrencia": "nenhuma",
+    "recorrencia_proxima": null,
+    "observacoes": "[CORRECAO 21/08/2026] Os titulos de 25/08 deste leilao somavam o total certo (R$ 7.326,00) com os nomes trocados entre as pessoas. Conferido contra por_assessor do fechamento: Nane 3.060 (paga em 28/12, acumulado), Douglas Bispo 2.046, Laila Oliveira 1.350, Fabio Omena 870.\nCriado: a comissao da Laila estava apurada no fechamento mas nao tinha titulo — o valor dela havia sido lancado sob o nome do Fabio Omena. [COMISSAO 1% 05/08] Comissao de 2% para 1% conforme decisao do grupo financeiro de 05/08/2026.",
+    "tags": [
+     "a-pagar",
+     "comissao",
+     "2026",
+     "julho",
+     "leilao"
+    ],
+    "anexos": [],
+    "created_at": "2026-08-21T20:45:55.671317+00:00",
+    "updated_at": "2026-08-26T02:39:01.127527+00:00",
+    "fechamento_id": "6a67f76b-5d50-48fe-9ab1-7eec161c4591",
+    "nota_fiscal": "",
+    "vendedor": "",
+    "projeto": "",
+    "origem": "real",
+    "evento_key": "comissao:6a67f76b-5d50-48fe-9ab1-7eec161c4591:laila-oliveira",
+    "substituido_por": null,
+    "substituido_em": null
+   },
+   {
+    "id": "3e66902a-1b7b-40cc-a703-d75bf80e528f",
+    "descricao": "Hospedagem Hotel Villa Cerrado - Felipe Peralta e Regiane Abreu (03 a 06/09)",
+    "fornecedor_id": "1049ea8f-7530-4208-903c-68564bd354e8",
+    "categoria_id": "98083139-0fbf-487a-9988-a08519ebf259",
+    "centro_custo_id": "34a12f8d-c91c-474d-9d58-943d31c4b181",
+    "plano_conta_id": null,
+    "conta_bancaria_id": "e0eca43c-1a2c-4077-ab54-801eb5d692e7",
+    "valor": 1914,
+    "desconto": 0,
+    "juros": 0,
+    "multa": 0,
+    "valor_pago": 0,
+    "emissao": "2026-08-28",
+    "vencimento": "2026-09-03",
+    "data_pagamento": null,
+    "status": "aberto",
+    "forma_pagamento": "pix",
+    "numero_documento": "",
+    "parcela": 1,
+    "total_parcelas": 1,
+    "recorrencia": "nenhuma",
+    "recorrencia_proxima": null,
+    "observacoes": "[SANEAMENTO CP 28/08] Reserva confirmada por WhatsApp: 2 hospedes (Felipe Peralta e Regiane Abreu), check-in 03/09 a partir das 12h, check-out 06/09 ate as 12h, diaria de R$ 319,00, total R$ 1.914,00, pagamento em Pix, 02 apartamentos cama casal individual. CNPJ 15.736.254/0001-40. Substitui a estimativa de 3.200,00 do Melhoradores Especial. ⚠ VINCULO DE LEILAO A CONFIRMAR: a estadia (03-06/09) nao coincide com o Melhoradores (29/08, ACRISSUL/Campo Grande); a agenda tem TOUROS JACAMIN em 05/09 (Nova Mutum/MT). Conferir com o chefe a qual evento amarrar.",
+    "tags": [
+     "a-pagar",
+     "setembro",
+     "leilao",
+     "hospedagem"
+    ],
+    "anexos": [],
+    "created_at": "2026-08-28T16:11:09.638009+00:00",
+    "updated_at": "2026-08-28T16:11:09.638009+00:00",
+    "fechamento_id": null,
+    "nota_fiscal": "",
+    "vendedor": "",
+    "projeto": "",
+    "origem": "real",
+    "evento_key": null,
+    "substituido_por": null,
+    "substituido_em": null
+   }
+  ],
+  "extrato": [
+   {
+    "data": "2026-01-21",
+    "valor": 270,
+    "tipo": "saida",
+    "descricao": "PIX EMIT.OUTRA IF - cesta Iagro solicitado Peralta"
+   },
+   {
+    "data": "2026-06-05",
+    "valor": 1058,
+    "tipo": "saida",
+    "descricao": "LIQUIDACAO BOLETO 45702373000142 LUCAS MONTEIRO"
+   },
+   {
+    "data": "2026-07-10",
+    "valor": 2758.5,
+    "tipo": "saida",
+    "descricao": "PIX EMIT.OUTRA IF - Ref Lucas Comissao Matinha 19do5 MNO 11do6 e JMP 15do6"
+   },
+   {
+    "data": "2026-07-13",
+    "valor": 0.05,
+    "tipo": "entrada",
+    "descricao": "PIX RECEB.OUTRA IF - Joao Eduardo Lucas Pereira"
+   },
+   {
+    "data": "2026-07-13",
+    "valor": 442.5,
+    "tipo": "saida",
+    "descricao": "PIX EMIT.OUTRA IF - Laila Comissao Leilao 4R 9do5"
+   },
+   {
+    "data": "2026-08-05",
+    "valor": 1058,
+    "tipo": "saida",
+    "descricao": "DEB.TIT.COMPE EFETIVADO Contador Lucas"
+   },
+   {
+    "data": "2026-08-07",
+    "valor": 990,
+    "tipo": "saida",
+    "descricao": "PIX EMITIDO OUTRA IF Pagamento Pix 42.640.313 0001-54 Diaria Hotel Peralta Carrelo e Renato Leilao LS 7do8"
+   }
+  ],
+  "pessoas": [
+   {
+    "id": "a2a337fb-efa2-44ff-9dd7-61616510a78c",
+    "nome": "Lucas Martins",
+    "documento": "",
+    "banco_pix": "",
+    "observacoes": ""
+   },
+   {
+    "id": "baca6a9c-7490-4eef-a512-3cf4b063dda0",
+    "nome": "Peralta",
+    "documento": "",
+    "banco_pix": "",
+    "observacoes": "Assessor/parceiro comercial. Comissão 2% (confirmada pelo chefe em jun/2026, leilão Touros RS). Completar CPF/contato."
+   },
+   {
+    "id": "5b3d757f-46c3-45eb-8439-dd602c93fad8",
+    "nome": "Laila de Sousa Oliveira",
+    "documento": "019.222.326-70",
+    "banco_pix": "",
+    "observacoes": "Cadastro via Pix Sicoob 01/07/2026"
+   },
+   {
+    "id": "d742ed5b-0ab2-4934-b10e-9099106fa994",
+    "nome": "Luiz Felipe Peralta Garcez",
+    "documento": "009.814.661-09",
+    "banco_pix": "",
+    "observacoes": "Cadastro via Pix Sicoob 01/07/2026"
+   },
+   {
+    "id": "bdb3df6f-c200-4be2-a449-441aea9a0c91",
+    "nome": "Lucas Martins Duraes Braganca",
+    "documento": "044.510.291-80",
+    "banco_pix": "",
+    "observacoes": "Cadastro via Pix Sicoob 01/07/2026"
+   }
+  ],
+  "folha": [
+   {
+    "nome": "PERALTA",
+    "comissao_pct": 2,
+    "ativo": false,
+    "apelidos": [
+     "Peralta"
+    ],
+    "funcao": "Parceiro",
+    "observacao": "[ERP-VERDADE 04/08] Desativado: comissionados reais sao Douglas, Leonardo, Fabio, Rusa e Bulinha (chefe 04/08)."
+   },
+   {
+    "nome": "LUCAS MARTINS",
+    "comissao_pct": 0.33,
+    "ativo": false,
+    "apelidos": [
+     "Lucas Martins"
+    ],
+    "funcao": "Assessor",
+    "observacao": "[ERP-VERDADE 04/08] Desativado: comissionados reais sao Douglas, Leonardo, Fabio, Rusa e Bulinha (chefe 04/08)."
+   },
+   {
+    "nome": "LAILA",
+    "comissao_pct": 1,
+    "ativo": false,
+    "apelidos": [
+     "Laila",
+     "Laila Oliveira",
+     "Laila de Sousa Oliveira"
+    ],
+    "funcao": "Assessora",
+    "observacao": "[ERP-VERDADE 04/08] Desativado: comissionados reais sao Douglas, Leonardo, Fabio, Rusa e Bulinha (chefe 04/08)."
+   }
+  ]
+ }
+}
