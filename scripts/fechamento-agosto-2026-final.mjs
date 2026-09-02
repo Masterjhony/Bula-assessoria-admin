@@ -28,7 +28,6 @@ import fs from 'node:fs'
 import path from 'node:path'
 import Firebird from 'node-firebird'
 import { createClient } from '@supabase/supabase-js'
-import XLSX from 'xlsx'
 import { LOTES_SABIA } from './cria-fechamento-sabia-dourado-2026-08-30.mjs'
 
 const INI = '2026-08-01', FIM = '2026-08-31'
@@ -470,65 +469,31 @@ const regrasComissao = [
 ]
 
 /* ── 8. dados.json ───────────────────────────────────────────────────────── */
-const dados = { geradoEm: new Date().toISOString(), periodo: { ini: INI, fim: FIM }, totais, meta, escada, eventos, porAssessor, rusaAberto, pelaRematesPorPessoa, recon, confiabilidade, qualidade, resolvidas, pendencias, regrasComissao, lotes, cancelados: decMatinha, decisoes: { m1: decM1 }, erp: (erpF ?? []).map(f => ({ data: f.data, nome: f.nome, vgv: f.vgv_total, origem: f.origem, comissao: f.comissao_assessoria, receita: f.receita_bula })) }
+const dados = { geradoEm: new Date().toISOString(), periodo: { ini: INI, fim: FIM }, totais, meta, escada, eventos, porAssessor, rusaAberto, pelaRematesPorPessoa, recon, confiabilidade, qualidade, resolvidas, pendencias, regrasComissao, lotes, cancelados: decMatinha, decisoes: { m1: decM1 }, planilha: PLANILHA, erp: (erpF ?? []).map(f => ({ data: f.data, nome: f.nome, vgv: f.vgv_total, origem: f.origem, comissao: f.comissao_assessoria, receita: f.receita_bula })) }
 fs.writeFileSync(path.join(OUT, 'dados.json'), JSON.stringify(dados, null, 1))
 
-/* ── 9. XLSX ─────────────────────────────────────────────────────────────── */
-const wb = XLSX.utils.book_new()
-const addSheet = (nome, rows, widths) => { const ws = XLSX.utils.json_to_sheet(rows); if (widths) ws['!cols'] = widths.map(w => ({ wch: w })); XLSX.utils.book_append_sheet(wb, ws, nome) }
-addSheet('Resumo', [
-    { item: 'VGV LÍQUIDO — agosto/2026 (o número do mês)', valor: liquido, obs: `${totais.lotes_liquido} lotes · ${eventos.filter(e => e.vgv > 0).length} leilões com venda · já sem o cancelamento` },
-    { item: 'Vendido bruto antes do cancelamento', valor: apurado, obs: `${totais.lotes} lotes · ${totais.animais} animais` },
-    { item: 'CANCELAMENTO: Matinha 16/08, 3 lotes do José Fábio', valor: -matinhaJF, obs: 'Douglas 02/09 12:52 — único cancelamento das vendas dele' },
-    { item: 'Painel HastaPro FIL 2', valor: hp2, obs: '27 leilões com venda, 128 lotes' },
-    { item: 'Cobertura da Assessoria em pregões da Remates (FIL 01)', valor: hp01, obs: 'São Geraldo, Só Criador 18/08, São José' },
-    { item: 'Fora do HastaPro (ficha/print + 2ª fonte)', valor: fora, obs: 'Katispera 117.000 · Engenho 53.600 · Sabiá Dourado 629.700' },
-    { item: 'ERP em 01/09', valor: ERP_ANTES.vgv, obs: '32 fechamentos' }, { item: 'ERP hoje', valor: erpHoje, obs: `${(erpF ?? []).length} fechamentos (Sabiá Dourado criado; Matinha ainda com os 3 lotes)` },
-    { item: 'Planilha FINANCEIRO BULA 2026 (Vendas Bula)', valor: planTotal, obs: 'lida 02/09 16:46' },
-    { item: 'Em aberto: LS Galeria lote 18', valor: 75000, obs: 'única ficha do mês sem par — pode faltar' },
-    { item: 'Em aberto: Ventres VIP Matinha ×30 ou ×40', valor: 21000, obs: 'leiloeira diz 84.000, HastaPro diz 63.000' },
-    { item: 'Em aberto: Melhoradores — 2 lotes do M1', valor: m1, obs: 'se incluir → ' + brl(r2(liquido + m1)) + ' (comissão zero no HastaPro)' },
-    { item: 'Meta de agosto (12% × 57,29 mi)', valor: META.valor, obs: 'Marcelo 01/09: "Meta de Agosto era R$ 6.876.000,00"' },
-    ...meta.leituras.map(l => ({ item: 'Leitura: ' + l.leitura, valor: l.vgv, obs: `${l.pct_divulgada}% da agenda divulgada · ${l.pct_completa}% da completa · ${l.bate ? 'BATE' : 'não bate'}` })),
-], [62, 16, 70])
-addSheet('Por Leilão', eventos.map(e => ({
-    data: dbr(e.data), leilao: e.nome, leiloeira: e.leiloeira, filial: e.filial ?? '', vgv_apurado: e.vgv, lotes: e.lotes, animais: e.animais,
-    hastapro_cobertura: e.hastapro_cobertura, hastapro_pregao_inteiro: e.hastapro_pregao, erp: e.erp, planilha_vendas: e.planilha, planilha_faturamento: e.planilha_fat,
-    planilha_acordo: e.planilha_acordo, planilha_receita: e.planilha_receita, por_assessor: e.por_assessor.map(([a, v]) => `${a} ${brl0(v)}`).join(' · '), notas: e.notas.join(' | '),
-})).concat([{ data: 'TOTAL', leilao: '', vgv_apurado: apurado, lotes: totais.lotes, animais: totais.animais, hastapro_cobertura: r2(hp2 + hp01), erp: erpHoje, planilha_vendas: planTotal }]), [6, 46, 22, 6, 14, 6, 7, 16, 18, 14, 14, 16, 22, 14, 60, 70])
-addSheet('Por Assessor', porAssessor.map(a => ({ assessor: a.assessor, vgv_liquido: a.liquido_vgv, pct: a.pct, vgv_bruto: a.final_vgv, cancelado: a.cancelado, lotes: a.lotes, animais: a.animais, vgv_como_pisteiro: a.pisteiro_vgv, hastapro_fil2: a.hp2, cobertura_remates_fil01: a.hp01, fora_do_hastapro: a.fora }))
-    .concat([{ assessor: 'TOTAL', vgv_liquido: liquido, pct: 100, vgv_bruto: apurado, cancelado: matinhaJF, lotes: totais.lotes, animais: totais.animais }]), [26, 14, 7, 14, 12, 6, 7, 16, 14, 18, 16])
-addSheet('Lote a Lote', contam.map(l => ({
-    data: dbr(l.data), leilao: l.leilao, filial: l.filial, fonte: l.fonte, lote: l.lote, qtd: l.qtd, lance: l.lance, parcelas: l.parcelas, vgv: l.vgv,
-    cancelado: l.cancelado ? 'SIM' : '', pisteiro: l.pisteiro, assessor_final: l.assessor_final, comprador: l.comprador, direcionamento: l.rusa || (l.rusa_aberto || ''),
-    cota_lote: l.cota_lote ?? '', comissao_pct_hastapro: l.com_hastapro ?? '', assessoria_confirma: l.assessoria_confirma === null ? 'sem linha' : (l.assessoria_confirma ? 'sim' : 'NAO'),
-    obs: [l.rusa_obs, l.flag, l.cancelado, l.evidencia].filter(Boolean).join(' | '),
-})), [6, 44, 5, 6, 6, 4, 8, 6, 11, 9, 20, 20, 40, 26, 6, 10, 10, 60])
-addSheet('Confiabilidade', [
-    ...confiabilidade.testes.map(([t, c, r]) => ({ bloco: 'TESTE', item: t, o_que_foi_medido: c, resultado: r })),
-    ...confiabilidade.riscos.map(([t, c]) => ({ bloco: 'RISCO RESIDUAL', item: t, o_que_foi_medido: c, resultado: '' })),
-], [16, 46, 130, 10])
-addSheet('Pela Remates (não conta)', pelaRematesLotes.map(l => ({ data: dbr(l.data), leilao: l.leilao, lote: l.lote, qtd: l.qtd, vgv: l.vgv, pisteiro: l.pisteiro, comprador: l.comprador }))
-    .concat([{ data: 'TOTAL', leilao: '', vgv: sum(pelaRematesLotes) }, ...pelaRematesPorPessoa.map(([p, v]) => ({ data: '', leilao: p, vgv: v }))]), [6, 46, 6, 4, 11, 22, 36])
-addSheet('Reconciliação', [
-    ...escada.map(([passo, valor, acumulado]) => ({ bloco: 'ESCADA', item: passo, valor, acumulado })),
-    ...Object.entries(recon).flatMap(([f, r]) => [{ bloco: f.toUpperCase(), item: 'total da fonte', valor: r.total, acumulado: null }, ...r.itens.map(([i, v]) => ({ bloco: f.toUpperCase(), item: i, valor: v, acumulado: null })), { bloco: f.toUpperCase(), item: `= apurado? ${r.fecha ? 'FECHA AO CENTAVO' : 'NÃO FECHA'}`, valor: r2(r.total + r.soma), acumulado: apurado }]),
-], [14, 90, 14, 14])
-addSheet('Resolvidas', resolvidas.map(([item, como]) => ({ item, como })), [50, 120])
-addSheet('Pendências', pendencias.map(p => ({ quem_decide: p.quem, o_que: p.o_que, contexto: p.porque, valor_envolvido: p.valor })).concat(regrasComissao.map(r => ({ quem_decide: 'comissão', o_que: r }))), [16, 70, 100, 14])
-addSheet('Planilha (Drive)', PLANILHA.map(p => ({ data: dbr(p.data), leilao: p.nome, leiloeira: p.leiloeira, faturamento: p.faturamento, vendas_bula: p.vendas, pct_vendas: p.pctVendas, pct_fat: p.pctFat, receita: p.receita, status: p.status })), [6, 50, 14, 14, 14, 9, 9, 12, 18])
-addSheet('ERP', dados.erp.map(f => ({ data: dbr(f.data), fechamento: f.nome, vgv: f.vgv, origem: f.origem, comissao: f.comissao, receita: f.receita })), [6, 52, 14, 12, 12, 12])
-/** O arquivo pode estar aberto no Excel; nesse caso grava ao lado em vez de morrer no meio. */
+/* ── 9. XLSX formatado (a apresentação vive em outro arquivo) ───────────── */
+/**
+ * Grava sempre em outputs/ (nunca travado) e copia para a Área de Trabalho.
+ * Se o Excel estiver com o arquivo aberto, tenta um sufixo em vez de morrer.
+ */
+const bloqueado = e => e.code === 'EBUSY' || e.code === 'EPERM'
+const avisos = []
 const gravaSemPerder = (destino, grava) => {
-    try { grava(destino); return destino } catch (e) {
-        if (e.code !== 'EBUSY' && e.code !== 'EPERM') throw e
-        const alt = destino.replace(/(\.[a-z]+)$/i, ' (novo)$1')
-        grava(alt)
-        console.warn(`AVISO: "${path.basename(destino)}" estava aberto — gravei em "${path.basename(alt)}". Feche o arquivo e rode de novo para consolidar.`)
-        return alt
+    const ext = (destino.match(/\.[a-z]+$/i) || [''])[0]
+    const base = destino.slice(0, destino.length - ext.length)
+    for (const suf of ['', ' (formatado)', ' (2)', ' (3)', ` (${new Date().toISOString().slice(11, 16).replace(':', 'h')})`]) {
+        try { grava(base + suf + ext); if (suf) avisos.push(`${path.basename(destino)} estava aberto no Excel — gravei "${path.basename(base + suf + ext)}"`); return base + suf + ext }
+        catch (e) { if (!bloqueado(e)) throw e }
     }
+    avisos.push(`NAO consegui gravar ${path.basename(destino)}: feche o arquivo no Excel e rode de novo.`)
+    return null
 }
-const xlsxPath = gravaSemPerder(path.join(DESK, 'Bula - Fechamento de Vendas Agosto 2026.xlsx'), p => XLSX.writeFile(wb, p))
+const { geraWorkbook } = await import('./xlsx-fechamento-agosto-2026.mjs')
+const xlsxMestre = path.join(OUT, 'fechamento-agosto-2026.xlsx')
+await geraWorkbook(dados, xlsxMestre)
+const xlsxPath = gravaSemPerder(path.join(DESK, 'Bula - Fechamento de Vendas Agosto 2026.xlsx'),
+    p => fs.copyFileSync(xlsxMestre, p)) ?? xlsxMestre
 
 /* ── 10. HTML + PDF ──────────────────────────────────────────────────────── */
 const esc = s => String(s ?? '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
@@ -674,3 +639,4 @@ console.log(`  cota parcial ${qualidade.cota_parcial.length} · FIL01 sem comiss
 console.log('\nPor assessor (liquido):'); for (const a of porAssessor.filter(a => a.liquido_vgv > 0)) console.log(`  ${a.assessor.padEnd(26)} ${brl(a.liquido_vgv).padStart(14)} ${String(a.pct).padStart(6)}%  vendido ${brl(a.final_vgv)}${a.cancelado ? ' cancelado ' + brl(a.cancelado) : ''}`)
 console.log('\nRusa em aberto:'); for (const l of rusaAberto) console.log(`  ${l.data} ${l.leilao.slice(0, 40)} lt ${l.lote} ${brl(l.vgv)} ${l.comprador} [${l.pisteiro}]`)
 console.log('\nXLSX:', xlsxPath)
+for (const a of avisos) console.warn('AVISO:', a)

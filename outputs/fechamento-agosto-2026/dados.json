@@ -1,5 +1,5 @@
 {
- "geradoEm": "2026-09-02T20:46:48.540Z",
+ "geradoEm": "2026-09-02T21:07:01.150Z",
  "periodo": {
   "ini": "2026-08-01",
   "fim": "2026-08-31"
@@ -13228,6 +13228,349 @@
    }
   ]
  },
+ "planilha": [
+  {
+   "data": "2026-08-01",
+   "nome": "LEILÃO TOUROS FAZENDA SÃO GERALDO",
+   "leiloeira": "BULA REMATES",
+   "faturamento": 5019800,
+   "vendas": 375000,
+   "pctVendas": null,
+   "pctFat": 0.005,
+   "receita": 25099,
+   "status": "A RECEBER 15/09"
+  },
+  {
+   "data": "2026-08-01",
+   "nome": "LEILÃO FÊMEAS NELORE MAFRA",
+   "leiloeira": "PROGRAMA",
+   "faturamento": 5627600,
+   "vendas": 1042700,
+   "pctVendas": null,
+   "pctFat": 0.0125,
+   "receita": 70345,
+   "status": "COBRAR"
+  },
+  {
+   "data": "2026-08-02",
+   "nome": "LEILÃO TOUROS NELORE MAFRA",
+   "leiloeira": "PROGRAMA",
+   "faturamento": 5102000,
+   "vendas": 178200,
+   "pctVendas": null,
+   "pctFat": 0.0035,
+   "receita": 17857,
+   "status": "COBRAR"
+  },
+  {
+   "data": "2026-08-04",
+   "nome": "LEILÃO DE TOUROS NELORE SORRISO",
+   "leiloeira": "E-RURAL",
+   "faturamento": null,
+   "vendas": 114300,
+   "pctVendas": 0.05,
+   "pctFat": null,
+   "receita": 5670,
+   "status": "A RECEBER 01/09"
+  },
+  {
+   "data": "2026-08-04",
+   "nome": "LEILÃO TOUROS NELORE GRUPO COSTA",
+   "leiloeira": null,
+   "faturamento": null,
+   "vendas": 20100,
+   "pctVendas": 0.03,
+   "pctFat": null,
+   "receita": 603,
+   "status": "COBRAR"
+  },
+  {
+   "data": "2026-08-07",
+   "nome": "LEILÃO LS GALERIA II",
+   "leiloeira": "E-RURAL",
+   "faturamento": 3680000,
+   "vendas": 576000,
+   "pctVendas": 0.04,
+   "pctFat": 0.01,
+   "receita": 59840,
+   "status": "COBRAR"
+  },
+  {
+   "data": "2026-08-08",
+   "nome": "LEILÃO PÉROLAS DO TAPAJÓS",
+   "leiloeira": null,
+   "faturamento": null,
+   "vendas": 213000,
+   "pctVendas": 0.05,
+   "pctFat": null,
+   "receita": 10650,
+   "status": "COBRAR"
+  },
+  {
+   "data": "2026-08-09",
+   "nome": "LEILÃO NELORE PARANÃ PRODUTIVIDADE",
+   "leiloeira": "PROGRAMA",
+   "faturamento": null,
+   "vendas": 278100,
+   "pctVendas": 0.05,
+   "pctFat": null,
+   "receita": 13905,
+   "status": "COBRAR"
+  },
+  {
+   "data": "2026-08-13",
+   "nome": "7º LEILÃO ESSÊNCIA GENÉTICA - NELORE DA BAMBÚ",
+   "leiloeira": "E-RURAL",
+   "faturamento": null,
+   "vendas": 16500,
+   "pctVendas": 0.05,
+   "pctFat": null,
+   "receita": 825,
+   "status": "A RECEBER 01/09"
+  },
+  {
+   "data": "2026-08-15",
+   "nome": "TOUROS TERRA BRAVA EXPOGENETICA",
+   "leiloeira": "PROGRAMA",
+   "faturamento": null,
+   "vendas": 107100,
+   "pctVendas": 0.05,
+   "pctFat": null,
+   "receita": 5355,
+   "status": "EM FECHAMENTO"
+  },
+  {
+   "data": "2026-08-15",
+   "nome": "SHOPPING NAVIRAÍ EXPOGENÉTICA",
+   "leiloeira": "FAZENDA",
+   "faturamento": null,
+   "vendas": 96600,
+   "pctVendas": 0.05,
+   "pctFat": null,
+   "receita": 4830,
+   "status": "EM FECHAMENTO"
+  },
+  {
+   "data": "2026-08-16",
+   "nome": "MATINHA EXPOGENETICA",
+   "leiloeira": "PROGRAMA",
+   "faturamento": null,
+   "vendas": 460500,
+   "pctVendas": 0.05,
+   "pctFat": null,
+   "receita": 23025,
+   "status": "EM FECHAMENTO"
+  },
+  {
+   "data": "2026-08-16",
+   "nome": "LEILÃO FAZENDA ARARAS - ESSÊNCIA GENÉTICA",
+   "leiloeira": "PROGRAMA",
+   "faturamento": null,
+   "vendas": 87000,
+   "pctVendas": 0.03,
+   "pctFat": null,
+   "receita": 2610,
+   "status": "EM FECHAMENTO"
+  },
+  {
+   "data": "2026-08-19",
+   "nome": "LEILÃO RESERVA EXPOGENÉTICA SANTA NICE",
+   "leiloeira": "PROGRAMA",
+   "faturamento": null,
+   "vendas": 297000,
+   "pctVendas": 0.05,
+   "pctFat": null,
+   "receita": 14850,
+   "status": "EM FECHAMENTO"
+  },
+  {
+   "data": "2026-08-19",
+   "nome": "LEILÃO GENÉTICA ADITIVA EXPOGENÉTICA",
+   "leiloeira": "PROGRAMA",
+   "faturamento": null,
+   "vendas": 444000,
+   "pctVendas": 0.05,
+   "pctFat": null,
+   "receita": 22200,
+   "status": "EM FECHAMENTO"
+  },
+  {
+   "data": "2026-08-20",
+   "nome": "LEILÃO BABY DE PROVA",
+   "leiloeira": "PROGRAMA",
+   "faturamento": null,
+   "vendas": 73500,
+   "pctVendas": 0.05,
+   "pctFat": null,
+   "receita": 3675,
+   "status": "EM FECHAMENTO"
+  },
+  {
+   "data": "2026-08-20",
+   "nome": "LEILÃO NELORE CEN & FAZENDA MODELO",
+   "leiloeira": "PROGRAMA",
+   "faturamento": null,
+   "vendas": 117000,
+   "pctVendas": 0.03,
+   "pctFat": null,
+   "receita": 3510,
+   "status": "EM FECHAMENTO"
+  },
+  {
+   "data": "2026-08-21",
+   "nome": "12º LEILÃO PREMIUM COLONIAL",
+   "leiloeira": "PROGRAMA",
+   "faturamento": null,
+   "vendas": 195000,
+   "pctVendas": 0.03,
+   "pctFat": null,
+   "receita": 5850,
+   "status": "EM FECHAMENTO"
+  },
+  {
+   "data": "2026-08-22",
+   "nome": "4º LEILÃO PEPITAS COLONIAL",
+   "leiloeira": "PROGRAMA",
+   "faturamento": null,
+   "vendas": 325500,
+   "pctVendas": 0.03,
+   "pctFat": null,
+   "receita": 9765,
+   "status": "EM FECHAMENTO"
+  },
+  {
+   "data": "2026-08-22",
+   "nome": "LEILÃO NAVIRAÍ CAMPARINO ESSÊNCIA BEZERRAS E NOVILHAS",
+   "leiloeira": "PROGRAMA",
+   "faturamento": null,
+   "vendas": 543000,
+   "pctVendas": 0.05,
+   "pctFat": null,
+   "receita": 27150,
+   "status": "EM FECHAMENTO"
+  },
+  {
+   "data": "2026-08-23",
+   "nome": "28º LEILÃO NAVIRAÍ CAMPARINO REPRODUTORES",
+   "leiloeira": "PROGRAMA",
+   "faturamento": 8085000,
+   "vendas": 940500,
+   "pctVendas": null,
+   "pctFat": 0.0075,
+   "receita": 60637.5,
+   "status": "EM FECHAMENTO"
+  },
+  {
+   "data": "2026-08-23",
+   "nome": "LEILÃO EXCELÊNCIA GENÉTICA",
+   "leiloeira": "PROGRAMA",
+   "faturamento": null,
+   "vendas": 105000,
+   "pctVendas": 0.05,
+   "pctFat": null,
+   "receita": 5250,
+   "status": "EM FECHAMENTO"
+  },
+  {
+   "data": "2026-08-23",
+   "nome": "LEILÃO NELORE MARCONDES",
+   "leiloeira": "E-RURAL",
+   "faturamento": null,
+   "vendas": 37500,
+   "pctVendas": 0.05,
+   "pctFat": null,
+   "receita": 1875,
+   "status": "EM FECHAMENTO"
+  },
+  {
+   "data": "2026-08-26",
+   "nome": "LEILÃO VIRTUAL TERRA BRAVA MATRIZES",
+   "leiloeira": "PROGRAMA",
+   "faturamento": null,
+   "vendas": 46500,
+   "pctVendas": 0.05,
+   "pctFat": null,
+   "receita": 2325,
+   "status": "EM FECHAMENTO"
+  },
+  {
+   "data": "2026-08-27",
+   "nome": "LEILÃO VIRTUAL TERRA BRAVA TOUROS",
+   "leiloeira": "PROGRAMA",
+   "faturamento": null,
+   "vendas": null,
+   "pctVendas": 0.05,
+   "pctFat": null,
+   "receita": null,
+   "status": "EM FECHAMENTO"
+  },
+  {
+   "data": "2026-08-29",
+   "nome": "LEILÃO NELORE PINTADO ENGENHO DA SERRA 2026",
+   "leiloeira": "CONNECT",
+   "faturamento": null,
+   "vendas": 51100,
+   "pctVendas": 0.03,
+   "pctFat": null,
+   "receita": 1533,
+   "status": "EM FECHAMENTO"
+  },
+  {
+   "data": "2026-08-29",
+   "nome": "LEILÃO MELHORADORES ESPECIAL 30 ANOS",
+   "leiloeira": "BULA REMATES",
+   "faturamento": null,
+   "vendas": null,
+   "pctVendas": null,
+   "pctFat": null,
+   "receita": null,
+   "status": "EM FECHAMENTO"
+  },
+  {
+   "data": "2026-08-29",
+   "nome": "LEILÃO NELORE CRISPIM DINASTIA GENÉTICA",
+   "leiloeira": "E-RURAL",
+   "faturamento": null,
+   "vendas": null,
+   "pctVendas": 0.05,
+   "pctFat": null,
+   "receita": null,
+   "status": "EM FECHAMENTO"
+  },
+  {
+   "data": "2026-08-30",
+   "nome": "LEILÃO VIRTUAL VENTRES VIP MATINHA",
+   "leiloeira": "PROGRAMA",
+   "faturamento": null,
+   "vendas": 127500,
+   "pctVendas": 0.05,
+   "pctFat": null,
+   "receita": 6375,
+   "status": "EM FECHAMENTO"
+  },
+  {
+   "data": "2026-08-30",
+   "nome": "LEILÃO ESPECIAL SABIÁ DOURADO",
+   "leiloeira": null,
+   "faturamento": 1171200,
+   "vendas": 629700,
+   "pctVendas": null,
+   "pctFat": 0.01,
+   "receita": 11712,
+   "status": "EM FECHAMENTO"
+  },
+  {
+   "data": "2026-08-30",
+   "nome": "LEILÃO NELORE ASJ",
+   "leiloeira": "PROGRAMA",
+   "faturamento": 1189412,
+   "vendas": 30900,
+   "pctVendas": null,
+   "pctFat": 0.01,
+   "receita": 11894.12,
+   "status": "EM FECHAMENTO"
+  }
+ ],
  "erp": [
   {
    "data": "2026-08-01",
