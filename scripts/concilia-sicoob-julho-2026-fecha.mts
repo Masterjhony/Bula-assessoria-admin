@@ -23,8 +23,10 @@
  *     Nane Goiania-CG; ida Cuiaba-Goiania de Peralta, Bula e Nane. Somam
  *     6.144,98 e sao a mesma viagem do PIX de 1.233,66 de 10/07.
  * [3] 31/07   -525,00  Formula do Boi (65.565.807/0001-17), SEM MEMO NENHUM no
- *     extrato. Classificado como o outro PIX do mes ao mesmo CNPJ (444,65 em
- *     07/07, "reembolso gastos cartao — desenvolvimento sistema"). CONFIRMAR.
+ *     extrato. O Joao confirmou em 02/09: "foi referente a sistemas, pagamento
+ *     Codex (Chat GPT)". Assinatura da OpenAI paga pela Formula do Boi e
+ *     reembolsada — Software/Assinaturas, como a Anthropic (550,00 em 24/08),
+ *     o banco de dados (180,00 em 18/08) e a Vercel (110,00 em 28/08).
  * [4] 31/07     -2,08  TARIFA COBRANCA — tarifa do boleto do Kito de [1].
  * [5] Apaga o tampao e o CP stub.
  *
@@ -53,7 +55,7 @@ const SALDO_31_07 = 25208.83
 const SALDO_HOJE = 60682.37
 
 const CAT_VIAGEM   = '98083139-0fbf-487a-9988-a08519ebf259' // custo_direto
-const CAT_SERVICOS = '1f72e05d-01ed-474b-bc83-90974be930f9' // despesa_fixa
+const CAT_SOFTWARE = '0edf60f2-bf96-44bd-8f93-ca5432b69830' // despesa_fixa
 const CAT_TARIFAS  = 'f8ae3a53-bb4e-414e-97d1-ebdca81df658'
 const CC_PASSAGENS = '9b685440-05c9-479a-b310-3311a11e36cd'
 const P_SICOOB_T   = 'e5488a95-aef2-4288-aba6-428c5c5fbdb2'
@@ -133,10 +135,10 @@ const SAIDAS = [
     desc: 'BILHETE ADN VIAGENS - Leilao LS (7-8/08): ida Peralta, Bula e Nane, Cuiaba -> Goiania',
     nota: TAG + ' Passagem de ida do Peralta, do Bula e da Nane (Cuiaba -> Goiania) para o Leilao LS de 7 e 8/08, paga a ADN Viagens (22.002.438/0001-41).',
     tags: ['a-pagar', '2026', 'julho', 'passagem', 'espelho-extrato'] },
-  { valor: 525, cat: CAT_SERVICOS, cc: null, pessoa: P_FDB!.id,
-    desc: 'REEMBOLSO FORMULA DO BOI - gastos no cartao (a confirmar)',
-    nota: TAG + ' PIX ao CNPJ 65.565.807/0001-17 (FORMULA DO BOI) SEM MEMO NENHUM no extrato. Classificado como o outro PIX do mes ao mesmo CNPJ — 444,65 em 07/07, "reembolso Formula do Boi, gastos cartao (desenvolvimento sistema)". CONFIRMAR com o chefe: pode ser reembolso de cartao ou custo de leilao, como o de 1.648,57 de 10/08.',
-    tags: ['a-pagar', '2026', 'julho', 'espelho-extrato', 'conferir-natureza'] },
+  { valor: 525, cat: CAT_SOFTWARE, cc: null, pessoa: P_FDB!.id,
+    desc: 'Assinatura Codex / ChatGPT (OpenAI) - reembolso via Formula do Boi',
+    nota: TAG + ' PIX ao CNPJ 65.565.807/0001-17 (FORMULA DO BOI) sem memo nenhum no extrato. NATUREZA CONFIRMADA PELO JOAO em 02/09/2026: "foi referente a sistemas, pagamento Codex (Chat GPT)" — assinatura da OpenAI paga pela Formula do Boi e reembolsada. Mesma natureza da assinatura Anthropic/Claude (550,00 em 24/08), do plano de banco de dados (180,00 em 18/08) e da hospedagem Vercel (110,00 em 28/08): infraestrutura do sistema, categoria Software/Assinaturas.',
+    tags: ['a-pagar', '2026', 'julho', 'software', 'espelho-extrato'] },
   { valor: 2.08, cat: CAT_TARIFAS, cc: null, pessoa: P_SICOOB_T,
     desc: 'Tarifa de cobranca Sicoob - liquidacao boleto Kito (2/3)',
     nota: TAG + ' Tarifa de cobranca do boleto do Kito (2/3) liquidado no mesmo dia (15.030,00).',
@@ -167,6 +169,25 @@ for (const [i, s] of SAIDAS.entries()) {
     status_conciliacao: 'conciliado', conciliado: true,
     observacoes: [FONTE, s.nota].join(' | '),
   }).eq('id', mv.id)).error, 'concilia ' + s.desc)
+}
+
+/* ====== [6b] reclassifica o PIX de 525,00 se ele ja entrou como Servicos ==== */
+// A 1a execucao deste script (02/09, antes da confirmacao do Joao) gravou os
+// 525,00 em "Servicos de Terceiros" por analogia. Corrige em cima.
+{
+  const CAT_SERVICOS_ANTIGA = '1f72e05d-01ed-474b-bc83-90974be930f9'
+  const mv525 = pega(525)!
+  const { data: atual } = await sb.from('erp_movimentos_bancarios').select('categoria_id,conta_pagar_id').eq('id', mv525.id).maybeSingle()
+  if (atual?.categoria_id === CAT_SERVICOS_ANTIGA) {
+    console.log('\n[6b] 31/07  -' + fmt(525) + '  reclassifica de Servicos de Terceiros para Software/Assinaturas')
+    if (APPLY) {
+      fail((await sb.from('erp_movimentos_bancarios').update({ categoria_id: CAT_SOFTWARE }).eq('id', mv525.id)).error, 'reclassifica mov 525')
+      if (atual.conta_pagar_id) fail((await sb.from('erp_contas_pagar').update({
+        categoria_id: CAT_SOFTWARE, descricao: SAIDAS[3].desc, observacoes: SAIDAS[3].nota,
+        tags: SAIDAS[3].tags,
+      }).eq('id', atual.conta_pagar_id)).error, 'reclassifica CP 525')
+    }
+  }
 }
 
 /* ================= [5] apaga o ultimo tampao ============================== */
