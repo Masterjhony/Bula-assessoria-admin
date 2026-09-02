@@ -1,0 +1,859 @@
+{
+  "schemaVersion": 2,
+  "description": "Baseline revisada dos caminhos capazes de gravar fechamento e vendas. Entradas, operações ou arquivos alterados exigem revisão explícita.",
+  "fingerprintScope": "sha256 do arquivo UTF-8 inteiro, BOM removido e quebras de linha normalizadas para LF",
+  "limitations": [
+    "A detecção é lexical e conservadora; não se apresenta como AST de TypeScript nem parser completo de PL/pgSQL.",
+    "SQL ou nomes de tabela/RPC inteiramente construídos em runtime podem escapar da classificação específica.",
+    "Executores que carregam SQL de arquivo ficam na categoria dynamicSqlExecutors porque o alvo efetivo é escolhido em runtime.",
+    "O manifesto protege mudanças no repositório; controles transacionais e permissões do banco continuam sendo a barreira de runtime."
+  ],
+  "categories": {
+    "directClosureWriters": [
+      {
+        "path": "scripts/acerto-rusa-junho-julho-2026-07-22.mjs",
+        "table": "public.bula_leilao_fechamento",
+        "operations": [
+          "update"
+        ],
+        "fingerprint": "sha256:2583b661b5581dbf2915696cb0a3ae16806bdca6287e1852c7c244ae3a720c11"
+      },
+      {
+        "path": "scripts/acerto-rusa-lucas-2026-07-23.mjs",
+        "table": "public.bula_leilao_fechamento",
+        "operations": [
+          "insert",
+          "update"
+        ],
+        "fingerprint": "sha256:bd0393e7f107bd871ca45d42de0928c8e23d84e966e31674440b9b93a1f356eb"
+      },
+      {
+        "path": "scripts/add-bonus-joao-antonio-jmp-2026-07-22.mjs",
+        "table": "public.bula_leilao_fechamento",
+        "operations": [
+          "update"
+        ],
+        "fingerprint": "sha256:04160d077470748747a7d0b114ed75d93b63853eee06acf9fee571d4f59781ea"
+      },
+      {
+        "path": "scripts/add-fechamento-18-mega-nelore.mjs",
+        "table": "public.bula_leilao_fechamento",
+        "operations": [
+          "insert",
+          "update"
+        ],
+        "fingerprint": "sha256:d84fb76cd13524b21f70e461f95cd250f7fe1c70d15219a5fb9c14c2599021af"
+      },
+      {
+        "path": "scripts/add-fechamento-eao-baviera-2026-07-11-12.mjs",
+        "table": "public.bula_leilao_fechamento",
+        "operations": [
+          "insert",
+          "update"
+        ],
+        "fingerprint": "sha256:5db054c21a44c6b921d0714307b1cb2112293788fda60355459573576a213780"
+      },
+      {
+        "path": "scripts/add-fechamento-floc-2026-06-15.mjs",
+        "table": "public.bula_leilao_fechamento",
+        "operations": [
+          "insert",
+          "update"
+        ],
+        "fingerprint": "sha256:2ea2f43c2524412fb7d8176dbca1eb5f879dba7d44f11ba7707574f7a611daaa"
+      },
+      {
+        "path": "scripts/add-fechamento-jmp-2026-06-14.mjs",
+        "table": "public.bula_leilao_fechamento",
+        "operations": [
+          "insert",
+          "update"
+        ],
+        "fingerprint": "sha256:3541ca6f02376b2a6f40a1d80f9d3d43e0f27b032c8173ef66d5b6f9037c9948"
+      },
+      {
+        "path": "scripts/add-fechamento-katayama-trilogia-1-dia.mjs",
+        "table": "public.bula_leilao_fechamento",
+        "operations": [
+          "insert",
+          "update"
+        ],
+        "fingerprint": "sha256:97e09579769c0395347ce2ef58f5a83217557f2003fd420b75768a1a38ccb733"
+      },
+      {
+        "path": "scripts/add-fechamento-katispera-matrizes-2026-06-20.mjs",
+        "table": "public.bula_leilao_fechamento",
+        "operations": [
+          "insert",
+          "update"
+        ],
+        "fingerprint": "sha256:e86ab67f3b6f5451683dbc7da17be6a5989e31b2d58562859182485e2ff68e5d"
+      },
+      {
+        "path": "scripts/add-fechamento-ls-collection-hoje.mjs",
+        "table": "public.bula_leilao_fechamento",
+        "operations": [
+          "insert",
+          "update"
+        ],
+        "fingerprint": "sha256:e964e03dd7044a09ed3826f57cd860e239b189f8e515e099604668243b82d8c1"
+      },
+      {
+        "path": "scripts/add-fechamento-ls-now.mjs",
+        "table": "public.bula_leilao_fechamento",
+        "operations": [
+          "insert",
+          "update"
+        ],
+        "fingerprint": "sha256:f4189849ebd11c1c55931720222826f942ee355443312336e89b7c66d2acc9ef"
+      },
+      {
+        "path": "scripts/add-fechamento-magda-leo-2026-07-06.mjs",
+        "table": "public.bula_leilao_fechamento",
+        "operations": [
+          "update"
+        ],
+        "fingerprint": "sha256:502ba01158afa07be0a16305f592126ce73f3be619e7755965fc3cec2c2df1bf"
+      },
+      {
+        "path": "scripts/add-fechamento-santa-nice-2026.mjs",
+        "table": "public.bula_leilao_fechamento",
+        "operations": [
+          "insert",
+          "update"
+        ],
+        "fingerprint": "sha256:cc91175c4c548763d47f89dff6788feb89ad2453af2bef23ceb4a5e7e467ab2b"
+      },
+      {
+        "path": "scripts/add-fechamento-touros-camparino-2026.mjs",
+        "table": "public.bula_leilao_fechamento",
+        "operations": [
+          "insert",
+          "update"
+        ],
+        "fingerprint": "sha256:08c46487cdf280e449b48ec29eeb16b890099d90a258c9a7f1c9bf96944b91f9"
+      },
+      {
+        "path": "scripts/add-fechamento-touros-rs-2026-06-23.mjs",
+        "table": "public.bula_leilao_fechamento",
+        "operations": [
+          "insert",
+          "update"
+        ],
+        "fingerprint": "sha256:e3ea43e4e2528adff6155731e51d9fe6ddf944853c84540b81ae133829211d67"
+      },
+      {
+        "path": "scripts/add-fechamentos-2026-06-07-whatsapp.mjs",
+        "table": "public.bula_leilao_fechamento",
+        "operations": [
+          "insert",
+          "update"
+        ],
+        "fingerprint": "sha256:2575c2ddc3abd6fb5cb9dce15177a7c3dada87e774160e667070fe43b8cc4d07"
+      },
+      {
+        "path": "scripts/add-fechamentos-matinha-terrabrava-junho-2026.mjs",
+        "table": "public.bula_leilao_fechamento",
+        "operations": [
+          "insert",
+          "update"
+        ],
+        "fingerprint": "sha256:656903515678c9c54e49bc7f452f534559911960611cd81eab369418e1bee519"
+      },
+      {
+        "path": "scripts/add-fechamentos-parciais-junho-2026.mjs",
+        "table": "public.bula_leilao_fechamento",
+        "operations": [
+          "insert",
+          "update"
+        ],
+        "fingerprint": "sha256:0ef9d075d484fc2714b7f13595b29cba5158029150f324b186f75335c52cb77b"
+      },
+      {
+        "path": "scripts/ajusta-bulinha-maio-matheus-2026-07-23.mjs",
+        "table": "public.bula_leilao_fechamento",
+        "operations": [
+          "update"
+        ],
+        "fingerprint": "sha256:b440baa926c1445452478402b7a5b7c4e8015fb6017be7df63ee14c02e6080fc"
+      },
+      {
+        "path": "scripts/ajusta-comissoes-junho-planilhas-assessores-2026-07-22.mjs",
+        "table": "public.bula_leilao_fechamento",
+        "operations": [
+          "update"
+        ],
+        "fingerprint": "sha256:2313eb8cd1cbea87e255bd9b565720bb404aa384cdf6d7db2c4746feee838740"
+      },
+      {
+        "path": "scripts/ajusta-fechamento-terra-brava-performance-2026-07-06.mjs",
+        "table": "public.bula_leilao_fechamento",
+        "operations": [
+          "update"
+        ],
+        "fingerprint": "sha256:5260e89d39d5f71c209f3a15403dab1894d74a23c3ecc15b473def3abc5c3cbd"
+      },
+      {
+        "path": "scripts/ajusta-fechamentos-julho-relatorio-vendas-2026-08-04.mjs",
+        "table": "public.bula_leilao_fechamento",
+        "operations": [
+          "update",
+          "delete"
+        ],
+        "fingerprint": "sha256:aca10f795893040ee29a6ef352315ef07f5e3e292d95b77d60b0fe5a8aafb25e"
+      },
+      {
+        "path": "scripts/ajusta-leo-santa-nice-2026-07-22.mjs",
+        "table": "public.bula_leilao_fechamento",
+        "operations": [
+          "update"
+        ],
+        "fingerprint": "sha256:1372d975fa31d0df80699180647fa51907db6515fcb94253b70e09d1ae1beef7"
+      },
+      {
+        "path": "scripts/alinha-bulinha-junho-ao-relatorio.mjs",
+        "table": "public.bula_leilao_fechamento",
+        "operations": [
+          "update"
+        ],
+        "fingerprint": "sha256:962479766da9e8a087ef783d60bb6d345835a6611ec931b4f724fb1c9407e706"
+      },
+      {
+        "path": "scripts/alinha-fechamentos-agosto-2026-hastapro.mjs",
+        "table": "public.bula_leilao_fechamento",
+        "operations": [
+          "insert",
+          "update"
+        ],
+        "fingerprint": "sha256:302c6bc796d8e72828cbad22684108044bdeebad2cd778f5f4f847a92e00822c"
+      },
+      {
+        "path": "scripts/alinha-fechamentos-hastapro-geral.mjs",
+        "table": "public.bula_leilao_fechamento",
+        "operations": [
+          "insert",
+          "update"
+        ],
+        "fingerprint": "sha256:86cc3fb929b23269cb7d8c19445bab0f5fd5d328ce1cbe6caf44219861c8f919"
+      },
+      {
+        "path": "scripts/aplica-decisoes-financeiro-2026-08-18.mjs",
+        "table": "public.bula_leilao_fechamento",
+        "operations": [
+          "update"
+        ],
+        "fingerprint": "sha256:28a300bb7aff758ea6f4f76dc7ff56a5bc7e115713a468d97ddfd32325d6c983"
+      },
+      {
+        "path": "scripts/aplica-direcionamento-parceiro.mts",
+        "table": "public.bula_leilao_fechamento",
+        "operations": [
+          "update"
+        ],
+        "fingerprint": "sha256:7a93d29c4a4b94572c2b526bd4bc82f85da4828adce87af1301b615a3f6bda26"
+      },
+      {
+        "path": "scripts/aplica-fechamentos-2026-06-08.mjs",
+        "table": "public.bula_leilao_fechamento",
+        "operations": [
+          "update"
+        ],
+        "fingerprint": "sha256:c365eb17330adcbe3cd62500f3c71ddb98a5a5ca324860f67437471cc8c73f26"
+      },
+      {
+        "path": "scripts/cancela-vendas-douglas-santa-nice-jmp-2026-07-22.mjs",
+        "table": "public.bula_leilao_fechamento",
+        "operations": [
+          "update"
+        ],
+        "fingerprint": "sha256:dbe9f00aa9abfdaaafbc84a7b2e6dfc1c4e0bd56d1f134e5504597985ecd270b"
+      },
+      {
+        "path": "scripts/completa-comissao-touros-rs.mjs",
+        "table": "public.bula_leilao_fechamento",
+        "operations": [
+          "insert",
+          "update"
+        ],
+        "fingerprint": "sha256:0f4ed4fb47e32305728a9e17df1fcda266c41fb8589f5b179e222d8d17dc6806"
+      },
+      {
+        "path": "scripts/concilia-sicoob-2026-08-27.mjs",
+        "table": "public.bula_leilao_fechamento",
+        "operations": [
+          "update"
+        ],
+        "fingerprint": "sha256:ce599b69d6ae468d8054f929f70bce934cf8797f2f37c0049106b6ae2520f722"
+      },
+      {
+        "path": "scripts/confere-lances-contra-hastapro.mts",
+        "table": "public.bula_leilao_fechamento",
+        "operations": [
+          "update"
+        ],
+        "fingerprint": "sha256:92b8cb0d0b76be2fa911d09e646d0cc79b0f828ed21b105c53f00cad1fe9d729"
+      },
+      {
+        "path": "scripts/corrige-coerencia-fechamentos.mjs",
+        "table": "public.bula_leilao_fechamento",
+        "operations": [
+          "update"
+        ],
+        "fingerprint": "sha256:5c342b8162a324adb5cd20a86234d73ab94e4f2ce345becb91ec9432c77885e8"
+      },
+      {
+        "path": "scripts/corrige-atribuicao-julho-2026.mjs",
+        "table": "public.bula_leilao_fechamento",
+        "operations": [
+          "update"
+        ],
+        "fingerprint": "sha256:a02139ac953af8adf8edc9979d8ba431fd7f68fdd9d6b3f8a4846f5208a1a1c0"
+      },
+      {
+        "path": "scripts/corrige-comissao-laila-julho.mts",
+        "table": "public.bula_leilao_fechamento",
+        "operations": [
+          "update"
+        ],
+        "fingerprint": "sha256:c1b0c6a8f7743caeed69de495a9392c4e74631765bb6b2ba0375a80a10ca781e"
+      },
+      {
+        "path": "scripts/equaciona-dobra-rusa-18mega-credito.mjs",
+        "table": "public.bula_leilao_fechamento",
+        "operations": [
+          "insert",
+          "update"
+        ],
+        "fingerprint": "sha256:95a2c27318a29ca26221bc9e37953dd8b5189ead8aed5eccf49c4a5500f03ef7"
+      },
+      {
+        "path": "scripts/equaciona-dobra-rusa-flor-aratau.mjs",
+        "table": "public.bula_leilao_fechamento",
+        "operations": [
+          "update"
+        ],
+        "fingerprint": "sha256:f19ef7f7e1a4e98a2ea0bbcee040dfd3ed399bf72cdd6f18d036427e46ad9547"
+      },
+      {
+        "path": "scripts/erp-receita-comissoes-jul-ago-2026.mjs",
+        "table": "public.bula_leilao_fechamento",
+        "operations": [
+          "update"
+        ],
+        "fingerprint": "sha256:71efccf6d30276f23f58a82ac617f66e659a4ff19d082d1c8764283482037774"
+      },
+      {
+        "path": "scripts/finaliza-cachoeirao-vgv-2026-06-08.mjs",
+        "table": "public.bula_leilao_fechamento",
+        "operations": [
+          "update"
+        ],
+        "fingerprint": "sha256:809ffe701ee9971caf561cd5db23934d5c42975086206e72f1f7926a25ba42fb"
+      },
+      {
+        "path": "scripts/finaliza-receita-jmp-2026-06-14.mjs",
+        "table": "public.bula_leilao_fechamento",
+        "operations": [
+          "update"
+        ],
+        "fingerprint": "sha256:6eb6435e6ebfbc4325757f72eb3d3fed135bb06bea71eb53355af7f61ce57055"
+      },
+      {
+        "path": "scripts/fix-comissao-bulinha-junho-2026.mjs",
+        "table": "public.bula_leilao_fechamento",
+        "operations": [
+          "update"
+        ],
+        "fingerprint": "sha256:759bef8525a2bdc6407a21267e4b0dde564934a427d012e8598c9411c776fdde"
+      },
+      {
+        "path": "scripts/fix-fechamento-flor-aratau-acordo-2026-06-09.mjs",
+        "table": "public.bula_leilao_fechamento",
+        "operations": [
+          "update"
+        ],
+        "fingerprint": "sha256:d45e8de4c435d7a3ce00ef76bb5d5c9f6c4fa92497b3168eb58ca3872144af54"
+      },
+      {
+        "path": "scripts/import-fechamento-marcelo-primo.mjs",
+        "table": "public.bula_leilao_fechamento",
+        "operations": [
+          "insert"
+        ],
+        "fingerprint": "sha256:4b09c632359fc29a8dc2bfb9a68748a3d93723cfc9d38fd6f4f269d3f89235f1"
+      },
+      {
+        "path": "scripts/importa-fechamento-hastapro.mts",
+        "table": "public.bula_leilao_fechamento",
+        "operations": [
+          "insert",
+          "update",
+          "delete"
+        ],
+        "fingerprint": "sha256:714c81c80195a8777fead52e96ed4e271fe18592057af9d4818378ab5f1ce76d"
+      },
+      {
+        "path": "scripts/integra-financeiro-junho-2026.mjs",
+        "table": "public.bula_leilao_fechamento",
+        "operations": [
+          "update"
+        ],
+        "fingerprint": "sha256:a9fef4df24bc3a116a565ac7b100d30bf02b76fc9e7149b3e401d137ed858432"
+      },
+      {
+        "path": "scripts/lanca-comissoes-faltantes-2026-06-08.mjs",
+        "table": "public.bula_leilao_fechamento",
+        "operations": [
+          "update"
+        ],
+        "fingerprint": "sha256:b7a7a9d753ee5660ce7b2fb8917561195b1b25e3e1c5d507303408c85c7254ce"
+      },
+      {
+        "path": "scripts/lanca-comissoes-jmp-2026-06-14.mjs",
+        "table": "public.bula_leilao_fechamento",
+        "operations": [
+          "update"
+        ],
+        "fingerprint": "sha256:a5538a08d50ed4783f6becdbf82951ebbd01b03143bbd623dc8a3b6f84da9910"
+      },
+      {
+        "path": "scripts/lanca-comissoes-rusa-junho-2026-07-22.mjs",
+        "table": "public.bula_leilao_fechamento",
+        "operations": [
+          "update"
+        ],
+        "fingerprint": "sha256:ad75a790b4e34551d493c6d6d7c55e772930feb02ca554ee21e04711976dfc17"
+      },
+      {
+        "path": "scripts/liquida-acordo-4r.mjs",
+        "table": "public.bula_leilao_fechamento",
+        "operations": [
+          "update"
+        ],
+        "fingerprint": "sha256:e211996e8c7162fd81b6c1e2e28c3482e0cdd156a4c0ecc6f78bc170c2ec3e71"
+      },
+      {
+        "path": "scripts/marca-comissoes-pagas-rusa-2026-07-22.mjs",
+        "table": "public.bula_leilao_fechamento",
+        "operations": [
+          "update"
+        ],
+        "fingerprint": "sha256:e3c9af2339e53a0213d8c310272441ec784b4069ae817f6a1571a5a4d4be6fff"
+      },
+      {
+        "path": "scripts/migra-dupla-marcelo-leonardo-2026-07-22.mjs",
+        "table": "public.bula_leilao_fechamento",
+        "operations": [
+          "update"
+        ],
+        "fingerprint": "sha256:c23b2ed599e99f11427d08d40e75bb0ac4109031881eaffaf8efc23419ff2791"
+      },
+      {
+        "path": "scripts/reconcilia-cr-planilha-completo-2026-07-06.mjs",
+        "table": "public.bula_leilao_fechamento",
+        "operations": [
+          "update"
+        ],
+        "fingerprint": "sha256:c438fd031fa83a1620de33a160aec9d23d1b1ce2de675216cefaafbae68818d2"
+      },
+      {
+        "path": "scripts/registra-acordo-guadalupe-2026-08-20.mjs",
+        "table": "public.bula_leilao_fechamento",
+        "operations": [
+          "update"
+        ],
+        "fingerprint": "sha256:2619a835999fdc5a909da69c07ac645041ffdeb25f6718c14fc5046d8db94d77"
+      },
+      {
+        "path": "scripts/retifica-camparino-14x-faturamento-2026-07-01.mjs",
+        "table": "public.bula_leilao_fechamento",
+        "operations": [
+          "update"
+        ],
+        "fingerprint": "sha256:1c00879128d6c15fa1898eff975e08a30e510053462cb8242bd92d55e11b8254"
+      },
+      {
+        "path": "scripts/retifica-e-cria-cachoeirao-2026-06-08.mjs",
+        "table": "public.bula_leilao_fechamento",
+        "operations": [
+          "insert",
+          "update"
+        ],
+        "fingerprint": "sha256:19855d9cc7605936ab03f990ced9242c8e0236d17c1ee2ef3f1a64f9ac3408b4"
+      },
+      {
+        "path": "scripts/retifica-fechamentos-ana-maio-2026.mjs",
+        "table": "public.bula_leilao_fechamento",
+        "operations": [
+          "insert",
+          "update"
+        ],
+        "fingerprint": "sha256:eea442f39b89a8ef7e4d64501e4c307cbd05fc55dcb5d22ea21639434f5d26a9"
+      },
+      {
+        "path": "scripts/retifica-sorriso-femeas-nf635.mjs",
+        "table": "public.bula_leilao_fechamento",
+        "operations": [
+          "update"
+        ],
+        "fingerprint": "sha256:37439abf25c98760dfb2d7673fc94a2db03b6ae74425b7ef663ffa26cee4a548"
+      },
+      {
+        "path": "scripts/revert-comissao-bulinha-junho-2026.mjs",
+        "table": "public.bula_leilao_fechamento",
+        "operations": [
+          "update"
+        ],
+        "fingerprint": "sha256:0674de849763c4037362ff2135fd35b6e8244db19fa8829891f7171f7aba93a8"
+      },
+      {
+        "path": "scripts/separa-lances-por-leilao.mts",
+        "table": "public.bula_leilao_fechamento",
+        "operations": [
+          "update",
+          "delete"
+        ],
+        "fingerprint": "sha256:9d83604dbfd7a6b9a15431769ee86e0e17db4b7149f2b00799e2c356436e33d1"
+      },
+      {
+        "path": "scripts/separa-lotes-rusa-julho-2026.mjs",
+        "table": "public.bula_leilao_fechamento",
+        "operations": [
+          "update"
+        ],
+        "fingerprint": "sha256:a6720ca456341bc5260323e87f68cb91e484eb7251d6193ff822e384bd6f3c06"
+      },
+      {
+        "path": "scripts/set-acordo-cachoeirao-2026-06-08.mjs",
+        "table": "public.bula_leilao_fechamento",
+        "operations": [
+          "update"
+        ],
+        "fingerprint": "sha256:094b68d42f224bfd090ad880a2a5415dad93e9c5eee6608e5775bc78beb060bf"
+      },
+      {
+        "path": "scripts/update-fechamento-jacamim-faturamento-2026-06-09.mjs",
+        "table": "public.bula_leilao_fechamento",
+        "operations": [
+          "update"
+        ],
+        "fingerprint": "sha256:f871c940e4845497764b01d6338d64056e2ceda7a5eb143577ed5592aa46589e"
+      },
+      {
+        "path": "scripts/update-fechamentos-faturamento-2.mjs",
+        "table": "public.bula_leilao_fechamento",
+        "operations": [
+          "update"
+        ],
+        "fingerprint": "sha256:df1003d378c0cee179a85959efa0158a13f1abc4cb0c1020e895fa21307d8a5e"
+      },
+      {
+        "path": "scripts/update-fechamentos-faturamento.mjs",
+        "table": "public.bula_leilao_fechamento",
+        "operations": [
+          "update"
+        ],
+        "fingerprint": "sha256:8ac268a9d8c5fc9fb96ac996b11288dce709ae0cde929300a3b99fb682c8cb52"
+      },
+      {
+        "path": "src/lib/lances-fechamento.ts",
+        "table": "public.bula_leilao_fechamento",
+        "operations": [
+          "insert",
+          "update"
+        ],
+        "fingerprint": "sha256:78583b1c77fce55b2bb3969f8ef675b1884dce614e2819904d4fe0961eef13fc"
+      }
+    ],
+    "dynamicClosureWriters": [
+      {
+        "path": "scripts/migrate-leiloes-data.mjs",
+        "table": "public.bula_leilao_fechamento",
+        "operations": [
+          "upsert"
+        ],
+        "fingerprint": "sha256:af4499f8d4a7e2b3e9517af65ffe5f6a5c477c068a364d563b7b7b9b37fe3849"
+      }
+    ],
+    "indirectClosureEntrypoints": [
+      {
+        "path": "scripts/associa-vendas-orfas-por-grupo.mts",
+        "table": "public.bula_leilao_fechamento",
+        "operations": [
+          "indirect-call"
+        ],
+        "fingerprint": "sha256:0f2e840a6a190ac3a8ee689a61f570094c1e5423c34a21267b14cd34cd5722ba"
+      },
+      {
+        "path": "scripts/correlaciona-vendas-orfas.mts",
+        "table": "public.bula_leilao_fechamento",
+        "operations": [
+          "indirect-call"
+        ],
+        "fingerprint": "sha256:af0a4c16bce34d8f3f74a69dc5b4a78787651903436386a0722d348babf14fca"
+      },
+      {
+        "path": "scripts/fecha-leiloes-com-lances.mts",
+        "table": "public.bula_leilao_fechamento",
+        "operations": [
+          "indirect-call"
+        ],
+        "fingerprint": "sha256:401a02a16be1675fe0ada9ba3a5070a8525fb3408c5d47eeda77c76a3b8ac9e8"
+      },
+      {
+        "path": "scripts/importa-lances-export.mts",
+        "table": "public.bula_leilao_fechamento",
+        "operations": [
+          "indirect-call"
+        ],
+        "fingerprint": "sha256:ec1949986e138c439fc5a56760d9209c9fa67c361062c238395a90818611d587"
+      },
+      {
+        "path": "scripts/reprocessa-lances-grupo.mts",
+        "table": "public.bula_leilao_fechamento",
+        "operations": [
+          "indirect-call"
+        ],
+        "fingerprint": "sha256:d197c3ed5f3f0feaf8d191043627fd34a0f8d67345b118df671c613e37caefb8"
+      },
+      {
+        "path": "scripts/reprocessa-lances-historico.mts",
+        "table": "public.bula_leilao_fechamento",
+        "operations": [
+          "indirect-call"
+        ],
+        "fingerprint": "sha256:8264cbf7617801d6ad2d08aff844d581124b7cc56d7235840fb52a98c06ca234"
+      },
+      {
+        "path": "scripts/test-lances-safety.mts",
+        "table": "public.bula_leilao_fechamento",
+        "operations": [
+          "indirect-call"
+        ],
+        "fingerprint": "sha256:5059990a90d7eef504a67afbed2edb28fc9ad65baef03d4cf51db66a4dad5631"
+      },
+      {
+        "path": "src/app/api/whatsapp/group-inbound/route.ts",
+        "table": "public.bula_leilao_fechamento",
+        "operations": [
+          "indirect-call"
+        ],
+        "fingerprint": "sha256:362c6719c20e621f2632940496c8ab650ca36dc4fdb046aac4b41c3b36cc8966"
+      },
+      {
+        "path": "src/app/sistema/actions/lances.ts",
+        "table": "public.bula_leilao_fechamento",
+        "operations": [
+          "indirect-call"
+        ],
+        "fingerprint": "sha256:6a66268c3513cf73dd66dc897974dd67e03646c5c816ee6cde37d932ac5a61d3"
+      },
+      {
+        "path": "src/lib/whatsapp-lances.ts",
+        "table": "public.bula_leilao_fechamento",
+        "operations": [
+          "indirect-call"
+        ],
+        "fingerprint": "sha256:e67a3520c57937ea0994542a7e66df064068962caab4c426269006549ef8db8c"
+      }
+    ],
+    "directSalesWriters": [
+      {
+        "path": "scripts/alinha-fechamentos-agosto-2026-hastapro.mjs",
+        "table": "public.bula_leilao_vendas",
+        "operations": [
+          "update"
+        ],
+        "fingerprint": "sha256:302c6bc796d8e72828cbad22684108044bdeebad2cd778f5f4f847a92e00822c"
+      },
+      {
+        "path": "scripts/associa-vendas-orfas-por-grupo.mts",
+        "table": "public.bula_leilao_vendas",
+        "operations": [
+          "update"
+        ],
+        "fingerprint": "sha256:0f2e840a6a190ac3a8ee689a61f570094c1e5423c34a21267b14cd34cd5722ba"
+      },
+      {
+        "path": "scripts/correlaciona-vendas-orfas.mts",
+        "table": "public.bula_leilao_vendas",
+        "operations": [
+          "update"
+        ],
+        "fingerprint": "sha256:af0a4c16bce34d8f3f74a69dc5b4a78787651903436386a0722d348babf14fca"
+      },
+      {
+        "path": "src/app/sistema/actions/lances.ts",
+        "table": "public.bula_leilao_vendas",
+        "operations": [
+          "insert",
+          "update"
+        ],
+        "fingerprint": "sha256:6a66268c3513cf73dd66dc897974dd67e03646c5c816ee6cde37d932ac5a61d3"
+      },
+      {
+        "path": "src/lib/whatsapp-lances.ts",
+        "table": "public.bula_leilao_vendas",
+        "operations": [
+          "insert",
+          "update"
+        ],
+        "fingerprint": "sha256:e67a3520c57937ea0994542a7e66df064068962caab4c426269006549ef8db8c"
+      }
+    ],
+    "governedRpcCallers": [
+      {
+        "path": "scripts/validate-fechamento-migrations.mjs",
+        "table": "public.bula_leilao_fechamento",
+        "operations": [
+          "update",
+          "archive"
+        ],
+        "rpc": "public.bula_fechamento_write_governado",
+        "fingerprint": "sha256:4ffa6f8d59b5ef990b604a52db34e461a1d0b027e5c38193272348502de7b6d3"
+      },
+      {
+        "path": "src/app/api/bula/fechamento/[id]/route.ts",
+        "table": "public.bula_leilao_fechamento",
+        "operations": [
+          "update",
+          "archive"
+        ],
+        "rpc": "public.bula_fechamento_write_governado",
+        "fingerprint": "sha256:3fbf24e28b6b8bb5376d81823b15d639c6c51a7f6631d54edf588dd38a00c04a"
+      },
+      {
+        "path": "src/app/api/bula/fechamento/route.ts",
+        "table": "public.bula_leilao_fechamento",
+        "operations": [
+          "insert"
+        ],
+        "rpc": "public.bula_fechamento_write_governado",
+        "fingerprint": "sha256:9d2d2f634492fe135a4714150e69650d3ad030180d919edace392a80ca30ca52"
+      },
+      {
+        "path": "src/app/sistema/actions/lances.ts",
+        "table": "public.bula_leilao_vendas",
+        "operations": [
+          "update"
+        ],
+        "rpc": "public.bula_leilao_vendas_bind_selected",
+        "fingerprint": "sha256:6a66268c3513cf73dd66dc897974dd67e03646c5c816ee6cde37d932ac5a61d3"
+      }
+    ],
+    "sqlTargetWriters": [
+      {
+        "path": "supabase/migrations/0046_erp_titulos_docs_fluxo_etapa.sql",
+        "table": "public.bula_leilao_fechamento",
+        "operations": [
+          "update"
+        ],
+        "fingerprint": "sha256:4c4c7e74a40f8ff2549c4deebfae4c8f56f6fec1486303ce957e3c9010db35f0"
+      },
+      {
+        "path": "supabase/migrations/0081_lances_publicacao_segura.sql",
+        "table": "public.bula_leilao_fechamento",
+        "operations": [
+          "insert",
+          "update"
+        ],
+        "fingerprint": "sha256:e48c52475bddc626197f5fb41defc03cd8f16036de3e205845e01f208abb4121"
+      },
+      {
+        "path": "supabase/migrations/0081_lances_publicacao_segura.sql",
+        "table": "public.bula_leilao_vendas",
+        "operations": [
+          "update"
+        ],
+        "fingerprint": "sha256:e48c52475bddc626197f5fb41defc03cd8f16036de3e205845e01f208abb4121"
+      }
+    ],
+    "sqlRpcDefinitions": [
+      {
+        "path": "supabase/migrations/0081_lances_publicacao_segura.sql",
+        "table": "public.bula_leilao_fechamento",
+        "operations": [
+          "insert",
+          "update"
+        ],
+        "rpc": "public.bula_fechamento_write_governado",
+        "fingerprint": "sha256:e48c52475bddc626197f5fb41defc03cd8f16036de3e205845e01f208abb4121"
+      },
+      {
+        "path": "supabase/migrations/0081_lances_publicacao_segura.sql",
+        "table": "public.bula_leilao_vendas",
+        "operations": [
+          "update"
+        ],
+        "rpc": "public.bula_leilao_vendas_bind_selected",
+        "fingerprint": "sha256:e48c52475bddc626197f5fb41defc03cd8f16036de3e205845e01f208abb4121"
+      }
+    ],
+    "dynamicSqlExecutors": [
+      {
+        "path": "scripts/aplica-agente-whatsapp-2026-08-06.mjs",
+        "table": "<dynamic-sql-target>",
+        "operations": [
+          "execute"
+        ],
+        "fingerprint": "sha256:c4ddcda823dcac1bd5a3ab70bff58264ec8c6fa7c9b0844440befcb070a96755"
+      },
+      {
+        "path": "scripts/apply-migration-0017.mjs",
+        "table": "<dynamic-sql-target>",
+        "operations": [
+          "execute"
+        ],
+        "fingerprint": "sha256:af7a462b5f9f30fa22140410417d98b999ab3990387de8dac9a653fdce50cdff"
+      },
+      {
+        "path": "scripts/apply-migration-single.mjs",
+        "table": "<dynamic-sql-target>",
+        "operations": [
+          "execute"
+        ],
+        "fingerprint": "sha256:ffb7c9bae175ab85f63aa5017c931c02c87f1026481b37a0852cb452f0dd7a66"
+      },
+      {
+        "path": "scripts/apply-migration.mjs",
+        "table": "<dynamic-sql-target>",
+        "operations": [
+          "execute"
+        ],
+        "fingerprint": "sha256:8ffc769d717a1ab72e531a6739ab0a40a7a4323a64907d7abe35d6556c80015f"
+      },
+      {
+        "path": "scripts/apply-migrations-0036-0037.mjs",
+        "table": "<dynamic-sql-target>",
+        "operations": [
+          "execute"
+        ],
+        "fingerprint": "sha256:cb86a1ef971c30a211f127f7797d4d16d144ee8f5330b2c345cd6036835b17ae"
+      },
+      {
+        "path": "scripts/apply-sql.mjs",
+        "table": "<dynamic-sql-target>",
+        "operations": [
+          "execute"
+        ],
+        "fingerprint": "sha256:79a62cc616519eaed0c4601006a40d2a04ac1ebfe682f41a35126f647e129046"
+      },
+      {
+        "path": "scripts/setup-jmp-landing.mjs",
+        "table": "<dynamic-sql-target>",
+        "operations": [
+          "execute"
+        ],
+        "fingerprint": "sha256:33f61d1076d50dedd13c3c505accd62693ee142c3d2f2d16b28ed033715e0fef"
+      },
+      {
+        "path": "scripts/validate-fechamento-migrations.mjs",
+        "table": "<dynamic-sql-target>",
+        "operations": [
+          "execute"
+        ],
+        "fingerprint": "sha256:4ffa6f8d59b5ef990b604a52db34e461a1d0b027e5c38193272348502de7b6d3"
+      }
+    ]
+  }
+}

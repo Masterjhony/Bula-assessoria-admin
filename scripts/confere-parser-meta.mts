@@ -9,7 +9,7 @@ for (const line of fs.readFileSync('.env.local', 'utf8').split(/\r?\n/)) {
   if (m && !(m[1] in process.env)) process.env[m[1]] = m[2].trim().replace(/^["']|["']$/g, '')
 }
 const { google } = await import('googleapis')
-const { getSheetInfo, parseRawMetaLead } = await import('../src/lib/jmp-sheets')
+const { getSheetInfo, parseRawMetaLead, metaStateToUF } = await import('../src/lib/jmp-sheets')
 
 // ── casos fixos ────────────────────────────────────────────────────────────
 const semCpf = ['l:111', '2026-08-17T09:18:00-03:00', 'ag:1', 'video-femeas-perpetuo02', 'as:1', 'adset', 'c:1',
@@ -33,6 +33,39 @@ for (const [rotulo, row] of [['sem CPF', semCpf], ['com CPF', comCpf], ['CPF em 
   const p = parseRawMetaLead(row)
   console.log(`${rotulo}: nome="${p?.fullName}" cpf="${p?.cpf}" email="${p?.email}" fone="${p?.phone}" uf="${p?.state}" interesse="${p?.interesse}" qtd="${p?.qtd}" cabeças="${p?.cabecas}" ie="${p?.temIe}" status="${p?.leadStatus}"`)
 }
+
+// ── UF: o campo "estado" do form é texto livre ─────────────────────────────
+// Os 9 primeiros são leads REAIS de 27/08 a 31/08 que entraram sem Zona (logo,
+// sem assessor). Os demais são as travas: nome curto no meio da frase não vale,
+// e sem texto nem DDD o valor cru é devolvido — não se inventa UF.
+const casosUF: [string, string, string][] = [
+  ['MI', 'p:+5599985399738', 'MA'],
+  ['Presidente medici ro', 'p:+5569992463771', 'RO'],
+  ['Mt Juína', 'p:+5566999444085', 'MT'],
+  ['Rio de janeiro rj', 'p:+5521983839975', 'RJ'],
+  ['Góis', 'p:+5564984227535', 'GO'],
+  ['Terra Rica - Pr', 'p:+5544991055361', 'PR'],
+  ['Amazonas  apui', 'p:+5516096433779', 'AM'],
+  ['Brasilia', 'p:+5561996907614', 'DF'],
+  ['Virgem da Lapa', 'p:+5533999692888', 'MG'],
+  ['SP', '', 'SP'],
+  ['São Paulo', '', 'SP'],
+  ['Mato Grosso do Sul', '', 'MS'],
+  ['Pará de Minas', 'p:+5537999999999', 'MG'],
+  ['Belém Pará', 'p:+5591999999999', 'PA'],
+  ['', 'p:+5567999999999', 'MS'],
+  ['Bananalândia', 'p:+5511999999999', 'SP'],
+  ['Bananalândia', '', 'Bananalândia'],
+]
+let falhas = 0
+for (const [estado, fone, esperado] of casosUF) {
+  const obtido = metaStateToUF(estado, fone)
+  const ok = obtido === esperado
+  if (!ok) falhas++
+  console.log(`${ok ? 'ok  ' : 'FALHA'} UF "${estado}" + ${fone || '(sem fone)'} → "${obtido}"${ok ? '' : ` (esperado "${esperado}")`}`)
+}
+if (falhas) { console.error(`
+${falhas} caso(s) de UF falharam.`); process.exitCode = 1 }
 
 // ── linhas cruas de verdade que estiverem na planilha ──────────────────────
 const info = await getSheetInfo()
