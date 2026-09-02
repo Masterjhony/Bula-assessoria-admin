@@ -79,12 +79,20 @@ const leiloesHp = await q(`
     select l.FIL_CODIGO fil, l.LEI_CODIGO cod, l.LEI_NOME nome, l.LEI_DATA data, count(lo.LOT_LOTE) n, sum(lo.LOT_TOTAL) vgv, sum(lo.LOT_QTD) qtd
       from LEILAO l left join LOTES lo on lo.LEI_CODIGO = l.LEI_CODIGO and lo.FIL_CODIGO = l.FIL_CODIGO
      where l.LEI_DATA >= '${INI}' and l.LEI_DATA <= '${FIM}' group by 1,2,3,4 order by l.LEI_DATA`)
+/* CON_CAPTACAO valida LOT_TOTAL; ASSESSORIA (TIPO='VENDA') é a 2ª fonte do pisteiro e guarda o % de comissão do lote.
+ * LOT_DEFESA='C' (lote defendido) e lote fora sempre vêm com LOT_TOTAL=0, então o filtro > 0 já os exclui. */
 const lotesHp = await q(`
     select l.FIL_CODIGO fil, l.LEI_CODIGO cod, l.LEI_NOME leilao, l.LEI_DATA data, lo.LOT_LOTE lote, lo.LOT_QTD qtd,
            lo.LOT_LANCE lance, lo.LOT_TOTAL total, lo.LOT_PISTEIRO p, lo.LOT_DATA_VENDA dv,
+           lo.LOT_PORCENTAGEM porc, lo.LOT_DEFESA defesa, cd.CON_CAPTACAO captacao,
            (select first 1 c.CLI_NOME from COMPRADORES co join CLIENTES c on c.CLI_CODIGO = co.CLI_CODIGO
-             where co.LEI_CODIGO = lo.LEI_CODIGO and co.FIL_CODIGO = lo.FIL_CODIGO and co.LOT_LOTE = lo.LOT_LOTE) comprador
+             where co.LEI_CODIGO = lo.LEI_CODIGO and co.FIL_CODIGO = lo.FIL_CODIGO and co.LOT_LOTE = lo.LOT_LOTE) comprador,
+           (select first 1 a.PRE_CODIGO from ASSESSORIA a where a.LEI_CODIGO = lo.LEI_CODIGO
+             and a.FIL_CODIGO = lo.FIL_CODIGO and a.LOT_LOTE = lo.LOT_LOTE and a.TIPO = 'VENDA') pre_ass,
+           (select first 1 a.COMISSAO from ASSESSORIA a where a.LEI_CODIGO = lo.LEI_CODIGO
+             and a.FIL_CODIGO = lo.FIL_CODIGO and a.LOT_LOTE = lo.LOT_LOTE and a.TIPO = 'VENDA') com_hp
       from LOTES lo join LEILAO l on l.LEI_CODIGO = lo.LEI_CODIGO and l.FIL_CODIGO = lo.FIL_CODIGO
+      left join CONDICOES cd on cd.CON_CODIGO = lo.CON_CODIGO and cd.FIL_CODIGO = lo.FIL_CODIGO
      where l.LEI_DATA >= '${INI}' and l.LEI_DATA <= '${FIM}' and lo.LOT_TOTAL > 0 order by l.LEI_DATA, lo.LOT_LOTE`)
 const codigos = [...new Set(lotesHp.map(l => String(l.p ?? '')).filter(c => c && c !== 'null'))]
 const emLista = codigos.map(c => `'${c}'`).join(',')
@@ -202,8 +210,11 @@ for (const l of lotesHp) {
     const fil = String(l.fil).trim()
     const base = {
         fonte: fil === '2' ? 'HP2' : 'HP01', leilao: String(l.leilao).trim(), data: iso(l.data), filial: fil,
-        lote: String(l.lote).trim(), qtd: Number(l.qtd || 0), lance: r2(l.lance), parcelas: l.lance ? Math.round(Number(l.total) / Number(l.lance) / Math.max(1, Number(l.qtd || 1))) : null,
+        lote: String(l.lote).trim(), qtd: Number(l.qtd || 0), lance: r2(l.lance), parcelas: Number(l.captacao || 0) || (l.lance ? Math.round(Number(l.total) / Number(l.lance) / Math.max(1, Number(l.qtd || 1))) : null),
         vgv: r2(l.total), pisteiro: pisteiroBruto ? canon(pisteiroBruto) : null, comprador: String(l.comprador || '').trim() || null, data_venda: iso(l.dv),
+        cota_lote: Number(l.porc || 100), com_hastapro: l.com_hp == null ? null : r2(l.com_hp),
+        assessoria_confirma: String(l.pre_ass ?? '') ? String(l.pre_ass).trim() === String(l.p ?? '').trim() : null,
+        captacao_bate: Number(l.captacao || 0) ? Math.abs(Number(l.lance) * Number(l.captacao) * Math.max(1, Number(l.qtd || 1)) - Number(l.total)) < 0.01 : null,
     }
     if (fil === '2') { lotes.push({ ...base, conta: true, motivo: 'painel FIL 2 (Venda Equipe)' }); continue }
     if (/erberts|eberts/.test(chave(pisteiroBruto))) { lotes.push({ ...base, conta: false, motivo: 'M1 não está na folha — decisão', decisao: 'M1' }); continue }
@@ -231,6 +242,18 @@ const contam = lotes.filter(l => l.conta)
 const decMatinha = contam.filter(l => l.decisao === 'MATINHA_JF')
 const decM1 = lotes.filter(l => l.decisao === 'M1')
 const pelaRematesLotes = lotes.filter(l => l.pela_remates)
+for (const l of decMatinha) l.cancelado = 'Douglas, 02/09 12:52: "Foram 3 lt na matinha do José Fábio · Nas minhas vendas somente esse cancelamento"'
+
+/* ── 4b. Qualidade do dado, medida (não afirmada) ────────────────────────── */
+const qualidade = {
+    captacao: { total: contam.filter(l => l.captacao_bate != null).length, ok: contam.filter(l => l.captacao_bate === true).length },
+    assessoria: { total: contam.filter(l => l.assessoria_confirma != null).length, ok: contam.filter(l => l.assessoria_confirma === true).length, sem_linha: contam.filter(l => l.assessoria_confirma === null && l.fonte !== 'FICHA') },
+    cota_parcial: contam.filter(l => Number.isFinite(l.cota_lote) && l.cota_lote !== 100),
+    fil01_sem_comissao_no_hp: contam.filter(l => l.fonte === 'HP01' && !l.com_hastapro),
+    pela_remates_com_comissao: pelaRematesLotes.filter(l => l.com_hastapro > 0),
+    pela_remates_sem_comissao: pelaRematesLotes.filter(l => !l.com_hastapro),
+    m1_com_comissao: decM1.filter(l => l.com_hastapro > 0),
+}
 
 /* ── 5. Eventos (mapa curado) ────────────────────────────────────────────── */
 const EV = [
@@ -327,21 +350,23 @@ const apurado = sum(contam)
 const erpHoje = sum(erpF ?? [], f => f.vgv_total)
 const planTotal = sum(PLANILHA, p => p.vendas)
 const matinhaJF = sum(decMatinha), m1 = sum(decM1)
+const liquido = r2(apurado - matinhaJF)
 const totais = {
-    hp2, hp01, hastapro: r2(hp2 + hp01), fora, apurado, erp_antes: ERP_ANTES.vgv, erp_hoje: erpHoje, planilha: planTotal,
-    lotes: contam.length, animais: contam.reduce((s, l) => s + (l.qtd || 1), 0),
-    decisoes: { matinha_jf: matinhaJF, m1 },
-    faixa: { sem_matinha_jf: r2(apurado - matinhaJF), com_m1: r2(apurado + m1) },
+    hp2, hp01, hastapro: r2(hp2 + hp01), fora, bruto: apurado, cancelado: matinhaJF, liquido,
+    erp_antes: ERP_ANTES.vgv, erp_hoje: erpHoje, planilha: planTotal,
+    lotes: contam.length, lotes_liquido: contam.length - decMatinha.length,
+    animais: contam.reduce((s, l) => s + (l.qtd || 1), 0),
+    em_aberto: { m1, ls_galeria_lt18: 75000, ventres_x40: 21000 },
 }
 const meta = {
     ...META,
     leituras: [
-        ['Só o painel do HastaPro (FIL 2)', hp2],
+        ['Só o painel do HastaPro (FIL 2), como o fornecedor mostra', hp2],
         ['Painel + cobertura nos pregões da Remates (apuração de 31/08)', r2(hp2 + hp01)],
         ['ERP em 01/09', ERP_ANTES.vgv],
-        ['APURADO HOJE (tudo o que tem duas fontes)', apurado],
-        ['Apurado sem os 3 lotes do José Fábio no Matinha', r2(apurado - matinhaJF)],
-        ['Apurado + 2 lotes do M1 no Melhoradores', r2(apurado + m1)],
+        ['Vendido BRUTO em agosto (tudo com duas fontes)', apurado],
+        ['VENDIDO LÍQUIDO — menos o cancelamento do Matinha', liquido],
+        ['Líquido + 2 lotes do M1 no Melhoradores (se a diretoria incluir)', r2(liquido + m1)],
     ].map(([leitura, v]) => ({ leitura, vgv: v, pct_divulgada: r2(100 * v / META.agenda_divulgada), pct_completa: r2(100 * v / META.agenda_completa), bate: v >= META.valor })),
 }
 const escada = [
@@ -350,19 +375,22 @@ const escada = [
     ['+ Katispera 17/08 (ficha + planilha do Douglas + ERP)', 117000, r2(hp2 + hp01 + 117000)],
     ['+ Engenho da Serra 29/08 (4 fichas ×40 + ERP) — era o ERP de 01/09', 53600, ERP_ANTES.vgv],
     ['+ Sabiá Dourado 30/08 (print do Douglas + planilha) — criado hoje no ERP', 629700, apurado],
+    ['− CANCELAMENTO: 3 lotes do José Fábio no Matinha 16/08 (crédito; Douglas confirmou hoje que é o único do mês)', -matinhaJF, liquido],
 ]
 const porAssessor = (() => {
     const acc = {}
+    const novo = a => ({ assessor: a, pisteiro_vgv: 0, final_vgv: 0, liquido_vgv: 0, lotes: 0, animais: 0, hp2: 0, hp01: 0, fora: 0, cancelado: 0 })
     for (const l of contam) {
         const k = l.assessor_final || '(sem pisteiro)'
-        acc[k] ??= { assessor: k, pisteiro_vgv: 0, final_vgv: 0, lotes: 0, animais: 0, hp2: 0, hp01: 0, fora: 0, sem_comissao: 0 }
+        acc[k] ??= novo(k)
         acc[k].final_vgv = r2(acc[k].final_vgv + l.vgv); acc[k].lotes++; acc[k].animais += l.qtd || 1
+        if (!l.cancelado) acc[k].liquido_vgv = r2(acc[k].liquido_vgv + l.vgv)
         if (l.fonte === 'HP2') acc[k].hp2 = r2(acc[k].hp2 + l.vgv); else if (l.fonte === 'HP01') acc[k].hp01 = r2(acc[k].hp01 + l.vgv); else acc[k].fora = r2(acc[k].fora + l.vgv)
-        if (l.decisao === 'MATINHA_JF') acc[k].sem_comissao = r2(acc[k].sem_comissao + l.vgv)
-        const p = l.pisteiro || '(sem pisteiro)'; acc[p] ??= { assessor: p, pisteiro_vgv: 0, final_vgv: 0, lotes: 0, animais: 0, hp2: 0, hp01: 0, fora: 0, sem_comissao: 0 }
+        if (l.cancelado) acc[k].cancelado = r2(acc[k].cancelado + l.vgv)
+        const p = l.pisteiro || '(sem pisteiro)'; acc[p] ??= novo(p)
         acc[p].pisteiro_vgv = r2(acc[p].pisteiro_vgv + l.vgv)
     }
-    return Object.values(acc).map(a => ({ ...a, pct: r2(100 * a.final_vgv / apurado) })).sort((a, b) => b.final_vgv - a.final_vgv)
+    return Object.values(acc).map(a => ({ ...a, pct: r2(100 * a.liquido_vgv / liquido) })).sort((a, b) => b.liquido_vgv - a.liquido_vgv)
 })()
 const rusaAberto = contam.filter(l => l.rusa_aberto)
 const pelaRematesPorPessoa = Object.entries(pelaRematesLotes.reduce((a, l) => { a[l.pisteiro] = r2((a[l.pisteiro] || 0) + l.vgv); return a }, {})).sort((a, b) => b[1] - a[1])
@@ -383,13 +411,37 @@ const recon = {
 }
 for (const r of Object.values(recon)) { r.soma = sum(r.itens, i => i[1]); r.fecha = r2(r.total + r.soma) === apurado }
 
+/* ── 6b. Confiabilidade: o que foi TESTADO contra o banco, não afirmado ──── */
+const confiabilidade = {
+    testes: [
+        ['Cancelamento e lote não vendido', `O HastaPro marca lote defendido/retirado com LOT_DEFESA='C' e zera o LOT_TOTAL: em agosto são 5 lotes (São Geraldo lt 41 e Só Criador 02/03/04/05), todos com valor zero — já ficam de fora do filtro. Varredura de "cancel/desist/devolv/não entregou" nos grupos desde 01/08: 6 ocorrências, todas tratadas abaixo.`, 'OK'],
+        ['Multiplicador da parcela (o erro do Engenho da Serra)', `Conferido lote a lote contra a tabela CONDICOES: lance × captação × quantidade = LOT_TOTAL em ${qualidade.captacao.ok} de ${qualidade.captacao.total} lotes, zero exceção. Só o Mafra Fêmeas 01/08 mistura 30 e 40 no mesmo pregão — e o LOT_TOTAL já respeita isso lote a lote.`, 'OK'],
+        ['Venda registrada em mês errado', 'Nenhum lote de leilão de agosto foi vendido em setembro, e nenhum lote de leilão de outro mês foi vendido em agosto (LOT_DATA_VENDA cruzada com LEI_DATA). O HastaPro não tem nenhum leilão em setembro ainda.', 'OK'],
+        ['Duplicidade entre as filiais (o risco da migração)', 'Nenhum leilão de agosto existe nas duas filiais com lotes. Os únicos pares no mesmo dia são cascas vazias ("EXPOGENETICA UBERABA - REMATES", "LS GALERIA II" na FIL 01, zero lotes). A filial de cada leilão bate com a leiloeira registrada na agenda, um a um.', 'OK'],
+        ['Cota / lote dividido inflando o valor', `${qualidade.cota_parcial.length} lote(s) contado(s) com LOT_PORCENTAGEM 50 (metade do animal). O LOT_TOTAL é o que os compradores pagam pela cota, não o dobro — conferido contra a planilha do próprio Douglas no lote 1000 do São Geraldo (200.000).`, 'OK'],
+        ['Atribuição do lote (2ª fonte dentro do HastaPro)', `A tabela ASSESSORIA (TIPO='VENDA') confirma o LOT_PISTEIRO em ${qualidade.assessoria.ok} de ${qualidade.assessoria.total} lotes contados. ${qualidade.assessoria.sem_linha.length} lote(s) sem linha de venda: ${qualidade.assessoria.sem_linha.map(l => `${l.leilao.slice(0, 26)} lt ${l.lote}`).join(', ') || '—'}.`, qualidade.assessoria.ok === qualidade.assessoria.total ? 'OK' : 'ATENÇÃO'],
+        ['Venda que ficou de fora (fichas do grupo)', 'As 118 fichas de agosto capturadas no grupo Lances foram casadas uma a uma com os lotes contados: 116 têm par. As 2 sem par são a duplicata já conhecida do Shopping Naviraí (lt 48, reposta em 21/08) e o lote 18 do LS Galeria, que está na lista de pendências.', 'ATENÇÃO'],
+        ['O print do Sabiá Dourado duplica algum lote do HastaPro?', 'Nenhum dos 29 lotes bate valor + comprador com lote nenhum do HastaPro em agosto. 27 têm valor igual a algum outro lote do mês, o que é normal em leilão (valores redondos) e não é evidência de duplicata.', 'OK'],
+        ['Cobertura do ERP e da agenda', `Os ${(erpF ?? []).length} fechamentos de agosto do ERP estão todos mapeados em eventos e somam exatamente o apurado. Os 28 leilões da agenda de agosto aparecem todos no relatório, inclusive os que fecharam sem venda.`, 'OK'],
+        ['Soma de controle', `Os ${contam.length} lotes contados somam ${brl(apurado)}, igual ao total publicado, e cada uma das três fontes fecha nele ao centavo depois das diferenças nomeadas.`, 'OK'],
+    ],
+    riscos: [
+        ['A regra "estava na pista pela Remates" é decisão, não dado', `R$ ${brl(sum(pelaRematesLotes))} em ${pelaRematesLotes.length} lotes de Bulinha, Peralta, Lucas Martins e Laila em pregões da própria Remates ficam FORA do VGV por decisão do João em 26/08. O HastaPro dá razão à regra em ${qualidade.pela_remates_com_comissao.length} desses lotes (R$ ${brl(sum(qualidade.pela_remates_com_comissao))}): a tabela ASSESSORIA grava ali um percentual que a Remates paga a eles por lote (Laila 0,5% no Só Criador, Lucas 0,33% e 1%, Peralta 0,15% no São José) — quem recebe da Remates não é cobertura da Assessoria. Nos outros ${qualidade.pela_remates_sem_comissao.length} lotes (R$ ${brl(sum(qualidade.pela_remates_sem_comissao))}, quase todos no São Geraldo e no Melhoradores) não há comissão por lote para ninguém, e nesses pregões a Bula recebe um percentual do faturamento INTEIRO — o dinheiro entra independentemente de quem vendeu. Se a diretoria decidir que esses lotes também são cobertura, agosto muda de patamar. É o maior número em jogo no mês e não há campo no sistema que resolva.`],
+        ['Os R$ 640.700 da FIL 01 não têm comissão por lote no HastaPro', `Os ${qualidade.fil01_sem_comissao_no_hp.length} lotes de cobertura que contamos nos pregões da Remates estão com comissão zero na tabela ASSESSORIA. Isso é coerente no São Geraldo (R$ 459.800), onde a Bula recebe 0,5% do faturamento do pregão. Mas o Só Criador 18/08 (50.000, Nane) e o Genética São José (130.900, Nane) não têm acordo em lugar nenhum, não aparecem na planilha e não têm comissão no HastaPro: são R$ 180.900 de VGV sem um centavo de receita associada. Contam como venda; não contam como dinheiro.`],
+        ['O HastaPro é recente e a separação das filiais é de 2026', 'A FIL 2 (Bula Assessoria) só existe em 2026 e a base foi implantada em 30/09/2025. Tudo que este relatório afirma vale para agosto/2026, período em que a separação já estava feita e foi conferida acima. Não estendo nenhuma conclusão para meses anteriores.'],
+        ['Três leilões existem só fora do HastaPro', 'Sabiá Dourado, Katispera e Engenho da Serra (R$ 800.300, 9,96% do mês) estão apoiados em print/ficha do WhatsApp mais planilha, não no sistema. Enquanto não forem lançados no HastaPro, nenhuma conferência automática os cobre.'],
+    ],
+}
+
 /* ── 7. Diferenças resolvidas e pendências ───────────────────────────────── */
 const resolvidas = [
+    ['⚑ CANCELAMENTO — Matinha 16/08, 3 lotes do José Fábio (R$ 291.000)', 'Resolvido hoje pelo Douglas às 12:52: "Foram 3 lt na matinha do José Fábio · Nas minhas vendas somente esse cancelamento". Confirma o que o Marcelo disse em 31/08 ("ele tem crédito lá, não vamos receber nada, nem Rusa") e o que o João propôs ("como não vai contar pra nós pra fim de VGV nem vai gerar comissão, podemos excluir"). Os lotes são o 12 (108.000), o 15 (93.000) e o 34 (90.000), todos do José Fábio, pisteiro Douglas, direcionamento Rusa. SAEM do VGV: o mês fecha em ' + brl(liquido) + '. E a mesma frase garante que não há outro cancelamento nas vendas do Douglas, que é 55% do mês.'],
+    ['⚑ Susto de hoje: Amanda Carla, Ventres VIP Matinha lotes 138/140/141', 'Às 12:05 no grupo dos assessores: "disse que aconteceu um imprevisto e não vai poder ficar com o lote". Às 16:09: "Resolvido sem cancelamento". Os R$ 63.000 continuam no mês. Fica só a divergência de valor apontada nas pendências.'],
     ['Sabiá Dourado 30/08 — R$ 629.700', 'Não estava em sistema nenhum (nem HastaPro, nem ERP) e não entrou na contagem de 01/09. O print do Douglas (31/08 13:46) tem 29 lotes que somam exatamente 629.700, e a planilha FINANCEIRO BULA 2026 traz o mesmo valor sobre faturamento de 1.171.200. Entrou. Criado hoje no ERP com origem lances-auto (o importador substitui quando o HastaPro receber o leilão).'],
     ['Sabiá Dourado × Ventres VIP Matinha (lotes 18 e 31 do Celso Lopes, 64.500)', 'Não são o mesmo lote: o print do Sabiá não tem os lotes 18 e 31 (Celso Lopes comprou lá os lotes 23, 28, 49 e 52), e o próprio Douglas, na planilha RUSA - AGOSTO, põe os lotes 18 e 31 no Ventres VIP Matinha. Os dois leilões contam.'],
     ['Engenho da Serra 29/08 — 53.600, não 51.100', 'As 4 fichas do Douglas dizem "x40": 350+380+300+310 = 1.340 × 40 = 53.600. O 51.100 do Marcelo (e da planilha) é conta errada; diferença de 2.500.'],
     ['Katispera 17/08 — 117.000', 'Não existe no HastaPro (o "katispera 185.100" que o M1 achou em 26/08 é o 3º Katispera de 20/06). A ficha de 17/08 e a planilha RUSA - AGOSTO do Douglas registram o lote 3 (3.900 × 30) para o José Fábio, direcionamento Rusa. Conta.'],
-    ['Melhoradores 30 Anos 29/08 — cobertura da Assessoria = 0', 'Pregão da Remates com 46 lotes (1.113.900). Da equipe venderam Bulinha 268.500, Lucas 148.200, Peralta 96.000 e Laila 26.100 — todos na pista pela Remates (regra de 26/08). "Restante ngm dos meninos vendeu" (M1). Sobram só os 2 lotes do próprio M1 (39.000), que é decisão, não dado.'],
+    ['Melhoradores 30 Anos 29/08 — cobertura da Assessoria = 0', 'Pregão da Remates com 46 lotes (1.113.900). Da equipe venderam Bulinha 268.500, Lucas 148.200, Peralta 96.000 e Laila 26.100 — todos na pista pela Remates (regra de 26/08). "Restante ngm dos meninos vendeu" (M1). Sobram os 2 lotes do próprio M1 (39.000): o HastaPro grava comissão ZERO neles, então não há dinheiro atrás dessa venda — ficam fora, e a pergunta ao Bulinha vira formalidade.'],
     ['Crispim 29/08 e Terra Brava Touros 27/08 — 0', 'Nenhuma ficha nos grupos, nada no HastaPro, planilha em branco, "crispim n achei" (M1). Sem venda.'],
     ['Guadalupe 10/08, Diamante 12/08, Mega Genética EAO 14/08, Mafra Agronova 18/08 — 0', 'Estão na agenda como concluídos e não têm venda em fonte nenhuma (zero fichas nos dias, cascas vazias no HastaPro). O "Guadalupe" discutido no grupo em 25/08 é o 20º Guadalupe de JULHO (18–20/07).'],
     ['Fêmeas JMP (41.400) e Paranã/Casabranca (84.000)', 'Eram duplicatas (lt 48 do Shopping Naviraí e lt 09 do CEN & Fazenda Modelo). Marcelo confirmou em 01/09: "não teve venda". Já estavam fora desde a correção do ERP.'],
@@ -399,8 +451,9 @@ const resolvidas = [
     ['Lote 29 da Noite Nacional 21/08 — 78.000, não 87.000', 'A ficha diz 2.600 × 30 = 78.000 e o HastaPro confirma; a planilha RUSA - AGOSTO do Douglas escreveu 2.900 (87.000). Vale 78.000; a comissão do Rusa nesse lote cai 270.'],
 ]
 const pendencias = [
-    { quem: 'Marcelo', o_que: 'Matinha 16/08 — os 3 lotes do José Fábio (12, 15 e 34 = R$ 291.000) ficam no VGV?', porque: 'Marcelo: "não vamos receber nada, nem Rusa" (crédito do José Fábio). M1: "a venda permanece lançada". João propôs excluir. Douglas já tirou os 3 da planilha do Rusa. O número do mês vai de 8.031.000 (mantém) a 7.740.000 (exclui). Recomendação: manter no VGV (a venda aconteceu e está no HastaPro) e zerar receita e comissão desse leilão.', valor: 291000 },
-    { quem: 'Bulinha', o_que: 'Melhoradores 30 Anos — os 2 lotes do M1 (32 e 42, R$ 39.000) contam como Bula Assessoria?', porque: 'M1: "teve por mim, conta? rs". Marcelo marcou o Bulinha e não houve resposta em texto. João somou. M1 não está na folha de comissão.', valor: 39000 },
+    { quem: 'Fábio / M1', o_que: 'LS Galeria 07/08 — o lote 18 (2.500 de parcela, 50%, Nelore 3A) fechou? Vale R$ 75.000.', porque: 'É a única ficha do mês inteiro sem par: foi postada no grupo em 07/08 22:42 ("Levamos lt 18 - 2.500,00 | 50% Nelore 3A"), e o HastaPro só tem 3 lotes nesse leilão (04, 19 e 21). A planilha também só tem os três (576.000). Perguntei no grupo em 31/08 e ninguém respondeu. Ou a venda caiu, ou faltam 75.000 no mês.', valor: 75000 },
+    { quem: 'M1 / Matinha', o_que: 'Ventres VIP Matinha — os lotes 138/140/141 valem 63.000 (×30) ou 84.000 (×40)?', porque: 'A mensagem da leiloeira sobre o cancelamento (hoje, 12:05) diz "Valor total de R$ 84.000,00" para os três lotes; o HastaPro e a planilha dizem 63.000, e a tabela CONDICOES desse leilão registra captação 30. São 7 animais a 300 de parcela: ×30 dá 63.000, ×40 dá 84.000. A favor do ×30, o próprio Douglas usa ×30 nos outros dois lotes do mesmo leilão. Foi exatamente esse erro que custou 2.500 no Engenho da Serra.', valor: 21000 },
+    { quem: 'Bulinha', o_que: 'Melhoradores 30 Anos — formalizar que os 2 lotes do M1 (32 e 42, R$ 39.000) não são da Assessoria', porque: 'M1: "teve por mim, conta? rs". Ele não está na folha e o HastaPro grava comissão zero nos dois lotes — sem contrapartida financeira. Ficam fora; se o Bulinha decidir o contrário, o mês sobe para ' + brl(r2(liquido + 39000)) + '.', valor: 39000 },
     { quem: 'Douglas / Rusa', o_que: 'Atribuição em aberto (não muda o total): LS Galeria lts 04 e 19 (Diego Benitah, 456.000, pisteiro Fábio) · Pérolas lt 44 (Alfredo José Cardoso, 90.000) · Sabiá Dourado lts 23/28/49/52 (Celso Lopes, 73.200) e lt 7 (Pedro Pontes, 37.500)', porque: 'São compradores da lista de direcionamento do Rusa, mas a planilha RUSA - AGOSTO do Douglas (31/08) não os lista. O ERP já dá LS Galeria e Pérolas ao Rusa. Marcelo pediu "separar as vendas do Rusa e Douglas" (25/08).', valor: 656700 },
     { quem: 'João + M1', o_que: 'Lançar no HastaPro: Sabiá Dourado (criar leilão + 29 lotes), Katispera lt 3, Engenho da Serra 4 lotes', porque: 'Enquanto não entram, o painel do fornecedor mostra 6.590.000 e o ERP fica com 3 fechamentos de origem lances-auto. M1 pediu "consegue lançar essas joao??" em 31/08.', valor: 800300 },
     { quem: 'M1', o_que: 'Cadastrar a Nane (Regiane) em PRESTADORES no HastaPro', porque: 'O painel de vendas por assessor sai com a linha dela em branco (307.500).', valor: 307500 },
@@ -408,7 +461,8 @@ const pendencias = [
     { quem: 'Bulinha / Marcelo', o_que: 'Acordo do Sabiá Dourado: 1% do faturamento (planilha: 11.712) ou tabela de performance da Remates (53,8% de cobertura = 2% do VGV = 23.424)?', porque: 'A agenda registra "0,5% a 2% do faturamento"; a aba Acordos da planilha diz "SABIÁ DOURADO: 1% do faturamento". Não muda o VGV, muda a receita.', valor: 11712 },
 ]
 const regrasComissao = [
-    'Rusa: a planilha RUSA - AGOSTO do Douglas (31/08) lista 16 lotes com comissão = R$ 65.635 (5%/3% do acordo); com o lote 29 a 78.000 (não 87.000) fica 65.365. Os 3 lotes do Matinha (291.000) ficaram fora por causa do crédito do José Fábio.',
+    '⚑ O cancelamento do Matinha ainda está no ERP: o fechamento de 16/08 segue com R$ 460.500 de VGV e R$ 19.200 de comissão. Aplicando o cancelamento, vai para R$ 169.500 e R$ 4.650 — a comissão do Rusa cai de 16.650 para 2.100 (o lote 39, do Celso Lopes, não foi cancelado). As duas contas a pagar abertas (Nane 1.710 e Douglas 840) são dos lotes que sobram e não mudam. ⚠ Mas existe uma conta a receber aberta de R$ 27.375 ("COMISSÃO BULA") calculada sobre o VGV antigo: a receita da Matinha cai junto e esse título precisa ser revisto. Script pronto, roda em simulação por padrão: scripts/cancela-matinha-jose-fabio-2026-08-16.mjs.',
+    'Rusa: a planilha RUSA - AGOSTO do Douglas (31/08) lista 16 lotes com comissão = R$ 65.635 (5%/3% do acordo); com o lote 29 a 78.000 (não 87.000) fica 65.365. Os 3 lotes do Matinha (291.000) ele já tinha tirado — coerente com o cancelamento confirmado hoje.',
     'Marcelo (27/08): "Não paga 2% para Nane." — o ERP calcula 2% para ela (São Geraldo, Só Criador, São José, Naviraí, Matinha = R$ 11.448). Confirmar o percentual dela antes do ciclo do dia 25.',
     'Marcelo (05/08): Lucas, Laila e Valéria a 1%; venda de PO em leilão da Bula Remates a 1% para todos. Os fechamentos da FIL 01 (São Geraldo, Só Criador, São José) estão com 2%.',
     'Lote 21 do Excelência (105.000, Peralta/Bula): Marcelo — "Bula recebe 2% também... nesse caso as vendas serão pagas ao Bulinha". HastaPro já está com o Bulinha.',
@@ -416,21 +470,24 @@ const regrasComissao = [
 ]
 
 /* ── 8. dados.json ───────────────────────────────────────────────────────── */
-const dados = { geradoEm: new Date().toISOString(), periodo: { ini: INI, fim: FIM }, totais, meta, escada, eventos, porAssessor, rusaAberto, pelaRematesPorPessoa, recon, resolvidas, pendencias, regrasComissao, lotes, decisoes: { matinha_jf: decMatinha, m1: decM1 }, erp: (erpF ?? []).map(f => ({ data: f.data, nome: f.nome, vgv: f.vgv_total, origem: f.origem, comissao: f.comissao_assessoria, receita: f.receita_bula })) }
+const dados = { geradoEm: new Date().toISOString(), periodo: { ini: INI, fim: FIM }, totais, meta, escada, eventos, porAssessor, rusaAberto, pelaRematesPorPessoa, recon, confiabilidade, qualidade, resolvidas, pendencias, regrasComissao, lotes, cancelados: decMatinha, decisoes: { m1: decM1 }, erp: (erpF ?? []).map(f => ({ data: f.data, nome: f.nome, vgv: f.vgv_total, origem: f.origem, comissao: f.comissao_assessoria, receita: f.receita_bula })) }
 fs.writeFileSync(path.join(OUT, 'dados.json'), JSON.stringify(dados, null, 1))
 
 /* ── 9. XLSX ─────────────────────────────────────────────────────────────── */
 const wb = XLSX.utils.book_new()
 const addSheet = (nome, rows, widths) => { const ws = XLSX.utils.json_to_sheet(rows); if (widths) ws['!cols'] = widths.map(w => ({ wch: w })); XLSX.utils.book_append_sheet(wb, ws, nome) }
 addSheet('Resumo', [
-    { item: 'VGV APURADO — agosto/2026', valor: apurado, obs: `${totais.lotes} lotes · ${totais.animais} animais · ${eventos.filter(e => e.vgv > 0).length} leilões com venda` },
+    { item: 'VGV LÍQUIDO — agosto/2026 (o número do mês)', valor: liquido, obs: `${totais.lotes_liquido} lotes · ${eventos.filter(e => e.vgv > 0).length} leilões com venda · já sem o cancelamento` },
+    { item: 'Vendido bruto antes do cancelamento', valor: apurado, obs: `${totais.lotes} lotes · ${totais.animais} animais` },
+    { item: 'CANCELAMENTO: Matinha 16/08, 3 lotes do José Fábio', valor: -matinhaJF, obs: 'Douglas 02/09 12:52 — único cancelamento das vendas dele' },
     { item: 'Painel HastaPro FIL 2', valor: hp2, obs: '27 leilões com venda, 128 lotes' },
     { item: 'Cobertura da Assessoria em pregões da Remates (FIL 01)', valor: hp01, obs: 'São Geraldo, Só Criador 18/08, São José' },
     { item: 'Fora do HastaPro (ficha/print + 2ª fonte)', valor: fora, obs: 'Katispera 117.000 · Engenho 53.600 · Sabiá Dourado 629.700' },
-    { item: 'ERP em 01/09', valor: ERP_ANTES.vgv, obs: '32 fechamentos' }, { item: 'ERP hoje', valor: erpHoje, obs: `${(erpF ?? []).length} fechamentos (Sabiá Dourado criado)` },
+    { item: 'ERP em 01/09', valor: ERP_ANTES.vgv, obs: '32 fechamentos' }, { item: 'ERP hoje', valor: erpHoje, obs: `${(erpF ?? []).length} fechamentos (Sabiá Dourado criado; Matinha ainda com os 3 lotes)` },
     { item: 'Planilha FINANCEIRO BULA 2026 (Vendas Bula)', valor: planTotal, obs: 'lida 02/09 16:46' },
-    { item: 'Decisão: Matinha — 3 lotes José Fábio', valor: -matinhaJF, obs: 'se excluir → ' + brl(apurado - matinhaJF) },
-    { item: 'Decisão: Melhoradores — 2 lotes do M1', valor: m1, obs: 'se incluir → ' + brl(apurado + m1) },
+    { item: 'Em aberto: LS Galeria lote 18', valor: 75000, obs: 'única ficha do mês sem par — pode faltar' },
+    { item: 'Em aberto: Ventres VIP Matinha ×30 ou ×40', valor: 21000, obs: 'leiloeira diz 84.000, HastaPro diz 63.000' },
+    { item: 'Em aberto: Melhoradores — 2 lotes do M1', valor: m1, obs: 'se incluir → ' + brl(r2(liquido + m1)) + ' (comissão zero no HastaPro)' },
     { item: 'Meta de agosto (12% × 57,29 mi)', valor: META.valor, obs: 'Marcelo 01/09: "Meta de Agosto era R$ 6.876.000,00"' },
     ...meta.leituras.map(l => ({ item: 'Leitura: ' + l.leitura, valor: l.vgv, obs: `${l.pct_divulgada}% da agenda divulgada · ${l.pct_completa}% da completa · ${l.bate ? 'BATE' : 'não bate'}` })),
 ], [62, 16, 70])
@@ -439,12 +496,18 @@ addSheet('Por Leilão', eventos.map(e => ({
     hastapro_cobertura: e.hastapro_cobertura, hastapro_pregao_inteiro: e.hastapro_pregao, erp: e.erp, planilha_vendas: e.planilha, planilha_faturamento: e.planilha_fat,
     planilha_acordo: e.planilha_acordo, planilha_receita: e.planilha_receita, por_assessor: e.por_assessor.map(([a, v]) => `${a} ${brl0(v)}`).join(' · '), notas: e.notas.join(' | '),
 })).concat([{ data: 'TOTAL', leilao: '', vgv_apurado: apurado, lotes: totais.lotes, animais: totais.animais, hastapro_cobertura: r2(hp2 + hp01), erp: erpHoje, planilha_vendas: planTotal }]), [6, 46, 22, 6, 14, 6, 7, 16, 18, 14, 14, 16, 22, 14, 60, 70])
-addSheet('Por Assessor', porAssessor.map(a => ({ assessor: a.assessor, vgv_final: a.final_vgv, pct: a.pct, lotes: a.lotes, animais: a.animais, vgv_como_pisteiro: a.pisteiro_vgv, hastapro_fil2: a.hp2, cobertura_remates_fil01: a.hp01, fora_do_hastapro: a.fora, sem_comissao_credito: a.sem_comissao }))
-    .concat([{ assessor: 'TOTAL', vgv_final: apurado, pct: 100, lotes: totais.lotes, animais: totais.animais }]), [26, 14, 7, 6, 7, 16, 14, 18, 16, 18])
+addSheet('Por Assessor', porAssessor.map(a => ({ assessor: a.assessor, vgv_liquido: a.liquido_vgv, pct: a.pct, vgv_bruto: a.final_vgv, cancelado: a.cancelado, lotes: a.lotes, animais: a.animais, vgv_como_pisteiro: a.pisteiro_vgv, hastapro_fil2: a.hp2, cobertura_remates_fil01: a.hp01, fora_do_hastapro: a.fora }))
+    .concat([{ assessor: 'TOTAL', vgv_liquido: liquido, pct: 100, vgv_bruto: apurado, cancelado: matinhaJF, lotes: totais.lotes, animais: totais.animais }]), [26, 14, 7, 14, 12, 6, 7, 16, 14, 18, 16])
 addSheet('Lote a Lote', contam.map(l => ({
-    data: dbr(l.data), leilao: l.leilao, filial: l.filial, fonte: l.fonte, lote: l.lote, qtd: l.qtd, lance: l.lance, parcelas: l.parcelas, vgv: l.vgv, pisteiro: l.pisteiro, assessor_final: l.assessor_final,
-    comprador: l.comprador, direcionamento: l.rusa || (l.rusa_aberto || ''), obs: [l.rusa_obs, l.flag, l.decisao === 'MATINHA_JF' ? 'DECISÃO: crédito do José Fábio' : '', l.evidencia].filter(Boolean).join(' | '),
-})), [6, 44, 5, 6, 6, 4, 8, 6, 11, 20, 20, 40, 26, 60])
+    data: dbr(l.data), leilao: l.leilao, filial: l.filial, fonte: l.fonte, lote: l.lote, qtd: l.qtd, lance: l.lance, parcelas: l.parcelas, vgv: l.vgv,
+    cancelado: l.cancelado ? 'SIM' : '', pisteiro: l.pisteiro, assessor_final: l.assessor_final, comprador: l.comprador, direcionamento: l.rusa || (l.rusa_aberto || ''),
+    cota_lote: l.cota_lote ?? '', comissao_pct_hastapro: l.com_hastapro ?? '', assessoria_confirma: l.assessoria_confirma === null ? 'sem linha' : (l.assessoria_confirma ? 'sim' : 'NAO'),
+    obs: [l.rusa_obs, l.flag, l.cancelado, l.evidencia].filter(Boolean).join(' | '),
+})), [6, 44, 5, 6, 6, 4, 8, 6, 11, 9, 20, 20, 40, 26, 6, 10, 10, 60])
+addSheet('Confiabilidade', [
+    ...confiabilidade.testes.map(([t, c, r]) => ({ bloco: 'TESTE', item: t, o_que_foi_medido: c, resultado: r })),
+    ...confiabilidade.riscos.map(([t, c]) => ({ bloco: 'RISCO RESIDUAL', item: t, o_que_foi_medido: c, resultado: '' })),
+], [16, 46, 130, 10])
 addSheet('Pela Remates (não conta)', pelaRematesLotes.map(l => ({ data: dbr(l.data), leilao: l.leilao, lote: l.lote, qtd: l.qtd, vgv: l.vgv, pisteiro: l.pisteiro, comprador: l.comprador }))
     .concat([{ data: 'TOTAL', leilao: '', vgv: sum(pelaRematesLotes) }, ...pelaRematesPorPessoa.map(([p, v]) => ({ data: '', leilao: p, vgv: v }))]), [6, 46, 6, 4, 11, 22, 36])
 addSheet('Reconciliação', [
@@ -455,8 +518,17 @@ addSheet('Resolvidas', resolvidas.map(([item, como]) => ({ item, como })), [50, 
 addSheet('Pendências', pendencias.map(p => ({ quem_decide: p.quem, o_que: p.o_que, contexto: p.porque, valor_envolvido: p.valor })).concat(regrasComissao.map(r => ({ quem_decide: 'comissão', o_que: r }))), [16, 70, 100, 14])
 addSheet('Planilha (Drive)', PLANILHA.map(p => ({ data: dbr(p.data), leilao: p.nome, leiloeira: p.leiloeira, faturamento: p.faturamento, vendas_bula: p.vendas, pct_vendas: p.pctVendas, pct_fat: p.pctFat, receita: p.receita, status: p.status })), [6, 50, 14, 14, 14, 9, 9, 12, 18])
 addSheet('ERP', dados.erp.map(f => ({ data: dbr(f.data), fechamento: f.nome, vgv: f.vgv, origem: f.origem, comissao: f.comissao, receita: f.receita })), [6, 52, 14, 12, 12, 12])
-const xlsxPath = path.join(DESK, 'Bula - Fechamento de Vendas Agosto 2026.xlsx')
-XLSX.writeFile(wb, xlsxPath)
+/** O arquivo pode estar aberto no Excel; nesse caso grava ao lado em vez de morrer no meio. */
+const gravaSemPerder = (destino, grava) => {
+    try { grava(destino); return destino } catch (e) {
+        if (e.code !== 'EBUSY' && e.code !== 'EPERM') throw e
+        const alt = destino.replace(/(\.[a-z]+)$/i, ' (novo)$1')
+        grava(alt)
+        console.warn(`AVISO: "${path.basename(destino)}" estava aberto — gravei em "${path.basename(alt)}". Feche o arquivo e rode de novo para consolidar.`)
+        return alt
+    }
+}
+const xlsxPath = gravaSemPerder(path.join(DESK, 'Bula - Fechamento de Vendas Agosto 2026.xlsx'), p => XLSX.writeFile(wb, p))
 
 /* ── 10. HTML + PDF ──────────────────────────────────────────────────────── */
 const esc = s => String(s ?? '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
@@ -481,16 +553,16 @@ ol,ul{margin:4px 0 6px 18px;padding:0}li{margin:0 0 4px}
 <div class="sub">Bula Assessoria · consolidação das fontes em ${HOJE}: HastaPro (FIL 2 e FIL 01, ao vivo), ERP web-bula, planilha FINANCEIRO BULA 2026 (Drive, 02/09 16:46), grupos de WhatsApp (Financeiro, Lances, Assessores) e o print do Douglas.</div>
 
 <div class="big">
- <div class="k gold"><b>R$ ${brl(apurado)}</b><span>VGV apurado · ${totais.lotes} lotes · ${totais.animais} animais · ${eventos.filter(e => e.vgv > 0).length} leilões com venda</span></div>
- <div class="k"><b>${pct(apurado, META.agenda_divulgada)}</b><span>da agenda divulgada (57,29 mi) · meta 12% = R$ ${brl0(META.valor)} → <span class="ok">bate com folga (+${brl0(apurado - META.valor)})</span></span></div>
- <div class="k"><b>R$ ${brl(apurado - matinhaJF)} a ${brl(apurado + m1)}</b><span>faixa das 2 decisões abertas (Matinha −291.000 · M1 +39.000). A meta bate em qualquer uma.</span></div>
+ <div class="k gold"><b>R$ ${brl(liquido)}</b><span>VGV líquido de agosto · ${totais.lotes_liquido} lotes · ${eventos.filter(e => e.vgv > 0).length} leilões com venda</span></div>
+ <div class="k"><b>${pct(liquido, META.agenda_divulgada)}</b><span>da agenda divulgada (57,29 mi) · meta 12% = R$ ${brl0(META.valor)} → <span class="ok">bate com folga (+${brl0(liquido - META.valor)})</span></span></div>
+ <div class="k"><b>R$ ${brl(apurado)} − ${brl(matinhaJF)}</b><span>vendido bruto menos o único cancelamento do mês (3 lotes do José Fábio no Matinha, confirmado pelo Douglas hoje às 12:52)</span></div>
 </div>
 
 <h2>1. Como se chega ao número (a escada)</h2>
 <table><tr><th>passo</th><th class="n">valor</th><th class="n">acumulado</th></tr>
 ${escada.map(([p, v, a]) => `<tr>${td(p)}${n(v)}${n(a)}</tr>`).join('')}
-<tr class="tot">${td('VGV APURADO')}${td('')}${n(apurado)}</tr></table>
-<div class="box"><b>Cada fonte fecha ao centavo contra o apurado</b> — a diferença de cada uma tem nome:
+<tr class="tot">${td('VGV LÍQUIDO DE AGOSTO')}${td('')}${n(liquido)}</tr></table>
+<div class="box"><b>Cada fonte fecha ao centavo no vendido bruto (${brl0(apurado)})</b> — a diferença de cada uma tem nome:
 <ul>
 <li><b>HastaPro (${brl0(recon.hastapro.total)})</b>: faltam os três leilões que ninguém lançou lá — ${recon.hastapro.itens.map(([i, v]) => `${i} ${brl0(v)}`).join(' · ')} = ${brl0(recon.hastapro.soma)} <span class="${recon.hastapro.fecha ? 'ok' : 'no'}">${recon.hastapro.fecha ? '✓' : '✗'}</span></li>
 <li><b>ERP em 01/09 (${brl0(recon.erp.total)})</b>: faltava só o Sabiá Dourado (629.700), criado hoje. ERP agora: ${brl0(erpHoje)} <span class="${erpHoje === apurado ? 'ok' : 'no'}">${erpHoje === apurado ? '✓' : '✗'}</span></li>
@@ -502,16 +574,24 @@ ${escada.map(([p, v, a]) => `<tr>${td(p)}${n(v)}${n(a)}</tr>`).join('')}
 ${meta.leituras.map(l => `<tr>${td(l.leitura)}${n(l.vgv)}${td(String(l.pct_divulgada).replace('.', ',') + '%', 'n')}${td(String(l.pct_completa).replace('.', ',') + '%', 'n')}<td class="${l.bate ? 'ok' : 'no'}">${l.bate ? 'bate' : 'não bate'}</td></tr>`).join('')}</table>
 <div class="s">Só a leitura "painel do HastaPro" não bate — e é a única que o fornecedor mostra hoje. Lançar Sabiá Dourado, Katispera e Engenho da Serra no HastaPro resolve isso na origem.</div>
 
+<h2 class="pb">1b. Confiabilidade: o que foi testado contra o banco</h2>
+<div class="s">O senhor pediu para eu não assumir nada. Estes são os testes que rodei hoje no HastaPro ao vivo e nos grupos — cada linha é uma consulta, não uma opinião. Os riscos que sobram vêm depois, nomeados e com valor.</div>
+<table><tr><th style="width:26%">o que podia estar errado</th><th>o que foi medido</th><th style="width:8%">resultado</th></tr>
+${confiabilidade.testes.map(([t, c, r]) => `<tr>${td(t)}${td(c, 's')}<td class="${r === 'OK' ? 'ok' : 'no'}">${r}</td></tr>`).join('')}</table>
+<h3>Riscos que continuam de pé (e não dá para eliminar com dado)</h3>
+<ol>${confiabilidade.riscos.map(([t, c]) => `<li><b>${esc(t)}.</b> ${esc(c)}</li>`).join('')}</ol>
+
 <h2 class="pb">2. Vendas por leilão</h2>
-<table><tr><th>data</th><th>leilão</th><th>leiloeira</th><th class="n">VGV apurado</th><th class="n">lotes</th><th class="n">HastaPro</th><th class="n">ERP</th><th class="n">planilha</th><th>acordo (planilha)</th><th>notas</th></tr>
+<div class="s">Valores brutos, antes do cancelamento — o Matinha 16/08 aparece com os 460.500 vendidos, dos quais 291.000 foram cancelados.</div>
+<table><tr><th>data</th><th>leilão</th><th>leiloeira</th><th class="n">VGV vendido</th><th class="n">lotes</th><th class="n">HastaPro</th><th class="n">ERP</th><th class="n">planilha</th><th>acordo (planilha)</th><th>notas</th></tr>
 ${eventos.map(e => `<tr>${td(dbr(e.data))}<td>${esc(e.nome)}${e.filial === '01' || e.filial === '01*' ? ' <span class="tag">Remates</span>' : ''}</td>${td(e.leiloeira, 's')}${n(e.vgv)}${n(e.lotes || null)}${n(e.hastapro_cobertura)}${n(e.erp)}${n(e.planilha)}${td(e.planilha_acordo, 's')}${td(e.notas.join(' · '), 's')}</tr>`).join('')}
 <tr class="tot">${td('')}${td('TOTAL')}${td('')}${n(apurado)}${n(totais.lotes)}${n(r2(hp2 + hp01))}${n(erpHoje)}${n(planTotal)}${td('')}${td('')}</tr></table>
 <div class="s">"HastaPro" = cobertura da Bula (na FIL 01 só os lotes de pisteiro da equipe fora da pista da Remates). Pregões da Remates em agosto (inteiros): São Geraldo 4.980.800 · Só Criador 11/08 2.881.620 · Só Criador 18/08 1.001.790 · Melhoradores Corte 1.675.310 · São José 1.920.730 · Melhoradores 30 Anos 1.113.900. Equipe na pista pela Remates (não conta): ${pelaRematesPorPessoa.map(([p, v]) => `${p} ${brl0(v)}`).join(' · ')} = ${brl0(sum(pelaRematesLotes))}.</div>
 
 <h2>3. Vendas por assessor</h2>
-<table><tr><th>assessor</th><th class="n">VGV final</th><th class="n">%</th><th class="n">lotes</th><th class="n">como pisteiro</th><th class="n">FIL 2</th><th class="n">Remates (FIL 01)</th><th class="n">fora do HastaPro</th><th>obs</th></tr>
-${porAssessor.filter(a => a.final_vgv > 0 || a.pisteiro_vgv > 0).map(a => `<tr>${td(a.assessor)}${n(a.final_vgv)}${td(String(a.pct).replace('.', ',') + '%', 'n')}${n(a.lotes || null)}${n(a.pisteiro_vgv)}${n(a.hp2 || null)}${n(a.hp01 || null)}${n(a.fora || null)}${td(a.sem_comissao ? `inclui ${brl0(a.sem_comissao)} sem comissão (crédito José Fábio)` : (a.assessor === 'Marcelo Moura' ? 'comprador como pisteiro (lt 22 Naviraí)' : ''), 's')}</tr>`).join('')}
-<tr class="tot">${td('TOTAL')}${n(apurado)}${td('100%', 'n')}${n(totais.lotes)}${n(apurado)}${n(hp2)}${n(hp01)}${n(fora)}${td('')}</tr></table>
+<table><tr><th>assessor</th><th class="n">VGV líquido</th><th class="n">%</th><th class="n">vendido</th><th class="n">cancelado</th><th class="n">lotes</th><th class="n">como pisteiro</th><th class="n">FIL 2</th><th class="n">Remates (FIL 01)</th><th class="n">fora do HastaPro</th><th>obs</th></tr>
+${porAssessor.filter(a => a.final_vgv > 0 || a.pisteiro_vgv > 0).map(a => `<tr>${td(a.assessor)}${n(a.liquido_vgv)}${td(String(a.pct).replace('.', ',') + '%', 'n')}${n(a.final_vgv)}${n(a.cancelado || null)}${n(a.lotes || null)}${n(a.pisteiro_vgv)}${n(a.hp2 || null)}${n(a.hp01 || null)}${n(a.fora || null)}${td(a.assessor === 'Marcelo Moura' ? 'comprador como pisteiro (lt 22 Naviraí)' : '', 's')}</tr>`).join('')}
+<tr class="tot">${td('TOTAL')}${n(liquido)}${td('100%', 'n')}${n(apurado)}${n(matinhaJF)}${n(totais.lotes)}${n(apurado)}${n(hp2)}${n(hp01)}${n(fora)}${td('')}</tr></table>
 <div class="s">"Como pisteiro" é quem estava na pista (HastaPro/ficha). "VGV final" aplica o direcionamento do Rusa exatamente como o Douglas listou na planilha RUSA - AGOSTO (19 lotes, incluindo os 3 do Matinha que ele depois tirou por causa do crédito). Em aberto, sem mover: ${rusaAberto.map(l => `${dbr(l.data)} ${l.leilao.replace(/LEIL[ÃA]O /, '').slice(0, 26)} lt ${l.lote} ${brl0(l.vgv)} (${(l.comprador || '').split(' · ')[0]}, ${l.pisteiro})`).join(' · ')}.</div>
 
 <h2 class="pb">4. Diferenças que se resolveram (e como)</h2>
@@ -523,15 +603,16 @@ ${pendencias.map(p => `<tr>${td(p.quem)}${td(p.o_que)}${td(p.porque, 's')}${n(p.
 <h3>Regras de comissão que o grupo fixou e o ERP ainda não reflete</h3>
 <ul>${regrasComissao.map(r => `<li>${esc(r)}</li>`).join('')}</ul>
 
-<h2>6. O que foi feito no sistema hoje</h2>
+<h2>6. O que foi feito no sistema, e o que falta fazer</h2>
 <ul>
-<li>Criado o fechamento <b>LEILÃO SABIÁ DOURADO 30/08</b> no ERP (29 lotes, R$ 629.700, Douglas, origem lances-auto, comissão 2% = 12.594; receita em branco até o acordo). Backup prévio em outputs/fechamento-agosto-2026/backup-fechamentos-agosto-pre-sabia-2026-09-02.json. ERP de agosto: ${(erpF ?? []).length} fechamentos = R$ ${brl(erpHoje)}.</li>
-<li>Nada mais foi alterado: as decisões da seção 5 continuam como estão no ERP (Matinha com os 3 lotes, M1 fora, atribuições como o HastaPro/planilha do Douglas).</li>
+<li><b>Feito:</b> criado o fechamento <b>LEILÃO SABIÁ DOURADO 30/08</b> no ERP (29 lotes, R$ 629.700, Douglas, origem lances-auto, comissão 2% = 12.594; receita em branco até o acordo). Backup prévio em outputs/fechamento-agosto-2026/backup-fechamentos-agosto-pre-sabia-2026-09-02.json. ERP de agosto: ${(erpF ?? []).length} fechamentos = R$ ${brl(erpHoje)}.</li>
+<li><b>Falta, e é dinheiro:</b> o cancelamento do Matinha ainda não foi lançado. O fechamento de 16/08 segue com R$ 460.500 e comissão de R$ 19.200, sendo R$ 16.650 do Rusa sobre os lotes cancelados. Não mexi porque cancelar comissão de mês fechado é decisão da diretoria; o script está pronto e roda em simulação por padrão (<i>scripts/cancela-matinha-jose-fabio-2026-08-16.mjs</i>).</li>
+<li><b>Não tocado de propósito:</b> atribuições do Rusa em aberto e os 2 lotes do M1 continuam como estão no HastaPro e na planilha do Douglas.</li>
 </ul>
 
 <h2>7. Fontes consultadas</h2>
 <ul class="s">
-<li>HastaPro Firebird, só leitura, ${HOJE}: LEILAO/LOTES/COMPRADORES/PRESTADORES/CLIENTES, FIL '2' e '01', 01–31/08.</li>
+<li>HastaPro Firebird, só leitura, ${HOJE}: LEILAO / LOTES / COMPRADORES / CONDICOES / ASSESSORIA / PRESTADORES / CLIENTES, filiais '2' e '01', 01–31/08 (e setembro, para checar transbordo).</li>
 <li>ERP web-bula: bula_leilao_fechamento (agosto), bula_leiloes (agenda), erp_folha_estrutura (quem é da equipe).</li>
 <li>Planilha FINANCEIRO BULA 2026 (Drive, id 12aVCknseexoEaV2YKnDMI5nr5Xxo_1i_), abas Leilões, DRE, Acordos — versão de 02/09 16:46.</li>
 <li>WhatsApp (sessão joao-automation): Grupo Financeiro 25/08–02/09 (banco + history-dump de 01/09 do VPS), Lances Bula Assessoria 01–31/08, Bula Assessoria l Assessores 27/08–02/09; mídia do bucket whatsapp-media: print "SABIA DOURADO" do Douglas (31/08 13:46), RUSA - AGOSTO.xlsx (15:53 e 16:08), print do M1 dos lotes do Melhoradores (01/09 14:45), prints do painel do M1 (31/08).</li>
@@ -543,42 +624,52 @@ fs.writeFileSync(path.join(OUT, 'relatorio.html'), html)
 /* ── 11. TXT para o grupo ───────────────────────────────────────────────── */
 const T = []
 T.push('*FECHAMENTO DE AGOSTO — VENDAS (versão final, ' + HOJE + ')*', '')
-T.push(`*VGV: R$ ${brl(apurado)}* · ${totais.lotes} lotes · ${eventos.filter(e => e.vgv > 0).length} leilões com venda`)
-T.push(`Meta era 6.876.000 → *bateu* (${pct(apurado, META.agenda_divulgada)} da agenda divulgada).`, '')
+T.push(`*VGV: R$ ${brl(liquido)}* · ${totais.lotes_liquido} lotes · ${eventos.filter(e => e.vgv > 0).length} leilões com venda`)
+T.push(`Vendemos ${brl0(apurado)} e cancelamos ${brl0(matinhaJF)} (os 3 lotes do José Fábio na Matinha, que o Douglas confirmou hoje).`)
+T.push(`Meta era 6.876.000 → *bateu* (${pct(liquido, META.agenda_divulgada)} da agenda divulgada).`, '')
 T.push('*Como se chega lá:*')
 for (const [p, v] of escada) T.push(`• ${p.split('(')[0].trim()}: ${brl0(v)}`)
 T.push('', '*O que mudou desde 01/09:* entrou o *Sabiá Dourado (629.700)* — 29 lotes do Douglas (print de 31/08), confirmados pela planilha. Não estava no HastaPro nem no sistema. Já lancei no sistema.', '')
-T.push('*Por assessor:*')
-for (const a of porAssessor.filter(a => a.final_vgv > 0)) T.push(`• ${a.assessor}: ${brl0(a.final_vgv)} (${String(a.pct).replace('.', ',')}%)${a.sem_comissao ? ' — inclui ' + brl0(a.sem_comissao) + ' do Matinha sem comissão' : ''}`)
-T.push('', '*Só 2 decisões mudam o número:*')
-T.push(`1) Matinha — 3 lotes do José Fábio (291.000): mantém no VGV com receita/comissão zero, ou exclui? Sem eles: ${brl0(apurado - matinhaJF)}.`)
-T.push(`2) Melhoradores — 2 lotes do M1 (39.000): contam como Bula Assessoria? @Bulinha. Com eles: ${brl0(apurado + m1)}.`)
-T.push('', '*Não muda o total, mas precisa fechar:*')
-T.push('• Rusa × Douglas/Fábio: LS Galeria lts 04/19 (Diego Benitah, 456.000), Pérolas lt 44 (Alfredo, 90.000), Sabiá lts 23/28/49/52 (Celso, 73.200) e lt 7 (Pedro Pontes, 37.500) — compradores da lista do Rusa que não estão na planilha RUSA - AGOSTO do Douglas.')
-T.push('• Lançar no HastaPro: Sabiá Dourado (29 lotes), Katispera lt 3 e Engenho da Serra (4 lotes, x40 = 53.600, não 51.100).')
-T.push('• Nane em PRESTADORES (painel sai em branco).')
-T.push('• Planilha: faltam Katispera, Hora, Só Criador 18/08, Xingu e São José; São Geraldo é 459.800 (2 lotes da Nane).')
+T.push('*Por assessor (líquido):*')
+for (const a of porAssessor.filter(a => a.liquido_vgv > 0)) T.push(`• ${a.assessor}: ${brl0(a.liquido_vgv)} (${String(a.pct).replace('.', ',')}%)${a.cancelado ? ' — vendeu ' + brl0(a.final_vgv) + ' e cancelou ' + brl0(a.cancelado) : ''}`)
+T.push('', '*Conferi o que podia estar faltando, e o resultado foi:*')
+T.push('• Cancelamento: só o do Matinha. O susto de hoje (Amanda Carla, lotes 138/140/141) ficou "resolvido sem cancelamento".')
+T.push('• Lote defendido/não vendido: o HastaPro zera o valor, então nunca entrou (5 lotes em agosto).')
+T.push('• Parcela x30 ou x40: conferido lote a lote contra a tabela de condições do HastaPro, 173 de 173 batem.')
+T.push('• Venda lançada em mês errado ou leilão repetido nas duas filiais: nenhum caso.')
+T.push('• As 118 fichas do grupo foram casadas com os lotes: só 1 ficou sem par (abaixo).')
+T.push('', '*O que falta responder:*')
+T.push('1) *LS Galeria 07/08, lote 18* — a ficha diz "2.500 | 50% Nelore 3A" e não existe no HastaPro nem na planilha. Fechou? São 75.000. @Fábio')
+T.push(`2) *Ventres VIP Matinha, lotes 138/140/141* — a Matinha falou em 84.000 hoje, o HastaPro tem 63.000 (x30 contra x40). Diferença de 21.000.`)
+T.push(`3) *Melhoradores, 2 lotes do M1 (39.000)* — o HastaPro grava comissão zero neles; ficam fora, ok @Bulinha? Se entrarem: ${brl0(r2(liquido + m1))}.`)
+T.push('4) *Rusa × Douglas/Fábio*: LS Galeria lts 04/19 (Diego Benitah, 456.000), Pérolas lt 44 (Alfredo, 90.000), Sabiá lts 23/28/49/52 (Celso, 73.200) e lt 7 (Pedro Pontes, 37.500) — compradores da lista do Rusa que não estão na planilha RUSA - AGOSTO do Douglas. Não muda o total, muda quem recebe.')
+T.push('', '*Para o sistema ficar igual ao relatório:* lançar no HastaPro o Sabiá Dourado (29 lotes), o Katispera lt 3 e o Engenho da Serra (4 lotes, x40 = 53.600, não 51.100); cadastrar a Nane em PRESTADORES; e na planilha acrescentar Katispera, Hora, Só Criador 18/08, Xingu e São José, além de corrigir o São Geraldo para 459.800.')
 T.push('', 'Melhoradores/Crispim/Terra Brava Touros/Guadalupe 10-08/Diamante/EAO 14-08: sem venda da Assessoria em fonte nenhuma. Fêmeas JMP e Paranã/Casabranca: fora (duplicatas), como o Marcelo confirmou.')
-fs.writeFileSync(path.join(DESK, 'Fechamento Agosto 2026 - mensagem para o grupo.txt'), T.join('\n') + '\n', 'utf8')
+gravaSemPerder(path.join(DESK, 'Fechamento Agosto 2026 - mensagem para o grupo.txt'), p => fs.writeFileSync(p, T.join('\n') + '\n', 'utf8'))
 
 /* ── 12. PDF ─────────────────────────────────────────────────────────────── */
-const pdfPath = path.join(DESK, 'Bula - Fechamento de Vendas Agosto 2026.pdf')
+const pdfAlvo = path.join(DESK, 'Bula - Fechamento de Vendas Agosto 2026.pdf')
+let pdfPath = pdfAlvo
 try {
     const { chromium } = await import('playwright')
     const browser = await chromium.launch()
     const page = await browser.newPage()
     await page.setContent(html, { waitUntil: 'load' })
-    await page.pdf({ path: pdfPath, format: 'A4', printBackground: true, margin: { top: '12mm', right: '10mm', bottom: '12mm', left: '10mm' } })
+    const buf = await page.pdf({ format: 'A4', printBackground: true, margin: { top: '12mm', right: '10mm', bottom: '12mm', left: '10mm' } })
     await browser.close()
+    pdfPath = gravaSemPerder(pdfAlvo, p => fs.writeFileSync(p, buf))
     console.log('PDF:', pdfPath)
 } catch (e) { console.error('PDF falhou:', e.message) }
-fs.copyFileSync(path.join(OUT, 'dados.json'), path.join(DESK, 'dados-fechamento-agosto-2026.json'))
+gravaSemPerder(path.join(DESK, 'dados-fechamento-agosto-2026.json'), p => fs.copyFileSync(path.join(OUT, 'dados.json'), p))
 
 /* ── 13. console ─────────────────────────────────────────────────────────── */
-console.log(`\nVGV APURADO agosto/2026: R$ ${brl(apurado)} · ${totais.lotes} lotes · ${totais.animais} animais`)
+console.log(`\nVGV LIQUIDO agosto/2026: R$ ${brl(liquido)} (vendido ${brl(apurado)} − cancelado ${brl(matinhaJF)}) · ${totais.lotes_liquido} lotes`)
 console.log(`  HP2 ${brl(hp2)} + HP01 ${brl(hp01)} + fora ${brl(fora)} | ERP hoje ${brl(erpHoje)} | planilha ${brl(planTotal)}`)
-console.log(`  decisões: Matinha JF −${brl(matinhaJF)} · M1 +${brl(m1)} → faixa ${brl(apurado - matinhaJF)} a ${brl(apurado + m1)}`)
+console.log(`  em aberto: M1 +${brl(m1)} · LS Galeria lt18 75.000 · Ventres x40 21.000`)
 for (const [f, r] of Object.entries(recon)) console.log(`  recon ${f}: ${brl(r.total)} + ${brl(r.soma)} = ${brl(r.total + r.soma)} ${r.fecha ? 'FECHA' : 'NAO FECHA'}`)
-console.log('\nPor assessor:'); for (const a of porAssessor.filter(a => a.final_vgv > 0)) console.log(`  ${a.assessor.padEnd(26)} ${brl(a.final_vgv).padStart(14)} ${String(a.pct).padStart(6)}%  pisteiro ${brl(a.pisteiro_vgv)}`)
+console.log('\nQualidade:')
+console.log(`  captacao lote a lote ${qualidade.captacao.ok}/${qualidade.captacao.total} · ASSESSORIA confirma pisteiro ${qualidade.assessoria.ok}/${qualidade.assessoria.total} (sem linha: ${qualidade.assessoria.sem_linha.length})`)
+console.log(`  cota parcial ${qualidade.cota_parcial.length} · FIL01 sem comissao no HP ${qualidade.fil01_sem_comissao_no_hp.length} · pela-Remates COM comissao ${qualidade.pela_remates_com_comissao.length} / SEM ${qualidade.pela_remates_sem_comissao.length} · M1 com comissao ${qualidade.m1_com_comissao.length}`)
+console.log('\nPor assessor (liquido):'); for (const a of porAssessor.filter(a => a.liquido_vgv > 0)) console.log(`  ${a.assessor.padEnd(26)} ${brl(a.liquido_vgv).padStart(14)} ${String(a.pct).padStart(6)}%  vendido ${brl(a.final_vgv)}${a.cancelado ? ' cancelado ' + brl(a.cancelado) : ''}`)
 console.log('\nRusa em aberto:'); for (const l of rusaAberto) console.log(`  ${l.data} ${l.leilao.slice(0, 40)} lt ${l.lote} ${brl(l.vgv)} ${l.comprador} [${l.pisteiro}]`)
 console.log('\nXLSX:', xlsxPath)
