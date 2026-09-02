@@ -1,0 +1,319 @@
+{
+  "lido_em": "2026-09-02T18:15:00-03:00",
+  "dia": "02/09/2026",
+  "fonte": "Meta Ads MCP (conector), leitura ao vivo, recorte date_preset=today",
+  "conta": {
+    "id": "2705134163151418",
+    "nome": "CA2 - Bula 360",
+    "papel": "conta do funil de cadastros",
+    "fuso": "America/New_York (-0400) — o \"hoje\" do Meta começou às 01h de Brasília e vai até 01h de amanhã"
+  },
+  "ativas_sem_entrega": {
+    "conta": "CA1 - Bula 360 (1155240258865815)",
+    "campanhas": [
+      "29/08 LEILÃO TOUROS MELHORADORES",
+      "LEILÃO_SANTACASA",
+      "CORTE TUPÃ",
+      "CORTE PERPÉTUO / 13 de Julho",
+      "MARCA 15 - RECONHECIMENTO",
+      "CORTE PERPÉTUO"
+    ],
+    "observacao": "seis campanhas marcadas como ACTIVE que gastaram R$ 0,00 hoje; nenhuma tem formulário"
+  },
+  "formulario": {
+    "id": "2095233067761284",
+    "nome": "Formulário BULA PERPETUO v1",
+    "usado_por": "as duas campanhas no ar — é o mesmo formulário nas duas",
+    "perguntas": [
+      "seu momento na pecuária",
+      "quantidade de cabeças",
+      "você tem inscrição estadual?",
+      "qual o seu interesse?",
+      "de acordo com seu interesse, qual a quantidade de animais desejada?"
+    ],
+    "campos_nativos": [
+      "nome completo",
+      "CPF (Brasil)",
+      "e-mail",
+      "telefone",
+      "estado"
+    ]
+  },
+  "erros_de_entrega": "nenhum — ads_get_errors devolveu lista vazia para as duas campanhas",
+  "campanhas": [
+    {
+      "id": "120249455058620708",
+      "nome": "LEAD - PERPETUO TOURO",
+      "status": "ACTIVE · entregando",
+      "objetivo": "OUTCOME_LEADS · leilão (AUCTION)",
+      "orcamento": "por conjunto (ABO) — a campanha não tem orçamento próprio",
+      "orcamento_diario_somado": "R$ 700,00/dia",
+      "inicio": "24/07/2026 13:51",
+      "termino": null,
+      "alterada": "18/08/2026 17:40",
+      "hoje": {
+        "gasto": "R$ 160,80",
+        "impressoes": 21069,
+        "alcance": 17490,
+        "frequencia": "1,20",
+        "cliques": 224,
+        "ctr": "1,06%",
+        "cpm": "R$ 7,63",
+        "leads": 2,
+        "cpl": "R$ 80,40"
+      },
+      "conjuntos": [
+        {
+          "nome": "CA - PERPETUO TOUROS INSTANTANEO",
+          "id": "120249993098130708",
+          "orcamento": "R$ 280,00",
+          "restante": "R$ 204,18",
+          "meta_de_performance": "QUALITY_LEAD — leads com conversão",
+          "publico": "interesses: Agronegócio, Leilão, Pecuária, Genética, Fazenda, Gado",
+          "hoje": {
+            "gasto": "R$ 75,82",
+            "impressoes": 10429,
+            "cliques": 166,
+            "ctr": "1,59%",
+            "cpm": "R$ 7,27",
+            "leads": 1,
+            "cpl": "R$ 75,82"
+          }
+        },
+        {
+          "nome": "CA - PERPETUO TOUROS INSTANTANEO — Teste 01",
+          "id": "120249993192190708",
+          "orcamento": "R$ 200,00",
+          "restante": "R$ 157,75",
+          "meta_de_performance": "QUALITY_LEAD — leads com conversão",
+          "publico": "mesmos interesses do conjunto acima",
+          "hoje": {
+            "gasto": "R$ 42,25",
+            "impressoes": 5949,
+            "cliques": 30,
+            "ctr": "0,50%",
+            "cpm": "R$ 7,10",
+            "leads": 1,
+            "cpl": "R$ 42,25"
+          }
+        },
+        {
+          "nome": "CA - PERPETUO TOUROS INSTANTANEO — Teste",
+          "id": "120249993176780708",
+          "orcamento": "R$ 220,00",
+          "restante": "R$ 178,48",
+          "meta_de_performance": "QUALITY_LEAD — leads com conversão",
+          "publico": "mesmos interesses do conjunto acima",
+          "hoje": {
+            "gasto": "R$ 41,52",
+            "impressoes": 4502,
+            "cliques": 27,
+            "ctr": "0,60%",
+            "cpm": "R$ 9,22",
+            "leads": 0,
+            "cpl": "—"
+          }
+        }
+      ],
+      "entrega_comum": "Lance por maior volume, cobrança por impressão. Destino: formulário instantâneo no próprio anúncio (ON_AD). Facebook, Instagram e Audience Network em automático, celular e desktop.",
+      "anuncios": [
+        {
+          "nome": "video-perpetuo-touros01",
+          "conjunto": "INSTANTANEO",
+          "tipo": "Vídeo",
+          "cta": "SAIBA MAIS",
+          "gasto": "R$ 75,82",
+          "impressoes": 10429,
+          "cliques": 166,
+          "ctr": "1,59%",
+          "leads": 1,
+          "cpl": "R$ 75,82"
+        },
+        {
+          "nome": "video-perpetuo-touros03",
+          "conjunto": "Teste 01",
+          "tipo": "Vídeo",
+          "cta": "SAIBA MAIS",
+          "gasto": "R$ 42,25",
+          "impressoes": 5949,
+          "cliques": 30,
+          "ctr": "0,50%",
+          "leads": 1,
+          "cpl": "R$ 42,25"
+        },
+        {
+          "nome": "video-perpetuo-touros02",
+          "conjunto": "Teste",
+          "tipo": "Vídeo",
+          "cta": "SAIBA MAIS",
+          "gasto": "R$ 41,52",
+          "impressoes": 4502,
+          "cliques": 27,
+          "ctr": "0,60%",
+          "leads": 0,
+          "cpl": "—"
+        },
+        {
+          "nome": "video-perpetuo-touros04",
+          "conjunto": "Teste 01",
+          "tipo": "Vídeo",
+          "cta": "SAIBA MAIS",
+          "gasto": "R$ 0,00",
+          "impressoes": 0,
+          "cliques": 0,
+          "ctr": "—",
+          "leads": 0,
+          "cpl": "—",
+          "nota": "sem entrega hoje"
+        }
+      ],
+      "criativo_titulo": "Escolha o Touro certo com a Bula!",
+      "criativo_texto": "O touro certo te paga R$300 a R$600 a mais por bezerro na desmama. Não é sorte, é genética. Touro PO Nelore que transmite peso, precocidade e fertilidade muda o seu próximo bezerro — e o resultado aparece no dia da pesagem.@@A Bula monta, sem custo nenhum pra você, uma seleção de touros PO Nelore pro objetivo do seu rebanho. Você parcela em 30x no boleto, com frete grátis sob consulta, e a assessoria custa R$ 0 (quem paga a Bula é o criatório vendedor).@@Cadastro leva 1 minuto e um assessor te chama no WhatsApp com a seleção. Quem responde rápido fecha o touro certo primeiro. Cadastre-se em touros.bulaassessoria.com",
+      "publico_comum": "Brasil exceto AP, RS e SC · 30–65 anos · todos os gêneros · Advantage+ público LIGADO"
+    },
+    {
+      "id": "120250170075240708",
+      "nome": "Leads | Leilão Jacamim | Formulário | 2026-09 | T: 2.415",
+      "nome_na_planilha": "LEADS - JACAMIN",
+      "status": "ACTIVE · entregando",
+      "objetivo": "OUTCOME_LEADS · leilão (AUCTION)",
+      "orcamento": "por conjunto (ABO) — a campanha não tem orçamento próprio",
+      "orcamento_diario_somado": "R$ 360,00/dia",
+      "inicio": "28/08/2026 17:14",
+      "termino": null,
+      "alterada": "02/09/2026 16:22",
+      "hoje": {
+        "gasto": "R$ 83,49",
+        "impressoes": 3913,
+        "alcance": 3252,
+        "frequencia": "1,20",
+        "cliques": 37,
+        "ctr": "0,95%",
+        "cpm": "R$ 21,34",
+        "leads": 1,
+        "cpl": "R$ 83,49"
+      },
+      "conjuntos": [
+        {
+          "nome": "CJ02 | Brasil exc. AP, RS e SC | Remarketing IG 365d | 25–64 | H",
+          "id": "120250170453150708",
+          "orcamento": "R$ 120,00",
+          "restante": "R$ 87,48",
+          "meta_de_performance": "LEAD_GENERATION — leads",
+          "publico": "público Remarketing IG Assessoria Engajamento 365D + semelhante 1% dele",
+          "hoje": {
+            "gasto": "R$ 32,52",
+            "impressoes": 1440,
+            "cliques": 10,
+            "ctr": "0,69%",
+            "cpm": "R$ 22,58",
+            "leads": 0,
+            "cpl": "—"
+          }
+        },
+        {
+          "nome": "CJ01 | Brasil exc. AP, RS e SC | Semelhante 1–2% — Base fria | 25–64 | H",
+          "id": "120250170075220708",
+          "orcamento": "R$ 120,00",
+          "restante": "R$ 88,63",
+          "meta_de_performance": "LEAD_GENERATION — leads",
+          "publico": "Semelhante 1%–2% de leads_value_based_audience_1.csv (base fria)",
+          "hoje": {
+            "gasto": "R$ 31,37",
+            "impressoes": 1327,
+            "cliques": 18,
+            "ctr": "1,36%",
+            "cpm": "R$ 23,64",
+            "leads": 1,
+            "cpl": "R$ 31,37"
+          }
+        },
+        {
+          "nome": "CJ03 | Brasil exc. AP, RS e SC | Aberto | 25–64 | H",
+          "id": "120250170306940708",
+          "orcamento": "R$ 120,00",
+          "restante": "R$ 100,68",
+          "meta_de_performance": "LEAD_GENERATION — leads",
+          "publico": "sem público salvo — aberto",
+          "hoje": {
+            "gasto": "R$ 19,32",
+            "impressoes": 1131,
+            "cliques": 8,
+            "ctr": "0,71%",
+            "cpm": "R$ 17,08",
+            "leads": 0,
+            "cpl": "—"
+          }
+        }
+      ],
+      "entrega_comum": "Lance por maior volume, cobrança por impressão. Destino: formulário instantâneo no próprio anúncio (ON_AD). Facebook, Instagram e Audience Network em automático, celular e desktop.",
+      "anuncios": [
+        {
+          "nome": "AN01 | Imagem | Touros Jacamim | V02",
+          "conjunto": "CJ02",
+          "tipo": "Imagem",
+          "cta": "CADASTRE-SE",
+          "gasto": "R$ 32,52",
+          "impressoes": 1440,
+          "cliques": 10,
+          "ctr": "0,69%",
+          "leads": 0,
+          "cpl": "—"
+        },
+        {
+          "nome": "AN01 | Vídeo | Aparte Hoje Jacamim | V01",
+          "conjunto": "CJ01",
+          "tipo": "Vídeo",
+          "cta": "CADASTRE-SE",
+          "gasto": "R$ 31,15",
+          "impressoes": 1306,
+          "cliques": 17,
+          "ctr": "1,30%",
+          "leads": 1,
+          "cpl": "R$ 31,15"
+        },
+        {
+          "nome": "AN01 | Imagem | Touros Jacamim | V01",
+          "conjunto": "CJ03",
+          "tipo": "Imagem",
+          "cta": "CADASTRE-SE",
+          "gasto": "R$ 19,32",
+          "impressoes": 1131,
+          "cliques": 8,
+          "ctr": "0,71%",
+          "leads": 0,
+          "cpl": "—"
+        },
+        {
+          "nome": "AN03 | Vídeo | Touros Individuais Jacamim | V01",
+          "conjunto": "CJ01",
+          "tipo": "Vídeo",
+          "cta": "CADASTRE-SE",
+          "gasto": "R$ 0,22",
+          "impressoes": 21,
+          "cliques": 1,
+          "ctr": "4,76%",
+          "leads": 0,
+          "cpl": "—",
+          "nota": "criado hoje 17:15, acabou de começar"
+        },
+        {
+          "nome": "AN02 | Vídeo | Piquete Jacamim | V01",
+          "conjunto": "CJ01",
+          "tipo": "Vídeo",
+          "cta": "CADASTRE-SE",
+          "gasto": "R$ 0,00",
+          "impressoes": 0,
+          "cliques": 0,
+          "ctr": "—",
+          "leads": 0,
+          "cpl": "—",
+          "nota": "criado hoje 17:15, ainda sem entrega"
+        }
+      ],
+      "criativo_titulo": "(sem título — o texto carrega a oferta)",
+      "criativo_texto": "Últimos dias para se cadastrar!@@Reprodutores Nelore PO, 100% genotipados e com RGD, à venda no 10º Leilão Especial da Fazenda Jacamim.@@05/09 às 12h · Frete grátis para diversos estados · Cadastre-se agora.",
+      "publico_comum": "Brasil exceto AP, RS e SC · 25–64 anos · homens · Advantage+ público LIGADO"
+    }
+  ]
+}
