@@ -1,0 +1,201 @@
+{
+  "lido_em": "2026-09-02T17:35:00-03:00",
+  "fonte": "Meta Ads MCP (conector), leitura ao vivo",
+  "conta": {
+    "id": "2705134163151418",
+    "nome": "CA2 - Bula 360",
+    "papel": "conta do funil de cadastros",
+    "fuso_observado": "-0400 (Nova York) — todos os timestamps da API vieram nesse deslocamento"
+  },
+  "outras_contas_sem_formulario_no_ar": [
+    {
+      "id": "1155240258865815",
+      "nome": "CA1 - Bula 360",
+      "ativas_hoje": [
+        "29/08 LEILÃO TOUROS MELHORADORES",
+        "LEILÃO_SANTACASA",
+        "CORTE TUPÃ",
+        "CORTE PERPÉTUO / 13 de Julho",
+        "MARCA 15 - RECONHECIMENTO",
+        "CORTE PERPÉTUO"
+      ],
+      "gasto_hoje": "R$ 0,00",
+      "observacao": "status ACTIVE, entrega zero hoje; as que já rodaram são de mensagem/reconhecimento, não de formulário"
+    }
+  ],
+  "campanhas": [
+    {
+      "id": "120249455058620708",
+      "nome": "LEAD - PERPETUO TOURO",
+      "status": "ACTIVE",
+      "delivery": "active",
+      "objetivo": "OUTCOME_LEADS",
+      "compra": "AUCTION (leilão)",
+      "orcamento": "por conjunto (ABO) — a campanha não tem orçamento próprio",
+      "orcamento_diario_somado": "R$ 700,00/dia (280 + 220 + 200)",
+      "inicio": "24/07/2026 13:51",
+      "termino": null,
+      "criada": "24/07/2026 13:51",
+      "alterada": "18/08/2026 17:40",
+      "hoje": { "gasto": "R$ 148,94", "impressoes": 19331, "leads": 2 },
+      "vitalicio": { "gasto": "R$ 4.770,67", "impressoes": 364014, "leads": 143 },
+      "conjuntos": [
+        {
+          "id": "120249993098130708",
+          "nome": "CA - PERPETUO TOUROS INSTANTANEO",
+          "orcamento": "R$ 280,00/dia",
+          "restante_hoje": "R$ 209,28",
+          "lance": "Maior volume",
+          "cobranca": "Impressões",
+          "meta_de_performance": "QUALITY_LEAD — leads com conversão",
+          "destino": "ON_AD — formulário instantâneo",
+          "publico": "Brasil exceto AP, RS e SC · 30–65 anos · todos os gêneros · interesses: Agronegócio, Leilão, Pecuária, Genética, Fazenda, Gado · Advantage+ público LIGADO",
+          "posicionamentos": "Facebook, Instagram e Audience Network (automático) · celular e desktop",
+          "criado": "18/08/2026 17:38",
+          "alterado": "02/09/2026 14:31",
+          "hoje": { "gasto": "R$ 70,72", "impressoes": 9757, "leads": 1 }
+        },
+        {
+          "id": "120249993176780708",
+          "nome": "CA - PERPETUO TOUROS INSTANTANEO — Teste",
+          "orcamento": "R$ 220,00/dia",
+          "restante_hoje": "R$ 180,77",
+          "lance": "Maior volume",
+          "cobranca": "Impressões",
+          "meta_de_performance": "QUALITY_LEAD — leads com conversão",
+          "destino": "ON_AD — formulário instantâneo",
+          "publico": "idêntico ao conjunto acima",
+          "posicionamentos": "Facebook, Instagram e Audience Network (automático) · celular e desktop",
+          "criado": "18/08/2026 17:44",
+          "alterado": "02/09/2026 14:32",
+          "hoje": { "gasto": "R$ 39,23", "impressoes": 4159, "leads": 0 }
+        },
+        {
+          "id": "120249993192190708",
+          "nome": "CA - PERPETUO TOUROS INSTANTANEO — Teste 01",
+          "orcamento": "R$ 200,00/dia",
+          "restante_hoje": "R$ 160,32",
+          "lance": "Maior volume",
+          "cobranca": "Impressões",
+          "meta_de_performance": "QUALITY_LEAD — leads com conversão",
+          "destino": "ON_AD — formulário instantâneo",
+          "publico": "idêntico ao conjunto acima",
+          "posicionamentos": "Facebook, Instagram e Audience Network (automático) · celular e desktop",
+          "criado": "18/08/2026 17:48",
+          "alterado": "02/09/2026 14:32",
+          "hoje": { "gasto": "R$ 39,68", "impressoes": 5511, "leads": 1 }
+        }
+      ],
+      "conjuntos_pausados": [
+        {
+          "nome": "CA - PERPETUO TOURO FORMS INSTA",
+          "orcamento": "R$ 50,00/dia",
+          "meta_de_performance": "LEAD_GENERATION",
+          "destino": "ON_AD — formulário instantâneo"
+        },
+        {
+          "nome": "CA - PERPETUO TOURO WEB",
+          "orcamento": "R$ 50,00/dia",
+          "meta_de_performance": "OFFSITE_CONVERSIONS",
+          "destino": "site — pixel 1539780341180483, regra: PageView em touros.bulaassessoria.com/obrigado-touros-mql"
+        }
+      ],
+      "anuncios": [
+        { "nome": "video-perpetuo-touros01", "id": "120249993098140708", "conjunto": "CA - PERPETUO TOUROS INSTANTANEO", "criativo": "4853020631649708", "tipo": "Vídeo", "cta": "SAIBA MAIS", "gasto": "R$ 71,65", "impressoes": 9860, "leads": 1 },
+        { "nome": "video-perpetuo-touros02", "id": "120249993176790708", "conjunto": "— Teste", "criativo": "1335719204982940", "tipo": "Vídeo", "cta": "SAIBA MAIS", "gasto": "R$ 39,23", "impressoes": 4159, "leads": 0 },
+        { "nome": "video-perpetuo-touros03", "id": "120249993192200708", "conjunto": "— Teste 01", "criativo": "1304756531571108", "tipo": "Vídeo", "cta": "SAIBA MAIS", "gasto": "R$ 39,68", "impressoes": 5511, "leads": 1 },
+        { "nome": "video-perpetuo-touros04", "id": "120249993216130708", "conjunto": "— Teste 01", "criativo": "1039661758663187", "tipo": "Vídeo", "cta": "SAIBA MAIS", "gasto": "R$ 0,00", "impressoes": 0, "leads": 0 }
+      ],
+      "criativo_titulo": "Escolha o Touro certo com a Bula!",
+      "criativo_texto": "O touro certo te paga R$300 a R$600 a mais por bezerro na desmama. 🐂\n\nNão é sorte, é genética. Touro PO Nelore que transmite peso, precocidade e fertilidade muda o seu próximo bezerro — e o resultado aparece no dia da pesagem.\n\nA Bula monta, sem custo nenhum pra você, uma seleção de touros PO Nelore pro objetivo do seu rebanho. Você parcela em 30x no boleto, com frete grátis sob consulta, e a assessoria custa R$ 0 (quem paga a Bula é o criatório vendedor).\n\n📲 Cadastro leva 1 minuto e um assessor te chama no WhatsApp com a seleção. Quem responde rápido fecha o touro certo primeiro.\n\n👉 Cadastre-se em touros.bulaassessoria.com"
+    },
+    {
+      "id": "120250170075240708",
+      "nome": "Leads | Leilão Jacamim | Formulário | 2026-09 | T: 2.415",
+      "nome_na_planilha": "LEADS - JACAMIN",
+      "status": "ACTIVE",
+      "delivery": "active",
+      "objetivo": "OUTCOME_LEADS",
+      "compra": "AUCTION (leilão)",
+      "orcamento": "por conjunto (ABO) — a campanha não tem orçamento próprio",
+      "orcamento_diario_somado": "R$ 360,00/dia (120 × 3)",
+      "inicio": "28/08/2026 17:14",
+      "termino": null,
+      "criada": "28/08/2026 17:14",
+      "alterada": "02/09/2026 16:22",
+      "hoje": { "gasto": "R$ 80,38", "impressoes": 3807, "leads": 1 },
+      "vitalicio": { "gasto": "R$ 494,33", "impressoes": 22994, "leads": 20 },
+      "conjuntos": [
+        {
+          "id": "120250170075220708",
+          "nome": "CJ01 | Brasil exc. AP, RS e SC | Semelhante 1–2% — Base fria | 25–64 | H",
+          "orcamento": "R$ 120,00/dia",
+          "restante_hoje": "R$ 89,06",
+          "lance": "Maior volume",
+          "cobranca": "Impressões",
+          "meta_de_performance": "LEAD_GENERATION — leads",
+          "destino": "ON_AD — formulário instantâneo",
+          "publico": "Brasil exceto AP, RS e SC · 25–64 anos · homens · Semelhante 1%–2% de leads_value_based_audience_1.csv · Advantage+ público LIGADO",
+          "posicionamentos": "Facebook, Instagram e Audience Network (automático) · celular e desktop",
+          "criado": "28/08/2026 17:14",
+          "alterado": "02/09/2026 16:03",
+          "hoje": { "gasto": "R$ 30,94", "impressoes": 1302, "leads": 1 }
+        },
+        {
+          "id": "120250170453150708",
+          "nome": "CJ02 | Brasil exc. AP, RS e SC | Remarketing IG 365d | 25–64 | H",
+          "orcamento": "R$ 120,00/dia",
+          "restante_hoje": "R$ 87,54",
+          "lance": "Maior volume",
+          "cobranca": "Impressões",
+          "meta_de_performance": "LEAD_GENERATION — leads",
+          "destino": "ON_AD — formulário instantâneo",
+          "publico": "Brasil exceto AP, RS e SC · 25–64 anos · homens · público Remarketing IG Assessoria Engajamento 365D + semelhante 1% dele · Advantage+ público LIGADO",
+          "posicionamentos": "Facebook, Instagram e Audience Network (automático) · celular e desktop",
+          "criado": "28/08/2026 17:21",
+          "alterado": "02/09/2026 16:03",
+          "hoje": { "gasto": "R$ 32,46", "impressoes": 1432, "leads": 0 }
+        },
+        {
+          "id": "120250170306940708",
+          "nome": "CJ03 | Brasil exc. AP, RS e SC | Aberto | 25–64 | H",
+          "orcamento": "R$ 120,00/dia",
+          "restante_hoje": "R$ 103,03",
+          "lance": "Maior volume",
+          "cobranca": "Impressões",
+          "meta_de_performance": "LEAD_GENERATION — leads",
+          "destino": "ON_AD — formulário instantâneo",
+          "publico": "Brasil exceto AP, RS e SC · 25–64 anos · homens · sem público salvo (aberto) · Advantage+ público LIGADO",
+          "posicionamentos": "Facebook, Instagram e Audience Network (automático) · celular e desktop",
+          "criado": "28/08/2026 17:19",
+          "alterado": "02/09/2026 16:03",
+          "hoje": { "gasto": "R$ 16,97", "impressoes": 1072, "leads": 0 }
+        }
+      ],
+      "conjuntos_pausados": [],
+      "anuncios": [
+        { "nome": "AN01 | Vídeo | Aparte Hoje Jacamim | 2026-09-02 | V01", "id": "120250170075230708", "conjunto": "CJ01", "criativo": "1379182897662870", "tipo": "Vídeo", "cta": "CADASTRE-SE", "gasto": "R$ 30,94", "impressoes": 1302, "leads": 1 },
+        { "nome": "AN01 | Imagem | Touros Jacamim | 2026-09-02 | V02", "id": "120250170453140708", "conjunto": "CJ02", "criativo": "1497519039083152", "tipo": "Imagem", "cta": "CADASTRE-SE", "gasto": "R$ 32,47", "impressoes": 1433, "leads": 0 },
+        { "nome": "AN01 | Imagem | Touros Jacamim | 2026-09-02 | V01", "id": "120250170306950708", "conjunto": "CJ03", "criativo": "2157344871799246", "tipo": "Imagem", "cta": "CADASTRE-SE", "gasto": "R$ 16,97", "impressoes": 1072, "leads": 0 },
+        { "nome": "AN02 | Vídeo | Piquete Jacamim | 2026-09-02 | V01 — Cópia", "id": "120250247557470708", "conjunto": "CJ01", "criativo": "1434855698490058", "tipo": "Vídeo", "cta": "CADASTRE-SE", "novo": "criado hoje às 17:15", "gasto": "R$ 0,00", "impressoes": 0, "leads": 0 },
+        { "nome": "AN03 | Vídeo | Touros Individuais Jacamim | 2026-09-02 | V01 — Cópia — Cópia", "id": "120250247567810708", "conjunto": "CJ01", "criativo": "1632894771532839", "tipo": "Vídeo", "cta": "CADASTRE-SE", "novo": "criado hoje às 17:15", "gasto": "R$ 0,00", "impressoes": 0, "leads": 0 }
+      ],
+      "criativo_titulo": "(sem título — o texto carrega a oferta)",
+      "criativo_texto": "Últimos dias para se cadastrar! 🔥\n\nReprodutores Nelore PO, 100% genotipados e com RGD, à venda no 10º Leilão Especial da Fazenda Jacamim.\n\n📅 05/09 às 12h\n🚚 Frete grátis para diversos estados\n\nCadastre-se agora."
+    }
+  ],
+  "formulario": {
+    "id": "2095233067761284",
+    "nome": "Formulário BULA PERPETUO v1",
+    "usado_por": "as duas campanhas ativas — e também pela LEADS - Leilão Melhorado 30 ANOS, já pausada",
+    "perguntas": [
+      "seu momento na pecuária",
+      "quantidade de cabeças",
+      "você tem inscrição estadual?",
+      "qual o seu interesse?",
+      "de acordo com seu interesse, qual a quantidade de animais desejada?"
+    ],
+    "campos_nativos": ["nome completo", "CPF (Brasil)", "e-mail", "telefone", "estado"]
+  },
+  "erros_de_entrega": "nenhum — ads_get_errors devolveu lista vazia para as duas campanhas"
+}

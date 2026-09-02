@@ -1,0 +1,46 @@
+{
+  "gerado_em": "02/09/2026, 17:51",
+  "spreadsheetId": "1caFGyHlqF-fic0y5zsnO1GRty4J61upMcjVI8e8V5F8",
+  "abas": [
+    "LEADS GERAIS",
+    "TOUROS",
+    "FEMEAS",
+    "EMBRIÕES",
+    "OUTROS",
+    "RELATÓRIO GROWTH",
+    "RELATÓRIO CAMPANHAS"
+  ],
+  "linhas_cruas": 0,
+  "leads_desde": "2026-08-27",
+  "recentes": 133,
+  "sem_aba_recorte": 0,
+  "distribuicao": {
+    "TOUROS": 78,
+    "FEMEAS": 48,
+    "EMBRIÕES": 3,
+    "OUTROS": 4
+  },
+  "leads_hoje_planilha": 4,
+  "ids_meta_repetidos": 0,
+  "formularios_vistos": [
+    "Formulário BULA PERPETUO v1",
+    "Landing EAO — 13º Mega Baviera",
+    "Landing Touros — Funil Perpétuo"
+  ],
+  "sem_zona": 9,
+  "uf_fora_do_vocabulario": 9,
+  "vitalicio": [
+    {
+      "id": "120249455058620708",
+      "nome": "LEAD - PERPETUO TOURO",
+      "meta": 143,
+      "planilha": 140
+    },
+    {
+      "id": "120250170075240708",
+      "nome": "Leads | Leilão Jacamim | Formulário | 2026-09 | T: 2.415",
+      "meta": 20,
+      "planilha": 20
+    }
+  ]
+}

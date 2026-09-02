@@ -8,13 +8,18 @@ import { supabaseAdmin } from './supabase'
 const CONFIG_KEY = 'sheets'
 
 // ─────────────────────────────────────────────────────────────────────────────
-// ESTRUTURA DA PLANILHA (31/07/2026, pedido do dono) — 5 abas, só isso:
+// ESTRUTURA DA PLANILHA (31/07/2026, pedido do dono) — 6 abas, só isso:
 //
 //   LEADS GERAIS  base única: TODO lead novo cai aqui, com "Etapa" e
 //                 "Atendido por" (colunas da equipe — o código nunca escreve
 //                 nelas). É a antiga "LEADS BULA - PERPETUO", renomeada.
-//   TOUROS | FEMEAS | EMBRIÕES | OUTROS
+//   TOUROS | FEMEAS | BEZERRAS | EMBRIÕES | OUTROS
 //                 recortes da LEADS GERAIS pelo campo "Interesse".
+//
+// 19/08/2026: "Bezerras PO" saiu da FEMEAS e ganhou aba própria (BEZERRAS), a
+// pedido do dono — é outro produto e outra conversa: bezerra é recria/investimento
+// de longo prazo, matriz é reprodução imediata. A FEMEAS ficou com "Matrizes PO"
+// (que é o que a landing /femeas manda) e continua sendo a fila do SDR.
 //
 // As 14 abas antigas (landings separadas, abas por assessor, dumps crus do
 // Meta, listas soltas) foram consolidadas na LEADS GERAIS por
@@ -40,6 +45,7 @@ export const LEADS_BULA_TAB = 'Cópia de LEADS BULA'
 export const ABAS_INTERESSE = {
   touros: 'TOUROS',
   femeas: 'FEMEAS',
+  bezerras: 'BEZERRAS',
   embrioes: 'EMBRIÕES',
   outros: 'OUTROS',
 } as const
@@ -86,11 +92,15 @@ export function rotulaInteresse(raw: string | null | undefined): string {
  * bezerras para a TOUROS só porque a quantidade dizia "1 a 5 touros".
  * Um lead entra em UMA aba só; interesse vazio ou fora do vocabulário (sêmen,
  * "não sei ainda") cai em OUTROS, que é a aba de quem falta qualificar.
+ *
+ * "bezerr" é testado ANTES de fêmeas: bezerra também é fêmea, e sem esta ordem
+ * o lead de bezerras voltaria para a FEMEAS — que desde 19/08 é só de matrizes.
  */
 export function abaDoInteresse(interesse: string): BaldeInteresse {
   const t = normalizeHeaderText(interesse)
   if (t.includes('touro')) return 'touros'
-  if (t.includes('bezerr') || t.includes('matriz') || t.includes('novilh') || t.includes('femea')) return 'femeas'
+  if (t.includes('bezerr')) return 'bezerras'
+  if (t.includes('matriz') || t.includes('novilh') || t.includes('femea')) return 'femeas'
   if (t.includes('embri')) return 'embrioes'
   return 'outros'
 }
@@ -540,10 +550,95 @@ function deaccent(s: string): string {
   return String(s || '').normalize('NFD').replace(/[̀-ͯ]/g, '').trim()
 }
 
-function metaStateToUF(state: string): string {
-  const s = deaccent(state)
-  if (/^[A-Za-z]{2}$/.test(s)) return s.toUpperCase()
-  return UF_BY_NAME.get(s.toLowerCase()) || String(state || '').trim()
+/**
+ * O campo "estado" do formulário do Meta é TEXTO LIVRE: o lead digita o que
+ * quiser ("Góis", "Brasilia", "Terra Rica - Pr", "Presidente medici ro"). Até
+ * 02/09/2026 só a sigla exata e o nome exato viravam UF — qualquer outra coisa
+ * ia crua pra coluna, `zonaDaUF` devolvia vazio e o lead entrava SEM ZONA, ou
+ * seja, sem assessor. Foram 9 de 133 leads (6,8%) entre 27/08 e 02/09.
+ * E `MI` (sigla que não existe) passava no teste de duas letras, virando uma UF
+ * falsa — pior que vazio, porque parece certo.
+ */
+const DDD_UF: Record<number, string> = {
+  11: 'SP', 12: 'SP', 13: 'SP', 14: 'SP', 15: 'SP', 16: 'SP', 17: 'SP', 18: 'SP', 19: 'SP',
+  21: 'RJ', 22: 'RJ', 24: 'RJ', 27: 'ES', 28: 'ES',
+  31: 'MG', 32: 'MG', 33: 'MG', 34: 'MG', 35: 'MG', 37: 'MG', 38: 'MG',
+  41: 'PR', 42: 'PR', 43: 'PR', 44: 'PR', 45: 'PR', 46: 'PR', 47: 'SC', 48: 'SC', 49: 'SC',
+  51: 'RS', 53: 'RS', 54: 'RS', 55: 'RS',
+  61: 'DF', 62: 'GO', 63: 'TO', 64: 'GO', 65: 'MT', 66: 'MT', 67: 'MS', 68: 'AC', 69: 'RO',
+  71: 'BA', 73: 'BA', 74: 'BA', 75: 'BA', 77: 'BA', 79: 'SE',
+  81: 'PE', 82: 'AL', 83: 'PB', 84: 'RN', 85: 'CE', 86: 'PI', 87: 'PE', 88: 'CE', 89: 'PI',
+  91: 'PA', 92: 'AM', 93: 'PA', 94: 'PA', 95: 'RR', 96: 'AP', 97: 'AM', 98: 'MA', 99: 'MA',
+}
+const UFS = new Set(UF_BY_NAME.values())
+/** Apelidos que o lead escreve e não são o nome oficial do estado. */
+const UF_BY_APELIDO = new Map(Object.entries({
+  'brasilia': 'DF', 'df': 'DF', 'goias': 'GO', 'goiania': 'GO', 'sao paulo capital': 'SP',
+}))
+
+function ufPorDdd(phone: string): string {
+  const d = String(phone || '').replace(/^p:/, '').replace(/\D/g, '').replace(/^55/, '')
+  return d.length >= 10 ? DDD_UF[Number(d.slice(0, 2))] || '' : ''
+}
+
+/** Distância de edição, só para pegar erro de digitação ("gois" → "goias"). */
+function distancia(a: string, b: string): number {
+  const linha = Array.from({ length: b.length + 1 }, (_, i) => i)
+  for (let i = 1; i <= a.length; i++) {
+    let anterior = linha[0]
+    linha[0] = i
+    for (let j = 1; j <= b.length; j++) {
+      const atual = linha[j]
+      linha[j] = Math.min(linha[j] + 1, linha[j - 1] + 1, anterior + (a[i - 1] === b[j - 1] ? 0 : 1))
+      anterior = atual
+    }
+  }
+  return linha[b.length]
+}
+
+/**
+ * Cascata: sigla → nome exato → apelido → sigla na ponta do texto ("Terra Rica
+ * - Pr") → nome dentro do texto ("Amazonas apui") → erro de digitação ("Góis")
+ * → DDD do telefone ("Virgem da Lapa" + (33) = MG). O texto vence o DDD: quem
+ * digitou "Amazonas" mora no AM mesmo com telefone de SP.
+ * Só quando NADA resolve o valor cru é devolvido, para não inventar dado.
+ */
+export function metaStateToUF(state: string, phone = ''): string {
+  const cru = String(state || '').trim()
+  const s = deaccent(cru).toLowerCase().replace(/\s+/g, ' ')
+  if (!s) return ufPorDdd(phone)
+  if (/^[a-z]{2}$/.test(s) && UFS.has(s.toUpperCase())) return s.toUpperCase()
+  const exato = UF_BY_NAME.get(s) || UF_BY_APELIDO.get(s)
+  if (exato) return exato
+  // Sigla escrita como primeira ou última palavra — é assim que o lead junta
+  // cidade e estado. No meio da frase não vale: "se", "al" e "pa" são palavras.
+  const palavras = s.split(/[^a-z]+/).filter(Boolean)
+  for (const w of [palavras[0], palavras[palavras.length - 1]]) {
+    if (w && w.length === 2 && UFS.has(w.toUpperCase())) return w.toUpperCase()
+  }
+  // Nome do estado dentro do texto; o mais longo primeiro, senão "mato grosso"
+  // rouba "mato grosso do sul". Nome curto ("para", "acre") só vale no FIM da
+  // frase: "Pará de Minas" é cidade de MG, "Belém Pará" é o estado mesmo.
+  const nomes = [...UF_BY_NAME.entries(), ...UF_BY_APELIDO.entries()]
+    .sort((a, b) => b[0].length - a[0].length)
+  for (const [nome, uf] of nomes) {
+    if (nome.length < 4) continue
+    if (s.endsWith(' ' + nome)) return uf
+    if (nome.length >= 5 && new RegExp(`(^|[^a-z])${nome}([^a-z]|$)`).test(s)) return uf
+  }
+  // Erro de digitação ("Góis" → Goiás): só aceita nome longo e UM vencedor.
+  let melhor = Number.MAX_SAFE_INTEGER
+  let vencedores: string[] = []
+  if (s.length >= 4) {
+    for (const [nome, uf] of nomes) {
+      if (nome.length < 4 || Math.abs(nome.length - s.length) > 2) continue
+      const d = distancia(s, nome)
+      if (d < melhor) { melhor = d; vencedores = [uf] }
+      else if (d === melhor && !vencedores.includes(uf)) vencedores.push(uf)
+    }
+  }
+  if (melhor <= 2 && vencedores.length === 1) return vencedores[0]
+  return ufPorDdd(phone) || cru
 }
 
 function metaPhoneToWhatsApp(raw: string): string {
@@ -1004,8 +1099,8 @@ function buildPerpetuoValues(p: RawMetaLead): Map<string, string> {
     ['cpf_(brazil)', p.cpf],
     ['E-mail', p.email],
     ['WhatsApp', metaPhoneToWhatsApp(p.phone)],
-    ['UF', metaStateToUF(p.state)],
-    ['Zona', zonaDaUF(metaStateToUF(p.state))],
+    ['UF', metaStateToUF(p.state, p.phone)],
+    ['Zona', zonaDaUF(metaStateToUF(p.state, p.phone))],
     ['Cidade', ''],
     ['Momento', META_MOMENTO.get(p.momento.toLowerCase()) || p.momento],
     ['Cabeças', META_CABECAS.get(p.cabecas) || p.cabecas],
@@ -2049,7 +2144,7 @@ async function writeTourosRows(
 
 /**
  * Caminho rápido: depois de o lead entrar na LEADS GERAIS, copia-o para a
- * aba-recorte do interesse dele (TOUROS/FEMEAS/EMBRIÕES/OUTROS). Best-effort —
+ * aba-recorte do interesse dele (TOUROS/FEMEAS/BEZERRAS/EMBRIÕES/OUTROS). Best-effort —
  * quem garante o registro é o append na LEADS GERAIS; se isto falhar, o
  * syncAbasPorInteresse() (cron) recupera na próxima passada.
  */
@@ -2188,7 +2283,7 @@ async function espelhaColunasDaEquipe(
 
 /**
  * Varredura das abas-recorte: relê a LEADS GERAIS e acrescenta em
- * TOUROS/FEMEAS/EMBRIÕES/OUTROS o que ainda não está lá, pelo interesse de cada
+ * TOUROS/FEMEAS/BEZERRAS/EMBRIÕES/OUTROS o que ainda não está lá, pelo interesse de cada
  * lead. Idempotente — serve de backfill e de rede de segurança quando o append
  * do cadastro falha.
  *
@@ -2254,7 +2349,7 @@ export async function syncAbasPorInteresse(): Promise<{
   const falhas: string[] = []
   for (const [balde, tab] of Object.entries(ABAS_INTERESSE)) {
     // Cada aba por sua conta: uma desalinhada (despejo do Meta na linha 1) não
-    // pode impedir que as outras três recebam os leads do dia.
+    // pode impedir que as demais recebam os leads do dia.
     try {
       const doTab = leads.filter(l => abaDoInteresse(l.interesse) === balde)
       const header = await ensureTourosLayout(sheets, info.spreadsheetId, tab, titles)

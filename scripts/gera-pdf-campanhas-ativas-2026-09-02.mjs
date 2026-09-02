@@ -127,16 +127,26 @@ const checagens = [
     ['Leads sem Zona — ou seja, sem assessor por região', semZona.length, 'nenhum', semZona.length === 0],
 ]
 
-const conjunto = c => `
-<table class="dense" style="margin-bottom:4mm">
-  <tr><th style="width:34mm">Conjunto</th><td colspan="3"><strong>${esc(c.nome)}</strong> <span class="muted">· ${esc(c.id)}</span></td></tr>
-  <tr><th>Orçamento</th><td style="width:38mm">${esc(c.orcamento)}</td><th style="width:26mm">Restante hoje</th><td>${esc(c.restante_hoje)}</td></tr>
-  <tr><th>Meta de performance</th><td>${esc(c.meta_de_performance)}</td><th>Lance / cobrança</th><td>${esc(c.lance)} · ${esc(c.cobranca)}</td></tr>
-  <tr><th>Destino do clique</th><td colspan="3">${esc(c.destino)}</td></tr>
-  <tr><th>Público</th><td colspan="3">${esc(c.publico)}</td></tr>
-  <tr><th>Posicionamentos</th><td colspan="3">${esc(c.posicionamentos)}</td></tr>
-  <tr><th>Criado / alterado</th><td>${esc(c.criado)}</td><th>Hoje</th><td>${esc(c.hoje.gasto)} · ${br(c.hoje.impressoes)} impr. · ${c.hoje.leads} lead(s)</td></tr>
-</table>`
+/**
+ * Um conjunto por LINHA (e o público logo abaixo, em linha corrida): empilhar
+ * uma tabela por conjunto estourava a folha A4 em 100mm.
+ */
+const conjuntos = c => `
+<table class="dense">
+  <thead><tr><th>Conjunto</th><th class="num">Orçam./dia</th><th class="num">Restante</th><th>Meta de performance</th><th class="num">Gasto hoje</th><th class="num">Impr.</th><th class="num">Leads</th></tr></thead>
+  <tbody>${c.conjuntos.map(j => `<tr>
+    <td><strong>${esc(j.nome)}</strong></td>
+    <td class="num">${esc(j.orcamento.replace('R$ ', '').replace('/dia', ''))}</td>
+    <td class="num">${esc(j.restante_hoje)}</td>
+    <td>${esc(j.meta_de_performance)}</td>
+    <td class="num">${esc(j.hoje.gasto)}</td><td class="num">${br(j.hoje.impressoes)}</td><td class="num">${j.hoje.leads}</td>
+  </tr>`).join('')}</tbody>
+</table>
+<div class="box rule" style="margin-top:3mm">
+  <div class="t">Público e entrega</div>
+  ${c.conjuntos.map(j => `<p style="margin-bottom:1.4mm"><strong>${esc(j.nome.split('|')[0].trim())}</strong> — ${esc(j.publico)}.</p>`).join('')}
+  <p class="small" style="margin:1mm 0 0">Nos três: lance por maior volume, cobrança por impressão, destino ${esc(c.conjuntos[0].destino)}, ${esc(c.conjuntos[0].posicionamentos.toLowerCase())}. Última alteração em ${esc(c.conjuntos[0].alterado)}.</p>
+</div>`
 
 const anuncios = lista => `
 <table class="dense">
@@ -147,27 +157,27 @@ const anuncios = lista => `
     <td class="num">${esc(a.gasto)}</td><td class="num">${br(a.impressoes)}</td><td class="num">${a.leads}</td></tr>`).join('')}</tbody>
 </table>`
 
-const paginaCampanha = (c, n) => `
+const paginaCampanha = (c, n, folha) => `
 <div class="page">
-  <div class="head"><h2>${esc(c.nome.length > 46 ? c.nome.slice(0, 44) + '…' : c.nome)}</h2><div class="n">Campanha ${n} de 2 · ${esc(c.id)}</div></div>
+  <div class="head"><h2>${esc(c.nome.length > 44 ? c.nome.slice(0, 42) + '…' : c.nome)}</h2><div class="n">Campanha ${n} de ${M.campanhas.length} · ${esc(c.id)}</div></div>
   <table class="dense" style="margin-bottom:5mm">
-    <tr><th style="width:34mm">Situação</th><td style="width:52mm">${esc(c.status)} · entregando</td><th style="width:26mm">Objetivo</th><td>${esc(c.objetivo)} · ${esc(c.compra)}</td></tr>
-    <tr><th>Orçamento</th><td colspan="3">${esc(c.orcamento)} — soma dos conjuntos ativos: <strong>${esc(c.orcamento_diario_somado)}</strong></td></tr>
+    <tr><th style="width:32mm">Situação</th><td style="width:50mm">${esc(c.status)} · entregando</td><th style="width:26mm">Objetivo</th><td>${esc(c.objetivo)} · ${esc(c.compra)}</td></tr>
+    <tr><th>Orçamento</th><td colspan="3">${esc(c.orcamento)} — soma dos conjuntos no ar: <strong>${esc(c.orcamento_diario_somado)}</strong></td></tr>
     <tr><th>Início</th><td>${esc(c.inicio)}</td><th>Término</th><td>${c.termino ? esc(c.termino) : '<span class="tag warn">sem data de término</span>'}</td></tr>
-    <tr><th>Criada / alterada</th><td>${esc(c.criada)}</td><th>Última alteração</th><td>${esc(c.alterada)}</td></tr>
+    <tr><th>Criada</th><td>${esc(c.criada)}</td><th>Última alteração</th><td>${esc(c.alterada)}</td></tr>
     <tr><th>Hoje</th><td>${esc(c.hoje.gasto)} · ${br(c.hoje.impressoes)} impr. · <strong>${c.hoje.leads} lead(s)</strong></td><th>Vitalício</th><td>${esc(c.vitalicio.gasto)} · ${br(c.vitalicio.impressoes)} impr. · <strong>${c.vitalicio.leads} leads</strong></td></tr>
   </table>
-  <h3>Conjuntos no ar</h3>
-  ${c.conjuntos.map(conjunto).join('')}
-  ${c.conjuntos_pausados.length ? `<div class="box rule"><div class="t">Conjuntos pausados nesta campanha</div>${c.conjuntos_pausados.map(p => `<p style="margin-bottom:1mm">${esc(p.nome)} — ${esc(p.orcamento)}, ${esc(p.meta_de_performance)}. Destino: ${esc(p.destino)}.</p>`).join('')}</div>` : ''}
-  <h3>Anúncios no ar</h3>
+  <h3 style="margin-top:4mm">Conjuntos no ar</h3>
+  ${conjuntos(c)}
+  ${c.conjuntos_pausados.length ? `<p class="small" style="margin-top:3mm">Pausados nesta campanha: ${c.conjuntos_pausados.map(x => `<strong>${esc(x.nome)}</strong> (${esc(x.orcamento)}, ${esc(x.meta_de_performance)}, destino ${esc(x.destino)})`).join(' · ')}.</p>` : ''}
+  <h3 style="margin-top:4mm">Anúncios no ar</h3>
   ${anuncios(c.anuncios)}
-  <h3>Texto que está rodando</h3>
-  <div class="box">
+  <h3 style="margin-top:4mm">Texto que está rodando</h3>
+  <div class="box" style="font-size:9px;line-height:1.45">
     ${c.criativo_titulo ? `<div class="t">${esc(c.criativo_titulo)}</div>` : ''}
-    ${c.criativo_texto.split('\n').filter(Boolean).map(l => `<p style="margin-bottom:1.6mm">${esc(l)}</p>`).join('')}
+    ${c.criativo_texto.split(String.fromCharCode(10)).filter(Boolean).map(l => `<p style="margin-bottom:1.1mm">${esc(l)}</p>`).join('')}
   </div>
-  ${foot(String(n + 2))}
+  ${foot(String(folha))}
 </div>`
 
 const html = `<!doctype html><html lang="pt-BR"><head><meta charset="utf-8">
@@ -213,7 +223,7 @@ const html = `<!doctype html><html lang="pt-BR"><head><meta charset="utf-8">
     <thead><tr><th>Campanha</th><th class="num">Leads no Meta</th><th class="num">Leads na planilha</th><th class="num">Diferença</th></tr></thead>
     <tbody>
       ${M.campanhas.map(c => { const p = totalPlanilha(c.id), d = p - c.vitalicio.leads; return `<tr>
-        <td>${esc(c.nome_na_planilha ? `${c.nome} <span class="muted">(na planilha: ${c.nome_na_planilha})</span>` : c.nome)}</td>
+        <td>${esc(c.nome)}${c.nome_na_planilha ? ` <span class="muted">(na planilha: ${esc(c.nome_na_planilha)})</span>` : ''}</td>
         <td class="num">${c.vitalicio.leads}</td><td class="num">${p}</td>
         <td class="num">${d === 0 ? '<span class="tag ok">zero</span>' : d}</td></tr>` }).join('')}
     </tbody>
@@ -227,7 +237,7 @@ const html = `<!doctype html><html lang="pt-BR"><head><meta charset="utf-8">
   ${foot('2')}
 </div>
 
-${M.campanhas.map((c, i) => paginaCampanha(c, i + 1)).join('')}
+${M.campanhas.map((c, i) => paginaCampanha(c, i + 1, i + 3)).join('')}
 
 <div class="page">
   <div class="head"><h2>A integração com a planilha</h2><div class="n">Página 5</div></div>
@@ -239,6 +249,8 @@ ${M.campanhas.map((c, i) => paginaCampanha(c, i + 1)).join('')}
       <td>${ok ? '<span class="tag ok">ok</span>' : '<span class="tag warn">atenção</span>'}</td></tr>`).join('')}</tbody>
   </table>
 
+  <p class="small">Os ${semZona.length} sem Zona são os leads que <strong>já estavam</strong> na planilha quando a falha foi encontrada — todos entre 27/08 e 31/08. A causa foi corrigida hoje (página 6) e vale para lead novo; esses ${semZona.length} continuam como estão até uma passada de reparo à parte.</p>
+
   <h3>O caminho que o lead percorre</h3>
   <p>O conector do Meta escreve a linha crua na aba <strong>LEADS GERAIS</strong>. De 5 em 5 minutos, três rotinas agendadas no Vercel (<span class="muted">sheet-heal → sheet-bula-sync → sheet-perpetuo</span>) normalizam essa linha, jogam o lead formatado no topo, apagam a linha crua e espelham o lead na aba do interesse dele. É lá que a equipe trabalha.</p>
   <table class="dense">
@@ -247,7 +259,11 @@ ${M.campanhas.map((c, i) => paginaCampanha(c, i + 1)).join('')}
     <tr class="total"><td>Total</td><td class="num">${recentes.length - semAba.length}</td></tr></tbody>
   </table>
   <p class="small">Abas na planilha hoje: ${esc(abas.join(' · '))}.</p>
+  ${foot('5')}
+</div>
 
+<div class="page">
+  <div class="head"><h2>O que foi corrigido e o que segue em aberto</h2><div class="n">Página 6</div></div>
   <h3>O que foi corrigido hoje</h3>
   <div class="box">
     <div class="t">O campo "estado" do formulário é texto livre</div>
@@ -265,7 +281,7 @@ ${M.campanhas.map((c, i) => paginaCampanha(c, i + 1)).join('')}
     <li><strong>O texto do anúncio da ${esc(M.campanhas[0].nome)} manda o lead para o site</strong> ("Cadastre-se em touros.bulaassessoria.com"), mas o botão abre o formulário instantâneo. São dois caminhos de captura diferentes, com escalas de "cabeças" diferentes — os dois chegam na planilha, mas o texto está desalinhado do destino.</li>
     <li><strong>Dois anúncios foram criados hoje às 17:15</strong> na campanha do Jacamim (AN02 e AN03, cópias do AN01) e ainda não geraram lead. São cópias, então carregam o mesmo formulário — mas a confirmação só vem no primeiro lead de cada um. Vale conferir o <span class="muted">form_name</span> desse primeiro lead na planilha.</li>
   </ol>
-  ${foot('5')}
+  ${foot('6')}
 </div>
 
 </body></html>`
@@ -276,6 +292,17 @@ const browser = await chromium.launch()
 const page = await browser.newPage()
 await page.setContent(html, { waitUntil: 'networkidle' })
 await page.pdf({ path: pdfPath, format: 'A4', printBackground: true, margin: { top: '0', right: '0', bottom: '0', left: '0' } })
+// --png: prova visual de cada folha, para conferir se alguma estourou a altura.
+if (process.argv.includes('--png')) {
+    const dirPng = 'outputs/campanhas-ativas-2026-09-02/paginas'
+    fs.mkdirSync(dirPng, { recursive: true })
+    const folhas = await page.$$('.page')
+    for (let i = 0; i < folhas.length; i++) {
+        const alturaMm = await folhas[i].evaluate(el => el.getBoundingClientRect().height / (96 / 25.4))
+        console.log(`folha ${i + 1}: ${alturaMm.toFixed(0)}mm${alturaMm > 298 ? '  <-- ESTOUROU os 297mm' : ''}`)
+        await folhas[i].screenshot({ path: `${dirPng}/folha-${i + 1}.png` })
+    }
+}
 await browser.close()
 
 fs.writeFileSync('outputs/campanhas-ativas-2026-09-02/conferencia-planilha.json', JSON.stringify({
