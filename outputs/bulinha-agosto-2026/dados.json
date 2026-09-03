@@ -1,0 +1,1069 @@
+{
+  "geradoEm": "2026-09-03",
+  "pergunta": "Grupo Financeiro, 03/09 11h44 — \"sabe quanto o Bulinha fez de vendas em Agosto? Quanto ele tem a receber?\"",
+  "pessoa": {
+    "nome": "Felipe Vilela Andrade",
+    "apelido": "Bulinha",
+    "funcao": "Assessor (dono da Bula Remates)",
+    "pct": 0.02,
+    "codigos_hastapro": [
+      "250930183027880",
+      "2510072104283"
+    ]
+  },
+  "periodo": {
+    "ini": "2026-08-01",
+    "fim": "2026-08-31"
+  },
+  "vendas": {
+    "total": 918160,
+    "lotes": 25,
+    "fil2": {
+      "vgv": 198000,
+      "lotes": 2,
+      "animais": 2
+    },
+    "fil01": {
+      "vgv": 720160,
+      "lotes": 23,
+      "animais": 49,
+      "leiloes": [
+        "LEILÃO TOUROS SÃO GERALDO E 7P AGRO",
+        "LEILÃO SÓ CRIADOR - ESPECIAL SANTA CASA - DOAÇÃO",
+        "LEILÃO MELHORADORES - ESPECIAL CORTE",
+        "LEILÃO MELHORADORES ESPECIAL 30 ANOS & CONVIDADOS ESPECIAIS"
+      ]
+    }
+  },
+  "lotes": [
+    {
+      "filial": "01",
+      "leilao": "LEILÃO TOUROS SÃO GERALDO E 7P AGRO",
+      "data": "2026-08-01",
+      "lote": "17",
+      "qtd": 1,
+      "lance": 1400,
+      "vgv": 42000,
+      "mult": 30,
+      "com_hp": 0,
+      "comprador": "MOACIR DUIM JUNIOR",
+      "comprou_ele_mesmo": false
+    },
+    {
+      "filial": "01",
+      "leilao": "LEILÃO TOUROS SÃO GERALDO E 7P AGRO",
+      "data": "2026-08-01",
+      "lote": "18",
+      "qtd": 1,
+      "lance": 1700,
+      "vgv": 51000,
+      "mult": 30,
+      "com_hp": 0,
+      "comprador": "IZANELIO JOSE DE REZENDE JUNIOR",
+      "comprou_ele_mesmo": false
+    },
+    {
+      "filial": "01",
+      "leilao": "LEILÃO TOUROS SÃO GERALDO E 7P AGRO",
+      "data": "2026-08-01",
+      "lote": "50",
+      "qtd": 1,
+      "lance": 720,
+      "vgv": 21600,
+      "mult": 30,
+      "com_hp": 0,
+      "comprador": "LUIS CARDOSO MARTINS",
+      "comprou_ele_mesmo": false
+    },
+    {
+      "filial": "01",
+      "leilao": "LEILÃO TOUROS SÃO GERALDO E 7P AGRO",
+      "data": "2026-08-01",
+      "lote": "51",
+      "qtd": 1,
+      "lance": 720,
+      "vgv": 21600,
+      "mult": 30,
+      "com_hp": 0,
+      "comprador": "LUIS CARDOSO MARTINS",
+      "comprou_ele_mesmo": false
+    },
+    {
+      "filial": "01",
+      "leilao": "LEILÃO TOUROS SÃO GERALDO E 7P AGRO",
+      "data": "2026-08-01",
+      "lote": "52",
+      "qtd": 1,
+      "lance": 720,
+      "vgv": 21600,
+      "mult": 30,
+      "com_hp": 0,
+      "comprador": "LUIS CARDOSO MARTINS",
+      "comprou_ele_mesmo": false
+    },
+    {
+      "filial": "01",
+      "leilao": "LEILÃO TOUROS SÃO GERALDO E 7P AGRO",
+      "data": "2026-08-01",
+      "lote": "59",
+      "qtd": 1,
+      "lance": 1500,
+      "vgv": 45000,
+      "mult": 30,
+      "com_hp": 0,
+      "comprador": "JOSEFINA LARA CARLOTTO",
+      "comprou_ele_mesmo": false
+    },
+    {
+      "filial": "01",
+      "leilao": "LEILÃO TOUROS SÃO GERALDO E 7P AGRO",
+      "data": "2026-08-01",
+      "lote": "74",
+      "qtd": 1,
+      "lance": 700,
+      "vgv": 21000,
+      "mult": 30,
+      "com_hp": 0,
+      "comprador": "CAIO JUNIO ALVES FERRAZ",
+      "comprou_ele_mesmo": false
+    },
+    {
+      "filial": "01",
+      "leilao": "LEILÃO TOUROS SÃO GERALDO E 7P AGRO",
+      "data": "2026-08-01",
+      "lote": "75",
+      "qtd": 1,
+      "lance": 700,
+      "vgv": 21000,
+      "mult": 30,
+      "com_hp": 0,
+      "comprador": "CAIO JUNIO ALVES FERRAZ",
+      "comprou_ele_mesmo": false
+    },
+    {
+      "filial": "01",
+      "leilao": "LEILÃO TOUROS SÃO GERALDO E 7P AGRO",
+      "data": "2026-08-01",
+      "lote": "76",
+      "qtd": 1,
+      "lance": 700,
+      "vgv": 21000,
+      "mult": 30,
+      "com_hp": 0,
+      "comprador": "CAIO JUNIO ALVES FERRAZ",
+      "comprou_ele_mesmo": false
+    },
+    {
+      "filial": "01",
+      "leilao": "LEILÃO TOUROS SÃO GERALDO E 7P AGRO",
+      "data": "2026-08-01",
+      "lote": "86",
+      "qtd": 1,
+      "lance": 750,
+      "vgv": 22500,
+      "mult": 30,
+      "com_hp": 0,
+      "comprador": "IZANELIO JOSE DE REZENDE JUNIOR",
+      "comprou_ele_mesmo": false
+    },
+    {
+      "filial": "01",
+      "leilao": "LEILÃO TOUROS SÃO GERALDO E 7P AGRO",
+      "data": "2026-08-01",
+      "lote": "87",
+      "qtd": 1,
+      "lance": 750,
+      "vgv": 22500,
+      "mult": 30,
+      "com_hp": 0,
+      "comprador": "IZANELIO JOSE DE REZENDE JUNIOR",
+      "comprou_ele_mesmo": false
+    },
+    {
+      "filial": "01",
+      "leilao": "LEILÃO TOUROS SÃO GERALDO E 7P AGRO",
+      "data": "2026-08-01",
+      "lote": "88",
+      "qtd": 1,
+      "lance": 750,
+      "vgv": 22500,
+      "mult": 30,
+      "com_hp": 0,
+      "comprador": "IZANELIO JOSE DE REZENDE JUNIOR",
+      "comprou_ele_mesmo": false
+    },
+    {
+      "filial": "01",
+      "leilao": "LEILÃO SÓ CRIADOR - ESPECIAL SANTA CASA - DOAÇÃO",
+      "data": "2026-08-11",
+      "lote": "105",
+      "qtd": 1,
+      "lance": 2600,
+      "vgv": 2600,
+      "mult": 1,
+      "com_hp": 0,
+      "comprador": "FELIPE VILELA ANDRADE",
+      "comprou_ele_mesmo": true
+    },
+    {
+      "filial": "2",
+      "leilao": "LEILÃO NAVIRAÍ CAMPARINO - MATRIZES ESSÊNCIA",
+      "data": "2026-08-22",
+      "lote": "11",
+      "qtd": 1,
+      "lance": 3100,
+      "vgv": 93000,
+      "mult": 30,
+      "com_hp": 0,
+      "comprador": "VALDEMAR PISSINATTI GUERRA",
+      "comprou_ele_mesmo": false
+    },
+    {
+      "filial": "2",
+      "leilao": "6º LEILÃO EXCELÊNCIA GENÉTICA",
+      "data": "2026-08-23",
+      "lote": "21",
+      "qtd": 1,
+      "lance": 3500,
+      "vgv": 105000,
+      "mult": 30,
+      "com_hp": 2,
+      "comprador": "VALDEMAR PISSINATTI GUERRA",
+      "comprou_ele_mesmo": false
+    },
+    {
+      "filial": "01",
+      "leilao": "LEILÃO MELHORADORES - ESPECIAL CORTE",
+      "data": "2026-08-25",
+      "lote": "03",
+      "qtd": 11,
+      "lance": 3600,
+      "vgv": 39600,
+      "mult": 11,
+      "com_hp": 0,
+      "comprador": "APA AGROPECUARIA LTDA",
+      "comprou_ele_mesmo": false
+    },
+    {
+      "filial": "01",
+      "leilao": "LEILÃO MELHORADORES - ESPECIAL CORTE",
+      "data": "2026-08-25",
+      "lote": "09",
+      "qtd": 17,
+      "lance": 4480,
+      "vgv": 76160,
+      "mult": 17,
+      "com_hp": 0,
+      "comprador": "DIOGO ALEX VAZ PERES",
+      "comprou_ele_mesmo": false
+    },
+    {
+      "filial": "01",
+      "leilao": "LEILÃO MELHORADORES ESPECIAL 30 ANOS & CONVIDADOS ESPECIAIS",
+      "data": "2026-08-29",
+      "lote": "01",
+      "qtd": 1,
+      "lance": 1800,
+      "vgv": 54000,
+      "mult": 30,
+      "com_hp": 0,
+      "comprador": "TASSIO DUTRA E SILVA",
+      "comprou_ele_mesmo": false
+    },
+    {
+      "filial": "01",
+      "leilao": "LEILÃO MELHORADORES ESPECIAL 30 ANOS & CONVIDADOS ESPECIAIS",
+      "data": "2026-08-29",
+      "lote": "02",
+      "qtd": 1,
+      "lance": 1700,
+      "vgv": 51000,
+      "mult": 30,
+      "com_hp": 0,
+      "comprador": "TASSIO DUTRA E SILVA",
+      "comprou_ele_mesmo": false
+    },
+    {
+      "filial": "01",
+      "leilao": "LEILÃO MELHORADORES ESPECIAL 30 ANOS & CONVIDADOS ESPECIAIS",
+      "data": "2026-08-29",
+      "lote": "05",
+      "qtd": 1,
+      "lance": 1100,
+      "vgv": 33000,
+      "mult": 30,
+      "com_hp": 0,
+      "comprador": "MOACIR DUIM JUNIOR",
+      "comprou_ele_mesmo": false
+    },
+    {
+      "filial": "01",
+      "leilao": "LEILÃO MELHORADORES ESPECIAL 30 ANOS & CONVIDADOS ESPECIAIS",
+      "data": "2026-08-29",
+      "lote": "06",
+      "qtd": 1,
+      "lance": 1200,
+      "vgv": 36000,
+      "mult": 30,
+      "com_hp": 0,
+      "comprador": "AYRTON BACCHI DE ARAUJO NETTO",
+      "comprou_ele_mesmo": false
+    },
+    {
+      "filial": "01",
+      "leilao": "LEILÃO MELHORADORES ESPECIAL 30 ANOS & CONVIDADOS ESPECIAIS",
+      "data": "2026-08-29",
+      "lote": "07",
+      "qtd": 1,
+      "lance": 800,
+      "vgv": 24000,
+      "mult": 30,
+      "com_hp": 0,
+      "comprador": "KLEBER SAMPAIO",
+      "comprou_ele_mesmo": false
+    },
+    {
+      "filial": "01",
+      "leilao": "LEILÃO MELHORADORES ESPECIAL 30 ANOS & CONVIDADOS ESPECIAIS",
+      "data": "2026-08-29",
+      "lote": "10",
+      "qtd": 1,
+      "lance": 700,
+      "vgv": 21000,
+      "mult": 30,
+      "com_hp": 0,
+      "comprador": "GUSTAVO SERRA MACEDO",
+      "comprou_ele_mesmo": false
+    },
+    {
+      "filial": "01",
+      "leilao": "LEILÃO MELHORADORES ESPECIAL 30 ANOS & CONVIDADOS ESPECIAIS",
+      "data": "2026-08-29",
+      "lote": "15",
+      "qtd": 1,
+      "lance": 650,
+      "vgv": 19500,
+      "mult": 30,
+      "com_hp": 0,
+      "comprador": "KLEBER SAMPAIO",
+      "comprou_ele_mesmo": false
+    },
+    {
+      "filial": "01",
+      "leilao": "LEILÃO MELHORADORES ESPECIAL 30 ANOS & CONVIDADOS ESPECIAIS",
+      "data": "2026-08-29",
+      "lote": "16",
+      "qtd": 1,
+      "lance": 1000,
+      "vgv": 30000,
+      "mult": 30,
+      "com_hp": 0,
+      "comprador": "KLEBER SAMPAIO",
+      "comprou_ele_mesmo": false
+    }
+  ],
+  "serie": [
+    {
+      "mes": 1,
+      "filial": "01",
+      "lotes": 9,
+      "vgv": 1229245
+    },
+    {
+      "mes": 2,
+      "filial": "01",
+      "lotes": 8,
+      "vgv": 665570
+    },
+    {
+      "mes": 3,
+      "filial": "01",
+      "lotes": 35,
+      "vgv": 7044000
+    },
+    {
+      "mes": 3,
+      "filial": "2",
+      "lotes": 6,
+      "vgv": 159000
+    },
+    {
+      "mes": 4,
+      "filial": "01",
+      "lotes": 75,
+      "vgv": 9359670.001953125
+    },
+    {
+      "mes": 5,
+      "filial": "01",
+      "lotes": 20,
+      "vgv": 2269360
+    },
+    {
+      "mes": 5,
+      "filial": "2",
+      "lotes": 37,
+      "vgv": 1340800
+    },
+    {
+      "mes": 6,
+      "filial": "01",
+      "lotes": 83,
+      "vgv": 4853290
+    },
+    {
+      "mes": 6,
+      "filial": "2",
+      "lotes": 36,
+      "vgv": 1602800
+    },
+    {
+      "mes": 7,
+      "filial": "01",
+      "lotes": 25,
+      "vgv": 2187090
+    },
+    {
+      "mes": 8,
+      "filial": "01",
+      "lotes": 23,
+      "vgv": 720160
+    },
+    {
+      "mes": 8,
+      "filial": "2",
+      "lotes": 2,
+      "vgv": 198000
+    }
+  ],
+  "julho": [
+    {
+      "filial": "01",
+      "lotes": 25,
+      "vgv": 2187090
+    }
+  ],
+  "comissao": {
+    "pct": 0.02,
+    "base": 198000,
+    "devida": 3960,
+    "firme": 2100,
+    "disputa": 1860,
+    "fil01": 0,
+    "se_fosse_1pct_remates": 7201.6,
+    "vencimento_ciclo": "2026-09-25",
+    "lancada_no_erp": false
+  },
+  "erp": {
+    "fechamentos": [
+      {
+        "id": "c69e920a-fec8-4334-b22b-3ffbb02f88cb",
+        "nome": "6º LEILÃO EXCELÊNCIA GENÉTICA",
+        "data": "2026-08-23",
+        "vgv_fechamento": 105000,
+        "origem": "hastapro",
+        "vgv": 105000,
+        "comissao": 2100,
+        "pct": 0.02,
+        "lotes": [
+          "21"
+        ]
+      }
+    ],
+    "disputa": [
+      {
+        "fechamento_id": "e7811a6e-7ed7-4a82-a56f-0536093e8ae0",
+        "leilao": "LEILÃO NAVIRAÍ CAMPARINO ESSÊNCIA BEZERRAS E NOVILHAS",
+        "data": "2026-08-22",
+        "lote": "11",
+        "vgv": 93000,
+        "erp_credita": "Peralta / Bula",
+        "hastapro_credita": "Bulinha (Felipe Andrade)",
+        "comissao": 1860
+      }
+    ],
+    "ciclo_25_09": [
+      {
+        "descricao": "COMISSAO LEILÃO TOUROS NELORE GRUPO COSTA - FÁBIO OMENA (2,00%)",
+        "valor": 402
+      },
+      {
+        "descricao": "COMISSAO LEILÃO NELORE PARANÃ PRODUTIVIDADE - FÁBIO OMENA (2,00%)",
+        "valor": 912
+      },
+      {
+        "descricao": "COMISSAO LEILÃO TOUROS NELORE MAFRA - DOUGLAS BISPO (2,00%)",
+        "valor": 2472
+      },
+      {
+        "descricao": "COMISSAO LEILÃO NELORE PARANÃ PRODUTIVIDADE - DOUGLAS BISPO (2,00%)",
+        "valor": 2880
+      },
+      {
+        "descricao": "COMISSAO 7º LEILÃO ESSÊNCIA GENÉTICA - NELORE DA BAMBÚ - LEONARDO SERAFIM (2,00%)",
+        "valor": 330
+      },
+      {
+        "descricao": "COMISSAO 14º LEILÃO PÉROLAS DO TAPAJÓS - DOUGLAS BISPO (2,00%)",
+        "valor": 2460
+      },
+      {
+        "descricao": "COMISSAO LEILÃO TERRA BRAVA AGROPECUÁRIA EXPOGENÉTICA - FÁBIO OMENA (2,00%)",
+        "valor": 2142
+      },
+      {
+        "descricao": "COMISSAO LEILÃO NELORE MAFRA EDIÇÃO REDENÇÃO/PA - FÊMEAS - FÁBIO OMENA (2,00%)",
+        "valor": 1200
+      },
+      {
+        "descricao": "COMISSAO LEILÃO DE TOUROS NELORE SORRISO - FÁBIO OMENA (2,00%)",
+        "valor": 1584
+      },
+      {
+        "descricao": "COMISSAO LEILÃO MATINHA EXPOGENÉTICA 2026 - DOUGLAS BISPO (2,00%)",
+        "valor": 840
+      },
+      {
+        "descricao": "COMISSAO LEILÃO TOUROS NELORE MAFRA - FÁBIO OMENA (2,00%)",
+        "valor": 1092
+      },
+      {
+        "descricao": "COMISSAO LEILÃO DE TOUROS NELORE SORRISO - LEONARDO SERAFIM (2,00%)",
+        "valor": 702
+      },
+      {
+        "descricao": "COMISSAO LEILÃO NELORE MAFRA EDIÇÃO REDENÇÃO/PA - FÊMEAS - DOUGLAS BISPO (2,00%)",
+        "valor": 19654
+      },
+      {
+        "descricao": "COMISSAO 2º LEILÃO LS GALERIA - FÁBIO OMENA (2,00%)",
+        "valor": 2400
+      }
+    ],
+    "contas_pagar": [
+      {
+        "id": "12c14c01-9833-4fc6-b9b4-386ca64cfd69",
+        "descricao": "COMISSAO 2º NELORE JEM (15/05) - BULINHA (FELIPE ANDRADE) (2%)",
+        "valor": 2550,
+        "valor_pago": 2550,
+        "desconto": 0,
+        "vencimento": "2026-07-27",
+        "data_pagamento": "2026-07-17",
+        "status": "pago",
+        "forma_pagamento": "",
+        "numero_documento": "BULA-2026-CP-COM-JEM-MAIO-BULINHA",
+        "tags": [
+          "a-pagar",
+          "comissao",
+          "2026",
+          "leilao"
+        ],
+        "origem": "real",
+        "observacoes": "[PLANILHA-BULINHA 23/07] 127.500 x 2% = 2.550 conforme planilha COMISSÃO BULINHA do chefe (23/07). Vinculado ao fechamento 006321ae-0437-4250-bb32-2437822183bd. [ACERTO 11/08] Comissao de junho acertada no pagamento de julho (PIX de 13/07 R$ 38.000,00 e de 17/07 R$ 51.871,50 a FELIPE VILELA ANDRADE). O acerto descontou os gastos que ele fez no cartao da empresa, e do total de R$ 58.872,00 sobrou um residual de R$ 7.392,00 ainda devido - lancado a parte como saldo em aberto.",
+        "restante": 0
+      },
+      {
+        "id": "739d2a76-ed28-4e68-a740-84f2f0345471",
+        "descricao": "SALDO DEVIDO A BULINHA (FELIPE ANDRADE) - residual do acerto de julho",
+        "valor": 7392,
+        "valor_pago": 7329.97,
+        "desconto": 62.03,
+        "vencimento": "2026-07-27",
+        "data_pagamento": "2026-08-24",
+        "status": "pago",
+        "forma_pagamento": "cartao",
+        "numero_documento": "acerto-bulinha:residual-julho-2026",
+        "tags": [
+          "a-pagar",
+          "acerto-residual",
+          "2026",
+          "julho",
+          "bulinha",
+          "acerto-bulinha-cartao-2026-08",
+          "quitado-por-fatura-cartao"
+        ],
+        "origem": "real",
+        "observacoes": "[ACERTO 11/08] Sobra do acerto das comissoes de junho (R$ 58.872,00), pagas em julho com desconto dos gastos dele no cartao da empresa. Lancado em \"Repasse Assessorias/Parceiros\" e nao em \"Comissao Funcionario\" de proposito: a despesa de comissao ja foi reconhecida nos seis CP originais, e repetir aqui contaria a mesma despesa duas vezes. Esta linha representa so o caixa que ainda tem de sair.\n[18/08/2026] RETIDO POR DECISÃO (conversa com a Ana, 10/08): perguntado se deveria provisionar o pagamento, a resposta foi \"deixa aguardado\". Não é atraso de pagamento — é retenção deliberada, junto com os acertos do Rusa e 1/3 do Fábio que foram postergados. [ACERTO BULINHA-CARTAO 20/08] Abatido pelas faturas de cartao com debito automatico em 2026-08-24 (VISA 5.949,84 + MASTERCARD 1.380,13 = 7329.97): o gasto do cartao e do proprio Felipe (100% das compras dos cartoes da Bula tem portador FELIPE V ANDRADE), entao a Bula quita a divida pagando a fatura em vez de transferir para ele. Nao houve saida de caixa para o Felipe. Restam R$ 62.03 em aberto, ainda retidos por decisao. [QUITADO 24/08] Encerrado contra as faturas de cartao debitadas em 24/08/2026 e confirmadas no extrato Sicoob: VISA 5.949,84 + MASTERCARD 1.380,13 = 7.329,97. Residual de 62,03 lancado como desconto. Nao houve saida de caixa alem das proprias faturas — 100% das compras nesses cartoes tem portador FELIPE V ANDRADE.",
+        "restante": 0
+      },
+      {
+        "id": "d5cc45e2-1941-4a6f-bec6-e54f42278384",
+        "descricao": "COMISSAO 6º MEGA EAO TOUROS (03/05) - BULINHA (FELIPE ANDRADE) (2%)",
+        "valor": 14060,
+        "valor_pago": 14060,
+        "desconto": 0,
+        "vencimento": "2026-07-27",
+        "data_pagamento": "2026-07-17",
+        "status": "pago",
+        "forma_pagamento": "",
+        "numero_documento": "BULA-2026-CP-COM-EAO-MAIO-BULINHA",
+        "tags": [
+          "a-pagar",
+          "comissao",
+          "2026",
+          "leilao"
+        ],
+        "origem": "real",
+        "observacoes": "[PLANILHA-BULINHA 23/07] 703.000 x 2% = 14.060 conforme planilha COMISSÃO BULINHA do chefe (23/07). Vinculado ao fechamento 293de295-32b9-4256-976e-ef344b2667b8. [ACERTO 11/08] Comissao de junho acertada no pagamento de julho (PIX de 13/07 R$ 38.000,00 e de 17/07 R$ 51.871,50 a FELIPE VILELA ANDRADE). O acerto descontou os gastos que ele fez no cartao da empresa, e do total de R$ 58.872,00 sobrou um residual de R$ 7.392,00 ainda devido - lancado a parte como saldo em aberto.",
+        "restante": 0
+      },
+      {
+        "id": "58b67ce7-4b33-455b-83f6-c7a91d187b9f",
+        "descricao": "COMISSAO 32º LEILAO 4R (09/05) - BULINHA (FELIPE ANDRADE) (2%)",
+        "valor": 10206,
+        "valor_pago": 10206,
+        "desconto": 0,
+        "vencimento": "2026-07-27",
+        "data_pagamento": "2026-07-17",
+        "status": "pago",
+        "forma_pagamento": "",
+        "numero_documento": "BULA-2026-CP-COM-4R-MAIO-BULINHA",
+        "tags": [
+          "a-pagar",
+          "comissao",
+          "2026",
+          "leilao"
+        ],
+        "origem": "real",
+        "observacoes": "[PLANILHA-BULINHA 23/07] 510.300 x 2% = 10.206 conforme planilha COMISSÃO BULINHA do chefe (23/07). Vinculado ao fechamento b3d1c05c-2d37-4f9d-b1e4-a21c12540619. [ACERTO 11/08] Comissao de junho acertada no pagamento de julho (PIX de 13/07 R$ 38.000,00 e de 17/07 R$ 51.871,50 a FELIPE VILELA ANDRADE). O acerto descontou os gastos que ele fez no cartao da empresa, e do total de R$ 58.872,00 sobrou um residual de R$ 7.392,00 ainda devido - lancado a parte como saldo em aberto.",
+        "restante": 0
+      },
+      {
+        "id": "fb4868ff-9a54-4c81-8cb2-739fc93c50a6",
+        "descricao": "COMISSAO 10O LEILÃO JMP FÊMEAS/BEZERRAS - BULINHA (FELIPE ANDRADE) (2%)",
+        "valor": 1260,
+        "valor_pago": 1260,
+        "desconto": 0,
+        "vencimento": "2026-07-27",
+        "data_pagamento": "2026-07-17",
+        "status": "pago",
+        "forma_pagamento": "",
+        "numero_documento": "BULA-2026-CP-COM-JMP-FEMEAS-BULINHA",
+        "tags": [
+          "a-pagar",
+          "comissao",
+          "2026",
+          "leilao",
+          "jmp",
+          "femeas",
+          "bulinha"
+        ],
+        "origem": "real",
+        "observacoes": "[AGUARDANDO VALIDAÇÃO — RECEITA JMP] Não liberar no lote bancário até concluir a reconciliação ERP x legado dos recebíveis JMP e confirmar base, parcela e beneficiário. Comissão 2% sobre VGV de cobertura R$ 63.000,00 no 10o Leilão JMP Fêmeas/Bezerras. Base: relatório de pisteiros (PDF) + regra Bula (Bulinha 2%). Vinculado ao fechamento cd19dba3-792d-42e3-a563-f6025528dd51. [ACERTO 11/08] Comissao de junho acertada no pagamento de julho (PIX de 13/07 R$ 38.000,00 e de 17/07 R$ 51.871,50 a FELIPE VILELA ANDRADE). O acerto descontou os gastos que ele fez no cartao da empresa, e do total de R$ 58.872,00 sobrou um residual de R$ 7.392,00 ainda devido - lancado a parte como saldo em aberto.",
+        "restante": 0
+      },
+      {
+        "id": "30a04017-24de-4b74-a2d1-dfb2eeb6ba27",
+        "descricao": "COMISSAO 8o JACAMIM FEMEAS (07/06) - BULINHA (FELIPE ANDRADE) (2%)",
+        "valor": 540,
+        "valor_pago": 540,
+        "desconto": 0,
+        "vencimento": "2026-07-27",
+        "data_pagamento": "2026-07-17",
+        "status": "pago",
+        "forma_pagamento": "",
+        "numero_documento": "BULA-2026-CP-COM-JACAMIM-BULINHA-FELIPE-ANDRADE",
+        "tags": [
+          "a-pagar",
+          "comissao",
+          "2026",
+          "leilao",
+          "jacamim"
+        ],
+        "origem": "real",
+        "observacoes": "[AGUARDANDO VALIDAÇÃO — RECEITA JACAMIM] Não liberar no lote bancário até validar a divergência entre o ERP (R$ 21.509,50) e o controle legado (R$ 12.042,00). Comissão sobre VGV de cobertura 27.000,00 no 8o JACAMIM FEMEAS (07/06). Vinculado ao fechamento c1afc577-062e-4473-8a53-0d10e6802392. Gerada na conferência 30/06 (CP estava faltando). [ACERTO 11/08] Comissao de junho acertada no pagamento de julho (PIX de 13/07 R$ 38.000,00 e de 17/07 R$ 51.871,50 a FELIPE VILELA ANDRADE). O acerto descontou os gastos que ele fez no cartao da empresa, e do total de R$ 58.872,00 sobrou um residual de R$ 7.392,00 ainda devido - lancado a parte como saldo em aberto.",
+        "restante": 0
+      },
+      {
+        "id": "3191dc97-8cd9-4632-ade1-55209e4f2cd7",
+        "descricao": "COMISSAO 10O LEILÃO JMP TOUROS - BULINHA (FELIPE ANDRADE) (2%)",
+        "valor": 30256,
+        "valor_pago": 30256,
+        "desconto": 0,
+        "vencimento": "2026-07-27",
+        "data_pagamento": "2026-07-17",
+        "status": "pago",
+        "forma_pagamento": "",
+        "numero_documento": "BULA-2026-CP-COM-JMP-TOUROS-BULINHA",
+        "tags": [
+          "a-pagar",
+          "comissao",
+          "2026",
+          "leilao",
+          "jmp",
+          "touros",
+          "bulinha"
+        ],
+        "origem": "real",
+        "observacoes": "[AGUARDANDO VALIDAÇÃO — RECEITA JMP] Não liberar no lote bancário até concluir a reconciliação ERP x legado dos recebíveis JMP e confirmar base, parcela e beneficiário. Comissão 2% sobre VGV de cobertura R$ 1.499.300,00 no 10o Leilão JMP Touros. Base: relatório de pisteiros (PDF) + regra Bula (Bulinha 2%). Vinculado ao fechamento c0f291bb-17bc-4b10-b320-c5ed6e767057. [23/07/2026] Valor alinhado ao relatório de pisteiros FELIPE VENDAS JUNHO: VGV de cobertura R$ 1.512.800,00 (era R$ 1.499.300,00), comissão 2% = R$ 30.256,00. [ACERTO 11/08] Comissao de junho acertada no pagamento de julho (PIX de 13/07 R$ 38.000,00 e de 17/07 R$ 51.871,50 a FELIPE VILELA ANDRADE). O acerto descontou os gastos que ele fez no cartao da empresa, e do total de R$ 58.872,00 sobrou um residual de R$ 7.392,00 ainda devido - lancado a parte como saldo em aberto.",
+        "restante": 0
+      }
+    ],
+    "contas_pagar_aberto": []
+  },
+  "cartao": {
+    "faturas": [
+      {
+        "cartao": "Sicoob Mastercard 3880",
+        "bandeira": "Mastercard",
+        "final": "3880",
+        "competencia": "2026-07",
+        "mes": "JULHO",
+        "total": 1731.74,
+        "vencimento": "2026-07-22",
+        "pagamento": "2026-07-22",
+        "status": "paga",
+        "origem": "extrato_conta_sicoob_2026_07",
+        "proxima": null
+      },
+      {
+        "cartao": "Sicoob Visa 6495",
+        "bandeira": "Visa",
+        "final": "6495",
+        "competencia": "2026-07",
+        "mes": "JULHO",
+        "total": 8986.15,
+        "vencimento": "2026-07-22",
+        "pagamento": "2026-07-22",
+        "status": "paga",
+        "origem": "extrato_conta_sicoob_2026_07",
+        "proxima": null
+      },
+      {
+        "cartao": "Sicoob Mastercard 3880",
+        "bandeira": "Mastercard",
+        "final": "3880",
+        "competencia": "2026-08",
+        "mes": "AGOSTO",
+        "total": 1380.13,
+        "vencimento": "2026-08-22",
+        "pagamento": "2026-08-24",
+        "status": "paga",
+        "origem": "internet_banking_2026_08_26",
+        "proxima": 1198.95
+      },
+      {
+        "cartao": "Sicoob Visa 6495",
+        "bandeira": "Visa",
+        "final": "6495",
+        "competencia": "2026-08",
+        "mes": "AGOSTO",
+        "total": 5949.84,
+        "vencimento": "2026-08-22",
+        "pagamento": "2026-08-24",
+        "status": "paga",
+        "origem": "internet_banking_2026_08_26",
+        "proxima": 3630.71
+      }
+    ],
+    "previsao_setembro": [
+      {
+        "descricao": "Fatura cartao VISA (deb. automatico)",
+        "valor": 5949.84,
+        "vencimento": "2026-09-22",
+        "origem": "estimativa",
+        "status": "aberto"
+      },
+      {
+        "descricao": "Fatura cartao MASTERCARD (deb. automatico)",
+        "valor": 1380.13,
+        "vencimento": "2026-09-22",
+        "origem": "estimativa",
+        "status": "aberto"
+      }
+    ],
+    "por_portador": {
+      "CONTA": 301.19,
+      "FELIPE V ANDRADE": 189585.3
+    },
+    "compras_n": 468,
+    "compras_total": 189886.49,
+    "fatura_conhecida": 4829.66,
+    "previsao_erp": 7329.97
+  },
+  "remates": {
+    "contas_receber": [
+      {
+        "descricao": "TRANSF.RECEB-PIX SI - REM.: BULA REMATES LTDA",
+        "valor": 0.01,
+        "recebido": 0.01,
+        "vencimento": "2026-02-24",
+        "status": "recebido",
+        "restante": 0
+      },
+      {
+        "descricao": "RECEBIMENTO PIX 50059339000131 BULA REMATES LTDA PIX_CRED",
+        "valor": 647.8,
+        "recebido": 647.8,
+        "vencimento": "2026-03-11",
+        "status": "recebido",
+        "restante": 0
+      },
+      {
+        "descricao": "TOKA DO JACARE - REMATES",
+        "valor": 13060.8,
+        "recebido": 13060.8,
+        "vencimento": "2026-05-24",
+        "status": "recebido",
+        "restante": 0
+      },
+      {
+        "descricao": "LEILAO IPB - REMATES",
+        "valor": 8547,
+        "recebido": 8547,
+        "vencimento": "2026-05-26",
+        "status": "recebido",
+        "restante": 0
+      },
+      {
+        "descricao": "LEILAO CACHOEIRAO - REMATES",
+        "valor": 14340,
+        "recebido": 0,
+        "vencimento": "2026-05-29",
+        "status": "cancelado",
+        "restante": 14340
+      },
+      {
+        "descricao": "LEILÃO MRA - REMATES",
+        "valor": 11795,
+        "recebido": 11795,
+        "vencimento": "2026-06-06",
+        "status": "recebido",
+        "restante": 0
+      },
+      {
+        "descricao": "LEILÃO DESTAQUE SAFRA NELORE CACHOEIRÃO - REMATES",
+        "valor": 10914,
+        "recebido": 10914,
+        "vencimento": "2026-06-15",
+        "status": "recebido",
+        "restante": 0
+      },
+      {
+        "descricao": "TRANSF.RECEB-PIX SI - REM.: BULA REMATES LTDA",
+        "valor": 88868.12,
+        "recebido": 88868.12,
+        "vencimento": "2026-06-15",
+        "status": "recebido",
+        "restante": 0
+      },
+      {
+        "descricao": "ELITE DA PROVA TRESMAR - REMATES",
+        "valor": 12075,
+        "recebido": 12075,
+        "vencimento": "2026-06-15",
+        "status": "recebido",
+        "restante": 0
+      },
+      {
+        "descricao": "LEILÃO ESPECIAL 60 ANOS RIBALTA - REMATES",
+        "valor": 58890,
+        "recebido": 58890,
+        "vencimento": "2026-06-28",
+        "status": "recebido",
+        "restante": 0
+      },
+      {
+        "descricao": "LEILAO TRESMAR (21/05) - REMATES",
+        "valor": 9933,
+        "recebido": 9933,
+        "vencimento": "2026-07-05",
+        "status": "recebido",
+        "restante": 0
+      },
+      {
+        "descricao": "RECEBIMENTO PIX 50059339000131 BULA REMATES LTDA",
+        "valor": 120,
+        "recebido": 120,
+        "vencimento": "2026-07-09",
+        "status": "recebido",
+        "restante": 0
+      },
+      {
+        "descricao": "8º FAZENDA RIO BONITO - COMISSÃO BULA REMATES",
+        "valor": 825,
+        "recebido": 825,
+        "vencimento": "2026-07-15",
+        "status": "recebido",
+        "restante": 0
+      },
+      {
+        "descricao": "LEILÃO NELORE KRIZ - REMATES",
+        "valor": 16122,
+        "recebido": 16122,
+        "vencimento": "2026-07-15",
+        "status": "recebido",
+        "restante": 0
+      },
+      {
+        "descricao": "TRANSF.RECEB-PIX SI - BULA REMATES LTDA",
+        "valor": 51200.1,
+        "recebido": 51200.1,
+        "vencimento": "2026-07-23",
+        "status": "recebido",
+        "restante": 0
+      },
+      {
+        "descricao": "TRANSF.RECEBIDA - PIX SICOOB REM.: BULA REMATES LTDA 50.059.339 0001-31 VALOR DE IMPOSTO NF DEVOLUCAO",
+        "valor": 1857,
+        "recebido": 1857,
+        "vencimento": "2026-08-06",
+        "status": "recebido",
+        "restante": 0
+      },
+      {
+        "descricao": "NELORACO PO (25/07) - BULA REMATES",
+        "valor": 25155,
+        "recebido": 9646.5,
+        "vencimento": "2026-08-20",
+        "status": "vencido",
+        "restante": 15508.5
+      },
+      {
+        "descricao": "LEILAO TOUROS NELORE KIRZ (07/07) - BULA REMATES",
+        "valor": 10164,
+        "recebido": 10164,
+        "vencimento": "2026-08-20",
+        "status": "recebido",
+        "restante": 0
+      },
+      {
+        "descricao": "LEILAO TOUROS FAZENDA SAO GERALDO (01/08) - BULA REMATES",
+        "valor": 50198,
+        "recebido": 0,
+        "vencimento": "2026-09-20",
+        "status": "aberto",
+        "restante": 50198
+      }
+    ],
+    "aberto": [
+      {
+        "descricao": "NELORACO PO (25/07) - BULA REMATES",
+        "valor": 25155,
+        "recebido": 9646.5,
+        "vencimento": "2026-08-20",
+        "status": "vencido",
+        "restante": 15508.5
+      },
+      {
+        "descricao": "LEILAO TOUROS FAZENDA SAO GERALDO (01/08) - BULA REMATES",
+        "valor": 50198,
+        "recebido": 0,
+        "vencimento": "2026-09-20",
+        "status": "aberto",
+        "restante": 50198
+      }
+    ],
+    "total_aberto": 65706.5
+  },
+  "extrato": [
+    {
+      "data": "2026-01-12",
+      "tipo": "saida",
+      "valor": 14000,
+      "descricao": "PAGAMENTO PIX 02488025186 FELIPE VILELA ANDRADE CX50241"
+    },
+    {
+      "data": "2026-01-14",
+      "tipo": "transferencia",
+      "valor": 50000,
+      "descricao": "TRANSF.RECEB-PIX SI - REM.: FELIPE VILELA ANDRADE"
+    },
+    {
+      "data": "2026-01-21",
+      "tipo": "transferencia",
+      "valor": 35000,
+      "descricao": "TRANSF.RECEB-PIX SI - REM.: FELIPE VILELA ANDRADE"
+    },
+    {
+      "data": "2026-02-24",
+      "tipo": "transferencia",
+      "valor": 0.01,
+      "descricao": "TRANSF. PIX SICOOB - FAV.: BULA REMATES LTDA"
+    },
+    {
+      "data": "2026-02-24",
+      "tipo": "entrada",
+      "valor": 0.01,
+      "descricao": "TRANSF.RECEB-PIX SI - REM.: BULA REMATES LTDA"
+    },
+    {
+      "data": "2026-03-11",
+      "tipo": "entrada",
+      "valor": 647.8,
+      "descricao": "RECEBIMENTO PIX 50059339000131 BULA REMATES LTDA PIX_CRED"
+    },
+    {
+      "data": "2026-04-27",
+      "tipo": "saida",
+      "valor": 98000,
+      "descricao": "PAGAMENTO PIX 02488025186 FELIPE VILELA ANDRADE PIX_DEB"
+    },
+    {
+      "data": "2026-06-09",
+      "tipo": "transferencia",
+      "valor": 30000,
+      "descricao": "TRANSF.RECEB-PIX SI - REM.: FELIPE VILELA ANDRADE"
+    },
+    {
+      "data": "2026-06-09",
+      "tipo": "transferencia",
+      "valor": 20000,
+      "descricao": "TRANSF.RECEB-PIX SI - REM.: FELIPE VILELA ANDRADE"
+    },
+    {
+      "data": "2026-06-15",
+      "tipo": "entrada",
+      "valor": 88868.12,
+      "descricao": "TRANSF.RECEB-PIX SI - REM.: BULA REMATES LTDA"
+    },
+    {
+      "data": "2026-07-09",
+      "tipo": "entrada",
+      "valor": 120,
+      "descricao": "RECEBIMENTO PIX 50059339000131 BULA REMATES LTDA"
+    },
+    {
+      "data": "2026-07-13",
+      "tipo": "saida",
+      "valor": 38000,
+      "descricao": "TRANSF.PIX SICOOB - FELIPE VILELA ANDRADE"
+    },
+    {
+      "data": "2026-07-17",
+      "tipo": "saida",
+      "valor": 51871.5,
+      "descricao": "PAGAMENTO PIX 02488025186 FELIPE VILELA ANDRADE"
+    },
+    {
+      "data": "2026-07-23",
+      "tipo": "entrada",
+      "valor": 51200.1,
+      "descricao": "TRANSF.RECEB-PIX SI - BULA REMATES LTDA"
+    },
+    {
+      "data": "2026-08-06",
+      "tipo": "entrada",
+      "valor": 1857,
+      "descricao": "TRANSF.RECEBIDA - PIX SICOOB REM.: BULA REMATES LTDA 50.059.339 0001-31 VALOR DE IMPOSTO NF DEVOLUCAO"
+    },
+    {
+      "data": "2026-08-14",
+      "tipo": "saida",
+      "valor": 5026.34,
+      "descricao": "TRANSF. PIX SICOOB - FAV.: BULA REMATES LTDA - Ref reembolso Bula Remates reemissao passagens"
+    },
+    {
+      "data": "2026-08-20",
+      "tipo": "entrada",
+      "valor": 19810.5,
+      "descricao": "CRED.TRANSF.CONTAS - REM.: BULA REMATES LTDA - ACERTO BULA ASSESSORIA KRIZ E NELORAÇO"
+    }
+  ],
+  "saldo": {
+    "com_lote11_fatura_real": -869.66,
+    "com_lote11_previsao_erp": -3369.97,
+    "sem_lote11_fatura_real": -2729.66,
+    "sem_lote11_previsao_erp": -5229.97
+  }
+}
