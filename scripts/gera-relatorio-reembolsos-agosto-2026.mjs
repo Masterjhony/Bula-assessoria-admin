@@ -3,8 +3,8 @@
  * Dados em scripts/dados-reembolsos-agosto-2026.mjs (apurados nas DMs do
  * WhatsApp da sessão joao-automation + comprovantes do bucket whatsapp-media).
  */
+import { execFileSync } from 'node:child_process'
 import { chromium } from 'playwright'
-import * as XLSX from 'xlsx'
 import fs from 'node:fs'
 import path from 'node:path'
 import { META, ASSESSORES, ITENS, EVENTOS, PENDENCIAS, RASTRO } from './dados-reembolsos-agosto-2026.mjs'
@@ -266,43 +266,10 @@ await page.pdf({ path: pdfPath, format: 'A4', printBackground: true })
 await browser.close()
 
 /* ── XLSX ─────────────────────────────────────────────────────────────── */
-const wb = XLSX.utils.book_new()
-
-const resumo = [
-  ['REEMBOLSOS DE AGOSTO/2026 — ASSESSORES'],
-  ['Apurado em', META.hoje],
-  ['Fonte', META.fonte],
-  [],
-  ['Assessor', 'Empresa / CNPJ', 'Declarado', 'Abatimento', 'A PAGAR', 'Destino', 'Enviou em', 'NF'],
-  ...ASSESSORES.map(a => [a.nome, a.empresa, a.bruto, -a.abatimento, a.liquido, a.pix, a.enviouEm, a.nf]),
-  ['TOTAL', '', r2(ASSESSORES.reduce((s, a) => s + a.bruto, 0)), -r2(ASSESSORES.reduce((s, a) => s + a.abatimento, 0)), A_PAGAR],
-  [],
-  ['Não entra no pagamento de hoje'],
-  ['14º Pérolas do Tapajós (Douglas, relatório de 12/08)', '', COMPENSADO, '', '', 'já compensado contra a passagem da Expogenética que ele comprou'],
-]
-XLSX.utils.book_append_sheet(wb, XLSX.utils.aoa_to_sheet(resumo), 'Resumo')
-
-const lanc = [
-  ['Assessor', 'Data', 'Despesa', 'Leilão / evento', 'Tipo do evento', 'Comprovante', 'Valor', 'Observação'],
-  ...TODOS.map(i => [i.quem, i.data, i.desc, EVENTOS[i.evento].nome, EVENTOS[i.evento].tipo, COMP_LABEL[i.comp][0], i.valor, i.obs]),
-]
-XLSX.utils.book_append_sheet(wb, XLSX.utils.aoa_to_sheet(lanc), 'Lançamentos')
-
-const ev = [
-  ['Leilão / evento', 'Data', 'Tipo', 'VGV', 'Douglas', 'Fábio', 'Leonardo', 'Total', '% do VGV', 'Nota'],
-  ...porEvento.map(e => [e.nome, e.data, e.tipo, e.vgv || '', e.douglas || '', e.fabio || '', e.leonardo || '', e.total, e.vgv ? r2(e.total / e.vgv * 100) / 100 : '', e.nota]),
-  ['TOTAL', '', '', '', COMP.douglas.total, COMP.fabio.total, COMP.leonardo.total, TOTAL_LINHAS],
-]
-XLSX.utils.book_append_sheet(wb, XLSX.utils.aoa_to_sheet(ev), 'Por leilão')
-
-const pend = [['Grau', 'Quem', 'Ponto', 'Detalhe'], ...PENDENCIAS.map(p => [p.grau, p.quem, p.titulo, p.texto])]
-XLSX.utils.book_append_sheet(wb, XLSX.utils.aoa_to_sheet(pend), 'Pendências')
-
-const rast = [['Quando', 'Quem', 'O quê'], ...RASTRO.map(r => [r.quando, r.quem, r.o])]
-XLSX.utils.book_append_sheet(wb, XLSX.utils.aoa_to_sheet(rast), 'Rastro WhatsApp')
-
+// A planilha é um artefato próprio (capa, aba de aprovação, filtros, moeda):
+// mora em scripts/xlsx-reembolsos-agosto-2026.mjs e lê os mesmos dados.
 const xlsxPath = path.join(PASTA, 'Bula - Reembolsos Agosto 2026.xlsx')
-XLSX.writeFile(wb, xlsxPath)
+execFileSync('node', ['scripts/xlsx-reembolsos-agosto-2026.mjs', xlsxPath], { stdio: 'inherit' })
 
 /* ── comprovantes ao lado ─────────────────────────────────────────────── */
 const SRC = path.join(OUT, 'anexos')
