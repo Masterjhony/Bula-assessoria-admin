@@ -68,6 +68,11 @@ const fech = await Q(`
   select id, nome, data::date d, vgv_total::float vgv, coalesce(receita_bula,0)::float receita,
     lotes_vendidos lotes, faturamento_total_leilao::float fat
   from bula_leilao_fechamento where data>='2026-01-01' order by data`)
+// a folha sai do cadastro, nunca de constante: mudar salário na tela tem que
+// aparecer aqui sem ninguém lembrar de editar este script
+const folha = await Q(`select nome, coalesce(salario_fixo,0)::float fixo
+  from erp_folha_estrutura where ativo order by fixo desc`)
+const folhaMensal = r2(folha.reduce((s, p) => s + p.fixo, 0))
 await c.end()
 
 /* ── 2. Planilha do chefe ────────────────────────────────────────────────── */
@@ -253,7 +258,7 @@ div.sort((a, b) => (ORDEM[a.sev] - ORDEM[b.sev]) || (Math.abs(b.valor || 0) - Ma
 
 const dados = {
   gerado_em: new Date().toISOString(), hoje: HOJE, conciliado_ate: iso(conciliadoAte),
-  contas, saldo_caixa: saldoCaixa, leiloes, fech, fechSemLinha, cr, cp, fluxo, vencidos, piorDia, meses, dre, div,
+  contas, saldo_caixa: saldoCaixa, folha, leiloes, fech, fechSemLinha, cr, cp, fluxo, vencidos, piorDia, meses, dre, div,
   totais: {
     cr_aberto: r2(cr.reduce((s, t) => s + t.devido, 0)),
     cr_vencido: r2(cr.filter(t => t.venc < HOJE).reduce((s, t) => s + t.devido, 0)),
@@ -267,7 +272,7 @@ const dados = {
     vgv_ano: r2(fech.reduce((s, f) => s + f.vgv, 0)),
     faturamento_ano: r2(leiloes.reduce((s, l) => s + (l.fat || 0), 0)),
     vendas_ano: r2(leiloes.reduce((s, l) => s + (l.vendas || 0), 0)),
-    folha_mensal: 49500,
+    folha_mensal: folhaMensal,
   },
 }
 writeFileSync('outputs/painel-financeiro-2026/dados.json', JSON.stringify(dados, null, 1))

@@ -1,5 +1,5 @@
 {
- "gerado_em": "2026-09-04T19:26:48.793Z",
+ "gerado_em": "2026-09-04T19:32:25.020Z",
  "hoje": "2026-09-04",
  "conciliado_ate": "2026-09-02",
  "contas": [
@@ -23,6 +23,52 @@
   }
  ],
  "saldo_caixa": 33895.75,
+ "folha": [
+  {
+   "nome": "LEONARDO",
+   "fixo": 13500
+  },
+  {
+   "nome": "DOUGLAS BISPO",
+   "fixo": 10000
+  },
+  {
+   "nome": "FABIO OMENNA",
+   "fixo": 7000
+  },
+  {
+   "nome": "MATHEUS M1",
+   "fixo": 6000
+  },
+  {
+   "nome": "JOÃO EDUARDO",
+   "fixo": 5000
+  },
+  {
+   "nome": "JOÃO GABRIEL",
+   "fixo": 2000
+  },
+  {
+   "nome": "JOÃO ANTONIO",
+   "fixo": 2000
+  },
+  {
+   "nome": "PEDRO",
+   "fixo": 2000
+  },
+  {
+   "nome": "LUANA",
+   "fixo": 2000
+  },
+  {
+   "nome": "BULINHA (FELIPE ANDRADE)",
+   "fixo": 0
+  },
+  {
+   "nome": "GUSTAVO RUSA",
+   "fixo": 0
+  }
+ ],
  "leiloes": [
   {
    "linha": 2,
