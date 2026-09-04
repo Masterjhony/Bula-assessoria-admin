@@ -75,8 +75,8 @@ function aba(nome, cols, linhas, opts = {}) {
 
   sec('POSIÇÃO — o que está contratado')
   kv('A receber, total em aberto', brl(t.cr_aberto), `${D.cr.length} títulos de comissão já apurada`, 'brl')
-  kv('   com data combinada', brl(t.cr_data_acordada), 'é só isto que entra na projeção conservadora', 'brl')
-  kv('   em vencimento automático (leilão + 45d)', brl(t.cr_aberto - t.cr_data_acordada), 'data ainda não confirmada com a leiloeira', 'brl')
+  kv('   com data combinada', brl(t.cr_data_acordada), `${D.cr.length - D.semData.n} títulos — é só isto que entra no Fluxo de Caixa`, 'brl')
+  kv('   sem data combinada', brl(t.cr_sem_data), `${D.semData.n} títulos: existe, está apurado, mas ninguém combinou quando`, 'brl')
   kv('A receber já vencido', brl(t.cr_vencido), 'exige cobrança', 'brl')
   kv('A pagar — dívida contraída', brl(t.cp_real), 'compromisso real, com contraparte', 'brl')
   kv('A pagar — custo futuro projetado', brl(t.cp_estimativa), 'folha, impostos e recorrentes até jan/27 — não é dívida', 'brl')
@@ -104,23 +104,30 @@ function aba(nome, cols, linhas, opts = {}) {
   const L = D.fluxo.map(f => {
     const d = new Date(f.data + 'T00:00:00Z')
     // nada começa com "+" ou "−": o Sheets leria como fórmula e o resultado é #ERROR!
-    const ent = f.itens_entrada.map(i => i.d + (i.auto ? ' [data automática]' : '')).join('; ')
+    const ent = f.itens_entrada.map(i => i.d).join('; ')
     const sai = f.itens_saida.map(i => i.d + (i.origem !== 'real' ? ' [estimativa]' : '')).join('; ')
     const det = [ent && 'Entra: ' + ent, sai && 'Sai: ' + sai].filter(Boolean).join('   ·   ')
-    return [f.data, DIAS[d.getUTCDay()], brl(f.entrada_acordada), brl(f.entrada_total),
-      brl(f.saida), brl(f.saldo_conservador), brl(f.saldo_total), det]
+    return [f.data, DIAS[d.getUTCDay()], brl(f.entrada), brl(f.saida), brl(f.saldo), det]
   })
   aba('Fluxo de Caixa',
-    ['Data', 'Dia', 'Entradas\ncom data combinada', 'Entradas\ntodas', 'Saídas', 'Saldo\nconservador', 'Saldo\ncom tudo', 'O que move o dia'],
+    ['Data', 'Dia', 'Entradas', 'Saídas', 'Saldo projetado', 'O que move o dia'],
     L, {
-    tipo: 'fluxo', larguras: [95, 45, 150, 130, 120, 140, 140, 760], congelar: 1,
+    tipo: 'fluxo', larguras: [100, 50, 145, 145, 165, 900], congelar: 1,
     nota: [
       `Saldo de partida: R$ ${brNum(D.saldo_caixa)} — extrato conciliado até ${br(D.conciliado_ate)}.`,
-      `Só entra aqui o que JÁ ESTÁ CONTRATADO. Nenhuma receita de leilão futuro foi somada: a agenda de setembro sozinha tem meta de comissão de R$ ${brNum(D.meses[8].meta_comissao)}, e nada disso está nestas colunas.`,
-      `"Saldo conservador" conta só o que tem data combinada com a leiloeira. "Saldo com tudo" acrescenta os R$ ${brNum(D.totais.cr_aberto - D.totais.cr_data_acordada)} cujo vencimento é o automático de leilão+45d — data que ninguém confirmou.`,
-      `FORA da projeção, porque já venceram e a data de pagamento é decisão de quem paga, não do sistema: R$ ${brNum(D.vencidos.cr_total)} a receber (${D.vencidos.cr.length} títulos) e R$ ${brNum(D.vencidos.cp_total)} a pagar (${D.vencidos.cp.length} títulos). Estão nas abas Contas a Receber e Contas a Pagar, marcados VENCIDO.`,
-      `Pior dia do cenário conservador: ${br(D.piorDia.data)}, com R$ ${brNum(D.piorDia.saldo_conservador)}. Ele fica negativo no fim do ano porque a folha até jan/27 já está projetada e a receita de out–dez não — não é previsão de furo de caixa.`,
+      `ENTRA AQUI SÓ O QUE TEM DATA COMBINADA COM QUEM PAGA. Vencimento automático (leilão + 45 dias) não é data: R$ ${brNum(D.totais.cr_sem_data)} em ${D.semData.n} títulos ficaram de fora e estão listados abaixo da tabela.`,
+      `Também não entra nenhuma receita de leilão futuro: a agenda de setembro sozinha tem meta de comissão de R$ ${brNum(D.meses[8].meta_comissao)}, e nada disso está aqui.`,
+      `Pior dia: ${br(D.piorDia.data)}, com R$ ${brNum(D.piorDia.saldo)}. Ele fica negativo no fim do ano porque a folha até jan/27 já está projetada e a receita de out–dez não — não é previsão de furo de caixa.`,
     ],
+    // bloco de fechamento, escrito depois da tabela
+    posBloco: [
+      [],
+      [`A RECEBER SEM DATA COMBINADA — R$ ${brNum(D.totais.cr_sem_data)} em ${D.semData.n} títulos, fora do fluxo acima`],
+      ['Quem deve', 'Títulos', 'Valor', '', '', 'Para entrar no fluxo: combine a data e rode  node scripts/marca-data-acordada.mjs --apply'],
+      ...D.semData.porCliente.map(x => [x.cliente, x.n, brl(x.total), '', '',
+        x.titulos.map(t => t.d.slice(0, 44)).join('; ')]),
+    ],
+    posBlocoNum: [2], posBlocoWrap: [0],
   })
 }
 
@@ -221,6 +228,77 @@ function aba(nome, cols, linhas, opts = {}) {
   })
 }
 
+/* 5b · RESULTADOS ────────────────────────────────────────────────────────── */
+/**
+ * As três tabelas de baixo não compartilham o significado das colunas — a 5ª é
+ * "Lucro" numa, "Cobertura" na outra e "Faturamento" na terceira. Por isso o
+ * formato numérico é declarado por FAIXA DE LINHAS, não por coluna inteira.
+ */
+function montaBlocoResultados() {
+  const linhas = [], num = [], pct = []
+  const marca = (arr, col) => arr.push({ de: linhas.length, ate: linhas.length, col })
+  const tabela = (titulo, cab, dados, colsNum, colsPct = []) => {
+    linhas.push([], [titulo], cab)
+    const de = linhas.length
+    linhas.push(...dados)
+    for (const c of colsNum) num.push({ de, ate: linhas.length, col: c })
+    for (const c of colsPct) pct.push({ de, ate: linhas.length, col: c })
+  }
+  tabela('MÊS A MÊS', ['Mês', 'Leilões', 'Faturamento', 'Vendas Bula', 'Receita', 'Lucro líquido'],
+    D.meses.filter(m => m.fat_realizado || m.dre_receita).map(m =>
+      [m.nome, m.leiloes_planilha, brl(m.fat_realizado), brl(m.vendas_bula), brl(m.receita_competencia), brl(m.dre_lucro)]),
+    [2, 3, 4, 5])
+  tabela('RECEITA POR LEILOEIRA', ['Leiloeira', 'Leilões', 'Faturamento', 'Vendas Bula', 'Receita', 'Cobertura'],
+    D.resultados.porLeiloeira.filter(x => x.receita > 0).map(x =>
+      [x.leiloeira, x.n, brl(x.fat), brl(x.vendas), brl(x.receita), x.fat ? x.vendas / x.fat : '']),
+    [2, 3, 4], [5])
+  tabela('OS 12 LEILÕES QUE MAIS RENDERAM', ['Leilão', 'Mês', 'Leiloeira', 'Vendas Bula', 'Receita', 'Faturamento'],
+    D.resultados.topLeiloes.map(l => [l.nome, l.mes, l.leiloeira || '—', brl(l.vendas), brl(l.receita), brl(l.fat)]),
+    [3, 4, 5])
+  void marca
+  return { posBloco: linhas, posBlocoFaixas: num, posBlocoFaixasPct: pct }
+}
+{
+  const R = D.resultados
+  const L = [], M = []
+  // arrays de 3: as colunas D/E/F ficam REALMENTE vazias e a leitura transborda
+  // por cima delas. Com '' nelas o texto seria cortado.
+  const sec = t => { L.push([t]); M.push('secao') }
+  const kv = (k, v, n, f) => { L.push([k, v, n || '']); M.push(f || 'brl') }
+
+  sec('O ANO ATÉ AQUI')
+  kv('Leilões realizados', R.leiloes_realizados, `${R.leiloes_com_venda} com venda da Bula · ${R.lotes} lotes nos fechamentos do ERP`, 'int')
+  kv('Faturamento movimentado nos leilões', R.faturamento, 'soma do faturamento total dos eventos cobertos', 'brl')
+  kv('Vendas da Bula (VGV coberto)', R.vendas, '', 'brl')
+  kv('Cobertura', R.cobertura, 'quanto do leilão passou pela Bula — é ela que define a faixa do acordo', 'pct')
+  kv('Receita de comissão', R.receita, `${(R.receita_sobre_vendas * 100).toFixed(2).replace('.', ',')}% do que a Bula vendeu`, 'brl')
+  kv('Receita média por leilão', R.receita_media_leilao, '', 'brl')
+
+  sec('RESULTADO (DRE do chefe, competência)')
+  kv('Receita bruta acumulada', R.receita_acumulada_dre, 'janeiro a agosto', 'brl')
+  kv('Lucro líquido acumulado', R.lucro_acumulado_dre, 'janeiro a agosto', 'brl')
+  kv('Margem líquida acumulada', R.margem_acumulada, '', 'pct')
+  kv('Custo fixo médio por mês', R.ponto_equilibrio, 'é o que a operação precisa gerar de margem só para empatar', 'brl')
+  if (R.melhor_mes) kv('Melhor mês', R.melhor_mes.lucro, R.melhor_mes.nome, 'brl')
+  if (R.pior_mes) kv('Pior mês', R.pior_mes.lucro, R.pior_mes.nome, 'brl')
+
+  sec('POSIÇÃO DE HOJE')
+  kv('Caixa', D.saldo_caixa, `extrato conciliado até ${br(D.conciliado_ate)}`, 'brl')
+  kv('A receber com data combinada', D.totais.cr_data_acordada, 'é o que entra na projeção', 'brl')
+  kv('A receber sem data', D.totais.cr_sem_data, 'existe, está apurado, mas ninguém combinou quando', 'brl')
+  kv('A pagar — dívida contraída', D.totais.cp_real, '', 'brl')
+  kv('Folha mensal', D.totais.folha_mensal, 'próxima em 05/10', 'brl')
+
+  aba('Resultados', ['Indicador', 'Valor', 'Leitura', '', '', ''], L, {
+    tipo: 'resultados', larguras: [310, 175, 210, 175, 175, 175], marcas: M,
+    nota: [
+      'Panorâmica do ano: o que a operação produziu, o que sobrou e onde a Bula está hoje.',
+      'Os totais de leilão vêm da planilha FINANCEIRO BULA 2026; lotes e VGV vêm dos fechamentos do ERP; caixa e títulos vêm do ERP conciliado.',
+    ],
+    ...montaBlocoResultados(),
+  })
+}
+
 /* 6 · DIVERGÊNCIAS ───────────────────────────────────────────────────────── */
 {
   const L = D.div.map(d => [d.sev === 'MEDIA' ? 'MÉDIA' : d.sev, d.tema, d.desc,
@@ -294,11 +372,12 @@ if (existentes.has('Página1')) {
 {
   const st = await sheets.spreadsheets.get({
     spreadsheetId: SHEET_ID,
-    fields: 'sheets(properties(sheetId,title),bandedRanges(bandedRangeId),conditionalFormats)',
+    fields: 'sheets(properties(sheetId,title),bandedRanges(bandedRangeId),conditionalFormats,charts(chartId))',
   })
   const limpar = []
   for (const s of st.data.sheets) {
     for (const b of s.bandedRanges || []) limpar.push({ deleteBanding: { bandedRangeId: b.bandedRangeId } })
+    for (const g of s.charts || []) limpar.push({ deleteEmbeddedObject: { objectId: g.chartId } })
     // regras condicionais saem de trás para a frente: apagar reindexa as seguintes
     const n = (s.conditionalFormats || []).length
     for (let i = n - 1; i >= 0; i--) limpar.push({ deleteConditionalFormatRule: { sheetId: s.properties.sheetId, index: i } })
@@ -333,6 +412,10 @@ for (const a of ABAS) {
   const ini = cab + 1         // primeira linha de dados
   const nNotas = (a.nota || []).length
 
+  // zera a formatação da aba inteira: sem isto sobra o desenho da execução
+  // anterior nas colunas/linhas que o layout novo não usa mais
+  push({ repeatCell: { range: { sheetId: id }, cell: { userEnteredFormat: { backgroundColor: BRANCO, textFormat: { bold: false, italic: false, fontSize: 10, fontFamily: 'Inter', foregroundColor: PRETO }, horizontalAlignment: 'LEFT', verticalAlignment: 'MIDDLE', wrapStrategy: 'OVERFLOW_CELL' } }, fields: 'userEnteredFormat(backgroundColor,textFormat,horizontalAlignment,verticalAlignment,wrapStrategy)' } })
+
   // título e subtítulo
   push({ repeatCell: { range: { sheetId: id, startRowIndex: 0, endRowIndex: 1, startColumnIndex: 0, endColumnIndex: nCols }, cell: { userEnteredFormat: fmtTitulo }, fields: 'userEnteredFormat' } })
   push({ repeatCell: { range: { sheetId: id, startRowIndex: 1, endRowIndex: 2, startColumnIndex: 0, endColumnIndex: nCols }, cell: { userEnteredFormat: fmtSub }, fields: 'userEnteredFormat' } })
@@ -354,8 +437,9 @@ for (const a of ABAS) {
   // corpo
   if (nRows) push({ repeatCell: { range: { sheetId: id, startRowIndex: ini, endRowIndex: ini + nRows, startColumnIndex: 0, endColumnIndex: nCols }, cell: { userEnteredFormat: fmtCorpo }, fields: 'userEnteredFormat(textFormat,verticalAlignment)' } })
 
-  // congela cabeçalho
-  push({ updateSheetProperties: { properties: { sheetId: id, gridProperties: { frozenRowCount: cab + 1, frozenColumnCount: a.congelar || 0 } }, fields: 'gridProperties.frozenRowCount,gridProperties.frozenColumnCount' } })
+  // congela cabeçalho e garante linhas suficientes para o bloco e os gráficos
+  const precisa = cab + nRows + 2 + ((a.posBloco || []).length) + (a.tipo === 'fluxo' || a.tipo === 'resultados' ? 48 : 4)
+  push({ updateSheetProperties: { properties: { sheetId: id, gridProperties: { rowCount: Math.max(precisa, 60), frozenRowCount: cab + 1, frozenColumnCount: a.congelar || 0 } }, fields: 'gridProperties.rowCount,gridProperties.frozenRowCount,gridProperties.frozenColumnCount' } })
 
   // larguras
   ;(a.larguras || []).forEach((w, i) => push({ updateDimensionProperties: { range: { sheetId: id, dimension: 'COLUMNS', startIndex: i, endIndex: i + 1 }, properties: { pixelSize: w }, fields: 'pixelSize' } }))
@@ -386,9 +470,21 @@ for (const a of ABAS) {
     push({ repeatCell: { range: rng(0, nCols), cell: { userEnteredFormat: { wrapStrategy: 'WRAP' } }, fields: 'userEnteredFormat.wrapStrategy' } })
   }
   if (a.tipo === 'fluxo') {
-    datef(0, 1); numf(2, 7, BRL)
-    push({ repeatCell: { range: rng(7, 8), cell: { userEnteredFormat: { textFormat: { fontSize: 9, foregroundColor: { red: 0.35, green: 0.35, blue: 0.35 } }, wrapStrategy: 'CLIP' } }, fields: 'userEnteredFormat(textFormat,wrapStrategy)' } })
-    for (const col of [5, 6]) push({ addConditionalFormatRule: { rule: { ranges: [rng(col, col + 1)], booleanRule: { condition: { type: 'NUMBER_LESS', values: [{ userEnteredValue: '0' }] }, format: { backgroundColor: { red: 0.98, green: 0.9, blue: 0.9 }, textFormat: { foregroundColor: VERM, bold: true } } } }, index: 0 } })
+    datef(0, 1); numf(2, 5, BRL)
+    push({ repeatCell: { range: rng(5, 6), cell: { userEnteredFormat: { textFormat: { fontSize: 9, foregroundColor: { red: 0.35, green: 0.35, blue: 0.35 } }, wrapStrategy: 'CLIP' } }, fields: 'userEnteredFormat(textFormat,wrapStrategy)' } })
+    push({ repeatCell: { range: rng(4, 5), cell: { userEnteredFormat: { textFormat: { bold: true, fontSize: 10, fontFamily: 'Inter' } } }, fields: 'userEnteredFormat.textFormat' } })
+    push({ addConditionalFormatRule: { rule: { ranges: [rng(4, 5)], booleanRule: { condition: { type: 'NUMBER_LESS', values: [{ userEnteredValue: '0' }] }, format: { backgroundColor: { red: 0.98, green: 0.9, blue: 0.9 }, textFormat: { foregroundColor: VERM, bold: true } } } }, index: 0 } })
+    push({ addConditionalFormatRule: { rule: { ranges: [rng(2, 3)], booleanRule: { condition: { type: 'NUMBER_GREATER', values: [{ userEnteredValue: '0' }] }, format: { textFormat: { foregroundColor: VERDE } } } }, index: 0 } })
+  }
+  if (a.tipo === 'resultados') {
+    // o BRL da coluna inteira vem PRIMEIRO; as marcas de linha o sobrescrevem
+    numf(1, 2, BRL)
+    a.linhas.forEach((l, i) => {
+      const m = a.marcas[i]
+      if (m === 'secao') push({ repeatCell: { range: linha1(i), cell: { userEnteredFormat: fmtSecao }, fields: 'userEnteredFormat' } })
+      if (m === 'pct' || m === 'int') push({ repeatCell: { range: { sheetId: id, startRowIndex: ini + i, endRowIndex: ini + i + 1, startColumnIndex: 1, endColumnIndex: 2 }, cell: { userEnteredFormat: { numberFormat: { type: 'NUMBER', pattern: m === 'pct' ? PCT : '#,##0' } } }, fields: 'userEnteredFormat.numberFormat' } })
+    })
+    push({ repeatCell: { range: rng(2, 3), cell: { userEnteredFormat: { textFormat: { fontSize: 10, fontFamily: 'Inter', foregroundColor: { red: 0.35, green: 0.35, blue: 0.35 } } } }, fields: 'userEnteredFormat.textFormat' } })
   }
   if (a.tipo === 'cp' || a.tipo === 'cr') {
     datef(0, 1)
@@ -420,6 +516,44 @@ for (const a of ABAS) {
     push({ repeatCell: { range: rng(0, 1), cell: { userEnteredFormat: { horizontalAlignment: 'CENTER' } }, fields: 'userEnteredFormat.horizontalAlignment' } })
   }
 
+  // bloco de fechamento (tabelas secundárias abaixo da principal)
+  if (a.posBloco && a.posBloco.length) {
+    const r0 = ini + nRows + (a.totalCols && nRows ? 1 : 0)
+    dataVals.push({ range: `'${a.nome}'!A${r0 + 1}`, values: a.posBloco })
+    a.posBloco.forEach((l, i) => {
+      const primeira = String(l[0] || '')
+      const soPrimeira = l.slice(1).every(v => v === '' || v == null)
+      const r = { sheetId: id, startRowIndex: r0 + i, endRowIndex: r0 + i + 1, startColumnIndex: 0, endColumnIndex: nCols }
+      if (primeira && soPrimeira && primeira.length > 3)
+        push({ repeatCell: { range: r, cell: { userEnteredFormat: { backgroundColor: OURO_CLARO, textFormat: { bold: true, fontSize: 11, fontFamily: 'Inter' } } }, fields: 'userEnteredFormat' } })
+      else if (primeira && !soPrimeira && l.every(v => typeof v !== 'number'))
+        push({ repeatCell: { range: r, cell: { userEnteredFormat: { backgroundColor: CINZA_M, textFormat: { bold: true, fontSize: 10, fontFamily: 'Inter' } } }, fields: 'userEnteredFormat' } })
+    })
+    for (const ci of (a.posBlocoWrap || [])) push({
+      repeatCell: {
+        range: { sheetId: id, startRowIndex: r0, endRowIndex: r0 + a.posBloco.length, startColumnIndex: ci, endColumnIndex: ci + 1 },
+        cell: { userEnteredFormat: { wrapStrategy: 'WRAP' } }, fields: 'userEnteredFormat.wrapStrategy',
+      },
+    })
+    for (const ci of (a.posBlocoNum || [])) push({
+      repeatCell: {
+        range: { sheetId: id, startRowIndex: r0, endRowIndex: r0 + a.posBloco.length, startColumnIndex: ci, endColumnIndex: ci + 1 },
+        cell: { userEnteredFormat: { numberFormat: { type: 'NUMBER', pattern: BRL }, horizontalAlignment: 'RIGHT' } },
+        fields: 'userEnteredFormat(numberFormat,horizontalAlignment)',
+      },
+    })
+    const faixa = (lista, pattern) => { for (const f of lista || []) push({
+      repeatCell: {
+        range: { sheetId: id, startRowIndex: r0 + f.de, endRowIndex: r0 + f.ate, startColumnIndex: f.col, endColumnIndex: f.col + 1 },
+        cell: { userEnteredFormat: { numberFormat: { type: 'NUMBER', pattern }, horizontalAlignment: 'RIGHT' } },
+        fields: 'userEnteredFormat(numberFormat,horizontalAlignment)',
+      },
+    }) }
+    faixa(a.posBlocoFaixas, BRL)
+    faixa(a.posBlocoFaixasPct, PCT)
+    a.fimBloco = r0 + a.posBloco.length
+  }
+
   // linha de total
   if (a.totalCols && nRows) {
     const rTot = ini + nRows
@@ -435,6 +569,65 @@ for (const a of ABAS) {
   }
 
   push({ updateBorders: { range: { sheetId: id, startRowIndex: cab, endRowIndex: cab + 1, startColumnIndex: 0, endColumnIndex: nCols }, bottom: { style: 'SOLID', color: OURO } } })
+
+  /* ── gráficos ──────────────────────────────────────────────────────────── */
+  const fonte = (c0, c1, r0 = cab, r1 = ini + nRows) =>
+    ({ sourceRange: { sources: [{ sheetId: id, startRowIndex: r0, endRowIndex: r1, startColumnIndex: c0, endColumnIndex: c1 }] } })
+  const grafico = (titulo, chartType, domainCol, series, ancora, altura = 380, largura = 1150) => push({
+    addChart: {
+      chart: {
+        spec: {
+          title: titulo,
+          titleTextFormat: { bold: true, fontSize: 13, fontFamily: 'Inter' },
+          fontName: 'Inter',
+          basicChart: {
+            chartType, legendPosition: 'BOTTOM_LEGEND', headerCount: 1,
+            axis: [{ position: 'BOTTOM_AXIS' }, { position: 'LEFT_AXIS' }],
+            domains: [{ domain: fonte(domainCol, domainCol + 1) }],
+            series: series.map(s => ({
+              series: fonte(s.col, s.col + 1), targetAxis: 'LEFT_AXIS',
+              ...(s.type ? { type: s.type } : {}), ...(s.cor ? { color: s.cor } : {}),
+            })),
+          },
+        },
+        position: { overlayPosition: { anchorCell: { sheetId: id, rowIndex: ancora, columnIndex: 0 }, widthPixels: largura, heightPixels: altura } },
+      },
+    },
+  })
+
+  if (a.tipo === 'fluxo' && nRows > 1) {
+    const base = (a.fimBloco || ini + nRows) + 2
+    grafico('Saldo projetado — só com o que tem data combinada', 'LINE', 0,
+      [{ col: 4, cor: PRETO }], base)
+    grafico('Entradas × saídas, por dia', 'COLUMN', 0,
+      [{ col: 2, cor: VERDE }, { col: 3, cor: VERM }], base + 20)
+  }
+  if (a.tipo === 'resultados' && a.posBloco) {
+    // o bloco "MÊS A MÊS" começa 3 linhas depois do início do posBloco
+    const r0 = ini + nRows + 2
+    const nMeses = D.meses.filter(m => m.fat_realizado || m.dre_receita).length
+    const fonteM = (c0, c1) => ({ sourceRange: { sources: [{ sheetId: id, startRowIndex: r0, endRowIndex: r0 + nMeses + 1, startColumnIndex: c0, endColumnIndex: c1 }] } })
+    const gm = (titulo, chartType, series, ancora, altura = 380) => push({
+      addChart: {
+        chart: {
+          spec: {
+            title: titulo, titleTextFormat: { bold: true, fontSize: 13, fontFamily: 'Inter' }, fontName: 'Inter',
+            basicChart: {
+              chartType, legendPosition: 'BOTTOM_LEGEND', headerCount: 1,
+              axis: [{ position: 'BOTTOM_AXIS' }, { position: 'LEFT_AXIS' }],
+              domains: [{ domain: fonteM(0, 1) }],
+              series: series.map(s => ({ series: fonteM(s.col, s.col + 1), targetAxis: 'LEFT_AXIS', ...(s.type ? { type: s.type } : {}), ...(s.cor ? { color: s.cor } : {}) })),
+            },
+          },
+          position: { overlayPosition: { anchorCell: { sheetId: id, rowIndex: ancora, columnIndex: 0 }, widthPixels: 1150, heightPixels: altura } },
+        },
+      },
+    })
+    const base = (a.fimBloco || ini + nRows) + 2
+    gm('Receita e lucro, mês a mês', 'COMBO',
+      [{ col: 4, type: 'COLUMN', cor: OURO }, { col: 5, type: 'LINE', cor: PRETO }], base)
+    gm('Vendas da Bula por mês', 'COLUMN', [{ col: 3, cor: PRETO }], base + 20)
+  }
 }
 
 // grava as linhas de total que foram acrescentadas

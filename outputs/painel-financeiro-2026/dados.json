@@ -1,12 +1,12 @@
 {
- "gerado_em": "2026-09-04T19:32:25.020Z",
+ "gerado_em": "2026-09-04T20:25:06.185Z",
  "hoje": "2026-09-04",
- "conciliado_ate": "2026-09-02",
+ "conciliado_ate": "2026-09-04",
  "contas": [
   {
    "nome": "Sicoob - Conta Corrente 1.056-1",
    "si": 172894.12,
-   "sa": 33379.76,
+   "sa": 17652.19,
    "tipo": "corrente"
   },
   {
@@ -22,7 +22,7 @@
    "tipo": "investimento"
   }
  ],
- "saldo_caixa": 33895.75,
+ "saldo_caixa": 18168.18,
  "folha": [
   {
    "nome": "LEONARDO",
@@ -5516,10 +5516,13 @@
    "status": "vencido",
    "venc": "2026-05-02",
    "origem": "real",
+   "observacoes": "Vendas Bula: R$ 25.560 | Contato: FABIO/ Rodrigo Loureiro | Obs original: Data: COBRADO 15/5 | vendo com Fabio 15/5\n[18/08/2026] POSIÇÃO 05/08 (Ana): \"Falei com o Fábio ontem — ele disse que não sabia com quem tínhamos fechado\". Acordo do leilão de 18/03: 1% sobre o faturamento de R$ 650.000 = R$ 6.500. Em 04/08 a Ana reforçou: \"o Pix está certo; errado é a mentira de não querer pagar\". COBRANÇA ATIVA — devedor postergando.\n[27/08/2026] Chefe confirma que segue a receber. Acordo agora também gravado no fechamento (1% sobre R$ 650.000).",
    "cliente": "RODRIGO LOUREIRO",
+   "data_acordada": false,
    "fech_nome": "4° LEILÃO AGROPECUÁRIA LAGOA DOS PATOS – 18/03/2026",
    "fech_data": "2026-03-18",
-   "venc_automatico": true
+   "venc_automatico": true,
+   "fonte_data": ""
   },
   {
    "id": "1b4566f2-8e47-4d21-ac4a-f332d3756b2f",
@@ -5530,10 +5533,13 @@
    "status": "vencido",
    "venc": "2026-05-30",
    "origem": "real",
+   "observacoes": "15/07/2026 (planilha/apontamentos): 18a Mega Leilao Nelore (maio) - comprador Gustavo ABCZ/Henrique, NF 601, via Bula/Rusa. R$ 6.720 (3% de 224.000). AGUARDANDO CLIENTE PAGAR (sem data).\n[18/08/2026] POSIÇÃO 05/08 (Ana): \"Mega Nelore — é o Henrique, que disse que teve problemas com o financeiro\". Cobrança em aberto; retomar contato.",
    "cliente": null,
+   "data_acordada": false,
    "fech_nome": null,
    "fech_data": null,
-   "venc_automatico": false
+   "venc_automatico": true,
+   "fonte_data": ""
   },
   {
    "id": "a33595fc-21ef-4362-ba81-08a9a96fbc81",
@@ -5544,10 +5550,13 @@
    "status": "vencido",
    "venc": "2026-06-28",
    "origem": "real",
+   "observacoes": "15/07/2026 (conferencia Ana Paula): Touros Santa Nazare: NF enviada, aguardando retorno do Leonardo. Valor OK, segue em aberto.\n[18/08/2026] POSIÇÃO 05/08 (Ana): \"Santa Nazaré — o Leonardo pagou o leilão de junho e deixou este ainda pendente\". Cobrar o remanescente de 14/05.\n[27/08/2026] Chefe confirma que segue a receber.",
    "cliente": "PROGRAMA",
+   "data_acordada": false,
    "fech_nome": "Leilão Excelência Santa Nazaré 2026 – 14/05/2026",
    "fech_data": "2026-05-14",
-   "venc_automatico": true
+   "venc_automatico": true,
+   "fonte_data": ""
   },
   {
    "id": "38a738fb-bc3f-4ae2-8880-699a0cd7d1b0",
@@ -5558,10 +5567,13 @@
    "status": "vencido",
    "venc": "2026-07-22",
    "origem": "real",
+   "observacoes": "CANCELADO — 15/07/2026 (planilha Ana Paula): Ana nao tem esse leilao na planilha (\"nem dia de leilao nem vendas, nadica\"). Provisao sem lastro. [Reativado 27/07: origem HastaPro 1o Nelore Sao Francisco - 07/06/2026] [ADJUDICACAO 26/08] CANCELADO: Conferencia Ana 15/07: \"nem dia de leilao nem vendas, nadica\" — provisao sem lastro. Reativacao de 27/07 veio do HastaPro; HastaPro nao e lastro. Prevalece a conferencia.\n[27/08/2026] REATIVADO por diretiva do chefe: \"Falta recebermos agora o Leilão Lagoa dos Patos de Março, Nelore Santa Nazaré de Maio, Nelore São Francisco de Junho\". Prevalece sobre o cancelamento de 26/08, que se apoiava na conferência da Ana de 15/07 (\"nem dia de leilão nem vendas, nadica\"). Lastro do lado da Bula: comissão de R$ 2.100,00 paga ao Fábio Omena em 10/08 sobre R$ 70.000,00 de cobertura, e despesa de R$ 2.030,20 paga em 08/07 amarrada a este fechamento — a Bula trabalhou o leilão. Valor 1% sobre o faturamento de R$ 675.600,00 = R$ 6.756,00; origem passa de \"estimativa\" para \"real\". Se a cobrança encontrar um valor diferente do faturado, ajustar o título e não o fechamento.",
    "cliente": "AGRESTE LEILOES",
+   "data_acordada": false,
    "fech_nome": "1o Nelore Sao Francisco - 07/06/2026",
    "fech_data": "2026-06-07",
-   "venc_automatico": true
+   "venc_automatico": true,
+   "fonte_data": ""
   },
   {
    "id": "19ac2940-7647-46f8-bb32-f1194ec637ea",
@@ -5572,10 +5584,13 @@
    "status": "vencido",
    "venc": "2026-07-31",
    "origem": "real",
+   "observacoes": "15/07/2026 (planilha/apontamentos): Terra Brava JUNHO - valor emitido da NF 615 (Eduardo Pinheiro Campos) = R$ 7.215 (R$ 144.300 x 5%). Uma venda do Fabio foi cancelada. Aguardando pagamento (sem data). [ADJUDICACAO 26/08] NF 615 de 7.215,00 = 3 parcelas EXATAS de 2.405,00. O PIX de 2.405,00 de EDUARDO PINHEIRO CAMPOS em 25/08 e a 1a parcela — identifica o pagador recorrente. Restam 2 parcelas (4.810,00).\n[JULHO-DETALHE 02/09] Parcela recebida em 27/07/2026 por PIX de EDUARDO PINHEIRO CAMPOS (CPF ***.530.756-**), 2.405,00 — estava dentro do lancamento AGREGADO 25-29/07 e por isso nunca foi baixada. ⭐ CORRIGE A LEITURA DE 26/08: o PIX de 25/08 foi registrado como a 1a das 3 parcelas da NF 615 (7.215,00 = 3 x 2.405,00); com esta, ele era a 2a. Recebido acumulado passa a 4.810,00 e RESTA UMA parcela de 2.405,00, nao duas.",
    "cliente": "PROGRAMA LEILOES",
+   "data_acordada": false,
    "fech_nome": "TOUROS PROVADOS TERRA BRAVA AGROPECUÁRIA - 1º ETAPA",
    "fech_data": "2026-06-16",
-   "venc_automatico": true
+   "venc_automatico": true,
+   "fonte_data": ""
   },
   {
    "id": "84700163-3414-4395-a0ad-248657541e1e",
@@ -5586,10 +5601,13 @@
    "status": "vencido",
    "venc": "2026-08-20",
    "origem": "real",
+   "observacoes": "[RECEITA JUL-AGO 17/08] 1% sobre o faturamento total de R$ 2.515.500,00 (leilao da Bula Remates). Status na planilha-mestra do Drive (13/08): A RECEBER 20/08. [ADJUDICACAO 26/08] Parcial do acerto de 20/08 (19.810,50, \"ACERTO BULA ASSESSORIA KRIZ E NELORACO\"): 19.810,50 − 10.164,00 do Kirz = 9.646,50 aqui. Restam 15.508,50 a cobrar da Bula Remates.",
    "cliente": "BULA REMATES",
+   "data_acordada": false,
    "fech_nome": null,
    "fech_data": null,
-   "venc_automatico": false
+   "venc_automatico": true,
+   "fonte_data": ""
   },
   {
    "id": "503091cc-4469-4c18-afba-eda906cdd427",
@@ -5600,10 +5618,13 @@
    "status": "vencido",
    "venc": "2026-08-25",
    "origem": "real",
+   "observacoes": "[RECEITA JUL-AGO 17/08] 0,33% sobre o faturamento de R$ 14.714.090,00 (etapa femeas). A etapa TOUROS de 12/07 ainda esta sem faturamento total informado pela leiloeira - pode gerar receita adicional. Status na planilha-mestra do Drive (13/08): COBRAR. Vencimento = data do leilao + 45 dias (padrao), pois a planilha nao traz data.",
    "cliente": "PROGRAMA LEILOES",
+   "data_acordada": false,
    "fech_nome": "MEGA EVENTO EAO BAVIERA — Fêmeas",
    "fech_data": "2026-07-11",
-   "venc_automatico": true
+   "venc_automatico": true,
+   "fonte_data": ""
   },
   {
    "id": "55591ac2-79a4-44e4-ae2f-476b30c15bb9",
@@ -5614,10 +5635,13 @@
    "status": "vencido",
    "venc": "2026-08-26",
    "origem": "real",
+   "observacoes": "[18/08/2026] Cobrança gerada a partir do fechamento: VGV de cobertura R$ 366.300,00 × 8.60% = R$ 31.501,80. Vencimento = leilão + 45 dias (padrão dos recebíveis). CRITÉRIO A CONFIRMAR — mesmo % efetivo do EAO Baviera Fêmeas de 11/07 (R$ 48.556,50 ÷ R$ 564.900 = 8,60%), que combina 0,33% do faturamento total + fatia da cobertura.",
    "cliente": null,
+   "data_acordada": false,
    "fech_nome": "MEGA EVENTO EAO BAVIERA — Machos",
    "fech_data": "2026-07-12",
-   "venc_automatico": true
+   "venc_automatico": true,
+   "fonte_data": ""
   },
   {
    "id": "54128961-6448-4bd0-bf9d-4b31771e04ff",
@@ -5628,10 +5652,13 @@
    "status": "vencido",
    "venc": "2026-08-26",
    "origem": "real",
+   "observacoes": "[RECEITA JUL-AGO 17/08] 5% da venda sobre cobertura de R$ 159.000,00 (E-Rural, sem presencial). Status na planilha-mestra do Drive (13/08): COBRAR. Vencimento = data do leilao + 45 dias (padrao), pois a planilha nao traz data.\n[NF 635 · 27/08/2026] Valor retificado de 7.950,00 para 7.149,98. Os 7.950,00 eram estimativa de 17/08 (5% x cobertura de 159.000). O valor faturado e 7.149,98, confirmado pela NF 635 no Relatorio de Nota Fiscal da Prefeitura de Campo Grande (emissao 25/08/2026 15:46) e pelo portal da e-Rural (\"3 itens consolidados\", vencimento 30/07/2026, aguardando pagamento). Diferenca de 800,02 SEM explicacao pela formula do acordo — taxa implicita 4,4968%; a unica decomposicao limpa e o lote 19 a 4% em vez de 5%. CONFERIR COM A E-RURAL antes de tratar como regra.",
    "cliente": "E-RURAL",
+   "data_acordada": false,
    "fech_nome": "LEILÃO NELORE SORRISO - ETAPA FÊMEAS – 12/07/2026",
    "fech_data": "2026-07-12",
-   "venc_automatico": true
+   "venc_automatico": true,
+   "fonte_data": ""
   },
   {
    "id": "a3e2d593-e49f-40ff-bd52-be0a1faec641",
@@ -5642,10 +5669,13 @@
    "status": "vencido",
    "venc": "2026-08-28",
    "origem": "real",
+   "observacoes": "[18/08/2026] Cobrança gerada a partir do fechamento: VGV de cobertura R$ 123.600,00 × 5.00% = R$ 6.180,00. Vencimento = leilão + 45 dias (padrão dos recebíveis). CRITÉRIO A CONFIRMAR — padrão dominante de 5% da cobertura (criador sem histórico de recebível).",
    "cliente": null,
+   "data_acordada": false,
    "fech_nome": "LEILÃO VIRTUAL BASE GENÉTICA SANTA CRUZ - 1ª ETAPA – 14/07/2026",
    "fech_data": "2026-07-14",
-   "venc_automatico": true
+   "venc_automatico": true,
+   "fonte_data": ""
   },
   {
    "id": "44f20398-7441-4c2c-9c11-84f0bf0c2e73",
@@ -5656,10 +5686,13 @@
    "status": "vencido",
    "venc": "2026-08-29",
    "origem": "real",
+   "observacoes": "[18/08/2026] Cobrança gerada a partir do fechamento: VGV de cobertura R$ 42.600,00 × 5.00% = R$ 2.130,00. Vencimento = leilão + 45 dias (padrão dos recebíveis). CRITÉRIO A CONFIRMAR — padrão dominante de 5% da cobertura (criador sem histórico de recebível).",
    "cliente": null,
+   "data_acordada": false,
    "fech_nome": "NELORE SANTA CRUZ",
    "fech_data": "2026-07-15",
-   "venc_automatico": true
+   "venc_automatico": true,
+   "fonte_data": ""
   },
   {
    "id": "f9c54bc0-1768-400a-b4ed-66a50f031a01",
@@ -5670,10 +5703,13 @@
    "status": "vencido",
    "venc": "2026-09-02",
    "origem": "real",
+   "observacoes": "[18/08/2026] Cobrança gerada a partir do fechamento: VGV de cobertura R$ 247.200,00 × 5.00% = R$ 12.360,00. Vencimento = leilão + 45 dias (padrão dos recebíveis). CRITÉRIO A CONFIRMAR — padrão dominante de 5% da cobertura (criador sem histórico de recebível).",
    "cliente": null,
+   "data_acordada": false,
    "fech_nome": "NELORE SANTA CRUZ - 19/07/2026",
    "fech_data": "2026-07-19",
-   "venc_automatico": true
+   "venc_automatico": true,
+   "fonte_data": ""
   },
   {
    "id": "7ef35494-9778-4b59-9374-a04f1e76a03c",
@@ -5684,24 +5720,30 @@
    "status": "aberto",
    "venc": "2026-09-08",
    "origem": "real",
+   "observacoes": "[18/08/2026] Cobrança gerada a partir do fechamento: VGV de cobertura R$ 28.500,00 × 5.00% = R$ 1.425,00. Vencimento = leilão + 45 dias (padrão dos recebíveis). CRITÉRIO A CONFIRMAR — padrão dominante de 5% da cobertura (criador sem histórico de recebível).\n[18/08/2026] CONFERIR se não colide com \"NELORACO PO (25/07) - BULA REMATES\" (R$ 25.155,00, mesma data): um é a cobertura da Assessoria (FIL 2) e o outro é do leilão PO da Bula Remates — confirmar que são cobranças distintas antes de faturar.",
    "cliente": null,
+   "data_acordada": false,
    "fech_nome": "30º NELORAÇO IRMÃOS HIPÓLITO",
    "fech_data": "2026-07-25",
-   "venc_automatico": true
+   "venc_automatico": true,
+   "fonte_data": ""
   },
   {
-   "id": "ea4cb443-bb7f-433b-9a18-98329399910e",
-   "descricao": "2a ETAPA NAVIRAI MATRIZES (16/07) - COMISSAO BULA",
-   "valor": 8970,
+   "id": "747e8048-c6c5-43db-87dd-71ea726dd1ef",
+   "descricao": "10o LEILAO NELORE JMP - FEMEAS/BEZERRAS - COMISSAO BULA (2/2)",
+   "valor": 58484,
    "recebido": 0,
-   "devido": 8769.2,
+   "devido": 58484,
    "status": "aberto",
    "venc": "2026-09-10",
    "origem": "real",
+   "observacoes": "15/07/2026 (planilha/e-mail JBJ): 10o Leilao JMP (Campo Grande). Pagamento em 2x, 30 e 60 dias (NF 618, dados p/ marilia.almeida@jbjagropecuaria.com.br). Total R$ 116.968. Parcela 2/2 (60 dias). [data combinada: João no Grupo Financeiro, 04/09/2026 16:46]",
    "cliente": "PROGRAMA LEILOES",
-   "fech_nome": "2º ETAPA NAVIRAÍ MATRIZES",
-   "fech_data": "2026-07-16",
-   "venc_automatico": false
+   "data_acordada": true,
+   "fech_nome": "Leilao de Bezerras Nelore JMP - 13/06/2026",
+   "fech_data": "2026-06-13",
+   "venc_automatico": false,
+   "fonte_data": "João no Grupo Financeiro, 04/09/2026 16:46"
   },
   {
    "id": "95d8efab-4616-487f-8e4e-b943e9d097ad",
@@ -5712,10 +5754,13 @@
    "status": "aberto",
    "venc": "2026-09-10",
    "origem": "real",
+   "observacoes": "[RECEITA JUL-AGO 17/08] 5% da venda sobre cobertura de R$ 196.500,00. Status na planilha-mestra do Drive (13/08): COBRAR. Vencimento = data do leilao + 45 dias (padrao), pois a planilha nao traz data.\n[RETIFICADO 21/08/2026] Base era 168.000,00 (R$ 8.400,00); faltava o lote M44 (macho de reoferta, 30 x 950 = 28.500,00, Marcelo Braga / Douglas Bispo), que nao estava no HastaPro nem no grupo de lances.\n[ACORDO 21/08/2026] A Naviraí paga em 10/09 o líquido de R$ 18.374,25 pelos dois pregões: 5% sobre a venda LÍQUIDA de R$ 367.485,00, não sobre a bruta de R$ 375.900,00. O desconto à vista de R$ 420,75 entra rateado pela cobertura — aqui, R$ 219,95. Data acordada com a leiloeira. [data combinada: João no Grupo Financeiro, 04/09/2026 16:46]",
    "cliente": "PROGRAMA LEILOES",
+   "data_acordada": true,
    "fech_nome": "LEILÃO VIRTUAL NAVIRAÍ - MATRIZES – 05/07/2026",
    "fech_data": "2026-07-05",
-   "venc_automatico": false
+   "venc_automatico": false,
+   "fonte_data": "João no Grupo Financeiro, 04/09/2026 16:46"
   },
   {
    "id": "c2e00d60-4b92-4392-83b9-21cbc1fb16ff",
@@ -5724,26 +5769,32 @@
    "recebido": 0,
    "devido": 107183.5,
    "status": "aberto",
-   "venc": "2026-09-13",
+   "venc": "2026-09-10",
    "origem": "real",
+   "observacoes": "15/07/2026 (planilha/e-mail JBJ): 10o Leilao JMP (Campo Grande). Pagamento em 2x, 30 e 60 dias (NF 619(touros), dados p/ marilia.almeida@jbjagropecuaria.com.br). Total R$ 214.367. Parcela 2/2 (60 dias). [data combinada: João no Grupo Financeiro, 04/09/2026 16:46]",
    "cliente": "PROGRAMA LEILOES",
+   "data_acordada": true,
    "fech_nome": "10o Leilao Nelore JMP - Touros - 14/06/2026",
    "fech_data": "2026-06-14",
-   "venc_automatico": false
+   "venc_automatico": false,
+   "fonte_data": "João no Grupo Financeiro, 04/09/2026 16:46"
   },
   {
-   "id": "747e8048-c6c5-43db-87dd-71ea726dd1ef",
-   "descricao": "10o LEILAO NELORE JMP - FEMEAS/BEZERRAS - COMISSAO BULA (2/2)",
-   "valor": 58484,
+   "id": "ea4cb443-bb7f-433b-9a18-98329399910e",
+   "descricao": "2a ETAPA NAVIRAI MATRIZES (16/07) - COMISSAO BULA",
+   "valor": 8970,
    "recebido": 0,
-   "devido": 58484,
+   "devido": 8769.2,
    "status": "aberto",
-   "venc": "2026-09-13",
+   "venc": "2026-09-10",
    "origem": "real",
+   "observacoes": "[RECEITA JUL-AGO 17/08] 5% da venda sobre cobertura de R$ 179.400,00. Status na planilha-mestra do Drive (13/08): COBRAR. Vencimento = data do leilao + 45 dias (padrao), pois a planilha nao traz data.\n[RETIFICADO 21/08/2026] Base era 158.700,00 (R$ 7.935,00); a conferência contra a planilha da Naviraí achou +21.600,00 (2ª fêmea do lote 39) e -5.040,00 (lote 2 a 920, não 950).\n[ACORDO 21/08/2026] A Naviraí paga em 10/09 o líquido de R$ 18.374,25 pelos dois pregões: 5% sobre a venda LÍQUIDA de R$ 367.485,00, não sobre a bruta de R$ 375.900,00. O desconto à vista de R$ 420,75 entra rateado pela cobertura — aqui, R$ 200,80. Data acordada com a leiloeira. [data combinada: João no Grupo Financeiro, 04/09/2026 16:46]",
    "cliente": "PROGRAMA LEILOES",
-   "fech_nome": "Leilao de Bezerras Nelore JMP - 13/06/2026",
-   "fech_data": "2026-06-13",
-   "venc_automatico": false
+   "data_acordada": true,
+   "fech_nome": "2º ETAPA NAVIRAÍ MATRIZES",
+   "fech_data": "2026-07-16",
+   "venc_automatico": false,
+   "fonte_data": "João no Grupo Financeiro, 04/09/2026 16:46"
   },
   {
    "id": "0a42597a-de79-4819-afab-7e932b13fe8a",
@@ -5754,10 +5805,13 @@
    "status": "aberto",
    "venc": "2026-09-15",
    "origem": "real",
+   "observacoes": "[RECEITA JUL-AGO 17/08] 1,25% sobre faturamento de R$ 5.627.600,00 (faixa 15,01%-20% de cobertura; cobertura real do HastaPro = R$ 1.042.700,00 = 18,5%). Status na planilha-mestra do Drive (13/08): EM FECHAMENTO. Vencimento = data do leilao + 45 dias (padrao), pois a planilha nao traz data.",
    "cliente": "PROGRAMA LEILOES",
+   "data_acordada": false,
    "fech_nome": "LEILÃO NELORE MAFRA EDIÇÃO REDENÇÃO/PA - FÊMEAS",
    "fech_data": "2026-08-01",
-   "venc_automatico": true
+   "venc_automatico": true,
+   "fonte_data": ""
   },
   {
    "id": "a5271107-b630-4014-8dde-0ae4519f8d54",
@@ -5768,24 +5822,13 @@
    "status": "aberto",
    "venc": "2026-09-16",
    "origem": "real",
+   "observacoes": "[RECEITA JUL-AGO 17/08] 0,35% sobre faturamento de R$ 5.102.000,00 conforme a planilha. ATENCAO: a tabela de acordo do Mafra para 3%-8% de cobertura (aqui 3,49%) e 0,3%, o que daria R$ 15.306,00 - confirmar o percentual com o chefe. Status na planilha-mestra do Drive (13/08): EM FECHAMENTO. Vencimento = data do leilao + 45 dias (padrao), pois a planilha nao traz data.",
    "cliente": "PROGRAMA LEILOES",
+   "data_acordada": false,
    "fech_nome": "LEILÃO TOUROS NELORE MAFRA",
    "fech_data": "2026-08-02",
-   "venc_automatico": true
-  },
-  {
-   "id": "49a2e0d1-b00a-46d9-83b4-2c7762c52970",
-   "descricao": "LEILAO DE TOUROS NELORE SORRISO (04/08) - COMISSAO BULA",
-   "valor": 5715,
-   "recebido": 0,
-   "devido": 5715,
-   "status": "aberto",
-   "venc": "2026-09-18",
-   "origem": "real",
-   "cliente": "E-RURAL",
-   "fech_nome": "LEILÃO DE TOUROS NELORE SORRISO",
-   "fech_data": "2026-08-04",
-   "venc_automatico": true
+   "venc_automatico": true,
+   "fonte_data": ""
   },
   {
    "id": "aa50b561-f7ee-4565-a604-5654591bb903",
@@ -5796,10 +5839,30 @@
    "status": "aberto",
    "venc": "2026-09-18",
    "origem": "real",
+   "observacoes": "[RECEITA JUL-AGO 17/08] 3% da venda sobre cobertura de R$ 20.100,00. Status na planilha-mestra do Drive (13/08): EM FECHAMENTO. Vencimento = data do leilao + 45 dias (padrao), pois a planilha nao traz data.",
    "cliente": null,
+   "data_acordada": false,
    "fech_nome": "LEILÃO TOUROS NELORE GRUPO COSTA",
    "fech_data": "2026-08-04",
-   "venc_automatico": true
+   "venc_automatico": true,
+   "fonte_data": ""
+  },
+  {
+   "id": "49a2e0d1-b00a-46d9-83b4-2c7762c52970",
+   "descricao": "LEILAO DE TOUROS NELORE SORRISO (04/08) - COMISSAO BULA",
+   "valor": 5715,
+   "recebido": 0,
+   "devido": 5715,
+   "status": "aberto",
+   "venc": "2026-09-18",
+   "origem": "real",
+   "observacoes": "[RECEITA JUL-AGO 17/08] 5% da venda sobre cobertura de R$ 114.300,00 (HastaPro). Status na planilha-mestra do Drive (13/08): EM FECHAMENTO. Vencimento = data do leilao + 45 dias (padrao), pois a planilha nao traz data.",
+   "cliente": "E-RURAL",
+   "data_acordada": false,
+   "fech_nome": "LEILÃO DE TOUROS NELORE SORRISO",
+   "fech_data": "2026-08-04",
+   "venc_automatico": true,
+   "fonte_data": ""
   },
   {
    "id": "977bf923-0df3-4385-83e6-7334a99b9795",
@@ -5810,10 +5873,13 @@
    "status": "parcial",
    "venc": "2026-09-20",
    "origem": "real",
+   "observacoes": "[RECEITA JUL-AGO 17/08] 1% sobre o faturamento total de R$ 5.019.800,00 (leilao da Bula Remates, FIL 01 do HastaPro: R$ 4.980.800,00 em 137 lotes). Status na planilha-mestra do Drive (13/08): A RECEBER 20/09. [CONCILIADO 03/09] Parcial da Bula Remates em 02/09 (\"ACERTO ASSESSORIA SAO GERALDO\", doc 3042216). Recebido 24.904,00 de 50.198,00; saldo 25.294,00. ATENCAO: 24.904,00 e exatamente metade de 1% x R$ 4.980.800,00, o faturamento do evento no HastaPro (FIL 01, 137 lotes). O titulo foi lancado sobre R$ 5.019.800,00 (planilha-mestra do Drive, 13/08). Se a base certa for a do HastaPro o titulo vale 49.808,00 e o saldo cai para 24.904,00 - diferenca de 390,00 a confirmar com a Bula Remates. Extrato Sicoob 01-03/09/2026 (\"sicoob_2026_09_03_15_11_57.pdf\", emitido 03/09/2026 15:11).",
    "cliente": "BULA REMATES",
+   "data_acordada": false,
    "fech_nome": null,
    "fech_data": null,
-   "venc_automatico": false
+   "venc_automatico": true,
+   "fonte_data": ""
   },
   {
    "id": "fc9c3c74-9442-4f34-b9b6-b7d68f6ce8d9",
@@ -5824,10 +5890,13 @@
    "status": "aberto",
    "venc": "2026-09-21",
    "origem": "real",
+   "observacoes": "[RECEITA JUL-AGO 17/08] Acordo E-Rural com presencial = 1% do VGV + 4% da venda. Planilha: 1% x 3.680.000 + 4% x 526.000 = 57.840,00. ATENCAO: a cobertura do HastaPro e R$ 576.000,00 (nao 526.000), o que daria R$ 59.840,00 - divergencia de R$ 2.000,00 a conferir antes de faturar. Status na planilha-mestra do Drive (13/08): EM FECHAMENTO. Vencimento = data do leilao + 45 dias (padrao), pois a planilha nao traz data.",
    "cliente": "E-RURAL",
+   "data_acordada": false,
    "fech_nome": "2º LEILÃO LS GALERIA",
    "fech_data": "2026-08-07",
-   "venc_automatico": true
+   "venc_automatico": true,
+   "fonte_data": ""
   },
   {
    "id": "52314d86-1535-44f7-a0ba-f124b138d856",
@@ -5838,10 +5907,13 @@
    "status": "aberto",
    "venc": "2026-09-22",
    "origem": "real",
+   "observacoes": "[RECEITA JUL-AGO 17/08] 5% da venda sobre cobertura de R$ 213.000,00. Status na planilha-mestra do Drive (13/08): EM FECHAMENTO. Vencimento = data do leilao + 45 dias (padrao), pois a planilha nao traz data.",
    "cliente": null,
+   "data_acordada": false,
    "fech_nome": "14º LEILÃO PÉROLAS DO TAPAJÓS",
    "fech_data": "2026-08-08",
-   "venc_automatico": true
+   "venc_automatico": true,
+   "fonte_data": ""
   },
   {
    "id": "359a5838-8b07-419d-9c48-e5cca4b3310a",
@@ -5852,10 +5924,13 @@
    "status": "aberto",
    "venc": "2026-09-23",
    "origem": "real",
+   "observacoes": "[RECEITA JUL-AGO 17/08] 5% da venda sobre cobertura de R$ 278.100,00 (HastaPro). Status na planilha-mestra do Drive (13/08): EM FECHAMENTO. Vencimento = data do leilao + 45 dias (padrao), pois a planilha nao traz data.",
    "cliente": "PROGRAMA LEILOES",
+   "data_acordada": false,
    "fech_nome": "LEILÃO NELORE PARANÃ PRODUTIVIDADE",
    "fech_data": "2026-08-09",
-   "venc_automatico": true
+   "venc_automatico": true,
+   "fonte_data": ""
   },
   {
    "id": "2bc9b403-b9e0-4a08-b33f-a4c30c6050fd",
@@ -5866,10 +5941,13 @@
    "status": "aberto",
    "venc": "2026-09-25",
    "origem": "real",
+   "observacoes": "[ACORDO GUADALUPE 20/08] Acordo confirmado pela Guadalupe no WhatsApp em 20/08/2026: 5% sobre a venda de sabado (18/07), 0,5% sobre o faturamento de domingo (19/07) e 5% sobre a venda de segunda (20/07). Total da comissao = R$ 21.425,90, a receber em 2 parcelas de R$ 10.712,95 (1a ate 25/08, aceite da leiloeira). Saldo do pregao de domingo (15.215,90 - 7.712,95) na 2a parcela do acordo.\n[ACORDO 21/08/2026] Confirmado pelo chefe: a Guadalupe paga R$ 21.425,90 em 2 parcelas iguais — a 1ª até 25/08 e a 2ª 30 dias depois. Data ACORDADA com a leiloeira, não é o vencimento automático de leilão+45d. [data combinada: parcelamento 2x acordado — 1/2 recebida em 25/08 (planilha FLCX Set/26)]",
    "cliente": "PROGRAMA LEILOES",
+   "data_acordada": true,
    "fech_nome": "20º LEILÃO GUADALUPE AGROPECUÁRIA Touros",
    "fech_data": "2026-07-19",
-   "venc_automatico": false
+   "venc_automatico": false,
+   "fonte_data": "parcelamento 2x acordado — 1/2 recebida em 25/08 (planilha FLCX Set/26)"
   },
   {
    "id": "d4fb3071-a851-41a3-9184-446fbf6ff6eb",
@@ -5880,24 +5958,13 @@
    "status": "aberto",
    "venc": "2026-09-25",
    "origem": "real",
+   "observacoes": "[ACORDO GUADALUPE 20/08] Acordo confirmado pela Guadalupe no WhatsApp em 20/08/2026: 5% sobre a venda de sabado (18/07), 0,5% sobre o faturamento de domingo (19/07) e 5% sobre a venda de segunda (20/07). Total da comissao = R$ 21.425,90, a receber em 2 parcelas de R$ 10.712,95 (1a ate 25/08, aceite da leiloeira). Pregao de segunda-feira (fechamento 8ce45792, cobertura Bula R$ 64.200,00) nao tinha conta a receber no ERP - a receita_bula estava zerada porque o acordo dos touros nunca havia sido confirmado. Entra na 2a parcela.\n[ACORDO 21/08/2026] Confirmado pelo chefe: a Guadalupe paga R$ 21.425,90 em 2 parcelas iguais — a 1ª até 25/08 e a 2ª 30 dias depois. Data ACORDADA com a leiloeira, não é o vencimento automático de leilão+45d. [data combinada: parcelamento 2x acordado — 1/2 recebida em 25/08 (planilha FLCX Set/26)]",
    "cliente": "PROGRAMA LEILOES",
+   "data_acordada": true,
    "fech_nome": "20º LEILÃO GUADALUPE AGROPECUÁRIA Touros",
    "fech_data": "2026-07-20",
-   "venc_automatico": false
-  },
-  {
-   "id": "ab6574a9-3c5b-4561-93b8-f0d39a6abc31",
-   "descricao": "23o MEGA LEILAO GENETICA ADITIVA - FEMEAS (25/07) - COMISSAO BULA",
-   "valor": 5416.2,
-   "recebido": 2708.1,
-   "devido": 2708.1,
-   "status": "parcial",
-   "venc": "2026-09-26",
-   "origem": "real",
-   "cliente": "GENETICA ADITIVA",
-   "fech_nome": "23º LEILÃO GENÉTICA ADITIVA - 1ª ETAPA FÊMEAS – 25/07/2026",
-   "fech_data": "2026-07-25",
-   "venc_automatico": false
+   "venc_automatico": false,
+   "fonte_data": "parcelamento 2x acordado — 1/2 recebida em 25/08 (planilha FLCX Set/26)"
   },
   {
    "id": "07df3346-2129-4dc0-8fbd-09b78e8aa9b9",
@@ -5905,13 +5972,33 @@
    "valor": 12866.25,
    "recebido": 6433.13,
    "devido": 6433.12,
-   "status": "parcial",
+   "status": "aberto",
    "venc": "2026-09-26",
    "origem": "real",
+   "observacoes": "[RECEITA JUL-AGO 17/08] 0,5% sobre faturamento de R$ 4.288.750,00. Status na planilha-mestra do Drive (13/08): COBRAR. Vencimento = data do leilao + 45 dias (padrao), pois a planilha nao traz data.\n[CONCILIADO 27/08] Valor corrigido pela NF 636 (emitida 25/08/2026, R$ 18.282,45 para as duas etapas do 23o Mega Leilao Genetica Aditiva). O acordo e a tabela de performance padrao aplicada ao EVENTO: cobertura 292.200 / faturamento 6.094.150 = 4,795% -> faixa 3% a 4,9% -> 0,3% do faturamento. O valor anterior vinha da estimativa de 17/08 (planilha-mestra so dizia \"COBRAR\"), que aplicou a tabela etapa a etapa e jogou a 2a etapa na faixa de 0,5%. Recebida a 1a de 2 parcelas por PIX em 27/08 (total 9.141,23 = metade da NF). Rateio desta etapa: 0,3% x 4.288.750,00 = 12.866,25; 1a parcela 6.433,13. [VENCIMENTO ACORDADO 03/09] Vencimento movido de 2026-09-09 para 26/09/2026: e a data COMBINADA da 2a parcela, confirmada no print da conversa do Joao de 26/08/2026. As datas de 08/09 e 09/09 eram a regra automatica de leilao+45d, que nao e promessa de ninguem. 1a parcela (9.141,23) recebida em 27/08. [data combinada: parcelamento 2x acordado, NF 636 — 1/2 recebida em 26/08]",
    "cliente": "GENETICA ADITIVA",
+   "data_acordada": true,
    "fech_nome": "23º LEILÃO GENÉTICA ADITIVA - 2ª ETAPA TOUROS – 26/07/2026",
    "fech_data": "2026-07-26",
-   "venc_automatico": false
+   "venc_automatico": false,
+   "fonte_data": "parcelamento 2x acordado, NF 636 — 1/2 recebida em 26/08"
+  },
+  {
+   "id": "ab6574a9-3c5b-4561-93b8-f0d39a6abc31",
+   "descricao": "23o MEGA LEILAO GENETICA ADITIVA - FEMEAS (25/07) - COMISSAO BULA",
+   "valor": 5416.2,
+   "recebido": 2708.1,
+   "devido": 2708.1,
+   "status": "aberto",
+   "venc": "2026-09-26",
+   "origem": "real",
+   "observacoes": "[RECEITA JUL-AGO 17/08] 0,35% sobre faturamento de R$ 1.805.400,00. Status na planilha-mestra do Drive (13/08): COBRAR. Vencimento = data do leilao + 45 dias (padrao), pois a planilha nao traz data.\n[CONCILIADO 27/08] Valor corrigido pela NF 636 (emitida 25/08/2026, R$ 18.282,45 para as duas etapas do 23o Mega Leilao Genetica Aditiva). O acordo e a tabela de performance padrao aplicada ao EVENTO: cobertura 292.200 / faturamento 6.094.150 = 4,795% -> faixa 3% a 4,9% -> 0,3% do faturamento. O valor anterior vinha da estimativa de 17/08 (planilha-mestra so dizia \"COBRAR\"), que aplicou a tabela etapa a etapa e jogou a 2a etapa na faixa de 0,5%. Recebida a 1a de 2 parcelas por PIX em 27/08 (total 9.141,23 = metade da NF). Rateio desta etapa: 0,3% x 1.805.400,00 = 5.416,20; 1a parcela 2.708,10. [VENCIMENTO ACORDADO 03/09] Vencimento movido de 2026-09-08 para 26/09/2026: e a data COMBINADA da 2a parcela, confirmada no print da conversa do Joao de 26/08/2026. As datas de 08/09 e 09/09 eram a regra automatica de leilao+45d, que nao e promessa de ninguem. 1a parcela (9.141,23) recebida em 27/08. [data combinada: parcelamento 2x acordado, NF 636 — 1/2 recebida em 26/08]",
+   "cliente": "GENETICA ADITIVA",
+   "data_acordada": true,
+   "fech_nome": "23º LEILÃO GENÉTICA ADITIVA - 1ª ETAPA FÊMEAS – 25/07/2026",
+   "fech_data": "2026-07-25",
+   "venc_automatico": false,
+   "fonte_data": "parcelamento 2x acordado, NF 636 — 1/2 recebida em 26/08"
   },
   {
    "id": "0392b9b1-75a9-479b-9fb7-a2564874744f",
@@ -5922,10 +6009,13 @@
    "status": "aberto",
    "venc": "2026-09-27",
    "origem": "real",
+   "observacoes": "[18/08/2026] Cobrança gerada a partir do fechamento: VGV de cobertura R$ 16.500,00 × 5.00% = R$ 825,00. Vencimento = leilão + 45 dias (padrão dos recebíveis). CRITÉRIO A CONFIRMAR — padrão dominante de 5% da cobertura.",
    "cliente": null,
+   "data_acordada": false,
    "fech_nome": "7º LEILÃO ESSÊNCIA GENÉTICA - NELORE DA BAMBÚ",
    "fech_data": "2026-08-13",
-   "venc_automatico": true
+   "venc_automatico": true,
+   "fonte_data": ""
   },
   {
    "id": "2e6e1690-dd38-41c6-8dde-f09fd39a6045",
@@ -5936,10 +6026,13 @@
    "status": "aberto",
    "venc": "2026-09-29",
    "origem": "real",
+   "observacoes": "[18/08/2026] Cobrança gerada a partir do fechamento: VGV de cobertura R$ 107.100,00 × 11.19% = R$ 11.984,49. Vencimento = leilão + 45 dias (padrão dos recebíveis). CRITÉRIO A CONFIRMAR — % efetivo do Terra Brava Touros Provados de 16/06 (R$ 7.215 ÷ R$ 64.500 = 11,19%).",
    "cliente": null,
+   "data_acordada": false,
    "fech_nome": "LEILÃO TERRA BRAVA AGROPECUÁRIA EXPOGENÉTICA",
    "fech_data": "2026-08-15",
-   "venc_automatico": true
+   "venc_automatico": true,
+   "fonte_data": ""
   },
   {
    "id": "30bc3169-e4ed-4db2-bd10-2b86e4bf48c6",
@@ -5950,10 +6043,13 @@
    "status": "aberto",
    "venc": "2026-09-30",
    "origem": "real",
+   "observacoes": "[18/08/2026] Cobrança gerada a partir do fechamento: VGV de cobertura R$ 547.500,00 × 5.00% = R$ 27.375,00. Vencimento = leilão + 45 dias (padrão dos recebíveis). CRITÉRIO A CONFIRMAR — % do Leilão Matrizes Matinha de 17/05 (R$ 8.850 ÷ R$ 177.000 = 5,00%).",
    "cliente": null,
+   "data_acordada": false,
    "fech_nome": "LEILÃO MATINHA EXPOGENÉTICA 2026",
    "fech_data": "2026-08-16",
-   "venc_automatico": true
+   "venc_automatico": true,
+   "fonte_data": ""
   },
   {
    "id": "31747698-b939-494f-9078-197200dec458",
@@ -5964,10 +6060,13 @@
    "status": "aberto",
    "venc": "2026-10-01",
    "origem": "real",
+   "observacoes": "[18/08/2026] Cobrança gerada a partir do fechamento: VGV de cobertura R$ 117.000,00 × 6.00% = R$ 7.020,00. Vencimento = leilão + 45 dias (padrão dos recebíveis). CRITÉRIO A CONFIRMAR — % do 3º Leilão Matrizes KatiSpera de 20/06 (R$ 11.106 ÷ R$ 185.100 = 6,00%).",
    "cliente": null,
+   "data_acordada": false,
    "fech_nome": "LEILÃO MATRIZES PREMIUM KATISPERA",
    "fech_data": "2026-08-17",
-   "venc_automatico": true
+   "venc_automatico": true,
+   "fonte_data": ""
   }
  ],
  "cp": [
@@ -6887,47 +6986,37 @@
  "fluxo": [
   {
    "data": "2026-09-04",
-   "entrada_acordada": 0,
-   "entrada_total": 0,
+   "entrada": 0,
    "saida": 0,
-   "saldo_conservador": 33895.75,
-   "saldo_total": 33895.75,
+   "saldo": 18168.18,
    "itens_entrada": [],
    "itens_saida": []
   },
   {
-   "data": "2026-09-08",
-   "entrada_acordada": 0,
-   "entrada_total": 1425,
-   "saida": 0,
-   "saldo_conservador": 33895.75,
-   "saldo_total": 35320.75,
-   "itens_entrada": [
-    {
-     "d": "30º NELORAÇO IRMÃOS HIPÓLITO (25/07) - COMISSAO BULA",
-     "v": 1425,
-     "auto": true
-    }
-   ],
-   "itens_saida": []
-  },
-  {
    "data": "2026-09-10",
-   "entrada_acordada": 18374.25,
-   "entrada_total": 18374.25,
+   "entrada": 184041.75,
    "saida": 1445.2,
-   "saldo_conservador": 50824.8,
-   "saldo_total": 52249.8,
+   "saldo": 200764.73,
    "itens_entrada": [
     {
-     "d": "2a ETAPA NAVIRAI MATRIZES (16/07) - COMISSAO BULA",
-     "v": 8769.2,
-     "auto": false
+     "d": "10o LEILAO NELORE JMP - FEMEAS/BEZERRAS - COMISSAO BULA (2/2)",
+     "v": 58484,
+     "fonte": "João no Grupo Financeiro, 04/09/2026 16:46"
     },
     {
      "d": "LEILAO VIRTUAL NAVIRAI - MATRIZES (05/07) - COMISSAO BULA",
      "v": 9605.05,
-     "auto": false
+     "fonte": "João no Grupo Financeiro, 04/09/2026 16:46"
+    },
+    {
+     "d": "10o LEILAO NELORE JMP - TOUROS - COMISSAO BULA (2/2)",
+     "v": 107183.5,
+     "fonte": "João no Grupo Financeiro, 04/09/2026 16:46"
+    },
+    {
+     "d": "2a ETAPA NAVIRAI MATRIZES (16/07) - COMISSAO BULA",
+     "v": 8769.2,
+     "fonte": "João no Grupo Financeiro, 04/09/2026 16:46"
     }
    ],
    "itens_saida": [
@@ -6954,40 +7043,11 @@
    ]
   },
   {
-   "data": "2026-09-13",
-   "entrada_acordada": 165667.5,
-   "entrada_total": 165667.5,
-   "saida": 0,
-   "saldo_conservador": 216492.3,
-   "saldo_total": 217917.3,
-   "itens_entrada": [
-    {
-     "d": "10o LEILAO NELORE JMP - TOUROS - COMISSAO BULA (2/2)",
-     "v": 107183.5,
-     "auto": false
-    },
-    {
-     "d": "10o LEILAO NELORE JMP - FEMEAS/BEZERRAS - COMISSAO BULA (2/2)",
-     "v": 58484,
-     "auto": false
-    }
-   ],
-   "itens_saida": []
-  },
-  {
    "data": "2026-09-15",
-   "entrada_acordada": 0,
-   "entrada_total": 70345,
+   "entrada": 0,
    "saida": 20609.34,
-   "saldo_conservador": 195882.96,
-   "saldo_total": 267652.96,
-   "itens_entrada": [
-    {
-     "d": "LEILAO FEMEAS NELORE MAFRA - REDENCAO/PA (01/08) - COMISSAO BULA",
-     "v": 70345,
-     "auto": true
-    }
-   ],
+   "saldo": 180155.39,
+   "itens_entrada": [],
    "itens_saida": [
     {
      "d": "Seguro Sicoob (deb. automatico 15/09)",
@@ -7007,40 +7067,11 @@
    ]
   },
   {
-   "data": "2026-09-16",
-   "entrada_acordada": 0,
-   "entrada_total": 17857,
-   "saida": 0,
-   "saldo_conservador": 195882.96,
-   "saldo_total": 285509.96,
-   "itens_entrada": [
-    {
-     "d": "LEILAO TOUROS NELORE MAFRA - REDENCAO/PA (02/08) - COMISSAO BULA",
-     "v": 17857,
-     "auto": true
-    }
-   ],
-   "itens_saida": []
-  },
-  {
    "data": "2026-09-18",
-   "entrada_acordada": 0,
-   "entrada_total": 6318,
+   "entrada": 0,
    "saida": 180,
-   "saldo_conservador": 195702.96,
-   "saldo_total": 291647.96,
-   "itens_entrada": [
-    {
-     "d": "LEILAO DE TOUROS NELORE SORRISO (04/08) - COMISSAO BULA",
-     "v": 5715,
-     "auto": true
-    },
-    {
-     "d": "LEILAO TOUROS NELORE GRUPO COSTA (04/08) - COMISSAO BULA",
-     "v": 603,
-     "auto": true
-    }
-   ],
+   "saldo": 179975.39,
+   "itens_entrada": [],
    "itens_saida": [
     {
      "d": "Sistema / banco de dados - fatura mensal",
@@ -7050,51 +7081,11 @@
    ]
   },
   {
-   "data": "2026-09-20",
-   "entrada_acordada": 25294,
-   "entrada_total": 25294,
-   "saida": 0,
-   "saldo_conservador": 220996.96,
-   "saldo_total": 316941.96,
-   "itens_entrada": [
-    {
-     "d": "LEILAO TOUROS FAZENDA SAO GERALDO (01/08) - BULA REMATES",
-     "v": 25294,
-     "auto": false
-    }
-   ],
-   "itens_saida": []
-  },
-  {
-   "data": "2026-09-21",
-   "entrada_acordada": 0,
-   "entrada_total": 57840,
-   "saida": 0,
-   "saldo_conservador": 220996.96,
-   "saldo_total": 374781.96,
-   "itens_entrada": [
-    {
-     "d": "2o LEILAO LS GALERIA II (07/08) - COMISSAO BULA",
-     "v": 57840,
-     "auto": true
-    }
-   ],
-   "itens_saida": []
-  },
-  {
    "data": "2026-09-22",
-   "entrada_acordada": 0,
-   "entrada_total": 10650,
+   "entrada": 0,
    "saida": 53840.05,
-   "saldo_conservador": 167156.91,
-   "saldo_total": 331591.91,
-   "itens_entrada": [
-    {
-     "d": "14o LEILAO PEROLAS DO TAPAJOS (08/08) - COMISSAO BULA",
-     "v": 10650,
-     "auto": true
-    }
-   ],
+   "saldo": 126135.34,
+   "itens_entrada": [],
    "itens_saida": [
     {
      "d": "Simples Nacional (DAS) ref. agosto/2026 (estimado)",
@@ -7114,28 +7105,10 @@
    ]
   },
   {
-   "data": "2026-09-23",
-   "entrada_acordada": 0,
-   "entrada_total": 13905,
-   "saida": 0,
-   "saldo_conservador": 167156.91,
-   "saldo_total": 345496.91,
-   "itens_entrada": [
-    {
-     "d": "LEILAO NELORE PARANA PRODUTIVIDADE (09/08) - COMISSAO BULA",
-     "v": 13905,
-     "auto": true
-    }
-   ],
-   "itens_saida": []
-  },
-  {
    "data": "2026-09-24",
-   "entrada_acordada": 0,
-   "entrada_total": 0,
+   "entrada": 0,
    "saida": 550,
-   "saldo_conservador": 166606.91,
-   "saldo_total": 344946.91,
+   "saldo": 125585.34,
    "itens_entrada": [],
    "itens_saida": [
     {
@@ -7147,21 +7120,19 @@
   },
   {
    "data": "2026-09-25",
-   "entrada_acordada": 10712.95,
-   "entrada_total": 10712.95,
+   "entrada": 10712.95,
    "saida": 83356.2,
-   "saldo_conservador": 93963.66,
-   "saldo_total": 272303.66,
+   "saldo": 52942.09,
    "itens_entrada": [
     {
      "d": "20o LEILAO GUADALUPE AGROPECUARIA - TOUROS 19/07 domingo (0,5% faturamento) - COMISSAO BULA - parc. 2/2",
      "v": 7502.95,
-     "auto": false
+     "fonte": "parcelamento 2x acordado — 1/2 recebida em 25/08 (planilha FLCX Set/26)"
     },
     {
      "d": "20o LEILAO GUADALUPE AGROPECUARIA - TOUROS 20/07 segunda (5% cobertura) - COMISSAO BULA - parc. 2/2",
      "v": 3210,
-     "auto": false
+     "fonte": "parcelamento 2x acordado — 1/2 recebida em 25/08 (planilha FLCX Set/26)"
     }
    ],
    "itens_saida": [
@@ -7244,96 +7215,36 @@
   },
   {
    "data": "2026-09-26",
-   "entrada_acordada": 9141.22,
-   "entrada_total": 9141.22,
+   "entrada": 9141.22,
    "saida": 0,
-   "saldo_conservador": 103104.88,
-   "saldo_total": 281444.88,
+   "saldo": 62083.31,
    "itens_entrada": [
-    {
-     "d": "23o MEGA LEILAO GENETICA ADITIVA - FEMEAS (25/07) - COMISSAO BULA",
-     "v": 2708.1,
-     "auto": false
-    },
     {
      "d": "23o MEGA LEILAO GENETICA ADITIVA - TOUROS (26/07) - COMISSAO BULA",
      "v": 6433.12,
-     "auto": false
-    }
-   ],
-   "itens_saida": []
-  },
-  {
-   "data": "2026-09-27",
-   "entrada_acordada": 0,
-   "entrada_total": 825,
-   "saida": 0,
-   "saldo_conservador": 103104.88,
-   "saldo_total": 282269.88,
-   "itens_entrada": [
+     "fonte": "parcelamento 2x acordado, NF 636 — 1/2 recebida em 26/08"
+    },
     {
-     "d": "7º LEILÃO ESSÊNCIA GENÉTICA - NELORE DA BAMBÚ (13/08) - COMISSAO BULA",
-     "v": 825,
-     "auto": true
-    }
-   ],
-   "itens_saida": []
-  },
-  {
-   "data": "2026-09-29",
-   "entrada_acordada": 0,
-   "entrada_total": 11984.49,
-   "saida": 0,
-   "saldo_conservador": 103104.88,
-   "saldo_total": 294254.37,
-   "itens_entrada": [
-    {
-     "d": "LEILÃO TERRA BRAVA AGROPECUÁRIA EXPOGENÉTICA (15/08) - COMISSAO BULA",
-     "v": 11984.49,
-     "auto": true
-    }
-   ],
-   "itens_saida": []
-  },
-  {
-   "data": "2026-09-30",
-   "entrada_acordada": 0,
-   "entrada_total": 27375,
-   "saida": 0,
-   "saldo_conservador": 103104.88,
-   "saldo_total": 321629.37,
-   "itens_entrada": [
-    {
-     "d": "LEILÃO MATINHA EXPOGENÉTICA 2026 (16/08) - COMISSAO BULA",
-     "v": 27375,
-     "auto": true
+     "d": "23o MEGA LEILAO GENETICA ADITIVA - FEMEAS (25/07) - COMISSAO BULA",
+     "v": 2708.1,
+     "fonte": "parcelamento 2x acordado, NF 636 — 1/2 recebida em 26/08"
     }
    ],
    "itens_saida": []
   },
   {
    "data": "2026-10-01",
-   "entrada_acordada": 0,
-   "entrada_total": 7020,
+   "entrada": 0,
    "saida": 0,
-   "saldo_conservador": 103104.88,
-   "saldo_total": 328649.37,
-   "itens_entrada": [
-    {
-     "d": "LEILÃO MATRIZES PREMIUM KATISPERA (17/08) - COMISSAO BULA",
-     "v": 7020,
-     "auto": true
-    }
-   ],
+   "saldo": 62083.31,
+   "itens_entrada": [],
    "itens_saida": []
   },
   {
    "data": "2026-10-05",
-   "entrada_acordada": 0,
-   "entrada_total": 0,
+   "entrada": 0,
    "saida": 49500,
-   "saldo_conservador": 53604.88,
-   "saldo_total": 279149.37,
+   "saldo": 12583.31,
    "itens_entrada": [],
    "itens_saida": [
     {
@@ -7385,11 +7296,9 @@
   },
   {
    "data": "2026-10-10",
-   "entrada_acordada": 0,
-   "entrada_total": 0,
+   "entrada": 0,
    "saida": 1058,
-   "saldo_conservador": 52546.88,
-   "saldo_total": 278091.37,
+   "saldo": 11525.31,
    "itens_entrada": [],
    "itens_saida": [
     {
@@ -7401,21 +7310,17 @@
   },
   {
    "data": "2026-11-01",
-   "entrada_acordada": 0,
-   "entrada_total": 0,
+   "entrada": 0,
    "saida": 0,
-   "saldo_conservador": 52546.88,
-   "saldo_total": 278091.37,
+   "saldo": 11525.31,
    "itens_entrada": [],
    "itens_saida": []
   },
   {
    "data": "2026-11-05",
-   "entrada_acordada": 0,
-   "entrada_total": 0,
+   "entrada": 0,
    "saida": 49500,
-   "saldo_conservador": 3046.88,
-   "saldo_total": 228591.37,
+   "saldo": -37974.69,
    "itens_entrada": [],
    "itens_saida": [
     {
@@ -7467,11 +7372,9 @@
   },
   {
    "data": "2026-11-10",
-   "entrada_acordada": 0,
-   "entrada_total": 0,
+   "entrada": 0,
    "saida": 1058,
-   "saldo_conservador": 1988.88,
-   "saldo_total": 227533.37,
+   "saldo": -39032.69,
    "itens_entrada": [],
    "itens_saida": [
     {
@@ -7483,21 +7386,17 @@
   },
   {
    "data": "2026-12-01",
-   "entrada_acordada": 0,
-   "entrada_total": 0,
+   "entrada": 0,
    "saida": 0,
-   "saldo_conservador": 1988.88,
-   "saldo_total": 227533.37,
+   "saldo": -39032.69,
    "itens_entrada": [],
    "itens_saida": []
   },
   {
    "data": "2026-12-05",
-   "entrada_acordada": 0,
-   "entrada_total": 0,
+   "entrada": 0,
    "saida": 49500,
-   "saldo_conservador": -47511.12,
-   "saldo_total": 178033.37,
+   "saldo": -88532.69,
    "itens_entrada": [],
    "itens_saida": [
     {
@@ -7549,11 +7448,9 @@
   },
   {
    "data": "2026-12-10",
-   "entrada_acordada": 0,
-   "entrada_total": 0,
+   "entrada": 0,
    "saida": 1058,
-   "saldo_conservador": -48569.12,
-   "saldo_total": 176975.37,
+   "saldo": -89590.69,
    "itens_entrada": [],
    "itens_saida": [
     {
@@ -7565,11 +7462,9 @@
   },
   {
    "data": "2026-12-28",
-   "entrada_acordada": 0,
-   "entrada_total": 0,
+   "entrada": 0,
    "saida": 7518,
-   "saldo_conservador": -56087.12,
-   "saldo_total": 169457.37,
+   "saldo": -97108.69,
    "itens_entrada": [],
    "itens_saida": [
     {
@@ -7601,10 +7496,13 @@
     "status": "vencido",
     "venc": "2026-05-02",
     "origem": "real",
+    "observacoes": "Vendas Bula: R$ 25.560 | Contato: FABIO/ Rodrigo Loureiro | Obs original: Data: COBRADO 15/5 | vendo com Fabio 15/5\n[18/08/2026] POSIÇÃO 05/08 (Ana): \"Falei com o Fábio ontem — ele disse que não sabia com quem tínhamos fechado\". Acordo do leilão de 18/03: 1% sobre o faturamento de R$ 650.000 = R$ 6.500. Em 04/08 a Ana reforçou: \"o Pix está certo; errado é a mentira de não querer pagar\". COBRANÇA ATIVA — devedor postergando.\n[27/08/2026] Chefe confirma que segue a receber. Acordo agora também gravado no fechamento (1% sobre R$ 650.000).",
     "cliente": "RODRIGO LOUREIRO",
+    "data_acordada": false,
     "fech_nome": "4° LEILÃO AGROPECUÁRIA LAGOA DOS PATOS – 18/03/2026",
     "fech_data": "2026-03-18",
-    "venc_automatico": true
+    "venc_automatico": true,
+    "fonte_data": ""
    },
    {
     "id": "1b4566f2-8e47-4d21-ac4a-f332d3756b2f",
@@ -7615,10 +7513,13 @@
     "status": "vencido",
     "venc": "2026-05-30",
     "origem": "real",
+    "observacoes": "15/07/2026 (planilha/apontamentos): 18a Mega Leilao Nelore (maio) - comprador Gustavo ABCZ/Henrique, NF 601, via Bula/Rusa. R$ 6.720 (3% de 224.000). AGUARDANDO CLIENTE PAGAR (sem data).\n[18/08/2026] POSIÇÃO 05/08 (Ana): \"Mega Nelore — é o Henrique, que disse que teve problemas com o financeiro\". Cobrança em aberto; retomar contato.",
     "cliente": null,
+    "data_acordada": false,
     "fech_nome": null,
     "fech_data": null,
-    "venc_automatico": false
+    "venc_automatico": true,
+    "fonte_data": ""
    },
    {
     "id": "a33595fc-21ef-4362-ba81-08a9a96fbc81",
@@ -7629,10 +7530,13 @@
     "status": "vencido",
     "venc": "2026-06-28",
     "origem": "real",
+    "observacoes": "15/07/2026 (conferencia Ana Paula): Touros Santa Nazare: NF enviada, aguardando retorno do Leonardo. Valor OK, segue em aberto.\n[18/08/2026] POSIÇÃO 05/08 (Ana): \"Santa Nazaré — o Leonardo pagou o leilão de junho e deixou este ainda pendente\". Cobrar o remanescente de 14/05.\n[27/08/2026] Chefe confirma que segue a receber.",
     "cliente": "PROGRAMA",
+    "data_acordada": false,
     "fech_nome": "Leilão Excelência Santa Nazaré 2026 – 14/05/2026",
     "fech_data": "2026-05-14",
-    "venc_automatico": true
+    "venc_automatico": true,
+    "fonte_data": ""
    },
    {
     "id": "38a738fb-bc3f-4ae2-8880-699a0cd7d1b0",
@@ -7643,10 +7547,13 @@
     "status": "vencido",
     "venc": "2026-07-22",
     "origem": "real",
+    "observacoes": "CANCELADO — 15/07/2026 (planilha Ana Paula): Ana nao tem esse leilao na planilha (\"nem dia de leilao nem vendas, nadica\"). Provisao sem lastro. [Reativado 27/07: origem HastaPro 1o Nelore Sao Francisco - 07/06/2026] [ADJUDICACAO 26/08] CANCELADO: Conferencia Ana 15/07: \"nem dia de leilao nem vendas, nadica\" — provisao sem lastro. Reativacao de 27/07 veio do HastaPro; HastaPro nao e lastro. Prevalece a conferencia.\n[27/08/2026] REATIVADO por diretiva do chefe: \"Falta recebermos agora o Leilão Lagoa dos Patos de Março, Nelore Santa Nazaré de Maio, Nelore São Francisco de Junho\". Prevalece sobre o cancelamento de 26/08, que se apoiava na conferência da Ana de 15/07 (\"nem dia de leilão nem vendas, nadica\"). Lastro do lado da Bula: comissão de R$ 2.100,00 paga ao Fábio Omena em 10/08 sobre R$ 70.000,00 de cobertura, e despesa de R$ 2.030,20 paga em 08/07 amarrada a este fechamento — a Bula trabalhou o leilão. Valor 1% sobre o faturamento de R$ 675.600,00 = R$ 6.756,00; origem passa de \"estimativa\" para \"real\". Se a cobrança encontrar um valor diferente do faturado, ajustar o título e não o fechamento.",
     "cliente": "AGRESTE LEILOES",
+    "data_acordada": false,
     "fech_nome": "1o Nelore Sao Francisco - 07/06/2026",
     "fech_data": "2026-06-07",
-    "venc_automatico": true
+    "venc_automatico": true,
+    "fonte_data": ""
    },
    {
     "id": "19ac2940-7647-46f8-bb32-f1194ec637ea",
@@ -7657,10 +7564,13 @@
     "status": "vencido",
     "venc": "2026-07-31",
     "origem": "real",
+    "observacoes": "15/07/2026 (planilha/apontamentos): Terra Brava JUNHO - valor emitido da NF 615 (Eduardo Pinheiro Campos) = R$ 7.215 (R$ 144.300 x 5%). Uma venda do Fabio foi cancelada. Aguardando pagamento (sem data). [ADJUDICACAO 26/08] NF 615 de 7.215,00 = 3 parcelas EXATAS de 2.405,00. O PIX de 2.405,00 de EDUARDO PINHEIRO CAMPOS em 25/08 e a 1a parcela — identifica o pagador recorrente. Restam 2 parcelas (4.810,00).\n[JULHO-DETALHE 02/09] Parcela recebida em 27/07/2026 por PIX de EDUARDO PINHEIRO CAMPOS (CPF ***.530.756-**), 2.405,00 — estava dentro do lancamento AGREGADO 25-29/07 e por isso nunca foi baixada. ⭐ CORRIGE A LEITURA DE 26/08: o PIX de 25/08 foi registrado como a 1a das 3 parcelas da NF 615 (7.215,00 = 3 x 2.405,00); com esta, ele era a 2a. Recebido acumulado passa a 4.810,00 e RESTA UMA parcela de 2.405,00, nao duas.",
     "cliente": "PROGRAMA LEILOES",
+    "data_acordada": false,
     "fech_nome": "TOUROS PROVADOS TERRA BRAVA AGROPECUÁRIA - 1º ETAPA",
     "fech_data": "2026-06-16",
-    "venc_automatico": true
+    "venc_automatico": true,
+    "fonte_data": ""
    },
    {
     "id": "84700163-3414-4395-a0ad-248657541e1e",
@@ -7671,10 +7581,13 @@
     "status": "vencido",
     "venc": "2026-08-20",
     "origem": "real",
+    "observacoes": "[RECEITA JUL-AGO 17/08] 1% sobre o faturamento total de R$ 2.515.500,00 (leilao da Bula Remates). Status na planilha-mestra do Drive (13/08): A RECEBER 20/08. [ADJUDICACAO 26/08] Parcial do acerto de 20/08 (19.810,50, \"ACERTO BULA ASSESSORIA KRIZ E NELORACO\"): 19.810,50 − 10.164,00 do Kirz = 9.646,50 aqui. Restam 15.508,50 a cobrar da Bula Remates.",
     "cliente": "BULA REMATES",
+    "data_acordada": false,
     "fech_nome": null,
     "fech_data": null,
-    "venc_automatico": false
+    "venc_automatico": true,
+    "fonte_data": ""
    },
    {
     "id": "503091cc-4469-4c18-afba-eda906cdd427",
@@ -7685,10 +7598,13 @@
     "status": "vencido",
     "venc": "2026-08-25",
     "origem": "real",
+    "observacoes": "[RECEITA JUL-AGO 17/08] 0,33% sobre o faturamento de R$ 14.714.090,00 (etapa femeas). A etapa TOUROS de 12/07 ainda esta sem faturamento total informado pela leiloeira - pode gerar receita adicional. Status na planilha-mestra do Drive (13/08): COBRAR. Vencimento = data do leilao + 45 dias (padrao), pois a planilha nao traz data.",
     "cliente": "PROGRAMA LEILOES",
+    "data_acordada": false,
     "fech_nome": "MEGA EVENTO EAO BAVIERA — Fêmeas",
     "fech_data": "2026-07-11",
-    "venc_automatico": true
+    "venc_automatico": true,
+    "fonte_data": ""
    },
    {
     "id": "55591ac2-79a4-44e4-ae2f-476b30c15bb9",
@@ -7699,10 +7615,13 @@
     "status": "vencido",
     "venc": "2026-08-26",
     "origem": "real",
+    "observacoes": "[18/08/2026] Cobrança gerada a partir do fechamento: VGV de cobertura R$ 366.300,00 × 8.60% = R$ 31.501,80. Vencimento = leilão + 45 dias (padrão dos recebíveis). CRITÉRIO A CONFIRMAR — mesmo % efetivo do EAO Baviera Fêmeas de 11/07 (R$ 48.556,50 ÷ R$ 564.900 = 8,60%), que combina 0,33% do faturamento total + fatia da cobertura.",
     "cliente": null,
+    "data_acordada": false,
     "fech_nome": "MEGA EVENTO EAO BAVIERA — Machos",
     "fech_data": "2026-07-12",
-    "venc_automatico": true
+    "venc_automatico": true,
+    "fonte_data": ""
    },
    {
     "id": "54128961-6448-4bd0-bf9d-4b31771e04ff",
@@ -7713,10 +7632,13 @@
     "status": "vencido",
     "venc": "2026-08-26",
     "origem": "real",
+    "observacoes": "[RECEITA JUL-AGO 17/08] 5% da venda sobre cobertura de R$ 159.000,00 (E-Rural, sem presencial). Status na planilha-mestra do Drive (13/08): COBRAR. Vencimento = data do leilao + 45 dias (padrao), pois a planilha nao traz data.\n[NF 635 · 27/08/2026] Valor retificado de 7.950,00 para 7.149,98. Os 7.950,00 eram estimativa de 17/08 (5% x cobertura de 159.000). O valor faturado e 7.149,98, confirmado pela NF 635 no Relatorio de Nota Fiscal da Prefeitura de Campo Grande (emissao 25/08/2026 15:46) e pelo portal da e-Rural (\"3 itens consolidados\", vencimento 30/07/2026, aguardando pagamento). Diferenca de 800,02 SEM explicacao pela formula do acordo — taxa implicita 4,4968%; a unica decomposicao limpa e o lote 19 a 4% em vez de 5%. CONFERIR COM A E-RURAL antes de tratar como regra.",
     "cliente": "E-RURAL",
+    "data_acordada": false,
     "fech_nome": "LEILÃO NELORE SORRISO - ETAPA FÊMEAS – 12/07/2026",
     "fech_data": "2026-07-12",
-    "venc_automatico": true
+    "venc_automatico": true,
+    "fonte_data": ""
    },
    {
     "id": "a3e2d593-e49f-40ff-bd52-be0a1faec641",
@@ -7727,10 +7649,13 @@
     "status": "vencido",
     "venc": "2026-08-28",
     "origem": "real",
+    "observacoes": "[18/08/2026] Cobrança gerada a partir do fechamento: VGV de cobertura R$ 123.600,00 × 5.00% = R$ 6.180,00. Vencimento = leilão + 45 dias (padrão dos recebíveis). CRITÉRIO A CONFIRMAR — padrão dominante de 5% da cobertura (criador sem histórico de recebível).",
     "cliente": null,
+    "data_acordada": false,
     "fech_nome": "LEILÃO VIRTUAL BASE GENÉTICA SANTA CRUZ - 1ª ETAPA – 14/07/2026",
     "fech_data": "2026-07-14",
-    "venc_automatico": true
+    "venc_automatico": true,
+    "fonte_data": ""
    },
    {
     "id": "44f20398-7441-4c2c-9c11-84f0bf0c2e73",
@@ -7741,10 +7666,13 @@
     "status": "vencido",
     "venc": "2026-08-29",
     "origem": "real",
+    "observacoes": "[18/08/2026] Cobrança gerada a partir do fechamento: VGV de cobertura R$ 42.600,00 × 5.00% = R$ 2.130,00. Vencimento = leilão + 45 dias (padrão dos recebíveis). CRITÉRIO A CONFIRMAR — padrão dominante de 5% da cobertura (criador sem histórico de recebível).",
     "cliente": null,
+    "data_acordada": false,
     "fech_nome": "NELORE SANTA CRUZ",
     "fech_data": "2026-07-15",
-    "venc_automatico": true
+    "venc_automatico": true,
+    "fonte_data": ""
    },
    {
     "id": "f9c54bc0-1768-400a-b4ed-66a50f031a01",
@@ -7755,10 +7683,13 @@
     "status": "vencido",
     "venc": "2026-09-02",
     "origem": "real",
+    "observacoes": "[18/08/2026] Cobrança gerada a partir do fechamento: VGV de cobertura R$ 247.200,00 × 5.00% = R$ 12.360,00. Vencimento = leilão + 45 dias (padrão dos recebíveis). CRITÉRIO A CONFIRMAR — padrão dominante de 5% da cobertura (criador sem histórico de recebível).",
     "cliente": null,
+    "data_acordada": false,
     "fech_nome": "NELORE SANTA CRUZ - 19/07/2026",
     "fech_data": "2026-07-19",
-    "venc_automatico": true
+    "venc_automatico": true,
+    "fonte_data": ""
    }
   ],
   "cp": [
@@ -7852,11 +7783,9 @@
  },
  "piorDia": {
   "data": "2026-12-28",
-  "entrada_acordada": 0,
-  "entrada_total": 0,
+  "entrada": 0,
   "saida": 7518,
-  "saldo_conservador": -56087.12,
-  "saldo_total": 169457.37,
+  "saldo": -97108.69,
   "itens_entrada": [],
   "itens_saida": [
    {
@@ -8109,9 +8038,9 @@
    "leiloes_planilha": 22,
    "caixa_receita": 39934,
    "caixa_imposto": 0,
-   "caixa_custo": 1755,
+   "caixa_custo": 14962.57,
    "caixa_fixa": 47951.61,
-   "caixa_variavel": 2500,
+   "caixa_variavel": 5020,
    "caixa_financeiro": 84.73,
    "dre_receita": 0,
    "dre_imposto": 0,
@@ -8288,10 +8217,10 @@
   {
    "sev": "ALTA",
    "tema": "Contas a receber",
-   "desc": "22 título(s) com vencimento AUTOMÁTICO (leilão + 45 dias) em vez de data combinada — a projeção de caixa nessas datas é chute",
-   "valor": 360511.77,
-   "fonte": "erp_contas_receber × data do fechamento",
-   "acao": "Confirmar a data com cada leiloeira e gravar no título"
+   "desc": "25 título(s) SEM data combinada com quem paga — estão fora do fluxo de caixa por decisão de 04/09, e é o maior bloco de dinheiro parado do painel",
+   "valor": 408034.27,
+   "fonte": "erp_contas_receber sem a tag data-acordada",
+   "acao": "Combinar a data com cada leiloeira e rodar scripts/marca-data-acordada.mjs --apply"
   },
   {
    "sev": "ALTA",
@@ -8380,6 +8309,14 @@
    "valor": 20000,
    "fonte": "Leilões × bula_leilao_fechamento.receita_bula",
    "acao": "ERP sem receita apurada — lançar o fechamento"
+  },
+  {
+   "sev": "ALTA",
+   "tema": "Contas a pagar",
+   "desc": "Marcelo (acordo de sócio): o João anunciou R$ 63.500,00 no grupo em 04/09, mas o ERP tem R$ 44.286,20 lançado para 25/09",
+   "valor": 19213.8,
+   "fonte": "Grupo Financeiro 04/09 16:46 × erp_contas_pagar",
+   "acao": "Confirmar o valor do acordo e corrigir o título"
   },
   {
    "sev": "ALTA",
@@ -8478,6 +8415,14 @@
    "acao": "Conferir qual base está certa"
   },
   {
+   "sev": "ALTA",
+   "tema": "Contas a pagar",
+   "desc": "Hotel Estadia Jacamim R$ 3.051,00 aparece na lista de pagamentos do João e NÃO existe no ERP (o único hotel em aberto é o Villa Cerrado, R$ 1.914,00, do Peralta)",
+   "valor": 3051,
+   "fonte": "Grupo Financeiro 04/09 16:46 × erp_contas_pagar",
+   "acao": "Lançar o título"
+  },
+  {
    "sev": "MEDIA",
    "tema": "Cobertura",
    "desc": "Fechamento no ERP sem linha na planilha: 2026-06-14 10o Leilao Nelore JMP - Touros - 14/06/2026 (VGV 4148708.80)",
@@ -8556,6 +8501,14 @@
    "valor": 15030,
    "fonte": "Leilões",
    "acao": "Criar o fechamento no ERP, ou marcar como parcela de outro"
+  },
+  {
+   "sev": "MEDIA",
+   "tema": "Contas a receber",
+   "desc": "EAO: o João somou R$ 92.324,97 (Fêmeas + Touros + Aspirações da planilha) e o ERP tem R$ 80.058,30 em CR",
+   "valor": 12266.67,
+   "fonte": "Grupo Financeiro 04/09 × erp_contas_receber",
+   "acao": "Conferir qual base está certa"
   },
   {
    "sev": "MEDIA",
@@ -9063,6 +9016,14 @@
   },
   {
    "sev": "MEDIA",
+   "tema": "Contas a receber",
+   "desc": "Mafra: o João somou R$ 86.651,00 e tanto o ERP quanto a planilha dele dão R$ 88.202,00",
+   "valor": -1551,
+   "fonte": "Grupo Financeiro 04/09 × erp_contas_receber",
+   "acao": "Conferir qual base está certa"
+  },
+  {
+   "sev": "MEDIA",
    "tema": "Receita por leilão",
    "desc": "Junho · 1/2 KATAYAMA TRILOGIA",
    "valor": -1520,
@@ -9167,6 +9128,14 @@
   },
   {
    "sev": "MEDIA",
+   "tema": "Contas a receber",
+   "desc": "E-Rural: o João somou R$ 13.644,98 e o ERP tem R$ 12.864,98 nos dois títulos do Sorriso",
+   "valor": 780,
+   "fonte": "Grupo Financeiro 04/09 × erp_contas_receber",
+   "acao": "Conferir qual base está certa"
+  },
+  {
+   "sev": "MEDIA",
    "tema": "Receita por leilão",
    "desc": "Fevereiro · LEILÃO KATAYAMA",
    "valor": 716.7,
@@ -9212,6 +9181,14 @@
    "valor": -45,
    "fonte": "Leilões × bula_leilao_fechamento.receita_bula",
    "acao": "Conferir qual base está certa"
+  },
+  {
+   "sev": "MEDIA",
+   "tema": "Conciliação",
+   "desc": "PIX de R$ 20,00 para o CNPJ 12.335.532/0001-69 em 04/09 sem contraparte identificada — classificado em Outras Despesas para não ficar sem categoria",
+   "valor": 20,
+   "fonte": "extrato Sicoob 04/09",
+   "acao": "Identificar o favorecido"
   },
   {
    "sev": "MEDIA",
@@ -9294,10 +9271,424 @@
    "acao": "Incluir na planilha ou confirmar que é duplicata"
   }
  ],
+ "semData": {
+  "total": 408034.27,
+  "n": 25,
+  "porCliente": [
+   {
+    "cliente": "PROGRAMA LEILOES",
+    "n": 5,
+    "total": 153068.5,
+    "titulos": [
+     {
+      "d": "LEILÃO TOUROS PROVADOS TERRA BRAVA - JUNHO/2026 (16-18/06) - COMISSAO BULA",
+      "v": 2405,
+      "venc": "2026-07-31",
+      "status": "vencido"
+     },
+     {
+      "d": "MEGA EVENTO EAO BAVIERA (10-11/07) - COMISSAO BULA",
+      "v": 48556.5,
+      "venc": "2026-08-25",
+      "status": "vencido"
+     },
+     {
+      "d": "LEILAO FEMEAS NELORE MAFRA - REDENCAO/PA (01/08) - COMISSAO BULA",
+      "v": 70345,
+      "venc": "2026-09-15",
+      "status": "aberto"
+     },
+     {
+      "d": "LEILAO TOUROS NELORE MAFRA - REDENCAO/PA (02/08) - COMISSAO BULA",
+      "v": 17857,
+      "venc": "2026-09-16",
+      "status": "aberto"
+     },
+     {
+      "d": "LEILAO NELORE PARANA PRODUTIVIDADE (09/08) - COMISSAO BULA",
+      "v": 13905,
+      "venc": "2026-09-23",
+      "status": "aberto"
+     }
+    ]
+   },
+   {
+    "cliente": "(sem cliente definido)",
+    "n": 12,
+    "total": 118774.29,
+    "titulos": [
+     {
+      "d": "18ª MEGA LEILÃO NELORE - GUSTAVO/HENRIQUE - COMISSAO BULA",
+      "v": 6720,
+      "venc": "2026-05-30",
+      "status": "vencido"
+     },
+     {
+      "d": "MEGA EVENTO EAO BAVIERA — Machos (12/07) - COMISSAO BULA",
+      "v": 31501.8,
+      "venc": "2026-08-26",
+      "status": "vencido"
+     },
+     {
+      "d": "LEILÃO VIRTUAL BASE GENÉTICA SANTA CRUZ - 1ª ETAPA – 14/07/2026 (14/07) - COMISSAO BULA",
+      "v": 6180,
+      "venc": "2026-08-28",
+      "status": "vencido"
+     },
+     {
+      "d": "NELORE SANTA CRUZ (15/07) - COMISSAO BULA",
+      "v": 2130,
+      "venc": "2026-08-29",
+      "status": "vencido"
+     },
+     {
+      "d": "NELORE SANTA CRUZ - 19/07/2026 (19/07) - COMISSAO BULA",
+      "v": 12360,
+      "venc": "2026-09-02",
+      "status": "vencido"
+     },
+     {
+      "d": "30º NELORAÇO IRMÃOS HIPÓLITO (25/07) - COMISSAO BULA",
+      "v": 1425,
+      "venc": "2026-09-08",
+      "status": "aberto"
+     },
+     {
+      "d": "LEILAO TOUROS NELORE GRUPO COSTA (04/08) - COMISSAO BULA",
+      "v": 603,
+      "venc": "2026-09-18",
+      "status": "aberto"
+     },
+     {
+      "d": "14o LEILAO PEROLAS DO TAPAJOS (08/08) - COMISSAO BULA",
+      "v": 10650,
+      "venc": "2026-09-22",
+      "status": "aberto"
+     },
+     {
+      "d": "7º LEILÃO ESSÊNCIA GENÉTICA - NELORE DA BAMBÚ (13/08) - COMISSAO BULA",
+      "v": 825,
+      "venc": "2026-09-27",
+      "status": "aberto"
+     },
+     {
+      "d": "LEILÃO TERRA BRAVA AGROPECUÁRIA EXPOGENÉTICA (15/08) - COMISSAO BULA",
+      "v": 11984.49,
+      "venc": "2026-09-29",
+      "status": "aberto"
+     },
+     {
+      "d": "LEILÃO MATINHA EXPOGENÉTICA 2026 (16/08) - COMISSAO BULA",
+      "v": 27375,
+      "venc": "2026-09-30",
+      "status": "aberto"
+     },
+     {
+      "d": "LEILÃO MATRIZES PREMIUM KATISPERA (17/08) - COMISSAO BULA",
+      "v": 7020,
+      "venc": "2026-10-01",
+      "status": "aberto"
+     }
+    ]
+   },
+   {
+    "cliente": "E-RURAL",
+    "n": 3,
+    "total": 70704.98,
+    "titulos": [
+     {
+      "d": "LEILAO NELORE SORRISO - ETAPA FEMEAS (12/07) - COMISSAO BULA",
+      "v": 7149.98,
+      "venc": "2026-08-26",
+      "status": "vencido"
+     },
+     {
+      "d": "LEILAO DE TOUROS NELORE SORRISO (04/08) - COMISSAO BULA",
+      "v": 5715,
+      "venc": "2026-09-18",
+      "status": "aberto"
+     },
+     {
+      "d": "2o LEILAO LS GALERIA II (07/08) - COMISSAO BULA",
+      "v": 57840,
+      "venc": "2026-09-21",
+      "status": "aberto"
+     }
+    ]
+   },
+   {
+    "cliente": "BULA REMATES",
+    "n": 2,
+    "total": 40802.5,
+    "titulos": [
+     {
+      "d": "NELORACO PO (25/07) - BULA REMATES",
+      "v": 15508.5,
+      "venc": "2026-08-20",
+      "status": "vencido"
+     },
+     {
+      "d": "LEILAO TOUROS FAZENDA SAO GERALDO (01/08) - BULA REMATES",
+      "v": 25294,
+      "venc": "2026-09-20",
+      "status": "parcial"
+     }
+    ]
+   },
+   {
+    "cliente": "PROGRAMA",
+    "n": 1,
+    "total": 11428,
+    "titulos": [
+     {
+      "d": "LEILAO TOUROS SANTA NAZARE EXCELENCIA - PROGRAMA",
+      "v": 11428,
+      "venc": "2026-06-28",
+      "status": "vencido"
+     }
+    ]
+   },
+   {
+    "cliente": "AGRESTE LEILOES",
+    "n": 1,
+    "total": 6756,
+    "titulos": [
+     {
+      "d": "1o NELORE SAO FRANCISCO - FECHAMENTO BULA",
+      "v": 6756,
+      "venc": "2026-07-22",
+      "status": "vencido"
+     }
+    ]
+   },
+   {
+    "cliente": "RODRIGO LOUREIRO",
+    "n": 1,
+    "total": 6500,
+    "titulos": [
+     {
+      "d": "LEILAO LAGOA DOS PATOS",
+      "v": 6500,
+      "venc": "2026-05-02",
+      "status": "vencido"
+     }
+    ]
+   }
+  ]
+ },
+ "resultados": {
+  "leiloes_realizados": 131,
+  "leiloes_com_venda": 106,
+  "lotes": 783,
+  "faturamento": 185926745.21,
+  "vendas": 23905650,
+  "receita": 1581223.49,
+  "vgv_erp": 29997568.8,
+  "cobertura": 0.12857563860970683,
+  "receita_sobre_vendas": 0.06614434202793064,
+  "receita_media_leilao": 12070.41,
+  "receita_acumulada_dre": 1572082.27,
+  "lucro_acumulado_dre": 105630.77,
+  "margem_acumulada": 0.06719162986298421,
+  "melhor_mes": {
+   "nome": "Agosto",
+   "lucro": 122039.66
+  },
+  "pior_mes": {
+   "nome": "Março",
+   "lucro": -53190.13
+  },
+  "ponto_equilibrio": 52102.85,
+  "porLeiloeira": [
+   {
+    "leiloeira": "PROGRAMA",
+    "n": 56,
+    "fat": 126798632.22,
+    "vendas": 11749000,
+    "receita": 920519.13
+   },
+   {
+    "leiloeira": "REMATES",
+    "n": 12,
+    "fat": 16000879.99,
+    "vendas": 4591200,
+    "receita": 193017.8
+   },
+   {
+    "leiloeira": "—",
+    "n": 28,
+    "fat": 18451000,
+    "vendas": 2720170,
+    "receita": 174175.38
+   },
+   {
+    "leiloeira": "E-RURAL",
+    "n": 19,
+    "fat": 8527403,
+    "vendas": 1867380,
+    "receita": 145717.46
+   },
+   {
+    "leiloeira": "BULA REMATES",
+    "n": 4,
+    "fat": 8551700,
+    "vendas": 690300,
+    "receita": 51454.5
+   },
+   {
+    "leiloeira": "LEILOBOI",
+    "n": 2,
+    "fat": 4111500,
+    "vendas": 1102800,
+    "receita": 33600
+   },
+   {
+    "leiloeira": "MATHEUS",
+    "n": 2,
+    "fat": 0,
+    "vendas": 276700,
+    "receita": 20000
+   },
+   {
+    "leiloeira": "AGRESTE",
+    "n": 4,
+    "fat": 1418800,
+    "vendas": 414200,
+    "receita": 16810
+   },
+   {
+    "leiloeira": "ESTANCIA BAHIA",
+    "n": 1,
+    "fat": 2066830,
+    "vendas": 184100,
+    "receita": 15501.23
+   },
+   {
+    "leiloeira": "FAZENDA",
+    "n": 1,
+    "fat": 0,
+    "vendas": 96600,
+    "receita": 4830
+   },
+   {
+    "leiloeira": "FABIO OMENA",
+    "n": 1,
+    "fat": 0,
+    "vendas": 159600,
+    "receita": 3990
+   },
+   {
+    "leiloeira": "CONNECT",
+    "n": 1,
+    "fat": 0,
+    "vendas": 53600,
+    "receita": 1608
+   }
+  ],
+  "topLeiloes": [
+   {
+    "mes": 6,
+    "nome": "LEILAO JMP - FEMEAS",
+    "leiloeira": "PROGRAMA",
+    "fat": 10996800,
+    "vendas": 189000,
+    "receita": 165500
+   },
+   {
+    "mes": 8,
+    "nome": "LEILÃO FÊMEAS NELORE MAFRA",
+    "leiloeira": "PROGRAMA",
+    "fat": 5627600,
+    "vendas": 1042700,
+    "receita": 70345
+   },
+   {
+    "mes": 8,
+    "nome": "28º LEILÃO NAVIRAÍ CAMPARINO REPRODUTORES",
+    "leiloeira": "PROGRAMA",
+    "fat": 8085000,
+    "vendas": 940500,
+    "receita": 60637.5
+   },
+   {
+    "mes": 8,
+    "nome": "LEILÃO LS GALERIA II",
+    "leiloeira": "E-RURAL",
+    "fat": 3680000,
+    "vendas": 576000,
+    "receita": 59840
+   },
+   {
+    "mes": 5,
+    "nome": "LEILÃO ESPECIAL 60 ANOS DE SELEÇÃO RIBALTA",
+    "leiloeira": "REMATES",
+    "fat": 3151500,
+    "vendas": 2944500,
+    "receita": 58890
+   },
+   {
+    "mes": 5,
+    "nome": "MATRIZES EAO",
+    "leiloeira": "PROGRAMA",
+    "fat": 16566451.71,
+    "vendas": null,
+    "receita": 54669.29064
+   },
+   {
+    "mes": 4,
+    "nome": "FEMEAS JMP",
+    "leiloeira": "PROGRAMA",
+    "fat": 10374300,
+    "vendas": 432600,
+    "receita": 51871.5
+   },
+   {
+    "mes": 7,
+    "nome": "MEGA EAO BAVIERA - FÊMEAS",
+    "leiloeira": "PROGRAMA",
+    "fat": 13881093.64,
+    "vendas": 545900,
+    "receita": 45807.60901
+   },
+   {
+    "mes": 7,
+    "nome": "MEGA EAO BAVIERA - TOUROS",
+    "leiloeira": "PROGRAMA",
+    "fat": 11309166.64,
+    "vendas": 366300,
+    "receita": 37320.24991
+   },
+   {
+    "mes": 8,
+    "nome": "LEILÃO NAVIRAÍ CAMPARINO ESSÊNCIA BEZERRAS E NOVILHAS",
+    "leiloeira": "PROGRAMA",
+    "fat": null,
+    "vendas": 543000,
+    "receita": 27150
+   },
+   {
+    "mes": 5,
+    "nome": "TOUROS EAO",
+    "leiloeira": "PROGRAMA",
+    "fat": 7758399.04,
+    "vendas": null,
+    "receita": 25602.71683
+   },
+   {
+    "mes": 6,
+    "nome": "LEILÃO MEAB E FAZENDA MODELO",
+    "leiloeira": "REMATES",
+    "fat": 1258500,
+    "vendas": 596700,
+    "receita": 25170
+   }
+  ]
+ },
  "totais": {
   "cr_aberto": 611930.19,
   "cr_vencido": 157195.78,
-  "cr_data_acordada": 251418.42,
+  "cr_data_acordada": 203895.92,
+  "cr_sem_data": 408034.27,
   "cp_aberto": 377513.79,
   "cp_real": 52369,
   "cp_estimativa": 325144.79,

@@ -45,7 +45,8 @@ const movMes = await Q(`
 const cr = await Q(`
   select r.id, r.descricao, r.valor::float valor, coalesce(r.valor_recebido,0)::float recebido,
     (r.valor-coalesce(r.desconto,0)+coalesce(r.juros,0)+coalesce(r.multa,0)-coalesce(r.valor_recebido,0))::float devido,
-    r.status, r.vencimento::date venc, r.origem, p.nome cliente,
+    r.status, r.vencimento::date venc, r.origem, r.observacoes, p.nome cliente,
+    coalesce(r.tags @> '["data-acordada"]'::jsonb, false) data_acordada,
     f.nome fech_nome, f.data::date fech_data
   from erp_contas_receber r
   left join erp_pessoas p on p.id=r.cliente_id
@@ -129,13 +130,17 @@ for (const l of leiloes.filter(x => x.mes && x.mes <= 8 && (x.receita || x.fat |
 }
 const fechSemLinha = fech.filter(f => !usados.has(f.id))
 
-/* ── 4. Vencimento acordado × automático (leilão + 45 dias) ──────────────── */
+/* ── 4. Data combinada × data automática ─────────────────────────────────────
+ * Decisão do João em 04/09/2026: só entra no fluxo o que foi combinado com quem
+ * paga. A marca vive na tag `data-acordada` do título (scripts/marca-data-acordada.mjs),
+ * não numa heurística deste script — heurística de data é justamente o que
+ * produzia o número errado.
+ */
 for (const t of cr) {
   t.venc = iso(t.venc); t.fech_data = iso(t.fech_data)
-  if (t.fech_data) {
-    const auto = new Date(t.fech_data + 'T00:00:00Z'); auto.setUTCDate(auto.getUTCDate() + 45)
-    t.venc_automatico = Math.abs(new Date(t.venc + 'T00:00:00Z') - auto) < 86400000 * 2
-  } else t.venc_automatico = false
+  t.venc_automatico = !t.data_acordada
+  const m = /\[data combinada:\s*([^\]]+)\]/.exec(t.observacoes || '')
+  t.fonte_data = m ? m[1].trim() : ''
 }
 for (const t of cp) t.venc = iso(t.venc)
 
@@ -151,24 +156,35 @@ const vencidos = {
 vencidos.cr_total = r2(vencidos.cr.reduce((s, t) => s + t.devido, 0))
 vencidos.cp_total = r2(vencidos.cp.reduce((s, t) => s + t.devido, 0))
 
+/** Só entram no fluxo os recebíveis com data combinada. O resto não tem data. */
+const crNoFluxo = cr.filter(t => t.data_acordada && t.venc >= HOJE)
+const semData = cr.filter(t => !t.data_acordada)
+semData.total = r2(semData.reduce((s, t) => s + t.devido, 0))
+/** Agrupado por quem deve, que é como a cobrança acontece. */
+semData.porCliente = Object.values(semData.reduce((acc, t) => {
+  const k = t.cliente || '(sem cliente definido)'
+  ;(acc[k] = acc[k] || { cliente: k, n: 0, total: 0, titulos: [] })
+  acc[k].n++; acc[k].total = r2(acc[k].total + t.devido)
+  acc[k].titulos.push({ d: t.descricao, v: r2(t.devido), venc: t.venc, status: t.status })
+  return acc
+}, {})).sort((a, b) => b.total - a.total)
+
 const fluxo = []
-let sConserv = saldoCaixa, sTotal = saldoCaixa
+let saldo = saldoCaixa
 for (let i = 0; i <= 118; i++) {
   const d = addDias(HOJE, i)
-  const entHoje = cr.filter(t => t.venc === d)
+  const entHoje = crNoFluxo.filter(t => t.venc === d)
   const saiHoje = cp.filter(t => t.venc === d)
-  const eA = r2(entHoje.filter(t => !t.venc_automatico).reduce((s, t) => s + t.devido, 0))
-  const eT = r2(entHoje.reduce((s, t) => s + t.devido, 0))
+  const eA = r2(entHoje.reduce((s, t) => s + t.devido, 0))
   const sT = r2(saiHoje.reduce((s, t) => s + t.devido, 0))
-  sConserv = r2(sConserv + eA - sT); sTotal = r2(sTotal + eT - sT)
-  if (eT || sT || i === 0 || d.slice(8) === '01') fluxo.push({
-    data: d, entrada_acordada: eA, entrada_total: eT, saida: sT,
-    saldo_conservador: sConserv, saldo_total: sTotal,
-    itens_entrada: entHoje.map(t => ({ d: t.descricao, v: r2(t.devido), auto: t.venc_automatico })),
+  saldo = r2(saldo + eA - sT)
+  if (eA || sT || i === 0 || d.slice(8) === '01') fluxo.push({
+    data: d, entrada: eA, saida: sT, saldo,
+    itens_entrada: entHoje.map(t => ({ d: t.descricao, v: r2(t.devido), fonte: t.fonte_data })),
     itens_saida: saiHoje.map(t => ({ d: t.descricao, v: r2(t.devido), origem: t.origem })),
   })
 }
-const piorDia = fluxo.reduce((a, f) => f.saldo_conservador < a.saldo_conservador ? f : a, fluxo[0])
+const piorDia = fluxo.reduce((a, f) => f.saldo < a.saldo ? f : a, fluxo[0])
 
 /* ── 6. Previsto x realizado, mês a mês ──────────────────────────────────── */
 const porMesPl = {}, porMesErp = {}
@@ -213,6 +229,41 @@ for (let m = 1; m <= 12; m++) {
   })
 }
 
+/* ── 6b. Resultados do ano — panorâmica ──────────────────────────────────── */
+const realizados = leiloes.filter(l => l.mes && l.mes <= 9 && (l.fat || l.vendas || l.receita))
+const S = (arr, k) => r2(arr.reduce((s, x) => s + (x[k] || 0), 0))
+const porLeiloeira = Object.values(realizados.reduce((acc, l) => {
+  const k = (l.leiloeira || '—').toUpperCase().replace(/\s+$/, '') || '—'
+  ;(acc[k] = acc[k] || { leiloeira: k, n: 0, fat: 0, vendas: 0, receita: 0 })
+  acc[k].n++; acc[k].fat += l.fat || 0; acc[k].vendas += l.vendas || 0; acc[k].receita += l.receita || 0
+  return acc
+}, {})).map(x => ({ ...x, fat: r2(x.fat), vendas: r2(x.vendas), receita: r2(x.receita) }))
+  .sort((a, b) => b.receita - a.receita)
+const topLeiloes = realizados.filter(l => l.receita).sort((a, b) => b.receita - a.receita).slice(0, 12)
+  .map(l => ({ mes: l.mes, nome: l.nome, leiloeira: l.leiloeira, fat: l.fat, vendas: l.vendas, receita: l.receita }))
+
+const mesesComDre = meses.filter(m => m.dre_receita || m.receita_competencia)
+const melhorMes = mesesComDre.reduce((a, m) => (m.dre_lucro > (a ? a.dre_lucro : -Infinity) ? m : a), null)
+const piorMes = mesesComDre.reduce((a, m) => (m.dre_lucro < (a ? a.dre_lucro : Infinity) ? m : a), null)
+const lucroAcum = r2(meses.reduce((s, m) => s + m.dre_lucro, 0))
+const receitaAcum = r2(meses.reduce((s, m) => s + m.dre_receita, 0))
+const resultados = {
+  leiloes_realizados: realizados.length,
+  leiloes_com_venda: realizados.filter(l => (l.vendas || 0) > 0).length,
+  lotes: fech.reduce((s, f) => s + (f.lotes || 0), 0),
+  faturamento: S(realizados, 'fat'), vendas: S(realizados, 'vendas'),
+  receita: S(realizados, 'receita'), vgv_erp: r2(fech.reduce((s, f) => s + f.vgv, 0)),
+  cobertura: S(realizados, 'fat') ? S(realizados, 'vendas') / S(realizados, 'fat') : 0,
+  receita_sobre_vendas: S(realizados, 'vendas') ? S(realizados, 'receita') / S(realizados, 'vendas') : 0,
+  receita_media_leilao: realizados.length ? r2(S(realizados, 'receita') / realizados.length) : 0,
+  receita_acumulada_dre: receitaAcum, lucro_acumulado_dre: lucroAcum,
+  margem_acumulada: receitaAcum ? lucroAcum / receitaAcum : 0,
+  melhor_mes: melhorMes && { nome: melhorMes.nome, lucro: melhorMes.dre_lucro },
+  pior_mes: piorMes && { nome: piorMes.nome, lucro: piorMes.dre_lucro },
+  ponto_equilibrio: r2((meses.filter(m => m.dre_fixas).reduce((s, m) => s + m.dre_fixas, 0)) / Math.max(1, meses.filter(m => m.dre_fixas).length)),
+  porLeiloeira, topLeiloes,
+}
+
 /* ── 7. Divergências ─────────────────────────────────────────────────────── */
 const div = []
 const add = (sev, tema, desc, valor, fonte, acao) =>
@@ -246,23 +297,41 @@ for (const f of fechSemLinha)
 for (const l of leiloes.filter(x => x.mes && x.mes <= 8 && !x.erp && (x.receita || 0) > 0))
   add('MEDIA', 'Cobertura', `Linha da planilha sem fechamento no ERP: ${NOMEMES[l.mes]} · ${l.nome}`,
     l.receita, 'Leilões', 'Criar o fechamento no ERP, ou marcar como parcela de outro')
-{
-  const auto = cr.filter(t => t.venc_automatico)
-  add('ALTA', 'Contas a receber',
-    `${auto.length} título(s) com vencimento AUTOMÁTICO (leilão + 45 dias) em vez de data combinada — a projeção de caixa nessas datas é chute`,
-    auto.reduce((s, t) => s + t.devido, 0), 'erp_contas_receber × data do fechamento',
-    'Confirmar a data com cada leiloeira e gravar no título')
-}
+add('ALTA', 'Contas a receber',
+  `${semData.length} título(s) SEM data combinada com quem paga — estão fora do fluxo de caixa por decisão de 04/09, e é o maior bloco de dinheiro parado do painel`,
+  semData.total, 'erp_contas_receber sem a tag data-acordada',
+  'Combinar a data com cada leiloeira e rodar scripts/marca-data-acordada.mjs --apply')
+add('ALTA', 'Contas a pagar',
+  'Marcelo (acordo de sócio): o João anunciou R$ 63.500,00 no grupo em 04/09, mas o ERP tem R$ 44.286,20 lançado para 25/09',
+  63500 - 44286.20, 'Grupo Financeiro 04/09 16:46 × erp_contas_pagar',
+  'Confirmar o valor do acordo e corrigir o título')
+add('ALTA', 'Contas a pagar',
+  'Hotel Estadia Jacamim R$ 3.051,00 aparece na lista de pagamentos do João e NÃO existe no ERP (o único hotel em aberto é o Villa Cerrado, R$ 1.914,00, do Peralta)',
+  3051, 'Grupo Financeiro 04/09 16:46 × erp_contas_pagar', 'Lançar o título')
+add('MEDIA', 'Conciliação',
+  'PIX de R$ 20,00 para o CNPJ 12.335.532/0001-69 em 04/09 sem contraparte identificada — classificado em Outras Despesas para não ficar sem categoria',
+  20, 'extrato Sicoob 04/09', 'Identificar o favorecido')
+add('MEDIA', 'Contas a receber',
+  'EAO: o João somou R$ 92.324,97 (Fêmeas + Touros + Aspirações da planilha) e o ERP tem R$ 80.058,30 em CR',
+  92324.97 - 80058.30, 'Grupo Financeiro 04/09 × erp_contas_receber', 'Conferir qual base está certa')
+add('MEDIA', 'Contas a receber',
+  'Mafra: o João somou R$ 86.651,00 e tanto o ERP quanto a planilha dele dão R$ 88.202,00',
+  86651 - 88202, 'Grupo Financeiro 04/09 × erp_contas_receber', 'Conferir qual base está certa')
+add('MEDIA', 'Contas a receber',
+  'E-Rural: o João somou R$ 13.644,98 e o ERP tem R$ 12.864,98 nos dois títulos do Sorriso',
+  13644.98 - 12864.98, 'Grupo Financeiro 04/09 × erp_contas_receber', 'Conferir qual base está certa')
 const ORDEM = { ALTA: 0, MEDIA: 1, BAIXA: 2 }
 div.sort((a, b) => (ORDEM[a.sev] - ORDEM[b.sev]) || (Math.abs(b.valor || 0) - Math.abs(a.valor || 0)))
 
 const dados = {
   gerado_em: new Date().toISOString(), hoje: HOJE, conciliado_ate: iso(conciliadoAte),
   contas, saldo_caixa: saldoCaixa, folha, leiloes, fech, fechSemLinha, cr, cp, fluxo, vencidos, piorDia, meses, dre, div,
+  semData: { total: semData.total, n: semData.length, porCliente: semData.porCliente }, resultados,
   totais: {
     cr_aberto: r2(cr.reduce((s, t) => s + t.devido, 0)),
     cr_vencido: r2(cr.filter(t => t.venc < HOJE).reduce((s, t) => s + t.devido, 0)),
-    cr_data_acordada: r2(cr.filter(t => !t.venc_automatico).reduce((s, t) => s + t.devido, 0)),
+    cr_data_acordada: r2(cr.filter(t => t.data_acordada).reduce((s, t) => s + t.devido, 0)),
+    cr_sem_data: semData.total,
     cp_aberto: r2(cp.reduce((s, t) => s + t.devido, 0)),
     cp_real: r2(cp.filter(t => t.origem === 'real').reduce((s, t) => s + t.devido, 0)),
     cp_estimativa: r2(cp.filter(t => t.origem !== 'real').reduce((s, t) => s + t.devido, 0)),
