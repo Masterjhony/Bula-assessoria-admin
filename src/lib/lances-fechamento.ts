@@ -98,8 +98,10 @@ export async function rebuildFechamentoFromLances(
         const anunciante = v.assessor || 'A definir'
         // 1º o que a mensagem declarou; 2º a tabela de compradores direcionados.
         const dito = direcionamentoDeclarado(v.raw_text)
-        const direc = dito && 'parceiro' in dito
-            ? { parceiro: dito.parceiro, comprador: v.comprador || 'declarado na mensagem', fonte: 'direcionamento declarado no grupo' }
+        const direc = dito
+            ? 'parceiro' in dito
+                ? { parceiro: dito.parceiro, comprador: v.comprador || 'declarado na mensagem', fonte: 'direcionamento declarado no grupo' }
+                : null
             : parceiroDoComprador(v.comprador, v.fazenda, v.cidade, v.uf)
         return {
             desconhecido: dito && 'desconhecido' in dito ? dito.desconhecido : null,
@@ -113,6 +115,9 @@ export async function rebuildFechamentoFromLances(
     })
     const redirecionados = L.filter((l) => l.direcionamento)
     const direcDesconhecido = L.filter((l) => l.desconhecido)
+    if (direcDesconhecido.length) {
+        return { skipped: 'direcionamento_sem_regra_confirmada', pending: direcDesconhecido.map(l => ({ lote: l.lote, parceiro: l.desconhecido })) }
+    }
     const vgv_total = r2(L.reduce((s, l) => s + l.vgv, 0))
     const total_animais = L.reduce((s, l) => s + l.animais, 0)
 

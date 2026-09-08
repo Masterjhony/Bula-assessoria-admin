@@ -1,46 +1,13 @@
 import { admin, fail, guard, ok, type NextRequest } from '@/lib/erp'
-
-function addMonths(dateIso: string, n: number): string {
-  const d = new Date(dateIso + 'T00:00:00')
-  d.setMonth(d.getMonth() + n)
-  return d.toISOString().slice(0, 10)
-}
+import { listarTitulosContas, parcelarTitulo } from '@/lib/erp-contas'
 
 export async function GET(req: NextRequest) {
   const g = await guard(req); if (g.error) return g.error
-  const sp = req.nextUrl.searchParams
-  const status = sp.get('status')
-  const fornecedor = sp.get('fornecedor_id')
-  const categoria = sp.get('categoria_id')
-  const centro = sp.get('centro_custo_id')
-  const leilao = sp.get('leilao')
-  const from = sp.get('from')
-  const to = sp.get('to')
-  const search = sp.get('q') || ''
-  // escapa caracteres que quebram o filtro ilike do PostgREST (vírgula/parênteses)
-  const safe = (s: string) => s.replace(/[(),%]/g, ' ').trim()
-  let q = admin()
-    .from('erp_contas_pagar')
-    .select('*, fornecedor:erp_pessoas!fornecedor_id(id,nome), categoria:erp_categorias!categoria_id(id,nome,cor), centro:erp_centros_custo!centro_custo_id(id,nome,codigo), conta:erp_contas_bancarias!conta_bancaria_id(id,nome)')
-    .order('vencimento')
-  if (status) q = q.eq('status', status)
-  if (fornecedor) q = q.eq('fornecedor_id', fornecedor)
-  if (categoria) q = q.eq('categoria_id', categoria)
-  if (centro) q = q.eq('centro_custo_id', centro)
-  if (from) q = q.gte('vencimento', from)
-  if (to) q = q.lte('vencimento', to)
-  if (leilao) {
-    const l = safe(leilao)
-    q = q.or(`descricao.ilike.%${l}%,numero_documento.ilike.%${l}%,observacoes.ilike.%${l}%`)
+  try {
+    return ok(await listarTitulosContas(admin(), 'pagar', req.nextUrl.searchParams))
+  } catch (error) {
+    return fail((error as Error).message, 500)
   }
-  if (search) {
-    const s = safe(search)
-    q = q.or(`descricao.ilike.%${s}%,numero_documento.ilike.%${s}%,observacoes.ilike.%${s}%`)
-  }
-  const { data, error } = await q
-  if (error) return fail(error.message, 500)
-  await admin().rpc('erp_atualizar_vencidos')
-  return ok(data || [])
 }
 
 export async function POST(req: NextRequest) {
@@ -49,13 +16,13 @@ export async function POST(req: NextRequest) {
   if (!body.descricao) return fail('descricao obrigatoria')
   if (body.valor == null) return fail('valor obrigatorio')
 
-  const total = Number(body.total_parcelas || 1)
+  let parcelas: ReturnType<typeof parcelarTitulo>
+  try { parcelas = parcelarTitulo(body.valor, body.vencimento, body.total_parcelas ?? 1) }
+  catch (error) { return fail((error as Error).message) }
+  const total = parcelas.length
   const rows: Array<Record<string, unknown>> = []
-  const baseValor = Number(body.valor)
-  const valorParcela = total > 1 ? Number((baseValor / total).toFixed(2)) : baseValor
 
-  for (let i = 1; i <= total; i++) {
-    const vencimento = total > 1 ? addMonths(body.vencimento, i - 1) : body.vencimento
+  for (const { parcela: i, valor: valorParcela, vencimento } of parcelas) {
     const descricao = total > 1 ? `${body.descricao} (${i}/${total})` : body.descricao
     rows.push({
       descricao,

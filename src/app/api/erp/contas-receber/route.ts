@@ -1,48 +1,33 @@
 import { admin, fail, guard, ok, type NextRequest } from '@/lib/erp'
-
-function addMonths(dateIso: string, n: number): string {
-  const d = new Date(dateIso + 'T00:00:00')
-  d.setMonth(d.getMonth() + n)
-  return d.toISOString().slice(0, 10)
-}
+import { listarTitulosContas, parcelarTitulo } from '@/lib/erp-contas'
+import { aplicarPrazoRecebimento, prazoDaParcela } from '@/lib/erp-prazos'
 
 export async function GET(req: NextRequest) {
   const g = await guard(req); if (g.error) return g.error
-  const sp = req.nextUrl.searchParams
-  const status = sp.get('status')
-  const cliente = sp.get('cliente_id')
-  const from = sp.get('from')
-  const to = sp.get('to')
-  const search = sp.get('q') || ''
-  let q = admin()
-    .from('erp_contas_receber')
-    .select('*, cliente:erp_pessoas!cliente_id(id,nome), categoria:erp_categorias!categoria_id(id,nome,cor), centro:erp_centros_custo!centro_custo_id(id,nome,codigo), conta:erp_contas_bancarias!conta_bancaria_id(id,nome)')
-    .order('vencimento')
-  if (status) q = q.eq('status', status)
-  if (cliente) q = q.eq('cliente_id', cliente)
-  if (from) q = q.gte('vencimento', from)
-  if (to) q = q.lte('vencimento', to)
-  if (search) q = q.or(`descricao.ilike.%${search}%,numero_documento.ilike.%${search}%,observacoes.ilike.%${search}%`)
-  const { data, error } = await q
-  if (error) return fail(error.message, 500)
-  await admin().rpc('erp_atualizar_vencidos')
-  return ok(data || [])
+  try {
+    return ok(await listarTitulosContas(admin(), 'receber', req.nextUrl.searchParams))
+  } catch (error) {
+    return fail((error as Error).message, 500)
+  }
 }
 
 export async function POST(req: NextRequest) {
   const g = await guard(req); if (g.error) return g.error
-  const body = await req.json().catch(() => ({}))
+  let body: Record<string, unknown>
+  try { body = aplicarPrazoRecebimento(await req.json()) }
+  catch (error) { return fail((error as Error).message) }
   if (!body.descricao) return fail('descricao obrigatoria')
   if (body.valor == null) return fail('valor obrigatorio')
 
-  const total = Number(body.total_parcelas || 1)
+  let parcelas: ReturnType<typeof parcelarTitulo>
+  try { parcelas = parcelarTitulo(body.valor, body.vencimento, body.total_parcelas ?? 1) }
+  catch (error) { return fail((error as Error).message) }
+  const total = parcelas.length
   const rows: Array<Record<string, unknown>> = []
-  const baseValor = Number(body.valor)
-  const valorParcela = total > 1 ? Number((baseValor / total).toFixed(2)) : baseValor
 
-  for (let i = 1; i <= total; i++) {
-    const vencimento = total > 1 ? addMonths(body.vencimento, i - 1) : body.vencimento
+  for (const { parcela: i, valor: valorParcela, vencimento } of parcelas) {
     const descricao = total > 1 ? `${body.descricao} (${i}/${total})` : body.descricao
+    const prazo = prazoDaParcela(body, i, vencimento)
     rows.push({
       descricao,
       cliente_id: body.cliente_id || null,
@@ -58,11 +43,11 @@ export async function POST(req: NextRequest) {
       parcela: i,
       total_parcelas: total,
       recorrencia: body.recorrencia || 'nenhuma',
-      observacoes: body.observacoes || '',
+      observacoes: prazo.observacoes || '',
       nota_fiscal: body.nota_fiscal || '',
       vendedor: body.vendedor || '',
       projeto: body.projeto || '',
-      tags: body.tags || [],
+      tags: prazo.tags || [],
       anexos: body.anexos || [],
     })
   }
