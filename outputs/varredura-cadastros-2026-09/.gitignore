@@ -1,0 +1,24 @@
+# Insumos brutos da varredura de 08/09/2026 — NÃO versionar.
+# São 142 MB de documentos pessoais de clientes (CNH, RG, inscrições estaduais,
+# contracheques) baixados do bucket whatsapp-media, mais as transcrições
+# completas dos grupos. Tudo é reconstruível a partir do banco e do VPS; o que
+# o relatório precisa está em planilha-linhas.json e em
+# scripts/lib/varredura-cadastros-2026-09.mjs.
+midia/
+png/
+txt/
+parte-*
+h-*
+groups.json
+bucket.json
+cad-dumps.json
+lid-nomes.json
+midia-idx.json
+pdf-digest.json
+planilha-raw.json
+cadastros-grid.json
+clc.json
+wm.json
+oi.json
+transcricao.json
+transcricao*.txt
