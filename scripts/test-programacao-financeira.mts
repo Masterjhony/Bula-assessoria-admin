@@ -152,7 +152,17 @@ test('novas comissões e edição preservam competência, exceções e evidênci
   assert.equal(nova.apuracao.sem_valor,true);assert.equal(nova.apuracao.valor_situacao,'em_disputa')
   assert.equal(nova.apuracao.prazo_situacao,'regra_confirmada')
   assert.ok(!('comissao_assessor' in nova));assert.ok(!('competencia_comissao' in nova))
-  assert.throws(()=>aplicarPrazoComissao(make({competencia_comissao:'',emissao:'2026-08-01'})),/competência/)
+  const semCompetencia=aplicarPrazoComissao(make({competencia_comissao:'',emissao:'2026-08-01',vencimento:'2026-09-09'})) as any
+  assert.equal(semCompetencia.vencimento,null);assert.equal(semCompetencia.apuracao.prazo_situacao,'competencia_em_verificacao')
+  assert.equal(semCompetencia.apuracao.data_referencia_anterior,'2026-09-09')
+  const porCategoria=aplicarPrazoComissao({descricao:'Comissão assessor',categoria_id:'d53cf26d-af3b-406f-8a6d-b46dcd65d78e',valor:100,emissao:'2026-09-09',vencimento:'2026-09-09'}) as any
+  assert.equal(porCategoria.vencimento,null);assert.equal(tituloNaCurva({...base,...porCategoria} as any,'pagar'),false)
+  const competenciaResolvida=aplicarPrazoComissao({competencia_comissao:'2026-08'},porCategoria) as any
+  assert.equal(competenciaResolvida.vencimento,'2026-09-25')
+  assert.equal(competenciaResolvida.apuracao.pendencias.length,0);assert.equal(competenciaResolvida.apuracao.pendencias_prazo_superadas.length,1)
+  const acertoSemCompetencia=aplicarPrazoComissao({descricao:'Comissão assessor',categoria_id:'d53cf26d-af3b-406f-8a6d-b46dcd65d78e',valor:100,vencimento:'2026-09-18',excecao_prazo_comissao:true,fonte_prazo_comissao:'Assessor confirmou o prazo específico'}) as any
+  assert.equal(acertoSemCompetencia.vencimento,'2026-09-18');assert.equal(acertoSemCompetencia.apuracao.competencia_em_verificacao,true)
+  assert.equal(tituloNaCurva({...base,...acertoSemCompetencia} as any,'pagar'),true)
   for(const [competencia,nominal] of [['2026-09','2026-10-25'],['2026-11','2026-12-25']]){
     const p=aplicarPrazoComissao(make({competencia_comissao:competencia})) as any
     assert.equal(p.vencimento,nominal);assert.equal(p.apuracao.prazo_situacao,'ajuste_dia_util_pendente');assert.equal(tituloNaCurva({...base,...p} as any,'pagar'),false)

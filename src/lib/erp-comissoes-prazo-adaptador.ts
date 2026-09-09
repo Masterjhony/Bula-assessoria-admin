@@ -1,9 +1,10 @@
-import {programarComissao,type TituloComissao,type ApuracaoComissao} from './erp-comissoes-prazo'
+import {programarComissao,FONTE_REGRA,type TituloComissao,type ApuracaoComissao} from './erp-comissoes-prazo'
 import type { SupabaseClient } from '@supabase/supabase-js'
 const categoriaComissao='d53cf26d-af3b-406f-8a6d-b46dcd65d78e'
 const record=(x:unknown):Record<string,unknown>=>x&&typeof x==='object'&&!Array.isArray(x)?x as Record<string,unknown>:{}
 const str=(x:unknown)=>typeof x==='string'?x:''
 const normal=(x:unknown)=>str(x).normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase()
+const pendenciaCompetencia='Identificar a competência da comissão ou vincular fechamento com data. Emissão e data preenchida sem acerto não definem o ciclo do dia 25.'
 
 /** POST/PATCH: contexto adicional só pode vir do fechamento/fornecedor consultado no banco. */
 export function aplicarPrazoComissao(
@@ -30,6 +31,7 @@ export function aplicarPrazoComissao(
  const nome=normal(beneficiario)
  const repasseEspecial=/^repasse\b/.test(normal(merged.descricao))||
   (/(?:marcelo carneiro|remuneracao de socio)/.test(normal(merged.descricao))&&!/^comissao\b/.test(normal(merged.descricao)))
+ if(merged.substituido_por||['pago','cancelado'].includes(merged.status||'')||a.condicao||a.prazo_situacao==='condicionado_ao_caixa'||repasseEspecial)return patch
  let excecao=str(regra.aplicacao)
  if(nome==='nane'||regra.excecao==='nane_acumulado_dezembro')excecao='nane_dezembro'
  else if(/\bnane\b/.test(nome)||/\bnane\b/.test(normal(merged.descricao))||regra.aplicacao==='depende_beneficiario')excecao='beneficiario_com_prazo_alternativo'
@@ -47,8 +49,23 @@ export function aplicarPrazoComissao(
  const competencia=str(dia).slice(0,7)
  const competenciaFonte=a.competencia_fim?'apuracao.competencia_fim':a.competencia_inicio?'apuracao.competencia_inicio':consultado.dataFechamento&&consultado.fechamentoId?'bula_leilao_fechamento:'+consultado.fechamentoId+':data':null
  if(!competenciaFonte||!/^\d{4}-(0[1-9]|1[0-2])$/.test(competencia)){
-  if(marcada===true)throw Error('Informe a competência da comissão ou vincule um fechamento com data; emissão não substitui competência')
-  return patch
+  a.pendencias=[...new Set([...(a.pendencias||[]),pendenciaCompetencia])]
+  const especificoComFonte=excecaoPedida===true||((merged.tags||[]).includes('data-acordada')
+   && (a.fontes||[]).some(f=>f.ref&&f.ref!==FONTE_REGRA.ref))
+  if(especificoComFonte){
+   a.prazo_situacao='prazo_especifico'
+   a.competencia_em_verificacao=true
+   return {...patch,apuracao:a,tags:merged.tags}
+  }
+  const anterior=str(merged.vencimento).slice(0,10)
+  if(anterior)a.data_referencia_anterior=anterior
+  a.prazo_situacao='competencia_em_verificacao'
+  return {...patch,vencimento:null,apuracao:a,tags:(merged.tags||[]).filter(tag=>tag!=='data-acordada')}
+ }
+ if((a.pendencias||[]).includes(pendenciaCompetencia)){
+  a.pendencias=(a.pendencias||[]).filter(p=>p!==pendenciaCompetencia)
+  a.pendencias_prazo_superadas=[...new Set([...(Array.isArray(a.pendencias_prazo_superadas)?a.pendencias_prazo_superadas:[]),pendenciaCompetencia])]
+  delete a.competencia_em_verificacao
  }
  const result=programarComissao(merged,{comissao_assessor:true,competencia,competencia_fonte:competenciaFonte,beneficiario,excecao,repasse_especial:repasseEspecial})
  if(result.acao==='preservar')return patch
