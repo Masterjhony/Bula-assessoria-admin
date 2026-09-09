@@ -1,5 +1,6 @@
 import { admin, fail, guard, ok, type NextRequest } from '@/lib/erp'
 import { listarTitulosContas, parcelarTitulo } from '@/lib/erp-contas'
+import { aplicarApuracao } from '@/lib/erp-apuracao'
 
 export async function GET(req: NextRequest) {
   const g = await guard(req); if (g.error) return g.error
@@ -12,12 +13,14 @@ export async function GET(req: NextRequest) {
 
 export async function POST(req: NextRequest) {
   const g = await guard(req); if (g.error) return g.error
-  const body = await req.json().catch(() => ({}))
+  let body: Record<string, unknown>
+  try { body = aplicarApuracao(await req.json().catch(() => ({}))) }
+  catch (error) { return fail((error as Error).message) }
   if (!body.descricao) return fail('descricao obrigatoria')
   if (body.valor == null) return fail('valor obrigatorio')
 
   let parcelas: ReturnType<typeof parcelarTitulo>
-  try { parcelas = parcelarTitulo(body.valor, body.vencimento, body.total_parcelas ?? 1) }
+  try { parcelas = parcelarTitulo(body.valor, body.vencimento, body.total_parcelas ?? 1, true) }
   catch (error) { return fail((error as Error).message) }
   const total = parcelas.length
   const rows: Array<Record<string, unknown>> = []
@@ -34,6 +37,7 @@ export async function POST(req: NextRequest) {
       valor: valorParcela,
       emissao: body.emissao || new Date().toISOString().slice(0, 10),
       vencimento,
+      apuracao: body.apuracao || {},
       forma_pagamento: body.forma_pagamento || '',
       numero_documento: body.numero_documento || '',
       parcela: i,

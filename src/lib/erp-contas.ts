@@ -1,11 +1,14 @@
 import type { SupabaseClient } from '@supabase/supabase-js'
 import { aberto, compromissoFuturo, devido, naoSubstituido, vivo, type Titulo } from './verdade/fatos'
 import { recebimentoConfirmado, referenciaCobranca } from './erp-prazos'
+import { pagamentoNaCurva, resumoApuracao } from './erp-apuracao'
 
 export type ModoContas = 'pagar' | 'receber'
 
 /** Conserva o total em centavos e mantém o dia original, limitado ao fim do mês. */
-export function parcelarTitulo(valor: unknown, vencimento: unknown, totalParcelas: unknown = 1) {
+export function parcelarTitulo(valor: unknown, vencimento: unknown, totalParcelas?: unknown, permitirSemData?: false): {parcela:number;valor:number;vencimento:string}[]
+export function parcelarTitulo(valor: unknown, vencimento: unknown, totalParcelas: unknown, permitirSemData: true): {parcela:number;valor:number;vencimento:string|null}[]
+export function parcelarTitulo(valor: unknown, vencimento: unknown, totalParcelas: unknown = 1, permitirSemData = false) {
   const total = Number(totalParcelas)
   const amount = Number(valor)
   const cents = Math.round(amount * 100)
@@ -14,6 +17,7 @@ export function parcelarTitulo(valor: unknown, vencimento: unknown, totalParcela
     throw new Error('Valor deve ser não negativo e ter no máximo duas casas decimais')
   }
   const date = String(vencimento || '')
+  if (!date && permitirSemData && total === 1) return [{ parcela: 1, valor: cents / 100, vencimento: null }]
   if (!/^\d{4}-\d{2}-\d{2}$/.test(date)) throw new Error('Vencimento inválido')
   const base = new Date(date + 'T12:00:00Z')
   if (!Number.isFinite(base.getTime()) || base.toISOString().slice(0, 10) !== date) throw new Error('Vencimento inválido')
@@ -41,9 +45,9 @@ export function prepararTituloContas<T extends Titulo>(titulo: T, modo: ModoCont
   const ativo = vivo(titulo) && naoSubstituido(titulo)
   const saldo = Math.round(devido(titulo, chave) * 100) / 100
   const vencimento = titulo.vencimento?.slice(0, 10)
-  const confirmado = modo === 'pagar' || recebimentoConfirmado(titulo)
-  const status = aberto(titulo) && ativo && saldo > 0 && vencimento
-    ? confirmado && vencimento < hoje ? 'vencido' : Number(titulo[chave] || 0) > 0 ? 'parcial' : 'aberto'
+  const confirmado = modo === 'pagar' ? !compromissoFuturo(titulo) && pagamentoNaCurva(titulo) : recebimentoConfirmado(titulo)
+  const status = aberto(titulo) && ativo && saldo > 0
+    ? confirmado && vencimento && vencimento < hoje ? 'vencido' : Number(titulo[chave] || 0) > 0 ? 'parcial' : 'aberto'
     : titulo.status
   return {
     ...titulo,
@@ -51,6 +55,7 @@ export function prepararTituloContas<T extends Titulo>(titulo: T, modo: ModoCont
     status_registrado: titulo.status,
     financeiro: { ativo, projecao: compromissoFuturo(titulo), saldo, data_base: hoje,
       prazo_confirmado: confirmado,
+      apuracao: modo === 'pagar' ? resumoApuracao(titulo) : null,
       data_cobranca: modo === 'receber' ? referenciaCobranca(titulo, (titulo as T & { fechamento?: { data?: string } }).fechamento?.data) : null,
     },
   }
@@ -72,8 +77,8 @@ export async function listarTitulosContas(
     for (const column of [`${parceiro}_id`, 'categoria_id', 'centro_custo_id']) {
       if (sp.get(column)) q = q.eq(column, sp.get(column)!)
     }
-    if (sp.get('from')) q = q.gte('vencimento', sp.get('from')!)
-    if (sp.get('to')) q = q.lte('vencimento', sp.get('to')!)
+    if (!isCP && sp.get('from')) q = q.gte('vencimento', sp.get('from')!)
+    if (!isCP && sp.get('to')) q = q.lte('vencimento', sp.get('to')!)
     for (const column of ['leilao', 'q']) {
       const term = safe(sp.get(column) || '')
       if (term) q = q.or(`descricao.ilike.%${term}%,numero_documento.ilike.%${term}%,observacoes.ilike.%${term}%`)
@@ -87,4 +92,15 @@ export async function listarTitulosContas(
   // por outro visitante da tela. Filtrar antes dessa derivação perderia títulos.
   const status = sp.get('status')
   return rows.map(r => prepararTituloContas(r, modo, hoje)).filter(r => !status || r.status === status)
+    .filter(r => !isCP || pagamentoNoRecorte(r, sp.get('from'), sp.get('to')))
+}
+
+/** Sem dia combinado não significa fora do mês: preserva a pendência visível. */
+export function pagamentoNoRecorte(titulo: Pick<Titulo, 'vencimento' | 'apuracao'>, from?: string | null, to?: string | null) {
+  if (!from && !to) return true
+  const dia = titulo.vencimento?.slice(0, 10)
+  if (dia) return (!from || dia >= from) && (!to || dia <= to)
+  const mes = titulo.apuracao?.previsao_mes?.slice(0, 7)
+  if (mes) return (!from || mes >= from.slice(0, 7)) && (!to || mes <= to.slice(0, 7))
+  return true // condição ou mês desconhecido permanece destacado, sem inventar uma data
 }

@@ -11,8 +11,9 @@
 
 import type { DefinicaoValidacao } from './tipos'
 import {
-    type Fatos, type Titulo, aberto, devido, maxData, num, operacional, r2, vivo,
+    type Fatos, type Titulo, aberto, compromissoFuturo, devido, maxData, naoSubstituido, num, operacional, r2, vivo,
 } from './fatos'
+import { recebimentoConfirmado } from '../erp-prazos'
 import { VALIDACOES as VAL_CONVENCOES } from './dominios/convencoes'
 import { VALIDACOES as VAL_CONTABIL } from './dominios/contabil'
 import { VALIDACOES as VAL_CARTOES } from './dominios/cartoes'
@@ -137,9 +138,9 @@ const NUCLEO: DefinicaoValidacao<Fatos>[] = [
             const problemas: string[] = []
             for (const [nome, arr] of [['CR', f.cr], ['CP', f.cp]] as const) {
                 const reaisPorEvento = new Set(
-                    arr.filter(t => t.origem === 'real' && vivo(t) && t.evento_key).map(t => t.evento_key as string))
+                    arr.filter(t => !compromissoFuturo(t) && vivo(t) && naoSubstituido(t) && t.evento_key).map(t => t.evento_key as string))
                 const dupes = arr.filter(t =>
-                    t.origem === 'estimativa' && vivo(t) && !t.substituido_por &&
+                    compromissoFuturo(t) && vivo(t) && naoSubstituido(t) &&
                     t.evento_key && reaisPorEvento.has(t.evento_key))
                 for (const d of dupes) problemas.push(`${nome} ${d.evento_key}: ${d.descricao.slice(0, 44)} (${brl(num(d.valor))})`)
             }
@@ -249,13 +250,12 @@ const NUCLEO: DefinicaoValidacao<Fatos>[] = [
         checar: (f) => {
             // Só é dívida cobrável quando a data foi combinada com a leiloeira.
             // O vencimento default (leilão+45d) não representa promessa nenhuma.
-            const vencidos = f.cr.filter(t => aberto(t) && t.vencimento < f.hoje)
-            const comAcordo = vencidos.filter(t =>
-                (t.tags || []).includes('data-acordada') || /acordo|acordad/i.test(String(t.observacoes || '')))
+            const vencidos = f.cr.filter(t => aberto(t) && naoSubstituido(t) && t.vencimento !== null && t.vencimento < f.hoje)
+            const comAcordo = vencidos.filter(recebimentoConfirmado)
             const sem = vencidos.length - comAcordo.length
             if (!sem) return null
             const valor = vencidos
-                .filter(t => !((t.tags || []).includes('data-acordada') || /acordo|acordad/i.test(String(t.observacoes || ''))))
+                .filter(t => !recebimentoConfirmado(t))
                 .reduce((s, t) => s + devido(t, 'valor_recebido'), 0)
             return {
                 detalhe: `${sem} de ${vencidos.length} CR "vencidos" (${brl(valor)}) têm vencimento automático ` +

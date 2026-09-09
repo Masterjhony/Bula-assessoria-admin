@@ -847,6 +847,15 @@
         "fingerprint": "sha256:33f61d1076d50dedd13c3c505accd62693ee142c3d2f2d16b28ed033715e0fef"
       },
       {
+        "path": "scripts/tests/test-apuracao-sql-rollback.mjs",
+        "table": "<dynamic-sql-target>",
+        "operations": [
+          "execute"
+        ],
+        "fingerprint": "sha256:a54b2f1ff31cc697c1187f8bb9322a854059648e8450d3a80875fa0d96c18625",
+        "review": "Revisado em 09/09/2026: testes 0085/0086 em schema isolado criado dentro de BEGIN, oito tabelas clonadas, sequências locais, SQL remapeado e ROLLBACK obrigatório. Onze casos passaram e o schema inexistente após rollback foi conferido. Esta entrada cobre somente o teste; não aprova divergências anteriores dos demais writers."
+      },
+      {
         "path": "scripts/validate-fechamento-migrations.mjs",
         "table": "<dynamic-sql-target>",
         "operations": [

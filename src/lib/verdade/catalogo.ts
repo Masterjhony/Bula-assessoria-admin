@@ -11,6 +11,7 @@
 import type { DefinicaoVariavel, Lacuna, ResultadoCalculo, VariavelResolvida } from './tipos'
 import { cobertura, cobreTudo } from './tipos'
 import { recebimentoConfirmado } from '../erp-prazos'
+import { pagamentoInformado, pagamentoNaCurva, valorEmApuracao } from '../erp-apuracao'
 import {
     type Fatos, aberto, compromissoFuturo, devido, maxData, naoSubstituido, num, operacional, r2,
 } from './fatos'
@@ -145,7 +146,7 @@ const NUCLEO_FINANCEIRO: DefinicaoVariavel<Fatos>[] = [
         classe: 'primaria',
         formula: 'Σ devido dos CR abertos com data acordada anterior a hoje',
         calcular: (f): ResultadoCalculo => {
-            const ts = f.cr.filter(t => aberto(t) && naoSubstituido(t) && recebimentoConfirmado(t) && t.vencimento < f.hoje)
+            const ts = f.cr.filter(t => aberto(t) && naoSubstituido(t) && recebimentoConfirmado(t) && t.vencimento !== null && t.vencimento < f.hoje)
             const valor = r2(ts.reduce((s, t) => s + devido(t, 'valor_recebido'), 0))
             // Vencimento automático (leilão+45d) não é promessa: entra como lacuna.
             const acordados = ts.filter(recebimentoConfirmado)
@@ -168,17 +169,26 @@ const NUCLEO_FINANCEIRO: DefinicaoVariavel<Fatos>[] = [
     },
     {
         id: 'pagar.compromissado',
-        titulo: 'A pagar — dívida contraída',
+        titulo: 'A pagar — obrigações e valores em conferência',
         unidade: 'BRL',
         classe: 'primaria',
-        formula: 'Σ devido dos CP abertos com origem = real — obrigação que já existe (serviço prestado, comissão apurada)',
+        formula: 'Σ saldo dos CP abertos não projetados; valores em apuração e pagamentos informados aparecem discriminados',
         calcular: (f): ResultadoCalculo => {
             const ts = f.cp.filter(t => aberto(t) && naoSubstituido(t) && !compromissoFuturo(t))
+            const emApuracao = ts.filter(valorEmApuracao)
+            const informados = ts.filter(pagamentoInformado)
+            const lacunas: Lacuna[] = []
+            if (emApuracao.length) lacunas.push({ motivo: 'obrigação ou valor em conferência; montante cadastrado não é valor definitivo', impacto: 'valor', linhas: emApuracao.length, valor: r2(emApuracao.reduce((s, t) => s + devido(t, 'valor_pago'), 0)), exemplos: emApuracao.slice(0, 4).map(t => t.descricao) })
+            if (informados.length) lacunas.push({ motivo: 'pagamento informado ainda sem confirmação de liquidação; não programar novo pagamento', impacto: 'interpretacao', linhas: informados.length, valor: r2(informados.reduce((s, t) => s + devido(t, 'valor_pago'), 0)) })
             return {
                 valor: r2(ts.reduce((s, t) => s + devido(t, 'valor_pago'), 0)),
-                origens: [{ fonte: 'erp_contas_pagar', filtro: 'aberto, origem = real, não substituído', linhas: ts.length }],
-                cobertura: cobreTudo(ts.length),
+                origens: [{ fonte: 'erp_contas_pagar', filtro: 'aberto, não projetado, não substituído', linhas: ts.length }],
+                cobertura: cobertura(ts.length, ts.filter(t => !valorEmApuracao(t) && !pagamentoInformado(t)).length, lacunas),
                 atualizado_em: maxData(ts.map(t => t.updated_at)),
+                composicao: [
+                    { rotulo: 'valores em conferência incluídos no total', valor: r2(emApuracao.reduce((s, t) => s + devido(t, 'valor_pago'), 0)), nota: 'existência da obrigação e valor exato são verificações distintas' },
+                    { rotulo: 'pagamentos informados incluídos no saldo cadastrado', valor: r2(informados.reduce((s, t) => s + devido(t, 'valor_pago'), 0)), nota: 'aguardam conciliação; fora da programação de nova saída' },
+                ],
             }
         },
     },
@@ -187,13 +197,13 @@ const NUCLEO_FINANCEIRO: DefinicaoVariavel<Fatos>[] = [
         titulo: 'A pagar — custo futuro projetado (folha e recorrentes)',
         unidade: 'BRL',
         classe: 'estimada',
-        formula: 'Σ devido dos CP abertos com origem = estimativa — custo planejado, ainda não incorrido',
+        formula: 'Σ devido dos CP abertos classificados como projeção; origem e tags são usadas somente no cadastro legado',
         calcular: (f): ResultadoCalculo => {
             const ts = f.cp.filter(t => aberto(t) && naoSubstituido(t) && compromissoFuturo(t))
             const ate = maxData(ts.map(t => t.vencimento))
             return {
                 valor: r2(ts.reduce((s, t) => s + devido(t, 'valor_pago'), 0)),
-                origens: [{ fonte: 'erp_contas_pagar', filtro: 'aberto, origem = estimativa', linhas: ts.length }],
+                origens: [{ fonte: 'erp_contas_pagar', filtro: 'aberto, compromisso futuro, não substituído', linhas: ts.length }],
                 cobertura: cobreTudo(ts.length),
                 atualizado_em: maxData(ts.map(t => t.updated_at)),
                 formula: 'Σ devido dos CP projetados, vencimentos até ' + (ate || '—') + ' — custo planejado, nao e divida',
@@ -218,7 +228,7 @@ const NUCLEO_FINANCEIRO: DefinicaoVariavel<Fatos>[] = [
                 cobertura: cobreTudo(ts.length),
                 atualizado_em: maxData(ts.map(t => t.updated_at)),
                 composicao: [
-                    { rotulo: 'dívida contraída', valor: divida, nota: 'isto a Bula deve hoje' },
+                    { rotulo: 'obrigações e valores em conferência', valor: divida, nota: 'inclui montantes a apurar e pagamentos informados aguardando conciliação' },
                     { rotulo: 'custo futuro projetado', valor: projetado, nota: 'folha e recorrentes lançados adiante — não é dívida' },
                 ],
             }
@@ -229,12 +239,12 @@ const NUCLEO_FINANCEIRO: DefinicaoVariavel<Fatos>[] = [
         titulo: 'A pagar vencido',
         unidade: 'BRL',
         classe: 'primaria',
-        formula: 'Σ devido dos CP abertos com vencimento < hoje',
+        formula: 'Σ devido das obrigações abertas com valor confirmado e vencimento passado, sem condição ou pagamento informado',
         calcular: (f): ResultadoCalculo => {
-            const ts = f.cp.filter(t => aberto(t) && naoSubstituido(t) && t.vencimento < f.hoje)
+            const ts = f.cp.filter(t => aberto(t) && naoSubstituido(t) && !compromissoFuturo(t) && pagamentoNaCurva(t) && t.vencimento !== null && t.vencimento < f.hoje)
             return {
                 valor: r2(ts.reduce((s, t) => s + devido(t, 'valor_pago'), 0)),
-                origens: [{ fonte: 'erp_contas_pagar', filtro: `aberto e vencimento < ${f.hoje}`, linhas: ts.length }],
+                origens: [{ fonte: 'erp_contas_pagar', filtro: `obrigação aberta, na curva de pagamento e vencimento < ${f.hoje}`, linhas: ts.length }],
                 cobertura: cobreTudo(ts.length),
                 atualizado_em: maxData(ts.map(t => t.updated_at)),
             }
@@ -442,8 +452,9 @@ const NUCLEO_FINANCEIRO: DefinicaoVariavel<Fatos>[] = [
         classe: 'primaria',
         formula: 'Σ devido dos CP abertos cuja descrição é de comissão, no menor vencimento futuro (ou hoje)',
         calcular: (f): ResultadoCalculo => {
-            const comissoes = f.cp.filter(t => aberto(t) && /comiss/i.test(t.descricao))
-            const futuras = comissoes.filter(t => t.vencimento >= f.hoje)
+            const comissoes = f.cp.filter(t => aberto(t) && naoSubstituido(t) && !compromissoFuturo(t) && /comiss/i.test(t.descricao))
+            const futuras = comissoes.filter(t => pagamentoNaCurva(t) && t.vencimento !== null && t.vencimento >= f.hoje)
+            const semProgramacao = comissoes.filter(t => !pagamentoNaCurva(t))
             const alvo = futuras.map(t => t.vencimento).sort()[0] || null
             const doCiclo = alvo ? futuras.filter(t => t.vencimento === alvo) : []
             const semDono = doCiclo.filter(t => !t.fornecedor_id || /a\s*definir/i.test(t.descricao))
@@ -454,10 +465,11 @@ const NUCLEO_FINANCEIRO: DefinicaoVariavel<Fatos>[] = [
                 valor: r2(semDono.reduce((s, t) => s + devido(t, 'valor_pago'), 0)),
                 exemplos: semDono.slice(0, 4).map(t => t.descricao.slice(0, 44)),
             }] : []
+            if (semProgramacao.length) lacunas.push({ motivo: 'comissões abertas sem programação firme (data, condição, valor ou liquidação pendente); continuam no contas a pagar', impacto: 'interpretacao', linhas: semProgramacao.length, valor: r2(semProgramacao.reduce((s, t) => s + devido(t, 'valor_pago'), 0)), exemplos: semProgramacao.slice(0, 4).map(t => t.descricao) })
             return {
                 valor: r2(doCiclo.reduce((s, t) => s + devido(t, 'valor_pago'), 0)),
                 origens: [{ fonte: 'erp_contas_pagar', filtro: `descrição ~ comissão, vencimento = ${alvo || '—'}`, linhas: doCiclo.length }],
-                cobertura: cobreTudo(doCiclo.length, lacunas),
+                cobertura: cobertura(doCiclo.length + semProgramacao.length, doCiclo.length, lacunas),
                 atualizado_em: maxData(doCiclo.map(t => t.updated_at)),
                 formula: `Σ devido dos CP de comissão com vencimento em ${alvo || '—'}`,
             }
@@ -475,14 +487,19 @@ const NUCLEO_FINANCEIRO: DefinicaoVariavel<Fatos>[] = [
             // Vencimento no passado NÃO é entrada dos próximos 30 dias. Somar o
             // vencido acumulado aqui era o jeito mais rápido de projetar caixa
             // que nunca chega — ele entra como parcela à parte, declarada.
-            const naJanela = (t: { vencimento: string }) => t.vencimento >= f.hoje && t.vencimento <= ate
+            const naJanela = (t: { vencimento: string | null }) => t.vencimento !== null && t.vencimento >= f.hoje && t.vencimento <= ate
             const crJanela = f.cr.filter(t => aberto(t) && naoSubstituido(t) && recebimentoConfirmado(t) && naJanela(t))
-            const cpJanela = f.cp.filter(t => aberto(t) && naoSubstituido(t) && naJanela(t))
-            const crVencido = f.cr.filter(t => aberto(t) && naoSubstituido(t) && recebimentoConfirmado(t) && t.vencimento < f.hoje)
+            const cpAbertos = f.cp.filter(t => aberto(t) && naoSubstituido(t))
+            const cpJanela = cpAbertos.filter(t => !compromissoFuturo(t) && pagamentoNaCurva(t) && naJanela(t))
+            const cpSemProgramacao = cpAbertos.filter(t => !compromissoFuturo(t) && !pagamentoNaCurva(t))
+            const cpProjetados = cpAbertos.filter(t => compromissoFuturo(t) && naJanela(t))
+            const crVencido = f.cr.filter(t => aberto(t) && naoSubstituido(t) && recebimentoConfirmado(t) && t.vencimento !== null && t.vencimento < f.hoje)
             const crSemData = f.cr.filter(t => aberto(t) && naoSubstituido(t) && !recebimentoConfirmado(t))
-            const cpVencido = f.cp.filter(t => aberto(t) && naoSubstituido(t) && t.vencimento < f.hoje)
+            const cpVencido = cpAbertos.filter(t => !compromissoFuturo(t) && pagamentoNaCurva(t) && t.vencimento !== null && t.vencimento < f.hoje)
             const entra = crJanela.reduce((s, t) => s + devido(t, 'valor_recebido'), 0)
-            const sai = cpJanela.reduce((s, t) => s + devido(t, 'valor_pago'), 0)
+            const saiFirme = cpJanela.reduce((s, t) => s + devido(t, 'valor_pago'), 0)
+            const saiProjetado = cpProjetados.reduce((s, t) => s + devido(t, 'valor_pago'), 0)
+            const sai = saiFirme + saiProjetado
             const saldo = Number(dep['caixa.saldo']?.valor || 0)
             // Projeção só vale o que valem as promessas: CR sem data acordada
             // e estimativas não são dinheiro. Isso vira lacuna, não nota de rodapé.
@@ -496,20 +513,24 @@ const NUCLEO_FINANCEIRO: DefinicaoVariavel<Fatos>[] = [
                 valor: r2(frouxos.reduce((s, t) => s + devido(t, 'valor_recebido'), 0)),
                 exemplos: frouxos.slice(0, 4).map(t => t.descricao.slice(0, 44)),
             }] : []
+            if (cpSemProgramacao.length) lacunas.push({ motivo: 'obrigações abertas fora da curva por data, condição, valor ou liquidação pendente; o saldo projetado não cobre esses pagamentos', impacto: 'interpretacao', linhas: cpSemProgramacao.length, valor: r2(cpSemProgramacao.reduce((s, t) => s + devido(t, 'valor_pago'), 0)), exemplos: cpSemProgramacao.slice(0, 4).map(t => t.descricao) })
+            if (cpProjetados.length) lacunas.push({ motivo: 'a simulação inclui custos futuros projetados; essa parcela ainda não constitui pagamento firme', impacto: 'interpretacao', linhas: cpProjetados.length, valor: r2(saiProjetado) })
             return {
                 valor: r2(saldo + entra - sai),
                 origens: [
                     { fonte: 'erp_contas_receber', filtro: `aberto, vencimento ≤ ${ate}`, linhas: crJanela.length },
-                    { fonte: 'erp_contas_pagar', filtro: `aberto, vencimento ≤ ${ate}`, linhas: cpJanela.length },
+                    { fonte: 'erp_contas_pagar', filtro: `aberto, na curva com vencimento ≤ ${ate}; inclui projeções identificadas separadamente`, linhas: cpJanela.length + cpProjetados.length },
                 ],
-                cobertura: cobreTudo(crJanela.length, lacunas),
+                cobertura: cobertura(crJanela.length + cpJanela.length + cpSemProgramacao.length + cpProjetados.length, crJanela.length + cpJanela.length, lacunas),
                 atualizado_em: dep['caixa.saldo']?.atualizado_em || null,
-                formula: `${r2(saldo)} (caixa) + ${r2(entra)} (CR vencendo de ${f.hoje} a ${ate}) − ${r2(sai)} (CP no mesmo intervalo). Vencido acumulado fica FORA.`,
+                formula: `${r2(saldo)} (caixa) + ${r2(entra)} (CR vencendo de ${f.hoje} a ${ate}) − ${r2(saiFirme)} (obrigações programadas) − ${r2(saiProjetado)} (custos futuros projetados). Vencido e obrigações sem programação ficam fora da curva.`,
                 composicao: [
+                    { rotulo: 'fora da curva: obrigações sem programação firme', valor: r2(cpSemProgramacao.reduce((s, t) => s + devido(t, 'valor_pago'), 0)), nota: 'continuam no contas a pagar; confirmar valor, condição, data ou liquidação' },
+                    { rotulo: 'custos futuros incluídos na simulação', valor: r2(-saiProjetado), nota: 'projeção identificada separadamente das obrigações programadas' },
                     { rotulo: 'fora da projeção: recebíveis sem data confirmada', valor: r2(crSemData.reduce((s,t)=>s+devido(t,'valor_recebido'),0)), nota: 'acompanhar cobrança; não representa entrada prometida nesta janela' },
                     { rotulo: 'caixa hoje', valor: r2(saldo) },
                     { rotulo: `a receber vencendo até ${ate}`, valor: r2(entra) },
-                    { rotulo: `a pagar vencendo até ${ate}`, valor: r2(-sai) },
+                    { rotulo: `obrigações programadas até ${ate}`, valor: r2(-saiFirme) },
                     {
                         rotulo: 'fora da conta: vencido acumulado',
                         valor: r2(crVencido.reduce((s, t) => s + devido(t, 'valor_recebido'), 0)

@@ -10,6 +10,7 @@ import type { SupabaseClient } from '@supabase/supabase-js'
 import { competenciaDoTexto } from './erp-evento'
 import { recebimentoConfirmado } from './erp-prazos'
 import { hojeFinanceiro } from './erp-contas'
+import { pagamentoInformado, pagamentoNaCurva, valorEmApuracao, type ApuracaoPagamento } from './erp-apuracao'
 import { leituraCompleta } from './erp-leitura'
 import {
   aberto, compromissoFuturo, devido, ehTransferencia, naoSubstituido,
@@ -72,12 +73,12 @@ export async function computeErpDashboard(
     prevPagar, prevReceber, movPeriodo, movPrev, ultimosLanc,
     pagasPeriodo, recebPeriodo, categorias,
   ] = await Promise.all([
-    leituraCompleta(() => sb.from('erp_contas_pagar').select('descricao,valor,desconto,juros,multa,valor_pago,vencimento,status,tags,origem,substituido_por').in('status', ['aberto', 'parcial', 'vencido'])),
+    leituraCompleta(() => sb.from('erp_contas_pagar').select('descricao,valor,desconto,juros,multa,valor_pago,vencimento,status,tags,origem,substituido_por,apuracao').in('status', ['aberto', 'parcial', 'vencido'])),
     leituraCompleta(() => sb.from('erp_contas_receber').select('descricao,valor,desconto,juros,multa,valor_recebido,vencimento,status,tags,origem,substituido_por').in('status', ['aberto', 'parcial', 'vencido'])),
     leituraCompleta(() => sb.from('erp_contas_bancarias').select('id,nome,saldo_atual,cor,tipo,ativo').eq('ativo', true).order('nome')),
     // previsao do periodo (titulos com vencimento no periodo; cancelados e
     // estimativas ja substituidas por um real ficam fora)
-    leituraCompleta(() => sb.from('erp_contas_pagar').select('valor,desconto,juros,multa,valor_pago,substituido_por').gte('vencimento', from).lte('vencimento', to).neq('status', 'cancelado')),
+    leituraCompleta(() => sb.from('erp_contas_pagar').select('valor,desconto,juros,multa,valor_pago,substituido_por,vencimento,apuracao').gte('vencimento', from).lte('vencimento', to).neq('status', 'cancelado')),
     leituraCompleta(() => sb.from('erp_contas_receber').select('valor,desconto,juros,multa,valor_recebido,substituido_por,tags,vencimento').gte('vencimento', from).lte('vencimento', to).neq('status', 'cancelado')),
     // movimentos realizados no periodo e no periodo anterior
     leituraCompleta(() => sb.from('erp_movimentos_bancarios').select(COLS_MOV).gte('data', from).lte('data', to)),
@@ -176,14 +177,14 @@ export async function computeErpDashboard(
   type Subst = { substituido_por: string | null }
   const vivos = <T extends Subst>(rows: T[] | null | undefined) => (rows || []).filter((r) => naoSubstituido(r))
   const previstoEntrada = sumDue(vivos((prevReceber.data || []) as (Titulo & Subst & {tags:string[];vencimento:string})[]).filter(recebimentoConfirmado), 'valor_recebido')
-  const previstoSaida = sumDue(vivos((prevPagar.data || []) as (Titulo & Subst)[]), 'valor_pago')
+  const previstoSaida = sumDue(vivos((prevPagar.data || []) as (Titulo & Subst & {vencimento:string;apuracao?:ApuracaoPagamento})[]).filter(pagamentoNaCurva), 'valor_pago')
 
   // ---- divida contraida x custo futuro projetado -----------------------------
   // Duas coisas diferentes, e a diferenca importa: uma a Bula deve hoje, a
   // outra e folha e recorrente lancados adiante. O criterio e o canonico
   // (`compromissoFuturo`), nao mais so a tag 'orcamento' — a tag sozinha
   // deixava 184,64 de estimativa entrar em "obrigacao real".
-  type TitRow = Titulo & { descricao: string; vencimento: string; status: string; tags: string[] | null; origem: string | null; substituido_por: string | null }
+  type TitRow = Titulo & { descricao: string; vencimento: string; status: string; tags: string[] | null; origem: string | null; substituido_por: string | null; apuracao?: ApuracaoPagamento }
   const abertoVivo = (r: TitRow) => aberto(r) && naoSubstituido(r)
   const cpRows = ((cpAbertos.data || []) as TitRow[]).filter(abertoVivo)
   const crRows = ((crAbertos.data || []) as TitRow[]).filter(abertoVivo)
@@ -194,7 +195,7 @@ export async function computeErpDashboard(
   // Vencido pelo criterio canonico (vencimento < hoje entre os abertos), e nao
   // pelo status: um titulo 'parcial' com vencimento no passado tambem esta
   // vencido, e o status nao dizia isso.
-  const cpVencidos = cpRows.filter((r) => r.vencimento < hoje)
+  const cpVencidos = cpReais.filter((r) => pagamentoNaCurva(r) && r.vencimento < hoje)
   const crVencidos = crRows.filter((r) => recebimentoConfirmado(r) && r.vencimento < hoje)
 
   // ---- projecao de caixa 15 dias ---------------------------------------------
@@ -206,7 +207,7 @@ export async function computeErpDashboard(
   const fimJanela = iso(addDays(hojeDate, 15))
   const naJanela = (r: TitRow) => r.vencimento >= hoje && r.vencimento <= fimJanela
   const eventos: { data: string; descricao: string; valor: number; projetado: boolean }[] = []
-  for (const r of cpRows) if (naJanela(r)) eventos.push({ data: r.vencimento, descricao: r.descricao, valor: -devido(r, 'valor_pago'), projetado: compromissoFuturo(r) })
+  for (const r of cpRows) if (pagamentoNaCurva(r) && naJanela(r)) eventos.push({ data: r.vencimento, descricao: r.descricao, valor: -devido(r, 'valor_pago'), projetado: compromissoFuturo(r) })
   for (const r of crRows) if (recebimentoConfirmado(r) && naJanela(r)) eventos.push({ data: r.vencimento, descricao: r.descricao, valor: devido(r, 'valor_recebido'), projetado: compromissoFuturo(r) })
   eventos.sort((a, b) => a.data.localeCompare(b.data) || a.valor - b.valor)
   const saldoBancos = (contasBancarias.data || []).reduce((s: number, c: { saldo_atual: number }) => s + Number(c.saldo_atual || 0), 0)
@@ -221,6 +222,9 @@ export async function computeErpDashboard(
     saldo_total_bancos: saldoBancos,
     a_pagar: somaDevido(cpReais, 'valor_pago'),
     a_pagar_orcamento: somaDevido(cpOrcamento, 'valor_pago'),
+    a_pagar_em_apuracao: somaDevido(cpReais.filter(valorEmApuracao), 'valor_pago'),
+    a_pagar_quitacao_informada: somaDevido(cpReais.filter(pagamentoInformado), 'valor_pago'),
+    a_pagar_sem_data: somaDevido(cpReais.filter(r => !r.vencimento || r.apuracao?.condicao), 'valor_pago'),
     fluxo_15d: fluxo15d,
     a_receber: somaDevido(crRows, 'valor_recebido'),
     a_receber_contratado: somaDevido(crContratado, 'valor_recebido'),
@@ -281,6 +285,9 @@ export async function computeDre(
   }
   let detCps: TitDet[] = []
   let detCrs: TitDet[] = []
+  let pendenciasApuracao = 0
+  let valorEmConferencia = 0
+  let semCompetencia = 0
 
   // acumulação: por categoria, com sinal (+entrada / -saida) — estorno dentro
   // da mesma categoria abate em vez de virar linha nova.
@@ -324,7 +331,7 @@ export async function computeDre(
     const COLS_TIT = 'valor,desconto,juros,multa,categoria_id,vencimento,fechamento_id,descricao'
     const janela = { de: from, ate: to }
     const [{ data: cpsRaw }, { data: crsRaw }, { data: fechs }] = await Promise.all([
-      leituraCompleta(() => sb.from('erp_contas_pagar').select(COLS_TIT).neq('status', 'cancelado').is('substituido_por', null).or('origem.is.null,origem.neq.sintetico')),
+      leituraCompleta(() => sb.from('erp_contas_pagar').select(COLS_TIT + ',apuracao,origem,tags').neq('status', 'cancelado').is('substituido_por', null).or('origem.is.null,origem.neq.sintetico')),
       leituraCompleta(() => sb.from('erp_contas_receber').select(COLS_TIT).neq('status', 'cancelado').is('substituido_por', null).or('origem.is.null,origem.neq.sintetico')),
       leituraCompleta(() => sb.from('bula_leilao_fechamento').select('id,data')),
     ])
@@ -335,6 +342,8 @@ export async function computeDre(
       valor: number; desconto: number; juros: number; multa: number
       categoria_id: string | null; vencimento: string | null; fechamento_id: string | null
       descricao?: string | null
+      apuracao?: ApuracaoPagamento
+      origem: string | null; tags: string[] | null
     }
     /**
      * Mes em que o fato economico aconteceu, na ordem de confianca:
@@ -344,6 +353,7 @@ export async function computeDre(
      *   3. vencimento, ultima aproximacao disponivel.
      */
     const competenciaDe = (r: Tit): string | null => {
+      if (r.apuracao?.competencia_fim) return r.apuracao.competencia_fim
       const doLeilao = r.fechamento_id ? dataDoFechamento.get(r.fechamento_id) : null
       if (doLeilao) return doLeilao
       const doTexto = competenciaDoTexto(String(r.descricao || ''))
@@ -354,10 +364,15 @@ export async function computeDre(
       const c = competenciaDe(r)
       return !!c && c >= janela.de && c <= janela.ate
     }
-    const cps = ((cpsRaw || []) as Tit[]).filter(noPeriodo)
+    const cpIncorridas = ((cpsRaw || []) as unknown as Tit[]).filter(r => !compromissoFuturo(r))
+    semCompetencia = cpIncorridas.filter(r => !competenciaDe(r)).length
+    const cps = cpIncorridas.filter(noPeriodo)
     const crs = ((crsRaw || []) as Tit[]).filter(noPeriodo)
     detCps = cps as unknown as TitDet[]
     detCrs = crs as unknown as TitDet[]
+    const pendentes = cps.filter(valorEmApuracao)
+    pendenciasApuracao = pendentes.length
+    valorEmConferencia = r2(pendentes.reduce((s, r) => s + Number(r.valor || 0), 0))
 
     const liq = (r: Tit) => Number(r.valor || 0) - Number(r.desconto || 0) + Number(r.juros || 0) + Number(r.multa || 0)
     for (const r of cps) lanca(r.categoria_id, 'Outras Despesas', 'saida', liq(r))
@@ -473,6 +488,11 @@ export async function computeDre(
 
   return {
     regime,
+    resultado_provisorio: pendenciasApuracao > 0 || semCompetencia > 0 || to >= hojeFinanceiro(),
+    pendencias_apuracao: pendenciasApuracao,
+    valor_em_conferencia: valorEmConferencia,
+    obrigacoes_sem_competencia: semCompetencia,
+    periodo_em_curso: to >= hojeFinanceiro(),
     from, to,
     // ── cascata contábil ──
     cascata: {
@@ -513,6 +533,7 @@ type TituloRow = {
   valor_pago?: number; valor_recebido?: number; categoria_id: string | null
   tags: string[] | null; origem: string | null; substituido_por: string | null; status: string
   transferencia_par_id?: string | null
+  apuracao?: ApuracaoPagamento
 }
 type MovRow = MovimentoClassificavel & { data: string; tipo: string; valor: number }
 
@@ -535,7 +556,7 @@ export async function computeFluxoCaixa(
   const [bancos, mov, cp, cr, cats] = await Promise.all([
     leituraCompleta(() => sb.from('erp_contas_bancarias').select('saldo_atual').eq('ativo', true)),
     leituraCompleta(() => sb.from('erp_movimentos_bancarios').select('data,tipo,valor,categoria_id,transferencia_par_id').gte('data', inicioIso).lte('data', hojeIso)),
-    leituraCompleta(() => sb.from('erp_contas_pagar').select('vencimento,valor,desconto,juros,multa,categoria_id,tags,origem,substituido_por,status,valor_pago').in('status', ['aberto', 'parcial', 'vencido']).lte('vencimento', fimIso)),
+    leituraCompleta(() => sb.from('erp_contas_pagar').select('vencimento,valor,desconto,juros,multa,categoria_id,tags,origem,substituido_por,status,valor_pago,apuracao').in('status', ['aberto', 'parcial', 'vencido'])),
     leituraCompleta(() => sb.from('erp_contas_receber').select('vencimento,valor,desconto,juros,multa,categoria_id,tags,origem,substituido_por,status,valor_recebido').in('status', ['aberto', 'parcial', 'vencido'])),
     leituraCompleta(() => sb.from('erp_categorias').select('id,nome,cor,tipo,dre_grupo')),
   ])
@@ -589,13 +610,17 @@ export async function computeFluxoCaixa(
   // hoje eles viravam uma entrada de centenas de milhares que ninguem prometeu.
   // Sai da curva e volta declarado, em `vencido`.
   const vencido = { entrada: 0, saida: 0, titulos_entrada: 0, titulos_saida: 0 }
-  const semData = { entrada: 0, titulos_entrada: 0 }
+  const semData = { entrada: 0, titulos_entrada: 0, saida: 0, titulos_saida: 0 }
+  const emApuracao = { saida: 0, titulos_saida: 0, quitacao_informada: 0, titulos_quitacao: 0 }
   for (const r of (cp.data || []) as TituloRow[]) {
     if (!elegivel(r)) continue
     if (!incluirOrcamento && isOrc(r)) continue
     if (ehTransferencia({ categoria_id: r.categoria_id, transferencia_par_id: null }, dre)) continue
     const v = due(r, 'valor_pago')
     if (v <= 0) continue
+    if (pagamentoInformado(r)) { emApuracao.quitacao_informada += v; emApuracao.titulos_quitacao++; continue }
+    if (valorEmApuracao(r)) { emApuracao.saida += v; emApuracao.titulos_saida++; continue }
+    if (!pagamentoNaCurva(r)) { semData.saida += v; semData.titulos_saida++; continue }
     if (r.vencimento < hojeIso) { vencido.saida += v; vencido.titulos_saida++; continue }
     const k = r.vencimento
     if (!dataMap[k]) continue
@@ -619,6 +644,8 @@ export async function computeFluxoCaixa(
   }
   vencido.entrada = r2(vencido.entrada); vencido.saida = r2(vencido.saida)
   semData.entrada = r2(semData.entrada)
+  semData.saida = r2(semData.saida)
+  emApuracao.saida = r2(emApuracao.saida); emApuracao.quitacao_informada = r2(emApuracao.quitacao_informada)
 
   // ---------- saldo dia a dia ancorado no saldo real de HOJE ----------
   // saldo_atual ja reflete todos os movimentos realizados; do passado ao
@@ -711,6 +738,7 @@ export async function computeFluxoCaixa(
     dias, passado, gran, incluir_orcamento: incluirOrcamento, hoje: hojeIso,
     vencido,
     sem_data: semData,
+    em_apuracao: emApuracao,
     serie: ordered,
     matriz: {
       buckets,

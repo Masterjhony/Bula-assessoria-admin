@@ -9,6 +9,7 @@
  */
 
 import type { SupabaseClient } from '@supabase/supabase-js'
+import type { ApuracaoPagamento } from '../erp-apuracao'
 
 export interface ContaBancaria {
     id: string; nome: string; saldo_inicial: number; saldo_atual: number
@@ -26,7 +27,8 @@ export interface Titulo {
     id: string; descricao: string; valor: number
     desconto: number; juros: number; multa: number
     valor_pago?: number; valor_recebido?: number
-    emissao: string | null; vencimento: string
+    emissao: string | null; vencimento: string | null
+    apuracao?: ApuracaoPagamento | null
     data_pagamento?: string | null; data_recebimento?: string | null
     status: string; categoria_id: string | null
     conta_bancaria_id: string | null; fechamento_id: string | null
@@ -184,7 +186,7 @@ export async function carregarFatos(sb: SupabaseClient, opts: { hoje?: string } 
             'id,conta_bancaria_id,data,tipo,valor,descricao,categoria_id,pessoa_id,' +
             'conta_pagar_id,conta_receber_id,transferencia_par_id,status_conciliacao,conciliado,' +
             'origem,created_at,updated_at'),
-        todos<Titulo>(sb, 'erp_contas_pagar', COLS_TITULO + ',valor_pago,data_pagamento,fornecedor_id'),
+        todos<Titulo>(sb, 'erp_contas_pagar', COLS_TITULO + ',valor_pago,data_pagamento,fornecedor_id,apuracao'),
         todos<Titulo>(sb, 'erp_contas_receber', COLS_TITULO + ',valor_recebido,data_recebimento,cliente_id'),
         todos<Categoria>(sb, 'erp_categorias', 'id,nome,tipo,dre_grupo,ativo'),
         todos<Fechamento>(sb, 'bula_leilao_fechamento',
@@ -293,9 +295,10 @@ export const operacional = (m: MovimentoClassificavel, f: GruposDre) => !ehTrans
  * coincidem — e por causa disso R$ 17.011,00 de CR estimado entravam no
  * Balanço como ativo real.
  */
-export type TituloFuturavel = Pick<Titulo, 'origem' | 'tags'>
+export type TituloFuturavel = Pick<Titulo, 'origem' | 'tags' | 'apuracao'>
 export const compromissoFuturo = (t: TituloFuturavel) =>
-    t.origem === 'estimativa' || (t.tags || []).includes('orcamento')
+    t.apuracao?.natureza ? t.apuracao.natureza === 'projecao'
+      : t.origem === 'estimativa' || (t.tags || []).includes('orcamento')
 
 /**
  * Título 'sintetico' é o lançamento agregado do pagamento em lote, criado para

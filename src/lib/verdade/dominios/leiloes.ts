@@ -15,7 +15,8 @@
 
 import type { DefinicaoValidacao, DefinicaoVariavel, Lacuna, ResultadoCalculo } from '../tipos'
 import { cobertura, cobreTudo } from '../tipos'
-import { type Fatos, aberto, devido, maxData, num, r2, vivo } from '../fatos'
+import { type Fatos, aberto, compromissoFuturo, devido, maxData, naoSubstituido, num, r2, vivo } from '../fatos'
+import { pagamentoNaCurva } from '../../erp-apuracao'
 
 const brl = (n: number) => 'R$ ' + Number(n || 0).toLocaleString('pt-BR', { minimumFractionDigits: 2 })
 const lista = (xs: string[], n = 4) =>
@@ -157,7 +158,9 @@ export const VARIAVEIS: DefinicaoVariavel<Fatos>[] = [
         classe: 'primaria',
         formula: 'Σ devido dos CP de comissão no menor vencimento futuro, agrupado por fornecedor',
         calcular: (f): ResultadoCalculo => {
-            const comissoes = f.cp.filter(t => aberto(t) && /comiss/i.test(t.descricao) && t.vencimento >= f.hoje)
+            const abertas = f.cp.filter(t => aberto(t) && naoSubstituido(t) && !compromissoFuturo(t) && /comiss/i.test(t.descricao))
+            const comissoes = abertas.filter(t => pagamentoNaCurva(t) && t.vencimento !== null && t.vencimento >= f.hoje)
+            const semProgramacao = abertas.filter(t => !pagamentoNaCurva(t))
             const alvo = comissoes.map(t => t.vencimento).sort()[0] || null
             const doCiclo = alvo ? comissoes.filter(t => t.vencimento === alvo) : []
             const nomePessoa = new Map(f.pessoas.map(p => [p.id, p.nome]))
@@ -174,10 +177,11 @@ export const VARIAVEIS: DefinicaoVariavel<Fatos>[] = [
                 valor: r2(semDono.reduce((s, t) => s + devido(t, 'valor_pago'), 0)),
                 exemplos: semDono.slice(0, 4).map(t => t.descricao.slice(0, 42)),
             }] : []
+            if (semProgramacao.length) lacunas.push({ motivo: 'comissões abertas sem programação firme; permanecem no contas a pagar e precisam de apuração, data ou conferência de liquidação', impacto: 'interpretacao', linhas: semProgramacao.length, valor: r2(semProgramacao.reduce((s, t) => s + devido(t, 'valor_pago'), 0)), exemplos: semProgramacao.slice(0, 4).map(t => t.descricao) })
             return {
                 valor: r2(doCiclo.reduce((s, t) => s + devido(t, 'valor_pago'), 0)),
                 origens: [{ fonte: 'erp_contas_pagar', filtro: `comissão, vencimento = ${alvo || '—'}`, linhas: doCiclo.length }],
-                cobertura: cobreTudo(doCiclo.length, lacunas),
+                cobertura: cobertura(doCiclo.length + semProgramacao.length, doCiclo.length, lacunas),
                 atualizado_em: maxData(doCiclo.map(t => t.updated_at)),
                 formula: `Σ devido dos CP de comissão vencendo em ${alvo || '—'}, por beneficiário`,
                 composicao: [...porPessoa.entries()].sort((a, b) => b[1] - a[1])
