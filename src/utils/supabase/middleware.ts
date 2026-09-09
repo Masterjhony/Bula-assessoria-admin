@@ -9,6 +9,13 @@ const PUBLIC_PATHS = new Set<string>([
   '/privacidade',
   '/termos',
   '/exclusao-de-dados',
+  // O cadastro por convite acontece ANTES de existir sessão: são estes dois
+  // endpoints que a /cadastro chama. Eles não dependem de login — quem os
+  // protege é a allowlist (INTERNAL_SIGNUP_ALLOWED_EMAILS) e o código enviado
+  // por email. Sem esta entrada, no host erp.* o gate abaixo respondia 307 → /
+  // ao POST e a tela de cadastro nunca saía do lugar.
+  '/api/admin/auth/send-code',
+  '/api/admin/auth/verify-signup',
 ])
 const PUBLIC_PREFIXES = ['/api/bula/auth', '/_next', '/logo-', '/bula/', '/favicon.ico']
 
@@ -235,7 +242,13 @@ export async function updateSession(req: NextRequest) {
       !isSistemaPath &&
       pathname !== '/favicon.ico' &&
       !pathname.startsWith('/logo-') &&
-      !pathname.startsWith('/bula/')
+      !pathname.startsWith('/bula/') &&
+      // As páginas públicas compartilhadas (/cadastro, /reset-senha, os
+      // termos) existem UMA vez, na raiz do app. Sem esta saída o rewrite as
+      // mandava para /erp/cadastro, /erp/reset-senha — rotas que não existem,
+      // e é daí que vinha o 404 ao clicar em "Criar conta" na tela de login do
+      // ERP. A raiz continua entrando no rewrite: neste host '/' É o ERP.
+      !(pathname !== '/' && isPublicPath(pathname))
     ) {
       url.pathname = `/erp${pathname === '/' ? '' : pathname}`
       res = NextResponse.rewrite(url, { request: req })
@@ -424,14 +437,14 @@ export async function updateSession(req: NextRequest) {
   }
 
   // ERP routes (rewritten path starts with /erp) — only login is public.
-  if (
-    erp &&
-    !pathname.startsWith('/login') &&
-    !isPublicPath(pathname) &&
-    !user
-  ) {
+  //
+  // O destino é '/', e não '/login': rota /login não existe no app. Quem serve
+  // o login.html é o route handler da raiz (e, neste host, o de /erp). Mandar
+  // para '/login' devolvia 404 em vez da tela de login.
+  if (erp && !isPublicPath(pathname) && !user) {
     const url = req.nextUrl.clone()
-    url.pathname = '/login'
+    url.pathname = '/'
+    url.search = ''
     return NextResponse.redirect(url)
   }
 

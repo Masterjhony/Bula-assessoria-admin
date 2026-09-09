@@ -59,8 +59,13 @@ body { font-family:'Inter',-apple-system,sans-serif; -webkit-font-smoothing:anti
 .signup-link a { color:#C8A96E; text-decoration:none; font-weight:600; transition:color 0.12s; }
 .signup-link a:hover { color:#A68B4B; }
 
-.login-footer { position:absolute; bottom:28px; text-align:center; }
+/* A etapa 2 (codigo + senha + confirmacao) e mais alta que a etapa 1. Com o
+   rodape sempre `position:absolute` ele ficava por cima do "Ja tem uma conta?"
+   em tela de notebook. Aqui ele so e fixado no rodape quando sobra altura;
+   caso contrario entra no fluxo e desce junto. */
+.login-footer { text-align:center; margin-top:28px; }
 .login-footer p { font-size:10px; color:#333; }
+@media(min-height:860px) { .login-footer { position:absolute; bottom:28px; margin-top:0; } }
 
 .form-error { background:rgba(192,80,77,0.08); border:1px solid rgba(192,80,77,0.2); border-radius:8px; padding:10px 14px; margin-bottom:16px; display:none; align-items:center; gap:8px; font-size:12px; color:#C0504D; width:100%; max-width:340px; }
 .form-error.show { display:flex; }
@@ -69,6 +74,12 @@ body { font-family:'Inter',-apple-system,sans-serif; -webkit-font-smoothing:anti
 .form-success { background:rgba(107,143,92,0.08); border:1px solid rgba(107,143,92,0.3); border-radius:8px; padding:14px; margin-bottom:16px; display:none; flex-direction:column; gap:6px; font-size:13px; color:#6B8F5C; width:100%; max-width:340px; text-align:center; }
 .form-success.show { display:flex; }
 .form-success strong { font-size:15px; }
+
+.form-hint { font-size:11px; color:#555; margin:14px 0 0; width:100%; max-width:340px; line-height:1.6; text-align:center; }
+.form-hint b { color:#C8A96E; font-weight:600; }
+.form-hint a { color:#C8A96E; text-decoration:none; font-weight:600; }
+.form-hint a:hover { color:#A68B4B; }
+.form-code { letter-spacing:8px; text-align:center; font-size:18px; font-weight:600; }
 
 .spin { display:inline-block; width:16px; height:16px; border:2px solid #111; border-top-color:transparent; border-radius:50%; animation:spin 0.6s linear infinite; }
 @keyframes spin { to { transform:rotate(360deg); } }
@@ -103,7 +114,7 @@ body { font-family:'Inter',-apple-system,sans-serif; -webkit-font-smoothing:anti
 
     <div class="login-welcome">
       <h1>Criar conta</h1>
-      <p>Preencha os dados para acessar o sistema</p>
+      <p id="welcome-sub">Acesso por convite. Enviamos um codigo ao seu email.</p>
     </div>
 
     <div class="form-error" id="form-error">
@@ -116,19 +127,34 @@ body { font-family:'Inter',-apple-system,sans-serif; -webkit-font-smoothing:anti
       <span id="success-text">Redirecionando...</span>
     </div>
 
-    <form class="login-form" id="signup-form" onsubmit="handleSignup(event)">
+    <!-- ETAPA 1 — identifica quem esta pedindo e dispara o codigo por email.
+         Nao ha senha aqui: a conta so nasce depois que o codigo provar que o
+         email e mesmo dessa pessoa. -->
+    <form class="login-form" id="step-email" onsubmit="handleSendCode(event)">
       <div class="form-group">
         <label class="form-label"><span class="material-symbols-outlined">person</span> Nome completo</label>
-        <input class="form-input" type="text" id="signup-name" placeholder="Seu nome" required>
+        <input class="form-input" type="text" id="signup-name" placeholder="Seu nome" required autocomplete="name">
       </div>
       <div class="form-group">
         <label class="form-label"><span class="material-symbols-outlined">mail</span> Email</label>
-        <input class="form-input" type="email" id="signup-email" placeholder="seu@email.com" required>
+        <input class="form-input" type="email" id="signup-email" placeholder="seu@email.com" required autocomplete="email">
+      </div>
+      <button type="submit" class="btn-login" id="btn-send-code">
+        <span class="material-symbols-outlined">send</span> Enviar codigo
+      </button>
+    </form>
+
+    <!-- ETAPA 2 — codigo + senha. So aparece depois que a etapa 1 responder ok. -->
+    <form class="login-form" id="step-code" style="display:none" onsubmit="handleVerify(event)">
+      <div class="form-group">
+        <label class="form-label"><span class="material-symbols-outlined">pin</span> Codigo de 6 digitos</label>
+        <input class="form-input form-code" type="text" id="signup-code" placeholder="000000"
+               required inputmode="numeric" pattern="[0-9]{6}" maxlength="6" autocomplete="one-time-code">
       </div>
       <div class="form-group">
         <label class="form-label"><span class="material-symbols-outlined">lock</span> Senha</label>
         <div class="form-password-wrap">
-          <input class="form-input" type="password" id="signup-password" placeholder="Minimo 6 caracteres" required minlength="6">
+          <input class="form-input" type="password" id="signup-password" placeholder="Minimo 8 caracteres" required minlength="8" autocomplete="new-password">
           <button type="button" class="form-eye" onclick="togglePassword('signup-password','eye-icon-1')">
             <span class="material-symbols-outlined" id="eye-icon-1" style="font-size:18px">visibility_off</span>
           </button>
@@ -137,7 +163,7 @@ body { font-family:'Inter',-apple-system,sans-serif; -webkit-font-smoothing:anti
       <div class="form-group">
         <label class="form-label"><span class="material-symbols-outlined">lock_reset</span> Confirmar senha</label>
         <div class="form-password-wrap">
-          <input class="form-input" type="password" id="signup-confirm" placeholder="Repita a senha" required>
+          <input class="form-input" type="password" id="signup-confirm" placeholder="Repita a senha" required autocomplete="new-password">
           <button type="button" class="form-eye" onclick="togglePassword('signup-confirm','eye-icon-2')">
             <span class="material-symbols-outlined" id="eye-icon-2" style="font-size:18px">visibility_off</span>
           </button>
@@ -147,6 +173,12 @@ body { font-family:'Inter',-apple-system,sans-serif; -webkit-font-smoothing:anti
         <span class="material-symbols-outlined">person_add</span> Criar conta
       </button>
     </form>
+
+    <div class="form-hint" id="code-hint" style="display:none">
+      Codigo enviado para <b id="code-dest"></b>. Vale por 10 minutos.
+      <a href="#" onclick="resetToEmail(event)">Trocar email</a> &middot;
+      <a href="#" onclick="resendCode(event)">Reenviar codigo</a>
+    </div>
 
     <div class="login-divider"><span>ou</span></div>
 
@@ -161,6 +193,19 @@ body { font-family:'Inter',-apple-system,sans-serif; -webkit-font-smoothing:anti
 </div>
 
 <script>
+/* Cadastro por CONVITE.
+   O endpoint publico /api/bula/auth/signup e fail-closed de proposito: qualquer
+   usuario autenticado e tratado como membro da equipe, entao autocadastro
+   aberto seria elevacao publica a admin. O caminho que cria conta de verdade e
+   o de convite, em dois passos:
+     1) POST /api/admin/auth/send-code     -> checa a allowlist e manda o codigo
+     2) POST /api/admin/auth/verify-signup -> consome o codigo e cria o usuario
+   Quem nao esta na allowlist (INTERNAL_SIGNUP_ALLOWED_EMAILS) leva 403 ja no
+   passo 1, sem nunca receber email. */
+
+var pendingEmail = '';
+var pendingName = '';
+
 function togglePassword(inputId, iconId) {
   const input = document.getElementById(inputId);
   const icon = document.getElementById(iconId);
@@ -173,70 +218,122 @@ function togglePassword(inputId, iconId) {
   }
 }
 
-async function handleSignup(e) {
+function showError(msg) {
+  document.getElementById('error-text').textContent = msg;
+  document.getElementById('form-error').classList.add('show');
+}
+function clearBoxes() {
+  document.getElementById('form-error').classList.remove('show');
+  document.getElementById('form-success').classList.remove('show');
+}
+function setBusy(btn, busy, icon, label) {
+  btn.disabled = busy;
+  btn.innerHTML = busy
+    ? '<span class="spin"></span> ' + label
+    : '<span class="material-symbols-outlined">' + icon + '</span> ' + label;
+}
+
+function goToCodeStep() {
+  document.getElementById('step-email').style.display = 'none';
+  document.getElementById('step-code').style.display = '';
+  document.getElementById('code-hint').style.display = '';
+  document.getElementById('code-dest').textContent = pendingEmail;
+  document.getElementById('welcome-sub').textContent = 'Digite o codigo que chegou no seu email e escolha uma senha.';
+  document.getElementById('signup-code').focus();
+}
+
+function resetToEmail(e) {
+  if (e) e.preventDefault();
+  clearBoxes();
+  document.getElementById('step-code').style.display = 'none';
+  document.getElementById('code-hint').style.display = 'none';
+  document.getElementById('step-email').style.display = '';
+  document.getElementById('welcome-sub').textContent = 'Acesso por convite. Enviamos um codigo ao seu email.';
+  document.getElementById('signup-code').value = '';
+  document.getElementById('signup-email').focus();
+}
+
+async function requestCode(btn, icon, label) {
+  clearBoxes();
+  setBusy(btn, true, icon, 'Enviando...');
+  try {
+    const res = await fetch('/api/admin/auth/send-code', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email: pendingEmail, fullName: pendingName }),
+    });
+    const data = await res.json().catch(() => ({}));
+    if (!res.ok) {
+      showError(data.error || 'Nao foi possivel enviar o codigo.');
+      return false;
+    }
+    return true;
+  } catch {
+    showError('Erro de conexao. Tente novamente.');
+    return false;
+  } finally {
+    setBusy(btn, false, icon, label);
+  }
+}
+
+async function handleSendCode(e) {
+  e.preventDefault();
+  pendingName = document.getElementById('signup-name').value.trim();
+  pendingEmail = document.getElementById('signup-email').value.trim().toLowerCase();
+  const btn = document.getElementById('btn-send-code');
+  if (await requestCode(btn, 'send', 'Enviar codigo')) goToCodeStep();
+}
+
+async function resendCode(e) {
   e.preventDefault();
   const btn = document.getElementById('btn-signup');
-  const errorBox = document.getElementById('form-error');
-  const errorText = document.getElementById('error-text');
-  const successBox = document.getElementById('form-success');
+  if (await requestCode(btn, 'person_add', 'Criar conta')) {
+    document.getElementById('code-hint').innerHTML =
+      'Novo codigo enviado para <b>' + pendingEmail + '</b>. Vale por 10 minutos. ' +
+      '<a href="#" onclick="resetToEmail(event)">Trocar email</a>';
+  }
+}
 
+async function handleVerify(e) {
+  e.preventDefault();
+  const btn = document.getElementById('btn-signup');
+  const code = document.getElementById('signup-code').value.trim();
   const password = document.getElementById('signup-password').value;
   const confirm = document.getElementById('signup-confirm').value;
 
-  errorBox.classList.remove('show');
-  successBox.classList.remove('show');
+  clearBoxes();
+  if (password !== confirm) { showError('As senhas nao coincidem.'); return; }
+  if (password.length < 8) { showError('A senha deve ter pelo menos 8 caracteres.'); return; }
 
-  if (password !== confirm) {
-    errorText.textContent = 'As senhas nao coincidem.';
-    errorBox.classList.add('show');
-    return;
-  }
-
-  btn.disabled = true;
-  btn.innerHTML = '<span class="spin"></span> Criando conta...';
-
+  setBusy(btn, true, 'person_add', 'Criando conta...');
   try {
-    const res = await fetch('/api/bula/auth/signup', {
+    const res = await fetch('/api/admin/auth/verify-signup', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        name: document.getElementById('signup-name').value,
-        email: document.getElementById('signup-email').value,
-        password,
-      }),
+      body: JSON.stringify({ email: pendingEmail, code, password, fullName: pendingName }),
     });
-
-    const data = await res.json();
+    const data = await res.json().catch(() => ({}));
 
     if (!res.ok) {
-      errorText.textContent = data.error || 'Erro ao criar conta. Tente novamente.';
-      errorBox.classList.add('show');
-      btn.disabled = false;
-      btn.innerHTML = '<span class="material-symbols-outlined">person_add</span> Criar conta';
+      let msg = data.error || 'Erro ao criar conta. Tente novamente.';
+      if (typeof data.attemptsRemaining === 'number') {
+        msg += ' Tentativas restantes: ' + data.attemptsRemaining + '.';
+      }
+      showError(msg);
+      setBusy(btn, false, 'person_add', 'Criar conta');
       return;
     }
 
-    document.getElementById('signup-form').style.display = 'none';
-    successBox.classList.add('show');
-    var signupHost = window.location.host.toLowerCase();
-    const dest = signupHost.startsWith('adminjmp.') ? '/'
-      : signupHost.startsWith('erp.') ? '/erp'
-      : '/sistema';
-    if (data.session) {
-      document.getElementById('success-text').textContent = 'Entrando no sistema...';
-      setTimeout(() => { window.location.href = dest; }, 900);
-    } else {
-      document.getElementById('success-text').textContent = 'Conta criada. Faca login para entrar.';
-      setTimeout(() => { window.location.href = '/'; }, 1800);
-    }
-    btn.disabled = false;
-    btn.innerHTML = '<span class="material-symbols-outlined">person_add</span> Criar conta';
-
+    // verify-signup cria o usuario mas NAO devolve sessao: o proximo passo e
+    // sempre o login. Na raiz e no host erp.* quem serve o login e '/'.
+    document.getElementById('step-code').style.display = 'none';
+    document.getElementById('code-hint').style.display = 'none';
+    document.getElementById('form-success').classList.add('show');
+    document.getElementById('success-text').textContent = 'Faca login para entrar.';
+    setTimeout(() => { window.location.href = '/'; }, 1800);
   } catch {
-    errorText.textContent = 'Erro de conexao. Tente novamente.';
-    errorBox.classList.add('show');
-    btn.disabled = false;
-    btn.innerHTML = '<span class="material-symbols-outlined">person_add</span> Criar conta';
+    showError('Erro de conexao. Tente novamente.');
+    setBusy(btn, false, 'person_add', 'Criar conta');
   }
 }
 </script>
