@@ -1597,7 +1597,7 @@ async function renderContas(modo) {
         <select class="table-filter" onchange="onFilterCompromisso(this.value)" aria-label="Natureza dos compromissos">
           <option value="firme" ${fComp==='firme'?'selected':''}>${isCP?'Obrigações e apurações':'Compromissos firmes'}</option>
           <option value="projecao" ${fComp==='projecao'?'selected':''}>Somente projeções</option>
-          <option value="todos" ${fComp==='todos'?'selected':''}>Firmes e projeções</option>
+          <option value="todos" ${fComp==='todos'?'selected':''}>Obrigações e projeções</option>
         </select>
         <select class="table-filter" onchange="onVencPreset(this.value)" title="Período de vencimento">
           <option value="">Período…</option>
@@ -6302,6 +6302,9 @@ function coEquipeMaps() {
 const coCanonNome = (s) => coEquipeMaps().alias[coKey(s)] || CO_CANONICO[coKey(s)] || String(s||'').trim();
 const coEmpresaFixa = (nomeCanon) => coEquipeMaps().empresa[coKey(nomeCanon)] || null;
 const coNorm = s => coKey(coCanonNome(s));
+// Um caso com beneficiários alternativos aparece no filtro de cada envolvido,
+// preservando um único título e a ressalva de atribuição.
+const coBeneficiariosTitulo = t => [...new Set([t.fornecedor?.nome||'',...String(t.apuracao?.beneficiario||'').replace(/^A definir:\s*/i,'').split('/')].map(coNorm).filter(Boolean))];
 const CO_EMPRESAS = { 'FORMULA DO BOI':'Fórmula do Boi', 'BULA ASSESSORIA':'Bula Assessoria', 'BULA REMATES':'Bula Remates' };
 const coEmpresa = (e) => CO_EMPRESAS[coKey(e)] || String(e||'').trim();
 
@@ -6395,10 +6398,11 @@ async function renderComissionamento() {
     if (ano && (!competencia || competencia.slice(0,4)!==ano)) return false;
     if (mes && (!competencia || Number(competencia.slice(5,7))!==Number(mes))) return false;
     if (leilaoSel && !idsEventos.has(t.fechamento_id)) return false;
-    if ((sNorm || empresa || assessorSel) && !nomesVisiveis.has(coNorm(t.fornecedor?.nome||''))) return false;
+    if ((sNorm || empresa || assessorSel) && !coBeneficiariosTitulo(t).some(n=>nomesVisiveis.has(n))) return false;
     return true;
   });
   const cpsAbertas = cpsComissao.filter(t=>['aberto','parcial','vencido'].includes(t.status));
+  state.coTitulosFinanceiros = cpsAbertas;
   const cpsConfirmadas = cpsAbertas.filter(t=>t.apuracao?.valor_situacao==='confirmado' && !t.financeiro?.apuracao?.exige_conferencia && t.apuracao?.pagamento_situacao!=='informado');
   const cpsEmApuracao = cpsAbertas.filter(t=>!cpsConfirmadas.includes(t));
   const somaSaldo = rows=>rows.reduce((s,t)=>s+Number(t.financeiro?.saldo||0),0);
@@ -6541,6 +6545,7 @@ function coOpenDetail(idx) {
 
   // Vendas (lances) atribuidas ao assessor, por leilao
   const vendas = coVendasDe(rec);
+  const financeiros=(state.coTitulosFinanceiros||[]).filter(t=>coBeneficiariosTitulo(t).includes(rec.key));
 
   const html = `
     <div class="modal-header">
@@ -6552,13 +6557,14 @@ function coOpenDetail(idx) {
     </div>
     <div class="modal-body">
       <div class="kpi-grid" style="margin-bottom:18px">
-        <div class="kpi warn"><div class="kpi-label">Total a Pagar</div><div class="kpi-value money" style="font-size:19px">${fmtBRL(rec.comissao)}</div>${rec.comissaoPaga>0?`<div class="kpi-sub">${fmtBRL(rec.comissaoPaga)} ja pago</div>`:''}</div>
+        <div class="kpi warn"><div class="kpi-label">Comissão no fechamento</div><div class="kpi-value money" style="font-size:19px">${fmtBRL(rec.comissao)}</div>${rec.comissaoPaga>0?`<div class="kpi-sub">${fmtBRL(rec.comissaoPaga)} marcado como pago</div>`:''}</div>
         <div class="kpi"><div class="kpi-label">VGV Intermediado</div><div class="kpi-value money" style="font-size:19px;color:var(--gold)">${fmtBRL(rec.vgv)}</div></div>
         <div class="kpi"><div class="kpi-label">Leiloes</div><div class="kpi-value" style="font-size:19px">${leiloes.length}</div></div>
         <div class="kpi"><div class="kpi-label">Vendas / Animais</div><div class="kpi-value" style="font-size:19px">${rec.transacoes} · ${rec.animais}</div></div>
       </div>
 
-      <div class="card-title" style="margin-bottom:8px"><span class="material-symbols-outlined">gavel</span>A pagar por leilao</div>
+      <div class="card" style="margin-bottom:16px"><div class="card-title">Títulos financeiros do período</div><p class="muted">${financeiros.length} títulos em aberto. Casos com beneficiários alternativos precisam de definição antes do pagamento.</p>${financeiros.map(t=>`<div style="padding:8px 0;border-top:1px solid var(--border)"><button class="btn btn-ghost btn-sm" onclick="closeModal();openTituloDrawer('pagar','${t.id}')">${escapeHtml(t.descricao)}</button> <span class="money">${valorTituloHtml(t,t.financeiro?.saldo)}</span> ${apuracaoBadge(t)}</div>`).join('')}</div>
+      <div class="card-title" style="margin-bottom:8px"><span class="material-symbols-outlined">gavel</span>Cálculo cadastrado por leilão</div>
       <div class="table-wrap" style="margin-bottom:6px">
         <table>
           <thead><tr><th>Data</th><th>Leilao</th><th style="text-align:right">Vendas</th><th style="text-align:right">VGV</th><th style="text-align:right">% do leilao</th><th style="text-align:right">Comissao</th></tr></thead>
@@ -6572,7 +6578,7 @@ function coOpenDetail(idx) {
               <td class="money" style="text-align:right;font-weight:700">${l.comissao>0?`${fmtBRL(l.comissao)} ${l.pago?`<span class="chip success" style="padding:1px 6px" title="${escapeHtml(l.pagoRef||'Comissao ja quitada')}">pago</span>`:(l.real?'<span class="chip success" style="padding:1px 6px" title="Comissao real informada">real</span>':'<span class="chip muted" style="padding:1px 6px" title="Rateio por VGV">est.</span>')}`:'<span style="color:var(--text4)" title="Leilao sem comissao lancada">—</span>'}</td>
             </tr>`).join('')}
           </tbody>
-          <tfoot><tr style="font-weight:700;border-top:2px solid var(--border2)"><td colspan="3">Total a pagar${rec.comissaoPaga>0?` <span style="font-weight:400;color:var(--text3)">(+ ${fmtBRL(rec.comissaoPaga)} ja pago)</span>`:''}</td><td class="money" style="text-align:right">${fmtBRL(rec.vgv)}</td><td></td><td class="money" style="text-align:right">${fmtBRL(rec.comissao)}</td></tr></tfoot>
+          <tfoot><tr style="font-weight:700;border-top:2px solid var(--border2)"><td colspan="3">Comissão no fechamento${rec.comissaoPaga>0?` <span style="font-weight:400;color:var(--text3)">(+ ${fmtBRL(rec.comissaoPaga)} ja pago)</span>`:''}</td><td class="money" style="text-align:right">${fmtBRL(rec.vgv)}</td><td></td><td class="money" style="text-align:right">${fmtBRL(rec.comissao)}</td></tr></tfoot>
         </table>
       </div>
       <div style="font-size:10px;color:var(--text3);margin-bottom:18px">${rec.temEstimado?'<strong>real</strong> = comissao informada no fechamento; <strong>est.</strong> = rateio do que sobra do total por VGV.':'Comissoes reais informadas por assessor no fechamento.'}</div>
@@ -6664,7 +6670,7 @@ function coPdf(idx) {
     <div class="kpi"><span>Vendas</span><b>${rec.transacoes}</b></div>
     <div class="kpi"><span>Animais</span><b>${rec.animais}</b></div>
     <div class="kpi"><span>VGV intermediado</span><b>${fmtBRL(rec.vgv)}</b></div>
-    <div class="kpi"><span>Comissão a pagar</span><b>${fmtBRL(rec.comissao)}${rec.temEstimado?' *':''}</b></div>
+    <div class="kpi"><span>Comissão no fechamento</span><b>${fmtBRL(rec.comissao)}${rec.temEstimado?' *':''}</b></div>
     ${rec.comissaoPaga>0?`<div class="kpi"><span>Já pago</span><b>${fmtBRL(rec.comissaoPaga)}</b></div>`:''}
   </div>
   <h2>Resultado por leilão</h2>
@@ -6681,7 +6687,7 @@ function coPdf(idx) {
         <td class="r">${l.comissao>0?fmtBRL(l.comissao)+(l.pago?' (pago)':(l.real?'':' *')):'—'}</td>
       </tr>`).join('')}
     </tbody>
-    <tfoot><tr><td colspan="2">Total a pagar${rec.comissaoPaga>0?` (+ ${fmtBRL(rec.comissaoPaga)} já pago)`:''}</td><td class="r">${rec.transacoes}</td><td class="r">${rec.animais}</td><td class="r">${fmtBRL(rec.vgv)}</td><td></td><td class="r">${fmtBRL(rec.comissao)}</td></tr></tfoot>
+    <tfoot><tr><td colspan="2">Comissão no fechamento${rec.comissaoPaga>0?` (+ ${fmtBRL(rec.comissaoPaga)} já pago)`:''}</td><td class="r">${rec.transacoes}</td><td class="r">${rec.animais}</td><td class="r">${fmtBRL(rec.vgv)}</td><td></td><td class="r">${fmtBRL(rec.comissao)}</td></tr></tfoot>
   </table>
   ${vendas.length?`
   <h2>Vendas individuais (${vendas.length})</h2>
@@ -6768,12 +6774,12 @@ function coPdfGeral() {
     <div class="kpi"><span>Leilões</span><b>${tot.leiloes}</b></div>
     <div class="kpi"><span>Vendas · Animais</span><b>${tot.vendas} · ${tot.animais}</b></div>
     <div class="kpi"><span>VGV intermediado</span><b>${fmtBRL(tot.vgv)}</b></div>
-    <div class="kpi"><span>Total a pagar</span><b>${fmtBRL(tot.pagar)}${temEst?' *':''}</b></div>
+    <div class="kpi"><span>Comissão no fechamento</span><b>${fmtBRL(tot.pagar)}${temEst?' *':''}</b></div>
     ${tot.paga>0?`<div class="kpi"><span>Já pago</span><b>${fmtBRL(tot.paga)}</b></div>`:''}
   </div>
   <h2>Resumo por assessor</h2>
   <table>
-    <thead><tr><th>Assessor</th><th>Empresa</th><th class="r">Leilões</th><th class="r">Vendas</th><th class="r">Animais</th><th class="r">VGV intermediado</th><th class="r">Comissão a pagar</th></tr></thead>
+    <thead><tr><th>Assessor</th><th>Empresa</th><th class="r">Leilões</th><th class="r">Vendas</th><th class="r">Animais</th><th class="r">VGV intermediado</th><th class="r">Comissão no fechamento</th></tr></thead>
     <tbody>
       ${assessores.map(a=>`<tr>
         <td><strong>${escapeHtml(a.nome)}</strong>${a.apelidos.length?`<div class="apel">inclui: ${a.apelidos.map(escapeHtml).join(', ')}</div>`:''}</td>
@@ -6805,7 +6811,7 @@ function coPdfGeral() {
           <td class="r">${l.comissao>0?fmtBRL(l.comissao)+(l.pago?' (pago)':(l.real?'':' *')):'—'}</td>
         </tr>`).join('')}
       </tbody>
-      <tfoot><tr><td colspan="2">Total a pagar${a.comissaoPaga>0?` (+ ${fmtBRL(a.comissaoPaga)} já pago)`:''}</td><td class="r">${a.transacoes}</td><td class="r">${a.animais}</td><td class="r">${fmtBRL(a.vgv)}</td><td></td><td class="r">${fmtBRL(a.comissao)}</td></tr></tfoot>
+      <tfoot><tr><td colspan="2">Comissão no fechamento${a.comissaoPaga>0?` (+ ${fmtBRL(a.comissaoPaga)} já pago)`:''}</td><td class="r">${a.transacoes}</td><td class="r">${a.animais}</td><td class="r">${fmtBRL(a.vgv)}</td><td></td><td class="r">${fmtBRL(a.comissao)}</td></tr></tfoot>
     </table>
     </div>`;
   }).join('')}
