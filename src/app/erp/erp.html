@@ -1774,6 +1774,7 @@ function renderTituloDrawer(modo){
       ${kv('Vendedor', r.vendedor?escapeHtml(r.vendedor):na)}
       ${kv('Projeto', r.projeto?escapeHtml(r.projeto):na)}
       ${kv('Conta corrente', r.conta?escapeHtml(r.conta.nome):na)}
+      <div id="tituloEvidencias" style="margin:14px 0;padding:12px;border:1px solid var(--border);border-radius:8px;color:var(--text2)">Consultando evidências da liquidação…</div>
       ${r.observacoes?kv('Observações', escapeHtml(r.observacoes)):''}
       <div class="td-acts">
         ${isOpenSt ? act('bolt', isCP?'Pagar Agora':'Receber Agora', `openPagamento('${modo}','${r.id}')`, 'primary') : ''}
@@ -1784,6 +1785,19 @@ function renderTituloDrawer(modo){
       </div>
     </div>`;
   document.body.appendChild(el);
+  carregarEvidenciasTitulo(modo,r.id);
+}
+async function carregarEvidenciasTitulo(modo,id){
+  const box=document.getElementById('tituloEvidencias');if(!box)return;
+  try{
+    const e=await api(`/evidencias?modo=${encodeURIComponent(modo)}&id=${encodeURIComponent(id)}`);
+    if(document.getElementById('tituloEvidencias')!==box)return;
+    const color=e.grau==='conferido'?'var(--success)':e.grau==='divergente'?'var(--danger)':'var(--text2)';
+    box.innerHTML=`<b style="color:${color}">${escapeHtml(e.texto)}</b>
+      <div style="margin-top:8px">Baixa no cadastro: ${fmtBRL(e.liquidado)}<br>Valor vinculado: ${fmtBRL(e.vinculado)}<br>Diferença: ${fmtBRL(e.diferenca)}</div>
+      ${(e.vinculos||[]).map(v=>`<div style="margin-top:10px;padding-top:8px;border-top:1px solid var(--border)">${fmtDate(v.data)} · ${fmtBRL(v.valor_titulo)} neste título${v.rateado?` · movimento total ${fmtBRL(v.valor_movimento)}`:''}<br>${v.documento?escapeHtml(v.documento):'Documento original não validado para o estado atual'}${v.prova==='grupo'?' · conferência em grupo':''}${(v.ressalvas||[]).map(s=>`<div style="margin-top:4px">${escapeHtml(s)}</div>`).join('')}</div>`).join('')}
+      <div style="margin-top:10px;font-size:12px">${escapeHtml(e.fundamento_comercial)}</div>`;
+  }catch(error){if(document.getElementById('tituloEvidencias')===box)box.textContent='Não foi possível consultar a evidência. A liquidação não foi validada nesta consulta.';}
 }
 async function duplicarTitulo(modo, id){
   const isCP = modo==='pagar';
