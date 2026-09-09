@@ -6326,6 +6326,9 @@ const coNomesTitulo = t => [...new Set([coEquipeMaps().fornecedor[t.fornecedor_i
 const coBeneficiariosTitulo = t => [...new Set(coNomesTitulo(t).map(coNorm).filter(Boolean))];
 const CO_EMPRESAS = { 'FORMULA DO BOI':'Fórmula do Boi', 'BULA ASSESSORIA':'Bula Assessoria', 'BULA REMATES':'Bula Remates' };
 const coEmpresa = (e) => CO_EMPRESAS[coKey(e)] || String(e||'').trim();
+// A empresa do cadastro é apenas o fallback: um assessor pode atuar por
+// empresas diferentes em leilões distintos (ou no mesmo leilão).
+const coEmpresaOcorrencia = a => coEmpresa(a.empresa) || coEmpresa(coEmpresaFixa(coCanonNome(a.nome)));
 
 function coTitulosNoPeriodo(titulos, filtros, fechamentos) {
   const idsEventos = new Set(fechamentos.map(x=>x.id));
@@ -6370,7 +6373,7 @@ function coFilteredFechamentos() {
   });
 }
 
-function coAggregate() {
+function coAggregate(empresaFiltro = state.filters.coEmpresa || '') {
   const map = new Map();
   for (const f of coFilteredFechamentos()) {
     const totalComissao = Number(f.comissao_assessoria)||0;
@@ -6379,13 +6382,13 @@ function coAggregate() {
     for (const a of comAss) {
       const key = coNorm(a.nome);
       if (!key) continue;
+      const empresa = coEmpresaOcorrencia(a);
+      if (empresaFiltro && empresa !== coEmpresa(empresaFiltro)) continue;
       const share = totalVgv>0 ? a._vgv/totalVgv : 0;
       let rec = map.get(key);
-      if (!rec) { rec = { key, nome:coCanonNome(a.nome), empresas:new Set(), apelidos:new Set(), leiloes:[], vgv:0, comissao:0, comissaoPaga:0, transacoes:0, animais:0, temEstimado:false }; map.set(key, rec); }
+      if (!rec) { rec = { key, nome:coCanonNome(a.nome), empresaFiltro:coEmpresa(empresaFiltro), empresas:new Set(), apelidos:new Set(), leiloes:[], vgv:0, comissao:0, comissaoPaga:0, transacoes:0, animais:0, temEstimado:false }; map.set(key, rec); }
       if (String(a.nome||'').trim() && String(a.nome).trim() !== rec.nome) rec.apelidos.add(String(a.nome).trim());
-      const empFixa = coEmpresaFixa(rec.nome);
-      if (empFixa) { rec.empresas.clear(); rec.empresas.add(empFixa); }
-      else if (a.empresa) rec.empresas.add(coEmpresa(a.empresa));
+      if (empresa) rec.empresas.add(empresa);
       /* pago = comissão já quitada (acerto/CP pago). Sai do "a pagar" mas
          continua no histórico do leilão e no total ganho. */
       const jaPago = a.pago === true;
@@ -6393,7 +6396,7 @@ function coAggregate() {
       if (jaPago) rec.comissaoPaga += a._comissao; else rec.comissao += a._comissao;
       rec.transacoes += Number(a.transacoes)||0; rec.animais += Number(a.animais)||0;
       if (!a._real && a._comissao>0 && !jaPago) rec.temEstimado = true;
-      rec.leiloes.push({ id:f.id, nome:f.nome, data:f.data, local:f.local||'', vgv:a._vgv, share, comissao:a._comissao, real:a._real, pago:jaPago, pagoRef:a.pago_ref||'', transacoes:Number(a.transacoes)||0, animais:Number(a.animais)||0, semComissao: totalComissao<=0 && !a._real });
+      rec.leiloes.push({ id:f.id, nome:f.nome, empresa, data:f.data, local:f.local||'', vgv:a._vgv, share, comissao:a._comissao, real:a._real, pago:jaPago, pagoRef:a.pago_ref||'', transacoes:Number(a.transacoes)||0, animais:Number(a.animais)||0, semComissao: totalComissao<=0 && !a._real });
     }
   }
   return [...map.values()].map(r => ({ ...r, empresas:[...r.empresas], apelidos:[...r.apelidos] }))
@@ -6403,12 +6406,19 @@ function coAggregate() {
 // Vendas individuais (lances) do assessor nos leiloes filtrados
 function coVendasDe(rec) {
   const vendas = [];
-  for (const l of rec.leiloes) {
-    const fech = (state.fechamentos||[]).find(x=>x.id===l.id);
+  vendas.semEmpresa = 0;
+  for (const id of new Set(rec.leiloes.map(l=>l.id))) {
+    const fech = (state.fechamentos||[]).find(x=>x.id===id);
     if (!fech) continue;
+    const empresas = [...new Set((fech.por_assessor||[]).filter(a=>a && coNorm(a.nome)===rec.key).map(coEmpresaOcorrencia))];
     for (const v of (fech.lances||[])) {
       if (!v || v.cancelada || coNorm(v.assessor) !== rec.key) continue;
-      vendas.push({ leilao:fech.nome, data:fech.data, lote:v.lote, comprador:v.comprador, uf:v.uf, animais:Number(v.animais)||0, vgv:Number(v.vgv)||0 });
+      const empresa = coEmpresa(v.empresa) || (empresas.length===1 ? empresas[0] : '');
+      if (rec.empresaFiltro && empresa !== rec.empresaFiltro) {
+        if (!empresa) vendas.semEmpresa++;
+        continue;
+      }
+      vendas.push({ leilao:fech.nome, empresa, data:fech.data, lote:v.lote, comprador:v.comprador, uf:v.uf, animais:Number(v.animais)||0, vgv:Number(v.vgv)||0 });
     }
   }
   return vendas.sort((a,b)=> b.vgv - a.vgv);
@@ -6431,11 +6441,10 @@ async function renderComissionamento() {
   let assessores = coAggregate();
   const fechs = coFilteredFechamentos();
   const titulosNoPeriodo = coTitulosNoPeriodo(state.cp, f, fechs);
-  const assessorOpts = coOpcoesAssessores(assessores, titulosNoPeriodo);
+  const assessorOpts = coOpcoesAssessores(empresa ? coAggregate('') : assessores, titulosNoPeriodo);
   const empresas = [...new Set(assessorOpts.flatMap(a=>a.empresas))].sort();
   const sNorm = coKey(search);
   if (sNorm) assessores = assessores.filter(a => (coNorm(a.nome)+' '+a.apelidos.map(coKey).join(' ')).includes(sNorm));
-  if (empresa) assessores = assessores.filter(a => a.empresas.includes(empresa));
   if (assessorSel) assessores = assessores.filter(a => a.key === assessorSel);
   state.coCache = assessores; // p/ drawer e CSV (mesma lista filtrada exibida)
 
@@ -6479,7 +6488,8 @@ async function renderComissionamento() {
     </div>
 
     <div class="card" style="margin-bottom:18px">
-      <div class="card-title">Obrigações registradas no financeiro · período selecionado</div>
+      <div class="card-title">Contas da Bula Assessoria · assessores selecionados</div>
+      <p class="muted">O filtro de empresa se refere às vendas. Estas contas são da Bula Assessoria, no período selecionado.</p>
       <div class="kpi-grid"><div><div class="muted">Valor conferido em aberto</div><div class="money" style="font-size:22px">${fmtBRL(somaSaldo(cpsConfirmadas))}</div></div><div><div class="muted">Valor cadastrado ou em apuração</div><div class="money" style="font-size:22px">${fmtBRL(somaSaldo(cpsEmApuracao))}</div><div class="muted">${cpsEmApuracao.length} títulos, incluindo ${cpsEmApuracao.filter(t=>t.apuracao?.sem_valor).length} sem valor definido</div></div></div>
       <p class="muted">A tabela de vendas abaixo conserva os cálculos dos fechamentos. Para conferir o valor devido, o beneficiário e a baixa, abra os títulos com suas fontes. Disputas entre assessores são registradas uma vez no financeiro.</p>
       <details><summary style="cursor:pointer">Ver ${cpsAbertas.length} títulos em aberto</summary><div class="table-wrap"><table><thead><tr><th>Obrigação</th><th>Beneficiário</th><th>Saldo</th><th>Conferência</th></tr></thead><tbody>${cpsAbertas.map(t=>`<tr style="cursor:pointer" onclick="openTituloDrawer('pagar','${t.id}')"><td>${escapeHtml(t.descricao)}</td><td>${escapeHtml(t.apuracao?.beneficiario||t.fornecedor?.nome||t.vendedor||'Beneficiário em apuração')}</td><td class="money">${valorTituloHtml(t,t.financeiro?.saldo)}</td><td>${apuracaoBadge(t)||'<span class="chip muted">Cadastro anterior · conferir fonte</span>'}</td></tr>`).join('')}</tbody></table></div></details>
@@ -6557,7 +6567,7 @@ async function renderComissionamento() {
             <tr style="cursor:pointer" onclick="coOpenDetail(${i})">
               <td style="font-weight:600">${escapeHtml(a.nome)}${a.apelidos.length?`<div style="font-size:10px;color:var(--text3);font-weight:400" title="Grafias unificadas dos fechamentos">inclui: ${a.apelidos.map(escapeHtml).join(', ')}</div>`:''}</td>
               <td>${a.empresas.length?a.empresas.map(e=>`<span class="chip muted">${escapeHtml(e)}</span>`).join(' '):'—'}</td>
-              <td style="text-align:right">${a.leiloes.length}</td>
+              <td style="text-align:right">${new Set(a.leiloes.map(l=>l.id)).size}</td>
               <td style="text-align:right">${a.transacoes}</td>
               <td style="text-align:right">${a.animais}</td>
               <td class="money" style="text-align:right;color:var(--gold)">${fmtBRL(a.vgv)}</td>
@@ -6605,11 +6615,11 @@ function coOpenDetail(idx) {
       <div class="kpi-grid" style="margin-bottom:18px">
         <div class="kpi warn"><div class="kpi-label">Comissão no fechamento</div><div class="kpi-value money" style="font-size:19px">${fmtBRL(rec.comissao)}</div>${rec.comissaoPaga>0?`<div class="kpi-sub">${fmtBRL(rec.comissaoPaga)} marcado como pago</div>`:''}</div>
         <div class="kpi"><div class="kpi-label">VGV Intermediado</div><div class="kpi-value money" style="font-size:19px;color:var(--gold)">${fmtBRL(rec.vgv)}</div></div>
-        <div class="kpi"><div class="kpi-label">Leiloes</div><div class="kpi-value" style="font-size:19px">${leiloes.length}</div></div>
+        <div class="kpi"><div class="kpi-label">Leiloes</div><div class="kpi-value" style="font-size:19px">${new Set(leiloes.map(l=>l.id)).size}</div></div>
         <div class="kpi"><div class="kpi-label">Vendas / Animais</div><div class="kpi-value" style="font-size:19px">${rec.transacoes} · ${rec.animais}</div></div>
       </div>
 
-      <div class="card" style="margin-bottom:16px"><div class="card-title">Títulos financeiros do período</div><p class="muted">${financeiros.length} títulos em aberto. Casos com beneficiários alternativos precisam de definição antes do pagamento.</p>${financeiros.map(t=>`<div style="padding:8px 0;border-top:1px solid var(--border)"><button class="btn btn-ghost btn-sm" onclick="closeModal();openTituloDrawer('pagar','${t.id}')">${escapeHtml(t.descricao)}</button> <span class="money">${valorTituloHtml(t,t.financeiro?.saldo)}</span> ${apuracaoBadge(t)}</div>`).join('')}</div>
+      <div class="card" style="margin-bottom:16px"><div class="card-title">Contas da Bula Assessoria · período selecionado</div><p class="muted">${financeiros.length} títulos em aberto. Casos com beneficiários alternativos precisam de definição antes do pagamento.</p>${financeiros.map(t=>`<div style="padding:8px 0;border-top:1px solid var(--border)"><button class="btn btn-ghost btn-sm" onclick="closeModal();openTituloDrawer('pagar','${t.id}')">${escapeHtml(t.descricao)}</button> <span class="money">${valorTituloHtml(t,t.financeiro?.saldo)}</span> ${apuracaoBadge(t)}</div>`).join('')}</div>
       <div class="card-title" style="margin-bottom:8px"><span class="material-symbols-outlined">gavel</span>Cálculo cadastrado por leilão</div>
       <div class="table-wrap" style="margin-bottom:6px">
         <table>
@@ -6617,7 +6627,7 @@ function coOpenDetail(idx) {
           <tbody>
             ${leiloes.map(l=>`<tr>
               <td style="white-space:nowrap;color:var(--gold);font-weight:600">${flDataCurta(l.data)}</td>
-              <td>${escapeHtml(l.nome)}</td>
+              <td>${escapeHtml(l.nome)}<div class="muted">${escapeHtml(l.empresa||'Empresa não identificada')}</div></td>
               <td style="text-align:right">${l.transacoes}</td>
               <td class="money" style="text-align:right">${fmtBRL(l.vgv)}</td>
               <td style="text-align:right">${(l.share*100).toLocaleString('pt-BR',{maximumFractionDigits:1})}%</td>
@@ -6630,13 +6640,14 @@ function coOpenDetail(idx) {
       <div style="font-size:10px;color:var(--text3);margin-bottom:18px">${rec.temEstimado?'<strong>real</strong> = comissao informada no fechamento; <strong>est.</strong> = rateio do que sobra do total por VGV.':'Comissoes reais informadas por assessor no fechamento.'}</div>
 
       <div class="card-title" style="margin-bottom:8px"><span class="material-symbols-outlined">sell</span>Vendas atribuidas ${vendas.length?`<span style="color:var(--text3);font-weight:400">(${vendas.length})</span>`:''}</div>
+      ${vendas.semEmpresa?`<p class="muted">${vendas.semEmpresa} lance(s) sem empresa definida não foram incluídos neste filtro. Confira a atribuição no fechamento.</p>`:''}
       ${vendas.length===0?`<div class="empty" style="padding:24px"><p>Sem vendas individuais (lances) registradas para este assessor.</p></div>`:`
       <div class="table-wrap">
         <table>
           <thead><tr><th>Leilao</th><th>Lote</th><th>Comprador</th><th>UF</th><th style="text-align:right">Animais</th><th style="text-align:right">VGV</th></tr></thead>
           <tbody>
             ${vendas.map(v=>`<tr>
-              <td style="font-size:11px;color:var(--text2)">${escapeHtml(v.leilao)}</td>
+              <td style="font-size:11px;color:var(--text2)">${escapeHtml(v.leilao)}<div class="muted">${escapeHtml(v.empresa||'Empresa não identificada')}</div></td>
               <td>${escapeHtml(v.lote||'—')}</td>
               <td>${escapeHtml(v.comprador||'—')}</td>
               <td>${escapeHtml(v.uf||'—')}</td>
@@ -6712,7 +6723,7 @@ function coPdf(idx) {
   <h1>${escapeHtml(rec.nome)}</h1>
   <div class="sub">${rec.empresas.map(escapeHtml).join(' · ')||''}${rec.apelidos.length?`<br>Inclui lançamentos registrados como: ${rec.apelidos.map(escapeHtml).join(', ')}`:''}<br>Período/filtro: ${escapeHtml(coFiltroDesc())}</div>
   <div class="kpis">
-    <div class="kpi"><span>Leilões</span><b>${leiloes.length}</b></div>
+    <div class="kpi"><span>Leilões</span><b>${new Set(leiloes.map(l=>l.id)).size}</b></div>
     <div class="kpi"><span>Vendas</span><b>${rec.transacoes}</b></div>
     <div class="kpi"><span>Animais</span><b>${rec.animais}</b></div>
     <div class="kpi"><span>VGV intermediado</span><b>${fmtBRL(rec.vgv)}</b></div>
@@ -6725,7 +6736,7 @@ function coPdf(idx) {
     <tbody>
       ${leiloes.map(l=>`<tr>
         <td style="white-space:nowrap">${flDataCurta(l.data)}</td>
-        <td>${escapeHtml(l.nome)}</td>
+        <td>${escapeHtml(l.nome)}<div class="nota">${escapeHtml(l.empresa||'Empresa não identificada')}</div></td>
         <td class="r">${l.transacoes}</td>
         <td class="r">${l.animais}</td>
         <td class="r">${fmtBRL(l.vgv)}</td>
@@ -6735,6 +6746,7 @@ function coPdf(idx) {
     </tbody>
     <tfoot><tr><td colspan="2">Comissão no fechamento${rec.comissaoPaga>0?` (+ ${fmtBRL(rec.comissaoPaga)} já pago)`:''}</td><td class="r">${rec.transacoes}</td><td class="r">${rec.animais}</td><td class="r">${fmtBRL(rec.vgv)}</td><td></td><td class="r">${fmtBRL(rec.comissao)}</td></tr></tfoot>
   </table>
+  ${vendas.semEmpresa?`<div class="nota">${vendas.semEmpresa} lance(s) sem empresa definida não foram incluídos neste filtro. Confira a atribuição no fechamento.</div>`:''}
   ${vendas.length?`
   <h2>Vendas individuais (${vendas.length})</h2>
   <table>
@@ -6742,7 +6754,7 @@ function coPdf(idx) {
     <tbody>
       ${vendas.map(v=>`<tr>
         <td style="white-space:nowrap">${flDataCurta(v.data)}</td>
-        <td>${escapeHtml(v.leilao)}</td>
+        <td>${escapeHtml(v.leilao)}<div class="nota">${escapeHtml(v.empresa||'Empresa não identificada')}</div></td>
         <td>${escapeHtml(v.lote||'—')}</td>
         <td>${escapeHtml(v.comprador||'—')}</td>
         <td>${escapeHtml(v.uf||'—')}</td>
@@ -6830,7 +6842,7 @@ function coPdfGeral() {
       ${assessores.map(a=>`<tr>
         <td><strong>${escapeHtml(a.nome)}</strong>${a.apelidos.length?`<div class="apel">inclui: ${a.apelidos.map(escapeHtml).join(', ')}</div>`:''}</td>
         <td>${a.empresas.map(escapeHtml).join(' · ')||'—'}</td>
-        <td class="r">${a.leiloes.length}</td>
+        <td class="r">${new Set(a.leiloes.map(l=>l.id)).size}</td>
         <td class="r">${a.transacoes}</td>
         <td class="r">${a.animais}</td>
         <td class="r">${fmtBRL(a.vgv)}</td>
@@ -6849,7 +6861,7 @@ function coPdfGeral() {
       <tbody>
         ${leiloes.map(l=>`<tr>
           <td style="white-space:nowrap">${flDataCurta(l.data)}</td>
-          <td>${escapeHtml(l.nome)}</td>
+          <td>${escapeHtml(l.nome)}<div class="nota">${escapeHtml(l.empresa||'Empresa não identificada')}</div></td>
           <td class="r">${l.transacoes}</td>
           <td class="r">${l.animais}</td>
           <td class="r">${fmtBRL(l.vgv)}</td>
@@ -6875,7 +6887,7 @@ function coExportCSV() {
   const lines = [['Assessor','Empresa','Leilao','Data','VGV no leilao','% do leilao','Comissao','Status'].map(cell).join(';')];
   for (const a of assessores) {
     for (const l of a.leiloes.slice().sort((x,y)=>(y.data||'').localeCompare(x.data||''))) {
-      lines.push([a.nome, a.empresas.join(' / '), l.nome, l.data, Math.round(l.vgv), (l.share*100).toFixed(1), Math.round(l.comissao), l.pago?'pago':'a pagar'].map(cell).join(';'));
+      lines.push([a.nome, l.empresa, l.nome, l.data, Math.round(l.vgv), (l.share*100).toFixed(1), Math.round(l.comissao), l.pago?'pago':'a pagar'].map(cell).join(';'));
     }
   }
   const blob = new Blob(["﻿"+lines.join('\n')], { type:'text/csv;charset=utf-8' });
