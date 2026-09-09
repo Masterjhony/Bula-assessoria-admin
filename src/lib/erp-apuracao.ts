@@ -6,6 +6,8 @@ export interface ApuracaoPagamento {
   competencia_inicio?: string
   competencia_fim?: string
   previsao_mes?: string
+  prazo_situacao?: string
+  condicao_pagamento?: string
   sem_valor?: boolean
   chave_exclusiva?: string
   condicao?: { tipo: 'recebimento'; titulos_ids: string[]; descricao: string }
@@ -15,11 +17,14 @@ export interface ApuracaoPagamento {
 
 type Apuravel = { apuracao?: ApuracaoPagamento | null; vencimento?: string | null }
 export const pagamentoInformado = (t: Apuravel) => t.apuracao?.pagamento_situacao === 'informado'
+export const pagamentoCondicionado = (t: Apuravel) => Boolean(t.apuracao?.condicao)
+  || t.apuracao?.prazo_situacao === 'condicionado_ao_caixa'
 export const valorEmApuracao = (t: Apuravel) => t.apuracao?.natureza !== 'projecao' && (t.apuracao?.natureza === 'em_verificacao'
   || ['a_apurar', 'em_disputa'].includes(t.apuracao?.valor_situacao || ''))
 /** Uma data não torna um valor discutido nem um pagamento já informado previsão de saída. */
 export const pagamentoNaCurva = (t: Apuravel) => Boolean(t.vencimento)
-  && !t.apuracao?.condicao && !pagamentoInformado(t) && !valorEmApuracao(t)
+  && !['ajuste_dia_util_pendente', 'depende_beneficiario', 'competencia_em_verificacao', 'controle_documental'].includes(t.apuracao?.prazo_situacao || '')
+  && !pagamentoCondicionado(t) && !t.apuracao?.sem_valor && !pagamentoInformado(t) && !valorEmApuracao(t)
 
 export function resumoApuracao(t: Apuravel) {
   const a = t.apuracao || {}
@@ -27,7 +32,7 @@ export function resumoApuracao(t: Apuravel) {
     natureza: a.natureza || 'cadastro_anterior',
     valor_situacao: a.valor_situacao || 'cadastrado',
     pagamento_informado: pagamentoInformado(t),
-    condicionado: Boolean(a.condicao),
+    condicionado: pagamentoCondicionado(t),
     sem_data: !t.vencimento,
     previsao_mes: a.previsao_mes || null,
     exige_conferencia: valorEmApuracao(t),

@@ -810,6 +810,33 @@ function onFilterCompromisso(v) {
 /* ==========================================================================
    DETALHE DE UMA CELULA DO FLUXO
    ========================================================================== */
+function caixaCoberturaHtml(c, bancos=[]) {
+  if (!c) return '';
+  return `<div class="muted" style="margin:8px 0 14px">Último movimento cadastrado: <b>${c.ultima_data_movimento?fmtDate(c.ultima_data_movimento):'não identificado'}</b>. ${escapeHtml(c.ressalva||'')}${bancos.length?`<br>${bancos.map(b=>`${escapeHtml(b.nome)}: ${c.por_conta?.[b.id]?fmtDate(c.por_conta[b.id]):'sem movimento identificado'}`).join(' · ')}`:''}</div>`;
+}
+function reservasPrevisaoHtml(c, itens=[], titulo='Compromissos fora da curva diária') {
+  if (!c) return '';
+  const condicionados = itens.filter(p=>p.modo==='pagar'&&p.condicionado&&p.situacao!=='quitacao_informada');
+  return `<div class="card" style="margin:12px 0;border-color:var(--amber)">
+    <div class="card-title">${escapeHtml(titulo)}</div>
+    <div style="display:flex;gap:28px;flex-wrap:wrap">
+      <div>Reservas condicionadas · valores de referência<div class="money negative" style="font-size:20px;font-weight:700">${fmtBRL(c.reserva_condicionada)}</div></div>
+      <div>Cenário após essas reservas<div class="money ${c.saldo_apos_reservas>=0?'positive':'negative'}" style="font-size:20px;font-weight:700">${fmtBRL(c.saldo_apos_reservas)}</div></div>
+    </div>
+    <p class="muted">Saldo da curva menos compromissos condicionados deste período e sem mês definido, sem atribuir dia de pagamento. ${c.reservas_em_apuracao||0} reservas têm valor ainda em apuração. Não representa caixa livre: outras apurações, vencidos e ${c.valores_a_definir||0} despesas com valor a definir exigem conferência.</p>
+    ${condicionados.map(p=>`<div style="margin-top:6px"><b>${escapeHtml(p.descricao)}</b> · ${p.valor===null?'valor a definir':fmtBRL(p.valor)}${p.situacao==='em_apuracao'?' · referência em apuração':''} · ${p.mes?escapeHtml(p.mes):'mês não definido'}${p.orcamento?' · orçamento':''}<br><span class="muted">${escapeHtml(p.condicao||'Condição de pagamento a conferir.')}</span></div>`).join('')}
+  </div>`;
+}
+function previsaoPendenciasHtml(itens=[], titulo='Previsões fora da curva por dia') {
+  if (!itens.length) return '';
+  const rotulos={sem_valor:'Valor a definir',em_apuracao:'Valor em apuração',quitacao_informada:'Quitação informada; aguarda conciliação',condicionado:'Pagamento condicionado',sem_data:'Sem data operacional confirmada'};
+  const grupos=new Map();
+  for(const p of itens){const k=[p.modo,p.situacao,p.mes||'',p.orcamento].join('|');if(!grupos.has(k))grupos.set(k,[]);grupos.get(k).push(p);}
+  return `<div class="card" style="margin:14px 0"><div class="card-title">${escapeHtml(titulo)}</div>
+    <div class="muted">Cada título aparece em um único grupo. Valores em apuração são referências; quitações informadas não são novas saídas. Sem mês definido fica visível em qualquer período. Orçamento é previsão, não dívida vencida.</div>
+    ${[...grupos.values()].map(g=>{const p=g[0],v=g.reduce((s,x)=>s+(x.valor??0),0);return `<details style="margin-top:10px"><summary style="cursor:pointer">${p.modo==='pagar'?'Saída':'Entrada'} · ${escapeHtml(p.mes||'sem mês definido')} · ${rotulos[p.situacao]}${p.orcamento?' · orçamento':''}: <b>${g.length} título(s) · ${g.every(x=>x.valor===null)?'valor a definir':fmtBRL(v)}</b></summary>${g.map(x=>`<div style="padding:6px 12px">${escapeHtml(x.descricao)} · <b>${x.valor===null?'valor a definir':fmtBRL(x.valor)}</b>${x.prazo_situacao==='ajuste_dia_util_pendente'?' · dia 25 nominal; definir ajuste ao dia útil':''}${x.condicao?`<br><span class="muted">${escapeHtml(x.condicao)}</span>`:''}</div>`).join('')}</details>`;}).join('')}
+  </div>`;
+}
 async function fxDetalhe(el) {
   const cat = el.dataset.cat, de = el.dataset.de, ate = el.dataset.ate, nome = el.dataset.nome;
   openModal(`
@@ -819,7 +846,7 @@ async function fxDetalhe(el) {
       <div class="skeleton" style="height:14px;width:70%"></div></div>`, {wide:true});
   let d;
   try {
-    d = await api(`/api/erp/fluxo-caixa/detalhe?categoria=${encodeURIComponent(cat)}&de=${de}&ate=${ate}`);
+    d = await api(`/api/erp/fluxo-caixa/detalhe?categoria=${encodeURIComponent(cat)}&de=${de}&ate=${ate}&orcamento=${state.filters.fluxoOrc===false?0:1}`);
   } catch (e) {
     document.querySelector('#modalRoot .modal-body').innerHTML =
       `<p style="color:var(--red);font-size:12px">${escapeHtml(e.message)}</p>`;
@@ -842,7 +869,7 @@ async function fxDetalhe(el) {
     ${prev.length ? `<div class="dt-sec">Previsto — ${fmtBRL(d.previsto.total)}</div>
       ${prev.map(t=>linha(t.vencimento, t.descricao, t.valor, [
         ...(t.vencido ? [{txt:'vencido', cls:'venc'}] : []),
-        ...(t.origem === 'estimativa' ? [{txt:'projeção', cls:'orc'}] : []),
+        ...(t.projetado ? [{txt:'orçamento', cls:'orc'}] : []),
       ])).join('')}` : ''}
     ${(!real.length && !prev.length) ? '<p style="color:var(--text3);font-size:12px">Nada neste período.</p>' : ''}
     <div class="dt-row" style="border-top:2px solid var(--border);border-bottom:0;margin-top:8px;font-weight:700">
@@ -1083,20 +1110,23 @@ async function renderDashboard() {
       <div class="stat-card">
         <div class="sl"><span class="material-symbols-outlined" style="font-size:14px;color:var(--olive)">south_west</span>Entradas realizadas</div>
         <div class="sv money positive">${fmtBRL(d.entradas)}</div>
-        <div class="sm">${deltaChip(d.entradas, d.prev.entradas)} · previsto ${fmtBRL(d.previsto_entrada)}</div>
+        <div class="sm">${deltaChip(d.entradas, d.prev.entradas)} · saldo ainda programado no período ${fmtBRL(d.previsto_entrada)}</div>
       </div>
       <div class="stat-card">
         <div class="sl"><span class="material-symbols-outlined" style="font-size:14px;color:var(--red)">north_east</span>Saídas realizadas</div>
         <div class="sv money negative">${fmtBRL(d.saidas)}</div>
-        <div class="sm">${deltaChip(d.saidas, d.prev.saidas, {invert:true})} · previsto ${fmtBRL(d.previsto_saida)}</div>
+        <div class="sm">${deltaChip(d.saidas, d.prev.saidas, {invert:true})} · saldo ainda programado no período ${fmtBRL(d.previsto_saida)}</div>
       </div>
       <div class="stat-card">
-        <div class="sl"><span class="material-symbols-outlined" style="font-size:14px;color:var(--gold)">event_upcoming</span>Resultado previsto</div>
+        <div class="sl"><span class="material-symbols-outlined" style="font-size:14px;color:var(--gold)">event_upcoming</span>Programação restante do período</div>
         <div class="sv money ${d.previsto_resultado>=0?'positive':'negative'}">${fmtBRL(d.previsto_resultado)}</div>
-        <div class="sm">recebimentos com data confirmada e pagamentos do período</div>
+        <div class="sm">saldos ainda abertos com prazo operacional · inclui orçamento: ${fmtBRL(d.previsto_orcamento_entrada||0)} de entradas e ${fmtBRL(d.previsto_orcamento_saida||0)} de saídas</div>
       </div>
     </div>
 
+    ${caixaCoberturaHtml(d.cobertura_caixa,d.bancos)}
+    ${reservasPrevisaoHtml(d.cenario_15d,d.pendencias_15d,'Cenário de 15 dias · reservas do mês e sem mês definido')}
+    ${previsaoPendenciasHtml(d.pendencias_previsao,'Pendências de programação · período selecionado')}
     ${(d.fluxo_15d && d.fluxo_15d.length) ? `
     <div class="card" style="margin-bottom:16px">
       <div class="card-title"><span class="material-symbols-outlined">event_upcoming</span>Projeção de Caixa · próximos 15 dias
@@ -1104,7 +1134,7 @@ async function renderDashboard() {
       </div>
       <div class="table-wrap" style="max-height:280px;overflow-y:auto">
         <table class="table">
-          <thead><tr><th style="width:90px">Data</th><th>Título</th><th style="text-align:right;width:130px">Valor</th><th style="text-align:right;width:150px">Saldo projetado</th></tr></thead>
+          <thead><tr><th style="width:90px">Data</th><th>Título</th><th style="text-align:right;width:130px">Valor</th><th style="text-align:right;width:150px">Saldo antes das reservas</th></tr></thead>
           <tbody>
             ${d.fluxo_15d.map(e => `
               <tr${e.projetado ? ' style="color:var(--text2)"' : ''}>
@@ -2039,7 +2069,12 @@ function openTitulo(modo, id) {
         </div>
         <div class="field"><label>Emissao</label><input name="emissao" type="date" value="${titulo?.emissao||today()}"></div>
         <div class="field"><label>${isCP?'Vencimento confirmado (opcional)':'Data para acompanhar / data confirmada*'}</label><input name="vencimento" type="date" ${isCP?'':'required'} value="${titulo?.vencimento||(isCP?'':today())}"></div>
-        ${isCP?`<div class="field full muted">Deixe o vencimento vazio enquanto não houver dia combinado. A obrigação continua aparecendo no contas a pagar.</div>`:''}
+        ${isCP?`<div class="field full muted">Deixe o vencimento vazio enquanto não houver dia combinado. A obrigação continua aparecendo no contas a pagar. Comissões de assessores seguem dia 25 do mês seguinte à competência, preservando acertos específicos.</div>
+        <div class="field"><label><input name="comissao_assessor" type="checkbox" ${titulo?.apuracao?.regra_vencimento?.elegibilidade==='comissao_assessor'?'checked':''}> Comissão de assessor</label></div>
+        <div class="field"><label>Competência da comissão</label><input name="competencia_comissao" type="month" value="${(titulo?.apuracao?.competencia_fim||titulo?.apuracao?.competencia_inicio||'').slice(0,7)}"></div>
+        <div class="field"><label><input name="excecao_prazo_comissao" type="checkbox"> Novo prazo específico de comissão</label></div>
+        <div class="field"><label>Fonte do prazo específico</label><input name="fonte_prazo_comissao" placeholder="Acerto que permite outro dia"></div>
+        <div class="field full muted">Se dia 25 cair em fim de semana ou feriado, confirme o dia útil anterior ou seguinte. Até definir o ajuste, a data nominal fica fora da curva diária.</div>`:''}
         ${isCP?`<div class="field"><label>Situação da obrigação</label><select name="apuracao_natureza"><option value="">Cadastro anterior</option>${[['obrigacao','Obrigação existente'],['em_verificacao','Existência em verificação'],['projecao','Projeção de fato futuro']].map(([v,l])=>`<option value="${v}" ${titulo?.apuracao?.natureza===v?'selected':''}>${l}</option>`).join('')}</select></div>
         <div class="field"><label>Situação do valor</label><select name="apuracao_valor"><option value="">Valor cadastrado</option>${[['confirmado','Valor com fonte conferida'],['a_apurar','Valor em apuração'],['em_disputa','Valor ou beneficiário em disputa']].map(([v,l])=>`<option value="${v}" ${titulo?.apuracao?.valor_situacao===v?'selected':''}>${l}</option>`).join('')}</select></div>
         <div class="field"><label>Mês previsto (sem inventar dia)</label><input name="apuracao_mes" type="month" value="${titulo?.apuracao?.previsao_mes?.slice(0,7)||''}"></div>
@@ -2083,6 +2118,7 @@ async function saveTitulo(modo, id) {
   if (data.valor) data.valor = Number(data.valor);
   if (data.total_parcelas) data.total_parcelas = Number(data.total_parcelas);
   if (modo==='pagar' && !data.vencimento) data.vencimento = null;
+  if (modo==='pagar') { data.comissao_assessor=data.comissao_assessor==='on'; data.excecao_prazo_comissao=data.excecao_prazo_comissao==='on'; }
   if (modo==='receber') data.prazo_confirmado = data.prazo_confirmado==='true';
   try {
     if (id) await api(`/api/erp/contas-${modo}/${id}`, { method:'PATCH', body:JSON.stringify(data) });
@@ -3698,12 +3734,12 @@ async function renderDRE() {
 
   const html = `
     <div class="page-header">
-      <div><div class="page-title">DRE <small>${fmtDate(from)} a ${fmtDate(to)} | regime ${regime}</small></div>${d.resultado_provisorio?`<div class="muted" style="margin-top:8px">Resultado provisório: ${d.pendencias_apuracao} obrigações do período em apuração, com ${fmtBRL(d.valor_em_conferencia)} em valores de referência.${d.obrigacoes_sem_competencia?` Outras ${d.obrigacoes_sem_competencia} obrigações ainda precisam ter a competência definida.`:''}${d.periodo_em_curso?' O período selecionado ainda está em curso.':''} Confira as pendências antes de fechar lucro ou repasses.</div>`:''}</div>
+      <div><div class="page-title">DRE <small>${fmtDate(from)} a ${fmtDate(to)} | regime ${regime}</small></div><div class="muted" style="margin-top:8px">${regime==='competencia'?'Competência do fato econômico: uma comissão de agosto paga em setembro permanece em agosto. Quando não há competência explícita, o cadastro usa a data do evento, o texto ou, por último, o vencimento como aproximação. Orçamento de despesas futuras fica fora.':'Caixa: movimentos bancários cadastrados na data da entrada ou saída; a classificação usa as categorias do ERP e não certifica toda a conciliação.'}</div>${d.resultado_provisorio?`<div class="muted" style="margin-top:8px">Resultado provisório: ${d.pendencias_apuracao} obrigações do período em apuração, com ${fmtBRL(d.valor_em_conferencia)} em valores de referência.${d.obrigacoes_sem_competencia?` Outras ${d.obrigacoes_sem_competencia} obrigações ainda precisam ter a competência definida.`:''}${d.competencias_aproximadas?` Em ${d.competencias_aproximadas} títulos, a competência ainda usa o vencimento como aproximação.`:''}${d.receitas_com_origem_estimada?` Inclui ${d.receitas_com_origem_estimada} recebíveis com origem estimada, ${fmtBRL(d.valor_receitas_com_origem_estimada)} de base cadastrada ainda a conferir.`:''}${d.ajustes_cadastrais?.length?` Inclui ${d.ajustes_cadastrais.length} ajuste(s) de posição cadastral: ${d.ajustes_cadastrais.map(x=>fmtBRL(x.valor)+' em '+fmtDate(x.data)).join(', ')}; não substituem extrato independente.`:''}${d.periodo_em_curso?' O período selecionado ainda está em curso.':''} Confira as pendências antes de fechar lucro ou repasses.</div>`:''}${regime==='caixa'?caixaCoberturaHtml(d.cobertura_caixa):''}</div>
       <div class="page-actions">
         <input type="date" class="table-filter" value="${from}" onchange="state.filters.dreFrom=this.value;render()">
         <input type="date" class="table-filter" value="${to}" onchange="state.filters.dreTo=this.value;render()">
         <select class="table-filter" onchange="state.filters.dreRegime=this.value;render()">
-          <option value="competencia" ${regime==='competencia'?'selected':''}>Competência (recomendado)</option>
+          <option value="competencia" ${regime==='competencia'?'selected':''}>Competência</option>
           <option value="caixa" ${regime==='caixa'?'selected':''}>Caixa</option>
         </select>
       </div>
@@ -3964,13 +4000,14 @@ async function renderFluxo() {
   // inteira por vencimento crescente colocava titulo de abril no topo de um
   // painel chamado "Proximos a Receber". O que ja venceu vai para um bloco
   // proprio, e ai sim do mais velho pro mais novo — que e a ordem da cobranca.
-  const emAberto = (list) => list.filter(aberto).filter(r=>r.vencimento);
-  const aVencer  = (list) => emAberto(list).filter(r=>r.vencimento>=hoje).sort((a,b)=>a.vencimento.localeCompare(b.vencimento));
-  const atrasado = (list) => emAberto(list).filter(r=>r.vencimento< hoje).sort((a,b)=>a.vencimento.localeCompare(b.vencimento));
+  const emAberto = (list) => list.filter(aberto).filter(r=>r.financeiro?.ativo && (orc||!r.financeiro?.projecao));
+  const aVencer  = (list) => emAberto(list).filter(r=>r.vencimento&&r.vencimento>=hoje).sort((a,b)=>a.vencimento.localeCompare(b.vencimento));
+  const atrasado = (list) => emAberto(list).filter(r=>r.vencimento&&r.vencimento< hoje).sort((a,b)=>a.vencimento.localeCompare(b.vencimento));
   const soma = (list,isCP) => list.reduce((s,r)=>s+restante(r,isCP),0);
-  const crComData = cr.filter(prazoRecebimentoConfirmado), crSemData = cr.filter(r=>aberto(r)&&!prazoRecebimentoConfirmado(r));
+  const crComData = cr.filter(r=>r.financeiro?.na_curva), crSemData = emAberto(cr).filter(r=>!prazoRecebimentoConfirmado(r));
   const crVencer = aVencer(crComData), crAtraso = atrasado(crComData);
-  const cpVencer = aVencer(cp), cpAtraso = atrasado(cp);
+  const cpProgramaveis = cp.filter(r=>r.financeiro?.na_curva);
+  const cpVencer = aVencer(cpProgramaveis), cpAtraso = atrasado(cpProgramaveis);
   const totCR = soma(emAberto(cr),false), totCP = soma(emAberto(cp),true);
 
   /* O rotulo precisa dizer QUE TIPO de atraso e, senao mente:
@@ -4094,7 +4131,7 @@ async function renderFluxo() {
 
     <div class="kpi-grid" style="grid-template-columns:repeat(auto-fit,minmax(180px,1fr))">
       <div class="kpi success"><div class="kpi-icon"><span class="material-symbols-outlined">account_balance_wallet</span></div>
-        <div class="kpi-label">Saldo Hoje</div><div class="kpi-value money ${Number(d.saldo_atual)>=0?'positive':'negative'}">${fmtBRL(d.saldo_atual)}</div></div>
+        <div class="kpi-label">Saldo cadastrado</div><div class="kpi-value money ${Number(d.saldo_atual)>=0?'positive':'negative'}">${fmtBRL(d.saldo_atual)}</div><div class="kpi-sub">Último movimento: ${d.cobertura_caixa?.ultima_data_movimento?fmtDate(d.cobertura_caixa.ultima_data_movimento):'não identificado'}</div></div>
       <div class="kpi info"><div class="kpi-icon"><span class="material-symbols-outlined">trending_up</span></div>
         <div class="kpi-label">Entradas Previstas (${dias}d)<span style="font-size:9px;color:var(--text4)"> &middot; vencido fora</span></div><div class="kpi-value money positive">${fmtBRL(entradas)}</div></div>
       <div class="kpi danger"><div class="kpi-icon"><span class="material-symbols-outlined">trending_down</span></div>
@@ -4102,12 +4139,13 @@ async function renderFluxo() {
       <div class="kpi ${resultado>=0?'success':'danger'}"><div class="kpi-icon"><span class="material-symbols-outlined">${resultado>=0?'savings':'priority_high'}</span></div>
         <div class="kpi-label">Resultado do Periodo</div><div class="kpi-value money ${resultado>=0?'positive':'negative'}">${fmtBRL(resultado)}</div></div>
       <div class="kpi warn"><div class="kpi-icon"><span class="material-symbols-outlined">flag</span></div>
-        <div class="kpi-label">Saldo Projetado Final</div><div class="kpi-value money ${saldoFinal>=0?'positive':'negative'}">${fmtBRL(saldoFinal)}</div></div>
+        <div class="kpi-label">Saldo da curva · antes de reservas</div><div class="kpi-value money ${saldoFinal>=0?'positive':'negative'}">${fmtBRL(saldoFinal)}</div><div class="kpi-sub">${orc?'Cenário inclui orçamento':'Cenário sem orçamento'} · veja compromissos abaixo</div></div>
     </div>
 
-    ${d.sem_data?.titulos_entrada?`<div class="card" style="margin-top:14px"><div class="card-title">Recebimentos sem data confirmada</div><b>${fmtBRL(d.sem_data.entrada)}</b> em ${d.sem_data.titulos_entrada} títulos. Acompanhar cobrança e validar fechamento; não entram como dinheiro prometido na curva.</div>`:''}
-    ${d.sem_data?.titulos_saida?`<div class="card" style="margin-top:14px"><div class="card-title">Obrigações sem dia ou condicionadas</div><b>${fmtBRL(d.sem_data.saida)}</b> em ${d.sem_data.titulos_saida} títulos. Continuam no contas a pagar, fora da curva diária até existir data confirmada.</div>`:''}
-    ${d.em_apuracao?.titulos_saida||d.em_apuracao?.titulos_quitacao?`<div class="card" style="margin-top:14px"><div class="card-title">Valores em conferência</div>${fmtBRL(d.em_apuracao.saida)} em ${d.em_apuracao.titulos_saida} obrigações a apurar; ${fmtBRL(d.em_apuracao.quitacao_informada)} em ${d.em_apuracao.titulos_quitacao} quitações informadas aguardando conciliação. Não entram como nova saída na curva.</div>`:''}
+    ${reservasPrevisaoHtml(d.cenario_reservas,d.pendencias_previsao)}
+    ${caixaCoberturaHtml(d.cobertura_caixa,state.bancos||[])}
+    <div class="muted">Dentro da curva: orçamento de entradas ${fmtBRL(d.orcamento_previsto?.entrada||0)} e saídas ${fmtBRL(d.orcamento_previsto?.saida||0)}. Esses valores já compõem os totais acima.</div>
+    ${previsaoPendenciasHtml(d.pendencias_previsao)}
     ${(d.vencido && (d.vencido.entrada || d.vencido.saida)) ? `
     <div class="card" style="margin-top:14px;border-color:rgba(212,168,67,0.4)">
       <div class="card-title"><span class="material-symbols-outlined">schedule</span>Fora da curva &middot; vencido e ainda em aberto</div>
@@ -5329,7 +5367,7 @@ async function renderPrevistoRealizado() {
 
   const html = `
     <div class="page-header">
-      <div><div class="page-title">Previsto x Realizado <small>previsao gerencial vs caixa conciliado</small></div></div>
+      <div><div class="page-title">Previsto x Realizado <small>programação cadastrada vs movimentos bancários</small></div><div class="muted" style="margin-top:8px">Previsto usa o valor integral dos títulos com prazo operacional, inclusive os já baixados e o orçamento identificado. É a programação atual do cadastro, não um orçamento congelado. Realizado usa apenas movimentos bancários até hoje. Competência do leilão é apresentada na DRE, não no mês de pagamento.</div></div>
       <div class="page-actions">
         <select class="table-filter" onchange="prSetAno(this.value)">
           ${(d.anos || []).map(y => `<option value="${y}" ${y === d.ano ? 'selected' : ''}>${y}</option>`).join('')}
@@ -5359,12 +5397,14 @@ async function renderPrevistoRealizado() {
       </div>
       <div class="kpi">
         <div class="kpi-icon"><span class="material-symbols-outlined">verified</span></div>
-        <div class="kpi-label">Aderencia no ano</div>
+        <div class="kpi-label">Realizado / programação atual</div>
         <div class="kpi-value">${acc.pe > 0 ? Math.round((acc.re / acc.pe) * 100) + '%' : '—'} <small style="font-size:12px;color:var(--text3)">entradas</small></div>
         <div class="kpi-sub">saidas ${acc.ps > 0 ? Math.round((acc.rs / acc.ps) * 100) + '%' : '—'} · ${RES_MESES[primeiroPrev]} a ${RES_MESES[(d.ultimo_mes_realizado || 1) - 1]}</div>
       </div>
     </div>
 
+    <div class="muted">Orçamento já incluído em ${RES_MESES[mi]}: ${fmtBRL(m.orcamento_entrada||0)} de entradas e ${fmtBRL(m.orcamento_saida||0)} de saídas. Despesas sem valor não são zero nem compõem os totais.</div>
+    ${previsaoPendenciasHtml((d.pendencias_previsao||[]).filter(p=>!p.mes||p.mes===`${d.ano}-${String(mi+1).padStart(2,'0')}`),'Pendências do mês selecionado e sem mês definido')}
     <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(360px,1fr));gap:20px;margin-bottom:20px">
       <div class="chart-wrap" style="margin-bottom:0">
         <div class="chart-header"><div class="chart-title">Entradas — previsto x realizado</div></div>

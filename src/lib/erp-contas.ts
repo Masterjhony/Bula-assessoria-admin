@@ -2,6 +2,7 @@ import type { SupabaseClient } from '@supabase/supabase-js'
 import { aberto, compromissoFuturo, devido, naoSubstituido, vivo, type Titulo } from './verdade/fatos'
 import { recebimentoConfirmado, referenciaCobranca } from './erp-prazos'
 import { pagamentoNaCurva, resumoApuracao } from './erp-apuracao'
+import { tituloNaCurva } from './erp-previsao'
 
 export type ModoContas = 'pagar' | 'receber'
 
@@ -55,6 +56,7 @@ export function prepararTituloContas<T extends Titulo>(titulo: T, modo: ModoCont
     status_registrado: titulo.status,
     financeiro: { ativo, projecao: compromissoFuturo(titulo), saldo, data_base: hoje,
       prazo_confirmado: confirmado,
+      na_curva: tituloNaCurva(titulo, modo),
       apuracao: modo === 'pagar' ? resumoApuracao(titulo) : null,
       data_cobranca: modo === 'receber' ? referenciaCobranca(titulo, (titulo as T & { fechamento?: { data?: string } }).fechamento?.data) : null,
     },
