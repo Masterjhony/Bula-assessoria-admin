@@ -1051,9 +1051,9 @@ async function renderDashboard() {
     <div class="kpi-grid">
       <div class="kpi success">
         <div class="kpi-icon"><span class="material-symbols-outlined">account_balance_wallet</span></div>
-        <div class="kpi-label">Saldo em Bancos</div>
+        <div class="kpi-label">Saldo bancário registrado</div>
         <div class="kpi-value money positive">${fmtBRL(d.saldo_total_bancos)}</div>
-        <div class="kpi-sub">${d.bancos.length} contas ativas · hoje</div>
+        <div class="kpi-sub">${d.bancos.length} contas ativas · conforme movimentos importados. Confira a atualização dos extratos.</div>
       </div>
       <div class="kpi danger">
         <div class="kpi-icon"><span class="material-symbols-outlined">trending_down</span></div>
