@@ -6269,6 +6269,7 @@ async function acSaveAcordo(id, applyLeiloeira) {
 const coStrip = s => String(s||'').normalize('NFD').replace(/[̀-ͯ]/g,'');
 const coKey = s => coStrip(s).toUpperCase().replace(/[^A-Z0-9]+/g,' ').trim();
 const CO_CANONICO = {
+  'RUSA':'Gustavo Rusa', 'DOUGLAS':'Douglas Bispo', 'ERIK':'Erik Monteiro',
   'FABIO OMENA':'Fábio Omena', 'FABIO O MENA':'Fábio Omena', 'FABIO OMENNA':'Fábio Omena',
   'LEO':'Leonardo Serafim', 'LEO SERAFIM':'Leonardo Serafim', 'LEONARDO':'Leonardo Serafim',
   'BULINHA':'Bulinha (Felipe Andrade)', 'FELIPE ANDRADE':'Bulinha (Felipe Andrade)',
