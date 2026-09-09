@@ -4601,7 +4601,20 @@ const FL_IMPOSTO_PCT = 0.18;
 function flImposto(x) { return FL_IMPOSTO_PCT * (Number(x.receita_bula)||0); }
 function flDespesas(x) { return Number(x.despesas_variaveis)||0; }
 function flLucroLiquido(x) {
+  if (x.sobra_bruta == null || x.receita_bula == null || x.comissao_assessoria == null) return null;
   return (Number(x.receita_bula)||0) - (Number(x.comissao_assessoria)||0) - flImposto(x) - flDespesas(x);
+}
+function flResumoResultado(valores) {
+  const conhecidos = valores.filter(v => v != null);
+  const parcial = conhecidos.length ? conhecidos.reduce((s,v) => s + Number(v), 0) : null;
+  const pendentes = valores.length - conhecidos.length;
+  return { total: pendentes ? null : parcial, parcial, apurados: conhecidos.length, pendentes };
+}
+function flValorResultado(v) { return v == null ? 'Não apurado' : fmtBRL(v); }
+function flCorResultado(v) { return v == null ? '' : Number(v) < 0 ? 'negative' : 'positive'; }
+function flNotaResultado(r) {
+  if (!r.pendentes) return '';
+  return `${r.apurados ? `Subtotal cadastrado: ${fmtBRL(r.parcial)} · ` : ''}${r.pendentes} resultado${r.pendentes > 1 ? 's' : ''} não apurado${r.pendentes > 1 ? 's' : ''}`;
 }
 
 // Comissao por assessor de UM fechamento. Usa o valor REAL informado
@@ -4750,7 +4763,7 @@ function resChart(meses, opts={}) {
     }
     let d = '', started = false, firstX = null, lastX = null;
     meses.forEach((m,i) => {
-      const v = m[s.key]; if (v == null) return;
+      const v = m[s.key]; if (v == null) { if (s.breakGaps) started = false; return; }
       const x = xAt(i);
       d += (started ? ' L' : 'M') + `${x} ${yAt(v)}`;
       if (firstX == null) firstX = x;
@@ -5079,11 +5092,11 @@ async function renderResultados() {
         <div class="kpi-value money">${fmtBRL(a.total.receita)}</div>
         <div class="kpi-sub">receita da assessoria</div>
       </div>
-      <div class="kpi ${a.total.lucro_liquido < 0 ? 'danger' : 'success'}">
+      <div class="kpi ${a.total.lucro_liquido == null ? 'warn' : a.total.lucro_liquido < 0 ? 'danger' : 'success'}">
         <div class="kpi-icon"><span class="material-symbols-outlined">savings</span></div>
         <div class="kpi-label">Lucro Liquido (est.)</div>
-        <div class="kpi-value money ${a.total.lucro_liquido<0?'negative':'positive'}">${fmtBRL(a.total.lucro_liquido)}</div>
-        <div class="kpi-sub">receita − comissoes − 18% − desp. var.</div>
+        <div class="kpi-value money ${flCorResultado(a.total.lucro_liquido)}">${flValorResultado(a.total.lucro_liquido)}</div>
+        <div class="kpi-sub">${flNotaResultado({ parcial:a.total.lucro_liquido_parcial, apurados:a.total.lucros_apurados, pendentes:a.total.lucros_pendentes }) || 'receita − comissoes − 18% − desp. var.'}</div>
       </div>` : ''}
     </div>
 
@@ -5109,9 +5122,10 @@ async function renderResultados() {
     ${fin ? `
     <div class="chart-wrap" style="margin-top:20px">
       <div class="chart-header"><div class="chart-title">Faturamento Bula × Lucro liquido (est.) por mes</div></div>
+      ${a.total.lucros_pendentes ? '<div style="font-size:11px;color:var(--text3)">Meses com resultado não apurado ficam sem ponto de lucro no gráfico. O subtotal cadastrado consta na tabela.</div>' : ''}
       ${resChart(a.meses, { series: [
         { key:'receita', color:'#C8A96E', label:'Faturamento Bula', labels:true },
-        { key:'lucro_liquido', color:'#6B8F5C', label:'Lucro liquido' },
+        { key:'lucro_liquido', color:'#6B8F5C', label:'Lucro liquido', breakGaps:true },
       ]})}
     </div>` : ''}
 
@@ -5136,7 +5150,7 @@ async function renderResultados() {
               <td style="text-align:right">${m.lotes != null ? m.lotes : em}</td>
               <td class="money" style="text-align:right">${m.vgv != null ? fmtBRL(m.vgv) : em}</td>
               ${fin ? `<td class="money" style="text-align:right">${m.receita != null ? fmtBRL(m.receita) : em}</td>
-              <td class="money ${Number(m.lucro_liquido)<0?'negative':'positive'}" style="text-align:right">${m.lucro_liquido != null ? fmtBRL(m.lucro_liquido) : em}</td>` : ''}
+              <td class="money ${flCorResultado(m.lucro_liquido)}" style="text-align:right">${m.lucro_liquido != null ? fmtBRL(m.lucro_liquido) : m.lucros_pendentes ? 'Não apurado' : em}${m.lucros_pendentes ? `<div style="font-size:10px;color:var(--text3)">${flNotaResultado({ parcial:m.lucro_liquido_parcial, apurados:m.lucros_apurados, pendentes:m.lucros_pendentes })}</div>` : ''}</td>` : ''}
             </tr>`;
           }).join('')}
           <tr style="font-weight:700;border-top:2px solid var(--border)">
@@ -5145,7 +5159,7 @@ async function renderResultados() {
             <td style="text-align:right">${Number(a.total.lotes||0).toLocaleString('pt-BR')}</td>
             <td class="money" style="text-align:right;color:var(--gold)">${fmtBRL(a.total.vgv)}</td>
             ${fin ? `<td class="money" style="text-align:right">${fmtBRL(a.total.receita)}</td>
-            <td class="money ${a.total.lucro_liquido<0?'negative':'positive'}" style="text-align:right">${fmtBRL(a.total.lucro_liquido)}</td>` : ''}
+            <td class="money ${flCorResultado(a.total.lucro_liquido)}" style="text-align:right">${flValorResultado(a.total.lucro_liquido)}${a.total.lucros_pendentes ? `<div style="font-size:10px;color:var(--text3)">${flNotaResultado({ parcial:a.total.lucro_liquido_parcial, apurados:a.total.lucros_apurados, pendentes:a.total.lucros_pendentes })}</div>` : ''}</td>` : ''}
           </tr>
         </tbody>
       </table>
@@ -5423,12 +5437,12 @@ async function renderFechamentoLeiloes() {
     a.fat += Number(x.faturamento_total_leilao)||0;
     a.receita += Number(x.receita_bula)||0;
     a.comissao += Number(x.comissao_assessoria)||0;
-    a.lucro += Number(x.sobra_bruta)||0;
     a.imposto += flImposto(x);
     a.despesas += flDespesas(x);
-    a.lucroLiq += flLucroLiquido(x);
     return a;
-  }, { vgv:0, fat:0, receita:0, comissao:0, lucro:0, imposto:0, despesas:0, lucroLiq:0 });
+  }, { vgv:0, fat:0, receita:0, comissao:0, imposto:0, despesas:0 });
+  const lucro = flResumoResultado(rows.map(x => x.sobra_bruta));
+  const lucroLiq = flResumoResultado(rows.map(flLucroLiquido));
 
   const html = `
     <div class="page-header">
@@ -5460,13 +5474,13 @@ async function renderFechamentoLeiloes() {
         <div class="kpi-icon"><span class="material-symbols-outlined">handshake</span></div>
         <div class="kpi-label">Comissoes Assessoria</div>
         <div class="kpi-value money">${fmtBRL(tot.comissao)}</div>
-        <div class="kpi-sub">Total pago a assessores</div>
+        <div class="kpi-sub">Comissões cadastradas</div>
       </div>
-      <div class="kpi ${tot.lucro < 0 ? 'danger' : 'success'}">
+      <div class="kpi ${lucro.total == null ? 'warn' : lucro.total < 0 ? 'danger' : 'success'}">
         <div class="kpi-icon"><span class="material-symbols-outlined">trending_up</span></div>
         <div class="kpi-label">Lucro Bruto</div>
-        <div class="kpi-value money ${tot.lucro<0?'negative':'positive'}">${fmtBRL(tot.lucro)}</div>
-        <div class="kpi-sub">Faturamento − comissoes</div>
+        <div class="kpi-value money ${flCorResultado(lucro.total)}">${flValorResultado(lucro.total)}</div>
+        <div class="kpi-sub">${flNotaResultado(lucro) || 'Faturamento − comissoes'}</div>
       </div>
       <div class="kpi">
         <div class="kpi-icon"><span class="material-symbols-outlined">receipt_long</span></div>
@@ -5474,11 +5488,11 @@ async function renderFechamentoLeiloes() {
         <div class="kpi-value money">${fmtBRL(tot.imposto)}</div>
         <div class="kpi-sub">18% sobre o Fat. Bula${tot.despesas>0?` · Desp. var. ${fmtBRL(tot.despesas)}`:''}</div>
       </div>
-      <div class="kpi ${tot.lucroLiq < 0 ? 'danger' : 'success'}">
+      <div class="kpi ${lucroLiq.total == null ? 'warn' : lucroLiq.total < 0 ? 'danger' : 'success'}">
         <div class="kpi-icon"><span class="material-symbols-outlined">savings</span></div>
         <div class="kpi-label">Lucro Liquido</div>
-        <div class="kpi-value money ${tot.lucroLiq<0?'negative':'positive'}">${fmtBRL(tot.lucroLiq)}</div>
-        <div class="kpi-sub">Bruto − imposto − despesas var.</div>
+        <div class="kpi-value money ${flCorResultado(lucroLiq.total)}">${flValorResultado(lucroLiq.total)}</div>
+        <div class="kpi-sub">${flNotaResultado(lucroLiq) || 'Bruto − imposto − despesas var.'}</div>
       </div>
     </div>
 
@@ -5547,10 +5561,10 @@ async function renderFechamentoLeiloes() {
               <td class="money" style="text-align:right">${esperado!=null?fmtBRL(esperado):em}</td>
               <td class="money" style="text-align:right">${x.receita_bula!=null?`${fmtBRL(x.receita_bula)}${diverge?` <span title="Diverge ${fmtBRL(Math.abs(diff))} do acordo" style="color:var(--amber)">⚠</span>`:''}`:em}</td>
               <td class="money" style="text-align:right">${x.comissao_assessoria!=null&&Number(x.comissao_assessoria)>0?fmtBRL(x.comissao_assessoria):em}</td>
-              <td class="money ${Number(x.sobra_bruta)<0?'negative':'positive'}" style="text-align:right">${x.sobra_bruta!=null?fmtBRL(x.sobra_bruta):em}</td>
+              <td class="money ${flCorResultado(x.sobra_bruta)}" style="text-align:right">${flValorResultado(x.sobra_bruta)}</td>
               <td class="money" style="text-align:right;color:var(--text2)">${temReceita?fmtBRL(imposto):em}</td>
               <td class="money" style="text-align:right">${despesas>0?fmtBRL(despesas):em}</td>
-              <td class="money ${lucroLiq<0?'negative':'positive'}" style="text-align:right">${temReceita?fmtBRL(lucroLiq):em}</td>
+              <td class="money ${flCorResultado(lucroLiq)}" style="text-align:right">${flValorResultado(lucroLiq)}</td>
               <td style="white-space:nowrap">${flRecebChip(x.id)}</td>
               <td><span class="material-symbols-outlined" style="color:var(--text4);font-size:18px">chevron_right</span></td>
             </tr>`;
@@ -5573,7 +5587,6 @@ function flOpenDetail(id) {
   const somaComissao = ass.reduce((s,a)=>s+a._comissao,0);
   const algumEstimado = ass.some(a=>!a._real);
   const estados = (x.por_estado||[]).filter(e=>e && e.uf).slice().sort((a,b)=>(Number(b.vgv)||0)-(Number(a.vgv)||0));
-  const neg = v => Number(v)<0 ? 'negative' : 'positive';
 
   const html = `
     <div class="modal-header">
@@ -5600,10 +5613,10 @@ function flOpenDetail(id) {
         <div class="kpi"><div class="kpi-label">Fat. Leiloeira</div><div class="kpi-value money" style="font-size:18px">${x.faturamento_total_leilao!=null?fmtBRL(x.faturamento_total_leilao):'—'}</div></div>
         <div class="kpi"><div class="kpi-label">Faturamento Bula</div><div class="kpi-value money" style="font-size:18px">${x.receita_bula!=null?fmtBRL(x.receita_bula):'—'}</div></div>
         <div class="kpi"><div class="kpi-label">Comissao Assessoria</div><div class="kpi-value money" style="font-size:18px">${fmtBRL(totalComissao)}</div></div>
-        <div class="kpi"><div class="kpi-label">Lucro Bruto</div><div class="kpi-value money ${neg(x.sobra_bruta)}" style="font-size:18px">${x.sobra_bruta!=null?fmtBRL(x.sobra_bruta):'—'}</div></div>
+        <div class="kpi"><div class="kpi-label">Lucro Bruto</div><div class="kpi-value money ${flCorResultado(x.sobra_bruta)}" style="font-size:18px">${flValorResultado(x.sobra_bruta)}</div></div>
         <div class="kpi"><div class="kpi-label">Imposto est. (18%)</div><div class="kpi-value money" style="font-size:18px;color:var(--text2)">${x.receita_bula!=null?fmtBRL(flImposto(x)):'—'}</div></div>
         <div class="kpi"><div class="kpi-label">Despesas Variaveis</div><div class="kpi-value money" style="font-size:18px">${flDespesas(x)>0?fmtBRL(flDespesas(x)):'—'}</div></div>
-        <div class="kpi"><div class="kpi-label">Lucro Liquido</div><div class="kpi-value money ${neg(flLucroLiquido(x))}" style="font-size:18px">${x.receita_bula!=null?fmtBRL(flLucroLiquido(x)):'—'}</div></div>
+        <div class="kpi"><div class="kpi-label">Lucro Liquido</div><div class="kpi-value money ${flCorResultado(flLucroLiquido(x))}" style="font-size:18px">${flValorResultado(flLucroLiquido(x))}</div></div>
         <div class="kpi"><div class="kpi-label">Lotes / Animais</div><div class="kpi-value" style="font-size:18px">${x.lotes_vendidos||0}/${x.lotes_ofertados||0} · ${x.animais_vendidos||0}</div></div>
       </div>
 
@@ -5733,12 +5746,13 @@ function flExportCSV() {
   const rows = flFilteredRows();
   if (!rows.length) { toast('Nada para exportar','info'); return; }
   const cell = v => `"${String(v==null?'':v).replace(/"/g,'""')}"`;
-  const head = ['Data','Leilao','Local','VGV Cobertura','Fat Leiloeira','Acordo','Receita Esperada','Fat Bula','Comissao','Lucro Bruto','Imposto 18%','Despesas Variaveis','Lucro Liquido'];
+  const head = ['Data','Leilao','Local','VGV Cobertura','Fat Leiloeira','Acordo','Receita Esperada','Fat Bula','Comissao','Lucro Bruto','Imposto 18%','Despesas Variaveis','Lucro Liquido','Situacao do Resultado'];
   const lines = [head.map(cell).join(';')];
   for (const x of rows) {
     const acordo = flResolverAcordo(x);
     const esperado = flReceitaEsperada(acordo, Number(x.faturamento_total_leilao)||null, Number(x.vgv_total)||null);
     const temReceita = x.receita_bula!=null && Number(x.receita_bula)>0;
+    const lucroLiq = flLucroLiquido(x);
     lines.push([
       x.data, x.nome, x.local||'', Number(x.vgv_total)||0,
       x.faturamento_total_leilao!=null?Number(x.faturamento_total_leilao):'',
@@ -5746,7 +5760,8 @@ function flExportCSV() {
       x.receita_bula!=null?Number(x.receita_bula):'', x.comissao_assessoria!=null?Number(x.comissao_assessoria):'',
       x.sobra_bruta!=null?Number(x.sobra_bruta):'',
       temReceita?Math.round(flImposto(x)):'', flDespesas(x)>0?flDespesas(x):'',
-      temReceita?Math.round(flLucroLiquido(x)):'',
+      lucroLiq!=null?Math.round(lucroLiq):'',
+      lucroLiq!=null?'Calculado com campos preenchidos':'Não apurado',
     ].map(cell).join(';'));
   }
   const blob = new Blob(["﻿"+lines.join('\n')], { type:'text/csv;charset=utf-8' });
@@ -6184,18 +6199,18 @@ function acUpdatePreview(id) {
   const el = document.getElementById('acPreview');
   if (!p || !el) return;
   const diff = p.esperado != null && p.receita != null ? p.receita - p.esperado : null;
-  const lucro = p.receita != null || p.comissao != null ? acRound((p.receita||0) - (p.comissao||0)) : null;
+  const lucro = p.row.sobra_bruta != null && p.receita != null && p.comissao != null ? acRound(p.receita - p.comissao) : null;
   const imposto = p.receita != null ? acRound(FL_IMPOSTO_PCT * (p.receita||0)) : null;
-  const lucroLiq = p.receita != null ? acRound((p.receita||0) - (p.comissao||0) - (imposto||0) - (p.despesas||0)) : null;
+  const lucroLiq = lucro != null ? acRound(lucro - (imposto||0) - (p.despesas||0)) : null;
   el.innerHTML = `
     <div class="card-title"><span class="material-symbols-outlined">calculate</span>Previa do acordo</div>
     <div class="kpi-grid" style="margin-bottom:0;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px">
       <div><div class="kpi-label">Receita esperada</div><div class="kpi-value money" style="font-size:18px;color:var(--gold)">${p.esperado!=null?fmtBRL(p.esperado):'—'}</div></div>
       <div><div class="kpi-label">Faturamento Bula</div><div class="kpi-value money" style="font-size:18px">${p.receita!=null?fmtBRL(p.receita):'—'}</div></div>
       <div><div class="kpi-label">Diferenca</div><div class="kpi-value money ${diff!=null&&Math.abs(diff)>=1?'negative':'positive'}" style="font-size:18px">${diff!=null?fmtBRL(diff):'—'}</div></div>
-      <div><div class="kpi-label">Lucro bruto</div><div class="kpi-value money ${lucro!=null&&lucro<0?'negative':'positive'}" style="font-size:18px">${lucro!=null?fmtBRL(lucro):'—'}</div></div>
+      <div><div class="kpi-label">Lucro bruto</div><div class="kpi-value money ${flCorResultado(lucro)}" style="font-size:18px">${flValorResultado(lucro)}</div></div>
       <div><div class="kpi-label">Imposto (18%)</div><div class="kpi-value money" style="font-size:18px;color:var(--text2)">${imposto!=null?fmtBRL(imposto):'—'}</div></div>
-      <div><div class="kpi-label">Lucro liquido</div><div class="kpi-value money ${lucroLiq!=null&&lucroLiq<0?'negative':'positive'}" style="font-size:18px">${lucroLiq!=null?fmtBRL(lucroLiq):'—'}</div></div>
+      <div><div class="kpi-label">Lucro liquido</div><div class="kpi-value money ${flCorResultado(lucroLiq)}" style="font-size:18px">${flValorResultado(lucroLiq)}</div></div>
     </div>`;
 }
 function acFillReceitaEsperada(id) {
@@ -6218,7 +6233,8 @@ function acPayloadFromForm(id, onlyAgreement=false) {
     payload.receita_bula = p.receita;
     payload.comissao_assessoria = p.comissao;
     payload.despesas_variaveis = p.despesas;
-    payload.sobra_bruta = (p.receita != null || p.comissao != null) ? acRound((p.receita||0) - (p.comissao||0)) : null;
+    // Editar o acordo não certifica as pendências do resultado financeiro.
+    payload.sobra_bruta = p.row.sobra_bruta != null && p.receita != null && p.comissao != null ? acRound(p.receita - p.comissao) : null;
   }
   return payload;
 }
