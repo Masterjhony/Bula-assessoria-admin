@@ -160,7 +160,7 @@ export default function FechamentoFinanceiroView() {
                         <span className={(f.sobra_bruta < 0 ? 'text-red-500' : 'text-emerald-600 dark:text-emerald-400') + ' font-semibold'}>
                           {R(f.sobra_bruta)}
                         </span>
-                      ) : <span className="text-gray-300 dark:text-gray-600">—</span>}
+                      ) : <span className="text-amber-600 dark:text-amber-400">Não apurado</span>}
                     </td>
                     <td className="px-3 py-2.5">
                       <ChevronRight size={14} className="text-gray-300 dark:text-gray-700 group-hover:text-[#A68B4B] transition-colors" />
@@ -317,8 +317,9 @@ function EditDrawer({ f, onClose, onSaved }: {
                 type="number" className={inputCls}
                 value={sobra ?? ''}
                 onChange={e => setSobra(e.target.value === '' ? null : Number(e.target.value))}
-                placeholder="receita − comissões"
+                placeholder="Não apurado"
               />
+              <p className="text-[10px] text-gray-500 mt-1">Deixe em branco enquanto o resultado não estiver apurado. Zero indica resultado apurado de R$ 0.</p>
             </FormField>
             <FormField label="Comissão Assessoria (R$)">
               <input

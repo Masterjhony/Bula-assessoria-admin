@@ -15,11 +15,31 @@ type Fechamento = {
   lotes_vendidos: number | null
   compradores_unicos: number | null
   receita_bula: number | null
+  sobra_bruta: number | null
   comissao_assessoria: number | null
   despesas_variaveis: number | null
 }
 
-type Mes = {
+type ApuracaoLucro = {
+  lucro_liquido: number | null
+  lucro_liquido_parcial: number | null
+  lucros_apurados: number
+  lucros_pendentes: number
+}
+
+function acumularLucro(resumo: ApuracaoLucro, f: Fechamento) {
+  if (f.sobra_bruta == null || f.receita_bula == null || f.comissao_assessoria == null) {
+    resumo.lucros_pendentes++
+  } else {
+    const receita = Number(f.receita_bula)
+    const lucro = receita - Number(f.comissao_assessoria) - IMPOSTO_PCT * receita - (Number(f.despesas_variaveis) || 0)
+    resumo.lucros_apurados++
+    resumo.lucro_liquido_parcial = (resumo.lucro_liquido_parcial ?? 0) + lucro
+  }
+  resumo.lucro_liquido = resumo.lucros_pendentes ? null : resumo.lucro_liquido_parcial
+}
+
+type Mes = ApuracaoLucro & {
   mes: number
   leiloes: number | null
   lotes: number | null
@@ -27,12 +47,12 @@ type Mes = {
   faturamento_leiloeira: number | null
   receita: number | null
   comissao: number | null
-  lucro_liquido: number | null
 }
 
 const emptyMes = (mes: number): Mes => ({
   mes, leiloes: null, lotes: null, vgv: null,
   faturamento_leiloeira: null, receita: null, comissao: null, lucro_liquido: null,
+  lucro_liquido_parcial: null, lucros_apurados: 0, lucros_pendentes: 0,
 })
 
 // PostgREST corta em 1000 linhas por request — sempre paginar (lição cap-1000).
@@ -43,7 +63,7 @@ async function fetchAllFechamentos() {
   for (let from = 0; ; from += PAGE) {
     const { data, error } = await sb
       .from('bula_leilao_fechamento')
-      .select('data,vgv_total,faturamento_total_leilao,lotes_vendidos,compradores_unicos,receita_bula,comissao_assessoria,despesas_variaveis')
+      .select('data,vgv_total,faturamento_total_leilao,lotes_vendidos,compradores_unicos,receita_bula,sobra_bruta,comissao_assessoria,despesas_variaveis')
       .order('data', { ascending: true })
       .range(from, from + PAGE - 1)
     if (error) throw new Error(error.message)
@@ -68,10 +88,10 @@ export async function GET(req: NextRequest) {
   type Ano = {
     fonte: 'fechamentos' | 'historico'
     meses: Mes[]
-    total: {
+    total: ApuracaoLucro & {
       leiloes: number; lotes: number; vgv: number; faturamento_leiloeira: number
       receita: number | null; comissao: number | null; imposto: number | null
-      despesas: number | null; lucro_liquido: number | null
+      despesas: number | null
     }
     // "unicos" = contagem única no ano (histórico); "soma" = soma dos únicos
     // POR LEILÃO (o mesmo comprador em 2 leilões conta 2x)
@@ -86,7 +106,7 @@ export async function GET(req: NextRequest) {
     porAno[key] ||= {
       fonte: 'fechamentos',
       meses: Array.from({ length: 12 }, (_, i) => emptyMes(i + 1)),
-      total: { leiloes: 0, lotes: 0, vgv: 0, faturamento_leiloeira: 0, receita: 0, comissao: 0, imposto: 0, despesas: 0, lucro_liquido: 0 },
+      total: { leiloes: 0, lotes: 0, vgv: 0, faturamento_leiloeira: 0, receita: 0, comissao: 0, imposto: 0, despesas: 0, lucro_liquido: null, lucro_liquido_parcial: null, lucros_apurados: 0, lucros_pendentes: 0 },
       compradores: null, compradores_tipo: null, vendedores: null, observacao: null,
     }
     return porAno[key]
@@ -109,7 +129,7 @@ export async function GET(req: NextRequest) {
     const despesas = Number(f.despesas_variaveis) || 0
     m.receita = (m.receita || 0) + receita
     m.comissao = (m.comissao || 0) + comissao
-    m.lucro_liquido = (m.lucro_liquido || 0) + (receita - comissao - IMPOSTO_PCT * receita - despesas)
+    acumularLucro(m, f)
     a.total.leiloes += 1
     a.total.lotes += Number(f.lotes_vendidos) || 0
     a.total.vgv += Number(f.vgv_total) || 0
@@ -118,7 +138,7 @@ export async function GET(req: NextRequest) {
     a.total.comissao! += comissao
     a.total.imposto! += IMPOSTO_PCT * receita
     a.total.despesas! += despesas
-    a.total.lucro_liquido! += receita - comissao - IMPOSTO_PCT * receita - despesas
+    acumularLucro(a.total, f)
     comprSoma[anoKey] = (comprSoma[anoKey] || 0) + (Number(f.compradores_unicos) || 0)
   }
   for (const [anoKey, n] of Object.entries(comprSoma)) {
@@ -172,7 +192,11 @@ export async function GET(req: NextRequest) {
     for (const a of Object.values(porAno)) {
       a.total.receita = null; a.total.comissao = null; a.total.imposto = null
       a.total.despesas = null; a.total.lucro_liquido = null
-      for (const m of a.meses) { m.receita = null; m.comissao = null; m.lucro_liquido = null }
+      a.total.lucro_liquido_parcial = null; a.total.lucros_apurados = 0; a.total.lucros_pendentes = 0
+      for (const m of a.meses) {
+        m.receita = null; m.comissao = null; m.lucro_liquido = null
+        m.lucro_liquido_parcial = null; m.lucros_apurados = 0; m.lucros_pendentes = 0
+      }
     }
   }
 
