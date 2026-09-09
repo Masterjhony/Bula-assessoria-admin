@@ -1,6 +1,7 @@
 import { admin, fail, guard, ok, type NextRequest } from '@/lib/erp'
 import { listarTitulosContas, parcelarTitulo } from '@/lib/erp-contas'
 import { aplicarApuracao } from '@/lib/erp-apuracao'
+import { prepararPrazoComissao } from '@/lib/erp-comissoes-prazo-adaptador'
 
 export async function GET(req: NextRequest) {
   const g = await guard(req); if (g.error) return g.error
@@ -14,7 +15,7 @@ export async function GET(req: NextRequest) {
 export async function POST(req: NextRequest) {
   const g = await guard(req); if (g.error) return g.error
   let body: Record<string, unknown>
-  try { body = aplicarApuracao(await req.json().catch(() => ({}))) }
+  try { body = await prepararPrazoComissao(admin(), aplicarApuracao(await req.json().catch(() => ({})))) }
   catch (error) { return fail((error as Error).message) }
   if (!body.descricao) return fail('descricao obrigatoria')
   if (body.valor == null) return fail('valor obrigatorio')
@@ -32,6 +33,7 @@ export async function POST(req: NextRequest) {
       fornecedor_id: body.fornecedor_id || null,
       categoria_id: body.categoria_id || null,
       centro_custo_id: body.centro_custo_id || null,
+      fechamento_id: body.fechamento_id || null,
       plano_conta_id: body.plano_conta_id || null,
       conta_bancaria_id: body.conta_bancaria_id || null,
       valor: valorParcela,

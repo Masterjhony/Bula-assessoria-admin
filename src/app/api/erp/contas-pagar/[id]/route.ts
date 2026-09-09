@@ -1,5 +1,6 @@
 import { admin, fail, guard, ok, type NextRequest } from '@/lib/erp'
 import { aplicarApuracao } from '@/lib/erp-apuracao'
+import { prepararPrazoComissao } from '@/lib/erp-comissoes-prazo-adaptador'
 
 type Ctx = { params: Promise<{ id: string }> }
 
@@ -19,7 +20,7 @@ export async function PATCH(req: NextRequest, ctx: Ctx) {
   const { data: atual, error: leitura } = await sb.from('erp_contas_pagar').select('*').eq('id', id).single()
   if (leitura) return fail(leitura.message, 404)
   let patch: Record<string, unknown>
-  try { patch = aplicarApuracao(body, atual) } catch (error) { return fail((error as Error).message) }
+  try { patch = await prepararPrazoComissao(sb, aplicarApuracao(body, atual), atual) } catch (error) { return fail((error as Error).message) }
   const { data, error } = await sb.from('erp_contas_pagar').update(patch).eq('id', id).select('*').single()
   if (error) return fail(error.message, 400)
   return ok(data)
