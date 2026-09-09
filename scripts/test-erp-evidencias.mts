@@ -36,10 +36,11 @@ test('detalhe do título mostra parcela própria, ressalva e falha de consulta s
  const src=fs.readFileSync('src/app/erp/erp.html','utf8').match(/<script>([\s\S]*?)<\/script>/)![1]
  const ast=ts.createSourceFile('erp.js',src,ts.ScriptTarget.Latest,true,ts.ScriptKind.JS)
  const fn=ast.statements.find(s=>ts.isFunctionDeclaration(s)&&s.name?.text==='carregarEvidenciasTitulo')!.getText(ast)
- const box={innerHTML:'',textContent:''};let fail=false
+ const box={innerHTML:'',textContent:''};let fail=false;const calls:string[]=[]
  const e=evidenciaTitulo({id:'a',valor_recebido:30},'receber',[m],[{...rates[0],fundamento:'divergente',evidencia:{ressalva:'<b>Fonte conflitante</b>'}},rates[1]],[p])
- const ctx=vm.createContext({api:async()=>{if(fail)throw new Error('offline');return e},document:{getElementById:()=>box},encodeURIComponent,fmtDate:(d:string)=>d,fmtBRL:(v:number)=>v.toFixed(2),escapeHtml:(s:string)=>String(s).replaceAll('<','&lt;').replaceAll('>','&gt;')})
+ const ctx=vm.createContext({api:async(path:string)=>{calls.push(path);if(fail)throw new Error('offline');return e},document:{getElementById:()=>box},encodeURIComponent,fmtDate:(d:string)=>d,fmtBRL:(v:number)=>v.toFixed(2),escapeHtml:(s:string)=>String(s).replaceAll('<','&lt;').replaceAll('>','&gt;')})
  vm.runInContext(fn,ctx);await vm.runInContext("carregarEvidenciasTitulo('receber','a')",ctx)
+ assert.equal(calls[0],'/api/erp/evidencias?modo=receber&id=a');assert.ok(fs.existsSync('src/app/api/erp/evidencias/route.ts'))
  assert.match(box.innerHTML,/30.00 neste título/);assert.match(box.innerHTML,/movimento total 100.00/)
  assert.match(box.innerHTML,/precisa de confirmação/);assert.match(box.innerHTML,/&lt;b&gt;Fonte conflitante/)
  fail=true;await vm.runInContext("carregarEvidenciasTitulo('receber','a')",ctx)

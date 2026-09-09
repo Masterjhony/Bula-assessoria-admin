@@ -1790,7 +1790,7 @@ function renderTituloDrawer(modo){
 async function carregarEvidenciasTitulo(modo,id){
   const box=document.getElementById('tituloEvidencias');if(!box)return;
   try{
-    const e=await api(`/evidencias?modo=${encodeURIComponent(modo)}&id=${encodeURIComponent(id)}`);
+    const e=await api(`/api/erp/evidencias?modo=${encodeURIComponent(modo)}&id=${encodeURIComponent(id)}`);
     if(document.getElementById('tituloEvidencias')!==box)return;
     const color=e.grau==='conferido'?'var(--success)':e.grau==='divergente'?'var(--danger)':'var(--text2)';
     box.innerHTML=`<b style="color:${color}">${escapeHtml(e.texto)}</b>
