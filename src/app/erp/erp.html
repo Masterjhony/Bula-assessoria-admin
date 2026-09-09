@@ -1057,9 +1057,10 @@ async function renderDashboard() {
       </div>
       <div class="kpi danger">
         <div class="kpi-icon"><span class="material-symbols-outlined">trending_down</span></div>
-        <div class="kpi-label">A Pagar (obrigação real)</div>
+        <div class="kpi-label">Contas a pagar · posição registrada</div>
         <div class="kpi-value money negative">${fmtBRL(d.a_pagar)}</div>
         <div class="kpi-sub down">${fmtBRL(d.vencidos_pagar)} vencidos${d.a_pagar_orcamento ? ` · orçamento futuro ${fmtBRL(d.a_pagar_orcamento)}` : ''}</div>
+        <div class="kpi-sub">${fmtBRL(d.a_pagar_em_apuracao||0)} em apuração · ${fmtBRL(d.a_pagar_quitacao_informada||0)} com quitação informada · ${fmtBRL(d.a_pagar_sem_data||0)} sem dia ou condicionado. Os recortes podem se sobrepor.</div>
       </div>
       <div class="kpi info">
         <div class="kpi-icon"><span class="material-symbols-outlined">trending_up</span></div>
@@ -1221,6 +1222,10 @@ async function renderContas(modo) {
   const agingBucket = (r) => {
     if (!ativo(r)) return 'cancelado';
     if (isDone(r)) return 'ok';
+    if (isCP && r.financeiro?.apuracao?.pagamento_informado) return 'informado';
+    if (isCP && r.financeiro?.apuracao?.exige_conferencia) return 'apuracao';
+    if (isCP && r.financeiro?.projecao && (!r.vencimento || r.vencimento < dataBase)) return 'sem_data';
+    if (isCP && !r.financeiro?.projecao && !r.financeiro?.prazo_confirmado) return 'sem_data';
     if (!isCP && !prazoRecebimentoConfirmado(r)) return 'sem_data';
     const d = diasAtraso(r.vencimento);
     if (d == null) return 'sem_data';
@@ -1318,7 +1323,7 @@ async function renderContas(modo) {
   });
   const buckets = {
     f7:{v:0,n:0}, f30:{v:0,n:0}, f60:{v:0,n:0}, f90:{v:0,n:0}, f90p:{v:0,n:0}, sem_data:{v:0,n:0},
-    a30:{v:0,n:0}, a60:{v:0,n:0}, a90:{v:0,n:0}, a90p:{v:0,n:0}, ok:{v:0,n:0},
+    a30:{v:0,n:0}, a60:{v:0,n:0}, a90:{v:0,n:0}, a90p:{v:0,n:0}, ok:{v:0,n:0}, apuracao:{v:0,n:0}, informado:{v:0,n:0},
   };
   for (const r of baseAging) {
     const b = agingBucket(r);
@@ -1340,7 +1345,9 @@ async function renderContas(modo) {
     { k:'f90',  cls:'c-60',     label:'61–90 dias' },
     { k:'f90p', cls:'c-90',     label:'+90 dias' },
   ];
-  if (buckets.sem_data.n) ageFuturo.push({ k:'sem_data', cls:'c-90p', label:isCP?'Sem vencimento':'Data a confirmar' });
+  if (buckets.sem_data.n) ageFuturo.push({ k:'sem_data', cls:'c-90p', label:isCP?'Sem dia / condicionado':'Data a confirmar' });
+  if (buckets.apuracao.n) ageFuturo.push({ k:'apuracao', cls:'c-90p', label:'Valor em apuração' });
+  if (buckets.informado.n) ageFuturo.push({ k:'informado', cls:'c-ok', label:'Quitação informada' });
   const ageAtraso = [
     { k:'a30',  cls:'c-30',     label:'1–30 dias' },
     { k:'a60',  cls:'c-60',     label:'31–60 dias' },
@@ -1349,7 +1356,7 @@ async function renderContas(modo) {
   ];
   const ageOk = [{ k:'ok', cls:'c-ok', label:isCP?'Pagos':'Recebidos' }];
   const somaB = (defs) => defs.reduce((acc,d)=>({ v: acc.v + buckets[d.k].v, n: acc.n + buckets[d.k].n }), {v:0,n:0});
-  const totFuturo = somaB(ageFuturo.filter(a=>a.k!=='sem_data')), totAtraso = somaB(ageAtraso);
+  const totFuturo = somaB(ageFuturo.filter(a=>!['sem_data','apuracao','informado'].includes(a.k))), totAtraso = somaB(ageAtraso);
   const proximos30 = { v: buckets.f7.v + buckets.f30.v, n: buckets.f7.n + buckets.f30.n };
   const chip = (a) => CHIP_TPL(a);
 
@@ -1409,8 +1416,8 @@ async function renderContas(modo) {
   const pageList = list.slice((pageNum-1)*PAGE_SIZE, pageNum*PAGE_SIZE);
 
   const rowHtml = (r) => {
-    const prazoValido = isCP || prazoRecebimentoConfirmado(r);
-    const dataPrazo = prazoValido ? fmtDate(r.vencimento) : '<span class="chip warn">Data a confirmar</span>'+(r.financeiro?.data_cobranca?`<div class="muted" style="font-size:10px">Cobrança a partir de ${fmtDate(r.financeiro.data_cobranca)}</div>`:'');
+    const prazoValido = isCP ? r.financeiro?.projecao ? Boolean(r.vencimento && r.vencimento >= dataBase) : r.financeiro?.prazo_confirmado : prazoRecebimentoConfirmado(r);
+    const dataPrazo = isCP ? prazoPagamentoHtml(r) : prazoValido ? fmtDate(r.vencimento) : '<span class="chip warn">Data a confirmar</span>'+(r.financeiro?.data_cobranca?`<div class="muted" style="font-size:10px">Cobrança a partir de ${fmtDate(r.financeiro.data_cobranca)}</div>`:'');
     const d = isOpen(r) && prazoValido ? diasAtraso(r.vencimento) : null;
     let atraso = '';
     if (isOpen(r) && d != null) {
@@ -1422,8 +1429,7 @@ async function renderContas(modo) {
     const liquido = Number(r.valor||0) - Number(r.desconto||0) + Number(r.juros||0) + Number(r.multa||0);
     const ultimo = isCP ? r.data_pagamento : r.data_recebimento;
     const na = '<span style="color:var(--text3)">—</span>';
-    const orcBadge = (Array.isArray(r.tags) && r.tags.includes('orcamento'))
-      ? `<span class="chip" style="background:#8892a022;color:#8892a0;margin-left:6px" title="Título pré-lançado de fato gerador futuro — ainda não é dívida">orçamento</span>` : '';
+    const orcBadge = ehProjecao(r) ? '<span class="chip muted">projeção</span>' : isCP ? apuracaoBadge(r) : '';
     if (simples) return `
       <tr class="${state.contasSel.has(r.id)?'selected':''}" style="cursor:pointer" onclick="if(!event.target.closest('input,button,select,a'))openTituloDrawer('${modo}','${r.id}')">
         <td class="sel-cell"><input type="checkbox" ${state.contasSel.has(r.id)?'checked':''} onchange="toggleSelConta('${r.id}',this.checked)"></td>
@@ -1434,8 +1440,8 @@ async function renderContas(modo) {
         </td>
         <td>${escapeHtml(parceiro(r) || '--')}</td>
         <td style="white-space:nowrap">${dataPrazo}${atraso?`<div>${atraso}</div>`:''}</td>
-        <td style="text-align:right" class="money">${fmtBRL(r.valor)}</td>
-        <td style="text-align:right" class="money ${isOpen(r)&&rest>0?(isCP?'negative':'positive'):''}">${isOpen(r)?fmtBRL(rest):na}</td>
+        <td style="text-align:right" class="money">${valorTituloHtml(r)}</td>
+        <td style="text-align:right" class="money ${isOpen(r)&&rest>0?(isCP?'negative':'positive'):''}">${isOpen(r)?valorTituloHtml(r,rest):na}</td>
         <td>${r.categoria?`<span class="chip" style="background:${r.categoria.cor}22;color:${r.categoria.cor}">${escapeHtml(r.categoria.nome)}</span>`:'--'}</td>
         <td>
           <div class="row-actions">
@@ -1459,9 +1465,9 @@ async function renderContas(modo) {
         <td>${fmtDate(r.emissao)}</td>
         <td>${dataPrazo}${atraso?`<div>${atraso}</div>`:''}</td>
         <td>${ultimo?fmtDate(ultimo):na}</td>
-        <td style="text-align:right" class="money">${fmtBRL(r.valor)}</td>
-        <td style="text-align:right" class="money">${fmtBRL(liquido)}</td>
-        <td style="text-align:right" class="money ${isOpen(r)&&rest>0?(isCP?'negative':'positive'):''}">${isOpen(r)?fmtBRL(rest):na}</td>
+        <td style="text-align:right" class="money">${valorTituloHtml(r)}</td>
+        <td style="text-align:right" class="money">${valorTituloHtml(r,liquido)}</td>
+        <td style="text-align:right" class="money ${isOpen(r)&&rest>0?(isCP?'negative':'positive'):''}">${isOpen(r)?valorTituloHtml(r,rest):na}</td>
         <td>${r.categoria?`<span class="chip" style="background:${r.categoria.cor}22;color:${r.categoria.cor}">${escapeHtml(r.categoria.nome)}</span>`:'--'}</td>
         ${isCP?`<td>${r.centro?`<span class="chip" style="background:#8B5A2B22;color:#C8A96E" title="${escapeHtml(r.centro.nome)}">${escapeHtml(r.centro.codigo||'')} ${escapeHtml(r.centro.nome)}</span>`:na}</td>`:''}
         <td>${r.vendedor?escapeHtml(r.vendedor):na}</td>
@@ -1504,7 +1510,7 @@ async function renderContas(modo) {
     <div class="page-header">
       <div>
         <div class="page-title">${isCP?'Contas a Pagar':'Contas a Receber'} <small>${list.length}${list.length!==listAll.length?' de '+listAll.length:''} titulos</small></div>
-        <div style="font-size:12px;color:var(--text3);margin-top:6px">Bula Assessoria · posição em ${fmtDate(dataBase)} · ${fComp==='firme'?'Compromissos firmes':fComp==='projecao'?'Projeções':'Firmes e projeções'}</div>
+        <div style="font-size:12px;color:var(--text3);margin-top:6px">Bula Assessoria · posição em ${fmtDate(dataBase)} · ${fComp==='firme'?(isCP?'Obrigações e apurações':'Compromissos firmes'):fComp==='projecao'?'Projeções':'Todos os compromissos'}</div>
       </div>
       <div class="page-actions">
         <button class="btn" onclick="exportContasCsv('${modo}')" title="Exportar a lista filtrada para CSV"><span class="material-symbols-outlined">download</span>Exportar CSV</button>
@@ -1515,14 +1521,14 @@ async function renderContas(modo) {
     <div class="kpi-grid">
       <div class="kpi warn">
         <div class="kpi-icon"><span class="material-symbols-outlined">schedule</span></div>
-        <div class="kpi-label">${fComp==='firme'?'Compromissos firmes em aberto':fComp==='projecao'?'Projeções em aberto':'Em aberto incluindo projeções'}</div>
+        <div class="kpi-label">${fComp==='firme'?(isCP?'Posição registrada em aberto':'Compromissos firmes em aberto'):fComp==='projecao'?'Projeções em aberto':'Em aberto incluindo projeções'}</div>
         <div class="kpi-value money">${fmtBRL(emAbertoTotal)}</div>
-        <div class="kpi-sub">${kAbertoN+kVencN} titulos ${isCP?'a pagar':'a receber'}</div>
+        <div class="kpi-sub">${kAbertoN+kVencN} títulos ${isCP?'em acompanhamento':'a receber'}${isCP?` · ${fmtBRL(buckets.apuracao.v)} em apuração · ${fmtBRL(buckets.informado.v)} com quitação informada`:''}</div>
         ${kProj ? `<div class="cmp-bar" title="quanto do total ja e compromisso firmado">
             <i style="width:${Math.round(100*kFirme/Math.max(1,kFirme+kProj))}%"></i></div>
           <div class="cmp-leg">
             <button class="${fComp==='firme'?'on':''}" onclick="onFilterCompromisso('firme')">
-              <span class="cmp-d firme"></span>${isCP?'devido':'contratado'} ${fmtBRL(kFirme)}</button>
+              <span class="cmp-d firme"></span>${isCP?'obrigações e apurações':'contratado'} ${fmtBRL(kFirme)}</button>
             <button class="${fComp==='projecao'?'on':''}" onclick="onFilterCompromisso('projecao')">
               <span class="cmp-d proj"></span>projeção ${fmtBRL(kProj)}</button>
           </div>` : ''}
@@ -1589,7 +1595,7 @@ async function renderContas(modo) {
           <option value="${isCP?'pago':'recebido'}" ${state.filters.status===(isCP?'pago':'recebido')?'selected':''}>${isCP?'Pago':'Recebido'}</option>
         </select>
         <select class="table-filter" onchange="onFilterCompromisso(this.value)" aria-label="Natureza dos compromissos">
-          <option value="firme" ${fComp==='firme'?'selected':''}>Compromissos firmes</option>
+          <option value="firme" ${fComp==='firme'?'selected':''}>${isCP?'Obrigações e apurações':'Compromissos firmes'}</option>
           <option value="projecao" ${fComp==='projecao'?'selected':''}>Somente projeções</option>
           <option value="todos" ${fComp==='todos'?'selected':''}>Firmes e projeções</option>
         </select>
@@ -1730,6 +1736,25 @@ function statusChip(s) {
   return `<span class="chip ${m.c}"><span class="chip-dot"></span>${m.t}</span>`;
 }
 
+function apuracaoBadge(r){
+  const a=r.apuracao||{};
+  if(a.pagamento_situacao==='informado')return '<span class="chip success">Quitação informada · conciliar banco</span>';
+  if(a.valor_situacao==='em_disputa'||a.natureza==='em_verificacao')return '<span class="chip danger">Divergência em apuração</span>';
+  if(a.valor_situacao==='a_apurar')return '<span class="chip warn">Valor em apuração</span>';
+  if(a.valor_situacao==='confirmado')return '<span class="chip info">Valor com fonte conferida</span>';
+  return '';
+}
+function valorTituloHtml(r,valor=r.valor){return r.apuracao?.sem_valor?'Valor a apurar':fmtBRL(valor);}
+function pagamentoPendenteDeConferencia(r){return Boolean(r.financeiro?.projecao || r.financeiro?.apuracao?.exige_conferencia || r.apuracao?.pagamento_situacao==='informado' || r.apuracao?.condicao);}
+function prazoPagamentoHtml(r){
+  const a=r.apuracao||{};
+  if(a.pagamento_situacao==='informado')return '<span class="chip success">Conciliar quitação</span>';
+  if(a.condicao)return `<span class="chip warn">Condicionado ao recebimento</span><div class="muted" style="font-size:11px;white-space:normal">${escapeHtml(a.condicao.descricao||'')}</div>`;
+  if(r.vencimento)return fmtDate(r.vencimento);
+  if(a.previsao_mes)return `<span class="chip warn">${escapeHtml(new Date(a.previsao_mes+'T12:00:00').toLocaleDateString('pt-BR',{month:'long',year:'numeric'}))} · dia a combinar</span>`;
+  return '<span class="chip warn">Data a combinar</span>';
+}
+
 /* ── Painel lateral do título (estilo Omie): detalhes + ações ─────────────── */
 function openTituloDrawer(modo, id){ state.tituloDrawer = { modo, id }; renderTituloDrawer(modo); }
 function closeTituloDrawer(){ state.tituloDrawer = null; const el = document.getElementById('tituloDrawer'); if (el) el.remove(); }
@@ -1759,13 +1784,14 @@ function renderTituloDrawer(modo){
     </div>
     <div class="td-body">
       <div style="margin-bottom:10px">${statusChip(r.status)}</div>
+      ${isCP?`<div style="margin-bottom:12px">${apuracaoBadge(r)}</div>`:''}
       ${kv(isCP?'Fornecedor':'Cliente', escapeHtml((isCP?r.fornecedor:r.cliente)?.nome || '—'))}
-      ${kv('Valor da conta', `<span class="money">${fmtBRL(r.valor)}</span>`)}
-      ${kv('Valor líquido', `<span class="money">${fmtBRL(liquido)}</span>`)}
+      ${kv('Valor da conta', `<span class="money">${valorTituloHtml(r)}</span>`)}
+      ${kv('Valor líquido', `<span class="money">${valorTituloHtml(r,liquido)}</span>`)}
       ${kv(isCP?'Pago':'Recebido', `<span class="money positive">${fmtBRL(rec)}</span>`)}
-      ${isOpenSt?kv('Restante', `<span class="money ${isCP?'negative':'positive'}">${fmtBRL(rest)}</span>`):''}
+      ${isOpenSt?kv('Restante', `<span class="money ${isCP?'negative':'positive'}">${valorTituloHtml(r,rest)}</span>`):''}
       ${kv('Emissão', fmtDate(r.emissao))}
-      ${kv(isCP?'Vencimento':'Pagamento confirmado', isCP||prazoRecebimentoConfirmado(r)?fmtDate(r.vencimento):'Data a confirmar')}
+      ${kv(isCP?'Prazo do pagamento':'Pagamento confirmado', isCP?prazoPagamentoHtml(r):prazoRecebimentoConfirmado(r)?fmtDate(r.vencimento):'Data a confirmar')}
       ${!isCP?kv('Referência antiga do cadastro',fmtDate(r.vencimento)):''}
       ${(isCP?r.data_pagamento:r.data_recebimento)?kv(isCP?'Último pagamento':'Último recebimento', fmtDate(isCP?r.data_pagamento:r.data_recebimento)):''}
       ${kv('Categoria', r.categoria?escapeHtml(r.categoria.nome):na)}
@@ -1775,9 +1801,10 @@ function renderTituloDrawer(modo){
       ${kv('Projeto', r.projeto?escapeHtml(r.projeto):na)}
       ${kv('Conta corrente', r.conta?escapeHtml(r.conta.nome):na)}
       <div id="tituloEvidencias" style="margin:14px 0;padding:12px;border:1px solid var(--border);border-radius:8px;color:var(--text2)">Consultando evidências da liquidação…</div>
+      ${isCP&&r.apuracao?.fontes?.length?`<div style="padding:12px;border:1px solid var(--border);border-radius:8px"><b>Fundamento da obrigação</b>${r.apuracao.fontes.map(f=>`<div style="margin-top:10px">${escapeHtml(f.tipo)} · ${escapeHtml(f.data||'')}<br>${escapeHtml(f.trecho||'')}<div class="muted" style="font-size:11px;overflow-wrap:anywhere">${escapeHtml(f.ref)}</div></div>`).join('')}${(r.apuracao.pendencias||[]).map(p=>`<p>${escapeHtml(p)}</p>`).join('')}</div>`:''}
       ${r.observacoes?kv('Observações', escapeHtml(r.observacoes)):''}
       <div class="td-acts">
-        ${isOpenSt ? act('bolt', isCP?'Pagar Agora':'Receber Agora', `openPagamento('${modo}','${r.id}')`, 'primary') : ''}
+        ${isOpenSt ? act('bolt', isCP?(pagamentoPendenteDeConferencia(r)?'Conferir antes de pagar':'Registrar pagamento'):'Receber Agora', `openPagamento('${modo}','${r.id}')`, 'primary') : ''}
         ${act('edit','Editar', `openTitulo('${modo}','${r.id}')`)}
         ${act('content_copy','Duplicar', `duplicarTitulo('${modo}','${r.id}')`)}
         ${act('download','Exportar CSV (filtro atual)', `exportContasCsv('${modo}')`)}
@@ -1887,6 +1914,7 @@ function openBulkPagamento(modo) {
   const list = (isCP?state.cp:state.cr) || [];
   const sel = list.filter(r => state.contasSel.has(r.id) && ['aberto','parcial','vencido'].includes(r.status));
   if (!sel.length) { toast('Nenhum titulo em aberto selecionado','error'); return; }
+  if (isCP && sel.some(pagamentoPendenteDeConferencia)) { toast('A seleção inclui apuração, projeção, quitação informada ou condição de recebimento. Confira esses títulos individualmente.','info'); return; }
   const calcRest=(r)=>Number(r.valor||0)-Number(r.desconto||0)+Number(r.juros||0)+Number(r.multa||0)-Number(isCP?r.valor_pago||0:r.valor_recebido||0);
   const total = sel.reduce((s,r)=>s+calcRest(r),0);
   const opt = (arr) => arr.map(a=>`<option value="${a.id}">${escapeHtml(a.nome)}</option>`).join('');
@@ -1916,6 +1944,7 @@ async function confirmBulkPagamento(modo) {
   if (!data.conta_bancaria_id) { toast('Selecione a conta bancaria','error'); return; }
   const list = (isCP?state.cp:state.cr) || [];
   const sel = list.filter(r => state.contasSel.has(r.id) && ['aberto','parcial','vencido'].includes(r.status));
+  if (isCP && sel.some(pagamentoPendenteDeConferencia)) { toast('Confira os títulos pendentes antes de registrar o lote.','info'); return; }
   const calcRest=(r)=>Number(r.valor||0)-Number(r.desconto||0)+Number(r.juros||0)+Number(r.multa||0)-Number(isCP?r.valor_pago||0:r.valor_recebido||0);
   const btn = form.closest('.modal').querySelector('.btn-success');
   if (btn) { btn.disabled = true; btn.innerHTML = '<span class="material-symbols-outlined">hourglass_empty</span>Processando...'; }
@@ -2009,7 +2038,12 @@ function openTitulo(modo, id) {
           <select name="conta_bancaria_id"><option value="">--</option>${opt(state.bancos,'id','nome',titulo?.conta_bancaria_id)}</select>
         </div>
         <div class="field"><label>Emissao</label><input name="emissao" type="date" value="${titulo?.emissao||today()}"></div>
-        <div class="field"><label>${isCP?'Vencimento*':'Data para acompanhar / data confirmada*'}</label><input name="vencimento" type="date" required value="${titulo?.vencimento||today()}"></div>
+        <div class="field"><label>${isCP?'Vencimento confirmado (opcional)':'Data para acompanhar / data confirmada*'}</label><input name="vencimento" type="date" ${isCP?'':'required'} value="${titulo?.vencimento||(isCP?'':today())}"></div>
+        ${isCP?`<div class="field full muted">Deixe o vencimento vazio enquanto não houver dia combinado. A obrigação continua aparecendo no contas a pagar.</div>`:''}
+        ${isCP?`<div class="field"><label>Situação da obrigação</label><select name="apuracao_natureza"><option value="">Cadastro anterior</option>${[['obrigacao','Obrigação existente'],['em_verificacao','Existência em verificação'],['projecao','Projeção de fato futuro']].map(([v,l])=>`<option value="${v}" ${titulo?.apuracao?.natureza===v?'selected':''}>${l}</option>`).join('')}</select></div>
+        <div class="field"><label>Situação do valor</label><select name="apuracao_valor"><option value="">Valor cadastrado</option>${[['confirmado','Valor com fonte conferida'],['a_apurar','Valor em apuração'],['em_disputa','Valor ou beneficiário em disputa']].map(([v,l])=>`<option value="${v}" ${titulo?.apuracao?.valor_situacao===v?'selected':''}>${l}</option>`).join('')}</select></div>
+        <div class="field"><label>Mês previsto (sem inventar dia)</label><input name="apuracao_mes" type="month" value="${titulo?.apuracao?.previsao_mes?.slice(0,7)||''}"></div>
+        <div class="field full"><label>Fundamento da conferência</label><input name="apuracao_fonte" placeholder="Mensagem, documento ou acerto que confirma a alteração"></div>`:''}
         ${!isCP?`<div class="field"><label>Situação da data</label><select name="prazo_confirmado"><option value="false" ${!titulo||!prazoRecebimentoConfirmado(titulo)?'selected':''}>Acompanhar cobrança; cliente ainda não confirmou</option><option value="true" ${titulo&&prazoRecebimentoConfirmado(titulo)?'selected':''}>Cliente confirmou o pagamento nesta data</option></select></div><div class="field"><label>Quem confirmou / referência da conversa</label><input name="fonte_prazo" placeholder="Contato, data e mensagem ou documento"></div><div class="field full muted">A cobrança começa em torno de 30 dias após o leilão e depende da validação do fechamento. A data de acompanhamento não entra como promessa de pagamento. No parcelamento, esta confirmação vale para a primeira parcela; confirme as demais quando houver acordo.</div>`:''}
         <div class="field"><label>Numero do Documento</label><input name="numero_documento" value="${escapeHtml(titulo?.numero_documento||'')}"></div>
         <div class="field"><label>Nota Fiscal</label><input name="nota_fiscal" value="${escapeHtml(titulo?.nota_fiscal||'')}" placeholder="Nº da NF"></div>
@@ -2048,6 +2082,7 @@ async function saveTitulo(modo, id) {
   const data = Object.fromEntries(new FormData(form));
   if (data.valor) data.valor = Number(data.valor);
   if (data.total_parcelas) data.total_parcelas = Number(data.total_parcelas);
+  if (modo==='pagar' && !data.vencimento) data.vencimento = null;
   if (modo==='receber') data.prazo_confirmado = data.prazo_confirmado==='true';
   try {
     if (id) await api(`/api/erp/contas-${modo}/${id}`, { method:'PATCH', body:JSON.stringify(data) });
@@ -2071,6 +2106,8 @@ function openPagamento(modo, id) {
   const isCP = modo === 'pagar';
   const titulo = (isCP?state.cp:state.cr).find(t => t.id === id);
   if (!titulo) return;
+  if(isCP && titulo.apuracao?.pagamento_situacao==='informado') { toast('Quitação já informada. Concilie o lançamento no extrato antes de registrar outra saída.','info'); openTituloDrawer(modo,id); return; }
+  if(isCP && (titulo.financeiro?.projecao || titulo.financeiro?.apuracao?.exige_conferencia)) { toast('Conclua a apuração da obrigação e do valor antes de registrar pagamento.','info'); openTituloDrawer(modo,id); return; }
   const restante = Number(titulo.valor||0) - Number(titulo.desconto||0) + Number(titulo.juros||0) + Number(titulo.multa||0) - Number(isCP?titulo.valor_pago||0:titulo.valor_recebido||0);
   const opt = (arr, sel) => arr.map(a => `<option value="${a.id}" ${sel===a.id?'selected':''}>${escapeHtml(a.nome)}</option>`).join('');
   const html = `
@@ -3661,7 +3698,7 @@ async function renderDRE() {
 
   const html = `
     <div class="page-header">
-      <div><div class="page-title">DRE <small>${fmtDate(from)} a ${fmtDate(to)} | regime ${regime}</small></div></div>
+      <div><div class="page-title">DRE <small>${fmtDate(from)} a ${fmtDate(to)} | regime ${regime}</small></div>${d.resultado_provisorio?`<div class="muted" style="margin-top:8px">Resultado provisório: ${d.pendencias_apuracao} obrigações do período em apuração, com ${fmtBRL(d.valor_em_conferencia)} em valores de referência.${d.obrigacoes_sem_competencia?` Outras ${d.obrigacoes_sem_competencia} obrigações ainda precisam ter a competência definida.`:''}${d.periodo_em_curso?' O período selecionado ainda está em curso.':''} Confira as pendências antes de fechar lucro ou repasses.</div>`:''}</div>
       <div class="page-actions">
         <input type="date" class="table-filter" value="${from}" onchange="state.filters.dreFrom=this.value;render()">
         <input type="date" class="table-filter" value="${to}" onchange="state.filters.dreTo=this.value;render()">
@@ -3809,7 +3846,7 @@ async function renderBalanco() {
         <div class="kpi-icon"><span class="material-symbols-outlined">credit_card</span></div>
         <div class="kpi-label">Passivo Operacional</div>
         <div class="kpi-value money negative">${fmtBRL(op.passivo)}</div>
-        <div class="kpi-sub">contas a pagar em aberto${op.orcamento_futuro>0.005?` · orçamento futuro ${fmtBRL(op.orcamento_futuro)} fora`:''}</div>
+        <div class="kpi-sub">posição em ${fmtDate(op.posicao_em||today())} · ${fmtBRL(op.valor_em_apuracao||0)} em apuração · ${fmtBRL(op.quitacao_informada||0)} com quitação informada${op.orcamento_futuro>0.005?` · orçamento futuro ${fmtBRL(op.orcamento_futuro)} fora`:''}</div>
       </div>
       <div class="kpi ${op.patrimonio_liquido>=0?'success':'danger'}">
         <div class="kpi-icon"><span class="material-symbols-outlined">workspace_premium</span></div>
@@ -4069,6 +4106,8 @@ async function renderFluxo() {
     </div>
 
     ${d.sem_data?.titulos_entrada?`<div class="card" style="margin-top:14px"><div class="card-title">Recebimentos sem data confirmada</div><b>${fmtBRL(d.sem_data.entrada)}</b> em ${d.sem_data.titulos_entrada} títulos. Acompanhar cobrança e validar fechamento; não entram como dinheiro prometido na curva.</div>`:''}
+    ${d.sem_data?.titulos_saida?`<div class="card" style="margin-top:14px"><div class="card-title">Obrigações sem dia ou condicionadas</div><b>${fmtBRL(d.sem_data.saida)}</b> em ${d.sem_data.titulos_saida} títulos. Continuam no contas a pagar, fora da curva diária até existir data confirmada.</div>`:''}
+    ${d.em_apuracao?.titulos_saida||d.em_apuracao?.titulos_quitacao?`<div class="card" style="margin-top:14px"><div class="card-title">Valores em conferência</div>${fmtBRL(d.em_apuracao.saida)} em ${d.em_apuracao.titulos_saida} obrigações a apurar; ${fmtBRL(d.em_apuracao.quitacao_informada)} em ${d.em_apuracao.titulos_quitacao} quitações informadas aguardando conciliação. Não entram como nova saída na curva.</div>`:''}
     ${(d.vencido && (d.vencido.entrada || d.vencido.saida)) ? `
     <div class="card" style="margin-top:14px;border-color:rgba(212,168,67,0.4)">
       <div class="card-title"><span class="material-symbols-outlined">schedule</span>Fora da curva &middot; vencido e ainda em aberto</div>
@@ -6329,6 +6368,7 @@ function coClear() { ['coMes','coAno','coSearch','coEmpresa','coLeilao','coAsses
 
 async function renderComissionamento() {
   if (!state.fechamentos) state.fechamentos = await api('/api/bula/fechamento');
+  state.cp = await api('/api/erp/contas-pagar');
   if (!state.folhaEstrutura) { state.folhaEstrutura = await api('/api/erp/folha-estrutura').catch(()=>[]); state._eqMaps = null; }
   const all = state.fechamentos || [];
   const f = state.filters;
@@ -6346,6 +6386,22 @@ async function renderComissionamento() {
   state.coCache = assessores; // p/ drawer e CSV (mesma lista filtrada exibida)
 
   const fechs = coFilteredFechamentos();
+  // A apuração financeira conserva fontes, disputas e baixas que o fechamento comercial não contém.
+  const idsEventos = new Set(fechs.map(x=>x.id));
+  const nomesVisiveis = new Set(assessores.map(x=>x.key));
+  const cpsComissao = state.cp.filter(t=>{
+    if (!t.financeiro?.ativo || t.financeiro?.projecao || !/comiss/i.test(t.categoria?.nome||'') || t.apuracao?.condicao) return false;
+    const competencia = (t.apuracao?.competencia_fim || t.fechamento?.data || '').slice(0,10);
+    if (ano && (!competencia || competencia.slice(0,4)!==ano)) return false;
+    if (mes && (!competencia || Number(competencia.slice(5,7))!==Number(mes))) return false;
+    if (leilaoSel && !idsEventos.has(t.fechamento_id)) return false;
+    if ((sNorm || empresa || assessorSel) && !nomesVisiveis.has(coNorm(t.fornecedor?.nome||''))) return false;
+    return true;
+  });
+  const cpsAbertas = cpsComissao.filter(t=>['aberto','parcial','vencido'].includes(t.status));
+  const cpsConfirmadas = cpsAbertas.filter(t=>t.apuracao?.valor_situacao==='confirmado' && !t.financeiro?.apuracao?.exige_conferencia && t.apuracao?.pagamento_situacao!=='informado');
+  const cpsEmApuracao = cpsAbertas.filter(t=>!cpsConfirmadas.includes(t));
+  const somaSaldo = rows=>rows.reduce((s,t)=>s+Number(t.financeiro?.saldo||0),0);
   /* "Comissao a Pagar" respeita ESTRITAMENTE o periodo filtrado (decisao do
      chefe 23/07: mostrar saldo de outro periodo na linha — ex.: os 23.490 de
      julho do Rusa aparecendo no filtro de junho — polui a leitura do mes).
@@ -6365,7 +6421,7 @@ async function renderComissionamento() {
   const html = `
     <div class="page-header">
       <div>
-        <div class="page-title">Bônus e Comissionamento <small>${assessores.length} assessores · valores a pagar por leilao e venda</small></div>
+        <div class="page-title">Bônus e Comissionamento <small>${assessores.length} assessores · competência do leilão</small></div>
       </div>
       <div class="page-actions">
         <button class="btn btn-ghost btn-sm" onclick="flReload()"><span class="material-symbols-outlined">refresh</span>Atualizar</button>
@@ -6374,14 +6430,20 @@ async function renderComissionamento() {
       </div>
     </div>
 
-    ${semComissao ? `<div class="card" style="border-color:var(--amber-bg);background:var(--amber-bg);margin-bottom:18px;display:flex;gap:10px;align-items:center"><span class="material-symbols-outlined" style="color:var(--amber)">info</span><div style="font-size:12px;color:var(--text2)">Os leiloes filtrados nao tem comissao lancada — os valores a pagar aparecem zerados. Lance a comissao no Fechamento de Leiloes.</div></div>`:''}
+    <div class="card" style="margin-bottom:18px">
+      <div class="card-title">Obrigações registradas no financeiro · período selecionado</div>
+      <div class="kpi-grid"><div><div class="muted">Valor conferido em aberto</div><div class="money" style="font-size:22px">${fmtBRL(somaSaldo(cpsConfirmadas))}</div></div><div><div class="muted">Valor cadastrado ou em apuração</div><div class="money" style="font-size:22px">${fmtBRL(somaSaldo(cpsEmApuracao))}</div><div class="muted">${cpsEmApuracao.length} títulos, incluindo ${cpsEmApuracao.filter(t=>t.apuracao?.sem_valor).length} sem valor definido</div></div></div>
+      <p class="muted">A tabela de vendas abaixo conserva os cálculos dos fechamentos. Para conferir o valor devido, o beneficiário e a baixa, abra os títulos com suas fontes. Disputas entre assessores são registradas uma vez no financeiro.</p>
+      <details><summary style="cursor:pointer">Ver ${cpsAbertas.length} títulos em aberto</summary><div class="table-wrap"><table><thead><tr><th>Obrigação</th><th>Beneficiário</th><th>Saldo</th><th>Conferência</th></tr></thead><tbody>${cpsAbertas.map(t=>`<tr style="cursor:pointer" onclick="openTituloDrawer('pagar','${t.id}')"><td>${escapeHtml(t.descricao)}</td><td>${escapeHtml(t.fornecedor?.nome||'Beneficiário em apuração')}</td><td class="money">${valorTituloHtml(t,t.financeiro?.saldo)}</td><td>${apuracaoBadge(t)||'<span class="chip muted">Cadastro anterior · conferir fonte</span>'}</td></tr>`).join('')}</tbody></table></div></details>
+    </div>
+    ${semComissao ? `<div class="card" style="margin-bottom:18px">Os fechamentos selecionados ainda não contêm cálculo de comissão. Confira acima as obrigações já registradas no financeiro.</div>`:''}
 
     <div class="kpi-grid">
       <div class="kpi warn">
         <div class="kpi-icon"><span class="material-symbols-outlined">payments</span></div>
-        <div class="kpi-label">Total a Pagar</div>
+        <div class="kpi-label">Comissão nos fechamentos</div>
         <div class="kpi-value money">${fmtBRL(tot.pagar)}</div>
-        <div class="kpi-sub">comissoes em aberto${tot.paga>0?` · ${fmtBRL(tot.paga)} ja pago`:''}</div>
+        <div class="kpi-sub">cálculo comercial cadastrado${tot.paga>0?` · ${fmtBRL(tot.paga)} marcado como pago no fechamento`:''}</div>
       </div>
       <div class="kpi info">
         <div class="kpi-icon"><span class="material-symbols-outlined">groups</span></div>
@@ -6435,7 +6497,7 @@ async function renderComissionamento() {
             <th style="text-align:right">Vendas</th>
             <th style="text-align:right">Animais</th>
             <th style="text-align:right">VGV Intermediado</th>
-            <th style="text-align:right">Comissao a Pagar</th>
+            <th style="text-align:right">Comissão no fechamento</th>
             <th style="width:120px">Participacao</th>
             <th></th>
           </tr>

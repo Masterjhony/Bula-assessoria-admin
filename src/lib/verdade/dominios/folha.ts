@@ -13,13 +13,27 @@
 
 import type { DefinicaoValidacao, DefinicaoVariavel, ResultadoCalculo } from '../tipos'
 import { cobertura, cobreTudo } from '../tipos'
-import { type Fatos, aberto, devido, maxData, num, r2 } from '../fatos'
+import { type Fatos, type FolhaLinha, type Titulo, aberto, compromissoFuturo, devido, maxData, naoSubstituido, num, r2 } from '../fatos'
 
 const brl = (n: number) => 'R$ ' + Number(n || 0).toLocaleString('pt-BR', { minimumFractionDigits: 2 })
 const lista = (xs: string[], n = 5) =>
     xs.slice(0, n).join('; ') + (xs.length > n ? ` … (+${xs.length - n})` : '')
-const mesDe = (iso: string) => String(iso || '').slice(0, 7)
+const mesDe = (iso: string | null | undefined): string | null => iso ? iso.slice(0, 7) : null
 const ehFolha = (desc: string) => /folha|salario|salário|pro.?labore/i.test(desc)
+// O vencimento é apenas a referência legada quando a competência não foi registrada.
+const mesCompetencia = (t: Titulo) => mesDe(t.apuracao?.competencia_inicio) ?? mesDe(t.vencimento)
+const projecoes = (f: Fatos) => f.cp.filter(t => aberto(t) && naoSubstituido(t) && compromissoFuturo(t) && ehFolha(t.descricao))
+const futuras = (f: Fatos) => projecoes(f).filter(t => {
+    const mes = mesCompetencia(t)
+    return mes !== null && mes >= f.hoje.slice(0, 7)
+})
+const norm = (s: string) => s.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase().trim()
+const daPessoa = (t: Titulo, pessoa: FolhaLinha) => {
+    if (t.fornecedor_id && pessoa.fornecedor_id) return t.fornecedor_id === pessoa.fornecedor_id
+    const nomes = [pessoa.nome, pessoa.pagamento_nome, ...(pessoa.apelidos || [])]
+        .filter((n): n is string => Boolean(n)).map(norm).filter(n => n.length > 2)
+    return nomes.some(n => norm(t.descricao).includes(n))
+}
 
 export const VARIAVEIS: DefinicaoVariavel<Fatos>[] = [
     {
@@ -50,20 +64,25 @@ export const VARIAVEIS: DefinicaoVariavel<Fatos>[] = [
     },
     {
         id: 'folha.custo_projetado_mes',
-        titulo: 'Folha projetada no caixa para o próximo vencimento',
+        titulo: 'Folha projetada para a próxima competência',
         unidade: 'BRL',
         classe: 'estimada',
-        formula: 'Σ devido dos CP de folha em aberto, no menor vencimento a partir de hoje',
+        formula: 'Σ devido das projeções de folha na primeira competência atual ou futura; vencimento é referência somente no legado sem competência',
         calcular: (f): ResultadoCalculo => {
-            const cps = f.cp.filter(t => aberto(t) && ehFolha(t.descricao) && t.vencimento >= f.hoje)
-            const alvo = cps.map(t => t.vencimento).sort()[0] || null
-            const doCiclo = alvo ? cps.filter(t => t.vencimento === alvo) : []
+            const cps = futuras(f)
+            const alvo = cps.map(mesCompetencia).filter((m): m is string => m !== null).sort()[0] || null
+            const doCiclo = alvo ? cps.filter(t => mesCompetencia(t) === alvo) : []
+            const semReferencia = projecoes(f).filter(t => mesCompetencia(t) === null)
+            const legado = doCiclo.filter(t => !t.apuracao?.competencia_inicio)
             return {
                 valor: r2(doCiclo.reduce((s, t) => s + devido(t, 'valor_pago'), 0)),
-                origens: [{ fonte: 'erp_contas_pagar', filtro: `descrição ~ folha/salário, vencimento = ${alvo || '—'}`, linhas: doCiclo.length }],
-                cobertura: cobreTudo(doCiclo.length),
+                origens: [{ fonte: 'erp_contas_pagar', filtro: `projeção de folha, referência de competência = ${alvo || 'não informada'}`, linhas: doCiclo.length }],
+                cobertura: cobertura(doCiclo.length + semReferencia.length, doCiclo.length - legado.length, [
+                    ...(semReferencia.length ? [{ motivo: 'projeção de folha sem competência nem vencimento de referência; não alocada em mês', impacto: 'interpretacao' as const, linhas: semReferencia.length, exemplos: semReferencia.map(t => t.descricao) }] : []),
+                    ...(legado.length ? [{ motivo: 'competência não informada; agrupamento usa o vencimento legado e pode estar no mês seguinte ao serviço', impacto: 'interpretacao' as const, linhas: legado.length }] : []),
+                ]),
                 atualizado_em: maxData(doCiclo.map(t => t.updated_at)),
-                formula: `Σ devido dos CP de folha com vencimento em ${alvo || '—'}`,
+                formula: `Σ devido das projeções de folha da competência ${alvo || 'não informada'}`,
                 composicao: doCiclo
                     .slice()
                     .sort((a, b) => devido(b, 'valor_pago') - devido(a, 'valor_pago'))
@@ -73,17 +92,18 @@ export const VARIAVEIS: DefinicaoVariavel<Fatos>[] = [
     },
     {
         id: 'folha.meses_projetados',
-        titulo: 'Até quando a folha está projetada no caixa',
+        titulo: 'Última referência de competência da folha projetada',
         unidade: 'data',
         classe: 'primaria',
-        formula: 'maior vencimento entre os CP de folha em aberto',
+        formula: 'maior fim/início de competência informado; vencimento como referência do cadastro legado',
         calcular: (f): ResultadoCalculo => {
-            const cps = f.cp.filter(t => aberto(t) && ehFolha(t.descricao))
-            const meses = new Set(cps.map(t => mesDe(t.vencimento)))
+            const cps = projecoes(f)
+            const meses = new Set(cps.map(mesCompetencia).filter((m): m is string => m !== null))
+            const sem = cps.filter(t => !t.apuracao?.competencia_inicio)
             return {
-                valor: maxData(cps.map(t => t.vencimento)),
+                valor: maxData(cps.map(t => t.apuracao?.competencia_fim ?? t.apuracao?.competencia_inicio ?? t.vencimento)),
                 origens: [{ fonte: 'erp_contas_pagar', filtro: 'folha em aberto', linhas: cps.length }],
-                cobertura: cobreTudo(cps.length),
+                cobertura: cobertura(cps.length, cps.length - sem.length, sem.length ? [{ motivo: 'projeções sem competência explícita; referência legada não comprova mês do serviço', impacto: 'interpretacao', linhas: sem.length }] : []),
                 atualizado_em: maxData(cps.map(t => t.updated_at)),
                 composicao: [{ rotulo: 'meses com folha projetada', valor: meses.size }],
             }
@@ -105,34 +125,31 @@ export const VALIDACOES: DefinicaoValidacao<Fatos>[] = [
             // reprojetou" — que é o erro que esta validação existe para pegar.
             const ativos = f.folha.filter(x => x.ativo && num(x.salario_fixo) > 0)
             if (!ativos.length) return null
-            const futuros = f.cp.filter(t => aberto(t) && ehFolha(t.descricao) && t.vencimento >= f.hoje)
+            const futuros = futuras(f)
             if (!futuros.length) {
                 return {
                     detalhe: `folha cadastrada em ${brl(ativos.reduce((s, x) => s + num(x.salario_fixo), 0))}/mes, ` +
                         `mas NENHUM CP de folha em aberto — o caixa nao a enxerga`,
                 }
             }
-            const norm = (s: string) => String(s || '').normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase()
-            const meses = [...new Set(futuros.map(t => mesDe(t.vencimento)))].sort()
+            const meses = [...new Set(futuros.map(mesCompetencia))].filter((m): m is string => m !== null).sort()
 
             const aMaior: string[] = []
             const proRata: string[] = []
             const semTitulo: string[] = []
             for (const mes of meses) {
-                const doMes = futuros.filter(t => mesDe(t.vencimento) === mes)
+                const doMes = futuros.filter(t => mesCompetencia(t) === mes)
                 for (const pessoa of ativos) {
                     // Nome COMPLETO, nao o primeiro: a Bula tem Joao Gabriel,
                     // Joao Eduardo e Joao Antonio, e casar por "joao" fazia o
                     // titulo de um virar divergencia do outro.
-                    const nomes = [pessoa.nome, pessoa.pagamento_nome, ...(pessoa.apelidos || [])]
-                        .filter(Boolean).map(n => norm(n as string).trim()).filter(n => n.length > 2)
-                        .sort((a, b) => b.length - a.length)
-                    const titulo = doMes.find(t => nomes.some(n => norm(t.descricao).includes(n)))
-                    if (!titulo) { semTitulo.push(`${mes} ${pessoa.nome}`); continue }
-                    const dif = r2(devido(titulo, 'valor_pago') - num(pessoa.salario_fixo))
+                    const titulos = doMes.filter(t => daPessoa(t, pessoa))
+                    if (!titulos.length) { semTitulo.push(`${mes} ${pessoa.nome}`); continue }
+                    const projetado = r2(titulos.reduce((s, t) => s + devido(t, 'valor_pago'), 0))
+                    const dif = r2(projetado - num(pessoa.salario_fixo))
                     if (Math.abs(dif) <= 1) continue
-                    if (dif < 0) proRata.push(`${mes} ${pessoa.nome}: ${brl(devido(titulo, 'valor_pago'))} de ${brl(num(pessoa.salario_fixo))}`)
-                    else aMaior.push(`${mes} ${pessoa.nome}: projetado ${brl(devido(titulo, 'valor_pago'))} > cadastro ${brl(num(pessoa.salario_fixo))}`)
+                    if (dif < 0) proRata.push(`${mes} ${pessoa.nome}: ${brl(projetado)} de ${brl(num(pessoa.salario_fixo))}`)
+                    else aMaior.push(`${mes} ${pessoa.nome}: projetado ${brl(projetado)} > cadastro ${brl(num(pessoa.salario_fixo))}`)
                 }
             }
             // Título A MAIOR que o cadastro nunca é pró-rata: ou o salário caiu e
@@ -162,19 +179,12 @@ export const VALIDACOES: DefinicaoValidacao<Fatos>[] = [
         severidade: 'warn',
         afeta: ['folha.custo_projetado_mes'],
         checar: (f) => {
-            const futuros = f.cp.filter(t => aberto(t) && ehFolha(t.descricao) && t.vencimento >= f.hoje)
-            const alvo = futuros.map(t => t.vencimento).sort()[0]
+            const futuros = futuras(f)
+            const alvo = futuros.map(mesCompetencia).filter((m): m is string => m !== null).sort()[0]
             if (!alvo) return null
-            const doCiclo = futuros.filter(t => t.vencimento === alvo)
-            const norm = (s: string) => String(s || '').normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase()
-            const textoCiclo = doCiclo.map(t => norm(t.descricao)).join(' | ')
-            const faltando = f.folha.filter(x => x.ativo).filter(x => {
-                const nomes = [x.nome, x.pagamento_nome, ...(x.apelidos || [])].filter(Boolean) as string[]
-                return !nomes.some(n => {
-                    const primeiro = norm(n).split(/\s+/)[0]
-                    return primeiro.length > 2 && textoCiclo.includes(primeiro)
-                })
-            })
+            const doCiclo = futuros.filter(t => mesCompetencia(t) === alvo)
+            const faltando = f.folha.filter(x => x.ativo && num(x.salario_fixo) > 0)
+                .filter(x => !doCiclo.some(t => daPessoa(t, x)))
             if (!faltando.length) return null
             return {
                 detalhe: `${faltando.length} pessoa(s) ativas na folha sem título no ciclo de ${alvo}: ` +
@@ -188,14 +198,8 @@ export const VALIDACOES: DefinicaoValidacao<Fatos>[] = [
         severidade: 'warn',
         afeta: ['folha.custo_projetado_mes', 'pagar.projetado'],
         checar: (f) => {
-            const norm = (s: string) => String(s || '').normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase()
-            const nomes = f.folha.flatMap(x => [x.nome, x.pagamento_nome, ...(x.apelidos || [])])
-                .filter(Boolean).map(n => norm(n as string).split(/\s+/)[0]).filter(n => n.length > 2)
-            const futuros = f.cp.filter(t => aberto(t) && ehFolha(t.descricao) && t.vencimento >= f.hoje)
-            const orfaos = futuros.filter(t => {
-                const d = norm(t.descricao)
-                return !nomes.some(n => d.includes(n))
-            })
+            const futuros = futuras(f)
+            const orfaos = futuros.filter(t => !f.folha.some(x => daPessoa(t, x)))
             if (!orfaos.length) return null
             return {
                 detalhe: `${orfaos.length} título(s) de folha sem pessoa correspondente no cadastro: ` +

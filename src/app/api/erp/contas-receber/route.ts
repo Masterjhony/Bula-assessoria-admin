@@ -19,7 +19,7 @@ export async function POST(req: NextRequest) {
   if (!body.descricao) return fail('descricao obrigatoria')
   if (body.valor == null) return fail('valor obrigatorio')
 
-  let parcelas: ReturnType<typeof parcelarTitulo>
+  let parcelas: { parcela: number; valor: number; vencimento: string }[]
   try { parcelas = parcelarTitulo(body.valor, body.vencimento, body.total_parcelas ?? 1) }
   catch (error) { return fail((error as Error).message) }
   const total = parcelas.length
