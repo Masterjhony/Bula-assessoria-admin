@@ -10,6 +10,7 @@
 
 import type { DefinicaoVariavel, Lacuna, ResultadoCalculo, VariavelResolvida } from './tipos'
 import { cobertura, cobreTudo } from './tipos'
+import { recebimentoConfirmado } from '../erp-prazos'
 import {
     type Fatos, aberto, compromissoFuturo, devido, maxData, naoSubstituido, num, operacional, r2,
 } from './fatos'
@@ -142,13 +143,12 @@ const NUCLEO_FINANCEIRO: DefinicaoVariavel<Fatos>[] = [
         titulo: 'A receber vencido',
         unidade: 'BRL',
         classe: 'primaria',
-        formula: 'Σ devido dos CR abertos com vencimento < hoje',
+        formula: 'Σ devido dos CR abertos com data acordada anterior a hoje',
         calcular: (f): ResultadoCalculo => {
-            const ts = f.cr.filter(t => aberto(t) && naoSubstituido(t) && t.vencimento < f.hoje)
+            const ts = f.cr.filter(t => aberto(t) && naoSubstituido(t) && recebimentoConfirmado(t) && t.vencimento < f.hoje)
             const valor = r2(ts.reduce((s, t) => s + devido(t, 'valor_recebido'), 0))
             // Vencimento automático (leilão+45d) não é promessa: entra como lacuna.
-            const acordados = ts.filter(t =>
-                (t.tags || []).includes('data-acordada') || /acordo|acordad/i.test(String(t.observacoes || '')))
+            const acordados = ts.filter(recebimentoConfirmado)
             const lacunas: Lacuna[] = ts.length > acordados.length ? [{
                 motivo: 'vencimento automático (leilão+45d), sem data combinada com a leiloeira',
                 impacto: 'interpretacao',
@@ -158,7 +158,7 @@ const NUCLEO_FINANCEIRO: DefinicaoVariavel<Fatos>[] = [
             }] : []
             return {
                 valor,
-                origens: [{ fonte: 'erp_contas_receber', filtro: `aberto e vencimento < ${f.hoje}`, linhas: ts.length }],
+                origens: [{ fonte: 'erp_contas_receber', filtro: `aberto, data acordada e vencimento < ${f.hoje}`, linhas: ts.length }],
                 // O valor está certo: todo CR vencido entrou na soma. O que a lacuna
                 // estraga é a leitura de "vencido", não o total.
                 cobertura: cobreTudo(ts.length, lacunas),
@@ -476,9 +476,10 @@ const NUCLEO_FINANCEIRO: DefinicaoVariavel<Fatos>[] = [
             // vencido acumulado aqui era o jeito mais rápido de projetar caixa
             // que nunca chega — ele entra como parcela à parte, declarada.
             const naJanela = (t: { vencimento: string }) => t.vencimento >= f.hoje && t.vencimento <= ate
-            const crJanela = f.cr.filter(t => aberto(t) && naoSubstituido(t) && naJanela(t))
+            const crJanela = f.cr.filter(t => aberto(t) && naoSubstituido(t) && recebimentoConfirmado(t) && naJanela(t))
             const cpJanela = f.cp.filter(t => aberto(t) && naoSubstituido(t) && naJanela(t))
-            const crVencido = f.cr.filter(t => aberto(t) && naoSubstituido(t) && t.vencimento < f.hoje)
+            const crVencido = f.cr.filter(t => aberto(t) && naoSubstituido(t) && recebimentoConfirmado(t) && t.vencimento < f.hoje)
+            const crSemData = f.cr.filter(t => aberto(t) && naoSubstituido(t) && !recebimentoConfirmado(t))
             const cpVencido = f.cp.filter(t => aberto(t) && naoSubstituido(t) && t.vencimento < f.hoje)
             const entra = crJanela.reduce((s, t) => s + devido(t, 'valor_recebido'), 0)
             const sai = cpJanela.reduce((s, t) => s + devido(t, 'valor_pago'), 0)
@@ -487,7 +488,7 @@ const NUCLEO_FINANCEIRO: DefinicaoVariavel<Fatos>[] = [
             // e estimativas não são dinheiro. Isso vira lacuna, não nota de rodapé.
             const frouxos = crJanela.filter(t =>
                 compromissoFuturo(t) ||
-                !((t.tags || []).includes('data-acordada') || /acordo|acordad/i.test(String(t.observacoes || ''))))
+                !recebimentoConfirmado(t))
             const lacunas: Lacuna[] = frouxos.length ? [{
                 motivo: 'entrada projetada sem data combinada (ou estimativa) — pode não cair na janela',
                 impacto: 'interpretacao',
@@ -505,6 +506,7 @@ const NUCLEO_FINANCEIRO: DefinicaoVariavel<Fatos>[] = [
                 atualizado_em: dep['caixa.saldo']?.atualizado_em || null,
                 formula: `${r2(saldo)} (caixa) + ${r2(entra)} (CR vencendo de ${f.hoje} a ${ate}) − ${r2(sai)} (CP no mesmo intervalo). Vencido acumulado fica FORA.`,
                 composicao: [
+                    { rotulo: 'fora da projeção: recebíveis sem data confirmada', valor: r2(crSemData.reduce((s,t)=>s+devido(t,'valor_recebido'),0)), nota: 'acompanhar cobrança; não representa entrada prometida nesta janela' },
                     { rotulo: 'caixa hoje', valor: r2(saldo) },
                     { rotulo: `a receber vencendo até ${ate}`, valor: r2(entra) },
                     { rotulo: `a pagar vencendo até ${ate}`, valor: r2(-sai) },

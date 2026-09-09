@@ -1,4 +1,5 @@
 import { admin, fail, guard, ok, type NextRequest } from '@/lib/erp'
+import { leituraCompleta } from '@/lib/erp-leitura'
 
 // Deriva o status de conciliacao em 3 estados. Usa a coluna persistida quando
 // existe (migration 0035); senao, infere do estado atual para que a tela
@@ -23,25 +24,28 @@ export async function GET(req: NextRequest) {
   const tipo = sp.get('tipo')
   const conciliado = sp.get('conciliado')
   const status = sp.get('status') // pendente | classificado | conciliado
+  const consulta=()=>{
   let q = admin()
     .from('erp_movimentos_bancarios')
     .select('*, conta:erp_contas_bancarias!conta_bancaria_id(id,nome,cor), categoria:erp_categorias!categoria_id(id,nome,cor), pessoa:erp_pessoas!pessoa_id(id,nome,razao_social,documento,tipo,is_cliente,is_fornecedor), centro:erp_centros_custo!centro_custo_id(id,nome,codigo)')
     .order('data', { ascending: false })
     .order('created_at', { ascending: false })
-    .limit(500)
   if (conta) q = q.eq('conta_bancaria_id', conta)
   if (from) q = q.gte('data', from)
   if (to) q = q.lte('data', to)
   if (tipo) q = q.eq('tipo', tipo)
   if (conciliado === 'true') q = q.eq('conciliado', true)
   if (conciliado === 'false') q = q.eq('conciliado', false)
-  const { data, error } = await q
-  if (error) return fail(error.message, 500)
+  return q
+  }
+  try {
+  const { data } = await leituraCompleta(consulta)
   // Normaliza o status (deriva quando a coluna ainda nao existe) e filtra em JS
   // para nao quebrar caso a migration 0035 ainda nao tenha sido aplicada.
   let rows = (data || []).map((r) => ({ ...r, status_conciliacao: deriveStatusConciliacao(r) }))
   if (status) rows = rows.filter((r) => r.status_conciliacao === status)
   return ok(rows)
+  }catch(e){return fail((e as Error).message,500)}
 }
 
 export async function POST(req: NextRequest) {
