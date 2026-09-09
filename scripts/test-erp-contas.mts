@@ -83,6 +83,7 @@ test('tela, aging e CSV usam a mesma natureza; baixa parcial e cancelados não d
  await vm.runInContext("renderContas('receber')",context)
  assert.match(page.innerHTML,/Data a confirmar/)
  assert.match(page.innerHTML,/Próximos 30 dias <b class="money">50.00/)
+ assert.match(page.innerHTML,/total com data futura <b class="money">50.00/)
  assert.doesNotMatch(page.innerHTML,/38d em atraso/)
  vm.runInContext("exportContasCsv('receber')",context)
  const crCsv=await exported!.text();assert.match(crCsv,/Pagamento confirmado/);assert.match(crCsv,/Data a confirmar/)
