@@ -1,0 +1,441 @@
+<!doctype html><html lang="pt-BR"><head><meta charset="utf-8">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Oswald:wght@500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<title>Bula — Caixa e o pagamento de R$ 63.500</title>
+<style>
+  @page { size: A4; margin: 0; }
+  * { box-sizing: border-box; }
+  body { font-family: Inter, "Segoe UI", Arial, sans-serif; color: #0A0A0A; margin: 0; font-size: 10.2px; line-height: 1.52; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  h1,h2,h3 { font-family: Oswald, "Arial Narrow", Impact, sans-serif; text-transform: uppercase; letter-spacing: .022em; font-weight: 600; margin: 0; }
+  .page { width: 210mm; height: 296mm; padding: 14mm 13mm 17mm; position: relative; page-break-after: always; overflow: hidden; }
+  .page:last-child { page-break-after: auto; }
+  .pfoot { position: absolute; left: 13mm; right: 13mm; bottom: 7mm; font-size: 7.4px; color: #A6A6A6;
+           display: flex; justify-content: space-between; border-top: 1px solid #E6E6E6; padding-top: 2mm; }
+  .capa { background: #0A0A0A; color: #fff; padding: 30mm 20mm 20mm; display: flex; flex-direction: column; }
+  .capa img { width: 42mm; margin-bottom: 20mm; }
+  .capa h1 { font-size: 40px; line-height: 1.04; color: #fff; font-weight: 700; }
+  .capa .sub { font-size: 12.2px; color: #B5B5B5; margin-top: 7mm; max-width: 140mm; line-height: 1.62; font-family: Inter, sans-serif; text-transform: none; letter-spacing: 0; }
+  .capa .rule { width: 26mm; height: 3px; background: #C9A84C; margin: 8mm 0; }
+  .capa .meta { margin-top: auto; flex-wrap: wrap; row-gap: 6mm; display: flex; gap: 11mm; border-top: 1px solid #2A2A2A; padding-top: 6mm; }
+  .capa .meta div span { display: block; font-size: 8.5px; color: #8A8A8A; text-transform: uppercase; letter-spacing: .09em; margin-bottom: 2px; }
+  .capa .meta div strong { font-size: 12px; font-weight: 600; }
+  .head { display: flex; justify-content: space-between; align-items: baseline; border-bottom: 2px solid #0A0A0A; padding-bottom: 3mm; margin-bottom: 6mm; }
+  .head h2 { font-size: 21px; }
+  .head .n { font-size: 9px; color: #6E6E6E; letter-spacing: .12em; text-transform: uppercase; font-family: Oswald, sans-serif; }
+  h3 { font-size: 13px; margin: 6mm 0 2.4mm; }
+  h3:first-of-type { margin-top: 0; }
+  p { margin: 0 0 3mm; }
+  .lead { font-size: 11.4px; line-height: 1.58; }
+  strong { font-weight: 600; }
+  .muted { color: #6E6E6E; }
+  .small { font-size: 9px; color: #6E6E6E; line-height: 1.5; }
+  .tiles { display: grid; grid-template-columns: repeat(4,1fr); gap: 3mm; margin: 4mm 0 6mm; }
+  .tile { border: 1px solid #E6E6E6; border-top: 3px solid #0A0A0A; padding: 3.4mm 3.4mm 3mm; }
+  .tile .k { font-size: 8px; text-transform: uppercase; letter-spacing: .085em; color: #6E6E6E; margin-bottom: 1.6mm; line-height: 1.3; min-height: 5.6mm; }
+  .tile .v { font-family: Oswald, sans-serif; font-size: 18.5px; font-weight: 600; line-height: 1; }
+  .tile .v .cur { font-size: 11px; font-weight: 500; color: #6E6E6E; margin-right: 1px; }
+  .tile .d { font-size: 8.4px; color: #6E6E6E; margin-top: 1.6mm; line-height: 1.4; }
+  .tile.gold { border-top-color: #C9A84C; }
+  .tile.neg .v { color: #7A1F1F; }
+  .box { border: 1px solid #E6E6E6; padding: 4mm 4.4mm; margin: 4mm 0; }
+  .box.dark { background: #0A0A0A; color: #fff; border-color: #0A0A0A; }
+  .box.dark .t { color: #C9A84C; }
+  .box.dark p, .box.dark li { color: #D8D8D8; }
+  .box.dark strong { color: #fff; }
+  .box.rule { border: none; border-left: 3px solid #0A0A0A; padding: 1mm 0 1mm 4mm; }
+  .box.gold { border-left: 3px solid #C9A84C; border-top: none; border-right: none; border-bottom: none; padding: 1mm 0 1mm 4mm; }
+  .box .t { font-family: Oswald, sans-serif; text-transform: uppercase; font-size: 11px; letter-spacing: .05em; margin-bottom: 2.2mm; font-weight: 600; }
+  table { width: 100%; border-collapse: collapse; font-size: 9.3px; margin: 3mm 0; }
+  th { text-align: left; font-family: Oswald, sans-serif; text-transform: uppercase; font-size: 8.4px; letter-spacing: .07em; font-weight: 600;
+       border-bottom: 1.4px solid #0A0A0A; padding: 2mm 1.8mm; }
+  td { padding: 1.6mm 1.8mm; border-bottom: 1px solid #F0F0F0; vertical-align: top; }
+  td.num, th.num { text-align: right; font-variant-numeric: tabular-nums; white-space: nowrap; }
+  tr.destaque td { background: #F6F6F6; font-weight: 600; }
+  tr.total td { border-top: 1.4px solid #0A0A0A; border-bottom: none; font-weight: 700; }
+  tr.neg td { color: #7A1F1F; }
+  figure { margin: 3mm 0 5mm; }
+  figcaption { font-size: 8.6px; color: #6E6E6E; margin-top: 1.8mm; line-height: 1.45; }
+  ol, ul { margin: 0 0 3mm; padding-left: 4.6mm; }
+  li { margin-bottom: 1.6mm; }
+  .cols2 { display: grid; grid-template-columns: 1fr 1fr; gap: 5mm; }
+  .tag { display:inline-block; font-size:7.6px; letter-spacing:.06em; text-transform:uppercase; border:1px solid #E6E6E6; padding:0 1.2mm; color:#6E6E6E; }
+  .tag.on { border-color:#0A0A0A; color:#0A0A0A; }
+  .tag.gold { border-color:#C9A84C; color:#8A7331; }
+</style></head><body>
+
+<!-- ============================= CAPA ============================= -->
+<section class="page capa">
+  <img src="data:image/png;base64,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" alt="Bula Assessoria">
+  <h1>Caixa de setembro<br>e os R$ 63.500 do Marcelo</h1>
+  <div class="rule"></div>
+  <div class="sub">O caixa de hoje é <strong style="color:#fff">R$ 18.168,18</strong>. Até 10/10 entram
+  <strong style="color:#fff">R$ 443.832</strong> com data e saem <strong style="color:#fff">R$ 314.171</strong> —
+  mas R$ 157.384 do que entra no dia 10 é do Felipe, não nosso, e o dia 25 concentra
+  <strong style="color:#fff">R$ 202.606</strong> de comissões.
+  Do jeito que está, <strong style="color:#fff">não cabe pagar os 63.500</strong>: falta R$ 29.555.
+  O que muda o sinal é o <strong style="color:#fff">EAO</strong> — a NF 639 de R$ 92.325, emitida em 02/09 e até hoje sem data de pagamento.</div>
+  <div class="meta">
+    <div><span>Caixa em 09/09</span><strong>R$ 18.168,18</strong></div>
+    <div><span>Cabe pagar hoje</span><strong>−R$ 29.555</strong></div>
+    <div><span>Cabe se o EAO pagar</span><strong>R$ 62.770</strong></div>
+    <div><span>Com as alavancas + EAO</span><strong>R$ 97.331</strong></div>
+  </div>
+</section>
+
+<!-- ============================= P1 — A RESPOSTA ============================= -->
+<section class="page">
+  <div class="head"><h2>1 · A resposta</h2><span class="n">09/09 a 10/10/2026</span></div>
+
+  <p class="lead">Você perguntou se dá para pagar os <strong>R$ 63.500,00</strong> do Marcelo nas próximas semanas.
+  A resposta curta é: <strong>não com o que está travado hoje</strong> — e falta pouco.
+  Mantendo um colchão de R$ 20.000 até 10/10, a capacidade de pagamento hoje é <strong>−R$ 29.555,26</strong>.
+  Se o EAO pagar a NF 639, ela vira <strong>R$ 62.769,71</strong> — a R$ 730,29 da meta.
+  Com as duas alavancas internas somadas ao EAO, sobe para <strong>R$ 97.330,90</strong> e o pagamento cabe já em <strong>15/09</strong>.</p>
+
+  <figure><svg viewBox="0 0 762 145" width="100%" xmlns="http://www.w3.org/2000/svg" font-family="Inter, sans-serif"><line x1="340.4" y1="8" x2="340.4" y2="133" stroke="#0A0A0A" stroke-width="1"/><line x1="564.6" y1="6" x2="564.6" y2="133" stroke="#C9A84C" stroke-width="1.4" stroke-dasharray="4 2"/><text x="568.6" y="13" font-size="7.6" fill="#C9A84C">meta 63.500</text><text x="0" y="28.0" font-size="8.4" fill="#0A0A0A">Como está hoje, pagando em 17/09</text><rect x="236.0" y="19.0" width="104.4" height="13" rx="3" fill="#B4B4B4"/><text x="231.0" y="29.0" font-size="8.4" fill="#0A0A0A" text-anchor="end" font-weight="600" stroke="#fff" stroke-width="2.6" paint-order="stroke">−R$ 29.555</text><text x="0" y="51.0" font-size="8.4" fill="#0A0A0A">Como está hoje, pagando em 25/09</text><rect x="236.0" y="42.0" width="104.4" height="13" rx="3" fill="#B4B4B4"/><text x="231.0" y="52.0" font-size="8.4" fill="#0A0A0A" text-anchor="end" font-weight="600" stroke="#fff" stroke-width="2.6" paint-order="stroke">−R$ 29.555</text><text x="0" y="74.0" font-size="8.4" fill="#0A0A0A">Com as duas alavancas internas, em 25/09</text><rect x="340.4" y="65.0" width="17.7" height="13" rx="3" fill="#0A0A0A"/><text x="363.0" y="75.0" font-size="8.4" fill="#0A0A0A" text-anchor="start" font-weight="600" stroke="#fff" stroke-width="2.6" paint-order="stroke">R$ 5.006</text><text x="0" y="97.0" font-size="8.4" fill="#0A0A0A">Se o EAO pagar a NF 639 em 25/09</text><rect x="340.4" y="88.0" width="221.6" height="13" rx="3" fill="#0A0A0A"/><text x="567.0" y="98.0" font-size="8.4" fill="#0A0A0A" text-anchor="start" font-weight="600" stroke="#fff" stroke-width="2.6" paint-order="stroke">R$ 62.770</text><text x="0" y="120.0" font-size="8.4" fill="#0A0A0A">Alavancas + EAO, em 25/09</text><rect x="340.4" y="111.0" width="343.6" height="13" rx="3" fill="#C9A84C"/><text x="689.0" y="121.0" font-size="8.4" fill="#0A0A0A" text-anchor="start" font-weight="600" stroke="#fff" stroke-width="2.6" paint-order="stroke">R$ 97.331</text></svg>
+  <figcaption>Quanto cabe pagar ao Marcelo em 25/09 mantendo R$ 20.000 de colchão até 10/10, em cada configuração.
+  A linha dourada é a meta de R$ 63.500. Barras cinzas são capacidade negativa: pagar ali fura o caixa.</figcaption></figure>
+
+  <div class="tiles">
+    <div class="tile"><div class="k">Caixa hoje (ERP)</div><div class="v"><span class="cur">R$</span>18.168,18</div><div class="d">conciliado até 04/09 — 5 dias sem extrato</div></div>
+    <div class="tile neg"><div class="k">Cabe pagar hoje</div><div class="v">−R$ 29.555</div><div class="d">nem os 63.500, nem R$ 1: o mês já fecha negativo</div></div>
+    <div class="tile gold"><div class="k">Cabe com o EAO</div><div class="v"><span class="cur">R$</span>62.770</div><div class="d">falta R$ 730 para a meta</div></div>
+    <div class="tile gold"><div class="k">Cabe com EAO + alavancas</div><div class="v"><span class="cur">R$</span>97.331</div><div class="d">e o pagamento cabe já em 15/09</div></div>
+  </div>
+
+  <h3>Por que o JMP de amanhã não resolve</h3>
+  <p>Amanhã entram <strong>R$ 184.462,50</strong> — R$ 165.667,50 do JMP e R$ 18.795,00 do Naviraí. Parece o dobro do que você precisa,
+  mas <strong>R$ 157.384,13 desse dinheiro é do Felipe</strong>: a 2ª parcela das NFs 618/619 foi faturada dentro do CNPJ da Bula, e do repasse líquido
+  desconta-se só a metade do ISS. <strong>Do JMP sobram R$ 8.283,37.</strong> Com o Naviraí, o dia 10 acrescenta
+  <strong>R$ 27.078,37</strong> de caixa próprio — não R$ 184.463.</p>
+
+  <div class="box dark">
+    <div class="t">As três coisas que decidem o pagamento</div>
+    <ol style="margin-bottom:0">
+      <li><strong>O EAO.</strong> R$ 92.324,97 da NF 639, emitida em 02/09 e mandada por e-mail com pedido de previsão de pagamento — <strong>que nunca foi respondido</strong>. É a maior peça solta do mês e sozinha quase paga o Marcelo.</li>
+      <li><strong>As comissões do dia 25.</strong> R$ 202.606,00 em 114 títulos, o maior bloco de saída do ano. Dentro deles, <strong>R$ 32.355,00 em 5 títulos "a definir"</strong> — sem beneficiário decidido, não têm como ser pagos no dia 25.</li>
+      <li><strong>Os vencidos a receber.</strong> R$ 51.625,98 em 9 títulos, o mais velho de 02/05. Cobrança que já deveria ter entrado.</li>
+    </ol>
+  </div>
+
+  <h3>A recomendação: prometa a data ao EAO, não ao calendário</h3>
+  <p>Antecipar ou parcelar o pagamento <strong>não muda onde o mês fecha</strong> — muda só o dia em que o buraco aparece.
+  O que muda o resultado é dinheiro entrando ou saída adiada. Por isso a proposta é amarrar o pagamento do Marcelo à liquidação da NF 639:</p>
+
+  <table>
+    <tr><th>Quando</th><th>O que fazer</th><th class="num">Valor</th></tr>
+    <tr><td>Hoje a 12/09</td><td>Cobrar a data do EAO por escrito e executar as duas alavancas: decidir as 5 comissões “a definir” e disparar a cobrança dos vencidos.</td><td class="num">—</td></tr>
+    <tr class="destaque"><td>Se o EAO pagar até 24/09</td><td><strong>Paga os R$ 63.500 inteiros no dia 25</strong>, no ciclo normal, junto com as comissões da casa. Sobra de R$ 19.270 em 10/10.</td><td class="num">63.500,00</td></tr>
+    <tr><td>Se o EAO não responder</td><td>Paga no dia 25 só o que as alavancas internas abrem (R$ 5.006) e o saldo assim que a NF 639 cair. Sem as alavancas, setembro não comporta nenhum valor.</td><td class="num">5.005,93 + saldo</td></tr>
+  </table>
+
+  <p class="small">O colchão de R$ 20.000 não é exagero: o ERP não tem <strong>nenhum</strong> recebível lançado depois de 10/10 — não porque não exista,
+  mas porque os leilões de setembro ainda não foram faturados. Até essas notas saírem, depois da folha de 05/10 só se enxerga despesa.</p>
+
+  <div class="pfoot"><span>Bula Assessoria Pecuária — Posição de caixa e o pagamento de R$ 63.500 · 09/09 a 10/10/2026</span><span>Gerado em 09/09/2026 · fonte: ERP (conciliado até 04/09)</span></div>
+</section>
+
+<!-- ============================= P2 — CAIXA HOJE ============================= -->
+<section class="page">
+  <div class="head"><h2>2 · Onde o caixa está hoje</h2><span class="n">conciliado até 04/09</span></div>
+
+  <div class="tiles">
+    <div class="tile"><div class="k">Sicoob CC 1.056-1</div><div class="v"><span class="cur">R$</span>17.652,19</div><div class="d">última conciliação em 04/09</div></div>
+    <div class="tile"><div class="k">Sicredi (CC + aplicação)</div><div class="v"><span class="cur">R$</span>515,99</div><div class="d">praticamente zerado desde 01/09</div></div>
+    <div class="tile gold"><div class="k">Caixa total</div><div class="v"><span class="cur">R$</span>18.168,18</div><div class="d">é com isso que a projeção começa</div></div>
+    <div class="tile"><div class="k">Buraco de leitura</div><div class="v"><span class="cur">R$</span>6.161</div><div class="d">5 dias sem extrato, pela média medida</div></div>
+  </div>
+
+  <div class="box gold">
+    <p style="margin:0"><strong>Antes de decidir, importe o extrato.</strong> O último movimento lançado é de <strong>04/09</strong>.
+    Entre 04/09 e hoje passaram 5 dias com dois pregões (05/09) e o Mafra (06/09) — pela média medida de julho e agosto,
+    isso costuma consumir cerca de <strong>R$ 6.160,70</strong> que ainda não estão nesta conta.
+    Todos os números deste relatório partem de R$ 18.168,18; se o extrato trouxer saída maior, cada cenário desce junto.</p>
+  </div>
+
+  <h3>O que já andou em setembro</h3>
+  <p>Nos 3 dias lançados, entraram <strong>R$ 39.934,00</strong> e saíram <strong>R$ 67.936,26</strong>.
+  A folha de agosto saiu inteira no dia 1º e o São Geraldo entrou no dia 2.</p>
+
+  <table>
+    <tr><th>Data</th><th>O que foi</th><th class="num">Entra</th><th class="num">Sai</th></tr>
+    <tr>
+      <td>01/09</td><td>CRÉD.LIQ.COBRANÇA</td>
+      <td class="num">15.030,00</td><td class="num">—</td></tr><tr>
+      <td>01/09</td><td>LEONARDO SERAFIM FRANCISCO LTDA - Transferência Pix - BULA ASSESSORIA…</td>
+      <td class="num">—</td><td class="num">13.500,00</td></tr><tr>
+      <td>01/09</td><td>50.938.748 0001-08 - Ref Salario Agosto Douglas</td>
+      <td class="num">—</td><td class="num">10.000,00</td></tr><tr>
+      <td>01/09</td><td>59.791.094 0001-07 - Ref salario Agosto Fabio</td>
+      <td class="num">—</td><td class="num">7.000,00</td></tr><tr>
+      <td>01/09</td><td>***.031.349-** - Ref salario Agosto M1</td>
+      <td class="num">—</td><td class="num">6.000,00</td></tr><tr>
+      <td>01/09</td><td>***.037.156-** - Ref Agosto salario joao</td>
+      <td class="num">—</td><td class="num">5.000,00</td></tr><tr>
+      <td>01/09</td><td>***.168.746-** - Ref Salario Joao Gabriel Agosto</td>
+      <td class="num">—</td><td class="num">2.000,00</td></tr><tr>
+      <td>01/09</td><td>***.266.771-** - Ref salario Joao Antonio Agosto</td>
+      <td class="num">—</td><td class="num">2.000,00</td></tr><tr>
+      <td>01/09</td><td>***.537.711-** - Ref salario Agosto Pedro</td>
+      <td class="num">—</td><td class="num">1.290,32</td></tr><tr>
+      <td>01/09</td><td>***.736.315-** - Ref salario Agosto Luana</td>
+      <td class="num">—</td><td class="num">1.161,29</td></tr><tr>
+      <td>02/09</td><td>BULA REMATES LTDA - ACERTO ASSESSORIA SÃO GERALDO</td>
+      <td class="num">24.904,00</td><td class="num">—</td></tr><tr>
+      <td>02/09</td><td>13.347.016 0001-17 - Ref trafego pago leilao jacamin</td>
+      <td class="num">—</td><td class="num">2.500,00</td></tr><tr>
+      <td>02/09</td><td>***.814.661-** - Ref comissao Peralta Julho</td>
+      <td class="num">—</td><td class="num">1.080,00</td></tr><tr>
+      <td>04/09</td><td>59.791.094 0001-07 - Ref reembolso Agosto Fabio</td>
+      <td class="num">—</td><td class="num">6.690,42</td></tr><tr>
+      <td>04/09</td><td>LEONARDO SERAFIM FRANCISCO LTDA - Transferência Pix - BULA ASSESSORIA…</td>
+      <td class="num">—</td><td class="num">2.877,22</td></tr><tr>
+      <td>04/09</td><td>13.347.016 0001-17 - Ref campanha patrocinado</td>
+      <td class="num">—</td><td class="num">2.500,00</td></tr><tr>
+      <td>04/09</td><td>***.537.276-** - Parcela 2 aluguel casa Uberaba expogenetica</td>
+      <td class="num">—</td><td class="num">2.333,33</td></tr><tr>
+      <td>04/09</td><td>50.938.748 0001-08 - Ref reembolso Agosto Douglas</td>
+      <td class="num">—</td><td class="num">1.306,60</td></tr>
+    <tr><td class="muted">—</td><td class="muted">+ 3 lançamentos abaixo de R$ 1.000 (tarifas, ajustes)</td>
+      <td class="num muted">—</td><td class="num muted">697,08</td></tr>
+    <tr class="total"><td colspan="2">Total (fora transferência interna)</td><td class="num">39.934,00</td><td class="num">67.936,26</td></tr>
+  </table>
+
+  <h3>As duas médias que completam a projeção</h3>
+  <p>Nem toda saída vira título no ERP. O que falta entra pela <strong>média medida no extrato de julho e agosto</strong>, nunca por arbitramento:
+  custo estrutural difuso de <strong>R$ 421,81/dia</strong> (fora folha, imposto, comissão e leilão) e despesa de leilão de
+  <strong>R$ 810,33/dia</strong>. Na janela de 32 dias isso soma <strong>R$ 29.243,67</strong>,
+  já descontados os R$ 10.184,81 que aparecem como título.</p>
+
+  <div class="pfoot"><span>Bula Assessoria Pecuária — Posição de caixa e o pagamento de R$ 63.500 · 09/09 a 10/10/2026</span><span>Gerado em 09/09/2026 · fonte: ERP (conciliado até 04/09)</span></div>
+</section>
+
+<!-- ============================= P3 — O QUE ENTRA ============================= -->
+<section class="page">
+  <div class="head"><h2>3 · O que entra — e o que ainda não tem data</h2><span class="n">R$ 587.783 em aberto</span></div>
+
+  <p class="lead">Você pediu posição sobre <strong>EAO, e-Rural e Mafra</strong>. Os três estão em estágios diferentes, e a diferença
+  entre eles é o que separa a projeção do desejo: <span class="tag on">confirmado</span> é data que alguém disse;
+  <span class="tag">regra</span> é leilão + 45 dias, que o ERP calcula sozinho; <span class="tag gold">sem data</span> é nota emitida esperando resposta.</p>
+
+  <table>
+    <tr><th>Quem</th><th>Situação hoje</th><th class="num">Valor</th><th>Data</th></tr>
+    <tr class="destaque"><td>JMP (JBJ)</td><td>2ª parcela das NFs 618/619. Confirmado pelo financeiro: “dia 10 teremos o pagamento de Naviraí e JMP”. <strong>R$ 157.384,13 são repasse ao Felipe.</strong></td><td class="num">165.667,50</td><td>10/09 <span class="tag on">confirmado</span></td></tr>
+    <tr class="destaque"><td>Naviraí</td><td>Duas etapas de matrizes (05/07 e 16/07). Você confirmou hoje: entra amanhã.</td><td class="num">18.795,00</td><td>10/09 <span class="tag on">confirmado</span></td></tr>
+    <tr><td>Mafra</td><td>Fêmeas (01/08) e Touros (02/08), Redenção/PA. <strong>Não há data acordada</strong> — 15 e 16/09 são leilão + 45 dias. Pendência aberta: os Touros foram lançados a 0,35% do faturamento, e a tabela de acordo para essa faixa de cobertura diz 0,3% (R$ 15.306,00).</td><td class="num">88.202,00</td><td>15–16/09 <span class="tag">regra</span></td></tr>
+    <tr><td>e-Rural</td><td>Sorriso Touros (04/08) e LS Galeria II (07/08), com NFs 637 e 638 emitidas em 01/09. Você diz que entra em breve; <strong>ninguém deu data</strong>, e a e-Rural já deixou vencer o Sorriso Fêmeas (R$ 7.149,98, vencido em 26/08).</td><td class="num">63.510,00</td><td>18 e 21/09 <span class="tag">regra</span></td></tr>
+    <tr><td><strong>EAO</strong></td><td><strong>NF 639 emitida em 02/09</strong>, R$ 92.324,97, referente ao 13º MegaBaviera (fêmeas 10–11/07 + machos 12/07), sem retenção. A nota foi enviada ao e-mail pedido e a previsão de pagamento <strong>nunca voltou</strong>. Contato: Max Pereira.</td><td class="num">92.324,97</td><td>— <span class="tag gold">sem data</span></td></tr>
+    <tr><td>Marcondes</td><td>Leilão Nelore Marcondes — Abertura, 3 itens consolidados, venda 23/08. <strong>Informado por você hoje</strong>; ainda não existe título no ERP e o portal da leiloeira pede a nota fiscal anexada antes de pagar.</td><td class="num">4.012,50</td><td>15/09 <span class="tag">informado</span></td></tr>
+    <tr class="total"><td colspan="2">Somando tudo o que está em aberto até 10/10</td><td class="num">536.156,63</td><td></td></tr>
+  </table>
+
+  <div class="box rule">
+    <p style="margin:0"><strong>Uma correção no ERP que muda o total do EAO.</strong> As duas estimativas antigas do MegaBaviera
+    (R$ 80.058,30 somadas) continuam abertas ao lado do título consolidado da NF 639.
+    São <strong>o mesmo evento contado duas vezes</strong>: a auditoria de hoje substituiu as estimativas pela nota, mas não fechou os títulos antigos.
+    Este relatório conta só a NF 639 — no ERP, o painel ainda mostra R$ 172.383,27 de EAO a receber.</p>
+  </div>
+
+  <div class="pfoot"><span>Bula Assessoria Pecuária — Posição de caixa e o pagamento de R$ 63.500 · 09/09 a 10/10/2026</span><span>Gerado em 09/09/2026 · fonte: ERP (conciliado até 04/09)</span></div>
+</section>
+
+<!-- ============================= P4 — RECEBIVEIS TITULO A TITULO ============================= -->
+<section class="page">
+  <div class="head"><h2>4 · Título a título</h2><span class="n">31 recebíveis</span></div>
+
+  <div class="cols2">
+    <div>
+      <h3>Entra na janela, por data</h3>
+      <table>
+        <tr><th>Venc.</th><th>Título</th><th class="num">Valor</th></tr>
+        <tr><td>09/09</td><td>LEILAO TOUROS SANTA NAZARE EXCELENCIA —…</td><td class="num">5.714,00</td></tr><tr><td>10/09</td><td>LEILAO VIRTUAL NAVIRAI - MATRIZES…</td><td class="num">9.825,00</td></tr><tr class="destaque"><td>10/09</td><td>10o LEILAO NELORE JMP - FEMEAS/BEZERRAS…</td><td class="num">58.484,00</td></tr><tr class="destaque"><td>10/09</td><td>10o LEILAO NELORE JMP - TOUROS (2/2)</td><td class="num">107.183,50</td></tr><tr><td>10/09</td><td>2a ETAPA NAVIRAI MATRIZES (16/07)</td><td class="num">8.970,00</td></tr><tr class="destaque"><td>15/09</td><td>LEILAO FEMEAS NELORE MAFRA…</td><td class="num">70.345,00</td></tr><tr><td>15/09</td><td>LEILAO NELORE MARCONDES - ABERTURA (3…</td><td class="num">4.012,50</td></tr><tr class="destaque"><td>16/09</td><td>LEILAO TOUROS NELORE MAFRA…</td><td class="num">17.857,00</td></tr><tr><td>18/09</td><td>LEILAO TOUROS NELORE GRUPO COSTA (04/08)</td><td class="num">603,00</td></tr><tr><td>18/09</td><td>LEILAO DE TOUROS NELORE SORRISO (04/08)</td><td class="num">5.670,00</td></tr><tr><td>21/09</td><td>2o LEILAO LS GALERIA II (07/08)</td><td class="num">57.840,00</td></tr><tr><td>22/09</td><td>14o LEILAO PEROLAS DO TAPAJOS (08/08)</td><td class="num">10.650,00</td></tr><tr><td>23/09</td><td>LEILAO NELORE PARANA PRODUTIVIDADE…</td><td class="num">13.905,00</td></tr><tr><td>25/09</td><td>20o LEILAO GUADALUPE AGROPECUARIA…</td><td class="num">7.502,95</td></tr><tr><td>25/09</td><td>20o LEILAO GUADALUPE AGROPECUARIA…</td><td class="num">3.210,00</td></tr><tr><td>26/09</td><td>23o MEGA LEILAO GENETICA ADITIVA…</td><td class="num">2.708,10</td></tr><tr><td>26/09</td><td>23o MEGA LEILAO GENETICA ADITIVA…</td><td class="num">6.433,12</td></tr><tr><td>27/09</td><td>7º LEILÃO ESSÊNCIA GENÉTICA - NELORE DA…</td><td class="num">825,00</td></tr><tr><td>29/09</td><td>LEILÃO TERRA BRAVA AGROPECUÁRIA…</td><td class="num">11.984,49</td></tr><tr><td>30/09</td><td>LEILÃO MATINHA EXPOGENÉTICA 2026 (16/08)</td><td class="num">27.375,00</td></tr><tr><td>01/10</td><td>LEILÃO MATRIZES PREMIUM KATISPERA…</td><td class="num">7.020,00</td></tr><tr><td>01/10</td><td>LEILAO TOUROS SANTA NAZARE EXCELENCIA —…</td><td class="num">5.714,00</td></tr>
+        <tr class="total"><td colspan="2">Total com data</td><td class="num">443.831,66</td></tr>
+      </table>
+      <p class="small">Destacados o JMP e o Mafra: são R$ 253.870 dos R$ 443.832, ou 57% de tudo que entra.</p>
+    </div>
+    <div>
+      <h3>Vencido — cobrança parada</h3>
+      <table>
+        <tr><th>Venc.</th><th>Título</th><th class="num">Valor</th></tr>
+        <tr><td>02/05</td><td>LEILAO LAGOA DOS PATOS</td><td class="num">6.500,00</td></tr><tr><td>30/05</td><td>18ª MEGA LEILÃO NELORE - GUSTAVO/HENRIQU…</td><td class="num">6.720,00</td></tr><tr><td>22/07</td><td>1o NELORE SAO FRANCISCO</td><td class="num">6.756,00</td></tr><tr><td>31/07</td><td>LEILÃO TOUROS PROVADOS TERRA BRAVA…</td><td class="num">2.405,00</td></tr><tr><td>26/08</td><td>LEILAO NELORE SORRISO - ETAPA FEMEAS…</td><td class="num">7.149,98</td></tr><tr><td>28/08</td><td>LEILÃO VIRTUAL BASE GENÉTICA SANTA CRUZ…</td><td class="num">6.180,00</td></tr><tr><td>29/08</td><td>NELORE SANTA CRUZ (15/07)</td><td class="num">2.130,00</td></tr><tr><td>02/09</td><td>NELORE SANTA CRUZ - 19/07/2026 (19/07)</td><td class="num">12.360,00</td></tr><tr><td>08/09</td><td>30º NELORAÇO IRMÃOS HIPÓLITO (25/07)</td><td class="num">1.425,00</td></tr>
+        <tr class="total"><td colspan="2">Total vencido</td><td class="num">51.625,98</td></tr>
+      </table>
+      <p class="small">Nenhum deles entra na linha do caixa — vencido não é realocado para “amanhã”, porque quem define data de cobrança é você.
+      Eles aparecem só no cenário de recuperação.</p>
+
+      <h3>Sem data</h3>
+      <table>
+        <tr><th>Título</th><th class="num">Valor</th></tr>
+        <tr class="destaque"><td>13º Mega Baviera EAO 2026 — competência…</td><td class="num">92.324,97</td></tr>
+      </table>
+      <p class="small">A NF 639 é o maior recebível isolado da casa hoje — maior que o Mafra inteiro (R$ 88.202)
+      e 1,8× o total dos vencidos.</p>
+    </div>
+  </div>
+
+  <div class="pfoot"><span>Bula Assessoria Pecuária — Posição de caixa e o pagamento de R$ 63.500 · 09/09 a 10/10/2026</span><span>Gerado em 09/09/2026 · fonte: ERP (conciliado até 04/09)</span></div>
+</section>
+
+<!-- ============================= P5 — O QUE SAI ============================= -->
+<section class="page">
+  <div class="head"><h2>5 · O que sai</h2><span class="n">R$ 314.171 até 10/10</span></div>
+
+  <figure><svg viewBox="0 0 762 168" width="100%" xmlns="http://www.w3.org/2000/svg" font-family="Inter, sans-serif"><line x1="52" y1="134.0" x2="746" y2="134.0" stroke="#E6E6E6" stroke-width=".7"/><text x="46" y="137.0" font-size="7.4" fill="#6E6E6E" text-anchor="end">0</text><line x1="52" y1="93.3" x2="746" y2="93.3" stroke="#E6E6E6" stroke-width=".7"/><text x="46" y="96.3" font-size="7.4" fill="#6E6E6E" text-anchor="end">89k</text><line x1="52" y1="52.7" x2="746" y2="52.7" stroke="#E6E6E6" stroke-width=".7"/><text x="46" y="55.7" font-size="7.4" fill="#6E6E6E" text-anchor="end">178k</text><line x1="52" y1="12.0" x2="746" y2="12.0" stroke="#E6E6E6" stroke-width=".7"/><text x="46" y="15.0" font-size="7.4" fill="#6E6E6E" text-anchor="end">267k</text><rect x="52.8" y="131.4" width="9.2" height="2.6" fill="#0A0A0A" rx="1.6"/><rect x="63.6" y="133.6" width="9.2" height="0.4" fill="#B4B4B4" rx="1.6"/><text x="62.8" y="146" font-size="7" fill="#6E6E6E" text-anchor="middle">09/09</text><rect x="74.5" y="49.7" width="9.2" height="84.3" fill="#0A0A0A" rx="1.6"/><rect x="85.3" y="133.4" width="9.2" height="0.6" fill="#B4B4B4" rx="1.6"/><rect x="107.0" y="61.7" width="9.2" height="72.3" fill="#B4B4B4" rx="1.6"/><rect x="128.7" y="133.6" width="9.2" height="0.4" fill="#B4B4B4" rx="1.6"/><text x="127.9" y="146" font-size="7" fill="#6E6E6E" text-anchor="middle">12/09</text><rect x="150.4" y="133.6" width="9.2" height="0.4" fill="#B4B4B4" rx="1.6"/><rect x="172.1" y="130.5" width="9.2" height="3.5" fill="#B4B4B4" rx="1.6"/><rect x="182.9" y="100.0" width="9.2" height="34.0" fill="#0A0A0A" rx="1.6"/><rect x="193.8" y="131.3" width="9.2" height="2.7" fill="#B4B4B4" rx="1.6"/><text x="193.0" y="146" font-size="7" fill="#6E6E6E" text-anchor="middle">15/09</text><rect x="204.6" y="125.8" width="9.2" height="8.2" fill="#0A0A0A" rx="1.6"/><rect x="215.5" y="133.6" width="9.2" height="0.4" fill="#B4B4B4" rx="1.6"/><rect x="237.1" y="133.6" width="9.2" height="0.4" fill="#B4B4B4" rx="1.6"/><rect x="248.0" y="131.1" width="9.2" height="2.9" fill="#0A0A0A" rx="1.6"/><rect x="258.8" y="133.5" width="9.2" height="0.5" fill="#B4B4B4" rx="1.6"/><text x="258.0" y="146" font-size="7" fill="#6E6E6E" text-anchor="middle">18/09</text><rect x="280.5" y="133.6" width="9.2" height="0.4" fill="#B4B4B4" rx="1.6"/><rect x="302.2" y="133.4" width="9.2" height="0.6" fill="#B4B4B4" rx="1.6"/><rect x="313.1" y="107.6" width="9.2" height="26.4" fill="#0A0A0A" rx="1.6"/><rect x="323.9" y="128.5" width="9.2" height="5.5" fill="#B4B4B4" rx="1.6"/><text x="323.1" y="146" font-size="7" fill="#6E6E6E" text-anchor="middle">21/09</text><rect x="334.7" y="129.1" width="9.2" height="4.9" fill="#0A0A0A" rx="1.6"/><rect x="345.6" y="130.2" width="9.2" height="3.8" fill="#B4B4B4" rx="1.6"/><rect x="356.4" y="127.6" width="9.2" height="6.4" fill="#0A0A0A" rx="1.6"/><rect x="367.3" y="133.6" width="9.2" height="0.4" fill="#B4B4B4" rx="1.6"/><rect x="389.0" y="133.3" width="9.2" height="0.7" fill="#B4B4B4" rx="1.6"/><text x="388.2" y="146" font-size="7" fill="#6E6E6E" text-anchor="middle">24/09</text><rect x="399.8" y="129.1" width="9.2" height="4.9" fill="#0A0A0A" rx="1.6"/><rect x="410.6" y="12.0" width="9.2" height="122.0" fill="#B4B4B4" rx="1.6"/><rect x="421.5" y="129.8" width="9.2" height="4.2" fill="#0A0A0A" rx="1.6"/><rect x="432.3" y="133.6" width="9.2" height="0.4" fill="#B4B4B4" rx="1.6"/><rect x="443.2" y="133.6" width="9.2" height="0.4" fill="#0A0A0A" rx="1.6"/><rect x="454.0" y="133.6" width="9.2" height="0.4" fill="#B4B4B4" rx="1.6"/><text x="453.2" y="146" font-size="7" fill="#6E6E6E" text-anchor="middle">27/09</text><rect x="475.7" y="133.6" width="9.2" height="0.4" fill="#B4B4B4" rx="1.6"/><rect x="486.6" y="128.5" width="9.2" height="5.5" fill="#0A0A0A" rx="1.6"/><rect x="497.4" y="133.6" width="9.2" height="0.4" fill="#B4B4B4" rx="1.6"/><rect x="508.2" y="121.5" width="9.2" height="12.5" fill="#0A0A0A" rx="1.6"/><rect x="519.1" y="133.6" width="9.2" height="0.4" fill="#B4B4B4" rx="1.6"/><text x="518.3" y="146" font-size="7" fill="#6E6E6E" text-anchor="middle">30/09</text><rect x="529.9" y="128.2" width="9.2" height="5.8" fill="#0A0A0A" rx="1.6"/><rect x="540.8" y="133.6" width="9.2" height="0.4" fill="#B4B4B4" rx="1.6"/><rect x="562.5" y="133.6" width="9.2" height="0.4" fill="#B4B4B4" rx="1.6"/><rect x="584.1" y="133.6" width="9.2" height="0.4" fill="#B4B4B4" rx="1.6"/><text x="583.3" y="146" font-size="7" fill="#6E6E6E" text-anchor="middle">03/10</text><rect x="605.8" y="133.6" width="9.2" height="0.4" fill="#B4B4B4" rx="1.6"/><rect x="627.5" y="111.0" width="9.2" height="23.0" fill="#B4B4B4" rx="1.6"/><rect x="649.2" y="133.6" width="9.2" height="0.4" fill="#B4B4B4" rx="1.6"/><text x="648.4" y="146" font-size="7" fill="#6E6E6E" text-anchor="middle">06/10</text><rect x="670.9" y="133.6" width="9.2" height="0.4" fill="#B4B4B4" rx="1.6"/><rect x="692.6" y="133.6" width="9.2" height="0.4" fill="#B4B4B4" rx="1.6"/><rect x="714.3" y="133.6" width="9.2" height="0.4" fill="#B4B4B4" rx="1.6"/><text x="713.5" y="146" font-size="7" fill="#6E6E6E" text-anchor="middle">09/10</text><rect x="736.0" y="133.1" width="9.2" height="0.9" fill="#B4B4B4" rx="1.6"/><text x="84.5" y="45.7" font-size="7.4" fill="#0A0A0A" text-anchor="middle">JMP+Naviraí 184k</text><text x="409.8" y="8.0" font-size="7.4" fill="#0A0A0A" text-anchor="middle">comissões + chefe 267k</text><rect x="612" y="12" width="8" height="8" fill="#0A0A0A" rx="1.4"/><text x="624" y="19" font-size="7.4" fill="#6E6E6E">entra</text><rect x="666" y="12" width="8" height="8" fill="#B4B4B4" rx="1.4"/><text x="678" y="19" font-size="7.4" fill="#6E6E6E">sai</text></svg>
+  <figcaption>Entradas e saídas por dia no cenário em que o chefe é pago no dia 25. O mês inteiro cabe em dois dias:
+  o 10, que traz o JMP e o Naviraí, e o 25, que leva as comissões.</figcaption></figure>
+
+  <div class="tiles">
+    <div class="tile"><div class="k">Títulos com data</div><div class="v"><span class="cur">R$</span>273.830</div><div class="d">139 títulos até 10/10</div></div>
+    <div class="tile"><div class="k">Comissões do dia 25</div><div class="v"><span class="cur">R$</span>202.606</div><div class="d">114 títulos — 74% de tudo que sai</div></div>
+    <div class="tile"><div class="k">Folha de 05/10</div><div class="v"><span class="cur">R$</span>49.500</div><div class="d">9 pessoas, competência setembro</div></div>
+    <div class="tile"><div class="k">DAS de agosto (estimado)</div><div class="v"><span class="cur">R$</span>11.097</div><div class="d">vence 21/09 — guia ainda não chegou</div></div>
+  </div>
+
+  <div class="cols2">
+    <div>
+      <h3>Por categoria, até 10/10</h3>
+      <table>
+        <tr><th>Categoria</th><th class="num">Valor</th></tr>
+        <tr><td>Comissões</td><td class="num">202.606,00</td></tr><tr><td>Folha de Pagamento</td><td class="num">49.500,00</td></tr><tr><td>Cartão de Crédito</td><td class="num">7.329,97</td></tr><tr><td>Viagem/Passagens</td><td class="num">6.665,73</td></tr><tr><td>Impostos e Taxas</td><td class="num">4.873,43</td></tr><tr><td>Servicos de Terceiros</td><td class="num">1.771,30</td></tr><tr><td>Software/Assinaturas</td><td class="num">730,00</td></tr><tr><td>Seguros</td><td class="num">184,64</td></tr><tr><td>Tarifas Bancarias</td><td class="num">129,90</td></tr><tr><td>Integralizacao Capital Cooperativa</td><td class="num">39,00</td></tr>
+        <tr><td>DAS de agosto (estimado)</td><td class="num">11.097,48</td></tr>
+        <tr><td>Estrutural + leilão (média medida)</td><td class="num">29.243,67</td></tr>
+        <tr class="total"><td>Total</td><td class="num">314.171,12</td></tr>
+      </table>
+    </div>
+    <div>
+      <h3>Sem data — decisão sua</h3>
+      <table>
+        <tr><th>Compromisso</th><th class="num">Valor</th></tr>
+        <tr class="destaque"><td>Marcelo — 35% do lucro, 1º trimestre</td><td class="num">63.500,00</td></tr>
+        <tr class="destaque"><td>Repasse do JMP ao Felipe</td><td class="num">157.384,13</td></tr>
+        <tr><td>Saldo aluguel casa Uberaba —…</td><td class="num">4.666,67</td></tr><tr><td>Comissão Nane — 28º LEILÃO NAVIRAÍ…</td><td class="num">4.440,00</td></tr><tr><td>COMISSAO MEGA EVENTO EAO BAVIERA —…</td><td class="num">3.060,00</td></tr><tr><td>COMISSAO 20º LEILÃO GUADALUPE…</td><td class="num">2.748,00</td></tr><tr><td>Comissão Nane — LEILÃO GENÉTICA SÃO…</td><td class="num">2.618,00</td></tr><tr><td>Hospedagem Hotel Villa Cerrado - Felipe…</td><td class="num">1.914,00</td></tr><tr><td>COMISSAO LEILÃO MATINHA EXPOGENÉTICA…</td><td class="num">1.710,00</td></tr><tr><td>Comissão Nane — LEILÃO TOUROS SÃO…</td><td class="num">1.680,00</td></tr>
+        <tr><td class="muted">+ 5 títulos menores</td><td class="num muted">5.010,28</td></tr>
+        <tr class="total"><td>Total sem data</td><td class="num">248.731,08</td></tr>
+      </table>
+      <p class="small">Os R$ 27.847 de baixo são quase todos <strong>comissões da Nane</strong>, que acumulam para dezembro,
+      mais hotel e reembolsos de Expogenética. Só o Marcelo e o Felipe entram nos cenários.</p>
+    </div>
+  </div>
+
+  <div class="box">
+    <div class="t">O DAS de agosto ainda não tem guia — mas dá para estimar com precisão</div>
+    <p style="margin:0">O título existe no ERP com valor zero, “aguardando guia”. A base sai da guia de <strong>ISS que já chegou</strong>:
+    R$ 4.873,43 vencendo em 15/09. Como o ISS é 5% da mesma receita, a competência de agosto foi de <strong>R$ 97.468,60</strong> —
+    e a carga média do Simples medida em julho (11,3857%) dá <strong>R$ 11.097,48</strong> de DAS em 21/09.
+    <span class="muted">Agosto foi um mês de faturamento pequeno porque as notas grandes (EAO, e-Rural, São Geraldo) só saíram em 01–02/09 — o que joga
+    o imposto delas para 20/10, fora desta janela, e num valor bem maior.</span></p>
+  </div>
+
+  <div class="pfoot"><span>Bula Assessoria Pecuária — Posição de caixa e o pagamento de R$ 63.500 · 09/09 a 10/10/2026</span><span>Gerado em 09/09/2026 · fonte: ERP (conciliado até 04/09)</span></div>
+</section>
+
+<!-- ============================= P6 — CENARIOS ============================= -->
+<section class="page">
+  <div class="head"><h2>6 · Os cenários</h2><span class="n">13 projeções</span></div>
+
+  <figure><svg viewBox="0 0 762 262" width="100%" xmlns="http://www.w3.org/2000/svg" font-family="Inter, sans-serif"><line x1="52" y1="222.0" x2="630" y2="222.0" stroke="#E6E6E6" stroke-width=".7"/><text x="46" y="225.0" font-size="7.6" fill="#6E6E6E" text-anchor="end">-95k</text><line x1="52" y1="180.0" x2="630" y2="180.0" stroke="#E6E6E6" stroke-width=".7"/><text x="46" y="183.0" font-size="7.6" fill="#6E6E6E" text-anchor="end">-31k</text><line x1="52" y1="138.0" x2="630" y2="138.0" stroke="#E6E6E6" stroke-width=".7"/><text x="46" y="141.0" font-size="7.6" fill="#6E6E6E" text-anchor="end">34k</text><line x1="52" y1="96.0" x2="630" y2="96.0" stroke="#E6E6E6" stroke-width=".7"/><text x="46" y="99.0" font-size="7.6" fill="#6E6E6E" text-anchor="end">99k</text><line x1="52" y1="54.0" x2="630" y2="54.0" stroke="#E6E6E6" stroke-width=".7"/><text x="46" y="57.0" font-size="7.6" fill="#6E6E6E" text-anchor="end">164k</text><line x1="52" y1="12.0" x2="630" y2="12.0" stroke="#E6E6E6" stroke-width=".7"/><text x="46" y="15.0" font-size="7.6" fill="#6E6E6E" text-anchor="end">228k</text><line x1="52" y1="160.1" x2="630" y2="160.1" stroke="#0A0A0A" stroke-width="1.1"/><text x="56" y="156.1" font-size="7.2" fill="#6E6E6E">zero</text><text x="70.6" y="235" font-size="7.6" fill="#6E6E6E" text-anchor="middle">10/09</text><text x="163.9" y="235" font-size="7.6" fill="#6E6E6E" text-anchor="middle">15/09</text><text x="257.1" y="235" font-size="7.6" fill="#6E6E6E" text-anchor="middle">20/09</text><text x="350.3" y="235" font-size="7.6" fill="#6E6E6E" text-anchor="middle">25/09</text><text x="443.5" y="235" font-size="7.6" fill="#6E6E6E" text-anchor="middle">30/09</text><text x="536.8" y="235" font-size="7.6" fill="#6E6E6E" text-anchor="middle">05/10</text><text x="630.0" y="235" font-size="7.6" fill="#6E6E6E" text-anchor="middle">10/10</text><line x1="70.6" y1="12" x2="70.6" y2="222" stroke="#E6E6E6" stroke-width=".9" stroke-dasharray="2 3"/><text x="70.6" y="20" font-size="7" fill="#B4B4B4" text-anchor="middle">JMP</text><line x1="350.3" y1="12" x2="350.3" y2="222" stroke="#E6E6E6" stroke-width=".9" stroke-dasharray="2 3"/><text x="350.3" y="20" font-size="7" fill="#B4B4B4" text-anchor="middle">dia 25</text><line x1="536.8" y1="12" x2="536.8" y2="222" stroke="#E6E6E6" stroke-width=".9" stroke-dasharray="2 3"/><text x="536.8" y="20" font-size="7" fill="#B4B4B4" text-anchor="middle">folha</text><path d="M52.0,145.3 L70.6,26.5 L89.3,129.1 L107.9,129.7 L126.6,130.3 L145.2,135.2 L163.9,90.9 L182.5,79.9 L201.2,80.5 L219.8,77.1 L238.5,77.7 L257.1,78.6 L275.7,48.9 L294.4,47.4 L313.0,38.9 L331.7,39.9 L350.3,206.1 L369.0,200.8 L387.6,200.8 L406.3,201.4 L424.9,194.2 L443.5,177.1 L462.2,169.4 L480.8,170.0 L499.5,170.6 L518.1,171.2 L536.8,203.9 L555.4,204.5 L574.1,205.1 L592.7,205.6 L611.4,206.2 L630.0,207.5" fill="none" stroke="#0A0A0A" stroke-width="2.2" stroke-dasharray="6 3" stroke-linejoin="round"/><path d="M52.0,145.3 L70.6,26.5 L89.3,129.1 L107.9,129.7 L126.6,130.3 L145.2,135.2 L163.9,90.9 L182.5,79.9 L201.2,80.5 L219.8,77.1 L238.5,77.7 L257.1,78.6 L275.7,48.9 L294.4,47.4 L313.0,38.9 L331.7,39.9 L350.3,164.9 L369.0,159.6 L387.6,159.6 L406.3,160.2 L424.9,153.0 L443.5,135.9 L462.2,128.2 L480.8,128.8 L499.5,129.4 L518.1,130.0 L536.8,162.7 L555.4,163.3 L574.1,163.9 L592.7,164.5 L611.4,165.1 L630.0,166.3" fill="none" stroke="#6E6E6E" stroke-width="1.4" stroke-linejoin="round"/><path d="M52.0,145.3 L70.6,26.5 L89.3,129.1 L107.9,129.7 L126.6,130.3 L145.2,135.2 L163.9,90.9 L182.5,79.9 L201.2,80.5 L219.8,77.1 L238.5,77.7 L257.1,78.6 L275.7,48.9 L294.4,47.4 L313.0,38.9 L331.7,39.9 L350.3,185.1 L369.0,179.8 L387.6,179.8 L406.3,180.4 L424.9,173.2 L443.5,122.6 L462.2,114.9 L480.8,115.5 L499.5,116.1 L518.1,116.7 L536.8,149.4 L555.4,150.0 L574.1,150.6 L592.7,151.2 L611.4,151.8 L630.0,153.1" fill="none" stroke="#B4B4B4" stroke-width="1.4" stroke-dasharray="1 3" stroke-linejoin="round"/><path d="M52.0,145.3 L70.6,26.5 L89.3,129.1 L107.9,129.7 L126.6,130.3 L145.2,135.2 L163.9,90.9 L182.5,79.9 L201.2,80.5 L219.8,77.1 L238.5,77.7 L257.1,78.6 L275.7,48.9 L294.4,47.4 L313.0,38.9 L331.7,39.9 L350.3,146.2 L369.0,140.9 L387.6,140.9 L406.3,141.5 L424.9,134.4 L443.5,117.2 L462.2,109.5 L480.8,110.1 L499.5,110.7 L518.1,111.3 L536.8,144.0 L555.4,144.6 L574.1,145.2 L592.7,145.8 L611.4,146.4 L630.0,147.7" fill="none" stroke="#C9A84C" stroke-width="2.4" stroke-linejoin="round"/><path d="M52.0,145.3 L70.6,26.5 L89.3,129.1 L107.9,129.7 L126.6,130.3 L145.2,135.2 L163.9,90.9 L182.5,79.9 L201.2,80.5 L219.8,77.1 L238.5,77.7 L257.1,78.6 L275.7,48.9 L294.4,47.4 L313.0,38.9 L331.7,39.9 L350.3,125.2 L369.0,119.9 L387.6,120.0 L406.3,120.6 L424.9,113.4 L443.5,62.7 L462.2,55.1 L480.8,55.7 L499.5,56.3 L518.1,56.9 L536.8,89.5 L555.4,90.1 L574.1,90.7 L592.7,91.3 L611.4,91.9 L630.0,93.2" fill="none" stroke="#C9A84C" stroke-width="1.6" stroke-dasharray="4 2" stroke-linejoin="round"/><line x1="630" y1="93.2" x2="638" y2="93.2" stroke="#C9A84C" stroke-width=".8"/><text x="641" y="95.8" font-size="7.6" fill="#0A0A0A">Chefe + EAO + alavancas <tspan fill="#6E6E6E">103k</tspan></text><line x1="630" y1="147.7" x2="638" y2="147.7" stroke="#C9A84C" stroke-width=".8"/><text x="641" y="150.3" font-size="7.6" fill="#0A0A0A">Chefe + EAO <tspan fill="#6E6E6E">19k</tspan></text><line x1="630" y1="153.1" x2="638" y2="159.2" stroke="#B4B4B4" stroke-width=".8"/><text x="641" y="161.8" font-size="7.6" fill="#0A0A0A">Chefe + alavancas <tspan fill="#6E6E6E">11k</tspan></text><line x1="630" y1="166.3" x2="638" y2="170.7" stroke="#6E6E6E" stroke-width=".8"/><text x="641" y="173.3" font-size="7.6" fill="#0A0A0A">Sem pagar o chefe <tspan fill="#6E6E6E">-10k</tspan></text><line x1="630" y1="207.5" x2="638" y2="207.5" stroke="#0A0A0A" stroke-width=".8"/><text x="641" y="210.1" font-size="7.6" fill="#0A0A0A">Pagando o chefe <tspan fill="#6E6E6E">-73k</tspan></text></svg>
+  <figcaption>Saldo ao fim de cada dia. Cada cenário tem traço próprio e rótulo na ponta — a linha grossa tracejada é o pedido
+  (pagar o chefe no dia 25), a dourada é o mesmo com o EAO pagando. A linha preta horizontal é o zero.</figcaption></figure>
+
+  <table>
+    <tr><th>Cenário</th><th class="num">Pior dia</th><th>Quando</th><th class="num">Fecha em 10/10</th><th class="num">Dias neg.</th></tr>
+    <tr class="destaque">
+      <td>Base — o que tem data, sem pagar chefe nem repasse<br><span class="small">Mede a capacidade bruta do caixa antes de qualquer decisão sua.</span></td>
+      <td class="num">R$ 22.968</td><td>09/09</td>
+      <td class="num">R$ 147.829</td><td class="num">0</td></tr><tr>
+      <td>Com o repasse do JMP ao Felipe<br><span class="small">O JMP entra dia 10 e sai dia 11: da parcela inteira sobram 8.283,37 para a Bula.</span></td>
+      <td class="num">−R$ 9.555</td><td>10/10</td>
+      <td class="num">−R$ 9.555</td><td class="num">8</td></tr><tr>
+      <td>Repasse + chefe no dia 25 (ciclo dos assessores)<br><span class="small">Paga junto com a folha de comissões, no dia em que todo mundo recebe.</span></td>
+      <td class="num">−R$ 73.055</td><td>10/10</td>
+      <td class="num">−R$ 73.055</td><td class="num">16</td></tr><tr>
+      <td>Repasse + chefe em 17/09, logo depois do Mafra<br><span class="small">Antecipa o pagamento para o dia seguinte à entrada do Mafra.</span></td>
+      <td class="num">−R$ 73.055</td><td>10/10</td>
+      <td class="num">−R$ 73.055</td><td class="num">16</td></tr><tr>
+      <td>Repasse + chefe em 2× (17/09 e 30/09)<br><span class="small">Divide em duas metades para não concentrar tudo antes do dia 25.</span></td>
+      <td class="num">−R$ 73.055</td><td>10/10</td>
+      <td class="num">−R$ 73.055</td><td class="num">16</td></tr><tr class="neg">
+      <td>Chefe no dia 25 + e-Rural atrasa<br><span class="small">A e-Rural já deixou vencer um título e ninguém confirmou data.</span></td>
+      <td class="num">−R$ 136.565</td><td>10/10</td>
+      <td class="num">−R$ 136.565</td><td class="num">16</td></tr><tr class="neg">
+      <td>Chefe no dia 25 + Mafra atrasa<br><span class="small">O Mafra é o maior bloco com data de regra, não de acordo.</span></td>
+      <td class="num">−R$ 161.257</td><td>10/10</td>
+      <td class="num">−R$ 161.257</td><td class="num">16</td></tr><tr class="neg">
+      <td>Chefe no dia 25 + só JMP e Naviraí entram<br><span class="small">Tudo que tem data por regra (+45 dias) atrasa. É o cenário de estresse.</span></td>
+      <td class="num">−R$ 332.424</td><td>10/10</td>
+      <td class="num">−R$ 332.424</td><td class="num">17</td></tr><tr class="destaque">
+      <td>Chefe no dia 25 + EAO paga a NF 639 em 25/09<br><span class="small">O cenário de alívio: 92.324,97 que hoje não têm data nenhuma.</span></td>
+      <td class="num">R$ 19.270</td><td>10/10</td>
+      <td class="num">R$ 19.270</td><td class="num">0</td></tr><tr class="destaque">
+      <td>Chefe no 25 + EAO + cobrança dos vencidos em 30/09<br><span class="small">Recuperação: o EAO paga e a cobrança dos vencidos funciona.</span></td>
+      <td class="num">R$ 21.476</td><td>25/09</td>
+      <td class="num">R$ 70.896</td><td class="num">0</td></tr><tr>
+      <td>Chefe no 25 + as duas alavancas internas, sem EAO<br><span class="small">Segura as comissões "a definir" e cobra os vencidos: sem depender do EAO.</span></td>
+      <td class="num">−R$ 38.494</td><td>25/09</td>
+      <td class="num">R$ 10.926</td><td class="num">5</td></tr><tr class="destaque">
+      <td>Chefe no 25 + alavancas + EAO em 25/09<br><span class="small">O melhor caso realista: tudo o que já foi faturado entra e nada extra sai.</span></td>
+      <td class="num">R$ 22.968</td><td>09/09</td>
+      <td class="num">R$ 103.251</td><td class="num">0</td></tr><tr class="neg">
+      <td>Nada entra a partir de hoje<br><span class="small">Piso absoluto: só o que já está em caixa, pagando o que tem data.</span></td>
+      <td class="num">−R$ 296.003</td><td>10/10</td>
+      <td class="num">−R$ 296.003</td><td class="num">26</td></tr>
+  </table>
+
+  <p class="small">Destacados em cinza os cenários que <strong>passam sem nenhum dia negativo</strong>. Repare que antecipar ou parcelar o pagamento
+  do chefe <strong>não muda onde o mês fecha</strong> — muda só quando o buraco aparece. O que muda o resultado é entrada de dinheiro ou adiamento de saída.</p>
+
+  <div class="pfoot"><span>Bula Assessoria Pecuária — Posição de caixa e o pagamento de R$ 63.500 · 09/09 a 10/10/2026</span><span>Gerado em 09/09/2026 · fonte: ERP (conciliado até 04/09)</span></div>
+</section>
+
+<!-- ============================= P7 — O QUE FAZER ============================= -->
+<section class="page">
+  <div class="head"><h2>7 · O que fazer nesta semana</h2><span class="n">em ordem de valor</span></div>
+
+  <table>
+    <tr><th>#</th><th>Ação</th><th class="num">Vale</th><th>Com quem</th></tr>
+    <tr class="destaque"><td>1</td><td><strong>Arrancar a data do EAO.</strong> A NF 639 foi emitida em 02/09 e mandada para o e-mail que eles pediram; a previsão de pagamento nunca voltou. É a peça que decide o mês.</td><td class="num">92.324,97</td><td>Max Pereira / financeiro EAO</td></tr>
+    <tr class="destaque"><td>2</td><td><strong>Decidir as 5 comissões “a definir” do dia 25.</strong> Sem beneficiário definido elas não podem ser pagas — mas hoje estão na projeção como se fossem. Decidir (ou adiar formalmente para outubro) é caixa imediato.</td><td class="num">32.355,00</td><td>diretoria</td></tr>
+    <tr><td>3</td><td><strong>Cobrar os 9 vencidos.</strong> R$ 51.625,98 parados, o mais velho de 02/05. Metade é Santa Cruz (R$ 20.670,00).</td><td class="num">51.625,98</td><td>Ana Paula / contatos por leiloeira</td></tr>
+    <tr><td>4</td><td><strong>Confirmar data com Mafra e e-Rural.</strong> Os R$ 151.712,00 dos dois são “leilão + 45 dias” calculado pelo ERP, não data acordada. Sem eles o mês fecha −R$ 161.257.</td><td class="num">151.712,00</td><td>Programa Leilões / Vivian</td></tr>
+    <tr><td>5</td><td><strong>Emitir a NF do Marcondes.</strong> O portal da leiloeira está pedindo a nota anexada para liberar o pagamento de 15/09.</td><td class="num">4.012,50</td><td>Ana Paula</td></tr>
+    <tr><td>6</td><td><strong>Importar o extrato de 04/09 até hoje.</strong> 5 dias sem lançamento, com dois pregões no meio. Toda a projeção parte do saldo de 04/09.</td><td class="num">~6.160,70</td><td>você</td></tr>
+    <tr><td>7</td><td><strong>Fechar as duas estimativas antigas do EAO no ERP.</strong> Elas duplicam a NF 639 e inflam o contas a receber em R$ 80.058,30.</td><td class="num">80.058,30</td><td>você</td></tr>
+  </table>
+
+  <h3>O que este relatório não promete</h3>
+  <ul>
+    <li><strong>Nenhuma data de recebimento aqui é garantia.</strong> Só JMP e Naviraí (10/09) têm confirmação de gente; o resto é regra de +45 dias que o ERP aplica sozinho quando a planilha não traz data.</li>
+    <li><strong>O DAS de agosto é estimativa</strong> (R$ 11.097,48), derivada da guia de ISS. Quando a guia chegar, o número troca.</li>
+    <li><strong>A fatura de cartão de 22/09 (R$ 7.329,97) está lançada por estimativa</strong>, repetindo agosto. A leitura do Sicoob em 26/08 apontava R$ 4.829,66 para a próxima fatura — se for esse o valor, sobram R$ 2.500,31 a favor do caixa.</li>
+    <li><strong>A janela termina em 10/10 por escolha:</strong> ela cobre a folha de 05/10, que é a primeira parede depois do dia 25. O imposto sobre o faturamento de setembro — que já passa de R$ 120 mil com as notas de 01–02/09 — vence em 20/10, fora daqui.</li>
+  </ul>
+
+  <h3>Para quem ligar</h3>
+  <div class="cols2">
+    <table>
+      <tr><th>Leiloeira</th><th>Contato de cobrança</th></tr>
+      <tr class="destaque"><td>EAO</td><td>Max Pereira (comercial) · +55 34 9672-7349<br><span class="small">institucional (73) 99859-4839 · helio@eaoempreendimentos.com</span></td></tr>
+      <tr class="destaque"><td>e-Rural</td><td>Vivian Lutgard · +55 65 9325-4687<br><span class="small">admin do grupo “PARCERIA BULA e ERURAL”</span></td></tr>
+      <tr><td>Naviraí</td><td>Elvis · +55 34 9294-9959<br><span class="small">financeiro Chácara Naviraí (67) 98158-0001</span></td></tr>
+    </table>
+    <table>
+      <tr><th>Leiloeira</th><th>Contato de cobrança</th></tr>
+      <tr><td>Santa Cruz</td><td>Nelore Santa Cruz · +55 61 8626-1377<br><span class="small">R$ 20.670,00 vencidos em 3 títulos</span></td></tr>
+      <tr><td>Genética Aditiva</td><td>Claudinei Sandim · +55 67 9984-6958<br><span class="small">2ª parcela combinada para 26/09</span></td></tr>
+      <tr><td>Guadalupe</td><td><span class="muted">sem contato salvo</span><br><span class="small">candidata: Valéria Borges +55 67 9601-4226</span></td></tr>
+    </table>
+  </div>
+  <p class="small">Contatos conferidos em 12/08/2026. Kirz e Neloraço são Bula Remates — acerto interno, não cobrança externa.</p>
+
+  <div class="box dark">
+    <div class="t">Em uma frase</div>
+    <p style="margin:0" class="lead">Com o que está travado hoje, <strong>os R$ 63.500,00 não cabem</strong> — o mês já fecha −R$ 9.555,26 sem eles,
+    porque o dia 25 leva R$ 202.606 de comissões e o JMP de amanhã é, na maior parte, dinheiro do Felipe.
+    <strong>O EAO paga o Marcelo</strong>: com a NF 639 liquidada, a capacidade vai a R$ 62.769,71 — a R$ 730,29 da meta — e com as duas alavancas internas
+    o pagamento cabe inteiro já em 15/09.</p>
+  </div>
+
+  <div class="pfoot"><span>Bula Assessoria Pecuária — Posição de caixa e o pagamento de R$ 63.500 · 09/09 a 10/10/2026</span><span>Gerado em 09/09/2026 · fonte: ERP (conciliado até 04/09)</span></div>
+</section>
+
+</body></html>
