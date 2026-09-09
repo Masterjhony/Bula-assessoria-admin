@@ -10,6 +10,7 @@
  */
 
 import type { SupabaseClient } from '@supabase/supabase-js'
+import { identificaContraparte, type PessoaCadastro } from './erp-contraparte'
 import { parseExtrato, type LinhaExtrato } from './extrato-import'
 
 export interface ResultadoImportacao {
@@ -24,6 +25,8 @@ export interface ResultadoImportacao {
     ignoradas: Array<{ linha: string; motivo: string }>
     ignoradas_total: number
     amostra: LinhaExtrato[]
+    /** quantos dos novos já entram com cliente/fornecedor reconhecido */
+    identificados: number
     gravado: boolean
     saldo_extrato: number | null
     saldo_apos: number
@@ -112,6 +115,18 @@ export async function aplicaExtrato(opts: {
     })
     const duplicadas = extrato.linhas.length - novas.length
 
+    // Quem está do outro lado. O extrato escreve "PIX EMITIDO OUTRA IF -
+    // 17.895.646 0001-87"; a Conciliação não pode nascer com isso como
+    // "— definir —" quando o cadastro já sabe que esse CNPJ é a Uber. Só entra
+    // pessoa que alguma regra fecha com evidência (documento, padrão de banco
+    // ou favorecido declarado) — o resto continua pendente para mão humana.
+    const { data: pessoas } = await sb.from('erp_pessoas').select('id,nome,razao_social,documento').limit(5000)
+    const contraparte = new Map<string, string>()
+    for (const l of novas) {
+        const achou = identificaContraparte({ descricao: l.descricao, documento: l.documento }, (pessoas ?? []) as PessoaCadastro[])
+        if (achou) contraparte.set(l.import_key, achou.pessoa_id)
+    }
+
     const resumo = {
         conta: conta.nome as string,
         formato: extrato.formato as string,
@@ -124,6 +139,7 @@ export async function aplicaExtrato(opts: {
         ignoradas: extrato.ignoradas.slice(0, 20),
         ignoradas_total: extrato.ignoradas.length,
         amostra: novas.slice(0, 10),
+        identificados: contraparte.size,
     }
 
     if (dryRun) {
@@ -167,6 +183,7 @@ export async function aplicaExtrato(opts: {
         status_conciliacao: 'pendente',
         conciliado: false,
         import_key: l.import_key,
+        pessoa_id: contraparte.get(l.import_key) ?? null,
     }))
 
     const gravadas: string[] = []
