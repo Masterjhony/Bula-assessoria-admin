@@ -242,6 +242,497 @@
   "mqls": 2,
   "fichas": 1
  },
+ "reguaDaPlanilha": {
+  "linhasAgoSet": 44,
+  "naJanela": 30,
+  "comLeadDeMidia": 21,
+  "aprovados": 18,
+  "ressalva": 10,
+  "compraram": 6,
+  "vgv": 299100,
+  "deMidia": {
+   "n": 2,
+   "vgv": 141000
+  },
+  "detalhe": [
+   {
+    "nome": "Reginaldo Leandro da Silva",
+    "sdr": "Luana Cruz",
+    "ficha": "2026-08-29",
+    "veredito": "ressalva",
+    "lead": {
+     "data": "2026-08-28",
+     "origem": "Meta — LEAD - PERPETUO TOURO"
+    },
+    "eventos": [
+     "05/09/2026 TOUROS JACAMIN"
+    ],
+    "lotes": [
+     "26",
+     "76",
+     "75",
+     "12"
+    ],
+    "animais": 4,
+    "vgv": 117000,
+    "provisorio": true
+   },
+   {
+    "nome": "Farley Azevedo Oliveira",
+    "sdr": "Fábio Omena",
+    "ficha": "2026-08-14",
+    "veredito": "aprovado",
+    "lead": null,
+    "eventos": [
+     "15/08/2026 LEILÃO TERRA BRAVA AGROPECUÁRIA EXPOGENÉTICA",
+     "15/08/2026 TOUROS TERRA BRAVA EXPOGENETICA"
+    ],
+    "lotes": [
+     "10",
+     "21",
+     "2 lote(s)"
+    ],
+    "animais": 2,
+    "vgv": 54000,
+    "provisorio": false
+   },
+   {
+    "nome": "Adriano de Oliveira",
+    "sdr": "Fábio Omena",
+    "ficha": "2026-08-11",
+    "veredito": "ressalva",
+    "lead": null,
+    "eventos": [
+     "15/08/2026 LEILÃO TERRA BRAVA AGROPECUÁRIA EXPOGENÉTICA",
+     "15/08/2026 TOUROS TERRA BRAVA EXPOGENETICA"
+    ],
+    "lotes": [
+     "14",
+     "15",
+     "2 lote(s)"
+    ],
+    "animais": 2,
+    "vgv": 53100,
+    "provisorio": false
+   },
+   {
+    "nome": "Luis Diehl",
+    "sdr": "Douglas Bispo",
+    "ficha": "2026-09-01",
+    "veredito": "aprovado",
+    "lead": null,
+    "eventos": [
+     "05/09/2026 TOUROS JACAMIN"
+    ],
+    "lotes": [
+     "2"
+    ],
+    "animais": 1,
+    "vgv": 34500,
+    "provisorio": true
+   },
+   {
+    "nome": "Francisco Aluízio de Faria",
+    "sdr": "Douglas Bispo",
+    "ficha": "2026-08-18",
+    "veredito": "ressalva",
+    "lead": {
+     "data": "2026-07-09",
+     "origem": "Meta — LEADS - FORMS INST EAO — Cópia"
+    },
+    "eventos": [
+     "29/08/2026 LEILÃO MELHORADORES ESPECIAL 30 ANOS & CONVIDADOS ESPECIAIS"
+    ],
+    "lotes": [
+     "36"
+    ],
+    "animais": 1,
+    "vgv": 24000,
+    "provisorio": false
+   },
+   {
+    "nome": "Alexandre Soares de Carvalho",
+    "sdr": "Fábio Omena",
+    "ficha": "2026-08-27",
+    "veredito": "aprovado",
+    "lead": null,
+    "eventos": [
+     "29/08/2026 LEILÃO MELHORADORES ESPECIAL 30 ANOS & CONVIDADOS ESPECIAIS"
+    ],
+    "lotes": [
+     "23"
+    ],
+    "animais": 1,
+    "vgv": 16500,
+    "provisorio": false
+   }
+  ],
+  "linhas": [
+   {
+    "linha": 56,
+    "data": "2026-08-29",
+    "nome": "Claudio Eduardo Pupim",
+    "sdr": "Pedro Pereira ",
+    "veredito": "aprovado",
+    "lead": {
+     "data": "2026-08-28",
+     "origem": "Meta — LEADS - JACAMIN"
+    },
+    "comprou": false,
+    "vgv": 0
+   },
+   {
+    "linha": 57,
+    "data": "2026-08-29",
+    "nome": "Ejamal Muhd Shihadeh Khalil",
+    "sdr": "Pedro Pereira ",
+    "veredito": "pendente",
+    "lead": {
+     "data": "2026-08-29",
+     "origem": "Meta — LEADS - JACAMIN"
+    },
+    "comprou": false,
+    "vgv": 0
+   },
+   {
+    "linha": 58,
+    "data": "2026-08-31",
+    "nome": "Evaldo Luiz Nunes Escobar",
+    "sdr": "Pedro Pereira ",
+    "veredito": "aprovado",
+    "lead": {
+     "data": "2026-08-30",
+     "origem": "Meta — LEADS - Leilão Melhorado 30 ANOS"
+    },
+    "comprou": false,
+    "vgv": 0
+   },
+   {
+    "linha": 59,
+    "data": "2026-08-19",
+    "nome": "mauro Ribeiro Rodrigo",
+    "sdr": "Pedro Pereira ",
+    "veredito": null,
+    "lead": {
+     "data": "2026-08-19",
+     "origem": "Meta — LEAD - PERPETUO TOURO"
+    },
+    "comprou": false,
+    "vgv": 0
+   },
+   {
+    "linha": 63,
+    "data": "2026-08-27",
+    "nome": "Hatila Silva Paes",
+    "sdr": "Marcelo Carneiro",
+    "veredito": "aprovado",
+    "lead": null,
+    "comprou": false,
+    "vgv": 0
+   },
+   {
+    "linha": 64,
+    "data": "2026-08-24",
+    "nome": "Magno Nogueira",
+    "sdr": "Marcelo Carneiro",
+    "veredito": "aprovado",
+    "lead": null,
+    "comprou": false,
+    "vgv": 0
+   },
+   {
+    "linha": 74,
+    "data": "2026-08-15",
+    "nome": "Francisco Marcos Araruna",
+    "sdr": "Fábio Omena",
+    "veredito": "aprovado",
+    "lead": null,
+    "comprou": false,
+    "vgv": 0
+   },
+   {
+    "linha": 75,
+    "data": "2026-08-18",
+    "nome": "Francisco Aluízio de Faria",
+    "sdr": "Douglas Bispo",
+    "veredito": "ressalva",
+    "lead": {
+     "data": "2026-07-09",
+     "origem": "Meta — LEADS - FORMS INST EAO — Cópia"
+    },
+    "comprou": true,
+    "vgv": 24000
+   },
+   {
+    "linha": 76,
+    "data": "2026-08-20",
+    "nome": "Epitacio Garcia Neto",
+    "sdr": "Luana Cruz",
+    "veredito": "aprovado",
+    "lead": {
+     "data": "2026-08-20",
+     "origem": "Meta — LEAD - PERPETUO TOURO"
+    },
+    "comprou": false,
+    "vgv": 0
+   },
+   {
+    "linha": 77,
+    "data": "2026-08-20",
+    "nome": "Wandeilson Dias Sabino",
+    "sdr": "Luana Cruz",
+    "veredito": "aprovado",
+    "lead": {
+     "data": "2026-08-20",
+     "origem": "Meta — LEAD - PERPETUO TOURO"
+    },
+    "comprou": false,
+    "vgv": 0
+   },
+   {
+    "linha": 78,
+    "data": "2026-08-21",
+    "nome": "Carolina Freitas Alencar",
+    "sdr": "Fábio Omena",
+    "veredito": "ressalva",
+    "lead": null,
+    "comprou": false,
+    "vgv": 0
+   },
+   {
+    "linha": 79,
+    "data": "2026-08-22",
+    "nome": "Marcionei Luiz dos Santos",
+    "sdr": "Luana Cruz",
+    "veredito": "ressalva",
+    "lead": {
+     "data": "2026-08-19",
+     "origem": "Meta — LEAD - PERPETUO TOURO"
+    },
+    "comprou": false,
+    "vgv": 0
+   },
+   {
+    "linha": 80,
+    "data": "2026-08-22",
+    "nome": "Uendel Moreira Lino",
+    "sdr": "Fábio Omena",
+    "veredito": "ressalva",
+    "lead": null,
+    "comprou": false,
+    "vgv": 0
+   },
+   {
+    "linha": 81,
+    "data": "2026-08-23",
+    "nome": "Agropecuária Pernambuco Ltda (Agropecuária GP)",
+    "sdr": "Luana Cruz",
+    "veredito": "aprovado",
+    "lead": {
+     "data": "2026-08-20",
+     "origem": "Meta — LEAD - PERPETUO TOURO"
+    },
+    "comprou": false,
+    "vgv": 0
+   },
+   {
+    "linha": 82,
+    "data": "2026-08-27",
+    "nome": "Alexandre Soares de Carvalho",
+    "sdr": "Fábio Omena",
+    "veredito": "aprovado",
+    "lead": null,
+    "comprou": true,
+    "vgv": 16500
+   },
+   {
+    "linha": 83,
+    "data": "2026-08-28",
+    "nome": "Jessé Martins Mendes",
+    "sdr": "Luana Cruz",
+    "veredito": "ressalva",
+    "lead": {
+     "data": "2026-08-28",
+     "origem": "Meta — LEAD - PERPETUO TOURO"
+    },
+    "comprou": false,
+    "vgv": 0
+   },
+   {
+    "linha": 84,
+    "data": "2026-08-29",
+    "nome": "Reginaldo Leandro da Silva",
+    "sdr": "Luana Cruz",
+    "veredito": "ressalva",
+    "lead": {
+     "data": "2026-08-28",
+     "origem": "Meta — LEAD - PERPETUO TOURO"
+    },
+    "comprou": true,
+    "vgv": 117000
+   },
+   {
+    "linha": 85,
+    "data": "2026-09-03",
+    "nome": "Luiz Roberto Pires",
+    "sdr": "Luana Cruz",
+    "veredito": "aprovado",
+    "lead": {
+     "data": "2026-09-03",
+     "origem": "Meta — LEAD - PERPETUO TOURO"
+    },
+    "comprou": false,
+    "vgv": 0
+   },
+   {
+    "linha": 86,
+    "data": "2026-09-03",
+    "nome": "Alex Fernandes da Silva",
+    "sdr": "Luana Cruz",
+    "veredito": "aprovado",
+    "lead": {
+     "data": "2026-09-03",
+     "origem": "Landing Touros"
+    },
+    "comprou": false,
+    "vgv": 0
+   },
+   {
+    "linha": 87,
+    "data": "2026-09-03",
+    "nome": "Josias Benedito de Almeira",
+    "sdr": "Luana Cruz",
+    "veredito": "aprovado",
+    "lead": {
+     "data": "2026-09-02",
+     "origem": "Meta — Leads | Leilão Jacamim | Formulário | 2026-09 | T: 2.415"
+    },
+    "comprou": false,
+    "vgv": 0
+   },
+   {
+    "linha": 88,
+    "data": "2026-09-03",
+    "nome": "Rodrigo Carlos Aureliano",
+    "sdr": "Luana Cruz",
+    "veredito": "aprovado",
+    "lead": {
+     "data": "2026-09-02",
+     "origem": "Meta — LEAD - PERPETUO TOURO"
+    },
+    "comprou": false,
+    "vgv": 0
+   },
+   {
+    "linha": 89,
+    "data": "2026-09-03",
+    "nome": "Robson Costa Melo",
+    "sdr": "Luana Cruz",
+    "veredito": "ressalva",
+    "lead": {
+     "data": "2026-09-03",
+     "origem": "Meta — LEAD - PERPETUO TOURO"
+    },
+    "comprou": false,
+    "vgv": 0
+   },
+   {
+    "linha": 90,
+    "data": "2026-09-04",
+    "nome": "Euselio Tonha Santos",
+    "sdr": "Luana Cruz",
+    "veredito": "aprovado",
+    "lead": {
+     "data": "2026-09-03",
+     "origem": "Meta — LEAD - PERPETUO TOURO"
+    },
+    "comprou": false,
+    "vgv": 0
+   },
+   {
+    "linha": 91,
+    "data": "2026-09-04",
+    "nome": "Antônio carlos rodrigues",
+    "sdr": "Pedro Pereira ",
+    "veredito": "ressalva",
+    "lead": {
+     "data": "2026-09-04",
+     "origem": "Meta — LEAD - PERPETUO TOURO"
+    },
+    "comprou": false,
+    "vgv": 0
+   },
+   {
+    "linha": 92,
+    "data": "2026-09-08",
+    "nome": "Aristela Vieira Lucena",
+    "sdr": "Pedro Pereira ",
+    "veredito": "aprovado",
+    "lead": {
+     "data": "2026-09-05",
+     "origem": "Meta — LEAD - PERPETUO TOURO"
+    },
+    "comprou": false,
+    "vgv": 0
+   },
+   {
+    "linha": 93,
+    "data": "2026-09-08",
+    "nome": "José Antônio",
+    "sdr": "Pedro Pereira ",
+    "veredito": "ressalva",
+    "lead": {
+     "data": "2026-09-07",
+     "origem": "Meta — LEAD - PERPETUO TOURO"
+    },
+    "comprou": false,
+    "vgv": 0
+   },
+   {
+    "linha": 94,
+    "data": "2026-09-05",
+    "nome": "Humberto José de Morais",
+    "sdr": "Marcelo Carneiro",
+    "veredito": "aprovado",
+    "lead": null,
+    "comprou": false,
+    "vgv": 0
+   },
+   {
+    "linha": 96,
+    "data": "2026-09-01",
+    "nome": "Luis Diehl",
+    "sdr": "Douglas Bispo",
+    "veredito": "aprovado",
+    "lead": null,
+    "comprou": true,
+    "vgv": 34500
+   },
+   {
+    "linha": 97,
+    "data": "2026-09-04",
+    "nome": "Vitor Mendes Costa",
+    "sdr": "Douglas Bispo",
+    "veredito": "ressalva",
+    "lead": null,
+    "comprou": false,
+    "vgv": 0
+   },
+   {
+    "linha": 98,
+    "data": "2026-09-06",
+    "nome": "Marcos Florentino Belliard",
+    "sdr": "João Antônio",
+    "veredito": "aprovado",
+    "lead": {
+     "data": "2026-09-03",
+     "origem": "Meta — Leads | Leilão Jacamim | Formulário | 2026-09 | T: 2.415"
+    },
+    "comprou": false,
+    "vgv": 0
+   }
+  ]
+ },
  "cadastros": [
   {
    "data": "2026-08-19",

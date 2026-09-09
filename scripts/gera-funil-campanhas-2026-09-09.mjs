@@ -219,6 +219,50 @@ for (const c of porNome.values()) {
         parcela, provisorio: true,
     })
 }
+/* ══ 4b. A OUTRA RÉGUA: a aba CADASTROS da planilha ══════════════════════
+ * O chefe conta cadastro pela linha da planilha, não pela ficha no grupo — e
+ * pela planilha o período é MAIOR do que o funil de mídia mostra. As duas
+ * réguas convivem no relatório porque medem coisas diferentes:
+ *   • funil de mídia = ficha cuja pessoa é lead pago de campanha da janela;
+ *   • planilha       = tudo que a operação de cadastro levou à leiloeira,
+ *                      inclusive carteira de assessor, que não custou verba.
+ * A data de cada linha vem da ficha correspondente nos grupos (a aba não tem
+ * coluna de data); quando a ficha não é achada, cai na entrada do lead.
+ */
+const RES = JSON.parse(fs.readFileSync(path.join(ROOT, 'outputs', 'conferencia-compras-cadastros-2026-09', 'resultado.json'), 'utf8'))
+const idxFicha = indexaUniverso(FICHAS.map(f => ({ nome: f.nome, cpf: f.cpf, fone: f.tel, uf: f.uf, origem: 'ficha', data: f.data, _f: f })))
+const PLANILHA = RES.filter(r => /agosto|setembro/i.test(r.mes || '')).map(r => {
+    const pessoa = { nome: r.nome, cpf: r.cpf || r.cpfTxt, fone: r.tel, uf: r.uf }
+    const af = casaNoUniverso(idxFicha, pessoa)
+    const ficha = af?.achados?.[0]?._f || null
+    const al = casaNoUniverso(idxTudo, pessoa)
+    const lead = al?.achados?.find(x => ehMidia(x.origem)) || null
+    const data = ficha?.data || (lead?.data || null)
+    const compras = (r.provas || []).filter(p => p.data >= DE && p.data <= ATE)
+    const erp = compras.filter(p => p.fonte === 'HastaPro')
+    const lance = compras.filter(p => p.fonte === 'Lance no grupo')
+    // O lance cantado guarda a PARCELA; sem o HastaPro, VGV = parcela × 30.
+    const parcela = lance.reduce((s, p) => s + (VENDAS.find(v => String(v.lote) === String(p.lote) && soData(v.leilao_data) === p.data)?.valor ?? 0) * 1, 0)
+    return {
+        ...r, ficha, viaFicha: af?.via || null, lead, viaLead: al?.via || null, data,
+        dentro: !!data && data >= DE && data <= ATE,
+        comprouNaJanela: compras.length > 0,
+        vgv: erp.reduce((s, p) => s + (p.valor || 0), 0) || (parcela * 30),
+        animais: erp.reduce((s, p) => s + (p.animais || 0), 0) || lance.length,
+        provisorio: !erp.length && !!lance.length, parcela,
+        eventos: [...new Set(compras.map(p => `${dataBR(p.data)} ${p.evento === 'pregão (lance no grupo)' ? leilaoDoDia(p.data) : p.evento}`))],
+        lotes: [...new Set(compras.map(p => p.lote))],
+    }
+})
+const PL_JANELA = PLANILHA.filter(r => r.dentro)
+const PL_MIDIA = PL_JANELA.filter(r => r.lead)
+const PL_APROV = PL_JANELA.filter(r => r.ficha && APROVADA(r.ficha))
+const PL_RESSALVA = PL_JANELA.filter(r => r.ficha && r.ficha.veredito === 'ressalva')
+/** Quem COMPROU dentro da janela — a ficha pode ser de antes (Adriano e Farley). */
+const PL_COMPRARAM = PLANILHA.filter(r => r.comprouNaJanela).sort((a, b) => b.vgv - a.vgv)
+const PL_VGV = PL_COMPRARAM.reduce((s, r) => s + r.vgv, 0)
+const PL_COMPRARAM_MIDIA = PL_COMPRARAM.filter(r => r.lead)
+
 /** Comprador da janela que era lead de mídia de OUTRO período — contexto. */
 const FORA_DA_JANELA = []
 for (const c of porComprador.values()) {
@@ -401,7 +445,7 @@ const cx = (z, n, p) => `<div><div class="z">${z}</div><div class="n">${n}</div>
 const capa = () => `<div class="capa"><img class="foto" src="${FUNDO}" alt=""><div class="marca"><img src="${LOGO}" alt="Bula Assessoria"></div></div>`
 const topo = (pag, total) => `<div class="faixatopo"><span>Bula Assessoria · Funil das campanhas · <b>15/08 a 09/09/2026</b></span><span>Página ${pag} de ${total}</span></div>`
 
-const TOTAL_PAG = 8
+const TOTAL_PAG = 9
 const paginas = []
 
 /* ══ PÁGINA 1 — consolidado ══════════════════════════════════════════════ */
@@ -431,7 +475,7 @@ const paginas = []
     ${cx('Verba usada', pct(d.m.investido + invCA1, METAS.investido, 0), `${brl(d.m.investido + invCA1)} nas duas contas contra ${brl(METAS.investido)}/mês`)}
     ${cx('Taxas dentro da meta', `${dentro} de ${comp}`, quais.length ? quais.join(', ') : 'nenhuma etapa comparável bateu a meta')}
     ${cx('Lead de formulário', pct(d.instantaneos, d.leads.length, 0), `${br(d.instantaneos)} dos ${br(d.leads.length)} leads nunca passaram pelo site`)}
-    ${cx('Compra comprovada', String(d.clientes.length), d.clientes.length ? `${d.clientes.map(c => esc(c.nome.split(' ').slice(0, 2).join(' '))).join(', ')} · ${brl0(d.faturamento)}` : 'nenhuma ainda')}
+    ${cx('Compraram no período', `${CONSOLIDADO.clientes.length} · ${PL_COMPRARAM.length}`, `${CONSOLIDADO.clientes.length} pelo funil de mídia, <b>${PL_COMPRARAM.length} pela aba CADASTROS</b> (${brl0(PL_VGV)}) — página 8`)}
   </div>
   <h2>Onde o funil estreita <small>— cada degrau em relação ao anterior</small></h2>
   <table class="densa">
@@ -673,7 +717,77 @@ for (const nome of ['PERPÉTUO TOURO', 'JACAMIM', 'MELHORADORES']) {
 </div>`)
 }
 
-/* ══ PÁGINA 8 — anexo nominal ════════════════════════════════════════════ */
+/* ══ PÁGINA 8 — a régua da planilha ══════════════════════════════════════ */
+{
+    const carteira = PL_COMPRARAM.filter(r => !r.lead)
+    const vgvMidia = PL_COMPRARAM_MIDIA.reduce((s, r) => s + r.vgv, 0)
+    const vgvCarteira = carteira.reduce((s, r) => s + r.vgv, 0)
+    const porSdr = {}
+    for (const r of carteira) (porSdr[r.sdr || '(sem SDR)'] ||= []).push(r)
+    const cmp = r => `<tr>
+      <td class="rot">${esc(r.nome)}</td>
+      <td class="txt">${r.lead ? `<b style="color:#c9a84c">mídia</b> · ${esc(r.lead.origem.replace(/^Meta — /, ''))}, lead ${dbr(r.lead.data)}` : `carteira · ${esc(r.sdr || '—')}`}</td>
+      <td class="txt">${r.ficha ? `${dbr(r.ficha.data)} · ${esc(r.ficha.veredito)}` : '—'}</td>
+      <td class="txt">${esc(r.eventos[0] || '')}${r.lotes.length ? ` · lote${r.lotes.length > 1 ? 's' : ''} ${esc(r.lotes.join(', '))}` : ''}</td>
+      <td>${r.animais}</td>
+      <td class="${r.provisorio ? 'alerta' : ''}">${brl0(r.vgv)}${r.provisorio ? ' *' : ''}</td></tr>`
+    paginas.push(`<div class="quadro">
+  ${topo(paginas.length + 1, TOTAL_PAG)}
+  <h1>A régua da planilha <span>— o que a operação entregou</span></h1>
+  <div class="sub">o funil das páginas anteriores mede <b>só o que a verba pagou</b>; a aba CADASTROS mede <b>tudo que foi levado à leiloeira</b><br>
+  as duas estão certas e medem coisas diferentes — e é a segunda que explica o dinheiro que entrou no período</div>
+  <div class="corpo">
+  <table>
+    <thead><tr><th class="l" colspan="2">Etapa no período</th><th>Funil de mídia</th><th>Aba CADASTROS</th><th class="l">A diferença é</th></tr></thead>
+    <tbody>
+      <tr><td class="i">1</td><td class="rot">Cadastros submetidos</td><td class="real">${CONSOLIDADO.fichas.length}</td><td class="real">${PL_JANELA.length}</td>
+        <td class="txt">${PL_JANELA.length - PL_MIDIA.length} linhas de <b>carteira de assessor</b> — pessoa que nunca foi lead pago</td></tr>
+      <tr><td class="i">2</td><td class="rot">Com lead de mídia por trás</td><td class="real">${CONSOLIDADO.fichas.length + ORG.fichas.length}</td><td class="real">${PL_MIDIA.length}</td>
+        <td class="txt">as duas quase batem — a planilha ainda não tem ${Math.max(0, CONSOLIDADO.fichas.length + ORG.fichas.length - PL_MIDIA.length)} das fichas que os grupos mostram, e traz ${PL_MIDIA.filter(r => r.lead && r.lead.data < DE).length} de safra anterior (EAO, São Geraldo)</td></tr>
+      <tr><td class="i">3</td><td class="rot">Aprovados</td><td class="real">${CONSOLIDADO.aprovados.length}</td><td class="real">${PL_APROV.length}</td>
+        <td class="txt">+${PL_RESSALVA.length} com ressalva (limite ou cautela). Aprovação de ${pct(PL_APROV.length + PL_RESSALVA.length, PL_JANELA.length, 0)} contando ressalva</td></tr>
+      <tr><td class="i">4</td><td class="rot">Compraram no período</td><td class="real">${CONSOLIDADO.clientes.length}</td><td class="real" style="color:#c9a84c">${PL_COMPRARAM.length}</td>
+        <td class="txt"><b>é aqui que a diferença pesa</b> — ${carteira.length} dos ${PL_COMPRARAM.length} são carteira</td></tr>
+      <tr><td class="i">5</td><td class="rot">Faturamento gerado</td><td class="real">${brl0(CONSOLIDADO.faturamento)}</td><td class="real" style="color:#c9a84c">${brl0(PL_VGV)}</td>
+        <td class="txt">${brl0(vgvMidia)} de mídia + ${brl0(vgvCarteira)} de carteira</td></tr>
+    </tbody>
+  </table>
+  <div class="destaque">
+    ${cx('Compraram no período', String(PL_COMPRARAM.length), `contra ${CONSOLIDADO.clientes.length} pelo funil de mídia`)}
+    ${cx('Faturamento', brl0(PL_VGV), `${PL_COMPRARAM.reduce((s, r) => s + r.animais, 0)} animais · ticket ${brl0(PL_VGV / PL_COMPRARAM.reduce((s, r) => s + r.animais, 0))}`)}
+    ${cx('Veio da mídia', pct(vgvMidia, PL_VGV, 0), `${brl0(vgvMidia)} de ${PL_COMPRARAM_MIDIA.length} compradores`)}
+    ${cx('Veio de carteira', pct(vgvCarteira, PL_VGV, 0), `${brl0(vgvCarteira)} — ${Object.entries(porSdr).sort((a, b) => b[1].length - a[1].length).map(([k, v]) => `${k.split(' ')[0]} ${v.length}`).join(', ')}`)}
+  </div>
+  <h2>Os ${PL_COMPRARAM.length} compradores do período <small>— cadastro da planilha que virou compra entre ${dbr(DE)} e ${dbr(ATE)}</small></h2>
+  <table class="densa">
+    <thead><tr><th class="l">Comprador</th><th class="l">Origem</th><th class="l">Ficha</th><th class="l">Compra</th><th>Animais</th><th>VGV</th></tr></thead>
+    <tbody>${PL_COMPRARAM.map(cmp).join('')}
+      <tr class="faixa"><td colspan="6">Total</td></tr>
+      <tr><td class="rot">Total</td><td></td><td></td><td></td><td>${PL_COMPRARAM.reduce((s, r) => s + r.animais, 0)}</td><td class="real" style="font-size:16px">${brl0(PL_VGV)}</td></tr>
+    </tbody>
+  </table>
+  <h2>As ${PL_JANELA.length} linhas da aba CADASTROS no período <small>— e de onde cada uma veio</small></h2>
+  <table class="densa">
+    <thead><tr><th class="l">Ficha</th><th class="l">Pessoa</th><th class="l">SDR</th><th class="l">Origem</th><th class="l">Veredito</th><th class="l">Comprou</th></tr></thead>
+    <tbody>${PL_JANELA.slice().sort((a, b) => String(a.data).localeCompare(String(b.data))).map(r => `<tr>
+      <td class="rot">${dbr(r.data)}</td><td class="txt">${esc(r.nome)}</td><td class="txt">${esc(r.sdr || '—')}</td>
+      <td class="txt">${r.lead ? esc(r.lead.origem.replace(/^Meta — /, '')) + ` <span style="color:#7d7568">(${dbr(r.lead.data)})</span>` : '<span style="color:#7d7568">carteira</span>'}</td>
+      <td class="txt ${r.ficha && APROVADA(r.ficha) ? 'destaca' : r.ficha?.veredito === 'ressalva' ? 'alerta' : ''}">${esc(r.ficha?.veredito || '—')}</td>
+      <td class="txt ${r.comprouNaJanela ? 'destaca' : ''}">${r.comprouNaJanela ? brl0(r.vgv) + (r.provisorio ? ' *' : '') : '—'}</td></tr>`).join('')}</tbody>
+  </table>
+  <div class="rodape">
+    <span class="alerta"><b>Por que os dois números são verdadeiros.</b></span> O funil das páginas 1 a 6 responde “<b>o que a verba de mídia comprou</b>”: só entra quem foi lead pago de uma campanha que estava no ar na janela. Esta página responde “<b>o que a operação de cadastro entregou</b>”: entra tudo que a equipe levou à leiloeira, inclusive cliente que o assessor já tinha na carteira e nunca custou um centavo de anúncio.<br>
+    <b>A carteira sustentou o período.</b> ${brl0(vgvCarteira)} dos ${brl0(PL_VGV)} vieram de gente sem lead — ${Object.entries(porSdr).sort((a, b) => b[1].reduce((s, x) => s + x.vgv, 0) - a[1].reduce((s, x) => s + x.vgv, 0)).map(([k, v]) => `<b>${esc(k)}</b> com ${brl0(v.reduce((s, x) => s + x.vgv, 0))}`).join(' e ')}. A mídia trouxe ${brl0(vgvMidia)}, e um dos dois compradores dela (Francisco Aluízio) é lead de 09/07.<br>
+    <b>Duas compras são de ficha anterior à janela.</b> Adriano de Oliveira (ficha 11/08) e Farley Azevedo Oliveira (ficha 14/08) compraram ${brl0(53100 + 54000)} no Terra Brava de 15/08 — a ficha é da primeira quinzena, a compra é desta. Contam como faturamento do período, não como cadastro dele.<br>
+    <span class="alerta"><b>* Provisório.</b></span> O ERP HastaPro só desceu até ${dbr(ultimoErp)}. Reginaldo e Luis Diehl compraram em 05/09 e só existem como lance cantado, onde o valor é a parcela — VGV aqui é parcela × 30, a régua da casa, a conferir lote a lote quando o HastaPro descer.<br>
+    <b>A aba CADASTROS não tem coluna de data.</b> A data de cada linha veio da ficha correspondente nos grupos (varredura de 08/09); quando a ficha não foi achada, da entrada do lead. Das ${PLANILHA.length} linhas de agosto e setembro, ${PL_JANELA.length} caem nesta janela — as outras ${PLANILHA.length - PL_JANELA.length} são da primeira quinzena de agosto ou não têm prova de data.
+    <div class="assinatura">Apurado em ${HOJE} · aba CADASTROS da planilha “Leads - Bula Assessoria” cruzada com HastaPro, fechamentos, lances do grupo e compras manuais</div>
+  </div>
+  </div>
+</div>`)
+}
+
+/* ══ PÁGINA 9 — anexo nominal ════════════════════════════════════════════ */
 {
     const cor = v => v === 'aprovado' ? 'destaca' : v === 'ressalva' ? 'alerta' : v === 'recusado' ? '' : ''
     paginas.push(`<div class="quadro">
@@ -878,6 +992,20 @@ const wb = novoWorkbook('Funil das campanhas 15/08–09/09/2026')
     ])
 }
 {
+    const ws = novaAba(wb, 'Planilha CADASTROS')
+    let r = cabecalho(ws, 'A régua da planilha — aba CADASTROS', `${PLANILHA.length} linhas de agosto e setembro · ${PL_JANELA.length} com data dentro da janela · ${PL_COMPRARAM.length} compraram no período (${brl(PL_VGV)})`, 9)
+    r = tabela(ws, r, [
+        { t: 'Linha', k: 'l', w: 7, al: 'r' }, { t: 'Ficha', k: 'd', w: 12 }, { t: 'Na janela', k: 'j', w: 10, al: 'c' },
+        { t: 'Pessoa', k: 'nome', w: 34 }, { t: 'SDR', k: 'sdr', w: 18 },
+        { t: 'Origem', k: 'orig', w: 40 }, { t: 'Veredito', k: 'ver', w: 13 },
+        { t: 'Comprou', k: 'ev', w: 46 }, { t: 'VGV', k: 'v', w: 15, fmt: MOEDA_RS, al: 'r' },
+    ], PLANILHA.slice().sort((a, b) => String(a.data).localeCompare(String(b.data))).map(x => ({
+        l: x.linha, d: x.data ? dbr(x.data) : '', j: x.dentro ? 'SIM' : '', nome: x.nome, sdr: x.sdr || '',
+        orig: x.lead ? `${x.lead.origem} (lead ${dbr(x.lead.data)})` : 'carteira de assessor',
+        ver: x.ficha?.veredito || '', ev: x.comprouNaJanela ? x.eventos.join(' · ') : '', v: x.comprouNaJanela ? x.vgv : null,
+    })))
+}
+{
     const ws = novaAba(wb, 'Criativos')
     let r = cabecalho(ws, 'Criativos da janela', 'Leads e MQL casados pelo id do anúncio contra a planilha ao vivo', 9)
     r = tabela(ws, r, [
@@ -901,10 +1029,20 @@ console.log(`janela ${DE} → ${ATE} · ${DIAS} dias`)
 console.log(`mídia CA2 ${brl(CONSOLIDADO.m.investido)} + CA1 ${brl(M.ca1.reduce((s, c) => s + c.investido, 0))} = ${brl(CONSOLIDADO.m.investido + M.ca1.reduce((s, c) => s + c.investido, 0))}`)
 console.log(`leads ${CONSOLIDADO.leads.length} (+${ORG.leads.length} orgânicos) · MQL ${CONSOLIDADO.mqls.length} · cadastros ${CONSOLIDADO.fichas.length} · aprovados ${CONSOLIDADO.aprovados.length} (+${CONSOLIDADO.comRessalva.length - CONSOLIDADO.aprovados.length} com ressalva) · clientes ${CONSOLIDADO.clientes.length}`)
 for (const c of PORCAMPANHA) console.log(`  ${c.nome.padEnd(18)} ${brl(c.investido).padStart(12)} · ${String(c.leads).padStart(3)} leads · ${String(c.mqls).padStart(3)} MQL · ${String(c.fichas).padStart(2)} cad · ${String(c.aprovados).padStart(2)} apr · ${String(c.clientes).padStart(1)} cli`)
+console.log(`\nrégua da PLANILHA (aba CADASTROS): ${PLANILHA.length} linhas ago+set · ${PL_JANELA.length} na janela · ${PL_MIDIA.length} com lead de mídia · ${PL_APROV.length} aprovadas +${PL_RESSALVA.length} ressalva · ${PL_COMPRARAM.length} compraram ${brl(PL_VGV)} (${PL_COMPRARAM_MIDIA.length} de mídia, ${brl(PL_COMPRARAM_MIDIA.reduce((s, r) => s + r.vgv, 0))})`)
+for (const r of PL_COMPRARAM.sort((a, b) => b.vgv - a.vgv)) console.log(`  ${r.nome.slice(0, 30).padEnd(32)} ${brl(r.vgv).padStart(13)}${r.provisorio ? ' *' : '  '} · ${r.animais} an · ${r.lead ? 'MÍDIA ' + r.lead.origem.slice(0, 34) : 'carteira (' + r.sdr + ')'} · ${r.eventos.join(' ; ')}`)
 fs.writeFileSync(path.join(OUT, 'apuracao.json'), JSON.stringify({
     janela: { de: DE, ate: ATE, dias: DIAS }, midia: { ca2: CONSOLIDADO.m, ca1: M.ca1 },
     consolidado: { leads: CONSOLIDADO.leads.length, mqls: CONSOLIDADO.mqls.length, fichas: CONSOLIDADO.fichas.length, aprovados: CONSOLIDADO.aprovados.length, comRessalva: CONSOLIDADO.comRessalva.length, clientes: CONSOLIDADO.clientes.length, faturamento: CONSOLIDADO.faturamento },
     porCampanha: PORCAMPANHA.map(({ d, ...c }) => c), organico: { leads: ORG.leads.length, mqls: ORG.mqls.length, fichas: ORG.fichas.length },
+    reguaDaPlanilha: {
+        linhasAgoSet: PLANILHA.length, naJanela: PL_JANELA.length, comLeadDeMidia: PL_MIDIA.length,
+        aprovados: PL_APROV.length, ressalva: PL_RESSALVA.length,
+        compraram: PL_COMPRARAM.length, vgv: PL_VGV,
+        deMidia: { n: PL_COMPRARAM_MIDIA.length, vgv: PL_COMPRARAM_MIDIA.reduce((s, r) => s + r.vgv, 0) },
+        detalhe: PL_COMPRARAM.map(r => ({ nome: r.nome, sdr: r.sdr, ficha: r.ficha?.data || null, veredito: r.ficha?.veredito || null, lead: r.lead ? { data: r.lead.data, origem: r.lead.origem } : null, eventos: r.eventos, lotes: r.lotes, animais: r.animais, vgv: r.vgv, provisorio: r.provisorio })),
+        linhas: PL_JANELA.map(r => ({ linha: r.linha, data: r.data, nome: r.nome, sdr: r.sdr, veredito: r.ficha?.veredito || null, lead: r.lead ? { data: r.lead.data, origem: r.lead.origem } : null, comprou: r.comprouNaJanela, vgv: r.comprouNaJanela ? r.vgv : 0 })),
+    },
     cadastros: CASADAS, foraDoFunil: FORA.map(({ leadAntigo, ...f }) => ({ ...f, leadAntigo: leadAntigo ? { data: leadAntigo.data, origem: leadAntigo.origem } : null })),
     clientes: CLIENTES, compradoresDeFora: FORA_DA_JANELA,
     higiene: { linhas: naJanela.length, validos: validos.length, unicos: LEADS.length, duplicados, testes, ufTorta },
