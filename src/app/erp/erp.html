@@ -6507,10 +6507,12 @@ async function renderComissionamento() {
         </select>
         <select class="table-filter" onchange="coFilter('coAssessor', this.value)" title="Assessor">
           <option value="">Todos os assessores</option>
+          ${assessorSel&&!assessorOpts.some(a=>a.key===assessorSel)?`<option value="${escapeHtml(assessorSel)}" selected>${escapeHtml(coCanonNome(assessorSel))} · sem registros neste recorte</option>`:''}
           ${assessorOpts.map(a=>`<option value="${escapeHtml(a.key)}" ${assessorSel===a.key?'selected':''}>${escapeHtml(a.nome)}</option>`).join('')}
         </select>
         <select class="table-filter" onchange="coFilter('coEmpresa', this.value)">
           <option value="">Todas as empresas</option>
+          ${empresa&&!empresas.includes(empresa)?`<option value="${escapeHtml(empresa)}" selected>${escapeHtml(empresa)} · sem registros neste recorte</option>`:''}
           ${empresas.map(e=>`<option value="${escapeHtml(e)}" ${empresa===e?'selected':''}>${escapeHtml(e)}</option>`).join('')}
         </select>
         <select class="table-filter" onchange="coFilter('coLeilao', this.value)" style="max-width:240px">
