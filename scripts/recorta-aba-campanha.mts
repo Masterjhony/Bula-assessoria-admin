@@ -105,9 +105,27 @@ for (const c of alvos) {
     console.log(`\n=== ${c.tab}: ${(daCampanha.get(c.tab) ?? new Set()).size} lead(s) na ${LEADS_GERAIS_TAB}`)
 }
 
-// 2. O cron enche a aba da campanha. Rodar aqui garante que ela já exista e
-//    esteja completa ANTES de qualquer linha ser apagada da aba do interesse.
-if (APPLY) {
+// 2. A aba da campanha precisa estar COMPLETA antes de qualquer linha ser
+//    apagada da aba do interesse — quem a enche é o cron. Só chamamos o sync
+//    quando falta alguém: o Sheets tem cota de leitura por minuto e o sync
+//    relê a planilha inteira, então repetir isso à toa derruba a execução
+//    inteira com 429 (aconteceu na estreia).
+const jaNaAba = new Map<string, Set<string>>()
+for (const campanha of alvos) {
+    const vals = await ler(campanha.tab)
+    const h = vals[0] ?? []
+    const iTel = colDe(h, 'WhatsApp'), iId = colDe(h, 'Lead ID'), iNome = colDe(h, 'Nome')
+    const presentes = new Set<string>()
+    if (iTel >= 0) {
+        for (const r of vals.slice(1)) presentes.add(chaveDoLead(norm(r[iId]), norm(r[iTel]), norm(r[iNome])))
+    }
+    jaNaAba.set(campanha.tab, presentes)
+    const faltam = [...(daCampanha.get(campanha.tab) ?? [])].filter(k => !presentes.has(k)).length
+    console.log(`    ${presentes.size} já na aba "${campanha.tab}", ${faltam} faltando`)
+}
+const precisaSync = alvos.some(c =>
+    [...(daCampanha.get(c.tab) ?? [])].some(k => !(jaNaAba.get(c.tab) ?? new Set()).has(k)))
+if (APPLY && precisaSync) {
     const r = await syncAbasPorInteresse()
     console.log(`\nsync das abas: ${JSON.stringify(r.appended)} (de ${r.total} leads)${r.falhas?.length ? ` | FALHARAM: ${r.falhas.join(', ')}` : ''}`)
 }
