@@ -146,13 +146,15 @@ const BULINHA = {
   total: r2(naJanela.filter(t => BULINHA_PREFS.includes(t.id)).reduce((s, t) => s + t.valor, 0)),
 }
 
-const MARCELO = semData.find(t => /MARCELO CARNEIRO/i.test(t.desc))
+// O Marcelo ganhou data (11/09) na decisao do chefe, entao ele agora vive em
+// naJanela — procurar so em semData deixaria o cenario "se adiar" mudo.
+const MARCELO = [...naJanela, ...semData].find(t => /MARCELO CARNEIRO/i.test(t.desc))
 const FELIPE = naJanela.find(t => /Repasse JMP/i.test(t.desc))
 
 const cenarios = [
-  { chave: 'BASE', rot: 'Como está', desc: 'Só o que tem data: entra Mafra e e-Rural, sai tudo que vence de 10 a 30/09.', extra: [] },
+  { chave: 'BASE', rot: 'Como decidido', desc: 'Tudo que tem data: Bulinha em 10/09, Marcelo em 11/09, comissões em 25/09.', extra: [] },
   { chave: 'ATRASADOS', rot: '+ atrasados', desc: 'Paga também os ' + atrasados.length + ' títulos já vencidos (o mais velho de 25/03).', extra: [{ data: HOJE, valor: somaAtrasados }] },
-  { chave: 'MARCELO', rot: '+ Marcelo', desc: 'Paga o sócio Marcelo (35% do lucro do 1º trimestre) além dos atrasados.', extra: [{ data: HOJE, valor: somaAtrasados }, { data: HOJE, valor: MARCELO?.valor || 0 }] },
+  { chave: 'SEM_MARCELO', rot: 'Se adiar o Marcelo', desc: 'O mesmo, sem os ' + Math.round(MARCELO?.valor || 0).toLocaleString('pt-BR') + ' do sócio — para medir o que ele custa no mês.', extra: [{ data: HOJE, valor: -(MARCELO?.valor || 0) }] },
 ].map(c => {
   const pts = curva(c.extra)
   const min = pts.reduce((m, p) => (p.saldo < m.saldo ? p : m), pts[0])

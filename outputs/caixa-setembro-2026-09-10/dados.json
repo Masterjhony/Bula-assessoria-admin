@@ -2,7 +2,7 @@
  "hoje": "2026-09-10",
  "fim": "2026-09-30",
  "reserva": 20000,
- "geradoEm": "2026-09-10T20:29:46.412Z",
+ "geradoEm": "2026-09-10T20:54:47.929Z",
  "caixa": {
   "contas": [
    {
@@ -111,9 +111,9 @@
   }
  ],
  "somaEntradas": 86594.17,
- "somaSaidas": 395159.61,
+ "somaSaidas": 461269.61,
  "somaAtrasados": 14794.59,
- "somaSemData": 90393.67,
+ "somaSemData": 26893.67,
  "vencidosReceber": [
   {
    "pref": "54128961",
@@ -248,6 +248,16 @@
    "comissao": false
   },
   {
+   "id": "3160f623",
+   "desc": "REMUNERACAO DE SOCIO - MARCELO CARNEIRO - 35% do lucro - 1o trimestre do contrato, ref. Junho a Agosto/2026",
+   "valor": 63500,
+   "venc": "2026-09-11",
+   "fornecedor": "Marcelo Carneiro Lucas Pereira",
+   "aDefinir": false,
+   "imposto": false,
+   "comissao": false
+  },
+  {
    "id": "214cc574",
    "desc": "Comissão Douglas Bispo — 4º LEILÃO PEPITAS COLONIAL - EXPOGENÉTICA 2026 — lote 25",
    "valor": 450,
@@ -269,7 +279,7 @@
   },
   {
    "id": "3889f0dd",
-   "desc": "Comissão A definir: Gustavo Rusa / Fábio Omena — 2º LEILÃO LS GALERIA",
+   "desc": "Comissão A definir (Fábio Omena?) — 2º LEILÃO LS GALERIA — lotes 04 e 19",
    "valor": 22800,
    "venc": "2026-09-25",
    "fornecedor": "",
@@ -668,6 +678,16 @@
    "comissao": false
   },
   {
+   "id": "79370478",
+   "desc": "Comissão Douglas Bispo — LEILÃO SABIÁ DOURADO",
+   "valor": 5535,
+   "venc": "2026-09-25",
+   "fornecedor": "DOUGLAS BISPO",
+   "aDefinir": false,
+   "imposto": false,
+   "comissao": true
+  },
+  {
    "id": "8bc9933b",
    "desc": "Integralizacao de capital cooperativa",
    "valor": 39,
@@ -698,6 +718,26 @@
    "comissao": false
   },
   {
+   "id": "98db8a41",
+   "desc": "Comissão A definir — 14º LEILÃO PÉROLAS DO TAPAJÓS — lote 44",
+   "valor": 4500,
+   "venc": "2026-09-25",
+   "fornecedor": "",
+   "aDefinir": true,
+   "imposto": false,
+   "comissao": true
+  },
+  {
+   "id": "f7a0dd9b",
+   "desc": "Comissão A definir — 14º LEILÃO PÉROLAS DO TAPAJÓS — lote 47",
+   "valor": 2100,
+   "venc": "2026-09-25",
+   "fornecedor": "",
+   "aDefinir": true,
+   "imposto": false,
+   "comissao": true
+  },
+  {
    "id": "0aa13951",
    "desc": "COMISSAO LEILÃO TOUROS NELORE GRUPO COSTA - FÁBIO OMENA (2,00%)",
    "valor": 402,
@@ -713,6 +753,16 @@
    "valor": 2400,
    "venc": "2026-09-25",
    "fornecedor": "",
+   "aDefinir": false,
+   "imposto": false,
+   "comissao": true
+  },
+  {
+   "id": "d1b2ce4b",
+   "desc": "Comissão Gustavo Rusa — 12º LEILÃO PREMIUM COLONIAL (21/08) — lote 29",
+   "valor": 2610,
+   "venc": "2026-09-25",
+   "fornecedor": "GUSTAVO RUSA",
    "aDefinir": false,
    "imposto": false,
    "comissao": true
@@ -1118,16 +1168,6 @@
    "comissao": true
   },
   {
-   "id": "79370478",
-   "desc": "Comissão A definir: Rusa / Douglas — LEILÃO SABIÁ DOURADO",
-   "valor": 5535,
-   "venc": "2026-09-25",
-   "fornecedor": "",
-   "aDefinir": true,
-   "imposto": false,
-   "comissao": true
-  },
-  {
    "id": "7e93a2fc",
    "desc": "Comissão Leonardo Serafim — LEILÃO TOUROS SÃO GERALDO E 7P AGRO",
    "valor": 3516,
@@ -1223,16 +1263,6 @@
    "valor": 1440,
    "venc": "2026-09-25",
    "fornecedor": "DOUGLAS",
-   "aDefinir": false,
-   "imposto": false,
-   "comissao": true
-  },
-  {
-   "id": "98db8a41",
-   "desc": "Comissão Gustavo Rusa — 14º LEILÃO PÉROLAS DO TAPAJÓS — lote 44",
-   "valor": 4500,
-   "venc": "2026-09-25",
-   "fornecedor": "GUSTAVO RUSA",
    "aDefinir": false,
    "imposto": false,
    "comissao": true
@@ -1488,16 +1518,6 @@
    "comissao": true
   },
   {
-   "id": "f7a0dd9b",
-   "desc": "Comissão Gustavo Rusa — 14º LEILÃO PÉROLAS DO TAPAJÓS",
-   "valor": 2100,
-   "venc": "2026-09-25",
-   "fornecedor": "GUSTAVO RUSA",
-   "aDefinir": false,
-   "imposto": false,
-   "comissao": true
-  },
-  {
    "id": "fa2865c0",
    "desc": "Comissão Gustavo Rusa — LEILÃO RESERVA SANTA NICE EXPOGENÉTICA 2026 — lote 04",
    "valor": 10800,
@@ -1672,16 +1692,6 @@
    "comissao": false
   },
   {
-   "id": "3160f623",
-   "desc": "REMUNERACAO DE SOCIO - MARCELO CARNEIRO - 35% do lucro - 1o trimestre do contrato, ref. Junho a Agosto/2026",
-   "valor": 63500,
-   "venc": null,
-   "fornecedor": "Marcelo Carneiro Lucas Pereira",
-   "aDefinir": false,
-   "imposto": false,
-   "comissao": false
-  },
-  {
    "id": "3a48e72b",
    "desc": "Comissão Nane — LEILÃO SÓ CRIADOR FÊMEAS E MACHOS DE ALTO PADRÃO",
    "valor": 1000,
@@ -1823,6 +1833,17 @@
    ]
   },
   {
+   "dia": "2026-09-11",
+   "n": 1,
+   "valor": 63500,
+   "maiores": [
+    {
+     "desc": "REMUNERACAO DE SOCIO - MARCELO CARNEIRO - 35% do lucro - 1o trimestre do contrato, ref. Junho a Agosto/2026",
+     "valor": 63500
+    }
+   ]
+  },
+  {
    "dia": "2026-09-14",
    "n": 4,
    "valor": 6665.73,
@@ -1921,11 +1942,11 @@
   },
   {
    "dia": "2026-09-25",
-   "n": 112,
-   "valor": 198646,
+   "n": 113,
+   "valor": 201256,
    "maiores": [
     {
-     "desc": "Comissão A definir: Gustavo Rusa / Fábio Omena — 2º LEILÃO LS GALERIA",
+     "desc": "Comissão A definir (Fábio Omena?) — 2º LEILÃO LS GALERIA — lotes 04 e 19",
      "valor": 22800
     },
     {
@@ -1942,19 +1963,23 @@
  "d25Benef": [
   {
    "nome": "Gustavo Rusa",
-   "valor": 97960
-  },
-  {
-   "nome": "Douglas Bispo",
-   "valor": 48980
+   "valor": 65635
   },
   {
    "nome": "Fábio Omena",
-   "valor": 33688
+   "valor": 56488
+  },
+  {
+   "nome": "Douglas Bispo",
+   "valor": 54515
   },
   {
    "nome": "Leonardo Serafim",
    "valor": 9618
+  },
+  {
+   "nome": "A definir",
+   "valor": 6600
   },
   {
    "nome": "Peralta",
@@ -1999,7 +2024,7 @@
   "id": "3160f623",
   "desc": "REMUNERACAO DE SOCIO - MARCELO CARNEIRO - 35% do lucro - 1o trimestre do contrato, ref. Junho a Agosto/2026",
   "valor": 63500,
-  "venc": null,
+  "venc": "2026-09-11",
   "fornecedor": "Marcelo Carneiro Lucas Pereira",
   "aDefinir": false,
   "imposto": false,
@@ -2043,8 +2068,8 @@
  "cenarios": [
   {
    "chave": "BASE",
-   "rot": "Como está",
-   "desc": "Só o que tem data: entra Mafra e e-Rural, sai tudo que vence de 10 a 30/09.",
+   "rot": "Como decidido",
+   "desc": "Tudo que tem data: Bulinha em 10/09, Marcelo em 11/09, comissões em 25/09.",
    "pontos": [
     {
      "dia": "2026-09-10",
@@ -2055,128 +2080,128 @@
     {
      "dia": "2026-09-11",
      "entrada": 0,
-     "saida": 0,
-     "saldo": 209151.4
+     "saida": 63500,
+     "saldo": 145651.4
     },
     {
      "dia": "2026-09-12",
      "entrada": 0,
      "saida": 0,
-     "saldo": 209151.4
+     "saldo": 145651.4
     },
     {
      "dia": "2026-09-13",
      "entrada": 0,
      "saida": 0,
-     "saldo": 209151.4
+     "saldo": 145651.4
     },
     {
      "dia": "2026-09-14",
      "entrada": 0,
      "saida": 6665.73,
-     "saldo": 202485.67
+     "saldo": 138985.67
     },
     {
      "dia": "2026-09-15",
      "entrada": 0,
      "saida": 5058.07,
-     "saldo": 197427.6
+     "saldo": 133927.6
     },
     {
      "dia": "2026-09-16",
      "entrada": 0,
      "saida": 0,
-     "saldo": 197427.6
+     "saldo": 133927.6
     },
     {
      "dia": "2026-09-17",
      "entrada": 0,
      "saida": 0,
-     "saldo": 197427.6
+     "saldo": 133927.6
     },
     {
      "dia": "2026-09-18",
      "entrada": 5670,
      "saida": 180,
-     "saldo": 202917.6
+     "saldo": 139417.6
     },
     {
      "dia": "2026-09-19",
      "entrada": 0,
      "saida": 0,
-     "saldo": 202917.6
+     "saldo": 139417.6
     },
     {
      "dia": "2026-09-20",
      "entrada": 0,
      "saida": 495,
-     "saldo": 202422.6
+     "saldo": 138922.6
     },
     {
      "dia": "2026-09-21",
      "entrada": 57840,
      "saida": 14721.81,
-     "saldo": 245540.79
+     "saldo": 182040.79
     },
     {
      "dia": "2026-09-22",
      "entrada": 0,
      "saida": 7329.97,
-     "saldo": 238210.82
+     "saldo": 174710.82
     },
     {
      "dia": "2026-09-23",
      "entrada": 0,
      "saida": 0,
-     "saldo": 238210.82
+     "saldo": 174710.82
     },
     {
      "dia": "2026-09-24",
      "entrada": 0,
      "saida": 550,
-     "saldo": 237660.82
+     "saldo": 174160.82
     },
     {
      "dia": "2026-09-25",
      "entrada": 13117.95,
-     "saida": 198646,
-     "saldo": 52132.77
+     "saida": 201256,
+     "saldo": -13977.23
     },
     {
      "dia": "2026-09-26",
      "entrada": 9141.22,
      "saida": 0,
-     "saldo": 61273.99
+     "saldo": -4836.01
     },
     {
      "dia": "2026-09-27",
      "entrada": 825,
      "saida": 0,
-     "saldo": 62098.99
+     "saldo": -4011.01
     },
     {
      "dia": "2026-09-28",
      "entrada": 0,
      "saida": 0,
-     "saldo": 62098.99
+     "saldo": -4011.01
     },
     {
      "dia": "2026-09-29",
      "entrada": 0,
      "saida": 0,
-     "saldo": 62098.99
+     "saldo": -4011.01
     },
     {
      "dia": "2026-09-30",
      "entrada": 0,
      "saida": 0,
-     "saldo": 62098.99
+     "saldo": -4011.01
     }
    ],
-   "fecha": 62098.99,
-   "min": 52132.77,
+   "fecha": -4011.01,
+   "min": -13977.23,
    "minDia": "2026-09-25",
-   "cabe": 32132.77
+   "cabe": -33977.23
   },
   {
    "chave": "ATRASADOS",
@@ -2192,144 +2217,7 @@
     {
      "dia": "2026-09-11",
      "entrada": 0,
-     "saida": 0,
-     "saldo": 194356.81
-    },
-    {
-     "dia": "2026-09-12",
-     "entrada": 0,
-     "saida": 0,
-     "saldo": 194356.81
-    },
-    {
-     "dia": "2026-09-13",
-     "entrada": 0,
-     "saida": 0,
-     "saldo": 194356.81
-    },
-    {
-     "dia": "2026-09-14",
-     "entrada": 0,
-     "saida": 6665.73,
-     "saldo": 187691.08
-    },
-    {
-     "dia": "2026-09-15",
-     "entrada": 0,
-     "saida": 5058.07,
-     "saldo": 182633.01
-    },
-    {
-     "dia": "2026-09-16",
-     "entrada": 0,
-     "saida": 0,
-     "saldo": 182633.01
-    },
-    {
-     "dia": "2026-09-17",
-     "entrada": 0,
-     "saida": 0,
-     "saldo": 182633.01
-    },
-    {
-     "dia": "2026-09-18",
-     "entrada": 5670,
-     "saida": 180,
-     "saldo": 188123.01
-    },
-    {
-     "dia": "2026-09-19",
-     "entrada": 0,
-     "saida": 0,
-     "saldo": 188123.01
-    },
-    {
-     "dia": "2026-09-20",
-     "entrada": 0,
-     "saida": 495,
-     "saldo": 187628.01
-    },
-    {
-     "dia": "2026-09-21",
-     "entrada": 57840,
-     "saida": 14721.81,
-     "saldo": 230746.2
-    },
-    {
-     "dia": "2026-09-22",
-     "entrada": 0,
-     "saida": 7329.97,
-     "saldo": 223416.23
-    },
-    {
-     "dia": "2026-09-23",
-     "entrada": 0,
-     "saida": 0,
-     "saldo": 223416.23
-    },
-    {
-     "dia": "2026-09-24",
-     "entrada": 0,
-     "saida": 550,
-     "saldo": 222866.23
-    },
-    {
-     "dia": "2026-09-25",
-     "entrada": 13117.95,
-     "saida": 198646,
-     "saldo": 37338.18
-    },
-    {
-     "dia": "2026-09-26",
-     "entrada": 9141.22,
-     "saida": 0,
-     "saldo": 46479.4
-    },
-    {
-     "dia": "2026-09-27",
-     "entrada": 825,
-     "saida": 0,
-     "saldo": 47304.4
-    },
-    {
-     "dia": "2026-09-28",
-     "entrada": 0,
-     "saida": 0,
-     "saldo": 47304.4
-    },
-    {
-     "dia": "2026-09-29",
-     "entrada": 0,
-     "saida": 0,
-     "saldo": 47304.4
-    },
-    {
-     "dia": "2026-09-30",
-     "entrada": 0,
-     "saida": 0,
-     "saldo": 47304.4
-    }
-   ],
-   "fecha": 47304.4,
-   "min": 37338.18,
-   "minDia": "2026-09-25",
-   "cabe": 17338.18
-  },
-  {
-   "chave": "MARCELO",
-   "rot": "+ Marcelo",
-   "desc": "Paga o sócio Marcelo (35% do lucro do 1º trimestre) além dos atrasados.",
-   "pontos": [
-    {
-     "dia": "2026-09-10",
-     "entrada": 0,
-     "saida": 239807.62,
-     "saldo": 130856.81
-    },
-    {
-     "dia": "2026-09-11",
-     "entrada": 0,
-     "saida": 0,
+     "saida": 63500,
      "saldo": 130856.81
     },
     {
@@ -2413,44 +2301,181 @@
     {
      "dia": "2026-09-25",
      "entrada": 13117.95,
-     "saida": 198646,
-     "saldo": -26161.82
+     "saida": 201256,
+     "saldo": -28771.82
     },
     {
      "dia": "2026-09-26",
      "entrada": 9141.22,
      "saida": 0,
-     "saldo": -17020.6
+     "saldo": -19630.6
     },
     {
      "dia": "2026-09-27",
      "entrada": 825,
      "saida": 0,
-     "saldo": -16195.6
+     "saldo": -18805.6
     },
     {
      "dia": "2026-09-28",
      "entrada": 0,
      "saida": 0,
-     "saldo": -16195.6
+     "saldo": -18805.6
     },
     {
      "dia": "2026-09-29",
      "entrada": 0,
      "saida": 0,
-     "saldo": -16195.6
+     "saldo": -18805.6
     },
     {
      "dia": "2026-09-30",
      "entrada": 0,
      "saida": 0,
-     "saldo": -16195.6
+     "saldo": -18805.6
     }
    ],
-   "fecha": -16195.6,
-   "min": -26161.82,
+   "fecha": -18805.6,
+   "min": -28771.82,
    "minDia": "2026-09-25",
-   "cabe": -46161.82
+   "cabe": -48771.82
+  },
+  {
+   "chave": "SEM_MARCELO",
+   "rot": "Se adiar o Marcelo",
+   "desc": "O mesmo, sem os 63.500 do sócio — para medir o que ele custa no mês.",
+   "pontos": [
+    {
+     "dia": "2026-09-10",
+     "entrada": 0,
+     "saida": 98013.03,
+     "saldo": 272651.4
+    },
+    {
+     "dia": "2026-09-11",
+     "entrada": 0,
+     "saida": 63500,
+     "saldo": 209151.4
+    },
+    {
+     "dia": "2026-09-12",
+     "entrada": 0,
+     "saida": 0,
+     "saldo": 209151.4
+    },
+    {
+     "dia": "2026-09-13",
+     "entrada": 0,
+     "saida": 0,
+     "saldo": 209151.4
+    },
+    {
+     "dia": "2026-09-14",
+     "entrada": 0,
+     "saida": 6665.73,
+     "saldo": 202485.67
+    },
+    {
+     "dia": "2026-09-15",
+     "entrada": 0,
+     "saida": 5058.07,
+     "saldo": 197427.6
+    },
+    {
+     "dia": "2026-09-16",
+     "entrada": 0,
+     "saida": 0,
+     "saldo": 197427.6
+    },
+    {
+     "dia": "2026-09-17",
+     "entrada": 0,
+     "saida": 0,
+     "saldo": 197427.6
+    },
+    {
+     "dia": "2026-09-18",
+     "entrada": 5670,
+     "saida": 180,
+     "saldo": 202917.6
+    },
+    {
+     "dia": "2026-09-19",
+     "entrada": 0,
+     "saida": 0,
+     "saldo": 202917.6
+    },
+    {
+     "dia": "2026-09-20",
+     "entrada": 0,
+     "saida": 495,
+     "saldo": 202422.6
+    },
+    {
+     "dia": "2026-09-21",
+     "entrada": 57840,
+     "saida": 14721.81,
+     "saldo": 245540.79
+    },
+    {
+     "dia": "2026-09-22",
+     "entrada": 0,
+     "saida": 7329.97,
+     "saldo": 238210.82
+    },
+    {
+     "dia": "2026-09-23",
+     "entrada": 0,
+     "saida": 0,
+     "saldo": 238210.82
+    },
+    {
+     "dia": "2026-09-24",
+     "entrada": 0,
+     "saida": 550,
+     "saldo": 237660.82
+    },
+    {
+     "dia": "2026-09-25",
+     "entrada": 13117.95,
+     "saida": 201256,
+     "saldo": 49522.77
+    },
+    {
+     "dia": "2026-09-26",
+     "entrada": 9141.22,
+     "saida": 0,
+     "saldo": 58663.99
+    },
+    {
+     "dia": "2026-09-27",
+     "entrada": 825,
+     "saida": 0,
+     "saldo": 59488.99
+    },
+    {
+     "dia": "2026-09-28",
+     "entrada": 0,
+     "saida": 0,
+     "saldo": 59488.99
+    },
+    {
+     "dia": "2026-09-29",
+     "entrada": 0,
+     "saida": 0,
+     "saldo": 59488.99
+    },
+    {
+     "dia": "2026-09-30",
+     "entrada": 0,
+     "saida": 0,
+     "saldo": 59488.99
+    }
+   ],
+   "fecha": 59488.99,
+   "min": 49522.77,
+   "minDia": "2026-09-25",
+   "cabe": 29522.77
   }
  ],
  "dias": [
@@ -2477,8 +2502,8 @@
   "2026-09-30"
  ],
  "alavancas": {
-  "aDefinir": 30495,
-  "nADefinir": 4,
+  "aDefinir": 31560,
+  "nADefinir": 5,
   "vencidosReceber": 12863.98,
   "semPosicao": 117897.49,
   "nSemPosicao": 13

@@ -32,16 +32,16 @@ const INK = '#0A0A0A', GRID = '#E6E6E6', MUTED = '#6E6E6E', GOLD = '#C9A84C', SO
 const logo = 'data:image/png;base64,' + fs.readFileSync('public/logo-bula-assessoria-white.png').toString('base64')
 
 const cen = k => D.cenarios.find(c => c.chave === k)
-const BASE = cen('BASE'), ATRAS = cen('ATRASADOS'), MARC = cen('MARCELO')
-const faltaMarcelo = r2(D.marcelo.valor - BASE.cabe)
+const BASE = cen('BASE'), ATRAS = cen('ATRASADOS'), SEMMARC = cen('SEM_MARCELO')
+const custoMarcelo = r2(SEMMARC.fecha - BASE.fecha)
 
 /* ── grafico: curva diaria dos tres cenarios ────────────────────────────── */
 function grafCurva() {
   const W = 1000, H = 340, L = 62, R = 96, T = 18, B = 40
   const series = [
-    { c: BASE, rot: 'Como está', dash: '', w: 2.6 },
+    { c: BASE, rot: 'Como decidido', dash: '', w: 2.6 },
     { c: ATRAS, rot: '+ atrasados', dash: '5,3', w: 1.9 },
-    { c: MARC, rot: '+ Marcelo', dash: '1.5,3', w: 1.9 },
+    { c: SEMMARC, rot: 'se adiar o Marcelo', dash: '1.5,3', w: 1.9 },
   ]
   const todos = series.flatMap(s => s.c.pontos.map(p => p.saldo)).concat([0])
   const max = Math.max(...todos) * 1.06, min = Math.min(...todos, 0) * 1.12
@@ -183,15 +183,17 @@ const html = `<!doctype html><html lang="pt-BR"><head><meta charset="utf-8">
   <h1>Fluxo de caixa<br>até 30 de setembro</h1>
   <div class="rule"></div>
   <div class="sub">O caixa fechou o dia 10 em <strong style="color:#fff">R$ ${brl(D.caixa.total)}</strong>, já com o Mafra dentro.
-  Mas <strong style="color:#fff">R$ ${brl0(D.bulinha.total)}</strong> disso é do Bulinha e sai agora, e o dia 25 leva
+  Mas <strong style="color:#fff">R$ ${brl0(D.bulinha.total)}</strong> disso é do Bulinha e sai agora, o Marcelo leva
+  <strong style="color:#fff">R$ ${brl0(D.marcelo.valor)}</strong> amanhã e o dia 25 ainda pede
   <strong style="color:#fff">R$ ${brl0(D.blocos.find(b => b.dia === '2026-09-25').valor)}</strong> de comissões.
-  Com o que tem data para entrar, o mês fecha em <strong style="color:#fff">${sinal0(BASE.fecha)}</strong> —
-  e os <strong style="color:#fff">R$ ${brl0(D.marcelo.valor)}</strong> do Marcelo <strong style="color:#fff">ainda não cabem</strong>: falta ${sinal0(faltaMarcelo)}.</div>
+  Com tudo isso e só o que tem data para entrar, o mês <strong style="color:#fff">fecha em ${sinal0(BASE.fecha)}</strong> e o caixa
+  fura o zero em ${dm(BASE.minDia)}. Adiando o Marcelo, fecharia em ${sinal0(SEMMARC.fecha)}.</div>
   <div class="meta">
     <div><span>Caixa em ${dm(D.hoje)}</span><strong>R$ ${brl(D.caixa.total)}</strong></div>
     <div><span>Entra com data</span><strong>R$ ${brl0(D.somaEntradas)}</strong></div>
     <div><span>Sai até 30/09</span><strong>R$ ${brl0(D.somaSaidas)}</strong></div>
     <div><span>Fecha o mês</span><strong>${sinal0(BASE.fecha)}</strong></div>
+    <div><span>Menor saldo (${dm(BASE.minDia)})</span><strong>${sinal0(BASE.min)}</strong></div>
   </div>
 </section>
 
@@ -202,7 +204,7 @@ const html = `<!doctype html><html lang="pt-BR"><head><meta charset="utf-8">
     <div class="tile"><div class="k">Caixa total</div><div class="v"><span class="cur">R$</span>${brl0(D.caixa.total)}</div><div class="d">três contas, conciliadas ao centavo com os extratos</div></div>
     <div class="tile gold"><div class="k">Caixa próprio</div><div class="v"><span class="cur">R$</span>${brl0(D.caixaProprio)}</div><div class="d">tirando o repasse do JMP, que é do Bulinha</div></div>
     <div class="tile"><div class="k">A sair até 30/09</div><div class="v"><span class="cur">R$</span>${brl0(D.somaSaidas)}</div><div class="d">${D.naJanela.length} títulos com vencimento na janela</div></div>
-    <div class="tile ${BASE.fecha < 0 ? 'neg' : ''}"><div class="k">Fecha o mês em</div><div class="v">${sinal0(BASE.fecha)}</div><div class="d">sem pagar o Marcelo nem os atrasados</div></div>
+    <div class="tile ${BASE.fecha < 0 ? 'neg' : ''}"><div class="k">Fecha o mês em</div><div class="v">${sinal0(BASE.fecha)}</div><div class="d">já com o Marcelo em 11/09; sem os atrasados</div></div>
   </div>
 
   <table>
@@ -253,10 +255,12 @@ const html = `<!doctype html><html lang="pt-BR"><head><meta charset="utf-8">
   ${grafBarras()}
 
   <div class="box gold">
-    <div class="t">A resposta sobre o Marcelo</div>
-    <p style="margin:0">Do jeito que está, cabe pagar <strong>${sinal(BASE.cabe)}</strong> — os <strong>R$ ${brl(D.marcelo.valor)}</strong> dos 35% do
-    1º trimestre <strong>não cabem</strong>, falta <strong>${sinal(faltaMarcelo)}</strong>. Pagando, o mês fecha em ${sinal(MARC.fecha)} e o caixa fura o zero
-    em ${dm(MARC.minDia)}. Antecipar ou parcelar não muda onde fecha, só onde o buraco aparece.</p>
+    <div class="t">O que o Marcelo custa no mês</div>
+    <p>Pagando os <strong>R$ ${brl(D.marcelo.valor)}</strong> em 11/09, o mês <strong>fecha em ${sinal(BASE.fecha)}</strong> e o menor saldo vai a
+    <strong>${sinal(BASE.min)}</strong> em ${dm(BASE.minDia)} — ou seja, o caixa fura o zero na semana do dia 25, quando saem as comissões.</p>
+    <p style="margin:0">Adiando, o mês fecharia em <strong>${sinal(SEMMARC.fecha)}</strong>. A diferença é exatamente o valor dele.
+    <strong>O buraco de ${dm(BASE.minDia)} é coberto por qualquer um destes:</strong> os R$ ${brl(D.somaVencidosReceber)} vencidos a cobrar,
+    ou as ${D.alavancas.nADefinir} comissões “a definir” de R$ ${brl(D.alavancas.aDefinir)} que não podem ser pagas sem beneficiário decidido.</p>
   </div>
 
   <div class="pfoot"><span>Bula Assessoria Pecuária · fluxo de caixa 10–30/09/2026</span><span>2</span></div>
@@ -349,25 +353,30 @@ const html = `<!doctype html><html lang="pt-BR"><head><meta charset="utf-8">
   <h3>Atrasados — R$ ${brl(D.somaAtrasados)} em ${D.atrasados.length} títulos</h3>
   <table>
     <tr><th>Venc.</th><th>Título</th><th class="num">Valor</th></tr>
-    ${D.atrasados.sort((a, b) => a.venc.localeCompare(b.venc)).slice(0, 5).map(t => `<tr><td>${dm(t.venc)}</td><td>${esc(corta(limpa(t.desc), 62))}</td><td class="num">${brl(t.valor)}</td></tr>`).join('')}
-    ${D.atrasados.length > 5 ? `<tr><td></td><td class="muted">+ ${D.atrasados.length - 5} títulos</td><td class="num muted">${brl(r2(D.atrasados.slice(5).reduce((s, t) => s + t.valor, 0)))}</td></tr>` : ''}
+    ${D.atrasados.sort((a, b) => a.venc.localeCompare(b.venc)).slice(0, 3).map(t => `<tr><td>${dm(t.venc)}</td><td>${esc(corta(limpa(t.desc), 62))}</td><td class="num">${brl(t.valor)}</td></tr>`).join('')}
+    ${D.atrasados.length > 3 ? `<tr><td></td><td class="muted">+ ${D.atrasados.length - 3} títulos</td><td class="num muted">${brl(r2(D.atrasados.slice(3).reduce((s, t) => s + t.valor, 0)))}</td></tr>` : ''}
     <tr class="total"><td></td><td>Total</td><td class="num">${brl(D.somaAtrasados)}</td></tr>
   </table>
 
   <h3>Sem vencimento — R$ ${brl(D.somaSemData)} em ${D.semData.length} títulos</h3>
   <table>
     <tr><th>Título</th><th class="num">Valor</th></tr>
-    ${D.semData.sort((a, b) => b.valor - a.valor).slice(0, 5).map(t => `<tr${/MARCELO/i.test(t.desc) ? ' class="destaque"' : ''}><td>${esc(corta(limpa(t.desc), 68))}</td><td class="num">${brl(t.valor)}</td></tr>`).join('')}
-    ${D.semData.length > 5 ? `<tr><td class="muted">+ ${D.semData.length - 5} títulos</td><td class="num muted">${brl(r2(D.semData.sort((a, b) => b.valor - a.valor).slice(5).reduce((s, t) => s + t.valor, 0)))}</td></tr>` : ''}
+    ${D.semData.sort((a, b) => b.valor - a.valor).slice(0, 3).map(t => `<tr${/MARCELO/i.test(t.desc) ? ' class="destaque"' : ''}><td>${esc(corta(limpa(t.desc), 68))}</td><td class="num">${brl(t.valor)}</td></tr>`).join('')}
+    ${D.semData.length > 3 ? `<tr><td class="muted">+ ${D.semData.length - 3} títulos</td><td class="num muted">${brl(r2(D.semData.sort((a, b) => b.valor - a.valor).slice(3).reduce((s, t) => s + t.valor, 0)))}</td></tr>` : ''}
     <tr class="total"><td>Total</td><td class="num">${brl(D.somaSemData)}</td></tr>
   </table>
-  <p class="small">O maior é o do Marcelo. Os outros são em boa parte comissões da Nane, que seguem sem data desde os fechamentos.</p>
+  <p class="small">Em boa parte comissões da Nane, que seguem sem data desde os fechamentos.</p>
 
   <div class="box">
     <div class="t">O que falta decidir ou conferir</div>
     <ol style="margin-bottom:0">
-      <li><strong>Marcelo — R$ ${brl(D.marcelo.valor)}.</strong> Não cabe em setembro: falta ${sinal(faltaMarcelo)}. O que muda o sinal é cobrar
-      os R$ ${brl(D.somaVencidosReceber)} vencidos e destravar as comissões “a definir”.</li>
+      <li><strong>Marcelo — R$ ${brl(D.marcelo.valor)}, decidido para 11/09.</strong> Cabe no dia, mas deixa o mês em ${sinal(BASE.fecha)}
+      e o caixa negativo em ${dm(BASE.minDia)}. O que fecha o buraco é cobrar os R$ ${brl(D.somaVencidosReceber)} vencidos ou destravar as
+      ${D.alavancas.nADefinir} comissões “a definir”.</li>
+      <li><strong>Rusa — corrigido para R$ 65.635,00.</strong> O ERP tinha R$ 97.960,00. Saíram quatro títulos que não estão na planilha de vendas dele
+      (LS Galeria 22.800, Sabiá Dourado 5.535, Pérolas do Tapajós 4.500 + 2.100) e entrou um que faltava (Premium Colonial lote 29, R$ 2.610,00).
+      <strong>Dois deles conflitam com o fechamento</strong>, que atribui os lotes ao Rusa: LS Galeria e Pérolas do Tapajós ficaram como “a definir”
+      em vez de ir para outra pessoa por conta própria. Sabiá Dourado foi para o Douglas — ali as duas fontes concordam.</li>
       <li><strong>Mafra: 31,00 sem explicação.</strong> Pagaram 85.620,00; a tabela do acordo (0,3% do VGV para cobertura de 3–8%) dá 85.651,00.
       Diferença mínima — cobrar só se houver outro acerto com eles.</li>
       <li><strong>São Geraldo.</strong> A planilha ainda mostra R$ 25.099,00 “A RECEBER l 15/09”, mas o ERP recebeu R$ 24.904,00 em 02/09.
