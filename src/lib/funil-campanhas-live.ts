@@ -20,7 +20,7 @@
  */
 import 'server-only';
 
-import { readTabsRaw, LEADS_GERAIS_TAB, ABAS_INTERESSE } from './jmp-sheets';
+import { readTabsRaw, LEADS_GERAIS_TAB, ABAS_DE_TRABALHO } from './jmp-sheets';
 import { supabaseAdmin } from './supabase';
 import {
     indexaMeta, atribuiCampanha, classeOrigem, ehLixo, juntaPessoas, foneKey,
@@ -30,7 +30,9 @@ import { FUNIL_CAMPANHAS, type FunilCampanhasDados, type FunilCampanha } from '.
 import estruturaJson from './meta-estrutura.json';
 import { buscaMidiaAoVivo, midiaAoVivoDisponivel } from './meta-ads-live';
 
-const ABAS_TRABALHO = Object.values(ABAS_INTERESSE) as string[];
+// Inclui as abas de campanha (Nelore Visual): quem tira o lead da aba do
+// interesse tem de entregar a Etapa dele aqui, senão o funil perde o estágio.
+const ABAS_TRABALHO = ABAS_DE_TRABALHO;
 const META = indexaMeta(estruturaJson as unknown as MetaEstrutura);
 
 export interface FunilAoVivo extends FunilCampanhasDados {

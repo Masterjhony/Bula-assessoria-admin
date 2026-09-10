@@ -3,12 +3,13 @@ import { absorveDumpsCrusDoMeta, syncAbasPorInteresse } from '@/lib/jmp-sheets'
 
 export const maxDuration = 60
 
-// Manutenção da planilha de leads (5 abas: LEADS GERAIS + TOUROS/FEMEAS/
-// EMBRIÕES/OUTROS). Roda junto com o sheet-heal, a cada 5 min via GitHub
-// Actions:
+// Manutenção da planilha de leads: LEADS GERAIS (a base) + as abas de trabalho
+// — TOUROS/FEMEAS/BEZERRAS/EMBRIÕES/OUTROS por interesse e uma por campanha com
+// aba própria (Nelore Visual). Roda junto com o sheet-heal, a cada 5 min:
 //   1. absorve na LEADS GERAIS os despejos crus do conector do Meta (inclusive
 //      os que caem dentro de uma aba de trabalho) e limpa o lixo que sobra;
-//   2. redistribui os leads da LEADS GERAIS nas abas por interesse.
+//   2. redistribui os leads da LEADS GERAIS nas abas de trabalho — a campanha
+//      manda; sem campanha, manda o interesse.
 // Ambos são append-only e idempotentes — nunca reescrevem linha existente nem
 // as colunas da equipe (Etapa, Atendido por, Observações).
 // Auth: Authorization: Bearer <CRON_SECRET> OU x-webhook-secret == WHATSAPP_GROUP_TASK_SECRET.

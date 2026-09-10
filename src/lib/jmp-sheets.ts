@@ -50,8 +50,41 @@ export const ABAS_INTERESSE = {
   outros: 'OUTROS',
 } as const
 type BaldeInteresse = keyof typeof ABAS_INTERESSE
+
+/**
+ * Abas-recorte por CAMPANHA — e elas vêm ANTES do interesse: o lead que casa
+ * com uma delas vive SÓ na aba da campanha (a LEADS GERAIS continua sendo a
+ * base de todo mundo). Foi o que o dono pediu em 09/09/2026 para o Nelore
+ * Visual: uma fila de trabalho só, para o leilão não se dissolver dentro da
+ * TOUROS. É por isso que a aba da campanha não é um espelho — dois lugares para
+ * a mesma fila é o que a decisão de 05/08 já tinha recusado na FEMEAS.
+ *
+ * ⚠ "Nelore Visual" NÃO é uma campanha no Meta. A campanha é a guarda-chuva
+ * "Leads | Leilões | Formulário | 2026-09" (120250353813150708), que carrega um
+ * leilão por conjunto/anúncio: o Nelore Visual e o Nelore AZ dividem a MESMA
+ * utm_campaign. Quem identifica o leilão é o nome do anúncio/conjunto, que a
+ * planilha guarda em utm_content/ad_name/adset_name. Daí a regra casar por
+ * TERMO no nome (a equipe nomeia "AN01 | Vídeo flexível | Nelore Visual | data")
+ * e, de reserva, pelos ids do que já está no ar — anúncio novo do mesmo leilão
+ * entra sozinho, sem mexer no código, desde que o nome carregue o termo.
+ */
+export const ABAS_CAMPANHA = [
+  {
+    tab: 'Nelore Visual',
+    termos: ['Nelore Visual'],
+    /** anúncio + conjunto do leilão dentro da campanha guarda-chuva. */
+    ids: ['120250353813080708', '120250353813110708'],
+  },
+] as const
+
+/** As abas em que a equipe trabalha o lead: uma por interesse + uma por campanha. */
+export const ABAS_DE_TRABALHO: string[] = [
+  ...Object.values(ABAS_INTERESSE),
+  ...ABAS_CAMPANHA.map(c => c.tab),
+]
+
 /** Todas as abas que a planilha deve ter — nada além disto sobrevive ao cron. */
-const ABAS_OFICIAIS: string[] = [LEADS_GERAIS_TAB, ...Object.values(ABAS_INTERESSE)]
+const ABAS_OFICIAIS: string[] = [LEADS_GERAIS_TAB, ...ABAS_DE_TRABALHO]
 
 /**
  * Vocabulário de interesse exibido na planilha. O formulário do Meta e as
@@ -103,6 +136,39 @@ export function abaDoInteresse(interesse: string): BaldeInteresse {
   if (t.includes('matriz') || t.includes('novilh') || t.includes('femea')) return 'femeas'
   if (t.includes('embri')) return 'embrioes'
   return 'outros'
+}
+
+/** O que, num lead, identifica de qual campanha/leilão ele veio. */
+export interface MidiaDoLead {
+  utmCampaign?: string
+  utmContent?: string
+  origem?: string
+  adId?: string
+  adsetId?: string
+  adName?: string
+  adsetName?: string
+  campaignName?: string
+}
+
+/**
+ * Aba da campanha do lead — null quando ele não é de nenhuma. Tem PRECEDÊNCIA
+ * sobre abaDoInteresse(): quem casa aqui não entra na aba do interesse.
+ *
+ * Casa por termo no nome do anúncio/conjunto/campanha (normalizado: sem acento,
+ * sem espaço, minúsculo — "Nelore Visual" acha "nelore-visual" e "NELORE
+ * VISUAL") e, de reserva, pelo id do anúncio/conjunto. O id é a rede de
+ * segurança para quando alguém renomear o anúncio no meio da campanha.
+ */
+export function abaDaCampanha(m: MidiaDoLead): string | null {
+  const texto = normalizeHeaderText([
+    m.utmCampaign, m.utmContent, m.origem, m.adName, m.adsetName, m.campaignName,
+  ].filter(Boolean).join(' '))
+  const ids = new Set([m.adId, m.adsetId].map(v => String(v ?? '').trim()).filter(Boolean))
+  for (const campanha of ABAS_CAMPANHA) {
+    if (texto && campanha.termos.some(t => texto.includes(normalizeHeaderText(t)))) return campanha.tab
+    if (campanha.ids.some(id => ids.has(id))) return campanha.tab
+  }
+  return null
 }
 const SHARE_EMAIL = 'formuladoboi@gmail.com'
 const MANUAL_HEADER = 'Atendido por'
@@ -818,7 +884,8 @@ const HEAL_LOCK_KEY = 'sheets_heal_lock'
 const HEAL_LOCK_MS = 120_000
 const LIVRE = new Date(0).toISOString()
 
-async function tomaTravaDeCura(): Promise<boolean> {
+/** Exportada para os scripts: quem apaga linha na mão precisa da MESMA trava. */
+export async function tomaTravaDeCura(): Promise<boolean> {
   try {
     const db = supabaseAdmin()
     // Garante a linha sem nunca zerar uma trava em uso.
@@ -837,7 +904,7 @@ async function tomaTravaDeCura(): Promise<boolean> {
   }
 }
 
-async function liberaTravaDeCura(): Promise<void> {
+export async function liberaTravaDeCura(): Promise<void> {
   try {
     await supabaseAdmin().from('jmp_config').update({ updated_at: LIVRE }).eq('key', HEAL_LOCK_KEY)
   } catch { /* expira sozinha em 2 min */ }
@@ -1799,6 +1866,21 @@ interface TourosLeadRow {
   interesse: string
   /** Rótulo legível da origem ("Landing Touros", "Meta — <campanha>"). */
   origem: string
+  /**
+   * Nomes de mídia da LEADS GERAIS. Só a base os guarda (as abas-recorte não
+   * têm essas colunas), e é neles que abaDaCampanha() acha o leilão: a
+   * utm_campaign de hoje é a guarda-chuva "Leads | Leilões" e não distingue
+   * Nelore Visual de Nelore AZ.
+   */
+  adsetId?: string
+  adName?: string
+  adsetName?: string
+  campaignName?: string
+}
+
+/** Aba de trabalho do lead: a campanha manda; sem campanha, manda o interesse. */
+function abaDoLead(lead: TourosLeadRow): string {
+  return abaDaCampanha(lead) ?? ABAS_INTERESSE[abaDoInteresse(lead.interesse)]
 }
 
 /** Monta a linha alinhada ao cabeçalho REAL da aba (resolve por nome de coluna). */
@@ -1987,7 +2069,7 @@ async function ensureTourosLayout(
  * então o núcleo do telefone entra como reserva — sem isso o cron
  * reacrescentaria esses leads a cada passada.
  */
-function chaveDoLead(leadId: string, whatsapp: string, nome: string): string {
+export function chaveDoLead(leadId: string, whatsapp: string, nome: string): string {
   const id = String(leadId ?? '').trim()
   if (id) return `id:${id}`
   const tel = phoneNucleo(whatsapp)
@@ -2143,8 +2225,9 @@ async function writeTourosRows(
 }
 
 /**
- * Caminho rápido: depois de o lead entrar na LEADS GERAIS, copia-o para a
- * aba-recorte do interesse dele (TOUROS/FEMEAS/BEZERRAS/EMBRIÕES/OUTROS). Best-effort —
+ * Caminho rápido: depois de o lead entrar na LEADS GERAIS, copia-o para a aba
+ * de trabalho dele — a da campanha, se for de uma, senão a do interesse
+ * (TOUROS/FEMEAS/BEZERRAS/EMBRIÕES/OUTROS). Best-effort —
  * quem garante o registro é o append na LEADS GERAIS; se isto falhar, o
  * syncAbasPorInteresse() (cron) recupera na próxima passada.
  */
@@ -2169,7 +2252,7 @@ async function gravaNaAbaDoInteresse(
   const meta = await sheets.spreadsheets.get({ spreadsheetId: info.spreadsheetId, includeGridData: false })
   const titles = (meta.data.sheets ?? []).map(s => s.properties?.title)
 
-  const tab = ABAS_INTERESSE[abaDoInteresse(row.interesse)]
+  const tab = abaDoLead(row)
   const header = await ensureTourosLayout(sheets, info.spreadsheetId, tab, titles)
   const seen = await tourosSeenKeys(sheets, info.spreadsheetId, tab, header)
   if (seen.has(chaveDoLead(row.leadId, row.whatsapp, row.nome))) {
@@ -2183,11 +2266,15 @@ async function gravaNaAbaDoInteresse(
 // ─────────────────────────────────────────────────────────────────────────────
 // Lançamento "Leilão Touros São Geraldo e 7P".
 //
-// Desde 29/07 o lead do lançamento segue o MESMO caminho da campanha de touros;
-// desde 31/07 não há mais aba própria por campanha — todo lead vive na LEADS
-// GERAIS e aparece na aba do INTERESSE dele. Quem quiser separar perpétuo ×
-// leilão filtra a coluna "Origem" (ou o form_name), que continua marcando de
-// qual landing o lead veio.
+// Desde 29/07 o lead do lançamento segue o MESMO caminho da campanha de touros:
+// vive na LEADS GERAIS e aparece na aba do INTERESSE dele. Quem quiser separar
+// perpétuo × leilão filtra a coluna "Origem" (ou o form_name), que continua
+// marcando de qual landing o lead veio.
+//
+// A exceção é ABAS_CAMPANHA (Nelore Visual, 09/09/2026): leilão com aba própria
+// tira o lead da aba do interesse. É exceção deliberada e cara — cada aba de
+// campanha é mais uma fila para a equipe olhar —, então só entra leilão que o
+// dono pedir, e sai quando o leilão acabar.
 // ─────────────────────────────────────────────────────────────────────────────
 
 /** Marca as linhas do lançamento na aba-arquivo (form_name). Ver SheetLead.formName. */
@@ -2234,7 +2321,7 @@ async function espelhaColunasDaEquipe(
   let paraBase = 0, paraAba = 0
   const escritas: { range: string; values: string[][] }[] = []
 
-  for (const tab of Object.values(ABAS_INTERESSE)) {
+  for (const tab of ABAS_DE_TRABALHO) {
     const vals = await ler(tab)
     if (vals.length < 2) continue
     const header = (vals[0] ?? []).map(h => normalizeHeaderText(String(h ?? '')))
@@ -2282,10 +2369,16 @@ async function espelhaColunasDaEquipe(
 }
 
 /**
- * Varredura das abas-recorte: relê a LEADS GERAIS e acrescenta em
- * TOUROS/FEMEAS/BEZERRAS/EMBRIÕES/OUTROS o que ainda não está lá, pelo interesse de cada
- * lead. Idempotente — serve de backfill e de rede de segurança quando o append
- * do cadastro falha.
+ * Varredura das abas-recorte: relê a LEADS GERAIS e acrescenta em cada aba de
+ * trabalho o que ainda não está lá. O destino sai de abaDoLead() — a aba da
+ * CAMPANHA quando o lead é de uma (Nelore Visual), senão a do INTERESSE
+ * (TOUROS/FEMEAS/BEZERRAS/EMBRIÕES/OUTROS). Idempotente — serve de backfill e de
+ * rede de segurança quando o append do cadastro falha.
+ *
+ * ⚠ É append-only de propósito: nunca APAGA linha de aba nenhuma. Quando uma
+ * aba de campanha nasce, os leads dela que já estavam na aba do interesse
+ * continuam lá até alguém tirar — foi o que fez
+ * scripts/recorta-aba-campanha.mts na estreia do Nelore Visual.
  *
  * Chave de dedup: o Lead ID quando existe e, na falta dele (leads antigos
  * importados de listas soltas), o núcleo do telefone. Sem esse fallback o lead
@@ -2298,7 +2391,7 @@ export async function syncAbasPorInteresse(): Promise<{
   falhas?: string[]
   reason?: string
 }> {
-  const vazio = Object.fromEntries(Object.values(ABAS_INTERESSE).map(t => [t, 0]))
+  const vazio = Object.fromEntries(ABAS_DE_TRABALHO.map(t => [t, 0]))
   const info = await getStoredInfo()
   if (!info) return { total: 0, appended: vazio, reason: 'not_provisioned' }
   const auth = getAuth()
@@ -2326,6 +2419,9 @@ export async function syncAbasPorInteresse(): Promise<{
     leadId: col('Lead ID'), origem: col('Origem'), utmSource: col('utm_source'),
     utmCampaign: col('utm_campaign'), utmContent: col('utm_content'), adId: col('ad-id'),
     teste: col('lead de teste'),
+    // Só a LEADS GERAIS tem estas: é nelas que a aba de campanha se decide.
+    adsetId: col('adset_id'), adName: col('ad_name'), adsetName: col('adset_name'),
+    campaignName: col('campaign_name'),
   }
   if (idx.nome < 0) return { total: 0, appended: vazio, reason: 'header_missing' }
 
@@ -2342,16 +2438,18 @@ export async function syncAbasPorInteresse(): Promise<{
       leadId: at(r, idx.leadId), origem: at(r, idx.origem),
       utmSource: at(r, idx.utmSource), utmCampaign: at(r, idx.utmCampaign),
       utmContent: at(r, idx.utmContent), adId: at(r, idx.adId),
+      adsetId: at(r, idx.adsetId), adName: at(r, idx.adName),
+      adsetName: at(r, idx.adsetName), campaignName: at(r, idx.campaignName),
     })
   }
 
   const appended: Record<string, number> = { ...vazio }
   const falhas: string[] = []
-  for (const [balde, tab] of Object.entries(ABAS_INTERESSE)) {
+  for (const tab of ABAS_DE_TRABALHO) {
     // Cada aba por sua conta: uma desalinhada (despejo do Meta na linha 1) não
     // pode impedir que as demais recebam os leads do dia.
     try {
-      const doTab = leads.filter(l => abaDoInteresse(l.interesse) === balde)
+      const doTab = leads.filter(l => abaDoLead(l) === tab)
       const header = await ensureTourosLayout(sheets, info.spreadsheetId, tab, titles)
       const seen = await tourosSeenKeys(sheets, info.spreadsheetId, tab, header)
       const fresh: string[][] = []
