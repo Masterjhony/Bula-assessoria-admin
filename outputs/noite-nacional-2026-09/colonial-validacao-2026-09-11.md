@@ -1,7 +1,7 @@
 # Colonial Agropecuária (Janaúba-MG) — validação da listagem por vendedor (11/09/2026)
 
-Contato: +55 38 8825-0047 (fora da allowlist `operational_sources` — as 2 fotos e o áudio de 10/09 13:34
-não foram capturados; validação feita pela ORDEM DE ENTRADA da Programa, que estava no grupo de lances).
+Contato: +55 38 8825-0047 (fora da allowlist `operational_sources`; fotos e áudio baixados à mão pelo WhatsApp Web em 11/09 —
+`anexos/colonial-listagem-*.jpg`, `colonial-audio-2026-09-10.txt`). Vendedor por lote: O.E. da Programa + a própria listagem.
 Valores: HastaPro FIL 2 (lance × 30). Acordo Colonial: 3% sobre a venda (planilha-mestra e planilha deles).
 
 ## 12º Noite Nacional Matrizes Premium — 21/08 (32 lotes, vários vendedores)
@@ -48,3 +48,27 @@ Total 138.000. Nenhuma dessas marcas está na aba "Acordos com Marcas".
 está certo como Terra Boa) — em pregão multi-criador, separar vendedor pela O.E./listagem da Programa, não pelo HastaPro.
 
 ERP em 11/09: fechamentos 7904f010 (21/08, 195.000) e 8d11a2ff (22/08, 325.500) com receita 0, sem acordo, sem CR.
+
+## ⭐ Com as fotos da listagem da Programa (11/09, 14:45) — a conta fecha ao centavo
+
+As duas fotos são a LISTAGEM DE LOTES **do pregão inteiro** (colunas Lote/Vendedor/Comprador/Raça/Qtde/Categoria/Sexo/Valor — sem "Agente de Vendas"),
+com os lotes da Colonial marcados à mão (✓ na Qtde). Noite Nacional impressa 22/08 00:17 (32 lotes, R$ 1.791.600); Pepitas impressa 22/08 18:20 (só a página 1, lotes 01–53).
+
+- **21/08:** lotes 18 = 27.000, 19 = 51.000, 24 = 39.000 (vendedor Felipe Pinheiro Andrade = Colonial) ✓; lote 29 = 78.000, vendedor "Jose Luiz Niemeyer dos Santos e Outros" (Terra Boa).
+- **22/08:** vendedor "Colonial Agropecuária LTDA" nos lotes 01–46; 47–51 Huarrisson Antunes Cangussu; 52 Auricio Gomes Barreto; **53 Adriana Salles Zancaner Aranha Pereira e Outro** (Bela Alvorada/ZAN); 54 está na página 2 (não veio).
+- **Lote 19 do Pepitas vale 22.500 na listagem (750 × 30), não 27.000** — a ficha do grupo dizia 900. É a diferença de 4.500 que aparecia "sem explicação": HastaPro e ERP estão 4.500 a maior (Leonardo 2% = 450, não 540).
+- Com 22.500 no lote 19, os 7 lotes da planilha da Colonial (9-19-24-25-26-32-37) somam **exatamente 213.000 = 6.390 ÷ 3%**. A planilha deles é consistente.
+- **O que ela deixa de fora são os lotes 27 (21.000) e 33 (27.000) — Celso Lopes Cardoso, vendedor Colonial**, levados pelo Douglas (fichas 22/08 16:32 e 16:53 BRT, "direcionamento Gustavo Rusa"). Na listagem há anotação à mão "17.850" e "22.950" ao lado deles = **à vista com 15% de desconto**.
+
+Áudio da Colonial: pagam só lotes deles (convidados combinam por fora) — coerente; quem combina percentual com assessor é o **Neurisvan**.
+
+### Conta corrigida
+| | base | 3% |
+|---|---|---|
+| 21/08 (18, 19, 24) | 117.000 | 3.510,00 |
+| 22/08, 7 lotes da planilha deles (lote 19 a 22.500) | 213.000 | 6.390,00 |
+| 22/08, lotes 27 + 33 (Colonial, Douglas) | 48.000 (à vista: 40.800) | 1.440,00 (à vista: 1.224,00) |
+| **Total Colonial** | **378.000** | **11.340,00** (à vista nos 27/33: 11.124,00) |
+
+Diferença contra os 9.900 da Colonial: **R$ 1.440,00** (ou 1.224,00 se a base dos dois for o à vista). Pergunta ao Neurisvan: por que 27 e 33 ficaram de fora — se é porque o comprador é cliente do Rusa e a comissão foi combinada com ele direto, é outra conversa.
+Fora da Colonial: lt 29 Terra Boa 78.000 · lt 53 Bela Alvorada/ZAN 24.000 · lt 54 Agropontieri 36.000 = 138.000.
