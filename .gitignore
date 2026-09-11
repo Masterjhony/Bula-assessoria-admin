@@ -70,3 +70,11 @@ graphify-out/
 
 # Estado local dos terminais Maestri (roles por maquina, nao versionavel)
 .maestri/
+.scratch/
+
+# apuração local de fontes (não versionar)
+.apuracao/
+
+# dumps do CRM usados na prospeccao (dados pessoais, ficam locais)
+outputs/prospeccao-nelore-po-2026-09/crm_leads_slim.json
+outputs/prospeccao-nelore-po-2026-09/clientes_slim.json
