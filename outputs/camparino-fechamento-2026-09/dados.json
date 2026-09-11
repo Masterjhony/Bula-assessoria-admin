@@ -1,0 +1,881 @@
+{
+  "geradoEm": "2026-09-11",
+  "leiloeira": "Paulo Horto Leilões Ltda – Londrina (Programa Leilões)",
+  "local": "Uberaba – MG",
+  "condicao": "30 parcelas (todos os 92 lotes: valor = lance × 30)",
+  "pedido": {
+    "quando": "2026-09-11T15:54",
+    "quem": "Marcelo Carneiro (DM, sessão joao-automation)",
+    "audio": "Ô Joãozinho, beleza? Isso daí é a Camparino. Aí tem o relatório de leilão de todo o faturamento e tem a tabelinha, né? Vê aí quanto que é o a receber então e já pode emitir a nota e manda lá pra turma."
+  },
+  "etapas": [
+    {
+      "data": "2026-08-22",
+      "nome": "Naviraí Camparino – Essência",
+      "rotulo": "Essência (fêmeas)",
+      "pdf": "Agropecuária Camparino LTDA.pdf (1 página, 236 KB)",
+      "emitido": "10/09/2026 16:15",
+      "lotes": 12,
+      "animais": 12,
+      "faturamento": 2097000,
+      "cobertura": 72000,
+      "lotesBula": 1,
+      "performance": 0.034334763948497854,
+      "agentes": [
+        {
+          "nome": "Melhora +",
+          "valor": 1092000,
+          "lotes": 5
+        },
+        {
+          "nome": "Prime Assessoria",
+          "valor": 630000,
+          "lotes": 1
+        },
+        {
+          "nome": "Maurício Bueno Venâncio Silva",
+          "valor": 129000,
+          "lotes": 1
+        },
+        {
+          "nome": "Bula Assessoria Pecuária Eireli",
+          "valor": 72000,
+          "lotes": 1
+        },
+        {
+          "nome": "Premier Assessoria Pecuária LTDA",
+          "valor": 51000,
+          "lotes": 1
+        },
+        {
+          "nome": "Cristyan Lopes Gaspar",
+          "valor": 45000,
+          "lotes": 1
+        },
+        {
+          "nome": "Mamede Assessoria",
+          "valor": 45000,
+          "lotes": 1
+        },
+        {
+          "nome": "ATOP Assessoria",
+          "valor": 33000,
+          "lotes": 1
+        }
+      ],
+      "lotesBulaLista": [
+        {
+          "etapa": "2026-08-22",
+          "pagina": 1,
+          "lote": "28",
+          "vendedor": "Agropecuária Camparino LTDA",
+          "comprador": "Adriana Silva Magenski Bispo",
+          "animal": "JHVM 29339",
+          "agente": "Bula Assessoria Pecuária Eireli",
+          "categoria": "NOVILHA(S)",
+          "lance": 2400,
+          "qtd": 1,
+          "valor": 72000
+        }
+      ],
+      "todos30x": true
+    },
+    {
+      "data": "2026-08-23",
+      "nome": "28º Naviraí Camparino – Reprodutores",
+      "rotulo": "Reprodutores (machos)",
+      "pdf": "Agropecuária Camparino LTDA.pdf (3 páginas, 277 KB)",
+      "emitido": "10/09/2026 16:12",
+      "lotes": 80,
+      "animais": 80,
+      "faturamento": 3853500,
+      "cobertura": 228000,
+      "lotesBula": 5,
+      "performance": 0.05916699104710004,
+      "agentes": [
+        {
+          "nome": "Thays Chiafitelli Domingues",
+          "valor": 690000,
+          "lotes": 14
+        },
+        {
+          "nome": "Carvalho Assessoria Pecuária",
+          "valor": 480000,
+          "lotes": 12
+        },
+        {
+          "nome": "Rodrigo David Assessoria",
+          "valor": 426000,
+          "lotes": 2
+        },
+        {
+          "nome": "Roberval Resende da Silva",
+          "valor": 390000,
+          "lotes": 9
+        },
+        {
+          "nome": "ATOP Assessoria",
+          "valor": 357000,
+          "lotes": 11
+        },
+        {
+          "nome": "Bula Assessoria Pecuária Eireli",
+          "valor": 228000,
+          "lotes": 5
+        },
+        {
+          "nome": "Premier Assessoria Pecuária LTDA - Prime Assessoria",
+          "valor": 198000,
+          "lotes": 1
+        },
+        {
+          "nome": "Brena Carminda da Silva Pinto",
+          "valor": 187500,
+          "lotes": 5
+        },
+        {
+          "nome": "Promotor do Leilão",
+          "valor": 156000,
+          "lotes": 3
+        },
+        {
+          "nome": "JHJ Organizacao e Administração LTDA",
+          "valor": 120000,
+          "lotes": 3
+        },
+        {
+          "nome": "Paulo Henrique Caputo Arantes Horto",
+          "valor": 96000,
+          "lotes": 2
+        },
+        {
+          "nome": "Premier Assessoria Pecuária LTDA",
+          "valor": 78000,
+          "lotes": 2
+        },
+        {
+          "nome": "Rafael Follador Coelho",
+          "valor": 75000,
+          "lotes": 2
+        },
+        {
+          "nome": "Lincoln Marques",
+          "valor": 73500,
+          "lotes": 1
+        },
+        {
+          "nome": "Prime Assessoria",
+          "valor": 69000,
+          "lotes": 2
+        },
+        {
+          "nome": "Daniel Felipe Mendes Marigo",
+          "valor": 64500,
+          "lotes": 2
+        },
+        {
+          "nome": "Melhora +",
+          "valor": 51000,
+          "lotes": 1
+        },
+        {
+          "nome": "Rosario Wiliam de Andrade",
+          "valor": 42000,
+          "lotes": 1
+        },
+        {
+          "nome": "Arley Piazza Fernandes",
+          "valor": 39000,
+          "lotes": 1
+        },
+        {
+          "nome": "Rafael Moreira Angelo",
+          "valor": 33000,
+          "lotes": 1
+        }
+      ],
+      "lotesBulaLista": [
+        {
+          "etapa": "2026-08-23",
+          "pagina": 2,
+          "lote": "140",
+          "vendedor": "Agropecuária Camparino LTDA",
+          "comprador": "Gilvam Villela Pinto",
+          "animal": "JHVM 27454",
+          "agente": "Bula Assessoria Pecuária Eireli",
+          "categoria": "GARROTE(S)",
+          "lance": 1200,
+          "qtd": 1,
+          "valor": 36000
+        },
+        {
+          "etapa": "2026-08-23",
+          "pagina": 2,
+          "lote": "117",
+          "vendedor": "Agropecuária Camparino LTDA",
+          "comprador": "Armindo Martins da Conceição",
+          "animal": "JHVM 26972",
+          "agente": "Bula Assessoria Pecuária Eireli",
+          "categoria": "GARROTE(S)",
+          "lance": 1600,
+          "qtd": 1,
+          "valor": 48000
+        },
+        {
+          "etapa": "2026-08-23",
+          "pagina": 2,
+          "lote": "159",
+          "vendedor": "Agropecuária Camparino LTDA",
+          "comprador": "Iron Gomes Guimarães Junior",
+          "animal": "JHVM 28348",
+          "agente": "Bula Assessoria Pecuária Eireli",
+          "categoria": "GARROTE(S)",
+          "lance": 1300,
+          "qtd": 1,
+          "valor": 39000
+        },
+        {
+          "etapa": "2026-08-23",
+          "pagina": 2,
+          "lote": "132",
+          "vendedor": "Agropecuária Camparino LTDA",
+          "comprador": "Jairo Moreira Mendes",
+          "animal": "JHVM 27654",
+          "agente": "Bula Assessoria Pecuária Eireli",
+          "categoria": "GARROTE(S)",
+          "lance": 1500,
+          "qtd": 1,
+          "valor": 45000
+        },
+        {
+          "etapa": "2026-08-23",
+          "pagina": 2,
+          "lote": "105",
+          "vendedor": "Agropecuária Camparino LTDA",
+          "comprador": "Elvio Severino Pereira",
+          "animal": "JHVM 27189",
+          "agente": "Bula Assessoria Pecuária Eireli",
+          "categoria": "GARROTE(S)",
+          "lance": 2000,
+          "qtd": 1,
+          "valor": 60000
+        }
+      ],
+      "todos30x": true
+    }
+  ],
+  "faturamento": 5950500,
+  "cobertura": 300000,
+  "performance": 0.05041593143433325,
+  "faixa": {
+    "ate": 0.1,
+    "pct": 0.005,
+    "rotulo": "0% a 10% de cobertura"
+  },
+  "tabela": [
+    {
+      "ate": 0.1,
+      "pct": 0.005,
+      "rotulo": "0% a 10% de cobertura"
+    },
+    {
+      "ate": 0.15,
+      "pct": 0.0075,
+      "rotulo": "10% a 15% de cobertura"
+    },
+    {
+      "ate": 0.2,
+      "pct": 0.01,
+      "rotulo": "15% a 20% de cobertura"
+    },
+    {
+      "ate": null,
+      "pct": 0.015,
+      "rotulo": "acima de 20% de cobertura"
+    }
+  ],
+  "acordoCamparinoTexto": [
+    "0% a 10% de cobertura (0,5% do VGV)",
+    "10% a 15%  de cobertura (0,75% do VGV) ",
+    "15% a 20%  de cobertura (1% do VGV)",
+    "20%+  de cobertura (1,5% do VGV)"
+  ],
+  "receita": 29752.5,
+  "receitaPorEtapa": [
+    {
+      "data": "2026-08-22",
+      "faturamento": 2097000,
+      "pct": 0.005,
+      "receita": 10485,
+      "performanceIsolada": 0.034334763948497854,
+      "faixaIsolada": {
+        "ate": 0.1,
+        "pct": 0.005,
+        "rotulo": "0% a 10% de cobertura"
+      }
+    },
+    {
+      "data": "2026-08-23",
+      "faturamento": 3853500,
+      "pct": 0.005,
+      "receita": 19267.5,
+      "performanceIsolada": 0.05916699104710004,
+      "faixaIsolada": {
+        "ate": 0.1,
+        "pct": 0.005,
+        "rotulo": "0% a 10% de cobertura"
+      }
+    }
+  ],
+  "lotesCamp": [
+    {
+      "data": "2026-08-22",
+      "lote": "28",
+      "animal": "JHVM 29339",
+      "categoria": "NOVILHA(S)",
+      "lance": 2400,
+      "valor": 72000,
+      "programa": {
+        "comprador": "Adriana Silva Magenski Bispo",
+        "agente": "Bula Assessoria Pecuária Eireli"
+      },
+      "hastapro": {
+        "comprador": "MURILO CARVALHO BISPO · FAZENDA AGROVITA",
+        "vendedor": "JOSE HUMBERTO VILLELA MARTINS · Fazenda CAMPARINO",
+        "pisteiro": "Douglas Bispo",
+        "total": 72000
+      },
+      "erp": {
+        "assessor": "Douglas Bispo",
+        "comprador": "Val Bispo - Dra Byanca Bispo · Novo Repartimento/PA",
+        "vgv": 72000
+      },
+      "ficha": {
+        "quando": "2026-08-23T01:37:21.415284+00:00",
+        "texto": "Levamos lt 28 - 2400 - 1F\n\nFoi com Douglas Bispo da Bula Assessoria \n\nÉ Val Bispo\nÉ Dra Byanca Bispo\n\nNovo Repartimento - PA"
+      },
+      "assessor": "Douglas Bispo",
+      "comissaoPct": 0.02,
+      "comissao": 1440,
+      "cp": {
+        "descricao": "Comissão Douglas Bispo — LEILÃO NAVIRAÍ CAMPARINO ESSÊNCIA BEZERRAS E NOVILHAS — lote 28",
+        "valor": 1440,
+        "status": "aberto",
+        "vencimento": "2026-09-25"
+      },
+      "confere": true
+    },
+    {
+      "data": "2026-08-23",
+      "lote": "140",
+      "animal": "JHVM 27454",
+      "categoria": "GARROTE(S)",
+      "lance": 1200,
+      "valor": 36000,
+      "programa": {
+        "comprador": "Gilvam Villela Pinto",
+        "agente": "Bula Assessoria Pecuária Eireli"
+      },
+      "hastapro": {
+        "comprador": "GILVAN VILELA · FAZENDA AMARALINA",
+        "vendedor": "JOSE HUMBERTO VILLELA MARTINS · Fazenda CAMPARINO",
+        "pisteiro": "Nane",
+        "total": 36000
+      },
+      "erp": {
+        "assessor": "NANE",
+        "comprador": "GILVAN VILELA · FAZENDA AMARALINA",
+        "vgv": 36000
+      },
+      "ficha": {
+        "quando": "2026-08-23T19:01:22.787475+00:00",
+        "texto": "Lote 140- $ 1.200,00\n\nFoi com a Nane da Bula Assessoria,\n\n*Comprador* : Gilvan Vilela\n*Fazenda* : Amaralina \nItanhem- Ba"
+      },
+      "assessor": "Nane",
+      "comissaoPct": 0.02,
+      "comissao": 720,
+      "cp": {
+        "descricao": "Comissão Nane — 28º LEILÃO NAVIRAÍ CAMPARINO - REPRODUTORES (título único dos 6 lotes dela)",
+        "valor": 4440,
+        "status": "aberto",
+        "vencimento": null
+      },
+      "confere": true
+    },
+    {
+      "data": "2026-08-23",
+      "lote": "117",
+      "animal": "JHVM 26972",
+      "categoria": "GARROTE(S)",
+      "lance": 1600,
+      "valor": 48000,
+      "programa": {
+        "comprador": "Armindo Martins da Conceição",
+        "agente": "Bula Assessoria Pecuária Eireli"
+      },
+      "hastapro": {
+        "comprador": "ARMINDO MARTINS DA CONCEIÇÃO · FAZENDA NOSSA SENHORA DE FÁTIMA · MS",
+        "vendedor": "JOSE HUMBERTO VILLELA MARTINS · Fazenda CAMPARINO",
+        "pisteiro": "Lucas Martins",
+        "total": 48000
+      },
+      "erp": {
+        "assessor": "LUCAS MARTINS",
+        "comprador": "ARMINDO MARTINS DA CONCEIÇÃO · FAZENDA NOSSA SENHORA DE FÁTIMA",
+        "vgv": 48000
+      },
+      "ficha": {
+        "quando": "2026-08-23T16:09:01.063021+00:00",
+        "texto": "Levamos lt 117 - 1600 - 1M\n\nCom Lucas Martins - Bula Assessoria \n\nAgropecuária RMC  \nArmindo Martins\nRochedo - MS"
+      },
+      "assessor": "Lucas Martins",
+      "comissaoPct": 0.01,
+      "comissao": 480,
+      "cp": {
+        "descricao": "Comissão Lucas Martins — 28º LEILÃO NAVIRAÍ CAMPARINO - REPRODUTORES — lote 117",
+        "valor": 480,
+        "status": "aberto",
+        "vencimento": "2026-09-25"
+      },
+      "confere": true
+    },
+    {
+      "data": "2026-08-23",
+      "lote": "159",
+      "animal": "JHVM 28348",
+      "categoria": "GARROTE(S)",
+      "lance": 1300,
+      "valor": 39000,
+      "programa": {
+        "comprador": "Iron Gomes Guimarães Junior",
+        "agente": "Bula Assessoria Pecuária Eireli"
+      },
+      "hastapro": {
+        "comprador": "IRON GOMES · FAZENDA VARGEM DAS FLORES",
+        "vendedor": "JOSE HUMBERTO VILLELA MARTINS · Fazenda CAMPARINO",
+        "pisteiro": "Nane",
+        "total": 39000
+      },
+      "erp": {
+        "assessor": "NANE",
+        "comprador": "IRON GOMES · FAZENDA VARGEM DAS FLORES",
+        "vgv": 39000
+      },
+      "ficha": {
+        "quando": "2026-08-23T22:04:35.810041+00:00",
+        "texto": "Lote 159- $ 1.300\n\nFoi com a Nane da Bula Assessoria,\n\n\n*Comprador* Iron Gomes\n*Fazenda*: Vargem das Flores\nLocal: Joviania - GO"
+      },
+      "assessor": "Nane",
+      "comissaoPct": 0.02,
+      "comissao": 780,
+      "cp": {
+        "descricao": "Comissão Nane — 28º LEILÃO NAVIRAÍ CAMPARINO - REPRODUTORES (título único dos 6 lotes dela)",
+        "valor": 4440,
+        "status": "aberto",
+        "vencimento": null
+      },
+      "confere": true
+    },
+    {
+      "data": "2026-08-23",
+      "lote": "132",
+      "animal": "JHVM 27654",
+      "categoria": "GARROTE(S)",
+      "lance": 1500,
+      "valor": 45000,
+      "programa": {
+        "comprador": "Jairo Moreira Mendes",
+        "agente": "Bula Assessoria Pecuária Eireli"
+      },
+      "hastapro": {
+        "comprador": "JAIRO MOREIRA MENDES · FAZENDA VIDA NOVA",
+        "vendedor": "JOSE HUMBERTO VILLELA MARTINS · Fazenda CAMPARINO",
+        "pisteiro": "Fábio Omena",
+        "total": 45000
+      },
+      "erp": {
+        "assessor": "FABIO OMENNA",
+        "comprador": "JAIRO MOREIRA MENDES · FAZENDA VIDA NOVA",
+        "vgv": 45000
+      },
+      "ficha": {
+        "quando": "2026-08-23T18:02:50.608056+00:00",
+        "texto": "Levamos lote 132 - 1500 - 1M\n\nFoi com Fábio Omena da Bula Assessoria,\n\nJairo Moreira Mendes \nFaz Vida nova \nGarantã do Norte | MT"
+      },
+      "assessor": "Fábio Omena",
+      "comissaoPct": 0.02,
+      "comissao": 900,
+      "cp": {
+        "descricao": "Comissão Fábio Omena — 28º LEILÃO NAVIRAÍ CAMPARINO - REPRODUTORES — lote 132",
+        "valor": 900,
+        "status": "aberto",
+        "vencimento": "2026-09-25"
+      },
+      "confere": true
+    },
+    {
+      "data": "2026-08-23",
+      "lote": "105",
+      "animal": "JHVM 27189",
+      "categoria": "GARROTE(S)",
+      "lance": 2000,
+      "valor": 60000,
+      "programa": {
+        "comprador": "Elvio Severino Pereira",
+        "agente": "Bula Assessoria Pecuária Eireli"
+      },
+      "hastapro": {
+        "comprador": "MARCO TULIO SEVERINO · FAZENDA RIBEIRÃO BONITO",
+        "vendedor": "JOSE HUMBERTO VILLELA MARTINS · Fazenda CAMPARINO",
+        "pisteiro": "Fábio Omena",
+        "total": 60000
+      },
+      "erp": {
+        "assessor": "FABIO OMENNA",
+        "comprador": "MARCO TULIO SEVERINO · FAZENDA RIBEIRÃO BONITO",
+        "vgv": 60000
+      },
+      "ficha": {
+        "quando": "2026-08-23T14:17:48.694613+00:00",
+        "texto": "Levamos lt 105 - 2000 - 1M\n\nFoi com Fábio Omena da Bula Assessoria,\n\nSr Marco Túlio \nFaz Ribeirão \nCaçu | GO"
+      },
+      "assessor": "Fábio Omena",
+      "comissaoPct": 0.02,
+      "comissao": 1200,
+      "cp": {
+        "descricao": "Comissão Fábio Omena — 28º LEILÃO NAVIRAÍ CAMPARINO - REPRODUTORES — lote 105",
+        "valor": 1200,
+        "status": "aberto",
+        "vencimento": "2026-09-25"
+      },
+      "confere": true
+    }
+  ],
+  "comissaoEquipe": 5520,
+  "navirai": {
+    "lotes": [
+      {
+        "data": "2026-08-22",
+        "lote": "01",
+        "total": 153000,
+        "assessor": "Douglas Bispo",
+        "comprador": "JOSE FABIO · NELORE PEROLA",
+        "vendedor": "CLAUDIO SABINO CARVALHO FILHO E OUTROS · FAZENDA SANTA MARTA"
+      },
+      {
+        "data": "2026-08-22",
+        "lote": "05",
+        "total": 225000,
+        "assessor": "Douglas Bispo",
+        "comprador": "JOSE FABIO · NELORE PEROLA",
+        "vendedor": "CLAUDIO SABINO CARVALHO FILHO E OUTROS · FAZENDA SANTA MARTA"
+      },
+      {
+        "data": "2026-08-22",
+        "lote": "11",
+        "total": 93000,
+        "assessor": "Bulinha",
+        "comprador": "VALDEMAR PISSINATTI GUERRA · Fazenda Magda · (50%) + MARCOS MARTINS VILLELA · Fazenda Jacamim · MT · (50%)",
+        "vendedor": "CLAUDIO SABINO CARVALHO FILHO E OUTROS · FAZENDA SANTA MARTA"
+      },
+      {
+        "data": "2026-08-23",
+        "lote": "62",
+        "total": 39000,
+        "assessor": "Nane",
+        "comprador": "IRON GOMES · FAZENDA VARGEM DAS FLORES",
+        "vendedor": "CLAUDIO SABINO CARVALHO FILHO E OUTROS · FAZENDA SANTA MARTA"
+      },
+      {
+        "data": "2026-08-23",
+        "lote": "64",
+        "total": 33000,
+        "assessor": "Nane",
+        "comprador": "IRON GOMES · FAZENDA VARGEM DAS FLORES",
+        "vendedor": "CLAUDIO SABINO CARVALHO FILHO E OUTROS · FAZENDA SANTA MARTA"
+      },
+      {
+        "data": "2026-08-23",
+        "lote": "29",
+        "total": 36000,
+        "assessor": "Nane",
+        "comprador": "IRON GOMES · FAZENDA VARGEM DAS FLORES",
+        "vendedor": "CLAUDIO SABINO CARVALHO FILHO E OUTROS · FAZENDA SANTA MARTA"
+      },
+      {
+        "data": "2026-08-23",
+        "lote": "16",
+        "total": 48000,
+        "assessor": "Lucas Martins",
+        "comprador": "ANGELO MUNHOZ · Fazenda Mimoso · MS",
+        "vendedor": "CLAUDIO SABINO CARVALHO FILHO E OUTROS · FAZENDA SANTA MARTA"
+      },
+      {
+        "data": "2026-08-23",
+        "lote": "01",
+        "total": 33000,
+        "assessor": "Fábio Omena",
+        "comprador": "GERALDO MAJELA DE BRITO · FAZENDA CAPOEIRA GRANDE",
+        "vendedor": "CLAUDIO SABINO CARVALHO FILHO E OUTROS · FAZENDA SANTA MARTA"
+      },
+      {
+        "data": "2026-08-23",
+        "lote": "12",
+        "total": 49500,
+        "assessor": "Leonardo Serafim",
+        "comprador": "ROMUALDO HENRIQUE TAVARES DE MIRANDA · FAZENDA SAO GERONIMO · MG · (50%) + ELIAS ABDO FILHO · Fazenda Abba · PR · (50%)",
+        "vendedor": "CLAUDIO SABINO CARVALHO FILHO E OUTROS · FAZENDA SANTA MARTA"
+      },
+      {
+        "data": "2026-08-23",
+        "lote": "09",
+        "total": 39000,
+        "assessor": "Douglas Bispo",
+        "comprador": "GESSIVALDO LOBO · AGROPECUARIA 3 MARIAS",
+        "vendedor": "CLAUDIO SABINO CARVALHO FILHO E OUTROS · FAZENDA SANTA MARTA"
+      },
+      {
+        "data": "2026-08-23",
+        "lote": "30",
+        "total": 42000,
+        "assessor": "Peralta",
+        "comprador": "LIBERATO ANTONIO SERAFINI FILHO · Fazenda Nova Taquari · MS",
+        "vendedor": "CLAUDIO SABINO CARVALHO FILHO E OUTROS · FAZENDA SANTA MARTA"
+      },
+      {
+        "data": "2026-08-23",
+        "lote": "52",
+        "total": 30000,
+        "assessor": "Laila",
+        "comprador": "HAROLDO HENRIQUE LUIZARI · FAZENDA SANTA MARIA",
+        "vendedor": "CLAUDIO SABINO CARVALHO FILHO E OUTROS · FAZENDA SANTA MARTA"
+      },
+      {
+        "data": "2026-08-23",
+        "lote": "42",
+        "total": 30000,
+        "assessor": "Fábio Omena",
+        "comprador": "JAIRO MOREIRA MENDES · FAZENDA VIDA NOVA",
+        "vendedor": "CLAUDIO SABINO CARVALHO FILHO E OUTROS · FAZENDA SANTA MARTA"
+      },
+      {
+        "data": "2026-08-23",
+        "lote": "44",
+        "total": 39000,
+        "assessor": "Nane",
+        "comprador": "IRON GOMES · FAZENDA VARGEM DAS FLORES",
+        "vendedor": "CLAUDIO SABINO CARVALHO FILHO E OUTROS · FAZENDA SANTA MARTA"
+      },
+      {
+        "data": "2026-08-23",
+        "lote": "77",
+        "total": 30000,
+        "assessor": "Laila",
+        "comprador": "HAROLDO HENRIQUE LUIZARI · FAZENDA SANTA MARIA",
+        "vendedor": "CLAUDIO SABINO CARVALHO FILHO E OUTROS · FAZENDA SANTA MARTA"
+      },
+      {
+        "data": "2026-08-23",
+        "lote": "78",
+        "total": 48000,
+        "assessor": "Peralta",
+        "comprador": "DANIEL ALBUQUERQUE PEREIRA · FAZENDA ESTANCIA PRIMAVERA · MS",
+        "vendedor": "CLAUDIO SABINO CARVALHO FILHO E OUTROS · FAZENDA SANTA MARTA"
+      },
+      {
+        "data": "2026-08-23",
+        "lote": "36",
+        "total": 42000,
+        "assessor": "Fábio Omena",
+        "comprador": "GERALDO MAJELA DE BRITO · FAZENDA CAPOEIRA GRANDE",
+        "vendedor": "CLAUDIO SABINO CARVALHO FILHO E OUTROS · FAZENDA SANTA MARTA"
+      },
+      {
+        "data": "2026-08-23",
+        "lote": "19",
+        "total": 36000,
+        "assessor": "Fábio Omena",
+        "comprador": "VALDO OMENA · FAZENDA ALFREDO DE MAYA",
+        "vendedor": "CLAUDIO SABINO CARVALHO FILHO E OUTROS · FAZENDA SANTA MARTA"
+      },
+      {
+        "data": "2026-08-23",
+        "lote": "20",
+        "total": 42000,
+        "assessor": "Fábio Omena",
+        "comprador": "MARCO TULIO SEVERINO · FAZENDA RIBEIRÃO BONITO",
+        "vendedor": "CLAUDIO SABINO CARVALHO FILHO E OUTROS · FAZENDA SANTA MARTA"
+      },
+      {
+        "data": "2026-08-23",
+        "lote": "59",
+        "total": 33000,
+        "assessor": "Douglas Bispo",
+        "comprador": "JULIMAR BELARMINO DA SILVA · FAZENDA RIO DOS SONHOS · PA",
+        "vendedor": "CLAUDIO SABINO CARVALHO FILHO E OUTROS · FAZENDA SANTA MARTA"
+      },
+      {
+        "data": "2026-08-23",
+        "lote": "22",
+        "total": 63000,
+        "assessor": "Marcelo Moura",
+        "comprador": "GUSTAVO BARRETTO A. SARMENTO · Fazenda São Francisco",
+        "vendedor": "CLAUDIO SABINO CARVALHO FILHO E OUTROS · FAZENDA SANTA MARTA"
+      }
+    ],
+    "vgv": 1183500,
+    "porEtapa": [
+      {
+        "data": "2026-08-22",
+        "lotes": 3,
+        "vgv": 471000
+      },
+      {
+        "data": "2026-08-23",
+        "lotes": 18,
+        "vgv": 712500
+      }
+    ],
+    "acordo": "5% da venda",
+    "pct": 0.05,
+    "receitaEstimada": 59175
+  },
+  "planilha": [
+    {
+      "linha": 131,
+      "dia": "22",
+      "mes": "AGOSTO",
+      "leilao": "LEILÃO NAVIRAÍ CAMPARINO ESSÊNCIA BEZERRAS E NOVILHAS",
+      "leiloeira": "PROGRAMA ",
+      "faturamentoRealizado": null,
+      "vendasBula": 543000,
+      "cobertura": 165000,
+      "pctVendas": "5.0%",
+      "status": "EM FECHAMENTO",
+      "receita": 27150,
+      "imposto": -4887
+    },
+    {
+      "linha": 132,
+      "dia": "23",
+      "mes": "AGOSTO",
+      "leilao": "28º LEILÃO NAVIRAÍ CAMPARINO REPRODUTORES",
+      "leiloeira": "PROGRAMA ",
+      "faturamentoRealizado": 8085000,
+      "vendasBula": 940500,
+      "cobertura": 940500,
+      "pctFat": "0.8%",
+      "status": "EM FECHAMENTO",
+      "receita": 60637.5,
+      "imposto": -10914.75
+    }
+  ],
+  "sens": {
+    "tabelaPorEtapa": {
+      "total": 29752.5,
+      "detalhe": [
+        {
+          "data": "2026-08-22",
+          "faturamento": 2097000,
+          "pct": 0.005,
+          "receita": 10485,
+          "performanceIsolada": 0.034334763948497854,
+          "faixaIsolada": {
+            "ate": 0.1,
+            "pct": 0.005,
+            "rotulo": "0% a 10% de cobertura"
+          }
+        },
+        {
+          "data": "2026-08-23",
+          "faturamento": 3853500,
+          "pct": 0.005,
+          "receita": 19267.5,
+          "performanceIsolada": 0.05916699104710004,
+          "faixaIsolada": {
+            "ate": 0.1,
+            "pct": 0.005,
+            "rotulo": "0% a 10% de cobertura"
+          }
+        }
+      ]
+    },
+    "planilhaChefe": {
+      "faturamento": 8085000,
+      "pct": 0.0075,
+      "receitaLinha": 60637.5,
+      "fatiaCamparino": 28901.25,
+      "performanceMista": 0.11632653061224489,
+      "vgvFechamentos": 1483500
+    },
+    "precedente41": {
+      "data": "2026-06-06",
+      "nome": "41o Touros Camparino - 06/06/2026",
+      "faturamento": 2048830,
+      "vgv": 184100,
+      "performance": 0.08985616180942294,
+      "recebido": 15501.22,
+      "pctEfetivo": 0.007565888824353411,
+      "seAplicasse": 44628.75
+    },
+    "expozebu": {
+      "data": "2026-04-30",
+      "vgv": 78000,
+      "recebido": 3900,
+      "pct": 0.005,
+      "faturamentoImplicito": 780000
+    }
+  },
+  "tomador": {
+    "razao": "AGROPECUÁRIA CAMPARINO LTDA",
+    "cnpj": "51.751.163/0001-47",
+    "ie": "14.015.065-0 (MT)",
+    "natureza": "2062 – Sociedade Empresária Limitada",
+    "endereco": "Rodovia MT 388, s/n – sentido a Bolívia, 25 km – Fazenda Camparino, Área Rural de Cáceres",
+    "cidade": "Cáceres – MT",
+    "cep": "78219-899",
+    "telefone": "(65) 3241-1767",
+    "email": "viacontabil@viacontabil.com.br",
+    "situacao": "ATIVO (desde 22/08/2023)",
+    "simples": "NÃO optante",
+    "cnae": "0151-2/01 – Criação de bovinos para corte",
+    "fonte": "Comprovante de Inscrição Estadual SEFAZ/MT emitido em 17/08/2026 (imagem enviada pelo Marcelo em 11/09/2026 15:54)"
+  },
+  "fechamentos": [
+    {
+      "id": "e7811a6e-7ed7-4a82-a56f-0536093e8ae0",
+      "data": "2026-08-22",
+      "nome": "LEILÃO NAVIRAÍ CAMPARINO ESSÊNCIA BEZERRAS E NOVILHAS",
+      "origem": "lances-auto",
+      "vgv": 543000,
+      "comissao": 22200,
+      "receita": 0,
+      "faturamento": null,
+      "lances": 4
+    },
+    {
+      "id": "4dfcdaec-1806-4b8c-8112-5f99ee5cc412",
+      "data": "2026-08-23",
+      "nome": "28º LEILÃO NAVIRAÍ CAMPARINO - REPRODUTORES",
+      "origem": "hastapro",
+      "vgv": 940500,
+      "comissao": 15990,
+      "receita": 0,
+      "faturamento": null,
+      "lances": 23
+    }
+  ],
+  "crExistentes": 0,
+  "hpLeiloes": [
+    {
+      "lei": "260822224948509",
+      "nome": "LEILÃO NAVIRAÍ CAMPARINO - MATRIZES ESSÊNCIA",
+      "data": "2026-08-22"
+    },
+    {
+      "lei": "260823115309818",
+      "nome": "28º LEILÃO NAVIRAÍ CAMPARINO - REPRODUTORES",
+      "data": "2026-08-23"
+    }
+  ]
+}
