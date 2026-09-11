@@ -1,0 +1,139 @@
+colunas de telefone em CLIENTES: CLI_FONECOM1, CLI_FONECOM1_CONTATO, CLI_FONECOM2, CLI_FONECOM2_CONTATO, CLI_FONECOM3, CLI_FONECOM3_CONTATO, CLI_FONERES, CLI_FONERES_CONTATO, CLI_CELULAR, CLI_CELULAR_CONTATO
+LEILAO 260717112501654 | EXPOGENETICA UBERABA - ASSESSORIA | Sat Aug 15
+LEILAO 260816101952017 | LEILÃO TERRA BRAVA AGROPECUÁRIA EXPOGENÉTICA | Sat Aug 15
+LEILAO 260822082339354 | SHOPPING NAVIRAI EXPOGENÉTICA | Sat Aug 15
+LEILAO 260816112854481 | LEILÃO MATINHA EXPOGENÉTICA 2026 - EMBRIÕES, FÊMEAS E TOUROS | Sun Aug 16
+LEILAO 260820080826176 | LEILÃO FAZENDA ARARAS - ESSÊNCIA GENÉTICA | Sun Aug 16
+LEILAO 260820081221709 | LEILÃO NELORE MAFRA AGRONOVA & AMIGOS | Tue Aug 18
+LEILAO 260821072707120 | 13º LEILÃO GENÉTICA TOUROS NELORE HORA | Tue Aug 18
+LEILAO 260820073341297 | 9º LEILÃO GENÉTICA ADITIVA EXPOGENÉTICA 2026 | Wed Aug 19
+LEILAO 260820073416337 | LEILÃO RESERVA SANTA NICE EXPOGENÉTICA 2026 | Wed Aug 19
+LEILAO 260821073629289 | LEILÃO BABY DE PROVA - MÁQUINAS DE ACELERAR GERAÇÕES | Thu Aug 20
+LEILAO 260821073655646 | LEILÃO NELORE CEN & FAZENDA MODELO & CONVIDADOS | Thu Aug 20
+LEILAO 260822081047589 | 12º LEILÃO NOITE NACIONAL MATRIZES PREMIUM | Fri Aug 21
+LEILAO 260822223518155 | 4º LEILÃO PEPITAS COLONIAL - EXPOGENÉTICA 2026 | Sat Aug 22
+LEILAO 260822224948509 | LEILÃO NAVIRAÍ CAMPARINO - MATRIZES ESSÊNCIA | Sat Aug 22
+LEILAO 260823115309818 | 28º LEILÃO NAVIRAÍ CAMPARINO - REPRODUTORES | Sun Aug 23
+LEILAO 260823115529181 | LEILÃO NELORE MARCONDES - ABERTURA | Sun Aug 23
+LEILAO 260826155052227 | 6º LEILÃO EXCELÊNCIA GENÉTICA | Sun Aug 23
+LEILAO 260827081706292 | LEILÃO VIRTUAL TERRA BRAVA AGROPECUÁRIA - FÊMEAS PRENHAS | Wed Aug 26
+LEILAO 260827081822813 | LEILÃO NELORE DO XINGU | Wed Aug 26
+LEILAO 260831140721207 | LEILÃO VIRTUAL VENTRES VIP MATINHA | Sun Aug 30
+LEILAO 260831141233624 | 1º LEILÃO NELORE ASJ | Sun Aug 30
+
+### Sat Aug 15 LEILÃO TERRA BRAVA AGROPECUÁRIA EXPOGENÉTICA — 4 lotes
+   lt 21    qtd 1 lance    900,00 total   27.000,00 | pist Fabio de Omena Gaia          | VEND NELORE TERRA BRAVA · . | comp FARLEY AZEVEDO OLIVEIRA · FAZENDA NEGREIROS
+   lt 10    qtd 1 lance    900,00 total   27.000,00 | pist Fabio de Omena Gaia          | VEND NELORE TERRA BRAVA · . | comp FARLEY AZEVEDO OLIVEIRA · FAZENDA NEGREIROS
+   lt 15    qtd 1 lance    800,00 total   24.000,00 | pist Fabio de Omena Gaia          | VEND NELORE TERRA BRAVA · . | comp ADRIANO OLIVEIRA DA PARANORTE · FAZENDA GABRIELA 1
+   lt 14    qtd 1 lance    970,00 total   29.100,00 | pist Fabio de Omena Gaia          | VEND NELORE TERRA BRAVA · . | comp ADRIANO OLIVEIRA DA PARANORTE · FAZENDA GABRIELA 1
+
+### Sat Aug 15 SHOPPING NAVIRAI EXPOGENÉTICA — 2 lotes
+   lt 48    qtd 1 lance  1.380,00 total   41.400,00 | pist Douglas Bispo Carvalho       | VEND CLAUDIO SABINO CARVALHO FILHO E OUTROS · FAZENDA SANTA MARTA · MS | comp MIGUEL SOUSA · NELORE AMER
+   lt 41    qtd 1 lance  1.840,00 total   55.200,00 | pist Douglas Bispo Carvalho       | VEND CLAUDIO SABINO CARVALHO FILHO E OUTROS · FAZENDA SANTA MARTA · MS | comp BRUNO FABIO FERNANDES MACHADO · FAZENDA BOM RETIRO · PA
+
+### Sun Aug 16 LEILÃO MATINHA EXPOGENÉTICA 2026 - EMBRIÕES, FÊMEAS E TOUROS — 8 lotes
+   lt E11   qtd 1 lance  1.400,00 total   42.000,00 | pist Douglas Bispo Carvalho       | VEND RANCHO DA MATINHA · Fazenda Rancho da Matinha | comp KLYSMANN DOUGLAS NASCIMENTO LEAL · FAZENDA SANTA TEREZA
+   lt 12    qtd 1 lance  3.600,00 total  108.000,00 | pist Douglas Bispo Carvalho       | VEND RANCHO DA MATINHA · Fazenda Rancho da Matinha | comp JOSE FABIO · NELORE PEROLA
+   lt 34    qtd 1 lance  3.000,00 total   90.000,00 | pist Douglas Bispo Carvalho       | VEND RANCHO DA MATINHA · Fazenda Rancho da Matinha | comp JOSE FABIO · NELORE PEROLA
+   lt 15    qtd 1 lance  3.100,00 total   93.000,00 | pist Douglas Bispo Carvalho       | VEND RANCHO DA MATINHA · Fazenda Rancho da Matinha | comp JOSE FABIO · NELORE PEROLA
+   lt 39    qtd 1 lance  1.400,00 total   42.000,00 | pist Douglas Bispo Carvalho       | VEND RANCHO DA MATINHA · Fazenda Rancho da Matinha | comp CELSO LOPES · FAZENDA FLOR DE MINAS
+   lt 107   qtd 1 lance  1.200,00 total   36.000,00 | pist 260707195925645              | VEND RANCHO DA MATINHA · Fazenda Rancho da Matinha | comp AGROPECUARIA SOBRE RODAS · AGROPECUARIA SOBRE RODAS
+   lt 134   qtd 1 lance    900,00 total   27.000,00 | pist 260707195925645              | VEND RANCHO DA MATINHA · Fazenda Rancho da Matinha | comp AGROPECUARIA SOBRE RODAS · AGROPECUARIA SOBRE RODAS
+   lt 136   qtd 1 lance    750,00 total   22.500,00 | pist 260707195925645              | VEND RANCHO DA MATINHA · Fazenda Rancho da Matinha | comp AGROPECUARIA SOBRE RODAS · AGROPECUARIA SOBRE RODAS
+
+### Sun Aug 16 LEILÃO FAZENDA ARARAS - ESSÊNCIA GENÉTICA — 1 lotes
+   lt 22    qtd 1 lance  2.900,00 total   87.000,00 | pist Douglas Bispo Carvalho       | VEND NELORE FAZENDA ARARAS · . | comp JOSE FABIO · NELORE PEROLA
+
+### Tue Aug 18 13º LEILÃO GENÉTICA TOUROS NELORE HORA — 1 lotes
+   lt 46    qtd 1 lance    800,00 total   24.000,00 | pist Fabio de Omena Gaia          | VEND NELORE HORA · Confirmar Fazenda | comp KLAUS TREIN LAINO · RANCHO SÃO JOSÉ
+
+### Wed Aug 19 9º LEILÃO GENÉTICA ADITIVA EXPOGENÉTICA 2026 — 3 lotes
+   lt 1002  qtd 1 lance  8.300,00 total  249.000,00 | pist Fabio de Omena Gaia          | VEND GENETICA ADITIVA AGROPECUÁRIA LTDA · FAZENDA CANAÃ · MS | comp GUILHERME CARVALHO E MARCELO · Confirmar Fazenda
+   lt 107   qtd 1 lance  2.500,00 total   75.000,00 | pist Fabio de Omena Gaia          | VEND GENETICA ADITIVA AGROPECUÁRIA LTDA · FAZENDA CANAÃ · MS | comp NELORE FLOC · Confirmar Fazenda + AGROPECUÁRIA OLIVAL TENÓRIO · .
+   lt 106   qtd 1 lance  4.000,00 total  120.000,00 | pist Fabio de Omena Gaia          | VEND GENETICA ADITIVA AGROPECUÁRIA LTDA · FAZENDA CANAÃ · MS | comp LUIZ CARLOS FREITAS · FAZENDA CORRENTES · MS
+
+### Wed Aug 19 LEILÃO RESERVA SANTA NICE EXPOGENÉTICA 2026 — 2 lotes
+   lt 04    qtd 1 lance  7.200,00 total  216.000,00 | pist Douglas Bispo Carvalho       | VEND FAZENDA SANTA NICE · Fazenda Santa Nice | comp JOSE FABIO · NELORE PEROLA
+   lt 35    qtd 1 lance  2.700,00 total   81.000,00 | pist Fabio de Omena Gaia          | VEND FAZENDA SANTA NICE · Fazenda Santa Nice | comp GUILHERME CARVALHO E MARCELO · Confirmar Fazenda
+
+### Thu Aug 20 LEILÃO BABY DE PROVA - MÁQUINAS DE ACELERAR GERAÇÕES — 2 lotes
+   lt 23    qtd 1 lance  1.050,00 total   31.500,00 | pist Douglas Bispo Carvalho       | VEND JAIRO CARNEIRO · NELORE VERA CRUZ | comp CELSO LOPES · FAZENDA FLOR DE MINAS
+   lt 22    qtd 1 lance  1.400,00 total   42.000,00 | pist Douglas Bispo Carvalho       | VEND JAIRO CARNEIRO · NELORE VERA CRUZ | comp CELSO LOPES · FAZENDA FLOR DE MINAS
+
+### Thu Aug 20 LEILÃO NELORE CEN & FAZENDA MODELO & CONVIDADOS — 2 lotes
+   lt 09    qtd 1 lance  2.800,00 total   84.000,00 | pist Luiz Felipe Peralta Garcez   | VEND RICARDO AUGUSTO GRASSANO · FAZENDA ITAMOGI · PR | comp FERNANDO CESAR PINHEIRO CARNEIRO · FAZENDA ANDRESSA · MS
+   lt 18    qtd 1 lance  1.100,00 total   33.000,00 | pist Leonardo Serafim Francisco   | VEND RICARDO AUGUSTO GRASSANO · FAZENDA ITAMOGI · PR | comp ELIAS ABDO FILHO · Fazenda Abba · PR
+
+### Fri Aug 21 12º LEILÃO NOITE NACIONAL MATRIZES PREMIUM — 4 lotes
+   lt 18    qtd 1 lance    900,00 total   27.000,00 | pist Leonardo Serafim Francisco   | VEND COLONIAL AGROPECUARIA · Confirmar Fazenda | comp ROMUALDO HENRIQUE TAVARES DE MIRANDA · FAZENDA SAO GERONIMO · MG
+   lt 29    qtd 1 lance  2.600,00 total   78.000,00 | pist Douglas Bispo Carvalho       | VEND TERRA BOA AGROPECUARIA · TERRA BOA AGROPECUARIA | comp JOSE FABIO · NELORE PEROLA
+   lt 24    qtd 1 lance  1.300,00 total   39.000,00 | pist Douglas Bispo Carvalho       | VEND COLONIAL AGROPECUARIA · Confirmar Fazenda | comp LUIZ CARLOS FREITAS · FAZENDA CORRENTES · MS
+   lt 19    qtd 1 lance  1.700,00 total   51.000,00 | pist Douglas Bispo Carvalho       | VEND COLONIAL AGROPECUARIA · Confirmar Fazenda | comp LUIZ CARLOS FREITAS · FAZENDA CORRENTES · MS
+
+### Sat Aug 22 4º LEILÃO PEPITAS COLONIAL - EXPOGENÉTICA 2026 — 11 lotes
+   lt 09    qtd 1 lance  1.100,00 total   33.000,00 | pist Douglas Bispo Carvalho       | VEND COLONIAL AGROPECUARIA · Confirmar Fazenda | comp BRUNO FABIO FERNANDES MACHADO · FAZENDA BOM RETIRO · PA
+   lt 53    qtd 1 lance    800,00 total   24.000,00 | pist Leonardo Serafim Francisco   | VEND COLONIAL AGROPECUARIA · Confirmar Fazenda | comp ORISMAR MOREIRA LEÃO · FAZENDA FUNIL · MG
+   lt 32    qtd 1 lance  1.000,00 total   30.000,00 | pist Leonardo Serafim Francisco   | VEND COLONIAL AGROPECUARIA · Confirmar Fazenda | comp ROMUALDO HENRIQUE TAVARES DE MIRANDA · FAZENDA SAO GERONIMO · MG
+   lt 37    qtd 1 lance  2.000,00 total   60.000,00 | pist Fabio de Omena Gaia          | VEND COLONIAL AGROPECUARIA · Confirmar Fazenda | comp CHRISTIAN KONIG ISLEIB · FAZENDA AVALON
+   lt 54    qtd 1 lance  1.200,00 total   36.000,00 | pist Leonardo Serafim Francisco   | VEND COLONIAL AGROPECUARIA · Confirmar Fazenda | comp ROMUALDO HENRIQUE TAVARES DE MIRANDA · FAZENDA SAO GERONIMO · MG
+   lt 33    qtd 1 lance    900,00 total   27.000,00 | pist Douglas Bispo Carvalho       | VEND COLONIAL AGROPECUARIA · Confirmar Fazenda | comp CELSO LOPES · FAZENDA FLOR DE MINAS
+   lt 19    qtd 1 lance    900,00 total   27.000,00 | pist Leonardo Serafim Francisco   | VEND COLONIAL AGROPECUARIA · Confirmar Fazenda | comp ROMUALDO HENRIQUE TAVARES DE MIRANDA · FAZENDA SAO GERONIMO · MG
+   lt 27    qtd 1 lance    700,00 total   21.000,00 | pist Douglas Bispo Carvalho       | VEND COLONIAL AGROPECUARIA · Confirmar Fazenda | comp CELSO LOPES · FAZENDA FLOR DE MINAS
+   lt 26    qtd 1 lance    800,00 total   24.000,00 | pist Douglas Bispo Carvalho       | VEND COLONIAL AGROPECUARIA · Confirmar Fazenda | comp MIGUEL SOUSA · NELORE AMER
+   lt 25    qtd 1 lance    750,00 total   22.500,00 | pist Douglas Bispo Carvalho       | VEND COLONIAL AGROPECUARIA · Confirmar Fazenda | comp GILSON LOPES BISPO · FAZENDA ESTILO · PA
+   lt 24    qtd 1 lance    700,00 total   21.000,00 | pist Fabio de Omena Gaia          | VEND COLONIAL AGROPECUARIA · Confirmar Fazenda | comp JOÃO VITOR MOREIRA · NELORE ZIBUNGO
+
+### Sat Aug 22 LEILÃO NAVIRAÍ CAMPARINO - MATRIZES ESSÊNCIA — 4 lotes
+   lt 01    qtd 1 lance  5.100,00 total  153.000,00 | pist Douglas Bispo Carvalho       | VEND CLAUDIO SABINO CARVALHO FILHO E OUTROS · FAZENDA SANTA MARTA · MS | comp JOSE FABIO · NELORE PEROLA
+   lt 05    qtd 1 lance  7.500,00 total  225.000,00 | pist Douglas Bispo Carvalho       | VEND CLAUDIO SABINO CARVALHO FILHO E OUTROS · FAZENDA SANTA MARTA · MS | comp JOSE FABIO · NELORE PEROLA
+   lt 11    qtd 1 lance  3.100,00 total   93.000,00 | pist Felipe Vilela Andrade        | VEND CLAUDIO SABINO CARVALHO FILHO E OUTROS · FAZENDA SANTA MARTA · MS | comp VALDEMAR PISSINATTI GUERRA · Fazenda Magda + MARCOS MARTINS VILLELA · Fazenda Jacamim · MT
+   lt 28    qtd 1 lance  2.400,00 total   72.000,00 | pist Douglas Bispo Carvalho       | VEND JOSE HUMBERTO VILLELA MARTINS · Fazenda CAMPARINO | comp MURILO CARVALHO BISPO · FAZENDA AGROVITA
+
+### Sun Aug 23 28º LEILÃO NAVIRAÍ CAMPARINO - REPRODUTORES — 23 lotes
+   lt 62    qtd 1 lance  1.300,00 total   39.000,00 | pist 260707195925645              | VEND CLAUDIO SABINO CARVALHO FILHO E OUTROS · FAZENDA SANTA MARTA · MS | comp IRON GOMES · FAZENDA VARGEM DAS FLORES
+   lt 64    qtd 1 lance  1.100,00 total   33.000,00 | pist 260707195925645              | VEND CLAUDIO SABINO CARVALHO FILHO E OUTROS · FAZENDA SANTA MARTA · MS | comp IRON GOMES · FAZENDA VARGEM DAS FLORES
+   lt 29    qtd 1 lance  1.200,00 total   36.000,00 | pist 260707195925645              | VEND CLAUDIO SABINO CARVALHO FILHO E OUTROS · FAZENDA SANTA MARTA · MS | comp IRON GOMES · FAZENDA VARGEM DAS FLORES
+   lt 16    qtd 1 lance  1.600,00 total   48.000,00 | pist Lucas Martins Durães Bragança | VEND CLAUDIO SABINO CARVALHO FILHO E OUTROS · FAZENDA SANTA MARTA · MS | comp ANGELO MUNHOZ · Fazenda Mimoso · MS
+   lt 01    qtd 1 lance  1.100,00 total   33.000,00 | pist Fabio de Omena Gaia          | VEND CLAUDIO SABINO CARVALHO FILHO E OUTROS · FAZENDA SANTA MARTA · MS | comp GERALDO MAJELA DE BRITO · FAZENDA CAPOEIRA GRANDE
+   lt 12    qtd 1 lance  1.650,00 total   49.500,00 | pist Leonardo Serafim Francisco   | VEND CLAUDIO SABINO CARVALHO FILHO E OUTROS · FAZENDA SANTA MARTA · MS | comp ROMUALDO HENRIQUE TAVARES DE MIRANDA · FAZENDA SAO GERONIMO · MG + ELIAS ABDO FILHO · Fazenda Abba · PR
+   lt 09    qtd 1 lance  1.300,00 total   39.000,00 | pist Douglas Bispo Carvalho       | VEND CLAUDIO SABINO CARVALHO FILHO E OUTROS · FAZENDA SANTA MARTA · MS | comp GESSIVALDO LOBO · AGROPECUARIA 3 MARIAS
+   lt 30    qtd 1 lance  1.400,00 total   42.000,00 | pist Luiz Felipe Peralta Garcez   | VEND CLAUDIO SABINO CARVALHO FILHO E OUTROS · FAZENDA SANTA MARTA · MS | comp LIBERATO ANTONIO SERAFINI FILHO · Fazenda Nova Taquari · MS
+   lt 140   qtd 1 lance  1.200,00 total   36.000,00 | pist 260707195925645              | VEND JOSE HUMBERTO VILLELA MARTINS · Fazenda CAMPARINO | comp GILVAN VILELA · FAZENDA AMARALINA
+   lt 132   qtd 1 lance  1.500,00 total   45.000,00 | pist Fabio de Omena Gaia          | VEND JOSE HUMBERTO VILLELA MARTINS · Fazenda CAMPARINO | comp JAIRO MOREIRA MENDES · FAZENDA VIDA NOVA
+   lt 159   qtd 1 lance  1.300,00 total   39.000,00 | pist 260707195925645              | VEND JOSE HUMBERTO VILLELA MARTINS · Fazenda CAMPARINO | comp IRON GOMES · FAZENDA VARGEM DAS FLORES
+   lt 52    qtd 1 lance  1.000,00 total   30.000,00 | pist Laila de Sousa Oliveira      | VEND CLAUDIO SABINO CARVALHO FILHO E OUTROS · FAZENDA SANTA MARTA · MS | comp HAROLDO HENRIQUE LUIZARI · FAZENDA SANTA MARIA
+   lt 42    qtd 1 lance  1.000,00 total   30.000,00 | pist Fabio de Omena Gaia          | VEND CLAUDIO SABINO CARVALHO FILHO E OUTROS · FAZENDA SANTA MARTA · MS | comp JAIRO MOREIRA MENDES · FAZENDA VIDA NOVA
+   lt 44    qtd 1 lance  1.300,00 total   39.000,00 | pist 260707195925645              | VEND CLAUDIO SABINO CARVALHO FILHO E OUTROS · FAZENDA SANTA MARTA · MS | comp IRON GOMES · FAZENDA VARGEM DAS FLORES
+   lt 77    qtd 1 lance  1.000,00 total   30.000,00 | pist Laila de Sousa Oliveira      | VEND CLAUDIO SABINO CARVALHO FILHO E OUTROS · FAZENDA SANTA MARTA · MS | comp HAROLDO HENRIQUE LUIZARI · FAZENDA SANTA MARIA
+   lt 78    qtd 1 lance  1.600,00 total   48.000,00 | pist Luiz Felipe Peralta Garcez   | VEND CLAUDIO SABINO CARVALHO FILHO E OUTROS · FAZENDA SANTA MARTA · MS | comp DANIEL ALBUQUERQUE PEREIRA · FAZENDA ESTANCIA PRIMAVERA · MS
+   lt 36    qtd 1 lance  1.400,00 total   42.000,00 | pist Fabio de Omena Gaia          | VEND CLAUDIO SABINO CARVALHO FILHO E OUTROS · FAZENDA SANTA MARTA · MS | comp GERALDO MAJELA DE BRITO · FAZENDA CAPOEIRA GRANDE
+   lt 19    qtd 1 lance  1.200,00 total   36.000,00 | pist Fabio de Omena Gaia          | VEND CLAUDIO SABINO CARVALHO FILHO E OUTROS · FAZENDA SANTA MARTA · MS | comp VALDO OMENA · FAZENDA ALFREDO DE MAYA
+   lt 20    qtd 1 lance  1.400,00 total   42.000,00 | pist Fabio de Omena Gaia          | VEND CLAUDIO SABINO CARVALHO FILHO E OUTROS · FAZENDA SANTA MARTA · MS | comp MARCO TULIO SEVERINO · FAZENDA RIBEIRÃO BONITO
+   lt 59    qtd 1 lance  1.100,00 total   33.000,00 | pist Douglas Bispo Carvalho       | VEND CLAUDIO SABINO CARVALHO FILHO E OUTROS · FAZENDA SANTA MARTA · MS | comp JULIMAR BELARMINO DA SILVA · FAZENDA RIO DOS SONHOS · PA
+   lt 105   qtd 1 lance  2.000,00 total   60.000,00 | pist Fabio de Omena Gaia          | VEND JOSE HUMBERTO VILLELA MARTINS · Fazenda CAMPARINO | comp MARCO TULIO SEVERINO · FAZENDA RIBEIRÃO BONITO
+   lt 117   qtd 1 lance  1.600,00 total   48.000,00 | pist Lucas Martins Durães Bragança | VEND JOSE HUMBERTO VILLELA MARTINS · Fazenda CAMPARINO | comp ARMINDO MARTINS DA CONCEIÇÃO · FAZENDA NOSSA SENHORA DE FÁTIMA · MS
+   lt 22    qtd 1 lance  2.100,00 total   63.000,00 | pist MARCELO MOURA                | VEND CLAUDIO SABINO CARVALHO FILHO E OUTROS · FAZENDA SANTA MARTA · MS | comp GUSTAVO BARRETTO A. SARMENTO · Fazenda São Francisco
+
+### Sun Aug 23 LEILÃO NELORE MARCONDES - ABERTURA — 1 lotes
+   lt 01    qtd 1 lance  1.250,00 total   37.500,00 | pist Luiz Felipe Peralta Garcez   | VEND MARCELO MARCONDES · SANTA HELENA · SP | comp FERNANDO CESAR PINHEIRO CARNEIRO · FAZENDA ANDRESSA · MS
+
+### Sun Aug 23 6º LEILÃO EXCELÊNCIA GENÉTICA — 1 lotes
+   lt 21    qtd 1 lance  3.500,00 total  105.000,00 | pist Felipe Vilela Andrade        | VEND MARCOS MARTINS VILLELA · Fazenda Jacamim · MT | comp VALDEMAR PISSINATTI GUERRA · Fazenda Magda + JOEL DE ASSIS GOUVÊA JÚNIOR · FAZENDA GIOVANNA · SP
+
+### Wed Aug 26 LEILÃO VIRTUAL TERRA BRAVA AGROPECUÁRIA - FÊMEAS PRENHAS — 2 lotes
+   lt 19    qtd 1 lance    900,00 total   27.000,00 | pist Leonardo Serafim Francisco   | VEND NELORE TERRA BRAVA · . | comp ORISMAR MOREIRA LEÃO · FAZENDA FUNIL · MG
+   lt 45    qtd 1 lance    650,00 total   19.500,00 | pist Fabio de Omena Gaia          | VEND NELORE TERRA BRAVA · . | comp ADIL JUNIOR · FAZENDA CASA AMARELA
+
+### Wed Aug 26 LEILÃO NELORE DO XINGU — 1 lotes
+   lt EXTRA qtd 1 lance  3.100,00 total   93.000,00 | pist Douglas Bispo Carvalho       | VEND NELORE DO XINGU · NELORE DO XINGU | comp ERON JOSE DE CARVALHO · FAZENDA FLOR DE ARATAU · PA
+
+### Sun Aug 30 LEILÃO VIRTUAL VENTRES VIP MATINHA — 5 lotes
+   lt 18    qtd 1 lance    900,00 total   27.000,00 | pist Douglas Bispo Carvalho       | VEND TANGARÁ PECUÁRIA E PARTICIPAÇÕES LTDA · FAZENDA RANCHO GRANDE DA MATINHA · MG | comp CELSO LOPES · FAZENDA FLOR DE MINAS
+   lt 31    qtd 1 lance  1.250,00 total   37.500,00 | pist Douglas Bispo Carvalho       | VEND TANGARÁ PECUÁRIA E PARTICIPAÇÕES LTDA · FAZENDA RANCHO GRANDE DA MATINHA · MG | comp CELSO LOPES · FAZENDA FLOR DE MINAS
+   lt 138   qtd 2 lance    300,00 total   18.000,00 | pist Fabio de Omena Gaia          | VEND TANGARÁ PECUÁRIA E PARTICIPAÇÕES LTDA · FAZENDA RANCHO GRANDE DA MATINHA · MG | comp AMANDA CARLA · FAZENDA SANTA VITÓRIA
+   lt 140   qtd 2 lance    300,00 total   18.000,00 | pist Fabio de Omena Gaia          | VEND TANGARÁ PECUÁRIA E PARTICIPAÇÕES LTDA · FAZENDA RANCHO GRANDE DA MATINHA · MG | comp AMANDA CARLA · FAZENDA SANTA VITÓRIA
+   lt 141   qtd 3 lance    300,00 total   27.000,00 | pist Fabio de Omena Gaia          | VEND TANGARÁ PECUÁRIA E PARTICIPAÇÕES LTDA · FAZENDA RANCHO GRANDE DA MATINHA · MG | comp AMANDA CARLA · FAZENDA SANTA VITÓRIA
+
+### Sun Aug 30 1º LEILÃO NELORE ASJ — 2 lotes
+   lt 24    qtd 2 lance    330,00 total   19.800,00 | pist Fabio de Omena Gaia          | VEND NELORE ASJ · Confirmar Fazenda Nelore ASJ | comp GLADSTON PEREIRA DOS ANJOS · FAZENDA BARRO ALTO
+   lt 07    qtd 1 lance    370,00 total   11.100,00 | pist Fabio de Omena Gaia          | VEND NELORE ASJ · Confirmar Fazenda Nelore ASJ | comp NATÁLIA SATURNINO · FAZENDA TAMAREIRA
