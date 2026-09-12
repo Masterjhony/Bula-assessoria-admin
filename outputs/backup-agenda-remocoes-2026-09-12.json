@@ -1,0 +1,94 @@
+{
+  "removido_em": "2026-09-12",
+  "origem": "Sync da ESCALA desligado desde 24/08 — apagar nas tres tabelas basta.",
+  "itens": [
+    {
+      "data": "2026-09-20",
+      "nome": "2º LEILÃO NELORE BRASIL",
+      "motivo": "WhatsApp em 12/09/2026 17:54, respondendo ao card do leilão: \"Retira da agenda\".",
+      "cronograma_leiloes": [
+        {
+          "id": "e5e55ba5-e607-4bdc-aca4-60e2c5fc5165",
+          "data": "2026-09-20",
+          "dia_semana": "domingo",
+          "hora": "12:00",
+          "nome": "2º LEILÃO NELORE BRASIL",
+          "criador": null,
+          "presencial": "PRESENCIAL",
+          "leiloeira": "JA LEILÕES RURAIS",
+          "raca": "NELORE",
+          "qtd_animais": "50 TOUROS + 300 BEZERROS",
+          "sexo": "MACHOS",
+          "comissao": null,
+          "contrato": null,
+          "faturamento_previsto": null,
+          "faturamento_realizado": null,
+          "venda_bula": null,
+          "comissao_receber": null,
+          "recebido": null,
+          "catalogo_url": null,
+          "img": "https://nfjkzigvxegnhaxxbevt.supabase.co/storage/v1/object/public/leilao-covers/escala-2026/2026-09-20-2o-leilao-nelore-brasil-arte.jpeg",
+          "created_at": "2026-08-31T16:16:37.698295+00:00",
+          "updated_at": "2026-08-31T18:15:17.80078+00:00",
+          "catalogo_anexado_em": null,
+          "catalogo_origem": null
+        }
+      ],
+      "bula_leiloes": [
+        {
+          "id": "645987a3-be8b-4cc7-8fb6-7175fcaaae5a",
+          "nome": "2º Leilão Nelore Brasil",
+          "data": "2026-09-20",
+          "tipo": "NELORE",
+          "local": "XINGUARA/PA",
+          "animais": 350,
+          "expectativa": 0,
+          "meta_bula": 0,
+          "realizado_bula": 0,
+          "status": "confirmado",
+          "img": "https://nfjkzigvxegnhaxxbevt.supabase.co/storage/v1/object/public/leilao-covers/escala-2026/2026-09-20-2o-leilao-nelore-brasil-arte.jpeg",
+          "tasks": [],
+          "horario": "12:00",
+          "transmissao": "Magnos Leilões",
+          "modelo": "PRESENCIAL",
+          "leiloeira": "JA LEILÕES RURAIS",
+          "condicao": "Leilão Nelore Brasil — 2ª edição. Presencial, domingo 20/09/2026 às 12h, no Tatersal J A Leilões, Xinguara/PA. Oferta: 50 touros Nelore PO e 300 bezerros Nelore comercial. Leiloeiro Diego Castro; leiloeira JA Leilões Rurais; transmissão Magnos Leilões; assessoria GR Assessoria Pecuária.",
+          "frete_gratis": "",
+          "acordo_comissao": "",
+          "catalogo_url": null,
+          "created_at": "2026-08-31T16:16:38.549652+00:00",
+          "cronograma_id": "e5e55ba5-e607-4bdc-aca4-60e2c5fc5165"
+        }
+      ],
+      "agenda_events": [
+        {
+          "id": "9bba6b25-5312-49c7-8c5f-d4f3de143a35",
+          "title": "2º Leilão Nelore Brasil",
+          "description": "Leiloeira: JA LEILÕES RURAIS\nLocal: XINGUARA/PA\nRaca: NELORE\nSexo: MACHOS\nQtd.: 50 TOUROS + 300 BEZERROS\nTransmissao: Magnos Leilões",
+          "event_type": "leilao",
+          "status": "planejado",
+          "priority": "media",
+          "start_at": "2026-09-20T15:00:00+00:00",
+          "end_at": "2026-09-20T17:00:00+00:00",
+          "all_day": false,
+          "location": "XINGUARA/PA",
+          "color": "#A68B4B",
+          "notes": "Cadastrado a partir da arte oficial em 31/08/2026 (scripts/agenda-2026-08-31-inclusoes-lote3.mjs).",
+          "recurrence_rule": null,
+          "recurrence_until": null,
+          "responsible_member_id": null,
+          "linked_leilao_id": "e5e55ba5-e607-4bdc-aca4-60e2c5fc5165",
+          "linked_task_id": null,
+          "linked_flow_id": null,
+          "linked_product_id": null,
+          "linked_breeder_id": null,
+          "linked_lead_id": null,
+          "linked_contract_id": null,
+          "created_by": null,
+          "created_at": "2026-08-31T16:16:39.297888+00:00",
+          "updated_at": "2026-08-31T16:16:39.297888+00:00"
+        }
+      ]
+    }
+  ]
+}
