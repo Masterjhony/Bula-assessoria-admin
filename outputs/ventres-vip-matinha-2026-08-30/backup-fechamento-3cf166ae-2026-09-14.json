@@ -1,0 +1,141 @@
+{
+  "id": "3cf166ae-f4db-42f2-aaf1-15f98860f5b3",
+  "nome": "LEILÃO VIRTUAL VENTRES VIP MATINHA",
+  "data": "2026-08-30",
+  "local": null,
+  "lotes_ofertados": 0,
+  "lotes_vendidos": 5,
+  "animais_vendidos": 9,
+  "vgv_total": 127500,
+  "ticket_medio": 25500,
+  "maior_lance": 37500,
+  "compradores_unicos": 2,
+  "estados_alcancados": 0,
+  "por_assessor": [
+    {
+      "vgv": 64500,
+      "nome": "Gustavo Rusa",
+      "animais": 2,
+      "empresa": "Parceiro",
+      "posicao": 1,
+      "comissao": 3225,
+      "pct_total": 0.5058823529411764,
+      "transacoes": 2,
+      "comissao_pct": 0.05,
+      "ticket_medio": 32250
+    },
+    {
+      "vgv": 63000,
+      "nome": "FABIO OMENNA",
+      "animais": 7,
+      "empresa": "Bula Assessoria",
+      "posicao": 2,
+      "comissao": 1260,
+      "pct_total": 0.49411764705882355,
+      "transacoes": 3,
+      "comissao_pct": 0.02,
+      "ticket_medio": 21000
+    }
+  ],
+  "por_estado": [],
+  "compradores": [
+    {
+      "uf": null,
+      "vgv": 64500,
+      "rank": 1,
+      "lotes": 2,
+      "cidade": null,
+      "animais": 2,
+      "fazenda": "FAZENDA FLOR DE MINAS",
+      "comprador": "CELSO LOPES"
+    },
+    {
+      "uf": null,
+      "vgv": 63000,
+      "rank": 2,
+      "lotes": 3,
+      "cidade": null,
+      "animais": 7,
+      "fazenda": "FAZENDA SANTA VITÓRIA",
+      "comprador": "AMANDA CARLA"
+    }
+  ],
+  "lances": [
+    {
+      "vgv": 18000,
+      "lote": "138",
+      "animais": 2,
+      "empresa": "Bula Assessoria",
+      "parcela": 300,
+      "assessor": "FABIO OMENNA",
+      "parcelas": null,
+      "comprador": "AMANDA CARLA · FAZENDA SANTA VITÓRIA"
+    },
+    {
+      "vgv": 18000,
+      "lote": "140",
+      "animais": 2,
+      "empresa": "Bula Assessoria",
+      "parcela": 300,
+      "assessor": "FABIO OMENNA",
+      "parcelas": null,
+      "comprador": "AMANDA CARLA · FAZENDA SANTA VITÓRIA"
+    },
+    {
+      "vgv": 27000,
+      "lote": "141",
+      "animais": 3,
+      "empresa": "Bula Assessoria",
+      "parcela": 300,
+      "assessor": "FABIO OMENNA",
+      "parcelas": null,
+      "comprador": "AMANDA CARLA · FAZENDA SANTA VITÓRIA"
+    },
+    {
+      "vgv": 27000,
+      "lote": "18",
+      "animais": 1,
+      "empresa": "Bula Assessoria",
+      "parcela": 900,
+      "assessor": "Gustavo Rusa",
+      "parcelas": null,
+      "comprador": "CELSO LOPES · FAZENDA FLOR DE MINAS",
+      "comissao_pct": 0.05,
+      "anunciado_por": "DOUGLAS BISPO",
+      "comissao_fonte": "RUSA - AGOSTO.xlsx Página1 linha 19; conferido com mensagem do grupo e lote do fechamento; auditoria 08/09/2026",
+      "comissao_valor": 1350
+    },
+    {
+      "vgv": 37500,
+      "lote": "31",
+      "animais": 1,
+      "empresa": "Bula Assessoria",
+      "parcela": 1250,
+      "assessor": "Gustavo Rusa",
+      "parcelas": null,
+      "comprador": "CELSO LOPES · FAZENDA FLOR DE MINAS",
+      "comissao_pct": 0.05,
+      "anunciado_por": "DOUGLAS BISPO",
+      "comissao_fonte": "RUSA - AGOSTO.xlsx Página1 linha 18; conferido com mensagem do grupo e lote do fechamento; auditoria 08/09/2026",
+      "comissao_valor": 1875
+    }
+  ],
+  "perfil_genetico": [],
+  "comissao_assessoria": 4485,
+  "receita_bula": 0,
+  "sobra_bruta": 0,
+  "observacoes": "Importado do HastaPro filial 2 (terceiro) por scripts/importa-fechamento-hastapro.mts. O leilao inteiro tem 5 lotes; 5 foram cobertos por pisteiro da equipe Bula e 0 por terceiros — o VGV aqui e a COBERTURA BULA, nao o faturamento do pregao.\n[AUDITORIA COMISSÕES 08/09/2026] Planilha RUSA - AGOSTO.xlsx e mensagens do grupo: lote 31: R$ 1875.00 a Rusa; lote 18: R$ 1350.00 a Rusa. Remuneração por lote; preservar anunciado_por. Percentuais de 3% e 5% são os da planilha específica, não regra universal por comprador. Não houve pagamento nem criação de CP. ",
+  "lotes_catalogo": [],
+  "distribuicao_empresa": [],
+  "faturamento_total_leilao": null,
+  "acordo_pct_faturamento": null,
+  "acordo_pct_venda_cobertura": null,
+  "acordo_descricao": null,
+  "acordo_criador_id": null,
+  "created_at": "2026-09-01T18:45:00.141632+00:00",
+  "updated_at": "2026-09-08T22:25:03.35114+00:00",
+  "despesas_variaveis": 0,
+  "etapa": "realizado",
+  "etapa_atualizada_em": "2026-09-01T18:45:00.141632+00:00",
+  "origem": "hastapro"
+}
