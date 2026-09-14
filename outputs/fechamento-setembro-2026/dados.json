@@ -1,0 +1,3122 @@
+{
+  "geradoEm": "2026-09-14T17:16:46.156Z",
+  "ate": "2026-09-13",
+  "eventos": [
+    {
+      "key": "crispim",
+      "data": "2026-09-03",
+      "nome": "2º Leilão Nelore Crispim — Herança Genética",
+      "leiloeira": "E-Rural",
+      "praca": "virtual · 19:00",
+      "tipo": "leilão",
+      "condicao": "—",
+      "acordo": "5% da venda",
+      "planilha": {
+        "dia": 3,
+        "leilao": "2º LEILÃO NELORE CRISPIM HERANÇA GENÉTICA",
+        "leiloeira": "E-RURAL",
+        "previsaoFat": 266000,
+        "metaVenda": 106400,
+        "cobertura": "40.00%",
+        "metaComissao": 5320,
+        "pctVenda": "5.0%",
+        "pctFat": ""
+      },
+      "resumoEquipe": {
+        "texto": "nenhuma ficha em nenhum grupo; no Marketing às 20:06: \"mexer com os leads para esse leilão de agora… leilão barato\"",
+        "valor": 0
+      },
+      "lotes": [],
+      "naoVendas": [],
+      "totais": {
+        "lotes": 0,
+        "cabecas": 0,
+        "vgv": 0,
+        "comissao": 0
+      },
+      "confere": true,
+      "porAssessor": [],
+      "metaVenda": 106400,
+      "pctMeta": 0,
+      "receita": {
+        "descr": "5% da venda",
+        "valor": 0
+      }
+    },
+    {
+      "key": "jacamim",
+      "data": "2026-09-05",
+      "nome": "10º Leilão Especial Touros Fazenda Jacamim",
+      "leiloeira": "Programa Leilões",
+      "praca": "Nova Mutum-MT · recinto + virtual",
+      "tipo": "leilão",
+      "condicao": "lance × 30 (2+2+2+2+2+20); touro de central 40 parcelas; à vista −15%",
+      "acordo": "3% da venda",
+      "planilha": {
+        "dia": 5,
+        "leilao": "10º LEILÃO FAZENDA JACAMIM ESPECIAL TOUROS",
+        "leiloeira": "PROGRAMA",
+        "previsaoFat": 3720000,
+        "metaVenda": 930000,
+        "cobertura": "25.00%",
+        "metaComissao": 111600,
+        "pctVenda": "",
+        "pctFat": "3.0%"
+      },
+      "resumoEquipe": {
+        "texto": "\"Foram 22 reprodutores e 1 touro de central comercializados\" (post oficial 20:27) · tally no grupo às 20:05: \"já foram 22 touros + 1 central\"",
+        "lotes": 23
+      },
+      "lotes": [
+        {
+          "data": "2026-09-05",
+          "lote": "17",
+          "parcela": 1100,
+          "sexo": "M",
+          "assessor": "Nane (Regiane)",
+          "comprador": "Rubens Peixoto",
+          "fazenda": "Fazenda Morro Alto",
+          "cidade": "Jauru",
+          "uf": "MT",
+          "fonteRe": {},
+          "parcelas": 30,
+          "qtd": 1,
+          "vgv": 33000,
+          "comissaoDe": "Nane (Regiane)",
+          "pct": 0.02,
+          "comissao": 660,
+          "fichaQuando": "05/09 13:58",
+          "fichaGrupo": "Lances Bula Assessoria",
+          "fichaAutor": "Nane",
+          "noSistema": {
+            "status": "revisar",
+            "vinculado": false
+          }
+        },
+        {
+          "data": "2026-09-05",
+          "lote": "25",
+          "parcela": 1100,
+          "sexo": "M",
+          "assessor": "Douglas Bispo",
+          "comprador": "Reginaldo Leandro",
+          "fazenda": "Fazenda São José",
+          "cidade": "São Félix do Xingu",
+          "uf": "PA",
+          "fonteRe": {},
+          "obs": "A ficha diz \"lt 26\", mas o recinto anotou o 26 para João Giuzzo, a Nane perguntou \"vc levou o lote 25?\" e o repasse do Marcelo ao João (17:31) já sai com lt 25. Conferir na listagem da Programa.",
+          "parcelas": 30,
+          "qtd": 1,
+          "vgv": 33000,
+          "comissaoDe": "Douglas Bispo",
+          "pct": 0.02,
+          "comissao": 660,
+          "fichaQuando": "05/09 14:14",
+          "fichaGrupo": "Lances Bula Assessoria",
+          "fichaAutor": "Douglas Bispo",
+          "noSistema": null
+        },
+        {
+          "data": "2026-09-05",
+          "lote": "2",
+          "parcela": 1150,
+          "sexo": "M",
+          "assessor": "Douglas Bispo",
+          "comprador": "Luis Diehl",
+          "fazenda": "Agropecuária N. S. Aparecida",
+          "cidade": "Nova Mutum",
+          "uf": "MT",
+          "fonteRe": {},
+          "parcelas": 30,
+          "qtd": 1,
+          "vgv": 34500,
+          "comissaoDe": "Douglas Bispo",
+          "pct": 0.02,
+          "comissao": 690,
+          "fichaQuando": "05/09 14:16",
+          "fichaGrupo": "Lances Bula Assessoria",
+          "fichaAutor": "Douglas Bispo",
+          "noSistema": {
+            "status": "revisar",
+            "vinculado": false
+          }
+        },
+        {
+          "data": "2026-09-05",
+          "lote": "1",
+          "parcela": 2150,
+          "sexo": "M",
+          "assessor": "Peralta",
+          "comprador": "Diego e Arthur Chiovetti",
+          "fazenda": "Fazenda Santa Rita",
+          "cidade": "Rio Negro",
+          "uf": null,
+          "fonteRe": {},
+          "obs": "Registro do Peralta: \"Lote 1 - Daniele Coutinho vendeu - 2150\". Entrou na contagem da equipe (22 touros) e no repasse do Marcelo; a comissão depende de quem é a Daniele.",
+          "parcelas": 30,
+          "qtd": 1,
+          "vgv": 64500,
+          "comissaoDe": "Peralta",
+          "pct": 0.02,
+          "comissao": 1290,
+          "fichaQuando": "05/09 14:29",
+          "fichaGrupo": "Lances Bula Assessoria",
+          "fichaAutor": "Felipe Peralta",
+          "noSistema": null
+        },
+        {
+          "data": "2026-09-05",
+          "lote": "15",
+          "parcela": 1100,
+          "sexo": "M",
+          "assessor": "Peralta",
+          "comprador": "Moacir e Leo Duim — Sementes Pasto Forma",
+          "fazenda": null,
+          "cidade": null,
+          "uf": null,
+          "fonteRe": {},
+          "parcelas": 30,
+          "qtd": 1,
+          "vgv": 33000,
+          "comissaoDe": "Peralta",
+          "pct": 0.02,
+          "comissao": 660,
+          "fichaQuando": "05/09 15:08",
+          "fichaGrupo": "Lances Bula Assessoria",
+          "fichaAutor": "Felipe Peralta",
+          "noSistema": {
+            "status": "revisar",
+            "vinculado": false
+          }
+        },
+        {
+          "data": "2026-09-05",
+          "lote": "76",
+          "parcela": 1000,
+          "sexo": "M",
+          "assessor": "Douglas Bispo",
+          "comprador": "Reginaldo Leandro",
+          "fazenda": "Fazenda São José",
+          "cidade": "São Félix do Xingu",
+          "uf": "PA",
+          "fonteRe": {},
+          "parcelas": 30,
+          "qtd": 1,
+          "vgv": 30000,
+          "comissaoDe": "Douglas Bispo",
+          "pct": 0.02,
+          "comissao": 600,
+          "fichaQuando": "05/09 15:32",
+          "fichaGrupo": "Lances Bula Assessoria",
+          "fichaAutor": "Douglas Bispo",
+          "noSistema": {
+            "status": "revisar",
+            "vinculado": false
+          }
+        },
+        {
+          "data": "2026-09-05",
+          "lote": "77",
+          "parcela": 1000,
+          "sexo": "M",
+          "assessor": "Peralta",
+          "comprador": "Nicole Perondi e Fernando César Pinheiro — 7P Agro",
+          "fazenda": null,
+          "cidade": null,
+          "uf": null,
+          "fonteRe": {},
+          "parcelas": 30,
+          "qtd": 1,
+          "vgv": 30000,
+          "comissaoDe": "Peralta",
+          "pct": 0.02,
+          "comissao": 600,
+          "fichaQuando": "05/09 15:35",
+          "fichaGrupo": "Lances Bula Assessoria",
+          "fichaAutor": null,
+          "noSistema": {
+            "status": "revisar",
+            "vinculado": false
+          }
+        },
+        {
+          "data": "2026-09-05",
+          "lote": "75",
+          "parcela": 950,
+          "sexo": "M",
+          "assessor": "Douglas Bispo",
+          "comprador": "Reginaldo Leandro",
+          "fazenda": "Fazenda São José",
+          "cidade": "São Félix do Xingu",
+          "uf": "PA",
+          "fonteRe": {},
+          "parcelas": 30,
+          "qtd": 1,
+          "vgv": 28500,
+          "comissaoDe": "Douglas Bispo",
+          "pct": 0.02,
+          "comissao": 570,
+          "fichaQuando": "05/09 15:45",
+          "fichaGrupo": "Lances Bula Assessoria",
+          "fichaAutor": "Douglas Bispo",
+          "noSistema": {
+            "status": "revisar",
+            "vinculado": false
+          }
+        },
+        {
+          "data": "2026-09-05",
+          "lote": "central",
+          "animal": "touro de central Estocolmo",
+          "parcela": 4800,
+          "parcelas": 40,
+          "sexo": "M",
+          "assessor": "Peralta",
+          "comprador": "Eduardo da Costa",
+          "fazenda": null,
+          "cidade": null,
+          "uf": null,
+          "fonteRe": {},
+          "obs": "\"4800 x 40\" — touro de central, 40 parcelas pela condição do leilão. Maior arremate da Bula no mês.",
+          "qtd": 1,
+          "vgv": 192000,
+          "comissaoDe": "Peralta",
+          "pct": 0.02,
+          "comissao": 3840,
+          "fichaQuando": "05/09 16:24",
+          "fichaGrupo": "Lances Bula Assessoria",
+          "fichaAutor": null,
+          "noSistema": null
+        },
+        {
+          "data": "2026-09-05",
+          "lote": "96",
+          "parcela": 900,
+          "sexo": "M",
+          "assessor": "Nane (Regiane)",
+          "comprador": "Fazenda São Jerônimo",
+          "fazenda": "Fazenda São Jerônimo",
+          "cidade": "Nova Canaã do Norte",
+          "uf": "MT",
+          "fonteRe": {},
+          "parcelas": 30,
+          "qtd": 1,
+          "vgv": 27000,
+          "comissaoDe": "Nane (Regiane)",
+          "pct": 0.02,
+          "comissao": 540,
+          "fichaQuando": "05/09 16:25",
+          "fichaGrupo": "Lances Bula Assessoria",
+          "fichaAutor": "Nane",
+          "noSistema": {
+            "status": "revisar",
+            "vinculado": false
+          }
+        },
+        {
+          "data": "2026-09-05",
+          "lote": "81",
+          "parcela": 850,
+          "sexo": "M",
+          "assessor": "Laila",
+          "comprador": "Luis Antonio Dias Pinheiro",
+          "fazenda": "Fazenda Santa Lúcia",
+          "cidade": "Planalto",
+          "uf": "BA",
+          "fonteRe": {},
+          "obs": "Duas fichas no mesmo minuto: Leonardo escreveu 900, Fábio 850; o pregão foi \"Lote 81 - 850\" e o repasse do Marcelo usa 850.",
+          "parcelas": 30,
+          "qtd": 1,
+          "vgv": 25500,
+          "comissaoDe": "Laila",
+          "pct": 0.01,
+          "comissao": 255,
+          "fichaQuando": "05/09 16:34",
+          "fichaGrupo": "Lances Bula Assessoria",
+          "fichaAutor": "Leonardo",
+          "noSistema": {
+            "status": "revisar",
+            "vinculado": false
+          }
+        },
+        {
+          "data": "2026-09-05",
+          "lote": "82",
+          "parcela": 1000,
+          "sexo": "M",
+          "assessor": "Fábio Omena",
+          "comprador": "Paulo César Oberlaender",
+          "fazenda": "Fazenda Santa Teresinha",
+          "cidade": "Santa Rita do Pardo",
+          "uf": "MS",
+          "fonteRe": {},
+          "obs": "No grupo saiu só \"Levamos 82 - 1000 - 1M\"; comprador e fazenda vêm do repasse do Marcelo (17:34).",
+          "parcelas": 30,
+          "qtd": 1,
+          "vgv": 30000,
+          "comissaoDe": "Fábio Omena",
+          "pct": 0.02,
+          "comissao": 600,
+          "fichaQuando": "05/09 16:50",
+          "fichaGrupo": "Lances Bula Assessoria",
+          "fichaAutor": "Fabio Omena - Bula Assessoria",
+          "noSistema": {
+            "status": "revisar",
+            "vinculado": false
+          }
+        },
+        {
+          "data": "2026-09-05",
+          "lote": "55",
+          "parcela": 1000,
+          "sexo": "M",
+          "assessor": "Nane (Regiane)",
+          "comprador": "Euclides Comim",
+          "fazenda": "Fazenda Chão de Estrelas",
+          "cidade": "Nova Bandeirantes",
+          "uf": "MT",
+          "fonteRe": {},
+          "parcelas": 30,
+          "qtd": 1,
+          "vgv": 30000,
+          "comissaoDe": "Nane (Regiane)",
+          "pct": 0.02,
+          "comissao": 600,
+          "fichaQuando": "05/09 17:12",
+          "fichaGrupo": "Lances Bula Assessoria",
+          "fichaAutor": "Nane",
+          "noSistema": {
+            "status": "revisar",
+            "vinculado": false
+          }
+        },
+        {
+          "data": "2026-09-05",
+          "lote": "53",
+          "parcela": 800,
+          "sexo": "M",
+          "assessor": "Nane (Regiane)",
+          "comprador": "Rodrigo Capuci (assessoria Valentina Capuci)",
+          "fazenda": "Fazenda Santo Antônio",
+          "cidade": "Rio Verde",
+          "uf": "MS",
+          "fonteRe": {},
+          "parcelas": 30,
+          "qtd": 1,
+          "vgv": 24000,
+          "comissaoDe": "Nane (Regiane)",
+          "pct": 0.02,
+          "comissao": 480,
+          "fichaQuando": "05/09 17:27",
+          "fichaGrupo": "Lances Bula Assessoria",
+          "fichaAutor": "Nane",
+          "noSistema": {
+            "status": "revisar",
+            "vinculado": false
+          }
+        },
+        {
+          "data": "2026-09-05",
+          "lote": "64",
+          "parcela": 800,
+          "sexo": "M",
+          "assessor": "Peralta",
+          "comprador": "Wilian Moreira",
+          "fazenda": "Fazenda Boa Esperança",
+          "cidade": "Rio Verde de Mato Grosso",
+          "uf": "MS",
+          "fonteRe": {},
+          "obs": "Valor (800) só no repasse do Marcelo (17:52); a ficha do grupo veio sem valor.",
+          "parcelas": 30,
+          "qtd": 1,
+          "vgv": 24000,
+          "comissaoDe": "Peralta",
+          "pct": 0.02,
+          "comissao": 480,
+          "fichaQuando": "05/09 17:41",
+          "fichaGrupo": "Lances Bula Assessoria",
+          "fichaAutor": "Felipe Peralta",
+          "noSistema": {
+            "status": "revisar",
+            "vinculado": false
+          }
+        },
+        {
+          "data": "2026-09-05",
+          "lote": "58",
+          "parcela": 870,
+          "sexo": "M",
+          "assessor": "Nane (Regiane)",
+          "comprador": "Fazenda São Jerônimo",
+          "fazenda": "Fazenda São Jerônimo",
+          "cidade": "Nova Canaã do Norte",
+          "uf": "MT",
+          "fonteRe": {},
+          "obs": "Ficha única \"Lotes 58/59 - $ 870,00\" = 870 por lote.",
+          "parcelas": 30,
+          "qtd": 1,
+          "vgv": 26100,
+          "comissaoDe": "Nane (Regiane)",
+          "pct": 0.02,
+          "comissao": 522,
+          "fichaQuando": "05/09 17:52",
+          "fichaGrupo": "Lances Bula Assessoria",
+          "fichaAutor": null,
+          "noSistema": null
+        },
+        {
+          "data": "2026-09-05",
+          "lote": "59",
+          "parcela": 870,
+          "sexo": "M",
+          "assessor": "Nane (Regiane)",
+          "comprador": "Fazenda São Jerônimo",
+          "fazenda": "Fazenda São Jerônimo",
+          "cidade": "Nova Canaã do Norte",
+          "uf": "MT",
+          "fonteRe": {},
+          "parcelas": 30,
+          "qtd": 1,
+          "vgv": 26100,
+          "comissaoDe": "Nane (Regiane)",
+          "pct": 0.02,
+          "comissao": 522,
+          "fichaQuando": "05/09 17:52",
+          "fichaGrupo": "Lances Bula Assessoria",
+          "fichaAutor": null,
+          "noSistema": null
+        },
+        {
+          "data": "2026-09-05",
+          "lote": "102",
+          "parcela": 800,
+          "sexo": "M",
+          "assessor": "Laila",
+          "comprador": "Luis Antonio Dias Pinheiro",
+          "fazenda": "Fazenda Santa Lúcia",
+          "cidade": "Planalto",
+          "uf": "BA",
+          "fonteRe": {},
+          "obs": "Valor no pregão: \"102 - 800,00\" (17:57).",
+          "parcelas": 30,
+          "qtd": 1,
+          "vgv": 24000,
+          "comissaoDe": "Laila",
+          "pct": 0.01,
+          "comissao": 240,
+          "fichaQuando": "05/09 17:58",
+          "fichaGrupo": "Lances Bula Assessoria",
+          "fichaAutor": "Laila Sousa",
+          "noSistema": {
+            "status": "revisar",
+            "vinculado": false
+          }
+        },
+        {
+          "data": "2026-09-05",
+          "lote": "61",
+          "parcela": 800,
+          "sexo": "M",
+          "assessor": "Nane (Regiane)",
+          "comprador": "Euclides Comim",
+          "fazenda": "Fazenda Chão de Estrelas",
+          "cidade": "Nova Bandeirantes",
+          "uf": "MT",
+          "fonteRe": {},
+          "parcelas": 30,
+          "qtd": 1,
+          "vgv": 24000,
+          "comissaoDe": "Nane (Regiane)",
+          "pct": 0.02,
+          "comissao": 480,
+          "fichaQuando": "05/09 18:57",
+          "fichaGrupo": "Lances Bula Assessoria",
+          "fichaAutor": "Nane",
+          "noSistema": {
+            "status": "revisar",
+            "vinculado": false
+          }
+        },
+        {
+          "data": "2026-09-05",
+          "lote": "62",
+          "parcela": 750,
+          "sexo": "M",
+          "assessor": "Nane (Regiane)",
+          "comprador": "Fazenda São Jerônimo",
+          "fazenda": "Fazenda São Jerônimo",
+          "cidade": "Nova Canaã do Norte",
+          "uf": "MT",
+          "fonteRe": {},
+          "parcelas": 30,
+          "qtd": 1,
+          "vgv": 22500,
+          "comissaoDe": "Nane (Regiane)",
+          "pct": 0.02,
+          "comissao": 450,
+          "fichaQuando": "05/09 18:59",
+          "fichaGrupo": "Lances Bula Assessoria",
+          "fichaAutor": null,
+          "noSistema": {
+            "status": "revisar",
+            "vinculado": false
+          }
+        },
+        {
+          "data": "2026-09-05",
+          "lote": "108",
+          "parcela": 750,
+          "sexo": "M",
+          "assessor": "Nane (Regiane)",
+          "comprador": "Euclides Comim",
+          "fazenda": "Fazenda Chão de Estrelas",
+          "cidade": "Nova Bandeirantes",
+          "uf": "MT",
+          "fonteRe": {},
+          "parcelas": 30,
+          "qtd": 1,
+          "vgv": 22500,
+          "comissaoDe": "Nane (Regiane)",
+          "pct": 0.02,
+          "comissao": 450,
+          "fichaQuando": "05/09 19:18",
+          "fichaGrupo": "Lances Bula Assessoria",
+          "fichaAutor": "Nane",
+          "noSistema": {
+            "status": "revisar",
+            "vinculado": false
+          }
+        },
+        {
+          "data": "2026-09-05",
+          "lote": "12",
+          "parcela": 850,
+          "sexo": "M",
+          "assessor": "Douglas Bispo",
+          "comprador": "Reginaldo Leandro",
+          "fazenda": "Fazenda São José",
+          "cidade": "São Félix do Xingu",
+          "uf": "PA",
+          "fonteRe": {},
+          "parcelas": 30,
+          "qtd": 1,
+          "vgv": 25500,
+          "comissaoDe": "Douglas Bispo",
+          "pct": 0.02,
+          "comissao": 510,
+          "fichaQuando": "05/09 19:21",
+          "fichaGrupo": "Lances Bula Assessoria",
+          "fichaAutor": "Douglas Bispo",
+          "noSistema": {
+            "status": "revisar",
+            "vinculado": false
+          }
+        },
+        {
+          "data": "2026-09-05",
+          "lote": "23",
+          "parcela": 850,
+          "sexo": "M",
+          "assessor": "Fábio Omena",
+          "comprador": "Thiago Silva",
+          "fazenda": "Fazenda Fortaleza Castelo",
+          "cidade": null,
+          "uf": "MG",
+          "fonteRe": {},
+          "parcelas": 30,
+          "qtd": 1,
+          "vgv": 25500,
+          "comissaoDe": "Fábio Omena",
+          "pct": 0.02,
+          "comissao": 510,
+          "fichaQuando": "05/09 19:49",
+          "fichaGrupo": "Lances Bula Assessoria",
+          "fichaAutor": "Fabio Omena - Bula Assessoria",
+          "noSistema": {
+            "status": "revisar",
+            "vinculado": false
+          }
+        }
+      ],
+      "naoVendas": [
+        "Último lote da noite (20:03–20:07): Douglas foi a 1.500/1.520 pelo Reginaldo Leandro e o leiloeiro fechou com \"Agradece lançando comigo Coronel Reginaldo Leandro\" — perdido. O card de fechamento feito às 22:03 de 05/09 (883.200, \"23 touros + 1 central\") ainda contava esse lote; o post oficial das 20:27 diz 22 + 1.",
+        "lt 16: Leonardo a 1.050, \"Liberou\". lt 14: 1.450, \"Liberou\". lt 36: 1.400, \"Liberou\". lt 86: \"Levamos?\" a 1.000, \"Não\". Último lote da noite: Douglas a 1.500/1.520 pelo Reginaldo — \"Agradece lançando comigo\", perdido."
+      ],
+      "totais": {
+        "lotes": 23,
+        "cabecas": 23,
+        "vgv": 835200,
+        "comissao": 16209
+      },
+      "confere": true,
+      "porAssessor": [
+        {
+          "nome": "Peralta",
+          "lotes": 5,
+          "vgv": 343500,
+          "comissao": 6870
+        },
+        {
+          "nome": "Nane (Regiane)",
+          "lotes": 9,
+          "vgv": 235200,
+          "comissao": 4704
+        },
+        {
+          "nome": "Douglas Bispo",
+          "lotes": 5,
+          "vgv": 151500,
+          "comissao": 3030
+        },
+        {
+          "nome": "Fábio Omena",
+          "lotes": 2,
+          "vgv": 55500,
+          "comissao": 1110
+        },
+        {
+          "nome": "Laila",
+          "lotes": 2,
+          "vgv": 49500,
+          "comissao": 495
+        }
+      ],
+      "metaVenda": 930000,
+      "pctMeta": 0.9,
+      "receita": {
+        "descr": "3% da venda",
+        "valor": 25056
+      }
+    },
+    {
+      "key": "aratau",
+      "data": "2026-09-05",
+      "nome": "10º Leilão Nelore Flor do Arataú & Convidados",
+      "leiloeira": "Magnos Leilões",
+      "praca": "Novo Repartimento-PA · presencial",
+      "tipo": "leilão",
+      "condicao": "valores do Mapa Geral da Magnos (valor total por lote, já com as parcelas)",
+      "acordo": "1.0% do faturamento (planilha)",
+      "planilha": {
+        "dia": 5,
+        "leilao": "10º LEILÃO NELORE FLOR DE ARATAU",
+        "leiloeira": "MAGNO",
+        "previsaoFat": 1265000,
+        "metaVenda": 151800,
+        "cobertura": "12.00%",
+        "metaComissao": 12650,
+        "pctVenda": "",
+        "pctFat": "1.0%"
+      },
+      "faturamento": 927300,
+      "faturamentoLotes": 38,
+      "faturamentoCabecas": 41,
+      "defesas": {
+        "lotes": 6,
+        "valor": 44100
+      },
+      "resumoEquipe": {
+        "texto": "\"Leilão Flor do Aratau — Faturamento geral 927.300 / 38 lt vendidos / 6 lt defesa — Vendas pela Bula 617.100 / 25 lt vendidos\" (Lances Bula, 21:07) · lista dos 25 lotes + 4 fotos do Mapa Geral + áudio \"olha os lotes aí que o Douglas vendeu\" (DM do Marcelo, 20:34–20:36)",
+        "valor": 617100
+      },
+      "lotes": [
+        {
+          "data": "2026-09-05",
+          "lote": "8",
+          "animal": "touro",
+          "qtd": 1,
+          "parcela": 1350,
+          "vgvFixo": 40500,
+          "sexo": "M",
+          "assessor": "Douglas Bispo",
+          "comprador": "Dona Filomena (Faz…)",
+          "fazenda": null,
+          "cidade": null,
+          "uf": "PA",
+          "fichaQuando": "05/09 20:34",
+          "fichaGrupo": "DM Marcelo → João (Mapa Geral)",
+          "fichaAutor": "Marcelo C.",
+          "parcelas": 30,
+          "vgv": 40500,
+          "comissaoDe": "Douglas Bispo",
+          "pct": 0.02,
+          "comissao": 810,
+          "noSistema": null
+        },
+        {
+          "data": "2026-09-05",
+          "lote": "9",
+          "animal": "touro",
+          "qtd": 1,
+          "parcela": 1450,
+          "vgvFixo": 43500,
+          "sexo": "M",
+          "assessor": "Douglas Bispo",
+          "comprador": "Gessival Buss",
+          "fazenda": null,
+          "cidade": null,
+          "uf": "PA",
+          "fichaQuando": "05/09 20:34",
+          "fichaGrupo": "DM Marcelo → João (Mapa Geral)",
+          "fichaAutor": "Marcelo C.",
+          "parcelas": 30,
+          "vgv": 43500,
+          "comissaoDe": "Douglas Bispo",
+          "pct": 0.02,
+          "comissao": 870,
+          "noSistema": null
+        },
+        {
+          "data": "2026-09-05",
+          "lote": "10",
+          "animal": "touro",
+          "qtd": 1,
+          "parcela": 700,
+          "vgvFixo": 21000,
+          "sexo": "M",
+          "assessor": "Douglas Bispo",
+          "comprador": "Paulo Henrique Baza…",
+          "fazenda": null,
+          "cidade": null,
+          "uf": "PA",
+          "fichaQuando": "05/09 20:34",
+          "fichaGrupo": "DM Marcelo → João (Mapa Geral)",
+          "fichaAutor": "Marcelo C.",
+          "parcelas": 30,
+          "vgv": 21000,
+          "comissaoDe": "Douglas Bispo",
+          "pct": 0.02,
+          "comissao": 420,
+          "noSistema": null
+        },
+        {
+          "data": "2026-09-05",
+          "lote": "15",
+          "animal": "matriz",
+          "qtd": 2,
+          "parcela": 600,
+          "vgvFixo": 36000,
+          "sexo": "F",
+          "assessor": "Douglas Bispo",
+          "comprador": "Aldemar Broca",
+          "fazenda": null,
+          "cidade": null,
+          "uf": "PA",
+          "fichaQuando": "05/09 20:34",
+          "fichaGrupo": "DM Marcelo → João (Mapa Geral)",
+          "fichaAutor": "Marcelo C.",
+          "parcelas": 30,
+          "vgv": 36000,
+          "comissaoDe": "Douglas Bispo",
+          "pct": 0.02,
+          "comissao": 720,
+          "noSistema": {
+            "status": "revisar",
+            "vinculado": false
+          }
+        },
+        {
+          "data": "2026-09-05",
+          "lote": "16",
+          "animal": "matriz",
+          "qtd": 2,
+          "parcela": 400,
+          "vgvFixo": 24000,
+          "sexo": "F",
+          "assessor": "Douglas Bispo",
+          "comprador": "Aldemar Broca",
+          "fazenda": null,
+          "cidade": null,
+          "uf": "PA",
+          "fichaQuando": "05/09 20:34",
+          "fichaGrupo": "DM Marcelo → João (Mapa Geral)",
+          "fichaAutor": "Marcelo C.",
+          "parcelas": 30,
+          "vgv": 24000,
+          "comissaoDe": "Douglas Bispo",
+          "pct": 0.02,
+          "comissao": 480,
+          "noSistema": null
+        },
+        {
+          "data": "2026-09-05",
+          "lote": "17",
+          "animal": "matriz",
+          "qtd": 2,
+          "parcela": 350,
+          "vgvFixo": 21000,
+          "sexo": "F",
+          "assessor": "Douglas Bispo",
+          "comprador": "Zé Fabio — Nelore Pe…",
+          "fazenda": null,
+          "cidade": null,
+          "uf": "PA",
+          "fichaQuando": "05/09 20:34",
+          "fichaGrupo": "DM Marcelo → João (Mapa Geral)",
+          "fichaAutor": "Marcelo C.",
+          "parcelas": 30,
+          "vgv": 21000,
+          "comissaoDe": "Douglas Bispo",
+          "pct": 0.02,
+          "comissao": 420,
+          "noSistema": {
+            "status": "revisar",
+            "vinculado": false
+          }
+        },
+        {
+          "data": "2026-09-05",
+          "lote": "18",
+          "animal": "matriz",
+          "qtd": 1,
+          "parcela": 500,
+          "vgvFixo": 15000,
+          "sexo": "F",
+          "assessor": "Douglas Bispo",
+          "comprador": "Roberto Ribeiro (Faz…)",
+          "fazenda": null,
+          "cidade": null,
+          "uf": "PA",
+          "fichaQuando": "05/09 20:34",
+          "fichaGrupo": "DM Marcelo → João (Mapa Geral)",
+          "fichaAutor": "Marcelo C.",
+          "parcelas": 30,
+          "vgv": 15000,
+          "comissaoDe": "Douglas Bispo",
+          "pct": 0.02,
+          "comissao": 300,
+          "noSistema": null
+        },
+        {
+          "data": "2026-09-05",
+          "lote": "19",
+          "animal": "matriz",
+          "qtd": 1,
+          "parcela": 620,
+          "vgvFixo": 18600,
+          "sexo": "F",
+          "assessor": "Douglas Bispo",
+          "comprador": "Gessival Buss",
+          "fazenda": null,
+          "cidade": null,
+          "uf": "PA",
+          "fichaQuando": "05/09 20:34",
+          "fichaGrupo": "DM Marcelo → João (Mapa Geral)",
+          "fichaAutor": "Marcelo C.",
+          "parcelas": 30,
+          "vgv": 18600,
+          "comissaoDe": "Douglas Bispo",
+          "pct": 0.02,
+          "comissao": 372,
+          "noSistema": null
+        },
+        {
+          "data": "2026-09-05",
+          "lote": "20",
+          "animal": "matriz +60M",
+          "qtd": 1,
+          "parcela": 950,
+          "vgvFixo": 28500,
+          "sexo": "F",
+          "assessor": "Douglas Bispo",
+          "comprador": "Murilo Bispo — Grupo A…",
+          "fazenda": null,
+          "cidade": null,
+          "uf": "PA",
+          "fichaQuando": "05/09 20:34",
+          "fichaGrupo": "DM Marcelo → João (Mapa Geral)",
+          "fichaAutor": "Marcelo C.",
+          "obs": "Lotes 1–20 têm vendedor Eron José de Carvalho (Flor do Arataú); do 21 em diante o vendedor convidado é Welton Borges de Miranda (Nelore Itajaí).",
+          "parcelas": 30,
+          "vgv": 28500,
+          "comissaoDe": "Douglas Bispo",
+          "pct": 0.02,
+          "comissao": 570,
+          "noSistema": null
+        },
+        {
+          "data": "2026-09-05",
+          "lote": "23",
+          "animal": "touro",
+          "qtd": 1,
+          "parcela": 950,
+          "vgvFixo": 28500,
+          "sexo": "M",
+          "assessor": "Douglas Bispo",
+          "comprador": "Dalvan Barbosa (Faz…)",
+          "fazenda": null,
+          "cidade": null,
+          "uf": "PA",
+          "fichaQuando": "05/09 20:34",
+          "fichaGrupo": "DM Marcelo → João (Mapa Geral)",
+          "fichaAutor": "Marcelo C.",
+          "parcelas": 30,
+          "vgv": 28500,
+          "comissaoDe": "Douglas Bispo",
+          "pct": 0.02,
+          "comissao": 570,
+          "noSistema": {
+            "status": "revisar",
+            "vinculado": false
+          }
+        },
+        {
+          "data": "2026-09-05",
+          "lote": "25",
+          "animal": "touro",
+          "qtd": 1,
+          "parcela": 700,
+          "vgvFixo": 21000,
+          "sexo": "M",
+          "assessor": "Douglas Bispo",
+          "comprador": "Vitor Mendes",
+          "fazenda": null,
+          "cidade": null,
+          "uf": "PA",
+          "fichaQuando": "05/09 20:34",
+          "fichaGrupo": "DM Marcelo → João (Mapa Geral)",
+          "fichaAutor": "Marcelo C.",
+          "parcelas": 30,
+          "vgv": 21000,
+          "comissaoDe": "Douglas Bispo",
+          "pct": 0.02,
+          "comissao": 420,
+          "noSistema": null
+        },
+        {
+          "data": "2026-09-05",
+          "lote": "26",
+          "animal": "touro",
+          "qtd": 1,
+          "parcela": 850,
+          "vgvFixo": 25500,
+          "sexo": "M",
+          "assessor": "Douglas Bispo",
+          "comprador": "Adriano Marques do N…",
+          "fazenda": null,
+          "cidade": null,
+          "uf": "PA",
+          "fichaQuando": "05/09 20:34",
+          "fichaGrupo": "DM Marcelo → João (Mapa Geral)",
+          "fichaAutor": "Marcelo C.",
+          "parcelas": 30,
+          "vgv": 25500,
+          "comissaoDe": "Douglas Bispo",
+          "pct": 0.02,
+          "comissao": 510,
+          "noSistema": {
+            "status": "revisar",
+            "vinculado": false
+          }
+        },
+        {
+          "data": "2026-09-05",
+          "lote": "27",
+          "animal": "touro",
+          "qtd": 1,
+          "parcela": 800,
+          "vgvFixo": 24000,
+          "sexo": "M",
+          "assessor": "Douglas Bispo",
+          "comprador": "Donivaldo (Faz. Santo…)",
+          "fazenda": null,
+          "cidade": null,
+          "uf": "PA",
+          "fichaQuando": "05/09 20:34",
+          "fichaGrupo": "DM Marcelo → João (Mapa Geral)",
+          "fichaAutor": "Marcelo C.",
+          "parcelas": 30,
+          "vgv": 24000,
+          "comissaoDe": "Douglas Bispo",
+          "pct": 0.02,
+          "comissao": 480,
+          "noSistema": null
+        },
+        {
+          "data": "2026-09-05",
+          "lote": "30",
+          "animal": "touro",
+          "qtd": 1,
+          "parcela": 730,
+          "vgvFixo": 21900,
+          "sexo": "M",
+          "assessor": "Douglas Bispo",
+          "comprador": "Gessival Buss",
+          "fazenda": null,
+          "cidade": null,
+          "uf": "PA",
+          "fichaQuando": "05/09 20:34",
+          "fichaGrupo": "DM Marcelo → João (Mapa Geral)",
+          "fichaAutor": "Marcelo C.",
+          "parcelas": 30,
+          "vgv": 21900,
+          "comissaoDe": "Douglas Bispo",
+          "pct": 0.02,
+          "comissao": 438,
+          "noSistema": null
+        },
+        {
+          "data": "2026-09-05",
+          "lote": "31",
+          "animal": "touro",
+          "qtd": 1,
+          "parcela": 1100,
+          "vgvFixo": 33000,
+          "sexo": "M",
+          "assessor": "Douglas Bispo",
+          "comprador": "Dalvan Barbosa (Faz…)",
+          "fazenda": null,
+          "cidade": null,
+          "uf": "PA",
+          "fichaQuando": "05/09 20:34",
+          "fichaGrupo": "DM Marcelo → João (Mapa Geral)",
+          "fichaAutor": "Marcelo C.",
+          "parcelas": 30,
+          "vgv": 33000,
+          "comissaoDe": "Douglas Bispo",
+          "pct": 0.02,
+          "comissao": 660,
+          "noSistema": null
+        },
+        {
+          "data": "2026-09-05",
+          "lote": "36",
+          "animal": "touro",
+          "qtd": 1,
+          "parcela": 750,
+          "vgvFixo": 22500,
+          "sexo": "M",
+          "assessor": "Douglas Bispo",
+          "comprador": "Donivaldo (Faz. Santo…)",
+          "fazenda": null,
+          "cidade": null,
+          "uf": "PA",
+          "fichaQuando": "05/09 20:34",
+          "fichaGrupo": "DM Marcelo → João (Mapa Geral)",
+          "fichaAutor": "Marcelo C.",
+          "parcelas": 30,
+          "vgv": 22500,
+          "comissaoDe": "Douglas Bispo",
+          "pct": 0.02,
+          "comissao": 450,
+          "noSistema": null
+        },
+        {
+          "data": "2026-09-05",
+          "lote": "37",
+          "animal": "touro",
+          "qtd": 1,
+          "parcela": 750,
+          "vgvFixo": 22500,
+          "sexo": "M",
+          "assessor": "Douglas Bispo",
+          "comprador": "Vitor Mendes",
+          "fazenda": null,
+          "cidade": null,
+          "uf": "PA",
+          "fichaQuando": "05/09 20:34",
+          "fichaGrupo": "DM Marcelo → João (Mapa Geral)",
+          "fichaAutor": "Marcelo C.",
+          "parcelas": 30,
+          "vgv": 22500,
+          "comissaoDe": "Douglas Bispo",
+          "pct": 0.02,
+          "comissao": 450,
+          "noSistema": null
+        },
+        {
+          "data": "2026-09-05",
+          "lote": "39",
+          "animal": "matriz",
+          "qtd": 1,
+          "parcela": 550,
+          "vgvFixo": 16500,
+          "sexo": "F",
+          "assessor": "Douglas Bispo",
+          "comprador": "Rodrigo e Valdeci Be…",
+          "fazenda": null,
+          "cidade": null,
+          "uf": "PA",
+          "fichaQuando": "05/09 20:34",
+          "fichaGrupo": "DM Marcelo → João (Mapa Geral)",
+          "fichaAutor": "Marcelo C.",
+          "parcelas": 30,
+          "vgv": 16500,
+          "comissaoDe": "Douglas Bispo",
+          "pct": 0.02,
+          "comissao": 330,
+          "noSistema": null
+        },
+        {
+          "data": "2026-09-05",
+          "lote": "40",
+          "animal": "matriz",
+          "qtd": 1,
+          "parcela": 600,
+          "vgvFixo": 18000,
+          "sexo": "F",
+          "assessor": "Douglas Bispo",
+          "comprador": "Paulo Henrique Baza…",
+          "fazenda": null,
+          "cidade": null,
+          "uf": "PA",
+          "fichaQuando": "05/09 20:34",
+          "fichaGrupo": "DM Marcelo → João (Mapa Geral)",
+          "fichaAutor": "Marcelo C.",
+          "parcelas": 30,
+          "vgv": 18000,
+          "comissaoDe": "Douglas Bispo",
+          "pct": 0.02,
+          "comissao": 360,
+          "noSistema": null
+        },
+        {
+          "data": "2026-09-05",
+          "lote": "41",
+          "animal": "matriz",
+          "qtd": 1,
+          "parcela": 470,
+          "vgvFixo": 14100,
+          "sexo": "F",
+          "assessor": "Douglas Bispo",
+          "comprador": "Gessival Buss",
+          "fazenda": null,
+          "cidade": null,
+          "uf": "PA",
+          "fichaQuando": "05/09 20:34",
+          "fichaGrupo": "DM Marcelo → João (Mapa Geral)",
+          "fichaAutor": "Marcelo C.",
+          "parcelas": 30,
+          "vgv": 14100,
+          "comissaoDe": "Douglas Bispo",
+          "pct": 0.02,
+          "comissao": 282,
+          "noSistema": null
+        },
+        {
+          "data": "2026-09-05",
+          "lote": "42",
+          "animal": "matriz",
+          "qtd": 1,
+          "parcela": 500,
+          "vgvFixo": 15000,
+          "sexo": "F",
+          "assessor": "Douglas Bispo",
+          "comprador": "Paulo Henrique Baza…",
+          "fazenda": null,
+          "cidade": null,
+          "uf": "PA",
+          "fichaQuando": "05/09 20:34",
+          "fichaGrupo": "DM Marcelo → João (Mapa Geral)",
+          "fichaAutor": "Marcelo C.",
+          "parcelas": 30,
+          "vgv": 15000,
+          "comissaoDe": "Douglas Bispo",
+          "pct": 0.02,
+          "comissao": 300,
+          "noSistema": null
+        },
+        {
+          "data": "2026-09-05",
+          "lote": "43",
+          "animal": "matriz",
+          "qtd": 1,
+          "parcela": 450,
+          "vgvFixo": 13500,
+          "sexo": "F",
+          "assessor": "Douglas Bispo",
+          "comprador": "Roberto Ribeiro (Faz…)",
+          "fazenda": null,
+          "cidade": null,
+          "uf": "PA",
+          "fichaQuando": "05/09 20:34",
+          "fichaGrupo": "DM Marcelo → João (Mapa Geral)",
+          "fichaAutor": "Marcelo C.",
+          "parcelas": 30,
+          "vgv": 13500,
+          "comissaoDe": "Douglas Bispo",
+          "pct": 0.02,
+          "comissao": 270,
+          "noSistema": null
+        },
+        {
+          "data": "2026-09-05",
+          "lote": "44",
+          "animal": "matriz 36M",
+          "qtd": 1,
+          "parcela": 600,
+          "vgvFixo": 18000,
+          "sexo": "F",
+          "assessor": "Douglas Bispo",
+          "comprador": "Rodrigo e Valdeci Be…",
+          "fazenda": null,
+          "cidade": null,
+          "uf": "PA",
+          "fichaQuando": "05/09 20:34",
+          "fichaGrupo": "DM Marcelo → João (Mapa Geral)",
+          "fichaAutor": "Marcelo C.",
+          "parcelas": 30,
+          "vgv": 18000,
+          "comissaoDe": "Douglas Bispo",
+          "pct": 0.02,
+          "comissao": 360,
+          "noSistema": null
+        },
+        {
+          "data": "2026-09-05",
+          "lote": "45",
+          "animal": "matriz",
+          "qtd": 1,
+          "parcela": 500,
+          "vgvFixo": 15000,
+          "sexo": "F",
+          "assessor": "Douglas Bispo",
+          "comprador": "Felipe Milanezi",
+          "fazenda": null,
+          "cidade": null,
+          "uf": "PA",
+          "fichaQuando": "05/09 20:34",
+          "fichaGrupo": "DM Marcelo → João (Mapa Geral)",
+          "fichaAutor": "Marcelo C.",
+          "parcelas": 30,
+          "vgv": 15000,
+          "comissaoDe": "Douglas Bispo",
+          "pct": 0.02,
+          "comissao": 300,
+          "noSistema": null
+        },
+        {
+          "data": "2026-09-05",
+          "lote": "46",
+          "animal": "matriz +60M",
+          "qtd": 1,
+          "parcela": 2000,
+          "vgvFixo": 60000,
+          "sexo": "F",
+          "assessor": "Douglas Bispo",
+          "comprador": "Condomínio Douglas B… (vendedor: Alfredo José Cardoso)",
+          "fazenda": null,
+          "cidade": null,
+          "uf": "PA",
+          "fichaQuando": "05/09 20:34",
+          "fichaGrupo": "DM Marcelo → João (Mapa Geral)",
+          "fichaAutor": "Marcelo C.",
+          "obs": "Comprador é um condomínio com o próprio Douglas; vendedor convidado Alfredo José Cardoso (Galopeira, lista de direcionamento do Rusa). Decidir como a comissão desse lote entra.",
+          "parcelas": 30,
+          "vgv": 60000,
+          "comissaoDe": "Douglas Bispo",
+          "pct": 0.02,
+          "comissao": 1200,
+          "noSistema": null
+        }
+      ],
+      "naoVendas": [],
+      "totais": {
+        "lotes": 25,
+        "cabecas": 28,
+        "vgv": 617100,
+        "comissao": 12342
+      },
+      "confere": true,
+      "porAssessor": [
+        {
+          "nome": "Douglas Bispo",
+          "lotes": 25,
+          "vgv": 617100,
+          "comissao": 12342
+        }
+      ],
+      "metaVenda": 151800,
+      "pctMeta": 4.07,
+      "receita": {
+        "descr": "1% do faturamento (R$ 927.300)",
+        "valor": 9273
+      }
+    },
+    {
+      "key": "marcondes",
+      "data": "2026-09-05",
+      "nome": "Leilão Caminhos — Nelore Marcondes",
+      "leiloeira": "a confirmar",
+      "praca": "virtual · 13h30",
+      "tipo": "leilão",
+      "condicao": "assumido lance × 30",
+      "acordo": "sem acordo cadastrado e fora da agenda (\"Não tava agenda\", Marcelo 21:33)",
+      "planilha": null,
+      "resumoEquipe": {
+        "texto": "ficha encaminhada pelo Marcelo ao João (21:32) junto com a arte do leilão",
+        "valor": 18600
+      },
+      "lotes": [
+        {
+          "data": "2026-09-05",
+          "lote": "5",
+          "parcela": 620,
+          "sexo": "F",
+          "assessor": "Douglas Bispo",
+          "comprador": "Gabriel Delfino",
+          "fazenda": "Fazenda Espinho Branco",
+          "cidade": "Patos",
+          "uf": "PB",
+          "fichaQuando": "05/09 21:32",
+          "fichaGrupo": "DM Marcelo → João",
+          "fichaAutor": "Marcelo C.",
+          "obs": "Não estava na agenda nem na planilha; ficou fora do card de fechamento de 05/09 (1.500.300).",
+          "parcelas": 30,
+          "qtd": 1,
+          "vgv": 18600,
+          "comissaoDe": "Douglas Bispo",
+          "pct": 0.02,
+          "comissao": 372,
+          "noSistema": null
+        }
+      ],
+      "naoVendas": [],
+      "totais": {
+        "lotes": 1,
+        "cabecas": 1,
+        "vgv": 18600,
+        "comissao": 372
+      },
+      "confere": true,
+      "porAssessor": [
+        {
+          "nome": "Douglas Bispo",
+          "lotes": 1,
+          "vgv": 18600,
+          "comissao": 372
+        }
+      ],
+      "metaVenda": null,
+      "pctMeta": null,
+      "receita": {
+        "descr": "sem acordo",
+        "valor": null
+      }
+    },
+    {
+      "key": "mafra",
+      "data": "2026-09-06",
+      "nome": "Leilão Virtual Touros Premium Nelore Mafra — Edição Uberaba",
+      "leiloeira": "Programa Leilões",
+      "praca": "virtual · 09:00",
+      "tipo": "leilão",
+      "condicao": "lance × 30 (mega lotes 40 parcelas)",
+      "acordo": "tabela Mafra: 0% a 3% de cobertura (4% do que vender) …",
+      "planilha": {
+        "dia": 6,
+        "leilao": "LEILÃO VIRTUAL TOUROS PREMIUM NELORE MAFRA",
+        "leiloeira": "PROGRAMA",
+        "previsaoFat": 4500000,
+        "metaVenda": 450450,
+        "cobertura": "10.01%",
+        "metaComissao": 33750,
+        "pctVenda": "",
+        "pctFat": "0.8%"
+      },
+      "resumoEquipe": {
+        "texto": "única ficha do dia; nenhum resumo da equipe",
+        "valor": 21600
+      },
+      "lotes": [
+        {
+          "data": "2026-09-06",
+          "lote": "38",
+          "animal": "touro 23m 749kg (OE 52º)",
+          "parcela": 720,
+          "sexo": "M",
+          "assessor": "Fábio Omena",
+          "comprador": "Sra. Edna Bellato",
+          "fazenda": "Fazenda Novo Mundo",
+          "cidade": null,
+          "uf": "MT",
+          "fonteRe": {},
+          "fonteGrupo": "Lances Bula Assessoria",
+          "obs": "É o único fechamento certo que o ERP tem em setembro. A mesma ficha repostada em 14/09 no Lances Mafra criou um duplicado (ver correções).",
+          "parcelas": 30,
+          "qtd": 1,
+          "vgv": 21600,
+          "comissaoDe": "Fábio Omena",
+          "pct": 0.02,
+          "comissao": 432,
+          "fichaQuando": "06/09 14:05",
+          "fichaGrupo": "Lances Bula Assessoria",
+          "fichaAutor": "Fabio Omena - Bula Assessoria",
+          "noSistema": {
+            "status": "auto",
+            "vinculado": true
+          }
+        }
+      ],
+      "naoVendas": [
+        "No grupo Lances Mafra (06/09): \"Bateu 450 / cada mandou 60\" e \"450 / 460 / N consigo retorno\" — duas disputas sem arremate; o mega lote de 40× foi só divulgação."
+      ],
+      "totais": {
+        "lotes": 1,
+        "cabecas": 1,
+        "vgv": 21600,
+        "comissao": 432
+      },
+      "confere": true,
+      "porAssessor": [
+        {
+          "nome": "Fábio Omena",
+          "lotes": 1,
+          "vgv": 21600,
+          "comissao": 432
+        }
+      ],
+      "metaVenda": 450450,
+      "pctMeta": 0.05,
+      "receita": {
+        "descr": "tabela Mafra — cobertura abaixo de 3% → 4% da venda",
+        "valor": 864
+      }
+    },
+    {
+      "key": "visual",
+      "data": "2026-09-09",
+      "nome": "Shopping de Genética Nelore Visual (venda direta, 02–12/09)",
+      "leiloeira": "— (preço fixo, sem comissão de leilão)",
+      "praca": "Esmeraldas-MG",
+      "tipo": "shopping",
+      "condicao": "preço fixo por animal; 20× no boleto ou 12×; frete grátis MG",
+      "acordo": "5.0% da venda (planilha, linha de 17/09)",
+      "planilha": {
+        "dia": 17,
+        "leilao": "SHOPPING DE GENÉTICA NELORE VISUAL",
+        "leiloeira": "-",
+        "previsaoFat": 960000,
+        "metaVenda": 192000,
+        "cobertura": "20.00%",
+        "metaComissao": 9600,
+        "pctVenda": "5.0%",
+        "pctFat": ""
+      },
+      "resumoEquipe": {
+        "texto": "anúncio \"VENDA SHOPPING NELORE VISUAL — Foi com Marcelo da Bula Assessoria\" (Lances Bula, 09/09 09:37); nenhuma outra venda até o fim do shopping em 12/09",
+        "valor": 17800
+      },
+      "lotes": [
+        {
+          "data": "2026-09-09",
+          "lote": "VIS4819",
+          "animal": "touro (venda direta)",
+          "parcela": 1480,
+          "parcelas": 12,
+          "vgvFixo": 17800,
+          "sexo": "M",
+          "assessor": "Marcelo Carneiro",
+          "comprador": "Nivaldo Alves Ferreira Neto",
+          "fazenda": null,
+          "cidade": "Santa Helena de Minas",
+          "uf": "MG",
+          "fonteRe": {},
+          "fonteGrupo": "Lances Bula Assessoria",
+          "obs": "R$ 17.800 à vista (12× de 1.480). Não está em bula_leilao_vendas (o parser não lê esse formato) nem em fechamento. Marcelo Carneiro está inativo na folha — quem recebe é decisão.",
+          "qtd": 1,
+          "vgv": 17800,
+          "comissaoDe": "Marcelo Carneiro",
+          "pct": 0.02,
+          "comissao": 356,
+          "fichaQuando": "09/09 09:37",
+          "fichaGrupo": "Lances Bula Assessoria",
+          "fichaAutor": null,
+          "noSistema": null
+        }
+      ],
+      "naoVendas": [],
+      "totais": {
+        "lotes": 1,
+        "cabecas": 1,
+        "vgv": 17800,
+        "comissao": 356
+      },
+      "confere": true,
+      "porAssessor": [
+        {
+          "nome": "Marcelo Carneiro",
+          "lotes": 1,
+          "vgv": 17800,
+          "comissao": 356
+        }
+      ],
+      "metaVenda": 192000,
+      "pctMeta": 0.09,
+      "receita": {
+        "descr": "5% da venda",
+        "valor": 890
+      }
+    },
+    {
+      "key": "az",
+      "data": "2026-09-12",
+      "nome": "Leilão Virtual Reprodutores Nelore AZ",
+      "leiloeira": "Ricardo Nicolau Leilões (Boi e Terra Negócios Agropecuários)",
+      "praca": "Sinop-MT · virtual",
+      "tipo": "leilão",
+      "condicao": "30 parcelas (2+2+2+2+2+2+18) para os touros P.O.; lotes 2023/2026 são cotas (50% e 33%) do touro de central Expresso do AZZA",
+      "acordo": "0,5% do faturamento leilão + 3% da venda",
+      "planilha": {
+        "dia": 12,
+        "leilao": "LEILÃO VIRTUAL NELORE AZ",
+        "leiloeira": "RICARDO NICOLAU",
+        "previsaoFat": 1584000,
+        "metaVenda": 158558.4,
+        "metaComissao": 12676.75,
+        "pctVenda": "3.0%",
+        "pctFat": "0.5%"
+      },
+      "resumoEquipe": {
+        "texto": "Vendas Nelore AZ: R$158.000 (4 touros) (grupo Financeiro, 13/09 22:15)",
+        "valor": 158000
+      },
+      "lotes": [
+        {
+          "data": "2026-09-12",
+          "lote": "2023",
+          "animal": "EXPRESSO DO AZZA (AZZA 5620) — cota de 50% do touro de central",
+          "parcela": 2300,
+          "parcelas": 40,
+          "sexo": "M",
+          "assessor": "Fábio Omena",
+          "comprador": "João Batista Soares Diniz",
+          "fazenda": "Fazenda Rio Bonito",
+          "cidade": "Redenção",
+          "uf": "PA",
+          "fonteRe": {},
+          "fonteGrupo": "Lances Bula Assessoria",
+          "obs": "40 parcelas: o próprio Fábio reenviou a ficha ao Financeiro às 22:12 com \"(40x)\"; a OE do leilão marca o lote como \"VENDA 50% - 17:00 HRS MT\". A 30x seria R$ 69.000 — o HastaPro (CON_CAPTACAO) decide.",
+          "qtd": 1,
+          "vgv": 92000,
+          "comissaoDe": "Fábio Omena",
+          "pct": 0.02,
+          "comissao": 1840,
+          "fichaQuando": "12/09 17:11",
+          "fichaGrupo": "Lances Bula Assessoria",
+          "fichaAutor": "Fabio Omena - Bula Assessoria",
+          "fichaTexto": "Levamos lote 2023 - 2300 - 1M\n\nFoi com Fábio Omena da Bula Assessoria,\n\nFazendo Rio Bonito\nRedenção PA\nJoão Batista Soares Diniz",
+          "noSistema": {
+            "status": "revisar",
+            "vinculado": false
+          },
+          "bateComDb": true
+        },
+        {
+          "data": "2026-09-12",
+          "lote": "11",
+          "animal": "FULGOR FIV DO AZZA (AZZA 6143)",
+          "parcela": 800,
+          "sexo": "M",
+          "assessor": "Leonardo Serafim",
+          "comprador": "José Nilson Ceron",
+          "fazenda": "Fazenda Ana Amália",
+          "cidade": "Marcelândia",
+          "uf": "MT",
+          "fonteRe": {},
+          "fonteGrupo": "Lances Bula Assessoria",
+          "parcelas": 30,
+          "qtd": 1,
+          "vgv": 24000,
+          "comissaoDe": "Leonardo Serafim",
+          "pct": 0.02,
+          "comissao": 480,
+          "fichaQuando": "12/09 18:55",
+          "fichaGrupo": "Lances Bula Assessoria",
+          "fichaAutor": "Leonardo",
+          "fichaTexto": "levamos lote 11 - 800,00\n\nfoi com Leo da Bula Assessoria \n\nJose Nilson Ceron\nfaz Ana Amalia -  Marcelandia MT",
+          "noSistema": {
+            "status": "revisar",
+            "vinculado": false
+          },
+          "bateComDb": true
+        },
+        {
+          "data": "2026-09-12",
+          "lote": "43",
+          "animal": "6417 DO AZZA (AZZA 6417)",
+          "parcela": 700,
+          "sexo": "M",
+          "assessor": "Leonardo Serafim",
+          "comprador": "José Nilson Ceron",
+          "fazenda": "Fazenda Ana Amália",
+          "cidade": "Marcelândia",
+          "uf": "MT",
+          "fonteRe": {},
+          "fonteGrupo": "Lances Bula Assessoria",
+          "obs": "Ficha única \"lote 43 e 44 - 700,00\" = 700 por lote (bate com o resumo de 158.000).",
+          "parcelas": 30,
+          "qtd": 1,
+          "vgv": 21000,
+          "comissaoDe": "Leonardo Serafim",
+          "pct": 0.02,
+          "comissao": 420,
+          "fichaQuando": "12/09 19:19",
+          "fichaGrupo": "Lances Bula Assessoria",
+          "fichaAutor": "Leonardo",
+          "fichaTexto": "levamos lote 43 e 44 - 700,00\n\nfoi com Leo da Bula Assessoria \n\nJose Nilson Ceron\nfaz Ana Amalia -  Marcelandia MT",
+          "noSistema": {
+            "status": "revisar",
+            "vinculado": false
+          },
+          "bateComDb": true
+        },
+        {
+          "data": "2026-09-12",
+          "lote": "44",
+          "animal": "6305 DO AZZA (AZZA 6305)",
+          "parcela": 700,
+          "sexo": "M",
+          "assessor": "Leonardo Serafim",
+          "comprador": "José Nilson Ceron",
+          "fazenda": "Fazenda Ana Amália",
+          "cidade": "Marcelândia",
+          "uf": "MT",
+          "fonteRe": {},
+          "fonteGrupo": "Lances Bula Assessoria",
+          "parcelas": 30,
+          "qtd": 1,
+          "vgv": 21000,
+          "comissaoDe": "Leonardo Serafim",
+          "pct": 0.02,
+          "comissao": 420,
+          "fichaQuando": "12/09 19:19",
+          "fichaGrupo": "Lances Bula Assessoria",
+          "fichaAutor": "Leonardo",
+          "fichaTexto": "levamos lote 43 e 44 - 700,00\n\nfoi com Leo da Bula Assessoria \n\nJose Nilson Ceron\nfaz Ana Amalia -  Marcelandia MT",
+          "noSistema": {
+            "status": "revisar",
+            "vinculado": false
+          },
+          "bateComDb": true
+        }
+      ],
+      "naoVendas": [
+        "lt 53 (touro mocho, 700): o cliente autorizou 750 (\"Vamos 50? Pode\") e o martelo caiu antes — print do Fábio às 18:22; sem \"Levamos\".",
+        "lt 2026 (Farturão, cota 33%): Fábio foi até 1.800 e o cliente \"N resp\".",
+        "lt 5 (850), lt 1 (950), lt 35 (750), lt 49 e lt 70 (650 \"bateu\"): lances sem arremate.",
+        "Leonardo às 19:01: \"Cliente meu ficou todo perdido e perdeu os lances em 3 lts\" (delay da transmissão) — \"firmou para amanhã\"."
+      ],
+      "totais": {
+        "lotes": 4,
+        "cabecas": 4,
+        "vgv": 158000,
+        "comissao": 3160
+      },
+      "confere": true,
+      "porAssessor": [
+        {
+          "nome": "Fábio Omena",
+          "lotes": 1,
+          "vgv": 92000,
+          "comissao": 1840
+        },
+        {
+          "nome": "Leonardo Serafim",
+          "lotes": 3,
+          "vgv": 66000,
+          "comissao": 1320
+        }
+      ],
+      "metaVenda": 158558.4,
+      "pctMeta": 1,
+      "receita": {
+        "descr": "3% da venda (certo) + 0,5% do faturamento (a apurar)",
+        "valor": 4740,
+        "variavel": "sobre a previsão da planilha: + R$ 7.920"
+      }
+    },
+    {
+      "key": "eao",
+      "data": "2026-09-13",
+      "nome": "7º Leilão Mega Premium EAO — Touros, Bezerras e Matrizes (1º dia)",
+      "leiloeira": "Programa Leilões / Central Leilões",
+      "praca": "Londrina-PR · virtual",
+      "tipo": "leilão",
+      "condicao": "Lance × 30 (2+2+2+2+2+2+20); múltiplos × 40. À vista 10% de desconto até 18/09; comissão de compra 8%",
+      "acordo": "0,33% do faturamento total dos leilões",
+      "planilha": {
+        "dia": 13,
+        "leilao": "7º LEILÃO VIRTUAL MEGA PREMIUM EAO - TOUROS",
+        "leiloeira": "PROGRAMA",
+        "previsaoFat": 4125000,
+        "metaVenda": 412912.5,
+        "metaComissao": 13612.5,
+        "pctVenda": "",
+        "pctFat": "0.3%"
+      },
+      "resumoEquipe": {
+        "texto": "Resultado EAO 13/09: 11 touros e 1 fêmea — R$ 310.500,00 (grupo Financeiro, 13/09 22:09)",
+        "valor": 310500
+      },
+      "lotes": [
+        {
+          "data": "2026-09-13",
+          "lote": "9",
+          "animal": "touro 23m 802kg (OE 11º)",
+          "parcela": 820,
+          "sexo": "M",
+          "assessor": "Douglas Bispo",
+          "comprador": "Dra. Marilda Alves Moreira",
+          "fazenda": "Fazenda Asa Branca",
+          "cidade": "Xinguara",
+          "uf": "PA",
+          "fonteRe": {},
+          "fonteGrupo": "Lances Bula Assessoria",
+          "obs": "Lead qualificada na sexta à noite; cadastro aprovado na Bula Remates em 11/09 21:58. Não consta no repasse ao Financeiro das 13:41, mas está no total de 310.500.",
+          "parcelas": 30,
+          "qtd": 1,
+          "vgv": 24600,
+          "comissaoDe": "Douglas Bispo",
+          "pct": 0.02,
+          "comissao": 492,
+          "fichaQuando": "13/09 10:37",
+          "fichaGrupo": "Lances Bula Assessoria",
+          "fichaAutor": "Douglas Bispo",
+          "fichaTexto": "Levamos lt 9 - 820,00 - 1M\n\nFoi com Douglas Bispo da Bula Assessoria \n\nDra Marilda\nFazenda Asa Branca\nXinguara - PA",
+          "noSistema": {
+            "status": "revisar",
+            "vinculado": false
+          },
+          "bateComDb": true
+        },
+        {
+          "data": "2026-09-13",
+          "lote": "12",
+          "animal": "touro 23m 818kg (OE 14º)",
+          "parcela": 800,
+          "sexo": "M",
+          "assessor": "Fábio Omena",
+          "comprador": "Laurentino Fernandes Pereira",
+          "fazenda": "Fazenda Santa Maria",
+          "cidade": "Jaíba",
+          "uf": "MG",
+          "fonteRe": {},
+          "fonteGrupo": "Lances Bula Assessoria",
+          "obs": "Cadastro na Programa pedido às 10:19, arremate às 10:45.",
+          "parcelas": 30,
+          "qtd": 1,
+          "vgv": 24000,
+          "comissaoDe": "Fábio Omena",
+          "pct": 0.02,
+          "comissao": 480,
+          "fichaQuando": "13/09 10:47",
+          "fichaGrupo": "Lances Bula Assessoria",
+          "fichaAutor": "Fabio Omena - Bula Assessoria",
+          "fichaTexto": "Levamos lt 12 - 800,00 - 1M\n\nFoi com Fábio Omena da Bula Assessoria,\n\nLaurentino fernandes Pereira\nfaz Santa Maria\njaiba  mg",
+          "noSistema": {
+            "status": "revisar",
+            "vinculado": false
+          },
+          "bateComDb": true
+        },
+        {
+          "data": "2026-09-13",
+          "lote": "19",
+          "animal": "touro 22m 704kg (OE 19º)",
+          "parcela": 800,
+          "sexo": "M",
+          "assessor": "Fábio Omena",
+          "comprador": "Alberto Medeiros",
+          "fazenda": "Fazenda Medeiros",
+          "cidade": "Bacabal",
+          "uf": "MA",
+          "fonteRe": {},
+          "fonteGrupo": "Lances Bula Assessoria",
+          "obs": "\"À vista — dia 20 de setembro\" (10% de desconto). ⚠ Em 11/09 15:32 a Programa respondeu \"Antonio Alberto Feitoza de Medeiros — Não autorizado\" no grupo de cadastros; provável mesmo comprador. Acompanhar o pagamento à vista.",
+          "parcelas": 30,
+          "qtd": 1,
+          "vgv": 24000,
+          "comissaoDe": "Fábio Omena",
+          "pct": 0.02,
+          "comissao": 480,
+          "fichaQuando": "13/09 11:12",
+          "fichaGrupo": "Lances Bula Assessoria",
+          "fichaAutor": "Fabio Omena - Bula Assessoria",
+          "fichaTexto": "Levamos lt 19 - 800,00 - 1M\n\nFoi com Fábio Omena da Bula Assessoria,\n\nAlberto Medeiros\nFazenda Medeiros \nbacabal  Maranhão",
+          "noSistema": {
+            "status": "revisar",
+            "vinculado": false
+          },
+          "bateComDb": true
+        },
+        {
+          "data": "2026-09-13",
+          "lote": "21",
+          "animal": "touro 22m 774kg (OE 21º)",
+          "parcela": 1050,
+          "sexo": "M",
+          "assessor": "Douglas Bispo",
+          "comprador": "Dra. Marilda Alves Moreira",
+          "fazenda": "Fazenda Asa Branca",
+          "cidade": "Xinguara",
+          "uf": "PA",
+          "fonteRe": {},
+          "fonteGrupo": "Lances Bula Assessoria",
+          "parcelas": 30,
+          "qtd": 1,
+          "vgv": 31500,
+          "comissaoDe": "Douglas Bispo",
+          "pct": 0.02,
+          "comissao": 630,
+          "fichaQuando": "13/09 11:21",
+          "fichaGrupo": "Lances Bula Assessoria",
+          "fichaAutor": "Douglas Bispo",
+          "fichaTexto": "Levamos lt 21 - 1050 - 1M\n\nFoi com Douglas Bispo da Bula Assessoria \n\nDra Marilda\nFazenda Asa Branca\nXinguara - PA",
+          "noSistema": {
+            "status": "revisar",
+            "vinculado": false
+          },
+          "bateComDb": true
+        },
+        {
+          "data": "2026-09-13",
+          "lote": "26",
+          "animal": "touro 22m 734kg (OE 24º)",
+          "parcela": 800,
+          "sexo": "M",
+          "assessor": "Fábio Omena",
+          "comprador": "Joerson Ferronato",
+          "fazenda": "Fazenda Jacutinga",
+          "cidade": null,
+          "uf": "MT",
+          "fonteRe": {},
+          "fonteGrupo": "Lances Bula Assessoria",
+          "parcelas": 30,
+          "qtd": 1,
+          "vgv": 24000,
+          "comissaoDe": "Fábio Omena",
+          "pct": 0.02,
+          "comissao": 480,
+          "fichaQuando": "13/09 11:33",
+          "fichaGrupo": "Lances Bula Assessoria",
+          "fichaAutor": "Fabio Omena - Bula Assessoria",
+          "fichaTexto": "Levamos lt 26 - 800,00 - 1M\n\nFoi com Fábio Omena da Bula Assessoria,\n\nJoerson Ferronato\nFaz Jacutinga \nMT",
+          "noSistema": {
+            "status": "revisar",
+            "vinculado": false
+          },
+          "bateComDb": true
+        },
+        {
+          "data": "2026-09-13",
+          "lote": "47",
+          "animal": "touro 22m 834kg (OE 37º)",
+          "parcela": 1300,
+          "sexo": "M",
+          "assessor": "Douglas Bispo",
+          "comprador": "Gessivaldo Lobo",
+          "fazenda": "Agropecuária 3 Marias",
+          "cidade": "Barra do Corda",
+          "uf": "MA",
+          "fonteRe": {},
+          "fonteGrupo": "Lances Bula Assessoria",
+          "parcelas": 30,
+          "qtd": 1,
+          "vgv": 39000,
+          "comissaoDe": "Douglas Bispo",
+          "pct": 0.02,
+          "comissao": 780,
+          "fichaQuando": "13/09 12:46",
+          "fichaGrupo": "Lances Bula Assessoria",
+          "fichaAutor": "Douglas Bispo",
+          "fichaTexto": "Levamos lt 47 - 1300 - 1M\n\nFoi com Douglas Bispo da Bula Assessoria \n\nGessivaldo Lobo\nAgropecuaria 3 Marias\nBarra do Corda-MA",
+          "noSistema": {
+            "status": "revisar",
+            "vinculado": false
+          },
+          "bateComDb": true
+        },
+        {
+          "data": "2026-09-13",
+          "lote": "52",
+          "animal": "touro 25m 784kg (OE 46º)",
+          "parcela": 820,
+          "sexo": "M",
+          "assessor": "Nane (Regiane)",
+          "comprador": "Marcos Rodrigo Capuci",
+          "fazenda": "Fazenda Santo Antônio",
+          "cidade": "Rio Verde",
+          "uf": "MS",
+          "fonteRe": {},
+          "fonteGrupo": "Lances Bula Assessoria",
+          "obs": "Ficha no formato da Nane (\"Lote 52- $ 820,00 / Nane - Bula\"); o parser gravou o comprador dentro do campo assessor. Comissão da Nane é diferida para 28/12.",
+          "parcelas": 30,
+          "qtd": 1,
+          "vgv": 24600,
+          "comissaoDe": "Nane (Regiane)",
+          "pct": 0.02,
+          "comissao": 492,
+          "fichaQuando": "13/09 13:27",
+          "fichaGrupo": "Lances Bula Assessoria",
+          "fichaAutor": "Nane",
+          "fichaTexto": "Lote 52- $ 820,00\n\nNane - Bula\n\nMarcos Rodrigo Capuci\n\nFazenda : Santo Antônio \n\nRio Verde- MS",
+          "noSistema": {
+            "status": "revisar",
+            "vinculado": false
+          },
+          "bateComDb": true
+        },
+        {
+          "data": "2026-09-13",
+          "lote": "71",
+          "animal": "touro 25m 760kg (OE 55º)",
+          "parcela": 800,
+          "sexo": "M",
+          "assessor": "Douglas Bispo",
+          "comprador": "Deiglames Oliveira",
+          "fazenda": "Fazenda Canaã",
+          "cidade": "Montes Altos",
+          "uf": "MA",
+          "fonteRe": {},
+          "fonteGrupo": "Lances Bula Assessoria",
+          "parcelas": 30,
+          "qtd": 1,
+          "vgv": 24000,
+          "comissaoDe": "Douglas Bispo",
+          "pct": 0.02,
+          "comissao": 480,
+          "fichaQuando": "13/09 14:00",
+          "fichaGrupo": "Lances Bula Assessoria",
+          "fichaAutor": "Douglas Bispo",
+          "fichaTexto": "Levamos lote 71 - 800 - 1M\n\nFoi com Douglas Bispo da Bula Assessoria \n\nDeiglames Oliveira \nFazenda Canaã\nMontes Altos - MA",
+          "noSistema": {
+            "status": "revisar",
+            "vinculado": false
+          },
+          "bateComDb": true
+        },
+        {
+          "data": "2026-09-13",
+          "lote": "74",
+          "animal": "touro 25m 830kg (OE 58º)",
+          "parcela": 770,
+          "sexo": "M",
+          "assessor": "Fábio Omena",
+          "comprador": "Wesley Carvalho Silva",
+          "fazenda": "Fazenda Carvalho",
+          "cidade": "Formoso",
+          "uf": "GO",
+          "fonteRe": {},
+          "fonteGrupo": "Lances Bula Assessoria",
+          "parcelas": 30,
+          "qtd": 1,
+          "vgv": 23100,
+          "comissaoDe": "Fábio Omena",
+          "pct": 0.02,
+          "comissao": 462,
+          "fichaQuando": "13/09 14:11",
+          "fichaGrupo": "Lances Bula Assessoria",
+          "fichaAutor": "Fabio Omena - Bula Assessoria",
+          "fichaTexto": "Levamos lt 74 - 770,00 - 1M\n\nFoi com Fábio Omena da Bula Assessoria,\n\nWesley Carvalho Silva \nformoso Go\nFaz. Carvalho",
+          "noSistema": {
+            "status": "revisar",
+            "vinculado": false
+          },
+          "bateComDb": true
+        },
+        {
+          "data": "2026-09-13",
+          "lote": "100",
+          "animal": "touro 25m 778kg (OE 76º)",
+          "parcela": 800,
+          "sexo": "M",
+          "assessor": "Fábio Omena",
+          "comprador": "Joerson Ferronato",
+          "fazenda": "Fazenda Jacutinga",
+          "cidade": null,
+          "uf": "MT",
+          "fonteRe": {},
+          "fonteGrupo": "Lances Bula Assessoria",
+          "parcelas": 30,
+          "qtd": 1,
+          "vgv": 24000,
+          "comissaoDe": "Fábio Omena",
+          "pct": 0.02,
+          "comissao": 480,
+          "fichaQuando": "13/09 15:23",
+          "fichaGrupo": "Lances Bula Assessoria",
+          "fichaAutor": "Fabio Omena - Bula Assessoria",
+          "fichaTexto": "Levamos lt 100 - 800,00 - 1M\n\nFoi com Fábio Omena da Bula Assessoria,\n\nJoerson Ferronato\nFaz Jacutinga \nMT",
+          "noSistema": {
+            "status": "revisar",
+            "vinculado": false
+          },
+          "bateComDb": true
+        },
+        {
+          "data": "2026-09-13",
+          "lote": "107",
+          "animal": "touro 25m 800kg (OE 99º)",
+          "parcela": 820,
+          "sexo": "M",
+          "assessor": "Fábio Omena",
+          "comprador": "Vilmar Pantaleão",
+          "fazenda": "Fazenda VP",
+          "cidade": null,
+          "uf": "MT",
+          "fonteRe": {},
+          "fonteGrupo": "Lances Bula Assessoria",
+          "obs": "Postado pelo segundo número do Fábio (\"Fábio De Omena Gaia\").",
+          "parcelas": 30,
+          "qtd": 1,
+          "vgv": 24600,
+          "comissaoDe": "Fábio Omena",
+          "pct": 0.02,
+          "comissao": 492,
+          "fichaQuando": "13/09 17:51",
+          "fichaGrupo": "Lances Bula Assessoria",
+          "fichaAutor": "Fábio De Omena Gaia",
+          "fichaTexto": "Levamos lt 107 - 820,00 - 1M\n\nFoi com Fábio Omena da Bula Assessoria,\n\nVilmar Pantaleão\nFazenda VP\nMato Grosso",
+          "noSistema": {
+            "status": "revisar",
+            "vinculado": false
+          },
+          "bateComDb": true
+        },
+        {
+          "data": "2026-09-13",
+          "lote": "222",
+          "animal": "vaca parida de fêmea, 44m (OE fêmeas 136º)",
+          "parcela": 770,
+          "sexo": "F",
+          "assessor": "Leonardo Serafim",
+          "comprador": "Rafael Falci",
+          "fazenda": null,
+          "cidade": "Belo Horizonte",
+          "uf": "MG",
+          "fonteRe": {},
+          "fonteGrupo": "Lances Bula Assessoria",
+          "obs": "Ficha diz \"Foi com Marcelo e Leonardo\" — a dupla foi extinta em 22/07 e a comissão é 100% do Leonardo. Postada pelo Marcelo Carneiro às 20:58 (etapa de fêmeas da noite). Lote de 1 cabeça na OE (bezerra ao pé).",
+          "parcelas": 30,
+          "qtd": 1,
+          "vgv": 23100,
+          "comissaoDe": "Leonardo Serafim",
+          "pct": 0.02,
+          "comissao": 462,
+          "fichaQuando": "13/09 20:58",
+          "fichaGrupo": "Lances Bula Assessoria",
+          "fichaAutor": "Marcelo Carneiro",
+          "fichaTexto": "Levamos LT 222 - 770,00\n\nFoi com Marcelo e Leonardo da Bula Assessoria\n\nFoi para Rafael Falci de Belo Horizonte-MG",
+          "noSistema": {
+            "status": "revisar",
+            "vinculado": false
+          },
+          "bateComDb": true
+        }
+      ],
+      "naoVendas": [
+        "lt 105 (EXPRESSIVO FIV EAO, 56m/1.255kg): a Nane disputou de 870 a 1.520; o Max escreveu \"Bateu!!!! Lote 105 1300\" por engano (\"falei que digitei errado\"), a disputa seguiu e a Nane parou em 1.550 (\"parei liberado\"). O parser (IA) gravou uma venda a 1.300 — FALSO POSITIVO.",
+        "lt 118: Nane, \"mandou lance atrasado / liberou\". lt 99: disputa até 1.100, \"Liberou\". lt 72: \"Deixa ir / Bateu\". lt 81 e lt 102: sem resposta do cliente.",
+        "lt 15 (2º da ordem): Fábio perguntou se saiu — \"Vendeu já / Putz vacilei\".",
+        "Fêmeas da noite (lts 200–229): além do 222, dois lotes a 600–670 com \"Liberou\" e um cliente do Fábio com limite 450 (\"Amanhã coloco ele no game\")."
+      ],
+      "totais": {
+        "lotes": 12,
+        "cabecas": 12,
+        "vgv": 310500,
+        "comissao": 6210
+      },
+      "confere": true,
+      "porAssessor": [
+        {
+          "nome": "Fábio Omena",
+          "lotes": 6,
+          "vgv": 143700,
+          "comissao": 2874
+        },
+        {
+          "nome": "Douglas Bispo",
+          "lotes": 4,
+          "vgv": 119100,
+          "comissao": 2382
+        },
+        {
+          "nome": "Nane (Regiane)",
+          "lotes": 1,
+          "vgv": 24600,
+          "comissao": 492
+        },
+        {
+          "nome": "Leonardo Serafim",
+          "lotes": 1,
+          "vgv": 23100,
+          "comissao": 462
+        }
+      ],
+      "metaVenda": 412912.5,
+      "pctMeta": 0.75,
+      "receita": {
+        "descr": "0,33% do faturamento total (a apurar, 3 dias)",
+        "valor": null,
+        "variavel": "sobre a previsão só dos touros: R$ 13.612,50"
+      }
+    },
+    {
+      "key": "katayama",
+      "data": "2026-09-13",
+      "nome": "Leilão Katayama Novo Repartimento — Fêmeas",
+      "leiloeira": "não identificada (não está na agenda pública nem no radar)",
+      "praca": "Novo Repartimento-PA",
+      "tipo": "leilão",
+      "condicao": "assumido lance × 30 (o Katayama Trilogia de 31/05 usou 40x em lote múltiplo — conferir na listagem)",
+      "acordo": "sem acordo cadastrado (não está na aba Acordos com Marcas nem na planilha de setembro); precedente 31/05: 5% da venda da cobertura",
+      "planilha": null,
+      "resumoEquipe": {
+        "texto": "Vendas Katayama: R$87.000,00 (4 fêmeas) (grupo Financeiro, 13/09 22:15)",
+        "valor": 87000
+      },
+      "lotes": [
+        {
+          "data": "2026-09-13",
+          "lote": "5",
+          "animal": "1 fêmea",
+          "parcela": 1010,
+          "sexo": "F",
+          "assessor": "Douglas Bispo",
+          "atribuicao": "por correlação",
+          "comprador": "Leo Buss / Val Buss — Agropecuária Buss",
+          "fazenda": "Agropecuária Buss",
+          "cidade": "Maracajá",
+          "uf": "PA",
+          "fonteRe": {},
+          "fonteGrupo": "Bula Assessoria l Assessores",
+          "parcelas": 30,
+          "qtd": 1,
+          "vgv": 30300,
+          "comissaoDe": "Douglas Bispo",
+          "pct": 0.02,
+          "comissao": 606,
+          "fichaQuando": "13/09 17:11",
+          "fichaGrupo": "Bula Assessoria l Assessores",
+          "fichaAutor": null,
+          "fichaTexto": "Leilão Katayama Novo Repartimento \nFêmeas \nLt 5 - 1.010,00 1F\nLt 4 - 700,00 1F\nLt 7 - 660,00 1F\nLt 3 - 530,00 1F\n\nLeo Buss, Val Buss, Agropecuária Buss\nMaracajá - PA",
+          "noSistema": null,
+          "bateComDb": null
+        },
+        {
+          "data": "2026-09-13",
+          "lote": "4",
+          "animal": "1 fêmea",
+          "parcela": 700,
+          "sexo": "F",
+          "assessor": "Douglas Bispo",
+          "atribuicao": "por correlação",
+          "comprador": "Leo Buss / Val Buss — Agropecuária Buss",
+          "fazenda": "Agropecuária Buss",
+          "cidade": "Maracajá",
+          "uf": "PA",
+          "fonteRe": {},
+          "fonteGrupo": "Bula Assessoria l Assessores",
+          "parcelas": 30,
+          "qtd": 1,
+          "vgv": 21000,
+          "comissaoDe": "Douglas Bispo",
+          "pct": 0.02,
+          "comissao": 420,
+          "fichaQuando": "13/09 17:11",
+          "fichaGrupo": "Bula Assessoria l Assessores",
+          "fichaAutor": null,
+          "fichaTexto": "Leilão Katayama Novo Repartimento \nFêmeas \nLt 5 - 1.010,00 1F\nLt 4 - 700,00 1F\nLt 7 - 660,00 1F\nLt 3 - 530,00 1F\n\nLeo Buss, Val Buss, Agropecuária Buss\nMaracajá - PA",
+          "noSistema": null,
+          "bateComDb": null
+        },
+        {
+          "data": "2026-09-13",
+          "lote": "7",
+          "animal": "1 fêmea",
+          "parcela": 660,
+          "sexo": "F",
+          "assessor": "Douglas Bispo",
+          "atribuicao": "por correlação",
+          "comprador": "Leo Buss / Val Buss — Agropecuária Buss",
+          "fazenda": "Agropecuária Buss",
+          "cidade": "Maracajá",
+          "uf": "PA",
+          "fonteRe": {},
+          "fonteGrupo": "Bula Assessoria l Assessores",
+          "parcelas": 30,
+          "qtd": 1,
+          "vgv": 19800,
+          "comissaoDe": "Douglas Bispo",
+          "pct": 0.02,
+          "comissao": 396,
+          "fichaQuando": "13/09 17:11",
+          "fichaGrupo": "Bula Assessoria l Assessores",
+          "fichaAutor": null,
+          "fichaTexto": "Leilão Katayama Novo Repartimento \nFêmeas \nLt 5 - 1.010,00 1F\nLt 4 - 700,00 1F\nLt 7 - 660,00 1F\nLt 3 - 530,00 1F\n\nLeo Buss, Val Buss, Agropecuária Buss\nMaracajá - PA",
+          "noSistema": null,
+          "bateComDb": null
+        },
+        {
+          "data": "2026-09-13",
+          "lote": "3",
+          "animal": "1 fêmea",
+          "parcela": 530,
+          "sexo": "F",
+          "assessor": "Douglas Bispo",
+          "atribuicao": "por correlação",
+          "comprador": "Leo Buss / Val Buss — Agropecuária Buss",
+          "fazenda": "Agropecuária Buss",
+          "cidade": "Maracajá",
+          "uf": "PA",
+          "fonteRe": {},
+          "fonteGrupo": "Bula Assessoria l Assessores",
+          "parcelas": 30,
+          "qtd": 1,
+          "vgv": 15900,
+          "comissaoDe": "Douglas Bispo",
+          "pct": 0.02,
+          "comissao": 318,
+          "fichaQuando": "13/09 17:11",
+          "fichaGrupo": "Bula Assessoria l Assessores",
+          "fichaAutor": null,
+          "fichaTexto": "Leilão Katayama Novo Repartimento \nFêmeas \nLt 5 - 1.010,00 1F\nLt 4 - 700,00 1F\nLt 7 - 660,00 1F\nLt 3 - 530,00 1F\n\nLeo Buss, Val Buss, Agropecuária Buss\nMaracajá - PA",
+          "noSistema": null,
+          "bateComDb": null
+        }
+      ],
+      "naoVendas": [],
+      "atribuicaoNota": "A mensagem (grupo Assessores, 13/09 17:11; autor não capturado pelo sistema) não diz \"foi com\". Atribuída ao Douglas por correlação: Novo Repartimento-PA é praça dele (13 fichas de jul–ago/2026, todas dele); em 11/08 ele escreveu \"estou só olhando o gado da Katayama aqui para mandar para um cliente\"; Gessivaldo Buss (PA, DDD 94) já é cliente no HastaPro. Confirmar com ele antes de gerar título.",
+      "totais": {
+        "lotes": 4,
+        "cabecas": 4,
+        "vgv": 87000,
+        "comissao": 1740
+      },
+      "confere": true,
+      "porAssessor": [
+        {
+          "nome": "Douglas Bispo",
+          "lotes": 4,
+          "vgv": 87000,
+          "comissao": 1740
+        }
+      ],
+      "metaVenda": null,
+      "pctMeta": null,
+      "receita": {
+        "descr": "sem acordo; precedente 31/05 = 5% da venda",
+        "valor": null,
+        "variavel": "R$ 4.350 se repetir o precedente"
+      }
+    }
+  ],
+  "fora": [
+    {
+      "item": "Agrofeira IBC — pré-venda / shopping (02 a 08/09)",
+      "assessor": "Fábio Omena",
+      "situacao": "SEM VALOR — VGV a apurar",
+      "porque": "O Fábio anunciou 13 registros de lote/comprador no grupo de lances (\"Lote 16 / Ronipetrison Ferreira / Bahia / AGROFEIRA IBC\", \"62 - GILMAR - FO - VENDIDO\"…), compradores da BA/MA/SE/AL, sem parcela nem valor. O marketing diz \"quem paga a sua comissão é Nelore IBC\"; a planilha só tem o pregão de 18–19/09 (BC Agrofeira Fazenda Recanto, Agreste, 1% do faturamento). Pedir ao Fábio a lista com valores.",
+      "detalhe": [
+        {
+          "quando": "03/09 09:03",
+          "autor": "Fabio Omena - Bula Assessoria",
+          "texto": "Lote 16 · Ronipetrison Ferreira · Bahia - BA · AGROFEIRA IBC"
+        },
+        {
+          "quando": "03/09 10:55",
+          "autor": "Fabio Omena - Bula Assessoria",
+          "texto": "Lote 5 · Genisson Fraga · Maranhão · AGROFEIRA IBC"
+        },
+        {
+          "quando": "03/09 11:03",
+          "autor": "Fabio Omena - Bula Assessoria",
+          "texto": "Lote 12 · Roberto Conceição · Maranhão · AGROFEIRA IBC"
+        },
+        {
+          "quando": "03/09 11:05",
+          "autor": "Fabio Omena - Bula Assessoria",
+          "texto": "Lote 29 e 31 · Vavá de Roberto · Maranhão · AGROFEIRA IBC"
+        },
+        {
+          "quando": "03/09 11:15",
+          "autor": "Fabio Omena - Bula Assessoria",
+          "texto": "Lote 51 · Vava de Roberto · Maranhão · AGROFEIRA IBC"
+        },
+        {
+          "quando": "03/09 11:18",
+          "autor": "Fabio Omena - Bula Assessoria",
+          "texto": "Lote 01 · Roberto Conceição · Maranhão · AGROFEIRA IBC"
+        },
+        {
+          "quando": "03/09 11:20",
+          "autor": "Fabio Omena - Bula Assessoria",
+          "texto": "Lote 11, 29, 40 · Chiquinho Conceição · Maranhão · AGROFEIRA IBC"
+        },
+        {
+          "quando": "03/09 11:41",
+          "autor": "Fabio Omena - Bula Assessoria",
+          "texto": "Lote 28 · Vava de Roberto · Maranhão · AGROFEIRA IBC"
+        },
+        {
+          "quando": "03/09 12:05",
+          "autor": "Fabio Omena - Bula Assessoria",
+          "texto": "Lote 53 · Flavio Lages coutinho · AGROFEIRA IBC"
+        },
+        {
+          "quando": "03/09 13:04",
+          "autor": "Fábio Omena",
+          "texto": "lote extra A1168 · Vavá de roberto · Maranhão · AGROFEIRA IBC"
+        },
+        {
+          "quando": "03/09 13:05",
+          "autor": "Fábio Omena",
+          "texto": "Lote extra A1225 | A1235 · Chiquinho Conceição · Maranhão · AGROFEIRA IBC"
+        },
+        {
+          "quando": "03/09 14:32",
+          "autor": "Fabio Omena - Bula Assessoria",
+          "texto": "Lote 35 · Jaumiram · Maranhão · AGROFEIRA IBC"
+        },
+        {
+          "quando": "08/09 19:34",
+          "autor": "Fabio Omena - Bula Assessoria",
+          "texto": "Lote 24 - AGROFEIRA IBC · Magnon Modesto"
+        }
+      ]
+    },
+    {
+      "item": "lt 96 — 1 fêmea — 700 (12/09, Douglas, direcionamento Rusa → Welton Miranda/Itajaí)",
+      "assessor": "Douglas Bispo → 5% Rusa",
+      "situacao": "LEILÃO NÃO IDENTIFICADO",
+      "porque": "Não é o AZ (só touros) e não está em nenhum resumo. Curiosidade que ajuda: Welton Borges de Miranda foi VENDEDOR convidado no Flor do Arataú (lotes 21 em diante). VGV 21.000 se ×30."
+    },
+    {
+      "item": "lt 105 do EAO (13/09) — \"Bateu 1300\" do gerente da EAO",
+      "assessor": "—",
+      "situacao": "FALSO POSITIVO — apagar",
+      "porque": "A Nane parou em 1.550 e liberou; a IA gravou venda de 39.000."
+    },
+    {
+      "item": "lt 38 datado 14/09 — ficha do Mafra repostada no Lances Mafra",
+      "assessor": "—",
+      "situacao": "DUPLICATA — apagar (venda + fechamento fantasma \"MATRIZES E BEZERRAS 14/09\")",
+      "porque": "Já está em 06/09 com fechamento próprio."
+    },
+    {
+      "item": "Só Criador Machos e Fêmeas de Alto Padrão (10/09, Bula Remates, gado comercial) — R$ 2.096.357,59 no HastaPro FIL 01",
+      "assessor": "Laila (pela Remates)",
+      "situacao": "NÃO É COBERTURA DA ASSESSORIA",
+      "porque": "Laila na pista em 3 lotes (R$ 661.080,00) pela Remates — decisão do João de 26/08 (quem está na pista pela Remates não é cobertura)."
+    }
+  ],
+  "totais": {
+    "eventosComVenda": 8,
+    "lotes": 71,
+    "cabecas": 74,
+    "vgv": 2065800,
+    "comissao": 40821
+  },
+  "porAssessor": [
+    {
+      "nome": "Douglas Bispo",
+      "pct": 0.02,
+      "lotes": 39,
+      "cabecas": 42,
+      "vgv": 993300,
+      "comissao": 19866,
+      "eventos": {
+        "jacamim": {
+          "lotes": 5,
+          "vgv": 151500
+        },
+        "aratau": {
+          "lotes": 25,
+          "vgv": 617100
+        },
+        "marcondes": {
+          "lotes": 1,
+          "vgv": 18600
+        },
+        "eao": {
+          "lotes": 4,
+          "vgv": 119100
+        },
+        "katayama": {
+          "lotes": 4,
+          "vgv": 87000
+        }
+      }
+    },
+    {
+      "nome": "Peralta",
+      "pct": 0.02,
+      "lotes": 5,
+      "cabecas": 5,
+      "vgv": 343500,
+      "comissao": 6870,
+      "eventos": {
+        "jacamim": {
+          "lotes": 5,
+          "vgv": 343500
+        }
+      }
+    },
+    {
+      "nome": "Fábio Omena",
+      "pct": 0.02,
+      "lotes": 10,
+      "cabecas": 10,
+      "vgv": 312800,
+      "comissao": 6256,
+      "eventos": {
+        "jacamim": {
+          "lotes": 2,
+          "vgv": 55500
+        },
+        "mafra": {
+          "lotes": 1,
+          "vgv": 21600
+        },
+        "az": {
+          "lotes": 1,
+          "vgv": 92000
+        },
+        "eao": {
+          "lotes": 6,
+          "vgv": 143700
+        }
+      }
+    },
+    {
+      "nome": "Nane (Regiane)",
+      "pct": 0.02,
+      "lotes": 10,
+      "cabecas": 10,
+      "vgv": 259800,
+      "comissao": 5196,
+      "eventos": {
+        "jacamim": {
+          "lotes": 9,
+          "vgv": 235200
+        },
+        "eao": {
+          "lotes": 1,
+          "vgv": 24600
+        }
+      }
+    },
+    {
+      "nome": "Leonardo Serafim",
+      "pct": 0.02,
+      "lotes": 4,
+      "cabecas": 4,
+      "vgv": 89100,
+      "comissao": 1782,
+      "eventos": {
+        "az": {
+          "lotes": 3,
+          "vgv": 66000
+        },
+        "eao": {
+          "lotes": 1,
+          "vgv": 23100
+        }
+      }
+    },
+    {
+      "nome": "Laila",
+      "pct": 0.01,
+      "lotes": 2,
+      "cabecas": 2,
+      "vgv": 49500,
+      "comissao": 495,
+      "eventos": {
+        "jacamim": {
+          "lotes": 2,
+          "vgv": 49500
+        }
+      }
+    },
+    {
+      "nome": "Marcelo Carneiro",
+      "pct": 0.02,
+      "lotes": 1,
+      "cabecas": 1,
+      "vgv": 17800,
+      "comissao": 356,
+      "eventos": {
+        "visual": {
+          "lotes": 1,
+          "vgv": 17800
+        }
+      }
+    }
+  ],
+  "meta": {
+    "valor": 5479544.9,
+    "fonte": "Marcelo, grupo Assessores, 03/09 19:11 — \"22 leilões, faturamento previsto 39 milhões, cobertura média 16,68%\"",
+    "realizado": 2065800,
+    "pct": 0.38,
+    "falta": 3413744.9,
+    "leiloes": 22,
+    "faturamentoPrevisto": 39000000,
+    "coberturaAlvo": 0.1668
+  },
+  "restante": [
+    {
+      "data": "2026-09-14",
+      "nome": "MATRIZES E BEZERRAS",
+      "leiloeira": "PROGRAMA LEILÕES / CENTRAL LEILÕES",
+      "previsaoFat": 2640000,
+      "metaVenda": 264264,
+      "pct": "0.3%",
+      "planilha": "7º LEILÃO VIRTUAL MEGA PREMIUM EAO - FÊMEAS"
+    },
+    {
+      "data": "2026-09-15",
+      "nome": "Leilão Geração Elite",
+      "leiloeira": "E-RURAL",
+      "previsaoFat": 640000,
+      "metaVenda": 128000,
+      "pct": "5.0%",
+      "planilha": "LEILÃO GERAÇÃO ELITE NELORE BURITI"
+    },
+    {
+      "data": "2026-09-15",
+      "nome": "ASPIRAÇÕES EAO E CONVIDADOS",
+      "leiloeira": "PROGRAMA LEILÕES / CENTRAL LEILÕES",
+      "previsaoFat": 600000,
+      "metaVenda": 60060,
+      "pct": "0.3%",
+      "planilha": "7º LEILÃO VIRTUAL MEGA PREMIUM EAO - ASPIRAÇÕES"
+    },
+    {
+      "data": "2026-09-15",
+      "nome": "Shopping Naviraí — Edição Marabá",
+      "leiloeira": "",
+      "previsaoFat": null,
+      "metaVenda": null,
+      "pct": null,
+      "planilha": null
+    },
+    {
+      "data": "2026-09-17",
+      "nome": "1º Leilão Fazenda Bela Aurora",
+      "leiloeira": "E-RURAL",
+      "previsaoFat": 510000,
+      "metaVenda": 102000,
+      "pct": "5.0%",
+      "planilha": "1º LEILÃO FAZENDA BELA AURORA"
+    },
+    {
+      "data": "2026-09-18",
+      "nome": "1º DIA - BC AGROFEIRA FAZENDA RECANTO",
+      "leiloeira": "AGRESTE LEILÕES RURAIS",
+      "previsaoFat": 1920000,
+      "metaVenda": 384000,
+      "pct": "1.0%",
+      "planilha": "1º DIA - BC AGROFEIRA FAZENDA RECANTO - TOUROS"
+    },
+    {
+      "data": "2026-09-19",
+      "nome": "3º Leilão Nelore Barra do Dia",
+      "leiloeira": "E-RURAL",
+      "previsaoFat": 640000,
+      "metaVenda": 128000,
+      "pct": "5.0%",
+      "planilha": "LEILÃO TOUROS BARRA DO DIA"
+    },
+    {
+      "data": "2026-09-19",
+      "nome": "2º DIA - BC AGROFEIRA FAZENDA RECANTO",
+      "leiloeira": "AGRESTE LEILÕES RURAIS",
+      "previsaoFat": 560000,
+      "metaVenda": 112000,
+      "pct": "1.0%",
+      "planilha": "2º DIA - BC AGROFEIRA FAZENDA RECANTO - FÊMEAS"
+    },
+    {
+      "data": "2026-09-20",
+      "nome": "3º Leilão LS Collection",
+      "leiloeira": "BULA REMATES",
+      "previsaoFat": null,
+      "metaVenda": null,
+      "pct": null,
+      "planilha": null
+    },
+    {
+      "data": "2026-09-20",
+      "nome": "2º LEILÃO MARAMBAIA & MARCA 33",
+      "leiloeira": "BULA REMATES",
+      "previsaoFat": 2120000,
+      "metaVenda": 212000,
+      "pct": "0.5%",
+      "planilha": "2º LEILÃO MARAMBAIA E MARCA 33"
+    },
+    {
+      "data": "2026-09-24",
+      "nome": "Leilão Evolução FB Agro",
+      "leiloeira": "E-RURAL",
+      "previsaoFat": 510000,
+      "metaVenda": 127500,
+      "pct": "5.0%",
+      "planilha": "LEILÃO FÊMEAS FB AGRO"
+    },
+    {
+      "data": "2026-09-26",
+      "nome": "NELORE ABBA",
+      "leiloeira": "CONNECT LEILÕES",
+      "previsaoFat": 1300000,
+      "metaVenda": 325000,
+      "pct": "3.0%",
+      "planilha": "1º LEILÃO NELORE ABBA"
+    },
+    {
+      "data": "2026-09-26",
+      "nome": "2º Leilão Parceria Nelore Premium",
+      "leiloeira": "PROGRAMA LEILÕES",
+      "previsaoFat": 2286000,
+      "metaVenda": 228600,
+      "pct": "5.0%",
+      "planilha": "2º LEILÃO PARCERIA NELORE PREMIUM"
+    },
+    {
+      "data": "2026-09-27",
+      "nome": "2º Leilão Genética Camparino",
+      "leiloeira": "EB LEILÕES",
+      "previsaoFat": null,
+      "metaVenda": null,
+      "pct": null,
+      "planilha": null
+    },
+    {
+      "data": "2026-09-27",
+      "nome": "PARANÃ TOUROS",
+      "leiloeira": "",
+      "previsaoFat": 2500000,
+      "metaVenda": 250000,
+      "pct": "5.0%",
+      "planilha": "LEILÃO TOUROS NELORE PARANÃ"
+    },
+    {
+      "data": "2026-09-27",
+      "nome": "Leilão Primavera Genética Aditiva — Etapa Fêmeas",
+      "leiloeira": "PROGRAMA LEILÕES",
+      "previsaoFat": 3520000,
+      "metaVenda": 352000,
+      "pct": "0.5%",
+      "planilha": "LEILÃO PRIMAVERA GENÉTICA ADITIVA - FÊMEAS"
+    },
+    {
+      "data": "2026-09-28",
+      "nome": "Leilão Primavera Genética Aditiva — Etapa Touros",
+      "leiloeira": "PROGRAMA LEILÕES",
+      "previsaoFat": 1840000,
+      "metaVenda": 184000,
+      "pct": "0.5%",
+      "planilha": "LEILÃO PRIMAVERA GENÉTICA ADITIVA - TOUROS"
+    }
+  ],
+  "metaRestante": 2857424,
+  "correcoes": [
+    {
+      "n": 1,
+      "o": "Apagar o fechamento fantasma \"MATRIZES E BEZERRAS 14/09\" e a venda duplicada do lt 38 (14/09); apagar o lt 105 (13/09)",
+      "por": "Duplicata do Mafra 06/09 e falso positivo da IA — os dois inflariam setembro em R$ 60.600."
+    },
+    {
+      "n": 2,
+      "o": "Vincular as 23 fichas de 05/09 ao \"TOUROS JACAMIN\", as 4 de 12/09 ao AZ e as 12 de 13/09 ao EAO; depois \"Importar pro fechamento\"",
+      "por": "Estão todas como \"revisar\" sem leilão (dois pregões no mesmo dia). O rebuild faz ×30: ajustar à mão o central Estocolmo (×40 = 192.000) e o lt 2023 do AZ (×40 = 92.000). Corrigir lt 26 → 25 e lt 81 = 850 antes de importar."
+    },
+    {
+      "n": 3,
+      "o": "Criar à mão os fechamentos sem ficha capturável: Flor do Arataú (25 lotes, 617.100, Douglas — lote a lote pelo Mapa Geral), Nelore Marcondes (1 lote, 18.600), Katayama (4 lotes, 87.000) e o Shopping Visual (17.800)",
+      "por": "Nenhum passou pelo grupo de lances no formato que o parser lê; o Arataú tem listagem oficial (foto) — é o mais seguro de todos."
+    },
+    {
+      "n": 4,
+      "o": "Lançar setembro no HastaPro (FIL 2) e rodar o importador canônico",
+      "por": "Último pregão da FIL 2 no HastaPro: 30/08. Até lá tudo isto é fechamento provisório (origem lances-auto), e a comissão só deve virar CP depois."
+    },
+    {
+      "n": 5,
+      "o": "Cobrar as listagens oficiais: Programa (Jacamim, Mafra, EAO), Ricardo Nicolau (AZ), Katayama e Marcondes",
+      "por": "Só a listagem confirma parcelas, cotas (lt 10 e central do Jacamim, lt 2023 do AZ), cancelamentos e o faturamento total de que saem as notas (AZ 0,5%, EAO 0,33%, Arataú 1%)."
+    },
+    {
+      "n": 6,
+      "o": "Pedir ao Fábio a lista do IBC com valores e ao Douglas o pregão do lt 96 e a confirmação do Katayama",
+      "por": "São os únicos VGVs do mês que ainda não têm número ou dono."
+    }
+  ],
+  "pendencias": [
+    {
+      "p": "Jacamim lote 1 (2.150 × 30 = 64.500): \"Daniele Coutinho vendeu\" — quem recebe a comissão?",
+      "impacto": "R$ 1.290 (2%) e o próprio VGV do Peralta",
+      "quem": "Peralta / Marcelo"
+    },
+    {
+      "p": "Jacamim lote 25 × 26 (mesma parcela, 1.100): a ficha do Douglas diz 26, o recinto deu o 26 a João Giuzzo",
+      "impacto": "só o número do lote (VGV igual)",
+      "quem": "listagem da Programa"
+    },
+    {
+      "p": "Arataú lote 46 (60.000): comprador é condomínio com o Douglas, vendedor é Alfredo José Cardoso (Galopeira, lista do Rusa)",
+      "impacto": "R$ 1.200 (2% Douglas) × R$ 3.000 (5% Rusa) × nada",
+      "quem": "João / Rusa"
+    },
+    {
+      "p": "AZ lote 2023: 40 ou 30 parcelas",
+      "impacto": "R$ 23.000 de VGV e R$ 460 do Fábio",
+      "quem": "Fábio / Ricardo Nicolau"
+    },
+    {
+      "p": "EAO lote 19: cadastro \"não autorizado\" na Programa em 11/09, venda \"à vista dia 20/09\"",
+      "impacto": "R$ 24.000 e R$ 480 do Fábio caem se não pagar",
+      "quem": "Fábio / Programa"
+    },
+    {
+      "p": "Katayama: assessor não declarado (atribuído ao Douglas por correlação) e acordo inexistente",
+      "impacto": "R$ 1.740 de comissão; receita de ~R$ 4.350 se 5% da venda",
+      "quem": "Douglas / João"
+    },
+    {
+      "p": "lt 96 (12/09): de qual leilão?",
+      "impacto": "R$ 21.000 de VGV fora de tudo; 5% do Rusa",
+      "quem": "Douglas"
+    },
+    {
+      "p": "Agrofeira IBC: quantos lotes e quanto",
+      "impacto": "VGV inteiro do Fábio no IBC",
+      "quem": "Fábio / Nelore IBC"
+    },
+    {
+      "p": "Shopping Visual: quem recebe a comissão dos R$ 17.800 (Marcelo Carneiro inativo na folha)",
+      "impacto": "R$ 356 (2%) e receita de R$ 890",
+      "quem": "João"
+    },
+    {
+      "p": "Faturamento total do AZ (0,5%), do EAO (0,33%) e do Mafra (tabela)",
+      "impacto": "as notas dos três pregões",
+      "quem": "Ricardo Nicolau / Programa"
+    }
+  ],
+  "hastapro": {
+    "ultimoFil2": "2026-08-30",
+    "setembro": [
+      {
+        "fil": "01",
+        "nome": "LEILÃO SÓ CRIADOR MACHOS E FÊMEAS DE ALTO PADRÃO",
+        "data": "2026-09-10",
+        "lotes": 16,
+        "vgv": 2096357.59
+      },
+      {
+        "fil": "01",
+        "nome": "LEILÃO ENCONTRO DE BOIADEIROS",
+        "data": "2026-09-15",
+        "lotes": 9,
+        "vgv": 0
+      }
+    ],
+    "soCriador": {
+      "vgv": 2096357.59,
+      "lotes": 11,
+      "laila": {
+        "lotes": [
+          "31",
+          "32",
+          "14"
+        ],
+        "vgv": 661080
+      }
+    }
+  },
+  "planilha": {
+    "arquivo": "FINANCEIRO BULA 2026 (7).xlsx",
+    "linhas": [
+      {
+        "dia": 3,
+        "leilao": "2º LEILÃO NELORE CRISPIM HERANÇA GENÉTICA",
+        "leiloeira": "E-RURAL",
+        "previsaoFat": 266000,
+        "metaVenda": 106400,
+        "cobertura": "40.00%",
+        "metaComissao": 5320,
+        "pctVenda": "5.0%",
+        "pctFat": ""
+      },
+      {
+        "dia": 5,
+        "leilao": "10º LEILÃO FAZENDA JACAMIM ESPECIAL TOUROS",
+        "leiloeira": "PROGRAMA",
+        "previsaoFat": 3720000,
+        "metaVenda": 930000,
+        "cobertura": "25.00%",
+        "metaComissao": 111600,
+        "pctVenda": "",
+        "pctFat": "3.0%"
+      },
+      {
+        "dia": 5,
+        "leilao": "10º LEILÃO NELORE FLOR DE ARATAU",
+        "leiloeira": "MAGNO",
+        "previsaoFat": 1265000,
+        "metaVenda": 151800,
+        "cobertura": "12.00%",
+        "metaComissao": 12650,
+        "pctVenda": "",
+        "pctFat": "1.0%"
+      },
+      {
+        "dia": 6,
+        "leilao": "LEILÃO VIRTUAL TOUROS PREMIUM NELORE MAFRA",
+        "leiloeira": "PROGRAMA",
+        "previsaoFat": 4500000,
+        "metaVenda": 450450,
+        "cobertura": "10.01%",
+        "metaComissao": 33750,
+        "pctVenda": "",
+        "pctFat": "0.8%"
+      },
+      {
+        "dia": 12,
+        "leilao": "LEILÃO VIRTUAL NELORE AZ",
+        "leiloeira": "RICARDO NICOLAU",
+        "previsaoFat": 1584000,
+        "metaVenda": 158558.4,
+        "cobertura": "10.01%",
+        "metaComissao": 12676.75,
+        "pctVenda": "3.0%",
+        "pctFat": "0.5%"
+      },
+      {
+        "dia": 13,
+        "leilao": "7º LEILÃO VIRTUAL MEGA PREMIUM EAO - TOUROS",
+        "leiloeira": "PROGRAMA",
+        "previsaoFat": 4125000,
+        "metaVenda": 412912.5,
+        "cobertura": "10.01%",
+        "metaComissao": 13612.5,
+        "pctVenda": "",
+        "pctFat": "0.3%"
+      },
+      {
+        "dia": 14,
+        "leilao": "7º LEILÃO VIRTUAL MEGA PREMIUM EAO - FÊMEAS",
+        "leiloeira": "PROGRAMA",
+        "previsaoFat": 2640000,
+        "metaVenda": 264264,
+        "cobertura": "10.01%",
+        "metaComissao": 8712,
+        "pctVenda": "",
+        "pctFat": "0.3%"
+      },
+      {
+        "dia": 15,
+        "leilao": "7º LEILÃO VIRTUAL MEGA PREMIUM EAO - ASPIRAÇÕES",
+        "leiloeira": "PROGRAMA",
+        "previsaoFat": 600000,
+        "metaVenda": 60060,
+        "cobertura": "10.01%",
+        "metaComissao": 1980,
+        "pctVenda": "",
+        "pctFat": "0.3%"
+      },
+      {
+        "dia": 15,
+        "leilao": "LEILÃO GERAÇÃO ELITE NELORE BURITI",
+        "leiloeira": "E-RURAL",
+        "previsaoFat": 640000,
+        "metaVenda": 128000,
+        "cobertura": "20.00%",
+        "metaComissao": 6400,
+        "pctVenda": "5.0%",
+        "pctFat": ""
+      },
+      {
+        "dia": 17,
+        "leilao": "1º LEILÃO FAZENDA BELA AURORA",
+        "leiloeira": "E-RURAL",
+        "previsaoFat": 510000,
+        "metaVenda": 102000,
+        "cobertura": "20.00%",
+        "metaComissao": 5100,
+        "pctVenda": "5.0%",
+        "pctFat": ""
+      },
+      {
+        "dia": 17,
+        "leilao": "SHOPPING DE GENÉTICA NELORE VISUAL",
+        "leiloeira": "-",
+        "previsaoFat": 960000,
+        "metaVenda": 192000,
+        "cobertura": "20.00%",
+        "metaComissao": 9600,
+        "pctVenda": "5.0%",
+        "pctFat": ""
+      },
+      {
+        "dia": 18,
+        "leilao": "1º DIA - BC AGROFEIRA FAZENDA RECANTO - TOUROS",
+        "leiloeira": "AGRESTE",
+        "previsaoFat": 1920000,
+        "metaVenda": 384000,
+        "cobertura": "20.00%",
+        "metaComissao": 19200,
+        "pctVenda": "",
+        "pctFat": "1.0%"
+      },
+      {
+        "dia": 19,
+        "leilao": "2º DIA - BC AGROFEIRA FAZENDA RECANTO - FÊMEAS",
+        "leiloeira": "AGRESTE",
+        "previsaoFat": 560000,
+        "metaVenda": 112000,
+        "cobertura": "20.00%",
+        "metaComissao": 5600,
+        "pctVenda": "",
+        "pctFat": "1.0%"
+      },
+      {
+        "dia": 19,
+        "leilao": "LEILÃO TOUROS BARRA DO DIA",
+        "leiloeira": "E-RURAL",
+        "previsaoFat": 640000,
+        "metaVenda": 128000,
+        "cobertura": "20.00%",
+        "metaComissao": 6400,
+        "pctVenda": "5.0%",
+        "pctFat": ""
+      },
+      {
+        "dia": 20,
+        "leilao": "2º LEILÃO NELORE BRASIL",
+        "leiloeira": "JA LEILÕES",
+        "previsaoFat": 1100000,
+        "metaVenda": 220000,
+        "cobertura": "20.00%",
+        "metaComissao": 11000,
+        "pctVenda": "5.0%",
+        "pctFat": ""
+      },
+      {
+        "dia": 20,
+        "leilao": "2º LEILÃO MARAMBAIA E MARCA 33",
+        "leiloeira": "BULA REMATES",
+        "previsaoFat": 2120000,
+        "metaVenda": 212000,
+        "cobertura": "10.00%",
+        "metaComissao": 10600,
+        "pctVenda": "",
+        "pctFat": "0.5%"
+      },
+      {
+        "dia": 24,
+        "leilao": "LEILÃO FÊMEAS FB AGRO",
+        "leiloeira": "E-RURAL",
+        "previsaoFat": 510000,
+        "metaVenda": 127500,
+        "cobertura": "25.00%",
+        "metaComissao": 6375,
+        "pctVenda": "5.0%",
+        "pctFat": ""
+      },
+      {
+        "dia": 26,
+        "leilao": "1º LEILÃO NELORE ABBA",
+        "leiloeira": "CONNECT",
+        "previsaoFat": 1300000,
+        "metaVenda": 325000,
+        "cobertura": "25.00%",
+        "metaComissao": 9750,
+        "pctVenda": "3.0%",
+        "pctFat": "2.0%"
+      },
+      {
+        "dia": 26,
+        "leilao": "2º LEILÃO PARCERIA NELORE PREMIUM",
+        "leiloeira": "PROGRAMA",
+        "previsaoFat": 2286000,
+        "metaVenda": 228600,
+        "cobertura": "10%",
+        "metaComissao": 11430,
+        "pctVenda": "5.0%",
+        "pctFat": ""
+      },
+      {
+        "dia": 27,
+        "leilao": "LEILÃO PRIMAVERA GENÉTICA ADITIVA - FÊMEAS",
+        "leiloeira": "PROGRAMA",
+        "previsaoFat": 3520000,
+        "metaVenda": 352000,
+        "cobertura": "10%",
+        "metaComissao": 17600,
+        "pctVenda": "",
+        "pctFat": "0.5%"
+      },
+      {
+        "dia": 27,
+        "leilao": "LEILÃO TOUROS NELORE PARANÃ",
+        "leiloeira": "PROGRAMA",
+        "previsaoFat": 2500000,
+        "metaVenda": 250000,
+        "cobertura": "10.00%",
+        "metaComissao": 12500,
+        "pctVenda": "5.0%",
+        "pctFat": ""
+      },
+      {
+        "dia": 27,
+        "leilao": "LEILÃO PRIMAVERA GENÉTICA ADITIVA - TOUROS",
+        "leiloeira": "PROGRAMA",
+        "previsaoFat": 1840000,
+        "metaVenda": 184000,
+        "cobertura": "10.00%",
+        "metaComissao": 9200,
+        "pctVenda": "",
+        "pctFat": "0.5%"
+      }
+    ],
+    "acordos": {
+      "NOME DA MARCA": "ACORDO",
+      "EAO AGROPECUÁRIA": "0,33% do faturamento total dos leilões",
+      "NAVIRAÍ": "5% da venda",
+      "SANTA CRUZ": "0% a 3% de cobertura (5% do que vender)",
+      "KATISPERA": "6% da venda",
+      "GUADALUPE": "TOUROS",
+      "GENÉTICA ADITIVA": "0% a 3% de cobertura (5% do que vender)",
+      "MAFRA AGROPECUÁRIA": "0% a 3% de cobertura (4% do que vender)",
+      "NELORE PARANÃ": "R$0,00 a R$150.000,00 (1% do que vender)",
+      "TERRA BRAVA AGROPECUÁRIA": "0% a 5% de cobertura (5% do que vender)",
+      "RANCHO DA MATINHA": "5% da venda (sem presença física) ou 0,33% de VGV + 5% da venda (com presença física)",
+      "FAZENDA SANTA NICE": "5% da venda",
+      "FAZENDA CAMPARINO": "0% a 10% de cobertura (0,5% do VGV)",
+      "NELORE ABBA": "1% do faturamento leilão + 2,5% da venda",
+      "NELORE AZ": "0,5% do faturamento leilão + 3% da venda",
+      "ASJ - AGROPECUÁRIA SÃO JOSÉ": "1% do faturamento leilão",
+      "SABIÁ DOURADO": "1% do faturamento leilão"
+    }
+  },
+  "sistema": {
+    "fechamentos": [
+      {
+        "id": "3dd27dc9-c607-4c39-8f6a-1fe2ae7e9155",
+        "nome": "TOUROS PREMIUM NELORE MAFRA - EDIÇÃO UBERABA",
+        "data": "2026-09-06",
+        "vgv_total": 21600,
+        "lotes_vendidos": 1,
+        "origem": "lances-auto"
+      },
+      {
+        "id": "d2f8adcc-6f9e-4515-ad52-f501bc736f00",
+        "nome": "MATRIZES E BEZERRAS",
+        "data": "2026-09-14",
+        "vgv_total": 21600,
+        "lotes_vendidos": 1,
+        "origem": "lances-auto"
+      }
+    ],
+    "vendasCapturadas": 39,
+    "semVinculo": 37
+  },
+  "cardDia05": {
+    "vgv": 1500300,
+    "jacamim": 883200,
+    "aratau": 617100,
+    "nota": "card feito em 05/09 22:03 contava o último lote do Jacamim (1.600 × 30 = 48.000), que foi perdido no \"agradece\"; sem ele o Jacamim é 835.200 e o dia 1.452.300 (+ 18.600 do Marcondes = 1.470.900)"
+  }
+}

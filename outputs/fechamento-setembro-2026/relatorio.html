@@ -1,0 +1,642 @@
+<!doctype html><html lang="pt-BR"><head><meta charset="utf-8">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Oswald:wght@500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<title>Bula — Fechamento de vendas — setembro/2026 (até 13/09)</title>
+<style>
+  @page { size: A4; margin: 0; }
+  * { box-sizing: border-box; }
+  body { font-family: Inter, "Segoe UI", Arial, sans-serif; color: #0A0A0A; margin: 0; font-size: 10.2px; line-height: 1.5; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  h1,h2,h3 { font-family: Oswald, "Arial Narrow", Impact, sans-serif; text-transform: uppercase; letter-spacing: .022em; font-weight: 600; margin: 0; }
+  .page { width: 210mm; height: 296mm; padding: 13mm 13mm 16mm; position: relative; page-break-after: always; overflow: hidden; }
+  .page:last-child { page-break-after: auto; }
+  .pfoot { position: absolute; left: 13mm; right: 13mm; bottom: 7mm; font-size: 7.4px; color: #A6A6A6; display: flex; justify-content: space-between; border-top: 1px solid #E6E6E6; padding-top: 2mm; }
+  .capa { background: #0A0A0A; color: #fff; padding: 32mm 20mm 20mm; display: flex; flex-direction: column; }
+  .capa img { width: 42mm; margin-bottom: 20mm; }
+  .capa h1 { font-size: 36px; line-height: 1.05; color: #fff; font-weight: 700; }
+  .capa h1 small { display: block; font-size: 17px; color: #B5B5B5; font-weight: 500; margin-top: 4mm; letter-spacing: .04em; }
+  .capa .sub { font-size: 12.2px; color: #B5B5B5; margin-top: 8mm; max-width: 146mm; line-height: 1.62; }
+  .capa .rule { width: 26mm; height: 3px; background: #C9A84C; margin: 9mm 0; }
+  .capa .big { font-family: Oswald, sans-serif; font-size: 34px; font-weight: 700; margin-top: 4mm; }
+  .capa .big span { font-size: 13px; color: #B5B5B5; font-weight: 500; display: block; letter-spacing: .1em; text-transform: uppercase; margin-bottom: 1mm; }
+  .capa .meta { margin-top: auto; flex-wrap: wrap; row-gap: 6mm; display: flex; gap: 11mm; border-top: 1px solid #2A2A2A; padding-top: 6mm; }
+  .capa .meta div span { display: block; font-size: 8.5px; color: #8A8A8A; text-transform: uppercase; letter-spacing: .09em; margin-bottom: 2px; }
+  .capa .meta div strong { font-size: 12px; font-weight: 600; }
+  .head { display: flex; justify-content: space-between; align-items: baseline; border-bottom: 2px solid #0A0A0A; padding-bottom: 2.6mm; margin-bottom: 4.5mm; }
+  .head h2 { font-size: 19.5px; }
+  .head .n { font-size: 9px; color: #6E6E6E; letter-spacing: .12em; text-transform: uppercase; font-family: Oswald, sans-serif; white-space: nowrap; margin-left: 6mm; }
+  h3 { font-size: 12.3px; margin: 5mm 0 2.2mm; }
+  h3:first-of-type { margin-top: 0; }
+  p { margin: 0 0 2.6mm; }
+  .lead { font-size: 11px; line-height: 1.56; }
+  strong { font-weight: 600; }
+  .muted { color: #6E6E6E; }
+  .small { font-size: 8.8px; color: #6E6E6E; line-height: 1.5; }
+  .tiles { display: grid; grid-template-columns: repeat(4,1fr); gap: 3mm; margin: 3.5mm 0 4.5mm; }
+  .tile { border: 1px solid #E6E6E6; border-top: 3px solid #0A0A0A; padding: 3.2mm 3.2mm 2.8mm; }
+  .tile .k { font-size: 8px; text-transform: uppercase; letter-spacing: .085em; color: #6E6E6E; margin-bottom: 1.5mm; line-height: 1.3; min-height: 5.6mm; }
+  .tile .v { font-family: Oswald, sans-serif; font-size: 19px; font-weight: 600; line-height: 1; }
+  .tile .v .cur { font-size: 11px; font-weight: 500; color: #6E6E6E; margin-right: 1px; }
+  .tile .d { font-size: 8.3px; color: #6E6E6E; margin-top: 1.5mm; line-height: 1.4; }
+  .tile.gold { border-top-color: #C9A84C; }
+  .box { border: 1px solid #E6E6E6; padding: 3.6mm 4.2mm; margin: 3.5mm 0; }
+  .box.dark { background: #0A0A0A; color: #fff; border-color: #0A0A0A; }
+  .box.dark .t { color: #C9A84C; }
+  .box.dark p, .box.dark li, .box.dark td { color: #D8D8D8; }
+  .box.dark strong { color: #fff; }
+  .box .t { font-family: Oswald, sans-serif; text-transform: uppercase; font-size: 11px; letter-spacing: .05em; margin-bottom: 2mm; font-weight: 600; }
+  .box.alerta { border-left: 3px solid #C9A84C; }
+  table { width: 100%; border-collapse: collapse; font-size: 9px; margin: 2mm 0; }
+  table.lotes { table-layout: fixed; font-size: 8.5px; }
+  table.lotes td { overflow: hidden; padding: 1.15mm 1.4mm; }
+  th { text-align: left; font-family: Oswald, sans-serif; text-transform: uppercase; font-size: 8.1px; letter-spacing: .07em; font-weight: 600; border-bottom: 1.4px solid #0A0A0A; padding: 1.6mm 1.4mm; }
+  td { padding: 1.4mm 1.4mm; border-bottom: 1px solid #F0F0F0; vertical-align: top; }
+  td.num, th.num { text-align: right; font-variant-numeric: tabular-nums; white-space: nowrap; }
+  tr.destaque td { background: #F6F6F6; }
+  tr.total td { border-top: 1.4px solid #0A0A0A; border-bottom: none; font-weight: 700; }
+  ol, ul { margin: 0 0 2.6mm; padding-left: 4.6mm; }
+  li { margin-bottom: 1.3mm; }
+  .cols2 { display: grid; grid-template-columns: 1fr 1fr; gap: 5mm; }
+  .kv { display: grid; grid-template-columns: 30mm 1fr; row-gap: .8mm; column-gap: 2.5mm; font-size: 8.8px; line-height: 1.42; margin-bottom: 3mm; }
+  .kv span { color: #9A9A9A; text-transform: uppercase; letter-spacing: .06em; font-size: 7.8px; padding-top: .6mm; }
+  .tag { display: inline-block; font-family: Oswald, sans-serif; font-size: 7.6px; letter-spacing: .08em; text-transform: uppercase; padding: .3mm 1.5mm; border: 1px solid #0A0A0A; }
+  .tag.nao { border-color: #B5B5B5; color: #6E6E6E; }
+  .bar { height: 5mm; background: #EFEFEF; position: relative; margin: 2mm 0 1.5mm; }
+  .bar i { position: absolute; left: 0; top: 0; bottom: 0; background: #0A0A0A; }
+  .bar b { position: absolute; top: 0; bottom: 0; width: 2px; background: #C9A84C; }
+</style></head><body>
+
+<!-- ══ CAPA ══ -->
+<section class="page capa">
+  <img src="data:image/png;base64,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" alt="Bula Assessoria">
+  <h1>Fechamento de<br>vendas<small>Setembro de 2026 · leilões de 01 a 13/09<br>Jacamim · Flor do Arataú · Marcondes · Mafra · Nelore Visual · Nelore AZ · 7º Mega Premium EAO · Katayama</small></h1>
+  <div class="rule"></div>
+  <div class="sub">Todos os pregões do mês até aqui, lote a lote, lidos nos grupos de WhatsApp e no repasse do Marcelo, conferidos
+  contra os resumos da própria equipe, o Mapa Geral da Magnos, o que o sistema capturou, o HastaPro e a planilha do chefe —
+  com o que ainda falta para virar fechamento definitivo.</div>
+  <div class="big"><span>Cobertura Bula de 01 a 13/09</span>R$ 2.065.800,00</div>
+  <div class="meta">
+    <div><span>Lotes · cabeças</span><strong>71 · 74</strong></div>
+    <div><span>Pregões com venda</span><strong>8 de 9 realizados</strong></div>
+    <div><span>Meta do mês</span><strong>R$ 5.479.544,90 · 38,0% feito</strong></div>
+    <div><span>Comissão da equipe</span><strong>R$ 40.821,00</strong></div>
+    <div><span>No HastaPro</span><strong>nada de setembro</strong></div>
+    <div><span>Emitido em</span><strong>14/09/2026</strong></div>
+  </div>
+</section>
+
+<!-- ══ 1. PARECER ══ -->
+<section class="page">
+  <div class="head"><h2>O mês até 13/09: R$ 2.065.800 em 71 lotes, 38% da meta</h2><div class="n">01 · Parecer</div></div>
+  <p class="lead">Setembro teve <strong>9 pregões realizados</strong> com a Bula até o dia 13 e a equipe vendeu em <strong>8</strong> deles.
+  O grande dia foi <strong>sábado 05/09</strong>: Jacamim (R$ 835.200, 23 lotes) e Flor do Arataú (R$ 617.100, 25 lotes, todos do Douglas) —
+  mais o lote do Nelore Marcondes que ninguém contou. O fim de semana 12–13 somou R$ 555.500 (AZ, EAO, Katayama).
+  Cada número bate com o que a própria equipe postou; o que não bateu está escrito.</p>
+
+  <div class="tiles">
+    <div class="tile gold"><div class="k">Meta do mês (Marcelo, 03/09)</div><div class="v"><span class="cur">R$</span>5.479.545</div><div class="d">22 leilões · R$ 39 mi previstos · cobertura alvo 16,68%</div></div>
+    <div class="tile"><div class="k">Realizado até 13/09</div><div class="v"><span class="cur">R$</span>2.065.800</div><div class="d">38,0% da meta · faltam R$ 3.413.745</div></div>
+    <div class="tile"><div class="k">Meta de venda dos pregões que ainda vêm</div><div class="v"><span class="cur">R$</span>2.857.424</div><div class="d">17 pregões de 14 a 28/09 na planilha</div></div>
+    <div class="tile"><div class="k">Comissão da equipe (provisória)</div><div class="v"><span class="cur">R$</span>40.821,00</div><div class="d">Douglas 19.866 · Peralta 6.870 · Fábio 6.256 · Nane 5.196</div></div>
+  </div>
+  <div class="bar"><i style="width:38.0%"></i><b style="left:89.8%"></b></div>
+  <p class="small">Barra: feito até 13/09 (38,0%). A marca dourada é onde o mês chega se cada pregão restante bater exatamente a sua meta de venda da planilha (90%).</p>
+
+  <table>
+    <tr><th>Data</th><th>Pregão</th><th>Leiloeira</th><th class="num">Lotes</th><th class="num">VGV Bula</th><th class="num">Meta (planilha)</th><th class="num">% meta</th><th>Bate com a equipe</th><th>Sistema</th></tr>
+    <tr class="destaque"><td>03/09</td><td>2º Leilão Nelore Crispim — Herança Genética</td><td>E-Rural</td><td class="num">0</td><td class="num">—</td><td class="num">R$ 106.400</td><td class="num">0%</td><td>sim</td><td>—</td></tr><tr><td>05/09</td><td>10º Leilão Especial Touros Fazenda Jacamim</td><td>Programa Leilões</td><td class="num">23</td><td class="num">R$ 835.200,00</td><td class="num">R$ 930.000</td><td class="num">90%</td><td>sim</td><td><span class="tag nao">fichas sem leilão</span></td></tr><tr><td>05/09</td><td>10º Leilão Nelore Flor do Arataú &amp; Convidados</td><td>Magnos Leilões</td><td class="num">25</td><td class="num">R$ 617.100,00</td><td class="num">R$ 151.800</td><td class="num">407%</td><td>sim</td><td><span class="tag nao">nada</span></td></tr><tr><td>05/09</td><td>Leilão Caminhos — Nelore Marcondes</td><td>a confirmar</td><td class="num">1</td><td class="num">R$ 18.600,00</td><td class="num">—</td><td class="num">—</td><td>sim</td><td><span class="tag nao">nada</span></td></tr><tr><td>06/09</td><td>Leilão Virtual Touros Premium Nelore Mafra —…</td><td>Programa Leilões</td><td class="num">1</td><td class="num">R$ 21.600,00</td><td class="num">R$ 450.450</td><td class="num">5%</td><td>sim</td><td>fechamento OK</td></tr><tr><td>09/09</td><td>Shopping de Genética Nelore Visual (venda…</td><td>— (preço fixo, sem…</td><td class="num">1</td><td class="num">R$ 17.800,00</td><td class="num">R$ 192.000</td><td class="num">9%</td><td>sim</td><td><span class="tag nao">nada</span></td></tr><tr><td>12/09</td><td>Leilão Virtual Reprodutores Nelore AZ</td><td>Ricardo Nicolau…</td><td class="num">4</td><td class="num">R$ 158.000,00</td><td class="num">R$ 158.558</td><td class="num">100%</td><td>sim</td><td><span class="tag nao">fichas sem leilão</span></td></tr><tr><td>13/09</td><td>7º Leilão Mega Premium EAO — Touros, Bezerras…</td><td>Programa Leilões /…</td><td class="num">12</td><td class="num">R$ 310.500,00</td><td class="num">R$ 412.913</td><td class="num">75%</td><td>sim</td><td><span class="tag nao">fichas sem leilão</span></td></tr><tr><td>13/09</td><td>Leilão Katayama Novo Repartimento — Fêmeas</td><td>não identificada (não…</td><td class="num">4</td><td class="num">R$ 87.000,00</td><td class="num">—</td><td class="num">—</td><td>sim</td><td><span class="tag nao">nada</span></td></tr>
+    <tr class="total"><td colspan="3">Setembro até 13/09</td><td class="num">71</td><td class="num">R$ 2.065.800,00</td><td class="num">R$ 2.402.121</td><td class="num">86%</td><td colspan="2">HastaPro: nada de setembro na FIL 2</td></tr>
+  </table>
+
+  <div class="box dark">
+    <div class="t">O que NÃO está no número — e por quê</div>
+    <ol style="margin:0">
+      <li><strong>Agrofeira IBC (Fábio, 02–08/09):</strong> 13 registros de lote/comprador sem valor. É o único VGV do mês sem número. Pedir a lista ao Fábio.</li>
+      <li><strong>lt 96 de 12/09 (Douglas, direcionamento do Rusa):</strong> leilão não identificado — R$ 21.000 fora de tudo.</li>
+      <li><strong>lt 105 do EAO e lt 38 "de 14/09":</strong> falso positivo da IA e ficha repostada — os dois estão no sistema e precisam ser apagados (R$ 60.600 a mais se ficarem).</li>
+      <li><strong>Só Criador 10/09 (Bula Remates):</strong> Laila na pista em 3 lotes (R$ 661.080) pela Remates — não é cobertura da Assessoria.</li>
+      <li><strong>Crispim 03/09 (E-Rural):</strong> zero em todas as fontes ("leilão barato").</li>
+    </ol>
+  </div>
+  <div class="pfoot"><span>Bula Assessoria Pecuária · Fechamento de vendas — setembro/2026 (até 13/09) · emitido em 14/09/2026</span><span>Página 2 de 8</span></div>
+</section>
+
+<!-- ══ 2. JACAMIM ══ -->
+<section class="page">
+  <div class="head"><h2>Sábado 05/09 · Jacamim — R$ 835.200 em 23 lotes</h2><div class="n">02 · Jacamim</div></div>
+  <div class="kv">
+    <span>Pregão</span><div>10º Leilão Especial Touros Fazenda Jacamim — Programa Leilões, Nova Mutum-MT · recinto + virtual · 12h BSB</div>
+    <span>Condição</span><div>lance × 30 (2+2+2+2+2+20); touro de central 40 parcelas; à vista −15%</div>
+    <span>Acordo</span><div><strong>3% da venda</strong> → receita estimada R$ 25.056,00</div>
+    <span>Planilha do chefe</span><div>previsão de faturamento R$ 3.720.000 · meta de venda R$ 930.000,00 (25%) · meta de comissão R$ 111.600,00 → <strong>90,0% da meta</strong></div>
+    <span>Resumo da equipe</span><div>"Foram 22 reprodutores e 1 touro de central comercializados" (post oficial 20:27) · tally no grupo às 20:05: "já foram 22 touros + 1 central" · <strong>bate: 22 touros + 1 central</strong></div>
+  </div>
+  <table class="lotes"><colgroup><col style="width:10mm"><col style="width:13mm"><col style="width:8mm"><col style="width:20mm"><col style="width:21mm"><col style="width:48mm"><col style="width:25mm"><col style="width:22mm"><col style="width:17mm"></colgroup><tr><th>Lote</th><th class="num">Parcela</th><th class="num">×</th><th class="num">VGV</th><th>Vendeu</th><th>Comprador</th><th>Praça</th><th>Ficha (hora · quem postou)</th><th class="num">Com.</th></tr>
+    <tr>
+  <td><strong>17</strong></td>
+  
+  <td class="num">1.100,00</td><td class="num">30×</td><td class="num"><strong>R$ 33.000,00</strong></td>
+  <td style="white-space:nowrap">Nane</td>
+  <td style="white-space:nowrap">Rubens Peixoto · Fazenda Morro Alto</td>
+  <td style="white-space:nowrap">Jauru-MT</td>
+  <td style="white-space:nowrap">13:58 <span class="muted">Nane</span></td>
+  <td class="num">R$ 660,00</td></tr><tr>
+  <td><strong>25</strong></td>
+  
+  <td class="num">1.100,00</td><td class="num">30×</td><td class="num"><strong>R$ 33.000,00</strong></td>
+  <td style="white-space:nowrap">Douglas</td>
+  <td style="white-space:nowrap">Reginaldo Leandro · Fazenda São José</td>
+  <td style="white-space:nowrap">São Félix do Xingu-P…</td>
+  <td style="white-space:nowrap">14:14 <span class="muted">Douglas</span></td>
+  <td class="num">R$ 660,00</td></tr><tr>
+  <td><strong>2</strong></td>
+  
+  <td class="num">1.150,00</td><td class="num">30×</td><td class="num"><strong>R$ 34.500,00</strong></td>
+  <td style="white-space:nowrap">Douglas</td>
+  <td style="white-space:nowrap">Luis Diehl · Agropecuária N. S. Aparecida</td>
+  <td style="white-space:nowrap">Nova Mutum-MT</td>
+  <td style="white-space:nowrap">14:16 <span class="muted">Douglas</span></td>
+  <td class="num">R$ 690,00</td></tr><tr>
+  <td><strong>1</strong></td>
+  
+  <td class="num">2.150,00</td><td class="num">30×</td><td class="num"><strong>R$ 64.500,00</strong></td>
+  <td style="white-space:nowrap">Peralta</td>
+  <td style="white-space:nowrap">Diego e Arthur Chiovetti · Fazenda Santa Rita</td>
+  <td style="white-space:nowrap">Rio Negro</td>
+  <td style="white-space:nowrap">14:29 <span class="muted">Peralta</span></td>
+  <td class="num">R$ 1.290,00</td></tr><tr>
+  <td><strong>15</strong></td>
+  
+  <td class="num">1.100,00</td><td class="num">30×</td><td class="num"><strong>R$ 33.000,00</strong></td>
+  <td style="white-space:nowrap">Peralta</td>
+  <td style="white-space:nowrap">Moacir e Leo Duim — Sementes Pasto Forma</td>
+  <td style="white-space:nowrap">—</td>
+  <td style="white-space:nowrap">15:08 <span class="muted">Peralta</span></td>
+  <td class="num">R$ 660,00</td></tr><tr>
+  <td><strong>76</strong></td>
+  
+  <td class="num">1.000,00</td><td class="num">30×</td><td class="num"><strong>R$ 30.000,00</strong></td>
+  <td style="white-space:nowrap">Douglas</td>
+  <td style="white-space:nowrap">Reginaldo Leandro · Fazenda São José</td>
+  <td style="white-space:nowrap">São Félix do Xingu-P…</td>
+  <td style="white-space:nowrap">15:32 <span class="muted">Douglas</span></td>
+  <td class="num">R$ 600,00</td></tr><tr>
+  <td><strong>77</strong></td>
+  
+  <td class="num">1.000,00</td><td class="num">30×</td><td class="num"><strong>R$ 30.000,00</strong></td>
+  <td style="white-space:nowrap">Peralta</td>
+  <td style="white-space:nowrap">Nicole Perondi e Fernando César Pinheiro — 7P Agro</td>
+  <td style="white-space:nowrap">—</td>
+  <td style="white-space:nowrap">15:35 <span class="muted">não capturado</span></td>
+  <td class="num">R$ 600,00</td></tr><tr>
+  <td><strong>75</strong></td>
+  
+  <td class="num">950,00</td><td class="num">30×</td><td class="num"><strong>R$ 28.500,00</strong></td>
+  <td style="white-space:nowrap">Douglas</td>
+  <td style="white-space:nowrap">Reginaldo Leandro · Fazenda São José</td>
+  <td style="white-space:nowrap">São Félix do Xingu-P…</td>
+  <td style="white-space:nowrap">15:45 <span class="muted">Douglas</span></td>
+  <td class="num">R$ 570,00</td></tr><tr>
+  <td><strong>central</strong></td>
+  
+  <td class="num">4.800,00</td><td class="num">40×</td><td class="num"><strong>R$ 192.000,00</strong></td>
+  <td style="white-space:nowrap">Peralta</td>
+  <td style="white-space:nowrap">Eduardo da Costa</td>
+  <td style="white-space:nowrap">—</td>
+  <td style="white-space:nowrap">16:24 <span class="muted">não capturado</span></td>
+  <td class="num">R$ 3.840,00</td></tr><tr>
+  <td><strong>96</strong></td>
+  
+  <td class="num">900,00</td><td class="num">30×</td><td class="num"><strong>R$ 27.000,00</strong></td>
+  <td style="white-space:nowrap">Nane</td>
+  <td style="white-space:nowrap">Fazenda São Jerônimo</td>
+  <td style="white-space:nowrap">Nova Canaã do…</td>
+  <td style="white-space:nowrap">16:25 <span class="muted">Nane</span></td>
+  <td class="num">R$ 540,00</td></tr><tr>
+  <td><strong>81</strong></td>
+  
+  <td class="num">850,00</td><td class="num">30×</td><td class="num"><strong>R$ 25.500,00</strong></td>
+  <td style="white-space:nowrap">Laila</td>
+  <td style="white-space:nowrap">Luis Antonio Dias Pinheiro · Fazenda Santa Lúcia</td>
+  <td style="white-space:nowrap">Planalto-BA</td>
+  <td style="white-space:nowrap">16:34 <span class="muted">Leonardo</span></td>
+  <td class="num">R$ 255,00</td></tr><tr>
+  <td><strong>82</strong></td>
+  
+  <td class="num">1.000,00</td><td class="num">30×</td><td class="num"><strong>R$ 30.000,00</strong></td>
+  <td style="white-space:nowrap">Fábio</td>
+  <td style="white-space:nowrap">Paulo César Oberlaender · Fazenda Santa Teresinha</td>
+  <td style="white-space:nowrap">Santa Rita do…</td>
+  <td style="white-space:nowrap">16:50 <span class="muted">Fábio</span></td>
+  <td class="num">R$ 600,00</td></tr><tr>
+  <td><strong>55</strong></td>
+  
+  <td class="num">1.000,00</td><td class="num">30×</td><td class="num"><strong>R$ 30.000,00</strong></td>
+  <td style="white-space:nowrap">Nane</td>
+  <td style="white-space:nowrap">Euclides Comim · Fazenda Chão de Estrelas</td>
+  <td style="white-space:nowrap">Nova Bandeirantes-MT</td>
+  <td style="white-space:nowrap">17:12 <span class="muted">Nane</span></td>
+  <td class="num">R$ 600,00</td></tr><tr>
+  <td><strong>53</strong></td>
+  
+  <td class="num">800,00</td><td class="num">30×</td><td class="num"><strong>R$ 24.000,00</strong></td>
+  <td style="white-space:nowrap">Nane</td>
+  <td style="white-space:nowrap">Rodrigo Capuci (assessoria Valentina Capuci)…</td>
+  <td style="white-space:nowrap">Rio Verde-MS</td>
+  <td style="white-space:nowrap">17:27 <span class="muted">Nane</span></td>
+  <td class="num">R$ 480,00</td></tr><tr>
+  <td><strong>64</strong></td>
+  
+  <td class="num">800,00</td><td class="num">30×</td><td class="num"><strong>R$ 24.000,00</strong></td>
+  <td style="white-space:nowrap">Peralta</td>
+  <td style="white-space:nowrap">Wilian Moreira · Fazenda Boa Esperança</td>
+  <td style="white-space:nowrap">Rio Verde de Mato…</td>
+  <td style="white-space:nowrap">17:41 <span class="muted">Peralta</span></td>
+  <td class="num">R$ 480,00</td></tr><tr>
+  <td><strong>58</strong></td>
+  
+  <td class="num">870,00</td><td class="num">30×</td><td class="num"><strong>R$ 26.100,00</strong></td>
+  <td style="white-space:nowrap">Nane</td>
+  <td style="white-space:nowrap">Fazenda São Jerônimo</td>
+  <td style="white-space:nowrap">Nova Canaã do…</td>
+  <td style="white-space:nowrap">17:52 <span class="muted">não capturado</span></td>
+  <td class="num">R$ 522,00</td></tr><tr>
+  <td><strong>59</strong></td>
+  
+  <td class="num">870,00</td><td class="num">30×</td><td class="num"><strong>R$ 26.100,00</strong></td>
+  <td style="white-space:nowrap">Nane</td>
+  <td style="white-space:nowrap">Fazenda São Jerônimo</td>
+  <td style="white-space:nowrap">Nova Canaã do…</td>
+  <td style="white-space:nowrap">17:52 <span class="muted">não capturado</span></td>
+  <td class="num">R$ 522,00</td></tr><tr>
+  <td><strong>102</strong></td>
+  
+  <td class="num">800,00</td><td class="num">30×</td><td class="num"><strong>R$ 24.000,00</strong></td>
+  <td style="white-space:nowrap">Laila</td>
+  <td style="white-space:nowrap">Luis Antonio Dias Pinheiro · Fazenda Santa Lúcia</td>
+  <td style="white-space:nowrap">Planalto-BA</td>
+  <td style="white-space:nowrap">17:58 <span class="muted">Laila</span></td>
+  <td class="num">R$ 240,00</td></tr><tr>
+  <td><strong>61</strong></td>
+  
+  <td class="num">800,00</td><td class="num">30×</td><td class="num"><strong>R$ 24.000,00</strong></td>
+  <td style="white-space:nowrap">Nane</td>
+  <td style="white-space:nowrap">Euclides Comim · Fazenda Chão de Estrelas</td>
+  <td style="white-space:nowrap">Nova Bandeirantes-MT</td>
+  <td style="white-space:nowrap">18:57 <span class="muted">Nane</span></td>
+  <td class="num">R$ 480,00</td></tr><tr>
+  <td><strong>62</strong></td>
+  
+  <td class="num">750,00</td><td class="num">30×</td><td class="num"><strong>R$ 22.500,00</strong></td>
+  <td style="white-space:nowrap">Nane</td>
+  <td style="white-space:nowrap">Fazenda São Jerônimo</td>
+  <td style="white-space:nowrap">Nova Canaã do…</td>
+  <td style="white-space:nowrap">18:59 <span class="muted">não capturado</span></td>
+  <td class="num">R$ 450,00</td></tr><tr>
+  <td><strong>108</strong></td>
+  
+  <td class="num">750,00</td><td class="num">30×</td><td class="num"><strong>R$ 22.500,00</strong></td>
+  <td style="white-space:nowrap">Nane</td>
+  <td style="white-space:nowrap">Euclides Comim · Fazenda Chão de Estrelas</td>
+  <td style="white-space:nowrap">Nova Bandeirantes-MT</td>
+  <td style="white-space:nowrap">19:18 <span class="muted">Nane</span></td>
+  <td class="num">R$ 450,00</td></tr><tr>
+  <td><strong>12</strong></td>
+  
+  <td class="num">850,00</td><td class="num">30×</td><td class="num"><strong>R$ 25.500,00</strong></td>
+  <td style="white-space:nowrap">Douglas</td>
+  <td style="white-space:nowrap">Reginaldo Leandro · Fazenda São José</td>
+  <td style="white-space:nowrap">São Félix do Xingu-P…</td>
+  <td style="white-space:nowrap">19:21 <span class="muted">Douglas</span></td>
+  <td class="num">R$ 510,00</td></tr><tr>
+  <td><strong>23</strong></td>
+  
+  <td class="num">850,00</td><td class="num">30×</td><td class="num"><strong>R$ 25.500,00</strong></td>
+  <td style="white-space:nowrap">Fábio</td>
+  <td style="white-space:nowrap">Thiago Silva · Fazenda Fortaleza Castelo</td>
+  <td style="white-space:nowrap">MG</td>
+  <td style="white-space:nowrap">19:49 <span class="muted">Fábio</span></td>
+  <td class="num">R$ 510,00</td></tr>
+    <tr class="total"><td colspan="3">23 lotes · 23 cabeças</td><td class="num">R$ 835.200,00</td><td colspan="4"></td><td class="num">R$ 16.209,00</td></tr>
+  </table>
+  <p class="small">Peralta 5 lotes · R$ 343.500 &nbsp;|&nbsp; Nane 9 lotes · R$ 235.200 &nbsp;|&nbsp; Douglas 5 lotes · R$ 151.500 &nbsp;|&nbsp; Fábio 2 lotes · R$ 55.500 &nbsp;|&nbsp; Laila 2 lotes · R$ 49.500. Percentuais da folha: 2% (Laila 1%). O card de 05/09 22:03 dizia <strong>R$ 883.200 / 24 lotes</strong> porque contava o último touro da noite (1.600 × 30), perdido no "agradece"; o post oficial das 20:27 diz 22 + 1, e é esse o número.</p>
+  <div class="cols2">
+    <div class="box alerta" style="margin-top:1mm"><div class="t">Lote a lote: o que precisa de atenção</div><ul style="margin:0"><li><strong>lt 25:</strong> A ficha diz "lt 26", mas o recinto anotou o 26 para João Giuzzo, a Nane perguntou "vc levou o lote 25?" e o repasse do Marcelo ao João (17:31) já sai com lt 25. Conferir na listagem da Programa.</li><li><strong>lt 1:</strong> Registro do Peralta: "Lote 1 - Daniele Coutinho vendeu - 2150". Entrou na contagem da equipe (22 touros) e no repasse do Marcelo; a comissão depende de quem é a Daniele.</li></ul></div>
+    <div class="box" style="margin-top:1mm"><div class="t">Disputou e não levou (não vira venda)</div><ul style="margin:0"><li>lt 16: Leonardo a 1.050, "Liberou". lt 14: 1.450, "Liberou". lt 36: 1.400, "Liberou". lt 86: "Levamos?" a 1.000, "Não". Último lote da noite: Douglas a 1.500/1.520 pelo Reginaldo — "Agradece lançando comigo", perdido.</li></ul></div>
+  </div>
+  <div class="pfoot"><span>Bula Assessoria Pecuária · Fechamento de vendas — setembro/2026 (até 13/09) · emitido em 14/09/2026</span><span>Página 3 de 8</span></div>
+</section>
+
+<!-- ══ 3. JACAMIM alertas + ARATAÚ ══ -->
+<section class="page">
+  <div class="head"><h2>Sábado 05/09 · Flor do Arataú — R$ 617.100 em 25 lotes (Douglas)</h2><div class="n">03 · Flor do Arataú</div></div>
+  <div class="kv">
+    <span>Pregão</span><div>10º Leilão Nelore Flor do Arataú &amp; Convidados — Magnos Leilões, Novo Repartimento-PA · presencial · o Douglas estava no recinto (no Jacamim ele comprou por telefone, "sem ver o leilão")</div>
+    <span>Fonte</span><div><strong>Mapa Geral da Magnos</strong> (4 fotos na DM do Marcelo, 20:34) + a lista dos 25 lotes + áudio "olha os lotes aí que o Douglas vendeu". Remate: R$ 927.300,00 em 38 lotes / 41 cabeças, 6 defesas (R$ 44.100)</div>
+    <span>Acordo</span><div><strong>1.0% do faturamento (planilha)</strong> → receita estimada R$ 9.273,00 · cobertura de <strong>66,5%</strong> do remate</div>
+    <span>Planilha do chefe</span><div>previsão R$ 1.265.000 · meta de venda R$ 151.800,00 (12%) → <strong>407% da meta</strong></div>
+  </div>
+  <table class="lotes"><colgroup><col style="width:10mm"><col style="width:22mm"><col style="width:9mm"><col style="width:24mm"><col style="width:101mm"><col style="width:18mm"></colgroup>
+    <tr><th>Lote</th><th>Categoria</th><th class="num">Cab.</th><th class="num">Valor (mapa)</th><th>Comprador (Mapa Geral da Magnos) — vendeu: Douglas Bispo</th><th class="num">2%</th></tr>
+    <tr><td><strong>8</strong></td><td>touro</td><td class="num">1</td><td class="num"><strong>R$ 40.500,00</strong></td><td style="white-space:nowrap">Dona Filomena (Faz…)</td><td class="num">R$ 810,00</td></tr><tr><td><strong>9</strong></td><td>touro</td><td class="num">1</td><td class="num"><strong>R$ 43.500,00</strong></td><td style="white-space:nowrap">Gessival Buss</td><td class="num">R$ 870,00</td></tr><tr><td><strong>10</strong></td><td>touro</td><td class="num">1</td><td class="num"><strong>R$ 21.000,00</strong></td><td style="white-space:nowrap">Paulo Henrique Baza…</td><td class="num">R$ 420,00</td></tr><tr><td><strong>15</strong></td><td>matriz</td><td class="num">2</td><td class="num"><strong>R$ 36.000,00</strong></td><td style="white-space:nowrap">Aldemar Broca</td><td class="num">R$ 720,00</td></tr><tr><td><strong>16</strong></td><td>matriz</td><td class="num">2</td><td class="num"><strong>R$ 24.000,00</strong></td><td style="white-space:nowrap">Aldemar Broca</td><td class="num">R$ 480,00</td></tr><tr><td><strong>17</strong></td><td>matriz</td><td class="num">2</td><td class="num"><strong>R$ 21.000,00</strong></td><td style="white-space:nowrap">Zé Fabio — Nelore Pe…</td><td class="num">R$ 420,00</td></tr><tr><td><strong>18</strong></td><td>matriz</td><td class="num">1</td><td class="num"><strong>R$ 15.000,00</strong></td><td style="white-space:nowrap">Roberto Ribeiro (Faz…)</td><td class="num">R$ 300,00</td></tr><tr><td><strong>19</strong></td><td>matriz</td><td class="num">1</td><td class="num"><strong>R$ 18.600,00</strong></td><td style="white-space:nowrap">Gessival Buss</td><td class="num">R$ 372,00</td></tr><tr><td><strong>20</strong></td><td>matriz +60M</td><td class="num">1</td><td class="num"><strong>R$ 28.500,00</strong></td><td style="white-space:nowrap">Murilo Bispo — Grupo A…</td><td class="num">R$ 570,00</td></tr><tr><td><strong>23</strong></td><td>touro</td><td class="num">1</td><td class="num"><strong>R$ 28.500,00</strong></td><td style="white-space:nowrap">Dalvan Barbosa (Faz…)</td><td class="num">R$ 570,00</td></tr><tr><td><strong>25</strong></td><td>touro</td><td class="num">1</td><td class="num"><strong>R$ 21.000,00</strong></td><td style="white-space:nowrap">Vitor Mendes</td><td class="num">R$ 420,00</td></tr><tr><td><strong>26</strong></td><td>touro</td><td class="num">1</td><td class="num"><strong>R$ 25.500,00</strong></td><td style="white-space:nowrap">Adriano Marques do N…</td><td class="num">R$ 510,00</td></tr><tr><td><strong>27</strong></td><td>touro</td><td class="num">1</td><td class="num"><strong>R$ 24.000,00</strong></td><td style="white-space:nowrap">Donivaldo (Faz. Santo…)</td><td class="num">R$ 480,00</td></tr><tr><td><strong>30</strong></td><td>touro</td><td class="num">1</td><td class="num"><strong>R$ 21.900,00</strong></td><td style="white-space:nowrap">Gessival Buss</td><td class="num">R$ 438,00</td></tr><tr><td><strong>31</strong></td><td>touro</td><td class="num">1</td><td class="num"><strong>R$ 33.000,00</strong></td><td style="white-space:nowrap">Dalvan Barbosa (Faz…)</td><td class="num">R$ 660,00</td></tr><tr><td><strong>36</strong></td><td>touro</td><td class="num">1</td><td class="num"><strong>R$ 22.500,00</strong></td><td style="white-space:nowrap">Donivaldo (Faz. Santo…)</td><td class="num">R$ 450,00</td></tr><tr><td><strong>37</strong></td><td>touro</td><td class="num">1</td><td class="num"><strong>R$ 22.500,00</strong></td><td style="white-space:nowrap">Vitor Mendes</td><td class="num">R$ 450,00</td></tr><tr><td><strong>39</strong></td><td>matriz</td><td class="num">1</td><td class="num"><strong>R$ 16.500,00</strong></td><td style="white-space:nowrap">Rodrigo e Valdeci Be…</td><td class="num">R$ 330,00</td></tr><tr><td><strong>40</strong></td><td>matriz</td><td class="num">1</td><td class="num"><strong>R$ 18.000,00</strong></td><td style="white-space:nowrap">Paulo Henrique Baza…</td><td class="num">R$ 360,00</td></tr><tr><td><strong>41</strong></td><td>matriz</td><td class="num">1</td><td class="num"><strong>R$ 14.100,00</strong></td><td style="white-space:nowrap">Gessival Buss</td><td class="num">R$ 282,00</td></tr><tr><td><strong>42</strong></td><td>matriz</td><td class="num">1</td><td class="num"><strong>R$ 15.000,00</strong></td><td style="white-space:nowrap">Paulo Henrique Baza…</td><td class="num">R$ 300,00</td></tr><tr><td><strong>43</strong></td><td>matriz</td><td class="num">1</td><td class="num"><strong>R$ 13.500,00</strong></td><td style="white-space:nowrap">Roberto Ribeiro (Faz…)</td><td class="num">R$ 270,00</td></tr><tr><td><strong>44</strong></td><td>matriz 36M</td><td class="num">1</td><td class="num"><strong>R$ 18.000,00</strong></td><td style="white-space:nowrap">Rodrigo e Valdeci Be…</td><td class="num">R$ 360,00</td></tr><tr><td><strong>45</strong></td><td>matriz</td><td class="num">1</td><td class="num"><strong>R$ 15.000,00</strong></td><td style="white-space:nowrap">Felipe Milanezi</td><td class="num">R$ 300,00</td></tr><tr><td><strong>46</strong></td><td>matriz +60M</td><td class="num">1</td><td class="num"><strong>R$ 60.000,00</strong></td><td style="white-space:nowrap">Condomínio Douglas B… (vendedor: Alfredo José Cardoso)</td><td class="num">R$ 1.200,00</td></tr>
+    <tr class="total"><td colspan="2">25 lotes</td><td class="num">28</td><td class="num">R$ 617.100,00</td><td></td><td class="num">R$ 12.342,00</td></tr>
+  </table>
+  <p class="small">11 touros + 14 matrizes (lotes 15, 16 e 17 têm 2 cabeças). Parcela = valor ÷ 30 só para leitura; o mapa traz o valor total. Gessival Buss levou 4 lotes (R$ 98.100) — é a mesma família Buss que comprou as 4 fêmeas do Katayama em 13/09.</p>
+  <div class="box alerta" style="margin-bottom:0">
+    <div class="t">Os dois lotes que precisam de decisão</div>
+    <ul style="margin:0">
+      <li><strong>Arataú lt 46 (R$ 60.000):</strong> Comprador é um condomínio com o próprio Douglas; vendedor convidado Alfredo José Cardoso (Galopeira, lista de direcionamento do Rusa). Decidir como a comissão desse lote entra.</li>
+      <li><strong>Jacamim lt 1 (R$ 64.500):</strong> Registro do Peralta: "Lote 1 - Daniele Coutinho vendeu - 2150". Entrou na contagem da equipe (22 touros) e no repasse do Marcelo; a comissão depende de quem é a Daniele.</li>
+    </ul>
+  </div>
+  <div class="pfoot"><span>Bula Assessoria Pecuária · Fechamento de vendas — setembro/2026 (até 13/09) · emitido em 14/09/2026</span><span>Página 4 de 8</span></div>
+</section>
+
+<!-- ══ 4. MARCONDES · MAFRA · VISUAL · CRISPIM · IBC ══ -->
+<section class="page">
+  <div class="head"><h2>Os pregões pequenos e o que ficou sem número</h2><div class="n">04 · Marcondes · Mafra · Visual · Crispim · IBC</div></div>
+  <div class="cols2">
+    <div>
+      <h3>05/09 · Leilão Caminhos — Nelore Marcondes</h3>
+      <table class="lotes"><colgroup><col style="width:9mm"><col style="width:12mm"><col style="width:7mm"><col style="width:19mm"><col style="width:14mm"><col style="width:30mm"></colgroup>
+        <tr><th>Lote</th><th class="num">Parcela</th><th class="num">×</th><th class="num">VGV</th><th>Vendeu</th><th>Comprador</th></tr>
+        <tr><td><strong>5</strong> <span class="muted">1F</span></td><td class="num">620,00</td><td class="num">30×</td><td class="num"><strong>R$ 18.600,00</strong></td><td>Douglas</td><td>Gabriel Delfino<br><span class="muted">Fazenda Espinho Branco · Patos-PB</span></td></tr>
+      </table>
+      <p class="small">Não estava na agenda nem na planilha; ficou fora do card de fechamento de 05/09 (1.500.300). Leiloeira e acordo a confirmar; ficha encaminhada pelo Marcelo às 21:32 com a arte "Leilão Caminhos — 05/09, 13h30".</p>
+
+      <h3>06/09 · Touros Premium Nelore Mafra — Uberaba</h3>
+      <table class="lotes"><colgroup><col style="width:9mm"><col style="width:12mm"><col style="width:7mm"><col style="width:19mm"><col style="width:14mm"><col style="width:30mm"></colgroup>
+        <tr><th>Lote</th><th class="num">Parcela</th><th class="num">×</th><th class="num">VGV</th><th>Vendeu</th><th>Comprador</th></tr>
+        <tr><td><strong>38</strong></td><td class="num">720,00</td><td class="num">30×</td><td class="num"><strong>R$ 21.600,00</strong></td><td>Fábio</td><td>Sra. Edna Bellato<br><span class="muted">Fazenda Novo Mundo · MT</span></td></tr>
+      </table>
+      <p class="small">Único fechamento de setembro que o ERP já tem certo. Meta de venda da planilha: R$ 450.450,00 (10%) → 5,0%. No grupo Lances Mafra (06/09): "Bateu 450 / cada mandou 60" e "450 / 460 / N consigo retorno" — duas disputas sem arremate; o mega lote de 40× foi só divulgação. Tabela Mafra: cobertura abaixo de 3% → 4% da venda (R$ 864,00).</p>
+
+      <h3>02–12/09 · Shopping Nelore Visual (venda direta)</h3>
+      <table class="lotes"><colgroup><col style="width:14mm"><col style="width:12mm"><col style="width:7mm"><col style="width:19mm"><col style="width:16mm"><col style="width:23mm"></colgroup>
+        <tr><th>Animal</th><th class="num">Parcela</th><th class="num">×</th><th class="num">Valor</th><th>Vendeu</th><th>Comprador</th></tr>
+        <tr><td><strong>VIS4819</strong></td><td class="num">1.480,00</td><td class="num">12×</td><td class="num"><strong>R$ 17.800,00</strong></td><td>Marcelo C.</td><td>Nivaldo Alves Ferreira Neto<br><span class="muted">Santa Helena de Minas-MG</span></td></tr>
+      </table>
+      <p class="small">R$ 17.800 à vista (12× de 1.480). Não está em bula_leilao_vendas (o parser não lê esse formato) nem em fechamento. Marcelo Carneiro está inativo na folha — quem recebe é decisão. Na planilha o Shopping está em 17/09 com 5% da venda (R$ 890,00) e meta de R$ 192.000.</p>
+
+      <h3>03/09 · 2º Nelore Crispim — Herança Genética (E-Rural)</h3>
+      <p class="small" style="margin:0">Nenhuma ficha em nenhum grupo, nenhum resumo. Meta de venda da planilha R$ 106.400 (40%). Igual a agosto: zero em todas as fontes.</p>
+    </div>
+    <div>
+      <div class="box alerta" style="margin-top:0">
+        <div class="t">Agrofeira IBC — vendas do Fábio sem valor</div>
+        <p>O Fábio anunciou 13 registros de lote/comprador no grupo de lances ("Lote 16 / Ronipetrison Ferreira / Bahia / AGROFEIRA IBC", "62 - GILMAR - FO - VENDIDO"…), compradores da BA/MA/SE/AL, sem parcela nem valor. O marketing diz "quem paga a sua comissão é Nelore IBC"; a planilha só tem o pregão de 18–19/09 (BC Agrofeira Fazenda Recanto, Agreste, 1% do faturamento). Pedir ao Fábio a lista com valores.</p>
+        <table style="margin:0; font-size:8.3px">
+          <tr><td style="white-space:nowrap">03/09 09:03</td><td>Lote 16 · Ronipetrison Ferreira · Bahia - BA</td></tr><tr><td style="white-space:nowrap">03/09 10:55</td><td>Lote 5 · Genisson Fraga · Maranhão</td></tr><tr><td style="white-space:nowrap">03/09 11:03</td><td>Lote 12 · Roberto Conceição · Maranhão</td></tr><tr><td style="white-space:nowrap">03/09 11:05</td><td>Lote 29 e 31 · Vavá de Roberto · Maranhão</td></tr><tr><td style="white-space:nowrap">03/09 11:15</td><td>Lote 51 · Vava de Roberto · Maranhão</td></tr><tr><td style="white-space:nowrap">03/09 11:18</td><td>Lote 01 · Roberto Conceição · Maranhão</td></tr><tr><td style="white-space:nowrap">03/09 11:20</td><td>Lote 11, 29, 40 · Chiquinho Conceição · Maranhão</td></tr><tr><td style="white-space:nowrap">03/09 11:41</td><td>Lote 28 · Vava de Roberto · Maranhão</td></tr><tr><td style="white-space:nowrap">03/09 12:05</td><td>Lote 53 · Flavio Lages coutinho</td></tr><tr><td style="white-space:nowrap">03/09 13:04</td><td>lote extra A1168 · Vavá de roberto · Maranhão</td></tr><tr><td style="white-space:nowrap">03/09 13:05</td><td>Lote extra A1225 | A1235 · Chiquinho Conceição · Maranhão</td></tr><tr><td style="white-space:nowrap">03/09 14:32</td><td>Lote 35 · Jaumiram · Maranhão</td></tr><tr><td style="white-space:nowrap">08/09 19:34</td><td>Lote 24 - AGROFEIRA IBC · Magnon Modesto</td></tr>
+        </table>
+      </div>
+      <div class="box" style="margin-top:0">
+        <div class="t">Bula Remates no mês (não é cobertura)</div>
+        <p style="margin:0"><strong>Só Criador Machos e Fêmeas de Alto Padrão — 10/09</strong>, gado comercial: R$ 2.096.357,59 em 11 lotes no HastaPro FIL 01.
+        Laila na pista nos lotes 31, 32, 14 (R$ 661.080,00) <strong>pela Remates</strong> — pela decisão de 26/08, quem está na pista pela Remates não entra na cobertura da Assessoria. É o único pregão de setembro que já existe no HastaPro.</p>
+      </div>
+    </div>
+  </div>
+  <div class="pfoot"><span>Bula Assessoria Pecuária · Fechamento de vendas — setembro/2026 (até 13/09) · emitido em 14/09/2026</span><span>Página 5 de 8</span></div>
+</section>
+
+<!-- ══ 5. FIM DE SEMANA 12–13 ══ -->
+<section class="page">
+  <div class="head"><h2>12 e 13/09 · AZ, EAO e Katayama — R$ 555.500 em 20 lotes</h2><div class="n">05 · Fim de semana</div></div>
+  <p class="small" style="margin-bottom:2mm">Resumo da conferência entregue em 14/09 ("Conferência dos lançamentos — 11 a 13/09"); o detalhe lote a lote, os não-arremates e as provas estão lá. Os três totais batem com o resumo que a equipe postou no Financeiro às 22h de domingo.</p>
+  
+  <h3>12/09 · Leilão Virtual Reprodutores Nelore AZ — R$ 158.000 <span class="muted" style="font-family:Inter;text-transform:none;letter-spacing:0;font-weight:400;font-size:9px">· Ricardo Nicolau Leilões (Boi e Terra Negócios Agropecuários) · 0,5% do faturamento leilão + 3% da venda · meta R$ 158.558 → 100%</span></h3>
+  <table class="lotes"><colgroup><col style="width:10mm"><col style="width:13mm"><col style="width:8mm"><col style="width:20mm"><col style="width:21mm"><col style="width:48mm"><col style="width:25mm"><col style="width:22mm"><col style="width:17mm"></colgroup><tr><th>Lote</th><th class="num">Parcela</th><th class="num">×</th><th class="num">VGV</th><th>Vendeu</th><th>Comprador</th><th>Praça</th><th>Ficha (hora · quem postou)</th><th class="num">Com.</th></tr>
+    <tr>
+  <td><strong>2023</strong></td>
+  
+  <td class="num">2.300,00</td><td class="num">40×</td><td class="num"><strong>R$ 92.000,00</strong></td>
+  <td style="white-space:nowrap">Fábio</td>
+  <td style="white-space:nowrap">João Batista Soares Diniz · Fazenda Rio Bonito</td>
+  <td style="white-space:nowrap">Redenção-PA</td>
+  <td style="white-space:nowrap">17:11 <span class="muted">Fábio</span></td>
+  <td class="num">R$ 1.840,00</td></tr><tr>
+  <td><strong>11</strong></td>
+  
+  <td class="num">800,00</td><td class="num">30×</td><td class="num"><strong>R$ 24.000,00</strong></td>
+  <td style="white-space:nowrap">Leonardo</td>
+  <td style="white-space:nowrap">José Nilson Ceron · Fazenda Ana Amália</td>
+  <td style="white-space:nowrap">Marcelândia-MT</td>
+  <td style="white-space:nowrap">18:55 <span class="muted">Leonardo</span></td>
+  <td class="num">R$ 480,00</td></tr><tr>
+  <td><strong>43</strong></td>
+  
+  <td class="num">700,00</td><td class="num">30×</td><td class="num"><strong>R$ 21.000,00</strong></td>
+  <td style="white-space:nowrap">Leonardo</td>
+  <td style="white-space:nowrap">José Nilson Ceron · Fazenda Ana Amália</td>
+  <td style="white-space:nowrap">Marcelândia-MT</td>
+  <td style="white-space:nowrap">19:19 <span class="muted">Leonardo</span></td>
+  <td class="num">R$ 420,00</td></tr><tr>
+  <td><strong>44</strong></td>
+  
+  <td class="num">700,00</td><td class="num">30×</td><td class="num"><strong>R$ 21.000,00</strong></td>
+  <td style="white-space:nowrap">Leonardo</td>
+  <td style="white-space:nowrap">José Nilson Ceron · Fazenda Ana Amália</td>
+  <td style="white-space:nowrap">Marcelândia-MT</td>
+  <td style="white-space:nowrap">19:19 <span class="muted">Leonardo</span></td>
+  <td class="num">R$ 420,00</td></tr>
+    <tr class="total"><td colspan="3">4 lotes · 4 cabeças</td><td class="num">R$ 158.000,00</td><td colspan="4"></td><td class="num">R$ 3.160,00</td></tr>
+  </table>
+  <h3>13/09 · 7º Leilão Mega Premium EAO — Touros, Bezerras e Matrizes (1º dia) — R$ 310.500 <span class="muted" style="font-family:Inter;text-transform:none;letter-spacing:0;font-weight:400;font-size:9px">· Programa Leilões / Central Leilões · 0,33% do faturamento total dos leilões · meta R$ 412.913 → 75%</span></h3>
+  <table class="lotes"><colgroup><col style="width:10mm"><col style="width:13mm"><col style="width:8mm"><col style="width:20mm"><col style="width:21mm"><col style="width:48mm"><col style="width:25mm"><col style="width:22mm"><col style="width:17mm"></colgroup><tr><th>Lote</th><th class="num">Parcela</th><th class="num">×</th><th class="num">VGV</th><th>Vendeu</th><th>Comprador</th><th>Praça</th><th>Ficha (hora · quem postou)</th><th class="num">Com.</th></tr>
+    <tr>
+  <td><strong>9</strong></td>
+  
+  <td class="num">820,00</td><td class="num">30×</td><td class="num"><strong>R$ 24.600,00</strong></td>
+  <td style="white-space:nowrap">Douglas</td>
+  <td style="white-space:nowrap">Dra. Marilda Alves Moreira · Fazenda Asa Branca</td>
+  <td style="white-space:nowrap">Xinguara-PA</td>
+  <td style="white-space:nowrap">10:37 <span class="muted">Douglas</span></td>
+  <td class="num">R$ 492,00</td></tr><tr>
+  <td><strong>12</strong></td>
+  
+  <td class="num">800,00</td><td class="num">30×</td><td class="num"><strong>R$ 24.000,00</strong></td>
+  <td style="white-space:nowrap">Fábio</td>
+  <td style="white-space:nowrap">Laurentino Fernandes Pereira · Fazenda Santa Maria</td>
+  <td style="white-space:nowrap">Jaíba-MG</td>
+  <td style="white-space:nowrap">10:47 <span class="muted">Fábio</span></td>
+  <td class="num">R$ 480,00</td></tr><tr>
+  <td><strong>19</strong></td>
+  
+  <td class="num">800,00</td><td class="num">30×</td><td class="num"><strong>R$ 24.000,00</strong></td>
+  <td style="white-space:nowrap">Fábio</td>
+  <td style="white-space:nowrap">Alberto Medeiros · Fazenda Medeiros</td>
+  <td style="white-space:nowrap">Bacabal-MA</td>
+  <td style="white-space:nowrap">11:12 <span class="muted">Fábio</span></td>
+  <td class="num">R$ 480,00</td></tr><tr>
+  <td><strong>21</strong></td>
+  
+  <td class="num">1.050,00</td><td class="num">30×</td><td class="num"><strong>R$ 31.500,00</strong></td>
+  <td style="white-space:nowrap">Douglas</td>
+  <td style="white-space:nowrap">Dra. Marilda Alves Moreira · Fazenda Asa Branca</td>
+  <td style="white-space:nowrap">Xinguara-PA</td>
+  <td style="white-space:nowrap">11:21 <span class="muted">Douglas</span></td>
+  <td class="num">R$ 630,00</td></tr><tr>
+  <td><strong>26</strong></td>
+  
+  <td class="num">800,00</td><td class="num">30×</td><td class="num"><strong>R$ 24.000,00</strong></td>
+  <td style="white-space:nowrap">Fábio</td>
+  <td style="white-space:nowrap">Joerson Ferronato · Fazenda Jacutinga</td>
+  <td style="white-space:nowrap">MT</td>
+  <td style="white-space:nowrap">11:33 <span class="muted">Fábio</span></td>
+  <td class="num">R$ 480,00</td></tr><tr>
+  <td><strong>47</strong></td>
+  
+  <td class="num">1.300,00</td><td class="num">30×</td><td class="num"><strong>R$ 39.000,00</strong></td>
+  <td style="white-space:nowrap">Douglas</td>
+  <td style="white-space:nowrap">Gessivaldo Lobo · Agropecuária 3 Marias</td>
+  <td style="white-space:nowrap">Barra do Corda-MA</td>
+  <td style="white-space:nowrap">12:46 <span class="muted">Douglas</span></td>
+  <td class="num">R$ 780,00</td></tr><tr>
+  <td><strong>52</strong></td>
+  
+  <td class="num">820,00</td><td class="num">30×</td><td class="num"><strong>R$ 24.600,00</strong></td>
+  <td style="white-space:nowrap">Nane</td>
+  <td style="white-space:nowrap">Marcos Rodrigo Capuci · Fazenda Santo Antônio</td>
+  <td style="white-space:nowrap">Rio Verde-MS</td>
+  <td style="white-space:nowrap">13:27 <span class="muted">Nane</span></td>
+  <td class="num">R$ 492,00</td></tr><tr>
+  <td><strong>71</strong></td>
+  
+  <td class="num">800,00</td><td class="num">30×</td><td class="num"><strong>R$ 24.000,00</strong></td>
+  <td style="white-space:nowrap">Douglas</td>
+  <td style="white-space:nowrap">Deiglames Oliveira · Fazenda Canaã</td>
+  <td style="white-space:nowrap">Montes Altos-MA</td>
+  <td style="white-space:nowrap">14:00 <span class="muted">Douglas</span></td>
+  <td class="num">R$ 480,00</td></tr><tr>
+  <td><strong>74</strong></td>
+  
+  <td class="num">770,00</td><td class="num">30×</td><td class="num"><strong>R$ 23.100,00</strong></td>
+  <td style="white-space:nowrap">Fábio</td>
+  <td style="white-space:nowrap">Wesley Carvalho Silva · Fazenda Carvalho</td>
+  <td style="white-space:nowrap">Formoso-GO</td>
+  <td style="white-space:nowrap">14:11 <span class="muted">Fábio</span></td>
+  <td class="num">R$ 462,00</td></tr><tr>
+  <td><strong>100</strong></td>
+  
+  <td class="num">800,00</td><td class="num">30×</td><td class="num"><strong>R$ 24.000,00</strong></td>
+  <td style="white-space:nowrap">Fábio</td>
+  <td style="white-space:nowrap">Joerson Ferronato · Fazenda Jacutinga</td>
+  <td style="white-space:nowrap">MT</td>
+  <td style="white-space:nowrap">15:23 <span class="muted">Fábio</span></td>
+  <td class="num">R$ 480,00</td></tr><tr>
+  <td><strong>107</strong></td>
+  
+  <td class="num">820,00</td><td class="num">30×</td><td class="num"><strong>R$ 24.600,00</strong></td>
+  <td style="white-space:nowrap">Fábio</td>
+  <td style="white-space:nowrap">Vilmar Pantaleão · Fazenda VP</td>
+  <td style="white-space:nowrap">MT</td>
+  <td style="white-space:nowrap">17:51 <span class="muted">Fábio (2º nº)</span></td>
+  <td class="num">R$ 492,00</td></tr><tr>
+  <td><strong>222</strong></td>
+  
+  <td class="num">770,00</td><td class="num">30×</td><td class="num"><strong>R$ 23.100,00</strong></td>
+  <td style="white-space:nowrap">Leonardo</td>
+  <td style="white-space:nowrap">Rafael Falci</td>
+  <td style="white-space:nowrap">Belo Horizonte-MG</td>
+  <td style="white-space:nowrap">20:58 <span class="muted">Marcelo C.</span></td>
+  <td class="num">R$ 462,00</td></tr>
+    <tr class="total"><td colspan="3">12 lotes · 12 cabeças</td><td class="num">R$ 310.500,00</td><td colspan="4"></td><td class="num">R$ 6.210,00</td></tr>
+  </table>
+  <h3>13/09 · Leilão Katayama Novo Repartimento — Fêmeas — R$ 87.000 <span class="muted" style="font-family:Inter;text-transform:none;letter-spacing:0;font-weight:400;font-size:9px">· não identificada (não está na agenda pública nem no radar) · sem acordo cadastrado (não está na aba Acordos com Marcas nem na planilha de setembro); precedente 31/05: 5% da venda da cobertura</span></h3>
+  <table class="lotes"><colgroup><col style="width:10mm"><col style="width:13mm"><col style="width:8mm"><col style="width:20mm"><col style="width:21mm"><col style="width:48mm"><col style="width:25mm"><col style="width:22mm"><col style="width:17mm"></colgroup><tr><th>Lote</th><th class="num">Parcela</th><th class="num">×</th><th class="num">VGV</th><th>Vendeu</th><th>Comprador</th><th>Praça</th><th>Ficha (hora · quem postou)</th><th class="num">Com.</th></tr>
+    <tr>
+  <td><strong>5</strong></td>
+  
+  <td class="num">1.010,00</td><td class="num">30×</td><td class="num"><strong>R$ 30.300,00</strong></td>
+  <td style="white-space:nowrap">Douglas <span class="muted">(correl.)</span></td>
+  <td style="white-space:nowrap">Leo Buss / Val Buss — Agropecuária Buss…</td>
+  <td style="white-space:nowrap">Maracajá-PA</td>
+  <td style="white-space:nowrap">17:11 <span class="muted">não capturado</span></td>
+  <td class="num">R$ 606,00</td></tr><tr>
+  <td><strong>4</strong></td>
+  
+  <td class="num">700,00</td><td class="num">30×</td><td class="num"><strong>R$ 21.000,00</strong></td>
+  <td style="white-space:nowrap">Douglas <span class="muted">(correl.)</span></td>
+  <td style="white-space:nowrap">Leo Buss / Val Buss — Agropecuária Buss…</td>
+  <td style="white-space:nowrap">Maracajá-PA</td>
+  <td style="white-space:nowrap">17:11 <span class="muted">não capturado</span></td>
+  <td class="num">R$ 420,00</td></tr><tr>
+  <td><strong>7</strong></td>
+  
+  <td class="num">660,00</td><td class="num">30×</td><td class="num"><strong>R$ 19.800,00</strong></td>
+  <td style="white-space:nowrap">Douglas <span class="muted">(correl.)</span></td>
+  <td style="white-space:nowrap">Leo Buss / Val Buss — Agropecuária Buss…</td>
+  <td style="white-space:nowrap">Maracajá-PA</td>
+  <td style="white-space:nowrap">17:11 <span class="muted">não capturado</span></td>
+  <td class="num">R$ 396,00</td></tr><tr>
+  <td><strong>3</strong></td>
+  
+  <td class="num">530,00</td><td class="num">30×</td><td class="num"><strong>R$ 15.900,00</strong></td>
+  <td style="white-space:nowrap">Douglas <span class="muted">(correl.)</span></td>
+  <td style="white-space:nowrap">Leo Buss / Val Buss — Agropecuária Buss…</td>
+  <td style="white-space:nowrap">Maracajá-PA</td>
+  <td style="white-space:nowrap">17:11 <span class="muted">não capturado</span></td>
+  <td class="num">R$ 318,00</td></tr>
+    <tr class="total"><td colspan="3">4 lotes · 4 cabeças</td><td class="num">R$ 87.000,00</td><td colspan="4"></td><td class="num">R$ 1.740,00</td></tr>
+  </table>
+  <p class="small">A mensagem (grupo Assessores, 13/09 17:11; autor não capturado pelo sistema) não diz "foi com". Atribuída ao Douglas por correlação: Novo Repartimento-PA é praça dele (13 fichas de jul–ago/2026, todas dele); em 11/08 ele escreveu "estou só olhando o gado da Katayama aqui para mandar para um cliente"; Gessivaldo Buss (PA, DDD 94) já é cliente no HastaPro. Confirmar com ele antes de gerar título.</p>
+  <div class="pfoot"><span>Bula Assessoria Pecuária · Fechamento de vendas — setembro/2026 (até 13/09) · emitido em 14/09/2026</span><span>Página 6 de 8</span></div>
+</section>
+
+<!-- ══ 6. POR ASSESSOR + META ══ -->
+<section class="page">
+  <div class="head"><h2>Por assessor e o que falta para a meta</h2><div class="n">06 · Assessores · Meta</div></div>
+  <table>
+    <tr><th>Assessor</th><th class="num">%</th><th class="num">Lotes</th><th class="num">Cab.</th><th class="num">VGV</th><th class="num">Jacamim</th><th class="num">Arataú</th><th class="num">Marcond.</th><th class="num">MAFRA</th><th class="num">VISUAL</th><th class="num">AZ</th><th class="num">EAO</th><th class="num">Katayama</th><th class="num">Comissão</th></tr>
+    <tr><td style="white-space:nowrap">Douglas Bispo</td><td class="num">2%</td><td class="num">39</td><td class="num">42</td><td class="num"><strong>R$ 993.300</strong></td><td class="num">151.500</td><td class="num">617.100</td><td class="num">18.600</td><td class="num">—</td><td class="num">—</td><td class="num">—</td><td class="num">119.100</td><td class="num">87.000</td><td class="num"><strong>R$ 19.866,00</strong></td></tr><tr><td style="white-space:nowrap">Peralta</td><td class="num">2%</td><td class="num">5</td><td class="num">5</td><td class="num"><strong>R$ 343.500</strong></td><td class="num">343.500</td><td class="num">—</td><td class="num">—</td><td class="num">—</td><td class="num">—</td><td class="num">—</td><td class="num">—</td><td class="num">—</td><td class="num"><strong>R$ 6.870,00</strong></td></tr><tr><td style="white-space:nowrap">Fábio Omena</td><td class="num">2%</td><td class="num">10</td><td class="num">10</td><td class="num"><strong>R$ 312.800</strong></td><td class="num">55.500</td><td class="num">—</td><td class="num">—</td><td class="num">21.600</td><td class="num">—</td><td class="num">92.000</td><td class="num">143.700</td><td class="num">—</td><td class="num"><strong>R$ 6.256,00</strong></td></tr><tr><td style="white-space:nowrap">Nane (Regiane)</td><td class="num">2%</td><td class="num">10</td><td class="num">10</td><td class="num"><strong>R$ 259.800</strong></td><td class="num">235.200</td><td class="num">—</td><td class="num">—</td><td class="num">—</td><td class="num">—</td><td class="num">—</td><td class="num">24.600</td><td class="num">—</td><td class="num"><strong>R$ 5.196,00</strong></td></tr><tr><td style="white-space:nowrap">Leonardo Serafim</td><td class="num">2%</td><td class="num">4</td><td class="num">4</td><td class="num"><strong>R$ 89.100</strong></td><td class="num">—</td><td class="num">—</td><td class="num">—</td><td class="num">—</td><td class="num">—</td><td class="num">66.000</td><td class="num">23.100</td><td class="num">—</td><td class="num"><strong>R$ 1.782,00</strong></td></tr><tr><td style="white-space:nowrap">Laila</td><td class="num">1%</td><td class="num">2</td><td class="num">2</td><td class="num"><strong>R$ 49.500</strong></td><td class="num">49.500</td><td class="num">—</td><td class="num">—</td><td class="num">—</td><td class="num">—</td><td class="num">—</td><td class="num">—</td><td class="num">—</td><td class="num"><strong>R$ 495,00</strong></td></tr><tr><td style="white-space:nowrap">Marcelo Carneiro</td><td class="num">2%</td><td class="num">1</td><td class="num">1</td><td class="num"><strong>R$ 17.800</strong></td><td class="num">—</td><td class="num">—</td><td class="num">—</td><td class="num">—</td><td class="num">17.800</td><td class="num">—</td><td class="num">—</td><td class="num">—</td><td class="num"><strong>R$ 356,00</strong></td></tr>
+    <tr class="total"><td colspan="2">Equipe</td><td class="num">71</td><td class="num">74</td><td class="num">R$ 2.065.800</td><td class="num">835.200</td><td class="num">617.100</td><td class="num">18.600</td><td class="num">21.600</td><td class="num">17.800</td><td class="num">158.000</td><td class="num">310.500</td><td class="num">87.000</td><td class="num">R$ 40.821,00</td></tr>
+  </table>
+  <p class="small">Percentuais da folha: 2% para todos, Laila 1%. Nane acumula para 28/12. Peralta e Marcelo Carneiro estão inativos na folha (2%) — os títulos deles são decisão. Douglas tem 87.000 do Katayama por correlação. Nenhum comprador do mês está na lista de direcionamento do Rusa, exceto o lt 96 (fora) e o vendedor do lt 46 do Arataú. <strong>Não gerar CP antes das listagens oficiais.</strong></p>
+
+  <div class="cols2">
+    <div class="box" style="margin-top:2mm">
+      <div class="t">A meta de setembro</div>
+      <table style="margin:0">
+        <tr><td>Meta de vendas do mês (Marcelo, 03/09)</td><td class="num"><strong>R$ 5.479.544,90</strong></td></tr>
+        <tr><td>Realizado até 13/09 (8 pregões)</td><td class="num">R$ 2.065.800,00 · 38,0%</td></tr>
+        <tr><td>Falta</td><td class="num">R$ 3.413.744,90</td></tr>
+        <tr><td>Meta de venda somada dos 17 pregões restantes (planilha)</td><td class="num">R$ 2.857.424,00</td></tr>
+        <tr class="total"><td>Se todos baterem a meta, o mês fecha em</td><td class="num">R$ 4.923.224,00 · 90%</td></tr>
+      </table>
+      <p class="small" style="margin:2mm 0 0">Os 8 pregões realizados tinham meta somada de R$ 2.402.121 e entregaram 86% — o Arataú (407%) e o Jacamim (90%) carregaram; AZ 100%, EAO touros 70%, Mafra 5%, Crispim 0%.</p>
+    </div>
+    <div class="box" style="margin-top:2mm">
+      <div class="t">O que ainda vem (14 a 28/09)</div>
+      <table style="margin:0; font-size:8.5px">
+        <tr><th>Data</th><th>Pregão</th><th class="num">Meta venda</th></tr>
+        <tr><td>14/09</td><td>MATRIZES E BEZERRAS</td><td class="num">R$ 264.264</td></tr><tr><td>15/09</td><td>Leilão Geração Elite</td><td class="num">R$ 128.000</td></tr><tr><td>15/09</td><td>ASPIRAÇÕES EAO E CONVIDADOS</td><td class="num">R$ 60.060</td></tr><tr><td>15/09</td><td>Shopping Naviraí — Edição Marabá</td><td class="num">—</td></tr><tr><td>17/09</td><td>1º Leilão Fazenda Bela Aurora</td><td class="num">R$ 102.000</td></tr><tr><td>18/09</td><td>1º DIA - BC AGROFEIRA FAZENDA RECANTO</td><td class="num">R$ 384.000</td></tr><tr><td>19/09</td><td>3º Leilão Nelore Barra do Dia</td><td class="num">R$ 128.000</td></tr><tr><td>19/09</td><td>2º DIA - BC AGROFEIRA FAZENDA RECANTO</td><td class="num">R$ 112.000</td></tr><tr><td>20/09</td><td>3º Leilão LS Collection</td><td class="num">—</td></tr><tr><td>20/09</td><td>2º LEILÃO MARAMBAIA &amp; MARCA 33</td><td class="num">R$ 212.000</td></tr><tr><td>24/09</td><td>Leilão Evolução FB Agro</td><td class="num">R$ 127.500</td></tr><tr><td>26/09</td><td>NELORE ABBA</td><td class="num">R$ 325.000</td></tr><tr><td>26/09</td><td>2º Leilão Parceria Nelore Premium</td><td class="num">R$ 228.600</td></tr><tr><td>27/09</td><td>2º Leilão Genética Camparino</td><td class="num">—</td></tr><tr><td>27/09</td><td>PARANÃ TOUROS</td><td class="num">R$ 250.000</td></tr><tr><td>27/09</td><td>Leilão Primavera Genética Aditiva —…</td><td class="num">R$ 352.000</td></tr><tr><td>28/09</td><td>Leilão Primavera Genética Aditiva —…</td><td class="num">R$ 184.000</td></tr>
+      </table>
+    </div>
+  </div>
+  <div class="pfoot"><span>Bula Assessoria Pecuária · Fechamento de vendas — setembro/2026 (até 13/09) · emitido em 14/09/2026</span><span>Página 7 de 8</span></div>
+</section>
+
+<!-- ══ 7. CORREÇÕES + PENDÊNCIAS ══ -->
+<section class="page">
+  <div class="head"><h2>O que falta para virar fechamento definitivo</h2><div class="n">07 · Correções · Pendências</div></div>
+  <div class="cols2">
+    <div class="box" style="margin-top:0">
+      <div class="t">No sistema (nada foi alterado ainda)</div>
+      <ol style="margin:0"><li><strong>Apagar o fechamento fantasma "MATRIZES E BEZERRAS 14/09" e a venda duplicada do lt 38 (14/09); apagar o lt 105 (13/09)</strong> <span class="muted">Duplicata do Mafra 06/09 e falso positivo da IA — os dois inflariam setembro em R$ 60.600.</span></li><li><strong>Vincular as 23 fichas de 05/09 ao "TOUROS JACAMIN", as 4 de 12/09 ao AZ e as 12 de 13/09 ao EAO; depois "Importar pro fechamento"</strong> <span class="muted">Estão todas como "revisar" sem leilão (dois pregões no mesmo dia). O rebuild faz ×30: ajustar à mão o central Estocolmo (×40 = 192.000) e o lt 2023 do AZ (×40 = 92.000)…</span></li><li><strong>Criar à mão os fechamentos sem ficha capturável: Flor do Arataú (25 lotes, 617.100, Douglas — lote a lote pelo Mapa Geral), Nelore Marcondes (1 lote, 18.600), Katayama (4 lotes, 87.000) e o Shopping Visual (17.800)</strong> <span class="muted">Nenhum passou pelo grupo de lances no formato que o parser lê; o Arataú tem listagem oficial (foto) — é o mais seguro de todos.</span></li><li><strong>Lançar setembro no HastaPro (FIL 2) e rodar o importador canônico</strong> <span class="muted">Último pregão da FIL 2 no HastaPro: 30/08. Até lá tudo isto é fechamento provisório (origem lances-auto), e a comissão só deve virar CP depois.</span></li><li><strong>Cobrar as listagens oficiais: Programa (Jacamim, Mafra, EAO), Ricardo Nicolau (AZ), Katayama e Marcondes</strong> <span class="muted">Só a listagem confirma parcelas, cotas (lt 10 e central do Jacamim, lt 2023 do AZ), cancelamentos e o faturamento total de que saem as notas (AZ 0,5%, EAO 0,33%, Arataú…</span></li><li><strong>Pedir ao Fábio a lista do IBC com valores e ao Douglas o pregão do lt 96 e a confirmação do Katayama</strong> <span class="muted">São os únicos VGVs do mês que ainda não têm número ou dono.</span></li></ol>
+      <p class="small" style="margin:2mm 0 0">Hoje o ERP tem 2 fechamentos em setembro (TOUROS PREMIUM NELORE MAFRA… 06/09 · R$ 21.600 · MATRIZES E BEZERRAS 14/09 · R$ 21.600) e 39 fichas capturadas, 37 sem leilão vinculado.</p>
+    </div>
+    <div class="box" style="margin-top:0">
+      <div class="t">Pendências — quem responde o quê</div>
+      <table style="margin:0; font-size:8.4px">
+        <tr><td>Jacamim lote 1 (2.150 × 30 = 64.500): "Daniele Coutinho vendeu" — quem recebe a comissão?<br><span class="muted">R$ 1.290 (2%) e o próprio VGV do Peralta</span></td><td style="white-space:nowrap">Peralta / Marcelo</td></tr><tr><td>Jacamim lote 25 × 26 (mesma parcela, 1.100): a ficha do Douglas diz 26, o recinto deu o 26 a João Giuzzo<br><span class="muted">só o número do lote (VGV igual)</span></td><td style="white-space:nowrap">listagem da Programa</td></tr><tr><td>Arataú lote 46 (60.000): comprador é condomínio com o Douglas, vendedor é Alfredo José Cardoso (Galopeira, lista do Rusa)<br><span class="muted">R$ 1.200 (2% Douglas) × R$ 3.000 (5% Rusa) × nada</span></td><td style="white-space:nowrap">João / Rusa</td></tr><tr><td>AZ lote 2023: 40 ou 30 parcelas<br><span class="muted">R$ 23.000 de VGV e R$ 460 do Fábio</span></td><td style="white-space:nowrap">Fábio / Ricardo Nicolau</td></tr><tr><td>EAO lote 19: cadastro "não autorizado" na Programa em 11/09, venda "à vista dia 20/09"<br><span class="muted">R$ 24.000 e R$ 480 do Fábio caem se não pagar</span></td><td style="white-space:nowrap">Fábio / Programa</td></tr><tr><td>Katayama: assessor não declarado (atribuído ao Douglas por correlação) e acordo inexistente<br><span class="muted">R$ 1.740 de comissão; receita de ~R$ 4.350 se 5% da venda</span></td><td style="white-space:nowrap">Douglas / João</td></tr><tr><td>lt 96 (12/09): de qual leilão?<br><span class="muted">R$ 21.000 de VGV fora de tudo; 5% do Rusa</span></td><td style="white-space:nowrap">Douglas</td></tr><tr><td>Agrofeira IBC: quantos lotes e quanto<br><span class="muted">VGV inteiro do Fábio no IBC</span></td><td style="white-space:nowrap">Fábio / Nelore IBC</td></tr><tr><td>Shopping Visual: quem recebe a comissão dos R$ 17.800 (Marcelo Carneiro inativo na folha)<br><span class="muted">R$ 356 (2%) e receita de R$ 890</span></td><td style="white-space:nowrap">João</td></tr><tr><td>Faturamento total do AZ (0,5%), do EAO (0,33%) e do Mafra (tabela)<br><span class="muted">as notas dos três pregões</span></td><td style="white-space:nowrap">Ricardo Nicolau / Programa</td></tr>
+      </table>
+    </div>
+  </div>
+  <div class="box dark" style="margin-top:1mm">
+    <div class="t">Resumo para o chefe</div>
+    <p style="margin:0">Setembro até 13/09: <strong>R$ 2.065.800,00 em 71 lotes</strong> (74 cabeças) em 8 pregões — Jacamim 835.200, Flor do Arataú 617.100, EAO 310.500, AZ 158.000, Katayama 87.000, Mafra 21.600, Marcondes 18.600, Shopping Visual 17.800 — <strong>38,0% da meta de R$ 5.479.545</strong>, com R$ 40.821,00 de comissão provisória.
+    Douglas fez R$ 993.300 (48% do mês). Fora do número: o IBC do Fábio (sem valores) e o lt 96 do Douglas (sem leilão).
+    Nada disto está no HastaPro ainda; no ERP só o Mafra está certo. Os dois lotes que exigem decisão sua: o lt 46 do Arataú (condomínio do Douglas, vendedor da lista do Rusa) e o lt 1 do Jacamim ("Daniele Coutinho vendeu").</p>
+  </div>
+  <div class="pfoot"><span>Bula Assessoria Pecuária · Fechamento de vendas — setembro/2026 (até 13/09) · emitido em 14/09/2026</span><span>Página 8 de 8</span></div>
+</section>
+</body></html>
