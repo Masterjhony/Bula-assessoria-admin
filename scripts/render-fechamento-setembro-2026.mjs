@@ -25,7 +25,7 @@ const logo = 'data:image/png;base64,' + fs.readFileSync('public/logo-bula-assess
 const E = Object.fromEntries(D.eventos.map(e => [e.key, e]))
 const T = D.totais, M = D.meta
 const ge = new Date(D.geradoEm); const hoje = `${String(ge.getDate()).padStart(2, '0')}/${String(ge.getMonth() + 1).padStart(2, '0')}/${ge.getFullYear()}`
-const NPAG = 8
+const NPAG = 9
 const foot = n => `<div class="pfoot"><span>Bula Assessoria Pecuária · Fechamento de vendas — setembro/2026 (até 13/09) · emitido em ${hoje}</span><span>Página ${n} de ${NPAG}</span></div>`
 const autorCurto = a => { const x = String(a || ''); if (/De Omena Gaia/.test(x)) return 'Fábio (2º nº)'; if (/Omena/.test(x)) return 'Fábio'; if (/Douglas/.test(x)) return 'Douglas'; if (/Leonardo/.test(x)) return 'Leonardo'; if (/Nane/.test(x)) return 'Nane'; if (/Marcelo/.test(x)) return 'Marcelo C.'; if (/Laila/.test(x)) return 'Laila'; if (/Peralta/.test(x)) return 'Peralta'; if (/Felipe Andrade/.test(x)) return 'Bulinha'; return x ? corta(x, 14) : 'não capturado' }
 const nomeCurto = n => String(n || '').replace(' (Regiane)', '').replace('Fábio Omena', 'Fábio').replace('Douglas Bispo', 'Douglas').replace('Leonardo Serafim', 'Leonardo').replace('Marcelo Carneiro', 'Marcelo C.')
@@ -137,6 +137,20 @@ const html = `<!doctype html><html lang="pt-BR"><head><meta charset="utf-8">
   </div>
 </section>
 
+<!-- ══ 0. TABELA ÚNICA ══ -->
+<section class="page">
+  <div class="head"><h2>Setembro inteiro numa tabela — realizados e o que ainda vem</h2><div class="n">00 · Todos os leilões</div></div>
+  <table class="lotes" style="font-size:8.6px"><colgroup><col style="width:11mm"><col style="width:48mm"><col style="width:21mm"><col style="width:17mm"><col style="width:9mm"><col style="width:21mm"><col style="width:19mm"><col style="width:9mm"><col style="width:29mm"></colgroup>
+    <tr><th>Data</th><th>Leilão / evento</th><th>Leiloeira</th><th>Situação</th><th class="num">Lotes</th><th class="num">VGV Bula</th><th class="num">Meta (plan.)</th><th class="num">% meta</th><th>Quem vendeu</th></tr>
+    ${D.tabelaUnica.map(t => `<tr${t.status === 'realizado' ? (t.vgv ? '' : ' class="destaque"') : ' style="color:#6E6E6E"'}><td>${dm(t.data)}</td><td style="white-space:nowrap">${esc(corta(t.nome.replace(/ — .*$/, '').replace(/ \(.*$/, ''), 46))}</td><td style="white-space:nowrap">${esc(corta(t.leiloeira.replace(/ \(.*$/, '').replace(/ \/ .*$/, ''), 20))}</td><td style="white-space:nowrap">${t.status === 'realizado' ? (t.vgv ? 'realizado' : 'sem venda') : esc(t.status)}</td><td class="num">${t.lotes ?? '—'}</td><td class="num">${t.vgv ? '<strong>R$ ' + brl(t.vgv) + '</strong>' : (t.status === 'realizado' ? '0' : '—')}</td><td class="num">${t.metaVenda ? 'R$ ' + brl0(t.metaVenda) : '—'}</td><td class="num">${t.pctMeta != null ? pct(t.pctMeta, 0) : '—'}</td><td>${esc(t.assessores.replace(/ Bispo| Omena| Serafim| Carneiro/g, '').replace(/ pela Remates \(R\$ [\d.,]+\)/, ' (pela Remates)') || '—')}</td></tr>`).join('')}
+    <tr class="total"><td colspan="4">Realizado até 13/09 (${T.eventosComVenda} pregões com venda)</td><td class="num">${T.lotes}</td><td class="num">R$ ${brl(T.vgv)}</td><td class="num">R$ ${brl0(D.eventos.reduce((s, e) => s + (e.metaVenda || 0), 0))}</td><td class="num">${pct(T.vgv / D.eventos.reduce((s, e) => s + (e.metaVenda || 0), 0), 0)}</td><td></td></tr>
+    <tr class="total"><td colspan="4">A realizar (${D.restante.length} pregões, meta da planilha)</td><td class="num">—</td><td class="num">—</td><td class="num">R$ ${brl0(D.metaRestante)}</td><td class="num">—</td><td></td></tr>
+    <tr class="total"><td colspan="4">Meta do mês (Marcelo, 03/09)</td><td class="num"></td><td class="num">R$ ${brl(M.valor)}</td><td class="num"></td><td class="num">${pct(M.pct, 1)}</td><td>feito até 13/09</td></tr>
+  </table>
+  <p class="small">Linhas cinza ainda não aconteceram — a meta é a coluna "META VENDA" da planilha FINANCEIRO BULA 2026 (7). "% meta" = VGV Bula ÷ meta de venda do pregão. Agrofeira IBC: ${esc(String(D.fora[0].detalhe.length))} registros do Fábio sem valor. Só Criador: Laila pela Remates (R$ ${brl0(D.hastapro.soCriador.laila.vgv)}), fora da cobertura. Shopping Naviraí (Marabá), LS Collection e Genética Camparino não estão na planilha. Detalhe lote a lote nas páginas seguintes e na aba "Lotes" do XLSX.</p>
+  ${foot(2)}
+</section>
+
 <!-- ══ 1. PARECER ══ -->
 <section class="page">
   <div class="head"><h2>O mês até 13/09: R$ ${brl0(T.vgv)} em ${T.lotes} lotes, ${pct(M.pct, 0)} da meta</h2><div class="n">01 · Parecer</div></div>
@@ -170,7 +184,7 @@ const html = `<!doctype html><html lang="pt-BR"><head><meta charset="utf-8">
       <li><strong>Crispim 03/09 (E-Rural):</strong> zero em todas as fontes ("leilão barato").</li>
     </ol>
   </div>
-  ${foot(2)}
+  ${foot(3)}
 </section>
 
 <!-- ══ 2. JACAMIM ══ -->
@@ -192,7 +206,7 @@ const html = `<!doctype html><html lang="pt-BR"><head><meta charset="utf-8">
     <div class="box alerta" style="margin-top:1mm"><div class="t">Lote a lote: o que precisa de atenção</div><ul style="margin:0">${JAC.lotes.filter(l => ['25', '1'].includes(l.lote)).map(l => `<li><strong>lt ${esc(l.lote)}:</strong> ${esc(l.obs)}</li>`).join('')}</ul></div>
     <div class="box" style="margin-top:1mm"><div class="t">Disputou e não levou (não vira venda)</div><ul style="margin:0">${JAC.naoVendas.slice(1).map(x => `<li>${esc(x)}</li>`).join('')}</ul></div>
   </div>
-  ${foot(3)}
+  ${foot(4)}
 </section>
 
 <!-- ══ 3. JACAMIM alertas + ARATAÚ ══ -->
@@ -217,7 +231,7 @@ const html = `<!doctype html><html lang="pt-BR"><head><meta charset="utf-8">
       <li><strong>Jacamim lt 1 (R$ 64.500):</strong> ${esc(JAC.lotes.find(l => l.lote === '1').obs)}</li>
     </ul>
   </div>
-  ${foot(4)}
+  ${foot(5)}
 </section>
 
 <!-- ══ 4. MARCONDES · MAFRA · VISUAL · CRISPIM · IBC ══ -->
@@ -264,7 +278,7 @@ const html = `<!doctype html><html lang="pt-BR"><head><meta charset="utf-8">
       </div>
     </div>
   </div>
-  ${foot(5)}
+  ${foot(6)}
 </section>
 
 <!-- ══ 5. FIM DE SEMANA 12–13 ══ -->
@@ -278,7 +292,7 @@ const html = `<!doctype html><html lang="pt-BR"><head><meta charset="utf-8">
     ${total(ev, 3)}
   </table>`).join('')}
   <p class="small">${esc(KAT.atribuicaoNota)}</p>
-  ${foot(6)}
+  ${foot(7)}
 </section>
 
 <!-- ══ 6. POR ASSESSOR + META ══ -->
@@ -311,7 +325,7 @@ const html = `<!doctype html><html lang="pt-BR"><head><meta charset="utf-8">
       </table>
     </div>
   </div>
-  ${foot(7)}
+  ${foot(8)}
 </section>
 
 <!-- ══ 7. CORREÇÕES + PENDÊNCIAS ══ -->
@@ -336,7 +350,7 @@ const html = `<!doctype html><html lang="pt-BR"><head><meta charset="utf-8">
     Douglas fez R$ ${brl0(ass('Douglas')?.vgv)} (${pct(ass('Douglas').vgv / T.vgv, 0)} do mês). Fora do número: o IBC do Fábio (sem valores) e o lt 96 do Douglas (sem leilão).
     Nada disto está no HastaPro ainda; no ERP só o Mafra está certo. Os dois lotes que exigem decisão sua: o lt 46 do Arataú (condomínio do Douglas, vendedor da lista do Rusa) e o lt 1 do Jacamim ("Daniele Coutinho vendeu").</p>
   </div>
-  ${foot(8)}
+  ${foot(9)}
 </section>
 </body></html>`
 

@@ -259,7 +259,16 @@ const pendencias = [
     { p: 'Faturamento total do AZ (0,5%), do EAO (0,33%) e do Mafra (tabela)', impacto: 'as notas dos três pregões', quem: 'Ricardo Nicolau / Programa' },
 ]
 
-const D = { geradoEm: new Date().toISOString(), ate: ATE, eventos: EVENTOS, fora, totais, porAssessor, meta, restante, metaRestante, correcoes, pendencias, hastapro, planilha: { arquivo: planFile, linhas: planilha, acordos }, sistema: { fechamentos: fechDb ?? [], vendasCapturadas: (vendasDb ?? []).length, semVinculo: (vendasDb ?? []).filter(v => !v.cronograma_id).length }, cardDia05: { vgv: 1500300, jacamim: 883200, aratau: 617100, nota: 'card feito em 05/09 22:03 contava o último lote do Jacamim (1.600 × 30 = 48.000), que foi perdido no "agradece"; sem ele o Jacamim é 835.200 e o dia 1.452.300 (+ 18.600 do Marcondes = 1.470.900)' } }
+/* ── TABELA ÚNICA: todos os leilões do mês, realizados e por vir ─────────── */
+const tabelaUnica = [
+    ...EVENTOS.map(E => ({ data: E.data, nome: E.nome, leiloeira: E.leiloeira, status: 'realizado', lotes: E.totais.lotes, cabecas: E.totais.cabecas, vgv: E.totais.vgv, metaVenda: E.metaVenda, pctMeta: E.pctMeta,
+        assessores: E.porAssessor.map(a => `${a.nome.replace(' (Regiane)', '')} ${a.lotes}`).join(' · ') || '—', acordo: E.acordo, receita: E.receita?.valor ?? null, receitaDescr: E.receita?.descr || '', fonte: E.resumoEquipe?.texto || '', confere: E.confere, sistema: E.key === 'mafra' ? 'fechamento OK' : (E.lotes.length ? (['az', 'eao', 'jacamim'].includes(E.key) ? 'fichas sem leilão' : 'nada') : '—') })),
+    ...restante.map(r => ({ data: r.data, nome: r.nome, leiloeira: r.leiloeira, status: 'a realizar', lotes: null, cabecas: null, vgv: null, metaVenda: r.metaVenda, pctMeta: null, assessores: '', acordo: r.pct ? `${r.pct} (planilha)` : '', receita: null, receitaDescr: '', fonte: r.planilha ? `planilha: ${r.planilha}` : 'não está na planilha', confere: null, sistema: '' })),
+    { data: '2026-09-02', nome: 'Agrofeira IBC — pré-venda / shopping (02 a 08/09)', leiloeira: 'Nelore IBC (pregão 18–19/09 pela Agreste)', status: 'sem valor', lotes: null, cabecas: null, vgv: null, metaVenda: null, pctMeta: null, assessores: `Fábio Omena (${ibcMsgs.length} registros)`, acordo: '', receita: null, receitaDescr: '', fonte: 'registros sem parcela/valor no grupo de lances', confere: null, sistema: 'nada' },
+    { data: '2026-09-10', nome: 'Só Criador Machos e Fêmeas de Alto Padrão (Bula Remates, gado comercial)', leiloeira: 'Bula Remates', status: 'não é cobertura', lotes: hastapro.soCriador.laila.lotes.length, cabecas: null, vgv: null, metaVenda: null, pctMeta: null, assessores: `Laila pela Remates (R$ ${hastapro.soCriador.laila.vgv.toLocaleString('pt-BR')})`, acordo: '', receita: null, receitaDescr: '', fonte: `HastaPro FIL 01: R$ ${hastapro.soCriador.vgv.toLocaleString('pt-BR')} em ${hastapro.soCriador.lotes} lotes`, confere: null, sistema: 'HastaPro (FIL 01)' },
+].sort((a, b) => a.data.localeCompare(b.data) || (a.status === 'realizado' ? -1 : 1))
+
+const D = { geradoEm: new Date().toISOString(), ate: ATE, tabelaUnica, eventos: EVENTOS, fora, totais, porAssessor, meta, restante, metaRestante, correcoes, pendencias, hastapro, planilha: { arquivo: planFile, linhas: planilha, acordos }, sistema: { fechamentos: fechDb ?? [], vendasCapturadas: (vendasDb ?? []).length, semVinculo: (vendasDb ?? []).filter(v => !v.cronograma_id).length }, cardDia05: { vgv: 1500300, jacamim: 883200, aratau: 617100, nota: 'card feito em 05/09 22:03 contava o último lote do Jacamim (1.600 × 30 = 48.000), que foi perdido no "agradece"; sem ele o Jacamim é 835.200 e o dia 1.452.300 (+ 18.600 do Marcondes = 1.470.900)' } }
 fs.writeFileSync(path.join(OUT, 'dados.json'), JSON.stringify(D, null, 2))
 
 const falhas = []
@@ -269,6 +278,15 @@ if (falhas.length) { console.warn('⚠ CHECAGENS:'); falhas.forEach(f => console
 /* ── XLSX ───────────────────────────────────────────────────────────────── */
 const wb = XLSX.utils.book_new()
 const aoa = (name, rows, widths) => { const ws = XLSX.utils.aoa_to_sheet(rows); if (widths) ws['!cols'] = widths.map(w => ({ wch: w })); XLSX.utils.book_append_sheet(wb, ws, name) }
+aoa('Todos os leilões do mês', [
+    ['SETEMBRO/2026 — TODOS OS LEILÕES NUMA TABELA (realizados até 13/09 + o que ainda vem)', '', '', '', '', '', `gerado em ${new Date().toLocaleString('pt-BR')}`],
+    ['Meta do mês', META_MES, 'Realizado até 13/09', totais.vgv, '% da meta', meta.pct, 'Meta somada dos pregões restantes (planilha)', metaRestante],
+    [],
+    ['Data', 'Leilão / evento', 'Leiloeira', 'Status', 'Lotes Bula', 'Cabeças', 'VGV Bula (R$)', 'Meta de venda (planilha)', '% da meta', 'Quem vendeu (lotes)', 'Acordo', 'Receita estimada (R$)', 'Bate com a equipe?', 'Sistema', 'Fonte / resumo'],
+    ...tabelaUnica.map(t => [t.data, t.nome, t.leiloeira, t.status, t.lotes ?? '', t.cabecas ?? '', t.vgv ?? '', t.metaVenda ?? '', t.pctMeta ?? '', t.assessores, t.acordo, t.receita ?? '', t.confere === null ? '' : (t.confere ? 'sim' : 'NÃO'), t.sistema, t.fonte]),
+    ['TOTAL realizado', '', '', '', totais.lotes, totais.cabecas, totais.vgv, tabelaUnica.filter(t => t.status === 'realizado').reduce((s, t) => s + (t.metaVenda || 0), 0)],
+    ['TOTAL a realizar (meta)', '', '', '', '', '', '', metaRestante],
+], [12, 58, 30, 14, 9, 8, 14, 16, 9, 44, 40, 14, 10, 16, 60])
 aoa('Resumo do mês', [
     ['FECHAMENTO DE VENDAS — SETEMBRO/2026 — até 13/09', '', '', '', '', `gerado em ${new Date().toLocaleString('pt-BR')}`],
     ['Meta do mês (Marcelo, 03/09)', META_MES, 'Realizado até 13/09', totais.vgv, '% da meta', meta.pct],
