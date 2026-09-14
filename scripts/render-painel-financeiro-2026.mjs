@@ -402,6 +402,22 @@ for (const a of ABAS) {
   dataVals.push({ range: `'${a.nome}'!A1`, values: [[titulo], [sub], ...notas, [], a.cols, ...corpo] })
 }
 await sheets.spreadsheets.values.batchClear({ spreadsheetId: SHEET_ID, requestBody: { ranges: ABAS.map(a => `'${a.nome}'`) } })
+// A grade de uma aba já existente guarda o tamanho da execução anterior; se a
+// tabela cresceu (Contas a Pagar passou de 256 linhas em 14/09), o values.update
+// falha com "exceeds grid limits". Garante as linhas ANTES de escrever — o
+// ajuste fino (encolher, congelar) continua no bloco de formatação abaixo.
+{
+  const meta = await sheets.spreadsheets.get({ spreadsheetId: SHEET_ID, fields: 'sheets(properties(sheetId,gridProperties(rowCount,columnCount)))' })
+  const grade = new Map(meta.data.sheets.map(s => [s.properties.sheetId, s.properties.gridProperties]))
+  const cresce = []
+  for (const a of ABAS) {
+    const id = existentes.get(a.nome), g = grade.get(id) || {}
+    const precisaLinhas = a.cab + 1 + a.linhas.length + 4, precisaCols = a.cols.length + 2
+    if ((g.rowCount || 0) < precisaLinhas || (g.columnCount || 0) < precisaCols)
+      cresce.push({ updateSheetProperties: { properties: { sheetId: id, gridProperties: { rowCount: Math.max(g.rowCount || 0, precisaLinhas), columnCount: Math.max(g.columnCount || 0, precisaCols) } }, fields: 'gridProperties.rowCount,gridProperties.columnCount' } })
+  }
+  if (cresce.length) await sheets.spreadsheets.batchUpdate({ spreadsheetId: SHEET_ID, requestBody: { requests: cresce } })
+}
 await sheets.spreadsheets.values.batchUpdate({ spreadsheetId: SHEET_ID, requestBody: { valueInputOption: 'USER_ENTERED', data: dataVals } })
 
 /* ── formata ─────────────────────────────────────────────────────────────── */

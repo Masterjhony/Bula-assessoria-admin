@@ -1,0 +1,47 @@
+DATA;DOCUMENTO;HISTORICO;VALOR;SALDO
+01/09/2026;Pix;PIX EMIT.OUTRA IF - Pagamento Pix - ***.736.315-** - Ref salario Agosto Luana;-1161,29;
+01/09/2026;Pix;PIX EMIT.OUTRA IF - Pagamento Pix - ***.031.349-** - Ref salario Agosto M1;-6000,00;
+01/09/2026;Pix;PIX EMIT.OUTRA IF - Pagamento Pix - ***.537.711-** - Ref salario Agosto Pedro;-1290,32;
+01/09/2026;Pix;PIX EMIT.OUTRA IF - Pagamento Pix - ***.168.746-** - Ref Salario Joao Gabriel Agosto;-2000,00;
+01/09/2026;Pix;PIX EMIT.OUTRA IF - Pagamento Pix - ***.266.771-** - Ref salario Joao Antonio Agosto;-2000,00;
+01/09/2026;Pix;PIX EMIT.OUTRA IF - Pagamento Pix - 59.791.094 0001-07 - Ref salario Agosto Fabio;-7000,00;
+01/09/2026;Pix;PIX EMIT.OUTRA IF - Pagamento Pix - 50.938.748 0001-08 - Ref Salario Agosto Douglas;-10000,00;
+01/09/2026;3039167;DB.TR.C.DIF.TIT.INT - FAV.: LEONARDO SERAFIM FRANCISCO LTDA - Transferência Pix - BULA ASSESSORIA PECUARIA LTDA - 34.791.630 0001-43 - Ref salario agosto Leonardo;-13500,00;
+01/09/2026;Pix;PIX EMIT.OUTRA IF - Pagamento Pix - ***.037.156-** - Ref Agosto salario joao;-5000,00;
+01/09/2026;Pix;PIX REC.OUTRA IF MT - Recebimento Pix - Bula Assessoria Pecuaria Ltda - 34.791.630 0001-43;12000,00;
+01/09/2026;290314;TARIFA COBRANÇA;-2,08;
+01/09/2026;290035;CRÉD.LIQ.COBRANÇA;15030,00;12730,76
+02/09/2026;3042216;CRED.TRANSF.CONTAS - REM.: BULA REMATES LTDA - ACERTO ASSESSORIA SÃO GERALDO;24904,00;
+02/09/2026;Pix;PIX EMIT.OUTRA IF - Pagamento Pix - 13.347.016 0001-17 - Ref trafego pago leilao jacamin;-2500,00;
+02/09/2026;Pix;PIX EMIT.OUTRA IF - Pagamento Pix - 66.991.669 0001-09 - Ref comissao Laila Julho;-675,00;
+02/09/2026;Pix;PIX EMIT.OUTRA IF - Pagamento Pix - ***.814.661-** - Ref comissao Peralta Julho;-1080,00;33379,76
+04/09/2026;Pix;PIX EMIT.OUTRA IF - Pagamento Pix - 13.347.016 0001-17 - Ref campanha patrocinado;-2500,00;
+04/09/2026;3046264;DB.TR.C.DIF.TIT.INT - FAV.: LEONARDO SERAFIM FRANCISCO LTDA - Transferência Pix - BULA ASSESSORIA PECUARIA LTDA - 34.791.630 0001-43 - Ref reembolso Leo Agosto;-2877,22;
+04/09/2026;Pix;PIX EMIT.OUTRA IF - Pagamento Pix - 59.791.094 0001-07 - Ref reembolso Agosto Fabio;-6690,42;
+04/09/2026;Pix;PIX EMIT.OUTRA IF - Pagamento Pix - 50.938.748 0001-08 - Ref reembolso Agosto Douglas;-1306,60;
+04/09/2026;Pix;PIX EMIT.OUTRA IF - Pagamento Pix - ***.537.276-** - Parcela 2 aluguel casa Uberaba expogenetica;-2333,33;
+04/09/2026;Pix;PIX EMIT.OUTRA IF - Pagamento Pix - 12.335.532 0001-69;-20,00;17652,19
+08/09/2026;Pix;PIX EMIT.OUTRA IF - Pagamento Pix - 45.702.373 0001-42 - Ref Contabilidade Honorario 082026;-1058,00;
+08/09/2026;Pix;PIX EMIT.OUTRA IF - Pagamento Pix - 47.107.220 0001-82 - Ref clickweb sistemas;-218,30;
+08/09/2026;Pix;PIX EMIT.OUTRA IF - Pagamento Pix - 17.895.646 0001-87;-19,30;16356,59
+09/09/2026;Pix;PIX EMIT.OUTRA IF - Pagamento Pix - 13.347.016 0001-17 - Ref campanha patrocinado visual;-1000,00;
+09/09/2026;Pix;PIX EMIT.OUTRA IF - Pagamento Pix - ***.814.661-** - Ref reembolso jacamin nfs 752;-3035,00;
+09/09/2026;Pix;PIX EMIT.OUTRA IF - Pagamento Pix - ***.481.241-** - Ref reembolso jacamin Renato;-1324,00;
+09/09/2026;Pix;PIX EMIT.OUTRA IF - Pagamento Pix - ***.951.401-** - Ref reembolso Natan Jacamin;-983,28;10014,31
+10/09/2026;46026;DEB.PARC.SUBS/INTEG;-39,00;
+10/09/2026;129;DEB PACOTE SERVIÇOS;-129,90;
+10/09/2026;Pix;PIX RECEB.OUTRA IF - Recebimento Pix - CARLOS ALBERTO M TERRA - ***.818.678-**;85620,00;
+10/09/2026;Pix;PIX EMIT.OUTRA IF - Pagamento Pix - ***.814.661-** - Ref reembolso Jacamin alimentacao e combustivel;-1808,08;
+10/09/2026;374271929;CRÉD.TED-STR - EAO EMPREENDIMENTOS AGROPECUARIOS O. SA00.141.269 0001-98CODIGO TED: T1092363201;92324,97;
+10/09/2026;Pix;PIX RECEB.OUTRA IF - Recebimento Pix - CLAUDIO SABINO CARVALHO FILHO - ***.566.706-** - NF631;8490,00;
+10/09/2026;4264;CRED.TR.CT.INTERCRE - REM.: CLAUDIO SABINO CARVALHO FILHO - Transferência Pix - CLAUDIO SABINO CARVALHO FILHO - ***.566.706-**;7473,00;
+10/09/2026;4264;CRED.TR.CT.INTERCRE - REM.: CLAUDIO SABINO CARVALHO FILHO - Transferência Pix - CLAUDIO SABINO CARVALHO FILHO - ***.566.706-** - NF630;2441,25;204386,55
+11/09/2026;Pix;PIX RECEB.OUTRA IF - Recebimento Pix - E-RURAL ATIVIDADES DE INTERNET LTDA - 31.793.454 0001-90;13644,98;
+11/09/2026;3066831;DB.TR.C.DIF.TIT.INT - FAV.: RUSA ASSESSORIA PECUARIA LTDA - Transferência Pix - BULA ASSESSORIA PECUARIA LTDA - 34.791.630 0001-43 - Ref metade comissao Rusa Agosto;-32817,50;
+11/09/2026;Pix;PIX EMIT.OUTRA IF - Pagamento Pix - 66.146.790 0001-26 - Ref comissao vendas Agosto Valeria;-2997,00;
+11/09/2026;Pix;PIX EMIT.OUTRA IF - Pagamento Pix - ***.096.756-** - Ref comissao venda Raphael Coelho;-792,00;
+11/09/2026;Pix;PIX EMIT.OUTRA IF - Pagamento Pix - ***.510.291-** - Ref comissao Lucas Martins Agosto;-960,00;
+11/09/2026;Pix;PIX EMIT.OUTRA IF - Pagamento Pix - ***.096.756-** - Ref acordo societario Marcelo retirada trimestral;-63500,00;116965,03
+14/09/2026;Pix;PIX EMIT.OUTRA IF - Pagamento Pix - 13.347.016 0001-17 - Ref trafego pago;-4000,00;
+14/09/2026;Pix;PIX EMIT.OUTRA IF - Pagamento Pix - ***.037.156-** - Ref sistemas Codex;-550,00;
+14/09/2026;Pix;PIX EMIT.OUTRA IF - Pagamento Pix - ***.978.691-**;-50,00;112365,03

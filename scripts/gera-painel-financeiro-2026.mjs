@@ -20,7 +20,9 @@ const env = Object.fromEntries(readFileSync('.env.local', 'utf-8').split(/\r?\n/
   .map(l => { const i = l.indexOf('='); return [l.slice(0, i).trim(), l.slice(i + 1).trim().replace(/^"|"$/g, '')] }))
 
 const WB = '.apuracao/financeiro-bula-2026-09-04.xlsx'
-const HOJE = '2026-09-04'
+// Posicao do painel = data de hoje (a do ERP). Fixar so quando se quer
+// reproduzir uma posicao antiga: PAINEL_HOJE=2026-09-04 npm run painel
+const HOJE = process.env.PAINEL_HOJE || new Date().toISOString().slice(0, 10)
 const r2 = n => Math.round((Number(n) || 0) * 100) / 100
 const iso = d => d ? new Date(d).toISOString().slice(0, 10) : null
 
