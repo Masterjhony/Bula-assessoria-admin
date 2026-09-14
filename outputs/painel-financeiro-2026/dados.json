@@ -1,5 +1,5 @@
 {
- "gerado_em": "2026-09-14T21:45:40.113Z",
+ "gerado_em": "2026-09-14T22:00:04.256Z",
  "hoje": "2026-09-14",
  "conciliado_ate": "2026-09-14",
  "contas": [
@@ -12,17 +12,17 @@
   {
    "nome": "Sicredi - Conta Corrente 53609-7",
    "si": 0,
-   "sa": -86.64,
+   "sa": 0,
    "tipo": "corrente"
   },
   {
    "nome": "Sicredi - Investimentos (aplicacao 53609-7)",
    "si": 25986.25,
-   "sa": 166195.62,
+   "sa": 4765.08,
    "tipo": "investimento"
   }
  ],
- "saldo_caixa": 278474.01,
+ "saldo_caixa": 117130.11,
  "folha": [
   {
    "nome": "LEONARDO",
@@ -5978,42 +5978,6 @@
    "dre_grupo": "custo_direto"
   },
   {
-   "id": "472a07be-f9c3-5751-a594-e9cb37e967ae",
-   "descricao": "Comissão Bruno dos Reis Ferro — bruno-eao-maio",
-   "valor": 0,
-   "devido": 0,
-   "status": "aberto",
-   "venc": "2026-06-25",
-   "origem": "real",
-   "fornecedor": null,
-   "categoria": "Comissões",
-   "dre_grupo": "custo_direto"
-  },
-  {
-   "id": "17766346-50bb-5737-a1b3-fc649949d175",
-   "descricao": "Comissão Peralta — 32° Leilão 4R – 09/05/2026",
-   "valor": 0,
-   "devido": 0,
-   "status": "aberto",
-   "venc": "2026-06-25",
-   "origem": "real",
-   "fornecedor": "Peralta",
-   "categoria": "Comissões",
-   "dre_grupo": "custo_direto"
-  },
-  {
-   "id": "338e70f2-5a61-5d1a-a12d-88431e72d972",
-   "descricao": "Comissão Lucas Martins — 32° Leilão 4R – 09/05/2026",
-   "valor": 240,
-   "devido": 240,
-   "status": "aberto",
-   "venc": "2026-06-25",
-   "origem": "real",
-   "fornecedor": "Lucas Martins",
-   "categoria": "Comissões",
-   "dre_grupo": "custo_direto"
-  },
-  {
    "id": "a2eb5a28-934f-585d-a99c-c74b089bbb37",
    "descricao": "Comissão Fabrício Osório Hyppolito — fabricio-ls-maio",
    "valor": 0,
@@ -6034,6 +5998,66 @@
    "venc": "2026-06-25",
    "origem": "real",
    "fornecedor": "Mateus Alves da Silva",
+   "categoria": "Comissões",
+   "dre_grupo": "custo_direto"
+  },
+  {
+   "id": "472a07be-f9c3-5751-a594-e9cb37e967ae",
+   "descricao": "Comissão Bruno dos Reis Ferro — bruno-eao-maio",
+   "valor": 0,
+   "devido": 0,
+   "status": "aberto",
+   "venc": "2026-06-25",
+   "origem": "real",
+   "fornecedor": null,
+   "categoria": "Comissões",
+   "dre_grupo": "custo_direto"
+  },
+  {
+   "id": "338e70f2-5a61-5d1a-a12d-88431e72d972",
+   "descricao": "Comissão Lucas Martins — 32° Leilão 4R – 09/05/2026",
+   "valor": 240,
+   "devido": 240,
+   "status": "aberto",
+   "venc": "2026-06-25",
+   "origem": "real",
+   "fornecedor": "Lucas Martins",
+   "categoria": "Comissões",
+   "dre_grupo": "custo_direto"
+  },
+  {
+   "id": "17766346-50bb-5737-a1b3-fc649949d175",
+   "descricao": "Comissão Peralta — 32° Leilão 4R – 09/05/2026",
+   "valor": 0,
+   "devido": 0,
+   "status": "aberto",
+   "venc": "2026-06-25",
+   "origem": "real",
+   "fornecedor": "Peralta",
+   "categoria": "Comissões",
+   "dre_grupo": "custo_direto"
+  },
+  {
+   "id": "bf3337c3-f0f8-4fb2-99af-b2d1b4b9593c",
+   "descricao": "COMISSAO 10O LEILÃO JMP TOUROS - MATHEUS ALVES (0,33%)",
+   "valor": 238.59,
+   "devido": 238.59,
+   "status": "aberto",
+   "venc": "2026-07-25",
+   "origem": "real",
+   "fornecedor": "Mateus Alves da Silva",
+   "categoria": "Comissões",
+   "dre_grupo": "custo_direto"
+  },
+  {
+   "id": "a889735f-6169-5f5b-ac86-a52db9a57a93",
+   "descricao": "Comissão Gustavo Rusa — JMP Touros — verificar diferença de cota no acerto já pago",
+   "valor": 0,
+   "devido": 0,
+   "status": "aberto",
+   "venc": "2026-07-25",
+   "origem": "real",
+   "fornecedor": "GUSTAVO RUSA",
    "categoria": "Comissões",
    "dre_grupo": "custo_direto"
   },
@@ -6134,30 +6158,6 @@
    "dre_grupo": "custo_direto"
   },
   {
-   "id": "bf3337c3-f0f8-4fb2-99af-b2d1b4b9593c",
-   "descricao": "COMISSAO 10O LEILÃO JMP TOUROS - MATHEUS ALVES (0,33%)",
-   "valor": 238.59,
-   "devido": 238.59,
-   "status": "aberto",
-   "venc": "2026-07-25",
-   "origem": "real",
-   "fornecedor": "Mateus Alves da Silva",
-   "categoria": "Comissões",
-   "dre_grupo": "custo_direto"
-  },
-  {
-   "id": "a889735f-6169-5f5b-ac86-a52db9a57a93",
-   "descricao": "Comissão Gustavo Rusa — JMP Touros — verificar diferença de cota no acerto já pago",
-   "valor": 0,
-   "devido": 0,
-   "status": "aberto",
-   "venc": "2026-07-25",
-   "origem": "real",
-   "fornecedor": "GUSTAVO RUSA",
-   "categoria": "Comissões",
-   "dre_grupo": "custo_direto"
-  },
-  {
    "id": "046b485c-3b75-4fd4-8af0-778329cf0951",
    "descricao": "COMISSAO LEILÃO VIRTUAL BASE GENÉTICA SANTA CRUZ - 1ª ETAPA – 14/07/2026 - FABIO OMENA (2%)",
    "valor": 1962,
@@ -6170,10 +6170,10 @@
    "dre_grupo": "custo_direto"
   },
   {
-   "id": "b138437f-256b-4325-a23d-6579dce28a3e",
-   "descricao": "COMISSAO 23º LEILÃO GENÉTICA ADITIVA - 2ª ETAPA TOUROS – 26/07/2026 - LEONARDO SERAFIM (2%)",
-   "valor": 492,
-   "devido": 492,
+   "id": "6a139904-20e0-4acd-b3fc-03cae9743217",
+   "descricao": "COMISSAO LEILÃO VIRTUAL BASE GENÉTICA SANTA CRUZ - 1ª ETAPA – 14/07/2026 - LEONARDO SERAFIM (2%)",
+   "valor": 510,
+   "devido": 510,
    "status": "aberto",
    "venc": "2026-08-25",
    "origem": "real",
@@ -6218,10 +6218,10 @@
    "dre_grupo": "custo_direto"
   },
   {
-   "id": "6a139904-20e0-4acd-b3fc-03cae9743217",
-   "descricao": "COMISSAO LEILÃO VIRTUAL BASE GENÉTICA SANTA CRUZ - 1ª ETAPA – 14/07/2026 - LEONARDO SERAFIM (2%)",
-   "valor": 510,
-   "devido": 510,
+   "id": "b138437f-256b-4325-a23d-6579dce28a3e",
+   "descricao": "COMISSAO 23º LEILÃO GENÉTICA ADITIVA - 2ª ETAPA TOUROS – 26/07/2026 - LEONARDO SERAFIM (2%)",
+   "valor": 492,
+   "devido": 492,
    "status": "aberto",
    "venc": "2026-08-25",
    "origem": "real",
@@ -6230,46 +6230,10 @@
    "dre_grupo": "custo_direto"
   },
   {
-   "id": "523e404a-f304-5d92-aca1-ceb4c09f0105",
-   "descricao": "Comissão Felipe Andrade — 6º LEILÃO EXCELÊNCIA GENÉTICA — lote 21",
-   "valor": 2100,
-   "devido": 2100,
-   "status": "aberto",
-   "venc": "2026-09-10",
-   "origem": "real",
-   "fornecedor": "Bulinha (Felipe Andrade)",
-   "categoria": "Comissões",
-   "dre_grupo": "custo_direto"
-  },
-  {
-   "id": "3a138ee8-1ad6-52f2-a14b-06b2c536f9ee",
-   "descricao": "Comissão Felipe Andrade (Bulinha) — LEILÃO NAVIRAÍ CAMPARINO ESSÊNCIA BEZERRAS E NOVILHAS — lote 11",
-   "valor": 1860,
-   "devido": 1860,
-   "status": "aberto",
-   "venc": "2026-09-10",
-   "origem": "real",
-   "fornecedor": "Bulinha (Felipe Andrade)",
-   "categoria": "Comissões",
-   "dre_grupo": "custo_direto"
-  },
-  {
-   "id": "637f0a9e-876d-0506-db01-1f1629915952",
-   "descricao": "Repasse JMP junho/2026 — Felipe Vilela Andrade — após a segunda parcela",
-   "valor": 157384.13,
-   "devido": 157384.13,
-   "status": "aberto",
-   "venc": "2026-09-10",
-   "origem": "real",
-   "fornecedor": "Felipe Vilela Andrade",
-   "categoria": "Comissões",
-   "dre_grupo": "custo_direto"
-  },
-  {
-   "id": "43712d46-e9c4-57fd-9131-b9ef0ca72a18",
-   "descricao": "ADN VIAGENS — Douglas Carvalho — Marabá → Uberlândia → Marabá — bilhete 5770010344301",
-   "valor": 3183.2,
-   "devido": 3183.2,
+   "id": "8ecd17fb-f8ba-55e8-bbe2-54a6a8f9ef71",
+   "descricao": "ADN VIAGENS — Leonardo Francisco — Belo Horizonte → Maringá — bilhete 9572300021007",
+   "valor": 1022.53,
+   "devido": 1022.53,
    "status": "aberto",
    "venc": "2026-09-14",
    "origem": "real",
@@ -6290,10 +6254,10 @@
    "dre_grupo": "custo_direto"
   },
   {
-   "id": "8ecd17fb-f8ba-55e8-bbe2-54a6a8f9ef71",
-   "descricao": "ADN VIAGENS — Leonardo Francisco — Belo Horizonte → Maringá — bilhete 9572300021007",
-   "valor": 1022.53,
-   "devido": 1022.53,
+   "id": "43712d46-e9c4-57fd-9131-b9ef0ca72a18",
+   "descricao": "ADN VIAGENS — Douglas Carvalho — Marabá → Uberlândia → Marabá — bilhete 5770010344301",
+   "valor": 3183.2,
+   "devido": 3183.2,
    "status": "aberto",
    "venc": "2026-09-14",
    "origem": "real",
@@ -6312,18 +6276,6 @@
    "fornecedor": "ADILSON DA SILVA 44584393168",
    "categoria": "Viagem/Passagens",
    "dre_grupo": "custo_direto"
-  },
-  {
-   "id": "5feea2f0-9e0a-4f8f-8bcf-94dcb23e631a",
-   "descricao": "ISSQN agosto/2026 — guia 1786806 — Prefeitura de Campo Grande",
-   "valor": 4873.43,
-   "devido": 4873.43,
-   "status": "aberto",
-   "venc": "2026-09-15",
-   "origem": "real",
-   "fornecedor": null,
-   "categoria": "Impostos e Taxas",
-   "dre_grupo": "imposto"
   },
   {
    "id": "598b7193-d576-47a7-9f40-5fd917f83e3f",
@@ -6348,6 +6300,18 @@
    "fornecedor": null,
    "categoria": "Seguros",
    "dre_grupo": "despesa_fixa"
+  },
+  {
+   "id": "5feea2f0-9e0a-4f8f-8bcf-94dcb23e631a",
+   "descricao": "ISSQN agosto/2026 — guia 1786806 — Prefeitura de Campo Grande",
+   "valor": 4873.43,
+   "devido": 4873.43,
+   "status": "aberto",
+   "venc": "2026-09-15",
+   "origem": "real",
+   "fornecedor": null,
+   "categoria": "Impostos e Taxas",
+   "dre_grupo": "imposto"
   },
   {
    "id": "db9745c7-77ce-437a-a920-560c418ad1ef",
@@ -6386,10 +6350,10 @@
    "dre_grupo": "imposto"
   },
   {
-   "id": "08ad0d0c-9e84-45cc-9549-789325ff12a7",
-   "descricao": "Fatura cartao VISA (deb. automatico)",
-   "valor": 5949.84,
-   "devido": 5949.84,
+   "id": "42436536-f1e9-43e0-b464-d8d4d6cf9936",
+   "descricao": "Fatura cartao MASTERCARD (deb. automatico)",
+   "valor": 1380.13,
+   "devido": 1380.13,
    "status": "aberto",
    "venc": "2026-09-22",
    "origem": "estimativa",
@@ -6398,10 +6362,10 @@
    "dre_grupo": "despesa_variavel"
   },
   {
-   "id": "42436536-f1e9-43e0-b464-d8d4d6cf9936",
-   "descricao": "Fatura cartao MASTERCARD (deb. automatico)",
-   "valor": 1380.13,
-   "devido": 1380.13,
+   "id": "08ad0d0c-9e84-45cc-9549-789325ff12a7",
+   "descricao": "Fatura cartao VISA (deb. automatico)",
+   "valor": 5949.84,
+   "devido": 5949.84,
    "status": "aberto",
    "venc": "2026-09-22",
    "origem": "estimativa",
@@ -6422,14 +6386,14 @@
    "dre_grupo": "despesa_fixa"
   },
   {
-   "id": "6f8bac50-c351-5291-ae1d-6f017af18af9",
-   "descricao": "Comissão Fábio Omena — 28º LEILÃO NAVIRAÍ CAMPARINO - REPRODUTORES — lote 19",
-   "valor": 720,
-   "devido": 720,
+   "id": "732425a2-9f77-5608-a100-accd90a7ce98",
+   "descricao": "Comissão Peralta — LEILÃO NELORE CEN & FAZENDA MODELO & CONVIDADOS — lote 09",
+   "valor": 1680,
+   "devido": 1680,
    "status": "aberto",
    "venc": "2026-09-25",
    "origem": "real",
-   "fornecedor": "FO ASSESSORIA PECUARIA",
+   "fornecedor": "Peralta",
    "categoria": "Comissões",
    "dre_grupo": "custo_direto"
   },
@@ -7322,6 +7286,18 @@
    "dre_grupo": "custo_direto"
   },
   {
+   "id": "6f8bac50-c351-5291-ae1d-6f017af18af9",
+   "descricao": "Comissão Fábio Omena — 28º LEILÃO NAVIRAÍ CAMPARINO - REPRODUTORES — lote 19",
+   "valor": 720,
+   "devido": 720,
+   "status": "aberto",
+   "venc": "2026-09-25",
+   "origem": "real",
+   "fornecedor": "FO ASSESSORIA PECUARIA",
+   "categoria": "Comissões",
+   "dre_grupo": "custo_direto"
+  },
+  {
    "id": "6f90af48-97bb-5412-a532-b910789dd84c",
    "descricao": "Comissão Leonardo Serafim — 4º LEILÃO PEPITAS COLONIAL - EXPOGENÉTICA 2026 — lote 53",
    "valor": 480,
@@ -7330,18 +7306,6 @@
    "venc": "2026-09-25",
    "origem": "real",
    "fornecedor": "LEONARDO",
-   "categoria": "Comissões",
-   "dre_grupo": "custo_direto"
-  },
-  {
-   "id": "732425a2-9f77-5608-a100-accd90a7ce98",
-   "descricao": "Comissão Peralta — LEILÃO NELORE CEN & FAZENDA MODELO & CONVIDADOS — lote 09",
-   "valor": 1680,
-   "devido": 1680,
-   "status": "aberto",
-   "venc": "2026-09-25",
-   "origem": "real",
-   "fornecedor": "Peralta",
    "categoria": "Comissões",
    "dre_grupo": "custo_direto"
   },
@@ -7754,26 +7718,14 @@
    "dre_grupo": "custo_direto"
   },
   {
-   "id": "c646dbd7-3255-4993-802f-f8a2b0959765",
-   "descricao": "Folha Setembro/2026 - PEDRO",
+   "id": "067101fc-f91d-4998-94d8-9ef2b493a4d9",
+   "descricao": "Folha Setembro/2026 - JOÃO GABRIEL",
    "valor": 2000,
    "devido": 2000,
    "status": "aberto",
    "venc": "2026-10-05",
    "origem": "estimativa",
-   "fornecedor": "PEDRO",
-   "categoria": "Folha de Pagamento",
-   "dre_grupo": "despesa_fixa"
-  },
-  {
-   "id": "465f035f-bef5-4228-9388-8a9f93bc9ca2",
-   "descricao": "Folha Setembro/2026 - DOUGLAS BISPO",
-   "valor": 10000,
-   "devido": 10000,
-   "status": "aberto",
-   "venc": "2026-10-05",
-   "origem": "estimativa",
-   "fornecedor": "DOUGLAS BISPO",
+   "fornecedor": "JOÃO GABRIEL",
    "categoria": "Folha de Pagamento",
    "dre_grupo": "despesa_fixa"
   },
@@ -7790,26 +7742,26 @@
    "dre_grupo": "despesa_fixa"
   },
   {
-   "id": "067101fc-f91d-4998-94d8-9ef2b493a4d9",
-   "descricao": "Folha Setembro/2026 - JOÃO GABRIEL",
+   "id": "d3696513-86a2-4f41-aa98-c4d23657fc2d",
+   "descricao": "Folha Setembro/2026 - LUANA",
    "valor": 2000,
    "devido": 2000,
    "status": "aberto",
    "venc": "2026-10-05",
    "origem": "estimativa",
-   "fornecedor": "JOÃO GABRIEL",
+   "fornecedor": "LUANA",
    "categoria": "Folha de Pagamento",
    "dre_grupo": "despesa_fixa"
   },
   {
-   "id": "356dbf90-163c-43ce-a954-8ec8800eee8d",
-   "descricao": "Folha Setembro/2026 - MATHEUS M1",
-   "valor": 6000,
-   "devido": 6000,
+   "id": "465f035f-bef5-4228-9388-8a9f93bc9ca2",
+   "descricao": "Folha Setembro/2026 - DOUGLAS BISPO",
+   "valor": 10000,
+   "devido": 10000,
    "status": "aberto",
    "venc": "2026-10-05",
    "origem": "estimativa",
-   "fornecedor": "MATHEUS M1",
+   "fornecedor": "DOUGLAS BISPO",
    "categoria": "Folha de Pagamento",
    "dre_grupo": "despesa_fixa"
   },
@@ -7826,18 +7778,6 @@
    "dre_grupo": "despesa_fixa"
   },
   {
-   "id": "60033052-711f-4345-b3fc-29fcf0d90ce6",
-   "descricao": "Folha Setembro/2026 - LEONARDO",
-   "valor": 13500,
-   "devido": 13500,
-   "status": "aberto",
-   "venc": "2026-10-05",
-   "origem": "estimativa",
-   "fornecedor": "LEONARDO",
-   "categoria": "Folha de Pagamento",
-   "dre_grupo": "despesa_fixa"
-  },
-  {
    "id": "76361317-dec4-4f78-a905-31b6c60f3f08",
    "descricao": "Folha Setembro/2026 - FABIO OMENNA",
    "valor": 7000,
@@ -7850,14 +7790,38 @@
    "dre_grupo": "despesa_fixa"
   },
   {
-   "id": "d3696513-86a2-4f41-aa98-c4d23657fc2d",
-   "descricao": "Folha Setembro/2026 - LUANA",
+   "id": "60033052-711f-4345-b3fc-29fcf0d90ce6",
+   "descricao": "Folha Setembro/2026 - LEONARDO",
+   "valor": 13500,
+   "devido": 13500,
+   "status": "aberto",
+   "venc": "2026-10-05",
+   "origem": "estimativa",
+   "fornecedor": "LEONARDO",
+   "categoria": "Folha de Pagamento",
+   "dre_grupo": "despesa_fixa"
+  },
+  {
+   "id": "356dbf90-163c-43ce-a954-8ec8800eee8d",
+   "descricao": "Folha Setembro/2026 - MATHEUS M1",
+   "valor": 6000,
+   "devido": 6000,
+   "status": "aberto",
+   "venc": "2026-10-05",
+   "origem": "estimativa",
+   "fornecedor": "MATHEUS M1",
+   "categoria": "Folha de Pagamento",
+   "dre_grupo": "despesa_fixa"
+  },
+  {
+   "id": "c646dbd7-3255-4993-802f-f8a2b0959765",
+   "descricao": "Folha Setembro/2026 - PEDRO",
    "valor": 2000,
    "devido": 2000,
    "status": "aberto",
    "venc": "2026-10-05",
    "origem": "estimativa",
-   "fornecedor": "LUANA",
+   "fornecedor": "PEDRO",
    "categoria": "Folha de Pagamento",
    "dre_grupo": "despesa_fixa"
   },
@@ -7886,14 +7850,14 @@
    "dre_grupo": "despesa_fixa"
   },
   {
-   "id": "99374de6-de7b-5b18-a43f-d6f92de970cd",
-   "descricao": "Comissão A definir: Agrofeira IBC (informante Fábio Omena) — Agrofeira IBC",
+   "id": "95897aa1-abfc-54d5-ae56-7bf3700a9dcd",
+   "descricao": "Comissão Laila — 10º Leilão Especial Touros Jacamim",
    "valor": 0,
    "devido": 0,
    "status": "aberto",
    "venc": "2026-10-25",
    "origem": "real",
-   "fornecedor": null,
+   "fornecedor": "Laila de Sousa Oliveira",
    "categoria": "Comissões",
    "dre_grupo": "custo_direto"
   },
@@ -7958,14 +7922,14 @@
    "dre_grupo": "custo_direto"
   },
   {
-   "id": "95897aa1-abfc-54d5-ae56-7bf3700a9dcd",
-   "descricao": "Comissão Laila — 10º Leilão Especial Touros Jacamim",
+   "id": "99374de6-de7b-5b18-a43f-d6f92de970cd",
+   "descricao": "Comissão A definir: Agrofeira IBC (informante Fábio Omena) — Agrofeira IBC",
    "valor": 0,
    "devido": 0,
    "status": "aberto",
    "venc": "2026-10-25",
    "origem": "real",
-   "fornecedor": "Laila de Sousa Oliveira",
+   "fornecedor": null,
    "categoria": "Comissões",
    "dre_grupo": "custo_direto"
   },
@@ -8234,50 +8198,14 @@
    "dre_grupo": "custo_direto"
   },
   {
-   "id": "ce97edf5-e9c6-4f05-9f80-4157385421cf",
-   "descricao": "Folha Outubro/2026 - JOÃO ANTONIO",
+   "id": "1b5a0e14-35ed-4905-90d7-173b25033359",
+   "descricao": "Folha Outubro/2026 - JOÃO GABRIEL",
    "valor": 2000,
    "devido": 2000,
    "status": "aberto",
    "venc": "2026-11-05",
    "origem": "estimativa",
-   "fornecedor": "JOÃO ANTONIO",
-   "categoria": "Folha de Pagamento",
-   "dre_grupo": "despesa_fixa"
-  },
-  {
-   "id": "4bbc5c94-2b82-4111-a7fa-f73855e3cd31",
-   "descricao": "Folha Outubro/2026 - FABIO OMENNA",
-   "valor": 7000,
-   "devido": 7000,
-   "status": "aberto",
-   "venc": "2026-11-05",
-   "origem": "estimativa",
-   "fornecedor": "FO ASSESSORIA PECUARIA",
-   "categoria": "Folha de Pagamento",
-   "dre_grupo": "despesa_fixa"
-  },
-  {
-   "id": "f7cdd898-ef0a-4da7-9774-f50a04622850",
-   "descricao": "Folha Outubro/2026 - JOÃO EDUARDO",
-   "valor": 5000,
-   "devido": 5000,
-   "status": "aberto",
-   "venc": "2026-11-05",
-   "origem": "estimativa",
-   "fornecedor": "JOÃO EDUARDO",
-   "categoria": "Folha de Pagamento",
-   "dre_grupo": "despesa_fixa"
-  },
-  {
-   "id": "738dcad0-6b41-4eb4-9100-114c15b0e035",
-   "descricao": "Folha Outubro/2026 - PEDRO",
-   "valor": 2000,
-   "devido": 2000,
-   "status": "aberto",
-   "venc": "2026-11-05",
-   "origem": "estimativa",
-   "fornecedor": "PEDRO",
+   "fornecedor": "JOÃO GABRIEL",
    "categoria": "Folha de Pagamento",
    "dre_grupo": "despesa_fixa"
   },
@@ -8294,18 +8222,6 @@
    "dre_grupo": "despesa_fixa"
   },
   {
-   "id": "f5022a8f-aad5-4480-85d1-419bc11addb6",
-   "descricao": "Folha Outubro/2026 - MATHEUS M1",
-   "valor": 6000,
-   "devido": 6000,
-   "status": "aberto",
-   "venc": "2026-11-05",
-   "origem": "estimativa",
-   "fornecedor": "MATHEUS M1",
-   "categoria": "Folha de Pagamento",
-   "dre_grupo": "despesa_fixa"
-  },
-  {
    "id": "470e3d10-fb07-47d8-9270-90f2363f920a",
    "descricao": "Folha Outubro/2026 - LUANA",
    "valor": 2000,
@@ -8314,6 +8230,54 @@
    "venc": "2026-11-05",
    "origem": "estimativa",
    "fornecedor": "LUANA",
+   "categoria": "Folha de Pagamento",
+   "dre_grupo": "despesa_fixa"
+  },
+  {
+   "id": "f7cdd898-ef0a-4da7-9774-f50a04622850",
+   "descricao": "Folha Outubro/2026 - JOÃO EDUARDO",
+   "valor": 5000,
+   "devido": 5000,
+   "status": "aberto",
+   "venc": "2026-11-05",
+   "origem": "estimativa",
+   "fornecedor": "JOÃO EDUARDO",
+   "categoria": "Folha de Pagamento",
+   "dre_grupo": "despesa_fixa"
+  },
+  {
+   "id": "4bbc5c94-2b82-4111-a7fa-f73855e3cd31",
+   "descricao": "Folha Outubro/2026 - FABIO OMENNA",
+   "valor": 7000,
+   "devido": 7000,
+   "status": "aberto",
+   "venc": "2026-11-05",
+   "origem": "estimativa",
+   "fornecedor": "FO ASSESSORIA PECUARIA",
+   "categoria": "Folha de Pagamento",
+   "dre_grupo": "despesa_fixa"
+  },
+  {
+   "id": "738dcad0-6b41-4eb4-9100-114c15b0e035",
+   "descricao": "Folha Outubro/2026 - PEDRO",
+   "valor": 2000,
+   "devido": 2000,
+   "status": "aberto",
+   "venc": "2026-11-05",
+   "origem": "estimativa",
+   "fornecedor": "PEDRO",
+   "categoria": "Folha de Pagamento",
+   "dre_grupo": "despesa_fixa"
+  },
+  {
+   "id": "ce97edf5-e9c6-4f05-9f80-4157385421cf",
+   "descricao": "Folha Outubro/2026 - JOÃO ANTONIO",
+   "valor": 2000,
+   "devido": 2000,
+   "status": "aberto",
+   "venc": "2026-11-05",
+   "origem": "estimativa",
+   "fornecedor": "JOÃO ANTONIO",
    "categoria": "Folha de Pagamento",
    "dre_grupo": "despesa_fixa"
   },
@@ -8330,14 +8294,14 @@
    "dre_grupo": "despesa_fixa"
   },
   {
-   "id": "1b5a0e14-35ed-4905-90d7-173b25033359",
-   "descricao": "Folha Outubro/2026 - JOÃO GABRIEL",
-   "valor": 2000,
-   "devido": 2000,
+   "id": "f5022a8f-aad5-4480-85d1-419bc11addb6",
+   "descricao": "Folha Outubro/2026 - MATHEUS M1",
+   "valor": 6000,
+   "devido": 6000,
    "status": "aberto",
    "venc": "2026-11-05",
    "origem": "estimativa",
-   "fornecedor": "JOÃO GABRIEL",
+   "fornecedor": "MATHEUS M1",
    "categoria": "Folha de Pagamento",
    "dre_grupo": "despesa_fixa"
   },
@@ -8366,6 +8330,30 @@
    "dre_grupo": "despesa_fixa"
   },
   {
+   "id": "cce18c97-32e0-4c4c-aefd-c16c98522c99",
+   "descricao": "Folha Novembro/2026 - DOUGLAS BISPO",
+   "valor": 10000,
+   "devido": 10000,
+   "status": "aberto",
+   "venc": "2026-12-05",
+   "origem": "estimativa",
+   "fornecedor": "DOUGLAS BISPO",
+   "categoria": "Folha de Pagamento",
+   "dre_grupo": "despesa_fixa"
+  },
+  {
+   "id": "f9865f3c-3792-45b4-a290-763b1a38c118",
+   "descricao": "Folha Novembro/2026 - JOÃO ANTONIO",
+   "valor": 2000,
+   "devido": 2000,
+   "status": "aberto",
+   "venc": "2026-12-05",
+   "origem": "estimativa",
+   "fornecedor": "JOÃO ANTONIO",
+   "categoria": "Folha de Pagamento",
+   "dre_grupo": "despesa_fixa"
+  },
+  {
    "id": "efce76de-b945-447d-bc20-6d57285b8435",
    "descricao": "Folha Novembro/2026 - MATHEUS M1",
    "valor": 6000,
@@ -8374,6 +8362,18 @@
    "venc": "2026-12-05",
    "origem": "estimativa",
    "fornecedor": "MATHEUS M1",
+   "categoria": "Folha de Pagamento",
+   "dre_grupo": "despesa_fixa"
+  },
+  {
+   "id": "1e4656a7-d643-48e8-8377-3695dfeb0d73",
+   "descricao": "Folha Novembro/2026 - JOÃO GABRIEL",
+   "valor": 2000,
+   "devido": 2000,
+   "status": "aberto",
+   "venc": "2026-12-05",
+   "origem": "estimativa",
+   "fornecedor": "JOÃO GABRIEL",
    "categoria": "Folha de Pagamento",
    "dre_grupo": "despesa_fixa"
   },
@@ -8414,18 +8414,6 @@
    "dre_grupo": "despesa_fixa"
   },
   {
-   "id": "19e98105-09df-4ea2-a4b0-5b2b573b3f24",
-   "descricao": "Folha Novembro/2026 - FABIO OMENNA",
-   "valor": 7000,
-   "devido": 7000,
-   "status": "aberto",
-   "venc": "2026-12-05",
-   "origem": "estimativa",
-   "fornecedor": "FO ASSESSORIA PECUARIA",
-   "categoria": "Folha de Pagamento",
-   "dre_grupo": "despesa_fixa"
-  },
-  {
    "id": "b585e39f-e30c-4289-8b42-693f6c50ecd4",
    "descricao": "Folha Novembro/2026 - LEONARDO",
    "valor": 13500,
@@ -8438,38 +8426,14 @@
    "dre_grupo": "despesa_fixa"
   },
   {
-   "id": "1e4656a7-d643-48e8-8377-3695dfeb0d73",
-   "descricao": "Folha Novembro/2026 - JOÃO GABRIEL",
-   "valor": 2000,
-   "devido": 2000,
+   "id": "19e98105-09df-4ea2-a4b0-5b2b573b3f24",
+   "descricao": "Folha Novembro/2026 - FABIO OMENNA",
+   "valor": 7000,
+   "devido": 7000,
    "status": "aberto",
    "venc": "2026-12-05",
    "origem": "estimativa",
-   "fornecedor": "JOÃO GABRIEL",
-   "categoria": "Folha de Pagamento",
-   "dre_grupo": "despesa_fixa"
-  },
-  {
-   "id": "f9865f3c-3792-45b4-a290-763b1a38c118",
-   "descricao": "Folha Novembro/2026 - JOÃO ANTONIO",
-   "valor": 2000,
-   "devido": 2000,
-   "status": "aberto",
-   "venc": "2026-12-05",
-   "origem": "estimativa",
-   "fornecedor": "JOÃO ANTONIO",
-   "categoria": "Folha de Pagamento",
-   "dre_grupo": "despesa_fixa"
-  },
-  {
-   "id": "cce18c97-32e0-4c4c-aefd-c16c98522c99",
-   "descricao": "Folha Novembro/2026 - DOUGLAS BISPO",
-   "valor": 10000,
-   "devido": 10000,
-   "status": "aberto",
-   "venc": "2026-12-05",
-   "origem": "estimativa",
-   "fornecedor": "DOUGLAS BISPO",
+   "fornecedor": "FO ASSESSORIA PECUARIA",
    "categoria": "Folha de Pagamento",
    "dre_grupo": "despesa_fixa"
   },
@@ -8486,38 +8450,26 @@
    "dre_grupo": "despesa_fixa"
   },
   {
-   "id": "0946bd00-a3c4-4294-8b5d-8b49746648a3",
-   "descricao": "Folha Dezembro/2026 - JOÃO ANTONIO",
+   "id": "c76004ee-756b-4650-8072-34312ec18c55",
+   "descricao": "Folha Dezembro/2026 - PEDRO",
    "valor": 2000,
    "devido": 2000,
    "status": "aberto",
    "venc": "2027-01-05",
    "origem": "estimativa",
-   "fornecedor": "JOÃO ANTONIO",
+   "fornecedor": "PEDRO",
    "categoria": "Folha de Pagamento",
    "dre_grupo": "despesa_fixa"
   },
   {
-   "id": "800578ea-6d1b-481e-b419-9cfb888f290e",
-   "descricao": "Folha Dezembro/2026 - LEONARDO",
-   "valor": 13500,
-   "devido": 13500,
+   "id": "3d3ba0db-d390-4f04-b47e-b8651705aa2b",
+   "descricao": "Folha Dezembro/2026 - JOÃO EDUARDO",
+   "valor": 5000,
+   "devido": 5000,
    "status": "aberto",
    "venc": "2027-01-05",
    "origem": "estimativa",
-   "fornecedor": "LEONARDO",
-   "categoria": "Folha de Pagamento",
-   "dre_grupo": "despesa_fixa"
-  },
-  {
-   "id": "566a09ba-7986-404f-bd2e-1736d8e3ad8f",
-   "descricao": "Folha Dezembro/2026 - FABIO OMENNA",
-   "valor": 7000,
-   "devido": 7000,
-   "status": "aberto",
-   "venc": "2027-01-05",
-   "origem": "estimativa",
-   "fornecedor": "FO ASSESSORIA PECUARIA",
+   "fornecedor": "JOÃO EDUARDO",
    "categoria": "Folha de Pagamento",
    "dre_grupo": "despesa_fixa"
   },
@@ -8546,26 +8498,26 @@
    "dre_grupo": "despesa_fixa"
   },
   {
-   "id": "3d3ba0db-d390-4f04-b47e-b8651705aa2b",
-   "descricao": "Folha Dezembro/2026 - JOÃO EDUARDO",
-   "valor": 5000,
-   "devido": 5000,
+   "id": "800578ea-6d1b-481e-b419-9cfb888f290e",
+   "descricao": "Folha Dezembro/2026 - LEONARDO",
+   "valor": 13500,
+   "devido": 13500,
    "status": "aberto",
    "venc": "2027-01-05",
    "origem": "estimativa",
-   "fornecedor": "JOÃO EDUARDO",
+   "fornecedor": "LEONARDO",
    "categoria": "Folha de Pagamento",
    "dre_grupo": "despesa_fixa"
   },
   {
-   "id": "c76004ee-756b-4650-8072-34312ec18c55",
-   "descricao": "Folha Dezembro/2026 - PEDRO",
-   "valor": 2000,
-   "devido": 2000,
+   "id": "566a09ba-7986-404f-bd2e-1736d8e3ad8f",
+   "descricao": "Folha Dezembro/2026 - FABIO OMENNA",
+   "valor": 7000,
+   "devido": 7000,
    "status": "aberto",
    "venc": "2027-01-05",
    "origem": "estimativa",
-   "fornecedor": "PEDRO",
+   "fornecedor": "FO ASSESSORIA PECUARIA",
    "categoria": "Folha de Pagamento",
    "dre_grupo": "despesa_fixa"
   },
@@ -8594,10 +8546,22 @@
    "dre_grupo": "despesa_fixa"
   },
   {
-   "id": "a7a16e27-9de4-5649-ab50-dc195f1c73f4",
-   "descricao": "Comissão Nane — 28º LEILÃO NAVIRAÍ CAMPARINO - REPRODUTORES",
-   "valor": 4440,
-   "devido": 4440,
+   "id": "0946bd00-a3c4-4294-8b5d-8b49746648a3",
+   "descricao": "Folha Dezembro/2026 - JOÃO ANTONIO",
+   "valor": 2000,
+   "devido": 2000,
+   "status": "aberto",
+   "venc": "2027-01-05",
+   "origem": "estimativa",
+   "fornecedor": "JOÃO ANTONIO",
+   "categoria": "Folha de Pagamento",
+   "dre_grupo": "despesa_fixa"
+  },
+  {
+   "id": "1050f336-5bfd-5340-a52a-bcb1f62c0fa4",
+   "descricao": "Comissão A definir — leilão Marcondes — Leilão Caminhos — Nelore Marcondes",
+   "valor": 0,
+   "devido": 0,
    "status": "aberto",
    "venc": null,
    "origem": "real",
@@ -8606,16 +8570,16 @@
    "dre_grupo": "custo_direto"
   },
   {
-   "id": "16eb8e16-ab7e-4c53-b7a5-5b60f8d7facb",
-   "descricao": "COMISSAO MEGA EVENTO EAO BAVIERA — Machos - NANE",
-   "valor": 3060,
-   "devido": 3060,
+   "id": "1528a7ff-7d56-5ca2-a801-6d3e20ed94cb",
+   "descricao": "Hotel LS agosto/2026 — cartão e rateio Assessoria/Remates a conferir",
+   "valor": 0,
+   "devido": 0,
    "status": "aberto",
    "venc": null,
    "origem": "real",
    "fornecedor": null,
-   "categoria": "Comissões",
-   "dre_grupo": "custo_direto"
+   "categoria": null,
+   "dre_grupo": null
   },
   {
    "id": "1c841ff1-fb12-4ee0-893e-748f2741918c",
@@ -8642,6 +8606,18 @@
    "dre_grupo": "custo_direto"
   },
   {
+   "id": "a7a16e27-9de4-5649-ab50-dc195f1c73f4",
+   "descricao": "Comissão Nane — 28º LEILÃO NAVIRAÍ CAMPARINO - REPRODUTORES",
+   "valor": 4440,
+   "devido": 4440,
+   "status": "aberto",
+   "venc": null,
+   "origem": "real",
+   "fornecedor": null,
+   "categoria": "Comissões",
+   "dre_grupo": "custo_direto"
+  },
+  {
    "id": "9ec96ce1-9c6d-5e4f-aada-2bd77a49556c",
    "descricao": "Comissão Laila — 32° Leilão 4R – 09/05/2026",
    "valor": 0,
@@ -8654,6 +8630,18 @@
    "dre_grupo": "custo_direto"
   },
   {
+   "id": "93e0b188-a09a-54d2-89ab-b46956c246ad",
+   "descricao": "Douglas — despesas Pérolas agosto/2026 — acerto de adiantamento a conferir",
+   "valor": 0,
+   "devido": 0,
+   "status": "aberto",
+   "venc": null,
+   "origem": "real",
+   "fornecedor": "GRUPO AGROBISPO",
+   "categoria": null,
+   "dre_grupo": null
+  },
+  {
    "id": "7bf0b68c-9572-4687-9337-f33f87ad46bb",
    "descricao": "Naviraí - recebido a maior na NF630 (30,00) - devolver ou compensar",
    "valor": 30,
@@ -8664,18 +8652,6 @@
    "fornecedor": "Claudio Sabino Carvalho Filho",
    "categoria": "REEMBOLSO",
    "dre_grupo": "despesa_variavel"
-  },
-  {
-   "id": "6a10e0b3-3040-5376-aa7c-34f1d7dcc8fe",
-   "descricao": "Comissão Nane — LEILÃO GENÉTICA SÃO JOSÉ - 30 ANOS DE SELEÇÃO",
-   "valor": 2618,
-   "devido": 2618,
-   "status": "aberto",
-   "venc": null,
-   "origem": "real",
-   "fornecedor": null,
-   "categoria": "Comissões",
-   "dre_grupo": "custo_direto"
   },
   {
    "id": "4a4b2619-4fa3-5e57-aed4-b580d37dd696",
@@ -8702,6 +8678,18 @@
    "dre_grupo": "custo_direto"
   },
   {
+   "id": "3a48e72b-cedd-5f5a-a844-d697cb6f3e6f",
+   "descricao": "Comissão Nane — LEILÃO SÓ CRIADOR FÊMEAS E MACHOS DE ALTO PADRÃO",
+   "valor": 1000,
+   "devido": 1000,
+   "status": "aberto",
+   "venc": null,
+   "origem": "real",
+   "fornecedor": null,
+   "categoria": "Comissões",
+   "dre_grupo": "custo_direto"
+  },
+  {
    "id": "f85f7a4c-c1ee-414b-99e3-d126b40d9f74",
    "descricao": "COMISSAO 20º LEILÃO GUADALUPE AGROPECUÁRIA Touros - NANE / FABIO OMENA (2%)",
    "valor": 420,
@@ -8714,22 +8702,10 @@
    "dre_grupo": "custo_direto"
   },
   {
-   "id": "1528a7ff-7d56-5ca2-a801-6d3e20ed94cb",
-   "descricao": "Hotel LS agosto/2026 — cartão e rateio Assessoria/Remates a conferir",
-   "valor": 0,
-   "devido": 0,
-   "status": "aberto",
-   "venc": null,
-   "origem": "real",
-   "fornecedor": null,
-   "categoria": null,
-   "dre_grupo": null
-  },
-  {
-   "id": "3a48e72b-cedd-5f5a-a844-d697cb6f3e6f",
-   "descricao": "Comissão Nane — LEILÃO SÓ CRIADOR FÊMEAS E MACHOS DE ALTO PADRÃO",
-   "valor": 1000,
-   "devido": 1000,
+   "id": "16eb8e16-ab7e-4c53-b7a5-5b60f8d7facb",
+   "descricao": "COMISSAO MEGA EVENTO EAO BAVIERA — Machos - NANE",
+   "valor": 3060,
+   "devido": 3060,
    "status": "aberto",
    "venc": null,
    "origem": "real",
@@ -8762,10 +8738,10 @@
    "dre_grupo": "custo_direto"
   },
   {
-   "id": "1aeef73f-af16-5cf5-a5b8-a854ef7a0bd5",
-   "descricao": "Comissão Nane — 10º Leilão Especial Touros Jacamim",
-   "valor": 0,
-   "devido": 0,
+   "id": "6a10e0b3-3040-5376-aa7c-34f1d7dcc8fe",
+   "descricao": "Comissão Nane — LEILÃO GENÉTICA SÃO JOSÉ - 30 ANOS DE SELEÇÃO",
+   "valor": 2618,
+   "devido": 2618,
    "status": "aberto",
    "venc": null,
    "origem": "real",
@@ -8774,7 +8750,7 @@
    "dre_grupo": "custo_direto"
   },
   {
-   "id": "3ef1f390-6083-5e6c-ad31-3f96b3344083",
+   "id": "fe95e30d-2ac6-54ca-ae18-84f734bd9cbf",
    "descricao": "Comissão Nane — Leilões de 05/09 — evento a confirmar entre Jacamim e Marcondes",
    "valor": 0,
    "devido": 0,
@@ -8786,8 +8762,8 @@
    "dre_grupo": "custo_direto"
   },
   {
-   "id": "1050f336-5bfd-5340-a52a-bcb1f62c0fa4",
-   "descricao": "Comissão A definir — leilão Marcondes — Leilão Caminhos — Nelore Marcondes",
+   "id": "1aeef73f-af16-5cf5-a5b8-a854ef7a0bd5",
+   "descricao": "Comissão Nane — 10º Leilão Especial Touros Jacamim",
    "valor": 0,
    "devido": 0,
    "status": "aberto",
@@ -8834,18 +8810,6 @@
    "dre_grupo": null
   },
   {
-   "id": "125739ce-1d83-56d7-abf7-eb3c52f11e13",
-   "descricao": "Comissão Nane — 10º Leilão Especial Touros Jacamim",
-   "valor": 0,
-   "devido": 0,
-   "status": "aberto",
-   "venc": null,
-   "origem": "real",
-   "fornecedor": null,
-   "categoria": "Comissões",
-   "dre_grupo": "custo_direto"
-  },
-  {
    "id": "58bfdd5c-b582-508e-a15d-388cd2a2e441",
    "descricao": "Comissão A definir: Marcelo Moura / Fábio Omena — JMP Touros",
    "valor": 0,
@@ -8870,18 +8834,6 @@
    "dre_grupo": "custo_direto"
   },
   {
-   "id": "93e0b188-a09a-54d2-89ab-b46956c246ad",
-   "descricao": "Douglas — despesas Pérolas agosto/2026 — acerto de adiantamento a conferir",
-   "valor": 0,
-   "devido": 0,
-   "status": "aberto",
-   "venc": null,
-   "origem": "real",
-   "fornecedor": "GRUPO AGROBISPO",
-   "categoria": null,
-   "dre_grupo": null
-  },
-  {
    "id": "f0fee673-02b1-5d7a-b48d-dc47dc2bdff7",
    "descricao": "Consultas de crédito — provável AgRisk — contrato, titular e parcelas a conferir",
    "valor": 0,
@@ -8894,19 +8846,19 @@
    "dre_grupo": null
   },
   {
-   "id": "acc79d52-d35f-5fe1-bae9-4f71ccefea4d",
-   "descricao": "Marcelo Carneiro — despesas indicadas como reembolso — saldo a conferir",
+   "id": "125739ce-1d83-56d7-abf7-eb3c52f11e13",
+   "descricao": "Comissão Nane — 10º Leilão Especial Touros Jacamim",
    "valor": 0,
    "devido": 0,
    "status": "aberto",
    "venc": null,
    "origem": "real",
-   "fornecedor": "Marcelo Carneiro Lucas Pereira",
-   "categoria": null,
-   "dre_grupo": null
+   "fornecedor": null,
+   "categoria": "Comissões",
+   "dre_grupo": "custo_direto"
   },
   {
-   "id": "fe95e30d-2ac6-54ca-ae18-84f734bd9cbf",
+   "id": "3ef1f390-6083-5e6c-ad31-3f96b3344083",
    "descricao": "Comissão Nane — Leilões de 05/09 — evento a confirmar entre Jacamim e Marcondes",
    "valor": 0,
    "devido": 0,
@@ -8940,6 +8892,18 @@
    "fornecedor": null,
    "categoria": "Comissões",
    "dre_grupo": "custo_direto"
+  },
+  {
+   "id": "acc79d52-d35f-5fe1-bae9-4f71ccefea4d",
+   "descricao": "Marcelo Carneiro — despesas indicadas como reembolso — saldo a conferir",
+   "valor": 0,
+   "devido": 0,
+   "status": "aberto",
+   "venc": null,
+   "origem": "real",
+   "fornecedor": "Marcelo Carneiro Lucas Pereira",
+   "categoria": null,
+   "dre_grupo": null
   }
  ],
  "fluxo": [
@@ -8947,12 +8911,12 @@
    "data": "2026-09-14",
    "entrada": 0,
    "saida": 6665.73,
-   "saldo": 271808.28,
+   "saldo": 110464.38,
    "itens_entrada": [],
    "itens_saida": [
     {
-     "d": "ADN VIAGENS — Douglas Carvalho — Marabá → Uberlândia → Marabá — bilhete 5770010344301",
-     "v": 3183.2,
+     "d": "ADN VIAGENS — Leonardo Francisco — Belo Horizonte → Maringá — bilhete 9572300021007",
+     "v": 1022.53,
      "origem": "real"
     },
     {
@@ -8961,8 +8925,8 @@
      "origem": "real"
     },
     {
-     "d": "ADN VIAGENS — Leonardo Francisco — Belo Horizonte → Maringá — bilhete 9572300021007",
-     "v": 1022.53,
+     "d": "ADN VIAGENS — Douglas Carvalho — Marabá → Uberlândia → Marabá — bilhete 5770010344301",
+     "v": 3183.2,
      "origem": "real"
     },
     {
@@ -8976,14 +8940,9 @@
    "data": "2026-09-15",
    "entrada": 0,
    "saida": 5058.07,
-   "saldo": 266750.21,
+   "saldo": 105406.31,
    "itens_entrada": [],
    "itens_saida": [
-    {
-     "d": "ISSQN agosto/2026 — guia 1786806 — Prefeitura de Campo Grande",
-     "v": 4873.43,
-     "origem": "real"
-    },
     {
      "d": "Seguro Sicoob (deb. automatico 15/09)",
      "v": 62.04,
@@ -8993,6 +8952,11 @@
      "d": "Seguro Sicoob (deb. automatico 15/09)",
      "v": 122.6,
      "origem": "real"
+    },
+    {
+     "d": "ISSQN agosto/2026 — guia 1786806 — Prefeitura de Campo Grande",
+     "v": 4873.43,
+     "origem": "real"
     }
    ]
   },
@@ -9000,7 +8964,7 @@
    "data": "2026-09-18",
    "entrada": 0,
    "saida": 180,
-   "saldo": 266570.21,
+   "saldo": 105226.31,
    "itens_entrada": [],
    "itens_saida": [
     {
@@ -9014,7 +8978,7 @@
    "data": "2026-09-20",
    "entrada": 0,
    "saida": 495,
-   "saldo": 266075.21,
+   "saldo": 104731.31,
    "itens_entrada": [],
    "itens_saida": [
     {
@@ -9028,7 +8992,7 @@
    "data": "2026-09-21",
    "entrada": 0,
    "saida": 14721.81,
-   "saldo": 251353.4,
+   "saldo": 90009.5,
    "itens_entrada": [],
    "itens_saida": [
     {
@@ -9042,17 +9006,17 @@
    "data": "2026-09-22",
    "entrada": 0,
    "saida": 7329.97,
-   "saldo": 244023.43,
+   "saldo": 82679.53,
    "itens_entrada": [],
    "itens_saida": [
     {
-     "d": "Fatura cartao VISA (deb. automatico)",
-     "v": 5949.84,
+     "d": "Fatura cartao MASTERCARD (deb. automatico)",
+     "v": 1380.13,
      "origem": "estimativa"
     },
     {
-     "d": "Fatura cartao MASTERCARD (deb. automatico)",
-     "v": 1380.13,
+     "d": "Fatura cartao VISA (deb. automatico)",
+     "v": 5949.84,
      "origem": "estimativa"
     }
    ]
@@ -9061,7 +9025,7 @@
    "data": "2026-09-24",
    "entrada": 0,
    "saida": 550,
-   "saldo": 243473.43,
+   "saldo": 82129.53,
    "itens_entrada": [],
    "itens_saida": [
     {
@@ -9075,7 +9039,7 @@
    "data": "2026-09-25",
    "entrada": 10712.95,
    "saida": 167478.5,
-   "saldo": 86707.88,
+   "saldo": -74636.02,
    "itens_entrada": [
     {
      "d": "20o LEILAO GUADALUPE AGROPECUARIA - TOUROS 19/07 domingo (0,5% faturamento) - COMISSAO BULA - parc. 2/2",
@@ -9090,8 +9054,8 @@
    ],
    "itens_saida": [
     {
-     "d": "Comissão Fábio Omena — 28º LEILÃO NAVIRAÍ CAMPARINO - REPRODUTORES — lote 19",
-     "v": 720,
+     "d": "Comissão Peralta — LEILÃO NELORE CEN & FAZENDA MODELO & CONVIDADOS — lote 09",
+     "v": 1680,
      "origem": "real"
     },
     {
@@ -9465,13 +9429,13 @@
      "origem": "real"
     },
     {
-     "d": "Comissão Leonardo Serafim — 4º LEILÃO PEPITAS COLONIAL - EXPOGENÉTICA 2026 — lote 53",
-     "v": 480,
+     "d": "Comissão Fábio Omena — 28º LEILÃO NAVIRAÍ CAMPARINO - REPRODUTORES — lote 19",
+     "v": 720,
      "origem": "real"
     },
     {
-     "d": "Comissão Peralta — LEILÃO NELORE CEN & FAZENDA MODELO & CONVIDADOS — lote 09",
-     "v": 1680,
+     "d": "Comissão Leonardo Serafim — 4º LEILÃO PEPITAS COLONIAL - EXPOGENÉTICA 2026 — lote 53",
+     "v": 480,
      "origem": "real"
     },
     {
@@ -9650,7 +9614,7 @@
    "data": "2026-09-26",
    "entrada": 9141.22,
    "saida": 0,
-   "saldo": 95849.1,
+   "saldo": -65494.8,
    "itens_entrada": [
     {
      "d": "23o MEGA LEILAO GENETICA ADITIVA - TOUROS (26/07) - COMISSAO BULA",
@@ -9669,7 +9633,7 @@
    "data": "2026-10-01",
    "entrada": 5714,
    "saida": 0,
-   "saldo": 101563.1,
+   "saldo": -59780.8,
    "itens_entrada": [
     {
      "d": "LEILAO TOUROS SANTA NAZARE EXCELENCIA — parcela 2/2",
@@ -9683,11 +9647,21 @@
    "data": "2026-10-05",
    "entrada": 0,
    "saida": 49500,
-   "saldo": 52063.1,
+   "saldo": -109280.8,
    "itens_entrada": [],
    "itens_saida": [
     {
-     "d": "Folha Setembro/2026 - PEDRO",
+     "d": "Folha Setembro/2026 - JOÃO GABRIEL",
+     "v": 2000,
+     "origem": "estimativa"
+    },
+    {
+     "d": "Folha Setembro/2026 - JOÃO ANTONIO",
+     "v": 2000,
+     "origem": "estimativa"
+    },
+    {
+     "d": "Folha Setembro/2026 - LUANA",
      "v": 2000,
      "origem": "estimativa"
     },
@@ -9697,28 +9671,8 @@
      "origem": "estimativa"
     },
     {
-     "d": "Folha Setembro/2026 - JOÃO ANTONIO",
-     "v": 2000,
-     "origem": "estimativa"
-    },
-    {
-     "d": "Folha Setembro/2026 - JOÃO GABRIEL",
-     "v": 2000,
-     "origem": "estimativa"
-    },
-    {
-     "d": "Folha Setembro/2026 - MATHEUS M1",
-     "v": 6000,
-     "origem": "estimativa"
-    },
-    {
      "d": "Folha Setembro/2026 - JOÃO EDUARDO",
      "v": 5000,
-     "origem": "estimativa"
-    },
-    {
-     "d": "Folha Setembro/2026 - LEONARDO",
-     "v": 13500,
      "origem": "estimativa"
     },
     {
@@ -9727,7 +9681,17 @@
      "origem": "estimativa"
     },
     {
-     "d": "Folha Setembro/2026 - LUANA",
+     "d": "Folha Setembro/2026 - LEONARDO",
+     "v": 13500,
+     "origem": "estimativa"
+    },
+    {
+     "d": "Folha Setembro/2026 - MATHEUS M1",
+     "v": 6000,
+     "origem": "estimativa"
+    },
+    {
+     "d": "Folha Setembro/2026 - PEDRO",
      "v": 2000,
      "origem": "estimativa"
     }
@@ -9737,7 +9701,7 @@
    "data": "2026-10-10",
    "entrada": 0,
    "saida": 1058,
-   "saldo": 51005.1,
+   "saldo": -110338.8,
    "itens_entrada": [],
    "itens_saida": [
     {
@@ -9751,7 +9715,7 @@
    "data": "2026-10-20",
    "entrada": 0,
    "saida": 495,
-   "saldo": 50510.1,
+   "saldo": -110833.8,
    "itens_entrada": [],
    "itens_saida": [
     {
@@ -9765,41 +9729,41 @@
    "data": "2026-10-25",
    "entrada": 0,
    "saida": 432,
-   "saldo": 50078.1,
+   "saldo": -111265.8,
    "itens_entrada": [],
    "itens_saida": [
     {
-     "d": "Comissão A definir: Agrofeira IBC (informante Fábio Omena) — Agrofeira IBC",
-     "v": 0,
-     "origem": "real"
-    },
-    {
-     "d": "Comissão A definir: Agrofeira IBC (informante Fábio Omena) — Agrofeira IBC",
-     "v": 0,
-     "origem": "real"
-    },
-    {
-     "d": "Comissão Douglas Bispo — Leilões de 05/09 — evento a confirmar entre Jacamim e Marcondes",
-     "v": 0,
-     "origem": "real"
-    },
-    {
-     "d": "Comissão Douglas Bispo — Leilões de 05/09 — evento a confirmar entre Jacamim e Marcondes",
-     "v": 0,
-     "origem": "real"
-    },
-    {
-     "d": "Comissão A definir: Agrofeira IBC (informante Fábio Omena) — Agrofeira IBC",
-     "v": 0,
-     "origem": "real"
-    },
-    {
-     "d": "Comissão Douglas Bispo — Leilões de 05/09 — evento a confirmar entre Jacamim e Marcondes",
-     "v": 0,
-     "origem": "real"
-    },
-    {
      "d": "Comissão Laila — 10º Leilão Especial Touros Jacamim",
+     "v": 0,
+     "origem": "real"
+    },
+    {
+     "d": "Comissão A definir: Agrofeira IBC (informante Fábio Omena) — Agrofeira IBC",
+     "v": 0,
+     "origem": "real"
+    },
+    {
+     "d": "Comissão Douglas Bispo — Leilões de 05/09 — evento a confirmar entre Jacamim e Marcondes",
+     "v": 0,
+     "origem": "real"
+    },
+    {
+     "d": "Comissão Douglas Bispo — Leilões de 05/09 — evento a confirmar entre Jacamim e Marcondes",
+     "v": 0,
+     "origem": "real"
+    },
+    {
+     "d": "Comissão A definir: Agrofeira IBC (informante Fábio Omena) — Agrofeira IBC",
+     "v": 0,
+     "origem": "real"
+    },
+    {
+     "d": "Comissão Douglas Bispo — Leilões de 05/09 — evento a confirmar entre Jacamim e Marcondes",
+     "v": 0,
+     "origem": "real"
+    },
+    {
+     "d": "Comissão A definir: Agrofeira IBC (informante Fábio Omena) — Agrofeira IBC",
      "v": 0,
      "origem": "real"
     },
@@ -9919,7 +9883,7 @@
    "data": "2026-11-01",
    "entrada": 0,
    "saida": 0,
-   "saldo": 50078.1,
+   "saldo": -111265.8,
    "itens_entrada": [],
    "itens_saida": []
   },
@@ -9927,26 +9891,11 @@
    "data": "2026-11-05",
    "entrada": 0,
    "saida": 49500,
-   "saldo": 578.1,
+   "saldo": -160765.8,
    "itens_entrada": [],
    "itens_saida": [
     {
-     "d": "Folha Outubro/2026 - JOÃO ANTONIO",
-     "v": 2000,
-     "origem": "estimativa"
-    },
-    {
-     "d": "Folha Outubro/2026 - FABIO OMENNA",
-     "v": 7000,
-     "origem": "estimativa"
-    },
-    {
-     "d": "Folha Outubro/2026 - JOÃO EDUARDO",
-     "v": 5000,
-     "origem": "estimativa"
-    },
-    {
-     "d": "Folha Outubro/2026 - PEDRO",
+     "d": "Folha Outubro/2026 - JOÃO GABRIEL",
      "v": 2000,
      "origem": "estimativa"
     },
@@ -9956,12 +9905,27 @@
      "origem": "estimativa"
     },
     {
-     "d": "Folha Outubro/2026 - MATHEUS M1",
-     "v": 6000,
+     "d": "Folha Outubro/2026 - LUANA",
+     "v": 2000,
      "origem": "estimativa"
     },
     {
-     "d": "Folha Outubro/2026 - LUANA",
+     "d": "Folha Outubro/2026 - JOÃO EDUARDO",
+     "v": 5000,
+     "origem": "estimativa"
+    },
+    {
+     "d": "Folha Outubro/2026 - FABIO OMENNA",
+     "v": 7000,
+     "origem": "estimativa"
+    },
+    {
+     "d": "Folha Outubro/2026 - PEDRO",
+     "v": 2000,
+     "origem": "estimativa"
+    },
+    {
+     "d": "Folha Outubro/2026 - JOÃO ANTONIO",
      "v": 2000,
      "origem": "estimativa"
     },
@@ -9971,8 +9935,8 @@
      "origem": "estimativa"
     },
     {
-     "d": "Folha Outubro/2026 - JOÃO GABRIEL",
-     "v": 2000,
+     "d": "Folha Outubro/2026 - MATHEUS M1",
+     "v": 6000,
      "origem": "estimativa"
     }
    ]
@@ -9981,7 +9945,7 @@
    "data": "2026-11-10",
    "entrada": 0,
    "saida": 1058,
-   "saldo": -479.9,
+   "saldo": -161823.8,
    "itens_entrada": [],
    "itens_saida": [
     {
@@ -9995,7 +9959,7 @@
    "data": "2026-11-20",
    "entrada": 0,
    "saida": 495,
-   "saldo": -974.9,
+   "saldo": -162318.8,
    "itens_entrada": [],
    "itens_saida": [
     {
@@ -10009,7 +9973,7 @@
    "data": "2026-12-01",
    "entrada": 0,
    "saida": 0,
-   "saldo": -974.9,
+   "saldo": -162318.8,
    "itens_entrada": [],
    "itens_saida": []
   },
@@ -10017,12 +9981,27 @@
    "data": "2026-12-05",
    "entrada": 0,
    "saida": 49500,
-   "saldo": -50474.9,
+   "saldo": -211818.8,
    "itens_entrada": [],
    "itens_saida": [
     {
+     "d": "Folha Novembro/2026 - DOUGLAS BISPO",
+     "v": 10000,
+     "origem": "estimativa"
+    },
+    {
+     "d": "Folha Novembro/2026 - JOÃO ANTONIO",
+     "v": 2000,
+     "origem": "estimativa"
+    },
+    {
      "d": "Folha Novembro/2026 - MATHEUS M1",
      "v": 6000,
+     "origem": "estimativa"
+    },
+    {
+     "d": "Folha Novembro/2026 - JOÃO GABRIEL",
+     "v": 2000,
      "origem": "estimativa"
     },
     {
@@ -10041,28 +10020,13 @@
      "origem": "estimativa"
     },
     {
-     "d": "Folha Novembro/2026 - FABIO OMENNA",
-     "v": 7000,
-     "origem": "estimativa"
-    },
-    {
      "d": "Folha Novembro/2026 - LEONARDO",
      "v": 13500,
      "origem": "estimativa"
     },
     {
-     "d": "Folha Novembro/2026 - JOÃO GABRIEL",
-     "v": 2000,
-     "origem": "estimativa"
-    },
-    {
-     "d": "Folha Novembro/2026 - JOÃO ANTONIO",
-     "v": 2000,
-     "origem": "estimativa"
-    },
-    {
-     "d": "Folha Novembro/2026 - DOUGLAS BISPO",
-     "v": 10000,
+     "d": "Folha Novembro/2026 - FABIO OMENNA",
+     "v": 7000,
      "origem": "estimativa"
     }
    ]
@@ -10071,7 +10035,7 @@
    "data": "2026-12-10",
    "entrada": 0,
    "saida": 1058,
-   "saldo": -51532.9,
+   "saldo": -212876.8,
    "itens_entrada": [],
    "itens_saida": [
     {
@@ -10085,7 +10049,7 @@
    "data": "2027-01-01",
    "entrada": 0,
    "saida": 0,
-   "saldo": -51532.9,
+   "saldo": -212876.8,
    "itens_entrada": [],
    "itens_saida": []
   },
@@ -10093,11 +10057,26 @@
    "data": "2027-01-05",
    "entrada": 0,
    "saida": 49500,
-   "saldo": -101032.9,
+   "saldo": -262376.8,
    "itens_entrada": [],
    "itens_saida": [
     {
-     "d": "Folha Dezembro/2026 - JOÃO ANTONIO",
+     "d": "Folha Dezembro/2026 - PEDRO",
+     "v": 2000,
+     "origem": "estimativa"
+    },
+    {
+     "d": "Folha Dezembro/2026 - JOÃO EDUARDO",
+     "v": 5000,
+     "origem": "estimativa"
+    },
+    {
+     "d": "Folha Dezembro/2026 - JOÃO GABRIEL",
+     "v": 2000,
+     "origem": "estimativa"
+    },
+    {
+     "d": "Folha Dezembro/2026 - LUANA",
      "v": 2000,
      "origem": "estimativa"
     },
@@ -10112,26 +10091,6 @@
      "origem": "estimativa"
     },
     {
-     "d": "Folha Dezembro/2026 - JOÃO GABRIEL",
-     "v": 2000,
-     "origem": "estimativa"
-    },
-    {
-     "d": "Folha Dezembro/2026 - LUANA",
-     "v": 2000,
-     "origem": "estimativa"
-    },
-    {
-     "d": "Folha Dezembro/2026 - JOÃO EDUARDO",
-     "v": 5000,
-     "origem": "estimativa"
-    },
-    {
-     "d": "Folha Dezembro/2026 - PEDRO",
-     "v": 2000,
-     "origem": "estimativa"
-    },
-    {
      "d": "Folha Dezembro/2026 - MATHEUS M1",
      "v": 6000,
      "origem": "estimativa"
@@ -10139,6 +10098,11 @@
     {
      "d": "Folha Dezembro/2026 - DOUGLAS BISPO",
      "v": 10000,
+     "origem": "estimativa"
+    },
+    {
+     "d": "Folha Dezembro/2026 - JOÃO ANTONIO",
+     "v": 2000,
      "origem": "estimativa"
     }
    ]
@@ -10309,42 +10273,6 @@
     "dre_grupo": "custo_direto"
    },
    {
-    "id": "472a07be-f9c3-5751-a594-e9cb37e967ae",
-    "descricao": "Comissão Bruno dos Reis Ferro — bruno-eao-maio",
-    "valor": 0,
-    "devido": 0,
-    "status": "aberto",
-    "venc": "2026-06-25",
-    "origem": "real",
-    "fornecedor": null,
-    "categoria": "Comissões",
-    "dre_grupo": "custo_direto"
-   },
-   {
-    "id": "17766346-50bb-5737-a1b3-fc649949d175",
-    "descricao": "Comissão Peralta — 32° Leilão 4R – 09/05/2026",
-    "valor": 0,
-    "devido": 0,
-    "status": "aberto",
-    "venc": "2026-06-25",
-    "origem": "real",
-    "fornecedor": "Peralta",
-    "categoria": "Comissões",
-    "dre_grupo": "custo_direto"
-   },
-   {
-    "id": "338e70f2-5a61-5d1a-a12d-88431e72d972",
-    "descricao": "Comissão Lucas Martins — 32° Leilão 4R – 09/05/2026",
-    "valor": 240,
-    "devido": 240,
-    "status": "aberto",
-    "venc": "2026-06-25",
-    "origem": "real",
-    "fornecedor": "Lucas Martins",
-    "categoria": "Comissões",
-    "dre_grupo": "custo_direto"
-   },
-   {
     "id": "a2eb5a28-934f-585d-a99c-c74b089bbb37",
     "descricao": "Comissão Fabrício Osório Hyppolito — fabricio-ls-maio",
     "valor": 0,
@@ -10365,6 +10293,66 @@
     "venc": "2026-06-25",
     "origem": "real",
     "fornecedor": "Mateus Alves da Silva",
+    "categoria": "Comissões",
+    "dre_grupo": "custo_direto"
+   },
+   {
+    "id": "472a07be-f9c3-5751-a594-e9cb37e967ae",
+    "descricao": "Comissão Bruno dos Reis Ferro — bruno-eao-maio",
+    "valor": 0,
+    "devido": 0,
+    "status": "aberto",
+    "venc": "2026-06-25",
+    "origem": "real",
+    "fornecedor": null,
+    "categoria": "Comissões",
+    "dre_grupo": "custo_direto"
+   },
+   {
+    "id": "338e70f2-5a61-5d1a-a12d-88431e72d972",
+    "descricao": "Comissão Lucas Martins — 32° Leilão 4R – 09/05/2026",
+    "valor": 240,
+    "devido": 240,
+    "status": "aberto",
+    "venc": "2026-06-25",
+    "origem": "real",
+    "fornecedor": "Lucas Martins",
+    "categoria": "Comissões",
+    "dre_grupo": "custo_direto"
+   },
+   {
+    "id": "17766346-50bb-5737-a1b3-fc649949d175",
+    "descricao": "Comissão Peralta — 32° Leilão 4R – 09/05/2026",
+    "valor": 0,
+    "devido": 0,
+    "status": "aberto",
+    "venc": "2026-06-25",
+    "origem": "real",
+    "fornecedor": "Peralta",
+    "categoria": "Comissões",
+    "dre_grupo": "custo_direto"
+   },
+   {
+    "id": "bf3337c3-f0f8-4fb2-99af-b2d1b4b9593c",
+    "descricao": "COMISSAO 10O LEILÃO JMP TOUROS - MATHEUS ALVES (0,33%)",
+    "valor": 238.59,
+    "devido": 238.59,
+    "status": "aberto",
+    "venc": "2026-07-25",
+    "origem": "real",
+    "fornecedor": "Mateus Alves da Silva",
+    "categoria": "Comissões",
+    "dre_grupo": "custo_direto"
+   },
+   {
+    "id": "a889735f-6169-5f5b-ac86-a52db9a57a93",
+    "descricao": "Comissão Gustavo Rusa — JMP Touros — verificar diferença de cota no acerto já pago",
+    "valor": 0,
+    "devido": 0,
+    "status": "aberto",
+    "venc": "2026-07-25",
+    "origem": "real",
+    "fornecedor": "GUSTAVO RUSA",
     "categoria": "Comissões",
     "dre_grupo": "custo_direto"
    },
@@ -10465,30 +10453,6 @@
     "dre_grupo": "custo_direto"
    },
    {
-    "id": "bf3337c3-f0f8-4fb2-99af-b2d1b4b9593c",
-    "descricao": "COMISSAO 10O LEILÃO JMP TOUROS - MATHEUS ALVES (0,33%)",
-    "valor": 238.59,
-    "devido": 238.59,
-    "status": "aberto",
-    "venc": "2026-07-25",
-    "origem": "real",
-    "fornecedor": "Mateus Alves da Silva",
-    "categoria": "Comissões",
-    "dre_grupo": "custo_direto"
-   },
-   {
-    "id": "a889735f-6169-5f5b-ac86-a52db9a57a93",
-    "descricao": "Comissão Gustavo Rusa — JMP Touros — verificar diferença de cota no acerto já pago",
-    "valor": 0,
-    "devido": 0,
-    "status": "aberto",
-    "venc": "2026-07-25",
-    "origem": "real",
-    "fornecedor": "GUSTAVO RUSA",
-    "categoria": "Comissões",
-    "dre_grupo": "custo_direto"
-   },
-   {
     "id": "046b485c-3b75-4fd4-8af0-778329cf0951",
     "descricao": "COMISSAO LEILÃO VIRTUAL BASE GENÉTICA SANTA CRUZ - 1ª ETAPA – 14/07/2026 - FABIO OMENA (2%)",
     "valor": 1962,
@@ -10501,10 +10465,10 @@
     "dre_grupo": "custo_direto"
    },
    {
-    "id": "b138437f-256b-4325-a23d-6579dce28a3e",
-    "descricao": "COMISSAO 23º LEILÃO GENÉTICA ADITIVA - 2ª ETAPA TOUROS – 26/07/2026 - LEONARDO SERAFIM (2%)",
-    "valor": 492,
-    "devido": 492,
+    "id": "6a139904-20e0-4acd-b3fc-03cae9743217",
+    "descricao": "COMISSAO LEILÃO VIRTUAL BASE GENÉTICA SANTA CRUZ - 1ª ETAPA – 14/07/2026 - LEONARDO SERAFIM (2%)",
+    "valor": 510,
+    "devido": 510,
     "status": "aberto",
     "venc": "2026-08-25",
     "origem": "real",
@@ -10549,66 +10513,45 @@
     "dre_grupo": "custo_direto"
    },
    {
-    "id": "6a139904-20e0-4acd-b3fc-03cae9743217",
-    "descricao": "COMISSAO LEILÃO VIRTUAL BASE GENÉTICA SANTA CRUZ - 1ª ETAPA – 14/07/2026 - LEONARDO SERAFIM (2%)",
-    "valor": 510,
-    "devido": 510,
+    "id": "b138437f-256b-4325-a23d-6579dce28a3e",
+    "descricao": "COMISSAO 23º LEILÃO GENÉTICA ADITIVA - 2ª ETAPA TOUROS – 26/07/2026 - LEONARDO SERAFIM (2%)",
+    "valor": 492,
+    "devido": 492,
     "status": "aberto",
     "venc": "2026-08-25",
     "origem": "real",
     "fornecedor": null,
     "categoria": "Comissões",
     "dre_grupo": "custo_direto"
-   },
-   {
-    "id": "523e404a-f304-5d92-aca1-ceb4c09f0105",
-    "descricao": "Comissão Felipe Andrade — 6º LEILÃO EXCELÊNCIA GENÉTICA — lote 21",
-    "valor": 2100,
-    "devido": 2100,
-    "status": "aberto",
-    "venc": "2026-09-10",
-    "origem": "real",
-    "fornecedor": "Bulinha (Felipe Andrade)",
-    "categoria": "Comissões",
-    "dre_grupo": "custo_direto"
-   },
-   {
-    "id": "3a138ee8-1ad6-52f2-a14b-06b2c536f9ee",
-    "descricao": "Comissão Felipe Andrade (Bulinha) — LEILÃO NAVIRAÍ CAMPARINO ESSÊNCIA BEZERRAS E NOVILHAS — lote 11",
-    "valor": 1860,
-    "devido": 1860,
-    "status": "aberto",
-    "venc": "2026-09-10",
-    "origem": "real",
-    "fornecedor": "Bulinha (Felipe Andrade)",
-    "categoria": "Comissões",
-    "dre_grupo": "custo_direto"
-   },
-   {
-    "id": "637f0a9e-876d-0506-db01-1f1629915952",
-    "descricao": "Repasse JMP junho/2026 — Felipe Vilela Andrade — após a segunda parcela",
-    "valor": 157384.13,
-    "devido": 157384.13,
-    "status": "aberto",
-    "venc": "2026-09-10",
-    "origem": "real",
-    "fornecedor": "Felipe Vilela Andrade",
-    "categoria": "Comissões",
-    "dre_grupo": "custo_direto"
    }
   ],
   "cr_total": 48765,
-  "cp_total": 175385.72
+  "cp_total": 14041.59
  },
  "piorDia": {
   "data": "2027-01-05",
   "entrada": 0,
   "saida": 49500,
-  "saldo": -101032.9,
+  "saldo": -262376.8,
   "itens_entrada": [],
   "itens_saida": [
    {
-    "d": "Folha Dezembro/2026 - JOÃO ANTONIO",
+    "d": "Folha Dezembro/2026 - PEDRO",
+    "v": 2000,
+    "origem": "estimativa"
+   },
+   {
+    "d": "Folha Dezembro/2026 - JOÃO EDUARDO",
+    "v": 5000,
+    "origem": "estimativa"
+   },
+   {
+    "d": "Folha Dezembro/2026 - JOÃO GABRIEL",
+    "v": 2000,
+    "origem": "estimativa"
+   },
+   {
+    "d": "Folha Dezembro/2026 - LUANA",
     "v": 2000,
     "origem": "estimativa"
    },
@@ -10623,26 +10566,6 @@
     "origem": "estimativa"
    },
    {
-    "d": "Folha Dezembro/2026 - JOÃO GABRIEL",
-    "v": 2000,
-    "origem": "estimativa"
-   },
-   {
-    "d": "Folha Dezembro/2026 - LUANA",
-    "v": 2000,
-    "origem": "estimativa"
-   },
-   {
-    "d": "Folha Dezembro/2026 - JOÃO EDUARDO",
-    "v": 5000,
-    "origem": "estimativa"
-   },
-   {
-    "d": "Folha Dezembro/2026 - PEDRO",
-    "v": 2000,
-    "origem": "estimativa"
-   },
-   {
     "d": "Folha Dezembro/2026 - MATHEUS M1",
     "v": 6000,
     "origem": "estimativa"
@@ -10650,6 +10573,11 @@
    {
     "d": "Folha Dezembro/2026 - DOUGLAS BISPO",
     "v": 10000,
+    "origem": "estimativa"
+   },
+   {
+    "d": "Folha Dezembro/2026 - JOÃO ANTONIO",
+    "v": 2000,
     "origem": "estimativa"
    }
   ]
@@ -10887,10 +10815,10 @@
    "leiloes_planilha": 22,
    "caixa_receita": 415595.7,
    "caixa_imposto": 0,
-   "caixa_custo": 53512.35,
+   "caixa_custo": 214856.48,
    "caixa_fixa": 49777.91,
    "caixa_variavel": 16206.38,
-   "caixa_financeiro": 165994.64,
+   "caixa_financeiro": 165994.41,
    "dre_receita": 0,
    "dre_imposto": 0,
    "dre_comissoes": 0,
@@ -12482,10 +12410,10 @@
   "cr_vencido": 48765,
   "cr_data_acordada": 31282.17,
   "cr_sem_data": 156093.49,
-  "cp_aberto": 607354.47,
-  "cp_real": 398120.5,
+  "cp_aberto": 446010.34,
+  "cp_real": 236776.37,
   "cp_estimativa": 209233.97,
-  "cp_vencido": 175385.72,
+  "cp_vencido": 14041.59,
   "receita_ano_planilha": 1581223.49,
   "receita_ano_erp": 1142943.18,
   "vgv_ano": 29999068.8,
