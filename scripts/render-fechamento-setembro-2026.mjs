@@ -50,6 +50,13 @@ const cabLotes = `<tr><th>Lote</th><th class="num">Parcela</th><th class="num">�
 const JAC = E.jacamim, ARA = E.aratau, MAR = E.marcondes, MAF = E.mafra, VIS = E.visual, AZ = E.az, EAO = E.eao, KAT = E.katayama, CRI = E.crispim
 const ibc = D.fora[0]
 const ass = n => D.porAssessor.find(a => new RegExp(n).test(a.nome))
+const NOME_CURTO = [
+  [/Jacamim/i, 'JACAMIM — 10º Especial Touros'], [/Arata/i, 'FLOR DO ARATAÚ — 10º Leilão & Convidados'], [/Marcondes/i, 'NELORE MARCONDES — Leilão Caminhos'],
+  [/Mafra/i, 'MAFRA — Touros Premium (Uberaba)'], [/Visual/i, 'NELORE VISUAL — Shopping de Genética'], [/Nelore AZ/i, 'NELORE AZ — Reprodutores'],
+  [/Mega Premium EAO/i, 'EAO — 7º Mega Premium (touros + fêmeas 13/09)'], [/Katayama/i, 'KATAYAMA — Novo Repartimento (fêmeas)'], [/Crispim/i, 'CRISPIM — 2º Herança Genética'],
+  [/IBC/i, 'AGROFEIRA IBC — pré-venda (02–08/09)'], [/Só Criador/i, 'SÓ CRIADOR — Bula Remates (gado comercial)'],
+]
+const nomeTabela = n => (NOME_CURTO.find(([re]) => re.test(n)) || [null, n])[1]
 
 const html = `<!doctype html><html lang="pt-BR"><head><meta charset="utf-8">
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -140,9 +147,9 @@ const html = `<!doctype html><html lang="pt-BR"><head><meta charset="utf-8">
 <!-- ══ 0. TABELA ÚNICA ══ -->
 <section class="page">
   <div class="head"><h2>Setembro inteiro numa tabela — realizados e o que ainda vem</h2><div class="n">00 · Todos os leilões</div></div>
-  <table class="lotes" style="font-size:8.6px"><colgroup><col style="width:11mm"><col style="width:48mm"><col style="width:21mm"><col style="width:17mm"><col style="width:9mm"><col style="width:21mm"><col style="width:19mm"><col style="width:9mm"><col style="width:29mm"></colgroup>
+  <table class="lotes" style="font-size:8.6px"><colgroup><col style="width:11mm"><col style="width:60mm"><col style="width:20mm"><col style="width:15mm"><col style="width:9mm"><col style="width:21mm"><col style="width:18mm"><col style="width:9mm"><col style="width:21mm"></colgroup>
     <tr><th>Data</th><th>Leilão / evento</th><th>Leiloeira</th><th>Situação</th><th class="num">Lotes</th><th class="num">VGV Bula</th><th class="num">Meta (plan.)</th><th class="num">% meta</th><th>Quem vendeu</th></tr>
-    ${D.tabelaUnica.map(t => `<tr${t.status === 'realizado' ? (t.vgv ? '' : ' class="destaque"') : ' style="color:#6E6E6E"'}><td>${dm(t.data)}</td><td style="white-space:nowrap">${esc(corta(t.nome.replace(/ — .*$/, '').replace(/ \(.*$/, ''), 46))}</td><td style="white-space:nowrap">${esc(corta(t.leiloeira.replace(/ \(.*$/, '').replace(/ \/ .*$/, ''), 20))}</td><td style="white-space:nowrap">${t.status === 'realizado' ? (t.vgv ? 'realizado' : 'sem venda') : esc(t.status)}</td><td class="num">${t.lotes ?? '—'}</td><td class="num">${t.vgv ? '<strong>R$ ' + brl(t.vgv) + '</strong>' : (t.status === 'realizado' ? '0' : '—')}</td><td class="num">${t.metaVenda ? 'R$ ' + brl0(t.metaVenda) : '—'}</td><td class="num">${t.pctMeta != null ? pct(t.pctMeta, 0) : '—'}</td><td>${esc(t.assessores.replace(/ Bispo| Omena| Serafim| Carneiro/g, '').replace(/ pela Remates \(R\$ [\d.,]+\)/, ' (pela Remates)') || '—')}</td></tr>`).join('')}
+    ${D.tabelaUnica.map(t => `<tr${t.status === 'realizado' ? (t.vgv ? '' : ' class="destaque"') : ' style="color:#6E6E6E"'}><td>${dm(t.data)}</td><td style="white-space:nowrap"><strong>${esc(corta(nomeTabela(t.nome), 58))}</strong></td><td style="white-space:nowrap">${esc(corta(t.leiloeira.replace(/ \(.*$/, '').replace(/ \/ .*$/, ''), 20))}</td><td style="white-space:nowrap">${t.status === 'realizado' ? (t.vgv ? 'realizado' : 'sem venda') : esc(t.status.replace('não é cobertura', 'Remates'))}</td><td class="num">${t.lotes ?? '—'}</td><td class="num">${t.vgv ? '<strong>R$ ' + brl(t.vgv) + '</strong>' : (t.status === 'realizado' ? '0' : '—')}</td><td class="num">${t.metaVenda ? 'R$ ' + brl0(t.metaVenda) : '—'}</td><td class="num">${t.pctMeta != null ? pct(t.pctMeta, 0) : '—'}</td><td>${esc(t.assessores.replace(/ Bispo| Omena| Serafim| Carneiro/g, '').replace(/ pela Remates \(R\$ [\d.,]+\)/, ' (pela Remates)') || '—')}</td></tr>`).join('')}
     <tr class="total"><td colspan="4">Realizado até 13/09 (${T.eventosComVenda} pregões com venda)</td><td class="num">${T.lotes}</td><td class="num">R$ ${brl(T.vgv)}</td><td class="num">R$ ${brl0(D.eventos.reduce((s, e) => s + (e.metaVenda || 0), 0))}</td><td class="num">${pct(T.vgv / D.eventos.reduce((s, e) => s + (e.metaVenda || 0), 0), 0)}</td><td></td></tr>
     <tr class="total"><td colspan="4">A realizar (${D.restante.length} pregões, meta da planilha)</td><td class="num">—</td><td class="num">—</td><td class="num">R$ ${brl0(D.metaRestante)}</td><td class="num">—</td><td></td></tr>
     <tr class="total"><td colspan="4">Meta do mês (Marcelo, 03/09)</td><td class="num"></td><td class="num">R$ ${brl(M.valor)}</td><td class="num"></td><td class="num">${pct(M.pct, 1)}</td><td>feito até 13/09</td></tr>
