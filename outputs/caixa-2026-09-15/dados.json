@@ -1,0 +1,6914 @@
+{
+ "hoje": "2026-09-15",
+ "amanha": "2026-09-16",
+ "fimMes": "2026-09-30",
+ "fim": "2026-10-15",
+ "reserva": 20000,
+ "geradoEm": "2026-09-15T22:32:35.160Z",
+ "caixa": {
+  "contas": [
+   {
+    "id": "e0eca43c-1a2c-4077-ab54-801eb5d692e7",
+    "nome": "Sicoob - Conta Corrente 1.056-1",
+    "tipo": "corrente",
+    "saldo": 106653.78,
+    "extrato": "extrato de 15/09 às 18:57 (sicoob_2026_09_15_18_57_35.pdf), 01–15/09, validado dia a dia"
+   },
+   {
+    "id": "5879aa04-2d69-4b9a-a80c-d9e3eca7ac06",
+    "nome": "Sicredi - Investimentos (aplicacao 53609-7)",
+    "tipo": "investimento",
+    "saldo": 4765.08,
+    "extrato": "extrato de 14/09 às 18:52 (sicredi_1789422736137.pdf); sem extrato novo em 15/09"
+   },
+   {
+    "id": "af4724ec-e098-4e13-b172-04b2bfb1949d",
+    "nome": "Sicredi - Conta Corrente 53609-7",
+    "tipo": "corrente",
+    "saldo": 0,
+    "extrato": "extrato de 14/09 às 18:52 (sicredi_1789422736137.pdf); sem extrato novo em 15/09"
+   }
+  ],
+  "total": 111418.86,
+  "sicoob": 106653.78
+ },
+ "realizado": {
+  "de": "2026-09-01",
+  "ate": "2026-09-15",
+  "entradas": [
+   {
+    "data": "2026-09-01",
+    "valor": 15030,
+    "quem": "LEILOBOI",
+    "desc": "CRÉD.LIQ.COBRANÇA",
+    "conta": "Sicoob - Conta Corrente 1.056-1"
+   },
+   {
+    "data": "2026-09-02",
+    "valor": 24904,
+    "quem": "BULA REMATES",
+    "desc": "CRED.TRANSF.CONTAS - REM.: BULA REMATES LTDA - ACERTO ASSESSORIA SÃO GERALDO",
+    "conta": "Sicoob - Conta Corrente 1.056-1"
+   },
+   {
+    "data": "2026-09-08",
+    "valor": 165667.5,
+    "quem": "JBJ AGROPECUARIA LTDA",
+    "desc": "RECEBIMENTO PIX 15689716000115 JBJ AGROPECUARIA",
+    "conta": "Sicredi - Conta Corrente 53609-7"
+   },
+   {
+    "data": "2026-09-10",
+    "valor": 92324.97,
+    "quem": "EAO EMPREENDIMENTOS AGROPECUARIOS E ORGANIZACOES LTDA — filial 0003",
+    "desc": "CRÉD.TED-STR - EAO EMPREENDIMENTOS AGROPECUARIOS O. SA00.141.269 0001-98CODIGO TED: T10923",
+    "conta": "Sicoob - Conta Corrente 1.056-1"
+   },
+   {
+    "data": "2026-09-10",
+    "valor": 85620,
+    "quem": "Carlos Alberto m Terra",
+    "desc": "PIX RECEB.OUTRA IF - Recebimento Pix - CARLOS ALBERTO M TERRA - ***.818.678-**",
+    "conta": "Sicoob - Conta Corrente 1.056-1"
+   },
+   {
+    "data": "2026-09-10",
+    "valor": 8490,
+    "quem": "Claudio Sabino Carvalho Filho",
+    "desc": "PIX RECEB.OUTRA IF - Recebimento Pix - CLAUDIO SABINO CARVALHO FILHO - ***.566.706-** - NF",
+    "conta": "Sicoob - Conta Corrente 1.056-1"
+   },
+   {
+    "data": "2026-09-10",
+    "valor": 7473,
+    "quem": "Claudio Sabino Carvalho Filho",
+    "desc": "CRED.TR.CT.INTERCRE - REM.: CLAUDIO SABINO CARVALHO FILHO - Transferência Pix - CLAUDIO SA",
+    "conta": "Sicoob - Conta Corrente 1.056-1"
+   },
+   {
+    "data": "2026-09-10",
+    "valor": 2441.25,
+    "quem": "Claudio Sabino Carvalho Filho",
+    "desc": "CRED.TR.CT.INTERCRE - REM.: CLAUDIO SABINO CARVALHO FILHO - Transferência Pix - CLAUDIO SA",
+    "conta": "Sicoob - Conta Corrente 1.056-1"
+   },
+   {
+    "data": "2026-09-11",
+    "valor": 13644.98,
+    "quem": "E-RURAL",
+    "desc": "PIX RECEB.OUTRA IF - Recebimento Pix - E-RURAL ATIVIDADES DE INTERNET LTDA - 31.793.454 00",
+    "conta": "Sicoob - Conta Corrente 1.056-1"
+   },
+   {
+    "data": "2026-09-14",
+    "valor": 0.23,
+    "quem": "SICREDI - Aplicacao (varredura automatica)",
+    "desc": "AJUSTE DE POSICAO SICREDI (aplicacao) - fecha nos 4.765,08 do extrato de 14/09",
+    "conta": "Sicredi - Investimentos (aplicacao 53609-7)"
+   }
+  ],
+  "somaEntradas": 415595.93,
+  "saidasPorGrupo": [
+   {
+    "grupo": "Repasse do JMP ao Bulinha (Felipe)",
+    "valor": 161344.13,
+    "n": 2
+   },
+   {
+    "grupo": "Retirada do sócio (Marcelo, 35% do trimestre)",
+    "valor": 63500,
+    "n": 1
+   },
+   {
+    "grupo": "Folha de agosto (paga 01/09)",
+    "valor": 47951.61,
+    "n": 9
+   },
+   {
+    "grupo": "Comissões de assessores e parceiros",
+    "valor": 39321.5,
+    "n": 6
+   },
+   {
+    "grupo": "Reembolsos, viagens e despesas de leilão",
+    "valor": 21011.11,
+    "n": 9
+   },
+   {
+    "grupo": "Marketing (tráfego pago)",
+    "valor": 10000,
+    "n": 4
+   },
+   {
+    "grupo": "Impostos (ISSQN de agosto)",
+    "valor": 4873.43,
+    "n": 1
+   },
+   {
+    "grupo": "Sistemas, site e contabilidade",
+    "valor": 1826.3,
+    "n": 3
+   },
+   {
+    "grupo": "Tarifas, seguros, cooperativa e ajustes",
+    "valor": 512.78,
+    "n": 8
+   },
+   {
+    "grupo": "Outros (sem categoria)",
+    "valor": 50,
+    "n": 1
+   },
+   {
+    "grupo": "Outros (Outras Despesas)",
+    "valor": 20,
+    "n": 1
+   },
+   {
+    "grupo": "Outros (Transporte (Apps))",
+    "valor": 19.3,
+    "n": 1
+   }
+  ],
+  "somaSaidas": 350430.16,
+  "aberturaReconstruida": 46253.09,
+  "sicoobAbertura": 33654.45,
+  "sicoobAberturaReconstruida": 33654.45,
+  "hoje": [
+   {
+    "tipo": "saida",
+    "valor": 4873.43,
+    "desc": "DÉB.CONV.PREFEITURA - REF ISSQN",
+    "cat": "Impostos e Taxas"
+   },
+   {
+    "tipo": "saida",
+    "valor": 122.6,
+    "desc": "DÉB. CONV. SEGUROS",
+    "cat": "Seguros"
+   },
+   {
+    "tipo": "saida",
+    "valor": 62.04,
+    "desc": "DÉB. CONV. SEGUROS",
+    "cat": "Seguros"
+   },
+   {
+    "tipo": "saida",
+    "valor": 653.18,
+    "desc": "PIX EMIT.OUTRA IF - Pagamento Pix - ***.037.156-** - Ref pagamento estadia Leo B",
+    "cat": "Viagem/Passagens"
+   }
+  ],
+  "pendentes": [
+   {
+    "data": "2026-09-14",
+    "valor": 50,
+    "desc": "PIX EMIT.OUTRA IF - Pagamento Pix - ***.978.691-**",
+    "status": "classificado"
+   }
+  ]
+ },
+ "entradas": [
+  {
+   "pref": "BULA-2026-CR-COLONIAL-NF643",
+   "data": "2026-09-16",
+   "rot": "Colonial Agropecuária — Noite Nacional 21/08 + Pepitas 22/08 (NF 643)",
+   "fonte": "João, 15/09: \"deve ocorrer amanhã\"; Aurelio (Colonial) confirmou 11.340 às 13:07; NF 643 emitida 14:43",
+   "firmeza": "informada",
+   "id": "703b78ed",
+   "desc": "COLONIAL AGROPECUARIA - 12o Noite Nacional Matrizes Premium (21/08) + 4o Pepitas Colonial Expogenetica (22/08) - COMISSAO BULA - NF 643",
+   "valor": 11340,
+   "venc": "2026-09-16",
+   "nf": "643",
+   "cliente": "COLONIAL AGROPECUARIA LTDA"
+  },
+  {
+   "pref": "fc9c3c74",
+   "data": "2026-09-21",
+   "rot": "e-Rural — 2º LS Galeria II (07/08)",
+   "fonte": "venc. de REGRA (leilão+45d); planilha: COBRAR sem data. Mantido porque a e-Rural pagou Sorriso/Bambú antes da regra",
+   "firmeza": "regra",
+   "id": "fc9c3c74",
+   "desc": "2o LEILAO LS GALERIA II (07/08) - COMISSAO BULA",
+   "valor": 57840,
+   "venc": "2026-09-21",
+   "nf": "",
+   "cliente": "E-RURAL"
+  },
+  {
+   "pref": "2bc9b403",
+   "data": "2026-09-25",
+   "rot": "20º Guadalupe — touros 19/07 (2ª parcela)",
+   "fonte": "planilha: A RECEBER 2/2 DIA 25/09 · tag data-acordada",
+   "firmeza": "acordada",
+   "id": "2bc9b403",
+   "desc": "20o LEILAO GUADALUPE AGROPECUARIA - TOUROS 19/07 domingo (0,5% faturamento) - COMISSAO BULA - parc. 2/2",
+   "valor": 7502.95,
+   "venc": "2026-09-25",
+   "nf": "",
+   "cliente": "PROGRAMA LEILOES"
+  },
+  {
+   "pref": "d4fb3071",
+   "data": "2026-09-25",
+   "rot": "20º Guadalupe — touros 20/07 (2ª parcela)",
+   "fonte": "planilha: A RECEBER 2/2 DIA 25/09 · tag data-acordada",
+   "firmeza": "acordada",
+   "id": "d4fb3071",
+   "desc": "20o LEILAO GUADALUPE AGROPECUARIA - TOUROS 20/07 segunda (5% cobertura) - COMISSAO BULA - parc. 2/2",
+   "valor": 3210,
+   "venc": "2026-09-25",
+   "nf": "",
+   "cliente": "PROGRAMA LEILOES"
+  },
+  {
+   "pref": "19ac2940",
+   "data": "2026-09-25",
+   "rot": "Terra Brava — touros provados (3ª parcela)",
+   "fonte": "planilha: A RECEBER 25/09 (ERP: venc. 31/07, valor 2.405 × planilha 2.745)",
+   "firmeza": "planilha",
+   "id": "19ac2940",
+   "desc": "LEILÃO TOUROS PROVADOS TERRA BRAVA - JUNHO/2026 (16-18/06) - COMISSAO BULA",
+   "valor": 2405,
+   "venc": "2026-07-31",
+   "nf": "",
+   "cliente": "PROGRAMA LEILOES"
+  },
+  {
+   "pref": "ab6574a9",
+   "data": "2026-09-26",
+   "rot": "23º Genética Aditiva — fêmeas (2ª parcela, NF 636)",
+   "fonte": "planilha: A RECEBER 2/2 26/09 · tag data-acordada",
+   "firmeza": "acordada",
+   "id": "ab6574a9",
+   "desc": "23o MEGA LEILAO GENETICA ADITIVA - FEMEAS (25/07) - COMISSAO BULA",
+   "valor": 2708.1,
+   "venc": "2026-09-26",
+   "nf": "636",
+   "cliente": "GENETICA ADITIVA"
+  },
+  {
+   "pref": "07df3346",
+   "data": "2026-09-26",
+   "rot": "23º Genética Aditiva — touros (2ª parcela, NF 636)",
+   "fonte": "planilha: A RECEBER 2/2 26/09 · tag data-acordada",
+   "firmeza": "acordada",
+   "id": "07df3346",
+   "desc": "23o MEGA LEILAO GENETICA ADITIVA - TOUROS (26/07) - COMISSAO BULA",
+   "valor": 6433.12,
+   "venc": "2026-09-26",
+   "nf": "636",
+   "cliente": "GENETICA ADITIVA"
+  },
+  {
+   "pref": "f0c96f66",
+   "data": "2026-10-01",
+   "rot": "Santa Nazaré Excelência — parcela 2/2",
+   "fonte": "planilha: A RECEBER 01/10 · acordo por WhatsApp (tag data-acordada)",
+   "firmeza": "acordada",
+   "id": "f0c96f66",
+   "desc": "LEILAO TOUROS SANTA NAZARE EXCELENCIA — parcela 2/2",
+   "valor": 5714,
+   "venc": "2026-10-01",
+   "nf": "",
+   "cliente": "PROGRAMA"
+  }
+ ],
+ "somaEntradas": 97153.17,
+ "vencidosReceber": [
+  {
+   "pref": "a33595fc",
+   "data": "2026-09-04",
+   "rot": "Santa Nazaré Excelência — parcela 1/2",
+   "fonte": "planilha: A RECEBER 04/09 · acordo por WhatsApp — não caiu até 15/09",
+   "id": "a33595fc",
+   "desc": "LEILAO TOUROS SANTA NAZARE EXCELENCIA — parcela 1/2",
+   "valor": 5714,
+   "venc": "2026-09-09",
+   "nf": "",
+   "cliente": "PROGRAMA"
+  }
+ ],
+ "somaVencidosReceber": 5714,
+ "semPosicao": [
+  {
+   "id": "6b493826",
+   "desc": "LEILAO LAGOA DOS PATOS",
+   "valor": 6500,
+   "venc": "2026-05-02",
+   "nf": "",
+   "cliente": "RODRIGO LOUREIRO",
+   "origem": "real",
+   "criterio": false
+  },
+  {
+   "id": "1b4566f2",
+   "desc": "18ª MEGA LEILÃO NELORE - GUSTAVO/HENRIQUE - COMISSAO BULA",
+   "valor": 6720,
+   "venc": "2026-05-30",
+   "nf": "",
+   "cliente": "",
+   "origem": "real",
+   "criterio": false
+  },
+  {
+   "id": "38a738fb",
+   "desc": "1o NELORE SAO FRANCISCO - FECHAMENTO BULA",
+   "valor": 6756,
+   "venc": "2026-07-22",
+   "nf": "626",
+   "cliente": "AGRESTE LEILOES",
+   "origem": "real",
+   "criterio": false
+  },
+  {
+   "id": "a3e2d593",
+   "desc": "LEILÃO VIRTUAL BASE GENÉTICA SANTA CRUZ - 1ª ETAPA – 14/07/2026 (14/07) - COMISSAO BULA",
+   "valor": 6180,
+   "venc": "2026-08-28",
+   "nf": "",
+   "cliente": "",
+   "origem": "real",
+   "criterio": true
+  },
+  {
+   "id": "44f20398",
+   "desc": "NELORE SANTA CRUZ (15/07) - COMISSAO BULA",
+   "valor": 2130,
+   "venc": "2026-08-29",
+   "nf": "",
+   "cliente": "",
+   "origem": "real",
+   "criterio": true
+  },
+  {
+   "id": "f9c54bc0",
+   "desc": "NELORE SANTA CRUZ - 19/07/2026 (19/07) - COMISSAO BULA",
+   "valor": 12360,
+   "venc": "2026-09-02",
+   "nf": "",
+   "cliente": "",
+   "origem": "real",
+   "criterio": true
+  },
+  {
+   "id": "aa50b561",
+   "desc": "LEILAO TOUROS NELORE GRUPO COSTA (04/08) - COMISSAO BULA",
+   "valor": 603,
+   "venc": "2026-09-18",
+   "nf": "",
+   "cliente": "",
+   "origem": "real",
+   "criterio": false
+  },
+  {
+   "id": "52314d86",
+   "desc": "14o LEILAO PEROLAS DO TAPAJOS (08/08) - COMISSAO BULA",
+   "valor": 10650,
+   "venc": "2026-09-22",
+   "nf": "",
+   "cliente": "",
+   "origem": "real",
+   "criterio": false
+  },
+  {
+   "id": "359a5838",
+   "desc": "LEILAO NELORE PARANA PRODUTIVIDADE (09/08) - COMISSAO BULA",
+   "valor": 13905,
+   "venc": "2026-09-23",
+   "nf": "",
+   "cliente": "PROGRAMA LEILOES",
+   "origem": "real",
+   "criterio": false
+  },
+  {
+   "id": "2e6e1690",
+   "desc": "LEILÃO TERRA BRAVA AGROPECUÁRIA EXPOGENÉTICA (15/08) - COMISSAO BULA",
+   "valor": 11984.49,
+   "venc": "2026-09-29",
+   "nf": "",
+   "cliente": "",
+   "origem": "real",
+   "criterio": true
+  },
+  {
+   "id": "9c451b97",
+   "desc": "LEILÃO MATINHA EXPOGENÉTICA 2026 (16/08) - COMISSAO BULA - TANGARÁ PECUÁRIA (Rancho da Matinha)",
+   "valor": 4260,
+   "venc": "2026-09-30",
+   "nf": "",
+   "cliente": "",
+   "origem": "real",
+   "criterio": false
+  },
+  {
+   "id": "5e5edf1b",
+   "desc": "LEILÃO MATINHA EXPOGENÉTICA 2026 (16/08) - COMISSAO BULA - THIAGO-TLMS (Granja Santiago)",
+   "valor": 840,
+   "venc": "2026-09-30",
+   "nf": "",
+   "cliente": "",
+   "origem": "real",
+   "criterio": false
+  },
+  {
+   "id": "31747698",
+   "desc": "LEILÃO MATRIZES PREMIUM KATISPERA (17/08) - COMISSAO BULA",
+   "valor": 7020,
+   "venc": "2026-10-01",
+   "nf": "",
+   "cliente": "",
+   "origem": "estimativa",
+   "criterio": true
+  },
+  {
+   "id": "d19fc729",
+   "desc": "LEILÃO VIRTUAL VENTRES VIP MATINHA (30/08) - COMISSAO BULA - TANGARÁ PECUÁRIA (Rancho da Matinha)",
+   "valor": 3360,
+   "venc": "2026-10-14",
+   "nf": "",
+   "cliente": "",
+   "origem": "real",
+   "criterio": false
+  },
+  {
+   "id": "9df76b1f",
+   "desc": "LEILÃO VIRTUAL VENTRES VIP MATINHA (30/08) - COMISSAO BULA - THERENCIO",
+   "valor": 1080,
+   "venc": "2026-10-14",
+   "nf": "",
+   "cliente": "",
+   "origem": "real",
+   "criterio": false
+  },
+  {
+   "id": "701c1b0d",
+   "desc": "LEILÃO VIRTUAL VENTRES VIP MATINHA (30/08) - COMISSAO BULA - THIAGO-TLMS (Granja Santiago)",
+   "valor": 1500,
+   "venc": "2026-10-14",
+   "nf": "",
+   "cliente": "",
+   "origem": "real",
+   "criterio": false
+  }
+ ],
+ "somaSemPosicao": 95848.49,
+ "pipeline": {
+  "itens": [
+   {
+    "data": "2026-08-15",
+    "leilao": "Touros Terra Brava Expogenética",
+    "leiloeira": "Programa",
+    "vendas": 107100,
+    "receita": 5355,
+    "erp": "CR 11.984,49 (critério a confirmar)"
+   },
+   {
+    "data": "2026-08-15",
+    "leilao": "Shopping Naviraí Expogenética",
+    "leiloeira": "Fazenda",
+    "vendas": 96600,
+    "receita": 4830,
+    "erp": "sem CR"
+   },
+   {
+    "data": "2026-08-16",
+    "leilao": "Matinha Expogenética",
+    "leiloeira": "Programa",
+    "vendas": 460500,
+    "receita": 23025,
+    "erp": "CR 4.260 + 840 (Tangará/Thiago)"
+   },
+   {
+    "data": "2026-08-16",
+    "leilao": "Fazenda Araras — Essência Genética",
+    "leiloeira": "Programa",
+    "vendas": 87000,
+    "receita": 2610,
+    "erp": "sem CR"
+   },
+   {
+    "data": "2026-08-19",
+    "leilao": "Reserva Expogenética Santa Nice",
+    "leiloeira": "Programa",
+    "vendas": 297000,
+    "receita": 14850,
+    "erp": "sem CR"
+   },
+   {
+    "data": "2026-08-19",
+    "leilao": "9º Genética Aditiva Expogenética",
+    "leiloeira": "Programa",
+    "vendas": 444000,
+    "receita": 22200,
+    "erp": "sem CR"
+   },
+   {
+    "data": "2026-08-20",
+    "leilao": "Baby de Prova",
+    "leiloeira": "Programa",
+    "vendas": 73500,
+    "receita": 3675,
+    "erp": "sem CR"
+   },
+   {
+    "data": "2026-08-20",
+    "leilao": "Nelore CEN & Fazenda Modelo",
+    "leiloeira": "Programa",
+    "vendas": 117000,
+    "receita": 3510,
+    "erp": "sem CR"
+   },
+   {
+    "data": "2026-08-21",
+    "leilao": "12º Premium Colonial",
+    "leiloeira": "Programa",
+    "vendas": 195000,
+    "receita": 5850,
+    "erp": "NF 643 cobre os dois (11.340) — planilha soma lotes de outros vendedores"
+   },
+   {
+    "data": "2026-08-22",
+    "leilao": "4º Pepitas Colonial",
+    "leiloeira": "Programa",
+    "vendas": 325500,
+    "receita": 9765,
+    "erp": "idem"
+   },
+   {
+    "data": "2026-08-22",
+    "leilao": "Naviraí Camparino — Essência Bezerras e Novilhas",
+    "leiloeira": "Programa",
+    "vendas": 543000,
+    "receita": 27150,
+    "erp": "sem CR"
+   },
+   {
+    "data": "2026-08-23",
+    "leilao": "28º Naviraí Camparino — Reprodutores",
+    "leiloeira": "Programa",
+    "vendas": 940500,
+    "receita": 60637.5,
+    "erp": "sem CR"
+   },
+   {
+    "data": "2026-08-23",
+    "leilao": "Excelência Genética",
+    "leiloeira": "Programa",
+    "vendas": 105000,
+    "receita": 5250,
+    "erp": "sem CR"
+   },
+   {
+    "data": "2026-08-23",
+    "leilao": "Nelore Marcondes",
+    "leiloeira": "e-Rural",
+    "vendas": 37500,
+    "receita": 1875,
+    "erp": "sem CR"
+   },
+   {
+    "data": "2026-08-26",
+    "leilao": "Terra Brava — Matrizes (virtual)",
+    "leiloeira": "Programa",
+    "vendas": 46500,
+    "receita": 2325,
+    "erp": "sem CR"
+   },
+   {
+    "data": "2026-08-26",
+    "leilao": "Nelore do Xingu",
+    "leiloeira": "—",
+    "vendas": 93000,
+    "receita": 2790,
+    "erp": "sem CR"
+   },
+   {
+    "data": "2026-08-26",
+    "leilao": "Genética São José",
+    "leiloeira": "Bula Remates",
+    "vendas": 130900,
+    "receita": 6545,
+    "erp": "sem CR"
+   },
+   {
+    "data": "2026-08-29",
+    "leilao": "Nelore Pintado Engenho da Serra",
+    "leiloeira": "Connect",
+    "vendas": 53600,
+    "receita": 1608,
+    "erp": "sem CR"
+   },
+   {
+    "data": "2026-08-30",
+    "leilao": "Ventres VIP Matinha (virtual)",
+    "leiloeira": "Programa",
+    "vendas": 127500,
+    "receita": 6375,
+    "erp": "CR 3.360 + 1.080 + 1.500 (14/10)"
+   },
+   {
+    "data": "2026-08-30",
+    "leilao": "Especial Sabiá Dourado",
+    "leiloeira": "—",
+    "vendas": 629700,
+    "receita": 11712,
+    "erp": "sem CR"
+   },
+   {
+    "data": "2026-08-30",
+    "leilao": "Nelore ASJ",
+    "leiloeira": "Programa",
+    "vendas": 30900,
+    "receita": 11894.12,
+    "erp": "sem CR (planilha: 1% do faturamento 1.189.412)"
+   },
+   {
+    "data": "2026-09-05",
+    "leilao": "10º Jacamim — Touros",
+    "leiloeira": "Programa",
+    "vendas": 835200,
+    "receita": null,
+    "erp": "sem CR; planilha sem valor"
+   },
+   {
+    "data": "2026-09-05",
+    "leilao": "10º Flor do Arataú",
+    "leiloeira": "Magno",
+    "vendas": 617100,
+    "receita": 9312,
+    "erp": "sem CR (planilha: 1% do faturamento 931.200)"
+   },
+   {
+    "data": "2026-09-05",
+    "leilao": "Caminhos — Nelore Marcondes",
+    "leiloeira": "e-Rural",
+    "vendas": 18600,
+    "receita": 930,
+    "erp": "sem CR"
+   },
+   {
+    "data": "2026-09-06",
+    "leilao": "Touros Premium Nelore Mafra (virtual)",
+    "leiloeira": "Programa",
+    "vendas": 21600,
+    "receita": 1080,
+    "erp": "sem CR"
+   },
+   {
+    "data": "2026-09-12",
+    "leilao": "Shopping de Genética Nelore Visual",
+    "leiloeira": "—",
+    "vendas": 17800,
+    "receita": 890,
+    "erp": "sem CR"
+   },
+   {
+    "data": "2026-09-12",
+    "leilao": "Nelore AZ (virtual)",
+    "leiloeira": "Ricardo Nicolau",
+    "vendas": 158000,
+    "receita": null,
+    "erp": "sem CR; planilha sem valor"
+   },
+   {
+    "data": "2026-09-13",
+    "leilao": "7º Mega Premium EAO — Touros",
+    "leiloeira": "Programa",
+    "vendas": 310500,
+    "receita": null,
+    "erp": "sem CR; planilha sem valor"
+   },
+   {
+    "data": "2026-09-13",
+    "leilao": "Katayama — Novo Repartimento",
+    "leiloeira": "—",
+    "vendas": 87000,
+    "receita": 4350,
+    "erp": "sem CR"
+   }
+  ],
+  "somaReceitaInformada": 250393.62,
+  "nSemValor": 3,
+  "somaVendas": 7007100
+ },
+ "impostosEstimados": {
+  "base": 104489.97,
+  "nfs": [
+   {
+    "nf": "638",
+    "valor": 825,
+    "emissao": "2026-09-01"
+   },
+   {
+    "nf": "639",
+    "valor": 92324.97,
+    "emissao": "2026-09-02"
+   },
+   {
+    "nf": "643",
+    "valor": 11340,
+    "emissao": "2026-09-15"
+   }
+  ],
+  "iss": {
+   "valor": 5224.5,
+   "venc": "2026-10-15",
+   "regra": "5% da base (ISS destacado nas próprias NFs)"
+  },
+  "das": {
+   "valor": 11896.91,
+   "venc": "2026-10-20",
+   "regra": "11,3857% da base (carga do Simples medida em julho, memória enquadramento tributário)"
+  },
+  "nota": "Só as NFs vistas (638, 639, 643). Se existirem 640–642, a base é maior. O DAS vence 20/10, fora da janela; o ISS entra no cenário \"+ impostos\" em 15/10."
+ },
+ "curtoPrazo": {
+  "itens": [
+   {
+    "grupo": "Matinha — Expogenética (16/08) + Ventres VIP (30/08)",
+    "fonte": "E-mail da Tangará/Rancho da Matinha (11/09, print de 15/09): 4% sobre tudo que vender, rateado por consignatário. Tangará 7.620 (NF autorizada, emitida 15/09), Thiago-TLMS 2.340 e Terêncio 1.080 (aguardam “de acordo” e dados).",
+    "valor": 11040,
+    "erp": 11040,
+    "erpNota": "5 CRs iguais ao e-mail (4.260 + 840 venc. 30/09; 3.360 + 1.080 + 1.500 venc. 14/10), sem NF",
+    "planilha": 29400,
+    "planilhaNota": "planilha: 23.025 + 6.375 = 29.400 (5% sobre 460.500 + 127.500, lotes que não pagam)",
+    "falta": "Confirmar se o lote E11 (embriões, 42.000) entra nos 4% (+1.680); “de acordo” de Thiago e Terêncio para emitir as outras duas NFs.",
+    "hipoteses": [
+     {
+      "data": "2026-09-22",
+      "valor": 7620,
+      "rot": "Tangará 7.620 — NF emitida 15/09; no Touros de junho pagou 2 dias após a NF"
+     },
+     {
+      "data": "2026-09-30",
+      "valor": 3420,
+      "rot": "Thiago 2.340 + Terêncio 1.080 — depende do “de acordo”; hipótese fim do mês"
+     }
+    ]
+   },
+   {
+    "grupo": "Terra Brava — Expogenética (15/08)",
+    "fonte": "Mensagem do Marcelo ao Paulo Camilo (Terra Brava PO), encaminhada 15/09 19h07: faturamento total 937.260 × 0,5% = 4.686,30 (vendas Bula 107.100 = 11,4%). Resposta: “Combinado, pode emitir a NF nos mesmos dados”.",
+    "valor": 4686.3,
+    "erp": 11984.49,
+    "erpNota": "CR 2e6e1690 em 11.984,49 (11,19% “critério a confirmar”, venc. 29/09) — 7.298,19 acima do combinado; anotado hoje, valor não alterado",
+    "planilha": 5355,
+    "planilhaNota": "planilha: 5.355 (5% × 107.100)",
+    "falta": "Validar e emitir a NF nos dados do Touros Provados de junho; então corrigir o CR para 4.686,30. A regra bate com a tabela de performance do contrato (≥ 5% → 0,5% do faturamento bruto).",
+    "hipoteses": [
+     {
+      "data": "2026-09-30",
+      "valor": 4686.3,
+      "rot": "NF a emitir após validação; hipótese fim do mês (junho: Eduardo Pinheiro pagou em 3 parcelas)"
+     }
+    ]
+   },
+   {
+    "grupo": "e-Rural — portal Gestão de Pagamentos (Nelore Marcondes)",
+    "fonte": "Print do portal (15/09): “Leilão Nelore Marcondes — Abertura”, 3 itens consolidados, venda 23/08, vencimento 15/09, 4.012,50; “Leilão Caminhos — Nelore Marcondes”, lote 05 (José Gabriel Rodrigues Delfino), venda 05/09, vencimento 30/09, 930,00. Ambos aguardando anexar NF.",
+    "valor": 4942.5,
+    "erp": 0,
+    "erpNota": "nenhum CR para os dois leilões; o fechamento do Marcondes Abertura tem 1 lote / 37.500 (o portal consolida 3 itens = 80.250 a 5%)",
+    "planilha": 2805,
+    "planilhaNota": "planilha: 1.875 (Marcondes 23/08, 1 lote) + 930 (Caminhos 05/09)",
+    "falta": "Conferir os 3 itens do Marcondes Abertura contra o fechamento (ERP e planilha só têm o lote 01 de 37.500) e anexar as duas NFs no portal.",
+    "hipoteses": [
+     {
+      "data": "2026-09-18",
+      "valor": 4942.5,
+      "rot": "“pra pagar até fim da semana” (João) — sexta-feira; o portal já venceu o primeiro em 15/09"
+     }
+    ]
+   }
+  ],
+  "total": 20668.8,
+  "totalERP": 23024.49,
+  "hipoteses": [
+   {
+    "data": "2026-09-18",
+    "valor": 4942.5,
+    "rot": "“pra pagar até fim da semana” (João) — sexta-feira; o portal já venceu o primeiro em 15/09",
+    "grupo": "e-Rural — portal Gestão de Pagamentos (Nelore Marcondes)"
+   },
+   {
+    "data": "2026-09-22",
+    "valor": 7620,
+    "rot": "Tangará 7.620 — NF emitida 15/09; no Touros de junho pagou 2 dias após a NF",
+    "grupo": "Matinha — Expogenética (16/08) + Ventres VIP (30/08)"
+   },
+   {
+    "data": "2026-09-30",
+    "valor": 3420,
+    "rot": "Thiago 2.340 + Terêncio 1.080 — depende do “de acordo”; hipótese fim do mês",
+    "grupo": "Matinha — Expogenética (16/08) + Ventres VIP (30/08)"
+   },
+   {
+    "data": "2026-09-30",
+    "valor": 4686.3,
+    "rot": "NF a emitir após validação; hipótese fim do mês (junho: Eduardo Pinheiro pagou em 3 parcelas)",
+    "grupo": "Terra Brava — Expogenética (15/08)"
+   }
+  ]
+ },
+ "naJanela": [
+  {
+   "id": "1ef8d4a9",
+   "desc": "REMAT Marcas e Patentes — parcela 2/4 — boleto 1031",
+   "valor": 495,
+   "venc": "2026-09-20",
+   "fornecedor": "REMAT MARCAS E PATENTES",
+   "classe": "firme",
+   "aDefinir": false,
+   "parcial": false,
+   "imposto": false,
+   "comissao": false,
+   "folha": false
+  },
+  {
+   "id": "083249a7",
+   "desc": "Comissão Peralta — LEILÃO NELORE MARCONDES - ABERTURA — lote 01",
+   "valor": 750,
+   "venc": "2026-09-25",
+   "fornecedor": "Peralta",
+   "classe": "firme",
+   "aDefinir": false,
+   "parcial": false,
+   "imposto": false,
+   "comissao": true,
+   "folha": false
+  },
+  {
+   "id": "214cc574",
+   "desc": "Comissão Douglas Bispo — 4º LEILÃO PEPITAS COLONIAL - EXPOGENÉTICA 2026 — lote 25",
+   "valor": 450,
+   "venc": "2026-09-25",
+   "fornecedor": "DOUGLAS",
+   "classe": "firme",
+   "aDefinir": false,
+   "parcial": false,
+   "imposto": false,
+   "comissao": true,
+   "folha": false
+  },
+  {
+   "id": "3889f0dd",
+   "desc": "Comissão A definir (Fábio Omena?) — 2º LEILÃO LS GALERIA — lotes 04 e 19",
+   "valor": 22800,
+   "venc": "2026-09-25",
+   "fornecedor": "",
+   "classe": "verificacao",
+   "aDefinir": true,
+   "parcial": false,
+   "imposto": false,
+   "comissao": true,
+   "folha": false
+  },
+  {
+   "id": "83cc002c",
+   "desc": "Comissão Douglas Bispo — LEILÃO SABIÁ DOURADO — lote 16",
+   "valor": 450,
+   "venc": "2026-09-25",
+   "fornecedor": "DOUGLAS",
+   "classe": "firme",
+   "aDefinir": false,
+   "parcial": false,
+   "imposto": false,
+   "comissao": true,
+   "folha": false
+  },
+  {
+   "id": "2e35fc13",
+   "desc": "Comissão Douglas Bispo — LEILÃO SABIÁ DOURADO — lote 19",
+   "valor": 360,
+   "venc": "2026-09-25",
+   "fornecedor": "DOUGLAS",
+   "classe": "firme",
+   "aDefinir": false,
+   "parcial": false,
+   "imposto": false,
+   "comissao": true,
+   "folha": false
+  },
+  {
+   "id": "5cc68b20",
+   "desc": "Comissão Douglas Bispo — LEILÃO SABIÁ DOURADO — lote 20",
+   "valor": 510,
+   "venc": "2026-09-25",
+   "fornecedor": "DOUGLAS",
+   "classe": "firme",
+   "aDefinir": false,
+   "parcial": false,
+   "imposto": false,
+   "comissao": true,
+   "folha": false
+  },
+  {
+   "id": "8ac91a2b",
+   "desc": "Comissão Douglas Bispo — LEILÃO SABIÁ DOURADO — lote 21",
+   "valor": 390,
+   "venc": "2026-09-25",
+   "fornecedor": "DOUGLAS",
+   "classe": "firme",
+   "aDefinir": false,
+   "parcial": false,
+   "imposto": false,
+   "comissao": true,
+   "folha": false
+  },
+  {
+   "id": "f495fc09",
+   "desc": "Comissão Fábio Omena — 9º LEILÃO GENÉTICA ADITIVA EXPOGENÉTICA 2026",
+   "valor": 6640,
+   "venc": "2026-09-25",
+   "fornecedor": "FO ASSESSORIA PECUARIA",
+   "classe": "verificacao",
+   "aDefinir": false,
+   "parcial": false,
+   "imposto": false,
+   "comissao": true,
+   "folha": false
+  },
+  {
+   "id": "15493cfa",
+   "desc": "Comissão Douglas Bispo — SHOPPING NAVIRAI EXPOGENÉTICA — lote 41",
+   "valor": 1104,
+   "venc": "2026-09-25",
+   "fornecedor": "DOUGLAS",
+   "classe": "firme",
+   "aDefinir": false,
+   "parcial": false,
+   "imposto": false,
+   "comissao": true,
+   "folha": false
+  },
+  {
+   "id": "5a34d814",
+   "desc": "Comissão Douglas Bispo — SHOPPING NAVIRAI EXPOGENÉTICA — lote 48",
+   "valor": 828,
+   "venc": "2026-09-25",
+   "fornecedor": "DOUGLAS",
+   "classe": "firme",
+   "aDefinir": false,
+   "parcial": false,
+   "imposto": false,
+   "comissao": true,
+   "folha": false
+  },
+  {
+   "id": "cf40d746",
+   "desc": "Comissão Fábio Omena — 1º LEILÃO NELORE ASJ — lote 24",
+   "valor": 396,
+   "venc": "2026-09-25",
+   "fornecedor": "FO ASSESSORIA PECUARIA",
+   "classe": "firme",
+   "aDefinir": false,
+   "parcial": false,
+   "imposto": false,
+   "comissao": true,
+   "folha": false
+  },
+  {
+   "id": "1a5e97f9",
+   "desc": "Comissão Gustavo Rusa — LEILÃO VIRTUAL VENTRES VIP MATINHA — lote 18",
+   "valor": 675,
+   "venc": "2026-09-25",
+   "fornecedor": "GUSTAVO RUSA",
+   "classe": "firme",
+   "aDefinir": false,
+   "parcial": true,
+   "imposto": false,
+   "comissao": true,
+   "folha": false
+  },
+  {
+   "id": "07835833",
+   "desc": "Comissão Fábio Omena — 28º LEILÃO NAVIRAÍ CAMPARINO - REPRODUTORES — lote 20",
+   "valor": 840,
+   "venc": "2026-09-25",
+   "fornecedor": "FO ASSESSORIA PECUARIA",
+   "classe": "firme",
+   "aDefinir": false,
+   "parcial": false,
+   "imposto": false,
+   "comissao": true,
+   "folha": false
+  },
+  {
+   "id": "ea54728f",
+   "desc": "Comissão Douglas Bispo — LEILÃO SABIÁ DOURADO — lote 54",
+   "valor": 420,
+   "venc": "2026-09-25",
+   "fornecedor": "DOUGLAS",
+   "classe": "firme",
+   "aDefinir": false,
+   "parcial": false,
+   "imposto": false,
+   "comissao": true,
+   "folha": false
+  },
+  {
+   "id": "2ffebf60",
+   "desc": "Comissão Douglas Bispo — 28º LEILÃO NAVIRAÍ CAMPARINO - REPRODUTORES — lote 09",
+   "valor": 780,
+   "venc": "2026-09-25",
+   "fornecedor": "DOUGLAS",
+   "classe": "firme",
+   "aDefinir": false,
+   "parcial": false,
+   "imposto": false,
+   "comissao": true,
+   "folha": false
+  },
+  {
+   "id": "a3a14f22",
+   "desc": "Comissão Peralta — 28º LEILÃO NAVIRAÍ CAMPARINO - REPRODUTORES — lote 78",
+   "valor": 960,
+   "venc": "2026-09-25",
+   "fornecedor": "Peralta",
+   "classe": "firme",
+   "aDefinir": false,
+   "parcial": false,
+   "imposto": false,
+   "comissao": true,
+   "folha": false
+  },
+  {
+   "id": "b397c2a0",
+   "desc": "Comissão Peralta — 28º LEILÃO NAVIRAÍ CAMPARINO - REPRODUTORES — lote 30",
+   "valor": 840,
+   "venc": "2026-09-25",
+   "fornecedor": "Peralta",
+   "classe": "firme",
+   "aDefinir": false,
+   "parcial": false,
+   "imposto": false,
+   "comissao": true,
+   "folha": false
+  },
+  {
+   "id": "2681ee34",
+   "desc": "Comissão Laila — 28º LEILÃO NAVIRAÍ CAMPARINO - REPRODUTORES — lote 77",
+   "valor": 300,
+   "venc": "2026-09-25",
+   "fornecedor": "Laila de Sousa Oliveira",
+   "classe": "firme",
+   "aDefinir": false,
+   "parcial": false,
+   "imposto": false,
+   "comissao": true,
+   "folha": false
+  },
+  {
+   "id": "943f849d",
+   "desc": "COMISSAO LEILÃO NELORE PARANÃ PRODUTIVIDADE - DOUGLAS BISPO (2,00%)",
+   "valor": 2880,
+   "venc": "2026-09-25",
+   "fornecedor": "",
+   "classe": "verificacao",
+   "aDefinir": false,
+   "parcial": false,
+   "imposto": false,
+   "comissao": true,
+   "folha": false
+  },
+  {
+   "id": "4bac8ab8",
+   "desc": "COMISSAO LEILÃO NELORE PARANÃ PRODUTIVIDADE - FÁBIO OMENA (2,00%)",
+   "valor": 912,
+   "venc": "2026-09-25",
+   "fornecedor": "",
+   "classe": "verificacao",
+   "aDefinir": false,
+   "parcial": false,
+   "imposto": false,
+   "comissao": true,
+   "folha": false
+  },
+  {
+   "id": "f71e7edc",
+   "desc": "Comissão Gustavo Rusa — LEILÃO NELORE PARANÃ PRODUTIVIDADE — lote 123",
+   "valor": 1200,
+   "venc": "2026-09-25",
+   "fornecedor": "GUSTAVO RUSA",
+   "classe": "firme",
+   "aDefinir": false,
+   "parcial": true,
+   "imposto": false,
+   "comissao": true,
+   "folha": false
+  },
+  {
+   "id": "0a1f9584",
+   "desc": "Comissão Gustavo Rusa — LEILÃO FAZENDA ARARAS - ESSÊNCIA GENÉTICA — lote 22",
+   "valor": 1305,
+   "venc": "2026-09-25",
+   "fornecedor": "GUSTAVO RUSA",
+   "classe": "firme",
+   "aDefinir": false,
+   "parcial": true,
+   "imposto": false,
+   "comissao": true,
+   "folha": false
+  },
+  {
+   "id": "12d5b5aa",
+   "desc": "Comissão Fábio Omena — 9º LEILÃO GENÉTICA ADITIVA EXPOGENÉTICA 2026 — lote 106",
+   "valor": 2400,
+   "venc": "2026-09-25",
+   "fornecedor": "FO ASSESSORIA PECUARIA",
+   "classe": "firme",
+   "aDefinir": false,
+   "parcial": false,
+   "imposto": false,
+   "comissao": true,
+   "folha": false
+  },
+  {
+   "id": "0141e5ff",
+   "desc": "Comissão A definir: Fábio Omena / Marcelo Moura / Claudinho — 28º LEILÃO NAVIRAÍ CAMPARINO - REPRODUTORES",
+   "valor": 1260,
+   "venc": "2026-09-25",
+   "fornecedor": "",
+   "classe": "verificacao",
+   "aDefinir": true,
+   "parcial": false,
+   "imposto": false,
+   "comissao": true,
+   "folha": false
+  },
+  {
+   "id": "883f97aa",
+   "desc": "Simples Nacional (DAS) ref. agosto/2026 - guia 07.20.26253.9080780-0",
+   "valor": 14721.81,
+   "venc": "2026-09-21",
+   "fornecedor": "RECEITA FEDERAL DO BRASIL",
+   "classe": "firme",
+   "aDefinir": false,
+   "parcial": false,
+   "imposto": true,
+   "comissao": false,
+   "folha": false
+  },
+  {
+   "id": "067101fc",
+   "desc": "Folha Setembro/2026 - JOÃO GABRIEL",
+   "valor": 2000,
+   "venc": "2026-10-05",
+   "fornecedor": "JOÃO GABRIEL",
+   "classe": "projetada",
+   "aDefinir": false,
+   "parcial": false,
+   "imposto": false,
+   "comissao": false,
+   "folha": true
+  },
+  {
+   "id": "08ad0d0c",
+   "desc": "Fatura cartao VISA (deb. automatico)",
+   "valor": 5949.84,
+   "venc": "2026-09-22",
+   "fornecedor": "",
+   "classe": "projetada",
+   "aDefinir": false,
+   "parcial": false,
+   "imposto": false,
+   "comissao": false,
+   "folha": false
+  },
+  {
+   "id": "356dbf90",
+   "desc": "Folha Setembro/2026 - MATHEUS M1",
+   "valor": 6000,
+   "venc": "2026-10-05",
+   "fornecedor": "MATHEUS M1",
+   "classe": "projetada",
+   "aDefinir": false,
+   "parcial": false,
+   "imposto": false,
+   "comissao": false,
+   "folha": true
+  },
+  {
+   "id": "42436536",
+   "desc": "Fatura cartao MASTERCARD (deb. automatico)",
+   "valor": 1380.13,
+   "venc": "2026-09-22",
+   "fornecedor": "",
+   "classe": "projetada",
+   "aDefinir": false,
+   "parcial": false,
+   "imposto": false,
+   "comissao": false,
+   "folha": false
+  },
+  {
+   "id": "465f035f",
+   "desc": "Folha Setembro/2026 - DOUGLAS BISPO",
+   "valor": 10000,
+   "venc": "2026-10-05",
+   "fornecedor": "DOUGLAS BISPO",
+   "classe": "projetada",
+   "aDefinir": false,
+   "parcial": false,
+   "imposto": false,
+   "comissao": false,
+   "folha": true
+  },
+  {
+   "id": "60033052",
+   "desc": "Folha Setembro/2026 - LEONARDO",
+   "valor": 13500,
+   "venc": "2026-10-05",
+   "fornecedor": "LEONARDO",
+   "classe": "projetada",
+   "aDefinir": false,
+   "parcial": false,
+   "imposto": false,
+   "comissao": false,
+   "folha": true
+  },
+  {
+   "id": "76361317",
+   "desc": "Folha Setembro/2026 - FABIO OMENNA",
+   "valor": 7000,
+   "venc": "2026-10-05",
+   "fornecedor": "FO ASSESSORIA PECUARIA",
+   "classe": "projetada",
+   "aDefinir": false,
+   "parcial": false,
+   "imposto": false,
+   "comissao": false,
+   "folha": true
+  },
+  {
+   "id": "79370478",
+   "desc": "Comissão Douglas Bispo — LEILÃO SABIÁ DOURADO",
+   "valor": 5535,
+   "venc": "2026-09-25",
+   "fornecedor": "DOUGLAS BISPO",
+   "classe": "verificacao",
+   "aDefinir": false,
+   "parcial": false,
+   "imposto": false,
+   "comissao": true,
+   "folha": false
+  },
+  {
+   "id": "a9e20a24",
+   "desc": "Folha Setembro/2026 - JOÃO EDUARDO",
+   "valor": 5000,
+   "venc": "2026-10-05",
+   "fornecedor": "JOÃO EDUARDO",
+   "classe": "projetada",
+   "aDefinir": false,
+   "parcial": false,
+   "imposto": false,
+   "comissao": false,
+   "folha": true
+  },
+  {
+   "id": "ab7a90cd",
+   "desc": "Honorários de contabilidade",
+   "valor": 1058,
+   "venc": "2026-10-10",
+   "fornecedor": "",
+   "classe": "projetada",
+   "aDefinir": false,
+   "parcial": false,
+   "imposto": false,
+   "comissao": false,
+   "folha": false
+  },
+  {
+   "id": "ba135af8",
+   "desc": "Folha Setembro/2026 - JOÃO ANTONIO",
+   "valor": 2000,
+   "venc": "2026-10-05",
+   "fornecedor": "JOÃO ANTONIO",
+   "classe": "projetada",
+   "aDefinir": false,
+   "parcial": false,
+   "imposto": false,
+   "comissao": false,
+   "folha": true
+  },
+  {
+   "id": "bae817e7",
+   "desc": "Assinatura Anthropic / Claude IA",
+   "valor": 550,
+   "venc": "2026-09-24",
+   "fornecedor": "",
+   "classe": "projetada",
+   "aDefinir": false,
+   "parcial": false,
+   "imposto": false,
+   "comissao": false,
+   "folha": false
+  },
+  {
+   "id": "db9745c7",
+   "desc": "Sistema / banco de dados - fatura mensal",
+   "valor": 180,
+   "venc": "2026-09-18",
+   "fornecedor": "",
+   "classe": "projetada",
+   "aDefinir": false,
+   "parcial": false,
+   "imposto": false,
+   "comissao": false,
+   "folha": false
+  },
+  {
+   "id": "c646dbd7",
+   "desc": "Folha Setembro/2026 - PEDRO",
+   "valor": 2000,
+   "venc": "2026-10-05",
+   "fornecedor": "PEDRO",
+   "classe": "projetada",
+   "aDefinir": false,
+   "parcial": false,
+   "imposto": false,
+   "comissao": false,
+   "folha": true
+  },
+  {
+   "id": "d3696513",
+   "desc": "Folha Setembro/2026 - LUANA",
+   "valor": 2000,
+   "venc": "2026-10-05",
+   "fornecedor": "LUANA",
+   "classe": "projetada",
+   "aDefinir": false,
+   "parcial": false,
+   "imposto": false,
+   "comissao": false,
+   "folha": true
+  },
+  {
+   "id": "98db8a41",
+   "desc": "Comissão A definir — 14º LEILÃO PÉROLAS DO TAPAJÓS — lote 44",
+   "valor": 4500,
+   "venc": "2026-09-25",
+   "fornecedor": "",
+   "classe": "verificacao",
+   "aDefinir": true,
+   "parcial": false,
+   "imposto": false,
+   "comissao": true,
+   "folha": false
+  },
+  {
+   "id": "f7a0dd9b",
+   "desc": "Comissão A definir — 14º LEILÃO PÉROLAS DO TAPAJÓS — lote 47",
+   "valor": 2100,
+   "venc": "2026-09-25",
+   "fornecedor": "",
+   "classe": "verificacao",
+   "aDefinir": true,
+   "parcial": false,
+   "imposto": false,
+   "comissao": true,
+   "folha": false
+  },
+  {
+   "id": "0aa13951",
+   "desc": "COMISSAO LEILÃO TOUROS NELORE GRUPO COSTA - FÁBIO OMENA (2,00%)",
+   "valor": 402,
+   "venc": "2026-09-25",
+   "fornecedor": "",
+   "classe": "firme",
+   "aDefinir": false,
+   "parcial": false,
+   "imposto": false,
+   "comissao": true,
+   "folha": false
+  },
+  {
+   "id": "2cb8044b",
+   "desc": "COMISSAO 2º LEILÃO LS GALERIA - FÁBIO OMENA (2,00%)",
+   "valor": 2400,
+   "venc": "2026-09-25",
+   "fornecedor": "",
+   "classe": "verificacao",
+   "aDefinir": false,
+   "parcial": false,
+   "imposto": false,
+   "comissao": true,
+   "folha": false
+  },
+  {
+   "id": "d1b2ce4b",
+   "desc": "Comissão Gustavo Rusa — 12º LEILÃO PREMIUM COLONIAL (21/08) — lote 29",
+   "valor": 1305,
+   "venc": "2026-09-25",
+   "fornecedor": "GUSTAVO RUSA",
+   "classe": "firme",
+   "aDefinir": false,
+   "parcial": true,
+   "imposto": false,
+   "comissao": true,
+   "folha": false
+  },
+  {
+   "id": "f40cd8e8",
+   "desc": "Comissão Fábio Omena — LEILÃO VIRTUAL VENTRES VIP MATINHA",
+   "valor": 1680,
+   "venc": "2026-09-25",
+   "fornecedor": "FO ASSESSORIA PECUARIA",
+   "classe": "verificacao",
+   "aDefinir": false,
+   "parcial": false,
+   "imposto": false,
+   "comissao": true,
+   "folha": false
+  },
+  {
+   "id": "f4e39434",
+   "desc": "COMISSAO 7º LEILÃO ESSÊNCIA GENÉTICA - NELORE DA BAMBÚ - LEONARDO SERAFIM (2,00%)",
+   "valor": 330,
+   "venc": "2026-09-25",
+   "fornecedor": "",
+   "classe": "firme",
+   "aDefinir": false,
+   "parcial": false,
+   "imposto": false,
+   "comissao": true,
+   "folha": false
+  },
+  {
+   "id": "f67bae88",
+   "desc": "COMISSAO LEILÃO MATINHA EXPOGENÉTICA 2026 - DOUGLAS BISPO (2,00%)",
+   "valor": 840,
+   "venc": "2026-09-25",
+   "fornecedor": "",
+   "classe": "firme",
+   "aDefinir": false,
+   "parcial": false,
+   "imposto": false,
+   "comissao": true,
+   "folha": false
+  },
+  {
+   "id": "445cd8c9",
+   "desc": "Comissão Gustavo Rusa — LEILÃO NAVIRAÍ CAMPARINO ESSÊNCIA BEZERRAS E NOVILHAS — lote 5",
+   "valor": 5625,
+   "venc": "2026-09-25",
+   "fornecedor": "GUSTAVO RUSA",
+   "classe": "firme",
+   "aDefinir": false,
+   "parcial": true,
+   "imposto": false,
+   "comissao": true,
+   "folha": false
+  },
+  {
+   "id": "b27f93c3",
+   "desc": "Comissão Gustavo Rusa — LEILÃO NELORE PARANÃ PRODUTIVIDADE — lote 42",
+   "valor": 1012.5,
+   "venc": "2026-09-25",
+   "fornecedor": "GUSTAVO RUSA",
+   "classe": "firme",
+   "aDefinir": false,
+   "parcial": true,
+   "imposto": false,
+   "comissao": true,
+   "folha": false
+  },
+  {
+   "id": "ee4d79f5",
+   "desc": "Comissão Gustavo Rusa — 4º LEILÃO PEPITAS COLONIAL - EXPOGENÉTICA 2026 — lote 33",
+   "valor": 405,
+   "venc": "2026-09-25",
+   "fornecedor": "GUSTAVO RUSA",
+   "classe": "firme",
+   "aDefinir": false,
+   "parcial": true,
+   "imposto": false,
+   "comissao": true,
+   "folha": false
+  },
+  {
+   "id": "cfee627f",
+   "desc": "Comissão Gustavo Rusa — LEILÃO BABY DE PROVA - MÁQUINAS DE ACELERAR GERAÇÕES — lote 22",
+   "valor": 1050,
+   "venc": "2026-09-25",
+   "fornecedor": "GUSTAVO RUSA",
+   "classe": "firme",
+   "aDefinir": false,
+   "parcial": true,
+   "imposto": false,
+   "comissao": true,
+   "folha": false
+  },
+  {
+   "id": "db360857",
+   "desc": "Colonial / Noite Nacional — identificação do evento, valor e beneficiário em disputa",
+   "valor": 2610,
+   "venc": "2026-09-25",
+   "fornecedor": "",
+   "classe": "verificacao",
+   "aDefinir": false,
+   "parcial": false,
+   "imposto": false,
+   "comissao": true,
+   "folha": false
+  },
+  {
+   "id": "573eb118",
+   "desc": "COMISSAO LEILÃO DE TOUROS NELORE SORRISO - FÁBIO OMENA (2,00%)",
+   "valor": 1152,
+   "venc": "2026-09-25",
+   "fornecedor": "FO ASSESSORIA PECUARIA",
+   "classe": "firme",
+   "aDefinir": false,
+   "parcial": false,
+   "imposto": false,
+   "comissao": true,
+   "folha": false
+  },
+  {
+   "id": "a8d932e4",
+   "desc": "COMISSAO 14º LEILÃO PÉROLAS DO TAPAJÓS - DOUGLAS BISPO (2,00%)",
+   "valor": 1620,
+   "venc": "2026-09-25",
+   "fornecedor": "DOUGLAS",
+   "classe": "firme",
+   "aDefinir": false,
+   "parcial": false,
+   "imposto": false,
+   "comissao": true,
+   "folha": false
+  },
+  {
+   "id": "198f0191",
+   "desc": "Comissão Gustavo Rusa — 4º LEILÃO PEPITAS COLONIAL - EXPOGENÉTICA 2026 — lote 27",
+   "valor": 315,
+   "venc": "2026-09-25",
+   "fornecedor": "GUSTAVO RUSA",
+   "classe": "firme",
+   "aDefinir": false,
+   "parcial": true,
+   "imposto": false,
+   "comissao": true,
+   "folha": false
+  },
+  {
+   "id": "23f5c17b",
+   "desc": "Comissão Gustavo Rusa — LEILÃO TOUROS SÃO GERALDO E 7P AGRO — lote 1000",
+   "valor": 5000,
+   "venc": "2026-09-25",
+   "fornecedor": "GUSTAVO RUSA",
+   "classe": "firme",
+   "aDefinir": false,
+   "parcial": true,
+   "imposto": false,
+   "comissao": true,
+   "folha": false
+  },
+  {
+   "id": "20d64a7a",
+   "desc": "Comissão Gustavo Rusa — LEILÃO NAVIRAÍ CAMPARINO ESSÊNCIA BEZERRAS E NOVILHAS — lote 1",
+   "valor": 3825,
+   "venc": "2026-09-25",
+   "fornecedor": "GUSTAVO RUSA",
+   "classe": "firme",
+   "aDefinir": false,
+   "parcial": true,
+   "imposto": false,
+   "comissao": true,
+   "folha": false
+  },
+  {
+   "id": "d927d59a",
+   "desc": "Comissão Gustavo Rusa — LEILÃO MATRIZES PREMIUM KATISPERA — lote 3",
+   "valor": 2925,
+   "venc": "2026-09-25",
+   "fornecedor": "GUSTAVO RUSA",
+   "classe": "firme",
+   "aDefinir": false,
+   "parcial": true,
+   "imposto": false,
+   "comissao": true,
+   "folha": false
+  },
+  {
+   "id": "83a2930e",
+   "desc": "Comissão Gustavo Rusa — LEILÃO VIRTUAL VENTRES VIP MATINHA — lote 31",
+   "valor": 937.5,
+   "venc": "2026-09-25",
+   "fornecedor": "GUSTAVO RUSA",
+   "classe": "firme",
+   "aDefinir": false,
+   "parcial": true,
+   "imposto": false,
+   "comissao": true,
+   "folha": false
+  },
+  {
+   "id": "13875cfe",
+   "desc": "Comissão Gustavo Rusa — LEILÃO MATINHA EXPOGENÉTICA 2026 — lote 39",
+   "valor": 1050,
+   "venc": "2026-09-25",
+   "fornecedor": "GUSTAVO RUSA",
+   "classe": "firme",
+   "aDefinir": false,
+   "parcial": true,
+   "imposto": false,
+   "comissao": true,
+   "folha": false
+  },
+  {
+   "id": "3d9b0cf9",
+   "desc": "Comissão Douglas Bispo — LEILÃO SABIÁ DOURADO — lote 27",
+   "valor": 462,
+   "venc": "2026-09-25",
+   "fornecedor": "DOUGLAS",
+   "classe": "firme",
+   "aDefinir": false,
+   "parcial": false,
+   "imposto": false,
+   "comissao": true,
+   "folha": false
+  },
+  {
+   "id": "9e709b4c",
+   "desc": "Comissão Gustavo Rusa — LEILÃO BABY DE PROVA - MÁQUINAS DE ACELERAR GERAÇÕES — lote 23",
+   "valor": 787.5,
+   "venc": "2026-09-25",
+   "fornecedor": "GUSTAVO RUSA",
+   "classe": "firme",
+   "aDefinir": false,
+   "parcial": true,
+   "imposto": false,
+   "comissao": true,
+   "folha": false
+  },
+  {
+   "id": "0c66533f",
+   "desc": "Comissão Douglas Bispo — LEILÃO SABIÁ DOURADO — lote 30",
+   "valor": 372,
+   "venc": "2026-09-25",
+   "fornecedor": "DOUGLAS",
+   "classe": "firme",
+   "aDefinir": false,
+   "parcial": false,
+   "imposto": false,
+   "comissao": true,
+   "folha": false
+  },
+  {
+   "id": "9c0d2e29",
+   "desc": "Hospedagem Joao Eduardo - Hotel Continental (Centro, Belo Horizonte/MG) 16-18/09 - Booking 6034.917.103 - pagamento no hotel",
+   "valor": 508.68,
+   "venc": "2026-09-18",
+   "fornecedor": "",
+   "classe": "firme",
+   "aDefinir": false,
+   "parcial": false,
+   "imposto": false,
+   "comissao": false,
+   "folha": false
+  },
+  {
+   "id": "557ef929",
+   "desc": "Comissão Douglas Bispo — LEILÃO SABIÁ DOURADO — lote 24",
+   "valor": 420,
+   "venc": "2026-09-25",
+   "fornecedor": "DOUGLAS",
+   "classe": "firme",
+   "aDefinir": false,
+   "parcial": false,
+   "imposto": false,
+   "comissao": true,
+   "folha": false
+  },
+  {
+   "id": "19f7731c",
+   "desc": "Comissão Fábio Omena — LEILÃO VIRTUAL TERRA BRAVA AGROPECUÁRIA - FÊMEAS PRENHAS — lote 45",
+   "valor": 390,
+   "venc": "2026-09-25",
+   "fornecedor": "FO ASSESSORIA PECUARIA",
+   "classe": "firme",
+   "aDefinir": false,
+   "parcial": false,
+   "imposto": false,
+   "comissao": true,
+   "folha": false
+  },
+  {
+   "id": "1afb7241",
+   "desc": "Comissão Douglas Bispo — LEILÃO NELORE PINTADO ENGENHO DA SERRA — lote 39",
+   "valor": 248,
+   "venc": "2026-09-25",
+   "fornecedor": "DOUGLAS",
+   "classe": "firme",
+   "aDefinir": false,
+   "parcial": false,
+   "imposto": false,
+   "comissao": true,
+   "folha": false
+  },
+  {
+   "id": "1b46ef7d",
+   "desc": "Comissão Fábio Omena — 13º LEILÃO GENÉTICA TOUROS NELORE HORA",
+   "valor": 480,
+   "venc": "2026-09-25",
+   "fornecedor": "FO ASSESSORIA PECUARIA",
+   "classe": "verificacao",
+   "aDefinir": false,
+   "parcial": false,
+   "imposto": false,
+   "comissao": true,
+   "folha": false
+  },
+  {
+   "id": "23c04178",
+   "desc": "Comissão Douglas Bispo — LEILÃO SABIÁ DOURADO — lote 41",
+   "valor": 450,
+   "venc": "2026-09-25",
+   "fornecedor": "DOUGLAS",
+   "classe": "firme",
+   "aDefinir": false,
+   "parcial": false,
+   "imposto": false,
+   "comissao": true,
+   "folha": false
+  },
+  {
+   "id": "2c81c716",
+   "desc": "Comissão Douglas Bispo — 4º LEILÃO PEPITAS COLONIAL - EXPOGENÉTICA 2026 — lote 09",
+   "valor": 660,
+   "venc": "2026-09-25",
+   "fornecedor": "DOUGLAS",
+   "classe": "firme",
+   "aDefinir": false,
+   "parcial": false,
+   "imposto": false,
+   "comissao": true,
+   "folha": false
+  },
+  {
+   "id": "2dd0a62f",
+   "desc": "Comissão Douglas Bispo — LEILÃO SABIÁ DOURADO — lote 32",
+   "valor": 330,
+   "venc": "2026-09-25",
+   "fornecedor": "DOUGLAS",
+   "classe": "firme",
+   "aDefinir": false,
+   "parcial": false,
+   "imposto": false,
+   "comissao": true,
+   "folha": false
+  },
+  {
+   "id": "2de5d1ba",
+   "desc": "Comissão Douglas Bispo — LEILÃO SABIÁ DOURADO — lote 22",
+   "valor": 450,
+   "venc": "2026-09-25",
+   "fornecedor": "DOUGLAS",
+   "classe": "firme",
+   "aDefinir": false,
+   "parcial": false,
+   "imposto": false,
+   "comissao": true,
+   "folha": false
+  },
+  {
+   "id": "3419921f",
+   "desc": "Comissão Fábio Omena — LEILÃO RESERVA SANTA NICE EXPOGENÉTICA 2026 — lote 35",
+   "valor": 1620,
+   "venc": "2026-09-25",
+   "fornecedor": "FO ASSESSORIA PECUARIA",
+   "classe": "firme",
+   "aDefinir": false,
+   "parcial": false,
+   "imposto": false,
+   "comissao": true,
+   "folha": false
+  },
+  {
+   "id": "3839ff16",
+   "desc": "Comissão Douglas Bispo — 12º LEILÃO NOITE NACIONAL MATRIZES PREMIUM — lote 24",
+   "valor": 780,
+   "venc": "2026-09-25",
+   "fornecedor": "DOUGLAS",
+   "classe": "firme",
+   "aDefinir": false,
+   "parcial": false,
+   "imposto": false,
+   "comissao": true,
+   "folha": false
+  },
+  {
+   "id": "3902323c",
+   "desc": "Comissão Leonardo Serafim — 12º LEILÃO NOITE NACIONAL MATRIZES PREMIUM — lote 18",
+   "valor": 540,
+   "venc": "2026-09-25",
+   "fornecedor": "LEONARDO",
+   "classe": "firme",
+   "aDefinir": false,
+   "parcial": false,
+   "imposto": false,
+   "comissao": true,
+   "folha": false
+  },
+  {
+   "id": "39272b9c",
+   "desc": "COMISSAO LEILÃO TERRA BRAVA AGROPECUÁRIA EXPOGENÉTICA - FÁBIO OMENA (2,00%)",
+   "valor": 2142,
+   "venc": "2026-09-25",
+   "fornecedor": "",
+   "classe": "firme",
+   "aDefinir": false,
+   "parcial": false,
+   "imposto": false,
+   "comissao": true,
+   "folha": false
+  },
+  {
+   "id": "397619c8",
+   "desc": "Comissão Douglas Bispo — LEILÃO SABIÁ DOURADO — lote 25",
+   "valor": 270,
+   "venc": "2026-09-25",
+   "fornecedor": "DOUGLAS",
+   "classe": "firme",
+   "aDefinir": false,
+   "parcial": false,
+   "imposto": false,
+   "comissao": true,
+   "folha": false
+  },
+  {
+   "id": "44b3955a",
+   "desc": "Comissão Douglas Bispo — LEILÃO SABIÁ DOURADO — lote 5",
+   "valor": 600,
+   "venc": "2026-09-25",
+   "fornecedor": "DOUGLAS",
+   "classe": "firme",
+   "aDefinir": false,
+   "parcial": false,
+   "imposto": false,
+   "comissao": true,
+   "folha": false
+  },
+  {
+   "id": "45515695",
+   "desc": "Comissão Douglas Bispo — 4º LEILÃO PEPITAS COLONIAL - EXPOGENÉTICA 2026 — lote 26",
+   "valor": 480,
+   "venc": "2026-09-25",
+   "fornecedor": "DOUGLAS",
+   "classe": "firme",
+   "aDefinir": false,
+   "parcial": false,
+   "imposto": false,
+   "comissao": true,
+   "folha": false
+  },
+  {
+   "id": "455408e4",
+   "desc": "Comissão Leonardo Serafim — LEILÃO VIRTUAL TERRA BRAVA AGROPECUÁRIA - FÊMEAS PRENHAS — lote 19",
+   "valor": 540,
+   "venc": "2026-09-25",
+   "fornecedor": "LEONARDO",
+   "classe": "firme",
+   "aDefinir": false,
+   "parcial": false,
+   "imposto": false,
+   "comissao": true,
+   "folha": false
+  },
+  {
+   "id": "47d9fc97",
+   "desc": "Comissão Leonardo Serafim — 28º LEILÃO NAVIRAÍ CAMPARINO - REPRODUTORES — lote 12",
+   "valor": 990,
+   "venc": "2026-09-25",
+   "fornecedor": "LEONARDO",
+   "classe": "firme",
+   "aDefinir": false,
+   "parcial": false,
+   "imposto": false,
+   "comissao": true,
+   "folha": false
+  },
+  {
+   "id": "53248f72",
+   "desc": "Comissão Fábio Omena — 28º LEILÃO NAVIRAÍ CAMPARINO - REPRODUTORES — lote 105",
+   "valor": 1200,
+   "venc": "2026-09-25",
+   "fornecedor": "FO ASSESSORIA PECUARIA",
+   "classe": "firme",
+   "aDefinir": false,
+   "parcial": false,
+   "imposto": false,
+   "comissao": true,
+   "folha": false
+  },
+  {
+   "id": "4d6e660f",
+   "desc": "Comissão Douglas Bispo — LEILÃO NELORE PINTADO ENGENHO DA SERRA — lote 52",
+   "valor": 304,
+   "venc": "2026-09-25",
+   "fornecedor": "DOUGLAS",
+   "classe": "firme",
+   "aDefinir": false,
+   "parcial": false,
+   "imposto": false,
+   "comissao": true,
+   "folha": false
+  },
+  {
+   "id": "4f1c1548",
+   "desc": "Comissão Leonardo Serafim — 4º LEILÃO PEPITAS COLONIAL - EXPOGENÉTICA 2026 — lote 32",
+   "valor": 600,
+   "venc": "2026-09-25",
+   "fornecedor": "LEONARDO",
+   "classe": "firme",
+   "aDefinir": false,
+   "parcial": false,
+   "imposto": false,
+   "comissao": true,
+   "folha": false
+  },
+  {
+   "id": "59773251",
+   "desc": "Comissão Douglas Bispo — LEILÃO NELORE PINTADO ENGENHO DA SERRA — lote 41",
+   "valor": 280,
+   "venc": "2026-09-25",
+   "fornecedor": "DOUGLAS",
+   "classe": "firme",
+   "aDefinir": false,
+   "parcial": false,
+   "imposto": false,
+   "comissao": true,
+   "folha": false
+  },
+  {
+   "id": "5f4b47c3",
+   "desc": "Comissão Leonardo Serafim — LEILÃO NELORE CEN & FAZENDA MODELO & CONVIDADOS — lote 18",
+   "valor": 660,
+   "venc": "2026-09-25",
+   "fornecedor": "LEONARDO",
+   "classe": "firme",
+   "aDefinir": false,
+   "parcial": false,
+   "imposto": false,
+   "comissao": true,
+   "folha": false
+  },
+  {
+   "id": "5f99a357",
+   "desc": "Comissão Douglas Bispo — LEILÃO SABIÁ DOURADO — lote 17",
+   "valor": 420,
+   "venc": "2026-09-25",
+   "fornecedor": "DOUGLAS",
+   "classe": "firme",
+   "aDefinir": false,
+   "parcial": false,
+   "imposto": false,
+   "comissao": true,
+   "folha": false
+  },
+  {
+   "id": "73b8b1f3",
+   "desc": "Comissão Douglas Bispo — LEILÃO SABIÁ DOURADO — lote 55",
+   "valor": 360,
+   "venc": "2026-09-25",
+   "fornecedor": "DOUGLAS",
+   "classe": "firme",
+   "aDefinir": false,
+   "parcial": false,
+   "imposto": false,
+   "comissao": true,
+   "folha": false
+  },
+  {
+   "id": "6814b8e7",
+   "desc": "Comissão Fábio Omena — 28º LEILÃO NAVIRAÍ CAMPARINO - REPRODUTORES — lote 132",
+   "valor": 900,
+   "venc": "2026-09-25",
+   "fornecedor": "FO ASSESSORIA PECUARIA",
+   "classe": "firme",
+   "aDefinir": false,
+   "parcial": false,
+   "imposto": false,
+   "comissao": true,
+   "folha": false
+  },
+  {
+   "id": "6f8bac50",
+   "desc": "Comissão Fábio Omena — 28º LEILÃO NAVIRAÍ CAMPARINO - REPRODUTORES — lote 19",
+   "valor": 720,
+   "venc": "2026-09-25",
+   "fornecedor": "FO ASSESSORIA PECUARIA",
+   "classe": "firme",
+   "aDefinir": false,
+   "parcial": false,
+   "imposto": false,
+   "comissao": true,
+   "folha": false
+  },
+  {
+   "id": "6f90af48",
+   "desc": "Comissão Leonardo Serafim — 4º LEILÃO PEPITAS COLONIAL - EXPOGENÉTICA 2026 — lote 53",
+   "valor": 480,
+   "venc": "2026-09-25",
+   "fornecedor": "LEONARDO",
+   "classe": "firme",
+   "aDefinir": false,
+   "parcial": false,
+   "imposto": false,
+   "comissao": true,
+   "folha": false
+  },
+  {
+   "id": "732425a2",
+   "desc": "Comissão Peralta — LEILÃO NELORE CEN & FAZENDA MODELO & CONVIDADOS — lote 09",
+   "valor": 1680,
+   "venc": "2026-09-25",
+   "fornecedor": "Peralta",
+   "classe": "firme",
+   "aDefinir": false,
+   "parcial": false,
+   "imposto": false,
+   "comissao": true,
+   "folha": false
+  },
+  {
+   "id": "7654f5b1",
+   "desc": "Comissão Fábio Omena — 28º LEILÃO NAVIRAÍ CAMPARINO - REPRODUTORES — lote 36",
+   "valor": 840,
+   "venc": "2026-09-25",
+   "fornecedor": "FO ASSESSORIA PECUARIA",
+   "classe": "firme",
+   "aDefinir": false,
+   "parcial": false,
+   "imposto": false,
+   "comissao": true,
+   "folha": false
+  },
+  {
+   "id": "7e93a2fc",
+   "desc": "Comissão Leonardo Serafim — LEILÃO TOUROS SÃO GERALDO E 7P AGRO",
+   "valor": 3516,
+   "venc": "2026-09-25",
+   "fornecedor": "LEONARDO",
+   "classe": "verificacao",
+   "aDefinir": false,
+   "parcial": false,
+   "imposto": false,
+   "comissao": true,
+   "folha": false
+  },
+  {
+   "id": "81c75d0f",
+   "desc": "Comissão Douglas Bispo — LEILÃO SABIÁ DOURADO — lote 34",
+   "valor": 330,
+   "venc": "2026-09-25",
+   "fornecedor": "DOUGLAS",
+   "classe": "firme",
+   "aDefinir": false,
+   "parcial": false,
+   "imposto": false,
+   "comissao": true,
+   "folha": false
+  },
+  {
+   "id": "823376c5",
+   "desc": "Comissão Douglas Bispo — LEILÃO SABIÁ DOURADO — lote 26",
+   "valor": 480,
+   "venc": "2026-09-25",
+   "fornecedor": "DOUGLAS",
+   "classe": "firme",
+   "aDefinir": false,
+   "parcial": false,
+   "imposto": false,
+   "comissao": true,
+   "folha": false
+  },
+  {
+   "id": "836db218",
+   "desc": "Comissão Douglas Bispo — LEILÃO NELORE PINTADO ENGENHO DA SERRA — lote 59",
+   "valor": 240,
+   "venc": "2026-09-25",
+   "fornecedor": "DOUGLAS",
+   "classe": "firme",
+   "aDefinir": false,
+   "parcial": false,
+   "imposto": false,
+   "comissao": true,
+   "folha": false
+  },
+  {
+   "id": "8486b4f7",
+   "desc": "Comissão Douglas Bispo — LEILÃO NELORE DO XINGU — lote EXTRA",
+   "valor": 1860,
+   "venc": "2026-09-25",
+   "fornecedor": "DOUGLAS",
+   "classe": "firme",
+   "aDefinir": false,
+   "parcial": false,
+   "imposto": false,
+   "comissao": true,
+   "folha": false
+  },
+  {
+   "id": "8647ef5f",
+   "desc": "Comissão Douglas Bispo — LEILÃO SABIÁ DOURADO — lote 43",
+   "valor": 432,
+   "venc": "2026-09-25",
+   "fornecedor": "DOUGLAS",
+   "classe": "firme",
+   "aDefinir": false,
+   "parcial": false,
+   "imposto": false,
+   "comissao": true,
+   "folha": false
+  },
+  {
+   "id": "8bad4db9",
+   "desc": "Comissão Fábio Omena — 28º LEILÃO NAVIRAÍ CAMPARINO - REPRODUTORES — lote 42",
+   "valor": 600,
+   "venc": "2026-09-25",
+   "fornecedor": "FO ASSESSORIA PECUARIA",
+   "classe": "firme",
+   "aDefinir": false,
+   "parcial": false,
+   "imposto": false,
+   "comissao": true,
+   "folha": false
+  },
+  {
+   "id": "927fc890",
+   "desc": "Comissão Fábio Omena — 28º LEILÃO NAVIRAÍ CAMPARINO - REPRODUTORES — lote 01",
+   "valor": 660,
+   "venc": "2026-09-25",
+   "fornecedor": "FO ASSESSORIA PECUARIA",
+   "classe": "firme",
+   "aDefinir": false,
+   "parcial": false,
+   "imposto": false,
+   "comissao": true,
+   "folha": false
+  },
+  {
+   "id": "9536d8f6",
+   "desc": "Comissão Douglas Bispo — LEILÃO NAVIRAÍ CAMPARINO ESSÊNCIA BEZERRAS E NOVILHAS — lote 28",
+   "valor": 1440,
+   "venc": "2026-09-25",
+   "fornecedor": "DOUGLAS",
+   "classe": "firme",
+   "aDefinir": false,
+   "parcial": false,
+   "imposto": false,
+   "comissao": true,
+   "folha": false
+  },
+  {
+   "id": "9aadff3e",
+   "desc": "Comissão Laila — 28º LEILÃO NAVIRAÍ CAMPARINO - REPRODUTORES — lote 52",
+   "valor": 300,
+   "venc": "2026-09-25",
+   "fornecedor": "Laila de Sousa Oliveira",
+   "classe": "firme",
+   "aDefinir": false,
+   "parcial": false,
+   "imposto": false,
+   "comissao": true,
+   "folha": false
+  },
+  {
+   "id": "9f533d2c",
+   "desc": "Comissão Douglas Bispo — LEILÃO SABIÁ DOURADO — lote 44",
+   "valor": 492,
+   "venc": "2026-09-25",
+   "fornecedor": "DOUGLAS",
+   "classe": "firme",
+   "aDefinir": false,
+   "parcial": false,
+   "imposto": false,
+   "comissao": true,
+   "folha": false
+  },
+  {
+   "id": "a2841f04",
+   "desc": "Comissão Fábio Omena — 9º LEILÃO GENÉTICA ADITIVA EXPOGENÉTICA 2026 — lote 107",
+   "valor": 1500,
+   "venc": "2026-09-25",
+   "fornecedor": "FO ASSESSORIA PECUARIA",
+   "classe": "firme",
+   "aDefinir": false,
+   "parcial": false,
+   "imposto": false,
+   "comissao": true,
+   "folha": false
+  },
+  {
+   "id": "a6f41778",
+   "desc": "Comissão A definir: Douglas / Fábio — LEILÃO TOUROS NELORE MAFRA",
+   "valor": 900,
+   "venc": "2026-09-25",
+   "fornecedor": "",
+   "classe": "verificacao",
+   "aDefinir": true,
+   "parcial": false,
+   "imposto": false,
+   "comissao": true,
+   "folha": false
+  },
+  {
+   "id": "a705136f",
+   "desc": "Comissão Douglas Bispo — LEILÃO SABIÁ DOURADO — lote 8",
+   "valor": 450,
+   "venc": "2026-09-25",
+   "fornecedor": "DOUGLAS",
+   "classe": "firme",
+   "aDefinir": false,
+   "parcial": false,
+   "imposto": false,
+   "comissao": true,
+   "folha": false
+  },
+  {
+   "id": "a996fb0f",
+   "desc": "COMISSAO LEILÃO DE TOUROS NELORE SORRISO - LEONARDO SERAFIM (2,00%)",
+   "valor": 702,
+   "venc": "2026-09-25",
+   "fornecedor": "",
+   "classe": "firme",
+   "aDefinir": false,
+   "parcial": false,
+   "imposto": false,
+   "comissao": true,
+   "folha": false
+  },
+  {
+   "id": "afaeec1f",
+   "desc": "Comissão Fábio Omena — 4º LEILÃO PEPITAS COLONIAL - EXPOGENÉTICA 2026 — lote 24",
+   "valor": 420,
+   "venc": "2026-09-25",
+   "fornecedor": "FO ASSESSORIA PECUARIA",
+   "classe": "firme",
+   "aDefinir": false,
+   "parcial": false,
+   "imposto": false,
+   "comissao": true,
+   "folha": false
+  },
+  {
+   "id": "afd87db5",
+   "desc": "Comissão Fábio Omena — 4º LEILÃO PEPITAS COLONIAL - EXPOGENÉTICA 2026 — lote 37",
+   "valor": 1200,
+   "venc": "2026-09-25",
+   "fornecedor": "FO ASSESSORIA PECUARIA",
+   "classe": "firme",
+   "aDefinir": false,
+   "parcial": false,
+   "imposto": false,
+   "comissao": true,
+   "folha": false
+  },
+  {
+   "id": "b4e2d4ea",
+   "desc": "COMISSAO LEILÃO TOUROS NELORE MAFRA - FÁBIO OMENA (2,00%)",
+   "valor": 420,
+   "venc": "2026-09-25",
+   "fornecedor": "FO ASSESSORIA PECUARIA",
+   "classe": "firme",
+   "aDefinir": false,
+   "parcial": false,
+   "imposto": false,
+   "comissao": true,
+   "folha": false
+  },
+  {
+   "id": "b8328edd",
+   "desc": "Comissão Fábio Omena — LEILÃO TOUROS NELORE MAFRA",
+   "valor": 660,
+   "venc": "2026-09-25",
+   "fornecedor": "FO ASSESSORIA PECUARIA",
+   "classe": "verificacao",
+   "aDefinir": false,
+   "parcial": false,
+   "imposto": false,
+   "comissao": true,
+   "folha": false
+  },
+  {
+   "id": "bb9203ca",
+   "desc": "Comissão Douglas Bispo — 12º LEILÃO NOITE NACIONAL MATRIZES PREMIUM — lote 19",
+   "valor": 1020,
+   "venc": "2026-09-25",
+   "fornecedor": "DOUGLAS",
+   "classe": "firme",
+   "aDefinir": false,
+   "parcial": false,
+   "imposto": false,
+   "comissao": true,
+   "folha": false
+  },
+  {
+   "id": "bdc9da4d",
+   "desc": "Comissão Leonardo Serafim — 4º LEILÃO PEPITAS COLONIAL - EXPOGENÉTICA 2026 — lote 54",
+   "valor": 720,
+   "venc": "2026-09-25",
+   "fornecedor": "LEONARDO",
+   "classe": "firme",
+   "aDefinir": false,
+   "parcial": false,
+   "imposto": false,
+   "comissao": true,
+   "folha": false
+  },
+  {
+   "id": "d0ca5347",
+   "desc": "Comissão Douglas Bispo — LEILÃO SABIÁ DOURADO — lote 50",
+   "valor": 420,
+   "venc": "2026-09-25",
+   "fornecedor": "DOUGLAS",
+   "classe": "firme",
+   "aDefinir": false,
+   "parcial": false,
+   "imposto": false,
+   "comissao": true,
+   "folha": false
+  },
+  {
+   "id": "d38db711",
+   "desc": "Comissão Douglas Bispo — LEILÃO SABIÁ DOURADO — lote 36",
+   "valor": 630,
+   "venc": "2026-09-25",
+   "fornecedor": "DOUGLAS",
+   "classe": "firme",
+   "aDefinir": false,
+   "parcial": false,
+   "imposto": false,
+   "comissao": true,
+   "folha": false
+  },
+  {
+   "id": "d4a3527f",
+   "desc": "Comissão Leonardo Serafim — 4º LEILÃO PEPITAS COLONIAL - EXPOGENÉTICA 2026 — lote 19",
+   "valor": 540,
+   "venc": "2026-09-25",
+   "fornecedor": "LEONARDO",
+   "classe": "firme",
+   "aDefinir": false,
+   "parcial": false,
+   "imposto": false,
+   "comissao": true,
+   "folha": false
+  },
+  {
+   "id": "e34686f7",
+   "desc": "Comissão Fábio Omena — 1º LEILÃO NELORE ASJ — lote 07",
+   "valor": 222,
+   "venc": "2026-09-25",
+   "fornecedor": "FO ASSESSORIA PECUARIA",
+   "classe": "firme",
+   "aDefinir": false,
+   "parcial": false,
+   "imposto": false,
+   "comissao": true,
+   "folha": false
+  },
+  {
+   "id": "e3f50224",
+   "desc": "Comissão Douglas Bispo — LEILÃO SABIÁ DOURADO — lote 51",
+   "valor": 450,
+   "venc": "2026-09-25",
+   "fornecedor": "DOUGLAS",
+   "classe": "firme",
+   "aDefinir": false,
+   "parcial": false,
+   "imposto": false,
+   "comissao": true,
+   "folha": false
+  },
+  {
+   "id": "e4ee9c4e",
+   "desc": "COMISSAO LEILÃO NELORE MAFRA EDIÇÃO REDENÇÃO/PA - FÊMEAS - FÁBIO OMENA (2,00%)",
+   "valor": 1200,
+   "venc": "2026-09-25",
+   "fornecedor": "",
+   "classe": "firme",
+   "aDefinir": false,
+   "parcial": false,
+   "imposto": false,
+   "comissao": true,
+   "folha": false
+  },
+  {
+   "id": "e5735669",
+   "desc": "Comissão Fábio Omena — LEILÃO DE TOUROS NELORE SORRISO",
+   "valor": 432,
+   "venc": "2026-09-25",
+   "fornecedor": "FO ASSESSORIA PECUARIA",
+   "classe": "verificacao",
+   "aDefinir": false,
+   "parcial": false,
+   "imposto": false,
+   "comissao": true,
+   "folha": false
+  },
+  {
+   "id": "ea523c9c",
+   "desc": "COMISSAO LEILÃO TOUROS NELORE MAFRA - DOUGLAS BISPO (2,00%)",
+   "valor": 1572,
+   "venc": "2026-09-25",
+   "fornecedor": "DOUGLAS",
+   "classe": "firme",
+   "aDefinir": false,
+   "parcial": false,
+   "imposto": false,
+   "comissao": true,
+   "folha": false
+  },
+  {
+   "id": "ef6a1170",
+   "desc": "COMISSAO LEILÃO NELORE MAFRA EDIÇÃO REDENÇÃO/PA - FÊMEAS - DOUGLAS BISPO (2,00%)",
+   "valor": 19654,
+   "venc": "2026-09-25",
+   "fornecedor": "",
+   "classe": "firme",
+   "aDefinir": false,
+   "parcial": false,
+   "imposto": false,
+   "comissao": true,
+   "folha": false
+  },
+  {
+   "id": "f65f8764",
+   "desc": "Comissão Douglas Bispo — LEILÃO SABIÁ DOURADO — lote 47",
+   "valor": 432,
+   "venc": "2026-09-25",
+   "fornecedor": "DOUGLAS",
+   "classe": "firme",
+   "aDefinir": false,
+   "parcial": false,
+   "imposto": false,
+   "comissao": true,
+   "folha": false
+  },
+  {
+   "id": "fa2865c0",
+   "desc": "Comissão Gustavo Rusa — LEILÃO RESERVA SANTA NICE EXPOGENÉTICA 2026 — lote 04",
+   "valor": 5400,
+   "venc": "2026-09-25",
+   "fornecedor": "GUSTAVO RUSA",
+   "classe": "firme",
+   "aDefinir": false,
+   "parcial": true,
+   "imposto": false,
+   "comissao": true,
+   "folha": false
+  },
+  {
+   "id": "faf455a7",
+   "desc": "Comissão Douglas Bispo — 28º LEILÃO NAVIRAÍ CAMPARINO - REPRODUTORES — lote 59",
+   "valor": 660,
+   "venc": "2026-09-25",
+   "fornecedor": "DOUGLAS",
+   "classe": "firme",
+   "aDefinir": false,
+   "parcial": false,
+   "imposto": false,
+   "comissao": true,
+   "folha": false
+  }
+ ],
+ "firmes": [
+  {
+   "id": "1ef8d4a9",
+   "desc": "REMAT Marcas e Patentes — parcela 2/4 — boleto 1031",
+   "valor": 495,
+   "venc": "2026-09-20",
+   "fornecedor": "REMAT MARCAS E PATENTES",
+   "classe": "firme",
+   "aDefinir": false,
+   "parcial": false,
+   "imposto": false,
+   "comissao": false,
+   "folha": false
+  },
+  {
+   "id": "083249a7",
+   "desc": "Comissão Peralta — LEILÃO NELORE MARCONDES - ABERTURA — lote 01",
+   "valor": 750,
+   "venc": "2026-09-25",
+   "fornecedor": "Peralta",
+   "classe": "firme",
+   "aDefinir": false,
+   "parcial": false,
+   "imposto": false,
+   "comissao": true,
+   "folha": false
+  },
+  {
+   "id": "214cc574",
+   "desc": "Comissão Douglas Bispo — 4º LEILÃO PEPITAS COLONIAL - EXPOGENÉTICA 2026 — lote 25",
+   "valor": 450,
+   "venc": "2026-09-25",
+   "fornecedor": "DOUGLAS",
+   "classe": "firme",
+   "aDefinir": false,
+   "parcial": false,
+   "imposto": false,
+   "comissao": true,
+   "folha": false
+  },
+  {
+   "id": "83cc002c",
+   "desc": "Comissão Douglas Bispo — LEILÃO SABIÁ DOURADO — lote 16",
+   "valor": 450,
+   "venc": "2026-09-25",
+   "fornecedor": "DOUGLAS",
+   "classe": "firme",
+   "aDefinir": false,
+   "parcial": false,
+   "imposto": false,
+   "comissao": true,
+   "folha": false
+  },
+  {
+   "id": "2e35fc13",
+   "desc": "Comissão Douglas Bispo — LEILÃO SABIÁ DOURADO — lote 19",
+   "valor": 360,
+   "venc": "2026-09-25",
+   "fornecedor": "DOUGLAS",
+   "classe": "firme",
+   "aDefinir": false,
+   "parcial": false,
+   "imposto": false,
+   "comissao": true,
+   "folha": false
+  },
+  {
+   "id": "5cc68b20",
+   "desc": "Comissão Douglas Bispo — LEILÃO SABIÁ DOURADO — lote 20",
+   "valor": 510,
+   "venc": "2026-09-25",
+   "fornecedor": "DOUGLAS",
+   "classe": "firme",
+   "aDefinir": false,
+   "parcial": false,
+   "imposto": false,
+   "comissao": true,
+   "folha": false
+  },
+  {
+   "id": "8ac91a2b",
+   "desc": "Comissão Douglas Bispo — LEILÃO SABIÁ DOURADO — lote 21",
+   "valor": 390,
+   "venc": "2026-09-25",
+   "fornecedor": "DOUGLAS",
+   "classe": "firme",
+   "aDefinir": false,
+   "parcial": false,
+   "imposto": false,
+   "comissao": true,
+   "folha": false
+  },
+  {
+   "id": "15493cfa",
+   "desc": "Comissão Douglas Bispo — SHOPPING NAVIRAI EXPOGENÉTICA — lote 41",
+   "valor": 1104,
+   "venc": "2026-09-25",
+   "fornecedor": "DOUGLAS",
+   "classe": "firme",
+   "aDefinir": false,
+   "parcial": false,
+   "imposto": false,
+   "comissao": true,
+   "folha": false
+  },
+  {
+   "id": "5a34d814",
+   "desc": "Comissão Douglas Bispo — SHOPPING NAVIRAI EXPOGENÉTICA — lote 48",
+   "valor": 828,
+   "venc": "2026-09-25",
+   "fornecedor": "DOUGLAS",
+   "classe": "firme",
+   "aDefinir": false,
+   "parcial": false,
+   "imposto": false,
+   "comissao": true,
+   "folha": false
+  },
+  {
+   "id": "cf40d746",
+   "desc": "Comissão Fábio Omena — 1º LEILÃO NELORE ASJ — lote 24",
+   "valor": 396,
+   "venc": "2026-09-25",
+   "fornecedor": "FO ASSESSORIA PECUARIA",
+   "classe": "firme",
+   "aDefinir": false,
+   "parcial": false,
+   "imposto": false,
+   "comissao": true,
+   "folha": false
+  },
+  {
+   "id": "1a5e97f9",
+   "desc": "Comissão Gustavo Rusa — LEILÃO VIRTUAL VENTRES VIP MATINHA — lote 18",
+   "valor": 675,
+   "venc": "2026-09-25",
+   "fornecedor": "GUSTAVO RUSA",
+   "classe": "firme",
+   "aDefinir": false,
+   "parcial": true,
+   "imposto": false,
+   "comissao": true,
+   "folha": false
+  },
+  {
+   "id": "07835833",
+   "desc": "Comissão Fábio Omena — 28º LEILÃO NAVIRAÍ CAMPARINO - REPRODUTORES — lote 20",
+   "valor": 840,
+   "venc": "2026-09-25",
+   "fornecedor": "FO ASSESSORIA PECUARIA",
+   "classe": "firme",
+   "aDefinir": false,
+   "parcial": false,
+   "imposto": false,
+   "comissao": true,
+   "folha": false
+  },
+  {
+   "id": "ea54728f",
+   "desc": "Comissão Douglas Bispo — LEILÃO SABIÁ DOURADO — lote 54",
+   "valor": 420,
+   "venc": "2026-09-25",
+   "fornecedor": "DOUGLAS",
+   "classe": "firme",
+   "aDefinir": false,
+   "parcial": false,
+   "imposto": false,
+   "comissao": true,
+   "folha": false
+  },
+  {
+   "id": "2ffebf60",
+   "desc": "Comissão Douglas Bispo — 28º LEILÃO NAVIRAÍ CAMPARINO - REPRODUTORES — lote 09",
+   "valor": 780,
+   "venc": "2026-09-25",
+   "fornecedor": "DOUGLAS",
+   "classe": "firme",
+   "aDefinir": false,
+   "parcial": false,
+   "imposto": false,
+   "comissao": true,
+   "folha": false
+  },
+  {
+   "id": "a3a14f22",
+   "desc": "Comissão Peralta — 28º LEILÃO NAVIRAÍ CAMPARINO - REPRODUTORES — lote 78",
+   "valor": 960,
+   "venc": "2026-09-25",
+   "fornecedor": "Peralta",
+   "classe": "firme",
+   "aDefinir": false,
+   "parcial": false,
+   "imposto": false,
+   "comissao": true,
+   "folha": false
+  },
+  {
+   "id": "b397c2a0",
+   "desc": "Comissão Peralta — 28º LEILÃO NAVIRAÍ CAMPARINO - REPRODUTORES — lote 30",
+   "valor": 840,
+   "venc": "2026-09-25",
+   "fornecedor": "Peralta",
+   "classe": "firme",
+   "aDefinir": false,
+   "parcial": false,
+   "imposto": false,
+   "comissao": true,
+   "folha": false
+  },
+  {
+   "id": "2681ee34",
+   "desc": "Comissão Laila — 28º LEILÃO NAVIRAÍ CAMPARINO - REPRODUTORES — lote 77",
+   "valor": 300,
+   "venc": "2026-09-25",
+   "fornecedor": "Laila de Sousa Oliveira",
+   "classe": "firme",
+   "aDefinir": false,
+   "parcial": false,
+   "imposto": false,
+   "comissao": true,
+   "folha": false
+  },
+  {
+   "id": "f71e7edc",
+   "desc": "Comissão Gustavo Rusa — LEILÃO NELORE PARANÃ PRODUTIVIDADE — lote 123",
+   "valor": 1200,
+   "venc": "2026-09-25",
+   "fornecedor": "GUSTAVO RUSA",
+   "classe": "firme",
+   "aDefinir": false,
+   "parcial": true,
+   "imposto": false,
+   "comissao": true,
+   "folha": false
+  },
+  {
+   "id": "0a1f9584",
+   "desc": "Comissão Gustavo Rusa — LEILÃO FAZENDA ARARAS - ESSÊNCIA GENÉTICA — lote 22",
+   "valor": 1305,
+   "venc": "2026-09-25",
+   "fornecedor": "GUSTAVO RUSA",
+   "classe": "firme",
+   "aDefinir": false,
+   "parcial": true,
+   "imposto": false,
+   "comissao": true,
+   "folha": false
+  },
+  {
+   "id": "12d5b5aa",
+   "desc": "Comissão Fábio Omena — 9º LEILÃO GENÉTICA ADITIVA EXPOGENÉTICA 2026 — lote 106",
+   "valor": 2400,
+   "venc": "2026-09-25",
+   "fornecedor": "FO ASSESSORIA PECUARIA",
+   "classe": "firme",
+   "aDefinir": false,
+   "parcial": false,
+   "imposto": false,
+   "comissao": true,
+   "folha": false
+  },
+  {
+   "id": "883f97aa",
+   "desc": "Simples Nacional (DAS) ref. agosto/2026 - guia 07.20.26253.9080780-0",
+   "valor": 14721.81,
+   "venc": "2026-09-21",
+   "fornecedor": "RECEITA FEDERAL DO BRASIL",
+   "classe": "firme",
+   "aDefinir": false,
+   "parcial": false,
+   "imposto": true,
+   "comissao": false,
+   "folha": false
+  },
+  {
+   "id": "0aa13951",
+   "desc": "COMISSAO LEILÃO TOUROS NELORE GRUPO COSTA - FÁBIO OMENA (2,00%)",
+   "valor": 402,
+   "venc": "2026-09-25",
+   "fornecedor": "",
+   "classe": "firme",
+   "aDefinir": false,
+   "parcial": false,
+   "imposto": false,
+   "comissao": true,
+   "folha": false
+  },
+  {
+   "id": "d1b2ce4b",
+   "desc": "Comissão Gustavo Rusa — 12º LEILÃO PREMIUM COLONIAL (21/08) — lote 29",
+   "valor": 1305,
+   "venc": "2026-09-25",
+   "fornecedor": "GUSTAVO RUSA",
+   "classe": "firme",
+   "aDefinir": false,
+   "parcial": true,
+   "imposto": false,
+   "comissao": true,
+   "folha": false
+  },
+  {
+   "id": "f4e39434",
+   "desc": "COMISSAO 7º LEILÃO ESSÊNCIA GENÉTICA - NELORE DA BAMBÚ - LEONARDO SERAFIM (2,00%)",
+   "valor": 330,
+   "venc": "2026-09-25",
+   "fornecedor": "",
+   "classe": "firme",
+   "aDefinir": false,
+   "parcial": false,
+   "imposto": false,
+   "comissao": true,
+   "folha": false
+  },
+  {
+   "id": "f67bae88",
+   "desc": "COMISSAO LEILÃO MATINHA EXPOGENÉTICA 2026 - DOUGLAS BISPO (2,00%)",
+   "valor": 840,
+   "venc": "2026-09-25",
+   "fornecedor": "",
+   "classe": "firme",
+   "aDefinir": false,
+   "parcial": false,
+   "imposto": false,
+   "comissao": true,
+   "folha": false
+  },
+  {
+   "id": "445cd8c9",
+   "desc": "Comissão Gustavo Rusa — LEILÃO NAVIRAÍ CAMPARINO ESSÊNCIA BEZERRAS E NOVILHAS — lote 5",
+   "valor": 5625,
+   "venc": "2026-09-25",
+   "fornecedor": "GUSTAVO RUSA",
+   "classe": "firme",
+   "aDefinir": false,
+   "parcial": true,
+   "imposto": false,
+   "comissao": true,
+   "folha": false
+  },
+  {
+   "id": "b27f93c3",
+   "desc": "Comissão Gustavo Rusa — LEILÃO NELORE PARANÃ PRODUTIVIDADE — lote 42",
+   "valor": 1012.5,
+   "venc": "2026-09-25",
+   "fornecedor": "GUSTAVO RUSA",
+   "classe": "firme",
+   "aDefinir": false,
+   "parcial": true,
+   "imposto": false,
+   "comissao": true,
+   "folha": false
+  },
+  {
+   "id": "ee4d79f5",
+   "desc": "Comissão Gustavo Rusa — 4º LEILÃO PEPITAS COLONIAL - EXPOGENÉTICA 2026 — lote 33",
+   "valor": 405,
+   "venc": "2026-09-25",
+   "fornecedor": "GUSTAVO RUSA",
+   "classe": "firme",
+   "aDefinir": false,
+   "parcial": true,
+   "imposto": false,
+   "comissao": true,
+   "folha": false
+  },
+  {
+   "id": "cfee627f",
+   "desc": "Comissão Gustavo Rusa — LEILÃO BABY DE PROVA - MÁQUINAS DE ACELERAR GERAÇÕES — lote 22",
+   "valor": 1050,
+   "venc": "2026-09-25",
+   "fornecedor": "GUSTAVO RUSA",
+   "classe": "firme",
+   "aDefinir": false,
+   "parcial": true,
+   "imposto": false,
+   "comissao": true,
+   "folha": false
+  },
+  {
+   "id": "573eb118",
+   "desc": "COMISSAO LEILÃO DE TOUROS NELORE SORRISO - FÁBIO OMENA (2,00%)",
+   "valor": 1152,
+   "venc": "2026-09-25",
+   "fornecedor": "FO ASSESSORIA PECUARIA",
+   "classe": "firme",
+   "aDefinir": false,
+   "parcial": false,
+   "imposto": false,
+   "comissao": true,
+   "folha": false
+  },
+  {
+   "id": "a8d932e4",
+   "desc": "COMISSAO 14º LEILÃO PÉROLAS DO TAPAJÓS - DOUGLAS BISPO (2,00%)",
+   "valor": 1620,
+   "venc": "2026-09-25",
+   "fornecedor": "DOUGLAS",
+   "classe": "firme",
+   "aDefinir": false,
+   "parcial": false,
+   "imposto": false,
+   "comissao": true,
+   "folha": false
+  },
+  {
+   "id": "198f0191",
+   "desc": "Comissão Gustavo Rusa — 4º LEILÃO PEPITAS COLONIAL - EXPOGENÉTICA 2026 — lote 27",
+   "valor": 315,
+   "venc": "2026-09-25",
+   "fornecedor": "GUSTAVO RUSA",
+   "classe": "firme",
+   "aDefinir": false,
+   "parcial": true,
+   "imposto": false,
+   "comissao": true,
+   "folha": false
+  },
+  {
+   "id": "23f5c17b",
+   "desc": "Comissão Gustavo Rusa — LEILÃO TOUROS SÃO GERALDO E 7P AGRO — lote 1000",
+   "valor": 5000,
+   "venc": "2026-09-25",
+   "fornecedor": "GUSTAVO RUSA",
+   "classe": "firme",
+   "aDefinir": false,
+   "parcial": true,
+   "imposto": false,
+   "comissao": true,
+   "folha": false
+  },
+  {
+   "id": "20d64a7a",
+   "desc": "Comissão Gustavo Rusa — LEILÃO NAVIRAÍ CAMPARINO ESSÊNCIA BEZERRAS E NOVILHAS — lote 1",
+   "valor": 3825,
+   "venc": "2026-09-25",
+   "fornecedor": "GUSTAVO RUSA",
+   "classe": "firme",
+   "aDefinir": false,
+   "parcial": true,
+   "imposto": false,
+   "comissao": true,
+   "folha": false
+  },
+  {
+   "id": "d927d59a",
+   "desc": "Comissão Gustavo Rusa — LEILÃO MATRIZES PREMIUM KATISPERA — lote 3",
+   "valor": 2925,
+   "venc": "2026-09-25",
+   "fornecedor": "GUSTAVO RUSA",
+   "classe": "firme",
+   "aDefinir": false,
+   "parcial": true,
+   "imposto": false,
+   "comissao": true,
+   "folha": false
+  },
+  {
+   "id": "83a2930e",
+   "desc": "Comissão Gustavo Rusa — LEILÃO VIRTUAL VENTRES VIP MATINHA — lote 31",
+   "valor": 937.5,
+   "venc": "2026-09-25",
+   "fornecedor": "GUSTAVO RUSA",
+   "classe": "firme",
+   "aDefinir": false,
+   "parcial": true,
+   "imposto": false,
+   "comissao": true,
+   "folha": false
+  },
+  {
+   "id": "13875cfe",
+   "desc": "Comissão Gustavo Rusa — LEILÃO MATINHA EXPOGENÉTICA 2026 — lote 39",
+   "valor": 1050,
+   "venc": "2026-09-25",
+   "fornecedor": "GUSTAVO RUSA",
+   "classe": "firme",
+   "aDefinir": false,
+   "parcial": true,
+   "imposto": false,
+   "comissao": true,
+   "folha": false
+  },
+  {
+   "id": "3d9b0cf9",
+   "desc": "Comissão Douglas Bispo — LEILÃO SABIÁ DOURADO — lote 27",
+   "valor": 462,
+   "venc": "2026-09-25",
+   "fornecedor": "DOUGLAS",
+   "classe": "firme",
+   "aDefinir": false,
+   "parcial": false,
+   "imposto": false,
+   "comissao": true,
+   "folha": false
+  },
+  {
+   "id": "9e709b4c",
+   "desc": "Comissão Gustavo Rusa — LEILÃO BABY DE PROVA - MÁQUINAS DE ACELERAR GERAÇÕES — lote 23",
+   "valor": 787.5,
+   "venc": "2026-09-25",
+   "fornecedor": "GUSTAVO RUSA",
+   "classe": "firme",
+   "aDefinir": false,
+   "parcial": true,
+   "imposto": false,
+   "comissao": true,
+   "folha": false
+  },
+  {
+   "id": "0c66533f",
+   "desc": "Comissão Douglas Bispo — LEILÃO SABIÁ DOURADO — lote 30",
+   "valor": 372,
+   "venc": "2026-09-25",
+   "fornecedor": "DOUGLAS",
+   "classe": "firme",
+   "aDefinir": false,
+   "parcial": false,
+   "imposto": false,
+   "comissao": true,
+   "folha": false
+  },
+  {
+   "id": "9c0d2e29",
+   "desc": "Hospedagem Joao Eduardo - Hotel Continental (Centro, Belo Horizonte/MG) 16-18/09 - Booking 6034.917.103 - pagamento no hotel",
+   "valor": 508.68,
+   "venc": "2026-09-18",
+   "fornecedor": "",
+   "classe": "firme",
+   "aDefinir": false,
+   "parcial": false,
+   "imposto": false,
+   "comissao": false,
+   "folha": false
+  },
+  {
+   "id": "557ef929",
+   "desc": "Comissão Douglas Bispo — LEILÃO SABIÁ DOURADO — lote 24",
+   "valor": 420,
+   "venc": "2026-09-25",
+   "fornecedor": "DOUGLAS",
+   "classe": "firme",
+   "aDefinir": false,
+   "parcial": false,
+   "imposto": false,
+   "comissao": true,
+   "folha": false
+  },
+  {
+   "id": "19f7731c",
+   "desc": "Comissão Fábio Omena — LEILÃO VIRTUAL TERRA BRAVA AGROPECUÁRIA - FÊMEAS PRENHAS — lote 45",
+   "valor": 390,
+   "venc": "2026-09-25",
+   "fornecedor": "FO ASSESSORIA PECUARIA",
+   "classe": "firme",
+   "aDefinir": false,
+   "parcial": false,
+   "imposto": false,
+   "comissao": true,
+   "folha": false
+  },
+  {
+   "id": "1afb7241",
+   "desc": "Comissão Douglas Bispo — LEILÃO NELORE PINTADO ENGENHO DA SERRA — lote 39",
+   "valor": 248,
+   "venc": "2026-09-25",
+   "fornecedor": "DOUGLAS",
+   "classe": "firme",
+   "aDefinir": false,
+   "parcial": false,
+   "imposto": false,
+   "comissao": true,
+   "folha": false
+  },
+  {
+   "id": "23c04178",
+   "desc": "Comissão Douglas Bispo — LEILÃO SABIÁ DOURADO — lote 41",
+   "valor": 450,
+   "venc": "2026-09-25",
+   "fornecedor": "DOUGLAS",
+   "classe": "firme",
+   "aDefinir": false,
+   "parcial": false,
+   "imposto": false,
+   "comissao": true,
+   "folha": false
+  },
+  {
+   "id": "2c81c716",
+   "desc": "Comissão Douglas Bispo — 4º LEILÃO PEPITAS COLONIAL - EXPOGENÉTICA 2026 — lote 09",
+   "valor": 660,
+   "venc": "2026-09-25",
+   "fornecedor": "DOUGLAS",
+   "classe": "firme",
+   "aDefinir": false,
+   "parcial": false,
+   "imposto": false,
+   "comissao": true,
+   "folha": false
+  },
+  {
+   "id": "2dd0a62f",
+   "desc": "Comissão Douglas Bispo — LEILÃO SABIÁ DOURADO — lote 32",
+   "valor": 330,
+   "venc": "2026-09-25",
+   "fornecedor": "DOUGLAS",
+   "classe": "firme",
+   "aDefinir": false,
+   "parcial": false,
+   "imposto": false,
+   "comissao": true,
+   "folha": false
+  },
+  {
+   "id": "2de5d1ba",
+   "desc": "Comissão Douglas Bispo — LEILÃO SABIÁ DOURADO — lote 22",
+   "valor": 450,
+   "venc": "2026-09-25",
+   "fornecedor": "DOUGLAS",
+   "classe": "firme",
+   "aDefinir": false,
+   "parcial": false,
+   "imposto": false,
+   "comissao": true,
+   "folha": false
+  },
+  {
+   "id": "3419921f",
+   "desc": "Comissão Fábio Omena — LEILÃO RESERVA SANTA NICE EXPOGENÉTICA 2026 — lote 35",
+   "valor": 1620,
+   "venc": "2026-09-25",
+   "fornecedor": "FO ASSESSORIA PECUARIA",
+   "classe": "firme",
+   "aDefinir": false,
+   "parcial": false,
+   "imposto": false,
+   "comissao": true,
+   "folha": false
+  },
+  {
+   "id": "3839ff16",
+   "desc": "Comissão Douglas Bispo — 12º LEILÃO NOITE NACIONAL MATRIZES PREMIUM — lote 24",
+   "valor": 780,
+   "venc": "2026-09-25",
+   "fornecedor": "DOUGLAS",
+   "classe": "firme",
+   "aDefinir": false,
+   "parcial": false,
+   "imposto": false,
+   "comissao": true,
+   "folha": false
+  },
+  {
+   "id": "3902323c",
+   "desc": "Comissão Leonardo Serafim — 12º LEILÃO NOITE NACIONAL MATRIZES PREMIUM — lote 18",
+   "valor": 540,
+   "venc": "2026-09-25",
+   "fornecedor": "LEONARDO",
+   "classe": "firme",
+   "aDefinir": false,
+   "parcial": false,
+   "imposto": false,
+   "comissao": true,
+   "folha": false
+  },
+  {
+   "id": "39272b9c",
+   "desc": "COMISSAO LEILÃO TERRA BRAVA AGROPECUÁRIA EXPOGENÉTICA - FÁBIO OMENA (2,00%)",
+   "valor": 2142,
+   "venc": "2026-09-25",
+   "fornecedor": "",
+   "classe": "firme",
+   "aDefinir": false,
+   "parcial": false,
+   "imposto": false,
+   "comissao": true,
+   "folha": false
+  },
+  {
+   "id": "397619c8",
+   "desc": "Comissão Douglas Bispo — LEILÃO SABIÁ DOURADO — lote 25",
+   "valor": 270,
+   "venc": "2026-09-25",
+   "fornecedor": "DOUGLAS",
+   "classe": "firme",
+   "aDefinir": false,
+   "parcial": false,
+   "imposto": false,
+   "comissao": true,
+   "folha": false
+  },
+  {
+   "id": "44b3955a",
+   "desc": "Comissão Douglas Bispo — LEILÃO SABIÁ DOURADO — lote 5",
+   "valor": 600,
+   "venc": "2026-09-25",
+   "fornecedor": "DOUGLAS",
+   "classe": "firme",
+   "aDefinir": false,
+   "parcial": false,
+   "imposto": false,
+   "comissao": true,
+   "folha": false
+  },
+  {
+   "id": "45515695",
+   "desc": "Comissão Douglas Bispo — 4º LEILÃO PEPITAS COLONIAL - EXPOGENÉTICA 2026 — lote 26",
+   "valor": 480,
+   "venc": "2026-09-25",
+   "fornecedor": "DOUGLAS",
+   "classe": "firme",
+   "aDefinir": false,
+   "parcial": false,
+   "imposto": false,
+   "comissao": true,
+   "folha": false
+  },
+  {
+   "id": "455408e4",
+   "desc": "Comissão Leonardo Serafim — LEILÃO VIRTUAL TERRA BRAVA AGROPECUÁRIA - FÊMEAS PRENHAS — lote 19",
+   "valor": 540,
+   "venc": "2026-09-25",
+   "fornecedor": "LEONARDO",
+   "classe": "firme",
+   "aDefinir": false,
+   "parcial": false,
+   "imposto": false,
+   "comissao": true,
+   "folha": false
+  },
+  {
+   "id": "47d9fc97",
+   "desc": "Comissão Leonardo Serafim — 28º LEILÃO NAVIRAÍ CAMPARINO - REPRODUTORES — lote 12",
+   "valor": 990,
+   "venc": "2026-09-25",
+   "fornecedor": "LEONARDO",
+   "classe": "firme",
+   "aDefinir": false,
+   "parcial": false,
+   "imposto": false,
+   "comissao": true,
+   "folha": false
+  },
+  {
+   "id": "53248f72",
+   "desc": "Comissão Fábio Omena — 28º LEILÃO NAVIRAÍ CAMPARINO - REPRODUTORES — lote 105",
+   "valor": 1200,
+   "venc": "2026-09-25",
+   "fornecedor": "FO ASSESSORIA PECUARIA",
+   "classe": "firme",
+   "aDefinir": false,
+   "parcial": false,
+   "imposto": false,
+   "comissao": true,
+   "folha": false
+  },
+  {
+   "id": "4d6e660f",
+   "desc": "Comissão Douglas Bispo — LEILÃO NELORE PINTADO ENGENHO DA SERRA — lote 52",
+   "valor": 304,
+   "venc": "2026-09-25",
+   "fornecedor": "DOUGLAS",
+   "classe": "firme",
+   "aDefinir": false,
+   "parcial": false,
+   "imposto": false,
+   "comissao": true,
+   "folha": false
+  },
+  {
+   "id": "4f1c1548",
+   "desc": "Comissão Leonardo Serafim — 4º LEILÃO PEPITAS COLONIAL - EXPOGENÉTICA 2026 — lote 32",
+   "valor": 600,
+   "venc": "2026-09-25",
+   "fornecedor": "LEONARDO",
+   "classe": "firme",
+   "aDefinir": false,
+   "parcial": false,
+   "imposto": false,
+   "comissao": true,
+   "folha": false
+  },
+  {
+   "id": "59773251",
+   "desc": "Comissão Douglas Bispo — LEILÃO NELORE PINTADO ENGENHO DA SERRA — lote 41",
+   "valor": 280,
+   "venc": "2026-09-25",
+   "fornecedor": "DOUGLAS",
+   "classe": "firme",
+   "aDefinir": false,
+   "parcial": false,
+   "imposto": false,
+   "comissao": true,
+   "folha": false
+  },
+  {
+   "id": "5f4b47c3",
+   "desc": "Comissão Leonardo Serafim — LEILÃO NELORE CEN & FAZENDA MODELO & CONVIDADOS — lote 18",
+   "valor": 660,
+   "venc": "2026-09-25",
+   "fornecedor": "LEONARDO",
+   "classe": "firme",
+   "aDefinir": false,
+   "parcial": false,
+   "imposto": false,
+   "comissao": true,
+   "folha": false
+  },
+  {
+   "id": "5f99a357",
+   "desc": "Comissão Douglas Bispo — LEILÃO SABIÁ DOURADO — lote 17",
+   "valor": 420,
+   "venc": "2026-09-25",
+   "fornecedor": "DOUGLAS",
+   "classe": "firme",
+   "aDefinir": false,
+   "parcial": false,
+   "imposto": false,
+   "comissao": true,
+   "folha": false
+  },
+  {
+   "id": "73b8b1f3",
+   "desc": "Comissão Douglas Bispo — LEILÃO SABIÁ DOURADO — lote 55",
+   "valor": 360,
+   "venc": "2026-09-25",
+   "fornecedor": "DOUGLAS",
+   "classe": "firme",
+   "aDefinir": false,
+   "parcial": false,
+   "imposto": false,
+   "comissao": true,
+   "folha": false
+  },
+  {
+   "id": "6814b8e7",
+   "desc": "Comissão Fábio Omena — 28º LEILÃO NAVIRAÍ CAMPARINO - REPRODUTORES — lote 132",
+   "valor": 900,
+   "venc": "2026-09-25",
+   "fornecedor": "FO ASSESSORIA PECUARIA",
+   "classe": "firme",
+   "aDefinir": false,
+   "parcial": false,
+   "imposto": false,
+   "comissao": true,
+   "folha": false
+  },
+  {
+   "id": "6f8bac50",
+   "desc": "Comissão Fábio Omena — 28º LEILÃO NAVIRAÍ CAMPARINO - REPRODUTORES — lote 19",
+   "valor": 720,
+   "venc": "2026-09-25",
+   "fornecedor": "FO ASSESSORIA PECUARIA",
+   "classe": "firme",
+   "aDefinir": false,
+   "parcial": false,
+   "imposto": false,
+   "comissao": true,
+   "folha": false
+  },
+  {
+   "id": "6f90af48",
+   "desc": "Comissão Leonardo Serafim — 4º LEILÃO PEPITAS COLONIAL - EXPOGENÉTICA 2026 — lote 53",
+   "valor": 480,
+   "venc": "2026-09-25",
+   "fornecedor": "LEONARDO",
+   "classe": "firme",
+   "aDefinir": false,
+   "parcial": false,
+   "imposto": false,
+   "comissao": true,
+   "folha": false
+  },
+  {
+   "id": "732425a2",
+   "desc": "Comissão Peralta — LEILÃO NELORE CEN & FAZENDA MODELO & CONVIDADOS — lote 09",
+   "valor": 1680,
+   "venc": "2026-09-25",
+   "fornecedor": "Peralta",
+   "classe": "firme",
+   "aDefinir": false,
+   "parcial": false,
+   "imposto": false,
+   "comissao": true,
+   "folha": false
+  },
+  {
+   "id": "7654f5b1",
+   "desc": "Comissão Fábio Omena — 28º LEILÃO NAVIRAÍ CAMPARINO - REPRODUTORES — lote 36",
+   "valor": 840,
+   "venc": "2026-09-25",
+   "fornecedor": "FO ASSESSORIA PECUARIA",
+   "classe": "firme",
+   "aDefinir": false,
+   "parcial": false,
+   "imposto": false,
+   "comissao": true,
+   "folha": false
+  },
+  {
+   "id": "81c75d0f",
+   "desc": "Comissão Douglas Bispo — LEILÃO SABIÁ DOURADO — lote 34",
+   "valor": 330,
+   "venc": "2026-09-25",
+   "fornecedor": "DOUGLAS",
+   "classe": "firme",
+   "aDefinir": false,
+   "parcial": false,
+   "imposto": false,
+   "comissao": true,
+   "folha": false
+  },
+  {
+   "id": "823376c5",
+   "desc": "Comissão Douglas Bispo — LEILÃO SABIÁ DOURADO — lote 26",
+   "valor": 480,
+   "venc": "2026-09-25",
+   "fornecedor": "DOUGLAS",
+   "classe": "firme",
+   "aDefinir": false,
+   "parcial": false,
+   "imposto": false,
+   "comissao": true,
+   "folha": false
+  },
+  {
+   "id": "836db218",
+   "desc": "Comissão Douglas Bispo — LEILÃO NELORE PINTADO ENGENHO DA SERRA — lote 59",
+   "valor": 240,
+   "venc": "2026-09-25",
+   "fornecedor": "DOUGLAS",
+   "classe": "firme",
+   "aDefinir": false,
+   "parcial": false,
+   "imposto": false,
+   "comissao": true,
+   "folha": false
+  },
+  {
+   "id": "8486b4f7",
+   "desc": "Comissão Douglas Bispo — LEILÃO NELORE DO XINGU — lote EXTRA",
+   "valor": 1860,
+   "venc": "2026-09-25",
+   "fornecedor": "DOUGLAS",
+   "classe": "firme",
+   "aDefinir": false,
+   "parcial": false,
+   "imposto": false,
+   "comissao": true,
+   "folha": false
+  },
+  {
+   "id": "8647ef5f",
+   "desc": "Comissão Douglas Bispo — LEILÃO SABIÁ DOURADO — lote 43",
+   "valor": 432,
+   "venc": "2026-09-25",
+   "fornecedor": "DOUGLAS",
+   "classe": "firme",
+   "aDefinir": false,
+   "parcial": false,
+   "imposto": false,
+   "comissao": true,
+   "folha": false
+  },
+  {
+   "id": "8bad4db9",
+   "desc": "Comissão Fábio Omena — 28º LEILÃO NAVIRAÍ CAMPARINO - REPRODUTORES — lote 42",
+   "valor": 600,
+   "venc": "2026-09-25",
+   "fornecedor": "FO ASSESSORIA PECUARIA",
+   "classe": "firme",
+   "aDefinir": false,
+   "parcial": false,
+   "imposto": false,
+   "comissao": true,
+   "folha": false
+  },
+  {
+   "id": "927fc890",
+   "desc": "Comissão Fábio Omena — 28º LEILÃO NAVIRAÍ CAMPARINO - REPRODUTORES — lote 01",
+   "valor": 660,
+   "venc": "2026-09-25",
+   "fornecedor": "FO ASSESSORIA PECUARIA",
+   "classe": "firme",
+   "aDefinir": false,
+   "parcial": false,
+   "imposto": false,
+   "comissao": true,
+   "folha": false
+  },
+  {
+   "id": "9536d8f6",
+   "desc": "Comissão Douglas Bispo — LEILÃO NAVIRAÍ CAMPARINO ESSÊNCIA BEZERRAS E NOVILHAS — lote 28",
+   "valor": 1440,
+   "venc": "2026-09-25",
+   "fornecedor": "DOUGLAS",
+   "classe": "firme",
+   "aDefinir": false,
+   "parcial": false,
+   "imposto": false,
+   "comissao": true,
+   "folha": false
+  },
+  {
+   "id": "9aadff3e",
+   "desc": "Comissão Laila — 28º LEILÃO NAVIRAÍ CAMPARINO - REPRODUTORES — lote 52",
+   "valor": 300,
+   "venc": "2026-09-25",
+   "fornecedor": "Laila de Sousa Oliveira",
+   "classe": "firme",
+   "aDefinir": false,
+   "parcial": false,
+   "imposto": false,
+   "comissao": true,
+   "folha": false
+  },
+  {
+   "id": "9f533d2c",
+   "desc": "Comissão Douglas Bispo — LEILÃO SABIÁ DOURADO — lote 44",
+   "valor": 492,
+   "venc": "2026-09-25",
+   "fornecedor": "DOUGLAS",
+   "classe": "firme",
+   "aDefinir": false,
+   "parcial": false,
+   "imposto": false,
+   "comissao": true,
+   "folha": false
+  },
+  {
+   "id": "a2841f04",
+   "desc": "Comissão Fábio Omena — 9º LEILÃO GENÉTICA ADITIVA EXPOGENÉTICA 2026 — lote 107",
+   "valor": 1500,
+   "venc": "2026-09-25",
+   "fornecedor": "FO ASSESSORIA PECUARIA",
+   "classe": "firme",
+   "aDefinir": false,
+   "parcial": false,
+   "imposto": false,
+   "comissao": true,
+   "folha": false
+  },
+  {
+   "id": "a705136f",
+   "desc": "Comissão Douglas Bispo — LEILÃO SABIÁ DOURADO — lote 8",
+   "valor": 450,
+   "venc": "2026-09-25",
+   "fornecedor": "DOUGLAS",
+   "classe": "firme",
+   "aDefinir": false,
+   "parcial": false,
+   "imposto": false,
+   "comissao": true,
+   "folha": false
+  },
+  {
+   "id": "a996fb0f",
+   "desc": "COMISSAO LEILÃO DE TOUROS NELORE SORRISO - LEONARDO SERAFIM (2,00%)",
+   "valor": 702,
+   "venc": "2026-09-25",
+   "fornecedor": "",
+   "classe": "firme",
+   "aDefinir": false,
+   "parcial": false,
+   "imposto": false,
+   "comissao": true,
+   "folha": false
+  },
+  {
+   "id": "afaeec1f",
+   "desc": "Comissão Fábio Omena — 4º LEILÃO PEPITAS COLONIAL - EXPOGENÉTICA 2026 — lote 24",
+   "valor": 420,
+   "venc": "2026-09-25",
+   "fornecedor": "FO ASSESSORIA PECUARIA",
+   "classe": "firme",
+   "aDefinir": false,
+   "parcial": false,
+   "imposto": false,
+   "comissao": true,
+   "folha": false
+  },
+  {
+   "id": "afd87db5",
+   "desc": "Comissão Fábio Omena — 4º LEILÃO PEPITAS COLONIAL - EXPOGENÉTICA 2026 — lote 37",
+   "valor": 1200,
+   "venc": "2026-09-25",
+   "fornecedor": "FO ASSESSORIA PECUARIA",
+   "classe": "firme",
+   "aDefinir": false,
+   "parcial": false,
+   "imposto": false,
+   "comissao": true,
+   "folha": false
+  },
+  {
+   "id": "b4e2d4ea",
+   "desc": "COMISSAO LEILÃO TOUROS NELORE MAFRA - FÁBIO OMENA (2,00%)",
+   "valor": 420,
+   "venc": "2026-09-25",
+   "fornecedor": "FO ASSESSORIA PECUARIA",
+   "classe": "firme",
+   "aDefinir": false,
+   "parcial": false,
+   "imposto": false,
+   "comissao": true,
+   "folha": false
+  },
+  {
+   "id": "bb9203ca",
+   "desc": "Comissão Douglas Bispo — 12º LEILÃO NOITE NACIONAL MATRIZES PREMIUM — lote 19",
+   "valor": 1020,
+   "venc": "2026-09-25",
+   "fornecedor": "DOUGLAS",
+   "classe": "firme",
+   "aDefinir": false,
+   "parcial": false,
+   "imposto": false,
+   "comissao": true,
+   "folha": false
+  },
+  {
+   "id": "bdc9da4d",
+   "desc": "Comissão Leonardo Serafim — 4º LEILÃO PEPITAS COLONIAL - EXPOGENÉTICA 2026 — lote 54",
+   "valor": 720,
+   "venc": "2026-09-25",
+   "fornecedor": "LEONARDO",
+   "classe": "firme",
+   "aDefinir": false,
+   "parcial": false,
+   "imposto": false,
+   "comissao": true,
+   "folha": false
+  },
+  {
+   "id": "d0ca5347",
+   "desc": "Comissão Douglas Bispo — LEILÃO SABIÁ DOURADO — lote 50",
+   "valor": 420,
+   "venc": "2026-09-25",
+   "fornecedor": "DOUGLAS",
+   "classe": "firme",
+   "aDefinir": false,
+   "parcial": false,
+   "imposto": false,
+   "comissao": true,
+   "folha": false
+  },
+  {
+   "id": "d38db711",
+   "desc": "Comissão Douglas Bispo — LEILÃO SABIÁ DOURADO — lote 36",
+   "valor": 630,
+   "venc": "2026-09-25",
+   "fornecedor": "DOUGLAS",
+   "classe": "firme",
+   "aDefinir": false,
+   "parcial": false,
+   "imposto": false,
+   "comissao": true,
+   "folha": false
+  },
+  {
+   "id": "d4a3527f",
+   "desc": "Comissão Leonardo Serafim — 4º LEILÃO PEPITAS COLONIAL - EXPOGENÉTICA 2026 — lote 19",
+   "valor": 540,
+   "venc": "2026-09-25",
+   "fornecedor": "LEONARDO",
+   "classe": "firme",
+   "aDefinir": false,
+   "parcial": false,
+   "imposto": false,
+   "comissao": true,
+   "folha": false
+  },
+  {
+   "id": "e34686f7",
+   "desc": "Comissão Fábio Omena — 1º LEILÃO NELORE ASJ — lote 07",
+   "valor": 222,
+   "venc": "2026-09-25",
+   "fornecedor": "FO ASSESSORIA PECUARIA",
+   "classe": "firme",
+   "aDefinir": false,
+   "parcial": false,
+   "imposto": false,
+   "comissao": true,
+   "folha": false
+  },
+  {
+   "id": "e3f50224",
+   "desc": "Comissão Douglas Bispo — LEILÃO SABIÁ DOURADO — lote 51",
+   "valor": 450,
+   "venc": "2026-09-25",
+   "fornecedor": "DOUGLAS",
+   "classe": "firme",
+   "aDefinir": false,
+   "parcial": false,
+   "imposto": false,
+   "comissao": true,
+   "folha": false
+  },
+  {
+   "id": "e4ee9c4e",
+   "desc": "COMISSAO LEILÃO NELORE MAFRA EDIÇÃO REDENÇÃO/PA - FÊMEAS - FÁBIO OMENA (2,00%)",
+   "valor": 1200,
+   "venc": "2026-09-25",
+   "fornecedor": "",
+   "classe": "firme",
+   "aDefinir": false,
+   "parcial": false,
+   "imposto": false,
+   "comissao": true,
+   "folha": false
+  },
+  {
+   "id": "ea523c9c",
+   "desc": "COMISSAO LEILÃO TOUROS NELORE MAFRA - DOUGLAS BISPO (2,00%)",
+   "valor": 1572,
+   "venc": "2026-09-25",
+   "fornecedor": "DOUGLAS",
+   "classe": "firme",
+   "aDefinir": false,
+   "parcial": false,
+   "imposto": false,
+   "comissao": true,
+   "folha": false
+  },
+  {
+   "id": "ef6a1170",
+   "desc": "COMISSAO LEILÃO NELORE MAFRA EDIÇÃO REDENÇÃO/PA - FÊMEAS - DOUGLAS BISPO (2,00%)",
+   "valor": 19654,
+   "venc": "2026-09-25",
+   "fornecedor": "",
+   "classe": "firme",
+   "aDefinir": false,
+   "parcial": false,
+   "imposto": false,
+   "comissao": true,
+   "folha": false
+  },
+  {
+   "id": "f65f8764",
+   "desc": "Comissão Douglas Bispo — LEILÃO SABIÁ DOURADO — lote 47",
+   "valor": 432,
+   "venc": "2026-09-25",
+   "fornecedor": "DOUGLAS",
+   "classe": "firme",
+   "aDefinir": false,
+   "parcial": false,
+   "imposto": false,
+   "comissao": true,
+   "folha": false
+  },
+  {
+   "id": "fa2865c0",
+   "desc": "Comissão Gustavo Rusa — LEILÃO RESERVA SANTA NICE EXPOGENÉTICA 2026 — lote 04",
+   "valor": 5400,
+   "venc": "2026-09-25",
+   "fornecedor": "GUSTAVO RUSA",
+   "classe": "firme",
+   "aDefinir": false,
+   "parcial": true,
+   "imposto": false,
+   "comissao": true,
+   "folha": false
+  },
+  {
+   "id": "faf455a7",
+   "desc": "Comissão Douglas Bispo — 28º LEILÃO NAVIRAÍ CAMPARINO - REPRODUTORES — lote 59",
+   "valor": 660,
+   "venc": "2026-09-25",
+   "fornecedor": "DOUGLAS",
+   "classe": "firme",
+   "aDefinir": false,
+   "parcial": false,
+   "imposto": false,
+   "comissao": true,
+   "folha": false
+  }
+ ],
+ "projetadas": [
+  {
+   "id": "067101fc",
+   "desc": "Folha Setembro/2026 - JOÃO GABRIEL",
+   "valor": 2000,
+   "venc": "2026-10-05",
+   "fornecedor": "JOÃO GABRIEL",
+   "classe": "projetada",
+   "aDefinir": false,
+   "parcial": false,
+   "imposto": false,
+   "comissao": false,
+   "folha": true
+  },
+  {
+   "id": "08ad0d0c",
+   "desc": "Fatura cartao VISA (deb. automatico)",
+   "valor": 5949.84,
+   "venc": "2026-09-22",
+   "fornecedor": "",
+   "classe": "projetada",
+   "aDefinir": false,
+   "parcial": false,
+   "imposto": false,
+   "comissao": false,
+   "folha": false
+  },
+  {
+   "id": "356dbf90",
+   "desc": "Folha Setembro/2026 - MATHEUS M1",
+   "valor": 6000,
+   "venc": "2026-10-05",
+   "fornecedor": "MATHEUS M1",
+   "classe": "projetada",
+   "aDefinir": false,
+   "parcial": false,
+   "imposto": false,
+   "comissao": false,
+   "folha": true
+  },
+  {
+   "id": "42436536",
+   "desc": "Fatura cartao MASTERCARD (deb. automatico)",
+   "valor": 1380.13,
+   "venc": "2026-09-22",
+   "fornecedor": "",
+   "classe": "projetada",
+   "aDefinir": false,
+   "parcial": false,
+   "imposto": false,
+   "comissao": false,
+   "folha": false
+  },
+  {
+   "id": "465f035f",
+   "desc": "Folha Setembro/2026 - DOUGLAS BISPO",
+   "valor": 10000,
+   "venc": "2026-10-05",
+   "fornecedor": "DOUGLAS BISPO",
+   "classe": "projetada",
+   "aDefinir": false,
+   "parcial": false,
+   "imposto": false,
+   "comissao": false,
+   "folha": true
+  },
+  {
+   "id": "60033052",
+   "desc": "Folha Setembro/2026 - LEONARDO",
+   "valor": 13500,
+   "venc": "2026-10-05",
+   "fornecedor": "LEONARDO",
+   "classe": "projetada",
+   "aDefinir": false,
+   "parcial": false,
+   "imposto": false,
+   "comissao": false,
+   "folha": true
+  },
+  {
+   "id": "76361317",
+   "desc": "Folha Setembro/2026 - FABIO OMENNA",
+   "valor": 7000,
+   "venc": "2026-10-05",
+   "fornecedor": "FO ASSESSORIA PECUARIA",
+   "classe": "projetada",
+   "aDefinir": false,
+   "parcial": false,
+   "imposto": false,
+   "comissao": false,
+   "folha": true
+  },
+  {
+   "id": "a9e20a24",
+   "desc": "Folha Setembro/2026 - JOÃO EDUARDO",
+   "valor": 5000,
+   "venc": "2026-10-05",
+   "fornecedor": "JOÃO EDUARDO",
+   "classe": "projetada",
+   "aDefinir": false,
+   "parcial": false,
+   "imposto": false,
+   "comissao": false,
+   "folha": true
+  },
+  {
+   "id": "ab7a90cd",
+   "desc": "Honorários de contabilidade",
+   "valor": 1058,
+   "venc": "2026-10-10",
+   "fornecedor": "",
+   "classe": "projetada",
+   "aDefinir": false,
+   "parcial": false,
+   "imposto": false,
+   "comissao": false,
+   "folha": false
+  },
+  {
+   "id": "ba135af8",
+   "desc": "Folha Setembro/2026 - JOÃO ANTONIO",
+   "valor": 2000,
+   "venc": "2026-10-05",
+   "fornecedor": "JOÃO ANTONIO",
+   "classe": "projetada",
+   "aDefinir": false,
+   "parcial": false,
+   "imposto": false,
+   "comissao": false,
+   "folha": true
+  },
+  {
+   "id": "bae817e7",
+   "desc": "Assinatura Anthropic / Claude IA",
+   "valor": 550,
+   "venc": "2026-09-24",
+   "fornecedor": "",
+   "classe": "projetada",
+   "aDefinir": false,
+   "parcial": false,
+   "imposto": false,
+   "comissao": false,
+   "folha": false
+  },
+  {
+   "id": "db9745c7",
+   "desc": "Sistema / banco de dados - fatura mensal",
+   "valor": 180,
+   "venc": "2026-09-18",
+   "fornecedor": "",
+   "classe": "projetada",
+   "aDefinir": false,
+   "parcial": false,
+   "imposto": false,
+   "comissao": false,
+   "folha": false
+  },
+  {
+   "id": "c646dbd7",
+   "desc": "Folha Setembro/2026 - PEDRO",
+   "valor": 2000,
+   "venc": "2026-10-05",
+   "fornecedor": "PEDRO",
+   "classe": "projetada",
+   "aDefinir": false,
+   "parcial": false,
+   "imposto": false,
+   "comissao": false,
+   "folha": true
+  },
+  {
+   "id": "d3696513",
+   "desc": "Folha Setembro/2026 - LUANA",
+   "valor": 2000,
+   "venc": "2026-10-05",
+   "fornecedor": "LUANA",
+   "classe": "projetada",
+   "aDefinir": false,
+   "parcial": false,
+   "imposto": false,
+   "comissao": false,
+   "folha": true
+  }
+ ],
+ "verificacao": [
+  {
+   "id": "3889f0dd",
+   "desc": "Comissão A definir (Fábio Omena?) — 2º LEILÃO LS GALERIA — lotes 04 e 19",
+   "valor": 22800,
+   "venc": "2026-09-25",
+   "fornecedor": "",
+   "classe": "verificacao",
+   "aDefinir": true,
+   "parcial": false,
+   "imposto": false,
+   "comissao": true,
+   "folha": false
+  },
+  {
+   "id": "f495fc09",
+   "desc": "Comissão Fábio Omena — 9º LEILÃO GENÉTICA ADITIVA EXPOGENÉTICA 2026",
+   "valor": 6640,
+   "venc": "2026-09-25",
+   "fornecedor": "FO ASSESSORIA PECUARIA",
+   "classe": "verificacao",
+   "aDefinir": false,
+   "parcial": false,
+   "imposto": false,
+   "comissao": true,
+   "folha": false
+  },
+  {
+   "id": "943f849d",
+   "desc": "COMISSAO LEILÃO NELORE PARANÃ PRODUTIVIDADE - DOUGLAS BISPO (2,00%)",
+   "valor": 2880,
+   "venc": "2026-09-25",
+   "fornecedor": "",
+   "classe": "verificacao",
+   "aDefinir": false,
+   "parcial": false,
+   "imposto": false,
+   "comissao": true,
+   "folha": false
+  },
+  {
+   "id": "4bac8ab8",
+   "desc": "COMISSAO LEILÃO NELORE PARANÃ PRODUTIVIDADE - FÁBIO OMENA (2,00%)",
+   "valor": 912,
+   "venc": "2026-09-25",
+   "fornecedor": "",
+   "classe": "verificacao",
+   "aDefinir": false,
+   "parcial": false,
+   "imposto": false,
+   "comissao": true,
+   "folha": false
+  },
+  {
+   "id": "0141e5ff",
+   "desc": "Comissão A definir: Fábio Omena / Marcelo Moura / Claudinho — 28º LEILÃO NAVIRAÍ CAMPARINO - REPRODUTORES",
+   "valor": 1260,
+   "venc": "2026-09-25",
+   "fornecedor": "",
+   "classe": "verificacao",
+   "aDefinir": true,
+   "parcial": false,
+   "imposto": false,
+   "comissao": true,
+   "folha": false
+  },
+  {
+   "id": "79370478",
+   "desc": "Comissão Douglas Bispo — LEILÃO SABIÁ DOURADO",
+   "valor": 5535,
+   "venc": "2026-09-25",
+   "fornecedor": "DOUGLAS BISPO",
+   "classe": "verificacao",
+   "aDefinir": false,
+   "parcial": false,
+   "imposto": false,
+   "comissao": true,
+   "folha": false
+  },
+  {
+   "id": "98db8a41",
+   "desc": "Comissão A definir — 14º LEILÃO PÉROLAS DO TAPAJÓS — lote 44",
+   "valor": 4500,
+   "venc": "2026-09-25",
+   "fornecedor": "",
+   "classe": "verificacao",
+   "aDefinir": true,
+   "parcial": false,
+   "imposto": false,
+   "comissao": true,
+   "folha": false
+  },
+  {
+   "id": "f7a0dd9b",
+   "desc": "Comissão A definir — 14º LEILÃO PÉROLAS DO TAPAJÓS — lote 47",
+   "valor": 2100,
+   "venc": "2026-09-25",
+   "fornecedor": "",
+   "classe": "verificacao",
+   "aDefinir": true,
+   "parcial": false,
+   "imposto": false,
+   "comissao": true,
+   "folha": false
+  },
+  {
+   "id": "2cb8044b",
+   "desc": "COMISSAO 2º LEILÃO LS GALERIA - FÁBIO OMENA (2,00%)",
+   "valor": 2400,
+   "venc": "2026-09-25",
+   "fornecedor": "",
+   "classe": "verificacao",
+   "aDefinir": false,
+   "parcial": false,
+   "imposto": false,
+   "comissao": true,
+   "folha": false
+  },
+  {
+   "id": "f40cd8e8",
+   "desc": "Comissão Fábio Omena — LEILÃO VIRTUAL VENTRES VIP MATINHA",
+   "valor": 1680,
+   "venc": "2026-09-25",
+   "fornecedor": "FO ASSESSORIA PECUARIA",
+   "classe": "verificacao",
+   "aDefinir": false,
+   "parcial": false,
+   "imposto": false,
+   "comissao": true,
+   "folha": false
+  },
+  {
+   "id": "db360857",
+   "desc": "Colonial / Noite Nacional — identificação do evento, valor e beneficiário em disputa",
+   "valor": 2610,
+   "venc": "2026-09-25",
+   "fornecedor": "",
+   "classe": "verificacao",
+   "aDefinir": false,
+   "parcial": false,
+   "imposto": false,
+   "comissao": true,
+   "folha": false
+  },
+  {
+   "id": "1b46ef7d",
+   "desc": "Comissão Fábio Omena — 13º LEILÃO GENÉTICA TOUROS NELORE HORA",
+   "valor": 480,
+   "venc": "2026-09-25",
+   "fornecedor": "FO ASSESSORIA PECUARIA",
+   "classe": "verificacao",
+   "aDefinir": false,
+   "parcial": false,
+   "imposto": false,
+   "comissao": true,
+   "folha": false
+  },
+  {
+   "id": "7e93a2fc",
+   "desc": "Comissão Leonardo Serafim — LEILÃO TOUROS SÃO GERALDO E 7P AGRO",
+   "valor": 3516,
+   "venc": "2026-09-25",
+   "fornecedor": "LEONARDO",
+   "classe": "verificacao",
+   "aDefinir": false,
+   "parcial": false,
+   "imposto": false,
+   "comissao": true,
+   "folha": false
+  },
+  {
+   "id": "a6f41778",
+   "desc": "Comissão A definir: Douglas / Fábio — LEILÃO TOUROS NELORE MAFRA",
+   "valor": 900,
+   "venc": "2026-09-25",
+   "fornecedor": "",
+   "classe": "verificacao",
+   "aDefinir": true,
+   "parcial": false,
+   "imposto": false,
+   "comissao": true,
+   "folha": false
+  },
+  {
+   "id": "b8328edd",
+   "desc": "Comissão Fábio Omena — LEILÃO TOUROS NELORE MAFRA",
+   "valor": 660,
+   "venc": "2026-09-25",
+   "fornecedor": "FO ASSESSORIA PECUARIA",
+   "classe": "verificacao",
+   "aDefinir": false,
+   "parcial": false,
+   "imposto": false,
+   "comissao": true,
+   "folha": false
+  },
+  {
+   "id": "e5735669",
+   "desc": "Comissão Fábio Omena — LEILÃO DE TOUROS NELORE SORRISO",
+   "valor": 432,
+   "venc": "2026-09-25",
+   "fornecedor": "FO ASSESSORIA PECUARIA",
+   "classe": "verificacao",
+   "aDefinir": false,
+   "parcial": false,
+   "imposto": false,
+   "comissao": true,
+   "folha": false
+  }
+ ],
+ "atrasados": [
+  {
+   "id": "046b485c",
+   "desc": "COMISSAO LEILÃO VIRTUAL BASE GENÉTICA SANTA CRUZ - 1ª ETAPA – 14/07/2026 - FABIO OMENA (2%)",
+   "valor": 522,
+   "venc": "2026-08-25",
+   "fornecedor": "FO ASSESSORIA PECUARIA",
+   "classe": "verificacao",
+   "aDefinir": false,
+   "parcial": true,
+   "imposto": false,
+   "comissao": true,
+   "folha": false
+  },
+  {
+   "id": "43712d46",
+   "desc": "ADN VIAGENS — Douglas Carvalho — Marabá → Uberlândia → Marabá — bilhete 5770010344301",
+   "valor": 3183.2,
+   "venc": "2026-09-14",
+   "fornecedor": "ADILSON DA SILVA 44584393168",
+   "classe": "firme",
+   "aDefinir": false,
+   "parcial": false,
+   "imposto": false,
+   "comissao": false,
+   "folha": false
+  },
+  {
+   "id": "92f31e0f",
+   "desc": "ADN VIAGENS — Leonardo Francisco — Sinop → Belo Horizonte — bilhete 9572300020278",
+   "valor": 1246.31,
+   "venc": "2026-09-14",
+   "fornecedor": "ADILSON DA SILVA 44584393168",
+   "classe": "firme",
+   "aDefinir": false,
+   "parcial": false,
+   "imposto": false,
+   "comissao": false,
+   "folha": false
+  },
+  {
+   "id": "8ecd17fb",
+   "desc": "ADN VIAGENS — Leonardo Francisco — Belo Horizonte → Maringá — bilhete 9572300021007",
+   "valor": 1022.53,
+   "venc": "2026-09-14",
+   "fornecedor": "ADILSON DA SILVA 44584393168",
+   "classe": "firme",
+   "aDefinir": false,
+   "parcial": false,
+   "imposto": false,
+   "comissao": false,
+   "folha": false
+  },
+  {
+   "id": "5aa395e5",
+   "desc": "ADN VIAGENS — Leonardo Francisco — Maringá → Sinop — bilhete 9572300021150",
+   "valor": 1213.69,
+   "venc": "2026-09-14",
+   "fornecedor": "ADILSON DA SILVA 44584393168",
+   "classe": "firme",
+   "aDefinir": false,
+   "parcial": false,
+   "imposto": false,
+   "comissao": false,
+   "folha": false
+  },
+  {
+   "id": "0609dbaa",
+   "desc": "COMISSAO MEGA EVENTO EAO BAVIERA — Fêmeas - FABIO OMENA (2%)",
+   "valor": 1728,
+   "venc": "2026-08-25",
+   "fornecedor": "FO ASSESSORIA PECUARIA",
+   "classe": "verificacao",
+   "aDefinir": false,
+   "parcial": true,
+   "imposto": false,
+   "comissao": true,
+   "folha": false
+  },
+  {
+   "id": "30c06085",
+   "desc": "COMISSAO 20º LEILÃO GUADALUPE AGROPECUÁRIA Touros - A DEFINIR (2%)",
+   "valor": 390,
+   "venc": "2026-08-25",
+   "fornecedor": "",
+   "classe": "verificacao",
+   "aDefinir": true,
+   "parcial": false,
+   "imposto": false,
+   "comissao": true,
+   "folha": false
+  },
+  {
+   "id": "aec3bd5d",
+   "desc": "Comissão Peralta — 41o Touros Camparino - 06/06/2026",
+   "valor": 1428,
+   "venc": "2026-07-25",
+   "fornecedor": "Peralta",
+   "classe": "verificacao",
+   "aDefinir": false,
+   "parcial": false,
+   "imposto": false,
+   "comissao": true,
+   "folha": false
+  },
+  {
+   "id": "f95d291c",
+   "desc": "COMISSAO VENDA TOUROS RS (23/06) - PERALTA (2%)",
+   "valor": 3510,
+   "venc": "2026-07-25",
+   "fornecedor": "Peralta",
+   "classe": "verificacao",
+   "aDefinir": false,
+   "parcial": false,
+   "imposto": false,
+   "comissao": true,
+   "folha": false
+  },
+  {
+   "id": "26f1497d",
+   "desc": "Comissão Fábio Omena — Leilão Virtual Nelore MEAB & Fazenda Modelo",
+   "valor": 2421,
+   "venc": "2026-07-25",
+   "fornecedor": "FO ASSESSORIA PECUARIA",
+   "classe": "verificacao",
+   "aDefinir": false,
+   "parcial": false,
+   "imposto": false,
+   "comissao": true,
+   "folha": false
+  },
+  {
+   "id": "338e70f2",
+   "desc": "Comissão Lucas Martins — 32° Leilão 4R – 09/05/2026",
+   "valor": 240,
+   "venc": "2026-06-25",
+   "fornecedor": "Lucas Martins",
+   "classe": "verificacao",
+   "aDefinir": false,
+   "parcial": false,
+   "imposto": false,
+   "comissao": true,
+   "folha": false
+  },
+  {
+   "id": "4729b9c4",
+   "desc": "COMISSAO 23º LEILÃO GENÉTICA ADITIVA - 2ª ETAPA TOUROS – 26/07/2026 - FABIO OMENA (2%)",
+   "valor": 642,
+   "venc": "2026-08-25",
+   "fornecedor": "FO ASSESSORIA PECUARIA",
+   "classe": "verificacao",
+   "aDefinir": false,
+   "parcial": true,
+   "imposto": false,
+   "comissao": true,
+   "folha": false
+  },
+  {
+   "id": "6a139904",
+   "desc": "COMISSAO LEILÃO VIRTUAL BASE GENÉTICA SANTA CRUZ - 1ª ETAPA – 14/07/2026 - LEONARDO SERAFIM (2%)",
+   "valor": 510,
+   "venc": "2026-08-25",
+   "fornecedor": "",
+   "classe": "verificacao",
+   "aDefinir": false,
+   "parcial": false,
+   "imposto": false,
+   "comissao": true,
+   "folha": false
+  },
+  {
+   "id": "b138437f",
+   "desc": "COMISSAO 23º LEILÃO GENÉTICA ADITIVA - 2ª ETAPA TOUROS – 26/07/2026 - LEONARDO SERAFIM (2%)",
+   "valor": 492,
+   "venc": "2026-08-25",
+   "fornecedor": "",
+   "classe": "verificacao",
+   "aDefinir": false,
+   "parcial": false,
+   "imposto": false,
+   "comissao": true,
+   "folha": false
+  },
+  {
+   "id": "bf3337c3",
+   "desc": "COMISSAO 10O LEILÃO JMP TOUROS - MATHEUS ALVES (0,33%)",
+   "valor": 238.59,
+   "venc": "2026-07-25",
+   "fornecedor": "Mateus Alves da Silva",
+   "classe": "verificacao",
+   "aDefinir": false,
+   "parcial": false,
+   "imposto": false,
+   "comissao": true,
+   "folha": false
+  },
+  {
+   "id": "f09f1b43",
+   "desc": "Comissão Laila — LEILÃO PARTNER RG - FÊMEAS – 07/02/2026",
+   "valor": 1200,
+   "venc": "2026-03-25",
+   "fornecedor": "Laila de Sousa Oliveira",
+   "classe": "verificacao",
+   "aDefinir": false,
+   "parcial": false,
+   "imposto": false,
+   "comissao": true,
+   "folha": false
+  },
+  {
+   "id": "f66b76d0",
+   "desc": "Comissão Peralta — MEGA GENÉTICA NAVIRAÍ - 1ª ETAPA MATRIZES – 29/03/2026",
+   "valor": 720,
+   "venc": "2026-04-25",
+   "fornecedor": "Peralta",
+   "classe": "verificacao",
+   "aDefinir": false,
+   "parcial": false,
+   "imposto": false,
+   "comissao": true,
+   "folha": false
+  }
+ ],
+ "semData": [
+  {
+   "id": "49fa843c",
+   "desc": "Saldo aluguel casa Uberaba — Expogenética 2026",
+   "valor": 4666.67,
+   "venc": null,
+   "fornecedor": "",
+   "classe": "verificacao",
+   "aDefinir": false,
+   "parcial": false,
+   "imposto": false,
+   "comissao": false,
+   "folha": false
+  },
+  {
+   "id": "3a48e72b",
+   "desc": "Comissão Nane — LEILÃO SÓ CRIADOR FÊMEAS E MACHOS DE ALTO PADRÃO",
+   "valor": 1000,
+   "venc": null,
+   "fornecedor": "",
+   "classe": "verificacao",
+   "aDefinir": false,
+   "parcial": false,
+   "imposto": false,
+   "comissao": true,
+   "folha": false
+  },
+  {
+   "id": "6a10e0b3",
+   "desc": "Comissão Nane — LEILÃO GENÉTICA SÃO JOSÉ - 30 ANOS DE SELEÇÃO",
+   "valor": 2618,
+   "venc": null,
+   "fornecedor": "",
+   "classe": "verificacao",
+   "aDefinir": false,
+   "parcial": false,
+   "imposto": false,
+   "comissao": true,
+   "folha": false
+  },
+  {
+   "id": "7bf0b68c",
+   "desc": "Naviraí - recebido a maior na NF630 (30,00) - devolver ou compensar",
+   "valor": 30,
+   "venc": null,
+   "fornecedor": "Claudio Sabino Carvalho Filho",
+   "classe": "firme",
+   "aDefinir": false,
+   "parcial": false,
+   "imposto": false,
+   "comissao": false,
+   "folha": false
+  },
+  {
+   "id": "1c841ff1",
+   "desc": "COMISSAO 20º LEILÃO GUADALUPE AGROPECUÁRIA Touros - NANE (2%)",
+   "valor": 2748,
+   "venc": null,
+   "fornecedor": "",
+   "classe": "verificacao",
+   "aDefinir": false,
+   "parcial": false,
+   "imposto": false,
+   "comissao": true,
+   "folha": false
+  },
+  {
+   "id": "7df4134b",
+   "desc": "COMISSAO LEILÃO MATINHA EXPOGENÉTICA 2026 - NANE",
+   "valor": 1710,
+   "venc": null,
+   "fornecedor": "",
+   "classe": "verificacao",
+   "aDefinir": false,
+   "parcial": false,
+   "imposto": false,
+   "comissao": true,
+   "folha": false
+  },
+  {
+   "id": "3e66902a",
+   "desc": "Hospedagem Hotel Villa Cerrado - Felipe Peralta e Regiane Abreu (03 a 06/09)",
+   "valor": 1914,
+   "venc": null,
+   "fornecedor": "HOTEL VILLA CERRADO",
+   "classe": "verificacao",
+   "aDefinir": false,
+   "parcial": false,
+   "imposto": false,
+   "comissao": false,
+   "folha": false
+  },
+  {
+   "id": "6cfebbd6",
+   "desc": "Hotel Villa Cerrado — Renato Abreu e Natan — reserva03–06/09/2026",
+   "valor": 1137,
+   "venc": null,
+   "fornecedor": "HOTEL VILLA CERRADO",
+   "classe": "verificacao",
+   "aDefinir": false,
+   "parcial": false,
+   "imposto": false,
+   "comissao": false,
+   "folha": false
+  },
+  {
+   "id": "16eb8e16",
+   "desc": "COMISSAO MEGA EVENTO EAO BAVIERA — Machos - NANE",
+   "valor": 3060,
+   "venc": null,
+   "fornecedor": "",
+   "classe": "verificacao",
+   "aDefinir": false,
+   "parcial": false,
+   "imposto": false,
+   "comissao": true,
+   "folha": false
+  },
+  {
+   "id": "30872b41",
+   "desc": "Comissão A definir: Nane / Leonardo — 23º LEILÃO GENÉTICA ADITIVA - 2ª ETAPA TOUROS – 26/07/2026",
+   "valor": 1470,
+   "venc": null,
+   "fornecedor": "",
+   "classe": "verificacao",
+   "aDefinir": true,
+   "parcial": false,
+   "imposto": false,
+   "comissao": true,
+   "folha": false
+  },
+  {
+   "id": "a7a16e27",
+   "desc": "Comissão Nane — 28º LEILÃO NAVIRAÍ CAMPARINO - REPRODUTORES",
+   "valor": 4440,
+   "venc": null,
+   "fornecedor": "",
+   "classe": "verificacao",
+   "aDefinir": false,
+   "parcial": false,
+   "imposto": false,
+   "comissao": true,
+   "folha": false
+  },
+  {
+   "id": "bcf18b5f",
+   "desc": "Comissão Nane — LEILÃO TOUROS SÃO GERALDO E 7P AGRO",
+   "valor": 1680,
+   "venc": null,
+   "fornecedor": "",
+   "classe": "verificacao",
+   "aDefinir": false,
+   "parcial": false,
+   "imposto": false,
+   "comissao": true,
+   "folha": false
+  },
+  {
+   "id": "f85f7a4c",
+   "desc": "COMISSAO 20º LEILÃO GUADALUPE AGROPECUÁRIA Touros - NANE / FABIO OMENA (2%)",
+   "valor": 420,
+   "venc": null,
+   "fornecedor": "",
+   "classe": "verificacao",
+   "aDefinir": false,
+   "parcial": false,
+   "imposto": false,
+   "comissao": true,
+   "folha": false
+  }
+ ],
+ "depoisJanela": [
+  {
+   "id": "16e949ec",
+   "desc": "REMAT Marcas e Patentes — parcela 3/4 — boleto 1032",
+   "valor": 495,
+   "venc": "2026-10-20",
+   "fornecedor": "REMAT MARCAS E PATENTES",
+   "classe": "firme",
+   "aDefinir": false,
+   "parcial": false,
+   "imposto": false,
+   "comissao": false,
+   "folha": false
+  },
+  {
+   "id": "b1ecad35",
+   "desc": "REMAT Marcas e Patentes — parcela 4/4 — boleto 1033",
+   "valor": 495,
+   "venc": "2026-11-20",
+   "fornecedor": "REMAT MARCAS E PATENTES",
+   "classe": "firme",
+   "aDefinir": false,
+   "parcial": false,
+   "imposto": false,
+   "comissao": false,
+   "folha": false
+  },
+  {
+   "id": "10b53baa",
+   "desc": "Comissão Fábio Omena — TOUROS PREMIUM NELORE MAFRA - EDIÇÃO UBERABA — lote 38",
+   "valor": 432,
+   "venc": "2026-10-25",
+   "fornecedor": "FO ASSESSORIA PECUARIA",
+   "classe": "verificacao",
+   "aDefinir": false,
+   "parcial": false,
+   "imposto": false,
+   "comissao": true,
+   "folha": false
+  },
+  {
+   "id": "0946bd00",
+   "desc": "Folha Dezembro/2026 - JOÃO ANTONIO",
+   "valor": 2000,
+   "venc": "2027-01-05",
+   "fornecedor": "JOÃO ANTONIO",
+   "classe": "projetada",
+   "aDefinir": false,
+   "parcial": false,
+   "imposto": false,
+   "comissao": false,
+   "folha": true
+  },
+  {
+   "id": "19e98105",
+   "desc": "Folha Novembro/2026 - FABIO OMENNA",
+   "valor": 7000,
+   "venc": "2026-12-05",
+   "fornecedor": "FO ASSESSORIA PECUARIA",
+   "classe": "projetada",
+   "aDefinir": false,
+   "parcial": false,
+   "imposto": false,
+   "comissao": false,
+   "folha": true
+  },
+  {
+   "id": "1b5a0e14",
+   "desc": "Folha Outubro/2026 - JOÃO GABRIEL",
+   "valor": 2000,
+   "venc": "2026-11-05",
+   "fornecedor": "JOÃO GABRIEL",
+   "classe": "projetada",
+   "aDefinir": false,
+   "parcial": false,
+   "imposto": false,
+   "comissao": false,
+   "folha": true
+  },
+  {
+   "id": "1e4656a7",
+   "desc": "Folha Novembro/2026 - JOÃO GABRIEL",
+   "valor": 2000,
+   "venc": "2026-12-05",
+   "fornecedor": "JOÃO GABRIEL",
+   "classe": "projetada",
+   "aDefinir": false,
+   "parcial": false,
+   "imposto": false,
+   "comissao": false,
+   "folha": true
+  },
+  {
+   "id": "1ee21cac",
+   "desc": "Folha Outubro/2026 - DOUGLAS BISPO",
+   "valor": 10000,
+   "venc": "2026-11-05",
+   "fornecedor": "DOUGLAS BISPO",
+   "classe": "projetada",
+   "aDefinir": false,
+   "parcial": false,
+   "imposto": false,
+   "comissao": false,
+   "folha": true
+  },
+  {
+   "id": "3d3ba0db",
+   "desc": "Folha Dezembro/2026 - JOÃO EDUARDO",
+   "valor": 5000,
+   "venc": "2027-01-05",
+   "fornecedor": "JOÃO EDUARDO",
+   "classe": "projetada",
+   "aDefinir": false,
+   "parcial": false,
+   "imposto": false,
+   "comissao": false,
+   "folha": true
+  },
+  {
+   "id": "470e3d10",
+   "desc": "Folha Outubro/2026 - LUANA",
+   "valor": 2000,
+   "venc": "2026-11-05",
+   "fornecedor": "LUANA",
+   "classe": "projetada",
+   "aDefinir": false,
+   "parcial": false,
+   "imposto": false,
+   "comissao": false,
+   "folha": true
+  },
+  {
+   "id": "4bbc5c94",
+   "desc": "Folha Outubro/2026 - FABIO OMENNA",
+   "valor": 7000,
+   "venc": "2026-11-05",
+   "fornecedor": "FO ASSESSORIA PECUARIA",
+   "classe": "projetada",
+   "aDefinir": false,
+   "parcial": false,
+   "imposto": false,
+   "comissao": false,
+   "folha": true
+  },
+  {
+   "id": "54b4cb4a",
+   "desc": "Folha Dezembro/2026 - LUANA",
+   "valor": 2000,
+   "venc": "2027-01-05",
+   "fornecedor": "LUANA",
+   "classe": "projetada",
+   "aDefinir": false,
+   "parcial": false,
+   "imposto": false,
+   "comissao": false,
+   "folha": true
+  },
+  {
+   "id": "566a09ba",
+   "desc": "Folha Dezembro/2026 - FABIO OMENNA",
+   "valor": 7000,
+   "venc": "2027-01-05",
+   "fornecedor": "FO ASSESSORIA PECUARIA",
+   "classe": "projetada",
+   "aDefinir": false,
+   "parcial": false,
+   "imposto": false,
+   "comissao": false,
+   "folha": true
+  },
+  {
+   "id": "738dcad0",
+   "desc": "Folha Outubro/2026 - PEDRO",
+   "valor": 2000,
+   "venc": "2026-11-05",
+   "fornecedor": "PEDRO",
+   "classe": "projetada",
+   "aDefinir": false,
+   "parcial": false,
+   "imposto": false,
+   "comissao": false,
+   "folha": true
+  },
+  {
+   "id": "800578ea",
+   "desc": "Folha Dezembro/2026 - LEONARDO",
+   "valor": 13500,
+   "venc": "2027-01-05",
+   "fornecedor": "LEONARDO",
+   "classe": "projetada",
+   "aDefinir": false,
+   "parcial": false,
+   "imposto": false,
+   "comissao": false,
+   "folha": true
+  },
+  {
+   "id": "82a0c54d",
+   "desc": "Folha Novembro/2026 - JOÃO EDUARDO",
+   "valor": 5000,
+   "venc": "2026-12-05",
+   "fornecedor": "JOÃO EDUARDO",
+   "classe": "projetada",
+   "aDefinir": false,
+   "parcial": false,
+   "imposto": false,
+   "comissao": false,
+   "folha": true
+  },
+  {
+   "id": "84d32be2",
+   "desc": "Folha Novembro/2026 - PEDRO",
+   "valor": 2000,
+   "venc": "2026-12-05",
+   "fornecedor": "PEDRO",
+   "classe": "projetada",
+   "aDefinir": false,
+   "parcial": false,
+   "imposto": false,
+   "comissao": false,
+   "folha": true
+  },
+  {
+   "id": "b585e39f",
+   "desc": "Folha Novembro/2026 - LEONARDO",
+   "valor": 13500,
+   "venc": "2026-12-05",
+   "fornecedor": "LEONARDO",
+   "classe": "projetada",
+   "aDefinir": false,
+   "parcial": false,
+   "imposto": false,
+   "comissao": false,
+   "folha": true
+  },
+  {
+   "id": "b85997a2",
+   "desc": "Folha Dezembro/2026 - JOÃO GABRIEL",
+   "valor": 2000,
+   "venc": "2027-01-05",
+   "fornecedor": "JOÃO GABRIEL",
+   "classe": "projetada",
+   "aDefinir": false,
+   "parcial": false,
+   "imposto": false,
+   "comissao": false,
+   "folha": true
+  },
+  {
+   "id": "c76004ee",
+   "desc": "Folha Dezembro/2026 - PEDRO",
+   "valor": 2000,
+   "venc": "2027-01-05",
+   "fornecedor": "PEDRO",
+   "classe": "projetada",
+   "aDefinir": false,
+   "parcial": false,
+   "imposto": false,
+   "comissao": false,
+   "folha": true
+  },
+  {
+   "id": "cce18c97",
+   "desc": "Folha Novembro/2026 - DOUGLAS BISPO",
+   "valor": 10000,
+   "venc": "2026-12-05",
+   "fornecedor": "DOUGLAS BISPO",
+   "classe": "projetada",
+   "aDefinir": false,
+   "parcial": false,
+   "imposto": false,
+   "comissao": false,
+   "folha": true
+  },
+  {
+   "id": "ce97edf5",
+   "desc": "Folha Outubro/2026 - JOÃO ANTONIO",
+   "valor": 2000,
+   "venc": "2026-11-05",
+   "fornecedor": "JOÃO ANTONIO",
+   "classe": "projetada",
+   "aDefinir": false,
+   "parcial": false,
+   "imposto": false,
+   "comissao": false,
+   "folha": true
+  },
+  {
+   "id": "da6888a7",
+   "desc": "Folha Novembro/2026 - LUANA",
+   "valor": 2000,
+   "venc": "2026-12-05",
+   "fornecedor": "LUANA",
+   "classe": "projetada",
+   "aDefinir": false,
+   "parcial": false,
+   "imposto": false,
+   "comissao": false,
+   "folha": true
+  },
+  {
+   "id": "df89a8bf",
+   "desc": "Honorários de contabilidade",
+   "valor": 1058,
+   "venc": "2026-11-10",
+   "fornecedor": "",
+   "classe": "projetada",
+   "aDefinir": false,
+   "parcial": false,
+   "imposto": false,
+   "comissao": false,
+   "folha": false
+  },
+  {
+   "id": "e9b6e3bb",
+   "desc": "Folha Dezembro/2026 - MATHEUS M1",
+   "valor": 6000,
+   "venc": "2027-01-05",
+   "fornecedor": "MATHEUS M1",
+   "classe": "projetada",
+   "aDefinir": false,
+   "parcial": false,
+   "imposto": false,
+   "comissao": false,
+   "folha": true
+  },
+  {
+   "id": "eaa85462",
+   "desc": "Folha Dezembro/2026 - DOUGLAS BISPO",
+   "valor": 10000,
+   "venc": "2027-01-05",
+   "fornecedor": "DOUGLAS BISPO",
+   "classe": "projetada",
+   "aDefinir": false,
+   "parcial": false,
+   "imposto": false,
+   "comissao": false,
+   "folha": true
+  },
+  {
+   "id": "eeaa751c",
+   "desc": "Honorários de contabilidade",
+   "valor": 1058,
+   "venc": "2026-12-10",
+   "fornecedor": "",
+   "classe": "projetada",
+   "aDefinir": false,
+   "parcial": false,
+   "imposto": false,
+   "comissao": false,
+   "folha": false
+  },
+  {
+   "id": "efce76de",
+   "desc": "Folha Novembro/2026 - MATHEUS M1",
+   "valor": 6000,
+   "venc": "2026-12-05",
+   "fornecedor": "MATHEUS M1",
+   "classe": "projetada",
+   "aDefinir": false,
+   "parcial": false,
+   "imposto": false,
+   "comissao": false,
+   "folha": true
+  },
+  {
+   "id": "f3b596d4",
+   "desc": "Folha Outubro/2026 - LEONARDO",
+   "valor": 13500,
+   "venc": "2026-11-05",
+   "fornecedor": "LEONARDO",
+   "classe": "projetada",
+   "aDefinir": false,
+   "parcial": false,
+   "imposto": false,
+   "comissao": false,
+   "folha": true
+  },
+  {
+   "id": "f5022a8f",
+   "desc": "Folha Outubro/2026 - MATHEUS M1",
+   "valor": 6000,
+   "venc": "2026-11-05",
+   "fornecedor": "MATHEUS M1",
+   "classe": "projetada",
+   "aDefinir": false,
+   "parcial": false,
+   "imposto": false,
+   "comissao": false,
+   "folha": true
+  },
+  {
+   "id": "f7cdd898",
+   "desc": "Folha Outubro/2026 - JOÃO EDUARDO",
+   "valor": 5000,
+   "venc": "2026-11-05",
+   "fornecedor": "JOÃO EDUARDO",
+   "classe": "projetada",
+   "aDefinir": false,
+   "parcial": false,
+   "imposto": false,
+   "comissao": false,
+   "folha": true
+  },
+  {
+   "id": "f9865f3c",
+   "desc": "Folha Novembro/2026 - JOÃO ANTONIO",
+   "valor": 2000,
+   "venc": "2026-12-05",
+   "fornecedor": "JOÃO ANTONIO",
+   "classe": "projetada",
+   "aDefinir": false,
+   "parcial": false,
+   "imposto": false,
+   "comissao": false,
+   "folha": true
+  }
+ ],
+ "somaSaidas": 241821.96,
+ "somaFirmes": 123898.99,
+ "somaProjetadas": 58617.97,
+ "somaVerificacao": 59305,
+ "somaAtrasados": 20707.32,
+ "somaSemData": 26893.67,
+ "somaDepois": 152038,
+ "blocos": [
+  {
+   "dia": "2026-09-18",
+   "n": 2,
+   "valor": 688.68,
+   "firme": 508.68,
+   "projetada": 180,
+   "verificacao": 0,
+   "maiores": [
+    {
+     "desc": "Hospedagem Joao Eduardo - Hotel Continental (Centro, Belo Horizonte/MG) 16-18/09 - Booking 6034.917.103 - pagamento no hotel",
+     "valor": 508.68,
+     "classe": "firme"
+    },
+    {
+     "desc": "Sistema / banco de dados - fatura mensal",
+     "valor": 180,
+     "classe": "projetada"
+    }
+   ]
+  },
+  {
+   "dia": "2026-09-20",
+   "n": 1,
+   "valor": 495,
+   "firme": 495,
+   "projetada": 0,
+   "verificacao": 0,
+   "maiores": [
+    {
+     "desc": "REMAT Marcas e Patentes — parcela 2/4 — boleto 1031",
+     "valor": 495,
+     "classe": "firme"
+    }
+   ]
+  },
+  {
+   "dia": "2026-09-21",
+   "n": 1,
+   "valor": 14721.81,
+   "firme": 14721.81,
+   "projetada": 0,
+   "verificacao": 0,
+   "maiores": [
+    {
+     "desc": "Simples Nacional (DAS) ref. agosto/2026 - guia 07.20.26253.9080780-0",
+     "valor": 14721.81,
+     "classe": "firme"
+    }
+   ]
+  },
+  {
+   "dia": "2026-09-22",
+   "n": 2,
+   "valor": 7329.97,
+   "firme": 0,
+   "projetada": 7329.97,
+   "verificacao": 0,
+   "maiores": [
+    {
+     "desc": "Fatura cartao VISA (deb. automatico)",
+     "valor": 5949.84,
+     "classe": "projetada"
+    },
+    {
+     "desc": "Fatura cartao MASTERCARD (deb. automatico)",
+     "valor": 1380.13,
+     "classe": "projetada"
+    }
+   ]
+  },
+  {
+   "dia": "2026-09-24",
+   "n": 1,
+   "valor": 550,
+   "firme": 0,
+   "projetada": 550,
+   "verificacao": 0,
+   "maiores": [
+    {
+     "desc": "Assinatura Anthropic / Claude IA",
+     "valor": 550,
+     "classe": "projetada"
+    }
+   ]
+  },
+  {
+   "dia": "2026-09-25",
+   "n": 111,
+   "valor": 167478.5,
+   "firme": 108173.5,
+   "projetada": 0,
+   "verificacao": 59305,
+   "maiores": [
+    {
+     "desc": "Comissão A definir (Fábio Omena?) — 2º LEILÃO LS GALERIA — lotes 04 e 19",
+     "valor": 22800,
+     "classe": "verificacao"
+    },
+    {
+     "desc": "COMISSAO LEILÃO NELORE MAFRA EDIÇÃO REDENÇÃO/PA - FÊMEAS - DOUGLAS BISPO (2,00%)",
+     "valor": 19654,
+     "classe": "firme"
+    },
+    {
+     "desc": "Comissão Fábio Omena — 9º LEILÃO GENÉTICA ADITIVA EXPOGENÉTICA 2026",
+     "valor": 6640,
+     "classe": "verificacao"
+    }
+   ]
+  },
+  {
+   "dia": "2026-10-05",
+   "n": 9,
+   "valor": 49500,
+   "firme": 0,
+   "projetada": 49500,
+   "verificacao": 0,
+   "maiores": [
+    {
+     "desc": "Folha Setembro/2026 - LEONARDO",
+     "valor": 13500,
+     "classe": "projetada"
+    },
+    {
+     "desc": "Folha Setembro/2026 - DOUGLAS BISPO",
+     "valor": 10000,
+     "classe": "projetada"
+    },
+    {
+     "desc": "Folha Setembro/2026 - FABIO OMENNA",
+     "valor": 7000,
+     "classe": "projetada"
+    }
+   ]
+  },
+  {
+   "dia": "2026-10-10",
+   "n": 1,
+   "valor": 1058,
+   "firme": 0,
+   "projetada": 1058,
+   "verificacao": 0,
+   "maiores": [
+    {
+     "desc": "Honorários de contabilidade",
+     "valor": 1058,
+     "classe": "projetada"
+    }
+   ]
+  }
+ ],
+ "d25": {
+  "total": 167478.5,
+  "n": 111,
+  "benef": [
+   {
+    "nome": "Douglas Bispo",
+    "valor": 53615,
+    "n": 45,
+    "verificacao": 8415
+   },
+   {
+    "nome": "Gustavo Rusa (2ª metade de agosto)",
+    "valor": 32817.5,
+    "n": 16,
+    "verificacao": 0
+   },
+   {
+    "nome": "Fábio Omena",
+    "valor": 32428,
+    "n": 27,
+    "verificacao": 13204
+   },
+   {
+    "nome": "A definir (sem beneficiário decidido)",
+    "valor": 31560,
+    "n": 5,
+    "verificacao": 31560
+   },
+   {
+    "nome": "Leonardo Serafim",
+    "valor": 9618,
+    "n": 11,
+    "verificacao": 3516
+   },
+   {
+    "nome": "Peralta",
+    "valor": 4230,
+    "n": 4,
+    "verificacao": 0
+   },
+   {
+    "nome": "outros",
+    "valor": 2610,
+    "n": 1,
+    "verificacao": 2610
+   },
+   {
+    "nome": "Laila",
+    "valor": 600,
+    "n": 2,
+    "verificacao": 0
+   }
+  ],
+  "aDefinir": 31560,
+  "nADefinir": 5,
+  "verificacao": 59305
+ },
+ "impostos": [
+  {
+   "id": "883f97aa",
+   "desc": "Simples Nacional (DAS) ref. agosto/2026 - guia 07.20.26253.9080780-0",
+   "valor": 14721.81,
+   "venc": "2026-09-21",
+   "fornecedor": "RECEITA FEDERAL DO BRASIL",
+   "classe": "firme",
+   "aDefinir": false,
+   "parcial": false,
+   "imposto": true,
+   "comissao": false,
+   "folha": false
+  }
+ ],
+ "folhaOut": [
+  {
+   "id": "067101fc",
+   "desc": "Folha Setembro/2026 - JOÃO GABRIEL",
+   "valor": 2000,
+   "venc": "2026-10-05",
+   "fornecedor": "JOÃO GABRIEL",
+   "classe": "projetada",
+   "aDefinir": false,
+   "parcial": false,
+   "imposto": false,
+   "comissao": false,
+   "folha": true
+  },
+  {
+   "id": "356dbf90",
+   "desc": "Folha Setembro/2026 - MATHEUS M1",
+   "valor": 6000,
+   "venc": "2026-10-05",
+   "fornecedor": "MATHEUS M1",
+   "classe": "projetada",
+   "aDefinir": false,
+   "parcial": false,
+   "imposto": false,
+   "comissao": false,
+   "folha": true
+  },
+  {
+   "id": "465f035f",
+   "desc": "Folha Setembro/2026 - DOUGLAS BISPO",
+   "valor": 10000,
+   "venc": "2026-10-05",
+   "fornecedor": "DOUGLAS BISPO",
+   "classe": "projetada",
+   "aDefinir": false,
+   "parcial": false,
+   "imposto": false,
+   "comissao": false,
+   "folha": true
+  },
+  {
+   "id": "60033052",
+   "desc": "Folha Setembro/2026 - LEONARDO",
+   "valor": 13500,
+   "venc": "2026-10-05",
+   "fornecedor": "LEONARDO",
+   "classe": "projetada",
+   "aDefinir": false,
+   "parcial": false,
+   "imposto": false,
+   "comissao": false,
+   "folha": true
+  },
+  {
+   "id": "76361317",
+   "desc": "Folha Setembro/2026 - FABIO OMENNA",
+   "valor": 7000,
+   "venc": "2026-10-05",
+   "fornecedor": "FO ASSESSORIA PECUARIA",
+   "classe": "projetada",
+   "aDefinir": false,
+   "parcial": false,
+   "imposto": false,
+   "comissao": false,
+   "folha": true
+  },
+  {
+   "id": "a9e20a24",
+   "desc": "Folha Setembro/2026 - JOÃO EDUARDO",
+   "valor": 5000,
+   "venc": "2026-10-05",
+   "fornecedor": "JOÃO EDUARDO",
+   "classe": "projetada",
+   "aDefinir": false,
+   "parcial": false,
+   "imposto": false,
+   "comissao": false,
+   "folha": true
+  },
+  {
+   "id": "ba135af8",
+   "desc": "Folha Setembro/2026 - JOÃO ANTONIO",
+   "valor": 2000,
+   "venc": "2026-10-05",
+   "fornecedor": "JOÃO ANTONIO",
+   "classe": "projetada",
+   "aDefinir": false,
+   "parcial": false,
+   "imposto": false,
+   "comissao": false,
+   "folha": true
+  },
+  {
+   "id": "c646dbd7",
+   "desc": "Folha Setembro/2026 - PEDRO",
+   "valor": 2000,
+   "venc": "2026-10-05",
+   "fornecedor": "PEDRO",
+   "classe": "projetada",
+   "aDefinir": false,
+   "parcial": false,
+   "imposto": false,
+   "comissao": false,
+   "folha": true
+  },
+  {
+   "id": "d3696513",
+   "desc": "Folha Setembro/2026 - LUANA",
+   "valor": 2000,
+   "venc": "2026-10-05",
+   "fornecedor": "LUANA",
+   "classe": "projetada",
+   "aDefinir": false,
+   "parcial": false,
+   "imposto": false,
+   "comissao": false,
+   "folha": true
+  }
+ ],
+ "semana": [
+  {
+   "dia": "2026-09-16",
+   "entradas": [
+    {
+     "rot": "Colonial Agropecuária — Noite Nacional 21/08 + Pepitas 22/08 (NF 643)",
+     "valor": 11340,
+     "firmeza": "informada"
+    }
+   ],
+   "saidas": [],
+   "saldoBase": 122758.86
+  },
+  {
+   "dia": "2026-09-17",
+   "entradas": [],
+   "saidas": [],
+   "saldoBase": 122758.86
+  },
+  {
+   "dia": "2026-09-18",
+   "entradas": [],
+   "saidas": [
+    {
+     "desc": "Sistema / banco de dados - fatura mensal",
+     "valor": 180,
+     "classe": "projetada"
+    },
+    {
+     "desc": "Hospedagem Joao Eduardo - Hotel Continental (Centro, Belo Horizonte/MG) 16-18/09 - Booking 6034.917.103 - pagamento no hotel",
+     "valor": 508.68,
+     "classe": "firme"
+    }
+   ],
+   "saldoBase": 122070.18
+  },
+  {
+   "dia": "2026-09-19",
+   "entradas": [],
+   "saidas": [],
+   "saldoBase": 122070.18
+  },
+  {
+   "dia": "2026-09-20",
+   "entradas": [],
+   "saidas": [
+    {
+     "desc": "REMAT Marcas e Patentes — parcela 2/4 — boleto 1031",
+     "valor": 495,
+     "classe": "firme"
+    }
+   ],
+   "saldoBase": 121575.18
+  },
+  {
+   "dia": "2026-09-21",
+   "entradas": [
+    {
+     "rot": "e-Rural — 2º LS Galeria II (07/08)",
+     "valor": 57840,
+     "firmeza": "regra"
+    }
+   ],
+   "saidas": [
+    {
+     "desc": "Simples Nacional (DAS) ref. agosto/2026 - guia 07.20.26253.9080780-0",
+     "valor": 14721.81,
+     "classe": "firme"
+    }
+   ],
+   "saldoBase": 164693.37
+  },
+  {
+   "dia": "2026-09-22",
+   "entradas": [],
+   "saidas": [
+    {
+     "desc": "Fatura cartao VISA (deb. automatico)",
+     "valor": 5949.84,
+     "classe": "projetada"
+    },
+    {
+     "desc": "Fatura cartao MASTERCARD (deb. automatico)",
+     "valor": 1380.13,
+     "classe": "projetada"
+    }
+   ],
+   "saldoBase": 157363.4
+  }
+ ],
+ "colonial": {
+  "cr": {
+   "id": "703b78ed",
+   "desc": "COLONIAL AGROPECUARIA - 12o Noite Nacional Matrizes Premium (21/08) + 4o Pepitas Colonial Expogenetica (22/08) - COMISSAO BULA - NF 643",
+   "valor": 11340,
+   "venc": "2026-09-16",
+   "nf": "643",
+   "cliente": "COLONIAL AGROPECUARIA LTDA"
+  },
+  "nf": {
+   "numero": "643/U",
+   "emissao": "2026-09-15 14:43",
+   "competencia": "09/2026",
+   "valor": 11340,
+   "iss": 567,
+   "tomador": "COLONIAL AGROPECUÁRIA LTDA · 22.681.381/0004-05 · Fazenda Colonial, Verdelândia/MG",
+   "descricao": "REFERENTE AO LEILAO PEPITAS COLONIAL EXPOGENETICA DIA 22/08/2026"
+  },
+  "conta": [
+   {
+    "leilao": "12º Noite Nacional Matrizes Premium (21/08)",
+    "lotes": "18, 19, 24",
+    "base": 117000,
+    "pct": 0.03,
+    "valor": 3510
+   },
+   {
+    "leilao": "4º Pepitas Colonial — Expogenética (22/08)",
+    "lotes": "9, 19, 24, 25, 26, 27, 32, 33, 37 (lote 19 a 22.500)",
+    "base": 261000,
+    "pct": 0.03,
+    "valor": 7830
+   }
+  ],
+  "planilha": {
+   "premium": 5850,
+   "pepitas": 9765,
+   "total": 15615,
+   "diferenca": 4275
+  },
+  "foraDaNF": [
+   {
+    "vendedor": "Fazenda Terra Boa",
+    "lote": "29 (21/08)",
+    "base": 78000,
+    "valor": 2340
+   },
+   {
+    "vendedor": "Bela Alvorada / Nelore ZAN",
+    "lote": "53 (22/08)",
+    "base": 24000,
+    "valor": 720
+   },
+   {
+    "vendedor": "Agropontieri",
+    "lote": "54 (22/08)",
+    "base": 36000,
+    "valor": 1080
+   }
+  ],
+  "lote19": {
+   "antes": 27000,
+   "depois": 22500,
+   "efeito": 135
+  },
+  "comissoesLigadas": [
+   {
+    "desc": "Comissão Douglas Bispo — 4º LEILÃO PEPITAS COLONIAL - EXPOGENÉTICA 2026 — lote 25",
+    "valor": 450,
+    "venc": "2026-09-25",
+    "classe": "firme",
+    "parcial": false
+   },
+   {
+    "desc": "Comissão Gustavo Rusa — 12º LEILÃO PREMIUM COLONIAL (21/08) — lote 29",
+    "valor": 1305,
+    "venc": "2026-09-25",
+    "classe": "firme",
+    "parcial": true
+   },
+   {
+    "desc": "Comissão Gustavo Rusa — 4º LEILÃO PEPITAS COLONIAL - EXPOGENÉTICA 2026 — lote 33",
+    "valor": 405,
+    "venc": "2026-09-25",
+    "classe": "firme",
+    "parcial": true
+   },
+   {
+    "desc": "Colonial / Noite Nacional — identificação do evento, valor e beneficiário em disputa",
+    "valor": 2610,
+    "venc": "2026-09-25",
+    "classe": "verificacao",
+    "parcial": false
+   },
+   {
+    "desc": "Comissão Gustavo Rusa — 4º LEILÃO PEPITAS COLONIAL - EXPOGENÉTICA 2026 — lote 27",
+    "valor": 315,
+    "venc": "2026-09-25",
+    "classe": "firme",
+    "parcial": true
+   },
+   {
+    "desc": "Comissão Douglas Bispo — 4º LEILÃO PEPITAS COLONIAL - EXPOGENÉTICA 2026 — lote 09",
+    "valor": 660,
+    "venc": "2026-09-25",
+    "classe": "firme",
+    "parcial": false
+   },
+   {
+    "desc": "Comissão Douglas Bispo — 12º LEILÃO NOITE NACIONAL MATRIZES PREMIUM — lote 24",
+    "valor": 780,
+    "venc": "2026-09-25",
+    "classe": "firme",
+    "parcial": false
+   },
+   {
+    "desc": "Comissão Leonardo Serafim — 12º LEILÃO NOITE NACIONAL MATRIZES PREMIUM — lote 18",
+    "valor": 540,
+    "venc": "2026-09-25",
+    "classe": "firme",
+    "parcial": false
+   },
+   {
+    "desc": "Comissão Douglas Bispo — 4º LEILÃO PEPITAS COLONIAL - EXPOGENÉTICA 2026 — lote 26",
+    "valor": 480,
+    "venc": "2026-09-25",
+    "classe": "firme",
+    "parcial": false
+   },
+   {
+    "desc": "Comissão Leonardo Serafim — 4º LEILÃO PEPITAS COLONIAL - EXPOGENÉTICA 2026 — lote 32",
+    "valor": 600,
+    "venc": "2026-09-25",
+    "classe": "firme",
+    "parcial": false
+   },
+   {
+    "desc": "Comissão Leonardo Serafim — 4º LEILÃO PEPITAS COLONIAL - EXPOGENÉTICA 2026 — lote 53",
+    "valor": 480,
+    "venc": "2026-09-25",
+    "classe": "firme",
+    "parcial": false
+   },
+   {
+    "desc": "Comissão Fábio Omena — 4º LEILÃO PEPITAS COLONIAL - EXPOGENÉTICA 2026 — lote 24",
+    "valor": 420,
+    "venc": "2026-09-25",
+    "classe": "firme",
+    "parcial": false
+   },
+   {
+    "desc": "Comissão Fábio Omena — 4º LEILÃO PEPITAS COLONIAL - EXPOGENÉTICA 2026 — lote 37",
+    "valor": 1200,
+    "venc": "2026-09-25",
+    "classe": "firme",
+    "parcial": false
+   },
+   {
+    "desc": "Comissão Douglas Bispo — 12º LEILÃO NOITE NACIONAL MATRIZES PREMIUM — lote 19",
+    "valor": 1020,
+    "venc": "2026-09-25",
+    "classe": "firme",
+    "parcial": false
+   },
+   {
+    "desc": "Comissão Leonardo Serafim — 4º LEILÃO PEPITAS COLONIAL - EXPOGENÉTICA 2026 — lote 54",
+    "valor": 720,
+    "venc": "2026-09-25",
+    "classe": "firme",
+    "parcial": false
+   },
+   {
+    "desc": "Comissão Leonardo Serafim — 4º LEILÃO PEPITAS COLONIAL - EXPOGENÉTICA 2026 — lote 19",
+    "valor": 540,
+    "venc": "2026-09-25",
+    "classe": "firme",
+    "parcial": false
+   }
+  ]
+ },
+ "cenarios": [
+  {
+   "chave": "BASE",
+   "rot": "Base",
+   "desc": "Saídas firmes + projetadas (folha, cartões, contabilidade); entradas só com data, Colonial em 16/09.",
+   "pontos": [
+    {
+     "dia": "2026-09-15",
+     "entrada": 0,
+     "saida": 0,
+     "saldo": 111418.86
+    },
+    {
+     "dia": "2026-09-16",
+     "entrada": 11340,
+     "saida": 0,
+     "saldo": 122758.86
+    },
+    {
+     "dia": "2026-09-17",
+     "entrada": 0,
+     "saida": 0,
+     "saldo": 122758.86
+    },
+    {
+     "dia": "2026-09-18",
+     "entrada": 0,
+     "saida": 688.68,
+     "saldo": 122070.18
+    },
+    {
+     "dia": "2026-09-19",
+     "entrada": 0,
+     "saida": 0,
+     "saldo": 122070.18
+    },
+    {
+     "dia": "2026-09-20",
+     "entrada": 0,
+     "saida": 495,
+     "saldo": 121575.18
+    },
+    {
+     "dia": "2026-09-21",
+     "entrada": 57840,
+     "saida": 14721.81,
+     "saldo": 164693.37
+    },
+    {
+     "dia": "2026-09-22",
+     "entrada": 0,
+     "saida": 7329.97,
+     "saldo": 157363.4
+    },
+    {
+     "dia": "2026-09-23",
+     "entrada": 0,
+     "saida": 0,
+     "saldo": 157363.4
+    },
+    {
+     "dia": "2026-09-24",
+     "entrada": 0,
+     "saida": 550,
+     "saldo": 156813.4
+    },
+    {
+     "dia": "2026-09-25",
+     "entrada": 13117.95,
+     "saida": 108173.5,
+     "saldo": 61757.85
+    },
+    {
+     "dia": "2026-09-26",
+     "entrada": 9141.22,
+     "saida": 0,
+     "saldo": 70899.07
+    },
+    {
+     "dia": "2026-09-27",
+     "entrada": 0,
+     "saida": 0,
+     "saldo": 70899.07
+    },
+    {
+     "dia": "2026-09-28",
+     "entrada": 0,
+     "saida": 0,
+     "saldo": 70899.07
+    },
+    {
+     "dia": "2026-09-29",
+     "entrada": 0,
+     "saida": 0,
+     "saldo": 70899.07
+    },
+    {
+     "dia": "2026-09-30",
+     "entrada": 0,
+     "saida": 0,
+     "saldo": 70899.07
+    },
+    {
+     "dia": "2026-10-01",
+     "entrada": 5714,
+     "saida": 0,
+     "saldo": 76613.07
+    },
+    {
+     "dia": "2026-10-02",
+     "entrada": 0,
+     "saida": 0,
+     "saldo": 76613.07
+    },
+    {
+     "dia": "2026-10-03",
+     "entrada": 0,
+     "saida": 0,
+     "saldo": 76613.07
+    },
+    {
+     "dia": "2026-10-04",
+     "entrada": 0,
+     "saida": 0,
+     "saldo": 76613.07
+    },
+    {
+     "dia": "2026-10-05",
+     "entrada": 0,
+     "saida": 49500,
+     "saldo": 27113.07
+    },
+    {
+     "dia": "2026-10-06",
+     "entrada": 0,
+     "saida": 0,
+     "saldo": 27113.07
+    },
+    {
+     "dia": "2026-10-07",
+     "entrada": 0,
+     "saida": 0,
+     "saldo": 27113.07
+    },
+    {
+     "dia": "2026-10-08",
+     "entrada": 0,
+     "saida": 0,
+     "saldo": 27113.07
+    },
+    {
+     "dia": "2026-10-09",
+     "entrada": 0,
+     "saida": 0,
+     "saldo": 27113.07
+    },
+    {
+     "dia": "2026-10-10",
+     "entrada": 0,
+     "saida": 1058,
+     "saldo": 26055.07
+    },
+    {
+     "dia": "2026-10-11",
+     "entrada": 0,
+     "saida": 0,
+     "saldo": 26055.07
+    },
+    {
+     "dia": "2026-10-12",
+     "entrada": 0,
+     "saida": 0,
+     "saldo": 26055.07
+    },
+    {
+     "dia": "2026-10-13",
+     "entrada": 0,
+     "saida": 0,
+     "saldo": 26055.07
+    },
+    {
+     "dia": "2026-10-14",
+     "entrada": 0,
+     "saida": 0,
+     "saldo": 26055.07
+    },
+    {
+     "dia": "2026-10-15",
+     "entrada": 0,
+     "saida": 0,
+     "saldo": 26055.07
+    }
+   ],
+   "fecha": 26055.07,
+   "fechaMes": 70899.07,
+   "min": 26055.07,
+   "minDia": "2026-10-10",
+   "cabe": 6055.07
+  },
+  {
+   "chave": "VERIF",
+   "rot": "+ em verificação",
+   "desc": "A base mais as 16 saídas em verificação/a definir pelo valor de face (59.305).",
+   "pontos": [
+    {
+     "dia": "2026-09-15",
+     "entrada": 0,
+     "saida": 0,
+     "saldo": 111418.86
+    },
+    {
+     "dia": "2026-09-16",
+     "entrada": 11340,
+     "saida": 0,
+     "saldo": 122758.86
+    },
+    {
+     "dia": "2026-09-17",
+     "entrada": 0,
+     "saida": 0,
+     "saldo": 122758.86
+    },
+    {
+     "dia": "2026-09-18",
+     "entrada": 0,
+     "saida": 688.68,
+     "saldo": 122070.18
+    },
+    {
+     "dia": "2026-09-19",
+     "entrada": 0,
+     "saida": 0,
+     "saldo": 122070.18
+    },
+    {
+     "dia": "2026-09-20",
+     "entrada": 0,
+     "saida": 495,
+     "saldo": 121575.18
+    },
+    {
+     "dia": "2026-09-21",
+     "entrada": 57840,
+     "saida": 14721.81,
+     "saldo": 164693.37
+    },
+    {
+     "dia": "2026-09-22",
+     "entrada": 0,
+     "saida": 7329.97,
+     "saldo": 157363.4
+    },
+    {
+     "dia": "2026-09-23",
+     "entrada": 0,
+     "saida": 0,
+     "saldo": 157363.4
+    },
+    {
+     "dia": "2026-09-24",
+     "entrada": 0,
+     "saida": 550,
+     "saldo": 156813.4
+    },
+    {
+     "dia": "2026-09-25",
+     "entrada": 13117.95,
+     "saida": 167478.5,
+     "saldo": 2452.85
+    },
+    {
+     "dia": "2026-09-26",
+     "entrada": 9141.22,
+     "saida": 0,
+     "saldo": 11594.07
+    },
+    {
+     "dia": "2026-09-27",
+     "entrada": 0,
+     "saida": 0,
+     "saldo": 11594.07
+    },
+    {
+     "dia": "2026-09-28",
+     "entrada": 0,
+     "saida": 0,
+     "saldo": 11594.07
+    },
+    {
+     "dia": "2026-09-29",
+     "entrada": 0,
+     "saida": 0,
+     "saldo": 11594.07
+    },
+    {
+     "dia": "2026-09-30",
+     "entrada": 0,
+     "saida": 0,
+     "saldo": 11594.07
+    },
+    {
+     "dia": "2026-10-01",
+     "entrada": 5714,
+     "saida": 0,
+     "saldo": 17308.07
+    },
+    {
+     "dia": "2026-10-02",
+     "entrada": 0,
+     "saida": 0,
+     "saldo": 17308.07
+    },
+    {
+     "dia": "2026-10-03",
+     "entrada": 0,
+     "saida": 0,
+     "saldo": 17308.07
+    },
+    {
+     "dia": "2026-10-04",
+     "entrada": 0,
+     "saida": 0,
+     "saldo": 17308.07
+    },
+    {
+     "dia": "2026-10-05",
+     "entrada": 0,
+     "saida": 49500,
+     "saldo": -32191.93
+    },
+    {
+     "dia": "2026-10-06",
+     "entrada": 0,
+     "saida": 0,
+     "saldo": -32191.93
+    },
+    {
+     "dia": "2026-10-07",
+     "entrada": 0,
+     "saida": 0,
+     "saldo": -32191.93
+    },
+    {
+     "dia": "2026-10-08",
+     "entrada": 0,
+     "saida": 0,
+     "saldo": -32191.93
+    },
+    {
+     "dia": "2026-10-09",
+     "entrada": 0,
+     "saida": 0,
+     "saldo": -32191.93
+    },
+    {
+     "dia": "2026-10-10",
+     "entrada": 0,
+     "saida": 1058,
+     "saldo": -33249.93
+    },
+    {
+     "dia": "2026-10-11",
+     "entrada": 0,
+     "saida": 0,
+     "saldo": -33249.93
+    },
+    {
+     "dia": "2026-10-12",
+     "entrada": 0,
+     "saida": 0,
+     "saldo": -33249.93
+    },
+    {
+     "dia": "2026-10-13",
+     "entrada": 0,
+     "saida": 0,
+     "saldo": -33249.93
+    },
+    {
+     "dia": "2026-10-14",
+     "entrada": 0,
+     "saida": 0,
+     "saldo": -33249.93
+    },
+    {
+     "dia": "2026-10-15",
+     "entrada": 0,
+     "saida": 0,
+     "saldo": -33249.93
+    }
+   ],
+   "fecha": -33249.93,
+   "fechaMes": 11594.07,
+   "min": -33249.93,
+   "minDia": "2026-10-10",
+   "cabe": -53249.93
+  },
+  {
+   "chave": "ATRAS",
+   "rot": "+ atrasados",
+   "desc": "O anterior mais os 17 títulos já vencidos, pagos hoje (20.707).",
+   "pontos": [
+    {
+     "dia": "2026-09-15",
+     "entrada": 0,
+     "saida": 20707.32,
+     "saldo": 90711.54
+    },
+    {
+     "dia": "2026-09-16",
+     "entrada": 11340,
+     "saida": 0,
+     "saldo": 102051.54
+    },
+    {
+     "dia": "2026-09-17",
+     "entrada": 0,
+     "saida": 0,
+     "saldo": 102051.54
+    },
+    {
+     "dia": "2026-09-18",
+     "entrada": 0,
+     "saida": 688.68,
+     "saldo": 101362.86
+    },
+    {
+     "dia": "2026-09-19",
+     "entrada": 0,
+     "saida": 0,
+     "saldo": 101362.86
+    },
+    {
+     "dia": "2026-09-20",
+     "entrada": 0,
+     "saida": 495,
+     "saldo": 100867.86
+    },
+    {
+     "dia": "2026-09-21",
+     "entrada": 57840,
+     "saida": 14721.81,
+     "saldo": 143986.05
+    },
+    {
+     "dia": "2026-09-22",
+     "entrada": 0,
+     "saida": 7329.97,
+     "saldo": 136656.08
+    },
+    {
+     "dia": "2026-09-23",
+     "entrada": 0,
+     "saida": 0,
+     "saldo": 136656.08
+    },
+    {
+     "dia": "2026-09-24",
+     "entrada": 0,
+     "saida": 550,
+     "saldo": 136106.08
+    },
+    {
+     "dia": "2026-09-25",
+     "entrada": 13117.95,
+     "saida": 167478.5,
+     "saldo": -18254.47
+    },
+    {
+     "dia": "2026-09-26",
+     "entrada": 9141.22,
+     "saida": 0,
+     "saldo": -9113.25
+    },
+    {
+     "dia": "2026-09-27",
+     "entrada": 0,
+     "saida": 0,
+     "saldo": -9113.25
+    },
+    {
+     "dia": "2026-09-28",
+     "entrada": 0,
+     "saida": 0,
+     "saldo": -9113.25
+    },
+    {
+     "dia": "2026-09-29",
+     "entrada": 0,
+     "saida": 0,
+     "saldo": -9113.25
+    },
+    {
+     "dia": "2026-09-30",
+     "entrada": 0,
+     "saida": 0,
+     "saldo": -9113.25
+    },
+    {
+     "dia": "2026-10-01",
+     "entrada": 5714,
+     "saida": 0,
+     "saldo": -3399.25
+    },
+    {
+     "dia": "2026-10-02",
+     "entrada": 0,
+     "saida": 0,
+     "saldo": -3399.25
+    },
+    {
+     "dia": "2026-10-03",
+     "entrada": 0,
+     "saida": 0,
+     "saldo": -3399.25
+    },
+    {
+     "dia": "2026-10-04",
+     "entrada": 0,
+     "saida": 0,
+     "saldo": -3399.25
+    },
+    {
+     "dia": "2026-10-05",
+     "entrada": 0,
+     "saida": 49500,
+     "saldo": -52899.25
+    },
+    {
+     "dia": "2026-10-06",
+     "entrada": 0,
+     "saida": 0,
+     "saldo": -52899.25
+    },
+    {
+     "dia": "2026-10-07",
+     "entrada": 0,
+     "saida": 0,
+     "saldo": -52899.25
+    },
+    {
+     "dia": "2026-10-08",
+     "entrada": 0,
+     "saida": 0,
+     "saldo": -52899.25
+    },
+    {
+     "dia": "2026-10-09",
+     "entrada": 0,
+     "saida": 0,
+     "saldo": -52899.25
+    },
+    {
+     "dia": "2026-10-10",
+     "entrada": 0,
+     "saida": 1058,
+     "saldo": -53957.25
+    },
+    {
+     "dia": "2026-10-11",
+     "entrada": 0,
+     "saida": 0,
+     "saldo": -53957.25
+    },
+    {
+     "dia": "2026-10-12",
+     "entrada": 0,
+     "saida": 0,
+     "saldo": -53957.25
+    },
+    {
+     "dia": "2026-10-13",
+     "entrada": 0,
+     "saida": 0,
+     "saldo": -53957.25
+    },
+    {
+     "dia": "2026-10-14",
+     "entrada": 0,
+     "saida": 0,
+     "saldo": -53957.25
+    },
+    {
+     "dia": "2026-10-15",
+     "entrada": 0,
+     "saida": 0,
+     "saldo": -53957.25
+    }
+   ],
+   "fecha": -53957.25,
+   "fechaMes": -9113.25,
+   "min": -53957.25,
+   "minDia": "2026-10-10",
+   "cabe": -73957.25
+  },
+  {
+   "chave": "SEM_LS",
+   "rot": "Base sem LS Galeria",
+   "desc": "A base, se a e-Rural não pagar os 57.840 do LS Galeria II dentro da janela.",
+   "pontos": [
+    {
+     "dia": "2026-09-15",
+     "entrada": 0,
+     "saida": 0,
+     "saldo": 111418.86
+    },
+    {
+     "dia": "2026-09-16",
+     "entrada": 11340,
+     "saida": 0,
+     "saldo": 122758.86
+    },
+    {
+     "dia": "2026-09-17",
+     "entrada": 0,
+     "saida": 0,
+     "saldo": 122758.86
+    },
+    {
+     "dia": "2026-09-18",
+     "entrada": 0,
+     "saida": 688.68,
+     "saldo": 122070.18
+    },
+    {
+     "dia": "2026-09-19",
+     "entrada": 0,
+     "saida": 0,
+     "saldo": 122070.18
+    },
+    {
+     "dia": "2026-09-20",
+     "entrada": 0,
+     "saida": 495,
+     "saldo": 121575.18
+    },
+    {
+     "dia": "2026-09-21",
+     "entrada": 0,
+     "saida": 14721.81,
+     "saldo": 106853.37
+    },
+    {
+     "dia": "2026-09-22",
+     "entrada": 0,
+     "saida": 7329.97,
+     "saldo": 99523.4
+    },
+    {
+     "dia": "2026-09-23",
+     "entrada": 0,
+     "saida": 0,
+     "saldo": 99523.4
+    },
+    {
+     "dia": "2026-09-24",
+     "entrada": 0,
+     "saida": 550,
+     "saldo": 98973.4
+    },
+    {
+     "dia": "2026-09-25",
+     "entrada": 13117.95,
+     "saida": 108173.5,
+     "saldo": 3917.85
+    },
+    {
+     "dia": "2026-09-26",
+     "entrada": 9141.22,
+     "saida": 0,
+     "saldo": 13059.07
+    },
+    {
+     "dia": "2026-09-27",
+     "entrada": 0,
+     "saida": 0,
+     "saldo": 13059.07
+    },
+    {
+     "dia": "2026-09-28",
+     "entrada": 0,
+     "saida": 0,
+     "saldo": 13059.07
+    },
+    {
+     "dia": "2026-09-29",
+     "entrada": 0,
+     "saida": 0,
+     "saldo": 13059.07
+    },
+    {
+     "dia": "2026-09-30",
+     "entrada": 0,
+     "saida": 0,
+     "saldo": 13059.07
+    },
+    {
+     "dia": "2026-10-01",
+     "entrada": 5714,
+     "saida": 0,
+     "saldo": 18773.07
+    },
+    {
+     "dia": "2026-10-02",
+     "entrada": 0,
+     "saida": 0,
+     "saldo": 18773.07
+    },
+    {
+     "dia": "2026-10-03",
+     "entrada": 0,
+     "saida": 0,
+     "saldo": 18773.07
+    },
+    {
+     "dia": "2026-10-04",
+     "entrada": 0,
+     "saida": 0,
+     "saldo": 18773.07
+    },
+    {
+     "dia": "2026-10-05",
+     "entrada": 0,
+     "saida": 49500,
+     "saldo": -30726.93
+    },
+    {
+     "dia": "2026-10-06",
+     "entrada": 0,
+     "saida": 0,
+     "saldo": -30726.93
+    },
+    {
+     "dia": "2026-10-07",
+     "entrada": 0,
+     "saida": 0,
+     "saldo": -30726.93
+    },
+    {
+     "dia": "2026-10-08",
+     "entrada": 0,
+     "saida": 0,
+     "saldo": -30726.93
+    },
+    {
+     "dia": "2026-10-09",
+     "entrada": 0,
+     "saida": 0,
+     "saldo": -30726.93
+    },
+    {
+     "dia": "2026-10-10",
+     "entrada": 0,
+     "saida": 1058,
+     "saldo": -31784.93
+    },
+    {
+     "dia": "2026-10-11",
+     "entrada": 0,
+     "saida": 0,
+     "saldo": -31784.93
+    },
+    {
+     "dia": "2026-10-12",
+     "entrada": 0,
+     "saida": 0,
+     "saldo": -31784.93
+    },
+    {
+     "dia": "2026-10-13",
+     "entrada": 0,
+     "saida": 0,
+     "saldo": -31784.93
+    },
+    {
+     "dia": "2026-10-14",
+     "entrada": 0,
+     "saida": 0,
+     "saldo": -31784.93
+    },
+    {
+     "dia": "2026-10-15",
+     "entrada": 0,
+     "saida": 0,
+     "saldo": -31784.93
+    }
+   ],
+   "fecha": -31784.93,
+   "fechaMes": 13059.07,
+   "min": -31784.93,
+   "minDia": "2026-10-10",
+   "cabe": -51784.93
+  },
+  {
+   "chave": "IMPOSTOS",
+   "rot": "+ impostos de setembro",
+   "desc": "A base mais o ISS estimado das NFs de setembro em 15/10 (5.224,50); o DAS (11.897) vence 20/10, fora da janela.",
+   "pontos": [
+    {
+     "dia": "2026-09-15",
+     "entrada": 0,
+     "saida": 0,
+     "saldo": 111418.86
+    },
+    {
+     "dia": "2026-09-16",
+     "entrada": 11340,
+     "saida": 0,
+     "saldo": 122758.86
+    },
+    {
+     "dia": "2026-09-17",
+     "entrada": 0,
+     "saida": 0,
+     "saldo": 122758.86
+    },
+    {
+     "dia": "2026-09-18",
+     "entrada": 0,
+     "saida": 688.68,
+     "saldo": 122070.18
+    },
+    {
+     "dia": "2026-09-19",
+     "entrada": 0,
+     "saida": 0,
+     "saldo": 122070.18
+    },
+    {
+     "dia": "2026-09-20",
+     "entrada": 0,
+     "saida": 495,
+     "saldo": 121575.18
+    },
+    {
+     "dia": "2026-09-21",
+     "entrada": 57840,
+     "saida": 14721.81,
+     "saldo": 164693.37
+    },
+    {
+     "dia": "2026-09-22",
+     "entrada": 0,
+     "saida": 7329.97,
+     "saldo": 157363.4
+    },
+    {
+     "dia": "2026-09-23",
+     "entrada": 0,
+     "saida": 0,
+     "saldo": 157363.4
+    },
+    {
+     "dia": "2026-09-24",
+     "entrada": 0,
+     "saida": 550,
+     "saldo": 156813.4
+    },
+    {
+     "dia": "2026-09-25",
+     "entrada": 13117.95,
+     "saida": 108173.5,
+     "saldo": 61757.85
+    },
+    {
+     "dia": "2026-09-26",
+     "entrada": 9141.22,
+     "saida": 0,
+     "saldo": 70899.07
+    },
+    {
+     "dia": "2026-09-27",
+     "entrada": 0,
+     "saida": 0,
+     "saldo": 70899.07
+    },
+    {
+     "dia": "2026-09-28",
+     "entrada": 0,
+     "saida": 0,
+     "saldo": 70899.07
+    },
+    {
+     "dia": "2026-09-29",
+     "entrada": 0,
+     "saida": 0,
+     "saldo": 70899.07
+    },
+    {
+     "dia": "2026-09-30",
+     "entrada": 0,
+     "saida": 0,
+     "saldo": 70899.07
+    },
+    {
+     "dia": "2026-10-01",
+     "entrada": 5714,
+     "saida": 0,
+     "saldo": 76613.07
+    },
+    {
+     "dia": "2026-10-02",
+     "entrada": 0,
+     "saida": 0,
+     "saldo": 76613.07
+    },
+    {
+     "dia": "2026-10-03",
+     "entrada": 0,
+     "saida": 0,
+     "saldo": 76613.07
+    },
+    {
+     "dia": "2026-10-04",
+     "entrada": 0,
+     "saida": 0,
+     "saldo": 76613.07
+    },
+    {
+     "dia": "2026-10-05",
+     "entrada": 0,
+     "saida": 49500,
+     "saldo": 27113.07
+    },
+    {
+     "dia": "2026-10-06",
+     "entrada": 0,
+     "saida": 0,
+     "saldo": 27113.07
+    },
+    {
+     "dia": "2026-10-07",
+     "entrada": 0,
+     "saida": 0,
+     "saldo": 27113.07
+    },
+    {
+     "dia": "2026-10-08",
+     "entrada": 0,
+     "saida": 0,
+     "saldo": 27113.07
+    },
+    {
+     "dia": "2026-10-09",
+     "entrada": 0,
+     "saida": 0,
+     "saldo": 27113.07
+    },
+    {
+     "dia": "2026-10-10",
+     "entrada": 0,
+     "saida": 1058,
+     "saldo": 26055.07
+    },
+    {
+     "dia": "2026-10-11",
+     "entrada": 0,
+     "saida": 0,
+     "saldo": 26055.07
+    },
+    {
+     "dia": "2026-10-12",
+     "entrada": 0,
+     "saida": 0,
+     "saldo": 26055.07
+    },
+    {
+     "dia": "2026-10-13",
+     "entrada": 0,
+     "saida": 0,
+     "saldo": 26055.07
+    },
+    {
+     "dia": "2026-10-14",
+     "entrada": 0,
+     "saida": 0,
+     "saldo": 26055.07
+    },
+    {
+     "dia": "2026-10-15",
+     "entrada": 0,
+     "saida": 5224.5,
+     "saldo": 20830.57
+    }
+   ],
+   "fecha": 20830.57,
+   "fechaMes": 70899.07,
+   "min": 20830.57,
+   "minDia": "2026-10-15",
+   "cabe": 830.57
+  },
+  {
+   "chave": "CURTO",
+   "rot": "+ curto prazo (se validar)",
+   "desc": "A base mais os 20.669 informados hoje (Matinha, Terra Brava, e-Rural) nas datas-hipótese da pág. 05.",
+   "pontos": [
+    {
+     "dia": "2026-09-15",
+     "entrada": 0,
+     "saida": 0,
+     "saldo": 111418.86
+    },
+    {
+     "dia": "2026-09-16",
+     "entrada": 11340,
+     "saida": 0,
+     "saldo": 122758.86
+    },
+    {
+     "dia": "2026-09-17",
+     "entrada": 0,
+     "saida": 0,
+     "saldo": 122758.86
+    },
+    {
+     "dia": "2026-09-18",
+     "entrada": 4942.5,
+     "saida": 688.68,
+     "saldo": 127012.68
+    },
+    {
+     "dia": "2026-09-19",
+     "entrada": 0,
+     "saida": 0,
+     "saldo": 127012.68
+    },
+    {
+     "dia": "2026-09-20",
+     "entrada": 0,
+     "saida": 495,
+     "saldo": 126517.68
+    },
+    {
+     "dia": "2026-09-21",
+     "entrada": 57840,
+     "saida": 14721.81,
+     "saldo": 169635.87
+    },
+    {
+     "dia": "2026-09-22",
+     "entrada": 7620,
+     "saida": 7329.97,
+     "saldo": 169925.9
+    },
+    {
+     "dia": "2026-09-23",
+     "entrada": 0,
+     "saida": 0,
+     "saldo": 169925.9
+    },
+    {
+     "dia": "2026-09-24",
+     "entrada": 0,
+     "saida": 550,
+     "saldo": 169375.9
+    },
+    {
+     "dia": "2026-09-25",
+     "entrada": 13117.95,
+     "saida": 108173.5,
+     "saldo": 74320.35
+    },
+    {
+     "dia": "2026-09-26",
+     "entrada": 9141.22,
+     "saida": 0,
+     "saldo": 83461.57
+    },
+    {
+     "dia": "2026-09-27",
+     "entrada": 0,
+     "saida": 0,
+     "saldo": 83461.57
+    },
+    {
+     "dia": "2026-09-28",
+     "entrada": 0,
+     "saida": 0,
+     "saldo": 83461.57
+    },
+    {
+     "dia": "2026-09-29",
+     "entrada": 0,
+     "saida": 0,
+     "saldo": 83461.57
+    },
+    {
+     "dia": "2026-09-30",
+     "entrada": 8106.3,
+     "saida": 0,
+     "saldo": 91567.87
+    },
+    {
+     "dia": "2026-10-01",
+     "entrada": 5714,
+     "saida": 0,
+     "saldo": 97281.87
+    },
+    {
+     "dia": "2026-10-02",
+     "entrada": 0,
+     "saida": 0,
+     "saldo": 97281.87
+    },
+    {
+     "dia": "2026-10-03",
+     "entrada": 0,
+     "saida": 0,
+     "saldo": 97281.87
+    },
+    {
+     "dia": "2026-10-04",
+     "entrada": 0,
+     "saida": 0,
+     "saldo": 97281.87
+    },
+    {
+     "dia": "2026-10-05",
+     "entrada": 0,
+     "saida": 49500,
+     "saldo": 47781.87
+    },
+    {
+     "dia": "2026-10-06",
+     "entrada": 0,
+     "saida": 0,
+     "saldo": 47781.87
+    },
+    {
+     "dia": "2026-10-07",
+     "entrada": 0,
+     "saida": 0,
+     "saldo": 47781.87
+    },
+    {
+     "dia": "2026-10-08",
+     "entrada": 0,
+     "saida": 0,
+     "saldo": 47781.87
+    },
+    {
+     "dia": "2026-10-09",
+     "entrada": 0,
+     "saida": 0,
+     "saldo": 47781.87
+    },
+    {
+     "dia": "2026-10-10",
+     "entrada": 0,
+     "saida": 1058,
+     "saldo": 46723.87
+    },
+    {
+     "dia": "2026-10-11",
+     "entrada": 0,
+     "saida": 0,
+     "saldo": 46723.87
+    },
+    {
+     "dia": "2026-10-12",
+     "entrada": 0,
+     "saida": 0,
+     "saldo": 46723.87
+    },
+    {
+     "dia": "2026-10-13",
+     "entrada": 0,
+     "saida": 0,
+     "saldo": 46723.87
+    },
+    {
+     "dia": "2026-10-14",
+     "entrada": 0,
+     "saida": 0,
+     "saldo": 46723.87
+    },
+    {
+     "dia": "2026-10-15",
+     "entrada": 0,
+     "saida": 0,
+     "saldo": 46723.87
+    }
+   ],
+   "fecha": 46723.87,
+   "fechaMes": 91567.87,
+   "min": 46723.87,
+   "minDia": "2026-10-10",
+   "cabe": 26723.87
+  }
+ ],
+ "dias": [
+  "2026-09-15",
+  "2026-09-16",
+  "2026-09-17",
+  "2026-09-18",
+  "2026-09-19",
+  "2026-09-20",
+  "2026-09-21",
+  "2026-09-22",
+  "2026-09-23",
+  "2026-09-24",
+  "2026-09-25",
+  "2026-09-26",
+  "2026-09-27",
+  "2026-09-28",
+  "2026-09-29",
+  "2026-09-30",
+  "2026-10-01",
+  "2026-10-02",
+  "2026-10-03",
+  "2026-10-04",
+  "2026-10-05",
+  "2026-10-06",
+  "2026-10-07",
+  "2026-10-08",
+  "2026-10-09",
+  "2026-10-10",
+  "2026-10-11",
+  "2026-10-12",
+  "2026-10-13",
+  "2026-10-14",
+  "2026-10-15"
+ ],
+ "ressalvas": [
+  {
+   "tema": "Extrato do mesmo dia é parcial",
+   "texto": "O Sicoob foi tirado às 18:57 de 15/09. Em 10/09 o extrato das 17:20 ainda perdeu 168,90 que caíram depois. Tudo que entrar ou sair depois das 18:57 só aparece no próximo extrato."
+  },
+  {
+   "tema": "Sicredi sem extrato novo",
+   "texto": "CC 0,00 e aplicação 4.765,08 são a posição do extrato de 14/09 18:52. A aplicação rende diariamente; o residual de +0,23 lançado em 14/09 é ajuste por diferença, não linha de extrato."
+  },
+  {
+   "tema": "Data da Colonial é informada, não assinada",
+   "texto": "\"Deve ocorrer amanhã (16/09)\" é o que o João relatou após a conversa com o Aurelio. Não há mensagem da Colonial com data. Se não cair em 16/09, o título continua aberto e a curva perde 11.340 no dia."
+  },
+  {
+   "tema": "NF 643 descreve só o Pepitas",
+   "texto": "A NF fala em \"Leilão Pepitas Colonial Expogenética 22/08\", mas o valor 11.340 = 3% × 378.000 cobre também os três lotes do Noite Nacional (21/08). Se a Colonial ler a NF ao pé da letra e pagar só o Pepitas (7.830), faltam 3.510."
+  },
+  {
+   "tema": "Planilha-mestra desatualizada em 4 pontos",
+   "texto": "São Geraldo: planilha \"A RECEBER 15/09\" 25.099,00 × ERP recebido 24.904,00 em 02/09 (195,00 de diferença ou linha velha). LS Galeria II: 59.840 × 57.840. Terra Brava 3ª parcela: 2.745 × 2.405. Colonial: 15.615 × NF 11.340. Projetado pelo ERP."
+  },
+  {
+   "tema": "LS Galeria II está na curva por data de regra",
+   "texto": "57.840 em 21/09 é leilão+45d, não acordo. Está na curva porque a e-Rural pagou Sorriso Touros 7 dias antes e Bambú 16 dias antes da regra — mas Sorriso Fêmeas saiu 16 dias DEPOIS. O cenário \"sem LS Galeria\" mostra o mês sem ele."
+  },
+  {
+   "tema": "Saídas \"em verificação\" podem virar pagamento",
+   "texto": "59.305,00 em 16 títulos com valor/beneficiário discutido (LS Galeria 22.800 a definir, Sabiá Dourado 5.535, Genética Aditiva 6.640, cartões…). Não estão na curva base; o cenário \"+ em verificação\" soma tudo pelo valor de face."
+  },
+  {
+   "tema": "Folha de setembro é projeção",
+   "texto": "Os 49.500 de 05/10 são o cadastro da folha (origem estimativa). Em 01/09 a folha real foi 47.951,61 (Douglas 10.000 contra 12.500 cadastrados). Cartões de 22/09 (5.949,84 + 1.380,13) são valores da fatura anterior, não da fatura que vai fechar."
+  },
+  {
+   "tema": "Impostos de setembro não existem no ERP",
+   "texto": "ISS (~15/10) e DAS (20/10) da competência 09/2026 não foram lançados. A estimativa usa só as NFs vistas (638, 639, 643 = 104.489,97); NFs 640–642, se existirem, aumentam a base."
+  },
+  {
+   "tema": "Rel_TitulosGeral.pdf não foi usado",
+   "texto": "O relatório \"Planilha Financeira — Receitas e Despesas\" baixado 15/09 10:15 é de outro sistema (usuário \"João Pereira da Silva\"), cobre vencimentos de AGOSTO e mistura Assessoria e Remates. Não entra na posição de caixa."
+  },
+  {
+   "tema": "PIX de 50,00 sem dono (14/09)",
+   "texto": "Continua classificado sem categoria: CPF ***.978.691-** não casa com cadastro e não tem memo. É o único movimento fora de conciliado."
+  },
+  {
+   "tema": "Duas perguntas de 14/09 seguem abertas",
+   "texto": "792,00 \"comissão venda Raphael Coelho\" ao Marcelo (origem da venda a confirmar) e os 550,00 \"sistemas Codex\" (mesmo valor da assinatura Anthropic de 24/09, que segue aberta)."
+  },
+  {
+   "tema": "Hotel do João em BH (508,68) foi lançado como obrigação",
+   "texto": "Reserva Booking 6034.917.103 sem pré-pagamento, check-out 18/09. Está na curva base como saída de 18/09; a pendência registrada é confirmar que é despesa da Bula (mesma viagem do Leonardo, cuja estadia de 653,18 foi reembolsada hoje)."
+  },
+  {
+   "tema": "O curto prazo informado às 19h não entrou na base",
+   "texto": "Matinha 11.040, Terra Brava 4.686,30 e e-Rural/Marcondes 4.942,50 (total 20.668,80) aparecem só no cenário \"+ curto prazo\", com datas-hipótese. Você mesmo disse que falta validar antes de emitir nota. O Terra Brava ainda está no ERP em 11.984,49: foi anotado, não corrigido."
+  },
+  {
+   "tema": "Marcondes: o portal da e-Rural vê 3 itens, o ERP vê 1 lote",
+   "texto": "O portal consolida 4.012,50 (5% × 80.250) para o Marcondes Abertura de 23/08; o fechamento do ERP e a planilha têm um lote de 37.500 (1.875). Ou a Bula vendeu mais do que registrou, ou o portal soma item de outro. Conferir antes de anexar a NF."
+  }
+ ],
+ "saidasAteFimMes": {
+  "total": 191263.96,
+  "firme": 131958.96,
+  "verificacao": 59305
+ },
+ "entradasAteFimMes": 91439.17
+}
