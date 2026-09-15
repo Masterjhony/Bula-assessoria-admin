@@ -149,6 +149,11 @@ function createSession(id) {
     // esses já são logados pelo gateway. Só o que o humano digita no aparelho
     // (fromMe sem id conhecido) vira espelho.
     ownSentIds: new Set(),
+    // Últimas chaves de mensagem vistas por chat (jid → [{id, fromMe, participant, ts}]).
+    // Só em memória e só as 20 mais recentes: é a ÂNCORA que o history sync
+    // sob demanda (POST /history/fetch) exige — o WhatsApp devolve o que veio
+    // ANTES de uma mensagem conhecida, nunca "as últimas N" de um chat.
+    recentKeys: new Map(),
     // Cache curto de nome dos grupos. O JID sozinho não basta para casar a
     // mensagem com a allowlist da Central Operacional.
     groupNames: new Map(),
@@ -1036,9 +1041,25 @@ async function startSocket(session) {
   session.socket.ev.on('messages.upsert', async ({ messages, type }) => {
     if (type !== 'notify') return
     for (const msg of messages) {
+      rememberKey(session, msg)
       try { await handleInbound(session, msg) } catch (e) { console.error(`[${session.id}] handleInbound:`, e.message) }
     }
   })
+}
+
+/** Guarda a chave da mensagem no buffer curto do chat (ver Session.recentKeys). */
+function rememberKey(session, msg) {
+  const jid = msg?.key?.remoteJid
+  const id = msg?.key?.id
+  if (!jid || !id) return
+  const tsRaw = msg.messageTimestamp
+  const ts = tsRaw ? Number(typeof tsRaw === 'object' && tsRaw.toNumber ? tsRaw.toNumber() : tsRaw) : null
+  const list = session.recentKeys.get(jid) || []
+  list.push({ id, fromMe: !!msg.key.fromMe, participant: msg.key.participant || null, ts: Number.isFinite(ts) ? ts : null })
+  while (list.length > 20) list.shift()
+  session.recentKeys.set(jid, list)
+  // Limite de chats lembrados: descarta o mais antigo inserido.
+  if (session.recentKeys.size > 300) session.recentKeys.delete(session.recentKeys.keys().next().value)
 }
 
 // ── Bootstrap de sessões ──────────────────────────────────────────────────────
@@ -1339,6 +1360,56 @@ const server = http.createServer(async (req, res) => {
           } : {}),
         }))
         json(res, 200, { groups })
+      } catch (error) {
+        json(res, 500, { error: error instanceof Error ? error.message : String(error) })
+      }
+      return
+    }
+
+    // Chaves recentes de um chat (âncora para /history/fetch). Só memória.
+    if (req.method === 'GET' && url.pathname === '/history/keys') {
+      const session = resolveSession(url)
+      if (!session) { json(res, 404, { error: 'unknown_session' }); return }
+      const jid = (url.searchParams.get('jid') || '').trim()
+      if (jid) { json(res, 200, { jid, keys: session.recentKeys.get(jid) || [] }); return }
+      json(res, 200, { chats: [...session.recentKeys.entries()].map(([j, keys]) => ({ jid: j, keys })) })
+      return
+    }
+
+    // Histórico SOB DEMANDA: pede ao celular pareado as `count` mensagens de
+    // um chat ANTERIORES à âncora (id + timestamp de uma mensagem conhecida).
+    // Só leitura — nada é enviado ao chat. A resposta chega assíncrona no
+    // evento messaging-history.set (syncType ON_DEMAND) e cai em
+    // HISTORY_DUMP_DIR como qualquer history sync; o chamador lê o dump.
+    // Sem `oldestMsgId`, usa a chave mais antiga lembrada em recentKeys.
+    if (req.method === 'POST' && url.pathname === '/history/fetch') {
+      const body = await readJson(req)
+      const session = resolveSession(url)
+      if (!session) { json(res, 404, { error: 'unknown_session' }); return }
+      if (!session.socket || session.connectionStatus !== 'connected') {
+        json(res, 503, { error: 'whatsapp_disconnected' })
+        return
+      }
+      const jid = String(body.jid || '').trim()
+      if (!jid) { json(res, 400, { error: 'jid_required' }); return }
+      const count = Math.max(1, Math.min(Number(body.count) || 50, 500))
+      let anchor = null
+      if (body.oldestMsgId) {
+        anchor = { id: String(body.oldestMsgId), fromMe: !!body.oldestMsgFromMe, participant: body.participant || null,
+          ts: Number(body.oldestMsgTimestamp) || Math.floor(Date.now() / 1000) }
+      } else {
+        const known = session.recentKeys.get(jid) || []
+        anchor = known[0] || null
+      }
+      if (!anchor) { json(res, 409, { error: 'no_anchor', hint: 'informe oldestMsgId/oldestMsgTimestamp ou aguarde uma mensagem nova do chat' }); return }
+      try {
+        const key = { remoteJid: jid, id: anchor.id, fromMe: anchor.fromMe, ...(anchor.participant ? { participant: anchor.participant } : {}) }
+        // O campo do protocolo é oldestMsgTimestampMs (milissegundos); `tsRaw`
+        // passa o valor sem conversão, para diagnóstico.
+        const tsMs = body.tsRaw != null ? Number(body.tsRaw) : (anchor.ts > 1e12 ? anchor.ts : anchor.ts * 1000)
+        const requestId = await session.socket.fetchMessageHistory(count, key, tsMs)
+        console.log(`[${session.id}] history/fetch ${jid} count=${count} anchor=${anchor.id}@${tsMs} → ${requestId}`)
+        json(res, 200, { ok: true, requestId, anchor: { ...key, ts: tsMs }, count })
       } catch (error) {
         json(res, 500, { error: error instanceof Error ? error.message : String(error) })
       }
